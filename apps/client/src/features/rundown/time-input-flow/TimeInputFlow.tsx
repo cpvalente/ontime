@@ -5,7 +5,7 @@ import { TimeField, TimeStrategy } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { useEventAction } from '../../../common/hooks/useEventAction';
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayFast, tooltipDelayMid } from '../../../ontimeConfig';
 import * as Editor from '../../editors/editor-utils/EditorUtils';
@@ -26,7 +26,7 @@ interface EventBlockTimerProps {
 
 function TimeInputFlow(props: EventBlockTimerProps) {
   const { eventId, countToEnd, timeStart, timeEnd, duration, timeStrategy, linkStart, delay, showLabels } = props;
-  const { updateEntry, updateTimer } = useEntryActions();
+  const { updateEvent, updateTimer } = useEventAction();
 
   // In sync with EventEditorTimes
   const handleSubmit = (field: TimeField, value: string) => {
@@ -34,11 +34,11 @@ function TimeInputFlow(props: EventBlockTimerProps) {
   };
 
   const handleChangeStrategy = (timeStrategy: TimeStrategy) => {
-    updateEntry({ id: eventId, timeStrategy });
+    updateEvent({ id: eventId, timeStrategy });
   };
 
   const handleLink = (doLink: boolean) => {
-    updateEntry({ id: eventId, linkStart: doLink });
+    updateEvent({ id: eventId, linkStart: doLink });
   };
 
   const warnings = [];

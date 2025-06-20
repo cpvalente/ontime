@@ -8,13 +8,13 @@ import {
   addEvent,
   applyDelay,
   batchEditEvents,
-  deleteAllEntries,
+  deleteAllEvents,
   deleteEvent,
   editEvent,
-  reorderEntry,
+  reorderEvent,
   swapEvents,
 } from '../../services/rundown-service/RundownService.js';
-import { getEntryWithId, getCurrentRundown } from '../../services/rundown-service/rundownUtils.js';
+import { getEventWithId, getCurrentRundown } from '../../services/rundown-service/rundownUtils.js';
 
 export async function rundownGetAll(_req: Request, res: Response<ProjectRundownsList>) {
   const rundown = getCurrentRundown();
@@ -30,7 +30,7 @@ export async function rundownGetById(req: Request, res: Response<OntimeEntry | E
   const { eventId } = req.params;
 
   try {
-    const event = getEntryWithId(eventId);
+    const event = getEventWithId(eventId);
 
     if (!event) {
       res.status(404).send({ message: 'Event not found' });
@@ -93,7 +93,7 @@ export async function rundownReorder(req: Request, res: Response<OntimeEntry | E
 
   try {
     const { eventId, from, to } = req.body;
-    const event = await reorderEntry(eventId, from, to);
+    const event = await reorderEvent(eventId, from, to);
     res.status(200).send(event.newEvent);
   } catch (error) {
     const message = getErrorMessage(error);
@@ -128,7 +128,7 @@ export async function rundownApplyDelay(req: Request, res: Response<MessageRespo
 
 export async function rundownDelete(_req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
-    await deleteAllEntries();
+    await deleteAllEvents();
     res.status(204).send({ message: 'All events deleted' });
   } catch (error) {
     const message = getErrorMessage(error);

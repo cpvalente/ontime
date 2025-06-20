@@ -11,23 +11,23 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useAppMode } from '../../../common/stores/appModeStore';
 import { useEventSelection } from '../useEventSelection';
 
 export default function RundownMenu() {
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
   const appMode = useAppMode((state) => state.mode);
-  const { deleteAllEntries } = useEntryActions();
+  const { deleteAllEvents } = useEventAction();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef<HTMLButtonElement | null>(null);
 
   const deleteAll = useCallback(() => {
-    deleteAllEntries();
+    deleteAllEvents();
     clearSelectedEvents();
     onClose();
-  }, [clearSelectedEvents, deleteAllEntries, onClose]);
+  }, [clearSelectedEvents, deleteAllEvents, onClose]);
 
   return (
     <>

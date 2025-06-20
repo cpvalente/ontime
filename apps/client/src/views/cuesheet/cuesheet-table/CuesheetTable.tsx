@@ -3,7 +3,7 @@ import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { isOntimeEvent, MaybeString, OntimeEntry, OntimeEvent, TimeField } from 'ontime-types';
 
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { useEventAction } from '../../../common/hooks/useEventAction';
 import useFollowComponent from '../../../common/hooks/useFollowComponent';
 import { useCuesheetOptions } from '../cuesheet.options';
 
@@ -24,7 +24,7 @@ interface CuesheetTableProps {
 export default function CuesheetTable(props: CuesheetTableProps) {
   const { data, columns, showModal } = props;
 
-  const { updateEntry, updateTimer } = useEntryActions();
+  const { updateEvent, updateTimer } = useEventAction();
   const { followSelected, showDelayedTimes, hideTableSeconds } = useCuesheetOptions();
   const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
     useColumnManager(columns);
@@ -64,11 +64,11 @@ export default function CuesheetTable(props: CuesheetTableProps) {
         }
 
         if (isCustom) {
-          updateEntry({ id: event.id, custom: { [accessor]: payload } });
+          updateEvent({ id: event.id, custom: { [accessor]: payload } });
           return;
         }
 
-        updateEntry({ id: event.id, [accessor]: payload });
+        updateEvent({ id: event.id, [accessor]: payload });
       },
       handleUpdateTimer: (eventId: string, field: TimeField, payload) => {
         // the timer element already contains logic to avoid submitting a unchanged value

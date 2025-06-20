@@ -6,7 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { OntimeDelay } from 'ontime-types';
 
 import DelayInput from '../../../common/components/input/delay-input/DelayInput';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { useEventAction } from '../../../common/hooks/useEventAction';
 import { cx } from '../../../common/utils/styleUtils';
 
 import style from './DelayBlock.module.scss';
@@ -18,7 +18,7 @@ interface DelayBlockProps {
 
 export default function DelayBlock(props: DelayBlockProps) {
   const { data, hasCursor } = props;
-  const { applyDelay, deleteEntry } = useEntryActions();
+  const { applyDelay, deleteEvent } = useEventAction();
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
   const {
@@ -48,7 +48,7 @@ export default function DelayBlock(props: DelayBlockProps) {
   };
 
   const cancelDelayHandler = () => {
-    deleteEntry([data.id]);
+    deleteEvent([data.id]);
   };
 
   const blockClasses = cx([style.delay, hasCursor ? style.hasCursor : null]);

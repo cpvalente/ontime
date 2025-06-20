@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  EntryId,
   isOntimeEvent,
   MaybeString,
+  OntimeBlock,
+  OntimeDelay,
   OntimeEntry,
   OntimeEvent,
   Rundown,
@@ -15,15 +16,15 @@ import { dayInMs, MILLIS_PER_SECOND, parseUserTime, reorderArray, swapEventData 
 
 import { RUNDOWN } from '../api/constants';
 import {
-  deleteEntries,
-  patchReorderEntry,
-  postAddEntry,
-  putBatchEditEvents,
-  putEditEntry,
   ReorderEntry,
   requestApplyDelay,
+  requestBatchPutEvents,
+  requestDelete,
   requestDeleteAll,
   requestEventSwap,
+  requestPostEvent,
+  requestPutEvent,
+  requestReorderEvent,
   SwapEntry,
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
@@ -40,9 +41,9 @@ export type EventOptions = Partial<{
 }>;
 
 /**
- * Gather utilities for actions on entries
+ * @description Set of utilities for events //TODO: should this be called useEntryAction and so on
  */
-export const useEntryActions = () => {
+export const useEventAction = () => {
   const queryClient = useQueryClient();
   const {
     defaultPublic,
@@ -55,8 +56,8 @@ export const useEntryActions = () => {
     defaultEndAction,
   } = useEditorSettings();
 
-  const getEntryById = useCallback(
-    (eventId: string): OntimeEntry | undefined => {
+  const getEventById = useCallback(
+    (eventId: string) => {
       const cachedRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
       if (!cachedRundown?.entries) {
         return;
@@ -67,11 +68,11 @@ export const useEntryActions = () => {
   );
 
   /**
-   * Calls mutation to add new entry
+   * Calls mutation to add new event
    * @private
    */
-  const _addEntryMutation = useMutation({
-    mutationFn: postAddEntry,
+  const _addEventMutation = useMutation({
+    mutationFn: requestPostEvent,
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
@@ -79,14 +80,14 @@ export const useEntryActions = () => {
   });
 
   /**
-   * Adds an entry to rundown
+   * Adds an event to rundown
    */
-  const addEntry = useCallback(
-    async (entry: Partial<OntimeEntry>, options?: EventOptions) => {
-      const newEntry: TransientEventPayload = { ...entry };
+  const addEvent = useCallback(
+    async (event: Partial<OntimeEvent | OntimeDelay | OntimeBlock>, options?: EventOptions) => {
+      const newEvent: TransientEventPayload = { ...event };
 
       // ************* CHECK OPTIONS specific to events
-      if (isOntimeEvent(newEntry)) {
+      if (isOntimeEvent(newEvent)) {
         // merge creation time options with event settings
         const applicationOptions = {
           after: options?.after,
@@ -101,57 +102,57 @@ export const useEntryActions = () => {
           const rundownData = queryClient.getQueryData<Rundown>(RUNDOWN)!;
           const previousEvent = rundownData.entries[applicationOptions.lastEventId];
           if (isOntimeEvent(previousEvent)) {
-            newEntry.timeStart = previousEvent.timeEnd;
+            newEvent.timeStart = previousEvent.timeEnd;
           }
         }
 
         // Override event with options from editor settings
-        newEntry.linkStart = applicationOptions.linkPrevious;
-        newEntry.isPublic = applicationOptions.defaultPublic;
+        newEvent.linkStart = applicationOptions.linkPrevious;
+        newEvent.isPublic = applicationOptions.defaultPublic;
 
-        if (newEntry.duration === undefined && newEntry.timeEnd === undefined) {
-          newEntry.duration = parseUserTime(defaultDuration);
+        if (newEvent.duration === undefined && newEvent.timeEnd === undefined) {
+          newEvent.duration = parseUserTime(defaultDuration);
         }
 
-        if (newEntry.timeDanger === undefined) {
-          newEntry.timeDanger = parseUserTime(defaultDangerTime);
+        if (newEvent.timeDanger === undefined) {
+          newEvent.timeDanger = parseUserTime(defaultDangerTime);
         }
 
-        if (newEntry.timeWarning === undefined) {
-          newEntry.timeWarning = parseUserTime(defaultWarnTime);
+        if (newEvent.timeWarning === undefined) {
+          newEvent.timeWarning = parseUserTime(defaultWarnTime);
         }
 
-        if (newEntry.timerType === undefined) {
-          newEntry.timerType = defaultTimerType;
+        if (newEvent.timerType === undefined) {
+          newEvent.timerType = defaultTimerType;
         }
 
-        if (newEntry.endAction === undefined) {
-          newEntry.endAction = defaultEndAction;
+        if (newEvent.endAction === undefined) {
+          newEvent.endAction = defaultEndAction;
         }
 
-        if (newEntry.timeStrategy === undefined) {
-          newEntry.timeStrategy = defaultTimeStrategy;
+        if (newEvent.timeStrategy === undefined) {
+          newEvent.timeStrategy = defaultTimeStrategy;
         }
       }
 
       // handle adding options that concern all event type
       if (options?.after) {
         // @ts-expect-error -- not sure how to type this, <after> is a transient property
-        newEntry.after = options.after;
+        newEvent.after = options.after;
       }
       if (options?.before) {
         // @ts-expect-error -- not sure how to type this, <before> is a transient property
-        newEntry.before = options.before;
+        newEvent.before = options.before;
       }
 
       try {
-        await _addEntryMutation.mutateAsync(newEntry as TransientEventPayload);
+        await _addEventMutation.mutateAsync(newEvent as TransientEventPayload);
       } catch (error) {
         logAxiosError('Failed adding event', error);
       }
     },
     [
-      _addEntryMutation,
+      _addEventMutation,
       defaultDangerTime,
       defaultDuration,
       defaultEndAction,
@@ -165,11 +166,11 @@ export const useEntryActions = () => {
   );
 
   /**
-   * Calls mutation to update existing entry
+   * Calls mutation to update existing event
    * @private
    */
-  const _updateEntryMutation = useMutation({
-    mutationFn: putEditEntry,
+  const _updateEventMutation = useMutation({
+    mutationFn: requestPutEvent,
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
@@ -209,35 +210,35 @@ export const useEntryActions = () => {
   });
 
   /**
-   * Updates existing entry
+   * Updates existing event
    */
-  const updateEntry = useCallback(
+  const updateEvent = useCallback(
     async (event: Partial<OntimeEntry>) => {
       try {
-        await _updateEntryMutation.mutateAsync(event);
+        await _updateEventMutation.mutateAsync(event);
       } catch (error) {
         logAxiosError('Error updating event', error);
       }
     },
-    [_updateEntryMutation],
+    [_updateEventMutation],
   );
 
   const updateCustomField = useCallback(
-    async (entryId: EntryId, field: string, value: string) => {
-      updateEntry({ id: entryId, custom: { [field]: value } });
+    async (eventId: string, field: string, value: string) => {
+      updateEvent({ id: eventId, custom: { [field]: value } });
     },
-    [updateEntry],
+    [updateEvent],
   );
 
   /**
    * Updates time of existing event
-   * @param eventId {EntryId} - id of the event
+   * @param eventId {string} - id of the event
    * @param field {TimeField} - field to update
    * @param value {string} - new value string to be parsed
    * @param lockOnUpdate {boolean} - whether we will apply the lock / release on update
    */
   const updateTimer = useCallback(
-    async (eventId: EntryId, field: TimeField, value: string, lockOnUpdate?: boolean) => {
+    async (eventId: string, field: TimeField, value: string, lockOnUpdate?: boolean) => {
       // an empty value with no lock has no domain validity
       if (!lockOnUpdate && value === '') {
         return;
@@ -267,7 +268,7 @@ export const useEntryActions = () => {
       }
 
       try {
-        await _updateEntryMutation.mutateAsync(newEvent);
+        await _updateEventMutation.mutateAsync(newEvent);
       } catch (error) {
         logAxiosError('Error updating event', error);
       }
@@ -319,7 +320,7 @@ export const useEntryActions = () => {
         return previousEnd;
       }
     },
-    [_updateEntryMutation, queryClient],
+    [_updateEventMutation, queryClient],
   );
 
   /**
@@ -327,7 +328,7 @@ export const useEntryActions = () => {
    * @private
    */
   const _batchUpdateEventsMutation = useMutation({
-    mutationFn: putBatchEditEvents,
+    mutationFn: requestBatchPutEvents,
     onMutate: async ({ ids, data }) => {
       // cancel ongoing queries
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
@@ -359,7 +360,6 @@ export const useEntryActions = () => {
           revision: -1,
         });
       }
-
       // Return a context with the previous rundown
       return { previousRundown };
     },
@@ -384,13 +384,13 @@ export const useEntryActions = () => {
   );
 
   /**
-   * Calls mutation to delete an entry
+   * Calls mutation to delete an event
    * @private
    */
-  const _deleteEntryMutation = useMutation({
-    mutationFn: deleteEntries,
+  const _deleteEventMutation = useMutation({
+    mutationFn: requestDelete,
     // we optimistically update here
-    onMutate: async (entryIds: EntryId[]) => {
+    onMutate: async (eventIds: string[]) => {
       // cancel ongoing queries
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
@@ -399,9 +399,9 @@ export const useEntryActions = () => {
 
       if (previousData) {
         // optimistically update object
-        const newOrder = previousData.order.filter((id) => !entryIds.includes(id));
+        const newOrder = previousData.order.filter((id) => !eventIds.includes(id));
         const newRundown = { ...previousData.entries };
-        for (const eventId of entryIds) {
+        for (const eventId of eventIds) {
           delete newRundown[eventId];
         }
 
@@ -419,7 +419,7 @@ export const useEntryActions = () => {
     },
 
     // Mutation fails, rollback undoes optimist update
-    onError: (_error, _entryIds, context) => {
+    onError: (_error, _eventId, context) => {
       queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
     },
     // Mutation finished, failed or successful
@@ -431,24 +431,24 @@ export const useEntryActions = () => {
   });
 
   /**
-   * Deletes an event entry from the rundown
+   * Deletes an event form the list
    */
-  const deleteEntry = useCallback(
-    async (entryIds: EntryId[]) => {
+  const deleteEvent = useCallback(
+    async (eventIds: string[]) => {
       try {
-        await _deleteEntryMutation.mutateAsync(entryIds);
+        await _deleteEventMutation.mutateAsync(eventIds);
       } catch (error) {
         logAxiosError('Error deleting event', error);
       }
     },
-    [_deleteEntryMutation],
+    [_deleteEventMutation],
   );
 
   /**
    * Calls mutation to delete all events
    * @private
    */
-  const _deleteAllEntriesMutation = useMutation({
+  const _deleteAllEventsMutation = useMutation({
     mutationFn: requestDeleteAll,
     // we optimistically update here
     onMutate: async () => {
@@ -471,8 +471,8 @@ export const useEntryActions = () => {
       return { previousData };
     },
 
-    // Mutation fails, rollback optimist update
-    onError: (_error, _, context) => {
+    // Mutation fails, rollback undos optimist update
+    onError: (_error, _eventId, context) => {
       queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
     },
     // Mutation finished, failed or successful
@@ -484,15 +484,15 @@ export const useEntryActions = () => {
   });
 
   /**
-   * Deletes all entries in the rundown
+   * Deletes all events from list
    */
-  const deleteAllEntries = useCallback(async () => {
+  const deleteAllEvents = useCallback(async () => {
     try {
-      await _deleteAllEntriesMutation.mutateAsync();
+      await _deleteAllEventsMutation.mutateAsync();
     } catch (error) {
       logAxiosError('Error deleting events', error);
     }
-  }, [_deleteAllEntriesMutation]);
+  }, [_deleteAllEventsMutation]);
 
   /**
    * Calls mutation to apply a delay
@@ -508,7 +508,7 @@ export const useEntryActions = () => {
   });
 
   /**
-   * Applies a given delay
+   * Applies a given delay block
    */
   const applyDelay = useCallback(
     async (delayEventId: string) => {
@@ -522,11 +522,11 @@ export const useEntryActions = () => {
   );
 
   /**
-   * Calls mutation to reorder an entry
+   * Calls mutation to reorder an event
    * @private
    */
-  const _reorderEntryMutation = useMutation({
-    mutationFn: patchReorderEntry,
+  const _reorderEventMutation = useMutation({
+    mutationFn: requestReorderEvent,
     // we optimistically update here
     onMutate: async (data) => {
       // cancel ongoing queries
@@ -552,7 +552,7 @@ export const useEntryActions = () => {
     },
 
     // Mutation fails, rollback undoes optimist update
-    onError: (_error, _data, context) => {
+    onError: (_error, _eventId, context) => {
       queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
     },
     // Mutation finished, failed or successful
@@ -564,22 +564,22 @@ export const useEntryActions = () => {
   });
 
   /**
-   * Reorders a given entry
+   * Reorders a given event
    */
-  const reorderEntry = useCallback(
-    async (entryId: string, from: number, to: number) => {
+  const reorderEvent = useCallback(
+    async (eventId: string, from: number, to: number) => {
       try {
         const reorderObject: ReorderEntry = {
-          eventId: entryId,
+          eventId,
           from,
           to,
         };
-        await _reorderEntryMutation.mutateAsync(reorderObject);
+        await _reorderEventMutation.mutateAsync(reorderObject);
       } catch (error) {
         logAxiosError('Error re-ordering event', error);
       }
     },
-    [_reorderEntryMutation],
+    [_reorderEventMutation],
   );
 
   /**
@@ -649,15 +649,15 @@ export const useEntryActions = () => {
   );
 
   return {
-    addEntry,
+    addEvent,
     applyDelay,
     batchUpdateEvents,
-    deleteEntry,
-    deleteAllEntries,
-    getEntryById,
-    reorderEntry,
+    deleteEvent,
+    deleteAllEvents,
+    getEventById,
+    reorderEvent,
     swapEvents,
-    updateEntry,
+    updateEvent,
     updateTimer,
     updateCustomField,
   };

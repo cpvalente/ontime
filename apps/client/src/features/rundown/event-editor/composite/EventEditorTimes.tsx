@@ -5,7 +5,7 @@ import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
-import { useEntryActions } from '../../../../common/hooks/useEntryAction';
+import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
 import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
@@ -46,27 +46,27 @@ function EventEditorTimes(props: EventEditorTimesProps) {
     timeWarning,
     timeDanger,
   } = props;
-  const { updateEntry } = useEntryActions();
+  const { updateEvent } = useEventAction();
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
     if (field === 'isPublic') {
-      updateEntry({ id: eventId, isPublic: !(value as boolean) });
+      updateEvent({ id: eventId, isPublic: !(value as boolean) });
       return;
     }
 
     if (field === 'countToEnd') {
-      updateEntry({ id: eventId, countToEnd: !(value as boolean) });
+      updateEvent({ id: eventId, countToEnd: !(value as boolean) });
       return;
     }
 
     if (field === 'timeWarning' || field === 'timeDanger') {
       const newTime = parseUserTime(value as string);
-      updateEntry({ id: eventId, [field]: newTime });
+      updateEvent({ id: eventId, [field]: newTime });
       return;
     }
 
     if (field === 'timerType' || field === 'endAction') {
-      updateEntry({ id: eventId, [field]: value });
+      updateEvent({ id: eventId, [field]: value });
       return;
     }
   };

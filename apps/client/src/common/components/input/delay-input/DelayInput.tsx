@@ -2,7 +2,7 @@ import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Input, Radio, RadioGroup } from '@chakra-ui/react';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
-import { useEntryActions } from '../../../hooks/useEntryAction';
+import { useEventAction } from '../../../hooks/useEventAction';
 
 import style from './DelayInput.module.scss';
 
@@ -13,7 +13,7 @@ interface DelayInputProps {
 
 export default function DelayInput(props: DelayInputProps) {
   const { eventId, duration } = props;
-  const { updateEntry } = useEntryActions();
+  const { updateEvent } = useEventAction();
 
   const [value, setValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -54,7 +54,7 @@ export default function DelayInput(props: DelayInputProps) {
   };
 
   const submitChange = (value: number) => {
-    updateEntry({
+    updateEvent({
       id: eventId,
       duration: value,
     });

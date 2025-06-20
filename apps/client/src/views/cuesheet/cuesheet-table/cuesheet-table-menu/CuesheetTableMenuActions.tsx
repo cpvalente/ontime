@@ -2,7 +2,7 @@ import { IoAdd, IoArrowDown, IoArrowUp, IoDuplicateOutline, IoOptions, IoTrash }
 import { MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
 import { isOntimeEvent, SupportedEvent } from 'ontime-types';
 
-import { useEntryActions } from '../../../../common/hooks/useEntryAction';
+import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { cloneEvent } from '../../../../common/utils/eventsManager';
 
 interface CuesheetTableMenuActionsProps {
@@ -13,17 +13,17 @@ interface CuesheetTableMenuActionsProps {
 
 export default function CuesheetTableMenuActions(props: CuesheetTableMenuActionsProps) {
   const { eventId, entryIndex, showModal } = props;
-  const { addEntry, getEntryById, reorderEntry, deleteEntry } = useEntryActions();
+  const { addEvent, getEventById, reorderEvent, deleteEvent } = useEventAction();
 
   const handleCloneEvent = () => {
-    const currentEvent = getEntryById(eventId);
+    const currentEvent = getEventById(eventId);
     if (!currentEvent || !isOntimeEvent(currentEvent)) {
       return;
     }
 
     const newEvent = cloneEvent(currentEvent);
     try {
-      addEntry(newEvent, { after: eventId });
+      addEvent(newEvent, { after: eventId });
     } catch (_error) {
       // we do not handle errors here
     }
@@ -35,10 +35,10 @@ export default function CuesheetTableMenuActions(props: CuesheetTableMenuActions
         Edit ...
       </MenuItem>
       <MenuDivider />
-      <MenuItem icon={<IoAdd />} onClick={() => addEntry({ type: SupportedEvent.Event }, { before: eventId })}>
+      <MenuItem icon={<IoAdd />} onClick={() => addEvent({ type: SupportedEvent.Event }, { before: eventId })}>
         Add event above
       </MenuItem>
-      <MenuItem icon={<IoAdd />} onClick={() => addEntry({ type: SupportedEvent.Event }, { after: eventId })}>
+      <MenuItem icon={<IoAdd />} onClick={() => addEvent({ type: SupportedEvent.Event }, { after: eventId })}>
         Add event below
       </MenuItem>
       <MenuItem icon={<IoDuplicateOutline />} onClick={handleCloneEvent}>
@@ -48,14 +48,14 @@ export default function CuesheetTableMenuActions(props: CuesheetTableMenuActions
       <MenuItem
         isDisabled={entryIndex < 1}
         icon={<IoArrowUp />}
-        onClick={() => reorderEntry(eventId, entryIndex, entryIndex - 1)}
+        onClick={() => reorderEvent(eventId, entryIndex, entryIndex - 1)}
       >
         Move up
       </MenuItem>
-      <MenuItem icon={<IoArrowDown />} onClick={() => reorderEntry(eventId, entryIndex, entryIndex + 1)}>
+      <MenuItem icon={<IoArrowDown />} onClick={() => reorderEvent(eventId, entryIndex, entryIndex + 1)}>
         Move down
       </MenuItem>
-      <MenuItem icon={<IoTrash />} onClick={() => deleteEntry([eventId])}>
+      <MenuItem icon={<IoTrash />} onClick={() => deleteEvent([eventId])}>
         Delete
       </MenuItem>
     </MenuList>
