@@ -25,8 +25,7 @@ export const rundownPutValidator = [
 
 export const rundownBatchPutValidator = [
   body('data').isObject().exists(),
-  body('ids').isArray().notEmpty(),
-  body('ids.*').isString(),
+  body('ids').isArray().exists(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

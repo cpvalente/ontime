@@ -1,24 +1,26 @@
-import { makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { getPreviousId } from '../rundownUtils.js';
 
-describe('getPreviousId', () => {
-  const rundown = makeRundown({
+// Mock cache module
+vi.mock('../rundownCache.js', () => ({
+  getEventOrder: () => ({
     flatOrder: ['a', 'b', 'c', 'd'],
-  });
+  }),
+}));
 
+describe('getPreviousId', () => {
   it('returns afterId if provided', () => {
-    expect(getPreviousId(rundown, 'b')).toBe('b');
+    expect(getPreviousId('b')).toBe('b');
   });
 
   it('returns the previous id before beforeId if provided', () => {
-    expect(getPreviousId(rundown, undefined, 'c')).toBe('b');
+    expect(getPreviousId(undefined, 'c')).toBe('b');
   });
 
   it('returns undefined if neither afterId nor beforeId is provided', () => {
-    expect(getPreviousId(rundown)).toBeNull();
+    expect(getPreviousId()).toBeUndefined();
   });
 
   it('returns undefined if beforeId is not found', () => {
-    expect(getPreviousId(rundown, undefined, 'z')).toBeNull();
+    expect(getPreviousId(undefined, 'z')).toBeUndefined();
   });
 });

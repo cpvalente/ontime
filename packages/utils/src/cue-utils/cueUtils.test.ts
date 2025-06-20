@@ -40,7 +40,7 @@ describe('getCueCandidate()', () => {
         '1': { id: '1', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
         '2': { id: '2', cue: '11', type: SupportedEntry.Event } as OntimeEvent,
       };
-      const cue = getCueCandidate(entries, ['1', '2'], null);
+      const cue = getCueCandidate(entries, ['1', '2']);
       expect(cue).toBe('1');
     });
 
@@ -49,7 +49,7 @@ describe('getCueCandidate()', () => {
         '1': { id: '1', cue: '1', type: SupportedEntry.Event } as OntimeEvent,
         '2': { id: '2', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
       };
-      const cue = getCueCandidate(entries, ['1', '2'], null);
+      const cue = getCueCandidate(entries, ['1', '2']);
       expect(cue).toBe('0.1');
     });
   });
@@ -124,7 +124,7 @@ describe('findCueName() with mixed events', () => {
         '1': { id: '1', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
         '2': { id: '2', cue: '11', type: SupportedEntry.Event } as OntimeEvent,
       };
-      const cue = getCueCandidate(entries, ['1', '2'], null);
+      const cue = getCueCandidate(entries, ['1', '2']);
       expect(cue).toBe('1');
     });
 
@@ -133,7 +133,7 @@ describe('findCueName() with mixed events', () => {
         '1': { id: '1', cue: '1', type: SupportedEntry.Event } as OntimeEvent,
         '2': { id: '2', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
       };
-      const cue = getCueCandidate(entries, ['1', '2'], null);
+      const cue = getCueCandidate(entries, ['1', '2']);
       expect(cue).toBe('0.1');
     });
   });

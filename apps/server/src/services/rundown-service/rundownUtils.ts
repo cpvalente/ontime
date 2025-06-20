@@ -8,16 +8,21 @@ import {
   ProjectRundowns,
 } from 'ontime-types';
 
-import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
-
 import * as cache from './rundownCache.js';
+
+/**
+ * returns entire unfiltered rundown
+ */
+export function getCurrentRundown(): Rundown {
+  return cache.getCurrentRundown();
+}
 
 /**
  * returns the the project rundown and the order arrays
  */
 export function getRundownData() {
   return {
-    rundown: getCurrentRundown(),
+    rundown: cache.getCurrentRundown(),
     rundownOrder: cache.getEventOrder(),
   };
 }
@@ -173,16 +178,17 @@ export function getRundownOrThrow(rundowns: ProjectRundowns, rundownId: string):
  * Receives an insertion order and returns the reference to an event ID
  * after which we will insert the new event
  */
-export function getPreviousId(rundown: Rundown, afterId?: EntryId, beforeId?: EntryId): EntryId | null {
+export function getPreviousId(afterId?: EntryId, beforeId?: EntryId): EntryId | undefined {
   if (afterId) {
     return afterId;
   }
 
   if (beforeId) {
-    const atIndex = rundown.flatOrder.findIndex((id) => id === beforeId);
-    if (atIndex < 1) return null;
-    return rundown.flatOrder[atIndex - 1];
+    const flatOrder = cache.getEventOrder().flatOrder;
+    const atIndex = flatOrder.findIndex((id) => id === beforeId);
+    if (atIndex < 1) return undefined;
+    return flatOrder[atIndex - 1];
   }
 
-  return null;
+  return;
 }

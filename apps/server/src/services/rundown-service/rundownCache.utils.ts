@@ -3,16 +3,19 @@ import {
   CustomFieldLabel,
   CustomFields,
   OntimeEntry,
+  OntimeBaseEvent,
   EntryId,
   isOntimeEvent,
   isPlayableEvent,
   isOntimeDelay,
   PlayableEvent,
   RundownEntries,
+  OntimeDelay,
+  OntimeBlock,
 } from 'ontime-types';
 import { dayInMs, getLinkedTimes, getTimeFrom, isNewLatest } from 'ontime-utils';
 
-import type { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
+import type { RundownMetadata } from './rundown.types.js';
 
 /**
  * Utility function to add an entry, mutates given assignedCustomFields in place
@@ -62,6 +65,49 @@ export function handleCustomField(
   }
 }
 
+/** List of event properties which do not need the rundown to be regenerated */
+enum RegenerateWhitelist {
+  'id',
+  'cue',
+  'title',
+  'note',
+  'endAction',
+  'timerType',
+  'countToEnd',
+  'isPublic',
+  'colour',
+  'timeWarning',
+  'timeDanger',
+  'custom',
+  'triggers',
+}
+
+/**
+ * given a patch, returns whether all keys are whitelisted
+ */
+export function isDataStale(patch: Partial<OntimeEntry>): boolean {
+  return Object.keys(patch).some(willCauseRegeneration);
+}
+
+/**
+ * given a key, returns whether it is whitelisted
+ */
+export function willCauseRegeneration(key: string): boolean {
+  return !(key in RegenerateWhitelist);
+}
+
+/**
+ * Given an event and a patch to that event checks whether there are actual changes to the dataset
+ * @param existingEvent
+ * @param newEvent
+ * @returns
+ */
+export function hasChanges<T extends OntimeBaseEvent>(existingEvent: T, newEvent: Partial<T>): boolean {
+  return Object.keys(newEvent).some(
+    (key) => !Object.hasOwn(existingEvent, key) || existingEvent[key as keyof T] !== newEvent[key as keyof T],
+  );
+}
+
 /**
  * Utility for calculating if the current events should have a day offset
  * @param current the current event under test
@@ -103,10 +149,6 @@ export type ProcessedRundownMetadata = RundownMetadata & {
   previousEntry: OntimeEntry | null; // The entry processed in the previous iteration
 };
 
-/**
- * Factory function to create a rundown metadata processor
- * @returns {process, getMetadata} process() - processes entries in order | getMetadata() -> returns the current metadata
- */
 export function makeRundownMetadata(customFields: CustomFields, customFieldChangelog: Record<string, string>) {
   let rundownMeta: ProcessedRundownMetadata = {
     totalDelay: 0,
@@ -143,9 +185,6 @@ export function makeRundownMetadata(customFields: CustomFields, customFieldChang
   return { process, getMetadata };
 }
 
-/**
- * Processes a single entry and updates the rundown metadata
- */
 function processEntry<T extends OntimeEntry>(
   rundownMetadata: ProcessedRundownMetadata,
   customFields: CustomFields,
@@ -248,4 +287,38 @@ function processEntry<T extends OntimeEntry>(
   processedData.previousEntry = currentEntry;
 
   return { processedData, processedEntry: currentEntry };
+}
+
+export function cloneEvent(entry: OntimeEvent, newId: EntryId): OntimeEvent {
+  const newEntry = structuredClone(entry);
+  newEntry.id = newId;
+  newEntry.revision = 0;
+  return newEntry;
+}
+
+export function cloneDelay(entry: OntimeDelay, newId: EntryId): OntimeDelay {
+  const newEntry = structuredClone(entry);
+  newEntry.id = newId;
+  return newEntry;
+}
+
+export function cloneBlock(entry: OntimeBlock, newId: EntryId): OntimeBlock {
+  const newEntry = structuredClone(entry);
+  newEntry.id = newId;
+
+  // in blocks, we need to remove the events references
+  newEntry.events = [];
+  newEntry.revision = 0;
+  return newEntry;
+}
+
+export function cloneEntry<T extends OntimeEntry>(entry: T, newId: EntryId): T {
+  if (isOntimeEvent(entry)) {
+    return cloneEvent(entry, newId) as T;
+  } else if (isOntimeDelay(entry)) {
+    return cloneDelay(entry, newId) as T;
+  } else if (entry.type === 'block') {
+    return cloneBlock(entry as OntimeBlock, newId) as T;
+  }
+  throw new Error(`Unsupported entry type for cloning: ${entry}`);
 }

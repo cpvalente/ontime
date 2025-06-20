@@ -1,4 +1,4 @@
-import { MessageState, OffsetMode, OntimeEvent, PatchWithId, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { MessageState, OffsetMode, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { DeepPartial } from 'ts-essentials';
@@ -11,14 +11,13 @@ import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
-import { parseProperty } from './integration.utils.js';
+import { parseProperty, updateEvent } from './integration.utils.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { throttle } from '../utils/throttle.js';
+import { willCauseRegeneration } from '../services/rundown-service/rundownCache.utils.js';
 import { coerceEnum } from '../utils/coerceType.js';
-import { editEntry } from '../api-data/rundown/rundown.service.js';
-import { willCauseRegeneration } from '../api-data/rundown/rundown.utils.js';
 
-const throttledEditEvent = throttle(editEntry, 20);
+const throttledUpdateEvent = throttle(updateEvent, 20);
 let lastRequest: Date | null = null;
 
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
@@ -57,7 +56,7 @@ const actionHandlers: Record<string, ActionHandler> = {
     }
 
     const data = payload[id as keyof typeof payload];
-    const patchEvent: PatchWithId<OntimeEvent> = { id };
+    const patchEvent: Partial<OntimeEvent> & { id: string } = { id };
 
     let shouldThrottle = false;
 
@@ -77,13 +76,11 @@ const actionHandlers: Record<string, ActionHandler> = {
     });
 
     if (shouldThrottle) {
-      if (throttledEditEvent(patchEvent)) {
+      if (throttledUpdateEvent(patchEvent)) {
         return { payload: 'throttled' };
       }
     } else {
-      editEntry(patchEvent).catch((_error) => {
-        /** No error handling */
-      });
+      updateEvent(patchEvent);
     }
     return { payload: 'success' };
   },

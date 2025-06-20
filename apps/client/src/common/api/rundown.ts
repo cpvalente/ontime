@@ -51,7 +51,7 @@ type BatchEditEntry = {
 /**
  * HTTP request to edit multiple events
  */
-export async function putBatchEditEvents(data: BatchEditEntry): Promise<AxiosResponse<Rundown>> {
+export async function putBatchEditEvents(data: BatchEditEntry): Promise<AxiosResponse<MessageResponse>> {
   return axios.put(`${rundownPath}/batch`, data);
 }
 
@@ -83,7 +83,7 @@ export async function requestEventSwap(data: SwapEntry): Promise<AxiosResponse<M
 /**
  * HTTP request to request application of delay
  */
-export async function requestApplyDelay(delayId: EntryId): Promise<AxiosResponse<Rundown>> {
+export async function requestApplyDelay(delayId: EntryId): Promise<AxiosResponse<MessageResponse>> {
   return axios.patch(`${rundownPath}/applydelay/${delayId}`);
 }
 

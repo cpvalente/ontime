@@ -3,13 +3,15 @@ import { CustomField, CustomFields, ErrorResponse } from 'ontime-types';
 import type { Request, Response } from 'express';
 
 import { getErrorMessage } from 'ontime-utils';
-
-import { createCustomField, editCustomField, removeCustomField } from '../../services/rundown-service/rundownCache.js';
-
-import { getProjectCustomFields } from '../rundown/rundown.dao.js';
+import {
+  createCustomField,
+  editCustomField,
+  getCustomFields as getCustomFieldsFromCache,
+  removeCustomField,
+} from '../../services/rundown-service/rundownCache.js';
 
 export async function getCustomFields(_req: Request, res: Response<CustomFields>) {
-  const customFields = getProjectCustomFields();
+  const customFields = getCustomFieldsFromCache();
   res.json(customFields);
 }
 

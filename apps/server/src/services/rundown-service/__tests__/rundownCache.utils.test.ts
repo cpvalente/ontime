@@ -1,5 +1,11 @@
-import { CustomFields, SupportedEntry } from 'ontime-types';
-import { addToCustomAssignment, calculateDayOffset, handleCustomField } from '../rundownCache.utils.js';
+import { CustomFields, EndAction, OntimeEvent, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
+import {
+  addToCustomAssignment,
+  calculateDayOffset,
+  handleCustomField,
+  hasChanges,
+  isDataStale,
+} from '../rundownCache.utils.js';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 import { makeOntimeEvent } from '../__mocks__/rundown.mocks.js';
 
@@ -126,6 +132,55 @@ describe('handleCustomField()', () => {
       newField1: ['event1'],
       field2: ['event1'],
     });
+  });
+});
+
+describe('isDataStale()', () => {
+  it('is stale if data contains timers', () => {
+    const needsRecompute = [
+      { timeStart: 10 },
+      { timeEnd: 10 },
+      { duration: 10 },
+      { linkStart: true },
+      { timerStrategy: TimeStrategy.LockDuration },
+    ];
+
+    for (const testCase of needsRecompute) {
+      expect(isDataStale(testCase)).toBe(true);
+    }
+    expect.assertions(needsRecompute.length);
+  });
+
+  it('is not stale if data contains auxiliary dataset', () => {
+    expect(
+      isDataStale({
+        cue: 'cue',
+        title: 'title',
+        note: 'note',
+        endAction: EndAction.LoadNext,
+        timerType: TimerType.Clock,
+        isPublic: false,
+        colour: 'colour',
+        timeWarning: 1,
+        timeDanger: 2,
+        custom: {
+          lighting: '3',
+        },
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('hasChanges()', () => {
+  it('identifies objects with new values', () => {
+    const newEvent = { id: '1', title: 'new-title' } as OntimeEvent;
+    const existing = { id: '1', cue: 'cue', title: 'title' } as OntimeEvent;
+    expect(hasChanges(existing, newEvent)).toBe(true);
+  });
+  it('identifies objects with all same values', () => {
+    const newEvent = { id: '1', title: 'title' } as OntimeEvent;
+    const existing = { id: '1', cue: 'cue', title: 'title' } as OntimeEvent;
+    expect(hasChanges(existing, newEvent)).toBe(false);
   });
 });
 

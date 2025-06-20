@@ -1,7 +1,7 @@
 import { SupportedEntry, OntimeEvent, OntimeBlock, Rundown } from 'ontime-types';
 
 import { defaultRundown } from '../../../models/dataModel.js';
-import { makeOntimeBlock, makeOntimeEvent } from '../__mocks__/rundown.mocks.js';
+import { makeOntimeBlock, makeOntimeEvent } from '../../../services/rundown-service/__mocks__/rundown.mocks.js';
 
 import { parseRundowns, parseRundown } from '../rundown.parser.js';
 

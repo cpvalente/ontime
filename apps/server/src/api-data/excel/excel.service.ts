@@ -14,9 +14,9 @@ import type { WorkBook } from 'xlsx';
 import { parseExcel } from '../../utils/parser.js';
 import { parseCustomFields } from '../../utils/parserFunctions.js';
 import { deleteFile } from '../../utils/parserUtils.js';
+import { getCustomFields } from '../../services/rundown-service/rundownCache.js';
 
 import { parseRundown } from '../rundown/rundown.parser.js';
-import { getProjectCustomFields } from '../rundown/rundown.dao.js';
 
 let excelData: WorkBook = xlsx.utils.book_new();
 
@@ -45,7 +45,7 @@ export function generateRundownPreview(options: ImportMap): { rundown: Rundown; 
 
   const arrayOfData: unknown[][] = xlsx.utils.sheet_to_json(data, { header: 1, blankrows: false, raw: false });
 
-  const dataFromExcel = parseExcel(arrayOfData, getProjectCustomFields(), options.worksheet, options);
+  const dataFromExcel = parseExcel(arrayOfData, getCustomFields(), options.worksheet, options);
   const parsedCustomFields = parseCustomFields(dataFromExcel);
 
   // we run the parsed data through an extra step to ensure the objects shape

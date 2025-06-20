@@ -1,7 +1,7 @@
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { loadRoll } from '../rollUtils.js';
-import { prepareTimedEvents, makeOntimeEvent } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { prepareTimedEvents, makeOntimeEvent } from '../rundown-service/__mocks__/rundown.mocks.js';
 
 describe('loadRoll()', () => {
   const eventlist = [

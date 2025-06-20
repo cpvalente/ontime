@@ -1,23 +1,26 @@
-import { ErrorResponse, MessageResponse, OntimeEntry, ProjectRundownsList, Rundown } from 'ontime-types';
+import { ErrorResponse, Rundown } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
 import express from 'express';
 
-import { getCurrentRundown } from './rundown.dao.js';
+import { reorderEntry } from '../../services/rundown-service/RundownService.js';
+
 import {
-  addEntry,
-  applyDelay,
-  batchEditEntries,
-  cloneEntry,
-  deleteAllEntries,
-  deleteEntries,
-  editEntry,
-  groupEntries,
-  reorderEntry,
-  swapEvents,
-  ungroupEntries,
-} from './rundown.service.js';
+  deletesEventById,
+  rundownAddToBlock,
+  rundownApplyDelay,
+  rundownBatchPut,
+  rundownCloneEntry,
+  rundownDelete,
+  rundownUngroupEntries,
+  rundownGetAll,
+  rundownGetById,
+  rundownGetCurrent,
+  rundownPost,
+  rundownPut,
+  rundownSwap,
+} from './rundown.controller.js';
 import {
   paramsMustHaveEntryId,
   rundownArrayOfIds,
@@ -30,53 +33,14 @@ import {
 
 export const router = express.Router();
 
-/**
- * Returns all rundowns in the project
- */
-router.get('/', async (_req: Request, res: Response<ProjectRundownsList>) => {
-  const rundown = getCurrentRundown();
+router.get('/', rundownGetAll);
+router.get('/current', rundownGetCurrent);
+router.get('/:eventId', paramsMustHaveEntryId, rundownGetById); // not used in Ontime frontend
 
-  // TODO: we currently make a project with only the current rundown
-  res.json([{ id: rundown.id, title: rundown.title, numEntries: rundown.order.length, revision: rundown.revision }]);
-});
+router.post('/', rundownPostValidator, rundownPost);
 
-/**
- * Returns the current rundown
- */
-router.get('/current', async (_req: Request, res: Response<Rundown>) => {
-  const rundown = getCurrentRundown();
-  res.json(rundown);
-});
-
-router.post('/', rundownPostValidator, async (req: Request, res: Response<OntimeEntry | ErrorResponse>) => {
-  try {
-    const newEvent = await addEntry(req.body);
-    res.status(201).send(newEvent);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
-
-router.put('/', rundownPutValidator, async (req: Request, res: Response<OntimeEntry | ErrorResponse>) => {
-  try {
-    const event = await editEntry(req.body);
-    res.status(200).send(event);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
-
-router.put('/batch', rundownBatchPutValidator, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
-  try {
-    const rundown = await batchEditEntries(req.body.ids, req.body.data);
-    res.status(200).send(rundown);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
+router.put('/', rundownPutValidator, rundownPut);
+router.put('/batch', rundownBatchPutValidator, rundownBatchPut);
 
 router.patch('/reorder', rundownReorderValidator, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
   try {
@@ -88,81 +52,11 @@ router.patch('/reorder', rundownReorderValidator, async (req: Request, res: Resp
     res.status(400).send({ message });
   }
 });
+router.patch('/swap', rundownSwapValidator, rundownSwap);
+router.patch('/applydelay/:entryId', paramsMustHaveEntryId, rundownApplyDelay);
+router.post('/clone/:entryId', paramsMustHaveEntryId, rundownCloneEntry);
+router.post('/ungroup/:entryId', paramsMustHaveEntryId, rundownUngroupEntries);
+router.post('/group', rundownArrayOfIds, rundownAddToBlock);
 
-router.patch('/swap', rundownSwapValidator, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
-  try {
-    const rundown = await swapEvents(req.body.from, req.body.to);
-    res.status(200).send(rundown);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
-
-router.patch(
-  '/applydelay/:entryId',
-  paramsMustHaveEntryId,
-  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
-    try {
-      const newRundown = await applyDelay(req.params.entryId);
-      res.status(200).send(newRundown);
-    } catch (error) {
-      const message = getErrorMessage(error);
-      res.status(400).send({ message });
-    }
-  },
-);
-
-router.post('/clone/:entryId', paramsMustHaveEntryId, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
-  try {
-    const newRundown = await cloneEntry(req.params.entryId);
-    res.status(200).send(newRundown);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
-
-router.post('/group', rundownArrayOfIds, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
-  try {
-    const newRundown = await groupEntries(req.body.ids);
-    res.status(200).send(newRundown);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
-
-router.post(
-  '/ungroup/:entryId',
-  paramsMustHaveEntryId,
-  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
-    try {
-      const newRundown = await ungroupEntries(req.params.entryId);
-      res.status(200).send(newRundown);
-    } catch (error) {
-      const message = getErrorMessage(error);
-      res.status(400).send({ message });
-    }
-  },
-);
-
-router.delete('/', rundownArrayOfIds, async (req: Request, res: Response<MessageResponse | ErrorResponse>) => {
-  try {
-    await deleteEntries(req.body.ids);
-    res.status(204).send({ message: 'Events deleted' });
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
-
-router.delete('/all', async (_req: Request, res: Response<Rundown | ErrorResponse>) => {
-  try {
-    const rundown = await deleteAllEntries();
-    res.status(204).send(rundown);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
+router.delete('/', rundownArrayOfIds, deletesEventById);
+router.delete('/all', rundownDelete);

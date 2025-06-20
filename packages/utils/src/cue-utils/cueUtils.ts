@@ -41,9 +41,9 @@ export function getIncrement(input: string): string {
 /**
  * Gets suitable name for a new event cue
  */
-export function getCueCandidate(entries: RundownEntries, order: EntryId[], insertAfterId: EntryId | null): string {
+export function getCueCandidate(entries: RundownEntries, order: EntryId[], insertAfterId?: string): string {
   // we did not provide a element to go after, we attempt to go first so only need to check for a cue with value 1
-  if (insertAfterId === null || order.length === 0) {
+  if (insertAfterId === undefined || order.length === 0) {
     return addAtTop();
   }
 

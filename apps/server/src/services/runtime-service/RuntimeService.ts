@@ -23,7 +23,6 @@ import { eventStore } from '../../stores/EventStore.js';
 import { triggerReportEntry } from '../../api-data/report/report.service.js';
 import { timerConfig } from '../../setup/config.js';
 import { triggerAutomations } from '../../api-data/automation/automation.service.js';
-import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
 
 import { EventTimer } from '../EventTimer.js';
 import { RestorePoint, restoreService } from '../RestoreService.js';
@@ -33,6 +32,7 @@ import {
   getEventAtIndex,
   getNextEventWithCue,
   getEntryWithId,
+  getCurrentRundown,
   getTimedEvents,
   getRundownData,
 } from '../rundown-service/rundownUtils.js';
