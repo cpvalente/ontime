@@ -24,8 +24,6 @@ import {
   TimeStrategy,
 } from 'ontime-types';
 
-import { Merge } from 'ts-essentials';
-
 import { parseAutomationSettings } from '../api-data/automation/automation.parser.js';
 import { logger } from '../classes/Logger.js';
 import { event as eventDef } from '../models/eventsDefinition.js';
@@ -33,6 +31,7 @@ import { event as eventDef } from '../models/eventsDefinition.js';
 import { makeString } from './parserUtils.js';
 import { parseProject, parseRundowns, parseSettings, parseUrlPresets, parseViewSettings } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
+import { Merge } from 'ts-essentials';
 import { is } from './is.js';
 
 export type ErrorEmitter = (message: string) => void;

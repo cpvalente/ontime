@@ -13,8 +13,8 @@ import got from 'got';
 
 import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
-import { parseRundown } from '../../utils/parserFunctions.js';
-import { getRundown } from '../rundown-service/rundownUtils.js';
+import { parseRundowns } from '../../utils/parserFunctions.js';
+import { getCurrentRundown, getRundownOrThrow } from '../rundown-service/rundownUtils.js';
 import { getCustomFields } from '../rundown-service/rundownCache.js';
 
 import { cellRequestFromEvent, type ClientSecret, getA1Notation, isClientSecret } from './sheetUtils.js';
