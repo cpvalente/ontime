@@ -16,7 +16,7 @@ $skip-opacity: 0.2;
     'binder ...        ...     ...';
 
   grid-template-columns: $block-binder-width 3rem 1fr auto;
-  grid-template-rows: 0.125rem 2rem 2rem 2rem 0.125rem;
+  grid-template-rows: 0.125rem 2rem 2rem auto 0.125rem;
   align-items: center;
   padding-right: $block-clearance;
   gap: 2px;
@@ -119,6 +119,7 @@ $skip-opacity: 0.2;
 
 .playbackActions {
   grid-area: pb-actions;
+  align-self: flex-start;
   display: flex;
   flex-direction: column;
   margin: 0 0.5rem;
@@ -192,18 +193,21 @@ $skip-opacity: 0.2;
   grid-area: notes;
   display: block;
   font-size: calc(1rem - 3px);
+  line-height: 1em;
   color: $block-text-color;
-  line-height: calc(1rem - 3px);
 
-  max-height: 2rem;
-  overflow-y: hidden;
+  max-width: 35rem;
+
+  // allow multi-line text but trim before
+  white-space: pre-line;
 }
 
 .eventStatus {
   grid-area: status;
+  align-self: flex-end;
   display: flex;
   justify-content: flex-end;
-  align-items: center;
+  align-items: flex-end;
   gap: 0.5rem;
   color: var(--status-color-override, $gray-500);
 
