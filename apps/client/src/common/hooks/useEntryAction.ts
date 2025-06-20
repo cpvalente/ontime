@@ -75,7 +75,10 @@ export const useEntryActions = () => {
   const _addEntryMutation = useMutation({
     // TODO(v4): optimistic create entry
     mutationFn: postAddEntry,
-    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+    },
+    networkMode: 'always',
   });
 
   /**
@@ -204,6 +207,7 @@ export const useEntryActions = () => {
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
+    networkMode: 'always',
   });
 
   /**
@@ -368,6 +372,7 @@ export const useEntryActions = () => {
     onError: (_error, _newEvent, context) => {
       queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousRundown);
     },
+    networkMode: 'always',
   });
 
   const batchUpdateEvents = useCallback(
@@ -422,6 +427,7 @@ export const useEntryActions = () => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
+    networkMode: 'always',
   });
 
   /**
@@ -475,6 +481,7 @@ export const useEntryActions = () => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
+    networkMode: 'always',
   });
 
   /**
@@ -498,13 +505,14 @@ export const useEntryActions = () => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
+    networkMode: 'always',
   });
 
   /**
    * Applies a given delay
    */
   const applyDelay = useCallback(
-    async (delayEventId: EntryId) => {
+    async (delayEventId: string) => {
       try {
         await _applyDelayMutation.mutateAsync(delayEventId);
       } catch (error) {
@@ -554,6 +562,7 @@ export const useEntryActions = () => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
+    networkMode: 'always',
   });
 
   /**
@@ -625,6 +634,7 @@ export const useEntryActions = () => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
+    networkMode: 'always',
   });
 
   /**
