@@ -1,7 +1,7 @@
-import { OntimeBlock, OntimeEvent, SupportedEntry, TimeStrategy } from 'ontime-types';
+import { OntimeEvent, SupportedEntry, TimeStrategy } from 'ontime-types';
 import { generateId, validateEndAction, validateTimerType, validateTimes } from 'ontime-utils';
 
-import { event as eventDef, block as blockDef } from '../../models/eventsDefinition.js';
+import { event as eventDef } from '../../models/eventsDefinition.js';
 import { makeString } from '../../utils/parserUtils.js';
 
 export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<OntimeEvent>): OntimeEvent {
@@ -67,32 +67,6 @@ export const createEvent = (eventArgs: Partial<OntimeEvent>, eventIndex: number 
   const event = createPatch(baseEvent, eventArgs);
   return event;
 };
-
-/**
- * Creates a new block from an optional patch
- */
-export function createBlock(patch?: Partial<OntimeBlock>): OntimeBlock {
-  if (!patch) {
-    return { ...blockDef, id: generateId() };
-  }
-
-  return {
-    id: patch.id ?? generateId(),
-    type: SupportedEntry.Block,
-    title: patch.title ?? '',
-    note: patch.note ?? '',
-    events: patch.events ?? [],
-    skip: patch.skip ?? false,
-    colour: makeString(patch.colour, ''),
-    custom: patch.custom ?? {},
-    revision: 0,
-    startTime: null,
-    endTime: null,
-    duration: 0,
-    isFirstLinked: false,
-    numEvents: patch.events?.length ?? 0,
-  };
-}
 
 /**
  * Function infers strategy for a patch with only partial timer data

@@ -9,13 +9,13 @@ import { isMacOS } from '../../common/utils/deviceUtils';
 type SelectionMode = 'shift' | 'click' | 'ctrl';
 
 interface EventSelectionStore {
-  selectedEvents: Set<EntryId>;
+  selectedEvents: Set<string>;
   anchoredIndex: MaybeNumber;
   cursor: MaybeString;
-  setSelectedEvents: (selectionArgs: { id: EntryId; index: number; selectMode: SelectionMode }) => void;
+  setSelectedEvents: (selectionArgs: { id: string; index: number; selectMode: SelectionMode }) => void;
   clearSelectedEvents: () => void;
   clearMultiSelect: () => void;
-  unselect: (id: EntryId) => void;
+  unselect: (id: string) => void;
 }
 
 export const useEventSelection = create<EventSelectionStore>()((set, get) => ({

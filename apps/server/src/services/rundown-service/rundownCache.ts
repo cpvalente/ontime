@@ -11,19 +11,11 @@ import {
   OntimeEntry,
   Rundown,
   RundownEntries,
-  OntimeDelay,
 } from 'ontime-types';
-import {
-  generateId,
-  insertAtIndex,
-  reorderArray,
-  swapEventData,
-  customFieldLabelToKey,
-  mergeAtIndex,
-} from 'ontime-utils';
+import { generateId, insertAtIndex, reorderArray, swapEventData, customFieldLabelToKey } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { createBlock, createPatch } from '../../api-data/rundown/rundown.utils.js';
+import { createPatch } from '../../api-data/rundown/rundown.utils.js';
 
 import type { RundownMetadata } from './rundown.types.js';
 import { apply } from './delayUtils.js';
@@ -545,59 +537,6 @@ export function dissolveBlock({ rundown, blockId }: DissolveBlockArgs): Mutating
     }
     (entry as OntimeEvent | OntimeDelay).parent = null;
   }
-
-  return { newRundown: rundown, didMutate: true };
-}
-
-type GroupArgs = MutationParams<{ entryIds: EntryId[] }>;
-/**
- * Groups a list of entries into a block
- * It ensures that the entries get reassigned parent and the block gets a list of events
- * The block will be created at the index of the first event in the order, not at the lowest index
- * Mutates the given rundown
- * @throws if any of the entries is a block
- * @throws if any of the entries is not found
- */
-export function groupEntries({ rundown, entryIds }: GroupArgs): MutatingReturn {
-  const block = createBlock({ id: getUniqueId() });
-
-  const nestedEvents: EntryId[] = [];
-  let firstIndex = -1;
-  for (let i = 0; i < entryIds.length; i++) {
-    const entryId = entryIds[i];
-    const entry = rundown.entries[entryId];
-    if (!entry) {
-      throw new Error('Entry not found');
-    }
-
-    if (isOntimeBlock(entry)) {
-      throw new Error('Cannot group a block');
-    }
-
-    if (entry.parent !== null) {
-      throw new Error('Entry already has a parent');
-    }
-
-    // the block will be created at the first selected event position
-    // note that this is not the lowest index
-    if (firstIndex === -1) {
-      firstIndex = rundown.flatOrder.indexOf(entryId);
-    }
-
-    nestedEvents.push(entryId);
-    entry.parent = block.id;
-    rundown.flatOrder = rundown.flatOrder.filter((id) => id !== entryId);
-    rundown.order = rundown.order.filter((id) => id !== entryId);
-  }
-
-  block.events = nestedEvents;
-  const insertIndex = Math.max(0, firstIndex);
-  // we have filtered the items from the order
-  // we will insert them now, with only the block at top level ...
-  rundown.order = insertAtIndex(insertIndex, block.id, rundown.order);
-  /// ... and the nested elements after the block in the flat order
-  rundown.flatOrder = mergeAtIndex(insertIndex, [block.id, ...nestedEvents], rundown.flatOrder);
-  rundown.entries[block.id] = block;
 
   return { newRundown: rundown, didMutate: true };
 }

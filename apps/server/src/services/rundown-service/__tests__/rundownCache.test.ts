@@ -16,7 +16,6 @@ import {
   removeCustomField,
   customFieldChangelog,
   dissolveBlock,
-  groupEntries,
 } from '../rundownCache.js';
 import { makeOntimeBlock, makeOntimeDelay, makeOntimeEvent, makeRundown } from '../__mocks__/rundown.mocks.js';
 import { ProcessedRundownMetadata } from '../rundownCache.utils.js';
@@ -792,39 +791,6 @@ describe('dissolveBlock() mutation', () => {
       '1': { id: '1', type: SupportedEntry.Event, cue: 'data1', parent: null },
       '21': { id: '21', type: SupportedEntry.Event, cue: 'data21', parent: null },
       '22': { id: '22', type: SupportedEntry.Event, cue: 'data22', parent: null },
-    });
-  });
-});
-
-describe('groupEntries() mutation', () => {
-  it('groups a list of existing events into a new block', () => {
-    const rundown = makeRundown({
-      order: ['1', '2', '3'],
-      flatOrder: ['1', '2', '3'],
-      entries: {
-        '1': makeOntimeEvent({ id: '1', parent: null }),
-        '2': makeOntimeEvent({ id: '2', parent: null }),
-        '3': makeOntimeEvent({ id: '3', parent: null }),
-      },
-    });
-
-    const { newRundown } = groupEntries({
-      rundown,
-      entryIds: ['1', '2'],
-    });
-
-    const blockId = newRundown.order[0];
-    expect(blockId).toStrictEqual(expect.any(String));
-    expect(newRundown.order).toStrictEqual([expect.any(String), '3']);
-    expect(newRundown.flatOrder).toStrictEqual([expect.any(String), '1', '2', '3']);
-    expect(newRundown.entries).toMatchObject({
-      [blockId]: {
-        type: SupportedEntry.Block,
-        events: ['1', '2'],
-      },
-      '1': { id: '1', type: SupportedEntry.Event, parent: blockId },
-      '2': { id: '2', type: SupportedEntry.Event, parent: blockId },
-      '3': { id: '3', type: SupportedEntry.Event, parent: null },
     });
   });
 });

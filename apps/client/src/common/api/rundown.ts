@@ -90,15 +90,15 @@ export async function requestApplyDelay(delayId: EntryId): Promise<AxiosResponse
 /**
  * HTTP request for dissolving of a block
  */
-export async function requestDissolveBlock(blockId: EntryId): Promise<AxiosResponse<Rundown>> {
+export async function requestDissolveBlock(blockId: EntryId): Promise<AxiosResponse<MessageResponse>> {
   return axios.post(`${rundownPath}/dissolve/${blockId}`);
 }
 
 /**
  * HTTP request for grouping a list of entries into a block
  */
-export async function requestGroupEntries(entryIds: EntryId[]): Promise<AxiosResponse<Rundown>> {
-  return axios.post(`${rundownPath}/group`, { ids: entryIds });
+export async function requestGroupEntries(entryIds: EntryId[]): Promise<AxiosResponse<MessageResponse>> {
+  return axios.post(`${rundownPath}/group`, { data: { ids: entryIds } });
 }
 
 /**

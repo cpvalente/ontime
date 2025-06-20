@@ -14,9 +14,9 @@ import {
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
 
-import { delay as delayDef } from '../../models/eventsDefinition.js';
+import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
-import { createBlock, createEvent } from '../../api-data/rundown/rundown.utils.js';
+import { createEvent } from '../../api-data/rundown/rundown.utils.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
@@ -55,7 +55,7 @@ function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | P
 
   // TODO(v4): allow user to provide a larger patch of the block entry
   if (isOntimeBlock(eventData)) {
-    return createBlock({ id, title: eventData.title ?? '' }) as CompleteEntry<T>;
+    return { ...blockDef, title: eventData?.title ?? '', id } as CompleteEntry<T>;
   }
 
   throw new Error('Invalid event type');
@@ -225,22 +225,6 @@ export async function applyDelay(delayId: EntryId) {
 export async function dissolveBlock(blockId: EntryId) {
   const scopedMutation = cache.mutateCache(cache.dissolveBlock);
   const { newRundown } = await scopedMutation({ blockId });
-
-  // notify runtime that rundown has changed
-  updateRuntimeOnChange();
-
-  // we dont need to modify the timer since the grouping does not affect the runtime
-  notifyChanges({ external: true });
-
-  return newRundown;
-}
-
-/**
- * Groups a list of entries into a block
- */
-export async function groupEntries(entryIds: EntryId[]) {
-  const scopedMutation = cache.mutateCache(cache.groupEntries);
-  const { newRundown } = await scopedMutation({ entryIds });
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();

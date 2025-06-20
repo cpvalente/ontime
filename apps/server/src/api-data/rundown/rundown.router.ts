@@ -2,7 +2,6 @@ import express from 'express';
 
 import {
   deletesEventById,
-  rundownAddToBlock,
   rundownApplyDelay,
   rundownBatchPut,
   rundownDelete,
@@ -40,7 +39,6 @@ router.patch('/reorder/', rundownReorderValidator, rundownReorder);
 router.patch('/swap', rundownSwapValidator, rundownSwap);
 router.patch('/applydelay/:eventId', paramsMustHaveEventId, rundownApplyDelay);
 router.post('/dissolve/:eventId', paramsMustHaveEventId, rundownDissolveBlock);
-router.post('/group', rundownArrayOfIds, rundownAddToBlock);
 
 router.delete('/', rundownArrayOfIds, deletesEventById);
 router.delete('/all', rundownDelete);
