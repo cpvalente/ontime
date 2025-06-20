@@ -602,10 +602,10 @@ class RuntimeService {
    */
   private rollLoaded(offset?: number) {
     const rundown = getCurrentRundown();
-    const { timedEventOrder } = getRundownMetadata();
+    const metadata = getRundownMetadata();
 
     try {
-      runtimeState.roll(rundown, timedEventOrder, offset);
+      runtimeState.roll(rundown, metadata, offset);
     } catch (error) {
       logger.error(LogOrigin.Server, `Roll: ${error}`);
     }
@@ -626,8 +626,8 @@ class RuntimeService {
 
     try {
       const rundown = getCurrentRundown();
-      const rundownMetadata = getRundownMetadata();
-      const result = runtimeState.roll(rundown, rundownMetadata.playableEventOrder);
+      const metadata = getRundownMetadata();
+      const result = runtimeState.roll(rundown, metadata);
 
       const newState = runtimeState.getState();
       if (result.eventId !== previousState.eventNow?.id) {

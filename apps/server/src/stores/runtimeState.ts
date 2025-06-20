@@ -538,7 +538,7 @@ export function update(): UpdateResult {
 
 export function roll(
   rundown: Rundown,
-  timedEventOrder: EntryId[],
+  metadata: RundownMetadata,
   offset = 0,
 ): { eventId: MaybeString; didStart: boolean } {
   // 1. if an event is running, we simply take over the playback
@@ -597,8 +597,7 @@ export function roll(
   }
 
   // 3. if there is no event running, we need to find the next event
-  const timedEvents = filterTimedEvents(rundown, timedEventOrder);
-  if (timedEvents.length === 0) {
+  if (metadata.playableEventOrder.length === 0) {
     throw new Error('No playable events found');
   }
 
@@ -609,11 +608,13 @@ export function roll(
   runtimeState.runtime.offset = offset;
   const offsetClock = runtimeState.clock + runtimeState.runtime.offset;
 
+  //TODO: improve this, for now just made to work
+  const timedEvents = metadata.timedEventOrder.map((id) => rundown.entries[id]) as OntimeEvent[];
   const { index, isPending } = loadRoll(timedEvents, offsetClock);
 
   // load events in memory along with their data
-  loadNow(timedEvents, index);
-  loadNext(timedEvents, index);
+  loadNow(rundown, metadata, index);
+  loadNext(rundown, metadata, index);
   loadBlock(rundown);
 
   // update roll state
