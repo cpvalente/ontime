@@ -29,6 +29,7 @@ interface EventEditorTimesProps {
 
 type HandledActions = 'countToEnd' | 'timerType' | 'endAction' | 'timeWarning' | 'timeDanger';
 
+export default memo(EventEditorTimes);
 function EventEditorTimes(props: EventEditorTimesProps) {
   const {
     eventId,
@@ -153,34 +154,31 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               <option value={TimerType.None}>None</option>
             </Select>
           </div>
-          <div>
-            {/* TODO: rearrange this grid */}
-          </div>
-          <div>
-            <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
-            <TimeInput
-              id='timeWarning'
-              name='timeWarning'
-              submitHandler={handleSubmit}
-              time={timeWarning}
-              placeholder='Duration'
-            />
-          </div>
 
-          <div>
-            <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
-            <TimeInput
-              id='timeDanger'
-              name='timeDanger'
-              submitHandler={handleSubmit}
-              time={timeDanger}
-              placeholder='Duration'
-            />
+          <div className={style.inline}>
+            <div>
+              <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
+              <TimeInput
+                id='timeWarning'
+                name='timeWarning'
+                submitHandler={handleSubmit}
+                time={timeWarning}
+                placeholder='Duration'
+              />
+            </div>
+            <div>
+              <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
+              <TimeInput
+                id='timeDanger'
+                name='timeDanger'
+                submitHandler={handleSubmit}
+                time={timeDanger}
+                placeholder='Duration'
+              />
+            </div>
           </div>
         </div>
       </div>
     </>
   );
 }
-
-export default memo(EventEditorTimes);
