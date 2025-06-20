@@ -11,7 +11,6 @@ import {
   deleteAllEntries,
   deleteEvent,
   editEvent,
-  dissolveBlock,
   reorderEntry,
   swapEvents,
 } from '../../services/rundown-service/RundownService.js';
@@ -121,16 +120,6 @@ export async function rundownApplyDelay(req: Request, res: Response<MessageRespo
   try {
     await applyDelay(req.params.eventId);
     res.status(200).send({ message: 'Delay applied' });
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-}
-
-export async function rundownDissolveBlock(req: Request, res: Response<Rundown | ErrorResponse>) {
-  try {
-    const newRundown = await dissolveBlock(req.params.eventId);
-    res.status(200).send(newRundown);
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });

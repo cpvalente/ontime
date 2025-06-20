@@ -25,7 +25,6 @@ import {
   ReorderEntry,
   requestApplyDelay,
   requestDeleteAll,
-  requestDissolveBlock,
   requestEventSwap,
   SwapEntry,
 } from '../api/rundown';
@@ -516,28 +515,6 @@ export const useEntryActions = () => {
   );
 
   /**
-   * Calls mutation to dissolve a block
-   * @private
-   */
-  const _dissolveBlockMutation = useMutation({
-    mutationFn: requestDissolveBlock,
-    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
-  });
-
-  /**
-   * Deletes a block and moves its events to the top level
-   */
-  const dissolveBlock = useCallback(
-    async (blockId: EntryId) => {
-      try {
-        await _dissolveBlockMutation.mutateAsync(blockId);
-      } catch (error) {
-        logAxiosError('Error dissolving block', error);
-      }
-    },
-    [_dissolveBlockMutation],
-  );
-  /**
    * Calls mutation to reorder an entry
    * @private
    */
@@ -686,7 +663,6 @@ export const useEntryActions = () => {
     batchUpdateEvents,
     deleteEntry,
     deleteAllEntries,
-    dissolveBlock,
     getEntryById,
     reorderEntry,
     swapEvents,
