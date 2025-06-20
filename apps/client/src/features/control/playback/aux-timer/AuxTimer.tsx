@@ -59,20 +59,15 @@ export function AuxTimer() {
 }
 
 function AuxTimerInput() {
-  const newTimeInMs = useAuxTimerTime();
+  const time = useAuxTimerTime();
   const { setDuration } = setAuxTimer;
 
   const handleTimeUpdate = (_field: string, value: string) => {
-    const newTimeInMs = parseUserTime(value);
-    setDuration(newTimeInMs);
+    const newTime = parseUserTime(value);
+    setDuration(newTime / 1000); // frontend api is seconds based
   };
 
   return (
-    <TimeInput<'auxTimer'>
-      submitHandler={handleTimeUpdate}
-      name='auxTimer'
-      time={newTimeInMs}
-      placeholder='Aux Timer 1'
-    />
+    <TimeInput<'auxTimer'> submitHandler={handleTimeUpdate} name='auxTimer' time={time} placeholder='Aux Timer 1' />
   );
 }

@@ -1,5 +1,5 @@
 import { MessageState, OffsetMode, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
-import { MILLIS_PER_HOUR } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { DeepPartial } from 'ts-essentials';
 
@@ -187,24 +187,27 @@ const actionHandlers: Record<string, ActionHandler> = {
     throw new Error('No matching method provided');
   },
   addtime: (payload) => {
-    const time = (() => {
-      if (payload && typeof payload === 'object') {
-        if ('add' in payload) return numberOrError(payload.add);
-        if ('remove' in payload) return numberOrError(payload.remove) * -1;
+    let time = 0;
+    if (payload && typeof payload === 'object') {
+      if ('add' in payload) {
+        time = numberOrError(payload.add);
+      } else if ('remove' in payload) {
+        time = numberOrError(payload.remove) * -1;
       }
-      return numberOrError(payload);
-    })();
-
+    } else {
+      time = numberOrError(payload);
+    }
     assert.isNumber(time);
     if (time === 0) {
       return { payload: 'success' };
     }
 
-    if (Math.abs(time) > MILLIS_PER_HOUR) {
+    const timeToAdd = time * MILLIS_PER_SECOND; // frontend is seconds based
+    if (Math.abs(timeToAdd) > MILLIS_PER_HOUR) {
       throw new Error(`Payload too large: ${time}`);
     }
 
-    runtimeService.addTime(time);
+    runtimeService.addTime(timeToAdd);
     return { payload: 'success' };
   },
   /* Extra timers */
@@ -230,11 +233,13 @@ const actionHandlers: Record<string, ActionHandler> = {
     } else if (command && typeof command === 'object') {
       const reply = { payload: {} };
       if ('duration' in command) {
-        const timeInMs = numberOrError(command.duration);
+        // convert duration in seconds to ms
+        const timeInMs = numberOrError(command.duration) * 1000;
         reply.payload = auxTimerService.setTime(timeInMs);
       }
       if ('addtime' in command) {
-        const timeInMs = numberOrError(command.addtime);
+        // convert addTime in seconds to ms
+        const timeInMs = numberOrError(command.addtime) * 1000;
         reply.payload = auxTimerService.addTime(timeInMs);
       }
       if ('direction' in command) {
