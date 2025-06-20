@@ -1,7 +1,7 @@
 import { millisToSeconds } from 'ontime-utils';
-import { MaybeNumber } from 'ontime-types';
 
-import { timerConfig } from '../../setup/config.js';
+import { timerConfig } from '../../config/config.js';
+import { MaybeNumber } from 'ontime-types';
 
 /**
  * Checks whether we should update the clock value

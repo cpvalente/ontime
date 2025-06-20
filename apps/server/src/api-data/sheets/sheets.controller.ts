@@ -25,11 +25,10 @@ export async function requestConnection(
   res: Response<{ verification_url: string; user_code: string } | ErrorResponse>,
 ) {
   const { sheetId } = req.params;
-  // the check for the file is done in the validation middleware
-  const filePath = (req.file as Express.Multer.File).path;
+  const file = req.file.path;
 
   try {
-    const client = readFileSync(filePath, 'utf-8');
+    const client = readFileSync(file, 'utf-8');
     const clientSecret = handleClientSecret(client);
     const { verification_url, user_code } = await handleInitialConnection(clientSecret, sheetId);
 
@@ -41,7 +40,7 @@ export async function requestConnection(
 
   // delete uploaded file after parsing
   try {
-    await deleteFile(filePath);
+    deleteFile(file);
   } catch (_error) {
     /** we dont handle failure here */
   }

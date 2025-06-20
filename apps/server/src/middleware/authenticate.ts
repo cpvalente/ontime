@@ -81,9 +81,7 @@ export function makeAuthenticateMiddleware(prefix: string) {
     // we use query params for generating authenticated URLs and for clients like the companion module
     // if the user gives is a token in the query params, we set the cookie to be used in further requests
     if (req.query.token === hashedPassword) {
-      if (hashedPassword !== undefined) {
-        setSessionCookie(res, hashedPassword);
-      }
+      setSessionCookie(res, hashedPassword);
       return next();
     }
 

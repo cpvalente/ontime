@@ -19,7 +19,7 @@ export function ensureDirectory(directory: string): void {
 /**
  * Ensures that a filename ends with .json extension
  */
-export function ensureJsonExtension(filename: string): string {
+export function ensureJsonExtension(filename: string | undefined): string | undefined {
   if (!filename) return filename;
   return filename.endsWith('.json') ? filename : `${filename}.json`;
 }

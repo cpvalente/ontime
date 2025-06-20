@@ -16,10 +16,6 @@ export const validateRequestConnection = [
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    // check that the file exists
-    if (!req.file) {
-      return res.status(422).json({ errors: 'File not found' });
-    }
     next();
   },
 ];

@@ -91,7 +91,7 @@ export async function quickProjectFile(req: Request, res: Response<{ filename: s
  */
 export async function currentProjectDownload(_req: Request, res: Response) {
   const { filename, pathToFile } = await projectService.getCurrentProject();
-  res.download(pathToFile, filename, (error: Error | null) => {
+  res.download(pathToFile, filename, (error) => {
     if (error) {
       const message = getErrorMessage(error);
       res.status(500).send({ message });

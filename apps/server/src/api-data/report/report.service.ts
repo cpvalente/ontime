@@ -60,5 +60,6 @@ export function triggerReportEntry(
     sendRefetch({
       target: 'REPORT',
     });
+    return;
   }
 }

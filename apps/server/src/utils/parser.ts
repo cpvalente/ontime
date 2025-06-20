@@ -32,7 +32,6 @@ import { makeString } from './parserUtils.js';
 import { parseProject, parseRundowns, parseSettings, parseUrlPresets, parseViewSettings } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
 import { Merge } from 'ts-essentials';
-import { is } from './is.js';
 
 export type ErrorEmitter = (message: string) => void;
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
@@ -58,19 +57,14 @@ export function getCustomFieldData(
   customFieldImportKeys: Record<keyof CustomFields, string>;
 } {
   const customFields = {};
-  const customFieldImportKeys: Record<string, string> = {};
-
+  const customFieldImportKeys = {};
   for (const ontimeLabel in importMap.custom) {
     const ontimeKey = customKeyFromLabel(ontimeLabel, existingCustomFields) ?? customFieldLabelToKey(ontimeLabel);
-    if (!ontimeKey) {
-      continue;
-    }
     const importLabel = importMap.custom[ontimeLabel].toLowerCase();
-
-    // @ts-expect-error -- we are sure that the key exists
+    const colour = ontimeKey in existingCustomFields ? existingCustomFields[ontimeKey].colour : '';
     customFields[ontimeKey] = {
       type: 'string',
-      colour: ontimeKey in existingCustomFields ? existingCustomFields[ontimeKey].colour : '',
+      colour,
       label: ontimeLabel,
     };
     customFieldImportKeys[importLabel] = ontimeKey;
@@ -98,9 +92,8 @@ export const parseExcel = (
   const importMap: ImportMap = { ...defaultImportMap, ...options };
 
   for (const [key, value] of Object.entries(importMap)) {
-    if (is.string(value)) {
-      // @ts-expect-error -- we are sure that the key exists
-      importMap[key] = value.toLowerCase().trim();
+    if (typeof value === 'string') {
+      importMap[key] = value.toLocaleLowerCase().trim();
     }
   }
 
@@ -285,7 +278,6 @@ export const parseExcel = (
 
           // check if it is an ontime column
           if (handlers[columnText]) {
-            // @ts-expect-error -- its ok
             handlers[columnText](rowIndex, j, undefined, undefined);
           }
 

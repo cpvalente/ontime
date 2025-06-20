@@ -16,7 +16,7 @@ export async function postUrlPresets(req: Request, res: Response<URLPreset[] | E
     return;
   }
   try {
-    const newPresets: URLPreset[] = req.body.map((preset: URLPreset) => ({
+    const newPresets: URLPreset[] = req.body.map((preset) => ({
       enabled: preset.enabled,
       alias: preset.alias,
       pathAndParams: preset.pathAndParams,

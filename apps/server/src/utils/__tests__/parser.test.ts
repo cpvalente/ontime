@@ -31,16 +31,15 @@ describe('test parseDatabaseModel() with demo project (valid)', () => {
   const filteredDemoProject = structuredClone(demoDb);
   const { data } = parseDatabaseModel(filteredDemoProject);
 
+  delete filteredDemoProject.settings.version;
+  delete data.settings.version;
+
   it('has 16 events', () => {
     expect(data.rundowns.demo.order.length).toBe(16);
     expect(Object.keys(data.rundowns.demo.entries).length).toBe(16);
   });
 
   it('is the same as the demo project since all data is valid', () => {
-    // @ts-expect-error -- its ok
-    delete filteredDemoProject.settings.version;
-    // @ts-expect-error -- its ok
-    delete data.settings.version;
     expect(data).toMatchObject(filteredDemoProject);
   });
 });

@@ -18,10 +18,10 @@ import { deepEqual } from 'fast-equals';
 import { logger } from '../../classes/Logger.js';
 import * as runtimeState from '../../stores/runtimeState.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
+import { timerConfig } from '../../config/config.js';
 import { eventStore } from '../../stores/EventStore.js';
+
 import { triggerReportEntry } from '../../api-data/report/report.service.js';
-import { timerConfig } from '../../setup/config.js';
-import { triggerAutomations } from '../../api-data/automation/automation.service.js';
 
 import { EventTimer } from '../EventTimer.js';
 import { RestorePoint, restoreService } from '../RestoreService.js';
@@ -35,10 +35,11 @@ import {
   getTimedEvents,
   getRundownData,
 } from '../rundown-service/rundownUtils.js';
-import { skippedOutOfEvent } from '../timerUtils.js';
-import { getEventOrder } from '../rundown-service/rundownCache.js';
 
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
+import { skippedOutOfEvent } from '../timerUtils.js';
+import { triggerAutomations } from '../../api-data/automation/automation.service.js';
+import { getEventOrder } from '../rundown-service/rundownCache.js';
 
 type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow' | 'publicEventNow' | 'publicEventNext'>;
 
@@ -47,7 +48,7 @@ type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow' |
  * Coordinating with necessary services
  */
 class RuntimeService {
-  private readonly eventTimer: EventTimer;
+  private eventTimer: EventTimer;
   private lastIntegrationClockUpdate = -1;
   private lastIntegrationTimerValue = -1;
 
@@ -818,7 +819,6 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
       function storeKey(eventKey: RuntimeStateEventKeys) {
         eventStore.set(eventKey, state[eventKey]);
-        // @ts-expect-error -- not sure how to type this in a sane way
         RuntimeService.previousState[eventKey] = { ...state[eventKey] };
       }
     }
