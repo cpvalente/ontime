@@ -29,6 +29,7 @@ import {
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
 import { filterTimedEvents } from '../services/runtime-service/rundownService.utils.js';
+import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 
 export type RuntimeState = {
   clock: number; // realtime clock
@@ -171,12 +172,13 @@ export function updateRundownData(rundownData: RundownData) {
 export function load(
   event: PlayableEvent,
   rundown: Rundown,
-  timedEventOrder: EntryId[],
+  metadata: RundownMetadata,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
   clearEventData();
 
-  if (timedEventOrder.length === 0 || !isPlayableEvent(event)) {
+  const { timedEventOrder } = metadata;
+  if (timedEventOrder.length === 0) {
     return false;
   }
 
@@ -186,18 +188,16 @@ export function load(
     return false;
   }
 
-  // TODO(remove public): it is wasteful to recreate the object
-  const timedEvents = filterTimedEvents(rundown, timedEventOrder);
   // load events in memory along with their data
-  loadNow(timedEvents, eventIndex);
-  loadNext(timedEvents, eventIndex);
+  loadNow(rundown, metadata, eventIndex);
+  loadNext(rundown, metadata, eventIndex);
   loadBlock(rundown);
 
   // update state
   runtimeState.timer.playback = Playback.Armed;
   runtimeState.timer.duration = calculateDuration(event.timeStart, event.timeEnd);
   runtimeState.timer.current = getCurrent(runtimeState);
-  runtimeState.runtime.numEvents = timedEvents.length;
+  runtimeState.runtime.numEvents = metadata.timedEventOrder.length;
 
   // patch with potential provided data
   if (initialData) {
@@ -220,7 +220,11 @@ export function load(
 /**
  * Loads current event and its public counterpart
  */
-export function loadNow(timedEvents: OntimeEvent[], eventIndex: MaybeNumber = runtimeState.runtime.selectedEventIndex) {
+export function loadNow(
+  rundown: Rundown,
+  metadata: RundownMetadata,
+  eventIndex: MaybeNumber = runtimeState.runtime.selectedEventIndex,
+) {
   if (eventIndex === null) {
     // reset the state to indicate there is no selection
     runtimeState.runtime.selectedEventIndex = null;
@@ -228,7 +232,7 @@ export function loadNow(timedEvents: OntimeEvent[], eventIndex: MaybeNumber = ru
     return;
   }
 
-  const event = timedEvents[eventIndex] as PlayableEvent;
+  const event = rundown.entries[metadata.timedEventOrder[eventIndex]] as PlayableEvent;
   runtimeState.runtime.selectedEventIndex = eventIndex;
   runtimeState.eventNow = event;
 }
@@ -237,35 +241,28 @@ export function loadNow(timedEvents: OntimeEvent[], eventIndex: MaybeNumber = ru
  * Loads the next event and its public counterpart
  */
 export function loadNext(
-  timedEvents: OntimeEvent[],
+  rundown: Rundown,
+  metadata: RundownMetadata,
   eventIndex: MaybeNumber = runtimeState.runtime.selectedEventIndex,
 ) {
   if (eventIndex === null) {
-    // reset the state to indicate there is no future event
+    runtimeState.eventNext = null; // reset the state to indicate there is no future event
+    return;
+  }
+  const nowPlayableIndex = timedToPlayableIndex(metadata, eventIndex);
+  if (!nowPlayableIndex || nowPlayableIndex > metadata.playableEventOrder.length - 2) {
     runtimeState.eventNext = null;
     return;
   }
-
-  // temporarily reset this value to simplify loop logic
-  runtimeState.eventNext = null;
-
-  //TODO: do we already have a it as a list of not skipped events
-  for (let i = eventIndex + 1; i < timedEvents.length; i++) {
-    const event = timedEvents[i];
-    // we dont deal with events that are not playable
-    if (!isPlayableEvent(event)) {
-      continue;
-    }
-    runtimeState.eventNext = event;
-    return;
-  }
+  const nextId = metadata.playableEventOrder[nowPlayableIndex + 1];
+  runtimeState.eventNext = rundown.entries[nextId] as PlayableEvent;
 }
 
 /**
  * Resume from restore point
  */
-export function resume(restorePoint: RestorePoint, event: PlayableEvent, rundown: Rundown, timedEventOrder: EntryId[]) {
-  load(event, rundown, timedEventOrder, restorePoint);
+export function resume(restorePoint: RestorePoint, event: PlayableEvent, rundown: Rundown, metadata: RundownMetadata) {
+  load(event, rundown, metadata, restorePoint);
 }
 
 /**
@@ -325,12 +322,11 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
 /**
  * Used in situations when we want to hot-reload all events without interrupting timer
  */
-export function updateAll(rundown: Rundown, timedEventsOrder: EntryId[]) {
-  const timedEvents = filterTimedEvents(rundown, timedEventsOrder);
+export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   // TODO(remove public): we dont need to make the timedEvents object, we pass primitives and let the functions handle it
-  const eventNowIndex = timedEventsOrder.findIndex((id) => id === runtimeState.eventNow?.id);
-  loadNow(timedEvents, eventNowIndex >= 0 ? eventNowIndex : undefined);
-  loadNext(timedEvents, eventNowIndex >= 0 ? eventNowIndex : undefined);
+  const eventNowIndex = metadata.timedEventOrder.findIndex((id) => id === runtimeState.eventNow?.id);
+  loadNow(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
+  loadNext(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   updateLoaded(runtimeState.eventNow ?? undefined);
   loadBlock(rundown);
 }
@@ -705,4 +701,10 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
 
 export function setOffsetMode(mode: OffsetMode) {
   runtimeState.runtime.offsetMode = mode;
+}
+
+function timedToPlayableIndex(metadata: RundownMetadata, index: number) {
+  const timedId = metadata.timedEventOrder[index];
+  const playableIndex = metadata.playableEventOrder.findIndex((id) => id === timedId);
+  return playableIndex < 0 ? null : playableIndex;
 }

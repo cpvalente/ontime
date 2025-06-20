@@ -241,8 +241,8 @@ class RuntimeService {
           runtimeState.updateLoaded(eventNow);
         } else {
           const rundown = getCurrentRundown();
-          const { timedEventOrder } = getRundownMetadata();
-          runtimeState.updateAll(rundown, timedEventOrder);
+          const metadata = getRundownMetadata();
+          runtimeState.updateAll(rundown, metadata);
         }
         return;
       }
@@ -252,9 +252,8 @@ class RuntimeService {
     isNext = this.isNewNext();
     if (isNext) {
       const rundown = getCurrentRundown();
-      const { timedEventOrder } = getRundownMetadata();
-      const timedEvents = filterTimedEvents(rundown, timedEventOrder);
-      runtimeState.loadNext(timedEvents);
+      const metadata = getRundownMetadata();
+      runtimeState.loadNext(rundown, metadata);
     }
   }
 
@@ -273,8 +272,8 @@ class RuntimeService {
 
     // we can ignore events which are not playable
     const rundown = getCurrentRundown();
-    const rundownMetadata = getRundownMetadata();
-    const success = runtimeState.load(event, rundown, rundownMetadata.playableEventOrder, initialData);
+    const metadata = getRundownMetadata();
+    const success = runtimeState.load(event, rundown, metadata, initialData);
 
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
@@ -681,8 +680,8 @@ class RuntimeService {
     }
 
     const rundown = getCurrentRundown();
-    const rundownMetadata = getRundownMetadata();
-    runtimeState.resume(restorePoint, event, rundown, rundownMetadata.playableEventOrder);
+    const metadata = getRundownMetadata();
+    runtimeState.resume(restorePoint, event, rundown, metadata);
 
     logger.info(LogOrigin.Playback, 'Resuming playback');
   }
