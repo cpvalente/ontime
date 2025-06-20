@@ -18,13 +18,14 @@ import { maybeAxiosError } from 'common/api/utils';
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
 export default function ViewSettingsForm() {
-  const { data, isFetching, mutate, error } = useViewSettings();
+  const { data, isFetching, mutateAsync } = useViewSettings();
   const { data: info, status: infoStatus } = useInfo();
   const { isOpen: isCodeEditorOpen, onOpen: onCodeEditorOpen, onClose: onCodeEditorClose } = useDisclosure();
 
   const {
     control,
     handleSubmit,
+    setError,
     register,
     reset,
     formState: { isSubmitting, isDirty, errors },
@@ -44,8 +45,12 @@ export default function ViewSettingsForm() {
   }, [data, reset]);
 
   const onSubmit = async (formData: ViewSettings) => {
-    const newData = { ...formData };
-    await mutate(newData);
+    try {
+      mutateAsync(formData)
+    } catch (error) {
+      const message = maybeAxiosError(error);
+      setError('root', { message });
+    }
   };
 
   const onReset = () => {

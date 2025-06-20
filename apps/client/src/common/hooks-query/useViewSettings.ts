@@ -14,12 +14,12 @@ export default function useViewSettings() {
     staleTime: MILLIS_PER_HOUR,
   });
 
-  const { mutate, error } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationFn: postViewSettings,
     onSuccess: (data) => {
       ontimeQueryClient.setQueryData(VIEW_SETTINGS, data);
     },
   });
 
-  return { data: data ?? viewsSettingsPlaceholder, mutate, isFetching, error };
+  return { data: data ?? viewsSettingsPlaceholder, mutateAsync, isFetching };
 }
