@@ -35,7 +35,7 @@ $skip-opacity: 0.2;
   }
 
   &.play {
-    background-color: $green-700;
+    background-color: $active-green;
     @include declare-overrides;
   }
 

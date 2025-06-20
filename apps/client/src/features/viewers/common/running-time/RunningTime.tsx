@@ -3,7 +3,9 @@
  */
 
 import { MaybeNumber } from 'ontime-types';
-import { millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
+import { removeLeadingZero, removeSeconds } from 'ontime-utils';
+
+import { formatedTime } from '../../../overview/overviewUtils';
 
 interface RunningTimeProps {
   value: MaybeNumber;
@@ -14,7 +16,7 @@ interface RunningTimeProps {
 
 export default function RunningTime(props: RunningTimeProps) {
   const { value, hideSeconds, hideLeadingZero, className } = props;
-  let formattedTime = millisToString(value);
+  let formattedTime = formatedTime(value, hideSeconds || hideLeadingZero ? 2 : 3);
 
   if (hideLeadingZero) {
     formattedTime = removeLeadingZero(formattedTime);

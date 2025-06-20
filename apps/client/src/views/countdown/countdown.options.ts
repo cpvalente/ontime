@@ -79,7 +79,7 @@ function getOptionsFromParams(searchParams: URLSearchParams): CountdownOptions {
 }
 
 /**
- * Hook exposes the backstage view options
+ * Hook exposes the countdown view options
  */
 export function useCountdownOptions(): CountdownOptions {
   const [searchParams] = useSearchParams();

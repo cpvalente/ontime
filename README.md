@@ -108,7 +108,7 @@ For production views
 -------------------------------------------------------------
 IP.ADDRESS:4001/editor    > the control interface, same as the app
 IP.ADDRESS:4001/cuesheet  > realtime cuesheets for collaboration
-IP.ADDRESS:4001/operator  > automated views for operators
+IP.ADDRESS:4001/op        > automated views for operators
 ```
 
 More information is available [in our docs](https://docs.getontime.no)

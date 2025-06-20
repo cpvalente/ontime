@@ -1,12 +1,12 @@
 import { memo, RefObject, SyntheticEvent } from 'react';
+import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
 import useLongPress from '../../../common/hooks/useLongPress';
-import { useTimer } from '../../../common/hooks/useSocket';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import ClockTime from '../../viewers/common/clock-time/ClockTime';
+import { formatDuration, useTimeUntilStart } from '../../../common/utils/time';
 import RunningTime from '../../viewers/common/running-time/RunningTime';
-import type { EditEvent, Subscribed } from '../Operator';
+import type { EditEvent, Subscribed } from '../operator.types';
 
 import style from './OperatorEvent.module.scss';
 
@@ -17,40 +17,37 @@ interface OperatorEventProps {
   main: string;
   secondary: string;
   timeStart: number;
-  timeEnd: number;
   duration: number;
-  delay?: number;
+  delay: number;
+  dayOffset: number;
+  isLinkedToLoaded: boolean;
   isSelected: boolean;
-  subscribed: Subscribed | null;
   isPast: boolean;
   selectedRef?: RefObject<HTMLDivElement>;
+  subscribed: Subscribed;
+  totalGap: number;
   onLongPress: (event: EditEvent) => void;
 }
 
-// extract this to contain re-renders
-function RollingTime() {
-  const { current } = useTimer();
-  return <RunningTime value={current} />;
-}
-
-function OperatorEvent(props: OperatorEventProps) {
-  const {
-    id,
-    colour,
-    cue,
-    main,
-    secondary,
-    timeStart,
-    timeEnd,
-    duration,
-    delay,
-    isSelected,
-    subscribed,
-    isPast,
-    selectedRef,
-    onLongPress,
-  } = props;
-
+export default memo(OperatorEvent);
+function OperatorEvent({
+  id,
+  colour,
+  cue,
+  main,
+  secondary,
+  timeStart,
+  duration,
+  delay,
+  dayOffset,
+  isLinkedToLoaded,
+  isSelected,
+  isPast,
+  selectedRef,
+  subscribed,
+  totalGap,
+  onLongPress,
+}: OperatorEventProps) {
   const handleLongPress = (event?: SyntheticEvent) => {
     // we dont have an event out of useLongPress
     event?.preventDefault();
@@ -76,38 +73,93 @@ function OperatorEvent(props: OperatorEventProps) {
       </div>
 
       <span className={style.mainField}>{main}</span>
-      <span className={style.schedule}>
-        <ClockTime value={timeStart} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
-        →
-        <ClockTime value={timeEnd} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
-      </span>
-
       <span className={style.secondaryField}>{secondary}</span>
+
+      <OperatorEventSchedule
+        timeStart={timeStart}
+        isPast={isPast}
+        isSelected={isSelected}
+        delay={delay}
+        dayOffset={dayOffset}
+        totalGap={totalGap}
+        isLinkedToLoaded={isLinkedToLoaded}
+      />
       <span className={style.runningTime}>
         <DelayIndicator delayValue={delay} />
-        {isSelected ? <RollingTime /> : <RunningTime value={duration} hideLeadingZero />}
+        <RunningTime className={cx([isSelected && style.muted])} value={duration} hideLeadingZero />
       </span>
 
       <div className={style.fields}>
-        {subscribed &&
-          subscribed
-            .filter((field) => field.value)
-            .map((field) => {
-              const fieldClasses = cx([style.field, !field.colour ? style.noColour : null]);
-              return (
-                <div key={field.id}>
-                  <span className={fieldClasses} style={{ backgroundColor: field.colour }}>
-                    {field.label}
-                  </span>
-                  <span className={style.value} style={{ color: field.colour }}>
-                    {field.value}
-                  </span>
-                </div>
-              );
-            })}
+        {subscribed
+          .filter((field) => field.value)
+          .map((field) => {
+            const fieldClasses = cx([style.field, !field.colour ? style.noColour : null]);
+            return (
+              <div key={field.id}>
+                <span className={fieldClasses} style={{ backgroundColor: field.colour }}>
+                  {field.label}
+                </span>
+                <span className={style.value} style={{ color: field.colour }}>
+                  {field.value}
+                </span>
+              </div>
+            );
+          })}
       </div>
     </div>
   );
 }
 
-export default memo(OperatorEvent);
+interface OperatorEventScheduleProps {
+  timeStart: number;
+  isPast: boolean;
+  isSelected: boolean;
+  delay: number;
+  dayOffset: number;
+  totalGap: number;
+  isLinkedToLoaded: boolean;
+}
+function OperatorEventSchedule({
+  timeStart,
+  isPast,
+  isSelected,
+  delay,
+  dayOffset,
+  totalGap,
+  isLinkedToLoaded,
+}: OperatorEventScheduleProps) {
+  if (isPast) {
+    return <span className={style.timeUntil}>DONE</span>;
+  }
+
+  if (isSelected) {
+    return <span className={style.timeUntil}>LIVE</span>;
+  }
+
+  return (
+    <TimeUntil
+      timeStart={timeStart}
+      delay={delay}
+      dayOffset={dayOffset}
+      totalGap={totalGap}
+      isLinkedToLoaded={isLinkedToLoaded}
+    />
+  );
+}
+
+interface TimeUntilProps {
+  timeStart: number;
+  delay: number;
+  dayOffset: number;
+  totalGap: number;
+  isLinkedToLoaded: boolean;
+}
+function TimeUntil({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded }: TimeUntilProps) {
+  // we isolate this to avoid unnecessary re-renders
+  const timeUntil = useTimeUntilStart({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded });
+
+  const isDue = timeUntil < MILLIS_PER_SECOND;
+  const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
+
+  return <span className={style.timeUntil}>{timeUntilString}</span>;
+}
