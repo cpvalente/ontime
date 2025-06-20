@@ -733,7 +733,7 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
     return;
   }
 
-  const currentBlockId = state.eventNow.parent;
+  const currentBlockId = state.eventNow.currentBlock;
 
   // update time only if the block has changed
   if (state.currentBlock.block?.id != currentBlockId) {

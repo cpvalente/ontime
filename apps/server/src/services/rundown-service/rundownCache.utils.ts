@@ -223,7 +223,7 @@ function processEntry<T extends OntimeEntry>(
     currentEntry.dayOffset = processedData.totalDays;
     currentEntry.delay = 0; // this means we dont calculate delays or gaps for skipped events
     currentEntry.gap = 0; // this means we dont calculate delays or gaps for skipped events
-    currentEntry.parent = childOfBlock;
+    currentEntry.currentBlock = childOfBlock;
 
     // update rundown metadata, it only concerns playable events
     if (isPlayableEvent(currentEntry)) {

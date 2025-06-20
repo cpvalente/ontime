@@ -27,7 +27,7 @@ export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   timeDanger: 60000,
   custom: {},
   // !==== RUNTIME METADATA ====! //
-  parent: null,
+  currentBlock: null,
   revision: 0, // calculated at runtime
   delay: 0, // calculated at runtime
   dayOffset: 0, // calculated at runtime

@@ -536,9 +536,9 @@ describe('generate() v4', () => {
           isFirstLinked: false,
           numEvents: 3,
         },
-        '100': { type: SupportedEvent.Event, parent: '1' },
-        '200': { type: SupportedEvent.Event, parent: '1' },
-        '300': { type: SupportedEvent.Event, parent: '1' },
+        '100': { type: SupportedEvent.Event, currentBlock: '1' },
+        '200': { type: SupportedEvent.Event, currentBlock: '1' },
+        '300': { type: SupportedEvent.Event, currentBlock: '1' },
       });
     });
 
@@ -567,7 +567,7 @@ describe('generate() v4', () => {
       expect(generatedRundown.totalDuration).toBe(1200);
       expect(generatedRundown.totalDelay).toBe(0);
       expect(generatedRundown.entries).toMatchObject({
-        '0': { type: SupportedEvent.Event, parent: null },
+        '0': { type: SupportedEvent.Event, currentBlock: null },
         '1': {
           type: SupportedEvent.Block,
           events: ['101', '102', '103'],
@@ -577,9 +577,9 @@ describe('generate() v4', () => {
           isFirstLinked: false,
           numEvents: 3,
         },
-        '101': { parent: '1', gap: 90, linkStart: false },
-        '102': { parent: '1' },
-        '103': { parent: '1' },
+        '101': { currentBlock: '1', gap: 90, linkStart: false },
+        '102': { currentBlock: '1' },
+        '103': { currentBlock: '1' },
         '2': {
           type: SupportedEvent.Block,
           events: ['201', '202', '203'],

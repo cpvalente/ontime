@@ -278,7 +278,7 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): [newA: 
     timeEnd: eventA.timeEnd,
     duration: eventA.duration,
     linkStart: eventA.linkStart,
-    parent: eventA.parent,
+    currentBlock: eventA.currentBlock,
     // keep schedule metadata
     delay: eventA.delay,
     gap: eventA.gap,
@@ -296,7 +296,7 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): [newA: 
     timeEnd: eventB.timeEnd,
     duration: eventB.duration,
     linkStart: eventB.linkStart,
-    parent: eventB.parent,
+    currentBlock: eventB.currentBlock,
     // keep schedule metadata
     delay: eventB.delay,
     gap: eventB.gap,
@@ -365,8 +365,8 @@ export function getPreviousBlock(rundown: Pick<Rundown, 'entries' | 'order'>, cu
   const currentEvent = rundown.entries[currentId];
 
   // check if event is inside a block
-  if (isOntimeEvent(currentEvent) && currentEvent.parent) {
-    return rundown.entries[currentEvent.parent] as OntimeBlock;
+  if (isOntimeEvent(currentEvent) && currentEvent.currentBlock) {
+    return rundown.entries[currentEvent.currentBlock] as OntimeBlock;
   }
 
   let foundCurrentEvent = false;
