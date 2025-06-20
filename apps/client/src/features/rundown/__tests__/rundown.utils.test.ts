@@ -1,4 +1,4 @@
-import { OntimeBlock, OntimeDelay, OntimeEvent, RundownEntries, SupportedEntry } from 'ontime-types';
+import { OntimeBlock, OntimeEvent, RundownEntries, SupportedEntry } from 'ontime-types';
 
 import { makeRundownMetadata, makeSortableList } from '../rundown.utils';
 
@@ -21,7 +21,7 @@ describe('makeRundownMetadata()', () => {
       block: {
         id: 'block',
         type: SupportedEntry.Block,
-        events: ['11', 'delay', '12', '13'],
+        events: ['11', '12', '13'],
         colour: 'red',
       } as OntimeBlock,
       '11': {
@@ -36,12 +36,6 @@ describe('makeRundownMetadata()', () => {
         skip: false,
         linkStart: false,
       } as OntimeEvent,
-      delay: {
-        id: 'delay',
-        type: SupportedEntry.Delay,
-        parent: 'block',
-        duration: 0,
-      } as OntimeDelay,
       '12': {
         id: '12',
         type: SupportedEntry.Event,
@@ -142,25 +136,10 @@ describe('makeRundownMetadata()', () => {
       groupColour: 'red',
     });
 
-    expect(process(demoEvents['delay'])).toMatchObject({
-      previousEvent: demoEvents['11'],
-      latestEvent: demoEvents['11'],
-      previousEntryId: demoEvents['11'].id,
-      thisId: demoEvents['delay'].id,
-      eventIndex: 2,
-      isPast: true,
-      isNextDay: false,
-      totalGap: 10,
-      isLinkedToLoaded: false,
-      isLoaded: false,
-      groupId: 'block',
-      groupColour: 'red',
-    });
-
     expect(process(demoEvents['12'])).toMatchObject({
       previousEvent: demoEvents['11'],
       latestEvent: demoEvents['12'],
-      previousEntryId: demoEvents['delay'].id,
+      previousEntryId: demoEvents['11'].id,
       thisId: demoEvents['12'].id,
       eventIndex: 3,
       isPast: false,

@@ -6,8 +6,7 @@ export type RundownEntries = Record<EntryId, OntimeEntry>;
 // we need to create a manual union type since keys cannot be used in type unions
 export type OntimeEntryCommonKeys = keyof OntimeEvent | keyof OntimeDelay | keyof OntimeBlock;
 
-type RundownId = string;
-export type ProjectRundowns = Record<RundownId, Rundown>;
+export type ProjectRundowns = Record<string, Rundown>;
 
 export type Rundown = {
   id: string;

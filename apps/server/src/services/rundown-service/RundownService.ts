@@ -203,11 +203,6 @@ export async function reorderEntry(eventId: EntryId, from: number, to: number): 
   return newRundown;
 }
 
-/**
- * Applies a delay into the rundown effectively changing the schedule
- * The applied delay is deleted
- * @param delayId
- */
 export async function applyDelay(delayId: EntryId) {
   const scopedMutation = cache.mutateCache(cache.applyDelay);
   await scopedMutation({ delayId });

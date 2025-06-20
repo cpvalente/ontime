@@ -275,7 +275,6 @@ function processEntry<T extends OntimeEntry>(
   } else if (isOntimeDelay(currentEntry)) {
     // !!! this must happen after handling the links
     processedData.totalDelay += currentEntry.duration;
-    currentEntry.parent = childOfBlock;
   }
 
   if (!childOfBlock) {
