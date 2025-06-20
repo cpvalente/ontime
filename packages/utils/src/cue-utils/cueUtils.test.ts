@@ -1,5 +1,5 @@
 import type { OntimeDelay, OntimeEntry, OntimeEvent, RundownEntries } from 'ontime-types';
-import { SupportedEntry } from 'ontime-types';
+import { SupportedEvent } from 'ontime-types';
 
 import { getCueCandidate, getIncrement, sanitiseCue } from './cueUtils.js';
 
@@ -37,8 +37,8 @@ describe('getCueCandidate()', () => {
   describe('in the beginning of the rundown', () => {
     it('names cue as 1 if next event does not collide', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
-        '2': { id: '2', cue: '11', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', cue: '10', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', cue: '11', type: SupportedEvent.Event } as OntimeEvent,
       };
       const cue = getCueCandidate(entries, ['1', '2']);
       expect(cue).toBe('1');
@@ -46,8 +46,8 @@ describe('getCueCandidate()', () => {
 
     it('creates decimal stem if next cue is 1', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: '1', type: SupportedEntry.Event } as OntimeEvent,
-        '2': { id: '2', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', cue: '1', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', cue: '10', type: SupportedEvent.Event } as OntimeEvent,
       };
       const cue = getCueCandidate(entries, ['1', '2']);
       expect(cue).toBe('0.1');
@@ -57,8 +57,8 @@ describe('getCueCandidate()', () => {
   describe('in the middle of the rundown', () => {
     it('names cue as an increment if next event has different stem (case of numbers)', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: '1', type: SupportedEntry.Event } as OntimeEvent,
-        '2': { id: '2', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', cue: '1', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', cue: '10', type: SupportedEvent.Event } as OntimeEvent,
       };
       const cue = getCueCandidate(entries, ['1', '2'], '1');
       expect(cue).toBe('2');
@@ -66,11 +66,11 @@ describe('getCueCandidate()', () => {
 
     it('names cue as an increment if next event has different stem (case of letters)', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: 'Presenter', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', cue: 'Presenter', type: SupportedEvent.Event } as OntimeEvent,
         '2': {
           id: '2',
           cue: 'Interval',
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
         } as OntimeEntry,
       };
       const cue = getCueCandidate(entries, ['1', '2'], '1');
@@ -79,8 +79,8 @@ describe('getCueCandidate()', () => {
 
     it('creates decimal stem if next cue has same stem (case of numbers)', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: '1', type: SupportedEntry.Event } as OntimeEvent,
-        '2': { id: '2', cue: '2', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', cue: '1', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', cue: '2', type: SupportedEvent.Event } as OntimeEvent,
       };
       const cue = getCueCandidate(entries, ['1', '2'], '1');
       expect(cue).toBe('1.1');
@@ -88,8 +88,8 @@ describe('getCueCandidate()', () => {
 
     it('creates decimal stem if next cue has same stem (case of letters)', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: 'Presenter1', type: SupportedEntry.Event } as OntimeEvent,
-        '2': { id: '2', cue: 'Presenter2', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', cue: 'Presenter1', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', cue: 'Presenter2', type: SupportedEvent.Event } as OntimeEvent,
       };
       const cue = getCueCandidate(entries, ['1', '2'], '1');
       expect(cue).toBe('Presenter1.1');
@@ -99,8 +99,8 @@ describe('getCueCandidate()', () => {
   describe('considers edge cases', () => {
     it('previousEvent might not be a cue', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
-        '2': { id: '2', type: SupportedEntry.Delay } as OntimeDelay,
+        '1': { id: '1', cue: '10', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEvent.Delay } as OntimeDelay,
       };
       const cue = getCueCandidate(entries, ['1', '2'], '2');
       expect(cue).toBe('11');
@@ -109,8 +109,8 @@ describe('getCueCandidate()', () => {
 
   it('there might not be events before', () => {
     const entries: RundownEntries = {
-      '1': { id: '1', type: SupportedEntry.Delay } as OntimeDelay,
-      '2': { id: '2', type: SupportedEntry.Delay } as OntimeDelay,
+      '1': { id: '1', type: SupportedEvent.Delay } as OntimeDelay,
+      '2': { id: '2', type: SupportedEvent.Delay } as OntimeDelay,
     };
     const cue = getCueCandidate(entries, ['1', '2'], '2');
     expect(cue).toBe('1');
@@ -121,8 +121,8 @@ describe('findCueName() with mixed events', () => {
   describe('in the beginning of the rundown', () => {
     it('names cue as 1 if next event does not collide', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
-        '2': { id: '2', cue: '11', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', cue: '10', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', cue: '11', type: SupportedEvent.Event } as OntimeEvent,
       };
       const cue = getCueCandidate(entries, ['1', '2']);
       expect(cue).toBe('1');
@@ -130,8 +130,8 @@ describe('findCueName() with mixed events', () => {
 
     it('creates decimal stem if next cue is 1', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: '1', type: SupportedEntry.Event } as OntimeEvent,
-        '2': { id: '2', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', cue: '1', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', cue: '10', type: SupportedEvent.Event } as OntimeEvent,
       };
       const cue = getCueCandidate(entries, ['1', '2']);
       expect(cue).toBe('0.1');
@@ -141,8 +141,8 @@ describe('findCueName() with mixed events', () => {
   describe('in the middle of the rundown', () => {
     it('names cue as an increment if next event has different stem (case of numbers)', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: '1', type: SupportedEntry.Event } as OntimeEvent,
-        '2': { id: '2', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', cue: '1', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', cue: '10', type: SupportedEvent.Event } as OntimeEvent,
       };
       const cue = getCueCandidate(entries, ['1', '2'], '1');
       expect(cue).toBe('2');
@@ -150,8 +150,8 @@ describe('findCueName() with mixed events', () => {
 
     it('names cue as an increment if next event has different stem (case of letters)', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: 'Presenter', type: SupportedEntry.Event } as OntimeEvent,
-        '2': { id: '2', cue: 'Interval', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', cue: 'Presenter', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', cue: 'Interval', type: SupportedEvent.Event } as OntimeEvent,
       };
       const cue = getCueCandidate(entries, ['1', '2'], '1');
       expect(cue).toBe('Presenter2');
@@ -159,8 +159,8 @@ describe('findCueName() with mixed events', () => {
 
     it('creates decimal stem if next cue has same stem (case of numbers)', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: '1', type: SupportedEntry.Event } as OntimeEvent,
-        '2': { id: '2', cue: '2', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', cue: '1', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', cue: '2', type: SupportedEvent.Event } as OntimeEvent,
       };
       const cue = getCueCandidate(entries, ['1', '2'], '1');
       expect(cue).toBe('1.1');
@@ -168,8 +168,8 @@ describe('findCueName() with mixed events', () => {
 
     it('creates decimal stem if next cue has same stem (case of letters)', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: 'Presenter1', type: SupportedEntry.Event } as OntimeEvent,
-        '2': { id: '2', cue: 'Presenter2', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', cue: 'Presenter1', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', cue: 'Presenter2', type: SupportedEvent.Event } as OntimeEvent,
       };
       const cue = getCueCandidate(entries, ['1', '2'], '1');
       expect(cue).toBe('Presenter1.1');

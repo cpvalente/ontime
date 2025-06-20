@@ -8,7 +8,7 @@ import {
   Runtime,
   Settings,
   SimpleTimerState,
-  SupportedEntry,
+  SupportedEvent,
   TimerType,
   ViewSettings,
 } from 'ontime-types';
@@ -63,7 +63,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
 
     const publicEvents = useMemo(() => {
       if (Array.isArray(rundownData)) {
-        return rundownData.filter((e) => e.type === SupportedEntry.Event && e.title && e.isPublic);
+        return rundownData.filter((e) => e.type === SupportedEvent.Event && e.title && e.isPublic);
       }
       return [];
     }, [rundownData]);

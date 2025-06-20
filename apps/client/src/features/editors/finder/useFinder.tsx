@@ -1,19 +1,19 @@
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { isOntimeBlock, isOntimeEvent, MaybeString, SupportedEntry } from 'ontime-types';
+import { isOntimeBlock, isOntimeEvent, MaybeString, SupportedEvent } from 'ontime-types';
 
 import { useFlatRundown } from '../../../common/hooks-query/useRundown';
 
 const maxResults = 12;
 
 type FilterableBlock = {
-  type: SupportedEntry.Block;
+  type: SupportedEvent.Block;
   id: string;
   index: number;
   title: string;
 };
 
 type FilterableEvent = {
-  type: SupportedEntry.Event;
+  type: SupportedEvent.Event;
   id: string;
   index: number;
   eventIndex: number;
@@ -59,7 +59,7 @@ export default function useFinder() {
       if (isOntimeEvent(event)) {
         if (eventIndex === searchIndex) {
           results.push({
-            type: SupportedEntry.Event,
+            type: SupportedEvent.Event,
             id: event.id,
             index: i,
             eventIndex,
@@ -93,7 +93,7 @@ export default function useFinder() {
         if (event.cue.toLowerCase().includes(searchString)) {
           remaining--;
           results.push({
-            type: SupportedEntry.Event,
+            type: SupportedEvent.Event,
             id: event.id,
             index: i,
             eventIndex,
@@ -126,7 +126,7 @@ export default function useFinder() {
         if (event.title.toLowerCase().includes(searchString)) {
           remaining--;
           results.push({
-            type: SupportedEntry.Event,
+            type: SupportedEvent.Event,
             id: event.id,
             index: i,
             eventIndex,
@@ -141,7 +141,7 @@ export default function useFinder() {
         if (event.title.toLowerCase().includes(searchString)) {
           remaining--;
           results.push({
-            type: SupportedEntry.Block,
+            type: SupportedEvent.Block,
             id: event.id,
             index: i,
             title: event.title,

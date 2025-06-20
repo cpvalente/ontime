@@ -6,7 +6,7 @@ import {
   OntimeEntry,
   OntimeEvent,
   Playback,
-  SupportedEntry,
+  SupportedEvent,
 } from 'ontime-types';
 
 import { useEntryActions } from '../../common/hooks/useEntryAction';
@@ -33,7 +33,7 @@ export type EventItemActions =
   | 'clear-report';
 
 interface RundownEntryProps {
-  type: SupportedEntry;
+  type: SupportedEvent;
   isPast: boolean;
   data: OntimeEntry;
   loaded: boolean;
@@ -86,7 +86,7 @@ export default function RundownEntry(props: RundownEntryProps) {
   const actionHandler = useMemoisedFn((action: EventItemActions, payload?: number | FieldValue) => {
     switch (action) {
       case 'event': {
-        const newEvent = { type: SupportedEntry.Event };
+        const newEvent = { type: SupportedEvent.Event };
         const options = {
           after: data.id,
           lastEventId: previousEventId,
@@ -94,23 +94,23 @@ export default function RundownEntry(props: RundownEntryProps) {
         return addEntry(newEvent, options);
       }
       case 'event-before': {
-        const newEvent = { type: SupportedEntry.Event };
+        const newEvent = { type: SupportedEvent.Event };
         const options = {
           after: previousEntryId,
         };
         return addEntry(newEvent, options);
       }
       case 'delay': {
-        return addEntry({ type: SupportedEntry.Delay }, { after: data.id });
+        return addEntry({ type: SupportedEvent.Delay }, { after: data.id });
       }
       case 'delay-before': {
-        return addEntry({ type: SupportedEntry.Delay }, { after: previousEntryId });
+        return addEntry({ type: SupportedEvent.Delay }, { after: previousEntryId });
       }
       case 'block': {
-        return addEntry({ type: SupportedEntry.Block }, { after: data.id });
+        return addEntry({ type: SupportedEvent.Block }, { after: data.id });
       }
       case 'block-before': {
-        return addEntry({ type: SupportedEntry.Block }, { after: previousEntryId });
+        return addEntry({ type: SupportedEvent.Block }, { after: previousEntryId });
       }
       case 'swap': {
         const { value } = payload as FieldValue;

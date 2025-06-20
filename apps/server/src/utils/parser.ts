@@ -18,7 +18,7 @@ import {
   OntimeBlock,
   OntimeEvent,
   Rundown,
-  SupportedEntry,
+  SupportedEvent,
   TimerType,
   TimeStrategy,
 } from 'ontime-types';
@@ -232,10 +232,10 @@ export const parseExcel = (
         const maybeTimeType = makeString(column, '');
         if (maybeTimeType === 'block') {
           // we leave this as a clue for the object filtering later on
-          entry.type = SupportedEntry.Block;
+          entry.type = SupportedEvent.Block;
         } else if (maybeTimeType === '' || maybeTimeType === 'event' || isKnownTimerType(maybeTimeType)) {
           // @ts-expect-error -- we leave this as a clue for the object filtering later on
-          entry.type = SupportedEntry.Event;
+          entry.type = SupportedEvent.Event;
           entry.timerType = validateTimerType(maybeTimeType);
         } else {
           // if it is not a block or a known type, we dont import it
@@ -320,7 +320,7 @@ export const parseExcel = (
     const event = {
       ...entry,
       custom: { ...entryCustomFields },
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
     } as OntimeEvent;
 
     if (timerTypeIndex === null) {
@@ -407,7 +407,7 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
 
   return {
     id: originalEvent.id,
-    type: SupportedEntry.Event,
+    type: SupportedEvent.Event,
     title: makeString(patchEvent.title, originalEvent.title),
     timeStart,
     timeEnd,

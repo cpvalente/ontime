@@ -10,7 +10,7 @@ import {
   isOntimeEvent,
   OntimeEntry,
   Playback,
-  SupportedEntry,
+  SupportedEvent,
 } from 'ontime-types';
 import {
   getFirstNormal,
@@ -84,7 +84,7 @@ export default function Rundown({ data }: RundownProps) {
         return;
       }
       const cloneEntry = entries[copyId];
-      if (cloneEntry?.type === SupportedEntry.Event) {
+      if (cloneEntry?.type === SupportedEvent.Event) {
         //if we don't have a cursor add the new event on top
         const newEvent = cloneEvent(cloneEntry);
         addEntry(newEvent, { after: adjustedCursor ?? undefined });
@@ -94,7 +94,7 @@ export default function Rundown({ data }: RundownProps) {
   );
 
   const insertAtId = useCallback(
-    (patch: Partial<OntimeEntry> & { type: SupportedEntry }, id: MaybeString, above = false) => {
+    (patch: Partial<OntimeEntry> & { type: SupportedEvent }, id: MaybeString, above = false) => {
       const options: EventOptions =
         id === null
           ? {}
@@ -202,14 +202,14 @@ export default function Rundown({ data }: RundownProps) {
 
     ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
 
-    ['alt + E', () => insertAtId({ type: SupportedEntry.Event }, cursor), { preventDefault: true }],
-    ['alt + shift + E', () => insertAtId({ type: SupportedEntry.Event }, cursor, true), { preventDefault: true }],
+    ['alt + E', () => insertAtId({ type: SupportedEvent.Event }, cursor), { preventDefault: true }],
+    ['alt + shift + E', () => insertAtId({ type: SupportedEvent.Event }, cursor, true), { preventDefault: true }],
 
-    ['alt + B', () => insertAtId({ type: SupportedEntry.Block }, cursor), { preventDefault: true }],
-    ['alt + shift + B', () => insertAtId({ type: SupportedEntry.Block }, cursor, true), { preventDefault: true }],
+    ['alt + B', () => insertAtId({ type: SupportedEvent.Block }, cursor), { preventDefault: true }],
+    ['alt + shift + B', () => insertAtId({ type: SupportedEvent.Block }, cursor, true), { preventDefault: true }],
 
-    ['alt + D', () => insertAtId({ type: SupportedEntry.Delay }, cursor), { preventDefault: true }],
-    ['alt + shift + D', () => insertAtId({ type: SupportedEntry.Delay }, cursor, true), { preventDefault: true }],
+    ['alt + D', () => insertAtId({ type: SupportedEvent.Delay }, cursor), { preventDefault: true }],
+    ['alt + shift + D', () => insertAtId({ type: SupportedEvent.Delay }, cursor, true), { preventDefault: true }],
 
     ['mod + C', () => setEntryCopyId(cursor)],
     ['mod + V', () => insertCopyAtId(cursor, entryCopyId)],
@@ -254,7 +254,7 @@ export default function Rundown({ data }: RundownProps) {
   };
 
   if (statefulEntries.length < 1) {
-    return <RundownEmpty handleAddNew={() => insertAtId({ type: SupportedEntry.Event }, cursor)} />;
+    return <RundownEmpty handleAddNew={() => insertAtId({ type: SupportedEvent.Event }, cursor)} />;
   }
 
   // 1. gather presentation options
@@ -292,7 +292,7 @@ export default function Rundown({ data }: RundownProps) {
                     <BlockBlock data={entry} hasCursor={hasCursor}>
                       {entry.events.length === 0 && (
                         <BlockEmpty
-                          handleAddNew={() => insertAtId({ type: SupportedEntry.Event, parent: entry.id }, entry.id)}
+                          handleAddNew={() => insertAtId({ type: SupportedEvent.Event, parent: entry.id }, entry.id)}
                         />
                       )}
                       {entry.events.map((eventId, nestedIndex) => {

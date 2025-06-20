@@ -7,7 +7,7 @@ import {
   ProjectData,
   Runtime,
   Settings,
-  SupportedEntry,
+  SupportedEvent,
   TimerPhase,
 } from 'ontime-types';
 
@@ -63,7 +63,7 @@ export default function Countdown(props: CountdownProps) {
     }
 
     let followThis: OntimeEvent | null = null;
-    const events: OntimeEvent[] = [...backstageEvents].filter((event) => event.type === SupportedEntry.Event);
+    const events: OntimeEvent[] = [...backstageEvents].filter((event) => event.type === SupportedEvent.Event);
 
     if (eventId !== null) {
       followThis = events.find((event) => event.id === eventId) || null;

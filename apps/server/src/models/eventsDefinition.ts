@@ -3,13 +3,13 @@ import {
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
-  SupportedEntry,
+  SupportedEvent,
   TimeStrategy,
   TimerType,
 } from 'ontime-types';
 
 export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
-  type: SupportedEntry.Event,
+  type: SupportedEvent.Event,
   title: '',
   note: '',
   endAction: EndAction.None,
@@ -35,12 +35,12 @@ export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
 };
 
 export const delay: Omit<OntimeDelay, 'id'> = {
-  type: SupportedEntry.Delay,
+  type: SupportedEvent.Delay,
   duration: 0,
 };
 
 export const block: Omit<OntimeBlock, 'id'> = {
-  type: SupportedEntry.Block,
+  type: SupportedEvent.Block,
   title: '',
   note: '',
   events: [],

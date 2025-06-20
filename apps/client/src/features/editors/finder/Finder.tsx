@@ -1,7 +1,7 @@
 import { KeyboardEvent, useState } from 'react';
 import { Input, Modal, ModalBody, ModalContent, ModalFooter, ModalOverlay } from '@chakra-ui/react';
 import { useDebouncedCallback } from '@mantine/hooks';
-import { SupportedEntry } from 'ontime-types';
+import { SupportedEvent } from 'ontime-types';
 
 import { useEventSelection } from '../../rundown/useEventSelection';
 
@@ -67,9 +67,9 @@ export default function Finder(props: FinderProps) {
             {results.length > 0 &&
               results.map((entry, index) => {
                 const isSelected = selected === index;
-                const displayIndex = entry.type === SupportedEntry.Event ? entry.eventIndex : '-';
-                const displayCue = entry.type === SupportedEntry.Event ? entry.cue : '';
-                const colour = entry.type === SupportedEntry.Event ? entry.colour : '';
+                const displayIndex = entry.type === SupportedEvent.Event ? entry.eventIndex : '-';
+                const displayCue = entry.type === SupportedEvent.Event ? entry.cue : '';
+                const colour = entry.type === SupportedEvent.Event ? entry.colour : '';
 
                 return (
                   <li

@@ -1,4 +1,4 @@
-import { OntimeEvent, SupportedEntry } from 'ontime-types';
+import { OntimeEvent, SupportedEvent } from 'ontime-types';
 
 /**
  * @description Creates a safe duplicate of an event
@@ -9,7 +9,7 @@ import { OntimeEvent, SupportedEntry } from 'ontime-types';
 type ClonedEvent = Omit<OntimeEvent, 'id' | 'cue'>;
 export const cloneEvent = (event: OntimeEvent): ClonedEvent => {
   return {
-    type: SupportedEntry.Event,
+    type: SupportedEvent.Event,
     title: event.title,
     note: event.note,
     timeStart: event.timeStart,

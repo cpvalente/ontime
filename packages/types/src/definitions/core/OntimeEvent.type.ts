@@ -2,24 +2,24 @@ import type { EndAction, EntryCustomFields, MaybeNumber, TimerType, TimeStrategy
 
 export type EntryId = string;
 
-export enum SupportedEntry {
+export enum SupportedEvent {
   Event = 'event',
   Delay = 'delay',
   Block = 'block',
 }
 
 export type OntimeBaseEvent = {
-  type: SupportedEntry;
+  type: SupportedEvent;
   id: EntryId;
 };
 
 export type OntimeDelay = OntimeBaseEvent & {
-  type: SupportedEntry.Delay;
+  type: SupportedEvent.Delay;
   duration: number;
 };
 
 export type OntimeBlock = OntimeBaseEvent & {
-  type: SupportedEntry.Block;
+  type: SupportedEvent.Block;
   title: string;
   note: string;
   events: EntryId[];
@@ -36,7 +36,7 @@ export type OntimeBlock = OntimeBaseEvent & {
 };
 
 export type OntimeEvent = OntimeBaseEvent & {
-  type: SupportedEntry.Event;
+  type: SupportedEvent.Event;
   cue: string;
   title: string;
   note: string;

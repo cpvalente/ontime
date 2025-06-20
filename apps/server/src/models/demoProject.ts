@@ -1,4 +1,4 @@
-import { DatabaseModel, EndAction, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
+import { DatabaseModel, EndAction, SupportedEvent, TimeStrategy, TimerType } from 'ontime-types';
 
 export const demoDb: DatabaseModel = {
   rundowns: {
@@ -40,7 +40,7 @@ export const demoDb: DatabaseModel = {
       ],
       entries: {
         block: {
-          type: SupportedEntry.Block,
+          type: SupportedEvent.Block,
           events: ['32d31', '21cd2', '0b371', '3cd28', 'e457f'],
           id: 'block',
           title: 'Test Block',
@@ -59,7 +59,7 @@ export const demoDb: DatabaseModel = {
           },
         },
         '32d31': {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: '32d31',
           cue: 'SF1.01',
           title: 'Albania',
@@ -88,7 +88,7 @@ export const demoDb: DatabaseModel = {
           },
         },
         '21cd2': {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: '21cd2',
           cue: 'SF1.02',
           title: 'Latvia',
@@ -117,7 +117,7 @@ export const demoDb: DatabaseModel = {
           },
         },
         '0b371': {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: '0b371',
           cue: 'SF1.03',
           title: 'Lithuania',
@@ -146,7 +146,7 @@ export const demoDb: DatabaseModel = {
           },
         },
         '3cd28': {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: '3cd28',
           cue: 'SF1.04',
           title: 'Switzerland',
@@ -175,7 +175,7 @@ export const demoDb: DatabaseModel = {
           },
         },
         e457f: {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: 'e457f',
           cue: 'SF1.05',
           title: 'Slovenia',
@@ -206,7 +206,7 @@ export const demoDb: DatabaseModel = {
         /// <----- BLOCK
         '01e85': {
           // TODO: this should be a marker type
-          type: SupportedEntry.Block,
+          type: SupportedEvent.Block,
           id: '01e85',
           title: 'Lunch break',
           note: '',
@@ -222,7 +222,7 @@ export const demoDb: DatabaseModel = {
           numEvents: 0,
         },
         '1c420': {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: '1c420',
           cue: 'SF1.06',
           title: 'Ukraine',
@@ -251,7 +251,7 @@ export const demoDb: DatabaseModel = {
           },
         },
         b7737: {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: 'b7737',
           cue: 'SF1.07',
           title: 'Bulgaria',
@@ -280,7 +280,7 @@ export const demoDb: DatabaseModel = {
           },
         },
         d3a80: {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: 'd3a80',
           cue: 'SF1.08',
           title: 'Netherlands',
@@ -309,7 +309,7 @@ export const demoDb: DatabaseModel = {
           },
         },
         '8276c': {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: '8276c',
           cue: 'SF1.09',
           title: 'Moldova',
@@ -338,7 +338,7 @@ export const demoDb: DatabaseModel = {
           },
         },
         '2340b': {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: '2340b',
           cue: 'SF1.10',
           title: 'Portugal',
@@ -369,7 +369,7 @@ export const demoDb: DatabaseModel = {
         /// <----- BLOCK
         cb90b: {
           // TODO: This should be a marker type
-          type: SupportedEntry.Block,
+          type: SupportedEvent.Block,
           id: 'cb90b',
           title: 'Afternoon break',
           note: '',
@@ -385,7 +385,7 @@ export const demoDb: DatabaseModel = {
           numEvents: 0,
         },
         '503c4': {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: '503c4',
           cue: 'SF1.11',
           title: 'Croatia',
@@ -414,7 +414,7 @@ export const demoDb: DatabaseModel = {
           },
         },
         '5e965': {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: '5e965',
           cue: 'SF1.12',
           title: 'Denmark',
@@ -443,7 +443,7 @@ export const demoDb: DatabaseModel = {
           },
         },
         bab4a: {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: 'bab4a',
           cue: 'SF1.13',
           title: 'Austria',
@@ -472,7 +472,7 @@ export const demoDb: DatabaseModel = {
           },
         },
         d3eb1: {
-          type: SupportedEntry.Event,
+          type: SupportedEvent.Event,
           id: 'd3eb1',
           cue: 'SF1.14',
           title: 'Greece',

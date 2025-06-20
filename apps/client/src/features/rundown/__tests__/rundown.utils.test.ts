@@ -1,4 +1,4 @@
-import { OntimeBlock, OntimeEvent, SupportedEntry } from 'ontime-types';
+import { OntimeBlock, OntimeEvent, SupportedEvent } from 'ontime-types';
 
 import { makeRundownMetadata } from '../rundown.utils';
 
@@ -8,7 +8,7 @@ describe('makeRundownMetadata()', () => {
     const demoEvents = {
       '1': {
         id: '1',
-        type: SupportedEntry.Event,
+        type: SupportedEvent.Event,
         parent: null,
         timeStart: 0,
         timeEnd: 1,
@@ -20,12 +20,12 @@ describe('makeRundownMetadata()', () => {
       } as OntimeEvent,
       block: {
         id: 'block',
-        type: SupportedEntry.Block,
+        type: SupportedEvent.Block,
         events: ['11, 12, 13'],
       } as OntimeBlock,
       '11': {
         id: '11',
-        type: SupportedEntry.Event,
+        type: SupportedEvent.Event,
         parent: 'block',
         timeStart: 10,
         timeEnd: 11,
@@ -37,7 +37,7 @@ describe('makeRundownMetadata()', () => {
       } as OntimeEvent,
       '12': {
         id: '12',
-        type: SupportedEntry.Event,
+        type: SupportedEvent.Event,
         parent: 'block',
         timeStart: 11,
         timeEnd: 12,
@@ -49,7 +49,7 @@ describe('makeRundownMetadata()', () => {
       } as OntimeEvent,
       '13': {
         id: '13',
-        type: SupportedEntry.Event,
+        type: SupportedEvent.Event,
         parent: 'block',
         timeStart: 12,
         timeEnd: 13,
@@ -61,7 +61,7 @@ describe('makeRundownMetadata()', () => {
       } as OntimeEvent,
       '2': {
         id: '2',
-        type: SupportedEntry.Event,
+        type: SupportedEvent.Event,
         parent: null,
         timeStart: 20,
         timeEnd: 21,

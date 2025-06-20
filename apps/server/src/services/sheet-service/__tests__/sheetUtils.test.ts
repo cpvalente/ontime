@@ -1,4 +1,4 @@
-import { EndAction, OntimeEvent, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
+import { EndAction, OntimeEvent, SupportedEvent, TimeStrategy, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { getA1Notation, cellRequestFromEvent } from '../sheetUtils.js';
@@ -21,7 +21,7 @@ describe('getA1Notation()', () => {
 describe('cellRequestFromEvent()', () => {
   test('string to string', () => {
     const event: OntimeEvent = {
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -70,7 +70,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('number to timer', () => {
     const event: OntimeEvent = {
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -121,7 +121,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('boolean to TRUE', () => {
     const event: OntimeEvent = {
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -171,7 +171,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('spacing in metadata', () => {
     const event: OntimeEvent = {
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -207,7 +207,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('metadata offset from zero', () => {
     const event: OntimeEvent = {
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -244,7 +244,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('sheet setup', () => {
     const event: OntimeEvent = {
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',

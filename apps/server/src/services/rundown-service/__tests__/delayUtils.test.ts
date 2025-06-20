@@ -1,4 +1,4 @@
-import { OntimeEvent, SupportedEntry } from 'ontime-types';
+import { OntimeEvent, SupportedEvent } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { apply } from '../delayUtils.js';
@@ -72,7 +72,7 @@ describe('apply()', () => {
     expect(testRundown.entries).toMatchObject({
       '1': {
         id: '1',
-        type: SupportedEntry.Event,
+        type: SupportedEvent.Event,
         timeStart: 0,
         timeEnd: 100,
         duration: 100,
@@ -80,7 +80,7 @@ describe('apply()', () => {
       } as OntimeEvent,
       '2': {
         id: '2',
-        type: SupportedEntry.Event,
+        type: SupportedEvent.Event,
         timeStart: 50,
         timeEnd: 100,
         duration: 50,

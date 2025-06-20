@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { isOntimeEvent, OntimeEvent, SupportedEntry } from 'ontime-types';
+import { isOntimeEvent, OntimeEvent, SupportedEvent } from 'ontime-types';
 import { getFirstEventNormal, getLastEventNormal } from 'ontime-utils';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
@@ -197,7 +197,7 @@ export default function Operator() {
             );
           }
 
-          if (entry.type === SupportedEntry.Block) {
+          if (entry.type === SupportedEvent.Block) {
             return <OperatorBlock key={entry.id} title={entry.title} />;
           }
           return null;

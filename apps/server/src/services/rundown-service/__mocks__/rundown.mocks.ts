@@ -1,14 +1,14 @@
-import { SupportedEntry, OntimeEvent, OntimeDelay, OntimeBlock, Rundown } from 'ontime-types';
+import { SupportedEvent, OntimeEvent, OntimeDelay, OntimeBlock, Rundown } from 'ontime-types';
 import { defaultRundown } from '../../../models/dataModel.js';
 
 const baseEvent = {
-  type: SupportedEntry.Event,
+  type: SupportedEvent.Event,
   skip: false,
   revision: 1,
 };
 
 const baseBlock = {
-  type: SupportedEntry.Block,
+  type: SupportedEvent.Block,
   events: [],
 };
 
@@ -26,7 +26,7 @@ export function makeOntimeEvent(patch: Partial<OntimeEvent>): OntimeEvent {
  * Utility to create a delay event
  */
 export function makeOntimeDelay(patch: Partial<OntimeDelay>): OntimeDelay {
-  return { id: 'delay', type: SupportedEntry.Delay, duration: 0, ...patch } as OntimeDelay;
+  return { id: 'delay', type: SupportedEvent.Delay, duration: 0, ...patch } as OntimeDelay;
 }
 
 /**

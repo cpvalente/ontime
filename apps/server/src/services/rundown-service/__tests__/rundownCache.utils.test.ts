@@ -1,4 +1,4 @@
-import { CustomFields, EndAction, OntimeEvent, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
+import { CustomFields, EndAction, OntimeEvent, SupportedEvent, TimeStrategy, TimerType } from 'ontime-types';
 import {
   addToCustomAssignment,
   calculateDayOffset,
@@ -38,7 +38,7 @@ describe('handleCustomField()', () => {
     const customFieldChangelog = {};
 
     const event = makeOntimeEvent({
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       id: '2',
       timeStart: 0,
       linkStart: true,
@@ -73,7 +73,7 @@ describe('handleCustomField()', () => {
     const customFieldChangelog = { sound: 'video' };
 
     const event = makeOntimeEvent({
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       id: '2',
       timeStart: 0,
       linkStart: true,
@@ -108,7 +108,7 @@ describe('handleCustomField()', () => {
     const customFieldChangelog = { field1: 'newField1' };
 
     const mutableEvent = makeOntimeEvent({
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       id: 'event1',
       custom: {
         field1: 'value1',
