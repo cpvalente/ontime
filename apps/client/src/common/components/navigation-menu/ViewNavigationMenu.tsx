@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
+import { useHotkeys } from '@mantine/hooks';
 
 import FloatingNavigation from './FloatingNavigation';
 import NavigationMenu from './NavigationMenu';
@@ -17,6 +18,8 @@ function ViewNavigationMenu(props: ViewNavigationMenuProps) {
   const { showEditFormDrawer, isViewLocked } = useViewEditor({ isLockable });
 
   const toggleMenu = () => (isMenuOpen ? onMenuClose() : onMenuOpen());
+
+  useHotkeys([['mod + ,', () => toggleMenu()]]);
 
   if (isViewLocked) {
     return <ViewLockedIcon />;
