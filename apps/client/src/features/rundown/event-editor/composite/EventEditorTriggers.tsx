@@ -72,6 +72,7 @@ function EventTriggerForm(props: EventTriggerFormProps) {
         variant='ontime'
         value={cycleValue}
         onChange={(e) => setCycleValue(e.target.value as TimerLifeCycle)}
+        defaultValue={TimerLifeCycle.onStart}
       >
         <option disabled>Lifecycle Trigger</option>
         {eventTriggerOptions.map((cycle) => (
