@@ -1,4 +1,4 @@
-import { isEmptyObject, makeString, removeUndefined } from '../parserUtils.js';
+import { isEmptyObject, removeUndefined } from '../parserUtils.js';
 
 describe('isEmptyObject()', () => {
   test('finds an empty object', () => {
@@ -30,41 +30,5 @@ describe('removeUndefined()', () => {
       third: 'null',
     };
     expect(removeUndefined(obj)).toStrictEqual(obj);
-  });
-});
-
-describe('makeString()', () => {
-  it('converts variables to string', () => {
-    const cases = [
-      {
-        val: 2,
-        expected: '2',
-      },
-      {
-        val: 2.22222222,
-        expected: '2.22222222',
-      },
-      {
-        val: ['testing'],
-        expected: 'testing',
-      },
-      {
-        val: ' testing    ',
-        expected: 'testing',
-      },
-      {
-        val: { doing: 'testing' },
-        expected: 'fallback',
-      },
-      {
-        val: undefined,
-        expected: 'fallback',
-      },
-    ];
-
-    cases.forEach(({ val, expected }) => {
-      const converted = makeString(val, 'fallback');
-      expect(converted).toBe(expected);
-    });
   });
 });

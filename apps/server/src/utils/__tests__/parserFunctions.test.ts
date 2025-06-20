@@ -1,6 +1,101 @@
-import { CustomFields } from 'ontime-types';
+import { CustomFields, Settings, URLPreset } from 'ontime-types';
 
-import { parseCustomFields, sanitiseCustomFields } from '../customFields.parser.js';
+import {
+  parseCustomFields,
+  parseProject,
+  parseSettings,
+  parseUrlPresets,
+  parseViewSettings,
+  sanitiseCustomFields,
+} from '../parserFunctions.js';
+
+describe('parseProject()', () => {
+  it('returns an a base model if nothing is given', () => {
+    const errorEmitter = vi.fn();
+    const result = parseProject({}, errorEmitter);
+    expect(result).toBeTypeOf('object');
+    expect(errorEmitter).toHaveBeenCalledOnce();
+  });
+
+  it('test migration with adding the logo field v3.8.0', () => {
+    const errorEmitter = vi.fn();
+    const result = parseProject(
+      {
+        //@ts-expect-error -- checking migration when the logo field is added
+        project: {
+          title: 'title',
+          description: 'description',
+          publicUrl: 'publicUrl',
+          publicInfo: 'publicInfo',
+          backstageUrl: 'backstageUrl',
+          backstageInfo: 'backstageInfo',
+          custom: [],
+        },
+      },
+      errorEmitter,
+    );
+    expect(result).toStrictEqual({
+      title: 'title',
+      description: 'description',
+      publicUrl: 'publicUrl',
+      publicInfo: 'publicInfo',
+      backstageUrl: 'backstageUrl',
+      backstageInfo: 'backstageInfo',
+      projectLogo: null,
+      custom: [],
+    });
+  });
+});
+
+describe('parseSettings()', () => {
+  it('throws if settings object does not exist', () => {
+    expect(() => parseSettings({})).toThrow();
+  });
+
+  it('returns an a base model as long as we have the app version', () => {
+    const result = parseSettings({ settings: { version: '1' } as Settings });
+    expect(result).toBeTypeOf('object');
+    expect(result).toMatchObject({
+      version: expect.any(String),
+      serverPort: 4001,
+      editorKey: null,
+      operatorKey: null,
+      timeFormat: '24',
+      language: 'en',
+    });
+  });
+});
+
+describe('parseViewSettings()', () => {
+  it('returns an a base model if nothing is given', () => {
+    const errorEmitter = vi.fn();
+    const result = parseViewSettings({}, errorEmitter);
+    expect(result).toBeTypeOf('object');
+    expect(errorEmitter).toHaveBeenCalledOnce();
+  });
+});
+
+describe('parseUrlPresets()', () => {
+  it('returns an a base model if nothing is given', () => {
+    const errorEmitter = vi.fn();
+    const result = parseUrlPresets({}, errorEmitter);
+    expect(result).toBeTypeOf('object');
+    expect(errorEmitter).toHaveBeenCalledOnce();
+  });
+
+  it('parses data, skipping invalid results', () => {
+    const errorEmitter = vi.fn();
+    const urlPresets = [{ enabled: true, alias: 'alias', pathAndParams: 'ss' }] as URLPreset[];
+    const result = parseUrlPresets({ urlPresets }, errorEmitter);
+    expect(result.length).toEqual(1);
+    expect(result.at(0)).toMatchObject({
+      enabled: true,
+      alias: 'alias',
+      pathAndParams: 'ss',
+    });
+    expect(errorEmitter).not.toHaveBeenCalled();
+  });
+});
 
 describe('parseCustomFields()', () => {
   it('returns an a base model if nothing is given', () => {

@@ -6,7 +6,7 @@ import type { Request, Response } from 'express';
 import { removeUndefined } from '../../utils/parserUtils.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { editCurrentProjectData } from '../../services/project-service/ProjectService.js';
-import * as projectDao from './projectData.dao.js';
+import * as projectDao from './project.dao.js';
 
 export function getProjectData(_req: Request, res: Response<ProjectData>) {
   res.json(projectDao.getProjectData());

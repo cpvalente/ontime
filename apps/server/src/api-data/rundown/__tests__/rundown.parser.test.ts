@@ -1,18 +1,19 @@
-import { SupportedEntry, OntimeEvent, OntimeBlock, Rundown, CustomFields } from 'ontime-types';
+import { SupportedEntry, OntimeEvent, OntimeBlock, Rundown } from 'ontime-types';
 
 import { defaultRundown } from '../../../models/dataModel.js';
 import { makeOntimeBlock, makeOntimeEvent } from '../__mocks__/rundown.mocks.js';
 
-import { parseRundowns, parseRundown, handleCustomField, addToCustomAssignment } from '../rundown.parser.js';
+import { parseRundowns, parseRundown } from '../rundown.parser.js';
 
 describe('parseRundowns()', () => {
   it('returns a default project rundown if nothing is given', () => {
     const errorEmitter = vi.fn();
-    const result = parseRundowns({}, {}, errorEmitter);
-    expect(result).toStrictEqual({ default: defaultRundown });
+    const result = parseRundowns({}, errorEmitter);
+    expect(result.customFields).toEqual({});
+    expect(result.rundowns).toStrictEqual({ default: defaultRundown });
     // one for not having custom fields
     // one for not having a rundown
-    expect(errorEmitter).toHaveBeenCalledTimes(1);
+    expect(errorEmitter).toHaveBeenCalledTimes(2);
   });
 
   it('ensures the rundown IDs are consistent', () => {
@@ -26,14 +27,14 @@ describe('parseRundowns()', () => {
           '3': r2,
         },
       },
-      {},
       errorEmitter,
     );
-    expect(result).toMatchObject({
+    expect(result.rundowns).toMatchObject({
       '1': r1,
       '2': r2,
     });
-    expect(errorEmitter).toHaveBeenCalledTimes(0);
+    // one for not having a rundown
+    expect(errorEmitter).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -182,37 +183,6 @@ describe('parseRundown()', () => {
     expect(Object.keys(parsedRundown.entries).length).toEqual(2);
   });
 
-  it('parses customFields', () => {
-    const rundown = {
-      id: 'test',
-      title: '',
-      order: ['1', '2'],
-      flatOrder: ['1', '2'],
-      entries: {
-        '1': makeOntimeEvent({ id: '1', custom: { lighting: 'on' } }),
-        '2': makeOntimeEvent({ id: '2', custom: { sound: 'loud' } }),
-      },
-      revision: 1,
-    } as Rundown;
-
-    const customFields: CustomFields = {
-      lighting: {
-        type: 'string',
-        colour: 'red',
-        label: 'lighting',
-      },
-      sound: {
-        type: 'string',
-        colour: 'red',
-        label: 'sound',
-      },
-    };
-
-    const parsedRundown = parseRundown(rundown, customFields);
-    expect((parsedRundown.entries['1'] as OntimeEvent).custom).toStrictEqual({ lighting: 'on' });
-    expect((parsedRundown.entries['2'] as OntimeEvent).custom).toStrictEqual({ sound: 'loud' });
-  });
-
   it('parses events nested in blocks', () => {
     const rundown = {
       id: 'test',
@@ -231,52 +201,5 @@ describe('parseRundown()', () => {
     expect(parsedRundown.order.length).toEqual(1);
     expect(parsedRundown.entries.block).toMatchObject({ events: ['1', '2'] });
     expect(Object.keys(parsedRundown.entries).length).toEqual(3);
-  });
-});
-
-describe('addToCustomAssignment()', () => {
-  it('adds given entry to assignedCustomFields', () => {
-    const assignedCustomFields = {};
-
-    addToCustomAssignment('label1', 'eventId 1', assignedCustomFields);
-    expect(assignedCustomFields).toStrictEqual({ label1: ['eventId 1'] });
-
-    addToCustomAssignment('label1', 'eventId 2', assignedCustomFields);
-    expect(assignedCustomFields).toStrictEqual({ label1: ['eventId 1', 'eventId 2'] });
-  });
-});
-
-describe('handleCustomField()', () => {
-  it('creates a map of where custom fields are used', () => {
-    const customFields = {
-      lighting: {
-        type: 'string',
-        colour: 'red',
-        label: 'lighting',
-      },
-      sound: {
-        type: 'string',
-        colour: 'red',
-        label: 'sound',
-      },
-    } as CustomFields;
-
-    const event = makeOntimeEvent({
-      type: SupportedEntry.Event,
-      id: '2',
-      timeStart: 0,
-      linkStart: true,
-      custom: {
-        lighting: 'on',
-      },
-    });
-    const assignedCustomFields = {};
-
-    const result = handleCustomField(customFields, event, assignedCustomFields);
-    expect(result).toBeUndefined();
-    expect(assignedCustomFields).toStrictEqual({ lighting: ['2'] });
-    expect(event.custom).toStrictEqual({
-      lighting: 'on',
-    });
   });
 });

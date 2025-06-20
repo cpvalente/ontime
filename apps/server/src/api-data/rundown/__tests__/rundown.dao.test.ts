@@ -1,35 +1,18 @@
 import { CustomFields, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEntry, TimeStrategy } from 'ontime-types';
 import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
-import {
-  makeOntimeEvent,
-  makeRundown,
-  makeOntimeBlock,
-  makeOntimeDelay,
-  makeCustomField,
-} from '../__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeRundown, makeOntimeBlock, makeOntimeDelay } from '../__mocks__/rundown.mocks.js';
 
-import {
-  createTransaction,
-  customFieldMutation,
-  processRundown,
-  rundownCache,
-  rundownMutation,
-} from '../rundown.dao.js';
+import { createTransaction, processRundown, rundownCache, rundownMutation } from '../rundown.dao.js';
 import { demoDb } from '../../../models/demoProject.js';
-import type { AssignedMap } from '../rundown.types.js';
-import { type ProcessedRundownMetadata } from '../rundown.parser.js';
-
-const setRundownMock = vi.fn();
-const setCustomFieldsMock = vi.fn();
+import { ProcessedRundownMetadata } from '../../../services/rundown-service/rundownCache.utils.js';
 
 beforeAll(() => {
   vi.mock('../../../classes/data-provider/DataProvider.js', () => {
     return {
       getDataProvider: vi.fn().mockImplementation(() => {
         return {
-          setRundown: setRundownMock,
-          setCustomFields: setCustomFieldsMock,
+          setRundown: vi.fn().mockImplementation(() => undefined),
         };
       }),
     };
@@ -41,39 +24,17 @@ afterAll(() => {
 });
 
 describe('createTransaction', () => {
-  beforeEach(() => {
-    vi.useFakeTimers({ shouldAdvanceTime: true });
-  });
-
-  afterEach(() => {
-    vi.runOnlyPendingTimers();
-    vi.useRealTimers();
-  });
-
-  it('should return a snapshot of the cached data and an commit function', () => {
-    const { rundown, customFields, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: true });
+  it('should return a snapshot of the cached rundown and an commit function', () => {
+    const { rundown, commit } = createTransaction();
     expect(rundown).toBeDefined();
-    expect(customFields).toBeDefined();
     expect(typeof commit).toBe('function');
   });
 
-  it('should return the updated data after commit is called and writes are scheduled', () => {
-    const { rundown, customFields, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: true });
+  it('should return the updated rundown after commit is called and update the db', () => {
+    const { rundown, commit } = createTransaction();
     rundown.title = 'Another Title';
-    customFields['newField'] = {
-      label: 'New Field',
-      type: 'string',
-      colour: 'blue',
-    };
-
     const updated = commit();
-    vi.runAllTimers();
-
     expect(updated.rundown.title).toBe('Another Title');
-    expect(updated.customFields).toHaveProperty('newField');
-
-    expect(setRundownMock).toHaveBeenCalledOnce();
-    expect(setCustomFieldsMock).toHaveBeenCalledOnce();
   });
 });
 
@@ -1604,122 +1565,6 @@ describe('rundownMutation.ungroup()', () => {
       '1': { id: '1', type: SupportedEntry.Event, cue: 'data1', parent: null },
       '21': { id: '21', type: SupportedEntry.Event, cue: 'data21', parent: null },
       '22': { id: '22', type: SupportedEntry.Event, cue: 'data22', parent: null },
-    });
-  });
-});
-
-describe('customFieldMutation.add()', () => {
-  it('adds a custom field given object', () => {
-    const customFields = {
-      one: makeCustomField({ label: 'one' }),
-    };
-
-    customFieldMutation.add(customFields, 'two', makeCustomField({ label: 'two' }));
-
-    expect(customFields).toMatchObject({
-      one: { label: 'one' },
-      two: { label: 'two' },
-    });
-  });
-});
-
-describe('customFieldMutation.edit()', () => {
-  it('changes properties of an existing custom field', () => {
-    const customFields = {
-      one: makeCustomField({ label: 'one', colour: 'blue' }),
-    };
-
-    customFieldMutation.edit(customFields, 'one', customFields.one, { colour: 'red' });
-
-    expect(customFields).toMatchObject({
-      one: { label: 'one', colour: 'red' },
-    });
-  });
-
-  it('changing the label makes a new key', () => {
-    const customFields = {
-      one: makeCustomField({ label: 'one', colour: 'blue' }),
-    };
-
-    const { oldKey, newKey } = customFieldMutation.edit(customFields, 'one', customFields.one, {
-      label: 'two',
-      colour: 'red',
-    });
-
-    expect(oldKey).toBe('one');
-    expect(newKey).not.toEqual(oldKey);
-
-    expect(customFields).toMatchObject({
-      [oldKey]: { label: 'one', colour: 'blue' },
-      [newKey]: { label: 'two', colour: 'red' },
-    });
-  });
-});
-
-describe('customFieldMutation.remove()', () => {
-  it('deletes a custom field from the object', () => {
-    const customFields = {
-      one: makeCustomField({ label: 'one', colour: 'blue' }),
-    };
-
-    customFieldMutation.remove(customFields, 'one');
-
-    expect(customFields).not.toHaveProperty('one');
-  });
-});
-
-describe('customFieldMutation.renameUsages()', () => {
-  it('renames all custom field entries in a given rundown', () => {
-    const rundown = makeRundown({
-      order: ['1', '2', '3'],
-      entries: {
-        '1': makeOntimeEvent({ id: '1', custom: { one: 'value1' } }),
-        '2': makeOntimeEvent({ id: '2', custom: { one: 'value2' } }),
-        '3': makeOntimeEvent({ id: '3', custom: { two: 'value3' } }),
-      },
-    });
-
-    const assigned: AssignedMap = {
-      one: ['1', '2'],
-      two: ['3'],
-    };
-
-    customFieldMutation.renameUsages(rundown, assigned, 'one', 'new-one');
-    expect(rundown.entries).toMatchObject({
-      '1': { id: '1', custom: { 'new-one': 'value1' } },
-      '2': { id: '2', custom: { 'new-one': 'value2' } },
-      '3': { id: '3', custom: { two: 'value3' } },
-    });
-
-    expect(assigned).toStrictEqual({
-      'new-one': ['1', '2'],
-      two: ['3'],
-    });
-  });
-});
-
-describe('customFieldMutation.removeUsages()', () => {
-  it('deletes all custom field entries in a given rundown', () => {
-    const rundown = makeRundown({
-      order: ['1', '2', '3'],
-      entries: {
-        '1': makeOntimeEvent({ id: '1', custom: { one: 'value1' } }),
-        '2': makeOntimeEvent({ id: '2', custom: { one: 'value2' } }),
-        '3': makeOntimeEvent({ id: '3', custom: { two: 'value3' } }),
-      },
-    });
-
-    const assigned: AssignedMap = {
-      one: ['1', '2'],
-      two: ['3'],
-    };
-
-    customFieldMutation.removeUsages(rundown, assigned, 'one');
-    expect((rundown.entries['1'] as OntimeEvent).custom).not.toHaveProperty('one');
-    expect((rundown.entries['2'] as OntimeEvent).custom).not.toHaveProperty('one');
-
-    expect(assigned).toStrictEqual({
-      two: ['3'],
     });
   });
 });

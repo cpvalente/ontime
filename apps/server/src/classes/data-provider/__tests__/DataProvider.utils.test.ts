@@ -6,6 +6,54 @@ import { makeOntimeEvent, makeRundown } from '../../../api-data/rundown/__mocks_
 import { safeMerge } from '../DataProvider.utils.js';
 
 describe('safeMerge', () => {
+  const existing = {
+    rundown: [],
+    project: {
+      title: 'existing title',
+      description: 'existing description',
+      publicUrl: 'existing public URL',
+      backstageUrl: 'existing backstageUrl',
+      publicInfo: 'existing backstageInfo',
+      backstageInfo: 'existing backstageInfo',
+      projectLogo: null,
+      custom: [
+        {
+          title: 'existing custom title',
+          value: 'existing custom value',
+        },
+      ],
+    },
+    settings: {
+      app: 'ontime',
+      version: '2.0.0',
+      serverPort: 4001,
+      editorKey: null,
+      operatorKey: null,
+      timeFormat: '24',
+      language: 'en',
+    },
+    viewSettings: {
+      overrideStyles: false,
+      freezeEnd: false,
+      endMessage: 'existing endMessage',
+      normalColor: '#ffffffcc',
+      warningColor: '#FFAB33',
+      dangerColor: '#ED3333',
+    },
+    urlPresets: [],
+    customFields: {
+      lighting: { type: 'string', label: 'lighting', colour: 'red' },
+      vfx: { type: 'string', label: 'vfx', colour: 'blue' },
+    },
+    automation: {
+      enabledAutomations: false,
+      enabledOscIn: false,
+      oscPortIn: 8000,
+      triggers: [],
+      automations: {},
+    },
+  } as DatabaseModel;
+
   it('returns existing data if new data is not provided', () => {
     const mergedData = safeMerge(demoDb, {});
     expect(mergedData).toEqual(demoDb);
@@ -89,6 +137,42 @@ describe('safeMerge', () => {
   });
 
   it('should merge the urlPresets key when present', () => {
+    const existingData = {
+      rundown: [],
+      project: {
+        title: '',
+        description: '',
+        publicUrl: '',
+        publicInfo: '',
+        backstageUrl: '',
+        backstageInfo: '',
+        projectLogo: null,
+        custom: [],
+      },
+      settings: {
+        app: 'ontime',
+        version: '2.0.0',
+        serverPort: 4001,
+        operatorKey: null,
+        editorKey: null,
+        timeFormat: '24',
+        language: 'en',
+      },
+      viewSettings: {
+        overrideStyles: false,
+        endMessage: '',
+      } as ViewSettings,
+      urlPresets: [],
+      customFields: {},
+      automation: {
+        enabledAutomations: false,
+        enabledOscIn: false,
+        oscPortIn: 8000,
+        triggers: [],
+        automations: {},
+      },
+    } as DatabaseModel;
+
     const newData = {
       urlPresets: [
         { enabled: true, alias: 'alias1', pathAndParams: '' },

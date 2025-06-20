@@ -1,4 +1,4 @@
-export type ErrorEmitter = (message: string) => void;
+import { unlink } from 'fs';
 
 /**
  * @description Ensures variable is string, it skips object types
@@ -10,6 +10,17 @@ export const makeString = (val: unknown, fallback = ''): string => {
   if (typeof val === 'string') return val.trim();
   else if (val == null || val.constructor === Object) return fallback;
   return val.toString().trim();
+};
+
+/**
+ * @description Delete file from system
+ */
+export const deleteFile = async (filePath: string) => {
+  unlink(filePath, (error) => {
+    if (error) {
+      console.error('Could not delete file:', error);
+    }
+  });
 };
 
 /**

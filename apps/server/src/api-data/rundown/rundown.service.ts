@@ -1,6 +1,4 @@
 import {
-  CustomField,
-  CustomFieldKey,
   CustomFields,
   EntryId,
   EventPostPayload,
@@ -11,21 +9,21 @@ import {
   PatchWithId,
   Rundown,
 } from 'ontime-types';
-import { customFieldLabelToKey } from 'ontime-utils';
 
+import { getPreviousId } from '../../services/rundown-service/rundownUtils.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
 
-import { createTransaction, customFieldMutation, rundownCache, rundownMutation } from './rundown.dao.js';
-import type { RundownMetadata } from './rundown.types.js';
-import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
+import { createTransaction, rundownCache, rundownMutation } from './rundown.dao.js';
+import { RundownMetadata } from './rundown.types.js';
+import { generateEvent, hasChanges } from './rundown.utils.js';
 
 /**
  * creates a new entry with given data
  */
 export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+  const { rundown, commit } = createTransaction();
 
   // we allow the user to provide an ID, but make sure it is unique
   if (eventData?.id && Object.hasOwn(rundown.entries, eventData.id)) {
@@ -43,7 +41,7 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
   }
 
   // normalise the position of the event in the rundown order
-  const afterId = getInsertAfterId(rundown, eventData?.after, eventData?.before);
+  const afterId = getPreviousId(rundown, eventData?.after, eventData?.before);
 
   // generate a fully formed entry from the patch
   const newEntry = generateEvent(rundown, eventData, afterId);
@@ -68,7 +66,7 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
  * Applies a patch to an entry in the rundown
  */
 export async function editEntry(patch: PatchWithId): Promise<OntimeEntry> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+  const { rundown, commit } = createTransaction();
   const currentEntry = rundown.entries[patch.id];
 
   /**
@@ -117,7 +115,7 @@ export async function editEntry(patch: PatchWithId): Promise<OntimeEntry> {
  * Applies a patch to several entries in the rundown
  */
 export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntry>): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+  const { rundown, commit } = createTransaction();
 
   /**
    * We can do some validation globally, but mostly we will validate each entry individually
@@ -181,7 +179,7 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
  * Deletes a known entry from the current rundown
  */
 export async function deleteEntries(entryIds: EntryId[]): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+  const { rundown, commit } = createTransaction();
 
   for (let i = 0; i < entryIds.length; i++) {
     const entry = rundown.entries[entryIds[i]];
@@ -209,7 +207,7 @@ export async function deleteEntries(entryIds: EntryId[]): Promise<Rundown> {
  * Deletes all entries from the current rundown
  */
 export async function deleteAllEntries(): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+  const { rundown, commit } = createTransaction();
 
   rundownMutation.removeAll(rundown);
 
@@ -233,7 +231,7 @@ export async function deleteAllEntries(): Promise<Rundown> {
  * @throws if entryId or destinationId not found
  */
 export function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+  const { rundown, commit } = createTransaction();
 
   // check that both entries exist
   const eventFrom = rundown.entries[entryId];
@@ -264,7 +262,7 @@ export function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'b
  * The applied delay is deleted
  */
 export async function applyDelay(delayId: EntryId): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+  const { rundown, commit } = createTransaction();
 
   // check that delay exists
   const delay = rundown.entries[delayId];
@@ -294,7 +292,7 @@ export async function applyDelay(delayId: EntryId): Promise<Rundown> {
  * Swaps the data between two events in the rundown
  */
 export async function swapEvents(fromId: EntryId, toId: EntryId): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+  const { rundown, commit } = createTransaction();
   const eventFrom = rundown.entries[fromId];
   const eventTo = rundown.entries[toId];
 
@@ -328,7 +326,7 @@ export async function swapEvents(fromId: EntryId, toId: EntryId): Promise<Rundow
  * @throws if the entry to clone does not exist
  */
 export async function cloneEntry(entryId: EntryId): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+  const { rundown, commit } = createTransaction();
   const originalEntry = rundown.entries[entryId];
 
   if (!originalEntry) {
@@ -361,7 +359,7 @@ export async function cloneEntry(entryId: EntryId): Promise<Rundown> {
  * Groups a list of entries into a new block
  */
 export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+  const { rundown, commit } = createTransaction();
 
   rundownMutation.group(rundown, entryIds);
   const { rundown: rundownResult, rundownMetadata, revision } = commit();
@@ -382,7 +380,7 @@ export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
  * Deletes a block and moves all its children to the top level
  */
 export async function ungroupEntries(blockId: EntryId): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+  const { rundown, commit } = createTransaction();
 
   const block = rundown.entries[blockId];
   if (!block || !isOntimeBlock(block)) {
@@ -402,106 +400,6 @@ export async function ungroupEntries(blockId: EntryId): Promise<Rundown> {
   });
 
   return rundownResult;
-}
-
-/**
- * Adds a new custom field to the project
- * @throws if the label is missing or invalid
- */
-export async function createCustomField(customField: CustomField): Promise<CustomFields> {
-  const key = customFieldLabelToKey(customField.label);
-
-  if (!key) {
-    throw new Error('Unable to convert label to a valid key');
-  }
-
-  const { customFields, commit } = createTransaction({ mutableRundown: false, mutableCustomFields: true });
-
-  // check if label already exists
-  if (Object.hasOwn(customFields, key)) {
-    throw new Error('Label already exists');
-  }
-
-  customFieldMutation.add(customFields, key, customField);
-
-  // Adding a custom field has no immediate implications on the rundown
-  const { customFields: resultCustomFields } = commit(false);
-
-  // TODO: notify clients to refetch the custom fields
-
-  return resultCustomFields;
-}
-
-/**
- * Edits an existing custom field
- * In practice users can only change the label and the colour of the field
- * @throws if the field does not exist
- * @throws if the field type is changed
- * @throws if the label is missing or invalid
- * @throws if the new label already exists
- */
-export async function editCustomField(key: CustomFieldKey, newField: Partial<CustomField>): Promise<CustomFields> {
-  const { customFields, customFieldsMetadata, rundown, commit } = createTransaction({
-    mutableRundown: true,
-    mutableCustomFields: true,
-  });
-
-  if (!(key in customFields)) {
-    throw new Error('Could not find label');
-  }
-
-  const existingField = customFields[key];
-  // if user provides a type, it must be the same from before
-  if (newField.type && existingField.type !== newField.type) {
-    throw new Error('Change of field type is not allowed');
-  }
-
-  const { oldKey, newKey } = customFieldMutation.edit(customFields, key, existingField, newField);
-
-  // if key has changed we remove the old reference
-  if (oldKey !== newKey && oldKey in customFieldsMetadata.assigned) {
-    customFieldMutation.renameUsages(rundown, customFieldsMetadata.assigned, oldKey, newKey);
-  }
-
-  // the custom fields have been removed and there is no processing to be done
-  const { rundownMetadata, revision, customFields: resultCustomFields } = commit(false);
-
-  // schedule the side effects
-  setImmediate(() => {
-    // TODO: notify clients to refetch the custom fields
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
-  });
-
-  return resultCustomFields;
-}
-
-/**
- * Deletes an existing custom field
- */
-export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFields> {
-  const { customFields, customFieldsMetadata, rundown, commit } = createTransaction({
-    mutableRundown: true,
-    mutableCustomFields: true,
-  });
-  if (!(key in customFields)) {
-    return customFields;
-  }
-
-  customFieldMutation.remove(customFields, key);
-  if (key in customFieldsMetadata.assigned) {
-    customFieldMutation.removeUsages(rundown, customFieldsMetadata.assigned, key);
-  }
-
-  // the custom fields have been removed and there is no processing to be done
-  const { rundownMetadata, revision, customFields: resultCustomFields } = commit(false);
-
-  // schedule the side effects
-  setImmediate(() => {
-    // TODO: notify clients to refetch the custom fields
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
-  });
-
-  return resultCustomFields;
 }
 
 /**

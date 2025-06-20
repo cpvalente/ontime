@@ -59,7 +59,7 @@ export type { URLPreset } from './definitions/core/UrlPreset.type.js';
 export type {
   CustomFields,
   CustomField,
-  CustomFieldKey,
+  CustomFieldLabel,
   EntryCustomFields,
 } from './definitions/core/CustomFields.type.js';
 

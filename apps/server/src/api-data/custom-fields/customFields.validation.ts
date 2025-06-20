@@ -5,14 +5,14 @@ import { body, param, validationResult } from 'express-validator';
 
 export const validateCustomField = [
   body('label')
+    .exists()
     .isString()
     .trim()
-    .notEmpty()
     .custom((value) => {
       return isAlphanumericWithSpace(value);
     }),
-  body('type').isIn(['string', 'image']),
-  body('colour').isString().trim(),
+  body('type').exists().isIn(['string', 'image']),
+  body('colour').exists().isString().trim(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -22,16 +22,16 @@ export const validateCustomField = [
 ];
 
 export const validateEditCustomField = [
-  param('key').isString().trim().notEmpty(),
+  param('label').exists().isString().trim(),
   body('label')
+    .exists()
     .isString()
     .trim()
-    .notEmpty()
     .custom((value) => {
       return isAlphanumericWithSpace(value);
     }),
-  body('type').isIn(['string', 'image']),
-  body('colour').isString().trim(),
+  body('type').exists().isIn(['string', 'image']),
+  body('colour').exists().isString().trim(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -41,7 +41,7 @@ export const validateEditCustomField = [
 ];
 
 export const validateDeleteCustomField = [
-  param('key').isString().notEmpty(),
+  param('label').exists().isString(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

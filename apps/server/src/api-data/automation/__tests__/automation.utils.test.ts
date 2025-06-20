@@ -1,6 +1,4 @@
-import { TimerLifeCycle } from 'ontime-types';
-import { makeOntimeEvent, makeRundown } from '../../rundown/__mocks__/rundown.mocks.js';
-import { isAutomationUsed, parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
+import { parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
 
 describe('parseTemplateNested()', () => {
   it('parses string with a single-level variable name', () => {
@@ -245,55 +243,5 @@ describe('test stringToOSCArgs()', () => {
       { type: 'false' },
     ];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
-  });
-});
-
-describe('isAutomationUsed()', () => {
-  it('returns the first event which uses an automation', () => {
-    const rundown = makeRundown({
-      entries: {
-        '1': makeOntimeEvent({
-          id: '1',
-          triggers: [
-            {
-              id: 'trigger-1',
-              title: 'Trigger 1',
-              trigger: TimerLifeCycle.onClock,
-              automationId: 'test-automation',
-            },
-          ],
-        }),
-      },
-    });
-
-    const timedEventOrder = ['1'];
-    const automationId = 'test-automation';
-
-    const result = isAutomationUsed(rundown, timedEventOrder, automationId);
-    expect(result).toBe('1');
-  });
-
-  it('returns returns undefined if there are no matches', () => {
-    const rundown = makeRundown({
-      entries: {
-        '1': makeOntimeEvent({
-          id: '1',
-          triggers: [
-            {
-              id: 'trigger-1',
-              title: 'Trigger 1',
-              trigger: TimerLifeCycle.onClock,
-              automationId: 'test-automation',
-            },
-          ],
-        }),
-      },
-    });
-
-    const timedEventOrder = ['1'];
-    const automationId = 'does-not-exist';
-
-    const result = isAutomationUsed(rundown, timedEventOrder, automationId);
-    expect(result).toBeUndefined();
   });
 });
