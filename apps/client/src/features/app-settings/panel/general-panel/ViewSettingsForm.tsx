@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { Button, Input, Switch, useDisclosure } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
+import { maybeAxiosError } from '../../../../common/api/utils';
 import Info from '../../../../common/components/info/Info';
 import { SwatchPickerRHF } from '../../../../common/components/input/colour-input/SwatchPicker';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
@@ -13,12 +14,11 @@ import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import CodeEditorModal from './StyleEditorModal';
-import { maybeAxiosError } from 'common/api/utils';
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
 export default function ViewSettingsForm() {
-  const { data, isFetching, mutateAsync } = useViewSettings();
+  const { data, isPending, mutateAsync } = useViewSettings();
   const { data: info, status: infoStatus } = useInfo();
   const { isOpen: isCodeEditorOpen, onOpen: onCodeEditorOpen, onClose: onCodeEditorClose } = useDisclosure();
 
@@ -46,7 +46,7 @@ export default function ViewSettingsForm() {
 
   const onSubmit = async (formData: ViewSettings) => {
     try {
-      mutateAsync(formData)
+      mutateAsync(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
@@ -61,7 +61,7 @@ export default function ViewSettingsForm() {
     return null;
   }
 
-  const isLoading = isFetching || infoStatus === 'pending';
+  const isLoading = isPending || infoStatus === 'pending';
 
   return (
     <Panel.Section
