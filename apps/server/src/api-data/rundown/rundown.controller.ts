@@ -86,15 +86,15 @@ export async function rundownBatchPut(req: Request, res: Response<MessageRespons
   }
 }
 
-export async function rundownReorder(req: Request, res: Response<Rundown | ErrorResponse>) {
+export async function rundownReorder(req: Request, res: Response<OntimeEntry | ErrorResponse>) {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
 
   try {
     const { eventId, from, to } = req.body;
-    const newRundown = await reorderEntry(eventId, from, to);
-    res.status(200).send(newRundown);
+    const event = await reorderEntry(eventId, from, to);
+    res.status(200).send(event.newEvent);
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });

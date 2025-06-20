@@ -748,7 +748,7 @@ describe('reorder() mutation', () => {
     });
 
     // move first event to the end
-    const { newRundown, changeList } = reorder({
+    const { newRundown } = reorder({
       rundown: rundown,
       eventId: rundown.order[0],
       from: 0,
@@ -761,7 +761,6 @@ describe('reorder() mutation', () => {
       '3': { id: '3', cue: 'data3', revision: 1 },
       '1': { id: '1', cue: 'data1', revision: 1 },
     });
-    expect(changeList).toStrictEqual(['2', '3', '1']);
   });
 });
 
