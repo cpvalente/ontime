@@ -27,7 +27,6 @@ export const ontimeModal = {
   footer: {
     padding: '1rem',
     display: 'flex',
-    alignItems: 'left',
     gap: '0.5rem',
   },
 };
