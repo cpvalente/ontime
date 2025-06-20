@@ -75,11 +75,11 @@ export function parseRundown(
   };
 
   let eventIndex = 0;
+  let previousId: string | null = null;
 
   for (let i = 0; i < rundown.order.length; i++) {
     const entryId = rundown.order[i];
     const event = rundown.entries[entryId];
-
     if (event === undefined) {
       emitError?.('Could not find referenced event, skipping');
       continue;
@@ -94,7 +94,13 @@ export function parseRundown(
     let newEvent: OntimeEvent | OntimeDelay | OntimeBlock | null;
 
     if (isOntimeEvent(event)) {
-      newEvent = createEvent(event, eventIndex);
+      const maybeEvent = { ...event };
+
+      if (event.linkStart) {
+        maybeEvent.linkStart = previousId;
+      }
+
+      newEvent = createEvent(maybeEvent, eventIndex);
       // skip if event is invalid
       if (newEvent == null) {
         emitError?.('Skipping event without payload');
@@ -109,38 +115,11 @@ export function parseRundown(
         }
       }
 
+      previousId = id;
       eventIndex += 1;
     } else if (isOntimeDelay(event)) {
       newEvent = { ...delayDef, duration: event.duration, id };
     } else if (isOntimeBlock(event)) {
-      for (let i = 0; i < event.events.length; i++) {
-        const nestedEventId = event.events[i];
-        const nestedEvent = rundown.entries[nestedEventId];
-
-        if (isOntimeEvent(nestedEvent)) {
-          const newNestedEvent = createEvent(nestedEvent, eventIndex);
-          // skip if event is invalid
-          if (newNestedEvent == null) {
-            emitError?.('Skipping event without payload');
-            continue;
-          }
-
-          // for every field in custom, check that a key exists in customfields
-          for (const field in newNestedEvent.custom) {
-            if (!Object.hasOwn(parsedCustomFields, field)) {
-              emitError?.(`Custom field ${field} not found`);
-              delete newNestedEvent.custom[field];
-            }
-          }
-
-          eventIndex += 1;
-
-          if (newNestedEvent) {
-            parsedRundown.entries[nestedEventId] = newNestedEvent;
-          }
-        }
-      }
-
       newEvent = {
         ...blockDef,
         title: event.title,

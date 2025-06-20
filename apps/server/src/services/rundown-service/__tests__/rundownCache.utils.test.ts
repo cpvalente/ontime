@@ -1,13 +1,55 @@
-import { CustomFields, EndAction, OntimeEvent, SupportedEvent, TimeStrategy, TimerType } from 'ontime-types';
+import {
+  CustomFields,
+  EndAction,
+  OntimeEvent,
+  RundownEntries,
+  SupportedEvent,
+  TimeStrategy,
+  TimerType,
+} from 'ontime-types';
 import {
   addToCustomAssignment,
   calculateDayOffset,
   handleCustomField,
+  handleLink,
   hasChanges,
   isDataStale,
 } from '../rundownCache.utils.js';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
-import { makeOntimeEvent } from '../__mocks__/rundown.mocks.js';
+import { makeOntimeBlock, makeOntimeEvent } from '../__mocks__/rundown.mocks.js';
+
+describe('handleLink()', () => {
+  it('populates data in object and updates link map', () => {
+    const entries: RundownEntries = {
+      '1': makeOntimeEvent({ id: '1', timeEnd: 100 }),
+      '2': makeOntimeEvent({ id: '2', timeStart: 0, linkStart: '1' }),
+    };
+
+    const mutableEvent = { ...entries[2] } as OntimeEvent;
+    const links = {};
+
+    const result = handleLink(mutableEvent, entries[1] as OntimeEvent, links);
+    expect(result).toBeUndefined();
+    expect(mutableEvent.timeStart).toBe(100);
+    expect(mutableEvent.linkStart).toBe('1');
+    expect(links).toStrictEqual({ '1': '2' });
+  });
+
+  it('removes link if linked event is not found', () => {
+    const entries: RundownEntries = {
+      '1': makeOntimeBlock({ id: '1' }),
+      '2': makeOntimeEvent({ id: '2', timeStart: 0, linkStart: '1' }),
+    };
+    const mutableEvent = { ...entries[2] } as OntimeEvent;
+    const links = {};
+
+    const result = handleLink(mutableEvent, null, links);
+    expect(result).toBeUndefined();
+    expect(mutableEvent.timeStart).toBe(0);
+    expect(mutableEvent.linkStart).toBe('true');
+    expect(links).toStrictEqual({});
+  });
+});
 
 describe('addToCustomAssignment()', () => {
   it('adds given entry to assignedCustomFields', () => {
@@ -35,17 +77,18 @@ describe('handleCustomField()', () => {
         label: 'sound',
       },
     } as CustomFields;
-    const customFieldChangelog = {};
+    const customFieldChangelog = new Map<string, string>();
 
-    const event = makeOntimeEvent({
+    // @ts-expect-error -- partial event for testing
+    const event: OntimeEvent = {
       type: SupportedEvent.Event,
       id: '2',
       timeStart: 0,
-      linkStart: true,
+      linkStart: '1',
       custom: {
         lighting: 'on',
       },
-    });
+    };
     const assignedCustomFields = {};
 
     const result = handleCustomField(customFields, customFieldChangelog, event, assignedCustomFields);
@@ -70,17 +113,18 @@ describe('handleCustomField()', () => {
       },
     } as CustomFields;
 
-    const customFieldChangelog = { sound: 'video' };
+    const customFieldChangelog = new Map([['sound', 'video']]);
 
-    const event = makeOntimeEvent({
+    // @ts-expect-error -- partial event for testing
+    const event: OntimeEvent = {
       type: SupportedEvent.Event,
       id: '2',
       timeStart: 0,
-      linkStart: true,
+      linkStart: '1',
       custom: {
         sound: 'on',
       },
-    });
+    };
     const assignedCustomFields = {};
 
     const result = handleCustomField(customFields, customFieldChangelog, event, assignedCustomFields);
@@ -105,16 +149,17 @@ describe('handleCustomField()', () => {
       },
     } as CustomFields;
 
-    const customFieldChangelog = { field1: 'newField1' };
+    const customFieldChangelog = new Map([['field1', 'newField1']]);
 
-    const mutableEvent = makeOntimeEvent({
+    // @ts-expect-error -- partial event for testing
+    const mutableEvent: OntimeEvent = {
       type: SupportedEvent.Event,
       id: 'event1',
       custom: {
         field1: 'value1',
         field2: 'value2',
       },
-    });
+    };
 
     const assignedCustomFields = {};
 
@@ -141,7 +186,7 @@ describe('isDataStale()', () => {
       { timeStart: 10 },
       { timeEnd: 10 },
       { duration: 10 },
-      { linkStart: true },
+      { linkStart: '1' },
       { timerStrategy: TimeStrategy.LockDuration },
     ];
 

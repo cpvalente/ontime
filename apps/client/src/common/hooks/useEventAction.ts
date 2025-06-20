@@ -97,7 +97,9 @@ export const useEventAction = () => {
           linkPrevious: options?.linkPrevious ?? linkPrevious,
         };
 
-        if (applicationOptions?.lastEventId) {
+        if (applicationOptions.linkPrevious && applicationOptions?.lastEventId) {
+          newEvent.linkStart = applicationOptions.lastEventId;
+        } else if (applicationOptions?.lastEventId) {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this is a value
           const rundownData = queryClient.getQueryData<Rundown>(RUNDOWN)!;
           const previousEvent = rundownData.entries[applicationOptions.lastEventId];
@@ -107,8 +109,9 @@ export const useEventAction = () => {
         }
 
         // Override event with options from editor settings
-        newEvent.linkStart = applicationOptions.linkPrevious;
-        newEvent.isPublic = applicationOptions.defaultPublic;
+        if (applicationOptions.defaultPublic) {
+          newEvent.isPublic = true;
+        }
 
         if (newEvent.duration === undefined && newEvent.timeEnd === undefined) {
           newEvent.duration = parseUserTime(defaultDuration);
@@ -260,7 +263,7 @@ export const useEventAction = () => {
           newEvent.duration = value === '' ? undefined : calculateNewValue();
         } else if (field === 'timeStart') {
           // an empty values means we should link to the previous
-          newEvent.linkStart = value === '';
+          newEvent.linkStart = value === '' ? 'true' : null;
           newEvent.timeStart = value === '' ? undefined : calculateNewValue();
         }
       } else {

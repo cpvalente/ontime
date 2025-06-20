@@ -6,6 +6,7 @@ import {
   type ImportMap,
   isKnownTimerType,
   validateEndAction,
+  validateLinkStart,
   validateTimerType,
   validateTimes,
 } from 'ontime-utils';
@@ -245,7 +246,7 @@ export const parseExcel = (
       } else if (j === timeStartIndex) {
         entry.timeStart = parseExcelDate(column);
       } else if (j === linkStartIndex) {
-        entry.linkStart = parseBooleanString(column);
+        entry.linkStart = parseBooleanString(column) ? 'true' : null;
       } else if (j === timeEndIndex) {
         entry.timeEnd = parseExcelDate(column);
       } else if (j === durationIndex) {
@@ -411,7 +412,7 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     timeEnd,
     duration,
     timeStrategy,
-    linkStart: typeof patchEvent.linkStart === 'boolean' ? patchEvent.linkStart : originalEvent.linkStart,
+    linkStart: validateLinkStart(patchEvent.linkStart, originalEvent.linkStart),
     endAction: validateEndAction(patchEvent.endAction, originalEvent.endAction),
     timerType: validateTimerType(patchEvent.timerType, originalEvent.timerType),
     countToEnd: typeof patchEvent.countToEnd === 'boolean' ? patchEvent.countToEnd : originalEvent.countToEnd,

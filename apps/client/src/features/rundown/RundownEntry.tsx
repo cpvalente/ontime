@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import {
+  isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
   MaybeString,
@@ -14,6 +15,7 @@ import useMemoisedFn from '../../common/hooks/useMemoisedFn';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
+import BlockBlock from './block-block/BlockBlock';
 import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';
 import { useEventSelection } from './useEventSelection';
@@ -190,6 +192,14 @@ export default function RundownEntry(props: RundownEntryProps) {
         isLinkedToLoaded={isLinkedToLoaded}
         actionHandler={actionHandler}
       />
+    );
+  } else if (isOntimeBlock(data)) {
+    return (
+      <BlockBlock data={data} hasCursor={hasCursor}>
+        {data.events.map((eventId) => {
+          return <div key={eventId}>{eventId}</div>;
+        })}
+      </BlockBlock>
     );
   } else if (isOntimeDelay(data)) {
     return <DelayBlock data={data} hasCursor={hasCursor} />;

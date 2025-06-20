@@ -2,74 +2,18 @@
 
 .block {
   @include block-styling;
-  overflow: hidden;
+
+  background-color: $block-bg2;
 
   min-width: 34rem;
-
   display: grid;
   grid-template-columns: 2rem 1fr auto;
-  grid-template-areas:
-    'binder  header'
-    'content content'
-    'footer  footer';
   align-items: center;
+  height: $secondary-block-height;
+  gap: 0.5rem;
 
   &.hasCursor {
     outline: 1px solid $block-cursor-color;
-  }
-
-  .binder {
-    grid-area: binder;
-    height: 100%;
-    background-color: $gray-1050; // to override inline
-    color: $section-white;
-    font-size: 1rem;
-    display: grid;
-    justify-content: center;
-    padding-top: 0.25rem;
-  }
-
-  .header {
-    grid-area: header;
-    padding-inline: 0.5rem;
-    background-color: $block-bg2;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .titleRow {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .metaRow {
-    display: flex;
-    gap: 3rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .metaEntry {
-    font-size: calc(1rem - 3px);
-    width: 4.5em;
-
-    :first-child {
-      color: $label-gray;
-    }
-  }
-
-  .group {
-    background-color: color-mix(in srgb, var(--user-bg, $gray-1050) 10%, transparent 90%);
-    grid-area: content;
-    padding-right: 2px;
-    box-sizing: content-box;
-  }
-
-  .footer {
-    grid-area: footer;
-    background-color: var(--user-bg, $gray-1050) ;
-    height: 0.25rem;
   }
 }
 

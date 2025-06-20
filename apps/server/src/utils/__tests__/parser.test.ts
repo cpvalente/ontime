@@ -31,9 +31,9 @@ describe('test parseDatabaseModel() with demo project (valid)', () => {
   const filteredDemoProject = structuredClone(demoDb);
   const { data } = parseDatabaseModel(filteredDemoProject);
 
-  it('has 17 events with 12 top level events', () => {
-    expect(data.rundowns.default.order.length).toBe(12);
-    expect(Object.keys(data.rundowns.default.entries).length).toBe(17);
+  it('has 16 events', () => {
+    expect(data.rundowns.demo.order.length).toBe(16);
+    expect(Object.keys(data.rundowns.demo.entries).length).toBe(16);
   });
 
   it('is the same as the demo project since all data is valid', () => {
@@ -663,7 +663,7 @@ describe('parseExcel()', () => {
     });
   });
 
-  it('parses link start', () => {
+  it('parses link start and checks that is applicable', () => {
     const testData = [
       ['Time Start', 'Time End', 'ID', 'Link Start', 'Timer type'],
       ['4:30:00', '9:45:00', 'A', '', 'count-down'],
@@ -688,22 +688,22 @@ describe('parseExcel()', () => {
 
     expect(result.rundown.entries).toMatchObject({
       A: {
-        linkStart: false,
+        linkStart: null,
       },
       B: {
-        linkStart: true,
+        linkStart: 'true', // <--- this will be populated by the cache generation
       },
       C: {
-        linkStart: true,
+        linkStart: 'true', // <--- this will be populated by the cache generation
       },
       D: {
-        linkStart: false,
+        linkStart: null,
       },
       BLOCK: {
         type: SupportedEvent.Block,
       },
       E: {
-        linkStart: true,
+        linkStart: 'true', // <--- this will be populated by the cache generation
       },
     });
   });
@@ -775,7 +775,7 @@ describe('parseExcel()', () => {
 
     expect(parsedData.rundown.entries['MEET3']).toMatchObject({
       duration: 90 * MILLIS_PER_MINUTE,
-      linkStart: false,
+      linkStart: null,
       timeWarning: 11 * MILLIS_PER_MINUTE,
       timeDanger: 5 * MILLIS_PER_MINUTE,
     });
@@ -783,7 +783,7 @@ describe('parseExcel()', () => {
     expect(parsedData.rundown.entries['MEET4']).toMatchObject({
       duration: 30 * MILLIS_PER_MINUTE,
       timeWarning: 11 * MILLIS_PER_MINUTE,
-      linkStart: true,
+      linkStart: 'true', // if we get a boolean, we should just use that
     });
   });
 });

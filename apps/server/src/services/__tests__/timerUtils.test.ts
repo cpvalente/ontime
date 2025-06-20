@@ -825,7 +825,7 @@ describe('getRuntimeOffset()', () => {
         timeEnd: 81000000,
         duration: 3600000,
         timeStrategy: 'lock-duration',
-        linkStart: false,
+        linkStart: null,
       },
       runtime: {
         selectedEventIndex: 0,
@@ -863,7 +863,7 @@ describe('getRuntimeOffset()', () => {
         timeEnd: 84600000,
         duration: 3600000,
         timeStrategy: 'lock-duration',
-        linkStart: false,
+        linkStart: null,
         endAction: 'none',
         timerType: 'count-down',
         delay: 0,
@@ -906,7 +906,7 @@ describe('getRuntimeOffset()', () => {
         timeEnd: 81000000, // 22:30:00
         duration: 3600000, // 01:00:00
         timeStrategy: TimeStrategy.LockEnd,
-        linkStart: false,
+        linkStart: null,
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
         countToEnd: true,
@@ -959,7 +959,7 @@ describe('getRuntimeOffset()', () => {
         timeEnd: 81000000, // 22:30:00
         duration: 3600000, // 01:00:00
         timeStrategy: TimeStrategy.LockEnd,
-        linkStart: false,
+        linkStart: null,
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
         countToEnd: true,
@@ -1010,7 +1010,7 @@ describe('getRuntimeOffset()', () => {
         timeEnd: 81000000, // 22:30:00
         duration: 3600000, // 01:00:00
         timeStrategy: TimeStrategy.LockEnd,
-        linkStart: false,
+        linkStart: null,
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
         countToEnd: true,

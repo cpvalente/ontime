@@ -12,10 +12,10 @@ describe('apply()', () => {
       entries: {
         delay: makeOntimeDelay({ id: 'delay', duration: 10 }),
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 10, duration: 10 }),
-        '2': makeOntimeEvent({ id: '2', timeStart: 10, timeEnd: 20, duration: 10, linkStart: true }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 10, timeEnd: 20, duration: 10, linkStart: '1' }),
         '3': makeOntimeBlock({ id: '3' }),
-        '4': makeOntimeEvent({ id: '4', timeStart: 20, timeEnd: 30, duration: 10, linkStart: false }),
-        '5': makeOntimeEvent({ id: '5', timeStart: 30, timeEnd: 40, duration: 10, linkStart: true }),
+        '4': makeOntimeEvent({ id: '4', timeStart: 20, timeEnd: 30, duration: 10, linkStart: null }),
+        '5': makeOntimeEvent({ id: '5', timeStart: 30, timeEnd: 40, duration: 10, linkStart: '4' }),
       },
     });
 
@@ -24,10 +24,10 @@ describe('apply()', () => {
     expect(testRundown.order).toMatchObject(['1', '2', '3', '4', '5']);
     expect(testRundown.entries).toMatchObject({
       '1': { id: '1', timeStart: 10, timeEnd: 20, duration: 10, revision: 2 },
-      '2': { id: '2', timeStart: 20, timeEnd: 30, duration: 10, revision: 2, linkStart: true },
+      '2': { id: '2', timeStart: 20, timeEnd: 30, duration: 10, revision: 2, linkStart: '1' },
       '3': { id: '3' },
-      '4': { id: '4', timeStart: 30, timeEnd: 40, duration: 10, revision: 2, linkStart: false },
-      '5': { id: '5', timeStart: 40, timeEnd: 50, duration: 10, revision: 2, linkStart: true },
+      '4': { id: '4', timeStart: 30, timeEnd: 40, duration: 10, revision: 2, linkStart: null },
+      '5': { id: '5', timeStart: 40, timeEnd: 50, duration: 10, revision: 2, linkStart: '4' },
     });
   });
 
@@ -38,10 +38,10 @@ describe('apply()', () => {
       entries: {
         delay: makeOntimeDelay({ id: 'delay', duration: -10 }),
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 10, duration: 10 }),
-        '2': makeOntimeEvent({ id: '2', timeStart: 10, timeEnd: 20, duration: 10, linkStart: true }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 10, timeEnd: 20, duration: 10, linkStart: '1' }),
         '3': makeOntimeBlock({ id: '3' }),
-        '4': makeOntimeEvent({ id: '4', timeStart: 20, timeEnd: 30, duration: 10, linkStart: false }),
-        '5': makeOntimeEvent({ id: '5', timeStart: 30, timeEnd: 40, duration: 10, linkStart: true }),
+        '4': makeOntimeEvent({ id: '4', timeStart: 20, timeEnd: 30, duration: 10, linkStart: null }),
+        '5': makeOntimeEvent({ id: '5', timeStart: 30, timeEnd: 40, duration: 10, linkStart: '4' }),
       },
     });
 
@@ -50,10 +50,10 @@ describe('apply()', () => {
     expect(testRundown.order).toMatchObject(['1', '2', '3', '4', '5']);
     expect(testRundown.entries).toMatchObject({
       '1': { id: '1', timeStart: 0, timeEnd: 10, duration: 10, revision: 2 },
-      '2': { id: '2', timeStart: 0, timeEnd: 10, duration: 10, revision: 2, linkStart: false },
+      '2': { id: '2', timeStart: 0, timeEnd: 10, duration: 10, revision: 2, linkStart: null },
       '3': { id: '3' },
-      '4': { id: '4', timeStart: 10, timeEnd: 20, duration: 10, revision: 2, linkStart: false },
-      '5': { id: '5', timeStart: 20, timeEnd: 30, duration: 10, revision: 2, linkStart: true },
+      '4': { id: '4', timeStart: 10, timeEnd: 20, duration: 10, revision: 2, linkStart: null },
+      '5': { id: '5', timeStart: 20, timeEnd: 30, duration: 10, revision: 2, linkStart: '4' },
     });
   });
 
@@ -63,7 +63,7 @@ describe('apply()', () => {
       entries: {
         delay: makeOntimeDelay({ id: 'delay', duration: -50 }),
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100 }),
-        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 150, duration: 50, linkStart: true }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 150, duration: 50, linkStart: '1' }),
       },
     });
 
@@ -84,7 +84,7 @@ describe('apply()', () => {
         timeStart: 50,
         timeEnd: 100,
         duration: 50,
-        linkStart: false,
+        linkStart: null,
         revision: 2,
       },
     });
@@ -96,7 +96,7 @@ describe('apply()', () => {
       entries: {
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100, revision: 1 }),
         delay: makeOntimeDelay({ id: 'delay', duration: 50 }),
-        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 150, duration: 50, revision: 1, linkStart: true }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 150, duration: 50, revision: 1, linkStart: '1' }),
       },
     });
 
@@ -115,7 +115,7 @@ describe('apply()', () => {
         timeStart: 150,
         timeEnd: 200,
         duration: 50,
-        linkStart: false,
+        linkStart: null,
         revision: 2,
       },
     });
@@ -127,7 +127,7 @@ describe('apply()', () => {
       entries: {
         delay: makeOntimeDelay({ id: 'delay', duration: 50 }),
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100, revision: 1 }),
-        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 150, duration: 50, revision: 1, linkStart: true }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 150, duration: 50, revision: 1, linkStart: '1' }),
       },
     });
 
@@ -146,7 +146,7 @@ describe('apply()', () => {
         timeStart: 150,
         timeEnd: 200,
         duration: 50,
-        linkStart: true,
+        linkStart: '1',
         revision: 2,
       },
     });
@@ -158,7 +158,7 @@ describe('apply()', () => {
       entries: {
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100, revision: 1 }),
         delay: makeOntimeDelay({ id: 'delay', duration: -50 }),
-        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 150, duration: 50, revision: 1, linkStart: true }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 150, duration: 50, revision: 1, linkStart: '1' }),
       },
     });
 
@@ -171,7 +171,7 @@ describe('apply()', () => {
         timeStart: 50,
         timeEnd: 100,
         duration: 50,
-        linkStart: false,
+        linkStart: null,
         revision: 2,
       },
     });
@@ -190,7 +190,7 @@ describe('apply()', () => {
         // gap 50
         '4': makeOntimeEvent({ id: '4', timeStart: 300, timeEnd: 350, duration: 50, gap: 50 }),
         // linked
-        '5': makeOntimeEvent({ id: '5', timeStart: 350, timeEnd: 400, duration: 50, linkStart: true }),
+        '5': makeOntimeEvent({ id: '5', timeStart: 350, timeEnd: 400, duration: 50, linkStart: '4' }),
       },
     });
 
@@ -205,7 +205,7 @@ describe('apply()', () => {
       // gap (delay is 0)
       '4': { id: '4', timeStart: 300, timeEnd: 350, duration: 50, revision: 1 },
       // linked
-      '5': { id: '5', timeStart: 350, timeEnd: 400, duration: 50, revision: 1, linkStart: true },
+      '5': { id: '5', timeStart: 350, timeEnd: 400, duration: 50, revision: 1, linkStart: '4' },
     });
   });
 
@@ -278,7 +278,7 @@ describe('apply()', () => {
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100, revision: 1 }),
         delay: makeOntimeDelay({ id: 'delay', duration: 50 }),
         block: makeOntimeBlock({ id: 'block' }),
-        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 150, duration: 50, revision: 1, linkStart: true }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 150, duration: 50, revision: 1, linkStart: '1' }),
       },
     });
 
@@ -299,7 +299,7 @@ describe('apply()', () => {
         timeStart: 150,
         timeEnd: 200,
         duration: 50,
-        linkStart: false,
+        linkStart: null,
         revision: 2,
       },
     });

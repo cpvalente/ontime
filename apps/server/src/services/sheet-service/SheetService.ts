@@ -9,15 +9,13 @@ import { ImportMap, getErrorMessage } from 'ontime-utils';
 
 import { sheets, type sheets_v4 } from '@googleapis/sheets';
 import { Credentials, OAuth2Client } from 'google-auth-library';
-// TODO: rewrite logic to use fetch and remove dependency
 import got from 'got';
 
 import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
-import { parseRundowns } from '../../utils/parserFunctions.js';
-
-import { getCurrentRundown, getCustomFields } from '../rundown-service/rundownCache.js';
-import { getRundownOrThrow } from '../rundown-service/rundownUtils.js';
+import { parseRundown } from '../../utils/parserFunctions.js';
+import { getRundown } from '../rundown-service/rundownUtils.js';
+import { getCustomFields } from '../rundown-service/rundownCache.js';
 
 import { cellRequestFromEvent, type ClientSecret, getA1Notation, isClientSecret } from './sheetUtils.js';
 import { catchCommonImportXlsxError } from './googleApi.utils.js';

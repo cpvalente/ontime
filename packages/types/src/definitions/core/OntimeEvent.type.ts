@@ -1,4 +1,4 @@
-import type { EndAction, EntryCustomFields, MaybeNumber, TimerType, TimeStrategy, Trigger } from '../../index.js';
+import type { EndAction, EntryCustomFields, MaybeNumber, MaybeString, TimerType, TimeStrategy, Trigger } from '../../index.js';
 
 export type EntryId = string;
 
@@ -43,7 +43,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   endAction: EndAction;
   timerType: TimerType;
   countToEnd: boolean;
-  linkStart: boolean;
+  linkStart: MaybeString; // ID of event to link to
   timeStrategy: TimeStrategy;
   timeStart: number;
   timeEnd: number;

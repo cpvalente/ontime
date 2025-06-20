@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { IoAlertCircleOutline, IoLink, IoLockClosed, IoLockOpenOutline, IoUnlink } from 'react-icons/io5';
 import { InputRightElement, Tooltip } from '@chakra-ui/react';
-import { TimeField, TimeStrategy } from 'ontime-types';
+import { MaybeString, TimeField, TimeStrategy } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
@@ -19,7 +19,7 @@ interface EventBlockTimerProps {
   timeEnd: number;
   duration: number;
   timeStrategy: TimeStrategy;
-  linkStart: boolean;
+  linkStart: MaybeString;
   delay: number;
   showLabels?: boolean;
 }
@@ -38,7 +38,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
   };
 
   const handleLink = (doLink: boolean) => {
-    updateEvent({ id: eventId, linkStart: doLink });
+    updateEvent({ id: eventId, linkStart: doLink ? 'true' : null });
   };
 
   const warnings = [];
@@ -55,9 +55,9 @@ function TimeInputFlow(props: EventBlockTimerProps) {
   const isLockedEnd = timeStrategy === TimeStrategy.LockEnd;
   const isLockedDuration = timeStrategy === TimeStrategy.LockDuration;
 
-  const activeStart = cx([style.timeAction, linkStart && style.active]);
-  const activeEnd = cx([style.timeAction, isLockedEnd && style.active]);
-  const activeDuration = cx([style.timeAction, isLockedDuration && style.active]);
+  const activeStart = cx([style.timeAction, linkStart ? style.active : null]);
+  const activeEnd = cx([style.timeAction, isLockedEnd ? style.active : null]);
+  const activeDuration = cx([style.timeAction, isLockedDuration ? style.active : null]);
 
   return (
     <>
@@ -69,7 +69,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
           time={timeStart}
           hasDelay={hasDelay}
           placeholder='Start'
-          disabled={linkStart}
+          disabled={Boolean(linkStart)}
         >
           <Tooltip label='Link start to previous end' openDelay={tooltipDelayMid}>
             <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)}>

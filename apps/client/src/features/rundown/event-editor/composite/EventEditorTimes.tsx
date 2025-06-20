@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { IoInformationCircle } from 'react-icons/io5';
 import { Select, Switch, Tooltip } from '@chakra-ui/react';
-import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, MaybeString, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
@@ -18,7 +18,7 @@ interface EventEditorTimesProps {
   timeEnd: number;
   duration: number;
   timeStrategy: TimeStrategy;
-  linkStart: boolean;
+  linkStart: MaybeString;
   countToEnd: boolean;
   delay: number;
   isPublic: boolean;
