@@ -4,7 +4,6 @@ import {
   isPlayableEvent,
   MaybeNumber,
   MaybeString,
-  OffsetMode,
   OntimeBlock,
   OntimeEvent,
   PlayableEvent,
@@ -99,7 +98,7 @@ export function clearEventData() {
   runtimeState.runtime.selectedEventIndex = null;
 
   runtimeState.timer.playback = Playback.Stop;
-  runtimeState.clock = timeNow();
+  runtimeState.clock = clock.timeNow();
   runtimeState.timer = { ...runtimeStorePlaceholder.timer };
 
   // when clearing, we maintain the total delay from the rundown
@@ -749,8 +748,4 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
 
   const currentBlock = rundown.entries[currentBlockId];
   state.currentBlock.block = currentBlock as OntimeBlock;
-}
-
-export function setOffsetMode(mode: OffsetMode) {
-  runtimeState.runtime.offsetMode = mode;
 }
