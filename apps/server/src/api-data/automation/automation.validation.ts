@@ -18,7 +18,7 @@ import * as assert from '../../utils/assert.js';
 import { isFilterOperator, isFilterRule, isOntimeActionAction } from './automation.utils.js';
 
 export const paramContainsId = [
-  param('id').isString().notEmpty(),
+  param('id').exists(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -28,9 +28,9 @@ export const paramContainsId = [
 ];
 
 export const validateAutomationSettings = [
-  body('enabledAutomations').isBoolean(),
-  body('enabledOscIn').isBoolean(),
-  body('oscPortIn').isPort(),
+  body('enabledAutomations').exists().isBoolean(),
+  body('enabledOscIn').exists().isBoolean(),
+  body('oscPortIn').exists().isPort(),
   body('triggers').optional().isArray(),
   body('triggers.*.title').optional().isString().trim(),
   body('triggers.*.trigger').optional().isIn(timerLifecycleValues),
@@ -45,9 +45,9 @@ export const validateAutomationSettings = [
 ];
 
 export const validateTrigger = [
-  body('title').isString().trim(),
-  body('trigger').isIn(timerLifecycleValues),
-  body('automationId').isString().trim(),
+  body('title').exists().isString().trim(),
+  body('trigger').exists().isIn(timerLifecycleValues),
+  body('automationId').exists().isString().trim(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -57,7 +57,7 @@ export const validateTrigger = [
 ];
 
 export const validateTriggerPatch = [
-  param('id').isString().notEmpty(),
+  param('id').exists(),
   body('title').optional().isString().trim(),
   body('trigger').optional().isIn(timerLifecycleValues),
   body('automationId').optional().isString().trim(),
@@ -80,7 +80,7 @@ export const validateAutomation = [
 ];
 
 export const validateAutomationPatch = [
-  param('id').isString().notEmpty(),
+  param('id').exists(),
   body().custom(parseAutomation),
 
   (req: Request, res: Response, next: NextFunction) => {
@@ -140,7 +140,7 @@ function validateOutput(output: Array<unknown>): output is AutomationOutput[] {
 }
 
 export const validateTestPayload = [
-  body('type').isIn(['osc', 'http', 'ontime']),
+  body('type').exists().isIn(['osc', 'http', 'ontime']),
 
   // validation for OSC message
   oneOf([

@@ -80,6 +80,7 @@ export const validatePatchProject = [
  */
 export const validateNewFilenameBody = [
   body('newFilename')
+    .exists()
     .isString()
     .trim()
     .customSanitizer((input: string) => sanitize(input))
@@ -103,6 +104,7 @@ export const validateNewFilenameBody = [
  */
 export const validateFilenameBody = [
   body('filename')
+    .exists()
     .isString()
     .trim()
     .customSanitizer((input: string) => sanitize(input))
@@ -126,6 +128,7 @@ export const validateFilenameBody = [
  */
 export const validateFilenameParam = [
   param('filename')
+    .exists()
     .isString()
     .trim()
     .customSanitizer((input: string) => sanitize(input))
