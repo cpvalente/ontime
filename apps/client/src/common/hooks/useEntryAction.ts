@@ -4,7 +4,6 @@ import {
   EntryId,
   isOntimeEvent,
   MaybeString,
-  OntimeBlock,
   OntimeEntry,
   OntimeEvent,
   Rundown,
@@ -12,7 +11,7 @@ import {
   TimeStrategy,
   TransientEventPayload,
 } from 'ontime-types';
-import { dayInMs, generateId, MILLIS_PER_SECOND, parseUserTime, reorderArray, swapEventData } from 'ontime-utils';
+import { dayInMs, MILLIS_PER_SECOND, parseUserTime, reorderArray, swapEventData } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/constants';
 import {
@@ -72,7 +71,6 @@ export const useEntryActions = () => {
    * @private
    */
   const _addEntryMutation = useMutation({
-    // TODO(v4): optimistic create entry
     mutationFn: postAddEntry,
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
@@ -85,7 +83,7 @@ export const useEntryActions = () => {
    */
   const addEntry = useCallback(
     async (entry: Partial<OntimeEntry>, options?: EventOptions) => {
-      const newEntry: TransientEventPayload = { ...entry, id: generateId() };
+      const newEntry: TransientEventPayload = { ...entry };
 
       // ************* CHECK OPTIONS specific to events
       if (isOntimeEvent(newEntry)) {
@@ -190,7 +188,6 @@ export const useEntryActions = () => {
           id: previousData.id,
           title: previousData.title,
           order: previousData.order,
-          flatOrder: previousData.flatOrder,
           entries: newRundown,
           revision: -1,
         });
@@ -358,7 +355,6 @@ export const useEntryActions = () => {
           id: previousRundown.id,
           title: previousRundown.title,
           order: previousRundown.order,
-          flatOrder: previousRundown.flatOrder,
           entries: newRundown,
           revision: -1,
         });
@@ -403,14 +399,17 @@ export const useEntryActions = () => {
 
       if (previousData) {
         // optimistically update object
-        const { entries, order, flatOrder } = optimisticDeleteEntries(entryIds, previousData);
+        const newOrder = previousData.order.filter((id) => !entryIds.includes(id));
+        const newRundown = { ...previousData.entries };
+        for (const eventId of entryIds) {
+          delete newRundown[eventId];
+        }
 
         queryClient.setQueryData<Rundown>(RUNDOWN, {
           id: previousData.id,
           title: previousData.title,
-          order,
-          flatOrder,
-          entries,
+          order: newOrder,
+          entries: newRundown,
           revision: -1,
         });
       }
@@ -463,9 +462,8 @@ export const useEntryActions = () => {
       queryClient.setQueryData<Rundown>(RUNDOWN, {
         id: previousData?.id ?? 'default',
         title: previousData?.title ?? '',
-        order: [],
-        flatOrder: [],
         entries: {},
+        order: [],
         revision: -1,
       });
 
@@ -544,7 +542,6 @@ export const useEntryActions = () => {
           id: previousData.id,
           title: previousData.title,
           order: newOrder,
-          flatOrder: previousData.flatOrder,
           entries: previousData.entries,
           revision: -1,
         });
@@ -616,7 +613,6 @@ export const useEntryActions = () => {
           id: previousData.id,
           title: previousData.title,
           order: previousData.order,
-          flatOrder: previousData.flatOrder,
           entries: newRundown,
           revision: -1,
         });
@@ -666,32 +662,3 @@ export const useEntryActions = () => {
     updateCustomField,
   };
 };
-
-/**
- * Utility to optimistically delete entries from client cache
- */
-function optimisticDeleteEntries(entryIds: EntryId[], rundown: Rundown) {
-  const entries = { ...rundown.entries };
-  let order = [...rundown.order];
-  let flatOrder = [...rundown.flatOrder];
-
-  for (let i = 0; i < entryIds.length; i++) {
-    const entry = entries[entryIds[i]];
-    deleteEntry(entry);
-  }
-
-  function deleteEntry(entry: OntimeEntry) {
-    if (isOntimeEvent(entry) && entry.parent) {
-      const parent = entries[entry.parent] as OntimeBlock;
-      parent.events = parent.events.filter((event) => event !== entry.id);
-      parent.numEvents -= 1;
-    } else {
-      order = order.filter((id) => id !== entry.id);
-    }
-
-    delete entries[entry.id];
-    flatOrder = flatOrder.filter((id) => id !== entry.id);
-  }
-
-  return { entries, order, flatOrder };
-}

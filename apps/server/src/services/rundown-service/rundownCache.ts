@@ -26,7 +26,6 @@ let currentRundown: Rundown = {
   id: '',
   title: '',
   order: [],
-  flatOrder: [],
   entries: {},
   revision: 0,
 };
@@ -102,9 +101,6 @@ export function generate(
     // we assign a reference to the current entry, this will be mutated in place
     const currentEntryId = initialRundown.order[i];
     const currentEntry = initialRundown.entries[currentEntryId];
-    if (!currentEntry) {
-      continue;
-    }
     const { processedEntry } = process(currentEntry, null);
 
     // if the event is a block, we process the nested entries
@@ -119,10 +115,6 @@ export function generate(
       for (let i = 0; i < processedEntry.events.length; i++) {
         const nestedEntryId = processedEntry.events[i];
         const nestedEntry = initialRundown.entries[nestedEntryId];
-
-        if (!nestedEntry) {
-          continue;
-        }
         const { processedData: processedNestedData, processedEntry: processedNestedEntry } = process(
           nestedEntry,
           processedEntry.id,
@@ -169,20 +161,12 @@ export function updateCache() {
 
   // update the cache values
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
-  const { previousEvent, latestEvent, ...metadata } = processedData;
-  currentRundown.entries = metadata.entries;
-  currentRundown.order = metadata.order;
-  currentRundown.flatOrder = metadata.flatEventOrder;
+  const { entries, order, previousEvent, latestEvent, ...metadata } = processedData;
+  currentRundown.entries = entries;
+  currentRundown.order = order;
   rundownMetadata = metadata;
   clearIsStale();
   customFieldChangelog = {};
-}
-
-/**
- * Whether a given ID is exists in the current rundown
- */
-export function hasId(id: EntryId): boolean {
-  return Object.hasOwn(currentRundown.entries, id);
 }
 
 /** Returns an ID guaranteed to be unique */
@@ -193,19 +177,19 @@ export function getUniqueId(): string {
   let id = '';
   do {
     id = generateId();
-  } while (hasId(id));
+  } while (Object.hasOwn(currentRundown.entries, id));
   return id;
 }
 
-/** Returns index of an entry with a given id */
-export function getIndexOf(entryId: EntryId) {
+/** Returns index of an event with a given id */
+export function getIndexOf(eventId: EntryId) {
   if (isStale) {
     updateCache();
   }
-  return currentRundown.order.indexOf(entryId);
+  return currentRundown.order.indexOf(eventId);
 }
 
-/** Returns id of an entry at a given index */
+/** Returns id of an event at a given index */
 export function getIdOf(index: number) {
   if (isStale) {
     updateCache();
@@ -320,60 +304,34 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
   return scopedMutation;
 }
 
-type AddArgs = MutationParams<{ atIndex: number; parent?: EntryId; entry: OntimeEntry }>;
+type AddArgs = MutationParams<{ atIndex: number; event: OntimeEntry }>;
 /**
  * Add entry to rundown
  */
-export function add({ rundown, atIndex, parent, entry }: AddArgs): Required<MutatingReturn> {
-  const newEntry: OntimeEntry = { ...entry };
+export function add({ rundown, atIndex, event }: AddArgs): Required<MutatingReturn> {
+  const newEvent: OntimeEntry = { ...event };
 
-  rundown.entries[newEntry.id] = newEntry;
-
-  if (parent) {
-    const parentBlock = rundown.entries[parent] as OntimeBlock;
-    parentBlock.events = insertAtIndex(atIndex, newEntry.id, parentBlock.events);
-  } else {
-    rundown.order = insertAtIndex(atIndex, newEntry.id, rundown.order);
-  }
-
+  rundown.entries[newEvent.id] = newEvent;
+  rundown.order = insertAtIndex(atIndex, newEvent.id, rundown.order);
   setIsStale();
-  return { newRundown: rundown, newEvent: newEntry, didMutate: true };
+  return { newRundown: rundown, newEvent, didMutate: true };
 }
 
 type RemoveArgs = MutationParams<{ eventIds: EntryId[] }>;
 /**
- * Remove entries in a rundown
+ * Remove entry to rundown
  */
 export function remove({ rundown, eventIds }: RemoveArgs): MutatingReturn {
-  let didMutate = false;
-
-  for (let i = 0; i < eventIds.length; i++) {
-    const entry = rundown.entries[eventIds[i]];
-    if (isOntimeEvent(entry) && entry.parent) {
-      const parentBlock = rundown.entries[entry.parent] as OntimeBlock;
-      edit({
-        rundown,
-        eventId: entry.parent,
-        patch: {
-          events: parentBlock.events.filter((id) => id !== eventIds[i]),
-          numEvents: parentBlock.events.length - 1,
-        },
-      });
-      parentBlock.events = parentBlock.events.filter((id) => id !== entry.id);
-    } else {
-      rundown.order = rundown.order.filter((id) => id !== eventIds[i]);
-    }
-    didMutate = true;
-    delete rundown.entries[eventIds[i]];
+  const previousLength = rundown.order.length;
+  rundown.order = rundown.order.filter((id) => !eventIds.includes(id));
+  for (const id of eventIds) {
+    delete rundown.entries[id];
   }
-
+  const didMutate = rundown.order.length !== previousLength;
   if (didMutate) setIsStale();
   return { newRundown: rundown, didMutate };
 }
 
-/**
- * Remove all entries of a rundown
- */
 export function removeAll(): MutatingReturn {
   setIsStale();
   return {
@@ -381,7 +339,6 @@ export function removeAll(): MutatingReturn {
       id: '',
       title: '',
       order: [],
-      flatOrder: [],
       entries: {},
       revision: 0,
     },
@@ -484,7 +441,6 @@ export function reorder({ rundown, eventId, from, to }: ReorderArgs): Required<M
 type ApplyDelayArgs = MutationParams<{ delayId: EntryId }>;
 /**
  * Apply a delay
- * Mutates the given rundown
  */
 export function applyDelay({ rundown, delayId }: ApplyDelayArgs): MutatingReturn {
   apply(delayId, rundown);

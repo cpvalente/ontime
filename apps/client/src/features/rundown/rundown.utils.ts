@@ -29,7 +29,7 @@ export function makeRundownMetadata(selectedEventId: MaybeString) {
     isNext: false,
     isNextDay: false,
     totalGap: 0,
-    isLinkedToLoaded: false,
+    isLinkedToLoaded: true,
     isLoaded: false,
   };
 
@@ -56,7 +56,6 @@ function processEntry(
   processedData.isLoaded = false;
   processedData.previousEntryId = processedData.thisId;
   processedData.thisId = entry.id;
-  processedData.previousEvent = processedData.latestEvent;
 
   if (entry.id === selectedEventId) {
     processedData.isLoaded = true;
@@ -66,18 +65,19 @@ function processEntry(
   if (isOntimeEvent(entry)) {
     // event indexes are 1 based in UI
     processedData.eventIndex += 1;
+    processedData.previousEvent = processedData.latestEvent;
 
     if (isPlayableEvent(entry)) {
       processedData.isNextDay = checkIsNextDay(entry, processedData.previousEvent);
-      processedData.totalGap += entry.gap;
 
-      if (!processedData.isPast && !processedData.isLoaded) {
+      if (!processedData.isPast) {
+        processedData.totalGap += entry.gap;
         /**
-         * isLinkToLoaded is a chain value that we maintain until we
-         * a) find an unlinked event
-         * b) find a countToEnd event
+         * isLinkToLoaded is a chain value that we maintain until we find an unlinked event
+         * or we find a countToEnd event
          */
-        processedData.isLinkedToLoaded = entry.linkStart && !processedData.previousEvent?.countToEnd;
+        processedData.isLinkedToLoaded =
+          processedData.isLinkedToLoaded && entry.linkStart && !processedData.previousEvent?.countToEnd;
       }
 
       if (isNewLatest(entry, processedData.previousEvent)) {
