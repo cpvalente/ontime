@@ -19,6 +19,7 @@ import {
   ungroupEntries,
 } from './rundown.service.js';
 import {
+  paramsMustHaveEntryId,
   rundownArrayOfIds,
   rundownBatchPutValidator,
   rundownPostValidator,
@@ -26,7 +27,6 @@ import {
   rundownReorderValidator,
   rundownSwapValidator,
 } from './rundown.validation.js';
-import { paramsWithId } from '../validation-utils/validationFunction.js';
 
 export const router = express.Router();
 
@@ -100,11 +100,11 @@ router.patch('/swap', rundownSwapValidator, async (req: Request, res: Response<R
 });
 
 router.patch(
-  '/applydelay/:id',
-  paramsWithId,
+  '/applydelay/:entryId',
+  paramsMustHaveEntryId,
   async (req: Request, res: Response<Rundown | ErrorResponse>) => {
     try {
-      const newRundown = await applyDelay(req.params.id);
+      const newRundown = await applyDelay(req.params.entryId);
       res.status(200).send(newRundown);
     } catch (error) {
       const message = getErrorMessage(error);
@@ -113,9 +113,9 @@ router.patch(
   },
 );
 
-router.post('/clone/:id', paramsWithId, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+router.post('/clone/:entryId', paramsMustHaveEntryId, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
   try {
-    const newRundown = await cloneEntry(req.params.id);
+    const newRundown = await cloneEntry(req.params.entryId);
     res.status(200).send(newRundown);
   } catch (error) {
     const message = getErrorMessage(error);
@@ -134,11 +134,11 @@ router.post('/group', rundownArrayOfIds, async (req: Request, res: Response<Rund
 });
 
 router.post(
-  '/ungroup/:id',
-  paramsWithId,
+  '/ungroup/:entryId',
+  paramsMustHaveEntryId,
   async (req: Request, res: Response<Rundown | ErrorResponse>) => {
     try {
-      const newRundown = await ungroupEntries(req.params.id);
+      const newRundown = await ungroupEntries(req.params.entryId);
       res.status(200).send(newRundown);
     } catch (error) {
       const message = getErrorMessage(error);

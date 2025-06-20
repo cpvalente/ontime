@@ -1,16 +1,20 @@
-import { body } from 'express-validator';
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import { check, validationResult } from 'express-validator';
+import { Request, Response, NextFunction } from 'express';
 
 /**
  * @description Validates object for POST /ontime/views
  */
 export const validateViewSettings = [
-  body('dangerColor').isString().trim().withMessage('dangerColor value must be string'),
-  body('endMessage').isString().trim().withMessage('endMessage value must be string'),
-  body('freezeEnd').isBoolean().withMessage('freezeEnd value must be boolean'),
-  body('normalColor').isString().trim().withMessage('normalColor value must be string'),
-  body('overrideStyles').isBoolean().withMessage('overrideStyles value must be boolean'),
-  body('warningColor').isString().trim().withMessage('warningColor value must be string'),
+  check('dangerColor').isString().trim().withMessage('dangerColor value must be string'),
+  check('endMessage').isString().trim().withMessage('endMessage value must be string'),
+  check('freezeEnd').isBoolean().withMessage('freezeEnd value must be boolean'),
+  check('normalColor').isString().trim().withMessage('normalColor value must be string'),
+  check('overrideStyles').isBoolean().withMessage('overrideStyles value must be boolean'),
+  check('warningColor').isString().trim().withMessage('warningColor value must be string'),
 
-  requestValidationFunction,
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
 ];

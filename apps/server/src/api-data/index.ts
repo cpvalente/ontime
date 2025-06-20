@@ -31,6 +31,6 @@ appRouter.use('/report', reportRouter);
 appRouter.use('/assets', assetsRouter);
 
 //we don't want to redirect to react index when using api routes
-appRouter.all('/*splat', (_req, res) => {
-  res.status(404).send('data path not found');
+appRouter.all('/*', (_req, res) => {
+  res.status(404).send();
 });

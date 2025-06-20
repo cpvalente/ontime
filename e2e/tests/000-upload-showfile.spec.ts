@@ -1,10 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { randomUUID } from 'crypto';
 
-import { readFile, unlink } from 'fs/promises';
+import { readFile } from 'fs/promises';
 
 const fileToUpload = 'e2e/tests/fixtures/e2e-test-db.json';
-const fileToDownload = 'e2e/tests/fixtures/tmp/';
+const fileToDownload = 'e2e/tests/fixtures/tmp/e2e-test-db.json';
 
 test('project file upload', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
@@ -36,30 +35,30 @@ test('project file upload', async ({ page }) => {
   await expect(thirdTitle).toHaveValue('Lithuania');
 });
 
-//TODO: this works when testing locally, but not in github actions
 test.fixme('project file download', async ({ page }) => {
-  await page.goto('http://localhost:4001/editor/?settings=project__manage');
+  await page.goto('http://localhost:4001/editor');
+
+  await page.getByRole('button', { name: 'toggle settings' }).click();
+  await page.getByRole('button', { name: 'Manage projects' }).click();
+
+  // workaround to download
+  // https://playwright.dev/docs/api/class-download
+  const downloadPromise = page.waitForEvent('download');
 
   await page
     .getByRole('row', { name: /.*currently loaded/i })
     .getByLabel('Options')
     .click();
-  // workaround to download
-  // https://playwright.dev/docs/api/class-download
-  const downloadPromise = page.waitForEvent('download', { timeout: 10_000 });
   await page.getByRole('menuitem', { name: 'Download' }).click();
 
   const download = await downloadPromise;
 
   // Wait for the download process to complete and save the downloaded file somewhere.
-  const uniqFileToDownload = fileToDownload + randomUUID() + '.json';
-  await download.saveAs(uniqFileToDownload);
+  await download.saveAs(fileToDownload);
   expect(download.failure()).toMatchObject({});
 
   const original = JSON.parse(await readFile(fileToUpload, { encoding: 'utf-8' }));
-  const fromServer = JSON.parse(await readFile(uniqFileToDownload, { encoding: 'utf-8' }));
-
-  await unlink(uniqFileToDownload);
+  const fromServer = JSON.parse(await readFile(fileToDownload, { encoding: 'utf-8' }));
 
   // when a file is parsed, the server will write the version number to the project file
   original.settings.version = 'not-important';

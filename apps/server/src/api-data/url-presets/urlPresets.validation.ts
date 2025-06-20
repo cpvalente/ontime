@@ -1,14 +1,18 @@
-import { body } from 'express-validator';
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import { body, validationResult } from 'express-validator';
+import { Request, Response, NextFunction } from 'express';
 
 /**
  * validate array of URL preset objects
  */
 export const validateUrlPresets = [
-  body().isArray().withMessage('No array found in request'),
+  body().isArray(),
   body('*.enabled').isBoolean(),
-  body('*.alias').isString().trim().notEmpty(),
-  body('*.pathAndParams').isString().trim().notEmpty(),
+  body('*.alias').isString().trim(),
+  body('*.pathAndParams').isString().trim(),
 
-  requestValidationFunction,
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
 ];

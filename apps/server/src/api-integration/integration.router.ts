@@ -5,7 +5,7 @@
  *
  */
 
-import { ErrorResponse, LogOrigin } from 'ontime-types';
+import { LogOrigin } from 'ontime-types';
 
 import express, { type Request, type Response } from 'express';
 
@@ -27,11 +27,10 @@ integrationRouter.get('/', (_req: Request, res: Response<{ message: string }>) =
 /**
  * All calls are sent to the dispatcher
  */
-integrationRouter.get('/*splat', (req: Request, res: Response<ErrorResponse | { payload: unknown }>) => {
+integrationRouter.get('/*', (req: Request, res: Response) => {
   let action = req.path.substring(1);
   if (!action) {
-    res.status(400).json({ message: 'No action found' });
-    return;
+    return res.status(400).json({ error: 'No action found' });
   }
 
   try {
