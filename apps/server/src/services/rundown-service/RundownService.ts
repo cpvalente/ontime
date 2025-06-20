@@ -282,8 +282,8 @@ function notifyChanges(options: NotifyChangesOptions) {
 }
 
 /**
- * Sets a new rundown in the cache
- * and marks it as the currently loaded one
+ * Overrides the rundown with the given
+ * @param rundown
  */
 export async function initRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
   await cache.init(rundown, customFields);

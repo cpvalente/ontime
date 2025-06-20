@@ -1,6 +1,7 @@
 import type { TimeFormat } from './TimeFormat.type.js';
 
 export type Settings = {
+  app: 'ontime';
   version: string;
   serverPort: number;
   editorKey: null | string;
