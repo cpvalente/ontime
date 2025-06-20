@@ -187,6 +187,36 @@ export default function Rundown({ data }: RundownProps) {
     [order, entries, setSelectedEvents],
   );
 
+  /**
+   * Checks whether a block is collapsed
+   */
+  const getIsCollapsed = useCallback(
+    (blockId: EntryId): boolean => {
+      return Boolean(collapsedGroups.find((id) => id === blockId));
+    },
+    [collapsedGroups],
+  );
+
+  /**
+   * Handles logic for collapsing groups
+   */
+  const handleCollapseGroup = useCallback(
+    (collapsed: boolean, groupId: EntryId) => {
+      setCollapsedGroups((prev) => {
+        const isCollapsed = getIsCollapsed(groupId);
+        if (collapsed && !isCollapsed) {
+          const newSet = new Set(prev).add(groupId);
+          return [...newSet];
+        }
+        if (!collapsed && isCollapsed) {
+          return [...prev].filter((id) => id !== groupId);
+        }
+        return prev;
+      });
+    },
+    [getIsCollapsed, setCollapsedGroups],
+  );
+
   const moveEntry = useCallback(
     (cursor: EntryId | null, direction: 'up' | 'down') => {
       if (sortableData.length < 2 || cursor == null) {
@@ -207,7 +237,7 @@ export default function Rundown({ data }: RundownProps) {
 
       reorderEntry(cursor, destinationId, order as 'before' | 'after' | 'insert');
     },
-    [sortableData, reorderEntry],
+    [sortableData, entries, reorderEntry, handleCollapseGroup],
   );
 
   // shortcuts
@@ -255,36 +285,6 @@ export default function Rundown({ data }: RundownProps) {
     const index = order.findIndex((id) => id === featureData.selectedEventId);
     setSelectedEvents({ id: featureData.selectedEventId, selectMode: 'click', index });
   }, [appMode, featureData.selectedEventId, order, setSelectedEvents]);
-
-  /**
-   * Checks whether a block is collapsed
-   */
-  const getIsCollapsed = useCallback(
-    (blockId: EntryId): boolean => {
-      return Boolean(collapsedGroups.find((id) => id === blockId));
-    },
-    [collapsedGroups],
-  );
-
-  /**
-   * Handles logic for collapsing groups
-   */
-  const handleCollapseGroup = useCallback(
-    (collapsed: boolean, groupId: EntryId) => {
-      setCollapsedGroups((prev) => {
-        const isCollapsed = getIsCollapsed(groupId);
-        if (collapsed && !isCollapsed) {
-          const newSet = new Set(prev).add(groupId);
-          return [...newSet];
-        }
-        if (!collapsed && isCollapsed) {
-          return [...prev].filter((id) => id !== groupId);
-        }
-        return prev;
-      });
-    },
-    [getIsCollapsed, setCollapsedGroups],
-  );
 
   /**
    * On drag end, we reorder the events
