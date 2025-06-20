@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
-test.describe.fixme('test view navigation feature', () => {
+test.describe('test view navigation feature', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:4001/');
     page.locator('data-test-id=timer-view');
@@ -71,9 +71,6 @@ test.describe.fixme('test view navigation feature', () => {
   });
 });
 
-async function openNavigationMenu(page) {
-  // await page.mouse.move(Math.random() * 100, Math.random() * 100); FIXME: mouse.move dose not work in github actions
-  await page.keyboard.press('T');
-  await page.getByRole('button', { name: 'toggle menu' }).click();
-  page.locator('data-test-id=navigation__menu');
+async function openNavigationMenu(page: Page) {
+  await page.keyboard.press('ControlOrMeta + ,');
 }
