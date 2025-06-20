@@ -525,8 +525,6 @@ export function swap({ rundown, fromId, toId }: SwapArgs): MutatingReturn {
 
   rundown.entries[fromId] = newFrom;
   rundown.entries[toId] = newTo;
-  newFrom.revision++;
-  newTo.revision++;
 
   setIsStale();
   return { newRundown: rundown, didMutate: true };

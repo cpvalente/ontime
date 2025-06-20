@@ -203,7 +203,6 @@ describe('swapEventData', () => {
       duration: 1,
       delay: 1,
       revision: 3,
-      currentBlock: null,
     } as OntimeEvent;
     const eventB = {
       id: '2',
@@ -213,7 +212,6 @@ describe('swapEventData', () => {
       duration: 2,
       delay: 2,
       revision: 7,
-      currentBlock: 'testing',
     } as OntimeEvent;
 
     const [newA, newB] = swapEventData(eventA, eventB);
@@ -225,8 +223,7 @@ describe('swapEventData', () => {
       timeEnd: 1,
       duration: 1,
       delay: 1,
-      revision: 3,
-      currentBlock: null,
+      revision: 4,
     });
     expect(newB).toMatchObject({
       id: '2',
@@ -235,8 +232,7 @@ describe('swapEventData', () => {
       timeEnd: 2,
       duration: 2,
       delay: 2,
-      revision: 7,
-      currentBlock: 'testing',
+      revision: 8,
     });
   });
 });

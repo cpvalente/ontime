@@ -278,13 +278,10 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): [newA: 
     timeEnd: eventA.timeEnd,
     duration: eventA.duration,
     linkStart: eventA.linkStart,
-    currentBlock: eventA.currentBlock,
     // keep schedule metadata
     delay: eventA.delay,
     gap: eventA.gap,
     dayOffset: eventA.dayOffset,
-    // keep revision number
-    revision: eventA.revision,
   };
 
   const newB = {
@@ -296,13 +293,10 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): [newA: 
     timeEnd: eventB.timeEnd,
     duration: eventB.duration,
     linkStart: eventB.linkStart,
-    currentBlock: eventB.currentBlock,
     // keep schedule metadata
     delay: eventB.delay,
     gap: eventB.gap,
     dayOffset: eventB.dayOffset,
-    // keep revision number
-    revision: eventB.revision,
   };
 
   return [newA, newB];
