@@ -717,11 +717,6 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // combine all big changes
     const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback || offsetModeChanged;
 
-    // we would like the wall clock to tick on a regular rate
-    const normalClockUpdate =
-      getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock) ||
-      getForceUpdate(RuntimeService.previousClockUpdate, state.clock);
-
     /**
      * Timer should be updated if
      * - big changes
@@ -738,7 +733,6 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     /**
      * Runtime should be updated if
-     * - clock tick
      * - big changes
      * - the timer is updating so runtime also updates to keep them in sync ???
      * - notification rate has been exceeded
@@ -746,10 +740,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
      * Then check if there is actually a change in the data
      */
     const shouldRuntimeUpdate =
-      (normalClockUpdate ||
-        hasImmediateChanges ||
-        shouldUpdateTimer ||
-        getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock)) &&
+      (hasImmediateChanges || shouldUpdateTimer || getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock)) &&
       !deepEqual(RuntimeService.previousState?.runtime, state.runtime);
 
     /**
@@ -760,9 +751,13 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     /**
      * Many other values are calculated based on the clock
      * so if any of them are updated we also need to send the clock
-     * in case nothing else is updating the clock will be updated at the notification rate
+     * in case nothing else is updating the clock will bw updated at the notification rate
      */
-    const shouldUpdateClock = shouldRuntimeUpdate || shouldBlockUpdate || normalClockUpdate;
+    const shouldUpdateClock =
+      shouldUpdateTimer ||
+      shouldRuntimeUpdate ||
+      shouldBlockUpdate ||
+      getForceUpdate(RuntimeService.previousClockUpdate, state.clock);
 
     //Now we set all the updates on the eventstore and update the previous value
     if (hasChangedPlayback) {
@@ -833,19 +828,15 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     // Helper function to save the restore state
     function saveRestoreState(state: runtimeState.RuntimeState) {
-      restoreService
-        .save({
-          playback: state.timer.playback,
-          selectedEventId: state.eventNow?.id ?? null,
-          startedAt: state.timer.startedAt,
-          addedTime: state.timer.addedTime,
-          pausedAt: state._timer.pausedAt,
-          firstStart: state.runtime.actualStart,
-          blockStartAt: state.currentBlock.startedAt,
-        })
-        .catch((_e) => {
-          //we don't do anything with the error here
-        });
+      restoreService.save({
+        playback: state.timer.playback,
+        selectedEventId: state.eventNow?.id ?? null,
+        startedAt: state.timer.startedAt,
+        addedTime: state.timer.addedTime,
+        pausedAt: state._timer.pausedAt,
+        firstStart: state.runtime.actualStart,
+        blockStartAt: state.currentBlock.startedAt,
+      });
     }
 
     batch.send();

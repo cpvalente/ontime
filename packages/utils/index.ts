@@ -36,6 +36,8 @@ export {
   MILLIS_PER_HOUR,
   MILLIS_PER_MINUTE,
   MILLIS_PER_SECOND,
+  millisToHours,
+  millisToMinutes,
   millisToSeconds,
   secondsInMillis,
 } from './src/date-utils/conversionUtils.js';

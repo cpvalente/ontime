@@ -81,7 +81,7 @@ export function getFormattedTimer(
   localisedMinutes: string,
   options: FormattingOptions,
 ): string {
-  if (timer == null || timerType === TimerType.None) {
+  if (timer == null) {
     return options.removeSeconds ? timerPlaceholderMin : timerPlaceholder;
   }
 
@@ -98,7 +98,7 @@ export function getFormattedTimer(
     }
   }
 
-  let display = millisToString(timeToParse, { direction: timerType });
+  let display = millisToString(timeToParse);
   if (options.removeLeadingZero) {
     display = removeLeadingZero(display);
   }
