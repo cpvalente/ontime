@@ -88,13 +88,8 @@ describe('mutation on runtimeState', () => {
   });
 
   describe('playback operations', async () => {
-    it('refuses if nothing is loaded', async () => {
-      // force update
-      vi.useFakeTimers();
-      await initRundown(makeRundown({}), {});
-      vi.runAllTimers();
-      vi.useRealTimers();
-
+    it('refuses if nothing is loaded', () => {
+      initRundown(makeRundown({}), {});
       let success = start(mockState);
       expect(success).toBe(false);
 
@@ -102,15 +97,9 @@ describe('mutation on runtimeState', () => {
       expect(success).toBe(false);
     });
 
-    test('normal playback cycle', async () => {
+    test('normal playback cycle', () => {
       // 1. Load event
       const mockRundown = makeRundown({ entries: { [mockEvent.id]: mockEvent }, order: [mockEvent.id] });
-      // force update
-      vi.useFakeTimers();
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
-      vi.useRealTimers();
-
       load(mockEvent, mockRundown, mockRundown.order);
       let newState = getState();
       expect(newState.eventNow?.id).toBe(mockEvent.id);
@@ -175,19 +164,20 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.actualStart).toBeNull();
     });
 
+    // do this before the test so that it is applied
+    const entries = {
+      event1: { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000, parent: null },
+      event2: { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500, parent: null },
+    };
+    const rundown = makeRundown({ entries, order: ['event1', 'event2'] });
+
+    // force update
+    vi.useFakeTimers();
+    await initRundown(rundown, {});
+    vi.runAllTimers();
+    vi.useRealTimers();
+
     test('runtime offset', async () => {
-      const entries = {
-        event1: { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000, parent: null },
-        event2: { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500, parent: null },
-      };
-      const rundown = makeRundown({ entries, order: ['event1', 'event2'] });
-
-      // force update
-      vi.useFakeTimers();
-      await initRundown(rundown, {});
-      vi.runAllTimers();
-      vi.useRealTimers();
-
       // 1. Load event
       load(entries.event1, rundown, rundown.order);
       let newState = getState();
@@ -294,7 +284,7 @@ describe('roll mode', () => {
     });
   });
 
-  describe('roll takeover', async () => {
+  describe('roll takover', () => {
     const rundown = makeRundown({
       entries: {
         1: { ...mockEvent, id: '1', timeStart: 1000, duration: 1000, timeEnd: 2000 },
@@ -303,12 +293,6 @@ describe('roll mode', () => {
       },
       order: ['1', '2', '3'],
     });
-
-    // force update
-    vi.useFakeTimers();
-    await initRundown(rundown, {});
-    vi.runAllTimers();
-    vi.useRealTimers();
 
     test('from load', () => {
       load(rundown.entries[3] as PlayableEvent, rundown, rundown.order);
@@ -329,7 +313,7 @@ describe('roll mode', () => {
   });
 
   describe('roll continue with offset', () => {
-    test('no gaps', async () => {
+    test('no gaps', () => {
       const rundown = makeRundown({
         entries: {
           1: { ...mockEvent, id: '1', timeStart: 1000, duration: 1000, timeEnd: 2000 },
@@ -339,19 +323,11 @@ describe('roll mode', () => {
         order: ['1', '2', '3'],
       });
 
-      // force update
-      vi.useFakeTimers();
-      await initRundown(rundown, {});
-      vi.runAllTimers();
-
       load(rundown.entries[1] as PlayableEvent, rundown, rundown.order);
       start();
-      // the current offset after manual play
-      const currentOffset = getState().runtime.offset;
       let result = roll(rundown, rundown.order, getState().runtime.offset);
       expect(result).toStrictEqual({ eventId: '1', didStart: false });
-      // the current offset should be maintain by roll mode whn taking over from play
-      expect(getState().runtime.offset).toBe(currentOffset);
+      expect(getState().runtime.offset).toBe(1000);
 
       vi.setSystemTime('jan 1 00:00:01');
       result = roll(rundown, rundown.order, getState().runtime.offset);
@@ -362,8 +338,6 @@ describe('roll mode', () => {
       result = roll(rundown, rundown.order, getState().runtime.offset);
       expect(result).toStrictEqual({ eventId: '3', didStart: true });
       expect(getState().runtime.offset).toBe(1000);
-
-      vi.useRealTimers();
     });
   });
 });
