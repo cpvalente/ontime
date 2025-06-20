@@ -372,7 +372,7 @@ export default function Rundown({ data }: RundownProps) {
                     <Fragment key={entryId}>
                       {showPrependingQuickAdd && (
                         <QuickAddBlock
-                          previousEventId={rundownMetadata.thisId}
+                          previousEventId={rundownMetadata.previousEntryId}
                           parentBlock={parentId}
                           backgroundColor={parentColour}
                         />
