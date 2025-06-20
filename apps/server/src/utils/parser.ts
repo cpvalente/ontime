@@ -305,7 +305,7 @@ export const parseExcel = (
   };
 };
 
-type ParsingError = {
+export type ParsingError = {
   context: string;
   message: string;
 };

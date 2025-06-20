@@ -1,9 +1,9 @@
 import { Log, LogLevel } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 
+import { clock } from '../services/Clock.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { consoleSubdued, consoleError } from '../utils/console.js';
-import { timeNow } from '../utils/time.js';
 import { isProduction } from '../setup/environment.js';
 
 class Logger {
@@ -75,7 +75,7 @@ class Logger {
       level,
       origin,
       text,
-      time: millisToString(timeNow()),
+      time: millisToString(clock.getSystemTime() || 0),
     };
     this._push(log);
   }

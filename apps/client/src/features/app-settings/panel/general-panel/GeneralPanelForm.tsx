@@ -13,6 +13,10 @@ import * as Panel from '../../panel-utils/PanelUtils';
 
 import GeneralPinInput from './GeneralPinInput';
 
+export type GeneralPanelFormValues = {
+  filename: string;
+};
+
 export default function GeneralPanelForm() {
   const { data, status, refetch } = useSettings();
   const {

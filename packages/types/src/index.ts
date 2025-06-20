@@ -67,6 +67,7 @@ export type {
   ErrorResponse,
   ProjectFileListResponse,
   MessageResponse,
+  RundownPaginated,
   SessionStats,
   ProjectLogoResponse,
 } from './api/ontime-controller/BackendResponse.type.js';

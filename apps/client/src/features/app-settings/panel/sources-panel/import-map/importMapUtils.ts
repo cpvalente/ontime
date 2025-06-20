@@ -3,7 +3,7 @@ import { ImportCustom, ImportMap } from 'ontime-utils';
 export type NamedImportMap = typeof namedImportMap;
 
 // Record of label and import name
-const namedImportMap = {
+export const namedImportMap = {
   Worksheet: 'event schedule',
   Start: 'time start',
   'Link start': 'link start',

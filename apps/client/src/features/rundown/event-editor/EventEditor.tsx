@@ -14,6 +14,8 @@ import EventEditorEmpty from './EventEditorEmpty';
 
 import style from './EventEditor.module.scss';
 
+export type EventEditorSubmitActions = keyof OntimeEvent;
+
 export type EditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | CustomFieldLabel;
 
 interface EventEditorProps {

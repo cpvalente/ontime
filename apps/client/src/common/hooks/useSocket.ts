@@ -91,6 +91,14 @@ export const setPlayback = {
   },
 };
 
+export const useInfoPanel = createSelector((state: RuntimeStore) => ({
+  eventNow: state.eventNow,
+  eventNext: state.eventNext,
+  playback: state.timer.playback,
+  selectedEventIndex: state.runtime.selectedEventIndex,
+  numEvents: state.runtime.numEvents,
+}));
+
 export const useAuxTimerTime = createSelector((state: RuntimeStore) => state.auxtimer1.current);
 
 export const useAuxTimerControl = createSelector((state: RuntimeStore) => ({
@@ -136,6 +144,8 @@ export const useProgressData = createSelector((state: RuntimeStore) => ({
   timeWarning: state.eventNow?.timeWarning ?? null,
   timeDanger: state.eventNow?.timeDanger ?? null,
 }));
+
+export const setClientName = (newName: string) => socketSendJson('set-client-name', newName);
 
 export const useRuntimeOverview = createSelector((state: RuntimeStore) => ({
   plannedStart: state.runtime.plannedStart,

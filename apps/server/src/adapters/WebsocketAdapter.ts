@@ -29,7 +29,7 @@ import { authenticateSocket } from '../middleware/authenticate.js';
 
 let instance: SocketServer | null = null;
 
-class SocketServer implements IAdapter {
+export class SocketServer implements IAdapter {
   private readonly MAX_PAYLOAD = 1024 * 256; // 256Kb
 
   private wss: WebSocketServer | null;

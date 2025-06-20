@@ -12,3 +12,5 @@ export const router = express.Router();
 router.post('/upload', uploadExcel, validateFileExists, postExcel);
 router.get('/worksheets', getWorksheets);
 router.post('/preview', validateImportMapOptions, previewExcel);
+
+// TODO: validate import map
