@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
-import { maybeAxiosError } from '../../common/api/utils';
 import { getViewSettings, postViewSettings } from '../../common/api/viewSettings';
 import { ontimeQueryClient } from '../../common/queryClient';
 import { VIEW_SETTINGS } from '../api/constants';
@@ -22,7 +21,5 @@ export default function useViewSettings() {
     },
   });
 
-  const mutateError = error ? maybeAxiosError(error) : '';
-
-  return { data: data ?? viewsSettingsPlaceholder, mutate, isFetching, mutateError };
+  return { data: data ?? viewsSettingsPlaceholder, mutate, isFetching, error };
 }

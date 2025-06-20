@@ -13,11 +13,12 @@ import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import CodeEditorModal from './StyleEditorModal';
+import { maybeAxiosError } from 'common/api/utils';
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
 export default function ViewSettingsForm() {
-  const { data, isFetching, mutate, mutateError } = useViewSettings();
+  const { data, isFetching, mutate, error } = useViewSettings();
   const { data: info, status: infoStatus } = useInfo();
   const { isOpen: isCodeEditorOpen, onOpen: onCodeEditorOpen, onClose: onCodeEditorClose } = useDisclosure();
 
@@ -26,9 +27,9 @@ export default function ViewSettingsForm() {
     handleSubmit,
     register,
     reset,
-    setError,
     formState: { isSubmitting, isDirty, errors },
   } = useForm<ViewSettings>({
+    errors: { root: { type: 'string', message: maybeAxiosError(error) } },
     defaultValues: data,
     values: data,
     resetOptions: {
@@ -42,10 +43,6 @@ export default function ViewSettingsForm() {
       reset(data);
     }
   }, [data, reset]);
-
-  useEffect(() => {
-    return setError('root', { message: mutateError });
-  }, [mutateError]);
 
   const onSubmit = async (formData: ViewSettings) => {
     const newData = { ...formData };
