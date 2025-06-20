@@ -9,6 +9,10 @@ const fileToDownload = 'e2e/tests/fixtures/tmp/';
 test('project file upload', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
+  if (await page.getByText('Welcome to Ontime')) {
+    await page.getByRole('button', { name: 'Close' }).click();
+  }
+
   await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByRole('button', { name: 'Clear rundown' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
