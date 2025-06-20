@@ -5,7 +5,6 @@ import {
   rundownAddToBlock,
   rundownApplyDelay,
   rundownBatchPut,
-  rundownCloneEntry,
   rundownDelete,
   rundownDissolveBlock,
   rundownGetAll,
@@ -17,7 +16,7 @@ import {
   rundownSwap,
 } from './rundown.controller.js';
 import {
-  paramsMustHaveEntryId,
+  paramsMustHaveEventId,
   rundownArrayOfIds,
   rundownBatchPutValidator,
   rundownPostValidator,
@@ -30,7 +29,7 @@ export const router = express.Router();
 
 router.get('/', rundownGetAll);
 router.get('/current', rundownGetCurrent);
-router.get('/:eventId', paramsMustHaveEntryId, rundownGetById); // not used in Ontime frontend
+router.get('/:eventId', paramsMustHaveEventId, rundownGetById); // not used in Ontime frontend
 
 router.post('/', rundownPostValidator, rundownPost);
 
@@ -39,9 +38,8 @@ router.put('/batch', rundownBatchPutValidator, rundownBatchPut);
 
 router.patch('/reorder/', rundownReorderValidator, rundownReorder);
 router.patch('/swap', rundownSwapValidator, rundownSwap);
-router.patch('/applydelay/:entryId', paramsMustHaveEntryId, rundownApplyDelay);
-router.post('/clone/:entryId', paramsMustHaveEntryId, rundownCloneEntry);
-router.post('/dissolve/:entryId', paramsMustHaveEntryId, rundownDissolveBlock);
+router.patch('/applydelay/:eventId', paramsMustHaveEventId, rundownApplyDelay);
+router.post('/dissolve/:eventId', paramsMustHaveEventId, rundownDissolveBlock);
 router.post('/group', rundownArrayOfIds, rundownAddToBlock);
 
 router.delete('/', rundownArrayOfIds, deletesEventById);

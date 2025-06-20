@@ -6,6 +6,7 @@ import {
   EntryId,
   RundownEntries,
   ProjectRundowns,
+  OntimeBlock,
 } from 'ontime-types';
 
 import * as cache from './rundownCache.js';
@@ -174,21 +175,37 @@ export function getRundownOrThrow(rundowns: ProjectRundowns, rundownId: string):
   return rundowns[rundownId];
 }
 
-/**
- * Receives an insertion order and returns the reference to an event ID
- * after which we will insert the new event
- */
-export function getPreviousId(afterId?: EntryId, beforeId?: EntryId): EntryId | undefined {
+export function getInsertionPosition(
+  parentId: EntryId | null,
+  afterId?: EntryId,
+  beforeId?: EntryId,
+): { atIndex: number; afterId: EntryId | undefined } {
   if (afterId) {
-    return afterId;
+    const order = selectOrderList(parentId);
+    return {
+      atIndex: order.findIndex((id) => id === afterId) + 1,
+      afterId,
+    };
   }
 
   if (beforeId) {
-    const flatOrder = cache.getEventOrder().flatOrder;
-    const atIndex = flatOrder.findIndex((id) => id === beforeId);
-    if (atIndex < 1) return undefined;
-    return flatOrder[atIndex - 1];
+    const order = selectOrderList(parentId);
+    const atIndex = order.findIndex((id) => id === beforeId);
+    return {
+      atIndex,
+      afterId: order[atIndex - 1] ?? null,
+    };
   }
 
-  return;
+  return {
+    atIndex: 0,
+    afterId: undefined,
+  };
+
+  function selectOrderList(parentId: EntryId | null) {
+    if (parentId) {
+      return (getEntryWithId(parentId) as OntimeBlock).events;
+    }
+    return cache.getEventOrder().order;
+  }
 }

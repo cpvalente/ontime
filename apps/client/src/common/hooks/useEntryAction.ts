@@ -20,7 +20,6 @@ import {
   deleteEntries,
   patchReorderEntry,
   postAddEntry,
-  postCloneEntry,
   putBatchEditEvents,
   putEditEntry,
   ReorderEntry,
@@ -163,29 +162,6 @@ export const useEntryActions = () => {
       linkPrevious,
       queryClient,
     ],
-  );
-
-  /**
-   * Calls mutation to clone a selection
-   * @private
-   */
-  const _cloneMutation = useMutation({
-    mutationFn: postCloneEntry,
-    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
-  });
-
-  /**
-   * Clone a selection
-   */
-  const clone = useCallback(
-    async (entryId: EntryId) => {
-      try {
-        await _cloneMutation.mutateAsync(entryId);
-      } catch (error) {
-        logAxiosError('Error cloning entry', error);
-      }
-    },
-    [_cloneMutation],
   );
 
   /**
@@ -759,7 +735,6 @@ export const useEntryActions = () => {
     addEntry,
     applyDelay,
     batchUpdateEvents,
-    clone,
     deleteEntry,
     deleteAllEntries,
     dissolveBlock,

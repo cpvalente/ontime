@@ -37,7 +37,7 @@ import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
-import { cloneEvent } from '../../common/utils/clone';
+import { cloneEvent } from '../../common/utils/eventsManager';
 
 import BlockBlock from './block-block/BlockBlock';
 import BlockEnd from './block-block/BlockEnd';
@@ -329,7 +329,7 @@ export default function Rundown({ data }: RundownProps) {
   };
 
   if (sortableData.length < 1) {
-    return <RundownEmpty handleAddNew={(type: SupportedEntry) => addEntry({ type })} />;
+    return <RundownEmpty handleAddNew={(type: SupportedEntry) => insertAtId({ type }, cursor)} />;
   }
 
   // 1. gather presentation options

@@ -88,13 +88,6 @@ export async function requestApplyDelay(delayId: EntryId): Promise<AxiosResponse
 }
 
 /**
- * HTTP request for cloning an entry
- */
-export async function postCloneEntry(entryId: EntryId): Promise<AxiosResponse<Rundown>> {
-  return axios.post(`${rundownPath}/clone/${entryId}`);
-}
-
-/**
  * HTTP request for dissolving of a block
  */
 export async function requestDissolveBlock(blockId: EntryId): Promise<AxiosResponse<Rundown>> {

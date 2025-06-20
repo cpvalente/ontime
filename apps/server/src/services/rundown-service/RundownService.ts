@@ -21,7 +21,7 @@ import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import * as cache from './rundownCache.js';
-import { getPreviousId } from './rundownUtils.js';
+import { getInsertionPosition } from './rundownUtils.js';
 
 type CompleteEntry<T> =
   T extends Partial<OntimeEvent>
@@ -70,12 +70,11 @@ export async function addEvent(eventData: EventPostPayload): Promise<OntimeEntry
     throw new Error(`Event with ID ${eventData.id} already exists`);
   }
 
-  // 2. if the user provides a parent (inside a group), we make sure it exists and it is a group
+  // 2. if the user provides a parent (inside a group), we make sure it exists
   let parent: EntryId | null = null;
   if ('parent' in eventData && eventData.parent != null) {
-    const maybeParent = cache.getCurrentRundown().entries[eventData.parent];
-    if (!maybeParent || !isOntimeBlock(maybeParent)) {
-      throw new Error(`Invalid parent event with ID ${eventData.parent}`);
+    if (!cache.hasId(eventData.parent)) {
+      throw new Error(`Parent event with ID ${eventData.parent} not found`);
     }
     parent = eventData.parent;
   }
@@ -92,14 +91,14 @@ export async function addEvent(eventData: EventPostPayload): Promise<OntimeEntry
     }
   }
 
-  const afterId = getPreviousId(eventData?.after, eventData?.before);
+  const { afterId, atIndex } = getInsertionPosition(parent, eventData?.after, eventData?.before);
 
   // generate a fully formed entry from the patch
   const sanitisedEntry = generateEvent(eventData, afterId);
 
   // modify rundown
   const scopedMutation = cache.mutateCache(cache.add);
-  const { newEvent } = await scopedMutation({ afterId, parent, entry: sanitisedEntry });
+  const { newEvent } = await scopedMutation({ atIndex, parent, entry: sanitisedEntry });
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();
@@ -114,9 +113,9 @@ export async function addEvent(eventData: EventPostPayload): Promise<OntimeEntry
 /**
  * deletes event by its ID
  */
-export async function deleteEvent(eventIds: EntryId[]) {
+export async function deleteEvent(eventIds: string[]) {
   const scopedMutation = cache.mutateCache(cache.remove);
-  const { didMutate, changeList } = await scopedMutation({ eventIds });
+  const { didMutate } = await scopedMutation({ eventIds });
 
   if (!didMutate) {
     return;
@@ -126,7 +125,7 @@ export async function deleteEvent(eventIds: EntryId[]) {
   updateRuntimeOnChange();
 
   // notify timer and external services of change
-  notifyChanges({ timer: changeList, external: true });
+  notifyChanges({ timer: eventIds, external: true });
 }
 
 /**
@@ -218,27 +217,6 @@ export async function applyDelay(delayId: EntryId) {
 
   // notify timer and external services of change
   notifyChanges({ timer: true, external: true });
-}
-
-/**
- * Clones an entry, ensuring that all dependencies are preserved
- */
-export async function cloneEntry(entryId: EntryId) {
-  const scopedMutation = cache.mutateCache(cache.clone);
-  const { newRundown, newEvent } = await scopedMutation({ entryId });
-
-  // notify runtime that rundown has changed
-  updateRuntimeOnChange();
-
-  if (isOntimeBlock(newEvent)) {
-    notifyChanges({ timer: newEvent.events, external: true });
-  } else if (isOntimeEvent(newEvent)) {
-    notifyChanges({ timer: [newEvent.id], external: true });
-  } else if (isOntimeDelay(newEvent)) {
-    notifyChanges({ external: true });
-  }
-
-  return newRundown;
 }
 
 /**

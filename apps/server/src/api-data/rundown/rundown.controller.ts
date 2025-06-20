@@ -15,7 +15,6 @@ import {
   groupEntries,
   reorderEntry,
   swapEvents,
-  cloneEntry,
 } from '../../services/rundown-service/RundownService.js';
 import { getEntryWithId, getCurrentRundown } from '../../services/rundown-service/rundownUtils.js';
 
@@ -121,18 +120,8 @@ export async function rundownSwap(req: Request, res: Response<MessageResponse | 
 
 export async function rundownApplyDelay(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
-    await applyDelay(req.params.entryId);
+    await applyDelay(req.params.eventId);
     res.status(200).send({ message: 'Delay applied' });
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-}
-
-export async function rundownCloneEntry(req: Request, res: Response<Rundown | ErrorResponse>) {
-  try {
-    const newRundown = await cloneEntry(req.params.entryId);
-    res.status(200).send(newRundown);
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });
@@ -141,7 +130,7 @@ export async function rundownCloneEntry(req: Request, res: Response<Rundown | Er
 
 export async function rundownDissolveBlock(req: Request, res: Response<Rundown | ErrorResponse>) {
   try {
-    const newRundown = await dissolveBlock(req.params.entryId);
+    const newRundown = await dissolveBlock(req.params.eventId);
     res.status(200).send(newRundown);
   } catch (error) {
     const message = getErrorMessage(error);

@@ -12,7 +12,7 @@ import {
 import { useEntryActions } from '../../common/hooks/useEntryAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
 import { useEmitLog } from '../../common/stores/logger';
-import { cloneEvent } from '../../common/utils/clone';
+import { cloneEvent } from '../../common/utils/eventsManager';
 
 import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';

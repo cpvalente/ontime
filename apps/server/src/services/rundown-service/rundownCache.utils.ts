@@ -10,8 +10,6 @@ import {
   isOntimeDelay,
   PlayableEvent,
   RundownEntries,
-  OntimeDelay,
-  OntimeBlock,
 } from 'ontime-types';
 import { dayInMs, getLinkedTimes, getTimeFrom, isNewLatest } from 'ontime-utils';
 
@@ -287,38 +285,4 @@ function processEntry<T extends OntimeEntry>(
   processedData.previousEntry = currentEntry;
 
   return { processedData, processedEntry: currentEntry };
-}
-
-export function cloneEvent(entry: OntimeEvent, newId: EntryId): OntimeEvent {
-  const newEntry = structuredClone(entry);
-  newEntry.id = newId;
-  newEntry.revision = 0;
-  return newEntry;
-}
-
-export function cloneDelay(entry: OntimeDelay, newId: EntryId): OntimeDelay {
-  const newEntry = structuredClone(entry);
-  newEntry.id = newId;
-  return newEntry;
-}
-
-export function cloneBlock(entry: OntimeBlock, newId: EntryId): OntimeBlock {
-  const newEntry = structuredClone(entry);
-  newEntry.id = newId;
-
-  // in blocks, we need to remove the events references
-  newEntry.events = [];
-  newEntry.revision = 0;
-  return newEntry;
-}
-
-export function cloneEntry<T extends OntimeEntry>(entry: T, newId: EntryId): T {
-  if (isOntimeEvent(entry)) {
-    return cloneEvent(entry, newId) as T;
-  } else if (isOntimeDelay(entry)) {
-    return cloneDelay(entry, newId) as T;
-  } else if (entry.type === 'block') {
-    return cloneBlock(entry as OntimeBlock, newId) as T;
-  }
-  throw new Error(`Unsupported entry type for cloning: ${entry}`);
 }

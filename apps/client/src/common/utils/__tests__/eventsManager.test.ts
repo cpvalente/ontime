@@ -1,6 +1,6 @@
 import { EndAction, EntryCustomFields, OntimeEvent, SupportedEntry, TimerType, TimeStrategy } from 'ontime-types';
 
-import { cloneEvent } from '../clone';
+import { cloneEvent } from '../eventsManager';
 
 describe('cloneEvent()', () => {
   it('creates a stem from a given event', () => {
