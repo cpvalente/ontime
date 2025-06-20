@@ -20,11 +20,6 @@ export const useRundownEditor = createSelector((state: RuntimeStore) => ({
   nextEventId: state.eventNext?.id ?? null,
 }));
 
-export const useOperator = createSelector((state: RuntimeStore) => ({
-  playback: state.timer.playback,
-  selectedEventId: state.eventNow?.id ?? null,
-}));
-
 export const useTimerViewControl = createSelector((state: RuntimeStore) => ({
   blackout: state.message.timer.blackout,
   blink: state.message.timer.blink,

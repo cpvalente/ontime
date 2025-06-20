@@ -1,12 +1,5 @@
 @import '../Operator.module.scss';
 
-@mixin clock-size {
-  font-size: calc(1rem - 2px);
-  @media (min-width: $min-tablet) {
-    font-size: 1rem;
-  }
-}
-
 .event {
   opacity: 1;
   border-top: 1px solid $white-1;
@@ -30,7 +23,7 @@
 
   &.running {
     border-top: 1px solid $gray-1300;
-    background-color: var(--operator-running-bg-override, $active-red);
+    background-color: var(--operator-running-bg-override, $active-green);
   }
 
   &.past {
@@ -63,7 +56,6 @@
 .mainField {
   grid-area: main;
   font-size: 1.5rem;
-  letter-spacing: 0.5px;
   color: $ui-white;
 
   @include ellipsis-text;
@@ -72,21 +64,29 @@
 .secondaryField {
   grid-area: secondary;
   font-size: 1.25rem;
-  letter-spacing: 0.5px;
-  @include ellipsis-text;
+  line-height: 1em;
+  // allow multi-line text but trim before
+  white-space: pre-line;
 }
 
-.schedule {
-  @include clock-size;
+.timeUntil {
+  font-size: calc(1rem - 2px);
+  line-height: 1em;
   grid-area: schedule;
   justify-self: end;
+  background-color: $gray-1000;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1px;
 }
 
 .runningTime {
-  @include clock-size;
+  font-size: 1.25rem;
+  line-height: 1em;
   grid-area: running;
   justify-self: end;
+  align-self: flex-start;
   display: flex;
+  align-items: center;
   gap: 0.5em;
 }
 
@@ -100,6 +100,7 @@
   flex-wrap: wrap;
   gap: 0.5em;
   row-gap: 0.25em;
+  line-height: 1.25em;
 
   .field {
     font-weight: 600;

@@ -1,35 +1,31 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { isOntimeEvent, OntimeEvent, SupportedEntry } from 'ontime-types';
-import { getFirstEventNormal, getLastEventNormal } from 'ontime-utils';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isOntimeBlock, isOntimeEvent } from 'ontime-types';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
-import { useOperator } from '../../common/hooks/useSocket';
+import { useSelectedEventId } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
+import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
 import { getDefaultFormat } from '../../common/utils/time';
-import { getPropertyValue, isStringBoolean } from '../viewers/common/viewUtils';
 
 import EditModal from './edit-modal/EditModal';
 import FollowButton from './follow-button/FollowButton';
 import OperatorBlock from './operator-block/OperatorBlock';
 import OperatorEvent from './operator-event/OperatorEvent';
 import StatusBar from './status-bar/StatusBar';
-import { getOperatorOptions } from './operator.options';
+import { getOperatorOptions, useOperatorOptions } from './operator.options';
+import type { EditEvent } from './operator.types';
+import { getEventData, makeOperatorMetadata } from './operator.utils';
 
 import style from './Operator.module.scss';
 
 const selectedOffset = 50;
-
-export type Subscribed = { id: string; label: string; colour: string; value: string }[];
-type TitleFields = Pick<OntimeEvent, 'title'>;
-export type EditEvent = Pick<OntimeEvent, 'id' | 'cue'> & { subscriptions: Subscribed };
 
 export default function Operator() {
   const { data, status } = useRundown();
@@ -38,8 +34,8 @@ export default function Operator() {
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
-  const featureData = useOperator();
-  const [searchParams] = useSearchParams();
+  const { selectedEventId } = useSelectedEventId();
+  const { subscribe, mainSource, secondarySource, shouldEdit, hidePast } = useOperatorOptions();
   const { data: settings } = useSettings();
 
   const [showEditPrompt, setShowEditPrompt] = useState(false);
@@ -59,15 +55,15 @@ export default function Operator() {
 
   // reset scroll if nothing is selected
   useEffect(() => {
-    if (!featureData?.selectedEventId) {
+    if (!selectedEventId) {
       if (!lockAutoScroll) {
         scrollRef.current?.scrollTo(0, 0);
       }
     }
-  }, [featureData?.selectedEventId, lockAutoScroll, scrollRef]);
+  }, [selectedEventId, lockAutoScroll, scrollRef]);
 
   const handleOffset = () => {
-    if (featureData.selectedEventId) {
+    if (selectedEventId) {
       scrollToComponent();
     }
     setLockAutoScroll(false);
@@ -115,68 +111,38 @@ export default function Operator() {
     return <EmptyPage text='Loading...' />;
   }
 
-  // get fields which the user subscribed to
-  const shouldEdit = searchParams.get('shouldEdit');
-
-  // subscriptions is a MultiSelect and may have multiple values
-  const subscriptions = searchParams.getAll('subscribe').filter((value) => Object.hasOwn(customFields, value));
-  const canEdit = shouldEdit && subscriptions.length;
-
-  const main = searchParams.get('main') as keyof TitleFields | null;
-  const secondary = searchParams.get('secondary');
-
-  let isPast = Boolean(featureData.selectedEventId);
-  const hidePast = isStringBoolean(searchParams.get('hidepast'));
-
-  const { firstEvent } = getFirstEventNormal(data.entries, data.order);
-  const { lastEvent } = getLastEventNormal(data.entries, data.order);
+  const canEdit = shouldEdit && subscribe.length;
+  const { process } = makeOperatorMetadata(selectedEventId);
 
   return (
     <div className={style.operatorContainer}>
       <ViewParamsEditor viewOptions={operatorOptions} />
       {editEvent && <EditModal event={editEvent} onClose={() => setEditEvent(null)} />}
 
-      <StatusBar
-        projectTitle={projectData.title}
-        playback={featureData.playback}
-        selectedEventId={featureData.selectedEventId}
-        firstStart={firstEvent?.timeStart}
-        firstId={firstEvent?.id}
-        lastEnd={lastEvent?.timeEnd}
-        lastId={lastEvent?.id}
-      />
+      <StatusBar />
 
       {canEdit && (
-        <div className={`${style.editPrompt} ${showEditPrompt ? style.show : undefined}`}>
-          Press and hold to edit user field
-        </div>
+        <div className={cx([style.editPrompt, showEditPrompt && style.show])}>Press and hold to edit user field</div>
       )}
 
       <div className={style.operatorEvents} onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
-        {data.order.map((eventId) => {
-          const entry = data.entries[eventId];
+        {data.order.map((entryId) => {
+          const entry = data.entries[entryId];
           if (isOntimeEvent(entry)) {
-            const isSelected = featureData.selectedEventId === entry.id;
-            if (isSelected) {
-              isPast = false;
-            }
+            const { isPast, isSelected, isLinkedToLoaded, totalGap } = process(entry);
 
             // hide past events (if setting) and skipped events
             if ((hidePast && isPast) || entry.skip) {
               return null;
             }
 
-            const mainField = main ? getPropertyValue(entry, main) ?? '' : entry.title;
-            const secondaryField = getPropertyValue(entry, secondary) ?? '';
-            const subscribedData = subscriptions
-              ? subscriptions.flatMap((id) => {
-                  if (!customFields[id]) {
-                    return [];
-                  }
-                  const { label, colour } = customFields[id];
-                  return [{ id, label, colour, value: entry.custom[id] }];
-                })
-              : null;
+            const { mainField, secondaryField, subscribedData } = getEventData(
+              entry,
+              mainSource,
+              secondarySource,
+              subscribe,
+              customFields,
+            );
 
             return (
               <OperatorEvent
@@ -187,24 +153,72 @@ export default function Operator() {
                 main={mainField}
                 secondary={secondaryField}
                 timeStart={entry.timeStart}
-                timeEnd={entry.timeEnd}
                 duration={entry.duration}
                 delay={entry.delay}
+                dayOffset={entry.dayOffset}
+                isLinkedToLoaded={isLinkedToLoaded}
                 isSelected={isSelected}
-                subscribed={subscribedData}
                 isPast={isPast}
                 selectedRef={isSelected ? selectedRef : undefined}
+                subscribed={subscribedData}
+                totalGap={totalGap}
                 onLongPress={canEdit ? handleEdit : () => undefined}
               />
             );
           }
 
-          if (entry.type === SupportedEntry.Block) {
-            return <OperatorBlock key={entry.id} title={entry.title} />;
+          if (isOntimeBlock(entry)) {
+            return (
+              <Fragment key={entry.id}>
+                <OperatorBlock key={entry.id} title={entry.title} />
+                {entry.events.map((nestedEventId) => {
+                  const nestedEvent = data.entries[nestedEventId];
+                  if (!isOntimeEvent(nestedEvent)) {
+                    return null;
+                  }
+
+                  const { isPast, isSelected, isLinkedToLoaded, totalGap } = process(nestedEvent);
+
+                  // hide past events (if setting) and skipped events
+                  if ((hidePast && isPast) || entry.skip) {
+                    return null;
+                  }
+
+                  const { mainField, secondaryField, subscribedData } = getEventData(
+                    nestedEvent,
+                    mainSource,
+                    secondarySource,
+                    subscribe,
+                    customFields,
+                  );
+
+                  return (
+                    <OperatorEvent
+                      key={nestedEvent.id}
+                      id={nestedEvent.id}
+                      colour={nestedEvent.colour}
+                      cue={nestedEvent.cue}
+                      main={mainField}
+                      secondary={secondaryField}
+                      timeStart={nestedEvent.timeStart}
+                      duration={nestedEvent.duration}
+                      delay={nestedEvent.delay}
+                      dayOffset={nestedEvent.dayOffset}
+                      isLinkedToLoaded={isLinkedToLoaded}
+                      isSelected={isSelected}
+                      isPast={isPast}
+                      selectedRef={isSelected ? selectedRef : undefined}
+                      subscribed={subscribedData}
+                      totalGap={totalGap}
+                      onLongPress={canEdit ? handleEdit : () => undefined}
+                    />
+                  );
+                })}
+              </Fragment>
+            );
           }
           return null;
         })}
-        <div className={style.spacer} />
       </div>
       <FollowButton isVisible={lockAutoScroll} onClickHandler={handleOffset} />
     </div>

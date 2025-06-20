@@ -1,110 +1,56 @@
-@mixin column {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
 .statusBar {
   position: sticky;
   top: 0;
   width: 100%;
-  background-color: $gray-1350;
   z-index: 2;
 
+  background-color: $gray-1350;
   border-bottom: 1px solid $white-10;
   box-shadow: $large-top-drawer-shadow;
 }
 
 .timers {
-  display: grid;
-  padding: 0.5rem 1rem;
-  grid-template-areas:
-    "playback timer1B timer2B timer3B";
-  grid-template-columns: 1fr auto auto auto;
-  column-gap: 1.5rem;
-  align-items: center;
+  padding-block: 0.75rem 0.5rem;
+  padding-inline: 1rem;
 
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-areas: '. timers clock';
 }
 
-.playbackIcon {
-  grid-area: playback;
-  font-size: 2rem;
-  color: $gray-700;
-
-  &.active {
-    color: $ui-white;
-  }
+.runningTimer {
+  grid-area: timers;
+  display: flex;
+  flex-direction: column;
+  justify-self: center;
+  color: $muted-gray;
 }
 
 .timeNow {
-  grid-area: timer1B;
-  @include column;
-}
-
-.elapsedTime {
-  grid-area: timer2B;
-  @include column;
-}
-
-.runningTime {
-  grid-area: timer3B;
-  @include column;
-}
-
-.title {
-  grid-area: title;
-  font-size: 1.25rem;
-  padding-left: 0.25rem;
-  display: none;
-  line-height: 1.25em;
-}
-
-.startTime {
-  grid-area: timer2A;
-  @include column;
-  display: none;
-}
-
-.endTime {
-  grid-area: timer3A;
-  @include column;
-  display: none;
+  grid-area: clock;
+  display: flex;
+  flex-direction: column;
+  justify-self: right;
 }
 
 .label {
-  font-size: 0.75rem;
+  font-size: calc(1rem - 2px);
   color: $gray-700;
+  line-height: 0.9em;
 }
 
 .timer {
+  font-size: 1.5rem;
   letter-spacing: 0.5px;
+  line-height: 1.5;
 }
 
-// tablet
-@media (min-width: $min-tablet) {
-  .timers {
-    grid-template-areas:
-    "playback timer1B timer2A timer3A"
-    "title    title   timer2B timer3B";
-    row-gap: 0.25rem;
-    column-gap: 2rem;
-  }
-
-  .title {
-    display: block;
-  }
-
-  .startTime {
-    display: flex;
-  }
-
-  .endTime {
-    display: flex;
-  }
+.active {
+  color: $ui-white;
 }
 
 .progressOverride {
+  grid-area: bar;
   height: 1rem;
   --progress-bar-br: 0;
 }

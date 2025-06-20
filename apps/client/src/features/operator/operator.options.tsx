@@ -1,4 +1,6 @@
-import { CustomFields } from 'ontime-types';
+import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { CustomFields, OntimeEvent } from 'ontime-types';
 
 import { getTimeOption } from '../../common/components/view-params-editor/common.options';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
@@ -7,6 +9,7 @@ import {
   makeCustomFieldSelectOptions,
   makeOptionsFromCustomFields,
 } from '../../common/components/view-params-editor/viewParams.utils';
+import { isStringBoolean } from '../viewers/common/viewUtils';
 
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ViewOption[] => {
   const fieldOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
@@ -27,7 +30,7 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
           defaultValue: 'title',
         },
         {
-          id: 'secondary',
+          id: 'secondary-src',
           title: 'Secondary data field',
           description: 'Field to be shown in the second line of text',
           type: 'option',
@@ -55,7 +58,7 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
       collapsible: true,
       options: [
         {
-          id: 'hidepast',
+          id: 'hidePast',
           title: 'Hide Past Events',
           description: 'Whether to hide events that have passed',
           type: 'boolean',
@@ -65,3 +68,35 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
     },
   ];
 };
+
+type OperatorOptions = {
+  mainSource: keyof OntimeEvent | null;
+  secondarySource: keyof OntimeEvent | null;
+  subscribe: string[];
+  shouldEdit: boolean;
+  hidePast: boolean;
+};
+
+/**
+ * Utility extract the view options from URL Params
+ * the names and fallback are manually matched with timerOptions
+ */
+function getOptionsFromParams(searchParams: URLSearchParams): OperatorOptions {
+  // we manually make an object that matches the key above
+  return {
+    mainSource: searchParams.get('main') as keyof OntimeEvent | null,
+    secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
+    subscribe: searchParams.getAll('subscribe'),
+    shouldEdit: isStringBoolean(searchParams.get('shouldEdit')),
+    hidePast: isStringBoolean(searchParams.get('hidePast')),
+  };
+}
+
+/**
+ * Hook exposes the operator view options
+ */
+export function useOperatorOptions(): OperatorOptions {
+  const [searchParams] = useSearchParams();
+  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  return options;
+}
