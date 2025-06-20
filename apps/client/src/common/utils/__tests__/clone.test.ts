@@ -28,7 +28,6 @@ describe('cloneEvent()', () => {
       delay: 0,
       dayOffset: 0,
       gap: 0,
-      triggers: [],
       custom: {
         lighting: '3',
       } as EntryCustomFields,
@@ -37,7 +36,6 @@ describe('cloneEvent()', () => {
     const cloned = cloneEvent(original);
     expect(cloned).not.toBe(original);
     expect(cloned.custom).not.toBe(original.custom);
-    expect(cloned.triggers).not.toBe(original.triggers);
 
     expect(cloned).toMatchObject({
       type: SupportedEntry.Event,
@@ -61,8 +59,6 @@ describe('cloneEvent()', () => {
       gap: 0,
       timeWarning: original.timeWarning,
       timeDanger: original.timeDanger,
-      triggers: original.triggers,
-      custom: original.custom,
     });
   });
 });

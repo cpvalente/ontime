@@ -44,7 +44,6 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
-      triggers: [],
       custom: {},
     };
     const metadata = {
@@ -94,7 +93,6 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
-      triggers: [],
       custom: {},
     };
     const metadata = {
@@ -146,7 +144,6 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
-      triggers: [],
       custom: {},
     };
     const metadata = {
@@ -197,7 +194,6 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
-      triggers: [],
       custom: {},
     };
     const metadata = {
@@ -234,7 +230,6 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
-      triggers: [],
       custom: {},
     };
     const metadata = {
@@ -272,7 +267,6 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
-      triggers: [],
       custom: {},
     };
     const metadata = {

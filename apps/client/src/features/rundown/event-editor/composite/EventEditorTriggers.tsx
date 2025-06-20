@@ -14,12 +14,12 @@ import style from './EventEditorTriggers.module.scss';
 
 interface EventEditorTriggersProps {
   eventId: string;
-  triggers: Trigger[];
+  triggers?: Trigger[];
 }
 
 export default function EventEditorTriggers(props: EventEditorTriggersProps) {
   const { triggers, eventId } = props;
-  const showTriggers = triggers.length > 0;
+  const showTriggers = triggers !== undefined && triggers.length > 0;
 
   return (
     <>
