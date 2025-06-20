@@ -26,9 +26,9 @@ import {
   ReorderEntry,
   requestApplyDelay,
   requestDeleteAll,
+  requestDissolveBlock,
   requestEventSwap,
   requestGroupEntries,
-  requestUngroup,
   SwapEntry,
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
@@ -544,8 +544,8 @@ export const useEntryActions = () => {
    * Calls mutation to dissolve a block
    * @private
    */
-  const _ungroupMutation = useMutation({
-    mutationFn: requestUngroup,
+  const _dissolveBlockMutation = useMutation({
+    mutationFn: requestDissolveBlock,
     onSuccess: (response) => {
       if (!response.data) return;
 
@@ -565,15 +565,15 @@ export const useEntryActions = () => {
   /**
    * Deletes a block and moves its events to the top level
    */
-  const ungroup = useCallback(
+  const dissolveBlock = useCallback(
     async (blockId: EntryId) => {
       try {
-        await _ungroupMutation.mutateAsync(blockId);
+        await _dissolveBlockMutation.mutateAsync(blockId);
       } catch (error) {
         logAxiosError('Error dissolving block', error);
       }
     },
-    [_ungroupMutation],
+    [_dissolveBlockMutation],
   );
 
   /**
@@ -762,7 +762,7 @@ export const useEntryActions = () => {
     clone,
     deleteEntry,
     deleteAllEntries,
-    ungroup,
+    dissolveBlock,
     getEntryById,
     groupEntries,
     reorderEntry,

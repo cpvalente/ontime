@@ -244,8 +244,8 @@ export async function cloneEntry(entryId: EntryId) {
 /**
  * Deletes a block from the rundown and moves all its children to the top level
  */
-export async function ungroupEntries(blockId: EntryId) {
-  const scopedMutation = cache.mutateCache(cache.ungroup);
+export async function dissolveBlock(blockId: EntryId) {
+  const scopedMutation = cache.mutateCache(cache.dissolveBlock);
   const { newRundown } = await scopedMutation({ blockId });
 
   // notify runtime that rundown has changed

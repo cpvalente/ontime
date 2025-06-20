@@ -11,7 +11,7 @@ import {
   deleteAllEntries,
   deleteEvent,
   editEvent,
-  ungroupEntries,
+  dissolveBlock,
   groupEntries,
   reorderEntry,
   swapEvents,
@@ -139,9 +139,9 @@ export async function rundownCloneEntry(req: Request, res: Response<Rundown | Er
   }
 }
 
-export async function rundownUngroupEntries(req: Request, res: Response<Rundown | ErrorResponse>) {
+export async function rundownDissolveBlock(req: Request, res: Response<Rundown | ErrorResponse>) {
   try {
-    const newRundown = await ungroupEntries(req.params.entryId);
+    const newRundown = await dissolveBlock(req.params.entryId);
     res.status(200).send(newRundown);
   } catch (error) {
     const message = getErrorMessage(error);
