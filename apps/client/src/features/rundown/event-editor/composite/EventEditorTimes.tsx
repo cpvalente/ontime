@@ -114,6 +114,7 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               variant='ontime'
             >
               <option value={EndAction.None}>None</option>
+              <option value={EndAction.Stop}>Stop rundown</option>
               <option value={EndAction.LoadNext}>Load next event</option>
               <option value={EndAction.PlayNext}>Play next event</option>
             </Select>
