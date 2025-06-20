@@ -13,6 +13,7 @@ import {
   editEvent,
   ungroupEntries,
   groupEntries,
+  reorderEntry,
   swapEvents,
   cloneEntry,
 } from '../../services/rundown-service/RundownService.js';
@@ -82,6 +83,21 @@ export async function rundownBatchPut(req: Request, res: Response<MessageRespons
     const { data, ids } = req.body;
     await batchEditEvents(ids, data);
     res.status(200).send({ message: 'Batch edit successful' });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+}
+
+export async function rundownReorder(req: Request, res: Response<Rundown | ErrorResponse>) {
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+
+  try {
+    const { eventId, from, to } = req.body;
+    const newRundown = await reorderEntry(eventId, from, to);
+    res.status(200).send(newRundown);
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });

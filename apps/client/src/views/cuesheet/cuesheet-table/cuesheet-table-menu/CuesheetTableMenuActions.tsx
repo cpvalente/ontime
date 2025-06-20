@@ -13,7 +13,7 @@ interface CuesheetTableMenuActionsProps {
 
 export default function CuesheetTableMenuActions(props: CuesheetTableMenuActionsProps) {
   const { eventId, entryIndex, showModal } = props;
-  const { addEntry, getEntryById, move, deleteEntry } = useEntryActions();
+  const { addEntry, getEntryById, reorderEntry, deleteEntry } = useEntryActions();
 
   const handleCloneEvent = () => {
     const currentEvent = getEntryById(eventId);
@@ -45,10 +45,14 @@ export default function CuesheetTableMenuActions(props: CuesheetTableMenuActions
         Clone event
       </MenuItem>
       <MenuDivider />
-      <MenuItem isDisabled={entryIndex < 1} icon={<IoArrowUp />} onClick={() => move(eventId, 'up')}>
+      <MenuItem
+        isDisabled={entryIndex < 1}
+        icon={<IoArrowUp />}
+        onClick={() => reorderEntry(eventId, entryIndex, entryIndex - 1)}
+      >
         Move up
       </MenuItem>
-      <MenuItem icon={<IoArrowDown />} onClick={() => move(eventId, 'down')}>
+      <MenuItem icon={<IoArrowDown />} onClick={() => reorderEntry(eventId, entryIndex, entryIndex + 1)}>
         Move down
       </MenuItem>
       <MenuItem icon={<IoTrash />} onClick={() => deleteEntry([eventId])}>

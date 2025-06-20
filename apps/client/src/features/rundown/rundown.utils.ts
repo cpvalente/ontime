@@ -164,85 +164,7 @@ export function canDrop(targetType?: SupportedEntry, targetParent?: EntryId | nu
   return targetType == 'block';
 }
 
-/**
- * Calculates destinations for an entry moving one position up in the rundown
- * - Handles noops
- * - Handles moving in and out of blocks
- * TODO: handle moving blocks
- */
-export function moveUp(entryId: EntryId, sortableData: EntryId[], entries: RundownEntries) {
-  const previousEntryId = getPreviousId(entryId, sortableData);
-
-  // the user is moving up at the top of the list
-  if (!previousEntryId) {
-    return { destinationId: null, order: 'before', isBlock: false };
-  }
-
-  if (previousEntryId.startsWith('end-')) {
-    const entry = entries[entryId];
-    if (isOntimeBlock(entry)) {
-      // if we are moving a block, we cannot insert it
-      return { destinationId: previousEntryId.replace('end-', ''), order: 'before', isBlock: false };
-    }
-    // insert in the block ID will add to the end of the block events
-    return { destinationId: previousEntryId.replace('end-', ''), order: 'insert', isBlock: true };
-  }
-
-  // @ts-expect-error -- we safeguard the entry not having a parent property
-  return { destinationId: previousEntryId, order: 'before', isBlock: Boolean(entries[previousEntryId]?.parent) };
-}
-
-/**
- * Calculates destinations for an entry moving one position down in the rundown
- * - Handles noops
- * - Handles moving in and out of blocks
- * TODO: handle moving blocks
- */
-export function moveDown(entryId: EntryId, sortableData: EntryId[], entries: RundownEntries) {
-  const nextEntryId = getNextId(entryId, sortableData);
-
-  // the user is moving down at the end of the list
-  if (!nextEntryId) {
-    return { destinationId: null, order: 'after', isBlock: false };
-  }
-
-  if (nextEntryId.startsWith('end-')) {
-    // move outside the block
-    return { destinationId: nextEntryId.replace('end-', ''), order: 'after', isBlock: false };
-  }
-
-  /**
-   * If the next entry is a block
-   * - 1. blocks need to skip over it
-   * - 2. if the block has children, we insert before the first child
-   * - 3. if the block is empty, we insert into the block
-   */
-  if (isOntimeBlock(entries[nextEntryId])) {
-    const entry = entries[entryId];
-
-    if (isOntimeBlock(entry)) {
-      // 1. if we are moving a block, we cannot insert it
-      return { destinationId: nextEntryId, order: 'after', isBlock: false };
-    }
-
-    const firstBlockChild = entries[nextEntryId].events.at(0);
-    if (firstBlockChild) {
-      // 2. add before the first child of the block
-      return { destinationId: firstBlockChild, order: 'before', isBlock: true };
-    } else {
-      // 3. or insert into an empty block
-      return { destinationId: nextEntryId, order: 'insert', isBlock: true };
-    }
-  }
-
-  return { destinationId: nextEntryId, order: 'after', isBlock: Boolean(entries[nextEntryId]?.parent) };
-}
-
-/**
- * Utility function gets the ID if the next entry in the list
- * returns null if none is found
- */
-function getNextId(entryId: EntryId, sortableData: EntryId[]): EntryId | null {
+export function getNextId(entryId: EntryId, sortableData: EntryId[]): MaybeString {
   const currentIndex = sortableData.indexOf(entryId);
   if (currentIndex === -1 || currentIndex === sortableData.length - 1) {
     // No next ID if not found or at the end
@@ -251,11 +173,7 @@ function getNextId(entryId: EntryId, sortableData: EntryId[]): EntryId | null {
   return sortableData[currentIndex + 1];
 }
 
-/**
- * Utility function gets the ID if the previous entry in the list
- * returns null if none is found
- */
-function getPreviousId(entryId: EntryId, sortableData: EntryId[]): EntryId | null {
+export function getPreviousId(entryId: EntryId, sortableData: EntryId[]): MaybeString {
   const currentIndex = sortableData.indexOf(entryId);
   if (currentIndex < 1) {
     // No previous ID found or at the beginning

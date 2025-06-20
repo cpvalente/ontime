@@ -1,10 +1,4 @@
-import { ErrorResponse, Rundown } from 'ontime-types';
-import { getErrorMessage } from 'ontime-utils';
-
-import type { Request, Response } from 'express';
 import express from 'express';
-
-import { reorderEntry } from '../../services/rundown-service/RundownService.js';
 
 import {
   deletesEventById,
@@ -19,6 +13,7 @@ import {
   rundownGetCurrent,
   rundownPost,
   rundownPut,
+  rundownReorder,
   rundownSwap,
 } from './rundown.controller.js';
 import {
@@ -42,16 +37,7 @@ router.post('/', rundownPostValidator, rundownPost);
 router.put('/', rundownPutValidator, rundownPut);
 router.put('/batch', rundownBatchPutValidator, rundownBatchPut);
 
-router.patch('/reorder', rundownReorderValidator, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
-  try {
-    const { entryId, destinationId, order } = req.body;
-    const newRundown = await reorderEntry(entryId, destinationId, order);
-    res.status(200).send(newRundown);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
+router.patch('/reorder/', rundownReorderValidator, rundownReorder);
 router.patch('/swap', rundownSwapValidator, rundownSwap);
 router.patch('/applydelay/:entryId', paramsMustHaveEntryId, rundownApplyDelay);
 router.post('/clone/:entryId', paramsMustHaveEntryId, rundownCloneEntry);
