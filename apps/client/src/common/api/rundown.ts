@@ -17,7 +17,7 @@ const rundownPath = `${apiEntryUrl}/rundown`;
  * HTTP request to fetch a list of existing rundowns
  */
 export async function fetchProjectRundownList(): Promise<ProjectRundownsList> {
-  const res = await axios.get(rundownPath);
+  const res = await axios.get(`${rundownPath}/`);
   return res.data;
 }
 
