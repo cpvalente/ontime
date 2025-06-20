@@ -11,15 +11,31 @@ interface ViewNavigationMenuProps {
   isLockable?: boolean;
 }
 
-function ViewNavigationMenu(props: ViewNavigationMenuProps) {
-  const { isLockable } = props;
-
+export default memo(ViewNavigationMenu);
+function ViewNavigationMenu({ isLockable }: ViewNavigationMenuProps) {
   const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
   const { showEditFormDrawer, isViewLocked } = useViewEditor({ isLockable });
 
   const toggleMenu = () => (isMenuOpen ? onMenuClose() : onMenuOpen());
 
-  useHotkeys([['mod + ,', () => toggleMenu()]]);
+  useHotkeys([
+    [
+      'Space',
+      () => {
+        if (isViewLocked) return;
+        toggleMenu();
+      },
+      { preventDefault: true },
+    ],
+    [
+      'mod + ,',
+      () => {
+        if (isViewLocked) return;
+        showEditFormDrawer();
+      },
+      { preventDefault: true },
+    ],
+  ]);
 
   if (isViewLocked) {
     return <ViewLockedIcon />;
@@ -32,5 +48,3 @@ function ViewNavigationMenu(props: ViewNavigationMenuProps) {
     </>
   );
 }
-
-export default memo(ViewNavigationMenu);
