@@ -49,7 +49,10 @@ function resolveUrl(protocol: 'http' | 'ws', path: string) {
   url.pathname = baseURI ? `${baseURI}/${path}` : path;
 
   // in development mode, we use the React port for UI, but need the requests to target the server
-  // this is done with a proxy in the vite config to avoid CORS issues in the dev environment
+  if (isDev) {
+    // this is used as a fallback port for development
+    url.port = '4001';
+  }
 
   const result = url.toString();
 
