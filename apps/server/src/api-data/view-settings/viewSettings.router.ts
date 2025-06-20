@@ -5,21 +5,14 @@ import { getErrorMessage } from 'ontime-utils';
 
 import { validateViewSettings } from './viewSettings.validation.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { ifNoneMatch } from '../../middleware/etag.js';
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 
 export const router = express.Router();
 
-let revision = 0;
-
-router.get(
-  '/',
-  (req, res, next) => ifNoneMatch(req, res, next, revision),
-  (_req: Request, res: Response<ViewSettings>) => {
-    const views = getDataProvider().getViewSettings();
-    res.status(200).send(views);
-  },
-);
+router.get('/', (_req: Request, res: Response<ViewSettings>) => {
+  const views = getDataProvider().getViewSettings();
+  res.status(200).send(views);
+});
 
 router.post('/', validateViewSettings, async (req: Request, res: Response<ViewSettings | ErrorResponse>) => {
   try {
@@ -32,7 +25,7 @@ router.post('/', validateViewSettings, async (req: Request, res: Response<ViewSe
       warningColor: req.body.warningColor,
     } as ViewSettings;
     await getDataProvider().setViewSettings(newData);
-    res.setHeader('etag', ++revision).status(200).send(newData);
+    res.status(200).send(newData);
     setImmediate(() => {
       sendRefetch(RefetchKey.ViewSettings);
     });

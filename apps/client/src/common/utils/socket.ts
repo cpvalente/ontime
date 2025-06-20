@@ -48,7 +48,7 @@ export const connectSocket = () => {
       path: window.location.pathname + window.location.search,
       name: preferredClientName,
     });
-
+    invalidateAllCaches(); // assume all data to be stale after a reconnect
     setOnlineStatus(true);
   };
 

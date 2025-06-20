@@ -73,7 +73,7 @@ if (!isProduction) {
   app.use(serverTiming());
 }
 app.disable('x-powered-by');
-app.disable('etag');
+app.enable('etag');
 
 // Implement middleware
 app.use(cors()); // setup cors for all routes

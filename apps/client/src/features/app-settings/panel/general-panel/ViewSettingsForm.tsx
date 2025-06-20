@@ -29,7 +29,6 @@ export default function ViewSettingsForm() {
     reset,
     formState: { isSubmitting, isDirty, errors },
   } = useForm<ViewSettings>({
-    errors: { root: { type: 'string', message: maybeAxiosError(error) } },
     defaultValues: data,
     values: data,
     resetOptions: {
