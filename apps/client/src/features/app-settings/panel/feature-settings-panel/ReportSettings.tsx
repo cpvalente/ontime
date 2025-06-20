@@ -29,8 +29,8 @@ export default function ReportSettings() {
   };
 
   const combinedReport = useMemo(() => {
-    return getCombinedReport(reportData, data.entries, data.order);
-  }, [reportData, data.entries, data.order]);
+    return getCombinedReport(reportData, data.rundown, data.order);
+  }, [reportData, data.rundown, data.order]);
 
   return (
     <Panel.Section>

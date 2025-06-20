@@ -31,8 +31,7 @@ export function clear() {
  * Exposes the internal state of the message service
  */
 export function getState(): MessageState {
-  // we know this exists at runtime
-  return storeGet('message') as MessageState;
+  return storeGet('message');
 }
 
 /**

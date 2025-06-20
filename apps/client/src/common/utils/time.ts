@@ -35,7 +35,7 @@ function getFormatFromParams() {
  * Gets the format options from the applicaton settings
  * @returns a string equivalent to the format, ie: hh:mm:ss a or HH:mm:ss
  */
-function getFormatFromSettings(): TimeFormat {
+export function getFormatFromSettings(): TimeFormat {
   const settings: Settings | undefined = ontimeQueryClient.getQueryData(APP_SETTINGS);
   return settings?.timeFormat ?? '24';
 }
@@ -119,7 +119,7 @@ export function formatDuration(duration: number, hideSeconds = true): string {
   }
 
   if (!hideSeconds) {
-    const seconds = Math.ceil((duration % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND);
+    const seconds = Math.floor((duration % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND);
     if (seconds > 0) {
       result += `${seconds}s`;
     }

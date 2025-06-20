@@ -1,6 +1,6 @@
 // runtime utils
 export { validatePlayback } from './src/validate-action/validatePlayback.js';
-export { isKnownTimerType, validateTimeStrategy } from './src/validate-events/validateEvent.js';
+export { isKnownTimerType, validateLinkStart, validateTimeStrategy } from './src/validate-events/validateEvent.js';
 export { calculateDuration, getLinkedTimes, validateTimes } from './src/validate-times/validateTimes.js';
 
 // rundown utils
@@ -8,7 +8,10 @@ export { sanitiseCue } from './src/cue-utils/cueUtils.js';
 export { getCueCandidate } from './src/cue-utils/cueUtils.js';
 export { generateId } from './src/generate-id/generateId.js';
 export {
+  filterPlayable,
+  filterTimedEvents,
   getEventWithId,
+  getFirst,
   getFirstEvent,
   getFirstEventNormal,
   getFirstNormal,
@@ -28,7 +31,6 @@ export {
   getPreviousBlockNormal,
   swapEventData,
 } from './src/rundown-utils/rundownUtils.js';
-export { getFirstRundown } from './src/rundown/rundown.utils.js';
 
 // time format utils
 export {
@@ -37,6 +39,8 @@ export {
   MILLIS_PER_HOUR,
   MILLIS_PER_MINUTE,
   MILLIS_PER_SECOND,
+  millisToHours,
+  millisToMinutes,
   millisToSeconds,
   secondsInMillis,
 } from './src/date-utils/conversionUtils.js';
@@ -54,15 +58,15 @@ export { isAlphanumeric, isAlphanumericWithSpace } from './src/regex-utils/isAlp
 export { isColourHex } from './src/regex-utils/isColourHex.js';
 export { splitWhitespace } from './src/regex-utils/splitWhitespace.js';
 
-export { customFieldLabelToKey, customKeyFromLabel } from './src/customField-utils/customFieldUtils.js';
+export { customFieldLabelToKey, customKeyFromLabel } from './src/customField-utils/customFieldLabelToKey.js';
 
 // helpers from externals
 export { deepmerge } from './src/externals/deepmerge.js';
 
 // array utils
-export { deleteAtIndex, insertAtIndex, mergeAtIndex, reorderArray } from './src/common/arrayUtils.js';
+export { deleteAtIndex, insertAtIndex, reorderArray } from './src/common/arrayUtils.js';
 // object utils
-export { getPropertyFromPath, isObjectEmpty } from './src/common/objectUtils.js';
+export { getPropertyFromPath } from './src/common/objectUtils.js';
 
 // generic utilities
 export { getErrorMessage } from './src/generic/generic.js';
@@ -77,7 +81,7 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 // feature business logic - rundown
 export { checkIsNow } from './src/date-utils/checkIsNow.js';
 export { checkIsNextDay } from './src/date-utils/checkIsNextDay.js';
-export { getTimeFrom } from './src/date-utils/getTimeFrom.js';
+export { getTimeFromPrevious } from './src/date-utils/getTimeFromPrevious.js';
 export { isNewLatest } from './src/date-utils/isNewLatest.js';
 
 // feature business logic - spreadsheet import

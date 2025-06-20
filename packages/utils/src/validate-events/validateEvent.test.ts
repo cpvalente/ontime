@@ -9,9 +9,9 @@ describe('validateEndAction()', () => {
     expect(endAction).toBe(EndAction.LoadNext);
   });
   it('returns fallback otherwise', () => {
-    const emptyAction = validateEndAction('', EndAction.LoadNext);
+    const emptyAction = validateEndAction('', EndAction.Stop);
     const invalidAction = validateEndAction('this-does-not-exist', EndAction.PlayNext);
-    expect(emptyAction).toBe(EndAction.LoadNext);
+    expect(emptyAction).toBe(EndAction.Stop);
     expect(invalidAction).toBe(EndAction.PlayNext);
   });
 });

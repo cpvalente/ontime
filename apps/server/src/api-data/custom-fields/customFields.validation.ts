@@ -1,35 +1,51 @@
 import { isAlphanumericWithSpace } from 'ontime-utils';
 
-import { body, param } from 'express-validator';
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import type { Request, Response, NextFunction } from 'express';
+import { body, param, validationResult } from 'express-validator';
 
 export const validateCustomField = [
   body('label')
+    .exists()
     .isString()
     .trim()
-    .notEmpty()
     .custom((value) => {
       return isAlphanumericWithSpace(value);
     }),
-  body('type').isIn(['string', 'image']),
-  body('colour').isString().trim(),
+  body('type').exists().isIn(['string', 'image']),
+  body('colour').exists().isString().trim(),
 
-  requestValidationFunction,
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
 ];
 
 export const validateEditCustomField = [
-  param('key').isString().trim().notEmpty(),
+  param('label').exists().isString().trim(),
   body('label')
+    .exists()
     .isString()
     .trim()
-    .notEmpty()
     .custom((value) => {
       return isAlphanumericWithSpace(value);
     }),
-  body('type').isIn(['string', 'image']),
-  body('colour').isString().trim(),
+  body('type').exists().isIn(['string', 'image']),
+  body('colour').exists().isString().trim(),
 
-  requestValidationFunction,
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
 ];
 
-export const validateDeleteCustomField = [param('key').isString().notEmpty(), requestValidationFunction];
+export const validateDeleteCustomField = [
+  param('label').exists().isString(),
+
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];

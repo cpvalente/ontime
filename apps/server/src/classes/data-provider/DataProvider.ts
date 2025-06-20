@@ -1,13 +1,12 @@
 import {
   ProjectData,
+  OntimeRundown,
   ViewSettings,
   DatabaseModel,
   Settings,
   CustomFields,
   URLPreset,
   AutomationSettings,
-  Rundown,
-  ProjectRundowns,
 } from 'ontime-types';
 
 import type { Low } from 'lowdb';
@@ -23,9 +22,6 @@ type ReadonlyPromise<T> = Promise<Readonly<T>>;
 
 let db = {} as Low<DatabaseModel>;
 
-/**
- * Initialises the JSON adapter to persist data to a file
- */
 export async function initPersistence(filePath: string, fallbackData: DatabaseModel) {
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: shouldCrashDev(!isPath(filePath), 'initPersistence should be called with a path');
@@ -49,7 +45,6 @@ export function getDataProvider() {
     setCustomFields,
     getCustomFields,
     setRundown,
-    mergeRundown,
     getSettings,
     setSettings,
     getUrlPresets,
@@ -83,28 +78,14 @@ async function setCustomFields(newData: CustomFields): ReadonlyPromise<CustomFie
   return db.data.customFields;
 }
 
-async function mergeRundown(
-  newCustomFields: CustomFields,
-  newRundowns: ProjectRundowns,
-): ReadonlyPromise<{ rundowns: ProjectRundowns; customFields: CustomFields }> {
-  db.data.customFields = { ...db.data.customFields, ...newCustomFields };
-
-  Object.entries(newRundowns).forEach(([id, rundown]) => {
-    // Note that entries with the same key will be overridden
-    db.data.rundowns[id] = rundown;
-  });
-  await persist();
-  return { rundowns: db.data.rundowns, customFields: db.data.customFields };
-}
-
 function getCustomFields(): Readonly<CustomFields> {
   return db.data.customFields;
 }
 
-async function setRundown(rundownKey: string, newData: Rundown): ReadonlyPromise<Rundown> {
-  db.data.rundowns[rundownKey] = newData;
+async function setRundown(newData: OntimeRundown): ReadonlyPromise<OntimeRundown> {
+  db.data.rundown = newData;
   await persist();
-  return db.data.rundowns[rundownKey];
+  return db.data.rundown;
 }
 
 function getSettings(): Readonly<Settings> {
@@ -147,9 +128,8 @@ async function setAutomation(newData: AutomationSettings): ReadonlyPromise<Autom
   return db.data.automation;
 }
 
-function getRundown(): Readonly<Rundown> {
-  const firstRundown = Object.keys(db.data.rundowns)[0];
-  return db.data.rundowns[firstRundown];
+function getRundown(): Readonly<OntimeRundown> {
+  return db.data.rundown;
 }
 
 async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<DatabaseModel> {
@@ -160,7 +140,7 @@ async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<D
   db.data.automation = mergedData.automation;
   db.data.urlPresets = mergedData.urlPresets;
   db.data.customFields = mergedData.customFields;
-  db.data.rundowns = mergedData.rundowns;
+  db.data.rundown = mergedData.rundown;
 
   await persist();
   return db.data;

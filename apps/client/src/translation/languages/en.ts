@@ -3,6 +3,7 @@ export const langEn = {
   'common.minutes': 'min',
   'common.now': 'Now',
   'common.next': 'Next',
+  'common.public_message': 'Public message',
   'common.scheduled_start': 'Scheduled start',
   'common.scheduled_end': 'Scheduled end',
   'common.projected_start': 'Projected start',
@@ -25,6 +26,8 @@ export const langEn = {
   'project.description': 'Description',
   'project.backstage_info': 'Backstage Info',
   'project.backstage_url': 'Backstage URL',
+  'project.public_info': 'Public Info',
+  'project.public_url': 'Public URL',
 };
 
 export type TranslationObject = Record<keyof typeof langEn, string>;

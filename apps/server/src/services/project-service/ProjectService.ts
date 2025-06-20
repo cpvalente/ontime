@@ -1,5 +1,5 @@
 import { DatabaseModel, LogOrigin, ProjectData, ProjectFileListResponse } from 'ontime-types';
-import { getErrorMessage, getFirstRundown } from 'ontime-utils';
+import { getErrorMessage } from 'ontime-utils';
 
 import { join } from 'path';
 import { copyFile } from 'fs/promises';
@@ -8,7 +8,6 @@ import { logger } from '../../classes/Logger.js';
 import { publicDir } from '../../setup/index.js';
 import {
   appendToName,
-  deleteFile,
   dockerSafeRename,
   ensureDirectory,
   ensureJsonExtension,
@@ -17,15 +16,15 @@ import {
   removeFileExtension,
 } from '../../utils/fileManagement.js';
 import { dbModel } from '../../models/dataModel.js';
-import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
+import { deleteFile } from '../../utils/parserUtils.js';
+import { parseDatabaseModel } from '../../utils/parser.js';
+import { parseRundown } from '../../utils/parserFunctions.js';
 import { demoDb } from '../../models/demoProject.js';
 import { config } from '../../setup/config.js';
 import { getDataProvider, initPersistence } from '../../classes/data-provider/DataProvider.js';
 import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
-import { initRundown } from '../../api-data/rundown/rundown.service.js';
-import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
-import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
 
+import { initRundown } from '../rundown-service/RundownService.js';
 import {
   getLastLoadedProject,
   isLastLoadedProject,
@@ -42,21 +41,6 @@ import {
   parseJsonFile,
 } from './projectServiceUtils.js';
 
-type ProjectState =
-  | {
-      status: 'PENDING';
-      currentProjectName: undefined;
-    }
-  | {
-      status: 'INITIALIZED';
-      currentProjectName: string;
-    };
-
-let currentProjectState: ProjectState = {
-  status: 'PENDING',
-  currentProjectName: undefined,
-};
-
 // init dependencies
 init();
 
@@ -68,51 +52,22 @@ function init() {
   ensureDirectory(publicDir.corruptDir);
 }
 
-export async function getCurrentProject(): Promise<{ filename: string; pathToFile: string }> {
-  if (currentProjectState.status === 'PENDING') {
-    await initialiseProject();
-  }
-  // we know the project is loaded since we force initialisation above
-  const pathToFile = getPathToProject(currentProjectState.currentProjectName as string);
+export async function getCurrentProject() {
+  const filename = await getLastLoadedProject();
+  const pathToFile = getPathToProject(filename);
 
-  return { filename: currentProjectState.currentProjectName as string, pathToFile };
-}
-
-/**
- * Private function loads a project file and handles necessary side effects
- * @param projectData
- * @param fileName file name of the project including the extension
- */
-async function loadProject(projectData: DatabaseModel, fileName: string) {
-  // change LowDB to point to new file
-  await initPersistence(getPathToProject(fileName), projectData);
-  logger.info(LogOrigin.Server, `Loaded project ${fileName}`);
-
-  // stop the runtime service
-  runtimeService.stop();
-
-  // load the first rundown in the project
-  const firstRundown = getFirstRundown(projectData.rundowns);
-
-  await initRundown(firstRundown, projectData.customFields);
-
-  // persist the project selection
-  await setLastLoadedProject(fileName);
-
-  // update the service state
-  currentProjectState = {
-    status: 'INITIALIZED',
-    currentProjectName: fileName,
-  };
-
-  return fileName;
+  return { filename, pathToFile };
 }
 
 /**
  * Loads the demo project
  */
 export async function loadDemoProject(): Promise<string> {
-  return createProject(config.demoProject, demoDb);
+  const pathToNewFile = generateUniqueFileName(publicDir.projectsDir, config.demoProject);
+  await initPersistence(getPathToProject(pathToNewFile), demoDb);
+  const newName = getFileNameFromPath(pathToNewFile);
+  await setLastLoadedProject(newName);
+  return newName;
 }
 
 /**
@@ -120,14 +75,16 @@ export async function loadDemoProject(): Promise<string> {
  * to be composed in the loading functions
  */
 async function loadNewProject(): Promise<string> {
-  return createProject(config.newProject, dbModel);
+  const pathToNewFile = generateUniqueFileName(publicDir.projectsDir, config.newProject);
+  await initPersistence(getPathToProject(pathToNewFile), dbModel);
+  const newName = getFileNameFromPath(pathToNewFile);
+  await setLastLoadedProject(newName);
+  return newName;
 }
 
 /**
- * Private function handles side effects on corrupted files
+ * Private function handles side effects on currupted files
  * Corrupted files in this context contain data that failed domain validation
- * @param filePath path to the project type include the fileName and extension
- * @param fileName as extracted from filePath, includes extension
  */
 async function handleCorruptedFile(filePath: string, fileName: string): Promise<string> {
   // copy file to corrupted folder
@@ -150,34 +107,47 @@ export async function initialiseProject(): Promise<string> {
   // check what was loaded before
   const previousProject = await getLastLoadedProject();
 
-  // in normal circumstances we dont have a previous project if it is the first app start
-  // in which case we want to load a demo project
   if (!previousProject) {
     return loadDemoProject();
   }
-  try {
-    const projectName = await loadProjectFile(previousProject);
-    return projectName;
-  } catch (error) {
-    // if we are here, most likely the json parsing failed and the file is corrupt
-    logger.warning(LogOrigin.Server, `Unable to load previous project ${previousProject}: ${getErrorMessage(error)}`);
-    try {
-      const pathToFile = getPathToProject(previousProject);
-      await moveCorruptFile(pathToFile, previousProject);
-    } catch (_) {
-      /* while we have to catch the error, we dont need to handle it */
-    }
+
+  // try and load the previous project
+  const filePath = doesProjectExist(previousProject);
+  if (filePath === null) {
+    logger.warning(LogOrigin.Server, `Previous project file ${previousProject} not found`);
+    return loadNewProject();
   }
 
-  return loadNewProject();
+  try {
+    const fileData = await parseJsonFile(filePath);
+    const result = parseDatabaseModel(fileData);
+    let parsedFileName = previousProject;
+    let parsedFilePath = filePath;
+
+    if (result.errors.length > 0) {
+      logger.warning(LogOrigin.Server, 'Project loaded with errors');
+      parsedFileName = await handleCorruptedFile(filePath, previousProject);
+      parsedFilePath = getPathToProject(parsedFileName);
+    }
+
+    await initPersistence(parsedFilePath, result.data);
+    await setLastLoadedProject(parsedFileName);
+    return parsedFileName;
+  } catch (error) {
+    logger.warning(LogOrigin.Server, `Unable to load previous project ${previousProject}: ${getErrorMessage(error)}`);
+    await moveCorruptFile(filePath, previousProject).catch((_) => {
+      /* while we have to catch the error, we dont need to handle it */
+    });
+
+    return loadNewProject();
+  }
 }
 
 /**
  * Loads a data from a file into the runtime
- * @param fileName file name of the project including the extension
  */
-export async function loadProjectFile(fileName: string): Promise<string> {
-  const filePath = doesProjectExist(fileName);
+export async function loadProjectFile(name: string) {
+  const filePath = doesProjectExist(name);
   if (filePath === null) {
     throw new Error('Project file not found');
   }
@@ -185,15 +155,31 @@ export async function loadProjectFile(fileName: string): Promise<string> {
   // when loading a project file, we allow parsing to fail and interrupt the process
   const fileData = await parseJsonFile(filePath);
   const result = parseDatabaseModel(fileData);
-  let parsedFileName = fileName;
+  let parsedFileName = name;
+  let parsedFilePath = filePath;
 
   if (result.errors.length > 0) {
     logger.warning(LogOrigin.Server, 'Project loaded with errors');
-    parsedFileName = await handleCorruptedFile(filePath, fileName);
+    parsedFileName = await handleCorruptedFile(filePath, name);
+    parsedFilePath = getPathToProject(parsedFileName);
   }
 
-  const projectName = await loadProject(result.data, parsedFileName);
-  return projectName;
+  // change LowDB to point to new file
+  await initPersistence(parsedFilePath, result.data);
+  logger.info(LogOrigin.Server, `Loaded project ${parsedFileName}`);
+
+  // persist the project selection
+  await setLastLoadedProject(parsedFileName);
+
+  // since load happens at runtime, we need to update the services that depend on the data
+
+  // apply data model
+  runtimeService.stop();
+
+  const { rundown, customFields } = result.data;
+
+  // apply the rundown
+  await initRundown(rundown, customFields);
 }
 
 /**
@@ -230,7 +216,7 @@ export async function duplicateProjectFile(originalFile: string, newFilename: st
 /**
  * Renames an existing project file
  */
-export async function renameProjectFile(originalFile: string, newFilename: string): Promise<string> {
+export async function renameProjectFile(originalFile: string, newFilename: string) {
   const projectFilePath = doesProjectExist(originalFile);
   if (projectFilePath === null) {
     throw new Error('Project file not found');
@@ -248,31 +234,54 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
   const isLoaded = await isLastLoadedProject(originalFile);
   if (isLoaded) {
     const fileData = await parseJsonFile(pathToRenamed);
-    const projectData = parseDatabaseModel(fileData);
+    const result = parseDatabaseModel(fileData);
 
-    const newFileName = await loadProject(projectData.data, newFilename);
-    return newFileName;
+    // change LowDB to point to new file
+    await initPersistence(pathToRenamed, result.data);
+    logger.info(LogOrigin.Server, `Loaded project ${newFilename}`);
+
+    // persist the project selection
+    await setLastLoadedProject(newFilename);
+
+    // apply data model
+    runtimeService.stop();
+
+    const { rundown, customFields } = result.data;
+
+    // apply the rundown
+    await initRundown(rundown, customFields);
   }
-  return newFilename;
 }
 
 /**
  * Creates a new project file and applies its result
- * @param fileName file name of the project including the extension
- * @param initialData db to initialize the project with
  */
-export async function createProject(fileName: string, initialData: Partial<DatabaseModel>): Promise<string> {
+export async function createProject(filename: string, initialData: Partial<DatabaseModel>) {
   const data = safeMerge(dbModel, initialData);
-  const fileNameWithExtension = generateUniqueFileName(publicDir.projectsDir, ensureJsonExtension(fileName));
-  await loadProject(data, fileNameWithExtension);
-  return fileNameWithExtension;
+
+  const fileNameWithExtension = ensureJsonExtension(filename);
+  const uniqueFileName = generateUniqueFileName(publicDir.projectsDir, fileNameWithExtension);
+  const newFile = getPathToProject(uniqueFileName);
+
+  // change LowDB to point to new file
+  await initPersistence(newFile, data);
+
+  // apply data to running services
+  // we dont need to parse since we are creating a new file
+  await patchCurrentProject(data);
+
+  // update app state to point to new value
+  setLastLoadedProject(uniqueFileName);
+
+  return uniqueFileName;
 }
 
 /**
  * Deletes a project file
  */
 export async function deleteProjectFile(filename: string) {
-  if (filename === currentProjectState.currentProjectName) {
+  const isPreviousProject = await isLastLoadedProject(filename);
+  if (isPreviousProject) {
     throw new Error('Cannot delete currently loaded project');
   }
 
@@ -291,26 +300,17 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
   runtimeService.stop();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars  -- we need to remove the fields before merging
-  const { rundowns, customFields, ...rest } = data;
+  const { rundown, customFields, ...rest } = data;
   // we can pass some stuff straight to the data provider
-  await getDataProvider().mergeIntoData(rest);
+  const newData = await getDataProvider().mergeIntoData(rest);
 
   // ... but rundown and custom fields need to be checked
-  if (rundowns != null) {
-    const customFields = parseCustomFields(data);
-    const result = parseRundowns(data, customFields);
-
-    /**
-     * The user may have multiple rundowns
-     * We currently ignore all other rundowns
-     */
-    const firstRundown = getFirstRundown(result);
-
-    await initRundown(firstRundown, customFields);
+  if (rundown != null) {
+    const result = parseRundown(data);
+    await initRundown(result.rundown, result.customFields);
   }
 
-  const updatedData = await getDataProvider().getData();
-  return updatedData;
+  return newData;
 }
 
 /**

@@ -1,11 +1,11 @@
 @use '../blockMixins' as *;
 
 .delay {
+  @include block-spacing;
   @include block-styling;
+  margin-left: 0.5rem;
 
-  margin-block: 0.25rem;
   background-color: $block-bg2;
-  padding-right: 0.5rem;
 
   display: grid;
   grid-template-columns: 2rem 1fr auto;

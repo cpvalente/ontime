@@ -1,74 +1,28 @@
 @use '../blockMixins' as *;
 
 .block {
+  @include block-spacing;
   @include block-styling;
-  overflow: hidden;
+  margin-left: 0.5rem;
 
+  background-color: $block-bg2;
+
+  min-width: 34rem;
   display: grid;
-  grid-template-columns: 2rem 1fr;
-  grid-template-areas: 'binder header';
+  grid-template-columns: 2rem 1fr auto;
   align-items: center;
-  // TODO(style fix): groups have an extra bottom margin which interrupt colour
-  margin-block: 0.25rem;
+  height: $secondary-block-height;
+  gap: 0.5rem;
 
   &.hasCursor {
     outline: 1px solid $block-cursor-color;
-  }
-
-  &.expanded {
-    border-radius: $block-border-radius $block-border-radius 0 0;
-  }
-
-  .binder {
-    grid-area: binder;
-    height: 100%;
-    background-color: var(--block-color, $gray-1050);
-    color: $section-white;
-    font-size: 1rem;
-    display: grid;
-    justify-content: center;
-    padding-top: 0.25rem;
-  }
-
-  .header {
-    grid-area: header;
-    padding-inline: 0.5rem;
-    background-color: $block-bg2;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .titleRow {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .metaRow {
-    display: flex;
-    gap: 3rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .metaEntry {
-    width: 4.5em;
-
-    :first-child {
-      font-size: calc(1rem - 3px);
-      color: $label-gray;
-    }
   }
 }
 
 .drag {
   @include drag-style;
+}
 
-  &.isDragging {
-    cursor: grabbing;
-  }
-
-  &.notAllowed {
-    cursor: not-allowed;
-  }
+.actionMenu {
+  justify-self: flex-end;
 }

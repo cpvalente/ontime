@@ -9,7 +9,9 @@ const baseState: RuntimeState = {
     startedAt: null,
   },
   eventNow: null,
+  publicEventNow: null,
   eventNext: null,
+  publicEventNext: null,
   runtime: {
     selectedEventIndex: null,
     numEvents: 0,

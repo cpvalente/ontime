@@ -9,6 +9,7 @@ import { useTranslation } from '../../translation/TranslationProvider';
 
 import BackstageInfo from './backstage-info/BackstageInfo';
 import CustomInfo from './custom-info/CustomInfo';
+import PublicInfo from './public-info/PublicInfo';
 import { projectInfoOptions } from './projectInfo.options';
 
 import './ProjectInfo.scss';
@@ -65,6 +66,7 @@ export default function ProjectInfo(props: ProjectInfoProps) {
           </>
         )}
         <BackstageInfo general={general} />
+        <PublicInfo general={general} />
         <CustomInfo general={general} />
       </div>
     </div>

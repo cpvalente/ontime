@@ -1,16 +1,17 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { isOntimeEvent, isPlayableEvent, MaybeString, OntimeEntry, OntimeEvent, PlayableEvent } from 'ontime-types';
+import { isOntimeEvent, isPlayableEvent, MaybeString, OntimeEvent, OntimeRundown, PlayableEvent } from 'ontime-types';
 import {
   dayInMs,
   getEventWithId,
   getFirstEvent,
   getNextEvent,
-  getTimeFrom,
+  getTimeFromPrevious,
   isNewLatest,
   MILLIS_PER_HOUR,
 } from 'ontime-utils';
 
+import { clamp } from '../../common/utils/math';
 import { formatDuration } from '../../common/utils/time';
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 
@@ -20,6 +21,13 @@ type CSSPosition = {
   left: number;
   width: number;
 };
+
+/**
+ * Calculates the position (in %) of an element relative to a schedule
+ */
+export function getRelativePositionX(scheduleStart: number, scheduleEnd: number, now: number): number {
+  return clamp(((now - scheduleStart) / (scheduleEnd - scheduleStart)) * 100, 0, 100);
+}
 
 /**
  * Calculates an absolute position of an element based on a schedule
@@ -87,7 +95,7 @@ interface ScopedRundownData {
   totalDuration: number;
 }
 
-export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeString): ScopedRundownData {
+export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeString): ScopedRundownData {
   const [searchParams] = useSearchParams();
 
   const data = useMemo(() => {
@@ -95,13 +103,14 @@ export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeS
       return { scopedRundown: [], firstStart: 0, totalDuration: 0 };
     }
 
+    const hideBackstage = isStringBoolean(searchParams.get('hideBackstage'));
     const hidePast = isStringBoolean(searchParams.get('hidePast'));
 
     const scopedRundown: PlayableEvent[] = [];
     let selectedIndex = selectedEventId ? Infinity : -1;
     let firstStart = null;
     let totalDuration = 0;
-    let lastEntry: PlayableEvent | null = null;
+    let lastEntry: PlayableEvent | undefined;
 
     for (let i = 0; i < rundown.length; i++) {
       const currentEntry = rundown[i];
@@ -113,6 +122,11 @@ export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeS
 
         // maybe filter past
         if (hidePast && i < selectedIndex) {
+          continue;
+        }
+
+        // maybe filter backstage
+        if (!currentEntry.isPublic && hideBackstage) {
           continue;
         }
 
@@ -128,7 +142,7 @@ export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeS
           firstStart = currentEntry.timeStart;
         }
 
-        const timeFromPrevious: number = getTimeFrom(currentEntry, lastEntry);
+        const timeFromPrevious: number = getTimeFromPrevious(currentEntry, lastEntry);
 
         if (timeFromPrevious === 0) {
           totalDuration += currentEntry.duration;
@@ -158,7 +172,7 @@ type UpcomingEvents = {
 /**
  * Returns upcoming events from current: now, next and followedBy
  */
-export function getUpcomingEvents(events: PlayableEvent[], selectedId: MaybeString): UpcomingEvents {
+export function getUpcomingEvents(events: OntimeRundown, selectedId: MaybeString): UpcomingEvents {
   if (events.length === 0) {
     return { now: null, next: null, followedBy: null };
   }

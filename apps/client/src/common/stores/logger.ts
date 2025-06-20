@@ -11,7 +11,7 @@ type LogStore = {
   logs: Log[];
 };
 
-const logger = createStore<LogStore>(() => ({
+export const logger = createStore<LogStore>(() => ({
   logs: [],
 }));
 

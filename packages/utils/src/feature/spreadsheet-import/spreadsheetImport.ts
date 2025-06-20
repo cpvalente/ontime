@@ -12,6 +12,7 @@ export const defaultImportMap = {
   cue: 'cue',
   title: 'title',
   countToEnd: 'count to end',
+  isPublic: 'public',
   skip: 'skip',
   note: 'notes',
   colour: 'colour',

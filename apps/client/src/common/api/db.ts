@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { DatabaseModel, MessageResponse, ProjectData, ProjectFileListResponse, QuickStartData } from 'ontime-types';
 
 import { makeTable } from '../../views/cuesheet/cuesheet.utils';
-import { aggregateRundowns, makeCSVFromArrayOfArrays } from '../utils/csv';
+import { makeCSVFromArrayOfArrays } from '../utils/csv';
 
 import { apiEntryUrl } from './constants';
 import { createBlob, downloadBlob } from './utils';
@@ -40,11 +40,9 @@ export async function downloadProject(fileName: string) {
 export async function downloadCSV(fileName: string = 'rundown') {
   try {
     const { data, name } = await fileDownload(fileName);
-    const { project, rundowns, customFields } = data;
+    const { project, rundown, customFields } = data;
 
-    const flatRundowns = aggregateRundowns(rundowns);
-    const sheetData = makeTable(project, flatRundowns, customFields);
-
+    const sheetData = makeTable(project, rundown, customFields);
     const fileContent = makeCSVFromArrayOfArrays(sheetData);
 
     const blob = createBlob(fileContent, 'text/csv;charset=utf-8;');

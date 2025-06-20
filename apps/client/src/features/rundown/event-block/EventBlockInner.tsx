@@ -4,14 +4,15 @@ import {
   IoArrowUp,
   IoBan,
   IoFlag,
-  IoFlash,
+  IoPeople,
   IoPlay,
   IoPlayForward,
   IoPlaySkipForward,
+  IoStop,
   IoTime,
 } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
-import { EndAction, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
@@ -30,9 +31,10 @@ interface EventBlockInnerProps {
   timeEnd: number;
   duration: number;
   timeStrategy: TimeStrategy;
-  linkStart: boolean;
+  linkStart: MaybeString;
   countToEnd: boolean;
   eventIndex: number;
+  isPublic: boolean;
   endAction: EndAction;
   timerType: TimerType;
   title: string;
@@ -47,7 +49,6 @@ interface EventBlockInnerProps {
   isPast: boolean;
   totalGap: number;
   isLinkedToLoaded: boolean;
-  hasTriggers: boolean;
 }
 
 function EventBlockInner(props: EventBlockInnerProps) {
@@ -59,6 +60,7 @@ function EventBlockInner(props: EventBlockInnerProps) {
     timeStrategy,
     linkStart,
     countToEnd,
+    isPublic = true,
     endAction,
     timerType,
     title,
@@ -73,7 +75,6 @@ function EventBlockInner(props: EventBlockInnerProps) {
     isPast,
     totalGap,
     isLinkedToLoaded,
-    hasTriggers,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -132,7 +133,7 @@ function EventBlockInner(props: EventBlockInnerProps) {
           duration={duration}
         />
       )}
-      <div className={style.statusElements} id='block-status' data-timerType={timerType}>
+      <div className={style.statusElements} id='block-status' data-ispublic={isPublic}>
         <span className={style.eventNote}>{note}</span>
         <div className={loaded ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
           {loaded && <EventBlockProgressBar />}
@@ -153,9 +154,9 @@ function EventBlockInner(props: EventBlockInnerProps) {
               <IoFlag className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
             </span>
           </Tooltip>
-          <Tooltip label='Event has Triggers' openDelay={tooltipDelayMid}>
+          <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} openDelay={tooltipDelayMid}>
             <span>
-              <IoFlash className={`${style.statusIcon} ${hasTriggers ? style.active : style.disabled}`} />
+              <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : style.disabled}`} />
             </span>
           </Tooltip>
         </div>
@@ -175,6 +176,9 @@ function EndActionIcon(props: { action: EndAction; className: string }) {
   }
   if (action === EndAction.PlayNext) {
     return <IoPlayForward className={maybeActiveClasses} />;
+  }
+  if (action === EndAction.Stop) {
+    return <IoStop className={maybeActiveClasses} />;
   }
   return <IoPlay className={className} />;
 }

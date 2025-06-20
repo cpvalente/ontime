@@ -2,11 +2,11 @@ import { writeFileSync } from 'fs';
 import { join } from 'path';
 
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
+import { get } from '../services/rundown-service/rundownCache.js';
 import { getState } from '../stores/runtimeState.js';
 import { publicDir } from '../setup/index.js';
 
 import { ensureDirectory } from './fileManagement.js';
-import { getCurrentRundown } from '../api-data/rundown/rundown.dao.js';
 /**
  * Writes a file to the crash report location
  * @param fileName
@@ -31,7 +31,7 @@ function writeToFile(fileName: string, content: object) {
 export function generateCrashReport(maybeError: unknown) {
   const timeNow = new Date().toISOString();
   const runtimeState = getState();
-  const currentRundown = getCurrentRundown();
+  const rundownState = get();
   const error =
     maybeError instanceof Error
       ? {
@@ -45,7 +45,7 @@ export function generateCrashReport(maybeError: unknown) {
     version: ONTIME_VERSION,
     error,
     runtimeState,
-    currentRundown,
+    rundownState,
   };
 
   writeToFile(`crash-log-${timeNow}.log`, crashReport);

@@ -1,46 +1,40 @@
 import { useCallback } from 'react';
-import {
-  isOntimeDelay,
-  isOntimeEvent,
-  MaybeString,
-  OntimeEntry,
-  OntimeEvent,
-  Playback,
-  SupportedEntry,
-} from 'ontime-types';
+import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
-import { useEntryActions } from '../../common/hooks/useEntryAction';
+import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
 import { useEmitLog } from '../../common/stores/logger';
-import { cloneEvent } from '../../common/utils/clone';
+import { cloneEvent } from '../../common/utils/eventsManager';
 
+import BlockBlock from './block-block/BlockBlock';
 import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';
 import { useEventSelection } from './useEventSelection';
 
 export type EventItemActions =
+  | 'set-cursor'
   | 'event'
   | 'event-before'
   | 'delay'
   | 'delay-before'
   | 'block'
   | 'block-before'
-  | 'swap'
   | 'delete'
   | 'clone'
-  | 'group'
-  | 'update';
+  | 'update'
+  | 'swap'
+  | 'clear-report';
 
 interface RundownEntryProps {
-  type: SupportedEntry;
+  type: SupportedEvent;
   isPast: boolean;
-  data: OntimeEntry;
+  data: OntimeRundownEntry;
   loaded: boolean;
   eventIndex: number;
   hasCursor: boolean;
   isNext: boolean;
   isNextDay: boolean;
-  previousEntryId: MaybeString;
+  previousEntryId?: string;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
@@ -65,7 +59,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     isLinkedToLoaded,
   } = props;
   const { emitError } = useEmitLog();
-  const { addEntry, updateEntry, batchUpdateEvents, deleteEntry, groupEntries, swapEvents } = useEntryActions();
+  const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
   const { selectedEvents, unselect, clearSelectedEvents } = useEventSelection();
 
   const removeOpenEvent = useCallback(() => {
@@ -85,31 +79,31 @@ export default function RundownEntry(props: RundownEntryProps) {
   const actionHandler = useMemoisedFn((action: EventItemActions, payload?: number | FieldValue) => {
     switch (action) {
       case 'event': {
-        const newEvent = { type: SupportedEntry.Event };
+        const newEvent = { type: SupportedEvent.Event };
         const options = {
           after: data.id,
           lastEventId: previousEventId,
         };
-        return addEntry(newEvent, options);
+        return addEvent(newEvent, options);
       }
       case 'event-before': {
-        const newEvent = { type: SupportedEntry.Event };
+        const newEvent = { type: SupportedEvent.Event };
         const options = {
           after: previousEntryId,
         };
-        return addEntry(newEvent, options);
+        return addEvent(newEvent, options);
       }
       case 'delay': {
-        return addEntry({ type: SupportedEntry.Delay }, { after: data.id });
+        return addEvent({ type: SupportedEvent.Delay }, { after: data.id });
       }
       case 'delay-before': {
-        return addEntry({ type: SupportedEntry.Delay }, { after: previousEntryId });
+        return addEvent({ type: SupportedEvent.Delay }, { after: previousEntryId });
       }
       case 'block': {
-        return addEntry({ type: SupportedEntry.Block }, { after: data.id });
+        return addEvent({ type: SupportedEvent.Block }, { after: data.id });
       }
       case 'block-before': {
-        return addEntry({ type: SupportedEntry.Block }, { after: previousEntryId });
+        return addEvent({ type: SupportedEvent.Block }, { after: previousEntryId });
       }
       case 'swap': {
         const { value } = payload as FieldValue;
@@ -118,21 +112,14 @@ export default function RundownEntry(props: RundownEntryProps) {
       case 'delete': {
         if (selectedEvents.size > 1) {
           clearMultiSelection();
-          return deleteEntry(Array.from(selectedEvents));
+          return deleteEvent(Array.from(selectedEvents));
         }
         removeOpenEvent();
-        return deleteEntry([data.id]);
+        return deleteEvent([data.id]);
       }
       case 'clone': {
         const newEvent = cloneEvent(data as OntimeEvent);
-        addEntry(newEvent, { after: data.id });
-        break;
-      }
-      case 'group': {
-        if (selectedEvents.size > 1) {
-          clearMultiSelection();
-          return groupEntries(Array.from(selectedEvents));
-        }
+        addEvent(newEvent, { after: data.id });
         break;
       }
       case 'update': {
@@ -153,7 +140,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         if (field in data) {
           // @ts-expect-error -- not sure how to type this
           newData[field] = value;
-          return updateEntry(newData);
+          return updateEvent(newData);
         }
 
         return emitError(`Unknown field: ${field}`);
@@ -163,7 +150,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     }
   });
 
-  if (isOntimeEvent(data)) {
+  if (data.type === SupportedEvent.Event) {
     return (
       <EventBlock
         eventId={data.id}
@@ -175,16 +162,16 @@ export default function RundownEntry(props: RundownEntryProps) {
         timeStrategy={data.timeStrategy}
         linkStart={data.linkStart}
         countToEnd={data.countToEnd}
+        isPublic={data.isPublic}
         endAction={data.endAction}
         timerType={data.timerType}
         title={data.title}
         note={data.note}
-        delay={data.delay}
+        delay={data.delay ?? 0}
         colour={data.colour}
         isPast={isPast}
         isNext={isNext}
         skip={data.skip}
-        parent={data.parent}
         loaded={loaded}
         hasCursor={hasCursor}
         playback={playback}
@@ -195,10 +182,11 @@ export default function RundownEntry(props: RundownEntryProps) {
         totalGap={totalGap}
         isLinkedToLoaded={isLinkedToLoaded}
         actionHandler={actionHandler}
-        hasTriggers={data.triggers.length > 0}
       />
     );
-  } else if (isOntimeDelay(data)) {
+  } else if (data.type === SupportedEvent.Block) {
+    return <BlockBlock data={data} hasCursor={hasCursor} onDelete={() => actionHandler('delete')} />;
+  } else if (data.type === SupportedEvent.Delay) {
     return <DelayBlock data={data} hasCursor={hasCursor} />;
   }
   return null;

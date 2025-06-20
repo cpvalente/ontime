@@ -3,7 +3,7 @@ import { ImportCustom, ImportMap } from 'ontime-utils';
 export type NamedImportMap = typeof namedImportMap;
 
 // Record of label and import name
-const namedImportMap = {
+export const namedImportMap = {
   Worksheet: 'event schedule',
   Start: 'time start',
   'Link start': 'link start',
@@ -12,6 +12,7 @@ const namedImportMap = {
   Cue: 'cue',
   Title: 'title',
   'Count to end': 'count to end',
+  'Is Public': 'public',
   Skip: 'skip',
   Note: 'notes',
   Colour: 'colour',
@@ -49,6 +50,7 @@ export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
     cue: namedImportMap.Cue,
     title: namedImportMap.Title,
     countToEnd: namedImportMap['Count to end'],
+    isPublic: namedImportMap['Is Public'],
     skip: namedImportMap.Skip,
     note: namedImportMap.Note,
     colour: namedImportMap.Colour,

@@ -3,12 +3,12 @@
  * Google Sheets
  */
 
-import type { AuthenticationStatus, CustomFields, ErrorResponse, Rundown } from 'ontime-types';
-import { getErrorMessage } from 'ontime-utils';
-
 import { Request, Response } from 'express';
 import { readFileSync } from 'fs';
 
+import type { AuthenticationStatus, CustomFields, ErrorResponse, OntimeRundown } from 'ontime-types';
+
+import { deleteFile } from '../../utils/parserUtils.js';
 import {
   revoke,
   handleClientSecret,
@@ -18,18 +18,17 @@ import {
   upload,
   getWorksheetOptions,
 } from '../../services/sheet-service/SheetService.js';
-import { deleteFile } from '../../utils/fileManagement.js';
+import { getErrorMessage } from 'ontime-utils';
 
 export async function requestConnection(
   req: Request,
   res: Response<{ verification_url: string; user_code: string } | ErrorResponse>,
 ) {
   const { sheetId } = req.params;
-  // the check for the file is done in the validation middleware
-  const filePath = (req.file as Express.Multer.File).path;
+  const file = req.file.path;
 
   try {
-    const client = readFileSync(filePath, 'utf-8');
+    const client = readFileSync(file, 'utf-8');
     const clientSecret = handleClientSecret(client);
     const { verification_url, user_code } = await handleInitialConnection(clientSecret, sheetId);
 
@@ -40,7 +39,11 @@ export async function requestConnection(
   }
 
   // delete uploaded file after parsing
-  await deleteFile(filePath);
+  try {
+    deleteFile(file);
+  } catch (_error) {
+    /** we dont handle failure here */
+  }
 }
 
 export async function verifyAuthentication(
@@ -84,7 +87,7 @@ export async function readFromSheet(
   req: Request,
   res: Response<
     | {
-        rundown: Rundown;
+        rundown: OntimeRundown;
         customFields: CustomFields;
       }
     | ErrorResponse

@@ -25,7 +25,7 @@
 .list {
   @include editor.panel;
   height: inherit;
-  padding-inline: 0;
+  padding-left: 0;
   box-shadow: $box-shadow-right;
 
   flex: 1 2 auto; /* flex-grow: 1, flex-shrink: 2, flex-basis: auto */

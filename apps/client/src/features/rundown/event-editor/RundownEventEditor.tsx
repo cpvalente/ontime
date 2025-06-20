@@ -13,28 +13,29 @@ import style from './EventEditor.module.scss';
 export default function RundownEventEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const { data } = useRundown();
+  const { order, rundown } = data;
 
   const [event, setEvent] = useState<OntimeEvent | null>(null);
 
   useEffect(() => {
-    if (data.order.length === 0) {
+    if (order.length === 0) {
       setEvent(null);
       return;
     }
 
-    const selectedEventId = Array.from(selectedEvents).at(0);
+    const selectedEventId = order.find((eventId) => selectedEvents.has(eventId));
     if (!selectedEventId) {
       setEvent(null);
       return;
     }
-    const event = data.entries[selectedEventId];
+    const event = rundown[selectedEventId];
 
     if (event && isOntimeEvent(event)) {
       setEvent(event);
     } else {
       setEvent(null);
     }
-  }, [data.order, data.entries, selectedEvents]);
+  }, [order, rundown, selectedEvents]);
 
   if (!event) {
     return <EventEditorEmpty />;

@@ -1,23 +1,28 @@
-import { body, param } from 'express-validator';
+import type { Request, Response, NextFunction } from 'express';
+import { body, param, validationResult } from 'express-validator';
 import sanitize from 'sanitize-filename';
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 /**
  * @description Validates request for a new project.
  */
 export const validateNewProject = [
-  body().notEmpty().withMessage('No object found in request'),
   body('filename').optional().isString().trim(),
   body('title').optional().isString().trim(),
   body('description').optional().isString().trim(),
+  body('publicUrl').optional().isString().trim(),
+  body('publicInfo').optional().isString().trim(),
   body('backstageUrl').optional().isString().trim(),
   body('backstageInfo').optional().isString().trim(),
   body('projectLogo').optional().isString().trim(),
   body('endMessage').optional().isString().trim(),
   body('custom').optional().isArray(),
 
-  requestValidationFunction,
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
 ];
 
 /**
@@ -35,15 +40,26 @@ export const validateQuickProject = [
   body('viewSettings.freezeEnd').optional().isBoolean(),
   body('viewSettings.endMessage').optional().isString().trim(),
 
-  requestValidationFunction,
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
 ];
 
 /**
  * @description Validates request for pathing data in the project.
  */
 export const validatePatchProject = [
-  body().notEmpty().withMessage('No object found in request'),
-  body('rundowns').isObject().optional({ nullable: false }),
+  // Custom validator to ensure the body is not empty
+  (req: Request, res: Response, next: NextFunction) => {
+    if (Object.keys(req.body).length === 0) {
+      return res.status(422).json({ errors: [{ msg: 'Request body cannot be empty' }] });
+    }
+    next();
+  },
+
+  body('rundown').isArray().optional({ nullable: false }),
   body('project').isObject().optional({ nullable: false }),
   body('settings').isObject().optional({ nullable: false }),
   body('viewSettings').isObject().optional({ nullable: false }),
@@ -52,7 +68,11 @@ export const validatePatchProject = [
   body('osc').isObject().optional({ nullable: false }),
   body('http').isObject().optional({ nullable: false }),
 
-  requestValidationFunction,
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
 ];
 
 /**
@@ -60,6 +80,7 @@ export const validatePatchProject = [
  */
 export const validateNewFilenameBody = [
   body('newFilename')
+    .exists()
     .isString()
     .trim()
     .customSanitizer((input: string) => sanitize(input))
@@ -68,7 +89,14 @@ export const validateNewFilenameBody = [
     .withMessage('Filename was empty or contained only invalid characters')
     .customSanitizer((input: string) => ensureJsonExtension(input)),
 
-  requestValidationFunction,
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    next();
+  },
 ];
 
 /**
@@ -76,6 +104,7 @@ export const validateNewFilenameBody = [
  */
 export const validateFilenameBody = [
   body('filename')
+    .exists()
     .isString()
     .trim()
     .customSanitizer((input: string) => sanitize(input))
@@ -84,7 +113,14 @@ export const validateFilenameBody = [
     .withMessage('Filename was empty or contained only invalid characters')
     .customSanitizer((input: string) => ensureJsonExtension(input)),
 
-  requestValidationFunction,
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    next();
+  },
 ];
 
 /**
@@ -92,6 +128,7 @@ export const validateFilenameBody = [
  */
 export const validateFilenameParam = [
   param('filename')
+    .exists()
     .isString()
     .trim()
     .customSanitizer((input: string) => sanitize(input))
@@ -100,5 +137,12 @@ export const validateFilenameParam = [
     .withMessage('Filename was empty or contained only invalid characters')
     .customSanitizer((input: string) => ensureJsonExtension(input)),
 
-  requestValidationFunction,
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    next();
+  },
 ];

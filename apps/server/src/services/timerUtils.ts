@@ -122,17 +122,18 @@ export function getRuntimeOffset(state: RuntimeState): { absoluteOffset: number;
     return { absoluteOffset: 0, relativeOffset: 0 };
   }
 
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    // we know current exists as long as eventNow exists
+    if (state.timer.current === null) {
+      throw new Error('timerUtils.calculate: current must be set');
+    }
+  }
+
   const { clock } = state;
   const { countToEnd, timeStart } = state.eventNow;
   const { addedTime, current, startedAt } = state.timer;
   const { actualStart, plannedStart } = state.runtime;
-
-  // eslint-disable-next-line no-unused-labels -- dev code path
-  DEV: {
-    // we know current exists as long as eventNow exists
-    if (current === null) throw new Error('timerUtils.getRuntimeOffset: state.timer.current must be set');
-    if (plannedStart === null) throw new Error('timerUtils.getRuntimeOffset: state.runtime.plannedStart must be set');
-  }
 
   // if we havent started, but the timer is armed
   // the offset is the difference to the schedule

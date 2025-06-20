@@ -86,12 +86,6 @@ export class SimpleTimer {
   public update(timeNow: number): SimpleTimerState {
     if (this.state.playback === SimplePlayback.Start) {
       // we know startedAt is not null since we are in play mode
-      // eslint-disable-next-line no-unused-labels -- dev code path
-      DEV: {
-        if (this.startedAt === null) {
-          throw new Error('SimpleTimer.update: invalid state received');
-        }
-      }
       const elapsed = timeNow - this.startedAt;
       if (this.state.direction === SimpleDirection.CountDown) {
         this.state.current = this.state.duration - elapsed;

@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Button, Textarea } from '@chakra-ui/react';
 import { OntimeEvent } from 'ontime-types';
 
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { useEventAction } from '../../../common/hooks/useEventAction';
 import type { EditEvent } from '../Operator';
 
 import style from './EditModal.module.scss';
@@ -15,7 +15,7 @@ interface EditModalProps {
 export default function EditModal(props: EditModalProps) {
   const { event, onClose } = props;
 
-  const { updateEntry } = useEntryActions();
+  const { updateEvent } = useEventAction();
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement[]>(new Array<HTMLTextAreaElement>());
 
@@ -36,7 +36,7 @@ export default function EditModal(props: EditModalProps) {
     });
 
     if (patchObject.custom) {
-      await updateEntry(patchObject);
+      await updateEvent(patchObject);
     }
 
     setLoading(false);

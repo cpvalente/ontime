@@ -1,23 +1,28 @@
 import {
   CurrentBlockState,
-  EntryId,
   isPlayableEvent,
   MaybeNumber,
   MaybeString,
   OffsetMode,
-  OntimeBlock,
   OntimeEvent,
+  OntimeRundown,
   PlayableEvent,
   Playback,
-  Rundown,
   Runtime,
   runtimeStorePlaceholder,
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import { calculateDuration, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
+import {
+  calculateDuration,
+  checkIsNow,
+  dayInMs,
+  filterTimedEvents,
+  getPreviousBlock,
+  isPlaybackActive,
+} from 'ontime-utils';
 
-import { timeNow } from '../utils/time.js';
+import { clock } from '../services/Clock.js';
 import type { RestorePoint } from '../services/RestoreService.js';
 import {
   getCurrent,
@@ -26,15 +31,16 @@ import {
   getRuntimeOffset,
   getTimerPhase,
 } from '../services/timerUtils.js';
+import { timerConfig } from '../config/config.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
-import { timerConfig } from '../setup/config.js';
-import { filterTimedEvents } from '../services/runtime-service/rundownService.utils.js';
 
 export type RuntimeState = {
   clock: number; // realtime clock
   eventNow: PlayableEvent | null;
   currentBlock: CurrentBlockState;
+  publicEventNow: PlayableEvent | null;
   eventNext: PlayableEvent | null;
+  publicEventNext: PlayableEvent | null;
   runtime: Runtime;
   timer: TimerState;
   // private properties of the timer calculations
@@ -49,10 +55,12 @@ export type RuntimeState = {
 };
 
 const runtimeState: RuntimeState = {
-  clock: timeNow(),
+  clock: clock.timeNow(),
   currentBlock: { ...runtimeStorePlaceholder.currentBlock },
   eventNow: null,
+  publicEventNow: null,
   eventNext: null,
+  publicEventNext: null,
   runtime: { ...runtimeStorePlaceholder.runtime },
   timer: { ...runtimeStorePlaceholder.timer },
   _timer: {
@@ -71,6 +79,8 @@ export function getState(): Readonly<RuntimeState> {
     ...runtimeState,
     eventNow: runtimeState.eventNow ? { ...runtimeState.eventNow } : null,
     eventNext: runtimeState.eventNext ? { ...runtimeState.eventNext } : null,
+    publicEventNow: runtimeState.publicEventNow ? { ...runtimeState.publicEventNow } : null,
+    publicEventNext: runtimeState.publicEventNext ? { ...runtimeState.publicEventNext } : null,
     runtime: { ...runtimeState.runtime },
     timer: { ...runtimeState.timer },
     _timer: { ...runtimeState._timer },
@@ -83,7 +93,9 @@ export function getState(): Readonly<RuntimeState> {
  */
 export function clearEventData() {
   runtimeState.eventNow = null;
+  runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
+  runtimeState.publicEventNext = null;
 
   runtimeState.runtime.offset = 0;
   runtimeState.runtime.relativeOffset = 0;
@@ -91,7 +103,7 @@ export function clearEventData() {
   runtimeState.runtime.selectedEventIndex = null;
 
   runtimeState.timer.playback = Playback.Stop;
-  runtimeState.clock = timeNow();
+  runtimeState.clock = clock.timeNow();
   runtimeState.timer = { ...runtimeStorePlaceholder.timer };
 
   // when clearing, we maintain the total delay from the rundown
@@ -103,10 +115,13 @@ export function clearEventData() {
 // clear all necessary data when doing a full stop and the event is unloaded
 export function clearState() {
   runtimeState.eventNow = null;
+  runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
 
   runtimeState.currentBlock.block = null;
   runtimeState.currentBlock.startedAt = null;
+
+  runtimeState.publicEventNext = null;
 
   runtimeState.runtime.offset = 0;
   runtimeState.runtime.relativeOffset = 0;
@@ -115,7 +130,7 @@ export function clearState() {
   runtimeState.runtime.selectedEventIndex = null;
 
   runtimeState.timer.playback = Playback.Stop;
-  runtimeState.clock = timeNow();
+  runtimeState.clock = clock.timeNow();
   runtimeState.timer = { ...runtimeStorePlaceholder.timer };
 
   // when clearing, we maintain the total delay from the rundown
@@ -131,12 +146,10 @@ export function clearState() {
 function patchTimer(newState: Partial<TimerState & RestorePoint>) {
   for (const key in newState) {
     if (key in runtimeState.timer) {
-      // @ts-expect-error -- not sure how to type this in a sane way
       runtimeState.timer[key] = newState[key];
     } else if (key in runtimeState._timer) {
       // in case of a RestorePoint we will receive a pausedAt value
-      // which is needed to resume a paused timer
-      // @ts-expect-error -- not sure how to type this in a sane way
+      // wiche is needed to resume a paused timer
       runtimeState._timer[key] = newState[key];
     }
   }
@@ -170,24 +183,19 @@ export function updateRundownData(rundownData: RundownData) {
  */
 export function load(
   event: PlayableEvent,
-  rundown: Rundown,
-  timedEventOrder: EntryId[],
+  rundown: OntimeRundown,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
   clearEventData();
 
-  if (timedEventOrder.length === 0 || !isPlayableEvent(event)) {
-    return false;
-  }
-
   // filter rundown
-  const eventIndex = timedEventOrder.findIndex((entryId) => entryId === event.id);
-  if (eventIndex === -1) {
+  const timedEvents = filterTimedEvents(rundown);
+  const eventIndex = timedEvents.findIndex((eventInMemory) => eventInMemory.id === event.id);
+
+  if (timedEvents.length === 0 || eventIndex === -1 || !isPlayableEvent(event)) {
     return false;
   }
 
-  // TODO(remove public): it is wasteful to recreate the object
-  const timedEvents = filterTimedEvents(rundown, timedEventOrder);
   // load events in memory along with their data
   loadNow(timedEvents, eventIndex);
   loadNext(timedEvents, eventIndex);
@@ -231,6 +239,33 @@ export function loadNow(timedEvents: OntimeEvent[], eventIndex: MaybeNumber = ru
   const event = timedEvents[eventIndex] as PlayableEvent;
   runtimeState.runtime.selectedEventIndex = eventIndex;
   runtimeState.eventNow = event;
+
+  // check if current is also public
+  if (event.isPublic) {
+    runtimeState.publicEventNow = event;
+  } else {
+    // assume there is no public event
+    runtimeState.publicEventNow = null;
+
+    // if there is nothing before, return
+    if (!eventIndex) {
+      return;
+    }
+
+    // iterate backwards to find it
+    for (let i = eventIndex; i >= 0; i--) {
+      const event = timedEvents[i];
+      // we dont deal with events that are not playable
+      if (!isPlayableEvent(event)) {
+        continue;
+      }
+
+      if (event.isPublic) {
+        runtimeState.publicEventNow = event;
+        break;
+      }
+    }
+  }
 }
 
 /**
@@ -243,29 +278,42 @@ export function loadNext(
   if (eventIndex === null) {
     // reset the state to indicate there is no future event
     runtimeState.eventNext = null;
+    runtimeState.publicEventNext = null;
     return;
   }
 
   // temporarily reset this value to simplify loop logic
   runtimeState.eventNext = null;
 
-  //TODO: do we already have a it as a list of not skipped events
   for (let i = eventIndex + 1; i < timedEvents.length; i++) {
     const event = timedEvents[i];
     // we dont deal with events that are not playable
     if (!isPlayableEvent(event)) {
       continue;
     }
-    runtimeState.eventNext = event;
-    return;
+
+    // the private event is the one immediately after the current event
+    if (runtimeState.eventNext === null) {
+      runtimeState.eventNext = event;
+    }
+
+    // if event is public
+    if (event.isPublic) {
+      runtimeState.publicEventNext = event;
+    }
+
+    // Stop if both are set
+    if (runtimeState.eventNext !== null && runtimeState.publicEventNext !== null) {
+      return;
+    }
   }
 }
 
 /**
  * Resume from restore point
  */
-export function resume(restorePoint: RestorePoint, event: PlayableEvent, rundown: Rundown, timedEventOrder: EntryId[]) {
-  load(event, rundown, timedEventOrder, restorePoint);
+export function resume(restorePoint: RestorePoint, event: PlayableEvent, rundown: OntimeRundown) {
+  load(event, rundown, restorePoint);
 }
 
 /**
@@ -325,12 +373,10 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
 /**
  * Used in situations when we want to hot-reload all events without interrupting timer
  */
-export function updateAll(rundown: Rundown, timedEventsOrder: EntryId[]) {
-  const timedEvents = filterTimedEvents(rundown, timedEventsOrder);
-  // TODO(remove public): we dont need to make the timedEvents object, we pass primitives and let the functions handle it
-  const eventNowIndex = timedEventsOrder.findIndex((id) => id === runtimeState.eventNow?.id);
-  loadNow(timedEvents, eventNowIndex >= 0 ? eventNowIndex : undefined);
-  loadNext(timedEvents, eventNowIndex >= 0 ? eventNowIndex : undefined);
+export function updateAll(rundown: OntimeRundown) {
+  const timedEvents = filterTimedEvents(rundown);
+  loadNow(timedEvents);
+  loadNext(timedEvents);
   updateLoaded(runtimeState.eventNow ?? undefined);
   loadBlock(rundown);
 }
@@ -342,8 +388,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Play) {
     return false;
   }
-
-  state.clock = timeNow();
+  state.clock = clock.timeNow();
   state.timer.secondaryTimer = null;
 
   // add paused time if it exists
@@ -378,15 +423,6 @@ export function start(state: RuntimeState = runtimeState): boolean {
   const { absoluteOffset, relativeOffset } = getRuntimeOffset(runtimeState);
   runtimeState.runtime.offset = absoluteOffset;
   runtimeState.runtime.relativeOffset = relativeOffset;
-
-  // as long as there is a timer, we need an planned end
-  // eslint-disable-next-line no-unused-labels -- dev code path
-  DEV: {
-    if (state.runtime.plannedEnd === null) {
-      throw new Error('runtimeState.start: invalid state received');
-    }
-  }
-
   state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
   return true;
 }
@@ -397,7 +433,7 @@ export function pause(state: RuntimeState = runtimeState): boolean {
   }
 
   state.timer.playback = Playback.Pause;
-  state.clock = timeNow();
+  state.clock = clock.timeNow();
   state._timer.pausedAt = state.clock;
   return true;
 }
@@ -433,7 +469,7 @@ export function addTime(amount: number) {
 
   if (willGoNegative && !hasFinished) {
     // set finished time so side effects are triggered
-    runtimeState._timer.forceFinish = timeNow();
+    runtimeState._timer.forceFinish = clock.timeNow();
   } else {
     const willGoPositive = runtimeState.timer.current < 0 && runtimeState.timer.current + amount > 0;
     if (willGoPositive) {
@@ -463,7 +499,7 @@ export type UpdateResult = {
 export function update(): UpdateResult {
   // 0. there are some things we always do
   const previousClock = runtimeState.clock;
-  runtimeState.clock = timeNow(); // we update the clock on every update call
+  runtimeState.clock = clock.timeNow(); // we update the clock on every update call
 
   // 1. is playback idle?
   if (!isPlaybackActive(runtimeState.timer.playback)) {
@@ -540,11 +576,7 @@ export function update(): UpdateResult {
   }
 }
 
-export function roll(
-  rundown: Rundown,
-  timedEventOrder: EntryId[],
-  offset = 0,
-): { eventId: MaybeString; didStart: boolean } {
+export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString; didStart: boolean } {
   // 1. if an event is running, we simply take over the playback
   if (runtimeState.timer.playback === Playback.Play && runtimeState.runtime.selectedEventIndex !== null) {
     runtimeState.timer.playback = Playback.Roll;
@@ -601,7 +633,7 @@ export function roll(
   }
 
   // 3. if there is no event running, we need to find the next event
-  const timedEvents = filterTimedEvents(rundown, timedEventOrder);
+  const timedEvents = filterTimedEvents(rundown);
   if (timedEvents.length === 0) {
     throw new Error('No playable events found');
   }
@@ -677,8 +709,9 @@ export function roll(
 
 /**
  * handle block loading, not for use outside of runtimeState
+ * @param rundown
  */
-export function loadBlock(rundown: Rundown, state = runtimeState) {
+export function loadBlock(rundown: OntimeRundown, state = runtimeState) {
   if (state.eventNow === null) {
     // we need a loaded event to have a block
     state.currentBlock.block = null;
@@ -686,21 +719,15 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
     return;
   }
 
-  const currentBlockId = state.eventNow.parent;
+  const newCurrentBlock = getPreviousBlock(rundown, state.eventNow.id);
 
   // update time only if the block has changed
-  if (state.currentBlock.block?.id != currentBlockId) {
+  if (state.currentBlock.block?.id !== newCurrentBlock?.id) {
     state.currentBlock.startedAt = null;
   }
 
   // update the block anyway
-  if (currentBlockId === null) {
-    state.currentBlock.block = null;
-    return;
-  }
-
-  const currentBlock = rundown.entries[currentBlockId];
-  state.currentBlock.block = currentBlock as OntimeBlock;
+  state.currentBlock.block = newCurrentBlock === null ? null : { ...newCurrentBlock };
 }
 
 export function setOffsetMode(mode: OffsetMode) {

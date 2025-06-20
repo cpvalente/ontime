@@ -8,14 +8,11 @@ import { cx } from '../../common/utils/styleUtils';
 import { Corner } from '../editors/editor-utils/EditorUtils';
 
 import RundownEventEditor from './event-editor/RundownEventEditor';
-import FinderPlacement from './placements/FinderPlacement';
 import RundownWrapper from './RundownWrapper';
 
 import style from './RundownExport.module.scss';
 
-export default memo(RundownExport);
-
-function RundownExport() {
+const RundownExport = () => {
   const isExtracted = window.location.pathname.includes('/rundown');
   const appMode = useAppMode((state) => state.mode);
   const hideSideBar = isExtracted && appMode === 'run';
@@ -24,7 +21,6 @@ function RundownExport() {
 
   return (
     <div className={classes} data-testid='panel-rundown'>
-      <FinderPlacement />
       <div className={style.rundown}>
         <div className={style.list}>
           <ErrorBoundary>
@@ -44,4 +40,6 @@ function RundownExport() {
       </div>
     </div>
   );
-}
+};
+
+export default memo(RundownExport);

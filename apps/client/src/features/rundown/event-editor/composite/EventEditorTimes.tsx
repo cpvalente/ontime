@@ -1,11 +1,11 @@
 import { memo } from 'react';
 import { IoInformationCircle } from 'react-icons/io5';
 import { Select, Switch, Tooltip } from '@chakra-ui/react';
-import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, MaybeString, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
-import { useEntryActions } from '../../../../common/hooks/useEntryAction';
+import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
 import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
@@ -18,16 +18,17 @@ interface EventEditorTimesProps {
   timeEnd: number;
   duration: number;
   timeStrategy: TimeStrategy;
-  linkStart: boolean;
+  linkStart: MaybeString;
   countToEnd: boolean;
   delay: number;
+  isPublic: boolean;
   endAction: EndAction;
   timerType: TimerType;
   timeWarning: number;
   timeDanger: number;
 }
 
-type HandledActions = 'countToEnd' | 'timerType' | 'endAction' | 'timeWarning' | 'timeDanger';
+type HandledActions = 'countToEnd' | 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
 
 function EventEditorTimes(props: EventEditorTimesProps) {
   const {
@@ -39,27 +40,33 @@ function EventEditorTimes(props: EventEditorTimesProps) {
     linkStart,
     countToEnd,
     delay,
+    isPublic,
     endAction,
     timerType,
     timeWarning,
     timeDanger,
   } = props;
-  const { updateEntry } = useEntryActions();
+  const { updateEvent } = useEventAction();
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
+    if (field === 'isPublic') {
+      updateEvent({ id: eventId, isPublic: !(value as boolean) });
+      return;
+    }
+
     if (field === 'countToEnd') {
-      updateEntry({ id: eventId, countToEnd: !(value as boolean) });
+      updateEvent({ id: eventId, countToEnd: !(value as boolean) });
       return;
     }
 
     if (field === 'timeWarning' || field === 'timeDanger') {
       const newTime = parseUserTime(value as string);
-      updateEntry({ id: eventId, [field]: newTime });
+      updateEvent({ id: eventId, [field]: newTime });
       return;
     }
 
     if (field === 'timerType' || field === 'endAction') {
-      updateEntry({ id: eventId, [field]: value });
+      updateEvent({ id: eventId, [field]: value });
       return;
     }
   };
@@ -107,6 +114,7 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               variant='ontime'
             >
               <option value={EndAction.None}>None</option>
+              <option value={EndAction.Stop}>Stop rundown</option>
               <option value={EndAction.LoadNext}>Load next event</option>
               <option value={EndAction.PlayNext}>Play next event</option>
             </Select>
@@ -154,9 +162,6 @@ function EventEditorTimes(props: EventEditorTimesProps) {
             </Select>
           </div>
           <div>
-            {/* TODO: rearrange this grid */}
-          </div>
-          <div>
             <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
             <TimeInput
               id='timeWarning'
@@ -167,6 +172,19 @@ function EventEditorTimes(props: EventEditorTimesProps) {
             />
           </div>
 
+          <div>
+            <Editor.Label htmlFor='isPublic'>Event Visibility</Editor.Label>
+            <Editor.Label className={style.switchLabel}>
+              <Switch
+                id='isPublic'
+                size='md'
+                isChecked={isPublic}
+                onChange={() => handleSubmit('isPublic', isPublic)}
+                variant='ontime'
+              />
+              {isPublic ? 'Public' : 'Private'}
+            </Editor.Label>
+          </div>
           <div>
             <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
             <TimeInput

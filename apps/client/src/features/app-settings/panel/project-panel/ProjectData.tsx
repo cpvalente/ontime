@@ -10,7 +10,7 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { validateLogo } from '../../../../common/utils/uploadUtils';
-import { documentationUrl } from '../../../../externals';
+import { documentationUrl, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './ProjectPanel.module.scss';
@@ -196,6 +196,28 @@ export default function ProjectData() {
               placeholder='Euro Love, Malmö 2024'
               autoComplete='off'
               {...register('description')}
+            />
+          </label>
+          <label>
+            Public info
+            <Textarea
+              variant='ontime-filled'
+              size='sm'
+              maxLength={150}
+              placeholder='Shows always start ontime'
+              autoComplete='off'
+              resize='none'
+              {...register('publicInfo')}
+            />
+          </label>
+          <label>
+            Public QR code URL
+            <Input
+              variant='ontime-filled'
+              size='sm'
+              placeholder={websiteUrl}
+              autoComplete='off'
+              {...register('publicUrl')}
             />
           </label>
           <label>

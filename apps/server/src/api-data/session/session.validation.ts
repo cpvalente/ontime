@@ -1,12 +1,15 @@
-
-import { body } from 'express-validator';
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import type { Request, Response, NextFunction } from 'express';
+import { body, validationResult } from 'express-validator';
 
 export const validateGenerateUrl = [
-  body('baseUrl').isString().trim().notEmpty(),
-  body('path').isString().trim().notEmpty(),
-  body('lock').isBoolean(),
-  body('authenticate').isBoolean(),
+  body('baseUrl').exists().isString().notEmpty().trim(),
+  body('path').exists().isString().trim(),
+  body('lock').exists().isBoolean(),
+  body('authenticate').exists().isBoolean(),
 
-  requestValidationFunction,
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
 ];

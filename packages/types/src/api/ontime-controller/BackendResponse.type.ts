@@ -1,3 +1,4 @@
+import type { OntimeRundown } from '../../definitions/core/Rundown.type.js';
 import type { Playback } from '../../definitions/runtime/Playback.type.js';
 import type { MaybeString } from '../../utils/utils.type.js';
 
@@ -14,7 +15,6 @@ export interface SessionStats {
   projectName: string;
   playback: Playback;
   timezone: string;
-  version: string;
 }
 
 export interface GetInfo {
@@ -51,3 +51,8 @@ export type ProjectLogoResponse = {
 export type ErrorResponse = MessageResponse;
 
 export type AuthenticationStatus = 'authenticated' | 'not_authenticated' | 'pending';
+
+export type RundownPaginated = {
+  rundown: OntimeRundown;
+  total: number;
+};

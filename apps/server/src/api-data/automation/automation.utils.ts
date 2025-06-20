@@ -1,4 +1,4 @@
-import { EntryId, FilterRule, isOntimeEvent, MaybeNumber, OntimeAction, Rundown } from 'ontime-types';
+import { FilterRule, MaybeNumber, OntimeAction } from 'ontime-types';
 import { millisToString, removeLeadingZero, splitWhitespace, getPropertyFromPath } from 'ontime-utils';
 import type { OscArgOrArrayInput, OscArgInput } from 'osc-min';
 
@@ -194,26 +194,4 @@ export function isBooleanEquals(a: boolean, b: string): boolean {
     return a === false;
   }
   return false;
-}
-
-/**
- * Checks is an automation is used in a rundown
- * TODO(v4): this currently only checks the current rundown, we will need to check all rundowns in the future
- */
-export function isAutomationUsed(
-  rundown: Rundown,
-  timedEventOrder: EntryId[],
-  automationId: string,
-): EntryId | undefined {
-  for (let i = 0; i < timedEventOrder.length; i++) {
-    const eventId = timedEventOrder[i];
-    const event = rundown.entries[eventId];
-    if (isOntimeEvent(event) && event.triggers) {
-      for (const trigger of event.triggers) {
-        if (trigger.automationId === automationId) {
-          return eventId;
-        }
-      }
-    }
-  }
 }

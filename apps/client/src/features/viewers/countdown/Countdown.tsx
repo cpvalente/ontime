@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
-  OntimeEntry,
   OntimeEvent,
+  OntimeRundownEntry,
   Playback,
   ProjectData,
   Runtime,
   Settings,
+  SupportedEvent,
   TimerPhase,
 } from 'ontime-types';
 
@@ -26,7 +27,7 @@ import CountdownSelect from './CountdownSelect';
 import './Countdown.scss';
 
 interface CountdownProps {
-  events: OntimeEvent[];
+  backstageEvents: OntimeEvent[];
   general: ProjectData;
   isMirrored: boolean;
   runtime: Runtime;
@@ -36,7 +37,7 @@ interface CountdownProps {
 }
 
 export default function Countdown(props: CountdownProps) {
-  const { events, general, isMirrored, runtime, selectedId, settings, time } = props;
+  const { backstageEvents, general, isMirrored, runtime, selectedId, settings, time } = props;
   const [searchParams] = useSearchParams();
   const { getLocalizedString } = useTranslation();
 
@@ -48,7 +49,7 @@ export default function Countdown(props: CountdownProps) {
   // eg. http://localhost:4001/countdown?eventId=ei0us
   // update data to the event we are following
   useEffect(() => {
-    if (!events) {
+    if (!backstageEvents) {
       return;
     }
 
@@ -62,6 +63,7 @@ export default function Countdown(props: CountdownProps) {
     }
 
     let followThis: OntimeEvent | null = null;
+    const events: OntimeEvent[] = [...backstageEvents].filter((event) => event.type === SupportedEvent.Event);
 
     if (eventId !== null) {
       followThis = events.find((event) => event.id === eventId) || null;
@@ -70,11 +72,11 @@ export default function Countdown(props: CountdownProps) {
     }
     if (followThis !== null) {
       setFollow(followThis);
-      const idx: number = events.findIndex((event: OntimeEntry) => event.id === followThis?.id);
-      const delayToEvent = events[idx]?.delay ?? 0;
+      const idx: number = backstageEvents.findIndex((event: OntimeRundownEntry) => event.id === followThis?.id);
+      const delayToEvent = backstageEvents[idx]?.delay ?? 0;
       setDelay(delayToEvent);
     }
-  }, [events, searchParams]);
+  }, [backstageEvents, searchParams]);
 
   const { message: runningMessage, timer: runningTimer } = fetchTimerData(time, follow, selectedId, runtime.offset);
 
@@ -117,7 +119,7 @@ export default function Countdown(props: CountdownProps) {
       {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
       <ViewParamsEditor viewOptions={viewOptions} />
       {follow === null ? (
-        <CountdownSelect events={events} />
+        <CountdownSelect events={backstageEvents} />
       ) : (
         <div className='countdown-container' data-testid='countdown-event'>
           <div className='clock-container'>

@@ -1,7 +1,7 @@
 import { DatabaseModel, AutomationSettings, NormalisedAutomation, Trigger } from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
-import type { ErrorEmitter } from '../../utils/parserUtils.js';
+import type { ErrorEmitter } from '../../utils/parser.js';
 
 interface LegacyData extends Partial<DatabaseModel> {
   http?: unknown;

@@ -1,7 +1,5 @@
-import { PlayableEvent, Playback, TimerPhase } from 'ontime-types';
-
-import { makeOntimeBlock, makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
-import { initRundown } from '../../api-data/rundown/rundown.service.js';
+import { OntimeRundown, PlayableEvent, Playback, SupportedEvent, TimerPhase } from 'ontime-types';
+import { deepmerge } from 'ontime-utils';
 
 import {
   type RuntimeState,
@@ -15,6 +13,7 @@ import {
   start,
   stop,
 } from '../runtimeState.js';
+import { initRundown } from '../../services/rundown-service/RundownService.js';
 
 const mockEvent = {
   type: 'event',
@@ -24,13 +23,14 @@ const mockEvent = {
   timeEnd: 1000,
   duration: 1000,
   skip: false,
-  parent: null,
 } as PlayableEvent;
 
 const mockState = {
   clock: 666,
   eventNow: null,
+  publicEventNow: null,
   eventNext: null,
+  publicEventNext: null,
   runtime: {
     selectedEventIndex: null,
     numEvents: 0,
@@ -51,6 +51,11 @@ const mockState = {
   },
 } as RuntimeState;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const makeMockState = (patch: RuntimeState): RuntimeState => {
+  return deepmerge(mockState, patch);
+};
+
 beforeAll(() => {
   vi.mock('../../classes/data-provider/DataProvider.js', () => {
     return {
@@ -65,35 +70,42 @@ beforeAll(() => {
 });
 
 describe('mutation on runtimeState', () => {
+  beforeEach(() => {
+    clearState();
+
+    vi.mock('../../services/rundown-service/RundownService.js', async (importOriginal) => {
+      const actual = (await importOriginal()) as object;
+
+      return {
+        ...actual,
+        getPlayableEvents: vi.fn().mockReturnValue([
+          {
+            id: 'mock',
+            cue: 'mock',
+            timeStart: 0,
+            timeEnd: 1000,
+            duration: 1000,
+          },
+        ]),
+      };
+    });
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
   });
 
   describe('playback operations', async () => {
-    it('refuses if nothing is loaded', async () => {
-      // force update
-      vi.useFakeTimers();
-      await initRundown(makeRundown({}), {});
-      vi.runAllTimers();
-      vi.useRealTimers();
-
+    it('refuses if nothing is loaded', () => {
       let success = start(mockState);
       expect(success).toBe(false);
 
       success = pause();
       expect(success).toBe(false);
     });
-
-    test('normal playback cycle', async () => {
+    test('normal playback cycle', () => {
       // 1. Load event
-      const mockRundown = makeRundown({ entries: { [mockEvent.id]: mockEvent }, order: [mockEvent.id] });
-      // force update
-      vi.useFakeTimers();
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
-      vi.useRealTimers();
-
-      load(mockEvent, mockRundown, mockRundown.order);
+      load(mockEvent, [mockEvent]);
       let newState = getState();
       expect(newState.eventNow?.id).toBe(mockEvent.id);
       expect(newState.timer.playback).toBe(Playback.Armed);
@@ -157,21 +169,18 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.actualStart).toBeNull();
     });
 
+    // do this before the test so that it is applied
+    const event1 = { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000 };
+    const event2 = { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500 };
+    // force update
+    vi.useFakeTimers();
+    await initRundown([event1, event2], {});
+    vi.runAllTimers();
+    vi.useRealTimers();
+
     test('runtime offset', async () => {
-      const entries = {
-        event1: { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000, parent: null },
-        event2: { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500, parent: null },
-      };
-      const rundown = makeRundown({ entries, order: ['event1', 'event2'] });
-
-      // force update
-      vi.useFakeTimers();
-      await initRundown(rundown, {});
-      vi.runAllTimers();
-      vi.useRealTimers();
-
       // 1. Load event
-      load(entries.event1, rundown, rundown.order);
+      load(event1, [event1, event2]);
       let newState = getState();
       expect(newState.runtime.actualStart).toBeNull();
       expect(newState.runtime.plannedStart).toBe(0);
@@ -188,11 +197,11 @@ describe('mutation on runtimeState', () => {
       }
 
       expect(newState.runtime.actualStart).toBe(newState.clock);
-      expect(newState.runtime.offset).toBe(entries.event1.timeStart - newState.clock);
-      expect(newState.runtime.expectedEnd).toBe(entries.event2.timeEnd - newState.runtime.offset);
+      expect(newState.runtime.offset).toBe(event1.timeStart - newState.clock);
+      expect(newState.runtime.expectedEnd).toBe(event2.timeEnd - newState.runtime.offset);
 
       // 3. Next event
-      load(entries.event2, rundown, rundown.order);
+      load(event2, [event1, event2]);
       start();
 
       newState = getState();
@@ -205,10 +214,10 @@ describe('mutation on runtimeState', () => {
       const forgivingActualStart = Math.abs(newState.runtime.actualStart - firstStart);
       expect(forgivingActualStart).toBeLessThanOrEqual(1);
       // we are over-under, the difference between the schedule and the actual start
-      const delayBefore = entries.event2.timeStart - newState.clock;
+      const delayBefore = event2.timeStart - newState.clock;
       expect(newState.runtime.offset).toBe(delayBefore);
       // finish is the difference between the runtime and the schedule
-      expect(newState.runtime.expectedEnd).toBe(entries.event2.timeEnd - newState.runtime.offset);
+      expect(newState.runtime.expectedEnd).toBe(event2.timeEnd - newState.runtime.offset);
       expect(newState.currentBlock.block).toBeNull();
 
       // 4. Add time
@@ -219,7 +228,7 @@ describe('mutation on runtimeState', () => {
       }
 
       expect(newState.runtime.offset).toBe(delayBefore - 10);
-      expect(newState.runtime.expectedEnd).toBe(entries.event2.timeEnd - newState.runtime.offset);
+      expect(newState.runtime.expectedEnd).toBe(event2.timeEnd - newState.runtime.offset);
 
       // 5. Stop event
       stop();
@@ -228,6 +237,8 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.offset).toBe(0);
       expect(newState.runtime.expectedEnd).toBeNull();
     });
+
+    test.todo('runtime offset on timers in overtime', () => {});
   });
 });
 
@@ -242,17 +253,14 @@ describe('roll mode', () => {
   });
 
   describe('normal roll', () => {
-    const rundown = makeRundown({
-      entries: {
-        1: { ...mockEvent, id: '1', timeStart: 1000, duration: 1000, timeEnd: 2000 },
-        2: { ...mockEvent, id: '2', timeStart: 2000, duration: 1000, timeEnd: 3000 },
-        3: { ...mockEvent, id: '3', timeStart: 3000, duration: 1000, timeEnd: 4000 },
-      },
-      order: ['1', '2', '3'],
-    });
+    const rundown = [
+      { ...mockEvent, id: '1', timeStart: 1000, duration: 1000, timeEnd: 2000 },
+      { ...mockEvent, id: '2', timeStart: 2000, duration: 1000, timeEnd: 3000 },
+      { ...mockEvent, id: '3', timeStart: 3000, duration: 1000, timeEnd: 4000 },
+    ] as PlayableEvent[];
 
     test('pending event', () => {
-      const { eventId, didStart } = roll(rundown, rundown.order);
+      const { eventId, didStart } = roll(rundown);
       const state = getState();
 
       expect(eventId).toBe('1');
@@ -263,38 +271,29 @@ describe('roll mode', () => {
 
     test('roll events', () => {
       vi.setSystemTime('jan 1 00:00:01');
-      let result = roll(rundown, rundown.order);
+      let result = roll(rundown);
       expect(result).toStrictEqual({ eventId: '1', didStart: true });
 
       vi.setSystemTime('jan 1 00:00:02');
-      result = roll(rundown, rundown.order);
+      result = roll(rundown);
       expect(result).toStrictEqual({ eventId: '2', didStart: true });
 
       vi.setSystemTime('jan 1 00:00:03:500');
-      result = roll(rundown, rundown.order);
+      result = roll(rundown);
       expect(result).toStrictEqual({ eventId: '3', didStart: true });
     });
   });
 
-  describe('roll takeover', async () => {
-    const rundown = makeRundown({
-      entries: {
-        1: { ...mockEvent, id: '1', timeStart: 1000, duration: 1000, timeEnd: 2000 },
-        2: { ...mockEvent, id: '2', timeStart: 2000, duration: 1000, timeEnd: 3000 },
-        3: { ...mockEvent, id: '3', timeStart: 3000, duration: 1000, timeEnd: 4000 },
-      },
-      order: ['1', '2', '3'],
-    });
-
-    // force update
-    vi.useFakeTimers();
-    await initRundown(rundown, {});
-    vi.runAllTimers();
-    vi.useRealTimers();
+  describe('roll takover', () => {
+    const rundown = [
+      { ...mockEvent, id: '1', timeStart: 1000, duration: 1000, timeEnd: 2000 },
+      { ...mockEvent, id: '2', timeStart: 2000, duration: 1000, timeEnd: 3000 },
+      { ...mockEvent, id: '3', timeStart: 3000, duration: 1000, timeEnd: 4000 },
+    ] as PlayableEvent[];
 
     test('from load', () => {
-      load(rundown.entries[3] as PlayableEvent, rundown, rundown.order);
-      const result = roll(rundown, rundown.order);
+      load(rundown[2], rundown);
+      const result = roll(rundown);
       expect(result).toStrictEqual({ eventId: '3', didStart: false });
       const state = getState();
       expect(state.timer.phase).toBe(TimerPhase.Pending);
@@ -302,187 +301,163 @@ describe('roll mode', () => {
     });
 
     test('from play', () => {
-      load(rundown.entries[1] as PlayableEvent, rundown, rundown.order);
+      load(rundown[0], rundown);
       start();
-      const result = roll(rundown, rundown.order);
+      const result = roll(rundown);
       expect(result).toStrictEqual({ eventId: '1', didStart: false });
       expect(getState().runtime.offset).toBe(1000);
     });
   });
 
   describe('roll continue with offset', () => {
-    test('no gaps', async () => {
-      const rundown = makeRundown({
-        entries: {
-          1: { ...mockEvent, id: '1', timeStart: 1000, duration: 1000, timeEnd: 2000 },
-          2: { ...mockEvent, id: '2', timeStart: 2000, duration: 1000, timeEnd: 3000 },
-          3: { ...mockEvent, id: '3', timeStart: 3000, duration: 1000, timeEnd: 4000 },
-        },
-        order: ['1', '2', '3'],
-      });
+    test('no gaps', () => {
+      const rundown = [
+        { ...mockEvent, id: '1', timeStart: 1000, duration: 1000, timeEnd: 2000 },
+        { ...mockEvent, id: '2', timeStart: 2000, duration: 1000, timeEnd: 3000 },
+        { ...mockEvent, id: '3', timeStart: 3000, duration: 1000, timeEnd: 4000 },
+      ] as PlayableEvent[];
 
-      // force update
-      vi.useFakeTimers();
-      await initRundown(rundown, {});
-      vi.runAllTimers();
-
-      load(rundown.entries[1] as PlayableEvent, rundown, rundown.order);
+      load(rundown[0], rundown);
       start();
-      // the current offset after manual play
-      const currentOffset = getState().runtime.offset;
-      let result = roll(rundown, rundown.order, getState().runtime.offset);
+      let result = roll(rundown, getState().runtime.offset);
       expect(result).toStrictEqual({ eventId: '1', didStart: false });
-      // the current offset should be maintain by roll mode whn taking over from play
-      expect(getState().runtime.offset).toBe(currentOffset);
+      expect(getState().runtime.offset).toBe(1000);
 
       vi.setSystemTime('jan 1 00:00:01');
-      result = roll(rundown, rundown.order, getState().runtime.offset);
+      result = roll(rundown, getState().runtime.offset);
       expect(result).toStrictEqual({ eventId: '2', didStart: true });
       expect(getState().runtime.offset).toBe(1000);
 
       vi.setSystemTime('jan 1 00:00:02');
-      result = roll(rundown, rundown.order, getState().runtime.offset);
+      result = roll(rundown, getState().runtime.offset);
       expect(result).toStrictEqual({ eventId: '3', didStart: true });
       expect(getState().runtime.offset).toBe(1000);
+    });
 
-      vi.useRealTimers();
+    test.todo('with gaps', () => {
+      //this is a bit involved as it also depends somewhat on the RintimeService
     });
   });
 });
 
 describe('loadBlock', () => {
   test('from no-block to a block will clear startedAt', () => {
-    const rundown = makeRundown({
-      entries: {
-        0: makeOntimeEvent({ id: '0', parent: null }),
-        1: makeOntimeBlock({ id: '1', events: ['11'] }),
-        11: makeOntimeEvent({ id: '11', parent: '1' }),
-        2: makeOntimeBlock({ id: '2', events: [] }),
-        3: makeOntimeEvent({ id: '3', parent: null }),
-      },
-      order: ['0', '1', '2', '3'],
-    });
+    const rundown = [
+      { id: '0', type: SupportedEvent.Event },
+      { id: '1', type: SupportedEvent.Block },
+      { id: '2', type: SupportedEvent.Event },
+      { id: '3', type: SupportedEvent.Block },
+      { id: '4', type: SupportedEvent.Event },
+    ] as OntimeRundown;
 
     const state = {
       currentBlock: {
         block: null,
         startedAt: 123,
       },
-      eventNow: rundown.entries[11],
+      eventNow: rundown[2],
     } as RuntimeState;
 
     loadBlock(rundown, state);
 
     expect(state).toMatchObject({
-      currentBlock: { block: rundown.entries[1], startedAt: null },
-      eventNow: rundown.entries[11],
+      currentBlock: { block: rundown[1], startedAt: null },
+      eventNow: rundown[2],
     });
   });
 
   test('from block to a different block will clear startedAt', () => {
-    const rundown = makeRundown({
-      entries: {
-        0: makeOntimeEvent({ id: '0', parent: null }),
-        1: makeOntimeBlock({ id: '1', events: ['11'] }),
-        11: makeOntimeEvent({ id: '11', parent: '1' }),
-        2: makeOntimeBlock({ id: '2', events: ['22'] }),
-        22: makeOntimeEvent({ id: '22', parent: '2' }),
-      },
-      order: ['0', '1', '2'],
-    });
+    const rundown = [
+      { id: '0', type: SupportedEvent.Event },
+      { id: '1', type: SupportedEvent.Block },
+      { id: '2', type: SupportedEvent.Event },
+      { id: '3', type: SupportedEvent.Block },
+      { id: '4', type: SupportedEvent.Event },
+    ] as OntimeRundown;
 
     const state = {
       currentBlock: {
-        block: rundown.entries[1],
+        block: rundown[1],
         startedAt: 123,
       },
-      eventNow: rundown.entries[22],
+      eventNow: rundown[4],
     } as RuntimeState;
 
     loadBlock(rundown, state);
 
     expect(state).toMatchObject({
-      currentBlock: { block: rundown.entries[2], startedAt: null },
-      eventNow: rundown.entries[22],
+      currentBlock: { block: rundown[3], startedAt: null },
+      eventNow: rundown[4],
     });
   });
 
   test('from block to a no-block will clear startedAt', () => {
-    const rundown = makeRundown({
-      entries: {
-        0: makeOntimeEvent({ id: '0', parent: null }),
-        1: makeOntimeBlock({ id: '1', events: ['11'] }),
-        11: makeOntimeEvent({ id: '11', parent: '1' }),
-        2: makeOntimeBlock({ id: '2', events: ['22'] }),
-        22: makeOntimeEvent({ id: '22', parent: '2' }),
-      },
-      order: ['0', '1', '2'],
-    });
+    const rundown = [
+      { id: '0', type: SupportedEvent.Event },
+      { id: '1', type: SupportedEvent.Block },
+      { id: '2', type: SupportedEvent.Event },
+      { id: '3', type: SupportedEvent.Block },
+      { id: '4', type: SupportedEvent.Event },
+    ] as OntimeRundown;
 
     const state = {
       currentBlock: {
-        block: rundown.entries[1],
+        block: rundown[1],
         startedAt: 123,
       },
-      eventNow: rundown.entries[0],
+      eventNow: rundown[0],
     } as RuntimeState;
 
     loadBlock(rundown, state);
 
     expect(state).toMatchObject({
       currentBlock: { block: null, startedAt: null },
-      eventNow: rundown.entries[0],
+      eventNow: rundown[0],
     });
   });
 
   test('from block to same block will keep startedAt', () => {
-    const rundown = makeRundown({
-      entries: {
-        0: makeOntimeBlock({ id: '0', events: ['1', '2'] }),
-        1: makeOntimeEvent({ id: '1', parent: '0' }),
-        2: makeOntimeEvent({ id: '2', parent: '0' }),
-      },
-      order: ['0'],
-    });
+    const rundown = [
+      { id: '0', type: SupportedEvent.Block },
+      { id: '1', type: SupportedEvent.Event },
+      { id: '2', type: SupportedEvent.Event },
+    ] as OntimeRundown;
 
     const state = {
       currentBlock: {
-        block: rundown.entries[0],
+        block: rundown[0],
         startedAt: 123,
       },
-      eventNow: rundown.entries[2],
+      eventNow: rundown[2],
     } as RuntimeState;
 
     loadBlock(rundown, state);
 
     expect(state).toMatchObject({
-      currentBlock: { block: rundown.entries[0], startedAt: 123 },
-      eventNow: rundown.entries[2],
+      currentBlock: { block: rundown[0], startedAt: 123 },
+      eventNow: rundown[2],
     });
   });
 
   test('from no-block to no-block will keep startedAt', () => {
-    const rundown = makeRundown({
-      entries: {
-        0: makeOntimeEvent({ id: '0', parent: null }),
-        1: makeOntimeEvent({ id: '1', parent: null }),
-      },
-      order: ['0', '1'],
-    });
+    const rundown = [
+      { id: '0', type: SupportedEvent.Event },
+      { id: '1', type: SupportedEvent.Event },
+    ] as OntimeRundown;
 
     const state = {
       currentBlock: {
         block: null,
         startedAt: 123,
       },
-      eventNow: rundown.entries[0],
+      eventNow: rundown[0],
     } as RuntimeState;
 
     loadBlock(rundown, state);
 
     expect(state).toMatchObject({
       currentBlock: { block: null, startedAt: 123 },
-      eventNow: rundown.entries[0],
+      eventNow: rundown[0],
     });
   });
 });

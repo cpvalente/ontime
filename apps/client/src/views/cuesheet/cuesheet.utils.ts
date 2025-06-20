@@ -3,8 +3,8 @@ import {
   isOntimeDelay,
   isOntimeEvent,
   MaybeNumber,
-  OntimeEntry,
   OntimeEntryCommonKeys,
+  OntimeRundown,
   ProjectData,
 } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
@@ -23,7 +23,7 @@ export const parseField = (field: CsvHeaderKey, data: unknown): string => {
     return millisToString(data as MaybeNumber, { fallback: '' });
   }
 
-  if (field === 'skip') {
+  if (field === 'isPublic' || field === 'skip') {
     return data ? 'x' : '';
   }
 
@@ -32,8 +32,12 @@ export const parseField = (field: CsvHeaderKey, data: unknown): string => {
 
 /**
  * @description Creates an array of arrays usable by xlsx for export
+ * @param {ProjectData} headerData
+ * @param {OntimeRundown} rundown
+ * @param {CustomFields} customFields
+ * @return {(string[])[]}
  */
-export const makeTable = (headerData: ProjectData, rundown: OntimeEntry[], customFields: CustomFields): string[][] => {
+export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, customFields: CustomFields): string[][] => {
   // create metadata header row
   const data = [['Ontime · Rundown export']];
   if (headerData.title) data.push([`Project title: ${headerData.title}`]);
@@ -52,6 +56,7 @@ export const makeTable = (headerData: ProjectData, rundown: OntimeEntry[], custo
     'cue',
     'title',
     'note',
+    'isPublic',
     'skip',
     ...customFieldKeys,
     'type',
@@ -66,6 +71,7 @@ export const makeTable = (headerData: ProjectData, rundown: OntimeEntry[], custo
     'Cue',
     'Title',
     'Note',
+    'Is Public? (x)',
     'Skip?',
     ...customFieldLabels,
     'Type',

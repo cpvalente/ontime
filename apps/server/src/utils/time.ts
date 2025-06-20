@@ -60,17 +60,3 @@ export function getTimezoneLabel(date: Date): string {
 
   return `GMT ${sign}${pad(hours)}:${pad(minutes)} ${tzName}`;
 }
-
-/**
- * Get current time from system
- */
-export function timeNow() {
-  const now = new Date();
-
-  // extract milliseconds since midnight
-  let elapsed = now.getHours() * 3600000;
-  elapsed += now.getMinutes() * 60000;
-  elapsed += now.getSeconds() * 1000;
-  elapsed += now.getMilliseconds();
-  return elapsed;
-}

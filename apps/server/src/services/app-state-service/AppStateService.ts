@@ -45,6 +45,8 @@ export async function getShowWelcomeDialog(): Promise<boolean> {
 }
 
 export async function setShowWelcomeDialog(show: boolean): Promise<boolean> {
+  if (isTest) return;
+
   config.data.showWelcomeDialog = show;
   await config.write();
   return show;

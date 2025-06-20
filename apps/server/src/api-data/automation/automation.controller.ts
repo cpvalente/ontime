@@ -5,14 +5,12 @@ import type { Request, Response } from 'express';
 
 import { oscServer } from '../../adapters/OscAdapter.js';
 
-import { getCurrentRundown, getRundownMetadata } from '../rundown/rundown.dao.js';
-
 import * as automationDao from './automation.dao.js';
 import * as automationService from './automation.service.js';
 import { parseOutput } from './automation.validation.js';
 
 export function getAutomationSettings(_req: Request, res: Response<AutomationSettings>) {
-  res.status(200).json(automationDao.getAutomationSettings());
+  res.json(automationDao.getAutomationSettings());
 }
 
 export async function postAutomationSettings(req: Request, res: Response<AutomationSettings | ErrorResponse>) {
@@ -108,10 +106,7 @@ export async function editAutomation(req: Request, res: Response<Automation | Er
 
 export async function deleteAutomation(req: Request, res: Response<void | ErrorResponse>) {
   try {
-    const rundown = getCurrentRundown();
-    const { timedEventOrder } = getRundownMetadata();
-
-    await automationDao.deleteAutomation(rundown, timedEventOrder, req.params.id);
+    await automationDao.deleteAutomation(req.params.id);
     res.status(204).send();
   } catch (error) {
     const message = getErrorMessage(error);

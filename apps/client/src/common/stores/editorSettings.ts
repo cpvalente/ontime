@@ -10,6 +10,7 @@ type EditorSettingsStore = {
   defaultTimeStrategy: TimeStrategy;
   defaultWarnTime: string;
   defaultDangerTime: string;
+  defaultPublic: boolean;
   defaultTimerType: TimerType;
   defaultEndAction: EndAction;
   setDefaultDuration: (defaultDuration: string) => void;
@@ -17,6 +18,7 @@ type EditorSettingsStore = {
   setTimeStrategy: (timeStrategy: TimeStrategy) => void;
   setWarnTime: (warnTime: string) => void;
   setDangerTime: (dangerTime: string) => void;
+  setDefaultPublic: (defaultPublic: boolean) => void;
   setDefaultTimerType: (defaultTimerType: TimerType) => void;
   setDefaultEndAction: (defaultEndAction: EndAction) => void;
 };
@@ -27,6 +29,7 @@ export const editorSettingsDefaults = {
   timeStrategy: TimeStrategy.LockDuration,
   warnTime: '00:02:00', // 120000 same as backend
   dangerTime: '00:01:00', // 60000 same as backend
+  isPublic: true,
   timerType: TimerType.CountDown,
   endAction: EndAction.None,
 };
@@ -37,6 +40,7 @@ enum EditorSettingsKeys {
   DefaultTimeStrategy = 'ontime-time-strategy',
   DefaultWarnTime = 'ontime-default-warn-time',
   DefaultDangerTime = 'ontime-default-danger-time',
+  DefaultPublic = 'ontime-default-public',
   DefaultTimerType = 'ontime-default-timer-type',
   DefaultEndAction = 'ontime-default-end-action',
 }
@@ -51,6 +55,7 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => {
     ),
     defaultWarnTime: localStorage.getItem(EditorSettingsKeys.DefaultWarnTime) ?? editorSettingsDefaults.warnTime,
     defaultDangerTime: localStorage.getItem(EditorSettingsKeys.DefaultDangerTime) ?? editorSettingsDefaults.dangerTime,
+    defaultPublic: booleanFromLocalStorage(EditorSettingsKeys.DefaultPublic, editorSettingsDefaults.isPublic),
     defaultTimerType: validateTimerType(
       localStorage.getItem(EditorSettingsKeys.DefaultTimerType),
       editorSettingsDefaults.timerType,
@@ -86,6 +91,11 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => {
       set(() => {
         localStorage.setItem(EditorSettingsKeys.DefaultDangerTime, String(defaultDangerTime));
         return { defaultDangerTime };
+      }),
+    setDefaultPublic: (defaultPublic) =>
+      set(() => {
+        localStorage.setItem(EditorSettingsKeys.DefaultPublic, String(defaultPublic));
+        return { defaultPublic };
       }),
     setDefaultTimerType: (defaultTimerType) =>
       set(() => {

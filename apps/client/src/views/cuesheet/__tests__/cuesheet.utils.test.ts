@@ -12,6 +12,22 @@ describe('parseField()', () => {
     expect(parseField('duration', testData3)).toBe('00:10:00');
   });
 
+  describe('returns an x when isPublic is truthy, empty string otherwise', () => {
+    const testTruthy = [1, true, 'x', 'test'];
+    const testFalsy = ['', null, undefined, false, 0];
+
+    testTruthy.forEach((value) => {
+      test(`${value}`, () => {
+        expect(parseField('isPublic', value)).toBe('x');
+      });
+    });
+    testFalsy.forEach((value) => {
+      test(`${value}`, () => {
+        expect(parseField('isPublic', value)).toBe('');
+      });
+    });
+  });
+
   it('returns an empty string on undefined fields', () => {
     // @ts-expect-error -- testing user data with missing fields
     expect(parseField('title')).toBe('');
@@ -45,7 +61,7 @@ describe('makeTable()', () => {
         title: 'test title 1',
         timeStart: 0,
         timeEnd: 0,
-        skip: true,
+        isPublic: 'x',
         lighting: { value: 'test lighting' },
         sound: { value: 'test sound' },
       },
@@ -77,6 +93,7 @@ describe('makeTable()', () => {
           "Cue",
           "Title",
           "Note",
+          "Is Public? (x)",
           "Skip?",
           "lighting",
           "Type",
@@ -91,6 +108,7 @@ describe('makeTable()', () => {
           "test title 1",
           "",
           "x",
+          "",
           "",
           "",
         ],

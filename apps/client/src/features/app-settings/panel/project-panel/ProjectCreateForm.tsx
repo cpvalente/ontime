@@ -8,7 +8,7 @@ import { PROJECT_LIST } from '../../../../common/api/constants';
 import { createProject } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { preventEscape } from '../../../../common/utils/keyEvent';
-import { documentationUrl } from '../../../../externals';
+import { documentationUrl, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './ProjectPanel.module.scss';
@@ -20,6 +20,8 @@ interface ProjectCreateFromProps {
 type ProjectCreateFormValues = {
   title?: string;
   description?: string;
+  publicInfo?: string;
+  publicUrl?: string;
   backstageInfo?: string;
   backstageUrl?: string;
   custom?: { title: string; value: string }[];
@@ -116,6 +118,28 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
             placeholder='Euro Love, Malmö 2024'
             autoComplete='off'
             {...register('description')}
+          />
+        </label>
+        <label>
+          Public info
+          <Textarea
+            variant='ontime-filled'
+            size='sm'
+            maxLength={150}
+            placeholder='Shows always start ontime'
+            autoComplete='off'
+            resize='none'
+            {...register('publicInfo')}
+          />
+        </label>
+        <label>
+          Public QR code Url
+          <Input
+            variant='ontime-filled'
+            size='sm'
+            placeholder={websiteUrl}
+            autoComplete='off'
+            {...register('publicUrl')}
           />
         </label>
         <label>

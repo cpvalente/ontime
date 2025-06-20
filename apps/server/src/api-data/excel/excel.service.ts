@@ -3,21 +3,18 @@
  * Google Sheets
  */
 
-import { CustomFields, Rundown } from 'ontime-types';
-import { type ImportMap } from 'ontime-utils';
+import { CustomFields, OntimeRundown } from 'ontime-types';
+import type { ImportMap } from 'ontime-utils';
 
 import { extname } from 'path';
 import { existsSync } from 'fs';
 import xlsx from 'xlsx';
 import type { WorkBook } from 'xlsx';
 
-import { deleteFile } from '../../utils/fileManagement.js';
-
-import { parseRundown } from '../rundown/rundown.parser.js';
-import { getProjectCustomFields } from '../rundown/rundown.dao.js';
-import { parseCustomFields } from '../custom-fields/customFields.parser.js';
-
-import { parseExcel } from './excel.parser.js';
+import { parseExcel } from '../../utils/parser.js';
+import { parseRundown } from '../../utils/parserFunctions.js';
+import { deleteFile } from '../../utils/parserUtils.js';
+import { getCustomFields } from '../../services/rundown-service/rundownCache.js';
 
 let excelData: WorkBook = xlsx.utils.book_new();
 
@@ -37,7 +34,7 @@ export function listWorksheets(): string[] {
   return excelData.SheetNames;
 }
 
-export function generateRundownPreview(options: ImportMap): { rundown: Rundown; customFields: CustomFields } {
+export function generateRundownPreview(options: ImportMap): { rundown: OntimeRundown; customFields: CustomFields } {
   const data = excelData.Sheets[options.worksheet];
 
   if (!data) {
@@ -46,17 +43,15 @@ export function generateRundownPreview(options: ImportMap): { rundown: Rundown; 
 
   const arrayOfData: unknown[][] = xlsx.utils.sheet_to_json(data, { header: 1, blankrows: false, raw: false });
 
-  const dataFromExcel = parseExcel(arrayOfData, getProjectCustomFields(), options.worksheet, options);
-  const parsedCustomFields = parseCustomFields(dataFromExcel);
-
+  const dataFromExcel = parseExcel(arrayOfData, getCustomFields(), options);
   // we run the parsed data through an extra step to ensure the objects shape
-  const Rundown = parseRundown(dataFromExcel.rundown, parsedCustomFields);
-  if (Rundown.order.length === 0) {
+  const { rundown, customFields } = parseRundown(dataFromExcel);
+  if (rundown.length === 0) {
     throw new Error(`Could not find data to import in the worksheet: ${options.worksheet}`);
   }
 
   // clear the data
   excelData = xlsx.utils.book_new();
 
-  return { rundown: Rundown, customFields: parsedCustomFields };
+  return { rundown, customFields };
 }

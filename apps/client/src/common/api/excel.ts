@@ -1,10 +1,15 @@
 import axios, { AxiosResponse } from 'axios';
-import { CustomFields, Rundown } from 'ontime-types';
+import { CustomFields, OntimeRundown } from 'ontime-types';
 import { ImportMap } from 'ontime-utils';
 
 import { apiEntryUrl } from './constants';
 
 const excelPath = `${apiEntryUrl}/excel`;
+
+type PreviewSpreadsheetResponse = {
+  rundown: OntimeRundown;
+  customFields: CustomFields;
+};
 
 /**
  * upload Excel file to server
@@ -29,10 +34,6 @@ export async function getWorksheetNames(): Promise<string[]> {
   return response.data;
 }
 
-type PreviewSpreadsheetResponse = {
-  rundown: Rundown;
-  customFields: CustomFields;
-};
 export async function importRundownPreview(options: ImportMap): Promise<PreviewSpreadsheetResponse> {
   const response: AxiosResponse<PreviewSpreadsheetResponse> = await axios.post(`${excelPath}/preview`, {
     options,

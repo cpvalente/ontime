@@ -12,6 +12,7 @@ import {
   testOutput,
 } from './automation.controller.js';
 import {
+  paramContainsId,
   validateAutomationSettings,
   validateAutomation,
   validateAutomationPatch,
@@ -19,7 +20,6 @@ import {
   validateTrigger,
   validateTriggerPatch,
 } from './automation.validation.js';
-import { paramsWithId } from '../validation-utils/validationFunction.js';
 
 export const router = express.Router();
 
@@ -28,10 +28,10 @@ router.post('/', validateAutomationSettings, postAutomationSettings);
 
 router.post('/trigger', validateTrigger, postTrigger);
 router.put('/trigger/:id', validateTriggerPatch, putTrigger);
-router.delete('/trigger/:id', paramsWithId, deleteTrigger);
+router.delete('/trigger/:id', paramContainsId, deleteTrigger);
 
 router.post('/automation', validateAutomation, postAutomation);
 router.put('/automation/:id', validateAutomationPatch, editAutomation);
-router.delete('/automation/:id', paramsWithId, deleteAutomation);
+router.delete('/automation/:id', paramContainsId, deleteAutomation);
 
 router.post('/test', validateTestPayload, testOutput);

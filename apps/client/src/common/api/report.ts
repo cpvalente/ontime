@@ -11,7 +11,7 @@ export const reportUrl = `${apiEntryUrl}/report`;
  * HTTP request to fetch all reports
  */
 export async function fetchReport(): Promise<OntimeReport> {
-  const res = await axios.get(reportUrl);
+  const res = await axios.get(`${reportUrl}/`);
   return res.data;
 }
 

@@ -2,8 +2,9 @@ import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   IoAdd,
   IoDuplicateOutline,
-  IoFolder,
   IoLink,
+  IoPeople,
+  IoPeopleOutline,
   IoReorderTwo,
   IoSwapVertical,
   IoTrash,
@@ -11,7 +12,7 @@ import {
 } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { EndAction, EntryId, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
@@ -25,15 +26,16 @@ import RundownIndicators from './RundownIndicators';
 import style from './EventBlock.module.scss';
 
 interface EventBlockProps {
-  eventId: EntryId;
+  eventId: string;
   cue: string;
   timeStart: number;
   timeEnd: number;
   duration: number;
   timeStrategy: TimeStrategy;
-  linkStart: boolean;
+  linkStart: MaybeString;
   countToEnd: boolean;
   eventIndex: number;
+  isPublic: boolean;
   endAction: EndAction;
   timerType: TimerType;
   title: string;
@@ -43,7 +45,6 @@ interface EventBlockProps {
   isPast: boolean;
   isNext: boolean;
   skip: boolean;
-  parent: EntryId | null;
   loaded: boolean;
   hasCursor: boolean;
   playback?: Playback;
@@ -62,7 +63,6 @@ interface EventBlockProps {
           value: unknown;
         },
   ) => void;
-  hasTriggers: boolean;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -75,6 +75,7 @@ export default function EventBlock(props: EventBlockProps) {
     timeStrategy,
     linkStart,
     countToEnd,
+    isPublic = true,
     eventIndex,
     endAction,
     timerType,
@@ -85,7 +86,6 @@ export default function EventBlock(props: EventBlockProps) {
     isPast,
     isNext,
     skip = false,
-    parent,
     loaded,
     hasCursor,
     playback,
@@ -96,7 +96,6 @@ export default function EventBlock(props: EventBlockProps) {
     totalGap,
     isLinkedToLoaded,
     actionHandler,
-    hasTriggers,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
   const { selectedEvents, setSelectedEvents } = useEventSelection();
@@ -124,7 +123,25 @@ export default function EventBlock(props: EventBlockProps) {
                 value: null,
               }),
           },
-          { withDivider: true, label: 'Group', icon: IoFolder, onClick: () => actionHandler('group') },
+          {
+            label: 'Make public',
+            icon: IoPeople,
+            onClick: () =>
+              actionHandler('update', {
+                field: 'isPublic',
+                value: true,
+              }),
+            withDivider: true,
+          },
+          {
+            label: 'Make private',
+            icon: IoPeopleOutline,
+            onClick: () =>
+              actionHandler('update', {
+                field: 'isPublic',
+                value: false,
+              }),
+          },
           { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ]
       : [
@@ -134,8 +151,18 @@ export default function EventBlock(props: EventBlockProps) {
             onClick: () =>
               actionHandler('update', {
                 field: 'linkStart',
-                value: linkStart,
+                value: linkStart ? null : 'true',
               }),
+          },
+          {
+            label: 'Toggle public',
+            icon: IoPeopleOutline,
+            onClick: () =>
+              actionHandler('update', {
+                field: 'isPublic',
+                value: !isPublic,
+              }),
+            withDivider: true,
           },
           {
             label: 'Add to swap',
@@ -166,10 +193,6 @@ export default function EventBlock(props: EventBlockProps) {
     transition,
   } = useSortable({
     id: eventId,
-    data: {
-      type: 'event',
-      parent,
-    },
     animateLayoutChanges: () => false,
   });
 
@@ -277,6 +300,7 @@ export default function EventBlock(props: EventBlockProps) {
           timeStrategy={timeStrategy}
           eventId={eventId}
           eventIndex={eventIndex}
+          isPublic={isPublic}
           endAction={endAction}
           timerType={timerType}
           title={title}
@@ -291,7 +315,6 @@ export default function EventBlock(props: EventBlockProps) {
           isPast={isPast}
           totalGap={totalGap}
           isLinkedToLoaded={isLinkedToLoaded}
-          hasTriggers={hasTriggers}
         />
       )}
     </div>

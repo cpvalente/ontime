@@ -24,7 +24,7 @@ test.describe('pages routes are available', () => {
     });
 
     test('operator', async ({ page }) => {
-      await page.goto('http://localhost:4001/op');
+      await page.goto('http://localhost:4001/operator');
 
       await expect(page).toHaveTitle(/ontime/);
       await page.screenshot({ path: 'automated-screenshots/operator.png' });
@@ -56,6 +56,13 @@ test.describe('pages routes are available', () => {
 
       await expect(page).toHaveTitle(/ontime/);
       await page.screenshot({ path: 'automated-screenshots/backstage.png' });
+    });
+
+    test('public', async ({ page }) => {
+      await page.goto('http://localhost:4001/public');
+
+      await expect(page).toHaveTitle(/ontime/);
+      await page.screenshot({ path: 'automated-screenshots/public.png' });
     });
 
     test('studio', async ({ page }) => {

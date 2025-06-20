@@ -7,6 +7,7 @@
   margin-top: 1rem;
   display: flex;
   flex-direction: column;
+  padding-right: 4px; // size of scrollbar
   overflow-y: scroll;
   height: 100%;
 }
@@ -15,12 +16,20 @@
   overflow-x: clip;
   display: flex;
   flex-direction: column;
-  padding-inline: 1rem;
 }
 
 .empty {
   opacity: 0.3;
   align-self: center;
+}
+
+.alignCenter {
+  text-align: center;
+  flex-direction: column;
+
+  .spaceTop {
+    margin-top: 1.5rem;
+  }
 }
 
 .spacer {
@@ -31,7 +40,6 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  background-color: color-mix(in srgb, var(--user-bg, transparent) 10%, transparent 90%);
 }
 
 .entryIndex {

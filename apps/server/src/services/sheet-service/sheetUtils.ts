@@ -1,8 +1,18 @@
-import { isOntimeBlock, isOntimeEvent, OntimeEvent, OntimeEntry } from 'ontime-types';
+import { isOntimeBlock, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import type { sheets_v4 } from '@googleapis/sheets';
-import { is } from '../../utils/is.js';
+import { isObject } from '../../utils/assert.js';
+
+// we expect client secret file to contain the following keys
+const requiredClientKeys = [
+  'client_id',
+  'auth_uri',
+  'token_uri',
+  'token_uri',
+  'auth_provider_x509_cert_url',
+  'client_secret',
+];
 
 export type ClientSecret = {
   installed: {
@@ -19,25 +29,19 @@ export type ClientSecret = {
  * @param clientSecret
  * @throws
  */
-export function isClientSecret(clientSecret: object): clientSecret is ClientSecret {
+export function validateClientSecret(clientSecret: object): clientSecret is ClientSecret {
   if (!('installed' in clientSecret)) {
-    return false;
+    throw new Error('Missing "installed" object');
   }
 
   const { installed } = clientSecret;
-  if (!is.object(installed)) {
-    return false;
+  isObject(installed);
+
+  if (requiredClientKeys.every((key) => Object.keys(installed).includes(key))) {
+    return;
   }
 
-  // we expect client secret file to contain the following keys
-  return is.objectWithKeys(installed, [
-    'client_id',
-    'auth_uri',
-    'token_uri',
-    'token_uri',
-    'auth_provider_x509_cert_url',
-    'client_secret',
-  ]);
+  throw new Error('Missing keys in "installed" object');
 }
 
 /**
@@ -70,14 +74,14 @@ export function getA1Notation(row: number, column: number): string {
 
 /**
  * @description - creates updateCells request from ontime event
- * @param {OntimeEntry} event
+ * @param {OntimeRundownEntry} event
  * @param {number} index - index of the event
  * @param {number} worksheetId
  * @param {object} metadata - object with all the cell positions of the title of each attribute
  * @returns {sheets_v4.Schema} - list of update requests
  */
 export function cellRequestFromEvent(
-  event: OntimeEntry,
+  event: OntimeRundownEntry,
   index: number,
   worksheetId: number,
   metadata: object,
@@ -121,7 +125,7 @@ export function cellRequestFromEvent(
   };
 }
 
-function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
+function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeRundownEntry) {
   if (isOntimeEvent(event)) {
     if (key === 'blank') {
       return {};

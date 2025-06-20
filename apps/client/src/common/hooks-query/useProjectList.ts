@@ -11,7 +11,7 @@ const placeholderProjectList: ProjectFileListResponse = {
   lastLoadedProject: '',
 };
 
-function useProjectList() {
+export function useProjectList() {
   const { data, status, refetch } = useQuery({
     queryKey: PROJECT_LIST,
     queryFn: getProjects,

@@ -104,6 +104,13 @@ IP.ADDRESS:4001/timeline   > Timeline
 ```
 
 ```
+For the public views
+-------------------------------------------------------------
+IP.ADDRESS:4001/public     > Public / Foyer view
+IP.ADDRESS:4001/lower      > Lower Thirds
+```
+
+```
 For production views
 -------------------------------------------------------------
 IP.ADDRESS:4001/editor    > the control interface, same as the app

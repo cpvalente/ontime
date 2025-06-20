@@ -1,4 +1,4 @@
-import { EndAction, OntimeEvent, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
+import { EndAction, OntimeEvent, SupportedEvent, TimeStrategy, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { getA1Notation, cellRequestFromEvent } from '../sheetUtils.js';
@@ -21,29 +21,28 @@ describe('getA1Notation()', () => {
 describe('cellRequestFromEvent()', () => {
   test('string to string', () => {
     const event: OntimeEvent = {
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
       timeStart: 46800000,
       timeEnd: 57600000,
       timeStrategy: TimeStrategy.LockEnd,
-      linkStart: false,
+      linkStart: null,
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
       countToEnd: false,
       duration: 10800000,
+      isPublic: false,
       skip: false,
       colour: 'red',
       delay: 0,
       gap: 0,
       dayOffset: 0,
-      parent: null,
       revision: 0,
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
-      triggers: [],
       custom: {},
     };
     const metadata = {
@@ -56,6 +55,7 @@ describe('cellRequestFromEvent()', () => {
       endAction: { row: 1, col: 22 },
       timerType: { row: 1, col: 23 },
       duration: { row: 1, col: 24 },
+      isPublic: { row: 1, col: 25 },
       skip: { row: 1, col: 26 },
       colour: { row: 1, col: 27 },
       revision: { row: 1, col: 38 },
@@ -69,7 +69,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('number to timer', () => {
     const event: OntimeEvent = {
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -80,10 +80,10 @@ describe('cellRequestFromEvent()', () => {
       countToEnd: false,
       duration: 10800000,
       timeStrategy: TimeStrategy.LockEnd,
-      linkStart: false,
+      linkStart: null,
+      isPublic: false,
       skip: false,
       colour: 'red',
-      parent: null,
       revision: 0,
       delay: 0,
       gap: 0,
@@ -91,7 +91,6 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
-      triggers: [],
       custom: {},
     };
     const metadata = {
@@ -104,6 +103,7 @@ describe('cellRequestFromEvent()', () => {
       endAction: { row: 1, col: 22 },
       timerType: { row: 1, col: 23 },
       duration: { row: 1, col: 24 },
+      isPublic: { row: 1, col: 25 },
       skip: { row: 1, col: 26 },
       colour: { row: 1, col: 27 },
       revision: { row: 1, col: 38 },
@@ -119,7 +119,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('boolean to TRUE', () => {
     const event: OntimeEvent = {
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -130,10 +130,10 @@ describe('cellRequestFromEvent()', () => {
       countToEnd: false,
       duration: 10800000,
       timeStrategy: TimeStrategy.LockEnd,
-      linkStart: false,
+      linkStart: null,
+      isPublic: true,
       skip: false,
       colour: 'red',
-      parent: null,
       revision: 0,
       delay: 0,
       gap: 0,
@@ -141,7 +141,6 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
-      triggers: [],
       custom: {},
     };
     const metadata = {
@@ -154,6 +153,7 @@ describe('cellRequestFromEvent()', () => {
       endAction: { row: 1, col: 22 },
       timerType: { row: 1, col: 23 },
       duration: { row: 1, col: 24 },
+      isPublic: { row: 1, col: 25 },
       skip: { row: 1, col: 26 },
       colour: { row: 1, col: 27 },
       revision: { row: 1, col: 38 },
@@ -162,12 +162,13 @@ describe('cellRequestFromEvent()', () => {
       timeDanger: { row: 1, col: 41 },
     };
     const result = cellRequestFromEvent(event, 1, 1234, metadata);
+    expect(result.updateCells?.rows?.at(0)?.values?.at(11)?.userEnteredValue?.boolValue).toStrictEqual(true);
     expect(result.updateCells?.rows?.at(0)?.values?.at(12)?.userEnteredValue?.boolValue).toStrictEqual(false);
   });
 
   test('spacing in metadata', () => {
     const event: OntimeEvent = {
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -177,19 +178,18 @@ describe('cellRequestFromEvent()', () => {
       timerType: TimerType.CountDown,
       countToEnd: false,
       timeStrategy: TimeStrategy.LockEnd,
-      linkStart: false,
+      linkStart: null,
       duration: 10800000,
+      isPublic: true,
       skip: false,
       colour: 'red',
       delay: 0,
       gap: 0,
       dayOffset: 0,
-      parent: null,
       revision: 0,
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
-      triggers: [],
       custom: {},
     };
     const metadata = {
@@ -203,7 +203,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('metadata offset from zero', () => {
     const event: OntimeEvent = {
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -214,10 +214,10 @@ describe('cellRequestFromEvent()', () => {
       countToEnd: false,
       duration: 10800000,
       timeStrategy: TimeStrategy.LockEnd,
-      linkStart: false,
+      linkStart: null,
+      isPublic: true,
       skip: false,
       colour: 'red',
-      parent: null,
       revision: 0,
       delay: 0,
       gap: 0,
@@ -225,7 +225,6 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
-      triggers: [],
       custom: {},
     };
     const metadata = {
@@ -240,7 +239,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('sheet setup', () => {
     const event: OntimeEvent = {
-      type: SupportedEntry.Event,
+      type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -251,10 +250,10 @@ describe('cellRequestFromEvent()', () => {
       countToEnd: false,
       duration: 10800000,
       timeStrategy: TimeStrategy.LockEnd,
-      linkStart: false,
+      linkStart: null,
+      isPublic: true,
       skip: false,
       colour: 'red',
-      parent: null,
       revision: 0,
       delay: 0,
       gap: 0,
@@ -262,7 +261,6 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
-      triggers: [],
       custom: {},
     };
     const metadata = {

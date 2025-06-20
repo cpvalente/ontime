@@ -5,7 +5,7 @@ import { TimerLifeCycle, timerLifecycleValues, Trigger } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import Tag from '../../../../common/components/tag/Tag';
-import { useEntryActions } from '../../../../common/hooks/useEntryAction';
+import { useEventAction } from '../../../../common/hooks/useEventAction';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 
 import { eventTriggerOptions } from './eventTrigger.constants';
@@ -14,12 +14,12 @@ import style from './EventEditorTriggers.module.scss';
 
 interface EventEditorTriggersProps {
   eventId: string;
-  triggers: Trigger[];
+  triggers?: Trigger[];
 }
 
 export default function EventEditorTriggers(props: EventEditorTriggersProps) {
   const { triggers, eventId } = props;
-  const showTriggers = triggers.length > 0;
+  const showTriggers = triggers !== undefined && triggers.length > 0;
 
   return (
     <>
@@ -37,7 +37,7 @@ interface EventTriggerFormProps {
 function EventTriggerForm(props: EventTriggerFormProps) {
   const { eventId, triggers } = props;
   const { data: automationSettings } = useAutomationSettings();
-  const { updateEntry } = useEntryActions();
+  const { updateEvent } = useEventAction();
   const [automationId, setAutomationId] = useState<string | undefined>(undefined);
   const [cycleValue, setCycleValue] = useState(TimerLifeCycle.onStart);
 
@@ -45,7 +45,7 @@ function EventTriggerForm(props: EventTriggerFormProps) {
     const newTriggers = triggers ?? new Array<Trigger>();
     const id = generateId();
     newTriggers.push({ id, title: '', trigger: triggerLifeCycle, automationId });
-    updateEntry({ id: eventId, triggers: newTriggers });
+    updateEvent({ id: eventId, triggers: newTriggers });
   };
 
   const getValidationError = (cycle: TimerLifeCycle, automationId?: string): string | undefined => {
@@ -72,6 +72,7 @@ function EventTriggerForm(props: EventTriggerFormProps) {
         variant='ontime'
         value={cycleValue}
         onChange={(e) => setCycleValue(e.target.value as TimerLifeCycle)}
+        defaultValue={TimerLifeCycle.onStart}
       >
         <option disabled>Lifecycle Trigger</option>
         {eventTriggerOptions.map((cycle) => (
@@ -122,15 +123,15 @@ interface ExistingEventTriggersProps {
 
 function ExistingEventTriggers(props: ExistingEventTriggersProps) {
   const { eventId, triggers } = props;
-  const { updateEntry } = useEntryActions();
+  const { updateEvent } = useEventAction();
   const { data: automationSettings } = useAutomationSettings();
 
   const handleDelete = useCallback(
     (triggerId: string) => {
       const newTriggers = triggers.filter((trigger) => trigger.id !== triggerId);
-      updateEntry({ id: eventId, triggers: newTriggers });
+      updateEvent({ id: eventId, triggers: newTriggers });
     },
-    [eventId, triggers, updateEntry],
+    [eventId, triggers, updateEvent],
   );
 
   const filteredTriggers: Record<string, Trigger[]> = {};

@@ -18,7 +18,9 @@ export type RuntimeStore = {
   runtime: Runtime;
   currentBlock: CurrentBlockState;
   eventNow: OntimeEvent | null;
+  publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
+  publicEventNext: OntimeEvent | null;
 
   // extra timers
   auxtimer1: SimpleTimerState;

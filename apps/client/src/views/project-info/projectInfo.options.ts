@@ -14,6 +14,13 @@ export const projectInfoOptions: ViewOption[] = [
         defaultValue: false,
       },
       {
+        id: 'showPublic',
+        title: 'Show Public Data',
+        description: 'Whether to show fields related to the public views',
+        type: 'boolean',
+        defaultValue: false,
+      },
+      {
         id: 'showCustom',
         title: 'Show Custom Data',
         description: 'Whether to show fields related to the custom data',

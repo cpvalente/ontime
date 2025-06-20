@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { OntimeEntry, OntimeEvent, SupportedEntry } from 'ontime-types';
+import { OntimeEvent, OntimeRundownEntry, SupportedEvent } from 'ontime-types';
 
 import Empty from '../../../common/components/state/Empty';
 import { formatTime } from '../../../common/utils/time';
@@ -10,7 +10,7 @@ import { sanitiseTitle } from './countdown.helpers';
 import './Countdown.scss';
 
 interface CountdownSelectProps {
-  events: OntimeEntry[];
+  events: OntimeRundownEntry[];
 }
 
 const scheduleFormat = { format12: 'hh:mm a', format24: 'HH:mm' };
@@ -19,7 +19,9 @@ export default function CountdownSelect(props: CountdownSelectProps) {
   const { events } = props;
   const { getLocalizedString } = useTranslation();
 
-  const filteredEvents = events.filter((event: OntimeEntry) => event.type === SupportedEntry.Event) as OntimeEvent[];
+  const filteredEvents = events.filter(
+    (event: OntimeRundownEntry) => event.type === SupportedEvent.Event,
+  ) as OntimeEvent[];
 
   return (
     <div className='event-select' data-testid='countdown__select'>

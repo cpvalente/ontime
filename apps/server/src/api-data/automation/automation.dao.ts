@@ -2,17 +2,14 @@ import type {
   Automation,
   AutomationDTO,
   AutomationSettings,
-  EntryId,
   NormalisedAutomation,
-  Rundown,
   Trigger,
   TriggerDTO,
 } from 'ontime-types';
 import { deleteAtIndex, generateId } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-
-import { isAutomationUsed } from './automation.utils.js';
+import { getTimedEvents } from '../../services/rundown-service/rundownUtils.js';
 
 /**
  * Gets a copy of the stored automation settings
@@ -136,7 +133,7 @@ export async function editAutomation(id: string, newAutomation: AutomationDTO): 
 /**
  * Deletes a automation given its ID
  */
-export async function deleteAutomation(rundown: Rundown, timedEventOrder: EntryId[], id: string): Promise<void> {
+export async function deleteAutomation(id: string): Promise<void> {
   const automations = getAutomations();
   // ignore request if automation does not exist
   if (!Object.hasOwn(automations, id)) {
@@ -152,9 +149,13 @@ export async function deleteAutomation(rundown: Rundown, timedEventOrder: EntryI
   }
 
   // prevent deleting a automation that is in use in events
-  const isInUse = isAutomationUsed(rundown, timedEventOrder, id);
-  if (isInUse) {
-    throw new Error(`Unable to delete automation used in event with ID ${isInUse}`);
+  const events = getTimedEvents().filter(
+    (event) => event.triggers && event.triggers.some((trigger) => trigger.automationId === id),
+  );
+  if (events.length) {
+    throw new Error(
+      `Unable to delete automation used in event: ${events[0].id}${events.length > 1 ? ` and ${events.length - 1} more` : ''}`,
+    );
   }
 
   delete automations[id];
@@ -168,12 +169,7 @@ async function saveChanges(patch: Partial<AutomationSettings>) {
   const automation = getDataProvider().getAutomation();
 
   // remove undefined keys from object, we probably want a better solution
-  Object.keys(patch).forEach((key) => {
-    const typedKey = key as keyof AutomationSettings;
-    if (patch[typedKey] === undefined) {
-      delete patch[typedKey];
-    }
-  });
+  Object.keys(patch).forEach((key) => (patch[key] === undefined ? delete patch[key] : {}));
   await getDataProvider().setAutomation({ ...automation, ...patch });
 }
 

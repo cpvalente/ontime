@@ -36,7 +36,7 @@ import { restoreService } from './services/RestoreService.js';
 import * as messageService from './services/message-service/MessageService.js';
 import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
-import { initRundown } from './api-data/rundown/rundown.service.js';
+import { initRundown } from './services/rundown-service/RundownService.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
 import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
 import { oscServer } from './adapters/OscAdapter.js';
@@ -44,7 +44,7 @@ import { oscServer } from './adapters/OscAdapter.js';
 // Utilities
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
-import { timerConfig } from './setup/config.js';
+import { timerConfig } from './config/config.js';
 import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
 
 console.log('\n');
@@ -76,7 +76,7 @@ app.disable('x-powered-by');
 
 // Implement middleware
 app.use(cors()); // setup cors for all routes
-app.options('*splat', cors()); // enable pre-flight cors
+app.options('*', cors()); // enable pre-flight cors
 
 app.use(bodyParser);
 app.use(cookieParser());
@@ -97,7 +97,7 @@ app.use(`${prefix}/user`, express.static(publicDir.userDir));
 
 // Base route for static files
 app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);
-app.use(`${prefix}/*splat`, authenticateAndRedirect, compressedStatic);
+app.use(`${prefix}/*`, authenticateAndRedirect, compressedStatic);
 
 // Implement catch all
 app.use((_error, response) => {
@@ -141,11 +141,8 @@ const checkStart = (currentState: OntimeStartOrder) => {
   }
 };
 
-export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable: boolean) => void) => {
+export const initAssets = async () => {
   checkStart(OntimeStartOrder.InitAssets);
-  // initialise logging service, escalateErrorFn only exists in electron
-  logger.init(escalateErrorFn);
-
   await clearUploadfolder();
   populateStyles();
   await populateDemo();
@@ -156,8 +153,12 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
 /**
  * Starts servers
  */
-export const startServer = async (): Promise<{ message: string; serverPort: number }> => {
+export const startServer = async (
+  escalateErrorFn?: (error: string, unrecoverable: boolean) => void,
+): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
+  // initialise logging service, escalateErrorFn only exists in electron
+  logger.init(escalateErrorFn);
   const settings = getDataProvider().getSettings();
   const { serverPort: desiredPort } = settings;
 
@@ -185,7 +186,9 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
       block: null,
       startedAt: null,
     },
+    publicEventNow: state.publicEventNow,
     eventNext: state.eventNext,
+    publicEventNext: state.publicEventNext,
     auxtimer1: {
       duration: timerConfig.auxTimerDefault,
       current: timerConfig.auxTimerDefault,
@@ -206,6 +209,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   // load restore point if it exists
   const maybeRestorePoint = await restoreService.load();
 
+  // TODO: pass event store to rundownservice
   runtimeService.init(maybeRestorePoint);
 
   const nif = getNetworkInterfaces();
@@ -242,7 +246,7 @@ export const startIntegrations = async () => {
  * @param {number} exitCode
  * @return {Promise<void>}
  */
-const shutdown = async (exitCode = 0) => {
+export const shutdown = async (exitCode = 0) => {
   consoleHighlight(`Ontime shutting down with code ${exitCode}`);
 
   // clear the restore file if it was a normal exit

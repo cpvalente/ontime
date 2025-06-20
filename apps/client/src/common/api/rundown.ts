@@ -1,45 +1,29 @@
 import axios, { AxiosResponse } from 'axios';
-import {
-  EntryId,
-  MessageResponse,
-  OntimeEntry,
-  OntimeEvent,
-  ProjectRundownsList,
-  Rundown,
-  TransientEventPayload,
-} from 'ontime-types';
+import { MessageResponse, OntimeEvent, OntimeRundownEntry, RundownCached, TransientEventPayload } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 
 const rundownPath = `${apiEntryUrl}/rundown`;
 
 /**
- * HTTP request to fetch a list of existing rundowns
- */
-export async function fetchProjectRundownList(): Promise<ProjectRundownsList> {
-  const res = await axios.get(rundownPath);
-  return res.data;
-}
-
-/**
  * HTTP request to fetch all events
  */
-export async function fetchCurrentRundown(): Promise<Rundown> {
-  const res = await axios.get(`${rundownPath}/current`);
+export async function fetchNormalisedRundown(): Promise<RundownCached> {
+  const res = await axios.get(`${rundownPath}/normalised`);
   return res.data;
 }
 
 /**
- * HTTP request to post new entry
+ * HTTP request to post new event
  */
-export async function postAddEntry(data: TransientEventPayload): Promise<AxiosResponse<OntimeEntry>> {
+export async function requestPostEvent(data: TransientEventPayload): Promise<AxiosResponse<OntimeRundownEntry>> {
   return axios.post(rundownPath, data);
 }
 
 /**
- * HTTP request to edit an entry
+ * HTTP request to put new event
  */
-export async function putEditEntry(data: Partial<OntimeEntry>): Promise<AxiosResponse<OntimeEntry>> {
+export async function requestPutEvent(data: Partial<OntimeRundownEntry>): Promise<AxiosResponse<OntimeRundownEntry>> {
   return axios.put(rundownPath, data);
 }
 
@@ -49,22 +33,22 @@ type BatchEditEntry = {
 };
 
 /**
- * HTTP request to edit multiple events
+ * HTTP request to put multiple events
  */
-export async function putBatchEditEvents(data: BatchEditEntry): Promise<AxiosResponse<Rundown>> {
+export async function requestBatchPutEvents(data: BatchEditEntry): Promise<AxiosResponse<MessageResponse>> {
   return axios.put(`${rundownPath}/batch`, data);
 }
 
 export type ReorderEntry = {
-  entryId: EntryId;
-  destinationId: EntryId;
-  order: 'before' | 'after' | 'insert';
+  eventId: string;
+  from: number;
+  to: number;
 };
 
 /**
- * HTTP request to reorder an entry
+ * HTTP request to reorder events
  */
-export async function patchReorderEntry(data: ReorderEntry): Promise<AxiosResponse<Rundown>> {
+export async function requestReorderEvent(data: ReorderEntry): Promise<AxiosResponse<OntimeRundownEntry>> {
   return axios.patch(`${rundownPath}/reorder`, data);
 }
 
@@ -83,36 +67,15 @@ export async function requestEventSwap(data: SwapEntry): Promise<AxiosResponse<M
 /**
  * HTTP request to request application of delay
  */
-export async function requestApplyDelay(delayId: EntryId): Promise<AxiosResponse<Rundown>> {
-  return axios.patch(`${rundownPath}/applydelay/${delayId}`);
+export async function requestApplyDelay(eventId: string): Promise<AxiosResponse<MessageResponse>> {
+  return axios.patch(`${rundownPath}/applydelay/${eventId}`);
 }
 
 /**
- * HTTP request for cloning an entry
+ * HTTP request to delete given event
  */
-export async function postCloneEntry(entryId: EntryId): Promise<AxiosResponse<Rundown>> {
-  return axios.post(`${rundownPath}/clone/${entryId}`);
-}
-
-/**
- * HTTP request for dissolving of a block
- */
-export async function requestUngroup(blockId: EntryId): Promise<AxiosResponse<Rundown>> {
-  return axios.post(`${rundownPath}/ungroup/${blockId}`);
-}
-
-/**
- * HTTP request for grouping a list of entries into a block
- */
-export async function requestGroupEntries(entryIds: EntryId[]): Promise<AxiosResponse<Rundown>> {
-  return axios.post(`${rundownPath}/group`, { ids: entryIds });
-}
-
-/**
- * HTTP request to delete entries
- */
-export async function deleteEntries(entryIds: EntryId[]): Promise<AxiosResponse<MessageResponse>> {
-  return axios.delete(rundownPath, { data: { ids: entryIds } });
+export async function requestDelete(eventIds: string[]): Promise<AxiosResponse<MessageResponse>> {
+  return axios.delete(rundownPath, { data: { ids: eventIds } });
 }
 
 /**

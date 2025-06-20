@@ -2,7 +2,7 @@ import { memo, MouseEvent } from 'react';
 import { IoPause, IoPlay, IoReload, IoRemoveCircle, IoRemoveCircleOutline } from 'react-icons/io5';
 
 import TooltipActionBtn from '../../../../common/components/buttons/TooltipActionBtn';
-import { useEntryActions } from '../../../../common/hooks/useEntryAction';
+import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { setEventPlayback } from '../../../../common/hooks/useSocket';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 
@@ -34,11 +34,11 @@ interface EventBlockPlaybackProps {
 
 const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
   const { eventId, skip, isPlaying, isPaused, loaded, disablePlayback } = props;
-  const { updateEntry } = useEntryActions();
+  const { updateEvent } = useEventAction();
 
   const toggleSkip = (event: MouseEvent) => {
     event.stopPropagation();
-    updateEntry({ id: eventId, skip: !skip });
+    updateEvent({ id: eventId, skip: !skip });
   };
 
   const actionHandler = (event: MouseEvent) => {

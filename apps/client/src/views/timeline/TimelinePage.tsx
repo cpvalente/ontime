@@ -17,7 +17,7 @@ import { getTimeToStart, getUpcomingEvents, useScopedRundown } from './timeline.
 import './TimelinePage.scss';
 
 interface TimelinePageProps {
-  events: OntimeEvent[];
+  backstageEvents: OntimeEvent[];
   general: ProjectData;
   runtime: Runtime;
   selectedId: MaybeString;
@@ -31,9 +31,9 @@ interface TimelinePageProps {
  * There is little point splitting or memoising top level elements
  */
 export default function TimelinePage(props: TimelinePageProps) {
-  const { events, general, runtime, selectedId, settings, time } = props;
+  const { backstageEvents, general, runtime, selectedId, settings, time } = props;
   // holds copy of the rundown with only relevant events
-  const { scopedRundown, firstStart, totalDuration } = useScopedRundown(events, selectedId);
+  const { scopedRundown, firstStart, totalDuration } = useScopedRundown(backstageEvents, selectedId);
   const { getLocalizedString } = useTranslation();
   const clock = formatTime(time.clock);
 

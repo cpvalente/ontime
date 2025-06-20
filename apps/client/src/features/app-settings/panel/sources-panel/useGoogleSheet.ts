@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { AuthenticationStatus, CustomFields, ProjectRundowns } from 'ontime-types';
+import { AuthenticationStatus, CustomFields, OntimeRundown } from 'ontime-types';
 import { ImportMap } from 'ontime-utils';
 
 import { CUSTOM_FIELDS, RUNDOWN } from '../../../../common/api/constants';
@@ -75,9 +75,9 @@ export default function useGoogleSheet() {
   };
 
   /** applies rundown and customFields to current project */
-  const importRundown = async (rundowns: ProjectRundowns, customFields: CustomFields) => {
+  const importRundown = async (rundown: OntimeRundown, customFields: CustomFields) => {
     try {
-      await patchData({ rundowns, customFields });
+      await patchData({ rundown, customFields });
       // we are unable to optimistically set the rundown since we need
       // it to be normalised
       await queryClient.invalidateQueries({
