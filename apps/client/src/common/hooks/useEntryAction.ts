@@ -138,14 +138,16 @@ export const useEntryActions = () => {
 
       // handle adding options that concern all event type
       if (options?.after) {
-        (newEntry as TransientEventPayload).after = options.after;
+        // @ts-expect-error -- not sure how to type this, <after> is a transient property
+        newEntry.after = options.after;
       }
       if (options?.before) {
-        (newEntry as TransientEventPayload).before = options.before;
+        // @ts-expect-error -- not sure how to type this, <before> is a transient property
+        newEntry.before = options.before;
       }
 
       try {
-        await _addEntryMutation.mutateAsync(newEntry);
+        await _addEntryMutation.mutateAsync(newEntry as TransientEventPayload);
       } catch (error) {
         logAxiosError('Failed adding event', error);
       }

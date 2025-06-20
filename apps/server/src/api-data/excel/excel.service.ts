@@ -12,11 +12,9 @@ import xlsx from 'xlsx';
 import type { WorkBook } from 'xlsx';
 
 import { parseExcel } from '../../utils/parser.js';
-import { parseCustomFields } from '../../utils/parserFunctions.js';
+import { parseCustomFields, parseRundown } from '../../utils/parserFunctions.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 import { getCustomFields } from '../../services/rundown-service/rundownCache.js';
-
-import { parseRundown } from '../rundown/rundown.parser.js';
 
 let excelData: WorkBook = xlsx.utils.book_new();
 

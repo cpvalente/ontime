@@ -4,25 +4,24 @@
   @include block-styling;
   overflow: hidden;
 
+  min-width: 34rem;
+
   display: grid;
-  grid-template-columns: 2rem 1fr;
-  grid-template-areas: 'binder header';
+  grid-template-columns: 2rem 1fr auto;
+  grid-template-areas:
+    'binder  header'
+    'content content'
+    'footer  footer';
   align-items: center;
-  // TODO(style fix): groups have an extra bottom margin which interrupt colour
-  margin-block: 0.25rem;
 
   &.hasCursor {
     outline: 1px solid $block-cursor-color;
   }
 
-  &.expanded {
-    border-radius: $block-border-radius $block-border-radius 0 0;
-  }
-
   .binder {
     grid-area: binder;
     height: 100%;
-    background-color: var(--block-color, $gray-1050);
+    background-color: $gray-1050; // to override inline
     color: $section-white;
     font-size: 1rem;
     display: grid;
@@ -52,23 +51,28 @@
   }
 
   .metaEntry {
+    font-size: calc(1rem - 3px);
     width: 4.5em;
 
     :first-child {
-      font-size: calc(1rem - 3px);
       color: $label-gray;
     }
+  }
+
+  .group {
+    background-color: color-mix(in srgb, var(--user-bg, $gray-1050) 10%, transparent 90%);
+    grid-area: content;
+    padding-right: 2px;
+    box-sizing: content-box;
+  }
+
+  .footer {
+    grid-area: footer;
+    background-color: var(--user-bg, $gray-1050) ;
+    height: 0.25rem;
   }
 }
 
 .drag {
   @include drag-style;
-
-  &.isDragging {
-    cursor: grabbing;
-  }
-
-  &.notAllowed {
-    cursor: not-allowed;
-  }
 }

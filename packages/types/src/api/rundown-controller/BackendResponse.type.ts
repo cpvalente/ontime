@@ -7,7 +7,7 @@ export type EventPostPayload = Partial<OntimeEntry> & {
   before?: string;
 };
 
-export type TransientEventPayload = Partial<OntimeEntry> & {
+export type TransientEventPayload = Partial<OntimeEvent | OntimeDelay | OntimeBlock> & {
   after?: string;
   before?: string;
 };

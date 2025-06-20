@@ -18,7 +18,7 @@ import {
 import { dbModel } from '../../models/dataModel.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 import { parseDatabaseModel } from '../../utils/parser.js';
-import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
+import { parseRundowns } from '../../utils/parserFunctions.js';
 import { demoDb } from '../../models/demoProject.js';
 import { config } from '../../setup/config.js';
 import { getDataProvider, initPersistence } from '../../classes/data-provider/DataProvider.js';
