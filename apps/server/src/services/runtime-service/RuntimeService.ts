@@ -696,8 +696,6 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     const result = originalMethod.apply(this, args);
     const state = runtimeState.getState();
 
-    const batch = eventStore.createBatch();
-
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
 
@@ -760,24 +758,24 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     //Now we set all the updates on the eventstore and update the previous value
     if (hasChangedPlayback) {
-      batch.add('onAir', state.timer.playback !== Playback.Stop);
+      eventStore.set('onAir', state.timer.playback !== Playback.Stop);
     }
 
     if (shouldUpdateTimer) {
-      batch.add('timer', state.timer);
+      eventStore.set('timer', state.timer);
       RuntimeService.previousTimerUpdate = state.clock;
       RuntimeService.previousTimerValue = state.timer.current;
       RuntimeService.previousState.timer = { ...state.timer };
     }
 
     if (shouldRuntimeUpdate) {
-      batch.add('runtime', state.runtime);
+      eventStore.set('runtime', state.runtime);
       RuntimeService.previousRuntimeUpdate = state.clock;
       RuntimeService.previousState.runtime = { ...state.runtime };
     }
 
     if (shouldBlockUpdate) {
-      batch.add('currentBlock', state.currentBlock);
+      eventStore.set('currentBlock', state.currentBlock);
       RuntimeService.previousState.currentBlock = { ...state.currentBlock };
     }
 
@@ -787,7 +785,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     if (shouldUpdateClock) {
       RuntimeService.previousClockUpdate = state.clock;
-      batch.add('clock', state.clock);
+      eventStore.set('clock', state.clock);
     }
 
     // Update the events if they have changed
@@ -819,7 +817,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       }
 
       function storeKey(eventKey: RuntimeStateEventKeys) {
-        batch.add(eventKey, state[eventKey]);
+        eventStore.set(eventKey, state[eventKey]);
         // @ts-expect-error -- not sure how to type this in a sane way
         RuntimeService.previousState[eventKey] = { ...state[eventKey] };
       }
@@ -838,7 +836,6 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       });
     }
 
-    batch.send();
     return result;
   };
 
