@@ -379,9 +379,8 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
 export function updateAll(rundown: Rundown, timedEventsOrder: EntryId[]) {
   const timedEvents = filterTimedEvents(rundown, timedEventsOrder);
   // TODO(remove public): we dont need to make the timedEvents object, we pass primitives and let the functions handle it
-  const eventNowIndex = timedEventsOrder.findIndex((id) => id === runtimeState.eventNow?.id);
-  loadNow(timedEvents, eventNowIndex >= 0 ? eventNowIndex : undefined);
-  loadNext(timedEvents, eventNowIndex >= 0 ? eventNowIndex : undefined);
+  loadNow(timedEvents);
+  loadNext(timedEvents);
   updateLoaded(runtimeState.eventNow ?? undefined);
   loadBlock(rundown);
 }
