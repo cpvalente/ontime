@@ -2,12 +2,11 @@ import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   isOntimeEvent,
-  MaybeString,
   OntimeBlock,
   OntimeDelay,
-  OntimeEntry,
   OntimeEvent,
-  Rundown,
+  OntimeRundownEntry,
+  RundownCached,
   TimeField,
   TimeStrategy,
   TransientEventPayload,
@@ -32,12 +31,12 @@ import { useEditorSettings } from '../stores/editorSettings';
 
 export type EventOptions = Partial<{
   // options to any new block (event / delay / block)
-  after: MaybeString;
-  before: MaybeString;
+  after: string;
+  before: string;
   // options to blocks of type OntimeEvent
   defaultPublic: boolean;
   linkPrevious: boolean;
-  lastEventId: MaybeString;
+  lastEventId: string;
 }>;
 
 /**
@@ -58,11 +57,11 @@ export const useEventAction = () => {
 
   const getEventById = useCallback(
     (eventId: string) => {
-      const cachedRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
-      if (!cachedRundown?.entries) {
+      const cachedRundown = queryClient.getQueryData<RundownCached>(RUNDOWN);
+      if (!cachedRundown?.rundown) {
         return;
       }
-      return cachedRundown.entries[eventId];
+      return cachedRundown.rundown[eventId];
     },
     [queryClient],
   );
@@ -101,8 +100,9 @@ export const useEventAction = () => {
           newEvent.linkStart = applicationOptions.lastEventId;
         } else if (applicationOptions?.lastEventId) {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this is a value
-          const rundownData = queryClient.getQueryData<Rundown>(RUNDOWN)!;
-          const previousEvent = rundownData.entries[applicationOptions.lastEventId];
+          const rundownData = queryClient.getQueryData<RundownCached>(RUNDOWN)!;
+          const { rundown } = rundownData;
+          const previousEvent = rundown[applicationOptions.lastEventId];
           if (isOntimeEvent(previousEvent)) {
             newEvent.timeStart = previousEvent.timeEnd;
           }
@@ -180,21 +180,15 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<RundownCached>(RUNDOWN);
       const eventId = newEvent.id;
 
       if (previousData && eventId) {
         // optimistically update object
-        const newRundown = { ...previousData.entries };
+        const newRundown = { ...previousData.rundown };
         // @ts-expect-error -- we expect the events to be of same type
         newRundown[eventId] = { ...newRundown[eventId], ...newEvent };
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
-          id: previousData.id,
-          title: previousData.title,
-          order: previousData.order,
-          entries: newRundown,
-          revision: -1,
-        });
+        queryClient.setQueryData(RUNDOWN, { order: previousData.order, rundown: newRundown, revision: -1 });
       }
 
       // Return a context with the previous and new events
@@ -202,7 +196,7 @@ export const useEventAction = () => {
     },
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _newEvent, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      queryClient.setQueryData(RUNDOWN, context?.previousData);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
@@ -216,7 +210,7 @@ export const useEventAction = () => {
    * Updates existing event
    */
   const updateEvent = useCallback(
-    async (event: Partial<OntimeEntry>) => {
+    async (event: Partial<OntimeRundownEntry>) => {
       try {
         await _updateEventMutation.mutateAsync(event);
       } catch (error) {
@@ -302,9 +296,9 @@ export const useEventAction = () => {
        * Utility function to get the previous event end time
        */
       function getPreviousEnd(): number {
-        const cachedRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+        const cachedRundown = queryClient.getQueryData<RundownCached>(RUNDOWN);
 
-        if (!cachedRundown?.order || !cachedRundown?.entries) {
+        if (!cachedRundown?.order || !cachedRundown?.rundown) {
           return 0;
         }
 
@@ -314,7 +308,7 @@ export const useEventAction = () => {
         }
         let previousEnd = 0;
         for (let i = index - 1; i >= 0; i--) {
-          const event = cachedRundown.entries[cachedRundown.order[i]];
+          const event = cachedRundown.rundown[cachedRundown.order[i]];
           if (isOntimeEvent(event)) {
             previousEnd = event.timeEnd;
             break;
@@ -337,11 +331,11 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousEvents = queryClient.getQueryData<RundownCached>(RUNDOWN);
 
-      if (previousRundown) {
+      if (previousEvents) {
         const eventIds = new Set(ids);
-        const newRundown = { ...previousRundown.entries };
+        const newRundown = { ...previousEvents.rundown };
 
         eventIds.forEach((eventId) => {
           if (Object.hasOwn(newRundown, eventId)) {
@@ -355,22 +349,16 @@ export const useEventAction = () => {
           }
         });
 
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
-          id: previousRundown.id,
-          title: previousRundown.title,
-          order: previousRundown.order,
-          entries: newRundown,
-          revision: -1,
-        });
+        queryClient.setQueryData(RUNDOWN, { order: previousEvents.order, rundown: newRundown, revision: -1 });
       }
-      // Return a context with the previous rundown
-      return { previousRundown };
+      // Return a context with the previous and new events
+      return { previousEvents };
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
     onError: (_error, _newEvent, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousRundown);
+      queryClient.setQueryData(RUNDOWN, context?.previousEvents);
     },
     networkMode: 'always',
   });
@@ -398,21 +386,19 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<RundownCached>(RUNDOWN);
 
       if (previousData) {
         // optimistically update object
         const newOrder = previousData.order.filter((id) => !eventIds.includes(id));
-        const newRundown = { ...previousData.entries };
+        const newRundown = { ...previousData.rundown };
         for (const eventId of eventIds) {
           delete newRundown[eventId];
         }
 
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
-          id: previousData.id,
-          title: previousData.title,
+        queryClient.setQueryData(RUNDOWN, {
           order: newOrder,
-          entries: newRundown,
+          rundown: newRundown,
           revision: -1,
         });
       }
@@ -423,7 +409,7 @@ export const useEventAction = () => {
 
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _eventId, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      queryClient.setQueryData(RUNDOWN, context?.previousData);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
@@ -459,16 +445,10 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<RundownCached>(RUNDOWN);
 
       // optimistically update object
-      queryClient.setQueryData<Rundown>(RUNDOWN, {
-        id: previousData?.id ?? 'default',
-        title: previousData?.title ?? '',
-        entries: {},
-        order: [],
-        revision: -1,
-      });
+      queryClient.setQueryData(RUNDOWN, { rundown: {}, order: [], revision: -1 });
 
       // Return a context with the previous and new events
       return { previousData };
@@ -476,7 +456,7 @@ export const useEventAction = () => {
 
     // Mutation fails, rollback undos optimist update
     onError: (_error, _eventId, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      queryClient.setQueryData(RUNDOWN, context?.previousData);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
@@ -536,18 +516,13 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<RundownCached>(RUNDOWN);
 
       if (previousData) {
         // optimistically update object
         const newOrder = reorderArray(previousData.order, data.from, data.to);
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
-          id: previousData.id,
-          title: previousData.title,
-          order: newOrder,
-          entries: previousData.entries,
-          revision: -1,
-        });
+
+        queryClient.setQueryData(RUNDOWN, { order: newOrder, rundown: previousData.rundown, revision: -1 });
       }
 
       // Return a context with the previous and new events
@@ -556,7 +531,7 @@ export const useEventAction = () => {
 
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _eventId, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      queryClient.setQueryData(RUNDOWN, context?.previousData);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
@@ -597,28 +572,22 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<RundownCached>(RUNDOWN);
       if (previousData) {
         // optimistically update object
-        const newRundown = { ...previousData.entries };
-        const eventA = previousData.entries[from];
-        const eventB = previousData.entries[to];
+        const newRundown = { ...previousData.rundown };
+        const eventA = previousData.rundown[from];
+        const eventB = previousData.rundown[to];
 
         if (!isOntimeEvent(eventA) || !isOntimeEvent(eventB)) {
           return;
         }
 
-        const [newA, newB] = swapEventData(eventA, eventB);
+        const { newA, newB } = swapEventData(eventA, eventB);
         newRundown[from] = newA;
         newRundown[to] = newB;
 
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
-          id: previousData.id,
-          title: previousData.title,
-          order: previousData.order,
-          entries: newRundown,
-          revision: -1,
-        });
+        queryClient.setQueryData(RUNDOWN, { order: previousData.order, rundown: newRundown, revision: -1 });
       }
 
       // Return a context with the previous events
@@ -627,7 +596,7 @@ export const useEventAction = () => {
 
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _eventId, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      queryClient.setQueryData(RUNDOWN, context?.previousData);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure

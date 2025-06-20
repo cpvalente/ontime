@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import type { MaybeString, OntimeEntry, OntimeEvent, ProjectData, Settings } from 'ontime-types';
+import type { MaybeString, OntimeEvent, OntimeRundown, ProjectData, Settings } from 'ontime-types';
 import { Playback } from 'ontime-types';
 import { millisToString, removeSeconds, secondsInMillis } from 'ontime-utils';
 
@@ -17,7 +17,7 @@ import StudioClockSchedule from './StudioClockSchedule';
 import './StudioClock.scss';
 
 interface StudioClockProps {
-  backstageEvents: OntimeEntry[];
+  backstageEvents: OntimeRundown;
   eventNext: OntimeEvent | null;
   general: ProjectData;
   isMirrored: boolean;

@@ -1,9 +1,9 @@
 import { useCallback, useEffect } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { ColumnDef } from '@tanstack/react-table';
-import { OntimeEntry } from 'ontime-types';
+import { OntimeRundownEntry } from 'ontime-types';
 
-export default function useColumnManager(columns: ColumnDef<OntimeEntry>[]) {
+export default function useColumnManager(columns: ColumnDef<OntimeRundownEntry>[]) {
   const [columnVisibility, setColumnVisibility] = useLocalStorage({ key: 'table-hidden', defaultValue: {} });
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>({
     key: 'table-order',

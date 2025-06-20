@@ -18,9 +18,9 @@ import * as projectService from '../../services/project-service/ProjectService.j
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   try {
-    const { rundowns, project, settings, viewSettings, urlPresets, customFields, automation } = req.body;
+    const { rundown, project, settings, viewSettings, urlPresets, customFields, automation } = req.body;
     const patchDb: DatabaseModel = {
-      rundowns,
+      rundown,
       project,
       settings,
       viewSettings,

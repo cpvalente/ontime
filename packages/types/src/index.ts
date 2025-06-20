@@ -4,7 +4,6 @@ export type { DatabaseModel } from './definitions/DataModel.type.js';
 // ---> Rundown
 export { EndAction } from './definitions/EndAction.type.js';
 export {
-  type EntryId,
   type OntimeBaseEvent,
   type OntimeDelay,
   type OntimeBlock,
@@ -13,13 +12,7 @@ export {
   type TimeField,
   SupportedEvent,
 } from './definitions/core/OntimeEvent.type.js';
-export type {
-  OntimeEntryCommonKeys,
-  OntimeEntry,
-  RundownEntries,
-  Rundown,
-  ProjectRundowns,
-} from './definitions/core/Rundown.type.js';
+export type { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.type.js';
 export { TimeStrategy } from './definitions/TimeStrategy.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
 
@@ -60,7 +53,7 @@ export type {
   CustomFields,
   CustomField,
   CustomFieldLabel,
-  EntryCustomFields,
+  EventCustomFields,
 } from './definitions/core/CustomFields.type.js';
 
 // SERVER RESPONSES
@@ -80,8 +73,9 @@ export type {
 export type { QuickStartData } from './api/db/db.type.js';
 export type {
   EventPostPayload,
+  NormalisedRundown,
   PatchWithId,
-  ProjectRundownsList,
+  RundownCached,
   TransientEventPayload,
 } from './api/rundown-controller/BackendResponse.type.js';
 

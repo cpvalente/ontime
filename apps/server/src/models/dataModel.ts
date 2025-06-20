@@ -1,18 +1,8 @@
-import { DatabaseModel, Rundown } from 'ontime-types';
+import { DatabaseModel } from 'ontime-types';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
-export const defaultRundown: Rundown = {
-  id: 'default',
-  title: 'Default',
-  order: [],
-  entries: {},
-  revision: 0,
-};
-
 export const dbModel: DatabaseModel = {
-  rundowns: {
-    default: { ...defaultRundown },
-  },
+  rundown: [],
   project: {
     title: '',
     description: '',

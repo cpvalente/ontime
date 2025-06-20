@@ -18,7 +18,7 @@ const filterImageFile = (_req: Request, file: Express.Multer.File, cb: FileFilte
   } else {
     cb(null, false);
   }
-};
+}
 
 // Build multer uploader for a single file
 export const uploadProjectFile = multer({

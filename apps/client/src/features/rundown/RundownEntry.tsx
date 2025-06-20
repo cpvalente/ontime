@@ -1,14 +1,5 @@
 import { useCallback } from 'react';
-import {
-  isOntimeBlock,
-  isOntimeDelay,
-  isOntimeEvent,
-  MaybeString,
-  OntimeEntry,
-  OntimeEvent,
-  Playback,
-  SupportedEvent,
-} from 'ontime-types';
+import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
@@ -37,13 +28,13 @@ export type EventItemActions =
 interface RundownEntryProps {
   type: SupportedEvent;
   isPast: boolean;
-  data: OntimeEntry;
+  data: OntimeRundownEntry;
   loaded: boolean;
   eventIndex: number;
   hasCursor: boolean;
   isNext: boolean;
   isNextDay: boolean;
-  previousEntryId: MaybeString;
+  previousEntryId?: string;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
@@ -159,7 +150,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     }
   });
 
-  if (isOntimeEvent(data)) {
+  if (data.type === SupportedEvent.Event) {
     return (
       <EventBlock
         eventId={data.id}
@@ -176,7 +167,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         timerType={data.timerType}
         title={data.title}
         note={data.note}
-        delay={data.delay}
+        delay={data.delay ?? 0}
         colour={data.colour}
         isPast={isPast}
         isNext={isNext}
@@ -193,15 +184,9 @@ export default function RundownEntry(props: RundownEntryProps) {
         actionHandler={actionHandler}
       />
     );
-  } else if (isOntimeBlock(data)) {
-    return (
-      <BlockBlock data={data} hasCursor={hasCursor}>
-        {data.events.map((eventId) => {
-          return <div key={eventId}>{eventId}</div>;
-        })}
-      </BlockBlock>
-    );
-  } else if (isOntimeDelay(data)) {
+  } else if (data.type === SupportedEvent.Block) {
+    return <BlockBlock data={data} hasCursor={hasCursor} onDelete={() => actionHandler('delete')} />;
+  } else if (data.type === SupportedEvent.Delay) {
     return <DelayBlock data={data} hasCursor={hasCursor} />;
   }
   return null;

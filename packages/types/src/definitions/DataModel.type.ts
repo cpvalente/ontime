@@ -1,15 +1,15 @@
 import type {
   AutomationSettings,
   CustomFields,
+  OntimeRundown,
   ProjectData,
-  ProjectRundowns,
   Settings,
   URLPreset,
   ViewSettings,
 } from '../index.js';
 
 export type DatabaseModel = {
-  rundowns: ProjectRundowns;
+  rundown: OntimeRundown;
   project: ProjectData;
   settings: Settings;
   viewSettings: ViewSettings;

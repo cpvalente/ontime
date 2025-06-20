@@ -1,7 +1,7 @@
 import { MutableRefObject } from 'react';
 import { RowModel, Table } from '@tanstack/react-table';
 import Color from 'color';
-import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeEntry } from 'ontime-types';
+import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
 
 import { useSelectedEventId } from '../../../../common/hooks/useSocket';
 import { lazyEvaluate } from '../../../../common/utils/lazyEvaluate';
@@ -13,9 +13,9 @@ import DelayRow from './DelayRow';
 import EventRow from './EventRow';
 
 interface CuesheetBodyProps {
-  rowModel: RowModel<OntimeEntry>;
+  rowModel: RowModel<OntimeRundownEntry>;
   selectedRef: MutableRefObject<HTMLTableRowElement | null>;
-  table: Table<OntimeEntry>;
+  table: Table<OntimeRundownEntry>;
 }
 
 export default function CuesheetBody(props: CuesheetBodyProps) {

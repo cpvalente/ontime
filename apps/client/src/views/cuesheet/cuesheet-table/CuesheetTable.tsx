@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { isOntimeEvent, MaybeString, OntimeEntry, OntimeEvent, TimeField } from 'ontime-types';
+import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundown, OntimeRundownEntry, TimeField } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import useFollowComponent from '../../../common/hooks/useFollowComponent';
@@ -16,8 +16,8 @@ import useColumnManager from './useColumnManager';
 import style from './CuesheetTable.module.scss';
 
 interface CuesheetTableProps {
-  data: OntimeEntry[];
-  columns: ColumnDef<OntimeEntry>[];
+  data: OntimeRundown;
+  columns: ColumnDef<OntimeRundownEntry>[];
   showModal: (eventId: MaybeString) => void;
 }
 

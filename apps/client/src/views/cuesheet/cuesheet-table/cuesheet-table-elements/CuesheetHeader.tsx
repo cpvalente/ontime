@@ -1,6 +1,6 @@
 import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import { flexRender, HeaderGroup } from '@tanstack/react-table';
-import { OntimeEntry } from 'ontime-types';
+import { OntimeRundownEntry } from 'ontime-types';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { useCuesheetOptions } from '../../cuesheet.options';
@@ -10,7 +10,7 @@ import { SortableCell } from './SortableCell';
 import style from '../CuesheetTable.module.scss';
 
 interface CuesheetHeaderProps {
-  headerGroups: HeaderGroup<OntimeEntry>[];
+  headerGroups: HeaderGroup<OntimeRundownEntry>[];
 }
 
 export default function CuesheetHeader(props: CuesheetHeaderProps) {

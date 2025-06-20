@@ -1,6 +1,4 @@
-import type { EndAction, EntryCustomFields, MaybeNumber, MaybeString, TimerType, TimeStrategy, Trigger } from '../../index.js';
-
-export type EntryId = string;
+import type { EndAction, EventCustomFields, MaybeString, TimerType, TimeStrategy, Trigger } from '../../index.js';
 
 export enum SupportedEvent {
   Event = 'event',
@@ -10,7 +8,7 @@ export enum SupportedEvent {
 
 export type OntimeBaseEvent = {
   type: SupportedEvent;
-  id: EntryId;
+  id: string;
 };
 
 export type OntimeDelay = OntimeBaseEvent & {
@@ -21,18 +19,6 @@ export type OntimeDelay = OntimeBaseEvent & {
 export type OntimeBlock = OntimeBaseEvent & {
   type: SupportedEvent.Block;
   title: string;
-  note: string;
-  events: EntryId[];
-  skip: boolean;
-  colour: string;
-  custom: EntryCustomFields;
-  // !==== RUNTIME METADATA ====! //
-  revision: number;
-  startTime: MaybeNumber; // calculated at runtime
-  endTime: MaybeNumber; // calculated at runtime
-  duration: number; // calculated at runtime
-  isFirstLinked: boolean; // calculated at runtime, whether the first event is linked
-  numEvents: number; // calculated at runtime
 };
 
 export type OntimeEvent = OntimeBaseEvent & {
@@ -51,16 +37,14 @@ export type OntimeEvent = OntimeBaseEvent & {
   isPublic: boolean;
   skip: boolean;
   colour: string;
-  timeWarning: number;
-  timeDanger: number;
-  custom: EntryCustomFields;
-  triggers?: Trigger[];
-  // !==== RUNTIME METADATA ====! //
-  currentBlock: EntryId | null;
   revision: number;
   delay: number; // calculated at runtime
   dayOffset: number; // calculated at runtime
   gap: number; // calculated at runtime
+  timeWarning: number;
+  timeDanger: number;
+  custom: EventCustomFields;
+  triggers?: Trigger[];
 };
 
 export type PlayableEvent = OntimeEvent & { skip: false };

@@ -1,4 +1,4 @@
-import { ErrorResponse, MessageResponse, OntimeEntry, ProjectRundownsList, Rundown } from 'ontime-types';
+import { ErrorResponse, MessageResponse, OntimeRundown, OntimeRundownEntry, RundownCached } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
@@ -14,19 +14,19 @@ import {
   reorderEvent,
   swapEvents,
 } from '../../services/rundown-service/RundownService.js';
-import { getEventWithId, getCurrentRundown } from '../../services/rundown-service/rundownUtils.js';
+import { getEventWithId, getNormalisedRundown, getRundown } from '../../services/rundown-service/rundownUtils.js';
 
-export async function rundownGetAll(_req: Request, res: Response<ProjectRundownsList>) {
-  const rundown = getCurrentRundown();
-  res.json([{ id: rundown.id, title: rundown.title, numEntries: rundown.order.length, revision: rundown.revision }]);
+export async function rundownGetAll(_req: Request, res: Response<OntimeRundown>) {
+  const rundown = getRundown();
+  res.json(rundown);
 }
 
-export async function rundownGetCurrent(_req: Request, res: Response<Rundown>) {
-  const cachedRundown = getCurrentRundown();
+export async function rundownGetNormalised(_req: Request, res: Response<RundownCached>) {
+  const cachedRundown = getNormalisedRundown();
   res.json(cachedRundown);
 }
 
-export async function rundownGetById(req: Request, res: Response<OntimeEntry | ErrorResponse>) {
+export async function rundownGetById(req: Request, res: Response<OntimeRundownEntry | ErrorResponse>) {
   const { eventId } = req.params;
 
   try {
@@ -43,7 +43,7 @@ export async function rundownGetById(req: Request, res: Response<OntimeEntry | E
   }
 }
 
-export async function rundownPost(req: Request, res: Response<OntimeEntry | ErrorResponse>) {
+export async function rundownPost(req: Request, res: Response<OntimeRundownEntry | ErrorResponse>) {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -57,7 +57,7 @@ export async function rundownPost(req: Request, res: Response<OntimeEntry | Erro
   }
 }
 
-export async function rundownPut(req: Request, res: Response<OntimeEntry | ErrorResponse>) {
+export async function rundownPut(req: Request, res: Response<OntimeRundownEntry | ErrorResponse>) {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -86,7 +86,7 @@ export async function rundownBatchPut(req: Request, res: Response<MessageRespons
   }
 }
 
-export async function rundownReorder(req: Request, res: Response<OntimeEntry | ErrorResponse>) {
+export async function rundownReorder(req: Request, res: Response<OntimeRundownEntry | ErrorResponse>) {
   if (failEmptyObjects(req.body, res)) {
     return;
   }

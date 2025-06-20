@@ -1,44 +1,29 @@
 import axios, { AxiosResponse } from 'axios';
-import {
-  MessageResponse,
-  OntimeEntry,
-  OntimeEvent,
-  ProjectRundownsList,
-  Rundown,
-  TransientEventPayload,
-} from 'ontime-types';
+import { MessageResponse, OntimeEvent, OntimeRundownEntry, RundownCached, TransientEventPayload } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 
 const rundownPath = `${apiEntryUrl}/rundown`;
 
 /**
- * HTTP request to fetch a list of existing rundowns
- */
-export async function fetchProjectRundownList(): Promise<ProjectRundownsList> {
-  const res = await axios.get(`${rundownPath}/`);
-  return res.data;
-}
-
-/**
  * HTTP request to fetch all events
  */
-export async function fetchCurrentRundown(): Promise<Rundown> {
-  const res = await axios.get(`${rundownPath}/current`);
+export async function fetchNormalisedRundown(): Promise<RundownCached> {
+  const res = await axios.get(`${rundownPath}/normalised`);
   return res.data;
 }
 
 /**
  * HTTP request to post new event
  */
-export async function requestPostEvent(data: TransientEventPayload): Promise<AxiosResponse<OntimeEntry>> {
+export async function requestPostEvent(data: TransientEventPayload): Promise<AxiosResponse<OntimeRundownEntry>> {
   return axios.post(rundownPath, data);
 }
 
 /**
  * HTTP request to put new event
  */
-export async function requestPutEvent(data: Partial<OntimeEntry>): Promise<AxiosResponse<OntimeEntry>> {
+export async function requestPutEvent(data: Partial<OntimeRundownEntry>): Promise<AxiosResponse<OntimeRundownEntry>> {
   return axios.put(rundownPath, data);
 }
 
@@ -63,7 +48,7 @@ export type ReorderEntry = {
 /**
  * HTTP request to reorder events
  */
-export async function requestReorderEvent(data: ReorderEntry): Promise<AxiosResponse<OntimeEntry>> {
+export async function requestReorderEvent(data: ReorderEntry): Promise<AxiosResponse<OntimeRundownEntry>> {
   return axios.patch(`${rundownPath}/reorder`, data);
 }
 

@@ -6,7 +6,7 @@
 import { Request, Response } from 'express';
 import { readFileSync } from 'fs';
 
-import type { AuthenticationStatus, CustomFields, ErrorResponse, Rundown } from 'ontime-types';
+import type { AuthenticationStatus, CustomFields, ErrorResponse, OntimeRundown } from 'ontime-types';
 
 import { deleteFile } from '../../utils/parserUtils.js';
 import {
@@ -87,7 +87,7 @@ export async function readFromSheet(
   req: Request,
   res: Response<
     | {
-        rundown: Rundown;
+        rundown: OntimeRundown;
         customFields: CustomFields;
       }
     | ErrorResponse

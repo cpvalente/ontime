@@ -7,4 +7,4 @@ export type CustomField = {
 };
 
 export type CustomFields = Record<CustomFieldLabel, CustomField>;
-export type EntryCustomFields = Record<CustomFieldLabel, string>;
+export type EventCustomFields = Record<CustomFieldLabel, string>;

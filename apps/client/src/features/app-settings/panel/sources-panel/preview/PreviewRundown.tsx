@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { IoLink } from 'react-icons/io5';
-import { CustomFields, isOntimeBlock, isOntimeEvent, Rundown } from 'ontime-types';
+import { CustomFields, isOntimeBlock, isOntimeEvent, OntimeRundown } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import Tag from '../../../../../common/components/tag/Tag';
@@ -10,7 +10,7 @@ import * as Panel from '../../../panel-utils/PanelUtils';
 import style from './PreviewRundown.module.scss';
 
 interface PreviewRundownProps {
-  rundown: Rundown;
+  rundown: OntimeRundown;
   customFields: CustomFields;
 }
 
@@ -53,76 +53,75 @@ export default function PreviewRundown(props: PreviewRundownProps) {
         </tr>
       </thead>
       <tbody>
-        {rundown.order.map((entryId) => {
-          const entry = rundown.entries[entryId];
-          if (isOntimeBlock(entry)) {
+        {rundown.map((event) => {
+          if (isOntimeBlock(event)) {
             return (
-              <tr key={entry.id}>
+              <tr key={event.id}>
                 <td className={style.center}>
                   <Tag>-</Tag>
                 </td>
                 <td className={style.center}>
-                  <Tag>{entry.type}</Tag>
+                  <Tag>{event.type}</Tag>
                 </td>
                 <td />
-                <td colSpan={99}>{entry.title}</td>
+                <td colSpan={99}>{event.title}</td>
               </tr>
             );
           }
-          if (!isOntimeEvent(entry)) {
+          if (!isOntimeEvent(event)) {
             return null;
           }
           eventIndex += 1;
-          const colour = entry.colour ? getAccessibleColour(entry.colour) : {};
-          const countToEnd = booleanToText(entry.countToEnd);
-          const isPublic = booleanToText(entry.isPublic);
-          const skip = booleanToText(entry.skip);
+          const colour = event.colour ? getAccessibleColour(event.colour) : {};
+          const countToEnd = booleanToText(event.countToEnd);
+          const isPublic = booleanToText(event.isPublic);
+          const skip = booleanToText(event.skip);
 
           return (
-            <Fragment key={entry.id}>
+            <Fragment key={event.id}>
               <tr>
                 <td className={style.center}>
                   <Tag>{eventIndex}</Tag>
                 </td>
                 <td className={style.center}>
-                  <Tag>{entry.type}</Tag>
+                  <Tag>{event.type}</Tag>
                 </td>
-                <td className={style.nowrap}>{entry.cue}</td>
-                <td>{entry.title}</td>
+                <td className={style.nowrap}>{event.cue}</td>
+                <td>{event.title}</td>
                 <td className={style.flex}>
-                  <span className={entry.linkStart ? style.subdued : undefined}>{millisToString(entry.timeStart)}</span>
-                  {entry.linkStart && <IoLink className={style.linkStartActive} />}
+                  <span className={event.linkStart ? style.subdued : undefined}>{millisToString(event.timeStart)}</span>
+                  {event.linkStart && <IoLink className={style.linkStartActive} />}
                 </td>
-                <td>{millisToString(entry.timeEnd)}</td>
-                <td>{millisToString(entry.duration)}</td>
-                <td>{millisToString(entry.timeWarning)}</td>
-                <td>{millisToString(entry.timeDanger)}</td>
+                <td>{millisToString(event.timeEnd)}</td>
+                <td>{millisToString(event.duration)}</td>
+                <td>{millisToString(event.timeWarning)}</td>
+                <td>{millisToString(event.timeDanger)}</td>
                 <td className={style.center}>{countToEnd && <Tag>{countToEnd}</Tag>}</td>
                 <td className={style.center}>{isPublic && <Tag>{isPublic}</Tag>}</td>
                 <td>{skip && <Tag>{skip}</Tag>}</td>
-                <td style={{ ...colour }}>{entry.colour}</td>
+                <td style={{ ...colour }}>{event.colour}</td>
                 <td className={style.center}>
-                  <Tag>{entry.timerType}</Tag>
+                  <Tag>{event.timerType}</Tag>
                 </td>
                 <td className={style.center}>
-                  <Tag>{entry.endAction}</Tag>
+                  <Tag>{event.endAction}</Tag>
                 </td>
-                {isOntimeEvent(entry) &&
+                {isOntimeEvent(event) &&
                   fieldKeys.map((field) => {
                     let value = '';
-                    if (field in entry.custom) {
-                      value = entry.custom[field];
+                    if (field in event.custom) {
+                      value = event.custom[field];
                     }
                     return <td key={field}>{value}</td>;
                   })}
                 <td className={style.center}>
-                  <Tag>{entry.id}</Tag>
+                  <Tag>{event.id}</Tag>
                 </td>
               </tr>
-              {entry.note && (
+              {event.note && (
                 <tr>
                   <td colSpan={99} className={style.secondaryRow}>
-                    Note: {entry.note}
+                    Note: {event.note}
                   </td>
                 </tr>
               )}

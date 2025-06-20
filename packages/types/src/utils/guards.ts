@@ -1,10 +1,10 @@
 import type { AutomationOutput, HTTPOutput, OntimeAction, OSCOutput } from '../definitions/core/Automation.type.js';
 import type { OntimeBlock, OntimeDelay, OntimeEvent, PlayableEvent } from '../definitions/core/OntimeEvent.type.js';
 import { SupportedEvent } from '../definitions/core/OntimeEvent.type.js';
-import type { OntimeEntry } from '../definitions/core/Rundown.type.js';
+import type { OntimeRundownEntry } from '../definitions/core/Rundown.type.js';
 import { type TimerLifeCycle, timerLifecycleValues } from '../definitions/core/TimerLifecycle.type.js';
 
-type MaybeEvent = OntimeEntry | Partial<OntimeEntry> | null | undefined;
+type MaybeEvent = OntimeRundownEntry | Partial<OntimeRundownEntry> | null | undefined;
 
 export function isOntimeEvent(event: MaybeEvent): event is OntimeEvent {
   return event?.type === SupportedEvent.Event;

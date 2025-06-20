@@ -4,7 +4,7 @@
  * @link https://developers.google.com/identity/protocols/oauth2/limited-input-device
  */
 
-import { AuthenticationStatus, CustomFields, DatabaseModel, LogOrigin, MaybeString, Rundown } from 'ontime-types';
+import { AuthenticationStatus, CustomFields, LogOrigin, MaybeString, OntimeRundown } from 'ontime-types';
 import { ImportMap, getErrorMessage } from 'ontime-utils';
 
 import { sheets, type sheets_v4 } from '@googleapis/sheets';
@@ -13,8 +13,8 @@ import got from 'got';
 
 import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
-import { parseRundowns } from '../../utils/parserFunctions.js';
-import { getCurrentRundown, getRundownOrThrow } from '../rundown-service/rundownUtils.js';
+import { parseRundown } from '../../utils/parserFunctions.js';
+import { getRundown } from '../rundown-service/rundownUtils.js';
 import { getCustomFields } from '../rundown-service/rundownCache.js';
 
 import { cellRequestFromEvent, type ClientSecret, getA1Notation, validateClientSecret } from './sheetUtils.js';
@@ -292,8 +292,8 @@ export async function upload(sheetId: string, options: ImportMap) {
     throw new Error(`Sheet read failed: ${readResponse.statusText}`);
   }
 
-  const { rundownMetadata } = parseExcel(readResponse.data.values, getCustomFields(), 'not-used', options);
-  const rundown = getCurrentRundown();
+  const { rundownMetadata } = parseExcel(readResponse.data.values, getCustomFields(), options);
+  const rundown = getRundown();
   const titleRow = Object.values(rundownMetadata)[0]['row'];
   const updateRundown = Array<sheets_v4.Schema$Request>();
 
@@ -322,17 +322,16 @@ export async function upload(sheetId: string, options: ImportMap) {
       range: {
         dimension: 'ROWS',
         startIndex: titleRow + 1,
-        endIndex: titleRow + rundown.order.length,
+        endIndex: titleRow + rundown.length,
         sheetId: worksheetId,
       },
     },
   });
 
   // update the corresponding row with event data
-  rundown.order.forEach((entryId, index) => {
-    const entry = rundown.entries[entryId];
-    return updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, rundownMetadata));
-  });
+  rundown.forEach((entry, index) =>
+    updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, rundownMetadata)),
+  );
 
   const writeResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.batchUpdate({
     spreadsheetId: sheetId,
@@ -354,7 +353,7 @@ export async function download(
   sheetId: string,
   options: ImportMap,
 ): Promise<{
-  rundown: Rundown;
+  rundown: OntimeRundown;
   customFields: CustomFields;
 }> {
   const { range } = await verifyWorksheet(sheetId, options.worksheet);
@@ -370,19 +369,10 @@ export async function download(
     throw new Error(`Sheet read failed: ${googleResponse.statusText}`);
   }
 
-  const dataFromSheet = parseExcel(googleResponse.data.values, getCustomFields(), 'Rundown', options);
-
-  const rundownId = dataFromSheet.rundown.id;
-  const dataModel: Pick<DatabaseModel, 'rundowns' | 'customFields'> = {
-    rundowns: {
-      [rundownId]: dataFromSheet.rundown,
-    },
-    customFields: dataFromSheet.customFields,
-  };
-  const { customFields, rundowns } = parseRundowns(dataModel);
-  const rundown = getRundownOrThrow(rundowns, rundownId);
-  if (rundown.order.length < 1) {
+  const dataFromSheet = parseExcel(googleResponse.data.values, getCustomFields(), options);
+  const { customFields, rundown } = parseRundown(dataFromSheet);
+  if (rundown.length < 1) {
     throw new Error('Sheet: Could not find data to import in the worksheet');
   }
-  return { rundown: rundowns[rundownId], customFields };
+  return { rundown, customFields };
 }

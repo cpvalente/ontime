@@ -1,41 +1,38 @@
-import { Rundown, EntryId, isOntimeDelay, isOntimeEvent, OntimeEvent } from 'ontime-types';
+import { OntimeRundown, isOntimeDelay, isOntimeEvent, OntimeEvent } from 'ontime-types';
 import { deleteAtIndex } from 'ontime-utils';
 
 /**
  * Applies delay from given event ID, deletes the delay event after
- * Mutates the given rundown
- * @throws if event ID not found or is not a delay
+ * @throws {Error} if event ID not found or is not a delay
  */
-export function apply(delayId: EntryId, rundown: Rundown): Rundown {
-  const delayEvent = rundown.entries[delayId];
+export function apply(eventId: string, rundown: OntimeRundown): OntimeRundown {
+  const delayIndex = rundown.findIndex((event) => event.id === eventId);
+  const delayEvent = rundown.at(delayIndex);
 
-  if (!delayEvent || !isOntimeDelay(delayEvent)) {
-    throw new Error('Given delay ID not found');
+  if (!delayEvent) {
+    throw new Error('Given event ID not found');
   }
 
-  const delayIndex = rundown.order.findIndex((entryId) => entryId === delayId);
+  if (!isOntimeDelay(delayEvent)) {
+    throw new Error('Given event ID is not a delay');
+  }
 
-  // if the delay is empty, or the last element
-  // we can just delete it with no further operations
-  if (delayEvent.duration === 0 || delayIndex === rundown.order.length - 1) {
-    delete rundown.entries[delayId];
-    rundown.order = deleteAtIndex(delayIndex, rundown.order);
-    return rundown;
+  // if the delay is empty, or the last element, we can just delete it
+  if (delayEvent.duration === 0 || delayIndex === rundown.length - 1) {
+    return deleteAtIndex(delayIndex, rundown);
   }
 
   /**
    * We apply the delay to the rundown
    * This logic is mostly in sync with rundownCache.generate
-   * The difference is that here it will become part of the schedule,
-   * so we cant leave the work for the generate function
    */
+  const updatedRundown = structuredClone(rundown);
   let delayValue = delayEvent.duration;
   let lastEntry: OntimeEvent | null = null;
   let isFirstEvent = true;
 
-  for (let i = delayIndex + 1; i < rundown.order.length; i++) {
-    const currentId = rundown.order[i];
-    const currentEntry = rundown.entries[currentId];
+  for (let i = delayIndex + 1; i < updatedRundown.length; i++) {
+    const currentEntry = updatedRundown[i];
 
     // we don't do operation on other event types
     if (!isOntimeEvent(currentEntry)) {
@@ -80,9 +77,5 @@ export function apply(delayId: EntryId, rundown: Rundown): Rundown {
     currentEntry.revision += 1;
   }
 
-  delete rundown.entries[delayId];
-  rundown.order = deleteAtIndex(delayIndex, rundown.order);
-  rundown.revision += 1;
-
-  return rundown;
+  return deleteAtIndex(delayIndex, updatedRundown);
 }

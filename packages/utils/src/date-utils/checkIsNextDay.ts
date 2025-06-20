@@ -7,7 +7,7 @@ import { dayInMs } from './conversionUtils.js';
  */
 export function checkIsNextDay(
   current: Pick<OntimeEvent, 'timeStart' | 'dayOffset'>,
-  previous: Pick<OntimeEvent, 'timeStart' | 'duration' | 'dayOffset'> | null,
+  previous?: Pick<OntimeEvent, 'timeStart' | 'duration' | 'dayOffset'>,
 ): boolean {
   if (!previous) {
     return false;

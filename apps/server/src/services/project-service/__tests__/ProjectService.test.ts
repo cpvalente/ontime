@@ -44,12 +44,12 @@ describe('duplicateProjectFile', () => {
     await expect(duplicateProjectFile('does not exist', 'doesnt matter')).rejects.toThrow('Project file not found');
   });
 
-  it('throws an error if new file name is already a project', async () => {
+  it('throws an error if new file name is already a project', () => {
     // current project exists
     (doesProjectExist as Mock).mockReturnValueOnce('thisoneexists');
     // new project exists
     (doesProjectExist as Mock).mockReturnValueOnce('existingproject');
-    await expect(duplicateProjectFile('thisoneexists', 'existingproject')).rejects.toThrow(
+    expect(duplicateProjectFile('thisoneexists', 'existingproject')).rejects.toThrow(
       'Project file with name existingproject already exists',
     );
   });
@@ -66,7 +66,7 @@ describe('renameProjectFile', () => {
     (doesProjectExist as Mock).mockReturnValueOnce('this one exists');
     // new project exists
     (doesProjectExist as Mock).mockReturnValueOnce('existingproject');
-    await expect(renameProjectFile('this one exists', 'existingproject')).rejects.toThrow(
+    expect(renameProjectFile('this one exists', 'existingproject')).rejects.toThrow(
       'Project file with name existingproject already exists',
     );
   });

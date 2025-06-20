@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { isOntimeEvent, OntimeEntry, OntimeEvent } from 'ontime-types';
+import { isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 
 import { usePartialRundown } from '../../../common/hooks-query/useRundown';
 
@@ -36,7 +36,7 @@ export const ScheduleProvider = ({
   isBackstage = false,
 }: PropsWithChildren<ScheduleProviderProps>) => {
   const { cycleInterval, stopCycle } = useScheduleOptions();
-  const { data: events } = usePartialRundown((event: OntimeEntry) => {
+  const { data: events } = usePartialRundown((event: OntimeRundownEntry) => {
     if (isBackstage) {
       return isOntimeEvent(event);
     }

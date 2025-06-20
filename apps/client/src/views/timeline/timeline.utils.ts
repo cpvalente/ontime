@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { isOntimeEvent, isPlayableEvent, MaybeString, OntimeEntry, OntimeEvent, PlayableEvent } from 'ontime-types';
+import { isOntimeEvent, isPlayableEvent, MaybeString, OntimeEvent, OntimeRundown, PlayableEvent } from 'ontime-types';
 import {
   dayInMs,
   getEventWithId,
@@ -87,7 +87,7 @@ interface ScopedRundownData {
   totalDuration: number;
 }
 
-export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeString): ScopedRundownData {
+export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeString): ScopedRundownData {
   const [searchParams] = useSearchParams();
 
   const data = useMemo(() => {
@@ -102,7 +102,7 @@ export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeS
     let selectedIndex = selectedEventId ? Infinity : -1;
     let firstStart = null;
     let totalDuration = 0;
-    let lastEntry: PlayableEvent | null = null;
+    let lastEntry: PlayableEvent | undefined;
 
     for (let i = 0; i < rundown.length; i++) {
       const currentEntry = rundown[i];
@@ -164,7 +164,7 @@ type UpcomingEvents = {
 /**
  * Returns upcoming events from current: now, next and followedBy
  */
-export function getUpcomingEvents(events: PlayableEvent[], selectedId: MaybeString): UpcomingEvents {
+export function getUpcomingEvents(events: OntimeRundown, selectedId: MaybeString): UpcomingEvents {
   if (events.length === 0) {
     return { now: null, next: null, followedBy: null };
   }

@@ -2,7 +2,7 @@ import {
   CustomFields,
   EndAction,
   OntimeEvent,
-  RundownEntries,
+  OntimeRundown,
   SupportedEvent,
   TimeStrategy,
   TimerType,
@@ -10,25 +10,46 @@ import {
 import {
   addToCustomAssignment,
   calculateDayOffset,
+  getLink,
   handleCustomField,
   handleLink,
   hasChanges,
   isDataStale,
 } from '../rundownCacheUtils.js';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
-import { makeOntimeBlock, makeOntimeEvent } from '../__mocks__/rundown.mocks.js';
+
+describe('getLink()', () => {
+  it('should return null if there is no link', () => {
+    const rundown = [
+      { type: SupportedEvent.Block, id: 'block' },
+      { type: SupportedEvent.Event, id: '1' },
+    ] as OntimeRundown;
+
+    const result = getLink(1, rundown);
+    expect(result).toBeNull();
+  });
+
+  it('returns previous event', () => {
+    const rundown = [
+      { type: SupportedEvent.Event, id: '1', timeEnd: 100 },
+      { type: SupportedEvent.Event, id: '2', timeStart: 0, linkStart: '1' },
+    ] as OntimeRundown;
+
+    const result = getLink(1, rundown);
+    expect(result.id).toBe('1');
+  });
+});
 
 describe('handleLink()', () => {
   it('populates data in object and updates link map', () => {
-    const entries: RundownEntries = {
-      '1': makeOntimeEvent({ id: '1', timeEnd: 100 }),
-      '2': makeOntimeEvent({ id: '2', timeStart: 0, linkStart: '1' }),
-    };
-
-    const mutableEvent = { ...entries[2] } as OntimeEvent;
+    const rundown = [
+      { type: SupportedEvent.Event, id: '1', timeEnd: 100 },
+      { type: SupportedEvent.Event, id: '2', timeStart: 0, linkStart: '1' },
+    ] as OntimeRundown;
+    const mutableEvent = { ...rundown[1] } as OntimeEvent;
     const links = {};
 
-    const result = handleLink(mutableEvent, entries[1] as OntimeEvent, links);
+    const result = handleLink(1, rundown, mutableEvent, links);
     expect(result).toBeUndefined();
     expect(mutableEvent.timeStart).toBe(100);
     expect(mutableEvent.linkStart).toBe('1');
@@ -36,17 +57,17 @@ describe('handleLink()', () => {
   });
 
   it('removes link if linked event is not found', () => {
-    const entries: RundownEntries = {
-      '1': makeOntimeBlock({ id: '1' }),
-      '2': makeOntimeEvent({ id: '2', timeStart: 0, linkStart: '1' }),
-    };
-    const mutableEvent = { ...entries[2] } as OntimeEvent;
+    const rundown = [
+      { type: SupportedEvent.Block, id: '1' },
+      { type: SupportedEvent.Event, id: '2', timeStart: 0, linkStart: '1' },
+    ] as OntimeRundown;
+    const mutableEvent = { ...rundown[1] } as OntimeEvent;
     const links = {};
 
-    const result = handleLink(mutableEvent, null, links);
+    const result = handleLink(1, rundown, mutableEvent, links);
     expect(result).toBeUndefined();
     expect(mutableEvent.timeStart).toBe(0);
-    expect(mutableEvent.linkStart).toBe('true');
+    expect(mutableEvent.linkStart).toBe(null);
     expect(links).toStrictEqual({});
   });
 });
@@ -231,7 +252,7 @@ describe('hasChanges()', () => {
 
 describe('calculateDayOffset', () => {
   it('returns 0 if there is no previous event', () => {
-    expect(calculateDayOffset({ timeStart: 0 }, null)).toBe(0);
+    expect(calculateDayOffset({ timeStart: 0 })).toBe(0);
   });
 
   it('returns 0 if the previous event duration is 0', () => {

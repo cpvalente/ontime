@@ -2,12 +2,12 @@ import { CSSProperties, ReactNode } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Header } from '@tanstack/react-table';
-import { OntimeEntry } from 'ontime-types';
+import { OntimeRundownEntry } from 'ontime-types';
 
 import styles from '../CuesheetTable.module.scss';
 
 interface SortableCellProps {
-  header: Header<OntimeEntry, unknown>;
+  header: Header<OntimeRundownEntry, unknown>;
   style: CSSProperties;
   children: ReactNode;
 }

@@ -1,20 +1,26 @@
 import {
   CurrentBlockState,
-  EntryId,
   isPlayableEvent,
   MaybeNumber,
   MaybeString,
-  OntimeBlock,
+  OffsetMode,
   OntimeEvent,
+  OntimeRundown,
   PlayableEvent,
   Playback,
-  Rundown,
   Runtime,
   runtimeStorePlaceholder,
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import { calculateDuration, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
+import {
+  calculateDuration,
+  checkIsNow,
+  dayInMs,
+  filterTimedEvents,
+  getPreviousBlock,
+  isPlaybackActive,
+} from 'ontime-utils';
 
 import { timeNow } from '../utils/time.js';
 import type { RestorePoint } from '../services/RestoreService.js';
@@ -27,7 +33,6 @@ import {
 } from '../services/timerUtils.js';
 import { timerConfig } from '../config/config.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
-import { filterTimedEvents } from '../services/rundown-service/rundownUtils.js';
 
 export type RuntimeState = {
   clock: number; // realtime clock
@@ -178,23 +183,19 @@ export function updateRundownData(rundownData: RundownData) {
  */
 export function load(
   event: PlayableEvent,
-  rundown: Rundown,
-  timedEventsOrder: EntryId[],
+  rundown: OntimeRundown,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
   clearEventData();
 
-  if (timedEventsOrder.length === 0 || !isPlayableEvent(event)) {
-    return false;
-  }
-
   // filter rundown
-  const eventIndex = timedEventsOrder.findIndex((timedEventId) => timedEventId === event.id);
-  if (eventIndex === -1) {
+  const timedEvents = filterTimedEvents(rundown);
+  const eventIndex = timedEvents.findIndex((eventInMemory) => eventInMemory.id === event.id);
+
+  if (timedEvents.length === 0 || eventIndex === -1 || !isPlayableEvent(event)) {
     return false;
   }
 
-  const timedEvents = filterTimedEvents(rundown, timedEventsOrder);
   // load events in memory along with their data
   loadNow(timedEvents, eventIndex);
   loadNext(timedEvents, eventIndex);
@@ -311,8 +312,8 @@ export function loadNext(
 /**
  * Resume from restore point
  */
-export function resume(restorePoint: RestorePoint, event: PlayableEvent, rundown: Rundown, timedEventOrder: EntryId[]) {
-  load(event, rundown, timedEventOrder, restorePoint);
+export function resume(restorePoint: RestorePoint, event: PlayableEvent, rundown: OntimeRundown) {
+  load(event, rundown, restorePoint);
 }
 
 /**
@@ -372,8 +373,8 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
 /**
  * Used in situations when we want to hot-reload all events without interrupting timer
  */
-export function updateAll(rundown: Rundown, timedEventsOrder: EntryId[]) {
-  const timedEvents = filterTimedEvents(rundown, timedEventsOrder);
+export function updateAll(rundown: OntimeRundown) {
+  const timedEvents = filterTimedEvents(rundown);
   loadNow(timedEvents);
   loadNext(timedEvents);
   updateLoaded(runtimeState.eventNow ?? undefined);
@@ -387,7 +388,6 @@ export function start(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Play) {
     return false;
   }
-
   state.clock = timeNow();
   state.timer.secondaryTimer = null;
 
@@ -576,11 +576,7 @@ export function update(): UpdateResult {
   }
 }
 
-export function roll(
-  rundown: Rundown,
-  timedEventOrder: EntryId[],
-  offset = 0,
-): { eventId: MaybeString; didStart: boolean } {
+export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString; didStart: boolean } {
   // 1. if an event is running, we simply take over the playback
   if (runtimeState.timer.playback === Playback.Play && runtimeState.runtime.selectedEventIndex !== null) {
     runtimeState.timer.playback = Playback.Roll;
@@ -637,7 +633,7 @@ export function roll(
   }
 
   // 3. if there is no event running, we need to find the next event
-  const timedEvents = filterTimedEvents(rundown, timedEventOrder);
+  const timedEvents = filterTimedEvents(rundown);
   if (timedEvents.length === 0) {
     throw new Error('No playable events found');
   }
@@ -713,8 +709,9 @@ export function roll(
 
 /**
  * handle block loading, not for use outside of runtimeState
+ * @param rundown
  */
-export function loadBlock(rundown: Rundown, state = runtimeState) {
+export function loadBlock(rundown: OntimeRundown, state = runtimeState) {
   if (state.eventNow === null) {
     // we need a loaded event to have a block
     state.currentBlock.block = null;
@@ -722,19 +719,17 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
     return;
   }
 
-  const currentBlockId = state.eventNow.currentBlock;
+  const newCurrentBlock = getPreviousBlock(rundown, state.eventNow.id);
 
   // update time only if the block has changed
-  if (state.currentBlock.block?.id != currentBlockId) {
+  if (state.currentBlock.block?.id !== newCurrentBlock?.id) {
     state.currentBlock.startedAt = null;
   }
 
   // update the block anyway
-  if (currentBlockId === null) {
-    state.currentBlock.block = null;
-    return;
-  }
+  state.currentBlock.block = newCurrentBlock === null ? null : { ...newCurrentBlock };
+}
 
-  const currentBlock = rundown.entries[currentBlockId];
-  state.currentBlock.block = currentBlock as OntimeBlock;
+export function setOffsetMode(mode: OffsetMode) {
+  runtimeState.runtime.offsetMode = mode;
 }

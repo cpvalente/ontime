@@ -1,5 +1,5 @@
 import { MouseEvent } from 'react';
-import { isOntimeEvent, MaybeNumber, MaybeString, OntimeEvent, Rundown } from 'ontime-types';
+import { isOntimeEvent, MaybeNumber, MaybeString, OntimeEvent, RundownCached } from 'ontime-types';
 import { create } from 'zustand';
 
 import { RUNDOWN } from '../../common/api/constants';
@@ -33,7 +33,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
 
     // on ctrl + click, we toggle the selection of that event
     if (selectMode === 'ctrl') {
-      const rundownData = ontimeQueryClient.getQueryData<Rundown>(RUNDOWN);
+      const rundownData = ontimeQueryClient.getQueryData<RundownCached>(RUNDOWN);
       if (!rundownData) return;
 
       // if it doesnt exist, simply add to the list and set an anchor
@@ -50,7 +50,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       selectedEvents.delete(id);
 
       const nextIndex = rundownData.order.findIndex(
-        (eventId, i) => i > index && isOntimeEvent(rundownData.entries[eventId]) && selectedEvents.has(eventId),
+        (eventId, i) => i > index && isOntimeEvent(rundownData.rundown[eventId]) && selectedEvents.has(eventId),
       );
 
       // if we didnt find anything after, set the anchor to the last event
@@ -62,13 +62,13 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
 
     // on shift + click, we select a range of events up to the clicked event
     if (selectMode === 'shift') {
-      const rundownData = ontimeQueryClient.getQueryData<Rundown>(RUNDOWN);
+      const rundownData = ontimeQueryClient.getQueryData<RundownCached>(RUNDOWN);
       if (!rundownData) return;
 
       // get list of rundown with only ontime events
       const events: OntimeEvent[] = [];
       rundownData.order.forEach((eventId) => {
-        const event = rundownData.entries[eventId];
+        const event = rundownData.rundown[eventId];
         if (isOntimeEvent(event)) {
           events.push(event);
         }

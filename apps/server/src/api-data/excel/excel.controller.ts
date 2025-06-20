@@ -5,7 +5,6 @@
 
 import type { Request, Response } from 'express';
 import { generateRundownPreview, listWorksheets, saveExcelFile } from './excel.service.js';
-import { CustomFields, Rundown } from 'ontime-types';
 
 export async function postExcel(req: Request, res: Response) {
   try {
@@ -30,10 +29,7 @@ export async function getWorksheets(req: Request, res: Response) {
  * parses an Excel spreadsheet
  * @returns parsed result
  */
-export async function previewExcel(
-  req: Request,
-  res: Response<{ rundown: Rundown; customFields: CustomFields } | { message: string }>,
-) {
+export async function previewExcel(req: Request, res: Response) {
   try {
     const { options } = req.body;
     const data = generateRundownPreview(options);

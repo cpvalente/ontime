@@ -4,14 +4,13 @@ import {
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
-  OntimeEntry,
+  OntimeRundownEntry,
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
+  OntimeRundown,
   PatchWithId,
   EventPostPayload,
-  Rundown,
-  EntryId,
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
 
@@ -23,6 +22,7 @@ import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import * as cache from './rundownCache.js';
+import { getPlayableEvents, getTimedEvents } from './rundownUtils.js';
 
 type CompleteEntry<T> =
   T extends Partial<OntimeEvent>
@@ -33,23 +33,15 @@ type CompleteEntry<T> =
         ? OntimeBlock
         : never;
 
-/**
- * Generates a fully formed RundownEntry of the patch type
- */
 function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>>(
   eventData: T,
   afterId?: string,
 ): CompleteEntry<T> {
-  // TODO: could we keep the UI ID to avoid the flash on create?
   // we discard any UI provided IDs and add our own
   const id = cache.getUniqueId();
 
   if (isOntimeEvent(eventData)) {
-    const currentRundown = cache.getCurrentRundown();
-    return createEvent(
-      eventData,
-      getCueCandidate(currentRundown.entries, currentRundown.order, afterId),
-    ) as CompleteEntry<T>;
+    return createEvent(eventData, getCueCandidate(cache.getPersistedRundown(), afterId)) as CompleteEntry<T>;
   }
 
   if (isOntimeDelay(eventData)) {
@@ -64,17 +56,19 @@ function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | P
 }
 
 /**
- * creates a new event with given data
+ * @description creates a new event with given data
+ * @param {object} eventData
+ * @return {OntimeRundownEntry}
  */
-export async function addEvent(eventData: EventPostPayload): Promise<OntimeEntry> {
+export async function addEvent(eventData: EventPostPayload): Promise<OntimeRundownEntry> {
   // if the user didnt provide an index, we add the event to start
   let atIndex = 0;
   let afterId: string | undefined = eventData?.after;
 
-  if (afterId) {
-    const previousIndex = cache.getIndexOf(afterId);
+  if (eventData?.after !== undefined) {
+    const previousIndex = cache.getIndexOf(eventData.after);
     if (previousIndex < 0) {
-      logger.warning(LogOrigin.Server, `Could not find event with id ${afterId}`);
+      logger.warning(LogOrigin.Server, `Could not find event with id ${eventData.after}`);
     } else {
       atIndex = previousIndex + 1;
     }
@@ -85,7 +79,7 @@ export async function addEvent(eventData: EventPostPayload): Promise<OntimeEntry
     } else {
       atIndex = previousIndex;
       if (previousIndex > 0) {
-        afterId = cache.getIdOf(atIndex - 1);
+        afterId = cache.getPersistedRundown()[atIndex - 1].id;
       }
     }
   }
@@ -101,14 +95,14 @@ export async function addEvent(eventData: EventPostPayload): Promise<OntimeEntry
   updateRuntimeOnChange();
 
   // notify timer and external services of change
-  notifyChanges({ timer: [eventToAdd.id], external: true });
+  notifyChanges({ timer: [eventData.id], external: true });
 
-  // we know this mutation returns an OntimeEntry
-  return newEvent as OntimeEntry;
+  return newEvent;
 }
 
 /**
  * deletes event by its ID
+ * @param eventId
  */
 export async function deleteEvent(eventIds: string[]) {
   const scopedMutation = cache.mutateCache(cache.remove);
@@ -200,9 +194,9 @@ export async function reorderEvent(eventId: string, from: number, to: number) {
   return reorderedItem;
 }
 
-export async function applyDelay(delayId: EntryId) {
+export async function applyDelay(eventId: string) {
   const scopedMutation = cache.mutateCache(cache.applyDelay);
-  await scopedMutation({ delayId });
+  await scopedMutation({ eventId });
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();
@@ -233,8 +227,8 @@ export async function swapEvents(from: string, to: string) {
  * Called when we make changes to the rundown object
  */
 function updateRuntimeOnChange() {
-  const { timedEventsOrder } = cache.getEventOrder();
-  const numEvents = timedEventsOrder.length;
+  const timedEvents = getTimedEvents();
+  const numEvents = timedEvents.length;
   const metadata = cache.getMetadata();
 
   // schedule an update for the end of the event loop
@@ -257,9 +251,9 @@ type NotifyChangesOptions = {
  */
 function notifyChanges(options: NotifyChangesOptions) {
   if (options.timer) {
-    const { playableEventsOrder } = cache.getEventOrder();
+    const playableEvents = getPlayableEvents();
 
-    if (playableEventsOrder.length === 0) {
+    if (playableEvents.length === 0) {
       runtimeService.stop();
     } else {
       // notify timer service of changed events
@@ -285,7 +279,7 @@ function notifyChanges(options: NotifyChangesOptions) {
  * Overrides the rundown with the given
  * @param rundown
  */
-export async function initRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
+export async function initRundown(rundown: Readonly<OntimeRundown>, customFields: Readonly<CustomFields>) {
   await cache.init(rundown, customFields);
 
   // notify runtime that rundown has changed

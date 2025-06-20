@@ -8,7 +8,7 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
   const deepNewData = structuredClone(newData);
 
   const {
-    rundowns = {},
+    rundown = deepExisting.rundown,
     project = {},
     settings = {},
     viewSettings = {},
@@ -19,7 +19,7 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
 
   return {
     ...deepExisting,
-    rundowns: { ...existing.rundowns, ...rundowns },
+    rundown,
     project: { ...deepExisting.project, ...project },
     settings: { ...deepExisting.settings, ...settings },
     viewSettings: { ...deepExisting.viewSettings, ...viewSettings },
