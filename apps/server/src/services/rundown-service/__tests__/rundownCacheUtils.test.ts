@@ -14,7 +14,7 @@ import {
   handleLink,
   hasChanges,
   isDataStale,
-} from '../rundownCache.utils.js';
+} from '../rundownCacheUtils.js';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 import { makeOntimeBlock, makeOntimeEvent } from '../__mocks__/rundown.mocks.js';
 
