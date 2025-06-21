@@ -16,6 +16,9 @@ export default function useViewSettings() {
 
   const { mutateAsync } = useMutation({
     mutationFn: postViewSettings,
+    onMutate: () => {
+      ontimeQueryClient.cancelQueries({ queryKey: VIEW_SETTINGS });
+    },
     onSuccess: (data) => {
       ontimeQueryClient.setQueryData(VIEW_SETTINGS, data);
     },
