@@ -18,7 +18,6 @@ import { customFieldLabelToKey } from 'ontime-utils';
 import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
 import { versionCheck } from './versionCheck.js';
 import { ErrorEmitter } from '../../../utils/parserUtils.js';
-import { skip } from 'node:test';
 
 /**
  * Changes from v3 to v4
@@ -110,7 +109,7 @@ export function migrate_v3_to_v4(jsonData: object, emitError?: ErrorEmitter): Pa
     console.log('\t..automation');
   }
 
-  let renamedCustomFields: Record<string, string> = {};
+  const renamedCustomFields: Record<string, string> = {};
   if ('customFields' in jsonData) {
     const newCustomFields: CustomFields = {};
     for (const [originalKey, field] of Object.entries(structuredClone(jsonData.customFields) as CustomFields)) {

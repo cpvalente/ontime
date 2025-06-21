@@ -1,7 +1,6 @@
 import { EndAction, SupportedEntry, TimerType, TimeStrategy } from 'ontime-types';
 import { migrate_v3_to_v4 } from './db.migration.v3.js';
 import { dbModel } from '../../../models/dataModel.js';
-import { demoDb } from '../../../models/demoProject.js';
 
 describe('v3 to v4', () => {
   test('do not touch new projects', () => {
