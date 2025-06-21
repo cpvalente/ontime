@@ -59,7 +59,7 @@ export default function Timer(props: TimerProps) {
     hideCards,
     hideProgress,
     hideMessage,
-    hideExternal,
+    hideSecondary,
     hideTimerSeconds,
     removeLeadingZeros,
     mainSource,
@@ -110,7 +110,7 @@ export default function Timer(props: TimerProps) {
     localisedMinutes,
     hideTimerSeconds,
     removeLeadingZeros,
-    hideExternal,
+    hideSecondary,
   );
 
   // gather presentation styles
