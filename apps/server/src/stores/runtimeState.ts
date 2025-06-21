@@ -609,9 +609,7 @@ export function roll(
   runtimeState.runtime.offset = offset;
   const offsetClock = runtimeState.clock + runtimeState.runtime.offset;
 
-  //TODO: improve this, for now just made to work
-  const timedEvents = metadata.timedEventOrder.map((id) => rundown.entries[id]) as OntimeEvent[];
-  const { index, isPending } = loadRoll(timedEvents, offsetClock);
+  const { index, isPending } = loadRoll(rundown, metadata, offsetClock);
 
   // load events in memory along with their data
   loadNow(rundown, metadata, index);
@@ -620,7 +618,7 @@ export function roll(
 
   // update roll state
   runtimeState.timer.playback = Playback.Roll;
-  runtimeState.runtime.numEvents = timedEvents.length;
+  runtimeState.runtime.numEvents = metadata.timedEventOrder.length;
 
   // in roll mode spec, there should always be something to load
   // as long as playableEvents is not empty
