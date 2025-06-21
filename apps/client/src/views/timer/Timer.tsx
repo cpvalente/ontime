@@ -20,6 +20,7 @@ import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, getTimerByType } from '../../features/viewers/common/viewUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
+import { getTimerColour } from '../utils/presentation.utils';
 
 import { getTimerOptions, useTimerOptions } from './timer.options';
 import {
@@ -31,7 +32,6 @@ import {
   getShowMessage,
   getShowModifiers,
   getShowProgressBar,
-  getTimerColour,
   getTotalTime,
 } from './timer.utils';
 
@@ -59,7 +59,7 @@ export default function Timer(props: TimerProps) {
     hideCards,
     hideProgress,
     hideMessage,
-    hideExternal,
+    hideSecondary,
     hideTimerSeconds,
     removeLeadingZeros,
     mainSource,
@@ -110,7 +110,7 @@ export default function Timer(props: TimerProps) {
     localisedMinutes,
     hideTimerSeconds,
     removeLeadingZeros,
-    hideExternal,
+    hideSecondary,
   );
 
   // gather presentation styles

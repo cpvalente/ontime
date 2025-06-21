@@ -14,6 +14,7 @@ import { useClientPath } from './common/hooks/useClientPath';
 import Log from './features/log/Log';
 import withPreset from './features/PresetWrapper';
 import withData from './features/viewers/ViewWrapper';
+import CountdownSelect from './views/countdown/CountdownSelect';
 import ViewLoader from './views/ViewLoader';
 import { ONTIME_VERSION } from './ONTIME_VERSION';
 import { sentryDsn, sentryRecommendedIgnore } from './sentry.config';
@@ -30,7 +31,7 @@ const Countdown = React.lazy(() => import('./views/countdown/Countdown'));
 const Backstage = React.lazy(() => import('./views/backstage/Backstage'));
 const Timeline = React.lazy(() => import('./views/timeline/TimelinePage'));
 const Lower = React.lazy(() => import('./features/viewers/lower-thirds/LowerThird'));
-const StudioClock = React.lazy(() => import('./features/viewers/studio/StudioClock'));
+const StudioClock = React.lazy(() => import('./views/studio/Studio'));
 const ProjectInfo = React.lazy(() => import('./views/project-info/ProjectInfo'));
 
 const STimer = withPreset(withData(TimerView));
@@ -49,6 +50,8 @@ const EditorFeatureWrapper = React.lazy(() => import('./features/EditorFeatureWr
 const RundownPanel = React.lazy(() => import('./features/rundown/RundownExport'));
 const TimerControl = React.lazy(() => import('./features/control/playback/TimerControlExport'));
 const MessageControl = React.lazy(() => import('./features/control/message/MessageControlExport'));
+
+CountdownSelect
 
 Sentry.init({
   dsn: sentryDsn,

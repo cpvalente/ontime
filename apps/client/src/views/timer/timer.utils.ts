@@ -103,15 +103,6 @@ export function getShowModifiers(
 }
 
 /**
- * Which colour should the timer have at a given moment
- */
-export function getTimerColour(viewSettings: ViewSettings, showWarning: boolean, showDanger: boolean) {
-  if (showWarning) return viewSettings.warningColor;
-  if (showDanger) return viewSettings.dangerColor;
-  return viewSettings.normalColor;
-}
-
-/**
  * What, if anything, should be displayed in the secondary field
  */
 export function getSecondaryDisplay(
@@ -120,9 +111,9 @@ export function getSecondaryDisplay(
   localisedMinutes: string,
   removeSeconds: boolean,
   removeLeadingZero: boolean,
-  hideExternal: boolean,
+  hideSecondary: boolean,
 ): string | undefined {
-  if (hideExternal) {
+  if (hideSecondary) {
     return;
   }
   if (message.timer.secondarySource === 'aux') {
@@ -131,8 +122,8 @@ export function getSecondaryDisplay(
       removeLeadingZero,
     });
   }
-  if (message.timer.secondarySource === 'external' && message.external) {
-    return message.external;
+  if (message.timer.secondarySource === 'secondary' && message.secondary) {
+    return message.secondary;
   }
   return;
 }

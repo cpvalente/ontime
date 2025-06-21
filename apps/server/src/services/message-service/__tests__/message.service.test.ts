@@ -1,6 +1,6 @@
 import { RuntimeStore } from 'ontime-types';
 
-import * as messageService from '../MessageService.js';
+import * as messageService from '../message.service.js';
 
 describe('MessageService', () => {
   let store: Partial<RuntimeStore>;
@@ -17,12 +17,12 @@ describe('MessageService', () => {
   it('should patch the message state', () => {
     const newState = messageService.patch({
       timer: { text: 'new text', visible: true },
-      external: 'external',
+      secondary: 'secondary',
     });
 
     expect(newState).toMatchObject({
       timer: { text: 'new text', visible: true, blackout: false, blink: false, secondarySource: null },
-      external: 'external',
+      secondary: 'secondary',
     });
   });
 
@@ -33,7 +33,7 @@ describe('MessageService', () => {
 
     expect(newState).toMatchObject({
       timer: { text: 'initial text', visible: true, blackout: false, blink: false, secondarySource: null },
-      external: '',
+      secondary: '',
     });
   });
 });

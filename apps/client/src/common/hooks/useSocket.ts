@@ -32,8 +32,8 @@ export const useTimerMessageInput = createSelector((state: RuntimeStore) => ({
 }));
 
 export const useExternalMessageInput = createSelector((state: RuntimeStore) => ({
-  text: state.message.external,
-  visible: state.message.timer.secondarySource === 'external',
+  text: state.message.secondary,
+  visible: state.message.timer.secondarySource === 'secondary',
 }));
 
 export const useMessagePreview = createSelector((state: RuntimeStore) => ({
@@ -41,7 +41,7 @@ export const useMessagePreview = createSelector((state: RuntimeStore) => ({
   blackout: state.message.timer.blackout,
   phase: state.timer.phase,
   showAuxTimer: state.message.timer.secondarySource === 'aux',
-  showExternalMessage: state.message.timer.secondarySource === 'external' && Boolean(state.message.external),
+  showSecondaryMessage: state.message.timer.secondarySource === 'secondary' && Boolean(state.message.secondary),
   showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
   timerType: state.eventNow?.timerType ?? null,
   countToEnd: state.eventNow?.countToEnd ?? false,
@@ -50,7 +50,7 @@ export const useMessagePreview = createSelector((state: RuntimeStore) => ({
 export const setMessage = {
   timerText: (payload: string) => sendSocket('message', { timer: { text: payload } }),
   timerVisible: (payload: boolean) => sendSocket('message', { timer: { visible: payload } }),
-  externalText: (payload: string) => sendSocket('message', { external: payload }),
+  secondaryMessage: (payload: string) => sendSocket('message', { secondary: payload }),
   timerBlink: (payload: boolean) => sendSocket('message', { timer: { blink: payload } }),
   timerBlackout: (payload: boolean) => sendSocket('message', { timer: { blackout: payload } }),
   timerSecondary: (payload: TimerMessage['secondarySource']) =>

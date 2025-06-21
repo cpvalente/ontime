@@ -13,8 +13,8 @@ import { DeepPartial } from 'ts-essentials';
 
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.js';
-import * as messageService from '../services/message-service/MessageService.js';
-import { validateMessage, validateTimerMessage } from '../services/message-service/messageUtils.js';
+import * as messageService from '../services/message-service/message.service.js';
+import { validateMessage, validateTimerMessage } from '../services/message-service/message.utils.js';
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
@@ -101,7 +101,7 @@ const actionHandlers: Record<ApiAction, ActionHandler> = {
 
     const patch: DeepPartial<MessageState> = {
       timer: 'timer' in payload ? validateTimerMessage(payload.timer) : undefined,
-      external: 'external' in payload ? validateMessage(payload.external) : undefined,
+      secondary: 'secondary' in payload ? validateMessage(payload.secondary) : undefined,
     };
 
     const newMessage = messageService.patch(patch);

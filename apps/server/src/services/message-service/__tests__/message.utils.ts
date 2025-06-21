@@ -1,4 +1,4 @@
-import { validateMessage, validateTimerMessage } from '../messageUtils.js';
+import { validateMessage, validateTimerMessage } from '../message.utils.js';
 
 describe('validateMessage()', () => {
   it('returns a valid Message object', () => {

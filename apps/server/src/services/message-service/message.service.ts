@@ -43,7 +43,7 @@ export function patch(patch: DeepPartial<MessageState>): MessageState {
   const newState = { ...getState() };
 
   if ('timer' in patch) newState.timer = { ...newState.timer, ...patch.timer };
-  if ('external' in patch && patch.external !== undefined) newState.external = patch.external;
+  if ('secondary' in patch && patch.secondary !== undefined) newState.secondary = patch.secondary;
 
   throttledSet('message', newState);
   return newState;

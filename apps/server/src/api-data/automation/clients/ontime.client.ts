@@ -2,7 +2,7 @@ import { LogOrigin, OntimeAction } from 'ontime-types';
 
 import { logger } from '../../../classes/Logger.js';
 import { auxTimerService } from '../../../services/aux-timer-service/AuxTimerService.js';
-import * as messageService from '../../../services/message-service/MessageService.js';
+import * as messageService from '../../../services/message-service/message.service.js';
 
 export function toOntimeAction(action: OntimeAction) {
   const actionType = action.action;

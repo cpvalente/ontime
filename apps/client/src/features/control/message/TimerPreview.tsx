@@ -12,7 +12,7 @@ import { Corner } from '../../editors/editor-utils/EditorUtils';
 import style from './MessageControl.module.scss';
 
 export default function TimerPreview() {
-  const { blink, blackout, countToEnd, phase, showAuxTimer, showExternalMessage, showTimerMessage, timerType } =
+  const { blink, blackout, countToEnd, phase, showAuxTimer, showSecondaryMessage, showTimerMessage, timerType } =
     useMessagePreview();
   const { data } = useViewSettings();
 
@@ -34,7 +34,7 @@ export default function TimerPreview() {
 
     // we need to check aux first since it takes priority
     if (showAuxTimer) return 'Aux Timer';
-    if (showExternalMessage) return 'External message';
+    if (showSecondaryMessage) return 'Secondary message';
     return null;
   })();
 

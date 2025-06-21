@@ -1,4 +1,5 @@
 import { Button } from '@chakra-ui/react';
+import { SecondarySource } from 'ontime-types';
 
 import { setMessage, useTimerViewControl } from '../../../common/hooks/useSocket';
 
@@ -9,7 +10,7 @@ import style from './MessageControl.module.scss';
 export default function TimerControlsPreview() {
   const { blackout, blink, secondarySource } = useTimerViewControl();
 
-  const toggleSecondary = (newValue: 'aux' | 'external' | null) => {
+  const toggleSecondary = (newValue: SecondarySource) => {
     if (secondarySource === newValue) {
       setMessage.timerSecondary(null);
     } else {
@@ -31,10 +32,10 @@ export default function TimerControlsPreview() {
         </Button>
         <Button
           size='sm'
-          variant={secondarySource === 'external' ? 'ontime-filled' : 'ontime-subtle'}
-          onClick={() => toggleSecondary('external')}
+          variant={secondarySource === 'secondary' ? 'ontime-filled' : 'ontime-subtle'}
+          onClick={() => toggleSecondary('secondary')}
         >
-          Show external
+          Show secondary
         </Button>
 
         <hr className={style.divider} />
