@@ -3,6 +3,7 @@ import { MaybeNumber, PlayableEvent, Rundown } from 'ontime-types';
 
 import { normaliseEndTime } from './timerUtils.js';
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
+import { getTimedIndexFromPlayableIndex } from '../api-data/rundown/rundown.utils.js';
 
 /**
  * Finds current event in a rolling rundown
@@ -59,12 +60,12 @@ export function loadRoll(
     const isFromDayBefore = normalEnd > dayInMs && timeNow < event.timeEnd;
     const hasStarted = isFromDayBefore || timeNow >= event.timeStart;
     if (hasStarted) {
-      return { event, index: playableToTimedIndex(metadata, i) };
+      return { event, index: getTimedIndexFromPlayableIndex(metadata, i) };
     }
 
     // 3. event will run in the future
     // we set the isPending flag to indicate that the event is currently playing
-    return { event, index: playableToTimedIndex(metadata, i), isPending: true };
+    return { event, index: getTimedIndexFromPlayableIndex(metadata, i), isPending: true };
   }
 
   // in case we were unable to find anything, we load the first event
@@ -77,14 +78,4 @@ export function loadRoll(
  */
 export function normaliseRollStart(start: number, clock: number) {
   return start < clock ? start + dayInMs : start;
-}
-
-/**
- * converts an index from the timedEventOrder to an index in the playableEventOrder
- * or returns null if it can not be found
- */
-function playableToTimedIndex(metadata: RundownMetadata, index: number): number {
-  const playableId = metadata.playableEventOrder[index];
-  const timedIndex = metadata.timedEventOrder.findIndex((id) => id === playableId);
-  return timedIndex;
 }

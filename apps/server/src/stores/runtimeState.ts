@@ -4,7 +4,6 @@ import {
   MaybeString,
   OffsetMode,
   OntimeBlock,
-  OntimeEvent,
   PlayableEvent,
   Playback,
   Rundown,
@@ -27,6 +26,7 @@ import {
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
+import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
 
 export type RuntimeState = {
   clock: number; // realtime clock
@@ -247,7 +247,7 @@ export function loadNext(
     runtimeState.eventNext = null;
     return;
   }
-  const nowPlayableIndex = timedToPlayableIndex(metadata, eventIndex);
+  const nowPlayableIndex = getPlayableIndexFromTimedIndex(metadata, eventIndex);
 
   if (!nowPlayableIndex || nowPlayableIndex > metadata.playableEventOrder.length - 2) {
     // we cound not find the event now or the event now is the last playable event
@@ -701,14 +701,4 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
 
 export function setOffsetMode(mode: OffsetMode) {
   runtimeState.runtime.offsetMode = mode;
-}
-
-/**
- * converts an index from the timedEventOrder to an index in the playableEventOrder
- * or returns null if it can not be found
- */
-function timedToPlayableIndex(metadata: RundownMetadata, index: number): number | null {
-  const timedId = metadata.timedEventOrder[index];
-  const playableIndex = metadata.playableEventOrder.findIndex((id) => id === timedId);
-  return playableIndex < 0 ? null : playableIndex;
 }
