@@ -1,7 +1,7 @@
 import { OffsetMode, RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage } from 'ontime-types';
 
 import { useRuntimeStore } from '../stores/runtime';
-import { socketSendJson } from '../utils/socket';
+import { sendSocket } from '../utils/socket';
 
 const createSelector =
   <T>(selector: (state: RuntimeStore) => T) =>
@@ -9,20 +9,15 @@ const createSelector =
     useRuntimeStore(selector);
 
 export const setClientRemote = {
-  setIdentify: (payload: { target: string; identify: boolean }) => socketSendJson('client', payload),
-  setRedirect: (payload: { target: string; redirect: string }) => socketSendJson('client', payload),
-  setClientName: (payload: { target: string; rename: string }) => socketSendJson('client', payload),
+  setIdentify: (payload: { target: string; identify: boolean }) => sendSocket('client', payload),
+  setRedirect: (payload: { target: string; redirect: string }) => sendSocket('client', payload),
+  setClientName: (payload: { target: string; rename: string }) => sendSocket('client', payload),
 };
 
 export const useRundownEditor = createSelector((state: RuntimeStore) => ({
   playback: state.timer.playback,
   selectedEventId: state.eventNow?.id ?? null,
   nextEventId: state.eventNext?.id ?? null,
-}));
-
-export const useOperator = createSelector((state: RuntimeStore) => ({
-  playback: state.timer.playback,
-  selectedEventId: state.eventNow?.id ?? null,
 }));
 
 export const useTimerViewControl = createSelector((state: RuntimeStore) => ({
@@ -53,13 +48,13 @@ export const useMessagePreview = createSelector((state: RuntimeStore) => ({
 }));
 
 export const setMessage = {
-  timerText: (payload: string) => socketSendJson('message', { timer: { text: payload } }),
-  timerVisible: (payload: boolean) => socketSendJson('message', { timer: { visible: payload } }),
-  externalText: (payload: string) => socketSendJson('message', { external: payload }),
-  timerBlink: (payload: boolean) => socketSendJson('message', { timer: { blink: payload } }),
-  timerBlackout: (payload: boolean) => socketSendJson('message', { timer: { blackout: payload } }),
+  timerText: (payload: string) => sendSocket('message', { timer: { text: payload } }),
+  timerVisible: (payload: boolean) => sendSocket('message', { timer: { visible: payload } }),
+  externalText: (payload: string) => sendSocket('message', { external: payload }),
+  timerBlink: (payload: boolean) => sendSocket('message', { timer: { blink: payload } }),
+  timerBlackout: (payload: boolean) => sendSocket('message', { timer: { blackout: payload } }),
   timerSecondary: (payload: TimerMessage['secondarySource']) =>
-    socketSendJson('message', { timer: { secondarySource: payload } }),
+    sendSocket('message', { timer: { secondarySource: payload } }),
 };
 
 export const usePlaybackControl = createSelector((state: RuntimeStore) => ({
@@ -70,34 +65,26 @@ export const usePlaybackControl = createSelector((state: RuntimeStore) => ({
 }));
 
 export const setPlayback = {
-  start: () => socketSendJson('start'),
-  pause: () => socketSendJson('pause'),
-  roll: () => socketSendJson('roll'),
-  startNext: () => socketSendJson('start', 'next'),
+  start: () => sendSocket('start', undefined),
+  pause: () => sendSocket('pause', undefined),
+  roll: () => sendSocket('roll', undefined),
+  startNext: () => sendSocket('start', 'next'),
   previous: () => {
-    socketSendJson('load', 'previous');
+    sendSocket('load', 'previous');
   },
   next: () => {
-    socketSendJson('load', 'next');
+    sendSocket('load', 'next');
   },
   stop: () => {
-    socketSendJson('stop');
+    sendSocket('stop', undefined);
   },
   reload: () => {
-    socketSendJson('reload');
+    sendSocket('reload', undefined);
   },
   addTime: (amount: number) => {
-    socketSendJson('addtime', amount);
+    sendSocket('addtime', amount);
   },
 };
-
-export const useInfoPanel = createSelector((state: RuntimeStore) => ({
-  eventNow: state.eventNow,
-  eventNext: state.eventNext,
-  playback: state.timer.playback,
-  selectedEventIndex: state.runtime.selectedEventIndex,
-  numEvents: state.runtime.numEvents,
-}));
 
 export const useAuxTimerTime = createSelector((state: RuntimeStore) => state.auxtimer1.current);
 
@@ -107,11 +94,11 @@ export const useAuxTimerControl = createSelector((state: RuntimeStore) => ({
 }));
 
 export const setAuxTimer = {
-  start: () => socketSendJson('auxtimer', { '1': SimplePlayback.Start }),
-  pause: () => socketSendJson('auxtimer', { '1': SimplePlayback.Pause }),
-  stop: () => socketSendJson('auxtimer', { '1': SimplePlayback.Stop }),
-  setDirection: (direction: SimpleDirection) => socketSendJson('auxtimer', { '1': { direction } }),
-  setDuration: (time: number) => socketSendJson('auxtimer', { '1': { duration: time } }),
+  start: () => sendSocket('auxtimer', { '1': SimplePlayback.Start }),
+  pause: () => sendSocket('auxtimer', { '1': SimplePlayback.Pause }),
+  stop: () => sendSocket('auxtimer', { '1': SimplePlayback.Stop }),
+  setDirection: (direction: SimpleDirection) => sendSocket('auxtimer', { '1': { direction } }),
+  setDuration: (time: number) => sendSocket('auxtimer', { '1': { duration: time } }),
 };
 
 export const useSelectedEventId = createSelector((state: RuntimeStore) => ({
@@ -123,10 +110,10 @@ export const useCurrentBlockId = createSelector((state: RuntimeStore) => ({
 }));
 
 export const setEventPlayback = {
-  loadEvent: (id: string) => socketSendJson('load', { id }),
-  startEvent: (id: string) => socketSendJson('start', { id }),
-  start: () => socketSendJson('start'),
-  pause: () => socketSendJson('pause'),
+  loadEvent: (id: string) => sendSocket('load', { id }),
+  startEvent: (id: string) => sendSocket('start', { id }),
+  start: () => sendSocket('start', undefined),
+  pause: () => sendSocket('pause', undefined),
 };
 
 export const useTimer = createSelector((state: RuntimeStore) => ({
@@ -144,8 +131,6 @@ export const useProgressData = createSelector((state: RuntimeStore) => ({
   timeWarning: state.eventNow?.timeWarning ?? null,
   timeDanger: state.eventNow?.timeDanger ?? null,
 }));
-
-export const setClientName = (newName: string) => socketSendJson('set-client-name', newName);
 
 export const useRuntimeOverview = createSelector((state: RuntimeStore) => ({
   plannedStart: state.runtime.plannedStart,
@@ -174,9 +159,13 @@ export const useTimeUntilData = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
   offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offset : state.runtime.relativeOffset,
   offsetMode: state.runtime.offsetMode,
-  currentDay: state.eventNow?.dayOffset ?? 0, //The day of the currently running event
+  currentDay: state.eventNow?.dayOffset ?? 0,
   actualStart: state.runtime.actualStart,
   plannedStart: state.runtime.plannedStart,
+}));
+
+export const useCurrentDay = createSelector((state: RuntimeStore) => ({
+  currentDay: state.eventNow?.dayOffset ?? 0,
 }));
 
 export const useRuntimeOffset = createSelector((state: RuntimeStore) => ({
@@ -196,7 +185,7 @@ export const useOffsetMode = createSelector((state: RuntimeStore) => ({
   offsetMode: state.runtime.offsetMode,
 }));
 
-export const setOffsetMode = (payload: OffsetMode) => socketSendJson('offsetmode', payload);
+export const setOffsetMode = (payload: OffsetMode) => sendSocket('offsetmode', payload);
 
 export const usePlayback = () => {
   const featureSelector = (state: RuntimeStore) => ({

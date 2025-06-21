@@ -5,7 +5,6 @@ export const langPt: TranslationObject = {
   'common.minutes': 'min',
   'common.now': 'Agora',
   'common.next': 'Próximo',
-  'common.public_message': 'Mensagem pública',
   'common.scheduled_start': 'Início programado',
   'common.scheduled_end': 'Fim programado',
   'common.projected_start': 'Início previsto',
@@ -28,6 +27,4 @@ export const langPt: TranslationObject = {
   'project.description': 'Descrição',
   'project.backstage_info': 'Informações de bastidores',
   'project.backstage_url': 'URL de bastidores',
-  'project.public_info': 'Informações públicas',
-  'project.public_url': 'URL pública',
 };

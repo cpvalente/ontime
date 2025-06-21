@@ -37,8 +37,10 @@ export function getTimerByType(
       return timerObject.clock;
     case TimerType.None:
       return null;
-    default:
+    default: {
+      viewTimerType satisfies never;
       return null;
+    }
   }
 }
 
@@ -81,7 +83,7 @@ export function getFormattedTimer(
   localisedMinutes: string,
   options: FormattingOptions,
 ): string {
-  if (timer == null) {
+  if (timer == null || timerType === TimerType.None) {
     return options.removeSeconds ? timerPlaceholderMin : timerPlaceholder;
   }
 
@@ -98,7 +100,7 @@ export function getFormattedTimer(
     }
   }
 
-  let display = millisToString(timeToParse);
+  let display = millisToString(timeToParse, { direction: timerType });
   if (options.removeLeadingZero) {
     display = removeLeadingZero(display);
   }

@@ -3,6 +3,7 @@ import { IoSettingsOutline } from 'react-icons/io5';
 
 import { useFadeOutOnInactivity } from '../../hooks/useFadeOutOnInactivity';
 import { cx } from '../../utils/styleUtils';
+import IconButton from '../buttons/IconButton';
 
 import style from './NavigationMenu.module.scss';
 
@@ -17,22 +18,24 @@ export default function FloatingNavigation(props: FloatingNavigationProps) {
 
   return (
     <div className={cx([style.fadeable, style.buttonContainer, !isButtonShown && style.hidden])}>
-      <button
+      <IconButton
+        variant='subtle-white'
+        className={style.navButton}
         onClick={toggleMenu}
         aria-label='toggle menu'
-        className={style.navButton}
         data-testid='navigation__toggle-menu'
       >
         <IoApps />
-      </button>
-      <button
-        className={style.button}
+      </IconButton>
+      <IconButton
+        variant='subtle-white'
+        className={style.navButton}
         onClick={toggleSettings}
         aria-label='toggle settings'
         data-testid='navigation__toggle-settings'
       >
         <IoSettingsOutline />
-      </button>
+      </IconButton>
     </div>
   );
 }

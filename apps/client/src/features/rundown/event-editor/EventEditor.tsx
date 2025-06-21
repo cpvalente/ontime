@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
-import { CustomFieldLabel, OntimeEvent } from 'ontime-types';
+import { OntimeEvent } from 'ontime-types';
 
 import AppLink from '../../../common/components/link/app-link/AppLink';
-import { useEventAction } from '../../../common/hooks/useEventAction';
+import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import * as Editor from '../../editors/editor-utils/EditorUtils';
 
@@ -14,9 +14,8 @@ import EventEditorEmpty from './EventEditorEmpty';
 
 import style from './EventEditor.module.scss';
 
-export type EventEditorSubmitActions = keyof OntimeEvent;
-
-export type EditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | CustomFieldLabel;
+// any of the titles + custom field labels
+export type EditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | string;
 
 interface EventEditorProps {
   event: OntimeEvent;
@@ -25,7 +24,7 @@ interface EventEditorProps {
 export default function EventEditor(props: EventEditorProps) {
   const { event } = props;
   const { data: customFields } = useCustomFields();
-  const { updateEvent } = useEventAction();
+  const { updateEntry } = useEntryActions();
 
   const isEditor = window.location.pathname.includes('editor');
 
@@ -33,12 +32,12 @@ export default function EventEditor(props: EventEditorProps) {
     (field: EditorUpdateFields, value: string) => {
       if (field.startsWith('custom-')) {
         const fieldLabel = field.split('custom-')[1];
-        updateEvent({ id: event?.id, custom: { [fieldLabel]: value } });
+        updateEntry({ id: event?.id, custom: { [fieldLabel]: value } });
       } else {
-        updateEvent({ id: event?.id, [field]: value });
+        updateEntry({ id: event?.id, [field]: value });
       }
     },
-    [event?.id, updateEvent],
+    [event?.id, updateEntry],
   );
 
   if (!event) {
@@ -57,7 +56,6 @@ export default function EventEditor(props: EventEditorProps) {
         linkStart={event.linkStart}
         countToEnd={event.countToEnd}
         delay={event.delay ?? 0}
-        isPublic={event.isPublic}
         endAction={event.endAction}
         timerType={event.timerType}
         timeWarning={event.timeWarning}

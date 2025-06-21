@@ -1,17 +1,17 @@
 import { useCallback } from 'react';
-import { Log, LogLevel, LogOrigin } from 'ontime-types';
+import { Log, LogLevel, LogOrigin, MessageTag } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
 
-import { socketSendJson } from '../utils/socket';
+import { sendSocket } from '../utils/socket';
 import { nowInMillis } from '../utils/time';
 
 type LogStore = {
   logs: Log[];
 };
 
-export const logger = createStore<LogStore>(() => ({
+const logger = createStore<LogStore>(() => ({
   logs: [],
 }));
 
@@ -40,7 +40,7 @@ export function useEmitLog() {
       text,
     };
 
-    socketSendJson('ontime-log', log);
+    sendSocket(MessageTag.Log, log);
   }, []);
 
   /**

@@ -23,6 +23,5 @@ test('URL preset feature, it should redirect to given URL', async ({ page }) => 
 
   // make sure preset works
   await page.goto('http://localhost:4001/testing');
-  await page.getByTestId('countdown__select').click();
-  await expect(page.getByTestId('countdown__select')).toBeVisible();
+  await expect(page.getByTestId('countdown-view')).toBeVisible();
 });

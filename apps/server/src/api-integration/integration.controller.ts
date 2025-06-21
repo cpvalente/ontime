@@ -1,5 +1,13 @@
-import { MessageState, OffsetMode, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
-import { MILLIS_PER_HOUR, MILLIS_PER_SECOND } from 'ontime-utils';
+import {
+  ApiAction,
+  MessageState,
+  OffsetMode,
+  OntimeEvent,
+  PatchWithId,
+  SimpleDirection,
+  SimplePlayback,
+} from 'ontime-types';
+import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { DeepPartial } from 'ts-essentials';
 
@@ -11,26 +19,25 @@ import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
-import { parseProperty, updateEvent } from './integration.utils.js';
+import { parseProperty } from './integration.utils.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { throttle } from '../utils/throttle.js';
-import { willCauseRegeneration } from '../services/rundown-service/rundownCacheUtils.js';
-
-import { handleLegacyMessageConversion } from './integration.legacy.js';
 import { coerceEnum } from '../utils/coerceType.js';
+import { editEntry } from '../api-data/rundown/rundown.service.js';
+import { willCauseRegeneration } from '../api-data/rundown/rundown.utils.js';
 
-const throttledUpdateEvent = throttle(updateEvent, 20);
+const throttledEditEvent = throttle(editEntry, 20);
 let lastRequest: Date | null = null;
 
-export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
-  const action = type.toLowerCase();
-  const handler = actionHandlers[action];
+export function dispatchFromAdapter(tag: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
+  const action = tag.toLowerCase();
+  const handler = actionHandlers[action as ApiAction];
   lastRequest = new Date();
 
   if (handler) {
     return handler(payload);
   } else {
-    throw new Error(`Unhandled message ${type}`);
+    throw new Error(`Unhandled message ${tag}`);
   }
 }
 
@@ -40,7 +47,7 @@ export function getLastRequest() {
 
 type ActionHandler = (payload: unknown) => { payload: unknown };
 
-const actionHandlers: Record<string, ActionHandler> = {
+const actionHandlers: Record<ApiAction, ActionHandler> = {
   /* General */
   version: () => ({ payload: ONTIME_VERSION }),
   poll: () => ({
@@ -58,7 +65,7 @@ const actionHandlers: Record<string, ActionHandler> = {
     }
 
     const data = payload[id as keyof typeof payload];
-    const patchEvent: Partial<OntimeEvent> & { id: string } = { id };
+    const patchEvent: PatchWithId<OntimeEvent> = { id };
 
     let shouldThrottle = false;
 
@@ -78,11 +85,13 @@ const actionHandlers: Record<string, ActionHandler> = {
     });
 
     if (shouldThrottle) {
-      if (throttledUpdateEvent(patchEvent)) {
+      if (throttledEditEvent(patchEvent)) {
         return { payload: 'throttled' };
       }
     } else {
-      updateEvent(patchEvent);
+      editEntry(patchEvent).catch((_error) => {
+        /** No error handling */
+      });
     }
     return { payload: 'success' };
   },
@@ -90,12 +99,9 @@ const actionHandlers: Record<string, ActionHandler> = {
   message: (payload) => {
     assert.isObject(payload);
 
-    // TODO: remove this once we feel its been enough time, ontime 3.6.0, 20/09/2024
-    const migratedPayload = handleLegacyMessageConversion(payload);
-
     const patch: DeepPartial<MessageState> = {
-      timer: 'timer' in migratedPayload ? validateTimerMessage(migratedPayload.timer) : undefined,
-      external: 'external' in migratedPayload ? validateMessage(migratedPayload.external) : undefined,
+      timer: 'timer' in payload ? validateTimerMessage(payload.timer) : undefined,
+      external: 'external' in payload ? validateMessage(payload.external) : undefined,
     };
 
     const newMessage = messageService.patch(patch);
@@ -192,27 +198,24 @@ const actionHandlers: Record<string, ActionHandler> = {
     throw new Error('No matching method provided');
   },
   addtime: (payload) => {
-    let time = 0;
-    if (payload && typeof payload === 'object') {
-      if ('add' in payload) {
-        time = numberOrError(payload.add);
-      } else if ('remove' in payload) {
-        time = numberOrError(payload.remove) * -1;
+    const time = (() => {
+      if (payload && typeof payload === 'object') {
+        if ('add' in payload) return numberOrError(payload.add);
+        if ('remove' in payload) return numberOrError(payload.remove) * -1;
       }
-    } else {
-      time = numberOrError(payload);
-    }
+      return numberOrError(payload);
+    })();
+
     assert.isNumber(time);
     if (time === 0) {
       return { payload: 'success' };
     }
 
-    const timeToAdd = time * MILLIS_PER_SECOND; // frontend is seconds based
-    if (Math.abs(timeToAdd) > MILLIS_PER_HOUR) {
+    if (Math.abs(time) > MILLIS_PER_HOUR) {
       throw new Error(`Payload too large: ${time}`);
     }
 
-    runtimeService.addTime(timeToAdd);
+    runtimeService.addTime(time);
     return { payload: 'success' };
   },
   /* Extra timers */
@@ -238,13 +241,11 @@ const actionHandlers: Record<string, ActionHandler> = {
     } else if (command && typeof command === 'object') {
       const reply = { payload: {} };
       if ('duration' in command) {
-        // convert duration in seconds to ms
-        const timeInMs = numberOrError(command.duration) * 1000;
+        const timeInMs = numberOrError(command.duration);
         reply.payload = auxTimerService.setTime(timeInMs);
       }
       if ('addtime' in command) {
-        // convert addTime in seconds to ms
-        const timeInMs = numberOrError(command.addtime) * 1000;
+        const timeInMs = numberOrError(command.addtime);
         reply.payload = auxTimerService.addTime(timeInMs);
       }
       if ('direction' in command) {

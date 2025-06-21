@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { useViewportSize } from '@mantine/hooks';
-import { isOntimeEvent, isPlayableEvent, OntimeRundown } from 'ontime-types';
+import { isOntimeEvent, isPlayableEvent, OntimeEntry } from 'ontime-types';
 import { dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import TimelineMarkers from './timeline-markers/TimelineMarkers';
@@ -11,7 +11,7 @@ import style from './Timeline.module.scss';
 
 interface TimelineProps {
   firstStart: number;
-  rundown: OntimeRundown;
+  rundown: OntimeEntry[];
   selectedEventId: string | null;
   totalDuration: number;
 }

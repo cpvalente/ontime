@@ -4,7 +4,6 @@ import { getErrorMessage, obfuscate } from 'ontime-utils';
 import type { Request, Response } from 'express';
 
 import { isDocker } from '../../setup/environment.js';
-import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import * as appState from '../../services/app-state-service/AppStateService.js';
 
@@ -25,9 +24,6 @@ export async function getSettings(_req: Request, res: Response<Settings>) {
 }
 
 export async function postSettings(req: Request, res: Response<Settings | ErrorResponse>) {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
   try {
     const settings = getDataProvider().getSettings();
     const editorKey = extractPin(req.body?.editorKey, settings.editorKey);
@@ -35,13 +31,15 @@ export async function postSettings(req: Request, res: Response<Settings | ErrorR
     const serverPort = Number(req.body?.serverPort);
     //TODO: should this not be part of the validator?
     if (isNaN(serverPort)) {
-      return res.status(400).send({ message: `Invalid value found for server port: ${req.body?.serverPort}` });
+      res.status(400).send({ message: `Invalid value found for server port: ${req.body?.serverPort}` });
+      return;
     }
 
     const hasChangedPort = settings.serverPort !== serverPort;
 
     if (isDocker && hasChangedPort) {
-      return res.status(403).json({ message: 'Can`t change port when running inside docker' });
+      res.status(403).json({ message: 'Can`t change port when running inside docker' });
+      return;
     }
 
     let timeFormat = settings.timeFormat;

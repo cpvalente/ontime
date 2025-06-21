@@ -1,21 +1,15 @@
 import axios from 'axios';
-import { ViewSettings } from 'ontime-types';
+import type { ViewSettings } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
+const viewSettingsPath = apiEntryUrl + '/view-settings';
 
-const viewSettingsPath = `${apiEntryUrl}/view-settings`;
-
-/**
- * HTTP request to retrieve view settings
- */
-export async function getView(): Promise<ViewSettings> {
+export async function getViewSettings() {
   const res = await axios.get(viewSettingsPath);
   return res.data;
 }
 
-/**
- * HTTP request to mutate view settings
- */
 export async function postViewSettings(data: ViewSettings) {
-  return axios.post(viewSettingsPath, data);
+  const res = await axios.post(viewSettingsPath, data);
+  return res.data as ViewSettings;
 }
