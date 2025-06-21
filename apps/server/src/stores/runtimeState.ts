@@ -243,11 +243,14 @@ export function loadNext(
   eventIndex: MaybeNumber = runtimeState.runtime.selectedEventIndex,
 ) {
   if (eventIndex === null) {
-    runtimeState.eventNext = null; // reset the state to indicate there is no future event
+    // reset the state to indicate there is no future event
+    runtimeState.eventNext = null;
     return;
   }
   const nowPlayableIndex = timedToPlayableIndex(metadata, eventIndex);
+
   if (!nowPlayableIndex || nowPlayableIndex > metadata.playableEventOrder.length - 2) {
+    // we cound not find the event now or the event now is the last playable event
     runtimeState.eventNext = null;
     return;
   }
@@ -320,8 +323,9 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
  * Used in situations when we want to hot-reload all events without interrupting timer
  */
 export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
-  // TODO(remove public): we dont need to make the timedEvents object, we pass primitives and let the functions handle it
+  // event now might have moved so we find the event now id and recalculate the the index again
   const eventNowIndex = metadata.timedEventOrder.findIndex((id) => id === runtimeState.eventNow?.id);
+
   loadNow(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   loadNext(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   updateLoaded(runtimeState.eventNow ?? undefined);
@@ -701,7 +705,11 @@ export function setOffsetMode(mode: OffsetMode) {
   runtimeState.runtime.offsetMode = mode;
 }
 
-function timedToPlayableIndex(metadata: RundownMetadata, index: number) {
+/**
+ * converts an index from the timedEventOrder to an index in the playableEventOrder
+ * or returns null if it can not be found
+ */
+function timedToPlayableIndex(metadata: RundownMetadata, index: number): number | null {
   const timedId = metadata.timedEventOrder[index];
   const playableIndex = metadata.playableEventOrder.findIndex((id) => id === timedId);
   return playableIndex < 0 ? null : playableIndex;
