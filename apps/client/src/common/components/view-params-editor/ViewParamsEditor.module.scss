@@ -38,6 +38,7 @@
 
   background-color: $gray-1250;
   color: $ui-white;
+  border-left: 1px solid $gray-1200;
 
   &[data-open] {
     transform: translateX(0%);

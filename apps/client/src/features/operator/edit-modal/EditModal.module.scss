@@ -1,27 +1,53 @@
 .editModal {
-  position: absolute;
-  z-index: 2;
-  margin: 0 auto;
-  top: 20%;
+  position: fixed;
+  top: 10%;
   left: 50%;
+
+  z-index: 2;
   transform: translateX(-50%);
 
-  padding: 1rem;
+  padding-inline: 1rem;
+  min-width: min(720px, 90vw);
+  
   background-color: $gray-1250;
+  color: $ui-white;
+  border-radius: 3px;
+  box-shadow: $box-shadow-l1;
+  border: 1px solid $gray-1200;
+}
+
+.title {
+  font-size: 1.25rem;
+  padding-block: 1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.body {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+
+  max-height: min(80vh, 600px);
+  overflow-y: auto;
+}
+
+.label {
+  background-color: var(--user-bg);
+  width: fit-content;
+  padding-inline: 1rem;
+}
+
+.footer {
+  padding-block: 1rem;
+  display: flex;
+  align-items: center;
   gap: 1rem;
-  min-width: min(400px, 90vw);
-  box-shadow: $box-shadow-l1;
 
-  .buttonRow {
-    margin-top: auto;
-    display: flex;
-    justify-content: space-between; 
-    gap: 1rem;
-
-    button {
-     width: 100%;
-    }
+  button {
+   width: 100%;
   }
 }
