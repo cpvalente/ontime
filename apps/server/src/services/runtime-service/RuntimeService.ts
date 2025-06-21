@@ -30,7 +30,6 @@ import { RestorePoint, restoreService } from '../RestoreService.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
 
 import {
-  filterTimedEvents,
   findNextPlayableId,
   findNextPlayableWithCue,
   findPreviousPlayableId,
@@ -190,17 +189,15 @@ class RuntimeService {
   }
 
   private isNewNext() {
-    const rundown = getCurrentRundown();
     const { timedEventOrder } = getRundownMetadata();
-    const timedEvents = filterTimedEvents(rundown, timedEventOrder);
 
     const state = runtimeState.getState();
     const now = state.eventNow?.id;
     const next = state.eventNext?.id;
 
     // check whether the index of now and next are consecutive
-    const indexNow = timedEvents.findIndex((event) => event.id === now);
-    const indexNext = timedEvents.findIndex((event) => event.id === next);
+    const indexNow = timedEventOrder.findIndex((id) => id === now);
+    const indexNext = timedEventOrder.findIndex((id) => id === next);
 
     return indexNext - indexNow !== 1;
   }

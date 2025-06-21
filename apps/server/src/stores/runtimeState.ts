@@ -1,7 +1,5 @@
 import {
   CurrentBlockState,
-  EntryId,
-  isPlayableEvent,
   MaybeNumber,
   MaybeString,
   OffsetMode,
@@ -28,7 +26,6 @@ import {
 } from '../services/timerUtils.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
-import { filterTimedEvents } from '../services/runtime-service/rundownService.utils.js';
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 
 export type RuntimeState = {
