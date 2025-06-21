@@ -476,7 +476,7 @@
   },
   "settings": {
     "app": "ontime",
-    "version": "-",
+    "version": "4.0.0",
     "serverPort": 4001,
     "editorKey": null,
     "operatorKey": null,
