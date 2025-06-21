@@ -9,6 +9,11 @@
   border-radius: 3px;
 
   cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 }
 
 .subtle {
