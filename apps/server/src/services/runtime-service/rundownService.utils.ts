@@ -120,10 +120,3 @@ export function getEventAtIndex(
 
   return rundown.entries[eventId] as OntimeEvent | undefined;
 }
-
-/**
- * TODO(v4): we dont need this function
- */
-export function filterTimedEvents(rundown: Rundown, timedEventOrder: EntryId[]): OntimeEvent[] {
-  return timedEventOrder.map((id) => rundown.entries[id] as OntimeEvent);
-}
