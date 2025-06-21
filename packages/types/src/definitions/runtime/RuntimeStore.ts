@@ -27,7 +27,7 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
       blackout: false,
       secondarySource: null,
     },
-    external: '',
+    secondary: '',
   },
   runtime: {
     selectedEventIndex: null, // changes if rundown changes or we load a new event

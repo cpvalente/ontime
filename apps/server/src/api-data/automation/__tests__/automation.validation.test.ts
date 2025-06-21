@@ -158,10 +158,10 @@ describe('parseOutput', () => {
       parseOutput({
         type: 'ontime',
         action: 'message-secondary',
-        secondarySource: 'external',
+        secondarySource: 'secondary',
       }),
     ).toMatchObject({
-      secondarySource: 'external',
+      secondarySource: 'secondary',
     });
   });
 });

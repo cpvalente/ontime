@@ -1,7 +1,7 @@
 import { IoEye, IoEyeOffOutline } from 'react-icons/io5';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
-import { setMessage, useExternalMessageInput, useTimerMessageInput } from '../../../common/hooks/useSocket';
+import { setMessage, useExternalMessageInput as useSecondaryMessageInput, useTimerMessageInput } from '../../../common/hooks/useSocket';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import InputRow from './InputRow';
@@ -12,7 +12,7 @@ export default function MessageControl() {
     <>
       <TimerControlsPreview />
       <TimerMessageInput />
-      <ExternalInput />
+      <SecondaryInput />
     </>
   );
 }
@@ -41,29 +41,29 @@ function TimerMessageInput() {
   );
 }
 
-function ExternalInput() {
-  const { text, visible } = useExternalMessageInput();
+function SecondaryInput() {
+  const { text, visible } = useSecondaryMessageInput();
 
-  const toggleExternal = () => {
+  const toggleSecondary = () => {
     if (visible) {
       setMessage.timerSecondary(null);
     } else {
-      setMessage.timerSecondary('external');
+      setMessage.timerSecondary('secondary');
     }
   };
 
   return (
     <InputRow
-      label='External Message'
+      label='Secondary Message'
       placeholder='Message shown as secondary text in stage timer'
       text={text}
       visible={visible}
-      changeHandler={(newValue) => setMessage.externalText(newValue)}
+      changeHandler={(newValue) => setMessage.secondaryMessage(newValue)}
     >
       <TooltipActionBtn
-        clickHandler={toggleExternal}
+        clickHandler={toggleSecondary}
         tooltip={visible ? 'Make invisible' : 'Make visible'}
-        aria-label='Toggle external message visibility'
+        aria-label='Toggle secondary message visibility'
         openDelay={tooltipDelayMid}
         icon={visible ? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}
         variant={visible ? 'ontime-filled' : 'ontime-subtle'}

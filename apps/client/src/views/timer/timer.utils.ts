@@ -111,9 +111,9 @@ export function getSecondaryDisplay(
   localisedMinutes: string,
   removeSeconds: boolean,
   removeLeadingZero: boolean,
-  hideExternal: boolean,
+  hideSecondary: boolean,
 ): string | undefined {
-  if (hideExternal) {
+  if (hideSecondary) {
     return;
   }
   if (message.timer.secondarySource === 'aux') {
@@ -122,8 +122,8 @@ export function getSecondaryDisplay(
       removeLeadingZero,
     });
   }
-  if (message.timer.secondarySource === 'external' && message.external) {
-    return message.external;
+  if (message.timer.secondarySource === 'secondary' && message.secondary) {
+    return message.secondary;
   }
   return;
 }

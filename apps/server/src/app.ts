@@ -33,7 +33,7 @@ import { populateStyles } from './setup/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
 import { runtimeService } from './services/runtime-service/RuntimeService.js';
 import { restoreService } from './services/RestoreService.js';
-import * as messageService from './services/message-service/MessageService.js';
+import * as messageService from './services/message-service/message.service.js';
 import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
 import { initRundown } from './api-data/rundown/rundown.service.js';

@@ -254,6 +254,6 @@ function indeterminateBooleanString(value: string): boolean | undefined {
  */
 function chooseSecondarySource(value: string): SecondarySource {
   if (value === 'aux') return 'aux';
-  if (value === 'external') return 'external';
+  if (value === 'secondary') return 'secondary';
   return null;
 }
