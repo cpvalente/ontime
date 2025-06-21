@@ -1,7 +1,16 @@
-import { Log, Rundown, RuntimeStore } from 'ontime-types';
+import {
+  ApiAction,
+  Log,
+  MessageTag,
+  RefetchKey,
+  Rundown,
+  RuntimeStore,
+  WsPacketToClient,
+  WsPacketToServer,
+} from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
-import { CLIENT_LIST, CUSTOM_FIELDS, REPORT, RUNDOWN, RUNTIME } from '../api/constants';
+import { CLIENT_LIST, CUSTOM_FIELDS, REPORT, RUNDOWN, RUNTIME, VIEW_SETTINGS } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
 import {
@@ -33,16 +42,14 @@ export const connectSocket = () => {
     hasConnected = true;
     reconnectAttempts = 0;
 
-    socketSendJson('set-client-patch', {
+    sendSocket(MessageTag.ClientSet, {
       type: 'ontime',
       origin: window.location.origin,
       path: window.location.pathname + window.location.search,
+      name: preferredClientName,
     });
+    invalidateAllCaches(); // assume all data to be stale after a reconnect
     setOnlineStatus(true);
-
-    if (preferredClientName) {
-      socketSendJson('set-client-name', preferredClientName);
-    }
   };
 
   websocket.onclose = () => {
@@ -65,56 +72,48 @@ export const connectSocket = () => {
     console.error('WebSocket error:', error);
   };
 
-  websocket.onmessage = (event) => {
+  websocket.onmessage = async (event) => {
     try {
-      const data = JSON.parse(event.data);
+      const data = JSON.parse(event.data) as WsPacketToClient;
 
-      const { type, payload } = data;
+      const { tag, payload } = data;
 
-      if (!type) {
+      if (!tag) {
         return;
       }
 
-      switch (type) {
-        case 'pong': {
+      switch (tag) {
+        case MessageTag.Pong: {
           const offset = (new Date().getTime() - new Date(payload).getTime()) * 0.5;
           patchRuntimeProperty('ping', offset);
           updateDevTools({ ping: offset });
           break;
         }
-        case 'client': {
-          if (typeof payload === 'object' || payload !== null) {
-            if (payload.clientId && payload.clientName) {
-              setClientId(payload.clientId);
-              if (!preferredClientName) {
-                setClientName(payload.clientName);
-              }
-            }
+        case MessageTag.ClientInit: {
+          setClientId(payload.clientId);
+          if (!preferredClientName) {
+            setClientName(payload.clientName);
           }
           break;
         }
 
-        case 'client-rename': {
-          if (typeof payload === 'object') {
-            const id = getClientId();
-            if (payload.target && payload.target === id) {
-              setClientName(payload.name);
-            }
+        case MessageTag.ClientRename: {
+          const id = getClientId();
+          if (payload.target === id) {
+            setClientName(payload.name);
           }
           break;
         }
 
-        case 'client-redirect': {
-          if (typeof payload === 'object') {
-            const id = getClientId();
-            if (payload.target && payload.target === id) {
-              setClientRedirect(payload.path);
-            }
+        case MessageTag.ClientRedirect: {
+          const id = getClientId();
+          if (payload.target === id) {
+            setClientRedirect(payload.path);
           }
           break;
         }
 
-        case 'client-list': {
+        case MessageTag.ClientList: {
           setClients(payload);
           if (!isProduction) {
             ontimeQueryClient.setQueryData(CLIENT_LIST, payload);
@@ -122,50 +121,57 @@ export const connectSocket = () => {
           break;
         }
 
-        case 'dialog': {
+        case MessageTag.Dialog: {
           if (payload.dialog === 'welcome') {
             addDialog('welcome');
           }
           break;
         }
 
-        case 'ontime-log': {
+        case MessageTag.Log: {
           addLog(payload as Log);
           break;
         }
-        case 'ontime': {
+        case MessageTag.RuntimeData: {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars -- removing the key from the payload
-          const { ping, ...serverPayload } = payload as Partial<RuntimeStore>;
-
+          const { ping, ...serverPayload } = payload;
           patchRuntime(serverPayload);
           updateDevTools(serverPayload);
           break;
         }
-        case 'ontime-patch': {
-          const patch = payload as Partial<RuntimeStore>;
+        case MessageTag.RuntimePatch: {
+          const patch = payload;
           patchRuntime(patch);
           updateDevTools(patch);
           break;
         }
-        case 'ontime-refetch': {
+        case MessageTag.Refetch: {
           // the refetch message signals that the rundown has changed in the server side
-          const { reload, target } = payload;
-          if (reload) {
-            invalidateAllCaches();
-          } else if (target === 'RUNDOWN') {
-            const { revision } = payload;
-            const currentRevision = ontimeQueryClient.getQueryData<Rundown>(RUNDOWN)?.revision ?? -1;
-            if (revision > currentRevision) {
+          const { target, revision } = payload;
+          switch (target) {
+            case RefetchKey.All:
+              invalidateAllCaches();
+              break;
+            case RefetchKey.Rundown:
+              if (revision === (ontimeQueryClient.getQueryData(RUNDOWN) as Rundown).revision) break;
               ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
+              break;
+            case RefetchKey.ViewSettings:
+              ontimeQueryClient.invalidateQueries({ queryKey: VIEW_SETTINGS });
+              break;
+            case RefetchKey.Report:
+              ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
+              break;
+            default: {
+              target satisfies never;
+              break;
             }
-          } else if (target === 'REPORT') {
-            ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
           }
           break;
         }
         default: {
-          console.log('unknown WS message', type);
+          tag satisfies never;
           break;
         }
       }
@@ -175,20 +181,14 @@ export const connectSocket = () => {
   };
 };
 
-export const socketSend = (message: any) => {
+export function sendSocket<T extends MessageTag | ApiAction>(
+  tag: T,
+  payload: T extends MessageTag ? Pick<WsPacketToServer & { tag: T }, 'payload'>['payload'] : unknown,
+): void {
   if (websocket && websocket.readyState === WebSocket.OPEN) {
-    websocket.send(message);
+    websocket.send(JSON.stringify({ tag, payload }));
   }
-};
-
-export const socketSendJson = (type: string, payload?: unknown) => {
-  socketSend(
-    JSON.stringify({
-      type,
-      payload,
-    }),
-  );
-};
+}
 
 function updateDevTools(newData: Partial<RuntimeStore>) {
   if (!isProduction) {

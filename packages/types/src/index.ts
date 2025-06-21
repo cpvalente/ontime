@@ -85,6 +85,11 @@ export type {
   TransientEventPayload,
 } from './api/rundown-controller/BackendResponse.type.js';
 
+// web socket
+export { MessageTag } from './api/websocket/data.type.js';
+export type { WsPacketToServer, WsPacketToClient } from './api/websocket/data.type.js';
+export { RefetchKey } from './api/websocket/refetch.type.js';
+export type { ApiAction } from './api/websocket/api.type.js';
 // SERVER RUNTIME
 export { type Log, LogLevel, type LogMessage, LogOrigin } from './definitions/runtime/Logger.type.js';
 export { Playback } from './definitions/runtime/Playback.type.js';

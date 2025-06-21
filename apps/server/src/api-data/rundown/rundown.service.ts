@@ -10,17 +10,18 @@ import {
   OntimeEntry,
   OntimeEvent,
   PatchWithId,
+  RefetchKey,
   Rundown,
 } from 'ontime-types';
 import { customFieldLabelToKey } from 'ontime-utils';
 
 import { updateRundownData } from '../../stores/runtimeState.js';
-import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
 
 import { createTransaction, customFieldMutation, rundownCache, rundownMutation } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
 import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 
 /**
  * creates a new entry with given data
@@ -553,13 +554,10 @@ export function notifyChanges(rundownMetadata: RundownMetadata, revision: number
   }
 
   // notify external services of changes
-  if (options.external) {
-    const payload = {
-      target: 'RUNDOWN',
-      reload: options.reload,
-      revision,
-    };
-    sendRefetch(payload);
+  if (options.reload) {
+    sendRefetch(RefetchKey.All);
+  } else if (options.external) {
+    sendRefetch(RefetchKey.Rundown, revision);
   }
 }
 

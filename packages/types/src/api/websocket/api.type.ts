@@ -1,0 +1,15 @@
+export type ApiAction =
+  | 'version'
+  | 'poll'
+  | 'change'
+  | 'message'
+  | 'start'
+  | 'pause'
+  | 'stop'
+  | 'reload'
+  | 'roll'
+  | 'load'
+  | 'addtime'
+  | 'auxtimer'
+  | 'client'
+  | 'offsetmode';

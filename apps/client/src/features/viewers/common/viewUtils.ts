@@ -37,8 +37,10 @@ export function getTimerByType(
       return timerObject.clock;
     case TimerType.None:
       return null;
-    default:
+    default: {
+      viewTimerType satisfies never;
       return null;
+    }
   }
 }
 

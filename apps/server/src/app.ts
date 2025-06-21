@@ -73,6 +73,7 @@ if (!isProduction) {
   app.use(serverTiming());
 }
 app.disable('x-powered-by');
+app.enable('etag');
 
 // Implement middleware
 app.use(cors()); // setup cors for all routes
@@ -88,12 +89,12 @@ app.use(`${prefix}/data`, authenticate, appRouter); // router for application da
 app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
 
 // serve static external files
-app.use(`${prefix}/external`, express.static(publicDir.externalDir));
+app.use(`${prefix}/external`, express.static(publicDir.externalDir, { etag: false, lastModified: true }));
 app.use(`${prefix}/external`, (req, res) => {
   // if the user reaches to the root, we show a 404
   res.status(404).send(`${req.originalUrl} not found`);
 });
-app.use(`${prefix}/user`, express.static(publicDir.userDir));
+app.use(`${prefix}/user`, express.static(publicDir.userDir, { etag: false, lastModified: true }));
 
 // Base route for static files
 app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);

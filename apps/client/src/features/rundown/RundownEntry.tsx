@@ -158,8 +158,10 @@ export default function RundownEntry(props: RundownEntryProps) {
 
         return emitError(`Unknown field: ${field}`);
       }
-      default:
+      default: {
+        action satisfies never;
         throw new Error(`Unhandled event ${action}`);
+      }
     }
   });
 

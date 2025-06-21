@@ -5,7 +5,8 @@ import { auxTimerService } from '../../../services/aux-timer-service/AuxTimerSer
 import * as messageService from '../../../services/message-service/MessageService.js';
 
 export function toOntimeAction(action: OntimeAction) {
-  switch (action.action) {
+  const actionType = action.action;
+  switch (actionType) {
     // Aux timer actions
     case 'aux-start':
       auxTimerService.start();
@@ -40,9 +41,10 @@ export function toOntimeAction(action: OntimeAction) {
       break;
     }
 
-    default:
-      // @ts-expect-error -- this guard checks that we handled all the cases, but we still want to log just in case
-      logger.warning(LogOrigin.Tx, `Unknown action type: ${action.type}`);
+    default: {
+      actionType satisfies never;
+      logger.warning(LogOrigin.Tx, `Unknown action type: ${actionType}`);
       break;
+    }
   }
 }

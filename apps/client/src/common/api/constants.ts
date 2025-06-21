@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 import { serverURL } from '../../externals';
 
 // keys in tanstack store
@@ -23,3 +25,7 @@ const cssOverridePath = 'styles/override.css';
 
 export const overrideStylesURL = `${serverURL}/${userAssetsPath}/${cssOverridePath}`;
 export const projectLogoPath = `${serverURL}/${userAssetsPath}/logo`;
+
+axios.defaults.validateStatus = (status) => {
+  return (status >= 200 && status < 300) || status === 304;
+};
