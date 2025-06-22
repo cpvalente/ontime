@@ -9,9 +9,13 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'medium' | 'large' | 'xlarge';
 }
 
-export default function IconButton(props: IconButtonProps) {
-  const { className, children, variant = 'subtle', size = 'medium', ...buttonProps } = props;
-
+export default function IconButton({
+  className,
+  children,
+  variant = 'subtle',
+  size = 'medium',
+  ...buttonProps
+}: IconButtonProps) {
   return (
     <button
       className={cx([style.baseIconButton, style[variant], style[size], className])}
