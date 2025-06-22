@@ -28,7 +28,7 @@ function RundownExport() {
       <div className={style.rundown}>
         <div className={style.list}>
           <ErrorBoundary>
-            {!isExtracted && <Corner onClick={(event) => handleLinks(event, 'rundown')} />}
+            {!isExtracted && <Corner onClick={(event) => handleLinks('rundown', event)} />}
             <ContextMenu>
               <RundownWrapper />
             </ContextMenu>

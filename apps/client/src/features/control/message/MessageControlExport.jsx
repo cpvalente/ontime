@@ -15,7 +15,7 @@ const MessageControlExport = () => {
 
   return (
     <div className={style.messages} data-testid='panel-messages-control'>
-      {!isExtracted && <Corner onClick={(event) => handleLinks(event, 'messagecontrol')} />}
+      {!isExtracted && <Corner onClick={(event) => handleLinks('messagecontrol', event)} />}
       <div className={classes}>
         <ErrorBoundary>
           <MessageControl />

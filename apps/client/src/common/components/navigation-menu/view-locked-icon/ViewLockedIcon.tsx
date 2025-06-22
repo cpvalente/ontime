@@ -1,9 +1,9 @@
 import { IoLockClosedOutline } from 'react-icons/io5';
 
-import { useFadeOutOnInactivity } from '../../hooks/useFadeOutOnInactivity';
-import { cx } from '../../utils/styleUtils';
+import { useFadeOutOnInactivity } from '../../../hooks/useFadeOutOnInactivity';
+import { cx } from '../../../utils/styleUtils';
 
-import style from './NavigationMenu.module.scss';
+import style from './ViewLockedIcon.module.scss';
 
 export default function ViewLockedIcon() {
   const isLockIconShown = useFadeOutOnInactivity();

@@ -12,7 +12,7 @@ const TimerControlExport = () => {
   const isExtracted = window.location.pathname.includes('/timercontrol');
   return (
     <div className={style.playback} data-testid='panel-timer-control'>
-      {!isExtracted && <Corner onClick={(event) => handleLinks(event, 'timercontrol')} />}
+      {!isExtracted && <Corner onClick={(event) => handleLinks('timercontrol', event)} />}
       <div className={style.content}>
         <ErrorBoundary>
           <PlaybackControl />

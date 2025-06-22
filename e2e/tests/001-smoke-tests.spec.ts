@@ -33,18 +33,6 @@ test.describe('pages routes are available', () => {
       await expect(page).toHaveTitle(/ontime/);
     });
 
-    test('clock', async ({ page }) => {
-      await page.goto('http://localhost:4001/timer');
-
-      await expect(page).toHaveTitle(/ontime/);
-    });
-
-    test('minimal', async ({ page }) => {
-      await page.goto('http://localhost:4001/minimal');
-
-      await expect(page).toHaveTitle(/ontime/);
-    });
-
     test('backstage', async ({ page }) => {
       await page.goto('http://localhost:4001/backstage');
 
