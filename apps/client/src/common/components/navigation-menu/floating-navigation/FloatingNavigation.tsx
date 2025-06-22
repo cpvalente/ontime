@@ -9,7 +9,7 @@ import style from './FloatingNavigation.module.scss';
 
 interface FloatingNavigationProps {
   toggleMenu: () => void;
-  toggleSettings: () => void;
+  toggleSettings?: () => void;
 }
 
 export default function FloatingNavigation({ toggleMenu, toggleSettings }: FloatingNavigationProps) {
@@ -29,15 +29,17 @@ export default function FloatingNavigation({ toggleMenu, toggleSettings }: Float
       >
         <IoApps />
       </IconButton>
-      <IconButton
-        variant='subtle-white'
-        size='xlarge'
-        onClick={toggleSettings}
-        aria-label='toggle settings'
-        data-testid='navigation__toggle-settings'
-      >
-        <IoSettingsOutline />
-      </IconButton>
+      {toggleSettings && (
+        <IconButton
+          variant='subtle-white'
+          size='xlarge'
+          onClick={toggleSettings}
+          aria-label='toggle settings'
+          data-testid='navigation__toggle-settings'
+        >
+          <IoSettingsOutline />
+        </IconButton>
+      )}
     </div>
   );
 }
