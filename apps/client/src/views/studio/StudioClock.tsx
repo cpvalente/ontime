@@ -1,5 +1,4 @@
-import { useViewportSize } from '@mantine/hooks';
-
+import { useIsMobile } from '../../common/hooks/useIsMobile';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
@@ -18,10 +17,10 @@ interface StudioClockProps {
 }
 
 export default function StudioClock({ onAir, clock, hideCards }: StudioClockProps) {
-  const { width } = useViewportSize();
+  const isMobile = useIsMobile();
 
   // if we are on mobile and have to show the cards
-  if (width < 800 && !hideCards) {
+  if (isMobile && !hideCards) {
     return <StudioClockMobile clock={clock} onAir={onAir} />;
   }
 

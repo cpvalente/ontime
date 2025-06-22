@@ -1,14 +1,14 @@
 import { IoLockClosedOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
-import { useViewportSize } from '@mantine/hooks';
 
+import { useIsSmallDevice } from '../../../hooks/useIsSmallDevice';
 import NavigationMenuItem from '../navigation-menu-item/NavigationMenuItem';
 
 export default function EditorNavigation() {
-  const { width } = useViewportSize();
   const navigate = useNavigate();
+  const isSmallDevide = useIsSmallDevice();
 
-  if (width > 1440) {
+  if (!isSmallDevide) {
     return (
       <NavigationMenuItem active={location.pathname === '/editor'} onClick={() => navigate('/editor')}>
         <IoLockClosedOutline />
