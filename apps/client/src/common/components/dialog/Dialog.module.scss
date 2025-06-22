@@ -1,0 +1,43 @@
+.dialog {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+
+  z-index: $zindex-dialog;
+  transform: translateX(-50%);
+
+  padding-inline: 1rem;
+  min-width: min(420px, 90vw);
+
+  background-color: $gray-1250;
+  color: $ui-white;
+  border-radius: 3px;
+  box-shadow: $box-shadow-l1;
+  border: 1px solid $gray-1200;
+}
+
+.title {
+  font-size: 1.25rem;
+  padding-block: 1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  max-height: min(80vh, 600px);
+  overflow-y: auto;
+}
+
+.footer {
+  padding-block: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 1rem;
+}
