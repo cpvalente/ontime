@@ -4,20 +4,22 @@
  * @link https://developers.google.com/identity/protocols/oauth2/limited-input-device
  */
 
-import { AuthenticationStatus, CustomFields, LogOrigin, MaybeString, OntimeRundown } from 'ontime-types';
+import { AuthenticationStatus, CustomFields, DatabaseModel, LogOrigin, MaybeString, Rundown } from 'ontime-types';
 import { ImportMap, getErrorMessage } from 'ontime-utils';
 
 import { sheets, type sheets_v4 } from '@googleapis/sheets';
 import { Credentials, OAuth2Client } from 'google-auth-library';
+// TODO: rewrite logic to use fetch and remove dependency
 import got from 'got';
 
-import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
-import { parseRundown } from '../../utils/parserFunctions.js';
-import { getRundown } from '../rundown-service/rundownUtils.js';
-import { getCustomFields } from '../rundown-service/rundownCache.js';
+import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
+import { getCurrentRundown, getProjectCustomFields } from '../../api-data/rundown/rundown.dao.js';
+import { parseExcel } from '../../api-data/excel/excel.parser.js';
+import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
 
-import { cellRequestFromEvent, type ClientSecret, getA1Notation, validateClientSecret } from './sheetUtils.js';
+import { cellRequestFromEvent, type ClientSecret, getA1Notation, isClientSecret } from './sheetUtils.js';
+import { catchCommonImportXlsxError } from './googleApi.utils.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
 const codesUrl = 'https://oauth2.googleapis.com/device/code';
@@ -69,16 +71,12 @@ export function revoke(): ReturnType<typeof hasAuth> {
 
 /**
  * Parses and validates a client secret string
- * @param clientSecret
- * @returns
  */
 export function handleClientSecret(clientSecret: string): ClientSecret {
   const clientSecretObject = JSON.parse(clientSecret);
 
-  try {
-    validateClientSecret(clientSecretObject);
-  } catch (error) {
-    throw new Error(`Client secret is invalid: ${error}`);
+  if (!isClientSecret(clientSecretObject)) {
+    throw new Error('Client secret is invalid');
   }
 
   return clientSecretObject;
@@ -94,21 +92,26 @@ type CodesResponse = {
 };
 
 /**
- * Establishes connection with Google Auth server
- * and retrieves device codes
- * @param clientSecret
- * @returns
+ * Establishes connection with Google Auth server and retrieves device codes
  */
 async function getDeviceCodes(clientSecret: ClientSecret): Promise<CodesResponse> {
-  const deviceCodes: CodesResponse = await got
-    .post(codesUrl, {
-      json: {
-        client_id: clientSecret.installed.client_id,
-        scope: sheetScope,
-      },
-    })
-    .json();
+  const response = await fetch(codesUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      client_id: clientSecret.installed.client_id,
+      scope: sheetScope,
+    }),
+  });
 
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Failed to fetch device codes: ${response.status} ${response.statusText} - ${errorText}`);
+  }
+
+  const deviceCodes: CodesResponse = await response.json();
   return deviceCodes;
 }
 
@@ -186,6 +189,9 @@ function verifyConnection(
 }
 
 export function hasAuth(): { authenticated: AuthenticationStatus; sheetId: string } {
+  if (!currentSheetId) {
+    throw new Error('No sheet ID');
+  }
   if (cleanupTimeout) {
     return { authenticated: 'pending', sheetId: currentSheetId };
   }
@@ -196,22 +202,28 @@ async function verifySheet(
   sheetId = currentSheetId,
   authClient = currentAuthClient,
 ): Promise<{ worksheetOptions: string[] }> {
+  if (!sheetId || !authClient) {
+    throw new Error('Missing sheet ID or authentication');
+  }
+
   try {
     const spreadsheets = await sheets({ version: 'v4', auth: authClient }).spreadsheets.get({
       spreadsheetId: sheetId,
       includeGridData: false,
     });
-    return { worksheetOptions: spreadsheets.data.sheets.map((i) => i.properties.title) };
+    const worksheets = spreadsheets.data.sheets?.forEach((sheet) => {
+      if (sheet.properties?.title) {
+        return sheet.properties.title;
+      }
+    });
+
+    if (!worksheets) {
+      throw new Error('No worksheets found');
+    }
+    return worksheets;
   } catch (error) {
     // attempt to catch errors caused by importing xlsx
-    if (
-      error.code === 400 &&
-      Array.isArray(error.errors) &&
-      error.errors[0].reason === 'failedPrecondition' &&
-      error.errors[0].message === 'This operation is not supported for this document'
-    ) {
-      throw new Error('Cannot read the linked file as a Google Sheet. It may be an .xlsx file instead.');
-    }
+    catchCommonImportXlsxError(error);
     const errorMessage = getErrorMessage(error);
     throw new Error(`Failed to verify sheet: ${errorMessage}`);
   }
@@ -227,6 +239,9 @@ export async function handleInitialConnection(
   // we know there is an ongoing process if there is a timeout for cleanup
   // if there is an ongoing process, we return its data
   if (cleanupTimeout) {
+    if (!currentAuthUrl || !currentAuthCode) {
+      throw new Error('No ongoing connection');
+    }
     return { verification_url: currentAuthUrl, user_code: currentAuthCode };
   }
 
@@ -255,6 +270,10 @@ export async function getWorksheetOptions(sheetId: string): ReturnType<typeof ve
 }
 
 async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ worksheetId: number; range: string }> {
+  if (!currentAuthClient) {
+    throw new Error('Not authenticated');
+  }
+
   const spreadsheets = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.get({
     spreadsheetId: sheetId,
   });
@@ -263,22 +282,33 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
     throw new Error(`Request failed: ${spreadsheets.status} ${spreadsheets.statusText}`);
   }
 
+  if (!spreadsheets.data.sheets) {
+    throw new Error('No worksheets found');
+  }
+
   const selectedWorksheet = spreadsheets.data.sheets.find(
-    (n) => n.properties.title.toLowerCase() === worksheet.toLowerCase(),
+    (sheet) => sheet.properties?.title && sheet.properties.title.toLowerCase() === worksheet.toLowerCase(),
   );
 
   if (!selectedWorksheet) {
     throw new Error('Could not find worksheet');
   }
+  if (!selectedWorksheet.properties || !selectedWorksheet.properties.sheetId) {
+    throw new Error('Got invalid data from worksheet');
+  }
 
   const endCell = getA1Notation(
-    selectedWorksheet.properties.gridProperties.rowCount,
-    selectedWorksheet.properties.gridProperties.columnCount,
+    selectedWorksheet.properties?.gridProperties?.rowCount ?? -1,
+    selectedWorksheet.properties?.gridProperties?.columnCount ?? -1,
   );
   return { worksheetId: selectedWorksheet.properties.sheetId, range: `${worksheet}!A1:${endCell}` };
 }
 
 export async function upload(sheetId: string, options: ImportMap) {
+  if (!currentAuthClient) {
+    throw new Error('Not authenticated');
+  }
+
   const { worksheetId, range } = await verifyWorksheet(sheetId, options.worksheet);
 
   const readResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.values.get({
@@ -288,12 +318,12 @@ export async function upload(sheetId: string, options: ImportMap) {
     range,
   });
 
-  if (readResponse.status !== 200) {
+  if (readResponse.status !== 200 || !readResponse.data.values) {
     throw new Error(`Sheet read failed: ${readResponse.statusText}`);
   }
 
-  const { rundownMetadata } = parseExcel(readResponse.data.values, getCustomFields(), options);
-  const rundown = getRundown();
+  const { rundownMetadata } = parseExcel(readResponse.data.values, getProjectCustomFields(), 'not-used', options);
+  const rundown = getCurrentRundown();
   const titleRow = Object.values(rundownMetadata)[0]['row'];
   const updateRundown = Array<sheets_v4.Schema$Request>();
 
@@ -322,16 +352,17 @@ export async function upload(sheetId: string, options: ImportMap) {
       range: {
         dimension: 'ROWS',
         startIndex: titleRow + 1,
-        endIndex: titleRow + rundown.length,
+        endIndex: titleRow + rundown.order.length,
         sheetId: worksheetId,
       },
     },
   });
 
   // update the corresponding row with event data
-  rundown.forEach((entry, index) =>
-    updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, rundownMetadata)),
-  );
+  rundown.order.forEach((entryId, index) => {
+    const entry = rundown.entries[entryId];
+    return updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, rundownMetadata));
+  });
 
   const writeResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.batchUpdate({
     spreadsheetId: sheetId,
@@ -349,13 +380,23 @@ export async function upload(sheetId: string, options: ImportMap) {
   }
 }
 
+/**
+ * Imports a sheet as a rundown
+ * @throws if the client is not authenticated
+ * @throws if the response from Google Sheets fails
+ * @throws if the sheet does not contain any data
+ */
 export async function download(
   sheetId: string,
   options: ImportMap,
 ): Promise<{
-  rundown: OntimeRundown;
+  rundown: Rundown;
   customFields: CustomFields;
 }> {
+  if (!currentAuthClient) {
+    throw new Error('Not authenticated');
+  }
+
   const { range } = await verifyWorksheet(sheetId, options.worksheet);
 
   const googleResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.values.get({
@@ -369,10 +410,31 @@ export async function download(
     throw new Error(`Sheet read failed: ${googleResponse.statusText}`);
   }
 
-  const dataFromSheet = parseExcel(googleResponse.data.values, getCustomFields(), options);
-  const { customFields, rundown } = parseRundown(dataFromSheet);
-  if (rundown.length < 1) {
+  if (!googleResponse.data.values) {
+    throw new Error('Sheet: No data found in the worksheet');
+  }
+
+  const dataFromSheet = parseExcel(googleResponse.data.values, getProjectCustomFields(), 'Rundown', options);
+
+  const rundownId = dataFromSheet.rundown.id;
+  const dataModel: Pick<DatabaseModel, 'rundowns' | 'customFields'> = {
+    rundowns: {
+      [rundownId]: dataFromSheet.rundown,
+    },
+    customFields: dataFromSheet.customFields,
+  };
+
+  const customFields = parseCustomFields(dataModel);
+  const rundowns = parseRundowns(dataModel, customFields);
+
+  const importedRundown = rundowns[rundownId];
+  if (!importedRundown) {
+    throw new Error(`Sheet: Rundown with ID ${rundownId} not found in the worksheet`);
+  }
+
+  if (importedRundown.order.length < 1) {
     throw new Error('Sheet: Could not find data to import in the worksheet');
   }
-  return { rundown, customFields };
+
+  return { rundown: rundowns[rundownId], customFields };
 }

@@ -13,7 +13,6 @@ export default function EditorSettingsForm() {
     defaultTimeStrategy,
     defaultWarnTime,
     defaultDangerTime,
-    defaultPublic,
     defaultTimerType,
     defaultEndAction,
     setDefaultDuration,
@@ -21,7 +20,6 @@ export default function EditorSettingsForm() {
     setTimeStrategy,
     setWarnTime,
     setDangerTime,
-    setDefaultPublic,
     setDefaultTimerType,
     setDefaultEndAction,
   } = useEditorSettings((state) => state);
@@ -102,7 +100,6 @@ export default function EditorSettingsForm() {
                 onChange={(event) => setDefaultEndAction(event.target.value as EndAction)}
               >
                 <option value={EndAction.None}>None</option>
-                <option value={EndAction.Stop}>Stop</option>
                 <option value={EndAction.LoadNext}>Load next</option>
                 <option value={EndAction.PlayNext}>Play next</option>
               </Select>
@@ -125,17 +122,6 @@ export default function EditorSettingsForm() {
                 submitHandler={(_field, value) => setDangerTime(value)}
                 time={dangerTimeInMs}
                 placeholder={editorSettingsDefaults.dangerTime}
-              />
-            </Panel.ListItem>
-          </Panel.ListGroup>
-          <Panel.ListGroup>
-            <Panel.ListItem>
-              <Panel.Field title='Default public' description='New events will be public' />
-              <Switch
-                variant='ontime'
-                size='lg'
-                defaultChecked={defaultPublic}
-                onChange={(event) => setDefaultPublic(event.target.checked)}
               />
             </Panel.ListItem>
           </Panel.ListGroup>

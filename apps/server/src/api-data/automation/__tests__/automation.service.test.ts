@@ -1,7 +1,7 @@
 import { PlayableEvent, TimerLifeCycle } from 'ontime-types';
 
 import { makeRuntimeStateData } from '../../../stores/__mocks__/runtimeState.mocks.js';
-import { makeOntimeEvent } from '../../../services/rundown-service/__mocks__/rundown.mocks.js';
+import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
 
 import { deleteAllTriggers, addTrigger, addAutomation } from '../automation.dao.js';
 import { testConditions, triggerAutomations } from '../automation.service.js';

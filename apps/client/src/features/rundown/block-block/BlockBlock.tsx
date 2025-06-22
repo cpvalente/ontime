@@ -1,26 +1,57 @@
 import { useRef } from 'react';
-import { IoReorderTwo } from 'react-icons/io5';
+import {
+  IoChevronDown,
+  IoChevronUp,
+  IoDuplicateOutline,
+  IoFolderOpenOutline,
+  IoReorderTwo,
+  IoTrash,
+} from 'react-icons/io5';
+import { IconButton } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { OntimeBlock } from 'ontime-types';
+import { EntryId, OntimeBlock } from 'ontime-types';
 
-import { cx } from '../../../common/utils/styleUtils';
+import { useContextMenu } from '../../../common/hooks/useContextMenu';
+import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
+import { formatDuration, formatTime } from '../../../common/utils/time';
 import EditableBlockTitle from '../common/EditableBlockTitle';
-
-import BlockDelete from './BlockDelete';
+import { canDrop } from '../rundown.utils';
 
 import style from './BlockBlock.module.scss';
 
 interface BlockBlockProps {
   data: OntimeBlock;
   hasCursor: boolean;
-  onDelete: () => void;
+  collapsed: boolean;
+  onCollapse: (collapsed: boolean, groupId: EntryId) => void;
 }
 
 export default function BlockBlock(props: BlockBlockProps) {
-  const { data, hasCursor, onDelete } = props;
-
+  const { data, hasCursor, collapsed, onCollapse } = props;
   const handleRef = useRef<null | HTMLSpanElement>(null);
+  const { clone, ungroup, deleteEntry } = useEntryActions();
+
+  const [onContextMenu] = useContextMenu<HTMLDivElement>([
+    {
+      label: 'Clone Block',
+      icon: IoDuplicateOutline,
+      onClick: () => clone(data.id),
+    },
+    {
+      label: 'Ungroup',
+      icon: IoFolderOpenOutline,
+      onClick: () => ungroup(data.id),
+      isDisabled: data.events.length === 0,
+    },
+    {
+      label: 'Delete Block',
+      icon: IoTrash,
+      onClick: () => deleteEntry([data.id]),
+      withDivider: true,
+    },
+  ]);
 
   const {
     attributes: dragAttributes,
@@ -28,25 +59,79 @@ export default function BlockBlock(props: BlockBlockProps) {
     setNodeRef,
     transform,
     transition,
+    isDragging,
+    isOver,
+    over,
   } = useSortable({
     id: data.id,
+    data: {
+      type: 'block',
+    },
     animateLayoutChanges: () => false,
   });
 
+  const binderColours = data.colour && getAccessibleColour(data.colour);
+  const isValidDrop = over?.id && canDrop(over.data.current?.type, over.data.current?.parent);
+
   const dragStyle = {
+    zIndex: isDragging ? 2 : 'inherit',
     transform: CSS.Translate.toString(transform),
     transition,
+    cursor: isOver ? (isValidDrop ? 'grabbing' : 'no-drop') : 'default',
   };
 
-  const blockClasses = cx([style.block, hasCursor ? style.hasCursor : null]);
-
   return (
-    <div className={blockClasses} ref={setNodeRef} style={dragStyle}>
-      <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
-        <IoReorderTwo />
-      </span>
-      <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
-      <BlockDelete onDelete={onDelete} />
+    <div
+      className={cx([style.block, hasCursor && style.hasCursor, !collapsed && style.expanded])}
+      ref={setNodeRef}
+      onContextMenu={onContextMenu}
+      style={{
+        ...(binderColours ? { '--user-bg': binderColours.backgroundColor } : {}),
+        ...dragStyle,
+      }}
+    >
+      <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
+        <span
+          className={cx([style.drag, isDragging && style.isDragging, isDragging && !isValidDrop && style.notAllowed])}
+          ref={handleRef}
+          {...dragAttributes}
+          {...dragListeners}
+        >
+          <IoReorderTwo />
+        </span>
+      </div>
+      <div className={style.header}>
+        <div className={style.titleRow}>
+          <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
+          <IconButton
+            aria-label='Collapse'
+            onClick={() => onCollapse(!collapsed, data.id)}
+            color='#e2e2e2' // $gray-200
+            variant='ontime-ghosted'
+            size='sm'
+          >
+            {collapsed ? <IoChevronUp /> : <IoChevronDown />}
+          </IconButton>
+        </div>
+        <div className={style.metaRow}>
+          <div className={style.metaEntry}>
+            <div>Start</div>
+            <div>{formatTime(data.startTime)}</div>
+          </div>
+          <div className={style.metaEntry}>
+            <div>End</div>
+            <div>{formatTime(data.endTime)}</div>
+          </div>
+          <div className={style.metaEntry}>
+            <div>Duration</div>
+            <div>{formatDuration(data.duration)}</div>
+          </div>
+          <div className={style.metaEntry}>
+            <div>Events</div>
+            <div>{data.events.length}</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

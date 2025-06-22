@@ -15,23 +15,22 @@ interface CuesheetEventEditorProps {
 export default function CuesheetEventEditor(props: CuesheetEventEditorProps) {
   const { eventId } = props;
   const { data } = useRundown();
-  const { order, rundown } = data;
 
   const [event, setEvent] = useState<OntimeEvent | null>(null);
 
   useEffect(() => {
-    if (order.length === 0) {
+    if (data.order.length === 0) {
       setEvent(null);
       return;
     }
 
-    const event = rundown[eventId];
+    const event = data.entries[eventId];
     if (event && isOntimeEvent(event)) {
       setEvent(event);
     } else {
       setEvent(null);
     }
-  }, [data, eventId, order, rundown]);
+  }, [eventId, data.order, data.entries]);
 
   if (!event) {
     return null;

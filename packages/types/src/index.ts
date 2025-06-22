@@ -4,15 +4,22 @@ export type { DatabaseModel } from './definitions/DataModel.type.js';
 // ---> Rundown
 export { EndAction } from './definitions/EndAction.type.js';
 export {
+  type EntryId,
   type OntimeBaseEvent,
   type OntimeDelay,
   type OntimeBlock,
   type OntimeEvent,
   type PlayableEvent,
   type TimeField,
-  SupportedEvent,
+  SupportedEntry as SupportedEntry,
 } from './definitions/core/OntimeEvent.type.js';
-export type { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.type.js';
+export type {
+  OntimeEntryCommonKeys,
+  OntimeEntry,
+  RundownEntries,
+  Rundown,
+  ProjectRundowns,
+} from './definitions/core/Rundown.type.js';
 export { TimeStrategy } from './definitions/TimeStrategy.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
 
@@ -52,8 +59,8 @@ export type { URLPreset } from './definitions/core/UrlPreset.type.js';
 export type {
   CustomFields,
   CustomField,
-  CustomFieldLabel,
-  EventCustomFields,
+  CustomFieldKey,
+  EntryCustomFields,
 } from './definitions/core/CustomFields.type.js';
 
 // SERVER RESPONSES
@@ -67,19 +74,22 @@ export type {
   ErrorResponse,
   ProjectFileListResponse,
   MessageResponse,
-  RundownPaginated,
   SessionStats,
   ProjectLogoResponse,
 } from './api/ontime-controller/BackendResponse.type.js';
 export type { QuickStartData } from './api/db/db.type.js';
 export type {
   EventPostPayload,
-  NormalisedRundown,
   PatchWithId,
-  RundownCached,
+  ProjectRundownsList,
   TransientEventPayload,
 } from './api/rundown-controller/BackendResponse.type.js';
 
+// web socket
+export { MessageTag } from './api/websocket/data.type.js';
+export type { WsPacketToServer, WsPacketToClient } from './api/websocket/data.type.js';
+export { RefetchKey } from './api/websocket/refetch.type.js';
+export type { ApiAction } from './api/websocket/api.type.js';
 // SERVER RUNTIME
 export { type Log, LogLevel, type LogMessage, LogOrigin } from './definitions/runtime/Logger.type.js';
 export { Playback } from './definitions/runtime/Playback.type.js';

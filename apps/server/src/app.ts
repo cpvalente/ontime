@@ -36,7 +36,7 @@ import { restoreService } from './services/RestoreService.js';
 import * as messageService from './services/message-service/MessageService.js';
 import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
-import { initRundown } from './services/rundown-service/RundownService.js';
+import { initRundown } from './api-data/rundown/rundown.service.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
 import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
 import { oscServer } from './adapters/OscAdapter.js';
@@ -44,7 +44,7 @@ import { oscServer } from './adapters/OscAdapter.js';
 // Utilities
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
-import { timerConfig } from './config/config.js';
+import { timerConfig } from './setup/config.js';
 import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
 
 console.log('\n');
@@ -73,10 +73,11 @@ if (!isProduction) {
   app.use(serverTiming());
 }
 app.disable('x-powered-by');
+app.enable('etag');
 
 // Implement middleware
 app.use(cors()); // setup cors for all routes
-app.options('*', cors()); // enable pre-flight cors
+app.options('*splat', cors()); // enable pre-flight cors
 
 app.use(bodyParser);
 app.use(cookieParser());
@@ -88,16 +89,16 @@ app.use(`${prefix}/data`, authenticate, appRouter); // router for application da
 app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
 
 // serve static external files
-app.use(`${prefix}/external`, express.static(publicDir.externalDir));
+app.use(`${prefix}/external`, express.static(publicDir.externalDir, { etag: false, lastModified: true }));
 app.use(`${prefix}/external`, (req, res) => {
   // if the user reaches to the root, we show a 404
   res.status(404).send(`${req.originalUrl} not found`);
 });
-app.use(`${prefix}/user`, express.static(publicDir.userDir));
+app.use(`${prefix}/user`, express.static(publicDir.userDir, { etag: false, lastModified: true }));
 
 // Base route for static files
 app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);
-app.use(`${prefix}/*`, authenticateAndRedirect, compressedStatic);
+app.use(`${prefix}/*splat`, authenticateAndRedirect, compressedStatic);
 
 // Implement catch all
 app.use((_error, response) => {
@@ -141,8 +142,11 @@ const checkStart = (currentState: OntimeStartOrder) => {
   }
 };
 
-export const initAssets = async () => {
+export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable: boolean) => void) => {
   checkStart(OntimeStartOrder.InitAssets);
+  // initialise logging service, escalateErrorFn only exists in electron
+  logger.init(escalateErrorFn);
+
   await clearUploadfolder();
   populateStyles();
   await populateDemo();
@@ -153,12 +157,8 @@ export const initAssets = async () => {
 /**
  * Starts servers
  */
-export const startServer = async (
-  escalateErrorFn?: (error: string, unrecoverable: boolean) => void,
-): Promise<{ message: string; serverPort: number }> => {
+export const startServer = async (): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
-  // initialise logging service, escalateErrorFn only exists in electron
-  logger.init(escalateErrorFn);
   const settings = getDataProvider().getSettings();
   const { serverPort: desiredPort } = settings;
 
@@ -186,9 +186,7 @@ export const startServer = async (
       block: null,
       startedAt: null,
     },
-    publicEventNow: state.publicEventNow,
     eventNext: state.eventNext,
-    publicEventNext: state.publicEventNext,
     auxtimer1: {
       duration: timerConfig.auxTimerDefault,
       current: timerConfig.auxTimerDefault,
@@ -209,7 +207,6 @@ export const startServer = async (
   // load restore point if it exists
   const maybeRestorePoint = await restoreService.load();
 
-  // TODO: pass event store to rundownservice
   runtimeService.init(maybeRestorePoint);
 
   const nif = getNetworkInterfaces();
@@ -246,7 +243,7 @@ export const startIntegrations = async () => {
  * @param {number} exitCode
  * @return {Promise<void>}
  */
-export const shutdown = async (exitCode = 0) => {
+const shutdown = async (exitCode = 0) => {
   consoleHighlight(`Ontime shutting down with code ${exitCode}`);
 
   // clear the restore file if it was a normal exit

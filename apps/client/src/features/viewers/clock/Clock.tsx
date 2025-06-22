@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectData, Settings } from 'ontime-types';
 
@@ -112,7 +113,7 @@ export default function Clock(props: ClockProps) {
   const clean = clock.replace('/:/g', '');
 
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const clockOptions = getClockOptions(defaultFormat);
+  const clockOptions = useMemo(() => getClockOptions(defaultFormat), [defaultFormat]);
 
   return (
     <div

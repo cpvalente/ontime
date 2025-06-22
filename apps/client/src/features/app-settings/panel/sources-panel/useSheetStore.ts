@@ -1,4 +1,4 @@
-import { AuthenticationStatus, CustomFields, OntimeRundown } from 'ontime-types';
+import { AuthenticationStatus, CustomFields, Rundown } from 'ontime-types';
 import { defaultImportMap, ImportMap } from 'ontime-utils';
 import { create } from 'zustand';
 
@@ -15,8 +15,8 @@ type SheetStore = {
   setAuthenticationStatus: (status: AuthenticationStatus) => void;
 
   // we get this from a preview response
-  rundown: OntimeRundown | null;
-  setRundown: (rundown: OntimeRundown | null) => void;
+  rundown: Rundown | null;
+  setRundown: (rundown: Rundown | null) => void;
 
   // we get this from a preview response
   customFields: CustomFields | null;
@@ -60,7 +60,7 @@ export const useSheetStore = create<SheetStore>((set, get) => ({
 
   setAuthenticationStatus: (status: AuthenticationStatus) => set({ authenticationStatus: status }),
 
-  setRundown: (rundown: OntimeRundown | null) => set({ rundown }),
+  setRundown: (rundown: Rundown | null) => set({ rundown }),
 
   setCustomFields: (customFields: CustomFields | null) => set({ customFields }),
 

@@ -9,8 +9,7 @@ interface StatusBarProgressProps {
   viewSettings: ViewSettings;
 }
 
-export default function StatusBarProgress(props: StatusBarProgressProps) {
-  const { viewSettings } = props;
+export default function StatusBarProgress({ viewSettings }: StatusBarProgressProps) {
   const { current, duration, timeWarning, timeDanger } = useProgressData();
 
   return (

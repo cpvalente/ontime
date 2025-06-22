@@ -8,7 +8,7 @@ $component-border-radius-sm: 2px;
 $component-border-radius-full: 99px;
 
 // semantic colours
-$action-blue: #3182ce;
+$action-blue: $blue-500;
 $action-text-color: $blue-400;
 $ontime-color: #ff7597;
 $error-red: $red-500;
@@ -16,6 +16,7 @@ $warning-orange: $orange-500;
 $info-blue: $blue-500;
 $opacity-disabled: 0.4;
 $active-red: $red-700;
+$active-green: $green-700;
 
 // playback colours
 $playback-start: $green-600;
