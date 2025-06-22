@@ -7,6 +7,14 @@ $component-border-radius-md: 3px;
 $component-border-radius-sm: 2px;
 $component-border-radius-full: 99px;
 
+// indexes
+$zindex-floating: 100;
+$zindex-nav: 200;
+$zindex-backdrop: 300;
+$zindex-dialog: 400;
+$zindex-modal: 500;
+$zindex-sudo: 1000;
+
 // semantic colours
 $action-blue: $blue-500;
 $action-text-color: $blue-400;
@@ -37,6 +45,7 @@ $bg-container-l3: $gray-1350;
 
 $bg-container-onlight: $gray-100;
 
+$backdrop-color: rgba(0, 0, 0, 0.7);
 $box-shadow-l1: rgba(0, 0, 0, 0.15) 0 3px 3px 0;
 $box-shadow-l2: rgba(0, 0, 0, 0.15) 0 3px 3px 0;
 $box-shadow-right: rgba(0, 0, 0, 0.15) 3px 0 3px 0;

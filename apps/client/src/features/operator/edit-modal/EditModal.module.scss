@@ -3,7 +3,7 @@
   top: 10%;
   left: 50%;
 
-  z-index: 2;
+  z-index: $zindex-dialog;
   transform: translateX(-50%);
 
   padding-inline: 1rem;
@@ -45,9 +45,6 @@
   padding-block: 1rem;
   display: flex;
   align-items: center;
+  justify-content: end;
   gap: 1rem;
-
-  button {
-   width: 100%;
-  }
 }
