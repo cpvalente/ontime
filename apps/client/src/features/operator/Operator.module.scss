@@ -20,12 +20,12 @@
 
 .editPrompt {
   position: fixed;
-  z-index: 1;
+  z-index: $zindex-dialog;
   left: 50%;
   transform: translate(-50%, 0);
   text-align: center;
 
-  background: rgba(0,0,0, 0.7);
+  background: $backdrop-color;
   border-radius: 2px;
   padding: 0.5em 2em;
   color: $orange-500;

@@ -4,7 +4,7 @@
   bottom: calc(1.5rem + env(safe-area-inset-bottom));
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1;
+  z-index: $zindex-floating;
 
   display: flex;
   align-items: center;

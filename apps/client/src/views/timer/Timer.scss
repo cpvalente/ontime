@@ -25,15 +25,14 @@
 
   .blackout {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    inset: 0;
+    z-index: 0;
     background-color: #000;
-    z-index: 2;
     opacity: 0;
     transition: opacity $viewer-transition-time;
+
     &--active {
+      z-index: calc($zindex-floating + 1);
       opacity: 1;
     }
   }
@@ -169,17 +168,14 @@
 
   .message-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     padding: 2vw;
     background: var(--background-color-override, $viewer-background-color);
     opacity: 0;
     transition: opacity $viewer-transition-time;
-    z-index: 2;
 
     &--active {
+      z-index: $zindex-floating;
       opacity: 1;
     }
   }

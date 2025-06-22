@@ -92,7 +92,7 @@ $inner-padding: 1rem;
   thead {
     position: sticky;
     top: 0;
-    z-index: 3;
+    z-index: $zindex-floating;
     background-color: $gray-1350;
   }
 
@@ -152,12 +152,12 @@ $inner-padding: 1rem;
 .divider {
   border-top: 1px solid $white-10;
   margin: 1rem -2rem;
-  z-index: 999;
+  z-index: $zindex-floating;
 }
 
 .overlay {
   position: absolute;
-  z-index: 10;
+  z-index: $zindex-backdrop;
   width: 100%;
   height: 100%;
   backdrop-filter: blur(2px);
