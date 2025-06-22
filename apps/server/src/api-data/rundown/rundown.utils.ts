@@ -23,6 +23,7 @@ import {
 
 import { event as eventDef, block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { makeString } from '../../utils/parserUtils.js';
+import { RundownMetadata } from './rundown.types.js';
 
 type CompleteEntry<T> =
   T extends Partial<OntimeEvent>
@@ -355,4 +356,24 @@ export function getInsertAfterId(rundown: Rundown, afterId?: EntryId, beforeId?:
   }
 
   return null;
+}
+
+/**
+ * converts an index from the timedEventOrder to an index in the playableEventOrder
+ * or returns null if it can not be found
+ */
+export function getPlayableIndexFromTimedIndex(metadata: RundownMetadata, index: number): number | null {
+  const timedId = metadata.timedEventOrder[index];
+  const playableIndex = metadata.playableEventOrder.findIndex((id) => id === timedId);
+  return playableIndex < 0 ? null : playableIndex;
+}
+
+/**
+ * converts an index from the playableEventOrder to an index in the timedEventOrder
+ * all indexes in playableEventOrder must also exist in timedEventOrder, otherwise the app is broken
+ */
+export function getTimedIndexFromPlayableIndex(metadata: RundownMetadata, index: number): number {
+  const playableId = metadata.playableEventOrder[index];
+  const timedIndex = metadata.timedEventOrder.findIndex((id) => id === playableId);
+  return timedIndex;
 }
