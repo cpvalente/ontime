@@ -1,7 +1,5 @@
 export const navigatorConstants = [
   { url: 'timer', label: 'Timer' },
-  { url: 'minimal', label: 'Minimal Timer' },
-  { url: 'clock', label: 'Wall Clock' },
   { url: 'backstage', label: 'Backstage' },
   { url: 'timeline', label: 'Timeline (beta)' },
   { url: 'lower', label: 'Lower Thirds' },

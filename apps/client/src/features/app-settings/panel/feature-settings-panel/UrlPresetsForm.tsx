@@ -198,7 +198,7 @@ export default function UrlPresetsForm() {
                       <TooltipActionBtn
                         size='sm'
                         isDisabled={!canTest}
-                        clickHandler={(event) => handleLinks(event, preset.alias)}
+                        clickHandler={(event) => handleLinks(preset.alias, event)}
                         tooltip='Test preset'
                         aria-label='Test preset'
                         variant='ontime-ghosted'

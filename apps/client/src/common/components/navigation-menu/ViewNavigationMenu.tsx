@@ -2,10 +2,10 @@ import { memo } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
 import { useHotkeys } from '@mantine/hooks';
 
-import FloatingNavigation from './FloatingNavigation';
+import FloatingNavigation from './floating-navigation/FloatingNavigation';
+import ViewLockedIcon from './view-locked-icon/ViewLockedIcon';
 import NavigationMenu from './NavigationMenu';
 import useViewEditor from './useViewEditor';
-import ViewLockedIcon from './ViewLockedIcon';
 
 interface ViewNavigationMenuProps {
   isLockable?: boolean;

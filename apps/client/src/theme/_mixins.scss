@@ -2,20 +2,6 @@
 
 //////////////////////////////////// general app elements
 
-@mixin action-link {
-  color: $action-text-color;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition-property: color;
-  transition-duration: $transition-time-action;
-  white-space: nowrap;
-
-  &:hover {
-    color: $ontime-color;
-  }
-}
-
 @mixin ellipsis-text {
   white-space: nowrap;
   overflow: hidden;

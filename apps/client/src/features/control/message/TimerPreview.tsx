@@ -49,7 +49,7 @@ export default function TimerPreview() {
 
   return (
     <div className={style.preview}>
-      <Corner onClick={(event) => handleLinks(event, 'timer')} />
+      <Corner onClick={(event) => handleLinks('timer', event)} />
       <div className={contentClasses}>
         <div
           className={style.mainContent}
