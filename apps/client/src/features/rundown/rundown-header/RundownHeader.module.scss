@@ -1,8 +1,7 @@
 .header {
-  padding-inline: calc(2.5rem - 6px) calc(1rem + 2px);
+  padding-inline: calc(2.5rem - 6px) 2rem;
   display: flex;
   align-items: center;
-  gap: 1px;
 
   :is([data-target='small-device']) & {
     padding-inline: 0;
@@ -12,7 +11,12 @@
 
 .group {
   display: flex;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 2px;
+  padding-inline: 2px;
+  background: $gray-1100;
+  border-radius: $component-border-radius-md;
+  height: 2rem;
 }
 
 .button {
@@ -20,7 +24,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 2rem;
+  height: calc(2rem - 4px); // padding inline * 2
   padding-inline: 1em;
   border: 1px solid transparent;
   border-radius: $component-border-radius-md;
