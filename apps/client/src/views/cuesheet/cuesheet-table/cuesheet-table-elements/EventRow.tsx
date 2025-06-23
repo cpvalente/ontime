@@ -29,6 +29,7 @@ interface EventRowProps {
 export default memo(EventRow, (prevProps, nextProps) => {
   return (
     prevProps.rowId === nextProps.rowId &&
+    prevProps.event.id === nextProps.event.id &&
     prevProps.event.revision === nextProps.event.revision &&
     prevProps.eventIndex === nextProps.eventIndex &&
     prevProps.rowIndex === nextProps.rowIndex &&
