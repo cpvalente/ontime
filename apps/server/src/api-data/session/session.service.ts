@@ -10,6 +10,7 @@ import { getNetworkInterfaces } from '../../utils/network.js';
 import { getTimezoneLabel } from '../../utils/time.js';
 import { password, routerPrefix } from '../../externals.js';
 import { hashPassword } from '../../utils/hash.js';
+import { ONTIME_VERSION } from '../../ONTIME_VERSION.js';
 
 const startedAt = new Date();
 
@@ -28,6 +29,7 @@ export async function getSessionStats(): Promise<SessionStats> {
     projectName,
     playback,
     timezone: getTimezoneLabel(startedAt),
+    version: ONTIME_VERSION,
   };
 }
 

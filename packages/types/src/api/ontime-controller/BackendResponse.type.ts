@@ -15,6 +15,7 @@ export interface SessionStats {
   projectName: string;
   playback: Playback;
   timezone: string;
+  version: string;
 }
 
 export interface GetInfo {
