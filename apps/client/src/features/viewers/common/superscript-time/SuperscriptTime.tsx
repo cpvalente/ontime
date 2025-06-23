@@ -24,9 +24,7 @@ function getTimerParts(time: string) {
  * @example 12:00 AM -> AM becomes a superscript
  * @example 12:00:10 -> the seconds become a subscript
  */
-export default function SuperscriptTime(props: SuperscriptTimeProps) {
-  const { time, className, style } = props;
-
+export default function SuperscriptTime({ time, className, style }: SuperscriptTimeProps) {
   // we assume anything after space is a period tag
   const [timeString, period] = time.split(' ');
   const [mainTime, subscript] = getTimerParts(timeString);

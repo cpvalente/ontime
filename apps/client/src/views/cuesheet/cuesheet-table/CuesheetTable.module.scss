@@ -56,7 +56,7 @@ $table-header-font-size: calc(1rem - 2px);
 .tableHeader {
   position: sticky;
   top: 0px;
-  z-index: 10;
+  z-index: $zindex-floating;
   background-color: $ui-black;
   font-size: $table-header-font-size;
   color: $label-gray;

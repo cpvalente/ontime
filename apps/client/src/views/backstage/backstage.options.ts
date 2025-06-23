@@ -2,12 +2,10 @@ import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CustomFields, OntimeEvent } from 'ontime-types';
 
-import {
-  getTimeOption,
-  makeOptionsFromCustomFields,
-  OptionTitle,
-} from '../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../common/components/view-params-editor/types';
+import { getTimeOption } from '../../common/components/view-params-editor/common.options';
+import { OptionTitle } from '../../common/components/view-params-editor/constants';
+import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
+import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
 import { scheduleOptions } from '../common/schedule/schedule.options';
 
 export const getBackstageOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {

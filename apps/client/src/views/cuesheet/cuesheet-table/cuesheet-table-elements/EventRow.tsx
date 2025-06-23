@@ -2,7 +2,7 @@ import { memo, MutableRefObject, useLayoutEffect, useRef, useState } from 'react
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { flexRender, Table } from '@tanstack/react-table';
 import Color from 'color';
-import { OntimeEvent, OntimeRundownEntry } from 'ontime-types';
+import { OntimeEntry, OntimeEvent } from 'ontime-types';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
@@ -21,7 +21,7 @@ interface EventRowProps {
   skip?: boolean;
   colour?: string;
   rowBgColour?: string;
-  table: Table<OntimeRundownEntry>;
+  table: Table<OntimeEntry>;
   /** hack to force re-rendering of the row when the column sizes change */
   columnHash: string;
 }

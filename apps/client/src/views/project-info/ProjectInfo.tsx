@@ -9,7 +9,6 @@ import { useTranslation } from '../../translation/TranslationProvider';
 
 import BackstageInfo from './backstage-info/BackstageInfo';
 import CustomInfo from './custom-info/CustomInfo';
-import PublicInfo from './public-info/PublicInfo';
 import { projectInfoOptions } from './projectInfo.options';
 
 import './ProjectInfo.scss';
@@ -38,7 +37,13 @@ export default function ProjectInfo(props: ProjectInfoProps) {
     );
   }
 
-  const isEmpty = Object.values(general).every((value) => !value);
+  /**
+   * Check if there is data to show at all
+   * We need a special check for the project fields which can be an empty array
+   */
+  const isEmpty = Object.values(general).every(
+    (value) => !value || (value && Array.isArray(value) && value.length === 0),
+  );
   if (isEmpty) {
     return (
       <>
@@ -66,7 +71,6 @@ export default function ProjectInfo(props: ProjectInfoProps) {
           </>
         )}
         <BackstageInfo general={general} />
-        <PublicInfo general={general} />
         <CustomInfo general={general} />
       </div>
     </div>

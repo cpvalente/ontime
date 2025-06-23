@@ -1,4 +1,3 @@
-import { AnimatePresence } from 'framer-motion';
 import {
   CustomFields,
   MessageState,
@@ -11,6 +10,7 @@ import {
 
 import { FitText } from '../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../common/components/multi-part-progress-bar/MultiPartProgressBar';
+import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
@@ -20,8 +20,8 @@ import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, getTimerByType } from '../../features/viewers/common/viewUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
+import { getTimerColour } from '../utils/presentation.utils';
 
-import { MotionTitleCard, titleVariants } from './timer.animations';
 import { getTimerOptions, useTimerOptions } from './timer.options';
 import {
   getCardData,
@@ -32,7 +32,6 @@ import {
   getShowMessage,
   getShowModifiers,
   getShowProgressBar,
-  getTimerColour,
   getTotalTime,
 } from './timer.utils';
 
@@ -60,7 +59,7 @@ export default function Timer(props: TimerProps) {
     hideCards,
     hideProgress,
     hideMessage,
-    hideExternal,
+    hideSecondary,
     hideTimerSeconds,
     removeLeadingZeros,
     mainSource,
@@ -111,7 +110,7 @@ export default function Timer(props: TimerProps) {
     localisedMinutes,
     hideTimerSeconds,
     removeLeadingZeros,
-    hideExternal,
+    hideSecondary,
   );
 
   // gather presentation styles
@@ -189,37 +188,8 @@ export default function Timer(props: TimerProps) {
 
       {!hideCards && (
         <>
-          <AnimatePresence>
-            {showNow && (
-              <MotionTitleCard
-                className='event now'
-                key='now'
-                variants={titleVariants}
-                initial='hidden'
-                animate='visible'
-                exit='exit'
-                label='now'
-                title={nowMain}
-                secondary={nowSecondary}
-              />
-            )}
-          </AnimatePresence>
-
-          <AnimatePresence>
-            {showNext && (
-              <MotionTitleCard
-                className='event next'
-                key='next'
-                variants={titleVariants}
-                initial='hidden'
-                animate='visible'
-                exit='exit'
-                label='next'
-                title={nextMain}
-                secondary={nextSecondary}
-              />
-            )}
-          </AnimatePresence>
+          {showNow && <TitleCard className='event now' label='now' title={nowMain} secondary={nowSecondary} />}
+          {showNext && <TitleCard className='event next' label='next' title={nextMain} secondary={nextSecondary} />}
         </>
       )}
     </div>

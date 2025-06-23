@@ -1,14 +1,14 @@
 import { memo } from 'react';
 import { IoAlertCircleOutline, IoLink, IoLockClosed, IoLockOpenOutline, IoUnlink } from 'react-icons/io5';
 import { InputRightElement, Tooltip } from '@chakra-ui/react';
-import { MaybeString, TimeField, TimeStrategy } from 'ontime-types';
+import { TimeField, TimeStrategy } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
+import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
-import { useEventAction } from '../../../common/hooks/useEventAction';
+import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayFast, tooltipDelayMid } from '../../../ontimeConfig';
-import * as Editor from '../../editors/editor-utils/EditorUtils';
 
 import style from './TimeInputFlow.module.scss';
 
@@ -19,14 +19,14 @@ interface EventBlockTimerProps {
   timeEnd: number;
   duration: number;
   timeStrategy: TimeStrategy;
-  linkStart: MaybeString;
+  linkStart: boolean;
   delay: number;
   showLabels?: boolean;
 }
 
 function TimeInputFlow(props: EventBlockTimerProps) {
   const { eventId, countToEnd, timeStart, timeEnd, duration, timeStrategy, linkStart, delay, showLabels } = props;
-  const { updateEvent, updateTimer } = useEventAction();
+  const { updateEntry, updateTimer } = useEntryActions();
 
   // In sync with EventEditorTimes
   const handleSubmit = (field: TimeField, value: string) => {
@@ -34,11 +34,11 @@ function TimeInputFlow(props: EventBlockTimerProps) {
   };
 
   const handleChangeStrategy = (timeStrategy: TimeStrategy) => {
-    updateEvent({ id: eventId, timeStrategy });
+    updateEntry({ id: eventId, timeStrategy });
   };
 
   const handleLink = (doLink: boolean) => {
-    updateEvent({ id: eventId, linkStart: doLink ? 'true' : null });
+    updateEntry({ id: eventId, linkStart: doLink });
   };
 
   const warnings = [];
@@ -55,9 +55,9 @@ function TimeInputFlow(props: EventBlockTimerProps) {
   const isLockedEnd = timeStrategy === TimeStrategy.LockEnd;
   const isLockedDuration = timeStrategy === TimeStrategy.LockDuration;
 
-  const activeStart = cx([style.timeAction, linkStart ? style.active : null]);
-  const activeEnd = cx([style.timeAction, isLockedEnd ? style.active : null]);
-  const activeDuration = cx([style.timeAction, isLockedDuration ? style.active : null]);
+  const activeStart = cx([style.timeAction, linkStart && style.active]);
+  const activeEnd = cx([style.timeAction, isLockedEnd && style.active]);
+  const activeDuration = cx([style.timeAction, isLockedDuration && style.active]);
 
   return (
     <>
@@ -69,7 +69,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
           time={timeStart}
           hasDelay={hasDelay}
           placeholder='Start'
-          disabled={Boolean(linkStart)}
+          disabled={linkStart}
         >
           <Tooltip label='Link start to previous end' openDelay={tooltipDelayMid}>
             <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)}>

@@ -1,15 +1,13 @@
 import { MaybeNumber } from 'ontime-types';
 import { dayInMs, millisToString } from 'ontime-utils';
 
-import { enDash, timerPlaceholder } from '../../common/utils/styleUtils';
+import { enDash, timerPlaceholder, timerPlaceholderMin } from '../../common/utils/styleUtils';
 
 /**
  * Encapsulates the logic for formatting time in overview
- * @param time
- * @returns
  */
-export function formatedTime(time: MaybeNumber) {
-  return millisToString(time, { fallback: timerPlaceholder });
+export function formatedTime(time: MaybeNumber, segments: number = 3): string {
+  return millisToString(time, { fallback: segments === 3 ? timerPlaceholder : timerPlaceholderMin });
 }
 
 /**

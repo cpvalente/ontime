@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CustomFields, OntimeEvent, ViewSettings } from 'ontime-types';
 import { isPlaybackActive, MILLIS_PER_SECOND } from 'ontime-utils';
 
@@ -26,7 +26,7 @@ export default function LowerThird(props: LowerProps) {
   const animationTimeout = useRef<NodeJS.Timeout>();
   const [playState, setPlayState] = useState<boolean>(false);
   const [textValue, setTextValue] = useState<{ top: string; bottom: string }>({ top: '', bottom: '' });
-  useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  useRuntimeStylesheet(viewSettings?.overrideStyles ? overrideStylesURL : undefined);
   const options = useLowerOptions();
   const { playback } = time;
 
@@ -95,9 +95,12 @@ export default function LowerThird(props: LowerProps) {
   const textDuration = playState ? `${options.transitionIn * 0.5}s` : `${options.transitionOut * 0.5}s`;
   const textDelay = playState ? `${options.delay + options.transitionIn * 0.5}s` : '0s';
 
+  // gather option data
+  const lowerThirdOptions = useMemo(() => getLowerThirdOptions(customFields), [customFields]);
+
   return (
     <div className='lower-third' style={{ backgroundColor: `#${options.key}` }}>
-      <ViewParamsEditor viewOptions={getLowerThirdOptions(customFields)} />
+      <ViewParamsEditor viewOptions={lowerThirdOptions} />
       <div
         className={`container ${playState ? 'container--in' : 'container--out'}`}
         style={{

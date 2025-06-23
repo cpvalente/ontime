@@ -1,0 +1,98 @@
+@use '../../../theme/viewerDefs' as *;
+
+.baseButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+
+  width: fit-content;
+  padding-inline: 1em;
+
+  border: 1px solid transparent;
+  border-radius: $component-border-radius-md;
+
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.subtle {
+  background: $gray-1050;
+  color: $blue-400;
+
+  &:hover:not(:disabled):not(:active) {
+    background: $gray-1000;
+    color: $blue-500;
+  }
+
+  &:active:not(:disabled) {
+    background: $gray-1100;
+    border-color: $gray-1250;
+  }
+}
+
+.primary {
+  background: $blue-700;
+  color: $ui-white;
+
+  &:hover:not(:disabled):not(:active) {
+    background: $blue-600;
+  }
+
+  &:active:not(:disabled) {
+    background: $blue-800;
+    border-color: $blue-900;
+  }
+
+  &:disabled {
+    opacity: $viewer-opacity-disabled;
+  }
+}
+
+.destructive {
+  background: $red-700;
+  color: $ui-white;
+
+  &:hover:not(:disabled):not(:active) {
+    background: $red-600;
+    color: $ui-white;
+  }
+
+  &:active:not(:disabled) {
+    background: $red-800;
+    border-color: $red-900;
+  }
+}
+
+.subtle-destructive {
+  background: $gray-1050;
+  color: $red-400;
+
+  &:hover:not(:disabled):not(:active) {
+    background: $gray-1000;
+    color: $red-500;
+  }
+
+  &:active:not(:disabled) {
+    background: $gray-1100;
+    border-color: $gray-1250;
+  }
+}
+
+.medium {
+  height: 2rem;
+}
+
+.large {
+  height: 2.5rem;
+  font-weight: 600;
+}
+
+.xlarge {
+  height: 3rem;
+  font-weight: 600;
+}

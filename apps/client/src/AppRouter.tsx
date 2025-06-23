@@ -18,20 +18,19 @@ import ViewLoader from './views/ViewLoader';
 import { ONTIME_VERSION } from './ONTIME_VERSION';
 import { sentryDsn, sentryRecommendedIgnore } from './sentry.config';
 
-const Editor = React.lazy(() => import('./features/editors/ProtectedEditor'));
+const Editor = React.lazy(() => import('./views/editor/ProtectedEditor'));
 const Cuesheet = React.lazy(() => import('./views/cuesheet/ProtectedCuesheet'));
 const Operator = React.lazy(() => import('./features/operator/OperatorExport'));
 
 const TimerView = React.lazy(() => import('./views/timer/Timer'));
 const MinimalTimerView = React.lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
 const ClockView = React.lazy(() => import('./features/viewers/clock/Clock'));
-const Countdown = React.lazy(() => import('./features/viewers/countdown/Countdown'));
+const Countdown = React.lazy(() => import('./views/countdown/Countdown'));
 
 const Backstage = React.lazy(() => import('./views/backstage/Backstage'));
 const Timeline = React.lazy(() => import('./views/timeline/TimelinePage'));
-const Public = React.lazy(() => import('./views/public/Public'));
 const Lower = React.lazy(() => import('./features/viewers/lower-thirds/LowerThird'));
-const StudioClock = React.lazy(() => import('./features/viewers/studio/StudioClock'));
+const StudioClock = React.lazy(() => import('./views/studio/Studio'));
 const ProjectInfo = React.lazy(() => import('./views/project-info/ProjectInfo'));
 
 const STimer = withPreset(withData(TimerView));
@@ -40,7 +39,6 @@ const SClock = withPreset(withData(ClockView));
 const SCountdown = withPreset(withData(Countdown));
 const SBackstage = withPreset(withData(Backstage));
 const SProjectInfo = withPreset(withData(ProjectInfo));
-const SPublic = withPreset(withData(Public));
 const SLowerThird = withPreset(withData(Lower));
 const SStudio = withPreset(withData(StudioClock));
 const STimeline = withPreset(withData(Timeline));
@@ -85,14 +83,6 @@ export default function AppRouter() {
           element={
             <ViewLoader>
               <STimer />
-            </ViewLoader>
-          }
-        />
-        <Route
-          path='/public'
-          element={
-            <ViewLoader>
-              <SPublic />
             </ViewLoader>
           }
         />

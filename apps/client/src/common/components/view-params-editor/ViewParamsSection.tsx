@@ -3,8 +3,9 @@ import { useLocalStorage } from '@mantine/hooks';
 
 import { cx } from '../../utils/styleUtils';
 
+import { OptionTitle } from './constants';
 import ParamInput from './ParamInput';
-import { type ParamField } from './types';
+import { type ParamField } from './viewParams.types';
 
 import style from './ViewParamsSection.module.scss';
 
@@ -14,9 +15,7 @@ interface ViewParamsSectionProps {
   options: ParamField[];
 }
 
-export default function ViewParamsSection(props: ViewParamsSectionProps) {
-  const { title, collapsible, options } = props;
-
+export default function ViewParamsSection({ title, collapsible, options }: ViewParamsSectionProps) {
   const [collapsed, setCollapsed] = useLocalStorage({ key: `params-${title}`, defaultValue: false });
 
   const handleCollapse = () => {
@@ -27,28 +26,52 @@ export default function ViewParamsSection(props: ViewParamsSectionProps) {
 
   return (
     <section className={style.section}>
-      <div className={cx([style.sectionHeader, collapsible && style.collapsible])} onClick={handleCollapse}>
-        {title}
-        {collapsible && <IoChevronDown className={cx([collapsed ? style.closed : style.open])} />}
-      </div>
-
-      {!collapsed && (
+      {title === OptionTitle.Hidden ? (
+        <HiddenContents options={options} />
+      ) : (
         <>
-          {options.map((option) => {
-            if (option.type === 'persist') {
-              return null;
-            }
-
-            return (
-              <label key={option.title} className={style.label}>
-                <span className={style.title}>{option.title}</span>
-                <span className={style.description}>{option.description}</span>
-                <ParamInput paramField={option} />
-              </label>
-            );
-          })}
+          <div className={cx([style.sectionHeader, collapsible && style.collapsible])} onClick={handleCollapse}>
+            {title}
+            {collapsible && <IoChevronDown className={cx([collapsed ? style.closed : style.open])} />}
+          </div>
+          <SectionContents options={options} collapsed={collapsed} />
         </>
       )}
     </section>
+  );
+}
+
+interface SectionContentsProps {
+  options: ParamField[];
+  collapsed: boolean;
+}
+
+function SectionContents({ options, collapsed }: SectionContentsProps) {
+  if (collapsed) {
+    return null;
+  }
+
+  return (
+    <>
+      {options.map((option) => {
+        return (
+          <label key={option.title} className={style.label}>
+            <span className={style.title}>{option.title}</span>
+            <span className={style.description}>{option.description}</span>
+            <ParamInput paramField={option} />
+          </label>
+        );
+      })}
+    </>
+  );
+}
+
+function HiddenContents({ options }: { options: ParamField[] }) {
+  return (
+    <>
+      {options.map((option, index) => {
+        return <ParamInput key={option.title + index} paramField={option} />;
+      })}
+    </>
   );
 }

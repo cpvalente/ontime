@@ -10,12 +10,12 @@ export const ontimeCheckboxOnDark = {
       opacity: 0.6,
     },
     _checked: {
-      borderColor: '#3182ce', // $action-blue
-      backgroundColor: '#3182ce', //$action-blue
+      borderColor: '#578AF4', // $blue-500
+      backgroundColor: '#578AF4', // $blue-500
       _disabled: {
         color: 'white',
-        borderColor: '#3182ce', // $action-blue
-        backgroundColor: '#3182ce', //$action-blue
+        borderColor: '#578AF4', // $blue-500
+        backgroundColor: '#578AF4', // $blue-500
         opacity: 0.6,
       },
     },

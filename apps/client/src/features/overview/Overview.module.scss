@@ -17,7 +17,7 @@
     background-color: $red-700;
     border-radius: 2px;
     font-size: calc(1rem - 2px);
-    z-index: 10;
+    z-index: $zindex-sudo;
   }
 }
 

@@ -2,10 +2,10 @@ import { isImportMap } from 'ontime-utils';
 
 import { body, param, validationResult } from 'express-validator';
 import { NextFunction, Request, Response } from 'express';
+import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 export const validateRequestConnection = [
   param('sheetId')
-    .exists()
     .isString()
     .isLength({
       min: 20,
@@ -15,34 +15,29 @@ export const validateRequestConnection = [
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    if (!errors.isEmpty()) {
+      res.status(422).json({ errors: errors.array() });
+      return;
+    }
+    // check that the file exists
+    if (!req.file) {
+      res.status(422).json({ errors: 'File not found' });
+      return;
+    }
     next();
   },
 ];
 
-export const validateSheetId = [
-  param('sheetId').exists().isString(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
+export const validateSheetId = [param('sheetId').isString().trim().notEmpty(), requestValidationFunction];
 
 export const validateSheetOptions = [
-  param('sheetId').exists().isString(),
+  param('sheetId').isString().trim().notEmpty(),
   body('options')
-    .exists()
     .isObject()
     .custom((content) => {
       const isValid = isImportMap(content);
       return isValid;
     }),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];

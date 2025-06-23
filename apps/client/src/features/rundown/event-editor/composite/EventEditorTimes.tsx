@@ -1,13 +1,13 @@
 import { memo } from 'react';
 import { IoInformationCircle } from 'react-icons/io5';
 import { Select, Switch, Tooltip } from '@chakra-ui/react';
-import { EndAction, MaybeString, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
+import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
-import { useEventAction } from '../../../../common/hooks/useEventAction';
+import { useEntryActions } from '../../../../common/hooks/useEntryAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
-import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
 import style from '../EventEditor.module.scss';
@@ -18,18 +18,18 @@ interface EventEditorTimesProps {
   timeEnd: number;
   duration: number;
   timeStrategy: TimeStrategy;
-  linkStart: MaybeString;
+  linkStart: boolean;
   countToEnd: boolean;
   delay: number;
-  isPublic: boolean;
   endAction: EndAction;
   timerType: TimerType;
   timeWarning: number;
   timeDanger: number;
 }
 
-type HandledActions = 'countToEnd' | 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
+type HandledActions = 'countToEnd' | 'timerType' | 'endAction' | 'timeWarning' | 'timeDanger';
 
+export default memo(EventEditorTimes);
 function EventEditorTimes(props: EventEditorTimesProps) {
   const {
     eventId,
@@ -40,33 +40,27 @@ function EventEditorTimes(props: EventEditorTimesProps) {
     linkStart,
     countToEnd,
     delay,
-    isPublic,
     endAction,
     timerType,
     timeWarning,
     timeDanger,
   } = props;
-  const { updateEvent } = useEventAction();
+  const { updateEntry } = useEntryActions();
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
-    if (field === 'isPublic') {
-      updateEvent({ id: eventId, isPublic: !(value as boolean) });
-      return;
-    }
-
     if (field === 'countToEnd') {
-      updateEvent({ id: eventId, countToEnd: !(value as boolean) });
+      updateEntry({ id: eventId, countToEnd: !(value as boolean) });
       return;
     }
 
     if (field === 'timeWarning' || field === 'timeDanger') {
       const newTime = parseUserTime(value as string);
-      updateEvent({ id: eventId, [field]: newTime });
+      updateEntry({ id: eventId, [field]: newTime });
       return;
     }
 
     if (field === 'timerType' || field === 'endAction') {
-      updateEvent({ id: eventId, [field]: value });
+      updateEntry({ id: eventId, [field]: value });
       return;
     }
   };
@@ -114,7 +108,6 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               variant='ontime'
             >
               <option value={EndAction.None}>None</option>
-              <option value={EndAction.Stop}>Stop rundown</option>
               <option value={EndAction.LoadNext}>Load next event</option>
               <option value={EndAction.PlayNext}>Play next event</option>
             </Select>
@@ -161,44 +154,31 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               <option value={TimerType.None}>None</option>
             </Select>
           </div>
-          <div>
-            <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
-            <TimeInput
-              id='timeWarning'
-              name='timeWarning'
-              submitHandler={handleSubmit}
-              time={timeWarning}
-              placeholder='Duration'
-            />
-          </div>
 
-          <div>
-            <Editor.Label htmlFor='isPublic'>Event Visibility</Editor.Label>
-            <Editor.Label className={style.switchLabel}>
-              <Switch
-                id='isPublic'
-                size='md'
-                isChecked={isPublic}
-                onChange={() => handleSubmit('isPublic', isPublic)}
-                variant='ontime'
+          <div className={style.inline}>
+            <div>
+              <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
+              <TimeInput
+                id='timeWarning'
+                name='timeWarning'
+                submitHandler={handleSubmit}
+                time={timeWarning}
+                placeholder='Duration'
               />
-              {isPublic ? 'Public' : 'Private'}
-            </Editor.Label>
-          </div>
-          <div>
-            <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
-            <TimeInput
-              id='timeDanger'
-              name='timeDanger'
-              submitHandler={handleSubmit}
-              time={timeDanger}
-              placeholder='Duration'
-            />
+            </div>
+            <div>
+              <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
+              <TimeInput
+                id='timeDanger'
+                name='timeDanger'
+                submitHandler={handleSubmit}
+                time={timeDanger}
+                placeholder='Duration'
+              />
+            </div>
           </div>
         </div>
       </div>
     </>
   );
 }
-
-export default memo(EventEditorTimes);

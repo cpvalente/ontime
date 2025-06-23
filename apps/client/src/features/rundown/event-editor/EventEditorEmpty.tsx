@@ -1,8 +1,8 @@
 import { memo, PropsWithChildren } from 'react';
 import { Kbd } from '@chakra-ui/react';
 
+import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';
-import * as Editor from '../../editors/editor-utils/EditorUtils';
 
 import style from './EventEditorEmpty.module.scss';
 

@@ -6,11 +6,11 @@ import { validateTimerType } from 'ontime-utils';
 import {
   getTimeOption,
   hideTimerSeconds,
-  makeOptionsFromCustomFields,
-  OptionTitle,
   showLeadingZeros,
-} from '../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../common/components/view-params-editor/types';
+} from '../../common/components/view-params-editor/common.options';
+import { OptionTitle } from '../../common/components/view-params-editor/constants';
+import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
+import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 
 // manually match the properties of TimerType excluding the None
@@ -99,8 +99,8 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
           defaultValue: false,
         },
         {
-          id: 'hideExternal',
-          title: 'Hide Auxiliary timer / External message',
+          id: 'hideSecondary',
+          title: 'Hide Auxiliary timer / Secondary message',
           description: 'Prevents the screen from displaying the secondary timer field',
           type: 'boolean',
           defaultValue: false,
@@ -115,7 +115,7 @@ type TimerOptions = {
   hideCards: boolean;
   hideProgress: boolean;
   hideMessage: boolean;
-  hideExternal: boolean;
+  hideSecondary: boolean;
   hideTimerSeconds: boolean;
   removeLeadingZeros: boolean;
   mainSource: keyof OntimeEvent | null;
@@ -135,7 +135,7 @@ function getOptionsFromParams(searchParams: URLSearchParams): TimerOptions {
     hideCards: isStringBoolean(searchParams.get('hideCards')),
     hideProgress: isStringBoolean(searchParams.get('hideProgress')),
     hideMessage: isStringBoolean(searchParams.get('hideMessage')),
-    hideExternal: isStringBoolean(searchParams.get('hideExternal')),
+    hideSecondary: isStringBoolean(searchParams.get('hideSecondary')),
     hideTimerSeconds: isStringBoolean(searchParams.get('hideTimerSeconds')),
     removeLeadingZeros: !isStringBoolean(searchParams.get('showLeadingZeros')),
 

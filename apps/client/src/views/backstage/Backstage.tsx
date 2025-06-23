@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { useViewportSize } from '@mantine/hooks';
 import { CustomFields, OntimeEvent, ProjectData, Runtime, Settings } from 'ontime-types';
@@ -23,7 +23,7 @@ import { getCardData, getIsPendingStart, getShowProgressBar, isOvertime } from '
 import './Backstage.scss';
 
 interface BackstageProps {
-  backstageEvents: OntimeEvent[];
+  events: OntimeEvent[];
   customFields: CustomFields;
   eventNext: OntimeEvent | null;
   eventNow: OntimeEvent | null;
@@ -36,18 +36,7 @@ interface BackstageProps {
 }
 
 export default function Backstage(props: BackstageProps) {
-  const {
-    backstageEvents,
-    customFields,
-    eventNext,
-    eventNow,
-    general,
-    time,
-    isMirrored,
-    runtime,
-    selectedId,
-    settings,
-  } = props;
+  const { events, customFields, eventNext, eventNow, general, time, isMirrored, runtime, selectedId, settings } = props;
 
   const { getLocalizedString } = useTranslation();
   const { secondarySource } = useBackstageOptions();
@@ -68,7 +57,7 @@ export default function Backstage(props: BackstageProps) {
   }, [selectedId]);
 
   // gather card data
-  const hasEvents = backstageEvents.length > 0;
+  const hasEvents = events.length > 0;
   const { showNow, nowMain, nowSecondary, showNext, nextMain, nextSecondary } = getCardData(
     eventNow,
     eventNext,
@@ -105,13 +94,16 @@ export default function Backstage(props: BackstageProps) {
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const backstageOptions = getBackstageOptions(defaultFormat, customFields);
+  const backstageOptions = useMemo(
+    () => getBackstageOptions(defaultFormat, customFields),
+    [defaultFormat, customFields],
+  );
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
       <ViewParamsEditor viewOptions={backstageOptions} />
       <div className='project-header'>
-        {general?.projectLogo ? <ViewLogo name={general.projectLogo} className='logo' /> : <div className='logo' />}
+        {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
         <div className='title'>{general.title}</div>
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>
@@ -176,7 +168,7 @@ export default function Backstage(props: BackstageProps) {
         )}
       </div>
 
-      {showSchedule && <ScheduleExport selectedId={selectedId} isBackstage />}
+      {showSchedule && <ScheduleExport selectedId={selectedId} />}
 
       <div className={cx(['info', !showSchedule && 'info--stretch'])}>
         {general.backstageUrl && <QRCode value={general.backstageUrl} size={qrSize} level='L' className='qr' />}

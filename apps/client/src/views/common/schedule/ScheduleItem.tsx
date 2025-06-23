@@ -16,14 +16,13 @@ interface ScheduleItemProps {
   timeStart: number;
   timeEnd: number;
   title: string;
-  backstageEvent: boolean;
   colour?: string;
   skip?: boolean;
   delay: number;
 }
 
 export default function ScheduleItem(props: ScheduleItemProps) {
-  const { timeStart, timeEnd, title, backstageEvent, colour, skip, delay } = props;
+  const { timeStart, timeEnd, title, colour, skip, delay } = props;
   const { showProjected } = useScheduleOptions();
 
   if (showProjected) {
@@ -33,7 +32,6 @@ export default function ScheduleItem(props: ScheduleItemProps) {
         timeEnd={timeEnd}
         title={title}
         colour={colour}
-        backstageEvent={backstageEvent}
         skip={skip}
         delay={delay}
       />
@@ -47,7 +45,6 @@ export default function ScheduleItem(props: ScheduleItemProps) {
         timeEnd={timeEnd}
         title={title}
         colour={colour}
-        backstageEvent={backstageEvent}
         skip={skip}
         delay={delay}
       />
@@ -63,7 +60,6 @@ export default function ScheduleItem(props: ScheduleItemProps) {
         <SuperscriptTime time={start} />
         →
         <SuperscriptTime time={end} />
-        {backstageEvent && '*'}
       </div>
       <div className='entry-title'>{title}</div>
     </li>
@@ -71,7 +67,7 @@ export default function ScheduleItem(props: ScheduleItemProps) {
 }
 
 function DelayedScheduleItem(props: ScheduleItemProps) {
-  const { timeStart, timeEnd, title, backstageEvent, colour, skip, delay } = props;
+  const { timeStart, timeEnd, title, colour, skip, delay } = props;
 
   const start = formatTime(timeStart, formatOptions);
   const end = formatTime(timeEnd, formatOptions);
@@ -86,13 +82,11 @@ function DelayedScheduleItem(props: ScheduleItemProps) {
           <SuperscriptTime time={start} />
           →
           <SuperscriptTime time={end} />
-          {backstageEvent && '*'}
         </span>
         <span className='entry-times--delay'>
           <SuperscriptTime time={delayedStart} />
           →
           <SuperscriptTime time={delayedEnd} />
-          {backstageEvent && '*'}
         </span>
       </div>
       <div className='entry-title'>{title}</div>
@@ -101,7 +95,7 @@ function DelayedScheduleItem(props: ScheduleItemProps) {
 }
 
 function ProjectedScheduleItem(props: ScheduleItemProps) {
-  const { timeStart, timeEnd, title, backstageEvent, colour, skip, delay } = props;
+  const { timeStart, timeEnd, title, colour, skip, delay } = props;
 
   return (
     <li className={cx(['entry', skip && 'entry--skip'])}>
@@ -110,7 +104,6 @@ function ProjectedScheduleItem(props: ScheduleItemProps) {
         <ProjectedTime time={timeStart} delay={delay} />
         →
         <ProjectedTime time={timeEnd} delay={delay} />
-        {backstageEvent && '*'}
       </div>
       <div className='entry-title'>{title}</div>
     </li>

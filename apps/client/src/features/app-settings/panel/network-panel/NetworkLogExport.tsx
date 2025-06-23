@@ -10,7 +10,7 @@ import style from './NetworkLogExport.module.scss';
 
 export default function LogExport() {
   const extract = (event: MouseEvent) => {
-    handleLinks(event, 'log');
+    handleLinks('log', event);
   };
 
   return (

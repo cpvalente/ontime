@@ -1,6 +1,6 @@
 .timeLabel {
   position: absolute;
-  z-index: 100;
+  z-index: $zindex-floating;
   font-size: 0.75rem;
   font-weight: 600;
   top: 2px;

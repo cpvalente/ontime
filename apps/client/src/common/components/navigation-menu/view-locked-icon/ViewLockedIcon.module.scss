@@ -1,0 +1,22 @@
+.fadeable {
+  opacity: 1;
+
+  transition-property: opacity;
+  transition-duration: 0.3s;
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.lockIcon {
+  font-size: 1.5rem;
+  color: $active-indicator;
+  padding: 0.5em;
+
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: $zindex-nav;
+}

@@ -1,0 +1,38 @@
+.input {
+  box-sizing: border-box;
+
+  background-color: $gray-1200;
+  font-size: 1rem;
+  font-weight: 400;
+  color: $gray-200;
+  border-radius: $component-border-radius-md;
+  border: 1px solid transparent;
+
+  padding-inline: 0.5em;
+
+  &:hover:not(:disabled) {
+    background-color: $gray-1100;
+  }
+
+  &:focus {
+    background-color: $gray-1000;
+    border: 1px solid $blue-500;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &::placeholder {
+    color: $gray-500;
+  }
+}
+
+.medium {
+  height: 2rem;
+}
+
+.large {
+  height: 2.5rem;
+}

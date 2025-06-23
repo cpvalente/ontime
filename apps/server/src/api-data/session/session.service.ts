@@ -4,12 +4,13 @@ import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { publicDir } from '../../setup/index.js';
 import { socket } from '../../adapters/WebsocketAdapter.js';
 import { getLastRequest } from '../../api-integration/integration.controller.js';
-import { getLastLoadedProject } from '../../services/app-state-service/AppStateService.js';
+import { getCurrentProject } from '../../services/project-service/ProjectService.js';
 import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
 import { getNetworkInterfaces } from '../../utils/network.js';
 import { getTimezoneLabel } from '../../utils/time.js';
 import { password, routerPrefix } from '../../externals.js';
 import { hashPassword } from '../../utils/hash.js';
+import { ONTIME_VERSION } from '../../ONTIME_VERSION.js';
 
 const startedAt = new Date();
 
@@ -17,7 +18,7 @@ const startedAt = new Date();
 export async function getSessionStats(): Promise<SessionStats> {
   const { connectedClients, lastConnection } = socket.getStats();
   const lastRequest = getLastRequest();
-  const projectName = await getLastLoadedProject();
+  const { filename } = await getCurrentProject();
   const { playback } = runtimeService.getRuntimeState();
 
   return {
@@ -25,9 +26,10 @@ export async function getSessionStats(): Promise<SessionStats> {
     connectedClients,
     lastConnection: lastConnection !== null ? lastConnection.toISOString() : null,
     lastRequest: lastRequest !== null ? lastRequest.toISOString() : null,
-    projectName,
+    projectName: filename,
     playback,
     timezone: getTimezoneLabel(startedAt),
+    version: ONTIME_VERSION,
   };
 }
 

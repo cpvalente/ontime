@@ -5,7 +5,7 @@ test('delay blocks add time to events', async ({ page }) => {
 
   // delete all events and add a new one
   await page.getByRole('button', { name: 'Edit' }).click();
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
   await page.getByRole('button', { name: 'Create event' }).click();
 
@@ -53,7 +53,7 @@ test('delays are show correctly', async ({ page }) => {
 
   // add a test event
   await page.getByRole('button', { name: 'Edit' }).click();
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
   await page.getByRole('button', { name: 'Create Event' }).click();
 
@@ -67,7 +67,7 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByTestId('block__title').click();
   await page.getByTestId('block__title').fill('test');
   await page.getByTestId('block__title').press('Enter');
-  await expect(page.getByTestId('entry-1').locator('#block-status')).toHaveAttribute('data-ispublic', 'true');
+  await expect(page.getByTestId('entry-1').locator('#block-status')).toHaveAttribute('data-timerType', 'count-down');
 
   // add a delay
   await page.getByRole('button', { name: 'Delay' }).nth(0).click();
@@ -81,10 +81,6 @@ test('delays are show correctly', async ({ page }) => {
   // delay is shown in the cuesheet
   await page.goto('http://localhost:4001/cuesheet');
   await page.getByRole('cell', { name: 'Delayed by 1 min' }).click();
-
-  // delay is NOT shown in the public view
-  await page.goto('http://localhost:4001/public');
-  await page.getByText('00:10→00:20').click();
 
   // delay is shown in the backstage view
   await page.goto('http://localhost:4001/backstage');

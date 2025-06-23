@@ -1,0 +1,101 @@
+@use '../../theme/viewerDefs' as *;
+
+.studio__timers {
+  display: flex;
+  flex-direction: column;
+  gap: $view-element-gap;
+  margin-top: 5%;
+  font-size: $base-font-size;
+
+  .card {
+    background-color: var(--card-background-color-override, $viewer-card-bg-color);
+    padding: $view-card-padding;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .card__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .label {
+    font-size: $timer-label-size;
+    color: var(--label-color-override, $viewer-label-color);
+    text-transform: uppercase;
+
+    &::after {
+      content: '\200b';
+    }
+  }
+
+  .runtime-timer {
+    font-size: $base-font-size;
+    line-height: 1;
+  }
+
+  .event-timer {
+    opacity: 1;
+    text-align: center;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    font-size: $timer-value-size;
+    color: var(--timer-color-override, var(--phase-color));
+
+    &--paused {
+      opacity: $viewer-opacity-disabled;
+      transition: $viewer-transition-time;
+    }
+
+    // use a class instead of a phase, to allow suppressing overtime style
+    &--finished {
+      color: var(--timer-overtime-color-override, $timer-finished-color);
+    }
+
+    &[data-phase='warning'] {
+      color: var(--timer-warning-color-override, var(--phase-color));
+    }
+    &[data-phase='danger'] {
+      color: var(--timer-danger-color-override, var(--phase-color));
+    }
+  }
+
+  .ahead {
+    color: $playback-ahead;
+  }
+
+  .behind {
+    color: $ontime-delay-text;
+  }
+
+  .muted {
+    color: $muted-gray;
+  }
+
+  .extra {
+    font-size: $base-font-size;
+    line-height: 1;
+  }
+
+  .title {
+    margin-bottom: 0.25em;
+  }
+
+  .right {
+    text-align: right;
+  }
+
+  .center {
+    text-align: center;
+  }
+}
+
+/* =================== MOBILE ===================*/
+@media screen and (max-width: $studio-breakpoint) {
+  .studio__timers {
+    margin: 0;
+  }
+}

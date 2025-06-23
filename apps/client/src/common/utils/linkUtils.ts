@@ -20,13 +20,13 @@ export function openLink(url: string) {
  * serverUrl and baseURI are used for testing
  */
 export function handleLinks(
-  event: MouseEvent,
   location: string,
+  event?: MouseEvent,
   externalServerUrl: string = serverURL,
   externalBaseURI: string = baseURI,
 ) {
   // we handle the link manually
-  event.preventDefault();
+  event?.preventDefault();
 
   const destination = new URL(externalServerUrl);
   destination.pathname = externalBaseURI ? `${externalBaseURI}/${location}` : location;

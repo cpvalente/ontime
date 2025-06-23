@@ -1,8 +1,8 @@
 import { type CSSProperties, useCallback, useRef } from 'react';
 
+import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import { AutoTextArea } from '../../../../common/components/input/auto-text-area/AutoTextArea';
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
-import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import { EditorUpdateFields } from '../EventEditor';
 
 interface CountedTextAreaProps {

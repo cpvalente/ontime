@@ -1,90 +1,44 @@
-import { body, param, query, validationResult } from 'express-validator';
-import type { Request, Response, NextFunction } from 'express';
+import { body, param } from 'express-validator';
+import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 export const rundownPostValidator = [
-  body('type').isString().exists().isIn(['event', 'delay', 'block']),
+  body('type').isString().isIn(['event', 'delay', 'block']),
   body('after').optional().isString(),
   body('before').optional().isString(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
-export const rundownPutValidator = [
-  body('id').isString().exists(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
+export const rundownPutValidator = [body('id').isString().notEmpty(), requestValidationFunction];
 
 export const rundownBatchPutValidator = [
-  body('data').isObject().exists(),
-  body('ids').isArray().exists(),
+  body('data').isObject(),
+  body('ids').isArray().notEmpty(),
+  body('ids.*').isString(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
 export const rundownReorderValidator = [
-  body('eventId').isString().exists(),
-  body('from').isNumeric().exists(),
-  body('to').isNumeric().exists(),
+  body('entryId').isString().notEmpty(),
+  body('destinationId').isString().notEmpty(),
+  body('order').isIn(['before', 'after', 'insert']),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
 export const rundownSwapValidator = [
-  body('from').isString().exists(),
-  body('to').isString().exists(),
+  body('from').isString().notEmpty(),
+  body('to').isString().notEmpty(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
-export const paramsMustHaveEventId = [
-  param('eventId').exists(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
+export const paramsMustHaveEntryId = [param('entryId').isString().notEmpty(), requestValidationFunction];
 
 export const rundownArrayOfIds = [
-  body('ids').isArray().exists(),
+  body('ids').isArray().notEmpty(),
   body('ids.*').isString(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
-
-export const rundownGetPaginatedQueryParams = [
-  query('offset').isNumeric().optional(),
-  query('limit').isNumeric().optional(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];

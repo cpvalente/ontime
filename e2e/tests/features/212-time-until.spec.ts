@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test('time until absolute', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   await page.getByRole('button', { name: 'Create Event' }).click();
@@ -32,7 +32,7 @@ test('time until absolute', async ({ page }) => {
   await page.getByTestId('entry-1').getByTestId('time-input-duration').fill('30s');
   await page.getByTestId('entry-1').getByTestId('time-input-duration').press('Enter');
 
-  await expect(page.getByTestId('entry-2').locator('#event-block')).toContainText('29s');
+  await expect(page.getByTestId('entry-2').locator('#event-block')).toContainText('30s');
   await expect(page.getByTestId('entry-3').locator('#event-block')).toContainText('10m');
   await expect(page.getByTestId('entry-4').locator('#event-block')).toContainText('20m');
 });
@@ -40,7 +40,7 @@ test('time until absolute', async ({ page }) => {
 test('time until relative', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   await page.getByRole('button', { name: 'Create Event' }).click();
@@ -69,7 +69,7 @@ test('time until relative', async ({ page }) => {
   await page.getByTestId('entry-1').getByTestId('time-input-duration').fill('30s');
   await page.getByTestId('entry-1').getByTestId('time-input-duration').press('Enter');
 
-  await expect(page.getByTestId('entry-2').locator('#event-block')).toContainText('29s');
+  await expect(page.getByTestId('entry-2').locator('#event-block')).toContainText('30s');
   await expect(page.getByTestId('entry-3').locator('#event-block')).toContainText('10m');
   await expect(page.getByTestId('entry-4').locator('#event-block')).toContainText('20m');
 });

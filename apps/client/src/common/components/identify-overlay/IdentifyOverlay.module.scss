@@ -15,7 +15,7 @@
   display: grid;
   place-content: center;
   text-align: center;
-  z-index: 100;
+  z-index: $zindex-modal;
   cursor: pointer;
 }
 

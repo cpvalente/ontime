@@ -5,7 +5,6 @@ export const langSv: TranslationObject = {
   'common.minutes': 'min',
   'common.now': 'Nu',
   'common.next': 'Nästa',
-  'common.public_message': 'Offentligt meddelande',
   'common.scheduled_start': 'Planerad start',
   'common.scheduled_end': 'Planerad slut',
   'common.projected_start': 'Beräknad start',
@@ -28,6 +27,4 @@ export const langSv: TranslationObject = {
   'project.description': 'Beskrivning',
   'project.backstage_info': 'Backstageinformation',
   'project.backstage_url': 'Backstage-URL',
-  'project.public_info': 'Offentlig information',
-  'project.public_url': 'Offentlig URL',
 };

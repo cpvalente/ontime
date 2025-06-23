@@ -19,6 +19,7 @@ describe('test parseUserTime()', () => {
       { value: '2m', expect: 2 * MILLIS_PER_MINUTE },
       { value: '1h5s', expect: MILLIS_PER_HOUR + 5 * MILLIS_PER_SECOND },
       { value: '1h2m', expect: MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE },
+      { value: '12h30', expect: 12 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE },
     ];
 
     for (const s of testData) {

@@ -2,17 +2,17 @@ import { IoArrowDown, IoArrowUp, IoBan, IoFlag, IoTime } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
 import { TimerPhase, TimerType } from 'ontime-types';
 
+import { Corner } from '../../../common/components/editor-utils/EditorUtils';
 import { useMessagePreview } from '../../../common/hooks/useSocket';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
-import { Corner } from '../../editors/editor-utils/EditorUtils';
 
 import style from './MessageControl.module.scss';
 
 export default function TimerPreview() {
-  const { blink, blackout, countToEnd, phase, showAuxTimer, showExternalMessage, showTimerMessage, timerType } =
+  const { blink, blackout, countToEnd, phase, showAuxTimer, showSecondaryMessage, showTimerMessage, timerType } =
     useMessagePreview();
   const { data } = useViewSettings();
 
@@ -34,7 +34,7 @@ export default function TimerPreview() {
 
     // we need to check aux first since it takes priority
     if (showAuxTimer) return 'Aux Timer';
-    if (showExternalMessage) return 'External message';
+    if (showSecondaryMessage) return 'Secondary message';
     return null;
   })();
 
@@ -49,7 +49,7 @@ export default function TimerPreview() {
 
   return (
     <div className={style.preview}>
-      <Corner onClick={(event) => handleLinks(event, 'timer')} />
+      <Corner onClick={(event) => handleLinks('timer', event)} />
       <div className={contentClasses}>
         <div
           className={style.mainContent}

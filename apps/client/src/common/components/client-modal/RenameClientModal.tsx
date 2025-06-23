@@ -1,17 +1,9 @@
 import { useState } from 'react';
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-} from '@chakra-ui/react';
 
+import Button from '../../../common/components/buttons/Button';
 import { setClientRemote } from '../../hooks/useSocket';
+import Dialog from '../dialog/Dialog';
+import Input from '../input/input/Input';
 
 interface RenameClientModalProps {
   id: string;
@@ -20,8 +12,7 @@ interface RenameClientModalProps {
   onClose: () => void;
 }
 
-export function RenameClientModal(props: RenameClientModalProps) {
-  const { id, name: currentName = '', isOpen, onClose } = props;
+export function RenameClientModal({ id, name: currentName = '', isOpen, onClose }: RenameClientModalProps) {
   const [name, setName] = useState(currentName);
 
   const { setClientName } = setClientRemote;
@@ -36,29 +27,24 @@ export function RenameClientModal(props: RenameClientModalProps) {
   const canSubmit = name !== currentName && name !== '';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Rename: {currentName}</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Input
-            variant='ontime-filled'
-            size='md'
-            placeholder='new name'
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
-        </ModalBody>
-        <ModalFooter>
-          <Button size='md' variant='ontime-subtle' onClick={onClose}>
+    <Dialog
+      isOpen={isOpen}
+      title={`Rename Client: ${currentName}`}
+      showCloseButton
+      onClose={onClose}
+      bodyElements={
+        <Input height='large' placeholder='New name' value={name} onChange={(event) => setName(event.target.value)} />
+      }
+      footerElements={
+        <>
+          <Button variant='subtle' size='large' onClick={onClose}>
             Cancel
           </Button>
-          <Button size='md' variant='ontime-filled' onClick={handleRename} isDisabled={!canSubmit}>
+          <Button variant='primary' size='large' onClick={handleRename} disabled={!canSubmit}>
             Submit
           </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </>
+      }
+    />
   );
 }
