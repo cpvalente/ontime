@@ -33,12 +33,12 @@ function RundownMenu() {
         disabled={appMode === AppMode.Run}
       >
         <IoTrash />
-        Clear All
+        Clear all
       </Button>
       <Dialog
         isOpen={isOpen}
         onClose={handlers.close}
-        title='Clear Rundown'
+        title='Clear rundown'
         showBackdrop
         showCloseButton
         bodyElements={
