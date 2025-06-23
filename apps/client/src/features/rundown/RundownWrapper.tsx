@@ -2,16 +2,21 @@ import Empty from '../../common/components/state/Empty';
 import useRundown from '../../common/hooks-query/useRundown';
 
 import RundownHeader from './rundown-header/RundownHeader';
+import RundownHeaderMobile from './rundown-header/RundownHeaderMobile';
 import Rundown from './Rundown';
 
 import styles from './Rundown.module.scss';
 
-export default function RundownWrapper() {
+interface RundownWrapperProps {
+  isSmallDevice?: boolean;
+}
+
+export default function RundownWrapper({ isSmallDevice }: RundownWrapperProps) {
   const { data, status } = useRundown();
 
   return (
     <div className={styles.rundownWrapper}>
-      <RundownHeader />
+      {isSmallDevice ? <RundownHeaderMobile /> : <RundownHeader />}
       {status === 'success' && data ? <Rundown data={data} /> : <Empty text='Connecting to server' />}
     </div>
   );

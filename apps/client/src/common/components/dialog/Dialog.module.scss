@@ -16,8 +16,22 @@
   border: 1px solid $gray-1200;
 }
 
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: $zindex-backdrop;
+  background-color: $backdrop-color;
+  transition: opacity 300ms cubic-bezier(0.45, 1.005, 0, 1.005);
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+  }
+}
+
 .title {
-  font-size: 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
   padding-block: 1rem;
 
   display: flex;

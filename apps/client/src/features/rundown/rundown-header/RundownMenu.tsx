@@ -1,66 +1,62 @@
-import { useCallback, useRef } from 'react';
+import { memo, useCallback } from 'react';
 import { IoTrash } from 'react-icons/io5';
-import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  Button,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { useDisclosure } from '@mantine/hooks';
 
+import Button from '../../../common/components/buttons/Button';
+import Dialog from '../../../common/components/dialog/Dialog';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
-import { useAppMode } from '../../../common/stores/appModeStore';
+import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
 import { useEventSelection } from '../useEventSelection';
 
-export default function RundownMenu() {
+import style from './RundownHeader.module.scss';
+
+export default memo(RundownMenu);
+function RundownMenu() {
+  const [isOpen, handlers] = useDisclosure();
+
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
   const appMode = useAppMode((state) => state.mode);
   const { deleteAllEntries } = useEntryActions();
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const cancelRef = useRef<HTMLButtonElement | null>(null);
-
   const deleteAll = useCallback(() => {
     deleteAllEntries();
     clearSelectedEvents();
-    onClose();
-  }, [clearSelectedEvents, deleteAllEntries, onClose]);
+    handlers.close();
+  }, [clearSelectedEvents, deleteAllEntries, handlers]);
 
   return (
     <>
       <Button
-        size='sm'
-        variant='ontime-outlined'
-        leftIcon={<IoTrash />}
-        onClick={onOpen}
-        color='#FA5656'
-        isDisabled={appMode === 'run'}
+        variant='subtle-destructive'
+        className={style.apart}
+        onClick={() => handlers.open()}
+        disabled={appMode === AppMode.Run}
       >
-        Clear rundown
+        <IoTrash />
+        Clear All
       </Button>
-      <AlertDialog variant='ontime' isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              Clear rundown
-            </AlertDialogHeader>
-            <AlertDialogBody>
-              You will lose all data in your rundown. <br /> Are you sure?
-            </AlertDialogBody>
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose} variant='ontime-ghosted-white'>
-                Cancel
-              </Button>
-              <Button colorScheme='red' onClick={deleteAll} ml={4}>
-                Delete all
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+      <Dialog
+        isOpen={isOpen}
+        onClose={handlers.close}
+        title='Clear Rundown'
+        showBackdrop
+        showCloseButton
+        bodyElements={
+          <>
+            You will lose all data in your rundown. <br /> Are you sure?
+          </>
+        }
+        footerElements={
+          <>
+            <Button size='large' onClick={handlers.close}>
+              Cancel
+            </Button>
+            <Button variant='destructive' size='large' onClick={deleteAll}>
+              Delete all
+            </Button>
+          </>
+        }
+      />
     </>
   );
 }

@@ -4,7 +4,7 @@ test('Rearrange while playing', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
 
   // clear rundown
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   // create events

@@ -4,10 +4,10 @@ import { Select, Switch, Tooltip } from '@chakra-ui/react';
 import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
+import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { useEntryActions } from '../../../../common/hooks/useEntryAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
-import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
 import style from '../EventEditor.module.scss';

@@ -1,7 +1,59 @@
 .header {
-  padding-inline: 1rem 2rem;
-  
+  padding-inline: calc(2.5rem - 6px) calc(1rem + 2px);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 1px;
+
+  :is([data-target='small-device']) & {
+    padding-inline: 0;
+    overflow-x: auto;
+  }
+}
+
+.group {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2rem;
+  padding-inline: 1em;
+  border: 1px solid transparent;
+  border-radius: $component-border-radius-md;
+  color: $gray-400;
+  font-size: calc(1rem - 2px);
+  font-weight: 600;
+
+  &:focus-visible {
+    background: transparent;
+  }
+
+  &:hover:not(:disabled):not(:active) {
+    background: $gray-1000;
+  }
+
+  &:active {
+    background: $gray-1100;
+  }
+
+  &[data-pressed] {
+    background: $blue-700;
+    color: $ui-white;
+
+    &:hover:not(:disabled):not(:active) {
+      background: $blue-600;
+    }
+  }
+}
+
+.apart {
+  margin-left: auto;
+}
+
+.separator {
+  margin-inline: 1rem;
 }

@@ -2,12 +2,12 @@ import { IoArrowDown, IoArrowUp, IoBan, IoFlag, IoTime } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
 import { TimerPhase, TimerType } from 'ontime-types';
 
+import { Corner } from '../../../common/components/editor-utils/EditorUtils';
 import { useMessagePreview } from '../../../common/hooks/useSocket';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
-import { Corner } from '../../editors/editor-utils/EditorUtils';
 
 import style from './MessageControl.module.scss';
 

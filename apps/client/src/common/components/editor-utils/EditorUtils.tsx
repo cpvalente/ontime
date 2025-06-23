@@ -2,7 +2,7 @@ import type { HTMLAttributes, LabelHTMLAttributes } from 'react';
 import { IconBaseProps } from 'react-icons';
 import { IoArrowUp } from 'react-icons/io5';
 
-import { cx } from '../../../common/utils/styleUtils';
+import { cx } from '../../utils/styleUtils';
 
 import style from './EditorUtils.module.scss';
 
@@ -26,4 +26,8 @@ export function Label({ children, className, ...elementProps }: LabelHTMLAttribu
       {children}
     </label>
   );
+}
+
+export function Separator({ className, ...elementProps }: HTMLAttributes<HTMLDivElement>) {
+  return <div className={cx([style.separator, className])} {...elementProps} />;
 }

@@ -53,14 +53,46 @@
   }
 }
 
+.destructive {
+  background: $red-700;
+  color: $ui-white;
+
+  &:hover:not(:disabled):not(:active) {
+    background: $red-600;
+    color: $ui-white;
+  }
+
+  &:active:not(:disabled) {
+    background: $red-800;
+    border-color: $red-900;
+  }
+}
+
+.subtle-destructive {
+  background: $gray-1050;
+  color: $red-400;
+
+  &:hover:not(:disabled):not(:active) {
+    background: $gray-1000;
+    color: $red-500;
+  }
+
+  &:active:not(:disabled) {
+    background: $gray-1100;
+    border-color: $gray-1250;
+  }
+}
+
 .medium {
   height: 2rem;
 }
 
 .large {
   height: 2.5rem;
+  font-weight: 600;
 }
 
 .xlarge {
   height: 3rem;
+  font-weight: 600;
 }

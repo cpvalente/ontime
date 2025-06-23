@@ -2,8 +2,8 @@ import { memo } from 'react';
 import { Input } from '@chakra-ui/react';
 import { sanitiseCue } from 'ontime-utils';
 
+import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
-import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import { type EditorUpdateFields } from '../EventEditor';
 
 import EventTextArea from './EventTextArea';

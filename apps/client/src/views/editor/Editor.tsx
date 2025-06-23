@@ -6,17 +6,17 @@ import { useHotkeys } from '@mantine/hooks';
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import { useElectronListener } from '../../common/hooks/useElectronEvent';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
-import AppSettings from '../app-settings/AppSettings';
-import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
-import { EditorOverview } from '../overview/Overview';
+import AppSettings from '../../features/app-settings/AppSettings';
+import useAppSettingsNavigation from '../../features/app-settings/useAppSettingsNavigation';
+import { EditorOverview } from '../../features/overview/Overview';
 
 import WelcomePlacement from './welcome/WelcomePlacement';
 
 import styles from './Editor.module.scss';
 
-const Rundown = lazy(() => import('../rundown/RundownExport'));
-const TimerControl = lazy(() => import('../control/playback/TimerControlExport'));
-const MessageControl = lazy(() => import('../control/message/MessageControlExport'));
+const Rundown = lazy(() => import('../../features/rundown/RundownExport'));
+const TimerControl = lazy(() => import('../../features/control/playback/TimerControlExport'));
+const MessageControl = lazy(() => import('../../features/control/message/MessageControlExport'));
 
 export default function Editor() {
   const { isOpen: isSettingsOpen, setLocation, close } = useAppSettingsNavigation();

@@ -1,8 +1,8 @@
 import { useCallback, useRef } from 'react';
 import { Input, InputProps } from '@chakra-ui/react';
 
+import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
-import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import { EditorUpdateFields } from '../EventEditor';
 
 interface EventTextInputProps extends InputProps {

@@ -18,7 +18,7 @@ import ViewLoader from './views/ViewLoader';
 import { ONTIME_VERSION } from './ONTIME_VERSION';
 import { sentryDsn, sentryRecommendedIgnore } from './sentry.config';
 
-const Editor = React.lazy(() => import('./features/editors/ProtectedEditor'));
+const Editor = React.lazy(() => import('./views/editor/ProtectedEditor'));
 const Cuesheet = React.lazy(() => import('./views/cuesheet/ProtectedCuesheet'));
 const Operator = React.lazy(() => import('./features/operator/OperatorExport'));
 

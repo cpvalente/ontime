@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 import { OntimeEvent } from 'ontime-types';
 
+import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
-import * as Editor from '../../editors/editor-utils/EditorUtils';
 
 import EventCustom from './composite/EventEditorCustom';
 import EventEditorTimes from './composite/EventEditorTimes';

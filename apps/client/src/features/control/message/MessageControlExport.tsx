@@ -1,15 +1,15 @@
 import { memo } from 'react';
 
+import { Corner } from '../../../common/components/editor-utils/EditorUtils';
 import ErrorBoundary from '../../../common/components/error-boundary/ErrorBoundary';
 import ViewNavigationMenu from '../../../common/components/navigation-menu/ViewNavigationMenu';
 import ProtectRoute from '../../../common/components/protect-route/ProtectRoute';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx } from '../../../common/utils/styleUtils';
-import { Corner } from '../../editors/editor-utils/EditorUtils';
 
 import MessageControl from './MessageControl';
 
-import style from '../../editors/Editor.module.scss';
+import style from '../../../views/editor/Editor.module.scss';
 
 export default memo(MessageControlExport);
 function MessageControlExport() {

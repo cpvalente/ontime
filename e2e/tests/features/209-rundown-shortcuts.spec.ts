@@ -4,7 +4,7 @@ test('Copy-paste', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
 
   // clear rundown
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   // create event
@@ -43,7 +43,7 @@ test('Move', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
 
   // clear rundown
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   // create events
@@ -67,7 +67,7 @@ test('Add block', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
 
   // clear rundown
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   // create events
@@ -95,7 +95,7 @@ test('Add delay', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
 
   // clear rundown
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   //create events
@@ -116,7 +116,7 @@ test('Add event', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
 
   // clear rundown
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   //create events
@@ -138,7 +138,7 @@ test('Delete event', async ({ page }) => {
 
   // clear rundown
   await page.goto('http://localhost:4001/rundown');
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   //create event

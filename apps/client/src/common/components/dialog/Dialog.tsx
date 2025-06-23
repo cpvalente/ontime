@@ -10,12 +10,21 @@ interface DialogProps {
   isOpen: boolean;
   title: string;
   showCloseButton?: boolean;
+  showBackdrop?: boolean;
   bodyElements: ReactNode;
   footerElements: ReactNode;
   onClose: () => void;
 }
 
-export default function Dialog({ isOpen, title, showCloseButton, bodyElements, footerElements, onClose }: DialogProps) {
+export default function Dialog({
+  isOpen,
+  title,
+  showCloseButton,
+  showBackdrop,
+  bodyElements,
+  footerElements,
+  onClose,
+}: DialogProps) {
   return (
     <BaseDialog.Root
       open={isOpen}
@@ -24,6 +33,7 @@ export default function Dialog({ isOpen, title, showCloseButton, bodyElements, f
       }}
     >
       <BaseDialog.Portal>
+        {showBackdrop && <BaseDialog.Backdrop className={style.backdrop} />}
         <BaseDialog.Popup className={style.dialog}>
           <div className={style.title}>
             {title}

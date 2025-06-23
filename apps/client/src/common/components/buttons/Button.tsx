@@ -5,7 +5,7 @@ import { cx } from '../../utils/styleUtils';
 import style from './Button.module.scss';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'subtle' | 'primary';
+  variant?: 'subtle' | 'primary' | 'destructive' | 'subtle-destructive';
   size?: 'medium' | 'large' | 'xlarge';
 }
 
