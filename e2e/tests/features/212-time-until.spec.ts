@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test('time until absolute', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   await page.getByRole('button', { name: 'Create Event' }).click();
@@ -40,7 +40,7 @@ test('time until absolute', async ({ page }) => {
 test('time until relative', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   await page.getByRole('button', { name: 'Create Event' }).click();

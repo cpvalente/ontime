@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
 import { useHotkeys } from '@mantine/hooks';
 
-import Finder from '../../editors/finder/Finder';
+import Finder from '../../../views/editor/finder/Finder';
 
 export default memo(FinderPlacement);
 

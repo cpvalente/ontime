@@ -4,11 +4,11 @@ import { InputRightElement, Tooltip } from '@chakra-ui/react';
 import { TimeField, TimeStrategy } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
+import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayFast, tooltipDelayMid } from '../../../ontimeConfig';
-import * as Editor from '../../editors/editor-utils/EditorUtils';
 
 import style from './TimeInputFlow.module.scss';
 

@@ -1,6 +1,7 @@
 import { memo } from 'react';
 
 import { ContextMenu } from '../../common/components/context-menu/ContextMenu';
+import { Corner } from '../../common/components/editor-utils/EditorUtils';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
 import ProtectRoute from '../../common/components/protect-route/ProtectRoute';
@@ -8,7 +9,6 @@ import { useIsSmallDevice } from '../../common/hooks/useIsSmallDevice';
 import { useAppMode } from '../../common/stores/appModeStore';
 import { handleLinks } from '../../common/utils/linkUtils';
 import { cx } from '../../common/utils/styleUtils';
-import { Corner } from '../editors/editor-utils/EditorUtils';
 
 import RundownEventEditor from './event-editor/RundownEventEditor';
 import FinderPlacement from './placements/FinderPlacement';
@@ -26,13 +26,17 @@ function RundownExport() {
   if (isSmallDevice && isExtracted) {
     return (
       <ProtectRoute permission='editor'>
-        <div className={cx([style.rundownExport, style.extracted])} data-testid='panel-rundown'>
+        <div
+          className={cx([style.rundownExport, style.extracted])}
+          data-target='small-device'
+          data-testid='panel-rundown'
+        >
           <FinderPlacement />
           <ViewNavigationMenu supressSettings />
           <div className={style.content}>
             <ErrorBoundary>
               <ContextMenu>
-                <RundownWrapper />
+                <RundownWrapper isSmallDevice />
               </ContextMenu>
             </ErrorBoundary>
           </div>

@@ -5,7 +5,7 @@ test('delay blocks add time to events', async ({ page }) => {
 
   // delete all events and add a new one
   await page.getByRole('button', { name: 'Edit' }).click();
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
   await page.getByRole('button', { name: 'Create event' }).click();
 
@@ -53,7 +53,7 @@ test('delays are show correctly', async ({ page }) => {
 
   // add a test event
   await page.getByRole('button', { name: 'Edit' }).click();
-  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
   await page.getByRole('button', { name: 'Create Event' }).click();
 

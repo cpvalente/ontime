@@ -3,7 +3,7 @@ import { Button, Checkbox } from '@chakra-ui/react';
 import { Column } from '@tanstack/react-table';
 import { OntimeEntry } from 'ontime-types';
 
-import * as Editor from '../../../../features/editors/editor-utils/EditorUtils';
+import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 
 import style from './CuesheetTableSettings.module.scss';
 

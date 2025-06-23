@@ -1,7 +1,11 @@
 import { IoEye, IoEyeOffOutline } from 'react-icons/io5';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
-import { setMessage, useExternalMessageInput as useSecondaryMessageInput, useTimerMessageInput } from '../../../common/hooks/useSocket';
+import {
+  setMessage,
+  useExternalMessageInput as useSecondaryMessageInput,
+  useTimerMessageInput,
+} from '../../../common/hooks/useSocket';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import InputRow from './InputRow';

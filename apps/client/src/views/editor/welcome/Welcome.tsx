@@ -4,9 +4,9 @@ import { Button, Checkbox, Modal, ModalBody, ModalCloseButton, ModalContent, Mod
 import { loadDemo, loadProject } from '../../../common/api/db';
 import { postShowWelcomeDialog } from '../../../common/api/settings';
 import { invalidateAllCaches } from '../../../common/api/utils';
+import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import ExternalLink from '../../../common/components/link/external-link/ExternalLink';
 import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
-import * as Editor from '../editor-utils/EditorUtils';
 
 import ImportProjectButton from './composite/ImportProjectButton';
 import WelcomeProjectList from './composite/WelcomeProjectList';

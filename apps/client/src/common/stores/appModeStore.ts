@@ -3,7 +3,6 @@ import { create } from 'zustand';
 export enum AppMode {
   Run = 'run',
   Edit = 'edit',
-  Freeze = 'freeze',
 }
 
 const appModeKey = 'ontime-app-mode';

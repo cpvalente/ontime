@@ -3,7 +3,7 @@ import { Input, Modal, ModalBody, ModalContent, ModalFooter, ModalOverlay } from
 import { useDebouncedCallback } from '@mantine/hooks';
 import { SupportedEntry } from 'ontime-types';
 
-import { useEventSelection } from '../../rundown/useEventSelection';
+import { useEventSelection } from '../../../features/rundown/useEventSelection';
 
 import useFinder from './useFinder';
 

@@ -40,3 +40,9 @@
   margin-bottom: $element-inner-spacing;
   max-width: max-content; // prevent label from taking entire row
 }
+
+.separator {
+  width: 1px;
+  height: 0.75em;
+  background-color: $border-color-ondark;
+}

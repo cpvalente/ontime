@@ -8,8 +8,6 @@ import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import { setOffsetMode, useOffsetMode } from '../../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
 
-import RundownMenu from './RundownMenu';
-
 import style from './RundownHeader.module.scss';
 
 export default memo(RundownHeader);
@@ -54,8 +52,6 @@ function RundownHeader() {
           Relative
         </Toolbar.Button>
       </ToggleGroup>
-
-      <RundownMenu />
     </Toolbar.Root>
   );
 }
