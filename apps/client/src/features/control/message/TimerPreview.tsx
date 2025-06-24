@@ -11,12 +11,16 @@ import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './MessageControl.module.scss';
 
-export default function TimerPreview() {
-  const { blink, blackout, countToEnd, phase, showAuxTimer, showSecondaryMessage, showTimerMessage, timerType } =
-    useMessagePreview();
-  const { data } = useViewSettings();
+const secondarySourceLabels: Record<string, string> = {
+  aux1: 'Aux 1',
+  aux2: 'Aux 2',
+  aux3: 'Aux 3',
+  secondary: 'Secondary message',
+};
 
-  const contentClasses = cx([style.previewContent, blink && style.blink, blackout && style.blackout]);
+export default function TimerPreview() {
+  const { blink, blackout, countToEnd, phase, secondarySource, showTimerMessage, timerType } = useMessagePreview();
+  const { data } = useViewSettings();
 
   const main = (() => {
     if (showTimerMessage) return 'Message';
@@ -29,13 +33,11 @@ export default function TimerPreview() {
   })();
 
   const secondary = (() => {
-    // message is a fullscreen overlay
-    if (showTimerMessage) return null;
+    // message is a fullscreen overlay or secondary is not active
+    if (showTimerMessage || !secondarySource) return null;
 
     // we need to check aux first since it takes priority
-    if (showAuxTimer) return 'Aux Timer';
-    if (showSecondaryMessage) return 'Secondary message';
-    return null;
+    return secondarySourceLabels[secondarySource];
   })();
 
   const overrideColour = (() => {
@@ -46,6 +48,7 @@ export default function TimerPreview() {
   })();
 
   const showColourOverride = main == 'Timer';
+  const contentClasses = cx([blink && style.blink, blackout && style.blackout]);
 
   return (
     <div className={style.preview}>

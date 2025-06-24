@@ -18,7 +18,6 @@ import { validateMessage, validateTimerMessage } from '../services/message-servi
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
-import { isEmptyObject } from '../utils/parserUtils.js';
 import { parseProperty } from './integration.utils.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { throttle } from '../utils/throttle.js';
@@ -218,45 +217,61 @@ const actionHandlers: Record<ApiAction, ActionHandler> = {
     runtimeService.addTime(time);
     return { payload: 'success' };
   },
-  /* Extra timers */
+  /**
+   * Auxiliary timers, payload can be either:
+   *
+   * 1. a simple playback command
+   * {
+   *  "1": "start" | "pause" | "stop"
+   * }
+   *
+   * - or -
+   *
+   * 2. a patch object with properties
+   * {
+   *   "1": {
+   *       duration: "count-down"
+   *   }
+   * }
+   *
+   */
   auxtimer: (payload) => {
     assert.isObject(payload);
-    if (!('1' in payload)) {
+    const timerIndex = Object.keys(payload).at(0);
+    if (timerIndex !== '1' && timerIndex !== '2' && timerIndex !== '3') {
       throw new Error('Invalid auxtimer index');
     }
-    const command = payload['1'];
+
+    const command = payload[timerIndex as keyof typeof payload] as unknown;
+    const index = Number(timerIndex);
+
+    // 1. handle simple playback commands: start, pause, stop
     if (typeof command === 'string') {
-      if (command === SimplePlayback.Start) {
-        const reply = auxTimerService.start();
-        return { payload: reply };
+      switch (command) {
+        case SimplePlayback.Start:
+          return { payload: auxTimerService.start(index) };
+        case SimplePlayback.Pause:
+          return { payload: auxTimerService.pause(index) };
+        case SimplePlayback.Stop:
+          return { payload: auxTimerService.stop(index) };
+        default:
+          throw new Error('Invalid command');
       }
-      if (command === SimplePlayback.Pause) {
-        const reply = auxTimerService.pause();
-        return { payload: reply };
-      }
-      if (command === SimplePlayback.Stop) {
-        const reply = auxTimerService.stop();
-        return { payload: reply };
-      }
-    } else if (command && typeof command === 'object') {
-      const reply = { payload: {} };
+    }
+
+    // 2. command can be a patch object: duration, addtime, direction
+    if (command && typeof command === 'object') {
       if ('duration' in command) {
-        const timeInMs = numberOrError(command.duration);
-        reply.payload = auxTimerService.setTime(timeInMs);
+        return { payload: auxTimerService.setTime(numberOrError(command.duration), index) };
       }
       if ('addtime' in command) {
-        const timeInMs = numberOrError(command.addtime);
-        reply.payload = auxTimerService.addTime(timeInMs);
+        return { payload: auxTimerService.addTime(numberOrError(command.addtime), index) };
       }
       if ('direction' in command) {
         if (command.direction === SimpleDirection.CountUp || command.direction === SimpleDirection.CountDown) {
-          reply.payload = auxTimerService.setDirection(command.direction);
-        } else {
-          throw new Error('Invalid direction payload');
+          return { payload: auxTimerService.setDirection(command.direction, index) };
         }
-      }
-      if (!isEmptyObject(reply.payload)) {
-        return reply;
+        throw new Error('Invalid direction payload');
       }
     }
     throw new Error('No matching method provided');

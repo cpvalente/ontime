@@ -42,17 +42,25 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
           value={selectedAction}
           onChange={(event) => updateSelectedAction(event.target.value)}
         >
-          <option value='aux-start'>Auxiliary timer: start</option>
-          <option value='aux-pause'>Auxiliary timer: pause</option>
-          <option value='aux-stop'>Auxiliary timer: stop</option>
-          <option value='aux-set'>Auxiliary timer: set</option>
+          <option value='aux-start'>Aux 1: start</option>
+          <option value='aux-pause'>Aux 1: pause</option>
+          <option value='aux-stop'>Aux 1: stop</option>
+          <option value='aux-set'>Aux 2: set</option>
+          <option value='aux-start'>Aux 2: start</option>
+          <option value='aux-pause'>Aux 2: pause</option>
+          <option value='aux-stop'>Aux 2: stop</option>
+          <option value='aux-set'>Aux 2: set</option>
+          <option value='aux-start'>Aux 3: start</option>
+          <option value='aux-pause'>Aux 3: pause</option>
+          <option value='aux-stop'>Aux 3: stop</option>
+          <option value='aux-set'>Aux 3: set</option>
           <option value='message-set'>Timer: timer message</option>
           <option value='message-secondary'>Timer: timer secondary</option>
         </Select>
         <Panel.Error>{rowErrors?.action?.message}</Panel.Error>
       </label>
 
-      {selectedAction === 'aux-set' && (
+      {selectedAction === 'aux1-set' && (
         <label>
           New time
           <Input

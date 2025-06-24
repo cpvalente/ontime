@@ -33,7 +33,7 @@ export function validateTimerMessage(message: unknown): Partial<TimerMessage> {
  * Asserts that the secondary value is one of the permitted values
  */
 function assertSecondary(source: unknown): source is TimerMessage['secondarySource'] {
-  return source === 'aux' || source === 'secondary' || source === null;
+  return source === 'aux1' || source === 'aux2' || source === 'aux3' || source === 'secondary' || source === null;
 }
 
 /**

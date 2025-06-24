@@ -8,71 +8,82 @@ import TapButton from '../tap-button/TapButton';
 
 import style from './AuxTimer.module.scss';
 
-export function AuxTimer() {
-  const { playback, direction } = useAuxTimerControl();
+interface AuxTimerProps {
+  index: number;
+}
 
-  const { start, pause, stop, setDirection } = setAuxTimer;
+export function AuxTimer({ index }: AuxTimerProps) {
+  const { playback, direction } = useAuxTimerControl(index);
+
+  const { stop, setDirection } = setAuxTimer;
 
   const toggleDirection = () => {
     const newDirection = direction === SimpleDirection.CountDown ? SimpleDirection.CountUp : SimpleDirection.CountDown;
-    setDirection(newDirection);
+    setDirection(index, newDirection);
   };
 
-  const userCan = {
-    start: playback !== SimplePlayback.Start,
-    pause: playback === SimplePlayback.Start,
-    stop: playback !== SimplePlayback.Stop,
-  };
+  const canStop = playback !== SimplePlayback.Stop;
+  const playbackAction = playback === SimplePlayback.Start ? 'pause' : 'play';
 
   return (
     <label className={style.label}>
-      Auxiliary Timer
+      Aux Timer {index}
       <div className={style.controls}>
-        <AuxTimerInput />
-        <TapButton onClick={toggleDirection} aspect='tight'>
-          {direction === SimpleDirection.CountDown && <IoArrowDown data-testid='aux-timer-direction' />}
-          {direction === SimpleDirection.CountUp && <IoArrowUp data-testid='aux-timer-direction' />}
-        </TapButton>
-
-        <TapButton
-          onClick={start}
-          theme={Playback.Play}
-          active={playback === SimplePlayback.Start}
-          disabled={!userCan.start}
-        >
-          <IoPlay data-testid='aux-timer-start' />
-        </TapButton>
-        <TapButton
-          onClick={pause}
-          theme={Playback.Pause}
-          active={playback === SimplePlayback.Pause}
-          disabled={!userCan.pause}
-        >
-          <IoPause data-testid='aux-timer-pause' />
-        </TapButton>
-        <TapButton onClick={stop} theme={Playback.Stop} disabled={!userCan.stop}>
-          <IoStop data-testid='aux-timer-stop' />
-        </TapButton>
+        <div className={style.input}>
+          <AuxTimerInput index={index} />
+          <TapButton onClick={toggleDirection} aspect='tight'>
+            {direction === SimpleDirection.CountDown && <IoArrowDown data-testid={`aux-timer-direction-${index}`} />}
+            {direction === SimpleDirection.CountUp && <IoArrowUp data-testid={`aux-timer-direction-${index}`} />}
+          </TapButton>
+        </div>
+        <div className={style.twoSides}>
+          <AuxTogglePlay index={index} action={playbackAction} />
+          <TapButton onClick={() => stop(index)} theme={Playback.Stop} disabled={!canStop}>
+            <IoStop data-testid={`aux-timer-stop-${index}`} />
+          </TapButton>
+        </div>
       </div>
     </label>
   );
 }
 
-function AuxTimerInput() {
-  const newTimeInMs = useAuxTimerTime();
+interface AuxTimerInput {
+  index: number;
+}
+
+function AuxTimerInput({ index }: AuxTimerProps) {
+  const newTimeInMs = useAuxTimerTime(index);
   const { setDuration } = setAuxTimer;
 
   const handleTimeUpdate = (_field: string, value: string) => {
     const newTimeInMs = parseUserTime(value);
-    setDuration(newTimeInMs);
+    setDuration(index, newTimeInMs);
   };
 
   return (
-    <TimeInput<'auxTimer'>
-      submitHandler={handleTimeUpdate}
-      name='auxTimer'
-      time={newTimeInMs}
-      placeholder='Aux Timer 1'
-    />
+    <TimeInput submitHandler={handleTimeUpdate} name={`aux${index}`} time={newTimeInMs} placeholder={`Aux ${index}`} />
+  );
+}
+
+interface AuxTogglePlayProps {
+  index: number;
+  action: 'play' | 'pause';
+}
+
+function AuxTogglePlay({ index, action }: AuxTogglePlayProps) {
+  const { start, pause } = setAuxTimer;
+
+  if (action === 'play') {
+    return (
+      <TapButton onClick={() => start(index)} theme={Playback.Play}>
+        <IoPlay data-testid={`aux-timer-start-${index}`} />
+      </TapButton>
+    );
+  }
+
+  return (
+    <TapButton onClick={() => pause(index)} theme={Playback.Pause}>
+      <IoPause data-testid={`aux-timer-pause-${index}`} />
+    </TapButton>
   );
 }

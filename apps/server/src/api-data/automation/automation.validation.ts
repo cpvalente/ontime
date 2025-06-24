@@ -189,13 +189,17 @@ function parseOntimeAction(maybeOntimeAction: object): OntimeAction {
 
   // we know we have a valid action, deal with special cases
 
-  if (maybeOntimeAction.action === 'aux-set') {
+  if (
+    maybeOntimeAction.action === 'aux1-set' ||
+    maybeOntimeAction.action === 'aux2-set' ||
+    maybeOntimeAction.action === 'aux3-set'
+  ) {
     assert.hasKeys(maybeOntimeAction, ['time']);
     assert.isString(maybeOntimeAction.time);
 
     return {
       type: 'ontime',
-      action: 'aux-set',
+      action: maybeOntimeAction.action,
       time: parseUserTime(maybeOntimeAction.time),
     };
   }
@@ -253,7 +257,9 @@ function indeterminateBooleanString(value: string): boolean | undefined {
  * Helper function to validate the secondary source
  */
 function chooseSecondarySource(value: string): SecondarySource {
-  if (value === 'aux') return 'aux';
+  if (value === 'aux1') return 'aux1';
+  if (value === 'aux2') return 'aux2';
+  if (value === 'aux3') return 'aux3';
   if (value === 'secondary') return 'secondary';
   return null;
 }

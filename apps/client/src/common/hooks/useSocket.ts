@@ -40,8 +40,7 @@ export const useMessagePreview = createSelector((state: RuntimeStore) => ({
   blink: state.message.timer.blink,
   blackout: state.message.timer.blackout,
   phase: state.timer.phase,
-  showAuxTimer: state.message.timer.secondarySource === 'aux',
-  showSecondaryMessage: state.message.timer.secondarySource === 'secondary' && Boolean(state.message.secondary),
+  secondarySource: state.message.timer.secondarySource,
   showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
   timerType: state.eventNow?.timerType ?? null,
   countToEnd: state.eventNow?.countToEnd ?? false,
@@ -53,7 +52,7 @@ export const setMessage = {
   secondaryMessage: (payload: string) => sendSocket('message', { secondary: payload }),
   timerBlink: (payload: boolean) => sendSocket('message', { timer: { blink: payload } }),
   timerBlackout: (payload: boolean) => sendSocket('message', { timer: { blackout: payload } }),
-  timerSecondary: (payload: TimerMessage['secondarySource']) =>
+  timerSecondarySource: (payload: TimerMessage['secondarySource']) =>
     sendSocket('message', { timer: { secondarySource: payload } }),
 };
 
@@ -86,19 +85,45 @@ export const setPlayback = {
   },
 };
 
-export const useAuxTimerTime = createSelector((state: RuntimeStore) => state.auxtimer1.current);
+export const useAuxTimersTime = createSelector((state: RuntimeStore) => {
+  return {
+    aux1: state.auxtimer1.current,
+    aux2: state.auxtimer2.current,
+    aux3: state.auxtimer3.current,
+  };
+});
 
-export const useAuxTimerControl = createSelector((state: RuntimeStore) => ({
-  playback: state.auxtimer1.playback,
-  direction: state.auxtimer1.direction,
-}));
+export const useAuxTimerTime = (index: number) =>
+  createSelector((state: RuntimeStore) => {
+    if (index === 1) return state.auxtimer1.current;
+    if (index === 2) return state.auxtimer2.current;
+    return state.auxtimer3.current;
+  })();
+
+export const useAuxTimerControl = (index: number) =>
+  createSelector((state: RuntimeStore) => {
+    if (index === 1)
+      return {
+        playback: state.auxtimer1.playback,
+        direction: state.auxtimer1.direction,
+      };
+    if (index === 2)
+      return {
+        playback: state.auxtimer2.playback,
+        direction: state.auxtimer2.direction,
+      };
+    return {
+      playback: state.auxtimer3.playback,
+      direction: state.auxtimer3.direction,
+    };
+  })();
 
 export const setAuxTimer = {
-  start: () => sendSocket('auxtimer', { '1': SimplePlayback.Start }),
-  pause: () => sendSocket('auxtimer', { '1': SimplePlayback.Pause }),
-  stop: () => sendSocket('auxtimer', { '1': SimplePlayback.Stop }),
-  setDirection: (direction: SimpleDirection) => sendSocket('auxtimer', { '1': { direction } }),
-  setDuration: (time: number) => sendSocket('auxtimer', { '1': { duration: time } }),
+  start: (index: number) => sendSocket('auxtimer', { [index]: SimplePlayback.Start }),
+  pause: (index: number) => sendSocket('auxtimer', { [index]: SimplePlayback.Pause }),
+  stop: (index: number) => sendSocket('auxtimer', { [index]: SimplePlayback.Stop }),
+  setDirection: (index: number, direction: SimpleDirection) => sendSocket('auxtimer', { [index]: { direction } }),
+  setDuration: (index: number, time: number) => sendSocket('auxtimer', { [index]: { duration: time } }),
 };
 
 export const useSelectedEventId = createSelector((state: RuntimeStore) => ({

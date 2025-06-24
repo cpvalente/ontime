@@ -193,6 +193,18 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     },
+    auxtimer2: {
+      duration: timerConfig.auxTimerDefault,
+      current: timerConfig.auxTimerDefault,
+      playback: SimplePlayback.Stop,
+      direction: SimpleDirection.CountDown,
+    },
+    auxtimer3: {
+      duration: timerConfig.auxTimerDefault,
+      current: timerConfig.auxTimerDefault,
+      playback: SimplePlayback.Stop,
+      direction: SimpleDirection.CountDown,
+    },
     ping: -1,
   });
 

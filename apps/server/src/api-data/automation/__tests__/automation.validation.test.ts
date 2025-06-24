@@ -149,10 +149,10 @@ describe('parseOutput', () => {
       parseOutput({
         type: 'ontime',
         action: 'message-secondary',
-        secondarySource: 'aux',
+        secondarySource: 'aux1',
       }),
     ).toMatchObject({
-      secondarySource: 'aux',
+      secondarySource: 'aux1',
     });
     expect(
       parseOutput({

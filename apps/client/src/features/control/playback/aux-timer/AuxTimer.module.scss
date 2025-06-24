@@ -7,6 +7,18 @@
 
 .controls {
   margin-top: 0.25rem;
-  display: flex;
-  gap: 0.5rem;
+}
+
+.input {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem;
+}
+
+.twoSides {
+  margin-top: 0.25rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+  height: 1.5rem;
 }

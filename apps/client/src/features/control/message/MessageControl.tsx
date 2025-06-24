@@ -1,12 +1,11 @@
 import { IoEye, IoEyeOffOutline } from 'react-icons/io5';
 
-import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
+import IconButton from '../../../common/components/buttons/IconButton';
 import {
   setMessage,
   useExternalMessageInput as useSecondaryMessageInput,
   useTimerMessageInput,
 } from '../../../common/hooks/useSocket';
-import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import InputRow from './InputRow';
 import TimerControlsPreview from './TimerViewControl';
@@ -32,15 +31,13 @@ function TimerMessageInput() {
       visible={visible}
       changeHandler={(newValue) => setMessage.timerText(newValue)}
     >
-      <TooltipActionBtn
-        clickHandler={() => setMessage.timerVisible(!visible)}
-        tooltip={visible ? 'Make invisible' : 'Make visible'}
+      <IconButton
         aria-label='Toggle timer message visibility'
-        openDelay={tooltipDelayMid}
-        icon={visible ? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}
-        variant={visible ? 'ontime-filled' : 'ontime-subtle'}
-        size='sm'
-      />
+        onClick={() => setMessage.timerVisible(!visible)}
+        variant={visible ? 'primary' : 'subtle'}
+      >
+        {visible ? <IoEye /> : <IoEyeOffOutline />}
+      </IconButton>
     </InputRow>
   );
 }
@@ -50,9 +47,9 @@ function SecondaryInput() {
 
   const toggleSecondary = () => {
     if (visible) {
-      setMessage.timerSecondary(null);
+      setMessage.timerSecondarySource(null);
     } else {
-      setMessage.timerSecondary('secondary');
+      setMessage.timerSecondarySource('secondary');
     }
   };
 
@@ -64,15 +61,13 @@ function SecondaryInput() {
       visible={visible}
       changeHandler={(newValue) => setMessage.secondaryMessage(newValue)}
     >
-      <TooltipActionBtn
-        clickHandler={toggleSecondary}
-        tooltip={visible ? 'Make invisible' : 'Make visible'}
+      <IconButton
         aria-label='Toggle secondary message visibility'
-        openDelay={tooltipDelayMid}
-        icon={visible ? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}
-        variant={visible ? 'ontime-filled' : 'ontime-subtle'}
-        size='sm'
-      />
+        onClick={toggleSecondary}
+        variant={visible ? 'primary' : 'subtle'}
+      >
+        {visible ? <IoEye /> : <IoEyeOffOutline />}
+      </IconButton>
     </InputRow>
   );
 }

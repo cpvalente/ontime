@@ -1,18 +1,11 @@
-import {
-  CustomFields,
-  MessageState,
-  OntimeEvent,
-  ProjectData,
-  Settings,
-  SimpleTimerState,
-  ViewSettings,
-} from 'ontime-types';
+import { CustomFields, MessageState, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
 
 import { FitText } from '../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
+import { useAuxTimersTime } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
 import { cx } from '../../common/utils/styleUtils';
@@ -38,7 +31,6 @@ import {
 import './Timer.scss';
 
 interface TimerProps {
-  auxTimer: SimpleTimerState;
   customFields: CustomFields;
   eventNext: OntimeEvent | null;
   eventNow: OntimeEvent | null;
@@ -51,8 +43,8 @@ interface TimerProps {
 }
 
 export default function Timer(props: TimerProps) {
-  const { auxTimer, customFields, eventNow, eventNext, general, isMirrored, message, settings, time, viewSettings } =
-    props;
+  const { customFields, eventNow, eventNext, general, isMirrored, message, settings, time, viewSettings } = props;
+  const auxTimer = useAuxTimersTime();
 
   const {
     hideClock,
@@ -104,9 +96,22 @@ export default function Timer(props: TimerProps) {
     removeLeadingZero: removeLeadingZeros,
   });
 
+  const currentAux = (() => {
+    if (message.timer.secondarySource === 'aux1') {
+      return auxTimer.aux1;
+    }
+    if (message.timer.secondarySource === 'aux2') {
+      return auxTimer.aux2;
+    }
+    if (message.timer.secondarySource === 'aux3') {
+      return auxTimer.aux3;
+    }
+    return null;
+  })();
+
   const secondaryContent = getSecondaryDisplay(
     message,
-    auxTimer.current,
+    currentAux,
     localisedMinutes,
     hideTimerSeconds,
     removeLeadingZeros,
