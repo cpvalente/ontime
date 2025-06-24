@@ -10,6 +10,7 @@ import EditableImage from './EditableImage';
 import MultiLineCell from './MultiLineCell';
 import SingleLineCell from './SingleLineCell';
 import TimeInput from './TimeInput';
+import DurationInput from './DurationInput';
 
 function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) {
   if (!table.options.meta) {
@@ -91,9 +92,9 @@ function MakeDuration({ getValue, row, table }: CellContext<OntimeEntry, unknown
   const formattedDuration = formatDuration(duration, false);
 
   return (
-    <TimeInput initialValue={duration} onSubmit={update} lockedValue={isDurationLocked}>
+    <DurationInput initialValue={duration} onSubmit={update} lockedValue={isDurationLocked}>
       {formattedDuration}
-    </TimeInput>
+    </DurationInput>
   );
 }
 
