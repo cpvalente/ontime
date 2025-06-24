@@ -27,18 +27,18 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) 
   const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
 
   const displayTime = showDelayedTimes ? startTime + delayValue : startTime;
-  let formattedTime = formatTime(displayTime)
+  let formattedTime = formatTime(displayTime);
   if (hideTableSeconds) {
     if (timeFormat === '12') {
       const [parsingTime, amPmIndicator] = formattedTime.split(' ');
-      formattedTime = removeSeconds(parsingTime) + ' ' + amPmIndicator
+      formattedTime = removeSeconds(parsingTime) + ' ' + amPmIndicator;
     } else {
       formattedTime = removeSeconds(formattedTime);
     }
   }
 
   return (
-    <TimeInput initialValue={startTime} onSubmit={update} lockedValue={isStartLocked} delayed={delayValue !== 0} isFormat>
+    <TimeInput initialValue={startTime} onSubmit={update} lockedValue={isStartLocked} delayed={delayValue !== 0}>
       {formattedTime}
       <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(startTime)} />
     </TimeInput>
@@ -60,18 +60,18 @@ function MakeEnd({ getValue, row, table }: CellContext<OntimeEntry, unknown>) {
   const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
 
   const displayTime = showDelayedTimes ? endTime + delayValue : endTime;
-  let formattedTime = formatTime(displayTime)
+  let formattedTime = formatTime(displayTime);
   if (hideTableSeconds) {
     if (timeFormat === '12') {
       const [parsingTime, amPmIndicator] = formattedTime.split(' ');
-      formattedTime = removeSeconds(parsingTime) + ' ' + amPmIndicator
+      formattedTime = removeSeconds(parsingTime) + ' ' + amPmIndicator;
     } else {
       formattedTime = removeSeconds(formattedTime);
     }
   }
 
   return (
-    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={delayValue !== 0} isFormat>
+    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={delayValue !== 0}>
       {formattedTime}
       <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(endTime)} />
     </TimeInput>
