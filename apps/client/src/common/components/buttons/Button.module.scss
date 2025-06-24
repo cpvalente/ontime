@@ -22,6 +22,11 @@
   }
 }
 
+.small {
+  height: 1.5rem;
+  font-size: calc(1rem - 3px);
+}
+
 .medium {
   height: 2rem;
   font-size: calc(1rem - 2px);
@@ -40,3 +45,4 @@
 .fluid {
   width: 100%;
 }
+

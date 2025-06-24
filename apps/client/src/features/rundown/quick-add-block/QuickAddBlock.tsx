@@ -1,8 +1,8 @@
 import { memo, useRef } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { Button } from '@chakra-ui/react';
 import { MaybeString, SupportedEntry } from 'ontime-types';
 
+import Button from '../../../common/components/buttons/Button';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 
 import style from './QuickAddBlock.module.scss';
@@ -67,35 +67,17 @@ function QuickAddBlock(props: QuickAddBlockProps) {
 
   return (
     <div className={style.quickAdd} style={blockColour ? { '--user-bg': blockColour } : {}}>
-      <Button
-        onClick={addEvent}
-        size='xs'
-        variant='ontime-subtle-white'
-        className={style.quickBtn}
-        leftIcon={<IoAdd />}
-        color='#b1b1b1' // $gray-400
-      >
+      <Button onClick={addEvent} size='small' variant='subtle-white'>
+        <IoAdd />
         Event
       </Button>
-      <Button
-        onClick={addDelay}
-        size='xs'
-        variant='ontime-subtle-white'
-        className={style.quickBtn}
-        leftIcon={<IoAdd />}
-        color='#b1b1b1' // $gray-400
-      >
+      <Button onClick={addDelay} size='small' variant='subtle-white'>
+        <IoAdd />
         Delay
       </Button>
       {parentBlock === null && (
-        <Button
-          onClick={addBlock}
-          size='xs'
-          variant='ontime-subtle-white'
-          className={style.quickBtn}
-          leftIcon={<IoAdd />}
-          color='#b1b1b1' // $gray-400
-        >
+        <Button onClick={addBlock} size='small' variant='subtle-white'>
+          <IoAdd />
           Block
         </Button>
       )}
