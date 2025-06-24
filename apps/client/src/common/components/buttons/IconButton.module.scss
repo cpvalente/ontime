@@ -1,4 +1,5 @@
 @use '../../../theme/viewerDefs' as *;
+@import './BaseButtonStyles.module.scss';
 
 .baseIconButton {
   aspect-ratio: 1;
@@ -13,59 +14,6 @@
   &:disabled {
     opacity: 0.4;
     cursor: not-allowed;
-  }
-}
-
-.subtle {
-  background: $gray-1050;
-  color: $blue-400;
-
-  &:hover:not(:disabled):not(:active) {
-    background: $gray-1000;
-    color: $blue-500;
-  }
-
-  &:active:not(:disabled){
-    background: $gray-1100;
-    border-color: $gray-1250;
-  }
-
-  &:disabled {
-    background: $gray-1050;
-  }
-}
-
-.subtle-white {
-  background: $gray-1050;
-  color: $ui-white;
-
-  &:hover:not(:disabled):not(:active) {
-    background: $gray-1000;
-    color: $ui-white;
-  }
-
-  &:active:not(:disabled) {
-    background: $gray-1100;
-    border-color: $gray-1250;
-  }
-
-  &:disabled {
-    background: $gray-1050;
-  }
-}
-
-.destructive {
-  background: $red-700;
-  color: $ui-white;
-
-  &:hover:not(:disabled):not(:active) {
-    background: $red-600;
-    color: $ui-white;
-  }
-
-  &:active:not(:disabled) {
-    background: $red-800;
-    border-color: $red-900;
   }
 }
 
