@@ -1,12 +1,4 @@
-import {
-  MessageState,
-  OntimeEvent,
-  ProjectData,
-  Runtime,
-  Settings,
-  SimpleTimerState,
-  ViewSettings,
-} from 'ontime-types';
+import { MessageState, OntimeEvent, ProjectData, Runtime, Settings, ViewSettings } from 'ontime-types';
 
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -22,7 +14,6 @@ import StudioTimers from './StudioTimers';
 import './Studio.scss';
 
 interface StudioProps {
-  auxTimer: SimpleTimerState;
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   general: ProjectData;
@@ -36,7 +27,6 @@ interface StudioProps {
 }
 
 export default function Studio({
-  auxTimer,
   eventNow,
   eventNext,
   general,
@@ -70,7 +60,6 @@ export default function Studio({
           <StudioTimers
             eventNow={eventNow}
             eventNext={eventNext}
-            auxTimer={auxTimer.current}
             timerMessage={message.timer.visible ? message.timer.text : ''}
             secondaryMessage={message.secondary}
             runtime={runtime}

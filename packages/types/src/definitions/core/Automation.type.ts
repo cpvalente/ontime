@@ -57,11 +57,20 @@ export type HTTPOutput = {
 export type OntimeAction =
   | {
       type: 'ontime';
-      action: 'aux-start' | 'aux-stop' | 'aux-pause';
+      action:
+        | 'aux1-start'
+        | 'aux1-stop'
+        | 'aux1-pause'
+        | 'aux2-start'
+        | 'aux2-stop'
+        | 'aux2-pause'
+        | 'aux3-start'
+        | 'aux3-stop'
+        | 'aux3-pause';
     }
   | {
       type: 'ontime';
-      action: 'aux-set';
+      action: 'aux1-set' | 'aux2-set' | 'aux3-set';
       time: number;
     }
   | {

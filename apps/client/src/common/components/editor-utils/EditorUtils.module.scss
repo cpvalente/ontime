@@ -42,7 +42,15 @@
 }
 
 .separator {
-  width: 1px;
-  height: 0.75em;
   background-color: $border-color-ondark;
+
+  &.horizontal {
+    width: 100%;
+    height: 1px;
+  }
+
+  &.vertical {
+    width: 1px;
+    height: 0.75em;  
+  }
 }

@@ -1,4 +1,4 @@
-export type SecondarySource = 'aux' | 'secondary' | null;
+export type SecondarySource = 'aux1' | 'aux2' | 'aux3' | 'secondary' | null;
 
 export type TimerMessage = {
   text: string;

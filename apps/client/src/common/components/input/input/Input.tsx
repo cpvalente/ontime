@@ -1,4 +1,4 @@
-import { InputHTMLAttributes } from 'react';
+import { forwardRef, InputHTMLAttributes } from 'react';
 
 import { cx } from '../../../utils/styleUtils';
 
@@ -9,6 +9,18 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   height?: 'medium' | 'large';
 }
 
-export default function Input({ className, variant = 'subtle', height = 'medium', ...inputProps }: InputProps) {
-  return <input type='text' className={cx([style.input, style[variant], style[height], className])} {...inputProps} />;
-}
+const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  { className, variant = 'subtle', height = 'medium', ...inputProps },
+  ref,
+) {
+  return (
+    <input
+      ref={ref}
+      type='text'
+      className={cx([style.input, style[variant], style[height], className])}
+      {...inputProps}
+    />
+  );
+});
+
+export default Input;

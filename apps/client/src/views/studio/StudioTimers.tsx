@@ -1,6 +1,7 @@
 import { OntimeEvent, Playback, Runtime, TimerPhase, TimerState, ViewSettings } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
+import { useAuxTimersTime } from '../../common/hooks/useSocket';
 import { cx } from '../../common/utils/styleUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
 import { getTimerColour } from '../utils/presentation.utils';
@@ -14,7 +15,6 @@ interface StudioTimersProps {
   time: TimerState;
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
-  auxTimer: number;
   timerMessage: string;
   secondaryMessage: string;
   viewSettings: ViewSettings;
@@ -25,7 +25,6 @@ export default function StudioTimers({
   time,
   eventNow,
   eventNext,
-  auxTimer,
   timerMessage,
   secondaryMessage,
   viewSettings,
@@ -35,7 +34,6 @@ export default function StudioTimers({
   const schedule = getFormattedScheduleTimes(runtime);
   const event = getFormattedEventData(eventNow, time);
   const eventNextTitle = eventNext?.title || '-';
-  const formattedAuxTimer = millisToString(auxTimer);
   const formattedTimerMessage = timerMessage || '-';
   const formattedSecondaryMessage = secondaryMessage || '-';
 
@@ -110,24 +108,7 @@ export default function StudioTimers({
         </div>
       </div>
 
-      <div className='card' id='card-aux'>
-        <div className='card__row'>
-          <div>
-            <div className='label'>Aux 1</div>
-            <div className='extra'>{formattedAuxTimer}</div>
-          </div>
-
-          <div>
-            <div className='label center'>Aux 2</div>
-            <div className='extra center'>NOT YET</div>
-          </div>
-
-          <div>
-            <div className='label right'>Aux 3</div>
-            <div className='extra right'>NOT YET</div>
-          </div>
-        </div>
-      </div>
+      <StudioTimersAux />
 
       <div className='card' id='card-timer-message'>
         <div>
@@ -140,6 +121,31 @@ export default function StudioTimers({
         <div>
           <div className='label'>Secondary message</div>
           <div className={cx(['extra', !formattedSecondaryMessage && 'muted'])}>{formattedSecondaryMessage}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StudioTimersAux() {
+  const auxTimer = useAuxTimersTime();
+
+  return (
+    <div className='card' id='card-aux'>
+      <div className='card__row'>
+        <div>
+          <div className='label'>Aux 1</div>
+          <div className='extra'>{millisToString(auxTimer.aux1)}</div>
+        </div>
+
+        <div>
+          <div className='label center'>Aux 2</div>
+          <div className='extra center'>{millisToString(auxTimer.aux2)}</div>
+        </div>
+
+        <div>
+          <div className='label right'>Aux 3</div>
+          <div className='extra right'>{millisToString(auxTimer.aux3)}</div>
         </div>
       </div>
     </div>

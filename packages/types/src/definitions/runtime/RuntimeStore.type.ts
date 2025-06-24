@@ -22,6 +22,8 @@ export type RuntimeStore = {
 
   // extra timers
   auxtimer1: SimpleTimerState;
+  auxtimer2: SimpleTimerState;
+  auxtimer3: SimpleTimerState;
 
   // utils
   ping: number;

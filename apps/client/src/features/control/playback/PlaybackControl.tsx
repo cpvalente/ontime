@@ -23,7 +23,11 @@ export default function PlaybackControl() {
         selectedEventIndex={data.selectedEventIndex}
         timerPhase={data.timerPhase}
       />
-      <AuxTimer />
+      <div className={style.auxTimers}>
+        <AuxTimer index={1} />
+        <AuxTimer index={2} />
+        <AuxTimer index={3} />
+      </div>
     </div>
   );
 }

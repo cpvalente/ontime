@@ -116,7 +116,11 @@ export function getSecondaryDisplay(
   if (hideSecondary) {
     return;
   }
-  if (message.timer.secondarySource === 'aux') {
+  if (
+    message.timer.secondarySource === 'aux1' ||
+    message.timer.secondarySource === 'aux2' ||
+    message.timer.secondarySource === 'aux3'
+  ) {
     return getFormattedTimer(currentAux, TimerType.CountDown, localisedMinutes, {
       removeSeconds,
       removeLeadingZero,

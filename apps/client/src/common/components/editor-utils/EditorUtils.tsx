@@ -28,6 +28,10 @@ export function Label({ children, className, ...elementProps }: LabelHTMLAttribu
   );
 }
 
-export function Separator({ className, ...elementProps }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cx([style.separator, className])} {...elementProps} />;
+interface SeparatorProps extends HTMLAttributes<HTMLDivElement> {
+  orientation?: 'horizontal' | 'vertical';
+}
+
+export function Separator({ className, orientation = 'vertical', ...elementProps }: SeparatorProps) {
+  return <div className={cx([style.separator, style[orientation], className])} {...elementProps} />;
 }
