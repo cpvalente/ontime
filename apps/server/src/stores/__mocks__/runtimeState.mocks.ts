@@ -4,12 +4,10 @@ import type { RuntimeState } from '../runtimeState.js';
 
 const baseState: RuntimeState = {
   clock: 0,
-  currentBlock: {
-    block: null,
-    startedAt: null,
-  },
   eventNow: null,
   eventNext: null,
+  blockNow: null,
+  blockNext: null,
   runtime: {
     selectedEventIndex: null,
     numEvents: 0,
