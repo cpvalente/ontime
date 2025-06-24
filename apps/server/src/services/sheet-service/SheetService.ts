@@ -205,7 +205,7 @@ async function verifySheet(
   if (!sheetId || !authClient) {
     throw new Error('Missing sheet ID or authentication');
   }
-  
+
   try {
     const spreadsheets = await sheets({ version: 'v4', auth: authClient }).spreadsheets.get({
       spreadsheetId: sheetId,
@@ -302,7 +302,10 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
     but we would like !0 to return false, reason why is also checked that the id is not 0,
     because if it is 0, then I should not enter the condition.
   */
-  if (!selectedWorksheet.properties || (!selectedWorksheet.properties.sheetId && selectedWorksheet.properties.sheetId !== 0)) {
+  if (
+    !selectedWorksheet.properties ||
+    (!selectedWorksheet.properties.sheetId && selectedWorksheet.properties.sheetId !== 0)
+  ) {
     throw new Error('Got invalid data from worksheet');
   }
 

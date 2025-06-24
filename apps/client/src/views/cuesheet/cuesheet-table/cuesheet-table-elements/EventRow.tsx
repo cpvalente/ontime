@@ -75,7 +75,6 @@ function EventRow(props: EventRowProps) {
   }, [ownRef, selectedRef]);
 
   const { color, backgroundColor } = getAccessibleColour(event.colour);
-  console.log(color, backgroundColor);
   const tmpColour = cssOrHexToColour(color) as RGBColour; // we know this to be a correct colour
   const mutedText = colourToHex({ ...tmpColour, alpha: tmpColour.alpha * 0.6 });
 
