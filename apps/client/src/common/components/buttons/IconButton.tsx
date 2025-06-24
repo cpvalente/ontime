@@ -5,7 +5,7 @@ import { cx } from '../../utils/styleUtils';
 import style from './IconButton.module.scss';
 
 interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'subtle' | 'subtle-white' | 'destructive';
+  variant?: 'primary' | 'subtle' | 'subtle-white' | 'destructive' | 'subtle-destructive';
   size?: 'medium' | 'large' | 'xlarge';
 }
 
