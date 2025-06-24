@@ -1,9 +1,9 @@
 import {
   BlockState,
+  isOntimeBlock,
   MaybeNumber,
   MaybeString,
   OffsetMode,
-  OntimeBlock,
   PlayableEvent,
   Playback,
   Rundown,
@@ -686,6 +686,18 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
   }
 
   const currentBlockId = state.eventNow.parent;
+
+  // find next block
+  const blockOrEventIndex = rundown.order.findIndex((id) => id === currentBlockId || id === state.eventNow?.id);
+  if (blockOrEventIndex >= 0) {
+    for (let i = blockOrEventIndex + 1; i < rundown.order.length; i++) {
+      if (isOntimeBlock(rundown.entries[rundown.order[i]])) {
+        state.blockNext = { id: rundown.order[i], startedAt: null };
+
+        break;
+      }
+    }
+  }
 
   // not inside a block
   if (currentBlockId === null) {
