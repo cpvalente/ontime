@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { CustomFields, isOntimeEvent, OntimeEntry, OntimeEvent, TimeStrategy } from 'ontime-types';
-import { millisToString, removeSeconds } from 'ontime-utils';
+import { millisToString } from 'ontime-utils';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
 import { formatDuration, formatTime } from '../../../../common/utils/time';
@@ -18,7 +18,7 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) 
   }
 
   const { handleUpdateTimer } = table.options.meta;
-  const { showDelayedTimes, hideTableSeconds, timeFormat } = table.options.meta.options;
+  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
 
   const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeStart', newValue);
 
@@ -27,15 +27,9 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) 
   const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
 
   const displayTime = showDelayedTimes ? startTime + delayValue : startTime;
-  let formattedTime = formatTime(displayTime);
-  if (hideTableSeconds) {
-    if (timeFormat === '12') {
-      const [parsingTime, amPmIndicator] = formattedTime.split(' ');
-      formattedTime = removeSeconds(parsingTime) + ' ' + amPmIndicator;
-    } else {
-      formattedTime = removeSeconds(formattedTime);
-    }
-  }
+
+  const formatOpts = hideTableSeconds ? { format12: 'hh:mm a', format24: 'HH:mm' } : undefined;
+  const formattedTime = formatTime(displayTime, formatOpts);
 
   return (
     <TimeInput initialValue={startTime} onSubmit={update} lockedValue={isStartLocked} delayed={delayValue !== 0}>
@@ -51,7 +45,7 @@ function MakeEnd({ getValue, row, table }: CellContext<OntimeEntry, unknown>) {
   }
 
   const { handleUpdateTimer } = table.options.meta;
-  const { showDelayedTimes, hideTableSeconds, timeFormat } = table.options.meta.options;
+  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
 
   const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeEnd', newValue);
 
@@ -60,15 +54,9 @@ function MakeEnd({ getValue, row, table }: CellContext<OntimeEntry, unknown>) {
   const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
 
   const displayTime = showDelayedTimes ? endTime + delayValue : endTime;
-  let formattedTime = formatTime(displayTime);
-  if (hideTableSeconds) {
-    if (timeFormat === '12') {
-      const [parsingTime, amPmIndicator] = formattedTime.split(' ');
-      formattedTime = removeSeconds(parsingTime) + ' ' + amPmIndicator;
-    } else {
-      formattedTime = removeSeconds(formattedTime);
-    }
-  }
+
+  const formatOpts = hideTableSeconds ? { format12: 'hh:mm a', format24: 'HH:mm' } : undefined;
+  const formattedTime = formatTime(displayTime, formatOpts);
 
   return (
     <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={delayValue !== 0}>
