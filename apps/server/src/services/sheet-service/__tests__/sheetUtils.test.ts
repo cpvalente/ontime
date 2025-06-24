@@ -274,6 +274,6 @@ describe('cellRequestFromEvent()', () => {
     const result2 = cellRequestFromEvent(event, 10, 1234, metadata);
     expect(result2.updateCells?.start?.rowIndex).toStrictEqual(21);
     expect(result2.updateCells?.start?.columnIndex).toStrictEqual(5);
-    expect(result2.updateCells?.fields).toStrictEqual('userEnteredValue');
+    expect(result2.updateCells?.fields).toStrictEqual('userEnteredValue,userEnteredFormat');
   });
 });

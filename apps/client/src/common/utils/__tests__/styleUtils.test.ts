@@ -18,19 +18,19 @@ describe('getAccessibleColour()', () => {
   it('handles named colours', () => {
     const colour = 'red';
     const { backgroundColor, color } = getAccessibleColour(colour);
-    expect(backgroundColor).toBe('#FF0000FF');
+    expect(backgroundColor).toBe('#ff0000ff');
     expect(color).toBe('#fffffa');
   });
   it('handles hex colours', () => {
     const colour = '#0F0';
     const { backgroundColor, color } = getAccessibleColour(colour);
-    expect(backgroundColor).toBe('#00FF00FF');
+    expect(backgroundColor).toBe('#00ff00ff');
     expect(color).toBe('black');
   });
   it('handles transparens', () => {
     const colour = '#0F08';
     const { backgroundColor, color } = getAccessibleColour(colour);
-    expect(backgroundColor).toBe('#0C940CFF');
+    expect(backgroundColor).toBe('#0c940cff');
     expect(color).toBe('#fffffa');
   });
 });

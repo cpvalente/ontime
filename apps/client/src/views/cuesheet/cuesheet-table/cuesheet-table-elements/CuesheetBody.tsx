@@ -1,7 +1,7 @@
 import { MutableRefObject } from 'react';
 import { RowModel, Table } from '@tanstack/react-table';
-import Color from 'color';
 import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeEntry } from 'ontime-types';
+import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
 import { useSelectedEventId } from '../../../../common/hooks/useSocket';
 import { lazyEvaluate } from '../../../../common/utils/lazyEvaluate';
@@ -76,12 +76,13 @@ export default function CuesheetBody(props: CuesheetBodyProps) {
           if (isSelected) {
             rowBgColour = '#D20300'; // $red-700
           } else if (entry.colour) {
-            try {
-              // the colour is user defined and might be invalid
-              const accessibleBackgroundColor = Color(getAccessibleColour(entry.colour).backgroundColor);
-              rowBgColour = accessibleBackgroundColor.fade(0.75).hexa();
-            } catch (_error) {
-              /* we do not handle errors here */
+            // the colour is user defined and might be invalid
+            const accessibleBackgroundColor = cssOrHexToColour(getAccessibleColour(entry.colour).backgroundColor);
+            if (accessibleBackgroundColor !== null) {
+              rowBgColour = colourToHex({
+                ...accessibleBackgroundColor,
+                alpha: accessibleBackgroundColor.alpha * 0.25,
+              });
             }
           }
 

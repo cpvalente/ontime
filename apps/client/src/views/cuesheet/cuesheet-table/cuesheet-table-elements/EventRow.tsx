@@ -1,8 +1,8 @@
 import { memo, MutableRefObject, useLayoutEffect, useRef, useState } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { flexRender, Table } from '@tanstack/react-table';
-import Color from 'color';
-import { OntimeEntry, OntimeEvent } from 'ontime-types';
+import { OntimeEntry, OntimeEvent, RGBColour } from 'ontime-types';
+import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
@@ -75,7 +75,8 @@ function EventRow(props: EventRowProps) {
   }, [ownRef, selectedRef]);
 
   const { color, backgroundColor } = getAccessibleColour(event.colour);
-  const mutedText = Color(color).fade(0.4).hexa();
+  const tmpColour = cssOrHexToColour(color) as RGBColour; // we know this to be a correct colour
+  const mutedText = colourToHex({ ...tmpColour, alpha: tmpColour.alpha * 0.6 });
 
   return (
     <tr
