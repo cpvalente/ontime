@@ -131,7 +131,7 @@ export const useSelectedEventId = createSelector((state: RuntimeStore) => ({
 }));
 
 export const useCurrentBlockId = createSelector((state: RuntimeStore) => ({
-  currentBlockId: state.currentBlock.block?.id ?? null,
+  currentBlockId: state.blockNow?.id ?? null,
 }));
 
 export const setEventPlayback = {
@@ -172,7 +172,7 @@ export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) =
   selectedEventIndex: state.runtime.selectedEventIndex,
   offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offset : state.runtime.relativeOffset,
 
-  currentBlock: state.currentBlock,
+  blockStartAt: state.blockNow?.startedAt ?? null,
 }));
 
 export const useTimelineStatus = createSelector((state: RuntimeStore) => ({

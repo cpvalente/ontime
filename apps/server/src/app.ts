@@ -182,11 +182,9 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
     message: { ...runtimeStorePlaceholder.message },
     runtime: state.runtime,
     eventNow: state.eventNow,
-    currentBlock: {
-      block: null,
-      startedAt: null,
-    },
     eventNext: state.eventNext,
+    blockNow: null,
+    blockNext: null,
     auxtimer1: {
       duration: timerConfig.auxTimerDefault,
       current: timerConfig.auxTimerDefault,
