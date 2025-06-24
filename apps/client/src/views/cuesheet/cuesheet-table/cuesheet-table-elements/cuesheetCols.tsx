@@ -6,11 +6,11 @@ import { millisToString } from 'ontime-utils';
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
 import { formatDuration, formatTime } from '../../../../common/utils/time';
 
+import DurationInput from './DurationInput';
 import EditableImage from './EditableImage';
 import MultiLineCell from './MultiLineCell';
 import SingleLineCell from './SingleLineCell';
 import TimeInput from './TimeInput';
-import DurationInput from './DurationInput';
 
 function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) {
   if (!table.options.meta) {
