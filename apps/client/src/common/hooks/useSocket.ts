@@ -17,6 +17,7 @@ export const setClientRemote = {
 export const useRundownEditor = createSelector((state: RuntimeStore) => ({
   playback: state.timer.playback,
   selectedEventId: state.eventNow?.id ?? null,
+  selectedBlockId: state.blockNow?.id ?? null,
   nextEventId: state.eventNext?.id ?? null,
 }));
 

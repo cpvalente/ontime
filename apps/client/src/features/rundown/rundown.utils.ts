@@ -26,12 +26,13 @@ type RundownMetadata = {
   isLoaded: boolean;
   groupId: MaybeString;
   groupColour: string | undefined;
+  groupIsLoaded: boolean;
 };
 
 /**
  * Creates a process function which aggregates the rundown metadata and event metadata
  */
-export function makeRundownMetadata(selectedEventId: MaybeString) {
+export function makeRundownMetadata(selectedEventId: MaybeString, selectedBlockId: MaybeString) {
   let rundownMeta: RundownMetadata = {
     previousEvent: null,
     latestEvent: null,
@@ -45,10 +46,11 @@ export function makeRundownMetadata(selectedEventId: MaybeString) {
     isLoaded: false,
     groupId: null,
     groupColour: undefined,
+    groupIsLoaded: false,
   };
 
   function process(entry: OntimeEntry): Readonly<RundownMetadata> {
-    const processedRundownMetadata = processEntry(rundownMeta, selectedEventId, entry);
+    const processedRundownMetadata = processEntry(rundownMeta, selectedEventId, selectedBlockId, entry);
     rundownMeta = processedRundownMetadata;
     return rundownMeta;
   }
@@ -62,12 +64,14 @@ export function makeRundownMetadata(selectedEventId: MaybeString) {
 function processEntry(
   rundownMetadata: RundownMetadata,
   selectedEventId: MaybeString,
+  selectedBlockId: MaybeString,
   entry: Readonly<OntimeEntry>,
 ): Readonly<RundownMetadata> {
   const processedData = { ...rundownMetadata };
   // initialise data to be overridden below
   processedData.isNextDay = false;
   processedData.isLoaded = false;
+  processedData.groupIsLoaded = false;
 
   processedData.previousEntryId = processedData.thisId; // thisId comes from the previous iteration
   processedData.thisId = entry.id; // we reassign thisId
@@ -81,6 +85,7 @@ function processEntry(
   if (isOntimeBlock(entry)) {
     processedData.groupId = entry.id;
     processedData.groupColour = entry.colour;
+    processedData.groupIsLoaded = entry.id === selectedBlockId;
   } else {
     // for delays and blocks, we insert the group metadata
     if ((entry as OntimeEvent | OntimeDelay).parent !== processedData.groupId) {
@@ -95,6 +100,7 @@ function processEntry(
     if (isOntimeEvent(entry)) {
       // event indexes are 1 based in UI
       processedData.eventIndex += 1;
+      processedData.groupIsLoaded = entry.parent !== null && entry.parent === selectedBlockId;
 
       if (isPlayableEvent(entry)) {
         processedData.isNextDay = checkIsNextDay(entry, processedData.previousEvent);

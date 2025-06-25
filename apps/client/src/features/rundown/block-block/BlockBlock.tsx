@@ -23,13 +23,14 @@ import style from './BlockBlock.module.scss';
 
 interface BlockBlockProps {
   data: OntimeBlock;
+  loaded: boolean;
   hasCursor: boolean;
   collapsed: boolean;
   onCollapse: (collapsed: boolean, groupId: EntryId) => void;
 }
 
 export default function BlockBlock(props: BlockBlockProps) {
-  const { data, hasCursor, collapsed, onCollapse } = props;
+  const { data, loaded, hasCursor, collapsed, onCollapse } = props;
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const { clone, ungroup, deleteEntry } = useEntryActions();
 
@@ -70,7 +71,10 @@ export default function BlockBlock(props: BlockBlockProps) {
     animateLayoutChanges: () => false,
   });
 
-  const binderColours = data.colour && getAccessibleColour(data.colour);
+  //TODO: temp color to test is loaded
+  const binderColours = loaded
+    ? { backgroundColor: 'green', color: 'white' }
+    : data.colour && getAccessibleColour(data.colour);
   const isValidDrop = over?.id && canDrop(over.data.current?.type, over.data.current?.parent);
 
   const dragStyle = {
