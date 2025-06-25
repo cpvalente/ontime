@@ -375,15 +375,6 @@ export function getPlayableIndexFromTimedIndex(metadata: RundownMetadata, index:
 export function getTimedIndexFromPlayableIndex(metadata: RundownMetadata, index: number): number {
   const playableId = metadata.playableEventOrder[index];
   const timedIndex = metadata.timedEventOrder.findIndex((id) => id === playableId);
+  DEV: if (timedIndex === -1) throw new Error('getTimedIndexFromPlayableIndex, cound now find related id');
   return timedIndex;
-}
-
-/**
- * converts an index from the timedEventOrder to an index in the playableEventOrder
- * all indexes in timedEventOrder must also exist in flatEntryOrder, otherwise the app is broken
- */
-export function getEntryIndexFromTimedIndex(metadata: RundownMetadata, index: number): number | null {
-  const timedId = metadata.timedEventOrder[index];
-  const flatEntryIndex = metadata.flatEntryOrder.findIndex((id) => id === timedId);
-  return flatEntryIndex;
 }
