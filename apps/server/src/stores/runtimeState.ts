@@ -249,7 +249,7 @@ export function loadNext(
   }
   const nowPlayableIndex = getPlayableIndexFromTimedIndex(metadata, eventIndex);
 
-  if (!nowPlayableIndex || nowPlayableIndex > metadata.playableEventOrder.length - 2) {
+  if (nowPlayableIndex === null  || nowPlayableIndex > metadata.playableEventOrder.length - 2) {
     // we cound not find the event now or the event now is the last playable event
     runtimeState.eventNext = null;
     return;
