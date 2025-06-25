@@ -5,6 +5,7 @@ import { makeRundownMetadata, makeSortableList, moveDown, moveUp } from '../rund
 describe('makeRundownMetadata()', () => {
   it('processes nested rundown data', () => {
     const selectedEventId = '12';
+    const selectedBlockId = 'block';
     const demoEvents = {
       '1': {
         id: '1',
@@ -80,7 +81,7 @@ describe('makeRundownMetadata()', () => {
       } as OntimeEvent,
     };
 
-    const { metadata, process } = makeRundownMetadata(selectedEventId);
+    const { metadata, process } = makeRundownMetadata(selectedEventId, selectedBlockId);
 
     expect(metadata).toStrictEqual({
       previousEvent: null,
@@ -95,6 +96,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: null,
       groupColour: undefined,
+      groupIsLoaded: false,
     });
 
     expect(process(demoEvents['1'])).toStrictEqual({
@@ -110,6 +112,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: null,
       groupColour: undefined,
+      groupIsLoaded: false,
     });
 
     expect(process(demoEvents['block'])).toMatchObject({
@@ -125,6 +128,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: 'block',
       groupColour: 'red',
+      groupIsLoaded: true,
     });
 
     expect(process(demoEvents['11'])).toMatchObject({
@@ -140,6 +144,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: 'block',
       groupColour: 'red',
+      groupIsLoaded: true,
     });
 
     expect(process(demoEvents['delay'])).toMatchObject({
@@ -155,6 +160,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: 'block',
       groupColour: 'red',
+      groupIsLoaded: true,
     });
 
     expect(process(demoEvents['12'])).toMatchObject({
@@ -170,6 +176,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: true,
       groupId: 'block',
       groupColour: 'red',
+      groupIsLoaded: true,
     });
 
     expect(process(demoEvents['13'])).toMatchObject({
@@ -185,6 +192,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: 'block',
       groupColour: 'red',
+      groupIsLoaded: true,
     });
 
     expect(process(demoEvents['2'])).toMatchObject({
@@ -200,6 +208,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: null,
       groupColour: undefined,
+      groupIsLoaded: false,
     });
   });
 
@@ -236,7 +245,7 @@ describe('makeRundownMetadata()', () => {
         linkStart: false,
       } as OntimeEvent,
     };
-    const { process } = makeRundownMetadata(null);
+    const { process } = makeRundownMetadata(null, null);
 
     expect(process(rundownStartsWithBlock.block)).toStrictEqual({
       previousEvent: null,
@@ -251,6 +260,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: rundownStartsWithBlock.block.id,
       groupColour: 'red',
+      groupIsLoaded: false,
     });
 
     expect(process(rundownStartsWithBlock['1'])).toStrictEqual({
@@ -266,6 +276,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: rundownStartsWithBlock.block.id,
       groupColour: 'red',
+      groupIsLoaded: false,
     });
     expect(process(rundownStartsWithBlock['2'])).toStrictEqual({
       previousEvent: rundownStartsWithBlock['1'],
@@ -280,6 +291,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: rundownStartsWithBlock.block.id,
       groupColour: 'red',
+      groupIsLoaded: false,
     });
   });
 });
@@ -338,7 +350,7 @@ describe('moveUp()', () => {
   const sortableData = ['event1', 'event2', 'block1', 'event11', 'end-block1', 'block2', 'end-block2', 'event3'];
   const entries = {
     event1: { type: 'event', id: 'event1', parent: null } as OntimeEvent,
-    event2: { type: 'event', id: 'event2', parent: null }as OntimeEvent,
+    event2: { type: 'event', id: 'event2', parent: null } as OntimeEvent,
     block1: { type: 'block', id: 'block1', events: ['event3'] } as OntimeBlock,
     event11: { type: 'event', id: 'event11', parent: 'block1' } as OntimeEvent,
     block2: { type: 'block', id: 'block2', events: [] as EntryId[] } as OntimeBlock,
@@ -348,29 +360,29 @@ describe('moveUp()', () => {
   it('moves an event up in the list', () => {
     const result = moveUp('event2', sortableData, entries);
     expect(result).toStrictEqual({ destinationId: 'event1', order: 'before', isBlock: false });
-  })
+  });
 
   it.todo('disallows nesting blocks', () => {
     const result = moveUp('block2', sortableData, entries);
     expect(result).toStrictEqual({ destinationId: 'block1', order: 'before', isBlock: false });
-  })
+  });
 
   it('moves an event into a block', () => {
     const result = moveUp('event3', sortableData, entries);
     expect(result).toStrictEqual({ destinationId: 'block2', order: 'insert', isBlock: true });
-  })
+  });
 
   it('moving up from top is noop', () => {
     const result = moveUp('event1', sortableData, entries);
     expect(result).toMatchObject({ destinationId: null });
-  })
+  });
 });
 
 describe('moveDown()', () => {
   const sortableData = ['event1', 'event2', 'block1', 'event11', 'end-block1', 'block2', 'end-block2', 'event3'];
   const entries = {
     event1: { type: 'event', id: 'event1', parent: null } as OntimeEvent,
-    event2: { type: 'event', id: 'event2', parent: null }as OntimeEvent,
+    event2: { type: 'event', id: 'event2', parent: null } as OntimeEvent,
     block1: { type: 'block', id: 'block1', events: ['event11'] } as OntimeBlock,
     event11: { type: 'event', id: 'event11', parent: 'block1' } as OntimeEvent,
     block2: { type: 'block', id: 'block2', events: [] as EntryId[] } as OntimeBlock,
@@ -380,20 +392,20 @@ describe('moveDown()', () => {
   it('moves an event down in the list', () => {
     const result = moveDown('event1', sortableData, entries);
     expect(result).toStrictEqual({ destinationId: 'event2', order: 'after', isBlock: false });
-  })
+  });
 
   it.todo('disallows nesting blocks', () => {
     const result = moveDown('block1', sortableData, entries);
     expect(result).toStrictEqual({ destinationId: 'block2', order: 'before', isBlock: false });
-  })
+  });
 
   it('moves an event into a block', () => {
     const result = moveDown('event2', sortableData, entries);
     expect(result).toStrictEqual({ destinationId: 'event11', order: 'before', isBlock: true });
-  })
+  });
 
   it('moving down from bottom is noop', () => {
     const result = moveDown('event3', sortableData, entries);
     expect(result).toMatchObject({ destinationId: null });
-  })
+  });
 });

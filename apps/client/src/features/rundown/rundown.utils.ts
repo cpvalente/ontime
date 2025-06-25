@@ -96,11 +96,11 @@ function processEntry(
         processedData.groupColour = undefined;
       }
     }
+    processedData.groupIsLoaded = processedData.groupId === selectedBlockId;
 
     if (isOntimeEvent(entry)) {
       // event indexes are 1 based in UI
       processedData.eventIndex += 1;
-      processedData.groupIsLoaded = entry.parent !== null && entry.parent === selectedBlockId;
 
       if (isPlayableEvent(entry)) {
         processedData.isNextDay = checkIsNextDay(entry, processedData.previousEvent);
