@@ -87,7 +87,10 @@ describe('mutation on runtimeState', () => {
 
     test('normal playback cycle', async () => {
       // 1. Load event
-      const mockRundown = makeRundown({ entries: { [mockEvent.id]: mockEvent }, order: [mockEvent.id] });
+      const mockRundown = makeRundown({
+        entries: { [mockEvent.id]: mockEvent, event2: { ...mockEvent, id: 'event2' } },
+        order: [mockEvent.id, 'event2'],
+      });
       // force update
       vi.useFakeTimers();
       await initRundown(mockRundown, {});
@@ -98,6 +101,7 @@ describe('mutation on runtimeState', () => {
       load(mockEvent, rundown, metadata);
       let newState = getState();
       expect(newState.eventNow?.id).toBe(mockEvent.id);
+      expect(newState.eventNext?.id).toBe('event2');
       expect(newState.timer.playback).toBe(Playback.Armed);
       expect(newState.clock).not.toBe(666);
       expect(newState.currentBlock.block).toBeNull();
