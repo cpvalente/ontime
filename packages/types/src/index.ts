@@ -1,3 +1,4 @@
+/// <reference types="node" preserve="true"/>
 // DATA MODEL
 export type { DatabaseModel } from './definitions/DataModel.type.js';
 
