@@ -357,7 +357,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   }
 
   // update block start time
-  if (state.blockNow?.startedAt === null) {
+  if (state.blockNow && state.blockNow.startedAt === null) {
     state.blockNow.startedAt = state.clock;
   }
 
@@ -583,7 +583,7 @@ export function roll(
       runtimeState.timer.startedAt = runtimeState.clock;
 
       // update runtime
-      if (runtimeState.blockNow?.startedAt === null) {
+      if (runtimeState.blockNow && runtimeState.blockNow.startedAt === null) {
         runtimeState.blockNow.startedAt = runtimeState.clock;
       }
       if (!runtimeState.runtime.actualStart) {
@@ -647,7 +647,7 @@ export function roll(
   // there is something to run, load event
 
   // update runtime
-  if (runtimeState.blockNow?.startedAt === null) {
+  if (runtimeState.blockNow && runtimeState.blockNow.startedAt === null) {
     runtimeState.blockNow.startedAt = runtimeState.clock;
   }
 
