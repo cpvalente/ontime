@@ -251,7 +251,7 @@ export function loadNext(
   }
   const nowPlayableIndex = getPlayableIndexFromTimedIndex(metadata, eventIndex);
 
-  if (nowPlayableIndex === null  || nowPlayableIndex > metadata.playableEventOrder.length - 2) {
+  if (nowPlayableIndex === null || nowPlayableIndex > metadata.playableEventOrder.length - 2) {
     // we cound not find the event now or the event now is the last playable event
     runtimeState.eventNext = null;
     return;
@@ -677,8 +677,8 @@ export function roll(
  * handle block loading, not for use outside of runtimeState
  */
 export function loadBlock(rundown: Rundown, state = runtimeState) {
+  // we need a loaded event to have a block
   if (state.eventNow === null) {
-    // we need a loaded event to have a block
     state.blockNow = null;
     state.blockNext = null;
     return;
@@ -686,15 +686,16 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
 
   const currentBlockId = state.eventNow.parent;
 
-  // find next block
-  const blockOrEventIndex = rundown.order.findIndex((id) => id === currentBlockId || id === state.eventNow?.id);
-  if (blockOrEventIndex >= 0) {
-    for (let i = blockOrEventIndex + 1; i < rundown.order.length; i++) {
-      if (isOntimeBlock(rundown.entries[rundown.order[i]])) {
-        state.blockNext = { id: rundown.order[i], startedAt: null };
-
-        break;
-      }
+  // look for potential next block
+  let foundEventNow = false;
+  for (const id of rundown.order) {
+    if (foundEventNow && isOntimeBlock(rundown.entries[id])) {
+      state.blockNext = { id, startedAt: null };
+      break;
+    }
+    if (id === state.eventNow.id) {
+      foundEventNow = true;
+      continue;
     }
   }
 
@@ -704,7 +705,7 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
     return;
   }
 
-  //we went into a new block
+  //we went into a new block - and it is different from the one we might have come from
   if ((state.blockNow != null && state.blockNow.id != currentBlockId) || state.blockNow == null) {
     state.blockNow = { id: currentBlockId, startedAt: null };
   }
