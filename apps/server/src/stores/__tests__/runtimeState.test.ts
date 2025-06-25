@@ -449,7 +449,7 @@ describe('loadBlock', () => {
     });
   });
 
-  test.fails('from block to same block will keep startedAt', () => {
+  test('from block to same block will keep startedAt', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeBlock({ id: '0', events: ['1', '2'] }),
