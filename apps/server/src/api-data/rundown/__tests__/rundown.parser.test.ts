@@ -47,7 +47,7 @@ describe('parseRundown()', () => {
       flatOrder: ['1', '2', '3', '4'],
       entries: {
         '1': { id: '1', type: SupportedEntry.Event, title: 'test', skip: false } as OntimeEvent, // OK
-        '2': { id: '1', type: SupportedEntry.Block, title: 'test 2', skip: false } as OntimeBlock, // duplicate ID
+        '2': { id: '1', type: SupportedEntry.Block, title: 'test 2' } as OntimeBlock, // duplicate ID
         '3': {} as OntimeEvent, // no data
         '4': { id: '4', title: 'test 2', skip: false } as OntimeEvent, // no type
       },
@@ -220,7 +220,7 @@ describe('parseRundown()', () => {
       order: ['block'],
       flatOrder: ['block'],
       entries: {
-        block: makeOntimeBlock({ id: 'block', events: ['1', '2'] }),
+        block: makeOntimeBlock({ id: 'block', entries: ['1', '2'] }),
         '1': makeOntimeEvent({ id: '1' }),
         '2': makeOntimeEvent({ id: '2' }),
       },
@@ -229,7 +229,7 @@ describe('parseRundown()', () => {
 
     const parsedRundown = parseRundown(rundown, {});
     expect(parsedRundown.order.length).toEqual(1);
-    expect(parsedRundown.entries.block).toMatchObject({ events: ['1', '2'] });
+    expect(parsedRundown.entries.block).toMatchObject({ entries: ['1', '2'] });
     expect(Object.keys(parsedRundown.entries).length).toEqual(3);
   });
 });

@@ -12,6 +12,8 @@ interface EventSelectionStore {
   selectedEvents: Set<EntryId>;
   anchoredIndex: MaybeNumber;
   cursor: MaybeString;
+  entryMode: 'event' | 'block' | null;
+  setSelectedBlock: (selectionArgs: { id: EntryId }) => void;
   setSelectedEvents: (selectionArgs: { id: EntryId; index: number; selectMode: SelectionMode }) => void;
   clearSelectedEvents: () => void;
   clearMultiSelect: () => void;
@@ -22,13 +24,21 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   selectedEvents: new Set(),
   anchoredIndex: null,
   cursor: null,
-  setSelectedEvents: (selectionArgs) => {
-    const { id, index, selectMode } = selectionArgs;
-    const { selectedEvents, anchoredIndex } = get();
+  entryMode: null,
+  setSelectedBlock: ({ id }) => {
+    set({ selectedEvents: new Set([id]), anchoredIndex: null, cursor: id, entryMode: 'block' });
+  },
+  setSelectedEvents: ({ id, index, selectMode }) => {
+    const { selectedEvents, anchoredIndex, entryMode } = get();
+
+    // if we are in block mode, we replace the selection and change the mode
+    if (entryMode === 'block') {
+      return set({ selectedEvents: new Set([id]), anchoredIndex: index, cursor: id, entryMode: 'event' });
+    }
 
     // on click, we replace selection with event
     if (selectMode === 'click') {
-      return set({ selectedEvents: new Set([id]), anchoredIndex: index, cursor: id });
+      return set({ selectedEvents: new Set([id]), anchoredIndex: index, cursor: id, entryMode: 'event' });
     }
 
     // on ctrl + click, we toggle the selection of that event
@@ -42,6 +52,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
           selectedEvents: selectedEvents.add(id),
           anchoredIndex: index,
           cursor: id,
+          entryMode: 'event',
         });
       }
 
@@ -57,6 +68,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       return set({
         selectedEvents,
         anchoredIndex: nextIndex < 0 ? rundownData.order.length - 1 : nextIndex,
+        entryMode: 'event',
       });
     }
 
@@ -83,19 +95,23 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       return set({
         selectedEvents: new Set([...selectedEvents, ...selectedEventIds]),
         anchoredIndex: index,
+        entryMode: 'event',
       });
     }
   },
-  clearSelectedEvents: () => set({ selectedEvents: new Set(), anchoredIndex: null, cursor: null }),
+  clearSelectedEvents: () => set({ selectedEvents: new Set(), anchoredIndex: null, cursor: null, entryMode: null }),
   clearMultiSelect: () => {
     const { selectedEvents } = get();
     const [firstSelected] = selectedEvents;
-    set({ selectedEvents: new Set(firstSelected || undefined), anchoredIndex: null });
+    set({ selectedEvents: new Set(firstSelected || undefined), anchoredIndex: null, entryMode: null });
   },
   unselect: (id: string) => {
-    const { selectedEvents } = get();
+    const { entryMode, selectedEvents } = get();
     selectedEvents.delete(id);
-    set({ selectedEvents });
+    set({
+      selectedEvents,
+      entryMode: selectedEvents.size === 0 ? null : entryMode,
+    });
   },
 }));
 

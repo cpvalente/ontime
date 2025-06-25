@@ -790,7 +790,7 @@ function optimisticDeleteEntries(entryIds: EntryId[], rundown: Rundown) {
       order = order.filter((id) => id !== entry.id);
     } else {
       const parent = entries[entry.parent] as OntimeBlock;
-      parent.events = parent.events.filter((event) => event !== entry.id);
+      parent.entries = parent.entries.filter((parentEntry) => parentEntry !== entry.id);
     }
 
     delete entries[entry.id];

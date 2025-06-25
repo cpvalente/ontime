@@ -140,7 +140,7 @@ export function makeSortableList(order: EntryId[], entries: RundownEntries): Ent
       // inside a block there are delays and events
       // there is no need for special handling
       flatIds.push(entry.id);
-      flatIds.push(...entry.events);
+      flatIds.push(...entry.entries);
 
       // close the block
       flatIds.push(`end-${entry.id}`);
@@ -225,7 +225,7 @@ export function moveDown(entryId: EntryId, sortableData: EntryId[], entries: Run
       return { destinationId: nextEntryId, order: 'after', isBlock: false };
     }
 
-    const firstBlockChild = entries[nextEntryId].events.at(0);
+    const firstBlockChild = entries[nextEntryId].entries.at(0);
     if (firstBlockChild) {
       // 2. add before the first child of the block
       return { destinationId: firstBlockChild, order: 'before', isBlock: true };

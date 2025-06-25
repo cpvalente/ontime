@@ -375,9 +375,9 @@ describe('loadBlock', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeEvent({ id: '0', parent: null }),
-        1: makeOntimeBlock({ id: '1', events: ['11'] }),
+        1: makeOntimeBlock({ id: '1', entries: ['11'] }),
         11: makeOntimeEvent({ id: '11', parent: '1' }),
-        2: makeOntimeBlock({ id: '2', events: [] }),
+        2: makeOntimeBlock({ id: '2', entries: [] }),
         3: makeOntimeEvent({ id: '3', parent: null }),
       },
       order: ['0', '1', '2', '3'],
@@ -400,9 +400,9 @@ describe('loadBlock', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeEvent({ id: '0', parent: null }),
-        1: makeOntimeBlock({ id: '1', events: ['11'] }),
+        1: makeOntimeBlock({ id: '1', entries: ['11'] }),
         11: makeOntimeEvent({ id: '11', parent: '1' }),
-        2: makeOntimeBlock({ id: '2', events: ['22'] }),
+        2: makeOntimeBlock({ id: '2', entries: ['22'] }),
         22: makeOntimeEvent({ id: '22', parent: '2' }),
       },
       order: ['0', '1', '2'],
@@ -425,9 +425,9 @@ describe('loadBlock', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeEvent({ id: '0', parent: null }),
-        1: makeOntimeBlock({ id: '1', events: ['11'] }),
+        1: makeOntimeBlock({ id: '1', entries: ['11'] }),
         11: makeOntimeEvent({ id: '11', parent: '1' }),
-        2: makeOntimeBlock({ id: '2', events: ['22'] }),
+        2: makeOntimeBlock({ id: '2', entries: ['22'] }),
         22: makeOntimeEvent({ id: '22', parent: '2' }),
       },
       order: ['0', '1', '2'],
@@ -452,7 +452,7 @@ describe('loadBlock', () => {
   test('from block to same block will keep startedAt', () => {
     const rundown = makeRundown({
       entries: {
-        0: makeOntimeBlock({ id: '0', events: ['1', '2'] }),
+        0: makeOntimeBlock({ id: '0', entries: ['1', '2'] }),
         1: makeOntimeEvent({ id: '1', parent: '0' }),
         2: makeOntimeEvent({ id: '2', parent: '0' }),
       },

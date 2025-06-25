@@ -171,21 +171,21 @@ export default function Operator() {
             return (
               <Fragment key={entry.id}>
                 <OperatorBlock key={entry.id} title={entry.title} />
-                {entry.events.map((nestedEventId) => {
-                  const nestedEvent = data.entries[nestedEventId];
-                  if (!isOntimeEvent(nestedEvent)) {
+                {entry.entries.map((nestedEntryId) => {
+                  const nestedEntry = data.entries[nestedEntryId];
+                  if (!isOntimeEvent(nestedEntry)) {
                     return null;
                   }
 
-                  const { isPast, isSelected, isLinkedToLoaded, totalGap } = process(nestedEvent);
+                  const { isPast, isSelected, isLinkedToLoaded, totalGap } = process(nestedEntry);
 
                   // hide past events (if setting) and skipped events
-                  if ((hidePast && isPast) || entry.skip) {
+                  if (hidePast && isPast) {
                     return null;
                   }
 
                   const { mainField, secondaryField, subscribedData } = getEventData(
-                    nestedEvent,
+                    nestedEntry,
                     mainSource,
                     secondarySource,
                     subscribe,
@@ -194,16 +194,16 @@ export default function Operator() {
 
                   return (
                     <OperatorEvent
-                      key={nestedEvent.id}
-                      id={nestedEvent.id}
-                      colour={nestedEvent.colour}
-                      cue={nestedEvent.cue}
+                      key={nestedEntry.id}
+                      id={nestedEntry.id}
+                      colour={nestedEntry.colour}
+                      cue={nestedEntry.cue}
                       main={mainField}
                       secondary={secondaryField}
-                      timeStart={nestedEvent.timeStart}
-                      duration={nestedEvent.duration}
-                      delay={nestedEvent.delay}
-                      dayOffset={nestedEvent.dayOffset}
+                      timeStart={nestedEntry.timeStart}
+                      duration={nestedEntry.duration}
+                      delay={nestedEntry.delay}
+                      dayOffset={nestedEntry.dayOffset}
                       isLinkedToLoaded={isLinkedToLoaded}
                       isSelected={isSelected}
                       isPast={isPast}

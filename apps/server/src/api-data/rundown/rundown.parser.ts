@@ -116,8 +116,8 @@ export function parseRundown(
     } else if (isOntimeDelay(event)) {
       newEvent = { ...delayDef, duration: event.duration, id };
     } else if (isOntimeBlock(event)) {
-      for (let i = 0; i < event.events.length; i++) {
-        const nestedEventId = event.events[i];
+      for (let i = 0; i < event.entries.length; i++) {
+        const nestedEventId = event.entries[i];
         const nestedEvent = rundown.entries[nestedEventId];
 
         if (isOntimeEvent(nestedEvent)) {
@@ -149,8 +149,8 @@ export function parseRundown(
         ...blockDef,
         title: event.title,
         note: event.note,
-        events: event.events?.filter((eventId) => Object.hasOwn(rundown.entries, eventId)) ?? [],
-        skip: event.skip,
+        entries: event.entries?.filter((eventId) => Object.hasOwn(rundown.entries, eventId)) ?? [],
+        isNextDay: event.isNextDay,
         colour: event.colour,
         custom: { ...event.custom },
         id,

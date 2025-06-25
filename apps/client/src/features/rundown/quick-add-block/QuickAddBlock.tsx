@@ -14,9 +14,7 @@ interface QuickAddBlockProps {
 }
 
 export default memo(QuickAddBlock);
-
-function QuickAddBlock(props: QuickAddBlockProps) {
-  const { previousEventId, parentBlock, backgroundColor } = props;
+function QuickAddBlock({ previousEventId, parentBlock, backgroundColor }: QuickAddBlockProps) {
   const { addEntry } = useEntryActions();
 
   const doLinkPrevious = useRef<HTMLInputElement | null>(null);

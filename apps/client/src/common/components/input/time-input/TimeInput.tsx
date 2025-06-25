@@ -1,7 +1,6 @@
 import { FocusEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
-import { useEmitLog } from '../../../stores/logger';
 import { cx } from '../../../utils/styleUtils';
 import Input from '../input/Input';
 
@@ -19,8 +18,7 @@ interface TimeInputProps<T extends string> {
 }
 
 export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
-  const { id, name, submitHandler, time = 0, placeholder, disabled, align = 'center', className } = props;
-  const { emitError } = useEmitLog();
+  const { id, name, submitHandler, time, placeholder, disabled, align = 'center', className } = props;
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
   const ignoreChange = useRef(false);
@@ -29,16 +27,12 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
    * @description Resets input value to given
    */
   const resetValue = useCallback(() => {
-    try {
-      if (typeof time !== 'number' || isNaN(time)) {
-        throw new Error(`Invalid time value: ${time}`);
-      }
+    if (typeof time !== 'number' || isNaN(time)) {
+      setValue('00:00:00');
+    } else {
       setValue(millisToString(time));
-    } catch (error) {
-      setValue(millisToString(0));
-      emitError(`Unable to parse time ${time}: ${error}`);
     }
-  }, [emitError, time]);
+  }, [time]);
 
   /**
    * @description Selects input text on focus
@@ -119,9 +113,8 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
   );
 
   useEffect(() => {
-    if (time == null) return;
     resetValue();
-  }, [resetValue, time]);
+  }, [resetValue]);
 
   return (
     <Input

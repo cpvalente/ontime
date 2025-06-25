@@ -48,7 +48,7 @@ const cachedRundown: Rundown = {
   id: '',
   title: '',
   order: [],
-  flatOrder: [], // TODO: remove in favour of the metadata flatEntryOrder
+  flatOrder: [],
   entries: {},
   revision: 0,
 };
@@ -150,7 +150,7 @@ export function createTransaction(options: TransactionOptions): Transaction {
       cachedRundown.title = rundown.title;
       cachedRundown.entries = entries;
       cachedRundown.order = order;
-      cachedRundown.flatOrder = metadata.flatEntryOrder; // TODO: remove in favour of the metadata flatEntryOrder
+      cachedRundown.flatOrder = metadata.flatEntryOrder;
       customFieldsMetadata.assigned = assignedCustomFields;
       rundownMetadata = metadata;
     }
@@ -194,12 +194,12 @@ function add(rundown: Rundown, entry: OntimeEntry, afterId: EntryId | null, pare
     // 1. inserting an entry inside a block
     const parentBlock = rundown.entries[parentId] as OntimeBlock;
     if (afterId) {
-      const atEventsIndex = parentBlock.events.indexOf(afterId) + 1;
+      const atEventsIndex = parentBlock.entries.indexOf(afterId) + 1;
       const atFlatIndex = rundown.flatOrder.indexOf(afterId) + 1;
-      parentBlock.events = insertAtIndex(atEventsIndex, entry.id, parentBlock.events);
+      parentBlock.entries = insertAtIndex(atEventsIndex, entry.id, parentBlock.entries);
       rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
     } else {
-      parentBlock.events = insertAtIndex(0, entry.id, parentBlock.events);
+      parentBlock.entries = insertAtIndex(0, entry.id, parentBlock.entries);
       const atFlatIndex = rundown.flatOrder.indexOf(parentId) + 1;
       rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
     }
@@ -247,8 +247,8 @@ function edit(rundown: Rundown, patch: PatchWithId): { entry: OntimeEntry; didIn
 function remove(rundown: Rundown, entry: OntimeEntry) {
   if (isOntimeBlock(entry)) {
     // for ontime blocks, we need to iterate through the children and delete them
-    for (let i = 0; i < entry.events.length; i++) {
-      const nestedEntryId = entry.events[i];
+    for (let i = 0; i < entry.entries.length; i++) {
+      const nestedEntryId = entry.entries[i];
       deleteEntry(nestedEntryId);
     }
   } else if (entry.parent) {
@@ -256,8 +256,8 @@ function remove(rundown: Rundown, entry: OntimeEntry) {
     const parentBlock = rundown.entries[entry.parent] as OntimeBlock;
     if (parentBlock) {
       // we call a mutation to the parent event to remove the entry from the events
-      const filteredEvents = deleteById(parentBlock.events, entry.id);
-      edit(rundown, { id: parentBlock.id, events: filteredEvents });
+      const filteredEvents = deleteById(parentBlock.entries, entry.id);
+      edit(rundown, { id: parentBlock.id, entries: filteredEvents });
     }
   }
   deleteEntry(entry.id);
@@ -300,8 +300,8 @@ function reorder(rundown: Rundown, eventFrom: OntimeEntry, eventTo: OntimeEntry,
     eventFrom.parent = toParent;
   }
 
-  const sourceArray = fromParent === null ? rundown.order : (rundown.entries[fromParent] as OntimeBlock).events;
-  const destinationArray = toParent === null ? rundown.order : (rundown.entries[toParent] as OntimeBlock).events;
+  const sourceArray = fromParent === null ? rundown.order : (rundown.entries[fromParent] as OntimeBlock).entries;
+  const destinationArray = toParent === null ? rundown.order : (rundown.entries[toParent] as OntimeBlock).entries;
 
   const fromIndex = sourceArray.indexOf(eventFrom.id);
   const toIndex = (() => {
@@ -442,8 +442,8 @@ function clone(rundown: Rundown, entry: OntimeEntry): OntimeEntry {
     const newBlock = cloneBlock(entry, getUniqueId(rundown));
     const nestedIds: EntryId[] = [];
 
-    for (let i = 0; i < entry.events.length; i++) {
-      const nestedEntryId = entry.events[i];
+    for (let i = 0; i < entry.entries.length; i++) {
+      const nestedEntryId = entry.entries[i];
       const nestedEntry = rundown.entries[nestedEntryId];
       if (!nestedEntry) {
         continue;
@@ -461,7 +461,7 @@ function clone(rundown: Rundown, entry: OntimeEntry): OntimeEntry {
     // indexes + 1 since we are inserting after the cloned block
     const atIndex = rundown.order.indexOf(entry.id) + 1;
 
-    newBlock.events = nestedIds;
+    newBlock.entries = nestedIds;
     newBlock.title = `${entry.title || 'Untitled'} (copy)`;
 
     rundown.entries[newBlock.id] = newBlock;
@@ -504,7 +504,7 @@ function group(rundown: Rundown, entryIds: EntryId[]): OntimeBlock {
     rundown.order = rundown.order.filter((id) => id !== entryId);
   }
 
-  newBlock.events = nestedEvents;
+  newBlock.entries = nestedEvents;
   const insertIndex = Math.max(0, firstIndex);
   // we have filtered the items from the order
   // we will insert them now, with only the block at top level ...
@@ -519,7 +519,7 @@ function group(rundown: Rundown, entryIds: EntryId[]): OntimeBlock {
  */
 function ungroup(rundown: Rundown, block: OntimeBlock) {
   // get the events from the block and merge them into the order where the block was
-  const nestedEvents = block.events;
+  const nestedEvents = block.entries;
   const blockIndex = rundown.order.indexOf(block.id);
   rundown.order.splice(blockIndex, 1, ...nestedEvents);
 
@@ -714,8 +714,8 @@ export function processRundown(
       const blockEvents: EntryId[] = [];
 
       // check if the block contains nested entries
-      for (let j = 0; j < processedEntry.events.length; j++) {
-        const nestedEntryId = processedEntry.events[j];
+      for (let j = 0; j < processedEntry.entries.length; j++) {
+        const nestedEntryId = processedEntry.entries[j];
         const nestedEntry = initialRundown.entries[nestedEntryId];
 
         if (!nestedEntry) {
@@ -750,7 +750,7 @@ export function processRundown(
       processedEntry.startTime = blockStartTime;
       processedEntry.endTime = blockEndTime;
       processedEntry.isFirstLinked = isFirstLinked;
-      processedEntry.events = blockEvents;
+      processedEntry.entries = blockEvents;
     }
   }
 

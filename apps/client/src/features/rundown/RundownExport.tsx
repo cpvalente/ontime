@@ -10,7 +10,7 @@ import { useAppMode } from '../../common/stores/appModeStore';
 import { handleLinks } from '../../common/utils/linkUtils';
 import { cx } from '../../common/utils/styleUtils';
 
-import RundownEventEditor from './event-editor/RundownEventEditor';
+import RundownEntryEditor from './entry-editor/RundownEntryEditor';
 import FinderPlacement from './placements/FinderPlacement';
 import RundownWrapper from './RundownWrapper';
 
@@ -63,7 +63,7 @@ function RundownExport() {
           {!hideSideBar && (
             <div className={style.side}>
               <ErrorBoundary>
-                <RundownEventEditor />
+                <RundownEntryEditor />
               </ErrorBoundary>
             </div>
           )}

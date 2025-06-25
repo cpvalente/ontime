@@ -9,12 +9,13 @@
   border: 1px solid transparent;
 
   padding-inline: 0.5em;
+  outline: none;
 
   &:hover:not(:disabled) {
     background-color: $gray-1100;
   }
 
-  &:focus {
+  &:focus:not(:read-only) {
     background-color: $gray-1000;
     border: 1px solid $blue-500;
   }
@@ -26,6 +27,7 @@
 
   &::placeholder {
     color: $gray-500;
+    letter-spacing: 0;
   }
 }
 
@@ -35,4 +37,8 @@
 
 .large {
   height: 2.5rem;
+}
+
+.fluid {
+  width: 100%;
 }

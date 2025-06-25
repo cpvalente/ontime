@@ -44,8 +44,9 @@ export const block: Omit<OntimeBlock, 'id'> = {
   type: SupportedEntry.Block,
   title: '',
   note: '',
-  events: [],
-  skip: false,
+  entries: [],
+  isNextDay: false,
+  targetDuration: null,
   colour: '',
   custom: {},
   // !==== RUNTIME METADATA ====! //

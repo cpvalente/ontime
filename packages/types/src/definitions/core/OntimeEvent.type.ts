@@ -23,8 +23,9 @@ export type OntimeBlock = OntimeBaseEvent & {
   type: SupportedEntry.Block;
   title: string;
   note: string;
-  events: EntryId[];
-  skip: boolean;
+  entries: EntryId[];
+  isNextDay: boolean;
+  targetDuration: MaybeNumber;
   colour: string;
   custom: EntryCustomFields;
   // !==== RUNTIME METADATA ====! //

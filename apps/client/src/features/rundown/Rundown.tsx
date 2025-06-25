@@ -39,9 +39,9 @@ import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { cloneEvent } from '../../common/utils/clone';
 
-import BlockBlock from './block-block/BlockBlock';
-import BlockEnd from './block-block/BlockEnd';
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
+import BlockEnd from './rundown-block/BlockEnd';
+import RundownBlock from './rundown-block/RundownBlock';
 import { makeRundownMetadata, makeSortableList, moveDown, moveUp } from './rundown.utils';
 import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
@@ -445,7 +445,7 @@ export default function Rundown({ data }: RundownProps) {
                     />
                   )}
                   {isOntimeBlock(entry) ? (
-                    <BlockBlock
+                    <RundownBlock
                       data={entry}
                       hasCursor={hasCursor}
                       collapsed={getIsCollapsed(entry.id)}

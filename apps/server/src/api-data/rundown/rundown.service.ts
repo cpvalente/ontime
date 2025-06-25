@@ -347,7 +347,7 @@ export async function cloneEntry(entryId: EntryId): Promise<Rundown> {
 
     // notify timer and external services of change
     if (isOntimeBlock(newEntry)) {
-      notifyChanges(rundownMetadata, revision, { timer: newEntry.events, external: true });
+      notifyChanges(rundownMetadata, revision, { timer: newEntry.entries, external: true });
     } else if (isOntimeEvent(newEntry)) {
       notifyChanges(rundownMetadata, revision, { timer: [newEntry.id], external: true });
     } else if (isOntimeDelay(newEntry)) {

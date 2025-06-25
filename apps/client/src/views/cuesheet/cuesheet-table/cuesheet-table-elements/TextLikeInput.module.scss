@@ -1,12 +1,15 @@
-/* element attempts matching input styles */
+/* element matching input styles */
 .textInput {
   height: 2rem;
   background-color: transparent;
-  border-radius: 3px;
+  border-radius: $component-border-radius-md;
 
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  letter-spacing: 1px;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
 
   &.delayed {
     color: $ontime-delay-text;
