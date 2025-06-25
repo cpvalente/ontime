@@ -340,7 +340,7 @@ describe('getLastEvent', () => {
       const testRundown = {
         entries: {
           1: { id: '1', type: SupportedEntry.Event } as OntimeEvent,
-          block: { id: 'block', type: SupportedEntry.Block, events: ['21', '22', '23'] } as OntimeBlock,
+          block: { id: 'block', type: SupportedEntry.Block, entries: ['21', '22', '23'] } as OntimeBlock,
           21: { id: '21', type: SupportedEntry.Event, parent: 'block' } as OntimeEvent,
           22: { id: '22', type: SupportedEntry.Event, parent: 'block' } as OntimeEvent,
           23: { id: '23', type: SupportedEntry.Event, parent: 'block' } as OntimeEvent,

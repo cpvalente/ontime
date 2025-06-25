@@ -24,6 +24,7 @@ interface EventBlockTimerProps {
   showLabels?: boolean;
 }
 
+export default memo(TimeInputFlow);
 function TimeInputFlow(props: EventBlockTimerProps) {
   const { eventId, countToEnd, timeStart, timeEnd, duration, timeStrategy, linkStart, delay, showLabels } = props;
   const { updateEntry, updateTimer } = useEntryActions();
@@ -135,5 +136,3 @@ function TimeInputFlow(props: EventBlockTimerProps) {
     </>
   );
 }
-
-export default memo(TimeInputFlow);

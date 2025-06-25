@@ -156,8 +156,9 @@ export function createBlock(patch?: Partial<OntimeBlock>): OntimeBlock {
     type: SupportedEntry.Block,
     title: patch.title ?? '',
     note: patch.note ?? '',
-    events: patch.events ?? [],
-    skip: patch.skip ?? false,
+    entries: patch.entries ?? [],
+    isNextDay: patch.isNextDay ?? false,
+    targetDuration: patch.targetDuration ?? null,
     colour: makeString(patch.colour, ''),
     custom: patch.custom ?? {},
     revision: 0,
@@ -288,7 +289,7 @@ export function cloneBlock(entry: OntimeBlock, newId: EntryId): OntimeBlock {
   newEntry.id = newId;
 
   // in blocks, we need to remove the events references
-  newEntry.events = [];
+  newEntry.entries = [];
   newEntry.revision = 0;
   return newEntry;
 }

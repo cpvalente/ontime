@@ -1,0 +1,147 @@
+import { useCallback } from 'react';
+import { OntimeBlock } from 'ontime-types';
+import { millisToString, parseUserTime } from 'ontime-utils';
+
+import * as Editor from '../../../common/components/editor-utils/EditorUtils';
+import SwatchSelect from '../../../common/components/input/colour-input/SwatchSelect';
+import NullableTimeInput from '../../../common/components/input/time-input/NullableTimeInput';
+import AppLink from '../../../common/components/link/app-link/AppLink';
+import Switch from '../../../common/components/switch/Switch';
+import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import useCustomFields from '../../../common/hooks-query/useCustomFields';
+import { enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
+import TextLikeInput from '../../../views/cuesheet/cuesheet-table/cuesheet-table-elements/TextLikeInput';
+
+import EntryEditorCustomFields from './composite/EventEditorCustomFields';
+import EntryEditorTextInput from './composite/EventTextInput';
+
+import style from './EntryEditor.module.scss';
+
+// title + colour + custom field labels
+export type BlockEditorUpdateTextFields = 'targetDuration' | 'title' | 'colour' | string;
+export type BlockEditorUpdateMaybeNumberFields = 'targetDuration';
+export type BlockEditorBooleanFields = 'isNextDay';
+
+interface BlockEditorProps {
+  block: OntimeBlock;
+}
+
+export default function BlockEditor({ block }: BlockEditorProps) {
+  const { data: customFields } = useCustomFields();
+  const { updateEntry } = useEntryActions();
+
+  const handleSubmit = useCallback(
+    (
+      field: BlockEditorUpdateTextFields | BlockEditorUpdateMaybeNumberFields | BlockEditorBooleanFields,
+      value: string | boolean,
+    ) => {
+      // Handle custom fields
+      if (typeof field === 'string' && field.startsWith('custom-')) {
+        const fieldLabel = field.split('custom-')[1];
+        updateEntry({ id: block.id, custom: { [fieldLabel]: value as string } });
+        return;
+      }
+
+      if (field === 'targetDuration') {
+        if (value === '') {
+          return updateEntry({ id: block.id, targetDuration: null });
+        }
+
+        return updateEntry({ id: block.id, targetDuration: parseUserTime(value as string) });
+      }
+
+      if (field === 'isNextDay') {
+        return updateEntry({ id: block.id, isNextDay: value as boolean });
+      }
+
+      // all other strings are text fields
+      return updateEntry({ id: block.id, [field]: value as string });
+    },
+    [block.id, updateEntry],
+  );
+
+  const isEditor = window.location.pathname.includes('editor');
+  const planOffset = typeof block.targetDuration !== 'number' ? null : block.targetDuration - block.duration;
+  console.log('targetDuration:', block.targetDuration);
+
+  return (
+    <div className={style.content}>
+      <div className={style.column}>
+        <Editor.Title>Block schedule</Editor.Title>
+        <div className={style.inline}>
+          <div>
+            {
+              // TODO: format with user time settings
+            }
+            <Editor.Label>First event start</Editor.Label>
+            <TextLikeInput className={style.textLikeInput}>
+              {millisToString(block.startTime, { fallback: timerPlaceholder })}
+            </TextLikeInput>
+          </div>
+          <div>
+            <Editor.Label htmlFor='endTime'>Last event end</Editor.Label>
+            <TextLikeInput className={style.textLikeInput}>
+              {millisToString(block.endTime, { fallback: timerPlaceholder })}
+            </TextLikeInput>
+          </div>
+          <div>
+            <Editor.Label htmlFor='duration'>Scheduled duration</Editor.Label>
+            <TextLikeInput className={style.textLikeInput}>
+              {millisToString(block.duration, { fallback: enDash })}
+            </TextLikeInput>
+          </div>
+        </div>
+        <div className={style.inline}>
+          <div>
+            <Editor.Label htmlFor='targetDuration'>Target duration</Editor.Label>
+            <NullableTimeInput
+              name='targetDuration'
+              time={block.targetDuration}
+              submitHandler={handleSubmit}
+              emptyDisplay={enDash}
+            />
+          </div>
+          <div>
+            <Editor.Label htmlFor='eventId'>Plan offset</Editor.Label>
+            {
+              // TODO: update remote data
+              // TODO: remove tab index
+            }
+            <TextLikeInput delayed={Boolean(planOffset)} className={style.textLikeInput}>
+              {millisToString(planOffset, { fallback: enDash })}
+            </TextLikeInput>
+          </div>
+        </div>
+        <div>
+          <Editor.Label htmlFor='isNextDay'>Is next day?</Editor.Label>
+          <Editor.Label className={style.switchLabel}>
+            <Switch
+              checked={block.isNextDay}
+              onCheckedChange={(checked) => {
+                handleSubmit('isNextDay', checked);
+              }}
+            />
+            {block.isNextDay ? 'Events start the day after' : '-'}
+          </Editor.Label>
+        </div>
+      </div>
+
+      <div className={style.column}>
+        <Editor.Title>Block data</Editor.Title>
+        <div>
+          <Editor.Label>Colour</Editor.Label>
+          <SwatchSelect name='colour' value={block.colour} handleChange={handleSubmit} />
+        </div>
+        <EntryEditorTextInput field='title' label='Title' initialValue={block.title} submitHandler={handleSubmit} />
+      </div>
+
+      <div className={style.column}>
+        <Editor.Title>
+          Custom Fields
+          {isEditor && <AppLink search='settings=feature_settings__custom'>Manage Custom Fields</AppLink>}
+        </Editor.Title>
+        <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} event={block} />
+      </div>
+    </div>
+  );
+}

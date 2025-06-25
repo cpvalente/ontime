@@ -9,6 +9,7 @@ interface SelectProps<T extends string | null = string> {
   options: {
     value: NonNullable<T>;
     label: string;
+    disabled?: boolean; // exposed to allow creating a non-selectable option
   }[];
   placeholder?: string;
   value?: T;

@@ -4,20 +4,23 @@ import { cx } from '../../../utils/styleUtils';
 
 import style from './Input.module.scss';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   variant?: 'subtle';
   height?: 'medium' | 'large';
+  fluid?: boolean;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { className, variant = 'subtle', height = 'medium', ...inputProps },
+  { className, variant = 'subtle', height = 'medium', fluid, ...inputProps },
   ref,
 ) {
   return (
     <input
       ref={ref}
       type='text'
-      className={cx([style.input, style[variant], style[height], className])}
+      autoCorrect='off'
+      autoComplete='off'
+      className={cx([style.input, style[variant], style[height], fluid && style.fluid, className])}
       {...inputProps}
     />
   );

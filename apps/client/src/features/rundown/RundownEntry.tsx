@@ -14,8 +14,8 @@ import useMemoisedFn from '../../common/hooks/useMemoisedFn';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/clone';
 
-import DelayBlock from './delay-block/DelayBlock';
-import EventBlock from './event-block/EventBlock';
+import RundownDelay from './rundown-delay/RundownDelay';
+import RundownEvent from './rundown-event/RundownEvent';
 import { useEventSelection } from './useEventSelection';
 
 export type EventItemActions =
@@ -48,22 +48,21 @@ interface RundownEntryProps {
   isLinkedToLoaded: boolean;
 }
 
-export default function RundownEntry(props: RundownEntryProps) {
-  const {
-    isPast,
-    data,
-    loaded,
-    hasCursor,
-    isNext,
-    previousEntryId,
-    previousEventId,
-    playback,
-    isRolling,
-    eventIndex,
-    isNextDay,
-    totalGap,
-    isLinkedToLoaded,
-  } = props;
+export default function RundownEntry({
+  isPast,
+  data,
+  loaded,
+  hasCursor,
+  isNext,
+  previousEntryId,
+  previousEventId,
+  playback,
+  isRolling,
+  eventIndex,
+  isNextDay,
+  totalGap,
+  isLinkedToLoaded,
+}: RundownEntryProps) {
   const { emitError } = useEmitLog();
   const { addEntry, updateEntry, batchUpdateEvents, deleteEntry, groupEntries, swapEvents } = useEntryActions();
   const { selectedEvents, unselect, clearSelectedEvents } = useEventSelection();
@@ -167,7 +166,7 @@ export default function RundownEntry(props: RundownEntryProps) {
 
   if (isOntimeEvent(data)) {
     return (
-      <EventBlock
+      <RundownEvent
         eventId={data.id}
         eventIndex={eventIndex}
         cue={data.cue}
@@ -201,7 +200,7 @@ export default function RundownEntry(props: RundownEntryProps) {
       />
     );
   } else if (isOntimeDelay(data)) {
-    return <DelayBlock data={data} hasCursor={hasCursor} />;
+    return <RundownDelay data={data} hasCursor={hasCursor} />;
   }
   return null;
 }

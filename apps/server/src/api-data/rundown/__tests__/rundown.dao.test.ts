@@ -570,7 +570,7 @@ describe('processRundown()', () => {
       const rundown = makeRundown({
         order: ['1'],
         entries: {
-          '1': makeOntimeBlock({ id: '1', events: ['100', '200', '300'] }),
+          '1': makeOntimeBlock({ id: '1', entries: ['100', '200', '300'] }),
           '100': makeOntimeEvent({ id: '100', timeStart: 100, timeEnd: 200, duration: 100, linkStart: false }),
           '200': makeOntimeEvent({ id: '200', timeStart: 200, timeEnd: 300, duration: 100 }),
           '300': makeOntimeEvent({ id: '300', timeStart: 300, timeEnd: 400, duration: 100 }),
@@ -584,7 +584,7 @@ describe('processRundown()', () => {
       expect(generatedRundown.entries).toMatchObject({
         '1': {
           type: SupportedEntry.Block,
-          events: ['100', '200', '300'],
+          entries: ['100', '200', '300'],
           startTime: 100,
           endTime: 400,
           duration: 300,
@@ -601,15 +601,15 @@ describe('processRundown()', () => {
         order: ['0', '1', '2', '3'],
         entries: {
           '0': makeOntimeEvent({ id: '0', timeStart: 0, timeEnd: 10, duration: 10, linkStart: false }),
-          '1': makeOntimeBlock({ id: '1', events: ['101', '102', '103'] }),
+          '1': makeOntimeBlock({ id: '1', entries: ['101', '102', '103'] }),
           '101': makeOntimeEvent({ id: '101', timeStart: 100, timeEnd: 200, duration: 100, linkStart: false }),
           '102': makeOntimeEvent({ id: '102', timeStart: 200, timeEnd: 300, duration: 100, linkStart: true }),
           '103': makeOntimeEvent({ id: '103', timeStart: 300, timeEnd: 400, duration: 100, linkStart: true }),
-          '2': makeOntimeBlock({ id: '2', events: ['201', '202', '203'] }),
+          '2': makeOntimeBlock({ id: '2', entries: ['201', '202', '203'] }),
           '201': makeOntimeEvent({ id: '201', timeStart: 500, timeEnd: 600, duration: 100, linkStart: false }),
           '202': makeOntimeEvent({ id: '202', timeStart: 600, timeEnd: 700, duration: 100, linkStart: true }),
           '203': makeOntimeEvent({ id: '203', timeStart: 700, timeEnd: 800, duration: 100, linkStart: true }),
-          '3': makeOntimeBlock({ id: '3', events: ['301', '302', '303'] }),
+          '3': makeOntimeBlock({ id: '3', entries: ['301', '302', '303'] }),
           '301': makeOntimeEvent({ id: '301', timeStart: 900, timeEnd: 1000, duration: 100, linkStart: false }),
           '302': makeOntimeEvent({ id: '302', timeStart: 1000, timeEnd: 1100, duration: 100, linkStart: true }),
           '303': makeOntimeEvent({ id: '303', timeStart: 1100, timeEnd: 1200, duration: 100, linkStart: true }),
@@ -624,7 +624,7 @@ describe('processRundown()', () => {
         '0': { type: SupportedEntry.Event, parent: null },
         '1': {
           type: SupportedEntry.Block,
-          events: ['101', '102', '103'],
+          entries: ['101', '102', '103'],
           startTime: 100,
           endTime: 400,
           duration: 300,
@@ -635,7 +635,7 @@ describe('processRundown()', () => {
         '103': { parent: '1' },
         '2': {
           type: SupportedEntry.Block,
-          events: ['201', '202', '203'],
+          entries: ['201', '202', '203'],
           startTime: 500,
           endTime: 800,
           duration: 300,
@@ -646,7 +646,7 @@ describe('processRundown()', () => {
         '203': { id: '203', timeStart: 700, timeEnd: 800, duration: 100 },
         '3': {
           type: SupportedEntry.Block,
-          events: ['301', '302', '303'],
+          entries: ['301', '302', '303'],
           startTime: 900,
           endTime: 1200,
           duration: 300,
@@ -789,7 +789,7 @@ describe('rundownMutation.remove()', () => {
     const rundown = makeRundown({
       order: ['1', '4'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', events: ['2', '3'] }),
+        '1': makeOntimeBlock({ id: '1', entries: ['2', '3'] }),
         '2': makeOntimeEvent({ id: '2', parent: '1' }),
         '3': makeOntimeDelay({ id: '3', parent: '1' }),
         '4': makeOntimeEvent({ id: '4', parent: null }),
@@ -811,7 +811,7 @@ describe('rundownMutation.remove()', () => {
     const rundown = makeRundown({
       order: ['1', '4'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', events: ['2', '3'] }),
+        '1': makeOntimeBlock({ id: '1', entries: ['2', '3'] }),
         '2': makeOntimeEvent({ id: '2', parent: '1' }),
         '3': makeOntimeDelay({ id: '3', parent: '1' }),
         '4': makeOntimeEvent({ id: '4', parent: null }),
@@ -823,7 +823,7 @@ describe('rundownMutation.remove()', () => {
     expect(rundown.order).toStrictEqual(['1', '4']);
     expect(rundown.entries).not.toHaveProperty('2');
     expect(rundown.entries['1']).toMatchObject({
-      events: ['3'],
+      entries: ['3'],
     });
   });
 });
@@ -853,7 +853,7 @@ describe('rundownMutation.reorder()', () => {
     const rundown = makeRundown({
       order: ['1', '2', '3'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', events: [] }),
+        '1': makeOntimeBlock({ id: '1', entries: [] }),
         '2': makeOntimeEvent({ id: '2', parent: null }),
         '3': makeOntimeEvent({ id: '3', parent: null }),
       },
@@ -863,7 +863,7 @@ describe('rundownMutation.reorder()', () => {
 
     expect(rundown.order).toStrictEqual(['1', '2']);
     expect(rundown.entries['1']).toMatchObject({
-      events: ['3'],
+      entries: ['3'],
     });
     expect(rundown.entries['3']).toMatchObject({
       parent: '1',
@@ -875,7 +875,7 @@ describe('rundownMutation.reorder()', () => {
       order: ['1', '2'],
       flatOrder: ['1', '11', '2'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', events: ['11'] }),
+        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
         '11': makeOntimeEvent({ id: '11', parent: '1' }),
         '2': makeOntimeEvent({ id: '2', parent: null }),
       },
@@ -885,7 +885,7 @@ describe('rundownMutation.reorder()', () => {
 
     expect(rundown.order).toStrictEqual(['1']);
     expect(rundown.entries['1']).toMatchObject({
-      events: ['2', '11'],
+      entries: ['2', '11'],
     });
     expect(rundown.entries['2']).toMatchObject({
       parent: '1',
@@ -931,7 +931,7 @@ describe('rundownMutation.reorder()', () => {
       order: ['1', '2'],
       flatOrder: ['1', '11', '2'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', events: ['11'] }),
+        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
         '11': makeOntimeEvent({ id: '11', parent: '1' }),
         '2': makeOntimeEvent({ id: '2', parent: null }),
       },
@@ -941,7 +941,7 @@ describe('rundownMutation.reorder()', () => {
 
     expect(rundown.order).toStrictEqual(['1', '11', '2']);
     expect(rundown.entries['1']).toMatchObject({
-      events: [],
+      entries: [],
     });
     expect(rundown.entries['2']).toMatchObject({
       parent: null,
@@ -953,9 +953,9 @@ describe('rundownMutation.reorder()', () => {
       order: ['1', '2'],
       flatOrder: ['1', '11', '2', '22'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', events: ['11'] }),
+        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
         '11': makeOntimeEvent({ id: '11', parent: '1' }),
-        '2': makeOntimeBlock({ id: '2', events: ['22'] }),
+        '2': makeOntimeBlock({ id: '2', entries: ['22'] }),
         '22': makeOntimeEvent({ id: '22', parent: '2' }),
       },
     });
@@ -964,10 +964,10 @@ describe('rundownMutation.reorder()', () => {
 
     expect(rundown.order).toStrictEqual(['1', '2']);
     expect(rundown.entries['1']).toMatchObject({
-      events: [],
+      entries: [],
     });
     expect(rundown.entries['2']).toMatchObject({
-      events: ['11', '22'],
+      entries: ['11', '22'],
     });
     expect(rundown.entries['11']).toMatchObject({
       parent: '2',
@@ -979,8 +979,8 @@ describe('rundownMutation.reorder()', () => {
       order: ['1', '2'],
       flatOrder: ['1', '2', '22'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', events: [] }),
-        '2': makeOntimeBlock({ id: '2', events: ['22'] }),
+        '1': makeOntimeBlock({ id: '1', entries: [] }),
+        '2': makeOntimeBlock({ id: '2', entries: ['22'] }),
         '22': makeOntimeEvent({ id: '22', parent: '2' }),
       },
     });
@@ -989,10 +989,10 @@ describe('rundownMutation.reorder()', () => {
 
     expect(rundown.order).toStrictEqual(['1', '2']);
     expect(rundown.entries['1']).toMatchObject({
-      events: ['22'],
+      entries: ['22'],
     });
     expect(rundown.entries['2']).toMatchObject({
-      events: [],
+      entries: [],
     });
     expect(rundown.entries['22']).toMatchObject({
       parent: '1',
@@ -1004,9 +1004,9 @@ describe('rundownMutation.reorder()', () => {
       order: ['1', '2'],
       flatOrder: ['1', '11', '2', '22'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', events: ['11'] }),
+        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
         '11': makeOntimeEvent({ id: '11', parent: '1' }),
-        '2': makeOntimeBlock({ id: '2', events: ['22'] }),
+        '2': makeOntimeBlock({ id: '2', entries: ['22'] }),
         '22': makeOntimeEvent({ id: '22', parent: '2' }),
       },
     });
@@ -1017,13 +1017,13 @@ describe('rundownMutation.reorder()', () => {
     // expect(newRundown.flatOrder).toStrictEqual(['1', '2', '11', '22']);
     // expect(changeList).toStrictEqual(['1', '2', '11', '22']);
     expect(rundown.entries['1']).toMatchObject({
-      events: ['11'],
+      entries: ['11'],
     });
     expect(rundown.entries['11']).toMatchObject({
       parent: '1',
     });
     expect(rundown.entries['2']).toMatchObject({
-      events: [],
+      entries: [],
     });
     expect(rundown.entries['22']).toMatchObject({
       parent: null,
@@ -1035,9 +1035,9 @@ describe('rundownMutation.reorder()', () => {
       order: ['1', '2'],
       flatOrder: ['1', '11', '2', '22'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', events: ['11'] }),
+        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
         '11': makeOntimeEvent({ id: '11', parent: '1' }),
-        '2': makeOntimeBlock({ id: '2', events: ['22'] }),
+        '2': makeOntimeBlock({ id: '2', entries: ['22'] }),
         '22': makeOntimeEvent({ id: '22', parent: '2' }),
       },
     });
@@ -1046,13 +1046,13 @@ describe('rundownMutation.reorder()', () => {
 
     expect(rundown.order).toStrictEqual(['1', '11', '2']);
     expect(rundown.entries['1']).toMatchObject({
-      events: [],
+      entries: [],
     });
     expect(rundown.entries['11']).toMatchObject({
       parent: null,
     });
     expect(rundown.entries['2']).toMatchObject({
-      events: ['22'],
+      entries: ['22'],
     });
     expect(rundown.entries['22']).toMatchObject({
       parent: '2',
@@ -1374,7 +1374,7 @@ describe('rundownMutation.applyDelay()', () => {
       order: ['1', 'block', '2', '3'],
       entries: {
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100 }),
-        block: makeOntimeBlock({ id: 'block', events: ['delay'] }),
+        block: makeOntimeBlock({ id: 'block', entries: ['delay'] }),
         delay: makeOntimeDelay({ id: 'delay', duration: 100, parent: 'block' }),
         '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 200, duration: 100, linkStart: true }),
         '3': makeOntimeEvent({ id: '3', timeStart: 200, timeEnd: 300, duration: 100, linkStart: true }),
@@ -1417,7 +1417,7 @@ describe('rundownMutation.applyDelay()', () => {
       entries: {
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100 }),
         delay: makeOntimeDelay({ id: 'delay', duration: 100 }),
-        block: makeOntimeBlock({ id: 'block', events: ['block-1'] }),
+        block: makeOntimeBlock({ id: 'block', entries: ['block-1'] }),
         'block-1': makeOntimeEvent({
           id: 'block-1',
           timeStart: 100,
@@ -1520,7 +1520,7 @@ describe('rundownMutation.clone()', () => {
     const testRundown = makeRundown({
       order: ['1'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', events: ['1a'] }),
+        '1': makeOntimeBlock({ id: '1', entries: ['1a'] }),
         '1a': makeOntimeEvent({ id: '1a', cue: 'nested', parent: '1' }),
       },
     });
@@ -1528,7 +1528,7 @@ describe('rundownMutation.clone()', () => {
     const newEntry = rundownMutation.clone(testRundown, testRundown.entries['1a']);
 
     expect(testRundown.order).toStrictEqual(['1']);
-    expect(testRundown.entries['1']).toMatchObject({ events: ['1a', newEntry.id] });
+    expect(testRundown.entries['1']).toMatchObject({ entries: ['1a', newEntry.id] });
     expect(testRundown.entries[newEntry.id]).toMatchObject({
       type: SupportedEntry.Event,
       parent: '1',
@@ -1540,7 +1540,7 @@ describe('rundownMutation.clone()', () => {
     const testRundown = makeRundown({
       order: ['1'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', title: 'top', events: ['1a'] }),
+        '1': makeOntimeBlock({ id: '1', title: 'top', entries: ['1a'] }),
         '1a': makeOntimeEvent({ id: '1a', cue: 'nested', parent: '1' }),
       },
     });
@@ -1550,9 +1550,9 @@ describe('rundownMutation.clone()', () => {
     expect(testRundown.order).toStrictEqual(['1', newEntry.id]);
     expect(testRundown.entries[newEntry.id]).toMatchObject({
       type: SupportedEntry.Block,
-      events: [expect.any(String)],
+      entries: [expect.any(String)],
     });
-    expect((testRundown.entries[newEntry.id] as OntimeBlock).events[0]).not.toBe('1a');
+    expect((testRundown.entries[newEntry.id] as OntimeBlock).entries[0]).not.toBe('1a');
   });
 });
 
@@ -1575,7 +1575,7 @@ describe('rundownMutation.group()', () => {
     expect(rundown.entries).toMatchObject({
       [blockId]: {
         type: SupportedEntry.Block,
-        events: ['1', '2'],
+        entries: ['1', '2'],
       },
       '1': { id: '1', type: SupportedEntry.Event, parent: blockId },
       '2': { id: '2', type: SupportedEntry.Event, parent: blockId },
@@ -1590,7 +1590,7 @@ describe('rundownMutation.ungroup()', () => {
       order: ['1', '2'],
       entries: {
         '1': makeOntimeEvent({ id: '1', cue: 'data1', parent: null }),
-        '2': makeOntimeBlock({ id: '2', events: ['21', '22'] }),
+        '2': makeOntimeBlock({ id: '2', entries: ['21', '22'] }),
         '21': makeOntimeEvent({ id: '21', cue: 'data21', parent: '2' }),
         '22': makeOntimeEvent({ id: '22', cue: 'data22', parent: '2' }),
       },

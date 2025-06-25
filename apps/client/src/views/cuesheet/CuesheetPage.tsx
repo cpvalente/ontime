@@ -10,7 +10,7 @@ import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useFlatRundown } from '../../common/hooks-query/useRundown';
 import { CuesheetOverview } from '../../features/overview/Overview';
-import CuesheetEventEditor from '../../features/rundown/event-editor/CuesheetEventEditor';
+import CuesheetEventEditor from '../../features/rundown/entry-editor/CuesheetEventEditor';
 
 import CuesheetDnd from './cuesheet-dnd/CuesheetDnd';
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';

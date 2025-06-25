@@ -10,7 +10,7 @@ const baseEvent = {
 
 const baseBlock = {
   type: SupportedEntry.Block,
-  events: [],
+  entries: [],
 };
 
 /**

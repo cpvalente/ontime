@@ -99,19 +99,15 @@ router.patch('/swap', rundownSwapValidator, async (req: Request, res: Response<R
   }
 });
 
-router.patch(
-  '/applydelay/:id',
-  paramsWithId,
-  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
-    try {
-      const newRundown = await applyDelay(req.params.id);
-      res.status(200).send(newRundown);
-    } catch (error) {
-      const message = getErrorMessage(error);
-      res.status(400).send({ message });
-    }
-  },
-);
+router.patch('/applydelay/:id', paramsWithId, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+  try {
+    const newRundown = await applyDelay(req.params.id);
+    res.status(200).send(newRundown);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
 
 router.post('/clone/:id', paramsWithId, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
   try {
@@ -133,19 +129,15 @@ router.post('/group', rundownArrayOfIds, async (req: Request, res: Response<Rund
   }
 });
 
-router.post(
-  '/ungroup/:id',
-  paramsWithId,
-  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
-    try {
-      const newRundown = await ungroupEntries(req.params.id);
-      res.status(200).send(newRundown);
-    } catch (error) {
-      const message = getErrorMessage(error);
-      res.status(400).send({ message });
-    }
-  },
-);
+router.post('/ungroup/:id', paramsWithId, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+  try {
+    const newRundown = await ungroupEntries(req.params.id);
+    res.status(200).send(newRundown);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
 
 router.delete('/', rundownArrayOfIds, async (req: Request, res: Response<MessageResponse | ErrorResponse>) => {
   try {
