@@ -209,10 +209,9 @@ export function load(
       runtimeState.runtime.relativeOffset = relativeOffset;
       runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
     }
-    //TODO: fix later
-    // if (typeof initialData.blockStartAt === 'number') {
-    //   runtimeState.currentBlock.startedAt = initialData.blockStartAt;
-    // }
+    if (typeof initialData.blockStartAt === 'number' && runtimeState.blockNow) {
+      runtimeState.blockNow.startedAt = initialData.blockStartAt;
+    }
   }
   return event.id === runtimeState.eventNow?.id;
 }
