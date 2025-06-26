@@ -465,10 +465,8 @@ describe('loadBlock', () => {
     } as RuntimeState;
 
     loadBlock(rundown, state);
-    //FIXME: not sure why this is not working, the startAt value is present in the state
-    console.log(state);
     expect(state).toMatchObject({
-      blockNow: { id: rundown.entries[0].id, startAt: 123 },
+      blockNow: { id: rundown.entries[0].id, startedAt: 123 },
       eventNow: rundown.entries[2],
     });
   });
