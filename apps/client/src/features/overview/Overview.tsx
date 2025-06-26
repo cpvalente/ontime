@@ -131,18 +131,11 @@ function TitlesOverview() {
 }
 
 function CurrentBlockOverview() {
-  const { currentBlock, clock } = useRuntimePlaybackOverview();
+  const { blockStartedAt: blockStartAt, clock } = useRuntimePlaybackOverview();
 
-  const timeInBlock = formatedTime(currentBlock.startedAt === null ? null : clock - currentBlock.startedAt);
+  const timeInBlock = formatedTime(blockStartAt ? clock - blockStartAt : null);
 
-  return (
-    <TimeColumn
-      label='Time in block'
-      value={timeInBlock}
-      className={style.clock}
-      muted={currentBlock.startedAt === null}
-    />
-  );
+  return <TimeColumn label='Time in block' value={timeInBlock} className={style.clock} muted={blockStartAt === null} />;
 }
 
 function TimerOverview() {

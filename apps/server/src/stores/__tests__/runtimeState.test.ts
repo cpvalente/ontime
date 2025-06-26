@@ -104,7 +104,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.eventNext?.id).toBe('event2');
       expect(newState.timer.playback).toBe(Playback.Armed);
       expect(newState.clock).not.toBe(666);
-      expect(newState.currentBlock.block).toBeNull();
+      expect(newState.blockNow).toBeNull();
 
       // 2. Start event
       let success = start();
@@ -184,7 +184,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.actualStart).toBeNull();
       expect(newState.runtime.plannedStart).toBe(0);
       expect(newState.runtime.plannedEnd).toBe(1500);
-      expect(newState.currentBlock.block).toBeNull();
+      expect(newState.blockNow).toBeNull();
       expect(newState.runtime.offset).toBe(0);
 
       // 2. Start event
@@ -217,7 +217,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.offset).toBe(delayBefore);
       // finish is the difference between the runtime and the schedule
       expect(newState.runtime.expectedEnd).toBe(entries.event2.timeEnd - newState.runtime.offset);
-      expect(newState.currentBlock.block).toBeNull();
+      expect(newState.blockNow).toBeNull();
 
       // 4. Add time
       addTime(10);
@@ -384,17 +384,14 @@ describe('loadBlock', () => {
     });
 
     const state = {
-      currentBlock: {
-        block: null,
-        startedAt: 123,
-      },
+      blockNow: null,
       eventNow: rundown.entries[11],
-    } as RuntimeState;
+    } as unknown as RuntimeState;
 
     loadBlock(rundown, state);
 
     expect(state).toMatchObject({
-      currentBlock: { block: rundown.entries[1], startedAt: null },
+      blockNow: { id: rundown.entries[1].id, startedAt: null },
       eventNow: rundown.entries[11],
     });
   });
@@ -412,17 +409,14 @@ describe('loadBlock', () => {
     });
 
     const state = {
-      currentBlock: {
-        block: rundown.entries[1],
-        startedAt: 123,
-      },
+      blockNow: { id: rundown.entries[1].id, startedAt: 123 },
       eventNow: rundown.entries[22],
     } as RuntimeState;
 
     loadBlock(rundown, state);
 
     expect(state).toMatchObject({
-      currentBlock: { block: rundown.entries[2], startedAt: null },
+      blockNow: { id: rundown.entries[2].id, startedAt: null },
       eventNow: rundown.entries[22],
     });
   });
@@ -440,8 +434,8 @@ describe('loadBlock', () => {
     });
 
     const state = {
-      currentBlock: {
-        block: rundown.entries[1],
+      blockNow: {
+        id: rundown.entries[1].id,
         startedAt: 123,
       },
       eventNow: rundown.entries[0],
@@ -450,7 +444,7 @@ describe('loadBlock', () => {
     loadBlock(rundown, state);
 
     expect(state).toMatchObject({
-      currentBlock: { block: null, startedAt: null },
+      blockNow: null,
       eventNow: rundown.entries[0],
     });
   });
@@ -466,17 +460,13 @@ describe('loadBlock', () => {
     });
 
     const state = {
-      currentBlock: {
-        block: rundown.entries[0],
-        startedAt: 123,
-      },
+      blockNow: { id: rundown.entries[0].id, startedAt: 123 },
       eventNow: rundown.entries[2],
     } as RuntimeState;
 
     loadBlock(rundown, state);
-
     expect(state).toMatchObject({
-      currentBlock: { block: rundown.entries[0], startedAt: 123 },
+      blockNow: { id: rundown.entries[0].id, startedAt: 123 },
       eventNow: rundown.entries[2],
     });
   });
@@ -491,17 +481,14 @@ describe('loadBlock', () => {
     });
 
     const state = {
-      currentBlock: {
-        block: null,
-        startedAt: 123,
-      },
+      blockNow: null,
       eventNow: rundown.entries[0],
     } as RuntimeState;
 
     loadBlock(rundown, state);
 
     expect(state).toMatchObject({
-      currentBlock: { block: null, startedAt: 123 },
+      blockNow: null,
       eventNow: rundown.entries[0],
     });
   });

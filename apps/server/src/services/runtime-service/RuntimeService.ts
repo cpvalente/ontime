@@ -773,7 +773,9 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     /**
      * the currentBlock object has no ticking values so we only need to check for equality
      */
-    const shouldBlockUpdate = !deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock);
+    const shouldBlockUpdate =
+      !deepEqual(RuntimeService?.previousState.blockNow, state.blockNow) ||
+      !deepEqual(RuntimeService?.previousState.blockNext, state.blockNext);
 
     /**
      * Many other values are calculated based on the clock
@@ -797,12 +799,14 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     if (shouldRuntimeUpdate) {
       batch.add('runtime', state.runtime);
       RuntimeService.previousRuntimeUpdate = state.clock;
-      RuntimeService.previousState.runtime = { ...state.runtime };
+      RuntimeService.previousState.runtime = structuredClone(state.runtime);
     }
 
     if (shouldBlockUpdate) {
-      batch.add('currentBlock', state.currentBlock);
-      RuntimeService.previousState.currentBlock = { ...state.currentBlock };
+      batch.add('blockNow', state.blockNow);
+      batch.add('blockNext', state.blockNext);
+      RuntimeService.previousState.blockNow = structuredClone(state.blockNow);
+      RuntimeService.previousState.blockNext = structuredClone(state.blockNext);
     }
 
     if (hasImmediateChanges) {
@@ -857,7 +861,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           addedTime: state.timer.addedTime,
           pausedAt: state._timer.pausedAt,
           firstStart: state.runtime.actualStart,
-          blockStartAt: state.currentBlock.startedAt,
+          blockStartAt: state.blockNow?.startedAt ?? null,
         })
         .catch((_e) => {
           //we don't do anything with the error here

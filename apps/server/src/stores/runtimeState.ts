@@ -1,9 +1,9 @@
 import {
-  CurrentBlockState,
+  BlockState,
+  isOntimeBlock,
   MaybeNumber,
   MaybeString,
   OffsetMode,
-  OntimeBlock,
   PlayableEvent,
   Playback,
   Rundown,
@@ -30,8 +30,9 @@ import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.util
 
 export type RuntimeState = {
   clock: number; // realtime clock
+  blockNow: BlockState | null;
+  blockNext: BlockState | null;
   eventNow: PlayableEvent | null;
-  currentBlock: CurrentBlockState;
   eventNext: PlayableEvent | null;
   runtime: Runtime;
   timer: TimerState;
@@ -48,7 +49,8 @@ export type RuntimeState = {
 
 const runtimeState: RuntimeState = {
   clock: timeNow(),
-  currentBlock: { ...runtimeStorePlaceholder.currentBlock },
+  blockNow: null,
+  blockNext: null,
   eventNow: null,
   eventNext: null,
   runtime: { ...runtimeStorePlaceholder.runtime },
@@ -103,8 +105,8 @@ export function clearState() {
   runtimeState.eventNow = null;
   runtimeState.eventNext = null;
 
-  runtimeState.currentBlock.block = null;
-  runtimeState.currentBlock.startedAt = null;
+  runtimeState.blockNow = null;
+  runtimeState.blockNext = null;
 
   runtimeState.runtime.offset = 0;
   runtimeState.runtime.relativeOffset = 0;
@@ -207,8 +209,8 @@ export function load(
       runtimeState.runtime.relativeOffset = relativeOffset;
       runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
     }
-    if (typeof initialData.blockStartAt === 'number') {
-      runtimeState.currentBlock.startedAt = initialData.blockStartAt;
+    if (typeof initialData.blockStartAt === 'number' && runtimeState.blockNow) {
+      runtimeState.blockNow.startedAt = initialData.blockStartAt;
     }
   }
   return event.id === runtimeState.eventNow?.id;
@@ -249,7 +251,7 @@ export function loadNext(
   }
   const nowPlayableIndex = getPlayableIndexFromTimedIndex(metadata, eventIndex);
 
-  if (nowPlayableIndex === null  || nowPlayableIndex > metadata.playableEventOrder.length - 2) {
+  if (nowPlayableIndex === null || nowPlayableIndex > metadata.playableEventOrder.length - 2) {
     // we cound not find the event now or the event now is the last playable event
     runtimeState.eventNext = null;
     return;
@@ -355,8 +357,8 @@ export function start(state: RuntimeState = runtimeState): boolean {
   }
 
   // update block start time
-  if (state.currentBlock.startedAt === null) {
-    state.currentBlock.startedAt = state.clock;
+  if (state.blockNow && state.blockNow.startedAt === null) {
+    state.blockNow.startedAt = state.clock;
   }
 
   state.timer.playback = Playback.Play;
@@ -581,8 +583,8 @@ export function roll(
       runtimeState.timer.startedAt = runtimeState.clock;
 
       // update runtime
-      if (runtimeState.currentBlock.startedAt === null) {
-        runtimeState.currentBlock.startedAt = runtimeState.clock;
+      if (runtimeState.blockNow && runtimeState.blockNow.startedAt === null) {
+        runtimeState.blockNow.startedAt = runtimeState.clock;
       }
       if (!runtimeState.runtime.actualStart) {
         runtimeState.runtime.actualStart = runtimeState.clock;
@@ -645,8 +647,8 @@ export function roll(
   // there is something to run, load event
 
   // update runtime
-  if (runtimeState.currentBlock.startedAt === null) {
-    runtimeState.currentBlock.startedAt = runtimeState.clock;
+  if (runtimeState.blockNow && runtimeState.blockNow.startedAt === null) {
+    runtimeState.blockNow.startedAt = runtimeState.clock;
   }
 
   // event will finish on time
@@ -675,28 +677,38 @@ export function roll(
  * handle block loading, not for use outside of runtimeState
  */
 export function loadBlock(rundown: Rundown, state = runtimeState) {
+  // we need a loaded event to have a block
   if (state.eventNow === null) {
-    // we need a loaded event to have a block
-    state.currentBlock.block = null;
-    state.currentBlock.startedAt = null;
+    state.blockNow = null;
+    state.blockNext = null;
     return;
   }
 
   const currentBlockId = state.eventNow.parent;
 
-  // update time only if the block has changed
-  if (state.currentBlock.block?.id != currentBlockId) {
-    state.currentBlock.startedAt = null;
+  // look for potential next block
+  let foundEventNow = false;
+  for (const id of rundown.order) {
+    if (foundEventNow && isOntimeBlock(rundown.entries[id])) {
+      state.blockNext = { id, startedAt: null }; // the id is set here, the start time is set in other placed that handel starting events
+      break;
+    }
+    if (id === state.eventNow.id) {
+      foundEventNow = true;
+      continue;
+    }
   }
 
-  // update the block anyway
+  // not inside a block
   if (currentBlockId === null) {
-    state.currentBlock.block = null;
+    state.blockNow = null;
     return;
   }
 
-  const currentBlock = rundown.entries[currentBlockId];
-  state.currentBlock.block = currentBlock as OntimeBlock;
+  //we went into a new block - and it is different from the one we might have come from
+  if ((state.blockNow != null && state.blockNow.id != currentBlockId) || state.blockNow == null) {
+    state.blockNow = { id: currentBlockId, startedAt: null }; // the id is set here, the start time is set in other placed that handel starting events
+  }
 }
 
 export function setOffsetMode(mode: OffsetMode) {

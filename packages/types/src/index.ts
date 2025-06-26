@@ -101,7 +101,7 @@ export { OffsetMode } from './definitions/runtime/Runtime.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
 export { runtimeStorePlaceholder } from './definitions/runtime/RuntimeStore.js';
 export { type TimerState, TimerPhase } from './definitions/runtime/TimerState.type.js';
-export type { CurrentBlockState } from './definitions/runtime/CurrentBlockState.type.js';
+export type { BlockState } from './definitions/runtime/CurrentBlockState.type.js';
 
 // ---> Extra Timer
 export { type SimpleTimerState, SimplePlayback, SimpleDirection } from './definitions/runtime/AuxTimer.type.js';
