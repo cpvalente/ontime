@@ -375,6 +375,5 @@ export function getPlayableIndexFromTimedIndex(metadata: RundownMetadata, index:
 export function getTimedIndexFromPlayableIndex(metadata: RundownMetadata, index: number): number {
   const playableId = metadata.playableEventOrder[index];
   const timedIndex = metadata.timedEventOrder.findIndex((id) => id === playableId);
-  DEV: if (timedIndex === -1) throw new Error('getTimedIndexFromPlayableIndex, cound now find related id');
   return timedIndex;
 }

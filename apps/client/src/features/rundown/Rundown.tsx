@@ -358,7 +358,7 @@ export default function Rundown({ data }: RundownProps) {
   const isEditMode = appMode === AppMode.Edit;
 
   // 2. initialise rundown metadata
-  const { metadata, process } = makeRundownMetadata(featureData?.selectedEventId, featureData?.selectedBlockId);
+  const { metadata, process } = makeRundownMetadata(featureData?.selectedEventId);
   // keep a single reference to the metadata which we override for every entry
   let rundownMetadata = metadata;
 
@@ -433,12 +433,7 @@ export default function Rundown({ data }: RundownProps) {
                * ie: we are inside a block, but there is no defined colour
                * we default to $gray-1050 #303030
                */
-              //TODO: temp color to test is loaded
-              const blockColour = rundownMetadata.groupIsLoaded
-                ? 'green'
-                : rundownMetadata.groupColour === ''
-                  ? '#303030'
-                  : rundownMetadata.groupColour;
+              const blockColour = rundownMetadata.groupColour === '' ? '#303030' : rundownMetadata.groupColour;
 
               return (
                 <Fragment key={entry.id}>
@@ -452,7 +447,6 @@ export default function Rundown({ data }: RundownProps) {
                   {isOntimeBlock(entry) ? (
                     <BlockBlock
                       data={entry}
-                      loaded={rundownMetadata.groupIsLoaded}
                       hasCursor={hasCursor}
                       collapsed={getIsCollapsed(entry.id)}
                       onCollapse={handleCollapseGroup}
