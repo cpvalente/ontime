@@ -131,7 +131,7 @@ function TitlesOverview() {
 }
 
 function CurrentBlockOverview() {
-  const { blockStartAt, clock } = useRuntimePlaybackOverview();
+  const { blockStartedAt: blockStartAt, clock } = useRuntimePlaybackOverview();
 
   const timeInBlock = formatedTime(blockStartAt ? clock - blockStartAt : null);
 

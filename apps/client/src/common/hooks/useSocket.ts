@@ -173,7 +173,7 @@ export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) =
   selectedEventIndex: state.runtime.selectedEventIndex,
   offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offset : state.runtime.relativeOffset,
 
-  blockStartAt: state.blockNow?.startedAt ?? null,
+  blockStartedAt: state.blockNow?.startedAt ?? null,
 }));
 
 export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
