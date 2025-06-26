@@ -690,7 +690,7 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
   let foundEventNow = false;
   for (const id of rundown.order) {
     if (foundEventNow && isOntimeBlock(rundown.entries[id])) {
-      state.blockNext = { id, startedAt: null };
+      state.blockNext = { id, startedAt: null }; // the id is set here, the start time is set in other placed that handel starting events
       break;
     }
     if (id === state.eventNow.id) {
@@ -707,7 +707,7 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
 
   //we went into a new block - and it is different from the one we might have come from
   if ((state.blockNow != null && state.blockNow.id != currentBlockId) || state.blockNow == null) {
-    state.blockNow = { id: currentBlockId, startedAt: null };
+    state.blockNow = { id: currentBlockId, startedAt: null }; // the id is set here, the start time is set in other placed that handel starting events
   }
 }
 
