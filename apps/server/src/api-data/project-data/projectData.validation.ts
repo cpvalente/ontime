@@ -8,7 +8,7 @@ export const projectSanitiser = [
   body('backstageUrl').optional().isString().trim(),
   body('backstageInfo').optional().isString().trim(),
   body('endMessage').optional().isString().trim(),
-  body('projectLogo').optional({ nullable: true }).isString().trim().isBase64(),
+  body('projectLogo').optional({ nullable: true }).isString().trim(), //this is not the logo itself but then name of the logo
   body('custom').optional().isArray(),
   body('custom.*.title').optional().isString().trim().notEmpty(),
   body('custom.*.value').optional().isString().trim().notEmpty(),
