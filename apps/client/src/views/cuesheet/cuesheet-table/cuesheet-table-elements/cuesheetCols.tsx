@@ -1,11 +1,12 @@
 import { useCallback } from 'react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { CustomFields, isOntimeEvent, OntimeEntry, OntimeEvent, TimeStrategy } from 'ontime-types';
-import { millisToString, removeSeconds } from 'ontime-utils';
+import { millisToString } from 'ontime-utils';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
-import { formatDuration } from '../../../../common/utils/time';
+import { formatDuration, formatTime } from '../../../../common/utils/time';
 
+import DurationInput from './DurationInput';
 import EditableImage from './EditableImage';
 import MultiLineCell from './MultiLineCell';
 import SingleLineCell from './SingleLineCell';
@@ -26,10 +27,9 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) 
   const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
 
   const displayTime = showDelayedTimes ? startTime + delayValue : startTime;
-  let formattedTime = millisToString(displayTime);
-  if (hideTableSeconds) {
-    formattedTime = removeSeconds(formattedTime);
-  }
+
+  const formatOpts = hideTableSeconds ? { format12: 'hh:mm a', format24: 'HH:mm' } : undefined;
+  const formattedTime = formatTime(displayTime, formatOpts);
 
   return (
     <TimeInput initialValue={startTime} onSubmit={update} lockedValue={isStartLocked} delayed={delayValue !== 0}>
@@ -54,10 +54,9 @@ function MakeEnd({ getValue, row, table }: CellContext<OntimeEntry, unknown>) {
   const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
 
   const displayTime = showDelayedTimes ? endTime + delayValue : endTime;
-  let formattedTime = millisToString(displayTime);
-  if (hideTableSeconds) {
-    formattedTime = removeSeconds(formattedTime);
-  }
+
+  const formatOpts = hideTableSeconds ? { format12: 'hh:mm a', format24: 'HH:mm' } : undefined;
+  const formattedTime = formatTime(displayTime, formatOpts);
 
   return (
     <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={delayValue !== 0}>
@@ -81,9 +80,9 @@ function MakeDuration({ getValue, row, table }: CellContext<OntimeEntry, unknown
   const formattedDuration = formatDuration(duration, false);
 
   return (
-    <TimeInput initialValue={duration} onSubmit={update} lockedValue={isDurationLocked}>
+    <DurationInput initialValue={duration} onSubmit={update} lockedValue={isDurationLocked}>
       {formattedDuration}
-    </TimeInput>
+    </DurationInput>
   );
 }
 
