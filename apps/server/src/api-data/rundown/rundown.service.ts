@@ -429,7 +429,9 @@ export async function createCustomField(customField: CustomField): Promise<Custo
   // Adding a custom field has no immediate implications on the rundown
   const { customFields: resultCustomFields } = commit(false);
 
-  // TODO: notify clients to refetch the custom fields
+  setImmediate(() => {
+    sendRefetch(RefetchKey.CustomFields);
+  });
 
   return resultCustomFields;
 }
@@ -470,7 +472,6 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 
   // schedule the side effects
   setImmediate(() => {
-    // TODO: notify clients to refetch the custom fields
     notifyChanges(rundownMetadata, revision, { timer: true, external: true });
   });
 
@@ -499,7 +500,6 @@ export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFiel
 
   // schedule the side effects
   setImmediate(() => {
-    // TODO: notify clients to refetch the custom fields
     notifyChanges(rundownMetadata, revision, { timer: true, external: true });
   });
 
@@ -572,5 +572,7 @@ export async function initRundown(rundown: Readonly<Rundown>, customFields: Read
   updateRuntimeOnChange(rundownMetadata);
 
   // notify timer of change
-  notifyChanges(rundownMetadata, revision, { timer: true, external: true, reload: true });
+  setImmediate(() => {
+    notifyChanges(rundownMetadata, revision, { timer: true, external: true, reload: true });
+  });
 }

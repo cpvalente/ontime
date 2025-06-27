@@ -152,6 +152,9 @@ export const connectSocket = () => {
             case RefetchKey.All:
               invalidateAllCaches();
               break;
+            case RefetchKey.CustomFields:
+              ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
+              break;
             case RefetchKey.Rundown:
               if (revision === (ontimeQueryClient.getQueryData(RUNDOWN) as Rundown).revision) break;
               ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
