@@ -204,6 +204,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: 4.5.1
         version: 4.5.1(vite@6.3.1(@types/node@22.15.26)(sass@1.57.1)(tsx@4.19.2))
+      babel-plugin-react-compiler:
+        specifier: 19.1.0-rc.2
+        version: 19.1.0-rc.2
       eslint:
         specifier: 'catalog:'
         version: 8.56.0
@@ -237,6 +240,9 @@ importers:
       prettier:
         specifier: 'catalog:'
         version: 3.3.1
+      react-compiler-runtime:
+        specifier: 19.1.0-rc.2
+        version: 19.1.0-rc.2(react@18.3.1)
       sass:
         specifier: ^1.57.1
         version: 1.57.1
@@ -2656,6 +2662,9 @@ packages:
     resolution: {integrity: sha512-Cg7TFGpIr01vOQNODXOOaGz2NpCU5gl8x1qJFbb6hbZxR7XrcE2vtbAsTAbJ7/xwJtUuJEw8K8Zr/AE0LHlesg==}
     engines: {node: '>=10', npm: '>=6'}
 
+  babel-plugin-react-compiler@19.1.0-rc.2:
+    resolution: {integrity: sha512-kSNA//p5fMO6ypG8EkEVPIqAjwIXm5tMjfD1XRPL/sRjYSbJ6UsvORfaeolNWnZ9n310aM0xJP7peW26BuCVzA==}
+
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
@@ -4662,6 +4671,11 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
 
+  react-compiler-runtime@19.1.0-rc.2:
+    resolution: {integrity: sha512-852AwyIsbWJ5o1LkQVAZsVK3iLjMxOfKZuxqeGd/RfD+j1GqHb6j3DSHLtpu4HhFbQHsP2DzxjJyKR6luv4D8w==}
+    peerDependencies:
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0 || ^0.0.0-experimental
+
   react-dom@18.3.1:
     resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
     peerDependencies:
@@ -5719,7 +5733,7 @@ snapshots:
       '@babel/parser': 7.23.6
       '@babel/template': 7.22.15
       '@babel/traverse': 7.23.6
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
       convert-source-map: 2.0.0
       debug: 4.4.1
       gensync: 1.0.0-beta.2
@@ -5750,7 +5764,7 @@ snapshots:
 
   '@babel/generator@7.23.6':
     dependencies:
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
       '@jridgewell/gen-mapping': 0.3.3
       '@jridgewell/trace-mapping': 0.3.20
       jsesc: 2.5.2
@@ -5784,15 +5798,15 @@ snapshots:
   '@babel/helper-function-name@7.23.0':
     dependencies:
       '@babel/template': 7.22.15
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
 
   '@babel/helper-hoist-variables@7.22.5':
     dependencies:
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
 
   '@babel/helper-module-imports@7.22.15':
     dependencies:
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
 
   '@babel/helper-module-imports@7.27.1':
     dependencies:
@@ -5808,7 +5822,7 @@ snapshots:
       '@babel/helper-module-imports': 7.22.15
       '@babel/helper-simple-access': 7.22.5
       '@babel/helper-split-export-declaration': 7.22.6
-      '@babel/helper-validator-identifier': 7.24.5
+      '@babel/helper-validator-identifier': 7.27.1
 
   '@babel/helper-module-transforms@7.27.3(@babel/core@7.27.4)':
     dependencies:
@@ -5823,11 +5837,11 @@ snapshots:
 
   '@babel/helper-simple-access@7.22.5':
     dependencies:
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
 
   '@babel/helper-split-export-declaration@7.22.6':
     dependencies:
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
 
   '@babel/helper-string-parser@7.23.4': {}
 
@@ -5845,7 +5859,7 @@ snapshots:
     dependencies:
       '@babel/template': 7.22.15
       '@babel/traverse': 7.23.6
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
     transitivePeerDependencies:
       - supports-color
 
@@ -5856,14 +5870,14 @@ snapshots:
 
   '@babel/highlight@7.24.5':
     dependencies:
-      '@babel/helper-validator-identifier': 7.24.5
+      '@babel/helper-validator-identifier': 7.27.1
       chalk: 2.4.2
       js-tokens: 4.0.0
       picocolors: 1.0.1
 
   '@babel/parser@7.23.6':
     dependencies:
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
 
   '@babel/parser@7.27.5':
     dependencies:
@@ -5889,7 +5903,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.24.2
       '@babel/parser': 7.23.6
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
 
   '@babel/template@7.27.2':
     dependencies:
@@ -5906,7 +5920,7 @@ snapshots:
       '@babel/helper-hoist-variables': 7.22.5
       '@babel/helper-split-export-declaration': 7.22.6
       '@babel/parser': 7.23.6
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
       debug: 4.4.1
       globals: 11.12.0
     transitivePeerDependencies:
@@ -7521,7 +7535,7 @@ snapshots:
 
   '@svgr/hast-util-to-babel-ast@8.0.0':
     dependencies:
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
       entities: 4.5.0
 
   '@svgr/plugin-jsx@8.1.0(@svgr/core@8.1.0(typescript@5.5.3))':
@@ -7591,16 +7605,16 @@ snapshots:
 
   '@types/babel__generator@7.6.8':
     dependencies:
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
 
   '@types/babel__template@7.4.4':
     dependencies:
       '@babel/parser': 7.23.6
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
 
   '@types/babel__traverse@7.20.4':
     dependencies:
-      '@babel/types': 7.23.6
+      '@babel/types': 7.27.3
 
   '@types/body-parser@1.19.2':
     dependencies:
@@ -8191,6 +8205,10 @@ snapshots:
       '@babel/runtime': 7.24.5
       cosmiconfig: 7.1.0
       resolve: 1.22.1
+
+  babel-plugin-react-compiler@19.1.0-rc.2:
+    dependencies:
+      '@babel/types': 7.27.3
 
   balanced-match@1.0.2: {}
 
@@ -10506,6 +10524,10 @@ snapshots:
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+
+  react-compiler-runtime@19.1.0-rc.2(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   react-dom@18.3.1(react@18.3.1):
     dependencies:
