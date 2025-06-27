@@ -11,8 +11,7 @@ interface CuesheetTableMenuActionsProps {
   showModal: (entryId: string) => void;
 }
 
-export default function CuesheetTableMenuActions(props: CuesheetTableMenuActionsProps) {
-  const { eventId, entryIndex, showModal } = props;
+export default function CuesheetTableMenuActions({ eventId, entryIndex, showModal }: CuesheetTableMenuActionsProps) {
   const { addEntry, getEntryById, move, deleteEntry } = useEntryActions();
 
   const handleCloneEvent = () => {

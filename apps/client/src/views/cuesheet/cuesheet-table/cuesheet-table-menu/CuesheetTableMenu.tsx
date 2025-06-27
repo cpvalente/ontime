@@ -10,8 +10,7 @@ interface CuesheetTableMenuProps {
 
 export default memo(CuesheetTableMenu);
 
-function CuesheetTableMenu(props: CuesheetTableMenuProps) {
-  const { showModal } = props;
+function CuesheetTableMenu({ showModal }: CuesheetTableMenuProps) {
   const { isOpen, eventId, entryIndex, position, closeMenu } = useCuesheetTableMenu();
 
   return (

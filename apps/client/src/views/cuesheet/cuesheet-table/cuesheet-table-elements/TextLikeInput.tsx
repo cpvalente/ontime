@@ -18,9 +18,9 @@ const TextLikeInput = forwardRef((props: PropsWithChildren<TextLikeInputProps>, 
     return {
       focusParentElement() {
         ref.current?.parentElement?.focus();
-      }
-    }
-  })
+      },
+    };
+  });
 
   return (
     <div className={classes} {...elementProps} tabIndex={0} ref={ref}>

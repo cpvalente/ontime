@@ -17,9 +17,13 @@ interface ParentFocusableInput extends HTMLInputElement {
 
 export default memo(DurationInput);
 
-function DurationInput(props: PropsWithChildren<DurationInputProps>) {
-  const { initialValue, lockedValue, delayed, onSubmit, children } = props;
-
+function DurationInput({
+  initialValue,
+  lockedValue,
+  delayed,
+  onSubmit,
+  children,
+}: PropsWithChildren<DurationInputProps>) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
   const inputRef = useRef<ParentFocusableInput>(null);

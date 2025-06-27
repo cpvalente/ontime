@@ -1,8 +1,8 @@
 import { lazy, useCallback, useEffect } from 'react';
 import { IoApps, IoClose, IoSettingsOutline } from 'react-icons/io5';
-import { IconButton, useDisclosure } from '@chakra-ui/react';
-import { useHotkeys } from '@mantine/hooks';
+import { useDisclosure, useHotkeys } from '@mantine/hooks';
 
+import IconButton from '../../common/components/buttons/IconButton';
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import { useElectronListener } from '../../common/hooks/useElectronEvent';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
@@ -20,7 +20,7 @@ const MessageControl = lazy(() => import('../../features/control/message/Message
 
 export default function Editor() {
   const { isOpen: isSettingsOpen, setLocation, close } = useAppSettingsNavigation();
-  const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
+  const [isOpen, handler] = useDisclosure();
 
   useWindowTitle('Editor');
 
@@ -49,22 +49,19 @@ export default function Editor() {
   return (
     <div className={styles.mainContainer} data-testid='event-editor'>
       <WelcomePlacement />
-      <NavigationMenu isOpen={isMenuOpen} onClose={onClose} />
+      <NavigationMenu isOpen={isOpen} onClose={handler.close} />
       <EditorOverview>
-        <IconButton
-          aria-label='Toggle navigation'
-          variant='ontime-subtle-white'
-          size='lg'
-          icon={<IoApps />}
-          onClick={onOpen}
-        />
+        <IconButton aria-label='Toggle navigation' variant='subtle-white' size='xlarge' onClick={handler.open}>
+          <IoApps />
+        </IconButton>
         <IconButton
           aria-label='Toggle settings'
-          variant={isSettingsOpen ? 'ontime-subtle' : 'ontime-subtle-white'}
-          size='lg'
-          icon={isSettingsOpen ? <IoClose /> : <IoSettingsOutline />}
+          variant={isSettingsOpen ? 'subtle' : 'subtle-white'}
+          size='xlarge'
           onClick={toggleSettings}
-        />
+        >
+          {isSettingsOpen ? <IoClose /> : <IoSettingsOutline />}
+        </IconButton>
       </EditorOverview>
       {isSettingsOpen ? (
         <AppSettings />

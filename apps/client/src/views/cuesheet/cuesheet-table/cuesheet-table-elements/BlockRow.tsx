@@ -10,8 +10,7 @@ interface BlockRowProps {
   columnCount: number;
 }
 
-function BlockRow(props: BlockRowProps) {
-  const { hidePast, title, columnCount } = props;
+function BlockRow({ hidePast, title, columnCount }: BlockRowProps) {
   const { currentBlockId } = useCurrentBlockId();
   const firstCellRef = useRef<null | HTMLTableCellElement>(null);
 

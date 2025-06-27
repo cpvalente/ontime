@@ -18,9 +18,7 @@ interface CuesheetBodyProps {
   table: Table<OntimeEntry>;
 }
 
-export default function CuesheetBody(props: CuesheetBodyProps) {
-  const { rowModel, selectedRef, table } = props;
-
+export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetBodyProps) {
   const { selectedEventId } = useSelectedEventId();
   const { hideDelays, hidePast } = useCuesheetOptions();
 

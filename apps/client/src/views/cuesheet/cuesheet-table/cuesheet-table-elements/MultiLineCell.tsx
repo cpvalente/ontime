@@ -10,8 +10,7 @@ interface MultiLineCellProps {
 
 export default memo(MultiLineCell);
 
-function MultiLineCell(props: MultiLineCellProps) {
-  const { initialValue, handleUpdate } = props;
+function MultiLineCell({ initialValue, handleUpdate }: MultiLineCellProps) {
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback((newValue: string) => handleUpdate(newValue), [handleUpdate]);
 

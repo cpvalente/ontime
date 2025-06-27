@@ -1,0 +1,50 @@
+.checkbox {
+  box-sizing: border-box;
+  display: flex;
+  width: 1rem;
+  height: 1rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: $component-border-radius-sm;
+
+  &[data-unchecked] {
+    background-color: $gray-1100;
+
+    &:hover:not(:disabled) {
+      background: $gray-1000;
+    }
+    &:active:not(:disabled) {
+      background: $gray-1200;
+    }
+  }
+
+  &[data-checked] {
+    background-color: $blue-500;
+
+    &:hover:not(:disabled) {
+      background: $blue-400;
+    }
+    &:active:not(:disabled) {
+      background: $blue-600;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $blue-500;
+    outline-offset: 2px;
+  }
+}
+
+.indicator {
+  display: flex;
+  color: $ui-white;
+
+  &[data-unchecked] {
+    display: none;
+  }
+}

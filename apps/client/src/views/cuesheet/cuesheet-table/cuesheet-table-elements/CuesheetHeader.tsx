@@ -13,8 +13,7 @@ interface CuesheetHeaderProps {
   headerGroups: HeaderGroup<OntimeEntry>[];
 }
 
-export default function CuesheetHeader(props: CuesheetHeaderProps) {
-  const { headerGroups } = props;
+export default function CuesheetHeader({ headerGroups }: CuesheetHeaderProps) {
   const { hideIndexColumn, showActionMenu } = useCuesheetOptions();
 
   return (
