@@ -1,6 +1,6 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
-import { fileURLToPath, URL } from 'node:url';
+import path from 'path';
 import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import svgrPlugin from 'vite-plugin-svgr';
@@ -10,10 +10,19 @@ import { ONTIME_VERSION } from './src/ONTIME_VERSION';
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 const isDev = process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'development';
 
+const ReactCompilerConfig = {
+  runtimeModule: '@/mycache',
+  target: '18',
+};
+
 export default defineConfig({
   base: './', // Ontime cloud: we use relative paths to allow them to reference a dynamic base set at runtime
   plugins: [
-    react(),
+    react({
+      babel: {
+        plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
+      },
+    }),
     svgrPlugin(),
     !isDev &&
       sentryVitePlugin({
@@ -89,7 +98,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@': path.resolve(__dirname, './src'),
     },
   },
   esbuild: {
