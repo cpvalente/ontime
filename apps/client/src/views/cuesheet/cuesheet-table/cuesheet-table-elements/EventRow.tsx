@@ -39,8 +39,7 @@ export default memo(EventRow, (prevProps, nextProps) => {
   );
 });
 
-function EventRow(props: EventRowProps) {
-  const { rowId, event, eventIndex, rowIndex, isPast, selectedRef, rowBgColour, table } = props;
+function EventRow({ rowId, event, eventIndex, rowIndex, isPast, selectedRef, rowBgColour, table }: EventRowProps) {
   const { hideIndexColumn, showActionMenu } = useCuesheetOptions();
   const ownRef = useRef<HTMLTableRowElement>(null);
   const [isVisible, setIsVisible] = useState(false);

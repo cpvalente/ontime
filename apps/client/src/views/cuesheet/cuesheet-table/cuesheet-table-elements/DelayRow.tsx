@@ -8,8 +8,7 @@ interface DelayRowProps {
   duration: number;
 }
 
-function DelayRow(props: DelayRowProps) {
-  const { duration } = props;
+function DelayRow({ duration }: DelayRowProps) {
   const delayTime = millisToDelayString(duration, 'expanded');
 
   return (

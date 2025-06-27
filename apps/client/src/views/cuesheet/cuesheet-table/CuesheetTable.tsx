@@ -21,9 +21,7 @@ interface CuesheetTableProps {
   showModal: (eventId: MaybeString) => void;
 }
 
-export default function CuesheetTable(props: CuesheetTableProps) {
-  const { data, columns, showModal } = props;
-
+export default function CuesheetTable({ data, columns, showModal }: CuesheetTableProps) {
   const { updateEntry, updateTimer } = useEntryActions();
   const { followSelected, showDelayedTimes, hideTableSeconds } = useCuesheetOptions();
   const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =

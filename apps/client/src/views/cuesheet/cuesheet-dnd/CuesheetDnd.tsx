@@ -17,9 +17,7 @@ interface CuesheetDndProps {
   columns: ColumnDef<OntimeEntry>[];
 }
 
-export default function CuesheetDnd(props: PropsWithChildren<CuesheetDndProps>) {
-  const { columns, children } = props;
-
+export default function CuesheetDnd({ columns, children }: PropsWithChildren<CuesheetDndProps>) {
   const { columnOrder, saveColumnOrder } = useColumnManager(columns);
 
   const sensors = useSensors(

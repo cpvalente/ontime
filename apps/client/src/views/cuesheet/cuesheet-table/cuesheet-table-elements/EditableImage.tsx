@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { Input } from '@chakra-ui/react';
+
+import Input from '../../../../common/components/input/input/Input';
 
 import style from './EditableImage.module.scss';
 
@@ -10,9 +11,7 @@ interface EditableImageProps {
 
 export default memo(EditableImage);
 
-function EditableImage(props: EditableImageProps) {
-  const { initialValue, updateValue } = props;
-
+function EditableImage({ initialValue, updateValue }: EditableImageProps) {
   const handleUpdate = (newValue: string) => {
     if (newValue === initialValue) {
       return;
@@ -26,10 +25,8 @@ function EditableImage(props: EditableImageProps) {
   if (!initialValue) {
     return (
       <Input
-        size='sm'
-        variant='ontime-transparent'
-        padding={0}
-        fontSize='md'
+        variant='ghosted'
+        fluid
         placeholder='Paste image URL'
         onBlur={(event) => handleUpdate(event.currentTarget.value)}
         onKeyDown={(event) => {
@@ -38,8 +35,6 @@ function EditableImage(props: EditableImageProps) {
           }
         }}
         defaultValue={initialValue}
-        spellCheck={false}
-        autoComplete='off'
       />
     );
   }

@@ -1,17 +1,12 @@
 import { memo, ReactNode } from 'react';
-import { Button, Checkbox } from '@chakra-ui/react';
 import { Column } from '@tanstack/react-table';
 import { OntimeEntry } from 'ontime-types';
 
+import Button from '../../../../common/components/buttons/Button';
+import Checkbox from '../../../../common/components/checkbox/Checkbox';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 
 import style from './CuesheetTableSettings.module.scss';
-
-// reusable button styles
-const buttonProps = {
-  size: 'xs',
-  variant: 'ontime-subtle',
-};
 
 interface CuesheetTableSettingsProps {
   columns: Column<OntimeEntry, unknown>[];
@@ -20,9 +15,12 @@ interface CuesheetTableSettingsProps {
   handleClearToggles: () => void;
 }
 
-function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
-  const { columns, handleResetResizing, handleResetReordering, handleClearToggles } = props;
-
+function CuesheetTableSettings({
+  columns,
+  handleResetResizing,
+  handleResetReordering,
+  handleClearToggles,
+}: CuesheetTableSettingsProps) {
   return (
     <div className={style.tableSettings}>
       <div>
@@ -32,14 +30,10 @@ function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
             const columnHeader = column.columnDef.header;
             const visible = column.getIsVisible();
             return (
-              <label key={`${column.id}-${visible}`} className={style.option}>
-                <Checkbox
-                  variant='ontime-ondark'
-                  defaultChecked={visible}
-                  onChange={column.getToggleVisibilityHandler()}
-                />
+              <Editor.Label key={`${column.id}-${visible}`} className={style.option}>
+                <Checkbox defaultChecked={visible} onCheckedChange={column.toggleVisibility} />
                 {columnHeader as ReactNode}
-              </label>
+              </Editor.Label>
             );
           })}
         </div>
@@ -47,13 +41,13 @@ function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
       <div className={style.column}>
         <Editor.Label className={style.sectionTitle}>Reset Options</Editor.Label>
         <div className={style.row}>
-          <Button onClick={handleClearToggles} {...buttonProps}>
+          <Button size='small' variant='subtle' onClick={handleClearToggles}>
             Show All
           </Button>
-          <Button onClick={handleResetResizing} {...buttonProps}>
+          <Button size='small' variant='subtle' onClick={handleResetResizing}>
             Reset Resizing
           </Button>
-          <Button onClick={handleResetReordering} {...buttonProps}>
+          <Button size='small' variant='subtle' onClick={handleResetReordering}>
             Reset Reordering
           </Button>
         </div>

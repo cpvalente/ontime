@@ -1,7 +1,6 @@
 .input {
   box-sizing: border-box;
 
-  background-color: $gray-1200;
   font-size: 1rem;
   font-weight: 400;
   color: $gray-200;
@@ -29,6 +28,15 @@
     color: $gray-500;
     letter-spacing: 0;
   }
+}
+
+.subtle {
+  background-color: $gray-1200;
+}
+
+.ghosted {
+  background-color: transparent;
+  padding: 0;
 }
 
 .medium {
