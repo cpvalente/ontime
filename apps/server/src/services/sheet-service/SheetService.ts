@@ -9,10 +9,9 @@ import { ImportMap, getErrorMessage } from 'ontime-utils';
 
 import { sheets, type sheets_v4 } from '@googleapis/sheets';
 import { Credentials, OAuth2Client } from 'google-auth-library';
-// TODO: rewrite logic to use fetch and remove dependency
-import got from 'got';
 
 import { logger } from '../../classes/Logger.js';
+import { postJson } from '../../utils/appClient.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { getCurrentRundown, getProjectCustomFields } from '../../api-data/rundown/rundown.dao.js';
 import { parseExcel } from '../../api-data/excel/excel.parser.js';
@@ -144,16 +143,14 @@ function verifyConnection(
     // server returns 428 if user hasnt yet completed the auth process
     try {
       logger.info(LogOrigin.Server, 'Polling for auth...');
-      const auth: Credentials = await got
-        .post(tokenUrl, {
-          json: {
-            client_id: clientSecret.installed.client_id,
-            client_secret: clientSecret.installed.client_secret,
-            device_code,
-            grant_type: grantType,
-          },
-        })
-        .json();
+      const auth: Credentials = await postJson<Credentials>(tokenUrl, {
+        json: {
+          client_id: clientSecret.installed.client_id,
+          client_secret: clientSecret.installed.client_secret,
+          device_code,
+          grant_type: grantType,
+        },
+      });
 
       logger.info(LogOrigin.Server, 'Successfully Authenticated');
       const client = new OAuth2Client({
