@@ -8,8 +8,8 @@ const fileToDownload = 'e2e/tests/fixtures/tmp/';
 
 test('project file upload', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
-
-  if (await page.getByText('Welcome to Ontime')) {
+  const welcomeDialog = page.getByText('Welcome to Ontime');
+  if (!(await welcomeDialog).isVisible()) {
     await page.getByRole('button', { name: 'Close' }).click();
   }
 
