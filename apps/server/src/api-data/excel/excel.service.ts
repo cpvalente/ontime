@@ -50,13 +50,13 @@ export function generateRundownPreview(options: ImportMap): { rundown: Rundown; 
   const parsedCustomFields = parseCustomFields(dataFromExcel);
 
   // we run the parsed data through an extra step to ensure the objects shape
-  const Rundown = parseRundown(dataFromExcel.rundown, parsedCustomFields);
-  if (Rundown.order.length === 0) {
+  const rundown = parseRundown(dataFromExcel.rundown, parsedCustomFields);
+  if (rundown.order.length === 0) {
     throw new Error(`Could not find data to import in the worksheet: ${options.worksheet}`);
   }
 
   // clear the data
   excelData = xlsx.utils.book_new();
 
-  return { rundown: Rundown, customFields: parsedCustomFields };
+  return { rundown, customFields: parsedCustomFields };
 }

@@ -176,6 +176,7 @@ export const parseExcel = (
         if (maybeTimeType === 'block') {
           // we leave this as a clue for the object filtering later on
           entry.type = SupportedEntry.Block;
+          entry.entries = [];
         } else if (maybeTimeType === '' || maybeTimeType === 'event' || isKnownTimerType(maybeTimeType)) {
           // @ts-expect-error -- we leave this as a clue for the object filtering later on
           entry.type = SupportedEntry.Event;
