@@ -12,6 +12,7 @@ interface LegacyData extends Partial<DatabaseModel> {
 }
 
 export function parseAutomationSettings(data: LegacyData, emitError?: ErrorEmitter): AutomationSettings {
+  // TODO(v4): move to migration script
   /**
    * Leaving a path for migrating users to the new automations
    * This should be removed after a few releases
