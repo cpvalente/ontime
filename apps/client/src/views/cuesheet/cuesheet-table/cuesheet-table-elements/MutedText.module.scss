@@ -1,0 +1,9 @@
+.muted {
+  opacity: 0.4; // same as the time input with muted text
+  line-height: 2rem; // input height
+}
+
+.numeric {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}

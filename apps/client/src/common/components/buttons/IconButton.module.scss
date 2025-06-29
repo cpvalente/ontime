@@ -7,7 +7,7 @@
   place-content: center;
 
   border: 1px solid transparent;
-  border-radius: 3px;
+  border-radius: $component-border-radius-md;
 
   cursor: pointer;
 
@@ -15,6 +15,11 @@
     opacity: 0.4;
     cursor: not-allowed;
   }
+}
+
+.small {
+  height: 1.5rem;
+  font-size: calc(1rem - 3px);
 }
 
 .medium {

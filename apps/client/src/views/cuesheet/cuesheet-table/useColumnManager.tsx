@@ -11,7 +11,7 @@ export default function useColumnManager(columns: ColumnDef<OntimeEntry>[]) {
   });
   const [columnSizing, setColumnSizing] = useLocalStorage({ key: 'table-sizes', defaultValue: {} });
 
-  // if the columns change, we update the dataset
+  // if the columns order changes, we update the dataset
   useEffect(() => {
     let shouldReplace = false;
     const newColumns: string[] = [];
