@@ -1,5 +1,6 @@
 import { memo } from 'react';
 
+import Button from '../../../../common/components/buttons/Button';
 import Input from '../../../../common/components/input/input/Input';
 
 import style from './EditableImage.module.scss';
@@ -22,10 +23,17 @@ function EditableImage({ initialValue, updateValue }: EditableImageProps) {
     updateValue(newValue);
   };
 
+  const openInNewTab = () => {
+    if (initialValue) {
+      window.open(initialValue, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   if (!initialValue) {
     return (
       <Input
         variant='ghosted'
+        className={style.imageInput}
         fluid
         placeholder='Paste image URL'
         onBlur={(event) => handleUpdate(event.currentTarget.value)}
@@ -42,7 +50,12 @@ function EditableImage({ initialValue, updateValue }: EditableImageProps) {
   return (
     <div className={style.imageCell}>
       <div className={style.overlay}>
-        <button onClick={() => handleUpdate('')}>Delete</button>
+        <Button variant='subtle-white' onClick={openInNewTab}>
+          Preview
+        </Button>
+        <Button variant='subtle-destructive' onClick={() => handleUpdate('')}>
+          Delete
+        </Button>
       </div>
       <img loading='lazy' src={initialValue} className={style.image} />
     </div>

@@ -8,7 +8,7 @@ import { useElectronListener } from '../../common/hooks/useElectronEvent';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import AppSettings from '../../features/app-settings/AppSettings';
 import useAppSettingsNavigation from '../../features/app-settings/useAppSettingsNavigation';
-import { EditorOverview } from '../../features/overview/Overview';
+import EditorOverview from '../../features/overview/EditorOverview';
 
 import WelcomePlacement from './welcome/WelcomePlacement';
 

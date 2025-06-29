@@ -213,6 +213,64 @@ describe('parseRundown()', () => {
     expect((parsedRundown.entries['2'] as OntimeEvent).custom).toStrictEqual({ sound: 'loud' });
   });
 
+  it('removes empty custom fields', () => {
+    const rundown = {
+      id: 'test',
+      title: '',
+      order: ['1', '2'],
+      flatOrder: ['1', '2', '21'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', custom: { lighting: 'yes' } }),
+        '2': makeOntimeBlock({ id: '2', entries: ['21'], custom: { lighting: '' } }),
+        '21': makeOntimeEvent({ id: '21', custom: { lighting: '' } }),
+      },
+      revision: 1,
+    } as Rundown;
+
+    const customFields: CustomFields = {
+      lighting: {
+        type: 'string',
+        colour: 'red',
+        label: 'lighting',
+      },
+    };
+
+    const parsedRundown = parseRundown(rundown, customFields);
+    expect((parsedRundown.entries['1'] as OntimeEvent).custom).toStrictEqual({ lighting: 'yes' });
+    expect((parsedRundown.entries['2'] as OntimeBlock).custom).not.toHaveProperty('lighting');
+    expect((parsedRundown.entries['21'] as OntimeEvent).custom).not.toHaveProperty('lighting');
+  });
+
+  it('parses data in blocks', () => {
+    const rundown = {
+      id: 'test',
+      title: '',
+      order: ['block'],
+      flatOrder: ['block'],
+      isNextDay: false,
+      entries: {
+        block: makeOntimeBlock({
+          id: 'block',
+          title: 'block-title',
+          note: 'block-note',
+          colour: 'red',
+          entries: ['1', '2'],
+        }),
+        '1': makeOntimeEvent({ id: '1' }),
+      },
+      revision: 1,
+    } as Rundown;
+
+    const parsedRundown = parseRundown(rundown, {});
+    expect(parsedRundown.order.length).toEqual(1);
+    expect(parsedRundown.entries.block).toMatchObject({
+      title: 'block-title',
+      note: 'block-note',
+      colour: 'red',
+      entries: ['1'],
+    });
+  });
+
   it('parses events nested in blocks', () => {
     const rundown = {
       id: 'test',

@@ -6,9 +6,9 @@ import NavigationMenuItem from '../navigation-menu-item/NavigationMenuItem';
 
 export default function EditorNavigation() {
   const navigate = useNavigate();
-  const isSmallDevide = useIsSmallDevice();
+  const isSmallDevice = useIsSmallDevice();
 
-  if (!isSmallDevide) {
+  if (!isSmallDevice) {
     return (
       <NavigationMenuItem active={location.pathname === '/editor'} onClick={() => navigate('/editor')}>
         <IoLockClosedOutline />

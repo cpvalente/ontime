@@ -1,43 +1,50 @@
 import { useEffect, useState } from 'react';
-import { isOntimeEvent, OntimeEvent } from 'ontime-types';
+import { isOntimeBlock, isOntimeEvent, OntimeEntry } from 'ontime-types';
 
 import useRundown from '../../../common/hooks-query/useRundown';
-import { cx } from '../../../common/utils/styleUtils';
 
+import BlockEditor from './BlockEditor';
 import EventEditor from './EventEditor';
 
 import style from './EntryEditor.module.scss';
 
-interface CuesheetEventEditorProps {
-  eventId: string;
+interface CuesheetEntryEditorProps {
+  entryId: string;
 }
 
-export default function CuesheetEventEditor({ eventId }: CuesheetEventEditorProps) {
+export default function CuesheetEntryEditor({ entryId }: CuesheetEntryEditorProps) {
   const { data } = useRundown();
-
-  const [event, setEvent] = useState<OntimeEvent | null>(null);
+  const [entry, setEntry] = useState<OntimeEntry | null>(null);
 
   useEffect(() => {
     if (data.order.length === 0) {
-      setEvent(null);
+      setEntry(null);
       return;
     }
 
-    const event = data.entries[eventId];
-    if (event && isOntimeEvent(event)) {
-      setEvent(event);
+    const event = data.entries[entryId];
+    if (event) {
+      setEntry(event);
     } else {
-      setEvent(null);
+      setEntry(null);
     }
-  }, [eventId, data.order, data.entries]);
+  }, [entryId, data.order, data.entries]);
 
-  if (!event) {
-    return null;
+  if (isOntimeEvent(entry)) {
+    return (
+      <div className={style.entryEditor} data-testid='editor-container'>
+        <EventEditor event={entry} />
+      </div>
+    );
   }
 
-  return (
-    <div className={cx([style.entryEditor, style.inModal])} data-testid='editor-container'>
-      <EventEditor event={event} />
-    </div>
-  );
+  if (isOntimeBlock(entry)) {
+    return (
+      <div className={style.inModal} data-testid='editor-container'>
+        <BlockEditor block={entry} />
+      </div>
+    );
+  }
+
+  return null;
 }

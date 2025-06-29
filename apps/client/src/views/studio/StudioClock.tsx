@@ -1,4 +1,4 @@
-import { useIsMobile } from '../../common/hooks/useIsMobile';
+import { useIsMobileDevice } from '../../common/hooks/useIsMobileDevice';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
@@ -17,7 +17,7 @@ interface StudioClockProps {
 }
 
 export default function StudioClock({ onAir, clock, hideCards }: StudioClockProps) {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobileDevice();
 
   // if we are on mobile and have to show the cards
   if (isMobile && !hideCards) {
