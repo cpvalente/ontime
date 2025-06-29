@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { isOntimeEvent, MaybeString, OntimeEntry, OntimeEvent, TimeField } from 'ontime-types';
+import { MaybeString, OntimeEntry, TimeField } from 'ontime-types';
 
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import useFollowComponent from '../../../common/hooks/useFollowComponent';
-import { useCuesheetOptions } from '../cuesheet.options';
+import { usePersistedCuesheetOptions } from '../cuesheet.options';
 
 import CuesheetBody from './cuesheet-table-elements/CuesheetBody';
 import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
@@ -23,13 +23,15 @@ interface CuesheetTableProps {
 
 export default function CuesheetTable({ data, columns, showModal }: CuesheetTableProps) {
   const { updateEntry, updateTimer } = useEntryActions();
-  const { followSelected, showDelayedTimes, hideTableSeconds } = useCuesheetOptions();
+  const followPlayback = usePersistedCuesheetOptions((state) => state.followPlayback);
+  const showDelayedTimes = usePersistedCuesheetOptions((state) => state.showDelayedTimes);
+  const hideTableSeconds = usePersistedCuesheetOptions((state) => state.hideTableSeconds);
   const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
     useColumnManager(columns);
 
   const selectedRef = useRef<HTMLTableRowElement | null>(null);
   const tableContainerRef = useRef<HTMLDivElement | null>(null);
-  useFollowComponent({ followRef: selectedRef, scrollRef: tableContainerRef, doFollow: followSelected });
+  useFollowComponent({ followRef: selectedRef, scrollRef: tableContainerRef, doFollow: followPlayback });
 
   const { listeners } = useTableNav();
 
@@ -39,12 +41,12 @@ export default function CuesheetTable({ data, columns, showModal }: CuesheetTabl
         // check if value is the same
         const event = data[rowIndex];
 
-        if (!event || !isOntimeEvent(event)) {
+        if (!event) {
           return;
         }
 
         // skip if there is no value change
-        const key = accessor as keyof OntimeEvent;
+        const key = accessor as keyof OntimeEntry;
         const previousValue = event[key];
         if (previousValue === payload) {
           return;
@@ -57,7 +59,7 @@ export default function CuesheetTable({ data, columns, showModal }: CuesheetTabl
 
         updateEntry({ id: event.id, [accessor]: payload });
       },
-      handleUpdateTimer: (eventId: string, field: TimeField, payload) => {
+      handleUpdateTimer: (eventId: string, field: TimeField, payload: string) => {
         // the timer element already contains logic to avoid submitting a unchanged value
         updateTimer(eventId, field, payload, true);
       },

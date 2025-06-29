@@ -7,7 +7,6 @@ import IconButton from '../../common/components/buttons/IconButton';
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import useViewEditor from '../../common/components/navigation-menu/useViewEditor';
 import EmptyPage from '../../common/components/state/EmptyPage';
-import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useFlatRundown } from '../../common/hooks-query/useRundown';
@@ -18,7 +17,6 @@ import CuesheetDnd from './cuesheet-dnd/CuesheetDnd';
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
 import { makeCuesheetColumns } from './cuesheet-table/cuesheet-table-elements/cuesheetColsFactory';
 import CuesheetTable from './cuesheet-table/CuesheetTable';
-import { cuesheetOptions } from './cuesheet.options';
 
 import styles from './CuesheetPage.module.scss';
 
@@ -57,7 +55,6 @@ export default function CuesheetPage() {
   return (
     <>
       <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />
-      <ViewParamsEditor viewOptions={cuesheetOptions} />
       <Modal isOpen={isEventEditorOpen} onClose={eventEditorHandler.close} variant='ontime'>
         <ModalOverlay />
         <ModalContent maxWidth='max(640px, 40vw)' padding='1rem'>

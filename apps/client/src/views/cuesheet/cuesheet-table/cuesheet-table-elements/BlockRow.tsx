@@ -6,7 +6,7 @@ import { OntimeEntry } from 'ontime-types';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { useCurrentBlockId } from '../../../../common/hooks/useSocket';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
-import { useCuesheetOptions } from '../../cuesheet.options';
+import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
 
 import style from './BlockRow.module.scss';
@@ -23,7 +23,8 @@ interface BlockRowProps {
 export default function BlockRow({ colour, hidePast, rowId, table }: BlockRowProps) {
   const { currentBlockId } = useCurrentBlockId();
 
-  const { hideIndexColumn, showActionMenu } = useCuesheetOptions();
+  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
+  const showActionMenu = usePersistedCuesheetOptions((state) => state.showActionMenu);
   // TODO: maybe we need a block menu as well?
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 

@@ -3,7 +3,7 @@ import { flexRender, HeaderGroup } from '@tanstack/react-table';
 import { OntimeEntry } from 'ontime-types';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
-import { useCuesheetOptions } from '../../cuesheet.options';
+import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 
 import { SortableCell } from './SortableCell';
 
@@ -14,7 +14,8 @@ interface CuesheetHeaderProps {
 }
 
 export default function CuesheetHeader({ headerGroups }: CuesheetHeaderProps) {
-  const { hideIndexColumn, showActionMenu } = useCuesheetOptions();
+  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
+  const showActionMenu = usePersistedCuesheetOptions((state) => state.showActionMenu);
 
   return (
     <thead className={style.tableHeader}>

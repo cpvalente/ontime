@@ -6,7 +6,7 @@ import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
-import { useCuesheetOptions } from '../../cuesheet.options';
+import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
 
 import { useVisibleRowsStore } from './visibleRowsStore';
@@ -56,7 +56,8 @@ function EventRow({
   table,
   observer,
 }: EventRowProps) {
-  const { hideIndexColumn, showActionMenu } = useCuesheetOptions();
+  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
+  const showActionMenu = usePersistedCuesheetOptions((state) => state.showActionMenu);
   const ownRef = useRef<HTMLTableRowElement>(null);
 
   const isVisible = useVisibleRowsStore((state) => state.visibleRows.has(rowId));

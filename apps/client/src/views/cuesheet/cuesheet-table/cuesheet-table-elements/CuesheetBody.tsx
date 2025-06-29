@@ -8,7 +8,7 @@ import { RUNDOWN } from '../../../../common/api/constants';
 import { useSelectedEventId } from '../../../../common/hooks/useSocket';
 import { lazyEvaluate } from '../../../../common/utils/lazyEvaluate';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
-import { useCuesheetOptions } from '../../../cuesheet/cuesheet.options';
+import { usePersistedCuesheetOptions } from '../../../cuesheet/cuesheet.options';
 
 import BlockRow from './BlockRow';
 import DelayRow from './DelayRow';
@@ -24,7 +24,8 @@ interface CuesheetBodyProps {
 export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetBodyProps) {
   const queryClient = useQueryClient();
   const { selectedEventId } = useSelectedEventId();
-  const { hideDelays, hidePast } = useCuesheetOptions();
+  const hidePast = usePersistedCuesheetOptions((state) => state.hidePast);
+  const hideDelays = usePersistedCuesheetOptions((state) => state.hideDelays);
 
   const { addVisibleRow, removeVisibleRow } = useVisibleRowsStore();
 
