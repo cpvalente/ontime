@@ -69,7 +69,6 @@ export function loadRoll(
   }
 
   // in case we were unable to find anything, we load the first event
-  console.log('returning first event');
   return { event: rundown.entries[firstEventId] as PlayableEvent, index: 0, isPending: true };
 }
 

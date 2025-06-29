@@ -1,4 +1,6 @@
 import {
+  CustomFields,
+  EntryCustomFields,
   EntryId,
   isOntimeBlock,
   isOntimeDelay,
@@ -60,7 +62,7 @@ export function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDel
   throw new Error('Invalid event type');
 }
 
-export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<OntimeEvent>): OntimeEvent {
+export function createEventPatch(originalEvent: OntimeEvent, patchEvent: Partial<OntimeEvent>): OntimeEvent {
   if (Object.keys(patchEvent).length === 0) {
     return originalEvent;
   }
@@ -101,18 +103,52 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
   };
 }
 
+export function createBlockPatch(originalBlock: OntimeBlock, patchBlock: Partial<OntimeBlock>): OntimeBlock {
+  if (Object.keys(patchBlock).length === 0) {
+    return originalBlock;
+  }
+
+  const maybeTargetDuration = () => {
+    if (typeof patchBlock.targetDuration === 'number') {
+      return patchBlock.targetDuration;
+    }
+    if (patchBlock.targetDuration === null || patchBlock.targetDuration === '') {
+      return null;
+    }
+    return originalBlock.targetDuration;
+  };
+
+  return {
+    id: originalBlock.id,
+    type: SupportedEntry.Block,
+    title: makeString(patchBlock.title, originalBlock.title),
+    note: makeString(patchBlock.note, originalBlock.note),
+    entries: patchBlock.entries ?? originalBlock.entries,
+    isNextDay: typeof patchBlock.isNextDay === 'boolean' ? patchBlock.isNextDay : originalBlock.isNextDay,
+    targetDuration: maybeTargetDuration(),
+    colour: makeString(patchBlock.colour, originalBlock.colour),
+    revision: originalBlock.revision,
+    timeStart: originalBlock.timeStart,
+    timeEnd: originalBlock.timeEnd,
+    duration: originalBlock.duration,
+    isFirstLinked: originalBlock.isFirstLinked,
+    custom: { ...originalBlock.custom, ...patchBlock.custom },
+  };
+}
+
 /**
  * Utility function for patching an existing event with new data
  * Increments the revision of the event when applying the patch
  */
 export function applyPatchToEntry<T extends OntimeEntry>(eventFromRundown: T, patch: Partial<T>): T {
   if (isOntimeEvent(eventFromRundown)) {
-    const newEvent = createPatch(eventFromRundown, patch as Partial<OntimeEvent>);
+    const newEvent = createEventPatch(eventFromRundown, patch as Partial<OntimeEvent>);
     newEvent.revision++;
     return newEvent as T;
   }
+
   if (isOntimeBlock(eventFromRundown)) {
-    const newBlock: OntimeBlock = { ...eventFromRundown, ...patch };
+    const newBlock: OntimeBlock = createBlockPatch(eventFromRundown, patch as Partial<OntimeBlock>);
     newBlock.revision++;
     return newBlock as T;
   }
@@ -139,7 +175,7 @@ export const createEvent = (eventArgs: Partial<OntimeEvent>, eventIndex: number 
     cue,
     ...eventDef,
   };
-  const event = createPatch(baseEvent, eventArgs);
+  const event = createEventPatch(baseEvent, eventArgs);
   return event;
 };
 
@@ -357,6 +393,22 @@ export function getInsertAfterId(rundown: Rundown, afterId?: EntryId, beforeId?:
   }
 
   return null;
+}
+
+/**
+ * Sanitises custom fields in an entry by removing fields
+ * - if it does not exist in the project
+ * - if the value is empty string
+ * Mutates the entryCustomFields object
+ */
+export function cleanupCustomFields(entryCustomFields: EntryCustomFields, projectCustomFields: CustomFields) {
+  for (const field in entryCustomFields) {
+    if (!Object.hasOwn(projectCustomFields, field)) {
+      delete entryCustomFields[field];
+    } else if (entryCustomFields[field] === '') {
+      delete entryCustomFields[field];
+    }
+  }
 }
 
 /**

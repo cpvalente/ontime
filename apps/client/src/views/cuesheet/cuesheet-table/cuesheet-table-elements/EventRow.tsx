@@ -1,4 +1,4 @@
-import { memo, MutableRefObject, useLayoutEffect, useRef, useState } from 'react';
+import { memo, MutableRefObject, useLayoutEffect, useRef } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { flexRender, Table } from '@tanstack/react-table';
 import { OntimeEntry, OntimeEvent, RGBColour } from 'ontime-types';
@@ -6,10 +6,12 @@ import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
-import { useCuesheetOptions } from '../../cuesheet.options';
+import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
 
-import style from '../CuesheetTable.module.scss';
+import { useVisibleRowsStore } from './visibleRowsStore';
+
+import style from './EventRow.module.scss';
 
 interface EventRowProps {
   rowId: string;
@@ -21,9 +23,12 @@ interface EventRowProps {
   skip?: boolean;
   colour?: string;
   rowBgColour?: string;
+  parentBgColour?: string;
   table: Table<OntimeEntry>;
   /** hack to force re-rendering of the row when the column sizes change */
   columnHash: string;
+  observer: IntersectionObserver;
+  firstAfterBlock: boolean;
 }
 
 export default memo(EventRow, (prevProps, nextProps) => {
@@ -35,34 +40,36 @@ export default memo(EventRow, (prevProps, nextProps) => {
     prevProps.isPast === nextProps.isPast &&
     prevProps.selectedRef === nextProps.selectedRef &&
     prevProps.rowBgColour === nextProps.rowBgColour &&
+    prevProps.parentBgColour === nextProps.parentBgColour &&
     prevProps.columnHash === nextProps.columnHash
   );
 });
 
-function EventRow({ rowId, event, eventIndex, rowIndex, isPast, selectedRef, rowBgColour, table }: EventRowProps) {
-  const { hideIndexColumn, showActionMenu } = useCuesheetOptions();
+function EventRow({
+  rowId,
+  event,
+  eventIndex,
+  rowIndex,
+  isPast,
+  selectedRef,
+  rowBgColour,
+  parentBgColour,
+  table,
+  observer,
+  firstAfterBlock,
+}: EventRowProps) {
+  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
+  const showActionMenu = usePersistedCuesheetOptions((state) => state.showActionMenu);
   const ownRef = useRef<HTMLTableRowElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+
+  const isVisible = useVisibleRowsStore((state) => state.visibleRows.has(rowId));
 
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
+  // store a reference of the row in the observer
   useLayoutEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      {
-        root: null,
-        threshold: 0.01,
-      },
-    );
-
     const handleRefCurrent = ownRef.current;
-    if (selectedRef) {
-      setIsVisible(true);
-    } else if (handleRefCurrent) {
+    if (handleRefCurrent) {
       observer.observe(handleRefCurrent);
     }
 
@@ -71,22 +78,28 @@ function EventRow({ rowId, event, eventIndex, rowIndex, isPast, selectedRef, row
         observer.unobserve(handleRefCurrent);
       }
     };
-  }, [ownRef, selectedRef]);
+  }, [observer]);
 
   const { color, backgroundColor } = getAccessibleColour(event.colour);
   const tmpColour = cssOrHexToColour(color) as RGBColour; // we know this to be a correct colour
-  const mutedText = colourToHex({ ...tmpColour, alpha: tmpColour.alpha * 0.6 });
+  const mutedText = colourToHex({ ...tmpColour, alpha: tmpColour.alpha * 0.8 });
 
   return (
     <tr
-      className={cx([style.eventRow, event.skip ?? style.skip])}
-      style={{ opacity: `${isPast ? '0.2' : '1'}` }}
+      id={rowId}
+      className={cx([style.eventRow, event.skip && style.skip, firstAfterBlock && style.firstAfterBlock, Boolean(parentBgColour) && style.hasParent])}
+      style={{
+        opacity: `${isPast ? '0.2' : '1'}`,
+        '--user-bg': parentBgColour ?? 'transparent',
+      }}
       ref={selectedRef ?? ownRef}
     >
       {showActionMenu && (
         <td className={style.actionColumn} tabIndex={-1} role='cell'>
           <IconButton
             aria-label='Options'
+            variant='subtle-white'
+            size='small'
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const yPos = 8 + rect.y + rect.height / 2;
@@ -105,12 +118,15 @@ function EventRow({ rowId, event, eventIndex, rowIndex, isPast, selectedRef, row
       {isVisible
         ? table
             .getRow(rowId)
-            ?.getVisibleCells()
+            .getVisibleCells()
             .map((cell) => {
               return (
                 <td
                   key={cell.id}
-                  style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}
+                  style={{
+                    width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
+                    backgroundColor: rowBgColour,
+                  }}
                   tabIndex={-1}
                   role='cell'
                 >

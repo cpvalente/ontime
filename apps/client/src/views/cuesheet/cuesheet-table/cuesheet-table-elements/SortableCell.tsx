@@ -4,15 +4,15 @@ import { CSS } from '@dnd-kit/utilities';
 import { Header } from '@tanstack/react-table';
 import { OntimeEntry } from 'ontime-types';
 
-import styles from '../CuesheetTable.module.scss';
+import style from '../CuesheetTable.module.scss';
 
 interface SortableCellProps {
   header: Header<OntimeEntry, unknown>;
-  style: CSSProperties;
+  injectedStyles: CSSProperties;
   children: ReactNode;
 }
 
-export function SortableCell({ header, style, children }: SortableCellProps) {
+export function SortableCell({ header, injectedStyles, children }: SortableCellProps) {
   const { column, colSpan } = header;
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -21,7 +21,7 @@ export function SortableCell({ header, style, children }: SortableCellProps) {
 
   // build drag styles
   const dragStyle = {
-    ...style,
+    ...injectedStyles,
     opacity: isDragging ? 0.5 : 1,
     transform: CSS.Translate.toString(transform),
     transition,
@@ -34,10 +34,11 @@ export function SortableCell({ header, style, children }: SortableCellProps) {
       </div>
       <div
         {...{
+          onDoubleClick: () => header.column.resetSize(),
           onMouseDown: header.getResizeHandler(),
           onTouchStart: header.getResizeHandler(),
         }}
-        className={styles.resizer}
+        className={style.resizer}
       />
     </th>
   );

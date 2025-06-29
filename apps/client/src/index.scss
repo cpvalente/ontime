@@ -73,6 +73,7 @@ html,
   -webkit-user-select: none;
   user-select: none;
   -webkit-app-region: drag;
+  isolation: isolate;
 }
 
 /* smaller root size for MacOS laptops */

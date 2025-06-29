@@ -8,25 +8,41 @@ $table-header-font-size: calc(1rem - 2px);
   width: 100%;
   height: 100%;
   overflow: auto;
-  padding-bottom: 640px; // allow focus to reach last elements
+  padding-bottom: 70vh; // allow focus to reach last elements
 }
 
 .cuesheet {
   font-size: $table-font-size;
   font-weight: 400;
+  color: $ui-white;
 
   tr {
     display: flex;
   }
 
+  th {
+    background-color: $gray-1300;
+    padding-left: 0.25rem;
+    font-weight: 400;
+
+    &:hover {
+      .resizer {
+        width: 0.5rem;
+      }
+    }
+
+    &:first-of-type {
+      margin-left: 4px; // compensate left border
+    }
+  }
+
   th,
   td {
     margin: 1px;
-    font-weight: inherit;
     font-size: inherit;
     text-align: left;
     position: relative;
-    @include ellipsis-overflow;
+    padding: 0.25rem;
   }
 
   th:focus,
@@ -35,100 +51,42 @@ $table-header-font-size: calc(1rem - 2px);
   }
 }
 
-.tableHeader,
-.eventRow {
-  .actionColumn {
-    width: calc(2rem + 0.5rem); // sm button size (--chakra-sizes-8) + 2 * padding
-    background-color: transparent;
-  }
+.actionColumn {
+  padding-inline: 0.5rem;
+  background-color: transparent;
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  line-height: 2rem; // match input height
+}
 
-  .indexColumn {
-    display: flex;
-    align-items: center;
-    justify-content: end;
+.indexColumn {
+  display: flex;
+  align-items: start;
+  justify-content: end;
 
-    min-width: 3em; // allow for 3-digit numbers
-    font-size: $table-header-font-size;
-    background-color: $gray-1300; // will be overridden inline
-  }
+  min-width: 3em; // allow for 3-digit numbers
+  font-size: $table-header-font-size;
+  line-height: 2rem; // match input height
+  background-color: $gray-1300; // will be overridden inline
+  font-weight: 600;;
 }
 
 .tableHeader {
+  line-height: 2rem;
   position: sticky;
   top: 0px;
   z-index: $zindex-floating;
   background-color: $ui-black;
   font-size: $table-header-font-size;
-  color: $label-gray;
-}
 
-th {
-  background-color: $gray-1300;
-  padding-left: 0.25rem;
-
-  &:hover {
-    .resizer {
-      width: 0.5rem;
-    }
-  }
-}
-
-.eventRow {
-  vertical-align: top;
-
-  &:hover {
-    outline: 1px solid $blue-700;
-    outline-offset: -1px;
-  }
-
-  td {
+  .actionColumn {
     background-color: $gray-1250;
-    border-radius: 2px;
-    padding: 0.25rem;
+    width: calc(2rem + 1px); // button + padding + margin
   }
-
-  &.skip {
-    text-decoration: line-through;
-    opacity: $opacity-disabled !important; // fighting inline styles
+  .indexColumn {
+    width: 3.5em;
   }
-}
-
-.blockRow {
-  width: 100%;
-  background-color: $gray-1350;
-  font-size: 1rem;
-  height: 2.5rem;
-
-  td {
-    align-self: flex-end;
-    position: sticky;
-    left: 1rem;
-    padding: 0.25rem 0;
-  }
-}
-
-.delayRow {
-  width: 100%;
-  color: $ontime-delay-text;
-
-  td {
-    position: sticky;
-    left: 47.5%; // center of the screen, ish
-    padding: 0.5rem 0;
-    &:first-letter {
-      text-transform: uppercase;
-    }
-  }
-}
-
-.check {
-  font-size: 1.5rem;
-  margin: 0 auto;
-}
-
-.delayedTime {
-  color: $ontime-delay-text;
-  font-size: calc(1rem - 2px);
 }
 
 .resizer {

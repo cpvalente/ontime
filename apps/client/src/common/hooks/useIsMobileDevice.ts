@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useOs, useViewportSize } from '@mantine/hooks';
 
-export function useIsMobile(): boolean {
+export function useIsMobileDevice(): boolean {
   const { width } = useViewportSize();
   const os = useOs();
 
