@@ -30,8 +30,8 @@ export type OntimeBlock = OntimeBaseEvent & {
   custom: EntryCustomFields;
   // !==== RUNTIME METADATA ====! //
   revision: number;
-  startTime: MaybeNumber; // calculated at runtime
-  endTime: MaybeNumber; // calculated at runtime
+  timeStart: MaybeNumber; // calculated at runtime
+  timeEnd: MaybeNumber; // calculated at runtime
   duration: number; // calculated at runtime
   isFirstLinked: boolean; // calculated at runtime, whether the first event is linked
 };
