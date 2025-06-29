@@ -62,7 +62,6 @@ export default function BlockEditor({ block }: BlockEditorProps) {
 
   const isEditor = window.location.pathname.includes('editor');
   const planOffset = typeof block.targetDuration !== 'number' ? null : block.targetDuration - block.duration;
-  console.log('targetDuration:', block.targetDuration);
 
   return (
     <div className={style.content}>
@@ -75,13 +74,13 @@ export default function BlockEditor({ block }: BlockEditorProps) {
             }
             <Editor.Label>First event start</Editor.Label>
             <TextLikeInput className={style.textLikeInput}>
-              {millisToString(block.startTime, { fallback: timerPlaceholder })}
+              {millisToString(block.timeStart, { fallback: timerPlaceholder })}
             </TextLikeInput>
           </div>
           <div>
-            <Editor.Label htmlFor='endTime'>Last event end</Editor.Label>
+            <Editor.Label>Last event end</Editor.Label>
             <TextLikeInput className={style.textLikeInput}>
-              {millisToString(block.endTime, { fallback: timerPlaceholder })}
+              {millisToString(block.timeEnd, { fallback: timerPlaceholder })}
             </TextLikeInput>
           </div>
           <div>

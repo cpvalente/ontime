@@ -190,8 +190,8 @@
           "skip": false,
           "custom": {},
           "revision": 0,
-          "startTime": null,
-          "endTime": null,
+          "timeStart": null,
+          "timeEnd": null,
           "duration": 0,
           "isFirstLinked": false
         },
@@ -345,8 +345,8 @@
           "skip": false,
           "custom": {},
           "revision": 0,
-          "startTime": null,
-          "endTime": null,
+          "timeStart": null,
+          "timeEnd": null,
           "duration": 0,
           "isFirstLinked": false
         },

@@ -162,8 +162,8 @@ export function createBlock(patch?: Partial<OntimeBlock>): OntimeBlock {
     colour: makeString(patch.colour, ''),
     custom: patch.custom ?? {},
     revision: 0,
-    startTime: null,
-    endTime: null,
+    timeStart: null,
+    timeEnd: null,
     duration: 0,
     isFirstLinked: false,
   };

@@ -747,8 +747,8 @@ export function processRundown(
 
       // update block metadata
       processedEntry.duration = totalBlockDuration;
-      processedEntry.startTime = blockStartTime;
-      processedEntry.endTime = blockEndTime;
+      processedEntry.timeStart = blockStartTime;
+      processedEntry.timeEnd = blockEndTime;
       processedEntry.isFirstLinked = isFirstLinked;
       processedEntry.entries = blockEvents;
     }
