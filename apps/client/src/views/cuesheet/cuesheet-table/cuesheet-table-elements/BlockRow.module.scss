@@ -1,0 +1,25 @@
+@import "../CuesheetTable.module.scss";
+
+.blockRow {
+  width: 100%;
+  display: flex;
+  align-items: start;
+  background-color: var(--user-bg, $gray-1050);
+  color: var(--user-color, $ui-white);
+  font-size: 1rem;
+  border-radius: 3px 3px 0 0;
+
+  position: relative;
+  line-height: 1em;
+
+  td {
+    min-height: 3.5rem;
+    left: 4px; // compensate element border
+    padding: 0.25rem;
+    padding-top: 1rem;
+  }
+
+  .indexColumn {
+    background-color: transparent;
+  }
+}

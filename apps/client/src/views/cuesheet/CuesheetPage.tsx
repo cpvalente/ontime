@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { IoApps, IoSettingsOutline } from 'react-icons/io5';
+import { IoApps } from 'react-icons/io5';
 import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react';
 import { useDisclosure } from '@mantine/hooks';
 
@@ -16,7 +16,7 @@ import CuesheetEventEditor from '../../features/rundown/entry-editor/CuesheetEve
 
 import CuesheetDnd from './cuesheet-dnd/CuesheetDnd';
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
-import { makeCuesheetColumns } from './cuesheet-table/cuesheet-table-elements/cuesheetCols';
+import { makeCuesheetColumns } from './cuesheet-table/cuesheet-table-elements/cuesheetColsFactory';
 import CuesheetTable from './cuesheet-table/CuesheetTable';
 import { cuesheetOptions } from './cuesheet.options';
 
@@ -56,6 +56,8 @@ export default function CuesheetPage() {
 
   return (
     <>
+      <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />
+      <ViewParamsEditor viewOptions={cuesheetOptions} />
       <Modal isOpen={isEventEditorOpen} onClose={eventEditorHandler.close} variant='ontime'>
         <ModalOverlay />
         <ModalContent maxWidth='max(640px, 40vw)' padding='1rem'>
@@ -63,27 +65,13 @@ export default function CuesheetPage() {
         </ModalContent>
       </Modal>
       <div className={styles.tableWrapper} data-testid='cuesheet'>
-        <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />
-        <ViewParamsEditor viewOptions={cuesheetOptions} />
         <CuesheetOverview>
-          <IconButton
-            aria-label='Toggle navigation'
-            variant='subtle-white'
-            size='xlarge'
-            onClick={menuHandler.open}
-            disabled={isViewLocked}
-          >
-            <IoApps />
-          </IconButton>
-          <IconButton
-            aria-label='Toggle settings'
-            variant='subtle-white'
-            size='xlarge'
-            onClick={showEditFormDrawer}
-            disabled={isViewLocked}
-          >
-            <IoSettingsOutline />
-          </IconButton>
+          {!isViewLocked && (
+            <IconButton aria-label='Toggle navigation' variant='subtle-white' size='xlarge' onClick={menuHandler.open}>
+              <IoApps />
+            </IconButton>
+          )}
+          <button onClick={showEditFormDrawer}>temporary button</button>
         </CuesheetOverview>
         <CuesheetProgress />
         <CuesheetDnd columns={columns}>

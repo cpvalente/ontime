@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { isOntimeEvent, MaybeString, OntimeEntry, OntimeEvent, TimeField } from 'ontime-types';
@@ -33,19 +33,8 @@ export default function CuesheetTable({ data, columns, showModal }: CuesheetTabl
 
   const { listeners } = useTableNav();
 
-  const table = useReactTable({
-    data,
-    columns,
-    columnResizeMode: 'onChange',
-    state: {
-      columnOrder,
-      columnVisibility,
-      columnSizing,
-    },
-    onColumnVisibilityChange: setColumnVisibility,
-    onColumnSizingChange: setColumnSizing,
-    getCoreRowModel: getCoreRowModel(),
-    meta: {
+  const meta = useMemo(
+    () => ({
       handleUpdate: (rowIndex: number, accessor: string, payload: string, isCustom = false) => {
         // check if value is the same
         const event = data[rowIndex];
@@ -76,16 +65,32 @@ export default function CuesheetTable({ data, columns, showModal }: CuesheetTabl
         showDelayedTimes,
         hideTableSeconds,
       },
+    }),
+    [data, hideTableSeconds, showDelayedTimes, updateEntry, updateTimer],
+  );
+
+  const table = useReactTable({
+    data,
+    columns,
+    columnResizeMode: 'onChange',
+    state: {
+      columnOrder,
+      columnVisibility,
+      columnSizing,
     },
+    onColumnVisibilityChange: setColumnVisibility,
+    onColumnSizingChange: setColumnSizing,
+    getCoreRowModel: getCoreRowModel(),
+    meta,
   });
 
   const setAllVisible = useCallback(() => {
     table.toggleAllColumnsVisible(true);
-  }, []);
+  }, [table]);
 
   const resetColumnResizing = useCallback(() => {
     setColumnSizing({});
-  }, []);
+  }, [setColumnSizing]);
 
   const headerGroups = table.getHeaderGroups();
   const rowModel = table.getRowModel();

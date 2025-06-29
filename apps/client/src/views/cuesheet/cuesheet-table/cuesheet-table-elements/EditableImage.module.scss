@@ -6,6 +6,8 @@
     .overlay {
       display: grid;
       place-content: center;
+      justify-items: center;
+      gap: 1rem;
       background-color: $black-60;
     }
   }

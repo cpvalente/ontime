@@ -1,8 +1,10 @@
-import { MutableRefObject } from 'react';
+import { MutableRefObject, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { RowModel, Table } from '@tanstack/react-table';
-import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeEntry } from 'ontime-types';
+import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeBlock, OntimeEntry, Rundown } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
+import { RUNDOWN } from '../../../../common/api/constants';
 import { useSelectedEventId } from '../../../../common/hooks/useSocket';
 import { lazyEvaluate } from '../../../../common/utils/lazyEvaluate';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
@@ -11,6 +13,7 @@ import { useCuesheetOptions } from '../../../cuesheet/cuesheet.options';
 import BlockRow from './BlockRow';
 import DelayRow from './DelayRow';
 import EventRow from './EventRow';
+import { useVisibleRowsStore } from './visibleRowsStore';
 
 interface CuesheetBodyProps {
   rowModel: RowModel<OntimeEntry>;
@@ -19,8 +22,28 @@ interface CuesheetBodyProps {
 }
 
 export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetBodyProps) {
+  const queryClient = useQueryClient();
   const { selectedEventId } = useSelectedEventId();
   const { hideDelays, hidePast } = useCuesheetOptions();
+
+  const { addVisibleRow, removeVisibleRow } = useVisibleRowsStore();
+
+  const observer = useMemo(
+    () =>
+      new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              addVisibleRow(entry.target.id);
+            } else {
+              removeVisibleRow(entry.target.id);
+            }
+          }
+        },
+        { rootMargin: '400px' },
+      ),
+    [addVisibleRow, removeVisibleRow],
+  );
 
   const getVisibleColumns = lazyEvaluate(() => table.getVisibleFlatColumns());
   const getColumnHash = lazyEvaluate(() => {
@@ -47,8 +70,16 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
         }
 
         if (isOntimeBlock(entry)) {
-          const columnCount = getVisibleColumns().length;
-          return <BlockRow columnCount={columnCount} key={key} title={entry.title} hidePast={isPast && hidePast} />;
+          return (
+            <BlockRow
+              key={key}
+              colour={entry.colour}
+              hidePast={isPast && hidePast}
+              rowId={row.id}
+              table={table}
+              title={entry.title}
+            />
+          );
         }
         if (isOntimeDelay(entry)) {
           if (isPast && hidePast) {
@@ -59,7 +90,13 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
             return null;
           }
 
-          return <DelayRow key={key} duration={delayVal} />;
+          let parentBgColour: string | null = null;
+          if (entry.parent) {
+            const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+            const parentEntry = rundown?.entries[entry.parent];
+            parentBgColour = (parentEntry as OntimeBlock).colour ?? null;
+          }
+          return <DelayRow key={key} duration={delayVal} parentBgColour={parentBgColour} />;
         }
         if (isOntimeEvent(entry)) {
           eventIndex++;
@@ -84,6 +121,13 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
             }
           }
 
+          let parentBgColour: string | undefined;
+          if (entry.parent) {
+            const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+            const parentEntry = rundown?.entries[entry.parent];
+            parentBgColour = (parentEntry as OntimeBlock).colour;
+          }
+
           return (
             <EventRow
               key={row.id}
@@ -94,8 +138,10 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
               isPast={isPast}
               selectedRef={isSelected ? selectedRef : undefined}
               rowBgColour={rowBgColour}
+              parentBgColour={parentBgColour}
               table={table}
               columnHash={columnHash}
+              observer={observer}
             />
           );
         }
