@@ -42,7 +42,7 @@ import { cloneEvent } from '../../common/utils/clone';
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import BlockEnd from './rundown-block/BlockEnd';
 import RundownBlock from './rundown-block/RundownBlock';
-import { makeRundownMetadata, makeSortableList, moveDown, moveUp } from './rundown.utils';
+import { makeRundownMetadata, makeSortableList } from './rundown.utils';
 import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
 
@@ -65,7 +65,7 @@ export default function Rundown({ data }: RundownProps) {
     defaultValue: [],
   });
 
-  const { addEntry, reorderEntry, deleteEntry } = useEntryActions();
+  const { addEntry, deleteEntry, move, reorderEntry } = useEntryActions();
 
   const { entryCopyId, setEntryCopyId } = useEntryCopy();
 
@@ -218,26 +218,18 @@ export default function Rundown({ data }: RundownProps) {
   );
 
   const moveEntry = useCallback(
-    (cursor: EntryId | null, direction: 'up' | 'down') => {
-      if (sortableData.length < 2 || cursor == null) {
+    async (cursor: EntryId | null, direction: 'up' | 'down') => {
+      if (cursor == null) {
         return;
       }
 
-      const { destinationId, order, isBlock } =
-        direction === 'up' ? moveUp(cursor, sortableData, entries) : moveDown(cursor, sortableData, entries);
-
-      if (!destinationId) {
-        return;
-      }
-
+      const movedIntoBlockId = await move(cursor, direction);
       // if we are moving into a block, we need to make sure it is expanded
-      if (isBlock) {
-        handleCollapseGroup(false, destinationId);
+      if (movedIntoBlockId) {
+        handleCollapseGroup(false, movedIntoBlockId);
       }
-
-      reorderEntry(cursor, destinationId, order as 'before' | 'after' | 'insert');
     },
-    [sortableData, entries, reorderEntry, handleCollapseGroup],
+    [handleCollapseGroup, move],
   );
 
   // shortcuts

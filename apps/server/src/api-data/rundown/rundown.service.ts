@@ -7,6 +7,7 @@ import {
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
+  OntimeBlock,
   OntimeEntry,
   OntimeEvent,
   PatchWithId,
@@ -35,23 +36,24 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
   }
 
   // if the user provides a parent (inside a group), we make sure it exists and it is a group
-  let parent: EntryId | null = null;
+  let parent: OntimeBlock | null = null;
   if ('parent' in eventData && eventData.parent != null) {
     const maybeParent = rundown.entries[eventData.parent];
     if (!maybeParent || !isOntimeBlock(maybeParent)) {
       throw new Error(`Invalid parent event with ID ${eventData.parent}`);
     }
-    parent = eventData.parent;
+    parent = maybeParent;
   }
 
   // normalise the position of the event in the rundown order
-  const afterId = getInsertAfterId(rundown, eventData?.after, eventData?.before);
+  const afterId = getInsertAfterId(rundown, parent, eventData?.after, eventData?.before);
 
   // generate a fully formed entry from the patch
   const newEntry = generateEvent(rundown, eventData, afterId);
 
   // make mutations to rundown
   rundownMutation.add(rundown, newEntry, afterId, parent);
+
   const { rundownMetadata, revision } = commit();
 
   // schedule the side effects

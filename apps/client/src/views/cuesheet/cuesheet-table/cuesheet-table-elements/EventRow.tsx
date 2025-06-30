@@ -1,4 +1,4 @@
-import { memo, MutableRefObject, useLayoutEffect, useRef } from 'react';
+import { MutableRefObject, useLayoutEffect, useRef } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { flexRender, Table } from '@tanstack/react-table';
 import { OntimeEntry, OntimeEvent, RGBColour } from 'ontime-types';
@@ -31,21 +31,7 @@ interface EventRowProps {
   firstAfterBlock: boolean;
 }
 
-export default memo(EventRow, (prevProps, nextProps) => {
-  return (
-    prevProps.rowId === nextProps.rowId &&
-    prevProps.event.revision === nextProps.event.revision &&
-    prevProps.eventIndex === nextProps.eventIndex &&
-    prevProps.rowIndex === nextProps.rowIndex &&
-    prevProps.isPast === nextProps.isPast &&
-    prevProps.selectedRef === nextProps.selectedRef &&
-    prevProps.rowBgColour === nextProps.rowBgColour &&
-    prevProps.parentBgColour === nextProps.parentBgColour &&
-    prevProps.columnHash === nextProps.columnHash
-  );
-});
-
-function EventRow({
+export default function EventRow({
   rowId,
   event,
   eventIndex,
@@ -87,7 +73,12 @@ function EventRow({
   return (
     <tr
       id={rowId}
-      className={cx([style.eventRow, event.skip && style.skip, firstAfterBlock && style.firstAfterBlock, Boolean(parentBgColour) && style.hasParent])}
+      className={cx([
+        style.eventRow,
+        event.skip && style.skip,
+        firstAfterBlock && style.firstAfterBlock,
+        Boolean(parentBgColour) && style.hasParent,
+      ])}
       style={{
         opacity: `${isPast ? '0.2' : '1'}`,
         '--user-bg': parentBgColour ?? 'transparent',
@@ -103,7 +94,7 @@ function EventRow({
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const yPos = 8 + rect.y + rect.height / 2;
-              openMenu({ x: rect.x, y: yPos }, event.id, rowIndex);
+              openMenu({ x: rect.x, y: yPos }, event.id, rowIndex, event.parent);
             }}
           >
             <IoEllipsisHorizontal />

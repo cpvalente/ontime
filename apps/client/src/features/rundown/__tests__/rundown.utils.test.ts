@@ -334,66 +334,199 @@ describe('makeSortableList()', () => {
   });
 });
 
+
 describe('moveUp()', () => {
-  const sortableData = ['event1', 'event2', 'block1', 'event11', 'end-block1', 'block2', 'end-block2', 'event3'];
-  const entries = {
-    event1: { type: 'event', id: 'event1', parent: null } as OntimeEvent,
-    event2: { type: 'event', id: 'event2', parent: null } as OntimeEvent,
-    block1: { type: 'block', id: 'block1', entries: ['event3'] } as OntimeBlock,
-    event11: { type: 'event', id: 'event11', parent: 'block1' } as OntimeEvent,
-    block2: { type: 'block', id: 'block2', entries: [] as EntryId[] } as OntimeBlock,
-    event3: { type: 'event', id: 'event3', parent: null } as OntimeEvent,
+  const rundown = {
+    entries: {
+      '1': { id: '1', type: 'event', parent: null } as OntimeEvent,
+      '2': { id: '2', type: 'event', parent: null } as OntimeEvent,
+      '3': { id: '3', type: 'event', parent: null } as OntimeEvent,
+      block: { id: 'block', type: 'block', entries: ['11', '12'] } as OntimeBlock,
+      '11': { id: '11', type: 'event', parent: 'block' } as OntimeEvent,
+      '12': { id: '12', type: 'event', parent: 'block' } as OntimeEvent,
+      '4': { id: '4', type: 'event', parent: null } as OntimeEvent,
+      block2: { id: 'block2', type: 'block', entries: [] as EntryId[] } as OntimeBlock,
+      '5': { id: '5', type: 'event', parent: null } as OntimeEvent,
+    },
+    order: ['1', '2', '3', 'block', '4', 'block2', '5'],
+    flatOrder: ['1', '2', '3', 'block', '11', '12', '4', 'block2', '5'],
   };
 
-  it('moves an event up in the list', () => {
-    const result = moveUp('event2', sortableData, entries);
-    expect(result).toStrictEqual({ destinationId: 'event1', order: 'before', isBlock: false });
+  it('moving the first event is a noop', () => {
+    expect(moveUp('1', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: null,
+      order: 'before',
+    });
   });
 
-  it.todo('disallows nesting blocks', () => {
-    const result = moveUp('block2', sortableData, entries);
-    expect(result).toStrictEqual({ destinationId: 'block1', order: 'before', isBlock: false });
+  it('moves an entry up in the rundown', () => {
+    expect(moveUp('2', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: '1',
+      order: 'before',
+    });
   });
 
-  it('moves an event into a block', () => {
-    const result = moveUp('event3', sortableData, entries);
-    expect(result).toStrictEqual({ destinationId: 'block2', order: 'insert', isBlock: true });
+  it('moves an entry up inside a block', () => {
+    expect(moveUp('12', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: '11',
+      order: 'before',
+    });
   });
 
-  it('moving up from top is noop', () => {
-    const result = moveUp('event1', sortableData, entries);
-    expect(result).toMatchObject({ destinationId: null });
+  it('moves an entry up into an empty group', () => {
+    expect(moveUp('5', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: 'block2',
+      order: 'insert',
+    });
+  });
+
+  it('moves an entry up into a group', () => {
+    expect(moveUp('4', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: '12',
+      order: 'after',
+    });
+  });
+
+  it('moves an entry up out of a group', () => {
+    expect(moveUp('11', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: 'block',
+      order: 'before',
+    });
+  });
+
+  it('moves a block in the rundown', () => {
+    expect(moveUp('block', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: '3',
+      order: 'before',
+    });
+  });
+
+  it('swaps two blocks', () => {
+    const rundown = {
+      entries: {
+        block: { id: 'block', type: 'block', entries: ['11'] } as OntimeBlock,
+        '11': { id: '11', type: 'event', parent: 'block' } as OntimeEvent,
+        block2: { id: 'block2', type: 'block', entries: [] as EntryId[] } as OntimeBlock,
+      },
+      order: ['block', 'block2'],
+      flatOrder: ['block', '11', 'block2'],
+    };
+    expect(moveUp('block2', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: 'block',
+      order: 'before',
+    });
+  });
+
+  it('moves before a block', () => {
+    const rundown = {
+      entries: {
+        block: { id: 'block', type: 'block', entries: ['11'] } as OntimeBlock,
+        '11': { id: '11', type: 'event', parent: 'block' } as OntimeEvent,
+      },
+      order: ['block'],
+      flatOrder: ['block', '11'],
+    };
+    expect(moveUp('11', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: 'block',
+      order: 'before',
+    });
   });
 });
 
 describe('moveDown()', () => {
-  const sortableData = ['event1', 'event2', 'block1', 'event11', 'end-block1', 'block2', 'end-block2', 'event3'];
-  const entries = {
-    event1: { type: 'event', id: 'event1', parent: null } as OntimeEvent,
-    event2: { type: 'event', id: 'event2', parent: null } as OntimeEvent,
-    block1: { type: 'block', id: 'block1', entries: ['event11'] } as OntimeBlock,
-    event11: { type: 'event', id: 'event11', parent: 'block1' } as OntimeEvent,
-    block2: { type: 'block', id: 'block2', entries: [] as EntryId[] } as OntimeBlock,
-    event3: { type: 'event', id: 'event3', parent: null } as OntimeEvent,
+  const rundown = {
+    entries: {
+      '1': { id: '1', type: 'event', parent: null } as OntimeEvent,
+      '2': { id: '2', type: 'event', parent: null } as OntimeEvent,
+      '3': { id: '3', type: 'event', parent: null } as OntimeEvent,
+      block: { id: 'block', type: 'block', entries: ['11', '12'] } as OntimeBlock,
+      '11': { id: '11', type: 'event', parent: 'block' } as OntimeEvent,
+      '12': { id: '12', type: 'event', parent: 'block' } as OntimeEvent,
+      '4': { id: '4', type: 'event', parent: null } as OntimeEvent,
+      block2: { id: 'block2', type: 'block', entries: [] as EntryId[] } as OntimeBlock,
+      '5': { id: '5', type: 'event', parent: null } as OntimeEvent,
+    },
+    order: ['1', '2', '3', 'block', '4', 'block2', '5'],
+    flatOrder: ['1', '2', '3', 'block', '11', '12', '4', 'block2', '5'],
   };
 
-  it('moves an event down in the list', () => {
-    const result = moveDown('event1', sortableData, entries);
-    expect(result).toStrictEqual({ destinationId: 'event2', order: 'after', isBlock: false });
+  it('moving the last event is a noop', () => {
+    expect(moveDown('5', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: null,
+      order: 'after',
+    });
   });
 
-  it.todo('disallows nesting blocks', () => {
-    const result = moveDown('block1', sortableData, entries);
-    expect(result).toStrictEqual({ destinationId: 'block2', order: 'before', isBlock: false });
+  it('moves an entry down in the rundown', () => {
+    expect(moveDown('2', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: '3',
+      order: 'after',
+    });
   });
 
-  it('moves an event into a block', () => {
-    const result = moveDown('event2', sortableData, entries);
-    expect(result).toStrictEqual({ destinationId: 'event11', order: 'before', isBlock: true });
+  it('moves an entry down inside a block', () => {
+    expect(moveDown('11', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: '12',
+      order: 'after',
+    });
   });
 
-  it('moving down from bottom is noop', () => {
-    const result = moveDown('event3', sortableData, entries);
-    expect(result).toMatchObject({ destinationId: null });
+  it('moves an entry down into an empty group', () => {
+    expect(moveDown('4', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: 'block2',
+      order: 'insert',
+    });
+  });
+
+  it('moves an entry down out of a group', () => {
+    expect(moveDown('12', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: '4',
+      order: 'after',
+    });
+  });
+
+  it('moves an entry down into a group', () => {
+    expect(moveDown('3', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: '11',
+      order: 'before',
+    });
+  });
+
+  it('moves a block in the rundown', () => {
+    expect(moveDown('block', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: '4',
+      order: 'after',
+    });
+  });
+
+  it('swaps two blocks', () => {
+    const rundown = {
+      entries: {
+        block: { id: 'block', type: 'block', entries: ['11'] } as OntimeBlock,
+        '11': { id: '11', type: 'event', parent: 'block' } as OntimeEvent,
+        block2: { id: 'block2', type: 'block', entries: [] as EntryId[] } as OntimeBlock,
+      },
+      order: ['block', 'block2'],
+      flatOrder: ['block', '11', 'block2'],
+    };
+    expect(moveDown('block', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: 'block2',
+      order: 'after',
+    });
+  });
+
+  it('moves after a block', () => {
+    const rundown = {
+      entries: {
+        block: { id: 'block', type: 'block', entries: ['11'] } as OntimeBlock,
+        '11': { id: '11', type: 'event', parent: 'block' } as OntimeEvent,
+      },
+      order: ['block'],
+      flatOrder: ['block', '11'],
+    };
+    expect(moveDown('11', rundown.flatOrder, rundown.entries)).toStrictEqual({
+      destinationId: 'block',
+      order: 'after',
+    });
   });
 });
