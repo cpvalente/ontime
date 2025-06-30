@@ -74,7 +74,7 @@ export const useEntryActions = () => {
    * Calls mutation to add new entry
    * @private
    */
-  const _addEntryMutation = useMutation({
+  const { mutateAsync: addEntryMutation } = useMutation({
     // TODO(v4): optimistic create entry
     mutationFn: postAddEntry,
     onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
@@ -143,13 +143,13 @@ export const useEntryActions = () => {
       }
 
       try {
-        await _addEntryMutation.mutateAsync(newEntry);
+        await addEntryMutation(newEntry);
       } catch (error) {
         logAxiosError('Failed adding event', error);
       }
     },
     [
-      _addEntryMutation,
+      addEntryMutation,
       defaultDangerTime,
       defaultDuration,
       defaultEndAction,
@@ -165,7 +165,7 @@ export const useEntryActions = () => {
    * Calls mutation to clone a selection
    * @private
    */
-  const _cloneMutation = useMutation({
+  const { mutateAsync: cloneEntryMutation } = useMutation({
     mutationFn: postCloneEntry,
     onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
   });
@@ -176,19 +176,19 @@ export const useEntryActions = () => {
   const clone = useCallback(
     async (entryId: EntryId) => {
       try {
-        await _cloneMutation.mutateAsync(entryId);
+        await cloneEntryMutation(entryId);
       } catch (error) {
         logAxiosError('Error cloning entry', error);
       }
     },
-    [_cloneMutation],
+    [cloneEntryMutation],
   );
 
   /**
    * Calls mutation to update existing entry
    * @private
    */
-  const _updateEntryMutation = useMutation({
+  const { mutateAsync: updateEntryMutation } = useMutation({
     mutationFn: putEditEntry,
     // we optimistically update here
     onMutate: async (newEvent) => {
@@ -234,12 +234,12 @@ export const useEntryActions = () => {
   const updateEntry = useCallback(
     async (event: Partial<OntimeEntry>) => {
       try {
-        await _updateEntryMutation.mutateAsync(event);
+        await updateEntryMutation(event);
       } catch (error) {
         logAxiosError('Error updating event', error);
       }
     },
-    [_updateEntryMutation],
+    [updateEntryMutation],
   );
 
   const updateCustomField = useCallback(
@@ -287,7 +287,7 @@ export const useEntryActions = () => {
       }
 
       try {
-        await _updateEntryMutation.mutateAsync(newEvent);
+        await updateEntryMutation(newEvent);
       } catch (error) {
         logAxiosError('Error updating event', error);
       }
@@ -339,14 +339,14 @@ export const useEntryActions = () => {
         return previousEnd;
       }
     },
-    [_updateEntryMutation, queryClient],
+    [updateEntryMutation, queryClient],
   );
 
   /**
    * Calls mutation to edit multiple events
    * @private
    */
-  const _batchUpdateEventsMutation = useMutation({
+  const { mutateAsync: batchUpdateEventsMutation } = useMutation({
     mutationFn: putBatchEditEvents,
     onMutate: async ({ ids, data }) => {
       // cancel ongoing queries
@@ -405,19 +405,19 @@ export const useEntryActions = () => {
   const batchUpdateEvents = useCallback(
     async (data: Partial<OntimeEvent>, eventIds: string[]) => {
       try {
-        await _batchUpdateEventsMutation.mutateAsync({ ids: eventIds, data });
+        await batchUpdateEventsMutation({ ids: eventIds, data });
       } catch (error) {
         logAxiosError('Error updating events', error);
       }
     },
-    [_batchUpdateEventsMutation],
+    [batchUpdateEventsMutation],
   );
 
   /**
    * Calls mutation to delete an entry
    * @private
    */
-  const _deleteEntryMutation = useMutation({
+  const { mutateAsync: deleteEntryMutation } = useMutation({
     mutationFn: deleteEntries,
     // we optimistically update here
     onMutate: async (entryIds: EntryId[]) => {
@@ -462,19 +462,19 @@ export const useEntryActions = () => {
   const deleteEntry = useCallback(
     async (entryIds: EntryId[]) => {
       try {
-        await _deleteEntryMutation.mutateAsync(entryIds);
+        await deleteEntryMutation(entryIds);
       } catch (error) {
         logAxiosError('Error deleting event', error);
       }
     },
-    [_deleteEntryMutation],
+    [deleteEntryMutation],
   );
 
   /**
    * Calls mutation to delete all events
    * @private
    */
-  const _deleteAllEntriesMutation = useMutation({
+  const { mutateAsync: deleteAllEntriesMutation } = useMutation({
     mutationFn: requestDeleteAll,
     // we optimistically update here
     onMutate: async () => {
@@ -514,17 +514,17 @@ export const useEntryActions = () => {
    */
   const deleteAllEntries = useCallback(async () => {
     try {
-      await _deleteAllEntriesMutation.mutateAsync();
+      await deleteAllEntriesMutation();
     } catch (error) {
       logAxiosError('Error deleting events', error);
     }
-  }, [_deleteAllEntriesMutation]);
+  }, [deleteAllEntriesMutation]);
 
   /**
    * Calls mutation to apply a delay
    * @private
    */
-  const _applyDelayMutation = useMutation({
+  const { mutateAsync: applyDelayMutation } = useMutation({
     mutationFn: requestApplyDelay,
     onSuccess: (response) => {
       if (!response.data) return;
@@ -551,19 +551,19 @@ export const useEntryActions = () => {
   const applyDelay = useCallback(
     async (delayEventId: EntryId) => {
       try {
-        await _applyDelayMutation.mutateAsync(delayEventId);
+        await applyDelayMutation(delayEventId);
       } catch (error) {
         logAxiosError('Error applying delay', error);
       }
     },
-    [_applyDelayMutation],
+    [applyDelayMutation],
   );
 
   /**
    * Calls mutation to dissolve a block
    * @private
    */
-  const _ungroupMutation = useMutation({
+  const { mutateAsync: ungroupMutation } = useMutation({
     mutationFn: requestUngroup,
     onSuccess: (response) => {
       if (!response.data) return;
@@ -587,19 +587,19 @@ export const useEntryActions = () => {
   const ungroup = useCallback(
     async (blockId: EntryId) => {
       try {
-        await _ungroupMutation.mutateAsync(blockId);
+        await ungroupMutation(blockId);
       } catch (error) {
         logAxiosError('Error dissolving block', error);
       }
     },
-    [_ungroupMutation],
+    [ungroupMutation],
   );
 
   /**
    * Calls mutation to create a block with a selection
    * @private
    */
-  const _groupEntriesMutation = useMutation({
+  const { mutateAsync: groupEntriesMutation } = useMutation({
     mutationFn: requestGroupEntries,
     onSuccess: (response) => {
       if (!response.data) return;
@@ -623,19 +623,19 @@ export const useEntryActions = () => {
   const groupEntries = useCallback(
     async (entryIds: EntryId[]) => {
       try {
-        await _groupEntriesMutation.mutateAsync(entryIds);
+        await groupEntriesMutation(entryIds);
       } catch (error) {
         logAxiosError('Error grouping entries', error);
       }
     },
-    [_groupEntriesMutation],
+    [groupEntriesMutation],
   );
 
   /**
    * Calls mutation to reorder an entry
    * @private
    */
-  const _reorderEntryMutation = useMutation({
+  const { mutateAsync: reorderEntryMutation } = useMutation({
     mutationFn: patchReorderEntry,
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
@@ -644,6 +644,40 @@ export const useEntryActions = () => {
     },
   });
 
+  /**
+   * Reorders a given entry one step up or down in the timeline
+   */
+  const move = useCallback(
+    async (entryId: EntryId, direction: 'up' | 'down') => {
+      const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+      if (!rundown) {
+        return;
+      }
+
+      const { destinationId, order } =
+        direction === 'up'
+          ? moveUp(entryId, rundown.flatOrder, rundown.entries)
+          : moveDown(entryId, rundown.flatOrder, rundown.entries);
+
+      if (!destinationId) {
+        return; // noop
+      }
+
+      try {
+        const reorderObject: ReorderEntry = {
+          entryId,
+          destinationId,
+          order,
+        };
+        await reorderEntryMutation(reorderObject);
+      } catch (error) {
+        logAxiosError('Error re-ordering event', error);
+      }
+      // the rundown needs to know whether we moved into a block
+      return rundown.entries[destinationId]?.type === 'block' ? destinationId : undefined;
+    },
+    [queryClient, reorderEntryMutation],
+  );
   /**
    * Reorders a given entry
    */
@@ -655,43 +689,19 @@ export const useEntryActions = () => {
           destinationId,
           order,
         };
-        await _reorderEntryMutation.mutateAsync(reorderObject);
+        await reorderEntryMutation(reorderObject);
       } catch (error) {
         logAxiosError('Error re-ordering event', error);
       }
     },
-    [_reorderEntryMutation],
+    [reorderEntryMutation],
   );
-
-  const move = useCallback(async (entryId: EntryId, direction: 'up' | 'down') => {
-    const cachedRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
-    if (!cachedRundown?.order) {
-      return;
-    }
-    const { destinationId, order } =
-      direction === 'up'
-        ? moveUp(entryId, cachedRundown.order, cachedRundown.entries)
-        : moveDown(entryId, cachedRundown.order, cachedRundown.entries);
-
-    if (destinationId) {
-      try {
-        const reorderObject: ReorderEntry = {
-          entryId,
-          destinationId,
-          order: order as 'before' | 'after' | 'insert',
-        };
-        await _reorderEntryMutation.mutateAsync(reorderObject);
-      } catch (error) {
-        logAxiosError('Error re-ordering event', error);
-      }
-    }
-  }, []);
 
   /**
    * Calls mutation to swap events
    * @private
    */
-  const _swapEvents = useMutation({
+  const { mutateAsync: swapEventsMutation } = useMutation({
     mutationFn: requestEventSwap,
     // we optimistically update here
     onMutate: async ({ from, to }) => {
@@ -745,12 +755,12 @@ export const useEntryActions = () => {
   const swapEvents = useCallback(
     async ({ from, to }: SwapEntry) => {
       try {
-        await _swapEvents.mutateAsync({ from, to });
+        await swapEventsMutation({ from, to });
       } catch (error) {
         logAxiosError('Error re-ordering event', error);
       }
     },
-    [_swapEvents],
+    [swapEventsMutation],
   );
 
   return {

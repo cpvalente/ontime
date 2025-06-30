@@ -699,7 +699,7 @@ describe('rundownMutation.add()', () => {
       },
     });
 
-    rundownMutation.add(rundown, mockEvent, null, '1');
+    rundownMutation.add(rundown, mockEvent, null, rundown.entries['1'] as OntimeBlock);
 
     expect(rundown.order).toStrictEqual(['1']);
     expect(rundown.flatOrder).toStrictEqual(['1', 'mock', '1a']);
@@ -717,7 +717,7 @@ describe('rundownMutation.add()', () => {
       },
     });
 
-    rundownMutation.add(rundown, mockEvent, '1a', '1');
+    rundownMutation.add(rundown, mockEvent, '1a', rundown.entries['1'] as OntimeBlock);
 
     expect(rundown.order).toStrictEqual(['1']);
     expect(rundown.flatOrder).toStrictEqual(['1', '1a', 'mock']);
@@ -1057,6 +1057,40 @@ describe('rundownMutation.reorder()', () => {
     expect(rundown.entries['22']).toMatchObject({
       parent: '2',
     });
+  });
+
+  it('moves a block (up)', () => {
+    const rundown = makeRundown({
+      order: ['1', '2'],
+      flatOrder: ['1', '11', '2', '22'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
+        '11': makeOntimeEvent({ id: '11', parent: '1' }),
+        '2': makeOntimeBlock({ id: '2', entries: ['22'] }),
+        '22': makeOntimeEvent({ id: '22', parent: '2' }),
+      },
+    });
+
+    rundownMutation.reorder(rundown, rundown.entries['2'], rundown.entries['1'], 'before');
+
+    expect(rundown.order).toStrictEqual(['2', '1']);
+  });
+
+  it('moves a block (down)', () => {
+    const rundown = makeRundown({
+      order: ['1', '2'],
+      flatOrder: ['1', '11', '2', '22'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
+        '11': makeOntimeEvent({ id: '11', parent: '1' }),
+        '2': makeOntimeBlock({ id: '2', entries: ['22'] }),
+        '22': makeOntimeEvent({ id: '22', parent: '2' }),
+      },
+    });
+
+    rundownMutation.reorder(rundown, rundown.entries['1'], rundown.entries['2'], 'after');
+
+    expect(rundown.order).toStrictEqual(['2', '1']);
   });
 });
 

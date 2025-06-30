@@ -1,4 +1,6 @@
-import { MutableRefObject, useCallback, useEffect } from 'react';
+import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
+
+import { useSelectedEventId } from './useSocket';
 
 function scrollToComponent<ComponentRef extends HTMLElement, ScrollRef extends HTMLElement>(
   componentRef: MutableRefObject<ComponentRef>,
@@ -14,6 +16,23 @@ function scrollToComponent<ComponentRef extends HTMLElement, ScrollRef extends H
   const top = componentRect.top - scrollRect.top + scrollRef.current.scrollTop - topOffset;
 
   scrollRef.current.scrollTo({ top, behavior: 'smooth' });
+}
+
+function snapToComponent<ComponentRef extends HTMLElement, ScrollRef extends HTMLElement>(
+  componentRef: MutableRefObject<ComponentRef>,
+  scrollRef: MutableRefObject<ScrollRef>,
+  topOffset: number,
+) {
+  if (!componentRef.current || !scrollRef.current) {
+    return;
+  }
+
+  const componentRect = componentRef.current.getBoundingClientRect();
+  const scrollRect = scrollRef.current.getBoundingClientRect();
+  const top = componentRect.top - scrollRect.top + scrollRef.current.scrollTop - topOffset;
+
+  // maintain current x scroll position
+  scrollRef.current.scrollTo(scrollRef.current.scrollLeft, top);
 }
 
 interface UseFollowComponentProps {
@@ -61,4 +80,33 @@ export default function useFollowComponent(props: UseFollowComponentProps) {
   );
 
   return scrollToRefComponent;
+}
+
+export function useFollowSelected(doFollow: boolean, topOffset = 100) {
+  const selectedEvenId = useSelectedEventId();
+
+  const selectedRef = useRef<HTMLTableRowElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!doFollow) {
+      return;
+    }
+
+    if (selectedEvenId && selectedRef.current && scrollRef.current) {
+      // Use requestAnimationFrame to ensure the component is fully loaded
+      window.requestAnimationFrame(() => {
+        snapToComponent(
+          { current: selectedRef.current } as MutableRefObject<HTMLElement>,
+          { current: scrollRef.current } as MutableRefObject<HTMLElement>,
+          topOffset,
+        );
+      });
+    }
+  }, [doFollow, selectedEvenId, topOffset]);
+
+  return {
+    selectedRef,
+    scrollRef,
+  };
 }
