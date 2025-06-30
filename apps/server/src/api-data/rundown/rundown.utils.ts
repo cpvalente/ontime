@@ -108,8 +108,30 @@ export function createBlockPatch(originalBlock: OntimeBlock, patchBlock: Partial
     return originalBlock;
   }
 
+  const maybeTargetDuration = () => {
+    if (typeof patchBlock.targetDuration === 'number') {
+      return patchBlock.targetDuration;
+    }
+    if (patchBlock.targetDuration === null || patchBlock.targetDuration === '') {
+      return null;
+    }
+    return originalBlock.targetDuration;
+  };
+
   return {
-    ...originalBlock,
+    id: originalBlock.id,
+    type: SupportedEntry.Block,
+    title: makeString(patchBlock.title, originalBlock.title),
+    note: makeString(patchBlock.note, originalBlock.note),
+    entries: patchBlock.entries ?? originalBlock.entries,
+    isNextDay: typeof patchBlock.isNextDay === 'boolean' ? patchBlock.isNextDay : originalBlock.isNextDay,
+    targetDuration: maybeTargetDuration(),
+    colour: makeString(patchBlock.colour, originalBlock.colour),
+    revision: originalBlock.revision,
+    timeStart: originalBlock.timeStart,
+    timeEnd: originalBlock.timeEnd,
+    duration: originalBlock.duration,
+    isFirstLinked: originalBlock.isFirstLinked,
     custom: { ...originalBlock.custom, ...patchBlock.custom },
   };
 }

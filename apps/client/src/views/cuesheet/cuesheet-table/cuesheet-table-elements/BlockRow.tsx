@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { flexRender, Table } from '@tanstack/react-table';
-import { OntimeEntry } from 'ontime-types';
+import { EntryId, OntimeEntry } from 'ontime-types';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { useCurrentBlockId } from '../../../../common/hooks/useSocket';
@@ -12,20 +12,21 @@ import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMen
 import style from './BlockRow.module.scss';
 
 interface BlockRowProps {
+  blockId: EntryId;
   colour: string;
   hidePast: boolean;
   rowId: string;
+  rowIndex: number;
   table: Table<OntimeEntry>;
 }
 
 //export default memo(BlockRow);
 
-export default function BlockRow({ colour, hidePast, rowId, table }: BlockRowProps) {
+export default function BlockRow({ blockId, colour, hidePast, rowId, rowIndex, table }: BlockRowProps) {
   const { currentBlockId } = useCurrentBlockId();
 
   const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
   const showActionMenu = usePersistedCuesheetOptions((state) => state.showActionMenu);
-  // TODO: maybe we need a block menu as well?
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
   if (hidePast && !currentBlockId) {
@@ -45,8 +46,7 @@ export default function BlockRow({ colour, hidePast, rowId, table }: BlockRowPro
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const yPos = 8 + rect.y + rect.height / 2;
-              // TODO: solve index
-              openMenu({ x: rect.x, y: yPos }, currentBlockId!, 1);
+              openMenu({ x: rect.x, y: yPos }, blockId, rowIndex);
             }}
           >
             <IoEllipsisHorizontal />

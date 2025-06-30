@@ -74,11 +74,12 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
           return (
             <BlockRow
               key={key}
+              blockId={entry.id}
               colour={entry.colour}
               hidePast={isPast && hidePast}
               rowId={row.id}
+              rowIndex={row.index}
               table={table}
-              title={entry.title}
             />
           );
         }

@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { MaybeString, OntimeEntry, TimeField } from 'ontime-types';
+import { OntimeEntry, TimeField } from 'ontime-types';
 
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import useFollowComponent from '../../../common/hooks/useFollowComponent';
@@ -18,14 +18,15 @@ import style from './CuesheetTable.module.scss';
 interface CuesheetTableProps {
   data: OntimeEntry[];
   columns: ColumnDef<OntimeEntry>[];
-  showModal: (eventId: MaybeString) => void;
 }
 
-export default function CuesheetTable({ data, columns, showModal }: CuesheetTableProps) {
+export default function CuesheetTable({ data, columns }: CuesheetTableProps) {
   const { updateEntry, updateTimer } = useEntryActions();
   const followPlayback = usePersistedCuesheetOptions((state) => state.followPlayback);
   const showDelayedTimes = usePersistedCuesheetOptions((state) => state.showDelayedTimes);
   const hideTableSeconds = usePersistedCuesheetOptions((state) => state.hideTableSeconds);
+
+
   const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
     useColumnManager(columns);
 
@@ -112,7 +113,7 @@ export default function CuesheetTable({ data, columns, showModal }: CuesheetTabl
           <CuesheetBody rowModel={rowModel} selectedRef={selectedRef} table={table} />
         </table>
       </div>
-      <CuesheetTableMenu showModal={showModal} />
+      <CuesheetTableMenu />
     </>
   );
 }
