@@ -189,18 +189,17 @@ export function createTransaction(options: TransactionOptions): Transaction {
  * - 2a. add entry to the rundown, after a given entry
  * - 2b. add entry to the rundown, at the beginning
  */
-function add(rundown: Rundown, entry: OntimeEntry, afterId: EntryId | null, parentId: EntryId | null): OntimeEntry {
-  if (parentId) {
+function add(rundown: Rundown, entry: OntimeEntry, afterId: EntryId | null, parent: OntimeBlock | null): OntimeEntry {
+  if (parent) {
     // 1. inserting an entry inside a block
-    const parentBlock = rundown.entries[parentId] as OntimeBlock;
     if (afterId) {
-      const atEventsIndex = parentBlock.entries.indexOf(afterId) + 1;
+      const atEventsIndex = parent.entries.indexOf(afterId) + 1;
       const atFlatIndex = rundown.flatOrder.indexOf(afterId) + 1;
-      parentBlock.entries = insertAtIndex(atEventsIndex, entry.id, parentBlock.entries);
+      parent.entries = insertAtIndex(atEventsIndex, entry.id, parent.entries);
       rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
     } else {
-      parentBlock.entries = insertAtIndex(0, entry.id, parentBlock.entries);
-      const atFlatIndex = rundown.flatOrder.indexOf(parentId) + 1;
+      parent.entries = insertAtIndex(0, entry.id, parent.entries);
+      const atFlatIndex = rundown.flatOrder.indexOf(parent.id) + 1;
       rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
     }
   } else {
@@ -469,7 +468,8 @@ function clone(rundown: Rundown, entry: OntimeEntry): OntimeEntry {
 
     return newBlock;
   } else {
-    return add(rundown, cloneEntry(entry, getUniqueId(rundown)), entry.id, entry.parent);
+    const parent: OntimeBlock | null = entry.parent ? (rundown.entries[entry.parent] as OntimeBlock) : null;
+    return add(rundown, cloneEntry(entry, getUniqueId(rundown)), entry.id, parent);
   }
 }
 

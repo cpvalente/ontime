@@ -1,4 +1,4 @@
-import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getHotkeyHandler, HotkeyItem } from '@mantine/hooks';
 
 interface UseReactiveTextInputReturn {
@@ -21,6 +21,8 @@ export default function useReactiveTextInput(
   },
 ): UseReactiveTextInputReturn {
   const [text, setText] = useState<string>(initialText);
+  // track whether we are submitting via a submit key (eg enter) and avoid submitting again on blur
+  const isKeyboardSubmitting = useRef(false);
 
   useEffect(() => {
     if (typeof initialText === 'undefined') {
@@ -99,11 +101,25 @@ export default function useReactiveTextInput(
     ];
 
     if (options?.submitOnEnter) {
-      hotKeys.push(['Enter', () => handleSubmit(text)]);
+      hotKeys.push(['Enter', () => {
+        isKeyboardSubmitting.current = true;
+        handleSubmit(text);
+        // clear flag after blur has been processed
+        setTimeout(() => {
+          isKeyboardSubmitting.current = false;
+        }, 0);
+      }]);
     }
 
     if (options?.submitOnCtrlEnter) {
-      hotKeys.push(['mod + Enter', () => handleSubmit(text)]);
+      hotKeys.push(['mod + Enter', () => {
+        isKeyboardSubmitting.current = true;
+        handleSubmit(text);
+        // clear flag after blur has been processed
+        setTimeout(() => {
+          isKeyboardSubmitting.current = false;
+        }, 0);
+      }]);
     }
 
     const hotKeyHandler = getHotkeyHandler(hotKeys);
@@ -126,7 +142,11 @@ export default function useReactiveTextInput(
   return {
     value: text,
     onChange: (event: ChangeEvent) => handleChange((event.target as HTMLInputElement).value),
-    onBlur: (event: ChangeEvent) => handleSubmit((event.target as HTMLInputElement).value),
+    onBlur: (event: ChangeEvent) => {
+      if (!isKeyboardSubmitting.current) {
+        handleSubmit((event.target as HTMLInputElement).value);
+      }
+    },
     onKeyDown: keyHandler,
   };
 }

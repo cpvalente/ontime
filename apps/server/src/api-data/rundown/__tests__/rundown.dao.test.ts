@@ -699,7 +699,7 @@ describe('rundownMutation.add()', () => {
       },
     });
 
-    rundownMutation.add(rundown, mockEvent, null, '1');
+    rundownMutation.add(rundown, mockEvent, null, rundown.entries['1'] as OntimeBlock);
 
     expect(rundown.order).toStrictEqual(['1']);
     expect(rundown.flatOrder).toStrictEqual(['1', 'mock', '1a']);
@@ -717,7 +717,7 @@ describe('rundownMutation.add()', () => {
       },
     });
 
-    rundownMutation.add(rundown, mockEvent, '1a', '1');
+    rundownMutation.add(rundown, mockEvent, '1a', rundown.entries['1'] as OntimeBlock);
 
     expect(rundown.order).toStrictEqual(['1']);
     expect(rundown.flatOrder).toStrictEqual(['1', '1a', 'mock']);
