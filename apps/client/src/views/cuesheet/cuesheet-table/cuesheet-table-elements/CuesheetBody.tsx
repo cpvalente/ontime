@@ -106,7 +106,6 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
           const isSelected = key === selectedEventId;
           const columnHash = getColumnHash();
 
-
           if (isPast && hidePast) {
             return null;
           }
@@ -129,14 +128,13 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
           let firstAfterBlock = false;
           if (entry.parent) {
             const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
-            const parentEntry = rundown?.entries[entry.parent];
-            parentBgColour = (parentEntry as OntimeBlock).colour;
+            const parentEntry = rundown?.entries[entry.parent] as OntimeBlock | undefined;
+            parentBgColour = parentEntry?.colour;
             hadBlock = true;
           } else if (hadBlock) {
             firstAfterBlock = true;
             hadBlock = false;
           }
-          
 
           return (
             <EventRow

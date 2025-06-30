@@ -1,10 +1,17 @@
-import { TimeStrategy, EndAction, TimerType, OntimeEvent } from 'ontime-types';
+import { TimeStrategy, EndAction, TimerType, OntimeEvent, OntimeBlock } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { assertType } from 'vitest';
 
-import { calculateDayOffset, createEvent, deleteById, doesInvalidateMetadata, getInsertAfterId, hasChanges } from '../rundown.utils.js';
-import { makeRundown } from '../__mocks__/rundown.mocks.js';
+import {
+  calculateDayOffset,
+  createEvent,
+  deleteById,
+  doesInvalidateMetadata,
+  getInsertAfterId,
+  hasChanges,
+} from '../rundown.utils.js';
+import { makeOntimeBlock, makeOntimeEvent, makeRundown } from '../__mocks__/rundown.mocks.js';
 
 describe('test event validator', () => {
   it('validates a good object', () => {
@@ -217,22 +224,39 @@ describe('calculateDayOffset()', () => {
 
 describe('getInsertAfterId()', () => {
   const rundown = makeRundown({
-    flatOrder: ['a', 'b', 'c', 'd'],
+    entries: {
+      '1': makeOntimeEvent({ id: '1', parent: null }),
+      '2': makeOntimeEvent({ id: '2', parent: null }),
+      block: makeOntimeBlock({ id: 'block', entries: ['31', '32'] }),
+      '31': makeOntimeEvent({ id: '31', parent: 'block' }),
+      '32': makeOntimeEvent({ id: '32', parent: 'block' }),
+      '4': makeOntimeEvent({ id: '31', parent: null }),
+    },
+    order: ['1', '2', 'block', '4'],
+    flatOrder: ['1', '2', 'block', '31', '32', '4'],
   });
 
   it('returns afterId if provided', () => {
-    expect(getInsertAfterId(rundown, 'b')).toBe('b');
+    expect(getInsertAfterId(rundown, null, 'b')).toBe('b');
   });
 
-  it('returns the previous id before beforeId if provided', () => {
-    expect(getInsertAfterId(rundown, undefined, 'c')).toBe('b');
+  it('returns null if neither afterId nor beforeId is provided', () => {
+    expect(getInsertAfterId(rundown, null)).toBeNull();
   });
 
-  it('returns undefined if neither afterId nor beforeId is provided', () => {
-    expect(getInsertAfterId(rundown)).toBeNull();
+  it('returns null if beforeId is not found', () => {
+    expect(getInsertAfterId(rundown, null, undefined, 'z')).toBeNull();
+    expect(getInsertAfterId(rundown, null, undefined, '1')).toBeNull();
   });
 
-  it('returns undefined if beforeId is not found', () => {
-    expect(getInsertAfterId(rundown, undefined, 'z')).toBeNull();
+  it('returns the previous id of an entry in the rundown', () => {
+    expect(getInsertAfterId(rundown, null, undefined, '2')).toBe('1');
+    expect(getInsertAfterId(rundown, null, undefined, '4')).toBe('block');
+    expect(getInsertAfterId(rundown, null, undefined, 'block')).toBe('2');
+  });
+
+  it('returns the previous id of an event in a block', () => {
+    expect(getInsertAfterId(rundown, rundown.entries.block as OntimeBlock, undefined, '31')).toBeNull();
+    expect(getInsertAfterId(rundown, rundown.entries.block as OntimeBlock, undefined, '32')).toBe('31');
   });
 });

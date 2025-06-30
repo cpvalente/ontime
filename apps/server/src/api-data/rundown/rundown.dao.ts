@@ -189,18 +189,17 @@ export function createTransaction(options: TransactionOptions): Transaction {
  * - 2a. add entry to the rundown, after a given entry
  * - 2b. add entry to the rundown, at the beginning
  */
-function add(rundown: Rundown, entry: OntimeEntry, afterId: EntryId | null, parentId: EntryId | null): OntimeEntry {
-  if (parentId) {
+function add(rundown: Rundown, entry: OntimeEntry, afterId: EntryId | null, parent: OntimeBlock | null): OntimeEntry {
+  if (parent) {
     // 1. inserting an entry inside a block
-    const parentBlock = rundown.entries[parentId] as OntimeBlock;
     if (afterId) {
-      const atEventsIndex = parentBlock.entries.indexOf(afterId) + 1;
+      const atEventsIndex = parent.entries.indexOf(afterId) + 1;
       const atFlatIndex = rundown.flatOrder.indexOf(afterId) + 1;
-      parentBlock.entries = insertAtIndex(atEventsIndex, entry.id, parentBlock.entries);
+      parent.entries = insertAtIndex(atEventsIndex, entry.id, parent.entries);
       rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
     } else {
-      parentBlock.entries = insertAtIndex(0, entry.id, parentBlock.entries);
-      const atFlatIndex = rundown.flatOrder.indexOf(parentId) + 1;
+      parent.entries = insertAtIndex(0, entry.id, parent.entries);
+      const atFlatIndex = rundown.flatOrder.indexOf(parent.id) + 1;
       rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
     }
   } else {
@@ -282,6 +281,8 @@ function removeAll(rundown: Rundown): Rundown {
 /**
  * Reorders an entry in the rundown
  * Handle moving across order lists
+ * @param order - 'before' | 'after' | 'insert' - where to add the entry, insert serves to add the entry into an empty block
+ * @throws if we insert a block inside another
  */
 function reorder(rundown: Rundown, eventFrom: OntimeEntry, eventTo: OntimeEntry, order: 'before' | 'after' | 'insert') {
   // handle moving across parents
@@ -289,6 +290,10 @@ function reorder(rundown: Rundown, eventFrom: OntimeEntry, eventTo: OntimeEntry,
   const toParent = (() => {
     if (isOntimeBlock(eventTo)) {
       if (order === 'insert') {
+        // prevent blocks from being inserted into other blocks
+        if (isOntimeBlock(eventFrom)) {
+          throw new Error('Cannot insert a block into another block');
+        }
         return eventTo.id;
       }
       return null;
@@ -296,7 +301,8 @@ function reorder(rundown: Rundown, eventFrom: OntimeEntry, eventTo: OntimeEntry,
     return eventTo.parent ?? null;
   })();
 
-  if (!isOntimeBlock(eventFrom)) {
+  // always update the parent when moving entries
+  if ('parent' in eventFrom) {
     eventFrom.parent = toParent;
   }
 
@@ -469,7 +475,8 @@ function clone(rundown: Rundown, entry: OntimeEntry): OntimeEntry {
 
     return newBlock;
   } else {
-    return add(rundown, cloneEntry(entry, getUniqueId(rundown)), entry.id, entry.parent);
+    const parent: OntimeBlock | null = entry.parent ? (rundown.entries[entry.parent] as OntimeBlock) : null;
+    return add(rundown, cloneEntry(entry, getUniqueId(rundown)), entry.id, parent);
   }
 }
 

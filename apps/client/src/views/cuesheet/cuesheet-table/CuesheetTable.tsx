@@ -1,10 +1,10 @@
-import { memo, useCallback, useMemo, useRef } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { OntimeEntry, TimeField } from 'ontime-types';
 
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
-import useFollowComponent from '../../../common/hooks/useFollowComponent';
+import { useFollowSelected } from '../../../common/hooks/useFollowComponent';
 import { usePersistedCuesheetOptions } from '../cuesheet.options';
 
 import CuesheetBody from './cuesheet-table-elements/CuesheetBody';
@@ -26,9 +26,7 @@ export default function CuesheetTable({ data, columns }: CuesheetTableProps) {
   const showDelayedTimes = usePersistedCuesheetOptions((state) => state.showDelayedTimes);
   const hideTableSeconds = usePersistedCuesheetOptions((state) => state.hideTableSeconds);
 
-  const selectedRef = useRef<HTMLTableRowElement | null>(null);
-  const tableContainerRef = useRef<HTMLDivElement | null>(null);
-  useFollowComponent({ followRef: selectedRef, scrollRef: tableContainerRef, doFollow: followPlayback });
+  const { selectedRef, scrollRef } = useFollowSelected(followPlayback);
 
   const { listeners } = useTableNav();
 
@@ -106,12 +104,13 @@ export default function CuesheetTable({ data, columns }: CuesheetTableProps) {
     const headers = table.getFlatHeaders();
     const colSizes: { [key: string]: number } = {};
     for (let i = 0; i < headers.length; i++) {
-      const header = headers[i]!;
+      const header = headers[i];
+      if (!header) continue;
       colSizes[`--header-${header.id}-size`] = header.getSize();
       colSizes[`--col-${header.column.id}-size`] = header.column.getSize();
     }
     return colSizes;
-  }, [table.getState().columnSizingInfo, table.getState().columnSizing]);
+  }, [table]);
 
   return (
     <>
@@ -121,7 +120,7 @@ export default function CuesheetTable({ data, columns }: CuesheetTableProps) {
         handleResetReordering={resetColumnOrder}
         handleClearToggles={setAllVisible}
       />
-      <div ref={tableContainerRef} className={style.cuesheetContainer}>
+      <div className={style.cuesheetContainer} ref={scrollRef}>
         <table className={style.cuesheet} id='cuesheet' style={{ ...columnSizeVars }} {...listeners}>
           <CuesheetHeader headerGroups={headerGroups} />
           {table.getState().columnSizingInfo.isResizingColumn ? (
