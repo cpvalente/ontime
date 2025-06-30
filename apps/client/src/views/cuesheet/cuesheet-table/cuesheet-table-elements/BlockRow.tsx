@@ -63,7 +63,7 @@ export default function BlockRow({ blockId, colour, hidePast, rowId, rowIndex, t
               key={cell.id}
               tabIndex={-1}
               style={{
-                width: cell.column.getSize(),
+                width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
               }}
               role='cell'
             >

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { memo, useCallback, useMemo, useRef } from 'react';
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { OntimeEntry, TimeField } from 'ontime-types';
@@ -25,10 +25,6 @@ export default function CuesheetTable({ data, columns }: CuesheetTableProps) {
   const followPlayback = usePersistedCuesheetOptions((state) => state.followPlayback);
   const showDelayedTimes = usePersistedCuesheetOptions((state) => state.showDelayedTimes);
   const hideTableSeconds = usePersistedCuesheetOptions((state) => state.hideTableSeconds);
-
-
-  const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
-    useColumnManager(columns);
 
   const selectedRef = useRef<HTMLTableRowElement | null>(null);
   const tableContainerRef = useRef<HTMLDivElement | null>(null);
@@ -72,6 +68,9 @@ export default function CuesheetTable({ data, columns }: CuesheetTableProps) {
     [data, hideTableSeconds, showDelayedTimes, updateEntry, updateTimer],
   );
 
+  const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
+    useColumnManager(columns);
+
   const table = useReactTable({
     data,
     columns,
@@ -99,6 +98,21 @@ export default function CuesheetTable({ data, columns }: CuesheetTableProps) {
   const rowModel = table.getRowModel();
   const allLeafColumns = table.getAllLeafColumns();
 
+  /**
+   * To improve performance on resizing, we memoise the column sizes
+   * and pass them as CSS variables to the table container.
+   */
+  const columnSizeVars = useMemo(() => {
+    const headers = table.getFlatHeaders();
+    const colSizes: { [key: string]: number } = {};
+    for (let i = 0; i < headers.length; i++) {
+      const header = headers[i]!;
+      colSizes[`--header-${header.id}-size`] = header.getSize();
+      colSizes[`--col-${header.column.id}-size`] = header.column.getSize();
+    }
+    return colSizes;
+  }, [table.getState().columnSizingInfo, table.getState().columnSizing]);
+
   return (
     <>
       <CuesheetTableSettings
@@ -108,12 +122,24 @@ export default function CuesheetTable({ data, columns }: CuesheetTableProps) {
         handleClearToggles={setAllVisible}
       />
       <div ref={tableContainerRef} className={style.cuesheetContainer}>
-        <table className={style.cuesheet} id='cuesheet' {...listeners}>
+        <table className={style.cuesheet} id='cuesheet' style={{ ...columnSizeVars }} {...listeners}>
           <CuesheetHeader headerGroups={headerGroups} />
-          <CuesheetBody rowModel={rowModel} selectedRef={selectedRef} table={table} />
+          {table.getState().columnSizingInfo.isResizingColumn ? (
+            <MemoisedBody rowModel={rowModel} selectedRef={selectedRef} table={table} />
+          ) : (
+            <CuesheetBody rowModel={rowModel} selectedRef={selectedRef} table={table} />
+          )}
         </table>
       </div>
       <CuesheetTableMenu />
     </>
   );
 }
+
+/**
+ * While dragging, we avoid re-rendering the body by render
+ */
+const MemoisedBody = memo(
+  CuesheetBody,
+  (prev, next) => prev.table.options.data === next.table.options.data,
+) as typeof CuesheetBody;

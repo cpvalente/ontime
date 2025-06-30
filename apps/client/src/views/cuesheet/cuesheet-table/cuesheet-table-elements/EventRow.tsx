@@ -122,7 +122,7 @@ function EventRow({
                 <td
                   key={cell.id}
                   style={{
-                    width: cell.column.getSize(),
+                    width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
                     backgroundColor: rowBgColour,
                   }}
                   tabIndex={-1}

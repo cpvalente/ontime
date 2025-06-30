@@ -32,7 +32,6 @@ export default function CuesheetHeader({ headerGroups }: CuesheetHeaderProps) {
             )}
             <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
               {headerGroup.headers.map((header) => {
-                const width = header.getSize();
                 // @ts-expect-error -- we inject this into react-table
                 const customBackground = header.column.columnDef?.meta?.colour;
 
@@ -43,7 +42,11 @@ export default function CuesheetHeader({ headerGroups }: CuesheetHeaderProps) {
                 }
 
                 return (
-                  <SortableCell key={header.column.columnDef.id} header={header} style={{ width, ...customStyles }}>
+                  <SortableCell
+                    key={header.column.columnDef.id}
+                    header={header}
+                    style={{ width: `calc(var(--header-${header?.id}-size) * 1px)`, ...customStyles }}
+                  >
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </SortableCell>
                 );
