@@ -6,12 +6,11 @@
   padding-block: 0.5rem 1rem;
 
   display: grid;
-  grid-template-rows: 3rem auto auto 1fr;
+  grid-template-rows: 3.5rem auto auto 1fr;
   grid-template-areas:
           'overview'
           'progress'
           'settings'
           'table';
-  gap: 1rem;
   color: $ui-white;
 }

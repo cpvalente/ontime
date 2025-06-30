@@ -8,7 +8,7 @@ $table-header-font-size: calc(1rem - 2px);
   width: 100%;
   height: 100%;
   overflow: auto;
-  padding-bottom: 640px; // allow focus to reach last elements
+  padding-bottom: 70vh; // allow focus to reach last elements
 }
 
 .cuesheet {
@@ -26,7 +26,7 @@ $table-header-font-size: calc(1rem - 2px);
     font-size: inherit;
     text-align: left;
     position: relative;
-    @include ellipsis-overflow;
+    padding: 0.25rem;
   }
 
   th:focus,
@@ -36,30 +36,39 @@ $table-header-font-size: calc(1rem - 2px);
 }
 
 .tableHeader,
-.eventRow {
+.eventRow,
+.blockRow {
   .actionColumn {
-    width: calc(2rem + 0.5rem); // sm button size (--chakra-sizes-8) + 2 * padding
+    padding-inline: 0.5rem;
     background-color: transparent;
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    line-height: 2rem; // match input height
   }
 
   .indexColumn {
     display: flex;
-    align-items: center;
+    align-items: start;
     justify-content: end;
 
     min-width: 3em; // allow for 3-digit numbers
     font-size: $table-header-font-size;
+    line-height: 2rem; // match input height
     background-color: $gray-1300; // will be overridden inline
   }
 }
 
 .tableHeader {
+  .actionColumn {
+    background-color: $gray-1250;
+    width: calc(1.5rem + 1rem); // button + padding
+  }
   position: sticky;
   top: 0px;
   z-index: $zindex-floating;
   background-color: $ui-black;
   font-size: $table-header-font-size;
-  color: $label-gray;
 }
 
 th {
@@ -71,53 +80,9 @@ th {
       width: 0.5rem;
     }
   }
-}
 
-.eventRow {
-  vertical-align: top;
-
-  &:hover {
-    outline: 1px solid $blue-700;
-    outline-offset: -1px;
-  }
-
-  td {
-    background-color: $gray-1250;
-    border-radius: 2px;
-    padding: 0.25rem;
-  }
-
-  &.skip {
-    text-decoration: line-through;
-    opacity: $opacity-disabled !important; // fighting inline styles
-  }
-}
-
-.blockRow {
-  width: 100%;
-  background-color: $gray-1350;
-  font-size: 1rem;
-  height: 2.5rem;
-
-  td {
-    align-self: flex-end;
-    position: sticky;
-    left: 1rem;
-    padding: 0.25rem 0;
-  }
-}
-
-.delayRow {
-  width: 100%;
-  color: $ontime-delay-text;
-
-  td {
-    position: sticky;
-    left: 47.5%; // center of the screen, ish
-    padding: 0.5rem 0;
-    &:first-letter {
-      text-transform: uppercase;
-    }
+  &:first-of-type {
+    margin-left: 5px; // border + 1px margin
   }
 }
 

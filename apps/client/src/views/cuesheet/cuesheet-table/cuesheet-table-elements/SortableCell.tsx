@@ -34,6 +34,7 @@ export function SortableCell({ header, style, children }: SortableCellProps) {
       </div>
       <div
         {...{
+          onDoubleClick: () => header.column.resetSize(),
           onMouseDown: header.getResizeHandler(),
           onTouchStart: header.getResizeHandler(),
         }}

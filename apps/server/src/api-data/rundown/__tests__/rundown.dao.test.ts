@@ -585,8 +585,8 @@ describe('processRundown()', () => {
         '1': {
           type: SupportedEntry.Block,
           entries: ['100', '200', '300'],
-          startTime: 100,
-          endTime: 400,
+          timeStart: 100,
+          timeEnd: 400,
           duration: 300,
           isFirstLinked: false,
         },
@@ -625,8 +625,8 @@ describe('processRundown()', () => {
         '1': {
           type: SupportedEntry.Block,
           entries: ['101', '102', '103'],
-          startTime: 100,
-          endTime: 400,
+          timeStart: 100,
+          timeEnd: 400,
           duration: 300,
           isFirstLinked: false,
         },
@@ -636,8 +636,8 @@ describe('processRundown()', () => {
         '2': {
           type: SupportedEntry.Block,
           entries: ['201', '202', '203'],
-          startTime: 500,
-          endTime: 800,
+          timeStart: 500,
+          timeEnd: 800,
           duration: 300,
           isFirstLinked: false,
         },
@@ -647,8 +647,8 @@ describe('processRundown()', () => {
         '3': {
           type: SupportedEntry.Block,
           entries: ['301', '302', '303'],
-          startTime: 900,
-          endTime: 1200,
+          timeStart: 900,
+          timeEnd: 1200,
           duration: 300,
           isFirstLinked: false,
         },

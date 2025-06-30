@@ -19,10 +19,10 @@ import {
 import { isObjectEmpty, generateId, getLinkedTimes, getTimeFrom, isNewLatest } from 'ontime-utils';
 
 import { defaultRundown } from '../../models/dataModel.js';
-import { delay as delayDef, block as blockDef } from '../../models/eventsDefinition.js';
+import { delay as delayDef } from '../../models/eventsDefinition.js';
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
 
-import { calculateDayOffset, createEvent } from './rundown.utils.js';
+import { calculateDayOffset, cleanupCustomFields, createBlock, createEvent } from './rundown.utils.js';
 import { RundownMetadata } from './rundown.types.js';
 
 /**
@@ -104,14 +104,7 @@ export function parseRundown(
         continue;
       }
 
-      // for every field in custom, check that a key exists in customfields
-      for (const field in newEvent.custom) {
-        if (!Object.hasOwn(parsedCustomFields, field)) {
-          emitError?.(`Custom field ${field} not found`);
-          delete newEvent.custom[field];
-        }
-      }
-
+      cleanupCustomFields(newEvent.custom, parsedCustomFields);
       eventIndex += 1;
     } else if (isOntimeDelay(event)) {
       newEvent = { ...delayDef, duration: event.duration, id };
@@ -128,14 +121,7 @@ export function parseRundown(
             continue;
           }
 
-          // for every field in custom, check that a key exists in customfields
-          for (const field in newNestedEvent.custom) {
-            if (!Object.hasOwn(parsedCustomFields, field)) {
-              emitError?.(`Custom field ${field} not found`);
-              delete newNestedEvent.custom[field];
-            }
-          }
-
+          cleanupCustomFields(newNestedEvent.custom, parsedCustomFields);
           eventIndex += 1;
 
           if (newNestedEvent) {
@@ -145,16 +131,13 @@ export function parseRundown(
         }
       }
 
-      newEvent = {
-        ...blockDef,
-        title: event.title,
-        note: event.note,
-        entries: event.entries?.filter((eventId) => Object.hasOwn(rundown.entries, eventId)) ?? [],
-        isNextDay: event.isNextDay,
-        colour: event.colour,
-        custom: { ...event.custom },
-        id,
-      };
+      newEvent = createBlock({ ...structuredClone(event), id });
+      // ensure entries exist
+      if (event.entries?.length > 0) {
+        newEvent.entries = event.entries.filter((eventId) => Object.hasOwn(rundown.entries, eventId));
+      }
+      // ensure custom fields are valid
+      cleanupCustomFields(newEvent.custom, parsedCustomFields);
     } else {
       emitError?.('Unknown event type, skipping');
       continue;

@@ -51,8 +51,8 @@ export const block: Omit<OntimeBlock, 'id'> = {
   custom: {},
   // !==== RUNTIME METADATA ====! //
   revision: 0, // calculated at runtime
-  startTime: null, // calculated at runtime
-  endTime: null, // calculated at runtime
+  timeStart: null, // calculated at runtime
+  timeEnd: null, // calculated at runtime
   duration: 0, // calculated at runtime
   isFirstLinked: false, // calculated at runtime
 };

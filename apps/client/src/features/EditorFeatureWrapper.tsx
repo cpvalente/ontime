@@ -2,7 +2,7 @@ import { PropsWithChildren } from 'react';
 
 import ProtectRoute from '../common/components/protect-route/ProtectRoute';
 
-import style from './FeatureWrapper.module.scss';
+import style from './EditorFeatureWrapper.module.scss';
 
 export default function EditorFeatureWrapper({ children }: PropsWithChildren) {
   return (

@@ -1,13 +1,13 @@
 .tableSettings {
+  margin-top: 1rem;
   grid-area: settings;
-  padding-inline: 0.5rem;
+  background-color: $gray-1250;
+  padding: 0.5rem 1rem;
   display: flex;
-  gap: 5rem;
+  align-items: center;
+  justify-content: space-between;
   font-size: $inner-section-text-size;
-
-  @media (max-width: $small-screen) {
-    gap: 1rem;
-  }
+  border-radius: 3px 3px 0 0;
 }
 
 .sectionTitle {
@@ -26,4 +26,17 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-self: start;
+}
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }

@@ -3,10 +3,6 @@
   display: flex;
   flex-direction: column;
   overflow-x: auto;
-
-  &.inModal {
-    max-height: 80vh;
-  }
 }
 
 .content {

@@ -132,11 +132,11 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
         <div className={style.metaRow}>
           <div className={style.metaEntry}>
             <div>Start</div>
-            <div>{formatTime(data.startTime)}</div>
+            <div>{formatTime(data.timeStart)}</div>
           </div>
           <div className={style.metaEntry}>
             <div>End</div>
-            <div>{formatTime(data.endTime)}</div>
+            <div>{formatTime(data.timeEnd)}</div>
           </div>
           <div className={style.metaEntry}>
             <div>Duration</div>

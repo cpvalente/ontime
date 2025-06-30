@@ -79,3 +79,22 @@
     border-color: $gray-1250;
   }
 }
+
+.ghosted {
+  background: transparent;
+  color: $ui-white;
+
+  &:hover:not(:disabled):not(:active) {
+    background: $gray-1000;
+    color: $ui-white;
+  }
+
+  &:active:not(:disabled) {
+    background: $gray-1100;
+    border-color: $gray-1250;
+  }
+
+  &:disabled {
+    opacity: $opacity-disabled;
+  }
+}

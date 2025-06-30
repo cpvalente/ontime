@@ -1,0 +1,34 @@
+@import "../CuesheetTable.module.scss";
+
+.eventRow {
+  vertical-align: top;
+  border-left: 4px solid var(--user-bg, $gray-1050);
+
+  &:hover {
+    outline: 1px solid $blue-700;
+    outline-offset: -1px;
+  }
+
+  td {
+    background-color: $gray-1200;
+    border-radius: 2px;
+  }
+
+  &.skip {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.03),
+        rgba(255, 255, 255, 0.03) 10px,
+        rgba(255, 255, 255, 0.08) 10px,
+        rgba(255, 255, 255, 0.08) 20px
+      );
+    }
+  }
+}

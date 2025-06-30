@@ -11,6 +11,8 @@
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
 
+  overflow: hidden;
+
   &.delayed {
     color: $ontime-delay-text;
   }
