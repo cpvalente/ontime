@@ -73,7 +73,6 @@ function SecondarySourceControl() {
     <>
       <Select
         value={value}
-        placeholder='Secondary source'
         options={[
           { value: 'aux1', label: 'Aux 1' },
           { value: 'aux2', label: 'Aux 2' },

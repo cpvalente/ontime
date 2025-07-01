@@ -70,14 +70,12 @@ function EventTriggerForm({ eventId, triggers }: EventTriggerFormProps) {
     <div className={style.triggerForm}>
       <Select
         value={cycleValue}
-        placeholder='Choose a trigger'
         onChange={(value) => setCycleValue(value)}
         options={eventTriggerOptions.map((cycle) => ({ value: cycle, label: cycle }))}
       />
 
       <Select
         value={automationId}
-        placeholder='Choose an automation'
         onChange={(value) => setAutomationId(value)}
         options={Object.values(automationSettings.automations).map(({ id, title }) => ({ value: id, label: title }))}
       />
