@@ -11,7 +11,6 @@ interface SelectProps<T extends string | null = string> {
     label: string;
     disabled?: boolean; // exposed to allow creating a non-selectable option
   }[];
-  placeholder?: string;
   value?: T;
   onChange?: (value: NonNullable<T>) => void;
 }
@@ -19,14 +18,13 @@ interface SelectProps<T extends string | null = string> {
 export default function Select<T extends string | null = string>({
   defaultValue,
   options,
-  placeholder,
   value,
   onChange,
 }: SelectProps<T>) {
   return (
-    <BaseSelect.Root defaultValue={defaultValue} onValueChange={onChange} value={value}>
+    <BaseSelect.Root items={options} defaultValue={defaultValue} onValueChange={onChange} value={value}>
       <BaseSelect.Trigger className={styles.select}>
-        <BaseSelect.Value placeholder={placeholder} />
+        <BaseSelect.Value />
         <BaseSelect.Icon className={styles.selectIcon}>
           <LuChevronsUpDown />
         </BaseSelect.Icon>
