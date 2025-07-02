@@ -12,6 +12,7 @@ import {
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EndAction, EntryId, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { isPlaybackActive } from 'ontime-utils';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
@@ -248,6 +249,8 @@ export default function RundownEvent({
     setSelectedEvents({ id: eventId, index, selectMode: editMode });
   };
 
+  const isPlaying = playback ? isPlaybackActive(playback) : false;
+
   return (
     <div
       className={blockClasses}
@@ -255,7 +258,8 @@ export default function RundownEvent({
       style={dragStyle}
       onClick={handleFocusClick}
       onContextMenu={onContextMenu}
-      id='event-block'
+      data-testid='rundown-event'
+      {...(isPlaying ? { 'data-running': true } : {})}
     >
       <RundownIndicators timeStart={timeStart} delay={delay} gap={gap} isNextDay={isNextDay} />
 

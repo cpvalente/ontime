@@ -105,6 +105,7 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
         ...(binderColours ? { '--user-bg': binderColours.backgroundColor } : {}),
         ...dragStyle,
       }}
+      data-testid='rundown-block'
     >
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
         <span

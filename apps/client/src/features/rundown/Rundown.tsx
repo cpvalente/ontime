@@ -247,13 +247,25 @@ export default function Rundown({ data }: RundownProps) {
 
     ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
 
-    ['alt + E', () => insertAtId({ type: SupportedEntry.Event }, cursor), { preventDefault: true }],
+    [
+      'alt + E',
+      () => insertAtId({ type: SupportedEntry.Event }, cursor),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
     ['alt + shift + E', () => insertAtId({ type: SupportedEntry.Event }, cursor, true), { preventDefault: true }],
 
-    ['alt + B', () => insertAtId({ type: SupportedEntry.Block }, cursor), { preventDefault: true }],
+    [
+      'alt + B',
+      () => insertAtId({ type: SupportedEntry.Block }, cursor),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
     ['alt + shift + B', () => insertAtId({ type: SupportedEntry.Block }, cursor, true), { preventDefault: true }],
 
-    ['alt + D', () => insertAtId({ type: SupportedEntry.Delay }, cursor), { preventDefault: true }],
+    [
+      'alt + D',
+      () => insertAtId({ type: SupportedEntry.Delay }, cursor),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
     ['alt + shift + D', () => insertAtId({ type: SupportedEntry.Delay }, cursor, true), { preventDefault: true }],
 
     ['mod + C', () => setEntryCopyId(cursor)],

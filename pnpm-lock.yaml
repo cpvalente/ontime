@@ -114,8 +114,8 @@ importers:
         specifier: ^5.0.28
         version: 5.2.6
       '@mantine/hooks':
-        specifier: ^7.17.2
-        version: 7.17.8(react@18.3.1)
+        specifier: ^8.1.2
+        version: 8.1.2(react@18.3.1)
       '@sentry/react':
         specifier: ^8.43.0
         version: 8.55.0(react@18.3.1)
@@ -1315,8 +1315,8 @@ packages:
     resolution: {integrity: sha512-9QOtNffcOF/c1seMCDnjckb3R9WHcG34tky+FHpNKKCW0wc/scYLwMtO+ptyGUfMW0/b/n4qRiALlaFHc9Oj7Q==}
     engines: {node: '>= 10.0.0'}
 
-  '@mantine/hooks@7.17.8':
-    resolution: {integrity: sha512-96qygbkTjRhdkzd5HDU8fMziemN/h758/EwrFu7TlWrEP10Vw076u+Ap/sG6OT4RGPZYYoHrTlT+mkCZblWHuw==}
+  '@mantine/hooks@8.1.2':
+    resolution: {integrity: sha512-BrriTsiazqZ2fLuL7UDasNTQJSaoJ7mN2qYVkdsiYI158lxJdUaFWHhd6BDyzK+W6thvBx2D+R/hh1rsWWefdQ==}
     peerDependencies:
       react: ^18.x || ^19.x
 
@@ -6455,7 +6455,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mantine/hooks@7.17.8(react@18.3.1)':
+  '@mantine/hooks@8.1.2(react@18.3.1)':
     dependencies:
       react: 18.3.1
 
