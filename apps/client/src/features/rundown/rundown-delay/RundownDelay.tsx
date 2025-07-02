@@ -58,7 +58,7 @@ export default function RundownDelay({ data, hasCursor }: RundownDelayProps) {
   const blockClasses = cx([style.delay, hasCursor ? style.hasCursor : null]);
 
   return (
-    <div className={blockClasses} ref={setNodeRef} style={dragStyle}>
+    <div className={blockClasses} ref={setNodeRef} style={dragStyle} data-testid='rundown-delay'>
       <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
         <IoReorderTwo />
       </span>

@@ -13,7 +13,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@fontsource/open-sans": "^5.0.28",
-    "@mantine/hooks": "^7.17.2",
+    "@mantine/hooks": "^8.1.2",
     "@sentry/react": "^8.43.0",
     "@table-nav/react": "^0.0.7",
     "@tanstack/react-query": "^5.62.7",

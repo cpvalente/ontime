@@ -14,14 +14,19 @@ test('Rearrange while playing', async ({ page }) => {
 
   // start event 2
   await page.getByTestId('entry-2').getByRole('button', { name: 'Start event' }).click();
-  await expect(page.getByTestId('entry-2').locator('#event-block')).toHaveCSS('background-color', 'rgb(8, 122, 39)');
+  await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toHaveAttribute('data-running');
 
   // move event 2 up
-  await page.getByTestId('entry-2').locator('#event-block').getByText('2').click();
-  await page.getByTestId('entry-2').locator('#event-block div').filter({ hasText: '2' }).press('Alt+Control+ArrowUp');
+  await page.getByTestId('entry-2').getByTestId('rundown-event').locator('div').filter({ hasText: '2' }).click();
+  await page
+    .getByTestId('entry-2')
+    .getByTestId('rundown-event')
+    .locator('div')
+    .filter({ hasText: '2' })
+    .press('Alt+Control+ArrowUp');
 
   // event CUE1 should new be entry 2
-  await expect(page.getByTestId('entry-2').locator('#event-block')).toContainText('1');
+  await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('1');
   // but entry 1 should be the one playing (it will be unlinked as it will be the first event)
-  await expect(page.getByTestId('entry-1').locator('#event-block')).toHaveCSS('background-color', 'rgb(8, 122, 39)');
+  await expect(page.getByTestId('entry-1').getByTestId('rundown-event')).toHaveAttribute('data-running');
 });
