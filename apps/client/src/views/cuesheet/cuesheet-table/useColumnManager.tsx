@@ -1,7 +1,13 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { ColumnDef } from '@tanstack/react-table';
 import { OntimeEntry } from 'ontime-types';
+
+import { debounce } from '../../../common/utils/debounce';
+
+const saveSizesToStorage = debounce((sizes: Record<string, number>) => {
+  localStorage.setItem('table-sizes', JSON.stringify(sizes));
+}, 500);
 
 export default function useColumnManager(columns: ColumnDef<OntimeEntry>[]) {
   const [columnVisibility, setColumnVisibility] = useLocalStorage({ key: 'table-hidden', defaultValue: {} });
@@ -9,23 +15,29 @@ export default function useColumnManager(columns: ColumnDef<OntimeEntry>[]) {
     key: 'table-order',
     defaultValue: columns.map((col) => col.id as string),
   });
-  const [columnSizing, setColumnSizing] = useLocalStorage({ key: 'table-sizes', defaultValue: {} });
 
-  // if the columns order changes, we update the dataset
+  const [columnSizing, setColumnSizingState] = useState(() => {
+    try {
+      const stored = localStorage.getItem('table-sizes');
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // save sizes to localStorage whenever they change (debounced)
   useEffect(() => {
-    let shouldReplace = false;
-    const newColumns: string[] = [];
+    saveSizesToStorage(columnSizing);
+  }, [columnSizing]);
 
-    // iterate through columns to see if there are new ids
-    columns.forEach((column) => {
-      const columnnId = column.id as string;
-      if (!shouldReplace && !columnOrder.includes(columnnId)) {
-        shouldReplace = true;
-      }
-      newColumns.push(columnnId);
-    });
+  const setColumnSizing = useCallback((sizes: typeof columnSizing) => {
+    setColumnSizingState(sizes);
+  }, []);
 
-    if (shouldReplace) {
+  // update column order if columns change
+  useEffect(() => {
+    const newColumns = columns.map((col) => col.id as string);
+    if (newColumns.some((id) => !columnOrder.includes(id))) {
       saveColumnOrder(newColumns);
     }
   }, [columnOrder, columns, saveColumnOrder]);
