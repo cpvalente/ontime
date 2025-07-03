@@ -5,6 +5,7 @@ import QuickStart from '../../quick-start/QuickStart';
 import type { SettingsOptionId } from '../../useAppSettingsMenu';
 
 import ManageProjects from './ManageProjects';
+import ManageRundowns from './ManageRundowns';
 import ProjectData from './ProjectData';
 
 interface ProjectPanelProps extends PanelBaseProps {
@@ -13,7 +14,8 @@ interface ProjectPanelProps extends PanelBaseProps {
 
 export default function ProjectPanel({ location, setLocation }: ProjectPanelProps) {
   const projectRef = useScrollIntoView<HTMLDivElement>('data', location);
-  const manageRef = useScrollIntoView<HTMLDivElement>('manage', location);
+  const manageRundownsRef = useScrollIntoView<HTMLDivElement>('rundowns', location);
+  const manageProjectsRef = useScrollIntoView<HTMLDivElement>('list', location);
 
   const handleQuickClose = () => {
     setLocation('project');
@@ -26,7 +28,10 @@ export default function ProjectPanel({ location, setLocation }: ProjectPanelProp
       <div ref={projectRef}>
         <ProjectData />
       </div>
-      <div ref={manageRef}>
+      <div ref={manageRundownsRef}>
+        <ManageRundowns />
+      </div>
+      <div ref={manageProjectsRef}>
         <ManageProjects />
       </div>
     </>

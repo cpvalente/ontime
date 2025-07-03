@@ -17,7 +17,8 @@ const staticOptions = [
     secondary: [
       { id: 'project__create', label: 'Create...' },
       { id: 'project__data', label: 'Project data' },
-      { id: 'project__manage', label: 'Manage projects' },
+      { id: 'project__rundowns', label: 'Manage rundowns' },
+      { id: 'project__list', label: 'Manage projects' },
     ],
   },
   {
