@@ -12,3 +12,8 @@
   color: $label-gray;
   user-select: text;
 }
+
+.copiableLink {
+  user-select: text;
+  color: $ui-white;
+}

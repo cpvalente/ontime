@@ -3,7 +3,6 @@
   top: 50%;
   left: 50%;
 
-  z-index: $zindex-dialog;
   transform: translate(-50%, -50%);
 
   padding-inline: 1rem;
@@ -14,7 +13,7 @@
   color: $ui-white;
   border-radius: 3px;
   box-shadow: $box-shadow-l1;
-  border: 1px solid $gray-1200;
+  border: 1px solid $gray-1100;
 }
 
 .backdrop {

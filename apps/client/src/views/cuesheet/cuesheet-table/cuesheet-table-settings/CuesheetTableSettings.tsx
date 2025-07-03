@@ -7,9 +7,10 @@ import { OntimeEntry } from 'ontime-types';
 import Button from '../../../../common/components/buttons/Button';
 import Checkbox from '../../../../common/components/checkbox/Checkbox';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
-import RotatedLink from '../../../../common/components/icons/RotatedLink';
 import PopoverContents from '../../../../common/components/popover/Popover';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
+
+import CuesheetShareModal from './CuesheetShareModal';
 
 import style from './CuesheetTableSettings.module.scss';
 
@@ -41,13 +42,8 @@ function CuesheetTableSettings({
 
       <div className={style.inline}>
         <ViewSettingsFollowButton />
-
         <Editor.Separator orientation='vertical' />
-
-        <Button variant='subtle'>
-          <RotatedLink />
-          Share...
-        </Button>
+        <CuesheetShareModal />
       </div>
     </div>
   );

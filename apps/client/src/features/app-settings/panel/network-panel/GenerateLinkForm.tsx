@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import QRCode from 'react-qr-code';
 
@@ -8,8 +8,6 @@ import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
 import Select from '../../../../common/components/select/Select';
 import Switch from '../../../../common/components/switch/Switch';
-import useInfo from '../../../../common/hooks-query/useInfo';
-import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import copyToClipboard from '../../../../common/utils/copyToClipboard';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { linkToOtherHost } from '../../../../common/utils/linkUtils';
@@ -17,6 +15,12 @@ import { currentHostName, isOntimeCloud, serverURL } from '../../../../externals
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './GenerateLinkForm.module.scss';
+
+interface GenerateLinkFormProps {
+  hostOptions: { value: string; label: string }[];
+  pathOptions: { value: string; label: string }[];
+  isLockedToView?: boolean;
+}
 
 interface GenerateLinkFormOptions {
   baseUrl: string;
@@ -27,9 +31,7 @@ interface GenerateLinkFormOptions {
 
 type GenerateLinkState = 'pending' | 'loading' | 'success' | 'error';
 
-export default function GenerateLinkForm() {
-  const { data: infoData } = useInfo();
-  const { data: urlPresetData } = useUrlPresets();
+export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToView }: GenerateLinkFormProps) {
   const [formState, setFormState] = useState<GenerateLinkState>('pending');
   const [url, setUrl] = useState(serverURL);
 
@@ -43,7 +45,7 @@ export default function GenerateLinkForm() {
     mode: 'onChange',
     defaultValues: {
       baseUrl: currentHostName,
-      path: 'timer',
+      path: isLockedToView ? pathOptions[0].value : 'timer',
       lock: false,
       authenticate: false,
     },
@@ -70,37 +72,20 @@ export default function GenerateLinkForm() {
     }
   };
 
-  const hostOptions = useMemo(
-    () =>
-      infoData.networkInterfaces.map((nif) => ({
-        value: nif.address,
-        label: `${nif.name} - ${nif.address}`,
-      })),
-    [infoData.networkInterfaces],
-  );
-
-  const pathOptions = useMemo(
-    () => [
-      { value: 'timer', label: 'Timer' },
-      { value: 'cuesheet', label: 'Cuesheet' },
-      { value: 'op', label: 'Operator' },
-      { value: '', label: 'Companion' },
-      ...urlPresetData.map((preset) => ({
-        value: preset.alias,
-        label: `Preset: ${preset.alias}`,
-      })),
-    ],
-    [urlPresetData],
-  );
-
   return (
     <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} onKeyDown={(event) => preventEscape(event)}>
       {errors.root && <Panel.Error>{errors.root.message}</Panel.Error>}
-      <Info>
-        <Panel.Paragraph>
-          You can generate a link to share with your team or to use in automation (such as companion).
-        </Panel.Paragraph>
-      </Info>
+      {!isLockedToView ? (
+        <Info>
+          <Panel.Paragraph>
+            You can generate a link to share with your team or to use in automation (such as companion).
+          </Panel.Paragraph>
+        </Info>
+      ) : (
+        <Info>
+          <Panel.Paragraph>You can generate a link to share with your team</Panel.Paragraph>
+        </Info>
+      )}
       <Panel.ListGroup>
         <Panel.ListItem>
           <Panel.Field
@@ -114,13 +99,15 @@ export default function GenerateLinkForm() {
             onValueChange={(value) => setValue('baseUrl', value)}
           />
         </Panel.ListItem>
-        <Panel.ListItem>
-          <Panel.Field
-            title='URL Preset'
-            description='Which preset will the link point to (will default to /timer if none is given)'
-          />
-          <Select options={pathOptions} value={watch('path')} onValueChange={(value) => setValue('path', value)} />
-        </Panel.ListItem>
+        {isLockedToView ? (
+          <input type='hidden' value={watch('path')} />
+        ) : (
+          <Panel.ListItem>
+            <Panel.Field title='Ontime view' description='Which view or preset will the link point to' />
+            <Select options={pathOptions} value={watch('path')} onValueChange={(value) => setValue('path', value)} />
+          </Panel.ListItem>
+        )}
+
         <Panel.ListItem>
           <Panel.Field
             title='Lock navigation'
@@ -145,7 +132,7 @@ export default function GenerateLinkForm() {
           </Button>
           <div className={style.column}>
             <QRCode size={172} value={url} className={style.qrCode} />
-            <div>{url}</div>
+            <div className={style.copiableLink}>{url}</div>
           </div>
         </Panel.ListItem>
       </Panel.ListGroup>

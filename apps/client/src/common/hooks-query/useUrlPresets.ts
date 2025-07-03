@@ -4,7 +4,11 @@ import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { URL_PRESETS } from '../api/constants';
 import { getUrlPresets } from '../api/urlPresets';
 
-export default function useUrlPresets() {
+interface FetchProps {
+  skip?: boolean;
+}
+
+export default function useUrlPresets({ skip = false }: FetchProps = {}) {
   const { data, status, isError, refetch } = useQuery({
     queryKey: URL_PRESETS,
     queryFn: getUrlPresets,
@@ -13,6 +17,7 @@ export default function useUrlPresets() {
     retryDelay: (attempt) => attempt * 2500,
     refetchInterval: queryRefetchIntervalSlow,
     networkMode: 'always',
+    enabled: !skip,
   });
 
   return { data: data ?? [], status, isError, refetch };

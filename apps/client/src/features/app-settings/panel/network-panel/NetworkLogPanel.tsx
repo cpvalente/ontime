@@ -9,7 +9,7 @@ import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import ClientControlPanel from '../client-control-panel/ClientControlPanel';
 
-import GenerateLinkForm from './GenerateLinkForm';
+import GenerateLinkFormExport from './GenerateLinkFormExport';
 import InfoNif from './NetworkInterfaces';
 import LogExport from './NetworkLogExport';
 
@@ -37,7 +37,7 @@ export default function NetworkLogPanel({ location }: PanelBaseProps) {
                 <InfoNif />
               </>
             )}
-            <GenerateLinkForm />
+            <GenerateLinkFormExport />
           </Panel.Card>
         </Panel.Section>
       </div>
