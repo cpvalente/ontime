@@ -8,6 +8,7 @@ export const AUTOMATION = ['automation'];
 export const CUSTOM_FIELDS = ['customFields'];
 export const PROJECT_DATA = ['project'];
 export const PROJECT_LIST = ['projectList'];
+export const PROJECT_RUNDOWNS = ['projectRundowns'];
 export const RUNDOWN = ['rundown'];
 export const RUNTIME = ['runtimeStore'];
 export const URL_PRESETS = ['urlpresets'];

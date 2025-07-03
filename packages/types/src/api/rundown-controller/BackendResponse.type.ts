@@ -12,9 +12,14 @@ export type TransientEventPayload = Partial<OntimeEntry> & {
   before?: string;
 };
 
-export type ProjectRundownsList = {
+export type ProjectRundown = {
   id: string;
   title: string;
   numEntries: number;
   revision: number;
-}[];
+};
+
+export type ProjectRundownsList = {
+  loaded: string;
+  rundowns: ProjectRundown[];
+};

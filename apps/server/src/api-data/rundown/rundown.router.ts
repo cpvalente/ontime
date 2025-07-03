@@ -37,7 +37,17 @@ router.get('/', async (_req: Request, res: Response<ProjectRundownsList>) => {
   const rundown = getCurrentRundown();
 
   // TODO: we currently make a project with only the current rundown
-  res.json([{ id: rundown.id, title: rundown.title, numEntries: rundown.order.length, revision: rundown.revision }]);
+  res.json({
+    loaded: rundown.id,
+    rundowns: [
+      {
+        id: rundown.id,
+        title: rundown.title,
+        numEntries: rundown.order.length,
+        revision: rundown.revision,
+      },
+    ],
+  });
 });
 
 /**
