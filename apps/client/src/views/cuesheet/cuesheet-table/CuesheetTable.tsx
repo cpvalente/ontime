@@ -110,7 +110,9 @@ export default function CuesheetTable({ data, columns }: CuesheetTableProps) {
       colSizes[`--col-${header.column.id}-size`] = header.column.getSize();
     }
     return colSizes;
-  }, [table]);
+    // eslint-disable-next-line react-compiler/react-compiler -- unfortunately this is what we need
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- this works well and follows documentation
+  }, [table.getState().columnSizingInfo, table.getState().columnSizing]);
 
   return (
     <>
