@@ -1,4 +1,4 @@
-import { MutableRefObject, useLayoutEffect, useRef } from 'react';
+import { MutableRefObject, useEffect, useRef } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { flexRender, Table } from '@tanstack/react-table';
 import { OntimeEntry, OntimeEvent, RGBColour } from 'ontime-types';
@@ -9,6 +9,7 @@ import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
 
+import { observeRow, unobserveRow } from './rowObserver';
 import { useVisibleRowsStore } from './visibleRowsStore';
 
 import style from './EventRow.module.scss';
@@ -27,7 +28,6 @@ interface EventRowProps {
   table: Table<OntimeEntry>;
   /** hack to force re-rendering of the row when the column sizes change */
   columnHash: string;
-  observer: IntersectionObserver;
   firstAfterBlock: boolean;
 }
 
@@ -41,7 +41,6 @@ export default function EventRow({
   rowBgColour,
   parentBgColour,
   table,
-  observer,
   firstAfterBlock,
 }: EventRowProps) {
   const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
@@ -52,19 +51,20 @@ export default function EventRow({
 
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
-  // store a reference of the row in the observer
-  useLayoutEffect(() => {
-    const handleRefCurrent = ownRef.current;
-    if (handleRefCurrent) {
-      observer.observe(handleRefCurrent);
+  // register this row with the intersection observer
+  useEffect(() => {
+    const element = ownRef.current;
+    if (element) {
+      element.id = rowId;
+      observeRow(element);
     }
 
     return () => {
-      if (handleRefCurrent) {
-        observer.unobserve(handleRefCurrent);
+      if (element) {
+        unobserveRow(element);
       }
     };
-  }, [observer]);
+  }, [rowId]);
 
   const { color, backgroundColor } = getAccessibleColour(event.colour);
   const tmpColour = cssOrHexToColour(color) as RGBColour; // we know this to be a correct colour

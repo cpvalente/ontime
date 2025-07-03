@@ -1,4 +1,4 @@
-import { RefObject, useMemo } from 'react';
+import { RefObject, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { RowModel, Table } from '@tanstack/react-table';
 import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeBlock, OntimeEntry, Rundown } from 'ontime-types';
@@ -13,7 +13,7 @@ import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 import BlockRow from './BlockRow';
 import DelayRow from './DelayRow';
 import EventRow from './EventRow';
-import { useVisibleRowsStore } from './visibleRowsStore';
+import { cleanup } from './rowObserver';
 
 interface CuesheetBodyProps {
   rowModel: RowModel<OntimeEntry>;
@@ -26,25 +26,6 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
   const { selectedEventId } = useSelectedEventId();
   const hidePast = usePersistedCuesheetOptions((state) => state.hidePast);
   const hideDelays = usePersistedCuesheetOptions((state) => state.hideDelays);
-
-  const { addVisibleRow, removeVisibleRow } = useVisibleRowsStore();
-
-  const observer = useMemo(
-    () =>
-      new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            if (entry.isIntersecting) {
-              addVisibleRow(entry.target.id);
-            } else {
-              removeVisibleRow(entry.target.id);
-            }
-          }
-        },
-        { rootMargin: '400px' },
-      ),
-    [addVisibleRow, removeVisibleRow],
-  );
 
   const getVisibleColumns = lazyEvaluate(() => table.getVisibleFlatColumns());
   const getColumnHash = lazyEvaluate(() => {
@@ -61,6 +42,14 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
   // for the first event, it will be past if there is something selected
   let isPast = Boolean(selectedEventId);
   let hadBlock = false;
+
+  // remove the observer when the table unmounts
+  useEffect(() => {
+    return () => {
+      cleanup();
+    };
+  }, []);
+
   return (
     <tbody>
       {rowModel.rows.map((row, index) => {
@@ -150,7 +139,6 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
               table={table}
               firstAfterBlock={firstAfterBlock}
               columnHash={columnHash}
-              observer={observer}
             />
           );
         }
