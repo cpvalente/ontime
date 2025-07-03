@@ -50,9 +50,7 @@ function EditableImage({ initialValue, updateValue }: EditableImageProps) {
   return (
     <div className={style.imageCell}>
       <div className={style.overlay}>
-        <Button variant='subtle-white' onClick={openInNewTab}>
-          Preview
-        </Button>
+        <Button onClick={openInNewTab}>Preview</Button>
         <Button variant='subtle-destructive' onClick={() => handleUpdate('')}>
           Delete
         </Button>

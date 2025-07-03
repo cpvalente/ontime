@@ -61,14 +61,6 @@ function SecondarySourceControl() {
     }
   };
 
-  const changeValue = (newValue: SecondarySource) => {
-    // we can only update the remote if it is enabled
-    if (secondarySource !== null) {
-      setMessage.timerSecondarySource(newValue);
-    }
-    setValue(newValue);
-  };
-
   return (
     <>
       <Select
@@ -79,7 +71,13 @@ function SecondarySourceControl() {
           { value: 'aux3', label: 'Aux 3' },
           { value: 'secondary', label: 'Secondary message' },
         ]}
-        onChange={changeValue}
+        onValueChange={(value) => {
+          // we can only update the remote if it is enabled
+          if (secondarySource !== null) {
+            setMessage.timerSecondarySource(value as SecondarySource);
+          }
+          setValue(value as SecondarySource);
+        }}
       />
       <Button
         variant={secondarySource !== null ? 'primary' : 'subtle'}

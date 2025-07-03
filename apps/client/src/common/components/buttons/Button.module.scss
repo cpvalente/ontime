@@ -2,6 +2,7 @@
 @import './BaseButtonStyles.module.scss';
 
 .baseButton {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -24,6 +25,36 @@
   &:focus-visible {
     outline: 2px solid $blue-500;
     outline-offset: 2px;
+  }
+
+  &.loading {
+    cursor: wait;
+    .content {
+      opacity: 0;
+    }
+  }
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: inherit;
+}
+
+.loadingOverlay {
+  position: absolute;
+  display: grid;
+  place-content: center;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  stroke-dasharray: 8;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
   }
 }
 

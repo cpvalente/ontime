@@ -82,6 +82,25 @@
 
 .ghosted {
   background: transparent;
+  color: $blue-500;
+
+  &:hover:not(:disabled):not(:active) {
+    background: $gray-1000;
+    color: $blue-500;
+  }
+
+  &:active:not(:disabled) {
+    background: $gray-1100;
+    border-color: $gray-1250;
+  }
+
+  &:disabled {
+    opacity: $opacity-disabled;
+  }
+}
+
+.ghosted-white {
+  background: transparent;
   color: $ui-white;
 
   &:hover:not(:disabled):not(:active) {

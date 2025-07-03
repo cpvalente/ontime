@@ -1,12 +1,14 @@
 import { ChangeEvent, useEffect, useRef } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoDownloadOutline, IoTrash } from 'react-icons/io5';
-import { Button, Input, Textarea } from '@chakra-ui/react';
 import { type ProjectData } from 'ontime-types';
 
 import { projectLogoPath } from '../../../../common/api/constants';
 import { postProjectData, uploadProjectLogo } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
+import Input from '../../../../common/components/input/input/Input';
+import Textarea from '../../../../common/components/input/textarea/Textarea';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { validateLogo } from '../../../../common/utils/uploadUtils';
@@ -112,16 +114,10 @@ export default function ProjectData() {
         <Panel.SubHeader>
           Project data
           <Panel.InlineElements>
-            <Button variant='ontime-ghosted' size='sm' onClick={onReset} isDisabled={isSubmitting || !isDirty}>
+            <Button onClick={onReset} disabled={isSubmitting || !isDirty}>
               Revert to saved
             </Button>
-            <Button
-              variant='ontime-filled'
-              size='sm'
-              type='submit'
-              isDisabled={!isDirty || !isValid}
-              isLoading={isSubmitting}
-            >
+            <Button variant='primary' type='submit' disabled={!isDirty || !isValid} loading={isSubmitting}>
               Save
             </Button>
           </Panel.InlineElements>
@@ -132,20 +128,16 @@ export default function ProjectData() {
           <label>
             Project title
             <Input
-              variant='ontime-filled'
-              size='sm'
+              fluid
               maxLength={50}
               placeholder='Project title is shown in production views'
-              autoComplete='off'
               {...register('title')}
             />
           </label>
           <Panel.Section style={{ marginTop: 0 }}>
             <label>
               Project logo
-              <Input
-                variant='ontime-filled'
-                size='sm'
+              <input
                 type='file'
                 style={{ display: 'none' }}
                 accept='image/*'
@@ -161,25 +153,17 @@ export default function ProjectData() {
                   <>
                     <img src={`${projectLogoPath}/${watch('projectLogo')}`} />
                     <Button
-                      size='sm'
-                      variant='ontime-filled'
-                      isDisabled={isSubmitting || !watch('projectLogo')}
-                      leftIcon={<IoTrash />}
+                      variant='subtle-destructive'
+                      disabled={isSubmitting || !watch('projectLogo')}
                       onClick={handleDeleteLogo}
-                      type='button'
                     >
+                      <IoTrash />
                       Delete
                     </Button>
                   </>
                 ) : (
-                  <Button
-                    variant='ontime-filled'
-                    size='sm'
-                    isDisabled={isSubmitting}
-                    leftIcon={<IoDownloadOutline />}
-                    onClick={handleClickUpload}
-                    type='button'
-                  >
+                  <Button disabled={isSubmitting} onClick={handleClickUpload} type='button'>
+                    <IoDownloadOutline />
                     Upload logo
                   </Button>
                 )}
@@ -187,44 +171,30 @@ export default function ProjectData() {
               </Panel.Card>
             </label>
           </Panel.Section>
+
           <label>
             Project description
-            <Input
-              variant='ontime-filled'
-              size='sm'
-              maxLength={100}
-              placeholder='Euro Love, Malmö 2024'
-              autoComplete='off'
-              {...register('description')}
-            />
+            <Input fluid maxLength={100} placeholder='Euro Love, Malmö 2024' {...register('description')} />
           </label>
           <label>
             Backstage info
             <Textarea
-              variant='ontime-filled'
-              size='sm'
+              fluid
               maxLength={150}
               placeholder='Wi-Fi password: 1234'
-              autoComplete='off'
-              resize='none'
+              resize='vertical'
               {...register('backstageInfo')}
             />
           </label>
           <label>
             Backstage QR code URL
-            <Input
-              variant='ontime-filled'
-              size='sm'
-              placeholder={documentationUrl}
-              autoComplete='off'
-              {...register('backstageUrl')}
-            />
+            <Input fluid placeholder={documentationUrl} {...register('backstageUrl')} />
           </label>
           <Panel.Section style={{ marginTop: 0 }}>
             <Panel.ListItem>
               <Panel.Field title='Custom data' description='' />
-              <Button leftIcon={<IoAdd />} size='sm' variant='ontime-subtle' onClick={handleAddCustom}>
-                Add
+              <Button onClick={handleAddCustom}>
+                Add <IoAdd />
               </Button>
             </Panel.ListItem>
             {fields.length > 0 &&
@@ -237,41 +207,31 @@ export default function ProjectData() {
                   | undefined;
                 return (
                   <div key={field.id} className={style.customDataItem}>
-                    <div>
-                      <div className={style.titleRow}>
-                        <label>
-                          Title
-                          <Input
-                            variant='ontime-filled'
-                            size='sm'
-                            defaultValue={field.title}
-                            placeholder='Title of your custom data'
-                            autoComplete='off'
-                            {...register(`custom.${idx}.title`, {
-                              required: { value: true, message: 'Field cannot be empty' },
-                            })}
-                          />
-                        </label>
-                        <Button
-                          size='sm'
-                          variant='ontime-subtle'
-                          color='#FA5656' // $red-500
-                          onClick={() => remove(idx)}
-                          leftIcon={<IoTrash />}
-                        >
-                          Delete Entry
-                        </Button>
-                      </div>
-                      {rowErrors?.title?.message && <Panel.Error>{rowErrors.title.message}</Panel.Error>}
+                    <div className={style.titleRow}>
+                      <label>
+                        Title
+                        <Input
+                          fluid
+                          defaultValue={field.title}
+                          placeholder='Title of your custom data'
+                          {...register(`custom.${idx}.title`, {
+                            required: { value: true, message: 'Field cannot be empty' },
+                          })}
+                        />
+                      </label>
+                      <Button variant='subtle-destructive' onClick={() => remove(idx)}>
+                        <IoTrash />
+                        Delete Entry
+                      </Button>
                     </div>
+                    {rowErrors?.title?.message && <Panel.Error>{rowErrors.title.message}</Panel.Error>}
                     <label>
                       Value
                       <Textarea
-                        variant='ontime-filled'
-                        resize='none'
-                        size='sm'
+                        fluid
+                        rows={3}
+                        resize='vertical'
                         defaultValue={field.value}
-                        autoComplete='off'
                         placeholder='Text of your custom data'
                         {...register(`custom.${idx}.value`, {
                           required: { value: true, message: 'Field cannot be empty' },

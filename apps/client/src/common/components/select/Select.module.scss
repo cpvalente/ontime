@@ -17,11 +17,11 @@
   font-size: calc(1rem - 2px);
   white-space: nowrap;
 
-  &:hover:not(:disabled) {
+  &:hover:not([data-disabled]) {
     background-color: $gray-1100;
   }
 
-  &:active {
+  &:active:not([data-disabled]) {
     background-color: $gray-1000;
   }
 
@@ -29,7 +29,7 @@
     background-color: $gray-1000;
   }
 
-  &:disabled {
+  &[data-disabled] {
     opacity: 0.4;
     cursor: not-allowed;
   }

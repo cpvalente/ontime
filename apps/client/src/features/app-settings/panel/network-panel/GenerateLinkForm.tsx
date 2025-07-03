@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import QRCode from 'react-qr-code';
-import { Button, Select, Switch } from '@chakra-ui/react';
 
 import { generateUrl } from '../../../../common/api/session';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
+import Select from '../../../../common/components/select/Select';
+import Switch from '../../../../common/components/switch/Switch';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import copyToClipboard from '../../../../common/utils/copyToClipboard';
@@ -33,14 +35,15 @@ export default function GenerateLinkForm() {
 
   const {
     handleSubmit,
-    register,
     setError,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<GenerateLinkFormOptions>({
     mode: 'onChange',
     defaultValues: {
       baseUrl: currentHostName,
-      path: '',
+      path: 'timer',
       lock: false,
       authenticate: false,
     },
@@ -67,6 +70,29 @@ export default function GenerateLinkForm() {
     }
   };
 
+  const hostOptions = useMemo(
+    () =>
+      infoData.networkInterfaces.map((nif) => ({
+        value: nif.address,
+        label: `${nif.name} - ${nif.address}`,
+      })),
+    [infoData.networkInterfaces],
+  );
+
+  const pathOptions = useMemo(
+    () => [
+      { value: 'timer', label: 'Timer' },
+      { value: 'cuesheet', label: 'Cuesheet' },
+      { value: 'op', label: 'Operator' },
+      { value: '', label: 'Companion' },
+      ...urlPresetData.map((preset) => ({
+        value: preset.alias,
+        label: `Preset: ${preset.alias}`,
+      })),
+    ],
+    [urlPresetData],
+  );
+
   return (
     <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} onKeyDown={(event) => preventEscape(event)}>
       {errors.root && <Panel.Error>{errors.root.message}</Panel.Error>}
@@ -81,59 +107,40 @@ export default function GenerateLinkForm() {
             title='Host IP'
             description={`Which IP address will be used${isOntimeCloud ? ' (not applicable in Ontime Cloud)' : ''}`}
           />
-          <Select variant='ontime' isDisabled={isOntimeCloud} size='sm' {...register('baseUrl')}>
-            {infoData.networkInterfaces.map((nif) => {
-              return (
-                <option key={nif.name} value={nif.address}>
-                  {`${nif.name} - ${nif.address}`}
-                </option>
-              );
-            })}
-          </Select>
+          <Select
+            disabled={isOntimeCloud}
+            options={hostOptions}
+            value={watch('baseUrl')}
+            onValueChange={(value) => setValue('baseUrl', value)}
+          />
         </Panel.ListItem>
         <Panel.ListItem>
           <Panel.Field
             title='URL Preset'
             description='Which preset will the link point to (will default to /timer if none is given)'
           />
-          <Select variant='ontime' size='sm' {...register('path')}>
-            <option key='timer' value='timer'>
-              Timer
-            </option>
-            <option key='companion' value=''>
-              Companion
-            </option>
-            {urlPresetData.map((preset) => {
-              return (
-                <option key={preset.alias} value={preset.alias}>
-                  {`Preset: ${preset.alias}`}
-                </option>
-              );
-            })}
-          </Select>
+          <Select options={pathOptions} value={watch('path')} onValueChange={(value) => setValue('path', value)} />
         </Panel.ListItem>
         <Panel.ListItem>
           <Panel.Field
             title='Lock navigation'
             description='Prevent showing navigation (will only work for non production URLs)'
           />
-          <Switch variant='ontime' size='lg' {...register('lock')} />
+          <Switch name='lock' checked={watch('lock')} onCheckedChange={(checked) => setValue('lock', checked)} />
         </Panel.ListItem>
         <Panel.ListItem>
           <Panel.Field title='Authenticate' description='Whether the URL should be pre-authenticated' />
-          <Switch variant='ontime' size='lg' {...register('authenticate')} />
+          <Switch
+            name='authenticate'
+            checked={watch('authenticate')}
+            onCheckedChange={(checked) => setValue('authenticate', checked)}
+          />
         </Panel.ListItem>
       </Panel.ListGroup>
       <Panel.ListGroup>
         <Panel.ListItem>
           <Panel.Field title='Generate link' description='Fill form and generate link and QR code' />
-          <Button
-            variant='ontime-filled'
-            size='sm'
-            isLoading={formState === 'loading'}
-            type='submit'
-            style={{ alignSelf: 'end' }}
-          >
+          <Button variant='primary' loading={formState === 'loading'} type='submit' style={{ alignSelf: 'end' }}>
             {formState === 'success' ? 'Link copied to clipboard!' : 'Update share link'}
           </Button>
           <div className={style.column}>

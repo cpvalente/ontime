@@ -72,7 +72,7 @@ function ViewSettings() {
     <Popover.Root>
       <Popover.Trigger
         render={
-          <Button variant='ghosted'>
+          <Button variant='ghosted-white'>
             <IoSettingsOutline /> Settings
             <IoChevronDown />
           </Button>
@@ -140,7 +140,7 @@ function ColumnSettings({
     <Popover.Root>
       <Popover.Trigger
         render={
-          <Button variant='ghosted'>
+          <Button variant='ghosted-white'>
             <IoOptions /> View
             <IoChevronDown />
           </Button>
