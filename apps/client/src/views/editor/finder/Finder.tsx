@@ -1,9 +1,10 @@
 import { KeyboardEvent, useState } from 'react';
-import { Input, Modal, ModalBody, ModalContent, ModalFooter, ModalOverlay } from '@chakra-ui/react';
 import { useDebouncedCallback } from '@mantine/hooks';
 import { SupportedEntry } from 'ontime-types';
 
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
+import Modal from '../../../common/components/modal/Modal';
+import Input from '../../../common/components/input/input/Input';
 
 import useFinder from './useFinder';
 
@@ -55,48 +56,64 @@ export default function Finder(props: FinderProps) {
     }
   };
 
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
-      <ModalOverlay />
-      <ModalContent maxWidth='max(640px, 40vw)'>
-        <ModalBody onKeyDown={navigate}>
-          <Input size='lg' onChange={debouncedFind} variant='ontime-filled' placeholder='Search...' />
-          <ul className={style.scrollContainer} onMouseMove={handleMouseMoveEvent}>
-            {error && <li className={style.error}>{error}</li>}
-            {results.length === 0 && <li className={style.empty}>No results</li>}
-            {results.length > 0 &&
-              results.map((entry, index) => {
-                const isSelected = selected === index;
-                const displayIndex = entry.type === SupportedEntry.Event ? entry.eventIndex : '-';
-                const displayCue = entry.type === SupportedEntry.Event ? entry.cue : '';
-                const colour = entry.type === SupportedEntry.Event ? entry.colour : '';
+  const bodyElements = (
+    <div onKeyDown={navigate}>
+      <Input
+        height='large' // Assuming 'lg' corresponds to 'large'
+        onChange={(e) => debouncedFind(e.target.value)}
+        variant='subtle' // Assuming 'ontime-filled' corresponds to 'subtle'
+        placeholder='Search...'
+        autoFocus // Retain autoFocus
+      />
+      <ul className={style.scrollContainer} onMouseMove={handleMouseMoveEvent}>
+        {error && <li className={style.error}>{error}</li>}
+        {results.length === 0 && <li className={style.empty}>No results</li>}
+        {results.length > 0 &&
+          results.map((entry, index) => {
+            const isSelected = selected === index;
+            const displayIndex = entry.type === SupportedEntry.Event ? entry.eventIndex : '-';
+            const displayCue = entry.type === SupportedEntry.Event ? entry.cue : '';
+            const colour = entry.type === SupportedEntry.Event ? entry.colour : '';
 
-                return (
-                  <li
-                    key={entry.id}
-                    className={style.entry}
-                    data-selected={isSelected}
-                    data-index={index}
-                    onClick={submit}
-                  >
-                    <div className={style.data}>
-                      <div className={style.index} style={{ '--color': colour }}>
-                        {displayIndex}
-                      </div>
-                      <div className={style.cue}>{displayCue}</div>
-                      <div className={style.title}>{entry.title}</div>
-                    </div>
-                    {isSelected && <span>Go ⏎</span>}
-                  </li>
-                );
-              })}
-          </ul>
-        </ModalBody>
-        <ModalFooter className={style.footer}>
-          Use the keywords <span className={style.em}>cue</span>, <span className={style.em}>index</span> or
-          <span className={style.em}>title</span> to filter search
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+            return (
+              <li
+                key={entry.id}
+                className={style.entry}
+                data-selected={isSelected}
+                data-index={index}
+                onClick={submit}
+              >
+                <div className={style.data}>
+                  <div className={style.index} style={{ '--color': colour }}>
+                    {displayIndex}
+                  </div>
+                  <div className={style.cue}>{displayCue}</div>
+                  <div className={style.title}>{entry.title}</div>
+                </div>
+                {isSelected && <span>Go ⏎</span>}
+              </li>
+            );
+          })}
+      </ul>
+    </div>
+  );
+
+  const footerElements = (
+    <div className={style.footer}>
+      Use the keywords <span className={style.em}>cue</span>, <span className={style.em}>index</span> or
+      <span className={style.em}>title</span> to filter search
+    </div>
+  );
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      title='Finder' // Or some other appropriate title, original had no explicit title
+      onClose={onClose}
+      bodyElements={bodyElements}
+      footerElements={footerElements}
+      showCloseButton // Typically good to have a close button
+      // maxWidth='max(640px, 40vw)' // Needs to be handled by Modal's styling or wrapper
+    />
   );
 }
