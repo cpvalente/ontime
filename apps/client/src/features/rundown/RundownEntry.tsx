@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import {
   isOntimeDelay,
   isOntimeEvent,
@@ -48,7 +48,7 @@ interface RundownEntryProps {
   isLinkedToLoaded: boolean;
 }
 
-export default function RundownEntry({
+function RundownEntryComponent({
   isPast,
   data,
   loaded,
@@ -204,3 +204,4 @@ export default function RundownEntry({
   }
   return null;
 }
+export default memo(RundownEntryComponent);

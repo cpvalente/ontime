@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 
 import { cx } from '../../../common/utils/styleUtils';
@@ -13,7 +14,7 @@ interface TimeLayoutProps {
   testId?: string;
 }
 
-export function TimeColumn({ label, value, muted, className, testId }: TimeLayoutProps) {
+const TimeColumnComponent = ({ label, value, muted, className, testId }: TimeLayoutProps) => {
   return (
     <div className={style.column}>
       <span className={style.label}>{label}</span>
@@ -22,9 +23,10 @@ export function TimeColumn({ label, value, muted, className, testId }: TimeLayou
       </span>
     </div>
   );
-}
+};
+export const TimeColumn = memo(TimeColumnComponent);
 
-export function TimeRow({ label, value, daySpan, muted, className }: TimeLayoutProps) {
+const TimeRowComponent = ({ label, value, daySpan, muted, className }: TimeLayoutProps) => {
   return (
     <div className={style.row}>
       <span className={style.label}>{label}</span>
@@ -37,4 +39,5 @@ export function TimeRow({ label, value, daySpan, muted, className }: TimeLayoutP
       )}
     </div>
   );
-}
+};
+export const TimeRow = memo(TimeRowComponent);

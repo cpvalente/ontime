@@ -1,4 +1,4 @@
-import { FocusEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { FocusEvent, KeyboardEvent, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import { cx } from '../../../utils/styleUtils';
@@ -17,7 +17,7 @@ interface TimeInputProps<T extends string> {
   className?: string;
 }
 
-export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
+function TimeInputComponent<T extends string>(props: TimeInputProps<T>) {
   const { id, name, submitHandler, time, placeholder, disabled, align = 'center', className } = props;
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
@@ -116,6 +116,8 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
     resetValue();
   }, [resetValue]);
 
+  const textAlignStyle = useMemo(() => ({ textAlign: align }), [align]);
+
   return (
     <Input
       id={id}
@@ -131,9 +133,8 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
       value={value}
       maxLength={8}
       autoComplete='off'
-      style={{
-        textAlign: align,
-      }}
+      style={textAlignStyle}
     />
   );
 }
+export default memo(TimeInputComponent);

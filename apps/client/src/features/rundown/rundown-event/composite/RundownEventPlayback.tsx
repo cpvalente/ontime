@@ -1,4 +1,4 @@
-import { memo, MouseEvent } from 'react';
+import { memo, MouseEvent, useCallback, useMemo } from 'react';
 import { IoPause, IoPlay, IoReload, IoRemoveCircle, IoRemoveCircleOutline } from 'react-icons/io5';
 
 import TooltipActionBtn from '../../../../common/components/buttons/TooltipActionBtn';
@@ -43,52 +43,63 @@ function RundownEventPlayback({
 }: RundownEventPlaybackProps) {
   const { updateEntry } = useEntryActions();
 
-  const toggleSkip = (event: MouseEvent) => {
-    event.stopPropagation();
-    updateEntry({ id: eventId, skip: !skip });
-  };
+  const toggleSkip = useCallback(
+    (event: MouseEvent) => {
+      event.stopPropagation();
+      updateEntry({ id: eventId, skip: !skip });
+    },
+    [eventId, skip, updateEntry],
+  );
 
-  const actionHandler = (event: MouseEvent) => {
-    event.stopPropagation();
-    // is playing -> pause
-    // is paused -> continue
-    // otherwise -> start
-    if (isPlaying) {
-      setEventPlayback.pause();
-    } else if (isPaused) {
-      setEventPlayback.start();
+  const actionHandler = useCallback(
+    (event: MouseEvent) => {
+      event.stopPropagation();
+      // is playing -> pause
+      // is paused -> continue
+      // otherwise -> start
+      if (isPlaying) {
+        setEventPlayback.pause();
+      } else if (isPaused) {
+        setEventPlayback.start();
+      } else {
+        setEventPlayback.startEvent(eventId);
+      }
+    },
+    [isPlaying, isPaused, eventId],
+  );
+
+  const load = useCallback(
+    (event: MouseEvent) => {
+      event.stopPropagation();
+      setEventPlayback.loadEvent(eventId);
+    },
+    [eventId],
+  );
+
+  const buttonVariant: Partial<StyleVariant> = useMemo(() => {
+    const variant: Partial<StyleVariant> = {};
+    if (isPaused) {
+      // continue
+      variant['aria-label'] = 'Continue event';
+      variant.tooltip = 'Continue event';
+      variant.backgroundColor = '#339E4E';
+      variant._hover = { backgroundColor: '#339E4Eee' };
+    } else if (isPlaying) {
+      // pause
+      variant['aria-label'] = 'Pause event';
+      variant.tooltip = 'Pause event';
+      variant.backgroundColor = '#c05621';
+      variant._hover = { backgroundColor: '#c05621ee' };
     } else {
-      setEventPlayback.startEvent(eventId);
+      // start
+      variant['aria-label'] = 'Start event';
+      variant.tooltip = 'Start event';
+      if (!disablePlayback) {
+        variant._hover = { backgroundColor: '#339E4E' };
+      }
     }
-  };
-
-  const load = (event: MouseEvent) => {
-    event.stopPropagation();
-    setEventPlayback.loadEvent(eventId);
-  };
-
-  const buttonVariant: Partial<StyleVariant> = {};
-
-  if (isPaused) {
-    // continue
-    buttonVariant['aria-label'] = 'Continue event';
-    buttonVariant.tooltip = 'Continue event';
-    buttonVariant.backgroundColor = '#339E4E';
-    buttonVariant._hover = { backgroundColor: '#339E4Eee' };
-  } else if (isPlaying) {
-    // pause
-    buttonVariant['aria-label'] = 'Pause event';
-    buttonVariant.tooltip = 'Pause event';
-    buttonVariant.backgroundColor = '#c05621';
-    buttonVariant._hover = { backgroundColor: '#c05621ee' };
-  } else {
-    // start
-    buttonVariant['aria-label'] = 'Start event';
-    buttonVariant.tooltip = 'Start event';
-    if (!disablePlayback) {
-      buttonVariant._hover = { backgroundColor: '#339E4E' };
-    }
-  }
+    return variant;
+  }, [isPaused, isPlaying, disablePlayback]);
 
   return (
     <div className={style.playbackActions}>

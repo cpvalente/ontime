@@ -1,4 +1,4 @@
-import { MouseEvent, useRef } from 'react';
+import { memo, MouseEvent, useMemo, useRef } from 'react';
 import {
   IoChevronDown,
   IoChevronUp,
@@ -29,7 +29,7 @@ interface RundownBlockProps {
   onCollapse: (collapsed: boolean, groupId: EntryId) => void;
 }
 
-export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }: RundownBlockProps) {
+function RundownBlockComponent({ data, hasCursor, collapsed, onCollapse }: RundownBlockProps) {
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const { clone, ungroup, deleteEntry } = useEntryActions();
   const { selectedEvents, setSelectedBlock } = useEventSelection();
@@ -85,15 +85,18 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
     setSelectedBlock({ id: data.id });
   };
 
-  const binderColours = data.colour && getAccessibleColour(data.colour);
+  const binderColours = useMemo(() => data.colour && getAccessibleColour(data.colour), [data.colour]);
   const isValidDrop = over?.id && canDrop(over.data.current?.type, over.data.current?.parent);
 
-  const dragStyle = {
-    zIndex: isDragging ? 2 : 'inherit',
-    transform: CSS.Translate.toString(transform),
-    transition,
-    cursor: isOver ? (isValidDrop ? 'grabbing' : 'no-drop') : 'default',
-  };
+  const dragStyle = useMemo(
+    () => ({
+      zIndex: isDragging ? 2 : 'inherit',
+      transform: CSS.Translate.toString(transform),
+      transition,
+      cursor: isOver ? (isValidDrop ? 'grabbing' : 'no-drop') : 'default',
+    }),
+    [isDragging, transform, transition, isOver, isValidDrop],
+  );
 
   return (
     <div
@@ -152,3 +155,4 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
     </div>
   );
 }
+export default memo(RundownBlockComponent);

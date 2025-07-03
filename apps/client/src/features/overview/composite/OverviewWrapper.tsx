@@ -1,4 +1,4 @@
-import { PropsWithChildren, ReactNode } from 'react';
+import { memo, PropsWithChildren, ReactNode } from 'react';
 import { ErrorBoundary } from '@sentry/react';
 import { Playback } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
@@ -43,13 +43,14 @@ export function TitlesOverview() {
   );
 }
 
-export function CurrentBlockOverview() {
+const CurrentBlockOverviewComponent = () => {
   const { blockStartedAt: blockStartAt, clock } = useRuntimePlaybackOverview();
 
   const timeInBlock = formatedTime(blockStartAt ? clock - blockStartAt : null);
 
   return <TimeColumn label='Time in block' value={timeInBlock} className={style.clock} muted={blockStartAt === null} />;
-}
+};
+export const CurrentBlockOverview = memo(CurrentBlockOverviewComponent);
 
 export function TimerOverview() {
   const { current } = useTimer();
@@ -59,7 +60,7 @@ export function TimerOverview() {
   return <TimeColumn label='Running timer' value={display} muted={current === null} />;
 }
 
-export function ProgressOverview() {
+const ProgressOverviewComponent = () => {
   const { numEvents, selectedEventIndex } = useRuntimePlaybackOverview();
 
   const current = selectedEventIndex !== null ? selectedEventIndex + 1 : enDash;
@@ -67,7 +68,8 @@ export function ProgressOverview() {
   const progressText = numEvents ? `${current} of ${ofTotal}` : '-';
 
   return <TimeColumn label='Progress' value={progressText} />;
-}
+};
+export const ProgressOverview = memo(ProgressOverviewComponent);
 
 export function RuntimeOverview() {
   const { clock, offset, playback } = useRuntimePlaybackOverview();
@@ -81,4 +83,8 @@ export function RuntimeOverview() {
       <TimeColumn label='Time now' value={formatedTime(clock)} />
     </>
   );
-}
+};
+export const RuntimeOverview = memo(RuntimeOverviewComponent);
+
+// TitlesOverview is not memoized as its data source (useProjectData) changes very infrequently.
+// TimerOverview is not used in EditorOverview, so skipping for now.

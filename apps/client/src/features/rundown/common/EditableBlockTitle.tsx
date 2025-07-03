@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { memo, useCallback, useMemo, useRef } from 'react';
 import { Input } from '@chakra-ui/react';
 
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
@@ -14,7 +14,7 @@ interface TitleEditorProps {
   className?: string;
 }
 
-export default function EditableBlockTitle(props: TitleEditorProps) {
+function EditableBlockTitleComponent(props: TitleEditorProps) {
   const { title, eventId, placeholder, className } = props;
   const { updateEntry } = useEntryActions();
   const ref = useRef<HTMLInputElement | null>(null);
@@ -34,7 +34,10 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
     submitOnEnter: true,
   });
 
-  const classes = cx([className, style.eventTitle, !value ? style.noTitle : null]);
+  const classes = useMemo(
+    () => cx([className, style.eventTitle, !value ? style.noTitle : null]),
+    [className, value],
+  );
 
   return (
     <Input
@@ -56,3 +59,4 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
     />
   );
 }
+export default memo(EditableBlockTitleComponent);

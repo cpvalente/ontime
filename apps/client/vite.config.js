@@ -4,6 +4,7 @@ import path from 'path';
 import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import svgrPlugin from 'vite-plugin-svgr';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 import { ONTIME_VERSION } from './src/ONTIME_VERSION';
 
@@ -15,6 +16,7 @@ export default defineConfig({
   plugins: [
     react(),
     svgrPlugin(),
+    tsconfigPaths(),
     !isDev &&
       sentryVitePlugin({
         org: 'get-ontime',
@@ -90,6 +92,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      'ontime-types': path.resolve(__dirname, '../../packages/types/src/index.ts'),
+      'ontime-utils': path.resolve(__dirname, '../../packages/utils/index.ts'),
     },
   },
   esbuild: {

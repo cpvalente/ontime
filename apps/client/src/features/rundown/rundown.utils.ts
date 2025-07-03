@@ -59,7 +59,7 @@ export function makeRundownMetadata(selectedEventId: MaybeString) {
 /**
  * Receives a rundown entry and processes its place in the rundown
  */
-function processEntry(
+export function processEntry( // Exported this function
   rundownMetadata: RundownMetadata,
   selectedEventId: MaybeString,
   entry: Readonly<OntimeEntry>,

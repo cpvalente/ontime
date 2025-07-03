@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { IoCheckmarkCircle } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
 import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
@@ -24,7 +24,7 @@ interface RundownEventChipProps {
   isLinkedToLoaded: boolean;
 }
 
-export default function RundownEventChip({
+function RundownEventChipComponent({
   timeStart,
   delay,
   dayOffset,
@@ -76,7 +76,7 @@ interface EventUntilProps {
   isLinkedToLoaded: boolean;
 }
 
-function EventUntil(props: EventUntilProps) {
+const EventUntilComponent = (props: EventUntilProps) => {
   const { timeStart, delay, dayOffset, totalGap, isLinkedToLoaded } = props;
 
   const timeUntil = useTimeUntilStart({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded });
@@ -85,7 +85,8 @@ function EventUntil(props: EventUntilProps) {
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
 
   return <div className={cx([style.chip, isDue && style.due])}>{timeUntilString}</div>;
-}
+};
+const EventUntil = memo(EventUntilComponent);
 
 interface EventReportProps {
   className: string;
@@ -93,7 +94,7 @@ interface EventReportProps {
   duration: number;
 }
 
-function EventReport(props: EventReportProps) {
+const EventReportComponent = (props: EventReportProps) => {
   const { className, id, duration } = props;
   const { data } = useReport();
   const currentReport = data[id];
@@ -137,4 +138,6 @@ function EventReport(props: EventReportProps) {
       </div>
     </Tooltip>
   );
-}
+};
+const EventReport = memo(EventReportComponent);
+export default memo(RundownEventChipComponent);

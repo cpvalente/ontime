@@ -1,4 +1,4 @@
-import { KeyboardEvent, useEffect, useRef, useState } from 'react';
+import { memo, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Input, Radio, RadioGroup } from '@chakra-ui/react';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
@@ -11,14 +11,13 @@ interface DelayInputProps {
   duration: number;
 }
 
-export default function DelayInput(props: DelayInputProps) {
+function DelayInputComponent(props: DelayInputProps) {
   const { eventId, duration } = props;
   const { updateEntry } = useEntryActions();
 
   const [value, setValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement | null>(null);
-  // avoid wrong submit on cancel
-  let ignoreChange = false;
+  const ignoreChange = useRef(false); // Changed to ref to be stable for useCallback
 
   // set internal value on duration change
   useEffect(() => {
@@ -28,77 +27,92 @@ export default function DelayInput(props: DelayInputProps) {
     setValue(millisToString(duration));
   }, [duration]);
 
+  const submitChange = useCallback(
+    (val: number) => {
+      updateEntry({
+        id: eventId,
+        duration: val,
+      });
+    },
+    [eventId, updateEntry],
+  );
+
   /**
    * @description Prepare delay value for update
    * @param {string} newValue string to be parsed
    */
-  const validateAndSubmit = (newValue: string) => {
-    if (ignoreChange) {
-      ignoreChange = false;
-      return;
-    }
+  const validateAndSubmit = useCallback(
+    (newValue: string) => {
+      if (ignoreChange.current) {
+        ignoreChange.current = false;
+        return;
+      }
 
-    const isNegative = newValue.startsWith('-');
-    let newMillis = parseUserTime(newValue);
+      const isNegative = newValue.startsWith('-');
+      let newMillis = parseUserTime(newValue);
 
-    if (isNegative) {
-      newMillis = newMillis * -1;
-    }
+      if (isNegative) {
+        newMillis = newMillis * -1;
+      }
 
-    if (newMillis === duration) {
-      return;
-    }
+      if (newMillis === duration) {
+        // If value hasn't changed effectively, reset visual to formatted prop
+        setValue(millisToString(duration));
+        return;
+      }
 
-    submitChange(newMillis);
-    setValue(millisToString(newMillis));
-  };
-
-  const submitChange = (value: number) => {
-    updateEntry({
-      id: eventId,
-      duration: value,
-    });
-  };
+      submitChange(newMillis);
+      setValue(millisToString(newMillis)); // Update visual to newly submitted value
+    },
+    [duration, submitChange],
+  );
 
   /**
    * @description Selects input text on focus
    */
-  const handleFocus = () => inputRef.current?.select();
+  const handleFocus = useCallback(() => {
+    inputRef.current?.select();
+  }, []);
 
   /**
    * @description Handles common keys for submit and cancel
    * @param {KeyboardEvent} event
    */
-  const onKeyDownHandler = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      inputRef.current?.blur();
-      validateAndSubmit((event.target as HTMLInputElement).value);
-    } else if (event.key === 'Tab') {
-      validateAndSubmit((event.target as HTMLInputElement).value);
-    } else if (event.key === 'Escape') {
-      ignoreChange = true;
-      setValue(millisToString(duration));
-      inputRef.current?.blur();
-    }
-  };
+  const onKeyDownHandler = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        inputRef.current?.blur();
+        // validateAndSubmit is called onBlur, which is triggered by blur()
+      } else if (event.key === 'Tab') {
+        // Tab will also trigger blur, so validateAndSubmit will be called.
+        // No explicit call needed here unless default Tab behavior needs prevention.
+      } else if (event.key === 'Escape') {
+        ignoreChange.current = true;
+        setValue(millisToString(duration));
+        inputRef.current?.blur();
+      }
+    },
+    [duration], // Removed validateAndSubmit from here as it's handled by onBlur
+  );
 
   /**
    * @description handles direction change to delay
    * @param newDirection
    */
-  const handleSlipChange = (newDirection: 'add' | 'subtract') => {
-    if (newDirection === 'add') {
-      // add time
-      if (duration < 0) {
-        submitChange(duration * -1);
+  const handleSlipChange = useCallback(
+    (newDirection: 'add' | 'subtract') => {
+      if (newDirection === 'add') {
+        if (duration < 0) {
+          submitChange(duration * -1);
+        }
+      } else if (newDirection === 'subtract') {
+        if (duration > 0) {
+          submitChange(duration * -1);
+        }
       }
-    } else if (newDirection === 'subtract') {
-      // subtract time
-      if (duration > 0) {
-        submitChange(duration * -1);
-      }
-    }
-  };
+    },
+    [duration, submitChange],
+  );
 
   const checkedOption = value.startsWith('-') ? 'subtract' : 'add';
 
@@ -132,3 +146,4 @@ export default function DelayInput(props: DelayInputProps) {
     </div>
   );
 }
+export default memo(DelayInputComponent);

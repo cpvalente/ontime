@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { memo, MouseEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   IoAdd,
   IoDuplicateOutline,
@@ -66,7 +66,7 @@ interface RundownEventProps {
   hasTriggers: boolean;
 }
 
-export default function RundownEvent({
+function RundownEventComponent({
   eventId,
   cue,
   timeStart,
@@ -103,8 +103,8 @@ export default function RundownEvent({
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  const [onContextMenu] = useContextMenu<HTMLDivElement>(
-    selectedEvents.size > 1
+  const contextMenuItems = useMemo(() => {
+    return selectedEvents.size > 1
       ? [
           {
             label: 'Link to previous',
@@ -173,13 +173,16 @@ export default function RundownEvent({
     animateLayoutChanges: () => false,
   });
 
-  const dragStyle = {
-    zIndex: isDragging ? 2 : 'inherit',
-    transform: CSS.Translate.toString(transform),
-    transition,
-  };
+  const dragStyle = useMemo(
+    () => ({
+      zIndex: isDragging ? 2 : 'inherit',
+      transform: CSS.Translate.toString(transform),
+      transition,
+    }),
+    [isDragging, transform, transition],
+  );
 
-  const binderColours = colour && getAccessibleColour(colour);
+  const binderColours = useMemo(() => colour && getAccessibleColour(colour), [colour]);
 
   // move focus to element if necessary
   useEffect(() => {
@@ -300,3 +303,4 @@ export default function RundownEvent({
     </div>
   );
 }
+export default memo(RundownEventComponent);

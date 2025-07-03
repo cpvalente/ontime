@@ -84,12 +84,15 @@ function RundownEventInner({
   const eventIsPlaying = playback === Playback.Play;
   const eventIsPaused = playback === Playback.Pause;
 
-  const playBtnStyles = { _hover: {} };
-  if (!skip && eventIsPlaying) {
-    playBtnStyles._hover = { bg: '#c05621' }; // $ontime-paused
-  } else if (!skip && !eventIsPlaying) {
-    playBtnStyles._hover = {};
-  }
+  const playBtnStyles = useMemo(() => {
+    const styles = { _hover: {} };
+    if (!skip && eventIsPlaying) {
+      styles._hover = { bg: '#c05621' }; // $ontime-paused
+    } else if (!skip && !eventIsPlaying) {
+      styles._hover = {}; // Ensure it's reset if conditions change
+    }
+    return styles;
+  }, [skip, eventIsPlaying]);
 
   return !renderInner ? null : (
     <>

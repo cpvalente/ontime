@@ -1,4 +1,4 @@
-import { MouseEvent } from 'react';
+import { memo, MouseEvent } from 'react';
 import { IconButton, IconButtonProps, Tooltip } from '@chakra-ui/react';
 
 interface TooltipActionBtnProps extends IconButtonProps {
@@ -7,7 +7,7 @@ interface TooltipActionBtnProps extends IconButtonProps {
   openDelay?: number;
 }
 
-export default function TooltipActionBtn(props: TooltipActionBtnProps) {
+function TooltipActionBtnComponent(props: TooltipActionBtnProps) {
   const { clickHandler, icon, size = 'xs', tooltip, openDelay = 0, className, ...rest } = props;
   return (
     <Tooltip label={tooltip} openDelay={openDelay}>
@@ -15,3 +15,4 @@ export default function TooltipActionBtn(props: TooltipActionBtnProps) {
     </Tooltip>
   );
 }
+export default memo(TooltipActionBtnComponent);

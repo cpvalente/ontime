@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import { createContext, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 
 import useSettings from '../hooks-query/useSettings';
 
@@ -72,5 +72,14 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
     [data],
   );
 
-  return <AppContext.Provider value={{ editorAuth, operatorAuth, validate }}>{children}</AppContext.Provider>;
+  const contextValue = useMemo(
+    () => ({
+      editorAuth,
+      operatorAuth,
+      validate,
+    }),
+    [editorAuth, operatorAuth, validate],
+  );
+
+  return <AppContext.Provider value={contextValue}>{children}</AppContext.Provider>;
 };

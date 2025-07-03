@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { IoCheckmarkDone, IoClose, IoReorderTwo } from 'react-icons/io5';
 import { Button } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
@@ -16,7 +16,7 @@ interface RundownDelayProps {
   hasCursor: boolean;
 }
 
-export default function RundownDelay({ data, hasCursor }: RundownDelayProps) {
+function RundownDelayComponent({ data, hasCursor }: RundownDelayProps) {
   const { applyDelay, deleteEntry } = useEntryActions();
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
@@ -35,11 +35,14 @@ export default function RundownDelay({ data, hasCursor }: RundownDelayProps) {
     animateLayoutChanges: () => false,
   });
 
-  const dragStyle = {
-    zIndex: isDragging ? 2 : 'inherit',
-    transform: CSS.Translate.toString(transform),
-    transition,
-  };
+  const dragStyle = useMemo(
+    () => ({
+      zIndex: isDragging ? 2 : 'inherit',
+      transform: CSS.Translate.toString(transform),
+      transition,
+    }),
+    [isDragging, transform, transition],
+  );
 
   useEffect(() => {
     if (hasCursor) {
@@ -47,13 +50,13 @@ export default function RundownDelay({ data, hasCursor }: RundownDelayProps) {
     }
   }, [hasCursor]);
 
-  const applyDelayHandler = () => {
+  const applyDelayHandler = useCallback(() => {
     applyDelay(data.id);
-  };
+  }, [applyDelay, data.id]);
 
-  const cancelDelayHandler = () => {
+  const cancelDelayHandler = useCallback(() => {
     deleteEntry([data.id]);
-  };
+  }, [deleteEntry, data.id]);
 
   const blockClasses = cx([style.delay, hasCursor ? style.hasCursor : null]);
 
@@ -74,3 +77,4 @@ export default function RundownDelay({ data, hasCursor }: RundownDelayProps) {
     </div>
   );
 }
+export default memo(RundownDelayComponent);

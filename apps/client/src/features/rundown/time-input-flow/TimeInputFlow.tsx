@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { IoAlertCircleOutline, IoLink, IoLockClosed, IoLockOpenOutline, IoUnlink } from 'react-icons/io5';
 import { InputRightElement, Tooltip } from '@chakra-ui/react';
 import { TimeField, TimeStrategy } from 'ontime-types';
@@ -30,35 +30,49 @@ function TimeInputFlow(props: EventBlockTimerProps) {
   const { updateEntry, updateTimer } = useEntryActions();
 
   // In sync with EventEditorTimes
-  const handleSubmit = (field: TimeField, value: string) => {
-    updateTimer(eventId, field, value);
-  };
+  const handleSubmit = useCallback(
+    (field: TimeField, value: string) => {
+      updateTimer(eventId, field, value);
+    },
+    [eventId, updateTimer],
+  );
 
-  const handleChangeStrategy = (timeStrategy: TimeStrategy) => {
-    updateEntry({ id: eventId, timeStrategy });
-  };
+  const handleChangeStrategy = useCallback(
+    (newTimeStrategy: TimeStrategy) => {
+      updateEntry({ id: eventId, timeStrategy: newTimeStrategy });
+    },
+    [eventId, updateEntry],
+  );
 
-  const handleLink = (doLink: boolean) => {
-    updateEntry({ id: eventId, linkStart: doLink });
-  };
+  const handleLink = useCallback(
+    (doLink: boolean) => {
+      updateEntry({ id: eventId, linkStart: doLink });
+    },
+    [eventId, updateEntry],
+  );
 
-  const warnings = [];
-  if (timeStart + duration > dayInMs) {
-    warnings.push('Over midnight');
-  }
+  const warnings = useMemo(() => {
+    const arr = [];
+    if (timeStart + duration > dayInMs) {
+      arr.push('Over midnight');
+    }
+    if (countToEnd) {
+      arr.push('Count to End');
+    }
+    return arr;
+  }, [timeStart, duration, countToEnd]);
 
-  if (countToEnd) {
-    warnings.push('Count to End');
-  }
-
-  const hasDelay = delay !== 0;
+  const hasDelay = delay !== 0; // This is already a simple boolean, no useMemo needed unless delay itself is complex to derive
 
   const isLockedEnd = timeStrategy === TimeStrategy.LockEnd;
   const isLockedDuration = timeStrategy === TimeStrategy.LockDuration;
 
-  const activeStart = cx([style.timeAction, linkStart && style.active]);
-  const activeEnd = cx([style.timeAction, isLockedEnd && style.active]);
-  const activeDuration = cx([style.timeAction, isLockedDuration && style.active]);
+  const activeStart = useMemo(() => cx([style.timeAction, linkStart && style.active]), [linkStart]);
+  const activeEnd = useMemo(() => cx([style.timeAction, isLockedEnd && style.active]), [isLockedEnd]);
+  const activeDuration = useMemo(
+    () => cx([style.timeAction, isLockedDuration && style.active]),
+    [isLockedDuration],
+  );
 
   return (
     <>

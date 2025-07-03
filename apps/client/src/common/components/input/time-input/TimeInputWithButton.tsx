@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react';
+import { memo, PropsWithChildren, useMemo } from 'react';
 import { InputGroup } from '@chakra-ui/react';
 
 import { cx } from '../../../utils/styleUtils';
@@ -16,10 +16,10 @@ interface TimeInputWithButtonProps<T extends string> {
   placeholder: string;
 }
 
-export default function TimeInputWithButton<T extends string>(props: PropsWithChildren<TimeInputWithButtonProps<T>>) {
+function TimeInputWithButtonComponent<T extends string>(props: PropsWithChildren<TimeInputWithButtonProps<T>>) {
   const { name, submitHandler, time, hasDelay, placeholder, disabled, children } = props;
 
-  const inputClasses = cx([style.timeInput, hasDelay ? style.delayed : null]);
+  const inputClasses = useMemo(() => cx([style.timeInput, hasDelay ? style.delayed : null]), [hasDelay]);
 
   return (
     <InputGroup size='sm' className={inputClasses} width='fit-content'>
@@ -35,3 +35,4 @@ export default function TimeInputWithButton<T extends string>(props: PropsWithCh
     </InputGroup>
   );
 }
+export default memo(TimeInputWithButtonComponent);

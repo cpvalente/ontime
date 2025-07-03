@@ -1,4 +1,4 @@
-import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   closestCenter,
   DndContext,
@@ -42,7 +42,7 @@ import { cloneEvent } from '../../common/utils/clone';
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import BlockEnd from './rundown-block/BlockEnd';
 import RundownBlock from './rundown-block/RundownBlock';
-import { makeRundownMetadata, makeSortableList } from './rundown.utils';
+import { makeRundownMetadata, makeSortableList, processEntry } from './rundown.utils'; // Added processEntry
 import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
 
@@ -361,10 +361,34 @@ export default function Rundown({ data }: RundownProps) {
   // 1. gather presentation options
   const isEditMode = appMode === AppMode.Edit;
 
-  // 2. initialise rundown metadata
-  const { metadata, process } = makeRundownMetadata(featureData?.selectedEventId);
-  // keep a single reference to the metadata which we override for every entry
-  let rundownMetadata = metadata;
+  // 2. Pre-calculate metadata for all actual entries
+  const allEntriesMetadataMap = useMemo(() => {
+    const metadataMap = new Map<EntryId, ReturnType<typeof processEntry>>();
+    // Get the initial state of metadata for a fresh processing pass
+    let currentMeta = makeRundownMetadata(featureData?.selectedEventId).metadata;
+
+    for (const entryId of order) {
+      const entry = entries[entryId];
+      if (entry) {
+        currentMeta = processEntry(currentMeta, featureData?.selectedEventId, entry);
+        metadataMap.set(entryId, currentMeta);
+      }
+    }
+    return metadataMap;
+  }, [order, entries, featureData?.selectedEventId]);
+
+  // The old `process` function from the per-render makeRundownMetadata call is no longer needed here.
+  // The `initialMetadata` might still be useful for pseudo-elements if they need a base state,
+  // or we might need to derive context for them differently.
+  // For now, let's get the very first initial state for any top-level pseudo elements.
+  const initialMetadataForContext = useMemo(
+    () => makeRundownMetadata(featureData?.selectedEventId).metadata,
+    [featureData?.selectedEventId]
+  );
+
+  // To keep track of the *actual* previous entry's metadata for QuickAddBlock context
+  let previousActualEntryMetadata: ReturnType<typeof processEntry> | null = null;
+
 
   return (
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
@@ -381,7 +405,6 @@ export default function Rundown({ data }: RundownProps) {
               const isFirst = index === 0;
               const isLast = index === sortableData.length - 1;
 
-              // the entry might be a pseudo block-end which does not generate metadata and should not be processed
               if (entryId.startsWith('end-')) {
                 const parentId = entryId.split('end-')[1];
                 const isBlockCollapsed = getIsCollapsed(parentId);
@@ -391,16 +414,19 @@ export default function Rundown({ data }: RundownProps) {
                 } else if (isBlockCollapsed) {
                   return null;
                 } else {
-                  const parentColour = (entries[parentId] as OntimeBlock | undefined)?.colour;
-                  // if the previous element is selected, it will have its own QuickAddBlock
-                  // we use thisId instead of previousEntryId because the block end does not process
-                  // and it does not cause the reassignment of the iteration id to the previous entry
-                  const showPrependingQuickAdd = isEditMode && cursor !== rundownMetadata.thisId;
+                  const parentBlockEntry = entries[parentId] as OntimeBlock | undefined;
+                  const parentColour = parentBlockEntry?.colour;
+                  // For the QuickAddBlock *before* a BlockEnd, its context comes from the last actual entry *inside* the block,
+                  // or the block itself if the block is empty.
+                  // The `previousActualEntryMetadata` should hold metadata of the last processed actual entry.
+                  const thisContextPreviousId = previousActualEntryMetadata?.thisId ?? parentId;
+
+                  const showPrependingQuickAdd = isEditMode && cursor !== thisContextPreviousId;
                   return (
                     <Fragment key={entryId}>
                       {showPrependingQuickAdd && (
                         <QuickAddBlock
-                          previousEventId={rundownMetadata.thisId}
+                          previousEventId={thisContextPreviousId}
                           parentBlock={parentId}
                           backgroundColor={parentColour}
                         />
@@ -412,43 +438,39 @@ export default function Rundown({ data }: RundownProps) {
                 }
               }
 
-              // we iterate through a stateful copy of order to make the dnd operations smoother
-              // this means that this can be out of sync with order until the useEffect runs
-              // instead of writing all the logic guards, we simply short circuit rendering here
               const entry = entries[entryId];
               if (!entry) return null;
-              rundownMetadata = process(entry);
 
-              // if the entry has a parent, and it is collapsed, render nothing
+              const currentEntryMetadata = allEntriesMetadataMap.get(entryId);
+              if (!currentEntryMetadata) {
+                // This should not happen if allEntriesMetadataMap is correctly populated for all entries in `order`
+                console.error('Metadata not found for entry:', entryId);
+                return null;
+              }
+              previousActualEntryMetadata = currentEntryMetadata; // Update for the next iteration
+
               if (
                 entry.type !== SupportedEntry.Block &&
-                rundownMetadata.groupId !== null &&
-                getIsCollapsed(rundownMetadata.groupId)
+                currentEntryMetadata.groupId !== null &&
+                getIsCollapsed(currentEntryMetadata.groupId)
               ) {
                 return null;
               }
 
               const isNext = featureData?.nextEventId === entry.id;
               const hasCursor = entry.id === cursor;
-
-              /**
-               * Outside a block, the value will be undefined
-               * If the colour is empty string ''
-               * ie: we are inside a block, but there is no defined colour
-               * we default to $gray-1050 #303030
-               */
-              const blockColour = rundownMetadata.groupColour === '' ? '#303030' : rundownMetadata.groupColour;
+              const blockColour = currentEntryMetadata.groupColour === '' ? '#303030' : currentEntryMetadata.groupColour;
 
               return (
                 <Fragment key={entry.id}>
-                  {isEditMode && (hasCursor || isFirst) && (
-                    <QuickAddBlock
-                      previousEventId={rundownMetadata.previousEntryId}
-                      parentBlock={isFirst ? null : rundownMetadata.groupId}
+                  {isEditMode && (hasCursor || (isFirst && entry.type !== SupportedEntry.Block)) && (
+                     <QuickAddBlock
+                      previousEventId={isFirst ? null : currentEntryMetadata.previousEntryId}
+                      parentBlock={isFirst ? null : currentEntryMetadata.groupId}
                       backgroundColor={isFirst ? undefined : blockColour}
                     />
                   )}
-                  {isOntimeBlock(entry) ? (
+                   {isOntimeBlock(entry) ? (
                     <RundownBlock
                       data={entry}
                       hasCursor={hasCursor}
@@ -458,34 +480,42 @@ export default function Rundown({ data }: RundownProps) {
                   ) : (
                     <div
                       className={style.entryWrapper}
-                      data-testid={`entry-${rundownMetadata.eventIndex}`}
+                      data-testid={`entry-${currentEntryMetadata.eventIndex}`}
                       style={blockColour ? { '--user-bg': blockColour } : {}}
                     >
-                      {isOntimeEvent(entry) && <div className={style.entryIndex}>{rundownMetadata.eventIndex}</div>}
+                      {isOntimeEvent(entry) && <div className={style.entryIndex}>{currentEntryMetadata.eventIndex}</div>}
                       <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
                         <RundownEntry
                           type={entry.type}
-                          isPast={rundownMetadata.isPast}
-                          eventIndex={rundownMetadata.eventIndex}
+                          isPast={currentEntryMetadata.isPast}
+                          eventIndex={currentEntryMetadata.eventIndex}
                           data={entry}
-                          loaded={rundownMetadata.isLoaded}
+                          loaded={currentEntryMetadata.isLoaded}
                           hasCursor={hasCursor}
                           isNext={isNext}
-                          previousEntryId={rundownMetadata.previousEntryId}
-                          previousEventId={rundownMetadata.previousEvent?.id}
-                          playback={rundownMetadata.isLoaded ? featureData.playback : undefined}
+                          previousEntryId={currentEntryMetadata.previousEntryId}
+                          previousEventId={currentEntryMetadata.previousEvent?.id}
+                          playback={currentEntryMetadata.isLoaded ? featureData.playback : undefined}
                           isRolling={featureData.playback === Playback.Roll}
-                          isNextDay={rundownMetadata.isNextDay}
-                          totalGap={rundownMetadata.totalGap}
-                          isLinkedToLoaded={rundownMetadata.isLinkedToLoaded}
+                          isNextDay={currentEntryMetadata.isNextDay}
+                          totalGap={currentEntryMetadata.totalGap}
+                          isLinkedToLoaded={currentEntryMetadata.isLinkedToLoaded}
                         />
                       </div>
                     </div>
                   )}
-                  {isEditMode && (hasCursor || isLast) && (
+                  {isEditMode && hasCursor && ( // Only show QuickAddBlock after if this specific item has cursor
                     <QuickAddBlock
+                      previousEventId={entry.id} // Previous is this entry itself
+                      parentBlock={currentEntryMetadata.groupId}
+                      backgroundColor={blockColour}
+                    />
+                  )}
+                  {/* Special case for last item if it's not the one with cursor but needs a QAB */}
+                  {isEditMode && isLast && !hasCursor && (
+                     <QuickAddBlock
                       previousEventId={entry.id}
-                      parentBlock={rundownMetadata.groupId}
+                      parentBlock={currentEntryMetadata.groupId}
                       backgroundColor={blockColour}
                     />
                   )}
