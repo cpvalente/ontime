@@ -1,10 +1,10 @@
 import { ChangeEvent, useRef, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
 import { useSearchParams } from 'react-router-dom';
-import { Button, Input } from '@chakra-ui/react';
 
 import { uploadProjectFile } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
 import { validateProjectFile } from '../../../../common/utils/uploadUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -57,7 +57,7 @@ export default function ManageProjects() {
 
   return (
     <Panel.Section>
-      <Input
+      <input
         ref={fileInputRef}
         style={{ display: 'none' }}
         type='file'
@@ -70,22 +70,14 @@ export default function ManageProjects() {
           Manage projects
           <Panel.InlineElements>
             <Button
-              variant='ontime-subtle'
               onClick={handleSelectFile}
-              size='sm'
-              isDisabled={Boolean(loading) || isCreatingProject}
-              isLoading={loading === 'import'}
+              disabled={Boolean(loading) || isCreatingProject}
+              loading={loading === 'import'}
             >
               Import
             </Button>
-            <Button
-              variant='ontime-subtle'
-              onClick={handleToggleCreate}
-              size='sm'
-              isDisabled={Boolean(loading) || isCreatingProject}
-              rightIcon={<IoAdd />}
-            >
-              New
+            <Button onClick={handleToggleCreate} disabled={Boolean(loading) || isCreatingProject}>
+              New <IoAdd />
             </Button>
           </Panel.InlineElements>
         </Panel.SubHeader>

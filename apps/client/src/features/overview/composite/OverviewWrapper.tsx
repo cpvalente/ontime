@@ -1,7 +1,6 @@
 import { PropsWithChildren, ReactNode } from 'react';
 import { ErrorBoundary } from '@sentry/react';
-import { Playback } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { isPlaybackActive, millisToString } from 'ontime-utils';
 
 import { useIsOnline, useRuntimePlaybackOverview, useTimer } from '../../../common/hooks/useSocket';
 import useProjectData from '../../../common/hooks-query/useProjectData';
@@ -72,8 +71,9 @@ export function ProgressOverview() {
 export function RuntimeOverview() {
   const { clock, offset, playback } = useRuntimePlaybackOverview();
 
-  const offsetText = getOffsetText(offset);
-  const offsetClasses = cx([style.offset, playback !== Playback.Stop && (offset < 0 ? style.behind : style.ahead)]);
+  const isPlaying = isPlaybackActive(playback);
+  const offsetText = getOffsetText(isPlaying ? offset : null);
+  const offsetClasses = cx([style.offset, isPlaying && (offset < 0 ? style.behind : style.ahead)]);
 
   return (
     <>

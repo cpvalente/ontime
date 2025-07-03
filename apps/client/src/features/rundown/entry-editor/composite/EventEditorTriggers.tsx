@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useState } from 'react';
+import { Fragment, useCallback, useMemo, useState } from 'react';
 import { IoAlertCircle, IoCheckmarkCircle, IoTrash } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
 import { TimerLifeCycle, timerLifecycleValues, Trigger } from 'ontime-types';
@@ -66,18 +66,38 @@ function EventTriggerForm({ eventId, triggers }: EventTriggerFormProps) {
 
   const validationError = getValidationError(cycleValue, automationId);
 
+  const triggerOptions = useMemo(
+    () => [
+      { value: null, label: 'Select Trigger' },
+      ...eventTriggerOptions.map((cycle) => ({ value: cycle, label: cycle })),
+    ],
+    [], // eventTriggerOptions is a constant, no need for dependency
+  );
+
+  const automationOptions = useMemo(
+    () => [
+      { value: null, label: 'Select Automation' },
+      ...Object.values(automationSettings.automations).map(({ id, title }) => ({ value: id, label: title })),
+    ],
+    [automationSettings.automations], // This needs to be a dependency as it can change
+  );
+
   return (
     <div className={style.triggerForm}>
       <Select
         value={cycleValue}
-        onChange={(value) => setCycleValue(value)}
-        options={eventTriggerOptions.map((cycle) => ({ value: cycle, label: cycle }))}
+        onValueChange={(value) => {
+          if (value !== null) setCycleValue(value);
+        }}
+        options={triggerOptions}
       />
 
       <Select
-        value={automationId}
-        onChange={(value) => setAutomationId(value)}
-        options={Object.values(automationSettings.automations).map(({ id, title }) => ({ value: id, label: title }))}
+        value={automationId ?? null}
+        onValueChange={(value) => {
+          if (value !== null) setAutomationId(value);
+        }}
+        options={automationOptions}
       />
 
       <Button
