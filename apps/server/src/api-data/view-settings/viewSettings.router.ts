@@ -5,7 +5,7 @@ import { getErrorMessage } from 'ontime-utils';
 
 import { validateViewSettings } from './viewSettings.validation.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { scheduleRefetch } from '../../adapters/WebsocketAdapter.js';
 
 export const router = express.Router();
 
@@ -26,9 +26,7 @@ router.post('/', validateViewSettings, async (req: Request, res: Response<ViewSe
     } as ViewSettings;
     await getDataProvider().setViewSettings(newData);
     res.status(200).send(newData);
-    setImmediate(() => {
-      sendRefetch(RefetchKey.ViewSettings);
-    });
+    scheduleRefetch(RefetchKey.ViewSettings);
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });
