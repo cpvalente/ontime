@@ -1,5 +1,5 @@
 import { type PropsWithChildren } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import style from './AppLink.module.scss';
 

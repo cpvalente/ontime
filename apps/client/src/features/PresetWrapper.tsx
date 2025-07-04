@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 import { ComponentType, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 
 import useUrlPresets from '../common/hooks-query/useUrlPresets';
 import { getRouteFromPreset } from '../common/utils/urlPresets';

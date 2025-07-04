@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { ProjectData } from 'ontime-types';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';

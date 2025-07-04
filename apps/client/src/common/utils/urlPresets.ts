@@ -1,4 +1,4 @@
-import { Path, resolvePath } from 'react-router-dom';
+import { Path, resolvePath } from 'react-router';
 import { URLPreset } from 'ontime-types';
 
 /**

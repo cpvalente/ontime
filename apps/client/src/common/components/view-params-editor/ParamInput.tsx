@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IoChevronDown } from 'react-icons/io5';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import {
   Button,
   Input,
