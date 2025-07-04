@@ -7,15 +7,29 @@
   border-radius: 3px;
   font-size: $text-body-size;
   padding: 1rem;
-
-  .content {
-    color: $gray-200;
-  }
+  color: $gray-200;
 
   svg {
     min-width: 1.5rem;
     align-self: start;
     font-size: 1.5rem;
+  }
+}
+
+.info {
+  svg {
     color: $info-blue;
+  }
+}
+
+.warning {
+  svg {
+    color: $orange-500;
+  }
+}
+
+.error {
+  svg {
+    color: $red-500;
   }
 }

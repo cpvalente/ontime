@@ -45,36 +45,11 @@
   }
 }
 
-.uploadLogoCard {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-
-  background-color: $gray-1350;
-  border: 1px solid $white-10;
-  border-radius: 3px;
-
-  img {
-    max-width: 250px;
-    height: auto;
-  }
+.warningInfo {
+  margin-bottom: 1rem;
 }
 
-.customDataItem {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
- 
-  .titleRow{
-    display: flex;
-    gap: 1rem;
-    align-items: end;
-
-    label {
-      flex: 1;
-    }
-  }
+.empty {
+  height: 300px;
+  position: relative;
 }

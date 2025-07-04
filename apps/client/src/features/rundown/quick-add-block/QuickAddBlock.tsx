@@ -59,9 +59,9 @@ function QuickAddBlock({ previousEventId, parentBlock, backgroundColor }: QuickA
   /**
    * If the colour is empty string ''
    * ie: we are inside a block, but there is no defined colour
-   * we default to $gray-1050 #303030
+   * we default to $gray-500 #9d9d9d
    */
-  const blockColour = backgroundColor === '' ? '#303030' : backgroundColor;
+  const blockColour = backgroundColor === '' ? '#9d9d9d' : backgroundColor;
 
   return (
     <div className={style.quickAdd} style={blockColour ? { '--user-bg': blockColour } : {}}>

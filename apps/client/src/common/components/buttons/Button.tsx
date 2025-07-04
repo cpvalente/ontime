@@ -6,7 +6,15 @@ import { cx } from '../../utils/styleUtils';
 import style from './Button.module.scss';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'subtle' | 'subtle-white' | 'destructive' | 'subtle-destructive' | 'ghosted' | 'ghosted-white';
+  variant?:
+    | 'primary'
+    | 'subtle'
+    | 'subtle-white'
+    | 'destructive'
+    | 'subtle-destructive'
+    | 'ghosted'
+    | 'ghosted-white'
+    | 'ghosted-destructive';
   size?: 'small' | 'medium' | 'large' | 'xlarge';
   fluid?: boolean;
   loading?: boolean;

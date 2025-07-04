@@ -7,11 +7,11 @@ import {
   IoReorderTwo,
   IoTrash,
 } from 'react-icons/io5';
-import { IconButton } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId, OntimeBlock } from 'ontime-types';
 
+import IconButton from '../../../common/components/buttons/IconButton';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
@@ -120,13 +120,7 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
       <div className={style.header}>
         <div className={style.titleRow}>
           <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
-          <IconButton
-            aria-label='Collapse'
-            onClick={() => onCollapse(!collapsed, data.id)}
-            color='#e2e2e2' // $gray-200
-            variant='ontime-ghosted'
-            size='sm'
-          >
+          <IconButton aria-label='Collapse' variant='subtle-white' onClick={() => onCollapse(!collapsed, data.id)}>
             {collapsed ? <IoChevronUp /> : <IoChevronDown />}
           </IconButton>
         </div>

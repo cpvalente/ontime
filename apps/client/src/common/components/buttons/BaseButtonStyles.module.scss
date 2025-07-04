@@ -1,6 +1,7 @@
 .subtle {
   background: $gray-1050;
   color: $blue-400;
+  line-height: 1em;
 
   &:hover:not(:disabled):not(:active) {
     background: $gray-1000;
@@ -106,6 +107,26 @@
   &:hover:not(:disabled):not(:active) {
     background: $gray-1000;
     color: $ui-white;
+  }
+
+  &:active:not(:disabled) {
+    background: $gray-1100;
+    border-color: $gray-1250;
+  }
+
+  &:disabled {
+    opacity: $opacity-disabled;
+  }
+}
+
+
+.ghosted-destructive {
+  background: transparent;
+  color: $red-500;
+
+  &:hover:not(:disabled):not(:active) {
+    background: $gray-1000;
+    color: $red-500;
   }
 
   &:active:not(:disabled) {

@@ -1,7 +1,7 @@
 import { HTMLAttributes, PropsWithChildren, ReactNode } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { Button } from '@chakra-ui/react';
 
+import Button from '../../../common/components/buttons/Button';
 import { cx } from '../../../common/utils/styleUtils';
 
 import style from './PanelUtils.module.scss';
@@ -68,14 +68,8 @@ export function TableEmpty({ label, handleClick }: { label?: string; handleClick
       <td colSpan={99}>
         <div>{label ?? 'No data yet'}</div>
         {handleClick && (
-          <Button
-            onClick={handleClick}
-            isDisabled={!handleClick}
-            variant='ontime-filled'
-            rightIcon={<IoAdd />}
-            size='sm'
-          >
-            New
+          <Button onClick={handleClick} disabled={!handleClick} variant='primary'>
+            New <IoAdd />
           </Button>
         )}
       </td>

@@ -84,6 +84,7 @@ export default function EventRow({
         '--user-bg': parentBgColour ?? 'transparent',
       }}
       ref={selectedRef ?? ownRef}
+      data-testid='cuesheet-event'
     >
       {showActionMenu && (
         <td className={style.actionColumn} tabIndex={-1} role='cell'>

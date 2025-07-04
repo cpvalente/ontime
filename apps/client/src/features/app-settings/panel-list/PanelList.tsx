@@ -68,12 +68,12 @@ function PanelListItem(props: PanelListItemProps) {
       >
         {panel.label}
       </li>
-      {panel.secondary?.map((secondary) => {
+      {panel.secondary?.map((secondary, index) => {
         const id = secondary.id.split('__')[1];
         const secondaryClasses = cx([style.secondary, isSelected && location === id ? style.active : null]);
         return (
           <li
-            key={secondary.id}
+            key={secondary.id + index}
             onClick={() => setLocation(secondary.id as SettingsOptionId)}
             onKeyDown={(event) => {
               isKeyEnter(event) && setLocation(secondary.id as SettingsOptionId);

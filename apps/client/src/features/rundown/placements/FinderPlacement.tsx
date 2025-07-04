@@ -1,21 +1,20 @@
 import { memo } from 'react';
-import { useDisclosure } from '@chakra-ui/react';
-import { useHotkeys } from '@mantine/hooks';
+import { useDisclosure, useHotkeys } from '@mantine/hooks';
 
 import Finder from '../../../views/editor/finder/Finder';
 
 export default memo(FinderPlacement);
 
 function FinderPlacement() {
-  const { isOpen, onToggle, onClose } = useDisclosure();
+  const [isOpen, handler] = useDisclosure();
 
   useHotkeys([
-    ['mod + f', onToggle],
-    ['Escape', onClose],
+    ['mod + f', handler.toggle],
+    ['Escape', handler.close],
   ]);
 
   if (isOpen) {
-    return <Finder isOpen={isOpen} onClose={onClose} />;
+    return <Finder isOpen={isOpen} onClose={handler.close} />;
   }
 
   return null;

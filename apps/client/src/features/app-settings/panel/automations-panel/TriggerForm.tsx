@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Select } from '@chakra-ui/react';
+import { Select } from '@chakra-ui/react';
 import { NormalisedAutomation, TimerLifeCycle, TriggerDTO } from 'ontime-types';
 
 import { addTrigger, editTrigger } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
+import Input from '../../../../common/components/input/input/Input';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -87,9 +89,7 @@ export default function TriggerForm(props: TriggerFormProps) {
         Title
         <Input
           {...register('title', { required: { value: true, message: 'Required field' } })}
-          size='sm'
-          variant='ontime-filled'
-          autoComplete='off'
+          fluid
           defaultValue={initialTitle}
         />
         <Panel.Error>{errors.title?.message}</Panel.Error>
@@ -127,10 +127,10 @@ export default function TriggerForm(props: TriggerFormProps) {
         <Panel.Error>{errors.automationId?.message}</Panel.Error>
       </label>
       <Panel.InlineElements align='end'>
-        <Button size='sm' variant='ontime-subtle' isDisabled={isSubmitting} onClick={onCancel}>
+        <Button disabled={isSubmitting} onClick={onCancel}>
           Cancel
         </Button>
-        <Button type='submit' size='sm' variant='ontime-filled' isDisabled={!canSubmit} isLoading={isSubmitting}>
+        <Button type='submit' variant='primary' disabled={!canSubmit} loading={isSubmitting}>
           Save
         </Button>
       </Panel.InlineElements>

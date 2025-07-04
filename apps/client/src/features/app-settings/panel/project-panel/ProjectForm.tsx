@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input } from '@chakra-ui/react';
 
+import Button from '../../../../common/components/buttons/Button';
+import Input from '../../../../common/components/input/input/Input';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -45,21 +46,16 @@ export default function ProjectForm({ action, filename, onSubmit, onCancel }: Pr
       <Input
         className={style.formInput}
         id='filename'
-        size='sm'
-        type='text'
-        variant='ontime-filled'
         placeholder='Enter new name'
-        autoComplete='off'
         {...register('filename', { required: true })}
       />
       <Panel.InlineElements relation='inner'>
-        <Button onClick={onCancel} size='sm' variant='ontime-ghosted' disabled={isSubmitting}>
+        <Button onClick={onCancel} variant='ghosted' disabled={isSubmitting}>
           Cancel
         </Button>
         <Button
-          size='sm'
-          variant='ontime-filled'
-          isDisabled={!isDirty || !isValid || isSubmitting}
+          variant='primary'
+          disabled={!isDirty || !isValid || isSubmitting}
           type='submit'
           className={style.saveButton}
         >

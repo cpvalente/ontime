@@ -1,9 +1,11 @@
 import { Controller, useForm } from 'react-hook-form';
-import { Button, Input, Switch } from '@chakra-ui/react';
+import { Switch } from '@chakra-ui/react';
 
 import { editAutomationSettings } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
+import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
@@ -57,16 +59,15 @@ export default function AutomationSettingsForm(props: AutomationSettingsProps) {
       <Panel.SubHeader>
         Automation settings
         <Panel.InlineElements>
-          <Button variant='ontime-ghosted' size='sm' onClick={onReset} isDisabled={!canSubmit}>
+          <Button variant='ghosted' onClick={onReset} disabled={!canSubmit}>
             Revert to saved
           </Button>
           <Button
-            variant='ontime-filled'
-            size='sm'
+            variant='primary'
             type='submit'
             form='automation-settings-form'
-            isDisabled={!canSubmit}
-            isLoading={isSubmitting}
+            disabled={!canSubmit}
+            loading={isSubmitting}
           >
             Save
           </Button>
@@ -139,13 +140,10 @@ export default function AutomationSettingsForm(props: AutomationSettingsProps) {
             <Input
               id='oscPortIn'
               placeholder='8888'
-              width='5rem'
               maxLength={5}
-              size='sm'
-              textAlign='right'
-              variant='ontime-filled'
+              style={{ textAlign: 'right', width: '5rem' }}
               type='number'
-              autoComplete='off'
+              fluid
               {...register('oscPortIn', {
                 required: { value: true, message: 'Required field' },
                 max: { value: 65535, message: 'Port must be within range 1024 - 65535' },

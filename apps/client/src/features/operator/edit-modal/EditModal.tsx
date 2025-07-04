@@ -1,11 +1,11 @@
 import { Fragment, useRef, useState } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { Dialog } from '@base-ui-components/react/dialog';
-import { Textarea } from '@chakra-ui/react';
 import { OntimeEvent } from 'ontime-types';
 
 import Button from '../../../common/components/buttons/Button';
 import IconButton from '../../../common/components/buttons/IconButton';
+import Textarea from '../../../common/components/input/textarea/Textarea';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { EditEvent } from '../operator.types';
 
@@ -74,11 +74,10 @@ export default function EditModal(props: EditModalProps) {
                     ref={(element) => {
                       if (element) inputRef.current.push(element);
                     }}
-                    variant='ontime-filled'
                     placeholder={`Add value for ${field.label} field`}
                     defaultValue={field.value}
                     data-field={field.id}
-                    isDisabled={loading}
+                    disabled={loading}
                     resize='none'
                     rows={5}
                   />

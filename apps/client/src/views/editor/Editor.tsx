@@ -40,7 +40,7 @@ export default function Editor() {
     if (isSettingsOpen) {
       close();
     } else {
-      setLocation('project');
+      setLocation('settings');
     }
   }, [close, isSettingsOpen, setLocation]);
 
@@ -54,12 +54,7 @@ export default function Editor() {
         <IconButton aria-label='Toggle navigation' variant='subtle-white' size='xlarge' onClick={handler.open}>
           <IoApps />
         </IconButton>
-        <IconButton
-          aria-label='Toggle settings'
-          variant={isSettingsOpen ? 'subtle' : 'subtle-white'}
-          size='xlarge'
-          onClick={toggleSettings}
-        >
+        <IconButton aria-label='Toggle settings' variant='subtle-white' size='xlarge' onClick={toggleSettings}>
           {isSettingsOpen ? <IoClose /> : <IoSettingsOutline />}
         </IconButton>
       </EditorOverview>

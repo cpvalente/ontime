@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Switch } from '@chakra-ui/react';
+import { Switch } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { PROJECT_DATA } from '../../../../common/api/constants';
 import { getDb, patchData } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -76,16 +77,10 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
       <Panel.Title>
         Merge {`"${fileName}"`}
         <Panel.InlineElements>
-          <Button onClick={onClose} variant='ontime-ghosted' size='sm' isDisabled={isSubmitting}>
+          <Button onClick={onClose} variant='ghosted' disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button
-            isDisabled={!isValid || !isDirty}
-            type='submit'
-            isLoading={isSubmitting}
-            variant='ontime-filled'
-            size='sm'
-          >
+          <Button type='submit' disabled={!isValid || !isDirty} loading={isSubmitting} variant='primary'>
             Merge
           </Button>
         </Panel.InlineElements>

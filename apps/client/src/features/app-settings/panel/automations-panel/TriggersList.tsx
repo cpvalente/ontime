@@ -1,10 +1,10 @@
 import { Fragment, useMemo, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { Button } from '@chakra-ui/react';
 import { NormalisedAutomation, Trigger } from 'ontime-types';
 
 import { deleteTrigger } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -47,17 +47,8 @@ export default function TriggersList(props: TriggersListProps) {
     <Panel.Card>
       <Panel.SubHeader>
         Manage triggers
-        <Button
-          variant='ontime-subtle'
-          rightIcon={<IoAdd />}
-          size='sm'
-          type='submit'
-          form='trigger-form'
-          isDisabled={!canAdd}
-          isLoading={false}
-          onClick={() => setShowForm(true)}
-        >
-          New
+        <Button type='submit' form='trigger-form' disabled={!canAdd} loading={false} onClick={() => setShowForm(true)}>
+          New <IoAdd />
         </Button>
       </Panel.SubHeader>
       <Panel.Divider />

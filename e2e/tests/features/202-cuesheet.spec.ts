@@ -9,6 +9,6 @@ test('cuesheet displays events', async ({ page }) => {
   await expect(page.locator('#cuesheet')).toBeVisible();
 
   // there should be 16 rows in the table (same as the amount of events in the rundown)
-  const rowCount = await page.locator('#cuesheet tbody tr').count();
-  expect(rowCount).toBe(16);
+  await expect(page.getByTestId('cuesheet-event')).toHaveCount(14);
+  await expect(page.getByTestId('cuesheet-block')).toHaveCount(2);
 });

@@ -74,7 +74,7 @@ export default function Welcome({ onClose }: WelcomeProps) {
           <div className={style.column}>
             <div className={style.header}>
               Welcome to Ontime
-              <IconButton variant='subtle-white'>
+              <IconButton aria-label='close welcome modal' variant='subtle-white'>
                 <IoClose />
               </IconButton>
             </div>

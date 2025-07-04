@@ -4,7 +4,6 @@
  */
 
 import { ChangeEvent, useRef } from 'react';
-import { Input } from '@chakra-ui/react';
 
 import { uploadProjectFile } from '../../../../common/api/db';
 import { invalidateAllCaches } from '../../../../common/api/utils';
@@ -41,7 +40,7 @@ export default function ImportProjectButton({ onFinish }: ImportProjectButtonPro
 
   return (
     <>
-      <Input
+      <input
         ref={fileInputRef}
         style={{ display: 'none' }}
         type='file'
