@@ -1,4 +1,5 @@
 import { DatabaseModel, EndAction, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
+import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
 export const demoDb: DatabaseModel = {
   rundowns: {
@@ -513,7 +514,7 @@ export const demoDb: DatabaseModel = {
     custom: [],
   },
   settings: {
-    version: '-',
+    version: ONTIME_VERSION,
     serverPort: 4001,
     editorKey: null,
     operatorKey: null,
