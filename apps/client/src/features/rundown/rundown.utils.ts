@@ -244,17 +244,20 @@ export function moveDown(
   const currentIndex = flatOrder.indexOf(entryId);
   const nextEntryId = flatOrder[currentIndex + 1];
 
-  // 1. moving at the top of the list
-  if (!nextEntryId) {
-    // 1a. we are in a block and need to move outside of it
-    if ('parent' in currentEntry && currentEntry.parent !== null) {
+  // 1. check if we're the last entry in a block
+  if ('parent' in currentEntry && currentEntry.parent !== null) {
+    const parentBlock = entries[currentEntry.parent];
+    if (isOntimeBlock(parentBlock) && parentBlock.entries[parentBlock.entries.length - 1] === entryId) {
       return { destinationId: currentEntry.parent, order: 'after' };
     }
-    // 1b. we are at the end of the rundown, no movement possible
+  }
+
+  // 2. moving at the end of the list
+  if (!nextEntryId) {
     return { destinationId: null, order: 'after' };
   }
 
-  // 2. moving a block (always moves at top level)
+  // 3. moving a block (always moves at top level)
   if (isOntimeBlock(currentEntry)) {
     // if next entry is inside this block, skip past all children
     if (currentEntry.entries.includes(nextEntryId)) {
@@ -275,7 +278,7 @@ export function moveDown(
   const nextEntry = entries[nextEntryId];
   const currentEntryParent = currentEntry.parent;
 
-  // 3. handle moving relative to blocks
+  // 4. handle moving relative to blocks
   if (isOntimeBlock(nextEntry)) {
     if (currentEntryParent === null) {
       // we are entering a block
@@ -289,7 +292,7 @@ export function moveDown(
     }
   }
 
-  // 4. handle moving between block and top level
+  // 5. handle moving between block and top level
   const nextEntryParent = isOntimeEvent(nextEntry) ? nextEntry.parent : null;
   if (nextEntryParent !== null && currentEntryParent === null) {
     return { destinationId: nextEntryId, order: 'after' };
