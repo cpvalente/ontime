@@ -24,6 +24,7 @@ import {
 import { addDialog } from '../stores/dialogStore';
 import { addLog } from '../stores/logger';
 import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
+import { triggerRefetchViewSettings } from '../api/viewSettings';
 
 let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
@@ -161,7 +162,7 @@ export const connectSocket = () => {
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
               break;
             case RefetchKey.ViewSettings:
-              ontimeQueryClient.invalidateQueries({ queryKey: VIEW_SETTINGS });
+              triggerRefetchViewSettings(revision);
               break;
             case RefetchKey.Report:
               ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
