@@ -748,26 +748,28 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
      *
      * Then check if there is actually a change in the data
      */
+    // --- TIMER UPDATE LOGIC ---
+    // Update if: an immediate change occurred OR the displayed second of the timer.current changed,
+    // AND the timer object is actually different.
+    // Removed direct getForceUpdate from here; periodic internal automation triggers are handled by checkTimerUpdate.
+    const timerDisplayValueChanged = getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current);
+    const timerPrimaryConditionsMet = hasImmediateChanges || timerDisplayValueChanged;
     const shouldUpdateTimer =
-      (hasImmediateChanges ||
-        getForceUpdate(RuntimeService.previousTimerUpdate, state.clock) ||
-        getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current)) &&
+      timerPrimaryConditionsMet &&
       !deepEqual(RuntimeService.previousState?.timer, state.timer);
 
-    /**
-     * Runtime should be updated if
-     * - clock tick
-     * - big changes
-     * - the timer is updating so runtime also updates to keep them in sync ???
-     * - notification rate has been exceeded
-     *
-     * Then check if there is actually a change in the data
-     */
+    // --- RUNTIME UPDATE LOGIC ---
+    // Update if: an immediate change, the timer updated (as runtime often depends on timer, e.g. expectedEnd),
+    // or selectedEventIndex changed, AND the runtime object is actually different.
+    // normalClockUpdate is still used for shouldUpdateClock.
+    // Runtime data often depends on the clock (e.g. expectedEnd), so if the clock is due for an update,
+    // check runtime too.
+    const runtimePrimaryTriggers = hasImmediateChanges || shouldUpdateTimer;
+    const selectedEventChanged = RuntimeService.previousState?.runtime?.selectedEventIndex !== state.runtime.selectedEventIndex;
+    const runtimeDataDrivenConditionsMet = runtimePrimaryTriggers || selectedEventChanged || normalClockUpdate;
+
     const shouldRuntimeUpdate =
-      (normalClockUpdate ||
-        hasImmediateChanges ||
-        shouldUpdateTimer ||
-        getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock)) &&
+      runtimeDataDrivenConditionsMet &&
       !deepEqual(RuntimeService.previousState?.runtime, state.runtime);
 
     /**

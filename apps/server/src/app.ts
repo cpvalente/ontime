@@ -79,16 +79,9 @@ app.enable('etag');
 app.use(cors()); // setup cors for all routes
 app.options('*splat', cors()); // enable pre-flight cors
 
-app.use(bodyParser);
-app.use(cookieParser());
-const { authenticate, authenticateAndRedirect } = makeAuthenticateMiddleware(prefix);
+// app.use(bodyParser); // Removed global bodyParser
 
-// Implement route endpoints
-app.use(`${prefix}/login`, loginRouter); // router for login flow
-app.use(`${prefix}/data`, authenticate, appRouter); // router for application data
-app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
-
-// serve static external files
+// Serve /external and /user routes BEFORE cookieParser, as they don't require cookies/authentication
 app.use(`${prefix}/external`, express.static(publicDir.externalDir, { etag: false, lastModified: true }));
 app.use(`${prefix}/external`, (req, res) => {
   // if the user reaches to the root, we show a 404
@@ -96,7 +89,17 @@ app.use(`${prefix}/external`, (req, res) => {
 });
 app.use(`${prefix}/user`, express.static(publicDir.userDir, { etag: false, lastModified: true }));
 
-// Base route for static files
+// Apply cookieParser for all subsequent routes that might need authentication or cookie handling
+app.use(cookieParser());
+const { authenticate, authenticateAndRedirect } = makeAuthenticateMiddleware(prefix);
+
+// Implement route endpoints
+// Apply bodyParser selectively to routes that need it
+app.use(`${prefix}/login`, bodyParser, loginRouter); // router for login flow
+app.use(`${prefix}/data`, bodyParser, authenticate, appRouter); // router for application data
+app.use(`${prefix}/api`, bodyParser, authenticate, integrationRouter); // router for integrations
+
+// Base route for static files (these require authentication and thus cookieParser)
 app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);
 app.use(`${prefix}/*splat`, authenticateAndRedirect, compressedStatic);
 
