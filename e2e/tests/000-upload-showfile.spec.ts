@@ -9,8 +9,12 @@ const fileToDownload = 'e2e/tests/fixtures/tmp/';
 test('project file upload', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
-  if (await page.getByText('Welcome to Ontime')) {
-    await page.getByRole('button', { name: 'Close' }).click();
+  // Try to close welcome modal if it appears (times out silently if not present)
+  try {
+    await page.getByText('Welcome to Ontime').waitFor({ timeout: 1000 });
+    await page.getByRole('button', { name: 'close welcome modal' }).click();
+  } catch {
+    // Modal wasn't shown, continue with the test
   }
 
   await page.getByRole('button', { name: 'Edit' }).click();

@@ -30,7 +30,7 @@ export default function BlockRow({ blockId, colour, hidePast, rowId, rowIndex, t
   }
 
   return (
-    <tr className={style.blockRow} style={{ '--user-bg': colour }}>
+    <tr className={style.blockRow} style={{ '--user-bg': colour }} data-testid='cuesheet-block'>
       {showActionMenu && (
         <td className={style.actionColumn} tabIndex={-1} role='cell'>
           <IconButton

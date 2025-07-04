@@ -12,45 +12,38 @@ export type SettingsOption = {
 
 const staticOptions = [
   {
+    id: 'settings',
+    label: 'Settings',
+    secondary: [
+      { id: 'settings__data', label: 'Project data' },
+      { id: 'settings__general', label: 'General settings' },
+      { id: 'settings__view', label: 'View settings' },
+    ],
+  },
+  {
     id: 'project',
     label: 'Project',
+    split: true,
     secondary: [
       { id: 'project__create', label: 'Create...' },
-      { id: 'project__data', label: 'Project data' },
-      { id: 'project__rundowns', label: 'Manage rundowns' },
       { id: 'project__list', label: 'Manage projects' },
     ],
   },
   {
-    id: 'general',
-    label: 'App Settings',
+    id: 'manage',
+    label: 'Project data',
     secondary: [
-      { id: 'general__settings', label: 'General settings' },
-      { id: 'general__editor', label: 'Editor settings' },
-      { id: 'general__view', label: 'View settings' },
+      { id: 'manage__defaults', label: 'Rundown defaults' },
+      { id: 'manage__custom', label: 'Custom fields' },
+      { id: 'manage__rundowns', label: 'Manage rundowns' },
+      { id: 'manage__sheets', label: 'Import spreadsheet' },
+      { id: 'manage__sheets', label: 'Sync with Google Sheet' },
     ],
-  },
-  {
-    id: 'feature_settings',
-    label: 'Feature Settings',
-    secondary: [
-      { id: 'feature_settings__custom', label: 'Custom fields' },
-      { id: 'feature_settings__urlpresets', label: 'URL Presets' },
-      { id: 'feature_settings__report', label: 'Report' },
-    ],
-  },
-  {
-    id: 'sources',
-    label: 'Data Sources',
-    secondary: [
-      { id: 'sources__xlsx', label: 'Import spreadsheet' },
-      { id: 'sources__gsheet', label: 'Sync with Google Sheet' },
-    ],
-    split: true,
   },
   {
     id: 'automation',
     label: 'Automation',
+    split: true,
     secondary: [
       { id: 'automation__settings', label: 'Automation settings' },
       { id: 'automation__automations', label: 'Manage automations' },
@@ -58,14 +51,23 @@ const staticOptions = [
     ],
   },
   {
+    id: 'sharing',
+    label: 'Sharing and reporting',
+    split: true,
+    secondary: [
+      { id: 'sharing__presets', label: 'URL Presets' },
+      {
+        id: 'sharing__link',
+        label: 'Share link',
+      },
+      { id: 'sharing__report', label: 'Runtime report' },
+    ],
+  },
+  {
     id: 'network',
     label: 'Network',
     split: true,
     secondary: [
-      {
-        id: 'network__link',
-        label: 'Share link',
-      },
       {
         id: 'network__log',
         label: 'Event log',

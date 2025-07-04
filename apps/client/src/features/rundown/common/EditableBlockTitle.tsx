@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
-import { Input } from '@chakra-ui/react';
 
+import Input from '../../../common/components/input/input/Input';
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx } from '../../../common/utils/styleUtils';
@@ -39,7 +39,8 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
   return (
     <Input
       data-testid='block__title'
-      variant='ontime-ghosted'
+      variant='ghosted'
+      fluid
       ref={ref}
       value={value}
       className={classes}
@@ -47,12 +48,6 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
       onChange={onChange}
       onBlur={onBlur}
       onKeyDown={onKeyDown}
-      autoComplete='off'
-      fontWeight='600'
-      letterSpacing='0.25px'
-      paddingLeft='0'
-      size='sm'
-      fontSize='1rem'
     />
   );
 }

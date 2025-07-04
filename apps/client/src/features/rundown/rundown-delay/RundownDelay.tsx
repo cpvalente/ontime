@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { IoCheckmarkDone, IoClose, IoReorderTwo } from 'react-icons/io5';
-import { Button } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { OntimeDelay } from 'ontime-types';
 
+import Button from '../../../common/components/buttons/Button';
 import DelayInput from '../../../common/components/input/delay-input/DelayInput';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx } from '../../../common/utils/styleUtils';
@@ -64,10 +64,11 @@ export default function RundownDelay({ data, hasCursor }: RundownDelayProps) {
       </span>
       <DelayInput eventId={data.id} duration={data.duration} />
       <div className={style.actionButtons}>
-        <Button onClick={applyDelayHandler} size='sm' leftIcon={<IoCheckmarkDone />} variant='ontime-ghosted-white'>
-          Make permanent
+        <Button onClick={applyDelayHandler} variant='ghosted-white'>
+          <IoCheckmarkDone /> Make permanent
         </Button>
-        <Button onClick={cancelDelayHandler} size='sm' leftIcon={<IoClose />} variant='ontime-ghosted-white'>
+        <Button onClick={cancelDelayHandler} variant='ghosted-white'>
+          <IoClose />
           Cancel
         </Button>
       </div>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
-import { Button, IconButton, Input, Radio, RadioGroup, Select } from '@chakra-ui/react';
+import { Radio, RadioGroup, Select } from '@chakra-ui/react';
 import {
   Automation,
   AutomationDTO,
@@ -15,7 +15,10 @@ import {
 
 import { addAutomation, editAutomation, testOutput } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
+import IconButton from '../../../../common/components/buttons/IconButton';
 import Info from '../../../../common/components/info/Info';
+import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
@@ -198,10 +201,8 @@ export default function AutomationForm(props: AutomationFormProps) {
             Title
             <Input
               {...register('title', { required: { value: true, message: 'Required field' } })}
-              variant='ontime-filled'
-              size='sm'
+              fluid
               placeholder='Load preset'
-              autoComplete='off'
             />
           </label>
           <Panel.Error>{errors.title?.message}</Panel.Error>
@@ -272,43 +273,22 @@ export default function AutomationForm(props: AutomationFormProps) {
                 </label>
                 <label>
                   Value to match
-                  <Input
-                    {...register(`filters.${index}.value`)}
-                    variant='ontime-filled'
-                    size='sm'
-                    placeholder='<empty / no value>'
-                    autoComplete='off'
-                  />
+                  <Input {...register(`filters.${index}.value`)} fluid placeholder='<empty / no value>' />
                 </label>
                 <div>
                   <span>&nbsp;</span>
                   <div>
-                    <IconButton
-                      aria-label='Delete'
-                      icon={<IoTrash />}
-                      variant='ontime-ghosted'
-                      size='sm'
-                      color='#FA5656' // $red-500
-                      onClick={() => removeFilter(index)}
-                      isDisabled={false}
-                      isLoading={false}
-                    />
+                    <IconButton aria-label='Delete' variant='ghosted-destructive' onClick={() => removeFilter(index)}>
+                      <IoTrash />
+                    </IconButton>
                   </div>
                 </div>
               </div>
             );
           })}
           <div>
-            <Button
-              variant='ontime-subtle'
-              size='sm'
-              type='submit'
-              rightIcon={<IoAdd />}
-              onClick={handleAddNewFilter}
-              isDisabled={false}
-              isLoading={false}
-            >
-              Add filter
+            <Button type='submit' onClick={handleAddNewFilter}>
+              Add filter <IoAdd />
             </Button>
           </div>
         </div>
@@ -342,10 +322,8 @@ export default function AutomationForm(props: AutomationFormProps) {
                       {...register(`outputs.${index}.targetIP`, {
                         required: { value: true, message: 'Required field' },
                       })}
-                      variant='ontime-filled'
-                      size='sm'
+                      fluid
                       placeholder='127.0.0.1'
-                      autoComplete='off'
                     />
                     <Panel.Error>{rowErrors?.targetIP?.message}</Panel.Error>
                   </label>
@@ -358,51 +336,32 @@ export default function AutomationForm(props: AutomationFormProps) {
                         max: { value: 65535, message: 'Port must be within range 1024 - 65535' },
                         min: { value: 1024, message: 'Port must be within range 1024 - 65535' },
                       })}
-                      variant='ontime-filled'
-                      size='sm'
+                      fluid
                       type='number'
                       maxLength={5}
                       placeholder='8000'
-                      autoComplete='off'
                     />
                     <Panel.Error>{rowErrors?.targetPort?.message}</Panel.Error>
                   </label>
                   <label>
                     Address
-                    <Input
-                      {...register(`outputs.${index}.address`)}
-                      variant='ontime-filled'
-                      size='sm'
-                      placeholder='/cue/start'
-                      autoComplete='off'
-                    />
+                    <Input {...register(`outputs.${index}.address`)} fluid placeholder='/cue/start' />
                     <Panel.Error>{rowErrors?.address?.message}</Panel.Error>
                   </label>
                   <label>
                     Arguments
-                    <TemplateInput
-                      {...register(`outputs.${index}.args`)}
-                      value={output.args}
-                      variant='ontime-filled'
-                      size='sm'
-                      placeholder='1'
-                    />
+                    <TemplateInput {...register(`outputs.${index}.args`)} value={output.args} placeholder='1' />
                     <Panel.Error>{rowErrors?.args?.message}</Panel.Error>
                   </label>
                   <div>
                     <span>&nbsp;</span>
                     <Panel.InlineElements relation='inner'>
-                      <Button size='sm' variant='ontime-ghosted-white' onClick={() => handleTestOSCOutput(index)}>
+                      <Button variant='ghosted-white' onClick={() => handleTestOSCOutput(index)}>
                         Test
                       </Button>
-                      <IconButton
-                        aria-label='Delete'
-                        icon={<IoTrash />}
-                        variant='ontime-ghosted'
-                        size='sm'
-                        onClick={() => removeOutput(index)}
-                        color='#FA5656' // $red-500
-                      />
+                      <IconButton aria-label='Delete' variant='ghosted-destructive' onClick={() => removeOutput(index)}>
+                        <IoTrash />
+                      </IconButton>
                     </Panel.InlineElements>
                   </div>
                 </div>
@@ -429,27 +388,20 @@ export default function AutomationForm(props: AutomationFormProps) {
                           message: 'HTTP messages should target http:// or https://',
                         },
                       })}
-                      variant='ontime-filled'
-                      size='sm'
+                      fluid
                       placeholder='http://127.0.0.1/start/1'
-                      autoComplete='off'
                     />
                     <Panel.Error>{rowErrors?.url?.message}</Panel.Error>
                   </label>
                   <div>
                     <span>&nbsp;</span>
                     <Panel.InlineElements relation='inner'>
-                      <Button size='sm' variant='ontime-ghosted-white' onClick={() => handleTestHTTPOutput(index)}>
+                      <Button variant='ghosted-white' onClick={() => handleTestHTTPOutput(index)}>
                         Test
                       </Button>
-                      <IconButton
-                        aria-label='Delete'
-                        icon={<IoTrash />}
-                        variant='ontime-ghosted'
-                        size='sm'
-                        onClick={() => removeOutput(index)}
-                        color='#FA5656' // $red-500
-                      />
+                      <IconButton aria-label='Delete' variant='ghosted-destructive' onClick={() => removeOutput(index)}>
+                        <IoTrash />
+                      </IconButton>
                     </Panel.InlineElements>
                   </div>
                 </div>
@@ -479,17 +431,12 @@ export default function AutomationForm(props: AutomationFormProps) {
                 >
                   <span>&nbsp;</span>
                   <Panel.InlineElements relation='inner'>
-                    <Button size='sm' variant='ontime-ghosted-white' onClick={() => handleTestOntimeAction(index)}>
+                    <Button variant='ghosted-white' onClick={() => handleTestOntimeAction(index)}>
                       Test
                     </Button>
-                    <IconButton
-                      aria-label='Delete'
-                      icon={<IoTrash />}
-                      variant='ontime-ghosted'
-                      size='sm'
-                      onClick={() => removeOutput(index)}
-                      color='#FA5656' // $red-500
-                    />
+                    <IconButton aria-label='Delete' variant='ghosted-destructive' onClick={() => removeOutput(index)}>
+                      <IoTrash />
+                    </IconButton>
                   </Panel.InlineElements>
                 </OntimeActionForm>
               </div>
@@ -500,24 +447,22 @@ export default function AutomationForm(props: AutomationFormProps) {
           return null;
         })}
         <Panel.InlineElements relation='inner'>
-          <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={handleAddNewOSCOutput}>
-            OSC
+          <Button onClick={handleAddNewOSCOutput}>
+            OSC <IoAdd />
           </Button>
-          <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={handleAddNewHTTPOutput}>
-            HTTP
+          <Button onClick={handleAddNewHTTPOutput}>
+            HTTP <IoAdd />
           </Button>
-          <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={handleAddnewOntimeAction}>
-            Ontime action
+          <Button onClick={handleAddnewOntimeAction}>
+            Ontime action <IoAdd />
           </Button>
         </Panel.InlineElements>
       </div>
 
       <Panel.InlineElements align='end'>
         {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
-        <Button variant='ontime-subtle' size='sm' onClick={onClose}>
-          Cancel
-        </Button>
-        <Button variant='ontime-filled' size='sm' type='submit' isDisabled={!canSubmit} isLoading={isSubmitting}>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button variant='primary' type='submit' disabled={!canSubmit} loading={isSubmitting}>
           Save
         </Button>
       </Panel.InlineElements>

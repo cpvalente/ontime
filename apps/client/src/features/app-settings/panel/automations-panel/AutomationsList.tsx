@@ -1,10 +1,11 @@
 import { Fragment, useState } from 'react';
 import { IoAdd, IoPencil, IoTrash } from 'react-icons/io5';
-import { Button, IconButton } from '@chakra-ui/react';
 import { AutomationDTO, NormalisedAutomation } from 'ontime-types';
 
 import { deleteAutomation } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
+import IconButton from '../../../../common/components/buttons/IconButton';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -46,14 +47,11 @@ export default function AutomationsList(props: AutomationsListProps) {
       <Panel.SubHeader>
         Manage automations
         <Button
-          variant='ontime-subtle'
-          rightIcon={<IoAdd />}
-          size='sm'
           type='submit'
-          isDisabled={Boolean(automationFormData)}
+          disabled={Boolean(automationFormData)}
           onClick={() => setAutomationFormData(automationPlaceholder)}
         >
-          New
+          New <IoAdd />
         </Button>
       </Panel.SubHeader>
 
@@ -94,21 +92,19 @@ export default function AutomationsList(props: AutomationsListProps) {
                   <td>{automations[automationId].outputs.length}</td>
                   <Panel.InlineElements align='end' relation='inner' as='td'>
                     <IconButton
-                      size='sm'
-                      variant='ontime-ghosted'
-                      color='#e2e2e2' // $gray-200
-                      icon={<IoPencil />}
+                      variant='ghosted-white'
                       aria-label='Edit entry'
                       onClick={() => setAutomationFormData(automations[automationId])}
-                    />
+                    >
+                      <IoPencil />
+                    </IconButton>
                     <IconButton
-                      size='sm'
-                      variant='ontime-ghosted'
-                      color='#FA5656' // $red-500
-                      icon={<IoTrash />}
+                      variant='ghosted-destructive'
                       aria-label='Delete entry'
                       onClick={() => handleDelete(automationId)}
-                    />
+                    >
+                      <IoTrash />
+                    </IconButton>
                   </Panel.InlineElements>
                 </tr>
                 {deleteError && (

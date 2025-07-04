@@ -18,6 +18,7 @@ function DelayRow({ duration, parentBgColour }: DelayRowProps) {
       style={{
         '--user-bg': parentBgColour ?? 'transparent',
       }}
+      data-testid='cuesheet-delay'
     >
       <td tabIndex={0} role='cell'>
         {delayTime}

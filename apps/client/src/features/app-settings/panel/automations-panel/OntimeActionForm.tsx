@@ -1,8 +1,9 @@
 import { PropsWithChildren, useState } from 'react';
 import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
-import { Input, Select } from '@chakra-ui/react';
+import { Select } from '@chakra-ui/react';
 import { AutomationDTO, OntimeAction } from 'ontime-types';
 
+import Input from '../../../../common/components/input/input/Input';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -67,10 +68,8 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
             {...register(`outputs.${index}.time`, {
               required: { value: true, message: 'Required field' },
             })}
-            variant='ontime-filled'
-            size='sm'
+            fluid
             placeholder='eg: 10m5s'
-            autoComplete='off'
           />
           <Panel.Error>{rowErrors?.time?.message}</Panel.Error>
         </label>
@@ -80,13 +79,7 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
         <>
           <label>
             Text (leave empty for no change)
-            <Input
-              {...register(`outputs.${index}.text`)}
-              variant='ontime-filled'
-              size='sm'
-              placeholder='eg: Timer is finished'
-              autoComplete='off'
-            />
+            <Input {...register(`outputs.${index}.text`)} fluid placeholder='eg: Timer is finished' />
             <Panel.Error>{rowErrors?.text?.message}</Panel.Error>
           </label>
           <label>

@@ -1,7 +1,7 @@
 import { forwardRef, useMemo, useState } from 'react';
-import { type InputProps, Input } from '@chakra-ui/react';
 import { mergeRefs, useClickOutside } from '@mantine/hooks';
 
+import Input, { type InputProps } from '../../../../../common/components/input/input/Input';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
 
 import { makeAutoCompleteList, matchRemaining, selectFromLastTemplate } from './templateInput.utils';
@@ -53,7 +53,7 @@ const TemplateInput = forwardRef(function TemplateInput(props: TemplateInputProp
 
   return (
     <div className={style.wrapper} ref={mergeRefs(localRef, ref)}>
-      <Input value={inputValue} {...rest} onChange={handleInputChange} autoComplete='off' autoCorrect='off' />
+      <Input value={inputValue} {...rest} onChange={handleInputChange} fluid />
       {showSuggestions && suggestions.length > 0 && (
         <ul className={style.suggestions}>
           {suggestions.map((suggestion) => (

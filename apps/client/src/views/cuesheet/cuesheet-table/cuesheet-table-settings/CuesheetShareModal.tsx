@@ -5,7 +5,7 @@ import RotatedLink from '../../../../common/components/icons/RotatedLink';
 import Modal from '../../../../common/components/modal/Modal';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
-import GenerateLinkFormExport from '../../../../features/app-settings/panel/network-panel/GenerateLinkFormExport';
+import GenerateLinkFormExport from '../../../../features/app-settings/panel/feature-panel/GenerateLinkFormExport';
 
 function CuesheetShareModal() {
   const { data: infoData } = useInfo();

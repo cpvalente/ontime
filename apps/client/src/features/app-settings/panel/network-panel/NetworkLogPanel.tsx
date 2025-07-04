@@ -4,17 +4,14 @@ import { MessageTag } from 'ontime-types';
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { usePing } from '../../../../common/hooks/useSocket';
 import { sendSocket } from '../../../../common/utils/socket';
-import { isDockerImage, isOntimeCloud } from '../../../../externals';
+import { isDockerImage } from '../../../../externals';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
-import ClientControlPanel from '../client-control-panel/ClientControlPanel';
 
-import GenerateLinkFormExport from './GenerateLinkFormExport';
-import InfoNif from './NetworkInterfaces';
+import ClientControlPanel from './client-control/ClientControlPanel';
 import LogExport from './NetworkLogExport';
 
 export default function NetworkLogPanel({ location }: PanelBaseProps) {
-  const linkRef = useScrollIntoView<HTMLDivElement>('link', location);
   const clientsRef = useScrollIntoView<HTMLDivElement>('clients', location);
   const logRef = useScrollIntoView<HTMLDivElement>('log', location);
 
@@ -26,21 +23,6 @@ export default function NetworkLogPanel({ location }: PanelBaseProps) {
           <OntimeCloudStats />
         </Panel.Section>
       )}
-      <div ref={linkRef}>
-        <Panel.Section>
-          <Panel.Card>
-            <Panel.SubHeader>Share Ontime Link</Panel.SubHeader>
-            <Panel.Divider />
-            {!isOntimeCloud && (
-              <>
-                <Panel.Paragraph>Ontime is streaming on the following network interfaces</Panel.Paragraph>
-                <InfoNif />
-              </>
-            )}
-            <GenerateLinkFormExport />
-          </Panel.Card>
-        </Panel.Section>
-      </div>
       <div ref={logRef}>
         <LogExport />
       </div>

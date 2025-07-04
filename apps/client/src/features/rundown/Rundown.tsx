@@ -435,9 +435,9 @@ export default function Rundown({ data }: RundownProps) {
                * Outside a block, the value will be undefined
                * If the colour is empty string ''
                * ie: we are inside a block, but there is no defined colour
-               * we default to $gray-1050 #303030
+               * we default to $gray-500 #9d9d9d
                */
-              const blockColour = rundownMetadata.groupColour === '' ? '#303030' : rundownMetadata.groupColour;
+              const blockColour = rundownMetadata.groupColour === '' ? '#9d9d9d' : rundownMetadata.groupColour;
 
               return (
                 <Fragment key={entry.id}>
