@@ -36,7 +36,7 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  background-color: color-mix(in srgb, var(--user-bg, transparent) 15%, transparent 85%);
+  background: color-mix(in srgb, transparent 90%, var(--user-bg, transparent) 10%);
 }
 
 .entryIndex {
