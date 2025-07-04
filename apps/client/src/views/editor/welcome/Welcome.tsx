@@ -1,11 +1,15 @@
+import { IoClose } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
-import { Button, Checkbox, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react';
 
 import { loadDemo, loadProject } from '../../../common/api/db';
 import { postShowWelcomeDialog } from '../../../common/api/settings';
 import { invalidateAllCaches } from '../../../common/api/utils';
+import Button from '../../../common/components/buttons/Button';
+import IconButton from '../../../common/components/buttons/IconButton';
+import Checkbox from '../../../common/components/checkbox/Checkbox';
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import ExternalLink from '../../../common/components/link/external-link/ExternalLink';
+import Modal from '../../../common/components/modal/Modal';
 import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
 
 import ImportProjectButton from './composite/ImportProjectButton';
@@ -17,8 +21,7 @@ interface WelcomeProps {
   onClose: () => void;
 }
 
-export default function Welcome(props: WelcomeProps) {
-  const { onClose } = props;
+export default function Welcome({ onClose }: WelcomeProps) {
   const navigate = useNavigate();
 
   /** handle cleanup actions before request closing the modal */
@@ -55,54 +58,56 @@ export default function Welcome(props: WelcomeProps) {
   };
 
   return (
-    <Modal isOpen onClose={handleClose} closeOnOverlayClick={false} variant='ontime'>
-      <ModalOverlay />
-      <ModalContent maxWidth='max(640px, 40vw)'>
-        <ModalCloseButton />
-        <ModalBody>
-          <div className={style.sections}>
-            <div className={style.column}>
-              <img src='ontime-logo.png' alt='ontime' className={style.logo} />
-              <div>Ontime v{appVersion}</div>
-              <ExternalLink href={websiteUrl}>Website</ExternalLink>
-              <ExternalLink href={documentationUrl}>Read the docs</ExternalLink>
-              <ExternalLink href={discordUrl}>Discord server</ExternalLink>
+    <Modal
+      isOpen
+      onClose={handleClose}
+      showBackdrop
+      bodyElements={
+        <div className={style.sections}>
+          <div className={style.about}>
+            <img src='ontime-logo.png' alt='ontime' className={style.logo} />
+            <div>Ontime v{appVersion}</div>
+            <ExternalLink href={websiteUrl}>Website</ExternalLink>
+            <ExternalLink href={documentationUrl}>Read the docs</ExternalLink>
+            <ExternalLink href={discordUrl}>Discord server</ExternalLink>
+          </div>
+          <div className={style.column}>
+            <div className={style.header}>
+              Welcome to Ontime
+              <IconButton variant='subtle-white'>
+                <IoClose />
+              </IconButton>
             </div>
-            <div className={style.column}>
-              <div className={style.header}>Welcome to Ontime</div>
-              <Editor.Title>Select project</Editor.Title>
-              <div className={style.tableContainer}>
-                <table className={style.table}>
-                  <thead>
-                    <tr>
-                      <th>File Name</th>
-                      <th>Last Used</th>
-                    </tr>
-                  </thead>
-                  <WelcomeProjectList loadProject={handleLoadProject} onClose={handleClose} />
-                </table>
-              </div>
+            <Editor.Title>Select project</Editor.Title>
+            <div className={style.tableContainer}>
+              <table className={style.table}>
+                <thead>
+                  <tr>
+                    <th>File Name</th>
+                    <th>Last Used</th>
+                  </tr>
+                </thead>
+                <WelcomeProjectList loadProject={handleLoadProject} onClose={handleClose} />
+              </table>
             </div>
           </div>
+        </div>
+      }
+      footerElements={
+        <div className={style.column}>
           <div className={style.buttonRow}>
-            <Button size='sm' variant='ontime-subtle' onClick={handleLoadDemo}>
-              Load demo project
-            </Button>
+            <Button onClick={handleLoadDemo}>Load demo project</Button>
             <ImportProjectButton onFinish={handleClose} />
-            <Button size='sm' variant='ontime-filled' onClick={handleCallCreate}>
+            <Button variant='primary' onClick={handleCallCreate}>
               Create new...
             </Button>
           </div>
-          <Checkbox
-            size='sm'
-            variant='ontime-ondark'
-            defaultChecked
-            onChange={(event) => postShowWelcomeDialog(event.target.checked)}
-          >
+          <Editor.Label className={style.inline}>
+            <Checkbox defaultChecked onCheckedChange={(checked) => postShowWelcomeDialog(checked)} />
             Show this modal on next startup
-          </Checkbox>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+          </Editor.Label>
+        </div>
+      }
+    />
   );
 }

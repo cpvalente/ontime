@@ -1,17 +1,9 @@
 import { lazy, useEffect, useRef, useState } from 'react';
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-} from '@chakra-ui/react';
 
 import { getCSSContents, postCSSContents, restoreCSSContents } from '../../../../common/api/assets';
+import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
+import Modal from '../../../../common/components/modal/Modal';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './StyleEditorModal.module.scss';
@@ -27,9 +19,7 @@ interface CSSRef {
   getCss: () => string;
 }
 
-export default function CodeEditorModal(props: CodeEditorModalProps) {
-  const { isOpen, onClose } = props;
-
+export default function CodeEditorModal({ isOpen, onClose }: CodeEditorModalProps) {
   const [css, setCSS] = useState('');
   const [isDirty, setIsDirty] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -84,46 +74,43 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
   }, [isOpen]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} variant='ontime' isCentered>
-      <ModalOverlay />
-      <ModalContent maxWidth='max(800px, 40vw)'>
-        <ModalHeader>Edit CSS override</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <CodeEditor ref={cssRef} initialValue={css} language='css' isDirty={isDirty} setIsDirty={setIsDirty} />
-        </ModalBody>
-
-        <ModalFooter className={style.column}>
+    <Modal
+      title='Edit CSS override'
+      isOpen={isOpen}
+      onClose={onClose}
+      showCloseButton
+      showBackdrop
+      bodyElements={
+        <CodeEditor ref={cssRef} initialValue={css} language='css' isDirty={isDirty} setIsDirty={setIsDirty} />
+      }
+      footerElements={
+        <div className={style.column}>
           <Info>Invalid CSS will be refused by the browser</Info>
           {error && <Panel.Error className={style.right}>{`Error: ${error}`}</Panel.Error>}
           <Panel.InlineElements align='apart' className={style.editorActions}>
-            <Button
-              variant='ontime-ghosted'
-              onClick={handleRestore}
-              isDisabled={saveLoading || resetLoading}
-              isLoading={resetLoading}
-            >
+            <Button variant='ghosted' size='large' onClick={handleRestore} disabled={saveLoading || resetLoading}>
               Reset to example
             </Button>
             <Panel.InlineElements>
-              <Button variant='ontime-ghosted' onClick={clear}>
+              <Button variant='ghosted' size='large' onClick={clear}>
                 Clear
               </Button>
-              <Button variant='ontime-subtle' onClick={onClose}>
+              <Button size='large' onClick={onClose}>
                 Cancel
               </Button>
               <Button
-                variant='ontime-filled'
+                variant='primary'
+                size='large'
                 onClick={handleSave}
-                isDisabled={saveLoading || resetLoading || !isDirty}
-                isLoading={saveLoading}
+                disabled={saveLoading || resetLoading || !isDirty}
+                loading={saveLoading}
               >
                 Save changes
               </Button>
             </Panel.InlineElements>
           </Panel.InlineElements>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </div>
+      }
+    />
   );
 }

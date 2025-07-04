@@ -1,8 +1,9 @@
 import { KeyboardEvent, useState } from 'react';
-import { Input, Modal, ModalBody, ModalContent, ModalFooter, ModalOverlay } from '@chakra-ui/react';
 import { useDebouncedCallback } from '@mantine/hooks';
 import { SupportedEntry } from 'ontime-types';
 
+import Input from '../../../common/components/input/input/Input';
+import Modal from '../../../common/components/modal/Modal';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
 
 import useFinder from './useFinder';
@@ -14,8 +15,7 @@ interface FinderProps {
   onClose: () => void;
 }
 
-export default function Finder(props: FinderProps) {
-  const { isOpen, onClose } = props;
+export default function Finder({ isOpen, onClose }: FinderProps) {
   const { find, results, error } = useFinder();
   const [selected, setSelected] = useState(0);
 
@@ -56,11 +56,14 @@ export default function Finder(props: FinderProps) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
-      <ModalOverlay />
-      <ModalContent maxWidth='max(640px, 40vw)'>
-        <ModalBody onKeyDown={navigate}>
-          <Input size='lg' onChange={debouncedFind} variant='ontime-filled' placeholder='Search...' />
+    <Modal
+      title=''
+      isOpen={isOpen}
+      onClose={onClose}
+      showBackdrop
+      bodyElements={
+        <div onKeyDown={navigate}>
+          <Input height='large' fluid onChange={debouncedFind} placeholder='Search...' />
           <ul className={style.scrollContainer} onMouseMove={handleMouseMoveEvent}>
             {error && <li className={style.error}>{error}</li>}
             {results.length === 0 && <li className={style.empty}>No results</li>}
@@ -91,12 +94,14 @@ export default function Finder(props: FinderProps) {
                 );
               })}
           </ul>
-        </ModalBody>
-        <ModalFooter className={style.footer}>
+        </div>
+      }
+      footerElements={
+        <div className={style.footer}>
           Use the keywords <span className={style.em}>cue</span>, <span className={style.em}>index</span> or
           <span className={style.em}>title</span> to filter search
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </div>
+      }
+    />
   );
 }

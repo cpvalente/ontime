@@ -1,22 +1,15 @@
 import { useState } from 'react';
 import { IoArrowForward } from 'react-icons/io5';
-import {
-  IconButton,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
-  Select,
-} from '@chakra-ui/react';
 
 import { navigatorConstants } from '../../../viewerConfig';
 import { setClientRemote } from '../../hooks/useSocket';
 import useUrlPresets from '../../hooks-query/useUrlPresets';
+import Button from '../buttons/Button';
 import Info from '../info/Info';
+import Input from '../input/input/Input';
 import AppLink from '../link/app-link/AppLink';
+import Modal from '../modal/Modal';
+import Select from '../select/Select';
 
 import style from './RedirectClientModal.module.scss';
 
@@ -29,8 +22,7 @@ interface RedirectClientModalProps {
   onClose: () => void;
 }
 
-export function RedirectClientModal(props: RedirectClientModalProps) {
-  const { id, isOpen, name, currentPath, origin, onClose } = props;
+export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onClose }: RedirectClientModalProps) {
   const { data } = useUrlPresets();
   const [path, setPath] = useState(currentPath);
   const [selected, setSelected] = useState('/');
@@ -47,13 +39,26 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
 
   const enabledPresets = data.filter((preset) => preset.enabled);
 
+  const viewOptions = [
+    ...navigatorConstants.map((view) => ({
+      value: `/${view.url}`,
+      label: view.label,
+    })),
+    ...enabledPresets.map((preset) => ({
+      value: preset.pathAndParams,
+      label: `Preset: ${preset.alias}`,
+    })),
+  ];
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
-      <ModalOverlay />
-      <ModalContent maxWidth='max(480px, 35vw)'>
-        <ModalHeader>Redirect: {name}</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      showCloseButton
+      showBackdrop
+      title={`Redirect: ${name}`}
+      bodyElements={
+        <>
           <Info>
             Remotely redirect the client to a different URL. <br />
             Either by selecting a URL Preset or entering a custom path.
@@ -65,36 +70,21 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
             <span className={style.label}>Select View or URL Preset</span>
             <div className={style.textEntry}>
               <Select
-                size='md'
-                variant='ontime'
-                isDisabled={enabledPresets.length === 0}
-                onChange={(event) => setSelected(event.target.value)}
-              >
-                <option value='/'>Select view or preset</option>
-                {navigatorConstants.map((view) => {
-                  return (
-                    <option key={view.url} value={`/${view.url}`}>
-                      {view.label}
-                    </option>
-                  );
-                })}
-                {enabledPresets.map((preset) => {
-                  return (
-                    <option key={preset.pathAndParams} value={preset.pathAndParams}>
-                      {`Preset: ${preset.alias}`}
-                    </option>
-                  );
-                })}
-              </Select>
-              <IconButton
-                variant='ontime-filled'
-                size='md'
+                fluid
+                options={viewOptions}
+                defaultValue={viewOptions[0].value}
+                onValueChange={(value) => setSelected(value)}
+                disabled={enabledPresets.length === 0}
+              />
+              <Button
+                variant='primary'
                 aria-label='Redirect to preset'
                 className={style.redirect}
-                icon={<IoArrowForward />}
-                isDisabled={enabledPresets.length === 0 || selected === '/'}
+                disabled={enabledPresets.length === 0 || selected === '/'}
                 onClick={() => handleRedirect(selected)}
-              />
+              >
+                Redirect <IoArrowForward />
+              </Button>
             </div>
           </div>
           <div className={style.inlineEntry}>
@@ -102,25 +92,24 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
             <label className={style.textEntry}>
               {origin}
               <Input
-                variant='ontime-filled'
-                size='md'
                 placeholder='eg. /minimal?key=0000ffff'
+                fluid
                 value={path}
                 onChange={(event) => setPath(event.target.value)}
               />
             </label>
-            <IconButton
-              variant='ontime-filled'
-              size='md'
+            <Button
+              variant='primary'
               aria-label='Redirect'
-              isDisabled={path === currentPath || path === ''}
+              disabled={path === currentPath || path === ''}
               className={style.redirect}
-              icon={<IoArrowForward />}
               onClick={() => handleRedirect(path)}
-            />
+            >
+              Redirect <IoArrowForward />
+            </Button>
           </div>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+        </>
+      }
+    />
   );
 }

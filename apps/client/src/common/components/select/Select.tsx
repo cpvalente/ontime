@@ -2,6 +2,8 @@ import { IoCheckmark } from 'react-icons/io5';
 import { LuChevronsUpDown } from 'react-icons/lu';
 import { Select as BaseSelect } from '@base-ui-components/react/select';
 
+import { cx } from '../../utils/styleUtils';
+
 import styles from './Select.module.scss';
 
 interface SelectProps<T> extends Omit<BaseSelect.Root.Props<T>, 'items'> {
@@ -10,12 +12,13 @@ interface SelectProps<T> extends Omit<BaseSelect.Root.Props<T>, 'items'> {
     value: T;
     label: string;
   }[];
+  fluid?: boolean;
 }
 
-export default function Select<T>({ options, ...selectRootProps }: SelectProps<T>) {
+export default function Select<T>({ options, fluid, ...selectRootProps }: SelectProps<T>) {
   return (
     <BaseSelect.Root items={options} {...selectRootProps}>
-      <BaseSelect.Trigger className={styles.select}>
+      <BaseSelect.Trigger className={cx([styles.select, fluid && styles.fluid])}>
         <BaseSelect.Value />
         <BaseSelect.Icon className={styles.selectIcon}>
           <LuChevronsUpDown />
