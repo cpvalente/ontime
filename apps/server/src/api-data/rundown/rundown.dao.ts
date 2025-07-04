@@ -289,6 +289,10 @@ function reorder(rundown: Rundown, eventFrom: OntimeEntry, eventTo: OntimeEntry,
   const fromParent: EntryId | null = (eventFrom as { parent?: EntryId })?.parent ?? null;
   const toParent = (() => {
     if (isOntimeBlock(eventTo)) {
+      // Special case: if we're moving relative to our own parent block, remove from block
+      if ('parent' in eventFrom && eventFrom.parent === eventTo.id) {
+        return null;
+      }
       if (order === 'insert') {
         // prevent blocks from being inserted into other blocks
         if (isOntimeBlock(eventFrom)) {
@@ -313,8 +317,13 @@ function reorder(rundown: Rundown, eventFrom: OntimeEntry, eventTo: OntimeEntry,
   const toIndex = (() => {
     const baseIndex = destinationArray.indexOf(eventTo.id);
     if (order === 'before') return baseIndex;
-    // only add one if we are moving down
-    if (order === 'after') return baseIndex + (fromIndex < baseIndex ? 0 : 1);
+    if (order === 'after') {
+      // When moving within the same array, we need to consider the source position
+      if (sourceArray === destinationArray && fromIndex <= baseIndex) {
+        return baseIndex;
+      }
+      return baseIndex + 1;
+    }
     // for insert we add in the end of the array
     return destinationArray.length;
   })();
