@@ -926,7 +926,7 @@ describe('rundownMutation.reorder()', () => {
     expect(rundown.order).toStrictEqual(['3', '1', '2']);
   });
 
-  it('moves an event out of a block', () => {
+  it('moves an event out and before a block', () => {
     const rundown = makeRundown({
       order: ['1', '2'],
       flatOrder: ['1', '11', '2'],
@@ -942,6 +942,35 @@ describe('rundownMutation.reorder()', () => {
     expect(rundown.order).toStrictEqual(['1', '11', '2']);
     expect(rundown.entries['1']).toMatchObject({
       entries: [],
+    });
+    expect(rundown.entries['11']).toMatchObject({
+      parent: null,
+    });
+    expect(rundown.entries['2']).toMatchObject({
+      parent: null,
+    });
+  });
+
+  it('moves an event out and after a block', () => {
+    const rundown = makeRundown({
+      order: ['1', 'block', '2'],
+      flatOrder: ['1', 'block', '11', '2'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', parent: null }),
+        block: makeOntimeBlock({ id: 'block', entries: ['11'] }),
+        '11': makeOntimeEvent({ id: '11', parent: 'block' }),
+        '2': makeOntimeEvent({ id: '2', parent: null }),
+      },
+    });
+
+    rundownMutation.reorder(rundown, rundown.entries['11'], rundown.entries['block'], 'after');
+
+    expect(rundown.order).toStrictEqual(['1', 'block', '11', '2']);
+    expect(rundown.entries['block']).toMatchObject({
+      entries: [],
+    });
+    expect(rundown.entries['11']).toMatchObject({
+      parent: null,
     });
     expect(rundown.entries['2']).toMatchObject({
       parent: null,

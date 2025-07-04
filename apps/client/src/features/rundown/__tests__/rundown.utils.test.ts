@@ -480,7 +480,7 @@ describe('moveDown()', () => {
 
   it('moves an entry down out of a group', () => {
     expect(moveDown('12', rundown.flatOrder, rundown.entries)).toStrictEqual({
-      destinationId: '4',
+      destinationId: 'block',
       order: 'after',
     });
   });

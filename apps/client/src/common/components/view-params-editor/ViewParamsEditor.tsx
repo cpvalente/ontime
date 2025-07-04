@@ -1,8 +1,6 @@
-import { FormEvent, memo, useEffect } from 'react';
+import { FormEvent, memo } from 'react';
 import { IoClose } from 'react-icons/io5';
-import { useSearchParams } from 'react-router-dom';
 import { Dialog } from '@base-ui-components/react/dialog';
-import { useDisclosure } from '@mantine/hooks';
 
 import useViewSettings from '../../hooks-query/useViewSettings';
 import Button from '../buttons/Button';
@@ -11,6 +9,7 @@ import Info from '../info/Info';
 
 import { ViewOption } from './viewParams.types';
 import { getURLSearchParamsFromObj } from './viewParams.utils';
+import { useViewParamsEditorStore } from './viewParamsEditor.store';
 import ViewParamsSection from './ViewParamsSection';
 
 import style from './ViewParamsEditor.module.scss';
@@ -22,30 +21,16 @@ interface EditFormDrawerProps {
 export default memo(ViewParamsEditor);
 
 function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
-  const [searchParams, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
-
-  const [isOpen, handlers] = useDisclosure(false);
-
-  // handle opening the drawer
-  useEffect(() => {
-    const isEditing = searchParams.get('edit');
-
-    if (isEditing === 'true') {
-      return handlers.open();
-    }
-  }, [searchParams, handlers]);
+  const { isOpen, close } = useViewParamsEditorStore();
 
   const handleClose = () => {
-    searchParams.delete('edit');
-    setSearchParams(searchParams);
-
-    handlers.close();
+    close();
   };
 
   const resetParams = () => {
-    setSearchParams();
-    handlers.close();
+    window.history.pushState(null, '', window.location.pathname);
+    close();
   };
 
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
@@ -53,7 +38,9 @@ function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
 
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
-    setSearchParams(newSearchParams);
+    const url = new URL(window.location.href);
+    url.search = newSearchParams.toString();
+    window.history.pushState(null, '', url);
   };
 
   return (
