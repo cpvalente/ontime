@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { CustomFields } from 'ontime-types';
 
 import { OptionTitle } from '../../../common/components/view-params-editor/constants';

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { ProjectData, Settings } from 'ontime-types';
 
 import ViewLogo from '../../../common/components/view-logo/ViewLogo';

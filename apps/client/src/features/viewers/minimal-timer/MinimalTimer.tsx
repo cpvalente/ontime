@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { Playback, ProjectData, TimerPhase, TimerType, ViewSettings } from 'ontime-types';
 
 import ViewLogo from '../../../common/components/view-logo/ViewLogo';

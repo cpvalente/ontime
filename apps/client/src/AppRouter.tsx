@@ -1,22 +1,12 @@
 import React from 'react';
-import {
-  createRoutesFromChildren,
-  matchRoutes,
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-  useNavigationType,
-} from 'react-router-dom';
-import * as Sentry from '@sentry/react';
+import { Navigate, Route } from 'react-router';
 
 import { useClientPath } from './common/hooks/useClientPath';
 import Log from './features/log/Log';
 import withPreset from './features/PresetWrapper';
 import withData from './features/viewers/ViewWrapper';
 import ViewLoader from './views/ViewLoader';
-import { ONTIME_VERSION } from './ONTIME_VERSION';
-import { sentryDsn, sentryRecommendedIgnore } from './sentry.config';
+import { SentryRoutes } from './sentry.router';
 
 const Editor = React.lazy(() => import('./views/editor/ProtectedEditor'));
 const Cuesheet = React.lazy(() => import('./views/cuesheet/ProtectedCuesheet'));
@@ -49,26 +39,6 @@ const EditorFeatureWrapper = React.lazy(() => import('./features/EditorFeatureWr
 const RundownPanel = React.lazy(() => import('./features/rundown/RundownExport'));
 const TimerControl = React.lazy(() => import('./features/control/playback/TimerControlExport'));
 const MessageControl = React.lazy(() => import('./features/control/message/MessageControlExport'));
-
-Sentry.init({
-  dsn: sentryDsn,
-  integrations: [
-    Sentry.reactRouterV6BrowserTracingIntegration({
-      useEffect: React.useEffect,
-      useLocation,
-      useNavigationType,
-      createRoutesFromChildren,
-      matchRoutes,
-    }),
-  ],
-  tracesSampleRate: 0.3,
-  release: ONTIME_VERSION,
-  enabled: import.meta.env.PROD,
-  ignoreErrors: [...sentryRecommendedIgnore, /Unable to preload CSS/i, /dynamically imported module/i],
-  denyUrls: [/extensions\//i, /^chrome:\/\//i, /^chrome-extension:\/\//i],
-});
-
-const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
 export default function AppRouter() {
   // handle client path changes

@@ -14,7 +14,7 @@
     "@emotion/styled": "^11.10.6",
     "@fontsource/open-sans": "^5.0.28",
     "@mantine/hooks": "^8.1.2",
-    "@sentry/react": "^8.43.0",
+    "@sentry/react": "^9.34.0",
     "@table-nav/react": "^0.0.7",
     "@tanstack/react-query": "^5.62.7",
     "@tanstack/react-query-devtools": "^5.62.7",
@@ -31,7 +31,7 @@
     "react-hook-form": "^7.53.1",
     "react-icons": "5.4.0",
     "react-qr-code": "^2.0.12",
-    "react-router-dom": "^6.3.0",
+    "react-router": "^7.6.3",
     "react-simple-code-editor": "^0.14.1",
     "web-vitals": "^3.1.1",
     "zustand": "^5.0.3"

@@ -1,4 +1,4 @@
-import { resolvePath } from 'react-router-dom';
+import { resolvePath } from 'react-router';
 
 import { arePathsEquivalent, generatePathFromPreset, getRouteFromPreset, validateUrlPresetPath } from '../urlPresets';
 

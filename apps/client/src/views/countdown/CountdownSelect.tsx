@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { IoArrowBack, IoClose, IoSaveOutline } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { EntryId, OntimeEvent } from 'ontime-types';
 
 import Button from '../../common/components/buttons/Button';
