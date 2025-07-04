@@ -11,7 +11,6 @@ import { sheets, type sheets_v4 } from '@googleapis/sheets';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 
 import { logger } from '../../classes/Logger.js';
-import { postJson } from '../../utils/appClient.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { getCurrentRundown, getProjectCustomFields } from '../../api-data/rundown/rundown.dao.js';
 import { parseExcel } from '../../api-data/excel/excel.parser.js';
@@ -19,6 +18,7 @@ import { parseCustomFields } from '../../api-data/custom-fields/customFields.par
 
 import { cellRequestFromEvent, type ClientSecret, getA1Notation, isClientSecret } from './sheetUtils.js';
 import { catchCommonImportXlsxError } from './googleApi.utils.js';
+import { consoleError } from '../../utils/console.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
 const codesUrl = 'https://oauth2.googleapis.com/device/code';
@@ -143,14 +143,27 @@ function verifyConnection(
     // server returns 428 if user hasnt yet completed the auth process
     try {
       logger.info(LogOrigin.Server, 'Polling for auth...');
-      const auth: Credentials = await postJson<Credentials>(tokenUrl, {
-        json: {
+
+      const response = await fetch(tokenUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           client_id: clientSecret.installed.client_id,
           client_secret: clientSecret.installed.client_secret,
           device_code,
           grant_type: grantType,
-        },
+        }),
       });
+
+      if (response.status === 428) {
+        throw new Error('user not auth yet');
+      }
+
+      if (!response.ok) {
+        throw new Error('auth polling failed');
+      }
+
+      const auth: Credentials = await response.json();
 
       logger.info(LogOrigin.Server, 'Successfully Authenticated');
       const client = new OAuth2Client({
@@ -179,8 +192,8 @@ function verifyConnection(
       }
 
       await postAction();
-    } catch (_error) {
-      /** we do not handle failure */
+    } catch (error) {
+      if (error instanceof Error) consoleError(error.message);
     }
   }
 }
