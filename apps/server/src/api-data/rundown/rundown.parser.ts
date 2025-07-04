@@ -235,9 +235,10 @@ export function makeRundownMetadata(customFields: CustomFields) {
 
   function process<T extends OntimeEntry>(
     entry: T,
-    childOfBlock: EntryId | null,
+    parentBlock: OntimeBlock | null,
+    isFirstNestedEvent: boolean,
   ): { processedData: ProcessedRundownMetadata; processedEntry: T } {
-    const data = processEntry(rundownMeta, customFields, entry, childOfBlock);
+    const data = processEntry(rundownMeta, customFields, entry, parentBlock, isFirstNestedEvent);
     rundownMeta = data.processedData;
     return data;
   }
@@ -256,7 +257,8 @@ function processEntry<T extends OntimeEntry>(
   rundownMetadata: ProcessedRundownMetadata,
   customFields: CustomFields,
   entry: T,
-  childOfBlock: EntryId | null,
+  parentBlock: OntimeBlock | null,
+  isFirstNestedEvent: boolean,
 ): { processedData: ProcessedRundownMetadata; processedEntry: T } {
   const processedData = { ...rundownMetadata };
   const currentEntry = structuredClone(entry);
@@ -285,11 +287,20 @@ function processEntry<T extends OntimeEntry>(
     // 2. handle custom fields - mutates currentEntry
     handleCustomField(customFields, currentEntry, processedData.assignedCustomFields);
 
-    processedData.totalDays += calculateDayOffset(currentEntry, processedData.previousEvent);
+    /**
+     * If this is the first child of a block, we need to check the next day flag
+     * having a next day flag means unlinking the previous event, although we kept the times from before
+     */
+    if (isFirstNestedEvent && parentBlock && parentBlock.isNextDay) {
+      currentEntry.linkStart = false; // unlink from previous event
+      processedData.totalDays += 1; // increment the day count
+    }
+
+    processedData.totalDays += calculateDayOffset(processedData.previousEvent);
     currentEntry.dayOffset = processedData.totalDays;
     currentEntry.delay = 0; // this means we dont calculate delays or gaps for skipped events
     currentEntry.gap = 0; // this means we dont calculate delays or gaps for skipped events
-    currentEntry.parent = childOfBlock;
+    currentEntry.parent = parentBlock?.id ?? null;
 
     // update rundown metadata, it only concerns playable events
     if (isPlayableEvent(currentEntry)) {
@@ -343,10 +354,10 @@ function processEntry<T extends OntimeEntry>(
   } else if (isOntimeDelay(currentEntry)) {
     // !!! this must happen after handling the links
     processedData.totalDelay += currentEntry.duration;
-    currentEntry.parent = childOfBlock;
+    currentEntry.parent = parentBlock?.id ?? null;
   }
 
-  if (!childOfBlock) {
+  if (!parentBlock) {
     processedData.order.push(currentEntry.id);
   }
   processedData.entries[currentEntry.id] = currentEntry;

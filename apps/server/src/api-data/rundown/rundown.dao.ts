@@ -718,7 +718,7 @@ export function processRundown(
     if (!currentEntry) {
       continue;
     }
-    const { processedEntry } = process(currentEntry, null);
+    const { processedEntry } = process(currentEntry, null, false);
 
     // if the event is a block, we process the nested entries
     // the code here is a copy of the processing of top level events
@@ -728,6 +728,7 @@ export function processRundown(
       let blockEndTime = null;
       let isFirstLinked = false;
       const blockEvents: EntryId[] = [];
+      let hasSeenFirstNestedEvent = false;
 
       // check if the block contains nested entries
       for (let j = 0; j < processedEntry.entries.length; j++) {
@@ -741,8 +742,14 @@ export function processRundown(
         blockEvents.push(nestedEntry.id);
         const { processedData: processedNestedData, processedEntry: processedNestedEntry } = process(
           nestedEntry,
-          processedEntry.id,
+          processedEntry,
+          !hasSeenFirstNestedEvent && nestedEntry.type === 'event', // isFirstNestedEvent is true for the first nested OntimeEvent
         );
+
+        // reset the flag
+        if (!hasSeenFirstNestedEvent && nestedEntry.type === 'event') {
+          hasSeenFirstNestedEvent = true;
+        }
 
         // we dont extract metadata of skipped events,
         // if this is not a playable event there is nothing else to do

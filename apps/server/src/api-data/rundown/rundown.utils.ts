@@ -420,27 +420,14 @@ export function cloneEntry(entry: OntimeEntry, newId: EntryId): OntimeEntry {
  * @param previous the previous event
  * @returns 0 or 1 for easy accumulation with the total days
  */
-export function calculateDayOffset(
-  current: Pick<OntimeEvent, 'timeStart'>,
-  previous: Pick<OntimeEvent, 'timeStart' | 'duration'> | null,
-) {
+export function calculateDayOffset(previous: Pick<OntimeEvent, 'timeStart' | 'duration'> | null) {
   // if there is no previous there can't be a day offset
   if (!previous) {
     return 0;
   }
 
-  // if the previous events duration is zero it will push the current event to next day
-  if (previous.duration === 0) {
-    return 0;
-  }
-
   // if the previous event crossed midnight then the current event is in the next day
   if (previous.timeStart + previous.duration >= dayInMs) {
-    return 1;
-  }
-
-  // if the current events starts at the same time or before the previous event then it is the next day
-  if (current.timeStart <= previous.timeStart) {
     return 1;
   }
 
