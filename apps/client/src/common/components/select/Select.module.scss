@@ -33,6 +33,10 @@
     opacity: 0.4;
     cursor: not-allowed;
   }
+
+  &.fluid {
+    width: 100%;
+  }
 }
 
 .selectIcon {

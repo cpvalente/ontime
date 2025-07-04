@@ -8,7 +8,7 @@ import style from './Modal.module.scss';
 
 interface ModalProps {
   isOpen: boolean;
-  title: string;
+  title?: string;
   showCloseButton?: boolean;
   showBackdrop?: boolean;
   bodyElements: ReactNode;

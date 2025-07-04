@@ -1,13 +1,13 @@
 .modal {
   position: fixed;
-  top: 50%;
+  top: 10vh;
   left: 50%;
-
-  transform: translate(-50%, -50%);
-
+  transform: translateX(-50%);
+  
   padding-inline: 1rem;
   min-width: min(680px, 90vw);
   min-height: min(200px, 10vh);
+  max-width: min(680px, 90vw);
 
   background-color: $gray-1250;
   color: $ui-white;
@@ -19,7 +19,6 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  z-index: $zindex-backdrop;
   background-color: $backdrop-color;
   transition: opacity 300ms cubic-bezier(0.45, 1.005, 0, 1.005);
 
@@ -44,7 +43,7 @@
   flex-direction: column;
   gap: 0.5rem;
 
-  max-height: min(80vh, 600px);
+  max-height: 60vh;
   overflow-y: auto;
 }
 

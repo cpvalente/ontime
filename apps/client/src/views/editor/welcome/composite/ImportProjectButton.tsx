@@ -4,18 +4,18 @@
  */
 
 import { ChangeEvent, useRef } from 'react';
-import { Button, Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 
 import { uploadProjectFile } from '../../../../common/api/db';
 import { invalidateAllCaches } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
 import { validateProjectFile } from '../../../../common/utils/uploadUtils';
 
 interface ImportProjectButtonProps {
   onFinish: () => void;
 }
 
-export default function ImportProjectButton(props: ImportProjectButtonProps) {
-  const { onFinish } = props;
+export default function ImportProjectButton({ onFinish }: ImportProjectButtonProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSelectFile = () => {
@@ -50,9 +50,7 @@ export default function ImportProjectButton(props: ImportProjectButtonProps) {
         data-testid='file-input'
       />
 
-      <Button size='sm' variant='ontime-subtle' onClick={handleSelectFile}>
-        Import project
-      </Button>
+      <Button onClick={handleSelectFile}>Import project</Button>
     </>
   );
 }
