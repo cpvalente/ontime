@@ -13,6 +13,7 @@ export const validateCustomField = [
     }),
   body('type').isIn(['string', 'image']),
   body('colour').isString().trim(),
+  body('order').optional().isNumeric().toInt(),
 
   requestValidationFunction,
 ];
@@ -28,6 +29,7 @@ export const validateEditCustomField = [
     }),
   body('type').isIn(['string', 'image']),
   body('colour').isString().trim(),
+  body('order').optional().isNumeric().toInt(),
 
   requestValidationFunction,
 ];

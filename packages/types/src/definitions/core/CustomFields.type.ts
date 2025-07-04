@@ -4,6 +4,7 @@ export type CustomField = {
   type: 'string' | 'image';
   colour: string;
   label: string;
+  order?: number;
 };
 
 export type CustomFields = Record<CustomFieldKey, CustomField>;

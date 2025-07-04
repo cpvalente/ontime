@@ -82,7 +82,21 @@ let projectCustomFields: CustomFields = {};
 
 export const getCurrentRundown = (): Readonly<Rundown> => cachedRundown;
 export const getRundownMetadata = (): Readonly<RundownMetadata> => rundownMetadata;
-export const getProjectCustomFields = (): Readonly<CustomFields> => projectCustomFields;
+
+export type CustomFieldWithKey = CustomField & { key: CustomFieldKey };
+export const getProjectCustomFields = (): ReadonlyArray<CustomFieldWithKey> => {
+  return Object.entries(projectCustomFields)
+    .map(([key, value]): CustomFieldWithKey => ({ key, ...value }))
+    .sort((a, b) => {
+      const orderA = a.order ?? Infinity; // Fields without order go last
+      const orderB = b.order ?? Infinity;
+      if (orderA === orderB) {
+        // Fallback sort by key if order is the same or both undefined
+        return a.key.localeCompare(b.key);
+      }
+      return orderA - orderB;
+    });
+};
 export const getEntryWithId = (entryId: EntryId): OntimeEntry | undefined => cachedRundown.entries[entryId];
 
 type Transaction = {
@@ -563,9 +577,12 @@ function customFieldAdd(customFields: CustomFields, key: CustomFieldKey, newCust
     label: newCustomField.label,
     type: newCustomField.type,
     colour: newCustomField.colour,
+    order: newCustomField.order, // Add order here
   };
 
-  return { [key]: newCustomField };
+  // The return value of this function doesn't seem to be critically used for its content,
+  // but to be safe, let's include order here too.
+  return { [key]: { ...newCustomField } };
 }
 
 /**

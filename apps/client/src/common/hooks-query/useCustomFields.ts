@@ -1,17 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { CustomFields } from 'ontime-types';
-
+// CustomFields record type is no longer used here
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { CUSTOM_FIELDS } from '../api/constants';
-import { getCustomFields } from '../api/customFields';
+import { getCustomFields, CustomFieldWithKey } from '../api/customFields'; // Import CustomFieldWithKey
 
-const placeholder: CustomFields = {};
+const placeholder: CustomFieldWithKey[] = []; // Placeholder is now an empty array
 
 export default function useCustomFields() {
-  const { data, status, isFetching, isError, refetch } = useQuery({
+  // Explicitly type the useQuery hook
+  const { data, status, isFetching, isError, refetch } = useQuery<CustomFieldWithKey[], Error>({
     queryKey: CUSTOM_FIELDS,
     queryFn: getCustomFields,
-    placeholderData: (previousData, _previousQuery) => previousData,
+    placeholderData: (previousData, _previousQuery) => previousData ?? placeholder,
     retry: 5,
     retryDelay: (attempt) => attempt * 2500,
     refetchInterval: queryRefetchIntervalSlow,

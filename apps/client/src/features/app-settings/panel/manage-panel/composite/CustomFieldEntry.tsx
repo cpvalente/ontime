@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IoPencil, IoTrash } from 'react-icons/io5';
+import { IoArrowDown, IoArrowUp, IoPencil, IoTrash } from 'react-icons/io5';
 import { CustomField, CustomFieldKey } from 'ontime-types';
 
 import IconButton from '../../../../../common/components/buttons/IconButton';
@@ -17,15 +17,19 @@ interface CustomFieldEntryProps {
   label: string;
   fieldKey: string;
   type: 'string' | 'image';
-  onEdit: (key: CustomFieldKey, patch: CustomField) => Promise<void>;
+  order?: number; // Add order
+  onEdit: (key: CustomFieldKey, patch: Partial<CustomField>) => Promise<void>; // Patch can be partial for order updates
   onDelete: (key: CustomFieldKey) => Promise<void>;
+  isFirst: boolean;
+  isLast: boolean;
+  onMove: (direction: 'up' | 'down') => void; // Changed from Promise<void> to void
 }
 
 export default function CustomFieldEntry(props: CustomFieldEntryProps) {
-  const { colour, label, fieldKey, type, onEdit, onDelete } = props;
+  const { colour, label, fieldKey, type, onEdit, onDelete, isFirst, isLast, onMove } = props;
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleEdit = async (patch: CustomField) => {
+  const handleEdit = async (patch: CustomField) => { // This patch comes from CustomFieldForm, so it's a full CustomField
     await onEdit(fieldKey, patch);
     setIsEditing(false);
   };
@@ -61,6 +65,12 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
         </CopyTag>
       </td>
       <Panel.InlineElements relation='inner' as='td'>
+        <IconButton variant='ghosted-white' aria-label='Move field up' onClick={() => onMove('up')} disabled={isFirst}>
+          <IoArrowUp />
+        </IconButton>
+        <IconButton variant='ghosted-white' aria-label='Move field down' onClick={() => onMove('down')} disabled={isLast}>
+          <IoArrowDown />
+        </IconButton>
         <IconButton variant='ghosted-white' aria-label='Edit entry' onClick={() => setIsEditing(true)}>
           <IoPencil />
         </IconButton>

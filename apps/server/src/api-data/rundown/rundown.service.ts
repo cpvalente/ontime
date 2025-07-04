@@ -19,7 +19,7 @@ import { customFieldLabelToKey } from 'ontime-utils';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
 
-import { createTransaction, customFieldMutation, rundownCache, rundownMutation } from './rundown.dao.js';
+import { createTransaction, customFieldMutation, rundownCache, rundownMutation, getProjectCustomFields, CustomFieldWithKey } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
 import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
@@ -412,7 +412,7 @@ export async function ungroupEntries(blockId: EntryId): Promise<Rundown> {
  * Adds a new custom field to the project
  * @throws if the label is missing or invalid
  */
-export async function createCustomField(customField: CustomField): Promise<CustomFields> {
+export async function createCustomField(customField: CustomField): Promise<ReadonlyArray<CustomFieldWithKey>> {
   const key = customFieldLabelToKey(customField.label);
 
   if (!key) {
@@ -426,16 +426,27 @@ export async function createCustomField(customField: CustomField): Promise<Custo
     throw new Error('Label already exists');
   }
 
+  // Assign order if not provided
+  if (customField.order === undefined) {
+    let maxOrder = -1;
+    Object.values(customFields).forEach(cf => {
+      if (cf.order !== undefined && cf.order > maxOrder) {
+        maxOrder = cf.order;
+      }
+    });
+    customField.order = maxOrder + 1;
+  }
+
   customFieldMutation.add(customFields, key, customField);
 
   // Adding a custom field has no immediate implications on the rundown
-  const { customFields: resultCustomFields } = commit(false);
+  commit(false); // Persist changes
 
   setImmediate(() => {
     sendRefetch(RefetchKey.CustomFields);
   });
 
-  return resultCustomFields;
+  return getProjectCustomFields(); // Return sorted array
 }
 
 /**
@@ -446,7 +457,7 @@ export async function createCustomField(customField: CustomField): Promise<Custo
  * @throws if the label is missing or invalid
  * @throws if the new label already exists
  */
-export async function editCustomField(key: CustomFieldKey, newField: Partial<CustomField>): Promise<CustomFields> {
+export async function editCustomField(key: CustomFieldKey, newField: Partial<CustomField>): Promise<ReadonlyArray<CustomFieldWithKey>> {
   const { customFields, customFieldsMetadata, rundown, commit } = createTransaction({
     mutableRundown: true,
     mutableCustomFields: true,
@@ -470,26 +481,27 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
   }
 
   // the custom fields have been removed and there is no processing to be done
-  const { rundownMetadata, revision, customFields: resultCustomFields } = commit(false);
+  const { rundownMetadata, revision } = commit(false); // Persist changes
 
   // schedule the side effects
   setImmediate(() => {
     notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    sendRefetch(RefetchKey.CustomFields); // Also refetch custom fields explicitly
   });
 
-  return resultCustomFields;
+  return getProjectCustomFields(); // Return sorted array
 }
 
 /**
  * Deletes an existing custom field
  */
-export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFields> {
+export async function deleteCustomField(key: CustomFieldKey): Promise<ReadonlyArray<CustomFieldWithKey>> {
   const { customFields, customFieldsMetadata, rundown, commit } = createTransaction({
     mutableRundown: true,
     mutableCustomFields: true,
   });
   if (!(key in customFields)) {
-    return customFields;
+    return getProjectCustomFields(); // Return sorted array even if key not found
   }
 
   customFieldMutation.remove(customFields, key);
@@ -498,14 +510,15 @@ export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFiel
   }
 
   // the custom fields have been removed and there is no processing to be done
-  const { rundownMetadata, revision, customFields: resultCustomFields } = commit(false);
+  const { rundownMetadata, revision } = commit(false); // Persist changes
 
   // schedule the side effects
   setImmediate(() => {
     notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    sendRefetch(RefetchKey.CustomFields); // Also refetch custom fields explicitly
   });
 
-  return resultCustomFields;
+  return getProjectCustomFields(); // Return sorted array
 }
 
 /**
