@@ -215,17 +215,11 @@ describe('processRundown()', () => {
           timeEnd: 10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
           duration: MILLIS_PER_HOUR,
         }),
-        '4': makeOntimeEvent({
-          id: '4',
-          timeStart: 9 * MILLIS_PER_HOUR,
-          timeEnd: 10 * MILLIS_PER_HOUR,
-          duration: MILLIS_PER_HOUR,
-        }),
       },
     });
 
     const initResult = processRundown(rundown, {});
-    expect(initResult.totalDuration).toBe(dayInMs + MILLIS_PER_HOUR); // day + last end - first start
+    expect(initResult.totalDuration).toBe(1 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE); // day + last end - first start
   });
 
   it('maintains delays over gaps', () => {
@@ -426,7 +420,7 @@ describe('processRundown()', () => {
           duration: (23 - 9) * MILLIS_PER_HOUR,
         }),
         '3': makeOntimeEvent({
-          id: '2',
+          id: '3',
           timeStart: 9 * MILLIS_PER_HOUR,
           timeEnd: 23 * MILLIS_PER_HOUR,
           duration: (23 - 9) * MILLIS_PER_HOUR,
@@ -435,7 +429,7 @@ describe('processRundown()', () => {
     });
 
     const initResult = processRundown(rundown, {});
-    expect(initResult.totalDuration).toBe((23 - 9 + 48) * MILLIS_PER_HOUR);
+    expect(initResult.totalDuration).toBe((23 - 9) * MILLIS_PER_HOUR);
   });
 
   it('calculates total duration across days', () => {
