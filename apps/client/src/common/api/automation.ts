@@ -23,27 +23,22 @@ export async function getAutomationSettings(): Promise<AutomationSettings> {
 /**
  * HTTP request to edit the automations settings
  */
-export async function editAutomationSettings(
-  automationSettings: Partial<AutomationSettings>,
-): Promise<AutomationSettings> {
-  const res = await axios.post(automationsPath, automationSettings);
-  return res.data;
+export async function editAutomationSettings(automationSettings: Partial<AutomationSettings>): Promise<void> {
+  await axios.post(automationsPath, automationSettings);
 }
 
 /**
  * HTTP request to create a new automation trigger
  */
-export async function addTrigger(trigger: TriggerDTO): Promise<Trigger> {
-  const res = await axios.post(`${automationsPath}/trigger`, trigger);
-  return res.data;
+export async function addTrigger(trigger: TriggerDTO): Promise<void> {
+  await axios.post(`${automationsPath}/trigger`, trigger);
 }
 
 /**
  * HTTP request to update an automation trigger
  */
-export async function editTrigger(id: string, trigger: Trigger): Promise<Trigger> {
-  const res = await axios.put(`${automationsPath}/trigger/${id}`, trigger);
-  return res.data;
+export async function editTrigger(id: string, trigger: Trigger): Promise<void> {
+  await axios.put(`${automationsPath}/trigger/${id}`, trigger);
 }
 
 /**
@@ -56,17 +51,15 @@ export function deleteTrigger(id: string): Promise<void> {
 /**
  * HTTP request to create a new automation
  */
-export async function addAutomation(automation: AutomationDTO): Promise<Automation> {
-  const res = await axios.post(`${automationsPath}/automation`, automation);
-  return res.data;
+export async function addAutomation(automation: AutomationDTO): Promise<void> {
+  await axios.post(`${automationsPath}/automation`, automation);
 }
 
 /**
  * HTTP request to update a automation
  */
-export async function editAutomation(id: string, automation: Automation): Promise<Automation> {
-  const res = await axios.put(`${automationsPath}/automation/${id}`, automation);
-  return res.data;
+export async function editAutomation(id: string, automation: Automation): Promise<void> {
+  await axios.put(`${automationsPath}/automation/${id}`, automation);
 }
 
 /**

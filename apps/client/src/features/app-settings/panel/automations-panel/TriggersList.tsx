@@ -5,7 +5,6 @@ import { NormalisedAutomation, Trigger } from 'ontime-types';
 import { deleteTrigger } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
-import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import { checkDuplicates } from './automationUtils';
@@ -20,7 +19,6 @@ interface TriggersListProps {
 export default function TriggersList(props: TriggersListProps) {
   const { triggers, automations } = props;
   const [showForm, setShowForm] = useState(false);
-  const { refetch } = useAutomationSettings();
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
@@ -28,14 +26,11 @@ export default function TriggersList(props: TriggersListProps) {
       await deleteTrigger(id);
     } catch (error) {
       setDeleteError(maybeAxiosError(error));
-    } finally {
-      refetch();
     }
   };
 
   const postSubmit = () => {
     setShowForm(false);
-    refetch();
   };
 
   const duplicates = useMemo(() => checkDuplicates(triggers), [triggers]);

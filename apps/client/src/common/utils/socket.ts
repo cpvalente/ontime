@@ -169,6 +169,12 @@ export const connectSocket = () => {
             case RefetchKey.ViewSettings:
               ontimeQueryClient.invalidateQueries({ queryKey: VIEW_SETTINGS });
               break;
+            case RefetchKey.Report:
+              ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
+              break;
+            case RefetchKey.Automation:
+              ontimeQueryClient.invalidateQueries({ queryKey: AUTOMATION });
+              break;
             default: {
               target satisfies never;
               break;

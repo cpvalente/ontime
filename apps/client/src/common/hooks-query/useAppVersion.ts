@@ -19,7 +19,6 @@ export default function useAppVersion() {
     queryKey: APP_VERSION,
     queryFn: getLatestVersion,
     placeholderData: (previousData, _previousQuery) => previousData,
-    refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     retry: false,
     staleTime: dayInMs,

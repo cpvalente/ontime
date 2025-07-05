@@ -1,20 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
+import type { AutomationSettings } from 'ontime-types';
 
-import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { getAutomationSettings } from '../api/automation';
 import { AUTOMATION } from '../api/constants';
-import { automationPlaceholderSettings } from '../models/AutomationSettings';
+
+const initialData: AutomationSettings = {
+  enabledAutomations: false,
+  enabledOscIn: false,
+  oscPortIn: 8888,
+  triggers: [],
+  automations: {},
+};
 
 export default function useAutomationSettings() {
-  const { data, status, isFetching, isError, refetch } = useQuery({
+  const { data, status, isLoading, isError } = useQuery({
     queryKey: AUTOMATION,
     queryFn: getAutomationSettings,
     placeholderData: (previousData, _previousQuery) => previousData,
-    retry: 5,
-    retryDelay: (attempt: number) => attempt * 2500,
-    refetchInterval: queryRefetchIntervalSlow,
-    networkMode: 'always',
+    initialData,
   });
 
-  return { data: data ?? automationPlaceholderSettings, status, isFetching, isError, refetch };
+  return { data, status, isLoading, isError };
 }

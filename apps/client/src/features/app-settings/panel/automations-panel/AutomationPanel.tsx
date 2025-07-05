@@ -8,12 +8,10 @@ import AutomationsList from './AutomationsList';
 import TriggersList from './TriggersList';
 
 export default function AutomationPanel({ location }: PanelBaseProps) {
-  const { data, status } = useAutomationSettings();
+  const { data, isLoading } = useAutomationSettings();
   const settingsRef = useScrollIntoView<HTMLDivElement>('settings', location);
   const triggersRef = useScrollIntoView<HTMLDivElement>('triggers', location);
   const automationsRef = useScrollIntoView<HTMLDivElement>('automations', location);
-
-  const isLoading = status === 'pending';
 
   return (
     <>

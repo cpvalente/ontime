@@ -7,7 +7,6 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Tag from '../../../../common/components/tag/Tag';
-import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import AutomationForm from './AutomationForm';
@@ -25,7 +24,6 @@ interface AutomationsListProps {
 
 export default function AutomationsList(props: AutomationsListProps) {
   const { automations } = props;
-  const { refetch } = useAutomationSettings();
   const [automationFormData, setAutomationFormData] = useState<AutomationDTO | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -35,8 +33,6 @@ export default function AutomationsList(props: AutomationsListProps) {
       await deleteAutomation(id);
     } catch (error) {
       setDeleteError(maybeAxiosError(error));
-    } finally {
-      refetch();
     }
   };
 

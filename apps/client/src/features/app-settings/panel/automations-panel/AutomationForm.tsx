@@ -22,7 +22,6 @@ import ExternalLink from '../../../../common/components/link/external-link/Exter
 import RadioGroup from '../../../../common/components/radio-group/RadioGroup';
 import Select from '../../../../common/components/select/Select';
 import Tag from '../../../../common/components/tag/Tag';
-import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { startsWithHttp } from '../../../../common/utils/regex';
@@ -45,7 +44,6 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
   'no memo'; // RHF and react-compiler dont seem to get along
   const isEdit = isAutomation(automation);
   const { data } = useCustomFields();
-  const { refetch } = useAutomationSettings();
   const fieldList = useMemo(() => makeFieldList(data), [data]);
 
   const {
@@ -163,7 +161,6 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
     } else {
       await handleCreate(values);
     }
-    refetch();
 
     async function handleEdit(id: string, values: Automation) {
       try {

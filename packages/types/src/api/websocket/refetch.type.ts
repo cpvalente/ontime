@@ -5,4 +5,5 @@ export enum RefetchKey {
   Report = 'report',
   Rundown = 'rundown',
   ViewSettings = 'view-settings',
+  Automation = 'automation',
 }
