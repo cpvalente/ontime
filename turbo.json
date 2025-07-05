@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["NODE_ENV", "GITHUB_TOKEN"],
+  "globalEnv": ["NODE_ENV", "GITHUB_TOKEN", "APPLEID", "APPLEIDPASS", "TEAMID", "CSC_KEY_PASSWORD", "CSC_LINK"],
   "tasks": {
     "dev": {
       "cache": false,
@@ -34,12 +34,18 @@
         "^build"
       ]
     },
-    "dist-win": {},
-    "dist-mac": {
-      "env": ["APPLEID", "APPLEIDPASS", "TEAMID", "CSC_KEY_PASSWORD", "CSC_LINK"]
+    "dist-win": {
+      "dependsOn": ["build"]
     },
-    "dist-mac:local": {},
-    "dist-linux": {},
+    "dist-mac": {
+      "dependsOn": ["build"]
+    },
+    "dist-mac:local": {
+      "dependsOn": ["build"]
+    },
+    "dist-linux": {
+      "dependsOn": ["build"]
+    },
     "cleanup": {}
   }
 }

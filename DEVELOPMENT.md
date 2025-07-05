@@ -45,7 +45,7 @@ Generally we have 2 types of tests.
 
 Unit tests are contained in mostly all the apps and packages (client, server and utils)
 
-You can run unit tests by running turbo `turbo test:pipeline` from the project root.
+You can run unit tests by running `turbo run test:pipeline` from the project root.
 This will run all tests and close test runner.
 
 Alternatively you can navigate to an app or project and run `pnpm test` to run those tests in watch mode
@@ -76,13 +76,13 @@ You can generate a distribution for your OS by running the following steps.
 From the project root, run the following commands
 
 - __Install the project dependencies__ by running `pnpm i`
-- __Build the UI and server__ by running `turbo build:electron`
-- __Create the package__ by running `turbo dist-win`, `turbo dist-mac` or `turbo dist-linux`
+- __Build the UI and server__ by running `turbo run build:electron`
+- __Create the package__ by running `turbo run dist-win`, `turbo run dist-mac` or `turbo run dist-linux`
 
 The build distribution assets will be at `.apps/electron/dist`
 
 Note: The MacOS build will only work in CI, locally it will fail due to notarisation issues.
-Use the `turbo dist-mac:local` command to build a MacOS distribution locally.
+Use the `turbo run dist-mac:local` command to build a MacOS distribution locally.
 
 ## DOCKER
 
