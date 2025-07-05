@@ -18,7 +18,7 @@ import { parseCustomFields } from '../../api-data/custom-fields/customFields.par
 
 import { cellRequestFromEvent, type ClientSecret, getA1Notation, isClientSecret } from './sheetUtils.js';
 import { catchCommonImportXlsxError } from './googleApi.utils.js';
-import { consoleError } from '../../utils/console.js';
+import { consoleError, consoleSubdued } from '../../utils/console.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
 const codesUrl = 'https://oauth2.googleapis.com/device/code';
@@ -156,11 +156,13 @@ function verifyConnection(
       });
 
       if (response.status === 428) {
-        throw new Error('user not auth yet');
+        consoleSubdued('User not auth yet');
+        return;
       }
 
       if (!response.ok) {
-        throw new Error('auth polling failed');
+        logger.error(LogOrigin.Server, `Authentication poll failed with code: ${response.status}`);
+        return;
       }
 
       const auth: Credentials = await response.json();
