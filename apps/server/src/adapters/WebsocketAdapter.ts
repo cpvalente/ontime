@@ -238,7 +238,10 @@ export const socket = new SocketServer();
 
 /**
  * Utility function to notify clients that the REST data is stale
+ * Will send on next event loop
  */
-export function sendRefetch(target: RefetchKey, revision: MaybeNumber = null) {
-  socket.sendAsJson(MessageTag.Refetch, { target, revision });
+export function scheduleRefetch(target: RefetchKey, revision: MaybeNumber = null) {
+  setTimeout(() => {
+    socket.sendAsJson(MessageTag.Refetch, { target, revision });
+  });
 }

@@ -22,7 +22,7 @@ import { runtimeService } from '../../services/runtime-service/RuntimeService.js
 import { createTransaction, customFieldMutation, rundownCache, rundownMutation } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
 import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
-import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { scheduleRefetch } from '../../adapters/WebsocketAdapter.js';
 
 /**
  * creates a new entry with given data
@@ -431,9 +431,7 @@ export async function createCustomField(customField: CustomField): Promise<Custo
   // Adding a custom field has no immediate implications on the rundown
   const { customFields: resultCustomFields } = commit(false);
 
-  setImmediate(() => {
-    sendRefetch(RefetchKey.CustomFields);
-  });
+  scheduleRefetch(RefetchKey.CustomFields);
 
   return resultCustomFields;
 }
@@ -557,9 +555,9 @@ export function notifyChanges(rundownMetadata: RundownMetadata, revision: number
 
   // notify external services of changes
   if (options.reload) {
-    sendRefetch(RefetchKey.All);
+    scheduleRefetch(RefetchKey.All);
   } else if (options.external) {
-    sendRefetch(RefetchKey.Rundown, revision);
+    scheduleRefetch(RefetchKey.Rundown, revision);
   }
 }
 

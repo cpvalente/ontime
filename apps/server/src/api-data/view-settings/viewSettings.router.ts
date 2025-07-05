@@ -5,13 +5,14 @@ import { getErrorMessage } from 'ontime-utils';
 
 import { validateViewSettings } from './viewSettings.validation.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { scheduleRefetch } from '../../adapters/WebsocketAdapter.js';
 
 export const router = express.Router();
+let revision = 0;
 
 router.get('/', (_req: Request, res: Response<ViewSettings>) => {
   const views = getDataProvider().getViewSettings();
-  res.status(200).send(views);
+  res.status(200).setHeader('revision', revision).send(views);
 });
 
 router.post('/', validateViewSettings, async (req: Request, res: Response<ViewSettings | ErrorResponse>) => {
@@ -25,10 +26,9 @@ router.post('/', validateViewSettings, async (req: Request, res: Response<ViewSe
       warningColor: req.body.warningColor,
     } as ViewSettings;
     await getDataProvider().setViewSettings(newData);
-    res.status(200).send(newData);
-    setImmediate(() => {
-      sendRefetch(RefetchKey.ViewSettings);
-    });
+    revision++;
+    res.status(200).setHeader('revision', revision).send(newData);
+    scheduleRefetch(RefetchKey.ViewSettings, revision);
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });
