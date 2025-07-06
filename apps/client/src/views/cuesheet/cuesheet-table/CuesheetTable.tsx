@@ -1,10 +1,12 @@
 import { memo, useCallback, useMemo } from 'react';
+import { useSessionStorage } from '@mantine/hooks';
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { OntimeEntry, TimeField } from 'ontime-types';
 
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { useFollowSelected } from '../../../common/hooks/useFollowComponent';
+import { AppMode,sessionKeys } from '../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../cuesheet.options';
 
 import CuesheetBody from './cuesheet-table-elements/CuesheetBody';
@@ -22,11 +24,14 @@ interface CuesheetTableProps {
 
 export default function CuesheetTable({ data, columns }: CuesheetTableProps) {
   const { updateEntry, updateTimer } = useEntryActions();
-  const followPlayback = usePersistedCuesheetOptions((state) => state.followPlayback);
   const showDelayedTimes = usePersistedCuesheetOptions((state) => state.showDelayedTimes);
   const hideTableSeconds = usePersistedCuesheetOptions((state) => state.hideTableSeconds);
+  const [cuesheetMode] = useSessionStorage({
+    key: sessionKeys.cuesheetMode,
+    defaultValue: AppMode.Edit,
+  });
 
-  const { selectedRef, scrollRef } = useFollowSelected(followPlayback);
+  const { selectedRef, scrollRef } = useFollowSelected(cuesheetMode === AppMode.Run);
 
   const { listeners } = useTableNav();
 

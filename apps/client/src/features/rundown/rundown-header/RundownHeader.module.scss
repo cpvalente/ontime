@@ -9,6 +9,7 @@
   }
 }
 
+/** styles should match CuesheetTableSettings.module.scss */
 .group {
   display: flex;
   align-items: center;
@@ -19,7 +20,8 @@
   height: 2rem;
 }
 
-.button {
+/** styles should match CuesheetTableSettings.module.scss */
+.radioButton {
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -34,6 +36,7 @@
 
   &:focus-visible {
     background: transparent;
+    outline: 1px solid $blue-500;
   }
 
   &:hover:not(:disabled):not(:active) {

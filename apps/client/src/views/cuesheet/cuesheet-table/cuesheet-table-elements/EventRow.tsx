@@ -1,11 +1,13 @@
 import { MutableRefObject, useEffect, useRef } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
+import { useSessionStorage } from '@mantine/hooks';
 import { flexRender, Table } from '@tanstack/react-table';
 import { OntimeEntry, OntimeEvent, RGBColour } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
+import { AppMode, sessionKeys } from '../../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
 
@@ -44,8 +46,10 @@ export default function EventRow({
   firstAfterBlock,
 }: EventRowProps) {
   const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
-  const showActionMenu = usePersistedCuesheetOptions((state) => state.showActionMenu);
-  const ownRef = useRef<HTMLTableRowElement>(null);
+  const [cuesheetMode] = useSessionStorage<AppMode>({
+    key: sessionKeys.cuesheetMode,
+    defaultValue: AppMode.Edit,
+  });  const ownRef = useRef<HTMLTableRowElement>(null);
 
   const isVisible = useVisibleRowsStore((state) => state.visibleRows.has(rowId));
 
@@ -86,7 +90,7 @@ export default function EventRow({
       ref={selectedRef ?? ownRef}
       data-testid='cuesheet-event'
     >
-      {showActionMenu && (
+      {cuesheetMode === AppMode.Edit && (
         <td className={style.actionColumn} tabIndex={-1} role='cell'>
           <IconButton
             aria-label='Options'

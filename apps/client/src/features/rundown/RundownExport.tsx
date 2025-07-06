@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useSessionStorage } from '@mantine/hooks';
 
 import { ContextMenu } from '../../common/components/context-menu/ContextMenu';
 import { Corner } from '../../common/components/editor-utils/EditorUtils';
@@ -6,9 +7,9 @@ import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary'
 import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
 import ProtectRoute from '../../common/components/protect-route/ProtectRoute';
 import { useIsSmallDevice } from '../../common/hooks/useIsSmallDevice';
-import { useAppMode } from '../../common/stores/appModeStore';
 import { handleLinks } from '../../common/utils/linkUtils';
 import { cx } from '../../common/utils/styleUtils';
+import { AppMode, sessionKeys } from '../../ontimeConfig';
 
 import RundownEntryEditor from './entry-editor/RundownEntryEditor';
 import FinderPlacement from './placements/FinderPlacement';
@@ -20,7 +21,10 @@ export default memo(RundownExport);
 
 function RundownExport() {
   const isExtracted = window.location.pathname.includes('/rundown');
-  const appMode = useAppMode((state) => state.mode);
+  const [editorMode] = useSessionStorage({
+    key: sessionKeys.editorMode,
+    defaultValue: AppMode.Edit,
+  });
   const isSmallDevice = useIsSmallDevice();
 
   if (isSmallDevice && isExtracted) {
@@ -45,7 +49,7 @@ function RundownExport() {
     );
   }
 
-  const hideSideBar = isExtracted && appMode === 'run';
+  const hideSideBar = isExtracted && editorMode === 'run';
 
   return (
     <ProtectRoute permission='editor'>

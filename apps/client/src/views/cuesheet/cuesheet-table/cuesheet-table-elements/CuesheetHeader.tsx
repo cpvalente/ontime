@@ -1,8 +1,10 @@
 import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
+import { useSessionStorage } from '@mantine/hooks';
 import { flexRender, HeaderGroup } from '@tanstack/react-table';
 import { OntimeEntry } from 'ontime-types';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
+import { AppMode, sessionKeys } from '../../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 
 import { SortableCell } from './SortableCell';
@@ -15,7 +17,10 @@ interface CuesheetHeaderProps {
 
 export default function CuesheetHeader({ headerGroups }: CuesheetHeaderProps) {
   const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
-  const showActionMenu = usePersistedCuesheetOptions((state) => state.showActionMenu);
+  const [cuesheetMode] = useSessionStorage<AppMode>({
+    key: sessionKeys.cuesheetMode,
+    defaultValue: AppMode.Edit,
+  });
 
   return (
     <thead className={style.tableHeader}>
@@ -24,7 +29,7 @@ export default function CuesheetHeader({ headerGroups }: CuesheetHeaderProps) {
 
         return (
           <tr key={headerGroup.id}>
-            {showActionMenu && <th className={style.actionColumn} tabIndex={-1} />}
+            {cuesheetMode === AppMode.Edit && <th className={style.actionColumn} tabIndex={-1} />}
             {!hideIndexColumn && (
               <th className={style.indexColumn} tabIndex={-1}>
                 #

@@ -20,6 +20,11 @@ $button-color-white: $gray-50;
     opacity: $opacity-disabled;
   }
 
+  &:focus-visible {
+    outline: 2px solid $blue-500;
+    outline-offset: 2px;
+  }
+
   &:hover:not(:disabled) {
     color: $button-color-white;
     background-color: $theme-color;

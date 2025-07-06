@@ -1,9 +1,11 @@
 import { IoEllipsisHorizontal } from 'react-icons/io5';
+import { useSessionStorage } from '@mantine/hooks';
 import { flexRender, Table } from '@tanstack/react-table';
 import { EntryId, OntimeEntry } from 'ontime-types';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { useCurrentBlockId } from '../../../../common/hooks/useSocket';
+import { AppMode, sessionKeys } from '../../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
 
@@ -22,7 +24,10 @@ export default function BlockRow({ blockId, colour, hidePast, rowId, rowIndex, t
   const { currentBlockId } = useCurrentBlockId();
 
   const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
-  const showActionMenu = usePersistedCuesheetOptions((state) => state.showActionMenu);
+  const [cuesheetMode] = useSessionStorage<AppMode>({
+    key: sessionKeys.cuesheetMode,
+    defaultValue: AppMode.Edit,
+  });
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
   if (hidePast && !currentBlockId) {
@@ -31,7 +36,7 @@ export default function BlockRow({ blockId, colour, hidePast, rowId, rowIndex, t
 
   return (
     <tr className={style.blockRow} style={{ '--user-bg': colour }} data-testid='cuesheet-block'>
-      {showActionMenu && (
+      {cuesheetMode === AppMode.Edit && (
         <td className={style.actionColumn} tabIndex={-1} role='cell'>
           <IconButton
             aria-label='Options'
