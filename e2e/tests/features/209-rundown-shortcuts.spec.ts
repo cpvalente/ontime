@@ -19,9 +19,9 @@ test('Copy-paste', async ({ page }) => {
   await page.getByTestId('block__title').press('Enter');
 
   // copy paste below
-  await page.locator('div').filter({ hasText: /^4$/ }).click();
-  await page.locator('div').filter({ hasText: /^4$/ }).press('Control+c');
-  await page.locator('div').filter({ hasText: /^4$/ }).press('Control+v');
+  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '4' }).click();
+  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '4' }).press('Control+c');
+  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '4' }).press('Control+v');
 
   // assert
   await expect(page.getByTestId('entry-2')).toBeVisible();
@@ -29,9 +29,9 @@ test('Copy-paste', async ({ page }) => {
   await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('5');
 
   // copy paste above
-  await page.locator('div').filter({ hasText: /^5$/ }).click();
-  await page.locator('div').filter({ hasText: /^5$/ }).press('Control+c');
-  await page.locator('div').filter({ hasText: /^5$/ }).press('Control+Shift+v');
+  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '5' }).click();
+  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '5' }).press('Control+c');
+  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '5' }).press('Control+Shift+v');
 
   // assert
   await expect(page.getByTestId('entry-2')).toBeVisible();
@@ -63,7 +63,7 @@ test('Move', async ({ page }) => {
   // copy move up
   await page.getByTestId('entry-3').getByTestId('rundown-event').getByText('3').click();
   await page.getByTestId('entry-3').getByTestId('rundown-event').filter({ hasText: '3' }).press('Alt+Control+ArrowUp');
-  await page.getByTestId('entry-2').locator('div').filter({ hasText: /^3$/ }).press('Alt+Control+ArrowUp');
+  await page.getByTestId('entry-3').getByTestId('rundown-event').filter({ hasText: '3' }).press('Alt+Control+ArrowUp');
   await expect(page.getByTestId('entry-1').getByTestId('rundown-event')).toContainText('3');
 });
 

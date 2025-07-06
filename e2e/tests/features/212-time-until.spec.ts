@@ -7,7 +7,7 @@ test('time until absolute', async ({ page }) => {
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   await page.getByRole('button', { name: 'Create Event' }).click();
-  await page.getByRole('button', { name: 'Event' }).nth(4).click();
+  await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
   await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
   await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
 

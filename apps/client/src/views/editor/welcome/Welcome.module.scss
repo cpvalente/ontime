@@ -13,7 +13,8 @@
 
 .about {
   @extend .column;
-  font-size: calc(1rem - 2px);
+  font-size: calc(1rem - 3px);
+  padding-inline: 0.25rem;
 }
 
 .inline {

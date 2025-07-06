@@ -23,13 +23,13 @@ export default function FeaturePanel({ location }: PanelBaseProps) {
         <Panel.Section>
           <Panel.Card>
             <Panel.SubHeader>Share Ontime Link</Panel.SubHeader>
-            <Panel.Divider />
             {!isOntimeCloud && (
               <>
                 <Panel.Paragraph>Ontime is streaming on the following network interfaces</Panel.Paragraph>
                 <InfoNif />
               </>
             )}
+            <Panel.Divider />
             <GenerateLinkFormExport />
           </Panel.Card>
         </Panel.Section>

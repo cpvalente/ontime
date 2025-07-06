@@ -22,3 +22,24 @@
   gap: 0.25rem;
   height: 1.5rem;
 }
+
+.fakeInput {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 7.5em;
+  height: 2rem;
+  display: grid;
+  place-content: center;
+
+  font-size: 1rem;
+  font-weight: 400;
+  color: $gray-200;
+  border-radius: $component-border-radius-md;
+  border: 1px solid transparent;
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
+
+  padding-inline: 0.5em;
+  outline: none;
+
+}

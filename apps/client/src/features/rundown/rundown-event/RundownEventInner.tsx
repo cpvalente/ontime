@@ -10,11 +10,10 @@ import {
   IoPlaySkipForward,
   IoTime,
 } from 'react-icons/io5';
-import { Tooltip } from '@chakra-ui/react';
 import { EndAction, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
+import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { cx } from '../../../common/utils/styleUtils';
-import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
@@ -137,25 +136,17 @@ function RundownEventInner({
           {loaded && <EventBlockProgressBar />}
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
-          <Tooltip label={`Time type: ${timerType}`} openDelay={tooltipDelayMid}>
-            <span>
-              <TimerIcon type={timerType} className={style.statusIcon} />
-            </span>
+          <Tooltip text={`Time type: ${timerType}`} render={<span />}>
+            <TimerIcon type={timerType} className={style.statusIcon} />
           </Tooltip>
-          <Tooltip label={`End action: ${endAction}`} openDelay={tooltipDelayMid}>
-            <span>
-              <EndActionIcon action={endAction} className={style.statusIcon} />
-            </span>
+          <Tooltip text={`End action: ${endAction}`} render={<span />}>
+            <EndActionIcon action={endAction} className={style.statusIcon} />
           </Tooltip>
-          <Tooltip label={`${countToEnd ? 'Count to End' : 'Count duration'}`} openDelay={tooltipDelayMid}>
-            <span>
-              <IoFlag className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
-            </span>
+          <Tooltip text={`${countToEnd ? 'Count to End' : 'Count duration'}`} render={<span />}>
+            <IoFlag className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
           </Tooltip>
-          <Tooltip label='Event has Triggers' openDelay={tooltipDelayMid}>
-            <span>
-              <IoFlash className={`${style.statusIcon} ${hasTriggers ? style.active : style.disabled}`} />
-            </span>
+          <Tooltip text='Event has Triggers' render={<span />}>
+            <IoFlash className={`${style.statusIcon} ${hasTriggers ? style.active : style.disabled}`} />
           </Tooltip>
         </div>
       </div>

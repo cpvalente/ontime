@@ -15,10 +15,10 @@ import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { getCurrentRundown, getProjectCustomFields } from '../../api-data/rundown/rundown.dao.js';
 import { parseExcel } from '../../api-data/excel/excel.parser.js';
 import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
+import { consoleSubdued } from '../../utils/console.js';
 
 import { cellRequestFromEvent, type ClientSecret, getA1Notation, isClientSecret } from './sheetUtils.js';
 import { catchCommonImportXlsxError } from './googleApi.utils.js';
-import { consoleError, consoleSubdued } from '../../utils/console.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
 const codesUrl = 'https://oauth2.googleapis.com/device/code';

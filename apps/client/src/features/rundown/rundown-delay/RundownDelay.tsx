@@ -55,23 +55,24 @@ export default function RundownDelay({ data, hasCursor }: RundownDelayProps) {
     deleteEntry([data.id]);
   };
 
-  const blockClasses = cx([style.delay, hasCursor ? style.hasCursor : null]);
-
   return (
-    <div className={blockClasses} ref={setNodeRef} style={dragStyle} data-testid='rundown-delay'>
+    <div
+      className={cx([style.delay, hasCursor ? style.hasCursor : null])}
+      ref={setNodeRef}
+      style={dragStyle}
+      data-testid='rundown-delay'
+    >
       <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
         <IoReorderTwo />
       </span>
       <DelayInput eventId={data.id} duration={data.duration} />
-      <div className={style.actionButtons}>
-        <Button onClick={applyDelayHandler} variant='ghosted-white'>
-          <IoCheckmarkDone /> Make permanent
-        </Button>
-        <Button onClick={cancelDelayHandler} variant='ghosted-white'>
-          <IoClose />
-          Cancel
-        </Button>
-      </div>
+      <Button onClick={applyDelayHandler} variant='ghosted-white'>
+        <IoCheckmarkDone /> Make permanent
+      </Button>
+      <Button onClick={cancelDelayHandler} variant='ghosted-white'>
+        <IoClose />
+        Cancel
+      </Button>
     </div>
   );
 }

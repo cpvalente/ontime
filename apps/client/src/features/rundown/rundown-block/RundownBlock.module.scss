@@ -2,21 +2,21 @@
 
 .block {
   @include block-styling;
-  overflow: hidden;
 
+  margin-block: 1rem 0.25rem;
   display: grid;
   grid-template-columns: 2rem 1fr;
   grid-template-areas: 'binder header';
   align-items: center;
-  // TODO(style fix): groups have an extra bottom margin which interrupt colour
-  margin-block: 0.25rem;
 
   &.hasCursor {
     outline: 1px solid $block-cursor-color;
   }
 
   &.expanded {
+    margin-block: 1rem 0;
     border-radius: $block-border-radius $block-border-radius 0 0;
+    border-bottom: 0.25rem solid color-mix(in srgb, transparent 90%, var(--user-bg, transparent) 10%);
   }
 
   .binder {
@@ -29,8 +29,12 @@
     place-content: center;
     position: relative;
     cursor: pointer;
-    }
 
+    &:focus {
+      outline: 1px solid $blue-500;
+      outline-offset: -1px;  
+    }
+  }
 
   .header {
     grid-area: header;

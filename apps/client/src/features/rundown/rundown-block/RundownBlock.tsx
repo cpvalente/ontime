@@ -102,8 +102,9 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
       onClick={handleFocusClick}
       onContextMenu={onContextMenu}
       style={{
-        ...(binderColours ? { '--user-bg': binderColours.backgroundColor } : {}),
+        //  ...(binderColours ? { '--user-bg': binderColours.backgroundColor } : {}),
         ...dragStyle,
+        '--user-bg': data.colour || '#929292',
       }}
       data-testid='rundown-block'
     >

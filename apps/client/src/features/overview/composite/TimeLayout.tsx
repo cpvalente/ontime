@@ -1,5 +1,4 @@
-import { Tooltip } from '@chakra-ui/react';
-
+import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { cx } from '../../../common/utils/styleUtils';
 
 import style from './TimeLayout.module.scss';
@@ -29,8 +28,12 @@ export function TimeRow({ label, value, daySpan, muted, className }: TimeLayoutP
     <div className={style.row}>
       <span className={style.label}>{label}</span>
       {daySpan ? (
-        <Tooltip label={`Event spans over ${daySpan + 1} days`}>
-          <span className={cx([style.clock, style.daySpan, className])}>{value}</span>
+        <Tooltip
+          text={`Event spans over ${daySpan + 1} days`}
+          render={<span />}
+          className={cx([style.clock, style.daySpan, className])}
+        >
+          {value}
         </Tooltip>
       ) : (
         <span className={cx([style.clock, muted && style.muted, className])}>{value}</span>

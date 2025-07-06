@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import { IoInformationCircle } from 'react-icons/io5';
-import { Tooltip } from '@chakra-ui/react';
 import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
@@ -8,6 +7,7 @@ import * as Editor from '../../../../common/components/editor-utils/EditorUtils'
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import Select from '../../../../common/components/select/Select';
 import Switch from '../../../../common/components/switch/Switch';
+import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { useEntryActions } from '../../../../common/hooks/useEntryAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
@@ -126,11 +126,12 @@ function EventEditorTimes({
 
       <div className={style.column}>
         <Editor.Title>
-          <Tooltip label='Changes how the timer is displayed in different views. It is not reflected in the rundown'>
-            <span>
-              Display Options
-              <IoInformationCircle className={style.tooltipIcon} />
-            </span>
+          <Tooltip
+            text='Changes how the timer is displayed in different views. It is not reflected in the rundown'
+            render={<span />}
+          >
+            Display Options
+            <IoInformationCircle className={style.tooltipIcon} />
           </Tooltip>
         </Editor.Title>
         <div className={style.splitTwo}>

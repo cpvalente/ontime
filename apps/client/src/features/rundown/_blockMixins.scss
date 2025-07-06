@@ -22,6 +22,7 @@ $block-cursor-color: $orange-400;
   border-radius: $block-border-radius;
   position: relative;
   color: $block-text-color;
+  overflow: hidden;
 
   min-width: $block-width;
 }

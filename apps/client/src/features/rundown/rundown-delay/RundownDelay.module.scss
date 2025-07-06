@@ -4,12 +4,11 @@
   @include block-styling;
 
   margin-block: 0.25rem;
+  padding-right: 0.25rem;
   background-color: $block-bg2;
-  padding-right: 0.5rem;
 
   display: grid;
-  grid-template-columns: 2rem 1fr auto;
-  grid-template-areas: 'drag inpt btns';
+  grid-template-columns: 2rem 1fr auto auto;
   align-items: center;
   height: $secondary-block-height;
   gap: 0.5rem;
@@ -21,12 +20,4 @@
 
 .drag {
   @include drag-style;
-  grid-area: drag;
-}
-
-.actionButtons {
-  grid-area: btns;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }

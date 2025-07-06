@@ -5,7 +5,7 @@ $gap-left: calc(2rem + 0.25rem + 3rem);
   font-size: calc(1rem - 5px);
   position: absolute;
   top: -1em;
-  z-index: $zindex-floating;;
+  z-index: $zindex-floating;
   margin-left: $gap-left;
 
   display: flex;

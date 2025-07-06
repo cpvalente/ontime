@@ -1,11 +1,9 @@
 .chip {
-  background-color: $gray-1100;
   white-space: nowrap;
 
   font-size: calc(1rem - 3px);
   color: $label-gray;
-  padding: 0.125rem 0.5rem;
-  border-radius: 2px;
+  justify-self: end;
 
   &.over {
     color: $ontime-delay-text;

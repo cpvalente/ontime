@@ -6,6 +6,7 @@ $skip-opacity: 0.2;
   @include block-styling;
   background-color: $block-bg;
   margin-block: 0.25rem;
+  overflow: initial;
 
   display: grid;
   grid-template-areas:
@@ -15,7 +16,7 @@ $skip-opacity: 0.2;
     'binder pb-actions estatus estatus'
     'binder ...        ...     ...';
 
-  grid-template-columns: $block-binder-width 3rem 1fr auto;
+  grid-template-columns: $block-binder-width 3rem 1fr 3rem;
   grid-template-rows: 0.125rem 2rem 2rem auto 0.125rem;
   align-items: center;
   padding-right: $block-clearance;
@@ -92,11 +93,10 @@ $skip-opacity: 0.2;
   position: relative;
   cursor: pointer;
 
-  border-radius: $block-border-radius 0 0 $block-border-radius;
-
   background-color: $gray-1050; // to override inline
   color: $section-white;
   font-size: 1rem;
+  border-radius: 3px 0 0 3px;
 
   .drag {
     @include drag-style;

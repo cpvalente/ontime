@@ -1,6 +1,6 @@
 import { IoArrowDown, IoArrowUp, IoPause, IoPlay, IoStop } from 'react-icons/io5';
 import { Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
-import { parseUserTime } from 'ontime-utils';
+import { millisToString, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { setAuxTimer, useAuxTimerControl, useAuxTimerTime } from '../../../../common/hooks/useSocket';
@@ -22,7 +22,7 @@ export function AuxTimer({ index }: AuxTimerProps) {
     setDirection(index, newDirection);
   };
 
-  const canStop = playback !== SimplePlayback.Stop;
+  const isActive = playback !== SimplePlayback.Stop;
   const playbackAction = playback === SimplePlayback.Start ? 'pause' : 'play';
 
   return (
@@ -30,15 +30,15 @@ export function AuxTimer({ index }: AuxTimerProps) {
       Aux Timer {index}
       <div className={style.controls}>
         <div className={style.input}>
-          <AuxTimerInput index={index} />
-          <TapButton onClick={toggleDirection} aspect='tight'>
+          <AuxTimerInput index={index} isActive={isActive} />
+          <TapButton onClick={toggleDirection} aspect='tight' disabled={isActive}>
             {direction === SimpleDirection.CountDown && <IoArrowDown data-testid={`aux-timer-direction-${index}`} />}
             {direction === SimpleDirection.CountUp && <IoArrowUp data-testid={`aux-timer-direction-${index}`} />}
           </TapButton>
         </div>
         <div className={style.twoSides}>
           <AuxTogglePlay index={index} action={playbackAction} />
-          <TapButton onClick={() => stop(index)} theme={Playback.Stop} disabled={!canStop}>
+          <TapButton onClick={() => stop(index)} theme={Playback.Stop} disabled={!isActive}>
             <IoStop data-testid={`aux-timer-stop-${index}`} />
           </TapButton>
         </div>
@@ -47,11 +47,12 @@ export function AuxTimer({ index }: AuxTimerProps) {
   );
 }
 
-interface AuxTimerInput {
+interface AuxTimerInputProps {
   index: number;
+  isActive: boolean;
 }
 
-function AuxTimerInput({ index }: AuxTimerProps) {
+function AuxTimerInput({ index, isActive }: AuxTimerInputProps) {
   const newTimeInMs = useAuxTimerTime(index);
   const { setDuration } = setAuxTimer;
 
@@ -59,6 +60,14 @@ function AuxTimerInput({ index }: AuxTimerProps) {
     const newTimeInMs = parseUserTime(value);
     setDuration(index, newTimeInMs);
   };
+
+  if (isActive) {
+    return (
+      <div className={style.fakeInput} data-testid={`time-label-aux${index}`}>
+        {millisToString(newTimeInMs)}
+      </div>
+    );
+  }
 
   return (
     <TimeInput submitHandler={handleTimeUpdate} name={`aux${index}`} time={newTimeInMs} placeholder={`Aux ${index}`} />

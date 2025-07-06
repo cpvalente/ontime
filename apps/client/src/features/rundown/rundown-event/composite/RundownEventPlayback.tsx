@@ -1,27 +1,12 @@
 import { memo, MouseEvent } from 'react';
 import { IoPause, IoPlay, IoReload, IoRemoveCircle, IoRemoveCircleOutline } from 'react-icons/io5';
 
-import TooltipActionBtn from '../../../../common/components/buttons/TooltipActionBtn';
+import IconButton from '../../../../common/components/buttons/IconButton';
+import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { useEntryActions } from '../../../../common/hooks/useEntryAction';
 import { setEventPlayback } from '../../../../common/hooks/useSocket';
-import { tooltipDelayMid } from '../../../../ontimeConfig';
 
 import style from '../RundownEvent.module.scss';
-
-const blockBtnStyle = {
-  size: 'sm',
-};
-
-type StyleVariant = {
-  'aria-label': string;
-  tooltip: string;
-  backgroundColor: string;
-  _hover: { backgroundColor?: string };
-};
-
-const tooltipProps = {
-  openDelay: tooltipDelayMid,
-};
 
 interface RundownEventPlaybackProps {
   eventId: string;
@@ -67,67 +52,66 @@ function RundownEventPlayback({
     setEventPlayback.loadEvent(eventId);
   };
 
-  const buttonVariant: Partial<StyleVariant> = {};
-
-  if (isPaused) {
-    // continue
-    buttonVariant['aria-label'] = 'Continue event';
-    buttonVariant.tooltip = 'Continue event';
-    buttonVariant.backgroundColor = '#339E4E';
-    buttonVariant._hover = { backgroundColor: '#339E4Eee' };
-  } else if (isPlaying) {
-    // pause
-    buttonVariant['aria-label'] = 'Pause event';
-    buttonVariant.tooltip = 'Pause event';
-    buttonVariant.backgroundColor = '#c05621';
-    buttonVariant._hover = { backgroundColor: '#c05621ee' };
-  } else {
-    // start
-    buttonVariant['aria-label'] = 'Start event';
-    buttonVariant.tooltip = 'Start event';
-    if (!disablePlayback) {
-      buttonVariant._hover = { backgroundColor: '#339E4E' };
+  const playButtonStyles: { tooltip: string; backgroundColor: string | undefined } = (() => {
+    if (isPaused) {
+      return {
+        tooltip: 'Continue event',
+        backgroundColor: '#339E4E',
+      };
     }
-  }
+
+    if (isPlaying) {
+      return {
+        tooltip: 'Pause event',
+        backgroundColor: '#c05621',
+      };
+    }
+    return {
+      tooltip: 'Start event',
+      backgroundColor: undefined,
+    };
+  })();
 
   return (
     <div className={style.playbackActions}>
-      <TooltipActionBtn
-        variant='ontime-subtle-white'
+      <Tooltip
+        text='Skip event'
+        render={<IconButton variant='subtle-white' />}
+        onClick={toggleSkip}
+        tabIndex={-1}
+        disabled={loaded}
+        style={{
+          background: skip ? '#9A0000' : undefined,
+        }}
         aria-label='Skip event'
-        tooltip='Skip event'
-        icon={skip ? <IoRemoveCircle /> : <IoRemoveCircleOutline />}
-        backgroundColor={skip ? '#B20000' : undefined}
-        _hover={{ backgroundColor: '#FF7878' }}
-        {...tooltipProps}
-        {...blockBtnStyle}
-        clickHandler={toggleSkip}
+      >
+        {skip ? <IoRemoveCircle /> : <IoRemoveCircleOutline />}
+      </Tooltip>
+
+      <Tooltip
+        text='Load event'
+        render={<IconButton variant='subtle-white' />}
+        onClick={load}
         tabIndex={-1}
-        isDisabled={loaded}
-      />
-      <TooltipActionBtn
-        variant='ontime-subtle-white'
+        disabled={disablePlayback}
         aria-label='Load event'
-        tooltip='Load event'
-        icon={<IoReload className={style.flip} />}
-        isDisabled={disablePlayback}
-        {...tooltipProps}
-        {...blockBtnStyle}
-        clickHandler={load}
+      >
+        <IoReload className={style.flip} />
+      </Tooltip>
+
+      <Tooltip
+        text={playButtonStyles.tooltip}
+        render={<IconButton variant='subtle-white' />}
+        onClick={actionHandler}
         tabIndex={-1}
-      />
-      <TooltipActionBtn
-        variant='ontime-subtle-white'
-        aria-label='Start event'
-        tooltip='Start event'
-        icon={!isPlaying ? <IoPlay /> : <IoPause />}
-        isDisabled={disablePlayback}
-        {...tooltipProps}
-        {...blockBtnStyle}
-        {...buttonVariant}
-        clickHandler={actionHandler}
-        tabIndex={-1}
-      />
+        disabled={disablePlayback}
+        style={{
+          backgroundColor: playButtonStyles.backgroundColor,
+        }}
+        aria-label={isPlaying ? 'Pause event' : 'Start event'}
+      >
+        {!isPlaying ? <IoPlay /> : <IoPause />}
+      </Tooltip>
     </div>
   );
 }
