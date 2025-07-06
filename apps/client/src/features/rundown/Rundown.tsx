@@ -35,9 +35,9 @@ import {
 import { type EventOptions, useEntryActions } from '../../common/hooks/useEntryAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
-import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { cloneEvent } from '../../common/utils/clone';
+import { AppMode, sessionKeys } from '../../ontimeConfig';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import BlockEnd from './rundown-block/BlockEnd';
@@ -70,12 +70,15 @@ export default function Rundown({ data }: RundownProps) {
   const { entryCopyId, setEntryCopyId } = useEntryCopy();
 
   // cursor
-  const { mode: appMode } = useAppMode();
+  const [editorMode] = useSessionStorage<AppMode>({
+    key: sessionKeys.editorMode,
+    defaultValue: AppMode.Edit,
+  });
   const { clearSelectedEvents, setSelectedEvents, cursor } = useEventSelection();
 
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: appMode === AppMode.Run });
+  useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: editorMode === AppMode.Run });
 
   // DND KIT
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 10 } }));
@@ -283,12 +286,12 @@ export default function Rundown({ data }: RundownProps) {
 
   // in run mode, we follow selection
   useEffect(() => {
-    if (appMode !== AppMode.Run || !featureData?.selectedEventId) {
+    if (editorMode !== AppMode.Run || !featureData?.selectedEventId) {
       return;
     }
     const index = order.findIndex((id) => id === featureData.selectedEventId);
     setSelectedEvents({ id: featureData.selectedEventId, selectMode: 'click', index });
-  }, [appMode, featureData.selectedEventId, order, setSelectedEvents]);
+  }, [editorMode, featureData.selectedEventId, order, setSelectedEvents]);
 
   /**
    * On drag end, we reorder the events
@@ -359,7 +362,7 @@ export default function Rundown({ data }: RundownProps) {
   }
 
   // 1. gather presentation options
-  const isEditMode = appMode === AppMode.Edit;
+  const isEditMode = editorMode === AppMode.Edit;
 
   // 2. initialise rundown metadata
   const { metadata, process } = makeRundownMetadata(featureData?.selectedEventId);

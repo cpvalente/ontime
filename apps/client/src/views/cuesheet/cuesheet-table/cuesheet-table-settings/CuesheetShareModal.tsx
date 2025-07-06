@@ -1,3 +1,4 @@
+import { Toolbar } from '@base-ui-components/react/toolbar';
 import { useDisclosure } from '@mantine/hooks';
 
 import Button from '../../../../common/components/buttons/Button';
@@ -17,10 +18,10 @@ function CuesheetShareModal() {
 
   return (
     <>
-      <Button variant='subtle' onClick={handler.open}>
+      <Toolbar.Button onClick={handler.open} render={<Button />}>
         <RotatedLink />
         Share...
-      </Button>
+      </Toolbar.Button>
       <Modal
         isOpen={isOpen}
         onClose={handler.close}

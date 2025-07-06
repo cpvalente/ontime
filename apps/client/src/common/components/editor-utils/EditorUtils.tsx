@@ -33,5 +33,5 @@ interface SeparatorProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export function Separator({ className, orientation = 'vertical', ...elementProps }: SeparatorProps) {
-  return <div className={cx([style.separator, style[orientation], className])} {...elementProps} />;
+  return <div className={cx([style.separator, style[orientation], className])} role='separator' {...elementProps} />;
 }

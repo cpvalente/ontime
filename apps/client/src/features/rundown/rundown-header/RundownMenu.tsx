@@ -1,11 +1,12 @@
 import { memo, useCallback } from 'react';
 import { IoTrash } from 'react-icons/io5';
-import { useDisclosure } from '@mantine/hooks';
+import { Toolbar } from '@base-ui-components/react/toolbar';
+import { useDisclosure, useSessionStorage } from '@mantine/hooks';
 
 import Button from '../../../common/components/buttons/Button';
 import Dialog from '../../../common/components/dialog/Dialog';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
-import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
+import { AppMode, sessionKeys } from '../../../ontimeConfig';
 import { useEventSelection } from '../useEventSelection';
 
 import style from './RundownHeader.module.scss';
@@ -15,7 +16,10 @@ function RundownMenu() {
   const [isOpen, handlers] = useDisclosure();
 
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
-  const appMode = useAppMode((state) => state.mode);
+  const [editorMode] = useSessionStorage({
+    key: sessionKeys.cuesheetMode,
+    defaultValue: AppMode.Edit,
+  });
   const { deleteAllEntries } = useEntryActions();
 
   const deleteAll = useCallback(() => {
@@ -26,15 +30,15 @@ function RundownMenu() {
 
   return (
     <>
-      <Button
-        variant='subtle-destructive'
+      <Toolbar.Button
+        render={<Button variant='subtle-destructive' />}
+        onClick={handlers.open}
+        disabled={editorMode === AppMode.Run}
         className={style.apart}
-        onClick={() => handlers.open()}
-        disabled={appMode === AppMode.Run}
       >
         <IoTrash />
         Clear all
-      </Button>
+      </Toolbar.Button>
       <Dialog
         isOpen={isOpen}
         onClose={handlers.close}
@@ -48,7 +52,7 @@ function RundownMenu() {
         }
         footerElements={
           <>
-            <Button size='large' onClick={handlers.close}>
+            <Button variant='ghosted-white' size='large' onClick={handlers.close}>
               Cancel
             </Button>
             <Button variant='destructive' size='large' onClick={deleteAll}>

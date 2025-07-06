@@ -1,5 +1,6 @@
 import { memo, useRef } from 'react';
 import { IoAdd } from 'react-icons/io5';
+import { Toolbar } from '@base-ui-components/react/toolbar';
 import { MaybeString, SupportedEntry } from 'ontime-types';
 
 import Button from '../../../common/components/buttons/Button';
@@ -64,21 +65,23 @@ function QuickAddBlock({ previousEventId, parentBlock, backgroundColor }: QuickA
   const blockColour = backgroundColor === '' ? '#9d9d9d' : backgroundColor;
 
   return (
-    <div className={style.quickAdd} style={blockColour ? { '--user-bg': blockColour } : {}}>
-      <Button onClick={addEvent} size='small' variant='subtle-white'>
+    <Toolbar.Root className={style.quickAdd} style={blockColour ? { '--user-bg': blockColour } : {}}>
+      <Toolbar.Button render={<Button size='small' variant='subtle-white' />} onClick={addEvent}>
         <IoAdd />
         Event
-      </Button>
-      <Button onClick={addDelay} size='small' variant='subtle-white'>
+      </Toolbar.Button>
+
+      <Toolbar.Button render={<Button size='small' variant='subtle-white' />} onClick={addDelay}>
         <IoAdd />
         Delay
-      </Button>
+      </Toolbar.Button>
+
       {parentBlock === null && (
-        <Button onClick={addBlock} size='small' variant='subtle-white'>
+        <Toolbar.Button render={<Button size='small' variant='subtle-white' />} onClick={addBlock}>
           <IoAdd />
           Block
-        </Button>
+        </Toolbar.Button>
       )}
-    </div>
+    </Toolbar.Root>
   );
 }

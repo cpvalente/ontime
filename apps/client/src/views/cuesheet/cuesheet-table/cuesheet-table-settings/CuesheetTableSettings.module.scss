@@ -5,7 +5,7 @@
   padding: 0.5rem 1rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 1rem;
   font-size: $inner-section-text-size;
   border-radius: 3px 3px 0 0;
 }
@@ -39,4 +39,56 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+.apart {
+  margin-left: auto;
+}
+
+/** styles should match RundownHeader.module.scss */
+.group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-inline: 2px;
+  background: $gray-1100;
+  border-radius: $component-border-radius-md;
+  height: 2rem;
+}
+
+/** styles should match RundownHeader.module.scss */
+.radioButton {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(2rem - 4px); // padding inline * 2
+  padding-inline: 1em;
+  border: 1px solid transparent;
+  border-radius: $component-border-radius-md;
+  color: $gray-400;
+  font-size: calc(1rem - 2px);
+  font-weight: 600;
+
+  &:focus-visible {
+    background: transparent;
+    outline: 1px solid $blue-500;
+  }
+
+  &:hover:not(:disabled):not(:active) {
+    background: $gray-1000;
+  }
+
+  &:active {
+    background: $gray-1100;
+  }
+
+  &[data-pressed] {
+    background: $blue-700;
+    color: $ui-white;
+
+    &:hover:not(:disabled):not(:active) {
+      background: $blue-600;
+    }
+  }
 }
