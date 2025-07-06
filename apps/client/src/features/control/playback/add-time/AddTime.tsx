@@ -1,12 +1,10 @@
 import { IoAdd, IoRemove } from 'react-icons/io5';
-import { Tooltip } from '@chakra-ui/react';
 import { useLocalStorage } from '@mantine/hooks';
 import { Playback } from 'ontime-types';
 import { MILLIS_PER_HOUR, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { setPlayback } from '../../../../common/hooks/useSocket';
-import { tooltipDelayMid } from '../../../../ontimeConfig';
 import TapButton from '../tap-button/TapButton';
 
 import style from './AddTime.module.scss';
@@ -41,16 +39,12 @@ export default function AddTime(props: AddTimeProps) {
     <div className={style.addTime}>
       <TimeInput name='addtime' submitHandler={handleTimeChange} time={timeInMs} placeholder='Add time' />
       <div className={style.addButtons}>
-        <Tooltip label='Remove time' openDelay={tooltipDelayMid} shouldWrapChildren>
-          <TapButton onClick={() => handleAddTime('remove')} disabled={doDisableButtons} className={style.tallButtons}>
-            <IoRemove />
-          </TapButton>
-        </Tooltip>
-        <Tooltip label='Add time' openDelay={tooltipDelayMid} shouldWrapChildren>
-          <TapButton onClick={() => handleAddTime('add')} disabled={doDisableButtons} className={style.tallButtons}>
-            <IoAdd />
-          </TapButton>
-        </Tooltip>
+        <TapButton onClick={() => handleAddTime('remove')} disabled={doDisableButtons} className={style.tallButtons}>
+          <IoRemove />
+        </TapButton>
+        <TapButton onClick={() => handleAddTime('add')} disabled={doDisableButtons} className={style.tallButtons}>
+          <IoAdd />
+        </TapButton>
       </div>
     </div>
   );

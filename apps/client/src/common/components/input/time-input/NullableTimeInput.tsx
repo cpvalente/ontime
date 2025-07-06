@@ -18,8 +18,20 @@ interface NullableTimeInputProps<T extends string> {
   className?: string;
 }
 
-export default function NullableTimeInput<T extends string>(props: NullableTimeInputProps<T>) {
-  const { id, name, submitHandler, time, emptyDisplay, placeholder, disabled, align = 'center', className } = props;
+/**
+ * Similar to TimeInput, but allows clearing the time value
+ */
+export default function NullableTimeInput<T extends string>({
+  id,
+  name,
+  submitHandler,
+  time,
+  emptyDisplay,
+  placeholder,
+  disabled,
+  align = 'center',
+  className,
+}: NullableTimeInputProps<T>) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
   const ignoreChange = useRef(false);

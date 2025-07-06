@@ -1,13 +1,12 @@
 import { useMemo } from 'react';
 import { IoCheckmarkCircle } from 'react-icons/io5';
-import { Tooltip } from '@chakra-ui/react';
 import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
+import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { usePlayback } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
 import { cx } from '../../../../common/utils/styleUtils';
 import { formatDuration, formatTime, useTimeUntilStart } from '../../../../common/utils/time';
-import { tooltipDelayFast } from '../../../../ontimeConfig';
 
 import style from './RundownEventChip.module.scss';
 
@@ -39,7 +38,7 @@ export default function RundownEventChip({
   const { playback } = usePlayback();
 
   if (isLoaded) {
-    return null; //TODO: the is a small flash of 'DUE' on the loaded event as clock data arrives before isLoaded propagates
+    return null;
   }
 
   const playbackActive = isPlaybackActive(playback);
@@ -51,16 +50,14 @@ export default function RundownEventChip({
   if (playbackActive) {
     // we extracted the component to avoid unnecessary calculations and re-renders
     return (
-      <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
-        <div className={className}>
-          <EventUntil
-            timeStart={timeStart}
-            delay={delay}
-            dayOffset={dayOffset}
-            totalGap={totalGap}
-            isLinkedToLoaded={isLinkedToLoaded}
-          />
-        </div>
+      <Tooltip text='Expected time until start' render={<span />} className={className}>
+        <EventUntil
+          timeStart={timeStart}
+          delay={delay}
+          dayOffset={dayOffset}
+          totalGap={totalGap}
+          isLinkedToLoaded={isLinkedToLoaded}
+        />
       </Tooltip>
     );
   }
@@ -113,7 +110,7 @@ function EventReport(props: EventReportProps) {
     const absDifference = Math.abs(difference);
 
     if (absDifference < MILLIS_PER_SECOND) {
-      return ['ontime', 'ontime', 'Event finished ontime'];
+      return ['ontime', 'under', 'Event finished on time'];
     }
 
     const isOver = difference > 0;
@@ -131,10 +128,8 @@ function EventReport(props: EventReportProps) {
   }
 
   return (
-    <Tooltip label={tooltip} openDelay={tooltipDelayFast}>
-      <div className={cx([style.chip, style[overUnderStyle], className])}>
-        {value === 'ontime' ? <IoCheckmarkCircle size='1.1rem' /> : value}
-      </div>
+    <Tooltip text={tooltip} render={<span />} className={cx([style.chip, style[overUnderStyle], className])}>
+      {value === 'ontime' ? <IoCheckmarkCircle size='1.1rem' /> : value}
     </Tooltip>
   );
 }

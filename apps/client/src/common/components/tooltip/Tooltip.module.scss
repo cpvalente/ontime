@@ -1,0 +1,24 @@
+.tooltip {
+  font-size: calc(1rem - 3px);
+  background-color: $ui-white;
+  color: $ui-black; 
+  padding: 0.125rem 0.5rem;
+  border-radius: 2px;
+  line-height: 1.25em;
+  max-width: 200px;
+
+  transform-origin: var(--transform-origin);
+  transition:
+    transform 150ms,
+    opacity 150ms;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  &[data-instant] {
+    transition-duration: 0ms;
+  }
+}

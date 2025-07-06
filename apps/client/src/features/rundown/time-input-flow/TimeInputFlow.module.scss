@@ -1,30 +1,63 @@
-.timeLabel {
-  position: absolute;
-  z-index: $zindex-floating;
-  font-size: 0.75rem;
-  font-weight: 600;
-  top: 2px;
-  right: 4px;
-  color: inherit;
-}
-
 .timeAction {
-  opacity: 0.4;
+  background: $gray-1050;
+  color: $gray-500;
   cursor: pointer;
-  padding-right: 0.5em;
+  height: 2rem;
+  width: 2rem;
+  display: grid;
+  place-content: center;
+  aspect-ratio: 1;
+
+  &:hover:not(:disabled):not(:active) {
+    background: $gray-1000;
+  }
+
+  &:active:not(:disabled) {
+    background: $gray-1300;
+  }
+
+  &:focus {
+    outline: 1px solid $blue-500;
+    outline-offset: -1px;
+  }
 
   &.active {
-    opacity: 1;
     color: var(--status-color-active-override, $active-indicator);
   }
-  .fourtyfive {
-    transform: rotate(-45deg);
-  }
+}
+
+.fourtyfive {
+  transform: rotate(-45deg);
 }
 
 .timerNote {
+  width: 1.25em;
   color: $blue-500;
-  margin-right: 0.5rem;
   font-size: 1.5em;
-  display: grid;
+}
+
+.inputGroup {
+  border: 1px solid transparent;
+  width: fit-content;
+  display: flex;
+  align-items: center;
+  border-radius: $component-border-radius-md;
+
+  &.delayed {
+    border: 1px solid $ontime-delay-text;
+  }
+
+  input {
+    max-width: 6.5em;
+    border-radius: $component-border-radius-md 0 0 $component-border-radius-md;
+    border: none;
+    padding-right: 0;
+  }
+
+  button {
+    width: 1.5rem;
+    height: 2rem;
+    border-radius: 0 $component-border-radius-md $component-border-radius-md 0;
+    border: none;
+  }
 }

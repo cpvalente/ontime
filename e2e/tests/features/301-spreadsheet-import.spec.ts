@@ -24,6 +24,8 @@ test('sheet file upload', async ({ page }) => {
   await page.getByRole('button', { name: 'Import preview' }).click();
   await page.getByRole('button', { name: 'Apply' }).click();
   await page.getByRole('button', { name: 'Return' }).click();
+
+  await page.getByRole('button', { name: 'Close settings' }).scrollIntoViewIfNeeded();
   await page.getByRole('button', { name: 'Close settings' }).click();
 
   // asset test events

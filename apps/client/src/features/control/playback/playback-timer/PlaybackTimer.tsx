@@ -1,9 +1,9 @@
 import { PropsWithChildren } from 'react';
-import { Tooltip } from '@chakra-ui/react';
 import { MaybeNumber, Playback, TimerPhase } from 'ontime-types';
 import { dayInMs, millisToString } from 'ontime-utils';
 
 import AppLink from '../../../../common/components/link/app-link/AppLink';
+import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { useTimer } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
 import { formatDuration } from '../../../../common/utils/time';
@@ -43,13 +43,9 @@ export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProp
   return (
     <div className={style.timeContainer}>
       <div className={style.indicators}>
-        <Tooltip label={rollLabel}>
-          <div className={style.indicatorRoll} data-active={isRolling} />
-        </Tooltip>
+        <Tooltip text={rollLabel} render={<div />} className={style.indicatorRoll} data-active={isRolling} />
         <div className={style.indicatorNegative} data-active={isOvertime} />
-        <Tooltip label={addedTimeLabel}>
-          <div className={style.indicatorDelay} data-active={hasAddedTime} />
-        </Tooltip>
+        <Tooltip text={addedTimeLabel} render={<div />} className={style.indicatorDelay} data-active={hasAddedTime} />
       </div>
       <TimerDisplay time={isWaiting ? timer.secondaryTimer : timer.current} />
       <div className={style.status}>

@@ -1,6 +1,5 @@
 import { Fragment, useCallback, useMemo, useState } from 'react';
 import { IoAlertCircle, IoCheckmarkCircle, IoTrash } from 'react-icons/io5';
-import { Tooltip } from '@chakra-ui/react';
 import { TimerLifeCycle, timerLifecycleValues, Trigger } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
@@ -8,6 +7,7 @@ import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Select from '../../../../common/components/select/Select';
 import Tag from '../../../../common/components/tag/Tag';
+import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { useEntryActions } from '../../../../common/hooks/useEntryAction';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 
@@ -107,7 +107,7 @@ function EventTriggerForm({ eventId, triggers }: EventTriggerFormProps) {
         Add
       </Button>
       {validationError !== undefined ? (
-        <Tooltip label={validationError} shouldWrapChildren>
+        <Tooltip text={validationError} render={<span />}>
           <IoAlertCircle className={style.errorLabel} />
         </Tooltip>
       ) : (

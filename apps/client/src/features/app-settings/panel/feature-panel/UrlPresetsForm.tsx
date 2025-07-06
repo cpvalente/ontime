@@ -8,10 +8,10 @@ import { postUrlPresets } from '../../../../common/api/urlPresets';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
-import TooltipActionBtn from '../../../../common/components/buttons/TooltipActionBtn';
 import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
+import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { handleLinks } from '../../../../common/utils/linkUtils';
@@ -194,17 +194,15 @@ export default function UrlPresetsForm() {
                       <Panel.Error>{maybeUrlError}</Panel.Error>
                     </td>
                     <Panel.InlineElements relation='inner' as='td'>
-                      <TooltipActionBtn
-                        size='sm'
-                        isDisabled={!canTest}
-                        clickHandler={(event) => handleLinks(preset.alias, event)}
-                        tooltip='Test preset'
-                        aria-label='Test preset'
-                        variant='ontime-ghosted'
-                        color='#e2e2e2' // $gray-200
-                        icon={<IoOpenOutline />}
+                      <Tooltip
+                        text='Test preset'
+                        render={<IconButton variant='ghosted-white' />}
                         data-testid={`field__test_${index}`}
-                      />
+                        onClick={(event) => handleLinks(preset.alias, event)}
+                        disabled={!canTest}
+                      >
+                        <IoOpenOutline />
+                      </Tooltip>
                       <IconButton
                         onClick={() => remove(index)}
                         variant='ghosted-destructive'

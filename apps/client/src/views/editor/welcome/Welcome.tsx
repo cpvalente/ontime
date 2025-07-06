@@ -24,17 +24,12 @@ interface WelcomeProps {
 export default function Welcome({ onClose }: WelcomeProps) {
   const navigate = useNavigate();
 
-  /** handle cleanup actions before request closing the modal */
-  const handleClose = () => {
-    onClose();
-  };
-
   /** handle loading a selected project */
   const handleLoadProject = async (filename: string) => {
     try {
       await loadProject(filename);
       await invalidateAllCaches();
-      handleClose();
+      onClose();
     } catch (_error) {
       /** no error handling for now */
     }
@@ -45,7 +40,7 @@ export default function Welcome({ onClose }: WelcomeProps) {
     try {
       await loadDemo();
       await invalidateAllCaches();
-      handleClose();
+      onClose();
     } catch (_error) {
       /** no error handling for now */
     }
@@ -54,13 +49,13 @@ export default function Welcome({ onClose }: WelcomeProps) {
   /** handle redirect to create modal */
   const handleCallCreate = () => {
     navigate('/editor?settings=project__create');
-    handleClose();
+    onClose();
   };
 
   return (
     <Modal
       isOpen
-      onClose={handleClose}
+      onClose={() => onClose()}
       showBackdrop
       bodyElements={
         <div className={style.sections}>
@@ -74,7 +69,7 @@ export default function Welcome({ onClose }: WelcomeProps) {
           <div className={style.column}>
             <div className={style.header}>
               Welcome to Ontime
-              <IconButton aria-label='close welcome modal' variant='subtle-white'>
+              <IconButton aria-label='close welcome modal' variant='subtle-white' onClick={() => onClose()}>
                 <IoClose />
               </IconButton>
             </div>
@@ -87,7 +82,7 @@ export default function Welcome({ onClose }: WelcomeProps) {
                     <th>Last Used</th>
                   </tr>
                 </thead>
-                <WelcomeProjectList loadProject={handleLoadProject} onClose={handleClose} />
+                <WelcomeProjectList loadProject={handleLoadProject} onClose={() => onClose()} />
               </table>
             </div>
           </div>
@@ -97,7 +92,7 @@ export default function Welcome({ onClose }: WelcomeProps) {
         <div className={style.column}>
           <div className={style.buttonRow}>
             <Button onClick={handleLoadDemo}>Load demo project</Button>
-            <ImportProjectButton onFinish={handleClose} />
+            <ImportProjectButton onFinish={() => onClose()} />
             <Button variant='primary' onClick={handleCallCreate}>
               Create new...
             </Button>

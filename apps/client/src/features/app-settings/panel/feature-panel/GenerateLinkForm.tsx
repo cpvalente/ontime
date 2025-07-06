@@ -73,18 +73,12 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToV
   };
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} onKeyDown={(event) => preventEscape(event)}>
+    <form onSubmit={handleSubmit(onSubmit)} onKeyDown={(event) => preventEscape(event)}>
       {errors.root && <Panel.Error>{errors.root.message}</Panel.Error>}
       {!isLockedToView ? (
-        <Info>
-          <Panel.Paragraph>
-            You can generate a link to share with your team or to use in automation (such as companion).
-          </Panel.Paragraph>
-        </Info>
+        <Info>You can generate a link to share with your team or to use in automation (such as companion).</Info>
       ) : (
-        <Info>
-          <Panel.Paragraph>You can generate a link to share with your team</Panel.Paragraph>
-        </Info>
+        <Info>You can generate a link to share with your team</Info>
       )}
       <Panel.ListGroup>
         <Panel.ListItem>
@@ -136,6 +130,6 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToV
           </div>
         </Panel.ListItem>
       </Panel.ListGroup>
-    </Panel.Section>
+    </form>
   );
 }

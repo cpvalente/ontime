@@ -1,4 +1,4 @@
-import { ButtonHTMLAttributes } from 'react';
+import { ButtonHTMLAttributes, forwardRef } from 'react';
 
 import { cx } from '../../utils/styleUtils';
 
@@ -17,20 +17,21 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'small' | 'medium' | 'large' | 'xlarge';
 }
 
-export default function IconButton({
-  className,
-  children,
-  variant = 'subtle',
-  size = 'medium',
-  ...buttonProps
-}: IconButtonProps) {
-  return (
-    <button
-      className={cx([style.baseIconButton, style[variant], style[size], className])}
-      type='button'
-      {...buttonProps}
-    >
-      {children}
-    </button>
-  );
-}
+const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
+  ({ className, children, variant = 'subtle', size = 'medium', ...buttonProps }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={cx([style.baseIconButton, style[variant], style[size], className])}
+        type='button'
+        {...buttonProps}
+      >
+        {children}
+      </button>
+    );
+  },
+);
+
+IconButton.displayName = 'IconButton';
+
+export default IconButton;

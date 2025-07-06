@@ -6,7 +6,7 @@ import { OntimeEntry, TimeField } from 'ontime-types';
 
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { useFollowSelected } from '../../../common/hooks/useFollowComponent';
-import { AppMode,sessionKeys } from '../../../ontimeConfig';
+import { AppMode, sessionKeys } from '../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../cuesheet.options';
 
 import CuesheetBody from './cuesheet-table-elements/CuesheetBody';

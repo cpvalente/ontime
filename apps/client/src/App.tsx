@@ -1,4 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
+import { Tooltip } from '@base-ui-components/react/tooltip';
 import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -20,20 +21,22 @@ function App() {
     <ChakraProvider disableGlobalStyle resetCSS theme={theme}>
       <QueryClientProvider client={ontimeQueryClient}>
         <AppContextProvider>
-          <BrowserRouter basename={baseURI}>
-            <div className='App'>
+          <Tooltip.Provider>
+            <BrowserRouter basename={baseURI}>
+              <div className='App'>
+                <ErrorBoundary>
+                  <TranslationProvider>
+                    <IdentifyOverlay />
+                    <AppRouter />
+                  </TranslationProvider>
+                </ErrorBoundary>
+                <ReactQueryDevtools initialIsOpen={false} />
+              </div>
               <ErrorBoundary>
-                <TranslationProvider>
-                  <IdentifyOverlay />
-                  <AppRouter />
-                </TranslationProvider>
+                <div id='identify-portal' />
               </ErrorBoundary>
-              <ReactQueryDevtools initialIsOpen={false} />
-            </div>
-            <ErrorBoundary>
-              <div id='identify-portal' />
-            </ErrorBoundary>
-          </BrowserRouter>
+            </BrowserRouter>
+          </Tooltip.Provider>
         </AppContextProvider>
       </QueryClientProvider>
     </ChakraProvider>

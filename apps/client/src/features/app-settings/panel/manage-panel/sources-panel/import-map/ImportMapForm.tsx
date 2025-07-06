@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
-import { Select, Tooltip } from '@chakra-ui/react';
+import { Select } from '@chakra-ui/react';
 import { ImportMap, isAlphanumericWithSpace } from 'ontime-utils';
 
 import Button from '../../../../../../common/components/buttons/Button';
 import IconButton from '../../../../../../common/components/buttons/IconButton';
 import Input from '../../../../../../common/components/input/input/Input';
+import Tooltip from '../../../../../../common/components/tooltip/Tooltip';
 import * as Panel from '../../../../panel-utils/PanelUtils';
 import useGoogleSheet from '../useGoogleSheet';
 import { useSheetStore } from '../useSheetStore';
@@ -97,10 +98,13 @@ export default function ImportMapForm(props: ImportMapFormProps) {
         Import options
         <Panel.InlineElements>
           {!isSpreadsheet && (
-            <Tooltip label='Revoke the google authentication'>
-              <Button onClick={handleRevoke} disabled={isLoading}>
-                Revoke
-              </Button>
+            <Tooltip
+              text='Revoke the google authentication'
+              render={<Button />}
+              onClick={handleRevoke}
+              disabled={isLoading}
+            >
+              Revoke
             </Tooltip>
           )}
           <Button onClick={onCancel} disabled={isLoading}>

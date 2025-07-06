@@ -35,13 +35,14 @@ import { dispatchFromAdapter } from '../api-integration/integration.controller.j
 import { generateId } from 'ontime-utils';
 import { authenticateSocket } from '../middleware/authenticate.js';
 
+type ClientId = string;
 let instance: SocketServer | null = null;
 
 class SocketServer implements IAdapter {
   private readonly MAX_PAYLOAD = 1024 * 256; // 256Kb
 
   private wss: WebSocketServer | null;
-  private readonly clients: Map<string, Client>;
+  private readonly clients: Map<ClientId, Client>;
   private lastConnection: Date | null = null;
   private shouldShowWelcome = true;
 
@@ -52,7 +53,7 @@ class SocketServer implements IAdapter {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
-    this.clients = new Map<string, Client>();
+    this.clients = new Map<ClientId, Client>();
     this.wss = null;
   }
 
@@ -165,7 +166,7 @@ class SocketServer implements IAdapter {
     };
   }
 
-  private getOrCreateClient(clientId: string): Client {
+  private getOrCreateClient(clientId: ClientId): Client {
     if (!this.clients.has(clientId)) {
       this.clients.set(clientId, {
         type: 'unknown',
@@ -183,11 +184,11 @@ class SocketServer implements IAdapter {
     this.sendAsJson(MessageTag.ClientList, payload);
   }
 
-  public getClientList(): string[] {
+  public getClientList(): ClientId[] {
     return Array.from(this.clients.keys());
   }
 
-  public renameClient(target: string, name: string) {
+  public renameClient(target: ClientId, name: string) {
     const previousData = this.clients.get(target);
     if (!previousData) {
       throw new Error(`Client "${target}" not found`);
@@ -198,7 +199,7 @@ class SocketServer implements IAdapter {
     this.sendClientList();
   }
 
-  public redirectClient(target: string, path: string) {
+  public redirectClient(target: ClientId, path: string) {
     const previousData = this.clients.get(target);
     if (!previousData) {
       throw new Error(`Client "${target}" not found`);
@@ -206,7 +207,7 @@ class SocketServer implements IAdapter {
     this.sendAsJson(MessageTag.ClientRedirect, { target, path });
   }
 
-  public identifyClient(target: string, identify: boolean) {
+  public identifyClient(target: ClientId, identify: boolean) {
     const previousData = this.clients.get(target);
     if (!previousData) {
       throw new Error(`Client "${target}" not found`);

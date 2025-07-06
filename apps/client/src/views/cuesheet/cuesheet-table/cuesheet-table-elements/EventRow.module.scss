@@ -1,7 +1,6 @@
 @import "../CuesheetTable.module.scss";
 
 .eventRow {
-  vertical-align: top;
   background: color-mix(in srgb, transparent 92%, var(--user-bg, $gray-500) 8%);
   border-left: 4px solid var(--user-bg, $gray-500);
 

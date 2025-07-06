@@ -49,7 +49,8 @@ export default function EventRow({
   const [cuesheetMode] = useSessionStorage<AppMode>({
     key: sessionKeys.cuesheetMode,
     defaultValue: AppMode.Edit,
-  });  const ownRef = useRef<HTMLTableRowElement>(null);
+  });
+  const ownRef = useRef<HTMLTableRowElement>(null);
 
   const isVisible = useVisibleRowsStore((state) => state.visibleRows.has(rowId));
 

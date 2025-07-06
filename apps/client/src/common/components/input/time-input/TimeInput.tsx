@@ -14,11 +14,21 @@ interface TimeInputProps<T extends string> {
   placeholder?: string;
   disabled?: boolean;
   align?: 'left' | 'center';
+  delayed?: boolean;
   className?: string;
 }
 
-export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
-  const { id, name, submitHandler, time, placeholder, disabled, align = 'center', className } = props;
+export default function TimeInput<T extends string>({
+  id,
+  name,
+  submitHandler,
+  time,
+  placeholder,
+  disabled,
+  align = 'center',
+  delayed,
+  className,
+}: TimeInputProps<T>) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
   const ignoreChange = useRef(false);
@@ -122,7 +132,7 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
       disabled={disabled}
       ref={inputRef}
       data-testid={`time-input-${name}`}
-      className={cx([style.timeInput, className])}
+      className={cx([style.timeInput, delayed && style.delayed, className])}
       placeholder={placeholder}
       onFocus={handleFocus}
       onChange={(event) => setValue(event.target.value)}
@@ -130,7 +140,6 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
       onKeyDown={onKeyDownHandler}
       value={value}
       maxLength={8}
-      autoComplete='off'
       style={{
         textAlign: align,
       }}
