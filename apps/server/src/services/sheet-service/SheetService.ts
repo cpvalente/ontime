@@ -124,6 +124,8 @@ function verifyConnection(
   expires_in: number,
   postAction: () => Promise<any>,
 ) {
+  logger.info(LogOrigin.Server, 'Start polling for auth...');
+
   // create poller to check for auth
   pollInterval = setInterval(pollForAuth, interval * 1000);
 
@@ -140,10 +142,7 @@ function verifyConnection(
   }, expires_in * 1000);
 
   async function pollForAuth() {
-    // server returns 428 if user hasnt yet completed the auth process
     try {
-      logger.info(LogOrigin.Server, 'Polling for auth...');
-
       const response = await fetch(tokenUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -155,6 +154,7 @@ function verifyConnection(
         }),
       });
 
+      // server returns 428 if user hasnt yet completed the auth process
       if (response.status === 428) {
         consoleSubdued('User not auth yet');
         return;
@@ -195,7 +195,7 @@ function verifyConnection(
 
       await postAction();
     } catch (error) {
-      if (error instanceof Error) consoleError(error.message);
+      logger.error(LogOrigin.Server, `Authentication poll error: ${(error as Error).message}`);
     }
   }
 }
