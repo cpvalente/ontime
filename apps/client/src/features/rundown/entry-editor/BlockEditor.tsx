@@ -6,7 +6,6 @@ import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../common/components/input/colour-input/SwatchSelect';
 import NullableTimeInput from '../../../common/components/input/time-input/NullableTimeInput';
 import AppLink from '../../../common/components/link/app-link/AppLink';
-import Switch from '../../../common/components/switch/Switch';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import { enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
@@ -21,7 +20,6 @@ import style from './EntryEditor.module.scss';
 // title + colour + custom field labels
 export type BlockEditorUpdateTextFields = 'targetDuration' | 'title' | 'colour' | string;
 export type BlockEditorUpdateMaybeNumberFields = 'targetDuration';
-export type BlockEditorBooleanFields = 'isNextDay';
 
 interface BlockEditorProps {
   block: OntimeBlock;
@@ -32,10 +30,7 @@ export default function BlockEditor({ block }: BlockEditorProps) {
   const { updateEntry } = useEntryActions();
 
   const handleSubmit = useCallback(
-    (
-      field: BlockEditorUpdateTextFields | BlockEditorUpdateMaybeNumberFields | BlockEditorBooleanFields,
-      value: string | boolean,
-    ) => {
+    (field: BlockEditorUpdateTextFields | BlockEditorUpdateMaybeNumberFields, value: string | boolean) => {
       // Handle custom fields
       if (typeof field === 'string' && field.startsWith('custom-')) {
         const fieldLabel = field.split('custom-')[1];
@@ -49,10 +44,6 @@ export default function BlockEditor({ block }: BlockEditorProps) {
         }
 
         return updateEntry({ id: block.id, targetDuration: parseUserTime(value as string) });
-      }
-
-      if (field === 'isNextDay') {
-        return updateEntry({ id: block.id, isNextDay: value as boolean });
       }
 
       // all other strings are text fields
@@ -111,18 +102,6 @@ export default function BlockEditor({ block }: BlockEditorProps) {
               {millisToString(planOffset, { fallback: enDash })}
             </TextLikeInput>
           </div>
-        </div>
-        <div>
-          <Editor.Label htmlFor='isNextDay'>Is next day?</Editor.Label>
-          <Editor.Label className={style.switchLabel}>
-            <Switch
-              checked={block.isNextDay}
-              onCheckedChange={(checked) => {
-                handleSubmit('isNextDay', checked);
-              }}
-            />
-            {block.isNextDay ? 'Events start the day after' : '-'}
-          </Editor.Label>
         </div>
       </div>
 
