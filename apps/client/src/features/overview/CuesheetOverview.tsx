@@ -3,7 +3,13 @@ import { memo, PropsWithChildren, useMemo } from 'react';
 import { useIsMobileScreen } from '../../common/hooks/useIsMobileScreen';
 import { useRuntimeOverview } from '../../common/hooks/useSocket';
 
-import { CurrentBlockOverview, OverviewWrapper, RuntimeOverview, TimerOverview } from './composite/OverviewWrapper';
+import {
+  ClockOverview,
+  CurrentBlockOverview,
+  OverviewWrapper,
+  RuntimeOverview,
+  TimerOverview,
+} from './composite/OverviewWrapper';
 import { TimeRow } from './composite/TimeLayout';
 import { calculateEndAndDaySpan, formatedTime } from './overviewUtils';
 
@@ -51,8 +57,9 @@ function CuesheetDesktop({ children }: PropsWithChildren) {
         />
       </div>
       <TimerOverview />
-      <CurrentBlockOverview />
       <RuntimeOverview />
+      <CurrentBlockOverview />
+      <ClockOverview />
       <div>
         <TimeRow
           label='Planned end'

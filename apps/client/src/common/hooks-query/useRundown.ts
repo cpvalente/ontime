@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { OntimeEntry, Rundown } from 'ontime-types';
+import { EntryId, OntimeEntry, Rundown } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/constants';
@@ -77,4 +77,19 @@ export function usePartialRundown(cb: (event: OntimeEntry) => boolean) {
   }, [data, cb]);
 
   return { data: filteredData, status };
+}
+
+/**
+ * Hook to get a specific entry by ID from the rundown
+ */
+export function useEntry(entryId: EntryId | null): OntimeEntry | null {
+  const { data: rundown } = useRundown();
+
+  // track the specific entry we care about
+  const entry = useMemo(() => {
+    if (entryId === null) return null;
+    return rundown.entries[entryId];
+  }, [entryId, rundown.entries]);
+
+  return entry;
 }
