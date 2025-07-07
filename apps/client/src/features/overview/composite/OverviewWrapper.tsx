@@ -51,11 +51,11 @@ export function TitlesOverview() {
 }
 
 export function CurrentBlockOverview() {
-  const { blockStartedAt: blockStartAt, clock } = useRuntimePlaybackOverview();
+  const { blockStartedAt, clock, blockExpectedEnd } = useRuntimePlaybackOverview();
   const { currentBlockId } = useCurrentBlockId();
   const entry = useEntry(currentBlockId);
 
-  const timeInBlock = formatedTime(blockStartAt ? clock - blockStartAt : null, 2);
+  const timeInBlock = formatedTime(blockStartedAt ? clock - blockStartedAt : null, 2);
 
   /**
    * The time to the end of the block
@@ -63,10 +63,8 @@ export function CurrentBlockOverview() {
    * TODO(v4): this needs to be calculated according to offset mode
    */
   const blockEnd = (() => {
-    if (!entry) return timerPlaceholderMin;
-    if (!isOntimeBlock(entry)) return timerPlaceholderMin;
-    if (entry.timeEnd === null) return timerPlaceholderMin;
-    return formatedTime(entry.timeEnd - clock, 2);
+    if (blockExpectedEnd === null) return timerPlaceholderMin;
+    return formatedTime(blockExpectedEnd - clock, 2);
   })();
 
   /**
@@ -75,9 +73,9 @@ export function CurrentBlockOverview() {
    * TODO(v4): this needs to be calculated according to offset mode
    */
   const projectedBlockEnd = (() => {
-    if (blockStartAt === null || !entry) return timerPlaceholderMin;
+    if (blockStartedAt === null || !entry) return timerPlaceholderMin;
     if (!isOntimeBlock(entry)) return timerPlaceholderMin;
-    return formatedTime(blockStartAt + entry.duration - clock, 2);
+    return formatedTime(blockStartedAt + entry.duration - clock, 2);
   })();
 
   return (
@@ -89,7 +87,7 @@ export function CurrentBlockOverview() {
           label='Projected group end'
           value={projectedBlockEnd}
           className={style.end}
-          muted={blockStartAt === null}
+          muted={blockStartedAt === null}
         />
       </div>
     </>

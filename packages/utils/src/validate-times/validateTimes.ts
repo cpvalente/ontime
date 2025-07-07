@@ -1,4 +1,4 @@
-import type { OntimeEvent } from 'ontime-types';
+import type { MaybeNumber, OntimeEvent } from 'ontime-types';
 import { TimeStrategy } from 'ontime-types';
 
 import { dayInMs } from '../date-utils/conversionUtils.js';

@@ -1,3 +1,4 @@
+import { MaybeString } from '../../utils/utils.type.js';
 import type { OntimeEvent } from '../core/OntimeEntry.js';
 import type { SimpleTimerState } from './AuxTimer.type.js';
 import type { BlockState } from './CurrentBlockState.type.js';
@@ -18,9 +19,9 @@ export type RuntimeStore = {
   runtime: Runtime;
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
-  
+
   blockNow: BlockState | null;
-  blockNext: BlockState | null;
+  blockNext: MaybeString;
 
   // extra timers
   auxtimer1: SimpleTimerState;

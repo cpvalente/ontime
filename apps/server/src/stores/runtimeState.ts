@@ -4,6 +4,8 @@ import {
   MaybeNumber,
   MaybeString,
   OffsetMode,
+  OntimeBlock,
+  OntimeEvent,
   PlayableEvent,
   Playback,
   Rundown,
@@ -27,11 +29,13 @@ import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
+import { shouldCrashDev } from '../utils/development.js';
+import { getCurrentRundown } from '../api-data/rundown/rundown.dao.js';
 
 export type RuntimeState = {
   clock: number; // realtime clock
   blockNow: BlockState | null;
-  blockNext: BlockState | null;
+  blockNext: MaybeString;
   eventNow: PlayableEvent | null;
   eventNext: PlayableEvent | null;
   runtime: Runtime;
@@ -509,6 +513,8 @@ export function update(): UpdateResult {
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
   }
 
+  getEndOfBlock();
+
   return { hasTimerFinished: finishedNow, hasSecondaryTimerFinished: false };
 
   function updateIfIdle() {
@@ -690,7 +696,7 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
   let foundEventNow = false;
   for (const id of rundown.order) {
     if (foundEventNow && isOntimeBlock(rundown.entries[id])) {
-      state.blockNext = { id, startedAt: null }; // the id is set here, the start time is set in other placed that handel starting events
+      state.blockNext = id; // the id is set here, the start time is set in other placed that handel starting events
       break;
     }
     if (id === state.eventNow.id) {
@@ -707,10 +713,29 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
 
   //we went into a new block - and it is different from the one we might have come from
   if ((state.blockNow != null && state.blockNow.id != currentBlockId) || state.blockNow == null) {
-    state.blockNow = { id: currentBlockId, startedAt: null }; // the id is set here, the start time is set in other placed that handel starting events
+    state.blockNow = { id: currentBlockId, startedAt: null, expectedEnd: null }; // the id is set here, the start time is set in other placed that handel starting events
   }
 }
 
 export function setOffsetMode(mode: OffsetMode) {
   runtimeState.runtime.offsetMode = mode;
+}
+
+export function getEndOfBlock(state = runtimeState) {
+  if (state.blockNow === null) return;
+  if (state.blockNow.startedAt === null) return;
+  if (state.eventNow === null) return;
+
+  const rundown = getCurrentRundown();
+
+  const orderInBlock = (rundown.entries[state.blockNow.id] as OntimeBlock).entries;
+  const indexInBlock = orderInBlock.findIndex((id) => state.eventNow.id === id);
+  shouldCrashDev(indexInBlock < 0, 'Running event is not in current block');
+
+  let accumulatedFinish = Math.max(state.timer.current, 0) + state.clock;
+  for (let i = indexInBlock + 1; i < orderInBlock.length; i++) {
+    const entry = rundown.entries[orderInBlock[i]] as OntimeEvent;
+    accumulatedFinish += entry.gap + entry.duration;
+  }
+  state.blockNow.expectedEnd = accumulatedFinish;
 }

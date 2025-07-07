@@ -775,7 +775,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
      */
     const shouldBlockUpdate =
       !deepEqual(RuntimeService?.previousState.blockNow, state.blockNow) ||
-      !deepEqual(RuntimeService?.previousState.blockNext, state.blockNext);
+      RuntimeService?.previousState.blockNext !== state.blockNext;
 
     /**
      * Many other values are calculated based on the clock
@@ -806,7 +806,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       batch.add('blockNow', state.blockNow);
       batch.add('blockNext', state.blockNext);
       RuntimeService.previousState.blockNow = structuredClone(state.blockNow);
-      RuntimeService.previousState.blockNext = structuredClone(state.blockNext);
+      RuntimeService.previousState.blockNext = state.blockNext;
     }
 
     if (hasImmediateChanges) {
