@@ -16,7 +16,6 @@
     "multer": "2.0.1",
     "fast-equals": "^5.0.1",
     "google-auth-library": "^9.4.2",
-    "got": "^14.4.5",
     "lowdb": "^7.0.1",
     "ontime-utils": "workspace:*",
     "osc-min": "2.1.2",

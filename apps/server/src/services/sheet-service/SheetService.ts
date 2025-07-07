@@ -9,8 +9,6 @@ import { ImportMap, getErrorMessage } from 'ontime-utils';
 
 import { sheets, type sheets_v4 } from '@googleapis/sheets';
 import { Credentials, OAuth2Client } from 'google-auth-library';
-// TODO: rewrite logic to use fetch and remove dependency
-import got from 'got';
 
 import { logger } from '../../classes/Logger.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
@@ -20,6 +18,7 @@ import { parseCustomFields } from '../../api-data/custom-fields/customFields.par
 
 import { cellRequestFromEvent, type ClientSecret, getA1Notation, isClientSecret } from './sheetUtils.js';
 import { catchCommonImportXlsxError } from './googleApi.utils.js';
+import { consoleError, consoleSubdued } from '../../utils/console.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
 const codesUrl = 'https://oauth2.googleapis.com/device/code';
@@ -125,6 +124,8 @@ function verifyConnection(
   expires_in: number,
   postAction: () => Promise<any>,
 ) {
+  logger.info(LogOrigin.Server, 'Start polling for auth...');
+
   // create poller to check for auth
   pollInterval = setInterval(pollForAuth, interval * 1000);
 
@@ -141,19 +142,30 @@ function verifyConnection(
   }, expires_in * 1000);
 
   async function pollForAuth() {
-    // server returns 428 if user hasnt yet completed the auth process
     try {
-      logger.info(LogOrigin.Server, 'Polling for auth...');
-      const auth: Credentials = await got
-        .post(tokenUrl, {
-          json: {
-            client_id: clientSecret.installed.client_id,
-            client_secret: clientSecret.installed.client_secret,
-            device_code,
-            grant_type: grantType,
-          },
-        })
-        .json();
+      const response = await fetch(tokenUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: clientSecret.installed.client_id,
+          client_secret: clientSecret.installed.client_secret,
+          device_code,
+          grant_type: grantType,
+        }),
+      });
+
+      // server returns 428 if user hasnt yet completed the auth process
+      if (response.status === 428) {
+        consoleSubdued('User not auth yet');
+        return;
+      }
+
+      if (!response.ok) {
+        logger.error(LogOrigin.Server, `Authentication poll failed with code: ${response.status}`);
+        return;
+      }
+
+      const auth: Credentials = await response.json();
 
       logger.info(LogOrigin.Server, 'Successfully Authenticated');
       const client = new OAuth2Client({
@@ -182,8 +194,8 @@ function verifyConnection(
       }
 
       await postAction();
-    } catch (_error) {
-      /** we do not handle failure */
+    } catch (error) {
+      logger.error(LogOrigin.Server, `Authentication poll error: ${(error as Error).message}`);
     }
   }
 }
