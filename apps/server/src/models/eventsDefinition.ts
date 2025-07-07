@@ -58,7 +58,6 @@ export const block: Omit<OntimeBlock, 'id'> = {
   title: '',
   note: '',
   entries: [],
-  isNextDay: false,
   targetDuration: null,
   colour: '',
   custom: {},

@@ -37,7 +37,6 @@ export type OntimeBlock = OntimeBaseEvent & {
   title: string;
   note: string;
   entries: EntryId[];
-  isNextDay: boolean;
   targetDuration: MaybeNumber;
   colour: string;
   custom: EntryCustomFields;
