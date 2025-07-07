@@ -1,4 +1,4 @@
-import type { OntimeEvent } from '../core/OntimeEvent.type.js';
+import type { OntimeEvent } from '../core/OntimeEntry.js';
 import type { SimpleTimerState } from './AuxTimer.type.js';
 import type { BlockState } from './CurrentBlockState.type.js';
 import type { MessageState } from './MessageControl.type.js';

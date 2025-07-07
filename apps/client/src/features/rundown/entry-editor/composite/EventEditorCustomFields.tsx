@@ -1,5 +1,5 @@
 import { CSSProperties, Fragment } from 'react';
-import { CustomFields, OntimeBlock, OntimeEvent } from 'ontime-types';
+import { CustomFields, OntimeBlock, OntimeEvent, OntimeMilestone } from 'ontime-types';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { EventEditorUpdateFields } from '../EventEditor';
@@ -12,21 +12,21 @@ import style from '../EntryEditor.module.scss';
 
 interface EntryEditorCustomFieldsProps {
   fields: CustomFields;
-  event: OntimeEvent | OntimeBlock;
+  entry: OntimeEvent | OntimeBlock | OntimeMilestone;
   handleSubmit: (field: EventEditorUpdateFields, value: string) => void;
 }
 
 export default function EntryEditorCustomFields({
   fields: customFields,
   handleSubmit,
-  event,
+  entry,
 }: EntryEditorCustomFieldsProps) {
   return (
     <Fragment>
       {Object.keys(customFields).map((fieldKey) => {
-        const key = `${event.id}-${fieldKey}`;
+        const key = `${entry.id}-${fieldKey}`;
         const fieldName = `custom-${fieldKey}`;
-        const initialValue = event.custom[fieldKey] ?? '';
+        const initialValue = entry.custom[fieldKey] ?? '';
         const { backgroundColor, color } = getAccessibleColour(customFields[fieldKey].colour);
         const labelText = customFields[fieldKey].label;
 

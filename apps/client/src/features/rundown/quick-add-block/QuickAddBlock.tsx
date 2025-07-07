@@ -44,6 +44,16 @@ function QuickAddBlock({ previousEventId, parentBlock, backgroundColor }: QuickA
     );
   };
 
+  const addMilestone = () => {
+    addEntry(
+      { type: SupportedEntry.Milestone, parent: parentBlock },
+      {
+        lastEventId: previousEventId,
+        after: previousEventId,
+      },
+    );
+  };
+
   const addBlock = () => {
     if (parentBlock !== null) {
       return;
@@ -74,6 +84,11 @@ function QuickAddBlock({ previousEventId, parentBlock, backgroundColor }: QuickA
       <Toolbar.Button render={<Button size='small' variant='subtle-white' />} onClick={addDelay}>
         <IoAdd />
         Delay
+      </Toolbar.Button>
+
+      <Toolbar.Button render={<Button size='small' variant='subtle-white' />} onClick={addMilestone}>
+        <IoAdd />
+        Milestone
       </Toolbar.Button>
 
       {parentBlock === null && (

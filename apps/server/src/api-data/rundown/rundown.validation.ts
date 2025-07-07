@@ -2,7 +2,7 @@ import { body, param } from 'express-validator';
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 export const rundownPostValidator = [
-  body('type').isString().isIn(['event', 'delay', 'block']),
+  body('type').isString().isIn(['event', 'delay', 'block', 'milestone']),
   body('after').optional().isString(),
   body('before').optional().isString(),
 

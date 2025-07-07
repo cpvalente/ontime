@@ -5,11 +5,13 @@ import {
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
+  isOntimeMilestone,
   OntimeBaseEvent,
   OntimeBlock,
   OntimeDelay,
   OntimeEntry,
   OntimeEvent,
+  OntimeMilestone,
   Rundown,
   SupportedEntry,
   TimeStrategy,
@@ -23,7 +25,12 @@ import {
   validateTimes,
 } from 'ontime-utils';
 
-import { event as eventDef, block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
+import {
+  event as eventDef,
+  block as blockDef,
+  delay as delayDef,
+  milestone as milestoneDef,
+} from '../../models/eventsDefinition.js';
 import { makeString } from '../../utils/parserUtils.js';
 import { RundownMetadata } from './rundown.types.js';
 
@@ -34,16 +41,16 @@ type CompleteEntry<T> =
       ? OntimeDelay
       : T extends Partial<OntimeBlock>
         ? OntimeBlock
-        : never;
+        : T extends Partial<OntimeMilestone>
+          ? OntimeMilestone
+          : never;
 
 /**
  * Generates a fully formed RundownEntry of the patch type
  */
-export function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>>(
-  rundown: Rundown,
-  eventData: T,
-  afterId: EntryId | null,
-): CompleteEntry<T> {
+export function generateEvent<
+  T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock> | Partial<OntimeMilestone>,
+>(rundown: Rundown, eventData: T, afterId: EntryId | null): CompleteEntry<T> {
   if (isOntimeEvent(eventData)) {
     return createEvent(eventData, getCueCandidate(rundown.entries, rundown.order, afterId)) as CompleteEntry<T>;
   }
@@ -57,6 +64,10 @@ export function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDel
   // TODO(v4): allow user to provide a larger patch of the block entry
   if (isOntimeBlock(eventData)) {
     return createBlock({ id, title: eventData.title ?? '' }) as CompleteEntry<T>;
+  }
+
+  if (isOntimeMilestone(eventData)) {
+    return createMilestone({ ...eventData, id }) as CompleteEntry<T>;
   }
 
   throw new Error('Invalid event type');
@@ -136,25 +147,52 @@ export function createBlockPatch(originalBlock: OntimeBlock, patchBlock: Partial
   };
 }
 
+export function createMilestonePatch(
+  originalMilestone: OntimeMilestone,
+  patchMilestone: Partial<OntimeMilestone>,
+): OntimeMilestone {
+  if (Object.keys(patchMilestone).length === 0) {
+    return originalMilestone;
+  }
+
+  return {
+    id: originalMilestone.id,
+    type: SupportedEntry.Milestone,
+    cue: makeString(patchMilestone.cue ?? null, originalMilestone.cue),
+    title: makeString(patchMilestone.title, originalMilestone.title),
+    note: makeString(patchMilestone.note, originalMilestone.note),
+    colour: makeString(patchMilestone.colour, originalMilestone.colour),
+    revision: originalMilestone.revision,
+    custom: { ...originalMilestone.custom, ...patchMilestone.custom },
+    parent: originalMilestone.parent,
+  };
+}
+
 /**
  * Utility function for patching an existing event with new data
  * Increments the revision of the event when applying the patch
  */
-export function applyPatchToEntry<T extends OntimeEntry>(eventFromRundown: T, patch: Partial<T>): T {
+export function applyPatchToEntry(eventFromRundown: OntimeEntry, patch: Partial<OntimeEntry>): OntimeEntry {
   if (isOntimeEvent(eventFromRundown)) {
-    const newEvent = createEventPatch(eventFromRundown, patch as Partial<OntimeEvent>);
+    const newEvent = createEventPatch(eventFromRundown as OntimeEvent, patch as Partial<OntimeEvent>);
     newEvent.revision++;
-    return newEvent as T;
+    return newEvent;
   }
 
   if (isOntimeBlock(eventFromRundown)) {
-    const newBlock: OntimeBlock = createBlockPatch(eventFromRundown, patch as Partial<OntimeBlock>);
+    const newBlock = createBlockPatch(eventFromRundown as OntimeBlock, patch as Partial<OntimeBlock>);
     newBlock.revision++;
-    return newBlock as T;
+    return newBlock;
+  }
+
+  if (isOntimeMilestone(eventFromRundown)) {
+    const newMilestone = createMilestonePatch(eventFromRundown as OntimeMilestone, patch as Partial<OntimeMilestone>);
+    newMilestone.revision++;
+    return newMilestone;
   }
 
   // only delay is left
-  return { ...eventFromRundown, ...patch } as T;
+  return { ...eventFromRundown, ...patch } as OntimeDelay;
 }
 
 /**
@@ -202,6 +240,27 @@ export function createBlock(patch?: Partial<OntimeBlock>): OntimeBlock {
     timeEnd: null,
     duration: 0,
     isFirstLinked: false,
+  };
+}
+
+/**
+ * Creates a new milestone from an optional patch
+ */
+export function createMilestone(patch?: Partial<OntimeMilestone>): OntimeMilestone {
+  if (!patch) {
+    return { ...milestoneDef, id: generateId() };
+  }
+
+  return {
+    id: patch.id ?? generateId(),
+    type: SupportedEntry.Milestone,
+    cue: patch.cue ?? '',
+    title: patch.title ?? '',
+    note: patch.note ?? '',
+    colour: makeString(patch.colour, ''),
+    custom: patch.custom ?? {},
+    parent: patch.parent ?? null,
+    revision: 0,
   };
 }
 
@@ -318,6 +377,15 @@ export function cloneDelay(entry: OntimeDelay, newId: EntryId): OntimeDelay {
 }
 
 /**
+ * Gathers business logic for how to clone an OntimeMilestone
+ */
+export function cloneMilestone(entry: OntimeMilestone, newId: EntryId): OntimeMilestone {
+  const newEntry = structuredClone(entry);
+  newEntry.id = newId;
+  return newEntry;
+}
+
+/**
  * Gathers business logic for how to clone an OntimeBlock
  */
 export function cloneBlock(entry: OntimeBlock, newId: EntryId): OntimeBlock {
@@ -333,13 +401,15 @@ export function cloneBlock(entry: OntimeBlock, newId: EntryId): OntimeBlock {
 /**
  * Receives an entry and chooses the correct cloning strategy
  */
-export function cloneEntry<T extends OntimeEntry>(entry: T, newId: EntryId): T {
+export function cloneEntry(entry: OntimeEntry, newId: EntryId): OntimeEntry {
   if (isOntimeEvent(entry)) {
-    return cloneEvent(entry, newId) as T;
+    return cloneEvent(entry, newId);
   } else if (isOntimeDelay(entry)) {
-    return cloneDelay(entry, newId) as T;
-  } else if (entry.type === 'block') {
-    return cloneBlock(entry as OntimeBlock, newId) as T;
+    return cloneDelay(entry, newId);
+  } else if (isOntimeBlock(entry)) {
+    return cloneBlock(entry, newId);
+  } else if (isOntimeMilestone(entry)) {
+    return cloneMilestone(entry, newId);
   }
   throw new Error(`Unsupported entry type for cloning: ${entry}`);
 }

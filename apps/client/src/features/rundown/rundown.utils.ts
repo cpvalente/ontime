@@ -7,6 +7,7 @@ import {
   OntimeDelay,
   OntimeEntry,
   OntimeEvent,
+  OntimeMilestone,
   PlayableEvent,
   RundownEntries,
   SupportedEntry,
@@ -83,10 +84,10 @@ function processEntry(
     processedData.groupColour = entry.colour;
   } else {
     // for delays and blocks, we insert the group metadata
-    if ((entry as OntimeEvent | OntimeDelay).parent !== processedData.groupId) {
+    if ((entry as OntimeEvent | OntimeDelay | OntimeMilestone).parent !== processedData.groupId) {
       // if the parent is not the current group, we need to update the groupId
-      processedData.groupId = (entry as OntimeEvent | OntimeDelay).parent;
-      if ((entry as OntimeEvent | OntimeDelay).parent === null) {
+      processedData.groupId = (entry as OntimeEvent | OntimeDelay | OntimeMilestone).parent;
+      if ((entry as OntimeEvent | OntimeDelay | OntimeMilestone).parent === null) {
         // if the entry has no parent, it cannot have a group colour
         processedData.groupColour = undefined;
       }

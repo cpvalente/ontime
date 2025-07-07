@@ -1,0 +1,31 @@
+@use '../blockMixins' as *;
+
+.milestone {
+  @include block-styling;
+
+  margin-left: calc(2rem + 1px); // binder + border
+  margin-block: 0.125rem;
+  padding-right: 0.25rem;
+  background-color: color-mix(in srgb, var(--user-bg, $block-bg) 15%, transparent 85%);
+
+  display: grid;
+  grid-template-columns: 2rem 8rem 1fr auto auto;
+  align-items: center;
+  height: $secondary-block-height;
+  gap: 0.5rem;
+
+  &.hasCursor {
+    outline: 1px solid $block-cursor-color;
+  }
+}
+
+.binder {
+  height: 100%;
+  display: grid;
+  place-content: center;
+  background-color: var(--user-bg, $block-bg);
+}
+
+.drag {
+  @include drag-style;
+}

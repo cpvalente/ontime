@@ -247,7 +247,6 @@ export function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'b
     throw new Error('Event not found');
   }
 
-  console.log('reorder', eventFrom.id, eventTo.id, order);
   rundownMutation.reorder(rundown, eventFrom, eventTo, order);
 
   const { rundown: rundownResult, rundownMetadata, revision } = commit();

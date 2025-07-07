@@ -13,6 +13,7 @@ import { enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
 import TextLikeInput from '../../../views/cuesheet/cuesheet-table/cuesheet-table-elements/TextLikeInput';
 
 import EntryEditorCustomFields from './composite/EventEditorCustomFields';
+import EventTextArea from './composite/EventTextArea';
 import EntryEditorTextInput from './composite/EventTextInput';
 
 import style from './EntryEditor.module.scss';
@@ -132,6 +133,7 @@ export default function BlockEditor({ block }: BlockEditorProps) {
           <SwatchSelect name='colour' value={block.colour} handleChange={handleSubmit} />
         </div>
         <EntryEditorTextInput field='title' label='Title' initialValue={block.title} submitHandler={handleSubmit} />
+        <EventTextArea field='note' label='Note' initialValue={block.note} submitHandler={handleSubmit} />
       </div>
 
       <div className={style.column}>
@@ -139,7 +141,7 @@ export default function BlockEditor({ block }: BlockEditorProps) {
           Custom Fields
           {isEditor && <AppLink search='settings=feature_settings__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
-        <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} event={block} />
+        <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} entry={block} />
       </div>
     </div>
   );

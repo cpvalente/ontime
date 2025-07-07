@@ -4,8 +4,6 @@ import {
   ProjectRundowns,
   Rundown,
   OntimeEvent,
-  OntimeDelay,
-  OntimeBlock,
   isOntimeEvent,
   isOntimeDelay,
   isOntimeBlock,
@@ -15,6 +13,7 @@ import {
   PlayableEvent,
   RundownEntries,
   isPlayableEvent,
+  isOntimeMilestone,
 } from 'ontime-types';
 import { isObjectEmpty, generateId, getLinkedTimes, getTimeFrom, isNewLatest } from 'ontime-utils';
 
@@ -22,7 +21,7 @@ import { defaultRundown } from '../../models/dataModel.js';
 import { delay as delayDef } from '../../models/eventsDefinition.js';
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
 
-import { calculateDayOffset, cleanupCustomFields, createBlock, createEvent } from './rundown.utils.js';
+import { calculateDayOffset, cleanupCustomFields, createBlock, createEvent, createMilestone } from './rundown.utils.js';
 import { RundownMetadata } from './rundown.types.js';
 
 /**
@@ -93,7 +92,7 @@ export function parseRundown(
     }
 
     const id = entryId;
-    let newEvent: OntimeEvent | OntimeDelay | OntimeBlock | null;
+    let newEvent: OntimeEntry | null;
     const nestedEntryIds: string[] = [];
 
     if (isOntimeEvent(event)) {
@@ -108,13 +107,17 @@ export function parseRundown(
       eventIndex += 1;
     } else if (isOntimeDelay(event)) {
       newEvent = { ...delayDef, duration: event.duration, id };
+    } else if (isOntimeMilestone(event)) {
+      newEvent = createMilestone({ ...event, id });
+      cleanupCustomFields(newEvent.custom, parsedCustomFields);
     } else if (isOntimeBlock(event)) {
       for (let i = 0; i < event.entries.length; i++) {
         const nestedEventId = event.entries[i];
         const nestedEvent = rundown.entries[nestedEventId];
+        let newNestedEvent: OntimeEntry | null = null;
 
         if (isOntimeEvent(nestedEvent)) {
-          const newNestedEvent = createEvent(nestedEvent, eventIndex);
+          newNestedEvent = createEvent(nestedEvent, eventIndex);
           // skip if event is invalid
           if (newNestedEvent == null) {
             emitError?.('Skipping event without payload');
@@ -123,11 +126,16 @@ export function parseRundown(
 
           cleanupCustomFields(newNestedEvent.custom, parsedCustomFields);
           eventIndex += 1;
+        } else if (isOntimeDelay(nestedEvent)) {
+          newNestedEvent = { ...delayDef, duration: nestedEvent.duration, id };
+        } else if (isOntimeMilestone(nestedEvent)) {
+          newNestedEvent = createMilestone({ ...nestedEvent, id });
+          cleanupCustomFields(newNestedEvent.custom, parsedCustomFields);
+        }
 
-          if (newNestedEvent) {
-            nestedEntryIds.push(nestedEventId);
-            parsedRundown.entries[nestedEventId] = newNestedEvent;
-          }
+        if (newNestedEvent) {
+          nestedEntryIds.push(nestedEventId);
+          parsedRundown.entries[nestedEventId] = newNestedEvent;
         }
       }
 
@@ -151,7 +159,7 @@ export function parseRundown(
     }
   }
 
-  console.log(`Imported rundown ${parsedRundown.title} with ${parsedRundown.order.length} entries`);
+  console.log(`Imported rundown ${parsedRundown.title} with ${parsedRundown.flatOrder.length} entries`);
   return parsedRundown;
 }
 
