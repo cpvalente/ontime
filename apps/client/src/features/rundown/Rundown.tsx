@@ -318,13 +318,24 @@ export default function Rundown({ data }: RundownProps) {
      * We need to specially handle the end blocks
      * Dragging before and end block will add the entry to the end of the block
      * Dragging after an end block will add the event after the block itself
+     * Dragging to the top of a block either place before first entry or if no entries do insert
      */
     if (destinationId.startsWith('end-')) {
       destinationId = destinationId.replace('end-', '');
       // if we are moving before the end, we use the insert operation
-      order = 'insert';
+      if (order === 'before') {
+        order = 'insert';
+      }
+    } else {
+      const block = data.entries[destinationId];
+      if (isOntimeBlock(block) && order === 'after') {
+        if (block.entries.length === 0) order = 'insert';
+        else {
+          destinationId = block.entries[0];
+          order = 'before';
+        }
+      }
     }
-
     reorderEntry(active.id as EntryId, destinationId, order);
   };
 
