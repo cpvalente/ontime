@@ -271,6 +271,13 @@ export default function Rundown({ data }: RundownProps) {
     ],
     ['alt + shift + D', () => insertAtId({ type: SupportedEntry.Delay }, cursor, true), { preventDefault: true }],
 
+    [
+      'alt + M',
+      () => insertAtId({ type: SupportedEntry.Milestone }, cursor),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
+    ['alt + shift + M', () => insertAtId({ type: SupportedEntry.Milestone }, cursor, true), { preventDefault: true }],
+
     ['mod + C', () => setEntryCopyId(cursor)],
     ['mod + V', () => insertCopyAtId(cursor, entryCopyId)],
     ['mod + shift + V', () => insertCopyAtId(cursor, entryCopyId, true), { preventDefault: true }],

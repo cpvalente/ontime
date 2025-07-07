@@ -140,7 +140,25 @@ function EventEditorEmpty() {
                 <AuxKey>+</AuxKey>
                 <Kbd>Shift</Kbd>
                 <AuxKey>+</AuxKey>
+                <Kbd>M</Kbd>
+              </td>
+            </tr>
+            <tr>
+              <td>Add milestone below</td>
+              <td>
+                <Kbd>{deviceAlt}</Kbd>
+                <AuxKey>+</AuxKey>
                 <Kbd>G</Kbd>
+              </td>
+            </tr>
+            <tr>
+              <td>Add milestone above</td>
+              <td>
+                <Kbd>{deviceAlt}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>Shift</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>M</Kbd>
               </td>
             </tr>
             <tr>
