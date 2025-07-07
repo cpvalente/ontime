@@ -84,13 +84,13 @@ test('Add block', async ({ page }) => {
   await page.getByTestId('entry-1').click();
 
   // add block below
-  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+B');
+  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+G');
   await expect(page.getByTestId('rundown-event')).toHaveCount(1);
   await expect(page.getByTestId('rundown-block')).toHaveCount(1);
   await page.getByTestId('rundown-block').getByTestId('block__title').fill('block below');
 
   // add block above
-  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+Shift+B');
+  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+Shift+G');
   await expect(page.getByTestId('rundown-event')).toHaveCount(1);
   await expect(page.getByTestId('rundown-block')).toHaveCount(2);
   await page.getByTestId('block__title').first().fill('block above');
@@ -172,5 +172,5 @@ test('Delete event', async ({ page }) => {
   await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+Backspace');
   await expect(page.getByTestId('rundown-event')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Create Event' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Create Block' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Create Group' })).toBeVisible();
 });

@@ -16,8 +16,8 @@ test('CRUD operations on the rundown', async ({ page }) => {
   await expect(page.getByTestId('rundown-delay')).toHaveCount(0);
   await expect(page.getByTestId('rundown-block')).toHaveCount(0);
 
-  // create blocks using the quick add buttons
-  await page.getByRole('button', { name: 'Block' }).nth(1).click();
+  // create groups using the quick add buttons
+  await page.getByRole('button', { name: 'Group' }).nth(1).click();
   await page.getByRole('button', { name: 'Delay' }).nth(1).click();
   await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
   await expect(page.getByTestId('rundown-event')).toHaveCount(2);

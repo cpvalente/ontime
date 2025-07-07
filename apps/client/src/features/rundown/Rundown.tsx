@@ -258,11 +258,11 @@ export default function Rundown({ data }: RundownProps) {
     ['alt + shift + E', () => insertAtId({ type: SupportedEntry.Event }, cursor, true), { preventDefault: true }],
 
     [
-      'alt + B',
+      'alt + G',
       () => insertAtId({ type: SupportedEntry.Block }, cursor),
       { preventDefault: true, usePhysicalKeys: true },
     ],
-    ['alt + shift + B', () => insertAtId({ type: SupportedEntry.Block }, cursor, true), { preventDefault: true }],
+    ['alt + shift + G', () => insertAtId({ type: SupportedEntry.Block }, cursor, true), { preventDefault: true }],
 
     [
       'alt + D',

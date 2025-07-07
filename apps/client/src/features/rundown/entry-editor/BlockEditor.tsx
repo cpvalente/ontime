@@ -58,7 +58,7 @@ export default function BlockEditor({ block }: BlockEditorProps) {
   return (
     <div className={style.content}>
       <div className={style.column}>
-        <Editor.Title>Block schedule</Editor.Title>
+        <Editor.Title>Group schedule</Editor.Title>
         <div className={style.inline}>
           <div>
             {

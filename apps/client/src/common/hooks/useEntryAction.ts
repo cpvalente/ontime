@@ -589,7 +589,7 @@ export const useEntryActions = () => {
       try {
         await ungroupMutation(blockId);
       } catch (error) {
-        logAxiosError('Error dissolving block', error);
+        logAxiosError('Error dissolving group', error);
       }
     },
     [ungroupMutation],
