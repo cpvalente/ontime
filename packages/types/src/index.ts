@@ -8,18 +8,15 @@ export {
   type OntimeBaseEvent,
   type OntimeDelay,
   type OntimeBlock,
+  type OntimeEntryCommonKeys,
+  type OntimeEntry,
+  type OntimeMilestone,
   type OntimeEvent,
   type PlayableEvent,
   type TimeField,
   SupportedEntry as SupportedEntry,
-} from './definitions/core/OntimeEvent.type.js';
-export type {
-  OntimeEntryCommonKeys,
-  OntimeEntry,
-  RundownEntries,
-  Rundown,
-  ProjectRundowns,
-} from './definitions/core/Rundown.type.js';
+} from './definitions/core/OntimeEntry.js';
+export type { RundownEntries, Rundown, ProjectRundowns } from './definitions/core/Rundown.type.js';
 export { TimeStrategy } from './definitions/TimeStrategy.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
 
@@ -114,6 +111,7 @@ export {
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
+  isOntimeMilestone,
   isPlayableEvent,
   isKeyOfType,
   isOSCOutput,

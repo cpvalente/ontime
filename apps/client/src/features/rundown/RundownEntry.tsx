@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import {
   isOntimeDelay,
   isOntimeEvent,
+  isOntimeMilestone,
   MaybeString,
   OntimeEntry,
   OntimeEvent,
@@ -16,6 +17,7 @@ import { cloneEvent } from '../../common/utils/clone';
 
 import RundownDelay from './rundown-delay/RundownDelay';
 import RundownEvent from './rundown-event/RundownEvent';
+import RundownMilestone from './rundown-milestone/RundownMilestone';
 import { useEventSelection } from './useEventSelection';
 
 export type EventItemActions =
@@ -201,6 +203,16 @@ export default function RundownEntry({
     );
   } else if (isOntimeDelay(data)) {
     return <RundownDelay data={data} hasCursor={hasCursor} />;
+  } else if (isOntimeMilestone(data)) {
+    return (
+      <RundownMilestone
+        colour={data.colour}
+        cue={data.cue}
+        entryId={data.id}
+        hasCursor={hasCursor}
+        title={data.title}
+      />
+    );
   }
   return null;
 }

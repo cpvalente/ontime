@@ -1,7 +1,13 @@
 import type { AutomationOutput, HTTPOutput, OntimeAction, OSCOutput } from '../definitions/core/Automation.type.js';
-import type { OntimeBlock, OntimeDelay, OntimeEvent, PlayableEvent } from '../definitions/core/OntimeEvent.type.js';
-import { SupportedEntry } from '../definitions/core/OntimeEvent.type.js';
-import type { OntimeEntry } from '../definitions/core/Rundown.type.js';
+import type {
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEntry,
+  OntimeEvent,
+  OntimeMilestone,
+  PlayableEvent,
+} from '../definitions/core/OntimeEntry.js';
+import { SupportedEntry } from '../definitions/core/OntimeEntry.js';
 import { type TimerLifeCycle, timerLifecycleValues } from '../definitions/core/TimerLifecycle.type.js';
 
 type MaybeEvent = OntimeEntry | Partial<OntimeEntry> | null | undefined;
@@ -20,6 +26,10 @@ export function isOntimeDelay(event: MaybeEvent): event is OntimeDelay {
 
 export function isOntimeBlock(event: MaybeEvent): event is OntimeBlock {
   return event?.type === SupportedEntry.Block;
+}
+
+export function isOntimeMilestone(event: MaybeEvent): event is OntimeMilestone {
+  return event?.type === SupportedEntry.Milestone;
 }
 
 type AnyKeys<T> = keyof T;

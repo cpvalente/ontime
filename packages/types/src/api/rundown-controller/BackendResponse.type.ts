@@ -1,4 +1,4 @@
-import type { OntimeEntry } from '../../definitions/core/Rundown.type.js';
+import type { OntimeEntry } from '../../definitions/core/OntimeEntry.js';
 
 export type PatchWithId<T extends OntimeEntry = OntimeEntry> = Partial<T> & { id: string };
 

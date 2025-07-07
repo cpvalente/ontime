@@ -3,6 +3,7 @@ import {
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
+  OntimeMilestone,
   SupportedEntry,
   TimeStrategy,
   TimerType,
@@ -38,6 +39,18 @@ export const delay: Omit<OntimeDelay, 'id'> = {
   type: SupportedEntry.Delay,
   duration: 0,
   parent: null,
+};
+
+export const milestone: Omit<OntimeMilestone, 'id'> = {
+  type: SupportedEntry.Milestone,
+  cue: '',
+  title: '',
+  note: '',
+  colour: '',
+  custom: {},
+  parent: null,
+  // !==== RUNTIME METADATA ====! //
+  revision: 0, // calculated at runtime
 };
 
 export const block: Omit<OntimeBlock, 'id'> = {

@@ -1,7 +1,15 @@
 import { RefObject, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { RowModel, Table } from '@tanstack/react-table';
-import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeBlock, OntimeEntry, Rundown } from 'ontime-types';
+import {
+  isOntimeBlock,
+  isOntimeDelay,
+  isOntimeEvent,
+  isOntimeMilestone,
+  OntimeBlock,
+  OntimeEntry,
+  Rundown,
+} from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
 import { RUNDOWN } from '../../../../common/api/constants';
@@ -13,6 +21,7 @@ import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 import BlockRow from './BlockRow';
 import DelayRow from './DelayRow';
 import EventRow from './EventRow';
+import MilestoneRow from './MilestoneRow';
 import { cleanup } from './rowObserver';
 
 interface CuesheetBodyProps {
@@ -89,6 +98,41 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
             parentBgColour = (parentEntry as OntimeBlock).colour ?? null;
           }
           return <DelayRow key={key} duration={delayVal} parentBgColour={parentBgColour} />;
+        }
+        if (isOntimeMilestone(entry)) {
+          if (isPast && hidePast) {
+            return null;
+          }
+
+          let rowBgColour: string | undefined;
+          if (entry.colour) {
+            // the colour is user defined and might be invalid
+            const accessibleBackgroundColor = cssOrHexToColour(getAccessibleColour(entry.colour).backgroundColor);
+            if (accessibleBackgroundColor !== null) {
+              rowBgColour = colourToHex({
+                ...accessibleBackgroundColor,
+                alpha: accessibleBackgroundColor.alpha * 0.25,
+              });
+            }
+          }
+
+          let parentBgColour: string | null = null;
+          if (entry.parent) {
+            const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+            const parentEntry = rundown?.entries[entry.parent];
+            parentBgColour = (parentEntry as OntimeBlock).colour ?? null;
+          }
+
+          return (
+            <MilestoneRow
+              key={key}
+              isPast={isPast}
+              parentBgColour={parentBgColour}
+              rowBgColour={rowBgColour}
+              rowId={row.id}
+              table={table}
+            />
+          );
         }
         if (isOntimeEvent(entry)) {
           eventIndex++;

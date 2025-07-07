@@ -232,9 +232,9 @@ export const useEntryActions = () => {
    * Updates existing entry
    */
   const updateEntry = useCallback(
-    async (event: Partial<OntimeEntry>) => {
+    async (entry: Partial<OntimeEntry>) => {
       try {
-        await updateEntryMutation(event);
+        await updateEntryMutation(entry);
       } catch (error) {
         logAxiosError('Error updating event', error);
       }
