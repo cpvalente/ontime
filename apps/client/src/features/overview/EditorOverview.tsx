@@ -3,6 +3,7 @@ import { memo, PropsWithChildren, useMemo } from 'react';
 import { useRuntimeOverview } from '../../common/hooks/useSocket';
 
 import {
+  ClockOverview,
   CurrentBlockOverview,
   OverviewWrapper,
   ProgressOverview,
@@ -42,8 +43,9 @@ function EditorOverview({ children }: PropsWithChildren) {
         />
       </div>
       <ProgressOverview />
-      <CurrentBlockOverview />
       <RuntimeOverview />
+      <CurrentBlockOverview />
+      <ClockOverview />
       <div>
         <TimeRow
           label='Planned end'
