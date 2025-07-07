@@ -23,7 +23,7 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) 
 
   const event = row.original;
   if (!isOntimeEvent(event)) {
-    return <MutedText numeric>{formatTime(getValue() as number)}</MutedText>;
+    return <MutedText numeric>{formatTime(getValue() as number, formatOpts)}</MutedText>;
   }
 
   const { handleUpdateTimer } = table.options.meta;

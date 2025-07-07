@@ -36,7 +36,7 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>([
     {
-      label: 'Clone Block',
+      label: 'Clone Group',
       icon: IoDuplicateOutline,
       onClick: () => clone(data.id),
     },
@@ -47,7 +47,7 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
       isDisabled: data.entries.length === 0,
     },
     {
-      label: 'Delete Block',
+      label: 'Delete Group',
       icon: IoTrash,
       onClick: () => deleteEntry([data.id]),
       withDivider: true,
@@ -120,7 +120,7 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
       </div>
       <div className={style.header}>
         <div className={style.titleRow}>
-          <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
+          <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Group title' />
           <IconButton aria-label='Collapse' variant='subtle-white' onClick={() => onCollapse(!collapsed, data.id)}>
             {collapsed ? <IoChevronUp /> : <IoChevronDown />}
           </IconButton>
@@ -139,7 +139,7 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
             <div>{formatDuration(data.duration)}</div>
           </div>
           <div className={style.metaEntry}>
-            <div>Events</div>
+            <div>Entries</div>
             <div>{data.entries.length}</div>
           </div>
         </div>

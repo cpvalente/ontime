@@ -26,7 +26,7 @@ export default function RundownEmpty(props: RundownEmptyProps) {
         <Editor.Separator />
 
         <Button onClick={() => handleAddNew(SupportedEntry.Block)} variant='primary' size='large'>
-          <IoAdd /> Create Block
+          <IoAdd /> Create Group
         </Button>
       </div>
     </div>

@@ -82,11 +82,11 @@ export function CurrentBlockOverview() {
 
   return (
     <>
-      <TimeColumn label='Elapsed in block' value={timeInBlock} className={style.clock} muted={blockStartAt === null} />
+      <TimeColumn label='Elapsed in group' value={timeInBlock} className={style.clock} muted={blockStartAt === null} />
       <div>
-        <TimeRow label='Block end' value={blockEnd} className={style.end} muted={blockStartAt === null} />
+        <TimeRow label='Group end' value={blockEnd} className={style.end} muted={blockStartAt === null} />
         <TimeRow
-          label='Projected block end'
+          label='Projected group end'
           value={projectedBlockEnd}
           className={style.end}
           muted={blockStartAt === null}
