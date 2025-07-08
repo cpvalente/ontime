@@ -54,33 +54,45 @@ export type HTTPOutput = {
   url: string;
 };
 
+const ontimeAuxTriggerAction = [
+  'aux1-start',
+  'aux1-stop',
+  'aux1-pause',
+  'aux2-start',
+  'aux2-stop',
+  'aux2-pause',
+  'aux3-start',
+  'aux3-stop',
+  'aux3-pause',
+] as const;
+
+const ontimeAuxSetAction = ['aux1-set', 'aux2-set', 'aux3-set'] as const;
+
+type OntimeAuxTriggerAction = (typeof ontimeAuxTriggerAction)[number];
+type OntimeAuxSetAction = (typeof ontimeAuxSetAction)[number];
+type OntimeMessageSet = 'message-set';
+type OntimeMessageSecondary = 'message-secondary';
+
+export const ontimeActionKeys = [...ontimeAuxTriggerAction, ...ontimeAuxSetAction, 'message-set', 'message-secondary'];
+
 export type OntimeAction =
   | {
       type: 'ontime';
-      action:
-        | 'aux1-start'
-        | 'aux1-stop'
-        | 'aux1-pause'
-        | 'aux2-start'
-        | 'aux2-stop'
-        | 'aux2-pause'
-        | 'aux3-start'
-        | 'aux3-stop'
-        | 'aux3-pause';
+      action: OntimeAuxTriggerAction;
     }
   | {
       type: 'ontime';
-      action: 'aux1-set' | 'aux2-set' | 'aux3-set';
+      action: OntimeAuxSetAction;
       time: number;
     }
   | {
       type: 'ontime';
-      action: 'message-set';
+      action: OntimeMessageSet;
       text?: string;
       visible?: boolean;
     }
   | {
       type: 'ontime';
-      action: 'message-secondary';
+      action: OntimeMessageSecondary;
       secondarySource: SecondarySource;
     };

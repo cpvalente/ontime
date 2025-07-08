@@ -3,11 +3,11 @@ import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { AutomationDTO, OntimeAction } from 'ontime-types';
 
 import Input from '../../../../common/components/input/input/Input';
+import Select from '../../../../common/components/select/Select';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './AutomationForm.module.scss';
-import Select from '../../../../common/components/select/Select';
 
 interface OntimeActionFormProps {
   index: number;
