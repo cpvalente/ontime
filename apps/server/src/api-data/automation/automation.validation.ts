@@ -248,16 +248,6 @@ function indeterminateText(value: string): string | undefined {
 }
 
 /**
- * Helper function to parse boolean values in transit
- * "true" -> true
- * "false" -> false
- * "" | "null" -> undefined
- */
-function indeterminateBooleanString(value: string): boolean | undefined {
-  return value === '' ? undefined : value === 'true';
-}
-
-/**
  * Helper function to validate the secondary source
  */
 function chooseSecondarySource(value: string): SecondarySource {

@@ -88,7 +88,7 @@ describe('parseOutput', () => {
           type: 'ontime',
           action: 'message-set',
           text: 'test',
-          visible: 'true',
+          visible: true,
         }),
       ).toMatchObject({
         text: 'test',
@@ -99,7 +99,7 @@ describe('parseOutput', () => {
           type: 'ontime',
           action: 'message-set',
           text: '',
-          visible: 'false',
+          visible: false,
         }),
       ).toMatchObject({
         text: undefined,
@@ -110,7 +110,6 @@ describe('parseOutput', () => {
           type: 'ontime',
           action: 'message-set',
           text: '',
-          visible: '',
         }),
       ).toMatchObject({
         text: undefined,

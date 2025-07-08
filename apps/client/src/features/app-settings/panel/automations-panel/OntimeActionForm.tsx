@@ -29,13 +29,7 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
 
   const handleSetAction = (value: OntimeActionKey) => {
     setValue(`outputs.${index}.action`, value, { shouldDirty: true });
-
-    // we dont really need to handle these individually
-    if (value === 'aux1-set' || value === 'aux2-set' || value === 'aux3-set') {
-      setSelectedAction('aux-set');
-    } else {
-      setSelectedAction(value);
-    }
+    setSelectedAction(value);
   };
 
   return (
@@ -71,7 +65,7 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
         <Panel.Error>{rowErrors?.action?.message}</Panel.Error>
       </label>
 
-      {selectedAction === 'aux-set' && (
+      {selectedAction.startsWith('aux') && selectedAction.endsWith('set') && (
         <label>
           New time
           <Input
