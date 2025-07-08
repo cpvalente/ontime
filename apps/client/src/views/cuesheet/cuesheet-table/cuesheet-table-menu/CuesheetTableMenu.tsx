@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { IoAdd, IoArrowDown, IoArrowUp, IoDuplicateOutline, IoOptions, IoTrash } from 'react-icons/io5';
 import { SupportedEntry } from 'ontime-types';
 
-import Menu from '../../../../common/components/dropdown-menu/DropdownMenu';
+import { PositionedDropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import { useEntryActions } from '../../../../common/hooks/useEntryAction';
 import { useCuesheetEditModal } from '../../cuesheet-edit-modal/useCuesheetEditModal';
 
@@ -20,7 +20,7 @@ function CuesheetTableMenu() {
   }
 
   return (
-    <Menu
+    <PositionedDropdownMenu
       isOpen
       onClose={closeMenu}
       items={[

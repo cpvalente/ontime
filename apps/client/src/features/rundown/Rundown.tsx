@@ -39,7 +39,8 @@ import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { cloneEvent } from '../../common/utils/clone';
 import { AppMode, sessionKeys } from '../../ontimeConfig';
 
-import QuickAddBlock from './quick-add-block/QuickAddBlock';
+import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
+import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
 import BlockEnd from './rundown-block/BlockEnd';
 import RundownBlock from './rundown-block/RundownBlock';
 import { makeRundownMetadata, makeSortableList } from './rundown.utils';
@@ -398,6 +399,7 @@ export default function Rundown({ data }: RundownProps) {
       >
         <SortableContext items={sortableData} strategy={verticalListSortingStrategy}>
           <div className={style.list}>
+            {isEditMode && <QuickAddButtons previousEventId={null} parentBlock={null} />}
             {sortableData.map((entryId, index) => {
               const isFirst = index === 0;
               const isLast = index === sortableData.length - 1;
@@ -407,27 +409,19 @@ export default function Rundown({ data }: RundownProps) {
                 const parentId = entryId.split('end-')[1];
                 const isBlockCollapsed = getIsCollapsed(parentId);
 
-                if (isBlockCollapsed && isEditMode && isLast) {
-                  return <QuickAddBlock key={entryId} previousEventId={parentId} parentBlock={null} />;
-                } else if (isBlockCollapsed) {
+                if (isBlockCollapsed) {
                   return null;
                 } else {
                   const parentColour = (entries[parentId] as OntimeBlock | undefined)?.colour;
-                  // if the previous element is selected, it will have its own QuickAddBlock
+                  // if the previous element is selected, it will have its own QuickAddInline
                   // we use thisId instead of previousEntryId because the block end does not process
                   // and it does not cause the reassignment of the iteration id to the previous entry
-                  const showPrependingQuickAdd = isEditMode && cursor !== rundownMetadata.thisId;
                   return (
                     <Fragment key={entryId}>
-                      {showPrependingQuickAdd && (
-                        <QuickAddBlock
-                          previousEventId={rundownMetadata.thisId}
-                          parentBlock={parentId}
-                          backgroundColor={parentColour}
-                        />
+                      {isEditMode && rundownMetadata.groupEntries === 0 && (
+                        <QuickAddButtons previousEventId={null} parentBlock={parentId} backgroundColor={parentColour} />
                       )}
                       <BlockEnd key={entryId} id={entryId} colour={parentColour} />
-                      {isEditMode && isLast && <QuickAddBlock previousEventId={parentId} parentBlock={null} />}
                     </Fragment>
                   );
                 }
@@ -462,11 +456,10 @@ export default function Rundown({ data }: RundownProps) {
 
               return (
                 <Fragment key={entry.id}>
-                  {isEditMode && (hasCursor || isFirst) && (
-                    <QuickAddBlock
+                  {isEditMode && hasCursor && !isFirst && (
+                    <QuickAddInline
                       previousEventId={rundownMetadata.previousEntryId}
-                      parentBlock={isFirst ? null : rundownMetadata.groupId}
-                      backgroundColor={isFirst ? undefined : blockColour}
+                      parentBlock={rundownMetadata.thisId !== rundownMetadata.groupId ? rundownMetadata.groupId : null}
                     />
                   )}
                   {isOntimeBlock(entry) ? (
@@ -503,16 +496,15 @@ export default function Rundown({ data }: RundownProps) {
                       </div>
                     </div>
                   )}
-                  {isEditMode && (hasCursor || isLast) && (
-                    <QuickAddBlock
-                      previousEventId={entry.id}
-                      parentBlock={rundownMetadata.groupId}
-                      backgroundColor={blockColour}
-                    />
+                  {isEditMode && hasCursor && rundownMetadata.groupEntries !== 0 && !isLast && (
+                    <QuickAddInline previousEventId={entry.id} parentBlock={rundownMetadata.groupId} />
                   )}
                 </Fragment>
               );
             })}
+            {isEditMode && (
+              <QuickAddButtons previousEventId={rundownMetadata.groupId ?? rundownMetadata.thisId} parentBlock={null} />
+            )}
             <div className={style.spacer} />
           </div>
         </SortableContext>

@@ -27,6 +27,7 @@ type RundownMetadata = {
   isLoaded: boolean;
   groupId: MaybeString;
   groupColour: string | undefined;
+  groupEntries: number | undefined;
 };
 
 /**
@@ -46,6 +47,7 @@ export function makeRundownMetadata(selectedEventId: MaybeString) {
     isLoaded: false,
     groupId: null,
     groupColour: undefined,
+    groupEntries: undefined,
   };
 
   function process(entry: OntimeEntry): Readonly<RundownMetadata> {
@@ -82,11 +84,13 @@ function processEntry(
   if (isOntimeBlock(entry)) {
     processedData.groupId = entry.id;
     processedData.groupColour = entry.colour;
+    processedData.groupEntries = entry.entries.length;
   } else {
     // for delays and blocks, we insert the group metadata
     if ((entry as OntimeEvent | OntimeDelay | OntimeMilestone).parent !== processedData.groupId) {
       // if the parent is not the current group, we need to update the groupId
       processedData.groupId = (entry as OntimeEvent | OntimeDelay | OntimeMilestone).parent;
+      processedData.groupEntries = undefined;
       if ((entry as OntimeEvent | OntimeDelay | OntimeMilestone).parent === null) {
         // if the entry has no parent, it cannot have a group colour
         processedData.groupColour = undefined;

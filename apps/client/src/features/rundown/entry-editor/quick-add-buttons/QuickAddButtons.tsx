@@ -1,24 +1,23 @@
-import { memo, useRef } from 'react';
+import { memo } from 'react';
 import { IoAdd } from 'react-icons/io5';
 import { Toolbar } from '@base-ui-components/react/toolbar';
 import { MaybeString, SupportedEntry } from 'ontime-types';
 
-import Button from '../../../common/components/buttons/Button';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import Button from '../../../../common/components/buttons/Button';
+import { useEntryActions } from '../../../../common/hooks/useEntryAction';
+import { cx } from '../../../../common/utils/styleUtils';
 
-import style from './QuickAddBlock.module.scss';
+import style from './QuickAddButtons.module.scss';
 
-interface QuickAddBlockProps {
+interface QuickAddButtonsProps {
   previousEventId: MaybeString;
   parentBlock: MaybeString;
   backgroundColor?: string;
 }
 
-export default memo(QuickAddBlock);
-function QuickAddBlock({ previousEventId, parentBlock, backgroundColor }: QuickAddBlockProps) {
+export default memo(QuickAddButtons);
+function QuickAddButtons({ previousEventId, parentBlock, backgroundColor }: QuickAddButtonsProps) {
   const { addEntry } = useEntryActions();
-
-  const doLinkPrevious = useRef<HTMLInputElement | null>(null);
 
   const addEvent = () => {
     addEntry(
@@ -29,7 +28,6 @@ function QuickAddBlock({ previousEventId, parentBlock, backgroundColor }: QuickA
       {
         after: previousEventId,
         lastEventId: previousEventId,
-        linkPrevious: doLinkPrevious?.current?.checked,
       },
     );
   };
@@ -75,26 +73,30 @@ function QuickAddBlock({ previousEventId, parentBlock, backgroundColor }: QuickA
   const blockColour = backgroundColor === '' ? '#9d9d9d' : backgroundColor;
 
   return (
-    <Toolbar.Root className={style.quickAdd} style={blockColour ? { '--user-bg': blockColour } : {}}>
-      <Toolbar.Button render={<Button size='small' variant='subtle-white' />} onClick={addEvent}>
+    <Toolbar.Root
+      className={cx([style.quickAdd, Boolean(parentBlock) && style.indent])}
+      style={blockColour ? { '--user-bg': blockColour } : {}}
+      data-testid='quick-add-buttons'
+    >
+      <Toolbar.Button render={<Button size='small' />} onClick={addEvent}>
         <IoAdd />
         Event
       </Toolbar.Button>
 
-      <Toolbar.Button render={<Button size='small' variant='subtle-white' />} onClick={addDelay}>
+      <Toolbar.Button render={<Button size='small' />} onClick={addDelay}>
         <IoAdd />
         Delay
       </Toolbar.Button>
 
-      <Toolbar.Button render={<Button size='small' variant='subtle-white' />} onClick={addMilestone}>
+      <Toolbar.Button render={<Button size='small' />} onClick={addMilestone}>
         <IoAdd />
         Milestone
       </Toolbar.Button>
 
       {parentBlock === null && (
-        <Toolbar.Button render={<Button size='small' variant='subtle-white' />} onClick={addBlock}>
+        <Toolbar.Button render={<Button size='small' />} onClick={addBlock}>
           <IoAdd />
-          Block
+          Group
         </Toolbar.Button>
       )}
     </Toolbar.Root>

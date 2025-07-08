@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+//TODO:
+
 test('show warning when event crosses midnight', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
@@ -32,7 +34,7 @@ test('show warning when event starts next day midnight', async ({ page }) => {
   await page.getByTestId('entry-2').getByTestId('time-input-timeEnd').click();
   await page.getByTestId('entry-2').getByTestId('time-input-timeEnd').fill('0');
   await page.getByTestId('entry-2').getByTestId('time-input-timeEnd').press('Enter');
-  await page.getByRole('button', { name: 'Event', exact: true }).nth(2).click();
+  await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
 
   await expect(page.getByText('(next day)')).toBeVisible();
 });

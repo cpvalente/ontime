@@ -1,0 +1,16 @@
+.quickAdd {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+
+  height: 1px;
+  background: $blue-500;
+}
+
+.addButton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(-50%);
+}
