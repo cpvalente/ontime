@@ -6,26 +6,16 @@ import { langDe } from './languages/de';
 import { langEn } from './languages/en';
 import { langEs } from './languages/es';
 import { langFr } from './languages/fr';
-import { langHu } from './languages/hu';
 import { langIt } from './languages/it';
-import { langNo } from './languages/no';
-import { langPl } from './languages/pl';
 import { langPt } from './languages/pt';
-import { langSv } from './languages/sv';
-import { langZhCn } from './languages/zh';
 
 const translationsList = {
   en: langEn,
   es: langEs,
   fr: langFr,
-  hu: langHu,
   it: langIt,
   de: langDe,
-  no: langNo,
   pt: langPt,
-  sv: langSv,
-  pl: langPl,
-  zh: langZhCn,
 };
 
 export type TranslationKey = keyof typeof langEn;

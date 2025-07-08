@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Select } from '@chakra-ui/react';
 import { Settings } from 'ontime-types';
 
 import { postSettings } from '../../../../common/api/settings';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Input from '../../../../common/components/input/input/Input';
+import Select from '../../../../common/components/select/Select';
 import useSettings from '../../../../common/hooks-query/useSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
@@ -22,6 +22,8 @@ export default function GeneralSettings() {
     register,
     reset,
     setError,
+    watch,
+    setValue,
     formState: { isSubmitting, isDirty, isValid, errors },
   } = useForm<Settings>({
     mode: 'onChange',
@@ -133,10 +135,15 @@ export default function GeneralSettings() {
                 description='Default time format to show in views 12 /24 hours'
                 error={errors.timeFormat?.message}
               />
-              <Select variant='ontime' size='sm' width='auto' isDisabled={disableInputs} {...register('timeFormat')}>
-                <option value='12'>12 hours 11:00:10 PM</option>
-                <option value='24'>24 hours 23:00:10</option>
-              </Select>
+              <Select
+                value={watch('timeFormat')}
+                onValueChange={(value) => setValue('timeFormat', value as '12' | '24', { shouldDirty: true })}
+                defaultValue='24'
+                options={[
+                  { value: '12', label: '12 hours 11:00:10 PM' },
+                  { value: '24', label: '24 hours 23:00:10' },
+                ]}
+              />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
@@ -144,19 +151,20 @@ export default function GeneralSettings() {
                 description='Language to be displayed in views'
                 error={errors.language?.message}
               />
-              <Select variant='ontime' size='sm' width='auto' isDisabled={disableInputs} {...register('language')}>
-                <option value='en'>English</option>
-                <option value='fr'>French</option>
-                <option value='de'>German</option>
-                <option value='hu'>Hungarian</option>
-                <option value='it'>Italian</option>
-                <option value='no'>Norwegian</option>
-                <option value='pt'>Portuguese</option>
-                <option value='es'>Spanish</option>
-                <option value='sv'>Swedish</option>
-                <option value='pl'>Polish</option>
-                <option value='zh'>Chinese (Simplified)</option>
-              </Select>
+              <Select
+                value={watch('language')}
+                onValueChange={(value) => setValue('language', value, { shouldDirty: true })}
+                disabled={disableInputs}
+                defaultValue='en'
+                options={[
+                  { value: 'en', label: 'English' },
+                  { value: 'fr', label: 'French' },
+                  { value: 'de', label: 'German' },
+                  { value: 'it', label: 'Italian' },
+                  { value: 'pt', label: 'Portuguese' },
+                  { value: 'es', label: 'Spanish' },
+                ]}
+              />
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>
