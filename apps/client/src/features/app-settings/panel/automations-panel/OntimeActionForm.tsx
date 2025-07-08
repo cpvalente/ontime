@@ -1,10 +1,9 @@
 import { PropsWithChildren, useState } from 'react';
-import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
-import { AutomationDTO, OntimeAction } from 'ontime-types';
+import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
+import { AutomationDTO, OntimeAction, OntimeActionKey, SecondarySource } from 'ontime-types';
 
 import Input from '../../../../common/components/input/input/Input';
 import Select from '../../../../common/components/select/Select';
-import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './AutomationForm.module.scss';
@@ -20,26 +19,29 @@ interface OntimeActionFormProps {
     secondarySource?: { message?: string };
   };
   value: OntimeAction['action'];
+  watch: UseFormWatch<AutomationDTO>;
   setValue: UseFormSetValue<AutomationDTO>;
 }
 
 export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFormProps>) {
-  const { index, register, setValue, rowErrors, value, children } = props;
+  const { index, register, setValue, rowErrors, value, children, watch } = props;
   const [selectedAction, setSelectedAction] = useState<OntimeAction['action']>(value || 'aux1-pause');
 
-  const updateSelectedAction = (value: string) => {
-    setSelectedAction(value as OntimeAction['action']);
-    setValue(`outputs.${index}.action`, value as OntimeAction['action']);
-  };
+  // const updateSelectedAction = (value: string) => {
+  //   setSelectedAction(value as OntimeAction['action']);
+  //   setValue(`outputs.${index}.action`, value as OntimeAction['action']);
+  // };
 
   return (
-    <div className={cx([style.actionSection, selectedAction && style[selectedAction]])}>
-      <input type='hidden' {...register(`outputs.${index}.action`)} value={selectedAction} />
+    <div className={style.actionSection}>
       <label>
         Action
         <Select
-          onValueChange={(value) => updateSelectedAction(value)}
-          value={selectedAction}
+          defaultValue={'aux1-pause'}
+          onValueChange={(value) =>
+            setValue(`outputs.${index}.action`, value as OntimeActionKey, { shouldDirty: true })
+          }
+          value={watch(`outputs.${index}.action`)}
           options={[
             { value: 'aux1-pause', label: 'Aux 1: pause' },
             { value: 'aux2-pause', label: 'Aux 2: pause' },
@@ -87,14 +89,16 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
           </label>
           <label>
             Visibility
-            <Select
-              {...register(`outputs.${index}.visible`)}
+            {/* <Select
+              defaultValue={''}
+              onValueChange={(value) => setValue(`outputs.${index}.visible`, value, { shouldDirty: true })}
+              value={watch(`outputs.${index}.visible`)}
               options={[
                 { value: '', label: 'Untouched' },
                 { value: 'true', label: 'Show' },
                 { value: 'false', label: 'Hide' },
               ]}
-            />
+            /> */}
             <Panel.Error>{rowErrors?.visible?.message}</Panel.Error>
           </label>
         </>
@@ -104,7 +108,11 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
         <label>
           Timer secondary source
           <Select
-            {...register(`outputs.${index}.secondarySource`)}
+            defaultValue={'aux1'}
+            onValueChange={(value) =>
+              setValue(`outputs.${index}.secondarySource`, value as SecondarySource, { shouldDirty: true })
+            }
+            value={watch(`outputs.${index}.secondarySource`)}
             options={[
               { value: 'aux1', label: 'Auxiliary timer 1' },
               { value: 'aux2', label: 'Auxiliary timer 2' },

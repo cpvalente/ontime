@@ -73,7 +73,14 @@ type OntimeAuxSetAction = (typeof ontimeAuxSetAction)[number];
 type OntimeMessageSet = 'message-set';
 type OntimeMessageSecondary = 'message-secondary';
 
-export const ontimeActionKeys = [...ontimeAuxTriggerAction, ...ontimeAuxSetAction, 'message-set', 'message-secondary'];
+export type OntimeActionKey = OntimeAuxTriggerAction | OntimeAuxSetAction | OntimeMessageSet | OntimeMessageSecondary;
+
+export const ontimeActionKeyValues = [
+  ...ontimeAuxTriggerAction,
+  ...ontimeAuxSetAction,
+  'message-set',
+  'message-secondary',
+];
 
 export type OntimeAction =
   | {

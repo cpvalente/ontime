@@ -24,8 +24,9 @@ export { TimerType } from './definitions/TimerType.type.js';
 export type { OntimeReport, OntimeEventReport } from './definitions/core/Report.type.js';
 
 // ---> Automations
-export { ontimeActionKeys } from './definitions/core/Automation.type.js';
+export { ontimeActionKeyValues } from './definitions/core/Automation.type.js';
 export type {
+  OntimeActionKey,
   Automation,
   AutomationDTO,
   AutomationFilter,

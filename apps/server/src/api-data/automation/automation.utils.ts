@@ -1,4 +1,4 @@
-import { EntryId, FilterRule, isOntimeEvent, MaybeNumber, OntimeAction, ontimeActionKeys, Rundown } from 'ontime-types';
+import { EntryId, FilterRule, isOntimeEvent, MaybeNumber, OntimeAction, ontimeActionKeyValues, Rundown } from 'ontime-types';
 import { millisToString, removeLeadingZero, splitWhitespace, getPropertyFromPath } from 'ontime-utils';
 import type { OscArgOrArrayInput, OscArgInput } from 'osc-min';
 
@@ -13,7 +13,7 @@ export function isFilterRule(value: string): value is FilterRule {
 }
 
 export function isOntimeActionAction(value: string): value is OntimeAction['action'] {
-  return ontimeActionKeys.includes(value);
+  return ontimeActionKeyValues.includes(value);
 }
 
 function toOscValue(argString: string): OscArgInput {

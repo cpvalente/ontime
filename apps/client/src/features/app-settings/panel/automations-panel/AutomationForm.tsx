@@ -55,6 +55,7 @@ export default function AutomationForm(props: AutomationFormProps) {
     setError,
     setFocus,
     setValue,
+    watch,
     formState: { errors, isSubmitting, isDirty, isValid },
   } = useForm<AutomationDTO>({
     mode: 'onChange',
@@ -428,6 +429,7 @@ export default function AutomationForm(props: AutomationFormProps) {
                   register={register}
                   rowErrors={rowErrors}
                   setValue={setValue}
+                  watch={watch}
                 >
                   <span>&nbsp;</span>
                   <Panel.InlineElements relation='inner'>
