@@ -96,14 +96,9 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
                   { value: 'en', label: 'English' },
                   { value: 'fr', label: 'French' },
                   { value: 'de', label: 'German' },
-                  { value: 'hu', label: 'Hungarian' },
                   { value: 'it', label: 'Italian' },
-                  { value: 'no', label: 'Norwegian' },
                   { value: 'pt', label: 'Portuguese' },
                   { value: 'es', label: 'Spanish' },
-                  { value: 'sv', label: 'Swedish' },
-                  { value: 'pl', label: 'Polish' },
-                  { value: 'zh', label: 'Chinese (Simplified)' },
                 ]}
               />
             </Panel.ListItem>
