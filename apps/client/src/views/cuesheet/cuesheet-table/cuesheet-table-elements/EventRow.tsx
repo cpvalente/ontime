@@ -2,7 +2,7 @@ import { MutableRefObject, useEffect, useRef } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { useSessionStorage } from '@mantine/hooks';
 import { flexRender, Table } from '@tanstack/react-table';
-import { OntimeEntry, OntimeEvent, RGBColour } from 'ontime-types';
+import { OntimeEntry, OntimeEvent, RGBColour, SupportedEntry } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
@@ -100,7 +100,7 @@ export default function EventRow({
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const yPos = 8 + rect.y + rect.height / 2;
-              openMenu({ x: rect.x, y: yPos }, event.id, rowIndex, event.parent);
+              openMenu({ x: rect.x, y: yPos }, event.id, SupportedEntry.Event, rowIndex, event.parent);
             }}
           >
             <IoEllipsisHorizontal />

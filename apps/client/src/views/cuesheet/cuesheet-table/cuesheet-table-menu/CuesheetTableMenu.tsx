@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import { IoAdd, IoArrowDown, IoArrowUp, IoDuplicateOutline, IoOptions, IoTrash } from 'react-icons/io5';
-import { Menu, MenuButton, MenuDivider, MenuItem, MenuList, Portal } from '@chakra-ui/react';
 import { SupportedEntry } from 'ontime-types';
 
+import Menu from '../../../../common/components/dropdown-menu/DropdownMenu';
 import { useEntryActions } from '../../../../common/hooks/useEntryAction';
 import { useCuesheetEditModal } from '../../cuesheet-edit-modal/useCuesheetEditModal';
 
@@ -15,52 +15,58 @@ function CuesheetTableMenu() {
   const { addEntry, clone, deleteEntry, move } = useEntryActions();
   const showModal = useCuesheetEditModal((state) => state.setEditableEntry);
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
-    <Portal>
-      {isOpen && (
-        <Menu isOpen size='sm' onClose={closeMenu} isLazy variant='ontime-on-dark'>
-          <MenuButton
-            position='absolute'
-            left={position.x}
-            top={position.y}
-            pointerEvents='none'
-            aria-hidden
-            w={1}
-            h={1}
-          />
-          <MenuList>
-            <MenuItem icon={<IoOptions />} onClick={() => showModal(entryId)}>
-              Edit ...
-            </MenuItem>
-            <MenuDivider />
-            <MenuItem
-              icon={<IoAdd />}
-              onClick={() => addEntry({ type: SupportedEntry.Event, parent: parentId }, { before: entryId })}
-            >
-              Add event above
-            </MenuItem>
-            <MenuItem
-              icon={<IoAdd />}
-              onClick={() => addEntry({ type: SupportedEntry.Event, parent: parentId }, { after: entryId })}
-            >
-              Add event below
-            </MenuItem>
-            <MenuItem icon={<IoDuplicateOutline />} onClick={() => clone(entryId)}>
-              Clone event
-            </MenuItem>
-            <MenuDivider />
-            <MenuItem isDisabled={entryIndex < 1} icon={<IoArrowUp />} onClick={() => move(entryId, 'up')}>
-              Move up
-            </MenuItem>
-            <MenuItem icon={<IoArrowDown />} onClick={() => move(entryId, 'down')}>
-              Move down
-            </MenuItem>
-            <MenuItem icon={<IoTrash />} onClick={() => deleteEntry([entryId])}>
-              Delete
-            </MenuItem>
-          </MenuList>
-        </Menu>
-      )}
-    </Portal>
+    <Menu
+      isOpen
+      onClose={closeMenu}
+      items={[
+        { type: 'item', label: 'Edit...', onClick: () => showModal(entryId), icon: <IoOptions /> },
+        { type: 'divider' },
+        {
+          type: 'item',
+          label: 'Add event above',
+          onClick: () => addEntry({ type: SupportedEntry.Event, parent: parentId }, { before: entryId }),
+          icon: <IoAdd />,
+        },
+        {
+          type: 'item',
+          label: 'Add event below',
+          onClick: () => addEntry({ type: SupportedEntry.Event, parent: parentId }, { after: entryId }),
+          icon: <IoAdd />,
+        },
+        {
+          type: 'item',
+          label: 'Clone event',
+          onClick: () => clone(entryId),
+          icon: <IoDuplicateOutline />,
+        },
+        { type: 'divider' },
+        {
+          type: 'item',
+          label: 'Move up',
+          onClick: () => move(entryId, 'up'),
+          icon: <IoArrowUp />,
+          disabled: entryIndex < 1,
+        },
+        {
+          type: 'item',
+          label: 'Move down',
+          onClick: () => move(entryId, 'down'),
+          icon: <IoArrowDown />,
+        },
+        { type: 'divider' },
+        {
+          type: 'item',
+          label: 'Delete',
+          onClick: () => deleteEntry([entryId]),
+          icon: <IoTrash />,
+        },
+      ]}
+      position={position}
+    />
   );
 }
