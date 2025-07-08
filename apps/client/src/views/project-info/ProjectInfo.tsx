@@ -1,37 +1,30 @@
-import { ProjectData } from 'ontime-types';
+import { Fragment } from 'react/jsx-runtime';
+import { IoOpenOutline } from 'react-icons/io5';
 
-import Empty from '../../common/components/state/Empty';
+import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import useProjectData from '../../common/hooks-query/useProjectData';
+import { useViewOptionsStore } from '../../common/stores/viewOptions';
 import { useTranslation } from '../../translation/TranslationProvider';
-
-import BackstageInfo from './backstage-info/BackstageInfo';
-import CustomInfo from './custom-info/CustomInfo';
-import { projectInfoOptions } from './projectInfo.options';
 
 import './ProjectInfo.scss';
 
-interface ProjectInfoProps {
-  general: ProjectData;
-  isMirrored: boolean;
-}
-
-export default function ProjectInfo(props: ProjectInfoProps) {
-  const { general, isMirrored } = props;
+export default function ProjectInfo() {
+  // persisted app state
+  const isMirrored = useViewOptionsStore((state) => state.mirror);
+  const { data, status } = useProjectData();
   const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Project info');
 
-  if (!general) {
-    return <Empty text={getLocalizedString('common.no_data')} />;
-  }
-
-  if (!general) {
+  if (status === 'pending' || !data) {
     return (
       <>
-        <ViewParamsEditor viewOptions={projectInfoOptions} />
+        <ViewNavigationMenu isLockable suppressSettings />
+        <ViewParamsEditor viewOptions={[]} />
         <EmptyPage text={getLocalizedString('common.no_data')} />;
       </>
     );
@@ -41,13 +34,12 @@ export default function ProjectInfo(props: ProjectInfoProps) {
    * Check if there is data to show at all
    * We need a special check for the project fields which can be an empty array
    */
-  const isEmpty = Object.values(general).every(
-    (value) => !value || (value && Array.isArray(value) && value.length === 0),
-  );
+  const isEmpty = Object.values(data).every((value) => !value || (value && Array.isArray(value) && value.length === 0));
   if (isEmpty) {
     return (
       <>
-        <ViewParamsEditor viewOptions={projectInfoOptions} />
+        <ViewNavigationMenu isLockable suppressSettings />
+        <ViewParamsEditor viewOptions={[]} />
         <EmptyPage text={getLocalizedString('common.no_data')} />;
       </>
     );
@@ -55,23 +47,47 @@ export default function ProjectInfo(props: ProjectInfoProps) {
 
   return (
     <div className={`project ${isMirrored ? 'mirror' : ''}`} data-testid='project-view'>
-      <ViewParamsEditor viewOptions={projectInfoOptions} />
-      {general.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
+      <ViewNavigationMenu isLockable suppressSettings />
+      <ViewParamsEditor viewOptions={[]} />
+      {data.logo && <ViewLogo name={data.logo} className='logo' />}
       <div className='info'>
-        {general.title && (
+        {data.title && (
           <>
             <div className='info__label'>{getLocalizedString('project.title')}</div>
-            <div className='info__value'>{general.title}</div>
+            <div className='info__value'>{data.title}</div>
           </>
         )}
-        {general.description && (
+        {data.description && (
           <>
             <div className='info__label'>{getLocalizedString('project.description')}</div>
-            <div className='info__value'>{general.description}</div>
+            <div className='info__value'>{data.description}</div>
           </>
         )}
-        <BackstageInfo general={general} />
-        <CustomInfo general={general} />
+        {data.info && (
+          <>
+            <div className='info__label'>{getLocalizedString('project.info')}</div>
+            <div className='info__value'>{data.info}</div>
+          </>
+        )}
+        {data.url && (
+          <>
+            <div className='info__label'>{getLocalizedString('project.url')}</div>
+            <a href={data.url} target='_blank' rel='noreferrer' className='info__value link'>
+              {data.url} <IoOpenOutline style={{ fontSize: '1em' }} />
+            </a>
+          </>
+        )}
+        {data.custom.map((info, idx) => {
+          if (!info.title || !info.value) {
+            return null;
+          }
+          return (
+            <Fragment key={`${info.title}-${idx}`}>
+              <div className='info__label'>{info.title}</div>
+              <div className='info__value'>{info.value}</div>
+            </Fragment>
+          );
+        })}
       </div>
     </div>
   );

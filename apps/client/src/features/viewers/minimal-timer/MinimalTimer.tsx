@@ -160,7 +160,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       }}
       data-testid='minimal-timer'
     >
-      {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
+      {general?.logo && <ViewLogo name={general.logo} className='logo' />}
       <ViewParamsEditor viewOptions={MINIMAL_TIMER_OPTIONS} />
       {showEndMessage ? (
         <div className='end-message'>{viewSettings.endMessage}</div>

@@ -131,7 +131,7 @@ export default function Timer(props: TimerProps) {
       className={cx(['stage-timer', isMirrored && 'mirror', showFinished && 'stage-timer--finished'])}
       data-testid='timer-view'
     >
-      {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
+      {general?.logo && <ViewLogo name={general.logo} className='logo' />}
 
       <ViewParamsEditor viewOptions={timerOptions} />
 

@@ -8,11 +8,11 @@ import useViewEditor from './useViewEditor';
 
 interface ViewNavigationMenuProps {
   isLockable?: boolean;
-  supressSettings?: boolean;
+  suppressSettings?: boolean;
 }
 
 export default memo(ViewNavigationMenu);
-function ViewNavigationMenu({ isLockable, supressSettings }: ViewNavigationMenuProps) {
+function ViewNavigationMenu({ isLockable, suppressSettings }: ViewNavigationMenuProps) {
   const [isMenuOpen, menuHandler] = useDisclosure();
   const { showEditFormDrawer, isViewLocked } = useViewEditor({ isLockable });
 
@@ -28,7 +28,7 @@ function ViewNavigationMenu({ isLockable, supressSettings }: ViewNavigationMenuP
     [
       'mod + ,',
       () => {
-        if (isViewLocked || supressSettings) return;
+        if (isViewLocked || suppressSettings) return;
         showEditFormDrawer();
       },
       { preventDefault: true },
@@ -43,7 +43,7 @@ function ViewNavigationMenu({ isLockable, supressSettings }: ViewNavigationMenuP
     <>
       <FloatingNavigation
         toggleMenu={menuHandler.toggle}
-        toggleSettings={supressSettings ? undefined : () => showEditFormDrawer()}
+        toggleSettings={suppressSettings ? undefined : () => showEditFormDrawer()}
       />
       <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />
     </>

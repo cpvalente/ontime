@@ -125,7 +125,7 @@ export default function Clock(props: ClockProps) {
       }}
       data-testid='clock-view'
     >
-      {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
+      {general?.logo && <ViewLogo name={general.logo} className='logo' />}
       <ViewParamsEditor viewOptions={clockOptions} />
       <SuperscriptTime
         time={clock}

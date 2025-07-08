@@ -17,9 +17,9 @@ export const dbModel: DatabaseModel = {
   project: {
     title: '',
     description: '',
-    backstageUrl: '',
-    backstageInfo: '',
-    projectLogo: null,
+    url: '',
+    info: '',
+    logo: null,
     custom: [],
   },
   settings: {

@@ -61,16 +61,16 @@ export default function ProjectData() {
       validateLogo(file);
       const response = await uploadProjectLogo(file);
 
-      setValue('projectLogo', response.data.logoFilename, {
+      setValue('logo', response.data.logoFilename, {
         shouldDirty: true,
       });
     } catch (error) {
       const message = maybeAxiosError(error);
-      setError('projectLogo', { message });
+      setError('logo', { message });
     }
   };
 
-  const { ref, ...projectLogoRest } = register('projectLogo');
+  const { ref, ...projectLogoRest } = register('logo');
 
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -81,7 +81,7 @@ export default function ProjectData() {
   const handleDeleteLogo = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    setValue('projectLogo', null, {
+    setValue('logo', null, {
       shouldDirty: true,
     });
   };
@@ -149,12 +149,12 @@ export default function ProjectData() {
                 onChange={handleUploadProjectLogo}
               />
               <Panel.Card className={style.uploadLogoCard}>
-                {watch('projectLogo') ? (
+                {watch('logo') ? (
                   <>
-                    <img src={`${projectLogoPath}/${watch('projectLogo')}`} />
+                    <img src={`${projectLogoPath}/${watch('logo')}`} />
                     <Button
                       variant='subtle-destructive'
-                      disabled={isSubmitting || !watch('projectLogo')}
+                      disabled={isSubmitting || !watch('logo')}
                       onClick={handleDeleteLogo}
                     >
                       <IoTrash />
@@ -167,7 +167,7 @@ export default function ProjectData() {
                     Upload logo
                   </Button>
                 )}
-                {errors?.projectLogo?.message && <Panel.Error>{errors.projectLogo.message}</Panel.Error>}
+                {errors?.logo?.message && <Panel.Error>{errors.logo.message}</Panel.Error>}
               </Panel.Card>
             </label>
           </Panel.Section>
@@ -177,18 +177,18 @@ export default function ProjectData() {
             <Input fluid maxLength={100} placeholder='Euro Love, Malmö 2024' {...register('description')} />
           </label>
           <label>
-            Backstage info
+            Project info
             <Textarea
               fluid
               maxLength={150}
               placeholder='Wi-Fi password: 1234'
               resize='vertical'
-              {...register('backstageInfo')}
+              {...register('info')}
             />
           </label>
           <label>
-            Backstage QR code URL
-            <Input fluid placeholder={documentationUrl} {...register('backstageUrl')} />
+            Project QR code URL
+            <Input fluid placeholder={documentationUrl} {...register('url')} />
           </label>
           <Panel.Section style={{ marginTop: 0 }}>
             <Panel.ListItem>

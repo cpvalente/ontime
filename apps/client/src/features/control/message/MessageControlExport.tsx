@@ -20,7 +20,7 @@ function MessageControlExport() {
     <ProtectRoute permission='editor'>
       <div className={style.messages} data-testid='panel-messages-control'>
         {!isExtracted && <Corner onClick={(event) => handleLinks('messagecontrol', event)} />}
-        {isExtracted && <ViewNavigationMenu supressSettings />}
+        {isExtracted && <ViewNavigationMenu suppressSettings />}
 
         <div className={classes}>
           <ErrorBoundary>

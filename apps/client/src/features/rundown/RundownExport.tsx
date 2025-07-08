@@ -36,7 +36,7 @@ function RundownExport() {
           data-testid='panel-rundown'
         >
           <FinderPlacement />
-          <ViewNavigationMenu supressSettings />
+          <ViewNavigationMenu suppressSettings />
           <div className={style.content}>
             <ErrorBoundary>
               <ContextMenu>

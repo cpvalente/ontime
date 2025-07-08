@@ -53,9 +53,9 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
       project: {
         title: req.body?.title ?? '',
         description: req.body?.description ?? '',
-        backstageUrl: req.body?.backstageUrl ?? '',
-        backstageInfo: req.body?.backstageInfo ?? '',
-        projectLogo: req.body?.projectLogo ?? null,
+        url: req.body?.url ?? '',
+        info: req.body?.info ?? '',
+        logo: req.body?.logo ?? null,
         custom: req.body?.custom ?? [],
       },
     });

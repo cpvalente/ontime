@@ -17,9 +17,9 @@ export function parseProjectData(data: Partial<DatabaseModel>, emitError?: Error
   return {
     title: data.project.title ?? dbModel.project.title,
     description: data.project.description ?? dbModel.project.description,
-    backstageUrl: data.project.backstageUrl ?? dbModel.project.backstageUrl,
-    backstageInfo: data.project.backstageInfo ?? dbModel.project.backstageInfo,
-    projectLogo: data.project.projectLogo ?? dbModel.project.projectLogo,
+    url: data.project.url ?? dbModel.project.url,
+    info: data.project.info ?? dbModel.project.info,
+    logo: data.project.logo ?? dbModel.project.logo,
     custom: data.project.custom ?? dbModel.project.custom,
   };
 }

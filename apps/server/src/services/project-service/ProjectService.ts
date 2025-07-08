@@ -322,8 +322,8 @@ export async function editCurrentProjectData(newData: Partial<ProjectData>) {
   const updatedProjectData = await getDataProvider().setProjectData(newData);
 
   // Delete the old logo if the logo has been removed
-  if (!updatedProjectData.projectLogo && currentProjectData.projectLogo) {
-    const filePath = join(publicDir.logoDir, currentProjectData.projectLogo);
+  if (!updatedProjectData.logo && currentProjectData.logo) {
+    const filePath = join(publicDir.logoDir, currentProjectData.logo);
 
     deleteFile(filePath).catch((_error) => {
       /** we do not handle this error */
