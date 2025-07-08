@@ -1,7 +1,7 @@
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { useSessionStorage } from '@mantine/hooks';
 import { flexRender, Table } from '@tanstack/react-table';
-import { EntryId, OntimeEntry } from 'ontime-types';
+import { EntryId, OntimeEntry, SupportedEntry } from 'ontime-types';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { useCurrentBlockId } from '../../../../common/hooks/useSocket';
@@ -45,7 +45,7 @@ export default function BlockRow({ blockId, colour, hidePast, rowId, rowIndex, t
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const yPos = 8 + rect.y + rect.height / 2;
-              openMenu({ x: rect.x, y: yPos }, blockId, rowIndex, null);
+              openMenu({ x: rect.x, y: yPos }, blockId, SupportedEntry.Block, rowIndex, null);
             }}
           >
             <IoEllipsisHorizontal />

@@ -126,10 +126,13 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
           return (
             <MilestoneRow
               key={key}
+              entryId={entry.id}
               isPast={isPast}
               parentBgColour={parentBgColour}
+              parentId={entry.parent}
               rowBgColour={rowBgColour}
               rowId={row.id}
+              rowIndex={index}
               table={table}
             />
           );
