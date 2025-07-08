@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { IoCheckmarkCircle } from 'react-icons/io5';
-import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString } from 'ontime-utils';
 
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { usePlayback } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
 import { cx } from '../../../../common/utils/styleUtils';
-import { formatDuration, formatTime, useTimeUntilStart } from '../../../../common/utils/time';
+import { formatDuration, useTimeUntilStart } from '../../../../common/utils/time';
 
 import style from './RundownEventChip.module.scss';
 
@@ -115,7 +115,7 @@ function EventReport(props: EventReportProps) {
 
     const isOver = difference > 0;
 
-    const fullTimeValue = formatTime(absDifference);
+    const fullTimeValue = millisToString(absDifference);
 
     const tooltip = `Event ran ${isOver ? 'over' : 'under'} time by ${fullTimeValue}`;
 

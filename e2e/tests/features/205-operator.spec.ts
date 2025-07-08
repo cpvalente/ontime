@@ -24,7 +24,7 @@ test('smoke test operator', async ({ page }) => {
   await page.getByTestId('entry-3').getByTestId('time-input-duration').fill('1m');
   await page.getByTestId('entry-3').getByTestId('time-input-duration').press('Enter');
 
-  await page.getByRole('button', { name: 'Block' }).nth(1).click();
+  await page.getByRole('button', { name: 'Group' }).nth(1).click();
 
   await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByTestId('entry-1').click();

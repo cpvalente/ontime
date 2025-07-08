@@ -9,7 +9,7 @@
   background-color: color-mix(in srgb, var(--user-bg, $block-bg) 15%, transparent 85%);
 
   display: grid;
-  grid-template-columns: 2rem 8rem 1fr auto auto;
+  grid-template-columns: 2rem 8rem 1fr auto;
   align-items: center;
   height: $secondary-block-height;
   gap: 0.5rem;

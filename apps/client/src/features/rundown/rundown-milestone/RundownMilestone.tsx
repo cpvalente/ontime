@@ -1,5 +1,5 @@
 import { MouseEvent, useCallback, useRef } from 'react';
-import { IoCheckmarkDone, IoClose, IoReorderTwo } from 'react-icons/io5';
+import { IoClose, IoReorderTwo } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId } from 'ontime-types';
@@ -92,9 +92,6 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
       </div>
       <MilestoneTextInput field='cue' initialValue={cue} placeholder='Cue' submitHandler={handleUpdate} />
       <MilestoneTextInput field='title' initialValue={title} placeholder='Title' submitHandler={handleUpdate} />
-      <Button variant='ghosted-white'>
-        <IoCheckmarkDone /> Done
-      </Button>
       <Button variant='ghosted-destructive' onClick={handleDelete}>
         <IoClose /> Cancel
       </Button>

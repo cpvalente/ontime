@@ -95,6 +95,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: null,
       groupColour: undefined,
+      groupEntries: undefined,
     });
 
     expect(process(demoEvents['1'])).toStrictEqual({
@@ -110,6 +111,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: null,
       groupColour: undefined,
+      groupEntries: undefined,
     });
 
     expect(process(demoEvents['block'])).toMatchObject({
@@ -251,6 +253,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: rundownStartsWithBlock.block.id,
       groupColour: 'red',
+      groupEntries: 2,
     });
 
     expect(process(rundownStartsWithBlock['1'])).toStrictEqual({
@@ -266,6 +269,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: rundownStartsWithBlock.block.id,
       groupColour: 'red',
+      groupEntries: 2,
     });
     expect(process(rundownStartsWithBlock['2'])).toStrictEqual({
       previousEvent: rundownStartsWithBlock['1'],
@@ -280,6 +284,7 @@ describe('makeRundownMetadata()', () => {
       isLoaded: false,
       groupId: rundownStartsWithBlock.block.id,
       groupColour: 'red',
+      groupEntries: 2,
     });
   });
 });
