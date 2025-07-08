@@ -46,17 +46,17 @@ describe('parseOutput', () => {
     it('parses a valid payload', () => {
       const auxStart = {
         type: 'ontime',
-        action: 'aux-start',
+        action: 'aux1-start',
       };
       expect(parseOutput(auxStart)).toStrictEqual(auxStart);
       const auxStop = {
         type: 'ontime',
-        action: 'aux-stop',
+        action: 'aux3-stop',
       };
       expect(parseOutput(auxStop)).toStrictEqual(auxStop);
       const auxPause = {
         type: 'ontime',
-        action: 'aux-pause',
+        action: 'aux2-pause',
       };
       expect(parseOutput(auxPause)).toStrictEqual(auxPause);
     });
@@ -65,12 +65,12 @@ describe('parseOutput', () => {
       expect(
         parseOutput({
           type: 'ontime',
-          action: 'aux-start',
+          action: 'aux1-start',
           time: 10,
         }),
       ).toStrictEqual({
         type: 'ontime',
-        action: 'aux-start',
+        action: 'aux1-start',
       });
     });
 
