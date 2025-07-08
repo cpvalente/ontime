@@ -1,8 +1,9 @@
-import { Select, Switch } from '@chakra-ui/react';
 import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import Select from '../../../../common/components/select/Select';
+import Switch from '../../../../common/components/switch/Switch';
 import { editorSettingsDefaults, useEditorSettings } from '../../../../common/stores/editorSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -41,12 +42,7 @@ export default function RundownDefaultSettings() {
                 title='Link previous'
                 description='Whether the start time of new events should be linked to the previous event end time'
               />
-              <Switch
-                variant='ontime'
-                size='lg'
-                defaultChecked={linkPrevious}
-                onChange={(event) => setLinkPrevious(event.target.checked)}
-              />
+              <Switch size='large' checked={linkPrevious} onCheckedChange={setLinkPrevious} />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
@@ -54,15 +50,13 @@ export default function RundownDefaultSettings() {
                 description='Which time should be maintained when event schedule is recalculated'
               />
               <Select
-                variant='ontime'
-                size='sm'
-                width='auto'
                 value={defaultTimeStrategy}
-                onChange={(event) => setTimeStrategy(event.target.value as TimeStrategy)}
-              >
-                <option value={TimeStrategy.LockDuration}>Duration</option>
-                <option value={TimeStrategy.LockEnd}>End Time</option>
-              </Select>
+                onValueChange={(value) => setTimeStrategy(value as TimeStrategy)}
+                options={[
+                  { value: TimeStrategy.LockDuration, label: 'Duration' },
+                  { value: TimeStrategy.LockEnd, label: 'End Time' },
+                ]}
+              />
             </Panel.ListItem>
           </Panel.ListGroup>
           <Panel.ListGroup>
@@ -78,31 +72,27 @@ export default function RundownDefaultSettings() {
             <Panel.ListItem>
               <Panel.Field title='Timer type' description='Default type of timer for new events' />
               <Select
-                variant='ontime'
-                size='sm'
-                width='auto'
                 value={defaultTimerType}
-                onChange={(event) => setDefaultTimerType(event.target.value as TimerType)}
-              >
-                <option value={TimerType.CountDown}>Count down</option>
-                <option value={TimerType.CountUp}>Count up</option>
-                <option value={TimerType.Clock}>Clock</option>
-                <option value={TimerType.None}>None</option>
-              </Select>
+                onValueChange={(value) => setDefaultTimerType(value as TimerType)}
+                options={[
+                  { value: TimerType.CountDown, label: 'Count down' },
+                  { value: TimerType.CountUp, label: 'Count up' },
+                  { value: TimerType.Clock, label: 'Clock' },
+                  { value: TimerType.None, label: 'None' },
+                ]}
+              />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='End Action' description='Default end action for new events' />
               <Select
-                variant='ontime'
-                size='sm'
-                width='auto'
                 value={defaultEndAction}
-                onChange={(event) => setDefaultEndAction(event.target.value as EndAction)}
-              >
-                <option value={EndAction.None}>None</option>
-                <option value={EndAction.LoadNext}>Load next</option>
-                <option value={EndAction.PlayNext}>Play next</option>
-              </Select>
+                onValueChange={(value) => setDefaultEndAction(value as EndAction)}
+                options={[
+                  { value: EndAction.None, label: 'None' },
+                  { value: EndAction.LoadNext, label: 'Load next' },
+                  { value: EndAction.PlayNext, label: 'Play next' },
+                ]}
+              />
             </Panel.ListItem>
           </Panel.ListGroup>
           <Panel.ListGroup>

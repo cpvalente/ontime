@@ -11,7 +11,7 @@ interface UseReactiveTextInputReturn {
 export default function useReactiveTextInput(
   initialText: string,
   submitCallback: (newValue: string) => void,
-  ref: RefObject<HTMLInputElement>,
+  ref: RefObject<HTMLInputElement | HTMLTextAreaElement>,
   options?: {
     submitOnEnter?: boolean;
     submitOnCtrlEnter?: boolean;
@@ -101,25 +101,31 @@ export default function useReactiveTextInput(
     ];
 
     if (options?.submitOnEnter) {
-      hotKeys.push(['Enter', () => {
-        isKeyboardSubmitting.current = true;
-        handleSubmit(text);
-        // clear flag after blur has been processed
-        setTimeout(() => {
-          isKeyboardSubmitting.current = false;
-        }, 0);
-      }]);
+      hotKeys.push([
+        'Enter',
+        () => {
+          isKeyboardSubmitting.current = true;
+          handleSubmit(text);
+          // clear flag after blur has been processed
+          setTimeout(() => {
+            isKeyboardSubmitting.current = false;
+          }, 0);
+        },
+      ]);
     }
 
     if (options?.submitOnCtrlEnter) {
-      hotKeys.push(['mod + Enter', () => {
-        isKeyboardSubmitting.current = true;
-        handleSubmit(text);
-        // clear flag after blur has been processed
-        setTimeout(() => {
-          isKeyboardSubmitting.current = false;
-        }, 0);
-      }]);
+      hotKeys.push([
+        'mod + Enter',
+        () => {
+          isKeyboardSubmitting.current = true;
+          handleSubmit(text);
+          // clear flag after blur has been processed
+          setTimeout(() => {
+            isKeyboardSubmitting.current = false;
+          }, 0);
+        },
+      ]);
     }
 
     const hotKeyHandler = getHotkeyHandler(hotKeys);

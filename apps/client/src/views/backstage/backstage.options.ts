@@ -9,7 +9,7 @@ import { makeOptionsFromCustomFields } from '../../common/components/view-params
 import { scheduleOptions } from '../common/schedule/schedule.options';
 
 export const getBackstageOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
-  const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, [{ value: 'note', label: 'Note' }]);
 
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },

@@ -119,7 +119,7 @@ export default function GeneralSettings() {
                 description='Protect the editor view with a pin code'
                 error={errors.editorKey?.message}
               />
-              <GeneralPinInput register={register} formName='editorKey' isDisabled={disableInputs} />
+              <GeneralPinInput register={register} formName='editorKey' disabled={disableInputs} />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
@@ -127,7 +127,7 @@ export default function GeneralSettings() {
                 description='Protect the operator and cuesheet views with a pin code'
                 error={errors.operatorKey?.message}
               />
-              <GeneralPinInput register={register} formName='operatorKey' isDisabled={disableInputs} />
+              <GeneralPinInput register={register} formName='operatorKey' disabled={disableInputs} />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field

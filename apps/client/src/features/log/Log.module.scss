@@ -7,6 +7,12 @@ $info-hover: $section-white;
   user-select: text;
   min-height: 20vh;
   max-height: 40vh;
+  background-color: $gray-1350;
+  padding: 0.5rem;
+}
+
+.apart {
+  margin-left: auto;
 }
 
 .logEntry {

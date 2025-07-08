@@ -1,7 +1,6 @@
-@use '../../../../theme/viewerDefs' as *;
-
 .textarea {
   box-sizing: border-box;
+  min-height: 2rem;
 
   display: block;
   font-size: 1rem;

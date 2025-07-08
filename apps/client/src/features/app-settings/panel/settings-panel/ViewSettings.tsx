@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { Switch } from '@chakra-ui/react';
+import { useForm } from 'react-hook-form';
 import { useDisclosure } from '@mantine/hooks';
 import { ViewSettings as ViewSettingsType } from 'ontime-types';
 
@@ -10,6 +9,7 @@ import Info from '../../../../common/components/info/Info';
 import { SwatchPickerRHF } from '../../../../common/components/input/colour-input/SwatchPicker';
 import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
+import Switch from '../../../../common/components/switch/Switch';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -28,6 +28,8 @@ export default function ViewSettings() {
     setError,
     register,
     reset,
+    setValue,
+    watch,
     formState: { isSubmitting, isDirty, errors },
   } = useForm<ViewSettingsType>({
     defaultValues: data,
@@ -96,12 +98,10 @@ export default function ViewSettings() {
                 title='Override CSS styles'
                 description='Enables overriding view styles with custom stylesheet'
               />
-              <Controller
-                control={control}
-                name='overrideStyles'
-                render={({ field: { onChange, value, ref } }) => (
-                  <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
-                )}
+              <Switch
+                size='large'
+                checked={watch('overrideStyles')}
+                onCheckedChange={(value: boolean) => setValue('overrideStyles', value, { shouldDirty: true })}
               />
               <Button onClick={codeEditorHandler.open} disabled={isSubmitting}>
                 Edit CSS override
@@ -128,12 +128,10 @@ export default function ViewSettings() {
                 title='Freeze timer on end'
                 description='When a timer hits 00:00:00, it freezes instead of going negative. It invalidates the End Message.'
               />
-              <Controller
-                control={control}
-                name='freezeEnd'
-                render={({ field: { onChange, value, ref } }) => (
-                  <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
-                )}
+              <Switch
+                size='large'
+                checked={watch('freezeEnd')}
+                onCheckedChange={(value: boolean) => setValue('freezeEnd', value, { shouldDirty: true })}
               />
             </Panel.ListItem>
             <Panel.ListItem>

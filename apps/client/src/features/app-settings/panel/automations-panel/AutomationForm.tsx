@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react';
-import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
-import { Radio, RadioGroup, Select } from '@chakra-ui/react';
 import {
   Automation,
   AutomationDTO,
@@ -20,6 +19,8 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
+import RadioGroup from '../../../../common/components/radio-group/RadioGroup';
+import Select from '../../../../common/components/select/Select';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
@@ -214,15 +215,14 @@ export default function AutomationForm(props: AutomationFormProps) {
         <div className={style.ruleSection}>
           <label>
             Trigger outputs if
-            <Controller
-              name='filterRule'
-              control={control}
-              render={({ field }) => (
-                <RadioGroup {...field} size='sm' className={style.matchRadio} variant='ontime'>
-                  <Radio value='all'>All filters pass</Radio>
-                  <Radio value='any'>Any filter passes</Radio>
-                </RadioGroup>
-              )}
+            <RadioGroup
+              orientation='horizontal'
+              value={watch('filterRule')}
+              onValueChange={(value) => setValue('filterRule', value, { shouldDirty: true })}
+              items={[
+                { value: 'all', label: 'All filters pass' },
+                { value: 'any', label: 'Any filter passes' },
+              ]}
             />
           </label>
           {fieldFilters.map((field, index) => {
@@ -232,43 +232,29 @@ export default function AutomationForm(props: AutomationFormProps) {
                 <label>
                   Runtime data source
                   <Select
-                    {...register(`filters.${index}.field`, { required: { value: true, message: 'Required field' } })}
-                    size='sm'
-                    variant='ontime'
-                  >
-                    <option selected hidden disabled value=''>
-                      Event field
-                    </option>
-                    {fieldList.map(({ value, label }, localIndex) => {
-                      const key = `filters.${index}.field.${localIndex}`;
-                      return (
-                        <option key={key} value={value}>
-                          {label}
-                        </option>
-                      );
-                    })}
-                  </Select>
+                    value={watch(`filters.${index}.field`)}
+                    onValueChange={(value) => setValue(`filters.${index}.field`, value, { shouldDirty: true })}
+                    options={fieldList.map(({ value, label }) => ({ value, label }))}
+                    aria-label='Event field'
+                  />
                   <Panel.Error>{errors.filters?.[index]?.field?.message}</Panel.Error>
                 </label>
                 <label>
                   Matching condition
                   <Select
-                    {...register(`filters.${index}.operator`, { required: { value: true, message: 'Required field' } })}
-                    size='sm'
-                    variant='ontime'
-                  >
-                    <option selected hidden disabled value=''>
-                      Operator
-                    </option>
-                    <option value='equals'>equals</option>
-                    <option value='not_equals'>not equals</option>
-                    <option value='contains'>contains</option>
-                    {/* 
-                  We dont currently offer a data source where these operators would make sense
-                  <option value='greater_than'>greater than</option>
-                  <option value='less_than'>less than</option> 
-                  */}
-                  </Select>
+                    value={watch(`filters.${index}.operator`)}
+                    onValueChange={(value) =>
+                      setValue(`filters.${index}.operator`, value as 'equals' | 'not_equals' | 'contains', {
+                        shouldDirty: true,
+                      })
+                    }
+                    options={[
+                      { value: 'equals', label: 'equals' },
+                      { value: 'not_equals', label: 'not equals' },
+                      { value: 'contains', label: 'contains' },
+                    ]}
+                    aria-label='Operator'
+                  />
                   <Panel.Error>{errors.filters?.[index]?.operator?.message}</Panel.Error>
                 </label>
                 <label>

@@ -38,10 +38,18 @@
     outline: 2px solid $blue-500;
     outline-offset: 2px;
   }
+}
 
-  &.fluid {
-    width: 100%;
-  }
+.medium {
+  height: 2rem;
+}
+
+.large {
+  height: 2.5rem;
+}
+
+.fluid {
+  width: 100%;
 }
 
 .selectIcon {

@@ -1,20 +1,36 @@
+// styles from Input.module.scss
 .input {
-  color: $gray-200;
-  border: 1px solid transparent;
-  border-radius: 0 0 8px 8px;
-  background-color: $gray-1200;
-  padding: 0 0.5rem;
+  width: 100%;
+  margin-top: 0.25rem;
+  box-sizing: border-box;
+
   font-size: 1rem;
+  font-weight: 400;
+  color: $gray-200;
+  border-radius: $component-border-radius-md;
+  background-color: $gray-1200;
+  border: 1px solid transparent;
+
   height: 2rem;
+  padding-inline: 0.5em;
   outline: none;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: $gray-1100;
   }
 
-  &:focus {
+  &:focus:not(:read-only) {
     background-color: $gray-1000;
-    color: $gray-50;
     border: 1px solid $blue-500;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &::placeholder {
+    color: $gray-500;
+    letter-spacing: 0;
   }
 }

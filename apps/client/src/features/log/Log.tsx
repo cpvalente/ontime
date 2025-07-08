@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { IoClose } from 'react-icons/io5';
 import { LogOrigin } from 'ontime-types';
 
 import Button from '../../common/components/buttons/Button';
@@ -105,8 +106,8 @@ export default function Log() {
         >
           {LogOrigin.Tx}
         </Button>
-        <Button variant='subtle-destructive' size='small' onClick={clearLogs}>
-          Clear
+        <Button variant='subtle-destructive' size='small' onClick={clearLogs} className={style.apart}>
+          <IoClose /> Clear
         </Button>
       </Panel.InlineElements>
       <ul className={style.log}>

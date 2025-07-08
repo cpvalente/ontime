@@ -1,9 +1,10 @@
 import { MouseEvent } from 'react';
 
-import { Option, useContextMenuStore } from '../components/context-menu/ContextMenu';
+import { useContextMenuStore } from '../../features/rundown/rundown-context-menu/RundownContextMenu';
+import { DropdownMenuOption } from '../components/dropdown-menu/DropdownMenu';
 
-export const useContextMenu = <T extends HTMLElement>(options: Option[]) => {
-  const { setContextMenu } = useContextMenuStore();
+export const useContextMenu = <T extends HTMLElement>(options: DropdownMenuOption[]) => {
+  const setContextMenu = useContextMenuStore((state) => state.setContextMenu);
 
   const localCreateContextMenu = (contextMenuEvent: MouseEvent<T, globalThis.MouseEvent>) => {
     // prevent browser default context menu from showing up

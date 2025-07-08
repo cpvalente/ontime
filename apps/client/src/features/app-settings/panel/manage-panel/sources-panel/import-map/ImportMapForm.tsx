@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
-import { Select } from '@chakra-ui/react';
 import { ImportMap, isAlphanumericWithSpace } from 'ontime-utils';
 
 import Button from '../../../../../../common/components/buttons/Button';
 import IconButton from '../../../../../../common/components/buttons/IconButton';
 import Input from '../../../../../../common/components/input/input/Input';
+import Select from '../../../../../../common/components/select/Select';
 import Tooltip from '../../../../../../common/components/tooltip/Tooltip';
 import * as Panel from '../../../../panel-utils/PanelUtils';
 import useGoogleSheet from '../useGoogleSheet';
@@ -33,6 +33,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
     handleSubmit,
     register,
     setValue,
+    watch,
     formState: { errors, isValid },
   } = useForm<NamedImportMap>({
     mode: 'onChange',
@@ -149,19 +150,13 @@ export default function ImportMapForm(props: ImportMapFormProps) {
                   <td>{label}</td>
                   <td>
                     <Select
-                      variant='ontime'
                       id={importName as string}
-                      size='sm'
-                      {...register(label as keyof NamedImportMap)}
-                    >
-                      {worksheetNames?.map((name) => {
-                        return (
-                          <option key={name} value={name}>
-                            {name}
-                          </option>
-                        );
-                      })}
-                    </Select>
+                      value={watch(label as keyof NamedImportMap) as string}
+                      onValueChange={(value: string) =>
+                        setValue(label as keyof NamedImportMap, value, { shouldDirty: true })
+                      }
+                      options={worksheetNames?.map((name) => ({ value: name, label: name })) || []}
+                    />
                   </td>
                   <td className={style.singleActionCell} />
                 </tr>

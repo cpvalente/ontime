@@ -1,5 +1,6 @@
 import { FormEvent, memo } from 'react';
 import { IoClose } from 'react-icons/io5';
+import { useSearchParams } from 'react-router-dom';
 import { Dialog } from '@base-ui-components/react/dialog';
 
 import useViewSettings from '../../hooks-query/useViewSettings';
@@ -21,6 +22,7 @@ interface EditFormDrawerProps {
 export default memo(ViewParamsEditor);
 
 function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
+  const [_, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
   const { isOpen, close } = useViewParamsEditorStore();
 
@@ -29,8 +31,7 @@ function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   };
 
   const resetParams = () => {
-    window.history.pushState(null, '', window.location.pathname);
-    close();
+    setSearchParams();
   };
 
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
@@ -38,9 +39,9 @@ function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
 
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
-    const url = new URL(window.location.href);
-    url.search = newSearchParams.toString();
-    window.history.pushState(null, '', url);
+
+    console.log('New search params:', newParamsObject, newSearchParams.toString());
+    setSearchParams(newSearchParams);
   };
 
   return (

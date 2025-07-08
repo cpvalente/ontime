@@ -8,16 +8,16 @@ import { makeOptionsFromCustomFields } from '../../../common/components/view-par
 import safeParseNumber from '../../../common/utils/safeParseNumber';
 
 export const getLowerThirdOptions = (customFields: CustomFields): ViewOption[] => {
-  const topSourceOptions = makeOptionsFromCustomFields(customFields, {
-    title: 'Title',
-    note: 'Note',
-  });
+  const topSourceOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'title', label: 'Title' },
+    { value: 'note', label: 'Note' },
+  ]);
 
-  const bottomSourceOptions = makeOptionsFromCustomFields(customFields, {
-    title: 'Title',
-    note: 'Note',
-    none: 'None',
-  });
+  const bottomSourceOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'title', label: 'Title' },
+    { value: 'note', label: 'Note' },
+    { value: 'none', label: 'None' },
+  ]);
 
   return [
     {
@@ -99,10 +99,9 @@ export const getLowerThirdOptions = (customFields: CustomFields): ViewOption[] =
         {
           id: 'width',
           title: 'Minimum Width',
-          description: 'Minimum Width of the element',
+          description: 'Minimum Width of the element (percentage)',
           type: 'number',
-          prefix: '%',
-          placeholder: '45 (default)',
+          placeholder: '45 (default %)',
         },
         {
           id: 'key',

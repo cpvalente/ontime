@@ -1,24 +1,16 @@
 import { useState } from 'react';
-import { IoChevronDown } from 'react-icons/io5';
 import { useSearchParams } from 'react-router-dom';
-import {
-  Button,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
-  Select,
-  Switch,
-} from '@chakra-ui/react';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
+import Checkbox from '../checkbox/Checkbox';
+import Input from '../input/input/Input';
+import Select from '../select/Select';
+import Switch from '../switch/Switch';
 
 import InlineColourPicker from './InlineColourPicker';
 import { ParamField } from './viewParams.types';
+
+import style from './ParamInput.module.scss';
 
 interface ParamInputProps {
   paramField: ParamField;
@@ -39,20 +31,11 @@ export default function ParamInput({ paramField }: ParamInputProps) {
     const optionFromParams = searchParams.get(id);
     const defaultOptionValue = optionFromParams || defaultValue;
 
-    return (
-      <Select
-        placeholder={defaultValue ? undefined : 'Select an option'}
-        variant='ontime'
-        name={id}
-        defaultValue={defaultOptionValue}
-      >
-        {Object.entries(paramField.values).map(([key, value]) => (
-          <option key={key} value={key}>
-            {value}
-          </option>
-        ))}
-      </Select>
-    );
+    if (paramField.values.length === 0) {
+      return <span className={style.empty}>No options available</span>;
+    }
+
+    return <Select size='large' name={id} defaultValue={defaultOptionValue} options={paramField.values} />;
   }
 
   if (type === 'multi-option') {
@@ -61,27 +44,22 @@ export default function ParamInput({ paramField }: ParamInputProps) {
 
   if (type === 'boolean') {
     const defaultCheckedValue = isStringBoolean(searchParams.get(id)) || defaultValue;
-
-    // checked value should be 'true', so it can be captured by the form event
-    return <Switch variant='ontime' name={id} defaultChecked={defaultCheckedValue} value='true' />;
+    return <Switch size='large' name={id} defaultChecked={defaultCheckedValue} />;
   }
 
   if (type === 'number') {
-    const { prefix, placeholder } = paramField;
+    const { placeholder } = paramField;
     const defaultNumberValue = searchParams.get(id) ?? defaultValue;
 
     return (
-      <InputGroup variant='ontime-filled'>
-        {prefix && <InputLeftElement pointerEvents='none'>{prefix}</InputLeftElement>}
-        <Input
-          type='number'
-          step='any'
-          variant='ontime-filled'
-          name={id}
-          defaultValue={defaultNumberValue}
-          placeholder={placeholder}
-        />
-      </InputGroup>
+      <Input
+        height='large'
+        type='number'
+        step='any'
+        name={id}
+        defaultValue={defaultNumberValue}
+        placeholder={placeholder}
+      />
     );
   }
 
@@ -92,52 +70,56 @@ export default function ParamInput({ paramField }: ParamInputProps) {
   }
 
   const defaultStringValue = searchParams.get(id) ?? defaultValue;
-  const { prefix, placeholder } = paramField;
+  const { placeholder } = paramField;
 
-  return (
-    <InputGroup variant='ontime-filled'>
-      {prefix && <InputLeftElement pointerEvents='none'>{prefix}</InputLeftElement>}
-      <Input name={id} defaultValue={defaultStringValue} placeholder={placeholder} />
-    </InputGroup>
-  );
+  return <Input height='large' name={id} defaultValue={defaultStringValue} placeholder={placeholder} />;
 }
 
 interface EditFormMultiOptionProps {
   paramField: ParamField & { type: 'multi-option' };
 }
 
-function MultiOption(props: EditFormMultiOptionProps) {
+function MultiOption({ paramField }: EditFormMultiOptionProps) {
   const [searchParams] = useSearchParams();
-  const { paramField } = props;
-  const { id, defaultValue } = paramField;
+  const { id, values, defaultValue = [''] } = paramField;
 
   const optionFromParams = searchParams.getAll(id);
-  const [paramState, setParamState] = useState<string[]>(optionFromParams || defaultValue || ['']);
+  const [paramState, setParamState] = useState<string[]>(optionFromParams || defaultValue);
+
+  const toggleValue = (value: string, checked: boolean) => {
+    if (checked) {
+      setParamState((prev) => [...prev, value]);
+    } else {
+      setParamState((prev) => prev.filter((v) => v !== value));
+    }
+  };
+
+  if (values.length === 0) {
+    return <span className={style.empty}>No options available</span>;
+  }
 
   return (
     <>
-      <input name={id} hidden readOnly value={paramState} />
-      <Menu isLazy closeOnSelect={false} variant='ontime-on-dark'>
-        <MenuButton as={Button} variant='ontime-subtle-white' position='relative' width='fit-content' fontWeight={400}>
-          {paramField.title} <IoChevronDown style={{ display: 'inline' }} />
-        </MenuButton>
-        <MenuList overflow='auto' maxHeight='200px'>
-          <MenuOptionGroup
-            type='checkbox'
-            value={paramState}
-            onChange={(value) => setParamState(Array.isArray(value) ? value : [value])}
-          >
-            {Object.values(paramField.values).map((option) => {
-              const { value, label, colour } = option;
-              return (
-                <MenuItemOption value={value} key={value} style={{ borderRight: `8px solid ${colour}` }}>
-                  {label}
-                </MenuItemOption>
-              );
-            })}
-          </MenuOptionGroup>
-        </MenuList>
-      </Menu>
+      <input name={id} hidden readOnly value={paramState.join(',')} />
+      <div className={style.inline}>
+        {values.map((option) => {
+          return (
+            <label
+              key={option.value}
+              className={style.toggleSelect}
+              style={{
+                '--user-bg': option.colour,
+              }}
+            >
+              <Checkbox
+                checked={paramState.includes(option.value)}
+                onCheckedChange={(checked) => toggleValue(option.value, checked as boolean)}
+              />
+              {option.label}
+            </label>
+          );
+        })}
+      </div>
     </>
   );
 }

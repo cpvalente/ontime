@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { CustomFields, OntimeEvent, TimerType } from 'ontime-types';
 import { validateTimerType } from 'ontime-utils';
 
+import type { SelectOption } from '../../common/components/select/Select';
 import {
   getTimeOption,
   hideTimerSeconds,
@@ -14,16 +15,22 @@ import { makeOptionsFromCustomFields } from '../../common/components/view-params
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 
 // manually match the properties of TimerType excluding the None
-const timerDisplayOptions = {
-  'no-overrides': 'No Overrides',
-  'count-up': 'Count up',
-  'count-down': 'Count down',
-  clock: 'Clock',
-};
+const timerDisplayOptions: SelectOption[] = [
+  { value: 'no-overrides', label: 'No Overrides' },
+  { value: TimerType.CountUp, label: 'Count Up' },
+  { value: TimerType.CountDown, label: 'Count Down' },
+  { value: TimerType.Clock, label: 'Clock' },
+];
 
 export const getTimerOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
-  const mainOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
-  const secondaryOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
+  const mainOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'title', label: 'Title' },
+    { value: 'note', label: 'Note' },
+  ]);
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'title', label: 'Title' },
+    { value: 'note', label: 'Note' },
+  ]);
 
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },

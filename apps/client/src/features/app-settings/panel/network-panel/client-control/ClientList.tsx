@@ -61,8 +61,8 @@ export default function ClientList() {
         <Panel.Table>
           <thead>
             <tr>
-              <td className={style.halfWidth}>Client Name</td>
-              <td className={style.fullWidth}>Path</td>
+              <td style={{ width: '20%' }}>Client Name</td>
+              <td>Path</td>
               <td />
             </tr>
           </thead>
@@ -76,7 +76,7 @@ export default function ClientList() {
                     {isCurrent && <Tag>SELF</Tag>}
                     {name}
                   </Panel.InlineElements>
-                  <td>{path}</td>
+                  <td className={style.copiable}>{path}</td>
                   <Panel.InlineElements relation='inner'>
                     <Button
                       size='small'

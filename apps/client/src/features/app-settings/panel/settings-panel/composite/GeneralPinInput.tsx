@@ -1,24 +1,26 @@
 import { PropsWithChildren, useState } from 'react';
 import { UseFormRegister } from 'react-hook-form';
 import { IoEyeOutline } from 'react-icons/io5';
-import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
 import { Settings } from 'ontime-types';
 
+import IconButton from '../../../../../common/components/buttons/IconButton';
+import Input from '../../../../../common/components/input/input/Input';
 import { isAlphanumeric } from '../../../../../common/utils/regex';
+
+import style from './GeneralPinInput.module.scss';
 
 interface GeneralPinInputProps {
   register: UseFormRegister<Settings>;
   formName: keyof Settings;
-  isDisabled?: boolean;
+  disabled?: boolean;
 }
 
-export default function GeneralPinInput(props: PropsWithChildren<GeneralPinInputProps>) {
-  const { register, formName, isDisabled } = props;
+export default function GeneralPinInput({ register, formName, disabled }: PropsWithChildren<GeneralPinInputProps>) {
   const [isVisible, setVisible] = useState(false);
+
   return (
-    <InputGroup size='sm' width='100px'>
+    <div className={style.container}>
       <Input
-        variant='ontime-filled'
         type={isVisible ? 'text' : 'password'}
         maxLength={4}
         {...register(formName, {
@@ -28,18 +30,16 @@ export default function GeneralPinInput(props: PropsWithChildren<GeneralPinInput
           },
         })}
         placeholder='-'
-        isDisabled={isDisabled}
+        disabled={disabled}
       />
-      <InputRightElement>
-        <IconButton
-          onMouseDown={() => setVisible(true)}
-          onMouseUp={() => setVisible(false)}
-          size='sm'
-          variant='ontime-ghosted'
-          icon={<IoEyeOutline />}
-          aria-label='Show pin code'
-        />
-      </InputRightElement>
-    </InputGroup>
+      <IconButton
+        onMouseDown={() => setVisible(true)}
+        onMouseUp={() => setVisible(false)}
+        variant='ghosted'
+        aria-label='Show pin code'
+      >
+        <IoEyeOutline />
+      </IconButton>
+    </div>
   );
 }

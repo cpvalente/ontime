@@ -1,0 +1,50 @@
+.container {
+  width: 100%;
+  height: 100%;
+
+  padding-top: 25vh;
+
+  background: $ui-black;
+  color: $ontime-color;
+  font-size: 3rem;
+  text-align: center;
+}
+
+.pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  input {
+    font-size: 4rem;
+    height: 4rem;
+    width: 4em;
+    text-align: center;
+    letter-spacing: 0.25em;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  button {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    height: 4rem;
+    width: 4rem;
+    font-size: 4rem;
+  }
+}
+
+.pinFailed {
+  input {
+    animation: redFlash 1.5s ease;
+  }
+}
+
+@keyframes redFlash {
+  from {
+    background: $red-500;
+  }
+  to {
+    background: rgba($red-500, 0);
+  }
+}
