@@ -8,7 +8,6 @@ import {
   SecondarySource,
   timerLifecycleValues,
 } from 'ontime-types';
-import { parseUserTime } from 'ontime-utils';
 
 import { body, oneOf, param } from 'express-validator';
 
@@ -200,7 +199,7 @@ function parseOntimeAction(maybeOntimeAction: object): OntimeAction {
     return {
       type: 'ontime',
       action: maybeOntimeAction.action,
-      time: parseUserTime(maybeOntimeAction.time),
+      time: maybeOntimeAction.time, //TODO:(automation set aux) not sure what way around to have the string and where to have the ms value
     };
   }
 

@@ -3,6 +3,7 @@ import { LogOrigin, OntimeAction } from 'ontime-types';
 import { logger } from '../../../classes/Logger.js';
 import { auxTimerService } from '../../../services/aux-timer-service/AuxTimerService.js';
 import * as messageService from '../../../services/message-service/message.service.js';
+import { parseUserTime } from 'ontime-utils';
 
 export function toOntimeAction(action: OntimeAction) {
   const actionType = action.action;
@@ -15,7 +16,8 @@ export function toOntimeAction(action: OntimeAction) {
     case 'aux1-pause':
       return auxTimerService.pause(1);
     case 'aux1-set': {
-      return auxTimerService.setTime(action.time, 1);
+      const time = parseUserTime(action.time);
+      return auxTimerService.setTime(time, 1);
     }
     case 'aux2-start':
       return auxTimerService.start(2);
@@ -24,7 +26,8 @@ export function toOntimeAction(action: OntimeAction) {
     case 'aux2-pause':
       return auxTimerService.pause(2);
     case 'aux2-set': {
-      return auxTimerService.setTime(action.time, 2);
+      const time = parseUserTime(action.time);
+      return auxTimerService.setTime(time, 2);
     }
     case 'aux3-start':
       return auxTimerService.start(3);
@@ -33,7 +36,8 @@ export function toOntimeAction(action: OntimeAction) {
     case 'aux3-pause':
       return auxTimerService.pause(3);
     case 'aux3-set': {
-      return auxTimerService.setTime(action.time, 3);
+      const time = parseUserTime(action.time);
+      return auxTimerService.setTime(time, 3);
     }
 
     // Message actions

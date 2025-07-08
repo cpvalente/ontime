@@ -70,7 +70,7 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
           New time
           <Input
             {...register(`outputs.${index}.time`, {
-              required: { value: true, message: 'Required field' },
+              required: { value: true, message: 'Required field' },  //TODO:(automation set aux) not sure what way around to have the string and where to have the ms value
             })}
             fluid
             placeholder='eg: 10m5s'
