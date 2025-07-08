@@ -72,7 +72,7 @@ export default function Countdown({
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
       <ViewParamsEditor viewOptions={countdownOptions} />
       <div className='project-header'>
-        {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
+        {general?.logo && <ViewLogo name={general.logo} className='logo' />}
         <div className='title'>{general.title}</div>
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>

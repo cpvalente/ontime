@@ -75,7 +75,7 @@ export default function TimelinePage(props: TimelinePageProps) {
     <div className='timeline' data-testid='timeline-view'>
       <ViewParamsEditor viewOptions={progressOptions} />
       <div className='project-header'>
-        {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
+        {general?.logo && <ViewLogo name={general.logo} className='logo' />}
         {general.title}
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>

@@ -25,6 +25,6 @@ export const langDe: TranslationObject = {
   'timeline.followedby': 'Gefolgt von',
   'project.title': 'Titel',
   'project.description': 'Beschreibung',
-  'project.backstage_info': 'Backstage-Informationen',
-  'project.backstage_url': 'Backstage-URL',
+  'project.info': 'Projektinfo',
+  'project.url': 'Projekt-URL',
 };

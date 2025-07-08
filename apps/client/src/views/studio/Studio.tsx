@@ -50,7 +50,7 @@ export default function Studio({
       <ViewParamsEditor viewOptions={studioOptions} />
 
       <div className='project-header'>
-        {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
+        {general?.logo && <ViewLogo name={general.logo} className='logo' />}
         <div className='title'>{general.title}</div>
       </div>
 

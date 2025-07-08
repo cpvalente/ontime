@@ -103,7 +103,7 @@ export default function Backstage(props: BackstageProps) {
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
       <ViewParamsEditor viewOptions={backstageOptions} />
       <div className='project-header'>
-        {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
+        {general?.logo && <ViewLogo name={general.logo} className='logo' />}
         <div className='title'>{general.title}</div>
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>
@@ -171,8 +171,8 @@ export default function Backstage(props: BackstageProps) {
       {showSchedule && <ScheduleExport selectedId={selectedId} />}
 
       <div className={cx(['info', !showSchedule && 'info--stretch'])}>
-        {general.backstageUrl && <QRCode value={general.backstageUrl} size={qrSize} level='L' className='qr' />}
-        {general.backstageInfo && <div className='info__message'>{general.backstageInfo}</div>}
+        {general.url && <QRCode value={general.url} size={qrSize} level='L' className='qr' />}
+        {general.info && <div className='info__message'>{general.info}</div>}
       </div>
     </div>
   );

@@ -22,8 +22,8 @@ interface ProjectCreateFromProps {
 type ProjectCreateFormValues = {
   title?: string;
   description?: string;
-  backstageInfo?: string;
-  backstageUrl?: string;
+  info?: string;
+  url?: string;
   custom?: { title: string; value: string }[];
 };
 
@@ -107,18 +107,12 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
           <Input fluid maxLength={100} placeholder='Euro Love, Malmö 2024' {...register('description')} />
         </label>
         <label>
-          Backstage info
-          <Textarea
-            fluid
-            maxLength={150}
-            placeholder='Wi-Fi password: 1234'
-            resize='vertical'
-            {...register('backstageInfo')}
-          />
+          Project info
+          <Textarea fluid maxLength={150} placeholder='Wi-Fi password: 1234' resize='vertical' {...register('info')} />
         </label>
         <label>
-          Backstage QR code Url
-          <Input fluid placeholder={documentationUrl} {...register('backstageUrl')} />
+          Project QR code URL
+          <Input fluid placeholder={documentationUrl} {...register('url')} />
         </label>
         <Panel.Section>
           <Panel.ListItem>

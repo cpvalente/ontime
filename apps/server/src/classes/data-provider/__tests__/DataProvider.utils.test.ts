@@ -42,7 +42,7 @@ describe('safeMerge', () => {
     const mergedData = safeMerge(demoDb, {
       project: {
         title: 'new title',
-        backstageInfo: 'new backstage info',
+        info: 'new backstage info',
         custom: [
           {
             title: 'new custom title',
@@ -55,9 +55,9 @@ describe('safeMerge', () => {
     expect(mergedData.project).toStrictEqual({
       title: 'new title',
       description: 'Turin 2022',
-      backstageUrl: 'www.github.com/cpvalente/ontime',
-      backstageInfo: 'new backstage info',
-      projectLogo: null,
+      url: 'www.github.com/cpvalente/ontime',
+      info: 'new backstage info',
+      logo: null,
       custom: [
         {
           title: 'new custom title',

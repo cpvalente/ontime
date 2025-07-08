@@ -41,7 +41,10 @@
     white-space: break-spaces;
   }
 
-  a.info__value {
+  .link.info__value {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
     color: $action-text-color;
   
     &:hover {
