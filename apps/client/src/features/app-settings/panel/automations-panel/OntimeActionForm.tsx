@@ -1,6 +1,5 @@
 import { PropsWithChildren, useState } from 'react';
 import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
-import { Select } from '@chakra-ui/react';
 import { AutomationDTO, OntimeAction } from 'ontime-types';
 
 import Input from '../../../../common/components/input/input/Input';
@@ -8,6 +7,7 @@ import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './AutomationForm.module.scss';
+import Select from '../../../../common/components/select/Select';
 
 interface OntimeActionFormProps {
   index: number;
@@ -25,7 +25,7 @@ interface OntimeActionFormProps {
 
 export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFormProps>) {
   const { index, register, setValue, rowErrors, value, children } = props;
-  const [selectedAction, setSelectedAction] = useState<OntimeAction['action']>(value || 'aux-start');
+  const [selectedAction, setSelectedAction] = useState<OntimeAction['action']>(value || 'aux1-pause');
 
   const updateSelectedAction = (value: string) => {
     setSelectedAction(value as OntimeAction['action']);
@@ -38,26 +38,29 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
       <label>
         Action
         <Select
-          variant='ontime'
-          size='sm'
+          onValueChange={(value) => updateSelectedAction(value)}
           value={selectedAction}
-          onChange={(event) => updateSelectedAction(event.target.value)}
-        >
-          <option value='aux-start'>Aux 1: start</option>
-          <option value='aux-pause'>Aux 1: pause</option>
-          <option value='aux-stop'>Aux 1: stop</option>
-          <option value='aux-set'>Aux 2: set</option>
-          <option value='aux-start'>Aux 2: start</option>
-          <option value='aux-pause'>Aux 2: pause</option>
-          <option value='aux-stop'>Aux 2: stop</option>
-          <option value='aux-set'>Aux 2: set</option>
-          <option value='aux-start'>Aux 3: start</option>
-          <option value='aux-pause'>Aux 3: pause</option>
-          <option value='aux-stop'>Aux 3: stop</option>
-          <option value='aux-set'>Aux 3: set</option>
-          <option value='message-set'>Timer: timer message</option>
-          <option value='message-secondary'>Timer: timer secondary</option>
-        </Select>
+          options={[
+            { value: 'aux1-pause', label: 'Aux 1: pause' },
+            { value: 'aux2-pause', label: 'Aux 2: pause' },
+            { value: 'aux3-pause', label: 'Aux 3: pause' },
+
+            { value: 'aux1-start', label: 'Aux 1: start' },
+            { value: 'aux2-start', label: 'Aux 2: start' },
+            { value: 'aux3-start', label: 'Aux 3: start' },
+
+            { value: 'aux1-stop', label: 'Aux 1: stop' },
+            { value: 'aux2-stop', label: 'Aux 2: stop' },
+            { value: 'aux3-stop', label: 'Aux 3: stop' },
+
+            { value: 'aux1-set', label: 'Aux 1: set' },
+            { value: 'aux2-set', label: 'Aux 2: set' },
+            { value: 'aux3-set', label: 'Aux 3: set' },
+
+            { value: 'message-set', label: 'Timer: timer message' },
+            { value: 'message-secondary', label: 'Timer: timer secondary' },
+          ]}
+        />
         <Panel.Error>{rowErrors?.action?.message}</Panel.Error>
       </label>
 
@@ -84,11 +87,14 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
           </label>
           <label>
             Visibility
-            <Select variant='ontime' size='sm' {...register(`outputs.${index}.visible`)}>
-              <option value=''>Untouched</option>
-              <option value='true'>Show</option>
-              <option value='false'>Hide</option>
-            </Select>
+            <Select
+              {...register(`outputs.${index}.visible`)}
+              options={[
+                { value: '', label: 'Untouched' },
+                { value: 'true', label: 'Show' },
+                { value: 'false', label: 'Hide' },
+              ]}
+            />
             <Panel.Error>{rowErrors?.visible?.message}</Panel.Error>
           </label>
         </>
@@ -97,11 +103,16 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
       {selectedAction === 'message-secondary' && (
         <label>
           Timer secondary source
-          <Select variant='ontime' size='sm' {...register(`outputs.${index}.secondarySource`)}>
-            <option value='aux'>Auxiliary timer</option>
-            <option value='external'>External</option>
-            <option value='null'>None</option>
-          </Select>
+          <Select
+            {...register(`outputs.${index}.secondarySource`)}
+            options={[
+              { value: 'aux1', label: 'Auxiliary timer 1' },
+              { value: 'aux2', label: 'Auxiliary timer 2' },
+              { value: 'aux3', label: 'Auxiliary timer 3' },
+              { value: 'external', label: 'External' },
+              { value: 'null', label: 'None' },
+            ]}
+          />
           <Panel.Error>{rowErrors?.secondarySource?.message}</Panel.Error>
         </label>
       )}
