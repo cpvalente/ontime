@@ -64,8 +64,8 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
             { value: 'aux2-set', label: 'Aux 2: set' },
             { value: 'aux3-set', label: 'Aux 3: set' },
 
-            { value: 'message-set', label: 'Timer: timer message' },
-            { value: 'message-secondary', label: 'Timer: timer secondary' },
+            { value: 'message-set', label: 'Primary Message: set' },
+            { value: 'message-secondary', label: 'Secondary Message: source' },
           ]}
         />
         <Panel.Error>{rowErrors?.action?.message}</Panel.Error>

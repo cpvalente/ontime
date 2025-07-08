@@ -205,15 +205,19 @@ function parseOntimeAction(maybeOntimeAction: object): OntimeAction {
   }
 
   if (maybeOntimeAction.action === 'message-set') {
-    assert.hasKeys(maybeOntimeAction, ['text', 'visible']);
+    assert.hasKeys(maybeOntimeAction, ['text']);
     assert.isString(maybeOntimeAction.text);
-    assert.isString(maybeOntimeAction.visible);
+    let visible: boolean | undefined = undefined;
+    if ('visible' in maybeOntimeAction) {
+      assert.isBoolean(maybeOntimeAction.visible);
+      visible = maybeOntimeAction.visible;
+    }
 
     return {
       type: 'ontime',
       action: 'message-set',
       text: indeterminateText(maybeOntimeAction.text),
-      visible: indeterminateBooleanString(maybeOntimeAction.visible),
+      visible,
     };
   }
 
