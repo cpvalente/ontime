@@ -95,7 +95,7 @@ function StoppedStatus() {
   const hasReport = Object.keys(data).length > 0;
 
   if (hasReport) {
-    return <AppLink search='settings=feature_settings__report'>Go to report management</AppLink>;
+    return <AppLink search='settings=sharing__report'>Go to report management</AppLink>;
   }
 
   return null;
