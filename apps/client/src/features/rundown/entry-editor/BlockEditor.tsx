@@ -118,7 +118,7 @@ export default function BlockEditor({ block }: BlockEditorProps) {
       <div className={style.column}>
         <Editor.Title>
           Custom Fields
-          {isEditor && <AppLink search='settings=feature_settings__custom'>Manage Custom Fields</AppLink>}
+          {isEditor && <AppLink search='settings=manage__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
         <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} entry={block} />
       </div>
