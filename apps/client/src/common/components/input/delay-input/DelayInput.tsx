@@ -1,8 +1,10 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { Input, Radio, RadioGroup } from '@chakra-ui/react';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import { useEntryActions } from '../../../hooks/useEntryAction';
+import Input from '../input/Input';
+
+import BlockRadio from './BlockRadio';
 
 import style from './DelayInput.module.scss';
 
@@ -105,13 +107,10 @@ export default function DelayInput(props: DelayInputProps) {
   return (
     <div className={style.delayInput}>
       <Input
-        size='sm'
         ref={inputRef}
         data-testid='delay-input'
         className={style.inputField}
-        type='text'
         placeholder='-'
-        variant='ontime-filled'
         onFocus={handleFocus}
         onChange={(event) => setValue(event.target.value)}
         onBlur={(event) => validateAndSubmit(event.target.value)}
@@ -119,16 +118,14 @@ export default function DelayInput(props: DelayInputProps) {
         value={value}
         maxLength={9}
       />
-      <RadioGroup
-        className={style.delayOptions}
-        onChange={handleSlipChange}
+      <BlockRadio
+        onValueChange={handleSlipChange}
         value={checkedOption}
-        variant='ontime-block'
-        size='sm'
-      >
-        <Radio value='add'>Add time</Radio>
-        <Radio value='subtract'>Subtract time</Radio>
-      </RadioGroup>
+        items={[
+          { value: 'add', label: 'Add time' },
+          { value: 'subtract', label: 'Subtract time' },
+        ]}
+      />
     </div>
   );
 }

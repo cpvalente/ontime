@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoOpenOutline, IoTrash } from 'react-icons/io5';
-import { Switch } from '@chakra-ui/react';
 import { URLPreset } from 'ontime-types';
 
 import { postUrlPresets } from '../../../../common/api/urlPresets';
@@ -11,6 +10,7 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
+import Switch from '../../../../common/components/switch/Switch';
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import { preventEscape } from '../../../../common/utils/keyEvent';
@@ -34,6 +34,8 @@ export default function UrlPresetsForm() {
     register,
     reset,
     setError,
+    watch,
+    setValue,
     formState: { isSubmitting, isDirty, isValid, errors },
   } = useForm<FormData>({
     mode: 'onChange',
@@ -166,8 +168,11 @@ export default function UrlPresetsForm() {
                   <tr key={preset.id}>
                     <td className={style.fit}>
                       <Switch
-                        {...register(`data.${index}.enabled`)}
-                        variant='ontime'
+                        size='large'
+                        checked={watch(`data.${index}.enabled`)}
+                        onCheckedChange={(value: boolean) =>
+                          setValue(`data.${index}.enabled`, value, { shouldDirty: true })
+                        }
                         data-testid={`field__enable_${index}`}
                       />
                     </td>

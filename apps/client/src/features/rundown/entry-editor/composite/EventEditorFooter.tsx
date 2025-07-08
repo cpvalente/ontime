@@ -16,12 +16,8 @@ function EventEditorFooter({ id, cue }: EventEditorFooterProps) {
 
   return (
     <div className={style.footer}>
-      <CopyTag copyValue={loadById} label='OSC trigger by ID'>
-        {loadById}
-      </CopyTag>
-      <CopyTag copyValue={loadByCue} label='OSC trigger by cue'>
-        {loadByCue}
-      </CopyTag>
+      <CopyTag copyValue={loadById}>{loadById}</CopyTag>
+      <CopyTag copyValue={loadByCue}>{loadByCue}</CopyTag>
     </div>
   );
 }

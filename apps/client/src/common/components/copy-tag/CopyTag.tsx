@@ -1,22 +1,28 @@
 import { PropsWithChildren, useState } from 'react';
 import { IoCheckmark } from 'react-icons/io5';
 import { IoCopy } from 'react-icons/io5';
-import { Button, ButtonGroup, IconButton, Tooltip } from '@chakra-ui/react';
 
-import { tooltipDelayFast } from '../../../ontimeConfig';
-import { Size } from '../../models/Util.type';
 import copyToClipboard from '../../utils/copyToClipboard';
+import { cx } from '../../utils/styleUtils';
+import Button from '../buttons/Button';
+import IconButton from '../buttons/IconButton';
+
+import style from './CopyTag.module.scss';
 
 interface CopyTagProps {
   copyValue: string;
-  label: string;
-  size?: Size;
   disabled?: boolean;
   onClick?: () => void;
+  size?: 'small' | 'medium' | 'large';
 }
 
-export default function CopyTag(props: PropsWithChildren<CopyTagProps>) {
-  const { copyValue, label, size = 'xs', disabled, children, onClick } = props;
+export default function CopyTag({
+  copyValue,
+  disabled,
+  size = 'medium',
+  children,
+  onClick,
+}: PropsWithChildren<CopyTagProps>) {
   const [copied, setCopied] = useState(false);
 
   const handleClick = () => {
@@ -28,20 +34,24 @@ export default function CopyTag(props: PropsWithChildren<CopyTagProps>) {
   };
 
   return (
-    <Tooltip label={label} openDelay={tooltipDelayFast}>
-      <ButtonGroup size={size} isAttached>
-        <Button variant='ontime-subtle' tabIndex={-1} onClick={onClick} isDisabled={disabled}>
+    <div className={style.copytag}>
+      {onClick !== undefined ? (
+        <Button className={style.action} size={size} tabIndex={-1} onClick={onClick} disabled={disabled}>
           {children}
         </Button>
-        <IconButton
-          aria-label={label}
-          icon={copied ? <IoCheckmark /> : <IoCopy />}
-          variant='ontime-filled'
-          tabIndex={-1}
-          onClick={handleClick}
-          isDisabled={disabled}
-        />
-      </ButtonGroup>
-    </Tooltip>
+      ) : (
+        <div className={cx([style.label, style[size]])}>{children}</div>
+      )}
+      <IconButton
+        className={style.copy}
+        variant='primary'
+        size={size}
+        tabIndex={-1}
+        onClick={handleClick}
+        disabled={disabled}
+      >
+        {copied ? <IoCheckmark /> : <IoCopy />}
+      </IconButton>
+    </div>
   );
 }

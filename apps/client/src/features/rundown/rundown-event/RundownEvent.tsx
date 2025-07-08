@@ -107,6 +107,7 @@ export default function RundownEvent({
     selectedEvents.size > 1
       ? [
           {
+            type: 'item',
             label: 'Link to previous',
             icon: IoLink,
             onClick: () =>
@@ -116,6 +117,8 @@ export default function RundownEvent({
               }),
           },
           {
+            type: 'item',
+
             label: 'Unlink from previous',
             icon: IoUnlink,
             onClick: () =>
@@ -124,11 +127,15 @@ export default function RundownEvent({
                 value: null,
               }),
           },
-          { withDivider: true, label: 'Group', icon: IoFolder, onClick: () => actionHandler('group') },
-          { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
+          { type: 'divider' },
+          { type: 'item', label: 'Group', icon: IoFolder, onClick: () => actionHandler('group') },
+          { type: 'divider' },
+          { type: 'item', label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ]
       : [
           {
+            type: 'item',
+
             label: 'Toggle link to previous',
             icon: IoLink,
             onClick: () =>
@@ -137,23 +144,34 @@ export default function RundownEvent({
                 value: linkStart,
               }),
           },
+          { type: 'divider' },
+
           {
+            type: 'item',
+
             label: 'Add to swap',
             icon: IoAdd,
             onClick: () => setSelectedEventId(eventId),
-            withDivider: true,
           },
           {
+            type: 'item',
+
             label: `Swap this event with ${selectedEventId ?? ''}`,
             icon: IoSwapVertical,
             onClick: () => {
               actionHandler('swap', { field: 'id', value: selectedEventId });
               clearSelectedEventId();
             },
-            isDisabled: selectedEventId == null || selectedEventId === eventId,
+            disabled: selectedEventId == null || selectedEventId === eventId,
           },
-          { withDivider: false, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
-          { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
+          {
+            type: 'item',
+            label: 'Clone',
+            icon: IoDuplicateOutline,
+            onClick: () => actionHandler('clone'),
+          },
+          { type: 'divider' },
+          { type: 'item', label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ],
   );
 

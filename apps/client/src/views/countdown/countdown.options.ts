@@ -13,7 +13,7 @@ export const getCountdownOptions = (
   customFields: CustomFields,
   persistedSubscriptions: EntryId[],
 ): ViewOption[] => {
-  const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, [{ value: 'note', label: 'Note' }]);
 
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },

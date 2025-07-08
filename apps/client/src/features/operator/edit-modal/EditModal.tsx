@@ -78,7 +78,6 @@ export default function EditModal(props: EditModalProps) {
                     defaultValue={field.value}
                     data-field={field.id}
                     disabled={loading}
-                    resize='none'
                     rows={5}
                   />
                 </Fragment>

@@ -48,7 +48,11 @@ export const getClockOptions = (timeFormat: string): ViewOption[] => [
         title: 'Align Horizontal',
         description: 'Moves the horizontally in page to start = left | center | end = right',
         type: 'option',
-        values: { start: 'Start', center: 'Center', end: 'End' },
+        values: [
+          { value: 'start', label: 'Start' },
+          { value: 'center', label: 'Center' },
+          { value: 'end', label: 'End' },
+        ],
         defaultValue: 'center',
       },
       {
@@ -63,7 +67,11 @@ export const getClockOptions = (timeFormat: string): ViewOption[] => [
         title: 'Align Vertical',
         description: 'Moves the vertically in page to start = left | center | end = right',
         type: 'option',
-        values: { start: 'Start', center: 'Center', end: 'End' },
+        values: [
+          { value: 'start', label: 'Start' },
+          { value: 'center', label: 'Center' },
+          { value: 'end', label: 'End' },
+        ],
         defaultValue: 'center',
       },
       {

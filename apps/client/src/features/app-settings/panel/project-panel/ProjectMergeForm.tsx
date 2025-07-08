@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Switch } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { PROJECT_DATA } from '../../../../common/api/constants';
 import { getDb, patchData } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
+import Switch from '../../../../common/components/switch/Switch';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -34,7 +34,8 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
 
   const {
     handleSubmit,
-    register,
+    watch,
+    setValue,
     formState: { isSubmitting, isValid, isDirty },
   } = useForm<ProjectMergeFormValues>({
     defaultValues: {
@@ -92,23 +93,43 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           <br /> This process is irreversible.
         </Panel.Description>
         <label>
-          <Switch variant='ontime' {...register('project')} />
+          <Switch
+            size='large'
+            checked={watch('project')}
+            onCheckedChange={(value: boolean) => setValue('project', value, { shouldDirty: true })}
+          />
           Project data
         </label>
         <label>
-          <Switch variant='ontime' {...register('rundown')} />
+          <Switch
+            size='large'
+            checked={watch('rundown')}
+            onCheckedChange={(value: boolean) => setValue('rundown', value, { shouldDirty: true })}
+          />
           Rundown + Custom Fields
         </label>
         <label>
-          <Switch variant='ontime' {...register('viewSettings')} />
+          <Switch
+            size='large'
+            checked={watch('viewSettings')}
+            onCheckedChange={(value: boolean) => setValue('viewSettings', value, { shouldDirty: true })}
+          />
           View Settings
         </label>
         <label>
-          <Switch variant='ontime' {...register('urlPresets')} />
+          <Switch
+            size='large'
+            checked={watch('urlPresets')}
+            onCheckedChange={(value: boolean) => setValue('urlPresets', value, { shouldDirty: true })}
+          />
           URL Presets
         </label>
         <label>
-          <Switch variant='ontime' {...register('automation')} />
+          <Switch
+            size='large'
+            checked={watch('automation')}
+            onCheckedChange={(value: boolean) => setValue('automation', value, { shouldDirty: true })}
+          />
           Automation Settings
         </label>
       </Panel.Section>

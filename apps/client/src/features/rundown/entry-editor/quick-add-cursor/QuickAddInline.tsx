@@ -67,10 +67,10 @@ function QuickAddInline({ previousEventId, parentBlock }: QuickAddInlineProps) {
     <div className={style.quickAdd} data-testid='quick-add-inline'>
       <DropdownMenu
         items={[
-          { type: 'item', icon: <IoAdd />, label: 'Add Event', onClick: addEvent },
-          { type: 'item', icon: <IoAdd />, label: 'Add Delay', onClick: addDelay },
-          { type: 'item', icon: <IoAdd />, label: 'Add Milestone', onClick: addMilestone },
-          { type: 'item', icon: <IoAdd />, label: 'Add Group', onClick: addBlock, disabled: parentBlock !== null },
+          { type: 'item', icon: IoAdd, label: 'Add Event', onClick: addEvent },
+          { type: 'item', icon: IoAdd, label: 'Add Delay', onClick: addDelay },
+          { type: 'item', icon: IoAdd, label: 'Add Milestone', onClick: addMilestone },
+          { type: 'item', icon: IoAdd, label: 'Add Group', onClick: addBlock, disabled: parentBlock !== null },
         ]}
         render={<IconButton size='small' variant='primary' className={style.addButton} />}
       >

@@ -75,7 +75,8 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
                 error={errors.settings?.timeFormat?.message}
               />
               <Select
-                {...register('settings.timeFormat')}
+                value={watch('settings.timeFormat')}
+                onValueChange={(value: '12' | '24') => setValue('settings.timeFormat', value, { shouldDirty: true })}
                 defaultValue='24'
                 options={[
                   { value: '12', label: '12 hours 11:00:10 PM' },
@@ -90,7 +91,8 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
                 error={errors.settings?.language?.message}
               />
               <Select
-                {...register('settings.language')}
+                value={watch('settings.language')}
+                onValueChange={(value: string) => setValue('settings.language', value, { shouldDirty: true })}
                 defaultValue='en'
                 options={[
                   { value: 'en', label: 'English' },
@@ -132,6 +134,7 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
                 description='When a timer hits 00:00:00, it freezes instead of going negative. It invalidates the End Message.'
               />
               <Switch
+                size='large'
                 name='viewSettings.freezeEnd'
                 checked={watch('viewSettings.freezeEnd')}
                 onCheckedChange={(checked) => setValue('viewSettings.freezeEnd', checked)}

@@ -5,7 +5,6 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  z-index: $zindex-backdrop;
   background-color: $backdrop-color;
   transition: opacity 300ms cubic-bezier(0.45, 1.005, 0, 1.005);
 
@@ -21,7 +20,6 @@
   top: 0;
   left: 0;
   bottom: 0;
-  z-index: $zindex-dialog;
 
   width: 22rem;
   height: 100vh;

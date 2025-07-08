@@ -12,7 +12,10 @@ import {
 import { isStringBoolean } from '../viewers/common/viewUtils';
 
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ViewOption[] => {
-  const fieldOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
+  const fieldOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'title', label: 'Title' },
+    { value: 'note', label: 'Note' },
+  ]);
   const customFieldSelect = makeCustomFieldSelectOptions(customFields);
 
   return [

@@ -150,9 +150,9 @@ $inner-padding: 1rem;
 }
 
 .divider {
+  border: none;
   border-top: 1px solid $white-10;
   margin: 1rem -2rem;
-  z-index: $zindex-floating;
 }
 
 .overlay {

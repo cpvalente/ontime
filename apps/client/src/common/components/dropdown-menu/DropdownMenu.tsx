@@ -1,4 +1,5 @@
-import { PropsWithChildren, ReactNode } from 'react';
+import { PropsWithChildren } from 'react';
+import { IconType } from 'react-icons';
 import { Menu as BaseMenu } from '@base-ui-components/react/menu';
 
 import style from './DropdownMenu.module.scss';
@@ -7,13 +8,15 @@ type DropdownMenuItemDivider = { type: 'divider' };
 type DropdownMenuItem = {
   type: 'item';
   label: string;
-  icon?: ReactNode;
+  icon?: IconType;
   disabled?: boolean;
   onClick: () => void;
 };
 
+export type DropdownMenuOption = DropdownMenuItemDivider | DropdownMenuItem;
+
 interface DropdownMenuProps extends BaseMenu.Trigger.Props {
-  items: Array<DropdownMenuItemDivider | DropdownMenuItem>;
+  items: DropdownMenuOption[];
 }
 
 export function DropdownMenu({ items, children, ...triggerProps }: PropsWithChildren<DropdownMenuProps>) {
@@ -29,7 +32,8 @@ export function DropdownMenu({ items, children, ...triggerProps }: PropsWithChil
               }
               return (
                 <BaseMenu.Item key={index} className={style.item} onClick={item.onClick} disabled={item.disabled}>
-                  {item.icon} {item.label}
+                  {item.icon && <item.icon />}
+                  {item.label}
                 </BaseMenu.Item>
               );
             })}
@@ -55,12 +59,9 @@ export function PositionedDropdownMenu({ items, isOpen, position, onClose }: Pos
         if (!open) onClose();
       }}
     >
-      <BaseMenu.Trigger
-        style={{ position: 'absolute', left: position.x, top: position.y, pointerEvents: 'none' }}
-        aria-hidden
-      />
+      <BaseMenu.Trigger style={{ position: 'fixed', left: position.x, top: position.y }} aria-hidden />
       <BaseMenu.Portal>
-        <BaseMenu.Positioner className={style.positioner} align='start' sideOffset={8}>
+        <BaseMenu.Positioner className={style.positioner} align='start' sideOffset={8} alignOffset={8}>
           <BaseMenu.Popup className={style.popup}>
             {items.map((item, index) => {
               if (item.type === 'divider') {
@@ -68,7 +69,8 @@ export function PositionedDropdownMenu({ items, isOpen, position, onClose }: Pos
               }
               return (
                 <BaseMenu.Item key={index} className={style.item} onClick={item.onClick} disabled={item.disabled}>
-                  {item.icon} {item.label}
+                  {item.icon && <item.icon />}
+                  {item.label}
                 </BaseMenu.Item>
               );
             })}

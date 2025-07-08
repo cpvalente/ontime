@@ -56,7 +56,7 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
       </td>
       <td className={style.halfWidth}>{label}</td>
       <td className={style.fullWidth}>
-        <CopyTag label='Copy key to use in integrations' copyValue={fieldKey}>
+        <CopyTag size='small' copyValue={fieldKey}>
           {fieldKey}
         </CopyTag>
       </td>

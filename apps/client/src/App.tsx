@@ -1,6 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
 import { Tooltip } from '@base-ui-components/react/tooltip';
-import { ChakraProvider } from '@chakra-ui/react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
@@ -9,7 +8,6 @@ import IdentifyOverlay from './common/components/identify-overlay/IdentifyOverla
 import { AppContextProvider } from './common/context/AppContext';
 import { ontimeQueryClient } from './common/queryClient';
 import { connectSocket } from './common/utils/socket';
-import theme from './theme/theme';
 import { TranslationProvider } from './translation/TranslationProvider';
 import AppRouter from './AppRouter';
 import { baseURI } from './externals';
@@ -18,28 +16,26 @@ connectSocket();
 
 function App() {
   return (
-    <ChakraProvider disableGlobalStyle resetCSS theme={theme}>
-      <QueryClientProvider client={ontimeQueryClient}>
-        <AppContextProvider>
-          <Tooltip.Provider>
-            <BrowserRouter basename={baseURI}>
-              <div className='App'>
-                <ErrorBoundary>
-                  <TranslationProvider>
-                    <IdentifyOverlay />
-                    <AppRouter />
-                  </TranslationProvider>
-                </ErrorBoundary>
-                <ReactQueryDevtools initialIsOpen={false} />
-              </div>
+    <QueryClientProvider client={ontimeQueryClient}>
+      <AppContextProvider>
+        <Tooltip.Provider>
+          <BrowserRouter basename={baseURI}>
+            <div className='App'>
               <ErrorBoundary>
-                <div id='identify-portal' />
+                <TranslationProvider>
+                  <IdentifyOverlay />
+                  <AppRouter />
+                </TranslationProvider>
               </ErrorBoundary>
-            </BrowserRouter>
-          </Tooltip.Provider>
-        </AppContextProvider>
-      </QueryClientProvider>
-    </ChakraProvider>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </div>
+            <ErrorBoundary>
+              <div id='identify-portal' />
+            </ErrorBoundary>
+          </BrowserRouter>
+        </Tooltip.Provider>
+      </AppContextProvider>
+    </QueryClientProvider>
   );
 }
 

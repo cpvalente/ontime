@@ -24,46 +24,46 @@ function CuesheetTableMenu() {
       isOpen
       onClose={closeMenu}
       items={[
-        { type: 'item', label: 'Edit...', onClick: () => showModal(entryId), icon: <IoOptions /> },
+        { type: 'item', label: 'Edit...', onClick: () => showModal(entryId), icon: IoOptions },
         { type: 'divider' },
         {
           type: 'item',
           label: 'Add event above',
           onClick: () => addEntry({ type: SupportedEntry.Event, parent: parentId }, { before: entryId }),
-          icon: <IoAdd />,
+          icon: IoAdd,
         },
         {
           type: 'item',
           label: 'Add event below',
           onClick: () => addEntry({ type: SupportedEntry.Event, parent: parentId }, { after: entryId }),
-          icon: <IoAdd />,
+          icon: IoAdd,
         },
         {
           type: 'item',
           label: 'Clone event',
           onClick: () => clone(entryId),
-          icon: <IoDuplicateOutline />,
+          icon: IoDuplicateOutline,
         },
         { type: 'divider' },
         {
           type: 'item',
           label: 'Move up',
           onClick: () => move(entryId, 'up'),
-          icon: <IoArrowUp />,
+          icon: IoArrowUp,
           disabled: entryIndex < 1,
         },
         {
           type: 'item',
           label: 'Move down',
           onClick: () => move(entryId, 'down'),
-          icon: <IoArrowDown />,
+          icon: IoArrowDown,
         },
         { type: 'divider' },
         {
           type: 'item',
           label: 'Delete',
           onClick: () => deleteEntry([entryId]),
-          icon: <IoTrash />,
+          icon: IoTrash,
         },
       ]}
       position={position}

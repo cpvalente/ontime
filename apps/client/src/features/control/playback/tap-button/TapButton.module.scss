@@ -2,16 +2,6 @@ $button-bg-gray: $gray-1050;
 $button-color-white: $gray-50;
 
 @mixin tap-factory($theme-color) {
-  font-family: $ontime-font-family;
-  font-size: calc(1rem + 2px);
-  border-radius: $component-border-radius-md;
-  width: 100%;
-  transition-property: color, background-color;
-  transition-duration: $transition-time-feedback;
-  display: grid;
-  place-content: center;
-  letter-spacing: 0.5px;
-
   background-color: $button-bg-gray;
   color: $theme-color;
 
@@ -41,6 +31,18 @@ $button-color-white: $gray-50;
     background-color: $theme-color;
     color: $button-color-white;
   }
+}
+
+.tapButton {
+  font-family: $ontime-font-family;
+  font-size: calc(1rem + 2px);
+  border-radius: $component-border-radius-md;
+  width: 100%;
+  transition-property: color, background-color;
+  transition-duration: $transition-time-feedback;
+  display: grid;
+  place-content: center;
+  letter-spacing: 0.5px;
 }
 
 .tapButton.neutral {
@@ -86,7 +88,7 @@ $button-color-white: $gray-50;
 
 .tapButton.tight {
   padding-inline: 0.5rem;
-  width: fit-content
+  width: fit-content;
 }
 
 .tapButton.fill {

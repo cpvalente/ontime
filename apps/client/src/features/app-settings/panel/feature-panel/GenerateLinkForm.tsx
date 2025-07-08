@@ -107,11 +107,17 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToV
             title='Lock navigation'
             description='Prevent showing navigation (will only work for non production URLs)'
           />
-          <Switch name='lock' checked={watch('lock')} onCheckedChange={(checked) => setValue('lock', checked)} />
+          <Switch
+            size='large'
+            name='lock'
+            checked={watch('lock')}
+            onCheckedChange={(checked) => setValue('lock', checked)}
+          />
         </Panel.ListItem>
         <Panel.ListItem>
           <Panel.Field title='Authenticate' description='Whether the URL should be pre-authenticated' />
           <Switch
+            size='large'
             name='authenticate'
             checked={watch('authenticate')}
             onCheckedChange={(checked) => setValue('authenticate', checked)}

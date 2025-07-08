@@ -36,21 +36,26 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>([
     {
+      type: 'item',
       label: 'Clone Group',
       icon: IoDuplicateOutline,
       onClick: () => clone(data.id),
     },
     {
+      type: 'item',
+
       label: 'Ungroup',
       icon: IoFolderOpenOutline,
       onClick: () => ungroup(data.id),
-      isDisabled: data.entries.length === 0,
+      disabled: data.entries.length === 0,
     },
+    { type: 'divider' },
     {
+      type: 'item',
       label: 'Delete Group',
       icon: IoTrash,
       onClick: () => deleteEntry([data.id]),
-      withDivider: true,
+      disabled: true,
     },
   ]);
 

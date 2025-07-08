@@ -18,8 +18,8 @@ test('sheet file upload', async ({ page }) => {
   const fileChooser = await fileChooserPromise;
   await fileChooser.setFiles(fileToUpload);
 
-  await page.locator('[id="event\\ schedule"]').selectOption('Sheet2');
-  await page.locator('[id="event\\ schedule"]').selectOption('test');
+  await page.getByRole('row', { name: 'Worksheet' }).getByRole('combobox').click();
+  await page.getByRole('option', { name: 'test' }).click();
 
   await page.getByRole('button', { name: 'Import preview' }).click();
   await page.getByRole('button', { name: 'Apply' }).click();
