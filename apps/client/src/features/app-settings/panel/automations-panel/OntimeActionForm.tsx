@@ -25,22 +25,27 @@ interface OntimeActionFormProps {
 
 export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFormProps>) {
   const { index, register, setValue, rowErrors, value, children, watch } = props;
-  const [selectedAction, setSelectedAction] = useState<OntimeAction['action']>(value || 'aux1-pause');
+  const [selectedAction, setSelectedAction] = useState<string>(value);
 
-  // const updateSelectedAction = (value: string) => {
-  //   setSelectedAction(value as OntimeAction['action']);
-  //   setValue(`outputs.${index}.action`, value as OntimeAction['action']);
-  // };
+  const handleSetAction = (value: OntimeActionKey) => {
+    setValue(`outputs.${index}.action`, value, { shouldDirty: true });
+
+    // we dont really need to handle these individually
+    if (value === 'aux1-set' || value === 'aux2-set' || value === 'aux3-set') {
+      setSelectedAction('aux-set');
+    } else {
+      setSelectedAction(value);
+    }
+  };
 
   return (
     <div className={style.actionSection}>
       <label>
         Action
         <Select
-          defaultValue={'aux1-pause'}
-          onValueChange={(value) =>
-            setValue(`outputs.${index}.action`, value as OntimeActionKey, { shouldDirty: true })
-          }
+          onValueChange={(value) => {
+            handleSetAction(value as OntimeActionKey);
+          }}
           value={watch(`outputs.${index}.action`)}
           options={[
             { value: 'aux1-pause', label: 'Aux 1: pause' },
@@ -66,7 +71,7 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
         <Panel.Error>{rowErrors?.action?.message}</Panel.Error>
       </label>
 
-      {selectedAction === 'aux1-set' && (
+      {selectedAction === 'aux-set' && (
         <label>
           New time
           <Input
@@ -89,16 +94,19 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
           </label>
           <label>
             Visibility
-            {/* <Select
-              defaultValue={''}
-              onValueChange={(value) => setValue(`outputs.${index}.visible`, value, { shouldDirty: true })}
-              value={watch(`outputs.${index}.visible`)}
+            <Select
+              onValueChange={(value) => {
+                // we need to translate the undefined value to 'untouched'
+                const translatedValue = value === 'untouched' ? undefined : (value as boolean | undefined);
+                setValue(`outputs.${index}.visible`, translatedValue, { shouldDirty: true });
+              }}
+              value={watch(`outputs.${index}.visible`) === undefined ? 'untouched' : watch(`outputs.${index}.visible`)}
               options={[
-                { value: '', label: 'Untouched' },
-                { value: 'true', label: 'Show' },
-                { value: 'false', label: 'Hide' },
+                { value: 'untouched', label: 'Untouched' },
+                { value: true, label: 'Show' },
+                { value: false, label: 'Hide' },
               ]}
-            /> */}
+            />
             <Panel.Error>{rowErrors?.visible?.message}</Panel.Error>
           </label>
         </>
@@ -108,12 +116,12 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
         <label>
           Timer secondary source
           <Select
-            defaultValue={'aux1'}
-            onValueChange={(value) =>
-              setValue(`outputs.${index}.secondarySource`, value as SecondarySource, { shouldDirty: true })
-            }
+            onValueChange={(value) => {
+              setValue(`outputs.${index}.secondarySource`, value as SecondarySource, { shouldDirty: true });
+            }}
             value={watch(`outputs.${index}.secondarySource`)}
             options={[
+              { value: null, label: 'Select secondary source', disabled: true },
               { value: 'aux1', label: 'Auxiliary timer 1' },
               { value: 'aux2', label: 'Auxiliary timer 2' },
               { value: 'aux3', label: 'Auxiliary timer 3' },

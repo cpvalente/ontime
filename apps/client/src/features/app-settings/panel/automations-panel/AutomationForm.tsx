@@ -107,8 +107,7 @@ export default function AutomationForm(props: AutomationFormProps) {
   };
 
   const handleAddnewOntimeAction = () => {
-    // @ts-expect-error -- we dont want to choose an action
-    appendOutput({ type: 'ontime', action: undefined });
+    appendOutput({ type: 'ontime', action: 'aux1-start' });
   };
 
   const handleTestOSCOutput = async (index: number) => {
