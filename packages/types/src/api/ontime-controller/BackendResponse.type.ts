@@ -20,7 +20,6 @@ export interface SessionStats {
 export interface GetInfo {
   networkInterfaces: NetworkInterface[];
   version: string;
-  serverPort: number;
   publicDir: string;
 }
 

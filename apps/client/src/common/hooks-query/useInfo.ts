@@ -1,21 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
 import { GetInfo } from 'ontime-types';
+import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
-import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { APP_INFO } from '../api/constants';
 import { getInfo } from '../api/session';
 import { ontimePlaceholderInfo } from '../models/Info';
 
 export default function useInfo() {
-  const { data, status, isError, refetch, isFetching } = useQuery<GetInfo>({
+  const { data, isLoading } = useQuery<GetInfo>({
     queryKey: APP_INFO,
     queryFn: getInfo,
     placeholderData: (previousData, _previousQuery) => previousData,
-    retry: 5,
-    retryDelay: (attempt) => attempt * 2500,
-    refetchInterval: queryRefetchIntervalSlow,
-    networkMode: 'always',
+    staleTime: 10 * MILLIS_PER_MINUTE,
+    initialData: ontimePlaceholderInfo,
   });
 
-  return { data: data ?? ontimePlaceholderInfo, status, isError, refetch, isFetching };
+  return { data, isLoading };
 }

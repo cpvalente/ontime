@@ -9,12 +9,13 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import style from './NetworkInterfaces.module.scss';
 
 export default function InfoNif() {
-  const { data } = useInfo();
+  const { data, isLoading } = useInfo();
 
   const handleClick = (address: string) => openLink(address);
 
   return (
     <Panel.InlineElements>
+      <Panel.Loader isLoading={isLoading} />
       {data.networkInterfaces.map((nif) => {
         // interfaces outside localhost wont have access
         if (nif.name === 'localhost' && !isLocalhost) return null;

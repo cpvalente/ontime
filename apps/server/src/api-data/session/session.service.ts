@@ -46,7 +46,6 @@ export async function getInfo(): Promise<GetInfo> {
   return {
     networkInterfaces: ni,
     version,
-    serverPort,
     publicDir: publicDir.root,
   };
 }
