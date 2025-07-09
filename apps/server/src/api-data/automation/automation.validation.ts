@@ -8,7 +8,6 @@ import {
   SecondarySource,
   timerLifecycleValues,
 } from 'ontime-types';
-import { parseUserTime } from 'ontime-utils';
 
 import { body, oneOf, param } from 'express-validator';
 
@@ -200,20 +199,24 @@ function parseOntimeAction(maybeOntimeAction: object): OntimeAction {
     return {
       type: 'ontime',
       action: maybeOntimeAction.action,
-      time: parseUserTime(maybeOntimeAction.time),
+      time: maybeOntimeAction.time, //TODO:(automation set aux) not sure what way around to have the string and where to have the ms value
     };
   }
 
   if (maybeOntimeAction.action === 'message-set') {
-    assert.hasKeys(maybeOntimeAction, ['text', 'visible']);
+    assert.hasKeys(maybeOntimeAction, ['text']);
     assert.isString(maybeOntimeAction.text);
-    assert.isString(maybeOntimeAction.visible);
+    let visible: boolean | undefined = undefined;
+    if ('visible' in maybeOntimeAction) {
+      assert.isBoolean(maybeOntimeAction.visible);
+      visible = maybeOntimeAction.visible;
+    }
 
     return {
       type: 'ontime',
       action: 'message-set',
       text: indeterminateText(maybeOntimeAction.text),
-      visible: indeterminateBooleanString(maybeOntimeAction.visible),
+      visible,
     };
   }
 
@@ -241,16 +244,6 @@ function parseOntimeAction(maybeOntimeAction: object): OntimeAction {
  */
 function indeterminateText(value: string): string | undefined {
   return value === '' ? undefined : value;
-}
-
-/**
- * Helper function to parse boolean values in transit
- * "true" -> true
- * "false" -> false
- * "" | "null" -> undefined
- */
-function indeterminateBooleanString(value: string): boolean | undefined {
-  return value === '' ? undefined : value === 'true';
 }
 
 /**

@@ -1,5 +1,11 @@
 import { is } from './is.js';
 
+export function isBoolean(value: unknown): asserts value is boolean {
+  if (!is.boolean(value)) {
+    throw new Error(`Unexpected payload type: ${String(value)}`);
+  }
+}
+
 export function isString(value: unknown): asserts value is string {
   if (!is.string(value)) {
     throw new Error(`Unexpected payload type: ${String(value)}`);

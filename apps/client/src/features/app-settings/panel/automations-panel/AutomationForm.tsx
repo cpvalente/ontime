@@ -55,6 +55,7 @@ export default function AutomationForm(props: AutomationFormProps) {
     setError,
     setFocus,
     setValue,
+    watch,
     formState: { errors, isSubmitting, isDirty, isValid },
   } = useForm<AutomationDTO>({
     mode: 'onChange',
@@ -106,8 +107,7 @@ export default function AutomationForm(props: AutomationFormProps) {
   };
 
   const handleAddnewOntimeAction = () => {
-    // @ts-expect-error -- we dont want to choose an action
-    appendOutput({ type: 'ontime', action: undefined });
+    appendOutput({ type: 'ontime', action: 'aux1-start' });
   };
 
   const handleTestOSCOutput = async (index: number) => {
@@ -428,6 +428,7 @@ export default function AutomationForm(props: AutomationFormProps) {
                   register={register}
                   rowErrors={rowErrors}
                   setValue={setValue}
+                  watch={watch}
                 >
                   <span>&nbsp;</span>
                   <Panel.InlineElements relation='inner'>
