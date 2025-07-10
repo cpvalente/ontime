@@ -9,7 +9,7 @@ import ProjectListItem, { EditMode } from './ProjectListItem';
 import style from './ProjectPanel.module.scss';
 
 export default function ProjectList() {
-  const { data, refetch, status } = useOrderedProjectList();
+  const { data, isLoading, refetch } = useOrderedProjectList();
 
   const [editingMode, setEditingMode] = useState<EditMode | null>(null);
   const [editingFilename, setEditingFilename] = useState<string | null>(null);
@@ -28,7 +28,7 @@ export default function ProjectList() {
     await refetch();
   };
 
-  if (status === 'pending') {
+  if (isLoading) {
     return (
       <div className={style.empty}>
         <Panel.Loader isLoading />
