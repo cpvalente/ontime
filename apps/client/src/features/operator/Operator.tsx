@@ -30,7 +30,7 @@ const selectedOffset = 50;
 export default function Operator() {
   const { data, status } = useRundown();
   const { data: customFields, status: customFieldStatus } = useCustomFields();
-  const { data: projectData, status: projectDataStatus } = useProjectData();
+  const { data: projectData, isLoading: projectDataIsLoading } = useProjectData();
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
@@ -101,7 +101,7 @@ export default function Operator() {
   }, []);
 
   const missingData = !data || !customFields || !projectData;
-  const isLoading = status === 'pending' || customFieldStatus === 'pending' || projectDataStatus === 'pending';
+  const isLoading = status === 'pending' || customFieldStatus === 'pending' || projectDataIsLoading;
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);

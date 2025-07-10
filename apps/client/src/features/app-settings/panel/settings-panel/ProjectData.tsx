@@ -19,7 +19,7 @@ import style from './SettingsPanel.module.scss';
 
 export default function ProjectData() {
   'no memo'; // RHF and react-compiler don't seem to get along
-  const { data, status, refetch } = useProjectData();
+  const { data, isLoading } = useProjectData();
 
   const {
     handleSubmit,
@@ -97,8 +97,6 @@ export default function ProjectData() {
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
-    } finally {
-      await refetch();
     }
   };
 
@@ -106,8 +104,6 @@ export default function ProjectData() {
   const onReset = () => {
     reset(data);
   };
-
-  const isLoading = status === 'pending';
 
   return (
     <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} onKeyDown={(event) => preventEscape(event, onReset)}>

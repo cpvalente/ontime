@@ -37,7 +37,7 @@ export async function getSessionStats(): Promise<SessionStats> {
  * Adds business logic to gathering data for the info endpoint
  */
 export async function getInfo(): Promise<GetInfo> {
-  const { version, serverPort } = getDataProvider().getSettings();
+  const { version } = getDataProvider().getSettings();
 
   // get nif and inject localhost
   const ni = getNetworkInterfaces();

@@ -14,12 +14,12 @@ import './ProjectInfo.scss';
 export default function ProjectInfo() {
   // persisted app state
   const isMirrored = useViewOptionsStore((state) => state.mirror);
-  const { data, status } = useProjectData();
+  const { data, isLoading } = useProjectData();
   const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Project info');
 
-  if (status === 'pending' || !data) {
+  if (isLoading) {
     return (
       <>
         <ViewNavigationMenu isLockable suppressSettings />
