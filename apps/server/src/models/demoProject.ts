@@ -528,12 +528,12 @@ export const demoDb: DatabaseModel = {
   customFields: {
     Song: {
       label: 'Song',
-      type: 'string',
+      type: 'text',
       colour: '#339E4E',
     },
     Artist: {
       label: 'Artist',
-      type: 'string',
+      type: 'text',
       colour: '#3E75E8',
     },
   },

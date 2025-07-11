@@ -121,38 +121,28 @@ export function createTransaction(options: TransactionOptions): Transaction {
         await getDataProvider().setRundown(cachedRundown.id, cachedRundown);
       });
 
-      // increment the revision number
+      // update fields which are agnostic of whether the rundown is processed
       cachedRundown.revision = cachedRundown.revision + 1;
+      cachedRundown.title = rundown.title;
 
-      /**
-       * Some mutations do not require processing the rundown
-       * We simply increment the revision and return the rundown
-       */
       if (!shouldProcess) {
-        cachedRundown.title = rundown.title;
+        // if we dont need to process, we just reassign the commit data to the cache
         cachedRundown.entries = rundown.entries;
         cachedRundown.order = rundown.order;
         cachedRundown.flatOrder = rundown.flatOrder;
-        return {
-          rundown: cachedRundown,
-          rundownMetadata, // metadata doesnt change as long as we dont process the rundown
-          customFields: projectCustomFields,
-          revision: cachedRundown.revision,
-        };
+      } else {
+        const processedData = processRundown(rundown, projectCustomFields);
+        // update the cache values
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
+        const { previousEvent, latestEvent, previousEntry, entries, order, assignedCustomFields, ...metadata } =
+          processedData;
+
+        cachedRundown.entries = entries;
+        cachedRundown.order = order;
+        cachedRundown.flatOrder = metadata.flatEntryOrder;
+        customFieldsMetadata.assigned = assignedCustomFields;
+        rundownMetadata = metadata;
       }
-
-      const processedData = processRundown(rundown, projectCustomFields);
-      // update the cache values
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
-      const { previousEvent, latestEvent, previousEntry, entries, order, assignedCustomFields, ...metadata } =
-        processedData;
-
-      cachedRundown.title = rundown.title;
-      cachedRundown.entries = entries;
-      cachedRundown.order = order;
-      cachedRundown.flatOrder = metadata.flatEntryOrder;
-      customFieldsMetadata.assigned = assignedCustomFields;
-      rundownMetadata = metadata;
     }
 
     // if the customFields are mutable we persist the changes

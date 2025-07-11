@@ -49,7 +49,7 @@ export function makeRundown(patch: Partial<Rundown>): Rundown {
 
 export function makeCustomField(patch: Partial<CustomField>): CustomField {
   return {
-    type: 'string',
+    type: 'text',
     colour: '#000000',
     label: 'Custom Field',
     ...patch,

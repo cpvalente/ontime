@@ -101,21 +101,21 @@ describe('safeMerge', () => {
   it('merges customFields into existing object', () => {
     const existing = {
       customFields: {
-        lighting: { type: 'string', label: 'lighting' },
-        sound: { type: 'string', label: 'sound' },
+        lighting: { type: 'text', label: 'lighting' },
+        sound: { type: 'text', label: 'sound' },
       },
     };
 
     const newData = {
       customFields: {
-        switcher: { type: 'string', label: 'switcher' },
-        vfx: { type: 'string', label: 'vfx' },
+        switcher: { type: 'text', label: 'switcher' },
+        vfx: { type: 'text', label: 'vfx' },
       },
     };
 
     const expected = {
-      switcher: { type: 'string', label: 'switcher' },
-      vfx: { type: 'string', label: 'vfx' },
+      switcher: { type: 'text', label: 'switcher' },
+      vfx: { type: 'text', label: 'vfx' },
     };
 
     //@ts-expect-error -- testing partial merge
