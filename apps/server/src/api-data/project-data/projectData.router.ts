@@ -8,7 +8,6 @@ import { uploadImageFile } from '../db/db.middleware.js';
 import { postProjectLogo } from '../db/db.controller.js';
 import * as projectDao from './projectData.dao.js';
 import { removeUndefined } from '../../utils/parserUtils.js';
-import { editCurrentProjectData } from '../../services/project-service/ProjectService.js';
 
 export const router = express.Router();
 
@@ -27,7 +26,7 @@ router.post('/', projectSanitiser, async (req: Request, res: Response<ProjectDat
       custom: req.body?.custom,
     });
 
-    const updatedData = await editCurrentProjectData(newData);
+    const updatedData = await projectDao.editCurrentProjectData(newData);
 
     res.status(200).send(updatedData);
   } catch (error) {
