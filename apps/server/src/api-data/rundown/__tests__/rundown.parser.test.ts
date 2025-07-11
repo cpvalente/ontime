@@ -197,12 +197,12 @@ describe('parseRundown()', () => {
 
     const customFields: CustomFields = {
       lighting: {
-        type: 'string',
+        type: 'text',
         colour: 'red',
         label: 'lighting',
       },
       sound: {
-        type: 'string',
+        type: 'text',
         colour: 'red',
         label: 'sound',
       },
@@ -229,7 +229,7 @@ describe('parseRundown()', () => {
 
     const customFields: CustomFields = {
       lighting: {
-        type: 'string',
+        type: 'text',
         colour: 'red',
         label: 'lighting',
       },
@@ -308,12 +308,12 @@ describe('handleCustomField()', () => {
   it('creates a map of where custom fields are used', () => {
     const customFields = {
       lighting: {
-        type: 'string',
+        type: 'text',
         colour: 'red',
         label: 'lighting',
       },
       sound: {
-        type: 'string',
+        type: 'text',
         colour: 'red',
         label: 'sound',
       },

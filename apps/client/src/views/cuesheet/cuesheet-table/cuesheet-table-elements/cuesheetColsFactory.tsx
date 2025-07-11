@@ -183,7 +183,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
     id: key,
     header: customFields[key].label,
     meta: { colour: customFields[key].colour, type: customFields[key].type },
-    cell: customFields[key].type === 'string' ? MakeCustomField : LazyImage,
+    cell: customFields[key].type === 'text' ? MakeCustomField : LazyImage,
     size: 250,
     minSize: 75,
   }));

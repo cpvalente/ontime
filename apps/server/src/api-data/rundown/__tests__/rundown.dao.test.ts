@@ -62,7 +62,7 @@ describe('createTransaction', () => {
     rundown.title = 'Another Title';
     customFields['newField'] = {
       label: 'New Field',
-      type: 'string',
+      type: 'text',
       colour: 'blue',
     };
 
@@ -524,12 +524,12 @@ describe('processRundown()', () => {
       const customProperties: CustomFields = {
         lighting: {
           label: 'lighting',
-          type: 'string',
+          type: 'text',
           colour: 'red',
         },
         sound: {
           label: 'sound',
-          type: 'string',
+          type: 'text',
           colour: 'red',
         },
       };
