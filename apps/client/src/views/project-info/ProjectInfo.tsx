@@ -1,4 +1,3 @@
-import { Fragment } from 'react/jsx-runtime';
 import { IoOpenOutline } from 'react-icons/io5';
 
 import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
@@ -52,40 +51,45 @@ export default function ProjectInfo() {
       {data.logo && <ViewLogo name={data.logo} className='logo' />}
       <div className='info'>
         {data.title && (
-          <>
+          <div>
             <div className='info__label'>{getLocalizedString('project.title')}</div>
             <div className='info__value'>{data.title}</div>
-          </>
+          </div>
         )}
         {data.description && (
-          <>
+          <div>
             <div className='info__label'>{getLocalizedString('project.description')}</div>
             <div className='info__value'>{data.description}</div>
-          </>
+          </div>
         )}
         {data.info && (
-          <>
+          <div>
             <div className='info__label'>{getLocalizedString('project.info')}</div>
             <div className='info__value'>{data.info}</div>
-          </>
+          </div>
         )}
         {data.url && (
-          <>
+          <div>
             <div className='info__label'>{getLocalizedString('project.url')}</div>
             <a href={data.url} target='_blank' rel='noreferrer' className='info__value link'>
               {data.url} <IoOpenOutline style={{ fontSize: '1em' }} />
             </a>
-          </>
+          </div>
         )}
         {data.custom.map((info, idx) => {
-          if (!info.title || !info.value) {
-            return null;
-          }
+          const hasUrl = Boolean(info.url);
           return (
-            <Fragment key={`${info.title}-${idx}`}>
-              <div className='info__label'>{info.title}</div>
-              <div className='info__value'>{info.value}</div>
-            </Fragment>
+            <div key={`${info.title}-${idx}`} className='info__custom'>
+              {hasUrl && (
+                <div className='info__image-container'>
+                  <img className='info__image' src={info.url} loading='lazy' />
+                </div>
+              )}
+              <div>
+                <div className='info__label'>{info.title}</div>
+                <div className='info__value'>{info.value}</div>
+              </div>
+            </div>
           );
         })}
       </div>

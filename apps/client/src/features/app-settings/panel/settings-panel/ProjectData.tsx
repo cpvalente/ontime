@@ -87,7 +87,7 @@ export default function ProjectData() {
   };
 
   const handleAddCustom = () => {
-    append({ title: '', value: '' });
+    append({ title: '', value: '', url: '' });
   };
 
   const onSubmit = async (formData: ProjectData) => {
@@ -208,7 +208,7 @@ export default function ProjectData() {
                 return (
                   <div key={field.id} className={style.customDataItem}>
                     <div className={style.titleRow}>
-                      <label>
+                      <label className={style.title}>
                         Title
                         <Input
                           fluid
@@ -221,12 +221,12 @@ export default function ProjectData() {
                       </label>
                       <Button variant='subtle-destructive' onClick={() => remove(idx)}>
                         <IoTrash />
-                        Delete Entry
+                        Delete
                       </Button>
                     </div>
                     {rowErrors?.title?.message && <Panel.Error>{rowErrors.title.message}</Panel.Error>}
                     <label>
-                      Value
+                      Text
                       <Textarea
                         fluid
                         rows={3}
@@ -238,6 +238,20 @@ export default function ProjectData() {
                         })}
                       />
                       {rowErrors?.value?.message && <Panel.Error>{rowErrors.value.message}</Panel.Error>}
+                    </label>
+                    <label>
+                      Image URL (optional)
+                      <div className={style.customImage}>
+                        <Input
+                          fluid
+                          defaultValue={field.value}
+                          placeholder='Paste image URL (optional)'
+                          {...register(`custom.${idx}.url`)}
+                        />
+                        <div className={style.imageContainer}>
+                          <img src={watch(`custom.${idx}.url`)} alt='' loading='lazy' className='info__image' />
+                        </div>
+                      </div>
                     </label>
                   </div>
                 );
