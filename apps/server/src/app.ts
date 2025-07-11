@@ -46,6 +46,7 @@ import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { timerConfig } from './setup/config.js';
 import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
+import { populateTranslation } from './setup/loadTranslation.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -154,6 +155,7 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
 
   await clearUploadfolder();
   populateStyles();
+  populateTranslation();
   await populateDemo();
   const project = await initialiseProject();
   logger.info(LogOrigin.Server, `Initialised Ontime with ${project}`);
