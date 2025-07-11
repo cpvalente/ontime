@@ -94,10 +94,20 @@ export function clearEventData() {
   runtimeState.clock = timeNow();
   runtimeState.timer = { ...runtimeStorePlaceholder.timer };
 
-  // when clearing, we maintain the total delay from the rundown
+  // Reset _timer fields
   runtimeState._timer.forceFinish = null;
   runtimeState._timer.pausedAt = null;
   runtimeState._timer.secondaryTarget = null;
+
+  // Reset _rundown fields (specific to a rundown context)
+  runtimeState._rundown.totalDelay = 0;
+
+  // Reset rundown-specific fields in runtime object
+  runtimeState.runtime.numEvents = 0;
+  runtimeState.runtime.plannedStart = null;
+  runtimeState.runtime.plannedEnd = null;
+  // Note: offsetMode is a user setting, probably should not be reset here unless intended.
+  // For now, offsetMode is preserved across clearState.
 }
 
 // clear all necessary data when doing a full stop and the event is unloaded

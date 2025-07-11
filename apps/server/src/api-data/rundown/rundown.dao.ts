@@ -673,6 +673,19 @@ export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Rea
   return { rundown, rundownMetadata, customFields, revision: rundown.revision };
 }
 
+/**
+ * Removes a rundown and its associated metadata from all caches.
+ * Note: This does not handle removing it from the persistence layer (DataProvider).
+ * That responsibility lies with the caller (e.g., ProjectService).
+ */
+export function removeRundownFromCache(rundownId: RundownId): boolean {
+  const deletedRundown = cachedRundowns.delete(rundownId);
+  rundownMetadatas.delete(rundownId);
+  customFieldsMetadatas.delete(rundownId);
+  // projectCustomFields are global and not deleted per rundown.
+  return deletedRundown; // Returns true if a rundown was found and deleted, false otherwise.
+}
+
 export const rundownCache = {
   init,
   get: () => {
