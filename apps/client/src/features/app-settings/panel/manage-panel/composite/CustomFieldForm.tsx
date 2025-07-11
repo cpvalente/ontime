@@ -42,7 +42,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
     watch,
     formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm<CustomFieldFormData>({
-    defaultValues: { type: 'string', label: initialLabel || '', colour: initialColour || '' },
+    defaultValues: { type: 'text', label: initialLabel || '', colour: initialColour || '' },
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -96,7 +96,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
           onValueChange={(value) => setValue('type', value, { shouldDirty: true })}
           value={watch('type')}
           items={[
-            { value: 'string', label: 'Text' },
+            { value: 'text', label: 'Text' },
             { value: 'image', label: 'Image' },
           ]}
         />

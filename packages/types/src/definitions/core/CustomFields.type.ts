@@ -1,7 +1,7 @@
 export type CustomFieldKey = string;
 
 export type CustomField = {
-  type: 'string' | 'image';
+  type: 'text' | 'image';
   colour: string;
   label: string;
 };
