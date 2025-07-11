@@ -6,5 +6,4 @@ export enum RefetchKey {
   Rundown = 'rundown',
   ViewSettings = 'view-settings',
   Automation = 'automation',
-  ProjectData = 'project-data',
 }
