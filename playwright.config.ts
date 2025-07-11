@@ -16,10 +16,16 @@ const config: PlaywrightTestConfig = {
   workers: 1,
   reporter: 'html',
   webServer: {
-    command: 'turbo run dev --filter=ontime-server',
+    command: 'npx tsx ./src/index.ts', // More direct command
+    cwd: './apps/server', // Set working directory
     port: 4001,
+    // url: 'http://localhost:4001/editor', // Removed URL, rely on port check
     reuseExistingServer: true,
-    timeout: 60 * 1000,
+    timeout: 120 * 1000,
+    env: {
+      NODE_ENV: 'development', // tsx might need this
+      IS_TEST: 'true',
+    }
   },
   use: {
     screenshot: 'only-on-failure',

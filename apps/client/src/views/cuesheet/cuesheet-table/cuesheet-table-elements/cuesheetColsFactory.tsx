@@ -8,6 +8,7 @@ import { formatDuration, formatTime } from '../../../../common/utils/time';
 
 import DurationInput from './DurationInput';
 import EditableImage from './EditableImage';
+import LexicalEditorCell from './LexicalEditorCell';
 import MultiLineCell from './MultiLineCell';
 import MutedText from './MutedText';
 import SingleLineCell from './SingleLineCell';
@@ -170,7 +171,7 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeEntry, unknow
   // fields will not contain the field if there is no value set by the user
   // event if there is no initial value, we still render the cell
   const initialValue = event.custom[column.id] ?? '';
-  return <MultiLineCell initialValue={initialValue} handleUpdate={update} />;
+  return <LexicalEditorCell initialValue={initialValue} onSave={update} />;
 }
 
 export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<OntimeEntry>[] {
