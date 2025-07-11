@@ -1,7 +1,6 @@
-import { DatabaseModel, LogOrigin, ProjectData, ProjectFileListResponse } from 'ontime-types';
+import { DatabaseModel, LogOrigin, ProjectFileListResponse } from 'ontime-types';
 import { getErrorMessage, getFirstRundown } from 'ontime-utils';
 
-import { join } from 'path';
 import { copyFile } from 'fs/promises';
 
 import { logger } from '../../classes/Logger.js';
@@ -311,24 +310,4 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
 
   const updatedData = await getDataProvider().getData();
   return updatedData;
-}
-
-/**
- * Patches the current project data
- * Handles deleting the local logo if the logo has been removed
- */
-export async function editCurrentProjectData(newData: Partial<ProjectData>) {
-  const currentProjectData = getDataProvider().getProjectData();
-  const updatedProjectData = await getDataProvider().setProjectData(newData);
-
-  // Delete the old logo if the logo has been removed
-  if (!updatedProjectData.logo && currentProjectData.logo) {
-    const filePath = join(publicDir.logoDir, currentProjectData.logo);
-
-    deleteFile(filePath).catch((_error) => {
-      /** we do not handle this error */
-    });
-  }
-
-  return updatedProjectData;
 }
