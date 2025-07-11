@@ -7,8 +7,8 @@ import { getURLSearchParamsFromObj, makeOptionsFromCustomFields } from '../viewP
 
 describe('makeOptionsFromCustomFields()', () => {
   const testCustomFields: CustomFields = {
-    field1: { label: 'Field 1', colour: 'red', type: 'string' },
-    field2: { label: 'Field 2', colour: 'blue', type: 'string' },
+    field1: { label: 'Field 1', colour: 'red', type: 'text' },
+    field2: { label: 'Field 2', colour: 'blue', type: 'text' },
   };
 
   it('creates an array of options to use in a select', () => {

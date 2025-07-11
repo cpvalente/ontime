@@ -18,30 +18,30 @@ describe('parseExcel()', () => {
     };
 
     const existingCustomFields: CustomFields = {
-      user0: { type: 'string', colour: 'red', label: 'user0' },
-      user1: { type: 'string', colour: 'green', label: 'user1' },
-      user2: { type: 'string', colour: 'blue', label: 'user2' },
+      user0: { type: 'text', colour: 'red', label: 'user0' },
+      user1: { type: 'text', colour: 'green', label: 'user1' },
+      user2: { type: 'text', colour: 'blue', label: 'user2' },
     };
 
     const parsedData = parseExcel(dataFromExcelTemplate, existingCustomFields, 'testSheet', importMap);
     expect(parsedData.customFields).toStrictEqual({
       user0: {
-        type: 'string',
+        type: 'text',
         colour: 'red',
         label: 'user0',
       },
       user1: {
-        type: 'string',
+        type: 'text',
         colour: 'green',
         label: 'user1',
       },
       user2: {
-        type: 'string',
+        type: 'text',
         colour: 'blue',
         label: 'user2',
       },
       user3: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'user3',
       },
@@ -97,12 +97,12 @@ describe('parseExcel()', () => {
     const parsedData = parseExcel(dataFromExcelTemplate, {}, 'testSheet', importMap);
     expect(parsedData.customFields).toStrictEqual({
       niu1: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'niu1',
       },
       niu2: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'niu2',
       },
@@ -448,17 +448,17 @@ describe('getCustomFieldData()', () => {
     const result = getCustomFieldData(importMap, {});
     expect(result.mergedCustomFields).toStrictEqual({
       lighting: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'lighting',
       },
       sound: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'sound',
       },
       video: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'video',
       },
@@ -499,30 +499,30 @@ describe('getCustomFieldData()', () => {
     } as ImportMap;
 
     const existingCustomFields: CustomFields = {
-      lighting: { label: 'lighting', type: 'string', colour: 'red' },
-      sound: { label: 'sound', type: 'string', colour: 'green' },
-      ontime_key: { label: 'ontime key', type: 'string', colour: 'blue' },
+      lighting: { label: 'lighting', type: 'text', colour: 'red' },
+      sound: { label: 'sound', type: 'text', colour: 'green' },
+      ontime_key: { label: 'ontime key', type: 'text', colour: 'blue' },
     };
 
     const result = getCustomFieldData(importMap, existingCustomFields);
     expect(result.mergedCustomFields).toStrictEqual({
       lighting: {
-        type: 'string',
+        type: 'text',
         colour: 'red',
         label: 'lighting',
       },
       sound: {
-        type: 'string',
+        type: 'text',
         colour: 'green',
         label: 'sound',
       },
       video: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'video',
       },
       ontime_key: {
-        type: 'string',
+        type: 'text',
         colour: 'blue',
         label: 'ontime key',
       },
@@ -550,17 +550,17 @@ describe('getCustomFieldData()', () => {
     const result = getCustomFieldData(importMap, {});
     expect(result.mergedCustomFields).toStrictEqual({
       Lighting: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'Lighting',
       },
       Sound: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'Sound',
       },
       video: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'video',
       },

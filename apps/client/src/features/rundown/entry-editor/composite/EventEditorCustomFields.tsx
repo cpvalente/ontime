@@ -30,7 +30,7 @@ export default function EntryEditorCustomFields({
         const { backgroundColor, color } = getAccessibleColour(customFields[fieldKey].colour);
         const labelText = customFields[fieldKey].label;
 
-        if (customFields[fieldKey].type === 'string') {
+        if (customFields[fieldKey].type === 'text') {
           return (
             <EventTextArea
               key={key}

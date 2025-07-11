@@ -477,12 +477,12 @@
   "customFields": {
     "song": {
       "label": "Song",
-      "type": "string",
+      "type": "text",
       "colour": "#339E4E"
     },
     "artist": {
       "label": "Artist",
-      "type": "string",
+      "type": "text",
       "colour": "#3E75E8"
     }
   },

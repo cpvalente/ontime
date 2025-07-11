@@ -464,9 +464,14 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 
   const { oldKey, newKey } = customFieldMutation.edit(customFields, key, existingField, newField);
 
-  // if key has changed we remove the old reference
-  if (oldKey !== newKey && oldKey in customFieldsMetadata.assigned) {
-    customFieldMutation.renameUsages(rundown, customFieldsMetadata.assigned, oldKey, newKey);
+  // if key has changed
+  if (oldKey !== newKey) {
+    // 1. delete the old key
+    customFieldMutation.remove(customFields, oldKey);
+    if (oldKey in customFieldsMetadata.assigned) {
+      // 2. reassign references
+      customFieldMutation.renameUsages(rundown, customFieldsMetadata.assigned, oldKey, newKey);
+    }
   }
 
   // the custom fields have been removed and there is no processing to be done

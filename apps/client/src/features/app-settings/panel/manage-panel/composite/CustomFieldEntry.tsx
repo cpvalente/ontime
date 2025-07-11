@@ -16,7 +16,7 @@ interface CustomFieldEntryProps {
   colour: string;
   label: string;
   fieldKey: string;
-  type: 'string' | 'image';
+  type: CustomField['type'];
   onEdit: (key: CustomFieldKey, patch: CustomField) => Promise<void>;
   onDelete: (key: CustomFieldKey) => Promise<void>;
 }

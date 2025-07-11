@@ -330,7 +330,7 @@ export function getCustomFieldData(
 
     // 1. add the custom field to the merged custom fields
     mergedCustomFields[keyInCustomFields] = {
-      type: 'string', // we currently only support string custom fields
+      type: 'text', // we currently only support text custom fields
       colour: maybeExistingColour,
       label: ontimeLabel,
     };
