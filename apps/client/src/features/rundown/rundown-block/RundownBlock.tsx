@@ -43,7 +43,6 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
     },
     {
       type: 'item',
-
       label: 'Ungroup',
       icon: IoFolderOpenOutline,
       onClick: () => ungroup(data.id),
@@ -55,7 +54,6 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
       label: 'Delete Group',
       icon: IoTrash,
       onClick: () => deleteEntry([data.id]),
-      disabled: true,
     },
   ]);
 

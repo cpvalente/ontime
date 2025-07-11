@@ -76,17 +76,11 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
       className={cx([style.milestone, hasCursor ? style.hasCursor : null])}
       ref={setNodeRef}
       onClick={handleFocusClick}
-      style={{ ...dragStyle, '--user-bg': colour }}
+      style={dragStyle}
       data-testid='rundown-milestone'
     >
-      <div className={style.binder}>
-        <span
-          className={style.drag}
-          style={{ ...binderColours }}
-          ref={handleRef}
-          {...dragAttributes}
-          {...dragListeners}
-        >
+      <div className={style.binder} style={{ ...binderColours }}>
+        <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
           <IoReorderTwo />
         </span>
       </div>

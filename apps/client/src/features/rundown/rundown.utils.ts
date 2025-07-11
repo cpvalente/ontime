@@ -306,3 +306,17 @@ export function moveDown(
   // default - swap positions with next entry
   return { destinationId: nextEntryId, order: 'after' };
 }
+
+/**
+ * Reorders unorderedArray to match the flatOrder entries
+ * Useful for operations that convert selections (out of order) to rundown
+ */
+export function orderEntries(unorderedArray: EntryId[], flatOrder: EntryId[]): EntryId[] {
+  const orderedArray: EntryId[] = [];
+  for (const id of flatOrder) {
+    if (unorderedArray.includes(id)) {
+      orderedArray.push(id);
+    }
+  }
+  return orderedArray;
+}

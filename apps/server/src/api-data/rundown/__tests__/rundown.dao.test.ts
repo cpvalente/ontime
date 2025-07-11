@@ -1620,7 +1620,7 @@ describe('rundownMutation.clone()', () => {
 });
 
 describe('rundownMutation.group()', () => {
-  it('groups a list of existing events into a new block', () => {
+  it('groups a list of existing events into a new group entry', () => {
     const rundown = makeRundown({
       order: ['1', '2', '3'],
       entries: {
