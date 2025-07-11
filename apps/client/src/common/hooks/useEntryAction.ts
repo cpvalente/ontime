@@ -15,7 +15,7 @@ import {
 } from 'ontime-types';
 import { dayInMs, generateId, MILLIS_PER_SECOND, parseUserTime, swapEventData } from 'ontime-utils';
 
-import { moveDown, moveUp } from '../../features/rundown/rundown.utils';
+import { moveDown, moveUp, orderEntries } from '../../features/rundown/rundown.utils';
 import { RUNDOWN } from '../api/constants';
 import {
   deleteEntries,
@@ -622,13 +622,22 @@ export const useEntryActions = () => {
    */
   const groupEntries = useCallback(
     async (entryIds: EntryId[]) => {
+      if (entryIds.length === 0) return;
+
       try {
-        await groupEntriesMutation(entryIds);
+        if (entryIds.length === 1) {
+          await groupEntriesMutation(entryIds);
+        } else {
+          const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+          if (!rundown) return;
+          const orderedIds = orderEntries(entryIds, rundown.flatOrder);
+          await groupEntriesMutation(orderedIds);
+        }
       } catch (error) {
         logAxiosError('Error grouping entries', error);
       }
     },
-    [groupEntriesMutation],
+    [groupEntriesMutation, queryClient],
   );
 
   /**

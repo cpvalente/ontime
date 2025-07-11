@@ -107,7 +107,9 @@ export default function AutomationSettingsForm(props: AutomationSettingsProps) {
             <Switch
               size='large'
               checked={watch('enabledAutomations')}
-              onCheckedChange={(value: boolean) => setValue('enabledAutomations', value, { shouldDirty: true })}
+              onCheckedChange={(value: boolean) =>
+                setValue('enabledAutomations', value, { shouldDirty: true, shouldValidate: true })
+              }
             />
           </Panel.ListItem>
         </Panel.ListGroup>
@@ -125,7 +127,9 @@ export default function AutomationSettingsForm(props: AutomationSettingsProps) {
             <Switch
               size='large'
               checked={watch('enabledOscIn')}
-              onCheckedChange={(value: boolean) => setValue('enabledOscIn', value, { shouldDirty: true })}
+              onCheckedChange={(value: boolean) =>
+                setValue('enabledOscIn', value, { shouldDirty: true, shouldValidate: true })
+              }
             />
           </Panel.ListItem>
           <Panel.ListItem>

@@ -4,7 +4,7 @@
 
   display: block;
   font-size: 1rem;
-  font-weight: 400;
+  font-weight: inherit;
   color: $gray-200;
   border-radius: $component-border-radius-md;
   border: 1px solid transparent;
@@ -34,11 +34,13 @@
 
 .subtle {
   background-color: $gray-1200;
+  padding-top: 0.5em;
 }
 
 .ghosted {
   background-color: transparent;
   padding: 0;
+  padding-top: 0.5em;
 }
 
 .fluid {

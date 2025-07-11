@@ -490,9 +490,9 @@ function clone(rundown: Rundown, entry: OntimeEntry): OntimeEntry {
 }
 
 /**
- * Groups a list of entries into a block
+ * Groups a list of entries
  * It ensures that the entries get reassigned parent and the block gets a list of events
- * The block will be created at the index of the first event in the order, not at the lowest index
+ * The group will be created at the index of the first event in the order, not at the lowest index
  * Mutates the given rundown
  */
 function group(rundown: Rundown, entryIds: EntryId[]): OntimeBlock {

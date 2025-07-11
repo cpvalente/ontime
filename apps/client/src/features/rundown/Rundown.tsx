@@ -298,8 +298,15 @@ export default function Rundown({ data }: RundownProps) {
       return;
     }
     const index = order.findIndex((id) => id === featureData.selectedEventId);
+    // @ts-expect-error -- but we safely check if the parent property exists
+    const maybeParent = entries[featureData.selectedEventId]?.parent;
+    if (maybeParent) {
+      // open the group
+      setCollapsedGroups((prev) => [...prev].filter((id) => id !== maybeParent));
+    }
+
     setSelectedEvents({ id: featureData.selectedEventId, selectMode: 'click', index });
-  }, [editorMode, featureData.selectedEventId, order, setSelectedEvents]);
+  }, [editorMode, entries, featureData.selectedEventId, order, setCollapsedGroups, setSelectedEvents]);
 
   /**
    * On drag end, we reorder the events

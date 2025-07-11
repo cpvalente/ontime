@@ -28,7 +28,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
   const fieldLabels = fieldKeys.map((key) => customFields[key].label);
 
   return (
-    <Panel.Table>
+    <Panel.Table className={style.nowrap}>
       <thead>
         <tr>
           <th>#</th>

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { IoPause, IoPlay, IoPlaySkipBack, IoPlaySkipForward, IoReload, IoStop, IoTime } from 'react-icons/io5';
+import { IoPause, IoPlay, IoPlaySkipBack, IoPlaySkipForward, IoReload, IoStop } from 'react-icons/io5';
 import { Playback, TimerPhase } from 'ontime-types';
 import { validatePlayback } from 'ontime-utils';
 
@@ -73,7 +73,7 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
       </div>
       <div className={style.extra}>
         <TapButton onClick={setPlayback.roll} disabled={disableRoll} theme={Playback.Roll} active={isRolling}>
-          <IoTime />
+          Roll
         </TapButton>
         <TapButton onClick={setPlayback.reload} disabled={disableReload}>
           <IoReload className={style.invertX} />

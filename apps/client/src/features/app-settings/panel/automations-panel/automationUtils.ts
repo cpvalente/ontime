@@ -36,9 +36,9 @@ const staticSelectProperties = [
 ];
 
 const staticNextSelectProperties = [
-  { value: 'eventNow.id', label: 'Next ID' },
-  { value: 'eventNow.title', label: 'Next Title' },
-  { value: 'eventNow.cue', label: 'Next Cue' },
+  { value: 'eventNext.id', label: 'Next ID' },
+  { value: 'eventNext.title', label: 'Next Title' },
+  { value: 'eventNext.cue', label: 'Next Cue' },
 ];
 
 type SelectableField = {
