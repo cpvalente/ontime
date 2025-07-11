@@ -1,6 +1,6 @@
 import { EntryId, OntimeBlock, OntimeDelay, OntimeEvent, RundownEntries, SupportedEntry } from 'ontime-types';
 
-import { makeRundownMetadata, makeSortableList, moveDown, moveUp } from '../rundown.utils';
+import { makeRundownMetadata, makeSortableList, moveDown, moveUp, orderEntries } from '../rundown.utils';
 
 describe('makeRundownMetadata()', () => {
   it('processes nested rundown data', () => {
@@ -339,7 +339,6 @@ describe('makeSortableList()', () => {
   });
 });
 
-
 describe('moveUp()', () => {
   const rundown = {
     entries: {
@@ -533,5 +532,42 @@ describe('moveDown()', () => {
       destinationId: 'block',
       order: 'after',
     });
+  });
+});
+
+describe('orderEntries()', () => {
+  it('should return an empty array when both inputs are empty', () => {
+    const unorderedArray: string[] = [];
+    const flatOrder: string[] = [];
+    const result = orderEntries(unorderedArray, flatOrder);
+    expect(result).toEqual([]);
+  });
+
+  it('should return an ordered array based on flatOrder', () => {
+    const unorderedArray = ['b', 'a', 'c'];
+    const flatOrder = ['a', 'b', 'c'];
+    const result = orderEntries(unorderedArray, flatOrder);
+    expect(result).toEqual(['a', 'b', 'c']);
+  });
+
+  it('should ignore elements in unorderedArray not present in flatOrder', () => {
+    const unorderedArray = ['b', 'a', 'c', 'd'];
+    const flatOrder = ['a', 'b', 'c'];
+    const result = orderEntries(unorderedArray, flatOrder);
+    expect(result).toEqual(['a', 'b', 'c']);
+  });
+
+  it('should handle cases where flatOrder has elements not in unorderedArray', () => {
+    const unorderedArray = ['b', 'a'];
+    const flatOrder = ['a', 'b', 'c'];
+    const result = orderEntries(unorderedArray, flatOrder);
+    expect(result).toEqual(['a', 'b']);
+  });
+
+  it('should return an empty array if unorderedArray has no matching elements in flatOrder', () => {
+    const unorderedArray = ['x', 'y', 'z'];
+    const flatOrder = ['a', 'b', 'c'];
+    const result = orderEntries(unorderedArray, flatOrder);
+    expect(result).toEqual([]);
   });
 });

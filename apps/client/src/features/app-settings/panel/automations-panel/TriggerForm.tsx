@@ -22,8 +22,15 @@ interface TriggerFormProps {
   postSubmit: () => void;
 }
 
-export default function TriggerForm(props: TriggerFormProps) {
-  const { automations, initialId, initialTitle, initialAutomationId, initialTrigger, onCancel, postSubmit } = props;
+export default function TriggerForm({
+  automations,
+  initialId,
+  initialTitle,
+  initialAutomationId,
+  initialTrigger,
+  onCancel,
+  postSubmit,
+}: TriggerFormProps) {
   const {
     handleSubmit,
     register,
@@ -35,8 +42,8 @@ export default function TriggerForm(props: TriggerFormProps) {
   } = useForm<TriggerDTO>({
     defaultValues: {
       title: initialTitle,
-      trigger: initialTrigger,
-      automationId: initialAutomationId,
+      trigger: initialTrigger ?? (cycles[0].value as TimerLifeCycle | undefined),
+      automationId: initialAutomationId ?? automations?.[Object.keys(automations)[0]]?.id,
     },
     resetOptions: {
       keepDirtyValues: true,
