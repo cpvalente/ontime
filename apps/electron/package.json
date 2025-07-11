@@ -1,6 +1,6 @@
 {
   "name": "ontime-electron",
-  "version": "3.15.2",
+  "version": "4.0.0-alpha.0",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
@@ -12,8 +12,8 @@
   "license": "AGPL-3.0-only",
   "main": "src/main.js",
   "devDependencies": {
-    "electron": "36.3.1",
-    "electron-builder": "26.0.12",
+    "electron": "37.2.1",
+    "electron-builder": "26.0.18",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
     "prettier": "catalog:",
@@ -30,7 +30,7 @@
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "build": {
-    "productName": "ontime",
+    "productName": "ontime-prerelease",
     "appId": "no.lightdev.ontime",
     "asar": true,
     "dmg": {
