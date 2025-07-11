@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { BaseSyntheticEvent, FormEvent, lazy, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Select } from '@chakra-ui/react';
 import { Settings } from 'ontime-types';
@@ -15,10 +15,13 @@ import * as Panel from '../../panel-utils/PanelUtils';
 
 import GeneralPinInput from './composite/GeneralPinInput';
 
+const TranslationModal = lazy(() => import('./composite/CustomTranslationModal'));
+
 export default function GeneralSettings() {
   const { data, status, refetch } = useSettings();
   const {
     handleSubmit,
+    watch,
     register,
     reset,
     setError,
@@ -31,6 +34,9 @@ export default function GeneralSettings() {
       keepDirtyValues: true,
     },
   });
+  const [isCustomTranslationModalOpen, setIsCustomTranslationModalOpen] = useState(false);
+
+  const language = watch('language');
 
   // update form if we get new data from server
   useEffect(() => {
@@ -39,8 +45,16 @@ export default function GeneralSettings() {
     }
   }, [data, reset]);
 
-  const onSubmit = async (formData: Settings) => {
+  const onSubmit = async (formData: Settings, event?: BaseSyntheticEvent) => {
     try {
+      // The target logic is to prevent the submission of the settings form from the translations form
+      const target = event?.target as HTMLFormElement;
+      const allowedTargets = ['app-settings'];
+
+      if (target?.id && !allowedTargets.includes(target?.id)) {
+        return;
+      }
+
       await postSettings(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
@@ -74,7 +88,14 @@ export default function GeneralSettings() {
             <Button disabled={!isDirty || isSubmitting} variant='ghosted' onClick={onReset}>
               Revert to saved
             </Button>
-            <Button type='submit' form='app-settings' loading={isSubmitting} disabled={disableSubmit} variant='primary'>
+            <Button
+              type='submit'
+              form='app-settings'
+              name='general-settings-submit'
+              loading={isSubmitting}
+              disabled={disableSubmit}
+              variant='primary'
+            >
               Save
             </Button>
           </Panel.InlineElements>
@@ -156,8 +177,16 @@ export default function GeneralSettings() {
                 <option value='sv'>Swedish</option>
                 <option value='pl'>Polish</option>
                 <option value='zh'>Chinese (Simplified)</option>
+                <option value='custom'>Custom</option>
               </Select>
+              {language === 'custom' && (
+                <Button onClick={() => setIsCustomTranslationModalOpen(true)}>Add translation</Button>
+              )}
             </Panel.ListItem>
+            <TranslationModal
+              isOpen={isCustomTranslationModalOpen}
+              onClose={() => setIsCustomTranslationModalOpen(false)}
+            />
           </Panel.ListGroup>
         </Panel.Section>
       </Panel.Card>
