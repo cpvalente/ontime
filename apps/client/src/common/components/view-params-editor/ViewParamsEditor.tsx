@@ -39,8 +39,6 @@ function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
 
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
-
-    console.log('New search params:', newParamsObject, newSearchParams.toString());
     setSearchParams(newSearchParams);
   };
 

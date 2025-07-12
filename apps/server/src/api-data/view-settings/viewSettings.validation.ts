@@ -6,8 +6,6 @@ import { requestValidationFunction } from '../validation-utils/validationFunctio
  */
 export const validateViewSettings = [
   body('dangerColor').isString().trim().withMessage('dangerColor value must be string'),
-  body('endMessage').isString().trim().withMessage('endMessage value must be string'),
-  body('freezeEnd').isBoolean().withMessage('freezeEnd value must be boolean'),
   body('normalColor').isString().trim().withMessage('normalColor value must be string'),
   body('overrideStyles').isBoolean().withMessage('overrideStyles value must be boolean'),
   body('warningColor').isString().trim().withMessage('warningColor value must be string'),

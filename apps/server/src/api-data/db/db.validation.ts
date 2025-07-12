@@ -30,10 +30,6 @@ export const validateQuickProject = [
   body('settings.timeFormat').optional().isIn(['12', '24']),
   body('settings.language').optional().isString().trim(),
 
-  // ViewSettings fields
-  body('viewSettings.freezeEnd').optional().isBoolean(),
-  body('viewSettings.endMessage').optional().isString().trim(),
-
   requestValidationFunction,
 ];
 

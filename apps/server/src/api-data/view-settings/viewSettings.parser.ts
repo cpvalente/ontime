@@ -16,8 +16,6 @@ export function parseViewSettings(data: Partial<DatabaseModel>, emitError?: Erro
 
   return {
     dangerColor: data.viewSettings.dangerColor ?? dbModel.viewSettings.dangerColor,
-    endMessage: data.viewSettings.endMessage ?? dbModel.viewSettings.endMessage,
-    freezeEnd: data.viewSettings.freezeEnd ?? dbModel.viewSettings.freezeEnd,
     normalColor: data.viewSettings.normalColor ?? dbModel.viewSettings.normalColor,
     overrideStyles: data.viewSettings.overrideStyles ?? dbModel.viewSettings.overrideStyles,
     warningColor: data.viewSettings.warningColor ?? dbModel.viewSettings.warningColor,
