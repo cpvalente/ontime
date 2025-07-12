@@ -91,12 +91,7 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
             <span className={style.label}>Enter custom path</span>
             <label className={style.textEntry}>
               {origin}
-              <Input
-                placeholder='eg. /minimal?key=0000ffff'
-                fluid
-                value={path}
-                onChange={(event) => setPath(event.target.value)}
-              />
+              <Input placeholder='eg. /timer' fluid value={path} onChange={(event) => setPath(event.target.value)} />
             </label>
             <Button
               variant='primary'

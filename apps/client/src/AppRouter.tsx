@@ -23,23 +23,17 @@ const Cuesheet = React.lazy(() => import('./views/cuesheet/ProtectedCuesheet'));
 const Operator = React.lazy(() => import('./features/operator/OperatorExport'));
 
 const TimerView = React.lazy(() => import('./views/timer/Timer'));
-const MinimalTimerView = React.lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
-const ClockView = React.lazy(() => import('./features/viewers/clock/Clock'));
 const Countdown = React.lazy(() => import('./views/countdown/Countdown'));
 
 const Backstage = React.lazy(() => import('./views/backstage/Backstage'));
 const Timeline = React.lazy(() => import('./views/timeline/TimelinePage'));
-const Lower = React.lazy(() => import('./features/viewers/lower-thirds/LowerThird'));
 const StudioClock = React.lazy(() => import('./views/studio/Studio'));
 const ProjectInfo = React.lazy(() => import('./views/project-info/ProjectInfo'));
 
 const STimer = withPreset(withData(TimerView));
-const SMinimalTimer = withPreset(withData(MinimalTimerView));
-const SClock = withPreset(withData(ClockView));
 const SCountdown = withPreset(withData(Countdown));
 const SBackstage = withPreset(withData(Backstage));
 const SProjectInfo = withPreset(ProjectInfo); // NOTE: ProjectInfo does not use the viewWrapper since it has no options
-const SLowerThird = withPreset(withData(Lower));
 const SStudio = withPreset(withData(StudioClock));
 const STimeline = withPreset(withData(Timeline));
 const PCuesheet = withPreset(Cuesheet);
@@ -87,22 +81,6 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/minimal'
-          element={
-            <ViewLoader>
-              <SMinimalTimer />
-            </ViewLoader>
-          }
-        />
-        <Route
-          path='/clock'
-          element={
-            <ViewLoader>
-              <SClock />
-            </ViewLoader>
-          }
-        />
-        <Route
           path='/countdown'
           element={
             <ViewLoader>
@@ -126,8 +104,6 @@ export default function AppRouter() {
             </ViewLoader>
           }
         />
-        {/*/!* Lower third cannot have a loading screen *!/*/}
-        <Route path='/lower' element={<SLowerThird />} />
         <Route
           path='/timeline'
           element={

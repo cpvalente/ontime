@@ -34,9 +34,6 @@
   /** Font used for all text in views */
   --font-family-override: 'Open Sans';
 
-  /** Font used for clock in /minimal and /clock views */
-  --font-family-bold-override: 'Arial Black';
-
   /** Colour used for external message and aux timer in /timer */
   --external-color-override: #161616;
 
@@ -58,15 +55,6 @@
   --studio-active-label: #101010;
   --studio-idle-label: #595959;
   --studio-overtime: #101010;
-
-  /** View specific features: /lower */
-  --lowerThird-font-family-override: 'Courier New';
-  --lowerThird-top-font-weight-override: bold;
-  --lowerThird-bottom-font-weight-override: bold;
-  --lowerThird-top-font-style-override: normal;
-  --lowerThird-bottom-font-style-override: italic;
-  --lowerThird-line-height-override: 1vh;
-  --lowerThird-text-align-override: end;
 }
 
 /** 
