@@ -1,10 +1,10 @@
-import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
+import { RefObject, useCallback, useEffect, useRef } from 'react';
 
 import { useSelectedEventId } from './useSocket';
 
 function scrollToComponent<ComponentRef extends HTMLElement, ScrollRef extends HTMLElement>(
-  componentRef: MutableRefObject<ComponentRef>,
-  scrollRef: MutableRefObject<ScrollRef>,
+  componentRef: RefObject<ComponentRef>,
+  scrollRef: RefObject<ScrollRef>,
   topOffset: number,
 ) {
   if (!componentRef.current || !scrollRef.current) {
@@ -19,8 +19,8 @@ function scrollToComponent<ComponentRef extends HTMLElement, ScrollRef extends H
 }
 
 function snapToComponent<ComponentRef extends HTMLElement, ScrollRef extends HTMLElement>(
-  componentRef: MutableRefObject<ComponentRef>,
-  scrollRef: MutableRefObject<ScrollRef>,
+  componentRef: RefObject<ComponentRef>,
+  scrollRef: RefObject<ScrollRef>,
   topOffset: number,
 ) {
   if (!componentRef.current || !scrollRef.current) {
@@ -36,8 +36,8 @@ function snapToComponent<ComponentRef extends HTMLElement, ScrollRef extends HTM
 }
 
 interface UseFollowComponentProps {
-  followRef: MutableRefObject<HTMLElement | null>;
-  scrollRef: MutableRefObject<HTMLElement | null>;
+  followRef: RefObject<HTMLElement | null>;
+  scrollRef: RefObject<HTMLElement | null>;
   doFollow: boolean;
   topOffset?: number;
   setScrollFlag?: (newValue: boolean) => void;
@@ -56,11 +56,7 @@ export default function useFollowComponent(props: UseFollowComponentProps) {
       setScrollFlag?.(true);
       // Use requestAnimationFrame to ensure the component is fully loaded
       window.requestAnimationFrame(() => {
-        scrollToComponent(
-          followRef as MutableRefObject<HTMLElement>,
-          scrollRef as MutableRefObject<HTMLElement>,
-          topOffset,
-        );
+        scrollToComponent(followRef as RefObject<HTMLElement>, scrollRef as RefObject<HTMLElement>, topOffset);
         setScrollFlag?.(false);
       });
     }
@@ -97,8 +93,8 @@ export function useFollowSelected(doFollow: boolean, topOffset = 100) {
       // Use requestAnimationFrame to ensure the component is fully loaded
       window.requestAnimationFrame(() => {
         snapToComponent(
-          { current: selectedRef.current } as MutableRefObject<HTMLElement>,
-          { current: scrollRef.current } as MutableRefObject<HTMLElement>,
+          { current: selectedRef.current } as RefObject<HTMLElement>,
+          { current: scrollRef.current } as RefObject<HTMLElement>,
           topOffset,
         );
       });
