@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { IoChevronDown } from 'react-icons/io5';
 import { useLocalStorage } from '@mantine/hooks';
 
@@ -15,7 +16,8 @@ interface ViewParamsSectionProps {
   options: ParamField[];
 }
 
-export default function ViewParamsSection({ title, collapsible, options }: ViewParamsSectionProps) {
+export default memo(ViewParamsSection);
+function ViewParamsSection({ title, collapsible, options }: ViewParamsSectionProps) {
   const [collapsed, setCollapsed] = useLocalStorage({ key: `params-${title}`, defaultValue: false });
 
   const handleCollapse = () => {
