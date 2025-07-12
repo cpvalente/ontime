@@ -9,7 +9,6 @@ import Input from '../../../common/components/input/input/Input';
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
 import Modal from '../../../common/components/modal/Modal';
 import Select from '../../../common/components/select/Select';
-import Switch from '../../../common/components/switch/Switch';
 import { editorSettingsDefaults, useEditorSettings } from '../../../common/stores/editorSettings';
 import * as Panel from '../panel-utils/PanelUtils';
 

@@ -42,21 +42,36 @@ interface TimerProps {
   viewSettings: ViewSettings;
 }
 
-export default function Timer(props: TimerProps) {
-  const { customFields, eventNow, eventNext, general, isMirrored, message, settings, time, viewSettings } = props;
+export default function Timer({
+  customFields,
+  eventNow,
+  eventNext,
+  general,
+  isMirrored,
+  message,
+  settings,
+  time,
+  viewSettings,
+}: TimerProps) {
   const auxTimer = useAuxTimersTime();
-
   const {
     hideClock,
     hideCards,
     hideProgress,
     hideMessage,
     hideSecondary,
+    hideLogo,
     hideTimerSeconds,
     removeLeadingZeros,
     mainSource,
     secondarySource,
     timerType,
+    freezeOvertime,
+    freezeMessage,
+    hideOvertime,
+    font,
+    keyColour,
+    textColour,
   } = useTimerOptions();
 
   const { getLocalizedString } = useTranslation();
@@ -71,7 +86,9 @@ export default function Timer(props: TimerProps) {
     time.timerType,
     time.countToEnd,
     time.phase,
-    viewSettings,
+    freezeOvertime,
+    freezeMessage,
+    hideOvertime,
   );
   const isPlaying = getIsPlaying(time.playback);
   const showClock = !hideClock && getShowClock(viewTimerType);
@@ -90,7 +107,7 @@ export default function Timer(props: TimerProps) {
   // gather timer data
   const totalTime = getTotalTime(time.duration, time.addedTime);
   const clock = formatTime(time.clock);
-  const stageTimer = getTimerByType(viewSettings.freezeEnd, time, timerType);
+  const stageTimer = getTimerByType(freezeOvertime, time, timerType);
   const display = getFormattedTimer(stageTimer, viewTimerType, localisedMinutes, {
     removeSeconds: hideTimerSeconds,
     removeLeadingZero: removeLeadingZeros,
@@ -121,6 +138,11 @@ export default function Timer(props: TimerProps) {
   // gather presentation styles
   const timerColour = getTimerColour(viewSettings, showWarning, showDanger);
   const { timerFontSize, externalFontSize } = getEstimatedFontSize(display, secondaryContent);
+  const userStyles = {
+    ...(keyColour && { '--timer-bg': keyColour }),
+    ...(textColour && { '--timer-colour': textColour }),
+    ...(font && { '--timer-font': font }),
+  };
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
@@ -128,10 +150,11 @@ export default function Timer(props: TimerProps) {
 
   return (
     <div
-      className={cx(['stage-timer', isMirrored && 'mirror', showFinished && 'stage-timer--finished'])}
       data-testid='timer-view'
+      className={cx(['stage-timer', isMirrored && 'mirror', showFinished && 'stage-timer--finished'])}
+      style={userStyles}
     >
-      {general?.logo && <ViewLogo name={general.logo} className='logo' />}
+      {!hideLogo && general?.logo && <ViewLogo name={general.logo} className='logo' />}
 
       <ViewParamsEditor viewOptions={timerOptions} />
 
@@ -155,7 +178,7 @@ export default function Timer(props: TimerProps) {
       <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
         {showEndMessage ? (
           <FitText mode='multi' min={64} max={256} className='end-message'>
-            {viewSettings.endMessage}
+            {freezeMessage}
           </FitText>
         ) : (
           <div

@@ -26,10 +26,10 @@ describe('makeOptionsFromCustomFields()', () => {
     ];
     const result = makeOptionsFromCustomFields(testCustomFields, additionalData);
     expect(result).toStrictEqual([
-      { value: 'custom-field1', label: 'Custom: Field 1' },
-      { value: 'custom-field2', label: 'Custom: Field 2' },
       { value: 'test1', label: 'Test 1' },
       { value: 'test2', label: 'Test 2' },
+      { value: 'custom-field1', label: 'Custom: Field 1' },
+      { value: 'custom-field2', label: 'Custom: Field 2' },
     ]);
   });
 

@@ -13,7 +13,7 @@ export function makeOptionsFromCustomFields(
   additionalOptions: SelectOption[] = [],
   filterImageType = true,
 ): SelectOption[] {
-  const options: SelectOption[] = [];
+  const options: SelectOption[] = [...additionalOptions];
 
   // Add custom fields first
   for (const [key, value] of Object.entries(customFields)) {
@@ -27,7 +27,7 @@ export function makeOptionsFromCustomFields(
     });
   }
 
-  return options.concat(additionalOptions);
+  return options;
 }
 
 /**

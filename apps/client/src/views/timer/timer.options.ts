@@ -12,7 +12,7 @@ import {
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
-import { isStringBoolean } from '../../features/viewers/common/viewUtils';
+import { isStringBoolean, makeColourString } from '../../features/viewers/common/viewUtils';
 
 // manually match the properties of TimerType excluding the None
 const timerDisplayOptions: SelectOption[] = [
@@ -48,6 +48,29 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
           values: timerDisplayOptions,
           defaultValue: 'no-overrides',
         },
+        {
+          id: 'freezeOvertime',
+          title: 'Freeze Overtime',
+          description: 'If active, the timer will not count into negative numbers',
+          type: 'boolean',
+          defaultValue: false,
+        },
+        {
+          id: 'freezeMessage',
+          title: 'Freeze Message',
+          description:
+            'An optional message to show when the timer is in overtime (must be set in combination with Freeze Overtime)',
+          type: 'string',
+          defaultValue: '',
+          placeholder: 'e.g. Time is up!',
+        },
+        {
+          id: 'hideOvertime',
+          title: 'Hide Overtime',
+          description: 'Whether to suppress overtime styles (red borders and red text)',
+          type: 'boolean',
+          defaultValue: false,
+        },
       ],
     },
     {
@@ -72,7 +95,6 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
         },
       ],
     },
-
     {
       title: OptionTitle.ElementVisibility,
       collapsible: true,
@@ -112,6 +134,40 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
           type: 'boolean',
           defaultValue: false,
         },
+        {
+          id: 'hideLogo',
+          title: 'Hide the project logo',
+          description: 'Prevents the screen from displaying the given project logo',
+          type: 'boolean',
+          defaultValue: false,
+        },
+      ],
+    },
+    {
+      title: OptionTitle.StyleOverride,
+      collapsible: true,
+      options: [
+        {
+          id: 'font',
+          title: 'Font',
+          description: 'Font family, will use the fonts available in the system',
+          type: 'string',
+          placeholder: 'Open Sans (default)',
+        },
+        {
+          id: 'keyColour',
+          title: 'Key Colour',
+          description: 'Background or key colour for entire view. Default: #101010',
+          type: 'colour',
+          defaultValue: '101010',
+        },
+        {
+          id: 'textColour',
+          title: 'Text Colour',
+          description: 'Text colour. Default: #f6f6f6',
+          type: 'colour',
+          defaultValue: 'f6f6f6',
+        },
       ],
     },
   ];
@@ -123,11 +179,18 @@ type TimerOptions = {
   hideProgress: boolean;
   hideMessage: boolean;
   hideSecondary: boolean;
+  hideLogo: boolean;
   hideTimerSeconds: boolean;
   removeLeadingZeros: boolean;
   mainSource: keyof OntimeEvent | null;
   secondarySource: keyof OntimeEvent | null;
   timerType?: TimerType;
+  freezeOvertime: boolean;
+  freezeMessage: string;
+  hideOvertime: boolean;
+  font?: string;
+  keyColour?: string;
+  textColour?: string;
 };
 
 /**
@@ -143,6 +206,7 @@ function getOptionsFromParams(searchParams: URLSearchParams): TimerOptions {
     hideProgress: isStringBoolean(searchParams.get('hideProgress')),
     hideMessage: isStringBoolean(searchParams.get('hideMessage')),
     hideSecondary: isStringBoolean(searchParams.get('hideSecondary')),
+    hideLogo: isStringBoolean(searchParams.get('hideLogo')),
     hideTimerSeconds: isStringBoolean(searchParams.get('hideTimerSeconds')),
     removeLeadingZeros: !isStringBoolean(searchParams.get('showLeadingZeros')),
 
@@ -151,6 +215,13 @@ function getOptionsFromParams(searchParams: URLSearchParams): TimerOptions {
 
     // none doesnt make sense as a configuration of the view
     timerType: timerType === TimerType.None ? undefined : timerType,
+    freezeOvertime: isStringBoolean(searchParams.get('freezeOvertime')),
+    freezeMessage: searchParams.get('freezeMessage') ?? '',
+    hideOvertime: isStringBoolean(searchParams.get('hideOvertime')),
+
+    font: searchParams.get('font') ?? undefined,
+    keyColour: makeColourString(searchParams.get('keyColour')),
+    textColour: makeColourString(searchParams.get('textColour')),
   };
 }
 
