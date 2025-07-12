@@ -126,28 +126,6 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
               />
             </Panel.ListItem>
           </Panel.ListGroup>
-
-          <Panel.ListGroup>
-            <Panel.ListItem>
-              <Panel.Field
-                title='Freeze timer on end'
-                description='When a timer hits 00:00:00, it freezes instead of going negative. It invalidates the End Message.'
-              />
-              <Switch
-                size='large'
-                name='viewSettings.freezeEnd'
-                checked={watch('viewSettings.freezeEnd')}
-                onCheckedChange={(checked) => setValue('viewSettings.freezeEnd', checked)}
-              />
-            </Panel.ListItem>
-            <Panel.ListItem>
-              <Panel.Field
-                title='End message'
-                description='Message for negative timers; applies only if the timer isn`t frozen on End. If no message is provided, it continues into negative time'
-              />
-              <Input maxLength={150} fluid placeholder='eg: Time is up!' {...register('viewSettings.endMessage')} />
-            </Panel.ListItem>
-          </Panel.ListGroup>
         </form>
       }
       footerElements={
