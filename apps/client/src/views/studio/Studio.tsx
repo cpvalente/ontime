@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { MessageState, OntimeEvent, ProjectData, Runtime, Settings, ViewSettings } from 'ontime-types';
 
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
@@ -43,7 +44,7 @@ export default function Studio({
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const studioOptions = getStudioOptions(defaultFormat);
+  const studioOptions = useMemo(() => getStudioOptions(defaultFormat), [defaultFormat]);
 
   return (
     <div className={cx(['studio', isMirrored && 'mirror'])} data-testid='studio-view'>

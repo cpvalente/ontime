@@ -1,4 +1,4 @@
-@use '../../theme/viewerDefs' as *;
+@use '@/theme/viewerDefs' as *;
 
 $timeline-height: 1rem;
 $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-override, $viewer-background-color));
