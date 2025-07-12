@@ -1,8 +1,8 @@
 import { memo, RefObject, SyntheticEvent } from 'react';
+import { useLongPress } from '@mantine/hooks';
 import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
-import useLongPress from '../../../common/hooks/useLongPress';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, useTimeUntilStart } from '../../../common/utils/time';
 import RunningTime from '../../viewers/common/running-time/RunningTime';
@@ -23,7 +23,7 @@ interface OperatorEventProps {
   isLinkedToLoaded: boolean;
   isSelected: boolean;
   isPast: boolean;
-  selectedRef?: RefObject<HTMLDivElement>;
+  selectedRef?: RefObject<HTMLDivElement | null>;
   subscribed: Subscribed;
   totalGap: number;
   onLongPress: (event: EditEvent) => void;
@@ -48,6 +48,9 @@ function OperatorEvent({
   totalGap,
   onLongPress,
 }: OperatorEventProps) {
+  /**
+   * gather behaviour for long press and context menu
+   */
   const handleLongPress = (event?: SyntheticEvent) => {
     // we dont have an event out of useLongPress
     event?.preventDefault();
@@ -56,7 +59,7 @@ function OperatorEvent({
     }
   };
 
-  const mouseHandlers = useLongPress(handleLongPress, { threshold: 800 });
+  const mouseHandlers = useLongPress(handleLongPress);
   const cueColours = colour && getAccessibleColour(colour);
 
   const operatorClasses = cx([

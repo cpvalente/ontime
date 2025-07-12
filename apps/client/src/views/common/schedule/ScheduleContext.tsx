@@ -19,7 +19,7 @@ interface ScheduleContextState {
   selectedEventId: string | null;
   numPages: number;
   visiblePage: number;
-  containerRef: RefObject<HTMLUListElement>;
+  containerRef: RefObject<HTMLUListElement | null>;
 }
 
 const ScheduleContext = createContext<ScheduleContextState | undefined>(undefined);
@@ -39,7 +39,7 @@ export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildre
   const [visiblePage, setVisiblePage] = useState(0);
 
   const lastIndex = useRef(-1);
-  const paginator = useRef<NodeJS.Timeout>();
+  const paginator = useRef<NodeJS.Timeout>(undefined);
 
   const containerRef = useRef<HTMLUListElement>(null);
 

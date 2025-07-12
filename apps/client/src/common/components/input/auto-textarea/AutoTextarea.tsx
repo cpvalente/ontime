@@ -5,7 +5,7 @@ import autosize from 'autosize/dist/autosize';
 import Textarea, { type TextareaProps } from '../textarea/Textarea';
 
 interface AutoTextAreaProps extends TextareaProps {
-  inputref: RefObject<HTMLTextAreaElement>;
+  inputref: RefObject<HTMLTextAreaElement | null>;
 }
 
 /**

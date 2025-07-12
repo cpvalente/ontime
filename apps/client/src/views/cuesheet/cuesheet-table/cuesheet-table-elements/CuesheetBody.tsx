@@ -26,7 +26,7 @@ import { cleanup } from './rowObserver';
 
 interface CuesheetBodyProps {
   rowModel: RowModel<OntimeEntry>;
-  selectedRef: RefObject<HTMLTableRowElement>;
+  selectedRef: RefObject<HTMLTableRowElement | null>;
   table: Table<OntimeEntry>;
 }
 
