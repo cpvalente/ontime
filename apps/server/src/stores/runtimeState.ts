@@ -4,8 +4,6 @@ import {
   MaybeNumber,
   MaybeString,
   OffsetMode,
-  OntimeBlock,
-  OntimeEvent,
   PlayableEvent,
   Playback,
   Rundown,
@@ -20,6 +18,7 @@ import { timeNow } from '../utils/time.js';
 import type { RestorePoint } from '../services/RestoreService.js';
 import {
   getCurrent,
+  getExpectedBlockFinish,
   getExpectedEnd,
   getExpectedFinish,
   getRuntimeOffset,
@@ -29,7 +28,6 @@ import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
-import { shouldCrashDev } from '../utils/development.js';
 import { getCurrentRundown } from '../api-data/rundown/rundown.dao.js';
 
 export type RuntimeState = {
@@ -93,6 +91,8 @@ export function clearEventData() {
   runtimeState.runtime.relativeOffset = 0;
   runtimeState.runtime.expectedEnd = null;
   runtimeState.runtime.selectedEventIndex = null;
+
+  if (runtimeState.blockNow) runtimeState.blockNow.expectedEnd = null;
 
   runtimeState.timer.playback = Playback.Stop;
   runtimeState.clock = timeNow();
@@ -513,7 +513,10 @@ export function update(): UpdateResult {
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
   }
 
-  getEndOfBlock();
+  if (runtimeState.blockNow) {
+    const expectedBlockFinish = getExpectedBlockFinish(runtimeState, getCurrentRundown());
+    runtimeState.blockNow.expectedEnd = expectedBlockFinish;
+  }
 
   return { hasTimerFinished: finishedNow, hasSecondaryTimerFinished: false };
 
@@ -719,23 +722,4 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
 
 export function setOffsetMode(mode: OffsetMode) {
   runtimeState.runtime.offsetMode = mode;
-}
-
-export function getEndOfBlock(state = runtimeState) {
-  if (state.blockNow === null) return;
-  if (state.blockNow.startedAt === null) return;
-  if (state.eventNow === null) return;
-
-  const rundown = getCurrentRundown();
-
-  const orderInBlock = (rundown.entries[state.blockNow.id] as OntimeBlock).entries;
-  const indexInBlock = orderInBlock.findIndex((id) => state.eventNow.id === id);
-  shouldCrashDev(indexInBlock < 0, 'Running event is not in current block');
-
-  let accumulatedFinish = Math.max(state.timer.current, 0) + state.clock;
-  for (let i = indexInBlock + 1; i < orderInBlock.length; i++) {
-    const entry = rundown.entries[orderInBlock[i]] as OntimeEvent;
-    accumulatedFinish += entry.gap + entry.duration;
-  }
-  state.blockNow.expectedEnd = accumulatedFinish;
 }

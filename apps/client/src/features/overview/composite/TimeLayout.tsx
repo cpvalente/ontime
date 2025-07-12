@@ -10,11 +10,12 @@ interface TimeLayoutProps {
   daySpan?: number;
   className?: string;
   testId?: string;
+  onClick?: () => void;
 }
 
-export function TimeColumn({ label, value, muted, className, testId }: TimeLayoutProps) {
+export function TimeColumn({ label, value, muted, className, testId, onClick }: TimeLayoutProps) {
   return (
-    <div className={style.column}>
+    <div className={cx([style.column, onClick ? style.clickable : ''])} onClick={onClick}>
       <span className={style.label}>{label}</span>
       <span className={cx([style.clock, muted && style.muted, className])} data-testid={testId}>
         {value}

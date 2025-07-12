@@ -19,6 +19,10 @@
   display: flex;
   flex-direction: column;
 
+  &.clickable {
+    cursor: pointer;
+  }
+
   .label {
     line-height: 0.9em;
   }

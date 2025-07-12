@@ -1,11 +1,35 @@
-import { MaybeNumber, TimerPhase } from 'ontime-types';
+import { isOntimeEvent, MaybeNumber, OntimeBlock, Rundown, TimerPhase } from 'ontime-types';
 import { dayInMs, isPlaybackActive } from 'ontime-utils';
 import type { RuntimeState } from '../stores/runtimeState.js';
+import { shouldCrashDev } from '../utils/development.js';
 
 /**
  * handle events that span over midnight
  */
 export const normaliseEndTime = (start: number, end: number) => (end < start ? end + dayInMs : end);
+
+export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): MaybeNumber {
+  const { blockNow, eventNow, timer } = state;
+  if (blockNow === null) return null;
+  if (blockNow.startedAt === null) return null;
+  if (eventNow === null) return null;
+  if (timer.current === null) return null;
+
+  const { entries } = rundown;
+  const orderInBlock = (entries[blockNow.id] as OntimeBlock).entries;
+
+  const indexInBlock = orderInBlock.findIndex((id) => eventNow.id === id);
+  shouldCrashDev(indexInBlock < 0, 'Running event is not in current block');
+  let accumulatedFinish = Math.max(timer.current, 0) + state.clock;
+
+  for (let i = indexInBlock + 1; i < orderInBlock.length; i++) {
+    const entry = entries[orderInBlock[i]];
+    //TODO: should delays be included here?
+    if (isOntimeEvent(entry)) accumulatedFinish += entry.gap + entry.duration;
+  }
+
+  return accumulatedFinish;
+}
 
 /**
  * Calculates expected finish time of a running timer

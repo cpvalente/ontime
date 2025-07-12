@@ -1,8 +1,9 @@
-import { PropsWithChildren, ReactNode } from 'react';
+import { PropsWithChildren, ReactNode, useState } from 'react';
 import { ErrorBoundary } from '@sentry/react';
 import { isOntimeBlock } from 'ontime-types';
 import { isPlaybackActive, millisToString } from 'ontime-utils';
 
+import Tooltip from '../../../common/components/tooltip/Tooltip';
 import {
   useClock,
   useCurrentBlockId,
@@ -15,7 +16,7 @@ import { useEntry } from '../../../common/hooks-query/useRundown';
 import { cx, enDash, timerPlaceholder, timerPlaceholderMin } from '../../../common/utils/styleUtils';
 import { formatedTime, getOffsetText } from '../overviewUtils';
 
-import { TimeColumn, TimeRow } from './TimeLayout';
+import { TimeColumn } from './TimeLayout';
 
 import style from '../Overview.module.scss';
 
@@ -53,6 +54,7 @@ export function TitlesOverview() {
 export function CurrentBlockOverview() {
   const { blockStartedAt, clock, blockExpectedEnd } = useRuntimePlaybackOverview();
   const { currentBlockId } = useCurrentBlockId();
+  const [direction, setDirection] = useState<'up' | 'down'>('up');
   const entry = useEntry(currentBlockId);
 
   const timeInBlock = formatedTime(blockStartedAt ? clock - blockStartedAt : null, 2);
@@ -62,34 +64,55 @@ export function CurrentBlockOverview() {
    * as scheduled
    * TODO(v4): this needs to be calculated according to offset mode
    */
-  const blockEnd = (() => {
-    if (blockExpectedEnd === null) return timerPlaceholderMin;
-    return formatedTime(blockExpectedEnd - clock, 2);
-  })();
-
-  /**
-   * The time to the end of the block
-   * as projected accounting for delays and offset
-   * TODO(v4): this needs to be calculated according to offset mode
-   */
-  const projectedBlockEnd = (() => {
+  const remainingBlockDuration = (() => {
     if (blockStartedAt === null || !entry) return timerPlaceholderMin;
     if (!isOntimeBlock(entry)) return timerPlaceholderMin;
     return formatedTime(blockStartedAt + entry.duration - clock, 2);
   })();
 
+  /**
+   * The time to the end of the block
+   * as projected accounting for offset
+   * TODO(v4): this needs to be calculated according to offset mode
+   */
+  const projectedBlockEnd = (() => {
+    if (blockExpectedEnd === null) return timerPlaceholderMin;
+    return formatedTime(blockExpectedEnd - clock, 2);
+  })();
+
   return (
     <>
-      <TimeColumn label='Elapsed in group' value={timeInBlock} className={style.clock} muted={blockStartAt === null} />
-      <div>
-        <TimeRow label='Group end' value={blockEnd} className={style.end} muted={blockStartAt === null} />
-        <TimeRow
-          label='Projected group end'
+      {direction === 'up' && (
+        <Tooltip text='How long the group has been active (click to change)'>
+          <TimeColumn
+            label='Elapsed in group'
+            value={timeInBlock}
+            className={style.clock}
+            muted={blockStartedAt === null}
+            onClick={() => setDirection('down')}
+          />
+        </Tooltip>
+      )}
+      {direction === 'down' && (
+        <Tooltip text='Remaining time until the planed group duration is up (click to change)'>
+          <TimeColumn
+            label='Planned group end'
+            value={remainingBlockDuration}
+            className={style.clock}
+            muted={blockStartedAt === null}
+            onClick={() => setDirection('up')}
+          />
+        </Tooltip>
+      )}
+
+      <Tooltip text='Expected time until the group can end, if everything ends on time from now on (click to change)'>
+        <TimeColumn
+          label='Expected group end'
           value={projectedBlockEnd}
           className={style.end}
           muted={blockStartedAt === null}
         />
-      </div>
+      </Tooltip>
     </>
   );
 }
