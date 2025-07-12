@@ -1,5 +1,5 @@
-import { isOntimeEvent, MaybeNumber, OntimeBlock, Rundown, TimerPhase } from 'ontime-types';
-import { dayInMs, isPlaybackActive } from 'ontime-utils';
+import { isOntimeEvent, MaybeNumber, OntimeBlock, OntimeEvent, Rundown, TimerPhase } from 'ontime-types';
+import { calculateTimeUntilStart, dayInMs, isPlaybackActive } from 'ontime-utils';
 import type { RuntimeState } from '../stores/runtimeState.js';
 import { shouldCrashDev } from '../utils/development.js';
 
@@ -9,7 +9,7 @@ import { shouldCrashDev } from '../utils/development.js';
 export const normaliseEndTime = (start: number, end: number) => (end < start ? end + dayInMs : end);
 
 export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): MaybeNumber {
-  const { blockNow, eventNow, timer } = state;
+  const { blockNow, eventNow, timer, clock } = state;
   if (blockNow === null) return null;
   if (blockNow.startedAt === null) return null;
   if (eventNow === null) return null;
@@ -20,15 +20,33 @@ export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): M
 
   const indexInBlock = orderInBlock.findIndex((id) => eventNow.id === id);
   shouldCrashDev(indexInBlock < 0, 'Running event is not in current block');
-  let accumulatedFinish = Math.max(timer.current, 0) + state.clock;
+
+  if (indexInBlock === orderInBlock.length - 1) return timer.expectedFinish;
+
+  let totalGap = 0;
 
   for (let i = indexInBlock + 1; i < orderInBlock.length; i++) {
     const entry = entries[orderInBlock[i]];
-    //TODO: should delays be included here?
-    if (isOntimeEvent(entry)) accumulatedFinish += entry.gap + entry.duration;
+    if (isOntimeEvent(entry)) totalGap += entry.gap;
   }
+  const lastEntry = entries[orderInBlock.at(-1)!] as OntimeEvent;
+  const { offsetMode, offset, plannedStart, actualStart } = state.runtime;
 
-  return accumulatedFinish;
+  const timeUntilLastEvent = calculateTimeUntilStart({
+    timeStart: lastEntry.timeStart,
+    dayOffset: lastEntry.dayOffset,
+    delay: lastEntry.delay,
+    currentDay: state.eventNow?.dayOffset,
+    totalGap: 0,
+    isLinkedToLoaded: false,
+    clock,
+    offsetMode,
+    offset,
+    plannedStart,
+    actualStart,
+  });
+
+  return clock + timeUntilLastEvent + lastEntry.duration;
 }
 
 /**

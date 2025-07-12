@@ -1,4 +1,4 @@
-import { PropsWithChildren, ReactNode, useState } from 'react';
+import { PropsWithChildren, ReactNode, useMemo, useState } from 'react';
 import { ErrorBoundary } from '@sentry/react';
 import { isOntimeBlock } from 'ontime-types';
 import { isPlaybackActive, millisToString } from 'ontime-utils';
@@ -64,21 +64,22 @@ export function CurrentBlockOverview() {
    * as scheduled
    * TODO(v4): this needs to be calculated according to offset mode
    */
-  const remainingBlockDuration = (() => {
-    if (blockStartedAt === null || !entry) return timerPlaceholderMin;
-    if (!isOntimeBlock(entry)) return timerPlaceholderMin;
-    return formatedTime(blockStartedAt + entry.duration - clock, 2);
-  })();
+
+  const remainingBlockDuration = useMemo(() => {
+    if (blockStartedAt === null || !entry) return timerPlaceholder;
+    if (!isOntimeBlock(entry)) return timerPlaceholder;
+    return formatedTime(blockStartedAt + entry.duration - clock);
+  }, [entry, blockStartedAt, clock]);
 
   /**
    * The time to the end of the block
    * as projected accounting for offset
    * TODO(v4): this needs to be calculated according to offset mode
    */
-  const projectedBlockEnd = (() => {
-    if (blockExpectedEnd === null) return timerPlaceholderMin;
-    return formatedTime(blockExpectedEnd - clock, 2);
-  })();
+  const projectedBlockEnd = useMemo(() => {
+    if (blockExpectedEnd === null) return timerPlaceholder;
+    return formatedTime(blockExpectedEnd - clock, 3);
+  }, [blockExpectedEnd, clock]);
 
   return (
     <>
