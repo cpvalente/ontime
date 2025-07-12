@@ -56,6 +56,18 @@ export function isStringBoolean(text: string | null) {
 }
 
 /**
+ * Prepares a colour string for use in views
+ * Colours in params do not have the #prefix
+ */
+export function makeColourString(hex: string | null): string | undefined {
+  if (!hex) {
+    return undefined;
+  }
+  // ensure the hex starts with a #
+  return hex.startsWith('#') ? hex : `#${hex}`;
+}
+
+/**
  * Retrieves a dynamic property from an event
  * Considers custom fields
  */

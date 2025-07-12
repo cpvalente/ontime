@@ -4,8 +4,8 @@ export const getTimeOption = (timeFormat: string): ParamField => {
   const placeholder = `${timeFormat} (default)`;
   return {
     id: 'timeformat',
-    title: 'Time format string, taken from the Application Settings',
-    description: 'Format for auxiliar time fields (not the running), eg. HH:mm:ss or hh:mm:ss a, see docs for help',
+    title: 'Clock time format, defaults to value from the Settings',
+    description: 'Format for the Time Now field, eg. HH:mm:ss or hh:mm:ss a, see docs for help',
     type: 'string',
     placeholder,
   };
