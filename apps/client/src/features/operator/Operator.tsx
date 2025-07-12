@@ -115,7 +115,7 @@ export default function Operator() {
   const { process } = makeOperatorMetadata(selectedEventId);
 
   return (
-    <div className={style.operatorContainer}>
+    <div className={style.operatorContainer} data-testid='operator-view'>
       <ViewParamsEditor viewOptions={operatorOptions} />
       {editEvent && <EditModal event={editEvent} onClose={() => setEditEvent(null)} />}
 

@@ -83,15 +83,32 @@ export function getShowModifiers(
   phase: TimerPhase,
   freezeOvertime: boolean,
   freezeMessage: string,
-  hideOvertime: boolean,
+  hidePhase: boolean,
 ) {
+  if (hidePhase) {
+    return {
+      showEndMessage: false,
+      showFinished: false,
+      showWarning: false,
+      showDanger: false,
+    };
+  }
+
   const showModifiers = timerType === TimerType.CountDown || countToEnd;
-  const finished = phase === TimerPhase.Overtime;
+  if (!showModifiers) {
+    return {
+      showEndMessage: false,
+      showFinished: false,
+      showWarning: false,
+      showDanger: false,
+    };
+  }
+
   return {
-    showEndMessage: showModifiers && finished && freezeOvertime && freezeMessage !== '',
-    showFinished: showModifiers && !hideOvertime && finished,
-    showWarning: showModifiers && phase === TimerPhase.Warning,
-    showDanger: showModifiers && phase === TimerPhase.Danger,
+    showEndMessage: freezeOvertime && freezeMessage !== '',
+    showFinished: phase === TimerPhase.Overtime,
+    showWarning: phase === TimerPhase.Warning,
+    showDanger: phase === TimerPhase.Danger,
   };
 }
 

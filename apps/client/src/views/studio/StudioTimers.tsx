@@ -38,7 +38,12 @@ export default function StudioTimers({
   const formattedSecondaryMessage = secondaryMessage || '-';
 
   // gather presentation styles
-  const timerColour = getTimerColour(viewSettings, time.phase === TimerPhase.Warning, time.phase === TimerPhase.Danger);
+  const timerColour = getTimerColour(
+    viewSettings,
+    undefined,
+    time.phase === TimerPhase.Warning,
+    time.phase === TimerPhase.Danger,
+  );
 
   return (
     <div className='studio__timers'>

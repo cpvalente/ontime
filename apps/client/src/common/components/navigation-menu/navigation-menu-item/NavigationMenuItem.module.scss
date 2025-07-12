@@ -25,9 +25,8 @@
   }
 
   &:focus {
-    outline: none;
-    background-color: $gray-1300;
-    border: 2px solid $ui-white;
+    outline: 2px solid $blue-500;
+    background-color: $gray-1350;
   }
 
   &.current {

@@ -101,7 +101,7 @@
     .timer {
       opacity: 1;
       font-family: var(--timer-font, var(--font-family-override, $viewer-font-family));
-      color: var(--timer-colour, var(--timer-color-override, var(--phase-color)));
+      color: var(--timer-colour, var(--timer-color-override, $ui-white));
       line-height: 0.9em;
       text-align: center;
       letter-spacing: 0.05em;
@@ -117,14 +117,14 @@
 
       // use a class instead of a phase, to allow suppressing overtime style
       &--finished {
-        color: var(--timer-overtime-color-override, $timer-finished-color);
+        color: var(--timer-colour, var(--timer-overtime-color-override, $timer-finished-color));
       }
 
       &[data-phase="warning"] {
-        color: var(--timer-warning-color-override, var(--phase-color));
+        color: var(--timer-colour, var(--timer-warning-color-override));
       }
       &[data-phase="danger"] {
-        color: var(--timer-danger-color-override, var(--phase-color));
+        color: var(--timer-colour, var(--timer-danger-color-override));
       }
     }
   }

@@ -35,9 +35,18 @@ interface BackstageProps {
   settings: Settings | undefined;
 }
 
-export default function Backstage(props: BackstageProps) {
-  const { events, customFields, eventNext, eventNow, general, time, isMirrored, runtime, selectedId, settings } = props;
-
+export default function Backstage({
+  events,
+  customFields,
+  eventNext,
+  eventNow,
+  general,
+  time,
+  isMirrored,
+  runtime,
+  selectedId,
+  settings,
+}: BackstageProps) {
   const { getLocalizedString } = useTranslation();
   const { secondarySource } = useBackstageOptions();
   const [blinkClass, setBlinkClass] = useState(false);
