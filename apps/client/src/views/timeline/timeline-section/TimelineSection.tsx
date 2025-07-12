@@ -12,9 +12,7 @@ interface SectionProps {
 
 export default memo(Section);
 
-function Section(props: SectionProps) {
-  const { category, content, title, status } = props;
-
+function Section({ category, content, title, status }: SectionProps) {
   const sectionClasses = cx(['section', category === 'now' && 'section--now']);
   const contentClasses = cx(['section-content', content ? `section-content--${category}` : 'section-content--subdue']);
   return (
