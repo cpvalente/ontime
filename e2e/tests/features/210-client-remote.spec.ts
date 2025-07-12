@@ -8,11 +8,11 @@ test('redirect', async ({ context }) => {
   await remotePage.goto('http://localhost:4001/timer');
 
   await controllerPage.getByTestId('not-self-redirect').click();
-  await controllerPage.getByPlaceholder('minimal?key=0000ffff').click();
-  await controllerPage.getByPlaceholder('minimal?key=0000ffff').fill('clock');
+  await controllerPage.getByRole('textbox', { name: 'http://localhost:' }).click();
+  await controllerPage.getByRole('textbox', { name: 'http://localhost:' }).fill('studio');
   await controllerPage.getByLabel('Redirect', { exact: true }).click();
 
-  await expect(remotePage.getByTestId('clock-view')).toBeVisible();
+  await expect(remotePage.getByTestId('studio-view')).toBeVisible();
 });
 
 test('identify', async ({ context }) => {

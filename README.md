@@ -95,8 +95,6 @@ You can access the different views by reaching the ontime server, in your browse
 For the backstage views
 -------------------------------------------------------------
 IP.ADDRESS:4001/timer      > Presenter / Stage timer view
-IP.ADDRESS:4001/minimal    > Simple timer view
-IP.ADDRESS:4001/clock      > Simple clock view
 IP.ADDRESS:4001/backstage  > Stage Manager / Backstage view
 IP.ADDRESS:4001/countdown  > Countdown to anything
 IP.ADDRESS:4001/studio     > Studio Clock

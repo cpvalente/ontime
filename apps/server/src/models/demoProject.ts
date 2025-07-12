@@ -539,7 +539,7 @@ export const demoDb: DatabaseModel = {
     {
       enabled: true,
       alias: 'test',
-      pathAndParams: 'lower?bg=ff2&text=f00&size=0.6&transition=5',
+      pathAndParams: 'timer?timerType=clock',
     },
   ],
   automation: {

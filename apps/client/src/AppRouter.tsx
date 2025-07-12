@@ -27,7 +27,6 @@ const Countdown = React.lazy(() => import('./views/countdown/Countdown'));
 
 const Backstage = React.lazy(() => import('./views/backstage/Backstage'));
 const Timeline = React.lazy(() => import('./views/timeline/TimelinePage'));
-const Lower = React.lazy(() => import('./features/viewers/lower-thirds/LowerThird'));
 const StudioClock = React.lazy(() => import('./views/studio/Studio'));
 const ProjectInfo = React.lazy(() => import('./views/project-info/ProjectInfo'));
 
@@ -35,7 +34,6 @@ const STimer = withPreset(withData(TimerView));
 const SCountdown = withPreset(withData(Countdown));
 const SBackstage = withPreset(withData(Backstage));
 const SProjectInfo = withPreset(ProjectInfo); // NOTE: ProjectInfo does not use the viewWrapper since it has no options
-const SLowerThird = withPreset(withData(Lower));
 const SStudio = withPreset(withData(StudioClock));
 const STimeline = withPreset(withData(Timeline));
 const PCuesheet = withPreset(Cuesheet);
@@ -106,8 +104,6 @@ export default function AppRouter() {
             </ViewLoader>
           }
         />
-        {/*/!* Lower third cannot have a loading screen *!/*/}
-        <Route path='/lower' element={<SLowerThird />} />
         <Route
           path='/timeline'
           element={

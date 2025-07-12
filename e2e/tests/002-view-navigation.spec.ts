@@ -20,14 +20,6 @@ test.describe('test view navigation feature', () => {
     await expect(page).toHaveURL('http://localhost:4001/backstage');
   });
 
-  test('Lower Thirds', async ({ page }) => {
-    await openNavigationMenu(page);
-    await page.getByRole('button', { name: 'Lower Thirds' }).click();
-    await expect(page).toHaveURL('http://localhost:4001/lower');
-    const errorBoundary = page.locator('data-testid=error-container');
-    await expect(errorBoundary).toHaveCount(0);
-  });
-
   test('Studio Clock', async ({ page }) => {
     await openNavigationMenu(page);
     await page.getByRole('button', { name: 'Studio Clock' }).click();
