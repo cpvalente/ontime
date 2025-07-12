@@ -1,4 +1,4 @@
-import { MutableRefObject, useEffect, useRef } from 'react';
+import { RefObject, useEffect, useRef } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { useSessionStorage } from '@mantine/hooks';
 import { flexRender, Table } from '@tanstack/react-table';
@@ -22,7 +22,7 @@ interface EventRowProps {
   eventIndex: number;
   rowIndex: number;
   isPast?: boolean;
-  selectedRef?: MutableRefObject<HTMLTableRowElement | null>;
+  selectedRef?: RefObject<HTMLTableRowElement | null>;
   skip?: boolean;
   colour?: string;
   rowBgColour?: string;
