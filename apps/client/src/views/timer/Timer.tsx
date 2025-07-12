@@ -68,7 +68,7 @@ export default function Timer({
     timerType,
     freezeOvertime,
     freezeMessage,
-    hideOvertime,
+    hidePhase,
     font,
     keyColour,
     textColour,
@@ -88,7 +88,7 @@ export default function Timer({
     time.phase,
     freezeOvertime,
     freezeMessage,
-    hideOvertime,
+    hidePhase,
   );
   const isPlaying = getIsPlaying(time.playback);
   const showClock = !hideClock && getShowClock(viewTimerType);
@@ -136,11 +136,11 @@ export default function Timer({
   );
 
   // gather presentation styles
-  const timerColour = getTimerColour(viewSettings, showWarning, showDanger);
+  const timerColour = getTimerColour(viewSettings, textColour, showWarning, showDanger);
   const { timerFontSize, externalFontSize } = getEstimatedFontSize(display, secondaryContent);
   const userStyles = {
     ...(keyColour && { '--timer-bg': keyColour }),
-    ...(textColour && { '--timer-colour': textColour }),
+    ...(textColour && { '--timer-colour': timerColour }),
     ...(font && { '--timer-font': font }),
   };
 
@@ -183,10 +183,7 @@ export default function Timer({
         ) : (
           <div
             className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished'])}
-            style={{
-              fontSize: `${timerFontSize}vw`,
-              '--phase-color': timerColour,
-            }}
+            style={{ fontSize: `${timerFontSize}vw` }}
             data-phase={time.phase}
           >
             {display}

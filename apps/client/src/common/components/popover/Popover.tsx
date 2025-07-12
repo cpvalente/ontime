@@ -18,7 +18,9 @@ export default function PopoverContents({
       <Popover.Positioner sideOffset={8} {...popoverProps}>
         <Popover.Popup className={style.popup}>
           {title && <Popover.Title className={style.title}>{title}</Popover.Title>}
-          <Popover.Description className={className}>{children}</Popover.Description>
+          <Popover.Description className={className} render={<div />}>
+            {children}
+          </Popover.Description>
         </Popover.Popup>
       </Popover.Positioner>
     </Popover.Portal>

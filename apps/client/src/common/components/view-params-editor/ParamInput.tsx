@@ -43,8 +43,7 @@ export default function ParamInput({ paramField }: ParamInputProps) {
   }
 
   if (type === 'boolean') {
-    const defaultCheckedValue = isStringBoolean(searchParams.get(id)) || defaultValue;
-    return <Switch size='large' name={id} defaultChecked={defaultCheckedValue} />;
+    return <ControlledSwitch id={id} initialValue={isStringBoolean(searchParams.get(id)) || defaultValue} />;
   }
 
   if (type === 'number') {
@@ -122,4 +121,13 @@ function MultiOption({ paramField }: EditFormMultiOptionProps) {
       </div>
     </>
   );
+}
+
+interface ControlledSwitchProps {
+  id: string;
+  initialValue: boolean;
+}
+function ControlledSwitch({ id, initialValue }: ControlledSwitchProps) {
+  const [checked, setChecked] = useState(initialValue);
+  return <Switch size='large' name={id} checked={checked} onCheckedChange={setChecked} />;
 }
