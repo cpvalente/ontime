@@ -154,7 +154,7 @@ function makeViewMenu(clientUrl) {
       { type: 'separator' },
       makeItemOpenInBrowser('Timer', `${clientUrl}/timer`),
       makeItemOpenInBrowser('Backstage', `${clientUrl}/backstage`),
-      makeItemOpenInBrowser('Timeline (beta)', `${clientUrl}/timeline`),
+      makeItemOpenInBrowser('Timeline', `${clientUrl}/timeline`),
       makeItemOpenInBrowser('Studio Clock', `${clientUrl}/studio`),
       makeItemOpenInBrowser('Countdown', `${clientUrl}/countdown`),
       makeItemOpenInBrowser('Project info', `${clientUrl}/info`),

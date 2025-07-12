@@ -1,7 +1,7 @@
 export const navigatorConstants = [
   { url: 'timer', label: 'Timer' },
   { url: 'backstage', label: 'Backstage' },
-  { url: 'timeline', label: 'Timeline (beta)' },
+  { url: 'timeline', label: 'Timeline' },
   { url: 'studio', label: 'Studio Clock' },
   { url: 'countdown', label: 'Countdown' },
   { url: 'info', label: 'Project Info' },

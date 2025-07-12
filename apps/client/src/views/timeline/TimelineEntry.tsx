@@ -1,3 +1,5 @@
+import { RefObject } from 'react';
+
 import { useTimelineStatus, useTimer } from '../../common/hooks/useSocket';
 import { getProgress } from '../../common/utils/getProgress';
 import { alpha, cx } from '../../common/utils/styleUtils';
@@ -19,6 +21,7 @@ interface TimelineEntryProps {
   start: number;
   title: string;
   width: number;
+  ref?: RefObject<HTMLDivElement | null>;
 }
 
 const formatOptions = {
@@ -26,9 +29,7 @@ const formatOptions = {
   format24: 'HH:mm',
 };
 
-export function TimelineEntry(props: TimelineEntryProps) {
-  const { colour, delay, duration, left, status, start, title, width } = props;
-
+export function TimelineEntry({ colour, delay, duration, left, status, start, title, width, ref }: TimelineEntryProps) {
   const formattedStartTime = formatTime(start, formatOptions);
   const formattedDuration = formatDuration(duration);
   const delayedStart = start + delay;
@@ -41,6 +42,7 @@ export function TimelineEntry(props: TimelineEntryProps) {
 
   return (
     <div
+      ref={ref}
       className={columnClasses}
       style={{
         '--color': colour,
@@ -80,8 +82,7 @@ interface TimelineEntryStatusProps {
 }
 
 // extract component to isolate re-renders provoked by the clock changes
-function TimelineEntryStatus(props: TimelineEntryStatusProps) {
-  const { delay, start, status } = props;
+function TimelineEntryStatus({ delay, start, status }: TimelineEntryStatusProps) {
   const { clock, offset } = useTimelineStatus();
   const { getLocalizedString } = useTranslation();
 

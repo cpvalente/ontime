@@ -30,8 +30,7 @@ interface TimelinePageProps {
  * which refreshes at least once a second
  * There is little point splitting or memoising top level elements
  */
-export default function TimelinePage(props: TimelinePageProps) {
-  const { events, general, runtime, selectedId, settings, time } = props;
+export default function TimelinePage({ events, general, runtime, selectedId, settings, time }: TimelinePageProps) {
   // holds copy of the rundown with only relevant events
   const { scopedRundown, firstStart, totalDuration } = useScopedRundown(events, selectedId);
   const { getLocalizedString } = useTranslation();
@@ -76,7 +75,7 @@ export default function TimelinePage(props: TimelinePageProps) {
       <ViewParamsEditor viewOptions={progressOptions} />
       <div className='project-header'>
         {general?.logo && <ViewLogo name={general.logo} className='logo' />}
-        {general.title}
+        <div className='title'>{general.title}</div>
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>
           <SuperscriptTime time={clock} className='time' />
