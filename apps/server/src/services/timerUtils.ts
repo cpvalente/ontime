@@ -8,9 +8,16 @@ import { shouldCrashDev } from '../utils/development.js';
  */
 export const normaliseEndTime = (start: number, end: number) => (end < start ? end + dayInMs : end);
 
+/**
+ * Calculates the expected time of the group to end.
+ * Should only be called if a block is running
+ * TODO: take a look at how it handles relative offset mode
+ */
 export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): MaybeNumber {
   const { blockNow, eventNow, timer, clock } = state;
+
   if (blockNow === null) return null;
+  // if the group doesn't have a start time there is no end time either
   if (blockNow.startedAt === null) return null;
   if (eventNow === null) return null;
   if (timer.current === null) return null;
@@ -24,10 +31,14 @@ export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): M
   if (indexInBlock === orderInBlock.length - 1) return timer.expectedFinish;
 
   let totalGap = 0;
+  let isLinkedToLoaded = true;
 
   for (let i = indexInBlock + 1; i < orderInBlock.length; i++) {
     const entry = entries[orderInBlock[i]];
-    if (isOntimeEvent(entry)) totalGap += entry.gap;
+    if (isOntimeEvent(entry)) {
+      totalGap += entry.gap;
+      isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
+    }
   }
   const lastEntry = entries[orderInBlock.at(-1)!] as OntimeEvent;
   const { offsetMode, offset, plannedStart, actualStart } = state.runtime;
@@ -36,9 +47,9 @@ export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): M
     timeStart: lastEntry.timeStart,
     dayOffset: lastEntry.dayOffset,
     delay: lastEntry.delay,
-    currentDay: state.eventNow?.dayOffset,
-    totalGap: 0,
-    isLinkedToLoaded: false,
+    currentDay: eventNow.dayOffset,
+    totalGap,
+    isLinkedToLoaded,
     clock,
     offsetMode,
     offset,

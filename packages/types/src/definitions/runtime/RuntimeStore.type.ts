@@ -1,4 +1,4 @@
-import { MaybeString } from '../../utils/utils.type.js';
+import type { MaybeString } from '../../utils/utils.type.js';
 import type { OntimeEvent } from '../core/OntimeEntry.js';
 import type { SimpleTimerState } from './AuxTimer.type.js';
 import type { BlockState } from './CurrentBlockState.type.js';

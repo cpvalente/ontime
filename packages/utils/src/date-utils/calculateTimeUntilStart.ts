@@ -1,5 +1,7 @@
-import { MaybeNumber, OffsetMode, OntimeEvent } from 'ontime-types';
-import { dayInMs } from './conversionUtils';
+import type { MaybeNumber, OntimeEvent } from 'ontime-types';
+import { OffsetMode } from 'ontime-types';
+
+import { dayInMs } from './conversionUtils.js';
 
 /**
  * @param currentDay the day offset of the currently running event

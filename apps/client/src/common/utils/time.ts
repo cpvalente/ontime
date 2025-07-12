@@ -1,7 +1,6 @@
-import { MaybeNumber, OffsetMode, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
+import { MaybeNumber, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
 import {
   calculateTimeUntilStart,
-  dayInMs,
   formatFromMillis,
   MILLIS_PER_HOUR,
   MILLIS_PER_MINUTE,
