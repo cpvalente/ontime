@@ -7,7 +7,6 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
 import { SwatchPickerRHF } from '../../../../common/components/input/colour-input/SwatchPicker';
-import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Switch from '../../../../common/components/switch/Switch';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
@@ -26,7 +25,6 @@ export default function ViewSettings() {
     control,
     handleSubmit,
     setError,
-    register,
     reset,
     setValue,
     watch,
@@ -120,31 +118,6 @@ export default function ViewSettings() {
             <Panel.ListItem>
               <Panel.Field title='Danger colour' description='Colour of a running timer in danger mode' />
               <SwatchPickerRHF name='dangerColor' control={control} />
-            </Panel.ListItem>
-          </Panel.ListGroup>
-          <Panel.ListGroup>
-            <Panel.ListItem>
-              <Panel.Field
-                title='Freeze timer on end'
-                description='When a timer hits 00:00:00, it freezes instead of going negative. It invalidates the End Message.'
-              />
-              <Switch
-                size='large'
-                checked={watch('freezeEnd')}
-                onCheckedChange={(value: boolean) => setValue('freezeEnd', value, { shouldDirty: true })}
-              />
-            </Panel.ListItem>
-            <Panel.ListItem>
-              <Panel.Field
-                title='End message'
-                description='Message for negative timers; applies only if the timer isn`t frozen on End. If no message is provided, it continues into negative time'
-              />
-              <Input
-                maxLength={150}
-                style={{ width: '275px' }}
-                placeholder='Shown when timer reaches end'
-                {...register('endMessage')}
-              />
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>

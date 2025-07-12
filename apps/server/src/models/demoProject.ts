@@ -519,8 +519,6 @@ export const demoDb: DatabaseModel = {
   },
   viewSettings: {
     dangerColor: '#ED3333',
-    endMessage: '',
-    freezeEnd: false,
     normalColor: '#ffffffcc',
     overrideStyles: false,
     warningColor: '#FFAB33',
