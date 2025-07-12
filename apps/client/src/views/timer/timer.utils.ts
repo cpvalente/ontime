@@ -1,13 +1,4 @@
-import {
-  MaybeNumber,
-  MessageState,
-  OntimeEvent,
-  Playback,
-  TimerMessage,
-  TimerPhase,
-  TimerType,
-  ViewSettings,
-} from 'ontime-types';
+import { MaybeNumber, MessageState, OntimeEvent, Playback, TimerMessage, TimerPhase, TimerType } from 'ontime-types';
 import { isPlaybackActive } from 'ontime-utils';
 
 import { getFormattedTimer, getPropertyValue } from '../../features/viewers/common/viewUtils';
@@ -90,13 +81,15 @@ export function getShowModifiers(
   timerType: TimerType,
   countToEnd: boolean,
   phase: TimerPhase,
-  viewSettings: ViewSettings,
+  freezeOvertime: boolean,
+  freezeMessage: string,
+  hideOvertime: boolean,
 ) {
   const showModifiers = timerType === TimerType.CountDown || countToEnd;
   const finished = phase === TimerPhase.Overtime;
   return {
-    showEndMessage: showModifiers && finished && viewSettings.endMessage,
-    showFinished: showModifiers && finished, // ????
+    showEndMessage: showModifiers && finished && freezeOvertime && freezeMessage !== '',
+    showFinished: showModifiers && !hideOvertime && finished,
     showWarning: showModifiers && phase === TimerPhase.Warning,
     showDanger: showModifiers && phase === TimerPhase.Danger,
   };

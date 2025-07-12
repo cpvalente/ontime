@@ -64,6 +64,13 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
           defaultValue: '',
           placeholder: 'e.g. Time is up!',
         },
+        {
+          id: 'hideOvertime',
+          title: 'Hide Overtime',
+          description: 'Whether to suppress overtime styles (red borders and red text)',
+          type: 'boolean',
+          defaultValue: false,
+        },
       ],
     },
     {
@@ -161,13 +168,6 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
           type: 'colour',
           defaultValue: 'f6f6f6',
         },
-        {
-          id: 'hideovertime',
-          title: 'Hide Overtime',
-          description: 'Whether to suppress overtime styles (red borders and red text)',
-          type: 'boolean',
-          defaultValue: false,
-        },
       ],
     },
   ];
@@ -187,6 +187,7 @@ type TimerOptions = {
   timerType?: TimerType;
   freezeOvertime: boolean;
   freezeMessage: string;
+  hideOvertime: boolean;
   font?: string;
   keyColour?: string;
   textColour?: string;
@@ -216,6 +217,7 @@ function getOptionsFromParams(searchParams: URLSearchParams): TimerOptions {
     timerType: timerType === TimerType.None ? undefined : timerType,
     freezeOvertime: isStringBoolean(searchParams.get('freezeOvertime')),
     freezeMessage: searchParams.get('freezeMessage') ?? '',
+    hideOvertime: isStringBoolean(searchParams.get('hideOvertime')),
 
     font: searchParams.get('font') ?? undefined,
     keyColour: makeColourString(searchParams.get('keyColour')),

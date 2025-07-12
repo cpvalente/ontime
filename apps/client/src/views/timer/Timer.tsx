@@ -68,6 +68,7 @@ export default function Timer({
     timerType,
     freezeOvertime,
     freezeMessage,
+    hideOvertime,
     font,
     keyColour,
     textColour,
@@ -85,7 +86,9 @@ export default function Timer({
     time.timerType,
     time.countToEnd,
     time.phase,
-    viewSettings,
+    freezeOvertime,
+    freezeMessage,
+    hideOvertime,
   );
   const isPlaying = getIsPlaying(time.playback);
   const showClock = !hideClock && getShowClock(viewTimerType);
