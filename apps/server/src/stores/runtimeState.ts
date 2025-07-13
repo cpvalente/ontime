@@ -18,6 +18,7 @@ import { timeNow } from '../utils/time.js';
 import type { RestorePoint } from '../services/RestoreService.js';
 import {
   getCurrent,
+  getExpectedBlockFinish,
   getExpectedEnd,
   getExpectedFinish,
   getRuntimeOffset,
@@ -27,11 +28,12 @@ import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
+import { getCurrentRundown } from '../api-data/rundown/rundown.dao.js';
 
 export type RuntimeState = {
   clock: number; // realtime clock
   blockNow: BlockState | null;
-  blockNext: BlockState | null;
+  blockNext: MaybeString;
   eventNow: PlayableEvent | null;
   eventNext: PlayableEvent | null;
   runtime: Runtime;
@@ -89,6 +91,8 @@ export function clearEventData() {
   runtimeState.runtime.relativeOffset = 0;
   runtimeState.runtime.expectedEnd = null;
   runtimeState.runtime.selectedEventIndex = null;
+
+  if (runtimeState.blockNow) runtimeState.blockNow.expectedEnd = null;
 
   runtimeState.timer.playback = Playback.Stop;
   runtimeState.clock = timeNow();
@@ -509,6 +513,11 @@ export function update(): UpdateResult {
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
   }
 
+  if (runtimeState.blockNow) {
+    const expectedBlockFinish = getExpectedBlockFinish(runtimeState, getCurrentRundown());
+    runtimeState.blockNow.expectedEnd = expectedBlockFinish;
+  }
+
   return { hasTimerFinished: finishedNow, hasSecondaryTimerFinished: false };
 
   function updateIfIdle() {
@@ -690,7 +699,7 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
   let foundEventNow = false;
   for (const id of rundown.order) {
     if (foundEventNow && isOntimeBlock(rundown.entries[id])) {
-      state.blockNext = { id, startedAt: null }; // the id is set here, the start time is set in other placed that handel starting events
+      state.blockNext = id; // the id is set here, the start time is set in other placed that handel starting events
       break;
     }
     if (id === state.eventNow.id) {
@@ -707,7 +716,7 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
 
   //we went into a new block - and it is different from the one we might have come from
   if ((state.blockNow != null && state.blockNow.id != currentBlockId) || state.blockNow == null) {
-    state.blockNow = { id: currentBlockId, startedAt: null }; // the id is set here, the start time is set in other placed that handel starting events
+    state.blockNow = { id: currentBlockId, startedAt: null, expectedEnd: null }; // the id is set here, the start time is set in other placed that handel starting events
   }
 }
 

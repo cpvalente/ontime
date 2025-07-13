@@ -4,4 +4,5 @@ import type { EntryId } from '../core/OntimeEntry.js';
 export type BlockState = {
   id: EntryId;
   startedAt: MaybeNumber;
+  expectedEnd: MaybeNumber;
 };
