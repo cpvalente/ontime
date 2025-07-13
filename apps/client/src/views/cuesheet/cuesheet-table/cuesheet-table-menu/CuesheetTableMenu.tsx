@@ -11,8 +11,8 @@ import { useCuesheetTableMenu } from './useCuesheetTableMenu';
 export default memo(CuesheetTableMenu);
 
 function CuesheetTableMenu() {
-  const { isOpen, entryId, entryIndex, parentId, position, closeMenu } = useCuesheetTableMenu();
-  const { addEntry, clone, deleteEntry, move } = useEntryActions();
+  const { isOpen, entryId, entryIndex, parentId, flag, position, closeMenu } = useCuesheetTableMenu();
+  const { addEntry, clone, deleteEntry, move, updateEntry } = useEntryActions();
   const showModal = useCuesheetEditModal((state) => state.setEditableEntry);
 
   if (!isOpen) {
@@ -25,6 +25,14 @@ function CuesheetTableMenu() {
       onClose={closeMenu}
       items={[
         { type: 'item', label: 'Edit...', onClick: () => showModal(entryId), icon: IoOptions },
+        { type: 'divider' },
+        {
+          type: 'item',
+          label: flag ? 'Remove flag' : 'Add flag',
+          onClick: () => updateEntry({ id: entryId, flag: !flag }),
+          icon: IoDuplicateOutline,
+          disabled: flag === null,
+        },
         { type: 'divider' },
         {
           type: 'item',

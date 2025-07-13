@@ -1,6 +1,6 @@
 import { dayInMs } from 'ontime-utils';
 
-import { calculateEndAndDaySpan } from '../overviewUtils';
+import { calculateEndAndDaySpan } from '../overview.utils';
 
 describe('calculateEndAndDaySpan', () => {
   it('should return [null, 0] when end is null', () => {

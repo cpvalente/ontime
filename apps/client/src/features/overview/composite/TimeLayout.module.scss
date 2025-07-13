@@ -1,7 +1,6 @@
 .label {
   color: $label-gray;
   font-size: calc(1rem - 2px);
-  width: 15em; // a number large enough to force right alignment
 }
 
 .clock {
@@ -9,6 +8,7 @@
   font-size: 1.5rem;
   letter-spacing: 0.5px;
   min-width: 5em;
+  font-variant-numeric: tabular-nums;
 
   &::after {
     content: '\200b';
@@ -21,6 +21,7 @@
 
   .label {
     line-height: 0.9em;
+    width: 7em;
   }
 }
 
@@ -32,6 +33,7 @@
 
   .label {
     text-align: right;
+    width: 5em;
   }
 
   .clock {

@@ -8,6 +8,7 @@ const baseState: RuntimeState = {
   eventNext: null,
   blockNow: null,
   blockNext: null,
+  nextFlag: null,
   runtime: {
     selectedEventIndex: null,
     numEvents: 0,

@@ -1,4 +1,5 @@
 import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { TbFlagFilled } from 'react-icons/tb';
 import {
   closestCenter,
   DndContext,
@@ -482,7 +483,12 @@ export default function Rundown({ data }: RundownProps) {
                       data-testid={`entry-${rundownMetadata.eventIndex}`}
                       style={blockColour ? { '--user-bg': blockColour } : {}}
                     >
-                      {isOntimeEvent(entry) && <div className={style.entryIndex}>{rundownMetadata.eventIndex}</div>}
+                      {isOntimeEvent(entry) && (
+                        <div className={style.entryIndex}>
+                          {entry.flag && <TbFlagFilled className={style.flag} />}
+                          <div className={style.index}>{rundownMetadata.eventIndex}</div>
+                        </div>
+                      )}
                       <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
                         <RundownEntry
                           type={entry.type}
