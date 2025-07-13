@@ -88,6 +88,7 @@ export function createEventPatch(originalEvent: OntimeEvent, patchEvent: Partial
   return {
     id: originalEvent.id,
     type: SupportedEntry.Event,
+    flag: typeof patchEvent.flag === 'boolean' ? patchEvent.flag : originalEvent.flag,
     title: makeString(patchEvent.title, originalEvent.title),
     timeStart,
     timeEnd,

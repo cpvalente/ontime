@@ -22,6 +22,7 @@ describe('cellRequestFromEvent()', () => {
   test('string to string', () => {
     const event: OntimeEvent = {
       type: SupportedEntry.Event,
+      flag: false,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -70,6 +71,7 @@ describe('cellRequestFromEvent()', () => {
   test('number to timer', () => {
     const event: OntimeEvent = {
       type: SupportedEntry.Event,
+      flag: false,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -120,6 +122,7 @@ describe('cellRequestFromEvent()', () => {
   test('boolean to TRUE', () => {
     const event: OntimeEvent = {
       type: SupportedEntry.Event,
+      flag: false,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -168,6 +171,7 @@ describe('cellRequestFromEvent()', () => {
   test('spacing in metadata', () => {
     const event: OntimeEvent = {
       type: SupportedEntry.Event,
+      flag: false,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -204,6 +208,7 @@ describe('cellRequestFromEvent()', () => {
   test('metadata offset from zero', () => {
     const event: OntimeEvent = {
       type: SupportedEntry.Event,
+      flag: false,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -241,6 +246,7 @@ describe('cellRequestFromEvent()', () => {
   test('sheet setup', () => {
     const event: OntimeEvent = {
       type: SupportedEntry.Event,
+      flag: false,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',

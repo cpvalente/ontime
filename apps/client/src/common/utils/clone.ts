@@ -10,6 +10,7 @@ type ClonedEvent = Omit<OntimeEvent, 'id' | 'cue'>;
 export const cloneEvent = (event: OntimeEvent): ClonedEvent => {
   return {
     type: SupportedEntry.Event,
+    flag: event.flag,
     title: event.title,
     note: event.note,
     timeStart: event.timeStart,

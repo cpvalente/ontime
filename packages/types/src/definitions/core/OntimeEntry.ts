@@ -50,6 +50,7 @@ export type OntimeBlock = OntimeBaseEvent & {
 
 export type OntimeEvent = OntimeBaseEvent & {
   type: SupportedEntry.Event;
+  flag: boolean;
   cue: string;
   title: string;
   note: string;

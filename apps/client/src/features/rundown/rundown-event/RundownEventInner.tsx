@@ -3,13 +3,13 @@ import {
   IoArrowDown,
   IoArrowUp,
   IoBan,
-  IoFlag,
   IoFlash,
   IoPlay,
   IoPlayForward,
   IoPlaySkipForward,
   IoTime,
 } from 'react-icons/io5';
+import { LuArrowDownToLine } from 'react-icons/lu';
 import { EndAction, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
@@ -143,7 +143,7 @@ function RundownEventInner({
             <EndActionIcon action={endAction} className={style.statusIcon} />
           </Tooltip>
           <Tooltip text={`${countToEnd ? 'Count to End' : 'Count duration'}`} render={<span />}>
-            <IoFlag className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
+            <LuArrowDownToLine className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
           </Tooltip>
           <Tooltip text='Event has Triggers' render={<span />}>
             <IoFlash className={`${style.statusIcon} ${hasTriggers ? style.active : style.disabled}`} />

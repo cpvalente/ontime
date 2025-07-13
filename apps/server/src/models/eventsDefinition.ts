@@ -11,6 +11,7 @@ import {
 
 export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   type: SupportedEntry.Event,
+  flag: false,
   title: '',
   note: '',
   endAction: EndAction.None,

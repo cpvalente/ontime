@@ -53,11 +53,11 @@ $table-header-font-size: calc(1rem - 2px);
 
 .actionColumn {
   padding-inline: 0.5rem;
+  padding-top: 0.5rem !important; // fighting the table styles
   background-color: transparent;
   display: flex;
   align-items: start;
   justify-content: center;
-  line-height: 2rem; // match input height
 }
 
 .indexColumn {
@@ -69,7 +69,7 @@ $table-header-font-size: calc(1rem - 2px);
   font-size: $table-header-font-size;
   line-height: 2rem; // match input height
   background-color: $gray-1300; // will be overridden inline
-  font-weight: 600;;
+  font-weight: 600;
 }
 
 .tableHeader {
