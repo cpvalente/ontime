@@ -72,6 +72,13 @@
   row-gap: 1rem;
 }
 
+.splitThree {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 1rem;
+  row-gap: 1rem;
+}
+
 .tooltipIcon {
   color: $blue-500;
   display: inline-block;

@@ -59,6 +59,7 @@ export const demoDb: DatabaseModel = {
         },
         '32d31': {
           type: SupportedEntry.Event,
+          flag: false,
           id: '32d31',
           cue: 'SF1.01',
           title: 'Albania',
@@ -88,6 +89,7 @@ export const demoDb: DatabaseModel = {
         },
         '21cd2': {
           type: SupportedEntry.Event,
+          flag: false,
           id: '21cd2',
           cue: 'SF1.02',
           title: 'Latvia',
@@ -117,6 +119,7 @@ export const demoDb: DatabaseModel = {
         },
         '0b371': {
           type: SupportedEntry.Event,
+          flag: false,
           id: '0b371',
           cue: 'SF1.03',
           title: 'Lithuania',
@@ -146,6 +149,7 @@ export const demoDb: DatabaseModel = {
         },
         '3cd28': {
           type: SupportedEntry.Event,
+          flag: false,
           id: '3cd28',
           cue: 'SF1.04',
           title: 'Switzerland',
@@ -175,6 +179,7 @@ export const demoDb: DatabaseModel = {
         },
         e457f: {
           type: SupportedEntry.Event,
+          flag: false,
           id: 'e457f',
           cue: 'SF1.05',
           title: 'Slovenia',
@@ -221,6 +226,7 @@ export const demoDb: DatabaseModel = {
         },
         '1c420': {
           type: SupportedEntry.Event,
+          flag: false,
           id: '1c420',
           cue: 'SF1.06',
           title: 'Ukraine',
@@ -250,6 +256,7 @@ export const demoDb: DatabaseModel = {
         },
         b7737: {
           type: SupportedEntry.Event,
+          flag: false,
           id: 'b7737',
           cue: 'SF1.07',
           title: 'Bulgaria',
@@ -279,6 +286,7 @@ export const demoDb: DatabaseModel = {
         },
         d3a80: {
           type: SupportedEntry.Event,
+          flag: false,
           id: 'd3a80',
           cue: 'SF1.08',
           title: 'Netherlands',
@@ -308,6 +316,7 @@ export const demoDb: DatabaseModel = {
         },
         '8276c': {
           type: SupportedEntry.Event,
+          flag: false,
           id: '8276c',
           cue: 'SF1.09',
           title: 'Moldova',
@@ -337,6 +346,7 @@ export const demoDb: DatabaseModel = {
         },
         '2340b': {
           type: SupportedEntry.Event,
+          flag: false,
           id: '2340b',
           cue: 'SF1.10',
           title: 'Portugal',
@@ -383,6 +393,7 @@ export const demoDb: DatabaseModel = {
         },
         '503c4': {
           type: SupportedEntry.Event,
+          flag: false,
           id: '503c4',
           cue: 'SF1.11',
           title: 'Croatia',
@@ -412,6 +423,7 @@ export const demoDb: DatabaseModel = {
         },
         '5e965': {
           type: SupportedEntry.Event,
+          flag: false,
           id: '5e965',
           cue: 'SF1.12',
           title: 'Denmark',
@@ -441,6 +453,7 @@ export const demoDb: DatabaseModel = {
         },
         bab4a: {
           type: SupportedEntry.Event,
+          flag: false,
           id: 'bab4a',
           cue: 'SF1.13',
           title: 'Austria',
@@ -470,6 +483,7 @@ export const demoDb: DatabaseModel = {
         },
         d3eb1: {
           type: SupportedEntry.Event,
+          flag: false,
           id: 'd3eb1',
           cue: 'SF1.14',
           title: 'Greece',

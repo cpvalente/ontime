@@ -5,6 +5,7 @@ export type NamedImportMap = typeof namedImportMap;
 // Record of label and import name
 const namedImportMap = {
   Worksheet: 'event schedule',
+  Flag: 'flag',
   Start: 'time start',
   'Link start': 'link start',
   End: 'time end',
@@ -42,6 +43,7 @@ export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
 
   return {
     worksheet: namedImportMap.Worksheet,
+    flag: namedImportMap.Flag,
     timeStart: namedImportMap.Start,
     linkStart: namedImportMap['Link start'],
     timeEnd: namedImportMap.End,

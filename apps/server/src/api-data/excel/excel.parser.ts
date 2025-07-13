@@ -69,6 +69,7 @@ export const parseExcel = (
   let colourIndex: number | null = null;
 
   // options: booleans
+  let flagIndex: number | null = null;
   let skipIndex: number | null = null;
   let countToEndIndex: number | null = null;
 
@@ -122,6 +123,10 @@ export const parseExcel = (
       [importMap.title]: (row: number, col: number) => {
         titleIndex = col;
         rundownMetadata['title'] = { row, col };
+      },
+      [importMap.flag]: (row: number, col: number) => {
+        flagIndex = col;
+        rundownMetadata['flag'] = { row, col };
       },
       [importMap.countToEnd]: (row: number, col: number) => {
         countToEndIndex = col;
@@ -197,6 +202,8 @@ export const parseExcel = (
         entry.duration = parseExcelDate(column);
       } else if (j === cueIndex) {
         entry.cue = makeString(column, '');
+      } else if (j === flagIndex) {
+        entry.flag = parseBooleanString(column);
       } else if (j === countToEndIndex) {
         entry.countToEnd = parseBooleanString(column);
       } else if (j === skipIndex) {

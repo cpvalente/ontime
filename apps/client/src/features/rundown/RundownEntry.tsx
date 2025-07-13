@@ -177,6 +177,7 @@ export default function RundownEntry({
         duration={data.duration}
         timeStrategy={data.timeStrategy}
         linkStart={data.linkStart}
+        flag={data.flag}
         countToEnd={data.countToEnd}
         endAction={data.endAction}
         timerType={data.timerType}
