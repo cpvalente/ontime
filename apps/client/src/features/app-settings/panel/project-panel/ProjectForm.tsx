@@ -20,7 +20,7 @@ interface ProjectFormProps {
 }
 
 export default function ProjectForm({ action, filename, onSubmit, onCancel }: ProjectFormProps) {
-  'no memo'; // RHF and react-compiler don't seem to get along
+  'use no memo'; // RHF and react-compiler don't seem to get along
   const {
     handleSubmit,
     register,

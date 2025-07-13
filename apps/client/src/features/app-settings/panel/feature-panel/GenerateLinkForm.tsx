@@ -1,3 +1,5 @@
+'use no memo'; // RHF and react-compiler don't seem to get along
+
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import QRCode from 'react-qr-code';
@@ -32,7 +34,7 @@ interface GenerateLinkFormOptions {
 type GenerateLinkState = 'pending' | 'loading' | 'success' | 'error';
 
 export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToView }: GenerateLinkFormProps) {
-  'no memo'; // RHF and react-compiler don't seem to get along
+  'use no memo'; // RHF and react-compiler don't seem to get along
   const [formState, setFormState] = useState<GenerateLinkState>('pending');
   const [url, setUrl] = useState(serverURL);
 

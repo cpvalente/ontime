@@ -23,7 +23,7 @@ type ProjectCreateFormValues = {
 };
 
 export default function ProjectCreateForm({ onClose }: ProjectCreateFromProps) {
-  'no memo'; // RHF and react-compiler don't seem to get along
+  'use no memo'; // RHF and react-compiler don't seem to get along
   const [error, setError] = useState<string | null>(null);
 
   const {
