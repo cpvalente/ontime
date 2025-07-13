@@ -538,26 +538,11 @@ type NotifyChangesOptions = {
 
 /**
  * Notify services of changes in the rundown
- *
- * @private - exported for testing
  */
-export function notifyChanges(rundownMetadata: RundownMetadata, revision: number, options: NotifyChangesOptions) {
+function notifyChanges(rundownMetadata: RundownMetadata, revision: number, options: NotifyChangesOptions) {
   // notify timer service of changed events
   if (options.timer) {
-    // all events were deleted
-    if (rundownMetadata.playableEventOrder.length === 0) {
-      runtimeService.stop();
-    } else {
-      /**
-       * Timer can be
-       * - true: all events changed
-       * - an array of changed IDs
-       * - undefined: filtered above, no notification intended
-       */
-      // timer can be true or an array of changed IDs
-      const affected = Array.isArray(options.timer) ? options.timer : undefined;
-      runtimeService.notifyOfChangedEvents(affected);
-    }
+    runtimeService.notifyOfChangedEvents(rundownMetadata);
   }
 
   // notify external services of changes
