@@ -1,6 +1,5 @@
 import {
   EndAction,
-  EntryId,
   isOntimeEvent,
   isPlayableEvent,
   LogOrigin,
@@ -38,6 +37,7 @@ import {
   getShouldClockUpdate,
   getShouldTimerUpdate,
 } from './rundownService.utils.js';
+import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 
 type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow'>;
 
@@ -179,79 +179,24 @@ class RuntimeService {
   }
 
   /**
-   * Checks if a list of IDs is in the current selection
-   */
-  private affectsLoaded(affectedIds: string[]): boolean {
-    const state = runtimeState.getState();
-    const now = state.eventNow?.id;
-    const next = state.eventNext?.id;
-    return (now !== undefined && affectedIds.includes(now)) || (next !== undefined && affectedIds.includes(next));
-  }
-
-  private isNewNext() {
-    const { timedEventOrder } = getRundownMetadata();
-
-    const state = runtimeState.getState();
-    const now = state.eventNow?.id;
-    const next = state.eventNext?.id;
-
-    // check whether the index of now and next are consecutive
-    const indexNow = timedEventOrder.findIndex((id) => id === now);
-    const indexNext = timedEventOrder.findIndex((id) => id === next);
-
-    return indexNext - indexNow !== 1;
-  }
-
-  /**
    * Called when the underlying data has changed,
    * we check if the change affects the runtime
    */
-  public notifyOfChangedEvents(affectedIds?: EntryId[]) {
+  public notifyOfChangedEvents(rundownMetadata: RundownMetadata) {
     const state = runtimeState.getState();
     const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
     if (!hasLoadedElements) {
       return;
     }
 
-    // we need to reload in a few scenarios:
-    // 1. we are not confident that changes do not affect running event (eg. all events where changed)
-    const safeOption = affectedIds === undefined;
-    // 2. the edited event is in memory (now or next) running
-    // behind conditional to avoid doing unnecessary work
-    const eventInMemory = safeOption ? false : this.affectsLoaded(affectedIds);
-    // 3. the edited event replaces next event
-    let isNext = false;
-
-    // if we are not sure, or the event is in memory, we reload
-    if (safeOption || eventInMemory) {
-      if (state.eventNow !== null) {
-        // load stuff again, but keep running if our events still exist
-        const eventNow = getEntryWithId(state.eventNow.id);
-        if (!isOntimeEvent(eventNow) || !isPlayableEvent(eventNow)) {
-          // maybe the event was deleted or the skip state was changed
-          runtimeState.stop();
-          return;
-        }
-        const onlyChangedNow = affectedIds?.length === 1 && affectedIds.at(0) === eventNow.id;
-
-        if (onlyChangedNow) {
-          runtimeState.updateLoaded(eventNow);
-        } else {
-          const rundown = getCurrentRundown();
-          const metadata = getRundownMetadata();
-          runtimeState.updateAll(rundown, metadata);
-        }
-        return;
-      }
+    // all events were deleted
+    if (rundownMetadata.playableEventOrder.length === 0) {
+      runtimeState.stop();
     }
 
-    // Maybe the event will become the next
-    isNext = this.isNewNext();
-    if (isNext) {
-      const rundown = getCurrentRundown();
-      const metadata = getRundownMetadata();
-      runtimeState.loadNext(rundown, metadata);
-    }
+    const rundown = getCurrentRundown();
+    const metadata = getRundownMetadata();
+    runtimeState.updateAll(rundown, metadata);
   }
 
   /**
