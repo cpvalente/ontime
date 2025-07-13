@@ -22,9 +22,8 @@ type ProjectCreateFormValues = {
   custom?: { title: string; value: string }[];
 };
 
-export default function ProjectCreateForm(props: ProjectCreateFromProps) {
-  const { onClose } = props;
-
+export default function ProjectCreateForm({ onClose }: ProjectCreateFromProps) {
+  'use no memo'; // RHF and react-compiler don't seem to get along
   const [error, setError] = useState<string | null>(null);
 
   const {

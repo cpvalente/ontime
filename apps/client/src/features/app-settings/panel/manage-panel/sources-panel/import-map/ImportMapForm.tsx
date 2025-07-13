@@ -24,8 +24,14 @@ interface ImportMapFormProps {
   onSubmitImport: (importMap: ImportMap) => Promise<void>;
 }
 
-export default function ImportMapForm(props: ImportMapFormProps) {
-  const { hasErrors, isSpreadsheet, onCancel, onSubmitExport, onSubmitImport } = props;
+export default function ImportMapForm({
+  hasErrors,
+  isSpreadsheet,
+  onCancel,
+  onSubmitExport,
+  onSubmitImport,
+}: ImportMapFormProps) {
+  'use no memo'; // RHF and react-compiler don't seem to get along
   const namedImportMap = getPersistedOptions();
   const { revoke } = useGoogleSheet();
   const {

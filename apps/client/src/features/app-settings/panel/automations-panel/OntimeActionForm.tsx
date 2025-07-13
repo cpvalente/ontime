@@ -23,8 +23,15 @@ interface OntimeActionFormProps {
   setValue: UseFormSetValue<AutomationDTO>;
 }
 
-export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFormProps>) {
-  const { index, register, setValue, rowErrors, value, children, watch } = props;
+export default function OntimeActionForm({
+  index,
+  register,
+  setValue,
+  rowErrors,
+  value,
+  children,
+  watch,
+}: PropsWithChildren<OntimeActionFormProps>) {
   const [selectedAction, setSelectedAction] = useState<string>(value);
 
   const handleSetAction = (value: OntimeActionKey) => {
@@ -70,7 +77,7 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
           New time
           <Input
             {...register(`outputs.${index}.time`, {
-              required: { value: true, message: 'Required field' },  //TODO:(automation set aux) not sure what way around to have the string and where to have the ms value
+              required: { value: true, message: 'Required field' }, //TODO:(automation set aux) not sure what way around to have the string and where to have the ms value
             })}
             fluid
             placeholder='eg: 10m5s'

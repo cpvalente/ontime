@@ -41,8 +41,8 @@ interface AutomationFormProps {
   onClose: () => void;
 }
 
-export default function AutomationForm(props: AutomationFormProps) {
-  const { automation, onClose } = props;
+export default function AutomationForm({ automation, onClose }: AutomationFormProps) {
+  'no memo'; // RHF and react-compiler dont seem to get along
   const isEdit = isAutomation(automation);
   const { data } = useCustomFields();
   const { refetch } = useAutomationSettings();

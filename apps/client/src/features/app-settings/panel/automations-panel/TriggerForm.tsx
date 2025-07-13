@@ -31,6 +31,7 @@ export default function TriggerForm({
   onCancel,
   postSubmit,
 }: TriggerFormProps) {
+  'use no memo'; // RHF and react-compiler don't seem to get along
   const {
     handleSubmit,
     register,

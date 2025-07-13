@@ -20,8 +20,12 @@ interface AutomationSettingsProps {
   oscPortIn: number;
 }
 
-export default function AutomationSettingsForm(props: AutomationSettingsProps) {
-  const { enabledAutomations, enabledOscIn, oscPortIn } = props;
+export default function AutomationSettingsForm({
+  enabledAutomations,
+  enabledOscIn,
+  oscPortIn,
+}: AutomationSettingsProps) {
+  'no memo'; // RHF and react-compiler dont seem to get along
 
   const {
     handleSubmit,

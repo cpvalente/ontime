@@ -25,8 +25,14 @@ interface CustomFieldsFormProps {
 
 type CustomFieldFormData = CustomField & { key: string };
 
-export default function CustomFieldForm(props: CustomFieldsFormProps) {
-  const { onSubmit, onCancel, initialColour, initialLabel, initialKey } = props;
+export default function CustomFieldForm({
+  onSubmit,
+  onCancel,
+  initialColour,
+  initialLabel,
+  initialKey,
+}: CustomFieldsFormProps) {
+  'use no memo'; // RHF and react-compiler don't seem to get along
   const { data } = useCustomFields();
 
   // we use this to force an update

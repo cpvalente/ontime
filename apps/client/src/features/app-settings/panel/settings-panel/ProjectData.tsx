@@ -18,6 +18,7 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import style from './SettingsPanel.module.scss';
 
 export default function ProjectData() {
+  'use no memo'; // RHF and react-compiler don't seem to get along
   const { data, status, refetch } = useProjectData();
 
   const {
