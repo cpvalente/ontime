@@ -1,4 +1,5 @@
-import { IoArrowDown, IoArrowUp, IoBan, IoFlag, IoTime } from 'react-icons/io5';
+import { IoArrowDown, IoArrowUp, IoBan, IoTime } from 'react-icons/io5';
+import { LuArrowDownToLine } from 'react-icons/lu';
 import { TimerPhase, TimerType } from 'ontime-types';
 
 import { Corner } from '../../../common/components/editor-utils/EditorUtils';
@@ -101,7 +102,7 @@ export default function TimerPreview() {
           className={style.statusIcon}
           data-active={countToEnd}
         >
-          <IoFlag />
+          <LuArrowDownToLine />
         </Tooltip>
       </div>
     </div>

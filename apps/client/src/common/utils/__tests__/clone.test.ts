@@ -7,6 +7,7 @@ describe('cloneEvent()', () => {
     const original: OntimeEvent = {
       id: 'unique',
       type: SupportedEntry.Event,
+      flag: false,
       title: 'title',
       cue: 'cue',
       note: 'note',
@@ -40,6 +41,7 @@ describe('cloneEvent()', () => {
 
     expect(cloned).toMatchObject({
       type: SupportedEntry.Event,
+      flag: original.flag,
       title: original.title,
       note: original.note,
       timeStart: original.timeStart,

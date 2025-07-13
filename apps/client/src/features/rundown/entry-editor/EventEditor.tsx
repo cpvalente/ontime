@@ -59,10 +59,10 @@ export default function EventEditor({ event }: EventEditorProps) {
         key={`${event.id}-titles`}
         eventId={event.id}
         cue={event.cue}
+        flag={event.flag}
         title={event.title}
         note={event.note}
         colour={event.colour}
-        handleSubmit={handleSubmit}
       />
       <div className={style.column}>
         <Editor.Title>

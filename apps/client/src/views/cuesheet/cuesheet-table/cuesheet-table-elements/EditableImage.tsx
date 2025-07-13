@@ -55,7 +55,7 @@ function EditableImage({ initialValue, updateValue }: EditableImageProps) {
           Delete
         </Button>
       </div>
-      <img loading='lazy' src={initialValue} className={style.image} />
+      {Boolean(initialValue) && <img loading='lazy' src={initialValue} className={style.image} />}
     </div>
   );
 }

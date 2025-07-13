@@ -2,6 +2,7 @@ import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   IoAdd,
   IoDuplicateOutline,
+  IoFlag,
   IoFolder,
   IoLink,
   IoReorderTwo,
@@ -33,6 +34,7 @@ interface RundownEventProps {
   duration: number;
   timeStrategy: TimeStrategy;
   linkStart: boolean;
+  flag: boolean;
   countToEnd: boolean;
   eventIndex: number;
   endAction: EndAction;
@@ -74,6 +76,7 @@ export default function RundownEvent({
   duration,
   timeStrategy,
   linkStart,
+  flag,
   countToEnd,
   eventIndex,
   endAction,
@@ -118,7 +121,6 @@ export default function RundownEvent({
           },
           {
             type: 'item',
-
             label: 'Unlink from previous',
             icon: IoUnlink,
             onClick: () =>
@@ -135,7 +137,6 @@ export default function RundownEvent({
       : [
           {
             type: 'item',
-
             label: 'Toggle link to previous',
             icon: IoLink,
             onClick: () =>
@@ -144,18 +145,25 @@ export default function RundownEvent({
                 value: linkStart,
               }),
           },
-          { type: 'divider' },
-
           {
             type: 'item',
-
+            label: flag ? 'Remove flag' : 'Add flag',
+            icon: IoFlag,
+            onClick: () =>
+              actionHandler('update', {
+                field: 'flag',
+                value: !flag,
+              }),
+          },
+          { type: 'divider' },
+          {
+            type: 'item',
             label: 'Add to swap',
             icon: IoAdd,
             onClick: () => setSelectedEventId(eventId),
           },
           {
             type: 'item',
-
             label: `Swap this event with ${selectedEventId ?? ''}`,
             icon: IoSwapVertical,
             onClick: () => {

@@ -7,7 +7,7 @@ interface EventEditorImageProps {
 export default function EventEditorImage({ src }: EventEditorImageProps) {
   return (
     <div className={style.imageContainer}>
-      <img loading='lazy' src={src} />
+      {Boolean(src) && <img loading='lazy' src={src} />}
       <div className={style.imageOverlay} />
     </div>
   );

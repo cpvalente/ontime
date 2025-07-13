@@ -35,6 +35,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
           <th>Type</th>
           <th>Cue</th>
           <th>Title</th>
+          <th>Flag</th>
           <th>Time Start</th>
           <th>Time End</th>
           <th>Duration</th>
@@ -75,6 +76,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
           const colour = entry.colour ? getAccessibleColour(entry.colour) : {};
           const countToEnd = booleanToText(entry.countToEnd);
           const skip = booleanToText(entry.skip);
+          const flag = booleanToText(entry.flag);
 
           return (
             <Fragment key={entry.id}>
@@ -87,6 +89,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
                 </td>
                 <td className={style.nowrap}>{entry.cue}</td>
                 <td>{entry.title}</td>
+                <td className={style.center}>{flag && <Tag>{flag}</Tag>}</td>
                 <td className={style.flex}>
                   <span className={entry.linkStart ? style.subdued : undefined}>{millisToString(entry.timeStart)}</span>
                   {entry.linkStart && <IoLink className={style.linkStartActive} />}
