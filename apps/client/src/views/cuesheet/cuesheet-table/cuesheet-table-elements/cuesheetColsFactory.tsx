@@ -8,6 +8,7 @@ import { formatDuration, formatTime } from '../../../../common/utils/time';
 
 import DurationInput from './DurationInput';
 import EditableImage from './EditableImage';
+import FlagCell from './FlagCell';
 import MultiLineCell from './MultiLineCell';
 import MutedText from './MutedText';
 import SingleLineCell from './SingleLineCell';
@@ -154,6 +155,14 @@ function MakeSingleLineField({ row, column, table }: CellContext<OntimeEntry, un
   return <SingleLineCell initialValue={initialValue as string} handleUpdate={update} />;
 }
 
+function MakeFlagField({ row }: CellContext<OntimeEntry, unknown>) {
+  const event = row.original;
+  if (!isOntimeEvent(event) || !event.flag) {
+    return null;
+  }
+  return <FlagCell />;
+}
+
 function MakeCustomField({ row, column, table }: CellContext<OntimeEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
@@ -189,6 +198,14 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
   }));
 
   return [
+    {
+      accessorKey: 'flag',
+      id: 'flag',
+      header: 'Flag',
+      cell: MakeFlagField,
+      size: 45,
+      minSize: 45,
+    },
     {
       accessorKey: 'cue',
       id: 'cue',

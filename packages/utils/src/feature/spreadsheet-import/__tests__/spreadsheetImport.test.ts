@@ -2,13 +2,14 @@ import type { ImportMap } from '../spreadsheetImport';
 import { isImportMap } from '../spreadsheetImport';
 
 describe('isImportMap()', () => {
-  it('validates a v3 default import map', () => {
-    const v3ImportMap: ImportMap = {
+  it('validates a v4 default import map', () => {
+    const importMap: ImportMap = {
       worksheet: 'event schedule',
       timeStart: 'time start',
       linkStart: 'link start',
       timeEnd: 'time end',
       duration: 'duration',
+      flag: 'flag',
       cue: 'cue',
       title: 'title',
       countToEnd: 'count to end',
@@ -23,7 +24,7 @@ describe('isImportMap()', () => {
       entryId: 'id',
     };
 
-    expect(isImportMap(v3ImportMap)).toBe(true);
+    expect(isImportMap(importMap)).toBe(true);
   });
 
   it('rejects map missing keys', () => {
@@ -50,12 +51,13 @@ describe('isImportMap()', () => {
   });
 
   it('handles custom properties', () => {
-    const v3ImportMap: ImportMap = {
+    const importMap: ImportMap = {
       worksheet: 'event schedule',
       timeStart: 'time start',
       linkStart: 'link start',
       timeEnd: 'time end',
       duration: 'duration',
+      flag: 'flag',
       cue: 'cue',
       title: 'title',
       countToEnd: 'count to end',
@@ -73,6 +75,6 @@ describe('isImportMap()', () => {
       entryId: 'id',
     };
 
-    expect(isImportMap(v3ImportMap)).toBe(true);
+    expect(isImportMap(importMap)).toBe(true);
   });
 });

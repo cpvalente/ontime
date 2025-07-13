@@ -810,6 +810,11 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       RuntimeService.previousState.blockNext = state.blockNext;
     }
 
+    if (RuntimeService.previousState?.nextFlag !== state.nextFlag) {
+      batch.add('nextFlag', state.nextFlag);
+      RuntimeService.previousState.nextFlag = state.nextFlag;
+    }
+
     if (hasImmediateChanges) {
       saveRestoreState(state);
     }

@@ -150,6 +150,10 @@ export const useClock = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
 }));
 
+export const useNextFlag = createSelector((state: RuntimeStore) => ({
+  nextFlag: state.nextFlag,
+}));
+
 /** Used by the progress bar components */
 export const useProgressData = createSelector((state: RuntimeStore) => ({
   current: state.timer.current,

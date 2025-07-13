@@ -100,7 +100,7 @@ export default function EventRow({
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const yPos = 8 + rect.y + rect.height / 2;
-              openMenu({ x: rect.x, y: yPos }, event.id, SupportedEntry.Event, rowIndex, event.parent);
+              openMenu({ x: rect.x, y: yPos }, event.id, SupportedEntry.Event, rowIndex, event.parent, event.flag);
             }}
           >
             <IoEllipsisHorizontal />

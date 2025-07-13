@@ -6,7 +6,7 @@ import { enDash, timerPlaceholder, timerPlaceholderMin } from '../../common/util
 /**
  * Encapsulates the logic for formatting time in overview
  */
-export function formatedTime(
+export function formattedTime(
   time: MaybeNumber,
   segments: number = 3,
   direction?: TimerType.CountDown | TimerType.CountUp,
