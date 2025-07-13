@@ -342,6 +342,7 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   loadNext(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   updateLoaded(runtimeState.eventNow ?? undefined);
   loadBlock(rundown);
+  loadNextFlag(eventNowIndex, rundown, metadata);
 }
 
 export function start(state: RuntimeState = runtimeState): boolean {
