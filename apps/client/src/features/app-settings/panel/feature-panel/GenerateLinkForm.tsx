@@ -32,6 +32,7 @@ interface GenerateLinkFormOptions {
 type GenerateLinkState = 'pending' | 'loading' | 'success' | 'error';
 
 export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToView }: GenerateLinkFormProps) {
+  'no memo'; // RHF and react-compiler don't seem to get along
   const [formState, setFormState] = useState<GenerateLinkState>('pending');
   const [url, setUrl] = useState(serverURL);
 
