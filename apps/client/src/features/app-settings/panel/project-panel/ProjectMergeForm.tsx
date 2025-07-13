@@ -27,8 +27,8 @@ type ProjectMergeFormValues = {
   automation: boolean;
 };
 
-export default function ProjectMergeForm(props: ProjectMergeFromProps) {
-  const { onClose, fileName } = props;
+export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFromProps) {
+  'no memo'; // RHF and react-compiler don't seem to get along
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
