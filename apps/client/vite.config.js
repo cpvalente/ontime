@@ -9,18 +9,11 @@ import { ONTIME_VERSION } from './src/ONTIME_VERSION';
 
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 const isDev = process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'development';
-const ReactCompilerConfig = {
-  runtimeModule: '@/mycache',
-};
 
 export default defineConfig({
   base: './', // Ontime cloud: we use relative paths to allow them to reference a dynamic base set at runtime
   plugins: [
-    react({
-      babel: {
-        plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
-      },
-    }),
+    react(),
     svgrPlugin(),
     !isDev &&
       sentryVitePlugin({
