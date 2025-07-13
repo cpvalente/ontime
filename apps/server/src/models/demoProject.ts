@@ -538,8 +538,15 @@ export const demoDb: DatabaseModel = {
   urlPresets: [
     {
       enabled: true,
-      alias: 'test',
-      pathAndParams: 'timer?timerType=clock',
+      alias: 'clock',
+      pathAndParams:
+        'timer?showLeadingZeros=true&timerType=clock&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+    },
+    {
+      enabled: true,
+      alias: 'minimal',
+      pathAndParams:
+        'timer?showLeadingZeros=true&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
     },
   ],
   automation: {
