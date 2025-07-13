@@ -27,7 +27,7 @@ type FormData = {
 };
 
 export default function UrlPresetsForm() {
-  'no memo'; // RHF and react-compiler don't seem to get along
+  'use no memo'; // RHF and react-compiler don't seem to get along
   const { data, status, refetch } = useUrlPresets();
   const {
     control,

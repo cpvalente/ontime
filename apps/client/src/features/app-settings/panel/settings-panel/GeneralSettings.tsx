@@ -16,7 +16,7 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import GeneralPinInput from './composite/GeneralPinInput';
 
 export default function GeneralSettings() {
-  'no memo'; // RHF and react-compiler don't seem to get along
+  'use no memo'; // RHF and react-compiler don't seem to get along
   const { data, status, refetch } = useSettings();
   const {
     handleSubmit,

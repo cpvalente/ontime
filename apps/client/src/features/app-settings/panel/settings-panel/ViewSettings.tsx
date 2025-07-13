@@ -18,7 +18,7 @@ import CodeEditorModal from './composite/StyleEditorModal';
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
 export default function ViewSettings() {
-  'no memo'; // RHF and react-compiler don't seem to get along
+  'use no memo'; // RHF and react-compiler don't seem to get along
   const { data, isPending, mutateAsync } = useViewSettings();
   const [isCodeEditorOpen, codeEditorHandler] = useDisclosure();
 

@@ -31,7 +31,7 @@ export default function ImportMapForm({
   onSubmitExport,
   onSubmitImport,
 }: ImportMapFormProps) {
-  'no memo'; // RHF and react-compiler don't seem to get along
+  'use no memo'; // RHF and react-compiler don't seem to get along
   const namedImportMap = getPersistedOptions();
   const { revoke } = useGoogleSheet();
   const {
