@@ -1,6 +1,7 @@
 import {
-  BlockState,
+  CurrentBlockState,
   isOntimeBlock,
+  isOntimeEvent,
   MaybeNumber,
   MaybeString,
   OffsetMode,
@@ -11,6 +12,7 @@ import {
   runtimeStorePlaceholder,
   TimerPhase,
   TimerState,
+  UpcomingEntry,
 } from 'ontime-types';
 import { calculateDuration, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
@@ -32,8 +34,9 @@ import { getCurrentRundown } from '../api-data/rundown/rundown.dao.js';
 
 export type RuntimeState = {
   clock: number; // realtime clock
-  blockNow: BlockState | null;
+  blockNow: CurrentBlockState | null;
   blockNext: MaybeString;
+  nextFlag: UpcomingEntry | null;
   eventNow: PlayableEvent | null;
   eventNext: PlayableEvent | null;
   runtime: Runtime;
@@ -53,6 +56,7 @@ const runtimeState: RuntimeState = {
   clock: timeNow(),
   blockNow: null,
   blockNext: null,
+  nextFlag: null,
   eventNow: null,
   eventNext: null,
   runtime: { ...runtimeStorePlaceholder.runtime },
@@ -111,6 +115,7 @@ export function clearState() {
 
   runtimeState.blockNow = null;
   runtimeState.blockNext = null;
+  runtimeState.nextFlag = null;
 
   runtimeState.runtime.offset = 0;
   runtimeState.runtime.relativeOffset = 0;
@@ -195,6 +200,7 @@ export function load(
   loadNow(rundown, metadata, eventIndex);
   loadNext(rundown, metadata, eventIndex);
   loadBlock(rundown);
+  loadNextFlag(eventIndex, rundown, metadata);
 
   // update state
   runtimeState.timer.playback = Playback.Armed;
@@ -718,6 +724,31 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
   if ((state.blockNow != null && state.blockNow.id != currentBlockId) || state.blockNow == null) {
     state.blockNow = { id: currentBlockId, startedAt: null, expectedEnd: null }; // the id is set here, the start time is set in other placed that handel starting events
   }
+}
+
+/**
+ * find and load the next flag from the currently loaded event
+ */
+export function loadNextFlag(currentIndex: number, rundown: Rundown, metadata: RundownMetadata) {
+  runtimeState.nextFlag = null;
+
+  if (metadata.flags.length === 0) {
+    return;
+  }
+
+  for (let i = currentIndex; i < metadata.timedEventOrder.length; i++) {
+    const entryId = metadata.timedEventOrder[i];
+    if (metadata.flags.includes(entryId)) {
+      const event = rundown.entries[entryId];
+      if (!event || !isOntimeEvent(event)) {
+        continue;
+      }
+      runtimeState.nextFlag = { id: event.id, start: event.timeStart };
+      return;
+    }
+  }
+
+  return null;
 }
 
 export function setOffsetMode(mode: OffsetMode) {

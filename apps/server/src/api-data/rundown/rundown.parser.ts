@@ -225,6 +225,7 @@ export function makeRundownMetadata(customFields: CustomFields) {
     playableEventOrder: [],
     timedEventOrder: [],
     flatEntryOrder: [],
+    flags: [],
 
     entries: {},
     order: [],
@@ -298,6 +299,11 @@ function processEntry<T extends OntimeEntry>(
       // first start is always the first event
       if (processedData.firstStart === null) {
         processedData.firstStart = currentEntry.timeStart;
+      }
+
+      // check if event is flagged
+      if (currentEntry.flag) {
+        processedData.flags.push(currentEntry.id);
       }
 
       currentEntry.gap = getTimeFrom(currentEntry, processedData.latestEvent);

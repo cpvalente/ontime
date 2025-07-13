@@ -63,6 +63,7 @@ let rundownMetadata: RundownMetadata = {
   playableEventOrder: [],
   timedEventOrder: [],
   flatEntryOrder: [],
+  flags: [],
 };
 
 const customFieldsMetadata: CustomFieldsMetadata = {
@@ -666,7 +667,7 @@ export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Rea
     processedData;
   cachedRundown.entries = entries;
   cachedRundown.order = order;
-  cachedRundown.flatOrder = metadata.flatEntryOrder; // TODO: remove in favour of the metadata flatEntryOrder
+  cachedRundown.flatOrder = metadata.flatEntryOrder;
   cachedRundown.revision = rundown.revision;
   customFieldsMetadata.assigned = assignedCustomFields;
   rundownMetadata = metadata;

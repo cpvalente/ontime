@@ -42,6 +42,7 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
   },
   blockNow: null,
   blockNext: null,
+  nextFlag: null,
   eventNow: null,
   eventNext: null,
   auxtimer1: {

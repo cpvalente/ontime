@@ -9,6 +9,7 @@ type OpenMenu = {
   entryType: SupportedEntry;
   entryIndex: number;
   parentId: EntryId | null;
+  flag: boolean | null;
 };
 
 type ClosedMenu = {
@@ -17,6 +18,7 @@ type ClosedMenu = {
   entryType: null;
   entryIndex: null;
   parentId: null;
+  flag: null;
 };
 
 type CuesheetTableMenuStore = (OpenMenu | ClosedMenu) & {
@@ -27,6 +29,7 @@ type CuesheetTableMenuStore = (OpenMenu | ClosedMenu) & {
     entryType: SupportedEntry,
     entryIndex: number,
     parentId: EntryId | null,
+    flag: boolean | null,
   ) => void;
   closeMenu: () => void;
 };
@@ -38,12 +41,14 @@ export const useCuesheetTableMenu = create<CuesheetTableMenuStore>((set) => ({
   entryIndex: null,
   parentId: null,
   position: { x: 0, y: 0 },
+  flag: null,
   openMenu: (
     position: Anchor,
     entryId: EntryId,
     entryType: SupportedEntry,
     entryIndex: number,
     parentId: EntryId | null,
-  ) => set({ isOpen: true, position, entryId, entryType, entryIndex, parentId }),
+    flag: null | boolean,
+  ) => set({ isOpen: true, position, entryId, entryType, entryIndex, parentId, flag }),
   closeMenu: () => set({ isOpen: false }),
 }));

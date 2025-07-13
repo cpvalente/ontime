@@ -10,6 +10,7 @@ export type RundownMetadata = {
   playableEventOrder: EntryId[]; // flat order of playable events
   timedEventOrder: EntryId[]; // flat order of timed events
   flatEntryOrder: EntryId[]; // flat order of entries
+  flags: EntryId[]; // flat order of flagged entries
 };
 
 export type AssignedMap = Record<CustomFieldKey, EntryId[]>;

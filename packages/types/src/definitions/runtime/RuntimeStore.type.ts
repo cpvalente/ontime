@@ -1,7 +1,7 @@
 import type { MaybeString } from '../../utils/utils.type.js';
 import type { OntimeEvent } from '../core/OntimeEntry.js';
 import type { SimpleTimerState } from './AuxTimer.type.js';
-import type { BlockState } from './CurrentBlockState.type.js';
+import type { CurrentBlockState, UpcomingEntry } from './CurrentBlockState.type.js';
 import type { MessageState } from './MessageControl.type.js';
 import type { Runtime } from './Runtime.type.js';
 import type { TimerState } from './TimerState.type.js';
@@ -20,8 +20,9 @@ export type RuntimeStore = {
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
 
-  blockNow: BlockState | null;
+  blockNow: CurrentBlockState | null;
   blockNext: MaybeString;
+  nextFlag: UpcomingEntry | null;
 
   // extra timers
   auxtimer1: SimpleTimerState;

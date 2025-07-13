@@ -51,6 +51,7 @@ export class EventTimer {
       }
     }
 
+    // register a callback for the scheduled end
     const endTime = state.timer.current - timerConfig.triggerAhead;
     this.endCallback = setTimeout(() => this.update(), endTime);
     return true;

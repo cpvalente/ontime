@@ -17,7 +17,7 @@ $skip-opacity: 0.2;
     'binder ...        ...     ...';
 
   grid-template-columns: $block-binder-width 3rem 1fr 3rem;
-  grid-template-rows: 0.125rem 2rem 2rem auto 0.125rem;
+  grid-template-rows: 0.125rem 2rem 2rem auto 0.125rem; 
   align-items: center;
   padding-right: $block-clearance;
   gap: 2px;

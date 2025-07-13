@@ -57,7 +57,7 @@ export default function MilestoneRow({
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const yPos = 8 + rect.y + rect.height / 2;
-              openMenu({ x: rect.x, y: yPos }, entryId, SupportedEntry.Milestone, rowIndex, parentId);
+              openMenu({ x: rect.x, y: yPos }, entryId, SupportedEntry.Milestone, rowIndex, parentId, null);
             }}
           >
             <IoEllipsisHorizontal />
