@@ -1,8 +1,9 @@
 import { PropsWithChildren, ReactNode } from 'react';
 import { ErrorBoundary } from '@sentry/react';
-import { isOntimeBlock } from 'ontime-types';
+import { isOntimeBlock, TimerType } from 'ontime-types';
 import { isPlaybackActive, millisToString } from 'ontime-utils';
 
+import Tooltip from '../../../common/components/tooltip/Tooltip';
 import {
   useClock,
   useCurrentBlockId,
@@ -12,7 +13,7 @@ import {
 } from '../../../common/hooks/useSocket';
 import useProjectData from '../../../common/hooks-query/useProjectData';
 import { useEntry } from '../../../common/hooks-query/useRundown';
-import { cx, enDash, timerPlaceholder, timerPlaceholderMin } from '../../../common/utils/styleUtils';
+import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatedTime, getOffsetText } from '../overviewUtils';
 
 import { TimeColumn, TimeRow } from './TimeLayout';
@@ -51,46 +52,61 @@ export function TitlesOverview() {
 }
 
 export function CurrentBlockOverview() {
-  const { blockStartedAt: blockStartAt, clock } = useRuntimePlaybackOverview();
+  const { blockStartedAt, clock, blockExpectedEnd } = useRuntimePlaybackOverview();
   const { currentBlockId } = useCurrentBlockId();
   const entry = useEntry(currentBlockId);
 
-  const timeInBlock = formatedTime(blockStartAt ? clock - blockStartAt : null, 2);
+  const timeInBlock = formatedTime(blockStartedAt ? clock - blockStartedAt : null, 3, TimerType.CountUp);
+  const blockExpectedEndString = formatedTime(blockExpectedEnd, 3, TimerType.CountUp);
 
-  /**
-   * The time to the end of the block
-   * as scheduled
-   * TODO(v4): this needs to be calculated according to offset mode
-   */
-  const blockEnd = (() => {
-    if (!entry) return timerPlaceholderMin;
-    if (!isOntimeBlock(entry)) return timerPlaceholderMin;
-    if (entry.timeEnd === null) return timerPlaceholderMin;
-    return formatedTime(entry.timeEnd - clock, 2);
+  const remainingBlockDuration = (() => {
+    if (blockStartedAt === null || !entry) return timerPlaceholder;
+    if (!isOntimeBlock(entry)) return timerPlaceholder;
+    return formatedTime(blockStartedAt + entry.duration - clock, 3, TimerType.CountDown);
   })();
 
-  /**
-   * The time to the end of the block
-   * as projected accounting for delays and offset
-   * TODO(v4): this needs to be calculated according to offset mode
-   */
-  const projectedBlockEnd = (() => {
-    if (blockStartAt === null || !entry) return timerPlaceholderMin;
-    if (!isOntimeBlock(entry)) return timerPlaceholderMin;
-    return formatedTime(blockStartAt + entry.duration - clock, 2);
-  })();
+  const timeUntilBlockEnd = (() => {
+    if (blockExpectedEnd === null) return timerPlaceholder;
+    return formatedTime(blockExpectedEnd - clock, 3, TimerType.CountDown);
+  })()  ;
 
   return (
     <>
-      <TimeColumn label='Elapsed in group' value={timeInBlock} className={style.clock} muted={blockStartAt === null} />
       <div>
-        <TimeRow label='Group end' value={blockEnd} className={style.end} muted={blockStartAt === null} />
-        <TimeRow
-          label='Projected group end'
-          value={projectedBlockEnd}
-          className={style.end}
-          muted={blockStartAt === null}
-        />
+        <Tooltip text='How long the group has been active'>
+          <TimeRow
+            label='Elapsed in group'
+            value={timeInBlock}
+            className={style.clock}
+            muted={blockStartedAt === null}
+          />
+        </Tooltip>
+        <Tooltip text='Remaining time until the planed group duration is up'>
+          <TimeRow
+            label='Remaining group duration'
+            value={remainingBlockDuration}
+            className={style.clock}
+            muted={blockStartedAt === null}
+          />
+        </Tooltip>
+      </div>
+      <div>
+        <Tooltip text='Expected time until the group can end, if everything ends on time from now on'>
+          <TimeRow
+            label='Expected time until group end'
+            value={timeUntilBlockEnd}
+            className={style.end}
+            muted={blockStartedAt === null}
+          />
+        </Tooltip>
+        <Tooltip text='Expected time the group will end, if everything ends on time from now on'>
+          <TimeRow
+            label='Expected group end'
+            value={blockExpectedEndString}
+            className={style.end}
+            muted={blockStartedAt === null}
+          />
+        </Tooltip>
       </div>
     </>
   );

@@ -1,4 +1,4 @@
-import { MaybeNumber } from 'ontime-types';
+import { MaybeNumber, TimerType } from 'ontime-types';
 import { dayInMs, millisToString } from 'ontime-utils';
 
 import { enDash, timerPlaceholder, timerPlaceholderMin } from '../../common/utils/styleUtils';
@@ -6,8 +6,12 @@ import { enDash, timerPlaceholder, timerPlaceholderMin } from '../../common/util
 /**
  * Encapsulates the logic for formatting time in overview
  */
-export function formatedTime(time: MaybeNumber, segments: number = 3): string {
-  return millisToString(time, { fallback: segments === 3 ? timerPlaceholder : timerPlaceholderMin });
+export function formatedTime(
+  time: MaybeNumber,
+  segments: number = 3,
+  direction?: TimerType.CountDown | TimerType.CountUp,
+): string {
+  return millisToString(time, { fallback: segments === 3 ? timerPlaceholder : timerPlaceholderMin, direction });
 }
 
 /**
