@@ -1,4 +1,4 @@
-import { PropsWithChildren, ReactNode, useMemo } from 'react';
+import { PropsWithChildren, ReactNode } from 'react';
 import { ErrorBoundary } from '@sentry/react';
 import { isOntimeBlock, TimerType } from 'ontime-types';
 import { isPlaybackActive, millisToString } from 'ontime-utils';
@@ -59,16 +59,16 @@ export function CurrentBlockOverview() {
   const timeInBlock = formatedTime(blockStartedAt ? clock - blockStartedAt : null, 3, TimerType.CountUp);
   const blockExpectedEndString = formatedTime(blockExpectedEnd, 3, TimerType.CountUp);
 
-  const remainingBlockDuration = useMemo(() => {
+  const remainingBlockDuration = (() => {
     if (blockStartedAt === null || !entry) return timerPlaceholder;
     if (!isOntimeBlock(entry)) return timerPlaceholder;
     return formatedTime(blockStartedAt + entry.duration - clock, 3, TimerType.CountDown);
-  }, [entry, blockStartedAt, clock]);
+  })();
 
-  const timeUntilBlockEnd = useMemo(() => {
+  const timeUntilBlockEnd = (() => {
     if (blockExpectedEnd === null) return timerPlaceholder;
     return formatedTime(blockExpectedEnd - clock, 3, TimerType.CountDown);
-  }, [blockExpectedEnd, clock]);
+  })()  ;
 
   return (
     <>
