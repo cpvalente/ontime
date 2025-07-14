@@ -723,7 +723,7 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
 
   //we went into a new block - and it is different from the one we might have come from
   if ((state.blockNow != null && state.blockNow.id != currentBlockId) || state.blockNow == null) {
-    state.blockNow = { id: currentBlockId, startedAt: null, expectedEnd: null }; // the id is set here, the start time is set in other placed that handel starting events
+    state.blockNow = { id: currentBlockId, startedAt: null, expectedEnd: null }; // the id is set here, the start time is set when starting events
   }
 }
 
