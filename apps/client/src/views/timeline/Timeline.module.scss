@@ -28,6 +28,13 @@ $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-over
   height: 100%;
 }
 
+.maybeInline {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  flex-wrap: wrap;
+}
+
 // generate combined timeline
 .timelineBlock {
   height: $timeline-height;
@@ -65,7 +72,7 @@ $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-over
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
   padding-top: 0.25rem;
   padding-inline-start: 0.25rem;
   overflow: hidden;
@@ -76,32 +83,15 @@ $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-over
   border-top: 2px solid var(--background-color-override, $viewer-background-color);
   box-shadow: 0 0.25rem 0 0 var(--color, $gray-300);
 
+  text-transform: capitalize;
+  white-space: normal;
+
   &[data-status='done'] {
     opacity: $opacity-disabled;
   }
 
   &[data-status='live'] {
     box-shadow: 0 0.25rem 0 0 $active-red;
-  }
-}
-
-.delay {
-  margin-top: -2rem;
-  margin-bottom: -1rem;
-}
-
-.timeOverview {
-  padding-top: 0.25rem;
-  padding-inline-start: 0.25em;
-  text-transform: capitalize;
-  white-space: normal;
-  height: 6rem;
-
-  &[data-status='done'] {
-    opacity: $opacity-disabled;
-  }
-
-  &[data-status='live'] {
     .status {
       color: $active-red;
     }
@@ -114,6 +104,22 @@ $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-over
   }
 }
 
+.delay {
+  color: $delay-color;
+}
+
+.timeOverview {
+  padding-top: 0.25rem;
+  padding-inline-start: 0.25em;
+  height: 3rem;
+}
+
 .cross {
   text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: $delay-color;
+}
+
+.separeLeft {
+  border-left: 1px solid var(--color, $gray-300);
 }

@@ -38,7 +38,7 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
     followRef: selectedRef,
     scrollRef: scrollContainerRef,
     doFollow: autosize,
-    hasSelectedElement: selectedEventId !== null,
+    selectedEventId: selectedEventId,
     // No offset when hiding past events to ensure content starts at 0
     leftOffset: hidePast ? 0 : screenWidth / 6,
   });
@@ -92,6 +92,7 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
               colour={event.colour}
               delay={event.delay ?? 0}
               duration={event.duration}
+              hasLink={Boolean(event.linkStart)}
               left={position.left}
               status={statusMap[event.id]}
               start={event.timeStart + (event.dayOffset ?? 0) * dayInMs}
