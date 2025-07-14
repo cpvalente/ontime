@@ -92,6 +92,7 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
               colour={event.colour}
               delay={event.delay ?? 0}
               duration={event.duration}
+              hasLink={Boolean(event.linkStart)}
               left={position.left}
               status={statusMap[event.id]}
               start={event.timeStart + (event.dayOffset ?? 0) * dayInMs}
