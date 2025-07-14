@@ -26,7 +26,7 @@ interface UseHorizontalFollowComponentOptions {
   followRef: RefObject<HTMLElement | null>;
   scrollRef: RefObject<HTMLElement | null>;
   doFollow: boolean;
-  hasSelectedElement?: boolean;
+  selectedEventId: EntryId | null;
   leftOffset?: number;
   setScrollFlag?: (newValue: boolean) => void;
 }
@@ -39,7 +39,7 @@ export default function useHorizontalFollowComponent({
   followRef,
   scrollRef,
   doFollow,
-  hasSelectedElement,
+  selectedEventId,
   leftOffset = 0,
   setScrollFlag,
 }: UseHorizontalFollowComponentOptions) {
@@ -52,13 +52,13 @@ export default function useHorizontalFollowComponent({
     // Use requestAnimationFrame to ensure the component is fully loaded
     window.requestAnimationFrame(() => {
       scrollToComponent(
-        hasSelectedElement ? (followRef as RefObject<HTMLElement>) : null,
+        selectedEventId !== null ? (followRef as RefObject<HTMLElement>) : null,
         scrollRef as RefObject<HTMLElement>,
         leftOffset,
       );
       setScrollFlag?.(false);
     });
-  }, [followRef, scrollRef, doFollow, hasSelectedElement, leftOffset, setScrollFlag]);
+  }, [followRef, scrollRef, doFollow, leftOffset, setScrollFlag, selectedEventId]);
 
   const scrollToRefComponent = useCallback(
     (componentRef = followRef, containerRef = scrollRef, offset = leftOffset) => {
