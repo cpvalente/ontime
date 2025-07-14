@@ -8,6 +8,7 @@ import NullableTimeInput from '../../../common/components/input/time-input/Nulla
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
+import { getOffsetState } from '../../../common/utils/offset';
 import { enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
 import TextLikeInput from '../../../views/cuesheet/cuesheet-table/cuesheet-table-elements/TextLikeInput';
 
@@ -54,7 +55,7 @@ export default function BlockEditor({ block }: BlockEditorProps) {
 
   const isEditor = window.location.pathname.includes('editor');
   const planOffset = typeof block.targetDuration !== 'number' ? null : block.duration - block.targetDuration;
-  const planOffsetLabel = planOffset !== null && planOffset > 0 ? 'behind' : 'ahead';
+  const planOffsetLabel = planOffset !== null ? getOffsetState(planOffset * -1) : null;
 
   return (
     <div className={style.content}>

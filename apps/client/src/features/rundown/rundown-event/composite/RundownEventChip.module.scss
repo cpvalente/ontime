@@ -6,11 +6,11 @@
   justify-self: end;
 
   &.over {
-    color: $ontime-delay-text;
+    color: $playback-over;
   }
 
   &.under {
-    color: $playback-ahead;
+    color: $playback-under;
   }
 
   &.due {

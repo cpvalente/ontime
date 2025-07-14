@@ -59,7 +59,8 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
     updateEntry({ id: entryId, [field]: value });
   };
 
-  const handleDelete = () => {
+  const handleDelete = (event: MouseEvent) => {
+    event.stopPropagation();
     deleteEntry([entryId]);
   };
 

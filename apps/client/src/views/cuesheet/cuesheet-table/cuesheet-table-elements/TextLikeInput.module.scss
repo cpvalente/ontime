@@ -14,12 +14,12 @@
 
   overflow: hidden;
 
-  &.ahead {
-    color: $playback-ahead;
+  &.under {
+    color: $playback-under;
   }
 
-  &.behind {
-    color: $ontime-delay-text;
+  &.over {
+    color: $playback-over;
   }
 
   &.muted {

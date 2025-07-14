@@ -105,7 +105,7 @@ function TimeInputDuration({
       onClick={handleFakeFocus}
       onFocus={handleFakeFocus}
       muted={!lockedValue}
-      offset={delayed ? 'behind' : undefined}
+      offset={delayed ? 'over' : undefined}
       ref={textRef}
     >
       {children}

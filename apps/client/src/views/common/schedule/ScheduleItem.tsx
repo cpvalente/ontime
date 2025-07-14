@@ -1,4 +1,5 @@
 import { useRuntimeOffset } from '../../../common/hooks/useSocket';
+import { getOffsetState } from '../../../common/utils/offset';
 import { cx } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
 import SuperscriptTime from '../../../features/viewers/common/superscript-time/SuperscriptTime';
@@ -121,11 +122,7 @@ function ProjectedTime(props: OffsetTimeProps) {
 
   const projectedOffset = offset - delay;
   const projectedTime = formatTime(time - offset, formatOptions);
+  const projectedState = getOffsetState(projectedOffset);
 
-  return (
-    <SuperscriptTime
-      className={cx([projectedOffset > 0 && 'entry-times--ahead', projectedOffset < 0 && 'entry-times--behind'])}
-      time={projectedTime}
-    />
-  );
+  return <SuperscriptTime className={`entry-times--${projectedState}`} time={projectedTime} />;
 }

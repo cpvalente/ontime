@@ -7,6 +7,7 @@ import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivit
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useCurrentDay, useRuntimeOffset } from '../../common/hooks/useSocket';
 import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
+import { getOffsetState } from '../../common/utils/offset';
 import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
 import FollowButton from '../../features/operator/follow-button/FollowButton';
@@ -134,14 +135,13 @@ function ProjectedSchedule(props: ProjectedScheduleProps) {
 
   // offset is negative if we are ahead
   const projectedOffset = offset - delay;
-
-  const classes = cx([projectedOffset > 0 && 'sub__schedule--ahead', projectedOffset < 0 && 'sub__schedule--behind']);
+  const projectState = getOffsetState(projectedOffset);
 
   return (
     <>
       <ClockTime
         value={timeStart - projectedOffset}
-        className={classes}
+        className={`sub__schedule--${projectState}`}
         preferredFormat12='h:mm'
         preferredFormat24='HH:mm'
       />

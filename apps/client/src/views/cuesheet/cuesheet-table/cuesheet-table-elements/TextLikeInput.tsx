@@ -5,7 +5,7 @@ import { cx } from '../../../../common/utils/styleUtils';
 import style from './TextLikeInput.module.scss';
 
 interface TextLikeInputProps extends HTMLAttributes<HTMLSpanElement> {
-  offset?: 'ahead' | 'behind';
+  offset?: 'over' | 'under' | 'muted' | null;
   muted?: boolean;
 }
 
