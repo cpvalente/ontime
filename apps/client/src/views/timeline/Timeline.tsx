@@ -38,7 +38,7 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
     followRef: selectedRef,
     scrollRef: scrollContainerRef,
     doFollow: autosize,
-    hasSelectedElement: selectedEventId !== null,
+    selectedEventId: selectedEventId,
     // No offset when hiding past events to ensure content starts at 0
     leftOffset: hidePast ? 0 : screenWidth / 6,
   });
