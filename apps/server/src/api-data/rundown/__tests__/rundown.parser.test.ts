@@ -1,7 +1,7 @@
 import { SupportedEntry, OntimeEvent, OntimeBlock, Rundown, CustomFields } from 'ontime-types';
 
 import { defaultRundown } from '../../../models/dataModel.js';
-import { makeOntimeBlock, makeOntimeEvent } from '../__mocks__/rundown.mocks.js';
+import { makeOntimeBlock, makeOntimeEvent, makeOntimeMilestone } from '../__mocks__/rundown.mocks.js';
 
 import { parseRundowns, parseRundown, handleCustomField, addToCustomAssignment } from '../rundown.parser.js';
 
@@ -241,7 +241,7 @@ describe('parseRundown()', () => {
     expect((parsedRundown.entries['21'] as OntimeEvent).custom).not.toHaveProperty('lighting');
   });
 
-  it('parses data in blocks', () => {
+  it('parses data in groups', () => {
     const rundown = {
       id: 'test',
       title: '',
@@ -254,20 +254,21 @@ describe('parseRundown()', () => {
           title: 'block-title',
           note: 'block-note',
           colour: 'red',
-          entries: ['1', '2'],
+          entries: ['1', '2', '3'],
         }),
-        '1': makeOntimeEvent({ id: '1' }),
+        '1': makeOntimeEvent({ id: '1', parent: 'block' }),
+        '2': makeOntimeMilestone({ id: '2', parent: 'block' }),
       },
       revision: 1,
     } as Rundown;
 
     const parsedRundown = parseRundown(rundown, {});
-    expect(parsedRundown.order.length).toEqual(1);
-    expect(parsedRundown.entries.block).toMatchObject({
-      title: 'block-title',
-      note: 'block-note',
-      colour: 'red',
-      entries: ['1'],
+    expect(parsedRundown.order).toStrictEqual(['block']);
+    expect(parsedRundown.flatOrder).toStrictEqual(['block', '1', '2']);
+    expect(parsedRundown.entries).toMatchObject({
+      block: { id: 'block', type: SupportedEntry.Block, entries: ['1', '2'] },
+      '1': { id: '1', type: SupportedEntry.Event },
+      '2': { id: '2', type: SupportedEntry.Milestone },
     });
   });
 
