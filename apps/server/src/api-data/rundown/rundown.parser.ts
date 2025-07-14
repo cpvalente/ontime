@@ -127,9 +127,9 @@ export function parseRundown(
           cleanupCustomFields(newNestedEvent.custom, parsedCustomFields);
           eventIndex += 1;
         } else if (isOntimeDelay(nestedEvent)) {
-          newNestedEvent = { ...delayDef, duration: nestedEvent.duration, id };
+          newNestedEvent = { ...delayDef, duration: nestedEvent.duration, id: nestedEventId };
         } else if (isOntimeMilestone(nestedEvent)) {
-          newNestedEvent = createMilestone({ ...nestedEvent, id });
+          newNestedEvent = createMilestone({ ...nestedEvent, id: nestedEventId });
           cleanupCustomFields(newNestedEvent.custom, parsedCustomFields);
         }
 
