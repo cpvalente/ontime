@@ -42,8 +42,8 @@ export default function TimerPreview() {
 
   const overrideColour = (() => {
     // override fallback colours from starter project
-    if (phase === TimerPhase.Warning) return data.warningColor ?? '#FFAB33';
-    if (phase === TimerPhase.Danger) return data.dangerColor ?? '#ED3333';
+    if (phase === TimerPhase.Warning) return data.warningColor ?? '#ffa528';
+    if (phase === TimerPhase.Danger) return data.dangerColor ?? '#ff7300';
     return data.normalColor ?? '#FFFC';
   })();
 

@@ -532,10 +532,10 @@ export const demoDb: DatabaseModel = {
     language: 'en',
   },
   viewSettings: {
-    dangerColor: '#ED3333',
+    dangerColor: '#ff7300',
     normalColor: '#ffffffcc',
     overrideStyles: false,
-    warningColor: '#FFAB33',
+    warningColor: '#ffa528',
   },
   customFields: {
     Song: {

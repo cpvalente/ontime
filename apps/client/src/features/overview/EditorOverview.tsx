@@ -1,6 +1,6 @@
 import { memo, PropsWithChildren } from 'react';
 
-import { ClockOverview, MetadataTimes, ProgressOverview, RuntimeOverview, StartTimes } from './composite/TimeElements';
+import { ClockOverview, MetadataTimes, OffsetOverview, ProgressOverview, StartTimes } from './composite/TimeElements';
 import TitleOverview from './composite/TitleOverview';
 import { OverviewWrapper } from './OverviewWrapper';
 
@@ -11,7 +11,7 @@ function EditorOverview({ children }: PropsWithChildren) {
       <TitleOverview />
       <StartTimes />
       <ProgressOverview />
-      <RuntimeOverview />
+      <OffsetOverview />
       <MetadataTimes />
       <ClockOverview />
     </OverviewWrapper>

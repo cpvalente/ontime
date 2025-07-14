@@ -5,29 +5,30 @@ import { cx } from '../../../../common/utils/styleUtils';
 import style from './TextLikeInput.module.scss';
 
 interface TextLikeInputProps extends HTMLAttributes<HTMLSpanElement> {
-  delayed?: boolean;
+  offset?: 'ahead' | 'behind';
   muted?: boolean;
 }
 
-const TextLikeInput = forwardRef((props: PropsWithChildren<TextLikeInputProps>, textRef) => {
-  const { delayed, muted, children, className, ...elementProps } = props;
-  const ref = useRef<HTMLDivElement | null>(null);
-  const classes = cx([style.textInput, delayed && style.delayed, muted && style.muted, className]);
+const TextLikeInput = forwardRef(
+  ({ offset, muted, children, className, ...elementProps }: PropsWithChildren<TextLikeInputProps>, textRef) => {
+    const ref = useRef<HTMLDivElement | null>(null);
+    const classes = cx([style.textInput, offset && style[offset], muted && style.muted, className]);
 
-  useImperativeHandle(textRef, () => {
-    return {
-      focusParentElement() {
-        ref.current?.parentElement?.focus();
-      },
-    };
-  });
+    useImperativeHandle(textRef, () => {
+      return {
+        focusParentElement() {
+          ref.current?.parentElement?.focus();
+        },
+      };
+    });
 
-  return (
-    <div className={classes} {...elementProps} tabIndex={0} ref={ref}>
-      {children}
-    </div>
-  );
-});
+    return (
+      <div className={classes} tabIndex={0} {...elementProps} ref={ref}>
+        {children}
+      </div>
+    );
+  },
+);
 
 TextLikeInput.displayName = 'TextLikeInput';
 

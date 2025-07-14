@@ -13,9 +13,10 @@ import {
   useTimer,
 } from '../../../common/hooks/useSocket';
 import { useEntry } from '../../../common/hooks-query/useRundown';
+import { getOffsetState, getOffsetText } from '../../../common/utils/offset';
 import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatTime, useTimeUntilStart } from '../../../common/utils/time';
-import { calculateEndAndDaySpan, formattedTime, getOffsetText } from '../overview.utils';
+import { calculateEndAndDaySpan, formattedTime } from '../overview.utils';
 
 import { TimeColumn } from './TimeLayout';
 
@@ -193,14 +194,16 @@ export function ProgressOverview() {
   return <TimeColumn label='Progress' value={progressText} />;
 }
 
-export function RuntimeOverview() {
+export function OffsetOverview() {
   const { offset, playback } = useRuntimePlaybackOverview();
 
   const isPlaying = isPlaybackActive(playback);
-  const offsetText = getOffsetText(isPlaying ? offset : null);
-  const offsetClasses = cx([style.offset, isPlaying && (offset < 0 ? style.behind : style.ahead)]);
+  const correctedOffset = offset * -1;
+  const offsetState = getOffsetState(correctedOffset);
+  const offsetClasses = cx([style.offset, offsetState && style[offsetState]]);
+  const offsetText = getOffsetText(isPlaying ? correctedOffset : null);
 
-  return <TimeColumn label='Offset' value={offsetText} className={offsetClasses} testId='offset' />;
+  return <TimeColumn label='Over / under' value={offsetText} className={offsetClasses} testId='offset' />;
 }
 
 export function ClockOverview() {

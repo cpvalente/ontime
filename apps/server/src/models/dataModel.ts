@@ -33,8 +33,8 @@ export const dbModel: DatabaseModel = {
   viewSettings: {
     overrideStyles: false,
     normalColor: '#ffffffcc',
-    warningColor: '#FFAB33',
-    dangerColor: '#ED3333',
+    warningColor: '#ffa528',
+    dangerColor: '#ff7300',
   },
   urlPresets: [],
   customFields: {},
