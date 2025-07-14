@@ -1,4 +1,12 @@
-import { SupportedEntry, OntimeEvent, OntimeDelay, OntimeBlock, Rundown, CustomField } from 'ontime-types';
+import {
+  SupportedEntry,
+  OntimeEvent,
+  OntimeDelay,
+  OntimeBlock,
+  Rundown,
+  CustomField,
+  OntimeMilestone,
+} from 'ontime-types';
 
 import { defaultRundown } from '../../../models/dataModel.js';
 
@@ -11,6 +19,12 @@ const baseEvent = {
 const baseBlock = {
   type: SupportedEntry.Block,
   entries: [],
+};
+
+const baseMilestone = {
+  type: SupportedEntry.Milestone,
+  cue: '',
+  title: '',
 };
 
 /**
@@ -35,6 +49,13 @@ export function makeOntimeDelay(patch: Partial<OntimeDelay>): OntimeDelay {
  */
 export function makeOntimeBlock(patch: Partial<OntimeBlock>): OntimeBlock {
   return { id: 'block', ...baseBlock, ...patch } as OntimeBlock;
+}
+
+/**
+ * Utility to create a block event
+ */
+export function makeOntimeMilestone(patch: Partial<OntimeMilestone>): OntimeMilestone {
+  return { id: 'milestone', ...baseMilestone, ...patch } as OntimeMilestone;
 }
 
 /**
