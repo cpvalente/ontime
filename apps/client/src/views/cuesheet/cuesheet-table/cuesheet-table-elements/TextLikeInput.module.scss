@@ -14,7 +14,11 @@
 
   overflow: hidden;
 
-  &.delayed {
+  &.ahead {
+    color: $playback-ahead;
+  }
+
+  &.behind {
     color: $ontime-delay-text;
   }
 

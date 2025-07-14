@@ -1,7 +1,7 @@
 import { MaybeNumber, TimerType } from 'ontime-types';
 import { dayInMs, millisToString } from 'ontime-utils';
 
-import { enDash, timerPlaceholder, timerPlaceholderMin } from '../../common/utils/styleUtils';
+import { timerPlaceholder, timerPlaceholderMin } from '../../common/utils/styleUtils';
 
 /**
  * Encapsulates the logic for formatting time in overview
@@ -23,16 +23,4 @@ export function calculateEndAndDaySpan(end: MaybeNumber): [MaybeNumber, number] 
   }
 
   return [end, 0];
-}
-
-/**
- * Formats offset text
- * @param offset
- * @returns
- */
-export function getOffsetText(offset: MaybeNumber): string {
-  if (offset === null) {
-    return enDash;
-  }
-  return millisToString(offset, { fallback: enDash });
 }

@@ -1,8 +1,8 @@
 import { ViewSettings } from 'ontime-types';
 
 export const viewsSettingsPlaceholder: ViewSettings = {
-  dangerColor: '#ED3333',
+  dangerColor: '#ff7300',
   normalColor: '#ffffffcc',
   overrideStyles: false,
-  warningColor: '#FFAB33',
+  warningColor: '#ffa528',
 };

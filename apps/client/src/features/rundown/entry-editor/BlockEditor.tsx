@@ -53,7 +53,8 @@ export default function BlockEditor({ block }: BlockEditorProps) {
   );
 
   const isEditor = window.location.pathname.includes('editor');
-  const planOffset = typeof block.targetDuration !== 'number' ? null : block.targetDuration - block.duration;
+  const planOffset = typeof block.targetDuration !== 'number' ? null : block.duration - block.targetDuration;
+  const planOffsetLabel = planOffset !== null && planOffset > 0 ? 'behind' : 'ahead';
 
   return (
     <div className={style.content}>
@@ -94,11 +95,8 @@ export default function BlockEditor({ block }: BlockEditorProps) {
           </div>
           <div>
             <Editor.Label htmlFor='eventId'>Plan offset</Editor.Label>
-            {
-              // TODO: update remote data
-              // TODO: remove tab index
-            }
-            <TextLikeInput delayed={Boolean(planOffset)} className={style.textLikeInput}>
+            <TextLikeInput offset={planOffsetLabel} className={style.textLikeInput} tabIndex={-1}>
+              {planOffset !== null && planOffset > 0 ? '+' : ''}
               {millisToString(planOffset, { fallback: enDash })}
             </TextLikeInput>
           </div>

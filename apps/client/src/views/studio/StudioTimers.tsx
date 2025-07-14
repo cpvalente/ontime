@@ -2,6 +2,7 @@ import { OntimeEvent, Playback, Runtime, TimerPhase, TimerState, ViewSettings } 
 import { millisToString } from 'ontime-utils';
 
 import { useAuxTimersTime } from '../../common/hooks/useSocket';
+import { getOffsetState } from '../../common/utils/offset';
 import { cx } from '../../common/utils/styleUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
 import { getTimerColour } from '../utils/presentation.utils';
@@ -45,6 +46,8 @@ export default function StudioTimers({
     time.phase === TimerPhase.Danger,
   );
 
+  const offsetState = getOffsetState(runtime.offset);
+
   return (
     <div className='studio__timers'>
       <div className='card' id='card-schedule'>
@@ -54,15 +57,8 @@ export default function StudioTimers({
             <div className='runtime-timer'>{schedule.actualStart}</div>
           </div>
           <div>
-            <div className='label center'>Offset</div>
-            <div
-              className={cx([
-                'runtime-timer',
-                'center',
-                !eventNow && 'muted',
-                runtime.offset <= 0 ? 'behind' : 'ahead',
-              ])}
-            >
+            <div className='label center'>Over / under</div>
+            <div className={cx(['runtime-timer', 'center', !eventNow && 'muted', offsetState && offsetState])}>
               {schedule.offset}
             </div>
           </div>
