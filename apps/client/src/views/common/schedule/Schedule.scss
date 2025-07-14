@@ -50,12 +50,12 @@ $indeterminate-width: clamp(32px, 3vw, 48px);
       color: $ontime-delay-text;
     }
 
-    &--ahead {
-      color: $green-500;
+    &--over {
+      color: $playback-over;
     }
 
-    &--behind {
-      color: $orange-500;
+    &--under {
+      color: $playback-under;
     }
   }
 

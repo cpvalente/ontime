@@ -1,6 +1,3 @@
-import { PropsWithChildren } from 'react';
-
-import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { cx } from '../../../common/utils/styleUtils';
 
 import style from './TimeLayout.module.scss';
@@ -25,40 +22,23 @@ export function TimeColumn({ label, value, muted, className, testId }: TimeLayou
   );
 }
 
-export function TimeRow({ label, value, daySpan, muted, className }: TimeLayoutProps) {
-  return (
-    <div className={style.row}>
-      <span className={style.label}>{label}</span>
-      {daySpan ? (
-        <Tooltip
-          text={`Event spans over ${daySpan + 1} days`}
-          render={<span />}
-          className={cx([style.clock, style.daySpan, className])}
-        >
-          {value}
-        </Tooltip>
-      ) : (
-        <span className={cx([style.clock, muted && style.muted, className])}>{value}</span>
-      )}
-    </div>
-  );
+interface OverUnderProps {
+  state: 'over' | 'under' | 'muted' | null;
+  value: string;
+  testId: string;
 }
 
-export function TimeElementsRow({ label, value, daySpan, muted, className }: PropsWithChildren<TimeLayoutProps>) {
+export function OverUnder({ state, value, testId }: OverUnderProps) {
   return (
-    <div className={style.row}>
-      <span className={style.label}>{label}</span>
-      {daySpan ? (
-        <Tooltip
-          text={`Event spans over ${daySpan + 1} days`}
-          render={<span />}
-          className={cx([style.clock, style.daySpan, className])}
-        >
-          {value}
-        </Tooltip>
-      ) : (
-        <span className={cx([style.clock, muted && style.muted, className])}>{value}</span>
-      )}
+    <div className={style.column} data-state={state}>
+      <div className={style.label}>
+        <span className={style.over}>Over</span>
+        <span>/</span>
+        <span className={style.under}>Under</span>
+      </div>
+      <span className={style.clock} data-testid={testId}>
+        {value}
+      </span>
     </div>
   );
 }

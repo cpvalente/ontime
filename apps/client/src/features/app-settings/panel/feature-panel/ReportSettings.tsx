@@ -29,8 +29,8 @@ export default function ReportSettings() {
   };
 
   const combinedReport = useMemo(() => {
-    return getCombinedReport(reportData, data.entries, data.order);
-  }, [reportData, data.entries, data.order]);
+    return getCombinedReport(reportData, data.entries, data.flatOrder);
+  }, [reportData, data.entries, data.flatOrder]);
 
   return (
     <Panel.Section>
@@ -82,7 +82,7 @@ export default function ReportSettings() {
                   return 'over';
                 })();
                 return (
-                  <tr key={entry.index}>
+                  <tr key={entry.id}>
                     <th>{entry.index}</th>
                     <th>{entry.cue}</th>
                     <th>{entry.title}</th>

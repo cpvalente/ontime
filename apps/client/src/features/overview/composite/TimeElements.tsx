@@ -18,17 +18,18 @@ import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatTime, useTimeUntilStart } from '../../../common/utils/time';
 import { calculateEndAndDaySpan, formattedTime } from '../overview.utils';
 
-import { TimeColumn } from './TimeLayout';
+import { OverUnder, TimeColumn } from './TimeLayout';
 
 import style from './TimeElements.module.scss';
 
 export function StartTimes() {
   const { plannedEnd, plannedStart, actualStart, expectedEnd } = useRuntimeOverview();
+
+  const plannedStartText = plannedStart === null ? timerPlaceholder : formatTime(plannedStart);
+
   const [maybePlannedEnd, maybePlannedDaySpan] = useMemo(() => calculateEndAndDaySpan(plannedEnd), [plannedEnd]);
-
   const [maybeExpectedEnd, maybeExpectedDaySpan] = useMemo(() => calculateEndAndDaySpan(expectedEnd), [expectedEnd]);
-
-  const muted = maybeExpectedEnd === null;
+  const plannedEndText = maybePlannedEnd === null ? timerPlaceholder : formatTime(maybePlannedEnd);
 
   return (
     <div className={style.column}>
@@ -36,31 +37,31 @@ export function StartTimes() {
         <span className={style.label}>Start</span>
         <div className={style.labelledElement}>
           <Tooltip text='Planned start time' render={<TbCalendar className={style.icon} />} />
-          <span className={cx([style.time])}>{formatTime(plannedStart)}</span>
+          <span className={cx([style.time, plannedStart === null && style.muted])}>{plannedStartText}</span>
         </div>
         <div className={style.labelledElement}>
           <Tooltip text='Actual start time' render={<TbCalendarClock className={style.icon} />} />
-          <span className={cx([style.time, muted && style.muted])}>{formattedTime(actualStart)}</span>
+          <span className={cx([style.time, actualStart === null && style.muted])}>{formattedTime(actualStart)}</span>
         </div>
       </div>
       <div className={style.row}>
         <span className={style.label}>End</span>
         <div className={style.labelledElement}>
           <Tooltip text='Planned end time' render={<TbCalendar className={style.icon} />} />
-          {maybePlannedDaySpan >= 0 ? (
+          {maybePlannedDaySpan > 0 ? (
             <Tooltip
               text={`Event spans over ${maybePlannedDaySpan + 1} days`}
               render={<span className={cx([style.time, style.daySpan])} />}
             >
-              {formatTime(maybePlannedEnd)}
+              {plannedEndText}
             </Tooltip>
           ) : (
-            <span className={cx([style.time, muted && style.muted])}>{formatTime(maybePlannedEnd)}</span>
+            <span className={cx([style.time, plannedEnd === null && style.muted])}>{plannedEndText}</span>
           )}
         </div>
         <div className={style.labelledElement}>
           <Tooltip text='Expected end time' render={<TbCalendarStar className={style.icon} />} />
-          {maybeExpectedEnd !== null && maybeExpectedDaySpan >= 0 ? (
+          {maybeExpectedEnd !== null && maybeExpectedDaySpan > 0 ? (
             <Tooltip
               text={`Event spans over ${maybeExpectedDaySpan + 1} days`}
               render={<span className={cx([style.time, style.daySpan])} />}
@@ -68,7 +69,9 @@ export function StartTimes() {
               {formattedTime(maybeExpectedEnd)}
             </Tooltip>
           ) : (
-            <span className={cx([style.time, muted && style.muted])}>{formattedTime(maybeExpectedEnd)}</span>
+            <span className={cx([style.time, maybeExpectedEnd === null && style.muted])}>
+              {formattedTime(maybeExpectedEnd)}
+            </span>
           )}
         </div>
       </div>
@@ -199,11 +202,10 @@ export function OffsetOverview() {
 
   const isPlaying = isPlaybackActive(playback);
   const correctedOffset = offset * -1;
-  const offsetState = getOffsetState(correctedOffset);
-  const offsetClasses = cx([style.offset, offsetState && style[offsetState]]);
+  const offsetState = getOffsetState(offset);
   const offsetText = getOffsetText(isPlaying ? correctedOffset : null);
 
-  return <TimeColumn label='Over / under' value={offsetText} className={offsetClasses} testId='offset' />;
+  return <OverUnder state={offsetState} value={offsetText} testId='offset' />;
 }
 
 export function ClockOverview() {

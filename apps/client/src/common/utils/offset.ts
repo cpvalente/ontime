@@ -18,8 +18,8 @@ export function getOffsetText(offset: MaybeNumber): string {
   return offsetText;
 }
 
-export function getOffsetState(offset: MaybeNumber): 'ahead' | 'behind' | 'muted' | null {
+export function getOffsetState(offset: MaybeNumber): 'over' | 'under' | 'muted' | null {
   if (offset === null) return null;
   if (offset === 0) return 'muted';
-  return offset < 0 ? 'behind' : 'ahead';
+  return offset < 0 ? 'over' : 'under';
 }
