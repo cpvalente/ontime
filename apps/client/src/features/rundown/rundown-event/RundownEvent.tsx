@@ -2,7 +2,6 @@ import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   IoAdd,
   IoDuplicateOutline,
-  IoFlag,
   IoFolder,
   IoLink,
   IoReorderTwo,
@@ -10,6 +9,7 @@ import {
   IoTrash,
   IoUnlink,
 } from 'react-icons/io5';
+import { TbFlagFilled } from 'react-icons/tb';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EndAction, EntryId, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
@@ -148,7 +148,7 @@ export default function RundownEvent({
           {
             type: 'item',
             label: flag ? 'Remove flag' : 'Add flag',
-            icon: IoFlag,
+            icon: TbFlagFilled,
             onClick: () =>
               actionHandler('update', {
                 field: 'flag',
