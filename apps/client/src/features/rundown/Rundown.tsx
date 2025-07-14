@@ -33,7 +33,7 @@ import {
   reorderArray,
 } from 'ontime-utils';
 
-import { type EventOptions, useEntryActions } from '../../common/hooks/useEntryAction';
+import { useEntryActions } from '../../common/hooks/useEntryAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
@@ -114,20 +114,16 @@ export default function Rundown({ data }: RundownProps) {
     [addEntry, order, entries],
   );
 
+  /**
+   * Add a new item referring to an existing one
+   */
   const insertAtId = useCallback(
     (patch: Partial<OntimeEntry> & { type: SupportedEntry }, id: MaybeString, above = false) => {
-      const options: EventOptions =
-        id === null
-          ? {}
-          : {
-              after: above ? undefined : id,
-              before: above ? id : undefined,
-            };
-
-      if (!above && id) {
-        options.lastEventId = id;
-      }
-      addEntry(patch, options);
+      addEntry(patch, {
+        after: id && !above ? id : undefined,
+        before: id && above ? id : undefined,
+        lastEventId: !above && id ? id : undefined,
+      });
     },
     [addEntry],
   );
@@ -239,52 +235,72 @@ export default function Rundown({ data }: RundownProps) {
 
   // shortcuts
   useHotkeys([
-    ['alt + ArrowDown', () => selectEntry(cursor, 'down'), { preventDefault: true }],
-    ['alt + ArrowUp', () => selectEntry(cursor, 'up'), { preventDefault: true }],
+    ['alt + ArrowDown', () => selectEntry(cursor, 'down'), { preventDefault: true, usePhysicalKeys: true }],
+    ['alt + ArrowUp', () => selectEntry(cursor, 'up'), { preventDefault: true, usePhysicalKeys: true }],
 
-    ['alt + shift + ArrowDown', () => selectBlock(cursor, 'down'), { preventDefault: true }],
-    ['alt + shift + ArrowUp', () => selectBlock(cursor, 'up'), { preventDefault: true }],
+    ['alt + shift + ArrowDown', () => selectBlock(cursor, 'down'), { preventDefault: true, usePhysicalKeys: true }],
+    ['alt + shift + ArrowUp', () => selectBlock(cursor, 'up'), { preventDefault: true, usePhysicalKeys: true }],
 
-    ['alt + mod + ArrowDown', () => moveEntry(cursor, 'down'), { preventDefault: true }],
-    ['alt + mod + ArrowUp', () => moveEntry(cursor, 'up'), { preventDefault: true }],
+    ['alt + mod + ArrowDown', () => moveEntry(cursor, 'down'), { preventDefault: true, usePhysicalKeys: true }],
+    ['alt + mod + ArrowUp', () => moveEntry(cursor, 'up'), { preventDefault: true, usePhysicalKeys: true }],
 
-    ['Escape', () => clearSelectedEvents(), { preventDefault: true }],
+    ['Escape', () => clearSelectedEvents(), { preventDefault: true, usePhysicalKeys: true }],
 
-    ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
+    ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true, usePhysicalKeys: true }],
 
     [
       'alt + E',
       () => insertAtId({ type: SupportedEntry.Event }, cursor),
       { preventDefault: true, usePhysicalKeys: true },
     ],
-    ['alt + shift + E', () => insertAtId({ type: SupportedEntry.Event }, cursor, true), { preventDefault: true }],
+    [
+      'alt + shift + E',
+      () => insertAtId({ type: SupportedEntry.Event }, cursor, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
     [
       'alt + G',
       () => insertAtId({ type: SupportedEntry.Block }, cursor),
       { preventDefault: true, usePhysicalKeys: true },
     ],
-    ['alt + shift + G', () => insertAtId({ type: SupportedEntry.Block }, cursor, true), { preventDefault: true }],
+    [
+      'alt + shift + G',
+      () => insertAtId({ type: SupportedEntry.Block }, cursor, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
     [
       'alt + D',
       () => insertAtId({ type: SupportedEntry.Delay }, cursor),
       { preventDefault: true, usePhysicalKeys: true },
     ],
-    ['alt + shift + D', () => insertAtId({ type: SupportedEntry.Delay }, cursor, true), { preventDefault: true }],
+    [
+      'alt + shift + D',
+      () => insertAtId({ type: SupportedEntry.Delay }, cursor, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
     [
       'alt + M',
       () => insertAtId({ type: SupportedEntry.Milestone }, cursor),
       { preventDefault: true, usePhysicalKeys: true },
     ],
-    ['alt + shift + M', () => insertAtId({ type: SupportedEntry.Milestone }, cursor, true), { preventDefault: true }],
+    [
+      'alt + shift + M',
+      () => insertAtId({ type: SupportedEntry.Milestone }, cursor, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
     ['mod + C', () => setEntryCopyId(cursor)],
     ['mod + V', () => insertCopyAtId(cursor, entryCopyId)],
-    ['mod + shift + V', () => insertCopyAtId(cursor, entryCopyId, true), { preventDefault: true }],
+    [
+      'mod + shift + V',
+      () => insertCopyAtId(cursor, entryCopyId, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
-    ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
+    ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true, usePhysicalKeys: true }],
   ]);
 
   // we copy the state from the store here

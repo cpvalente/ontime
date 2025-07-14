@@ -35,14 +35,30 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
     throw new Error(`Event with ID ${eventData.id} already exists`);
   }
 
-  // if the user provides a parent (inside a group), we make sure it exists and it is a group
+  // the parent can be provided or inferred from position
   let parent: OntimeBlock | null = null;
+
+  console.log('Adding entry with data:', eventData);
+
   if ('parent' in eventData && eventData.parent != null) {
+    // if the user provides a parent (inside a group), we make sure it exists and it is a group
     const maybeParent = rundown.entries[eventData.parent];
     if (!maybeParent || !isOntimeBlock(maybeParent)) {
       throw new Error(`Invalid parent event with ID ${eventData.parent}`);
     }
     parent = maybeParent;
+  } else {
+    // otherwise, we may infer the parent from relative positioning (after/before)
+    const referenceId = eventData?.after ?? eventData?.before;
+    if (referenceId) {
+      const maybeSibling = rundown.entries[referenceId];
+      if (maybeSibling && 'parent' in maybeSibling && maybeSibling.parent) {
+        const maybeParent = rundown.entries[maybeSibling.parent];
+        if (maybeParent && isOntimeBlock(maybeParent)) {
+          parent = maybeParent;
+        }
+      }
+    }
   }
 
   // normalise the position of the event in the rundown order
