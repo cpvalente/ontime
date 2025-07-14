@@ -1,4 +1,5 @@
 import { RefObject, useCallback, useEffect } from 'react';
+import { EntryId } from 'ontime-types';
 
 function scrollToComponent<ComponentRef extends HTMLElement, ScrollRef extends HTMLElement>(
   componentRef: RefObject<ComponentRef> | null,
@@ -64,13 +65,13 @@ export default function useHorizontalFollowComponent({
     (componentRef = followRef, containerRef = scrollRef, offset = leftOffset) => {
       if (containerRef.current) {
         scrollToComponent(
-          hasSelectedElement ? (componentRef as RefObject<HTMLElement>) : null,
+          selectedEventId !== null ? (componentRef as RefObject<HTMLElement>) : null,
           containerRef as RefObject<HTMLElement>,
           offset,
         );
       }
     },
-    [followRef, scrollRef, hasSelectedElement, leftOffset],
+    [followRef, scrollRef, leftOffset, selectedEventId],
   );
 
   return scrollToRefComponent;
