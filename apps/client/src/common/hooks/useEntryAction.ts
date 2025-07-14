@@ -89,25 +89,17 @@ export const useEntryActions = () => {
 
       // ************* CHECK OPTIONS specific to events
       if (isOntimeEvent(newEntry)) {
-        // merge creation time options with event settings
-        const applicationOptions = {
-          after: options?.after,
-          before: options?.before,
-          lastEventId: options?.lastEventId,
-          linkPrevious: options?.linkPrevious ?? linkPrevious,
-        };
-
-        if (applicationOptions?.lastEventId) {
+        if (options?.lastEventId) {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this is a value
           const rundownData = queryClient.getQueryData<Rundown>(RUNDOWN)!;
-          const previousEvent = rundownData.entries[applicationOptions.lastEventId];
+          const previousEvent = rundownData.entries[options?.lastEventId];
           if (isOntimeEvent(previousEvent)) {
             newEntry.timeStart = previousEvent.timeEnd;
           }
         }
 
         // Override event with options from editor settings
-        newEntry.linkStart = applicationOptions.linkPrevious;
+        newEntry.linkStart = options?.linkPrevious ?? linkPrevious;
 
         if (newEntry.duration === undefined && newEntry.timeEnd === undefined) {
           newEntry.duration = parseUserTime(defaultDuration);
