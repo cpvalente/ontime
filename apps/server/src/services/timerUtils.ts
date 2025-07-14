@@ -1,5 +1,5 @@
-import { isOntimeEvent, MaybeNumber, OntimeBlock, OntimeEvent, Rundown, TimerPhase } from 'ontime-types';
-import { calculateTimeUntilStart, dayInMs, isPlaybackActive } from 'ontime-utils';
+import { isOntimeEvent, MaybeNumber, OntimeBlock, Rundown, TimerPhase } from 'ontime-types';
+import { calculateTimeUntilStart, dayInMs, getLastEventNormal, isPlaybackActive } from 'ontime-utils';
 import type { RuntimeState } from '../stores/runtimeState.js';
 import { shouldCrashDev } from '../utils/development.js';
 
@@ -40,13 +40,15 @@ export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): M
       isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
     }
   }
-  const lastEntry = entries[orderInBlock.at(-1)!] as OntimeEvent;
+  const { lastEvent } = getLastEventNormal(rundown.entries, orderInBlock);
+  if (!lastEvent) return null;
+
   const { offsetMode, offset, plannedStart, actualStart } = state.runtime;
 
   const timeUntilLastEvent = calculateTimeUntilStart({
-    timeStart: lastEntry.timeStart,
-    dayOffset: lastEntry.dayOffset,
-    delay: lastEntry.delay,
+    timeStart: lastEvent.timeStart,
+    dayOffset: lastEvent.dayOffset,
+    delay: lastEvent.delay,
     currentDay: eventNow.dayOffset,
     totalGap,
     isLinkedToLoaded,
@@ -57,7 +59,7 @@ export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): M
     actualStart,
   });
 
-  return clock + timeUntilLastEvent + lastEntry.duration;
+  return clock + timeUntilLastEvent + lastEvent.duration;
 }
 
 /**
