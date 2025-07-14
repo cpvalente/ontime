@@ -59,7 +59,9 @@ export function getDataProvider() {
     getAutomation,
     setAutomation,
     getRundown,
+    getProjectRundowns,
     mergeIntoData,
+    deleteRundown,
   };
 }
 
@@ -101,10 +103,9 @@ function getCustomFields(): Readonly<CustomFields> {
   return db.data.customFields;
 }
 
-async function setRundown(rundownKey: string, newData: Rundown): ReadonlyPromise<Rundown> {
-  db.data.rundowns[rundownKey] = newData;
+async function setRundown(rundownKey: string, newData: Rundown): Promise<void> {
+  db.data.rundowns[rundownKey] = structuredClone(newData);
   await persist();
-  return db.data.rundowns[rundownKey];
 }
 
 function getSettings(): Readonly<Settings> {
@@ -150,6 +151,16 @@ async function setAutomation(newData: AutomationSettings): ReadonlyPromise<Autom
 function getRundown(rundownKey: string): Readonly<Rundown> {
   if (!(rundownKey in db.data.rundowns)) throw new Error(`Rundown with id: ${rundownKey} dose not exist in DB`);
   return db.data.rundowns[rundownKey];
+}
+
+async function deleteRundown(rundownKey: string): Promise<void> {
+  if (!(rundownKey in db.data.rundowns)) throw new Error(`Rundown with id: ${rundownKey} dose not exist in DB`);
+  delete db.data.rundowns[rundownKey];
+  await persist();
+}
+
+function getProjectRundowns(): Readonly<ProjectRundowns> {
+  return db.data.rundowns;
 }
 
 async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<DatabaseModel> {

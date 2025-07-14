@@ -30,7 +30,6 @@ import {
   getLastLoadedRundown,
   isLastLoadedProject,
   setLastLoadedProject,
-  setLastLoadedRundown,
 } from '../app-state-service/AppStateService.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
@@ -104,7 +103,6 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
 
   // persist the project selection
   await setLastLoadedProject(fileName);
-  await setLastLoadedRundown(rundown.id);
 
   // update the service state
   currentProjectState = {

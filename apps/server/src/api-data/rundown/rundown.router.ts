@@ -1,5 +1,12 @@
-import { ErrorResponse, MessageResponse, OntimeEntry, ProjectRundownsList, Rundown } from 'ontime-types';
-import { getErrorMessage } from 'ontime-utils';
+import {
+  ErrorResponse,
+  MessageResponse,
+  OntimeEntry,
+  ProjectRundownsList,
+  Rundown,
+  ProjectRundown,
+} from 'ontime-types';
+import { customFieldLabelToKey, getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
 import express from 'express';
@@ -14,6 +21,7 @@ import {
   deleteEntries,
   editEntry,
   groupEntries,
+  initRundown,
   reorderEntry,
   swapEvents,
   ungroupEntries,
@@ -27,6 +35,8 @@ import {
   rundownSwapValidator,
 } from './rundown.validation.js';
 import { paramsWithId } from '../validation-utils/validationFunction.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { defaultRundown } from '../../models/dataModel.js';
 
 export const router = express.Router();
 
@@ -34,20 +44,14 @@ export const router = express.Router();
  * Returns all rundowns in the project
  */
 router.get('/', async (_req: Request, res: Response<ProjectRundownsList>) => {
-  const rundown = getCurrentRundown();
-
-  // TODO: we currently make a project with only the current rundown
-  res.json({
-    loaded: rundown.id,
-    rundowns: [
-      {
-        id: rundown.id,
-        title: rundown.title,
-        numEntries: rundown.order.length,
-        revision: rundown.revision,
-      },
-    ],
+  const fullRundowns = getDataProvider().getProjectRundowns();
+  const rundowns: ProjectRundown[] = Object.values(fullRundowns).map(({ id, flatOrder, title, revision }) => {
+    //TODO: what are we expecting in the entries? just events or everything
+    return { id, numEntries: flatOrder.length, title, revision };
   });
+  const loaded = getCurrentRundown().id;
+
+  res.json({ loaded, rundowns });
 });
 
 /**
@@ -163,6 +167,71 @@ router.delete('/all', async (_req: Request, res: Response<Rundown | ErrorRespons
   try {
     const rundown = await deleteAllEntries();
     res.status(204).send(rundown);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
+router.get('/load/:id', paramsWithId, async (req: Request, res: Response<void | ErrorResponse>) => {
+  try {
+    if (req.params.id === getCurrentRundown().id) {
+      res.status(400).send({ message: 'will not re-switch to the already loaded rundown' });
+      return;
+    }
+    const dataProvider = getDataProvider();
+    const rundown = dataProvider.getRundown(req.params.id);
+    const customField = dataProvider.getCustomFields();
+    await initRundown(rundown, customField);
+    res.status(201).send();
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
+//TODO: is this route getting confusing in its combination with entry editing
+// what to call this endpoint
+router.delete('/whole/:id', paramsWithId, async (req: Request, res: Response<void | ErrorResponse>) => {
+  try {
+    if (req.params.id === getCurrentRundown().id) {
+      res.status(400).send({ message: 'will not delete loaded rundown' });
+      return;
+    }
+
+    const dataProvider = getDataProvider();
+    const fullRundowns = dataProvider.getProjectRundowns();
+
+    if (Object.keys(fullRundowns).length <= 1) {
+      //TODO: might never hit this as it is likely covered by the case of trying to delete the loaded rundown
+      res.status(400).send({ message: 'will not delete the last rundown' });
+      return;
+    }
+
+    if (!(req.params.id in fullRundowns)) {
+      res.status(400).send({ message: 'id dose not exist' });
+      return;
+    }
+
+    dataProvider.deleteRundown(req.params.id);
+    res.status(204).send();
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
+router.post('/new/:id', paramsWithId, async (req: Request, res: Response<void | ErrorResponse>) => {
+  try {
+    const title = req.params.id;
+    const id = customFieldLabelToKey(title);
+    if (req.params.id === getCurrentRundown().id) {
+      res.status(400).send({ message: 'already exists' });
+      return;
+    }
+    const emptyRundown = { ...defaultRundown, id, title };
+    await getDataProvider().setRundown(id, emptyRundown);
+    res.status(201).send();
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });

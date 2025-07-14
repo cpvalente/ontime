@@ -22,6 +22,8 @@ import { createTransaction, customFieldMutation, rundownCache, rundownMutation }
 import type { RundownMetadata } from './rundown.types.js';
 import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { setLastLoadedRundown } from '../../services/app-state-service/AppStateService.js';
+import { logger } from '../../classes/Logger.js';
 
 /**
  * creates a new entry with given data
@@ -567,12 +569,12 @@ function notifyChanges(rundownMetadata: RundownMetadata, revision: number, optio
  */
 export async function initRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
   const { rundownMetadata, revision } = rundownCache.init(rundown, customFields);
-
+  logger.info(LogOrigin.Server, `Switch to rundown: ${rundown.id}`);
   // notify runtime that rundown has changed
   updateRuntimeOnChange(rundownMetadata);
 
-  // notify timer of change
   setImmediate(() => {
     notifyChanges(rundownMetadata, revision, { timer: true, external: true, reload: true });
+    setLastLoadedRundown(rundown.id);
   });
 }
