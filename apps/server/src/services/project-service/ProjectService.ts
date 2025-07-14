@@ -27,8 +27,10 @@ import { parseCustomFields } from '../../api-data/custom-fields/customFields.par
 
 import {
   getLastLoadedProject,
+  getLastLoadedRundown,
   isLastLoadedProject,
   setLastLoadedProject,
+  setLastLoadedRundown,
 } from '../app-state-service/AppStateService.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
@@ -84,7 +86,7 @@ export async function getCurrentProject(): Promise<{ filename: string; pathToFil
  * @param projectData
  * @param fileName file name of the project including the extension
  */
-async function loadProject(projectData: DatabaseModel, fileName: string) {
+async function loadProject(projectData: DatabaseModel, fileName: string, rundownKey?: string) {
   // change LowDB to point to new file
   await initPersistence(getPathToProject(fileName), projectData);
   logger.info(LogOrigin.Server, `Loaded project ${fileName}`);
@@ -92,13 +94,17 @@ async function loadProject(projectData: DatabaseModel, fileName: string) {
   // stop the runtime service
   runtimeService.stop();
 
-  // load the first rundown in the project
-  const firstRundown = getFirstRundown(projectData.rundowns);
+  // load the rundown given by key otherwise load the first in the project
+  const rundown =
+    rundownKey && rundownKey in projectData.rundowns
+      ? projectData.rundowns[rundownKey]
+      : getFirstRundown(projectData.rundowns);
 
-  await initRundown(firstRundown, projectData.customFields);
+  await initRundown(rundown, projectData.customFields);
 
   // persist the project selection
   await setLastLoadedProject(fileName);
+  await setLastLoadedRundown(rundown.id);
 
   // update the service state
   currentProjectState = {
@@ -164,6 +170,7 @@ async function handleMigratedFile(filePath: string, fileName: string): Promise<s
 export async function initialiseProject(): Promise<string> {
   // check what was loaded before
   const previousProject = await getLastLoadedProject();
+  const previousRundown = await getLastLoadedRundown();
 
   // in normal circumstances we dont have a previous project if it is the first app start
   // in which case we want to load a demo project
@@ -171,7 +178,7 @@ export async function initialiseProject(): Promise<string> {
     return loadDemoProject();
   }
   try {
-    const projectName = await loadProjectFile(previousProject);
+    const projectName = await loadProjectFile(previousProject, previousRundown);
     return projectName;
   } catch (error) {
     // if we are here, most likely the json parsing failed and the file is corrupt
@@ -191,7 +198,7 @@ export async function initialiseProject(): Promise<string> {
  * Loads a data from a file into the runtime
  * @param fileName file name of the project including the extension
  */
-export async function loadProjectFile(fileName: string): Promise<string> {
+export async function loadProjectFile(fileName: string, rundownKey?: string): Promise<string> {
   const filePath = doesProjectExist(fileName);
   if (filePath === null) {
     throw new Error('Project file not found');
@@ -211,7 +218,7 @@ export async function loadProjectFile(fileName: string): Promise<string> {
     parsedFileName = await handleMigratedFile(filePath, fileName);
   }
 
-  const projectName = await loadProject(result.data, parsedFileName);
+  const projectName = await loadProject(result.data, parsedFileName, rundownKey);
   return projectName;
 }
 

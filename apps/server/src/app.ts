@@ -38,7 +38,7 @@ import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
 import { initRundown } from './api-data/rundown/rundown.service.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
-import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
+import { getLastLoadedRundown, getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
 import { oscServer } from './adapters/OscAdapter.js';
 
 // Utilities
@@ -216,7 +216,8 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   });
 
   // initialise rundown service
-  const persistedRundown = getDataProvider().getRundown();
+  const rundownKey = await getLastLoadedRundown();
+  const persistedRundown = getDataProvider().getRundown(rundownKey!);
   const persistedCustomFields = getDataProvider().getCustomFields();
   await initRundown(persistedRundown, persistedCustomFields);
 

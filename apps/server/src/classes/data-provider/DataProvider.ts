@@ -147,9 +147,9 @@ async function setAutomation(newData: AutomationSettings): ReadonlyPromise<Autom
   return db.data.automation;
 }
 
-function getRundown(): Readonly<Rundown> {
-  const firstRundown = Object.keys(db.data.rundowns)[0];
-  return db.data.rundowns[firstRundown];
+function getRundown(rundownKey: string): Readonly<Rundown> {
+  if (!(rundownKey in db.data.rundowns)) throw new Error(`Rundown with id: ${rundownKey} dose not exist in DB`);
+  return db.data.rundowns[rundownKey];
 }
 
 async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<DatabaseModel> {

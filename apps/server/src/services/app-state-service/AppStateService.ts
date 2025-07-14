@@ -8,6 +8,7 @@ import { shouldCrashDev } from '../../utils/development.js';
 
 interface AppState {
   lastLoadedProject?: string;
+  lastLoadedRundown?: string;
   showWelcomeDialog?: boolean;
 }
 
@@ -33,6 +34,21 @@ export async function setLastLoadedProject(filename: string): Promise<void> {
   DEV: shouldCrashDev(isPath(filename), 'setLastLoadedProject should not be called with a path');
 
   config.data.lastLoadedProject = filename;
+  await config.write();
+}
+
+export async function getLastLoadedRundown(): Promise<string | undefined> {
+  // in test environment, we want to start the demo project
+  if (isTest) return 'default';
+
+  await config.read();
+  return config.data.lastLoadedRundown;
+}
+
+export async function setLastLoadedRundown(rundownKey: string): Promise<void> {
+  if (isTest) return;
+
+  config.data.lastLoadedRundown = rundownKey;
   await config.write();
 }
 
