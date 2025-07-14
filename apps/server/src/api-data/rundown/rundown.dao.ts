@@ -40,6 +40,7 @@ import {
   getUniqueId,
 } from './rundown.utils.js';
 import { makeRundownMetadata, ProcessedRundownMetadata } from './rundown.parser.js';
+import { consoleError } from '../../utils/console.js';
 
 /**
  * The currently loaded rundown in cache
@@ -243,8 +244,16 @@ function remove(rundown: Rundown, entry: OntimeEntry) {
     }
   } else if (entry.parent) {
     // at this point, we are handling entries inside a block, so we need to remove the reference
-    const parentBlock = rundown.entries[entry.parent] as OntimeBlock;
-    if (parentBlock) {
+    const parentBlock = rundown.entries[entry.parent];
+
+    // eslint-disable-next-line no-unused-labels -- dev code path
+    DEV: {
+      if (parentBlock && !isOntimeBlock(parentBlock)) {
+        consoleError(`Parent block with ID ${entry.parent} is not a valid OntimeBlock`);
+      }
+    }
+
+    if (parentBlock && isOntimeBlock(parentBlock)) {
       // we call a mutation to the parent event to remove the entry from the events
       const filteredEvents = deleteById(parentBlock.entries, entry.id);
       edit(rundown, { id: parentBlock.id, entries: filteredEvents });
