@@ -1,4 +1,4 @@
-import { CustomFields, ProjectData, Settings, URLPreset, ViewSettings } from 'ontime-types';
+import { AutomationSettings, CustomFields, ProjectData, Settings, URLPreset, ViewSettings } from 'ontime-types';
 import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
 import { is } from '../../../utils/is.js';
 import { dbModel } from '../../../models/dataModel.js';
@@ -18,7 +18,7 @@ export function shouldUseThisMigration(jsonData: object): boolean {
 }
 
 /**
- * migrates a settings from v3 to v4
+ * migrates a settings from v3 to v4.0.0
  * - update the version number
  */
 export function migrateSettings(jsonData: object): Settings | undefined {
@@ -26,7 +26,7 @@ export function migrateSettings(jsonData: object): Settings | undefined {
     // intentionally cast as any so we can extract the values
     const oldSettings = structuredClone(jsonData.settings) as any;
     const migrated: Settings = {
-      version: ONTIME_VERSION,
+      version: '4.0.0',
       serverPort: oldSettings.serverPort ?? dbModel.settings.serverPort,
       editorKey: oldSettings.editorKey ?? dbModel.settings.editorKey,
       operatorKey: oldSettings.operatorKey ?? dbModel.settings.operatorKey,
@@ -38,7 +38,7 @@ export function migrateSettings(jsonData: object): Settings | undefined {
 }
 
 /**
- * migrates a view settings from v3 to v4
+ * migrates a view settings from v3 to v4.0.0
  * - drop `freezeEnd`
  * - drop `endMessage`
  */
@@ -68,7 +68,7 @@ export function migrateURLPresets(jsonData: object): URLPreset[] | undefined {
 }
 
 /**
- * migrates a url presets from v3 to v4
+ * migrates a url presets from v3 to v4.0.0
  * - `backstageUrl` -> `url`
  * - `backstageInfo` -> `info`
  * - drop `publicUrl`
@@ -93,7 +93,7 @@ export function migrateProjectData(jsonData: object): ProjectData | undefined {
 }
 
 /**
- * migrates a custom fields from v3 to v4
+ * migrates a custom fields from v3 to v4.0.0
  * - ensure correct case (TODO: could this be removed from the project parser)
  * - ensure that the key is derived from the label (TODO: could this be removed from the project parser)
  * - convert `type` from the string option to the text option
@@ -125,5 +125,18 @@ export function migrateCustomFields(jsonData: object): CustomFields | undefined 
     }
 
     return newCustomFields;
+  }
+}
+
+/**
+ * migrates a automations from v3 to v4.0.0
+ * - in case of a newer v3 project we can just return Automation settings
+ * - TODO: recover older osc and http subscriptions
+ */
+export function migrateAutomations(jsonData: object): AutomationSettings | undefined {
+  if (is.objectWithKeys(jsonData, ['automation']) && is.object(jsonData.automation)) {
+    // intentionally cast as any so we can extract the values
+    const oldProjectData = structuredClone(jsonData.automation) as AutomationSettings;
+    return oldProjectData;
   }
 }
