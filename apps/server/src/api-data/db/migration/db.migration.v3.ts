@@ -4,7 +4,7 @@ import { is } from '../../../utils/is.js';
 import { dbModel } from '../../../models/dataModel.js';
 
 // the methodology of the migrations is to just change the necessary keys to match with v4
-// and then let the normal project parser handle ensuring the the file is correct 
+// and then let the normal project parser handle ensuring the the file is correct
 
 /**
  * migrates a settings from v3 to v4
@@ -26,3 +26,21 @@ export function migrateSettings(jsonData: object): Settings | undefined {
   }
 }
 
+/**
+ * migrates a view settings from v3 to v4
+ * - drop `freezeEnd`
+ * - drop `endMessage`
+ */
+export function migrateViewSettings(jsonData: object): ViewSettings | undefined {
+  if (is.objectWithKeys(jsonData, ['viewSettings']) && is.object(jsonData.viewSettings)) {
+    // intentionally cast as any so we can extract the values
+    const oldViewSettings = structuredClone(jsonData.viewSettings) as any;
+    const migrated: ViewSettings = {
+      dangerColor: oldViewSettings.dangerColor ?? dbModel.viewSettings.dangerColor,
+      normalColor: oldViewSettings.normalColor ?? dbModel.viewSettings.normalColor,
+      overrideStyles: oldViewSettings.overrideStyles ?? dbModel.viewSettings.overrideStyles,
+      warningColor: oldViewSettings.warningColor ?? dbModel.viewSettings.warningColor,
+    };
+    return migrated;
+  }
+}

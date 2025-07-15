@@ -50,8 +50,8 @@ describe('v3 to v4', () => {
     viewSettings: {
       overrideStyles: false,
       normalColor: '#ffffffcc',
-      warningColor: '#FFAB33',
-      dangerColor: '#ED3333',
+      warningColor: '#ffa528',
+      dangerColor: '#ff7300',
       freezeEnd: false,
       endMessage: '',
     },
@@ -76,6 +76,12 @@ describe('v3 to v4', () => {
     const expectSettings = structuredClone(dbModel.settings);
     const newSettings = v3.migrateSettings(oldDb);
     expect(newSettings).toEqual(expectSettings);
+  });
+
+    test('migrate view settings', () => {
+    const expectViewSettings = structuredClone(dbModel.viewSettings);
+    const newViewSettings = v3.migrateViewSettings(oldDb);
+    expect(newViewSettings).toEqual(expectViewSettings);
   });
 
 });
