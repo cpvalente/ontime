@@ -34,12 +34,12 @@ describe('v3 to v4', () => {
       },
     ],
     project: {
-      title: '',
-      description: '',
+      title: 'Eurovision Song Contest',
+      description: 'Turin 2022',
       publicUrl: '123',
       publicInfo: '456',
-      backstageUrl: '',
-      backstageInfo: '',
+      backstageUrl: 'www.github.com/cpvalente/ontime',
+      backstageInfo: 'Rehearsal Schedule - Turin 2022\nAll performers to wear full costumes for 1st rehearsal',
     },
     settings: {
       version: '3.3.3',
@@ -128,5 +128,18 @@ describe('v3 to v4', () => {
     ];
     const newUrlPreset = v3.migrateURLPresets(oldDb);
     expect(newUrlPreset).toEqual(expectUrlPresets);
+  });
+
+  test('migrate project data', () => {
+    const expectProjectData = {
+      title: 'Eurovision Song Contest',
+      description: 'Turin 2022',
+      url: 'www.github.com/cpvalente/ontime',
+      info: 'Rehearsal Schedule - Turin 2022\nAll performers to wear full costumes for 1st rehearsal',
+      logo: null,
+      custom: [],
+    };
+    const newProjectData = v3.migrateProjectData(oldDb);
+    expect(newProjectData).toEqual(expectProjectData);
   });
 });

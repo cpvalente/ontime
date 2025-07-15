@@ -1,4 +1,4 @@
-import { Settings, URLPreset, ViewSettings } from 'ontime-types';
+import { ProjectData, Settings, URLPreset, ViewSettings } from 'ontime-types';
 import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
 import { is } from '../../../utils/is.js';
 import { dbModel } from '../../../models/dataModel.js';
@@ -53,5 +53,30 @@ export function migrateURLPresets(jsonData: object): URLPreset[] | undefined {
   if (is.objectWithKeys(jsonData, ['urlPresets']) && is.array(jsonData.urlPresets)) {
     const oldURLPresets = structuredClone(jsonData.urlPresets) as URLPreset[];
     return oldURLPresets;
+  }
+}
+
+/**
+ * migrates a url presets from v3 to v4
+ * - `backstageUrl` -> `url`
+ * - `backstageInfo` -> `info`
+ * - drop `publicUrl`
+ * - drop `publicInfo`
+ * - ensure `logo`
+ * - ensure `custom`
+ */
+export function migrateProjectData(jsonData: object): ProjectData | undefined {
+  if (is.objectWithKeys(jsonData, ['project']) && is.object(jsonData.project)) {
+    // intentionally cast as any so we can extract the values
+    const oldProjectData = structuredClone(jsonData.project) as any;
+    const migrated: ProjectData = {
+      title: oldProjectData.title ?? dbModel.project.title,
+      description: oldProjectData.description ?? dbModel.project.description,
+      url: oldProjectData.backstageUrl ?? dbModel.project.url,
+      info: oldProjectData.backstageInfo ?? dbModel.project.info,
+      logo: oldProjectData.logo ?? dbModel.project.logo,
+      custom: oldProjectData.custom ?? dbModel.project.custom,
+    };
+    return migrated;
   }
 }
