@@ -1,4 +1,4 @@
-import { memo, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { IoChevronDown, IoOptions, IoSettingsOutline } from 'react-icons/io5';
 import { Popover } from '@base-ui-components/react/popover';
 import { Toggle } from '@base-ui-components/react/toggle';
@@ -27,8 +27,7 @@ interface CuesheetTableSettingsProps {
   handleClearToggles: () => void;
 }
 
-export default memo(CuesheetTableSettings);
-function CuesheetTableSettings({
+export default function CuesheetTableSettings({
   columns,
   handleResetResizing,
   handleResetReordering,
