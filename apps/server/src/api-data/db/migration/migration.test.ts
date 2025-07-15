@@ -1,4 +1,14 @@
-import { EndAction, Settings, SupportedEntry, TimerType, TimeStrategy } from 'ontime-types';
+import {
+  CustomFields,
+  EndAction,
+  ProjectData,
+  Settings,
+  SupportedEntry,
+  TimerType,
+  TimeStrategy,
+  URLPreset,
+  ViewSettings,
+} from 'ontime-types';
 import * as v3 from './db.migration.v3.js';
 import { dbModel } from '../../../models/dataModel.js';
 import { demoDb } from '../../../models/demoProject.js';
@@ -72,10 +82,20 @@ describe('v3 to v4', () => {
       },
     ],
     customFields: {
-      asd_123: {
+      song: {
+        label: 'Song and Dance',
         type: 'string',
-        colour: 'blue',
-        label: 'ASD 123',
+        colour: '#339E4E',
+      },
+      artist: {
+        label: 'Artist and Host',
+        type: 'string',
+        colour: '#3E75E8',
+      },
+      wow: {
+        label: 'WOW 123',
+        type: 'image',
+        colour: '#E80000',
       },
     },
     automation: {
@@ -88,7 +108,7 @@ describe('v3 to v4', () => {
   };
 
   test('migrate settings', () => {
-    const expectSettings = {
+    const expectSettings: Settings = {
       version: ONTIME_VERSION,
       serverPort: 4001,
       editorKey: null,
@@ -101,7 +121,7 @@ describe('v3 to v4', () => {
   });
 
   test('migrate view settings', () => {
-    const expectViewSettings = {
+    const expectViewSettings: ViewSettings = {
       dangerColor: '#ff7300',
       normalColor: '#ffffffcc',
       overrideStyles: false,
@@ -112,7 +132,7 @@ describe('v3 to v4', () => {
   });
 
   test('migrate url preset', () => {
-    const expectUrlPresets = [
+    const expectUrlPresets: URLPreset[] = [
       {
         enabled: true,
         alias: 'clock',
@@ -131,7 +151,7 @@ describe('v3 to v4', () => {
   });
 
   test('migrate project data', () => {
-    const expectProjectData = {
+    const expectProjectData: ProjectData = {
       title: 'Eurovision Song Contest',
       description: 'Turin 2022',
       url: 'www.github.com/cpvalente/ontime',
@@ -141,5 +161,27 @@ describe('v3 to v4', () => {
     };
     const newProjectData = v3.migrateProjectData(oldDb);
     expect(newProjectData).toEqual(expectProjectData);
+  });
+
+  test('migrate custom fields', () => {
+    const expectCustomFields: CustomFields = {
+      Song_and_Dance: {
+        label: 'Song and Dance',
+        type: 'text',
+        colour: '#339E4E',
+      },
+      Artist_and_Host: {
+        label: 'Artist and Host',
+        type: 'text',
+        colour: '#3E75E8',
+      },
+      WOW_123: {
+        label: 'WOW 123',
+        type: 'image',
+        colour: '#E80000',
+      },
+    };
+    const newCustomFields = v3.migrateCustomFields(oldDb);
+    expect(newCustomFields).toEqual(expectCustomFields);
   });
 });

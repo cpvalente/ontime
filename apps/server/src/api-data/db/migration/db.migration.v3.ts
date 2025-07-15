@@ -1,10 +1,21 @@
-import { ProjectData, Settings, URLPreset, ViewSettings } from 'ontime-types';
+import { CustomFields, ProjectData, Settings, URLPreset, ViewSettings } from 'ontime-types';
 import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
 import { is } from '../../../utils/is.js';
 import { dbModel } from '../../../models/dataModel.js';
+import { customFieldLabelToKey, isAlphanumericWithSpace } from 'ontime-utils';
 
 // the methodology of the migrations is to just change the necessary keys to match with v4
 // and then let the normal project parser handle ensuring the the file is correct
+
+export function shouldUseThisMigration(jsonData: object): boolean {
+  return (
+    is.objectWithKeys(jsonData, ['settings']) &&
+    is.object(jsonData.settings) &&
+    is.objectWithKeys(jsonData.settings, ['version']) &&
+    typeof jsonData.settings.version === 'string' &&
+    jsonData.settings.version.split('.')[0] === '3'
+  );
+}
 
 /**
  * migrates a settings from v3 to v4
@@ -78,5 +89,41 @@ export function migrateProjectData(jsonData: object): ProjectData | undefined {
       custom: oldProjectData.custom ?? dbModel.project.custom,
     };
     return migrated;
+  }
+}
+
+/**
+ * migrates a custom fields from v3 to v4
+ * - ensure correct case (TODO: could this be removed from the project parser)
+ * - ensure that the key is derived from the label (TODO: could this be removed from the project parser)
+ * - convert `type` from the string option to the text option
+ */
+export function migrateCustomFields(jsonData: object): CustomFields | undefined {
+  if (is.objectWithKeys(jsonData, ['customFields']) && is.object(jsonData.customFields)) {
+    // intentionally cast as any so we can extract the values
+    const oldCustomFields = structuredClone(jsonData.customFields) as CustomFields;
+    const newCustomFields: CustomFields = {};
+
+    for (const [_originalKey, field] of Object.entries(oldCustomFields)) {
+      if (!isAlphanumericWithSpace(field.label)) {
+        continue;
+      }
+
+      // the key is always made from the label
+      const key = customFieldLabelToKey(field.label);
+
+      if (key in newCustomFields) {
+        continue;
+      }
+
+      newCustomFields[key] = {
+        //@ts-expect-error - we know this should not be the case in the migrated db
+        type: field.type === 'string' ? 'text' : field.type,
+        colour: field.colour,
+        label: field.label,
+      };
+    }
+
+    return newCustomFields;
   }
 }
