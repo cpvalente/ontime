@@ -1,6 +1,8 @@
 import { EndAction, Settings, SupportedEntry, TimerType, TimeStrategy } from 'ontime-types';
 import * as v3 from './db.migration.v3.js';
 import { dbModel } from '../../../models/dataModel.js';
+import { demoDb } from '../../../models/demoProject.js';
+import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
 
 describe('v3 to v4', () => {
   const oldDb = {
@@ -55,7 +57,20 @@ describe('v3 to v4', () => {
       freezeEnd: false,
       endMessage: '',
     },
-    urlPresets: [],
+    urlPresets: [
+      {
+        enabled: true,
+        alias: 'clock',
+        pathAndParams:
+          'timer?showLeadingZeros=true&timerType=clock&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+      },
+      {
+        enabled: true,
+        alias: 'minimal',
+        pathAndParams:
+          'timer?showLeadingZeros=true&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+      },
+    ],
     customFields: {
       asd_123: {
         type: 'string',
@@ -73,15 +88,45 @@ describe('v3 to v4', () => {
   };
 
   test('migrate settings', () => {
-    const expectSettings = structuredClone(dbModel.settings);
+    const expectSettings = {
+      version: ONTIME_VERSION,
+      serverPort: 4001,
+      editorKey: null,
+      operatorKey: null,
+      timeFormat: '24',
+      language: 'en',
+    };
     const newSettings = v3.migrateSettings(oldDb);
     expect(newSettings).toEqual(expectSettings);
   });
 
-    test('migrate view settings', () => {
-    const expectViewSettings = structuredClone(dbModel.viewSettings);
+  test('migrate view settings', () => {
+    const expectViewSettings = {
+      dangerColor: '#ff7300',
+      normalColor: '#ffffffcc',
+      overrideStyles: false,
+      warningColor: '#ffa528',
+    };
     const newViewSettings = v3.migrateViewSettings(oldDb);
     expect(newViewSettings).toEqual(expectViewSettings);
   });
 
+  test('migrate url preset', () => {
+    const expectUrlPresets = [
+      {
+        enabled: true,
+        alias: 'clock',
+        pathAndParams:
+          'timer?showLeadingZeros=true&timerType=clock&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+      },
+      {
+        enabled: true,
+        alias: 'minimal',
+        pathAndParams:
+          'timer?showLeadingZeros=true&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+      },
+    ];
+    const newUrlPreset = v3.migrateURLPresets(oldDb);
+    expect(newUrlPreset).toEqual(expectUrlPresets);
+  });
 });

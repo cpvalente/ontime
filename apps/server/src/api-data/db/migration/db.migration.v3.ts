@@ -1,4 +1,4 @@
-import { Settings, ViewSettings } from 'ontime-types';
+import { Settings, URLPreset, ViewSettings } from 'ontime-types';
 import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
 import { is } from '../../../utils/is.js';
 import { dbModel } from '../../../models/dataModel.js';
@@ -42,5 +42,16 @@ export function migrateViewSettings(jsonData: object): ViewSettings | undefined 
       warningColor: oldViewSettings.warningColor ?? dbModel.viewSettings.warningColor,
     };
     return migrated;
+  }
+}
+
+/**
+ * migrates a url presets from v3 to v4
+ * - nothing changed
+ */
+export function migrateURLPresets(jsonData: object): URLPreset[] | undefined {
+  if (is.objectWithKeys(jsonData, ['urlPresets']) && is.array(jsonData.urlPresets)) {
+    const oldURLPresets = structuredClone(jsonData.urlPresets) as URLPreset[];
+    return oldURLPresets;
   }
 }
