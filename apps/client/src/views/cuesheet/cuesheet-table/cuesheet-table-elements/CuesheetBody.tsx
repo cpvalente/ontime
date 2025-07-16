@@ -14,7 +14,6 @@ import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
 import { RUNDOWN } from '../../../../common/api/constants';
 import { useSelectedEventId } from '../../../../common/hooks/useSocket';
-import { lazyEvaluate } from '../../../../common/utils/lazyEvaluate';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 
@@ -35,17 +34,6 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
   const { selectedEventId } = useSelectedEventId();
   const hidePast = usePersistedCuesheetOptions((state) => state.hidePast);
   const hideDelays = usePersistedCuesheetOptions((state) => state.hideDelays);
-
-  const getVisibleColumns = lazyEvaluate(() => table.getVisibleFlatColumns());
-  const getColumnHash = lazyEvaluate(() => {
-    let columnHash = '';
-    const columns = getVisibleColumns();
-
-    for (let i = 0; i < columns.length; i++) {
-      columnHash += `${columns[i].getIndex()}-${columns[i].getSize()} `;
-    }
-    return columnHash;
-  });
 
   let eventIndex = 0;
   // for the first event, it will be past if there is something selected
@@ -140,7 +128,6 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
         if (isOntimeEvent(entry)) {
           eventIndex++;
           const isSelected = key === selectedEventId;
-          const columnHash = getColumnHash();
 
           if (isPast && hidePast) {
             return null;
@@ -185,7 +172,6 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
               parentBgColour={parentBgColour}
               table={table}
               firstAfterBlock={firstAfterBlock}
-              columnHash={columnHash}
             />
           );
         }
