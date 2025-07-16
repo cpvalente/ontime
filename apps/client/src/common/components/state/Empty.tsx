@@ -11,8 +11,7 @@ interface EmptyProps {
   className?: string;
 }
 
-export default function Empty(props: EmptyProps) {
-  const { text, className, ...rest } = props;
+export default function Empty({ text, className, ...rest }: EmptyProps) {
   return (
     <div className={cx([style.emptyContainer, className])} {...rest}>
       <EmptyImage className={style.empty} />
