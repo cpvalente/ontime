@@ -3,6 +3,7 @@
 .eventRow {
   background: color-mix(in srgb, transparent 92%, var(--user-bg, $gray-500) 8%);
   border-left: 4px solid var(--user-bg, $gray-500);
+  min-height: 2.5rem;
 
   &:hover {
     outline: 1px solid $blue-500;
