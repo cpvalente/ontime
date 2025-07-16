@@ -28,8 +28,6 @@ interface EventRowProps {
   rowBgColour?: string;
   parentBgColour?: string;
   table: Table<OntimeEntry>;
-  /** hack to force re-rendering of the row when the column sizes change */
-  columnHash: string;
   firstAfterBlock: boolean;
 }
 
