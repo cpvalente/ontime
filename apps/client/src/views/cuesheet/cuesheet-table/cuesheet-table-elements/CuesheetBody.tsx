@@ -13,6 +13,7 @@ import {
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
 import { RUNDOWN } from '../../../../common/api/constants';
+import EmptyTableBody from '../../../../common/components/state/EmptyTableBody';
 import { useSelectedEventId } from '../../../../common/hooks/useSocket';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
@@ -46,6 +47,10 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
       cleanup();
     };
   }, []);
+
+  if (rowModel.rows.length === 0) {
+    return <EmptyTableBody text='No data in rundown' />;
+  }
 
   return (
     <tbody>
