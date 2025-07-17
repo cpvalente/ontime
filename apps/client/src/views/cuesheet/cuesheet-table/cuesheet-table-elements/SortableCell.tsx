@@ -15,14 +15,13 @@ interface SortableCellProps {
 export function SortableCell({ header, injectedStyles, children }: SortableCellProps) {
   const { column, colSpan } = header;
 
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: column.id,
   });
 
   // build drag styles
   const dragStyle = {
     ...injectedStyles,
-    opacity: isDragging ? 0.5 : 1,
     transform: CSS.Translate.toString(transform),
     transition,
   };

@@ -21,7 +21,15 @@ declare global {
 }
 
 /**
- * We pass a custom property to the table meta to allow field update
+ * Declare custom data we pass to the table
+ * - `handleUpdate` callback to update the entry when the user edits a cell
+ * - `handleUpdateTimer` callback to update the timer for a specific event
+ * - `options-showDelayedTimes` whether to show or hide delayed times
+ * - `options-hideTableSeconds` whether to hide seconds in the table
+ *
+ * And metadata specific for each column
+ * - `canWrite` whether the user can write to this column
+ * - `colour` background colour associated with a custom field
  */
 declare module '@tanstack/react-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,6 +40,12 @@ declare module '@tanstack/react-table' {
       showDelayedTimes: boolean;
       hideTableSeconds: boolean;
     };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface ColumnMeta<TData extends RowData, TValue> {
+    canWrite: boolean;
+    colour?: string;
   }
 }
 
