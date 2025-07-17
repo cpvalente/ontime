@@ -38,8 +38,6 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
   // the parent can be provided or inferred from position
   let parent: OntimeBlock | null = null;
 
-  console.log('Adding entry with data:', eventData);
-
   if ('parent' in eventData && eventData.parent != null) {
     // if the user provides a parent (inside a group), we make sure it exists and it is a group
     const maybeParent = rundown.entries[eventData.parent];
