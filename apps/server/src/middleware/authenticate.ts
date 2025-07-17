@@ -9,6 +9,7 @@ import { hashPassword } from '../utils/hash.js';
 import { srcFiles } from '../setup/index.js';
 import { logger } from '../classes/Logger.js';
 import { hashedPassword, hasPassword } from '../api-data/session/session.service.js';
+import { getDataProvider } from '../classes/data-provider/DataProvider.js';
 
 import { noopMiddleware } from './noop.js';
 
@@ -30,12 +31,20 @@ export const loginRouter = express.Router();
 loginRouter.use('/', express.static(srcFiles.login));
 
 // verify password and set cookies + redirect appropriately
-loginRouter.post('/', (req, res) => {
+loginRouter.post('/', async (req, res) => {
   res.clearCookie('token');
   const { password: reqPassword, redirect } = req.body;
 
+  // Check global password
   if (hashPassword(reqPassword) === hashedPassword) {
-    setSessionCookie(res, hashedPassword);
+    res.cookie('token', hashedPassword, {
+      httpOnly: false, // allow websocket to access cookie
+      secure: true,
+      path: '/',
+      sameSite: 'none',
+    });
+    // Set auth scope header before redirect
+    res.setHeader('X-Auth-Scope', 'global');
     res.redirect(redirect || '/');
     return;
   }
@@ -49,13 +58,32 @@ loginRouter.post('/', (req, res) => {
  */
 export function makeAuthenticateMiddleware(prefix: string) {
   // we dont need to initialise the authenticate middleware if there is no password
-  if (!hasPassword) {
+  // and no presets have access keys
+  const presets = getDataProvider().getUrlPresets();
+  if (!hasPassword && !presets.some((p) => p.accessKey)) {
     return { authenticate: noopMiddleware, authenticateAndRedirect: noopMiddleware };
   }
 
   function authenticate(req: Request, res: Response, next: NextFunction) {
-    const token = req.query.token || req.cookies?.token;
-    if (token && token === hashedPassword) {
+    // Check if this is a preset path
+    const path = req.originalUrl.substring(1);
+    const preset = presets.find((p) => p.alias === path && p.enabled);
+
+    // If this is a preset with an access key
+    if (preset?.accessKey) {
+      const accessKey = req.query.key;
+      if (accessKey === preset.accessKey) {
+        // Set auth scope header for preset
+        res.setHeader('X-Auth-Scope', `preset:${preset.alias}`);
+        return next();
+      }
+    }
+
+    // Otherwise check global auth
+    const token = req.cookies?.token || req.query.token;
+    if (token === hashedPassword) {
+      // Set auth scope header for global auth
+      res.setHeader('X-Auth-Scope', 'global');
       return next();
     }
 
@@ -65,6 +93,8 @@ export function makeAuthenticateMiddleware(prefix: string) {
   function authenticateAndRedirect(req: Request, res: Response, next: NextFunction) {
     // Allow access to specific public assets without authentication
     if (publicAssets.has(req.originalUrl)) {
+      // Set auth scope header for public assets
+      res.setHeader('X-Auth-Scope', 'public');
       return next();
     }
 
@@ -73,35 +103,57 @@ export function makeAuthenticateMiddleware(prefix: string) {
       return next();
     }
 
-    // we expect the token to be in the cookies
-    if (req.cookies?.token === hashedPassword) {
-      return next();
+    // Check if this is a preset path
+    const path = req.originalUrl.substring(1);
+    const preset = presets.find((p) => p.alias === path && p.enabled);
+
+    // If this is a preset that requires an access key but none provided
+    if (preset?.accessKey && !req.query.key) {
+      // No redirect for preset auth, just 401
+      res.status(401).send({
+        error: 'Access key required',
+        authType: 'preset',
+        presetAlias: preset.alias,
+      });
+      return;
     }
 
-    // we use query params for generating authenticated URLs and for clients like the companion module
-    // if the user gives is a token in the query params, we set the cookie to be used in further requests
-    if (req.query.token === hashedPassword) {
-      if (hashedPassword !== undefined) {
-        setSessionCookie(res, hashedPassword);
-      }
-      return next();
+    // Check global auth
+    const token = req.cookies?.token || req.query.token;
+    if (!token && hasPassword) {
+      res.redirect(`${prefix}/login?redirect=${req.originalUrl}`);
+      return;
     }
 
-    res.redirect(`${prefix}/login?redirect=${req.originalUrl}`);
+    next();
   }
 
   return { authenticate, authenticateAndRedirect };
 }
 
 /**
- * Middleware to authenticate a WebSocket connection with a token in the cookie
+ * Middleware to authenticate a WebSocket connection
  */
 export function authenticateSocket(_ws: WebSocket, req: IncomingMessage, next: (error?: Error) => void) {
-  if (!hasPassword) {
+  const presets = getDataProvider().getUrlPresets();
+  if (!hasPassword && !presets.some((p) => p.accessKey)) {
     return next();
   }
 
-  // check if the token is in the cookie
+  // Parse URL to check if this is a preset connection
+  const url = new URL(req.url || '', `http://${req.headers.host}`);
+  const path = url.pathname.substring(1);
+  const preset = presets.find((p) => p.alias === path && p.enabled);
+
+  // Check preset auth
+  if (preset?.accessKey) {
+    const accessKey = url.searchParams.get('key');
+    if (accessKey === preset.accessKey) {
+      return next();
+    }
+  }
+
+  // Check global auth
   const cookieString = req.headers.cookie;
   if (typeof cookieString === 'string') {
     const cookies = parseCookie(cookieString);
@@ -110,8 +162,7 @@ export function authenticateSocket(_ws: WebSocket, req: IncomingMessage, next: (
     }
   }
 
-  // check if token is in the params
-  const url = new URL(req.url || '', `http://${req.headers.host}`);
+  // Check token in URL
   const token = url.searchParams.get('token');
   if (token === hashedPassword) {
     return next();
@@ -119,13 +170,4 @@ export function authenticateSocket(_ws: WebSocket, req: IncomingMessage, next: (
 
   logger.warning(LogOrigin.Client, 'Unauthorized WebSocket connection attempt');
   return next(new Error('Unauthorized'));
-}
-
-function setSessionCookie(res: Response, token: string) {
-  res.cookie('token', token, {
-    httpOnly: false, // allow websocket to access cookie
-    secure: true,
-    path: '/', // allow cookie to be accessed from any path
-    sameSite: 'none', // allow cookies to be sent in cross-origin requests (e.g., iframes)
-  });
 }
