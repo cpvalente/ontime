@@ -232,7 +232,6 @@ describe('getURLSearchParamsFromObj()', () => {
       bool2: 'on',
     };
     const result = getURLSearchParamsFromObj(params, mockOptionsWithBooleans);
-    console.log('Result:', result.toString());
     expect(result.get('bool1')).toBe('false');
     expect(result.get('bool2')).toBe('true');
   });
