@@ -168,7 +168,6 @@ export function migrateRundown(jsonData: object): ProjectRundowns | undefined {
   if (is.objectWithKeys(jsonData, ['rundown']) && is.array(jsonData.rundown)) {
     // intentionally cast as any so we can extract the values
     const oldRundown = structuredClone(jsonData.rundown) as any[];
-    const rundowns: ProjectRundowns = {};
     const newRundown: Rundown = {
       id: 'default',
       title: 'Default',
