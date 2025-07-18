@@ -5,6 +5,7 @@ import { CustomField, CustomFieldKey } from 'ontime-types';
 import { deleteCustomField, editCustomField, postCustomField } from '../../../../common/api/customFields';
 import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
+import AppLink from '../../../../common/components/link/app-link/AppLink';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import { customFieldsDocsUrl } from '../../../../externals';
@@ -60,7 +61,8 @@ export default function CustomFieldSettings() {
             Custom fields allow for additional information to be added to an event.
             <br />
             <br />
-            This data can be used in the Automation feature by using the generated key.
+            To use custom fields as a data source in an{' '}
+            <AppLink search='settings=automation__automations'>Automation</AppLink>, please note the generated key.
             <ExternalLink href={customFieldsDocsUrl}>See the docs</ExternalLink>
           </Info>
         </Panel.Section>
@@ -72,7 +74,7 @@ export default function CustomFieldSettings() {
                 <th>Colour</th>
                 <th>Type</th>
                 <th>Name</th>
-                <th>Key (used in Integrations)</th>
+                <th>Key (used in Automations)</th>
                 <th />
               </tr>
             </thead>

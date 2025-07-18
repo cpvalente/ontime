@@ -6,12 +6,12 @@ const googleSheetDocsUrl = 'https://docs.getontime.no/features/import-spreadshee
 export default function GSheetInfo() {
   return (
     <Info>
-      Ontime allows you to synchronize your rundown with a Google Sheet.
+      Ontime can import data from spreadsheets by: <br />
+      - importing the spreadsheet file in Ontime <br />
+      - synchronising your project with a Google Sheet
       <br />
       <br />
-      To enable this feature, you will need to generate tokens in your Google account and provide them to Ontime.
-      <br />
-      Once set up, you will be able to synchronize data between Ontime and your Google Sheet. <br />
+      To synchronise with a Google Sheet, you will need to allow Ontime to authenticate with your Google account.
       <ExternalLink href={googleSheetDocsUrl}>See the docs</ExternalLink>
     </Info>
   );
