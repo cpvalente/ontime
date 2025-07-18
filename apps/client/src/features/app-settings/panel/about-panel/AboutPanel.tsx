@@ -28,7 +28,7 @@ export default function AboutPanel() {
             <ExternalLink href={buyMeACoffeeUrl}>Buy Me a Coffee</ExternalLink>
           </Panel.Paragraph>
           <Panel.Paragraph>
-            And trying out our cloud service
+            If you are looking for an online version of Ontime, consider trying out our cloud service
             <ExternalLink href={websiteUrl}>www.getontime.no</ExternalLink>
           </Panel.Paragraph>
         </Panel.Card>
