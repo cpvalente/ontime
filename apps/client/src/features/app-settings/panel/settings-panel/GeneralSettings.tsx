@@ -1,4 +1,4 @@
-import { BaseSyntheticEvent, FormEvent, lazy, useEffect, useState } from 'react';
+import { lazy, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Select } from '@chakra-ui/react';
 import { Settings } from 'ontime-types';
@@ -45,16 +45,8 @@ export default function GeneralSettings() {
     }
   }, [data, reset]);
 
-  const onSubmit = async (formData: Settings, event?: BaseSyntheticEvent) => {
+  const onSubmit = async (formData: Settings) => {
     try {
-      // The target logic is to prevent the submission of the settings form from the translations form
-      const target = event?.target as HTMLFormElement;
-      const allowedTargets = ['app-settings'];
-
-      if (target?.id && !allowedTargets.includes(target?.id)) {
-        return;
-      }
-
       await postSettings(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
@@ -75,121 +67,120 @@ export default function GeneralSettings() {
   const isLoading = status === 'pending';
 
   return (
-    <Panel.Section
-      as='form'
-      onSubmit={handleSubmit(onSubmit)}
-      onKeyDown={(event) => preventEscape(event, onReset)}
-      id='app-settings'
-    >
-      <Panel.Card>
-        <Panel.SubHeader>
-          General settings
-          <Panel.InlineElements>
-            <Button disabled={!isDirty || isSubmitting} variant='ghosted' onClick={onReset}>
-              Revert to saved
-            </Button>
-            <Button
-              type='submit'
-              form='app-settings'
-              name='general-settings-submit'
-              loading={isSubmitting}
-              disabled={disableSubmit}
-              variant='primary'
-            >
-              Save
-            </Button>
-          </Panel.InlineElements>
-        </Panel.SubHeader>
-        {submitError && <Panel.Error>{submitError}</Panel.Error>}
-        <Panel.Divider />
-        <Panel.Section>
-          <Panel.Loader isLoading={isLoading} />
-          <Panel.ListGroup>
-            <Panel.ListItem>
-              <Panel.Field
-                title='Ontime server port'
-                description={
-                  isOntimeCloud
-                    ? 'Server port disabled for Ontime Cloud'
-                    : 'Port ontime server listens in. Defaults to 4001 (needs app restart)'
-                }
-                error={errors.serverPort?.message}
-              />
-              <Input
-                id='serverPort'
-                type='number'
-                maxLength={5}
-                style={{ width: '75px' }}
-                disabled={isOntimeCloud}
-                {...register('serverPort', {
-                  required: { value: true, message: 'Required field' },
-                  max: { value: 65535, message: 'Port must be within range 1024 - 65535' },
-                  min: { value: 1024, message: 'Port must be within range 1024 - 65535' },
-                  pattern: {
-                    value: isOnlyNumbers,
-                    message: 'Value should be numeric',
-                  },
-                })}
-              />
-            </Panel.ListItem>
-            <Panel.ListItem>
-              <Panel.Field
-                title='Editor pin code'
-                description='Protect the editor view with a pin code'
-                error={errors.editorKey?.message}
-              />
-              <GeneralPinInput register={register} formName='editorKey' isDisabled={disableInputs} />
-            </Panel.ListItem>
-            <Panel.ListItem>
-              <Panel.Field
-                title='Operator pin code'
-                description='Protect the operator and cuesheet views with a pin code'
-                error={errors.operatorKey?.message}
-              />
-              <GeneralPinInput register={register} formName='operatorKey' isDisabled={disableInputs} />
-            </Panel.ListItem>
-            <Panel.ListItem>
-              <Panel.Field
-                title='Time format'
-                description='Default time format to show in views 12 /24 hours'
-                error={errors.timeFormat?.message}
-              />
-              <Select variant='ontime' size='sm' width='auto' isDisabled={disableInputs} {...register('timeFormat')}>
-                <option value='12'>12 hours 11:00:10 PM</option>
-                <option value='24'>24 hours 23:00:10</option>
-              </Select>
-            </Panel.ListItem>
-            <Panel.ListItem>
-              <Panel.Field
-                title='Views language'
-                description='Language to be displayed in views'
-                error={errors.language?.message}
-              />
-              <Select variant='ontime' size='sm' width='auto' isDisabled={disableInputs} {...register('language')}>
-                <option value='en'>English</option>
-                <option value='fr'>French</option>
-                <option value='de'>German</option>
-                <option value='hu'>Hungarian</option>
-                <option value='it'>Italian</option>
-                <option value='no'>Norwegian</option>
-                <option value='pt'>Portuguese</option>
-                <option value='es'>Spanish</option>
-                <option value='sv'>Swedish</option>
-                <option value='pl'>Polish</option>
-                <option value='zh'>Chinese (Simplified)</option>
-                <option value='custom'>Custom</option>
-              </Select>
-              {language === 'custom' && (
-                <Button onClick={() => setIsCustomTranslationModalOpen(true)}>Add translation</Button>
-              )}
-            </Panel.ListItem>
-            <TranslationModal
-              isOpen={isCustomTranslationModalOpen}
-              onClose={() => setIsCustomTranslationModalOpen(false)}
-            />
-          </Panel.ListGroup>
-        </Panel.Section>
-      </Panel.Card>
-    </Panel.Section>
+    <>
+      <TranslationModal isOpen={isCustomTranslationModalOpen} onClose={() => setIsCustomTranslationModalOpen(false)} />
+      <Panel.Section
+        as='form'
+        onSubmit={handleSubmit(onSubmit)}
+        onKeyDown={(event) => preventEscape(event, onReset)}
+        id='app-settings'
+      >
+        <Panel.Card>
+          <Panel.SubHeader>
+            General settings
+            <Panel.InlineElements>
+              <Button disabled={!isDirty || isSubmitting} variant='ghosted' onClick={onReset}>
+                Revert to saved
+              </Button>
+              <Button
+                type='submit'
+                form='app-settings'
+                name='general-settings-submit'
+                loading={isSubmitting}
+                disabled={disableSubmit}
+                variant='primary'
+              >
+                Save
+              </Button>
+            </Panel.InlineElements>
+          </Panel.SubHeader>
+          {submitError && <Panel.Error>{submitError}</Panel.Error>}
+          <Panel.Divider />
+          <Panel.Section>
+            <Panel.Loader isLoading={isLoading} />
+            <Panel.ListGroup>
+              <Panel.ListItem>
+                <Panel.Field
+                  title='Ontime server port'
+                  description={
+                    isOntimeCloud
+                      ? 'Server port disabled for Ontime Cloud'
+                      : 'Port ontime server listens in. Defaults to 4001 (needs app restart)'
+                  }
+                  error={errors.serverPort?.message}
+                />
+                <Input
+                  id='serverPort'
+                  type='number'
+                  maxLength={5}
+                  style={{ width: '75px' }}
+                  disabled={isOntimeCloud}
+                  {...register('serverPort', {
+                    required: { value: true, message: 'Required field' },
+                    max: { value: 65535, message: 'Port must be within range 1024 - 65535' },
+                    min: { value: 1024, message: 'Port must be within range 1024 - 65535' },
+                    pattern: {
+                      value: isOnlyNumbers,
+                      message: 'Value should be numeric',
+                    },
+                  })}
+                />
+              </Panel.ListItem>
+              <Panel.ListItem>
+                <Panel.Field
+                  title='Editor pin code'
+                  description='Protect the editor view with a pin code'
+                  error={errors.editorKey?.message}
+                />
+                <GeneralPinInput register={register} formName='editorKey' isDisabled={disableInputs} />
+              </Panel.ListItem>
+              <Panel.ListItem>
+                <Panel.Field
+                  title='Operator pin code'
+                  description='Protect the operator and cuesheet views with a pin code'
+                  error={errors.operatorKey?.message}
+                />
+                <GeneralPinInput register={register} formName='operatorKey' isDisabled={disableInputs} />
+              </Panel.ListItem>
+              <Panel.ListItem>
+                <Panel.Field
+                  title='Time format'
+                  description='Default time format to show in views 12 /24 hours'
+                  error={errors.timeFormat?.message}
+                />
+                <Select variant='ontime' size='sm' width='auto' isDisabled={disableInputs} {...register('timeFormat')}>
+                  <option value='12'>12 hours 11:00:10 PM</option>
+                  <option value='24'>24 hours 23:00:10</option>
+                </Select>
+              </Panel.ListItem>
+              <Panel.ListItem>
+                <Panel.Field
+                  title='Views language'
+                  description='Language to be displayed in views'
+                  error={errors.language?.message}
+                />
+                <Select variant='ontime' size='sm' width='auto' isDisabled={disableInputs} {...register('language')}>
+                  <option value='en'>English</option>
+                  <option value='fr'>French</option>
+                  <option value='de'>German</option>
+                  <option value='hu'>Hungarian</option>
+                  <option value='it'>Italian</option>
+                  <option value='no'>Norwegian</option>
+                  <option value='pt'>Portuguese</option>
+                  <option value='es'>Spanish</option>
+                  <option value='sv'>Swedish</option>
+                  <option value='pl'>Polish</option>
+                  <option value='zh'>Chinese (Simplified)</option>
+                  <option value='custom'>Custom</option>
+                </Select>
+                {language === 'custom' && (
+                  <Button onClick={() => setIsCustomTranslationModalOpen(true)}>Add translation</Button>
+                )}
+              </Panel.ListItem>
+            </Panel.ListGroup>
+          </Panel.Section>
+        </Panel.Card>
+      </Panel.Section>
+    </>
   );
 }
