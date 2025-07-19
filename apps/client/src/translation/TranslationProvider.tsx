@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useState } from 'react';
 
-import { getUserTranslation, postUserTranslation } from '../common/api/translation';
+import { getUserTranslation, postUserTranslation } from '../common/api/assets';
 import useSettings from '../common/hooks-query/useSettings';
 
 import { langDe } from './languages/de';

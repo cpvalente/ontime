@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 import { apiEntryUrl } from './constants';
+import { TranslationObject } from 'translation/languages/en';
 
 const assetsPath = `${apiEntryUrl}/assets`;
 
@@ -27,4 +28,21 @@ export async function postCSSContents(css: string): Promise<void> {
 export async function restoreCSSContents(): Promise<string> {
   const res = await axios.post(`${assetsPath}/css/restore`);
   return res.data;
+}
+
+/**
+ * HTTP request to get user translation
+ */
+export async function getUserTranslation(): Promise<TranslationObject> {
+  const res = await axios.get(`${assetsPath}/translations`);
+  return res.data;
+}
+
+/**
+ * HTTP request to post user translation
+ */
+export async function postUserTranslation(translation: TranslationObject): Promise<void> {
+  await axios.post(`${assetsPath}/translations`, {
+    translation,
+  });
 }
