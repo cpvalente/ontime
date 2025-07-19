@@ -1,8 +1,8 @@
 import express from 'express';
 import type { Request, Response } from 'express';
 import type { ErrorResponse } from 'ontime-types';
-import { validatePostCss } from './assets.validation.js';
-import { readCssFile, writeCssFile } from './assets.service.js';
+import { validatePostCss, validatePostTranslation } from './assets.validation.js';
+import { readCssFile, readUserTranslation, writeCssFile, writeUserTranslation } from './assets.service.js';
 import { getErrorMessage } from 'ontime-utils';
 import { defaultCss } from '../../user/styles/bundledCss.js';
 
@@ -33,6 +33,28 @@ router.post('/css/restore', async (_req: Request, res: Response<string | ErrorRe
   try {
     await writeCssFile(defaultCss);
     res.status(200).send(defaultCss);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
+  }
+});
+
+
+router.get('/translations', async (_req: Request, res: Response<TranslationObject | ErrorResponse>) => {
+  try {
+    const data = await readUserTranslation();
+    res.status(200).send(data);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
+  }
+});
+
+router.post('/translations', validatePostTranslation, async (req: Request, res: Response<never | ErrorResponse>) => {
+  const { translation } = req.body;
+  try {
+    await writeUserTranslation(translation);
+    res.status(204).send();
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(500).send({ message });
