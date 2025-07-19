@@ -34,11 +34,9 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
 
   const onSubmit = async (formData: Record<string, string>) => {
     try {
-      if (isDirty) {
-        const translationData = transformTranslationObject(formData, '_', '.') as TranslationObject;
-        await postUserTranslation(translationData);
-        reset(formData);
-      }
+      const translationData = transformTranslationObject(formData, '_', '.') as TranslationObject;
+      await postUserTranslation(translationData);
+      reset(formData);
     } catch (error) {
       setError('root', { message: maybeAxiosError(error) });
       /** no error handling for now */
