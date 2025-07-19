@@ -2,8 +2,10 @@ import {
   CustomFields,
   EndAction,
   ProjectData,
+  Rundown,
   Settings,
   SupportedEntry,
+  TimerLifeCycle,
   TimerType,
   TimeStrategy,
   URLPreset,
@@ -14,9 +16,10 @@ import * as v3 from './db.migration.v3.js';
 describe('v3 to v4', () => {
   const oldDb = {
     rundown: [
+      { id: 'block0', type: 'block', title: 'BLOCK 0' },
       {
         id: 'event1',
-        type: SupportedEntry.Event,
+        type: 'event',
         cue: '123',
         title: 'ABC',
         note: 'DEF',
@@ -33,7 +36,39 @@ describe('v3 to v4', () => {
         colour: 'blue',
         timeWarning: 5,
         timeDanger: 2,
-        custom: { asd_123: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit' },
+        custom: {
+          song: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+          doseNotExist: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+        },
+        revision: 0,
+        delay: 0,
+        dayOffset: 0,
+        gap: 0,
+      },
+      {
+        id: 'event2',
+        type: SupportedEntry.Event,
+        cue: '124',
+        title: 'ABC',
+        note: 'DEF',
+        endAction: EndAction.None,
+        timerType: TimerType.CountDown,
+        countToEnd: false,
+        linkStart: false,
+        timeStrategy: TimeStrategy.LockDuration,
+        timeStart: 0,
+        timeEnd: 10,
+        duration: 10,
+        isPublic: false,
+        skip: false,
+        colour: 'blue',
+        timeWarning: 5,
+        timeDanger: 2,
+        custom: {
+          wow: 'http://www.agoodimage.com',
+          artist: 'Ib Andersen',
+        },
+        triggers: [{ id: 'testTrig', title: 'Test trigger', trigger: TimerLifeCycle.onStart, automationId: '1' }],
         revision: 0,
         delay: 0,
         dayOffset: 0,
@@ -178,7 +213,107 @@ describe('v3 to v4', () => {
         colour: '#E80000',
       },
     };
-    const newCustomFields = v3.migrateCustomFields(oldDb);
-    expect(newCustomFields).toEqual(expectCustomFields);
+    const { customFields, translationTable } = v3.migrateCustomFields(oldDb)!;
+    expect(customFields).toEqual(expectCustomFields);
+
+    expect(translationTable).toEqual(
+      new Map([
+        ['song', 'Song_and_Dance'],
+        ['artist', 'Artist_and_Host'],
+        ['wow', 'WOW_123'],
+      ]),
+    );
+  });
+
+  test('migrate rundown', () => {
+    const expectedRundown: Rundown = {
+      id: 'default',
+      title: 'Default',
+      order: ['block0', 'event1', 'event2'],
+      flatOrder: ['block0', 'event1', 'event2'],
+      entries: {
+        block0: {
+          id: 'block0',
+          type: SupportedEntry.Block,
+          title: 'BLOCK 0',
+          colour: '',
+          custom: {},
+          duration: 0,
+          entries: [],
+          isFirstLinked: false,
+          note: '',
+          revision: -1,
+          targetDuration: null,
+          timeEnd: null,
+          timeStart: null,
+        },
+        event1: {
+          id: 'event1',
+          type: SupportedEntry.Event,
+          cue: '123',
+          title: 'ABC',
+          note: 'DEF',
+          endAction: EndAction.None,
+          timerType: TimerType.CountDown,
+          countToEnd: false,
+          linkStart: false,
+          timeStrategy: TimeStrategy.LockDuration,
+          timeStart: 0,
+          timeEnd: 10,
+          duration: 10,
+          skip: false,
+          colour: 'blue',
+          timeWarning: 5,
+          timeDanger: 2,
+          custom: { Song_and_Dance: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit' },
+          triggers: [],
+          revision: -1,
+          flag: false,
+          parent: null,
+          delay: 0,
+          dayOffset: 0,
+          gap: 0,
+        },
+        event2: {
+          id: 'event2',
+          type: SupportedEntry.Event,
+          cue: '124',
+          title: 'ABC',
+          note: 'DEF',
+          endAction: EndAction.None,
+          timerType: TimerType.CountDown,
+          countToEnd: false,
+          linkStart: false,
+          timeStrategy: TimeStrategy.LockDuration,
+          timeStart: 0,
+          timeEnd: 10,
+          duration: 10,
+          skip: false,
+          colour: 'blue',
+          timeWarning: 5,
+          timeDanger: 2,
+          custom: {
+            WOW_123: 'http://www.agoodimage.com',
+            Artist_and_Host: 'Ib Andersen',
+          },
+          triggers: [{ id: 'testTrig', title: 'Test trigger', trigger: TimerLifeCycle.onStart, automationId: '1' }],
+          flag: false,
+          parent: null,
+          revision: -1,
+          delay: 0,
+          dayOffset: 0,
+          gap: 0,
+        },
+      },
+      revision: 0,
+    };
+    const translationTable = new Map([
+      ['song', 'Song_and_Dance'],
+      ['artist', 'Artist_and_Host'],
+      ['wow', 'WOW_123'],
+    ]);
+
+    //@ts-expect-error - we know  the default rundown  should appear
+    expect(v3.migrateRundown(oldDb, translationTable)['default']).toStrictEqual(expectedRundown);
   });
 });

@@ -2,6 +2,7 @@ import {
   AutomationSettings,
   CustomFields,
   EndAction,
+  EntryCustomFields,
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
@@ -107,6 +108,9 @@ export function migrateProjectData(jsonData: object): ProjectData | undefined {
   }
 }
 
+// old key -> new key
+type CustomFieldsTranslationTable = Map<string, string>;
+
 /**
  * migrates a custom fields from v3 to v4.0.0
  * - ensure correct case (TODO: could this be removed from the project parser)
@@ -114,13 +118,17 @@ export function migrateProjectData(jsonData: object): ProjectData | undefined {
  * - convert `type` from the string option to the text option
  * TODO: we might need a translation table to use when parsing the rundown
  */
-export function migrateCustomFields(jsonData: object): CustomFields | undefined {
+export function migrateCustomFields(
+  jsonData: object,
+): { customFields: CustomFields; translationTable: CustomFieldsTranslationTable } | undefined {
+  const translationTable: CustomFieldsTranslationTable = new Map();
+
   if (is.objectWithKeys(jsonData, ['customFields']) && is.object(jsonData.customFields)) {
     // intentionally cast as any so we can extract the values
     const oldCustomFields = structuredClone(jsonData.customFields) as CustomFields;
-    const newCustomFields: CustomFields = {};
+    const customFields: CustomFields = {};
 
-    for (const [_originalKey, field] of Object.entries(oldCustomFields)) {
+    for (const [originalKey, field] of Object.entries(oldCustomFields)) {
       if (!isAlphanumericWithSpace(field.label)) {
         continue;
       }
@@ -128,11 +136,13 @@ export function migrateCustomFields(jsonData: object): CustomFields | undefined 
       // the key is always made from the label
       const key = customFieldLabelToKey(field.label);
 
-      if (key in newCustomFields) {
+      if (key in customFields) {
         continue;
       }
 
-      newCustomFields[key] = {
+      translationTable.set(originalKey, key);
+
+      customFields[key] = {
         //@ts-expect-error - we know this should not be the case in the migrated db
         type: field.type === 'string' ? 'text' : field.type,
         colour: field.colour,
@@ -140,7 +150,7 @@ export function migrateCustomFields(jsonData: object): CustomFields | undefined 
       };
     }
 
-    return newCustomFields;
+    return { customFields, translationTable };
   }
 }
 
@@ -164,7 +174,10 @@ export function migrateAutomations(jsonData: object): AutomationSettings | undef
  * - events:
  *  -
  */
-export function migrateRundown(jsonData: object): ProjectRundowns | undefined {
+export function migrateRundown(
+  jsonData: object,
+  translationTable: CustomFieldsTranslationTable,
+): ProjectRundowns | undefined {
   if (is.objectWithKeys(jsonData, ['rundown']) && is.array(jsonData.rundown)) {
     // intentionally cast as any so we can extract the values
     const oldRundown = structuredClone(jsonData.rundown) as any[];
@@ -185,6 +198,14 @@ export function migrateRundown(jsonData: object): ProjectRundowns | undefined {
 
     for (const entry of oldRundown) {
       if (isOntimeEvent(entry)) {
+        const { custom } = entry;
+        const newCustom: EntryCustomFields = {};
+        Object.entries(custom).map(([key, value]) => {
+          const newKey = translationTable.get(key);
+          if (newKey) {
+            newCustom[newKey] = value;
+          }
+        });
         append({
           type: SupportedEntry.Event,
           id: entry.id,
@@ -195,7 +216,7 @@ export function migrateRundown(jsonData: object): ProjectRundowns | undefined {
           endAction: validateEndAction(entry.endAction, EndAction.None), // ensure end action is not stop
           timerType: isKnownTimerType(entry.timerType) ? entry.timerType : eventModel.timerType, // ensure the timer type is not count-to-end
           //@ts-expect-error - we know this should not be the case in the migrated db
-          countToEnd: entry.timerType === 'count-to-end', // countToEnd was previusly a timer type
+          countToEnd: entry.timerType === 'count-to-end', // countToEnd was previously a timer type
           linkStart: Boolean(entry.linkStart), //this has been null/string
           timeStrategy: entry.timeStrategy, //TODO:
           timeStart: entry.timeStart,
@@ -205,7 +226,7 @@ export function migrateRundown(jsonData: object): ProjectRundowns | undefined {
           colour: entry.colour,
           timeWarning: entry.timeWarning,
           timeDanger: entry.timeDanger,
-          custom: entry.custom, //TODO: some keys might have been renamed
+          custom: newCustom,
           triggers: entry.triggers ?? [], // might not be there if the project is a bit older
           parent: null, // new data point
           // !==== RUNTIME METADATA ====! //
