@@ -7,6 +7,7 @@ import Modal from '../../../../../common/components/modal/Modal';
 import { langEn, TranslationObject } from '../../../../../translation/languages/en';
 import { useTranslation } from '../../../../../translation/TranslationProvider';
 import * as Panel from '../../../panel-utils/PanelUtils';
+import { useMemo } from 'react';
 
 interface CustomTranslationModalProps {
   isOpen: boolean;
@@ -16,7 +17,7 @@ interface CustomTranslationModalProps {
 export default function CustomTranslationModal({ isOpen, onClose }: CustomTranslationModalProps) {
   const { userTranslation, postUserTranslation, refetchTranslation: refetch } = useTranslation();
 
-  const translation = transformTranslationObject(userTranslation, '.', '_');
+  const defaultValues = useMemo(() => translateToFormData(userTranslation), [userTranslation]);
 
   const {
     handleSubmit,
@@ -25,7 +26,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
     formState: { isSubmitting, isDirty, errors },
     setError,
   } = useForm({
-    defaultValues: translation,
+    defaultValues,
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -34,7 +35,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
 
   const onSubmit = async (formData: Record<string, string>) => {
     try {
-      const translationData = transformTranslationObject(formData, '_', '.') as TranslationObject;
+      const translationData = translateToApiData(formData) as TranslationObject;
       await postUserTranslation(translationData);
       reset(formData);
     } catch (error) {
@@ -61,7 +62,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Expected Finish' description='' />
                 <Input
                   maxLength={150}
-                  {...register('common_expected_finish', {
+                  {...register('expected_finish', {
                     required: 'This field is required',
                   })}
                   placeholder={langEn['common.expected_finish']}
@@ -71,7 +72,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Minutes' description='' />
                 <Input
                   maxLength={150}
-                  {...register('common_minutes', { required: 'This field is required' })}
+                  {...register('minutes', { required: 'This field is required' })}
                   placeholder={langEn['common.minutes']}
                 />
               </Panel.ListItem>
@@ -79,7 +80,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Now' description='' />
                 <Input
                   maxLength={150}
-                  {...register('common_now', { required: 'This field is required' })}
+                  {...register('now', { required: 'This field is required' })}
                   placeholder={langEn['common.now']}
                 />
               </Panel.ListItem>
@@ -87,7 +88,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Next' description='' />
                 <Input
                   maxLength={150}
-                  {...register('common_next', { required: 'This field is required' })}
+                  {...register('next', { required: 'This field is required' })}
                   placeholder={langEn['common.next']}
                 />
               </Panel.ListItem>
@@ -95,7 +96,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Scheduled Start' description='' />
                 <Input
                   maxLength={150}
-                  {...register('common_scheduled_start', { required: 'This field is required' })}
+                  {...register('scheduled_start', { required: 'This field is required' })}
                   placeholder={langEn['common.scheduled_start']}
                 />
               </Panel.ListItem>
@@ -103,7 +104,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Scheduled End' description='' />
                 <Input
                   maxLength={150}
-                  {...register('common_scheduled_end', { required: 'This field is required' })}
+                  {...register('scheduled_end', { required: 'This field is required' })}
                   placeholder={langEn['common.scheduled_end']}
                 />
               </Panel.ListItem>
@@ -111,7 +112,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Projected Start' description='' />
                 <Input
                   maxLength={150}
-                  {...register('common_projected_start', { required: 'This field is required' })}
+                  {...register('projected_start', { required: 'This field is required' })}
                   placeholder={langEn['common.projected_start']}
                 />
               </Panel.ListItem>
@@ -119,7 +120,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Projected End' description='' />
                 <Input
                   maxLength={150}
-                  {...register('common_projected_end', { required: 'This field is required' })}
+                  {...register('projected_end', { required: 'This field is required' })}
                   placeholder={langEn['common.projected_end']}
                 />
               </Panel.ListItem>
@@ -127,7 +128,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Stage Timer' description='' />
                 <Input
                   maxLength={150}
-                  {...register('common_stage_timer', { required: 'This field is required' })}
+                  {...register('stage_timer', { required: 'This field is required' })}
                   placeholder={langEn['common.stage_timer']}
                 />
               </Panel.ListItem>
@@ -135,7 +136,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Started At' description='' />
                 <Input
                   maxLength={150}
-                  {...register('common_started_at', { required: 'This field is required' })}
+                  {...register('started_at', { required: 'This field is required' })}
                   placeholder={langEn['common.started_at']}
                 />
               </Panel.ListItem>
@@ -143,7 +144,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Time Now' description='' />
                 <Input
                   maxLength={150}
-                  {...register('common_time_now', { required: 'This field is required' })}
+                  {...register('time_now', { required: 'This field is required' })}
                   placeholder={langEn['common.time_now']}
                 />
               </Panel.ListItem>
@@ -151,7 +152,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='No data' description='' />
                 <Input
                   maxLength={150}
-                  {...register('common_no_data', { required: 'This field is required' })}
+                  {...register('no_data', { required: 'This field is required' })}
                   placeholder={langEn['common.no_data']}
                 />
               </Panel.ListItem>
@@ -164,7 +165,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Ended' description='' />
                 <Input
                   maxLength={150}
-                  {...register('countdown_ended', { required: 'This field is required' })}
+                  {...register('ended', { required: 'This field is required' })}
                   placeholder={langEn['countdown.ended']}
                 />
               </Panel.ListItem>
@@ -172,7 +173,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Running' description='' />
                 <Input
                   maxLength={150}
-                  {...register('countdown_running', { required: 'This field is required' })}
+                  {...register('running', { required: 'This field is required' })}
                   placeholder={langEn['countdown.running']}
                 />
               </Panel.ListItem>
@@ -180,7 +181,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Select Event' description='' />
                 <Input
                   maxLength={150}
-                  {...register('countdown_select_event', { required: 'This field is required' })}
+                  {...register('select_event', { required: 'This field is required' })}
                   placeholder={langEn['countdown.select_event']}
                 />
               </Panel.ListItem>
@@ -188,7 +189,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='To start' description='' />
                 <Input
                   maxLength={150}
-                  {...register('countdown_to_start', { required: 'This field is required' })}
+                  {...register('to_start', { required: 'This field is required' })}
                   placeholder={langEn['countdown.to_start']}
                 />
               </Panel.ListItem>
@@ -196,7 +197,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Waiting' description='' />
                 <Input
                   maxLength={150}
-                  {...register('countdown_waiting', { required: 'This field is required' })}
+                  {...register('waiting', { required: 'This field is required' })}
                   placeholder={langEn['countdown.waiting']}
                 />
               </Panel.ListItem>
@@ -204,7 +205,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Overtime' description='' />
                 <Input
                   maxLength={150}
-                  {...register('countdown_overtime', { required: 'This field is required' })}
+                  {...register('overtime', { required: 'This field is required' })}
                   placeholder={langEn['countdown.overtime']}
                 />
               </Panel.ListItem>
@@ -217,7 +218,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Live' description='' />
                 <Input
                   maxLength={150}
-                  {...register('timeline_live', { required: 'This field is required' })}
+                  {...register('live', { required: 'This field is required' })}
                   placeholder={langEn['timeline.live']}
                 />
               </Panel.ListItem>
@@ -225,7 +226,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Done' description='' />
                 <Input
                   maxLength={150}
-                  {...register('timeline_done', { required: 'This field is required' })}
+                  {...register('done', { required: 'This field is required' })}
                   placeholder={langEn['timeline.done']}
                 />
               </Panel.ListItem>
@@ -233,7 +234,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Due' description='' />
                 <Input
                   maxLength={150}
-                  {...register('timeline_due', { required: 'This field is required' })}
+                  {...register('due', { required: 'This field is required' })}
                   placeholder={langEn['timeline.due']}
                 />
               </Panel.ListItem>
@@ -241,7 +242,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Followed By' description='' />
                 <Input
                   maxLength={150}
-                  {...register('timeline_followedby', { required: 'This field is required' })}
+                  {...register('followedby', { required: 'This field is required' })}
                   placeholder={langEn['timeline.followedby']}
                 />
               </Panel.ListItem>
@@ -249,7 +250,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Title' description='' />
                 <Input
                   maxLength={150}
-                  {...register('project_title', { required: 'This field is required' })}
+                  {...register('title', { required: 'This field is required' })}
                   placeholder={langEn['project.title']}
                 />
               </Panel.ListItem>
@@ -257,7 +258,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Description' description='' />
                 <Input
                   maxLength={150}
-                  {...register('project_description', { required: 'This field is required' })}
+                  {...register('description', { required: 'This field is required' })}
                   placeholder={langEn['project.description']}
                 />
               </Panel.ListItem>
@@ -265,7 +266,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Backstage info' description='' />
                 <Input
                   maxLength={150}
-                  {...register('project_backstage_info', { required: 'This field is required' })}
+                  {...register('backstage_info', { required: 'This field is required' })}
                   placeholder={langEn['project.backstage_info']}
                 />
               </Panel.ListItem>
@@ -273,7 +274,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 <Panel.Field title='Backstage URL' description='' />
                 <Input
                   maxLength={150}
-                  {...register('project_backstage_url', { required: 'This field is required' })}
+                  {...register('backstage_url', { required: 'This field is required' })}
                   placeholder={langEn['project.backstage_url']}
                 />
               </Panel.ListItem>
@@ -307,17 +308,46 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
   );
 }
 
-function transformTranslationObject(
-  translation: Record<string, string>,
-  from: string,
-  to: string,
-): Record<string, string> {
-  const transformedTranslationObj: Record<string, string> = {};
+const TRANSLATION_KEY_MAP = {
+  expected_finish: 'common.expected_finish',
+  minutes: 'common.minutes',
+  now: 'common.now',
+  next: 'common.next',
+  scheduled_start: 'common.scheduled_start',
+  scheduled_end: 'common.scheduled_end',
+  projected_start: 'common.projected_start',
+  projected_end: 'common.projected_end',
+  stage_timer: 'common.stage_timer',
+  started_at: 'common.started_at',
+  time_now: 'common.time_now',
+  no_data: 'common.no_data',
+  ended: 'countdown.ended',
+  running: 'countdown.running',
+  select_event: 'countdown.select_event',
+  to_start: 'countdown.to_start',
+  waiting: 'countdown.waiting',
+  overtime: 'countdown.overtime',
+  live: 'timeline.live',
+  done: 'timeline.done',
+  due: 'timeline.due',
+  followedby: 'timeline.followedby',
+  title: 'project.title',
+  description: 'project.description',
+  backstage_info: 'project.backstage_info',
+  backstage_url: 'project.backstage_url',
+} as const;
 
-  Object.entries(translation).forEach(([k, v]) => {
-    const translationKey = k.replace(from, to);
-    transformedTranslationObj[translationKey] = v;
-  });
+function translateToFormData(userTranslation: TranslationObject) {
+  return Object.fromEntries(
+    Object.entries(TRANSLATION_KEY_MAP).map(([formKey, translationKey]) => [formKey, userTranslation[translationKey]]),
+  );
+}
 
-  return transformedTranslationObj;
+function translateToApiData(formData: Record<string, string>) {
+  return Object.fromEntries(
+    Object.entries(formData).map(([formKey, value]) => [
+      TRANSLATION_KEY_MAP[formKey as keyof typeof TRANSLATION_KEY_MAP],
+      value
+    ])
+  );
 }
