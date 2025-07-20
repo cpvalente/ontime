@@ -263,19 +263,19 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
                 />
               </Panel.ListItem>
               <Panel.ListItem>
-                <Panel.Field title='Backstage info' description='' />
+                <Panel.Field title='Project info' description='' />
                 <Input
                   maxLength={150}
-                  {...register('backstage_info', { required: 'This field is required' })}
-                  placeholder={langEn['project.backstage_info']}
+                  {...register('info', { required: 'This field is required' })}
+                  placeholder={langEn['project.info']}
                 />
               </Panel.ListItem>
               <Panel.ListItem>
-                <Panel.Field title='Backstage URL' description='' />
+                <Panel.Field title='Project URL' description='' />
                 <Input
                   maxLength={150}
-                  {...register('backstage_url', { required: 'This field is required' })}
-                  placeholder={langEn['project.backstage_url']}
+                  {...register('url', { required: 'This field is required' })}
+                  placeholder={langEn['project.url']}
                 />
               </Panel.ListItem>
             </Panel.ListGroup>
@@ -333,8 +333,8 @@ const TRANSLATION_KEY_MAP = {
   followedby: 'timeline.followedby',
   title: 'project.title',
   description: 'project.description',
-  backstage_info: 'project.backstage_info',
-  backstage_url: 'project.backstage_url',
+  info: 'project.info',
+  url: 'project.url',
 } as const;
 
 function translateToFormData(userTranslation: TranslationObject) {
