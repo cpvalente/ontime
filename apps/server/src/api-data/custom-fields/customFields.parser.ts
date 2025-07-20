@@ -1,5 +1,5 @@
 import { DatabaseModel, CustomFields, CustomField } from 'ontime-types';
-import { isAlphanumericWithSpace, customFieldLabelToKey } from 'ontime-utils';
+import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
 
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
 
@@ -29,7 +29,7 @@ export function sanitiseCustomFields(data: object): CustomFields {
       continue;
     }
 
-    if (!isAlphanumericWithSpace(field.label)) {
+    if (!checkRegex.isAlphanumericWithSpace(field.label)) {
       continue;
     }
 

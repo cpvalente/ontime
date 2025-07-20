@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CustomField } from 'ontime-types';
-import { customFieldLabelToKey, isAlphanumericWithSpace } from 'ontime-utils';
+import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
 
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
@@ -117,7 +117,7 @@ export default function CustomFieldForm({
               onChange: () => setValue('key', customFieldLabelToKey(getValues('label')) ?? 'N/A'),
               validate: (value) => {
                 if (value.trim().length === 0) return 'Required field';
-                if (!isAlphanumericWithSpace(value)) return 'Only alphanumeric characters and space are allowed';
+                if (!checkRegex.isAlphanumericWithSpace(value)) return 'Only alphanumeric characters and space are allowed';
                 if (!isEditMode) {
                   if (isEditMode && Object.keys(data).includes(value)) return 'Custom fields must be unique';
                 }
