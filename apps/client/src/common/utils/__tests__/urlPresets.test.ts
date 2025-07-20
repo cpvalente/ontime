@@ -1,6 +1,12 @@
 import { resolvePath } from 'react-router-dom';
 
-import { arePathsEquivalent, generatePathFromPreset, getRouteFromPreset, validateUrlPresetPath } from '../urlPresets';
+import {
+  arePathsEquivalent,
+  generatePathFromPreset,
+  generateUrlPresetOptions,
+  getRouteFromPreset,
+  validateUrlPresetPath,
+} from '../urlPresets';
 
 describe('validateUrlPresetPaths()', () => {
   test.each([
@@ -27,7 +33,8 @@ describe('getRouteFromPreset()', () => {
     {
       enabled: true,
       alias: 'demopage',
-      pathAndParams: '/timer?user=guest',
+      target: 'timer',
+      search: 'user=guest',
     },
   ];
 
@@ -76,14 +83,14 @@ describe('getRouteFromPreset()', () => {
 
 describe('generatePathFromPreset()', () => {
   test.each([
-    ['timer?user=guest', 'demopage', 'timer?user=guest&alias=demopage'],
-    ['timer?user=admin', 'demopage', 'timer?user=admin&alias=demopage'],
-  ])('generates a path from a preset: %s', (path, alias, expected) => {
-    expect(generatePathFromPreset(path, alias, null, null)).toEqual(expected);
+    ['timer', 'user=guest', 'demopage', 'timer?user=guest&alias=demopage'],
+    ['timer', 'user=admin', 'demopage', 'timer?user=admin&alias=demopage'],
+  ])('generates a path from a preset: %s', (target, path, alias, expected) => {
+    expect(generatePathFromPreset(target, path, alias, null, null)).toEqual(expected);
   });
 
   test('appends the feature params to the alias', () => {
-    expect(generatePathFromPreset('timer?user=guest', 'demopage', 'true', '123')).toBe(
+    expect(generatePathFromPreset('timer', 'user=guest', 'demopage', 'true', '123')).toBe(
       'timer?user=guest&alias=demopage&locked=true&token=123',
     );
   });
@@ -104,5 +111,64 @@ describe('arePathsEquivalent()', () => {
   it('considers edge cases for the url sharing feature', () => {
     expect(arePathsEquivalent('timer?test=a&locked=true=token=123', 'timer?test=b')).toBeFalsy();
     expect(arePathsEquivalent('timer?test=a&locked=true=token=123', 'timer?test=a')).toBeTruthy();
+  });
+});
+
+describe('generateUrlPresetOptions', () => {
+  it.each([
+    [
+      'cloud URL without protocol',
+      'test',
+      'www.getontime.no/timer?param1=value1&param2=value2',
+      {
+        alias: 'test',
+        target: 'timer',
+        search: 'param1=value1&param2=value2',
+        enabled: true,
+      },
+    ],
+    [
+      'cloud URL',
+      'test',
+      'https://cloud.getontime.no/timer?param1=value1&param2=value2',
+      {
+        alias: 'test',
+        target: 'timer',
+        search: 'param1=value1&param2=value2',
+        enabled: true,
+      },
+    ],
+    [
+      'local URL',
+      'test',
+      'http://localhost:4001/timer?param1=value1&param2=value2',
+      {
+        alias: 'test',
+        target: 'timer',
+        search: 'param1=value1&param2=value2',
+        enabled: true,
+      },
+    ],
+    [
+      'IP-based URL',
+      'test',
+      'http://192.168.0.1:4001/timer?param1=value1&param2=value2',
+      {
+        alias: 'test',
+        target: 'timer',
+        search: 'param1=value1&param2=value2',
+        enabled: true,
+      },
+    ],
+  ])('should generate URL preset options for %s', (_description, alias, url, expected) => {
+    expect(generateUrlPresetOptions(alias, url)).toStrictEqual(expected);
+  });
+
+  it('throws on invalid URL', () => {
+    expect(() => generateUrlPresetOptions('test', 'invalid-url')).toThrow();
+  });
+
+  it('throws on on invalid route', () => {
+    expect(() => generateUrlPresetOptions('test', 'www.getontime.no/somethingelse/')).toThrow();
   });
 });

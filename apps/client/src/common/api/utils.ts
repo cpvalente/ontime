@@ -34,6 +34,20 @@ export function maybeAxiosError(error: unknown) {
 }
 
 /**
+ * Utility unwrap a an instance of Error
+ */
+export function unwrapError(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  } else {
+    if (typeof error !== 'string') {
+      return JSON.stringify(error);
+    }
+    return error;
+  }
+}
+
+/**
  * Utility unwraps a potential axios error and sends to logger
  * @param prepend
  * @param error

@@ -16,10 +16,16 @@ export function parseUrlPresets(data: Partial<DatabaseModel>, emitError?: ErrorE
   const newPresets: URLPreset[] = [];
 
   for (const preset of data.urlPresets) {
+    if (!preset.alias || !preset.search || !preset.target) {
+      emitError?.(`Invalid URL preset: ${JSON.stringify(preset)}`);
+      continue;
+    }
+
     const newPreset = {
       enabled: preset.enabled ?? false,
-      alias: preset.alias ?? '',
-      pathAndParams: preset.pathAndParams ?? '',
+      alias: preset.alias,
+      target: preset.target,
+      search: preset.search,
     };
     newPresets.push(newPreset);
   }

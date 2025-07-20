@@ -8,16 +8,19 @@ test('URL preset feature, it should redirect to given URL', async ({ page }) => 
   await page.getByRole('button', { name: 'URL Presets' }).click();
 
   // create preset
-  await page.getByTestId('url-preset-form').getByRole('button', { name: 'New' }).scrollIntoViewIfNeeded();
-  await page.getByTestId('url-preset-form').getByRole('button', { name: 'New' }).click();
+  await page.getByRole('heading', { name: 'URL presets New' }).getByRole('button').scrollIntoViewIfNeeded();
+  await page.getByRole('heading', { name: 'URL presets New' }).getByRole('button').click();
 
-  await page.getByTestId('field__alias_0').click();
-  await page.getByTestId('field__alias_0').fill('testing');
+  await page.locator('input[name="alias"]').click();
+  await page.locator('input[name="alias"]').fill('testing');
 
-  await page.getByTestId('field__url_0').click();
-  await page.getByTestId('field__url_0').fill('countdown');
+  await page.getByRole('textbox', { name: 'Paste URL' }).click();
+  await page.getByRole('textbox', { name: 'Paste URL' }).fill('www.getontime.no/team/countdown');
+  await page.getByRole('button', { name: 'Generate' }).click();
 
-  await page.getByTestId('url-preset-form').getByRole('button', { name: 'Save', exact: true }).click();
+  await page.getByRole('combobox').filter({ hasText: 'Countdown' });
+
+  await page.getByRole('button', { name: 'Save' }).click();
 
   // make sure preset works
   await page.goto('http://localhost:4001/testing');
