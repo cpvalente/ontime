@@ -45,8 +45,8 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
       label: view.label,
     })),
     ...enabledPresets.map((preset) => ({
-      value: preset.pathAndParams,
-      label: `Preset: ${preset.alias}`,
+      value: preset.search,
+      label: `URL Preset: ${preset.alias}`,
     })),
   ];
 

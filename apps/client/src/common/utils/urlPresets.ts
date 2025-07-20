@@ -1,5 +1,6 @@
 import { Path, resolvePath } from 'react-router-dom';
-import { URLPreset } from 'ontime-types';
+import { OntimeView, URLPreset } from 'ontime-types';
+import { checkRegex } from 'ontime-utils';
 
 /**
  * Validates a preset against defined parameters
@@ -49,7 +50,7 @@ export function getRouteFromPreset(location: Path, urlPresets: URLPreset[]): str
   const foundPreset = urlPresets.find((preset) => preset.alias === removeTrailingSlash(currentURL) && preset.enabled);
   if (foundPreset) {
     // if so, we can redirect to the preset path
-    return generatePathFromPreset(foundPreset.pathAndParams, foundPreset.alias, locked, token);
+    return generatePathFromPreset(foundPreset.target, foundPreset.search, foundPreset.alias, locked, token);
   }
 
   // if the current url is not an alias, we check if the alias is in the search parameters
@@ -63,7 +64,7 @@ export function getRouteFromPreset(location: Path, urlPresets: URLPreset[]): str
   for (const preset of urlPresets) {
     // if the page has a known enabled alias, we check if we need to redirect
     if (preset.alias === presetOnPage && preset.enabled) {
-      const newPath = generatePathFromPreset(preset.pathAndParams, preset.alias, locked, token);
+      const newPath = generatePathFromPreset(preset.target, preset.search, preset.alias, locked, token);
       if (!arePathsEquivalent(currentPath, newPath)) {
         // if current path is out of date
         // return new path so we can redirect
@@ -77,8 +78,14 @@ export function getRouteFromPreset(location: Path, urlPresets: URLPreset[]): str
 /**
  * Handles generating a path and search parameters from a preset
  */
-export function generatePathFromPreset(pathAndParams: string, alias: string, locked: string | null, token: string | null ): string {
-  const path = resolvePath(pathAndParams);
+export function generatePathFromPreset(
+  target: Omit<OntimeView, 'editor'>,
+  search: string,
+  alias: string,
+  locked: string | null,
+  token: string | null,
+): string {
+  const path = resolvePath(`${target}?${search}`);
   const searchParams = new URLSearchParams(path.search);
 
   // save the alias so we have a reference to it being a preset and can update if necessary
@@ -106,16 +113,16 @@ export function generatePathFromPreset(pathAndParams: string, alias: string, loc
 export function arePathsEquivalent(currentPath: string, newPath: string): boolean {
   const currentUrl = new URL(currentPath, document.location.origin);
   const newUrl = new URL(newPath, document.location.origin);
-  
+
   // check path
   if (currentUrl.pathname !== newUrl.pathname) {
-    return false
+    return false;
   }
 
   // check search params
   // if the params match, we dont need further checks
   if (currentUrl.searchParams.toString() === newUrl.searchParams.toString()) {
-    return true
+    return true;
   }
 
   // if there is no match, we check the edge cases for the url sharing feature
@@ -123,4 +130,39 @@ export function arePathsEquivalent(currentPath: string, newPath: string): boolea
   currentUrl.searchParams.delete('locked');
 
   return currentUrl.searchParams.toString() === newUrl.searchParams.toString();
+}
+
+/**
+ * Generates a URL preset from a user given alias and URL.
+ */
+export function generateUrlPresetOptions(alias: string, userUrl: string): URLPreset {
+  let sanitisedUrl = userUrl.toLowerCase();
+  // we need to ensure the URL has a protocol, but it doesnt matter which
+  if (!checkRegex.startsWithHttp(sanitisedUrl)) {
+    sanitisedUrl = `http://${sanitisedUrl}`;
+  }
+
+  const url = new URL(sanitisedUrl);
+  const target = extractLastSegment(url.pathname);
+
+  if (target === 'editor' || !Object.values(OntimeView).includes(target as OntimeView)) {
+    throw new Error(`Invalid target view: ${target}`);
+  }
+
+  return {
+    alias,
+    target,
+    search: url.searchParams.toString(),
+    enabled: true,
+  };
+}
+
+/**
+ * the path can contain the stage hash
+ * "/team-hash/timer" or "/timer"
+ * we need to extract ontime view it targets
+ */
+function extractLastSegment(pathname: string): string {
+  const segments = pathname.split('/').filter(Boolean);
+  return segments[segments.length - 1] || '';
 }

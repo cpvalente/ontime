@@ -33,7 +33,7 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
       { value: '', label: 'Companion' },
       ...urlPresetData.map((preset) => ({
         value: preset.alias,
-        label: `Preset: ${preset.alias}`,
+        label: `URL Preset: ${preset.alias}`,
       })),
     ];
   }, [lockedPath, urlPresetData]);

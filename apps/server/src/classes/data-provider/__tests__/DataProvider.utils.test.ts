@@ -88,8 +88,8 @@ describe('safeMerge', () => {
   it('should merge the urlPresets key when present', () => {
     const newData = {
       urlPresets: [
-        { enabled: true, alias: 'alias1', pathAndParams: '' },
-        { enabled: true, alias: 'alias2', pathAndParams: '' },
+        { enabled: true, alias: 'alias1', search: '' },
+        { enabled: true, alias: 'alias2', search: '' },
       ] as URLPreset[],
     };
 

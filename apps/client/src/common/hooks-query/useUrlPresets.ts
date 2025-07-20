@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { URLPreset } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { URL_PRESETS } from '../api/constants';
-import { getUrlPresets } from '../api/urlPresets';
+import { deleteUrlPreset, getUrlPresets, postUrlPreset, putUrlPreset } from '../api/urlPresets';
 
 interface FetchProps {
   skip?: boolean;
@@ -13,12 +14,42 @@ export default function useUrlPresets({ skip = false }: FetchProps = {}) {
     queryKey: URL_PRESETS,
     queryFn: getUrlPresets,
     placeholderData: (previousData, _previousQuery) => previousData,
-    retry: 5,
-    retryDelay: (attempt) => attempt * 2500,
     refetchInterval: queryRefetchIntervalSlow,
-    networkMode: 'always',
     enabled: !skip,
   });
 
   return { data: data ?? [], status, isError, refetch };
+}
+
+export function useUpdateUrlPreset() {
+  const queryClient = useQueryClient();
+
+  const addFn = useMutation({
+    mutationFn: postUrlPreset,
+    onSuccess: (newPresets) => {
+      queryClient.setQueryData(URL_PRESETS, newPresets);
+    },
+  });
+
+  const updateFn = useMutation({
+    mutationFn: ({ alias, data }: { alias: string; data: URLPreset }) => putUrlPreset(alias, data),
+    onSuccess: (newPresets) => {
+      queryClient.setQueryData(URL_PRESETS, newPresets);
+    },
+  });
+
+  const deleteFn = useMutation({
+    mutationFn: deleteUrlPreset,
+    onSuccess: (newPresets) => {
+      queryClient.setQueryData(URL_PRESETS, newPresets);
+    },
+  });
+
+  return {
+    addPreset: addFn.mutateAsync,
+    updatePreset: (alias: string, data: URLPreset) => updateFn.mutateAsync({ alias, data }),
+    deletePreset: deleteFn.mutateAsync,
+    isMutating: addFn.isPending || updateFn.isPending || deleteFn.isPending,
+    isMutationError: addFn.isError || updateFn.isError || deleteFn.isError,
+  };
 }
