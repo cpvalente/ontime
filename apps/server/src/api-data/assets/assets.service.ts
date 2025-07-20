@@ -3,7 +3,6 @@ import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { TranslationObject } from './assets.type.js';
 import { defaultCss } from '../../user/styles/bundledCss.js';
-import { defaultTranslation } from '../../user/translations/bundledTranslation.js';
 
 /**
  * Reads the user's css file

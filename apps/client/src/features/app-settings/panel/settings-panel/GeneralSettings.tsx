@@ -26,7 +26,6 @@ export default function GeneralSettings() {
     reset,
     setError,
     watch,
-    setValue,
     formState: { isSubmitting, isDirty, isValid, errors },
   } = useForm<Settings>({
     mode: 'onChange',
