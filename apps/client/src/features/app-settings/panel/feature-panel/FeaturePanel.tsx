@@ -6,7 +6,7 @@ import InfoNif from '../network-panel/NetworkInterfaces';
 
 import GenerateLinkFormExport from './GenerateLinkFormExport';
 import ReportSettings from './ReportSettings';
-import UrlPresetsForm from './UrlPresetsForm';
+import URLPresets from './URLPresets';
 
 export default function FeaturePanel({ location }: PanelBaseProps) {
   const presetsRef = useScrollIntoView<HTMLDivElement>('presets', location);
@@ -17,7 +17,7 @@ export default function FeaturePanel({ location }: PanelBaseProps) {
     <>
       <Panel.Header>Sharing and reporting</Panel.Header>
       <div ref={presetsRef}>
-        <UrlPresetsForm />
+        <URLPresets />
       </div>
       <div ref={linkRef}>
         <Panel.Section>

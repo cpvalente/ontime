@@ -8,7 +8,6 @@ export const regex = {
   isASCII: /^[ -~]+$/, // https://catonmat.net/my-favorite-regex
   isASCIIorEmpty: /^$|^[ -~]+$/, // https://catonmat.net/my-favorite-regex
   isNotEmpty: /\S/,
-  isUrlSafe: /^[a-zA-Z0-9_-]*$/, // https://stackoverflow.com/questions/24419067/validate-a-string-to-be-url-safe-using-regex
 };
 
 export const checkRegex = {
@@ -21,5 +20,4 @@ export const checkRegex = {
   isASCII: (text: string): boolean => regex.isASCII.test(text),
   isASCIIorEmpty: (text: string): boolean => regex.isASCIIorEmpty.test(text),
   isNotEmpty: (text: string): boolean => regex.isNotEmpty.test(text),
-  isUrlSafe: (text: string): boolean => regex.isUrlSafe.test(text),
 };
