@@ -10,3 +10,8 @@
   width: 50%;
   white-space: nowrap;
 }
+
+.copiable {
+  cursor: text  ;
+  user-select: text;
+}

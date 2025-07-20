@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Switch } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { PROJECT_DATA } from '../../../../common/api/constants';
 import { getDb, patchData } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
+import Info from '../../../../common/components/info/Info';
+import Switch from '../../../../common/components/switch/Switch';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -21,25 +22,25 @@ interface ProjectMergeFromProps {
 
 type ProjectMergeFormValues = {
   project: boolean;
-  rundown: boolean;
+  rundowns: boolean;
   viewSettings: boolean;
   urlPresets: boolean;
   automation: boolean;
 };
 
-export default function ProjectMergeForm(props: ProjectMergeFromProps) {
-  const { onClose, fileName } = props;
+export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFromProps) {
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const {
     handleSubmit,
-    register,
+    watch,
+    setValue,
     formState: { isSubmitting, isValid, isDirty },
   } = useForm<ProjectMergeFormValues>({
     defaultValues: {
       project: false,
-      rundown: false,
+      rundowns: false,
       viewSettings: false,
       urlPresets: false,
       automation: false,
@@ -61,6 +62,10 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
 
       // make patch object
       const { data } = await getDb(fileName);
+      if (!data.settings.version.startsWith('4.')) {
+        setError('The project you are attempting to merge is from an older version and it need to be migrated first');
+        return;
+      }
       const patch = await makeProjectPatch(data, values);
 
       // request patch
@@ -75,7 +80,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
   return (
     <Panel.Section as='form' onSubmit={handleSubmit(handleSubmitCreate)}>
       <Panel.Title>
-        Merge {`"${fileName}"`}
+        Partial project merge
         <Panel.InlineElements>
           <Button onClick={onClose} variant='ghosted' disabled={isSubmitting}>
             Cancel
@@ -88,27 +93,50 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
       {error && <Panel.Error>{error}</Panel.Error>}
       <Panel.Section className={cx([style.innerColumn, style.inlineLabels])}>
         <Panel.Description>
-          Select partial data from {`"${fileName}"`} to merge into the current project.
-          <br /> This process is irreversible.
+          Select data from <i>{`"${fileName}"`}</i> to merge into the current project.
         </Panel.Description>
+        <Info type='warning'>
+          This process is irreversible and can result in data loss. <br />
+          You may want to create a duplicate backup beforehand.
+        </Info>
         <label>
-          <Switch variant='ontime' {...register('project')} />
+          <Switch
+            size='large'
+            checked={watch('project')}
+            onCheckedChange={(value: boolean) => setValue('project', value, { shouldDirty: true })}
+          />
           Project data
         </label>
         <label>
-          <Switch variant='ontime' {...register('rundown')} />
+          <Switch
+            size='large'
+            checked={watch('rundowns')}
+            onCheckedChange={(value: boolean) => setValue('rundowns', value, { shouldDirty: true })}
+          />
           Rundown + Custom Fields
         </label>
         <label>
-          <Switch variant='ontime' {...register('viewSettings')} />
+          <Switch
+            size='large'
+            checked={watch('viewSettings')}
+            onCheckedChange={(value: boolean) => setValue('viewSettings', value, { shouldDirty: true })}
+          />
           View Settings
         </label>
         <label>
-          <Switch variant='ontime' {...register('urlPresets')} />
+          <Switch
+            size='large'
+            checked={watch('urlPresets')}
+            onCheckedChange={(value: boolean) => setValue('urlPresets', value, { shouldDirty: true })}
+          />
           URL Presets
         </label>
         <label>
-          <Switch variant='ontime' {...register('automation')} />
+          <Switch
+            size='large'
+            checked={watch('automation')}
+            onCheckedChange={(value: boolean) => setValue('automation', value, { shouldDirty: true })}
+          />
           Automation Settings
         </label>
       </Panel.Section>

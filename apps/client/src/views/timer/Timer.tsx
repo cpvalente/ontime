@@ -1,18 +1,20 @@
-import { CustomFields, MessageState, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
+import { useMemo } from 'react';
+import { OntimeView } from 'ontime-types';
 
 import { FitText } from '../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../common/components/multi-part-progress-bar/MultiPartProgressBar';
+import EmptyPage from '../../common/components/state/EmptyPage';
 import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
-import { useAuxTimersTime } from '../../common/hooks/useSocket';
+import { useTimerSocket } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
-import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, getTimerByType } from '../../features/viewers/common/viewUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
+import Loader from '../common/loader/Loader';
 import { getTimerColour } from '../utils/presentation.utils';
 
 import { getTimerOptions, useTimerOptions } from './timer.options';
@@ -27,51 +29,61 @@ import {
   getShowProgressBar,
   getTotalTime,
 } from './timer.utils';
+import { TimerData, useTimerData } from './useTimerData';
 
 import './Timer.scss';
 
-interface TimerProps {
-  customFields: CustomFields;
-  eventNext: OntimeEvent | null;
-  eventNow: OntimeEvent | null;
-  general: ProjectData;
-  isMirrored: boolean;
-  message: MessageState;
-  settings: Settings | undefined;
-  time: ViewExtendedTimer;
-  viewSettings: ViewSettings;
+export default function TimerLoader() {
+  const { data, status } = useTimerData();
+
+  useWindowTitle('Timer');
+
+  if (status === 'pending') {
+    return <Loader />;
+  }
+
+  if (status === 'error') {
+    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+  }
+
+  return <Timer {...data} />;
 }
 
-export default function Timer(props: TimerProps) {
-  const { customFields, eventNow, eventNext, general, isMirrored, message, settings, time, viewSettings } = props;
-  const auxTimer = useAuxTimersTime();
-
+function Timer({ customFields, projectData, isMirrored, settings, viewSettings }: TimerData) {
+  const { eventNext, eventNow, message, time, clock, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
   const {
     hideClock,
     hideCards,
     hideProgress,
     hideMessage,
     hideSecondary,
+    hideLogo,
     hideTimerSeconds,
     removeLeadingZeros,
     mainSource,
     secondarySource,
     timerType,
+    freezeOvertime,
+    freezeMessage,
+    hidePhase,
+    font,
+    keyColour,
+    textColour,
   } = useTimerOptions();
 
   const { getLocalizedString } = useTranslation();
   const localisedMinutes = getLocalizedString('common.minutes');
 
-  useWindowTitle('Timer');
-
   // gather modifiers
-  const viewTimerType = timerType ?? time.timerType;
+  const viewTimerType = timerType ?? timerTypeNow;
   const showOverlay = getShowMessage(message.timer);
   const { showEndMessage, showFinished, showWarning, showDanger } = getShowModifiers(
-    time.timerType,
-    time.countToEnd,
+    timerTypeNow,
+    countToEndNow,
     time.phase,
-    viewSettings,
+    freezeOvertime,
+    freezeMessage,
+    hidePhase,
   );
   const isPlaying = getIsPlaying(time.playback);
   const showClock = !hideClock && getShowClock(viewTimerType);
@@ -89,8 +101,8 @@ export default function Timer(props: TimerProps) {
 
   // gather timer data
   const totalTime = getTotalTime(time.duration, time.addedTime);
-  const clock = formatTime(time.clock);
-  const stageTimer = getTimerByType(viewSettings.freezeEnd, time, timerType);
+  const formattedClock = formatTime(clock);
+  const stageTimer = getTimerByType(freezeOvertime, timerTypeNow, countToEndNow, clock, time, timerType);
   const display = getFormattedTimer(stageTimer, viewTimerType, localisedMinutes, {
     removeSeconds: hideTimerSeconds,
     removeLeadingZero: removeLeadingZeros,
@@ -119,21 +131,27 @@ export default function Timer(props: TimerProps) {
   );
 
   // gather presentation styles
-  const timerColour = getTimerColour(viewSettings, showWarning, showDanger);
+  const timerColour = getTimerColour(viewSettings, textColour, showWarning, showDanger);
   const { timerFontSize, externalFontSize } = getEstimatedFontSize(display, secondaryContent);
+  const userStyles = {
+    ...(keyColour && { '--timer-bg': keyColour }),
+    ...(textColour && { '--timer-colour': timerColour }),
+    ...(font && { '--timer-font': font }),
+  };
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const timerOptions = getTimerOptions(defaultFormat, customFields);
+  const timerOptions = useMemo(() => getTimerOptions(defaultFormat, customFields), [customFields, defaultFormat]);
 
   return (
     <div
-      className={cx(['stage-timer', isMirrored && 'mirror', showFinished && 'stage-timer--finished'])}
       data-testid='timer-view'
+      className={cx(['stage-timer', isMirrored && 'mirror', showFinished && 'stage-timer--finished'])}
+      style={userStyles}
     >
-      {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
+      {!hideLogo && projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
 
-      <ViewParamsEditor viewOptions={timerOptions} />
+      <ViewParamsEditor target={OntimeView.Timer} viewOptions={timerOptions} />
 
       <div className={cx(['blackout', message.timer.blackout && 'blackout--active'])} />
 
@@ -148,22 +166,19 @@ export default function Timer(props: TimerProps) {
       {showClock && (
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>
-          <SuperscriptTime time={clock} className='clock' />
+          <SuperscriptTime time={formattedClock} className='clock' />
         </div>
       )}
 
       <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
         {showEndMessage ? (
           <FitText mode='multi' min={64} max={256} className='end-message'>
-            {viewSettings.endMessage}
+            {freezeMessage}
           </FitText>
         ) : (
           <div
             className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished'])}
-            style={{
-              fontSize: `${timerFontSize}vw`,
-              '--phase-color': timerColour,
-            }}
+            style={{ fontSize: `${timerFontSize}vw` }}
             data-phase={time.phase}
           >
             {display}

@@ -22,7 +22,7 @@ type AllowedTags = 'div' | 'form';
 type SectionProps<C extends AllowedTags> = {
   as?: C;
   children: ReactNode;
-} & JSX.IntrinsicElements[C];
+} & React.JSX.IntrinsicElements[C];
 
 export function Section<C extends AllowedTags = 'div'>({ as, className, children, ...props }: SectionProps<C>) {
   const Element = as ?? 'div';
@@ -46,7 +46,7 @@ export function Paragraph({ children }: { children: ReactNode }) {
   return <p className={style.paragraph}>{children}</p>;
 }
 
-export function Card({ children, className, ...props }: { children: ReactNode } & JSX.IntrinsicElements['div']) {
+export function Card({ children, className, ...props }: { children: ReactNode } & React.JSX.IntrinsicElements['div']) {
   return (
     <div className={cx([style.card, className])} {...props}>
       {children}
@@ -107,7 +107,7 @@ export function BlockQuote({ children }: { children: ReactNode }) {
   return <blockquote className={style.blockquote}>{children}</blockquote>;
 }
 
-export function Error({ children, className }: { children: ReactNode } & JSX.IntrinsicElements['div']) {
+export function Error({ children, className }: { children: ReactNode } & React.JSX.IntrinsicElements['div']) {
   return <div className={cx([style.fieldError, className])}>{children}</div>;
 }
 

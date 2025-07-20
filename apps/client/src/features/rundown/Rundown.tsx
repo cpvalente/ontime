@@ -1,4 +1,5 @@
 import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { TbFlagFilled } from 'react-icons/tb';
 import {
   closestCenter,
   DndContext,
@@ -15,9 +16,8 @@ import {
   type EntryId,
   type MaybeString,
   type Rundown,
-  isOntimeBlock,
   isOntimeEvent,
-  OntimeBlock,
+  isOntimeGroup,
   OntimeEntry,
   Playback,
   SupportedEntry,
@@ -25,24 +25,25 @@ import {
 import {
   getFirstNormal,
   getLastNormal,
-  getNextBlockNormal,
+  getNextGroupNormal,
   getNextNormal,
-  getPreviousBlockNormal,
+  getPreviousGroupNormal,
   getPreviousNormal,
   reorderArray,
 } from 'ontime-utils';
 
-import { type EventOptions, useEntryActions } from '../../common/hooks/useEntryAction';
+import { useEntryActions } from '../../common/hooks/useEntryAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { cloneEvent } from '../../common/utils/clone';
 import { AppMode, sessionKeys } from '../../ontimeConfig';
 
-import QuickAddBlock from './quick-add-block/QuickAddBlock';
-import BlockEnd from './rundown-block/BlockEnd';
-import RundownBlock from './rundown-block/RundownBlock';
-import { makeRundownMetadata, makeSortableList } from './rundown.utils';
+import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
+import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
+import RundownGroup from './rundown-group/RundownGroup';
+import RundownGroupEnd from './rundown-group/RundownGroupEnd';
+import { canDrop, makeRundownMetadata, makeSortableList } from './rundown.utils';
 import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
 
@@ -112,25 +113,21 @@ export default function Rundown({ data }: RundownProps) {
     [addEntry, order, entries],
   );
 
+  /**
+   * Add a new item referring to an existing one
+   */
   const insertAtId = useCallback(
     (patch: Partial<OntimeEntry> & { type: SupportedEntry }, id: MaybeString, above = false) => {
-      const options: EventOptions =
-        id === null
-          ? {}
-          : {
-              after: above ? undefined : id,
-              before: above ? id : undefined,
-            };
-
-      if (!above && id) {
-        options.lastEventId = id;
-      }
-      addEntry(patch, options);
+      addEntry(patch, {
+        after: id && !above ? id : undefined,
+        before: id && above ? id : undefined,
+        lastEventId: !above && id ? id : undefined,
+      });
     },
     [addEntry],
   );
 
-  const selectBlock = useCallback(
+  const selectGroup = useCallback(
     (cursor: string | null, direction: 'up' | 'down') => {
       if (order.length < 1) {
         return;
@@ -140,7 +137,7 @@ export default function Rundown({ data }: RundownProps) {
         // there is no cursor, we select the first or last depending on direction
         const selected = direction === 'up' ? getLastNormal(entries, order) : getFirstNormal(entries, order);
 
-        if (isOntimeBlock(selected)) {
+        if (isOntimeGroup(selected)) {
           setSelectedEvents({ id: selected.id, selectMode: 'click', index: direction === 'up' ? order.length : 0 });
           return;
         }
@@ -154,8 +151,8 @@ export default function Rundown({ data }: RundownProps) {
       // otherwise we select the next or previous
       const selected =
         direction === 'up'
-          ? getPreviousBlockNormal(entries, order, newCursor)
-          : getNextBlockNormal(entries, order, newCursor);
+          ? getPreviousGroupNormal(entries, order, newCursor)
+          : getNextGroupNormal(entries, order, newCursor);
 
       if (selected.entry !== null && selected.index !== null) {
         setSelectedEvents({ id: selected.entry.id, selectMode: 'click', index: selected.index });
@@ -191,11 +188,11 @@ export default function Rundown({ data }: RundownProps) {
   );
 
   /**
-   * Checks whether a block is collapsed
+   * Checks whether a group is collapsed
    */
   const getIsCollapsed = useCallback(
-    (blockId: EntryId): boolean => {
-      return Boolean(collapsedGroups.find((id) => id === blockId));
+    (groupId: EntryId): boolean => {
+      return Boolean(collapsedGroups.find((id) => id === groupId));
     },
     [collapsedGroups],
   );
@@ -226,10 +223,10 @@ export default function Rundown({ data }: RundownProps) {
         return;
       }
 
-      const movedIntoBlockId = await move(cursor, direction);
-      // if we are moving into a block, we need to make sure it is expanded
-      if (movedIntoBlockId) {
-        handleCollapseGroup(false, movedIntoBlockId);
+      const movedIntoGroupId = await move(cursor, direction);
+      // if we are moving into a group, we need to make sure it is expanded
+      if (movedIntoGroupId) {
+        handleCollapseGroup(false, movedIntoGroupId);
       }
     },
     [handleCollapseGroup, move],
@@ -237,45 +234,72 @@ export default function Rundown({ data }: RundownProps) {
 
   // shortcuts
   useHotkeys([
-    ['alt + ArrowDown', () => selectEntry(cursor, 'down'), { preventDefault: true }],
-    ['alt + ArrowUp', () => selectEntry(cursor, 'up'), { preventDefault: true }],
+    ['alt + ArrowDown', () => selectEntry(cursor, 'down'), { preventDefault: true, usePhysicalKeys: true }],
+    ['alt + ArrowUp', () => selectEntry(cursor, 'up'), { preventDefault: true, usePhysicalKeys: true }],
 
-    ['alt + shift + ArrowDown', () => selectBlock(cursor, 'down'), { preventDefault: true }],
-    ['alt + shift + ArrowUp', () => selectBlock(cursor, 'up'), { preventDefault: true }],
+    ['alt + shift + ArrowDown', () => selectGroup(cursor, 'down'), { preventDefault: true, usePhysicalKeys: true }],
+    ['alt + shift + ArrowUp', () => selectGroup(cursor, 'up'), { preventDefault: true, usePhysicalKeys: true }],
 
-    ['alt + mod + ArrowDown', () => moveEntry(cursor, 'down'), { preventDefault: true }],
-    ['alt + mod + ArrowUp', () => moveEntry(cursor, 'up'), { preventDefault: true }],
+    ['alt + mod + ArrowDown', () => moveEntry(cursor, 'down'), { preventDefault: true, usePhysicalKeys: true }],
+    ['alt + mod + ArrowUp', () => moveEntry(cursor, 'up'), { preventDefault: true, usePhysicalKeys: true }],
 
-    ['Escape', () => clearSelectedEvents(), { preventDefault: true }],
+    ['Escape', () => clearSelectedEvents(), { preventDefault: true, usePhysicalKeys: true }],
 
-    ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
+    ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true, usePhysicalKeys: true }],
 
     [
       'alt + E',
       () => insertAtId({ type: SupportedEntry.Event }, cursor),
       { preventDefault: true, usePhysicalKeys: true },
     ],
-    ['alt + shift + E', () => insertAtId({ type: SupportedEntry.Event }, cursor, true), { preventDefault: true }],
-
     [
-      'alt + B',
-      () => insertAtId({ type: SupportedEntry.Block }, cursor),
+      'alt + shift + E',
+      () => insertAtId({ type: SupportedEntry.Event }, cursor, true),
       { preventDefault: true, usePhysicalKeys: true },
     ],
-    ['alt + shift + B', () => insertAtId({ type: SupportedEntry.Block }, cursor, true), { preventDefault: true }],
+
+    [
+      'alt + G',
+      () => insertAtId({ type: SupportedEntry.Group }, cursor),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
+    [
+      'alt + shift + G',
+      () => insertAtId({ type: SupportedEntry.Group }, cursor, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
     [
       'alt + D',
       () => insertAtId({ type: SupportedEntry.Delay }, cursor),
       { preventDefault: true, usePhysicalKeys: true },
     ],
-    ['alt + shift + D', () => insertAtId({ type: SupportedEntry.Delay }, cursor, true), { preventDefault: true }],
+    [
+      'alt + shift + D',
+      () => insertAtId({ type: SupportedEntry.Delay }, cursor, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
+
+    [
+      'alt + M',
+      () => insertAtId({ type: SupportedEntry.Milestone }, cursor),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
+    [
+      'alt + shift + M',
+      () => insertAtId({ type: SupportedEntry.Milestone }, cursor, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
     ['mod + C', () => setEntryCopyId(cursor)],
     ['mod + V', () => insertCopyAtId(cursor, entryCopyId)],
-    ['mod + shift + V', () => insertCopyAtId(cursor, entryCopyId, true), { preventDefault: true }],
+    [
+      'mod + shift + V',
+      () => insertCopyAtId(cursor, entryCopyId, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
-    ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
+    ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true, usePhysicalKeys: true }],
   ]);
 
   // we copy the state from the store here
@@ -290,8 +314,15 @@ export default function Rundown({ data }: RundownProps) {
       return;
     }
     const index = order.findIndex((id) => id === featureData.selectedEventId);
+    // @ts-expect-error -- but we safely check if the parent property exists
+    const maybeParent = entries[featureData.selectedEventId]?.parent;
+    if (maybeParent) {
+      // open the group
+      setCollapsedGroups((prev) => [...prev].filter((id) => id !== maybeParent));
+    }
+
     setSelectedEvents({ id: featureData.selectedEventId, selectMode: 'click', index });
-  }, [editorMode, featureData.selectedEventId, order, setSelectedEvents]);
+  }, [editorMode, entries, featureData.selectedEventId, order, setCollapsedGroups, setSelectedEvents]);
 
   /**
    * On drag end, we reorder the events
@@ -303,57 +334,80 @@ export default function Rundown({ data }: RundownProps) {
       return;
     }
 
+    // prevent dropping a group inside another
+    if (
+      active.data.current?.type === SupportedEntry.Group &&
+      !canDrop(over.data.current?.type, over.data.current?.parent)
+    ) {
+      return;
+    }
+
     const fromIndex = active.data.current?.sortable.index;
     const toIndex = over.data.current?.sortable.index;
-
-    // we keep a copy of the state as a hack to handle inconsistencies between dnd-kit and async store updates
-    setSortableData((currentEntries) => {
-      return reorderArray(currentEntries, fromIndex, toIndex);
-    });
 
     let destinationId = over.id as EntryId;
     let order: 'before' | 'after' | 'insert' = fromIndex < toIndex ? 'after' : 'before';
 
     /**
-     * We need to specially handle the end blocks
-     * Dragging before and end block will add the entry to the end of the block
-     * Dragging after an end block will add the event after the block itself
+     * We need to specially handle the end-group
+     * Dragging before a end-group will add the entry to the end of the group
+     * Dragging after a end-group will add the event after the group itself
+     * Dragging to the top of a group either place before first entry or if no entries do insert
      */
     if (destinationId.startsWith('end-')) {
       destinationId = destinationId.replace('end-', '');
       // if we are moving before the end, we use the insert operation
-      order = 'insert';
+      if (order === 'before') {
+        order = 'insert';
+      }
+    } else {
+      const group = data.entries[destinationId];
+      if (isOntimeGroup(group) && order === 'after') {
+        if (group.entries.length === 0) order = 'insert';
+        else {
+          destinationId = group.entries[0];
+          order = 'before';
+        }
+      }
     }
 
-    reorderEntry(active.id as EntryId, destinationId, order);
+    // keep copy of the current state in case we need to revert
+    const currentEntries = structuredClone(sortableData);
+    // we keep a copy of the state as a hack to handle inconsistencies between dnd-kit and async store updates
+    setSortableData((currentEntries) => {
+      return reorderArray(currentEntries, fromIndex, toIndex);
+    });
+    reorderEntry(active.id as EntryId, destinationId, order).catch((_) => {
+      setSortableData(currentEntries);
+    });
   };
 
   /**
-   * When we drag a block, we force collapse it
-   * This avoids strange scenarios like dropping a block inside itself
+   * When we drag a group, we force collapse it
+   * This avoids strange scenarios like dropping a group inside itself
    */
-  const collapseDraggedBlocks = (event: DragStartEvent) => {
-    const isBlock = event.active.data.current?.type === 'block';
-    if (isBlock) {
+  const collapseDraggedGroups = (event: DragStartEvent) => {
+    const isGroup = event.active.data.current?.type === SupportedEntry.Group;
+    if (isGroup) {
       handleCollapseGroup(true, event.active.id as EntryId);
     }
   };
 
   /**
-   * When we drag over a block, we expand it if it is collapsed
+   * When we drag over a group, we expand it if it is collapsed
    */
-  const expandOverBlock = (event: DragOverEvent) => {
-    // if we are dragging a block, the drop operation is invalid so we dont expand
-    if (event.active.data.current?.type === 'block') {
+  const expandOverGroup = (event: DragOverEvent) => {
+    // if we are dragging a group, the drop operation is invalid so we dont expand
+    if (event.active.data.current?.type === 'group') {
       return;
     }
-    if (event.over?.data.current?.type !== 'block') {
+    if (event.over?.data.current?.type !== 'group') {
       return;
     }
-    const blockId = event.over?.id as EntryId;
-    const isCollapsed = getIsCollapsed(blockId);
+    const groupId = event.over?.id as EntryId;
+    const isCollapsed = getIsCollapsed(groupId);
     if (isCollapsed) {
-      handleCollapseGroup(false, blockId);
+      handleCollapseGroup(false, groupId);
     }
   };
 
@@ -373,46 +427,39 @@ export default function Rundown({ data }: RundownProps) {
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext
         onDragEnd={handleOnDragEnd}
-        onDragStart={collapseDraggedBlocks}
-        onDragOver={expandOverBlock}
+        onDragStart={collapseDraggedGroups}
+        onDragOver={expandOverGroup}
         sensors={sensors}
         collisionDetection={closestCenter}
       >
         <SortableContext items={sortableData} strategy={verticalListSortingStrategy}>
           <div className={style.list}>
+            {isEditMode && <QuickAddButtons previousEventId={null} parentGroup={null} />}
             {sortableData.map((entryId, index) => {
-              const isFirst = index === 0;
-              const isLast = index === sortableData.length - 1;
-
-              // the entry might be a pseudo block-end which does not generate metadata and should not be processed
+              // the entry might be a pseudo end-group which does not generate metadata and should not be processed
               if (entryId.startsWith('end-')) {
                 const parentId = entryId.split('end-')[1];
-                const isBlockCollapsed = getIsCollapsed(parentId);
+                const isGroupCollapsed = getIsCollapsed(parentId);
 
-                if (isBlockCollapsed && isEditMode && isLast) {
-                  return <QuickAddBlock key={entryId} previousEventId={parentId} parentBlock={null} />;
-                } else if (isBlockCollapsed) {
+                if (isGroupCollapsed) {
                   return null;
-                } else {
-                  const parentColour = (entries[parentId] as OntimeBlock | undefined)?.colour;
-                  // if the previous element is selected, it will have its own QuickAddBlock
-                  // we use thisId instead of previousEntryId because the block end does not process
-                  // and it does not cause the reassignment of the iteration id to the previous entry
-                  const showPrependingQuickAdd = isEditMode && cursor !== rundownMetadata.thisId;
-                  return (
-                    <Fragment key={entryId}>
-                      {showPrependingQuickAdd && (
-                        <QuickAddBlock
-                          previousEventId={rundownMetadata.thisId}
-                          parentBlock={parentId}
-                          backgroundColor={parentColour}
-                        />
-                      )}
-                      <BlockEnd key={entryId} id={entryId} colour={parentColour} />
-                      {isEditMode && isLast && <QuickAddBlock previousEventId={parentId} parentBlock={null} />}
-                    </Fragment>
-                  );
                 }
+
+                // if the previous element is selected, it will have its own QuickAddInline
+                // we use thisId instead of previousEntryId because the end-group does not process
+                // and it does not cause the reassignment of the iteration id to the previous entry
+                return (
+                  <Fragment key={entryId}>
+                    {isEditMode && rundownMetadata.groupEntries === 0 && (
+                      <QuickAddButtons
+                        previousEventId={null}
+                        parentGroup={parentId}
+                        backgroundColor={rundownMetadata.groupColour}
+                      />
+                    )}
+                    <RundownGroupEnd key={entryId} id={entryId} colour={rundownMetadata.groupColour} />
+                  </Fragment>
+                );
               }
 
               // we iterate through a stateful copy of order to make the dnd operations smoother
@@ -420,11 +467,12 @@ export default function Rundown({ data }: RundownProps) {
               // instead of writing all the logic guards, we simply short circuit rendering here
               const entry = entries[entryId];
               if (!entry) return null;
+
               rundownMetadata = process(entry);
 
               // if the entry has a parent, and it is collapsed, render nothing
               if (
-                entry.type !== SupportedEntry.Block &&
+                entry.type !== SupportedEntry.Group &&
                 rundownMetadata.groupId !== null &&
                 getIsCollapsed(rundownMetadata.groupId)
               ) {
@@ -435,24 +483,40 @@ export default function Rundown({ data }: RundownProps) {
               const hasCursor = entry.id === cursor;
 
               /**
-               * Outside a block, the value will be undefined
+               * Outside a group, the value will be undefined
                * If the colour is empty string ''
-               * ie: we are inside a block, but there is no defined colour
+               * ie: we are inside a group, but there is no defined colour
                * we default to $gray-500 #9d9d9d
                */
-              const blockColour = rundownMetadata.groupColour === '' ? '#9d9d9d' : rundownMetadata.groupColour;
+              const groupColour = rundownMetadata.groupColour === '' ? '#9d9d9d' : rundownMetadata.groupColour;
+
+              const isFirst = index === 0;
+              const isLast = entryId === order.at(-1);
+
+              /**
+               * We need to provide the parent ID for the QuickAdd components
+               * This should be different depending on whether we are adding before or after an element
+               * - when adding before, we need to avoid a group referencing itself as the parent
+               * - when adding after, we can use the group ID directly to insert at the top of the group
+               */
+
+              const parentIdForBefore =
+                rundownMetadata.thisId !== rundownMetadata.groupId ? rundownMetadata.groupId : null;
+              const parentIdForAfter = rundownMetadata.groupId;
 
               return (
                 <Fragment key={entry.id}>
-                  {isEditMode && (hasCursor || isFirst) && (
-                    <QuickAddBlock
-                      previousEventId={rundownMetadata.previousEntryId}
-                      parentBlock={isFirst ? null : rundownMetadata.groupId}
-                      backgroundColor={isFirst ? undefined : blockColour}
-                    />
+                  {/**
+                   * Before the entry
+                   * - edit mode only
+                   * - if there is a cursor
+                   * - if it is not the first entry (the buttons would be there)
+                   */}
+                  {isEditMode && hasCursor && !isFirst && (
+                    <QuickAddInline previousEventId={rundownMetadata.previousEntryId} parentGroup={parentIdForBefore} />
                   )}
-                  {isOntimeBlock(entry) ? (
-                    <RundownBlock
+                  {isOntimeGroup(entry) ? (
+                    <RundownGroup
                       data={entry}
                       hasCursor={hasCursor}
                       collapsed={getIsCollapsed(entry.id)}
@@ -462,9 +526,14 @@ export default function Rundown({ data }: RundownProps) {
                     <div
                       className={style.entryWrapper}
                       data-testid={`entry-${rundownMetadata.eventIndex}`}
-                      style={blockColour ? { '--user-bg': blockColour } : {}}
+                      style={groupColour ? { '--user-bg': groupColour } : {}}
                     >
-                      {isOntimeEvent(entry) && <div className={style.entryIndex}>{rundownMetadata.eventIndex}</div>}
+                      {isOntimeEvent(entry) && (
+                        <div className={style.entryIndex}>
+                          {entry.flag && <TbFlagFilled className={style.flag} />}
+                          <div className={style.index}>{rundownMetadata.eventIndex}</div>
+                        </div>
+                      )}
                       <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
                         <RundownEntry
                           type={entry.type}
@@ -485,16 +554,22 @@ export default function Rundown({ data }: RundownProps) {
                       </div>
                     </div>
                   )}
-                  {isEditMode && (hasCursor || isLast) && (
-                    <QuickAddBlock
-                      previousEventId={entry.id}
-                      parentBlock={rundownMetadata.groupId}
-                      backgroundColor={blockColour}
-                    />
+                  {/**
+                   * After the entry
+                   * - edit mode only
+                   * - if there is a cursor
+                   * - if it is not the last entry (the buttons would be there)
+                   * - if the entry is not the group header
+                   */}
+                  {isEditMode && hasCursor && !isLast && (
+                    <QuickAddInline previousEventId={entry.id} parentGroup={parentIdForAfter} />
                   )}
                 </Fragment>
               );
             })}
+            {isEditMode && (
+              <QuickAddButtons previousEventId={rundownMetadata.groupId ?? rundownMetadata.thisId} parentGroup={null} />
+            )}
             <div className={style.spacer} />
           </div>
         </SortableContext>

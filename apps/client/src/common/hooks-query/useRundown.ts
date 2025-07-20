@@ -56,6 +56,7 @@ export function useFlatRundown() {
   }, [data.entries, data.flatOrder, data.revision, prevRevision]);
 
   // TODO: should we have a project id field?
+  // TODO(v4): cleanup as part of load multiple rundowns
   // invalidate current version if project changes
   useEffect(() => {
     if (projectData?.title !== loadedProject.current) {
@@ -64,7 +65,7 @@ export function useFlatRundown() {
     }
   }, [projectData]);
 
-  return { data: flatRundown, status };
+  return { data: flatRundown, rundownId: data.id, status };
 }
 
 /**

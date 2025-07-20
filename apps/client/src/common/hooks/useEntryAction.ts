@@ -2,20 +2,20 @@ import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   EntryId,
-  isOntimeBlock,
   isOntimeEvent,
+  isOntimeGroup,
   MaybeString,
-  OntimeBlock,
   OntimeEntry,
   OntimeEvent,
   Rundown,
+  SupportedEntry,
   TimeField,
   TimeStrategy,
   TransientEventPayload,
 } from 'ontime-types';
 import { dayInMs, generateId, MILLIS_PER_SECOND, parseUserTime, swapEventData } from 'ontime-utils';
 
-import { moveDown, moveUp } from '../../features/rundown/rundown.utils';
+import { moveDown, moveUp, orderEntries } from '../../features/rundown/rundown.utils';
 import { RUNDOWN } from '../api/constants';
 import {
   deleteEntries,
@@ -36,7 +36,7 @@ import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
 
 export type EventOptions = Partial<{
-  // options of any new entries (event / delay / block)
+  // options of any new entries (event / delay / group)
   after: MaybeString;
   before: MaybeString;
   // options of entries of type OntimeEvent
@@ -89,25 +89,17 @@ export const useEntryActions = () => {
 
       // ************* CHECK OPTIONS specific to events
       if (isOntimeEvent(newEntry)) {
-        // merge creation time options with event settings
-        const applicationOptions = {
-          after: options?.after,
-          before: options?.before,
-          lastEventId: options?.lastEventId,
-          linkPrevious: options?.linkPrevious ?? linkPrevious,
-        };
-
-        if (applicationOptions?.lastEventId) {
+        if (options?.lastEventId) {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this is a value
           const rundownData = queryClient.getQueryData<Rundown>(RUNDOWN)!;
-          const previousEvent = rundownData.entries[applicationOptions.lastEventId];
+          const previousEvent = rundownData.entries[options?.lastEventId];
           if (isOntimeEvent(previousEvent)) {
             newEntry.timeStart = previousEvent.timeEnd;
           }
         }
 
         // Override event with options from editor settings
-        newEntry.linkStart = applicationOptions.linkPrevious;
+        newEntry.linkStart = options?.linkPrevious ?? linkPrevious;
 
         if (newEntry.duration === undefined && newEntry.timeEnd === undefined) {
           newEntry.duration = parseUserTime(defaultDuration);
@@ -560,7 +552,7 @@ export const useEntryActions = () => {
   );
 
   /**
-   * Calls mutation to dissolve a block
+   * Calls mutation to dissolve a group
    * @private
    */
   const { mutateAsync: ungroupMutation } = useMutation({
@@ -582,21 +574,21 @@ export const useEntryActions = () => {
   });
 
   /**
-   * Deletes a block and moves its events to the top level
+   * Deletes a group and moves its events to the top level
    */
   const ungroup = useCallback(
-    async (blockId: EntryId) => {
+    async (groupId: EntryId) => {
       try {
-        await ungroupMutation(blockId);
+        await ungroupMutation(groupId);
       } catch (error) {
-        logAxiosError('Error dissolving block', error);
+        logAxiosError('Error dissolving group', error);
       }
     },
     [ungroupMutation],
   );
 
   /**
-   * Calls mutation to create a block with a selection
+   * Calls mutation to create a group with a selection
    * @private
    */
   const { mutateAsync: groupEntriesMutation } = useMutation({
@@ -618,17 +610,26 @@ export const useEntryActions = () => {
   });
 
   /**
-   * Create a block with a selection
+   * Create a group with a selection
    */
   const groupEntries = useCallback(
     async (entryIds: EntryId[]) => {
+      if (entryIds.length === 0) return;
+
       try {
-        await groupEntriesMutation(entryIds);
+        if (entryIds.length === 1) {
+          await groupEntriesMutation(entryIds);
+        } else {
+          const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+          if (!rundown) return;
+          const orderedIds = orderEntries(entryIds, rundown.flatOrder);
+          await groupEntriesMutation(orderedIds);
+        }
       } catch (error) {
         logAxiosError('Error grouping entries', error);
       }
     },
-    [groupEntriesMutation],
+    [groupEntriesMutation, queryClient],
   );
 
   /**
@@ -673,8 +674,8 @@ export const useEntryActions = () => {
       } catch (error) {
         logAxiosError('Error re-ordering event', error);
       }
-      // the rundown needs to know whether we moved into a block
-      return rundown.entries[destinationId]?.type === 'block' ? destinationId : undefined;
+      // the rundown needs to know whether we moved into a group
+      return rundown.entries[destinationId]?.type === SupportedEntry.Group ? destinationId : undefined;
     },
     [queryClient, reorderEntryMutation],
   );
@@ -692,6 +693,7 @@ export const useEntryActions = () => {
         await reorderEntryMutation(reorderObject);
       } catch (error) {
         logAxiosError('Error re-ordering event', error);
+        throw error; // rethrow to handle in the component
       }
     },
     [reorderEntryMutation],
@@ -796,11 +798,13 @@ function optimisticDeleteEntries(entryIds: EntryId[], rundown: Rundown) {
   }
 
   function deleteEntry(entry: OntimeEntry) {
-    if (isOntimeBlock(entry) || !entry.parent) {
+    if (isOntimeGroup(entry) || !entry.parent) {
       order = order.filter((id) => id !== entry.id);
     } else {
-      const parent = entries[entry.parent] as OntimeBlock;
-      parent.entries = parent.entries.filter((parentEntry) => parentEntry !== entry.id);
+      const parent = entries[entry.parent];
+      if (parent && isOntimeGroup(parent)) {
+        parent.entries = parent.entries.filter((parentEntry) => parentEntry !== entry.id);
+      }
     }
 
     delete entries[entry.id];

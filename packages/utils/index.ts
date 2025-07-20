@@ -16,7 +16,7 @@ export {
   getLastEventNormal,
   getLastNormal,
   getNext,
-  getNextBlockNormal,
+  getNextGroupNormal,
   getNextEvent,
   getNextEventNormal,
   getNextNormal,
@@ -24,8 +24,8 @@ export {
   getPreviousEvent,
   getPreviousEventNormal,
   getPreviousNormal,
-  getPreviousBlock,
-  getPreviousBlockNormal,
+  getPreviousGroup,
+  getPreviousGroupNormal,
   swapEventData,
 } from './src/rundown-utils/rundownUtils.js';
 export { getFirstRundown } from './src/rundown/rundown.utils.js';
@@ -50,7 +50,7 @@ export {
   removeTrailingZero,
 } from './src/date-utils/timeFormatting.js';
 export { parseUserTime } from './src/date-utils/parseUserTime.js';
-export { isAlphanumeric, isAlphanumericWithSpace } from './src/regex-utils/isAlphanumeric.js';
+export { checkRegex, regex } from './src/regex-utils/checkRegex.js';
 export { isColourHex } from './src/regex-utils/isColourHex.js';
 export { splitWhitespace } from './src/regex-utils/splitWhitespace.js';
 
@@ -73,6 +73,8 @@ export { isNumeric } from './src/types/types.js';
 export { validateEndAction, validateTimerType } from './src/validate-events/validateEvent.js';
 
 // feature business logic
+
+export { getExpectedStart } from './src/date-utils/getExpectedStart.js';
 
 // feature business logic - rundown
 export { checkIsNow } from './src/date-utils/checkIsNow.js';

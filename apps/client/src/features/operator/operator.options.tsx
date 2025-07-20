@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { CustomFields, OntimeEvent } from 'ontime-types';
 
 import { getTimeOption } from '../../common/components/view-params-editor/common.options';
@@ -12,7 +12,10 @@ import {
 import { isStringBoolean } from '../viewers/common/viewUtils';
 
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ViewOption[] => {
-  const fieldOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
+  const fieldOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'title', label: 'Title' },
+    { value: 'note', label: 'Note' },
+  ]);
   const customFieldSelect = makeCustomFieldSelectOptions(customFields);
 
   return [
@@ -64,6 +67,13 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
           type: 'boolean',
           defaultValue: false,
         },
+        {
+          id: 'showStart',
+          title: 'Show planned start',
+          description: 'Whether to prepend the planned start to the items',
+          type: 'boolean',
+          defaultValue: false,
+        },
       ],
     },
   ];
@@ -75,6 +85,7 @@ type OperatorOptions = {
   subscribe: string[];
   shouldEdit: boolean;
   hidePast: boolean;
+  showStart: boolean;
 };
 
 /**
@@ -89,6 +100,7 @@ function getOptionsFromParams(searchParams: URLSearchParams): OperatorOptions {
     subscribe: searchParams.getAll('subscribe'),
     shouldEdit: isStringBoolean(searchParams.get('shouldEdit')),
     hidePast: isStringBoolean(searchParams.get('hidePast')),
+    showStart: isStringBoolean(searchParams.get('showStart')),
   };
 }
 

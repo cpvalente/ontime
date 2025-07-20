@@ -103,7 +103,7 @@ function DurationInput({
       onClick={handleFakeFocus}
       onFocus={handleFakeFocus}
       muted={!lockedValue}
-      delayed={delayed}
+      offset={delayed ? 'over' : undefined}
       ref={textRef}
     >
       {children}

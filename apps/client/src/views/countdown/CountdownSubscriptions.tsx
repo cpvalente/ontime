@@ -5,8 +5,14 @@ import { EntryId, OntimeEvent } from 'ontime-types';
 import Button from '../../common/components/buttons/Button';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
-import { useCurrentDay, useRuntimeOffset } from '../../common/hooks/useSocket';
-import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
+import {
+  useCountdownSocket,
+  useCurrentDay,
+  usePlayback,
+  useRuntimeOffset,
+  useSelectedEventId,
+} from '../../common/hooks/useSocket';
+import { getOffsetState } from '../../common/utils/offset';
 import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
 import FollowButton from '../../features/operator/follow-button/FollowButton';
@@ -21,18 +27,13 @@ import './Countdown.scss';
 
 interface CountdownSubscriptionsProps {
   subscribedEvents: OntimeEvent[];
-  selectedId: EntryId | null;
-  time: ViewExtendedTimer;
   goToEditMode: () => void;
 }
 
-export default function CountdownSubscriptions({
-  time,
-  subscribedEvents,
-  selectedId,
-  goToEditMode,
-}: CountdownSubscriptionsProps) {
-  const { secondarySource, showProjected } = useCountdownOptions();
+export default function CountdownSubscriptions({ subscribedEvents, goToEditMode }: CountdownSubscriptionsProps) {
+  const { secondarySource, showExpected } = useCountdownOptions();
+  const { playback } = usePlayback();
+  const { selectedEventId } = useSelectedEventId();
   const showFab = useFadeOutOnInactivity(true);
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
@@ -48,16 +49,16 @@ export default function CountdownSubscriptions({
 
   // reset scroll if nothing is selected
   useEffect(() => {
-    if (!selectedId) {
+    if (!selectedEventId) {
       if (!lockAutoScroll) {
         scrollRef.current?.scrollTo(0, 0);
       }
     }
-  }, [selectedId, lockAutoScroll, scrollRef]);
+  }, [selectedEventId, lockAutoScroll, scrollRef]);
 
   // scroll to component if user clicks the Follow button
   const handleOffset = () => {
-    if (selectedId) {
+    if (selectedEventId) {
       scrollToComponent();
     }
     setLockAutoScroll(false);
@@ -90,14 +91,14 @@ export default function CountdownSubscriptions({
     <div className='list-container' onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
       {subscribedEvents.map((event) => {
         const secondaryData = getPropertyValue(event, secondarySource);
-        const isLive = getIsLive(event.id, selectedId, time.playback);
+        const isLive = getIsLive(event.id, selectedEventId, playback);
 
         return (
           <div key={event.id} ref={isLive ? selectedRef : undefined} className={cx(['sub', isLive && 'sub--live'])}>
             <div className='sub__binder' style={{ '--user-color': event.colour }} />
             <div className={cx(['sub__schedule', event.delay > 0 && 'sub__schedule--delayed'])}>
-              {showProjected ? (
-                <ProjectedSchedule timeStart={event.timeStart} timeEnd={event.timeEnd} delay={event.delay} />
+              {showExpected ? (
+                <ExpectedSchedule timeStart={event.timeStart} timeEnd={event.timeEnd} delay={event.delay} />
               ) : (
                 <>
                   <ClockTime value={event.timeStart + event.delay} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
@@ -106,7 +107,7 @@ export default function CountdownSubscriptions({
                 </>
               )}
             </div>
-            <SubscriptionStatus key={event.id} event={event} selectedId={selectedId} time={time} />
+            <SubscriptionStatus key={event.id} event={event} selectedEventId={selectedEventId} />
             <div className={cx(['sub__title', !event.title && 'subdued'])}>{sanitiseTitle(event.title)}</div>
             {secondaryData && <div className='sub__secondary'>{secondaryData}</div>}
           </div>
@@ -122,56 +123,57 @@ export default function CountdownSubscriptions({
   );
 }
 
-interface ProjectedScheduleProps {
+interface ExpectedScheduleProps {
   timeStart: number;
   timeEnd: number;
   delay: number;
 }
-function ProjectedSchedule(props: ProjectedScheduleProps) {
+function ExpectedSchedule(props: ExpectedScheduleProps) {
   const { timeStart, timeEnd, delay } = props;
 
   const { offset } = useRuntimeOffset();
 
   // offset is negative if we are ahead
-  const projectedOffset = offset - delay;
-
-  const classes = cx([projectedOffset > 0 && 'sub__schedule--ahead', projectedOffset < 0 && 'sub__schedule--behind']);
+  const expectedOffset = offset - delay;
+  const expectedState = getOffsetState(expectedOffset);
 
   return (
     <>
       <ClockTime
-        value={timeStart - projectedOffset}
-        className={classes}
+        value={timeStart - expectedOffset}
+        className={`sub__schedule--${expectedState}`}
         preferredFormat12='h:mm'
         preferredFormat24='HH:mm'
       />
       →
-      <ClockTime value={timeEnd - projectedOffset} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
+      <ClockTime value={timeEnd - expectedOffset} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
     </>
   );
 }
 
 interface SubscriptionStatusProps {
-  time: ViewExtendedTimer;
   event: OntimeEvent;
-  selectedId: EntryId | null;
+  selectedEventId: EntryId | null;
 }
 
-function SubscriptionStatus({ time, event, selectedId }: SubscriptionStatusProps) {
+function SubscriptionStatus({ event, selectedEventId }: SubscriptionStatusProps) {
   const { getLocalizedString } = useTranslation();
   const { currentDay } = useCurrentDay();
   const { offset } = useRuntimeOffset();
-  const { showProjected } = useCountdownOptions();
+  const { showExpected } = useCountdownOptions();
+  const { playback, current, clock } = useCountdownSocket();
 
   // TODO: use reporter values as in the event block chip
   const { status, timer } = getSubscriptionDisplayData(
-    time,
+    current,
+    playback,
+    clock,
     event,
-    selectedId,
+    selectedEventId,
     offset,
     currentDay,
     getLocalizedString('common.minutes'),
-    showProjected,
+    showExpected,
   );
 
   return (

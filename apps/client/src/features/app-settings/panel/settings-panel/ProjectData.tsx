@@ -4,12 +4,12 @@ import { IoAdd, IoDownloadOutline, IoTrash } from 'react-icons/io5';
 import { type ProjectData } from 'ontime-types';
 
 import { projectLogoPath } from '../../../../common/api/constants';
-import { postProjectData, uploadProjectLogo } from '../../../../common/api/project';
+import { uploadProjectLogo } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Input from '../../../../common/components/input/input/Input';
 import Textarea from '../../../../common/components/input/textarea/Textarea';
-import useProjectData from '../../../../common/hooks-query/useProjectData';
+import useProjectData, { useUpdateProjectData } from '../../../../common/hooks-query/useProjectData';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { validateLogo } from '../../../../common/utils/uploadUtils';
 import { documentationUrl } from '../../../../externals';
@@ -18,7 +18,8 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import style from './SettingsPanel.module.scss';
 
 export default function ProjectData() {
-  const { data, status, refetch } = useProjectData();
+  const { data, status } = useProjectData();
+  const { updateProjectData } = useUpdateProjectData();
 
   const {
     handleSubmit,
@@ -61,16 +62,16 @@ export default function ProjectData() {
       validateLogo(file);
       const response = await uploadProjectLogo(file);
 
-      setValue('projectLogo', response.data.logoFilename, {
+      setValue('logo', response.data.logoFilename, {
         shouldDirty: true,
       });
     } catch (error) {
       const message = maybeAxiosError(error);
-      setError('projectLogo', { message });
+      setError('logo', { message });
     }
   };
 
-  const { ref, ...projectLogoRest } = register('projectLogo');
+  const { ref, ...projectLogoRest } = register('logo');
 
   const uploadInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -81,27 +82,25 @@ export default function ProjectData() {
   const handleDeleteLogo = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    setValue('projectLogo', null, {
+    setValue('logo', null, {
       shouldDirty: true,
     });
   };
 
   const handleAddCustom = () => {
-    append({ title: '', value: '' });
+    append({ title: '', value: '', url: '' });
   };
 
   const onSubmit = async (formData: ProjectData) => {
     try {
-      await postProjectData(formData);
+      await updateProjectData(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
-    } finally {
-      await refetch();
     }
   };
 
-  // populate with new data if we get an update
+  // reset data to the initial state
   const onReset = () => {
     reset(data);
   };
@@ -149,12 +148,12 @@ export default function ProjectData() {
                 onChange={handleUploadProjectLogo}
               />
               <Panel.Card className={style.uploadLogoCard}>
-                {watch('projectLogo') ? (
+                {watch('logo') ? (
                   <>
-                    <img src={`${projectLogoPath}/${watch('projectLogo')}`} />
+                    <img src={`${projectLogoPath}/${watch('logo')}`} />
                     <Button
                       variant='subtle-destructive'
-                      disabled={isSubmitting || !watch('projectLogo')}
+                      disabled={isSubmitting || !watch('logo')}
                       onClick={handleDeleteLogo}
                     >
                       <IoTrash />
@@ -167,7 +166,7 @@ export default function ProjectData() {
                     Upload logo
                   </Button>
                 )}
-                {errors?.projectLogo?.message && <Panel.Error>{errors.projectLogo.message}</Panel.Error>}
+                {errors?.logo?.message && <Panel.Error>{errors.logo.message}</Panel.Error>}
               </Panel.Card>
             </label>
           </Panel.Section>
@@ -177,18 +176,18 @@ export default function ProjectData() {
             <Input fluid maxLength={100} placeholder='Euro Love, Malmö 2024' {...register('description')} />
           </label>
           <label>
-            Backstage info
+            Project info
             <Textarea
               fluid
               maxLength={150}
               placeholder='Wi-Fi password: 1234'
               resize='vertical'
-              {...register('backstageInfo')}
+              {...register('info')}
             />
           </label>
           <label>
-            Backstage QR code URL
-            <Input fluid placeholder={documentationUrl} {...register('backstageUrl')} />
+            Project QR code URL
+            <Input fluid placeholder={documentationUrl} {...register('url')} />
           </label>
           <Panel.Section style={{ marginTop: 0 }}>
             <Panel.ListItem>
@@ -208,7 +207,7 @@ export default function ProjectData() {
                 return (
                   <div key={field.id} className={style.customDataItem}>
                     <div className={style.titleRow}>
-                      <label>
+                      <label className={style.title}>
                         Title
                         <Input
                           fluid
@@ -221,12 +220,12 @@ export default function ProjectData() {
                       </label>
                       <Button variant='subtle-destructive' onClick={() => remove(idx)}>
                         <IoTrash />
-                        Delete Entry
+                        Delete
                       </Button>
                     </div>
                     {rowErrors?.title?.message && <Panel.Error>{rowErrors.title.message}</Panel.Error>}
                     <label>
-                      Value
+                      Text
                       <Textarea
                         fluid
                         rows={3}
@@ -238,6 +237,22 @@ export default function ProjectData() {
                         })}
                       />
                       {rowErrors?.value?.message && <Panel.Error>{rowErrors.value.message}</Panel.Error>}
+                    </label>
+                    <label>
+                      Image URL (optional)
+                      <div className={style.customImage}>
+                        <Input
+                          fluid
+                          defaultValue={field.url}
+                          placeholder='Paste image URL (optional)'
+                          {...register(`custom.${idx}.url`)}
+                        />
+                        <div className={style.imageContainer}>
+                          {watch(`custom.${idx}.url`) && (
+                            <img src={watch(`custom.${idx}.url`)} alt='' loading='lazy' className='info__image' />
+                          )}
+                        </div>
+                      </div>
                     </label>
                   </div>
                 );

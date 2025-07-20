@@ -1,4 +1,4 @@
-import { memo, ReactNode } from 'react';
+import { ReactNode, use } from 'react';
 import { IoChevronDown, IoOptions, IoSettingsOutline } from 'react-icons/io5';
 import { Popover } from '@base-ui-components/react/popover';
 import { Toggle } from '@base-ui-components/react/toggle';
@@ -12,9 +12,11 @@ import Button from '../../../../common/components/buttons/Button';
 import Checkbox from '../../../../common/components/checkbox/Checkbox';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import PopoverContents from '../../../../common/components/popover/Popover';
+import { PresetContext } from '../../../../common/context/PresetContext';
 import { cx } from '../../../../common/utils/styleUtils';
 import { AppMode, sessionKeys } from '../../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
+import { useCuesheetPermissions } from '../../useTablePermissions';
 
 import CuesheetShareModal from './CuesheetShareModal';
 
@@ -27,16 +29,18 @@ interface CuesheetTableSettingsProps {
   handleClearToggles: () => void;
 }
 
-export default memo(CuesheetTableSettings);
-function CuesheetTableSettings({
+export default function CuesheetTableSettings({
   columns,
   handleResetResizing,
   handleResetReordering,
   handleClearToggles,
 }: CuesheetTableSettingsProps) {
+  const canShare = useCuesheetPermissions((state) => state.canShare);
+  const preset = use(PresetContext);
+
   const [cuesheetMode, setCuesheetMode] = useSessionStorage({
-    key: sessionKeys.cuesheetMode,
-    defaultValue: AppMode.Edit,
+    key: preset ? `${preset.alias}${sessionKeys.cuesheetMode}` : sessionKeys.cuesheetMode,
+    defaultValue: preset ? AppMode.Run : AppMode.Edit,
   });
 
   const toggleCuesheetMode = (mode: AppMode[]) => {
@@ -55,7 +59,6 @@ function CuesheetTableSettings({
         handleResetReordering={handleResetReordering}
         handleClearToggles={handleClearToggles}
       />
-
       <ToggleGroup value={[cuesheetMode]} onValueChange={toggleCuesheetMode} className={cx([style.group, style.apart])}>
         <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
           Run
@@ -65,8 +68,12 @@ function CuesheetTableSettings({
         </Toolbar.Button>
       </ToggleGroup>
 
-      <Editor.Separator orientation='vertical' />
-      <CuesheetShareModal />
+      {canShare && (
+        <>
+          <Editor.Separator orientation='vertical' />
+          <CuesheetShareModal />
+        </>
+      )}
     </Toolbar.Root>
   );
 }

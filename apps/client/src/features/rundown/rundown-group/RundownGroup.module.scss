@@ -1,0 +1,93 @@
+@use '../blockMixins' as *;
+
+.group {
+  @include block-styling;
+
+  margin-block: 0.5rem;
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  grid-template-areas: 'binder header';
+  align-items: center;
+
+  &.hasCursor {
+    outline: 1px solid $block-cursor-color;
+  }
+
+  &.expanded {
+    margin-block: 0.5rem 0;
+    border-radius: $block-border-radius $block-border-radius 0 0;
+    border-bottom: 0.25rem solid color-mix(in srgb, transparent 90%, var(--user-bg, transparent) 10%);
+  }
+
+  .binder {
+    grid-area: binder;
+    height: 100%;
+    background-color: var(--user-bg, $gray-1050);
+    color: $section-white;
+    font-size: 1rem;
+    display: grid;
+    place-content: center;
+    position: relative;
+    cursor: pointer;
+
+    &:focus {
+      outline: 1px solid $blue-500;
+      outline-offset: -1px;
+    }
+  }
+
+  .header {
+    grid-area: header;
+    padding-inline: 0.5rem;
+    background-color: $block-bg2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .titleRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .metaRow {
+    display: flex;
+    gap: 3rem;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+  }
+
+  .metaEntry {
+    width: 4.5em;
+
+    :first-child {
+      font-size: calc(1rem - 3px);
+      color: $label-gray;
+    }
+  }
+}
+
+.strike {
+  text-decoration: line-through;
+}
+.over {
+  color: $playback-over;
+}
+.under {
+  color: $playback-under;
+}
+
+.drag {
+  @include drag-style;
+  position: absolute;
+  margin-top: 0.25rem;
+
+  &.isDragging {
+    cursor: grabbing;
+  }
+
+  &.notAllowed {
+    cursor: not-allowed;
+  }
+}

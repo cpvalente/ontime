@@ -43,24 +43,29 @@ $track-color: $white-1;
 $thumb-color: $gray-1100;
 $thumb-color-hover: $gray-900;
 
-* {
+/* Apply a natural box layout model to all elements */
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+  margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scrollbar-color: $thumb-color $track-color;
   scrollbar-width: thin;
 }
 
-// reset box-sizing
-*,
-*:before,
-*:after {
-  box-sizing: inherit;
-}
-
-body, html {
+body,
+html {
   font-size: 15px;
   font-family: $ontime-font-family;
   background-color: var(--background-color-override, $ui-black);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
 }
 
 body,
@@ -76,6 +81,64 @@ html,
   isolation: isolate;
 }
 
+// reset button styles
+button {
+  all: unset;
+  box-sizing: border-box;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+table {
+  word-break: break-word;
+}
+
+// reset list styles
+ul,
+ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  margin: 0;
+  padding: 0;
+}
+
+// remove buttons in number inputs
+/* WebKit and Blink */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
 /* smaller root size for MacOS laptops */
 @media (max-width: 1600px) {
   body,
@@ -83,14 +146,6 @@ html,
   .App {
     font-size: 14px;
   }
-}
-
-/**
- * workaround for chakra
- * https://github.com/chakra-ui/chakra-ui/issues/417
- */
-option {
-  color: initial;
 }
 
 /* width */

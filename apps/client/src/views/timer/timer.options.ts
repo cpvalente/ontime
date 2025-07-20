@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { use, useMemo } from 'react';
+import { useSearchParams } from 'react-router';
 import { CustomFields, OntimeEvent, TimerType } from 'ontime-types';
 import { validateTimerType } from 'ontime-utils';
 
+import type { SelectOption } from '../../common/components/select/Select';
 import {
   getTimeOption,
   hideTimerSeconds,
@@ -11,19 +12,26 @@ import {
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
-import { isStringBoolean } from '../../features/viewers/common/viewUtils';
+import { PresetContext } from '../../common/context/PresetContext';
+import { isStringBoolean, makeColourString } from '../../features/viewers/common/viewUtils';
 
 // manually match the properties of TimerType excluding the None
-const timerDisplayOptions = {
-  'no-overrides': 'No Overrides',
-  'count-up': 'Count up',
-  'count-down': 'Count down',
-  clock: 'Clock',
-};
+const timerDisplayOptions: SelectOption[] = [
+  { value: 'no-overrides', label: 'No Overrides' },
+  { value: TimerType.CountUp, label: 'Count Up' },
+  { value: TimerType.CountDown, label: 'Count Down' },
+  { value: TimerType.Clock, label: 'Clock' },
+];
 
 export const getTimerOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
-  const mainOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
-  const secondaryOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
+  const mainOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'title', label: 'Title' },
+    { value: 'note', label: 'Note' },
+  ]);
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'title', label: 'Title' },
+    { value: 'note', label: 'Note' },
+  ]);
 
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
@@ -40,6 +48,29 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
           type: 'option',
           values: timerDisplayOptions,
           defaultValue: 'no-overrides',
+        },
+        {
+          id: 'freezeOvertime',
+          title: 'Freeze Overtime',
+          description: 'If active, the timer will not count into negative numbers',
+          type: 'boolean',
+          defaultValue: false,
+        },
+        {
+          id: 'freezeMessage',
+          title: 'Freeze Message',
+          description:
+            'An optional message to show when the timer is in overtime (must be set in combination with Freeze Overtime)',
+          type: 'string',
+          defaultValue: '',
+          placeholder: 'e.g. Time is up!',
+        },
+        {
+          id: 'hidePhase',
+          title: 'Hide progress styles',
+          description: 'Whether to suppress the progress styles (warning, danger and overtime)',
+          type: 'boolean',
+          defaultValue: false,
         },
       ],
     },
@@ -65,7 +96,6 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
         },
       ],
     },
-
     {
       title: OptionTitle.ElementVisibility,
       collapsible: true,
@@ -105,6 +135,40 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
           type: 'boolean',
           defaultValue: false,
         },
+        {
+          id: 'hideLogo',
+          title: 'Hide the project logo',
+          description: 'Prevents the screen from displaying the given project logo',
+          type: 'boolean',
+          defaultValue: false,
+        },
+      ],
+    },
+    {
+      title: OptionTitle.StyleOverride,
+      collapsible: true,
+      options: [
+        {
+          id: 'font',
+          title: 'Font',
+          description: 'Font family, will use the fonts available in the system',
+          type: 'string',
+          placeholder: 'Open Sans (default)',
+        },
+        {
+          id: 'keyColour',
+          title: 'Key Colour',
+          description: 'Background or key colour for entire view. Default: #101010',
+          type: 'colour',
+          defaultValue: '101010',
+        },
+        {
+          id: 'textColour',
+          title: 'Text Colour',
+          description: 'Text colour. Default: #f6f6f6',
+          type: 'colour',
+          defaultValue: 'f6f6f6',
+        },
       ],
     },
   ];
@@ -116,34 +180,53 @@ type TimerOptions = {
   hideProgress: boolean;
   hideMessage: boolean;
   hideSecondary: boolean;
+  hideLogo: boolean;
   hideTimerSeconds: boolean;
   removeLeadingZeros: boolean;
   mainSource: keyof OntimeEvent | null;
   secondarySource: keyof OntimeEvent | null;
   timerType?: TimerType;
+  freezeOvertime: boolean;
+  freezeMessage: string;
+  hidePhase: boolean;
+  font?: string;
+  keyColour?: string;
+  textColour?: string;
 };
 
 /**
  * Utility extract the view options from URL Params
  * the names and fallbacks are manually matched with timerOptions
  */
-function getOptionsFromParams(searchParams: URLSearchParams): TimerOptions {
-  const timerType = validateTimerType(searchParams.get('timerType'), TimerType.None);
-  // we manually make an object that matches the key above
-  return {
-    hideClock: isStringBoolean(searchParams.get('hideClock')),
-    hideCards: isStringBoolean(searchParams.get('hideCards')),
-    hideProgress: isStringBoolean(searchParams.get('hideProgress')),
-    hideMessage: isStringBoolean(searchParams.get('hideMessage')),
-    hideSecondary: isStringBoolean(searchParams.get('hideSecondary')),
-    hideTimerSeconds: isStringBoolean(searchParams.get('hideTimerSeconds')),
-    removeLeadingZeros: !isStringBoolean(searchParams.get('showLeadingZeros')),
+function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): TimerOptions {
+  // Helper to get value from either source, prioritizing defaultValues
+  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
 
-    mainSource: searchParams.get('main') as keyof OntimeEvent | null,
-    secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
+  // Get timerType from either source
+  const timerType = validateTimerType(getValue('timerType'), TimerType.None);
+
+  return {
+    hideClock: isStringBoolean(getValue('hideClock')),
+    hideCards: isStringBoolean(getValue('hideCards')),
+    hideProgress: isStringBoolean(getValue('hideProgress')),
+    hideMessage: isStringBoolean(getValue('hideMessage')),
+    hideSecondary: isStringBoolean(getValue('hideSecondary')),
+    hideLogo: isStringBoolean(getValue('hideLogo')),
+    hideTimerSeconds: isStringBoolean(getValue('hideTimerSeconds')),
+    removeLeadingZeros: !isStringBoolean(getValue('showLeadingZeros')),
+
+    mainSource: getValue('main') as keyof OntimeEvent | null,
+    secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
 
     // none doesnt make sense as a configuration of the view
     timerType: timerType === TimerType.None ? undefined : timerType,
+    freezeOvertime: isStringBoolean(getValue('freezeOvertime')),
+    freezeMessage: getValue('freezeMessage') ?? '',
+    hidePhase: isStringBoolean(getValue('hidePhase')),
+
+    font: getValue('font') ?? undefined,
+    keyColour: makeColourString(getValue('keyColour')),
+    textColour: makeColourString(getValue('textColour')),
   };
 }
 
@@ -152,6 +235,12 @@ function getOptionsFromParams(searchParams: URLSearchParams): TimerOptions {
  */
 export function useTimerOptions(): TimerOptions {
   const [searchParams] = useSearchParams();
-  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  const maybePreset = use(PresetContext);
+
+  const options = useMemo(() => {
+    const defaultValues = maybePreset ? new URLSearchParams(maybePreset.search) : undefined;
+    return getOptionsFromParams(searchParams, defaultValues);
+  }, [maybePreset, searchParams]);
+
   return options;
 }

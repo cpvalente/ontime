@@ -18,8 +18,8 @@ test('sheet file upload', async ({ page }) => {
   const fileChooser = await fileChooserPromise;
   await fileChooser.setFiles(fileToUpload);
 
-  await page.locator('[id="event\\ schedule"]').selectOption('Sheet2');
-  await page.locator('[id="event\\ schedule"]').selectOption('test');
+  await page.getByRole('row', { name: 'Worksheet' }).getByRole('combobox').click();
+  await page.getByRole('option', { name: 'test' }).click();
 
   await page.getByRole('button', { name: 'Import preview' }).click();
   await page.getByRole('button', { name: 'Apply' }).click();
@@ -29,12 +29,12 @@ test('sheet file upload', async ({ page }) => {
   await page.getByRole('button', { name: 'Close settings' }).click();
 
   // asset test events
-  const firstTitle = page.getByTestId('entry-1').getByTestId('block__title');
+  const firstTitle = page.getByTestId('entry-1').getByTestId('entry__title');
   await expect(firstTitle).toHaveValue('Attempt light check');
 
-  const secondTitle = page.getByTestId('entry-2').getByTestId('block__title');
+  const secondTitle = page.getByTestId('entry-2').getByTestId('entry__title');
   await expect(secondTitle).toHaveValue('Preset');
 
-  const thirdTitle = page.getByTestId('entry-3').getByTestId('block__title');
+  const thirdTitle = page.getByTestId('entry-3').getByTestId('entry__title');
   await expect(thirdTitle).toHaveValue('Albania');
 });

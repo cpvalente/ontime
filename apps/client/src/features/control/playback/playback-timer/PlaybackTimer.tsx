@@ -11,10 +11,6 @@ import TimerDisplay from '../timer-display/TimerDisplay';
 
 import style from './PlaybackTimer.module.scss';
 
-interface PlaybackTimerProps {
-  playback: Playback;
-}
-
 function resolveAddedTimeLabel(addedTime: number) {
   if (addedTime > 0) {
     return `Added ${formatDuration(addedTime, false)}`;
@@ -27,11 +23,10 @@ function resolveAddedTimeLabel(addedTime: number) {
   return '';
 }
 
-export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProps>) {
-  const { playback, children } = props;
+export default function PlaybackTimer({ children }: PropsWithChildren) {
   const timer = useTimer();
 
-  const isRolling = playback === Playback.Roll;
+  const isRolling = timer.playback === Playback.Roll;
   const isWaiting = timer.phase === TimerPhase.Pending;
   const isOvertime = timer.phase === TimerPhase.Overtime;
   const hasAddedTime = Boolean(timer.addedTime);
@@ -52,7 +47,7 @@ export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProp
         {isWaiting ? (
           <span className={style.rolltag}>Roll: Countdown to start</span>
         ) : (
-          <RunningStatus startedAt={timer.startedAt} expectedFinish={timer.expectedFinish} playback={playback} />
+          <RunningStatus startedAt={timer.startedAt} expectedFinish={timer.expectedFinish} playback={timer.playback} />
         )}
       </div>
       {children}
@@ -65,9 +60,7 @@ interface RunningStatusProps {
   expectedFinish: MaybeNumber;
   playback: Playback;
 }
-function RunningStatus(props: RunningStatusProps) {
-  const { startedAt, expectedFinish, playback } = props;
-
+function RunningStatus({ startedAt, expectedFinish, playback }: RunningStatusProps) {
   if (playback === Playback.Stop) {
     return <StoppedStatus />;
   }
@@ -95,7 +88,7 @@ function StoppedStatus() {
   const hasReport = Object.keys(data).length > 0;
 
   if (hasReport) {
-    return <AppLink search='settings=feature_settings__report'>Go to report management</AppLink>;
+    return <AppLink search='settings=sharing__report'>Go to report management</AppLink>;
   }
 
   return null;

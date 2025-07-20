@@ -1,4 +1,12 @@
-import { SupportedEntry, OntimeEvent, OntimeDelay, OntimeBlock, Rundown, CustomField } from 'ontime-types';
+import {
+  SupportedEntry,
+  OntimeEvent,
+  OntimeDelay,
+  OntimeGroup,
+  Rundown,
+  CustomField,
+  OntimeMilestone,
+} from 'ontime-types';
 
 import { defaultRundown } from '../../../models/dataModel.js';
 
@@ -8,13 +16,19 @@ const baseEvent = {
   revision: 1,
 };
 
-const baseBlock = {
-  type: SupportedEntry.Block,
+const baseGroup = {
+  type: SupportedEntry.Group,
   entries: [],
 };
 
+const baseMilestone = {
+  type: SupportedEntry.Milestone,
+  cue: '',
+  title: '',
+};
+
 /**
- * Utility to create a Ontime event
+ * Utility to create an Ontime event
  */
 export function makeOntimeEvent(patch: Partial<OntimeEvent>): OntimeEvent {
   return {
@@ -24,17 +38,24 @@ export function makeOntimeEvent(patch: Partial<OntimeEvent>): OntimeEvent {
 }
 
 /**
- * Utility to create a delay event
+ * Utility to create a delay entry
  */
 export function makeOntimeDelay(patch: Partial<OntimeDelay>): OntimeDelay {
   return { id: 'delay', type: SupportedEntry.Delay, duration: 0, ...patch } as OntimeDelay;
 }
 
 /**
- * Utility to create a block event
+ * Utility to create a group entry
  */
-export function makeOntimeBlock(patch: Partial<OntimeBlock>): OntimeBlock {
-  return { id: 'block', ...baseBlock, ...patch } as OntimeBlock;
+export function makeOntimeGroup(patch: Partial<OntimeGroup>): OntimeGroup {
+  return { id: 'group', ...baseGroup, ...patch } as OntimeGroup;
+}
+
+/**
+ * Utility to create a milestone entry
+ */
+export function makeOntimeMilestone(patch: Partial<OntimeMilestone>): OntimeMilestone {
+  return { id: 'milestone', ...baseMilestone, ...patch } as OntimeMilestone;
 }
 
 /**
@@ -49,7 +70,7 @@ export function makeRundown(patch: Partial<Rundown>): Rundown {
 
 export function makeCustomField(patch: Partial<CustomField>): CustomField {
   return {
-    type: 'string',
+    type: 'text',
     colour: '#000000',
     label: 'Custom Field',
     ...patch,

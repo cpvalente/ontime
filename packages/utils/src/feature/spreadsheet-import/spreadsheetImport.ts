@@ -5,6 +5,7 @@ export type ImportMap = typeof defaultImportMap & { custom: ImportCustom };
 // Record of ontime name and import name
 export const defaultImportMap = {
   worksheet: 'event schedule',
+  flag: 'flag',
   timeStart: 'time start',
   linkStart: 'link start',
   timeEnd: 'time end',

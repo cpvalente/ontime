@@ -14,7 +14,6 @@ describe('isRestorePoint()', () => {
       addedTime: 2,
       pausedAt: 3,
       firstStart: 1,
-      blockStartAt: 10,
     };
     expect(isRestorePoint(restorePoint)).toBe(true);
 
@@ -25,7 +24,6 @@ describe('isRestorePoint()', () => {
       addedTime: 0,
       pausedAt: null,
       firstStart: 1,
-      blockStartAt: null,
     };
     expect(isRestorePoint(restorePoint)).toBe(true);
   });
@@ -38,7 +36,7 @@ describe('isRestorePoint()', () => {
         startedAt: null,
         addedTime: 0,
         pausedAt: null,
-        blockStartAt: 10,
+        groupStartAt: 10,
       };
       expect(isRestorePoint(restorePoint)).toBe(false);
     });
@@ -48,7 +46,7 @@ describe('isRestorePoint()', () => {
         startedAt: null,
         addedTime: 0,
         pausedAt: null,
-        blockStartAt: 10,
+        groupStartAt: 10,
       };
       expect(isRestorePoint(restorePoint)).toBe(false);
     });
@@ -59,7 +57,7 @@ describe('isRestorePoint()', () => {
         startedAt: 'testing',
         addedTime: 0,
         pausedAt: null,
-        blockStartAt: 10,
+        groupStartAt: 10,
       };
       expect(isRestorePoint(restorePoint)).toBe(false);
     });
@@ -76,7 +74,6 @@ describe('RestoreService()', () => {
         addedTime: 5678,
         pausedAt: 9087,
         firstStart: 1234,
-        blockStartAt: 1652,
       };
 
       const restoreService = new RestoreService('/path/to/restore/file');
@@ -94,7 +91,6 @@ describe('RestoreService()', () => {
         addedTime: 0,
         pausedAt: null,
         firstStart: 1234,
-        blockStartAt: null,
       };
 
       const restoreService = new RestoreService('/path/to/restore/file');
@@ -112,7 +108,7 @@ describe('RestoreService()', () => {
         addedTime: 1234,
         pausedAt: 1234,
         firstStart: 1234,
-        blockStartAt: 10,
+        groupStartAt: 10,
       };
 
       const restoreService = new RestoreService('/path/to/restore/file');
@@ -132,7 +128,6 @@ describe('RestoreService()', () => {
         addedTime: 1234,
         pausedAt: 1234,
         firstStart: 1234,
-        blockStartAt: null,
       };
 
       const restoreService = new RestoreService('/path/to/restore/file');

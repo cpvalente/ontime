@@ -163,7 +163,7 @@
           }
         },
         "01e85": {
-          "type": "block",
+          "type": "group",
           "id": "01e85",
           "title": "Lunch break",
           "note": "",
@@ -318,7 +318,7 @@
           }
         },
         "cb90b": {
-          "type": "block",
+          "type": "group",
           "id": "cb90b",
           "title": "Afternoon break",
           "note": "",
@@ -452,9 +452,9 @@
   "project": {
     "title": "Eurovision Song Contest",
     "description": "Turin 2022",
-    "backstageUrl": "www.github.com/cpvalente/ontime",
-    "backstageInfo": "Rehearsal Schedule - Turin 2022\nAll performers to wear full costumes for 1st rehearsal",
-    "projectLogo": null,
+    "url": "www.github.com/cpvalente/ontime",
+    "info": "Rehearsal Schedule - Turin 2022\nAll performers to wear full costumes for 1st rehearsal",
+    "logo": null,
     "custom": []
   },
   "settings": {
@@ -467,30 +467,35 @@
     "language": "en"
   },
   "viewSettings": {
-    "dangerColor": "#ED3333",
-    "endMessage": "",
-    "freezeEnd": false,
+    "dangerColor": "#ff7300",
     "normalColor": "#ffffffcc",
     "overrideStyles": false,
-    "warningColor": "#FFAB33"
+    "warningColor": "#ffa528"
   },
   "customFields": {
     "song": {
       "label": "Song",
-      "type": "string",
+      "type": "text",
       "colour": "#339E4E"
     },
     "artist": {
       "label": "Artist",
-      "type": "string",
+      "type": "text",
       "colour": "#3E75E8"
     }
   },
   "urlPresets": [
     {
       "enabled": true,
-      "alias": "test",
-      "pathAndParams": "lower?bg=ff2&text=f00&size=0.6&transition=5"
+      "alias": "clock",
+      "target": "timer",
+      "search": "timer?showLeadingZeros=true&timerType=clock&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true"
+    },
+    {
+      "enabled": true,
+      "alias": "minimal",
+      "target": "timer",
+      "search": "timer?showLeadingZeros=true&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true"
     }
   ],
   "automation": {

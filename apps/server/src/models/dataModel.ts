@@ -17,9 +17,9 @@ export const dbModel: DatabaseModel = {
   project: {
     title: '',
     description: '',
-    backstageUrl: '',
-    backstageInfo: '',
-    projectLogo: null,
+    url: '',
+    info: '',
+    logo: null,
     custom: [],
   },
   settings: {
@@ -33,10 +33,8 @@ export const dbModel: DatabaseModel = {
   viewSettings: {
     overrideStyles: false,
     normalColor: '#ffffffcc',
-    warningColor: '#FFAB33',
-    dangerColor: '#ED3333',
-    freezeEnd: false,
-    endMessage: '',
+    warningColor: '#ffa528',
+    dangerColor: '#ff7300',
   },
   urlPresets: [],
   customFields: {},

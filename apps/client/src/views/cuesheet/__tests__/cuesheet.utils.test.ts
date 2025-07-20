@@ -38,7 +38,7 @@ describe('makeTable()', () => {
     const headerData = {
       title: 'test title',
       description: 'test description',
-      projectLogo: 'test logo',
+      logo: 'test logo',
     };
     const tableData = [
       {

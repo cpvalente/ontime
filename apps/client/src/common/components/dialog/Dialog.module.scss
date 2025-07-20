@@ -3,7 +3,6 @@
   top: 10%;
   left: 50%;
 
-  z-index: $zindex-dialog;
   transform: translateX(-50%);
 
   padding-inline: 1rem;
@@ -14,12 +13,12 @@
   border-radius: 3px;
   box-shadow: $box-shadow-l1;
   border: 1px solid $gray-1100;
+  outline: none;
 }
 
 .backdrop {
   position: fixed;
   inset: 0;
-  z-index: $zindex-backdrop;
   background-color: $backdrop-color;
   transition: opacity 300ms cubic-bezier(0.45, 1.005, 0, 1.005);
 

@@ -1,3 +1,5 @@
+import { RefObject } from 'react';
+
 import { useTimelineStatus, useTimer } from '../../common/hooks/useSocket';
 import { getProgress } from '../../common/utils/getProgress';
 import { alpha, cx } from '../../common/utils/styleUtils';
@@ -14,11 +16,13 @@ interface TimelineEntryProps {
   colour: string;
   delay: number;
   duration: number;
+  hasLink: boolean;
   left: number;
   status: ProgressStatus;
   start: number;
   title: string;
   width: number;
+  ref?: RefObject<HTMLDivElement | null>;
 }
 
 const formatOptions = {
@@ -26,22 +30,31 @@ const formatOptions = {
   format24: 'HH:mm',
 };
 
-export function TimelineEntry(props: TimelineEntryProps) {
-  const { colour, delay, duration, left, status, start, title, width } = props;
-
+export function TimelineEntry({
+  colour,
+  delay,
+  duration,
+  hasLink,
+  left,
+  status,
+  start,
+  title,
+  width,
+  ref,
+}: TimelineEntryProps) {
   const formattedStartTime = formatTime(start, formatOptions);
   const formattedDuration = formatDuration(duration);
   const delayedStart = start + delay;
   const hasDelay = delay > 0;
 
   const lighterColour = alpha(colour, 0.7);
-  const columnClasses = cx([style.column, width < 40 && style.smallArea]);
-  const contentClasses = cx([style.content, width < 20 && style.hide]);
   const showTitle = width > 25;
+  const smallArea = width < 40;
 
   return (
     <div
-      className={columnClasses}
+      ref={ref}
+      className={cx([style.column, smallArea && style.smallArea])}
       style={{
         '--color': colour,
         '--lighter': lighterColour ?? '',
@@ -51,23 +64,26 @@ export function TimelineEntry(props: TimelineEntryProps) {
     >
       {status === 'live' ? <ActiveBlock /> : <div data-status={status} className={style.timelineBlock} />}
       <div
-        className={contentClasses}
+        className={cx([style.content, width < 20 && style.hide, !hasLink && style.separeLeft])}
         data-status={status}
         style={{
           '--color': colour,
         }}
       >
-        <div className={hasDelay ? style.cross : undefined}>{formattedStartTime}</div>
-        {hasDelay && <div className={style.delay}>{formatTime(delayedStart, formatOptions)}</div>}
-        {showTitle && <div>{title}</div>}
-      </div>
-      <div className={style.timeOverview} data-status={status}>
-        {status !== 'done' && (
+        <div className={style.maybeInline}>
+          <div className={cx([hasDelay && style.cross])}>{formattedStartTime}</div>
+          {hasDelay && <div className={style.delay}>{formatTime(delayedStart, formatOptions)}</div>}
+          {smallArea && <TimelineEntryStatus delay={delay} start={start} status={status} />}
+        </div>
+        {showTitle && (
           <>
-            <div className={style.duration}>{formattedDuration}</div>
-            <TimelineEntryStatus delay={delay} start={start} status={status} />
+            {!smallArea && <TimelineEntryStatus delay={delay} start={start} status={status} />}
+            <div>{title}</div>
           </>
         )}
+      </div>
+      <div className={style.timeOverview} data-status={status}>
+        {status !== 'done' && <div className={style.duration}>{formattedDuration}</div>}
       </div>
     </div>
   );
@@ -80,8 +96,7 @@ interface TimelineEntryStatusProps {
 }
 
 // extract component to isolate re-renders provoked by the clock changes
-function TimelineEntryStatus(props: TimelineEntryStatusProps) {
-  const { delay, start, status } = props;
+function TimelineEntryStatus({ delay, start, status }: TimelineEntryStatusProps) {
   const { clock, offset } = useTimelineStatus();
   const { getLocalizedString } = useTranslation();
 

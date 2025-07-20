@@ -9,6 +9,7 @@ import {
   IoTrash,
   IoUnlink,
 } from 'react-icons/io5';
+import { TbFlagFilled } from 'react-icons/tb';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EndAction, EntryId, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
@@ -33,6 +34,7 @@ interface RundownEventProps {
   duration: number;
   timeStrategy: TimeStrategy;
   linkStart: boolean;
+  flag: boolean;
   countToEnd: boolean;
   eventIndex: number;
   endAction: EndAction;
@@ -74,6 +76,7 @@ export default function RundownEvent({
   duration,
   timeStrategy,
   linkStart,
+  flag,
   countToEnd,
   eventIndex,
   endAction,
@@ -107,6 +110,7 @@ export default function RundownEvent({
     selectedEvents.size > 1
       ? [
           {
+            type: 'item',
             label: 'Link to previous',
             icon: IoLink,
             onClick: () =>
@@ -116,6 +120,7 @@ export default function RundownEvent({
               }),
           },
           {
+            type: 'item',
             label: 'Unlink from previous',
             icon: IoUnlink,
             onClick: () =>
@@ -124,36 +129,47 @@ export default function RundownEvent({
                 value: null,
               }),
           },
-          { withDivider: true, label: 'Group', icon: IoFolder, onClick: () => actionHandler('group') },
-          { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
+          { type: 'divider' },
+          { type: 'item', label: 'Group', icon: IoFolder, onClick: () => actionHandler('make-group') },
+          { type: 'divider' },
+          { type: 'item', label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ]
       : [
           {
-            label: 'Toggle link to previous',
-            icon: IoLink,
+            type: 'item',
+            label: flag ? 'Remove flag' : 'Add flag',
+            icon: TbFlagFilled,
             onClick: () =>
               actionHandler('update', {
-                field: 'linkStart',
-                value: linkStart,
+                field: 'flag',
+                value: !flag,
               }),
           },
+          { type: 'divider' },
           {
+            type: 'item',
             label: 'Add to swap',
             icon: IoAdd,
             onClick: () => setSelectedEventId(eventId),
-            withDivider: true,
           },
           {
+            type: 'item',
             label: `Swap this event with ${selectedEventId ?? ''}`,
             icon: IoSwapVertical,
             onClick: () => {
               actionHandler('swap', { field: 'id', value: selectedEventId });
               clearSelectedEventId();
             },
-            isDisabled: selectedEventId == null || selectedEventId === eventId,
+            disabled: selectedEventId == null || selectedEventId === eventId,
           },
-          { withDivider: false, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
-          { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
+          {
+            type: 'item',
+            label: 'Clone',
+            icon: IoDuplicateOutline,
+            onClick: () => actionHandler('clone'),
+          },
+          { type: 'divider' },
+          { type: 'item', label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ],
   );
 
@@ -175,6 +191,7 @@ export default function RundownEvent({
 
   const dragStyle = {
     zIndex: isDragging ? 2 : 'inherit',
+    cursor: isDragging ? 'grabbing' : 'grab',
     transform: CSS.Translate.toString(transform),
     transition,
   };
@@ -188,8 +205,8 @@ export default function RundownEvent({
     }
 
     const elementInFocus = document.activeElement;
-    // we know the block is the grandparent of our binder
-    const blockElement = handleRef.current.closest('#event-block');
+    // we know the group is the grandparent of our binder
+    const blockElement = handleRef.current.closest('#event-group');
 
     // we only move focus if the block doesnt already contain focus
     if (blockElement && !blockElement.contains(elementInFocus)) {

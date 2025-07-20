@@ -1,12 +1,12 @@
 import { lazy, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Select } from '@chakra-ui/react';
 import { Settings } from 'ontime-types';
 
 import { postSettings } from '../../../../common/api/settings';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Input from '../../../../common/components/input/input/Input';
+import Select from '../../../../common/components/select/Select';
 import useSettings from '../../../../common/hooks-query/useSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
@@ -18,6 +18,7 @@ import GeneralPinInput from './composite/GeneralPinInput';
 const TranslationModal = lazy(() => import('./composite/CustomTranslationModal'));
 
 export default function GeneralSettings() {
+  'use no memo'; // RHF and react-compiler don't seem to get along
   const { data, status, refetch } = useSettings();
   const {
     handleSubmit,
@@ -25,6 +26,8 @@ export default function GeneralSettings() {
     register,
     reset,
     setError,
+    watch,
+    setValue,
     formState: { isSubmitting, isDirty, isValid, errors },
   } = useForm<Settings>({
     mode: 'onChange',

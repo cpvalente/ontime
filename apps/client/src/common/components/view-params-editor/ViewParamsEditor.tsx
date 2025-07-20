@@ -1,6 +1,8 @@
-import { FormEvent, memo } from 'react';
+import { FormEvent, memo, useReducer } from 'react';
 import { IoClose } from 'react-icons/io5';
+import { useSearchParams } from 'react-router';
 import { Dialog } from '@base-ui-components/react/dialog';
+import { OntimeView } from 'ontime-types';
 
 import useViewSettings from '../../hooks-query/useViewSettings';
 import Button from '../buttons/Button';
@@ -10,27 +12,32 @@ import Info from '../info/Info';
 import { ViewOption } from './viewParams.types';
 import { getURLSearchParamsFromObj } from './viewParams.utils';
 import { useViewParamsEditorStore } from './viewParamsEditor.store';
+import { ViewParamsShare } from './ViewParamShare';
 import ViewParamsSection from './ViewParamsSection';
 
 import style from './ViewParamsEditor.module.scss';
 
 interface EditFormDrawerProps {
+  target: OntimeView;
   viewOptions: ViewOption[];
 }
 
 export default memo(ViewParamsEditor);
-
-function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
+function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
+  // TODO: can we ensure that the options update when the user loads an alias?
+  const [_, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
   const { isOpen, close } = useViewParamsEditorStore();
+  // TODO: we dont want this as a permanent option
+  const forceRender = useReducer((x) => x + 1, 0)[1];
 
   const handleClose = () => {
     close();
   };
 
   const resetParams = () => {
-    window.history.pushState(null, '', window.location.pathname);
-    close();
+    setSearchParams();
+    forceRender();
   };
 
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
@@ -38,9 +45,8 @@ function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
 
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
-    const url = new URL(window.location.href);
-    url.search = newSearchParams.toString();
-    window.history.pushState(null, '', url);
+    setSearchParams(newSearchParams);
+    forceRender();
   };
 
   return (
@@ -57,7 +63,7 @@ function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
         <Dialog.Popup className={style.drawer}>
           <div className={style.header}>
             <Dialog.Title>Customise</Dialog.Title>
-            <IconButton variant='subtle-white' size='large' onClick={handleClose}>
+            <IconButton variant='subtle-white' size='large' data-testid='close-view-params' onClick={handleClose}>
               <IoClose />
             </IconButton>
           </div>
@@ -65,6 +71,7 @@ function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
             {viewSettings.overrideStyles && (
               <Info className={style.info}>This view style is being modified by a custom CSS file.</Info>
             )}
+            <ViewParamsShare target={target} />
             <form id='edit-params-form' onSubmit={onParamsFormSubmit} className={style.sectionList}>
               {viewOptions.map((section) => (
                 <ViewParamsSection
@@ -80,8 +87,14 @@ function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
             <Button variant='subtle' size='large' onClick={resetParams} type='reset'>
               Reset to default
             </Button>
-            <Button variant='primary' size='large' form='edit-params-form' type='submit'>
-              Save
+            <Button
+              variant='primary'
+              size='large'
+              form='edit-params-form'
+              type='submit'
+              data-testid='apply-view-params'
+            >
+              Apply
             </Button>
           </div>
         </Dialog.Popup>

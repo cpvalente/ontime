@@ -2,10 +2,10 @@ import {
   CustomFields,
   Rundown,
   OntimeEvent,
-  OntimeBlock,
+  OntimeGroup,
   EntryCustomFields,
   SupportedEntry,
-  isOntimeBlock,
+  isOntimeGroup,
   TimerType,
   CustomFieldKey,
 } from 'ontime-types';
@@ -17,7 +17,7 @@ import {
   validateTimerType,
   validateEndAction,
   customFieldLabelToKey,
-  isAlphanumericWithSpace,
+  checkRegex,
 } from 'ontime-utils';
 
 import { Merge } from 'ts-essentials';
@@ -31,6 +31,7 @@ import { parseExcelDate } from '../../utils/time.js';
  * @param {array} excelData - array with excel sheet
  * @param {ImportOptions} options - an object that contains the import map
  * @returns {object} - parsed object
+ * TODO: import milestones
  */
 export const parseExcel = (
   excelData: unknown[][],
@@ -69,6 +70,7 @@ export const parseExcel = (
   let colourIndex: number | null = null;
 
   // options: booleans
+  let flagIndex: number | null = null;
   let skipIndex: number | null = null;
   let countToEndIndex: number | null = null;
 
@@ -123,6 +125,10 @@ export const parseExcel = (
         titleIndex = col;
         rundownMetadata['title'] = { row, col };
       },
+      [importMap.flag]: (row: number, col: number) => {
+        flagIndex = col;
+        rundownMetadata['flag'] = { row, col };
+      },
       [importMap.countToEnd]: (row: number, col: number) => {
         countToEndIndex = col;
         rundownMetadata['countToEnd'] = { row, col };
@@ -165,7 +171,7 @@ export const parseExcel = (
       },
     } as const;
 
-    const entry: Partial<Merge<OntimeEvent, OntimeBlock>> = {};
+    const entry: Partial<Merge<OntimeEvent, OntimeGroup>> = {};
     const entryCustomFields: EntryCustomFields = {};
 
     for (let j = 0; j < row.length; j++) {
@@ -173,16 +179,16 @@ export const parseExcel = (
       // 1. we check if we have set a flag for a known field
       if (j === timerTypeIndex) {
         const maybeTimeType = makeString(column, '');
-        if (maybeTimeType === 'block') {
+        if (maybeTimeType === 'group') {
           // we leave this as a clue for the object filtering later on
-          entry.type = SupportedEntry.Block;
+          entry.type = SupportedEntry.Group;
           entry.entries = [];
         } else if (maybeTimeType === '' || maybeTimeType === 'event' || isKnownTimerType(maybeTimeType)) {
           // @ts-expect-error -- we leave this as a clue for the object filtering later on
           entry.type = SupportedEntry.Event;
           entry.timerType = validateTimerType(maybeTimeType);
         } else {
-          // if it is not a block or a known type, we dont import it
+          // if it is not a group or a known type, we dont import it
           return;
         }
       } else if (j === titleIndex) {
@@ -197,6 +203,8 @@ export const parseExcel = (
         entry.duration = parseExcelDate(column);
       } else if (j === cueIndex) {
         entry.cue = makeString(column, '');
+      } else if (j === flagIndex) {
+        entry.flag = parseBooleanString(column);
       } else if (j === countToEndIndex) {
         entry.countToEnd = parseBooleanString(column);
       } else if (j === skipIndex) {
@@ -251,11 +259,11 @@ export const parseExcel = (
     }
 
     const id = entry.id || generateId();
-    // from excel, we can only get blocks and events
-    if (isOntimeBlock(entry)) {
-      const block: OntimeBlock = { ...entry, custom: { ...entryCustomFields } };
+    // from excel, we can only get groups, milestones and events
+    if (isOntimeGroup(entry)) {
+      const group: OntimeGroup = { ...entry, custom: { ...entryCustomFields } };
       rundown.order.push(id);
-      rundown.entries[id] = block;
+      rundown.entries[id] = group;
       return;
     }
 
@@ -318,7 +326,7 @@ export function getCustomFieldData(
 
   for (const ontimeLabel in importMap.custom) {
     // if the label is not valid, we skip the import
-    if (!isAlphanumericWithSpace(ontimeLabel)) {
+    if (!checkRegex.isAlphanumericWithSpace(ontimeLabel)) {
       continue;
     }
 
@@ -330,7 +338,7 @@ export function getCustomFieldData(
 
     // 1. add the custom field to the merged custom fields
     mergedCustomFields[keyInCustomFields] = {
-      type: 'string', // we currently only support string custom fields
+      type: 'text', // we currently only support text custom fields
       colour: maybeExistingColour,
       label: ontimeLabel,
     };

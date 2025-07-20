@@ -1,6 +1,8 @@
-import type { CustomFields } from 'ontime-types';
+import type { CustomFields, ProjectData } from 'ontime-types';
 
-import type { MultiselectOptions, ViewOption } from './viewParams.types';
+import type { SelectOption } from '../select/Select';
+
+import type { MultiselectOption, ViewOption } from './viewParams.types';
 
 /**
  * Creates a list of custom fields for a select
@@ -8,17 +10,23 @@ import type { MultiselectOptions, ViewOption } from './viewParams.types';
  */
 export function makeOptionsFromCustomFields(
   customFields: CustomFields,
-  additionalOptions: Readonly<Record<string, string>> = {},
+  additionalOptions: SelectOption[] = [],
   filterImageType = true,
-): Record<string, string> {
-  const options = { ...additionalOptions };
+): SelectOption[] {
+  const options: SelectOption[] = [...additionalOptions];
+
+  // Add custom fields first
   for (const [key, value] of Object.entries(customFields)) {
     if (filterImageType && value.type === 'image') {
       continue;
     }
 
-    options[`custom-${key}`] = `Custom: ${value.label}`;
+    options.push({
+      value: `custom-${key}`,
+      label: `Custom: ${value.label}`,
+    });
   }
+
   return options;
 }
 
@@ -26,15 +34,35 @@ export function makeOptionsFromCustomFields(
  * Creates data for a multiselect component from custom fields
  * Filters out image type custom fields
  */
-export function makeCustomFieldSelectOptions(customFields: CustomFields, filterImageType = true): MultiselectOptions {
-  const options: MultiselectOptions = {};
+export function makeCustomFieldSelectOptions(customFields: CustomFields, filterImageType = true): MultiselectOption[] {
+  const options: MultiselectOption[] = [];
+
+  // Add custom fields first
   for (const [key, value] of Object.entries(customFields)) {
     if (filterImageType && value.type === 'image') {
       continue;
     }
-    options[key] = { value: key, label: value.label, colour: value.colour };
+
+    options.push({
+      value: key,
+      label: value.label,
+      colour: value.colour || 'transparent',
+    });
   }
+
   return options;
+}
+
+/**
+ * Creates data for a select element that displays project custom data
+ */
+export function makeProjectDataOptions(projectData: ProjectData): SelectOption[] {
+  return projectData.custom.map((entry, index) => {
+    return {
+      value: `${index}-${entry.title}`,
+      label: entry.title,
+    };
+  });
 }
 
 type ViewParamsObj = { [key: string]: string | FormDataEntryValue };
@@ -52,17 +80,22 @@ function sanitiseColour(colour: string) {
 type FieldMetadata = {
   defaultValues: Record<string, string>;
   colorFields: Set<string>;
+  booleanFields: Set<string>;
   isPersistedField: Set<string>;
   persistedValues: Record<string, string[]>;
 };
 
 /**
  * Utility collects metadata about fields from view options
+ * - where are the default values
+ * - which fields are colours
+ * - which fields are persisted
  */
 function collectFieldMetadata(paramFields: ViewOption[]): FieldMetadata {
   const metadata: FieldMetadata = {
     defaultValues: {},
     colorFields: new Set(),
+    booleanFields: new Set(),
     isPersistedField: new Set(),
     persistedValues: {},
   };
@@ -80,6 +113,8 @@ function collectFieldMetadata(paramFields: ViewOption[]): FieldMetadata {
 
       if (option.type === 'colour') {
         metadata.colorFields.add(option.id);
+      } else if (option.type === 'boolean') {
+        metadata.booleanFields.add(option.id);
       }
     });
   });
@@ -132,7 +167,16 @@ export function getURLSearchParamsFromObj(paramsObj: ViewParamsObj, paramFields:
 
       // Process and add new values
       value.split(',').forEach((v) => {
-        const processedValue = metadata.colorFields.has(id) ? sanitiseColour(v) : v;
+        // some field types need extra processing
+        const processedValue = (() => {
+          if (metadata.colorFields.has(id)) {
+            return sanitiseColour(v);
+          }
+          if (metadata.booleanFields.has(id)) {
+            return v === 'on' ? 'true' : 'false';
+          }
+          return v;
+        })();
         if (metadata.isPersistedField.has(id) || metadata.defaultValues[id] !== processedValue) {
           addUniqueParam(id, processedValue);
         }

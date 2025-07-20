@@ -10,7 +10,16 @@ import {
 } from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
-import { CLIENT_LIST, CUSTOM_FIELDS, REPORT, RUNDOWN, RUNTIME, VIEW_SETTINGS } from '../api/constants';
+import {
+  CLIENT_LIST,
+  CUSTOM_FIELDS,
+  PROJECT_DATA,
+  REPORT,
+  RUNDOWN,
+  RUNTIME,
+  URL_PRESETS,
+  VIEW_SETTINGS,
+} from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
 import {
@@ -133,16 +142,8 @@ export const connectSocket = () => {
           break;
         }
         case MessageTag.RuntimeData: {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- removing the key from the payload
-          const { ping, ...serverPayload } = payload;
-          patchRuntime(serverPayload);
-          updateDevTools(serverPayload);
-          break;
-        }
-        case MessageTag.RuntimePatch: {
-          const patch = payload;
-          patchRuntime(patch);
-          updateDevTools(patch);
+          patchRuntime(payload);
+          updateDevTools(payload);
           break;
         }
         case MessageTag.Refetch: {
@@ -155,16 +156,22 @@ export const connectSocket = () => {
             case RefetchKey.CustomFields:
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
               break;
+            case RefetchKey.ProjectData:
+              ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_DATA });
+              break;
+            case RefetchKey.Report:
+              ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
+              break;
             case RefetchKey.Rundown:
               if (revision === (ontimeQueryClient.getQueryData(RUNDOWN) as Rundown).revision) break;
               ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
               break;
+            case RefetchKey.UrlPresets:
+              ontimeQueryClient.invalidateQueries({ queryKey: URL_PRESETS });
+              break;
             case RefetchKey.ViewSettings:
               ontimeQueryClient.invalidateQueries({ queryKey: VIEW_SETTINGS });
-              break;
-            case RefetchKey.Report:
-              ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
               break;
             default: {
               target satisfies never;

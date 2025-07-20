@@ -1,4 +1,3 @@
-import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { cx } from '../../../common/utils/styleUtils';
 
 import style from './TimeLayout.module.scss';
@@ -6,38 +5,40 @@ import style from './TimeLayout.module.scss';
 interface TimeLayoutProps {
   label: string;
   value: string;
-  muted?: boolean;
+  state?: 'muted' | 'waiting' | 'active';
   daySpan?: number;
   className?: string;
   testId?: string;
 }
 
-export function TimeColumn({ label, value, muted, className, testId }: TimeLayoutProps) {
+export function TimeColumn({ label, value, state = 'active', className, testId }: TimeLayoutProps) {
   return (
-    <div className={style.column}>
+    <div className={cx([style.column, className])} data-state={state}>
       <span className={style.label}>{label}</span>
-      <span className={cx([style.clock, muted && style.muted, className])} data-testid={testId}>
+      <span className={style.clock} data-testid={testId}>
         {value}
       </span>
     </div>
   );
 }
 
-export function TimeRow({ label, value, daySpan, muted, className }: TimeLayoutProps) {
+interface OverUnderProps {
+  state: 'over' | 'under' | 'muted' | null;
+  value: string;
+  testId: string;
+}
+
+export function OverUnder({ state, value, testId }: OverUnderProps) {
   return (
-    <div className={style.row}>
-      <span className={style.label}>{label}</span>
-      {daySpan ? (
-        <Tooltip
-          text={`Event spans over ${daySpan + 1} days`}
-          render={<span />}
-          className={cx([style.clock, style.daySpan, className])}
-        >
-          {value}
-        </Tooltip>
-      ) : (
-        <span className={cx([style.clock, muted && style.muted, className])}>{value}</span>
-      )}
+    <div className={style.column} data-state={state}>
+      <div className={style.label}>
+        <span className={style.over}>Over</span>
+        <span>/</span>
+        <span className={style.under}>Under</span>
+      </div>
+      <span className={style.clock} data-testid={testId}>
+        {value}
+      </span>
     </div>
   );
 }

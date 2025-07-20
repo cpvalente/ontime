@@ -4,7 +4,6 @@ import { SupportedEntry } from 'ontime-types';
 
 import Input from '../../../common/components/input/input/Input';
 import Modal from '../../../common/components/modal/Modal';
-import { useEventSelection } from '../../../features/rundown/useEventSelection';
 
 import useFinder from './useFinder';
 
@@ -16,10 +15,9 @@ interface FinderProps {
 }
 
 export default function Finder({ isOpen, onClose }: FinderProps) {
-  const { find, results, error } = useFinder();
+  const { find, select, results, error } = useFinder();
   const [selected, setSelected] = useState(0);
 
-  const setSelectedEvents = useEventSelection((state) => state.setSelectedEvents);
   const debouncedFind = useDebouncedCallback(find, 100);
 
   const navigate = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -34,13 +32,15 @@ export default function Finder({ isOpen, onClose }: FinderProps) {
       setSelected((prev) => (prev - 1 + results.length) % results.length);
     }
     if (event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
       submit();
     }
   };
 
   const submit = () => {
     const selectedEvent = results[selected];
-    setSelectedEvents({ id: selectedEvent.id, index: selectedEvent.index, selectMode: 'click' });
+    select(selectedEvent);
     onClose();
   };
 

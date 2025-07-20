@@ -6,10 +6,11 @@
   margin-left: calc(2rem + 1px); // binder + border
   margin-block: 0.125rem;
   padding-right: 0.25rem;
-  background-color: color-mix(in srgb, var(--user-bg, $block-bg) 15%, transparent 85%);
+  background-color: $gray-1050; // to override inline
+  color: $section-white; // to override inline
 
   display: grid;
-  grid-template-columns: 2rem 8rem 1fr auto auto;
+  grid-template-columns: 2rem 1fr 3fr;
   align-items: center;
   height: $secondary-block-height;
   gap: 0.5rem;
@@ -23,7 +24,8 @@
   height: 100%;
   display: grid;
   place-content: center;
-  background-color: var(--user-bg, $block-bg);
+  background-color: $gray-1050; // to override inline
+  color: $section-white; // to override inline
 }
 
 .drag {

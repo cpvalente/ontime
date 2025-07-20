@@ -1,4 +1,5 @@
-import { IoArrowDown, IoArrowUp, IoBan, IoFlag, IoTime } from 'react-icons/io5';
+import { IoArrowDown, IoArrowUp, IoBan, IoTime } from 'react-icons/io5';
+import { LuArrowDownToLine } from 'react-icons/lu';
 import { TimerPhase, TimerType } from 'ontime-types';
 
 import { Corner } from '../../../common/components/editor-utils/EditorUtils';
@@ -25,7 +26,7 @@ export default function TimerPreview() {
     if (showTimerMessage) return 'Message';
     if (timerType === TimerType.None) return timerPlaceholder;
     if (phase === TimerPhase.Pending) return 'Standby to start';
-    if (phase === TimerPhase.Overtime && data.endMessage) return 'Custom end message';
+    if (phase === TimerPhase.Overtime) return 'Timer Overtime';
     if (timerType === TimerType.Clock) return 'Clock';
     if (countToEnd) return 'Count to End';
     return 'Timer';
@@ -41,8 +42,8 @@ export default function TimerPreview() {
 
   const overrideColour = (() => {
     // override fallback colours from starter project
-    if (phase === TimerPhase.Warning) return data.warningColor ?? '#FFAB33';
-    if (phase === TimerPhase.Danger) return data.dangerColor ?? '#ED3333';
+    if (phase === TimerPhase.Warning) return data.warningColor ?? '#ffa528';
+    if (phase === TimerPhase.Danger) return data.dangerColor ?? '#ff7300';
     return data.normalColor ?? '#FFFC';
   })();
 
@@ -101,7 +102,7 @@ export default function TimerPreview() {
           className={style.statusIcon}
           data-active={countToEnd}
         >
-          <IoFlag />
+          <LuArrowDownToLine />
         </Tooltip>
       </div>
     </div>

@@ -14,9 +14,9 @@ test('Copy-paste', async ({ page }) => {
   await page.getByLabel('Cue', { exact: true }).fill('4');
   await page.getByLabel('Cue', { exact: true }).press('Enter');
   await page.getByTestId('entry-1').click();
-  await page.getByTestId('block__title').click();
-  await page.getByTestId('block__title').fill('test');
-  await page.getByTestId('block__title').press('Enter');
+  await page.getByTestId('entry__title').click();
+  await page.getByTestId('entry__title').fill('test');
+  await page.getByTestId('entry__title').press('Enter');
 
   // copy paste below
   await page.getByTestId('rundown-event').locator('div').filter({ hasText: '4' }).click();
@@ -25,7 +25,7 @@ test('Copy-paste', async ({ page }) => {
 
   // assert
   await expect(page.getByTestId('entry-2')).toBeVisible();
-  await expect(page.getByTestId('entry-2').getByTestId('block__title')).toHaveValue('test');
+  await expect(page.getByTestId('entry-2').getByTestId('entry__title')).toHaveValue('test');
   await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('5');
 
   // copy paste above
@@ -35,7 +35,7 @@ test('Copy-paste', async ({ page }) => {
 
   // assert
   await expect(page.getByTestId('entry-2')).toBeVisible();
-  await expect(page.getByTestId('entry-2').getByTestId('block__title')).toHaveValue('test');
+  await expect(page.getByTestId('entry-2').getByTestId('entry__title')).toHaveValue('test');
   await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('4.1');
 });
 
@@ -67,37 +67,37 @@ test('Move', async ({ page }) => {
   await expect(page.getByTestId('entry-1').getByTestId('rundown-event')).toContainText('3');
 });
 
-test('Add block', async ({ page }) => {
+test('Add group', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
 
   // clear rundown
   await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
   await expect(page.getByTestId('rundown-event')).toHaveCount(0);
-  await expect(page.getByTestId('rundown-block')).toHaveCount(0);
+  await expect(page.getByTestId('rundown-group')).toHaveCount(0);
 
   // create events
   await page.getByRole('button', { name: 'Create Event' }).click();
   await expect(page.getByTestId('rundown-event')).toHaveCount(1);
-  await expect(page.getByTestId('rundown-block')).toHaveCount(0);
+  await expect(page.getByTestId('rundown-group')).toHaveCount(0);
   await page.getByPlaceholder(/event title/i).fill('test');
   await page.getByTestId('entry-1').click();
 
-  // add block below
-  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+B');
+  // add group below
+  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+G');
   await expect(page.getByTestId('rundown-event')).toHaveCount(1);
-  await expect(page.getByTestId('rundown-block')).toHaveCount(1);
-  await page.getByTestId('rundown-block').getByTestId('block__title').fill('block below');
+  await expect(page.getByTestId('rundown-group')).toHaveCount(1);
+  await page.getByTestId('rundown-group').getByTestId('entry__title').fill('group below');
 
-  // add block above
-  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+Shift+B');
+  // add group above
+  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+Shift+G');
   await expect(page.getByTestId('rundown-event')).toHaveCount(1);
-  await expect(page.getByTestId('rundown-block')).toHaveCount(2);
-  await page.getByTestId('block__title').first().fill('block above');
+  await expect(page.getByTestId('rundown-group')).toHaveCount(2);
+  await page.getByTestId('entry__title').first().fill('group above');
 
-  await expect(page.getByTestId(/block__title/i).first()).toHaveValue('block above');
-  await expect(page.getByTestId(/block__title/i).nth(2)).toHaveValue('block below');
-  await expect(page.getByTestId('entry-1').getByTestId(/block__title/)).toHaveValue('test');
+  await expect(page.getByTestId(/entry__title/i).first()).toHaveValue('group above');
+  await expect(page.getByTestId(/entry__title/i).nth(2)).toHaveValue('group below');
+  await expect(page.getByTestId('entry-1').getByTestId(/entry__title/)).toHaveValue('test');
 });
 
 test('Add delay', async ({ page }) => {
@@ -114,7 +114,7 @@ test('Add delay', async ({ page }) => {
   await expect(page.getByTestId('rundown-event')).toHaveCount(1);
   await expect(page.getByTestId('rundown-delay')).toHaveCount(0);
   await page.getByTestId('entry-1').click();
-  await page.getByTestId('block__title').press('Escape');
+  await page.getByTestId('entry__title').press('Escape');
 
   //add delay below
   await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+D');
@@ -141,7 +141,7 @@ test('Add event', async ({ page }) => {
   await page.getByRole('button', { name: 'Create Event' }).click();
   await expect(page.getByTestId('rundown-event')).toHaveCount(1);
   await page.getByTestId('entry-1').click();
-  await page.getByTestId('block__title').press('Escape');
+  await page.getByTestId('entry__title').press('Escape');
 
   //add event below
   await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+E');
@@ -172,5 +172,5 @@ test('Delete event', async ({ page }) => {
   await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+Backspace');
   await expect(page.getByTestId('rundown-event')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Create Event' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Create Block' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Create Group' })).toBeVisible();
 });

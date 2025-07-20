@@ -9,7 +9,6 @@ import Input from '../../../common/components/input/input/Input';
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
 import Modal from '../../../common/components/modal/Modal';
 import Select from '../../../common/components/select/Select';
-import Switch from '../../../common/components/switch/Switch';
 import { editorSettingsDefaults, useEditorSettings } from '../../../common/stores/editorSettings';
 import * as Panel from '../panel-utils/PanelUtils';
 
@@ -75,7 +74,8 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
                 error={errors.settings?.timeFormat?.message}
               />
               <Select
-                {...register('settings.timeFormat')}
+                value={watch('settings.timeFormat')}
+                onValueChange={(value: '12' | '24') => setValue('settings.timeFormat', value, { shouldDirty: true })}
                 defaultValue='24'
                 options={[
                   { value: '12', label: '12 hours 11:00:10 PM' },
@@ -90,20 +90,16 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
                 error={errors.settings?.language?.message}
               />
               <Select
-                {...register('settings.language')}
+                value={watch('settings.language')}
+                onValueChange={(value: string) => setValue('settings.language', value, { shouldDirty: true })}
                 defaultValue='en'
                 options={[
                   { value: 'en', label: 'English' },
                   { value: 'fr', label: 'French' },
                   { value: 'de', label: 'German' },
-                  { value: 'hu', label: 'Hungarian' },
                   { value: 'it', label: 'Italian' },
-                  { value: 'no', label: 'Norwegian' },
                   { value: 'pt', label: 'Portuguese' },
                   { value: 'es', label: 'Spanish' },
-                  { value: 'sv', label: 'Swedish' },
-                  { value: 'pl', label: 'Polish' },
-                  { value: 'zh', label: 'Chinese (Simplified)' },
                 ]}
               />
             </Panel.ListItem>
@@ -127,27 +123,6 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
                 time={dangerTimeInMs}
                 placeholder={editorSettingsDefaults.dangerTime}
               />
-            </Panel.ListItem>
-          </Panel.ListGroup>
-
-          <Panel.ListGroup>
-            <Panel.ListItem>
-              <Panel.Field
-                title='Freeze timer on end'
-                description='When a timer hits 00:00:00, it freezes instead of going negative. It invalidates the End Message.'
-              />
-              <Switch
-                name='viewSettings.freezeEnd'
-                checked={watch('viewSettings.freezeEnd')}
-                onCheckedChange={(checked) => setValue('viewSettings.freezeEnd', checked)}
-              />
-            </Panel.ListItem>
-            <Panel.ListItem>
-              <Panel.Field
-                title='End message'
-                description='Message for negative timers; applies only if the timer isn`t frozen on End. If no message is provided, it continues into negative time'
-              />
-              <Input maxLength={150} fluid placeholder='eg: Time is up!' {...register('viewSettings.endMessage')} />
             </Panel.ListItem>
           </Panel.ListGroup>
         </form>

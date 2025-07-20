@@ -1,4 +1,5 @@
 export const is = {
+  boolean: (value: unknown): value is boolean => typeof value === 'boolean',
   string: (value: unknown): value is string => typeof value === 'string',
   number: (value: unknown): value is number => typeof value === 'number',
   defined: <T>(value: T | undefined): value is T => value !== undefined,

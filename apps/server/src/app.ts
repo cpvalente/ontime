@@ -1,4 +1,4 @@
-import { LogOrigin, Playback, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { LogOrigin, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -32,7 +32,7 @@ import { logger } from './classes/Logger.js';
 import { populateStyles } from './setup/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
 import { runtimeService } from './services/runtime-service/RuntimeService.js';
-import { restoreService } from './services/RestoreService.js';
+import { RestorePoint, restoreService } from './services/RestoreService.js';
 import * as messageService from './services/message-service/message.service.js';
 import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
@@ -143,10 +143,15 @@ const checkStart = (currentState: OntimeStartOrder) => {
   }
 };
 
+let restorePoint: RestorePoint | null = null;
+
 export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable: boolean) => void) => {
   checkStart(OntimeStartOrder.InitAssets);
   // initialise logging service, escalateErrorFn only exists in electron
   logger.init(escalateErrorFn);
+
+  // load restore point if it exists
+  restorePoint = await restoreService.load();
 
   await clearUploadfolder();
   populateStyles();
@@ -180,13 +185,13 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   eventStore.init({
     clock: state.clock,
     timer: state.timer,
-    onAir: state.timer.playback !== Playback.Stop,
     message: { ...runtimeStorePlaceholder.message },
-    runtime: state.runtime,
+    offset: state.offset,
+    rundown: state.rundown,
     eventNow: state.eventNow,
     eventNext: state.eventNext,
-    blockNow: null,
-    blockNext: null,
+    eventFlag: null,
+    groupNow: null,
     auxtimer1: {
       duration: timerConfig.auxTimerDefault,
       current: timerConfig.auxTimerDefault,
@@ -205,7 +210,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     },
-    ping: -1,
+    ping: 1,
   });
 
   // initialise rundown service
@@ -216,10 +221,8 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   // initialise message service
   messageService.init(eventStore.set, eventStore.get);
 
-  // load restore point if it exists
-  const maybeRestorePoint = await restoreService.load();
-
-  runtimeService.init(maybeRestorePoint);
+  // apply the restore point if it exists
+  runtimeService.init(restorePoint);
 
   const nif = getNetworkInterfaces();
   consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);
@@ -255,7 +258,7 @@ export const startIntegrations = async () => {
  * @param {number} exitCode
  * @return {Promise<void>}
  */
-const shutdown = async (exitCode = 0) => {
+export const shutdown = async (exitCode = 0) => {
   consoleHighlight(`Ontime shutting down with code ${exitCode}`);
 
   // clear the restore file if it was a normal exit

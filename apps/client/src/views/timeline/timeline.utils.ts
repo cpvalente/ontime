@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { isOntimeEvent, isPlayableEvent, MaybeString, OntimeEntry, OntimeEvent, PlayableEvent } from 'ontime-types';
 import {
   dayInMs,
@@ -12,8 +11,8 @@ import {
 } from 'ontime-utils';
 
 import { formatDuration } from '../../common/utils/time';
-import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 
+import { useTimelineOptions } from './timeline.options';
 import type { ProgressStatus } from './TimelineEntry';
 
 type CSSPosition = {
@@ -22,7 +21,8 @@ type CSSPosition = {
 };
 
 /**
- * Calculates an absolute position of an element based on a schedule
+ * Calculates the base position and width of an element based on schedule
+ * The scaling of these values (if needed) is handled by calculateTimelineLayout
  */
 export function getElementPosition(
   scheduleStart: number,
@@ -33,6 +33,8 @@ export function getElementPosition(
 ): CSSPosition {
   const normalEnd = scheduleEnd < scheduleStart ? scheduleEnd + dayInMs : scheduleEnd;
   const totalDuration = normalEnd - scheduleStart;
+
+  // Calculate proportional width and position
   const width = (eventDuration * containerWidth) / totalDuration;
   const left = ((eventStart - scheduleStart) * containerWidth) / totalDuration;
 
@@ -88,14 +90,12 @@ interface ScopedRundownData {
 }
 
 export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeString): ScopedRundownData {
-  const [searchParams] = useSearchParams();
+  const { hidePast } = useTimelineOptions();
 
   const data = useMemo(() => {
     if (rundown.length === 0) {
       return { scopedRundown: [], firstStart: 0, totalDuration: 0 };
     }
-
-    const hidePast = isStringBoolean(searchParams.get('hidePast'));
 
     const scopedRundown: PlayableEvent[] = [];
     let selectedIndex = selectedEventId ? Infinity : -1;
@@ -144,7 +144,7 @@ export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeS
     }
 
     return { scopedRundown, firstStart: firstStart ?? 0, totalDuration };
-  }, [rundown, searchParams, selectedEventId]);
+  }, [hidePast, rundown, selectedEventId]);
 
   return data;
 }
@@ -184,4 +184,62 @@ export function getUpcomingEvents(events: PlayableEvent[], selectedId: MaybeStri
  */
 export function getTimeToStart(now: number, start: number, delay: number, offset: number): number {
   return start + delay - now - offset;
+}
+
+interface TimelineLayout {
+  positions: CSSPosition[];
+  scale: number;
+  totalWidth: number;
+}
+
+/**
+ * Calculates positions for all events and applies scaling if needed
+ */
+export function calculateTimelineLayout(
+  events: Array<{ start: number; duration: number }>,
+  scheduleStart: number,
+  scheduleEnd: number,
+  containerWidth: number,
+  canScroll: boolean,
+  minWidth = 100,
+): TimelineLayout {
+  // Calculate positions and track minimum width
+  let smallestWidth = Infinity;
+  const positions = events.map(({ start, duration }) => {
+    const position = getElementPosition(scheduleStart, scheduleEnd, start, duration, containerWidth);
+    smallestWidth = Math.min(smallestWidth, position.width);
+    return position;
+  });
+
+  if (!canScroll) {
+    return {
+      positions: positions,
+      scale: 1,
+      totalWidth: containerWidth,
+    };
+  }
+
+  // Determine if scaling is needed
+  const scale = smallestWidth < minWidth ? minWidth / smallestWidth : 1;
+
+  // If no scaling is needed, return base positions
+  if (scale === 1) {
+    return {
+      positions,
+      scale: 1,
+      totalWidth: containerWidth,
+    };
+  }
+
+  // Apply scale to all positions
+  const scaledPositions = positions.map((pos) => ({
+    left: pos.left * scale,
+    width: pos.width * scale,
+  }));
+
+  return {
+    positions: scaledPositions,
+    scale,
+    totalWidth: containerWidth * scale,
+  };
 }

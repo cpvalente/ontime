@@ -1,10 +1,10 @@
 import { memo, RefObject, SyntheticEvent } from 'react';
-import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+import { useLongPress } from '@mantine/hooks';
+import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString } from 'ontime-utils';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
-import useLongPress from '../../../common/hooks/useLongPress';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import { formatDuration, useTimeUntilStart } from '../../../common/utils/time';
+import { formatDuration, useTimeUntilExpectedStart } from '../../../common/utils/time';
 import RunningTime from '../../viewers/common/running-time/RunningTime';
 import type { EditEvent, Subscribed } from '../operator.types';
 
@@ -23,7 +23,8 @@ interface OperatorEventProps {
   isLinkedToLoaded: boolean;
   isSelected: boolean;
   isPast: boolean;
-  selectedRef?: RefObject<HTMLDivElement>;
+  selectedRef?: RefObject<HTMLDivElement | null>;
+  showStart: boolean;
   subscribed: Subscribed;
   totalGap: number;
   onLongPress: (event: EditEvent) => void;
@@ -44,10 +45,14 @@ function OperatorEvent({
   isSelected,
   isPast,
   selectedRef,
+  showStart,
   subscribed,
   totalGap,
   onLongPress,
 }: OperatorEventProps) {
+  /**
+   * gather behaviour for long press and context menu
+   */
   const handleLongPress = (event?: SyntheticEvent) => {
     // we dont have an event out of useLongPress
     event?.preventDefault();
@@ -56,14 +61,13 @@ function OperatorEvent({
     }
   };
 
-  const mouseHandlers = useLongPress(handleLongPress, { threshold: 800 });
+  const mouseHandlers = useLongPress(handleLongPress);
   const cueColours = colour && getAccessibleColour(colour);
 
   const operatorClasses = cx([
     style.event,
-    isSelected ? style.running : null,
-    subscribed ? style.subscribed : null,
-    isPast ? style.past : null,
+    isSelected && style.running,
+    isPast && style.past,
   ]);
 
   return (
@@ -72,9 +76,11 @@ function OperatorEvent({
         <span className={style.cue}>{cue}</span>
       </div>
 
-      <span className={style.mainField}>{main}</span>
+      <span className={style.mainField}>
+        {showStart && <span className={style.plannedStart}>{millisToString(timeStart)}</span>}
+        {main}
+        </span>
       <span className={style.secondaryField}>{secondary}</span>
-
       <OperatorEventSchedule
         timeStart={timeStart}
         isPast={isPast}
@@ -156,7 +162,7 @@ interface TimeUntilProps {
 }
 function TimeUntil({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded }: TimeUntilProps) {
   // we isolate this to avoid unnecessary re-renders
-  const timeUntil = useTimeUntilStart({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded });
+  const timeUntil = useTimeUntilExpectedStart({ timeStart, delay, dayOffset }, { totalGap, isLinkedToLoaded });
 
   const isDue = timeUntil < MILLIS_PER_SECOND;
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;

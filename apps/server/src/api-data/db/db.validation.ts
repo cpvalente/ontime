@@ -11,10 +11,9 @@ export const validateNewProject = [
   body('filename').optional().isString().trim(),
   body('title').optional().isString().trim(),
   body('description').optional().isString().trim(),
-  body('backstageUrl').optional().isString().trim(),
-  body('backstageInfo').optional().isString().trim(),
-  body('projectLogo').optional().isString().trim(),
-  body('endMessage').optional().isString().trim(),
+  body('url').optional().isString().trim(),
+  body('info').optional().isString().trim(),
+  body('logo').optional().isString().trim(),
   body('custom').optional().isArray(),
 
   requestValidationFunction,
@@ -30,10 +29,6 @@ export const validateQuickProject = [
   // Settings fields
   body('settings.timeFormat').optional().isIn(['12', '24']),
   body('settings.language').optional().isString().trim(),
-
-  // ViewSettings fields
-  body('viewSettings.freezeEnd').optional().isBoolean(),
-  body('viewSettings.endMessage').optional().isString().trim(),
 
   requestValidationFunction,
 ];

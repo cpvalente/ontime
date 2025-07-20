@@ -4,12 +4,11 @@ import {
   CustomFields,
   EntryId,
   EventPostPayload,
-  isOntimeBlock,
+  isOntimeGroup,
   isOntimeDelay,
   isOntimeEvent,
-  OntimeBlock,
+  OntimeGroup,
   OntimeEntry,
-  OntimeEvent,
   PatchWithId,
   RefetchKey,
   Rundown,
@@ -35,14 +34,28 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
     throw new Error(`Event with ID ${eventData.id} already exists`);
   }
 
-  // if the user provides a parent (inside a group), we make sure it exists and it is a group
-  let parent: OntimeBlock | null = null;
+  // the parent can be provided or inferred from position
+  let parent: OntimeGroup | null = null;
+
   if ('parent' in eventData && eventData.parent != null) {
+    // if the user provides a parent (inside a group), we make sure it exists and it is a group
     const maybeParent = rundown.entries[eventData.parent];
-    if (!maybeParent || !isOntimeBlock(maybeParent)) {
+    if (!maybeParent || !isOntimeGroup(maybeParent)) {
       throw new Error(`Invalid parent event with ID ${eventData.parent}`);
     }
     parent = maybeParent;
+  } else {
+    // otherwise, we may infer the parent from relative positioning (after/before)
+    const referenceId = eventData?.after ?? eventData?.before;
+    if (referenceId) {
+      const maybeSibling = rundown.entries[referenceId];
+      if (maybeSibling && 'parent' in maybeSibling && maybeSibling.parent) {
+        const maybeParent = rundown.entries[maybeSibling.parent];
+        if (maybeParent && isOntimeGroup(maybeParent)) {
+          parent = maybeParent;
+        }
+      }
+    }
   }
 
   // normalise the position of the event in the rundown order
@@ -85,11 +98,6 @@ export async function editEntry(patch: PatchWithId): Promise<OntimeEntry> {
   // could the entry have been deleted?
   if (!currentEntry) {
     throw new Error('Entry not found');
-  }
-
-  // we dont allow the user to change the cue to empty string
-  if ((patch as Partial<OntimeEvent>)?.cue === '') {
-    throw new Error('Cue value invalid');
   }
 
   // we cannot allow patching to a different type
@@ -233,7 +241,7 @@ export async function deleteAllEntries(): Promise<Rundown> {
 
 /**
  * Moves an event to a new position in the rundown
- * Handles moving across root orders (a block order and top level order)
+ * Handles moving across root orders (a group order and top level order)
  * @throws if entryId or destinationId not found
  */
 export function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
@@ -348,7 +356,7 @@ export async function cloneEntry(entryId: EntryId): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    if (isOntimeBlock(newEntry)) {
+    if (isOntimeGroup(newEntry)) {
       notifyChanges(rundownMetadata, revision, { timer: newEntry.entries, external: true });
     } else if (isOntimeEvent(newEntry)) {
       notifyChanges(rundownMetadata, revision, { timer: [newEntry.id], external: true });
@@ -362,7 +370,7 @@ export async function cloneEntry(entryId: EntryId): Promise<Rundown> {
 }
 
 /**
- * Groups a list of entries into a new block
+ * Groups a list of entries into a new group
  */
 export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
@@ -383,17 +391,17 @@ export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
 }
 
 /**
- * Deletes a block and moves all its children to the top level
+ * Deletes a group and moves all its children to the top level
  */
-export async function ungroupEntries(blockId: EntryId): Promise<Rundown> {
+export async function ungroupEntries(groupId: EntryId): Promise<Rundown> {
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
 
-  const block = rundown.entries[blockId];
-  if (!block || !isOntimeBlock(block)) {
-    throw new Error(`Block with ID ${blockId} not found or is not a block`);
+  const group = rundown.entries[groupId];
+  if (!group || !isOntimeGroup(group)) {
+    throw new Error(`Group with ID ${groupId} not found or is not a group`);
   }
 
-  rundownMutation.ungroup(rundown, block);
+  rundownMutation.ungroup(rundown, group);
   const { rundown: rundownResult, rundownMetadata, revision } = commit();
 
   // schedule the side effects
@@ -464,9 +472,14 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 
   const { oldKey, newKey } = customFieldMutation.edit(customFields, key, existingField, newField);
 
-  // if key has changed we remove the old reference
-  if (oldKey !== newKey && oldKey in customFieldsMetadata.assigned) {
-    customFieldMutation.renameUsages(rundown, customFieldsMetadata.assigned, oldKey, newKey);
+  // if key has changed
+  if (oldKey !== newKey) {
+    // 1. delete the old key
+    customFieldMutation.remove(customFields, oldKey);
+    if (oldKey in customFieldsMetadata.assigned) {
+      // 2. reassign references
+      customFieldMutation.renameUsages(rundown, customFieldsMetadata.assigned, oldKey, newKey);
+    }
   }
 
   // the custom fields have been removed and there is no processing to be done
@@ -533,26 +546,11 @@ type NotifyChangesOptions = {
 
 /**
  * Notify services of changes in the rundown
- *
- * @private - exported for testing
  */
-export function notifyChanges(rundownMetadata: RundownMetadata, revision: number, options: NotifyChangesOptions) {
+function notifyChanges(rundownMetadata: RundownMetadata, revision: number, options: NotifyChangesOptions) {
   // notify timer service of changed events
   if (options.timer) {
-    // all events were deleted
-    if (rundownMetadata.playableEventOrder.length === 0) {
-      runtimeService.stop();
-    } else {
-      /**
-       * Timer can be
-       * - true: all events changed
-       * - an array of changed IDs
-       * - undefined: filtered above, no notification intended
-       */
-      // timer can be true or an array of changed IDs
-      const affected = Array.isArray(options.timer) ? options.timer : undefined;
-      runtimeService.notifyOfChangedEvents(affected);
-    }
+    runtimeService.notifyOfChangedEvents(rundownMetadata);
   }
 
   // notify external services of changes

@@ -120,6 +120,8 @@ export const publicDir = {
   projectsDir: join(resolvePublicDirectory, config.projects),
   /** path to corrupt folder */
   corruptDir: join(resolvePublicDirectory, config.corrupt),
+  /** path to migrated folder */
+  migrateDir: join(resolvePublicDirectory, config.migrate),
   /** path to uploads folder */
   uploadsDir: join(resolvePublicDirectory, config.uploads),
   /** path to external folder */

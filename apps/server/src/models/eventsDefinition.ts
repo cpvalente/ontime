@@ -1,6 +1,6 @@
 import {
   EndAction,
-  OntimeBlock,
+  OntimeGroup,
   OntimeDelay,
   OntimeEvent,
   OntimeMilestone,
@@ -11,6 +11,7 @@ import {
 
 export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   type: SupportedEntry.Event,
+  flag: false,
   title: '',
   note: '',
   endAction: EndAction.None,
@@ -53,12 +54,11 @@ export const milestone: Omit<OntimeMilestone, 'id'> = {
   revision: 0, // calculated at runtime
 };
 
-export const block: Omit<OntimeBlock, 'id'> = {
-  type: SupportedEntry.Block,
+export const group: Omit<OntimeGroup, 'id'> = {
+  type: SupportedEntry.Group,
   title: '',
   note: '',
   entries: [],
-  isNextDay: false,
   targetDuration: null,
   colour: '',
   custom: {},

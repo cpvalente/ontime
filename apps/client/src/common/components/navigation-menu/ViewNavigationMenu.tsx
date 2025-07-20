@@ -1,26 +1,29 @@
 import { memo } from 'react';
 import { useDisclosure, useHotkeys } from '@mantine/hooks';
 
+import { useViewParamsEditorStore } from '../view-params-editor/viewParamsEditor.store';
+
 import FloatingNavigation from './floating-navigation/FloatingNavigation';
 import ViewLockedIcon from './view-locked-icon/ViewLockedIcon';
 import NavigationMenu from './NavigationMenu';
-import useViewEditor from './useViewEditor';
 
 interface ViewNavigationMenuProps {
-  isLockable?: boolean;
-  supressSettings?: boolean;
+  /** prevent navigation */
+  isNavigationLocked?: boolean;
+  /** prevent showing settings */
+  suppressSettings?: boolean;
 }
 
 export default memo(ViewNavigationMenu);
-function ViewNavigationMenu({ isLockable, supressSettings }: ViewNavigationMenuProps) {
+function ViewNavigationMenu({ isNavigationLocked, suppressSettings }: ViewNavigationMenuProps) {
   const [isMenuOpen, menuHandler] = useDisclosure();
-  const { showEditFormDrawer, isViewLocked } = useViewEditor({ isLockable });
+  const { open: showEditFormDrawer } = useViewParamsEditorStore();
 
   useHotkeys([
     [
       'Space',
       () => {
-        if (isViewLocked) return;
+        if (isNavigationLocked) return;
         menuHandler.toggle();
       },
       { preventDefault: true },
@@ -28,24 +31,24 @@ function ViewNavigationMenu({ isLockable, supressSettings }: ViewNavigationMenuP
     [
       'mod + ,',
       () => {
-        if (isViewLocked || supressSettings) return;
+        if (suppressSettings) return;
         showEditFormDrawer();
       },
       { preventDefault: true },
     ],
   ]);
 
-  if (isViewLocked) {
+  if (isNavigationLocked && suppressSettings) {
     return <ViewLockedIcon />;
   }
 
   return (
     <>
       <FloatingNavigation
-        toggleMenu={menuHandler.toggle}
-        toggleSettings={supressSettings ? undefined : () => showEditFormDrawer()}
+        toggleMenu={isNavigationLocked ? undefined : menuHandler.toggle}
+        toggleSettings={suppressSettings ? undefined : showEditFormDrawer}
       />
-      <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />
+      {!isNavigationLocked && <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />}
     </>
   );
 }

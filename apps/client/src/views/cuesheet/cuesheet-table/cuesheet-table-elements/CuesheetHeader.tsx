@@ -1,10 +1,10 @@
+import { CSSProperties } from 'react';
 import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
-import { useSessionStorage } from '@mantine/hooks';
 import { flexRender, HeaderGroup } from '@tanstack/react-table';
 import { OntimeEntry } from 'ontime-types';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
-import { AppMode, sessionKeys } from '../../../../ontimeConfig';
+import { AppMode } from '../../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 
 import { SortableCell } from './SortableCell';
@@ -13,14 +13,11 @@ import style from '../CuesheetTable.module.scss';
 
 interface CuesheetHeaderProps {
   headerGroups: HeaderGroup<OntimeEntry>[];
+  cuesheetMode: AppMode;
 }
 
-export default function CuesheetHeader({ headerGroups }: CuesheetHeaderProps) {
+export default function CuesheetHeader({ headerGroups, cuesheetMode }: CuesheetHeaderProps) {
   const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
-  const [cuesheetMode] = useSessionStorage<AppMode>({
-    key: sessionKeys.cuesheetMode,
-    defaultValue: AppMode.Edit,
-  });
 
   return (
     <thead className={style.tableHeader}>
@@ -37,13 +34,16 @@ export default function CuesheetHeader({ headerGroups }: CuesheetHeaderProps) {
             )}
             <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
               {headerGroup.headers.map((header) => {
-                // @ts-expect-error -- we inject this into react-table
-                const customBackground = header.column.columnDef?.meta?.colour;
+                const customBackground = header.column.columnDef.meta?.colour;
+                const canWrite = header.column.columnDef.meta?.canWrite;
 
-                let customStyles = {};
+                const customStyles: CSSProperties = {
+                  opacity: canWrite ? 1 : 0.6,
+                };
                 if (customBackground) {
                   const customColour = getAccessibleColour(customBackground);
-                  customStyles = { backgroundColor: customColour.backgroundColor, color: customColour.color };
+                  customStyles.backgroundColor = customColour.backgroundColor;
+                  customStyles.color = customColour.color;
                 }
 
                 return (

@@ -42,7 +42,7 @@ function EventEditorEmpty() {
               </td>
             </tr>
             <tr>
-              <td>Select block</td>
+              <td>Select group</td>
               <td>
                 <Kbd>{deviceAlt}</Kbd>
                 <AuxKey>+</AuxKey>
@@ -126,21 +126,39 @@ function EventEditorEmpty() {
               </td>
             </tr>
             <tr>
-              <td>Add block below</td>
+              <td>Add group below</td>
               <td>
                 <Kbd>{deviceAlt}</Kbd>
                 <AuxKey>+</AuxKey>
-                <Kbd>B</Kbd>
+                <Kbd>G</Kbd>
               </td>
             </tr>
             <tr>
-              <td>Add block above</td>
+              <td>Add group above</td>
               <td>
                 <Kbd>{deviceAlt}</Kbd>
                 <AuxKey>+</AuxKey>
                 <Kbd>Shift</Kbd>
                 <AuxKey>+</AuxKey>
-                <Kbd>B</Kbd>
+                <Kbd>M</Kbd>
+              </td>
+            </tr>
+            <tr>
+              <td>Add milestone below</td>
+              <td>
+                <Kbd>{deviceAlt}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>G</Kbd>
+              </td>
+            </tr>
+            <tr>
+              <td>Add milestone above</td>
+              <td>
+                <Kbd>{deviceAlt}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>Shift</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>M</Kbd>
               </td>
             </tr>
             <tr>

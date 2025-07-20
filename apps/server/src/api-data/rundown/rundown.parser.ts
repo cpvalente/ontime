@@ -6,7 +6,7 @@ import {
   OntimeEvent,
   isOntimeEvent,
   isOntimeDelay,
-  isOntimeBlock,
+  isOntimeGroup,
   CustomFieldKey,
   EntryId,
   OntimeEntry,
@@ -21,7 +21,7 @@ import { defaultRundown } from '../../models/dataModel.js';
 import { delay as delayDef } from '../../models/eventsDefinition.js';
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
 
-import { calculateDayOffset, cleanupCustomFields, createBlock, createEvent, createMilestone } from './rundown.utils.js';
+import { calculateDayOffset, cleanupCustomFields, createGroup, createEvent, createMilestone } from './rundown.utils.js';
 import { RundownMetadata } from './rundown.types.js';
 
 /**
@@ -110,7 +110,11 @@ export function parseRundown(
     } else if (isOntimeMilestone(event)) {
       newEvent = createMilestone({ ...event, id });
       cleanupCustomFields(newEvent.custom, parsedCustomFields);
-    } else if (isOntimeBlock(event)) {
+      /**
+       * We leave here an entry point for blocks for the alpha testers, should remove this after a while
+       */
+      // @ts-expect-error -- we are checking a legacy type
+    } else if (event.type === 'block' || isOntimeGroup(event)) {
       for (let i = 0; i < event.entries.length; i++) {
         const nestedEventId = event.entries[i];
         const nestedEvent = rundown.entries[nestedEventId];
@@ -118,18 +122,22 @@ export function parseRundown(
 
         if (isOntimeEvent(nestedEvent)) {
           newNestedEvent = createEvent(nestedEvent, eventIndex);
+
           // skip if event is invalid
           if (newNestedEvent == null) {
             emitError?.('Skipping event without payload');
             continue;
           }
 
+          newNestedEvent.parent = event.id;
           cleanupCustomFields(newNestedEvent.custom, parsedCustomFields);
           eventIndex += 1;
         } else if (isOntimeDelay(nestedEvent)) {
-          newNestedEvent = { ...delayDef, duration: nestedEvent.duration, id };
+          newNestedEvent = { ...delayDef, duration: nestedEvent.duration, id: nestedEventId };
+          newNestedEvent.parent = event.id;
         } else if (isOntimeMilestone(nestedEvent)) {
-          newNestedEvent = createMilestone({ ...nestedEvent, id });
+          newNestedEvent = createMilestone({ ...nestedEvent, id: nestedEventId });
+          newNestedEvent.parent = event.id;
           cleanupCustomFields(newNestedEvent.custom, parsedCustomFields);
         }
 
@@ -139,7 +147,7 @@ export function parseRundown(
         }
       }
 
-      newEvent = createBlock({ ...structuredClone(event), id });
+      newEvent = createGroup({ ...structuredClone(event), id });
       // ensure entries exist
       if (event.entries?.length > 0) {
         newEvent.entries = event.entries.filter((eventId) => Object.hasOwn(rundown.entries, eventId));
@@ -225,6 +233,7 @@ export function makeRundownMetadata(customFields: CustomFields) {
     playableEventOrder: [],
     timedEventOrder: [],
     flatEntryOrder: [],
+    flags: [],
 
     entries: {},
     order: [],
@@ -235,9 +244,9 @@ export function makeRundownMetadata(customFields: CustomFields) {
 
   function process<T extends OntimeEntry>(
     entry: T,
-    childOfBlock: EntryId | null,
+    childOfGroup: EntryId | null,
   ): { processedData: ProcessedRundownMetadata; processedEntry: T } {
-    const data = processEntry(rundownMeta, customFields, entry, childOfBlock);
+    const data = processEntry(rundownMeta, customFields, entry, childOfGroup);
     rundownMeta = data.processedData;
     return data;
   }
@@ -256,7 +265,7 @@ function processEntry<T extends OntimeEntry>(
   rundownMetadata: ProcessedRundownMetadata,
   customFields: CustomFields,
   entry: T,
-  childOfBlock: EntryId | null,
+  childOfGroup: EntryId | null,
 ): { processedData: ProcessedRundownMetadata; processedEntry: T } {
   const processedData = { ...rundownMetadata };
   const currentEntry = structuredClone(entry);
@@ -289,7 +298,7 @@ function processEntry<T extends OntimeEntry>(
     currentEntry.dayOffset = processedData.totalDays;
     currentEntry.delay = 0; // this means we dont calculate delays or gaps for skipped events
     currentEntry.gap = 0; // this means we dont calculate delays or gaps for skipped events
-    currentEntry.parent = childOfBlock;
+    currentEntry.parent = childOfGroup;
 
     // update rundown metadata, it only concerns playable events
     if (isPlayableEvent(currentEntry)) {
@@ -298,6 +307,11 @@ function processEntry<T extends OntimeEntry>(
       // first start is always the first event
       if (processedData.firstStart === null) {
         processedData.firstStart = currentEntry.timeStart;
+      }
+
+      // check if event is flagged
+      if (currentEntry.flag) {
+        processedData.flags.push(currentEntry.id);
       }
 
       currentEntry.gap = getTimeFrom(currentEntry, processedData.latestEvent);
@@ -343,10 +357,10 @@ function processEntry<T extends OntimeEntry>(
   } else if (isOntimeDelay(currentEntry)) {
     // !!! this must happen after handling the links
     processedData.totalDelay += currentEntry.duration;
-    currentEntry.parent = childOfBlock;
+    currentEntry.parent = childOfGroup;
   }
 
-  if (!childOfBlock) {
+  if (!childOfGroup) {
     processedData.order.push(currentEntry.id);
   }
   processedData.entries[currentEntry.id] = currentEntry;

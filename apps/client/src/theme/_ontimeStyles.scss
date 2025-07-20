@@ -28,7 +28,7 @@ $active-green: $green-700;
 
 // playback colours
 $playback-start: $green-600;
-$ontime-roll: #0274B6;
+$ontime-roll: #22a0e9;
 $ontime-delay: #F57C13;
 $ontime-delay-text: #E69056;
 $ontime-paused: #c05621;
@@ -37,6 +37,9 @@ $playback-negative: $red-500;
 $playback-ahead: $green-500;
 $active-indicator: #8bb33d;
 $text-black: $gray-1350;
+
+$playback-over: #F57C13;
+$playback-under: $green-500;
 
 // interface panels
 $bg-container-l1: $gray-1350;

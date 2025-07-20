@@ -1,7 +1,8 @@
-import { OntimeEvent, Playback, Runtime, TimerPhase, TimerState, ViewSettings } from 'ontime-types';
+import { Playback, TimerPhase, ViewSettings } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
-import { useAuxTimersTime } from '../../common/hooks/useSocket';
+import { useAuxTimersTime, useStudioTimersSocket } from '../../common/hooks/useSocket';
+import { getOffsetState } from '../../common/utils/offset';
 import { cx } from '../../common/utils/styleUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
 import { getTimerColour } from '../utils/presentation.utils';
@@ -11,34 +12,32 @@ import { getFormattedEventData, getFormattedScheduleTimes } from './studioTimers
 import './StudioTimers.scss';
 
 interface StudioTimersProps {
-  runtime: Runtime;
-  time: TimerState;
-  eventNow: OntimeEvent | null;
-  eventNext: OntimeEvent | null;
-  timerMessage: string;
-  secondaryMessage: string;
   viewSettings: ViewSettings;
 }
 
-export default function StudioTimers({
-  runtime,
-  time,
-  eventNow,
-  eventNext,
-  timerMessage,
-  secondaryMessage,
-  viewSettings,
-}: StudioTimersProps) {
+export default function StudioTimers({ viewSettings }: StudioTimersProps) {
   const { getLocalizedString } = useTranslation();
+  const { eventNow, eventNext, message, time, offset, rundown } = useStudioTimersSocket();
 
-  const schedule = getFormattedScheduleTimes(runtime);
+  const schedule = getFormattedScheduleTimes({
+    offset: offset.absolute,
+    actualStart: rundown.actualStart,
+    expectedEnd: offset.expectedRundownEnd,
+  });
   const event = getFormattedEventData(eventNow, time);
   const eventNextTitle = eventNext?.title || '-';
-  const formattedTimerMessage = timerMessage || '-';
-  const formattedSecondaryMessage = secondaryMessage || '-';
+  const formattedTimerMessage = (message.timer.visible && message.timer.text) || '-';
+  const formattedSecondaryMessage = message.secondary || '-';
 
   // gather presentation styles
-  const timerColour = getTimerColour(viewSettings, time.phase === TimerPhase.Warning, time.phase === TimerPhase.Danger);
+  const timerColour = getTimerColour(
+    viewSettings,
+    undefined,
+    time.phase === TimerPhase.Warning,
+    time.phase === TimerPhase.Danger,
+  );
+
+  const offsetState = getOffsetState(offset.absolute);
 
   return (
     <div className='studio__timers'>
@@ -49,20 +48,13 @@ export default function StudioTimers({
             <div className='runtime-timer'>{schedule.actualStart}</div>
           </div>
           <div>
-            <div className='label center'>Offset</div>
-            <div
-              className={cx([
-                'runtime-timer',
-                'center',
-                !eventNow && 'muted',
-                runtime.offset <= 0 ? 'behind' : 'ahead',
-              ])}
-            >
+            <div className='label center'>Over / under</div>
+            <div className={cx(['runtime-timer', 'center', !eventNow && 'muted', offsetState && offsetState])}>
               {schedule.offset}
             </div>
           </div>
           <div>
-            <div className='label right'>{getLocalizedString('common.projected_end')}</div>
+            <div className='label right'>{getLocalizedString('common.expected_end')}</div>
             <div className='runtime-timer right'>{schedule.expectedEnd}</div>
           </div>
         </div>
@@ -102,7 +94,7 @@ export default function StudioTimers({
             </div>
           </div>
           <div>
-            <div className='label right'>{getLocalizedString('common.projected_end')}</div>
+            <div className='label right'>{getLocalizedString('common.expected_end')}</div>
             <div className='runtime-timer right'>{event.expectedEnd}</div>
           </div>
         </div>

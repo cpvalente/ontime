@@ -1,11 +1,12 @@
-import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { use, useMemo } from 'react';
+import { useSearchParams } from 'react-router';
 import { CustomFields, EntryId, OntimeEvent } from 'ontime-types';
 
 import { getTimeOption } from '../../common/components/view-params-editor/common.options';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
+import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 
 export const getCountdownOptions = (
@@ -13,7 +14,7 @@ export const getCountdownOptions = (
   customFields: CustomFields,
   persistedSubscriptions: EntryId[],
 ): ViewOption[] => {
-  const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, [{ value: 'note', label: 'Note' }]);
 
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
@@ -36,9 +37,9 @@ export const getCountdownOptions = (
       collapsible: true,
       options: [
         {
-          id: 'showProjected',
-          title: 'Show projected time',
-          description: 'Whether scheduled times should account for runtime offset',
+          id: 'showExpected',
+          title: 'Show expected time',
+          description: 'Whether the times shown should account for the runtime offset.',
           type: 'boolean',
           defaultValue: false,
         },
@@ -62,19 +63,29 @@ export const getCountdownOptions = (
 type CountdownOptions = {
   subscriptions: EntryId[];
   secondarySource: keyof OntimeEvent | null;
-  showProjected: boolean;
+  showExpected: boolean;
 };
 
 /**
  * Utility extract the view options from URL Params
  * the names and fallback are manually matched with timerOptions
  */
-function getOptionsFromParams(searchParams: URLSearchParams): CountdownOptions {
-  // we manually make an object that matches the key above
+function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): CountdownOptions {
+  // Helper to get single value from either source, prioritizing defaultValues
+  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
+
+  // Helper to get array values from either source
+  const getArrayValues = (key: string): EntryId[] => {
+    if (defaultValues?.has(key)) {
+      return defaultValues.getAll(key) as EntryId[];
+    }
+    return searchParams.getAll(key) as EntryId[];
+  };
+
   return {
-    subscriptions: searchParams.getAll('sub') as EntryId[],
-    secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
-    showProjected: isStringBoolean(searchParams.get('showProjected')),
+    subscriptions: getArrayValues('sub'),
+    secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
+    showExpected: isStringBoolean(getValue('showExpected')),
   };
 }
 
@@ -83,6 +94,12 @@ function getOptionsFromParams(searchParams: URLSearchParams): CountdownOptions {
  */
 export function useCountdownOptions(): CountdownOptions {
   const [searchParams] = useSearchParams();
-  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  const maybePreset = use(PresetContext);
+
+  const options = useMemo(() => {
+    const defaultValues = maybePreset ? new URLSearchParams(maybePreset.search) : undefined;
+    return getOptionsFromParams(searchParams, defaultValues);
+  }, [maybePreset, searchParams]);
+
   return options;
 }

@@ -5,8 +5,8 @@ export const langEn = {
   'common.next': 'Next',
   'common.scheduled_start': 'Scheduled start',
   'common.scheduled_end': 'Scheduled end',
-  'common.projected_start': 'Projected start',
-  'common.projected_end': 'Projected end',
+  'common.expected_start': 'Expected start',
+  'common.expected_end': 'Expected end',
   'common.stage_timer': 'Stage Timer',
   'common.started_at': 'Started At',
   'common.time_now': 'Time now',
@@ -23,8 +23,8 @@ export const langEn = {
   'timeline.followedby': 'Followed by',
   'project.title': 'Title',
   'project.description': 'Description',
-  'project.backstage_info': 'Backstage Info',
-  'project.backstage_url': 'Backstage URL',
+  'project.info': 'Project Info',
+  'project.url': 'Project URL',
 };
 
 export type TranslationObject = Record<keyof typeof langEn, string>;

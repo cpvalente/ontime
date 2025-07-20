@@ -1,5 +1,5 @@
 import { DatabaseModel, CustomFields, CustomField } from 'ontime-types';
-import { isAlphanumericWithSpace, customFieldLabelToKey } from 'ontime-utils';
+import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
 
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
 
@@ -23,40 +23,29 @@ export function parseCustomFields(data: Partial<DatabaseModel>, emitError?: Erro
 
 export function sanitiseCustomFields(data: object): CustomFields {
   const newCustomFields: CustomFields = {};
-
-  for (const [_originalKey, field] of Object.entries(data)) {
-    if (!isValidField(field)) {
-      continue;
+  for (const [key, field] of Object.entries(data)) {
+    if (isValidField(field, key)) {
+      newCustomFields[key] = {
+        type: field.type,
+        colour: field.colour,
+        label: field.label,
+      };
     }
-
-    if (!isAlphanumericWithSpace(field.label)) {
-      continue;
-    }
-
-    // the key is always made from the label
-    const key = customFieldLabelToKey(field.label);
-
-    if (key in newCustomFields) {
-      continue;
-    }
-
-    newCustomFields[key] = {
-      type: field.type,
-      colour: field.colour,
-      label: field.label,
-    };
   }
 
-  function isValidField(data: unknown): data is CustomField {
+  function isValidField(data: unknown, key: string): data is CustomField {
     return (
       typeof data === 'object' &&
       data !== null &&
       'label' in data &&
+      typeof data.label === 'string' &&
       data.label !== '' &&
       'colour' in data &&
       typeof data.colour === 'string' &&
       'type' in data &&
-      (data.type === 'string' || data.type === 'image')
+      (data.type === 'text' || data.type === 'image') &&
+      checkRegex.isAlphanumericWithSpace(data.label) &&
+      key === customFieldLabelToKey(data.label)
     );
   }
 

@@ -1,4 +1,4 @@
-@use '../../theme/viewerDefs' as *;
+@use '@/theme/viewerDefs' as *;
 
 .studio__timers {
   display: flex;
@@ -63,12 +63,12 @@
     }
   }
 
-  .ahead {
-    color: $playback-ahead;
+  .over {
+    color: $playback-over;
   }
 
-  .behind {
-    color: $ontime-delay-text;
+  .under {
+    color: $playback-under;
   }
 
   .muted {

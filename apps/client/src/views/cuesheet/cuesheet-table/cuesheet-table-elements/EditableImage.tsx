@@ -7,12 +7,13 @@ import style from './EditableImage.module.scss';
 
 interface EditableImageProps {
   initialValue: string;
+  readOnly?: boolean;
   updateValue: (newValue: string) => void;
 }
 
 export default memo(EditableImage);
 
-function EditableImage({ initialValue, updateValue }: EditableImageProps) {
+function EditableImage({ initialValue, readOnly, updateValue }: EditableImageProps) {
   const handleUpdate = (newValue: string) => {
     if (newValue === initialValue) {
       return;
@@ -35,6 +36,9 @@ function EditableImage({ initialValue, updateValue }: EditableImageProps) {
         variant='ghosted'
         className={style.imageInput}
         fluid
+        readOnly={readOnly}
+        // we disable the field to prevent receiving focus
+        disabled={readOnly}
         placeholder='Paste image URL'
         onBlur={(event) => handleUpdate(event.currentTarget.value)}
         onKeyDown={(event) => {
@@ -49,13 +53,15 @@ function EditableImage({ initialValue, updateValue }: EditableImageProps) {
 
   return (
     <div className={style.imageCell}>
-      <div className={style.overlay}>
-        <Button onClick={openInNewTab}>Preview</Button>
-        <Button variant='subtle-destructive' onClick={() => handleUpdate('')}>
-          Delete
-        </Button>
-      </div>
-      <img loading='lazy' src={initialValue} className={style.image} />
+      {!readOnly && (
+        <div className={style.overlay}>
+          <Button onClick={openInNewTab}>Preview</Button>
+          <Button variant='subtle-destructive' onClick={() => handleUpdate('')}>
+            Delete
+          </Button>
+        </div>
+      )}
+      {Boolean(initialValue) && <img loading='lazy' src={initialValue} className={style.image} />}
     </div>
   );
 }

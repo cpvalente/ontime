@@ -59,22 +59,22 @@ export default function EventEditor({ event }: EventEditorProps) {
         key={`${event.id}-titles`}
         eventId={event.id}
         cue={event.cue}
+        flag={event.flag}
         title={event.title}
         note={event.note}
         colour={event.colour}
-        handleSubmit={handleSubmit}
       />
       <div className={style.column}>
         <Editor.Title>
           Custom Fields
-          {isEditor && <AppLink search='settings=feature_settings__custom'>Manage Custom Fields</AppLink>}
+          {isEditor && <AppLink search='settings=manage__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
         <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} entry={event} />
       </div>
       <div className={style.column}>
         <Editor.Title>
           Automations
-          {isEditor && <AppLink search='settings=automation__automations'>Manage Automations</AppLink>}
+          {isEditor && <AppLink search='settings=automation'>Manage Automations</AppLink>}
         </Editor.Title>
         <EventEditorTriggers triggers={event.triggers} eventId={event.id} />
       </div>

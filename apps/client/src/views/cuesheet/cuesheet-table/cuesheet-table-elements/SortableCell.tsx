@@ -22,7 +22,8 @@ export function SortableCell({ header, injectedStyles, children }: SortableCellP
   // build drag styles
   const dragStyle = {
     ...injectedStyles,
-    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 2 : 'inherit',
+    cursor: isDragging ? 'grabbing' : 'grab',
     transform: CSS.Translate.toString(transform),
     transition,
   };

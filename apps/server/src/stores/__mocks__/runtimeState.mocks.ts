@@ -6,18 +6,22 @@ const baseState: RuntimeState = {
   clock: 0,
   eventNow: null,
   eventNext: null,
-  blockNow: null,
-  blockNext: null,
-  runtime: {
+  eventFlag: null,
+  groupNow: null,
+  rundown: {
     selectedEventIndex: null,
     numEvents: 0,
-    offset: 0,
-    relativeOffset: 0,
     plannedStart: 0,
     plannedEnd: 0,
     actualStart: null,
-    expectedEnd: null,
-    offsetMode: OffsetMode.Absolute,
+  },
+  offset: {
+    absolute: 0,
+    relative: 0,
+    mode: OffsetMode.Absolute,
+    expectedRundownEnd: null,
+    expectedGroupEnd: null,
+    expectedFlagStart: null,
   },
   timer: {
     addedTime: 0,
@@ -25,7 +29,6 @@ const baseState: RuntimeState = {
     duration: null,
     elapsed: null,
     expectedFinish: null,
-    finishedAt: null,
     phase: TimerPhase.None,
     playback: Playback.Stop,
     secondaryTimer: null,
@@ -35,10 +38,14 @@ const baseState: RuntimeState = {
     forceFinish: null,
     pausedAt: null,
     secondaryTarget: null,
+    hasFinished: false,
   },
   _rundown: {
     totalDelay: 0,
   },
+  _group: null,
+  _end: null,
+  _flag: null,
 };
 
 export function makeRuntimeStateData(patch?: Partial<RuntimeState>): RuntimeState {

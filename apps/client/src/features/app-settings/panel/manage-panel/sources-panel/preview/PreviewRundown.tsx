@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { IoLink } from 'react-icons/io5';
-import { CustomFields, isOntimeBlock, isOntimeEvent, Rundown } from 'ontime-types';
+import { CustomFields, isOntimeEvent, isOntimeGroup, Rundown } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import Tag from '../../../../../../common/components/tag/Tag';
@@ -28,13 +28,14 @@ export default function PreviewRundown(props: PreviewRundownProps) {
   const fieldLabels = fieldKeys.map((key) => customFields[key].label);
 
   return (
-    <Panel.Table>
+    <Panel.Table className={style.nowrap}>
       <thead>
         <tr>
           <th>#</th>
           <th>Type</th>
           <th>Cue</th>
           <th>Title</th>
+          <th>Flag</th>
           <th>Time Start</th>
           <th>Time End</th>
           <th>Duration</th>
@@ -54,7 +55,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
       <tbody>
         {rundown.order.map((entryId) => {
           const entry = rundown.entries[entryId];
-          if (isOntimeBlock(entry)) {
+          if (isOntimeGroup(entry)) {
             return (
               <tr key={entry.id}>
                 <td className={style.center}>
@@ -75,6 +76,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
           const colour = entry.colour ? getAccessibleColour(entry.colour) : {};
           const countToEnd = booleanToText(entry.countToEnd);
           const skip = booleanToText(entry.skip);
+          const flag = booleanToText(entry.flag);
 
           return (
             <Fragment key={entry.id}>
@@ -87,6 +89,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
                 </td>
                 <td className={style.nowrap}>{entry.cue}</td>
                 <td>{entry.title}</td>
+                <td className={style.center}>{flag && <Tag>{flag}</Tag>}</td>
                 <td className={style.flex}>
                   <span className={entry.linkStart ? style.subdued : undefined}>{millisToString(entry.timeStart)}</span>
                   {entry.linkStart && <IoLink className={style.linkStartActive} />}

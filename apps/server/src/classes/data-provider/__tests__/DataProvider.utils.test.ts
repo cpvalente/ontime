@@ -42,7 +42,7 @@ describe('safeMerge', () => {
     const mergedData = safeMerge(demoDb, {
       project: {
         title: 'new title',
-        backstageInfo: 'new backstage info',
+        info: 'new backstage info',
         custom: [
           {
             title: 'new custom title',
@@ -54,10 +54,10 @@ describe('safeMerge', () => {
 
     expect(mergedData.project).toStrictEqual({
       title: 'new title',
-      description: 'Turin 2022',
-      backstageUrl: 'www.github.com/cpvalente/ontime',
-      backstageInfo: 'new backstage info',
-      projectLogo: null,
+      description: demoDb.project.description,
+      url: demoDb.project.url,
+      info: 'new backstage info',
+      logo: demoDb.project.logo,
       custom: [
         {
           title: 'new custom title',
@@ -88,8 +88,8 @@ describe('safeMerge', () => {
   it('should merge the urlPresets key when present', () => {
     const newData = {
       urlPresets: [
-        { enabled: true, alias: 'alias1', pathAndParams: '' },
-        { enabled: true, alias: 'alias2', pathAndParams: '' },
+        { enabled: true, alias: 'alias1', search: '' },
+        { enabled: true, alias: 'alias2', search: '' },
       ] as URLPreset[],
     };
 
@@ -101,21 +101,21 @@ describe('safeMerge', () => {
   it('merges customFields into existing object', () => {
     const existing = {
       customFields: {
-        lighting: { type: 'string', label: 'lighting' },
-        sound: { type: 'string', label: 'sound' },
+        lighting: { type: 'text', label: 'lighting' },
+        sound: { type: 'text', label: 'sound' },
       },
     };
 
     const newData = {
       customFields: {
-        switcher: { type: 'string', label: 'switcher' },
-        vfx: { type: 'string', label: 'vfx' },
+        switcher: { type: 'text', label: 'switcher' },
+        vfx: { type: 'text', label: 'vfx' },
       },
     };
 
     const expected = {
-      switcher: { type: 'string', label: 'switcher' },
-      vfx: { type: 'string', label: 'vfx' },
+      switcher: { type: 'text', label: 'switcher' },
+      vfx: { type: 'text', label: 'vfx' },
     };
 
     //@ts-expect-error -- testing partial merge

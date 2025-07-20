@@ -1,14 +1,12 @@
-import { MutableRefObject, useEffect, useRef } from 'react';
+import { RefObject, useEffect, useRef } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
-import { useSessionStorage } from '@mantine/hooks';
 import { flexRender, Table } from '@tanstack/react-table';
-import { OntimeEntry, OntimeEvent, RGBColour } from 'ontime-types';
+import { OntimeEntry, OntimeEvent, RGBColour, SupportedEntry } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
-import { AppMode, sessionKeys } from '../../../../ontimeConfig';
-import { usePersistedCuesheetOptions } from '../../cuesheet.options';
+import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
 
 import { observeRow, unobserveRow } from './rowObserver';
@@ -22,15 +20,13 @@ interface EventRowProps {
   eventIndex: number;
   rowIndex: number;
   isPast?: boolean;
-  selectedRef?: MutableRefObject<HTMLTableRowElement | null>;
+  selectedRef?: RefObject<HTMLTableRowElement | null>;
   skip?: boolean;
   colour?: string;
   rowBgColour?: string;
   parentBgColour?: string;
   table: Table<OntimeEntry>;
-  /** hack to force re-rendering of the row when the column sizes change */
-  columnHash: string;
-  firstAfterBlock: boolean;
+  firstAfterGroup: boolean;
 }
 
 export default function EventRow({
@@ -43,17 +39,15 @@ export default function EventRow({
   rowBgColour,
   parentBgColour,
   table,
-  firstAfterBlock,
+  firstAfterGroup,
 }: EventRowProps) {
-  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
-  const [cuesheetMode] = useSessionStorage<AppMode>({
-    key: sessionKeys.cuesheetMode,
-    defaultValue: AppMode.Edit,
-  });
+  const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
+    cuesheetMode: AppMode.Edit,
+    hideIndexColumn: false,
+  };
+
   const ownRef = useRef<HTMLTableRowElement>(null);
-
   const isVisible = useVisibleRowsStore((state) => state.visibleRows.has(rowId));
-
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
   // register this row with the intersection observer
@@ -81,7 +75,7 @@ export default function EventRow({
       className={cx([
         style.eventRow,
         event.skip && style.skip,
-        firstAfterBlock && style.firstAfterBlock,
+        firstAfterGroup && style.firstAfterGroup,
         Boolean(parentBgColour) && style.hasParent,
       ])}
       style={{
@@ -95,12 +89,12 @@ export default function EventRow({
         <td className={style.actionColumn} tabIndex={-1} role='cell'>
           <IconButton
             aria-label='Options'
-            variant='subtle-white'
+            variant='ghosted-white'
             size='small'
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const yPos = 8 + rect.y + rect.height / 2;
-              openMenu({ x: rect.x, y: yPos }, event.id, rowIndex, event.parent);
+              openMenu({ x: rect.x, y: yPos }, event.id, SupportedEntry.Event, rowIndex, event.parent, event.flag);
             }}
           >
             <IoEllipsisHorizontal />

@@ -1,7 +1,6 @@
-import { EntryId, OntimeEvent, Playback, TimerType } from 'ontime-types';
+import { EntryId, MaybeNumber, OntimeEvent, Playback, TimerType } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
-import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
 import { getFormattedTimer } from '../../features/viewers/common/viewUtils';
 import type { TranslationKey } from '../../translation/TranslationProvider';
 
@@ -46,19 +45,21 @@ export const timerProgress: TimerMessage = {
  * TODO: get timer data granularly
  */
 export function getSubscriptionDisplayData(
-  time: ViewExtendedTimer,
+  current: MaybeNumber,
+  playback: Playback,
+  clock: number,
   subscribedEvent: OntimeEvent,
   selectedId: EntryId | null,
   offset: number,
   currentDay: number,
   minutesString: string,
-  showProjected = false,
+  showExpected = false,
 ): { status: ProgressStatus; timer: string } {
-  const offsetAndDelay = showProjected ? offset + subscribedEvent.delay : 0;
+  const offsetAndDelay = showExpected ? offset + subscribedEvent.delay : 0;
 
   if (selectedId === subscribedEvent.id) {
     // 1. An event that is loaded but not running is {'due': <countdown | overtime>}
-    if (time.playback === Playback.Armed) {
+    if (playback === Playback.Armed) {
       // if we are following the event, but it is not running, we show the scheduled start
       return {
         status: 'due',
@@ -74,7 +75,7 @@ export function getSubscriptionDisplayData(
     // 2. An event with a time-to-start lower than 0 is {'due': <countdown | scheduledStart>}, show the running timer
     return {
       status: 'live',
-      timer: getFormattedTimer(time.current, TimerType.CountDown, minutesString, subscriptionTimerDisplayOptions),
+      timer: getFormattedTimer(current, TimerType.CountDown, minutesString, subscriptionTimerDisplayOptions),
     };
   }
 
@@ -89,7 +90,7 @@ export function getSubscriptionDisplayData(
     return {
       status: 'future',
       timer: getFormattedTimer(
-        subscribedEvent.timeStart + dayOffset - time.clock - offsetAndDelay,
+        subscribedEvent.timeStart + dayOffset - clock - offsetAndDelay,
         TimerType.CountDown,
         minutesString,
         subscriptionTimerDisplayOptions,
@@ -113,11 +114,11 @@ export function getSubscriptionDisplayData(
 
   // 5. if event is in future, we count to the scheduled start
   // TODO: get time until
-  if (time.clock < subscribedEvent.timeStart) {
+  if (clock < subscribedEvent.timeStart) {
     return {
       status: 'future',
       timer: getFormattedTimer(
-        subscribedEvent.timeStart - time.clock - offsetAndDelay,
+        subscribedEvent.timeStart - clock - offsetAndDelay,
         TimerType.CountDown,
         minutesString,
         subscriptionTimerDisplayOptions,
@@ -127,7 +128,7 @@ export function getSubscriptionDisplayData(
 
   // 6. if event has ended, we show the scheduled end
   // TODO: get the time from the reporter
-  if (time.clock > subscribedEvent.timeEnd) {
+  if (clock > subscribedEvent.timeEnd) {
     return {
       status: 'done',
       timer: getFormattedTimer(
@@ -139,7 +140,7 @@ export function getSubscriptionDisplayData(
     };
   }
 
-  // the event here has to be due, we show the countdown the projected start time
+  // the event here has to be due, we show the countdown the expected start time
   return {
     status: 'due',
     timer: getFormattedTimer(

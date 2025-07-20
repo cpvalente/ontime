@@ -45,8 +45,8 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
       label: view.label,
     })),
     ...enabledPresets.map((preset) => ({
-      value: preset.pathAndParams,
-      label: `Preset: ${preset.alias}`,
+      value: preset.search,
+      label: `URL Preset: ${preset.alias}`,
     })),
   ];
 
@@ -64,7 +64,7 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
             Either by selecting a URL Preset or entering a custom path.
             <br />
             <br />
-            <AppLink search='settings=feature_settings__urlpresets'>Manage URL Presets</AppLink>
+            <AppLink search='settings=sharing__presets'>Manage URL Presets</AppLink>
           </Info>
           <div>
             <span className={style.label}>Select View or URL Preset</span>
@@ -91,12 +91,7 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
             <span className={style.label}>Enter custom path</span>
             <label className={style.textEntry}>
               {origin}
-              <Input
-                placeholder='eg. /minimal?key=0000ffff'
-                fluid
-                value={path}
-                onChange={(event) => setPath(event.target.value)}
-              />
+              <Input placeholder='eg. /timer' fluid value={path} onChange={(event) => setPath(event.target.value)} />
             </label>
             <Button
               variant='primary'

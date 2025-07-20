@@ -1,68 +1,83 @@
 import {
-  BlockState,
-  isOntimeBlock,
+  isOntimeEvent,
   MaybeNumber,
   MaybeString,
   OffsetMode,
+  OntimeGroup,
+  OntimeEvent,
   PlayableEvent,
   Playback,
   Rundown,
-  Runtime,
+  Offset,
   runtimeStorePlaceholder,
   TimerPhase,
   TimerState,
+  RundownState,
 } from 'ontime-types';
-import { calculateDuration, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
+import {
+  calculateDuration,
+  checkIsNow,
+  dayInMs,
+  getExpectedStart,
+  getLastEventNormal,
+  isPlaybackActive,
+} from 'ontime-utils';
 
 import { timeNow } from '../utils/time.js';
 import type { RestorePoint } from '../services/RestoreService.js';
-import {
-  getCurrent,
-  getExpectedEnd,
-  getExpectedFinish,
-  getRuntimeOffset,
-  getTimerPhase,
-} from '../services/timerUtils.js';
+import { getCurrent, getExpectedFinish, getRuntimeOffset, getTimerPhase } from '../services/timerUtils.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
 
+type ExpectedMetadata = { event: OntimeEvent; accumulatedGap: number; isLinkedToLoaded: boolean } | null;
+
 export type RuntimeState = {
   clock: number; // realtime clock
-  blockNow: BlockState | null;
-  blockNext: BlockState | null;
+  groupNow: OntimeGroup | null;
   eventNow: PlayableEvent | null;
   eventNext: PlayableEvent | null;
-  runtime: Runtime;
+  eventFlag: PlayableEvent | null;
+  offset: Offset;
   timer: TimerState;
+  rundown: RundownState;
   // private properties of the timer calculations
   _timer: {
     forceFinish: MaybeNumber; // whether we should declare an event as finished, will contain the finish time
     pausedAt: MaybeNumber;
     secondaryTarget: MaybeNumber;
+    hasFinished: boolean;
   };
   _rundown: {
     totalDelay: number; // this value comes from rundown service
   };
+  _group: ExpectedMetadata;
+  _flag: ExpectedMetadata;
+  _end: ExpectedMetadata;
 };
 
 const runtimeState: RuntimeState = {
   clock: timeNow(),
-  blockNow: null,
-  blockNext: null,
+  groupNow: null,
   eventNow: null,
   eventNext: null,
-  runtime: { ...runtimeStorePlaceholder.runtime },
+  eventFlag: null,
+  offset: { ...runtimeStorePlaceholder.offset },
   timer: { ...runtimeStorePlaceholder.timer },
+  rundown: { ...runtimeStorePlaceholder.rundown },
   _timer: {
     forceFinish: null,
     pausedAt: null,
     secondaryTarget: null,
+    hasFinished: false,
   },
   _rundown: {
     totalDelay: 0,
   },
+  _group: null,
+  _flag: null,
+  _end: null,
 };
 
 export function getState(): Readonly<RuntimeState> {
@@ -71,7 +86,10 @@ export function getState(): Readonly<RuntimeState> {
     ...runtimeState,
     eventNow: runtimeState.eventNow ? { ...runtimeState.eventNow } : null,
     eventNext: runtimeState.eventNext ? { ...runtimeState.eventNext } : null,
-    runtime: { ...runtimeState.runtime },
+    eventFlag: runtimeState.eventFlag ? { ...runtimeState.eventFlag } : null,
+    groupNow: runtimeState.groupNow ? { ...runtimeState.groupNow } : null,
+    offset: { ...runtimeState.offset },
+    rundown: { ...runtimeState.rundown },
     timer: { ...runtimeState.timer },
     _timer: { ...runtimeState._timer },
     _rundown: { ...runtimeState._rundown },
@@ -85,10 +103,13 @@ export function clearEventData() {
   runtimeState.eventNow = null;
   runtimeState.eventNext = null;
 
-  runtimeState.runtime.offset = 0;
-  runtimeState.runtime.relativeOffset = 0;
-  runtimeState.runtime.expectedEnd = null;
-  runtimeState.runtime.selectedEventIndex = null;
+  runtimeState.offset.absolute = 0;
+  runtimeState.offset.relative = 0;
+  runtimeState.offset.expectedFlagStart = null;
+  runtimeState.offset.expectedGroupEnd = null;
+  runtimeState.offset.expectedRundownEnd = null;
+
+  runtimeState.rundown.selectedEventIndex = null;
 
   runtimeState.timer.playback = Playback.Stop;
   runtimeState.clock = timeNow();
@@ -98,21 +119,29 @@ export function clearEventData() {
   runtimeState._timer.forceFinish = null;
   runtimeState._timer.pausedAt = null;
   runtimeState._timer.secondaryTarget = null;
+  runtimeState._timer.hasFinished = false;
 }
 
 // clear all necessary data when doing a full stop and the event is unloaded
 export function clearState() {
   runtimeState.eventNow = null;
   runtimeState.eventNext = null;
+  runtimeState.eventFlag = null;
+  runtimeState._flag = null;
 
-  runtimeState.blockNow = null;
-  runtimeState.blockNext = null;
+  runtimeState.groupNow = null;
+  runtimeState._group = null;
 
-  runtimeState.runtime.offset = 0;
-  runtimeState.runtime.relativeOffset = 0;
-  runtimeState.runtime.actualStart = null;
-  runtimeState.runtime.expectedEnd = null;
-  runtimeState.runtime.selectedEventIndex = null;
+  runtimeState.rundown.actualStart = null;
+  runtimeState.rundown.selectedEventIndex = null;
+
+  runtimeState.offset.absolute = 0;
+  runtimeState.offset.relative = 0;
+  runtimeState.offset.expectedRundownEnd = null;
+  runtimeState.offset.expectedGroupEnd = null;
+  runtimeState.offset.expectedFlagStart = null;
+
+  runtimeState._end = null;
 
   runtimeState.timer.playback = Playback.Stop;
   runtimeState.clock = timeNow();
@@ -122,6 +151,7 @@ export function clearState() {
   runtimeState._timer.forceFinish = null;
   runtimeState._timer.pausedAt = null;
   runtimeState._timer.secondaryTarget = null;
+  runtimeState._timer.hasFinished = false;
 }
 
 /**
@@ -142,27 +172,25 @@ function patchTimer(newState: Partial<TimerState & RestorePoint>) {
   }
 }
 
-type RundownData = {
+/**
+ * Utility, allows updating data derived from the rundown
+ * @param playableRundown
+ */
+export function updateRundownData(rundownData: {
   numEvents: number; // length of rundown filtered for timed events
   firstStart: MaybeNumber;
   lastEnd: MaybeNumber;
   totalDelay: number;
   totalDuration: number;
-};
-
-/**
- * Utility, allows updating data derived from the rundown
- * @param playableRundown
- */
-export function updateRundownData(rundownData: RundownData) {
+}) {
   // we keep this in private state since there is no UI use case for it
   runtimeState._rundown.totalDelay = rundownData.totalDelay;
 
-  runtimeState.runtime.numEvents = rundownData.numEvents;
-  runtimeState.runtime.plannedStart = rundownData.firstStart;
-  runtimeState.runtime.plannedEnd =
+  runtimeState.rundown.numEvents = rundownData.numEvents;
+  runtimeState.rundown.plannedStart = rundownData.firstStart;
+  runtimeState.rundown.plannedEnd =
     rundownData.firstStart === null ? null : rundownData.firstStart + rundownData.totalDuration;
-  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
+  getExpectedTimes();
 }
 
 /**
@@ -190,27 +218,24 @@ export function load(
   // load events in memory along with their data
   loadNow(rundown, metadata, eventIndex);
   loadNext(rundown, metadata, eventIndex);
-  loadBlock(rundown);
+  loadGroupFlagAndEnd(rundown, metadata, eventIndex);
 
   // update state
   runtimeState.timer.playback = Playback.Armed;
   runtimeState.timer.duration = calculateDuration(event.timeStart, event.timeEnd);
   runtimeState.timer.current = getCurrent(runtimeState);
-  runtimeState.runtime.numEvents = metadata.timedEventOrder.length;
+  runtimeState.rundown.numEvents = metadata.timedEventOrder.length;
 
   // patch with potential provided data
   if (initialData) {
     patchTimer(initialData);
     const firstStart = initialData?.firstStart;
     if (firstStart === null || typeof firstStart === 'number') {
-      runtimeState.runtime.actualStart = firstStart;
-      const { absoluteOffset, relativeOffset } = getRuntimeOffset(runtimeState);
-      runtimeState.runtime.offset = absoluteOffset;
-      runtimeState.runtime.relativeOffset = relativeOffset;
-      runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
-    }
-    if (typeof initialData.blockStartAt === 'number' && runtimeState.blockNow) {
-      runtimeState.blockNow.startedAt = initialData.blockStartAt;
+      runtimeState.rundown.actualStart = firstStart;
+      const { absolute, relative } = getRuntimeOffset(runtimeState);
+      runtimeState.offset.absolute = absolute;
+      runtimeState.offset.relative = relative;
+      getExpectedTimes();
     }
   }
   return event.id === runtimeState.eventNow?.id;
@@ -222,17 +247,17 @@ export function load(
 export function loadNow(
   rundown: Rundown,
   metadata: RundownMetadata,
-  eventIndex: MaybeNumber = runtimeState.runtime.selectedEventIndex,
+  eventIndex: MaybeNumber = runtimeState.rundown.selectedEventIndex,
 ) {
   if (eventIndex === null) {
     // reset the state to indicate there is no selection
-    runtimeState.runtime.selectedEventIndex = null;
+    runtimeState.rundown.selectedEventIndex = null;
     runtimeState.eventNow = null;
     return;
   }
 
   const event = rundown.entries[metadata.timedEventOrder[eventIndex]] as PlayableEvent;
-  runtimeState.runtime.selectedEventIndex = eventIndex;
+  runtimeState.rundown.selectedEventIndex = eventIndex;
   runtimeState.eventNow = event;
 }
 
@@ -242,7 +267,7 @@ export function loadNow(
 export function loadNext(
   rundown: Rundown,
   metadata: RundownMetadata,
-  eventIndex: MaybeNumber = runtimeState.runtime.selectedEventIndex,
+  eventIndex: MaybeNumber = runtimeState.rundown.selectedEventIndex,
 ) {
   if (eventIndex === null) {
     // reset the state to indicate there is no future event
@@ -288,7 +313,7 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
 
     // handle edge cases with roll
     if (runtimeState.timer.playback === Playback.Roll) {
-      const offsetClock = runtimeState.clock + runtimeState.runtime.offset;
+      const offsetClock = runtimeState.clock - runtimeState.offset.absolute;
       // if waiting to roll, we update the targets and potentially start the timer
       if (runtimeState._timer.secondaryTarget !== null) {
         if (runtimeState.eventNow.timeStart < offsetClock && offsetClock < runtimeState.eventNow.timeEnd) {
@@ -310,7 +335,7 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
   runtimeState.timer.current = runtimeState.timer.duration;
 
   runtimeState.timer.startedAt = null;
-  runtimeState.timer.finishedAt = null;
+  runtimeState._timer.hasFinished = false;
   runtimeState.timer.addedTime = 0;
   runtimeState._timer.pausedAt = null;
 
@@ -331,7 +356,7 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   loadNow(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   loadNext(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   updateLoaded(runtimeState.eventNow ?? undefined);
-  loadBlock(rundown);
+  loadGroupFlagAndEnd(rundown, metadata, eventNowIndex);
 }
 
 export function start(state: RuntimeState = runtimeState): boolean {
@@ -356,37 +381,31 @@ export function start(state: RuntimeState = runtimeState): boolean {
     state.timer.startedAt = state.clock;
   }
 
-  // update block start time
-  if (state.blockNow && state.blockNow.startedAt === null) {
-    state.blockNow.startedAt = state.clock;
-  }
-
   state.timer.playback = Playback.Play;
   state.timer.expectedFinish = getExpectedFinish(state);
   state.timer.elapsed = 0;
 
-  // update runtime delays: over - under
-  if (state.runtime.actualStart === null) {
-    state.runtime.actualStart = state.clock;
+  if (state.rundown.actualStart === null) {
+    state.rundown.actualStart = state.clock;
   }
 
   // update timer phase
   runtimeState.timer.phase = getTimerPhase(runtimeState);
 
   // update offset
-  const { absoluteOffset, relativeOffset } = getRuntimeOffset(runtimeState);
-  runtimeState.runtime.offset = absoluteOffset;
-  runtimeState.runtime.relativeOffset = relativeOffset;
+  const { absolute, relative } = getRuntimeOffset(runtimeState);
+  runtimeState.offset.absolute = absolute;
+  runtimeState.offset.relative = relative;
 
   // as long as there is a timer, we need an planned end
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: {
-    if (state.runtime.plannedEnd === null) {
+    if (state.rundown.plannedEnd === null) {
       throw new Error('runtimeState.start: invalid state received');
     }
   }
 
-  state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
+  getExpectedTimes();
   return true;
 }
 
@@ -428,15 +447,14 @@ export function addTime(amount: number) {
   // handle edge cases
   // !!! we need to handle side effects before updating the state
   const willGoNegative = amount < 0 && Math.abs(amount) > runtimeState.timer.current;
-  const hasFinished = runtimeState.timer.finishedAt !== null;
 
-  if (willGoNegative && !hasFinished) {
+  if (willGoNegative && !runtimeState._timer.hasFinished) {
     // set finished time so side effects are triggered
     runtimeState._timer.forceFinish = timeNow();
   } else {
     const willGoPositive = runtimeState.timer.current < 0 && runtimeState.timer.current + amount > 0;
     if (willGoPositive) {
-      runtimeState.timer.finishedAt = null;
+      runtimeState._timer.hasFinished = false;
     }
   }
 
@@ -446,10 +464,10 @@ export function addTime(amount: number) {
   runtimeState.timer.current += amount;
 
   // update runtime delays: over - under
-  const { absoluteOffset, relativeOffset } = getRuntimeOffset(runtimeState);
-  runtimeState.runtime.offset = absoluteOffset;
-  runtimeState.runtime.relativeOffset = relativeOffset;
-  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
+  const { absolute, relative } = getRuntimeOffset(runtimeState);
+  runtimeState.offset.absolute = absolute;
+  runtimeState.offset.relative = relative;
+  getExpectedTimes();
 
   return true;
 }
@@ -493,21 +511,21 @@ export function update(): UpdateResult {
   runtimeState.timer.elapsed = runtimeState.timer.duration - runtimeState.timer.current;
 
   // update runtime, needs up-to-date timer state
-  const { absoluteOffset, relativeOffset } = getRuntimeOffset(runtimeState);
-  runtimeState.runtime.offset = absoluteOffset;
-  runtimeState.runtime.relativeOffset = relativeOffset;
-  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
+  const { absolute, relative } = getRuntimeOffset(runtimeState);
+  runtimeState.offset.absolute = absolute;
+  runtimeState.offset.relative = relative;
 
   const finishedNow =
     Boolean(runtimeState._timer.forceFinish) ||
-    (runtimeState.timer.current <= timerConfig.triggerAhead && runtimeState.timer.finishedAt === null);
+    (runtimeState.timer.current <= timerConfig.triggerAhead && !runtimeState._timer.hasFinished);
 
   if (finishedNow) {
-    // reset state
-    runtimeState.timer.finishedAt = runtimeState._timer.forceFinish ?? runtimeState.clock;
+    runtimeState._timer.hasFinished = true;
   } else {
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
   }
+
+  getExpectedTimes();
 
   return { hasTimerFinished: finishedNow, hasSecondaryTimerFinished: false };
 
@@ -525,7 +543,7 @@ export function update(): UpdateResult {
     }
 
     // account for offset
-    const offsetClock = runtimeState.clock + runtimeState.runtime.offset;
+    const offsetClock = runtimeState.clock + runtimeState.offset.absolute;
     runtimeState.timer.phase = TimerPhase.Pending;
 
     if (hasCrossedMidnight) {
@@ -545,7 +563,7 @@ export function roll(
   offset = 0,
 ): { eventId: MaybeString; didStart: boolean } {
   // 1. if an event is running, we simply take over the playback
-  if (runtimeState.timer.playback === Playback.Play && runtimeState.runtime.selectedEventIndex !== null) {
+  if (runtimeState.timer.playback === Playback.Play && runtimeState.rundown.selectedEventIndex !== null) {
     runtimeState.timer.playback = Playback.Roll;
     return { eventId: runtimeState.eventNow?.id ?? null, didStart: false };
   }
@@ -559,7 +577,7 @@ export function roll(
       }
     }
 
-    runtimeState.runtime.offset = offset;
+    runtimeState.offset.absolute = offset;
     runtimeState.timer.playback = Playback.Roll;
 
     // account for event that finishes the day after
@@ -570,7 +588,7 @@ export function roll(
     runtimeState.timer.expectedFinish = normalisedEndTime;
 
     //account for offset
-    const offsetClock = runtimeState.clock + runtimeState.runtime.offset;
+    const offsetClock = runtimeState.clock - runtimeState.offset.absolute;
 
     // state catch up
     runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, normalisedEndTime);
@@ -582,12 +600,8 @@ export function roll(
     if (isNow) {
       runtimeState.timer.startedAt = runtimeState.clock;
 
-      // update runtime
-      if (runtimeState.blockNow && runtimeState.blockNow.startedAt === null) {
-        runtimeState.blockNow.startedAt = runtimeState.clock;
-      }
-      if (!runtimeState.runtime.actualStart) {
-        runtimeState.runtime.actualStart = runtimeState.clock;
+      if (runtimeState.rundown.actualStart === null) {
+        runtimeState.rundown.actualStart = runtimeState.clock;
       }
       runtimeState.timer.secondaryTimer = null;
     } else {
@@ -604,23 +618,23 @@ export function roll(
     throw new Error('No playable events found');
   }
 
-  // we need to persist the current block state across loads
+  // we need to persist the current group state across loads
   clearEventData();
 
   //account for offset but we only keep it if passed to us
-  runtimeState.runtime.offset = offset;
-  const offsetClock = runtimeState.clock + runtimeState.runtime.offset;
+  runtimeState.offset.absolute = offset;
+  const offsetClock = runtimeState.clock - runtimeState.offset.absolute;
 
   const { index, isPending } = loadRoll(rundown, metadata, offsetClock);
 
   // load events in memory along with their data
   loadNow(rundown, metadata, index);
   loadNext(rundown, metadata, index);
-  loadBlock(rundown);
+  loadGroupFlagAndEnd(rundown, metadata, index);
 
   // update roll state
   runtimeState.timer.playback = Playback.Roll;
-  runtimeState.runtime.numEvents = metadata.timedEventOrder.length;
+  runtimeState.rundown.numEvents = metadata.timedEventOrder.length;
 
   // in roll mode spec, there should always be something to load
   // as long as playableEvents is not empty
@@ -645,12 +659,6 @@ export function roll(
   }
 
   // there is something to run, load event
-
-  // update runtime
-  if (runtimeState.blockNow && runtimeState.blockNow.startedAt === null) {
-    runtimeState.blockNow.startedAt = runtimeState.clock;
-  }
-
   // event will finish on time
   // account for event that finishes the day after
   const endTime =
@@ -669,48 +677,141 @@ export function roll(
   runtimeState.timer.elapsed = 0;
 
   // update runtime
-  runtimeState.runtime.actualStart = runtimeState.clock;
+  runtimeState.rundown.actualStart = runtimeState.clock;
   return { eventId: runtimeState.eventNow.id, didStart: true };
 }
 
 /**
- * handle block loading, not for use outside of runtimeState
+ * calculates and sets values directly in state
+ * - offset.expectedRundownEnd
+ * - offset.expectedGroupEnd
+ * - offset.expectedFlagStart
  */
-export function loadBlock(rundown: Rundown, state = runtimeState) {
-  // we need a loaded event to have a block
-  if (state.eventNow === null) {
-    state.blockNow = null;
-    state.blockNext = null;
-    return;
-  }
+function getExpectedTimes(state = runtimeState) {
+  state.offset.expectedRundownEnd = null;
+  state.offset.expectedGroupEnd = null;
+  state.offset.expectedFlagStart = null;
+  state.offset.expectedRundownEnd = null;
 
-  const currentBlockId = state.eventNow.parent;
+  const { offset } = state;
+  const { plannedStart, actualStart } = state.rundown;
+  const { eventNow } = state;
 
-  // look for potential next block
-  let foundEventNow = false;
-  for (const id of rundown.order) {
-    if (foundEventNow && isOntimeBlock(rundown.entries[id])) {
-      state.blockNext = { id, startedAt: null }; // the id is set here, the start time is set in other placed that handel starting events
-      break;
+  if (!eventNow) return;
+
+  if (state.groupNow) {
+    const { _group } = state;
+    if (_group !== null) {
+      const { event: lastEvent, accumulatedGap, isLinkedToLoaded } = _group;
+      const lastEventExpectedStart = getExpectedStart(lastEvent, {
+        currentDay: eventNow.dayOffset,
+        totalGap: accumulatedGap,
+        isLinkedToLoaded,
+        mode: offset.mode,
+        offset: offset.mode === OffsetMode.Absolute ? offset.absolute : offset.relative,
+        plannedStart,
+        actualStart,
+      });
+      state.offset.expectedGroupEnd = lastEventExpectedStart + lastEvent.duration;
     }
-    if (id === state.eventNow.id) {
-      foundEventNow = true;
-      continue;
+  }
+
+  if (state.eventFlag) {
+    const { _flag } = state;
+    if (_flag) {
+      const { event, accumulatedGap, isLinkedToLoaded } = _flag;
+      const expectedStart = getExpectedStart(event, {
+        currentDay: eventNow.dayOffset,
+        totalGap: accumulatedGap,
+        isLinkedToLoaded,
+        mode: offset.mode,
+        offset: offset.mode === OffsetMode.Absolute ? offset.absolute : offset.relative,
+        plannedStart,
+        actualStart,
+      });
+      state.offset.expectedFlagStart = expectedStart;
     }
   }
 
-  // not inside a block
-  if (currentBlockId === null) {
-    state.blockNow = null;
-    return;
+  if (state._end) {
+    const { event, accumulatedGap, isLinkedToLoaded } = state._end;
+    const expectedStart = getExpectedStart(event, {
+      currentDay: eventNow.dayOffset,
+      totalGap: accumulatedGap,
+      isLinkedToLoaded,
+      mode: offset.mode,
+      offset: offset.mode === OffsetMode.Absolute ? offset.absolute : offset.relative,
+      plannedStart,
+      actualStart,
+    });
+    state.offset.expectedRundownEnd = expectedStart + event.duration;
+  }
+}
+
+export function loadGroupFlagAndEnd(
+  rundown: Rundown,
+  metadata: RundownMetadata,
+  currentIndex: MaybeNumber,
+  state = runtimeState,
+) {
+  state.groupNow = null;
+  state._group = null;
+  state.eventFlag = null;
+  state._flag = null;
+  state._end = null;
+
+  if (currentIndex == null) return;
+  if (state.eventNow === null) return;
+
+  const currentGroupId = state.eventNow.parent;
+  const flagsPresent = metadata.flags.length !== 0;
+
+  const { playableEventOrder } = metadata;
+  const { entries } = rundown;
+
+  const orderInGroup = currentGroupId ? (entries[currentGroupId] as OntimeGroup).entries : null;
+  state.groupNow = currentGroupId ? (entries[currentGroupId] as OntimeGroup) : null;
+  const lastEventInGroup = orderInGroup ? getLastEventNormal(rundown.entries, orderInGroup).lastEvent : null;
+
+  // if we don't have a any flags in the rundown then no need to look for it
+  let foundFlag = !flagsPresent;
+  // if we don't have a last event for the group there is no need to find its end time
+  let foundGroupEnd = lastEventInGroup === null;
+
+  let accumulatedGap = 0;
+  let isLinkedToLoaded = true;
+
+  for (let idx = currentIndex; idx < playableEventOrder.length; idx++) {
+    const entry = entries[playableEventOrder[idx]];
+
+    if (isOntimeEvent(entry)) {
+      if (idx !== currentIndex) {
+        // we only accumulate data after the loaded event
+        accumulatedGap += entry.gap;
+        isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
+
+        // and the loaded event is not allowed to be the next flag
+        if (!foundFlag && metadata.flags.includes(entry.id)) {
+          foundFlag = true;
+          state.eventFlag = entry as PlayableEvent; // we know it is playable as it is coming from the playableEventOrder list
+          state._flag = { event: entry, isLinkedToLoaded, accumulatedGap };
+        }
+      }
+
+      if (!foundGroupEnd && entry.id === lastEventInGroup?.id) {
+        foundGroupEnd = true;
+        state._group = { event: lastEventInGroup, isLinkedToLoaded, accumulatedGap };
+      }
+    }
   }
 
-  //we went into a new block - and it is different from the one we might have come from
-  if ((state.blockNow != null && state.blockNow.id != currentBlockId) || state.blockNow == null) {
-    state.blockNow = { id: currentBlockId, startedAt: null }; // the id is set here, the start time is set in other placed that handel starting events
+  const lastID = playableEventOrder.at(-1);
+  const lastEvent = lastID ? (entries[lastID] as OntimeEvent) : null;
+  if (lastEvent) {
+    state._end = { event: lastEvent, isLinkedToLoaded, accumulatedGap };
   }
 }
 
 export function setOffsetMode(mode: OffsetMode) {
-  runtimeState.runtime.offsetMode = mode;
+  runtimeState.offset.mode = mode;
 }

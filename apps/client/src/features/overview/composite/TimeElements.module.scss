@@ -1,0 +1,69 @@
+.column {
+  height: 100%;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 2px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 3rem 10rem 8rem;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metadataRow {
+  display: grid;
+  grid-template-columns: minmax(3rem, 10rem) 8rem 8rem;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.labelledElement {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.icon {
+  font-size: 1rem;
+  color: $label-gray;
+}
+
+.label {
+  color: $label-gray;
+  font-size: calc(1rem - 2px);
+  text-align: right;
+}
+
+.time {
+  font-size: 1.25rem;
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.daySpan {
+  &::after {
+    content: '*';
+    vertical-align: super;
+    font-size: 0.75em;
+    color: $info-blue;
+  }
+}
+
+.muted {
+  color: $muted-gray;
+}
+
+.labelTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  color: $active-indicator;
+  font-size: calc(1rem - 2px);
+  text-align: right;
+}

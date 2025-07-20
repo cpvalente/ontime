@@ -1,7 +1,25 @@
 import { millisToSeconds } from 'ontime-utils';
-import { EntryId, isOntimeEvent, isPlayableEvent, MaybeNumber, OntimeEvent, Rundown, TimerType } from 'ontime-types';
+import {
+  EntryId,
+  isOntimeEvent,
+  isPlayableEvent,
+  MaybeNumber,
+  OntimeEvent,
+  Rundown,
+  Offset,
+  TimerState,
+  TimerType,
+} from 'ontime-types';
 
-import { timerConfig } from '../../setup/config.js';
+import { deepEqual } from 'fast-equals';
+
+export function isNewSecond(
+  previousValue: MaybeNumber | undefined,
+  currentValue: MaybeNumber | undefined,
+  direction: TimerType.CountDown | TimerType.CountUp = TimerType.CountDown,
+) {
+  return millisToSeconds(currentValue ?? null, direction) !== millisToSeconds(previousValue ?? null, direction);
+}
 
 /**
  * Checks whether we should update the clock value
@@ -17,21 +35,33 @@ export function getShouldClockUpdate(previousUpdate: number, now: number): boole
  * Checks whether we should update the timer value
  * - we have rolled into a new seconds unit
  */
-export function getShouldTimerUpdate(previousValue: MaybeNumber, currentValue: MaybeNumber): boolean {
-  const shouldUpdateTimer = millisToSeconds(currentValue) !== millisToSeconds(previousValue);
-  return shouldUpdateTimer;
+export function getShouldTimerUpdate(previousValue: TimerState | undefined, currentValue: TimerState): boolean {
+  if (previousValue === undefined) return true;
+  return (
+    // current timer value
+    isNewSecond(previousValue.current, currentValue.current) ||
+    //secondary timer value, when in pre-roll
+    isNewSecond(previousValue.secondaryTimer, currentValue.secondaryTimer) ||
+    // other timer values that could have changed
+    previousValue.addedTime !== currentValue.addedTime ||
+    previousValue.duration !== currentValue.duration ||
+    previousValue.phase !== currentValue.phase ||
+    previousValue.playback !== currentValue.playback ||
+    previousValue.startedAt !== currentValue.startedAt
+    // elapsed - this would be the direct invert of current value so no need to check
+    // expectedFinish - this will be moved out by the current value going into over time, no need to check
+  );
 }
 
-/**
- * In some cases we want to force an update to the timer
- * - if the clock has slid back
- * - if we have escaped the update rate (clock slid forward)
- * - if we are not playing then there is no need to update the timer
- */
-export function getForceUpdate(previousUpdate: number, now: number): boolean {
-  const isClockBehind = now < previousUpdate;
-  const hasExceededRate = now - previousUpdate >= timerConfig.notificationRate;
-  return isClockBehind || hasExceededRate;
+export function getShouldOffsetUpdate(
+  previousValue: Offset | undefined,
+  currentValue: Offset,
+  didDependencyUpdate: boolean,
+): boolean {
+  if (previousValue === undefined) return true;
+  if (previousValue.mode !== currentValue.mode) return true;
+  // absolute, relative, expected*End are ticked with `didDependencyUpdate`
+  return didDependencyUpdate && !deepEqual(previousValue, currentValue);
 }
 
 /**
@@ -78,7 +108,8 @@ export function findNextPlayableId(playableEventsOrder: EntryId[], currentEventI
 }
 
 /**
- * returns first event that matches a given cue
+ * returns next event that matches a given cue
+ * then loops from the start
  */
 export function findNextPlayableWithCue(
   rundown: Rundown,
@@ -89,6 +120,14 @@ export function findNextPlayableWithCue(
   const lowerCaseCue = targetCue.toLowerCase();
 
   for (let i = currentEventIndex; i < playableEventsOrder.length; i++) {
+    const eventId = playableEventsOrder[i];
+    const event = rundown.entries[eventId];
+    if (isOntimeEvent(event) && isPlayableEvent(event) && event.cue.toLowerCase() === lowerCaseCue) {
+      return event;
+    }
+  }
+
+  for (let i = 0; i < currentEventIndex; i++) {
     const eventId = playableEventsOrder[i];
     const event = rundown.entries[eventId];
     if (isOntimeEvent(event) && isPlayableEvent(event) && event.cue.toLowerCase() === lowerCaseCue) {

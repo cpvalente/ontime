@@ -2,7 +2,7 @@
   box-sizing: border-box;
 
   font-size: 1rem;
-  font-weight: 400;
+  font-weight: inherit;
   color: $gray-200;
   border-radius: $component-border-radius-md;
   border: 1px solid transparent;
@@ -10,13 +10,19 @@
   padding-inline: 0.5em;
   outline: none;
 
-  &:hover:not(:disabled) {
+  &::placeholder {
+    color: $gray-500;
+    letter-spacing: 0;
+  }
+
+  &:hover:not(:disabled):not(:read-only) {
     background-color: $gray-1100;
   }
 
   &:focus:not(:read-only) {
     background-color: $gray-1000;
-    border: 1px solid $blue-500;
+    outline: 2px solid $blue-500;
+    outline-offset: 2px;
   }
 
   &:disabled {
@@ -24,9 +30,8 @@
     cursor: not-allowed;
   }
 
-  &::placeholder {
-    color: $gray-500;
-    letter-spacing: 0;
+  &:read-only::placeholder {
+    opacity: 0;
   }
 }
 

@@ -1,15 +1,15 @@
-import type { OntimeEntry } from '../../definitions/core/OntimeEntry.js';
+import type { EntryId, OntimeEntry } from '../../definitions/core/OntimeEntry.js';
 
-export type PatchWithId<T extends OntimeEntry = OntimeEntry> = Partial<T> & { id: string };
+export type PatchWithId<T extends OntimeEntry = OntimeEntry> = Partial<T> & { id: EntryId };
 
 export type EventPostPayload = Partial<OntimeEntry> & {
-  after?: string;
-  before?: string;
+  after?: EntryId;
+  before?: EntryId;
 };
 
 export type TransientEventPayload = Partial<OntimeEntry> & {
-  after?: string;
-  before?: string;
+  after?: EntryId;
+  before?: EntryId;
 };
 
 export type ProjectRundown = {

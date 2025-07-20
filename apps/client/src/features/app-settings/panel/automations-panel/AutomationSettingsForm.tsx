@@ -1,5 +1,4 @@
-import { Controller, useForm } from 'react-hook-form';
-import { Switch } from '@chakra-ui/react';
+import { useForm } from 'react-hook-form';
 
 import { editAutomationSettings } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -7,6 +6,7 @@ import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
+import Switch from '../../../../common/components/switch/Switch';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
 import { isOntimeCloud } from '../../../../externals';
@@ -20,28 +20,31 @@ interface AutomationSettingsProps {
   oscPortIn: number;
 }
 
-export default function AutomationSettingsForm(props: AutomationSettingsProps) {
-  const { enabledAutomations, enabledOscIn, oscPortIn } = props;
-
+export default function AutomationSettingsForm({
+  enabledAutomations,
+  enabledOscIn,
+  oscPortIn,
+}: AutomationSettingsProps) {
   const {
-    control,
     handleSubmit,
     reset,
     register,
     setError,
+    watch,
+    setValue,
     formState: { errors, isSubmitting, isDirty, isValid },
   } = useForm<AutomationSettingsProps>({
     mode: 'onChange',
     defaultValues: { enabledAutomations, enabledOscIn, oscPortIn },
-    values: { enabledAutomations, enabledOscIn, oscPortIn },
     resetOptions: {
-      keepDirtyValues: true,
+      keepDirtyValues: false,
     },
   });
 
   const onSubmit = async (formData: AutomationSettingsProps) => {
     try {
       await editAutomationSettings(formData);
+      reset(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
@@ -103,12 +106,12 @@ export default function AutomationSettingsForm(props: AutomationSettingsProps) {
               description='Allow Ontime to send messages on lifecycle triggers'
               error={errors.enabledAutomations?.message}
             />
-            <Controller
-              control={control}
-              name='enabledAutomations'
-              render={({ field: { onChange, value, ref } }) => (
-                <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
-              )}
+            <Switch
+              size='large'
+              checked={watch('enabledAutomations')}
+              onCheckedChange={(value: boolean) =>
+                setValue('enabledAutomations', value, { shouldDirty: true, shouldValidate: true })
+              }
             />
           </Panel.ListItem>
         </Panel.ListGroup>
@@ -123,12 +126,12 @@ export default function AutomationSettingsForm(props: AutomationSettingsProps) {
               description='Allow control of Ontime through OSC'
               error={errors.enabledOscIn?.message}
             />
-            <Controller
-              control={control}
-              name='enabledOscIn'
-              render={({ field: { onChange, value, ref } }) => (
-                <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
-              )}
+            <Switch
+              size='large'
+              checked={watch('enabledOscIn')}
+              onCheckedChange={(value: boolean) =>
+                setValue('enabledOscIn', value, { shouldDirty: true, shouldValidate: true })
+              }
             />
           </Panel.ListItem>
           <Panel.ListItem>

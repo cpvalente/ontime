@@ -18,30 +18,30 @@ describe('parseExcel()', () => {
     };
 
     const existingCustomFields: CustomFields = {
-      user0: { type: 'string', colour: 'red', label: 'user0' },
-      user1: { type: 'string', colour: 'green', label: 'user1' },
-      user2: { type: 'string', colour: 'blue', label: 'user2' },
+      user0: { type: 'text', colour: 'red', label: 'user0' },
+      user1: { type: 'text', colour: 'green', label: 'user1' },
+      user2: { type: 'text', colour: 'blue', label: 'user2' },
     };
 
     const parsedData = parseExcel(dataFromExcelTemplate, existingCustomFields, 'testSheet', importMap);
     expect(parsedData.customFields).toStrictEqual({
       user0: {
-        type: 'string',
+        type: 'text',
         colour: 'red',
         label: 'user0',
       },
       user1: {
-        type: 'string',
+        type: 'text',
         colour: 'green',
         label: 'user1',
       },
       user2: {
-        type: 'string',
+        type: 'text',
         colour: 'blue',
         label: 'user2',
       },
       user3: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'user3',
       },
@@ -97,12 +97,12 @@ describe('parseExcel()', () => {
     const parsedData = parseExcel(dataFromExcelTemplate, {}, 'testSheet', importMap);
     expect(parsedData.customFields).toStrictEqual({
       niu1: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'niu1',
       },
       niu2: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'niu2',
       },
@@ -156,10 +156,10 @@ describe('parseExcel()', () => {
     expect((firstEvent as OntimeEvent).title).toBe('A song from the hearth');
   });
 
-  it('imports blocks', () => {
+  it('imports groups', () => {
     const testdata = [
       ['Title', 'Timer type'],
-      ['a block', 'block'],
+      ['a group', 'group'],
       ['an event', 'clock'],
     ];
 
@@ -171,7 +171,7 @@ describe('parseExcel()', () => {
     const firstEvent = result.rundown.entries[result.rundown.order[0]];
 
     expect(result.rundown.order.length).toBe(2);
-    expect((firstEvent as OntimeEvent).type).toBe(SupportedEntry.Block);
+    expect((firstEvent as OntimeEvent).type).toBe(SupportedEntry.Group);
   });
 
   it('imports as events if there is no timer type column', () => {
@@ -301,8 +301,8 @@ describe('parseExcel()', () => {
       ['9:45:00', '10:56:00', 'B', 'x', 'count-down'],
       ['10:00:00', '16:36:00', 'C', 'x', 'count-down'],
       ['21:45:00', '22:56:00', 'D', '', 'count-down'],
-      ['', '', 'BLOCK', 'x', 'block'], // <-- block with link
-      ['00:0:00', '23:56:00', 'E', 'x', 'count-down'], // <-- link past blocks
+      ['', '', 'GROUP', 'x', 'group'], // <-- group with link
+      ['00:0:00', '23:56:00', 'E', 'x', 'count-down'], // <-- must link past previous group
     ];
 
     const importMap = {
@@ -315,7 +315,7 @@ describe('parseExcel()', () => {
 
     const result = parseExcel(testData, {}, 'testSheet', importMap);
     expect(result.rundown.order.length).toBe(6);
-    expect(result.rundown.order).toMatchObject(['A', 'B', 'C', 'D', 'BLOCK', 'E']);
+    expect(result.rundown.order).toMatchObject(['A', 'B', 'C', 'D', 'GROUP', 'E']);
 
     expect(result.rundown.entries).toMatchObject({
       A: {
@@ -330,8 +330,8 @@ describe('parseExcel()', () => {
       D: {
         linkStart: false,
       },
-      BLOCK: {
-        type: SupportedEntry.Block,
+      GROUP: {
+        type: SupportedEntry.Group,
       },
       E: {
         linkStart: true,
@@ -427,6 +427,7 @@ describe('getCustomFieldData()', () => {
       linkStart: 'link start',
       timeEnd: 'time end',
       duration: 'duration',
+      flag: 'flag',
       cue: 'cue',
       title: 'title',
       countToEnd: 'count to end',
@@ -448,17 +449,17 @@ describe('getCustomFieldData()', () => {
     const result = getCustomFieldData(importMap, {});
     expect(result.mergedCustomFields).toStrictEqual({
       lighting: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'lighting',
       },
       sound: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'sound',
       },
       video: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'video',
       },
@@ -479,6 +480,7 @@ describe('getCustomFieldData()', () => {
       linkStart: 'link start',
       timeEnd: 'time end',
       duration: 'duration',
+      flag: 'flag',
       cue: 'cue',
       title: 'title',
       countToEnd: 'count to end',
@@ -499,30 +501,30 @@ describe('getCustomFieldData()', () => {
     } as ImportMap;
 
     const existingCustomFields: CustomFields = {
-      lighting: { label: 'lighting', type: 'string', colour: 'red' },
-      sound: { label: 'sound', type: 'string', colour: 'green' },
-      ontime_key: { label: 'ontime key', type: 'string', colour: 'blue' },
+      lighting: { label: 'lighting', type: 'text', colour: 'red' },
+      sound: { label: 'sound', type: 'text', colour: 'green' },
+      ontime_key: { label: 'ontime key', type: 'text', colour: 'blue' },
     };
 
     const result = getCustomFieldData(importMap, existingCustomFields);
     expect(result.mergedCustomFields).toStrictEqual({
       lighting: {
-        type: 'string',
+        type: 'text',
         colour: 'red',
         label: 'lighting',
       },
       sound: {
-        type: 'string',
+        type: 'text',
         colour: 'green',
         label: 'sound',
       },
       video: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'video',
       },
       ontime_key: {
-        type: 'string',
+        type: 'text',
         colour: 'blue',
         label: 'ontime key',
       },
@@ -550,17 +552,17 @@ describe('getCustomFieldData()', () => {
     const result = getCustomFieldData(importMap, {});
     expect(result.mergedCustomFields).toStrictEqual({
       Lighting: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'Lighting',
       },
       Sound: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'Sound',
       },
       video: {
-        type: 'string',
+        type: 'text',
         colour: '',
         label: 'video',
       },

@@ -1,26 +1,29 @@
-import type { OntimeEvent } from '../core/OntimeEntry.js';
+import type { OntimeEvent, OntimeGroup } from '../core/OntimeEntry.js';
 import type { SimpleTimerState } from './AuxTimer.type.js';
-import type { BlockState } from './CurrentBlockState.type.js';
 import type { MessageState } from './MessageControl.type.js';
-import type { Runtime } from './Runtime.type.js';
+import type { Offset } from './Offset.type.js';
+import type { RundownState } from './RundownState.type.js';
 import type { TimerState } from './TimerState.type.js';
 
 export type RuntimeStore = {
   // timer data
   clock: number;
   timer: TimerState;
-  onAir: boolean;
 
   // messages service
   message: MessageState;
 
   // rundown data
-  runtime: Runtime;
+  rundown: RundownState;
+
+  // runtime
+  offset: Offset;
+
+  // relevant entries
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
-  
-  blockNow: BlockState | null;
-  blockNext: BlockState | null;
+  eventFlag: OntimeEvent | null;
+  groupNow: OntimeGroup | null;
 
   // extra timers
   auxtimer1: SimpleTimerState;

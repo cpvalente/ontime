@@ -5,6 +5,7 @@ export type NamedImportMap = typeof namedImportMap;
 // Record of label and import name
 const namedImportMap = {
   Worksheet: 'event schedule',
+  Flag: 'flag',
   Start: 'time start',
   'Link start': 'link start',
   End: 'time end',
@@ -42,6 +43,7 @@ export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
 
   return {
     worksheet: namedImportMap.Worksheet,
+    flag: namedImportMap.Flag,
     timeStart: namedImportMap.Start,
     linkStart: namedImportMap['Link start'],
     timeEnd: namedImportMap.End,
@@ -62,11 +64,11 @@ export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
 }
 
 export function persistImportMap(options: NamedImportMap) {
-  localStorage.setItem('ontime-import-options', JSON.stringify(options));
+  localStorage.setItem('import-options', JSON.stringify(options));
 }
 
 function getPersistImportMap(): unknown {
-  const options = localStorage.getItem('ontime-import-options');
+  const options = localStorage.getItem('import-options');
   if (!options) {
     throw new Error('no import options found');
   }

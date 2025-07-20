@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('delay blocks add time to events', async ({ page }) => {
+test('delays add time to events', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
   // delete all events and add a new one
@@ -17,7 +17,7 @@ test('delay blocks add time to events', async ({ page }) => {
   await page.getByTestId('rundown').getByPlaceholder('Duration').fill('20m');
   await page.getByTestId('rundown').getByPlaceholder('Duration').press('Enter');
 
-  // add delay block
+  // add delay
   await page.getByRole('button', { name: 'Delay' }).nth(0).click();
 
   // fill positive delay
@@ -64,10 +64,10 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByTestId('rundown').getByTestId('time-input-duration').click();
   await page.getByTestId('rundown').getByTestId('time-input-duration').fill('10');
   await page.getByTestId('rundown').getByTestId('time-input-duration').press('Enter');
-  await page.getByTestId('block__title').click();
-  await page.getByTestId('block__title').fill('test');
-  await page.getByTestId('block__title').press('Enter');
-  await expect(page.getByTestId('entry-1').locator('#block-status')).toHaveAttribute('data-timerType', 'count-down');
+  await page.getByTestId('entry__title').click();
+  await page.getByTestId('entry__title').fill('test');
+  await page.getByTestId('entry__title').press('Enter');
+  await expect(page.getByTestId('entry-1').locator('#entry-status')).toHaveAttribute('data-timerType', 'count-down');
 
   // add a delay
   await page.getByRole('button', { name: 'Delay' }).nth(0).click();

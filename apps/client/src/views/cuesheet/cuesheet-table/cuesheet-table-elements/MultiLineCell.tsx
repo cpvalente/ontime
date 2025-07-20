@@ -1,6 +1,6 @@
 import { memo, useCallback, useRef } from 'react';
 
-import { AutoTextArea } from '../../../../common/components/input/auto-text-area/AutoTextArea';
+import { AutoTextarea } from '../../../../common/components/input/auto-textarea/AutoTextarea';
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
 
 interface MultiLineCellProps {
@@ -11,7 +11,7 @@ interface MultiLineCellProps {
 export default memo(MultiLineCell);
 
 function MultiLineCell({ initialValue, handleUpdate }: MultiLineCellProps) {
-  const ref = useRef<HTMLInputElement | null>(null);
+  const ref = useRef<HTMLTextAreaElement | null>(null);
   const submitCallback = useCallback((newValue: string) => handleUpdate(newValue), [handleUpdate]);
 
   const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback, ref, {
@@ -20,18 +20,11 @@ function MultiLineCell({ initialValue, handleUpdate }: MultiLineCellProps) {
   });
 
   return (
-    <AutoTextArea
+    <AutoTextarea
       inputref={ref}
+      variant='ghosted'
+      fluid
       rows={1}
-      size='sm'
-      style={{
-        minHeight: '2rem',
-        padding: '0',
-        paddingTop: '0.25rem',
-        fontSize: '1rem',
-      }}
-      transition='none'
-      variant='ontime-transparent'
       value={value}
       onChange={onChange}
       onBlur={onBlur}

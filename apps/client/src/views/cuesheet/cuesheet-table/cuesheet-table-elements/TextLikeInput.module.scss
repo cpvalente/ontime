@@ -3,6 +3,7 @@
   height: 2rem;
   background-color: transparent;
   border-radius: $component-border-radius-md;
+  text-wrap: nowrap;
 
   display: flex;
   align-items: center;
@@ -13,8 +14,12 @@
 
   overflow: hidden;
 
-  &.delayed {
-    color: $ontime-delay-text;
+  &.under {
+    color: $playback-under;
+  }
+
+  &.over {
+    color: $playback-over;
   }
 
   &.muted {
@@ -22,7 +27,7 @@
     opacity: 0.4;
   }
 
-  &:hover {
+  &:hover:not(.disabled) {
     background-color: $gray-1100;
     cursor: text;
   }

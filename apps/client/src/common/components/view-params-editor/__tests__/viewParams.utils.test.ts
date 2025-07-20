@@ -5,32 +5,32 @@ import { OptionTitle } from '../constants';
 import type { ViewOption } from '../viewParams.types';
 import { getURLSearchParamsFromObj, makeOptionsFromCustomFields } from '../viewParams.utils';
 
-describe('makeOptionsFromCustomFields', () => {
+describe('makeOptionsFromCustomFields()', () => {
   const testCustomFields: CustomFields = {
-    field1: { label: 'Field 1', colour: 'red', type: 'string' },
-    field2: { label: 'Field 2', colour: 'blue', type: 'string' },
+    field1: { label: 'Field 1', colour: 'red', type: 'text' },
+    field2: { label: 'Field 2', colour: 'blue', type: 'text' },
   };
 
-  it('creates a record of keys for the given custom fields', () => {
+  it('creates an array of options to use in a select', () => {
     const result = makeOptionsFromCustomFields(testCustomFields);
-    expect(result).toStrictEqual({
-      'custom-field1': 'Custom: Field 1',
-      'custom-field2': 'Custom: Field 2',
-    });
+    expect(result).toStrictEqual([
+      { value: 'custom-field1', label: 'Custom: Field 1' },
+      { value: 'custom-field2', label: 'Custom: Field 2' },
+    ]);
   });
 
   it('appends additional data', () => {
-    const additionalData = {
-      test1: 'test1',
-      test2: 'test2',
-    };
+    const additionalData = [
+      { value: 'test1', label: 'Test 1' },
+      { value: 'test2', label: 'Test 2' },
+    ];
     const result = makeOptionsFromCustomFields(testCustomFields, additionalData);
-    expect(result).toStrictEqual({
-      'custom-field1': 'Custom: Field 1',
-      'custom-field2': 'Custom: Field 2',
-      test1: 'test1',
-      test2: 'test2',
-    });
+    expect(result).toStrictEqual([
+      { value: 'test1', label: 'Test 1' },
+      { value: 'test2', label: 'Test 2' },
+      { value: 'custom-field1', label: 'Custom: Field 1' },
+      { value: 'custom-field2', label: 'Custom: Field 2' },
+    ]);
   });
 
   it('filtersImageTypes', () => {
@@ -40,14 +40,14 @@ describe('makeOptionsFromCustomFields', () => {
     };
 
     const result = makeOptionsFromCustomFields(customFieldsWIthImage);
-    expect(result).toStrictEqual({
-      'custom-field1': 'Custom: Field 1',
-      'custom-field2': 'Custom: Field 2',
-    });
+    expect(result).toStrictEqual([
+      { value: 'custom-field1', label: 'Custom: Field 1' },
+      { value: 'custom-field2', label: 'Custom: Field 2' },
+    ]);
   });
 });
 
-describe('getURLSearchParamsFromObj', () => {
+describe('getURLSearchParamsFromObj()', () => {
   // Mock view options for testing
   const mockViewOptions: ViewOption[] = [
     {
@@ -73,7 +73,10 @@ describe('getURLSearchParamsFromObj', () => {
           title: 'Multi Select',
           description: 'A multi-select field',
           type: 'option',
-          values: { value1: 'Value 1', value2: 'Value 2' },
+          values: [
+            { value: 'value1', label: 'Value 1' },
+            { value: 'value2', label: 'Value 2' },
+          ],
           defaultValue: '',
         },
       ],
@@ -200,5 +203,36 @@ describe('getURLSearchParamsFromObj', () => {
 
     // Should only include unique values while maintaining order
     expect(result.getAll('sub')).toEqual(['value1', 'value2', 'value3']);
+  });
+
+  it('converts on-off from toggle to boolean', () => {
+    const mockOptionsWithBooleans: ViewOption[] = [
+      {
+        title: OptionTitle.StyleOverride,
+        options: [
+          {
+            id: 'bool1',
+            title: 'bool1',
+            description: 'Bool1',
+            type: 'boolean',
+            defaultValue: true,
+          },
+          {
+            id: 'bool2',
+            title: 'bool2',
+            description: 'Bool2',
+            type: 'boolean',
+            defaultValue: false,
+          },
+        ],
+      },
+    ];
+    const params = {
+      bool1: 'off',
+      bool2: 'on',
+    };
+    const result = getURLSearchParamsFromObj(params, mockOptionsWithBooleans);
+    expect(result.get('bool1')).toBe('false');
+    expect(result.get('bool2')).toBe('true');
   });
 });

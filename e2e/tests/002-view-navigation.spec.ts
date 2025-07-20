@@ -20,14 +20,6 @@ test.describe('test view navigation feature', () => {
     await expect(page).toHaveURL('http://localhost:4001/backstage');
   });
 
-  test('Lower Thirds', async ({ page }) => {
-    await openNavigationMenu(page);
-    await page.getByRole('button', { name: 'Lower Thirds' }).click();
-    await expect(page).toHaveURL('http://localhost:4001/lower');
-    const errorBoundary = page.locator('data-testid=error-container');
-    await expect(errorBoundary).toHaveCount(0);
-  });
-
   test('Studio Clock', async ({ page }) => {
     await openNavigationMenu(page);
     await page.getByRole('button', { name: 'Studio Clock' }).click();
@@ -54,6 +46,18 @@ test.describe('test view navigation feature', () => {
     await page.getByRole('button', { name: 'Timer', exact: true }).click();
     page.locator('data-testid=timer-view');
     await expect(page).toHaveURL('http://localhost:4001/timer');
+  });
+
+  test('not-found', async ({ page }) => {
+    await page.goto('http://localhost:4001/not-found');
+
+    await expect(page).toHaveTitle(/ontime/);
+    await expect(page.getByRole('heading', { name: 'Not found' })).toBeVisible();
+
+    await page.goto('http://localhost:4001/preset/not-found');
+
+    await expect(page).toHaveTitle(/ontime/);
+    await expect(page.getByRole('heading', { name: 'Not found' })).toBeVisible();
   });
 });
 

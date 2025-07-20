@@ -1,4 +1,4 @@
-@use '../../theme/viewerDefs' as *;
+@use '@/theme/viewerDefs' as *;
 
 $item-height: 3.5rem;
 
@@ -105,7 +105,6 @@ $item-height: 3.5rem;
     background-color: var(--card-background-color-override, $viewer-card-bg-color);
     padding-right: 1rem;
     border-radius: $element-border-radius;
-    overflow: clip;
 
     &:hover {
       .sub__label {
@@ -141,12 +140,12 @@ $item-height: 3.5rem;
     color: $delay-color;
   }
 
-  .sub__schedule--ahead {
-    color: $green-500;
+  .sub__schedule--over {
+    color: $playback-over
   }
 
-  .sub__schedule--behind {
-    color: $orange-500;
+  .sub__schedule--under {
+    color: $playback-under
   }
 
   .sub__title {

@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { isOntimeBlock, isOntimeEvent } from 'ontime-types';
+import { isOntimeEvent, isOntimeGroup, OntimeView } from 'ontime-types';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -16,8 +16,8 @@ import { getDefaultFormat } from '../../common/utils/time';
 
 import EditModal from './edit-modal/EditModal';
 import FollowButton from './follow-button/FollowButton';
-import OperatorBlock from './operator-block/OperatorBlock';
 import OperatorEvent from './operator-event/OperatorEvent';
+import OperatorGroup from './operator-group/OperatorGroup';
 import StatusBar from './status-bar/StatusBar';
 import { getOperatorOptions, useOperatorOptions } from './operator.options';
 import type { EditEvent } from './operator.types';
@@ -35,7 +35,7 @@ export default function Operator() {
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
   const { selectedEventId } = useSelectedEventId();
-  const { subscribe, mainSource, secondarySource, shouldEdit, hidePast } = useOperatorOptions();
+  const { subscribe, mainSource, secondarySource, shouldEdit, hidePast, showStart } = useOperatorOptions();
   const { data: settings } = useSettings();
 
   const [showEditPrompt, setShowEditPrompt] = useState(false);
@@ -115,8 +115,8 @@ export default function Operator() {
   const { process } = makeOperatorMetadata(selectedEventId);
 
   return (
-    <div className={style.operatorContainer}>
-      <ViewParamsEditor viewOptions={operatorOptions} />
+    <div className={style.operatorContainer} data-testid='operator-view'>
+      <ViewParamsEditor target={OntimeView.Operator} viewOptions={operatorOptions} />
       {editEvent && <EditModal event={editEvent} onClose={() => setEditEvent(null)} />}
 
       <StatusBar />
@@ -160,6 +160,7 @@ export default function Operator() {
                 isSelected={isSelected}
                 isPast={isPast}
                 selectedRef={isSelected ? selectedRef : undefined}
+                showStart={showStart}
                 subscribed={subscribedData}
                 totalGap={totalGap}
                 onLongPress={canEdit ? handleEdit : () => undefined}
@@ -167,10 +168,10 @@ export default function Operator() {
             );
           }
 
-          if (isOntimeBlock(entry)) {
+          if (isOntimeGroup(entry)) {
             return (
               <Fragment key={entry.id}>
-                <OperatorBlock key={entry.id} title={entry.title} />
+                <OperatorGroup key={entry.id} title={entry.title} />
                 {entry.entries.map((nestedEntryId) => {
                   const nestedEntry = data.entries[nestedEntryId];
                   if (!isOntimeEvent(nestedEntry)) {
@@ -208,6 +209,7 @@ export default function Operator() {
                       isSelected={isSelected}
                       isPast={isPast}
                       selectedRef={isSelected ? selectedRef : undefined}
+                      showStart={showStart}
                       subscribed={subscribedData}
                       totalGap={totalGap}
                       onLongPress={canEdit ? handleEdit : () => undefined}

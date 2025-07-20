@@ -1,6 +1,6 @@
 import { ChangeEvent, useRef, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 import { uploadProjectFile } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';

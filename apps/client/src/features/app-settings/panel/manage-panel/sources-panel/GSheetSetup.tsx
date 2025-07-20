@@ -174,7 +174,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
         <Panel.ListGroup>
           <Panel.InlineElements>
             {isAuthenticating && <span>Authenticating...</span>}
-            <CopyTag copyValue={authKey ?? ''} label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
+            <CopyTag copyValue={authKey ?? ''} disabled={!canAuthenticate}>
               {authKey ? authKey : 'Upload files to generate Auth Key'}
             </CopyTag>
             <Button onClick={handleAuthenticate} disabled={!canAuthenticate}>

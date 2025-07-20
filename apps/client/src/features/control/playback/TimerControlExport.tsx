@@ -18,7 +18,7 @@ function TimerControlExport() {
     <ProtectRoute permission='editor'>
       <div className={style.playback} data-testid='panel-timer-control'>
         {!isExtracted && <Corner onClick={(event) => handleLinks('timercontrol', event)} />}
-        {isExtracted && <ViewNavigationMenu supressSettings />}
+        {isExtracted && <ViewNavigationMenu suppressSettings />}
 
         <div className={style.content}>
           <ErrorBoundary>

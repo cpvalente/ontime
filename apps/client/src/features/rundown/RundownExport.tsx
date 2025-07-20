@@ -1,7 +1,6 @@
 import { memo } from 'react';
 import { useSessionStorage } from '@mantine/hooks';
 
-import { ContextMenu } from '../../common/components/context-menu/ContextMenu';
 import { Corner } from '../../common/components/editor-utils/EditorUtils';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
@@ -13,6 +12,7 @@ import { AppMode, sessionKeys } from '../../ontimeConfig';
 
 import RundownEntryEditor from './entry-editor/RundownEntryEditor';
 import FinderPlacement from './placements/FinderPlacement';
+import { RundownContextMenu } from './rundown-context-menu/RundownContextMenu';
 import RundownWrapper from './RundownWrapper';
 
 import style from './RundownExport.module.scss';
@@ -36,12 +36,12 @@ function RundownExport() {
           data-testid='panel-rundown'
         >
           <FinderPlacement />
-          <ViewNavigationMenu supressSettings />
-          <div className={style.content}>
+          <ViewNavigationMenu suppressSettings />
+          <div className={style.rundown}>
             <ErrorBoundary>
-              <ContextMenu>
+              <RundownContextMenu>
                 <RundownWrapper isSmallDevice />
-              </ContextMenu>
+              </RundownContextMenu>
             </ErrorBoundary>
           </div>
         </div>
@@ -55,13 +55,14 @@ function RundownExport() {
     <ProtectRoute permission='editor'>
       <div className={cx([style.rundownExport, isExtracted && style.extracted])} data-testid='panel-rundown'>
         <FinderPlacement />
+        {isExtracted && <ViewNavigationMenu suppressSettings />}
         <div className={style.rundown}>
           <div className={style.list}>
             <ErrorBoundary>
-              <Corner onClick={(event) => handleLinks('rundown', event)} />
-              <ContextMenu>
+              {!isExtracted && <Corner onClick={(event) => handleLinks('rundown', event)} />}
+              <RundownContextMenu>
                 <RundownWrapper />
-              </ContextMenu>
+              </RundownContextMenu>
             </ErrorBoundary>
           </div>
           {!hideSideBar && (

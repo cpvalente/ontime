@@ -7,8 +7,8 @@ export const langFr: TranslationObject = {
   'common.next': 'A suivre',
   'common.scheduled_start': 'Début prévu',
   'common.scheduled_end': 'Fin prévue',
-  'common.projected_start': 'Début projeté',
-  'common.projected_end': 'Fin projetée',
+  'common.expected_start': 'Début projeté',
+  'common.expected_end': 'Fin projetée',
   'common.stage_timer': 'Minuteur de scène',
   'common.started_at': 'Commencé à',
   'common.time_now': 'Heure',
@@ -25,7 +25,6 @@ export const langFr: TranslationObject = {
   'timeline.followedby': 'Suivi de',
   'project.title': 'Titre',
   'project.description': 'Description',
-  'project.backstage_info': 'Informations des coulisses',
-  'project.backstage_url': 'URL des coulisses',
-
+  'project.info': 'Informations du projet',
+  'project.url': 'URL du projet',
 };

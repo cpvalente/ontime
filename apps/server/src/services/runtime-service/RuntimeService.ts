@@ -1,13 +1,12 @@
 import {
   EndAction,
-  EntryId,
   isOntimeEvent,
   isPlayableEvent,
   LogOrigin,
-  MaybeNumber,
   OffsetMode,
   OntimeEvent,
   Playback,
+  RuntimeStore,
   TimerLifeCycle,
   TimerPhase,
   TimerState,
@@ -34,12 +33,12 @@ import {
   findNextPlayableWithCue,
   findPreviousPlayableId,
   getEventAtIndex,
-  getForceUpdate,
   getShouldClockUpdate,
+  getShouldOffsetUpdate,
   getShouldTimerUpdate,
+  isNewSecond,
 } from './rundownService.utils.js';
-
-type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow'>;
+import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 
 /**
  * Service manages runtime status of app
@@ -50,22 +49,11 @@ class RuntimeService {
   private lastIntegrationClockUpdate = -1;
   private lastIntegrationTimerValue = -1;
 
-  /** last time we updated the socket */
-  static previousTimerUpdate: number;
-  static previousRuntimeUpdate: number;
-  static previousTimerValue: MaybeNumber; // previous timer value, could be null
-  static previousClockUpdate: number;
-
   /** last known state */
   static previousState: RuntimeState;
 
   constructor(eventTimer: EventTimer) {
     this.eventTimer = eventTimer;
-
-    RuntimeService.previousTimerUpdate = -1;
-    RuntimeService.previousRuntimeUpdate = -1;
-    RuntimeService.previousTimerValue = -1;
-    RuntimeService.previousClockUpdate = -1;
     RuntimeService.previousState = {} as RuntimeState;
   }
 
@@ -98,7 +86,7 @@ class RuntimeService {
     // 2. handle edge cases related to roll
     if (newState.timer.playback === Playback.Roll) {
       // check if we need to call any side effects
-      const keepOffset = newState.runtime.offset;
+      const keepOffset = newState.offset.absolute;
       if (hasSecondaryTimerFinished) {
         // if the secondary timer has finished, we need to call roll
         // since event is already loaded
@@ -141,7 +129,7 @@ class RuntimeService {
     }
 
     // 4. find if we need to update the timer
-    const shouldUpdateTimer = getShouldTimerUpdate(this.lastIntegrationTimerValue, newState.timer.current);
+    const shouldUpdateTimer = isNewSecond(this.lastIntegrationTimerValue, newState.timer.current);
     if (shouldUpdateTimer) {
       process.nextTick(() => {
         triggerAutomations(TimerLifeCycle.onUpdate, newState);
@@ -179,79 +167,24 @@ class RuntimeService {
   }
 
   /**
-   * Checks if a list of IDs is in the current selection
-   */
-  private affectsLoaded(affectedIds: string[]): boolean {
-    const state = runtimeState.getState();
-    const now = state.eventNow?.id;
-    const next = state.eventNext?.id;
-    return (now !== undefined && affectedIds.includes(now)) || (next !== undefined && affectedIds.includes(next));
-  }
-
-  private isNewNext() {
-    const { timedEventOrder } = getRundownMetadata();
-
-    const state = runtimeState.getState();
-    const now = state.eventNow?.id;
-    const next = state.eventNext?.id;
-
-    // check whether the index of now and next are consecutive
-    const indexNow = timedEventOrder.findIndex((id) => id === now);
-    const indexNext = timedEventOrder.findIndex((id) => id === next);
-
-    return indexNext - indexNow !== 1;
-  }
-
-  /**
    * Called when the underlying data has changed,
    * we check if the change affects the runtime
    */
-  public notifyOfChangedEvents(affectedIds?: EntryId[]) {
+  public notifyOfChangedEvents(rundownMetadata: RundownMetadata) {
     const state = runtimeState.getState();
     const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
     if (!hasLoadedElements) {
       return;
     }
 
-    // we need to reload in a few scenarios:
-    // 1. we are not confident that changes do not affect running event (eg. all events where changed)
-    const safeOption = affectedIds === undefined;
-    // 2. the edited event is in memory (now or next) running
-    // behind conditional to avoid doing unnecessary work
-    const eventInMemory = safeOption ? false : this.affectsLoaded(affectedIds);
-    // 3. the edited event replaces next event
-    let isNext = false;
-
-    // if we are not sure, or the event is in memory, we reload
-    if (safeOption || eventInMemory) {
-      if (state.eventNow !== null) {
-        // load stuff again, but keep running if our events still exist
-        const eventNow = getEntryWithId(state.eventNow.id);
-        if (!isOntimeEvent(eventNow) || !isPlayableEvent(eventNow)) {
-          // maybe the event was deleted or the skip state was changed
-          runtimeState.stop();
-          return;
-        }
-        const onlyChangedNow = affectedIds?.length === 1 && affectedIds.at(0) === eventNow.id;
-
-        if (onlyChangedNow) {
-          runtimeState.updateLoaded(eventNow);
-        } else {
-          const rundown = getCurrentRundown();
-          const metadata = getRundownMetadata();
-          runtimeState.updateAll(rundown, metadata);
-        }
-        return;
-      }
+    // all events were deleted
+    if (rundownMetadata.playableEventOrder.length === 0) {
+      runtimeState.stop();
     }
 
-    // Maybe the event will become the next
-    isNext = this.isNewNext();
-    if (isNext) {
-      const rundown = getCurrentRundown();
-      const metadata = getRundownMetadata();
-      runtimeState.loadNext(rundown, metadata);
-    }
+    const rundown = getCurrentRundown();
+    const metadata = getRundownMetadata();
+    runtimeState.updateAll(rundown, metadata);
   }
 
   /**
@@ -344,7 +277,7 @@ class RuntimeService {
       rundown,
       playableEventOrder,
       cue,
-      state.runtime.selectedEventIndex ?? undefined,
+      state.rundown.selectedEventIndex ?? undefined,
     );
 
     if (!event) {
@@ -405,7 +338,7 @@ class RuntimeService {
       rundown,
       playableEventOrder,
       cue,
-      state.runtime.selectedEventIndex ?? undefined,
+      state.rundown.selectedEventIndex ?? undefined,
     );
 
     if (!event) {
@@ -464,7 +397,7 @@ class RuntimeService {
       }
 
       if (state.timer.playback === Playback.Roll) {
-        return this.loadEvent(nextEvent, { firstStart: state.runtime.actualStart });
+        return this.loadEvent(nextEvent, { firstStart: state.rundown.actualStart });
       }
       return this.loadEvent(nextEvent);
     }
@@ -714,145 +647,82 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // call the original method and get the state
     const result = originalMethod.apply(this, args);
     const state = runtimeState.getState();
-
     const batch = eventStore.createBatch();
 
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
 
-    // if a new event was loaded most things should update
-    const hasNewLoaded = state.eventNow?.id !== RuntimeService.previousState?.eventNow?.id;
+    // Update the entry if they have changed
+    let entryChanged = false;
+    entryChanged ||= updateMaybeEntryIfChanged('eventNow');
+    entryChanged ||= updateMaybeEntryIfChanged('eventNext');
+    entryChanged ||= updateMaybeEntryIfChanged('eventFlag');
+    entryChanged ||= updateMaybeEntryIfChanged('groupNow');
 
     // for the very fist run there will be nothing in the previousState so we force an update
     const justStarted = !RuntimeService.previousState?.timer;
 
     // offset mode has been changed
-    const offsetModeChanged = RuntimeService.previousState?.runtime?.offsetMode !== state.runtime.offsetMode;
+    const offsetModeChanged = RuntimeService.previousState?.offset?.mode !== state.offset.mode;
 
     // if playback changes most things should update
     const hasChangedPlayback = RuntimeService.previousState.timer?.playback !== state.timer.playback;
 
     // combine all big changes
-    const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback || offsetModeChanged;
+    const hasImmediateChanges = entryChanged || justStarted || hasChangedPlayback || offsetModeChanged;
 
-    // we would like the wall clock to tick on a regular rate
-    const normalClockUpdate =
-      getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock) ||
-      getForceUpdate(RuntimeService.previousClockUpdate, state.clock);
-
-    /**
-     * Timer should be updated if
-     * - big changes
-     * - notification rate has been exceeded
-     * - the timer has rolled over into the next UI display unit
-     *
-     * Then check if there is actually a change in the data
-     */
-    const shouldUpdateTimer =
-      (hasImmediateChanges ||
-        getForceUpdate(RuntimeService.previousTimerUpdate, state.clock) ||
-        getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current)) &&
-      !deepEqual(RuntimeService.previousState?.timer, state.timer);
-
-    /**
-     * Runtime should be updated if
-     * - clock tick
-     * - big changes
-     * - the timer is updating so runtime also updates to keep them in sync ???
-     * - notification rate has been exceeded
-     *
-     * Then check if there is actually a change in the data
-     */
-    const shouldRuntimeUpdate =
-      (normalClockUpdate ||
-        hasImmediateChanges ||
-        shouldUpdateTimer ||
-        getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock)) &&
-      !deepEqual(RuntimeService.previousState?.runtime, state.runtime);
-
-    /**
-     * the currentBlock object has no ticking values so we only need to check for equality
-     */
-    const shouldBlockUpdate =
-      !deepEqual(RuntimeService?.previousState.blockNow, state.blockNow) ||
-      !deepEqual(RuntimeService?.previousState.blockNext, state.blockNext);
-
-    /**
-     * Many other values are calculated based on the clock
-     * so if any of them are updated we also need to send the clock
-     * in case nothing else is updating the clock will be updated at the notification rate
-     */
-    const shouldUpdateClock = shouldRuntimeUpdate || shouldBlockUpdate || normalClockUpdate;
-
-    //Now we set all the updates on the eventstore and update the previous value
-    if (hasChangedPlayback) {
-      batch.add('onAir', state.timer.playback !== Playback.Stop);
+    // clock has changed by a second or more
+    const updateClock = getShouldClockUpdate(RuntimeService.previousState.clock, state.clock);
+    if (updateClock) {
+      batch.add('clock', state.clock);
+      RuntimeService.previousState.clock = state.clock;
     }
 
-    if (shouldUpdateTimer) {
+    // if any values have changed, values that have the possibility to tick are updated when the seconds roll over
+    const updateTimer = getShouldTimerUpdate(RuntimeService.previousState?.timer, state.timer);
+    if (updateTimer) {
       batch.add('timer', state.timer);
-      RuntimeService.previousTimerUpdate = state.clock;
-      RuntimeService.previousTimerValue = state.timer.current;
       RuntimeService.previousState.timer = { ...state.timer };
     }
 
-    if (shouldRuntimeUpdate) {
-      batch.add('runtime', state.runtime);
-      RuntimeService.previousRuntimeUpdate = state.clock;
-      RuntimeService.previousState.runtime = structuredClone(state.runtime);
+    // if any values have changed, values that have the possibility to tick are modulated by `hasClockUpdate`
+    const updateRuntime = getShouldOffsetUpdate(
+      RuntimeService.previousState?.offset,
+      state.offset,
+      updateClock || hasImmediateChanges,
+    );
+    if (updateRuntime) {
+      batch.add('offset', state.offset);
+      RuntimeService.previousState.offset = structuredClone(state.offset);
     }
 
-    if (shouldBlockUpdate) {
-      batch.add('blockNow', state.blockNow);
-      batch.add('blockNext', state.blockNext);
-      RuntimeService.previousState.blockNow = structuredClone(state.blockNow);
-      RuntimeService.previousState.blockNext = structuredClone(state.blockNext);
+    // if any values have changed
+    const updateRundownData = !deepEqual(RuntimeService.previousState.rundown, state.rundown);
+    if (updateRundownData) {
+      batch.add('rundown', state.rundown);
+      RuntimeService.previousState.rundown = structuredClone(state.rundown);
     }
 
+    function updateMaybeEntryIfChanged<
+      K extends keyof Pick<RuntimeState, 'eventNow' | 'eventNext' | 'eventFlag' | 'groupNow'>,
+    >(key: K) {
+      const previousEntry = RuntimeService.previousState[key];
+      const currentEntry = state[key];
+
+      if (!previousEntry && !currentEntry) return false; // if both are null -> skip
+
+      // if they have the same id the check if the contents have changed
+      if (previousEntry?.id === currentEntry?.id) {
+        if (deepEqual(previousEntry, currentEntry)) return false; // contents are the same -> skip
+      }
+      // at this point we know that either the id or the contents has changed
+      batch.add(key, currentEntry as RuntimeStore[K]); // we know that there is the necessary overlap in the types to cast this
+      RuntimeService.previousState[key] = structuredClone(currentEntry);
+      return true;
+    }
+
+    // save the restore state
     if (hasImmediateChanges) {
-      saveRestoreState(state);
-    }
-
-    if (shouldUpdateClock) {
-      RuntimeService.previousClockUpdate = state.clock;
-      batch.add('clock', state.clock);
-    }
-
-    // Update the events if they have changed
-    updateEventIfChanged('eventNow', state);
-    updateEventIfChanged('eventNext', state);
-
-    // Helper function to update an event if it has changed
-    function updateEventIfChanged(eventKey: RuntimeStateEventKeys, state: runtimeState.RuntimeState) {
-      const previous = RuntimeService.previousState?.[eventKey];
-      const now = state[eventKey];
-
-      // if there was nothing, and there is nothing, noop
-      if (!previous?.id && !now?.id) {
-        return;
-      }
-
-      // if load status changed, save new
-      if (previous?.id !== now?.id) {
-        storeKey(eventKey);
-        return;
-      }
-
-      // maybe the event itself has changed
-      if (!deepEqual(RuntimeService.previousState?.[eventKey], state[eventKey])) {
-        storeKey(eventKey);
-        return;
-      }
-
-      function storeKey(eventKey: RuntimeStateEventKeys) {
-        batch.add(eventKey, state[eventKey]);
-        // @ts-expect-error -- not sure how to type this in a sane way
-        RuntimeService.previousState[eventKey] = { ...state[eventKey] };
-      }
-    }
-
-    // Helper function to save the restore state
-    function saveRestoreState(state: runtimeState.RuntimeState) {
       restoreService
         .save({
           playback: state.timer.playback,
@@ -860,8 +730,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           startedAt: state.timer.startedAt,
           addedTime: state.timer.addedTime,
           pausedAt: state._timer.pausedAt,
-          firstStart: state.runtime.actualStart,
-          blockStartAt: state.blockNow?.startedAt ?? null,
+          firstStart: state.rundown.actualStart,
         })
         .catch((_e) => {
           //we don't do anything with the error here

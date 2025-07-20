@@ -8,6 +8,7 @@ import {
 import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
+import sanitize from 'sanitize-filename';
 
 import {
   doesProjectExist,
@@ -53,9 +54,9 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
       project: {
         title: req.body?.title ?? '',
         description: req.body?.description ?? '',
-        backstageUrl: req.body?.backstageUrl ?? '',
-        backstageInfo: req.body?.backstageInfo ?? '',
-        projectLogo: req.body?.projectLogo ?? null,
+        url: req.body?.url ?? '',
+        info: req.body?.info ?? '',
+        logo: req.body?.logo ?? null,
         custom: req.body?.custom ?? [],
       },
     });
@@ -74,7 +75,8 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
  */
 export async function quickProjectFile(req: Request, res: Response<{ filename: string } | ErrorResponse>) {
   try {
-    const filename = await projectService.createProject(req.body.project.title || 'untitled', req.body);
+    const nameFromTitle = req.body.project.title ? sanitize(req.body.project.title) : 'untitled';
+    const filename = await projectService.createProject(nameFromTitle, req.body);
     res.status(200).send({
       filename,
     });

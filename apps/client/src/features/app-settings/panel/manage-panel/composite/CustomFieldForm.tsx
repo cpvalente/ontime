@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { Radio, RadioGroup } from '@chakra-ui/react';
+import { useForm } from 'react-hook-form';
 import { CustomField } from 'ontime-types';
-import { customFieldLabelToKey, isAlphanumericWithSpace } from 'ontime-utils';
+import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
 
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
 import Info from '../../../../../common/components/info/Info';
 import SwatchSelect from '../../../../../common/components/input/colour-input/SwatchSelect';
 import Input from '../../../../../common/components/input/input/Input';
+import RadioGroup from '../../../../../common/components/radio-group/RadioGroup';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
 import { preventEscape } from '../../../../../common/utils/keyEvent';
 import * as Panel from '../../../panel-utils/PanelUtils';
@@ -25,24 +25,29 @@ interface CustomFieldsFormProps {
 
 type CustomFieldFormData = CustomField & { key: string };
 
-export default function CustomFieldForm(props: CustomFieldsFormProps) {
-  const { onSubmit, onCancel, initialColour, initialLabel, initialKey } = props;
+export default function CustomFieldForm({
+  onSubmit,
+  onCancel,
+  initialColour,
+  initialLabel,
+  initialKey,
+}: CustomFieldsFormProps) {
   const { data } = useCustomFields();
 
   // we use this to force an update
   const [_, setColour] = useState(initialColour || '');
 
   const {
-    control,
     handleSubmit,
     register,
     setFocus,
     setError,
     setValue,
     getValues,
+    watch,
     formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm<CustomFieldFormData>({
-    defaultValues: { type: 'string', label: initialLabel || '', colour: initialColour || '' },
+    defaultValues: { type: 'text', label: initialLabel || '', colour: initialColour || '' },
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -90,17 +95,15 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
       </Info>
       <div>
         <Panel.Description>Type</Panel.Description>
-        <Controller
-          name='type'
-          control={control}
-          render={({ field }) => (
-            <RadioGroup {...field} size='sm' isDisabled={isEditMode} variant='ontime'>
-              <Panel.InlineElements relation='component'>
-                <Radio value='string'>Text</Radio>
-                <Radio value='image'>Image</Radio>
-              </Panel.InlineElements>
-            </RadioGroup>
-          )}
+        <RadioGroup
+          orientation='horizontal'
+          disabled={isEditMode}
+          onValueChange={(value) => setValue('type', value, { shouldDirty: true })}
+          value={watch('type')}
+          items={[
+            { value: 'text', label: 'Text' },
+            { value: 'image', label: 'Image' },
+          ]}
         />
       </div>
       <div className={style.twoCols}>
@@ -113,7 +116,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
               onChange: () => setValue('key', customFieldLabelToKey(getValues('label')) ?? 'N/A'),
               validate: (value) => {
                 if (value.trim().length === 0) return 'Required field';
-                if (!isAlphanumericWithSpace(value)) return 'Only alphanumeric characters and space are allowed';
+                if (!checkRegex.isAlphanumericWithSpace(value)) return 'Only alphanumeric characters and space are allowed';
                 if (!isEditMode) {
                   if (isEditMode && Object.keys(data).includes(value)) return 'Custom fields must be unique';
                 }
@@ -138,7 +141,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
         <Button variant='ghosted' onClick={onCancel}>
           Cancel
         </Button>
-        <Button  type='submit' variant='primary' disabled={!canSubmit} loading={isSubmitting}>
+        <Button type='submit' variant='primary' disabled={!canSubmit} loading={isSubmitting}>
           Save
         </Button>
       </Panel.InlineElements>

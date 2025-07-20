@@ -43,12 +43,12 @@ Ontime is made by entertainment and broadcast engineers and used by
 - Houses of worship
 
 ## Main features
-- [x] **Multiplatform**: Available for Windows / MacOS, Linux. You can also self host with the docker image
-- [x] **In any device**: Ontime is available in the local network to any device with a browser, eg: tablets, mobile phones, laptops, signage, media servers...
-- [x] **Made for teams**: Ontime caters to different roles in your production team: directors, operators, backstage and front of house signage...
-- [x] **Delay workflows**: Manage and communicate runtime delays in real-time to your team
-- [x] **Automatable**: Ontime can be fully or partially controlled by an operator, or run standalone with the system clock
-- [x] **Focus on integrations**: Use one of the APIs provided (OSC, HTTP, Websocket) or the available [Companion module](https://bitfocus.io/connections/getontime-ontime) to integrate into your workflow (vMix, disguise, Qlab, OBS)
+- **Multiplatform**: Available as a Cloud service and for Windows, macOS, Linux, or self-hosted via Docker.
+- **In any device**: Ontime is available to any device with a browser, eg: tablets, mobile phones, laptops, signage, media servers...
+- **Team Collaboration**: Dedicated views for directors, operators, backstage, and signage.
+- **Real-Time Updates**: Manage and communicate runtime delays effortlessly.
+- **Automatable**: Ontime can be fully or partially controlled by an operator, or run standalone with the system clock
+- **Flexible Integrations**: Use one of the APIs provided (OSC, HTTP, Websocket) or the available [Companion module](https://bitfocus.io/connections/getontime-ontime) to integrate into your workflow (vMix, disguise, Qlab, OBS)
 
 ... and a lot more ...
 
@@ -79,76 +79,28 @@ Ontime is made by video engineers and entertainment technicians.
 
 ## Using Ontime
 
-Ontime can be started by downloading the latest release for your platform. \
-Alternatively you can also use the docker image, available at [Docker Hub](https://hub.docker.com/r/getontime/ontime)
+### Getting started
 
-Once installed and running, any device in the network has access to Ontime.
+The easiest way to start with Ontime is by leveraging our [Cloud service](https://getontime.no). \
+This will give you immediate access to running instances of Ontime which are available to share with anyone with an internet connection.
 
-Ontime provides different screens which allow for different types of interactions with the data. These are called
-views. \
-Each view in Ontime focuses on empowering a specific role or achieving a particular task.
+Alternatively, you can run Ontime locally for free by downloading the latest release for your platform or using the docker image, available at [Docker Hub](https://hub.docker.com/r/getontime/ontime)
 
-You can access the different views by reaching the ontime server, in your browser, at (_default port
-4001_) `http://localhost:4001` or `http://192.168.1.3:4001`
-
-```
-For the backstage views
--------------------------------------------------------------
-IP.ADDRESS:4001/timer      > Presenter / Stage timer view
-IP.ADDRESS:4001/minimal    > Simple timer view
-IP.ADDRESS:4001/clock      > Simple clock view
-IP.ADDRESS:4001/backstage  > Stage Manager / Backstage view
-IP.ADDRESS:4001/countdown  > Countdown to anything
-IP.ADDRESS:4001/studio     > Studio Clock
-IP.ADDRESS:4001/timeline   > Timeline
-```
-
-```
-For production views
--------------------------------------------------------------
-IP.ADDRESS:4001/editor    > the control interface, same as the app
-IP.ADDRESS:4001/cuesheet  > realtime cuesheets for collaboration
-IP.ADDRESS:4001/op        > automated views for operators
-```
+Once installed and running, any device that shares the same network as Ontime will have access to Ontime.
 
 More information is available [in our docs](https://docs.getontime.no)
 
-## Roadmap
-
-### Continued development
+## Continued development
 
 Ontime is under active development. We continue adding and improving features in collaboration with users.
 
 Have an idea? Reach out via [email](mail@getontime.no)
 or [open an issue](https://github.com/cpvalente/ontime/issues/new)
 
-### Issues
+## Issues
 
 We use Github's issue tracking for bug reporting and feature requests. \
 Found a bug? [Open an issue](https://github.com/cpvalente/ontime/issues/new).
-
-#### Unsigned App
-
-When installing the app you would see warning screens from the Operating System like:
-
-in Windows
-
-`Microsoft Defender SmartScreen prevented an unrecognised app from starting. Running this app might put your PC at risk.`
-
-or in Linux
-
-`Could Not Display "ontime-linux.AppImage`
-
-We currently only sign MacOS releases. \
-Purchasing the certificates for both Mac and Windows would mean a recurrent expense which we are not able to cover.
-
-You can circumvent this by allowing the execution of the app manually.
-
-- In Windows: click `more` -> `Run Anyway`
-- In Linux: right-click the AppImage file: `Properties` -> `Permissions` -> `Allow Executing File as a Program`
-
-If you have tips on how to improve this or would like to sponsor the code signing,
-please [open an issue](https://github.com/cpvalente/ontime/issues/new)
 
 ## Contributing
 
@@ -161,6 +113,7 @@ Information about the project setup can be found in the [development documentati
 ## Links
 - [Ontime website](https://getontime.no) 
 - [Documentation](https://docs.getontime.no)
+- [Video tutorials](https://www.youtube.com/@ontimeapp)
 - [Ontime discord server](https://discord.com/invite/eje3CSUEXm)
 
 ## License

@@ -19,7 +19,13 @@
   }
 
   &:focus {
-    border-color: $blue-500;
+    outline: 2px solid $blue-500;
+    outline-offset: 2px;
+  }
+
+  &[data-disabled] {
+    opacity: $opacity-disabled;
+    cursor: not-allowed;
   }
 }
 
@@ -40,7 +46,7 @@
 }
 
 .thumb {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1;
   height: 100%;
   border-radius: 99px;
   background-color: $ui-white;

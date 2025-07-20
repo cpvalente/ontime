@@ -1,9 +1,9 @@
 import type { AutomationOutput, HTTPOutput, OntimeAction, OSCOutput } from '../definitions/core/Automation.type.js';
 import type {
-  OntimeBlock,
   OntimeDelay,
   OntimeEntry,
   OntimeEvent,
+  OntimeGroup,
   OntimeMilestone,
   PlayableEvent,
 } from '../definitions/core/OntimeEntry.js';
@@ -24,8 +24,8 @@ export function isOntimeDelay(event: MaybeEvent): event is OntimeDelay {
   return event?.type === SupportedEntry.Delay;
 }
 
-export function isOntimeBlock(event: MaybeEvent): event is OntimeBlock {
-  return event?.type === SupportedEntry.Block;
+export function isOntimeGroup(event: MaybeEvent): event is OntimeGroup {
+  return event?.type === SupportedEntry.Group;
 }
 
 export function isOntimeMilestone(event: MaybeEvent): event is OntimeMilestone {

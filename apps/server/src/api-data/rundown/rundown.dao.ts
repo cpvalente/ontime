@@ -15,10 +15,10 @@ import {
   CustomFieldKey,
   CustomFields,
   EntryId,
-  isOntimeBlock,
+  isOntimeGroup,
   isOntimeEvent,
   isPlayableEvent,
-  OntimeBlock,
+  OntimeGroup,
   OntimeDelay,
   OntimeEntry,
   OntimeEvent,
@@ -32,14 +32,15 @@ import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import type { AssignedMap, CustomFieldsMetadata, RundownMetadata } from './rundown.types.js';
 import {
   applyPatchToEntry,
-  cloneBlock,
+  cloneGroup,
   cloneEntry,
-  createBlock,
+  createGroup,
   deleteById,
   doesInvalidateMetadata,
   getUniqueId,
 } from './rundown.utils.js';
 import { makeRundownMetadata, ProcessedRundownMetadata } from './rundown.parser.js';
+import { consoleError } from '../../utils/console.js';
 
 /**
  * The currently loaded rundown in cache
@@ -63,6 +64,7 @@ let rundownMetadata: RundownMetadata = {
   playableEventOrder: [],
   timedEventOrder: [],
   flatEntryOrder: [],
+  flags: [],
 };
 
 const customFieldsMetadata: CustomFieldsMetadata = {
@@ -121,38 +123,28 @@ export function createTransaction(options: TransactionOptions): Transaction {
         await getDataProvider().setRundown(cachedRundown.id, cachedRundown);
       });
 
-      // increment the revision number
+      // update fields which are agnostic of whether the rundown is processed
       cachedRundown.revision = cachedRundown.revision + 1;
+      cachedRundown.title = rundown.title;
 
-      /**
-       * Some mutations do not require processing the rundown
-       * We simply increment the revision and return the rundown
-       */
       if (!shouldProcess) {
-        cachedRundown.title = rundown.title;
+        // if we dont need to process, we just reassign the commit data to the cache
         cachedRundown.entries = rundown.entries;
         cachedRundown.order = rundown.order;
         cachedRundown.flatOrder = rundown.flatOrder;
-        return {
-          rundown: cachedRundown,
-          rundownMetadata, // metadata doesnt change as long as we dont process the rundown
-          customFields: projectCustomFields,
-          revision: cachedRundown.revision,
-        };
+      } else {
+        const processedData = processRundown(rundown, projectCustomFields);
+        // update the cache values
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
+        const { previousEvent, latestEvent, previousEntry, entries, order, assignedCustomFields, ...metadata } =
+          processedData;
+
+        cachedRundown.entries = entries;
+        cachedRundown.order = order;
+        cachedRundown.flatOrder = metadata.flatEntryOrder;
+        customFieldsMetadata.assigned = assignedCustomFields;
+        rundownMetadata = metadata;
       }
-
-      const processedData = processRundown(rundown, projectCustomFields);
-      // update the cache values
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
-      const { previousEvent, latestEvent, previousEntry, entries, order, assignedCustomFields, ...metadata } =
-        processedData;
-
-      cachedRundown.title = rundown.title;
-      cachedRundown.entries = entries;
-      cachedRundown.order = order;
-      cachedRundown.flatOrder = metadata.flatEntryOrder;
-      customFieldsMetadata.assigned = assignedCustomFields;
-      rundownMetadata = metadata;
     }
 
     // if the customFields are mutable we persist the changes
@@ -184,14 +176,14 @@ export function createTransaction(options: TransactionOptions): Transaction {
 
 /**
  * Add entry to rundown, handles the following cases:
- * - 1a. add entry in block, after a given entry
- * - 1b. add entry in block, at the beginning
+ * - 1a. add entry in group, after a given entry
+ * - 1b. add entry in group, at the beginning
  * - 2a. add entry to the rundown, after a given entry
  * - 2b. add entry to the rundown, at the beginning
  */
-function add(rundown: Rundown, entry: OntimeEntry, afterId: EntryId | null, parent: OntimeBlock | null): OntimeEntry {
+function add(rundown: Rundown, entry: OntimeEntry, afterId: EntryId | null, parent: OntimeGroup | null): OntimeEntry {
   if (parent) {
-    // 1. inserting an entry inside a block
+    // 1. inserting an entry inside a group
     if (afterId) {
       const atEventsIndex = parent.entries.indexOf(afterId) + 1;
       const atFlatIndex = rundown.flatOrder.indexOf(afterId) + 1;
@@ -240,23 +232,31 @@ function edit(rundown: Rundown, patch: PatchWithId): { entry: OntimeEntry; didIn
 
 /**
  * Deletes an entry from the rundown
- * - if the entry is an ontime block, we delete it along with its children
- * - if the entry is inside a block, we delete it and remove the reference from the parent block
+ * - if the entry is an ontime group, we delete it along with its children
+ * - if the entry is inside a group, we delete it and remove the reference from the parent group
  */
 function remove(rundown: Rundown, entry: OntimeEntry) {
-  if (isOntimeBlock(entry)) {
-    // for ontime blocks, we need to iterate through the children and delete them
+  if (isOntimeGroup(entry)) {
+    // for ontime groups, we need to iterate through the children and delete them
     for (let i = 0; i < entry.entries.length; i++) {
       const nestedEntryId = entry.entries[i];
       deleteEntry(nestedEntryId);
     }
   } else if (entry.parent) {
-    // at this point, we are handling entries inside a block, so we need to remove the reference
-    const parentBlock = rundown.entries[entry.parent] as OntimeBlock;
-    if (parentBlock) {
+    // at this point, we are handling entries inside a group, so we need to remove the reference
+    const parentGroup = rundown.entries[entry.parent];
+
+    // eslint-disable-next-line no-unused-labels -- dev code path
+    DEV: {
+      if (parentGroup && !isOntimeGroup(parentGroup)) {
+        consoleError(`Parent group with ID ${entry.parent} is not a valid Group`);
+      }
+    }
+
+    if (parentGroup && isOntimeGroup(parentGroup)) {
       // we call a mutation to the parent event to remove the entry from the events
-      const filteredEvents = deleteById(parentBlock.entries, entry.id);
-      edit(rundown, { id: parentBlock.id, entries: filteredEvents });
+      const filteredEvents = deleteById(parentGroup.entries, entry.id);
+      edit(rundown, { id: parentGroup.id, entries: filteredEvents });
     }
   }
   deleteEntry(entry.id);
@@ -281,22 +281,22 @@ function removeAll(rundown: Rundown): Rundown {
 /**
  * Reorders an entry in the rundown
  * Handle moving across order lists
- * @param order - 'before' | 'after' | 'insert' - where to add the entry, insert serves to add the entry into an empty block
- * @throws if we insert a block inside another
+ * @param order - 'before' | 'after' | 'insert' - where to add the entry, insert serves to add the entry into an empty group
+ * @throws if we insert a group inside another
  */
 function reorder(rundown: Rundown, eventFrom: OntimeEntry, eventTo: OntimeEntry, order: 'before' | 'after' | 'insert') {
   // handle moving across parents
   const fromParent: EntryId | null = (eventFrom as { parent?: EntryId })?.parent ?? null;
   const toParent = (() => {
-    if (isOntimeBlock(eventTo)) {
-      // Special case: if we're moving relative to our own parent block, remove from block
+    if (isOntimeGroup(eventTo)) {
+      // Special case: if we're moving relative to our own parent group, remove from group
       if ('parent' in eventFrom && eventFrom.parent === eventTo.id) {
         return null;
       }
       if (order === 'insert') {
-        // prevent blocks from being inserted into other blocks
-        if (isOntimeBlock(eventFrom)) {
-          throw new Error('Cannot insert a block into another block');
+        // prevent groups from being inserted into other groups
+        if (isOntimeGroup(eventFrom)) {
+          throw new Error('Cannot insert a group into another group');
         }
         return eventTo.id;
       }
@@ -310,8 +310,8 @@ function reorder(rundown: Rundown, eventFrom: OntimeEntry, eventTo: OntimeEntry,
     eventFrom.parent = toParent;
   }
 
-  const sourceArray = fromParent === null ? rundown.order : (rundown.entries[fromParent] as OntimeBlock).entries;
-  const destinationArray = toParent === null ? rundown.order : (rundown.entries[toParent] as OntimeBlock).entries;
+  const sourceArray = fromParent === null ? rundown.order : (rundown.entries[fromParent] as OntimeGroup).entries;
+  const destinationArray = toParent === null ? rundown.order : (rundown.entries[toParent] as OntimeGroup).entries;
 
   const fromIndex = sourceArray.indexOf(eventFrom.id);
   const toIndex = (() => {
@@ -450,11 +450,11 @@ function swap(rundown: Rundown, eventFrom: OntimeEvent, eventTo: OntimeEvent) {
 
 /**
  * Inserts a clone of the given entry into the rundown
- * Handles cloning children if the entry is a block
+ * Handles cloning children if the entry is a group
  */
 function clone(rundown: Rundown, entry: OntimeEntry): OntimeEntry {
-  if (isOntimeBlock(entry)) {
-    const newBlock = cloneBlock(entry, getUniqueId(rundown));
+  if (isOntimeGroup(entry)) {
+    const newGroup = cloneGroup(entry, getUniqueId(rundown));
     const nestedIds: EntryId[] = [];
 
     for (let i = 0; i < entry.entries.length; i++) {
@@ -464,83 +464,83 @@ function clone(rundown: Rundown, entry: OntimeEntry): OntimeEntry {
         continue;
       }
 
-      // clone the event and assign it to the new block
+      // clone the event and assign it to the new group
       const newNestedEntry = cloneEntry(nestedEntry, getUniqueId(rundown));
-      (newNestedEntry as OntimeEvent | OntimeDelay).parent = newBlock.id;
+      (newNestedEntry as OntimeEvent | OntimeDelay).parent = newGroup.id;
 
       nestedIds.push(newNestedEntry.id);
       // we immediately insert the nested entries into the rundown
       rundown.entries[newNestedEntry.id] = newNestedEntry;
     }
 
-    // indexes + 1 since we are inserting after the cloned block
+    // indexes + 1 since we are inserting after the cloned group
     const atIndex = rundown.order.indexOf(entry.id) + 1;
 
-    newBlock.entries = nestedIds;
-    newBlock.title = `${entry.title || 'Untitled'} (copy)`;
+    newGroup.entries = nestedIds;
+    newGroup.title = `${entry.title || 'Untitled'} (copy)`;
 
-    rundown.entries[newBlock.id] = newBlock;
-    rundown.order = insertAtIndex(atIndex, newBlock.id, rundown.order);
+    rundown.entries[newGroup.id] = newGroup;
+    rundown.order = insertAtIndex(atIndex, newGroup.id, rundown.order);
 
-    return newBlock;
+    return newGroup;
   } else {
-    const parent: OntimeBlock | null = entry.parent ? (rundown.entries[entry.parent] as OntimeBlock) : null;
+    const parent: OntimeGroup | null = entry.parent ? (rundown.entries[entry.parent] as OntimeGroup) : null;
     return add(rundown, cloneEntry(entry, getUniqueId(rundown)), entry.id, parent);
   }
 }
 
 /**
- * Groups a list of entries into a block
- * It ensures that the entries get reassigned parent and the block gets a list of events
- * The block will be created at the index of the first event in the order, not at the lowest index
+ * Groups a list of entries
+ * It ensures that the entries get reassigned parent and the group gets a list of events
+ * The group will be created at the index of the first event in the order, not at the lowest index
  * Mutates the given rundown
  */
-function group(rundown: Rundown, entryIds: EntryId[]): OntimeBlock {
-  const newBlock = createBlock({ id: getUniqueId(rundown) });
+function group(rundown: Rundown, entryIds: EntryId[]): OntimeGroup {
+  const newGroup = createGroup({ id: getUniqueId(rundown) });
 
   const nestedEvents: EntryId[] = [];
   let firstIndex = -1;
   for (let i = 0; i < entryIds.length; i++) {
     const entryId = entryIds[i];
     const entry = rundown.entries[entryId];
-    if (!entry || isOntimeBlock(entry)) {
+    if (!entry || isOntimeGroup(entry)) {
       // invalid operation, we skip this entry
       continue;
     }
 
-    // the block will be created at the first selected event position
+    // the group will be created at the first selected event position
     // note that this is not the lowest index
     if (firstIndex === -1) {
       firstIndex = rundown.flatOrder.indexOf(entryId);
     }
 
     nestedEvents.push(entryId);
-    entry.parent = newBlock.id;
+    entry.parent = newGroup.id;
     rundown.flatOrder = rundown.flatOrder.filter((id) => id !== entryId);
     rundown.order = rundown.order.filter((id) => id !== entryId);
   }
 
-  newBlock.entries = nestedEvents;
+  newGroup.entries = nestedEvents;
   const insertIndex = Math.max(0, firstIndex);
   // we have filtered the items from the order
-  // we will insert them now, with only the block at top level ...
-  rundown.order = insertAtIndex(insertIndex, newBlock.id, rundown.order);
-  rundown.entries[newBlock.id] = newBlock;
+  // we will insert them now, with only the group at top level ...
+  rundown.order = insertAtIndex(insertIndex, newGroup.id, rundown.order);
+  rundown.entries[newGroup.id] = newGroup;
 
-  return newBlock;
+  return newGroup;
 }
 
 /**
- * Deletes a block and moves all its children to the top level order
+ * Deletes a group and moves all its children to the top level order
  */
-function ungroup(rundown: Rundown, block: OntimeBlock) {
-  // get the events from the block and merge them into the order where the block was
-  const nestedEvents = block.entries;
-  const blockIndex = rundown.order.indexOf(block.id);
-  rundown.order.splice(blockIndex, 1, ...nestedEvents);
+function ungroup(rundown: Rundown, group: OntimeGroup) {
+  // get the events from the group and merge them into the order where the group was
+  const nestedEvents = group.entries;
+  const groupIndex = rundown.order.indexOf(group.id);
+  rundown.order.splice(groupIndex, 1, ...nestedEvents);
 
-  // delete block from entries and remove its reference from the child events
-  delete rundown.entries[block.id];
+  // delete the group from entries and remove its reference from the child events
+  delete rundown.entries[group.id];
   for (let i = 0; i < nestedEvents.length; i++) {
     const eventId = nestedEvents[i];
     const entry = rundown.entries[eventId];
@@ -676,7 +676,7 @@ export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Rea
     processedData;
   cachedRundown.entries = entries;
   cachedRundown.order = order;
-  cachedRundown.flatOrder = metadata.flatEntryOrder; // TODO: remove in favour of the metadata flatEntryOrder
+  cachedRundown.flatOrder = metadata.flatEntryOrder;
   cachedRundown.revision = rundown.revision;
   customFieldsMetadata.assigned = assignedCustomFields;
   rundownMetadata = metadata;
@@ -720,16 +720,16 @@ export function processRundown(
     }
     const { processedEntry } = process(currentEntry, null);
 
-    // if the event is a block, we process the nested entries
+    // if the event is a group, we process the nested entries
     // the code here is a copy of the processing of top level events
-    if (isOntimeBlock(processedEntry)) {
-      let totalBlockDuration = 0;
-      let blockStartTime = null;
-      let blockEndTime = null;
+    if (isOntimeGroup(processedEntry)) {
+      let groupStartTime = null;
+      let groupEndTime = null;
       let isFirstLinked = false;
-      const blockEvents: EntryId[] = [];
+      const groupEvents: EntryId[] = [];
+      processedEntry.duration = 0;
 
-      // check if the block contains nested entries
+      // check if the group contains nested entries
       for (let j = 0; j < processedEntry.entries.length; j++) {
         const nestedEntryId = processedEntry.entries[j];
         const nestedEntry = initialRundown.entries[nestedEntryId];
@@ -738,11 +738,8 @@ export function processRundown(
           continue;
         }
 
-        blockEvents.push(nestedEntry.id);
-        const { processedData: processedNestedData, processedEntry: processedNestedEntry } = process(
-          nestedEntry,
-          processedEntry.id,
-        );
+        groupEvents.push(nestedEntry.id);
+        const { processedEntry: processedNestedEntry } = process(nestedEntry, processedEntry.id);
 
         // we dont extract metadata of skipped events,
         // if this is not a playable event there is nothing else to do
@@ -751,22 +748,24 @@ export function processRundown(
         }
 
         // first start is always the first event
-        if (blockStartTime === null) {
-          blockStartTime = processedNestedEntry.timeStart;
+        if (groupStartTime === null) {
+          groupStartTime = processedNestedEntry.timeStart;
           isFirstLinked = Boolean(processedNestedEntry.linkStart);
         }
 
         // lastEntry is the event with the latest end time
-        blockEndTime = processedNestedData.lastEnd;
-        totalBlockDuration += processedNestedEntry.duration;
+        groupEndTime = processedNestedEntry.timeEnd;
+        if (j > 0) {
+          processedEntry.duration += processedNestedEntry.gap;
+        }
+        processedEntry.duration = processedEntry.duration + processedNestedEntry.duration;
       }
 
-      // update block metadata
-      processedEntry.duration = totalBlockDuration;
-      processedEntry.timeStart = blockStartTime;
-      processedEntry.timeEnd = blockEndTime;
+      // update group metadata
+      processedEntry.timeStart = groupStartTime;
+      processedEntry.timeEnd = groupEndTime;
       processedEntry.isFirstLinked = isFirstLinked;
-      processedEntry.entries = blockEvents;
+      processedEntry.entries = groupEvents;
     }
   }
 

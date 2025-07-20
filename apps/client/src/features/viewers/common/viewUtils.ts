@@ -1,24 +1,28 @@
-import { MaybeNumber, MaybeString, OntimeEvent, TimerType } from 'ontime-types';
+import { MaybeNumber, MaybeString, OntimeEvent, TimerState, TimerType } from 'ontime-types';
 import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
-import type { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { timerPlaceholder, timerPlaceholderMin } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
 
-type TimerTypeParams = Pick<ViewExtendedTimer, 'countToEnd' | 'timerType' | 'current' | 'elapsed' | 'clock'>;
-
+/**
+ * Gathers all options that affect which timer is displayed and selects the correct data source to display
+ * it also handles edge cases such as freezing on end
+ */
 export function getTimerByType(
   freezeEnd: boolean,
-  timerObject?: TimerTypeParams,
+  timerTypeNow: TimerType,
+  countToEndNow: boolean,
+  clock: number,
+  timerObject: Pick<TimerState, 'current' | 'elapsed'>,
   timerTypeOverride?: TimerType,
 ): number | null {
   if (!timerObject) {
     return null;
   }
 
-  const viewTimerType = timerTypeOverride ?? timerObject.timerType;
+  const viewTimerType = timerTypeOverride ?? timerTypeNow;
 
-  if (timerObject.countToEnd) {
+  if (countToEndNow) {
     if (timerObject.current === null) {
       return null;
     }
@@ -34,7 +38,7 @@ export function getTimerByType(
     case TimerType.CountUp:
       return Math.abs(timerObject.elapsed ?? 0);
     case TimerType.Clock:
-      return timerObject.clock;
+      return clock;
     case TimerType.None:
       return null;
     default: {
@@ -53,6 +57,18 @@ export function isStringBoolean(text: string | null) {
     return false;
   }
   return text?.toLowerCase() === 'true' || text === '1';
+}
+
+/**
+ * Prepares a colour string for use in views
+ * Colours in params do not have the #prefix
+ */
+export function makeColourString(hex: string | null): string | undefined {
+  if (!hex) {
+    return undefined;
+  }
+  // ensure the hex starts with a #
+  return hex.startsWith('#') ? hex : `#${hex}`;
 }
 
 /**

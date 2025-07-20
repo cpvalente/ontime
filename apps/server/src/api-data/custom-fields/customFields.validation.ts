@@ -1,4 +1,4 @@
-import { isAlphanumericWithSpace } from 'ontime-utils';
+import { checkRegex } from 'ontime-utils';
 
 import { body, param } from 'express-validator';
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
@@ -9,9 +9,9 @@ export const validateCustomField = [
     .trim()
     .notEmpty()
     .custom((value) => {
-      return isAlphanumericWithSpace(value);
+      return checkRegex.isAlphanumericWithSpace(value);
     }),
-  body('type').isIn(['string', 'image']),
+  body('type').isIn(['text', 'image']),
   body('colour').isString().trim(),
 
   requestValidationFunction,
@@ -24,9 +24,9 @@ export const validateEditCustomField = [
     .trim()
     .notEmpty()
     .custom((value) => {
-      return isAlphanumericWithSpace(value);
+      return checkRegex.isAlphanumericWithSpace(value);
     }),
-  body('type').isIn(['string', 'image']),
+  body('type').isIn(['text', 'image']),
   body('colour').isString().trim(),
 
   requestValidationFunction,
