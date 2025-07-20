@@ -21,6 +21,8 @@ export const apiEntryUrl = `${serverURL}/data`;
 
 const userAssetsPath = 'user';
 const cssOverridePath = 'styles/override.css';
+const customTranslationsPath = 'translations/translations.json';
 
 export const overrideStylesURL = `${serverURL}/${userAssetsPath}/${cssOverridePath}`;
 export const projectLogoPath = `${serverURL}/${userAssetsPath}/logo`;
+export const customTranslationsURL = `${serverURL}/${userAssetsPath}/${customTranslationsPath}`;

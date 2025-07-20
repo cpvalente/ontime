@@ -34,22 +34,6 @@ export async function writeCssFile(css: string) {
   await writeFile(path, css, { encoding: 'utf8' });
 }
 
-
-/**
- * Reads the user's custom translations
- * @returns custom translations of user
- */
-export async function readUserTranslation(): Promise<TranslationObject> {
-  const path = publicFiles.translationsFile;
-  if (!existsSync(path)) {
-    await writeFile(path, defaultTranslation, { encoding: 'utf8' });
-  }
-
-  const userTranslation = await readFile(path, { encoding: 'utf8' });
-  const userTranslationObject = JSON.parse(userTranslation) as TranslationObject;
-  return userTranslationObject;
-}
-
 /**
  * Writes the user's custom translation file
  * @param translations the updated translations to write to file

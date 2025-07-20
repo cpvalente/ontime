@@ -154,7 +154,7 @@ export const publicFiles = {
   restoreFile: join(publicDir.root, config.restoreFile),
   /** path to CSS override file */
   cssOverride: join(publicDir.stylesDir, config.styles.filename),
-  /** path to CSS override file */
+  /** path to custom translation file */
   translationsFile: join(publicDir.translationsDir, config.translations.filename),
   /** path to external readme file */
   externalReadme: join(publicDir.externalDir, 'README.md'),

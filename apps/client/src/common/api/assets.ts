@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { apiEntryUrl } from './constants';
+import { apiEntryUrl, customTranslationsURL } from './constants';
 import { TranslationObject } from 'translation/languages/en';
 
 const assetsPath = `${apiEntryUrl}/assets`;
@@ -34,7 +34,7 @@ export async function restoreCSSContents(): Promise<string> {
  * HTTP request to get user translation
  */
 export async function getUserTranslation(): Promise<TranslationObject> {
-  const res = await axios.get(`${assetsPath}/translations`);
+  const res = await axios.get(customTranslationsURL);
   return res.data;
 }
 
