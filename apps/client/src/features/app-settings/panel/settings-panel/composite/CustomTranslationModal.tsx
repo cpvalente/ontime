@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { maybeAxiosError } from '../../../../../common/api/utils';
@@ -7,7 +8,6 @@ import Modal from '../../../../../common/components/modal/Modal';
 import { langEn, TranslationObject } from '../../../../../translation/languages/en';
 import { useTranslation } from '../../../../../translation/TranslationProvider';
 import * as Panel from '../../../panel-utils/PanelUtils';
-import { useMemo } from 'react';
 
 interface CustomTranslationModalProps {
   isOpen: boolean;

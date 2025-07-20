@@ -22,12 +22,10 @@ export default function GeneralSettings() {
   const { data, status, refetch } = useSettings();
   const {
     handleSubmit,
-    watch,
     register,
     reset,
     setError,
     watch,
-    setValue,
     formState: { isSubmitting, isDirty, isValid, errors },
   } = useForm<Settings>({
     mode: 'onChange',
