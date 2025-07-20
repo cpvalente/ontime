@@ -17,7 +17,7 @@ import {
   validateTimerType,
   validateEndAction,
   customFieldLabelToKey,
-  isAlphanumericWithSpace,
+  checkRegex,
 } from 'ontime-utils';
 
 import { Merge } from 'ts-essentials';
@@ -325,7 +325,7 @@ export function getCustomFieldData(
 
   for (const ontimeLabel in importMap.custom) {
     // if the label is not valid, we skip the import
-    if (!isAlphanumericWithSpace(ontimeLabel)) {
+    if (!checkRegex.isAlphanumericWithSpace(ontimeLabel)) {
       continue;
     }
 

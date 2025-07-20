@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
-import { ImportMap, isAlphanumericWithSpace } from 'ontime-utils';
+import { checkRegex, ImportMap } from 'ontime-utils';
 
 import Button from '../../../../../../common/components/buttons/Button';
 import IconButton from '../../../../../../common/components/buttons/IconButton';
@@ -200,7 +200,7 @@ export default function ImportMapForm({
                     placeholder='Name of the field as shown in Ontime'
                     {...register(`custom.${index}.ontimeName`, {
                       validate: (value) => {
-                        if (!isAlphanumericWithSpace(value))
+                        if (!checkRegex.isAlphanumericWithSpace(value))
                           return 'Only alphanumeric characters and space are allowed';
                         return true;
                       },

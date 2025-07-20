@@ -50,7 +50,7 @@ export {
   removeTrailingZero,
 } from './src/date-utils/timeFormatting.js';
 export { parseUserTime } from './src/date-utils/parseUserTime.js';
-export { isAlphanumeric, isAlphanumericWithSpace } from './src/regex-utils/isAlphanumeric.js';
+export { checkRegex, regex } from './src/regex-utils/checkRegex.js';
 export { isColourHex } from './src/regex-utils/isColourHex.js';
 export { splitWhitespace } from './src/regex-utils/splitWhitespace.js';
 
