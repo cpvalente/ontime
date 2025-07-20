@@ -52,7 +52,7 @@ export type { ViewSettings } from './definitions/core/Views.type.js';
 export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
 
 // ---> URL Presets
-export type { URLPreset } from './definitions/core/UrlPreset.type.js';
+export { OntimeView, type URLPreset } from './definitions/core/UrlPreset.type.js';
 
 // ---> Custom Fields
 export type {
