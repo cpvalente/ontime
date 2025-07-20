@@ -23,8 +23,8 @@ export const langEn = {
   'timeline.followedby': 'Followed by',
   'project.title': 'Title',
   'project.description': 'Description',
-  'project.backstage_info': 'Backstage Info',
-  'project.backstage_url': 'Backstage URL',
+  'project.info': 'Project Info',
+  'project.url': 'Project URL',
 };
 
 export type TranslationObject = Record<keyof typeof langEn, string>;
