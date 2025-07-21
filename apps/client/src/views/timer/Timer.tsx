@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { CustomFields, MessageState, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
+import { CustomFields, MessageState, OntimeEvent, OntimeView, ProjectData, Settings, ViewSettings } from 'ontime-types';
 
 import { FitText } from '../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -157,7 +157,7 @@ export default function Timer({
     >
       {!hideLogo && general?.logo && <ViewLogo name={general.logo} className='logo' />}
 
-      <ViewParamsEditor viewOptions={timerOptions} />
+      <ViewParamsEditor target={OntimeView.Timer} viewOptions={timerOptions} />
 
       <div className={cx(['blackout', message.timer.blackout && 'blackout--active'])} />
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { useViewportSize } from '@mantine/hooks';
-import { CustomFields, OntimeEvent, ProjectData, Runtime, Settings } from 'ontime-types';
+import { CustomFields, OntimeEvent, OntimeView, ProjectData, Runtime, Settings } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import ProgressBar from '../../common/components/progress-bar/ProgressBar';
@@ -110,7 +110,7 @@ export default function Backstage({
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
-      <ViewParamsEditor viewOptions={backstageOptions} />
+      <ViewParamsEditor target={OntimeView.Backstage} viewOptions={backstageOptions} />
       <div className='project-header'>
         {general?.logo && <ViewLogo name={general.logo} className='logo' />}
         <div className='title'>{general.title}</div>

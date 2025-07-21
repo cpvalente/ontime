@@ -115,7 +115,7 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
         <div className={style.expand}>
           <Panel.Description>Generate options (paste URL to generate options)</Panel.Description>
           <Panel.InlineElements>
-            <Input placeholder='Paste URL' fluid ref={urlRef} required />
+            <Input placeholder='Paste URL' fluid ref={urlRef} />
             <Button onClick={generateOptions}>Generate</Button>
           </Panel.InlineElements>
         </div>
