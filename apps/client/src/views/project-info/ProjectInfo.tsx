@@ -1,4 +1,5 @@
 import { IoOpenOutline } from 'react-icons/io5';
+import { OntimeView } from 'ontime-types';
 
 import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
 import EmptyPage from '../../common/components/state/EmptyPage';
@@ -10,7 +11,6 @@ import { useViewOptionsStore } from '../../common/stores/viewOptions';
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import './ProjectInfo.scss';
-import { OntimeView } from 'ontime-types';
 
 export default function ProjectInfo() {
   // persisted app state

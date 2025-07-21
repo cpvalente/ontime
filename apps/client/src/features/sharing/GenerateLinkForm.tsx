@@ -4,17 +4,17 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import QRCode from 'react-qr-code';
 
-import { generateUrl } from '../../../../common/api/session';
-import { maybeAxiosError } from '../../../../common/api/utils';
-import Button from '../../../../common/components/buttons/Button';
-import Info from '../../../../common/components/info/Info';
-import Select from '../../../../common/components/select/Select';
-import Switch from '../../../../common/components/switch/Switch';
-import copyToClipboard from '../../../../common/utils/copyToClipboard';
-import { preventEscape } from '../../../../common/utils/keyEvent';
-import { linkToOtherHost } from '../../../../common/utils/linkUtils';
-import { currentHostName, isOntimeCloud, serverURL } from '../../../../externals';
-import * as Panel from '../../panel-utils/PanelUtils';
+import { generateUrl } from '../../common/api/session';
+import { maybeAxiosError } from '../../common/api/utils';
+import Button from '../../common/components/buttons/Button';
+import Info from '../../common/components/info/Info';
+import Select from '../../common/components/select/Select';
+import Switch from '../../common/components/switch/Switch';
+import copyToClipboard from '../../common/utils/copyToClipboard';
+import { preventEscape } from '../../common/utils/keyEvent';
+import { linkToOtherHost } from '../../common/utils/linkUtils';
+import { currentHostName, isOntimeCloud, serverURL } from '../../externals';
+import * as Panel from '../app-settings/panel-utils/PanelUtils';
 
 import style from './GenerateLinkForm.module.scss';
 
