@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { isOntimeBlock, isOntimeEvent } from 'ontime-types';
+import { isOntimeBlock, isOntimeEvent, OntimeView } from 'ontime-types';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -116,7 +116,7 @@ export default function Operator() {
 
   return (
     <div className={style.operatorContainer} data-testid='operator-view'>
-      <ViewParamsEditor viewOptions={operatorOptions} />
+      <ViewParamsEditor target={OntimeView.Operator} viewOptions={operatorOptions} />
       {editEvent && <EditModal event={editEvent} onClose={() => setEditEvent(null)} />}
 
       <StatusBar />

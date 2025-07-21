@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { MessageState, OntimeEvent, ProjectData, Runtime, Settings, ViewSettings } from 'ontime-types';
+import { MessageState, OntimeEvent, OntimeView, ProjectData, Runtime, Settings, ViewSettings } from 'ontime-types';
 
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -48,7 +48,7 @@ export default function Studio({
 
   return (
     <div className={cx(['studio', isMirrored && 'mirror'])} data-testid='studio-view'>
-      <ViewParamsEditor viewOptions={studioOptions} />
+      <ViewParamsEditor target={OntimeView.StudioClock} viewOptions={studioOptions} />
 
       <div className='project-header'>
         {general?.logo && <ViewLogo name={general.logo} className='logo' />}

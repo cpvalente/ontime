@@ -1,5 +1,6 @@
+import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { URLPreset } from 'ontime-types';
+import { OntimeView, URLPreset } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { URL_PRESETS } from '../api/constants';
@@ -19,6 +20,14 @@ export default function useUrlPresets({ skip = false }: FetchProps = {}) {
   });
 
   return { data: data ?? [], status, isError, refetch };
+}
+
+export function useViewUrlPresets(view: OntimeView) {
+  const { data } = useUrlPresets();
+
+  const viewPresets = useMemo(() => data.filter((preset) => preset.target === view), [data, view]);
+
+  return { viewPresets };
 }
 
 export function useUpdateUrlPreset() {

@@ -136,9 +136,9 @@ export function arePathsEquivalent(currentPath: string, newPath: string): boolea
  * Generates a URL preset from a user given alias and URL.
  */
 export function generateUrlPresetOptions(alias: string, userUrl: string): URLPreset {
-  let sanitisedUrl = userUrl.toLowerCase();
+  let sanitisedUrl = userUrl;
   // we need to ensure the URL has a protocol, but it doesnt matter which
-  if (!checkRegex.startsWithHttp(sanitisedUrl)) {
+  if (!checkRegex.startsWithHttp(userUrl.toLowerCase())) {
     sanitisedUrl = `http://${sanitisedUrl}`;
   }
 
