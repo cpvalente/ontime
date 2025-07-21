@@ -10,6 +10,7 @@ import { useViewOptionsStore } from '../../common/stores/viewOptions';
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import './ProjectInfo.scss';
+import { OntimeView } from 'ontime-types';
 
 export default function ProjectInfo() {
   // persisted app state
@@ -23,7 +24,7 @@ export default function ProjectInfo() {
     return (
       <>
         <ViewNavigationMenu isLockable suppressSettings />
-        <ViewParamsEditor viewOptions={[]} />
+        <ViewParamsEditor target={OntimeView.ProjectInfo} viewOptions={[]} />
         <EmptyPage text={getLocalizedString('common.no_data')} />;
       </>
     );
@@ -38,7 +39,7 @@ export default function ProjectInfo() {
     return (
       <>
         <ViewNavigationMenu isLockable suppressSettings />
-        <ViewParamsEditor viewOptions={[]} />
+        <ViewParamsEditor target={OntimeView.ProjectInfo} viewOptions={[]} />
         <EmptyPage text={getLocalizedString('common.no_data')} />;
       </>
     );
@@ -47,7 +48,7 @@ export default function ProjectInfo() {
   return (
     <div className={`project ${isMirrored ? 'mirror' : ''}`} data-testid='project-view'>
       <ViewNavigationMenu isLockable suppressSettings />
-      <ViewParamsEditor viewOptions={[]} />
+      <ViewParamsEditor target={OntimeView.ProjectInfo} viewOptions={[]} />
       {data.logo && <ViewLogo name={data.logo} className='logo' />}
       <div className='info'>
         {data.title && (

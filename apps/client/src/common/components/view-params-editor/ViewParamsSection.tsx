@@ -15,8 +15,7 @@ interface ViewParamsSectionProps {
   options: ParamField[];
 }
 
-export default memo(ViewParamsSection);
-function ViewParamsSection({ title, collapsible, options }: ViewParamsSectionProps) {
+export default function ViewParamsSection({ title, collapsible, options }: ViewParamsSectionProps) {
   const [collapsed, setCollapsed] = useLocalStorage({ key: `params-${title}`, defaultValue: false });
 
   const handleCollapse = () => {
