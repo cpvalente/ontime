@@ -1,7 +1,8 @@
-import { FormEvent, memo } from 'react';
+import { FormEvent, memo, useReducer } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useSearchParams } from 'react-router-dom';
 import { Dialog } from '@base-ui-components/react/dialog';
+import { OntimeView } from 'ontime-types';
 
 import useViewSettings from '../../hooks-query/useViewSettings';
 import Button from '../buttons/Button';
@@ -11,20 +12,23 @@ import Info from '../info/Info';
 import { ViewOption } from './viewParams.types';
 import { getURLSearchParamsFromObj } from './viewParams.utils';
 import { useViewParamsEditorStore } from './viewParamsEditor.store';
+import { ViewParamsShare } from './ViewParamShare';
 import ViewParamsSection from './ViewParamsSection';
 
 import style from './ViewParamsEditor.module.scss';
 
 interface EditFormDrawerProps {
+  target: OntimeView;
   viewOptions: ViewOption[];
 }
 
 export default memo(ViewParamsEditor);
-
-function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
+function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
   const [_, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
   const { isOpen, close } = useViewParamsEditorStore();
+  // TODO: we dont want this as a permanent option
+  const forceRender = useReducer((x) => x + 1, 0)[1];
 
   const handleClose = () => {
     close();
@@ -32,6 +36,7 @@ function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
 
   const resetParams = () => {
     setSearchParams();
+    forceRender();
   };
 
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
@@ -40,6 +45,7 @@ function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
     setSearchParams(newSearchParams);
+    forceRender();
   };
 
   return (
@@ -64,6 +70,7 @@ function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
             {viewSettings.overrideStyles && (
               <Info className={style.info}>This view style is being modified by a custom CSS file.</Info>
             )}
+            <ViewParamsShare target={target} />
             <form id='edit-params-form' onSubmit={onParamsFormSubmit} className={style.sectionList}>
               {viewOptions.map((section) => (
                 <ViewParamsSection
@@ -80,7 +87,7 @@ function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
               Reset to default
             </Button>
             <Button variant='primary' size='large' form='edit-params-form' type='submit'>
-              Save
+              Apply
             </Button>
           </div>
         </Dialog.Popup>
