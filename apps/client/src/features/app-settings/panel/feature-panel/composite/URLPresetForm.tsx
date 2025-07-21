@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { OntimeView, URLPreset } from 'ontime-types';
+import { OntimeView, OntimeViewPresettable, URLPreset } from 'ontime-types';
 
 import { maybeAxiosError, unwrapError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
@@ -12,8 +12,9 @@ import { generateUrlPresetOptions } from '../../../../../common/utils/urlPresets
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import style from './URLPresetForm.module.scss';
+import Textarea from '../../../../../common/components/input/textarea/Textarea';
 
-const targetOptions: SelectOption[] = [
+const targetOptions: SelectOption<OntimeViewPresettable>[] = [
   { value: OntimeView.Cuesheet, label: 'Cuesheet' },
   { value: OntimeView.Operator, label: 'Operator' },
   { value: OntimeView.Timer, label: 'Timer' },
@@ -126,14 +127,15 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
         <Select
           options={targetOptions}
           {...register('target', { required: 'Target is required' })}
-          value={watch('target') as OntimeView}
-          onValueChange={(value) => setValue('target', value)}
+          value={watch('target')}
+          onValueChange={(value) => setValue('target', value, { shouldDirty: true })}
         />
       </div>
       <div>
         <Panel.Description>Parameters</Panel.Description>
-        <Input
+        <Textarea
           fluid
+          rows={3}
           {...register('search', {
             validate: validateParams,
           })}

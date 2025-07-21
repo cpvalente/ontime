@@ -7,6 +7,7 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import Info from '../../../../common/components/info/Info';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Switch from '../../../../common/components/switch/Switch';
+import Tag from '../../../../common/components/tag/Tag';
 import useUrlPresets, { useUpdateUrlPreset } from '../../../../common/hooks-query/useUrlPresets';
 import { handleLinks } from '../../../../common/utils/linkUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -57,9 +58,8 @@ export default function URLPresets() {
             <thead>
               <tr>
                 <th>Enabled</th>
-                <th>Alias</th>
                 <th>Target view</th>
-                <th>URL parameters</th>
+                <th>Alias</th>
                 <th />
               </tr>
             </thead>
@@ -71,9 +71,10 @@ export default function URLPresets() {
                     <td>
                       <Switch defaultChecked={preset.enabled} onCheckedChange={() => {}} />
                     </td>
-                    <td>{preset.alias}</td>
-                    <td>{preset.target}</td>
-                    <td>{preset.search}</td>
+                    <td>
+                      <Tag>{preset.target}</Tag>
+                    </td>
+                    <td style={{ width: '100%' }}>{preset.alias}</td>
                     <Panel.InlineElements relation='inner' as='td'>
                       <IconButton
                         variant='ghosted-white'
