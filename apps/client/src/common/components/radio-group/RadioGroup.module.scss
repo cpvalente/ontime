@@ -1,6 +1,5 @@
 .radioGroup {
   display: flex;
-  gap: 0.25rem;
   color: $gray-900;
   font-size: calc(1rem - 2px);
   color: $ui-white;
@@ -46,10 +45,7 @@
   }
 
   &[data-checked] {
-    background-color: $ui-white;
-    &:hover {
-      border-color: $gray-1000;
-    }
+    background-color: $blue-700;
   }
 
   &:focus-visible {
@@ -71,6 +67,6 @@
     border-radius: 100%;
     width: 0.5rem;
     height: 0.5rem;
-    background-color: $gray-1200;
+    background-color: $ui-white;
   }
 }

@@ -1,4 +1,4 @@
-import { PropsWithChildren, useState } from 'react';
+import { PropsWithChildren, useRef, useState } from 'react';
 import { IoCheckmark } from 'react-icons/io5';
 import { IoCopy } from 'react-icons/io5';
 
@@ -24,32 +24,29 @@ export default function CopyTag({
   onClick,
 }: PropsWithChildren<CopyTagProps>) {
   const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleClick = () => {
     copyToClipboard(copyValue);
     setCopied(true);
 
     // reset copied state
-    setTimeout(() => setCopied(false), 1000);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <div className={style.copytag}>
       {onClick !== undefined ? (
-        <Button className={style.action} size={size} tabIndex={-1} onClick={onClick} disabled={disabled}>
+        <Button className={style.action} size={size} onClick={onClick} disabled={disabled}>
           {children}
         </Button>
       ) : (
         <div className={cx([style.label, style[size]])}>{children}</div>
       )}
-      <IconButton
-        className={style.copy}
-        variant='primary'
-        size={size}
-        tabIndex={-1}
-        onClick={handleClick}
-        disabled={disabled}
-      >
+      <IconButton className={style.copy} variant='primary' size={size} onClick={handleClick} disabled={disabled}>
         {copied ? <IoCheckmark /> : <IoCopy />}
       </IconButton>
     </div>
