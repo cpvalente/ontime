@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
-import useInfo from '../../../../common/hooks-query/useInfo';
-import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
+import useInfo from '../../common/hooks-query/useInfo';
+import useUrlPresets from '../../common/hooks-query/useUrlPresets';
 
 import GenerateLinkForm from './GenerateLinkForm';
 
