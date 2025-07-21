@@ -6,6 +6,7 @@ import {
   isOntimeEvent,
   isPlayableEvent,
   OntimeEvent,
+  OntimeView,
   ProjectData,
   Settings,
 } from 'ontime-types';
@@ -70,7 +71,7 @@ export default function Countdown({
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
-      <ViewParamsEditor viewOptions={countdownOptions} />
+      <ViewParamsEditor target={OntimeView.Countdown} viewOptions={countdownOptions} />
       <div className='project-header'>
         {general?.logo && <ViewLogo name={general.logo} className='logo' />}
         <div className='title'>{general.title}</div>

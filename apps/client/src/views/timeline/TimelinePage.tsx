@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { MaybeString, OntimeEvent, ProjectData, Runtime, Settings } from 'ontime-types';
+import { MaybeString, OntimeEvent, OntimeView, ProjectData, Runtime, Settings } from 'ontime-types';
 
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -72,7 +72,7 @@ export default function TimelinePage({ events, general, runtime, selectedId, set
   }
   return (
     <div className='timeline' data-testid='timeline-view'>
-      <ViewParamsEditor viewOptions={progressOptions} />
+      <ViewParamsEditor target={OntimeView.Timeline} viewOptions={progressOptions} />
       <div className='project-header'>
         {general?.logo && <ViewLogo name={general.logo} className='logo' />}
         <div className='title'>{general.title}</div>
