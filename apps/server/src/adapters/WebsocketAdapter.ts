@@ -59,7 +59,12 @@ class SocketServer implements IAdapter {
 
   init(server: Server, showWelcome: boolean, prefix?: string) {
     this.shouldShowWelcome = showWelcome;
-    this.wss = new WebSocketServer({ path: `${prefix}/ws`, server, maxPayload: this.MAX_PAYLOAD });
+    this.wss = new WebSocketServer({
+      path: `${prefix}/ws`,
+      server,
+      maxPayload: this.MAX_PAYLOAD,
+      perMessageDeflate: true,
+    });
 
     this.wss.on('connection', (ws, req) => {
       authenticateSocket(ws, req, (error) => {
