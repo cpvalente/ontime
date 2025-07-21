@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { CustomFields, MessageState, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
 
 import { FitText } from '../../common/components/fit-text/FitText';
@@ -146,7 +147,7 @@ export default function Timer({
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const timerOptions = getTimerOptions(defaultFormat, customFields);
+  const timerOptions = useMemo(() => getTimerOptions(defaultFormat, customFields), [customFields, defaultFormat]);
 
   return (
     <div
