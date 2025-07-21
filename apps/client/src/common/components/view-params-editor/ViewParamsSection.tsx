@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import { IoChevronDown } from 'react-icons/io5';
 import { useLocalStorage } from '@mantine/hooks';
 
