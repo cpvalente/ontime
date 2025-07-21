@@ -31,11 +31,7 @@
   }
 
   &[data-checked] {
-    background-color: $gray-1200;
-
-    &:hover {
-      border-color: $gray-1000;
-    }
+    background-color: $gray-700;
   }
 
   &:focus-visible {
@@ -57,6 +53,6 @@
     border-radius: 100%;
     width: 0.5em;
     height: 0.5em;
-    background-color: $blue-500;
+    background-color: $ui-white;
   }
 }
