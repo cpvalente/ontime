@@ -1,10 +1,11 @@
-'use no memo'; // RHF and react-compiler don't seem to get along
-
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import QRCode from 'react-qr-code';
+import { OntimeView, URLPreset } from 'ontime-types';
+import { generateId } from 'ontime-utils';
 
 import { generateUrl } from '../../common/api/session';
+import { postUrlPreset } from '../../common/api/urlPresets';
 import { maybeAxiosError } from '../../common/api/utils';
 import Button from '../../common/components/buttons/Button';
 import Info from '../../common/components/info/Info';
@@ -13,61 +14,106 @@ import Switch from '../../common/components/switch/Switch';
 import copyToClipboard from '../../common/utils/copyToClipboard';
 import { preventEscape } from '../../common/utils/keyEvent';
 import { linkToOtherHost } from '../../common/utils/linkUtils';
-import { currentHostName, isOntimeCloud, serverURL } from '../../externals';
+import { isOntimeCloud, serverURL } from '../../externals';
 import * as Panel from '../app-settings/panel-utils/PanelUtils';
+
+import CuesheetLinkOptions from './composite/CuesheetLinkOptions';
 
 import style from './GenerateLinkForm.module.scss';
 
 interface GenerateLinkFormProps {
   hostOptions: { value: string; label: string }[];
-  pathOptions: { value: string; label: string }[];
+  pathOptions: { value: OntimeView | string; label: string }[];
   isLockedToView?: boolean;
 }
 
-interface GenerateLinkFormOptions {
+type GenericLinkOptions = {
   baseUrl: string;
-  path: string;
+  path: OntimeView | string; // we use empty string for Companion view
   lock: boolean;
   authenticate: boolean;
-}
+};
+
+type CuesheetLinkOptions = {
+  baseUrl: string;
+  path: OntimeView.Cuesheet;
+  options: {
+    readPermissions?: string;
+    writePermissions?: string;
+  };
+  lock: boolean;
+  authenticate: boolean;
+};
+
+type GenerateLinkFormOptions = GenericLinkOptions | CuesheetLinkOptions;
 
 type GenerateLinkState = 'pending' | 'loading' | 'success' | 'error';
 
 export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToView }: GenerateLinkFormProps) {
-  'use no memo'; // RHF and react-compiler don't seem to get along
   const [formState, setFormState] = useState<GenerateLinkState>('pending');
   const [url, setUrl] = useState(serverURL);
+  const cuesheetReadRef = useRef<HTMLInputElement>(null);
+  const cuesheetWriteRef = useRef<HTMLInputElement>(null);
 
   const {
     handleSubmit,
     setError,
     watch,
     setValue,
-    formState: { errors },
+    reset,
+    formState: { errors, isDirty },
   } = useForm<GenerateLinkFormOptions>({
     mode: 'onChange',
     defaultValues: {
-      baseUrl: currentHostName,
-      path: isLockedToView ? pathOptions[0].value : 'timer',
+      baseUrl: serverURL,
+      path: isLockedToView ? pathOptions[0].value : OntimeView.Timer,
       lock: false,
       authenticate: false,
     },
     resetOptions: {
       keepDirtyValues: true,
+      keepValues: true,
     },
   });
+
+  /**
+   * If the user is generating a link to the cuesheet we gather extra options
+   * The extra options are saved into a URL preset which we then request a share link for
+   */
+  const createPresetFromOptions = async (): Promise<URLPreset | undefined> => {
+    const linkId = `cuesheet-${generateId()}`;
+    const presets = await postUrlPreset({
+      target: OntimeView.Cuesheet,
+      enabled: true,
+      alias: linkId,
+      search: '',
+      options: {
+        readPermissions: cuesheetReadRef.current?.value ?? '',
+        writePermissions: cuesheetWriteRef.current?.value ?? '',
+      },
+    });
+    return presets.find((preset) => preset.alias === linkId);
+  };
 
   const onSubmit = async (options: GenerateLinkFormOptions) => {
     try {
       setFormState('loading');
-      const baseUrl = linkToOtherHost(options.baseUrl);
-      const url = await generateUrl(baseUrl, options.path, options.lock, options.authenticate);
-      await copyToClipboard(url);
-      setUrl(url);
+      if (options.path === OntimeView.Cuesheet) {
+        const urlPreset = await createPresetFromOptions();
+        if (!urlPreset) {
+          throw new Error('Failed to create URL preset for Cuesheet');
+        }
+        const url = await generateUrl(options.baseUrl, urlPreset.alias, options.lock, options.authenticate);
+        await copyToClipboard(url);
+        setUrl(url);
+      } else {
+        const baseUrl = linkToOtherHost(options.baseUrl);
+        const url = await generateUrl(baseUrl, options.path, options.lock, options.authenticate);
+        await copyToClipboard(url);
+        setUrl(url);
+      }
       setFormState('success');
-      setTimeout(() => {
-        setFormState('pending');
-      }, 4000);
+      reset();
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
@@ -75,27 +121,32 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToV
     }
   };
 
+  console.log('base url', watch('baseUrl'));
+  const canSubmit = isDirty || formState !== 'success';
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} onKeyDown={(event) => preventEscape(event)}>
       {errors.root && <Panel.Error>{errors.root.message}</Panel.Error>}
-      {!isLockedToView ? (
+      {!isLockedToView && (
         <Info>You can generate a link to share with your team or to use in automation (such as companion).</Info>
-      ) : (
-        <Info>You can generate a link to share with your team</Info>
       )}
       <Panel.ListGroup>
-        <Panel.ListItem>
-          <Panel.Field
-            title='Host IP'
-            description={`Which IP address will be used${isOntimeCloud ? ' (not applicable in Ontime Cloud)' : ''}`}
-          />
-          <Select
-            disabled={isOntimeCloud}
-            options={hostOptions}
-            value={watch('baseUrl')}
-            onValueChange={(value) => setValue('baseUrl', value)}
-          />
-        </Panel.ListItem>
+        {isOntimeCloud ? (
+          <input hidden name='baseUrl' value={serverURL} />
+        ) : (
+          <Panel.ListItem>
+            <Panel.Field
+              title='Host IP'
+              description={`Which IP address will be used${isOntimeCloud ? ' (not applicable in Ontime Cloud)' : ''}`}
+            />
+            <Select
+              disabled={isOntimeCloud}
+              options={hostOptions}
+              value={watch('baseUrl')}
+              onValueChange={(value) => setValue('baseUrl', value)}
+            />
+          </Panel.ListItem>
+        )}
         {isLockedToView ? (
           <input type='hidden' value={watch('path')} />
         ) : (
@@ -105,11 +156,12 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToV
           </Panel.ListItem>
         )}
 
+        {watch('path') === OntimeView.Cuesheet && (
+          <CuesheetLinkOptions readRef={cuesheetReadRef} writeRef={cuesheetWriteRef} />
+        )}
+
         <Panel.ListItem>
-          <Panel.Field
-            title='Lock navigation'
-            description='Prevent showing navigation (will only work for non production URLs)'
-          />
+          <Panel.Field title='Lock navigation' description='Whether to hide the navigation menu' />
           <Switch
             size='large'
             name='lock'
@@ -130,13 +182,20 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToV
       <Panel.ListGroup>
         <Panel.ListItem>
           <Panel.Field title='Generate link' description='Fill form and generate link and QR code' />
-          <Button variant='primary' loading={formState === 'loading'} type='submit' style={{ alignSelf: 'end' }}>
-            {formState === 'success' ? 'Link copied to clipboard!' : 'Update share link'}
+          <Button
+            type='submit'
+            variant={canSubmit ? 'primary' : 'subtle'}
+            loading={formState === 'loading'}
+            className={style.end}
+          >
+            {canSubmit ? 'Update share link' : 'Link copied to clipboard!'}
           </Button>
-          <div className={style.column}>
-            <QRCode size={172} value={url} className={style.qrCode} />
-            <div className={style.copiableLink}>{url}</div>
-          </div>
+          {!isLockedToView && (
+            <div className={style.column}>
+              <QRCode size={172} value={url} className={style.qrCode} />
+              <div className={style.copiableLink}>{url}</div>
+            </div>
+          )}
         </Panel.ListItem>
       </Panel.ListGroup>
     </form>

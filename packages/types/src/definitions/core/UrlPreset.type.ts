@@ -13,10 +13,23 @@ export enum OntimeView {
   ProjectInfo = 'info',
 }
 
-export type URLPreset = {
-  // presets cannot target the editor view
+type BaseURLPreset = {
   target: Omit<OntimeView, 'editor'>;
   enabled: boolean;
   alias: string;
   search: string;
+  options?: Record<string, string>;
 };
+
+type CuesheetUrlPreset = {
+  target: OntimeView.Cuesheet;
+  enabled: boolean;
+  alias: string;
+  search: string;
+  options: {
+    readPermissions: string;
+    writePermissions: string;
+  };
+};
+
+export type URLPreset = BaseURLPreset | CuesheetUrlPreset;

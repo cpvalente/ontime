@@ -19,6 +19,7 @@ router.post('/', validateNewPreset, async (req: Request, res: Response<URLPreset
       alias: req.body.alias,
       target: req.body.target,
       search: req.body.search,
+      options: req.body.options,
     };
 
     const currentPresets = getDataProvider().getUrlPresets();
@@ -48,7 +49,7 @@ router.put('/:alias', validateUpdatePreset, async (req: Request, res: Response<U
     };
 
     if (alias !== updatedPreset.alias) {
-      throw new Error(`Changing alias is not permitted`);
+      throw new Error('Changing alias is not permitted');
     }
 
     const currentPresets = getDataProvider().getUrlPresets();

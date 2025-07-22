@@ -26,6 +26,7 @@ export function parseUrlPresets(data: Partial<DatabaseModel>, emitError?: ErrorE
       alias: preset.alias,
       target: preset.target,
       search: preset.search,
+      options: preset?.options,
     };
     newPresets.push(newPreset);
   }

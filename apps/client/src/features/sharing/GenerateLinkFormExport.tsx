@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { OntimeView } from 'ontime-types';
 
 import useInfo from '../../common/hooks-query/useInfo';
 import useUrlPresets from '../../common/hooks-query/useUrlPresets';
@@ -13,23 +14,22 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
   const { data: infoData } = useInfo();
   const { data: urlPresetData } = useUrlPresets({ skip: lockedPath === undefined });
 
-  const hostOptions = useMemo(
-    () =>
-      infoData.networkInterfaces.map((nif) => ({
-        value: nif.address,
-        label: `${nif.name} - ${nif.address}`,
-      })),
-    [infoData.networkInterfaces],
-  );
+  const hostOptions = useMemo(() => {
+    const currentProtocol = window.location.protocol;
+    return infoData.networkInterfaces.map((nif) => ({
+      value: `${currentProtocol}//${nif.address}`,
+      label: `${nif.name} - ${nif.address}`,
+    }));
+  }, [infoData.networkInterfaces]);
 
   const pathOptions = useMemo(() => {
     if (lockedPath) {
       return [{ value: lockedPath.value, label: lockedPath.label }];
     }
     return [
-      { value: 'timer', label: 'Timer' },
-      { value: 'cuesheet', label: 'Cuesheet' },
-      { value: 'op', label: 'Operator' },
+      { value: OntimeView.Timer, label: 'Timer' },
+      { value: OntimeView.Cuesheet, label: 'Cuesheet' },
+      { value: OntimeView.Operator, label: 'Operator' },
       { value: '', label: 'Companion' },
       ...urlPresetData.map((preset) => ({
         value: preset.alias,

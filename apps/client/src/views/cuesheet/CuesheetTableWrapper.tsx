@@ -17,7 +17,7 @@ function CuesheetTableWrapper() {
 
   const [cuesheetMode] = useSessionStorage({
     key: sessionKeys.cuesheetMode,
-    defaultValue: AppMode.Edit,
+    defaultValue: AppMode.Edit, // TODO: cuesheet mode depends on permission scope
   });
   const columns = useMemo(() => makeCuesheetColumns(customFields, cuesheetMode), [customFields, cuesheetMode]);
   const isLoading = !customFields || !flatRundown || rundownStatus === 'pending' || customFieldStatus === 'pending';
