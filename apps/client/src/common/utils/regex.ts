@@ -11,3 +11,4 @@ export const isAlphanumeric = /^[a-z0-9]+$/i;
 export const isASCII = /^[ -~]+$/; //https://catonmat.net/my-favorite-regex
 export const isASCIIorEmpty = /^$|^[ -~]+$/; //https://catonmat.net/my-favorite-regex
 export const isNotEmpty = /\S/;
+export const isUrlSafe = /^[a-zA-Z0-9_-]*$/; // https://stackoverflow.com/questions/24419067/validate-a-string-to-be-url-safe-using-regex

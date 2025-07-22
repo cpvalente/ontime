@@ -1,3 +1,4 @@
+import { CustomFields } from 'ontime-types';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -40,3 +41,22 @@ export const usePersistedCuesheetOptions = create<CuesheetOptions>()(
     },
   ),
 );
+
+export const cuesheetDefaultColumns = [
+  { value: 'flag', label: 'Flag' },
+  { value: 'cue', label: 'Cue' },
+  { value: 'title', label: 'Title' },
+  { value: 'timeStart', label: 'Time start' },
+  { value: 'timeEnd', label: 'Time end' },
+  { value: 'duration', label: 'Duration' },
+  { value: 'note', label: 'Note' },
+];
+
+export function makeCuesheetCustomColumns(customFields: CustomFields) {
+  return Object.entries(customFields).map(([key, field]) => {
+    return {
+      value: `custom-${key}`,
+      label: field.label,
+    };
+  });
+}

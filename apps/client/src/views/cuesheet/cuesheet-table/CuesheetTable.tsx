@@ -1,12 +1,11 @@
 import { memo, useCallback, useMemo } from 'react';
-import { useSessionStorage } from '@mantine/hooks';
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { OntimeEntry, TimeField } from 'ontime-types';
 
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { useFollowSelected } from '../../../common/hooks/useFollowComponent';
-import { AppMode, sessionKeys } from '../../../ontimeConfig';
+import { AppMode } from '../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../cuesheet.options';
 
 import CuesheetBody from './cuesheet-table-elements/CuesheetBody';
@@ -20,16 +19,14 @@ import style from './CuesheetTable.module.scss';
 interface CuesheetTableProps {
   data: OntimeEntry[];
   columns: ColumnDef<OntimeEntry>[];
+  cuesheetMode: AppMode;
 }
 
-export default function CuesheetTable({ data, columns }: CuesheetTableProps) {
+export default function CuesheetTable({ data, columns, cuesheetMode }: CuesheetTableProps) {
   const { updateEntry, updateTimer } = useEntryActions();
   const showDelayedTimes = usePersistedCuesheetOptions((state) => state.showDelayedTimes);
   const hideTableSeconds = usePersistedCuesheetOptions((state) => state.hideTableSeconds);
-  const [cuesheetMode] = useSessionStorage({
-    key: sessionKeys.cuesheetMode,
-    defaultValue: AppMode.Edit,
-  });
+  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
 
   const { selectedRef, scrollRef } = useFollowSelected(cuesheetMode === AppMode.Run);
 
@@ -66,9 +63,11 @@ export default function CuesheetTable({ data, columns }: CuesheetTableProps) {
       options: {
         showDelayedTimes,
         hideTableSeconds,
+        cuesheetMode,
+        hideIndexColumn,
       },
     }),
-    [data, hideTableSeconds, showDelayedTimes, updateEntry, updateTimer],
+    [cuesheetMode, data, hideIndexColumn, hideTableSeconds, showDelayedTimes, updateEntry, updateTimer],
   );
 
   const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
@@ -129,7 +128,7 @@ export default function CuesheetTable({ data, columns }: CuesheetTableProps) {
       />
       <div className={style.cuesheetContainer} ref={scrollRef}>
         <table className={style.cuesheet} id='cuesheet' style={{ ...columnSizeVars }} {...listeners}>
-          <CuesheetHeader headerGroups={headerGroups} />
+          <CuesheetHeader headerGroups={headerGroups} cuesheetMode={cuesheetMode} />
           {table.getState().columnSizingInfo.isResizingColumn ? (
             <MemoisedBody rowModel={rowModel} selectedRef={selectedRef} table={table} />
           ) : (

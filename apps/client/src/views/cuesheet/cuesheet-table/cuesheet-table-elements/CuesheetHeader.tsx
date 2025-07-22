@@ -1,11 +1,10 @@
 import { CSSProperties } from 'react';
 import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
-import { useSessionStorage } from '@mantine/hooks';
 import { flexRender, HeaderGroup } from '@tanstack/react-table';
 import { OntimeEntry } from 'ontime-types';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
-import { AppMode, sessionKeys } from '../../../../ontimeConfig';
+import { AppMode } from '../../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 
 import { SortableCell } from './SortableCell';
@@ -14,14 +13,11 @@ import style from '../CuesheetTable.module.scss';
 
 interface CuesheetHeaderProps {
   headerGroups: HeaderGroup<OntimeEntry>[];
+  cuesheetMode: AppMode;
 }
 
-export default function CuesheetHeader({ headerGroups }: CuesheetHeaderProps) {
+export default function CuesheetHeader({ headerGroups, cuesheetMode }: CuesheetHeaderProps) {
   const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
-  const [cuesheetMode] = useSessionStorage<AppMode>({
-    key: sessionKeys.cuesheetMode,
-    defaultValue: AppMode.Edit,
-  });
 
   return (
     <thead className={style.tableHeader}>

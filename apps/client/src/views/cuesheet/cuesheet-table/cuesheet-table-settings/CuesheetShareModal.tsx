@@ -1,5 +1,6 @@
 import { Toolbar } from '@base-ui-components/react/toolbar';
 import { useDisclosure } from '@mantine/hooks';
+import { OntimeView } from 'ontime-types';
 
 import Button from '../../../../common/components/buttons/Button';
 import RotatedLink from '../../../../common/components/icons/RotatedLink';
@@ -29,7 +30,9 @@ function CuesheetShareModal() {
         showBackdrop
         showCloseButton
         bodyElements={
-          showModalContent ? <GenerateLinkFormExport lockedPath={{ value: 'cuesheet', label: 'Cuesheet' }} /> : null
+          showModalContent ? (
+            <GenerateLinkFormExport lockedPath={{ value: OntimeView.Cuesheet, label: 'Cuesheet' }} />
+          ) : null
         }
       />
     </>

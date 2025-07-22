@@ -2,6 +2,7 @@ import {
   AutomationSettings,
   CustomFields,
   EndAction,
+  OntimeView,
   ProjectData,
   Rundown,
   Settings,
@@ -202,16 +203,18 @@ describe('v3 to v4', () => {
       {
         enabled: true,
         alias: 'clock',
-        target: 'timer',
+        target: OntimeView.Timer,
         search:
           'showLeadingZeros=true&timerType=clock&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+        options: {},
       },
       {
         enabled: true,
         alias: 'minimal',
-        target: 'timer',
+        target: OntimeView.Timer,
         search:
           'showLeadingZeros=true&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+        options: {},
       },
     ];
     const newUrlPreset = v3.migrateURLPresets(oldDb);
@@ -249,10 +252,10 @@ describe('v3 to v4', () => {
         colour: '#E80000',
       },
     };
-    const { customFields, translationTable } = v3.migrateCustomFields(oldDb)!;
-    expect(customFields).toEqual(expectCustomFields);
-
-    expect(translationTable).toEqual(
+    const parsedData = v3.migrateCustomFields(oldDb);
+    expect(parsedData).not.toBeUndefined();
+    expect(parsedData?.customFields).toEqual(expectCustomFields);
+    expect(parsedData?.translationTable).toEqual(
       new Map([
         ['song', 'Song_and_Dance'],
         ['artist', 'Artist_and_Host'],
