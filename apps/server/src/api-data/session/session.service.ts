@@ -1,4 +1,4 @@
-import { GetInfo, SessionStats } from 'ontime-types';
+import { GetInfo, LinkOptions, OntimeView, SessionStats } from 'ontime-types';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { publicDir } from '../../setup/index.js';
@@ -57,22 +57,31 @@ export const hashedPassword = hasPassword ? hashPassword(password as string) : u
 /**
  * Generates a pre-authenticated URL by injecting a token in the URL params
  */
-export function generateAuthenticatedUrl(
+export function generateShareUrl(
   baseUrl: string,
-  path: string,
-  lock: boolean,
-  authenticate: boolean,
-  prefix = routerPrefix,
-  hash = hashedPassword,
+  canonicalPath: string,
+  { authenticate, lockConfig, lockNav, preset, prefix = routerPrefix, hash = hashedPassword }: LinkOptions,
 ): URL {
   const url = new URL(baseUrl);
-  url.pathname = prefix ? `${prefix}/${path}` : path;
+
+  // if the config is locked and we are in a preset, we hide the canonical path
+  const shouldMaskCanonical = Boolean(preset) && (canonicalPath === OntimeView.Cuesheet || lockConfig);
+  const maybePresetPath = shouldMaskCanonical ? `preset/${preset}` : canonicalPath;
+  url.pathname = prefix ? `${prefix}/${maybePresetPath}` : maybePresetPath;
 
   if (authenticate && hash) {
     url.searchParams.append('token', hash);
   }
-  if (lock) {
-    url.searchParams.append('locked', 'true');
+
+  // TODO: can we make this less obvious eg: n=1
+  if (lockNav) {
+    url.searchParams.append('lock', 'true');
   }
+
+  // for unlocked presets we keep the preset reference as a parameter
+  if (!shouldMaskCanonical && preset) {
+    url.searchParams.append('alias', preset);
+  }
+
   return url;
 }

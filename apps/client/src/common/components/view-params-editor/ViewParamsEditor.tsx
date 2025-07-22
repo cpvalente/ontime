@@ -24,6 +24,7 @@ interface EditFormDrawerProps {
 
 export default memo(ViewParamsEditor);
 function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
+  // TODO: can we ensure that the options update when the user loads an alias?
   const [_, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
   const { isOpen, close } = useViewParamsEditorStore();
@@ -62,7 +63,7 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
         <Dialog.Popup className={style.drawer}>
           <div className={style.header}>
             <Dialog.Title>Customise</Dialog.Title>
-            <IconButton variant='subtle-white' size='large' onClick={handleClose}>
+            <IconButton variant='subtle-white' size='large' data-testid='close-view-params' onClick={handleClose}>
               <IoClose />
             </IconButton>
           </div>
@@ -86,7 +87,13 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
             <Button variant='subtle' size='large' onClick={resetParams} type='reset'>
               Reset to default
             </Button>
-            <Button variant='primary' size='large' form='edit-params-form' type='submit'>
+            <Button
+              variant='primary'
+              size='large'
+              form='edit-params-form'
+              type='submit'
+              data-testid='apply-view-params'
+            >
               Apply
             </Button>
           </div>

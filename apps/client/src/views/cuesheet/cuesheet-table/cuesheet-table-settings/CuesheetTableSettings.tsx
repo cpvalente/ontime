@@ -15,6 +15,7 @@ import PopoverContents from '../../../../common/components/popover/Popover';
 import { cx } from '../../../../common/utils/styleUtils';
 import { AppMode, sessionKeys } from '../../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
+import { useCuesheetPermissions } from '../../useTablePermissions';
 
 import CuesheetShareModal from './CuesheetShareModal';
 
@@ -37,6 +38,7 @@ export default function CuesheetTableSettings({
     key: sessionKeys.cuesheetMode,
     defaultValue: AppMode.Edit,
   });
+  const canShare = useCuesheetPermissions((state) => state.canShare);
 
   const toggleCuesheetMode = (mode: AppMode[]) => {
     // we need to stop user from deselecting a mode
@@ -54,7 +56,6 @@ export default function CuesheetTableSettings({
         handleResetReordering={handleResetReordering}
         handleClearToggles={handleClearToggles}
       />
-
       <ToggleGroup value={[cuesheetMode]} onValueChange={toggleCuesheetMode} className={cx([style.group, style.apart])}>
         <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
           Run
@@ -64,8 +65,12 @@ export default function CuesheetTableSettings({
         </Toolbar.Button>
       </ToggleGroup>
 
-      <Editor.Separator orientation='vertical' />
-      <CuesheetShareModal />
+      {canShare && (
+        <>
+          <Editor.Separator orientation='vertical' />
+          <CuesheetShareModal />
+        </>
+      )}
     </Toolbar.Root>
   );
 }

@@ -29,12 +29,12 @@ router.get('/info', async (_req: Request, res: Response<GetInfo | ErrorResponse>
 
 router.post('/url', validateGenerateUrl, (req: Request, res: Response<GetUrl | ErrorResponse>) => {
   try {
-    const url = sessionService.generateAuthenticatedUrl(
-      req.body.baseUrl,
-      req.body.path,
-      req.body.lock,
-      req.body.authenticate,
-    );
+    const url = sessionService.generateShareUrl(req.body.baseUrl, req.body.path, {
+      authenticate: req.body.authenticate,
+      lockConfig: req.body.lockConfig,
+      lockNav: req.body.lockNav,
+      preset: req.body.preset,
+    });
     res.status(200).send({ url: url.toString() });
   } catch (error) {
     const message = getErrorMessage(error);

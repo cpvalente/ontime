@@ -14,6 +14,10 @@ export const validateNewPreset = [
   body('target').isString().trim().notEmpty().isIn(Object.values(OntimeView)),
   body('search').isString().trim(),
 
+  // options are currently only provided for cuesheet presets
+  body('options').optional().isObject(),
+  body('options.*').isString().trim(),
+
   requestValidationFunction,
 ];
 
@@ -24,6 +28,10 @@ export const validateUpdatePreset = [
   body('alias').isString().trim().notEmpty(),
   body('target').isString().trim().notEmpty().isIn(Object.values(OntimeView)),
   body('search').isString().trim(),
+
+  // options are currently only provided for cuesheet presets
+  body('options').optional().isObject(),
+  body('options.*').isString().trim(),
 
   requestValidationFunction,
 ];

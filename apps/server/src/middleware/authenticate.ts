@@ -121,8 +121,12 @@ export function authenticateSocket(_ws: WebSocket, req: IncomingMessage, next: (
   return next(new Error('Unauthorized'));
 }
 
+/**
+ * Sets a cookie with the provided token
+ * We currently add a full 'rw' permission scope, this should be filtered when dealing with presets
+ */
 function setSessionCookie(res: Response, token: string) {
-  res.cookie('token', token, {
+  res.cookie('token', JSON.stringify({ token, scope: 'rw' }), {
     httpOnly: false, // allow websocket to access cookie
     secure: true,
     path: '/', // allow cookie to be accessed from any path

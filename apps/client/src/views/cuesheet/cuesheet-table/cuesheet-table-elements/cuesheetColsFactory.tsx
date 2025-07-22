@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { CustomFields, isOntimeDelay, isOntimeEvent, OntimeEntry, TimeStrategy } from 'ontime-types';
+import { CustomFields, isOntimeDelay, isOntimeEvent, OntimeEntry, TimeStrategy, URLPreset } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
@@ -225,85 +225,112 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeEntry, unknow
  * we cant use the createColumnHelper() because we have custom logic for rendering the cells
  * This means that the display columns: index and action are added inline by the row components
  */
-export function makeCuesheetColumns(customFields: CustomFields, cuesheetMode: AppMode): ColumnDef<OntimeEntry>[] {
+export function makeCuesheetColumns(
+  customFields: CustomFields,
+  cuesheetMode: AppMode,
+  preset: URLPreset | undefined,
+): ColumnDef<OntimeEntry>[] {
   const columnsDef: ColumnDef<OntimeEntry>[] = [];
   const modeAllowsWrite = cuesheetMode === AppMode.Edit;
+  const fullRead = preset ? preset.options?.read === 'full' : true;
+  const fullWrite = preset ? preset.options?.write === 'full' : true;
+  const canWriteKeys = preset?.options?.write ? new Set(preset.options.write.split(',')) : new Set<string>();
+  const canReadKeys = preset?.options?.read ? new Set(preset.options.read.split(',')) : new Set<string>();
 
-  columnsDef.push({
-    accessorKey: 'flag',
-    id: 'flag',
-    header: 'Flag',
-    cell: MakeFlagField,
-    size: 45,
-    minSize: 45,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  // helpers to check read/write for a given key
+  const canRead = (key: string) => fullRead || canReadKeys.has(key);
+  const canWrite = (key: string) => modeAllowsWrite && (fullWrite || canWriteKeys.has(key));
 
-  columnsDef.push({
-    accessorKey: 'cue',
-    id: 'cue',
-    header: 'Cue',
-    cell: MakeSingleLineField,
-    size: 75,
-    minSize: 40,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  if (canRead('flag')) {
+    columnsDef.push({
+      accessorKey: 'flag',
+      id: 'flag',
+      header: 'Flag',
+      cell: MakeFlagField,
+      size: 45,
+      minSize: 45,
+      meta: { canWrite: canWrite('flag') },
+    });
+  }
 
-  columnsDef.push({
-    accessorKey: 'timeStart',
-    id: 'timeStart',
-    header: 'Start',
-    cell: MakeStart,
-    size: 75,
-    minSize: 75,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  if (canRead('cue')) {
+    columnsDef.push({
+      accessorKey: 'cue',
+      id: 'cue',
+      header: 'Cue',
+      cell: MakeSingleLineField,
+      size: 75,
+      minSize: 40,
+      meta: { canWrite: canWrite('cue') },
+    });
+  }
 
-  columnsDef.push({
-    accessorKey: 'timeEnd',
-    id: 'timeEnd',
-    header: 'End',
-    cell: MakeEnd,
-    size: 75,
-    minSize: 75,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  if (canRead('timeStart')) {
+    columnsDef.push({
+      accessorKey: 'timeStart',
+      id: 'timeStart',
+      header: 'Start',
+      cell: MakeStart,
+      size: 75,
+      minSize: 75,
+      meta: { canWrite: canWrite('timeStart') },
+    });
+  }
 
-  columnsDef.push({
-    accessorKey: 'duration',
-    id: 'duration',
-    header: 'Duration',
-    cell: MakeDuration,
-    size: 75,
-    minSize: 75,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  if (canRead('timeEnd')) {
+    columnsDef.push({
+      accessorKey: 'timeEnd',
+      id: 'timeEnd',
+      header: 'End',
+      cell: MakeEnd,
+      size: 75,
+      minSize: 75,
+      meta: { canWrite: canWrite('timeEnd') },
+    });
+  }
 
-  columnsDef.push({
-    accessorKey: 'title',
-    id: 'title',
-    header: 'Title',
-    cell: MakeSingleLineField,
-    size: 250,
-    minSize: 75,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  if (canRead('duration')) {
+    columnsDef.push({
+      accessorKey: 'duration',
+      id: 'duration',
+      header: 'Duration',
+      cell: MakeDuration,
+      size: 75,
+      minSize: 75,
+      meta: { canWrite: canWrite('duration') },
+    });
+  }
 
-  columnsDef.push({
-    accessorKey: 'note',
-    id: 'note',
-    header: 'Note',
-    cell: MakeMultiLineField,
-    size: 250,
-    minSize: 75,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  if (canRead('title')) {
+    columnsDef.push({
+      accessorKey: 'title',
+      id: 'title',
+      header: 'Title',
+      cell: MakeSingleLineField,
+      size: 250,
+      minSize: 75,
+      meta: { canWrite: canWrite('title') },
+    });
+  }
+
+  if (canRead('note')) {
+    columnsDef.push({
+      accessorKey: 'note',
+      id: 'note',
+      header: 'Note',
+      cell: MakeMultiLineField,
+      size: 250,
+      minSize: 75,
+      meta: { canWrite: canWrite('note') },
+    });
+  }
 
   // custom fields at the end
   const customFieldKeys = Object.keys(customFields);
 
   for (let i = 0; i < customFieldKeys.length; i++) {
     const key = customFieldKeys[i];
+    if (!canRead(key)) continue;
     columnsDef.push({
       accessorKey: key,
       id: key,
@@ -313,7 +340,7 @@ export function makeCuesheetColumns(customFields: CustomFields, cuesheetMode: Ap
       minSize: 75,
       meta: {
         colour: customFields[key].colour,
-        canWrite: true,
+        canWrite: canWrite(`custom-${key}`),
       },
     });
   }

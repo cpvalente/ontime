@@ -3,6 +3,13 @@
   color: $gray-900;
   font-size: calc(1rem - 2px);
   color: $ui-white;
+
+  &[data-disabled] {
+    .item {
+      opacity: $opacity-disabled;
+      cursor: not-allowed;
+    }
+  }
 }
 
 .horizontal {

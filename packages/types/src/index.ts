@@ -52,7 +52,7 @@ export type { ViewSettings } from './definitions/core/Views.type.js';
 export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
 
 // ---> URL Presets
-export { OntimeView, type URLPreset } from './definitions/core/UrlPreset.type.js';
+export { OntimeView, type URLPreset, type OntimeViewPresettable } from './definitions/core/UrlPreset.type.js';
 
 // ---> Custom Fields
 export type {
@@ -63,6 +63,7 @@ export type {
 } from './definitions/core/CustomFields.type.js';
 
 // SERVER RESPONSES
+export type { QuickStartData } from './api/db/db.type.js';
 export type {
   AuthenticationStatus,
   NetworkInterface,
@@ -76,13 +77,13 @@ export type {
   SessionStats,
   ProjectLogoResponse,
 } from './api/ontime-controller/BackendResponse.type.js';
-export type { QuickStartData } from './api/db/db.type.js';
 export type {
   EventPostPayload,
   PatchWithId,
   ProjectRundownsList,
   TransientEventPayload,
 } from './api/rundown-controller/BackendResponse.type.js';
+export type { LinkOptions } from './api/session-controller/BackendResponse.type.js';
 
 // web socket
 export { MessageTag } from './api/websocket/data.type.js';

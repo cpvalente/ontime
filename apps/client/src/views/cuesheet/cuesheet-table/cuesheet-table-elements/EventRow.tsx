@@ -49,9 +49,7 @@ export default function EventRow({
     defaultValue: AppMode.Edit,
   });
   const ownRef = useRef<HTMLTableRowElement>(null);
-
   const isVisible = useVisibleRowsStore((state) => state.visibleRows.has(rowId));
-
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
   // register this row with the intersection observer
