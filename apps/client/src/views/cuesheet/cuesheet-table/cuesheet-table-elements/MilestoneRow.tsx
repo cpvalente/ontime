@@ -1,12 +1,10 @@
 import { IoEllipsisHorizontal } from 'react-icons/io5';
-import { useSessionStorage } from '@mantine/hooks';
 import { flexRender, Table } from '@tanstack/react-table';
 import { EntryId, OntimeEntry, SupportedEntry } from 'ontime-types';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { cx, enDash } from '../../../../common/utils/styleUtils';
-import { AppMode, sessionKeys } from '../../../../ontimeConfig';
-import { usePersistedCuesheetOptions } from '../../cuesheet.options';
+import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
 
 import style from './MilestoneRow.module.scss';
@@ -32,11 +30,11 @@ export default function MilestoneRow({
   rowIndex,
   table,
 }: MilestoneRowProps) {
-  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
-  const [cuesheetMode] = useSessionStorage<AppMode>({
-    key: sessionKeys.cuesheetMode,
-    defaultValue: AppMode.Edit,
-  });
+  const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
+    cuesheetMode: AppMode.Edit,
+    hideIndexColumn: false,
+  };
+
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
   return (

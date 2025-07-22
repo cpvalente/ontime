@@ -1,9 +1,11 @@
-import { resolvePath } from 'react-router';
+import { Path, resolvePath } from 'react-router';
+import { OntimeView, URLPreset } from 'ontime-types';
 
 import {
   arePathsEquivalent,
   generatePathFromPreset,
   generateUrlPresetOptions,
+  getCurrentPath,
   getRouteFromPreset,
   validateUrlPresetPath,
 } from '../urlPresets';
@@ -29,12 +31,13 @@ describe('validateUrlPresetPaths()', () => {
 });
 
 describe('getRouteFromPreset()', () => {
-  const presets = [
+  const presets: URLPreset[] = [
     {
       enabled: true,
       alias: 'demopage',
-      target: 'timer',
+      target: OntimeView.Timer,
       search: 'user=guest',
+      options: {},
     },
   ];
 
@@ -70,28 +73,28 @@ describe('getRouteFromPreset()', () => {
 
   describe('handle url sharing edge cases', () => {
     it('finds the correct preset when the url contains extra arguments', () => {
-      const location = resolvePath('/demopage?locked=true&token=123');
+      const location = resolvePath('/demopage?n=1&token=123');
       expect(getRouteFromPreset(location, presets)?.startsWith('timer?user=guest&alias=demopage')).toBeTruthy();
     });
 
     it('appends the feature params to the alias', () => {
-      const location = resolvePath('/demopage?locked=true&token=123');
-      expect(getRouteFromPreset(location, presets)).toBe('timer?user=guest&alias=demopage&locked=true&token=123');
+      const location = resolvePath('/demopage?n=1&token=123');
+      expect(getRouteFromPreset(location, presets)).toBe('timer?user=guest&alias=demopage&n=1&token=123');
     });
   });
 });
 
 describe('generatePathFromPreset()', () => {
   test.each([
-    ['timer', 'user=guest', 'demopage', 'timer?user=guest&alias=demopage'],
-    ['timer', 'user=admin', 'demopage', 'timer?user=admin&alias=demopage'],
-  ])('generates a path from a preset: %s', (target, path, alias, expected) => {
-    expect(generatePathFromPreset(target, path, alias, null, null)).toEqual(expected);
+    ['timer', 'user=guest', 'demopage', false, 'timer?user=guest&alias=demopage'],
+    ['timer', 'user=admin', 'demopage', false, 'timer?user=admin&alias=demopage'],
+  ])('generates a path from a preset: %s', (target, search, alias, locked, expected) => {
+    expect(generatePathFromPreset(target, search, alias, locked, null)).toEqual(expected);
   });
 
   test('appends the feature params to the alias', () => {
-    expect(generatePathFromPreset('timer', 'user=guest', 'demopage', 'true', '123')).toBe(
-      'timer?user=guest&alias=demopage&locked=true&token=123',
+    expect(generatePathFromPreset('timer', 'user=guest', 'demopage', true, '123')).toBe(
+      'timer?user=guest&alias=demopage&n=1&token=123',
     );
   });
 });
@@ -108,9 +111,13 @@ describe('arePathsEquivalent()', () => {
     expect(arePathsEquivalent('timer?test=a', 'timer?test=a')).toBeTruthy();
   });
 
+  it('checks whether we are in a locked preset', () => {
+    expect(arePathsEquivalent('preset/minimal', 'preset/minimal?test=b')).toBeTruthy();
+  });
+
   it('considers edge cases for the url sharing feature', () => {
-    expect(arePathsEquivalent('timer?test=a&locked=true=token=123', 'timer?test=b')).toBeFalsy();
-    expect(arePathsEquivalent('timer?test=a&locked=true=token=123', 'timer?test=a')).toBeTruthy();
+    expect(arePathsEquivalent('timer?test=a&n=1=token=123', 'timer?test=b')).toBeFalsy();
+    expect(arePathsEquivalent('timer?test=a&n=1=token=123', 'timer?test=a')).toBeTruthy();
   });
 });
 
@@ -170,5 +177,18 @@ describe('generateUrlPresetOptions', () => {
 
   it('throws on on invalid route', () => {
     expect(() => generateUrlPresetOptions('test', 'www.getontime.no/somethingelse/')).toThrow();
+  });
+});
+
+describe('getCurrentPath()', () => {
+  test.each([
+    [resolvePath('http://localhost:4001/timer'), 'timer'],
+    [resolvePath('http://192.168.0.1:654321/minimal'), 'minimal'],
+    [resolvePath('https://user-hosted.io/cuesheet'), 'cuesheet'],
+    [resolvePath('https://cloud.getontime.no/team-hash/op'), 'op'],
+    [resolvePath('https://cloud.getontime.no/team-hash/backstage/?params-with-slash=true'), 'backstage'],
+    [resolvePath('https://cloud.getontime.no/team-hash/timeline?params-are-ignored=true'), 'timeline'],
+  ])('resolves the current: %s', (location, expected) => {
+    expect(getCurrentPath(location as Path)).toEqual(expected);
   });
 });

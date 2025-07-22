@@ -1,14 +1,12 @@
 import { RefObject, useEffect, useRef } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
-import { useSessionStorage } from '@mantine/hooks';
 import { flexRender, Table } from '@tanstack/react-table';
 import { OntimeEntry, OntimeEvent, RGBColour, SupportedEntry } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
-import { AppMode, sessionKeys } from '../../../../ontimeConfig';
-import { usePersistedCuesheetOptions } from '../../cuesheet.options';
+import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
 
 import { observeRow, unobserveRow } from './rowObserver';
@@ -43,15 +41,13 @@ export default function EventRow({
   table,
   firstAfterBlock,
 }: EventRowProps) {
-  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
-  const [cuesheetMode] = useSessionStorage<AppMode>({
-    key: sessionKeys.cuesheetMode,
-    defaultValue: AppMode.Edit,
-  });
+  const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
+    cuesheetMode: AppMode.Edit,
+    hideIndexColumn: false,
+  };
+
   const ownRef = useRef<HTMLTableRowElement>(null);
-
   const isVisible = useVisibleRowsStore((state) => state.visibleRows.has(rowId));
-
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
   // register this row with the intersection observer

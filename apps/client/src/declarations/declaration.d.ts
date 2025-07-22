@@ -1,3 +1,5 @@
+import { AppMode } from '../ontimeConfig';
+
 declare module '*.scss' {
   const content: Record<string, string>;
   export default content;
@@ -26,6 +28,8 @@ declare global {
  * - `handleUpdateTimer` callback to update the timer for a specific event
  * - `options-showDelayedTimes` whether to show or hide delayed times
  * - `options-hideTableSeconds` whether to hide seconds in the table
+ * - `options-hideIndexColumn` whether to hide the index column
+ * - `options-cuesheetMode` run or edit mode
  *
  * And metadata specific for each column
  * - `canWrite` whether the user can write to this column
@@ -39,6 +43,8 @@ declare module '@tanstack/react-table' {
     options: {
       showDelayedTimes: boolean;
       hideTableSeconds: boolean;
+      hideIndexColumn: boolean;
+      cuesheetMode: AppMode;
     };
   }
 

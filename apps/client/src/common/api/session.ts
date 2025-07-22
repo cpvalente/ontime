@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GetInfo } from 'ontime-types';
+import { GetInfo, LinkOptions } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 
@@ -16,12 +16,7 @@ export async function getInfo(): Promise<GetInfo> {
 /**
  * HTTP request to get a pre-authenticated URL
  */
-export async function generateUrl(
-  baseUrl: string,
-  path: string,
-  lock: boolean,
-  authenticate: boolean,
-): Promise<string> {
-  const res = await axios.post(`${sessionPath}/url`, { baseUrl, path, lock, authenticate });
+export async function generateUrl(options: LinkOptions & { baseUrl: string; path: string }): Promise<string> {
+  const res = await axios.post(`${sessionPath}/url`, options);
   return res.data.url;
 }
