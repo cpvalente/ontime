@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import { CustomFields, OntimeEvent, TimerType } from 'ontime-types';
 import { validateTimerType } from 'ontime-utils';
@@ -12,6 +12,7 @@ import {
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
+import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean, makeColourString } from '../../features/viewers/common/viewUtils';
 
 // manually match the properties of TimerType excluding the None
@@ -197,31 +198,35 @@ type TimerOptions = {
  * Utility extract the view options from URL Params
  * the names and fallbacks are manually matched with timerOptions
  */
-function getOptionsFromParams(searchParams: URLSearchParams): TimerOptions {
-  const timerType = validateTimerType(searchParams.get('timerType'), TimerType.None);
-  // we manually make an object that matches the key above
-  return {
-    hideClock: isStringBoolean(searchParams.get('hideClock')),
-    hideCards: isStringBoolean(searchParams.get('hideCards')),
-    hideProgress: isStringBoolean(searchParams.get('hideProgress')),
-    hideMessage: isStringBoolean(searchParams.get('hideMessage')),
-    hideSecondary: isStringBoolean(searchParams.get('hideSecondary')),
-    hideLogo: isStringBoolean(searchParams.get('hideLogo')),
-    hideTimerSeconds: isStringBoolean(searchParams.get('hideTimerSeconds')),
-    removeLeadingZeros: !isStringBoolean(searchParams.get('showLeadingZeros')),
+function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): TimerOptions {
+  // Helper to get value from either source, prioritizing defaultValues
+  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
 
-    mainSource: searchParams.get('main') as keyof OntimeEvent | null,
-    secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
+  // Get timerType from either source
+  const timerType = validateTimerType(getValue('timerType'), TimerType.None);
+
+  return {
+    hideClock: isStringBoolean(getValue('hideClock')),
+    hideCards: isStringBoolean(getValue('hideCards')),
+    hideProgress: isStringBoolean(getValue('hideProgress')),
+    hideMessage: isStringBoolean(getValue('hideMessage')),
+    hideSecondary: isStringBoolean(getValue('hideSecondary')),
+    hideLogo: isStringBoolean(getValue('hideLogo')),
+    hideTimerSeconds: isStringBoolean(getValue('hideTimerSeconds')),
+    removeLeadingZeros: !isStringBoolean(getValue('showLeadingZeros')),
+
+    mainSource: getValue('main') as keyof OntimeEvent | null,
+    secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
 
     // none doesnt make sense as a configuration of the view
     timerType: timerType === TimerType.None ? undefined : timerType,
-    freezeOvertime: isStringBoolean(searchParams.get('freezeOvertime')),
-    freezeMessage: searchParams.get('freezeMessage') ?? '',
-    hidePhase: isStringBoolean(searchParams.get('hidePhase')),
+    freezeOvertime: isStringBoolean(getValue('freezeOvertime')),
+    freezeMessage: getValue('freezeMessage') ?? '',
+    hidePhase: isStringBoolean(getValue('hidePhase')),
 
-    font: searchParams.get('font') ?? undefined,
-    keyColour: makeColourString(searchParams.get('keyColour')),
-    textColour: makeColourString(searchParams.get('textColour')),
+    font: getValue('font') ?? undefined,
+    keyColour: makeColourString(getValue('keyColour')),
+    textColour: makeColourString(getValue('textColour')),
   };
 }
 
@@ -230,6 +235,12 @@ function getOptionsFromParams(searchParams: URLSearchParams): TimerOptions {
  */
 export function useTimerOptions(): TimerOptions {
   const [searchParams] = useSearchParams();
-  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  const maybePreset = use(PresetContext);
+
+  const options = useMemo(() => {
+    const defaultValues = maybePreset ? new URLSearchParams(maybePreset.search) : undefined;
+    return getOptionsFromParams(searchParams, defaultValues);
+  }, [maybePreset, searchParams]);
+
   return options;
 }

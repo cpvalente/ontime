@@ -104,13 +104,14 @@ type old_URLPreset = {
 /**
  * migrates a url presets from v3 to v4
  * - pathAndParams split into a target and search
+ *
  */
 export function migrateURLPresets(jsonData: object): URLPreset[] | undefined {
   if (is.objectWithKeys(jsonData, ['urlPresets']) && is.array(jsonData.urlPresets)) {
     const oldURLPresets = structuredClone(jsonData.urlPresets) as old_URLPreset;
     const newURLPreset: URLPreset[] = oldURLPresets.map(({ enabled, alias, pathAndParams }) => {
       const [target, search] = pathAndParams.split('?');
-      return { enabled, alias, target, search };
+      return { enabled, alias, target, search, options: {} } as URLPreset;
     });
     return newURLPreset;
   }

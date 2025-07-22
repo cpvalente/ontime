@@ -74,3 +74,26 @@ function resolveBaseURI(): string {
 
   return base;
 }
+
+/**
+ * Resolves a session scope for the session
+ */
+export const sessionScope = resolveSessionScope();
+export const getIsViewLocked = () => window.location.search.includes('n=1');
+
+/**
+ * The session scope is read from the cookie and will only exist if the app is password protected
+ */
+function resolveSessionScope() {
+  const tokenCookie = document.cookie.split('; ').find((cookie) => cookie.startsWith('token='));
+
+  if (tokenCookie) {
+    try {
+      const { scope } = JSON.parse(tokenCookie.split('=')[1]);
+      return scope;
+    } catch {
+      return 'rw';
+    }
+  }
+  return 'rw';
+}

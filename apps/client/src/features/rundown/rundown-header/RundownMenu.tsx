@@ -17,7 +17,7 @@ function RundownMenu() {
 
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
   const [editorMode] = useSessionStorage({
-    key: sessionKeys.cuesheetMode,
+    key: sessionKeys.editorMode,
     defaultValue: AppMode.Edit,
   });
   const { deleteAllEntries } = useEntryActions();

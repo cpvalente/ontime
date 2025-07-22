@@ -16,4 +16,16 @@
 .copiableLink {
   user-select: text;
   color: $ui-white;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.shareInline {
+  display: grid;
+  grid-template-columns: 1fr 172px;
+  gap: 1rem;
+}
+
+.end {
+  padding-right: 2rem;
 }

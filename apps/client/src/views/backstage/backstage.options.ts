@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 import { CustomFields, OntimeEvent, ProjectData } from 'ontime-types';
 
@@ -9,6 +9,7 @@ import {
   makeOptionsFromCustomFields,
   makeProjectDataOptions,
 } from '../../common/components/view-params-editor/viewParams.utils';
+import { PresetContext } from '../../common/context/PresetContext';
 import { scheduleOptions } from '../common/schedule/schedule.options';
 
 export const getBackstageOptions = (
@@ -62,11 +63,13 @@ type BackstageOptions = {
  * Utility extract the view options from URL Params
  * the names and fallback are manually matched with timerOptions
  */
-function getOptionsFromParams(searchParams: URLSearchParams): BackstageOptions {
-  // we manually make an object that matches the key above
+function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): BackstageOptions {
+  // Helper to get value from either source, prioritizing defaultValues
+  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
+
   return {
-    secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
-    extraInfo: searchParams.get('extra-info'),
+    secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
+    extraInfo: getValue('extra-info'),
   };
 }
 
@@ -75,6 +78,12 @@ function getOptionsFromParams(searchParams: URLSearchParams): BackstageOptions {
  */
 export function useBackstageOptions(): BackstageOptions {
   const [searchParams] = useSearchParams();
-  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  const maybePreset = use(PresetContext);
+
+  const options = useMemo(() => {
+    const defaultValues = maybePreset ? new URLSearchParams(maybePreset.search) : undefined;
+    return getOptionsFromParams(searchParams, defaultValues);
+  }, [maybePreset, searchParams]);
+
   return options;
 }

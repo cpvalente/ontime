@@ -113,7 +113,7 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
           if (entry.parent) {
             const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
             const parentEntry = rundown?.entries[entry.parent];
-            parentBgColour = (parentEntry as OntimeBlock).colour ?? null;
+            parentBgColour = (parentEntry as OntimeBlock | undefined)?.colour ?? null;
           }
 
           return (
