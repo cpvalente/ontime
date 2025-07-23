@@ -1,38 +1,30 @@
-import React from 'react';
+import { ComponentType, lazy, Suspense, useMemo } from 'react';
 import { Navigate, Route, useLocation } from 'react-router';
+import { OntimeView, OntimeViewPresettable } from 'ontime-types';
 
 import { useClientPath } from './common/hooks/useClientPath';
+import useUrlPresets from './common/hooks-query/useUrlPresets';
 import Log from './features/log/Log';
-import withPreset from './features/PresetWrapper';
-import withData from './features/viewers/ViewWrapper';
+import Loader from './views/common/loader/Loader';
+import NotFound from './views/common/not-found/NotFound';
 import ViewLoader from './views/ViewLoader';
 import { initializeSentry } from './sentry.config';
 
-const Editor = React.lazy(() => import('./views/editor/ProtectedEditor'));
-const Cuesheet = React.lazy(() => import('./views/cuesheet/ProtectedCuesheet'));
-const Operator = React.lazy(() => import('./features/operator/OperatorExport'));
+const Timer = lazy(() => import('./views/timer/Timer'));
+const Countdown = lazy(() => import('./views/countdown/Countdown'));
+const Backstage = lazy(() => import('./views/backstage/Backstage'));
+const StudioClock = lazy(() => import('./views/studio/Studio'));
+const Timeline = lazy(() => import('./views/timeline/TimelinePage'));
+const ProjectInfo = lazy(() => import('./views/project-info/ProjectInfo'));
 
-const TimerView = React.lazy(() => import('./views/timer/Timer'));
-const Countdown = React.lazy(() => import('./views/countdown/Countdown'));
+const Editor = lazy(() => import('./views/editor/ProtectedEditor'));
+const Cuesheet = lazy(() => import('./views/cuesheet/ProtectedCuesheet'));
+const Operator = lazy(() => import('./features/operator/OperatorExport'));
 
-const Backstage = React.lazy(() => import('./views/backstage/Backstage'));
-const Timeline = React.lazy(() => import('./views/timeline/TimelinePage'));
-const StudioClock = React.lazy(() => import('./views/studio/Studio'));
-const ProjectInfo = React.lazy(() => import('./views/project-info/ProjectInfo'));
-
-const STimer = withPreset(withData(TimerView));
-const SCountdown = withPreset(withData(Countdown));
-const SBackstage = withPreset(withData(Backstage));
-const SProjectInfo = withPreset(ProjectInfo); // NOTE: ProjectInfo does not use the viewWrapper since it has no options
-const SStudio = withPreset(withData(StudioClock));
-const STimeline = withPreset(withData(Timeline));
-const PCuesheet = withPreset(Cuesheet);
-const POperator = withPreset(Operator);
-
-const EditorFeatureWrapper = React.lazy(() => import('./features/EditorFeatureWrapper'));
-const RundownPanel = React.lazy(() => import('./features/rundown/RundownExport'));
-const TimerControl = React.lazy(() => import('./features/control/playback/TimerControlExport'));
-const MessageControl = React.lazy(() => import('./features/control/message/MessageControlExport'));
+const EditorFeatureWrapper = lazy(() => import('./features/EditorFeatureWrapper'));
+const RundownPanel = lazy(() => import('./features/rundown/RundownExport'));
+const TimerControl = lazy(() => import('./features/control/playback/TimerControlExport'));
+const MessageControl = lazy(() => import('./features/control/message/MessageControlExport'));
 
 // Initialize Sentry with our configuration
 const SentryRouter = initializeSentry();
@@ -42,73 +34,73 @@ export default function AppRouter() {
   useClientPath();
 
   return (
-    <React.Suspense fallback={null}>
+    <Suspense fallback={<Loader />}>
       <SentryRouter>
         <Route path='/' element={<Navigate to='/timer' />} />
         <Route
-          path='/timer'
+          path='timer'
           element={
             <ViewLoader>
-              <STimer />
+              <Timer />
             </ViewLoader>
           }
         />
         <Route
-          path='/countdown'
+          path='countdown'
           element={
             <ViewLoader>
-              <SCountdown />
+              <Countdown />
             </ViewLoader>
           }
         />
         <Route
-          path='/backstage'
+          path='backstage'
           element={
             <ViewLoader>
-              <SBackstage />
+              <Backstage />
             </ViewLoader>
           }
         />
         <Route
-          path='/studio'
+          path='studio'
           element={
             <ViewLoader>
-              <SStudio />
+              <StudioClock />
             </ViewLoader>
           }
         />
         <Route
-          path='/timeline'
+          path='timeline'
           element={
             <ViewLoader>
-              <STimeline />
+              <Timeline />
             </ViewLoader>
           }
         />
         <Route
-          path='/info'
+          path='info'
           element={
             <ViewLoader>
-              <SProjectInfo />
+              <ProjectInfo />
             </ViewLoader>
           }
         />
 
         {/*/!* Protected Routes *!/*/}
-        <Route path='/editor' element={<Editor />} />
-        <Route path='/cuesheet' element={<PCuesheet />} />
+        <Route path='editor' element={<Editor />} />
+        <Route path='cuesheet' element={<Cuesheet />} />
         <Route
-          path='/op'
+          path='op'
           element={
             <ViewLoader>
-              <POperator />
+              <Operator />
             </ViewLoader>
           }
         />
 
         {/*/!* Protected Routes - Elements *!/*/}
         <Route
-          path='/rundown'
+          path='rundown'
           element={
             <EditorFeatureWrapper>
               <RundownPanel />
@@ -116,7 +108,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/timercontrol'
+          path='timercontrol'
           element={
             <EditorFeatureWrapper>
               <TimerControl />
@@ -124,7 +116,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/messagecontrol'
+          path='messagecontrol'
           element={
             <EditorFeatureWrapper>
               <MessageControl />
@@ -132,16 +124,14 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/log'
+          path='log'
           element={
             <EditorFeatureWrapper>
               <Log />
             </EditorFeatureWrapper>
           }
         />
-        {/*/!* Send to default if nothing found *!/*/}
-        <Route path='*' element={<STimer />} />
       </SentryRouter>
-    </React.Suspense>
+    </Suspense>
   );
 }
