@@ -2,6 +2,7 @@ import { ComponentType, lazy, Suspense, useMemo } from 'react';
 import { Navigate, Route, useLocation } from 'react-router';
 import { OntimeView, OntimeViewPresettable } from 'ontime-types';
 
+import ViewNavigationMenu from './common/components/navigation-menu/ViewNavigationMenu';
 import { useClientPath } from './common/hooks/useClientPath';
 import useUrlPresets from './common/hooks-query/useUrlPresets';
 import Log from './features/log/Log';
@@ -41,6 +42,7 @@ export default function AppRouter() {
           path='timer'
           element={
             <ViewLoader>
+              <ViewNavigationMenu isLockable />
               <Timer />
             </ViewLoader>
           }
