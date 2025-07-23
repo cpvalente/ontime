@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { OntimeView, URLPreset } from 'ontime-types';
 
 import { useViewUrlPresets } from '../../hooks-query/useUrlPresets';

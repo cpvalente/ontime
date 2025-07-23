@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 import { OptionTitle } from '../../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../../common/components/view-params-editor/viewParams.types';

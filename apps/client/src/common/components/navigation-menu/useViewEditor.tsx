@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 import { useViewParamsEditorStore } from '../view-params-editor/viewParamsEditor.store';
