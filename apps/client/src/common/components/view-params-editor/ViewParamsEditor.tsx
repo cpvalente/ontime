@@ -1,6 +1,6 @@
 import { FormEvent, memo, useReducer } from 'react';
 import { IoClose } from 'react-icons/io5';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { OntimeView } from 'ontime-types';
 

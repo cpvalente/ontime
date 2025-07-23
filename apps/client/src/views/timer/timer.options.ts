@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router';
 import { CustomFields, OntimeEvent, TimerType } from 'ontime-types';
 import { validateTimerType } from 'ontime-utils';
 

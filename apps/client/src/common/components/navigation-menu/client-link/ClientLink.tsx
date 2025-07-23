@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { IoArrowUp } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { useElectronEvent } from '../../../hooks/useElectronEvent';
 import { handleLinks } from '../../../utils/linkUtils';
