@@ -7,7 +7,7 @@ import { VIEW_SETTINGS } from '../api/constants';
 import { viewsSettingsPlaceholder } from '../models/ViewSettings.type';
 
 export default function useViewSettings() {
-  const { data, isPending } = useQuery({
+  const { data, status } = useQuery({
     queryKey: VIEW_SETTINGS,
     queryFn: getViewSettings,
     placeholderData: (previousData, _previousQuery) => previousData,
@@ -24,5 +24,5 @@ export default function useViewSettings() {
     },
   });
 
-  return { data: data ?? viewsSettingsPlaceholder, mutateAsync, isPending };
+  return { data: data ?? viewsSettingsPlaceholder, status, mutateAsync };
 }
