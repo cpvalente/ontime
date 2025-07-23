@@ -19,7 +19,7 @@ const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
 export default function ViewSettings() {
   'use no memo'; // RHF and react-compiler don't seem to get along
-  const { data, isPending, mutateAsync } = useViewSettings();
+  const { data, status, mutateAsync } = useViewSettings();
   const [isCodeEditorOpen, codeEditorHandler] = useDisclosure();
 
   const {
@@ -88,7 +88,7 @@ export default function ViewSettings() {
           <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
         </Info>
         <Panel.Section>
-          <Panel.Loader isLoading={isPending} />
+          <Panel.Loader isLoading={status === 'pending'} />
           <Panel.Error>{errors.root?.message}</Panel.Error>
           <Panel.ListGroup>
             <CodeEditorModal isOpen={isCodeEditorOpen} onClose={codeEditorHandler.close} />
