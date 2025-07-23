@@ -6,15 +6,13 @@ import style from './EmptyPage.module.scss';
 
 interface EmptyPageProps {
   text?: string;
-  style?: CSSProperties;
+  injectedStyles?: CSSProperties;
 }
 
-export default function EmptyPage(props: EmptyPageProps) {
-  const { text, ...rest } = props;
-
+export default function EmptyPage({ text, injectedStyles }: EmptyPageProps) {
   return (
     <div className={style.page}>
-      <Empty text={text} {...rest} />
+      <Empty text={text} injectedStyles={injectedStyles} />
     </div>
   );
 }
