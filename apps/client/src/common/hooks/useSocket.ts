@@ -1,4 +1,4 @@
-import { OffsetMode, RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage } from 'ontime-types';
+import { OffsetMode, RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage, TimerType } from 'ontime-types';
 
 import { useRuntimeStore } from '../stores/runtime';
 import { sendSocket } from '../utils/socket';
@@ -225,3 +225,20 @@ export const usePlayback = () => {
 
   return useRuntimeStore(featureSelector);
 };
+
+/* ======================= View specific subscriptions ======================= */
+
+export const useTimerSocket = createSelector((state: RuntimeStore) => ({
+  eventNext: state.eventNext,
+  eventNow: state.eventNow,
+  message: state.message,
+  time: state.timer,
+  clock: state.clock,
+  timerTypeNow: state.eventNow?.timerType ?? TimerType.CountDown,
+  countToEndNow: state.eventNow?.countToEnd ?? false,
+  auxTimer: {
+    aux1: state.auxtimer1.current,
+    aux2: state.auxtimer2.current,
+    aux3: state.auxtimer3.current,
+  },
+}));

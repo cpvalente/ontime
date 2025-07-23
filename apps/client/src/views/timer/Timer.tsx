@@ -1,19 +1,20 @@
 import { useMemo } from 'react';
-import { CustomFields, MessageState, OntimeEvent, OntimeView, ProjectData, Settings, ViewSettings } from 'ontime-types';
+import { OntimeView } from 'ontime-types';
 
 import { FitText } from '../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../common/components/multi-part-progress-bar/MultiPartProgressBar';
+import EmptyPage from '../../common/components/state/EmptyPage';
 import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
-import { useAuxTimersTime } from '../../common/hooks/useSocket';
+import { useTimerSocket } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
-import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, getTimerByType } from '../../features/viewers/common/viewUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
+import Loader from '../common/loader/Loader';
 import { getTimerColour } from '../utils/presentation.utils';
 
 import { getTimerOptions, useTimerOptions } from './timer.options';
@@ -28,33 +29,28 @@ import {
   getShowProgressBar,
   getTotalTime,
 } from './timer.utils';
+import { TimerData, useTimerData } from './useTimerData';
 
 import './Timer.scss';
 
-interface TimerProps {
-  customFields: CustomFields;
-  eventNext: OntimeEvent | null;
-  eventNow: OntimeEvent | null;
-  general: ProjectData;
-  isMirrored: boolean;
-  message: MessageState;
-  settings: Settings | undefined;
-  time: ViewExtendedTimer;
-  viewSettings: ViewSettings;
+export default function TimerLoader() {
+  const { data, status } = useTimerData();
+
+  useWindowTitle('Timer');
+
+  if (status === 'pending') {
+    return <Loader />;
+  }
+
+  if (status === 'error') {
+    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+  }
+
+  return <Timer {...data} />;
 }
 
-export default function Timer({
-  customFields,
-  eventNow,
-  eventNext,
-  general,
-  isMirrored,
-  message,
-  settings,
-  time,
-  viewSettings,
-}: TimerProps) {
-  const auxTimer = useAuxTimersTime();
+function Timer({ customFields, projectData, isMirrored, settings, viewSettings }: TimerData) {
+  const { eventNext, eventNow, message, time, clock, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
   const {
     hideClock,
     hideCards,
@@ -78,14 +74,12 @@ export default function Timer({
   const { getLocalizedString } = useTranslation();
   const localisedMinutes = getLocalizedString('common.minutes');
 
-  useWindowTitle('Timer');
-
   // gather modifiers
-  const viewTimerType = timerType ?? time.timerType;
+  const viewTimerType = timerType ?? timerTypeNow;
   const showOverlay = getShowMessage(message.timer);
   const { showEndMessage, showFinished, showWarning, showDanger } = getShowModifiers(
-    time.timerType,
-    time.countToEnd,
+    timerTypeNow,
+    countToEndNow,
     time.phase,
     freezeOvertime,
     freezeMessage,
@@ -107,8 +101,8 @@ export default function Timer({
 
   // gather timer data
   const totalTime = getTotalTime(time.duration, time.addedTime);
-  const clock = formatTime(time.clock);
-  const stageTimer = getTimerByType(freezeOvertime, time, timerType);
+  const formattedClock = formatTime(clock);
+  const stageTimer = getTimerByType(freezeOvertime, timerTypeNow, countToEndNow, clock, time, timerType);
   const display = getFormattedTimer(stageTimer, viewTimerType, localisedMinutes, {
     removeSeconds: hideTimerSeconds,
     removeLeadingZero: removeLeadingZeros,
@@ -155,7 +149,7 @@ export default function Timer({
       className={cx(['stage-timer', isMirrored && 'mirror', showFinished && 'stage-timer--finished'])}
       style={userStyles}
     >
-      {!hideLogo && general?.logo && <ViewLogo name={general.logo} className='logo' />}
+      {!hideLogo && projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
 
       <ViewParamsEditor target={OntimeView.Timer} viewOptions={timerOptions} />
 
@@ -172,7 +166,7 @@ export default function Timer({
       {showClock && (
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>
-          <SuperscriptTime time={clock} className='clock' />
+          <SuperscriptTime time={formattedClock} className='clock' />
         </div>
       )}
 
