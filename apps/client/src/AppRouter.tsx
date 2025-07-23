@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, Route } from 'react-router-dom';
+import { Navigate, Route, useLocation } from 'react-router';
 
 import { useClientPath } from './common/hooks/useClientPath';
 import Log from './features/log/Log';

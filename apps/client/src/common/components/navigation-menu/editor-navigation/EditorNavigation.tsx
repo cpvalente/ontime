@@ -1,5 +1,5 @@
 import { IoLockClosedOutline } from 'react-icons/io5';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 
 import { useIsSmallDevice } from '../../../hooks/useIsSmallDevice';
 import NavigationMenuItem from '../navigation-menu-item/NavigationMenuItem';
