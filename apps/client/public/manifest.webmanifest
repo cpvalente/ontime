@@ -1,0 +1,15 @@
+{
+  "name": "ontime",
+  "short_name": "ontime",
+  "icons": [
+    {
+      "src": "/ontime-logo.png",
+      "sizes": "295x295",
+      "type": "image/png"
+    }
+  ],
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#2B5ABC",
+  "background_color": "#101010"
+}
