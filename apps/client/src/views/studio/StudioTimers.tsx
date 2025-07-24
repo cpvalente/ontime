@@ -1,7 +1,7 @@
-import { OntimeEvent, Playback, Runtime, TimerPhase, TimerState, ViewSettings } from 'ontime-types';
+import { Playback, TimerPhase, ViewSettings } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
-import { useAuxTimersTime } from '../../common/hooks/useSocket';
+import { useAuxTimersTime, useStudioTimersSocket } from '../../common/hooks/useSocket';
 import { getOffsetState } from '../../common/utils/offset';
 import { cx } from '../../common/utils/styleUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
@@ -12,31 +12,18 @@ import { getFormattedEventData, getFormattedScheduleTimes } from './studioTimers
 import './StudioTimers.scss';
 
 interface StudioTimersProps {
-  runtime: Runtime;
-  time: TimerState;
-  eventNow: OntimeEvent | null;
-  eventNext: OntimeEvent | null;
-  timerMessage: string;
-  secondaryMessage: string;
   viewSettings: ViewSettings;
 }
 
-export default function StudioTimers({
-  runtime,
-  time,
-  eventNow,
-  eventNext,
-  timerMessage,
-  secondaryMessage,
-  viewSettings,
-}: StudioTimersProps) {
+export default function StudioTimers({ viewSettings }: StudioTimersProps) {
   const { getLocalizedString } = useTranslation();
+  const { eventNow, eventNext, message, time, runtime } = useStudioTimersSocket();
 
   const schedule = getFormattedScheduleTimes(runtime);
   const event = getFormattedEventData(eventNow, time);
   const eventNextTitle = eventNext?.title || '-';
-  const formattedTimerMessage = timerMessage || '-';
-  const formattedSecondaryMessage = secondaryMessage || '-';
+  const formattedTimerMessage = (message.timer.visible && message.timer.text) || '-';
+  const formattedSecondaryMessage = message.secondary || '-';
 
   // gather presentation styles
   const timerColour = getTimerColour(
