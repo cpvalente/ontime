@@ -1,12 +1,12 @@
 import { MouseEvent, useCallback, useRef } from 'react';
-import { IoClose, IoReorderTwo } from 'react-icons/io5';
+import { IoReorderTwo, IoTrash } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId } from 'ontime-types';
 
-import Button from '../../../common/components/buttons/Button';
 import Input from '../../../common/components/input/input/Input';
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
+import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useEventSelection } from '../useEventSelection';
@@ -25,6 +25,15 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const { updateEntry, deleteEntry } = useEntryActions();
   const { selectedEvents, setSelectedBlock } = useEventSelection();
+
+  const [onContextMenu] = useContextMenu<HTMLDivElement>([
+    {
+      type: 'item',
+      label: 'Delete',
+      icon: IoTrash,
+      onClick: () => deleteEntry([entryId]),
+    },
+  ]);
 
   const {
     attributes: dragAttributes,
@@ -59,11 +68,6 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
     updateEntry({ id: entryId, [field]: value });
   };
 
-  const handleDelete = (event: MouseEvent) => {
-    event.stopPropagation();
-    deleteEntry([entryId]);
-  };
-
   const dragStyle = {
     zIndex: isDragging ? 2 : 'inherit',
     transform: CSS.Translate.toString(transform),
@@ -77,6 +81,7 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
       className={cx([style.milestone, hasCursor ? style.hasCursor : null])}
       ref={setNodeRef}
       onClick={handleFocusClick}
+      onContextMenu={onContextMenu}
       style={dragStyle}
       data-testid='rundown-milestone'
     >
@@ -87,9 +92,6 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
       </div>
       <MilestoneTextInput field='cue' initialValue={cue} placeholder='Cue' submitHandler={handleUpdate} />
       <MilestoneTextInput field='title' initialValue={title} placeholder='Title' submitHandler={handleUpdate} />
-      <Button variant='ghosted-destructive' onClick={handleDelete}>
-        <IoClose /> Cancel
-      </Button>
     </div>
   );
 }
