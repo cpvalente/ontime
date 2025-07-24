@@ -78,6 +78,7 @@ export default function AppRouter() {
           path='timeline'
           element={
             <ViewLoader>
+              <ViewNavigationMenu isLockable />
               <Timeline />
             </ViewLoader>
           }
