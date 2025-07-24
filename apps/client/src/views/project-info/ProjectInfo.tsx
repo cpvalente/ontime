@@ -1,44 +1,46 @@
 import { IoOpenOutline } from 'react-icons/io5';
 import { OntimeView } from 'ontime-types';
 
-import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
-import useProjectData from '../../common/hooks-query/useProjectData';
-import { useViewOptionsStore } from '../../common/stores/viewOptions';
 import { useTranslation } from '../../translation/TranslationProvider';
+import Loader from '../common/loader/Loader';
+
+import { ProjectInfoData, useProjectInfoData } from './useProjectInfoData';
 
 import './ProjectInfo.scss';
 
-export default function ProjectInfo() {
-  // persisted app state
-  const isMirrored = useViewOptionsStore((state) => state.mirror);
-  const { data, status } = useProjectData();
-  const { getLocalizedString } = useTranslation();
+export default function ProjectInfoLoader() {
+  const { data, status } = useProjectInfoData();
 
   useWindowTitle('Project info');
 
-  if (status === 'pending' || !data) {
-    return (
-      <>
-        <ViewNavigationMenu isLockable suppressSettings />
-        <ViewParamsEditor target={OntimeView.ProjectInfo} viewOptions={[]} />
-        <EmptyPage text={getLocalizedString('common.no_data')} />;
-      </>
-    );
+  if (status === 'pending') {
+    return <Loader />;
   }
+
+  if (status === 'error') {
+    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+  }
+
+  return <ProjectInfo {...data} />;
+}
+
+function ProjectInfo({ projectData, isMirrored }: ProjectInfoData) {
+  const { getLocalizedString } = useTranslation();
 
   /**
    * Check if there is data to show at all
    * We need a special check for the project fields which can be an empty array
    */
-  const isEmpty = Object.values(data).every((value) => !value || (value && Array.isArray(value) && value.length === 0));
+  const isEmpty =
+    !projectData ||
+    Object.values(projectData).every((value) => !value || (value && Array.isArray(value) && value.length === 0));
   if (isEmpty) {
     return (
       <>
-        <ViewNavigationMenu isLockable suppressSettings />
         <ViewParamsEditor target={OntimeView.ProjectInfo} viewOptions={[]} />
         <EmptyPage text={getLocalizedString('common.no_data')} />;
       </>
@@ -47,37 +49,36 @@ export default function ProjectInfo() {
 
   return (
     <div className={`project ${isMirrored ? 'mirror' : ''}`} data-testid='project-view'>
-      <ViewNavigationMenu isLockable suppressSettings />
       <ViewParamsEditor target={OntimeView.ProjectInfo} viewOptions={[]} />
-      {data.logo && <ViewLogo name={data.logo} className='logo' />}
+      {projectData.logo && <ViewLogo name={projectData.logo} className='logo' />}
       <div className='info'>
-        {data.title && (
+        {projectData.title && (
           <div>
             <div className='info__label'>{getLocalizedString('project.title')}</div>
-            <div className='info__value'>{data.title}</div>
+            <div className='info__value'>{projectData.title}</div>
           </div>
         )}
-        {data.description && (
+        {projectData.description && (
           <div>
             <div className='info__label'>{getLocalizedString('project.description')}</div>
-            <div className='info__value'>{data.description}</div>
+            <div className='info__value'>{projectData.description}</div>
           </div>
         )}
-        {data.info && (
+        {projectData.info && (
           <div>
             <div className='info__label'>{getLocalizedString('project.info')}</div>
-            <div className='info__value'>{data.info}</div>
+            <div className='info__value'>{projectData.info}</div>
           </div>
         )}
-        {data.url && (
+        {projectData.url && (
           <div>
             <div className='info__label'>{getLocalizedString('project.url')}</div>
-            <a href={data.url} target='_blank' rel='noreferrer' className='info__value link'>
-              {data.url} <IoOpenOutline style={{ fontSize: '1em' }} />
+            <a href={projectData.url} target='_blank' rel='noreferrer' className='info__value link'>
+              {projectData.url} <IoOpenOutline style={{ fontSize: '1em' }} />
             </a>
           </div>
         )}
-        {data.custom.map((info, idx) => {
+        {projectData.custom.map((info, idx) => {
           const hasUrl = Boolean(info.url);
           return (
             <div key={`${info.title}-${idx}`} className='info__custom'>

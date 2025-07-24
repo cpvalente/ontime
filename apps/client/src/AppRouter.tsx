@@ -87,6 +87,7 @@ export default function AppRouter() {
           path='info'
           element={
             <ViewLoader>
+              <ViewNavigationMenu isLockable suppressSettings />
               <ProjectInfo />
             </ViewLoader>
           }
