@@ -5,8 +5,13 @@ import { EntryId, OntimeEvent } from 'ontime-types';
 import Button from '../../common/components/buttons/Button';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
-import { useCurrentDay, useRuntimeOffset } from '../../common/hooks/useSocket';
-import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
+import {
+  useCountdownSocket,
+  useCurrentDay,
+  usePlayback,
+  useRuntimeOffset,
+  useSelectedEventId,
+} from '../../common/hooks/useSocket';
 import { getOffsetState } from '../../common/utils/offset';
 import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
@@ -22,18 +27,13 @@ import './Countdown.scss';
 
 interface CountdownSubscriptionsProps {
   subscribedEvents: OntimeEvent[];
-  selectedId: EntryId | null;
-  time: ViewExtendedTimer;
   goToEditMode: () => void;
 }
 
-export default function CountdownSubscriptions({
-  time,
-  subscribedEvents,
-  selectedId,
-  goToEditMode,
-}: CountdownSubscriptionsProps) {
+export default function CountdownSubscriptions({ subscribedEvents, goToEditMode }: CountdownSubscriptionsProps) {
   const { secondarySource, showProjected } = useCountdownOptions();
+  const { playback } = usePlayback();
+  const { selectedEventId } = useSelectedEventId();
   const showFab = useFadeOutOnInactivity(true);
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
@@ -49,16 +49,16 @@ export default function CountdownSubscriptions({
 
   // reset scroll if nothing is selected
   useEffect(() => {
-    if (!selectedId) {
+    if (!selectedEventId) {
       if (!lockAutoScroll) {
         scrollRef.current?.scrollTo(0, 0);
       }
     }
-  }, [selectedId, lockAutoScroll, scrollRef]);
+  }, [selectedEventId, lockAutoScroll, scrollRef]);
 
   // scroll to component if user clicks the Follow button
   const handleOffset = () => {
-    if (selectedId) {
+    if (selectedEventId) {
       scrollToComponent();
     }
     setLockAutoScroll(false);
@@ -91,7 +91,7 @@ export default function CountdownSubscriptions({
     <div className='list-container' onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
       {subscribedEvents.map((event) => {
         const secondaryData = getPropertyValue(event, secondarySource);
-        const isLive = getIsLive(event.id, selectedId, time.playback);
+        const isLive = getIsLive(event.id, selectedEventId, playback);
 
         return (
           <div key={event.id} ref={isLive ? selectedRef : undefined} className={cx(['sub', isLive && 'sub--live'])}>
@@ -107,7 +107,7 @@ export default function CountdownSubscriptions({
                 </>
               )}
             </div>
-            <SubscriptionStatus key={event.id} event={event} selectedId={selectedId} time={time} />
+            <SubscriptionStatus key={event.id} event={event} selectedEventId={selectedEventId} />
             <div className={cx(['sub__title', !event.title && 'subdued'])}>{sanitiseTitle(event.title)}</div>
             {secondaryData && <div className='sub__secondary'>{secondaryData}</div>}
           </div>
@@ -152,22 +152,24 @@ function ProjectedSchedule(props: ProjectedScheduleProps) {
 }
 
 interface SubscriptionStatusProps {
-  time: ViewExtendedTimer;
   event: OntimeEvent;
-  selectedId: EntryId | null;
+  selectedEventId: EntryId | null;
 }
 
-function SubscriptionStatus({ time, event, selectedId }: SubscriptionStatusProps) {
+function SubscriptionStatus({ event, selectedEventId }: SubscriptionStatusProps) {
   const { getLocalizedString } = useTranslation();
   const { currentDay } = useCurrentDay();
   const { offset } = useRuntimeOffset();
   const { showProjected } = useCountdownOptions();
+  const { playback, current, clock } = useCountdownSocket();
 
   // TODO: use reporter values as in the event block chip
   const { status, timer } = getSubscriptionDisplayData(
-    time,
+    current,
+    playback,
+    clock,
     event,
-    selectedId,
+    selectedEventId,
     offset,
     currentDay,
     getLocalizedString('common.minutes'),
