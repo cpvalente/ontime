@@ -737,7 +737,12 @@ export function loadNextFlag(currentIndex: number, rundown: Rundown, metadata: R
     return;
   }
 
-  for (let i = currentIndex; i < metadata.timedEventOrder.length; i++) {
+  // we are in the last event
+  if (currentIndex + 1 >= metadata.timedEventOrder.length) {
+    return;
+  }
+
+  for (let i = currentIndex + 1; i < metadata.timedEventOrder.length; i++) {
     const entryId = metadata.timedEventOrder[i];
     if (metadata.flags.includes(entryId)) {
       const event = rundown.entries[entryId];
