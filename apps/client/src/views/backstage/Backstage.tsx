@@ -1,58 +1,52 @@
 import { useEffect, useMemo, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { useViewportSize } from '@mantine/hooks';
-import { CustomFields, OntimeEvent, OntimeView, ProjectData, Runtime, Settings } from 'ontime-types';
+import { OntimeView, ProjectData } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import ProgressBar from '../../common/components/progress-bar/ProgressBar';
 import Empty from '../../common/components/state/Empty';
+import EmptyPage from '../../common/components/state/EmptyPage';
 import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
+import { useBackstageSocket, useClock } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
-import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
 import { cx, timerPlaceholderMin } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { useTranslation } from '../../translation/TranslationProvider';
+import Loader from '../common/loader/Loader';
 import ScheduleExport from '../common/schedule/ScheduleExport';
 
 import { getBackstageOptions, useBackstageOptions } from './backstage.options';
 import { getCardData, getIsPendingStart, getShowProgressBar, isOvertime } from './backstage.utils';
+import { BackstageData, useBackstageData } from './useBackstageData';
 
 import './Backstage.scss';
 
-interface BackstageProps {
-  events: OntimeEvent[];
-  customFields: CustomFields;
-  eventNext: OntimeEvent | null;
-  eventNow: OntimeEvent | null;
-  general: ProjectData;
-  isMirrored: boolean;
-  time: ViewExtendedTimer;
-  runtime: Runtime;
-  selectedId: string | null;
-  settings: Settings | undefined;
-}
-
-export default function Backstage({
-  events,
-  customFields,
-  eventNext,
-  eventNow,
-  general,
-  time,
-  isMirrored,
-  runtime,
-  selectedId,
-  settings,
-}: BackstageProps) {
-  const { getLocalizedString } = useTranslation();
-  const { secondarySource, extraInfo } = useBackstageOptions();
-  const [blinkClass, setBlinkClass] = useState(false);
-  const { height: screenHeight } = useViewportSize();
+export default function BackstageLoader() {
+  const { data, status } = useBackstageData();
 
   useWindowTitle('Backstage');
+
+  if (status === 'pending') {
+    return <Loader />;
+  }
+
+  if (status === 'error') {
+    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+  }
+
+  return <Backstage {...data} />;
+}
+
+function Backstage({ events, customFields, projectData, isMirrored, settings }: BackstageData) {
+  const { getLocalizedString } = useTranslation();
+  const { secondarySource, extraInfo } = useBackstageOptions();
+  const { eventNext, eventNow, runtime, selectedEventId, time } = useBackstageSocket();
+  const [blinkClass, setBlinkClass] = useState(false);
+  const { height: screenHeight } = useViewportSize();
 
   // blink on change
   useEffect(() => {
@@ -63,7 +57,7 @@ export default function Backstage({
     }, 10);
 
     return () => clearTimeout(timer);
-  }, [selectedId]);
+  }, [selectedEventId]);
 
   // gather card data
   const hasEvents = events.length > 0;
@@ -76,7 +70,6 @@ export default function Backstage({
   );
 
   // gather timer data
-  const clock = formatTime(time.clock);
   const isPendingStart = getIsPendingStart(time.playback, time.phase);
   const startedAt = isPendingStart ? formatTime(time.secondaryTimer) : formatTime(time.startedAt);
 
@@ -104,20 +97,17 @@ export default function Backstage({
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const backstageOptions = useMemo(
-    () => getBackstageOptions(defaultFormat, customFields, general),
-    [defaultFormat, customFields, general],
+    () => getBackstageOptions(defaultFormat, customFields, projectData),
+    [defaultFormat, customFields, projectData],
   );
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
       <ViewParamsEditor target={OntimeView.Backstage} viewOptions={backstageOptions} />
       <div className='project-header'>
-        {general?.logo && <ViewLogo name={general.logo} className='logo' />}
-        <div className='title'>{general.title}</div>
-        <div className='clock-container'>
-          <div className='label'>{getLocalizedString('common.time_now')}</div>
-          <SuperscriptTime time={clock} className='time' />
-        </div>
+        {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
+        <div className='title'>{projectData.title}</div>
+        <BackstageClock />
       </div>
 
       {showProgress && <ProgressBar className='progress-container' current={time.current} duration={time.duration} />}
@@ -177,13 +167,13 @@ export default function Backstage({
         )}
       </div>
 
-      {showSchedule && <ScheduleExport selectedId={selectedId} />}
+      {showSchedule && <ScheduleExport selectedId={selectedEventId} />}
 
       <div className={cx(['info', !showSchedule && 'info--stretch'])}>
-        {extraInfo && <ExtraInfo projectData={general} size={qrSize} source={extraInfo} />}
+        {extraInfo && <ExtraInfo projectData={projectData} size={qrSize} source={extraInfo} />}
         <div className='info-card'>
-          {general.url && <QRCode value={general.url} size={qrSize} level='L' className='info-card__qr' />}
-          {general.info && <div className='info-card__message'>{general.info}</div>}
+          {projectData.url && <QRCode value={projectData.url} size={qrSize} level='L' className='info-card__qr' />}
+          {projectData.info && <div className='info-card__message'>{projectData.info}</div>}
         </div>
       </div>
     </div>
@@ -219,6 +209,21 @@ function ExtraInfo({ projectData, size, source }: ExtraInfoProps) {
         {info.title && <div className='info-card__label'>{info.title}</div>}
         {info.value && <div className='info-card__message'>{info.value}</div>}
       </div>
+    </div>
+  );
+}
+
+function BackstageClock() {
+  const { getLocalizedString } = useTranslation();
+  const { clock } = useClock();
+
+  // gather timer data
+  const formattedClock = formatTime(clock);
+
+  return (
+    <div className='clock-container'>
+      <div className='label'>{getLocalizedString('common.time_now')}</div>
+      <SuperscriptTime time={formattedClock} className='time' />
     </div>
   );
 }
