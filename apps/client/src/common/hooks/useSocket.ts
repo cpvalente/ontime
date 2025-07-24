@@ -256,3 +256,16 @@ export const useBackstageSocket = createSelector((state: RuntimeStore) => ({
   selectedEventId: state.eventNow?.id ?? null,
   time: state.timer,
 }));
+
+export const useStudioClockSocket = createSelector((state: RuntimeStore) => ({
+  clock: state.clock,
+  playback: state.timer.playback,
+}));
+
+export const useStudioTimersSocket = createSelector((state: RuntimeStore) => ({
+  eventNext: state.eventNext,
+  eventNow: state.eventNow,
+  message: state.message,
+  time: state.timer,
+  runtime: state.runtime,
+}));
