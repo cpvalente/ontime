@@ -69,6 +69,7 @@ export default function AppRouter() {
           path='studio'
           element={
             <ViewLoader>
+              <ViewNavigationMenu isLockable />
               <StudioClock />
             </ViewLoader>
           }
