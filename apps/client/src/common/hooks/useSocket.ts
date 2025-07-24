@@ -269,3 +269,8 @@ export const useStudioTimersSocket = createSelector((state: RuntimeStore) => ({
   time: state.timer,
   runtime: state.runtime,
 }));
+
+export const useTimelineSocket = createSelector((state: RuntimeStore) => ({
+  clock: state.clock,
+  offset: state.runtime.offset,
+}));
