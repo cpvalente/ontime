@@ -1,4 +1,7 @@
+import { Playback } from 'ontime-types';
+
 import { useIsMobileDevice } from '../../common/hooks/useIsMobileDevice';
+import { useStudioClockSocket } from '../../common/hooks/useSocket';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
@@ -11,13 +14,13 @@ const activeIndicators = [...Array(12).keys()];
 const secondsIndicators = [...Array(60).keys()];
 
 interface StudioClockProps {
-  onAir: boolean;
-  clock: number;
   hideCards: boolean;
 }
 
-export default function StudioClock({ onAir, clock, hideCards }: StudioClockProps) {
+export default function StudioClock({ hideCards }: StudioClockProps) {
   const isMobile = useIsMobileDevice();
+  const { clock, playback } = useStudioClockSocket();
+  const onAir = playback !== Playback.Stop;
 
   // if we are on mobile and have to show the cards
   if (isMobile && !hideCards) {
@@ -55,7 +58,12 @@ export default function StudioClock({ onAir, clock, hideCards }: StudioClockProp
   );
 }
 
-function StudioClockMobile({ clock, onAir }: Omit<StudioClockProps, 'hideCards'>) {
+interface StudioClockMobileProps {
+  clock: number;
+  onAir: boolean;
+}
+
+function StudioClockMobile({ clock, onAir }: StudioClockMobileProps) {
   const displayClock = formatTime(clock);
 
   return (

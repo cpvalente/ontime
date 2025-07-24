@@ -1,45 +1,38 @@
 import { useMemo } from 'react';
-import { MessageState, OntimeEvent, OntimeView, ProjectData, Runtime, Settings, ViewSettings } from 'ontime-types';
+import { OntimeView } from 'ontime-types';
 
+import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
-import type { ViewExtendedTimer } from '../../common/models/TimeManager.type';
 import { cx } from '../../common/utils/styleUtils';
 import { getDefaultFormat } from '../../common/utils/time';
+import Loader from '../common/loader/Loader';
 
 import { getStudioOptions, useStudioOptions } from './studio.options';
 import StudioClock from './StudioClock';
 import StudioTimers from './StudioTimers';
+import { StudioData, useStudioData } from './useStudioData';
 
 import './Studio.scss';
 
-interface StudioProps {
-  eventNow: OntimeEvent | null;
-  eventNext: OntimeEvent | null;
-  general: ProjectData;
-  isMirrored: boolean;
-  message: MessageState;
-  time: ViewExtendedTimer;
-  runtime: Runtime;
-  onAir: boolean;
-  settings: Settings | undefined;
-  viewSettings: ViewSettings;
+export default function StudioLoader() {
+  const { data, status } = useStudioData();
+
+  useWindowTitle('Studio Clock');
+
+  if (status === 'pending') {
+    return <Loader />;
+  }
+
+  if (status === 'error') {
+    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+  }
+
+  return <Studio {...data} />;
 }
 
-export default function Studio({
-  eventNow,
-  eventNext,
-  general,
-  isMirrored,
-  message,
-  time,
-  runtime,
-  onAir,
-  settings,
-  viewSettings,
-}: StudioProps) {
-  useWindowTitle('Studio Clock');
+function Studio({ projectData, isMirrored, settings, viewSettings }: StudioData) {
   const { hideCards } = useStudioOptions();
 
   // gather option data
@@ -51,23 +44,13 @@ export default function Studio({
       <ViewParamsEditor target={OntimeView.StudioClock} viewOptions={studioOptions} />
 
       <div className='project-header'>
-        {general?.logo && <ViewLogo name={general.logo} className='logo' />}
-        <div className='title'>{general.title}</div>
+        {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
+        <div className='title'>{projectData.title}</div>
       </div>
 
       <div className={cx(['studio-contents', hideCards && 'studio-contents--onecol'])}>
-        <StudioClock onAir={onAir} clock={time.clock} hideCards={hideCards} />
-        {!hideCards && (
-          <StudioTimers
-            eventNow={eventNow}
-            eventNext={eventNext}
-            timerMessage={message.timer.visible ? message.timer.text : ''}
-            secondaryMessage={message.secondary}
-            runtime={runtime}
-            time={time}
-            viewSettings={viewSettings}
-          />
-        )}
+        <StudioClock hideCards={hideCards} />
+        {!hideCards && <StudioTimers viewSettings={viewSettings} />}
       </div>
     </div>
   );
