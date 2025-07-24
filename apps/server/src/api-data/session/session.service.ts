@@ -57,22 +57,32 @@ export const hashedPassword = hasPassword ? hashPassword(password as string) : u
 /**
  * Generates a pre-authenticated URL by injecting a token in the URL params
  */
+type LinkOptions = {
+  lockNav: boolean;
+  authenticate: boolean;
+  preset?: string;
+  prefix?: string;
+  hash?: string;
+};
+
 export function generateAuthenticatedUrl(
   baseUrl: string,
-  path: string,
-  lock: boolean,
-  authenticate: boolean,
-  prefix = routerPrefix,
-  hash = hashedPassword,
+  canonicalPath: string,
+  { lockNav, authenticate, prefix = routerPrefix, hash = hashedPassword, preset }: LinkOptions,
 ): URL {
   const url = new URL(baseUrl);
-  url.pathname = prefix ? `${prefix}/${path}` : path;
+
+  const maybePresetPath = preset && lockNav ? `preset/${preset}` : canonicalPath;
+  url.pathname = prefix ? `${prefix}/${maybePresetPath}` : maybePresetPath;
 
   if (authenticate && hash) {
     url.searchParams.append('token', hash);
   }
-  if (lock) {
+
+  if (lockNav) {
     url.searchParams.append('locked', 'true');
+  } else if (preset) {
+    url.searchParams.append('alias', preset);
   }
   return url;
 }

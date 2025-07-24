@@ -13,8 +13,10 @@ export enum OntimeView {
   ProjectInfo = 'info',
 }
 
+export type OntimeViewPresettable = Exclude<OntimeView, OntimeView.Editor>;
+
 type BaseURLPreset = {
-  target: Omit<OntimeView, 'editor'>;
+  target: OntimeViewPresettable;
   enabled: boolean;
   alias: string;
   search: string;

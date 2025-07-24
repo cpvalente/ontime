@@ -1,5 +1,5 @@
 import { Path, resolvePath } from 'react-router';
-import { OntimeView, URLPreset } from 'ontime-types';
+import { OntimeView, OntimeViewPresettable, URLPreset } from 'ontime-types';
 import { checkRegex } from 'ontime-utils';
 
 /**
@@ -28,61 +28,71 @@ export function validateUrlPresetPath(preset: string): { message: string; isVali
 }
 
 /**
- * Utility removes trailing slash from a string
- */
-function removeTrailingSlash(text: string): string {
-  return text.replace(/\/$/, '');
-}
-
-/**
  * Checks whether the current location corresponds to a preset and returns the new path if necessary
  */
 export function getRouteFromPreset(location: Path, urlPresets: URLPreset[]): string | null {
-  // current url is the pathname without the leading slash
-  const currentURL = location.pathname.substring(1);
-  const searchParams = new URLSearchParams(location.search);
-
-  // check if we have token or locked in the search params
-  const locked = searchParams.get('locked');
-  const token = searchParams.get('token');
-
-  // we need to check if the whole url is an alias
-  const foundPreset = urlPresets.find((preset) => preset.alias === removeTrailingSlash(currentURL) && preset.enabled);
-  if (foundPreset) {
-    // if so, we can redirect to the preset path
-    return generatePathFromPreset(foundPreset.target, foundPreset.search, foundPreset.alias, locked, token);
-  }
-
-  // if the current url is not an alias, we check if the alias is in the search parameters
-  const presetOnPage = searchParams.get('alias');
-  if (!presetOnPage) {
+  // if we're already on a preset path, no need to redirect
+  if (isPresetPath(location)) {
     return null;
   }
 
+  // TODO: maybe we need to get this some other way
   const currentPath = `${location.pathname}${location.search}`.substring(1);
+  const isLocked = location.search.includes('locked=true');
+  const currentURL = getCurrentPath(location);
+  const token = new URLSearchParams(location.search).get('token');
 
   for (const preset of urlPresets) {
-    // if the page has a known enabled alias, we check if we need to redirect
-    if (preset.alias === presetOnPage && preset.enabled) {
-      const newPath = generatePathFromPreset(preset.target, preset.search, preset.alias, locked, token);
-      if (!arePathsEquivalent(currentPath, newPath)) {
-        // if current path is out of date
-        // return new path so we can redirect
-        return newPath;
-      }
+    if (!preset.enabled) continue;
+    /**
+     * If the page is a known alias it would be like
+     * /preset/{alias} <- locked to a preset
+     * or
+     * /{target}?alias={alias}  <- unwrapped preset options
+     *
+     * we need to compare the saved preset to the current path to see if we need to redirect
+     */
+    if (preset.alias === currentURL || preset.target === currentURL) {
+      const newPath = generatePathFromPreset(preset.target, preset.search, preset.alias, isLocked, token);
+      /**
+       * if the current path is equivalent to the new path, we return null
+       * this means we will not redirect
+       */
+      return arePathsEquivalent(currentPath, newPath) ? null : newPath;
     }
   }
+
   return null;
 }
 
 /**
+ * Resolves the current path accounting for the base URI
+ * Returns the alias if it's a preset path, or the last segment otherwise
+ */
+export function getCurrentPath(location: Path): string {
+  // 1. get path without query parameters
+  const pathWithoutQuery = location.pathname.split('?')[0];
+  // 2. split path into segments and filter out empty segments
+  const segments = pathWithoutQuery.split('/').filter(Boolean);
+
+  // If this is a preset path, return the alias (last segment)
+  if (segments[0] === 'preset' && segments.length > 1) {
+    return segments[1];
+  }
+
+  // Otherwise return the last segment (view name)
+  return segments[segments.length - 1] || '';
+}
+
+/**
  * Handles generating a path and search parameters from a preset
+ * This is done when we want to keep the current navigation and unwrap the search params
  */
 export function generatePathFromPreset(
   target: Omit<OntimeView, 'editor'>,
   search: string,
   alias: string,
-  locked: string | null,
+  locked: boolean,
   token: string | null,
 ): string {
   const path = resolvePath(`${target}?${search}`);
@@ -93,7 +103,7 @@ export function generatePathFromPreset(
 
   // maintain params from the URL search feature
   if (locked) {
-    searchParams.set('locked', locked);
+    searchParams.set('locked', 'true');
   }
 
   if (token) {
@@ -106,28 +116,27 @@ export function generatePathFromPreset(
 
 /**
  * Utility checks if two paths are equivalent
- * Considers the edge cases for url sharing where a path may contain extra arguments from the alias
- * - token
- * - locked
+ * For preset paths, only compares the path (since params are stored in session)
+ * For regular paths, compares path and search params (ignoring token)
  */
 export function arePathsEquivalent(currentPath: string, newPath: string): boolean {
   const currentUrl = new URL(currentPath, document.location.origin);
   const newUrl = new URL(newPath, document.location.origin);
 
-  // check path
+  // For preset paths, only compare the path
+  if (currentUrl.pathname.startsWith('/preset/') || newUrl.pathname.startsWith('/preset/')) {
+    return currentUrl.pathname === newUrl.pathname;
+  }
+
+  // For regular paths, compare path and search params (ignoring token)
   if (currentUrl.pathname !== newUrl.pathname) {
     return false;
   }
 
-  // check search params
-  // if the params match, we dont need further checks
-  if (currentUrl.searchParams.toString() === newUrl.searchParams.toString()) {
-    return true;
-  }
-
-  // if there is no match, we check the edge cases for the url sharing feature
   currentUrl.searchParams.delete('token');
   currentUrl.searchParams.delete('locked');
+  newUrl.searchParams.delete('token');
+  newUrl.searchParams.delete('locked');
 
   return currentUrl.searchParams.toString() === newUrl.searchParams.toString();
 }
@@ -143,26 +152,32 @@ export function generateUrlPresetOptions(alias: string, userUrl: string): URLPre
   }
 
   const url = new URL(sanitisedUrl);
-  const target = extractLastSegment(url.pathname);
+  const path = getCurrentPath(url);
 
-  if (target === 'editor' || !Object.values(OntimeView).includes(target as OntimeView)) {
-    throw new Error(`Invalid target view: ${target}`);
+  if (!isPresettableView(path)) {
+    throw new Error(`Invalid target view: ${path}`);
   }
 
   return {
     alias,
-    target,
+    target: path,
     search: url.searchParams.toString(),
     enabled: true,
   };
 }
 
+function isPresettableView(view: string): view is OntimeViewPresettable {
+  return view !== OntimeView.Editor && Object.values(OntimeView).includes(view as OntimeView);
+}
+
+export function makePresetKey(alias: string): string {
+  return `preset-${alias}`;
+}
+
 /**
- * the path can contain the stage hash
- * "/team-hash/timer" or "/timer"
- * we need to extract ontime view it targets
+ * Check if current location is a preset path
  */
-function extractLastSegment(pathname: string): string {
-  const segments = pathname.split('/').filter(Boolean);
-  return segments[segments.length - 1] || '';
+export function isPresetPath(location: Path): boolean {
+  const segments = location.pathname.split('/').filter(Boolean);
+  return segments[0] === 'preset';
 }

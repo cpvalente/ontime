@@ -1,20 +1,23 @@
 import { memo } from 'react';
 import { useDisclosure, useHotkeys } from '@mantine/hooks';
 
+import { useViewParamsEditorStore } from '../view-params-editor/viewParamsEditor.store';
+
 import FloatingNavigation from './floating-navigation/FloatingNavigation';
 import ViewLockedIcon from './view-locked-icon/ViewLockedIcon';
 import NavigationMenu from './NavigationMenu';
-import useViewEditor from './useViewEditor';
 
 interface ViewNavigationMenuProps {
-  isLockable?: boolean;
+  /** prevent navigation and settings*/
+  isViewLocked?: boolean;
+  /** prevent showing settings */
   suppressSettings?: boolean;
 }
 
 export default memo(ViewNavigationMenu);
-function ViewNavigationMenu({ isLockable, suppressSettings }: ViewNavigationMenuProps) {
+function ViewNavigationMenu({ isViewLocked, suppressSettings }: ViewNavigationMenuProps) {
   const [isMenuOpen, menuHandler] = useDisclosure();
-  const { showEditFormDrawer, isViewLocked } = useViewEditor({ isLockable });
+  const { open: showEditFormDrawer } = useViewParamsEditorStore();
 
   useHotkeys([
     [

@@ -6,7 +6,7 @@ import Operator from './Operator';
 export default function OperatorExport() {
   return (
     <ProtectRoute permission='operator'>
-      <ViewNavigationMenu isLockable />
+      <ViewNavigationMenu />
       <Operator />
     </ProtectRoute>
   );

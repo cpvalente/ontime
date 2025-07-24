@@ -24,6 +24,7 @@ interface EditFormDrawerProps {
 
 export default memo(ViewParamsEditor);
 function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
+  // TODO: can we ensure that the options update when the user loads an alias?
   const [_, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
   const { isOpen, close } = useViewParamsEditorStore();

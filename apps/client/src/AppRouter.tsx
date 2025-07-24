@@ -1,10 +1,11 @@
-import { ComponentType, lazy, Suspense, useMemo } from 'react';
-import { Navigate, Route, useLocation } from 'react-router';
+import { ComponentType, lazy, Suspense, useEffect, useMemo } from 'react';
+import { Navigate, Route, useLocation, useNavigate, useParams } from 'react-router';
 import { OntimeView, OntimeViewPresettable } from 'ontime-types';
 
 import ViewNavigationMenu from './common/components/navigation-menu/ViewNavigationMenu';
 import { useClientPath } from './common/hooks/useClientPath';
 import useUrlPresets from './common/hooks-query/useUrlPresets';
+import { getRouteFromPreset, makePresetKey } from './common/utils/urlPresets';
 import Log from './features/log/Log';
 import Loader from './views/common/loader/Loader';
 import NotFound from './views/common/not-found/NotFound';
@@ -42,7 +43,7 @@ export default function AppRouter() {
           path='timer'
           element={
             <ViewLoader>
-              <ViewNavigationMenu isLockable />
+              <ViewNavigationMenu />
               <Timer />
             </ViewLoader>
           }
@@ -51,7 +52,7 @@ export default function AppRouter() {
           path='countdown'
           element={
             <ViewLoader>
-              <ViewNavigationMenu isLockable />
+              <ViewNavigationMenu />
               <Countdown />
             </ViewLoader>
           }
@@ -60,7 +61,7 @@ export default function AppRouter() {
           path='backstage'
           element={
             <ViewLoader>
-              <ViewNavigationMenu isLockable />
+              <ViewNavigationMenu />
               <Backstage />
             </ViewLoader>
           }
@@ -69,7 +70,7 @@ export default function AppRouter() {
           path='studio'
           element={
             <ViewLoader>
-              <ViewNavigationMenu isLockable />
+              <ViewNavigationMenu />
               <StudioClock />
             </ViewLoader>
           }
@@ -78,7 +79,7 @@ export default function AppRouter() {
           path='timeline'
           element={
             <ViewLoader>
-              <ViewNavigationMenu isLockable />
+              <ViewNavigationMenu />
               <Timeline />
             </ViewLoader>
           }
@@ -87,12 +88,11 @@ export default function AppRouter() {
           path='info'
           element={
             <ViewLoader>
-              <ViewNavigationMenu isLockable suppressSettings />
+              <ViewNavigationMenu suppressSettings />
               <ProjectInfo />
             </ViewLoader>
           }
         />
-
         {/*/!* Protected Routes *!/*/}
         <Route path='editor' element={<Editor />} />
         <Route path='cuesheet' element={<Cuesheet />} />
@@ -104,7 +104,6 @@ export default function AppRouter() {
             </ViewLoader>
           }
         />
-
         {/*/!* Protected Routes - Elements *!/*/}
         <Route
           path='rundown'
@@ -138,7 +137,91 @@ export default function AppRouter() {
             </EditorFeatureWrapper>
           }
         />
+        {/**
+         * If the views are prefixed with the "preset" path, we are in a locked preset
+         */}
+        <Route path='preset/:alias' element={<PresetView />} />
+
+        {/**
+         * If we havent matched any views or presets, we may be in an unlocked preset
+         * where we expose the configuration parameters
+         */}
+        <Route path='*' element={<RedirectPreset />} />
       </SentryRouter>
     </Suspense>
   );
+}
+
+const PresetViewMap: Record<OntimeViewPresettable, ComponentType> = {
+  [OntimeView.Cuesheet]: Cuesheet,
+  [OntimeView.Operator]: Operator,
+  [OntimeView.Timer]: Timer,
+  [OntimeView.Backstage]: Backstage,
+  [OntimeView.Timeline]: Timeline,
+  [OntimeView.StudioClock]: StudioClock,
+  [OntimeView.Countdown]: Countdown,
+  [OntimeView.ProjectInfo]: ProjectInfo,
+};
+
+function PresetView() {
+  const { data, status } = useUrlPresets();
+  const { alias } = useParams();
+
+  const preset = useMemo(() => {
+    if (status === 'pending' || !alias) return null;
+    return data.find((p) => p.alias === alias && p.enabled);
+  }, [data, status, alias]);
+
+  /**
+   * if we have a preset, we know it is locked, so we will inject the search params into session storage
+   * This will be retrieved by the view options resolver hook
+   */
+  useEffect(() => {
+    if (!preset) return;
+    window.sessionStorage.setItem(makePresetKey(preset.alias), preset.search);
+  }, [preset]);
+
+  if (status === 'pending') {
+    return <Loader />;
+  }
+
+  const isLocked = window.localStorage.includes('locked=true');
+
+  if (!preset) {
+    return (
+      <>
+        <ViewNavigationMenu isViewLocked suppressSettings={isLocked} />
+        <NotFound />
+      </>
+    );
+  }
+
+  const Component = PresetViewMap[preset.target as OntimeViewPresettable];
+  return (
+    <>
+      <ViewNavigationMenu isViewLocked suppressSettings={isLocked} />
+      {Component ? <Component /> : <NotFound />}
+    </>
+  );
+}
+
+function RedirectPreset() {
+  const { data, status } = useUrlPresets();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // checks if we are in a preset path and resolves a destination URL
+  const destination = useMemo(() => {
+    if (status === 'pending') return null;
+    return getRouteFromPreset(location, data);
+  }, [data, location, status]);
+
+  // if we have a destination, we will navigate to it
+  useEffect(() => {
+    if (destination) {
+      navigate(`/${destination}`, { replace: true });
+    }
+  }, [destination, navigate]);
+
+  return <Loader />;
 }

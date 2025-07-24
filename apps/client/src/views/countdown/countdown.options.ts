@@ -6,6 +6,7 @@ import { getTimeOption } from '../../common/components/view-params-editor/common
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
+import { getCurrentPath, makePresetKey } from '../../common/utils/urlPresets';
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 
 export const getCountdownOptions = (
@@ -69,12 +70,22 @@ type CountdownOptions = {
  * Utility extract the view options from URL Params
  * the names and fallback are manually matched with timerOptions
  */
-function getOptionsFromParams(searchParams: URLSearchParams): CountdownOptions {
-  // we manually make an object that matches the key above
+function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): CountdownOptions {
+  // Helper to get single value from either source, prioritizing defaultValues
+  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
+
+  // Helper to get array values from either source
+  const getArrayValues = (key: string): EntryId[] => {
+    if (defaultValues?.has(key)) {
+      return defaultValues.getAll(key) as EntryId[];
+    }
+    return searchParams.getAll(key) as EntryId[];
+  };
+
   return {
-    subscriptions: searchParams.getAll('sub') as EntryId[],
-    secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
-    showProjected: isStringBoolean(searchParams.get('showProjected')),
+    subscriptions: getArrayValues('subscriptions'),
+    secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
+    showProjected: isStringBoolean(getValue('showProjected')),
   };
 }
 
@@ -83,6 +94,13 @@ function getOptionsFromParams(searchParams: URLSearchParams): CountdownOptions {
  */
 export function useCountdownOptions(): CountdownOptions {
   const [searchParams] = useSearchParams();
-  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+
+  const options = useMemo(() => {
+    const pathName = getCurrentPath(window.location);
+    const presetSearch = window.sessionStorage.getItem(makePresetKey(pathName));
+    const defaultValues = presetSearch ? new URLSearchParams(presetSearch) : undefined;
+    return getOptionsFromParams(searchParams, defaultValues);
+  }, [searchParams]);
+
   return options;
 }

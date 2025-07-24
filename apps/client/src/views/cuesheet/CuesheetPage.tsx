@@ -3,7 +3,6 @@ import { useDisclosure } from '@mantine/hooks';
 
 import IconButton from '../../common/components/buttons/IconButton';
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
-import useViewEditor from '../../common/components/navigation-menu/useViewEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import CuesheetOverview from '../../features/overview/CuesheetOverview';
 
@@ -14,10 +13,11 @@ import CuesheetTableWrapper from './CuesheetTableWrapper';
 import styles from './CuesheetPage.module.scss';
 
 export default function CuesheetPage() {
-  const { isViewLocked } = useViewEditor({ isLockable: true });
   const [isMenuOpen, menuHandler] = useDisclosure();
 
   useWindowTitle('Cuesheet');
+
+  const isViewLocked = window.location.search.includes('locked=true');
 
   return (
     <>
