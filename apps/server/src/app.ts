@@ -6,7 +6,6 @@ import http, { type Server } from 'http';
 import cors from 'cors';
 import serverTiming from 'server-timing';
 import cookieParser from 'cookie-parser';
-import compression from 'compression';
 
 // import utils
 import { publicDir, srcDir } from './setup/index.js';
@@ -77,7 +76,6 @@ app.disable('x-powered-by');
 app.enable('etag');
 
 // Implement middleware
-app.use(compression());
 app.use(cors()); // setup cors for all routes
 app.options('*splat', cors()); // enable pre-flight cors
 
