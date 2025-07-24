@@ -248,3 +248,11 @@ export const useCountdownSocket = createSelector((state: RuntimeStore) => ({
   current: state.timer.current,
   clock: state.clock,
 }));
+
+export const useBackstageSocket = createSelector((state: RuntimeStore) => ({
+  eventNext: state.eventNext,
+  eventNow: state.eventNow,
+  runtime: state.runtime,
+  selectedEventId: state.eventNow?.id ?? null,
+  time: state.timer,
+}));
