@@ -60,6 +60,7 @@ export default function AppRouter() {
           path='backstage'
           element={
             <ViewLoader>
+              <ViewNavigationMenu isLockable />
               <Backstage />
             </ViewLoader>
           }
