@@ -10,9 +10,9 @@ interface SectionProps {
   status?: string;
 }
 
-export default memo(Section);
+export default memo(TimelineSection);
 
-function Section({ category, content, title, status }: SectionProps) {
+function TimelineSection({ category, content, title, status }: SectionProps) {
   const sectionClasses = cx(['section', category === 'now' && 'section--now']);
   const contentClasses = cx(['section-content', content ? `section-content--${category}` : 'section-content--subdue']);
   return (
