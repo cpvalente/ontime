@@ -9,7 +9,6 @@ import {
   isOntimeEvent,
   OntimeBlock,
   OntimeEntry,
-  OntimeEvent,
   PatchWithId,
   RefetchKey,
   Rundown,
@@ -99,11 +98,6 @@ export async function editEntry(patch: PatchWithId): Promise<OntimeEntry> {
   // could the entry have been deleted?
   if (!currentEntry) {
     throw new Error('Entry not found');
-  }
-
-  // we dont allow the user to change the cue to empty string
-  if ((patch as Partial<OntimeEvent>)?.cue === '') {
-    throw new Error('Cue value invalid');
   }
 
   // we cannot allow patching to a different type
