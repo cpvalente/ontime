@@ -242,3 +242,9 @@ export const useTimerSocket = createSelector((state: RuntimeStore) => ({
     aux3: state.auxtimer3.current,
   },
 }));
+
+export const useCountdownSocket = createSelector((state: RuntimeStore) => ({
+  playback: state.timer.playback,
+  current: state.timer.current,
+  clock: state.clock,
+}));

@@ -51,6 +51,7 @@ export default function AppRouter() {
           path='countdown'
           element={
             <ViewLoader>
+              <ViewNavigationMenu isLockable />
               <Countdown />
             </ViewLoader>
           }
