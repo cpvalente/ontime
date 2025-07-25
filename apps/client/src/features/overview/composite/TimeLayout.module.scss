@@ -13,11 +13,17 @@
   &::after {
     content: '\200b';
   }
+
+  &.muted {
+    color: $muted-gray;
+  }
 }
 
 .column {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  justify-content: end;
 
   .label {
     line-height: 0.9em;

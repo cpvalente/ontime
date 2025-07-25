@@ -40,7 +40,7 @@ export default function BlockRow({ blockId, colour, hidePast, rowId, rowIndex, t
         <td className={style.actionColumn} tabIndex={-1} role='cell'>
           <IconButton
             aria-label='Options'
-            variant='subtle-white'
+            variant='ghosted-white'
             size='small'
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
