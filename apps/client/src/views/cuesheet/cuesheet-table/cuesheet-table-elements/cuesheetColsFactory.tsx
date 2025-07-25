@@ -209,24 +209,7 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeEntry, unknow
  */
 export function makeCuesheetColumns(customFields: CustomFields, cuesheetMode: AppMode): ColumnDef<OntimeEntry>[] {
   const columnsDef: ColumnDef<OntimeEntry>[] = [];
-  const customFieldKeys = Object.keys(customFields);
   const modeAllowsWrite = cuesheetMode === AppMode.Edit;
-
-  for (let i = 0; i < customFieldKeys.length; i++) {
-    const key = customFieldKeys[i];
-    columnsDef.push({
-      accessorKey: key,
-      id: key,
-      header: customFields[key].label,
-      cell: customFields[key].type === 'text' ? MakeCustomField : LazyImage,
-      size: 250,
-      minSize: 75,
-      meta: {
-        colour: customFields[key].colour,
-        canWrite: true,
-      },
-    });
-  }
 
   columnsDef.push({
     accessorKey: 'flag',
@@ -297,6 +280,25 @@ export function makeCuesheetColumns(customFields: CustomFields, cuesheetMode: Ap
     minSize: 75,
     meta: { canWrite: modeAllowsWrite },
   });
+
+  // custom fields at the end
+  const customFieldKeys = Object.keys(customFields);
+
+  for (let i = 0; i < customFieldKeys.length; i++) {
+    const key = customFieldKeys[i];
+    columnsDef.push({
+      accessorKey: key,
+      id: key,
+      header: customFields[key].label,
+      cell: customFields[key].type === 'text' ? MakeCustomField : LazyImage,
+      size: 250,
+      minSize: 75,
+      meta: {
+        colour: customFields[key].colour,
+        canWrite: true,
+      },
+    });
+  }
 
   return columnsDef;
 }
