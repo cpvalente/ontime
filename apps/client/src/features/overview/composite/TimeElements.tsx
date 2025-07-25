@@ -194,7 +194,7 @@ export function ProgressOverview() {
   const current = selectedEventIndex !== null ? selectedEventIndex + 1 : enDash;
   const progressText = numEvents ? `${current} of ${numEvents || enDash}` : enDash;
 
-  return <TimeColumn label='Progress' value={progressText} />;
+  return <TimeColumn label='Progress' value={progressText} muted={selectedEventIndex === null} />;
 }
 
 export function OffsetOverview() {

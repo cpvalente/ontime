@@ -60,6 +60,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
             <NavigationMenuItem active={mirror} onClick={toggleMirror}>
               Flip Screen
               <IoSwapVertical />
+              {mirror && <span className={style.note}>Active</span>}
             </NavigationMenuItem>
             <NavigationMenuItem onClick={handlers.open}>Rename Client</NavigationMenuItem>
 

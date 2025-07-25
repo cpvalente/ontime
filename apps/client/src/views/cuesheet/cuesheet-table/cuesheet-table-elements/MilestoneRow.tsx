@@ -52,7 +52,7 @@ export default function MilestoneRow({
         <td className={style.actionColumn} tabIndex={-1} role='cell'>
           <IconButton
             aria-label='Options'
-            variant='subtle-white'
+            variant='ghosted-white'
             size='small'
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
