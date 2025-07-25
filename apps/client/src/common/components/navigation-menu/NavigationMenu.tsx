@@ -57,7 +57,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
               Toggle Fullscreen
               {fullscreen ? <IoContract /> : <IoExpand />}
             </NavigationMenuItem>
-            <NavigationMenuItem active={mirror} onClick={toggleMirror}>
+            <NavigationMenuItem active={mirror} onClick={() => toggleMirror()}>
               Flip Screen
               <IoSwapVertical />
               {mirror && <span className={style.note}>Active</span>}
