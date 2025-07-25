@@ -11,7 +11,7 @@ export const projectSanitiser = [
   body('custom').optional().isArray(),
   body('custom.*.title').optional().isString().trim().notEmpty(),
   body('custom.*.value').optional().isString().trim().notEmpty(),
-  body('custom.*.url').optional().isString().trim().notEmpty(),
+  body('custom.*.url').optional().isString().trim(),
 
   requestValidationFunction,
 ];
