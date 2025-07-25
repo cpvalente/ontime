@@ -4,12 +4,12 @@ import { IoAdd, IoDownloadOutline, IoTrash } from 'react-icons/io5';
 import { type ProjectData } from 'ontime-types';
 
 import { projectLogoPath } from '../../../../common/api/constants';
-import { postProjectData, uploadProjectLogo } from '../../../../common/api/project';
+import { uploadProjectLogo } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Input from '../../../../common/components/input/input/Input';
 import Textarea from '../../../../common/components/input/textarea/Textarea';
-import useProjectData from '../../../../common/hooks-query/useProjectData';
+import useProjectData, { useUpdateProjectData } from '../../../../common/hooks-query/useProjectData';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { validateLogo } from '../../../../common/utils/uploadUtils';
 import { documentationUrl } from '../../../../externals';
@@ -19,7 +19,8 @@ import style from './SettingsPanel.module.scss';
 
 export default function ProjectData() {
   'use no memo'; // RHF and react-compiler don't seem to get along
-  const { data, status, refetch } = useProjectData();
+  const { data, status } = useProjectData();
+  const { updateProjectData } = useUpdateProjectData();
 
   const {
     handleSubmit,
@@ -93,16 +94,14 @@ export default function ProjectData() {
 
   const onSubmit = async (formData: ProjectData) => {
     try {
-      await postProjectData(formData);
+      await updateProjectData(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
-    } finally {
-      await refetch();
     }
   };
 
-  // populate with new data if we get an update
+  // reset data to the initial state
   const onReset = () => {
     reset(data);
   };
