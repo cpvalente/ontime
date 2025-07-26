@@ -168,14 +168,16 @@ describe('v3 to v4', () => {
       {
         enabled: true,
         alias: 'clock',
-        pathAndParams:
-          'timer?showLeadingZeros=true&timerType=clock&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+        target: 'timer',
+        search:
+          'showLeadingZeros=true&timerType=clock&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
       },
       {
         enabled: true,
         alias: 'minimal',
-        pathAndParams:
-          'timer?showLeadingZeros=true&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+        target: 'timer',
+        search:
+          'showLeadingZeros=true&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
       },
     ];
     const newUrlPreset = v3.migrateURLPresets(oldDb);
