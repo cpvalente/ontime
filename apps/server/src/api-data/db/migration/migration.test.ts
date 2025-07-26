@@ -1,4 +1,5 @@
 import {
+  AutomationSettings,
   CustomFields,
   EndAction,
   ProjectData,
@@ -317,5 +318,51 @@ describe('v3 to v4', () => {
 
     //@ts-expect-error - we know  the default rundown  should appear
     expect(v3.migrateRundown(oldDb, translationTable)['default']).toStrictEqual(expectedRundown);
+  });
+
+  describe('migrate old automation', () => {
+    test('osc', () => {
+      const oldData = {
+        portIn: 8881,
+        portOut: 55890,
+        targetIP: '127.0.0.1',
+        enabledIn: false,
+        enabledOut: true,
+        subscriptions: [
+          {
+            id: '23f4d8',
+            cycle: 'onClock',
+            address: '/test',
+            payload: 'bip',
+            enabled: true,
+          },
+        ],
+      };
+
+      const expectedAutomation: AutomationSettings = {
+        enabledAutomations: true,
+        enabledOscIn: false,
+        oscPortIn: 8881,
+        triggers: [
+          {
+            id: '23f4d8-T',
+            title: 'Migrated Trigger 23f4d8',
+            trigger: TimerLifeCycle.onClock,
+            automationId: '23f4d8-A',
+          },
+        ],
+        automations: {
+          '23f4d8-A': {
+            id: '23f4d8-A',
+            title: 'Migrated Automation 23f4d8',
+            filterRule: 'any',
+            filters: [],
+            outputs: [{ type: 'osc', targetIP: '127.0.0.1', targetPort: 55890, address: '/test', args: 'bip' }],
+          },
+        },
+      };
+
+      expect(v3.migrateAutomations({ osc: oldData })).toStrictEqual(expectedAutomation);
+    });
   });
 });

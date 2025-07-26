@@ -14,6 +14,7 @@ import {
   Settings,
   SupportedEntry,
   TimerLifeCycle,
+  Trigger,
   URLPreset,
   ViewSettings,
 } from 'ontime-types';
@@ -193,47 +194,6 @@ export function migrateCustomFields(
   }
 }
 
-type old_Automation = {
-  id: string;
-  title: string;
-  filterRule: 'all' | 'any';
-  filters: {
-    field: string; // this should be a key of a OntimeEvent + custom fields
-    operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains' | 'not_contains';
-    value: string; // we use string but would coerce to the field value
-  }[];
-  outputs:
-    | {
-        type: 'osc';
-        targetIP: string;
-        targetPort: number;
-        address: string;
-        args: string;
-      }[]
-    | {
-        type: 'http';
-        url: string;
-      }[];
-};
-
-type old_NormalisedAutomation = Record<string, old_Automation>;
-
-type old_Trigger = {
-  id: string;
-  title: string;
-  //TODO: not to worried about this changing but it would be good to have it independent
-  trigger: TimerLifeCycle; //'onLoad' | 'onStart' | 'onPause' | 'onStop' | 'onClock' | 'onUpdate' | 'onFinish' | 'onWarning' | 'onDanger';
-  automationId: string;
-};
-
-type old_AutomationSettings = {
-  enabledAutomations: boolean;
-  enabledOscIn: boolean;
-  oscPortIn: number;
-  triggers: old_Trigger[];
-  automations: old_NormalisedAutomation;
-};
-
 export type old_OscSubscription = {
   id: string;
   cycle: TimerLifeCycle;
@@ -258,25 +218,47 @@ export type old_OSCSettings = {
  */
 export function migrateAutomations(jsonData: object): AutomationSettings | undefined {
   if (is.objectWithKeys(jsonData, ['automation']) && is.object(jsonData.automation)) {
-    const oldAutomationSettings = structuredClone(jsonData.automation) as old_AutomationSettings;
+    // For now the automation type used i v3 and in v4 are the same but we will need to update this if it changes at some point
+    const oldAutomationSettings = structuredClone(jsonData.automation) as AutomationSettings;
     return oldAutomationSettings;
   }
 
   let foundOldSetting = false;
   const migratedOldStuff = structuredClone(dbModel.automation);
+  const migratedAutomations: NormalisedAutomation = {};
+  const migratedTriggers: Trigger[] = [];
+
   if (is.objectWithKeys(jsonData, ['osc']) && is.object(jsonData.osc)) {
     foundOldSetting = true;
-    const oldOscSettings = structuredClone(jsonData.osc) as old_OSCSettings;
-    migratedOldStuff.enabledOscIn = oldOscSettings.enabledIn;
-    migratedOldStuff.oscPortIn = oldOscSettings.portIn;
-    const migratedSubscriptions: NormalisedAutomation = {};
-    for (const subscription of oldOscSettings.subscriptions) {
-      const id = generateId();
-      migratedSubscriptions[id] = { id, title: 'Migrated subscription' + id, filterRule: 'any', filters: [], outputs:[] };
+    const { subscriptions, portIn, enabledIn, targetIP, portOut } = structuredClone(jsonData.osc) as old_OSCSettings;
+    migratedOldStuff.enabledOscIn = enabledIn;
+    migratedOldStuff.oscPortIn = portIn;
+
+    for (const subscription of subscriptions) {
+      const { id, cycle, address, payload } = subscription;
+
+      migratedTriggers.push({
+        id: `${id}-T`,
+        automationId: `${id}-A`,
+        title: `Migrated Trigger ${id}`,
+        trigger: cycle,
+      });
+
+      migratedAutomations[`${id}-A`] = {
+        id: `${id}-A`,
+        title: `Migrated Automation ${id}`,
+        filterRule: 'any',
+        filters: [],
+        outputs: [{ type: 'osc', address, args: payload, targetIP, targetPort: portOut }],
+      };
     }
   }
 
-  if (foundOldSetting) return migratedOldStuff;
+  if (foundOldSetting) {
+    migratedOldStuff.automations = migratedAutomations;
+    migratedOldStuff.triggers = migratedTriggers;
+    return migratedOldStuff;
+  }
 }
 
 /**
