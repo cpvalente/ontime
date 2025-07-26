@@ -6,22 +6,25 @@ import {
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
+  NormalisedAutomation,
   OntimeEntry,
   ProjectData,
   ProjectRundowns,
   Rundown,
   Settings,
   SupportedEntry,
+  TimerLifeCycle,
   URLPreset,
   ViewSettings,
 } from 'ontime-types';
 import { is } from '../../../utils/is.js';
 import { dbModel } from '../../../models/dataModel.js';
-import { customFieldLabelToKey, checkRegex, isKnownTimerType, validateEndAction } from 'ontime-utils';
+import { customFieldLabelToKey, checkRegex, isKnownTimerType, validateEndAction, generateId } from 'ontime-utils';
 import { event as eventModel } from '../../../models/eventsDefinition.js';
 
 // the methodology of the migrations is to just change the necessary keys to match with v4
 // and then let the normal project parser handle ensuring the the file is correct
+// we should also avoid relying on the types package as this file should continue to work with old types when things change
 
 export function shouldUseThisMigration(jsonData: object): boolean {
   return (
@@ -33,25 +36,36 @@ export function shouldUseThisMigration(jsonData: object): boolean {
   );
 }
 
+type old_Settings = {
+  version: string;
+  serverPort: number;
+  editorKey: null | string;
+  operatorKey: null | string;
+  timeFormat: '12' | '24';
+  language: string;
+};
+
 /**
  * migrates a settings from v3 to v4.0.0
  * - update the version number
  */
 export function migrateSettings(jsonData: object): Settings | undefined {
   if (is.objectWithKeys(jsonData, ['settings']) && is.object(jsonData.settings)) {
-    // intentionally cast as any so we can extract the values
-    const oldSettings = structuredClone(jsonData.settings) as any;
-    const migrated: Settings = {
-      version: '4.0.0',
-      serverPort: oldSettings.serverPort ?? dbModel.settings.serverPort,
-      editorKey: oldSettings.editorKey ?? dbModel.settings.editorKey,
-      operatorKey: oldSettings.operatorKey ?? dbModel.settings.operatorKey,
-      timeFormat: oldSettings.timeFormat ?? dbModel.settings.timeFormat,
-      language: oldSettings.language ?? dbModel.settings.language,
-    };
+    const oldSettings = structuredClone(jsonData.settings) as old_Settings;
+
+    const migrated: Settings = { ...oldSettings, version: '4.0.0' };
     return migrated;
   }
 }
+
+type old_ViewSettings = {
+  dangerColor: string;
+  normalColor: string;
+  overrideStyles: boolean;
+  warningColor: string;
+  freezeEnd: boolean;
+  endMessage: string;
+};
 
 /**
  * migrates a view settings from v3 to v4.0.0
@@ -60,17 +74,18 @@ export function migrateSettings(jsonData: object): Settings | undefined {
  */
 export function migrateViewSettings(jsonData: object): ViewSettings | undefined {
   if (is.objectWithKeys(jsonData, ['viewSettings']) && is.object(jsonData.viewSettings)) {
-    // intentionally cast as any so we can extract the values
-    const oldViewSettings = structuredClone(jsonData.viewSettings) as any;
-    const migrated: ViewSettings = {
-      dangerColor: oldViewSettings.dangerColor ?? dbModel.viewSettings.dangerColor,
-      normalColor: oldViewSettings.normalColor ?? dbModel.viewSettings.normalColor,
-      overrideStyles: oldViewSettings.overrideStyles ?? dbModel.viewSettings.overrideStyles,
-      warningColor: oldViewSettings.warningColor ?? dbModel.viewSettings.warningColor,
-    };
-    return migrated;
+    const { dangerColor, normalColor, overrideStyles, warningColor } = structuredClone(
+      jsonData.viewSettings,
+    ) as old_ViewSettings;
+    return { dangerColor, normalColor, overrideStyles, warningColor };
   }
 }
+
+type old_URLPreset = {
+  enabled: boolean;
+  alias: string;
+  pathAndParams: string;
+}[];
 
 /**
  * migrates a url presets from v3 to v4
@@ -78,11 +93,7 @@ export function migrateViewSettings(jsonData: object): ViewSettings | undefined 
  */
 export function migrateURLPresets(jsonData: object): URLPreset[] | undefined {
   if (is.objectWithKeys(jsonData, ['urlPresets']) && is.array(jsonData.urlPresets)) {
-    const oldURLPresets = structuredClone(jsonData.urlPresets) as {
-      enabled: boolean;
-      alias: string;
-      pathAndParams: string;
-    }[];
+    const oldURLPresets = structuredClone(jsonData.urlPresets) as old_URLPreset;
     const newURLPreset: URLPreset[] = oldURLPresets.map(({ enabled, alias, pathAndParams }) => {
       const [target, search] = pathAndParams.split('?');
       return { enabled, alias, target, search };
@@ -90,6 +101,17 @@ export function migrateURLPresets(jsonData: object): URLPreset[] | undefined {
     return newURLPreset;
   }
 }
+
+type old_ProjectData = {
+  title: string;
+  description: string;
+  backstageUrl: string;
+  backstageInfo: string;
+  publicUrl: string;
+  publicInfo: string;
+  logo?: string; // is not present in old files
+  custom?: { title: string; value: string; url: string }[]; // is not present in old files
+};
 
 /**
  * migrates a url presets from v3 to v4.0.0
@@ -102,15 +124,17 @@ export function migrateURLPresets(jsonData: object): URLPreset[] | undefined {
  */
 export function migrateProjectData(jsonData: object): ProjectData | undefined {
   if (is.objectWithKeys(jsonData, ['project']) && is.object(jsonData.project)) {
-    // intentionally cast as any so we can extract the values
-    const oldProjectData = structuredClone(jsonData.project) as any;
+    const { title, description, backstageInfo, backstageUrl, logo, custom } = structuredClone(
+      jsonData.project,
+    ) as old_ProjectData;
+
     const migrated: ProjectData = {
-      title: oldProjectData.title ?? dbModel.project.title,
-      description: oldProjectData.description ?? dbModel.project.description,
-      url: oldProjectData.backstageUrl ?? dbModel.project.url,
-      info: oldProjectData.backstageInfo ?? dbModel.project.info,
-      logo: oldProjectData.logo ?? dbModel.project.logo,
-      custom: oldProjectData.custom ?? dbModel.project.custom,
+      title,
+      description,
+      url: backstageUrl,
+      info: backstageInfo,
+      logo: logo ?? dbModel.project.logo,
+      custom: custom ?? dbModel.project.custom,
     };
     return migrated;
   }
@@ -118,6 +142,14 @@ export function migrateProjectData(jsonData: object): ProjectData | undefined {
 
 // old key -> new key
 type CustomFieldsTranslationTable = Map<string, string>;
+type old_CustomFields = Record<
+  string,
+  {
+    type: 'string' | 'image';
+    colour: string;
+    label: string;
+  }
+>;
 
 /**
  * migrates a custom fields from v3 to v4.0.0
@@ -133,7 +165,7 @@ export function migrateCustomFields(
 
   if (is.objectWithKeys(jsonData, ['customFields']) && is.object(jsonData.customFields)) {
     // intentionally cast as any so we can extract the values
-    const oldCustomFields = structuredClone(jsonData.customFields) as CustomFields;
+    const oldCustomFields = structuredClone(jsonData.customFields) as old_CustomFields;
     const customFields: CustomFields = {};
 
     for (const [originalKey, field] of Object.entries(oldCustomFields)) {
@@ -151,7 +183,6 @@ export function migrateCustomFields(
       translationTable.set(originalKey, key);
 
       customFields[key] = {
-        //@ts-expect-error - we know this should not be the case in the migrated db
         type: field.type === 'string' ? 'text' : field.type,
         colour: field.colour,
         label: field.label,
@@ -162,6 +193,64 @@ export function migrateCustomFields(
   }
 }
 
+type old_Automation = {
+  id: string;
+  title: string;
+  filterRule: 'all' | 'any';
+  filters: {
+    field: string; // this should be a key of a OntimeEvent + custom fields
+    operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains' | 'not_contains';
+    value: string; // we use string but would coerce to the field value
+  }[];
+  outputs:
+    | {
+        type: 'osc';
+        targetIP: string;
+        targetPort: number;
+        address: string;
+        args: string;
+      }[]
+    | {
+        type: 'http';
+        url: string;
+      }[];
+};
+
+type old_NormalisedAutomation = Record<string, old_Automation>;
+
+type old_Trigger = {
+  id: string;
+  title: string;
+  //TODO: not to worried about this changing but it would be good to have it independent
+  trigger: TimerLifeCycle; //'onLoad' | 'onStart' | 'onPause' | 'onStop' | 'onClock' | 'onUpdate' | 'onFinish' | 'onWarning' | 'onDanger';
+  automationId: string;
+};
+
+type old_AutomationSettings = {
+  enabledAutomations: boolean;
+  enabledOscIn: boolean;
+  oscPortIn: number;
+  triggers: old_Trigger[];
+  automations: old_NormalisedAutomation;
+};
+
+export type old_OscSubscription = {
+  id: string;
+  cycle: TimerLifeCycle;
+  address: string;
+  payload: string;
+  enabled: boolean;
+};
+
+export type old_OSCSettings = {
+  portIn: number;
+  portOut: number;
+  targetIP: string;
+  enabledIn: boolean;
+  enabledOut: boolean;
+  subscriptions: old_OscSubscription[];
+};
+
 /**
  * migrates a automations from v3 to v4.0.0
  * - in case of a newer v3 project we can just return Automation settings
@@ -169,9 +258,25 @@ export function migrateCustomFields(
  */
 export function migrateAutomations(jsonData: object): AutomationSettings | undefined {
   if (is.objectWithKeys(jsonData, ['automation']) && is.object(jsonData.automation)) {
-    const oldProjectData = structuredClone(jsonData.automation) as AutomationSettings;
-    return oldProjectData;
+    const oldAutomationSettings = structuredClone(jsonData.automation) as old_AutomationSettings;
+    return oldAutomationSettings;
   }
+
+  let foundOldSetting = false;
+  const migratedOldStuff = structuredClone(dbModel.automation);
+  if (is.objectWithKeys(jsonData, ['osc']) && is.object(jsonData.osc)) {
+    foundOldSetting = true;
+    const oldOscSettings = structuredClone(jsonData.osc) as old_OSCSettings;
+    migratedOldStuff.enabledOscIn = oldOscSettings.enabledIn;
+    migratedOldStuff.oscPortIn = oldOscSettings.portIn;
+    const migratedSubscriptions: NormalisedAutomation = {};
+    for (const subscription of oldOscSettings.subscriptions) {
+      const id = generateId();
+      migratedSubscriptions[id] = { id, title: 'Migrated subscription' + id, filterRule: 'any', filters: [], outputs:[] };
+    }
+  }
+
+  if (foundOldSetting) return migratedOldStuff;
 }
 
 /**
