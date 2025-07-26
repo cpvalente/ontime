@@ -17,7 +17,7 @@ import {
 } from 'ontime-types';
 import { is } from '../../../utils/is.js';
 import { dbModel } from '../../../models/dataModel.js';
-import { customFieldLabelToKey, isAlphanumericWithSpace, isKnownTimerType, validateEndAction } from 'ontime-utils';
+import { customFieldLabelToKey, checkRegex, isKnownTimerType, validateEndAction } from 'ontime-utils';
 import { event as eventModel } from '../../../models/eventsDefinition.js';
 
 // the methodology of the migrations is to just change the necessary keys to match with v4
@@ -129,7 +129,7 @@ export function migrateCustomFields(
     const customFields: CustomFields = {};
 
     for (const [originalKey, field] of Object.entries(oldCustomFields)) {
-      if (!isAlphanumericWithSpace(field.label)) {
+      if (!checkRegex.isAlphanumericWithSpace(field.label)) {
         continue;
       }
 
