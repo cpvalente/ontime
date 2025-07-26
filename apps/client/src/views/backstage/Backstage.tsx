@@ -48,7 +48,7 @@ export default function Backstage({
   settings,
 }: BackstageProps) {
   const { getLocalizedString } = useTranslation();
-  const { secondarySource } = useBackstageOptions();
+  const { secondarySource, extraInfo } = useBackstageOptions();
   const [blinkClass, setBlinkClass] = useState(false);
   const { height: screenHeight } = useViewportSize();
 
@@ -104,8 +104,8 @@ export default function Backstage({
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const backstageOptions = useMemo(
-    () => getBackstageOptions(defaultFormat, customFields),
-    [defaultFormat, customFields],
+    () => getBackstageOptions(defaultFormat, customFields, general),
+    [defaultFormat, customFields, general],
   );
 
   return (
@@ -180,8 +180,44 @@ export default function Backstage({
       {showSchedule && <ScheduleExport selectedId={selectedId} />}
 
       <div className={cx(['info', !showSchedule && 'info--stretch'])}>
-        {general.url && <QRCode value={general.url} size={qrSize} level='L' className='qr' />}
-        {general.info && <div className='info__message'>{general.info}</div>}
+        {extraInfo && <ExtraInfo projectData={general} size={qrSize} source={extraInfo} />}
+        <div className='info-card'>
+          {general.url && <QRCode value={general.url} size={qrSize} level='L' className='info-card__qr' />}
+          {general.info && <div className='info-card__message'>{general.info}</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface ExtraInfoProps {
+  projectData: ProjectData;
+  size: number;
+  source: string;
+}
+function ExtraInfo({ projectData, size, source }: ExtraInfoProps) {
+  const info = projectData.custom.find((entry, index) => {
+    const label = `${index}-${entry.title}`;
+    return label === source;
+  });
+
+  if (!info) {
+    return null;
+  }
+
+  return (
+    <div className='info-card'>
+      {info.url && (
+        <img
+          className='info-card__img'
+          width={size}
+          src={info.url}
+          onError={(event) => (event.currentTarget.style.display = 'none')}
+        />
+      )}
+      <div className='info__column'>
+        {info.title && <div className='info-card__label'>{info.title}</div>}
+        {info.value && <div className='info-card__message'>{info.value}</div>}
       </div>
     </div>
   );

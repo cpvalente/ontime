@@ -149,10 +149,27 @@
   .info {
     grid-area: info;
     display: flex;
-    gap: max(1vw, 16px);
-    align-self: flex-end;
+    flex-direction: column;
+    gap: $view-element-gap;
+    align-self: end;
     overflow: hidden;
-    align-items: end;
+  }
+
+  .info__column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .info-card {
+    display: flex;
+    gap: $view-element-gap;
+
+    &__label {
+      font-size: $timer-label-size;
+      color: var(--label-color-override, $viewer-label-color);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
 
     &__message {
       font-size: $base-font-size;
@@ -162,9 +179,14 @@
       flex: 1;
     }
 
-    .qr {
+    &__qr {
       padding: 0.5rem;
       background-color: $ui-white;
+      border-radius: 2px;
+    }
+
+    &__img {
+      padding: 0.5rem;
       border-radius: 2px;
     }
   }

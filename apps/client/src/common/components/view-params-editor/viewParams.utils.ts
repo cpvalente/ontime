@@ -1,4 +1,4 @@
-import type { CustomFields } from 'ontime-types';
+import type { CustomFields, ProjectData } from 'ontime-types';
 
 import type { SelectOption } from '../select/Select';
 
@@ -51,6 +51,18 @@ export function makeCustomFieldSelectOptions(customFields: CustomFields, filterI
   }
 
   return options;
+}
+
+/**
+ * Creates data for a select element that displays project custom data
+ */
+export function makeProjectDataOptions(projectData: ProjectData): SelectOption[] {
+  return projectData.custom.map((entry, index) => {
+    return {
+      value: `${index}-${entry.title}`,
+      label: entry.title,
+    };
+  });
 }
 
 type ViewParamsObj = { [key: string]: string | FormDataEntryValue };
