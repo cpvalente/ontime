@@ -20,7 +20,6 @@ interface QuickStartProps {
 }
 
 export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
-  'use no memo'; // RHF and react-compiler don't seem to get along
   const { defaultWarnTime, defaultDangerTime, setDangerTime, setWarnTime } = useEditorSettings();
 
   const {
