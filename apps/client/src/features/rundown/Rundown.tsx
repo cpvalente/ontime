@@ -44,7 +44,7 @@ import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
 import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
 import BlockEnd from './rundown-block/BlockEnd';
 import RundownBlock from './rundown-block/RundownBlock';
-import { makeRundownMetadata, makeSortableList } from './rundown.utils';
+import { canDrop, makeRundownMetadata, makeSortableList } from './rundown.utils';
 import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
 
@@ -335,13 +335,13 @@ export default function Rundown({ data }: RundownProps) {
       return;
     }
 
+    // prevent dropping a group inside another
+    if (active.data.current?.type === 'block' && !canDrop(over.data.current?.type, over.data.current?.parent)) {
+      return;
+    }
+
     const fromIndex = active.data.current?.sortable.index;
     const toIndex = over.data.current?.sortable.index;
-
-    // we keep a copy of the state as a hack to handle inconsistencies between dnd-kit and async store updates
-    setSortableData((currentEntries) => {
-      return reorderArray(currentEntries, fromIndex, toIndex);
-    });
 
     let destinationId = over.id as EntryId;
     let order: 'before' | 'after' | 'insert' = fromIndex < toIndex ? 'after' : 'before';
@@ -368,7 +368,16 @@ export default function Rundown({ data }: RundownProps) {
         }
       }
     }
-    reorderEntry(active.id as EntryId, destinationId, order);
+
+    // keep copy of the current state in case we need to revert
+    const currentEntries = structuredClone(sortableData);
+    // we keep a copy of the state as a hack to handle inconsistencies between dnd-kit and async store updates
+    setSortableData((currentEntries) => {
+      return reorderArray(currentEntries, fromIndex, toIndex);
+    });
+    reorderEntry(active.id as EntryId, destinationId, order).catch((_) => {
+      setSortableData(currentEntries);
+    });
   };
 
   /**

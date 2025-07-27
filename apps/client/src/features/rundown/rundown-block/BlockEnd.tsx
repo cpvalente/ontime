@@ -17,6 +17,9 @@ export default function BlockEnd({ id, colour }: BlockEndProps) {
     transition,
   } = useSortable({
     id,
+    data: {
+      type: 'end-block',
+    },
     animateLayoutChanges: () => false,
     disabled: true, // we do not want to drag end blocks
   });

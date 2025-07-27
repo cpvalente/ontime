@@ -158,15 +158,21 @@ export function makeSortableList(order: EntryId[], entries: RundownEntries): Ent
 
 /**
  * Checks whether a drop operation is valid
- * Currently only used for validating dropping blocks
+ * Currently only used for validating dropping groups
  */
-export function canDrop(targetType?: SupportedEntry, targetParent?: EntryId | null): boolean {
-  if (targetType === 'event' || targetType === 'delay') {
-    return targetParent === null;
+export function canDrop(targetType?: SupportedEntry & 'end-block', targetParent?: EntryId | null): boolean {
+  // this would mean inserting a group inside another
+  if (targetType === 'end-block') {
+    return false;
   }
-  // remaining events will be block or end-block
-  // we can swap places with other blocks
-  return targetType == 'block';
+
+  // this means swapping places with another group
+  if (targetType === 'block') {
+    return true;
+  }
+
+  // for all other cases, we just need to check if we are inside a group
+  return targetParent === null;
 }
 
 /**

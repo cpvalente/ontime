@@ -693,6 +693,7 @@ export const useEntryActions = () => {
         await reorderEntryMutation(reorderObject);
       } catch (error) {
         logAxiosError('Error re-ordering event', error);
+        throw error; // rethrow to handle in the component
       }
     },
     [reorderEntryMutation],
