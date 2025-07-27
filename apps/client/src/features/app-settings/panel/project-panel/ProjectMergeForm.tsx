@@ -28,7 +28,6 @@ type ProjectMergeFormValues = {
 };
 
 export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFromProps) {
-  'use no memo'; // RHF and react-compiler don't seem to get along
   const [error, setError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 

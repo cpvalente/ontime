@@ -32,7 +32,6 @@ export default function CustomFieldForm({
   initialLabel,
   initialKey,
 }: CustomFieldsFormProps) {
-  'use no memo'; // RHF and react-compiler don't seem to get along
   const { data } = useCustomFields();
 
   // we use this to force an update
