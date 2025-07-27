@@ -105,7 +105,6 @@ $item-height: 3.5rem;
     background-color: var(--card-background-color-override, $viewer-card-bg-color);
     padding-right: 1rem;
     border-radius: $element-border-radius;
-    overflow: clip;
 
     &:hover {
       .sub__label {
