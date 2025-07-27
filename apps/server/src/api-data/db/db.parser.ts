@@ -9,6 +9,7 @@ import { parseSettings } from '../settings/settings.parser.js';
 import { parseUrlPresets } from '../url-presets/urlPresets.parser.js';
 import { parseViewSettings } from '../view-settings/viewSettings.parser.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
+import * as v3 from './migration/db.migration.v3.js';
 
 type ParsingError = {
   context: string;
@@ -20,7 +21,21 @@ type ParsingError = {
  * @param {object} jsonData - project file to be parsed
  * @returns {object} - parsed object
  */
-export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): { data: DatabaseModel; errors: ParsingError[] } {
+export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): {
+  data: DatabaseModel;
+  errors: ParsingError[];
+  migrated: boolean;
+} {
+
+  //TODO: TEST THIS!!!!!!!
+  let migrated = false;
+  if (v3.shouldUseThisMigration(jsonData)) {
+    migrated = true;
+    logger.warning(LogOrigin.Server, 'The imported project is from v3, trying to migrate');
+    //TODO: is this bad?
+    jsonData = v3.migrateAllData(jsonData);
+  }
+
   // we need to parse settings first to make sure the data is ours
   // this may throw
   const settings = parseSettings(jsonData);
@@ -45,5 +60,5 @@ export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): { data: Da
     automation: parseAutomationSettings(jsonData),
   };
 
-  return { data, errors };
+  return { data, errors, migrated };
 }

@@ -1,6 +1,7 @@
 import {
   AutomationSettings,
   CustomFields,
+  DatabaseModel,
   EndAction,
   EntryCustomFields,
   NormalisedAutomation,
@@ -32,6 +33,19 @@ export function shouldUseThisMigration(jsonData: object): boolean {
     typeof jsonData.settings.version === 'string' &&
     jsonData.settings.version.split('.')[0] === '3'
   );
+}
+
+export function migrateAllData(jsonData: object) {
+  const settings = migrateSettings(jsonData);
+  const viewSettings = migrateViewSettings(jsonData);
+  const urlPresets = migrateURLPresets(jsonData);
+  const project = migrateProjectData(jsonData);
+  const migratedCustom = migrateCustomFields(jsonData);
+  const customFields = migratedCustom?.customFields;
+  const rundowns = migrateRundown(jsonData, migratedCustom?.translationTable);
+  const automation = migrateAutomations(jsonData);
+
+  return { ...jsonData, settings, viewSettings, urlPresets, project, customFields, rundowns, automation };
 }
 
 type old_Settings = {
@@ -305,7 +319,7 @@ export function migrateAutomations(jsonData: object): AutomationSettings | undef
  */
 export function migrateRundown(
   jsonData: object,
-  translationTable: CustomFieldsTranslationTable,
+  translationTable: CustomFieldsTranslationTable | undefined,
 ): ProjectRundowns | undefined {
   if (is.objectWithKeys(jsonData, ['rundown']) && is.array(jsonData.rundown)) {
     // intentionally cast as any so we can extract the values
@@ -329,12 +343,16 @@ export function migrateRundown(
       if (entry.type === 'event') {
         const { custom } = entry as { custom: Record<string, string> };
         const newCustom: EntryCustomFields = {};
-        Object.entries(custom).map(([key, value]) => {
-          const newKey = translationTable.get(key);
-          if (newKey) {
-            newCustom[newKey] = value;
-          }
-        });
+
+        if (translationTable) {
+          Object.entries(custom).map(([key, value]) => {
+            const newKey = translationTable.get(key);
+            if (newKey) {
+              newCustom[newKey] = value;
+            }
+          });
+        }
+
         append({
           type: SupportedEntry.Event,
           id: entry.id,
