@@ -95,7 +95,7 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
     zIndex: isDragging ? 2 : 'inherit',
     transform: CSS.Translate.toString(transform),
     transition,
-    cursor: isOver ? (isValidDrop ? 'grabbing' : 'no-drop') : 'default',
+    cursor: isOver ? (isValidDrop ? 'grabbing' : 'no-drop') : 'grab',
   };
 
   return (

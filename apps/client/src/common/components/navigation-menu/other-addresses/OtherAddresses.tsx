@@ -30,8 +30,10 @@ export default function OtherAddresses({ currentLocation }: OtherAddressesProps)
           const address = linkToOtherHost(nif.address, currentLocation);
 
           return (
-            <CopyTag key={nif.name} copyValue={address} onClick={() => openLink(address)}>
-              {nif.address} <IoArrowUp className={style.goIcon} />
+            <CopyTag key={nif.name} copyValue={address} onClick={() => openLink(address)} size='small'>
+              <span className={style.interfaceCopy}>
+                {nif.address} <IoArrowUp className={style.goIcon} />
+              </span>
             </CopyTag>
           );
         })}

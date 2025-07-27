@@ -37,6 +37,7 @@ export default function RundownDelay({ data, hasCursor }: RundownDelayProps) {
 
   const dragStyle = {
     zIndex: isDragging ? 2 : 'inherit',
+    cursor: isDragging ? 'grabbing' : 'grab',
     transform: CSS.Translate.toString(transform),
     transition,
   };

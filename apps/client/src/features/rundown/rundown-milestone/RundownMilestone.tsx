@@ -70,6 +70,7 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
 
   const dragStyle = {
     zIndex: isDragging ? 2 : 'inherit',
+    cursor: isDragging ? 'grabbing' : 'grab',
     transform: CSS.Translate.toString(transform),
     transition,
   };
