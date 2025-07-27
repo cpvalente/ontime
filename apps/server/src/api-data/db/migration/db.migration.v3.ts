@@ -20,7 +20,7 @@ import {
 } from 'ontime-types';
 import { is } from '../../../utils/is.js';
 import { dbModel } from '../../../models/dataModel.js';
-import { customFieldLabelToKey, checkRegex, isKnownTimerType, validateEndAction, generateId } from 'ontime-utils';
+import { customFieldLabelToKey, checkRegex, isKnownTimerType, validateEndAction } from 'ontime-utils';
 import { event as eventModel } from '../../../models/eventsDefinition.js';
 
 // the methodology of the migrations is to just change the necessary keys to match with v4
@@ -211,6 +211,13 @@ export type old_OSCSettings = {
   subscriptions: old_OscSubscription[];
 };
 
+export type old_HttpSubscription = { id: string; cycle: TimerLifeCycle; message: string; enabled: boolean };
+
+export type old_HttpSettings = {
+  enabledOut: boolean;
+  subscriptions: old_HttpSubscription[];
+};
+
 /**
  * migrates a automations from v3 to v4.0.0
  * - in case of a newer v3 project we can just return Automation settings
@@ -250,6 +257,29 @@ export function migrateAutomations(jsonData: object): AutomationSettings | undef
         filterRule: 'any',
         filters: [],
         outputs: [{ type: 'osc', address, args: payload, targetIP, targetPort: portOut }],
+      };
+    }
+  }
+
+  if (is.objectWithKeys(jsonData, ['http']) && is.object(jsonData.http)) {
+    foundOldSetting = true;
+    const { subscriptions } = structuredClone(jsonData.http) as old_HttpSettings;
+
+    for (const subscription of subscriptions) {
+      const { id, cycle, message } = subscription;
+      migratedTriggers.push({
+        id: `${id}-T`,
+        automationId: `${id}-A`,
+        title: `Migrated Trigger ${id}`,
+        trigger: cycle,
+      });
+
+      migratedAutomations[`${id}-A`] = {
+        id: `${id}-A`,
+        title: `Migrated Automation ${id}`,
+        filterRule: 'any',
+        filters: [],
+        outputs: [{ type: 'http', url: message }],
       };
     }
   }

@@ -13,6 +13,7 @@ import {
   ViewSettings,
 } from 'ontime-types';
 import * as v3 from './db.migration.v3.js';
+import { dbModel } from '../../../models/dataModel.js';
 
 describe('v3 to v4', () => {
   const oldDb = {
@@ -326,7 +327,7 @@ describe('v3 to v4', () => {
         portIn: 8881,
         portOut: 55890,
         targetIP: '127.0.0.1',
-        enabledIn: false,
+        enabledIn: true,
         enabledOut: true,
         subscriptions: [
           {
@@ -341,7 +342,7 @@ describe('v3 to v4', () => {
 
       const expectedAutomation: AutomationSettings = {
         enabledAutomations: true,
-        enabledOscIn: false,
+        enabledOscIn: true,
         oscPortIn: 8881,
         triggers: [
           {
@@ -363,6 +364,44 @@ describe('v3 to v4', () => {
       };
 
       expect(v3.migrateAutomations({ osc: oldData })).toStrictEqual(expectedAutomation);
+    });
+    test('http', () => {
+      const oldData = {
+        enabledOut: true,
+        subscriptions: [
+          {
+            id: '1ge4r8',
+            cycle: 'onClock',
+            message: 'http://www.test.com',
+            enabled: true,
+          },
+        ],
+      };
+
+      const expectedAutomation: AutomationSettings = {
+        enabledAutomations: true,
+        enabledOscIn: true,
+        oscPortIn: dbModel.automation.oscPortIn,
+        triggers: [
+          {
+            id: '1ge4r8-T',
+            title: 'Migrated Trigger 1ge4r8',
+            trigger: TimerLifeCycle.onClock,
+            automationId: '1ge4r8-A',
+          },
+        ],
+        automations: {
+          '1ge4r8-A': {
+            id: '1ge4r8-A',
+            title: 'Migrated Automation 1ge4r8',
+            filterRule: 'any',
+            filters: [],
+            outputs: [{ type: 'http', url: 'http://www.test.com' }],
+          },
+        },
+      };
+
+      expect(v3.migrateAutomations({ http: oldData })).toStrictEqual(expectedAutomation);
     });
   });
 });
