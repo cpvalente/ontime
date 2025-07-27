@@ -63,7 +63,7 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
         <Dialog.Popup className={style.drawer}>
           <div className={style.header}>
             <Dialog.Title>Customise</Dialog.Title>
-            <IconButton variant='subtle-white' size='large' onClick={handleClose}>
+            <IconButton variant='subtle-white' size='large' data-testId='close-view-params' onClick={handleClose}>
               <IoClose />
             </IconButton>
           </div>
@@ -87,7 +87,7 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
             <Button variant='subtle' size='large' onClick={resetParams} type='reset'>
               Reset to default
             </Button>
-            <Button variant='primary' size='large' form='edit-params-form' type='submit'>
+            <Button variant='primary' size='large' form='edit-params-form' type='submit' data-testId='apply-view-params'>
               Apply
             </Button>
           </div>
