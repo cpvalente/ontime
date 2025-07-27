@@ -22,6 +22,11 @@
     outline: 2px solid $blue-500;
     outline-offset: 2px;
   }
+
+  &[data-disabled] {
+    opacity: $opacity-disabled;
+    cursor: not-allowed;
+  }
 }
 
 .medium {
@@ -50,4 +55,5 @@
   &[data-checked] {
     translate: calc(var(--width) - var(--height)) 0;
   }
+
 }
