@@ -83,7 +83,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
   };
 
   return {
-    subscriptions: getArrayValues('subscriptions'),
+    subscriptions: getArrayValues('sub'),
     secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
     showProjected: isStringBoolean(getValue('showProjected')),
   };
@@ -99,6 +99,7 @@ export function useCountdownOptions(): CountdownOptions {
     const pathName = getCurrentPath(window.location);
     const presetSearch = window.sessionStorage.getItem(makePresetKey(pathName));
     const defaultValues = presetSearch ? new URLSearchParams(presetSearch) : undefined;
+
     return getOptionsFromParams(searchParams, defaultValues);
   }, [searchParams]);
 
