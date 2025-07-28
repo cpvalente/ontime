@@ -10,7 +10,16 @@ import {
 } from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
-import { CLIENT_LIST, CUSTOM_FIELDS, PROJECT_DATA, REPORT, RUNDOWN, RUNTIME, VIEW_SETTINGS } from '../api/constants';
+import {
+  CLIENT_LIST,
+  CUSTOM_FIELDS,
+  PROJECT_DATA,
+  REPORT,
+  RUNDOWN,
+  RUNTIME,
+  URL_PRESETS,
+  VIEW_SETTINGS,
+} from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
 import {
@@ -165,6 +174,9 @@ export const connectSocket = () => {
               if (revision === (ontimeQueryClient.getQueryData(RUNDOWN) as Rundown).revision) break;
               ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
+              break;
+            case RefetchKey.UrlPresets:
+              ontimeQueryClient.invalidateQueries({ queryKey: URL_PRESETS });
               break;
             case RefetchKey.ViewSettings:
               ontimeQueryClient.invalidateQueries({ queryKey: VIEW_SETTINGS });
