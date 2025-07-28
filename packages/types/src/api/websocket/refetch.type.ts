@@ -4,5 +4,6 @@ export enum RefetchKey {
   ProjectData = 'project-data',
   Report = 'report',
   Rundown = 'rundown',
+  UrlPresets = 'url-presets',
   ViewSettings = 'view-settings',
 }
