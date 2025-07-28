@@ -46,7 +46,7 @@
 }
 
 .thumb {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1;
   height: 100%;
   border-radius: 99px;
   background-color: $ui-white;
@@ -55,5 +55,4 @@
   &[data-checked] {
     translate: calc(var(--width) - var(--height)) 0;
   }
-
 }
