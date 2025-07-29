@@ -137,16 +137,6 @@ export default function RundownEvent({
       : [
           {
             type: 'item',
-            label: 'Toggle link to previous',
-            icon: IoLink,
-            onClick: () =>
-              actionHandler('update', {
-                field: 'linkStart',
-                value: linkStart,
-              }),
-          },
-          {
-            type: 'item',
             label: flag ? 'Remove flag' : 'Add flag',
             icon: TbFlagFilled,
             onClick: () =>
