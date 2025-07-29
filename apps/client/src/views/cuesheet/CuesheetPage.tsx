@@ -4,6 +4,7 @@ import { useDisclosure } from '@mantine/hooks';
 import IconButton from '../../common/components/buttons/IconButton';
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import { getIsViewLocked } from '../../externals';
 import CuesheetOverview from '../../features/overview/CuesheetOverview';
 
 import CuesheetEditModal from './cuesheet-edit-modal/CuesheetEditModal';
@@ -17,7 +18,7 @@ export default function CuesheetPage() {
 
   useWindowTitle('Cuesheet');
 
-  const isViewLocked = window.location.search.includes('locked=true');
+  const isLocked = getIsViewLocked();
 
   return (
     <>
@@ -25,7 +26,7 @@ export default function CuesheetPage() {
       <CuesheetEditModal />
       <div className={styles.tableWrapper} data-testid='cuesheet'>
         <CuesheetOverview>
-          {!isViewLocked && (
+          {!isLocked && (
             <IconButton aria-label='Toggle navigation' variant='subtle-white' size='xlarge' onClick={menuHandler.open}>
               <IoApps />
             </IconButton>

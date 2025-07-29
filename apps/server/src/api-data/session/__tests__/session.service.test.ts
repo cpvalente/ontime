@@ -17,7 +17,7 @@ describe('generateAuthenticatedUrl()', () => {
         lockNav: true,
         authenticate: false,
       });
-      expect(ipLocked.toString()).toBe('http://192.168.10.173:4001/timer?lock=true');
+      expect(ipLocked.toString()).toBe('http://192.168.10.173:4001/timer?n=1');
     });
 
     it('generates a link with authentication token and navigation locking', () => {
@@ -27,7 +27,7 @@ describe('generateAuthenticatedUrl()', () => {
         authenticate: true,
         hash: '1234',
       });
-      expect(withAuth.toString()).toBe('http://192.168.10.173:4001/timer?token=1234&lock=true');
+      expect(withAuth.toString()).toBe('http://192.168.10.173:4001/timer?token=1234&n=1');
     });
 
     it('generates a link to an unlocked preset', () => {
@@ -47,7 +47,7 @@ describe('generateAuthenticatedUrl()', () => {
         authenticate: false,
         preset: 'minimal',
       });
-      expect(withAuth.toString()).toBe('http://192.168.10.173:4001/timer?lock=true&alias=minimal');
+      expect(withAuth.toString()).toBe('http://192.168.10.173:4001/timer?n=1&alias=minimal');
     });
 
     it('generates a link to a locked preset', () => {
@@ -89,7 +89,7 @@ describe('generateAuthenticatedUrl()', () => {
         authenticate: false,
         prefix: 'prefix',
       });
-      expect(ipLocked.toString()).toBe('https://cloud.getontime.no/prefix/timer?lock=true');
+      expect(ipLocked.toString()).toBe('https://cloud.getontime.no/prefix/timer?n=1');
     });
 
     it('generates a link with authentication token and navigation locking', () => {
@@ -100,7 +100,7 @@ describe('generateAuthenticatedUrl()', () => {
         prefix: 'prefix',
         hash: '1234',
       });
-      expect(withAuth.toString()).toBe('https://cloud.getontime.no/prefix/timer?token=1234&lock=true');
+      expect(withAuth.toString()).toBe('https://cloud.getontime.no/prefix/timer?token=1234&n=1');
     });
 
     it('generates a link to an unlocked preset', () => {
@@ -122,7 +122,7 @@ describe('generateAuthenticatedUrl()', () => {
         preset: 'minimal',
         prefix: 'prefix',
       });
-      expect(withAuth.toString()).toBe('https://cloud.getontime.no/prefix/timer?lock=true&alias=minimal');
+      expect(withAuth.toString()).toBe('https://cloud.getontime.no/prefix/timer?n=1&alias=minimal');
     });
 
     it('generates a link to a locked preset', () => {

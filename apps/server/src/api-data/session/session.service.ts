@@ -73,9 +73,8 @@ export function generateShareUrl(
     url.searchParams.append('token', hash);
   }
 
-  // TODO: can we make this less obvious eg: n=1
   if (lockNav) {
-    url.searchParams.append('lock', 'true');
+    url.searchParams.append('n', '1');
   }
 
   // for unlocked presets we keep the preset reference as a parameter

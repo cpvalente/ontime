@@ -79,6 +79,7 @@ function resolveBaseURI(): string {
  * Resolves a session scope for the session
  */
 export const sessionScope = resolveSessionScope();
+export const getIsViewLocked = () => window.location.search.includes('n=1');
 
 /**
  * The session scope is read from the cookie and will only exist if the app is password protected

@@ -38,9 +38,9 @@ export function getRouteFromPreset(location: Path, urlPresets: URLPreset[]): str
 
   // TODO: maybe we need to get this some other way
   const currentPath = `${location.pathname}${location.search}`.substring(1);
-  const isLocked = location.search.includes('locked=true');
   const currentURL = getCurrentPath(location);
   const token = new URLSearchParams(location.search).get('token');
+  const isLocked = location.search.includes('n=1');
 
   for (const preset of urlPresets) {
     if (!preset.enabled) continue;
@@ -103,7 +103,7 @@ export function generatePathFromPreset(
 
   // maintain params from the URL search feature
   if (locked) {
-    searchParams.set('locked', 'true');
+    searchParams.set('n', '1');
   }
 
   if (token) {
@@ -134,9 +134,9 @@ export function arePathsEquivalent(currentPath: string, newPath: string): boolea
   }
 
   currentUrl.searchParams.delete('token');
-  currentUrl.searchParams.delete('locked');
+  currentUrl.searchParams.delete('n');
   newUrl.searchParams.delete('token');
-  newUrl.searchParams.delete('locked');
+  newUrl.searchParams.delete('n');
 
   return currentUrl.searchParams.toString() === newUrl.searchParams.toString();
 }

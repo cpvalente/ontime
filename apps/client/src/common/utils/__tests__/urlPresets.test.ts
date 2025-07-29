@@ -73,13 +73,13 @@ describe('getRouteFromPreset()', () => {
 
   describe('handle url sharing edge cases', () => {
     it('finds the correct preset when the url contains extra arguments', () => {
-      const location = resolvePath('/demopage?locked=true&token=123');
+      const location = resolvePath('/demopage?n=1&token=123');
       expect(getRouteFromPreset(location, presets)?.startsWith('timer?user=guest&alias=demopage')).toBeTruthy();
     });
 
     it('appends the feature params to the alias', () => {
-      const location = resolvePath('/demopage?locked=true&token=123');
-      expect(getRouteFromPreset(location, presets)).toBe('timer?user=guest&alias=demopage&locked=true&token=123');
+      const location = resolvePath('/demopage?n=1&token=123');
+      expect(getRouteFromPreset(location, presets)).toBe('timer?user=guest&alias=demopage&n=1&token=123');
     });
   });
 });
@@ -94,7 +94,7 @@ describe('generatePathFromPreset()', () => {
 
   test('appends the feature params to the alias', () => {
     expect(generatePathFromPreset('timer', 'user=guest', 'demopage', true, '123')).toBe(
-      'timer?user=guest&alias=demopage&locked=true&token=123',
+      'timer?user=guest&alias=demopage&n=1&token=123',
     );
   });
 });
@@ -116,8 +116,8 @@ describe('arePathsEquivalent()', () => {
   });
 
   it('considers edge cases for the url sharing feature', () => {
-    expect(arePathsEquivalent('timer?test=a&locked=true=token=123', 'timer?test=b')).toBeFalsy();
-    expect(arePathsEquivalent('timer?test=a&locked=true=token=123', 'timer?test=a')).toBeTruthy();
+    expect(arePathsEquivalent('timer?test=a&n=1=token=123', 'timer?test=b')).toBeFalsy();
+    expect(arePathsEquivalent('timer?test=a&n=1=token=123', 'timer?test=a')).toBeTruthy();
   });
 });
 
