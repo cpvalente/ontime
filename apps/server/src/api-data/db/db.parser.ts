@@ -26,19 +26,23 @@ export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): {
   errors: ParsingError[];
   migrated: boolean;
 } {
-
   //TODO: TEST THIS!!!!!!!
   let migrated = false;
+  let migratedData = jsonData;
   if (v3.shouldUseThisMigration(jsonData)) {
-    migrated = true;
-    logger.warning(LogOrigin.Server, 'The imported project is from v3, trying to migrate');
-    //TODO: is this bad?
-    jsonData = v3.migrateAllData(jsonData);
+    try {
+      migrated = true;
+      logger.warning(LogOrigin.Server, 'The imported project is from v3, trying to migrate');
+      migratedData = v3.migrateAllData(jsonData);
+    } catch (_error) {
+      logger.error(LogOrigin.Server, 'Failed to migrate the data');
+      migratedData = jsonData;
+    }
   }
 
   // we need to parse settings first to make sure the data is ours
   // this may throw
-  const settings = parseSettings(jsonData);
+  const settings = parseSettings(migratedData);
 
   const errors: ParsingError[] = [];
   const makeEmitError = (context: string) => (message: string) => {
@@ -47,17 +51,17 @@ export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): {
   };
 
   // we need to parse the custom fields first so they can be used in validating events
-  const customFields = parseCustomFields(jsonData, makeEmitError('Custom Fields'));
-  const rundowns = parseRundowns(jsonData, customFields, makeEmitError('Rundowns'));
+  const customFields = parseCustomFields(migratedData, makeEmitError('Custom Fields'));
+  const rundowns = parseRundowns(migratedData, customFields, makeEmitError('Rundowns'));
 
   const data: DatabaseModel = {
     rundowns,
-    project: parseProjectData(jsonData, makeEmitError('Project')),
+    project: parseProjectData(migratedData, makeEmitError('Project')),
     settings,
-    viewSettings: parseViewSettings(jsonData, makeEmitError('View Settings')),
-    urlPresets: parseUrlPresets(jsonData, makeEmitError('URL Presets')),
+    viewSettings: parseViewSettings(migratedData, makeEmitError('View Settings')),
+    urlPresets: parseUrlPresets(migratedData, makeEmitError('URL Presets')),
     customFields,
-    automation: parseAutomationSettings(jsonData),
+    automation: parseAutomationSettings(migratedData),
   };
 
   return { data, errors, migrated };

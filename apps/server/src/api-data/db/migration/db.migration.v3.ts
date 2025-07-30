@@ -35,7 +35,7 @@ export function shouldUseThisMigration(jsonData: object): boolean {
   );
 }
 
-export function migrateAllData(jsonData: object) {
+export function migrateAllData(jsonData: object): Partial<DatabaseModel> {
   const settings = migrateSettings(jsonData);
   const viewSettings = migrateViewSettings(jsonData);
   const urlPresets = migrateURLPresets(jsonData);
@@ -45,7 +45,7 @@ export function migrateAllData(jsonData: object) {
   const rundowns = migrateRundown(jsonData, migratedCustom?.translationTable);
   const automation = migrateAutomations(jsonData);
 
-  return { ...jsonData, settings, viewSettings, urlPresets, project, customFields, rundowns, automation };
+  return { settings, viewSettings, urlPresets, project, customFields, rundowns, automation };
 }
 
 type old_Settings = {
