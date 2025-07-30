@@ -31,8 +31,6 @@ function preparePayload(output: OSCOutput, state: RuntimeState): OscPacketInput 
 
 /** Emits message over transport */
 function emit(targetIP: string, targetPort: number, packet: OscPacketInput) {
-  logger.info(LogOrigin.Tx, `Sending OSC: ${targetIP}:${targetPort}`); //TODO: this might become excessive
-
   const buffer = oscPacketToBuffer(packet);
   udpClient.send(buffer, 0, buffer.byteLength, targetPort, targetIP, (error) => {
     if (error) {
