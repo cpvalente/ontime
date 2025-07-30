@@ -5,12 +5,7 @@ import { readFile, stat } from 'fs/promises';
 import { extname, join } from 'path';
 
 import { publicDir } from '../../setup/index.js';
-import {
-  dockerSafeRename,
-  ensureDirectory,
-  getFilesFromFolder,
-  removeFileExtension,
-} from '../../utils/fileManagement.js';
+import { dockerSafeRename, getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
 
 /**
  * Handles the upload of a new project file
@@ -23,7 +18,6 @@ export async function handleUploaded(filePath: string, name: string) {
 }
 
 export async function handleImageUpload(filePath: string, name: string): Promise<string> {
-  ensureDirectory(publicDir.logoDir);
   const newFilePath = join(publicDir.logoDir, name);
   await dockerSafeRename(filePath, newFilePath);
 

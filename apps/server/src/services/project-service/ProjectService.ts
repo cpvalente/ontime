@@ -65,6 +65,7 @@ init();
 function init() {
   ensureDirectory(publicDir.projectsDir);
   ensureDirectory(publicDir.corruptDir);
+  ensureDirectory(publicDir.logoDir);
   ensureDirectory(publicDir.migrateDir);
 }
 
