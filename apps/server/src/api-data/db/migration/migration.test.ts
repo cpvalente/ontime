@@ -18,7 +18,6 @@ import { dbModel } from '../../../models/dataModel.js';
 describe('v3 to v4', () => {
   const oldDb = {
     rundown: [
-      { id: 'block0', type: 'block', title: 'BLOCK 0' },
       {
         id: 'event1',
         type: 'event',
@@ -47,6 +46,7 @@ describe('v3 to v4', () => {
         dayOffset: 0,
         gap: 0,
       },
+      { id: 'block0', type: 'block', title: 'BLOCK 0' },
       {
         id: 'event2',
         type: SupportedEntry.Event,
@@ -105,6 +105,8 @@ describe('v3 to v4', () => {
         dayOffset: 0,
         gap: 0,
       },
+      { id: 'block1', type: 'block', title: 'BLOCK 1' },
+      { id: 'delay', type: 'delay', duration: 1000 },
     ],
     project: {
       title: 'Eurovision Song Contest',
@@ -262,24 +264,9 @@ describe('v3 to v4', () => {
     const expectedRundown: Rundown = {
       id: 'default',
       title: 'Default',
-      order: ['block0', 'event1', 'event2', 'event3'],
-      flatOrder: ['block0', 'event1', 'event2', 'event3'],
+      order: ['event1', 'block0', 'block1'],
+      flatOrder: ['event1', 'block0', 'event2', 'event3', 'block1', 'delay'],
       entries: {
-        block0: {
-          id: 'block0',
-          type: SupportedEntry.Block,
-          title: 'BLOCK 0',
-          colour: '',
-          custom: {},
-          duration: 0,
-          entries: [],
-          isFirstLinked: false,
-          note: '',
-          revision: -1,
-          targetDuration: null,
-          timeEnd: null,
-          timeStart: null,
-        },
         event1: {
           id: 'event1',
           type: SupportedEntry.Event,
@@ -307,6 +294,21 @@ describe('v3 to v4', () => {
           dayOffset: 0,
           gap: 0,
         },
+        block0: {
+          id: 'block0',
+          type: SupportedEntry.Block,
+          title: 'BLOCK 0',
+          colour: '',
+          custom: {},
+          duration: 0,
+          entries: ['event2', 'event3'],
+          isFirstLinked: false,
+          note: '',
+          revision: -1,
+          targetDuration: null,
+          timeEnd: null,
+          timeStart: null,
+        },
         event2: {
           id: 'event2',
           type: SupportedEntry.Event,
@@ -331,7 +333,7 @@ describe('v3 to v4', () => {
           },
           triggers: [{ id: 'testTrig', title: 'Test trigger', trigger: TimerLifeCycle.onStart, automationId: '1' }],
           flag: false,
-          parent: null,
+          parent: 'block0',
           revision: -1,
           delay: 0,
           dayOffset: 0,
@@ -362,13 +364,35 @@ describe('v3 to v4', () => {
           },
           triggers: [{ id: 'testTrig', title: 'Test trigger', trigger: TimerLifeCycle.onStart, automationId: '1' }],
           flag: false,
-          parent: null,
+          parent: 'block0',
           revision: -1,
           delay: 0,
           dayOffset: 0,
           gap: 0,
         },
+        block1: {
+          id: 'block1',
+          type: SupportedEntry.Block,
+          title: 'BLOCK 1',
+          colour: '',
+          custom: {},
+          duration: 0,
+          entries: ['delay'],
+          isFirstLinked: false,
+          note: '',
+          revision: -1,
+          targetDuration: null,
+          timeEnd: null,
+          timeStart: null,
+        },
+        delay: {
+          type: SupportedEntry.Delay,
+          id: 'delay',
+          duration: 1000,
+          parent: 'block1',
+        },
       },
+
       revision: 0,
     };
     const translationTable = new Map([

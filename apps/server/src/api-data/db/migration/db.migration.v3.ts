@@ -5,6 +5,7 @@ import {
   EndAction,
   EntryCustomFields,
   NormalisedAutomation,
+  OntimeBlock,
   OntimeEntry,
   ProjectData,
   ProjectRundowns,
@@ -333,8 +334,15 @@ export function migrateRundown(
       revision: 0,
     };
 
+    let parent = null;
+    let children: string[] = [];
+
     const append = (entry: OntimeEntry) => {
-      newRundown.order.push(entry.id);
+      if ('parent' in entry && entry.parent) {
+        children.push(entry.id);
+      } else {
+        newRundown.order.push(entry.id);
+      }
       newRundown.flatOrder.push(entry.id);
       newRundown.entries[entry.id] = entry;
     };
@@ -374,7 +382,7 @@ export function migrateRundown(
           timeDanger: entry.timeDanger,
           custom: newCustom,
           triggers: entry.triggers ?? [], // might not be there if the project is a bit older
-          parent: null, // new data point
+          parent, // new data point
           // !==== RUNTIME METADATA ====! //
           revision: -1,
           delay: 0,
@@ -382,6 +390,11 @@ export function migrateRundown(
           gap: 0,
         });
       } else if (entry.type === 'block') {
+        if (parent) {
+          (newRundown.entries[parent] as OntimeBlock).entries = [...children];
+          children = [];
+        }
+        parent = entry.id;
         append({
           id: entry.id,
           type: SupportedEntry.Block,
@@ -399,8 +412,13 @@ export function migrateRundown(
           isFirstLinked: false,
         });
       } else if (entry.type === 'delay') {
-        append({ id: entry.id, type: SupportedEntry.Delay, duration: entry.duration, parent: null });
+        append({ id: entry.id, type: SupportedEntry.Delay, duration: entry.duration, parent });
       }
+    }
+
+    if (parent) {
+      (newRundown.entries[parent] as OntimeBlock).entries = [...children];
+      children = [];
     }
 
     return {
