@@ -79,14 +79,6 @@ export function getPathToProject(name: string): string {
 }
 
 /**
- * Makes a copy of a given project to the corrupted directory
- */
-export async function copyCorruptFile(filePath: string, name: string): Promise<void> {
-  const newPath = join(publicDir.corruptDir, name);
-  return copyFile(filePath, newPath);
-}
-
-/**
  * Moves a file permanently to the corrupted directory
  */
 export async function moveCorruptFile(filePath: string, name: string): Promise<void> {

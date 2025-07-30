@@ -19,7 +19,7 @@ type ParsingError = {
 /**
  * @description handles parsing of ontime project file
  * @param {object} jsonData - project file to be parsed
- * @returns {object} - parsed object
+ * @returns {object} parsed object
  */
 export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): {
   data: DatabaseModel;
