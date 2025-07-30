@@ -1,7 +1,7 @@
 import { DatabaseModel, MaybeString, ProjectFile } from 'ontime-types';
 
 import { existsSync } from 'fs';
-import { copyFile, readFile, stat } from 'fs/promises';
+import { readFile, stat } from 'fs/promises';
 import { extname, join } from 'path';
 
 import { publicDir } from '../../setup/index.js';

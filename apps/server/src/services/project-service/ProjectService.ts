@@ -33,13 +33,13 @@ import {
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import {
-  copyCorruptFile,
   doesProjectExist,
   getPathToProject,
   getProjectFiles,
   moveCorruptFile,
   parseJsonFile,
 } from './projectServiceUtils.js';
+import { join } from 'path';
 
 type ProjectState =
   | {
@@ -130,7 +130,8 @@ async function loadNewProject(): Promise<string> {
  */
 async function handleCorruptedFile(filePath: string, fileName: string): Promise<string> {
   // copy file to corrupted folder
-  await copyCorruptFile(filePath, fileName).catch((_) => {
+  const copyPath = join(publicDir.corruptDir, fileName);
+  await copyFile(filePath, copyPath).catch((_) => {
     /* while we have to catch the error, we dont need to handle it */
   });
 
