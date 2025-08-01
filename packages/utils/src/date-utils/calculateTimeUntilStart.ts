@@ -4,6 +4,7 @@ import { OffsetMode } from 'ontime-types';
 import { dayInMs } from './conversionUtils.js';
 
 /**
+ * @param event the event that we are counting to
  * @param currentDay the day offset of the currently running event
  * @param totalGap accumulated gap from the current event
  * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
@@ -12,7 +13,8 @@ import { dayInMs } from './conversionUtils.js';
  * @returns
  */
 export function calculateTimeUntilStart(
-  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> & {
+  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'>,
+  state: {
     currentDay: number;
     totalGap: number;
     isLinkedToLoaded: boolean;
@@ -23,19 +25,8 @@ export function calculateTimeUntilStart(
     plannedStart: MaybeNumber;
   },
 ): number {
-  const {
-    timeStart,
-    dayOffset,
-    currentDay,
-    totalGap,
-    isLinkedToLoaded,
-    clock,
-    offset,
-    delay,
-    offsetMode,
-    actualStart,
-    plannedStart,
-  } = data;
+  const { timeStart, dayOffset, delay } = event;
+  const { currentDay, totalGap, isLinkedToLoaded, clock, offset, offsetMode, actualStart, plannedStart } = state;
 
   //How many days from the currently running event to this one
   const relativeDayOffset = dayOffset - currentDay;

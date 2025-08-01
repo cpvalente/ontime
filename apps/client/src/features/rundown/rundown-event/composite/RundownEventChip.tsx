@@ -76,7 +76,7 @@ interface EventUntilProps {
 function EventUntil(props: EventUntilProps) {
   const { timeStart, delay, dayOffset, totalGap, isLinkedToLoaded } = props;
 
-  const timeUntil = useTimeUntilStart({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded });
+  const timeUntil = useTimeUntilStart({ timeStart, delay, dayOffset }, { totalGap, isLinkedToLoaded });
   const isDue = timeUntil < MILLIS_PER_SECOND;
 
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;

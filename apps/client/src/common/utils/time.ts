@@ -140,11 +140,15 @@ export function formatDuration(duration: number, hideSeconds = true): string {
  */
 export function useTimeUntilStart(
   // typed like this to make it very clear what the data is
-  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> & {
+  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'>,
+  state: {
     totalGap: number;
     isLinkedToLoaded: boolean;
   },
 ): number {
   const { offset, clock, currentDay, offsetMode, actualStart, plannedStart } = useTimeUntilData();
-  return calculateTimeUntilStart({ ...data, currentDay, clock, offset, offsetMode, actualStart, plannedStart });
+  return calculateTimeUntilStart(
+    { ...event },
+    { ...state, currentDay, clock, offset, offsetMode, actualStart, plannedStart },
+  );
 }
