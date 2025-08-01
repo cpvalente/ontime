@@ -45,10 +45,7 @@ export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): M
 
   const { offsetMode, offsetAbs, offsetRel, plannedStart, actualStart } = state.runtime;
 
-  const timeUntilLastEvent = calculateTimeUntilStart({
-    timeStart: lastEvent.timeStart,
-    dayOffset: lastEvent.dayOffset,
-    delay: lastEvent.delay,
+  const timeUntilLastEvent = calculateTimeUntilStart(lastEvent, {
     currentDay: eventNow.dayOffset,
     totalGap,
     isLinkedToLoaded,
