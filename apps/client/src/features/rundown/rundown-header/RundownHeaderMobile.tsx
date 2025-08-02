@@ -37,10 +37,10 @@ function RundownHeader() {
   return (
     <Toolbar.Root className={style.header}>
       <ToggleGroup value={[editorMode]} onValueChange={toggleAppMode} className={style.group}>
-        <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.button}>
+        <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
           Run
         </Toolbar.Button>
-        <Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.button}>
+        <Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.radioButton}>
           Edit
         </Toolbar.Button>
       </ToggleGroup>
@@ -48,10 +48,10 @@ function RundownHeader() {
       <Editor.Separator className={style.separator} />
 
       <ToggleGroup value={[offsetMode]} onValueChange={toggleOffsetMode} className={style.group}>
-        <Toolbar.Button render={<Toggle />} value={OffsetMode.Absolute} className={style.button}>
+        <Toolbar.Button render={<Toggle />} value={OffsetMode.Absolute} className={style.radioButton}>
           Absolute
         </Toolbar.Button>
-        <Toolbar.Button render={<Toggle />} value={OffsetMode.Relative} className={style.button}>
+        <Toolbar.Button render={<Toggle />} value={OffsetMode.Relative} className={style.radioButton}>
           Relative
         </Toolbar.Button>
       </ToggleGroup>

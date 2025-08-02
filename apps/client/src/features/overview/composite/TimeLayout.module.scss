@@ -9,13 +9,10 @@
   letter-spacing: 0.5px;
   min-width: 5em;
   font-variant-numeric: tabular-nums;
+  color: $ui-white;
 
   &::after {
     content: '\200b';
-  }
-
-  &.muted {
-    color: $muted-gray;
   }
 }
 
@@ -32,7 +29,7 @@
     gap: 0.25rem;
   }
 
-  &[data-state="over"] {
+  &[data-state='over'] {
     .label .over {
       color: $playback-over;
     }
@@ -41,7 +38,7 @@
     }
   }
 
-  &[data-state="under"] {
+  &[data-state='under'] {
     .label .under {
       color: $playback-under;
     }
@@ -50,7 +47,7 @@
     }
   }
 
-  &[data-state="muted"] {
+  &[data-state='muted'] {
     .clock {
       color: $muted-gray;
     }

@@ -13,9 +13,9 @@ interface TimeLayoutProps {
 
 export function TimeColumn({ label, value, muted, className, testId }: TimeLayoutProps) {
   return (
-    <div className={style.column}>
+    <div className={style.column} data-state={muted ? 'muted' : 'active'}>
       <span className={style.label}>{label}</span>
-      <span className={cx([style.clock, muted && style.muted, className])} data-testid={testId}>
+      <span className={cx([style.clock, className])} data-testid={testId}>
         {value}
       </span>
     </div>

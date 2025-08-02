@@ -1,31 +1,3 @@
-.timeAction {
-  background: $gray-1050;
-  color: $gray-500;
-  cursor: pointer;
-  height: 2rem;
-  width: 2rem;
-  display: grid;
-  place-content: center;
-  aspect-ratio: 1;
-
-  &:hover:not(:disabled):not(:active) {
-    background: $gray-1000;
-  }
-
-  &:active:not(:disabled) {
-    background: $gray-1300;
-  }
-
-  &:focus {
-    outline: 1px solid $blue-500;
-    outline-offset: -1px;
-  }
-
-  &.active {
-    color: var(--status-color-active-override, $active-indicator);
-  }
-}
-
 .fourtyfive {
   transform: rotate(-45deg);
 }
@@ -36,28 +8,10 @@
   font-size: 1.5em;
 }
 
-.inputGroup {
-  border: 1px solid transparent;
-  width: fit-content;
-  display: flex;
-  align-items: center;
-  border-radius: $component-border-radius-md;
+.inactive {
+  color: $muted-gray;
+}
 
-  &.delayed {
-    border: 1px solid $ontime-delay-text;
-  }
-
-  input {
-    max-width: 6.5em;
-    border-radius: $component-border-radius-md 0 0 $component-border-radius-md;
-    border: none;
-    padding-right: 0;
-  }
-
-  button {
-    width: 1.5rem;
-    height: 2rem;
-    border-radius: 0 $component-border-radius-md $component-border-radius-md 0;
-    border: none;
-  }
+.active {
+  color: $active-indicator;
 }
