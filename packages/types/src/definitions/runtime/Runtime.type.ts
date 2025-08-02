@@ -8,8 +8,8 @@ export enum OffsetMode {
 export type Runtime = {
   selectedEventIndex: MaybeNumber;
   numEvents: number;
-  offset: number;
-  relativeOffset: number;
+  offsetAbs: number;
+  offsetRel: number;
   plannedStart: MaybeNumber;
   actualStart: MaybeNumber;
   plannedEnd: MaybeNumber;

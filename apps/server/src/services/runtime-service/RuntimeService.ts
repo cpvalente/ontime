@@ -98,7 +98,7 @@ class RuntimeService {
     // 2. handle edge cases related to roll
     if (newState.timer.playback === Playback.Roll) {
       // check if we need to call any side effects
-      const keepOffset = newState.runtime.offset;
+      const keepOffset = newState.runtime.offsetAbs;
       if (hasSecondaryTimerFinished) {
         // if the secondary timer has finished, we need to call roll
         // since event is already loaded

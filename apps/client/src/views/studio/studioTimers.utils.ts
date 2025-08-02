@@ -6,7 +6,7 @@ import { formatTime } from '../../common/utils/time';
 
 const timeFormat = { format12: 'h:mm a', format24: 'HH:mm' };
 export function getFormattedScheduleTimes(runtime: Runtime) {
-  const correctedOffset = runtime.offset !== null ? runtime.offset * -1 : null;
+  const correctedOffset = runtime.offsetAbs !== null ? runtime.offsetAbs * -1 : null;
   return {
     actualStart: formatTime(runtime.actualStart, timeFormat),
     expectedEnd: formatTime(runtime.expectedEnd, timeFormat),

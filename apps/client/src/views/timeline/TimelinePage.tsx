@@ -54,7 +54,7 @@ export default function TimelinePage({ events, general, runtime, selectedId, set
   let followedByStatus: string | undefined;
 
   if (next !== null) {
-    const timeToStart = getTimeToStart(time.clock, next.timeStart, next?.delay ?? 0, runtime.offset);
+    const timeToStart = getTimeToStart(time.clock, next.timeStart, next?.delay ?? 0, runtime.offsetAbs);
     if (timeToStart < 0) {
       nextStatus = dueText;
     } else {
@@ -63,7 +63,7 @@ export default function TimelinePage({ events, general, runtime, selectedId, set
   }
 
   if (followedBy !== null) {
-    const timeToStart = getTimeToStart(time.clock, followedBy.timeStart, followedBy?.delay ?? 0, runtime.offset);
+    const timeToStart = getTimeToStart(time.clock, followedBy.timeStart, followedBy?.delay ?? 0, runtime.offsetAbs);
     if (timeToStart < 0) {
       followedByStatus = dueText;
     } else {
