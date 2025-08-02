@@ -15,9 +15,8 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
   const { data: urlPresetData } = useUrlPresets({ skip: lockedPath === undefined });
 
   const hostOptions = useMemo(() => {
-    const currentProtocol = window.location.protocol;
     return infoData.networkInterfaces.map((nif) => ({
-      value: `${currentProtocol}//${nif.address}`,
+      value: nif.address,
       label: `${nif.name} - ${nif.address}`,
     }));
   }, [infoData.networkInterfaces]);
@@ -32,11 +31,18 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
       { value: OntimeView.Operator, label: 'Operator' },
       { value: '', label: 'Companion' },
       ...urlPresetData.map((preset) => ({
-        value: preset.alias,
+        value: `preset-${preset.alias}`,
         label: `URL Preset: ${preset.alias}`,
       })),
     ];
   }, [lockedPath, urlPresetData]);
 
-  return <GenerateLinkForm hostOptions={hostOptions} pathOptions={pathOptions} isLockedToView={Boolean(lockedPath)} />;
+  return (
+    <GenerateLinkForm
+      hostOptions={hostOptions}
+      pathOptions={pathOptions}
+      presets={urlPresetData}
+      isLockedToView={Boolean(lockedPath)}
+    />
+  );
 }

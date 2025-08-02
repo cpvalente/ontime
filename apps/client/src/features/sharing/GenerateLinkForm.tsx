@@ -26,6 +26,7 @@ import style from './GenerateLinkForm.module.scss';
 interface GenerateLinkFormProps {
   hostOptions: { value: string; label: string }[];
   pathOptions: { value: OntimeView | string; label: string }[];
+  presets: URLPreset[];
   isLockedToView?: boolean;
 }
 
@@ -51,7 +52,7 @@ type GenerateLinkFormOptions = GenericLinkOptions | CuesheetLinkOptions;
 
 type GenerateLinkState = 'pending' | 'loading' | 'success' | 'error';
 
-export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToView }: GenerateLinkFormProps) {
+export default function GenerateLinkForm({ hostOptions, pathOptions, presets, isLockedToView }: GenerateLinkFormProps) {
   const [formState, setFormState] = useState<GenerateLinkState>('pending');
   const [url, setUrl] = useState(serverURL);
   const cuesheetReadRef = useRef<HTMLInputElement>(null);
@@ -79,7 +80,6 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToV
     },
     resetOptions: {
       keepDirtyValues: true,
-      keepValues: true,
     },
   });
 
@@ -131,18 +131,26 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToV
         await copyToClipboard(url);
         setUrl(url);
       } else {
+        const presetPath = options.path.startsWith('preset-') ? options.path.replace('preset-', '') : undefined;
+        const path = presetPath ? presets.find((preset) => preset.alias === presetPath)?.target : options.path;
+        if (!path) {
+          throw new Error(`Could not resolve preset: ${path}`);
+        }
+
         const url = await generateUrl({
           baseUrl: linkToOtherHost(options.baseUrl),
-          path: options.path,
+          path,
           authenticate: options.authenticate,
           lockConfig: options.lockConfig,
           lockNav: options.lockNav,
+          preset: presetPath,
         });
+
         await copyToClipboard(url);
         setUrl(url);
       }
+      reset(undefined, { keepValues: true, keepDirty: false, keepDefaultValues: true });
       setFormState('success');
-      reset();
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
@@ -178,7 +186,11 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToV
         ) : (
           <Panel.ListItem>
             <Panel.Field title='Ontime view' description='Which view or preset will the link point to' />
-            <Select options={pathOptions} value={watch('path')} onValueChange={(value) => setValue('path', value)} />
+            <Select
+              options={pathOptions}
+              value={watch('path')}
+              onValueChange={(value) => setValue('path', value, { shouldDirty: true })}
+            />
           </Panel.ListItem>
         )}
 
@@ -211,7 +223,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToV
             size='large'
             name='lockNav'
             checked={watch('lockNav')}
-            onCheckedChange={(checked) => setValue('lockNav', checked)}
+            onCheckedChange={(checked) => setValue('lockNav', checked, { shouldDirty: true })}
           />
         </Panel.ListItem>
         <Panel.ListItem>
@@ -220,7 +232,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToV
             size='large'
             name='lockConfig'
             checked={watch('lockConfig')}
-            onCheckedChange={(checked) => setValue('lockConfig', checked)}
+            onCheckedChange={(checked) => setValue('lockConfig', checked, { shouldDirty: true })}
           />
         </Panel.ListItem>
         <Panel.ListItem>
@@ -229,7 +241,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, isLockedToV
             size='large'
             name='authenticate'
             checked={watch('authenticate')}
-            onCheckedChange={(checked) => setValue('authenticate', checked)}
+            onCheckedChange={(checked) => setValue('authenticate', checked, { shouldDirty: true })}
           />
         </Panel.ListItem>
       </Panel.ListGroup>
