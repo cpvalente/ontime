@@ -202,7 +202,7 @@ export function OffsetOverview() {
 
   const isPlaying = isPlaybackActive(playback);
   const correctedOffset = offset * -1;
-  const offsetState = getOffsetState(offset);
+  const offsetState = getOffsetState(isPlaying ? offset : null);
   const offsetText = getOffsetText(isPlaying ? correctedOffset : null);
 
   return <OverUnder state={offsetState} value={offsetText} testId='offset' />;

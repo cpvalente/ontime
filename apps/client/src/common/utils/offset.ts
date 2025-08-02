@@ -19,7 +19,7 @@ export function getOffsetText(offset: MaybeNumber): string {
 }
 
 export function getOffsetState(offset: MaybeNumber): 'over' | 'under' | 'muted' | null {
-  if (offset === null) return null;
-  if (offset === 0) return 'muted';
+  if (offset === null) return 'muted';
+  if (offset === 0) return null;
   return offset < 0 ? 'over' : 'under';
 }

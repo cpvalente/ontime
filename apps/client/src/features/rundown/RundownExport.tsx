@@ -37,7 +37,7 @@ function RundownExport() {
         >
           <FinderPlacement />
           <ViewNavigationMenu suppressSettings />
-          <div className={style.content}>
+          <div className={style.rundown}>
             <ErrorBoundary>
               <RundownContextMenu>
                 <RundownWrapper isSmallDevice />
