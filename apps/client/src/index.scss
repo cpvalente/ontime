@@ -114,6 +114,19 @@ table {
   word-break: break-word;
 }
 
+// reset list styles
+ul,
+ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+li {
+  margin: 0;
+  padding: 0;
+}
+
 // remove buttons in number inputs
 /* WebKit and Blink */
 input::-webkit-outer-spin-button,
