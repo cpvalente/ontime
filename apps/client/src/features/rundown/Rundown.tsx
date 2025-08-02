@@ -18,7 +18,6 @@ import {
   type Rundown,
   isOntimeBlock,
   isOntimeEvent,
-  OntimeBlock,
   OntimeEntry,
   Playback,
   SupportedEntry,
@@ -434,9 +433,6 @@ export default function Rundown({ data }: RundownProps) {
           <div className={style.list}>
             {isEditMode && <QuickAddButtons previousEventId={null} parentBlock={null} />}
             {sortableData.map((entryId, index) => {
-              const isFirst = index === 0;
-              const isLast = index === sortableData.length - 1;
-
               // the entry might be a pseudo block-end which does not generate metadata and should not be processed
               if (entryId.startsWith('end-')) {
                 const parentId = entryId.split('end-')[1];
@@ -468,6 +464,7 @@ export default function Rundown({ data }: RundownProps) {
               // instead of writing all the logic guards, we simply short circuit rendering here
               const entry = entries[entryId];
               if (!entry) return null;
+
               rundownMetadata = process(entry);
 
               // if the entry has a parent, and it is collapsed, render nothing
@@ -490,13 +487,21 @@ export default function Rundown({ data }: RundownProps) {
                */
               const blockColour = rundownMetadata.groupColour === '' ? '#9d9d9d' : rundownMetadata.groupColour;
 
+              const isFirst = index === 0;
+              const isLast = entryId === order.at(-1);
+              // avoid a group referencing itself as the parent
+              const parentId = rundownMetadata.thisId !== rundownMetadata.groupId ? rundownMetadata.groupId : null;
+
               return (
                 <Fragment key={entry.id}>
+                  {/**
+                   * Before the entry
+                   * - edit mode only
+                   * - if there is a cursor
+                   * - if it is not the first entry (the buttons would be there)
+                   */}
                   {isEditMode && hasCursor && !isFirst && (
-                    <QuickAddInline
-                      previousEventId={rundownMetadata.previousEntryId}
-                      parentBlock={rundownMetadata.thisId !== rundownMetadata.groupId ? rundownMetadata.groupId : null}
-                    />
+                    <QuickAddInline previousEventId={rundownMetadata.previousEntryId} parentBlock={parentId} />
                   )}
                   {isOntimeBlock(entry) ? (
                     <RundownBlock
@@ -537,8 +542,14 @@ export default function Rundown({ data }: RundownProps) {
                       </div>
                     </div>
                   )}
-                  {isEditMode && hasCursor && rundownMetadata.groupEntries !== 0 && !isLast && (
-                    <QuickAddInline previousEventId={entry.id} parentBlock={rundownMetadata.groupId} />
+                  {/**
+                   * After the entry
+                   * - edit mode only
+                   * - if there is a cursor
+                   * - if it is not the last entry (the buttons would be there)
+                   */}
+                  {isEditMode && hasCursor && !isLast && (
+                    <QuickAddInline previousEventId={entry.id} parentBlock={parentId} />
                   )}
                 </Fragment>
               );
