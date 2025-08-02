@@ -42,8 +42,8 @@ import { AppMode, sessionKeys } from '../../ontimeConfig';
 
 import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
 import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
-import BlockEnd from './rundown-block/BlockEnd';
 import RundownBlock from './rundown-block/RundownBlock';
+import RundownBlockEnd from './rundown-block/RundownBlockEnd';
 import { canDrop, makeRundownMetadata, makeSortableList } from './rundown.utils';
 import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
@@ -444,20 +444,23 @@ export default function Rundown({ data }: RundownProps) {
 
                 if (isBlockCollapsed) {
                   return null;
-                } else {
-                  const parentColour = (entries[parentId] as OntimeBlock | undefined)?.colour;
-                  // if the previous element is selected, it will have its own QuickAddInline
-                  // we use thisId instead of previousEntryId because the block end does not process
-                  // and it does not cause the reassignment of the iteration id to the previous entry
-                  return (
-                    <Fragment key={entryId}>
-                      {isEditMode && rundownMetadata.groupEntries === 0 && (
-                        <QuickAddButtons previousEventId={null} parentBlock={parentId} backgroundColor={parentColour} />
-                      )}
-                      <BlockEnd key={entryId} id={entryId} colour={parentColour} />
-                    </Fragment>
-                  );
                 }
+
+                // if the previous element is selected, it will have its own QuickAddInline
+                // we use thisId instead of previousEntryId because the block end does not process
+                // and it does not cause the reassignment of the iteration id to the previous entry
+                return (
+                  <Fragment key={entryId}>
+                    {isEditMode && rundownMetadata.groupEntries === 0 && (
+                      <QuickAddButtons
+                        previousEventId={null}
+                        parentBlock={parentId}
+                        backgroundColor={rundownMetadata.groupColour}
+                      />
+                    )}
+                    <RundownBlockEnd key={entryId} id={entryId} colour={rundownMetadata.groupColour} />
+                  </Fragment>
+                );
               }
 
               // we iterate through a stateful copy of order to make the dnd operations smoother

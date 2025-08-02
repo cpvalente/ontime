@@ -1,14 +1,14 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import style from './BlockEnd.module.scss';
+import style from './RundownBlockEnd.module.scss';
 
 interface BlockEndProps {
   id: string;
   colour?: string;
 }
 
-export default function BlockEnd({ id, colour }: BlockEndProps) {
+export default function RundownBlockEnd({ id, colour }: BlockEndProps) {
   const {
     attributes: dragAttributes,
     listeners: dragListeners,
