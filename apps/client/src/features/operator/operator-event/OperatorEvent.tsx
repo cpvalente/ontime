@@ -4,7 +4,7 @@ import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString } from 'ontime-uti
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import { formatDuration, useTimeUntilStart } from '../../../common/utils/time';
+import { formatDuration, useExpectedStart } from '../../../common/utils/time';
 import RunningTime from '../../viewers/common/running-time/RunningTime';
 import type { EditEvent, Subscribed } from '../operator.types';
 
@@ -164,7 +164,7 @@ interface TimeUntilProps {
 }
 function TimeUntil({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded }: TimeUntilProps) {
   // we isolate this to avoid unnecessary re-renders
-  const timeUntil = useTimeUntilStart({ timeStart, delay, dayOffset }, { totalGap, isLinkedToLoaded });
+  const timeUntil = useExpectedStart({ timeStart, delay, dayOffset }, { totalGap, isLinkedToLoaded });
 
   const isDue = timeUntil < MILLIS_PER_SECOND;
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
