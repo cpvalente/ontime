@@ -32,7 +32,11 @@
     gap: 0.25rem;
   }
 
-  &[data-state="over"] {
+  .clock {
+    color: $muted-gray;
+  }
+
+  &[data-state='over'] {
     .label .over {
       color: $playback-over;
     }
@@ -41,7 +45,7 @@
     }
   }
 
-  &[data-state="under"] {
+  &[data-state='under'] {
     .label .under {
       color: $playback-under;
     }
@@ -50,9 +54,9 @@
     }
   }
 
-  &[data-state="muted"] {
+  &[data-state='muted'] {
     .clock {
-      color: $muted-gray;
+      color: $ui-white;
     }
   }
 }
