@@ -74,7 +74,7 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 
 // feature business logic
 
-export { calculateTimeUntilStart } from './src/date-utils/calculateTimeUntilStart.js';
+export { getExpectedStart } from './src/date-utils/getExpectedStart.js';
 
 // feature business logic - rundown
 export { checkIsNow } from './src/date-utils/checkIsNow.js';

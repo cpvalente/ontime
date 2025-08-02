@@ -1,5 +1,5 @@
 import { isOntimeEvent, MaybeNumber, OffsetMode, OntimeBlock, Rundown, TimerPhase } from 'ontime-types';
-import { calculateTimeUntilStart, dayInMs, getLastEventNormal, isPlaybackActive } from 'ontime-utils';
+import { getExpectedStart, dayInMs, getLastEventNormal, isPlaybackActive } from 'ontime-utils';
 import type { RuntimeState } from '../stores/runtimeState.js';
 import { shouldCrashDev } from '../utils/development.js';
 
@@ -14,7 +14,7 @@ export const normaliseEndTime = (start: number, end: number) => (end < start ? e
  * TODO: take a look at how it handles relative offset mode
  */
 export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): MaybeNumber {
-  const { blockNow, eventNow, timer, clock } = state;
+  const { blockNow, eventNow, timer } = state;
 
   if (blockNow === null) return null;
   // if the group doesn't have a start time there is no end time either
@@ -45,18 +45,17 @@ export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): M
 
   const { offsetMode, offsetAbs, offsetRel, plannedStart, actualStart } = state.runtime;
 
-  const timeUntilLastEvent = calculateTimeUntilStart(lastEvent, {
+  const lastEventStart = getExpectedStart(lastEvent, {
     currentDay: eventNow.dayOffset,
     totalGap,
     isLinkedToLoaded,
-    clock,
     offsetMode,
     offset: offsetMode === OffsetMode.Absolute ? offsetAbs : offsetRel,
     plannedStart,
     actualStart,
   });
 
-  return clock + timeUntilLastEvent + lastEvent.duration;
+  return lastEventStart + lastEvent.duration;
 }
 
 /**
