@@ -9,8 +9,12 @@
   border-radius: $component-border-radius-md;
   border: 1px solid transparent;
 
-  padding-inline: 0.5em;
   outline: none;
+
+  &::placeholder {
+    color: $gray-500;
+    letter-spacing: 0;
+  }
 
   &:hover:not(:disabled) {
     background-color: $gray-1100;
@@ -26,21 +30,21 @@
     cursor: not-allowed;
   }
 
-  &::placeholder {
-    color: $gray-500;
-    letter-spacing: 0;
+  &:read-only::placeholder {
+    opacity: 0;
   }
 }
 
 .subtle {
   background-color: $gray-1200;
-  padding-top: 0.5em;
+  padding-inline: 0.5em;
+  padding-top: 0.25em;
 }
 
 .ghosted {
   background-color: transparent;
   padding: 0;
-  padding-top: 0.5em;
+  padding-top: 0.25em;
 }
 
 .fluid {

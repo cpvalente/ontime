@@ -1,8 +1,8 @@
 .imageInput {
-  &::placeholder {
+  &:not(:read-only)::placeholder {
     opacity: 0.2;
   }
-  &:hover::placeholder {
+  &:not(:read-only):hover::placeholder {
     opacity: 1;
   }
 }
