@@ -1,7 +1,7 @@
 import { MaybeNumber, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
 import {
-  calculateTimeUntilStart,
   formatFromMillis,
+  getExpectedStart,
   MILLIS_PER_HOUR,
   MILLIS_PER_MINUTE,
   MILLIS_PER_SECOND,
@@ -140,15 +140,17 @@ export function formatDuration(duration: number, hideSeconds = true): string {
  */
 export function useTimeUntilStart(
   // typed like this to make it very clear what the data is
-  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'>,
+  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> | null,
   state: {
     totalGap: number;
     isLinkedToLoaded: boolean;
   },
 ): number {
   const { offset, clock, currentDay, offsetMode, actualStart, plannedStart } = useTimeUntilData();
-  return calculateTimeUntilStart(
+  if (event === null) return 0;
+  const expectedStart = getExpectedStart(
     { ...event },
-    { ...state, currentDay, clock, offset, offsetMode, actualStart, plannedStart },
+    { ...state, currentDay, offset, offsetMode, actualStart, plannedStart },
   );
+  return expectedStart - clock;
 }

@@ -143,13 +143,10 @@ function FlagTimes() {
   const entry = useEntry(nextFlag?.id ?? null);
 
   // TODO(v4): can we make a good approximation of time until next flag?
-  const timeUntil =
-    entry === null
-      ? 0
-      : useTimeUntilStart(entry as OntimeEvent, {
-          totalGap: 0,
-          isLinkedToLoaded: true,
-        });
+  const timeUntil = useTimeUntilStart(entry as OntimeEvent, {
+    totalGap: 0,
+    isLinkedToLoaded: true,
+  });
 
   if (!nextFlag) {
     return (
