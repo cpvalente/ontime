@@ -9,7 +9,7 @@ import style from './TimeInput.module.scss';
 interface NullableTimeInputProps<T extends string> {
   id?: T;
   name: T;
-  submitHandler: (field: T, value: string) => void;
+  submitHandler: (field: T, value: number) => void;
   time?: number | null;
   emptyDisplay: string;
   placeholder?: string;
@@ -71,7 +71,7 @@ export default function NullableTimeInput<T extends string>({
         return false;
       }
 
-      submitHandler(name, newValue);
+      submitHandler(name, valueInMillis);
       return true;
     },
     [name, submitHandler, time],

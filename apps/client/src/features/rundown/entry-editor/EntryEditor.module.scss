@@ -94,16 +94,21 @@
 
 /* approximating the style of a disabled input */
 .textLikeInput {
-  background-color: rgba($gray-1200, 0.4);
-  font-weight: 400;
-  color: $gray-200;
-  border: 1px solid transparent;
-
-  justify-content: center;
-
+  background: transparent;
+  justify-content: start;
   width: 7.5em;
+  border: 1px solid transparent;
+  border-bottom: 1px solid $gray-1100;
 
   &:hover {
-    background-color: rgba($gray-1200, 0.4);
+    background: transparent;
   }
+}
+
+.inactive {
+  color: $muted-gray;
+}
+
+.active {
+  color: $active-indicator;
 }

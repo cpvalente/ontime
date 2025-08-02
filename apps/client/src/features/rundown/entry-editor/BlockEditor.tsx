@@ -1,25 +1,25 @@
 import { useCallback } from 'react';
-import { OntimeBlock } from 'ontime-types';
-import { millisToString, parseUserTime } from 'ontime-utils';
+import { MaybeNumber, OntimeBlock } from 'ontime-types';
+import { millisToString } from 'ontime-utils';
 
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../common/components/input/colour-input/SwatchSelect';
-import NullableTimeInput from '../../../common/components/input/time-input/NullableTimeInput';
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import { getOffsetState } from '../../../common/utils/offset';
-import { enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
+import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
 import TextLikeInput from '../../../views/cuesheet/cuesheet-table/cuesheet-table-elements/TextLikeInput';
 
 import EntryEditorCustomFields from './composite/EventEditorCustomFields';
 import EventTextArea from './composite/EventTextArea';
 import EntryEditorTextInput from './composite/EventTextInput';
+import TargetDurationInput from './composite/TargetDurationInput';
 
 import style from './EntryEditor.module.scss';
 
 // title + colour + custom field labels
-export type BlockEditorUpdateTextFields = 'targetDuration' | 'title' | 'colour' | string;
+export type BlockEditorUpdateTextFields = 'title' | 'colour' | string;
 export type BlockEditorUpdateMaybeNumberFields = 'targetDuration';
 
 interface BlockEditorProps {
@@ -31,7 +31,7 @@ export default function BlockEditor({ block }: BlockEditorProps) {
   const { updateEntry } = useEntryActions();
 
   const handleSubmit = useCallback(
-    (field: BlockEditorUpdateTextFields | BlockEditorUpdateMaybeNumberFields, value: string | boolean) => {
+    (field: BlockEditorUpdateTextFields | BlockEditorUpdateMaybeNumberFields, value: string | MaybeNumber) => {
       // Handle custom fields
       if (typeof field === 'string' && field.startsWith('custom-')) {
         const fieldLabel = field.split('custom-')[1];
@@ -40,11 +40,7 @@ export default function BlockEditor({ block }: BlockEditorProps) {
       }
 
       if (field === 'targetDuration') {
-        if (value === '') {
-          return updateEntry({ id: block.id, targetDuration: null });
-        }
-
-        return updateEntry({ id: block.id, targetDuration: parseUserTime(value as string) });
+        return updateEntry({ id: block.id, targetDuration: value as MaybeNumber });
       }
 
       // all other strings are text fields
@@ -86,21 +82,21 @@ export default function BlockEditor({ block }: BlockEditorProps) {
         </div>
         <div className={style.inline}>
           <div>
-            <Editor.Label htmlFor='targetDuration'>Target duration</Editor.Label>
-            <NullableTimeInput
-              name='targetDuration'
-              time={block.targetDuration}
-              submitHandler={handleSubmit}
-              emptyDisplay={enDash}
-            />
-          </div>
-          <div>
             <Editor.Label htmlFor='eventId'>Plan offset</Editor.Label>
-            <TextLikeInput offset={planOffsetLabel} className={style.textLikeInput} tabIndex={-1}>
+            <TextLikeInput
+              offset={planOffsetLabel}
+              className={cx([style.textLikeInput, planOffset === null && style.inactive])}
+              tabIndex={-1}
+            >
               {planOffset !== null && planOffset > 0 ? '+' : ''}
               {millisToString(planOffset, { fallback: enDash })}
             </TextLikeInput>
           </div>
+          <TargetDurationInput
+            duration={block.duration}
+            targetDuration={block.targetDuration}
+            submitHandler={handleSubmit}
+          />
         </div>
       </div>
 
