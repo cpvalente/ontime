@@ -10,6 +10,7 @@ import { AppMode } from '../../../../ontimeConfig';
 import DurationInput from './DurationInput';
 import EditableImage from './EditableImage';
 import FlagCell from './FlagCell';
+import GhostedText from './GhostedText';
 import MultiLineCell from './MultiLineCell';
 import MutedText from './MutedText';
 import SingleLineCell from './SingleLineCell';
@@ -139,6 +140,11 @@ function MakeMultiLineField({ row, column, table }: CellContext<OntimeEntry, unk
     return null;
   }
 
+  const canWrite = column.columnDef.meta?.canWrite;
+  if (!canWrite) {
+    return <GhostedText>{initialValue}</GhostedText>;
+  }
+
   return <MultiLineCell initialValue={initialValue as string} handleUpdate={update} />;
 }
 
@@ -155,8 +161,9 @@ function LazyImage({ row, column, table }: CellContext<OntimeEntry, unknown>) {
     return null;
   }
 
+  const canWrite = column.columnDef.meta?.canWrite;
   const initialValue = event.custom[column.id];
-  return <EditableImage initialValue={initialValue} updateValue={update} />;
+  return <EditableImage initialValue={initialValue} updateValue={update} readOnly={!canWrite} />;
 }
 
 function MakeSingleLineField({ row, column, table }: CellContext<OntimeEntry, unknown>) {
@@ -171,6 +178,11 @@ function MakeSingleLineField({ row, column, table }: CellContext<OntimeEntry, un
   const initialValue = row.original[column.id as keyof OntimeEntry];
   if (initialValue === undefined) {
     return null;
+  }
+
+  const canWrite = column.columnDef.meta?.canWrite;
+  if (!canWrite) {
+    return <GhostedText>{initialValue}</GhostedText>;
   }
 
   return <SingleLineCell initialValue={initialValue as string} handleUpdate={update} />;
@@ -197,9 +209,15 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeEntry, unknow
     return null;
   }
 
-  // fields will not contain the field if there is no value set by the user
+  // entries will not contain the field if there is no value set by the user
   // event if there is no initial value, we still render the cell
   const initialValue = event.custom[column.id] ?? '';
+
+  const canWrite = column.columnDef.meta?.canWrite;
+  if (!canWrite) {
+    return <GhostedText>{initialValue}</GhostedText>;
+  }
+
   return <MultiLineCell initialValue={initialValue} handleUpdate={update} />;
 }
 

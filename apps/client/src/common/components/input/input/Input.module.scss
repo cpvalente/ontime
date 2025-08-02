@@ -10,7 +10,12 @@
   padding-inline: 0.5em;
   outline: none;
 
-  &:hover:not(:disabled) {
+  &::placeholder {
+    color: $gray-500;
+    letter-spacing: 0;
+  }
+
+  &:hover:not(:disabled):not(:read-only) {
     background-color: $gray-1100;
   }
 
@@ -25,9 +30,8 @@
     cursor: not-allowed;
   }
 
-  &::placeholder {
-    color: $gray-500;
-    letter-spacing: 0;
+  &:read-only::placeholder {
+    opacity: 0;
   }
 }
 
