@@ -8,6 +8,37 @@ import { shouldCrashDev } from '../utils/development.js';
  */
 export const normaliseEndTime = (start: number, end: number) => (end < start ? end + dayInMs : end);
 
+export function getExpectedFlagStart(state: RuntimeState, rundown: Rundown): number {
+  const { nextFlag, runtime, eventNow } = state;
+  const { offsetAbs, offsetRel, offsetMode, actualStart, plannedStart } = runtime;
+
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    if (nextFlag === null) {
+      throw new Error('timerUtils.getExpectedFlagStart: invalid state received');
+    }
+  }
+
+  const nextFlagEvent = rundown.entries[nextFlag.id];
+
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    if (!isOntimeEvent(nextFlagEvent) || !eventNow) {
+      throw new Error('timerUtils.getExpectedFlagStart: invalid state received');
+    }
+  }
+  const v = getExpectedStart(nextFlagEvent, {
+    currentDay: 0, //eventNow.dayOffset,
+    totalGap: 0,
+    isLinkedToLoaded: true,
+    offset: offsetMode === OffsetMode.Absolute ? offsetAbs : offsetRel,
+    offsetMode,
+    actualStart,
+    plannedStart,
+  });
+  return v;
+}
+
 /**
  * Calculates the expected time of the group to end.
  * Should only be called if a block is running

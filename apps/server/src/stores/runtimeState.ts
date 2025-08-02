@@ -1,5 +1,6 @@
 import {
   CurrentBlockState,
+  EntryMetaData,
   isOntimeBlock,
   isOntimeEvent,
   MaybeNumber,
@@ -12,7 +13,6 @@ import {
   runtimeStorePlaceholder,
   TimerPhase,
   TimerState,
-  UpcomingEntry,
 } from 'ontime-types';
 import { calculateDuration, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
@@ -23,6 +23,7 @@ import {
   getExpectedBlockFinish,
   getExpectedEnd,
   getExpectedFinish,
+  getExpectedFlagStart,
   getRuntimeOffset,
   getTimerPhase,
 } from '../services/timerUtils.js';
@@ -36,7 +37,7 @@ export type RuntimeState = {
   clock: number; // realtime clock
   blockNow: CurrentBlockState | null;
   blockNext: MaybeString;
-  nextFlag: UpcomingEntry | null;
+  nextFlag: EntryMetaData | null;
   eventNow: PlayableEvent | null;
   eventNext: PlayableEvent | null;
   runtime: Runtime;
@@ -200,7 +201,7 @@ export function load(
   loadNow(rundown, metadata, eventIndex);
   loadNext(rundown, metadata, eventIndex);
   loadBlock(rundown);
-  loadNextFlag(eventIndex, rundown, metadata);
+  loadNextFlag(rundown, metadata, eventIndex);
 
   // update state
   runtimeState.timer.playback = Playback.Armed;
@@ -342,7 +343,7 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   loadNext(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   updateLoaded(runtimeState.eventNow ?? undefined);
   loadBlock(rundown);
-  loadNextFlag(eventNowIndex, rundown, metadata);
+  loadNextFlag(rundown, metadata, eventNowIndex);
 }
 
 export function start(state: RuntimeState = runtimeState): boolean {
@@ -521,8 +522,13 @@ export function update(): UpdateResult {
   }
 
   if (runtimeState.blockNow) {
-    const expectedBlockFinish = getExpectedBlockFinish(runtimeState, getCurrentRundown());
+    const expectedBlockFinish = getExpectedBlockFinish(runtimeState, getCurrentRundown()); //TODO: this in pulling in rundown by it self, we are tying not to do that in this file
     runtimeState.blockNow.expectedEnd = expectedBlockFinish;
+  }
+
+  if (runtimeState.nextFlag) {
+    const expectedFlagStart = getExpectedFlagStart(runtimeState, getCurrentRundown()); //TODO: this in pulling in rundown by it self, we are tying not to do that in this file
+    runtimeState.nextFlag.expectedStart = expectedFlagStart;
   }
 
   return { hasTimerFinished: finishedNow, hasSecondaryTimerFinished: false };
@@ -730,7 +736,7 @@ export function loadBlock(rundown: Rundown, state = runtimeState) {
 /**
  * find and load the next flag from the currently loaded event
  */
-export function loadNextFlag(currentIndex: number, rundown: Rundown, metadata: RundownMetadata) {
+export function loadNextFlag(rundown: Rundown, metadata: RundownMetadata, currentIndex: number, state = runtimeState) {
   runtimeState.nextFlag = null;
 
   if (metadata.flags.length === 0) {
@@ -749,7 +755,7 @@ export function loadNextFlag(currentIndex: number, rundown: Rundown, metadata: R
       if (!event || !isOntimeEvent(event)) {
         continue;
       }
-      runtimeState.nextFlag = { id: event.id, start: event.timeStart };
+      state.nextFlag = { id: event.id, actualStart: null, expectedStart: null, expectedEnd: null };
       return;
     }
   }

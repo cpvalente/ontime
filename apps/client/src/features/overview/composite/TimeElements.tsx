@@ -139,15 +139,10 @@ function GroupTimes() {
 
 function FlagTimes() {
   const { clock } = useClock();
-  const { nextFlag } = useNextFlag();
-  const entry = useEntry(nextFlag?.id ?? null);
+  const { id, expectedStart } = useNextFlag();
+  const entry = useEntry(id);
 
-  const expectedStart = useExpectedStart(entry as OntimeEvent, {
-    totalGap: 0, //TODO: this data point is needed
-    isLinkedToLoaded: true, //TODO: this data point is needed
-  });
-
-  if (!nextFlag) {
+  if (!entry) {
     return (
       <div className={style.metadataRow}>
         <span className={style.label}>Flag</span>
@@ -163,20 +158,21 @@ function FlagTimes() {
     );
   }
 
-  const flagTitle = (entry as OntimeEvent | null)?.title || 'Flag';
-  const scheduledTimeUntil = millisToString(nextFlag.start - clock, { fallback: timerPlaceholder });
-  const expectedTimeUntil = millisToString(expectedStart - clock, { fallback: timerPlaceholder });
+  const { title, timeStart } = entry as OntimeEvent;
+  const scheduledTimeUntilDisplay = millisToString(timeStart - clock, { fallback: timerPlaceholder });
+  const expectedTimeUntil = expectedStart === null ? null : expectedStart - clock;
+  const expectedTimeUntilDisplay = millisToString(expectedTimeUntil, { fallback: timerPlaceholder });
 
   return (
     <div className={style.metadataRow}>
-      <span className={cx([style.labelTitle])}>{flagTitle}</span>
+      <span className={cx([style.labelTitle])}>{title}</span>
       <div className={style.labelledElement}>
         <Tooltip text='Time to next flag scheduled start' render={<TbFlagPin className={style.icon} />} />
-        <span className={style.time}>{scheduledTimeUntil}</span>
+        <span className={style.time}>{scheduledTimeUntilDisplay}</span>
       </div>
       <div className={style.labelledElement}>
         <Tooltip text='Time to next flag expected start' render={<TbFlagStar className={style.icon} />} />
-        <span className={style.time}>{expectedTimeUntil}</span>
+        <span className={style.time}>{expectedTimeUntilDisplay}</span>
       </div>
     </div>
   );

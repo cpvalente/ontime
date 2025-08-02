@@ -715,13 +715,13 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
         getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock)) &&
       !deepEqual(RuntimeService.previousState?.runtime, state.runtime);
 
-    /**
-     * the currentBlock object has the potential to tick on expected end
-     * TODO: the value shows up one tick to late
-     */
+    // TODO: the value shows up one tick to late
     const shouldBlockUpdate =
       !deepEqual(RuntimeService?.previousState.blockNow, state.blockNow) ||
       RuntimeService?.previousState.blockNext !== state.blockNext;
+
+    // TODO: the value shows up one tick to late
+    const shouldNextFlagUpdate = !deepEqual(RuntimeService?.previousState?.nextFlag, state.nextFlag);
 
     /**
      * Many other values are calculated based on the clock
@@ -755,9 +755,9 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       RuntimeService.previousState.blockNext = state.blockNext;
     }
 
-    if (RuntimeService.previousState?.nextFlag !== state.nextFlag) {
+    if (shouldNextFlagUpdate) {
       batch.add('nextFlag', state.nextFlag);
-      RuntimeService.previousState.nextFlag = state.nextFlag;
+      RuntimeService.previousState.nextFlag = structuredClone(state.nextFlag);
     }
 
     if (hasImmediateChanges) {
