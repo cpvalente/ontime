@@ -18,6 +18,11 @@
   &.skip {
     position: relative;
 
+    .indexColumn {
+      text-decoration: line-through;
+      opacity: $opacity-disabled;
+    }
+
     &::after {
       content: '';
       position: absolute;
