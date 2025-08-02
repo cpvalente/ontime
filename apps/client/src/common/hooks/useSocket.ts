@@ -175,7 +175,7 @@ export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) =
 
   numEvents: state.runtime.numEvents,
   selectedEventIndex: state.runtime.selectedEventIndex,
-  offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offset : state.runtime.relativeOffset,
+  offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offsetAbs : state.runtime.offsetRel,
 
   blockStartedAt: state.blockNow?.startedAt ?? null,
   blockExpectedEnd: state.blockNow?.expectedEnd ?? null,
@@ -183,12 +183,12 @@ export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) =
 
 export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
-  offset: state.runtime.offset,
+  offset: state.runtime.offsetAbs,
 }));
 
 export const useTimeUntilData = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
-  offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offset : state.runtime.relativeOffset,
+  offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offsetAbs : state.runtime.offsetRel,
   offsetMode: state.runtime.offsetMode,
   currentDay: state.eventNow?.dayOffset ?? 0,
   actualStart: state.runtime.actualStart,
@@ -200,7 +200,7 @@ export const useCurrentDay = createSelector((state: RuntimeStore) => ({
 }));
 
 export const useRuntimeOffset = createSelector((state: RuntimeStore) => ({
-  offset: state.runtime.offset,
+  offset: state.runtime.offsetAbs,
 }));
 
 export const usePing = createSelector((state: RuntimeStore) => ({

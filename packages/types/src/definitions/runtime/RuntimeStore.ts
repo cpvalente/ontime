@@ -32,8 +32,8 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
   runtime: {
     selectedEventIndex: null, // changes if rundown changes or we load a new event
     numEvents: 0, // change initiated by user
-    offset: 0, // changes at runtime
-    relativeOffset: 0, // changes at runtime
+    offsetAbs: 0, // changes at runtime
+    offsetRel: 0, // changes at runtime
     plannedStart: 0, // only changes if event changes
     plannedEnd: 0, // only changes if event changes, overflows over dayInMs
     actualStart: null, // set once we start the timer
