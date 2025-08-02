@@ -46,7 +46,7 @@ export default function StudioTimers({
     time.phase === TimerPhase.Danger,
   );
 
-  const offsetState = getOffsetState(runtime.offset);
+  const offsetState = getOffsetState(runtime.offsetAbs);
 
   return (
     <div className='studio__timers'>

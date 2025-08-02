@@ -1,4 +1,4 @@
-import { isOntimeEvent, MaybeNumber, OntimeBlock, Rundown, TimerPhase } from 'ontime-types';
+import { isOntimeEvent, MaybeNumber, OffsetMode, OntimeBlock, Rundown, TimerPhase } from 'ontime-types';
 import { calculateTimeUntilStart, dayInMs, getLastEventNormal, isPlaybackActive } from 'ontime-utils';
 import type { RuntimeState } from '../stores/runtimeState.js';
 import { shouldCrashDev } from '../utils/development.js';
@@ -43,7 +43,7 @@ export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): M
   const { lastEvent } = getLastEventNormal(rundown.entries, orderInBlock);
   if (!lastEvent) return null;
 
-  const { offsetMode, offset, plannedStart, actualStart } = state.runtime;
+  const { offsetMode, offsetAbs, offsetRel, plannedStart, actualStart } = state.runtime;
 
   const timeUntilLastEvent = calculateTimeUntilStart({
     timeStart: lastEvent.timeStart,
@@ -54,7 +54,7 @@ export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): M
     isLinkedToLoaded,
     clock,
     offsetMode,
-    offset,
+    offset: offsetMode === OffsetMode.Absolute ? offsetAbs : offsetRel,
     plannedStart,
     actualStart,
   });
@@ -171,10 +171,10 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
  * Positive offset is time ahead
  * Negative offset is time delayed
  */
-export function getRuntimeOffset(state: RuntimeState): { absoluteOffset: number; relativeOffset: number } {
+export function getRuntimeOffset(state: RuntimeState): { offsetAbs: number; offsetRel: number } {
   // nothing to calculate if there are no loaded events or if we havent started
   if (state.eventNow === null || state.runtime.actualStart === null) {
-    return { absoluteOffset: 0, relativeOffset: 0 };
+    return { offsetAbs: 0, offsetRel: 0 };
   }
 
   const { clock } = state;
@@ -192,7 +192,7 @@ export function getRuntimeOffset(state: RuntimeState): { absoluteOffset: number;
   // if we havent started, but the timer is armed
   // the offset is the difference to the schedule
   if (startedAt === null) {
-    return { absoluteOffset: timeStart - clock, relativeOffset: 0 };
+    return { offsetAbs: timeStart - clock, offsetRel: 0 };
   }
 
   const overtime = Math.min(current, 0);
@@ -211,14 +211,14 @@ export function getRuntimeOffset(state: RuntimeState): { absoluteOffset: number;
   const rundownStartOffset = actualStart - plannedStart;
 
   // offset offset relative to the actual rundown start
-  const relativeOffset = offset + rundownStartOffset;
+  const offsetRel = offset + rundownStartOffset;
 
   // in time-to-end, offset is overtime
   if (countToEnd) {
-    return { absoluteOffset: overtime, relativeOffset };
+    return { offsetAbs: overtime, offsetRel };
   }
 
-  return { absoluteOffset: offset, relativeOffset };
+  return { offsetAbs: offset, offsetRel };
 }
 
 /**
@@ -229,7 +229,7 @@ export function getExpectedEnd(state: RuntimeState): MaybeNumber {
   if (state.runtime.actualStart === null || state.runtime.plannedEnd === null) {
     return null;
   }
-  return state.runtime.plannedEnd - state.runtime.offset + state._rundown.totalDelay;
+  return state.runtime.plannedEnd - state.runtime.offsetAbs + state._rundown.totalDelay;
 }
 
 /**
