@@ -9,7 +9,7 @@ import {
 
 import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
 import { APP_SETTINGS } from '../api/constants';
-import { useTimeUntilData } from '../hooks/useSocket';
+import { useExpectedStartData } from '../hooks/useSocket';
 import { ontimeQueryClient } from '../queryClient';
 
 /**
@@ -138,7 +138,7 @@ export function formatDuration(duration: number, hideSeconds = true): string {
  * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
  * @returns
  */
-export function useTimeUntilStart(
+export function useExpectedStart(
   // typed like this to make it very clear what the data is
   event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> | null,
   state: {
@@ -146,11 +146,7 @@ export function useTimeUntilStart(
     isLinkedToLoaded: boolean;
   },
 ): number {
-  const { offset, clock, currentDay, offsetMode, actualStart, plannedStart } = useTimeUntilData();
+  const { offset, currentDay, offsetMode, actualStart, plannedStart } = useExpectedStartData();
   if (event === null) return 0;
-  const expectedStart = getExpectedStart(
-    { ...event },
-    { ...state, currentDay, offset, offsetMode, actualStart, plannedStart },
-  );
-  return expectedStart - clock;
+  return getExpectedStart({ ...event }, { ...state, currentDay, offset, offsetMode, actualStart, plannedStart });
 }

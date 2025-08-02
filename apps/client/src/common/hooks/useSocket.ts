@@ -177,7 +177,6 @@ export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) =
   selectedEventIndex: state.runtime.selectedEventIndex,
   offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offsetAbs : state.runtime.offsetRel,
 
-  blockStartedAt: state.blockNow?.startedAt ?? null,
   blockExpectedEnd: state.blockNow?.expectedEnd ?? null,
 }));
 
@@ -186,8 +185,7 @@ export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
   offset: state.runtime.offsetAbs,
 }));
 
-export const useTimeUntilData = createSelector((state: RuntimeStore) => ({
-  clock: state.clock,
+export const useExpectedStartData = createSelector((state: RuntimeStore) => ({
   offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offsetAbs : state.runtime.offsetRel,
   offsetMode: state.runtime.offsetMode,
   currentDay: state.eventNow?.dayOffset ?? 0,
