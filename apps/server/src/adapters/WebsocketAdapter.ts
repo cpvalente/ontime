@@ -141,7 +141,7 @@ class SocketServer implements IAdapter {
                 if (reply) {
                   ws.send(
                     JSON.stringify({
-                      type: tag,
+                      tag,
                       payload: reply.payload,
                     }),
                   );
