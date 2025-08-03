@@ -192,6 +192,7 @@ export const useExpectedStartData = createSelector((state: RuntimeStore) => ({
   currentDay: state.eventNow?.dayOffset ?? 0,
   actualStart: state.runtime.actualStart,
   plannedStart: state.runtime.plannedStart,
+  clock: state.clock,
 }));
 
 export const useCurrentDay = createSelector((state: RuntimeStore) => ({
