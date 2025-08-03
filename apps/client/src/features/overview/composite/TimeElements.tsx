@@ -15,7 +15,7 @@ import {
 import { useEntry } from '../../../common/hooks-query/useRundown';
 import { getOffsetState, getOffsetText } from '../../../common/utils/offset';
 import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
-import { formatTime, useExpectedStart } from '../../../common/utils/time';
+import { formatTime } from '../../../common/utils/time';
 import { calculateEndAndDaySpan, formattedTime } from '../overview.utils';
 
 import { OverUnder, TimeColumn } from './TimeLayout';
@@ -36,7 +36,7 @@ export function StartTimes() {
       <div className={style.row}>
         <span className={style.label}>Start</span>
         <div className={style.labelledElement}>
-          <Tooltip text='Planned start time' render={<TbCalendar className={style.icon} />} />
+          <Tooltip text='Planned start time' render={<TbCalendarPin className={style.icon} />} />
           <span className={cx([style.time, plannedStart === null && style.muted])}>{plannedStartText}</span>
         </div>
         <div className={style.labelledElement}>
@@ -92,42 +92,22 @@ export function MetadataTimes() {
 function GroupTimes() {
   const { clock, blockExpectedEnd } = useRuntimePlaybackOverview();
   const { currentBlockId } = useCurrentBlockId();
-  const entry = useEntry(currentBlockId);
+  const entry = useEntry(currentBlockId) as OntimeBlock | null;
 
-  if (!entry) {
-    return (
-      <div className={style.metadataRow}>
-        <span className={style.label}>Group</span>
-        <div className={style.labelledElement}>
-          <Tooltip text='Time to scheduled group end' render={<TbFolderPin className={style.icon} />} />
-          <span className={cx([style.time, style.muted])}>{timerPlaceholder}</span>
-        </div>
-        <div className={style.labelledElement}>
-          <Tooltip text='Time to expected group end' render={<TbFolderStar className={style.icon} />} />
-          <span className={cx([style.time, style.muted])}>{timerPlaceholder}</span>
-        </div>
-      </div>
-    );
-  }
+  const plannedGroupEnd = entry && entry.timeStart !== null ? entry.timeStart + entry.duration - clock : null;
+  const plannedTimeUntilGroupEnd = formattedTime(plannedGroupEnd, 3, TimerType.CountDown);
 
-  const scheduledTimeUntilGroupEnd = (() => {
-    if (!entry || !isOntimeBlock(entry) || !entry.timeStart) return timerPlaceholder;
-    return formattedTime(entry.timeStart + entry.duration - clock, 3, TimerType.CountDown);
-  })();
+  const expectedGroupEnd = blockExpectedEnd !== null ? blockExpectedEnd - clock : null;
+  const expectedTimeUntilGroupEnd = formattedTime(expectedGroupEnd, 3, TimerType.CountDown);
 
-  const expectedTimeUntilGroupEnd = (() => {
-    if (blockExpectedEnd === null) return timerPlaceholder;
-    return formattedTime(blockExpectedEnd - clock, 3, TimerType.CountDown);
-  })();
-
-  const groupTitle = (entry as OntimeBlock | null)?.title || 'Group';
+  const groupTitle = entry?.title ?? null;
 
   return (
     <div className={style.metadataRow}>
-      <span className={style.labelTitle}>{groupTitle}</span>
+      <span className={groupTitle ? style.labelTitle : style.label}>{`${groupTitle ? groupTitle : 'Group'} `}</span>
       <div className={style.labelledElement}>
-        <Tooltip text='Time to scheduled group end' render={<TbFolderPin className={style.icon} />} />
-        <span className={cx([style.time, !entry === null && style.muted])}>{scheduledTimeUntilGroupEnd}</span>
+        <Tooltip text='Time to planned group end' render={<TbFolderPin className={style.icon} />} />
+        <span className={cx([style.time, !entry && style.muted])}>{plannedTimeUntilGroupEnd}</span>
       </div>
       <div className={style.labelledElement}>
         <Tooltip text='Time to expected group end' render={<TbFolderStar className={style.icon} />} />
@@ -140,39 +120,26 @@ function GroupTimes() {
 function FlagTimes() {
   const { clock } = useClock();
   const { id, expectedStart } = useNextFlag();
-  const entry = useEntry(id);
+  const entry = useEntry(id) as OntimeEvent | null;
 
-  if (!entry) {
-    return (
-      <div className={style.metadataRow}>
-        <span className={style.label}>Flag</span>
-        <div className={style.labelledElement}>
-          <Tooltip text='Time to next flag scheduled start' render={<TbFlagPin className={style.icon} />} />
-          <span className={cx([style.time, style.muted])}>{timerPlaceholder}</span>
-        </div>
-        <div className={style.labelledElement}>
-          <Tooltip text='Time to next flag expected start' render={<TbFlagStar className={style.icon} />} />
-          <span className={cx([style.time, style.muted])}>{timerPlaceholder}</span>
-        </div>
-      </div>
-    );
-  }
+  const plannedFlagStart = entry ? entry.timeStart - clock : null;
+  const plannedTimeUntilDisplay = formattedTime(plannedFlagStart, 3, TimerType.CountDown);
 
-  const { title, timeStart } = entry as OntimeEvent;
-  const scheduledTimeUntilDisplay = millisToString(timeStart - clock, { fallback: timerPlaceholder });
-  const expectedTimeUntil = expectedStart === null ? null : expectedStart - clock;
-  const expectedTimeUntilDisplay = millisToString(expectedTimeUntil, { fallback: timerPlaceholder });
+  const expectedTimeUntil = expectedStart !== null ? expectedStart - clock : null;
+  const expectedTimeUntilDisplay = formattedTime(expectedTimeUntil, 3, TimerType.CountDown);
+
+  const title = entry?.title ?? null;
 
   return (
     <div className={style.metadataRow}>
-      <span className={cx([style.labelTitle])}>{title}</span>
+      <span className={title ? style.labelTitle : style.label}>{`${title ? title : 'Flag'} `}</span>
       <div className={style.labelledElement}>
-        <Tooltip text='Time to next flag scheduled start' render={<TbFlagPin className={style.icon} />} />
-        <span className={style.time}>{scheduledTimeUntilDisplay}</span>
+        <Tooltip text='Time to next flag planned start' render={<TbFlagPin className={style.icon} />} />
+        <span className={cx([style.time, !entry && style.muted])}>{plannedTimeUntilDisplay}</span>
       </div>
       <div className={style.labelledElement}>
         <Tooltip text='Time to next flag expected start' render={<TbFlagStar className={style.icon} />} />
-        <span className={style.time}>{expectedTimeUntilDisplay}</span>
+        <span className={cx([style.time, expectedTimeUntil === null && style.muted])}>{expectedTimeUntilDisplay}</span>
       </div>
     </div>
   );
