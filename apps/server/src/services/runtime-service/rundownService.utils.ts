@@ -78,7 +78,8 @@ export function findNextPlayableId(playableEventsOrder: EntryId[], currentEventI
 }
 
 /**
- * returns first event that matches a given cue
+ * returns next event that matches a given cue
+ * then loops from the start
  */
 export function findNextPlayableWithCue(
   rundown: Rundown,
@@ -89,6 +90,14 @@ export function findNextPlayableWithCue(
   const lowerCaseCue = targetCue.toLowerCase();
 
   for (let i = currentEventIndex; i < playableEventsOrder.length; i++) {
+    const eventId = playableEventsOrder[i];
+    const event = rundown.entries[eventId];
+    if (isOntimeEvent(event) && isPlayableEvent(event) && event.cue.toLowerCase() === lowerCaseCue) {
+      return event;
+    }
+  }
+
+  for (let i = 0; i < currentEventIndex; i++) {
     const eventId = playableEventsOrder[i];
     const event = rundown.entries[eventId];
     if (isOntimeEvent(event) && isPlayableEvent(event) && event.cue.toLowerCase() === lowerCaseCue) {
