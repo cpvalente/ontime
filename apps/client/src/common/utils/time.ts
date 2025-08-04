@@ -105,8 +105,7 @@ export const formatTime = (
 
 /**
  * Handles case for formatting a duration time
- * @param duration
- * @returns
+ * eg: "1h 0m 0s" or "0h 30m"
  */
 export function formatDuration(duration: number, hideSeconds = true): string {
   // durations should never be negative, we handle it here to flag if there is an issue in future
