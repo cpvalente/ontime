@@ -67,7 +67,7 @@
       "runAfterFinish": false,
       "installerIcon": "icon.ico",
       "installerSidebar": "ontime-install.bmp",
-      "uninstallerSidebar": "ontime-uninstall.bmp"
+      "uninstallerSidebar": "ontime-install.bmp"
     },
     "linux": {
       "target": "AppImage",
