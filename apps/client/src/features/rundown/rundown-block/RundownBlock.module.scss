@@ -32,7 +32,7 @@
 
     &:focus {
       outline: 1px solid $blue-500;
-      outline-offset: -1px;  
+      outline-offset: -1px;
     }
   }
 
@@ -66,6 +66,16 @@
       color: $label-gray;
     }
   }
+}
+
+.strike {
+  text-decoration: line-through;
+}
+.over {
+  color: $playback-over;
+}
+.under {
+  color: $playback-under;
 }
 
 .drag {

@@ -14,6 +14,7 @@ import { EntryId, OntimeBlock } from 'ontime-types';
 import IconButton from '../../../common/components/buttons/IconButton';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { getOffsetState } from '../../../common/utils/offset';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';
 import EditableBlockTitle from '../common/EditableBlockTitle';
@@ -91,6 +92,19 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
   const binderColours = data.colour && getAccessibleColour(data.colour);
   const isValidDrop = over?.id && canDrop(over.data.current?.type, over.data.current?.parent);
 
+  const [planOffset, planOffsetLabel] = (() => {
+    if (data.targetDuration === null) {
+      return [null, null];
+    }
+
+    const offset = data.duration - data.targetDuration;
+    if (offset === 0) {
+      return [null, 'under'];
+    }
+
+    return [offset < 0 ? `-${formatDuration(offset * -1)}` : `+${formatDuration(offset)}`, getOffsetState(offset * -1)];
+  })();
+
   const dragStyle = {
     zIndex: isDragging ? 2 : 'inherit',
     transform: CSS.Translate.toString(transform),
@@ -139,7 +153,16 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
           </div>
           <div className={style.metaEntry}>
             <div>Duration</div>
-            <div>{formatDuration(data.duration)}</div>
+            {planOffset === null ? (
+              <div className={cx([planOffsetLabel !== null && style[planOffsetLabel]])}>
+                {formatDuration(data.duration)}
+              </div>
+            ) : (
+              <div>
+                <span className={style.strike}>{formatDuration(data.duration)}</span>
+                <span className={cx([planOffsetLabel !== null && style[planOffsetLabel]])}>{planOffset}</span>
+              </div>
+            )}
           </div>
           <div className={style.metaEntry}>
             <div>Entries</div>
