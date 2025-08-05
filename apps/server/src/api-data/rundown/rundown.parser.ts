@@ -118,18 +118,22 @@ export function parseRundown(
 
         if (isOntimeEvent(nestedEvent)) {
           newNestedEvent = createEvent(nestedEvent, eventIndex);
+
           // skip if event is invalid
           if (newNestedEvent == null) {
             emitError?.('Skipping event without payload');
             continue;
           }
 
+          newNestedEvent.parent = event.id;
           cleanupCustomFields(newNestedEvent.custom, parsedCustomFields);
           eventIndex += 1;
         } else if (isOntimeDelay(nestedEvent)) {
           newNestedEvent = { ...delayDef, duration: nestedEvent.duration, id: nestedEventId };
+          newNestedEvent.parent = event.id;
         } else if (isOntimeMilestone(nestedEvent)) {
           newNestedEvent = createMilestone({ ...nestedEvent, id: nestedEventId });
+          newNestedEvent.parent = event.id;
           cleanupCustomFields(newNestedEvent.custom, parsedCustomFields);
         }
 

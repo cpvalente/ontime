@@ -54,10 +54,10 @@ describe('safeMerge', () => {
 
     expect(mergedData.project).toStrictEqual({
       title: 'new title',
-      description: 'Turin 2022',
-      url: 'www.github.com/cpvalente/ontime',
+      description: demoDb.project.description,
+      url: demoDb.project.url,
       info: 'new backstage info',
-      logo: null,
+      logo: demoDb.project.logo,
       custom: [
         {
           title: 'new custom title',

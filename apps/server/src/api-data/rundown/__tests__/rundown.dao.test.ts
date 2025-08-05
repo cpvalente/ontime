@@ -97,12 +97,12 @@ describe('processRundown()', () => {
   it('generates metadata from given rundown', () => {
     const initResult = processRundown(demoDb.rundowns.default, demoDb.customFields);
 
-    expect(initResult.order.length).toBe(12);
-    expect(initResult.flatEntryOrder.length).toBe(17);
-    expect(initResult.timedEventOrder.length).toBe(14);
-    expect(initResult.playableEventOrder.length).toBe(14);
-    expect(initResult.firstStart).toBe(36000000);
-    expect(initResult.lastEnd).toBe(61800000);
+    expect(initResult.order.length).toBe(4);
+    expect(initResult.flatEntryOrder.length).toBe(14);
+    expect(initResult.timedEventOrder.length).toBe(6);
+    expect(initResult.playableEventOrder.length).toBe(6);
+    expect(initResult.firstStart).toBe(MILLIS_PER_HOUR * 10);
+    expect(initResult.lastEnd).toBe(MILLIS_PER_HOUR * 14);
     expect(initResult.totalDays).toBe(0);
     expect(initResult.totalDelay).toBe(0);
   });
