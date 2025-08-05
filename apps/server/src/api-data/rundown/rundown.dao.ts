@@ -25,7 +25,7 @@ import {
   PatchWithId,
   Rundown,
 } from 'ontime-types';
-import { customFieldLabelToKey, insertAtIndex } from 'ontime-utils';
+import { customFieldLabelToKey, dayInMs, insertAtIndex } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
@@ -723,8 +723,8 @@ export function processRundown(
     // if the event is a block, we process the nested entries
     // the code here is a copy of the processing of top level events
     if (isOntimeBlock(processedEntry)) {
-      let totalBlockDuration = 0;
       let blockStartTime = null;
+      let blockTotalDays = 0;
       let blockEndTime = null;
       let isFirstLinked = false;
       const blockEvents: EntryId[] = [];
@@ -758,11 +758,13 @@ export function processRundown(
 
         // lastEntry is the event with the latest end time
         blockEndTime = processedNestedData.lastEnd;
-        totalBlockDuration += processedNestedEntry.duration;
+        processedEntry.duration = processedNestedData.totalDuration
       }
 
       // update block metadata
-      processedEntry.duration = totalBlockDuration;
+
+      
+        // blockEndTime !== null && blockStartTime !== null ? blockEndTime + blockTotalDays * dayInMs - blockStartTime : 0;
       processedEntry.timeStart = blockStartTime;
       processedEntry.timeEnd = blockEndTime;
       processedEntry.isFirstLinked = isFirstLinked;
