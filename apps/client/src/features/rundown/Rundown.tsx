@@ -489,8 +489,17 @@ export default function Rundown({ data }: RundownProps) {
 
               const isFirst = index === 0;
               const isLast = entryId === order.at(-1);
-              // avoid a group referencing itself as the parent
-              const parentId = rundownMetadata.thisId !== rundownMetadata.groupId ? rundownMetadata.groupId : null;
+
+              /**
+               * We need to provide the parent ID for the QuickAdd components
+               * This should be different depending on whether we are adding before or after an element
+               * - when adding before, we need to avoid a group referencing itself as the parent
+               * - when adding after, we can use the group ID directly to insert at the top of the group
+               */
+
+              const parentIdForBefore =
+                rundownMetadata.thisId !== rundownMetadata.groupId ? rundownMetadata.groupId : null;
+              const parentIdForAfter = rundownMetadata.groupId;
 
               return (
                 <Fragment key={entry.id}>
@@ -501,7 +510,7 @@ export default function Rundown({ data }: RundownProps) {
                    * - if it is not the first entry (the buttons would be there)
                    */}
                   {isEditMode && hasCursor && !isFirst && (
-                    <QuickAddInline previousEventId={rundownMetadata.previousEntryId} parentBlock={parentId} />
+                    <QuickAddInline previousEventId={rundownMetadata.previousEntryId} parentBlock={parentIdForBefore} />
                   )}
                   {isOntimeBlock(entry) ? (
                     <RundownBlock
@@ -547,9 +556,10 @@ export default function Rundown({ data }: RundownProps) {
                    * - edit mode only
                    * - if there is a cursor
                    * - if it is not the last entry (the buttons would be there)
+                   * - if the entry is not the block header
                    */}
                   {isEditMode && hasCursor && !isLast && (
-                    <QuickAddInline previousEventId={entry.id} parentBlock={parentId} />
+                    <QuickAddInline previousEventId={entry.id} parentBlock={parentIdForAfter} />
                   )}
                 </Fragment>
               );
