@@ -100,22 +100,23 @@ export function MetadataTimes() {
 function GroupTimes() {
   const { clock, blockExpectedEnd } = useRuntimePlaybackOverview();
   const { currentBlockId } = useCurrentBlockId();
-  const entry = useEntry(currentBlockId) as OntimeBlock | null;
+  const group = useEntry(currentBlockId) as OntimeBlock | null;
 
-  const plannedGroupEnd = entry && entry.timeStart !== null ? entry.timeStart + entry.duration - clock : null;
+  // the group end time dose not encode any day offsets
+  const plannedGroupEnd = group && group.timeStart !== null ? group.timeStart + group.duration - clock : null;
   const plannedTimeUntilGroupEnd = formattedTime(plannedGroupEnd, 3, TimerType.CountDown);
 
   const expectedGroupEnd = blockExpectedEnd !== null ? blockExpectedEnd - clock : null;
   const expectedTimeUntilGroupEnd = formattedTime(expectedGroupEnd, 3, TimerType.CountDown);
 
-  const groupTitle = entry?.title ?? null;
+  const groupTitle = group?.title ?? null;
 
   return (
     <div className={style.metadataRow}>
       <span className={groupTitle ? style.labelTitle : style.label}>{`${groupTitle ? groupTitle : 'Group'} `}</span>
       <div className={style.labelledElement}>
         <Tooltip text='Time to planned group end' render={<TbFolderPin className={style.icon} />} />
-        <span className={cx([style.time, !entry && style.muted])}>{plannedTimeUntilGroupEnd}</span>
+        <span className={cx([style.time, !group && style.muted])}>{plannedTimeUntilGroupEnd}</span>
       </div>
       <div className={style.labelledElement}>
         <Tooltip text='Time to expected group end' render={<TbFolderStar className={style.icon} />} />
