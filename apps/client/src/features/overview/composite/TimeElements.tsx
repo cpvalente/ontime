@@ -1,6 +1,14 @@
 import { useMemo } from 'react';
-import { TbCalendar, TbCalendarClock, TbCalendarDown, TbCalendarStar, TbFlagDown, TbFlagStar } from 'react-icons/tb';
-import { isOntimeBlock, OntimeBlock, OntimeEvent, TimerPhase, TimerType } from 'ontime-types';
+import {
+  TbCalendarClock,
+  TbCalendarPin,
+  TbCalendarStar,
+  TbFlagPin,
+  TbFlagStar,
+  TbFolderPin,
+  TbFolderStar,
+} from 'react-icons/tb';
+import { OntimeBlock, OntimeEvent, TimerPhase, TimerType } from 'ontime-types';
 import { isPlaybackActive, millisToString } from 'ontime-utils';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
@@ -47,7 +55,7 @@ export function StartTimes() {
       <div className={style.row}>
         <span className={style.label}>End</span>
         <div className={style.labelledElement}>
-          <Tooltip text='Planned end time' render={<TbCalendar className={style.icon} />} />
+          <Tooltip text='Planned end time' render={<TbCalendarPin className={style.icon} />} />
           {maybePlannedDaySpan > 0 ? (
             <Tooltip
               text={`Event spans over ${maybePlannedDaySpan + 1} days`}
