@@ -3,6 +3,7 @@
   font-size: $inner-section-text-size;
   display: flex;
   overflow: hidden;
+  position: relative;
 }
 
 .isOffline {
@@ -34,4 +35,62 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+/** Overview settings */
+.floatingActions {
+  position: absolute;
+  top: 0;
+  right: 0.25rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.5rem;
+
+  opacity: 0;
+}
+
+.overview {
+  &:hover {
+    .floatingActions {
+      opacity: 1;
+    }
+  }
+}
+
+.popover {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.column {
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sectionTitle {
+  text-transform: uppercase;
+}
+
+.indicator {
+  height: 0.5rem;
+  width: 0.5rem;
+  border-radius: 50%;
+  background-color: $muted-gray;
+
+  &.active {
+    background-color: $ui-white;
+  }
+}
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  justify-content: start;
 }

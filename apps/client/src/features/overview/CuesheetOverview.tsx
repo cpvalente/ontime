@@ -1,4 +1,5 @@
 import { memo, PropsWithChildren } from 'react';
+import { useSessionStorage } from '@mantine/hooks';
 
 import { useIsMobileScreen } from '../../common/hooks/useIsMobileScreen';
 
@@ -24,14 +25,27 @@ function CuesheetMobile({ children }: PropsWithChildren) {
 }
 
 function CuesheetDesktop({ children }: PropsWithChildren) {
+  const [overviewSettings] = useSessionStorage({
+    key: 'overviewSettings',
+    defaultValue: {
+      showScheduleTimes: true,
+      showProgress: true,
+      showOverUnder: true,
+      showTimeToGroupEnd: true,
+      showTimeToFlag: true,
+      showTimeNow: true,
+      timeMode: 'all',
+    },
+  });
+
   return (
     <OverviewWrapper navElements={children}>
       <TitleOverview />
-      <StartTimes />
-      <TimerOverview />
-      <OffsetOverview />
-      <MetadataTimes />
-      <ClockOverview />
+      {overviewSettings.showScheduleTimes && <StartTimes />}
+      {overviewSettings.showProgress && <TimerOverview />}
+      {overviewSettings.showOverUnder && <OffsetOverview />}
+      {overviewSettings.showTimeToGroupEnd && <MetadataTimes />}
+      {overviewSettings.showTimeNow && <ClockOverview />}
     </OverviewWrapper>
   );
 }

@@ -114,6 +114,8 @@ function ViewSettings() {
           </Editor.Label>
         </div>
 
+        <Editor.Separator orientation='vertical' />
+
         <div className={style.column}>
           <Editor.Label className={style.sectionTitle}>Table Behaviour</Editor.Label>
           <Editor.Label className={style.option}>
