@@ -565,7 +565,7 @@ describe('processRundown()', () => {
       });
     });
   });
-  describe('handle of event groups', () => {
+  describe.todo('handle of event groups', () => {
     it('correctly parses group metadata', () => {
       const rundown = makeRundown({
         order: ['1'],

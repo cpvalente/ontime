@@ -9,13 +9,14 @@ import {
   clearState,
   getState,
   load,
-  loadBlock,
+  loadBlockFlagAndEnd,
   pause,
   roll,
   start,
   stop,
 } from '../runtimeState.js';
 import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
+import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 
 const mockEvent = {
   type: 'event',
@@ -388,7 +389,9 @@ describe('loadBlock', () => {
       eventNow: rundown.entries[11],
     } as unknown as RuntimeState;
 
-    loadBlock(rundown, state);
+    const metadata = { playableEventOrder: ['0', '11', '3'], flags: ['1'] } as RundownMetadata;
+
+    loadBlockFlagAndEnd(rundown, metadata, 2, state);
 
     expect(state).toMatchObject({
       blockNow: { id: rundown.entries[1].id, startedAt: null },
@@ -413,7 +416,9 @@ describe('loadBlock', () => {
       eventNow: rundown.entries[22],
     } as RuntimeState;
 
-    loadBlock(rundown, state);
+    const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
+
+    loadBlockFlagAndEnd(rundown, metadata, 1, state);
 
     expect(state).toMatchObject({
       blockNow: { id: rundown.entries[2].id, startedAt: null },
@@ -441,7 +446,9 @@ describe('loadBlock', () => {
       eventNow: rundown.entries[0],
     } as RuntimeState;
 
-    loadBlock(rundown, state);
+    const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
+
+    loadBlockFlagAndEnd(rundown, metadata, 1, state);
 
     expect(state).toMatchObject({
       blockNow: null,
@@ -464,7 +471,10 @@ describe('loadBlock', () => {
       eventNow: rundown.entries[2],
     } as RuntimeState;
 
-    loadBlock(rundown, state);
+    const metadata = { playableEventOrder: ['1', '2'], flags: ['1'] } as RundownMetadata;
+
+    loadBlockFlagAndEnd(rundown, metadata, 0, state);
+
     expect(state).toMatchObject({
       blockNow: { id: rundown.entries[0].id, startedAt: 123 },
       eventNow: rundown.entries[2],
@@ -485,7 +495,9 @@ describe('loadBlock', () => {
       eventNow: rundown.entries[0],
     } as RuntimeState;
 
-    loadBlock(rundown, state);
+    const metadata = { playableEventOrder: ['0', '1'], flags: ['1'] } as RundownMetadata;
+
+    loadBlockFlagAndEnd(rundown, metadata, 0, state);
 
     expect(state).toMatchObject({
       blockNow: null,

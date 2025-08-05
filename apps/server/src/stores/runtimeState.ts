@@ -747,7 +747,7 @@ function getExpectedTimes(state = runtimeState) {
   }
 }
 
-function loadBlockFlagAndEnd(
+export function loadBlockFlagAndEnd(
   rundown: Rundown,
   metadata: RundownMetadata,
   currentIndex: MaybeNumber,
