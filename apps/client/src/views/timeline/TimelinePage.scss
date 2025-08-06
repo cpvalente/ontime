@@ -84,6 +84,7 @@
 
   .section-title__label {
     text-transform: uppercase;
+    color: var(--label-color-override, $viewer-label-color);
   }
 
   .section-title__status {
