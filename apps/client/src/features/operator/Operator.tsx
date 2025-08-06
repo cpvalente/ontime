@@ -35,7 +35,7 @@ export default function Operator() {
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
   const { selectedEventId } = useSelectedEventId();
-  const { subscribe, mainSource, secondarySource, shouldEdit, hidePast } = useOperatorOptions();
+  const { subscribe, mainSource, secondarySource, shouldEdit, hidePast, showStart } = useOperatorOptions();
   const { data: settings } = useSettings();
 
   const [showEditPrompt, setShowEditPrompt] = useState(false);
@@ -160,6 +160,7 @@ export default function Operator() {
                 isSelected={isSelected}
                 isPast={isPast}
                 selectedRef={isSelected ? selectedRef : undefined}
+                showStart={showStart}
                 subscribed={subscribedData}
                 totalGap={totalGap}
                 onLongPress={canEdit ? handleEdit : () => undefined}
@@ -208,6 +209,7 @@ export default function Operator() {
                       isSelected={isSelected}
                       isPast={isPast}
                       selectedRef={isSelected ? selectedRef : undefined}
+                      showStart={showStart}
                       subscribed={subscribedData}
                       totalGap={totalGap}
                       onLongPress={canEdit ? handleEdit : () => undefined}
