@@ -1,11 +1,12 @@
 import {
   CurrentBlockState,
   EntryMetaData,
-  isOntimeBlock,
   isOntimeEvent,
   MaybeNumber,
   MaybeString,
   OffsetMode,
+  OntimeBlock,
+  OntimeEvent,
   PlayableEvent,
   Playback,
   Rundown,
@@ -14,24 +15,24 @@ import {
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import { calculateDuration, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
+import {
+  calculateDuration,
+  checkIsNow,
+  dayInMs,
+  getExpectedStart,
+  getLastEventNormal,
+  isPlaybackActive,
+} from 'ontime-utils';
 
 import { timeNow } from '../utils/time.js';
 import type { RestorePoint } from '../services/RestoreService.js';
-import {
-  getCurrent,
-  getExpectedBlockFinish,
-  getExpectedEnd,
-  getExpectedFinish,
-  getExpectedFlagStart,
-  getRuntimeOffset,
-  getTimerPhase,
-} from '../services/timerUtils.js';
+import { getCurrent, getExpectedFinish, getRuntimeOffset, getTimerPhase } from '../services/timerUtils.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
-import { getCurrentRundown } from '../api-data/rundown/rundown.dao.js';
+
+type ExpectedMetadata = { event: OntimeEvent; accumulatedGap: number; isLinkedToLoaded: boolean } | null;
 
 export type RuntimeState = {
   clock: number; // realtime clock
@@ -51,6 +52,9 @@ export type RuntimeState = {
   _rundown: {
     totalDelay: number; // this value comes from rundown service
   };
+  _block: ExpectedMetadata;
+  _flag: ExpectedMetadata;
+  _end: ExpectedMetadata;
 };
 
 const runtimeState: RuntimeState = {
@@ -70,6 +74,9 @@ const runtimeState: RuntimeState = {
   _rundown: {
     totalDelay: 0,
   },
+  _block: null,
+  _flag: null,
+  _end: null,
 };
 
 export function getState(): Readonly<RuntimeState> {
@@ -97,6 +104,7 @@ export function clearEventData() {
   runtimeState.runtime.expectedEnd = null;
   runtimeState.runtime.selectedEventIndex = null;
 
+  //TODO: is there any ExpectedMetadata stuff we need to clear here
   if (runtimeState.blockNow) runtimeState.blockNow.expectedEnd = null;
 
   runtimeState.timer.playback = Playback.Stop;
@@ -116,12 +124,16 @@ export function clearState() {
 
   runtimeState.blockNow = null;
   runtimeState.blockNext = null;
+  runtimeState._block = null;
+
   runtimeState.nextFlag = null;
+  runtimeState._flag = null;
 
   runtimeState.runtime.offsetAbs = 0;
   runtimeState.runtime.offsetRel = 0;
   runtimeState.runtime.actualStart = null;
   runtimeState.runtime.expectedEnd = null;
+  runtimeState._end = null;
   runtimeState.runtime.selectedEventIndex = null;
 
   runtimeState.timer.playback = Playback.Stop;
@@ -172,7 +184,7 @@ export function updateRundownData(rundownData: RundownData) {
   runtimeState.runtime.plannedStart = rundownData.firstStart;
   runtimeState.runtime.plannedEnd =
     rundownData.firstStart === null ? null : rundownData.firstStart + rundownData.totalDuration;
-  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
+  getExpectedTimes();
 }
 
 /**
@@ -200,8 +212,7 @@ export function load(
   // load events in memory along with their data
   loadNow(rundown, metadata, eventIndex);
   loadNext(rundown, metadata, eventIndex);
-  loadBlock(rundown);
-  loadNextFlag(rundown, metadata, eventIndex);
+  loadBlockFlagAndEnd(rundown, metadata, eventIndex);
 
   // update state
   runtimeState.timer.playback = Playback.Armed;
@@ -218,7 +229,7 @@ export function load(
       const { offsetAbs, offsetRel } = getRuntimeOffset(runtimeState);
       runtimeState.runtime.offsetAbs = offsetAbs;
       runtimeState.runtime.offsetRel = offsetRel;
-      runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
+      getExpectedTimes();
     }
     if (typeof initialData.blockStartAt === 'number' && runtimeState.blockNow) {
       runtimeState.blockNow.startedAt = initialData.blockStartAt;
@@ -342,8 +353,7 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   loadNow(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   loadNext(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   updateLoaded(runtimeState.eventNow ?? undefined);
-  loadBlock(rundown);
-  loadNextFlag(rundown, metadata, eventNowIndex);
+  loadBlockFlagAndEnd(rundown, metadata, eventNowIndex);
 }
 
 export function start(state: RuntimeState = runtimeState): boolean {
@@ -398,7 +408,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
     }
   }
 
-  state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offsetAbs;
+  getExpectedTimes();
   return true;
 }
 
@@ -461,7 +471,7 @@ export function addTime(amount: number) {
   const { offsetAbs, offsetRel } = getRuntimeOffset(runtimeState);
   runtimeState.runtime.offsetAbs = offsetAbs;
   runtimeState.runtime.offsetRel = offsetRel;
-  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
+  getExpectedTimes();
 
   return true;
 }
@@ -508,7 +518,7 @@ export function update(): UpdateResult {
   const { offsetAbs, offsetRel } = getRuntimeOffset(runtimeState);
   runtimeState.runtime.offsetAbs = offsetAbs;
   runtimeState.runtime.offsetRel = offsetRel;
-  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
+  // runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 
   const finishedNow =
     Boolean(runtimeState._timer.forceFinish) ||
@@ -521,15 +531,7 @@ export function update(): UpdateResult {
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
   }
 
-  if (runtimeState.blockNow) {
-    const expectedBlockFinish = getExpectedBlockFinish(runtimeState, getCurrentRundown()); //TODO: this in pulling in rundown by it self, we are tying not to do that in this file
-    runtimeState.blockNow.expectedEnd = expectedBlockFinish;
-  }
-
-  if (runtimeState.nextFlag) {
-    const expectedFlagStart = getExpectedFlagStart(runtimeState, getCurrentRundown()); //TODO: this in pulling in rundown by it self, we are tying not to do that in this file
-    runtimeState.nextFlag.expectedStart = expectedFlagStart;
-  }
+  getExpectedTimes();
 
   return { hasTimerFinished: finishedNow, hasSecondaryTimerFinished: false };
 
@@ -638,7 +640,7 @@ export function roll(
   // load events in memory along with their data
   loadNow(rundown, metadata, index);
   loadNext(rundown, metadata, index);
-  loadBlock(rundown);
+  loadBlockFlagAndEnd(rundown, metadata, index);
 
   // update roll state
   runtimeState.timer.playback = Playback.Roll;
@@ -696,72 +698,152 @@ export function roll(
 }
 
 /**
- * handle block loading, not for use outside of runtimeState
+ * calculates and sets values directly in state
+ * - runtime.expectedEnd
+ * - blockNow.expectedEnd
+ * - nextFlag.expectedStart
  */
-export function loadBlock(rundown: Rundown, state = runtimeState) {
-  // we need a loaded event to have a block
-  if (state.eventNow === null) {
-    state.blockNow = null;
-    state.blockNext = null;
-    return;
+function getExpectedTimes(state = runtimeState) {
+  const { offsetMode, offsetAbs, offsetRel, plannedStart, actualStart } = state.runtime;
+  const { eventNow } = state;
+
+  if (!eventNow) return;
+
+  state.runtime.expectedEnd = null;
+  if (state.blockNow) {
+    state.blockNow.expectedEnd = null;
+    const { _block } = state;
+    if (state.blockNow.startedAt !== null && _block !== null) {
+      const { event, accumulatedGap, isLinkedToLoaded } = _block;
+      const expectedStart = getExpectedStart(event, {
+        currentDay: eventNow.dayOffset,
+        totalGap: accumulatedGap,
+        isLinkedToLoaded,
+        offsetMode,
+        offset: offsetMode === OffsetMode.Absolute ? offsetAbs : offsetRel,
+        plannedStart,
+        actualStart,
+      });
+      state.blockNow.expectedEnd = expectedStart + event.duration;
+    }
   }
+
+  if (state.nextFlag) {
+    state.nextFlag.expectedStart = null;
+    const { _flag } = state;
+    if (_flag) {
+      const { event, accumulatedGap, isLinkedToLoaded } = _flag;
+      const expectedStart = getExpectedStart(event, {
+        currentDay: eventNow.dayOffset,
+        totalGap: accumulatedGap,
+        isLinkedToLoaded,
+        offsetMode,
+        offset: offsetMode === OffsetMode.Absolute ? offsetAbs : offsetRel,
+        plannedStart,
+        actualStart,
+      });
+      state.nextFlag.expectedStart = expectedStart;
+    }
+  }
+
+  if (state._end) {
+    const { event, accumulatedGap, isLinkedToLoaded } = state._end;
+    const expectedStart = getExpectedStart(event, {
+      currentDay: eventNow.dayOffset,
+      totalGap: accumulatedGap,
+      isLinkedToLoaded,
+      offsetMode,
+      offset: offsetMode === OffsetMode.Absolute ? offsetAbs : offsetRel,
+      plannedStart,
+      actualStart,
+    });
+    state.runtime.expectedEnd = expectedStart + event.duration;
+  } else {
+    state.runtime.expectedEnd = null;
+  }
+}
+
+export function loadBlockFlagAndEnd(
+  rundown: Rundown,
+  metadata: RundownMetadata,
+  currentIndex: MaybeNumber,
+  state = runtimeState,
+) {
+  if (currentIndex === null) return resetMetaData();
+  if (state.eventNow === null) return resetMetaData();
 
   const currentBlockId = state.eventNow.parent;
+  const flagsPresent = metadata.flags.length !== 0;
 
-  // look for potential next block
-  let foundEventNow = false;
-  for (const id of rundown.order) {
-    if (foundEventNow && isOntimeBlock(rundown.entries[id])) {
-      state.blockNext = id; // the id is set here, the start time is set in other placed that handel starting events
-      break;
-    }
-    if (id === state.eventNow.id) {
-      foundEventNow = true;
-      continue;
+  const { playableEventOrder } = metadata;
+  const { entries } = rundown;
+
+  const orderInBlock = currentBlockId ? (entries[currentBlockId] as OntimeBlock).entries : null;
+  const lastEventInGroup = orderInBlock ? getLastEventNormal(rundown.entries, orderInBlock).lastEvent : null;
+
+  // if we don't have a any flags in the rundown then no need to look for it
+  let foundFlag = !flagsPresent;
+  let foundNextGroup = false;
+  // if we don't have a last event for the group there is no need to find its end time
+  let foundGroupEnd = lastEventInGroup === null;
+
+  let accumulatedGap = 0;
+  let isLinkedToLoaded = true;
+
+  for (let idx = currentIndex; idx < playableEventOrder.length; idx++) {
+    const entry = entries[playableEventOrder[idx]];
+
+    if (isOntimeEvent(entry)) {
+      if (idx !== currentIndex) {
+        // we only accumulate data after the loaded event
+        accumulatedGap += entry.gap;
+        isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
+
+        // and the loaded event is not allowed to be the next flag
+        if (!foundFlag && metadata.flags.includes(entry.id)) {
+          foundFlag = true;
+          state.nextFlag = { id: entry.id, actualStart: null, expectedStart: null, expectedEnd: null };
+          state._flag = { event: entry, isLinkedToLoaded, accumulatedGap };
+        }
+      }
+
+      if (!foundGroupEnd && entry.id === lastEventInGroup?.id) {
+        foundGroupEnd = true;
+        state._block = { event: lastEventInGroup, isLinkedToLoaded, accumulatedGap };
+      }
+
+      if (!foundNextGroup && entry.parent !== currentBlockId) {
+        foundNextGroup = true;
+        state.blockNext = entry.parent;
+      }
     }
   }
 
-  // not inside a block
+  const lastID = playableEventOrder.at(-1);
+  const lastEvent = lastID ? (entries[lastID] as OntimeEvent) : null;
+  if (lastEvent) {
+    state._end = { event: lastEvent, isLinkedToLoaded, accumulatedGap };
+  }
+
+  if (!foundFlag) state.nextFlag = null;
+
   if (currentBlockId === null) {
     state.blockNow = null;
-    return;
-  }
-
-  //we went into a new block - and it is different from the one we might have come from
-  if ((state.blockNow != null && state.blockNow.id != currentBlockId) || state.blockNow == null) {
-    state.blockNow = { id: currentBlockId, startedAt: null, expectedEnd: null }; // the id is set here, the start time is set when starting events
+  } else if ((state.blockNow != null && state.blockNow.id != currentBlockId) || state.blockNow == null) {
+    // we went into a new block - and it is different from the one we might have come from
+    // the id is set here, the start time is set when starting events
+    state.blockNow = { id: currentBlockId, startedAt: null, expectedEnd: null };
   }
 }
 
-/**
- * find and load the next flag from the currently loaded event
- */
-export function loadNextFlag(rundown: Rundown, metadata: RundownMetadata, currentIndex: number, state = runtimeState) {
-  runtimeState.nextFlag = null;
-
-  if (metadata.flags.length === 0) {
-    return;
-  }
-
-  // we are in the last event
-  if (currentIndex + 1 >= metadata.timedEventOrder.length) {
-    return;
-  }
-
-  for (let i = currentIndex + 1; i < metadata.timedEventOrder.length; i++) {
-    const entryId = metadata.timedEventOrder[i];
-    if (metadata.flags.includes(entryId)) {
-      const event = rundown.entries[entryId];
-      if (!event || !isOntimeEvent(event)) {
-        continue;
-      }
-      state.nextFlag = { id: event.id, actualStart: null, expectedStart: null, expectedEnd: null };
-      return;
-    }
-  }
-
-  return null;
-}
+const resetMetaData = (state = runtimeState) => {
+  state.blockNow = null;
+  state.blockNext = null;
+  state._block = null;
+  state.nextFlag = null;
+  state._flag = null;
+  state._end = null;
+};
 
 export function setOffsetMode(mode: OffsetMode) {
   runtimeState.runtime.offsetMode = mode;

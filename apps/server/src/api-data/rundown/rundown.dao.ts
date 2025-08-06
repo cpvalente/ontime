@@ -25,7 +25,7 @@ import {
   PatchWithId,
   Rundown,
 } from 'ontime-types';
-import { customFieldLabelToKey, dayInMs, insertAtIndex } from 'ontime-utils';
+import { customFieldLabelToKey, insertAtIndex } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
@@ -724,10 +724,10 @@ export function processRundown(
     // the code here is a copy of the processing of top level events
     if (isOntimeBlock(processedEntry)) {
       let blockStartTime = null;
-      let blockTotalDays = 0;
       let blockEndTime = null;
       let isFirstLinked = false;
       const blockEvents: EntryId[] = [];
+      processedEntry.duration = 0;
 
       // check if the block contains nested entries
       for (let j = 0; j < processedEntry.entries.length; j++) {
@@ -739,10 +739,7 @@ export function processRundown(
         }
 
         blockEvents.push(nestedEntry.id);
-        const { processedData: processedNestedData, processedEntry: processedNestedEntry } = process(
-          nestedEntry,
-          processedEntry.id,
-        );
+        const { processedEntry: processedNestedEntry } = process(nestedEntry, processedEntry.id);
 
         // we dont extract metadata of skipped events,
         // if this is not a playable event there is nothing else to do
@@ -757,14 +754,14 @@ export function processRundown(
         }
 
         // lastEntry is the event with the latest end time
-        blockEndTime = processedNestedData.lastEnd;
-        processedEntry.duration = processedNestedData.totalDuration
+        blockEndTime = processedNestedEntry.timeEnd;
+        if (j > 0) {
+          processedEntry.duration += processedNestedEntry.gap;
+        }
+        processedEntry.duration = processedEntry.duration + processedNestedEntry.duration;
       }
 
       // update block metadata
-
-      
-        // blockEndTime !== null && blockStartTime !== null ? blockEndTime + blockTotalDays * dayInMs - blockStartTime : 0;
       processedEntry.timeStart = blockStartTime;
       processedEntry.timeEnd = blockEndTime;
       processedEntry.isFirstLinked = isFirstLinked;
