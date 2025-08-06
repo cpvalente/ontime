@@ -9,13 +9,22 @@
 
   display: grid;
   align-items: center;
-  grid-template-columns: 1.25rem 1fr auto;
   grid-template-rows: auto auto auto;
   column-gap: 0.5rem;
+  
+  grid-template-columns: 1.25rem 1fr auto;
   grid-template-areas:
     'binder main      schedule'
     'binder secondary running'
     'binder fields    fields';
+
+  &.showStart {
+    grid-template-columns: auto 1.25rem 1fr auto;
+    grid-template-areas:
+      'start binder main      schedule'
+      'start binder secondary running'
+      'start binder fields    fields';
+  }
 
   &.subscribed {
     background-color: $gray-1250;
@@ -51,6 +60,14 @@
     rotate: -90deg;
     letter-spacing: 0.5px;
   }
+}
+
+.plannedStart {
+  grid-area: start;
+  padding-inline: 0.25rem;
+  font-size: 1.5rem;
+  color: $ui-white;
+  align-self: flex-start;
 }
 
 .mainField {

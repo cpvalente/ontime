@@ -1,6 +1,6 @@
 import { memo, RefObject, SyntheticEvent } from 'react';
 import { useLongPress } from '@mantine/hooks';
-import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString } from 'ontime-utils';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
@@ -24,6 +24,7 @@ interface OperatorEventProps {
   isSelected: boolean;
   isPast: boolean;
   selectedRef?: RefObject<HTMLDivElement | null>;
+  showStart: boolean;
   subscribed: Subscribed;
   totalGap: number;
   onLongPress: (event: EditEvent) => void;
@@ -44,6 +45,7 @@ function OperatorEvent({
   isSelected,
   isPast,
   selectedRef,
+  showStart,
   subscribed,
   totalGap,
   onLongPress,
@@ -58,19 +60,22 @@ function OperatorEvent({
       onLongPress({ id, cue, subscriptions: subscribed });
     }
   };
+  console.log('--->', showStart);
 
   const mouseHandlers = useLongPress(handleLongPress);
   const cueColours = colour && getAccessibleColour(colour);
 
   const operatorClasses = cx([
     style.event,
-    isSelected ? style.running : null,
-    subscribed ? style.subscribed : null,
-    isPast ? style.past : null,
+    showStart && style.showStart,
+    isSelected && style.running,
+    subscribed && style.subscribed,
+    isPast && style.past,
   ]);
 
   return (
     <div className={operatorClasses} ref={selectedRef} onContextMenu={handleLongPress} {...mouseHandlers}>
+      {showStart && <div className={style.plannedStart}>{millisToString(timeStart)}</div>}
       <div className={style.binder} style={{ ...cueColours }}>
         <span className={style.cue}>{cue}</span>
       </div>

@@ -67,6 +67,13 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
           type: 'boolean',
           defaultValue: false,
         },
+        {
+          id: 'showStart',
+          title: 'Show planned start',
+          description: 'Whether to prepend the planned start to the items',
+          type: 'boolean',
+          defaultValue: false,
+        },
       ],
     },
   ];
@@ -78,6 +85,7 @@ type OperatorOptions = {
   subscribe: string[];
   shouldEdit: boolean;
   hidePast: boolean;
+  showStart: boolean;
 };
 
 /**
@@ -92,6 +100,7 @@ function getOptionsFromParams(searchParams: URLSearchParams): OperatorOptions {
     subscribe: searchParams.getAll('subscribe'),
     shouldEdit: isStringBoolean(searchParams.get('shouldEdit')),
     hidePast: isStringBoolean(searchParams.get('hidePast')),
+    showStart: isStringBoolean(searchParams.get('showStart')),
   };
 }
 
