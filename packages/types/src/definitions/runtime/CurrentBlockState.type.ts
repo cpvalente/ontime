@@ -11,3 +11,10 @@ export type UpcomingEntry = {
   id: EntryId;
   start: number;
 };
+
+export type EntryMetaData = {
+  id: EntryId;
+  actualStart: MaybeNumber;
+  expectedStart: MaybeNumber;
+  expectedEnd: MaybeNumber;
+};

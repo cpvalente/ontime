@@ -1,7 +1,7 @@
 import { MaybeNumber, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
 import {
-  calculateTimeUntilStart,
   formatFromMillis,
+  getExpectedStart,
   MILLIS_PER_HOUR,
   MILLIS_PER_MINUTE,
   MILLIS_PER_SECOND,
@@ -9,7 +9,7 @@ import {
 
 import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
 import { APP_SETTINGS } from '../api/constants';
-import { useTimeUntilData } from '../hooks/useSocket';
+import { useExpectedStartData } from '../hooks/useSocket';
 import { ontimeQueryClient } from '../queryClient';
 
 /**
@@ -133,18 +133,24 @@ export function formatDuration(duration: number, hideSeconds = true): string {
 }
 
 /**
- *
  * @param totalGap accumulated gap from the current event
  * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
  * @returns
  */
-export function useTimeUntilStart(
+export function useTimeUntilExpectedStart(
   // typed like this to make it very clear what the data is
-  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> & {
+  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> | null,
+  state: {
     totalGap: number;
     isLinkedToLoaded: boolean;
   },
 ): number {
-  const { offset, clock, currentDay, offsetMode, actualStart, plannedStart } = useTimeUntilData();
-  return calculateTimeUntilStart({ ...data, currentDay, clock, offset, offsetMode, actualStart, plannedStart });
+  const { offset, currentDay, offsetMode, actualStart, plannedStart, clock } = useExpectedStartData();
+  if (event === null) return 0;
+
+  const expectedStart = getExpectedStart(
+    { ...event },
+    { ...state, currentDay, offset, offsetMode, actualStart, plannedStart },
+  );
+  return expectedStart - clock;
 }

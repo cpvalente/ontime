@@ -6,7 +6,7 @@ import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { usePlayback } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
 import { cx } from '../../../../common/utils/styleUtils';
-import { formatDuration, useTimeUntilStart } from '../../../../common/utils/time';
+import { formatDuration, useTimeUntilExpectedStart } from '../../../../common/utils/time';
 
 import style from './RundownEventChip.module.scss';
 
@@ -76,7 +76,7 @@ interface EventUntilProps {
 function EventUntil(props: EventUntilProps) {
   const { timeStart, delay, dayOffset, totalGap, isLinkedToLoaded } = props;
 
-  const timeUntil = useTimeUntilStart({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded });
+  const timeUntil = useTimeUntilExpectedStart({ timeStart, delay, dayOffset }, { totalGap, isLinkedToLoaded });
   const isDue = timeUntil < MILLIS_PER_SECOND;
 
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;

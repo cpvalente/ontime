@@ -30,6 +30,7 @@ interface RundownBlockProps {
   onCollapse: (collapsed: boolean, groupId: EntryId) => void;
 }
 
+//TODO: the block should maybe include a multiple day indicator
 export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }: RundownBlockProps) {
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const { clone, ungroup, deleteEntry } = useEntryActions();

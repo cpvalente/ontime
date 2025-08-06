@@ -1,66 +1,11 @@
-import { isOntimeEvent, MaybeNumber, OffsetMode, OntimeBlock, Rundown, TimerPhase } from 'ontime-types';
-import { calculateTimeUntilStart, dayInMs, getLastEventNormal, isPlaybackActive } from 'ontime-utils';
+import { MaybeNumber, TimerPhase } from 'ontime-types';
+import { dayInMs, isPlaybackActive } from 'ontime-utils';
 import type { RuntimeState } from '../stores/runtimeState.js';
-import { shouldCrashDev } from '../utils/development.js';
 
 /**
  * handle events that span over midnight
  */
 export const normaliseEndTime = (start: number, end: number) => (end < start ? end + dayInMs : end);
-
-/**
- * Calculates the expected time of the group to end.
- * Should only be called if a block is running
- * TODO: take a look at how it handles relative offset mode
- */
-export function getExpectedBlockFinish(state: RuntimeState, rundown: Rundown): MaybeNumber {
-  const { blockNow, eventNow, timer, clock } = state;
-
-  if (blockNow === null) return null;
-  // if the group doesn't have a start time there is no end time either
-  if (blockNow.startedAt === null) return null;
-  if (eventNow === null) return null;
-  if (timer.current === null) return null;
-
-  const { entries } = rundown;
-  const orderInBlock = (entries[blockNow.id] as OntimeBlock).entries;
-
-  const indexInBlock = orderInBlock.findIndex((id) => eventNow.id === id);
-  shouldCrashDev(indexInBlock < 0, 'Running event is not in current block');
-
-  if (indexInBlock === orderInBlock.length - 1) return timer.expectedFinish;
-
-  let totalGap = 0;
-  let isLinkedToLoaded = true;
-
-  for (let i = indexInBlock + 1; i < orderInBlock.length; i++) {
-    const entry = entries[orderInBlock[i]];
-    if (isOntimeEvent(entry)) {
-      totalGap += entry.gap;
-      isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
-    }
-  }
-  const { lastEvent } = getLastEventNormal(rundown.entries, orderInBlock);
-  if (!lastEvent) return null;
-
-  const { offsetMode, offsetAbs, offsetRel, plannedStart, actualStart } = state.runtime;
-
-  const timeUntilLastEvent = calculateTimeUntilStart({
-    timeStart: lastEvent.timeStart,
-    dayOffset: lastEvent.dayOffset,
-    delay: lastEvent.delay,
-    currentDay: eventNow.dayOffset,
-    totalGap,
-    isLinkedToLoaded,
-    clock,
-    offsetMode,
-    offset: offsetMode === OffsetMode.Absolute ? offsetAbs : offsetRel,
-    plannedStart,
-    actualStart,
-  });
-
-  return clock + timeUntilLastEvent + lastEvent.duration;
-}
 
 /**
  * Calculates expected finish time of a running timer
@@ -219,17 +164,6 @@ export function getRuntimeOffset(state: RuntimeState): { offsetAbs: number; offs
   }
 
   return { offsetAbs: offset, offsetRel };
-}
-
-/**
- * Calculates the expected end of the rundown
- */
-export function getExpectedEnd(state: RuntimeState): MaybeNumber {
-  // there is no expected end if we havent started
-  if (state.runtime.actualStart === null || state.runtime.plannedEnd === null) {
-    return null;
-  }
-  return state.runtime.plannedEnd - state.runtime.offsetAbs + state._rundown.totalDelay;
 }
 
 /**

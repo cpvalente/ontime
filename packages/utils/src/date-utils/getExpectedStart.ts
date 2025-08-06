@@ -4,6 +4,7 @@ import { OffsetMode } from 'ontime-types';
 import { dayInMs } from './conversionUtils.js';
 
 /**
+ * @param event the event that we are counting to
  * @param currentDay the day offset of the currently running event
  * @param totalGap accumulated gap from the current event
  * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
@@ -11,31 +12,20 @@ import { dayInMs } from './conversionUtils.js';
  * @param offset
  * @returns
  */
-export function calculateTimeUntilStart(
-  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> & {
+export function getExpectedStart(
+  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'>,
+  state: {
     currentDay: number;
     totalGap: number;
     isLinkedToLoaded: boolean;
-    clock: number;
     offset: number;
     offsetMode: OffsetMode;
     actualStart: MaybeNumber;
     plannedStart: MaybeNumber;
   },
 ): number {
-  const {
-    timeStart,
-    dayOffset,
-    currentDay,
-    totalGap,
-    isLinkedToLoaded,
-    clock,
-    offset,
-    delay,
-    offsetMode,
-    actualStart,
-    plannedStart,
-  } = data;
+  const { timeStart, dayOffset, delay } = event;
+  const { currentDay, totalGap, isLinkedToLoaded, offset, offsetMode, actualStart, plannedStart } = state;
 
   //How many days from the currently running event to this one
   const relativeDayOffset = dayOffset - currentDay;
@@ -51,22 +41,22 @@ export function calculateTimeUntilStart(
     relativeStartOffset = (actualStart ?? 0) - (plannedStart ?? 0);
   }
 
-  const scheduledTimeUntil = normalisedTimeStart - clock + relativeStartOffset;
+  const scheduledStartTime = normalisedTimeStart + relativeStartOffset;
 
-  const offsetTimeUntil = scheduledTimeUntil - offset;
+  const offsetStartTime = scheduledStartTime - offset;
 
   if (isLinkedToLoaded) {
     //if we are directly linked back to the loaded event we just follow the offset
-    return offsetTimeUntil;
+    return offsetStartTime;
   }
 
   const gapsCanCompensateForOffset = totalGap + offset >= 0;
   if (gapsCanCompensateForOffset) {
     // if we are ahead of schedule or the gap can compensate for the amount we are behind then expect to start at the scheduled time
-    return scheduledTimeUntil;
+    return scheduledStartTime;
   }
 
   // otherwise consume as much of the offset as possible with the gap
-  const offsetTimeUntilBufferedByGaps = offsetTimeUntil - totalGap;
-  return offsetTimeUntilBufferedByGaps;
+  const offsetStartTimeBufferedByGaps = offsetStartTime - totalGap;
+  return offsetStartTimeBufferedByGaps;
 }

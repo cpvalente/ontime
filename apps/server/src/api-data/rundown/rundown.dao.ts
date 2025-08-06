@@ -723,11 +723,11 @@ export function processRundown(
     // if the event is a block, we process the nested entries
     // the code here is a copy of the processing of top level events
     if (isOntimeBlock(processedEntry)) {
-      let totalBlockDuration = 0;
       let blockStartTime = null;
       let blockEndTime = null;
       let isFirstLinked = false;
       const blockEvents: EntryId[] = [];
+      processedEntry.duration = 0;
 
       // check if the block contains nested entries
       for (let j = 0; j < processedEntry.entries.length; j++) {
@@ -739,10 +739,7 @@ export function processRundown(
         }
 
         blockEvents.push(nestedEntry.id);
-        const { processedData: processedNestedData, processedEntry: processedNestedEntry } = process(
-          nestedEntry,
-          processedEntry.id,
-        );
+        const { processedEntry: processedNestedEntry } = process(nestedEntry, processedEntry.id);
 
         // we dont extract metadata of skipped events,
         // if this is not a playable event there is nothing else to do
@@ -757,12 +754,14 @@ export function processRundown(
         }
 
         // lastEntry is the event with the latest end time
-        blockEndTime = processedNestedData.lastEnd;
-        totalBlockDuration += processedNestedEntry.duration;
+        blockEndTime = processedNestedEntry.timeEnd;
+        if (j > 0) {
+          processedEntry.duration += processedNestedEntry.gap;
+        }
+        processedEntry.duration = processedEntry.duration + processedNestedEntry.duration;
       }
 
       // update block metadata
-      processedEntry.duration = totalBlockDuration;
       processedEntry.timeStart = blockStartTime;
       processedEntry.timeEnd = blockEndTime;
       processedEntry.isFirstLinked = isFirstLinked;

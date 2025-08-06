@@ -40,6 +40,9 @@ const baseState: RuntimeState = {
   _rundown: {
     totalDelay: 0,
   },
+  _block: null,
+  _end: null,
+  _flag: null,
 };
 
 export function makeRuntimeStateData(patch?: Partial<RuntimeState>): RuntimeState {
