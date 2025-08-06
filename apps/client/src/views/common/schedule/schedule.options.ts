@@ -24,9 +24,9 @@ export const scheduleOptions: ViewOption = {
       defaultValue: 10,
     },
     {
-      id: 'showProjected',
-      title: 'Show projected time',
-      description: 'Whether scheduled times should account for runtime offset.',
+      id: 'showExpected',
+      title: 'Show expected time',
+      description: 'Whether the times shown should account for the runtime offset.',
       type: 'boolean',
       defaultValue: false,
     },
@@ -36,14 +36,14 @@ export const scheduleOptions: ViewOption = {
 type ScheduleOptions = {
   cycleInterval: number;
   stopCycle: boolean;
-  showProjected: boolean;
+  showExpected: boolean;
 };
 
 function getScheduleOptionsFromParams(searchParams: URLSearchParams): ScheduleOptions {
   return {
     cycleInterval: Number(searchParams.get('cycleInterval')) || 10,
     stopCycle: isStringBoolean(searchParams.get('stopCycle')),
-    showProjected: isStringBoolean(searchParams.get('showProjected')),
+    showExpected: isStringBoolean(searchParams.get('showExpected')),
   };
 }
 

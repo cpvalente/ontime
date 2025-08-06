@@ -36,9 +36,9 @@ export const getCountdownOptions = (
       collapsible: true,
       options: [
         {
-          id: 'showProjected',
-          title: 'Show projected time',
-          description: 'Whether scheduled times should account for runtime offset',
+          id: 'showExpected',
+          title: 'Show expected time',
+          description: 'Whether the times shown should account for the runtime offset.',
           type: 'boolean',
           defaultValue: false,
         },
@@ -62,7 +62,7 @@ export const getCountdownOptions = (
 type CountdownOptions = {
   subscriptions: EntryId[];
   secondarySource: keyof OntimeEvent | null;
-  showProjected: boolean;
+  showExpected: boolean;
 };
 
 /**
@@ -74,7 +74,7 @@ function getOptionsFromParams(searchParams: URLSearchParams): CountdownOptions {
   return {
     subscriptions: searchParams.getAll('sub') as EntryId[],
     secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
-    showProjected: isStringBoolean(searchParams.get('showProjected')),
+    showExpected: isStringBoolean(searchParams.get('showExpected')),
   };
 }
 

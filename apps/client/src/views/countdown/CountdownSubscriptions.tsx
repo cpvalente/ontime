@@ -33,7 +33,7 @@ export default function CountdownSubscriptions({
   selectedId,
   goToEditMode,
 }: CountdownSubscriptionsProps) {
-  const { secondarySource, showProjected } = useCountdownOptions();
+  const { secondarySource, showExpected } = useCountdownOptions();
   const showFab = useFadeOutOnInactivity(true);
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
@@ -97,8 +97,8 @@ export default function CountdownSubscriptions({
           <div key={event.id} ref={isLive ? selectedRef : undefined} className={cx(['sub', isLive && 'sub--live'])}>
             <div className='sub__binder' style={{ '--user-color': event.colour }} />
             <div className={cx(['sub__schedule', event.delay > 0 && 'sub__schedule--delayed'])}>
-              {showProjected ? (
-                <ProjectedSchedule timeStart={event.timeStart} timeEnd={event.timeEnd} delay={event.delay} />
+              {showExpected ? (
+                <ExpectedSchedule timeStart={event.timeStart} timeEnd={event.timeEnd} delay={event.delay} />
               ) : (
                 <>
                   <ClockTime value={event.timeStart + event.delay} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
@@ -123,30 +123,30 @@ export default function CountdownSubscriptions({
   );
 }
 
-interface ProjectedScheduleProps {
+interface ExpectedScheduleProps {
   timeStart: number;
   timeEnd: number;
   delay: number;
 }
-function ProjectedSchedule(props: ProjectedScheduleProps) {
+function ExpectedSchedule(props: ExpectedScheduleProps) {
   const { timeStart, timeEnd, delay } = props;
 
   const { offset } = useRuntimeOffset();
 
   // offset is negative if we are ahead
-  const projectedOffset = offset - delay;
-  const projectState = getOffsetState(projectedOffset);
+  const expectedOffset = offset - delay;
+  const expectedState = getOffsetState(expectedOffset);
 
   return (
     <>
       <ClockTime
-        value={timeStart - projectedOffset}
-        className={`sub__schedule--${projectState}`}
+        value={timeStart - expectedOffset}
+        className={`sub__schedule--${expectedState}`}
         preferredFormat12='h:mm'
         preferredFormat24='HH:mm'
       />
       →
-      <ClockTime value={timeEnd - projectedOffset} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
+      <ClockTime value={timeEnd - expectedOffset} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
     </>
   );
 }
@@ -161,7 +161,7 @@ function SubscriptionStatus({ time, event, selectedId }: SubscriptionStatusProps
   const { getLocalizedString } = useTranslation();
   const { currentDay } = useCurrentDay();
   const { offset } = useRuntimeOffset();
-  const { showProjected } = useCountdownOptions();
+  const { showExpected } = useCountdownOptions();
 
   // TODO: use reporter values as in the event block chip
   const { status, timer } = getSubscriptionDisplayData(
@@ -171,7 +171,7 @@ function SubscriptionStatus({ time, event, selectedId }: SubscriptionStatusProps
     offset,
     currentDay,
     getLocalizedString('common.minutes'),
-    showProjected,
+    showExpected,
   );
 
   return (

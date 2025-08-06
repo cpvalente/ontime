@@ -52,9 +52,9 @@ export function getSubscriptionDisplayData(
   offset: number,
   currentDay: number,
   minutesString: string,
-  showProjected = false,
+  showExpected = false,
 ): { status: ProgressStatus; timer: string } {
-  const offsetAndDelay = showProjected ? offset + subscribedEvent.delay : 0;
+  const offsetAndDelay = showExpected ? offset + subscribedEvent.delay : 0;
 
   if (selectedId === subscribedEvent.id) {
     // 1. An event that is loaded but not running is {'due': <countdown | overtime>}
@@ -139,7 +139,7 @@ export function getSubscriptionDisplayData(
     };
   }
 
-  // the event here has to be due, we show the countdown the projected start time
+  // the event here has to be due, we show the countdown the expected start time
   return {
     status: 'due',
     timer: getFormattedTimer(
