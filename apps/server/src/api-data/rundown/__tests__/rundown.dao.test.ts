@@ -596,7 +596,7 @@ describe('processRundown()', () => {
       });
     });
 
-    it.only('treats groups as invisible for gap calculations', () => {
+    it('treats groups as invisible for gap calculations', () => {
       const rundown = makeRundown({
         order: ['0', '1', '2', '3'],
         entries: {
