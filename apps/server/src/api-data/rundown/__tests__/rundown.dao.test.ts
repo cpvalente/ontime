@@ -565,7 +565,7 @@ describe('processRundown()', () => {
       });
     });
   });
-  describe.todo('handle of event groups', () => {
+  describe('handle of event groups', () => {
     it('correctly parses group metadata', () => {
       const rundown = makeRundown({
         order: ['1'],
@@ -596,7 +596,7 @@ describe('processRundown()', () => {
       });
     });
 
-    it('treats groups as invisible for gap calculations', () => {
+    it.only('treats groups as invisible for gap calculations', () => {
       const rundown = makeRundown({
         order: ['0', '1', '2', '3'],
         entries: {
