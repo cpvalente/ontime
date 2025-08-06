@@ -29,6 +29,11 @@
     gap: 0.25rem;
   }
 
+  &[data-state='waiting'] {
+    .label {
+      color: $ontime-roll;
+    }
+  }
   &[data-state='over'] {
     .label .over {
       color: $playback-over;

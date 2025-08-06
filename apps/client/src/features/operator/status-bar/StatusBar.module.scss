@@ -20,33 +20,12 @@
 
 .runningTimer {
   grid-area: timers;
-  display: flex;
-  flex-direction: column;
   justify-self: center;
-  color: $muted-gray;
 }
 
 .timeNow {
   grid-area: clock;
-  display: flex;
-  flex-direction: column;
   justify-self: right;
-}
-
-.label {
-  font-size: calc(1rem - 2px);
-  color: $gray-700;
-  line-height: 0.9em;
-}
-
-.timer {
-  font-size: 1.5rem;
-  letter-spacing: 0.5px;
-  line-height: 1.5;
-}
-
-.active {
-  color: $ui-white;
 }
 
 .progressOverride {

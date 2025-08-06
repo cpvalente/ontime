@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { TbCalendar, TbCalendarClock, TbCalendarDown, TbCalendarStar, TbFlagDown, TbFlagStar } from 'react-icons/tb';
-import { isOntimeBlock, OntimeBlock, OntimeEvent, TimerType } from 'ontime-types';
+import { isOntimeBlock, OntimeBlock, OntimeEvent, TimerPhase, TimerType } from 'ontime-types';
 import { isPlaybackActive, millisToString } from 'ontime-utils';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
@@ -194,7 +194,7 @@ export function ProgressOverview() {
   const current = selectedEventIndex !== null ? selectedEventIndex + 1 : enDash;
   const progressText = numEvents ? `${current} of ${numEvents || enDash}` : enDash;
 
-  return <TimeColumn label='Progress' value={progressText} muted={selectedEventIndex === null} />;
+  return <TimeColumn label='Progress' value={progressText} state={selectedEventIndex === null ? 'muted' : 'active'} />;
 }
 
 export function OffsetOverview() {
@@ -208,16 +208,23 @@ export function OffsetOverview() {
   return <OverUnder state={offsetState} value={offsetText} testId='offset' />;
 }
 
-export function ClockOverview() {
+export function ClockOverview({ className }: { className?: string }) {
   const { clock } = useClock();
 
-  return <TimeColumn label='Time now' value={formattedTime(clock)} />;
+  return <TimeColumn label='Time now' value={formattedTime(clock)} className={className} />;
 }
 
-export function TimerOverview() {
-  const { current } = useTimer();
+export function TimerOverview({ className }: { className?: string }) {
+  const timer = useTimer();
 
-  const display = millisToString(current, { fallback: timerPlaceholder });
+  const isWaiting = timer.phase === TimerPhase.Pending;
+  const title = isWaiting ? 'Count to start' : 'Running timer';
+  const display = millisToString(isWaiting ? timer.secondaryTimer : timer.current, { fallback: timerPlaceholder });
+  const timerState = (() => {
+    if (isWaiting) return 'waiting';
+    if (timer.current === null) return 'muted';
+    return 'active';
+  })();
 
-  return <TimeColumn label='Running timer' value={display} muted={current === null} />;
+  return <TimeColumn label={title} value={display} state={timerState} className={className} />;
 }
