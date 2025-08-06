@@ -166,8 +166,8 @@ type old_CustomFields = Record<
 
 /**
  * migrates a custom fields from v3 to v4
- * - ensure correct case (TODO: could this be removed from the project parser)
- * - ensure that the key is derived from the label (TODO: could this be removed from the project parser)
+ * - ensure correct case
+ * - ensure that the key is derived from the label
  * - convert `type` from the string option to the text option
  * - create a translation table for the rundown parser
  */

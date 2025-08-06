@@ -14,7 +14,7 @@ describe('parseCustomFields()', () => {
     const errorEmitter = vi.fn();
     // @ts-expect-error -- data is external, we check bad types
     const customFields = {
-      1: { label: 'test', type: 'text', colour: 'red' }, // ok
+      test: { label: 'test', type: 'text', colour: 'red' }, // ok
       2: { label: 'test', type: 'text' }, // duplicate label
       3: { label: '', type: 'text' }, // missing colour
       4: { type: 'text', colour: '' }, // missing label
@@ -88,9 +88,10 @@ describe('sanitiseCustomFields()', () => {
     expect(sanitationResult).toStrictEqual(expectedCustomFields);
   });
 
-  it('enforce name cohesion', () => {
+  it('drop incorrect name/key pairs', () => {
     const customFields: CustomFields = {
-      test: { label: 'NewName', type: 'text', colour: 'red' },
+      NewName: { label: 'NewName', type: 'text', colour: 'red' },
+      willBeGone: { label: 'BadName', type: 'text', colour: 'red' },
     };
     const expectedCustomFields: CustomFields = {
       NewName: { label: 'NewName', type: 'text', colour: 'red' },
