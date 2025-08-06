@@ -5,17 +5,17 @@ import style from './TimeLayout.module.scss';
 interface TimeLayoutProps {
   label: string;
   value: string;
-  muted?: boolean;
+  state?: 'muted' | 'waiting' | 'active';
   daySpan?: number;
   className?: string;
   testId?: string;
 }
 
-export function TimeColumn({ label, value, muted, className, testId }: TimeLayoutProps) {
+export function TimeColumn({ label, value, state = 'active', className, testId }: TimeLayoutProps) {
   return (
-    <div className={style.column} data-state={muted ? 'muted' : 'active'}>
+    <div className={cx([style.column, className])} data-state={state}>
       <span className={style.label}>{label}</span>
-      <span className={cx([style.clock, className])} data-testid={testId}>
+      <span className={style.clock} data-testid={testId}>
         {value}
       </span>
     </div>
