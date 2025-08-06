@@ -24,11 +24,11 @@ interface ScheduleItemProps {
 
 export default function ScheduleItem(props: ScheduleItemProps) {
   const { timeStart, timeEnd, title, colour, skip, delay } = props;
-  const { showProjected } = useScheduleOptions();
+  const { showExpected } = useScheduleOptions();
 
-  if (showProjected) {
+  if (showExpected) {
     return (
-      <ProjectedScheduleItem
+      <ExpectedScheduleItem
         timeStart={timeStart}
         timeEnd={timeEnd}
         title={title}
@@ -95,34 +95,34 @@ function DelayedScheduleItem(props: ScheduleItemProps) {
   );
 }
 
-function ProjectedScheduleItem(props: ScheduleItemProps) {
+function ExpectedScheduleItem(props: ScheduleItemProps) {
   const { timeStart, timeEnd, title, colour, skip, delay } = props;
 
   return (
     <li className={cx(['entry', skip && 'entry--skip'])}>
       <div className='entry-times'>
         <span className='entry-colour' style={{ backgroundColor: colour }} />
-        <ProjectedTime time={timeStart} delay={delay} />
+        <ExpectedTime time={timeStart} delay={delay} />
         →
-        <ProjectedTime time={timeEnd} delay={delay} />
+        <ExpectedTime time={timeEnd} delay={delay} />
       </div>
       <div className='entry-title'>{title}</div>
     </li>
   );
 }
 
-interface OffsetTimeProps {
+interface ExpectedTimeProps {
   time: number;
   delay: number;
 }
 
-function ProjectedTime(props: OffsetTimeProps) {
+function ExpectedTime(props: ExpectedTimeProps) {
   const { time, delay } = props;
   const { offset } = useRuntimeOffset();
 
-  const projectedOffset = offset - delay;
-  const projectedTime = formatTime(time - offset, formatOptions);
-  const projectedState = getOffsetState(projectedOffset);
+  const expectedOffset = offset - delay;
+  const expectedTime = formatTime(time - offset, formatOptions);
+  const expectedState = getOffsetState(expectedOffset);
 
-  return <SuperscriptTime className={`entry-times--${projectedState}`} time={projectedTime} />;
+  return <SuperscriptTime className={`entry-times--${expectedState}`} time={expectedTime} />;
 }

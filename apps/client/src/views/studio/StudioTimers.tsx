@@ -63,7 +63,7 @@ export default function StudioTimers({
             </div>
           </div>
           <div>
-            <div className='label right'>{getLocalizedString('common.projected_end')}</div>
+            <div className='label right'>{getLocalizedString('common.expected_end')}</div>
             <div className='runtime-timer right'>{schedule.expectedEnd}</div>
           </div>
         </div>
@@ -103,7 +103,7 @@ export default function StudioTimers({
             </div>
           </div>
           <div>
-            <div className='label right'>{getLocalizedString('common.projected_end')}</div>
+            <div className='label right'>{getLocalizedString('common.expected_end')}</div>
             <div className='runtime-timer right'>{event.expectedEnd}</div>
           </div>
         </div>
