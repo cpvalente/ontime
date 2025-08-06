@@ -14,6 +14,7 @@ import {
 } from 'ontime-types';
 import * as v3 from './db.migration.v3.js';
 import { dbModel } from '../../../models/dataModel.js';
+import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
 
 describe('v3 to v4', () => {
   const oldDb = {
@@ -174,7 +175,7 @@ describe('v3 to v4', () => {
 
   test('migrate settings', () => {
     const expectSettings: Settings = {
-      version: '4.0.0', // This only migrates to v4.0.0 if we need any changes to the file after this it should be handled by a new migration function
+      version: ONTIME_VERSION,
       serverPort: 4001,
       editorKey: null,
       operatorKey: null,
