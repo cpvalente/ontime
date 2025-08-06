@@ -148,7 +148,6 @@ export function useTimeUntilExpectedStart(
   const { offset, currentDay, offsetMode, actualStart, plannedStart, clock } = useExpectedStartData();
   if (event === null) return 0;
 
-  //TODO: maybe memo this
   const expectedStart = getExpectedStart(
     { ...event },
     { ...state, currentDay, offset, offsetMode, actualStart, plannedStart },
