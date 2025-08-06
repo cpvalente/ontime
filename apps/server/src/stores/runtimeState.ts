@@ -745,6 +745,22 @@ function getExpectedTimes(state = runtimeState) {
       state.nextFlag.expectedStart = expectedStart;
     }
   }
+
+  if (state._end) {
+    const { event, accumulatedGap, isLinkedToLoaded } = state._end;
+    const expectedStart = getExpectedStart(event, {
+      currentDay: eventNow.dayOffset,
+      totalGap: accumulatedGap,
+      isLinkedToLoaded,
+      offsetMode,
+      offset: offsetMode === OffsetMode.Absolute ? offsetAbs : offsetRel,
+      plannedStart,
+      actualStart,
+    });
+    state.runtime.expectedEnd = expectedStart + event.duration;
+  } else {
+    state.runtime.expectedEnd = null;
+  }
 }
 
 export function loadBlockFlagAndEnd(
@@ -753,14 +769,11 @@ export function loadBlockFlagAndEnd(
   currentIndex: MaybeNumber,
   state = runtimeState,
 ) {
-  if (currentIndex === null) return;
+  if (currentIndex === null) return resetMetaData();
   if (state.eventNow === null) return resetMetaData();
 
   const currentBlockId = state.eventNow.parent;
   const flagsPresent = metadata.flags.length !== 0;
-
-  //TODO: for now this skips finding next block if we are not currently in a group but we are not displaying next block data anywhere
-  if (!currentBlockId && !flagsPresent) return resetMetaData();
 
   const { playableEventOrder } = metadata;
   const { entries } = rundown;
@@ -799,15 +812,17 @@ export function loadBlockFlagAndEnd(
         state._block = { event: lastEventInGroup, isLinkedToLoaded, accumulatedGap };
       }
 
-      if (idx === playableEventOrder.length - 1) {
-        state._end = { event: entry, isLinkedToLoaded, accumulatedGap };
-      }
-
       if (!foundNextGroup && entry.parent !== currentBlockId) {
         foundNextGroup = true;
-        state.blockNext = entry.id;
+        state.blockNext = entry.parent;
       }
     }
+  }
+
+  const lastID = playableEventOrder.at(-1);
+  const lastEvent = lastID ? (entries[lastID] as OntimeEvent) : null;
+  if (lastEvent) {
+    state._end = { event: lastEvent, isLinkedToLoaded, accumulatedGap };
   }
 
   if (!foundFlag) state.nextFlag = null;
