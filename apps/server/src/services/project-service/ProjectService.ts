@@ -33,13 +33,13 @@ import {
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import {
-  copyCorruptFile,
   doesProjectExist,
   getPathToProject,
   getProjectFiles,
   moveCorruptFile,
   parseJsonFile,
 } from './projectServiceUtils.js';
+import { join } from 'path';
 
 type ProjectState =
   | {
@@ -65,6 +65,8 @@ init();
 function init() {
   ensureDirectory(publicDir.projectsDir);
   ensureDirectory(publicDir.corruptDir);
+  ensureDirectory(publicDir.logoDir);
+  ensureDirectory(publicDir.migrateDir);
 }
 
 export async function getCurrentProject(): Promise<{ filename: string; pathToFile: string }> {
@@ -130,12 +132,26 @@ async function loadNewProject(): Promise<string> {
  */
 async function handleCorruptedFile(filePath: string, fileName: string): Promise<string> {
   // copy file to corrupted folder
-  await copyCorruptFile(filePath, fileName).catch((_) => {
+  const copyPath = join(publicDir.corruptDir, fileName);
+  await copyFile(filePath, copyPath).catch((_) => {
     /* while we have to catch the error, we dont need to handle it */
   });
 
   // and make a new file with the recovered data
   const newPath = appendToName(filePath, '(recovered)');
+  await dockerSafeRename(filePath, newPath);
+  return getFileNameFromPath(newPath);
+}
+
+async function handleMigratedFile(filePath: string, fileName: string): Promise<string> {
+  // copy file to migrated folder
+  const copyPath = join(publicDir.migrateDir, fileName);
+  await copyFile(filePath, copyPath).catch((_) => {
+    /* while we have to catch the error, we dont need to handle it */
+  });
+
+  // and make a new file with the recovered data
+  const newPath = appendToName(filePath, '(migrated)');
   await dockerSafeRename(filePath, newPath);
   return getFileNameFromPath(newPath);
 }
@@ -189,6 +205,10 @@ export async function loadProjectFile(fileName: string): Promise<string> {
   if (result.errors.length > 0) {
     logger.warning(LogOrigin.Server, 'Project loaded with errors');
     parsedFileName = await handleCorruptedFile(filePath, fileName);
+  }
+  if (result.migrated) {
+    logger.warning(LogOrigin.Server, 'The imported project is migrate, the original file has been backed up');
+    parsedFileName = await handleMigratedFile(filePath, fileName);
   }
 
   const projectName = await loadProject(result.data, parsedFileName);

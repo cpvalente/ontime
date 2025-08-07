@@ -11,6 +11,7 @@ export const timerConfig = {
 export const config = {
   appState: 'app-state.json',
   corrupt: 'corrupt files',
+  migrate: 'migrated files',
   crash: 'crash logs',
   demoProject: 'demo project.json',
   newProject: 'new project.json',
