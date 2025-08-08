@@ -1,6 +1,7 @@
 import { createContext, PropsWithChildren, useCallback, useContext } from 'react';
 
 import { postUserTranslation } from '../common/api/assets';
+import { useCustomTranslation } from '../common/hooks-query/useCustomTranslation';
 import useSettings from '../common/hooks-query/useSettings';
 
 import { langDe } from './languages/de';
@@ -9,7 +10,6 @@ import { langEs } from './languages/es';
 import { langFr } from './languages/fr';
 import { langIt } from './languages/it';
 import { langPt } from './languages/pt';
-import { useCustomTranslation } from '../common/hooks-query/useCustomTranslation';
 
 const translationsList = {
   en: langEn,

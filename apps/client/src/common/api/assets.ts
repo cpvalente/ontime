@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { TranslationObject } from 'translation/languages/en';
 
-import { apiEntryUrl, customTranslationsURL, TRANSLATION } from './constants';
 import { ontimeQueryClient } from '../../common/queryClient';
+
+import { apiEntryUrl, customTranslationsURL, TRANSLATION } from './constants';
 
 const assetsPath = `${apiEntryUrl}/assets`;
 

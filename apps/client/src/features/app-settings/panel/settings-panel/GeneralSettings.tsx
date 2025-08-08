@@ -1,5 +1,6 @@
 import { lazy, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useDisclosure } from '@mantine/hooks';
 import { Settings } from 'ontime-types';
 
 import { postSettings } from '../../../../common/api/settings';
@@ -14,7 +15,6 @@ import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import GeneralPinInput from './composite/GeneralPinInput';
-import { useDisclosure } from '@mantine/hooks';
 
 const TranslationModal = lazy(() => import('./composite/CustomTranslationModal'));
 
