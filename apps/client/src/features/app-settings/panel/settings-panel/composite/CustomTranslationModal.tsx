@@ -21,10 +21,8 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
 
   const defaultValues = useMemo(() => {
     const values: Record<string, string> = {};
-    translationStructure.forEach((fields) => {
-      fields.forEach(({ formKey, translationKey }) => {
-        values[formKey] = userTranslation[translationKey as keyof TranslationObject] || '';
-      });
+    translationStructure.forEach(({ translationKey, formKey }) => {
+      values[formKey] = userTranslation[translationKey as keyof TranslationObject] || '';
     });
     return values;
   }, [userTranslation, translationStructure]);
@@ -46,10 +44,8 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
   const onSubmit = async (formData: Record<string, string>) => {
     try {
       const translationData: Record<string, string> = {};
-      translationStructure.forEach((fields) => {
-        fields.forEach(({ formKey, translationKey }) => {
-          translationData[translationKey] = formData[formKey];
-        });
+      translationStructure.forEach(({ translationKey, formKey }) => {
+        translationData[translationKey] = formData[formKey];
       });
 
       await postUserTranslation(translationData as TranslationObject);
@@ -68,25 +64,22 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
       showBackdrop
       bodyElements={
         <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} id='custom-translations-form'>
-          {Array.from(translationStructure.entries()).map(([category, fields]) => (
-            <Panel.Card key={category}>
-              <Panel.SubHeader>{category.charAt(0).toUpperCase() + category.slice(1)}</Panel.SubHeader>
-              <Panel.ListGroup>
-                {fields.map(({ formKey, label, placeholder }) => (
-                  <Panel.ListItem key={formKey}>
-                    <Panel.Field title={label} description='' />
-                    <Input
-                      maxLength={150}
-                      {...register(formKey, {
-                        required: 'This field is required',
-                      })}
-                      placeholder={placeholder}
-                    />
-                  </Panel.ListItem>
-                ))}
-              </Panel.ListGroup>
+          <Panel.ListGroup>
+            <Panel.Card>
+              {Array.from(translationStructure.values()).map(({ formKey, label, placeholder }) => (
+                <Panel.ListItem key={formKey}>
+                  <Panel.Field title={label} description='' />
+                  <Input
+                    maxLength={150}
+                    {...register(formKey, {
+                      required: 'This field is required',
+                    })}
+                    placeholder={placeholder}
+                  />
+                </Panel.ListItem>
+              ))}
             </Panel.Card>
-          ))}
+          </Panel.ListGroup>
         </Panel.Section>
       }
       footerElements={
@@ -116,33 +109,35 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
 }
 
 function getTranslationStructure() {
-  const categories = new Map<
+  const fields = new Map<
     string,
-    Array<{
+    {
       formKey: string;
       translationKey: string;
       label: string;
       placeholder: string;
-    }>
+    }
   >();
 
   Object.entries(langEn).forEach(([translationKey, value]) => {
-    const [category, key] = translationKey.split('.');
-
-    if (!categories.has(category)) {
-      categories.set(category, []);
+    if (!fields.has(translationKey)) {
+      fields.set(translationKey, {
+        formKey: '',
+        translationKey: '',
+        label: '',
+        placeholder: '',
+      });
     }
 
-    categories.get(category)!.push({
-      formKey: key,
-      translationKey,
-      label: key
-        .split('_')
-        .map((word) => word[0].toUpperCase() + word.slice(1))
-        .join(' '),
-      placeholder: value,
-    });
+    fields.get(translationKey)!.formKey = translationKey.split('.')[1];
+    fields.get(translationKey)!.translationKey = translationKey;
+    fields.get(translationKey)!.label = translationKey
+      .split('.')[1]
+      .split('_')
+      .map((word) => word[0].toUpperCase() + word.slice(1))
+      .join(' ');
+    fields.get(translationKey)!.placeholder = value;
   });
 
-  return categories;
+  return fields;
 }
