@@ -9,7 +9,8 @@ import {
 } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { EntryId, OntimeGroup } from 'ontime-types';
+import { EntryId, OntimeBlock } from 'ontime-types';
+import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
@@ -103,7 +104,12 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
       return [null, 'under'];
     }
 
-    return [offset < 0 ? `-${formatDuration(offset * -1)}` : `+${formatDuration(offset)}`, getOffsetState(offset * -1)];
+    return [
+      offset < 0
+        ? `-${formatDuration(offset)}`
+        : `+${formatDuration(offset, Math.abs(offset) > 2 * MILLIS_PER_MINUTE)}`,
+      getOffsetState(offset),
+    ];
   })();
 
   const dragStyle = {
