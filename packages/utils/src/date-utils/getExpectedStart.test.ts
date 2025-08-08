@@ -222,7 +222,7 @@ describe('getExpectedStart()', () => {
       testState.offset = -5; // remove 5 with addtime - we are ahead of time
 
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: true })).toBe(115);
-      expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(120); // unlocked evets will stay on schedule
+      expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(120); // unlinked events will stay on schedule
 
       testState.offset = +5; // add 5 with addtime - we are behind
 

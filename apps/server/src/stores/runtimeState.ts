@@ -391,7 +391,6 @@ export function start(state: RuntimeState = runtimeState): boolean {
   state.timer.expectedFinish = getExpectedFinish(state);
   state.timer.elapsed = 0;
 
-  // update runtime delays: over - under
   if (state.runtime.actualStart === null) {
     state.runtime.actualStart = state.clock;
   }

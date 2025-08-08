@@ -359,7 +359,7 @@ describe('roll mode', () => {
       const currentOffset = getState().runtime.offsetAbs;
       let result = roll(rundown, metadata, getState().runtime.offsetAbs);
       expect(result).toStrictEqual({ eventId: '1', didStart: false });
-      // the current offset should be maintain by roll mode whn taking over from play
+      // the current offset should be maintain by roll mode when taking over from play
       expect(getState().runtime.offsetAbs).toBe(currentOffset);
 
       vi.setSystemTime('jan 1 00:00:01');

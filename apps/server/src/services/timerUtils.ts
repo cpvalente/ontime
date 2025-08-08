@@ -109,8 +109,8 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
 
 /**
  * Calculates difference between the runtime and the schedule of an event
- * Positive offset is time ahead
- * Negative offset is time delayed
+ * Positive offset is over time / behind schedule
+ * Negative offset is under time / ahead of schedule
  */
 export function getRuntimeOffset(state: RuntimeState): { offsetAbs: number; offsetRel: number } {
   const { eventNow, clock } = state;
