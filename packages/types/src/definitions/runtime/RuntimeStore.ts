@@ -12,7 +12,6 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
     duration: null, // only changes if event changes
     elapsed: null, // changes on every update
     expectedFinish: null, // change can only be initiated by user, can roll over midnight
-    finishedAt: null, // can change on update or user action
     phase: TimerPhase.None, // can change on update or user action
     playback: Playback.Stop, // change initiated by user
     secondaryTimer: null, // change on every update

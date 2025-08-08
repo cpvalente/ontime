@@ -21,17 +21,17 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: 0,
         duration: 10,
-        finishedAt: null,
         startedAt: null,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(null);
   });
-  it('is finishedAt if defined', () => {
+  it('is hasFinished if defined', () => {
     const state = {
       eventNow: {
         timeEnd: 20,
@@ -40,11 +40,11 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: 0,
         duration: 10,
-        finishedAt: 20, // <---- finished at
         startedAt: 10,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: true,
       },
     } as RuntimeState;
     const calculatedFinish = getExpectedFinish(state);
@@ -59,11 +59,11 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: 0,
         duration: 10,
-        finishedAt: null,
         startedAt: 1,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
     const calculatedFinish = getExpectedFinish(state);
@@ -78,11 +78,11 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: 20,
         duration: 10,
-        finishedAt: null,
         startedAt: 1,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
 
@@ -98,11 +98,11 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: -10,
         duration: 10,
-        finishedAt: null,
         startedAt: 1,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
 
@@ -118,11 +118,11 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: -100,
         duration: 10,
-        finishedAt: null,
         startedAt: 1,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
 
@@ -138,11 +138,11 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: 0,
         duration: 0,
-        finishedAt: null,
         startedAt: 1,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
 
@@ -158,11 +158,11 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: 0,
         duration: dayInMs,
-        finishedAt: null,
         startedAt: 10,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
 
@@ -179,11 +179,11 @@ describe('getExpectedFinish()', () => {
         timer: {
           addedTime: 10,
           duration: dayInMs,
-          finishedAt: null,
           startedAt: 10,
         },
         _timer: {
           pausedAt: null,
+          hasFinished: false,
         },
       } as RuntimeState;
 
@@ -198,11 +198,11 @@ describe('getExpectedFinish()', () => {
         },
         timer: {
           addedTime: 0,
-          finishedAt: null,
           startedAt: 79200000, // 22:00:00
         },
         _timer: {
           pausedAt: null,
+          hasFinished: false,
         },
         runtime: {
           actualStart: 79200000,
@@ -229,10 +229,10 @@ describe('getCurrent()', () => {
         addedTime: 10,
         duration: 111, // <-- we take the duration value
         startedAt: null,
-        finishedAt: null,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
 
@@ -250,10 +250,10 @@ describe('getCurrent()', () => {
         addedTime: 0,
         duration: 10,
         startedAt: 0,
-        finishedAt: null,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
 
@@ -271,10 +271,10 @@ describe('getCurrent()', () => {
         addedTime: 10,
         duration: 10,
         startedAt: 0,
-        finishedAt: null,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
 
@@ -292,10 +292,10 @@ describe('getCurrent()', () => {
         addedTime: 0,
         duration: dayInMs + 10,
         startedAt: 10,
-        finishedAt: null,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
 
@@ -313,10 +313,10 @@ describe('getCurrent()', () => {
         addedTime: 0,
         duration: dayInMs + 10,
         startedAt: 10,
-        finishedAt: null,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
 
@@ -334,10 +334,10 @@ describe('getCurrent()', () => {
         addedTime: 20,
         duration: dayInMs + 10,
         startedAt: 10,
-        finishedAt: null,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
 
@@ -357,13 +357,13 @@ describe('getCurrent()', () => {
           addedTime: 0,
           duration: 100,
           startedAt: null,
-          finishedAt: null,
         },
         runtime: {
           plannedEnd: null,
         },
         _timer: {
           pausedAt: null,
+          hasFinished: false,
         },
       } as RuntimeState;
 
@@ -382,13 +382,13 @@ describe('getCurrent()', () => {
           addedTime: 0,
           duration: 100,
           startedAt: 10,
-          finishedAt: null,
         },
         runtime: {
           plannedEnd: 100,
         },
         _timer: {
           pausedAt: null,
+          hasFinished: false,
         },
       } as RuntimeState;
 
@@ -407,13 +407,13 @@ describe('getCurrent()', () => {
           addedTime: 7,
           duration: 100,
           startedAt: 10,
-          finishedAt: null,
         },
         runtime: {
           plannedEnd: 100,
         },
         _timer: {
           pausedAt: null,
+          hasFinished: false,
         },
       } as RuntimeState;
 
@@ -433,7 +433,6 @@ describe('getCurrent()', () => {
           addedTime: 0,
           duration: Infinity, // not relevant,
           startedAt: 79200000, // 22:00:00
-          finishedAt: null,
         },
         runtime: {
           actualStart: 79200000,
@@ -441,6 +440,7 @@ describe('getCurrent()', () => {
         },
         _timer: {
           pausedAt: null,
+          hasFinished: false,
         },
       } as RuntimeState;
 
@@ -461,7 +461,6 @@ describe('getCurrent()', () => {
           addedTime: 0,
           duration: Infinity, // not relevant,
           startedAt: 79200000, // 22:00:00
-          finishedAt: null,
         },
         runtime: {
           actualStart: 82000000, // 22:46:40 <--- started now
@@ -469,6 +468,7 @@ describe('getCurrent()', () => {
         },
         _timer: {
           pausedAt: null,
+          hasFinished: false,
         },
       } as RuntimeState;
 
@@ -491,10 +491,10 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
         addedTime: 0,
         duration,
         startedAt: 0,
-        finishedAt: null,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
 
@@ -519,10 +519,10 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
         addedTime: 3,
         duration,
         startedAt: 0,
-        finishedAt: null,
       },
       _timer: {
         pausedAt: null,
+        hasFinished: false,
       },
     } as RuntimeState;
 
@@ -846,7 +846,6 @@ describe('getRuntimeOffset()', () => {
         duration: 3600000,
         elapsed: null,
         expectedFinish: null,
-        finishedAt: null,
         playback: 'armed',
         secondaryTimer: null,
         startedAt: null,
@@ -887,7 +886,6 @@ describe('getRuntimeOffset()', () => {
         duration: 3600000,
         elapsed: null,
         expectedFinish: null,
-        finishedAt: null,
         playback: 'armed',
         secondaryTimer: null,
         startedAt: null,
@@ -939,7 +937,6 @@ describe('getRuntimeOffset()', () => {
         duration: 3600000,
         elapsed: 2000000,
         expectedFinish: 81600000,
-        finishedAt: null,
         playback: Playback.Play,
         secondaryTimer: null,
         startedAt: 78000000,
@@ -991,7 +988,6 @@ describe('getRuntimeOffset()', () => {
         duration: 3600000,
         elapsed: 4000000,
         expectedFinish: 81600000,
-        finishedAt: null,
         playback: Playback.Play,
         secondaryTimer: null,
         startedAt: 78000000,
@@ -1032,7 +1028,6 @@ describe('getRuntimeOffset()', () => {
         duration: 3600000,
         elapsed: 0,
         expectedFinish: 82000000 + 3600000, // <--- now + duration
-        finishedAt: null,
         playback: Playback.Play,
         secondaryTimer: null,
         startedAt: 82000000, // <--- started now
@@ -1132,7 +1127,6 @@ describe('getTimerPhase()', () => {
         duration: null,
         elapsed: null,
         expectedFinish: null,
-        finishedAt: null,
         playback: Playback.Stop,
         phase: TimerPhase.None,
         secondaryTimer: null,
@@ -1236,7 +1230,6 @@ describe('getTimerPhase()', () => {
         duration: null,
         elapsed: 0,
         expectedFinish: null,
-        finishedAt: null,
         phase: 'none',
         playback: 'roll',
         secondaryTimer: 168950,
@@ -1275,7 +1268,6 @@ describe('getTimerPhase()', () => {
         duration: null,
         elapsed: 0,
         expectedFinish: null,
-        finishedAt: null,
         phase: 'none',
         playback: 'roll',
         secondaryTimer: 168950,

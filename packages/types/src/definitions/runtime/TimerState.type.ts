@@ -22,9 +22,9 @@ export type TimerState = {
   elapsed: MaybeNumber;
   /** time we expect timer to finish */
   expectedFinish: MaybeNumber;
-  /** only if timer has already finished */
-  finishedAt: MaybeNumber;
+  /** phase of of the running event */
   phase: TimerPhase;
+  /** playback state of the event */
   playback: Playback;
   /** used for roll mode */
   secondaryTimer: MaybeNumber;
