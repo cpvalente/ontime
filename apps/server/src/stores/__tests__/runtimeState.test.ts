@@ -43,13 +43,13 @@ const mockState = {
     duration: null,
     elapsed: null,
     expectedFinish: null,
-    finishedAt: null,
     playback: Playback.Stop,
     secondaryTimer: null,
     startedAt: null,
   },
   _timer: {
     pausedAt: null,
+    hasFinished: false,
   },
 } as RuntimeState;
 

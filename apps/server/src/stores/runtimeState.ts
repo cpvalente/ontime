@@ -48,6 +48,7 @@ export type RuntimeState = {
     forceFinish: MaybeNumber; // whether we should declare an event as finished, will contain the finish time
     pausedAt: MaybeNumber;
     secondaryTarget: MaybeNumber;
+    hasFinished: boolean;
   };
   _rundown: {
     totalDelay: number; // this value comes from rundown service
@@ -70,6 +71,7 @@ const runtimeState: RuntimeState = {
     forceFinish: null,
     pausedAt: null,
     secondaryTarget: null,
+    hasFinished: false,
   },
   _rundown: {
     totalDelay: 0,
@@ -115,6 +117,7 @@ export function clearEventData() {
   runtimeState._timer.forceFinish = null;
   runtimeState._timer.pausedAt = null;
   runtimeState._timer.secondaryTarget = null;
+  runtimeState._timer.hasFinished = false;
 }
 
 // clear all necessary data when doing a full stop and the event is unloaded
@@ -144,6 +147,7 @@ export function clearState() {
   runtimeState._timer.forceFinish = null;
   runtimeState._timer.pausedAt = null;
   runtimeState._timer.secondaryTarget = null;
+  runtimeState._timer.hasFinished = false;
 }
 
 /**
@@ -332,7 +336,7 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
   runtimeState.timer.current = runtimeState.timer.duration;
 
   runtimeState.timer.startedAt = null;
-  runtimeState.timer.finishedAt = null;
+  runtimeState._timer.hasFinished = false;
   runtimeState.timer.addedTime = 0;
   runtimeState._timer.pausedAt = null;
 
@@ -450,15 +454,14 @@ export function addTime(amount: number) {
   // handle edge cases
   // !!! we need to handle side effects before updating the state
   const willGoNegative = amount < 0 && Math.abs(amount) > runtimeState.timer.current;
-  const hasFinished = runtimeState.timer.finishedAt !== null;
 
-  if (willGoNegative && !hasFinished) {
+  if (willGoNegative && !runtimeState._timer.hasFinished) {
     // set finished time so side effects are triggered
     runtimeState._timer.forceFinish = timeNow();
   } else {
     const willGoPositive = runtimeState.timer.current < 0 && runtimeState.timer.current + amount > 0;
     if (willGoPositive) {
-      runtimeState.timer.finishedAt = null;
+      runtimeState._timer.hasFinished = false;
     }
   }
 
@@ -522,11 +525,10 @@ export function update(): UpdateResult {
 
   const finishedNow =
     Boolean(runtimeState._timer.forceFinish) ||
-    (runtimeState.timer.current <= timerConfig.triggerAhead && runtimeState.timer.finishedAt === null);
+    (runtimeState.timer.current <= timerConfig.triggerAhead && !runtimeState._timer.hasFinished);
 
   if (finishedNow) {
-    // reset state
-    runtimeState.timer.finishedAt = runtimeState._timer.forceFinish ?? runtimeState.clock;
+    runtimeState._timer.hasFinished = true;
   } else {
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
   }

@@ -26,7 +26,6 @@ const baseState: RuntimeState = {
     duration: null,
     elapsed: null,
     expectedFinish: null,
-    finishedAt: null,
     phase: TimerPhase.None,
     playback: Playback.Stop,
     secondaryTimer: null,
@@ -36,6 +35,7 @@ const baseState: RuntimeState = {
     forceFinish: null,
     pausedAt: null,
     secondaryTarget: null,
+    hasFinished: false,
   },
   _rundown: {
     totalDelay: 0,
