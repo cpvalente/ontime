@@ -16,7 +16,6 @@ const staticAutocompleteOptions = [
   '{{timer.duration}}',
   '{{timer.elapsed}}',
   '{{timer.expectedFinish}}',
-  '{{timer.finishedAt}}',
   '{{timer.secondaryTimer}}',
   '{{timer.startedAt}}',
   '{{runtime.selectedEventIndex}}',

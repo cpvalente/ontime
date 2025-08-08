@@ -13,7 +13,7 @@ export const normaliseEndTime = (start: number, end: number) => (end < start ? e
  * @returns {number | null} new current time or null if nothing is running
  */
 export function getExpectedFinish(state: RuntimeState): MaybeNumber {
-  const { startedAt, finishedAt, duration, addedTime } = state.timer;
+  const { startedAt, duration, addedTime } = state.timer;
 
   if (state.eventNow === null) {
     return null;
@@ -25,10 +25,6 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
 
   if (startedAt === null) {
     return null;
-  }
-
-  if (finishedAt !== null) {
-    return finishedAt;
   }
 
   const pausedTime = pausedAt != null ? clock - pausedAt : 0;
