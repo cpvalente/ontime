@@ -730,11 +730,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
      */
     const shouldUpdateClock = shouldRuntimeUpdate || shouldBlockUpdate || normalClockUpdate;
 
-    //Now we set all the updates on the eventstore and update the previous value
-    if (hasChangedPlayback) {
-      batch.add('onAir', state.timer.playback !== Playback.Stop);
-    }
-
+    // Now we set all the updates on the eventstore and update the previous value
     if (shouldUpdateTimer) {
       batch.add('timer', state.timer);
       RuntimeService.previousTimerUpdate = state.clock;

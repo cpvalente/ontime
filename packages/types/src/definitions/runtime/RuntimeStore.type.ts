@@ -10,7 +10,6 @@ export type RuntimeStore = {
   // timer data
   clock: number;
   timer: TimerState;
-  onAir: boolean;
 
   // messages service
   message: MessageState;
