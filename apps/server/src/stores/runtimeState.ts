@@ -314,7 +314,7 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
 
     // handle edge cases with roll
     if (runtimeState.timer.playback === Playback.Roll) {
-      const offsetClock = runtimeState.clock + runtimeState.runtime.offsetAbs;
+      const offsetClock = runtimeState.clock - runtimeState.runtime.offsetAbs;
       // if waiting to roll, we update the targets and potentially start the timer
       if (runtimeState._timer.secondaryTarget !== null) {
         if (runtimeState.eventNow.timeStart < offsetClock && offsetClock < runtimeState.eventNow.timeEnd) {
@@ -521,7 +521,6 @@ export function update(): UpdateResult {
   const { offsetAbs, offsetRel } = getRuntimeOffset(runtimeState);
   runtimeState.runtime.offsetAbs = offsetAbs;
   runtimeState.runtime.offsetRel = offsetRel;
-  // runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 
   const finishedNow =
     Boolean(runtimeState._timer.forceFinish) ||
@@ -596,7 +595,7 @@ export function roll(
     runtimeState.timer.expectedFinish = normalisedEndTime;
 
     //account for offset
-    const offsetClock = runtimeState.clock + runtimeState.runtime.offsetAbs;
+    const offsetClock = runtimeState.clock - runtimeState.runtime.offsetAbs;
 
     // state catch up
     runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, normalisedEndTime);
@@ -635,7 +634,7 @@ export function roll(
 
   //account for offset but we only keep it if passed to us
   runtimeState.runtime.offsetAbs = offset;
-  const offsetClock = runtimeState.clock + runtimeState.runtime.offsetAbs;
+  const offsetClock = runtimeState.clock - runtimeState.runtime.offsetAbs;
 
   const { index, isPending } = loadRoll(rundown, metadata, offsetClock);
 

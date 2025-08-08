@@ -113,53 +113,40 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
  * Negative offset is time delayed
  */
 export function getRuntimeOffset(state: RuntimeState): { offsetAbs: number; offsetRel: number } {
+  const { eventNow, clock } = state;
+  const { addedTime, current, startedAt } = state.timer;
   // nothing to calculate if there are no loaded events or if we havent started
-  if (state.eventNow === null || state.runtime.actualStart === null) {
+  if (eventNow === null || startedAt === null) {
     return { offsetAbs: 0, offsetRel: 0 };
   }
 
-  const { clock } = state;
-  const { countToEnd, timeStart } = state.eventNow;
-  const { addedTime, current, startedAt } = state.timer;
-  const { actualStart, plannedStart } = state.runtime;
+  const { countToEnd, timeStart } = eventNow;
+  const { plannedStart, actualStart } = state.runtime;
 
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: {
     // we know current exists as long as eventNow exists
     if (current === null) throw new Error('timerUtils.getRuntimeOffset: state.timer.current must be set');
     if (plannedStart === null) throw new Error('timerUtils.getRuntimeOffset: state.runtime.plannedStart must be set');
+    if (actualStart === null) throw new Error('timerUtils.getRuntimeOffset: state.runtime.actualStart must be set');
   }
 
-  // if we havent started, but the timer is armed
-  // the offset is the difference to the schedule
-  if (startedAt === null) {
-    return { offsetAbs: timeStart - clock, offsetRel: 0 };
-  }
+  // difference between planned event start and actual event start (will be positive if we stared behind )
+  const eventStartOffset = startedAt - timeStart;
 
-  const overtime = Math.min(current, 0);
-  // in time-to-end, offset is overtime
+  // how long has the event been running over (is a negative number when in over timer so inverted before adding to offset)
+  const overtime = Math.abs(Math.min(current, 0));
 
-  const startOffset = timeStart - startedAt;
+  // time the playback was paused, the different from now to when we paused is added to the offset TODO: brakes when crossing midnight
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
-  // startOffset - difference between scheduled start and actual start
-  // addedTime - time added by user (negative offset)
-  // pausedTime - time the playback was paused (negative offset)
-  // overtime - how long the timer has been over-running (negative offset)
-  const offset = startOffset - addedTime - pausedTime + overtime;
+  const offsetAbs = eventStartOffset + overtime + pausedTime + addedTime;
 
-  // offset between planned rundown start and actual rundown start
-  const rundownStartOffset = actualStart - plannedStart;
+  // the relative offset i the same as the absolute offset but adjusted relative to the actual start time
+  const offsetRel = offsetAbs + plannedStart - actualStart;
 
-  // offset offset relative to the actual rundown start
-  const offsetRel = offset + rundownStartOffset;
-
-  // in time-to-end, offset is overtime
-  if (countToEnd) {
-    return { offsetAbs: overtime, offsetRel };
-  }
-
-  return { offsetAbs: offset, offsetRel };
+  // in case of count to end, the absolute offset is just the overtime
+  return countToEnd ? { offsetAbs: overtime, offsetRel } : { offsetAbs, offsetRel };
 }
 
 /**

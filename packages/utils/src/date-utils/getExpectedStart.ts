@@ -43,14 +43,14 @@ export function getExpectedStart(
 
   const scheduledStartTime = normalisedTimeStart + relativeStartOffset;
 
-  const offsetStartTime = scheduledStartTime - offset;
+  const offsetStartTime = scheduledStartTime + offset;
 
   if (isLinkedToLoaded) {
     //if we are directly linked back to the loaded event we just follow the offset
     return offsetStartTime;
   }
 
-  const gapsCanCompensateForOffset = totalGap + offset >= 0;
+  const gapsCanCompensateForOffset = totalGap > offset;
   if (gapsCanCompensateForOffset) {
     // if we are ahead of schedule or the gap can compensate for the amount we are behind then expect to start at the scheduled time
     return scheduledStartTime;
