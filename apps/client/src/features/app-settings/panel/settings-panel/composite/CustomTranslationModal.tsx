@@ -56,7 +56,6 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
       reset(formData);
     } catch (error) {
       setError('root', { message: maybeAxiosError(error) });
-      /** no error handling for now */
     } finally {
       await refetch();
     }
