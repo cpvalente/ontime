@@ -103,11 +103,9 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
     if (offset === 0) {
       return [null, 'under'];
     }
-
+    const absOffset = Math.abs(offset);
     return [
-      offset < 0
-        ? `-${formatDuration(offset)}`
-        : `+${formatDuration(offset, Math.abs(offset) > 2 * MILLIS_PER_MINUTE)}`,
+      `${offset < 0 ? '-' : '+'}${formatDuration(absOffset, absOffset > 2 * MILLIS_PER_MINUTE)}`,
       getOffsetState(offset),
     ];
   })();
