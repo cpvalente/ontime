@@ -1,4 +1,4 @@
-import { LogOrigin, Playback, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { LogOrigin, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -183,7 +183,6 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   eventStore.init({
     clock: state.clock,
     timer: state.timer,
-    onAir: state.timer.playback !== Playback.Stop,
     message: { ...runtimeStorePlaceholder.message },
     runtime: state.runtime,
     eventNow: state.eventNow,
