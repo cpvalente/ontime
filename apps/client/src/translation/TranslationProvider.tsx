@@ -1,6 +1,6 @@
-import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, PropsWithChildren, useCallback, useContext } from 'react';
 
-import { getUserTranslation, postUserTranslation } from '../common/api/assets';
+import { postUserTranslation } from '../common/api/assets';
 import useSettings from '../common/hooks-query/useSettings';
 
 import { langDe } from './languages/de';
@@ -9,6 +9,7 @@ import { langEs } from './languages/es';
 import { langFr } from './languages/fr';
 import { langIt } from './languages/it';
 import { langPt } from './languages/pt';
+import { useCustomTranslation } from '../common/hooks-query/useCustomTranslation';
 
 const translationsList = {
   en: langEn,
@@ -25,19 +26,17 @@ interface TranslationContextValue {
   userTranslation: TranslationObject;
   getLocalizedString: (key: TranslationKey, lang?: string) => string;
   postUserTranslation: (translation: TranslationObject) => Promise<void>;
-  refetchTranslation: () => Promise<void>;
 }
 
 const TranslationContext = createContext<TranslationContextValue>({
   userTranslation: langEn,
   getLocalizedString: () => '',
   postUserTranslation: async () => {},
-  refetchTranslation: async () => {},
 });
 
 export const TranslationProvider = ({ children }: PropsWithChildren) => {
   const { data } = useSettings();
-  const [userTranslation, setUserTranslation] = useState<TranslationObject>(langEn);
+  const { data: translationData } = useCustomTranslation();
 
   const getLocalizedString = useCallback(
     (key: TranslationKey, lang = data?.language || 'en'): string => {
@@ -46,38 +45,23 @@ export const TranslationProvider = ({ children }: PropsWithChildren) => {
           return translationsList[lang as keyof typeof translationsList][key];
         }
       } else if (lang === 'custom') {
-        return userTranslation[key];
+        return translationData[key];
       }
       return langEn[key];
     },
-    [data?.language, userTranslation],
+    [data?.language, translationData],
   );
 
-  const fetchUserTranslation = async () => {
-    try {
-      const userTranslation = await getUserTranslation();
-      setUserTranslation(userTranslation);
-    } catch (_error) {
-      /** no error handling for now */
-    }
-  };
-
   const contextValue = {
-    userTranslation,
+    userTranslation: translationData,
     getLocalizedString,
     postUserTranslation,
-    refetchTranslation: fetchUserTranslation,
   };
-
-  useEffect(() => {
-    fetchUserTranslation();
-  }, []);
 
   return <TranslationContext.Provider value={contextValue}>{children}</TranslationContext.Provider>;
 };
 
 export const useTranslation = () => {
-  const { userTranslation, getLocalizedString, postUserTranslation, refetchTranslation } =
-    useContext(TranslationContext);
-  return { userTranslation, getLocalizedString, postUserTranslation, refetchTranslation };
+  const { userTranslation, getLocalizedString, postUserTranslation } = useContext(TranslationContext);
+  return { userTranslation, getLocalizedString, postUserTranslation };
 };

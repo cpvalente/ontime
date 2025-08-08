@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { TranslationObject } from 'translation/languages/en';
 
-import { apiEntryUrl, customTranslationsURL } from './constants';
+import { apiEntryUrl, customTranslationsURL, TRANSLATION } from './constants';
+import { ontimeQueryClient } from '../../common/queryClient';
 
 const assetsPath = `${apiEntryUrl}/assets`;
 
@@ -45,4 +46,5 @@ export async function postUserTranslation(translation: TranslationObject): Promi
   await axios.post(`${assetsPath}/translations`, {
     translation,
   });
+  await ontimeQueryClient.invalidateQueries({ queryKey: TRANSLATION });
 }

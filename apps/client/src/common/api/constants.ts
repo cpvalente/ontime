@@ -15,6 +15,7 @@ export const URL_PRESETS = ['urlpresets'];
 export const VIEW_SETTINGS = ['viewSettings'];
 export const CLIENT_LIST = ['clientList'];
 export const REPORT = ['report'];
+export const TRANSLATION = ['translation'];
 
 // API URLs
 export const apiEntryUrl = `${serverURL}/data`;

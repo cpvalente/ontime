@@ -15,7 +15,7 @@ interface CustomTranslationModalProps {
 }
 
 export default function CustomTranslationModal({ isOpen, onClose }: CustomTranslationModalProps) {
-  const { userTranslation, postUserTranslation, refetchTranslation: refetch } = useTranslation();
+  const { userTranslation, postUserTranslation } = useTranslation();
 
   const translationStructure = useMemo(() => getTranslationStructure(), []);
 
@@ -56,8 +56,6 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
       reset(formData);
     } catch (error) {
       setError('root', { message: maybeAxiosError(error) });
-    } finally {
-      await refetch();
     }
   };
 
