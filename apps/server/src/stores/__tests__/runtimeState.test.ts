@@ -190,7 +190,7 @@ describe('mutation on runtimeState', () => {
     expect(newState.runtime.actualStart).toBeNull();
     expect(newState.runtime.plannedStart).toBe(0);
     expect(newState.runtime.plannedEnd).toBe(1500);
-    expect(newState.blockNow).toBeNull();
+    expect(newState.groupNow).toBeNull();
     expect(newState.runtime.offsetAbs).toBe(0);
 
     // 2. Start event
@@ -225,7 +225,7 @@ describe('mutation on runtimeState', () => {
     expect(newState.runtime.offsetAbs).toBe(delayBefore);
     // finish is the difference between the runtime and the schedule
     expect(newState.runtime.expectedEnd).toBe(newState.runtime.offsetAbs + entries.event2.timeEnd);
-    expect(newState.blockNow).toBeNull();
+    expect(newState.groupNow).toBeNull();
 
     // 4. Add time
     addTime(10);
