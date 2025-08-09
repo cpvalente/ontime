@@ -10,18 +10,18 @@ import style from './QuickAddInline.module.scss';
 
 interface QuickAddInlineProps {
   previousEventId: MaybeString;
-  parentBlock: MaybeString;
+  parentGroup: MaybeString;
 }
 
 export default memo(QuickAddInline);
-function QuickAddInline({ previousEventId, parentBlock }: QuickAddInlineProps) {
+function QuickAddInline({ previousEventId, parentGroup }: QuickAddInlineProps) {
   const { addEntry } = useEntryActions();
 
   const addEvent = () => {
     addEntry(
       {
         type: SupportedEntry.Event,
-        parent: parentBlock,
+        parent: parentGroup,
       },
       {
         after: previousEventId,
@@ -32,7 +32,7 @@ function QuickAddInline({ previousEventId, parentBlock }: QuickAddInlineProps) {
 
   const addDelay = () => {
     addEntry(
-      { type: SupportedEntry.Delay, parent: parentBlock },
+      { type: SupportedEntry.Delay, parent: parentGroup },
       {
         lastEventId: previousEventId,
         after: previousEventId,
@@ -42,7 +42,7 @@ function QuickAddInline({ previousEventId, parentBlock }: QuickAddInlineProps) {
 
   const addMilestone = () => {
     addEntry(
-      { type: SupportedEntry.Milestone, parent: parentBlock },
+      { type: SupportedEntry.Milestone, parent: parentGroup },
       {
         lastEventId: previousEventId,
         after: previousEventId,
@@ -50,12 +50,12 @@ function QuickAddInline({ previousEventId, parentBlock }: QuickAddInlineProps) {
     );
   };
 
-  const addBlock = () => {
-    if (parentBlock !== null) {
+  const addGroup = () => {
+    if (parentGroup !== null) {
       return;
     }
     addEntry(
-      { type: SupportedEntry.Block },
+      { type: SupportedEntry.Group },
       {
         lastEventId: previousEventId,
         after: previousEventId,
@@ -70,7 +70,7 @@ function QuickAddInline({ previousEventId, parentBlock }: QuickAddInlineProps) {
           { type: 'item', icon: IoAdd, label: 'Add Event', onClick: addEvent },
           { type: 'item', icon: IoAdd, label: 'Add Delay', onClick: addDelay },
           { type: 'item', icon: IoAdd, label: 'Add Milestone', onClick: addMilestone },
-          { type: 'item', icon: IoAdd, label: 'Add Group', onClick: addBlock, disabled: parentBlock !== null },
+          { type: 'item', icon: IoAdd, label: 'Add Group', onClick: addGroup, disabled: parentGroup !== null },
         ]}
         render={<IconButton size='small' variant='primary' className={style.addButton} />}
       >

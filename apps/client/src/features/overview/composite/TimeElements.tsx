@@ -8,13 +8,13 @@ import {
   TbFolderPin,
   TbFolderStar,
 } from 'react-icons/tb';
-import { OntimeBlock, OntimeEvent, TimerPhase, TimerType } from 'ontime-types';
+import { OntimeEvent, OntimeGroup, TimerPhase, TimerType } from 'ontime-types';
 import { isPlaybackActive, millisToString } from 'ontime-utils';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import {
   useClock,
-  useCurrentBlockId,
+  useCurrentGroupId,
   useNextFlag,
   useRuntimeOverview,
   useRuntimePlaybackOverview,
@@ -98,15 +98,15 @@ export function MetadataTimes() {
 
 //TODO: there a some things here we still need to think about, mainly what to do whit the planed group duration in relation to the events
 function GroupTimes() {
-  const { clock, blockExpectedEnd } = useRuntimePlaybackOverview();
-  const { currentBlockId } = useCurrentBlockId();
-  const group = useEntry(currentBlockId) as OntimeBlock | null;
+  const { clock, groupExpectedEnd } = useRuntimePlaybackOverview();
+  const { currentGroupId } = useCurrentGroupId();
+  const group = useEntry(currentGroupId) as OntimeGroup | null;
 
   // the group end time dose not encode any day offsets
   const plannedGroupEnd = group && group.timeStart !== null ? group.timeStart + group.duration - clock : null;
   const plannedTimeUntilGroupEnd = formattedTime(plannedGroupEnd, 3, TimerType.CountDown);
 
-  const expectedGroupEnd = blockExpectedEnd !== null ? blockExpectedEnd - clock : null;
+  const expectedGroupEnd = groupExpectedEnd !== null ? groupExpectedEnd - clock : null;
   const expectedTimeUntilGroupEnd = formattedTime(expectedGroupEnd, 3, TimerType.CountDown);
 
   const groupTitle = group?.title ?? null;
@@ -120,7 +120,7 @@ function GroupTimes() {
       </div>
       <div className={style.labelledElement}>
         <Tooltip text='Time to expected group end' render={<TbFolderStar className={style.icon} />} />
-        <span className={cx([style.time, blockExpectedEnd === null && style.muted])}>{expectedTimeUntilGroupEnd}</span>
+        <span className={cx([style.time, groupExpectedEnd === null && style.muted])}>{expectedTimeUntilGroupEnd}</span>
       </div>
     </div>
   );

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import {
-  isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
+  isOntimeGroup,
   isOntimeMilestone,
-  OntimeBlock,
   OntimeEvent,
+  OntimeGroup,
   OntimeMilestone,
 } from 'ontime-types';
 
@@ -13,9 +13,9 @@ import useRundown from '../../../common/hooks-query/useRundown';
 import { useEventSelection } from '../useEventSelection';
 
 import EventEditorFooter from './composite/EventEditorFooter';
-import BlockEditor from './BlockEditor';
 import EventEditor from './EventEditor';
 import EventEditorEmpty from './EventEditorEmpty';
+import GroupEditor from './GroupEditor';
 import MilestoneEditor from './MilestoneEditor';
 
 import style from './EntryEditor.module.scss';
@@ -24,7 +24,7 @@ export default function RundownEntryEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const { data } = useRundown();
 
-  const [entry, setEntry] = useState<OntimeEvent | OntimeBlock | OntimeMilestone | null>(null);
+  const [entry, setEntry] = useState<OntimeEvent | OntimeGroup | OntimeMilestone | null>(null);
 
   useEffect(() => {
     if (data.order.length === 0) {
@@ -67,10 +67,10 @@ export default function RundownEntryEditor() {
     );
   }
 
-  if (isOntimeBlock(entry)) {
+  if (isOntimeGroup(entry)) {
     return (
       <div className={style.entryEditor} data-testid='editor-container'>
-        <BlockEditor block={entry} />
+        <GroupEditor group={entry} />
       </div>
     );
   }

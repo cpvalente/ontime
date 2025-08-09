@@ -2,12 +2,12 @@ import {
   CustomFields,
   EntryCustomFields,
   EntryId,
-  isOntimeBlock,
+  isOntimeGroup,
   isOntimeDelay,
   isOntimeEvent,
   isOntimeMilestone,
   OntimeBaseEvent,
-  OntimeBlock,
+  OntimeGroup,
   OntimeDelay,
   OntimeEntry,
   OntimeEvent,
@@ -27,7 +27,7 @@ import {
 
 import {
   event as eventDef,
-  block as blockDef,
+  group as groupDef,
   delay as delayDef,
   milestone as milestoneDef,
 } from '../../models/eventsDefinition.js';
@@ -39,8 +39,8 @@ type CompleteEntry<T> =
     ? OntimeEvent
     : T extends Partial<OntimeDelay>
       ? OntimeDelay
-      : T extends Partial<OntimeBlock>
-        ? OntimeBlock
+      : T extends Partial<OntimeGroup>
+        ? OntimeGroup
         : T extends Partial<OntimeMilestone>
           ? OntimeMilestone
           : never;
@@ -49,7 +49,7 @@ type CompleteEntry<T> =
  * Generates a fully formed RundownEntry of the patch type
  */
 export function generateEvent<
-  T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock> | Partial<OntimeMilestone>,
+  T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeGroup> | Partial<OntimeMilestone>,
 >(rundown: Rundown, eventData: T, afterId: EntryId | null): CompleteEntry<T> {
   if (isOntimeEvent(eventData)) {
     return createEvent(eventData, getCueCandidate(rundown.entries, rundown.order, afterId)) as CompleteEntry<T>;
@@ -61,9 +61,9 @@ export function generateEvent<
     return { ...delayDef, duration: eventData.duration ?? 0, id } as CompleteEntry<T>;
   }
 
-  // TODO(v4): allow user to provide a larger patch of the block entry
-  if (isOntimeBlock(eventData)) {
-    return createBlock({ id, title: eventData.title ?? '' }) as CompleteEntry<T>;
+  // TODO(v4): allow user to provide a larger patch of the group entry
+  if (isOntimeGroup(eventData)) {
+    return createGroup({ id, title: eventData.title ?? '' }) as CompleteEntry<T>;
   }
 
   if (isOntimeMilestone(eventData)) {
@@ -115,35 +115,35 @@ export function createEventPatch(originalEvent: OntimeEvent, patchEvent: Partial
   };
 }
 
-export function createBlockPatch(originalBlock: OntimeBlock, patchBlock: Partial<OntimeBlock>): OntimeBlock {
-  if (Object.keys(patchBlock).length === 0) {
-    return originalBlock;
+export function createGroupPatch(originalGroup: OntimeGroup, patchGroup: Partial<OntimeGroup>): OntimeGroup {
+  if (Object.keys(patchGroup).length === 0) {
+    return originalGroup;
   }
 
   const maybeTargetDuration = () => {
-    if (typeof patchBlock.targetDuration === 'number') {
-      return patchBlock.targetDuration;
+    if (typeof patchGroup.targetDuration === 'number') {
+      return patchGroup.targetDuration;
     }
-    if (patchBlock.targetDuration === null || patchBlock.targetDuration === '') {
+    if (patchGroup.targetDuration === null || patchGroup.targetDuration === '') {
       return null;
     }
-    return originalBlock.targetDuration;
+    return originalGroup.targetDuration;
   };
 
   return {
-    id: originalBlock.id,
-    type: SupportedEntry.Block,
-    title: makeString(patchBlock.title, originalBlock.title),
-    note: makeString(patchBlock.note, originalBlock.note),
-    entries: patchBlock.entries ?? originalBlock.entries,
+    id: originalGroup.id,
+    type: SupportedEntry.Group,
+    title: makeString(patchGroup.title, originalGroup.title),
+    note: makeString(patchGroup.note, originalGroup.note),
+    entries: patchGroup.entries ?? originalGroup.entries,
     targetDuration: maybeTargetDuration(),
-    colour: makeString(patchBlock.colour, originalBlock.colour),
-    revision: originalBlock.revision,
-    timeStart: originalBlock.timeStart,
-    timeEnd: originalBlock.timeEnd,
-    duration: originalBlock.duration,
-    isFirstLinked: originalBlock.isFirstLinked,
-    custom: { ...originalBlock.custom, ...patchBlock.custom },
+    colour: makeString(patchGroup.colour, originalGroup.colour),
+    revision: originalGroup.revision,
+    timeStart: originalGroup.timeStart,
+    timeEnd: originalGroup.timeEnd,
+    duration: originalGroup.duration,
+    isFirstLinked: originalGroup.isFirstLinked,
+    custom: { ...originalGroup.custom, ...patchGroup.custom },
   };
 }
 
@@ -179,10 +179,10 @@ export function applyPatchToEntry(eventFromRundown: OntimeEntry, patch: Partial<
     return newEvent;
   }
 
-  if (isOntimeBlock(eventFromRundown)) {
-    const newBlock = createBlockPatch(eventFromRundown as OntimeBlock, patch as Partial<OntimeBlock>);
-    newBlock.revision++;
-    return newBlock;
+  if (isOntimeGroup(eventFromRundown)) {
+    const newGroup = createGroupPatch(eventFromRundown as OntimeGroup, patch as Partial<OntimeGroup>);
+    newGroup.revision++;
+    return newGroup;
   }
 
   if (isOntimeMilestone(eventFromRundown)) {
@@ -218,16 +218,16 @@ export const createEvent = (eventArgs: Partial<OntimeEvent>, eventIndex: number 
 };
 
 /**
- * Creates a new block from an optional patch
+ * Creates a new group from an optional patch
  */
-export function createBlock(patch?: Partial<OntimeBlock>): OntimeBlock {
+export function createGroup(patch?: Partial<OntimeGroup>): OntimeGroup {
   if (!patch) {
-    return { ...blockDef, id: generateId() };
+    return { ...groupDef, id: generateId() };
   }
 
   return {
     id: patch.id ?? generateId(),
-    type: SupportedEntry.Block,
+    type: SupportedEntry.Group,
     title: patch.title ?? '',
     note: patch.note ?? '',
     entries: patch.entries ?? [],
@@ -385,13 +385,13 @@ export function cloneMilestone(entry: OntimeMilestone, newId: EntryId): OntimeMi
 }
 
 /**
- * Gathers business logic for how to clone an OntimeBlock
+ * Gathers business logic for how to clone an OntimeGroup
  */
-export function cloneBlock(entry: OntimeBlock, newId: EntryId): OntimeBlock {
+export function cloneGroup(entry: OntimeGroup, newId: EntryId): OntimeGroup {
   const newEntry = structuredClone(entry);
   newEntry.id = newId;
 
-  // in blocks, we need to remove the events references
+  // in groups, we need to remove the events references
   newEntry.entries = [];
   newEntry.revision = 0;
   return newEntry;
@@ -405,8 +405,8 @@ export function cloneEntry(entry: OntimeEntry, newId: EntryId): OntimeEntry {
     return cloneEvent(entry, newId);
   } else if (isOntimeDelay(entry)) {
     return cloneDelay(entry, newId);
-  } else if (isOntimeBlock(entry)) {
-    return cloneBlock(entry, newId);
+  } else if (isOntimeGroup(entry)) {
+    return cloneGroup(entry, newId);
   } else if (isOntimeMilestone(entry)) {
     return cloneMilestone(entry, newId);
   }
@@ -452,7 +452,7 @@ export function calculateDayOffset(
  */
 export function getInsertAfterId(
   rundown: Rundown,
-  parent: OntimeBlock | null,
+  parent: OntimeGroup | null,
   afterId?: EntryId,
   beforeId?: EntryId,
 ): EntryId | null {

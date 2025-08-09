@@ -9,13 +9,12 @@ import style from './TitleEditor.module.scss';
 
 interface TitleEditorProps {
   title: string;
-  eventId: string;
+  entryId: string;
   placeholder: string;
   className?: string;
 }
 
-export default function EditableBlockTitle(props: TitleEditorProps) {
-  const { title, eventId, placeholder, className } = props;
+export default function TitleEditor({ title, entryId, placeholder, className }: TitleEditorProps) {
   const { updateEntry } = useEntryActions();
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback(
@@ -25,9 +24,9 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
       }
 
       const cleanVal = text.trim();
-      updateEntry({ id: eventId, title: cleanVal });
+      updateEntry({ id: entryId, title: cleanVal });
     },
-    [title, updateEntry, eventId],
+    [title, updateEntry, entryId],
   );
 
   const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(title, submitCallback, ref, {
@@ -38,7 +37,7 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
 
   return (
     <Input
-      data-testid='block__title'
+      data-testid='entry__title'
       variant='ghosted'
       fluid
       ref={ref}

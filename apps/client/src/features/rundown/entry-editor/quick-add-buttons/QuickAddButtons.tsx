@@ -11,19 +11,19 @@ import style from './QuickAddButtons.module.scss';
 
 interface QuickAddButtonsProps {
   previousEventId: MaybeString;
-  parentBlock: MaybeString;
+  parentGroup: MaybeString;
   backgroundColor?: string;
 }
 
 export default memo(QuickAddButtons);
-function QuickAddButtons({ previousEventId, parentBlock, backgroundColor }: QuickAddButtonsProps) {
+function QuickAddButtons({ previousEventId, parentGroup, backgroundColor }: QuickAddButtonsProps) {
   const { addEntry } = useEntryActions();
 
   const addEvent = () => {
     addEntry(
       {
         type: SupportedEntry.Event,
-        parent: parentBlock,
+        parent: parentGroup,
       },
       {
         after: previousEventId,
@@ -34,7 +34,7 @@ function QuickAddButtons({ previousEventId, parentBlock, backgroundColor }: Quic
 
   const addDelay = () => {
     addEntry(
-      { type: SupportedEntry.Delay, parent: parentBlock },
+      { type: SupportedEntry.Delay, parent: parentGroup },
       {
         lastEventId: previousEventId,
         after: previousEventId,
@@ -44,7 +44,7 @@ function QuickAddButtons({ previousEventId, parentBlock, backgroundColor }: Quic
 
   const addMilestone = () => {
     addEntry(
-      { type: SupportedEntry.Milestone, parent: parentBlock },
+      { type: SupportedEntry.Milestone, parent: parentGroup },
       {
         lastEventId: previousEventId,
         after: previousEventId,
@@ -52,12 +52,12 @@ function QuickAddButtons({ previousEventId, parentBlock, backgroundColor }: Quic
     );
   };
 
-  const addBlock = () => {
-    if (parentBlock !== null) {
+  const addGroup = () => {
+    if (parentGroup !== null) {
       return;
     }
     addEntry(
-      { type: SupportedEntry.Block },
+      { type: SupportedEntry.Group },
       {
         lastEventId: previousEventId,
         after: previousEventId,
@@ -67,15 +67,15 @@ function QuickAddButtons({ previousEventId, parentBlock, backgroundColor }: Quic
 
   /**
    * If the colour is empty string ''
-   * ie: we are inside a block, but there is no defined colour
+   * ie: we are inside a group, but there is no defined colour
    * we default to $gray-500 #9d9d9d
    */
-  const blockColour = backgroundColor === '' ? '#9d9d9d' : backgroundColor;
+  const groupColour = backgroundColor === '' ? '#9d9d9d' : backgroundColor;
 
   return (
     <Toolbar.Root
-      className={cx([style.quickAdd, Boolean(parentBlock) && style.indent])}
-      style={blockColour ? { '--user-bg': blockColour } : {}}
+      className={cx([style.quickAdd, Boolean(parentGroup) && style.indent])}
+      style={groupColour ? { '--user-bg': groupColour } : {}}
       data-testid='quick-add-buttons'
     >
       <Toolbar.Button render={<Button size='small' />} onClick={addEvent}>
@@ -93,8 +93,8 @@ function QuickAddButtons({ previousEventId, parentBlock, backgroundColor }: Quic
         Milestone
       </Toolbar.Button>
 
-      {parentBlock === null && (
-        <Toolbar.Button render={<Button size='small' />} onClick={addBlock}>
+      {parentGroup === null && (
+        <Toolbar.Button render={<Button size='small' />} onClick={addGroup}>
           <IoAdd />
           Group
         </Toolbar.Button>

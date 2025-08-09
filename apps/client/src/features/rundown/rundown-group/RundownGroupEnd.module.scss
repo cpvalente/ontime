@@ -1,6 +1,6 @@
 @use '../blockMixins' as *;
 
-.blockEnd {
+.groupEnd {
   cursor: default;
   height: 1rem;
   background-color: var(--user-bg, $gray-1050);

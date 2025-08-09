@@ -2,13 +2,14 @@ import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   EntryId,
-  isOntimeBlock,
   isOntimeEvent,
+  isOntimeGroup,
   MaybeString,
-  OntimeBlock,
   OntimeEntry,
   OntimeEvent,
+  OntimeGroup,
   Rundown,
+  SupportedEntry,
   TimeField,
   TimeStrategy,
   TransientEventPayload,
@@ -36,7 +37,7 @@ import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
 
 export type EventOptions = Partial<{
-  // options of any new entries (event / delay / block)
+  // options of any new entries (event / delay / group)
   after: MaybeString;
   before: MaybeString;
   // options of entries of type OntimeEvent
@@ -552,7 +553,7 @@ export const useEntryActions = () => {
   );
 
   /**
-   * Calls mutation to dissolve a block
+   * Calls mutation to dissolve a group
    * @private
    */
   const { mutateAsync: ungroupMutation } = useMutation({
@@ -574,12 +575,12 @@ export const useEntryActions = () => {
   });
 
   /**
-   * Deletes a block and moves its events to the top level
+   * Deletes a group and moves its events to the top level
    */
   const ungroup = useCallback(
-    async (blockId: EntryId) => {
+    async (groupId: EntryId) => {
       try {
-        await ungroupMutation(blockId);
+        await ungroupMutation(groupId);
       } catch (error) {
         logAxiosError('Error dissolving group', error);
       }
@@ -588,7 +589,7 @@ export const useEntryActions = () => {
   );
 
   /**
-   * Calls mutation to create a block with a selection
+   * Calls mutation to create a group with a selection
    * @private
    */
   const { mutateAsync: groupEntriesMutation } = useMutation({
@@ -610,7 +611,7 @@ export const useEntryActions = () => {
   });
 
   /**
-   * Create a block with a selection
+   * Create a group with a selection
    */
   const groupEntries = useCallback(
     async (entryIds: EntryId[]) => {
@@ -674,8 +675,8 @@ export const useEntryActions = () => {
       } catch (error) {
         logAxiosError('Error re-ordering event', error);
       }
-      // the rundown needs to know whether we moved into a block
-      return rundown.entries[destinationId]?.type === 'block' ? destinationId : undefined;
+      // the rundown needs to know whether we moved into a group
+      return rundown.entries[destinationId]?.type === SupportedEntry.Group ? destinationId : undefined;
     },
     [queryClient, reorderEntryMutation],
   );
@@ -798,12 +799,12 @@ function optimisticDeleteEntries(entryIds: EntryId[], rundown: Rundown) {
   }
 
   function deleteEntry(entry: OntimeEntry) {
-    if (isOntimeBlock(entry) || !entry.parent) {
+    if (isOntimeGroup(entry) || !entry.parent) {
       order = order.filter((id) => id !== entry.id);
     } else {
       const parent = entries[entry.parent];
       if ('parent' in entries) {
-        (parent as OntimeBlock).entries = (parent as OntimeBlock).entries.filter(
+        (parent as OntimeGroup).entries = (parent as OntimeGroup).entries.filter(
           (parentEntry) => parentEntry !== entry.id,
         );
       }

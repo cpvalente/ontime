@@ -1,7 +1,7 @@
 import {
   EntryId,
-  isOntimeBlock,
   isOntimeEvent,
+  isOntimeGroup,
   isPlayableEvent,
   MaybeString,
   OntimeDelay,
@@ -81,12 +81,12 @@ function processEntry(
     processedData.isPast = false;
   }
 
-  if (isOntimeBlock(entry)) {
+  if (isOntimeGroup(entry)) {
     processedData.groupId = entry.id;
     processedData.groupColour = entry.colour;
     processedData.groupEntries = entry.entries.length;
   } else {
-    // for delays and blocks, we insert the group metadata
+    // for delays and groups, we insert the group metadata
     if ((entry as OntimeEvent | OntimeDelay | OntimeMilestone).parent !== processedData.groupId) {
       // if the parent is not the current group, we need to update the groupId
       processedData.groupId = (entry as OntimeEvent | OntimeDelay | OntimeMilestone).parent;
@@ -129,7 +129,7 @@ function processEntry(
  * Creates a sortable list of entries
  * ------------------------------------
  * Due to limitations in dnd-kit we need to flatten the list of entries
- * This list should also be aware of any elements that are sortable (ie: block ends)
+ * This list should also be aware of any elements that are sortable (ie: group ends)
  */
 export function makeSortableList(order: EntryId[], entries: RundownEntries): EntryId[] {
   const flatIds: EntryId[] = [];
@@ -141,13 +141,13 @@ export function makeSortableList(order: EntryId[], entries: RundownEntries): Ent
       continue;
     }
 
-    if (isOntimeBlock(entry)) {
-      // inside a block there are delays and events
+    if (isOntimeGroup(entry)) {
+      // inside a group there are delays and events
       // there is no need for special handling
       flatIds.push(entry.id);
       flatIds.push(...entry.entries);
 
-      // close the block
+      // close the group
       flatIds.push(`end-${entry.id}`);
     } else {
       flatIds.push(entry.id);
@@ -160,14 +160,14 @@ export function makeSortableList(order: EntryId[], entries: RundownEntries): Ent
  * Checks whether a drop operation is valid
  * Currently only used for validating dropping groups
  */
-export function canDrop(targetType?: SupportedEntry & 'end-block', targetParent?: EntryId | null): boolean {
+export function canDrop(targetType?: SupportedEntry & 'end-group', targetParent?: EntryId | null): boolean {
   // this would mean inserting a group inside another
-  if (targetType === 'end-block') {
+  if (targetType === 'end-group') {
     return false;
   }
 
   // this means swapping places with another group
-  if (targetType === 'block') {
+  if (targetType === 'group') {
     return true;
   }
 
@@ -182,7 +182,7 @@ export function canDrop(targetType?: SupportedEntry & 'end-block', targetParent?
  * - order: How to position relative to the destination:
  *   - 'before': Place before the destination
  *   - 'after': Place after the destination
- *   - 'insert': Insert into the destination (for blocks)
+ *   - 'insert': Insert into the destination (for groups)
  */
 export function moveUp(
   entryId: EntryId,
@@ -195,7 +195,7 @@ export function moveUp(
 
   // 1. moving at the top of the list
   if (!previousEntryId) {
-    // 1a. we are in a block and need to move outside of it
+    // 1a. we are in a group and need to move outside of it
     if ('parent' in currentEntry && currentEntry.parent !== null) {
       return { destinationId: currentEntry.parent, order: 'before' };
     }
@@ -203,9 +203,9 @@ export function moveUp(
     return { destinationId: null, order: 'before' };
   }
 
-  // 2. moving a block (always moves at top level)
-  if (isOntimeBlock(currentEntry)) {
-    // 21. if previous entry is inside a block, swap with parent
+  // 2. moving a group (always moves at top level)
+  if (isOntimeGroup(currentEntry)) {
+    // 21. if previous entry is inside a group, swap with parent
     const previousEntry = entries[previousEntryId];
     if ('parent' in previousEntry && previousEntry.parent !== null) {
       return { destinationId: previousEntry.parent, order: 'before' };
@@ -218,17 +218,17 @@ export function moveUp(
   const previousEntry = entries[previousEntryId];
   const currentEntryParent = currentEntry.parent;
 
-  // 3. moving in and out of a block
-  if (isOntimeBlock(previousEntry)) {
-    // 3a. if we're not already in the block, move into it
+  // 3. moving in and out of a group
+  if (isOntimeGroup(previousEntry)) {
+    // 3a. if we're not already in the group, move into it
     if (currentEntryParent === null) {
       return { destinationId: previousEntryId, order: 'insert' };
     }
-    // 3b. otherwise, move before the block
+    // 3b. otherwise, move before the group
     return { destinationId: previousEntryId, order: 'before' };
   }
 
-  // 4. moving into the same block as previous entry
+  // 4. moving into the same group as previous entry
   if (isOntimeEvent(previousEntry) && previousEntry.parent !== null && currentEntryParent === null) {
     return { destinationId: previousEntryId, order: 'after' };
   }
@@ -244,7 +244,7 @@ export function moveUp(
  * - order: How to position relative to the destination:
  *   - 'before': Place before the destination
  *   - 'after': Place after the destination
- *   - 'insert': Insert into the destination (for blocks)
+ *   - 'insert': Insert into the destination (for groups)
  */
 export function moveDown(
   entryId: EntryId,
@@ -255,10 +255,10 @@ export function moveDown(
   const currentIndex = flatOrder.indexOf(entryId);
   const nextEntryId = flatOrder[currentIndex + 1];
 
-  // 1. check if we're the last entry in a block
+  // 1. check if we're the last entry in a group
   if ('parent' in currentEntry && currentEntry.parent !== null) {
-    const parentBlock = entries[currentEntry.parent];
-    if (isOntimeBlock(parentBlock) && parentBlock.entries[parentBlock.entries.length - 1] === entryId) {
+    const parentGroup = entries[currentEntry.parent];
+    if (isOntimeGroup(parentGroup) && parentGroup.entries[parentGroup.entries.length - 1] === entryId) {
       return { destinationId: currentEntry.parent, order: 'after' };
     }
   }
@@ -268,42 +268,42 @@ export function moveDown(
     return { destinationId: null, order: 'after' };
   }
 
-  // 3. moving a block (always moves at top level)
-  if (isOntimeBlock(currentEntry)) {
-    // if next entry is inside this block, skip past all children
+  // 3. moving a group (always moves at top level)
+  if (isOntimeGroup(currentEntry)) {
+    // if next entry is inside this group, skip past all children
     if (currentEntry.entries.includes(nextEntryId)) {
-      const afterBlockIndex = currentIndex + currentEntry.entries.length + 1;
-      const afterBlockId = flatOrder[afterBlockIndex];
+      const afterGroupIndex = currentIndex + currentEntry.entries.length + 1;
+      const afterGroupId = flatOrder[afterGroupIndex];
 
-      // 2a. block is the last top level entry
-      if (!afterBlockId) {
+      // 2a. group is the last top level entry
+      if (!afterGroupId) {
         return { destinationId: null, order: 'after' };
       }
       // 2b. move after the next top level event
-      return { destinationId: afterBlockId, order: 'after' };
+      return { destinationId: afterGroupId, order: 'after' };
     }
-    // 2c. empty block move after the next entry
+    // 2c. empty group move after the next entry
     return { destinationId: nextEntryId, order: 'after' };
   }
 
   const nextEntry = entries[nextEntryId];
   const currentEntryParent = currentEntry.parent;
 
-  // 4. handle moving relative to blocks
-  if (isOntimeBlock(nextEntry)) {
+  // 4. handle moving relative to groups
+  if (isOntimeGroup(nextEntry)) {
     if (currentEntryParent === null) {
-      // we are entering a block
+      // we are entering a group
       if (nextEntry.entries.length === 0) {
-        // 3a. if the block is empty, insert into it
+        // 3a. if the group is empty, insert into it
         return { destinationId: nextEntryId, order: 'insert' };
       }
-      // 3b. otherwise, add before the first entry in the block
-      const firstBlockEntryId = nextEntry.entries[0];
-      return { destinationId: firstBlockEntryId, order: 'before' };
+      // 3b. otherwise, add before the first entry in the group
+      const firstGroupEntryId = nextEntry.entries[0];
+      return { destinationId: firstGroupEntryId, order: 'before' };
     }
   }
 
-  // 5. handle moving between block and top level
+  // 5. handle moving between group and top level
   const nextEntryParent = isOntimeEvent(nextEntry) ? nextEntry.parent : null;
   if (nextEntryParent !== null && currentEntryParent === null) {
     return { destinationId: nextEntryId, order: 'after' };

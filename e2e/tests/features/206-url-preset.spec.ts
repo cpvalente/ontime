@@ -123,9 +123,9 @@ test.describe('Sharing from cuesheet', () => {
     await page.getByRole('button', { name: 'Clear all' }).click();
     await page.getByRole('button', { name: 'Delete all' }).click();
     await page.getByRole('button', { name: 'Create Event' }).click();
-    await page.getByTestId('entry-1').getByTestId('block__title').click();
-    await page.getByTestId('entry-1').getByTestId('block__title').fill('title 1');
-    await page.getByTestId('entry-1').getByTestId('block__title').press('Enter');
+    await page.getByTestId('entry-1').getByTestId('entry__title').click();
+    await page.getByTestId('entry-1').getByTestId('entry__title').fill('title 1');
+    await page.getByTestId('entry-1').getByTestId('entry__title').press('Enter');
 
     await page.close();
   });

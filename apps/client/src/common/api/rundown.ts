@@ -95,14 +95,14 @@ export async function postCloneEntry(entryId: EntryId): Promise<AxiosResponse<Ru
 }
 
 /**
- * HTTP request for dissolving of a block
+ * HTTP request for dissolving of a group
  */
-export async function requestUngroup(blockId: EntryId): Promise<AxiosResponse<Rundown>> {
-  return axios.post(`${rundownPath}/ungroup/${blockId}`);
+export async function requestUngroup(groupId: EntryId): Promise<AxiosResponse<Rundown>> {
+  return axios.post(`${rundownPath}/ungroup/${groupId}`);
 }
 
 /**
- * HTTP request for grouping a list of entries into a block
+ * HTTP request for grouping a list of entries into a group
  */
 export async function requestGroupEntries(entryIds: EntryId[]): Promise<AxiosResponse<Rundown>> {
   return axios.post(`${rundownPath}/group`, { ids: entryIds });

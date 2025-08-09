@@ -13,7 +13,7 @@ import TimeInputGroup from './TimeInputGroup';
 
 import style from './TimeInputFlow.module.scss';
 
-interface EventBlockTimerProps {
+interface TimeInputFlowProps {
   eventId: string;
   countToEnd: boolean;
   timeStart: number;
@@ -36,7 +36,7 @@ function TimeInputFlow({
   linkStart,
   delay,
   showLabels,
-}: EventBlockTimerProps) {
+}: TimeInputFlowProps) {
   const { updateEntry, updateTimer } = useEntryActions();
 
   // In sync with EventEditorTimes

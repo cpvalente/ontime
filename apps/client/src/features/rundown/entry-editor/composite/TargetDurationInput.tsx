@@ -17,27 +17,27 @@ interface TargetDurationInputProps {
 }
 
 export default function TargetDurationInput({ duration, targetDuration, submitHandler }: TargetDurationInputProps) {
-  const isBlocked = targetDuration !== null;
+  const isLocked = targetDuration !== null;
 
   return (
     <div>
       <Editor.Label htmlFor='targetDuration'>Target duration</Editor.Label>
-      <TimeInputGroup hasDelay={isBlocked && targetDuration !== duration}>
+      <TimeInputGroup hasDelay={isLocked && targetDuration !== duration}>
         <NullableTimeInput
           name='targetDuration'
           time={targetDuration}
           submitHandler={submitHandler}
           emptyDisplay={enDash}
-          className={isBlocked ? '' : style.inactive}
+          className={isLocked ? '' : style.inactive}
         />
         <Tooltip
           text='Lock to target duration'
-          className={cx([style.timeAction, isBlocked && style.active])}
-          onClick={() => submitHandler('targetDuration', isBlocked ? null : duration)}
+          className={cx([style.timeAction, isLocked && style.active])}
+          onClick={() => submitHandler('targetDuration', isLocked ? null : duration)}
           data-testid='lock__duration'
-          render={<IconButton variant='subtle-white' className={isBlocked ? style.active : style.inactive} />}
+          render={<IconButton variant='subtle-white' className={isLocked ? style.active : style.inactive} />}
         >
-          {isBlocked ? <IoLockClosed /> : <IoLockOpenOutline />}
+          {isLocked ? <IoLockClosed /> : <IoLockOpenOutline />}
         </Tooltip>
       </TimeInputGroup>
     </div>

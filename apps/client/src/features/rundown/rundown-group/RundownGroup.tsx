@@ -9,7 +9,7 @@ import {
 } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { EntryId, OntimeBlock } from 'ontime-types';
+import { EntryId, OntimeGroup } from 'ontime-types';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
@@ -17,24 +17,24 @@ import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { getOffsetState } from '../../../common/utils/offset';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';
-import EditableBlockTitle from '../common/EditableBlockTitle';
+import TitleEditor from '../common/TitleEditor';
 import { canDrop } from '../rundown.utils';
 import { useEventSelection } from '../useEventSelection';
 
-import style from './RundownBlock.module.scss';
+import style from './RundownGroup.module.scss';
 
-interface RundownBlockProps {
-  data: OntimeBlock;
+interface RundownGroupProps {
+  data: OntimeGroup;
   hasCursor: boolean;
   collapsed: boolean;
   onCollapse: (collapsed: boolean, groupId: EntryId) => void;
 }
 
-//TODO: the block should maybe include a multiple day indicator
-export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }: RundownBlockProps) {
+//TODO: the group should maybe include a multiple day indicator
+export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }: RundownGroupProps) {
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const { clone, ungroup, deleteEntry } = useEntryActions();
-  const { selectedEvents, setSelectedBlock } = useEventSelection();
+  const { selectedEvents, setSingleEntrySelection } = useEventSelection();
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>([
     {
@@ -71,7 +71,7 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
   } = useSortable({
     id: data.id,
     data: {
-      type: 'block',
+      type: 'group',
     },
     animateLayoutChanges: () => false,
   });
@@ -87,7 +87,7 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
     }
 
     // UI indexes are 1 based
-    setSelectedBlock({ id: data.id });
+    setSingleEntrySelection({ id: data.id });
   };
 
   const binderColours = data.colour && getAccessibleColour(data.colour);
@@ -115,16 +115,15 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
 
   return (
     <div
-      className={cx([style.block, hasCursor && style.hasCursor, !collapsed && style.expanded])}
+      className={cx([style.group, hasCursor && style.hasCursor, !collapsed && style.expanded])}
       ref={setNodeRef}
       onClick={handleFocusClick}
       onContextMenu={onContextMenu}
       style={{
-        //  ...(binderColours ? { '--user-bg': binderColours.backgroundColor } : {}),
         ...dragStyle,
         '--user-bg': data.colour || '#929292',
       }}
-      data-testid='rundown-block'
+      data-testid='rundown-group'
     >
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
         <span
@@ -138,7 +137,7 @@ export default function RundownBlock({ data, hasCursor, collapsed, onCollapse }:
       </div>
       <div className={style.header}>
         <div className={style.titleRow}>
-          <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Group title' />
+          <TitleEditor title={data.title} entryId={data.id} placeholder='Group title' />
           <IconButton aria-label='Collapse' variant='subtle-white' onClick={() => onCollapse(!collapsed, data.id)}>
             {collapsed ? <IoChevronUp /> : <IoChevronDown />}
           </IconButton>

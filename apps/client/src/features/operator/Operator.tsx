@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { isOntimeBlock, isOntimeEvent, OntimeView } from 'ontime-types';
+import { isOntimeEvent, isOntimeGroup, OntimeView } from 'ontime-types';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -16,8 +16,8 @@ import { getDefaultFormat } from '../../common/utils/time';
 
 import EditModal from './edit-modal/EditModal';
 import FollowButton from './follow-button/FollowButton';
-import OperatorBlock from './operator-block/OperatorBlock';
 import OperatorEvent from './operator-event/OperatorEvent';
+import OperatorGroup from './operator-group/OperatorGroup';
 import StatusBar from './status-bar/StatusBar';
 import { getOperatorOptions, useOperatorOptions } from './operator.options';
 import type { EditEvent } from './operator.types';
@@ -168,10 +168,10 @@ export default function Operator() {
             );
           }
 
-          if (isOntimeBlock(entry)) {
+          if (isOntimeGroup(entry)) {
             return (
               <Fragment key={entry.id}>
-                <OperatorBlock key={entry.id} title={entry.title} />
+                <OperatorGroup key={entry.id} title={entry.title} />
                 {entry.entries.map((nestedEntryId) => {
                   const nestedEntry = data.entries[nestedEntryId];
                   if (!isOntimeEvent(nestedEntry)) {

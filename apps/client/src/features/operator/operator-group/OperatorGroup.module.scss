@@ -1,4 +1,4 @@
-.block {
+.group {
   width: 100%;
   padding: 0.25rem 0.5rem;
   background-color: $gray-1350;
@@ -7,7 +7,7 @@
 
 // tablet
 @media (min-width: $min-tablet) {
-  .block {
+  .group {
     padding: 0.25rem 1rem;
   }
 }
