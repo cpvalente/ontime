@@ -26,8 +26,8 @@ const staticAutocompleteOptions = [
   '{{runtime.plannedEnd}}',
   '{{runtime.actualStart}}',
   '{{runtime.expectedEnd}}',
-  '{{currentBlock.block}}',
-  '{{currentBlock.startedAt}}',
+  '{{currentGroup.id}}',
+  '{{currentGroup.startedAt}}',
 ];
 
 const eventStaticPropertiesNow = [

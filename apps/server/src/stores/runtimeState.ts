@@ -1,11 +1,11 @@
 import {
-  CurrentBlockState,
+  CurrentGroupState,
   EntryMetaData,
   isOntimeEvent,
   MaybeNumber,
   MaybeString,
   OffsetMode,
-  OntimeBlock,
+  OntimeGroup,
   OntimeEvent,
   PlayableEvent,
   Playback,
@@ -36,8 +36,8 @@ type ExpectedMetadata = { event: OntimeEvent; accumulatedGap: number; isLinkedTo
 
 export type RuntimeState = {
   clock: number; // realtime clock
-  blockNow: CurrentBlockState | null;
-  blockNext: MaybeString;
+  groupNow: CurrentGroupState | null;
+  groupNext: MaybeString;
   nextFlag: EntryMetaData | null;
   eventNow: PlayableEvent | null;
   eventNext: PlayableEvent | null;
@@ -52,15 +52,15 @@ export type RuntimeState = {
   _rundown: {
     totalDelay: number; // this value comes from rundown service
   };
-  _block: ExpectedMetadata;
+  _group: ExpectedMetadata;
   _flag: ExpectedMetadata;
   _end: ExpectedMetadata;
 };
 
 const runtimeState: RuntimeState = {
   clock: timeNow(),
-  blockNow: null,
-  blockNext: null,
+  groupNow: null,
+  groupNext: null,
   nextFlag: null,
   eventNow: null,
   eventNext: null,
@@ -74,7 +74,7 @@ const runtimeState: RuntimeState = {
   _rundown: {
     totalDelay: 0,
   },
-  _block: null,
+  _group: null,
   _flag: null,
   _end: null,
 };
@@ -105,7 +105,7 @@ export function clearEventData() {
   runtimeState.runtime.selectedEventIndex = null;
 
   //TODO: is there any ExpectedMetadata stuff we need to clear here
-  if (runtimeState.blockNow) runtimeState.blockNow.expectedEnd = null;
+  if (runtimeState.groupNow) runtimeState.groupNow.expectedEnd = null;
 
   runtimeState.timer.playback = Playback.Stop;
   runtimeState.clock = timeNow();
@@ -122,9 +122,9 @@ export function clearState() {
   runtimeState.eventNow = null;
   runtimeState.eventNext = null;
 
-  runtimeState.blockNow = null;
-  runtimeState.blockNext = null;
-  runtimeState._block = null;
+  runtimeState.groupNow = null;
+  runtimeState.groupNext = null;
+  runtimeState._group = null;
 
   runtimeState.nextFlag = null;
   runtimeState._flag = null;
@@ -212,7 +212,7 @@ export function load(
   // load events in memory along with their data
   loadNow(rundown, metadata, eventIndex);
   loadNext(rundown, metadata, eventIndex);
-  loadBlockFlagAndEnd(rundown, metadata, eventIndex);
+  loadGroupFlagAndEnd(rundown, metadata, eventIndex);
 
   // update state
   runtimeState.timer.playback = Playback.Armed;
@@ -231,8 +231,8 @@ export function load(
       runtimeState.runtime.offsetRel = offsetRel;
       getExpectedTimes();
     }
-    if (typeof initialData.blockStartAt === 'number' && runtimeState.blockNow) {
-      runtimeState.blockNow.startedAt = initialData.blockStartAt;
+    if (typeof initialData.groupStartAt === 'number' && runtimeState.groupNow) {
+      runtimeState.groupNow.startedAt = initialData.groupStartAt;
     }
   }
   return event.id === runtimeState.eventNow?.id;
@@ -353,7 +353,7 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   loadNow(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   loadNext(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   updateLoaded(runtimeState.eventNow ?? undefined);
-  loadBlockFlagAndEnd(rundown, metadata, eventNowIndex);
+  loadGroupFlagAndEnd(rundown, metadata, eventNowIndex);
 }
 
 export function start(state: RuntimeState = runtimeState): boolean {
@@ -378,9 +378,9 @@ export function start(state: RuntimeState = runtimeState): boolean {
     state.timer.startedAt = state.clock;
   }
 
-  // update block start time
-  if (state.blockNow && state.blockNow.startedAt === null) {
-    state.blockNow.startedAt = state.clock;
+  // update group start time
+  if (state.groupNow && state.groupNow.startedAt === null) {
+    state.groupNow.startedAt = state.clock;
   }
 
   state.timer.playback = Playback.Play;
@@ -607,8 +607,8 @@ export function roll(
       runtimeState.timer.startedAt = runtimeState.clock;
 
       // update runtime
-      if (runtimeState.blockNow && runtimeState.blockNow.startedAt === null) {
-        runtimeState.blockNow.startedAt = runtimeState.clock;
+      if (runtimeState.groupNow && runtimeState.groupNow.startedAt === null) {
+        runtimeState.groupNow.startedAt = runtimeState.clock;
       }
       if (!runtimeState.runtime.actualStart) {
         runtimeState.runtime.actualStart = runtimeState.clock;
@@ -628,7 +628,7 @@ export function roll(
     throw new Error('No playable events found');
   }
 
-  // we need to persist the current block state across loads
+  // we need to persist the current group state across loads
   clearEventData();
 
   //account for offset but we only keep it if passed to us
@@ -640,7 +640,7 @@ export function roll(
   // load events in memory along with their data
   loadNow(rundown, metadata, index);
   loadNext(rundown, metadata, index);
-  loadBlockFlagAndEnd(rundown, metadata, index);
+  loadGroupFlagAndEnd(rundown, metadata, index);
 
   // update roll state
   runtimeState.timer.playback = Playback.Roll;
@@ -671,8 +671,8 @@ export function roll(
   // there is something to run, load event
 
   // update runtime
-  if (runtimeState.blockNow && runtimeState.blockNow.startedAt === null) {
-    runtimeState.blockNow.startedAt = runtimeState.clock;
+  if (runtimeState.groupNow && runtimeState.groupNow.startedAt === null) {
+    runtimeState.groupNow.startedAt = runtimeState.clock;
   }
 
   // event will finish on time
@@ -700,7 +700,7 @@ export function roll(
 /**
  * calculates and sets values directly in state
  * - runtime.expectedEnd
- * - blockNow.expectedEnd
+ * - groupNow.expectedEnd
  * - nextFlag.expectedStart
  */
 function getExpectedTimes(state = runtimeState) {
@@ -710,11 +710,11 @@ function getExpectedTimes(state = runtimeState) {
   if (!eventNow) return;
 
   state.runtime.expectedEnd = null;
-  if (state.blockNow) {
-    state.blockNow.expectedEnd = null;
-    const { _block } = state;
-    if (state.blockNow.startedAt !== null && _block !== null) {
-      const { event, accumulatedGap, isLinkedToLoaded } = _block;
+  if (state.groupNow) {
+    state.groupNow.expectedEnd = null;
+    const { _group } = state;
+    if (state.groupNow.startedAt !== null && _group !== null) {
+      const { event, accumulatedGap, isLinkedToLoaded } = _group;
       const expectedStart = getExpectedStart(event, {
         currentDay: eventNow.dayOffset,
         totalGap: accumulatedGap,
@@ -724,7 +724,7 @@ function getExpectedTimes(state = runtimeState) {
         plannedStart,
         actualStart,
       });
-      state.blockNow.expectedEnd = expectedStart + event.duration;
+      state.groupNow.expectedEnd = expectedStart + event.duration;
     }
   }
 
@@ -763,7 +763,7 @@ function getExpectedTimes(state = runtimeState) {
   }
 }
 
-export function loadBlockFlagAndEnd(
+export function loadGroupFlagAndEnd(
   rundown: Rundown,
   metadata: RundownMetadata,
   currentIndex: MaybeNumber,
@@ -772,14 +772,14 @@ export function loadBlockFlagAndEnd(
   if (currentIndex === null) return resetMetaData();
   if (state.eventNow === null) return resetMetaData();
 
-  const currentBlockId = state.eventNow.parent;
+  const currentGroupId = state.eventNow.parent;
   const flagsPresent = metadata.flags.length !== 0;
 
   const { playableEventOrder } = metadata;
   const { entries } = rundown;
 
-  const orderInBlock = currentBlockId ? (entries[currentBlockId] as OntimeBlock).entries : null;
-  const lastEventInGroup = orderInBlock ? getLastEventNormal(rundown.entries, orderInBlock).lastEvent : null;
+  const orderInGroup = currentGroupId ? (entries[currentGroupId] as OntimeGroup).entries : null;
+  const lastEventInGroup = orderInGroup ? getLastEventNormal(rundown.entries, orderInGroup).lastEvent : null;
 
   // if we don't have a any flags in the rundown then no need to look for it
   let foundFlag = !flagsPresent;
@@ -809,12 +809,12 @@ export function loadBlockFlagAndEnd(
 
       if (!foundGroupEnd && entry.id === lastEventInGroup?.id) {
         foundGroupEnd = true;
-        state._block = { event: lastEventInGroup, isLinkedToLoaded, accumulatedGap };
+        state._group = { event: lastEventInGroup, isLinkedToLoaded, accumulatedGap };
       }
 
-      if (!foundNextGroup && entry.parent !== currentBlockId) {
+      if (!foundNextGroup && entry.parent !== currentGroupId) {
         foundNextGroup = true;
-        state.blockNext = entry.parent;
+        state.groupNext = entry.parent;
       }
     }
   }
@@ -827,19 +827,19 @@ export function loadBlockFlagAndEnd(
 
   if (!foundFlag) state.nextFlag = null;
 
-  if (currentBlockId === null) {
-    state.blockNow = null;
-  } else if ((state.blockNow != null && state.blockNow.id != currentBlockId) || state.blockNow == null) {
-    // we went into a new block - and it is different from the one we might have come from
+  if (currentGroupId === null) {
+    state.groupNow = null;
+  } else if ((state.groupNow != null && state.groupNow.id != currentGroupId) || state.groupNow == null) {
+    // we went into a new group - and it is different from the one we might have come from
     // the id is set here, the start time is set when starting events
-    state.blockNow = { id: currentBlockId, startedAt: null, expectedEnd: null };
+    state.groupNow = { id: currentGroupId, startedAt: null, expectedEnd: null };
   }
 }
 
 const resetMetaData = (state = runtimeState) => {
-  state.blockNow = null;
-  state.blockNext = null;
-  state._block = null;
+  state.groupNow = null;
+  state.groupNext = null;
+  state._group = null;
   state.nextFlag = null;
   state._flag = null;
   state._end = null;

@@ -2,12 +2,12 @@ import { RefObject, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { RowModel, Table } from '@tanstack/react-table';
 import {
-  isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
+  isOntimeGroup,
   isOntimeMilestone,
-  OntimeBlock,
   OntimeEntry,
+  OntimeGroup,
   Rundown,
 } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
@@ -18,9 +18,9 @@ import { useSelectedEventId } from '../../../../common/hooks/useSocket';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 
-import BlockRow from './BlockRow';
 import DelayRow from './DelayRow';
 import EventRow from './EventRow';
+import GroupRow from './GroupRow';
 import MilestoneRow from './MilestoneRow';
 import { cleanup } from './rowObserver';
 
@@ -39,7 +39,7 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
   let eventIndex = 0;
   // for the first event, it will be past if there is something selected
   let isPast = Boolean(selectedEventId);
-  let hadBlock = false;
+  let hadGroup = false;
 
   // remove the observer when the table unmounts
   useEffect(() => {
@@ -62,11 +62,11 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
           isPast = false;
         }
 
-        if (isOntimeBlock(entry)) {
+        if (isOntimeGroup(entry)) {
           return (
-            <BlockRow
+            <GroupRow
               key={key}
-              blockId={entry.id}
+              groupId={entry.id}
               colour={entry.colour}
               hidePast={isPast && hidePast}
               rowId={row.id}
@@ -88,7 +88,7 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
           if (entry.parent) {
             const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
             const parentEntry = rundown?.entries[entry.parent];
-            parentBgColour = (parentEntry as OntimeBlock).colour ?? null;
+            parentBgColour = (parentEntry as OntimeGroup).colour ?? null;
           }
           return <DelayRow key={key} duration={delayVal} parentBgColour={parentBgColour} />;
         }
@@ -113,7 +113,7 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
           if (entry.parent) {
             const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
             const parentEntry = rundown?.entries[entry.parent];
-            parentBgColour = (parentEntry as OntimeBlock | undefined)?.colour ?? null;
+            parentBgColour = (parentEntry as OntimeGroup | undefined)?.colour ?? null;
           }
 
           return (
@@ -153,15 +153,15 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
           }
 
           let parentBgColour: string | undefined;
-          let firstAfterBlock = false;
+          let firstAfterGroup = false;
           if (entry.parent) {
             const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
-            const parentEntry = rundown?.entries[entry.parent] as OntimeBlock | undefined;
+            const parentEntry = rundown?.entries[entry.parent] as OntimeGroup | undefined;
             parentBgColour = parentEntry?.colour;
-            hadBlock = true;
-          } else if (hadBlock) {
-            firstAfterBlock = true;
-            hadBlock = false;
+            hadGroup = true;
+          } else if (hadGroup) {
+            firstAfterGroup = true;
+            hadGroup = false;
           }
 
           return (
@@ -176,7 +176,7 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
               rowBgColour={rowBgColour}
               parentBgColour={parentBgColour}
               table={table}
-              firstAfterBlock={firstAfterBlock}
+              firstAfterGroup={firstAfterGroup}
             />
           );
         }

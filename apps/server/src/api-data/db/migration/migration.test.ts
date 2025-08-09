@@ -48,7 +48,7 @@ describe('v3 to v4', () => {
         dayOffset: 0,
         gap: 0,
       },
-      { id: 'block0', type: 'block', title: 'BLOCK 0' },
+      { id: 'group0', type: 'block', title: 'GROUP 0' },
       {
         id: 'event2',
         type: SupportedEntry.Event,
@@ -107,7 +107,7 @@ describe('v3 to v4', () => {
         dayOffset: 0,
         gap: 0,
       },
-      { id: 'block1', type: 'block', title: 'BLOCK 1' },
+      { id: 'group1', type: 'block', title: 'GROUP 1' },
       { id: 'delay', type: 'delay', duration: 1000 },
     ],
     project: {
@@ -268,8 +268,8 @@ describe('v3 to v4', () => {
     const expectedRundown: Rundown = {
       id: 'default',
       title: 'Default',
-      order: ['event1', 'block0', 'block1'],
-      flatOrder: ['event1', 'block0', 'event2', 'event3', 'block1', 'delay'],
+      order: ['event1', 'group0', 'group1'],
+      flatOrder: ['event1', 'group0', 'event2', 'event3', 'group1', 'delay'],
       entries: {
         event1: {
           id: 'event1',
@@ -298,10 +298,10 @@ describe('v3 to v4', () => {
           dayOffset: 0,
           gap: 0,
         },
-        block0: {
-          id: 'block0',
-          type: SupportedEntry.Block,
-          title: 'BLOCK 0',
+        group0: {
+          id: 'group0',
+          type: SupportedEntry.Group,
+          title: 'GROUP 0',
           colour: '',
           custom: {},
           duration: 0,
@@ -337,7 +337,7 @@ describe('v3 to v4', () => {
           },
           triggers: [{ id: 'testTrig', title: 'Test trigger', trigger: TimerLifeCycle.onStart, automationId: '1' }],
           flag: false,
-          parent: 'block0',
+          parent: 'group0',
           revision: -1,
           delay: 0,
           dayOffset: 0,
@@ -368,16 +368,16 @@ describe('v3 to v4', () => {
           },
           triggers: [{ id: 'testTrig', title: 'Test trigger', trigger: TimerLifeCycle.onStart, automationId: '1' }],
           flag: false,
-          parent: 'block0',
+          parent: 'group0',
           revision: -1,
           delay: 0,
           dayOffset: 0,
           gap: 0,
         },
-        block1: {
-          id: 'block1',
-          type: SupportedEntry.Block,
-          title: 'BLOCK 1',
+        group1: {
+          id: 'group1',
+          type: SupportedEntry.Group,
+          title: 'GROUP 1',
           colour: '',
           custom: {},
           duration: 0,
@@ -393,7 +393,7 @@ describe('v3 to v4', () => {
           type: SupportedEntry.Delay,
           id: 'delay',
           duration: 1000,
-          parent: 'block1',
+          parent: 'group1',
         },
       },
 

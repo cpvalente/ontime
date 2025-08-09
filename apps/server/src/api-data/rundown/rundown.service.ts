@@ -4,10 +4,10 @@ import {
   CustomFields,
   EntryId,
   EventPostPayload,
-  isOntimeBlock,
+  isOntimeGroup,
   isOntimeDelay,
   isOntimeEvent,
-  OntimeBlock,
+  OntimeGroup,
   OntimeEntry,
   PatchWithId,
   RefetchKey,
@@ -35,12 +35,12 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
   }
 
   // the parent can be provided or inferred from position
-  let parent: OntimeBlock | null = null;
+  let parent: OntimeGroup | null = null;
 
   if ('parent' in eventData && eventData.parent != null) {
     // if the user provides a parent (inside a group), we make sure it exists and it is a group
     const maybeParent = rundown.entries[eventData.parent];
-    if (!maybeParent || !isOntimeBlock(maybeParent)) {
+    if (!maybeParent || !isOntimeGroup(maybeParent)) {
       throw new Error(`Invalid parent event with ID ${eventData.parent}`);
     }
     parent = maybeParent;
@@ -51,7 +51,7 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
       const maybeSibling = rundown.entries[referenceId];
       if (maybeSibling && 'parent' in maybeSibling && maybeSibling.parent) {
         const maybeParent = rundown.entries[maybeSibling.parent];
-        if (maybeParent && isOntimeBlock(maybeParent)) {
+        if (maybeParent && isOntimeGroup(maybeParent)) {
           parent = maybeParent;
         }
       }
@@ -241,7 +241,7 @@ export async function deleteAllEntries(): Promise<Rundown> {
 
 /**
  * Moves an event to a new position in the rundown
- * Handles moving across root orders (a block order and top level order)
+ * Handles moving across root orders (a group order and top level order)
  * @throws if entryId or destinationId not found
  */
 export function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
@@ -356,7 +356,7 @@ export async function cloneEntry(entryId: EntryId): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    if (isOntimeBlock(newEntry)) {
+    if (isOntimeGroup(newEntry)) {
       notifyChanges(rundownMetadata, revision, { timer: newEntry.entries, external: true });
     } else if (isOntimeEvent(newEntry)) {
       notifyChanges(rundownMetadata, revision, { timer: [newEntry.id], external: true });
@@ -370,7 +370,7 @@ export async function cloneEntry(entryId: EntryId): Promise<Rundown> {
 }
 
 /**
- * Groups a list of entries into a new block
+ * Groups a list of entries into a new group
  */
 export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
@@ -391,17 +391,17 @@ export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
 }
 
 /**
- * Deletes a block and moves all its children to the top level
+ * Deletes a group and moves all its children to the top level
  */
-export async function ungroupEntries(blockId: EntryId): Promise<Rundown> {
+export async function ungroupEntries(groupId: EntryId): Promise<Rundown> {
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
 
-  const block = rundown.entries[blockId];
-  if (!block || !isOntimeBlock(block)) {
-    throw new Error(`Block with ID ${blockId} not found or is not a block`);
+  const group = rundown.entries[groupId];
+  if (!group || !isOntimeGroup(group)) {
+    throw new Error(`Group with ID ${groupId} not found or is not a group`);
   }
 
-  rundownMutation.ungroup(rundown, block);
+  rundownMutation.ungroup(rundown, group);
   const { rundown: rundownResult, rundownMetadata, revision } = commit();
 
   // schedule the side effects

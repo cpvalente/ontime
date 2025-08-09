@@ -1,7 +1,7 @@
 import type { MaybeNumber } from '../../utils/utils.type.js';
 import type { EntryId } from '../core/OntimeEntry.js';
 
-export type CurrentBlockState = {
+export type CurrentGroupState = {
   id: EntryId;
   startedAt: MaybeNumber;
   expectedEnd: MaybeNumber;

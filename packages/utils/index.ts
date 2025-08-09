@@ -16,7 +16,7 @@ export {
   getLastEventNormal,
   getLastNormal,
   getNext,
-  getNextBlockNormal,
+  getNextGroupNormal,
   getNextEvent,
   getNextEventNormal,
   getNextNormal,
@@ -24,8 +24,8 @@ export {
   getPreviousEvent,
   getPreviousEventNormal,
   getPreviousNormal,
-  getPreviousBlock,
-  getPreviousBlockNormal,
+  getPreviousGroup,
+  getPreviousGroupNormal,
   swapEventData,
 } from './src/rundown-utils/rundownUtils.js';
 export { getFirstRundown } from './src/rundown/rundown.utils.js';

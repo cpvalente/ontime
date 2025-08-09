@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { MaybeNumber, OntimeBlock } from 'ontime-types';
+import { MaybeNumber, OntimeGroup } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
@@ -19,38 +19,38 @@ import TargetDurationInput from './composite/TargetDurationInput';
 import style from './EntryEditor.module.scss';
 
 // title + colour + custom field labels
-export type BlockEditorUpdateTextFields = 'title' | 'colour' | string;
-export type BlockEditorUpdateMaybeNumberFields = 'targetDuration';
+export type GroupEditorUpdateTextFields = 'title' | 'colour' | string;
+export type GroupEditorUpdateMaybeNumberFields = 'targetDuration';
 
-interface BlockEditorProps {
-  block: OntimeBlock;
+interface GroupEditorProps {
+  group: OntimeGroup;
 }
 
-export default function BlockEditor({ block }: BlockEditorProps) {
+export default function GroupEditor({ group }: GroupEditorProps) {
   const { data: customFields } = useCustomFields();
   const { updateEntry } = useEntryActions();
 
   const handleSubmit = useCallback(
-    (field: BlockEditorUpdateTextFields | BlockEditorUpdateMaybeNumberFields, value: string | MaybeNumber) => {
+    (field: GroupEditorUpdateTextFields | GroupEditorUpdateMaybeNumberFields, value: string | MaybeNumber) => {
       // Handle custom fields
       if (typeof field === 'string' && field.startsWith('custom-')) {
         const fieldLabel = field.split('custom-')[1];
-        updateEntry({ id: block.id, custom: { [fieldLabel]: value as string } });
+        updateEntry({ id: group.id, custom: { [fieldLabel]: value as string } });
         return;
       }
 
       if (field === 'targetDuration') {
-        return updateEntry({ id: block.id, targetDuration: value as MaybeNumber });
+        return updateEntry({ id: group.id, targetDuration: value as MaybeNumber });
       }
 
       // all other strings are text fields
-      return updateEntry({ id: block.id, [field]: value as string });
+      return updateEntry({ id: group.id, [field]: value as string });
     },
-    [block.id, updateEntry],
+    [group.id, updateEntry],
   );
 
   const isEditor = window.location.pathname.includes('editor');
-  const planOffset = typeof block.targetDuration !== 'number' ? null : block.duration - block.targetDuration;
+  const planOffset = typeof group.targetDuration !== 'number' ? null : group.duration - group.targetDuration;
   const planOffsetLabel = planOffset !== null ? getOffsetState(planOffset * -1) : null;
 
   return (
@@ -64,19 +64,19 @@ export default function BlockEditor({ block }: BlockEditorProps) {
             }
             <Editor.Label>First event start</Editor.Label>
             <TextLikeInput className={style.textLikeInput}>
-              {millisToString(block.timeStart, { fallback: timerPlaceholder })}
+              {millisToString(group.timeStart, { fallback: timerPlaceholder })}
             </TextLikeInput>
           </div>
           <div>
             <Editor.Label>Last event end</Editor.Label>
             <TextLikeInput className={style.textLikeInput}>
-              {millisToString(block.timeEnd, { fallback: timerPlaceholder })}
+              {millisToString(group.timeEnd, { fallback: timerPlaceholder })}
             </TextLikeInput>
           </div>
           <div>
             <Editor.Label htmlFor='duration'>Scheduled duration</Editor.Label>
             <TextLikeInput className={style.textLikeInput}>
-              {millisToString(block.duration, { fallback: enDash })}
+              {millisToString(group.duration, { fallback: enDash })}
             </TextLikeInput>
           </div>
         </div>
@@ -93,21 +93,21 @@ export default function BlockEditor({ block }: BlockEditorProps) {
             </TextLikeInput>
           </div>
           <TargetDurationInput
-            duration={block.duration}
-            targetDuration={block.targetDuration}
+            duration={group.duration}
+            targetDuration={group.targetDuration}
             submitHandler={handleSubmit}
           />
         </div>
       </div>
 
       <div className={style.column}>
-        <Editor.Title>Block data</Editor.Title>
+        <Editor.Title>Group data</Editor.Title>
         <div>
           <Editor.Label>Colour</Editor.Label>
-          <SwatchSelect name='colour' value={block.colour} handleChange={handleSubmit} />
+          <SwatchSelect name='colour' value={group.colour} handleChange={handleSubmit} />
         </div>
-        <EntryEditorTextInput field='title' label='Title' initialValue={block.title} submitHandler={handleSubmit} />
-        <EventTextArea field='note' label='Note' initialValue={block.note} submitHandler={handleSubmit} />
+        <EntryEditorTextInput field='title' label='Title' initialValue={group.title} submitHandler={handleSubmit} />
+        <EventTextArea field='note' label='Note' initialValue={group.note} submitHandler={handleSubmit} />
       </div>
 
       <div className={style.column}>
@@ -115,7 +115,7 @@ export default function BlockEditor({ block }: BlockEditorProps) {
           Custom Fields
           {isEditor && <AppLink search='settings=manage__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
-        <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} entry={block} />
+        <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} entry={group} />
       </div>
     </div>
   );

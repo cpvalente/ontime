@@ -40,8 +40,8 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
     expectedEnd: null, // changes with runtime, based on offset, overflows over dayInMs
     offsetMode: OffsetMode.Absolute,
   },
-  blockNow: null,
-  blockNext: null,
+  groupNow: null,
+  groupNext: null,
   nextFlag: null,
   eventNow: null,
   eventNext: null,

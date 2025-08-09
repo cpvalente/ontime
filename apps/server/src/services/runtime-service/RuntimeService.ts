@@ -716,9 +716,9 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       !deepEqual(RuntimeService.previousState?.runtime, state.runtime);
 
     // TODO: the value shows up one tick to late
-    const shouldBlockUpdate =
-      !deepEqual(RuntimeService?.previousState.blockNow, state.blockNow) ||
-      RuntimeService?.previousState.blockNext !== state.blockNext;
+    const shouldGroupUpdate =
+      !deepEqual(RuntimeService?.previousState.groupNow, state.groupNow) ||
+      RuntimeService?.previousState.groupNext !== state.groupNext;
 
     // TODO: the value shows up one tick to late
     const shouldNextFlagUpdate = !deepEqual(RuntimeService?.previousState?.nextFlag, state.nextFlag);
@@ -728,7 +728,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
      * so if any of them are updated we also need to send the clock
      * in case nothing else is updating the clock will be updated at the notification rate
      */
-    const shouldUpdateClock = shouldRuntimeUpdate || shouldBlockUpdate || normalClockUpdate;
+    const shouldUpdateClock = shouldRuntimeUpdate || shouldGroupUpdate || normalClockUpdate;
 
     //Now we set all the updates on the eventstore and update the previous value
     if (hasChangedPlayback) {
@@ -748,11 +748,11 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       RuntimeService.previousState.runtime = structuredClone(state.runtime);
     }
 
-    if (shouldBlockUpdate) {
-      batch.add('blockNow', state.blockNow);
-      batch.add('blockNext', state.blockNext);
-      RuntimeService.previousState.blockNow = structuredClone(state.blockNow);
-      RuntimeService.previousState.blockNext = state.blockNext;
+    if (shouldGroupUpdate) {
+      batch.add('groupNow', state.groupNow);
+      batch.add('groupNext', state.groupNext);
+      RuntimeService.previousState.groupNow = structuredClone(state.groupNow);
+      RuntimeService.previousState.groupNext = structuredClone(state.groupNext);
     }
 
     if (shouldNextFlagUpdate) {
@@ -812,7 +812,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           addedTime: state.timer.addedTime,
           pausedAt: state._timer.pausedAt,
           firstStart: state.runtime.actualStart,
-          blockStartAt: state.blockNow?.startedAt ?? null,
+          groupStartAt: state.groupNow?.startedAt ?? null,
         })
         .catch((_e) => {
           //we don't do anything with the error here

@@ -17,7 +17,6 @@ export const setClientRemote = {
 export const useRundownEditor = createSelector((state: RuntimeStore) => ({
   playback: state.timer.playback,
   selectedEventId: state.eventNow?.id ?? null,
-  selectedBlockId: state.blockNow?.id ?? null,
   nextEventId: state.eventNext?.id ?? null,
 }));
 
@@ -131,8 +130,8 @@ export const useSelectedEventId = createSelector((state: RuntimeStore) => ({
   selectedEventId: state.eventNow?.id ?? null,
 }));
 
-export const useCurrentBlockId = createSelector((state: RuntimeStore) => ({
-  currentBlockId: state.blockNow?.id ?? null,
+export const useCurrentGroupId = createSelector((state: RuntimeStore) => ({
+  currentGroupId: state.groupNow?.id ?? null,
 }));
 
 export const setEventPlayback = {
@@ -178,7 +177,7 @@ export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) =
   selectedEventIndex: state.runtime.selectedEventIndex,
   offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offsetAbs : state.runtime.offsetRel,
 
-  blockExpectedEnd: state.blockNow?.expectedEnd ?? null,
+  groupExpectedEnd: state.groupNow?.expectedEnd ?? null,
 }));
 
 export const useTimelineStatus = createSelector((state: RuntimeStore) => ({

@@ -1,4 +1,4 @@
-import { isOntimeBlock, isOntimeEvent, OntimeEvent, OntimeEntry, RGBColour } from 'ontime-types';
+import { isOntimeGroup, isOntimeEvent, OntimeEvent, OntimeEntry, RGBColour } from 'ontime-types';
 import { cssOrHexToColour, isLightColour, millisToString, mixColours } from 'ontime-utils';
 
 import type { sheets_v4 } from '@googleapis/sheets';
@@ -100,7 +100,7 @@ export function cellRequestFromEvent(
     }
   }
 
-  const colors = isOntimeEvent(event) || isOntimeBlock(event) ? getAccessibleColour(event.colour) : undefined;
+  const colors = isOntimeEvent(event) || isOntimeGroup(event) ? getAccessibleColour(event.colour) : undefined;
   const cellColor: sheets_v4.Schema$CellData = !colors
     ? {}
     : {
@@ -163,12 +163,12 @@ function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
     }
   }
 
-  if (isOntimeBlock(event)) {
+  if (isOntimeGroup(event)) {
     if (key === 'title') {
       return { userEnteredValue: { stringValue: event[key] } };
     }
     if (key === 'timerType') {
-      return { userEnteredValue: { stringValue: 'block' } };
+      return { userEnteredValue: { stringValue: 'group' } };
     }
   }
 
