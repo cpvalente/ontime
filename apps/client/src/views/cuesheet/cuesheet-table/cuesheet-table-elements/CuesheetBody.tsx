@@ -87,8 +87,8 @@ export default function CuesheetBody({ rowModel, selectedRef, table }: CuesheetB
           let parentBgColour: string | null = null;
           if (entry.parent) {
             const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
-            const parentEntry = rundown?.entries[entry.parent];
-            parentBgColour = (parentEntry as OntimeGroup).colour ?? null;
+            const parentEntry = rundown?.entries[entry.parent] as OntimeGroup | undefined;
+            parentBgColour = parentEntry?.colour ?? null;
           }
           return <DelayRow key={key} duration={delayVal} parentBgColour={parentBgColour} />;
         }

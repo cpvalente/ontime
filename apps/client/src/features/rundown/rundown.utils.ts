@@ -160,7 +160,7 @@ export function makeSortableList(order: EntryId[], entries: RundownEntries): Ent
  * Checks whether a drop operation is valid
  * Currently only used for validating dropping groups
  */
-export function canDrop(targetType?: SupportedEntry & 'end-group', targetParent?: EntryId | null): boolean {
+export function canDrop(targetType?: SupportedEntry | 'end-group', targetParent?: EntryId | null): boolean {
   // this would mean inserting a group inside another
   if (targetType === 'end-group') {
     return false;

@@ -103,7 +103,11 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   clearMultiSelect: () => {
     const { selectedEvents } = get();
     const [firstSelected] = selectedEvents;
-    set({ selectedEvents: new Set(firstSelected || undefined), anchoredIndex: null, entryMode: null });
+    set({
+      selectedEvents: new Set(firstSelected ? [firstSelected] : []),
+      anchoredIndex: null,
+      entryMode: null,
+    });
   },
   unselect: (id: string) => {
     const { entryMode, selectedEvents } = get();
