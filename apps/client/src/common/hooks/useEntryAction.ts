@@ -7,7 +7,6 @@ import {
   MaybeString,
   OntimeEntry,
   OntimeEvent,
-  OntimeGroup,
   Rundown,
   SupportedEntry,
   TimeField,
@@ -803,10 +802,8 @@ function optimisticDeleteEntries(entryIds: EntryId[], rundown: Rundown) {
       order = order.filter((id) => id !== entry.id);
     } else {
       const parent = entries[entry.parent];
-      if ('parent' in entries) {
-        (parent as OntimeGroup).entries = (parent as OntimeGroup).entries.filter(
-          (parentEntry) => parentEntry !== entry.id,
-        );
+      if (parent && isOntimeGroup(parent)) {
+        parent.entries = parent.entries.filter((parentEntry) => parentEntry !== entry.id);
       }
     }
 
