@@ -3,14 +3,14 @@ import { flexRender, Table } from '@tanstack/react-table';
 import { EntryId, OntimeEntry, SupportedEntry } from 'ontime-types';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
-import { useCurrentBlockId } from '../../../../common/hooks/useSocket';
+import { useCurrentGroupId } from '../../../../common/hooks/useSocket';
 import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
 
-import style from './BlockRow.module.scss';
+import style from './GroupRow.module.scss';
 
-interface BlockRowProps {
-  blockId: EntryId;
+interface GroupRowProps {
+  groupId: EntryId;
   colour: string;
   hidePast: boolean;
   rowId: string;
@@ -18,8 +18,8 @@ interface BlockRowProps {
   table: Table<OntimeEntry>;
 }
 
-export default function BlockRow({ blockId, colour, hidePast, rowId, rowIndex, table }: BlockRowProps) {
-  const { currentBlockId } = useCurrentBlockId();
+export default function GroupRow({ groupId, colour, hidePast, rowId, rowIndex, table }: GroupRowProps) {
+  const { currentGroupId } = useCurrentGroupId();
 
   const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
     cuesheetMode: AppMode.Edit,
@@ -28,12 +28,12 @@ export default function BlockRow({ blockId, colour, hidePast, rowId, rowIndex, t
 
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
-  if (hidePast && !currentBlockId) {
+  if (hidePast && !currentGroupId) {
     return null;
   }
 
   return (
-    <tr className={style.blockRow} style={{ '--user-bg': colour }} data-testid='cuesheet-block'>
+    <tr className={style.groupRow} style={{ '--user-bg': colour }} data-testid='cuesheet-group'>
       {cuesheetMode === AppMode.Edit && (
         <td className={style.actionColumn} tabIndex={-1} role='cell'>
           <IconButton
@@ -43,7 +43,7 @@ export default function BlockRow({ blockId, colour, hidePast, rowId, rowIndex, t
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const yPos = 8 + rect.y + rect.height / 2;
-              openMenu({ x: rect.x, y: yPos }, blockId, SupportedEntry.Block, rowIndex, null, null);
+              openMenu({ x: rect.x, y: yPos }, groupId, SupportedEntry.Group, rowIndex, null, null);
             }}
           >
             <IoEllipsisHorizontal />

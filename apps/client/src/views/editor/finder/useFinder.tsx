@@ -1,14 +1,14 @@
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useSessionStorage } from '@mantine/hooks';
-import { EntryId, isOntimeBlock, isOntimeEvent, MaybeString, SupportedEntry } from 'ontime-types';
+import { EntryId, isOntimeEvent, isOntimeGroup, MaybeString, SupportedEntry } from 'ontime-types';
 
 import { useFlatRundown } from '../../../common/hooks-query/useRundown';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
 
 const maxResults = 12;
 
-type FilterableBlock = {
-  type: SupportedEntry.Block;
+type FilterableGroup = {
+  type: SupportedEntry.Group;
   id: string;
   index: number;
   title: string;
@@ -25,7 +25,7 @@ type FilterableEvent = {
   parent: MaybeString;
 };
 
-type FilterableEntry = FilterableBlock | FilterableEvent;
+type FilterableEntry = FilterableGroup | FilterableEvent;
 
 export default function useFinder() {
   const { data, rundownId } = useFlatRundown();
@@ -179,15 +179,15 @@ export default function useFinder() {
             }
             eventIndex++;
           }
-          if (isOntimeBlock(event)) {
+          if (isOntimeGroup(event)) {
             if (event.title.toLowerCase().includes(searchString)) {
               remaining--;
               results.push({
-                type: SupportedEntry.Block,
+                type: SupportedEntry.Group,
                 id: event.id,
                 index: i,
                 title: event.title,
-              } satisfies FilterableBlock);
+              } satisfies FilterableGroup);
             }
           }
         }

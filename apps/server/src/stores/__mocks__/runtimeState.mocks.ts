@@ -6,8 +6,8 @@ const baseState: RuntimeState = {
   clock: 0,
   eventNow: null,
   eventNext: null,
-  blockNow: null,
-  blockNext: null,
+  groupNow: null,
+  groupNext: null,
   nextFlag: null,
   runtime: {
     selectedEventIndex: null,
@@ -40,7 +40,7 @@ const baseState: RuntimeState = {
   _rundown: {
     totalDelay: 0,
   },
-  _block: null,
+  _group: null,
   _end: null,
   _flag: null,
 };

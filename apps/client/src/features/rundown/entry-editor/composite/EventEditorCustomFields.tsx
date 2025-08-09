@@ -1,5 +1,5 @@
 import { CSSProperties, Fragment } from 'react';
-import { CustomFields, OntimeBlock, OntimeEvent, OntimeMilestone } from 'ontime-types';
+import { CustomFields, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ontime-types';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { EventEditorUpdateFields } from '../EventEditor';
@@ -12,7 +12,7 @@ import style from '../EntryEditor.module.scss';
 
 interface EntryEditorCustomFieldsProps {
   fields: CustomFields;
-  entry: OntimeEvent | OntimeBlock | OntimeMilestone;
+  entry: OntimeEvent | OntimeGroup | OntimeMilestone;
   handleSubmit: (field: EventEditorUpdateFields, value: string) => void;
 }
 

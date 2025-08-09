@@ -26,7 +26,7 @@ interface EventRowProps {
   rowBgColour?: string;
   parentBgColour?: string;
   table: Table<OntimeEntry>;
-  firstAfterBlock: boolean;
+  firstAfterGroup: boolean;
 }
 
 export default function EventRow({
@@ -39,7 +39,7 @@ export default function EventRow({
   rowBgColour,
   parentBgColour,
   table,
-  firstAfterBlock,
+  firstAfterGroup,
 }: EventRowProps) {
   const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
     cuesheetMode: AppMode.Edit,
@@ -75,7 +75,7 @@ export default function EventRow({
       className={cx([
         style.eventRow,
         event.skip && style.skip,
-        firstAfterBlock && style.firstAfterBlock,
+        firstAfterGroup && style.firstAfterGroup,
         Boolean(parentBgColour) && style.hasParent,
       ])}
       style={{

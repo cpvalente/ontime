@@ -1,6 +1,6 @@
 @use '../blockMixins' as *;
 
-.block {
+.group {
   @include block-styling;
 
   margin-block: 0.5rem;
@@ -22,7 +22,7 @@
   .binder {
     grid-area: binder;
     height: 100%;
-    background-color: var(--block-color, $gray-1050);
+    background-color: var(--user-bg, $gray-1050);
     color: $section-white;
     font-size: 1rem;
     display: grid;

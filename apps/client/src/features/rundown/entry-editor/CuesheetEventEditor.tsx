@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { isOntimeBlock, isOntimeEvent, OntimeEntry } from 'ontime-types';
+import { isOntimeEvent, isOntimeGroup, OntimeEntry } from 'ontime-types';
 
 import useRundown from '../../../common/hooks-query/useRundown';
 
-import BlockEditor from './BlockEditor';
 import EventEditor from './EventEditor';
+import GroupEditor from './GroupEditor';
 
 import style from './EntryEditor.module.scss';
 
@@ -38,10 +38,10 @@ export default function CuesheetEntryEditor({ entryId }: CuesheetEntryEditorProp
     );
   }
 
-  if (isOntimeBlock(entry)) {
+  if (isOntimeGroup(entry)) {
     return (
       <div className={style.inModal} data-testid='editor-container'>
-        <BlockEditor block={entry} />
+        <GroupEditor group={entry} />
       </div>
     );
   }

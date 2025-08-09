@@ -156,10 +156,10 @@ describe('parseExcel()', () => {
     expect((firstEvent as OntimeEvent).title).toBe('A song from the hearth');
   });
 
-  it('imports blocks', () => {
+  it('imports groups', () => {
     const testdata = [
       ['Title', 'Timer type'],
-      ['a block', 'block'],
+      ['a group', 'group'],
       ['an event', 'clock'],
     ];
 
@@ -171,7 +171,7 @@ describe('parseExcel()', () => {
     const firstEvent = result.rundown.entries[result.rundown.order[0]];
 
     expect(result.rundown.order.length).toBe(2);
-    expect((firstEvent as OntimeEvent).type).toBe(SupportedEntry.Block);
+    expect((firstEvent as OntimeEvent).type).toBe(SupportedEntry.Group);
   });
 
   it('imports as events if there is no timer type column', () => {
@@ -301,8 +301,8 @@ describe('parseExcel()', () => {
       ['9:45:00', '10:56:00', 'B', 'x', 'count-down'],
       ['10:00:00', '16:36:00', 'C', 'x', 'count-down'],
       ['21:45:00', '22:56:00', 'D', '', 'count-down'],
-      ['', '', 'BLOCK', 'x', 'block'], // <-- block with link
-      ['00:0:00', '23:56:00', 'E', 'x', 'count-down'], // <-- link past blocks
+      ['', '', 'GROUP', 'x', 'group'], // <-- group with link
+      ['00:0:00', '23:56:00', 'E', 'x', 'count-down'], // <-- must link past previous group
     ];
 
     const importMap = {
@@ -315,7 +315,7 @@ describe('parseExcel()', () => {
 
     const result = parseExcel(testData, {}, 'testSheet', importMap);
     expect(result.rundown.order.length).toBe(6);
-    expect(result.rundown.order).toMatchObject(['A', 'B', 'C', 'D', 'BLOCK', 'E']);
+    expect(result.rundown.order).toMatchObject(['A', 'B', 'C', 'D', 'GROUP', 'E']);
 
     expect(result.rundown.entries).toMatchObject({
       A: {
@@ -330,8 +330,8 @@ describe('parseExcel()', () => {
       D: {
         linkStart: false,
       },
-      BLOCK: {
-        type: SupportedEntry.Block,
+      GROUP: {
+        type: SupportedEntry.Group,
       },
       E: {
         linkStart: true,

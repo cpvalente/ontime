@@ -7,7 +7,7 @@ export {
   type EntryId,
   type OntimeBaseEvent,
   type OntimeDelay,
-  type OntimeBlock,
+  type OntimeGroup,
   type OntimeEntryCommonKeys,
   type OntimeEntry,
   type OntimeMilestone,
@@ -101,7 +101,7 @@ export { OffsetMode } from './definitions/runtime/Runtime.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
 export { runtimeStorePlaceholder } from './definitions/runtime/RuntimeStore.js';
 export { type TimerState, TimerPhase } from './definitions/runtime/TimerState.type.js';
-export type { CurrentBlockState, UpcomingEntry, EntryMetaData } from './definitions/runtime/CurrentBlockState.type.js';
+export type { CurrentGroupState, UpcomingEntry, EntryMetaData } from './definitions/runtime/CurrentGroupState.type.js';
 
 // ---> Extra Timer
 export { type SimpleTimerState, SimplePlayback, SimpleDirection } from './definitions/runtime/AuxTimer.type.js';
@@ -111,7 +111,7 @@ export type { Client, ClientList, ClientType } from './definitions/Clients.type.
 
 // TYPE UTILITIES
 export {
-  isOntimeBlock,
+  isOntimeGroup,
   isOntimeDelay,
   isOntimeEvent,
   isOntimeMilestone,

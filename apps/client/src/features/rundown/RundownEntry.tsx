@@ -25,12 +25,12 @@ export type EventItemActions =
   | 'event-before'
   | 'delay'
   | 'delay-before'
-  | 'block'
-  | 'block-before'
+  | 'group'
+  | 'group-before'
   | 'swap'
   | 'delete'
   | 'clone'
-  | 'group'
+  | 'make-group'
   | 'update';
 
 interface RundownEntryProps {
@@ -106,11 +106,11 @@ export default function RundownEntry({
       case 'delay-before': {
         return addEntry({ type: SupportedEntry.Delay }, { after: previousEntryId });
       }
-      case 'block': {
-        return addEntry({ type: SupportedEntry.Block }, { after: data.id });
+      case 'group': {
+        return addEntry({ type: SupportedEntry.Group }, { after: data.id });
       }
-      case 'block-before': {
-        return addEntry({ type: SupportedEntry.Block }, { after: previousEntryId });
+      case 'group-before': {
+        return addEntry({ type: SupportedEntry.Group }, { after: previousEntryId });
       }
       case 'swap': {
         const { value } = payload as FieldValue;
@@ -129,7 +129,7 @@ export default function RundownEntry({
         addEntry(newEvent, { after: data.id });
         break;
       }
-      case 'group': {
+      case 'make-group': {
         if (selectedEvents.size > 1) {
           clearMultiSelection();
           return groupEntries(Array.from(selectedEvents));

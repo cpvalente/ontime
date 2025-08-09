@@ -29,12 +29,12 @@ test('sheet file upload', async ({ page }) => {
   await page.getByRole('button', { name: 'Close settings' }).click();
 
   // asset test events
-  const firstTitle = page.getByTestId('entry-1').getByTestId('block__title');
+  const firstTitle = page.getByTestId('entry-1').getByTestId('entry__title');
   await expect(firstTitle).toHaveValue('Attempt light check');
 
-  const secondTitle = page.getByTestId('entry-2').getByTestId('block__title');
+  const secondTitle = page.getByTestId('entry-2').getByTestId('entry__title');
   await expect(secondTitle).toHaveValue('Preset');
 
-  const thirdTitle = page.getByTestId('entry-3').getByTestId('block__title');
+  const thirdTitle = page.getByTestId('entry-3').getByTestId('entry__title');
   await expect(thirdTitle).toHaveValue('Albania');
 });

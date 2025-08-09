@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { IoLink } from 'react-icons/io5';
-import { CustomFields, isOntimeBlock, isOntimeEvent, Rundown } from 'ontime-types';
+import { CustomFields, isOntimeEvent, isOntimeGroup, Rundown } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import Tag from '../../../../../../common/components/tag/Tag';
@@ -55,7 +55,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
       <tbody>
         {rundown.order.map((entryId) => {
           const entry = rundown.entries[entryId];
-          if (isOntimeBlock(entry)) {
+          if (isOntimeGroup(entry)) {
             return (
               <tr key={entry.id}>
                 <td className={style.center}>

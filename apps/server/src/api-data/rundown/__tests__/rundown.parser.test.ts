@@ -1,7 +1,7 @@
-import { SupportedEntry, OntimeEvent, OntimeBlock, Rundown, CustomFields } from 'ontime-types';
+import { SupportedEntry, OntimeEvent, OntimeGroup, Rundown, CustomFields } from 'ontime-types';
 
 import { defaultRundown } from '../../../models/dataModel.js';
-import { makeOntimeBlock, makeOntimeEvent, makeOntimeMilestone } from '../__mocks__/rundown.mocks.js';
+import { makeOntimeGroup, makeOntimeEvent, makeOntimeMilestone } from '../__mocks__/rundown.mocks.js';
 
 import { parseRundowns, parseRundown, handleCustomField, addToCustomAssignment } from '../rundown.parser.js';
 
@@ -47,7 +47,7 @@ describe('parseRundown()', () => {
       flatOrder: ['1', '2', '3', '4'],
       entries: {
         '1': { id: '1', type: SupportedEntry.Event, title: 'test', skip: false } as OntimeEvent, // OK
-        '2': { id: '1', type: SupportedEntry.Block, title: 'test 2' } as OntimeBlock, // duplicate ID
+        '2': { id: '1', type: SupportedEntry.Group, title: 'test 2' } as OntimeGroup, // duplicate ID
         '3': {} as OntimeEvent, // no data
         '4': { id: '4', title: 'test 2', skip: false } as OntimeEvent, // no type
       },
@@ -221,7 +221,7 @@ describe('parseRundown()', () => {
       flatOrder: ['1', '2', '21'],
       entries: {
         '1': makeOntimeEvent({ id: '1', custom: { lighting: 'yes' } }),
-        '2': makeOntimeBlock({ id: '2', entries: ['21'], custom: { lighting: '' } }),
+        '2': makeOntimeGroup({ id: '2', entries: ['21'], custom: { lighting: '' } }),
         '21': makeOntimeEvent({ id: '21', custom: { lighting: '' } }),
       },
       revision: 1,
@@ -237,7 +237,7 @@ describe('parseRundown()', () => {
 
     const parsedRundown = parseRundown(rundown, customFields);
     expect((parsedRundown.entries['1'] as OntimeEvent).custom).toStrictEqual({ lighting: 'yes' });
-    expect((parsedRundown.entries['2'] as OntimeBlock).custom).not.toHaveProperty('lighting');
+    expect((parsedRundown.entries['2'] as OntimeGroup).custom).not.toHaveProperty('lighting');
     expect((parsedRundown.entries['21'] as OntimeEvent).custom).not.toHaveProperty('lighting');
   });
 
@@ -245,41 +245,41 @@ describe('parseRundown()', () => {
     const rundown = {
       id: 'test',
       title: '',
-      order: ['block'],
-      flatOrder: ['block'],
+      order: ['group'],
+      flatOrder: ['group'],
       isNextDay: false,
       entries: {
-        block: makeOntimeBlock({
-          id: 'block',
-          title: 'block-title',
-          note: 'block-note',
+        group: makeOntimeGroup({
+          id: 'group',
+          title: 'group-title',
+          note: 'group-note',
           colour: 'red',
           entries: ['1', '2', '3'],
         }),
-        '1': makeOntimeEvent({ id: '1', parent: 'block' }),
-        '2': makeOntimeMilestone({ id: '2', parent: 'block' }),
+        '1': makeOntimeEvent({ id: '1', parent: 'group' }),
+        '2': makeOntimeMilestone({ id: '2', parent: 'group' }),
       },
       revision: 1,
     } as Rundown;
 
     const parsedRundown = parseRundown(rundown, {});
-    expect(parsedRundown.order).toStrictEqual(['block']);
-    expect(parsedRundown.flatOrder).toStrictEqual(['block', '1', '2']);
+    expect(parsedRundown.order).toStrictEqual(['group']);
+    expect(parsedRundown.flatOrder).toStrictEqual(['group', '1', '2']);
     expect(parsedRundown.entries).toMatchObject({
-      block: { id: 'block', type: SupportedEntry.Block, entries: ['1', '2'] },
+      group: { id: 'group', type: SupportedEntry.Group, entries: ['1', '2'] },
       '1': { id: '1', type: SupportedEntry.Event },
       '2': { id: '2', type: SupportedEntry.Milestone },
     });
   });
 
-  it('parses events nested in blocks', () => {
+  it('parses events nested in groups', () => {
     const rundown = {
       id: 'test',
       title: '',
-      order: ['block'],
-      flatOrder: ['block'],
+      order: ['group'],
+      flatOrder: ['group'],
       entries: {
-        block: makeOntimeBlock({ id: 'block', entries: ['1', '2'] }),
+        group: makeOntimeGroup({ id: 'group', entries: ['1', '2'] }),
         '1': makeOntimeEvent({ id: '1' }),
         '2': makeOntimeEvent({ id: '2' }),
       },
@@ -288,7 +288,7 @@ describe('parseRundown()', () => {
 
     const parsedRundown = parseRundown(rundown, {});
     expect(parsedRundown.order.length).toEqual(1);
-    expect(parsedRundown.entries.block).toMatchObject({ entries: ['1', '2'] });
+    expect(parsedRundown.entries.group).toMatchObject({ entries: ['1', '2'] });
     expect(Object.keys(parsedRundown.entries).length).toEqual(3);
   });
 });

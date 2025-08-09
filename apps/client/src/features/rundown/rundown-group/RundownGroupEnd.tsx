@@ -1,14 +1,14 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import style from './RundownBlockEnd.module.scss';
+import style from './RundownGroupEnd.module.scss';
 
-interface BlockEndProps {
+interface RundownGroupEndProps {
   id: string;
   colour?: string;
 }
 
-export default function RundownBlockEnd({ id, colour }: BlockEndProps) {
+export default function RundownGroupEnd({ id, colour }: RundownGroupEndProps) {
   const {
     attributes: dragAttributes,
     listeners: dragListeners,
@@ -18,10 +18,10 @@ export default function RundownBlockEnd({ id, colour }: BlockEndProps) {
   } = useSortable({
     id,
     data: {
-      type: 'end-block',
+      type: 'end-group',
     },
     animateLayoutChanges: () => false,
-    disabled: true, // we do not want to drag end blocks
+    disabled: true, // we do not want to drag end groups
   });
 
   const dragStyle = {
@@ -31,7 +31,7 @@ export default function RundownBlockEnd({ id, colour }: BlockEndProps) {
 
   return (
     <div
-      className={style.blockEnd}
+      className={style.groupEnd}
       ref={setNodeRef}
       {...dragAttributes}
       {...dragListeners}

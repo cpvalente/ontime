@@ -134,7 +134,7 @@ function MakeMultiLineField({ row, column, table }: CellContext<OntimeEntry, unk
     [column.id, row.index, table.options.meta],
   );
 
-  // not all entries have all properties (eg blocks)
+  // not all entries have all properties (eg groups)
   const initialValue = row.original[column.id as keyof OntimeEntry];
   if (initialValue === undefined) {
     return null;
@@ -174,7 +174,7 @@ function MakeSingleLineField({ row, column, table }: CellContext<OntimeEntry, un
     [column.id, row.index, table.options.meta],
   );
 
-  // not all entries have all properties (eg blocks)
+  // not all entries have all properties (eg groups)
   const initialValue = row.original[column.id as keyof OntimeEntry];
   if (initialValue === undefined) {
     return null;

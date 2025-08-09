@@ -130,7 +130,7 @@ export default function RundownEvent({
               }),
           },
           { type: 'divider' },
-          { type: 'item', label: 'Group', icon: IoFolder, onClick: () => actionHandler('group') },
+          { type: 'item', label: 'Group', icon: IoFolder, onClick: () => actionHandler('make-group') },
           { type: 'divider' },
           { type: 'item', label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ]
@@ -205,8 +205,8 @@ export default function RundownEvent({
     }
 
     const elementInFocus = document.activeElement;
-    // we know the block is the grandparent of our binder
-    const blockElement = handleRef.current.closest('#event-block');
+    // we know the group is the grandparent of our binder
+    const blockElement = handleRef.current.closest('#event-group');
 
     // we only move focus if the block doesnt already contain focus
     if (blockElement && !blockElement.contains(elementInFocus)) {

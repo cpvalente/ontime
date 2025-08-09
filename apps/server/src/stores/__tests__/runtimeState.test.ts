@@ -1,6 +1,6 @@
 import { PlayableEvent, Playback, TimerPhase } from 'ontime-types';
 
-import { makeOntimeBlock, makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { makeOntimeGroup, makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
 
 import {
@@ -9,7 +9,7 @@ import {
   clearState,
   getState,
   load,
-  loadBlockFlagAndEnd,
+  loadGroupFlagAndEnd,
   pause,
   roll,
   start,
@@ -105,7 +105,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.eventNext?.id).toBe('event2');
       expect(newState.timer.playback).toBe(Playback.Armed);
       expect(newState.clock).not.toBe(666);
-      expect(newState.blockNow).toBeNull();
+      expect(newState.groupNow).toBeNull();
 
       // 2. Start event
       let success = start();
@@ -185,7 +185,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.actualStart).toBeNull();
       expect(newState.runtime.plannedStart).toBe(0);
       expect(newState.runtime.plannedEnd).toBe(1500);
-      expect(newState.blockNow).toBeNull();
+      expect(newState.groupNow).toBeNull();
       expect(newState.runtime.offsetAbs).toBe(0);
 
       // 2. Start event
@@ -218,7 +218,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.offsetAbs).toBe(delayBefore);
       // finish is the difference between the runtime and the schedule
       expect(newState.runtime.expectedEnd).toBe(entries.event2.timeEnd - newState.runtime.offsetAbs);
-      expect(newState.blockNow).toBeNull();
+      expect(newState.groupNow).toBeNull();
 
       // 4. Add time
       addTime(10);
@@ -371,75 +371,75 @@ describe('roll mode', () => {
   });
 });
 
-describe('loadBlock', () => {
-  test('from no-block to a block will clear startedAt', () => {
+describe('loadGroup', () => {
+  test('from no-group to a group will clear startedAt', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeEvent({ id: '0', parent: null }),
-        1: makeOntimeBlock({ id: '1', entries: ['11'] }),
+        1: makeOntimeGroup({ id: '1', entries: ['11'] }),
         11: makeOntimeEvent({ id: '11', parent: '1' }),
-        2: makeOntimeBlock({ id: '2', entries: [] }),
+        2: makeOntimeGroup({ id: '2', entries: [] }),
         3: makeOntimeEvent({ id: '3', parent: null }),
       },
       order: ['0', '1', '2', '3'],
     });
 
     const state = {
-      blockNow: null,
+      groupNow: null,
       eventNow: rundown.entries[11],
-    } as unknown as RuntimeState;
+    } as RuntimeState;
 
     const metadata = { playableEventOrder: ['0', '11', '3'], flags: ['1'] } as RundownMetadata;
 
-    loadBlockFlagAndEnd(rundown, metadata, 2, state);
+    loadGroupFlagAndEnd(rundown, metadata, 2, state);
 
     expect(state).toMatchObject({
-      blockNow: { id: rundown.entries[1].id, startedAt: null },
+      groupNow: { id: rundown.entries[1].id, startedAt: null },
       eventNow: rundown.entries[11],
     });
   });
 
-  test('from block to a different block will clear startedAt', () => {
+  test('from a group to a different group will clear startedAt', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeEvent({ id: '0', parent: null }),
-        1: makeOntimeBlock({ id: '1', entries: ['11'] }),
+        1: makeOntimeGroup({ id: '1', entries: ['11'] }),
         11: makeOntimeEvent({ id: '11', parent: '1' }),
-        2: makeOntimeBlock({ id: '2', entries: ['22'] }),
+        2: makeOntimeGroup({ id: '2', entries: ['22'] }),
         22: makeOntimeEvent({ id: '22', parent: '2' }),
       },
       order: ['0', '1', '2'],
     });
 
     const state = {
-      blockNow: { id: rundown.entries[1].id, startedAt: 123 },
+      groupNow: { id: rundown.entries[1].id, startedAt: 123 },
       eventNow: rundown.entries[22],
     } as RuntimeState;
 
     const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
 
-    loadBlockFlagAndEnd(rundown, metadata, 1, state);
+    loadGroupFlagAndEnd(rundown, metadata, 1, state);
 
     expect(state).toMatchObject({
-      blockNow: { id: rundown.entries[2].id, startedAt: null },
+      groupNow: { id: rundown.entries[2].id, startedAt: null },
       eventNow: rundown.entries[22],
     });
   });
 
-  test('from block to a no-block will clear startedAt', () => {
+  test('from group to a no-group will clear startedAt', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeEvent({ id: '0', parent: null }),
-        1: makeOntimeBlock({ id: '1', entries: ['11'] }),
+        1: makeOntimeGroup({ id: '1', entries: ['11'] }),
         11: makeOntimeEvent({ id: '11', parent: '1' }),
-        2: makeOntimeBlock({ id: '2', entries: ['22'] }),
+        2: makeOntimeGroup({ id: '2', entries: ['22'] }),
         22: makeOntimeEvent({ id: '22', parent: '2' }),
       },
       order: ['0', '1', '2'],
     });
 
     const state = {
-      blockNow: {
+      groupNow: {
         id: rundown.entries[1].id,
         startedAt: 123,
       },
@@ -448,18 +448,18 @@ describe('loadBlock', () => {
 
     const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
 
-    loadBlockFlagAndEnd(rundown, metadata, 1, state);
+    loadGroupFlagAndEnd(rundown, metadata, 1, state);
 
     expect(state).toMatchObject({
-      blockNow: null,
+      groupNow: null,
       eventNow: rundown.entries[0],
     });
   });
 
-  test('from block to same block will keep startedAt', () => {
+  test('from a group to same group will keep startedAt', () => {
     const rundown = makeRundown({
       entries: {
-        0: makeOntimeBlock({ id: '0', entries: ['1', '2'] }),
+        0: makeOntimeGroup({ id: '0', entries: ['1', '2'] }),
         1: makeOntimeEvent({ id: '1', parent: '0' }),
         2: makeOntimeEvent({ id: '2', parent: '0' }),
       },
@@ -467,21 +467,21 @@ describe('loadBlock', () => {
     });
 
     const state = {
-      blockNow: { id: rundown.entries[0].id, startedAt: 123 },
+      groupNow: { id: rundown.entries[0].id, startedAt: 123 },
       eventNow: rundown.entries[2],
     } as RuntimeState;
 
     const metadata = { playableEventOrder: ['1', '2'], flags: ['1'] } as RundownMetadata;
 
-    loadBlockFlagAndEnd(rundown, metadata, 0, state);
+    loadGroupFlagAndEnd(rundown, metadata, 0, state);
 
     expect(state).toMatchObject({
-      blockNow: { id: rundown.entries[0].id, startedAt: 123 },
+      groupNow: { id: rundown.entries[0].id, startedAt: 123 },
       eventNow: rundown.entries[2],
     });
   });
 
-  test('from no-block to no-block will keep startedAt', () => {
+  test('from no-group to no-group will keep startedAt', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeEvent({ id: '0', parent: null }),
@@ -491,16 +491,16 @@ describe('loadBlock', () => {
     });
 
     const state = {
-      blockNow: null,
+      groupNow: null,
       eventNow: rundown.entries[0],
     } as RuntimeState;
 
     const metadata = { playableEventOrder: ['0', '1'], flags: ['1'] } as RundownMetadata;
 
-    loadBlockFlagAndEnd(rundown, metadata, 0, state);
+    loadGroupFlagAndEnd(rundown, metadata, 0, state);
 
     expect(state).toMatchObject({
-      blockNow: null,
+      groupNow: null,
       eventNow: rundown.entries[0],
     });
   });
