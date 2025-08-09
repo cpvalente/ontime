@@ -769,7 +769,7 @@ export function loadGroupFlagAndEnd(
   currentIndex: MaybeNumber,
   state = runtimeState,
 ) {
-  if (currentIndex === null) return resetMetaData();
+  if (currentIndex == null) return resetMetaData();
   if (state.eventNow === null) return resetMetaData();
 
   const currentGroupId = state.eventNow.parent;
