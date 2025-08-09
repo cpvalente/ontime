@@ -21,7 +21,7 @@ interface ProjectMergeFromProps {
 
 type ProjectMergeFormValues = {
   project: boolean;
-  rundown: boolean;
+  rundowns: boolean;
   viewSettings: boolean;
   urlPresets: boolean;
   automation: boolean;
@@ -39,7 +39,7 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
   } = useForm<ProjectMergeFormValues>({
     defaultValues: {
       project: false,
-      rundown: false,
+      rundowns: false,
       viewSettings: false,
       urlPresets: false,
       automation: false,
@@ -102,8 +102,8 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
         <label>
           <Switch
             size='large'
-            checked={watch('rundown')}
-            onCheckedChange={(value: boolean) => setValue('rundown', value, { shouldDirty: true })}
+            checked={watch('rundowns')}
+            onCheckedChange={(value: boolean) => setValue('rundowns', value, { shouldDirty: true })}
           />
           Rundown + Custom Fields
         </label>
