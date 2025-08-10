@@ -27,22 +27,25 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
     },
     secondary: '',
   },
-  runtime: {
+  rundown: {
     selectedEventIndex: null, // changes if rundown changes or we load a new event
     numEvents: 0, // change initiated by user
-    offsetAbs: 0, // changes at runtime
-    offsetRel: 0, // changes at runtime
     plannedStart: 0, // only changes if event changes
     plannedEnd: 0, // only changes if event changes, overflows over dayInMs
     actualStart: null, // set once we start the timer
-    expectedEnd: null, // changes with runtime, based on offset, overflows over dayInMs
+  },
+  runtime: {
+    offsetAbs: 0, // changes at runtime
+    offsetRel: 0, // changes at runtime
     offsetMode: OffsetMode.Absolute,
+    expectedFlagStart: null,
+    expectedGroupEnd: null,
+    expectedRundownEnd: null,
   },
   groupNow: null,
-  groupNext: null,
-  nextFlag: null,
   eventNow: null,
   eventNext: null,
+  eventFlag: null,
   auxtimer1: {
     current: 0,
     direction: SimpleDirection.CountUp,

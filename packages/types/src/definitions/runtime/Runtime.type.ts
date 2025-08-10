@@ -6,13 +6,10 @@ export enum OffsetMode {
 }
 
 export type Runtime = {
-  selectedEventIndex: MaybeNumber;
-  numEvents: number;
   offsetAbs: number; // a positive value means that we are in over time aka behind schedule
   offsetRel: number;
-  plannedStart: MaybeNumber;
-  actualStart: MaybeNumber;
-  plannedEnd: MaybeNumber;
-  expectedEnd: MaybeNumber;
   offsetMode: OffsetMode;
+  expectedGroupEnd: MaybeNumber;
+  expectedRundownEnd: MaybeNumber;
+  expectedFlagStart: MaybeNumber;
 };
