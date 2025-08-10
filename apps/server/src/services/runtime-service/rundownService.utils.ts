@@ -1,7 +1,27 @@
 import { millisToSeconds } from 'ontime-utils';
-import { EntryId, isOntimeEvent, isPlayableEvent, MaybeNumber, OntimeEvent, Rundown, TimerType } from 'ontime-types';
+import {
+  EntryId,
+  GroupState,
+  isOntimeEvent,
+  isPlayableEvent,
+  MaybeNumber,
+  OntimeEvent,
+  Rundown,
+  Runtime,
+  TimerState,
+  TimerType,
+  UpcomingEntry,
+} from 'ontime-types';
 
-import { timerConfig } from '../../setup/config.js';
+import { deepEqual } from 'fast-equals';
+
+export function isNewSecond(
+  previousValue: MaybeNumber | undefined,
+  currentValue: MaybeNumber | undefined,
+  direction: TimerType.CountDown | TimerType.CountUp = TimerType.CountDown,
+) {
+  return millisToSeconds(currentValue ?? null, direction) !== millisToSeconds(previousValue ?? null, direction);
+}
 
 /**
  * Checks whether we should update the clock value
@@ -17,21 +37,69 @@ export function getShouldClockUpdate(previousUpdate: number, now: number): boole
  * Checks whether we should update the timer value
  * - we have rolled into a new seconds unit
  */
-export function getShouldTimerUpdate(previousValue: MaybeNumber, currentValue: MaybeNumber): boolean {
-  const shouldUpdateTimer = millisToSeconds(currentValue) !== millisToSeconds(previousValue);
-  return shouldUpdateTimer;
+export function getShouldTimerUpdate(previousValue: TimerState | undefined, currentValue: TimerState): boolean {
+  if (previousValue === undefined) return true;
+  return (
+    // current timer value
+    isNewSecond(previousValue.current, currentValue.current) ||
+    //secondary timer value, when in pre-roll
+    isNewSecond(previousValue.secondaryTimer, currentValue.secondaryTimer) ||
+    // other timer values that could have changed
+    previousValue.addedTime !== currentValue.addedTime ||
+    previousValue.duration !== currentValue.duration ||
+    previousValue.phase !== currentValue.phase ||
+    previousValue.playback !== currentValue.playback ||
+    previousValue.startedAt !== currentValue.startedAt
+    // elapsed - this would be the direct invert of current value so no need to check
+    // expectedFinish - this will be moved out by the current value going into over time, no need to check
+  );
 }
 
-/**
- * In some cases we want to force an update to the timer
- * - if the clock has slid back
- * - if we have escaped the update rate (clock slid forward)
- * - if we are not playing then there is no need to update the timer
- */
-export function getForceUpdate(previousUpdate: number, now: number): boolean {
-  const isClockBehind = now < previousUpdate;
-  const hasExceededRate = now - previousUpdate >= timerConfig.notificationRate;
-  return isClockBehind || hasExceededRate;
+export function getShouldRuntimeUpdate(
+  previousValue: Runtime | undefined,
+  currentValue: Runtime,
+  didDependencyUpdate: boolean,
+): boolean {
+  if (previousValue === undefined) return true;
+  if (didDependencyUpdate) return !deepEqual(previousValue, currentValue);
+
+  return (
+    previousValue.selectedEventIndex !== currentValue.selectedEventIndex ||
+    previousValue.numEvents !== currentValue.numEvents ||
+    previousValue.plannedStart !== currentValue.plannedStart ||
+    previousValue.plannedEnd !== currentValue.plannedEnd ||
+    previousValue.actualStart !== currentValue.actualStart ||
+    previousValue.offsetMode !== currentValue.offsetMode
+    // offsetAbs, offsetRel and expectedEnd are ticked with `didDependencyUpdate`
+  );
+}
+
+export function getShouldGroupUpdate(
+  previousValue: GroupState | null | undefined,
+  currentValue: GroupState | null,
+  didDependencyUpdate: boolean,
+): boolean {
+  if (previousValue === undefined) return true;
+  if (didDependencyUpdate) return !deepEqual(previousValue, currentValue);
+
+  return (
+    previousValue?.id !== currentValue?.id || previousValue?.startedAt !== currentValue?.startedAt
+    // expectedEnd are ticked with `didDependencyUpdate`
+  );
+}
+
+export function getShouldFlagUpdate(
+  previousValue: UpcomingEntry | null | undefined,
+  currentValue: UpcomingEntry | null,
+  didDependencyUpdate: boolean,
+): boolean {
+  if (previousValue === undefined) return true;
+  if (didDependencyUpdate) return !deepEqual(previousValue, currentValue);
+
+  return (
+    previousValue?.id !== currentValue?.id
+    // expectedStart
+  );
 }
 
 /**
