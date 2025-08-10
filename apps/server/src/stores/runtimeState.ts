@@ -1,6 +1,6 @@
 import {
-  CurrentGroupState,
-  EntryMetaData,
+  GroupState,
+  UpcomingEntry,
   isOntimeEvent,
   MaybeNumber,
   MaybeString,
@@ -36,9 +36,9 @@ type ExpectedMetadata = { event: OntimeEvent; accumulatedGap: number; isLinkedTo
 
 export type RuntimeState = {
   clock: number; // realtime clock
-  groupNow: CurrentGroupState | null;
+  groupNow: GroupState | null;
   groupNext: MaybeString;
-  nextFlag: EntryMetaData | null;
+  nextFlag: UpcomingEntry | null;
   eventNow: PlayableEvent | null;
   eventNext: PlayableEvent | null;
   runtime: Runtime;
@@ -802,7 +802,7 @@ export function loadGroupFlagAndEnd(
         // and the loaded event is not allowed to be the next flag
         if (!foundFlag && metadata.flags.includes(entry.id)) {
           foundFlag = true;
-          state.nextFlag = { id: entry.id, actualStart: null, expectedStart: null, expectedEnd: null };
+          state.nextFlag = { id: entry.id, expectedStart: null };
           state._flag = { event: entry, isLinkedToLoaded, accumulatedGap };
         }
       }

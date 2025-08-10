@@ -1,7 +1,7 @@
 import type { MaybeString } from '../../utils/utils.type.js';
 import type { OntimeEvent } from '../core/OntimeEntry.js';
 import type { SimpleTimerState } from './AuxTimer.type.js';
-import type { CurrentGroupState, EntryMetaData } from './CurrentGroupState.type.js';
+import type { GroupState, UpcomingEntry } from './CurrentGroupState.type.js';
 import type { MessageState } from './MessageControl.type.js';
 import type { Runtime } from './Runtime.type.js';
 import type { TimerState } from './TimerState.type.js';
@@ -19,9 +19,9 @@ export type RuntimeStore = {
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
 
-  groupNow: CurrentGroupState | null;
+  groupNow: GroupState | null;
   groupNext: MaybeString;
-  nextFlag: EntryMetaData | null;
+  nextFlag: UpcomingEntry | null;
 
   // extra timers
   auxtimer1: SimpleTimerState;
