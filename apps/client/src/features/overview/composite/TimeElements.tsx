@@ -167,9 +167,8 @@ export function OffsetOverview() {
   const { offset, playback } = useRuntimePlaybackOverview();
 
   const isPlaying = isPlaybackActive(playback);
-  const correctedOffset = offset * -1;
   const offsetState = getOffsetState(isPlaying ? offset : null);
-  const offsetText = getOffsetText(isPlaying ? correctedOffset : null);
+  const offsetText = getOffsetText(isPlaying ? offset : null);
 
   return <OverUnder state={offsetState} value={offsetText} testId='offset' />;
 }

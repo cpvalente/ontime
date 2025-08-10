@@ -67,17 +67,20 @@ beforeAll(() => {
 });
 
 describe('mutation on runtimeState', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime('jan 1 00:01');
+  });
   afterEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
   });
 
   describe('playback operations', async () => {
     it('refuses if nothing is loaded', async () => {
       // force update
-      vi.useFakeTimers();
       await initRundown(makeRundown({}), {});
       vi.runAllTimers();
-      vi.useRealTimers();
 
       let success = start(mockState);
       expect(success).toBe(false);
@@ -93,10 +96,8 @@ describe('mutation on runtimeState', () => {
         order: [mockEvent.id, 'event2'],
       });
       // force update
-      vi.useFakeTimers();
       await initRundown(mockRundown, {});
       vi.runAllTimers();
-      vi.useRealTimers();
 
       const { metadata, rundown } = rundownCache.get();
       load(mockEvent, rundown, metadata);
@@ -108,6 +109,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.groupNow).toBeNull();
 
       // 2. Start event
+      vi.setSystemTime('jan 1 00:02');
       let success = start();
       newState = getState();
       expect(success).toBe(true);
@@ -117,6 +119,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.actualStart).toBe(newState.clock);
 
       // 3. Pause event
+      vi.setSystemTime('jan 1 00:03');
       success = pause();
       newState = getState();
       expect(success).toBe(true);
@@ -131,6 +134,7 @@ describe('mutation on runtimeState', () => {
       expect(success).toBe(false);
 
       // 4. Restart event
+      vi.setSystemTime('jan 1 00:04');
       success = start();
       newState = getState();
       expect(success).toBe(true);
@@ -150,6 +154,7 @@ describe('mutation on runtimeState', () => {
       expect(newState._timer.pausedAt).toBeNull();
 
       // 5. Stop event
+      vi.setSystemTime('jan 1 00:05');
       success = stop();
       newState = getState();
       expect(success).toBe(true);
@@ -163,80 +168,81 @@ describe('mutation on runtimeState', () => {
       });
       expect(newState.runtime.actualStart).toBeNull();
     });
+  });
 
-    test('runtime offset', async () => {
-      const entries = {
-        event1: { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000, parent: null },
-        event2: { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500, parent: null },
-      };
-      const mockRundown = makeRundown({ entries, order: ['event1', 'event2'] });
+  test('runtime offset', async () => {
+    const entries = {
+      event1: { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000, parent: null },
+      event2: { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500, parent: null },
+    };
+    const mockRundown = makeRundown({ entries, order: ['event1', 'event2'] });
 
-      // force update
-      vi.useFakeTimers();
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
-      vi.useRealTimers();
+    // force update
+    await initRundown(mockRundown, {});
+    vi.runAllTimers();
 
-      const { metadata, rundown } = rundownCache.get();
+    const { metadata, rundown } = rundownCache.get();
 
-      // 1. Load event
-      load(entries.event1, rundown, metadata);
-      let newState = getState();
-      expect(newState.runtime.actualStart).toBeNull();
-      expect(newState.runtime.plannedStart).toBe(0);
-      expect(newState.runtime.plannedEnd).toBe(1500);
-      expect(newState.groupNow).toBeNull();
-      expect(newState.runtime.offsetAbs).toBe(0);
+    // 1. Load event
+    vi.setSystemTime('jan 1 00:09');
+    load(entries.event1, rundown, metadata);
+    let newState = getState();
+    expect(newState.runtime.actualStart).toBeNull();
+    expect(newState.runtime.plannedStart).toBe(0);
+    expect(newState.runtime.plannedEnd).toBe(1500);
+    expect(newState.groupNow).toBeNull();
+    expect(newState.runtime.offsetAbs).toBe(0);
 
-      // 2. Start event
-      start();
-      newState = getState();
-      const firstStart = newState.clock;
-      if (newState.runtime.offsetAbs === null) {
-        throw new Error('Value cannot be null at this stage');
-      }
+    // 2. Start event
+    vi.setSystemTime('jan 1 00:10');
+    start();
+    newState = getState();
+    const firstStart = newState.clock;
+    if (newState.runtime.offsetAbs === null) {
+      throw new Error('Value cannot be null at this stage');
+    }
 
-      expect(newState.runtime.actualStart).toBe(newState.clock);
-      expect(newState.runtime.offsetAbs).toBe(entries.event1.timeStart - newState.clock);
-      expect(newState.runtime.expectedEnd).toBe(entries.event2.timeEnd - newState.runtime.offsetAbs);
+    expect(newState.runtime.actualStart).toBe(newState.clock);
+    expect(newState.runtime.offsetAbs).toBe(newState.clock - entries.event1.timeStart);
+    expect(newState.runtime.expectedEnd).toBe(entries.event2.timeEnd + newState.runtime.offsetAbs);
 
-      // 3. Next event
-      load(entries.event2, rundown, metadata);
-      start();
+    // 3. Next event
+    vi.setSystemTime('jan 1 00:12');
+    load(entries.event2, rundown, metadata);
+    start();
 
-      newState = getState();
-      if (newState.runtime.actualStart === null || newState.runtime.offsetAbs === null) {
-        throw new Error('Value cannot be null at this stage');
-      }
+    newState = getState();
+    if (newState.runtime.actualStart === null || newState.runtime.offsetAbs === null) {
+      throw new Error('Value cannot be null at this stage');
+    }
 
-      // there is a case where the calculation time overflows the millisecond which makes
-      // tests fail
-      const forgivingActualStart = Math.abs(newState.runtime.actualStart - firstStart);
-      expect(forgivingActualStart).toBeLessThanOrEqual(1);
-      // we are over-under, the difference between the schedule and the actual start
-      const delayBefore = entries.event2.timeStart - newState.clock;
-      expect(newState.runtime.offsetAbs).toBe(delayBefore);
-      // finish is the difference between the runtime and the schedule
-      expect(newState.runtime.expectedEnd).toBe(entries.event2.timeEnd - newState.runtime.offsetAbs);
-      expect(newState.groupNow).toBeNull();
+    // there is a case where the calculation time overflows the millisecond which makes
+    // tests fail
+    const forgivingActualStart = Math.abs(newState.runtime.actualStart - firstStart);
+    expect(forgivingActualStart).toBeLessThanOrEqual(1);
+    // we are over-under, the difference between the schedule and the actual start
+    const delayBefore = newState.clock - entries.event2.timeStart;
+    expect(newState.runtime.offsetAbs).toBe(delayBefore);
+    // finish is the difference between the runtime and the schedule
+    expect(newState.runtime.expectedEnd).toBe(newState.runtime.offsetAbs + entries.event2.timeEnd);
+    expect(newState.groupNow).toBeNull();
 
-      // 4. Add time
-      addTime(10);
-      newState = getState();
-      if (newState.runtime.offsetAbs === null) {
-        throw new Error('Value cannot be null at this stage');
-      }
+    // 4. Add time
+    addTime(10);
+    newState = getState();
+    if (newState.runtime.offsetAbs === null) {
+      throw new Error('Value cannot be null at this stage');
+    }
 
-      expect(newState.runtime.offsetAbs).toBe(delayBefore - 10);
-      expect(newState.runtime.expectedEnd).toBe(entries.event2.timeEnd - newState.runtime.offsetAbs);
+    expect(newState.runtime.offsetAbs).toBe(delayBefore + 10);
+    expect(newState.runtime.expectedEnd).toBe(entries.event2.timeEnd + newState.runtime.offsetAbs);
 
-      // 5. Stop event
-      stop();
-      newState = getState();
-      expect(newState.runtime.actualStart).toBeNull();
-      expect(newState.runtime.offsetAbs).toBe(0);
-      expect(newState.runtime.expectedEnd).toBeNull();
-    });
+    // 5. Stop event
+    stop();
+    newState = getState();
+    expect(newState.runtime.actualStart).toBeNull();
+    expect(newState.runtime.offsetAbs).toBe(0);
+    expect(newState.runtime.expectedEnd).toBeNull();
   });
 });
 
@@ -326,7 +332,7 @@ describe('roll mode', () => {
       start();
       const result = roll(rundown, metadata);
       expect(result).toStrictEqual({ eventId: '1', didStart: false });
-      expect(getState().runtime.offsetAbs).toBe(1000);
+      expect(getState().runtime.offsetAbs).toBe(-1000);
     });
   });
 
@@ -353,18 +359,18 @@ describe('roll mode', () => {
       const currentOffset = getState().runtime.offsetAbs;
       let result = roll(rundown, metadata, getState().runtime.offsetAbs);
       expect(result).toStrictEqual({ eventId: '1', didStart: false });
-      // the current offset should be maintain by roll mode whn taking over from play
+      // the current offset should be maintain by roll mode when taking over from play
       expect(getState().runtime.offsetAbs).toBe(currentOffset);
 
       vi.setSystemTime('jan 1 00:00:01');
       result = roll(rundown, metadata, getState().runtime.offsetAbs);
       expect(result).toStrictEqual({ eventId: '2', didStart: true });
-      expect(getState().runtime.offsetAbs).toBe(1000);
+      expect(getState().runtime.offsetAbs).toBe(-1000);
 
       vi.setSystemTime('jan 1 00:00:02');
       result = roll(rundown, metadata, getState().runtime.offsetAbs);
       expect(result).toStrictEqual({ eventId: '3', didStart: true });
-      expect(getState().runtime.offsetAbs).toBe(1000);
+      expect(getState().runtime.offsetAbs).toBe(-1000);
 
       vi.useRealTimers();
     });
