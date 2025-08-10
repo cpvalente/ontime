@@ -13,14 +13,14 @@ import {
   UpcomingEntry,
 } from 'ontime-types';
 
-import { strictDeepEqual } from 'fast-equals';
+import { deepEqual } from 'fast-equals';
 
 export function isNewSecond(
   previousValue: MaybeNumber | undefined,
   currentValue: MaybeNumber | undefined,
   direction: TimerType.CountDown | TimerType.CountUp = TimerType.CountDown,
 ) {
-  return millisToSeconds(currentValue ?? 0, direction) !== millisToSeconds(previousValue ?? 0, direction);
+  return millisToSeconds(currentValue ?? null, direction) !== millisToSeconds(previousValue ?? null, direction);
 }
 
 /**
@@ -61,7 +61,7 @@ export function getShouldRuntimeUpdate(
   dependentUpdates: boolean,
 ): boolean {
   if (previousValue === undefined) return true;
-  if (dependentUpdates) return !strictDeepEqual(previousValue, currentValue);
+  if (dependentUpdates) return !deepEqual(previousValue, currentValue);
 
   return (
     previousValue.selectedEventIndex !== currentValue.selectedEventIndex ||
@@ -82,7 +82,7 @@ export function getShouldGroupUpdate(
   dependentUpdates: boolean,
 ): boolean {
   if (previousValue === undefined) return true;
-  if (dependentUpdates) return !strictDeepEqual(previousValue, currentValue);
+  if (dependentUpdates) return !deepEqual(previousValue, currentValue);
 
   return (
     previousValue?.id !== currentValue?.id || previousValue?.startedAt !== currentValue?.startedAt
@@ -96,7 +96,7 @@ export function getShouldFlagUpdate(
   dependentUpdates: boolean,
 ): boolean {
   if (previousValue === undefined) return true;
-  if (dependentUpdates) return !strictDeepEqual(previousValue, currentValue);
+  if (dependentUpdates) return !deepEqual(previousValue, currentValue);
 
   return (
     previousValue?.id !== currentValue?.id

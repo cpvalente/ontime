@@ -13,7 +13,7 @@ import {
 } from 'ontime-types';
 import { millisToString, validatePlayback } from 'ontime-utils';
 
-import { strictDeepEqual } from 'fast-equals';
+import { deepEqual } from 'fast-equals';
 
 import { logger } from '../../classes/Logger.js';
 import * as runtimeState from '../../stores/runtimeState.js';
@@ -755,7 +755,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
         // if load status changed, save new
         previous?.id !== now?.id ||
         // maybe the event itself has changed
-        !strictDeepEqual(RuntimeService.previousState?.[eventKey], state[eventKey]);
+        !deepEqual(RuntimeService.previousState?.[eventKey], state[eventKey]);
 
       if (!eventChanged) return;
 
