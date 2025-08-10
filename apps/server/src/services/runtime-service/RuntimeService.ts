@@ -13,7 +13,7 @@ import {
 } from 'ontime-types';
 import { millisToString, validatePlayback } from 'ontime-utils';
 
-import { deepEqual } from 'fast-equals';
+import { strictDeepEqual } from 'fast-equals';
 
 import { logger } from '../../classes/Logger.js';
 import * as runtimeState from '../../stores/runtimeState.js';
@@ -33,9 +33,12 @@ import {
   findNextPlayableWithCue,
   findPreviousPlayableId,
   getEventAtIndex,
-  getForceUpdate,
   getShouldClockUpdate,
+  getShouldFlagUpdate,
+  getShouldGroupUpdate,
+  getShouldRuntimeUpdate,
   getShouldTimerUpdate,
+  isNewSecond,
 } from './rundownService.utils.js';
 import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 
@@ -141,7 +144,7 @@ class RuntimeService {
     }
 
     // 4. find if we need to update the timer
-    const shouldUpdateTimer = getShouldTimerUpdate(this.lastIntegrationTimerValue, newState.timer.current);
+    const shouldUpdateTimer = isNewSecond(this.lastIntegrationTimerValue, newState.timer.current);
     if (shouldUpdateTimer) {
       process.nextTick(() => {
         triggerAutomations(TimerLifeCycle.onUpdate, newState);
@@ -659,7 +662,6 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // call the original method and get the state
     const result = originalMethod.apply(this, args);
     const state = runtimeState.getState();
-
     const batch = eventStore.createBatch();
 
     // we do the comparison by explicitly for each property
@@ -680,89 +682,61 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // combine all big changes
     const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback || offsetModeChanged;
 
-    // we would like the wall clock to tick on a regular rate
-    const normalClockUpdate =
-      getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock) ||
-      getForceUpdate(RuntimeService.previousClockUpdate, state.clock);
+    // clock has changed by a second or more
+    const updateClock = getShouldClockUpdate(RuntimeService.previousState.clock, state.clock);
+    if (updateClock) {
+      batch.add('clock', state.clock);
+      RuntimeService.previousState.clock = state.clock;
+    }
 
-    /**
-     * Timer should be updated if
-     * - big changes
-     * - notification rate has been exceeded
-     * - the timer has rolled over into the next UI display unit
-     *
-     * Then check if there is actually a change in the data
-     */
-    const shouldUpdateTimer =
-      (hasImmediateChanges ||
-        getForceUpdate(RuntimeService.previousTimerUpdate, state.clock) ||
-        getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current)) &&
-      !deepEqual(RuntimeService.previousState?.timer, state.timer);
-
-    /**
-     * Runtime should be updated if
-     * - clock tick
-     * - big changes
-     * - the timer is updating so runtime also updates to keep them in sync ???
-     * - notification rate has been exceeded
-     *
-     * Then check if there is actually a change in the data
-     */
-    const shouldRuntimeUpdate =
-      (normalClockUpdate ||
-        hasImmediateChanges ||
-        shouldUpdateTimer ||
-        getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock)) &&
-      !deepEqual(RuntimeService.previousState?.runtime, state.runtime);
-
-    // TODO: the value shows up one tick to late
-    const shouldGroupUpdate =
-      !deepEqual(RuntimeService?.previousState.groupNow, state.groupNow) ||
-      RuntimeService?.previousState.groupNext !== state.groupNext;
-
-    // TODO: the value shows up one tick to late
-    const shouldNextFlagUpdate = !deepEqual(RuntimeService?.previousState?.nextFlag, state.nextFlag);
-
-    /**
-     * Many other values are calculated based on the clock
-     * so if any of them are updated we also need to send the clock
-     * in case nothing else is updating the clock will be updated at the notification rate
-     */
-    const shouldUpdateClock = shouldRuntimeUpdate || shouldGroupUpdate || normalClockUpdate;
-
-    // Now we set all the updates on the eventstore and update the previous value
-    if (shouldUpdateTimer) {
+    // if any values have changed, values that have the possibility to tick are updated when the seconds roll over
+    const updateTimer = getShouldTimerUpdate(RuntimeService.previousState?.timer, state.timer);
+    if (updateTimer) {
       batch.add('timer', state.timer);
       RuntimeService.previousTimerUpdate = state.clock;
       RuntimeService.previousTimerValue = state.timer.current;
       RuntimeService.previousState.timer = { ...state.timer };
     }
 
-    if (shouldRuntimeUpdate) {
+    // if any values have changed, values that have the possibility to tick are modulated by `hasClockUpdate`
+    const updateRuntime = getShouldRuntimeUpdate(
+      RuntimeService.previousState?.runtime,
+      state.runtime,
+      updateClock || hasImmediateChanges,
+    );
+    if (updateRuntime) {
       batch.add('runtime', state.runtime);
       RuntimeService.previousRuntimeUpdate = state.clock;
       RuntimeService.previousState.runtime = structuredClone(state.runtime);
     }
 
-    if (shouldGroupUpdate) {
+    // if any values have changed, values that have the possibility to tick are modulated by `hasClockUpdate`
+    const updateGroupNow = getShouldGroupUpdate(
+      RuntimeService.previousState.groupNow,
+      state.groupNow,
+      updateClock || hasImmediateChanges,
+    );
+    if (updateGroupNow) {
       batch.add('groupNow', state.groupNow);
-      batch.add('groupNext', state.groupNext);
       RuntimeService.previousState.groupNow = structuredClone(state.groupNow);
+    }
+
+    // next group is just a simple string or null compare
+    const updateGroupNext = RuntimeService.previousState.groupNext !== state.groupNext;
+    if (updateGroupNext) {
+      batch.add('groupNext', state.groupNext);
       RuntimeService.previousState.groupNext = structuredClone(state.groupNext);
     }
 
-    if (shouldNextFlagUpdate) {
+    // if any values have changed, values that have the possibility to tick are modulated by `hasClockUpdate`
+    const updateFlag = getShouldFlagUpdate(
+      RuntimeService.previousState.nextFlag,
+      state.nextFlag,
+      updateClock || hasImmediateChanges,
+    );
+    if (updateFlag) {
       batch.add('nextFlag', state.nextFlag);
       RuntimeService.previousState.nextFlag = structuredClone(state.nextFlag);
-    }
-
-    if (hasImmediateChanges) {
-      saveRestoreState(state);
-    }
-
-    if (shouldUpdateClock) {
-      RuntimeService.previousClockUpdate = state.clock;
-      batch.add('clock', state.clock);
     }
 
     // Update the events if they have changed
@@ -775,31 +749,22 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       const now = state[eventKey];
 
       // if there was nothing, and there is nothing, noop
-      if (!previous?.id && !now?.id) {
-        return;
-      }
+      if (!previous?.id && !now?.id) return;
 
-      // if load status changed, save new
-      if (previous?.id !== now?.id) {
-        storeKey(eventKey);
-        return;
-      }
+      const eventChanged =
+        // if load status changed, save new
+        previous?.id !== now?.id ||
+        // maybe the event itself has changed
+        !strictDeepEqual(RuntimeService.previousState?.[eventKey], state[eventKey]);
 
-      // maybe the event itself has changed
-      if (!deepEqual(RuntimeService.previousState?.[eventKey], state[eventKey])) {
-        storeKey(eventKey);
-        return;
-      }
+      if (!eventChanged) return;
 
-      function storeKey(eventKey: RuntimeStateEventKeys) {
-        batch.add(eventKey, state[eventKey]);
-        // @ts-expect-error -- not sure how to type this in a sane way
-        RuntimeService.previousState[eventKey] = { ...state[eventKey] };
-      }
+      batch.add(eventKey, state[eventKey]);
+      RuntimeService.previousState[eventKey] = structuredClone(state[eventKey]);
     }
 
-    // Helper function to save the restore state
-    function saveRestoreState(state: runtimeState.RuntimeState) {
+    // save the restore state
+    if (hasImmediateChanges) {
       restoreService
         .save({
           playback: state.timer.playback,
