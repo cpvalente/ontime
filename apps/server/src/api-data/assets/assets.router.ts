@@ -41,6 +41,12 @@ router.post('/css/restore', async (_req: Request, res: Response<string | ErrorRe
 
 router.post('/translations', validatePostTranslation, async (req: Request, res: Response<never | ErrorResponse>) => {
   const { translation } = req.body;
+
+  if (!translation) {
+    res.status(400).send({ message: 'translation payload is required ' });
+    return;
+  }
+
   try {
     await writeUserTranslation(translation);
     res.status(204).send();
