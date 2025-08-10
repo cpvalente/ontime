@@ -58,10 +58,10 @@ export function getShouldTimerUpdate(previousValue: TimerState | undefined, curr
 export function getShouldRuntimeUpdate(
   previousValue: Runtime | undefined,
   currentValue: Runtime,
-  dependentUpdates: boolean,
+  didDependencyUpdate: boolean,
 ): boolean {
   if (previousValue === undefined) return true;
-  if (dependentUpdates) return !deepEqual(previousValue, currentValue);
+  if (didDependencyUpdate) return !deepEqual(previousValue, currentValue);
 
   return (
     previousValue.selectedEventIndex !== currentValue.selectedEventIndex ||
@@ -79,10 +79,10 @@ export function getShouldRuntimeUpdate(
 export function getShouldGroupUpdate(
   previousValue: GroupState | null | undefined,
   currentValue: GroupState | null,
-  dependentUpdates: boolean,
+  didDependencyUpdate: boolean,
 ): boolean {
   if (previousValue === undefined) return true;
-  if (dependentUpdates) return !deepEqual(previousValue, currentValue);
+  if (didDependencyUpdate) return !deepEqual(previousValue, currentValue);
 
   return (
     previousValue?.id !== currentValue?.id || previousValue?.startedAt !== currentValue?.startedAt
@@ -93,10 +93,10 @@ export function getShouldGroupUpdate(
 export function getShouldFlagUpdate(
   previousValue: UpcomingEntry | null | undefined,
   currentValue: UpcomingEntry | null,
-  dependentUpdates: boolean,
+  didDependencyUpdate: boolean,
 ): boolean {
   if (previousValue === undefined) return true;
-  if (dependentUpdates) return !deepEqual(previousValue, currentValue);
+  if (didDependencyUpdate) return !deepEqual(previousValue, currentValue);
 
   return (
     previousValue?.id !== currentValue?.id
