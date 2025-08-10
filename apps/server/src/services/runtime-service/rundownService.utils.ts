@@ -69,10 +69,8 @@ export function getShouldRuntimeUpdate(
     previousValue.plannedStart !== currentValue.plannedStart ||
     previousValue.plannedEnd !== currentValue.plannedEnd ||
     previousValue.actualStart !== currentValue.actualStart ||
-    previousValue.actualStart !== currentValue.actualStart ||
     previousValue.offsetMode !== currentValue.offsetMode
-    // offsetAbs
-    // offsetRel
+    // offsetAbs, offsetRel and expectedEnd are ticked with `didDependencyUpdate`
   );
 }
 
@@ -86,7 +84,7 @@ export function getShouldGroupUpdate(
 
   return (
     previousValue?.id !== currentValue?.id || previousValue?.startedAt !== currentValue?.startedAt
-    // expectedEnd
+    // expectedEnd are ticked with `didDependencyUpdate`
   );
 }
 
