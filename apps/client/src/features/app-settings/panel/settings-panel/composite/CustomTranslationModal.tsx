@@ -17,15 +17,13 @@ interface CustomTranslationModalProps {
 export default function CustomTranslationModal({ isOpen, onClose }: CustomTranslationModalProps) {
   const { userTranslation, postUserTranslation } = useTranslation();
 
-  const translationStructure = useMemo(() => getTranslationStructure(), []);
-
   const defaultValues = useMemo(() => {
     const values: Record<string, string> = {};
-    translationStructure.forEach(({ translationKey, formKey }) => {
-      values[formKey] = userTranslation[translationKey as keyof TranslationObject] || '';
+    Object.keys(langEn).forEach((key) => {
+      values[toFormKey(key)] = userTranslation[key as keyof TranslationObject] || '';
     });
     return values;
-  }, [userTranslation, translationStructure]);
+  }, [userTranslation]);
 
   const {
     handleSubmit,
@@ -44,8 +42,8 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
   const onSubmit = async (formData: Record<string, string>) => {
     try {
       const translationData: Record<string, string> = {};
-      translationStructure.forEach(({ translationKey, formKey }) => {
-        translationData[translationKey] = formData[formKey];
+      Object.keys(formData).forEach((key) => {
+        translationData[toApiKey(key)] = formData[key];
       });
 
       await postUserTranslation(translationData as TranslationObject);
@@ -66,15 +64,15 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
         <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} id='custom-translations-form'>
           <Panel.ListGroup>
             <Panel.Card>
-              {Array.from(translationStructure.values()).map(({ formKey, label, placeholder }) => (
-                <Panel.ListItem key={formKey}>
-                  <Panel.Field title={label} description='' />
+              {Object.entries(langEn).map(([key, value]) => (
+                <Panel.ListItem key={key}>
+                  <Panel.Field title={value} description='' />
                   <Input
                     maxLength={150}
-                    {...register(formKey, {
+                    {...register(toFormKey(key), {
                       required: 'This field is required',
                     })}
-                    placeholder={placeholder}
+                    placeholder={value}
                   />
                 </Panel.ListItem>
               ))}
@@ -108,36 +106,10 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
   );
 }
 
-function getTranslationStructure() {
-  const fields = new Map<
-    string,
-    {
-      formKey: string;
-      translationKey: string;
-      label: string;
-      placeholder: string;
-    }
-  >();
+function toFormKey(key: string) {
+  return key.replace('.', '_');
+}
 
-  Object.entries(langEn).forEach(([translationKey, value]) => {
-    if (!fields.has(translationKey)) {
-      fields.set(translationKey, {
-        formKey: '',
-        translationKey: '',
-        label: '',
-        placeholder: '',
-      });
-    }
-
-    fields.get(translationKey)!.formKey = translationKey.split('.')[1];
-    fields.get(translationKey)!.translationKey = translationKey;
-    fields.get(translationKey)!.label = translationKey
-      .split('.')[1]
-      .split('_')
-      .map((word) => word[0].toUpperCase() + word.slice(1))
-      .join(' ');
-    fields.get(translationKey)!.placeholder = value;
-  });
-
-  return fields;
+function toApiKey(key: string) {
+  return key.replace('_', '.');
 }
