@@ -1,16 +1,91 @@
 body {
-  overflow: hidden;
   margin: 0;
+  padding: 0;
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  background: #f6f6f6;
+  color: #222;
 }
-div {
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 
-  color: azure;
+.container {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  padding: 10px 12px;
+}
+
+.container .column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.title-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: #eaeaea;
+}
+
+.logo-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.logo-title img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.card {
+  padding: 10px 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.card summary.title {
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 2px;
+  margin-bottom: 2px;
+}
+
+h1.title,
+summary.title {
+  font-size: 0.95em;
+  font-weight: 600;
+  margin: 0;
+  user-select: none;
+}
+
+summary.title {
+  cursor: pointer;
+}
+
+code {
+  font-size: 0.75em;
   font-family: monospace;
-  font-size: 20vw;
-  background-color: black;
+  background: #f4f4f4;
+  border-radius: 4px;
+  padding: 1.5px 3px;
+  display: inline-block;
+  white-space: pre;
+  width: 100%;
+}
+
+figure {
+  margin: 0;
+  padding: 0;
+}
+
+figcaption.description {
+  color: #555;
+  font-size: 0.75em;
+  font-style: italic;
 }
