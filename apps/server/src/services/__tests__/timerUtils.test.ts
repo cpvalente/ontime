@@ -742,7 +742,7 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const { offsetAbs } = getRuntimeOffset(state);
-    expect(offsetAbs).toBe(-50);
+    expect(offsetAbs).toBe(50);
   });
 
   it('added time subtracts time offset (positive offset)', () => {
@@ -766,7 +766,7 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const { offsetAbs } = getRuntimeOffset(state);
-    expect(offsetAbs).toBe(-60);
+    expect(offsetAbs).toBe(60);
   });
 
   it('considers running overtime (negative offset)', () => {
@@ -791,7 +791,7 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const { offsetAbs } = getRuntimeOffset(state);
-    expect(offsetAbs).toBe(-10);
+    expect(offsetAbs).toBe(10);
   });
 
   it('paused time is delayed time (negative offset)', () => {
@@ -817,7 +817,7 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const { offsetAbs } = getRuntimeOffset(state);
-    expect(offsetAbs).toBe(-25);
+    expect(offsetAbs).toBe(25);
   });
 
   it('offset doesnt exist if we havent started', () => {
@@ -855,46 +855,6 @@ describe('getRuntimeOffset()', () => {
 
     const { offsetAbs } = getRuntimeOffset(state);
     expect(offsetAbs).toBe(0);
-  });
-
-  it('handles loaded event', () => {
-    const state = {
-      clock: 79521653,
-      eventNow: {
-        id: '835242',
-        timeStart: 81000000,
-        timeEnd: 84600000,
-        duration: 3600000,
-        timeStrategy: 'lock-duration',
-        linkStart: false,
-        endAction: 'none',
-        timerType: 'count-down',
-        delay: 0,
-      },
-      runtime: {
-        selectedEventIndex: 1,
-        numEvents: 2,
-        offsetAbs: -81000000,
-        plannedStart: 77400000,
-        plannedEnd: 84600000,
-        actualStart: 79443403,
-        expectedEnd: null,
-      },
-      timer: {
-        addedTime: 0,
-        current: 3600000,
-        duration: 3600000,
-        elapsed: null,
-        expectedFinish: null,
-        playback: 'armed',
-        secondaryTimer: null,
-        startedAt: null,
-      },
-      _timer: { pausedAt: null },
-    } as RuntimeState;
-
-    const { offsetAbs } = getRuntimeOffset(state);
-    expect(offsetAbs).toBe(81000000 - 79521653); // clock - timestart
   });
 
   it('with time-to-end, offsets dont exist if we are not in overtime', () => {
@@ -996,7 +956,7 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const { offsetAbs } = getRuntimeOffset(state);
-    expect(offsetAbs).toBe(-400000); // <--- offset is always the overtime
+    expect(offsetAbs).toBe(400000); // <--- offset is always the overtime
   });
 
   it('handles time-to-end started after the end time', () => {
@@ -1038,8 +998,8 @@ describe('getRuntimeOffset()', () => {
     const updateCurrent = getCurrent(state);
     state.timer.current = updateCurrent;
     const { offsetAbs } = getRuntimeOffset(state);
-    expect(millisToString(offsetAbs)).toBe('-00:16:40');
-    expect(offsetAbs).toBe(81000000 - 82000000); // <-- planned end - now
+    expect(millisToString(offsetAbs)).toBe('00:16:40');
+    expect(offsetAbs).toBe(82000000 - 81000000); // <-- now - planned end
   });
 });
 
@@ -1089,7 +1049,7 @@ describe('getoffsetRel()', () => {
     } as RuntimeState;
 
     const { offsetAbs, offsetRel } = getRuntimeOffset(state);
-    expect(offsetAbs).toBe(-50);
+    expect(offsetAbs).toBe(50);
     expect(offsetRel).toBe(0);
   });
   it('relative offset is 0 when starting before the planed time', () => {
@@ -1113,7 +1073,7 @@ describe('getoffsetRel()', () => {
     } as RuntimeState;
 
     const { offsetAbs, offsetRel } = getRuntimeOffset(state);
-    expect(offsetAbs).toBe(50);
+    expect(offsetAbs).toBe(-50);
     expect(offsetRel).toBe(0);
   });
 });

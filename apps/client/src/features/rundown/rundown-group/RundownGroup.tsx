@@ -10,6 +10,7 @@ import {
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId, OntimeGroup } from 'ontime-types';
+import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
@@ -102,8 +103,11 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
     if (offset === 0) {
       return [null, 'under'];
     }
-
-    return [offset < 0 ? `-${formatDuration(offset * -1)}` : `+${formatDuration(offset)}`, getOffsetState(offset * -1)];
+    const absOffset = Math.abs(offset);
+    return [
+      `${offset < 0 ? '-' : '+'}${formatDuration(absOffset, absOffset > 2 * MILLIS_PER_MINUTE)}`,
+      getOffsetState(offset),
+    ];
   })();
 
   const dragStyle = {
