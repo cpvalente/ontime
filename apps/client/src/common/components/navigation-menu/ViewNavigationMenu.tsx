@@ -8,14 +8,14 @@ import ViewLockedIcon from './view-locked-icon/ViewLockedIcon';
 import NavigationMenu from './NavigationMenu';
 
 interface ViewNavigationMenuProps {
-  /** prevent navigation and settings*/
-  isViewLocked?: boolean;
+  /** prevent navigation */
+  isNavigationLocked?: boolean;
   /** prevent showing settings */
   suppressSettings?: boolean;
 }
 
 export default memo(ViewNavigationMenu);
-function ViewNavigationMenu({ isViewLocked, suppressSettings }: ViewNavigationMenuProps) {
+function ViewNavigationMenu({ isNavigationLocked, suppressSettings }: ViewNavigationMenuProps) {
   const [isMenuOpen, menuHandler] = useDisclosure();
   const { open: showEditFormDrawer } = useViewParamsEditorStore();
 
@@ -23,7 +23,7 @@ function ViewNavigationMenu({ isViewLocked, suppressSettings }: ViewNavigationMe
     [
       'Space',
       () => {
-        if (isViewLocked) return;
+        if (isNavigationLocked) return;
         menuHandler.toggle();
       },
       { preventDefault: true },
@@ -31,24 +31,24 @@ function ViewNavigationMenu({ isViewLocked, suppressSettings }: ViewNavigationMe
     [
       'mod + ,',
       () => {
-        if (isViewLocked || suppressSettings) return;
+        if (suppressSettings) return;
         showEditFormDrawer();
       },
       { preventDefault: true },
     ],
   ]);
 
-  if (isViewLocked) {
+  if (isNavigationLocked && suppressSettings) {
     return <ViewLockedIcon />;
   }
 
   return (
     <>
       <FloatingNavigation
-        toggleMenu={menuHandler.toggle}
-        toggleSettings={suppressSettings ? undefined : () => showEditFormDrawer()}
+        toggleMenu={isNavigationLocked ? undefined : menuHandler.toggle}
+        toggleSettings={suppressSettings ? undefined : showEditFormDrawer}
       />
-      <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />
+      {!isNavigationLocked && <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />}
     </>
   );
 }

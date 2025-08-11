@@ -4,7 +4,7 @@ import { useDisclosure } from '@mantine/hooks';
 import IconButton from '../../common/components/buttons/IconButton';
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
-import { getIsViewLocked } from '../../externals';
+import { getIsNavigationLocked } from '../../externals';
 import CuesheetOverview from '../../features/overview/CuesheetOverview';
 
 import CuesheetEditModal from './cuesheet-edit-modal/CuesheetEditModal';
@@ -18,7 +18,7 @@ export default function CuesheetPage() {
 
   useWindowTitle('Cuesheet');
 
-  const isLocked = getIsViewLocked();
+  const isLocked = getIsNavigationLocked();
 
   return (
     <>

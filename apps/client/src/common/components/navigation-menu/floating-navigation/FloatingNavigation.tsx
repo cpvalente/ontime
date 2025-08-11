@@ -8,7 +8,7 @@ import IconButton from '../../buttons/IconButton';
 import style from './FloatingNavigation.module.scss';
 
 interface FloatingNavigationProps {
-  toggleMenu: () => void;
+  toggleMenu?: () => void;
   toggleSettings?: () => void;
 }
 
@@ -20,15 +20,17 @@ export default function FloatingNavigation({ toggleMenu, toggleSettings }: Float
       id='fadeable-navigation'
       className={cx([style.fadeable, style.buttonContainer, !isButtonShown && style.hidden])}
     >
-      <IconButton
-        variant='subtle-white'
-        size='xlarge'
-        onClick={toggleMenu}
-        aria-label='toggle menu'
-        data-testid='navigation__toggle-menu'
-      >
-        <IoApps />
-      </IconButton>
+      {toggleMenu && (
+        <IconButton
+          variant='subtle-white'
+          size='xlarge'
+          onClick={toggleMenu}
+          aria-label='toggle menu'
+          data-testid='navigation__toggle-menu'
+        >
+          <IoApps />
+        </IconButton>
+      )}
       {toggleSettings && (
         <IconButton
           variant='subtle-white'
