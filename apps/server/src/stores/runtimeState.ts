@@ -358,6 +358,13 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   loadNext(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   updateLoaded(runtimeState.eventNow ?? undefined);
   loadGroupFlagAndEnd(rundown, metadata, eventNowIndex);
+
+  // catch the edge case where the playing event is moved into a group
+  // if the group already has a start value then we dont overwrite it
+  // use the start value from the timer, so if the we are not running it will be set to null
+  if (runtimeState.groupNow && runtimeState.groupNow.startedAt === null) {
+    runtimeState.groupNow.startedAt = runtimeState.timer.startedAt;
+  }
 }
 
 export function start(state: RuntimeState = runtimeState): boolean {
@@ -713,9 +720,9 @@ function getExpectedTimes(state = runtimeState) {
   if (state.groupNow) {
     state.groupNow.expectedEnd = null;
     const { _group } = state;
-    if (state.groupNow.startedAt !== null && _group !== null) {
-      const { event, accumulatedGap, isLinkedToLoaded } = _group;
-      const expectedStart = getExpectedStart(event, {
+    if (_group !== null) {
+      const { event: lastEvent, accumulatedGap, isLinkedToLoaded } = _group;
+      const lastEventExpectedStart = getExpectedStart(lastEvent, {
         currentDay: eventNow.dayOffset,
         totalGap: accumulatedGap,
         isLinkedToLoaded,
@@ -724,7 +731,7 @@ function getExpectedTimes(state = runtimeState) {
         plannedStart,
         actualStart,
       });
-      state.groupNow.expectedEnd = expectedStart + event.duration;
+      state.groupNow.expectedEnd = lastEventExpectedStart + lastEvent.duration;
     }
   }
 
