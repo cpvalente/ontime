@@ -208,7 +208,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     },
-    ping: -1,
+    ping: 1,
   });
 
   // initialise rundown service

@@ -142,16 +142,8 @@ export const connectSocket = () => {
           break;
         }
         case MessageTag.RuntimeData: {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- removing the key from the payload
-          const { ping, ...serverPayload } = payload;
-          patchRuntime(serverPayload);
-          updateDevTools(serverPayload);
-          break;
-        }
-        case MessageTag.RuntimePatch: {
-          const patch = payload;
-          patchRuntime(patch);
-          updateDevTools(patch);
+          patchRuntime(payload);
+          updateDevTools(payload);
           break;
         }
         case MessageTag.Refetch: {
