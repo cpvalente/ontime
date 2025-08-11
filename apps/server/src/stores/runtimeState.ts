@@ -360,6 +360,8 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   loadGroupFlagAndEnd(rundown, metadata, eventNowIndex);
 
   // catch the edge case where the playing event is moved into a group
+  // if the group already has a start value then we dont overwrite it
+  // use the start value from the timer, so if the we are not running it will be set to null
   if (runtimeState.groupNow && runtimeState.groupNow.startedAt === null) {
     runtimeState.groupNow.startedAt = runtimeState.timer.startedAt;
   }
