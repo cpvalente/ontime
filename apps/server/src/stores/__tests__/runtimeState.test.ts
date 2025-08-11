@@ -33,7 +33,7 @@ const mockState = {
   clock: 666,
   eventNow: null,
   eventNext: null,
-  runtime: {
+  rundown: {
     selectedEventIndex: null,
     numEvents: 0,
   },
@@ -116,7 +116,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.timer).toMatchObject({
         playback: Playback.Play,
       });
-      expect(newState.runtime.actualStart).toBe(newState.clock);
+      expect(newState.rundown.actualStart).toBe(newState.clock);
 
       // 3. Pause event
       vi.setSystemTime('jan 1 00:03');
@@ -166,7 +166,7 @@ describe('mutation on runtimeState', () => {
         expectedFinish: null,
         startedAt: null,
       });
-      expect(newState.runtime.actualStart).toBeNull();
+      expect(newState.rundown.actualStart).toBeNull();
     });
   });
 
@@ -187,9 +187,9 @@ describe('mutation on runtimeState', () => {
     vi.setSystemTime('jan 1 00:09');
     load(entries.event1, rundown, metadata);
     let newState = getState();
-    expect(newState.runtime.actualStart).toBeNull();
-    expect(newState.runtime.plannedStart).toBe(0);
-    expect(newState.runtime.plannedEnd).toBe(1500);
+    expect(newState.rundown.actualStart).toBeNull();
+    expect(newState.rundown.plannedStart).toBe(0);
+    expect(newState.rundown.plannedEnd).toBe(1500);
     expect(newState.groupNow).toBeNull();
     expect(newState.runtime.offsetAbs).toBe(0);
 
@@ -202,9 +202,9 @@ describe('mutation on runtimeState', () => {
       throw new Error('Value cannot be null at this stage');
     }
 
-    expect(newState.runtime.actualStart).toBe(newState.clock);
+    expect(newState.rundown.actualStart).toBe(newState.clock);
     expect(newState.runtime.offsetAbs).toBe(newState.clock - entries.event1.timeStart);
-    expect(newState.runtime.expectedEnd).toBe(entries.event2.timeEnd + newState.runtime.offsetAbs);
+    expect(newState.runtime.expectedRundownEnd).toBe(entries.event2.timeEnd + newState.runtime.offsetAbs);
 
     // 3. Next event
     vi.setSystemTime('jan 1 00:12');
@@ -212,19 +212,19 @@ describe('mutation on runtimeState', () => {
     start();
 
     newState = getState();
-    if (newState.runtime.actualStart === null || newState.runtime.offsetAbs === null) {
+    if (newState.rundown.actualStart === null || newState.runtime.offsetAbs === null) {
       throw new Error('Value cannot be null at this stage');
     }
 
     // there is a case where the calculation time overflows the millisecond which makes
     // tests fail
-    const forgivingActualStart = Math.abs(newState.runtime.actualStart - firstStart);
+    const forgivingActualStart = Math.abs(newState.rundown.actualStart - firstStart);
     expect(forgivingActualStart).toBeLessThanOrEqual(1);
     // we are over-under, the difference between the schedule and the actual start
     const delayBefore = newState.clock - entries.event2.timeStart;
     expect(newState.runtime.offsetAbs).toBe(delayBefore);
     // finish is the difference between the runtime and the schedule
-    expect(newState.runtime.expectedEnd).toBe(newState.runtime.offsetAbs + entries.event2.timeEnd);
+    expect(newState.runtime.expectedRundownEnd).toBe(newState.runtime.offsetAbs + entries.event2.timeEnd);
     expect(newState.groupNow).toBeNull();
 
     // 4. Add time
@@ -235,14 +235,14 @@ describe('mutation on runtimeState', () => {
     }
 
     expect(newState.runtime.offsetAbs).toBe(delayBefore + 10);
-    expect(newState.runtime.expectedEnd).toBe(entries.event2.timeEnd + newState.runtime.offsetAbs);
+    expect(newState.runtime.expectedRundownEnd).toBe(entries.event2.timeEnd + newState.runtime.offsetAbs);
 
     // 5. Stop event
     stop();
     newState = getState();
-    expect(newState.runtime.actualStart).toBeNull();
+    expect(newState.rundown.actualStart).toBeNull();
     expect(newState.runtime.offsetAbs).toBe(0);
-    expect(newState.runtime.expectedEnd).toBeNull();
+    expect(newState.runtime.expectedRundownEnd).toBeNull();
   });
 });
 
@@ -377,8 +377,8 @@ describe('roll mode', () => {
   });
 });
 
-describe('loadGroup', () => {
-  test('from no-group to a group will clear startedAt', () => {
+describe('loadGroupFlagAndEnd', () => {
+  test('from no-group to a group will clear expectedGroupEnd', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeEvent({ id: '0', parent: null }),
@@ -393,6 +393,7 @@ describe('loadGroup', () => {
     const state = {
       groupNow: null,
       eventNow: rundown.entries[11],
+      runtime: { expectedGroupEnd: 123 },
     } as RuntimeState;
 
     const metadata = { playableEventOrder: ['0', '11', '3'], flags: ['1'] } as RundownMetadata;
@@ -400,12 +401,13 @@ describe('loadGroup', () => {
     loadGroupFlagAndEnd(rundown, metadata, 2, state);
 
     expect(state).toMatchObject({
-      groupNow: { id: rundown.entries[1].id, startedAt: null },
+      groupNow: rundown.entries[1],
+      runtime: { expectedGroupEnd: null },
       eventNow: rundown.entries[11],
     });
   });
 
-  test('from a group to a different group will clear startedAt', () => {
+  test('from a group to a different group will clear expectedGroupEnd', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeEvent({ id: '0', parent: null }),
@@ -418,7 +420,8 @@ describe('loadGroup', () => {
     });
 
     const state = {
-      groupNow: { id: rundown.entries[1].id, startedAt: 123 },
+      groupNow: rundown.entries[1],
+      runtime: { expectedGroupEnd: 123 },
       eventNow: rundown.entries[22],
     } as RuntimeState;
 
@@ -427,12 +430,13 @@ describe('loadGroup', () => {
     loadGroupFlagAndEnd(rundown, metadata, 1, state);
 
     expect(state).toMatchObject({
-      groupNow: { id: rundown.entries[2].id, startedAt: null },
+      groupNow: rundown.entries[2],
+      runtime: { expectedGroupEnd: null },
       eventNow: rundown.entries[22],
     });
   });
 
-  test('from group to a no-group will clear startedAt', () => {
+  test('from group to a no-group will clear expectedGroupEnd', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeEvent({ id: '0', parent: null }),
@@ -445,10 +449,8 @@ describe('loadGroup', () => {
     });
 
     const state = {
-      groupNow: {
-        id: rundown.entries[1].id,
-        startedAt: 123,
-      },
+      groupNow: rundown.entries[1],
+      runtime: { expectedGroupEnd: 123 },
       eventNow: rundown.entries[0],
     } as RuntimeState;
 
@@ -458,32 +460,8 @@ describe('loadGroup', () => {
 
     expect(state).toMatchObject({
       groupNow: null,
+      runtime: { expectedGroupEnd: null },
       eventNow: rundown.entries[0],
-    });
-  });
-
-  test('from a group to same group will keep startedAt', () => {
-    const rundown = makeRundown({
-      entries: {
-        0: makeOntimeGroup({ id: '0', entries: ['1', '2'] }),
-        1: makeOntimeEvent({ id: '1', parent: '0' }),
-        2: makeOntimeEvent({ id: '2', parent: '0' }),
-      },
-      order: ['0'],
-    });
-
-    const state = {
-      groupNow: { id: rundown.entries[0].id, startedAt: 123 },
-      eventNow: rundown.entries[2],
-    } as RuntimeState;
-
-    const metadata = { playableEventOrder: ['1', '2'], flags: ['1'] } as RundownMetadata;
-
-    loadGroupFlagAndEnd(rundown, metadata, 0, state);
-
-    expect(state).toMatchObject({
-      groupNow: { id: rundown.entries[0].id, startedAt: 123 },
-      eventNow: rundown.entries[2],
     });
   });
 

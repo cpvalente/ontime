@@ -1,4 +1,3 @@
-import type { MaybeString } from '../../utils/utils.type.js';
 import type { OntimeEvent, OntimeGroup } from '../core/OntimeEntry.js';
 import type { SimpleTimerState } from './AuxTimer.type.js';
 import type { MessageState } from './MessageControl.type.js';

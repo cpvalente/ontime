@@ -121,7 +121,7 @@ export function getRuntimeOffset(state: RuntimeState): { offsetAbs: number; offs
   }
 
   const { countToEnd, timeStart } = eventNow;
-  const { plannedStart, actualStart } = state.runtime;
+  const { plannedStart, actualStart } = state.rundown;
 
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: {

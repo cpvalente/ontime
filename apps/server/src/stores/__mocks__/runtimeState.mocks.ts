@@ -6,19 +6,22 @@ const baseState: RuntimeState = {
   clock: 0,
   eventNow: null,
   eventNext: null,
+  eventFlag: null,
   groupNow: null,
-  groupNext: null,
-  nextFlag: null,
-  runtime: {
+  rundown: {
     selectedEventIndex: null,
     numEvents: 0,
-    offsetAbs: 0,
-    offsetRel: 0,
     plannedStart: 0,
     plannedEnd: 0,
     actualStart: null,
-    expectedEnd: null,
+  },
+  runtime: {
+    offsetAbs: 0,
+    offsetRel: 0,
     offsetMode: OffsetMode.Absolute,
+    expectedRundownEnd: null,
+    expectedGroupEnd: null,
+    expectedFlagStart: null,
   },
   timer: {
     addedTime: 0,

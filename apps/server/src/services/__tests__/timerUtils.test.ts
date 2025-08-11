@@ -1,5 +1,5 @@
 import { dayInMs, millisToString } from 'ontime-utils';
-import { EndAction, Playback, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
+import { EndAction, OffsetMode, Playback, Runtime, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 
 import {
   getCurrent,
@@ -10,6 +10,7 @@ import {
   skippedOutOfEvent,
 } from '../timerUtils.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
+import { rundownArrayOfIds } from '../../api-data/rundown/rundown.validation.js';
 
 describe('getExpectedFinish()', () => {
   it('is null if we havent started', () => {
@@ -204,7 +205,7 @@ describe('getExpectedFinish()', () => {
           pausedAt: null,
           hasFinished: false,
         },
-        runtime: {
+        rundown: {
           actualStart: 79200000,
           plannedEnd: 600000,
         },
@@ -358,7 +359,7 @@ describe('getCurrent()', () => {
           duration: 100,
           startedAt: null,
         },
-        runtime: {
+        rundown: {
           plannedEnd: null,
         },
         _timer: {
@@ -383,7 +384,7 @@ describe('getCurrent()', () => {
           duration: 100,
           startedAt: 10,
         },
-        runtime: {
+        rundown: {
           plannedEnd: 100,
         },
         _timer: {
@@ -408,7 +409,7 @@ describe('getCurrent()', () => {
           duration: 100,
           startedAt: 10,
         },
-        runtime: {
+        rundown: {
           plannedEnd: 100,
         },
         _timer: {
@@ -434,7 +435,7 @@ describe('getCurrent()', () => {
           duration: Infinity, // not relevant,
           startedAt: 79200000, // 22:00:00
         },
-        runtime: {
+        rundown: {
           actualStart: 79200000,
           plannedEnd: 600000,
         },
@@ -462,7 +463,7 @@ describe('getCurrent()', () => {
           duration: Infinity, // not relevant,
           startedAt: 79200000, // 22:00:00
         },
-        runtime: {
+        rundown: {
           actualStart: 82000000, // 22:46:40 <--- started now
           plannedEnd: 81000000, // 22:30:00
         },
@@ -735,7 +736,7 @@ describe('getRuntimeOffset()', () => {
       _timer: {
         pausedAt: null,
       },
-      runtime: {
+      rundown: {
         actualStart: 150,
         plannedStart: 100,
       },
@@ -759,7 +760,7 @@ describe('getRuntimeOffset()', () => {
       _timer: {
         pausedAt: null,
       },
-      runtime: {
+      rundown: {
         actualStart: 150,
         plannedStart: 100,
       },
@@ -784,7 +785,7 @@ describe('getRuntimeOffset()', () => {
       _timer: {
         pausedAt: null,
       },
-      runtime: {
+      rundown: {
         actualStart: 100,
         plannedStart: 100,
       },
@@ -810,7 +811,7 @@ describe('getRuntimeOffset()', () => {
       _timer: {
         pausedAt: 125, // we have been paused for 25ms (see clock)
       },
-      runtime: {
+      rundown: {
         actualStart: 100,
         plannedStart: 100,
       },
@@ -831,14 +832,16 @@ describe('getRuntimeOffset()', () => {
         timeStrategy: 'lock-duration',
         linkStart: false,
       },
-      runtime: {
+      rundown: {
         selectedEventIndex: 0,
         numEvents: 2,
-        offsetAbs: -77400000,
         plannedStart: 77400000,
         plannedEnd: 84600000,
         actualStart: null,
-        expectedEnd: null,
+      },
+      runtime: {
+        offsetAbs: -77400000,
+        expectedRundownEnd: null,
       },
       timer: {
         addedTime: 0,
@@ -882,14 +885,16 @@ describe('getRuntimeOffset()', () => {
         custom: {},
         delay: 0,
       },
-      runtime: {
+      rundown: {
         selectedEventIndex: 0,
         numEvents: 1,
-        offsetAbs: 0,
         plannedStart: 77400000, // 21:30:00
         plannedEnd: 81000000, // 22:30:00
         actualStart: 78000000, // 21:40:00
-        expectedEnd: 81600000, // 22:40:00
+      },
+      runtime: {
+        offsetAbs: 0,
+        expectedRundownEnd: 81600000, // 22:40:00
       },
       timer: {
         addedTime: 0,
@@ -933,14 +938,16 @@ describe('getRuntimeOffset()', () => {
         custom: {},
         delay: 0,
       },
-      runtime: {
+      rundown: {
         selectedEventIndex: 0,
         numEvents: 1,
-        offsetAbs: 0,
         plannedStart: 77400000, // 21:30:00
         plannedEnd: 81000000, // 22:30:00
         actualStart: 78000000, // 21:40:00
-        expectedEnd: 81600000, // 22:40:00
+      },
+      runtime: {
+        offsetAbs: 0,
+        expectedRundownEnd: 81600000, // 22:40:00
       },
       timer: {
         addedTime: -200000,
@@ -973,14 +980,16 @@ describe('getRuntimeOffset()', () => {
         timerType: TimerType.CountDown,
         countToEnd: true,
       },
-      runtime: {
+      rundown: {
         selectedEventIndex: 0,
         numEvents: 1,
-        offsetAbs: 0,
         plannedStart: 77400000, // 21:30:00
         plannedEnd: 81000000, // 22:30:00
         actualStart: 82000000, // 22:46:40 <--- started now
-        expectedEnd: 82000000 + 3600000, // <--- now + duration
+      },
+      runtime: {
+        offsetAbs: 0,
+        expectedRundownEnd: 82000000 + 3600000, // <--- now + duration
       },
       timer: {
         addedTime: 0,
@@ -1018,7 +1027,7 @@ describe('getoffsetRel()', () => {
       _timer: {
         pausedAt: null,
       },
-      runtime: {
+      rundown: {
         actualStart: 150,
         plannedStart: 150,
       },
@@ -1042,7 +1051,7 @@ describe('getoffsetRel()', () => {
       _timer: {
         pausedAt: null,
       },
-      runtime: {
+      rundown: {
         actualStart: 150,
         plannedStart: 100,
       },
@@ -1066,7 +1075,7 @@ describe('getoffsetRel()', () => {
       _timer: {
         pausedAt: null,
       },
-      runtime: {
+      rundown: {
         actualStart: 100,
         plannedStart: 150,
       },
@@ -1175,14 +1184,16 @@ describe('getTimerPhase()', () => {
       clock: 55691050,
       eventNow: null,
       eventNext: null,
-      runtime: {
+      rundown: {
         selectedEventIndex: null,
         numEvents: 1,
-        offsetAbs: 0,
         plannedStart: 55860000,
         plannedEnd: 55880000,
         actualStart: null,
-        expectedEnd: null,
+      },
+      runtime: {
+        offsetAbs: 0,
+        expectedRundownEnd: null,
       },
       timer: {
         addedTime: 0,
@@ -1213,14 +1224,16 @@ describe('getTimerPhase()', () => {
       clock: 55691050,
       eventNow: null,
       eventNext: null,
-      runtime: {
+      rundown: {
         selectedEventIndex: null,
         numEvents: 1,
-        offsetAbs: 0,
         plannedStart: 55860000,
         plannedEnd: 55880000,
         actualStart: null,
-        expectedEnd: null,
+      },
+      runtime: {
+        offsetAbs: 0,
+        expectedRundownEnd: null,
       },
       timer: {
         addedTime: 0,
