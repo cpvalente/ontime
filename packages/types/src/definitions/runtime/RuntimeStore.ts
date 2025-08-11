@@ -64,5 +64,5 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
     duration: 0,
     playback: SimplePlayback.Stop,
   },
-  ping: -1,
+  ping: 1,
 };

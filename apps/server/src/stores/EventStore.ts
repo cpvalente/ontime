@@ -23,7 +23,7 @@ export const eventStore = {
   },
   set<T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) {
     store[key] = value;
-    socket.sendAsJson(MessageTag.RuntimePatch, { [key]: value });
+    socket.sendAsJson(MessageTag.RuntimeData, { [key]: value });
   },
   createBatch() {
     const patch: Partial<RuntimeStore> = {};
@@ -34,7 +34,7 @@ export const eventStore = {
       send() {
         if (isEmptyObject(patch)) return;
         store = { ...store, ...patch };
-        socket.sendAsJson(MessageTag.RuntimePatch, patch);
+        socket.sendAsJson(MessageTag.RuntimeData, patch);
       },
     };
   },
