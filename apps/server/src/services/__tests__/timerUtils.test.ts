@@ -1,5 +1,5 @@
 import { dayInMs, millisToString } from 'ontime-utils';
-import { EndAction, OffsetMode, Playback, Runtime, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
+import { EndAction, Playback, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 
 import {
   getCurrent,
@@ -10,7 +10,6 @@ import {
   skippedOutOfEvent,
 } from '../timerUtils.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
-import { rundownArrayOfIds } from '../../api-data/rundown/rundown.validation.js';
 
 describe('getExpectedFinish()', () => {
   it('is null if we havent started', () => {

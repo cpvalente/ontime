@@ -1,7 +1,6 @@
 import { millisToSeconds } from 'ontime-utils';
 import {
   EntryId,
-  GroupState,
   isOntimeEvent,
   isPlayableEvent,
   MaybeNumber,
@@ -10,7 +9,6 @@ import {
   Runtime,
   TimerState,
   TimerType,
-  UpcomingEntry,
 } from 'ontime-types';
 
 import { deepEqual } from 'fast-equals';
@@ -61,45 +59,9 @@ export function getShouldRuntimeUpdate(
   didDependencyUpdate: boolean,
 ): boolean {
   if (previousValue === undefined) return true;
-  if (didDependencyUpdate) return !deepEqual(previousValue, currentValue);
-
-  return (
-    previousValue.selectedEventIndex !== currentValue.selectedEventIndex ||
-    previousValue.numEvents !== currentValue.numEvents ||
-    previousValue.plannedStart !== currentValue.plannedStart ||
-    previousValue.plannedEnd !== currentValue.plannedEnd ||
-    previousValue.actualStart !== currentValue.actualStart ||
-    previousValue.offsetMode !== currentValue.offsetMode
-    // offsetAbs, offsetRel and expectedEnd are ticked with `didDependencyUpdate`
-  );
-}
-
-export function getShouldGroupUpdate(
-  previousValue: GroupState | null | undefined,
-  currentValue: GroupState | null,
-  didDependencyUpdate: boolean,
-): boolean {
-  if (previousValue === undefined) return true;
-  if (didDependencyUpdate) return !deepEqual(previousValue, currentValue);
-
-  return (
-    previousValue?.id !== currentValue?.id || previousValue?.startedAt !== currentValue?.startedAt
-    // expectedEnd are ticked with `didDependencyUpdate`
-  );
-}
-
-export function getShouldFlagUpdate(
-  previousValue: UpcomingEntry | null | undefined,
-  currentValue: UpcomingEntry | null,
-  didDependencyUpdate: boolean,
-): boolean {
-  if (previousValue === undefined) return true;
-  if (didDependencyUpdate) return !deepEqual(previousValue, currentValue);
-
-  return (
-    previousValue?.id !== currentValue?.id
-    // expectedStart
-  );
+  if (previousValue.offsetMode !== currentValue.offsetMode) return true;
+  // offsetAbs, offsetRel, expected*End are ticked with `didDependencyUpdate`
+  return didDependencyUpdate && !deepEqual(previousValue, currentValue);
 }
 
 /**
