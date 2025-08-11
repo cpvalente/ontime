@@ -11,7 +11,7 @@ import Log from './features/log/Log';
 import Loader from './views/common/loader/Loader';
 import NotFound from './views/common/not-found/NotFound';
 import ViewLoader from './views/ViewLoader';
-import { getIsViewLocked, sessionScope } from './externals';
+import { getIsNavigationLocked, sessionScope } from './externals';
 import { initializeSentry } from './sentry.config';
 
 const Timer = lazy(() => import('./views/timer/Timer'));
@@ -45,7 +45,7 @@ export default function AppRouter() {
           path='timer'
           element={
             <ViewLoader>
-              <ViewNavigationMenu isViewLocked={getIsViewLocked()} />
+              <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} />
               <Timer />
             </ViewLoader>
           }
@@ -54,7 +54,7 @@ export default function AppRouter() {
           path='countdown'
           element={
             <ViewLoader>
-              <ViewNavigationMenu isViewLocked={getIsViewLocked()} />
+              <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} />
               <Countdown />
             </ViewLoader>
           }
@@ -63,7 +63,7 @@ export default function AppRouter() {
           path='backstage'
           element={
             <ViewLoader>
-              <ViewNavigationMenu isViewLocked={getIsViewLocked()} />
+              <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} />
               <Backstage />
             </ViewLoader>
           }
@@ -72,7 +72,7 @@ export default function AppRouter() {
           path='studio'
           element={
             <ViewLoader>
-              <ViewNavigationMenu isViewLocked={getIsViewLocked()} />
+              <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} />
               <StudioClock />
             </ViewLoader>
           }
@@ -81,7 +81,7 @@ export default function AppRouter() {
           path='timeline'
           element={
             <ViewLoader>
-              <ViewNavigationMenu isViewLocked={getIsViewLocked()} />
+              <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} />
               <Timeline />
             </ViewLoader>
           }
@@ -90,7 +90,7 @@ export default function AppRouter() {
           path='info'
           element={
             <ViewLoader>
-              <ViewNavigationMenu suppressSettings isViewLocked={getIsViewLocked()} />
+              <ViewNavigationMenu suppressSettings isNavigationLocked={getIsNavigationLocked()} />
               <ProjectInfo />
             </ViewLoader>
           }
@@ -198,7 +198,7 @@ function PresetView() {
   if (!preset) {
     return (
       <>
-        <ViewNavigationMenu isViewLocked={!showNav} suppressSettings />
+        <ViewNavigationMenu isNavigationLocked={!showNav} suppressSettings />
         <NotFound />
       </>
     );
@@ -212,7 +212,7 @@ function PresetView() {
   return (
     <PresetContext value={preset}>
       {preset.target !== OntimeView.Cuesheet && (
-        <ViewNavigationMenu isViewLocked={getIsViewLocked()} suppressSettings />
+        <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} suppressSettings />
       )}
       {Component ? <Component /> : <NotFound />}
     </PresetContext>
@@ -243,7 +243,7 @@ function RedirectPreset() {
 
   return (
     <>
-      <ViewNavigationMenu isViewLocked={getIsViewLocked()} suppressSettings />
+      <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} suppressSettings />
       <NotFound />
     </>
   );

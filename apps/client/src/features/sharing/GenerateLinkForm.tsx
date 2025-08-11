@@ -227,16 +227,25 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                 name='lockNav'
                 checked={watch('lockNav')}
                 onCheckedChange={(checked) => setValue('lockNav', checked, { shouldDirty: true })}
+                disabled={watch('lockConfig')}
               />
             </Panel.ListItem>
             {watch('path') !== OntimeView.Cuesheet && (
               <Panel.ListItem>
-                <Panel.Field title='Lock configuration' description='Whether to hide the configuration panel' />
+                <Panel.Field
+                  title='Lock configuration'
+                  description='Whether to hide the configuration panel (also hides navigation)'
+                />
                 <Switch
                   size='large'
                   name='lockConfig'
                   checked={watch('lockConfig')}
-                  onCheckedChange={(checked) => setValue('lockConfig', checked, { shouldDirty: true })}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setValue('lockNav', checked, { shouldDirty: true });
+                    }
+                    setValue('lockConfig', checked, { shouldDirty: true });
+                  }}
                 />
               </Panel.ListItem>
             )}
