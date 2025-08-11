@@ -55,10 +55,11 @@ function RundownExport() {
     <ProtectRoute permission='editor'>
       <div className={cx([style.rundownExport, isExtracted && style.extracted])} data-testid='panel-rundown'>
         <FinderPlacement />
+        {isExtracted && <ViewNavigationMenu suppressSettings />}
         <div className={style.rundown}>
           <div className={style.list}>
             <ErrorBoundary>
-              <Corner onClick={(event) => handleLinks('rundown', event)} />
+              {!isExtracted && <Corner onClick={(event) => handleLinks('rundown', event)} />}
               <RundownContextMenu>
                 <RundownWrapper />
               </RundownContextMenu>
