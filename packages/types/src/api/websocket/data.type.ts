@@ -16,11 +16,10 @@ export enum MessageTag {
   Dialog = 'dialog',
   Log = 'log',
   RuntimeData = 'runtime-data',
-  RuntimePatch = 'runtime-patch',
   Refetch = 'refetch',
 }
 
-//CLIENT TO SERVER
+// CLIENT TO SERVER
 type PingPacket = { tag: MessageTag.Ping; payload: Date };
 type SetClientPacket = { tag: MessageTag.ClientSetPath; payload: string };
 type SetClientPathPacket = { tag: MessageTag.ClientSet; payload: Partial<Client> };
@@ -35,8 +34,7 @@ type ListClientPacket = {
   tag: MessageTag.ClientList;
   payload: Record<string, Client>;
 };
-type RuntimePacket = { tag: MessageTag.RuntimeData; payload: RuntimeStore };
-type RuntimePatchPacket = { tag: MessageTag.RuntimePatch; payload: Partial<RuntimeStore> };
+type RuntimePacket = { tag: MessageTag.RuntimeData; payload: Partial<RuntimeStore> };
 
 type RefetchPacket = {
   tag: MessageTag.Refetch;
@@ -59,5 +57,4 @@ export type WsPacketToClient =
   | LogPacket
   | ListClientPacket
   | RuntimePacket
-  | RuntimePatchPacket
   | RefetchPacket;
