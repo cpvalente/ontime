@@ -62,7 +62,7 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
       // make patch object
       const { data } = await getDb(fileName);
       if (!data.settings.version.startsWith('4.')) {
-        setError('The project you are attempting to merge is from v3, it need to be migrated first');
+        setError('The project you are attempting to merge is from an older version and it need to be migrated first');
         return;
       }
       const patch = await makeProjectPatch(data, values);
