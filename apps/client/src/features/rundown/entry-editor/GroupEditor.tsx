@@ -63,19 +63,19 @@ export default function GroupEditor({ group }: GroupEditorProps) {
               // TODO: format with user time settings
             }
             <Editor.Label>First event start</Editor.Label>
-            <TextLikeInput className={style.textLikeInput}>
+            <TextLikeInput className={style.textLikeInput} disabled>
               {millisToString(group.timeStart, { fallback: timerPlaceholder })}
             </TextLikeInput>
           </div>
           <div>
             <Editor.Label>Last event end</Editor.Label>
-            <TextLikeInput className={style.textLikeInput}>
+            <TextLikeInput className={style.textLikeInput} disabled>
               {millisToString(group.timeEnd, { fallback: timerPlaceholder })}
             </TextLikeInput>
           </div>
           <div>
             <Editor.Label htmlFor='duration'>Scheduled duration</Editor.Label>
-            <TextLikeInput className={style.textLikeInput}>
+            <TextLikeInput className={style.textLikeInput} disabled>
               {millisToString(group.duration, { fallback: enDash })}
             </TextLikeInput>
           </div>
@@ -86,7 +86,7 @@ export default function GroupEditor({ group }: GroupEditorProps) {
             <TextLikeInput
               offset={planOffsetLabel}
               className={cx([style.textLikeInput, planOffset === null && style.inactive])}
-              tabIndex={-1}
+              disabled
             >
               {planOffset !== null && planOffset > 0 ? '+' : ''}
               {millisToString(planOffset, { fallback: enDash })}
