@@ -58,8 +58,8 @@ export const setMessage = {
 
 export const usePlaybackControl = createSelector((state: RuntimeStore) => ({
   playback: state.timer.playback,
-  selectedEventIndex: state.runtime.selectedEventIndex,
-  numEvents: state.runtime.numEvents,
+  selectedEventIndex: state.rundown.selectedEventIndex,
+  numEvents: state.rundown.numEvents,
   timerPhase: state.timer.phase,
 }));
 
@@ -150,8 +150,8 @@ export const useClock = createSelector((state: RuntimeStore) => ({
 }));
 
 export const useNextFlag = createSelector((state: RuntimeStore) => ({
-  id: state.nextFlag?.id ?? null,
-  expectedStart: state.nextFlag?.expectedStart ?? null,
+  id: state.eventFlag?.id ?? null,
+  expectedStart: state.runtime.expectedFlagStart,
 }));
 
 /** Used by the progress bar components */
@@ -163,21 +163,21 @@ export const useProgressData = createSelector((state: RuntimeStore) => ({
 }));
 
 export const useRuntimeOverview = createSelector((state: RuntimeStore) => ({
-  plannedStart: state.runtime.plannedStart,
-  actualStart: state.runtime.actualStart,
-  plannedEnd: state.runtime.plannedEnd,
-  expectedEnd: state.runtime.expectedEnd,
+  plannedStart: state.rundown.plannedStart,
+  actualStart: state.rundown.actualStart,
+  plannedEnd: state.rundown.plannedEnd,
+  expectedEnd: state.runtime.expectedRundownEnd,
 }));
 
 export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) => ({
   playback: state.timer.playback,
   clock: state.clock,
 
-  numEvents: state.runtime.numEvents,
-  selectedEventIndex: state.runtime.selectedEventIndex,
+  numEvents: state.rundown.numEvents,
+  selectedEventIndex: state.rundown.selectedEventIndex,
   offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offsetAbs : state.runtime.offsetRel,
 
-  groupExpectedEnd: state.groupNow?.expectedEnd ?? null,
+  groupExpectedEnd: state.runtime.expectedGroupEnd,
 }));
 
 export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
@@ -189,8 +189,8 @@ export const useExpectedStartData = createSelector((state: RuntimeStore) => ({
   offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offsetAbs : state.runtime.offsetRel,
   offsetMode: state.runtime.offsetMode,
   currentDay: state.eventNow?.dayOffset ?? 0,
-  actualStart: state.runtime.actualStart,
-  plannedStart: state.runtime.plannedStart,
+  actualStart: state.rundown.actualStart,
+  plannedStart: state.rundown.plannedStart,
   clock: state.clock,
 }));
 
@@ -252,6 +252,7 @@ export const useBackstageSocket = createSelector((state: RuntimeStore) => ({
   eventNext: state.eventNext,
   eventNow: state.eventNow,
   runtime: state.runtime,
+  rundown: state.rundown,
   selectedEventId: state.eventNow?.id ?? null,
   time: state.timer,
 }));
@@ -267,6 +268,7 @@ export const useStudioTimersSocket = createSelector((state: RuntimeStore) => ({
   message: state.message,
   time: state.timer,
   runtime: state.runtime,
+  rundown: state.rundown,
 }));
 
 export const useTimelineSocket = createSelector((state: RuntimeStore) => ({
