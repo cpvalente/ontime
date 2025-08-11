@@ -7,12 +7,22 @@ import style from './TextLikeInput.module.scss';
 interface TextLikeInputProps extends HTMLAttributes<HTMLSpanElement> {
   offset?: 'over' | 'under' | 'muted' | null;
   muted?: boolean;
+  disabled?: boolean;
 }
 
 const TextLikeInput = forwardRef(
-  ({ offset, muted, children, className, ...elementProps }: PropsWithChildren<TextLikeInputProps>, textRef) => {
+  (
+    { offset, muted, disabled, children, className, ...elementProps }: PropsWithChildren<TextLikeInputProps>,
+    textRef,
+  ) => {
     const ref = useRef<HTMLDivElement | null>(null);
-    const classes = cx([style.textInput, offset && style[offset], muted && style.muted, className]);
+    const classes = cx([
+      style.textInput,
+      offset && style[offset],
+      muted && style.muted,
+      disabled && style.disabled,
+      className,
+    ]);
 
     useImperativeHandle(textRef, () => {
       return {
@@ -23,7 +33,7 @@ const TextLikeInput = forwardRef(
     });
 
     return (
-      <div className={classes} tabIndex={0} {...elementProps} ref={ref}>
+      <div className={classes} tabIndex={disabled ? -1 : 0} {...elementProps} ref={ref}>
         {children}
       </div>
     );

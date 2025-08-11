@@ -25,8 +25,6 @@ export default function AutomationSettingsForm({
   enabledOscIn,
   oscPortIn,
 }: AutomationSettingsProps) {
-  'no memo'; // RHF and react-compiler dont seem to get along
-
   const {
     handleSubmit,
     reset,
@@ -38,15 +36,15 @@ export default function AutomationSettingsForm({
   } = useForm<AutomationSettingsProps>({
     mode: 'onChange',
     defaultValues: { enabledAutomations, enabledOscIn, oscPortIn },
-    values: { enabledAutomations, enabledOscIn, oscPortIn },
     resetOptions: {
-      keepDirtyValues: true,
+      keepDirtyValues: false,
     },
   });
 
   const onSubmit = async (formData: AutomationSettingsProps) => {
     try {
       await editAutomationSettings(formData);
+      reset(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
