@@ -4,21 +4,20 @@ let observer: IntersectionObserver | null = null;
 
 function getObserver(): IntersectionObserver {
   if (!observer) {
-    const { addVisibleRow, removeVisibleRow } = useVisibleRowsStore.getState();
-
     const options: IntersectionObserverInit = {
       root: null,
       rootMargin: '400px 0px', // prevent unmounting rows too early
-      threshold: 0.01,
+      threshold: 0.25,
     };
 
     const handleOnIntersect: IntersectionObserverCallback = (entries) => {
+      const visibleRows = useVisibleRowsStore.getState();
       entries.forEach((entry) => {
         const targetId = entry.target.id;
         if (entry.isIntersecting) {
-          addVisibleRow(targetId);
+          visibleRows.addVisibleRow(targetId);
         } else {
-          removeVisibleRow(targetId);
+          visibleRows.removeVisibleRow(targetId);
         }
       });
     };
