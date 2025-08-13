@@ -16,7 +16,7 @@ import {
   useClock,
   useCurrentGroupId,
   useNextFlag,
-  useRuntimeOverview,
+  useRundownOverview,
   useRuntimePlaybackOverview,
   useTimer,
 } from '../../../common/hooks/useSocket';
@@ -31,7 +31,7 @@ import { OverUnder, TimeColumn } from './TimeLayout';
 import style from './TimeElements.module.scss';
 
 export function StartTimes() {
-  const { plannedEnd, plannedStart, actualStart, expectedEnd } = useRuntimeOverview();
+  const { plannedEnd, plannedStart, actualStart, expectedEnd } = useRundownOverview();
 
   const plannedStartText = plannedStart === null ? timerPlaceholder : formatTime(plannedStart);
 

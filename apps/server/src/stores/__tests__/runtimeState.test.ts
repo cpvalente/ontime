@@ -377,7 +377,7 @@ describe('roll mode', () => {
   });
 });
 
-describe('loadGroupFlagAndEnd', () => {
+describe('loadGroupFlagAndEnd()', () => {
   test('from no-group to a group will clear expectedGroupEnd', () => {
     const rundown = makeRundown({
       entries: {

@@ -162,7 +162,7 @@ export const useProgressData = createSelector((state: RuntimeStore) => ({
   timeDanger: state.eventNow?.timeDanger ?? null,
 }));
 
-export const useRuntimeOverview = createSelector((state: RuntimeStore) => ({
+export const useRundownOverview = createSelector((state: RuntimeStore) => ({
   plannedStart: state.rundown.plannedStart,
   actualStart: state.rundown.actualStart,
   plannedEnd: state.rundown.plannedEnd,

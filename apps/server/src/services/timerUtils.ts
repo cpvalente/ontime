@@ -127,8 +127,8 @@ export function getRuntimeOffset(state: RuntimeState): { offsetAbs: number; offs
   DEV: {
     // we know current exists as long as eventNow exists
     if (current === null) throw new Error('timerUtils.getRuntimeOffset: state.timer.current must be set');
-    if (plannedStart === null) throw new Error('timerUtils.getRuntimeOffset: state.runtime.plannedStart must be set');
-    if (actualStart === null) throw new Error('timerUtils.getRuntimeOffset: state.runtime.actualStart must be set');
+    if (plannedStart === null) throw new Error('timerUtils.getRuntimeOffset: state.rundown.plannedStart must be set');
+    if (actualStart === null) throw new Error('timerUtils.getRuntimeOffset: state.rundown.plannedStart must be set');
   }
 
   // difference between planned event start and actual event start (will be positive if we stared behind )

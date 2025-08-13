@@ -360,13 +360,6 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   loadNext(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   updateLoaded(runtimeState.eventNow ?? undefined);
   loadGroupFlagAndEnd(rundown, metadata, eventNowIndex);
-
-  // catch the edge case where the playing event is moved into a group
-  // if the group already has a start value then we dont overwrite it
-  // use the start value from the timer, so if the we are not running it will be set to null
-  // if (runtimeState.groupNow && runtimeState.runtime.gr.startedAt === null) {
-  //   runtimeState.groupNow.startedAt = runtimeState.timer.startedAt;
-  // }
 }
 
 export function start(state: RuntimeState = runtimeState): boolean {
@@ -693,9 +686,9 @@ export function roll(
 
 /**
  * calculates and sets values directly in state
- * - runtime.expectedEnd
- * - groupNow.expectedEnd
- * - nextFlag.expectedStart
+ * - runtime.expectedRundownEnd
+ * - runtime.expectedGroupEnd
+ * - runtime.expectedFlagStart
  */
 function getExpectedTimes(state = runtimeState) {
   const { offsetMode, offsetAbs, offsetRel } = state.runtime;
@@ -814,7 +807,6 @@ export function loadGroupFlagAndEnd(
     state._end = { event: lastEvent, isLinkedToLoaded, accumulatedGap };
   }
 
-  //TODO: this can be removed?
   if (!foundFlag) state.eventFlag = null;
 
   if ((state.groupNow?.id ?? null) !== currentGroupId) {
