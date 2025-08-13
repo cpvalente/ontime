@@ -1,8 +1,8 @@
 import type { OntimeEvent, OntimeGroup } from '../core/OntimeEntry.js';
 import type { SimpleTimerState } from './AuxTimer.type.js';
 import type { MessageState } from './MessageControl.type.js';
-import type { RundownState } from './RundownState.type.js';
 import type { Offset } from './Offset.type.js';
+import type { RundownState } from './RundownState.type.js';
 import type { TimerState } from './TimerState.type.js';
 
 export type RuntimeStore = {

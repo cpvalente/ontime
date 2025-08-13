@@ -15,7 +15,7 @@ describe('getExpectedStart()', () => {
         currentDay: 0,
         totalGap: 0,
         offset: 0,
-        offsetMode: OffsetMode.Absolute,
+        mode: OffsetMode.Absolute,
         actualStart: null,
         plannedStart: null,
       };
@@ -34,7 +34,7 @@ describe('getExpectedStart()', () => {
         currentDay: 0,
         totalGap: 0,
         offset: 20,
-        offsetMode: OffsetMode.Absolute,
+        mode: OffsetMode.Absolute,
         actualStart: null,
         plannedStart: null,
       };
@@ -53,7 +53,7 @@ describe('getExpectedStart()', () => {
         currentDay: 0,
         totalGap: 0,
         offset: -10,
-        offsetMode: OffsetMode.Absolute,
+        mode: OffsetMode.Absolute,
         actualStart: null,
         plannedStart: null,
       };
@@ -72,7 +72,7 @@ describe('getExpectedStart()', () => {
         currentDay: 0,
         totalGap: 20,
         offset: 20,
-        offsetMode: OffsetMode.Absolute,
+        mode: OffsetMode.Absolute,
         actualStart: null,
         plannedStart: null,
       };
@@ -91,7 +91,7 @@ describe('getExpectedStart()', () => {
         currentDay: 0,
         totalGap: 10,
         offset: 20,
-        offsetMode: OffsetMode.Absolute,
+        mode: OffsetMode.Absolute,
         actualStart: 0,
         plannedStart: 0,
       };
@@ -109,7 +109,7 @@ describe('getExpectedStart()', () => {
         actualStart: 100,
         plannedStart: 0,
         offset: 0,
-        offsetMode: OffsetMode.Relative,
+        mode: OffsetMode.Relative,
       };
 
       const timeStartEvent2 = 10;
@@ -189,7 +189,7 @@ describe('getExpectedStart()', () => {
         actualStart: 100,
         plannedStart: 0,
         offset: 0,
-        offsetMode: OffsetMode.Relative,
+        mode: OffsetMode.Relative,
       };
 
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: true })).toBe(120);
@@ -213,7 +213,7 @@ describe('getExpectedStart()', () => {
         actualStart: 100,
         plannedStart: 0,
         offset: 0,
-        offsetMode: OffsetMode.Relative,
+        mode: OffsetMode.Relative,
       };
 
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: true })).toBe(120);
@@ -236,7 +236,7 @@ describe('getExpectedStart()', () => {
         actualStart: 100,
         plannedStart: 0,
         offset: 0,
-        offsetMode: OffsetMode.Relative,
+        mode: OffsetMode.Relative,
       };
 
       // this event will start the current day
@@ -270,7 +270,7 @@ describe('getExpectedStart()', () => {
       actualStart: 100,
       plannedStart: 0,
       offset: 0,
-      offsetMode: OffsetMode.Relative,
+      mode: OffsetMode.Relative,
       isLinkedToLoaded: false,
     };
 

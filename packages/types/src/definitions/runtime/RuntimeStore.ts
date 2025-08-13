@@ -1,6 +1,6 @@
 import { SimpleDirection, SimplePlayback } from './AuxTimer.type.js';
-import { Playback } from './Playback.type.js';
 import { OffsetMode } from './Offset.type.js';
+import { Playback } from './Playback.type.js';
 import type { RuntimeStore } from './RuntimeStore.type.js';
 import { TimerPhase } from './TimerState.type.js';
 
