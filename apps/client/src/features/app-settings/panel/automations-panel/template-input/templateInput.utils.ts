@@ -23,10 +23,11 @@ const staticAutocompleteOptions = [
   '{{rundown.plannedStart}}',
   '{{rundown.plannedEnd}}',
   '{{rundown.actualStart}}',
-  '{{runtime.offsetAbs}}',
-  '{{runtime.expectedRundownEnd}}',
-  '{{runtime.expectedGroupEnd}}',
-  '{{runtime.expectedFlagStart}}',
+  '{{offset.absolute}}',
+  '{{offset.relative}}',
+  '{{offset.expectedRundownEnd}}',
+  '{{offset.expectedGroupEnd}}',
+  '{{offset.expectedFlagStart}}',
 ];
 
 const eventStaticPropertiesNow = [

@@ -191,20 +191,20 @@ describe('mutation on runtimeState', () => {
     expect(newState.rundown.plannedStart).toBe(0);
     expect(newState.rundown.plannedEnd).toBe(1500);
     expect(newState.groupNow).toBeNull();
-    expect(newState.runtime.offsetAbs).toBe(0);
+    expect(newState.offset.absolute).toBe(0);
 
     // 2. Start event
     vi.setSystemTime('jan 1 00:10');
     start();
     newState = getState();
     const firstStart = newState.clock;
-    if (newState.runtime.offsetAbs === null) {
+    if (newState.offset.absolute === null) {
       throw new Error('Value cannot be null at this stage');
     }
 
     expect(newState.rundown.actualStart).toBe(newState.clock);
-    expect(newState.runtime.offsetAbs).toBe(newState.clock - entries.event1.timeStart);
-    expect(newState.runtime.expectedRundownEnd).toBe(entries.event2.timeEnd + newState.runtime.offsetAbs);
+    expect(newState.offset.absolute).toBe(newState.clock - entries.event1.timeStart);
+    expect(newState.offset.expectedRundownEnd).toBe(entries.event2.timeEnd + newState.offset.absolute);
 
     // 3. Next event
     vi.setSystemTime('jan 1 00:12');
@@ -212,7 +212,7 @@ describe('mutation on runtimeState', () => {
     start();
 
     newState = getState();
-    if (newState.rundown.actualStart === null || newState.runtime.offsetAbs === null) {
+    if (newState.rundown.actualStart === null || newState.offset.absolute === null) {
       throw new Error('Value cannot be null at this stage');
     }
 
@@ -222,27 +222,27 @@ describe('mutation on runtimeState', () => {
     expect(forgivingActualStart).toBeLessThanOrEqual(1);
     // we are over-under, the difference between the schedule and the actual start
     const delayBefore = newState.clock - entries.event2.timeStart;
-    expect(newState.runtime.offsetAbs).toBe(delayBefore);
+    expect(newState.offset.absolute).toBe(delayBefore);
     // finish is the difference between the runtime and the schedule
-    expect(newState.runtime.expectedRundownEnd).toBe(newState.runtime.offsetAbs + entries.event2.timeEnd);
+    expect(newState.offset.expectedRundownEnd).toBe(newState.offset.absolute + entries.event2.timeEnd);
     expect(newState.groupNow).toBeNull();
 
     // 4. Add time
     addTime(10);
     newState = getState();
-    if (newState.runtime.offsetAbs === null) {
+    if (newState.offset.absolute === null) {
       throw new Error('Value cannot be null at this stage');
     }
 
-    expect(newState.runtime.offsetAbs).toBe(delayBefore + 10);
-    expect(newState.runtime.expectedRundownEnd).toBe(entries.event2.timeEnd + newState.runtime.offsetAbs);
+    expect(newState.offset.absolute).toBe(delayBefore + 10);
+    expect(newState.offset.expectedRundownEnd).toBe(entries.event2.timeEnd + newState.offset.absolute);
 
     // 5. Stop event
     stop();
     newState = getState();
     expect(newState.rundown.actualStart).toBeNull();
-    expect(newState.runtime.offsetAbs).toBe(0);
-    expect(newState.runtime.expectedRundownEnd).toBeNull();
+    expect(newState.offset.absolute).toBe(0);
+    expect(newState.offset.expectedRundownEnd).toBeNull();
   });
 });
 
@@ -332,7 +332,7 @@ describe('roll mode', () => {
       start();
       const result = roll(rundown, metadata);
       expect(result).toStrictEqual({ eventId: '1', didStart: false });
-      expect(getState().runtime.offsetAbs).toBe(-1000);
+      expect(getState().offset.absolute).toBe(-1000);
     });
   });
 
@@ -356,21 +356,21 @@ describe('roll mode', () => {
       load(rundown.entries[1] as PlayableEvent, rundown, metadata);
       start();
       // the current offset after manual play
-      const currentOffset = getState().runtime.offsetAbs;
-      let result = roll(rundown, metadata, getState().runtime.offsetAbs);
+      const currentOffset = getState().offset.absolute;
+      let result = roll(rundown, metadata, getState().offset.absolute);
       expect(result).toStrictEqual({ eventId: '1', didStart: false });
       // the current offset should be maintain by roll mode when taking over from play
-      expect(getState().runtime.offsetAbs).toBe(currentOffset);
+      expect(getState().offset.absolute).toBe(currentOffset);
 
       vi.setSystemTime('jan 1 00:00:01');
-      result = roll(rundown, metadata, getState().runtime.offsetAbs);
+      result = roll(rundown, metadata, getState().offset.absolute);
       expect(result).toStrictEqual({ eventId: '2', didStart: true });
-      expect(getState().runtime.offsetAbs).toBe(-1000);
+      expect(getState().offset.absolute).toBe(-1000);
 
       vi.setSystemTime('jan 1 00:00:02');
-      result = roll(rundown, metadata, getState().runtime.offsetAbs);
+      result = roll(rundown, metadata, getState().offset.absolute);
       expect(result).toStrictEqual({ eventId: '3', didStart: true });
-      expect(getState().runtime.offsetAbs).toBe(-1000);
+      expect(getState().offset.absolute).toBe(-1000);
 
       vi.useRealTimers();
     });
@@ -393,7 +393,7 @@ describe('loadGroupFlagAndEnd()', () => {
     const state = {
       groupNow: null,
       eventNow: rundown.entries[11],
-      runtime: { expectedGroupEnd: 123 },
+      offset: { expectedGroupEnd: 123 },
     } as RuntimeState;
 
     const metadata = { playableEventOrder: ['0', '11', '3'], flags: ['1'] } as RundownMetadata;
@@ -402,7 +402,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     expect(state).toMatchObject({
       groupNow: rundown.entries[1],
-      runtime: { expectedGroupEnd: null },
+      offset: { expectedGroupEnd: null },
       eventNow: rundown.entries[11],
     });
   });
@@ -421,7 +421,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const state = {
       groupNow: rundown.entries[1],
-      runtime: { expectedGroupEnd: 123 },
+      offset: { expectedGroupEnd: 123 },
       eventNow: rundown.entries[22],
     } as RuntimeState;
 
@@ -431,7 +431,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     expect(state).toMatchObject({
       groupNow: rundown.entries[2],
-      runtime: { expectedGroupEnd: null },
+      offset: { expectedGroupEnd: null },
       eventNow: rundown.entries[22],
     });
   });
@@ -450,7 +450,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const state = {
       groupNow: rundown.entries[1],
-      runtime: { expectedGroupEnd: 123 },
+      offset: { expectedGroupEnd: 123 },
       eventNow: rundown.entries[0],
     } as RuntimeState;
 
@@ -460,7 +460,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     expect(state).toMatchObject({
       groupNow: null,
-      runtime: { expectedGroupEnd: null },
+      offset: { expectedGroupEnd: null },
       eventNow: rundown.entries[0],
     });
   });

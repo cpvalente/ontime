@@ -15,10 +15,10 @@ const baseState: RuntimeState = {
     plannedEnd: 0,
     actualStart: null,
   },
-  runtime: {
-    offsetAbs: 0,
-    offsetRel: 0,
-    offsetMode: OffsetMode.Absolute,
+  offset: {
+    absolute: 0,
+    relative: 0,
+    mode: OffsetMode.Absolute,
     expectedRundownEnd: null,
     expectedGroupEnd: null,
     expectedFlagStart: null,

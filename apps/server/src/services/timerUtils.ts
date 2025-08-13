@@ -112,12 +112,12 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
  * Positive offset is over time / behind schedule
  * Negative offset is under time / ahead of schedule
  */
-export function getRuntimeOffset(state: RuntimeState): { offsetAbs: number; offsetRel: number } {
+export function getRuntimeOffset(state: RuntimeState): { absolute: number; relative: number } {
   const { eventNow, clock } = state;
   const { addedTime, current, startedAt } = state.timer;
   // nothing to calculate if there are no loaded events or if we havent started
   if (eventNow === null || startedAt === null) {
-    return { offsetAbs: 0, offsetRel: 0 };
+    return { absolute: 0, relative: 0 };
   }
 
   const { countToEnd, timeStart } = eventNow;
@@ -140,13 +140,13 @@ export function getRuntimeOffset(state: RuntimeState): { offsetAbs: number; offs
   // time the playback was paused, the different from now to when we paused is added to the offset TODO: brakes when crossing midnight
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
-  const offsetAbs = eventStartOffset + overtime + pausedTime + addedTime;
+  const absolute = eventStartOffset + overtime + pausedTime + addedTime;
 
   // the relative offset i the same as the absolute offset but adjusted relative to the actual start time
-  const offsetRel = offsetAbs + plannedStart - actualStart;
+  const relative = absolute + plannedStart - actualStart;
 
   // in case of count to end, the absolute offset is just the overtime
-  return countToEnd ? { offsetAbs: overtime, offsetRel } : { offsetAbs, offsetRel };
+  return countToEnd ? { absolute: overtime, relative } : { absolute, relative };
 }
 
 /**

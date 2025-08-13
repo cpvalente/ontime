@@ -5,10 +5,10 @@ export enum OffsetMode {
   Relative = 'relative',
 }
 
-export type Runtime = {
-  offsetAbs: number; // a positive value means that we are in over time aka behind schedule
-  offsetRel: number;
-  offsetMode: OffsetMode;
+export type Offset = {
+  absolute: number; // a positive value means that we are in over time aka behind schedule
+  relative: number;
+  mode: OffsetMode;
   expectedGroupEnd: MaybeNumber;
   expectedRundownEnd: MaybeNumber;
   expectedFlagStart: MaybeNumber;

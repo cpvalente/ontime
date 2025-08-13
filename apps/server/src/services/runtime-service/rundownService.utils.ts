@@ -6,7 +6,7 @@ import {
   MaybeNumber,
   OntimeEvent,
   Rundown,
-  Runtime,
+  Offset,
   TimerState,
   TimerType,
 } from 'ontime-types';
@@ -53,14 +53,14 @@ export function getShouldTimerUpdate(previousValue: TimerState | undefined, curr
   );
 }
 
-export function getShouldRuntimeUpdate(
-  previousValue: Runtime | undefined,
-  currentValue: Runtime,
+export function getShouldOffsetUpdate(
+  previousValue: Offset | undefined,
+  currentValue: Offset,
   didDependencyUpdate: boolean,
 ): boolean {
   if (previousValue === undefined) return true;
-  if (previousValue.offsetMode !== currentValue.offsetMode) return true;
-  // offsetAbs, offsetRel, expected*End are ticked with `didDependencyUpdate`
+  if (previousValue.mode !== currentValue.mode) return true;
+  // absolute, relative, expected*End are ticked with `didDependencyUpdate`
   return didDependencyUpdate && !deepEqual(previousValue, currentValue);
 }
 

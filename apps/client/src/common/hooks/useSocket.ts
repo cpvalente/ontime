@@ -151,7 +151,7 @@ export const useClock = createSelector((state: RuntimeStore) => ({
 
 export const useNextFlag = createSelector((state: RuntimeStore) => ({
   id: state.eventFlag?.id ?? null,
-  expectedStart: state.runtime.expectedFlagStart,
+  expectedStart: state.offset.expectedFlagStart,
 }));
 
 /** Used by the progress bar components */
@@ -166,7 +166,7 @@ export const useRundownOverview = createSelector((state: RuntimeStore) => ({
   plannedStart: state.rundown.plannedStart,
   actualStart: state.rundown.actualStart,
   plannedEnd: state.rundown.plannedEnd,
-  expectedEnd: state.runtime.expectedRundownEnd,
+  expectedEnd: state.offset.expectedRundownEnd,
 }));
 
 export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) => ({
@@ -175,19 +175,19 @@ export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) =
 
   numEvents: state.rundown.numEvents,
   selectedEventIndex: state.rundown.selectedEventIndex,
-  offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offsetAbs : state.runtime.offsetRel,
+  offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
 
-  groupExpectedEnd: state.runtime.expectedGroupEnd,
+  groupExpectedEnd: state.offset.expectedGroupEnd,
 }));
 
 export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
-  offset: state.runtime.offsetAbs,
+  offset: state.offset.absolute,
 }));
 
 export const useExpectedStartData = createSelector((state: RuntimeStore) => ({
-  offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offsetAbs : state.runtime.offsetRel,
-  offsetMode: state.runtime.offsetMode,
+  offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
+  mode: state.offset.mode,
   currentDay: state.eventNow?.dayOffset ?? 0,
   actualStart: state.rundown.actualStart,
   plannedStart: state.rundown.plannedStart,
@@ -199,7 +199,7 @@ export const useCurrentDay = createSelector((state: RuntimeStore) => ({
 }));
 
 export const useRuntimeOffset = createSelector((state: RuntimeStore) => ({
-  offset: state.runtime.offsetAbs,
+  offset: state.offset.absolute,
 }));
 
 export const usePing = createSelector((state: RuntimeStore) => ({
@@ -212,7 +212,7 @@ export const useIsOnline = createSelector((state: RuntimeStore) => ({
 }));
 
 export const useOffsetMode = createSelector((state: RuntimeStore) => ({
-  offsetMode: state.runtime.offsetMode,
+  offsetMode: state.offset.mode,
 }));
 
 export const setOffsetMode = (payload: OffsetMode) => sendSocket('offsetmode', payload);
@@ -251,7 +251,6 @@ export const useCountdownSocket = createSelector((state: RuntimeStore) => ({
 export const useBackstageSocket = createSelector((state: RuntimeStore) => ({
   eventNext: state.eventNext,
   eventNow: state.eventNow,
-  runtime: state.runtime,
   rundown: state.rundown,
   selectedEventId: state.eventNow?.id ?? null,
   time: state.timer,
@@ -267,11 +266,11 @@ export const useStudioTimersSocket = createSelector((state: RuntimeStore) => ({
   eventNow: state.eventNow,
   message: state.message,
   time: state.timer,
-  runtime: state.runtime,
+  offset: state.offset,
   rundown: state.rundown,
 }));
 
 export const useTimelineSocket = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
-  offsetAbs: state.runtime.offsetAbs,
+  offsetAbs: state.offset.absolute,
 }));

@@ -184,7 +184,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
     clock: state.clock,
     timer: state.timer,
     message: { ...runtimeStorePlaceholder.message },
-    runtime: state.runtime,
+    offset: state.offset,
     rundown: state.rundown,
     eventNow: state.eventNow,
     eventNext: state.eventNext,

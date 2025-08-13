@@ -34,7 +34,7 @@ import {
   findPreviousPlayableId,
   getEventAtIndex,
   getShouldClockUpdate,
-  getShouldRuntimeUpdate,
+  getShouldOffsetUpdate,
   getShouldTimerUpdate,
   isNewSecond,
 } from './rundownService.utils.js';
@@ -86,7 +86,7 @@ class RuntimeService {
     // 2. handle edge cases related to roll
     if (newState.timer.playback === Playback.Roll) {
       // check if we need to call any side effects
-      const keepOffset = newState.runtime.offsetAbs;
+      const keepOffset = newState.offset.absolute;
       if (hasSecondaryTimerFinished) {
         // if the secondary timer has finished, we need to call roll
         // since event is already loaded
@@ -663,7 +663,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     const justStarted = !RuntimeService.previousState?.timer;
 
     // offset mode has been changed
-    const offsetModeChanged = RuntimeService.previousState?.runtime?.offsetMode !== state.runtime.offsetMode;
+    const offsetModeChanged = RuntimeService.previousState?.offset?.mode !== state.offset.mode;
 
     // if playback changes most things should update
     const hasChangedPlayback = RuntimeService.previousState.timer?.playback !== state.timer.playback;
@@ -686,14 +686,14 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     }
 
     // if any values have changed, values that have the possibility to tick are modulated by `hasClockUpdate`
-    const updateRuntime = getShouldRuntimeUpdate(
-      RuntimeService.previousState?.runtime,
-      state.runtime,
+    const updateRuntime = getShouldOffsetUpdate(
+      RuntimeService.previousState?.offset,
+      state.offset,
       updateClock || hasImmediateChanges,
     );
     if (updateRuntime) {
-      batch.add('runtime', state.runtime);
-      RuntimeService.previousState.runtime = structuredClone(state.runtime);
+      batch.add('offset', state.offset);
+      RuntimeService.previousState.offset = structuredClone(state.offset);
     }
 
     // if any values have changed
