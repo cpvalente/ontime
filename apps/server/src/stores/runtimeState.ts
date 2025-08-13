@@ -688,15 +688,18 @@ export function roll(
  * - offset.expectedFlagStart
  */
 function getExpectedTimes(state = runtimeState) {
+  state.offset.expectedRundownEnd = null;
+  state.offset.expectedGroupEnd = null;
+  state.offset.expectedFlagStart = null;
+  state.offset.expectedRundownEnd = null;
+
   const { offset } = state;
   const { plannedStart, actualStart } = state.rundown;
   const { eventNow } = state;
 
   if (!eventNow) return;
 
-  state.offset.expectedRundownEnd = null;
   if (state.groupNow) {
-    state.offset.expectedGroupEnd = null;
     const { _group } = state;
     if (_group !== null) {
       const { event: lastEvent, accumulatedGap, isLinkedToLoaded } = _group;
@@ -714,7 +717,6 @@ function getExpectedTimes(state = runtimeState) {
   }
 
   if (state.eventFlag) {
-    state.offset.expectedFlagStart = null;
     const { _flag } = state;
     if (_flag) {
       const { event, accumulatedGap, isLinkedToLoaded } = _flag;
@@ -743,8 +745,6 @@ function getExpectedTimes(state = runtimeState) {
       actualStart,
     });
     state.offset.expectedRundownEnd = expectedStart + event.duration;
-  } else {
-    state.offset.expectedRundownEnd = null;
   }
 }
 
@@ -754,8 +754,14 @@ export function loadGroupFlagAndEnd(
   currentIndex: MaybeNumber,
   state = runtimeState,
 ) {
-  if (currentIndex == null) return resetMetaData();
-  if (state.eventNow === null) return resetMetaData();
+  state.groupNow = null;
+  state._group = null;
+  state.eventFlag = null;
+  state._flag = null;
+  state._end = null;
+
+  if (currentIndex == null) return;
+  if (state.eventNow === null) return;
 
   const currentGroupId = state.eventNow.parent;
   const flagsPresent = metadata.flags.length !== 0;
@@ -764,6 +770,7 @@ export function loadGroupFlagAndEnd(
   const { entries } = rundown;
 
   const orderInGroup = currentGroupId ? (entries[currentGroupId] as OntimeGroup).entries : null;
+  state.groupNow = currentGroupId ? (entries[currentGroupId] as OntimeGroup) : null;
   const lastEventInGroup = orderInGroup ? getLastEventNormal(rundown.entries, orderInGroup).lastEvent : null;
 
   // if we don't have a any flags in the rundown then no need to look for it
@@ -803,24 +810,7 @@ export function loadGroupFlagAndEnd(
   if (lastEvent) {
     state._end = { event: lastEvent, isLinkedToLoaded, accumulatedGap };
   }
-
-  if (!foundFlag) state.eventFlag = null;
-
-  if ((state.groupNow?.id ?? null) !== currentGroupId) {
-    // we went into a new group - and it is different from the one we might have come from
-    state.offset.expectedGroupEnd = null;
-  }
-
-  state.groupNow = currentGroupId ? (entries[currentGroupId] as OntimeGroup) : null;
 }
-
-const resetMetaData = (state = runtimeState) => {
-  state.groupNow = null;
-  state._group = null;
-  state.eventFlag = null;
-  state._flag = null;
-  state._end = null;
-};
 
 export function setOffsetMode(mode: OffsetMode) {
   runtimeState.offset.mode = mode;
