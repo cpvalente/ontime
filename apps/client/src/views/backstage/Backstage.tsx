@@ -44,7 +44,7 @@ export default function BackstageLoader() {
 function Backstage({ events, customFields, projectData, isMirrored, settings }: BackstageData) {
   const { getLocalizedString } = useTranslation();
   const { secondarySource, extraInfo } = useBackstageOptions();
-  const { eventNext, eventNow, runtime, selectedEventId, time } = useBackstageSocket();
+  const { eventNext, eventNow, rundown, selectedEventId, time } = useBackstageSocket();
   const [blinkClass, setBlinkClass] = useState(false);
   const { height: screenHeight } = useViewportSize();
 
@@ -76,13 +76,13 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
   const scheduledStart = (() => {
     if (showNow) return undefined;
     if (!hasEvents) return undefined;
-    return formatTime(runtime.plannedStart, { format12: 'hh:mm a', format24: 'HH:mm' });
+    return formatTime(rundown.plannedStart, { format12: 'hh:mm a', format24: 'HH:mm' });
   })();
 
   const scheduledEnd = (() => {
     if (showNow) return undefined;
     if (!hasEvents) return undefined;
-    return formatTime(runtime.plannedEnd, { format12: 'hh:mm a', format24: 'HH:mm' });
+    return formatTime(rundown.plannedEnd, { format12: 'hh:mm a', format24: 'HH:mm' });
   })();
 
   let displayTimer = millisToString(time.current, { fallback: timerPlaceholderMin });

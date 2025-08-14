@@ -3,10 +3,10 @@ import {
   isOntimeEvent,
   isPlayableEvent,
   LogOrigin,
-  MaybeNumber,
   OffsetMode,
   OntimeEvent,
   Playback,
+  RuntimeStore,
   TimerLifeCycle,
   TimerPhase,
   TimerState,
@@ -34,15 +34,11 @@ import {
   findPreviousPlayableId,
   getEventAtIndex,
   getShouldClockUpdate,
-  getShouldFlagUpdate,
-  getShouldGroupUpdate,
-  getShouldRuntimeUpdate,
+  getShouldOffsetUpdate,
   getShouldTimerUpdate,
   isNewSecond,
 } from './rundownService.utils.js';
 import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
-
-type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow'>;
 
 /**
  * Service manages runtime status of app
@@ -53,22 +49,11 @@ class RuntimeService {
   private lastIntegrationClockUpdate = -1;
   private lastIntegrationTimerValue = -1;
 
-  /** last time we updated the socket */
-  static previousTimerUpdate: number;
-  static previousRuntimeUpdate: number;
-  static previousTimerValue: MaybeNumber; // previous timer value, could be null
-  static previousClockUpdate: number;
-
   /** last known state */
   static previousState: RuntimeState;
 
   constructor(eventTimer: EventTimer) {
     this.eventTimer = eventTimer;
-
-    RuntimeService.previousTimerUpdate = -1;
-    RuntimeService.previousRuntimeUpdate = -1;
-    RuntimeService.previousTimerValue = -1;
-    RuntimeService.previousClockUpdate = -1;
     RuntimeService.previousState = {} as RuntimeState;
   }
 
@@ -101,7 +86,7 @@ class RuntimeService {
     // 2. handle edge cases related to roll
     if (newState.timer.playback === Playback.Roll) {
       // check if we need to call any side effects
-      const keepOffset = newState.runtime.offsetAbs;
+      const keepOffset = newState.offset.absolute;
       if (hasSecondaryTimerFinished) {
         // if the secondary timer has finished, we need to call roll
         // since event is already loaded
@@ -292,7 +277,7 @@ class RuntimeService {
       rundown,
       playableEventOrder,
       cue,
-      state.runtime.selectedEventIndex ?? undefined,
+      state.rundown.selectedEventIndex ?? undefined,
     );
 
     if (!event) {
@@ -353,7 +338,7 @@ class RuntimeService {
       rundown,
       playableEventOrder,
       cue,
-      state.runtime.selectedEventIndex ?? undefined,
+      state.rundown.selectedEventIndex ?? undefined,
     );
 
     if (!event) {
@@ -412,7 +397,7 @@ class RuntimeService {
       }
 
       if (state.timer.playback === Playback.Roll) {
-        return this.loadEvent(nextEvent, { firstStart: state.runtime.actualStart });
+        return this.loadEvent(nextEvent, { firstStart: state.rundown.actualStart });
       }
       return this.loadEvent(nextEvent);
     }
@@ -667,20 +652,24 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
 
-    // if a new event was loaded most things should update
-    const hasNewLoaded = state.eventNow?.id !== RuntimeService.previousState?.eventNow?.id;
+    // Update the entry if they have changed
+    let entryChanged = false;
+    entryChanged ||= updateMaybeEntryIfChanged('eventNow');
+    entryChanged ||= updateMaybeEntryIfChanged('eventNext');
+    entryChanged ||= updateMaybeEntryIfChanged('eventFlag');
+    entryChanged ||= updateMaybeEntryIfChanged('groupNow');
 
     // for the very fist run there will be nothing in the previousState so we force an update
     const justStarted = !RuntimeService.previousState?.timer;
 
     // offset mode has been changed
-    const offsetModeChanged = RuntimeService.previousState?.runtime?.offsetMode !== state.runtime.offsetMode;
+    const offsetModeChanged = RuntimeService.previousState?.offset?.mode !== state.offset.mode;
 
     // if playback changes most things should update
     const hasChangedPlayback = RuntimeService.previousState.timer?.playback !== state.timer.playback;
 
     // combine all big changes
-    const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback || offsetModeChanged;
+    const hasImmediateChanges = entryChanged || justStarted || hasChangedPlayback || offsetModeChanged;
 
     // clock has changed by a second or more
     const updateClock = getShouldClockUpdate(RuntimeService.previousState.clock, state.clock);
@@ -693,74 +682,43 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     const updateTimer = getShouldTimerUpdate(RuntimeService.previousState?.timer, state.timer);
     if (updateTimer) {
       batch.add('timer', state.timer);
-      RuntimeService.previousTimerUpdate = state.clock;
-      RuntimeService.previousTimerValue = state.timer.current;
       RuntimeService.previousState.timer = { ...state.timer };
     }
 
     // if any values have changed, values that have the possibility to tick are modulated by `hasClockUpdate`
-    const updateRuntime = getShouldRuntimeUpdate(
-      RuntimeService.previousState?.runtime,
-      state.runtime,
+    const updateRuntime = getShouldOffsetUpdate(
+      RuntimeService.previousState?.offset,
+      state.offset,
       updateClock || hasImmediateChanges,
     );
     if (updateRuntime) {
-      batch.add('runtime', state.runtime);
-      RuntimeService.previousRuntimeUpdate = state.clock;
-      RuntimeService.previousState.runtime = structuredClone(state.runtime);
+      batch.add('offset', state.offset);
+      RuntimeService.previousState.offset = structuredClone(state.offset);
     }
 
-    // if any values have changed, values that have the possibility to tick are modulated by `hasClockUpdate`
-    const updateGroupNow = getShouldGroupUpdate(
-      RuntimeService.previousState.groupNow,
-      state.groupNow,
-      updateClock || hasImmediateChanges,
-    );
-    if (updateGroupNow) {
-      batch.add('groupNow', state.groupNow);
-      RuntimeService.previousState.groupNow = structuredClone(state.groupNow);
+    // if any values have changed
+    const updateRundownData = !deepEqual(RuntimeService.previousState.rundown, state.rundown);
+    if (updateRundownData) {
+      batch.add('rundown', state.rundown);
+      RuntimeService.previousState.rundown = structuredClone(state.rundown);
     }
 
-    // next group is just a simple string or null compare
-    const updateGroupNext = RuntimeService.previousState.groupNext !== state.groupNext;
-    if (updateGroupNext) {
-      batch.add('groupNext', state.groupNext);
-      RuntimeService.previousState.groupNext = structuredClone(state.groupNext);
-    }
+    function updateMaybeEntryIfChanged<
+      K extends keyof Pick<RuntimeState, 'eventNow' | 'eventNext' | 'eventFlag' | 'groupNow'>,
+    >(key: K) {
+      const previousEntry = RuntimeService.previousState[key];
+      const currentEntry = state[key];
 
-    // if any values have changed, values that have the possibility to tick are modulated by `hasClockUpdate`
-    const updateFlag = getShouldFlagUpdate(
-      RuntimeService.previousState.nextFlag,
-      state.nextFlag,
-      updateClock || hasImmediateChanges,
-    );
-    if (updateFlag) {
-      batch.add('nextFlag', state.nextFlag);
-      RuntimeService.previousState.nextFlag = structuredClone(state.nextFlag);
-    }
+      if (!previousEntry && !currentEntry) return false; // if both are null -> skip
 
-    // Update the events if they have changed
-    updateEventIfChanged('eventNow', state);
-    updateEventIfChanged('eventNext', state);
-
-    // Helper function to update an event if it has changed
-    function updateEventIfChanged(eventKey: RuntimeStateEventKeys, state: runtimeState.RuntimeState) {
-      const previous = RuntimeService.previousState?.[eventKey];
-      const now = state[eventKey];
-
-      // if there was nothing, and there is nothing, noop
-      if (!previous?.id && !now?.id) return;
-
-      const eventChanged =
-        // if load status changed, save new
-        previous?.id !== now?.id ||
-        // maybe the event itself has changed
-        !deepEqual(RuntimeService.previousState?.[eventKey], state[eventKey]);
-
-      if (!eventChanged) return;
-
-      batch.add(eventKey, state[eventKey]);
-      RuntimeService.previousState[eventKey] = structuredClone(state[eventKey]);
+      // if they have the same id the check if the contents have changed
+      if (previousEntry?.id === currentEntry?.id) {
+        if (deepEqual(previousEntry, currentEntry)) return false; // contents are the same -> skip
+      }
+      // at this point we know that either the id or the contents has changed
+      batch.add(key, currentEntry as RuntimeStore[K]); // we know that there is the necessary overlap in the types to cast this
+      RuntimeService.previousState[key] = structuredClone(currentEntry);
+      return true;
     }
 
     // save the restore state
@@ -772,8 +730,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           startedAt: state.timer.startedAt,
           addedTime: state.timer.addedTime,
           pausedAt: state._timer.pausedAt,
-          firstStart: state.runtime.actualStart,
-          groupStartAt: state.groupNow?.startedAt ?? null,
+          firstStart: state.rundown.actualStart,
         })
         .catch((_e) => {
           //we don't do anything with the error here

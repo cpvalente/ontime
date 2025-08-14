@@ -19,13 +19,13 @@ export function getExpectedStart(
     totalGap: number;
     isLinkedToLoaded: boolean;
     offset: number;
-    offsetMode: OffsetMode;
+    mode: OffsetMode;
     actualStart: MaybeNumber;
     plannedStart: MaybeNumber;
   },
 ): number {
   const { timeStart, dayOffset, delay } = event;
-  const { currentDay, totalGap, isLinkedToLoaded, offset, offsetMode, actualStart, plannedStart } = state;
+  const { currentDay, totalGap, isLinkedToLoaded, offset, mode, actualStart, plannedStart } = state;
 
   //How many days from the currently running event to this one
   const relativeDayOffset = dayOffset - currentDay;
@@ -37,7 +37,7 @@ export function getExpectedStart(
 
   let relativeStartOffset = 0;
 
-  if (offsetMode === OffsetMode.Relative) {
+  if (mode === OffsetMode.Relative) {
     relativeStartOffset = (actualStart ?? 0) - (plannedStart ?? 0);
   }
 
