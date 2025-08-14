@@ -127,7 +127,7 @@ export const setAuxTimer = {
 };
 
 export const useSelectedEventId = createSelector((state: RuntimeStore) => ({
-  selectedEventId: state.eventNow?.id ?? null,
+  selectedEventId: (state.eventNow?.id ?? null),
 }));
 
 export const useCurrentGroupId = createSelector((state: RuntimeStore) => ({

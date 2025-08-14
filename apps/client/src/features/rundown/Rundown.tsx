@@ -43,19 +43,21 @@ import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
 import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
 import RundownGroup from './rundown-group/RundownGroup';
 import RundownGroupEnd from './rundown-group/RundownGroupEnd';
-import { canDrop, makeRundownMetadata, makeSortableList } from './rundown.utils';
+import { canDrop, makeSortableList } from './rundown.utils';
 import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
 
 import style from './Rundown.module.scss';
+import { RundownMetadata } from '../../common/utils/rundownMetadataGenerator';
 
 const RundownEntry = lazy(() => import('./RundownEntry'));
 
 interface RundownProps {
   data: Rundown;
+  rundownMetadata: Record<string, Readonly<RundownMetadata>>;
 }
 
-export default function Rundown({ data }: RundownProps) {
+export default function Rundown({ data, rundownMetadata }: RundownProps) {
   const { order, entries, id } = data;
   // we create a copy of the rundown with a data structured aligned with what dnd-kit needs
   const featureData = useRundownEditor();
@@ -432,11 +434,6 @@ export default function Rundown({ data }: RundownProps) {
   // 1. gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
 
-  // 2. initialise rundown metadata
-  const { metadata, process } = makeRundownMetadata(featureData?.selectedEventId);
-  // keep a single reference to the metadata which we override for every entry
-  let rundownMetadata = metadata;
-
   return (
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext
@@ -464,14 +461,14 @@ export default function Rundown({ data }: RundownProps) {
                 // and it does not cause the reassignment of the iteration id to the previous entry
                 return (
                   <Fragment key={entryId}>
-                    {isEditMode && rundownMetadata.groupEntries === 0 && (
+                    {isEditMode && rundownMetadata[parentId].groupEntries === 0 && (
                       <QuickAddButtons
                         previousEventId={null}
                         parentGroup={parentId}
-                        backgroundColor={rundownMetadata.groupColour}
+                        backgroundColor={rundownMetadata[parentId].groupColour}
                       />
                     )}
-                    <RundownGroupEnd key={entryId} id={entryId} colour={rundownMetadata.groupColour} />
+                    <RundownGroupEnd key={entryId} id={entryId} colour={rundownMetadata[parentId].groupColour} />
                   </Fragment>
                 );
               }
@@ -482,13 +479,11 @@ export default function Rundown({ data }: RundownProps) {
               const entry = entries[entryId];
               if (!entry) return null;
 
-              rundownMetadata = process(entry);
-
               // if the entry has a parent, and it is collapsed, render nothing
               if (
                 entry.type !== SupportedEntry.Group &&
-                rundownMetadata.groupId !== null &&
-                getIsCollapsed(rundownMetadata.groupId)
+                rundownMetadata[entryId].groupId !== null &&
+                getIsCollapsed(rundownMetadata[entryId].groupId)
               ) {
                 return null;
               }
@@ -502,7 +497,8 @@ export default function Rundown({ data }: RundownProps) {
                * ie: we are inside a group, but there is no defined colour
                * we default to $gray-500 #9d9d9d
                */
-              const groupColour = rundownMetadata.groupColour === '' ? '#9d9d9d' : rundownMetadata.groupColour;
+              const groupColour =
+                rundownMetadata[entryId].groupColour === '' ? '#9d9d9d' : rundownMetadata[entryId].groupColour;
 
               const isFirst = index === 0;
               const isLast = entryId === order.at(-1);
@@ -515,8 +511,10 @@ export default function Rundown({ data }: RundownProps) {
                */
 
               const parentIdForBefore =
-                rundownMetadata.thisId !== rundownMetadata.groupId ? rundownMetadata.groupId : null;
-              const parentIdForAfter = rundownMetadata.groupId;
+                rundownMetadata[entryId].thisId !== rundownMetadata[entryId].groupId
+                  ? rundownMetadata[entryId].groupId
+                  : null;
+              const parentIdForAfter = rundownMetadata[entryId].groupId;
 
               return (
                 <Fragment key={entry.id}>
@@ -527,7 +525,10 @@ export default function Rundown({ data }: RundownProps) {
                    * - if it is not the first entry (the buttons would be there)
                    */}
                   {isEditMode && hasCursor && !isFirst && (
-                    <QuickAddInline previousEventId={rundownMetadata.previousEntryId} parentGroup={parentIdForBefore} />
+                    <QuickAddInline
+                      previousEventId={rundownMetadata[entryId].previousEntryId}
+                      parentGroup={parentIdForBefore}
+                    />
                   )}
                   {isOntimeGroup(entry) ? (
                     <RundownGroup
@@ -539,29 +540,31 @@ export default function Rundown({ data }: RundownProps) {
                   ) : (
                     <div
                       className={style.entryWrapper}
-                      data-testid={`entry-${rundownMetadata.eventIndex}`}
+                      data-testid={`entry-${rundownMetadata[entryId].eventIndex}`}
                       style={groupColour ? { '--user-bg': groupColour } : {}}
                     >
                       {isOntimeEvent(entry) && (
                         <div className={style.entryIndex}>
                           {entry.flag && <TbFlagFilled className={style.flag} />}
-                          <div className={style.index}>{rundownMetadata.eventIndex}</div>
+                          <div className={style.index}>{rundownMetadata[entryId].eventIndex}</div>
                         </div>
                       )}
                       <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
                         <RundownEntry
                           type={entry.type}
-                          isPast={rundownMetadata.isPast}
-                          eventIndex={rundownMetadata.eventIndex}
+                          isPast={rundownMetadata[entryId].isPast}
+                          eventIndex={rundownMetadata[entryId].eventIndex}
                           data={entry}
-                          loaded={rundownMetadata.isLoaded}
+                          loaded={rundownMetadata[entryId].isLoaded}
                           hasCursor={hasCursor}
                           isNext={isNext}
-                          playback={rundownMetadata.isLoaded ? featureData.playback : undefined}
+                          previousEntryId={rundownMetadata[entryId].previousEntryId}
+                          previousEventId={rundownMetadata[entryId].previousEvent?.id}
+                          playback={rundownMetadata[entryId].isLoaded ? featureData.playback : undefined}
                           isRolling={featureData.playback === Playback.Roll}
-                          isNextDay={rundownMetadata.isNextDay}
-                          totalGap={rundownMetadata.totalGap}
-                          isLinkedToLoaded={rundownMetadata.isLinkedToLoaded}
+                          isNextDay={rundownMetadata[entryId].isNextDay}
+                          totalGap={rundownMetadata[entryId].totalGap}
+                          isLinkedToLoaded={rundownMetadata[entryId].isLinkedToLoaded}
                         />
                       </div>
                     </div>
@@ -580,7 +583,10 @@ export default function Rundown({ data }: RundownProps) {
               );
             })}
             {isEditMode && (
-              <QuickAddButtons previousEventId={rundownMetadata.groupId ?? rundownMetadata.thisId} parentGroup={null} />
+              <QuickAddButtons
+                previousEventId={rundownMetadata['LAST'].groupId ?? rundownMetadata['LAST'].thisId}
+                parentGroup={null}
+              />
             )}
             <div className={style.spacer} />
           </div>

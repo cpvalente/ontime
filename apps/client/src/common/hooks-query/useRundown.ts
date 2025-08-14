@@ -7,6 +7,8 @@ import { RUNDOWN } from '../api/constants';
 import { fetchCurrentRundown } from '../api/rundown';
 
 import useProjectData from './useProjectData';
+import { useSelectedEventId } from '../hooks/useSocket';
+import { makeRundownMetadata, RundownMetadata } from '../utils/rundownMetadataGenerator';
 
 // revision is -1 so that the remote revision is higher
 const cachedRundownPlaceholder: Rundown = {
@@ -29,6 +31,24 @@ export default function useRundown() {
     refetchInterval: queryRefetchIntervalSlow,
   });
   return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
+}
+
+export function useRundownWithMetadata() {
+  const { data, status } = useRundown();
+  const { selectedEventId } = useSelectedEventId();
+  const { process } = makeRundownMetadata(selectedEventId);
+  // keep a single reference to the metadata which we override for every entry
+  const rundownMetadata: Record<string, Readonly<RundownMetadata>> = {};
+
+  data.flatOrder.reduce((acc, id) => {
+    const entry = data.entries[id];
+    const metadata = process(entry);
+    Object.assign(acc, { [id]: metadata });
+    Object.assign(acc, { ['LAST']: metadata });
+    return acc;
+  }, rundownMetadata);
+
+  return { data, status, rundownMetadata };
 }
 
 /**
