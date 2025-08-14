@@ -8,6 +8,7 @@ import {
   OntimeEvent,
   OntimeMilestone,
   PlayableEvent,
+  Rundown,
 } from 'ontime-types';
 import { checkIsNextDay, isNewLatest } from 'ontime-utils';
 
@@ -26,6 +27,26 @@ export type RundownMetadata = {
   groupColour: string | undefined;
   groupEntries: number | undefined;
 };
+
+export type RundownMetadataObject = Record<string, Readonly<RundownMetadata>>;
+
+export function getRundownMetadata(data: Pick<Rundown, 'entries' | 'flatOrder'>, selectedEventId: MaybeString) {
+  const { metadata, process } = initRundownMetadata(selectedEventId);
+  // keep a single reference to the metadata which we override for every entry
+  let newMetadata = metadata;
+  const rundownMetadata: RundownMetadataObject = {};
+
+  for (const id of data.flatOrder) {
+    const entry = data.entries[id];
+    newMetadata = process(entry);
+    Object.assign(rundownMetadata, { [id]: newMetadata });
+  }
+
+  // ensure some blank data even for empty rundowns
+  Object.assign(rundownMetadata, { ['LAST']: newMetadata });
+
+  return rundownMetadata;
+}
 
 /**
  * Creates a process function which aggregates the rundown metadata and event metadata

@@ -6,7 +6,7 @@ import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/constants';
 import { fetchCurrentRundown } from '../api/rundown';
 import { useSelectedEventId } from '../hooks/useSocket';
-import { initRundownMetadata, RundownMetadata } from '../utils/rundownMetadata';
+import { getRundownMetadata } from '../utils/rundownMetadata';
 
 import useProjectData from './useProjectData';
 
@@ -36,21 +36,7 @@ export default function useRundown() {
 export function useRundownWithMetadata() {
   const { data, status } = useRundown();
   const { selectedEventId } = useSelectedEventId();
-  const { metadata, process } = initRundownMetadata(selectedEventId);
-
-  // keep a single reference to the metadata which we override for every entry
-  let newMetadata = metadata;
-  const rundownMetadata: Record<string, Readonly<RundownMetadata>> = {};
-
-  for (const id of data.flatOrder) {
-    const entry = data.entries[id];
-    newMetadata = process(entry);
-    Object.assign(rundownMetadata, { [id]: newMetadata });
-  }
-
-  // ensure some blank data even for empty rundowns
-  Object.assign(rundownMetadata, { ['LAST']: newMetadata });
-
+  const rundownMetadata = getRundownMetadata(data, selectedEventId);
   return { data, status, rundownMetadata };
 }
 
