@@ -5,10 +5,10 @@ import { EntryId, OntimeEntry, Rundown } from 'ontime-types';
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/constants';
 import { fetchCurrentRundown } from '../api/rundown';
+import { useSelectedEventId } from '../hooks/useSocket';
+import { initRundownMetadata, RundownMetadata } from '../utils/rundownMetadata';
 
 import useProjectData from './useProjectData';
-import { useSelectedEventId } from '../hooks/useSocket';
-import { makeRundownMetadata, RundownMetadata } from '../utils/rundownMetadataGenerator';
 
 // revision is -1 so that the remote revision is higher
 const cachedRundownPlaceholder: Rundown = {
@@ -36,7 +36,7 @@ export default function useRundown() {
 export function useRundownWithMetadata() {
   const { data, status } = useRundown();
   const { selectedEventId } = useSelectedEventId();
-  const { process } = makeRundownMetadata(selectedEventId);
+  const { process } = initRundownMetadata(selectedEventId);
   // keep a single reference to the metadata which we override for every entry
   const rundownMetadata: Record<string, Readonly<RundownMetadata>> = {};
 

@@ -30,7 +30,7 @@ export type RundownMetadata = {
 /**
  * Creates a process function which aggregates the rundown metadata and event metadata
  */
-export function makeRundownMetadata(selectedEventId: MaybeString) {
+export function initRundownMetadata(selectedEventId: MaybeString) {
   let rundownMeta: RundownMetadata = {
     previousEvent: null,
     latestEvent: null,

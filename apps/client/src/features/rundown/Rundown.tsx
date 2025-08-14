@@ -37,6 +37,7 @@ import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { cloneEvent } from '../../common/utils/clone';
+import { RundownMetadata } from '../../common/utils/rundownMetadata';
 import { AppMode, sessionKeys } from '../../ontimeConfig';
 
 import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
@@ -48,7 +49,6 @@ import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
 
 import style from './Rundown.module.scss';
-import { RundownMetadata } from '../../common/utils/rundownMetadataGenerator';
 
 const RundownEntry = lazy(() => import('./RundownEntry'));
 

@@ -17,7 +17,7 @@ export default function RundownWrapper({ isSmallDevice }: RundownWrapperProps) {
   return (
     <div className={styles.rundownWrapper}>
       {isSmallDevice ? <RundownHeaderMobile /> : <RundownHeader />}
-      {status === 'success' && data ? <Rundown data={data} rundownMetadata={rundownMetadata}/> : <Empty text='Connecting to server' />}
+      {status === 'success' && data ? <Rundown data={data} rundownMetadata={rundownMetadata} /> : <Empty text='Connecting to server' />}
     </div>
   );
 }
