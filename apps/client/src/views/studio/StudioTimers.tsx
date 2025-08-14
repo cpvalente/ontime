@@ -17,9 +17,13 @@ interface StudioTimersProps {
 
 export default function StudioTimers({ viewSettings }: StudioTimersProps) {
   const { getLocalizedString } = useTranslation();
-  const { eventNow, eventNext, message, time, runtime } = useStudioTimersSocket();
+  const { eventNow, eventNext, message, time, offset, rundown } = useStudioTimersSocket();
 
-  const schedule = getFormattedScheduleTimes(runtime);
+  const schedule = getFormattedScheduleTimes({
+    offset: offset.absolute,
+    actualStart: rundown.actualStart,
+    expectedEnd: offset.expectedRundownEnd,
+  });
   const event = getFormattedEventData(eventNow, time);
   const eventNextTitle = eventNext?.title || '-';
   const formattedTimerMessage = (message.timer.visible && message.timer.text) || '-';
@@ -33,7 +37,7 @@ export default function StudioTimers({ viewSettings }: StudioTimersProps) {
     time.phase === TimerPhase.Danger,
   );
 
-  const offsetState = getOffsetState(runtime.offsetAbs);
+  const offsetState = getOffsetState(offset.absolute);
 
   return (
     <div className='studio__timers'>
