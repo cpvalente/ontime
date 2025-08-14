@@ -62,6 +62,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
   // we create a copy of the rundown with a data structured aligned with what dnd-kit needs
   const featureData = useRundownEditor();
   const [sortableData, setSortableData] = useState<EntryId[]>(() => makeSortableList(order, entries));
+  const [metadata, setMetadata] = useState(rundownMetadata);
   const [collapsedGroups, setCollapsedGroups] = useSessionStorage<EntryId[]>({
     // we ensure that this is unique to the rundown
     key: `rundown.${id}-editor-collapsed-groups`,
@@ -308,7 +309,8 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
   // to workaround async updates on the drag mutations
   useEffect(() => {
     setSortableData(makeSortableList(order, entries));
-  }, [order, entries]);
+    setMetadata(rundownMetadata);
+  }, [order, entries, rundownMetadata]);
 
   // in run mode, we follow selection
   useEffect(() => {
@@ -433,7 +435,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
 
   // 1. gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
-console.log(sortableData)
+
   return (
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext
@@ -459,17 +461,16 @@ console.log(sortableData)
                 // if the previous element is selected, it will have its own QuickAddInline
                 // we use thisId instead of previousEntryId because the end-group does not process
                 // and it does not cause the reassignment of the iteration id to the previous entry
-                // The optional chain on rundownMetadata is there as the rundownMetadata is updated on tick before sortableData
                 return (
                   <Fragment key={entryId}>
-                    {isEditMode && rundownMetadata[parentId]?.groupEntries === 0 && (
+                    {isEditMode && metadata[parentId].groupEntries === 0 && (
                       <QuickAddButtons
                         previousEventId={null}
                         parentGroup={parentId}
-                        backgroundColor={rundownMetadata[parentId]?.groupColour}
+                        backgroundColor={metadata[parentId].groupColour}
                       />
                     )}
-                    <RundownGroupEnd key={entryId} id={entryId} colour={rundownMetadata[parentId]?.groupColour} />
+                    <RundownGroupEnd key={entryId} id={entryId} colour={metadata[parentId].groupColour} />
                   </Fragment>
                 );
               }
@@ -483,8 +484,8 @@ console.log(sortableData)
               // if the entry has a parent, and it is collapsed, render nothing
               if (
                 entry.type !== SupportedEntry.Group &&
-                rundownMetadata[entryId].groupId !== null &&
-                getIsCollapsed(rundownMetadata[entryId].groupId)
+                metadata[entryId].groupId !== null &&
+                getIsCollapsed(metadata[entryId].groupId)
               ) {
                 return null;
               }
@@ -498,8 +499,7 @@ console.log(sortableData)
                * ie: we are inside a group, but there is no defined colour
                * we default to $gray-500 #9d9d9d
                */
-              const groupColour =
-                rundownMetadata[entryId].groupColour === '' ? '#9d9d9d' : rundownMetadata[entryId].groupColour;
+              const groupColour = metadata[entryId].groupColour === '' ? '#9d9d9d' : metadata[entryId].groupColour;
 
               const isFirst = index === 0;
               const isLast = entryId === order.at(-1);
@@ -512,10 +512,8 @@ console.log(sortableData)
                */
 
               const parentIdForBefore =
-                rundownMetadata[entryId].thisId !== rundownMetadata[entryId].groupId
-                  ? rundownMetadata[entryId].groupId
-                  : null;
-              const parentIdForAfter = rundownMetadata[entryId].groupId;
+                metadata[entryId].thisId !== metadata[entryId].groupId ? metadata[entryId].groupId : null;
+              const parentIdForAfter = metadata[entryId].groupId;
 
               return (
                 <Fragment key={entry.id}>
@@ -527,7 +525,7 @@ console.log(sortableData)
                    */}
                   {isEditMode && hasCursor && !isFirst && (
                     <QuickAddInline
-                      previousEventId={rundownMetadata[entryId].previousEntryId}
+                      previousEventId={metadata[entryId].previousEntryId}
                       parentGroup={parentIdForBefore}
                     />
                   )}
@@ -541,31 +539,31 @@ console.log(sortableData)
                   ) : (
                     <div
                       className={style.entryWrapper}
-                      data-testid={`entry-${rundownMetadata[entryId].eventIndex}`}
+                      data-testid={`entry-${metadata[entryId].eventIndex}`}
                       style={groupColour ? { '--user-bg': groupColour } : {}}
                     >
                       {isOntimeEvent(entry) && (
                         <div className={style.entryIndex}>
                           {entry.flag && <TbFlagFilled className={style.flag} />}
-                          <div className={style.index}>{rundownMetadata[entryId].eventIndex}</div>
+                          <div className={style.index}>{metadata[entryId].eventIndex}</div>
                         </div>
                       )}
                       <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
                         <RundownEntry
                           type={entry.type}
-                          isPast={rundownMetadata[entryId].isPast}
-                          eventIndex={rundownMetadata[entryId].eventIndex}
+                          isPast={metadata[entryId].isPast}
+                          eventIndex={metadata[entryId].eventIndex}
                           data={entry}
-                          loaded={rundownMetadata[entryId].isLoaded}
+                          loaded={metadata[entryId].isLoaded}
                           hasCursor={hasCursor}
                           isNext={isNext}
-                          previousEntryId={rundownMetadata[entryId].previousEntryId}
-                          previousEventId={rundownMetadata[entryId].previousEvent?.id}
-                          playback={rundownMetadata[entryId].isLoaded ? featureData.playback : undefined}
+                          previousEntryId={metadata[entryId].previousEntryId}
+                          previousEventId={metadata[entryId].previousEvent?.id}
+                          playback={metadata[entryId].isLoaded ? featureData.playback : undefined}
                           isRolling={featureData.playback === Playback.Roll}
-                          isNextDay={rundownMetadata[entryId].isNextDay}
-                          totalGap={rundownMetadata[entryId].totalGap}
-                          isLinkedToLoaded={rundownMetadata[entryId].isLinkedToLoaded}
+                          isNextDay={metadata[entryId].isNextDay}
+                          totalGap={metadata[entryId].totalGap}
+                          isLinkedToLoaded={metadata[entryId].isLinkedToLoaded}
                         />
                       </div>
                     </div>
@@ -585,7 +583,7 @@ console.log(sortableData)
             })}
             {isEditMode && (
               <QuickAddButtons
-                previousEventId={rundownMetadata['LAST'].groupId ?? rundownMetadata['LAST'].thisId}
+                previousEventId={metadata['LAST'].groupId ?? metadata['LAST'].thisId}
                 parentGroup={null}
               />
             )}
