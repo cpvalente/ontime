@@ -378,7 +378,7 @@ describe('roll mode', () => {
 });
 
 describe('loadGroupFlagAndEnd()', () => {
-  test('from no-group to a group will clear expectedGroupEnd', () => {
+  test('from no-group to a group will clear groupNow', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeEvent({ id: '0', parent: null }),
@@ -393,7 +393,6 @@ describe('loadGroupFlagAndEnd()', () => {
     const state = {
       groupNow: null,
       eventNow: rundown.entries[11],
-      offset: { expectedGroupEnd: 123 },
     } as RuntimeState;
 
     const metadata = { playableEventOrder: ['0', '11', '3'], flags: ['1'] } as RundownMetadata;
@@ -402,12 +401,11 @@ describe('loadGroupFlagAndEnd()', () => {
 
     expect(state).toMatchObject({
       groupNow: rundown.entries[1],
-      offset: { expectedGroupEnd: null },
       eventNow: rundown.entries[11],
     });
   });
 
-  test('from a group to a different group will clear expectedGroupEnd', () => {
+  test('from a group to a different group will clear groupNow', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeEvent({ id: '0', parent: null }),
@@ -421,7 +419,6 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const state = {
       groupNow: rundown.entries[1],
-      offset: { expectedGroupEnd: 123 },
       eventNow: rundown.entries[22],
     } as RuntimeState;
 
@@ -431,12 +428,11 @@ describe('loadGroupFlagAndEnd()', () => {
 
     expect(state).toMatchObject({
       groupNow: rundown.entries[2],
-      offset: { expectedGroupEnd: null },
       eventNow: rundown.entries[22],
     });
   });
 
-  test('from group to a no-group will clear expectedGroupEnd', () => {
+  test('from group to a no-group will clear groupNow', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeEvent({ id: '0', parent: null }),
@@ -450,7 +446,6 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const state = {
       groupNow: rundown.entries[1],
-      offset: { expectedGroupEnd: 123 },
       eventNow: rundown.entries[0],
     } as RuntimeState;
 
@@ -460,7 +455,6 @@ describe('loadGroupFlagAndEnd()', () => {
 
     expect(state).toMatchObject({
       groupNow: null,
-      offset: { expectedGroupEnd: null },
       eventNow: rundown.entries[0],
     });
   });
