@@ -106,13 +106,10 @@ export function clearEventData() {
   runtimeState.offset.absolute = 0;
   runtimeState.offset.relative = 0;
   runtimeState.offset.expectedFlagStart = null;
+  runtimeState.offset.expectedGroupEnd = null;
+  runtimeState.offset.expectedRundownEnd = null;
 
   runtimeState.rundown.selectedEventIndex = null;
-
-  //TODO: is there any ExpectedMetadata stuff we need to clear here
-  runtimeState.offset.expectedGroupEnd = null;
-  runtimeState.offset.expectedFlagStart = null;
-  runtimeState.offset.expectedRundownEnd = null;
 
   runtimeState.timer.playback = Playback.Stop;
   runtimeState.clock = timeNow();

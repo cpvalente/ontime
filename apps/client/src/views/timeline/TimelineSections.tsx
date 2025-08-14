@@ -15,7 +15,7 @@ interface TimelineSectionsProps {
 
 export default function TimelineSections({ now, next, followedBy }: TimelineSectionsProps) {
   const { getLocalizedString } = useTranslation();
-  const { clock, offsetAbs } = useTimelineSocket();
+  const { clock, offset } = useTimelineSocket();
 
   // gather card data
   const titleNow = now?.title ?? '-';
@@ -26,7 +26,7 @@ export default function TimelineSections({ now, next, followedBy }: TimelineSect
   let followedByStatus: string | undefined;
 
   if (next !== null) {
-    const timeToStart = getTimeToStart(clock, next.timeStart, next?.delay ?? 0, offsetAbs);
+    const timeToStart = getTimeToStart(clock, next.timeStart, next?.delay ?? 0, offset);
     if (timeToStart < 0) {
       nextStatus = dueText;
     } else {
@@ -35,7 +35,7 @@ export default function TimelineSections({ now, next, followedBy }: TimelineSect
   }
 
   if (followedBy !== null) {
-    const timeToStart = getTimeToStart(clock, followedBy.timeStart, followedBy?.delay ?? 0, offsetAbs);
+    const timeToStart = getTimeToStart(clock, followedBy.timeStart, followedBy?.delay ?? 0, offset);
     if (timeToStart < 0) {
       followedByStatus = dueText;
     } else {

@@ -1011,7 +1011,7 @@ describe('getRuntimeOffset()', () => {
   });
 });
 
-describe('getoffsetRel()', () => {
+describe('getRuntimeOffset() relative', () => {
   it('relative offset is 0 when starting at the planed time', () => {
     const state = {
       eventNow: {
