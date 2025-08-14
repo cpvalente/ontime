@@ -36,9 +36,9 @@ export default function useRundown() {
 export function useRundownWithMetadata() {
   const { data, status } = useRundown();
   const { selectedEventId } = useSelectedEventId();
-  const { process } = initRundownMetadata(selectedEventId);
+  const { metadata, process } = initRundownMetadata(selectedEventId);
   // keep a single reference to the metadata which we override for every entry
-  const rundownMetadata: Record<string, Readonly<RundownMetadata>> = {};
+  const rundownMetadata: Record<string, Readonly<RundownMetadata>> = { ['LAST']: metadata };
 
   data.flatOrder.reduce((acc, id) => {
     const entry = data.entries[id];

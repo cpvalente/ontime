@@ -433,7 +433,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
 
   // 1. gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
-
+console.log(sortableData)
   return (
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext
@@ -459,16 +459,17 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
                 // if the previous element is selected, it will have its own QuickAddInline
                 // we use thisId instead of previousEntryId because the end-group does not process
                 // and it does not cause the reassignment of the iteration id to the previous entry
+                // The optional chain on rundownMetadata is there as the rundownMetadata is updated on tick before sortableData
                 return (
                   <Fragment key={entryId}>
-                    {isEditMode && rundownMetadata[parentId].groupEntries === 0 && (
+                    {isEditMode && rundownMetadata[parentId]?.groupEntries === 0 && (
                       <QuickAddButtons
                         previousEventId={null}
                         parentGroup={parentId}
-                        backgroundColor={rundownMetadata[parentId].groupColour}
+                        backgroundColor={rundownMetadata[parentId]?.groupColour}
                       />
                     )}
-                    <RundownGroupEnd key={entryId} id={entryId} colour={rundownMetadata[parentId].groupColour} />
+                    <RundownGroupEnd key={entryId} id={entryId} colour={rundownMetadata[parentId]?.groupColour} />
                   </Fragment>
                 );
               }
