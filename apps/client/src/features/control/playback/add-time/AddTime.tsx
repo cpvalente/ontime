@@ -6,6 +6,7 @@ import { MILLIS_PER_HOUR, MILLIS_PER_SECOND, parseUserTime } from 'ontime-utils'
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { setPlayback } from '../../../../common/hooks/useSocket';
+import { baseURI } from '../../../../externals';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 import TapButton from '../tap-button/TapButton';
 
@@ -17,7 +18,7 @@ interface AddTimeProps {
 
 export default function AddTime(props: AddTimeProps) {
   const { playback } = props;
-  const [time, setTime] = useLocalStorage({ key: 'add-time', defaultValue: 300_000 }); // 5 minutes
+  const [time, setTime] = useLocalStorage({ key: `${baseURI}add-time`, defaultValue: 300_000 }); // 5 minutes
 
   const handleTimeChange = (_field: string, value: string) => {
     const newTime = parseUserTime(value);

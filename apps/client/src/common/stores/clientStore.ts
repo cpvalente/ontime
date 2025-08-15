@@ -1,6 +1,8 @@
 import { ClientList } from 'ontime-types';
 import { create } from 'zustand';
 
+import { baseURI } from '../../externals';
+
 interface ClientStore {
   name?: string;
   setName: (newValue: string) => void;
@@ -15,7 +17,7 @@ interface ClientStore {
   setClients: (clients: ClientList) => void;
 }
 
-const clientNameKey = 'ontime-client-name';
+const clientNameKey = `${baseURI}ontime-client-name`;
 
 function persistNameInStorage(newValue: string) {
   localStorage.setItem(clientNameKey, newValue);

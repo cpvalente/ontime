@@ -3,13 +3,18 @@ import { useLocalStorage } from '@mantine/hooks';
 import { ColumnDef } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
 
+import { baseURI } from '../../../externals';
+
 export default function useColumnManager(columns: ColumnDef<OntimeRundownEntry>[]) {
-  const [columnVisibility, setColumnVisibility] = useLocalStorage({ key: 'table-hidden', defaultValue: {} });
+  const [columnVisibility, setColumnVisibility] = useLocalStorage({ key: `${baseURI}table-hidden`, defaultValue: {} });
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>({
-    key: 'table-order',
+    key: `${baseURI}table-order`,
     defaultValue: columns.map((col) => col.id as string),
   });
-  const [columnSizing, setColumnSizing] = useLocalStorage({ key: 'table-sizes', defaultValue: {} });
+  const [columnSizing, setColumnSizing] = useLocalStorage({
+    key: `${baseURI}table-sizes`,
+    defaultValue: {},
+  });
 
   // if the columns change, we update the dataset
   useEffect(() => {

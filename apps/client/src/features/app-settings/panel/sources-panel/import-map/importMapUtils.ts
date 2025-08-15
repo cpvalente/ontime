@@ -1,5 +1,7 @@
 import { ImportCustom, ImportMap } from 'ontime-utils';
 
+import { baseURI } from '../../../../../externals';
+
 export type NamedImportMap = typeof namedImportMap;
 
 // Record of label and import name
@@ -64,11 +66,11 @@ export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
 }
 
 export function persistImportMap(options: NamedImportMap) {
-  localStorage.setItem('ontime-import-options', JSON.stringify(options));
+  localStorage.setItem(`${baseURI}ontime-import-options`, JSON.stringify(options));
 }
 
 function getPersistImportMap(): unknown {
-  const options = localStorage.getItem('ontime-import-options');
+  const options = localStorage.getItem(`${baseURI}ontime-import-options`);
   if (!options) {
     throw new Error('no import options found');
   }

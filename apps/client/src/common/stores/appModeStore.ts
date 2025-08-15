@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 
+import { baseURI } from '../../externals';
+
 export enum AppMode {
   Run = 'run',
   Edit = 'edit',
   Freeze = 'freeze',
 }
 
-const appModeKey = 'ontime-app-mode';
+const appModeKey = `${baseURI}ontime-app-mode`;
 
 function getModeFromSession() {
   return sessionStorage.getItem(appModeKey) === AppMode.Run ? AppMode.Run : AppMode.Edit;

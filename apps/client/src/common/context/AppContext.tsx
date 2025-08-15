@@ -1,5 +1,6 @@
 import { createContext, PropsWithChildren, useCallback, useEffect, useState } from 'react';
 
+import { baseURI } from '../../externals';
 import useSettings from '../hooks-query/useSettings';
 
 interface AppContextType {
@@ -26,7 +27,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (status === 'pending') return;
-    const previousEditor = sessionStorage.getItem(storageKeys.editor);
+    const previousEditor = sessionStorage.getItem(`${baseURI}${storageKeys.editor}`);
 
     if (previousEditor && previousEditor === data.editorKey) {
       setEditorAuth(true);
@@ -34,7 +35,7 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
       setEditorAuth(data.editorKey == null || data.editorKey === '');
     }
 
-    const previousOperator = sessionStorage.getItem(storageKeys.operator);
+    const previousOperator = sessionStorage.getItem(`${baseURI}${storageKeys.operator}`);
     if (previousOperator && previousOperator === data.operatorKey) {
       setOperatorAuth(true);
     } else {
@@ -55,14 +56,14 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
       if (permission === 'editor') {
         const correct = isValid(pin, data.editorKey);
         if (correct) {
-          sessionStorage.setItem(storageKeys.editor, pin);
+          sessionStorage.setItem(`${baseURI}${storageKeys.editor}`, pin);
         }
         setEditorAuth(correct);
         return correct;
       } else if (permission === 'operator') {
         const correct = isValid(pin, data.operatorKey);
         if (correct) {
-          sessionStorage.setItem(storageKeys.operator, pin);
+          sessionStorage.setItem(`${baseURI}${storageKeys.operator}`, pin);
         }
         setOperatorAuth(correct);
         return correct;
