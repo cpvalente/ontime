@@ -243,7 +243,7 @@ export default function ProjectData() {
                       <div className={style.customImage}>
                         <Input
                           fluid
-                          defaultValue={field.value}
+                          defaultValue={field.url}
                           placeholder='Paste image URL (optional)'
                           {...register(`custom.${idx}.url`)}
                         />
