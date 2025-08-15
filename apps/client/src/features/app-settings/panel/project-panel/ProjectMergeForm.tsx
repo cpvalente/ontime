@@ -6,6 +6,7 @@ import { PROJECT_DATA } from '../../../../common/api/constants';
 import { getDb, patchData } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
+import Info from '../../../../common/components/info/Info';
 import Switch from '../../../../common/components/switch/Switch';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -79,7 +80,7 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
   return (
     <Panel.Section as='form' onSubmit={handleSubmit(handleSubmitCreate)}>
       <Panel.Title>
-        Merge {`"${fileName}"`}
+        Partial project merge
         <Panel.InlineElements>
           <Button onClick={onClose} variant='ghosted' disabled={isSubmitting}>
             Cancel
@@ -92,9 +93,12 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
       {error && <Panel.Error>{error}</Panel.Error>}
       <Panel.Section className={cx([style.innerColumn, style.inlineLabels])}>
         <Panel.Description>
-          Select partial data from {`"${fileName}"`} to merge into the current project.
-          <br /> This process is irreversible.
+          Select data from <i>{`"${fileName}"`}</i> to merge into the current project.
         </Panel.Description>
+        <Info type='warning'>
+          This process is irreversible and can result in data loss. <br />
+          You may want to create a duplicate backup beforehand.
+        </Info>
         <label>
           <Switch
             size='large'
