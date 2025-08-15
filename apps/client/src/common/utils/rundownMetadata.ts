@@ -39,11 +39,11 @@ export function getRundownMetadata(data: Pick<Rundown, 'entries' | 'flatOrder'>,
   for (const id of data.flatOrder) {
     const entry = data.entries[id];
     newMetadata = process(entry);
-    Object.assign(rundownMetadata, { [id]: newMetadata });
+    rundownMetadata[id] = newMetadata;
   }
 
   // ensure some blank data even for empty rundowns
-  Object.assign(rundownMetadata, { ['LAST']: newMetadata });
+  rundownMetadata['LAST'] = newMetadata;
 
   return rundownMetadata;
 }
