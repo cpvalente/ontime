@@ -9,7 +9,6 @@ import {
   TimerType,
   CustomFieldKey,
   OntimeMilestone,
-  isOntimeEvent,
   OntimeEntry,
   isOntimeMilestone,
 } from 'ontime-types';
@@ -198,7 +197,6 @@ export const parseExcel = (
           entry.type = SupportedEntry.Group;
           entry.entries = [];
         } else if (maybeTimeType === 'group-end') {
-          console.log('0--------group-end');
           // @ts-expect-error -- we are sure that group-end might show up
           entry.type = 'group-end';
         } else if (maybeTimeType === 'milestone') {
@@ -282,7 +280,6 @@ export const parseExcel = (
 
     // @ts-expect-error -- we are sure that group-end might show up
     if (entry.type === 'group-end') {
-      console.log('1--------group-end', (rundown.entries[currentGroupId] as OntimeGroup).entries);
       if (currentGroupId) {
         (rundown.entries[currentGroupId] as OntimeGroup).entries = groupEntries.splice(0);
         currentGroupId = null;
