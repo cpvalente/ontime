@@ -2,6 +2,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { rm } from 'fs/promises';
+import sanitize from 'sanitize-filename';
 
 import { getAppDataPath, publicDir } from '../setup/index.js';
 
@@ -39,7 +40,8 @@ export const storage = multer.diskStorage({
 
     ensureDirectory(publicDir.uploadsDir);
 
-    const filePath = path.join(publicDir.uploadsDir, file.originalname);
+    const sanitisedName = sanitize(file.originalname);
+    const filePath = path.join(publicDir.uploadsDir, sanitisedName);
 
     // Check if file already exists
     fs.access(filePath, fs.constants.F_OK, (err) => {
