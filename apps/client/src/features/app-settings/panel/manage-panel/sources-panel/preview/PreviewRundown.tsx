@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { IoLink } from 'react-icons/io5';
-import { CustomFields, isOntimeEvent, isOntimeGroup, Rundown } from 'ontime-types';
+import { CustomFields, isOntimeEvent, isOntimeGroup, isOntimeMilestone, Rundown } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import Tag from '../../../../../../common/components/tag/Tag';
@@ -67,6 +67,50 @@ export default function PreviewRundown(props: PreviewRundownProps) {
                 <td />
                 <td colSpan={99}>{entry.title}</td>
               </tr>
+            );
+          }
+          if (isOntimeMilestone(entry)) {
+            const colour = entry.colour ? getAccessibleColour(entry.colour) : {};
+            return (
+              <Fragment key={entry.id}>
+                <tr>
+                  <td className={style.center} />
+                  <td className={style.center}>
+                    <Tag>{entry.type}</Tag>
+                  </td>
+                  <td className={style.nowrap}>{entry.cue}</td>
+                  <td>{entry.title}</td>
+                  <td className={style.center} />
+                  <td className={style.flex} />
+                  <td />
+                  <td />
+                  <td />
+                  <td />
+                  <td />
+                  <td />
+                  <td style={{ ...colour }}>{entry.colour}</td>
+                  <td className={style.center} />
+                  <td className={style.center} />
+                  {isOntimeMilestone(entry) &&
+                    fieldKeys.map((field) => {
+                      let value = '';
+                      if (field in entry.custom) {
+                        value = entry.custom[field];
+                      }
+                      return <td key={field}>{value}</td>;
+                    })}
+                  <td className={style.center}>
+                    <Tag>{entry.id}</Tag>
+                  </td>
+                </tr>
+                {entry.note && (
+                  <tr>
+                    <td colSpan={99} className={style.secondaryRow}>
+                      Note: {entry.note}
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
             );
           }
           if (!isOntimeEvent(entry)) {

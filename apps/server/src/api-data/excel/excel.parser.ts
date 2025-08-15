@@ -8,6 +8,10 @@ import {
   isOntimeGroup,
   TimerType,
   CustomFieldKey,
+  OntimeMilestone,
+  isOntimeEvent,
+  OntimeEntry,
+  isOntimeMilestone,
 } from 'ontime-types';
 import {
   ImportMap,
@@ -20,11 +24,17 @@ import {
   checkRegex,
 } from 'ontime-utils';
 
-import { Merge } from 'ts-essentials';
+import { Prettify } from 'ts-essentials';
 
 import { is } from '../../utils/is.js';
 import { makeString } from '../../utils/parserUtils.js';
 import { parseExcelDate } from '../../utils/time.js';
+
+type MergedOntimeEntry = Prettify<
+  Omit<Omit<Omit<OntimeEvent, keyof OntimeGroup> & OntimeGroup, keyof OntimeMilestone> & OntimeMilestone, 'type'> & {
+    type: SupportedEntry;
+  }
+>;
 
 /**
  * @description Excel array parser
@@ -171,20 +181,21 @@ export const parseExcel = (
       },
     } as const;
 
-    const entry: Partial<Merge<OntimeEvent, OntimeGroup>> = {};
+    const entry: Partial<MergedOntimeEntry> = {};
+
     const entryCustomFields: EntryCustomFields = {};
 
     for (let j = 0; j < row.length; j++) {
       const column = row[j];
       // 1. we check if we have set a flag for a known field
       if (j === timerTypeIndex) {
-        const maybeTimeType = makeString(column, '');
+        const maybeTimeType = makeString(column, 'event'); // the assumption is event
         if (maybeTimeType === 'group') {
-          // we leave this as a clue for the object filtering later on
           entry.type = SupportedEntry.Group;
           entry.entries = [];
-        } else if (maybeTimeType === '' || maybeTimeType === 'event' || isKnownTimerType(maybeTimeType)) {
-          // @ts-expect-error -- we leave this as a clue for the object filtering later on
+        } else if (maybeTimeType === 'milestone') {
+          entry.type = SupportedEntry.Milestone;
+        } else if (maybeTimeType === 'event' || isKnownTimerType(maybeTimeType)) {
           entry.type = SupportedEntry.Event;
           entry.timerType = validateTimerType(maybeTimeType);
         } else {
@@ -260,25 +271,36 @@ export const parseExcel = (
 
     const id = entry.id || generateId();
     // from excel, we can only get groups, milestones and events
-    if (isOntimeGroup(entry)) {
-      const group: OntimeGroup = { ...entry, custom: { ...entryCustomFields } };
+    if (isOntimeEvent(entry as OntimeEntry)) {
+      const event = {
+        ...entry,
+        custom: { ...entryCustomFields },
+        type: SupportedEntry.Event,
+      } as OntimeEvent;
+
+      if (timerTypeIndex === null) {
+        event.timerType = TimerType.CountDown;
+      }
+      rundown.order.push(id);
+      rundown.flatOrder.push(id);
+      rundown.entries[id] = event;
+      return;
+    }
+
+    if (isOntimeGroup(entry as OntimeEntry)) {
+      const group: OntimeGroup = { ...entry, custom: { ...entryCustomFields } } as OntimeGroup;
       rundown.order.push(id);
       rundown.entries[id] = group;
       return;
     }
 
-    const event = {
-      ...entry,
-      custom: { ...entryCustomFields },
-      type: SupportedEntry.Event,
-    } as OntimeEvent;
-
-    if (timerTypeIndex === null) {
-      event.timerType = TimerType.CountDown;
+    if (isOntimeMilestone(entry as OntimeEntry)) {
+      const milestone = { ...entry, custom: { ...entryCustomFields } } as OntimeMilestone;
+      rundown.order.push(id);
+      rundown.flatOrder.push(id);
+      rundown.entries[id] = milestone;
+      return;
     }
-    rundown.order.push(id);
-    rundown.flatOrder.push(id);
-    rundown.entries[id] = event;
   });
 
   return {
