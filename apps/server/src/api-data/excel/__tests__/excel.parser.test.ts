@@ -417,6 +417,43 @@ describe('parseExcel()', () => {
       linkStart: true,
     });
   });
+
+  it('handles milestones', () => {
+    const testdata = [
+      ['Title', 'type', 'notes'],
+      ['event...', 'count-down', ''],
+      ['also event...', 'count-down', ''],
+      ['this i a milestone', 'milestone', 'milestone note'],
+    ];
+
+    const importMap = {
+      title: 'title',
+      timerType: 'type',
+      note: 'notes',
+    } as ImportMap;
+
+    const result = parseExcel(testdata, {}, 'testSheet', importMap);
+    const firstEvent = result.rundown.entries[result.rundown.order[0]];
+    const secondEvent = result.rundown.entries[result.rundown.order[1]];
+    const milestone = result.rundown.entries[result.rundown.order[2]];
+
+    expect(result.rundown.order.length).toBe(3);
+    expect(firstEvent).toMatchObject({
+      type: SupportedEntry.Event,
+      timerType: TimerType.CountDown,
+    });
+
+    expect(secondEvent).toMatchObject({
+      type: SupportedEntry.Event,
+      timerType: TimerType.CountDown,
+    });
+
+    expect(milestone).toMatchObject({
+      type: SupportedEntry.Milestone,
+      title: 'this i a milestone',
+      note: 'milestone note',
+    });
+  });
 });
 
 describe('getCustomFieldData()', () => {
