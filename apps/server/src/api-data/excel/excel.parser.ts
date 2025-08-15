@@ -189,13 +189,14 @@ export const parseExcel = (
       const column = row[j];
       // 1. we check if we have set a flag for a known field
       if (j === timerTypeIndex) {
-        const maybeTimeType = makeString(column, 'event'); // the assumption is event
+        const maybeTimeType = makeString(column, '');
         if (maybeTimeType === 'group') {
           entry.type = SupportedEntry.Group;
           entry.entries = [];
         } else if (maybeTimeType === 'milestone') {
           entry.type = SupportedEntry.Milestone;
-        } else if (maybeTimeType === 'event' || isKnownTimerType(maybeTimeType)) {
+          // the assumption is event
+        } else if (maybeTimeType === '' || maybeTimeType === 'event' || isKnownTimerType(maybeTimeType)) {
           entry.type = SupportedEntry.Event;
           entry.timerType = validateTimerType(maybeTimeType);
         } else {
@@ -270,23 +271,8 @@ export const parseExcel = (
     }
 
     const id = entry.id || generateId();
+
     // from excel, we can only get groups, milestones and events
-    if (isOntimeEvent(entry as OntimeEntry)) {
-      const event = {
-        ...entry,
-        custom: { ...entryCustomFields },
-        type: SupportedEntry.Event,
-      } as OntimeEvent;
-
-      if (timerTypeIndex === null) {
-        event.timerType = TimerType.CountDown;
-      }
-      rundown.order.push(id);
-      rundown.flatOrder.push(id);
-      rundown.entries[id] = event;
-      return;
-    }
-
     if (isOntimeGroup(entry as OntimeEntry)) {
       const group: OntimeGroup = { ...entry, custom: { ...entryCustomFields } } as OntimeGroup;
       rundown.order.push(id);
@@ -301,6 +287,20 @@ export const parseExcel = (
       rundown.entries[id] = milestone;
       return;
     }
+
+    //and fall through to treat it as an event
+    const event = {
+      ...entry,
+      custom: { ...entryCustomFields },
+      type: SupportedEntry.Event,
+    } as OntimeEvent;
+
+    if (timerTypeIndex === null) {
+      event.timerType = TimerType.CountDown;
+    }
+    rundown.order.push(id);
+    rundown.flatOrder.push(id);
+    rundown.entries[id] = event;
   });
 
   return {
