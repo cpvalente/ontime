@@ -1,4 +1,4 @@
-import { CustomFields, OntimeEvent, SupportedEntry, TimerType } from 'ontime-types';
+import { CustomFields, OntimeEvent, OntimeGroup, SupportedEntry, TimerType } from 'ontime-types';
 import { defaultImportMap, ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { getCustomFieldData, parseExcel } from '../excel.parser.js';
@@ -156,7 +156,7 @@ describe('parseExcel()', () => {
     expect((firstEvent as OntimeEvent).title).toBe('A song from the hearth');
   });
 
-  it('imports groups', () => {
+  it('imports group', () => {
     const testdata = [
       ['Title', 'Timer type'],
       ['a group', 'group'],
@@ -170,8 +170,39 @@ describe('parseExcel()', () => {
     const result = parseExcel(testdata, {}, 'testSheet', importMap);
     const firstEvent = result.rundown.entries[result.rundown.order[0]];
 
-    expect(result.rundown.order.length).toBe(2);
+    expect(result.rundown.order.length).toBe(1);
+    expect(result.rundown.flatOrder.length).toBe(2);
     expect((firstEvent as OntimeEvent).type).toBe(SupportedEntry.Group);
+  });
+
+  it('places event between groups inside the group', () => {
+    const testdata = [
+      ['Title', 'Timer type'],
+      ['a group', 'group'],
+      ['an event', 'clock'],
+      ['an event', 'clock'],
+      ['an event', 'clock'],
+      ['a second group ', 'group'],
+      ['an event', 'clock'],
+      ['an event', 'clock'],
+    ];
+
+    const importMap = {
+      title: 'title',
+      timerType: 'timer type',
+    };
+    const result = parseExcel(testdata, {}, 'testSheet', importMap);
+    const firstGroup = result.rundown.entries[result.rundown.order[0]] as OntimeGroup;
+    const secondGroup = result.rundown.entries[result.rundown.order[1]] as OntimeGroup;
+
+    expect(result.rundown.order.length).toBe(2);
+    expect(result.rundown.flatOrder.length).toBe(7);
+
+    expect(firstGroup.type).toBe(SupportedEntry.Group);
+    expect(firstGroup.entries.length).toBe(3);
+
+    expect(secondGroup.type).toBe(SupportedEntry.Group);
+    expect(secondGroup.entries.length).toBe(2);
   });
 
   it('imports as events if there is no timer type column', () => {
@@ -314,8 +345,10 @@ describe('parseExcel()', () => {
     };
 
     const result = parseExcel(testData, {}, 'testSheet', importMap);
-    expect(result.rundown.order.length).toBe(6);
-    expect(result.rundown.order).toMatchObject(['A', 'B', 'C', 'D', 'GROUP', 'E']);
+    expect(result.rundown.order.length).toBe(5);
+    expect(result.rundown.order).toMatchObject(['A', 'B', 'C', 'D', 'GROUP']);
+    expect(result.rundown.flatOrder.length).toBe(6);
+    expect(result.rundown.flatOrder).toMatchObject(['A', 'B', 'C', 'D', 'GROUP', 'E']);
 
     expect(result.rundown.entries).toMatchObject({
       A: {

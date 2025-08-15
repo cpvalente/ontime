@@ -103,6 +103,10 @@ export const parseExcel = (
   // record of column index and the name of the field
   const customFieldIndexes: Record<number, string> = {};
 
+  // for placing entries into groups
+  let currentGroupId: string | null = null;
+  const groupEntries: string[] = [];
+
   excelData.forEach((row, rowIndex) => {
     if (row.length === 0) {
       return;
@@ -189,10 +193,14 @@ export const parseExcel = (
       const column = row[j];
       // 1. we check if we have set a flag for a known field
       if (j === timerTypeIndex) {
-        const maybeTimeType = makeString(column, '');
-        if (maybeTimeType === 'group') {
+        const maybeTimeType = makeString(column, '').toLocaleLowerCase();
+        if (maybeTimeType === 'group' || maybeTimeType === 'group-start') {
           entry.type = SupportedEntry.Group;
           entry.entries = [];
+        } else if (maybeTimeType === 'group-end') {
+          console.log('0--------group-end');
+          // @ts-expect-error -- we are sure that group-end might show up
+          entry.type = 'group-end';
         } else if (maybeTimeType === 'milestone') {
           entry.type = SupportedEntry.Milestone;
           // the assumption is event
@@ -272,17 +280,37 @@ export const parseExcel = (
 
     const id = entry.id || generateId();
 
+    // @ts-expect-error -- we are sure that group-end might show up
+    if (entry.type === 'group-end') {
+      console.log('1--------group-end', (rundown.entries[currentGroupId] as OntimeGroup).entries);
+      if (currentGroupId) {
+        (rundown.entries[currentGroupId] as OntimeGroup).entries = groupEntries.splice(0);
+        currentGroupId = null;
+      }
+      return;
+    }
+
     // from excel, we can only get groups, milestones and events
     if (isOntimeGroup(entry as OntimeEntry)) {
       const group: OntimeGroup = { ...entry, custom: { ...entryCustomFields } } as OntimeGroup;
-      rundown.order.push(id);
       rundown.entries[id] = group;
+      if (currentGroupId) {
+        (rundown.entries[currentGroupId] as OntimeGroup).entries = groupEntries.splice(0);
+      }
+      rundown.order.push(id);
+      rundown.flatOrder.push(id);
+      currentGroupId = id;
       return;
     }
 
     if (isOntimeMilestone(entry as OntimeEntry)) {
       const milestone = { ...entry, custom: { ...entryCustomFields } } as OntimeMilestone;
-      rundown.order.push(id);
+      if (currentGroupId) {
+        groupEntries.push(id);
+        milestone.parent = currentGroupId;
+      } else {
+        rundown.order.push(id);
+      }
       rundown.flatOrder.push(id);
       rundown.entries[id] = milestone;
       return;
@@ -298,10 +326,19 @@ export const parseExcel = (
     if (timerTypeIndex === null) {
       event.timerType = TimerType.CountDown;
     }
-    rundown.order.push(id);
+    if (currentGroupId) {
+      groupEntries.push(id);
+      event.parent = currentGroupId;
+    } else {
+      rundown.order.push(id);
+    }
     rundown.flatOrder.push(id);
     rundown.entries[id] = event;
   });
+
+  if (currentGroupId) {
+    (rundown.entries[currentGroupId] as OntimeGroup).entries = groupEntries.splice(0);
+  }
 
   return {
     rundown,

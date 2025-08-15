@@ -53,7 +53,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
         </tr>
       </thead>
       <tbody>
-        {rundown.order.map((entryId) => {
+        {rundown.flatOrder.map((entryId) => {
           const entry = rundown.entries[entryId];
           if (isOntimeGroup(entry)) {
             return (
