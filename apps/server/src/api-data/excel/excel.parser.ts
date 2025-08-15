@@ -31,7 +31,7 @@ import { parseExcelDate } from '../../utils/time.js';
 
 type MergedOntimeEntry = Prettify<
   Omit<Omit<Omit<OntimeEvent, keyof OntimeGroup> & OntimeGroup, keyof OntimeMilestone> & OntimeMilestone, 'type'> & {
-    type: SupportedEntry;
+    type: SupportedEntry | 'group-end';
   }
 >;
 
@@ -40,7 +40,6 @@ type MergedOntimeEntry = Prettify<
  * @param {array} excelData - array with excel sheet
  * @param {ImportOptions} options - an object that contains the import map
  * @returns {object} - parsed object
- * TODO: import milestones
  */
 export const parseExcel = (
   excelData: unknown[][],
@@ -197,7 +196,6 @@ export const parseExcel = (
           entry.type = SupportedEntry.Group;
           entry.entries = [];
         } else if (maybeTimeType === 'group-end') {
-          // @ts-expect-error -- we are sure that group-end might show up
           entry.type = 'group-end';
         } else if (maybeTimeType === 'milestone') {
           entry.type = SupportedEntry.Milestone;
@@ -278,7 +276,6 @@ export const parseExcel = (
 
     const id = entry.id || generateId();
 
-    // @ts-expect-error -- we are sure that group-end might show up
     if (entry.type === 'group-end') {
       if (currentGroupId) {
         (rundown.entries[currentGroupId] as OntimeGroup).entries = groupEntries.splice(0);

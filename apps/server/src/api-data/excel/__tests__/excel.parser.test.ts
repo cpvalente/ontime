@@ -168,11 +168,11 @@ describe('parseExcel()', () => {
       timerType: 'timer type',
     };
     const result = parseExcel(testdata, {}, 'testSheet', importMap);
-    const firstEvent = result.rundown.entries[result.rundown.order[0]];
+    const firstGroup = result.rundown.entries[result.rundown.order[0]];
 
     expect(result.rundown.order.length).toBe(1);
     expect(result.rundown.flatOrder.length).toBe(2);
-    expect((firstEvent as OntimeEvent).type).toBe(SupportedEntry.Group);
+    expect((firstGroup as OntimeEvent).type).toBe(SupportedEntry.Group);
   });
 
   it('places event between groups inside the group', () => {
