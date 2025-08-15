@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { booleanFromLocalStorage } from '../utils/localStorage';
 
 enum LocalEventKeys {
-  Mirror = 'ontime-view-mirror',
+  Mirror = 'view-mirror',
 }
 
 type ViewOptionsStore = {
