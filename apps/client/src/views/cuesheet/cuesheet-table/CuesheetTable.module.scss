@@ -32,7 +32,10 @@ $table-header-font-size: calc(1rem - 2px);
     }
 
     &:first-of-type {
-      margin-left: 4px; // compensate left border
+      box-sizing: content-box;
+      border-left: 4px solid $gray-1200; // compensate left border
+      margin-left: 0px;
+      padding-inline: 0px;
     }
   }
 
