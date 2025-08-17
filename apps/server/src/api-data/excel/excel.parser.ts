@@ -286,7 +286,7 @@ export const parseExcel = (
 
     // from excel, we can only get groups, milestones and events
     if (isOntimeGroup(entry as OntimeEntry)) {
-      const group: OntimeGroup = {
+      const group = {
         ...entry,
         targetDuration: entry.duration ? entry.duration : null,
         custom: { ...entryCustomFields },
@@ -325,6 +325,11 @@ export const parseExcel = (
     if (timerTypeIndex === null) {
       event.timerType = TimerType.CountDown;
     }
+
+    if (entry.linkStart === undefined) {
+      event.linkStart = true;
+    }
+
     if (currentGroupId) {
       groupEntries.push(id);
       event.parent = currentGroupId;
