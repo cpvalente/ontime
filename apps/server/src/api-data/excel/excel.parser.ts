@@ -286,7 +286,12 @@ export const parseExcel = (
 
     // from excel, we can only get groups, milestones and events
     if (isOntimeGroup(entry as OntimeEntry)) {
-      const group: OntimeGroup = { ...entry, custom: { ...entryCustomFields } } as OntimeGroup;
+      const group: OntimeGroup = {
+        ...entry,
+        targetDuration: entry.duration ? entry.duration : null,
+        custom: { ...entryCustomFields },
+      } as OntimeGroup;
+
       rundown.entries[id] = group;
       if (currentGroupId) {
         (rundown.entries[currentGroupId] as OntimeGroup).entries = groupEntries.splice(0);

@@ -158,21 +158,24 @@ describe('parseExcel()', () => {
 
   it('imports group', () => {
     const testdata = [
-      ['Title', 'Timer type'],
-      ['a group', 'group'],
-      ['an event', 'clock'],
+      ['Title', 'Timer type', 'duration'],
+      ['a group', 'group', '10m'],
+      ['an event', 'clock', '1m'],
     ];
 
     const importMap = {
       title: 'title',
       timerType: 'timer type',
-    };
+      duration: 'duration',
+    } as ImportMap;
+
     const result = parseExcel(testdata, {}, 'testSheet', importMap);
     const firstGroup = result.rundown.entries[result.rundown.order[0]];
 
     expect(result.rundown.order.length).toBe(1);
     expect(result.rundown.flatOrder.length).toBe(2);
-    expect((firstGroup as OntimeEvent).type).toBe(SupportedEntry.Group);
+    expect((firstGroup as OntimeGroup).type).toBe(SupportedEntry.Group);
+    expect((firstGroup as OntimeGroup).targetDuration).toBe(10 * MILLIS_PER_MINUTE);
   });
 
   it('places event between groups inside the group', () => {
