@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { ComponentProps, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 import Checkbox from '../checkbox/Checkbox';
 import Input from '../input/input/Input';
-import Select from '../select/Select';
+import Select, { SelectOption } from '../select/Select';
 import Switch from '../switch/Switch';
 
 import InlineColourPicker from './InlineColourPicker';
@@ -35,7 +35,7 @@ export default function ParamInput({ paramField }: ParamInputProps) {
       return <span className={style.empty}>No options available</span>;
     }
 
-    return <Select size='large' name={id} defaultValue={defaultOptionValue} options={paramField.values} />;
+    return <ControlledSelect id={id} initialValue={defaultOptionValue} options={paramField.values} />;
   }
 
   if (type === 'multi-option') {
@@ -43,7 +43,7 @@ export default function ParamInput({ paramField }: ParamInputProps) {
   }
 
   if (type === 'boolean') {
-    return <ControlledSwitch id={id} initialValue={isStringBoolean(searchParams.get(id)) || defaultValue} />;
+    return <ControlledSwitch id={id} initialValue={isStringBoolean(searchParams.get(id)) ?? defaultValue} />;
   }
 
   if (type === 'number') {
@@ -63,15 +63,13 @@ export default function ParamInput({ paramField }: ParamInputProps) {
   }
 
   if (type === 'colour') {
-    const currentvalue = `#${searchParams.get(id) ?? defaultValue}`;
-
-    return <InlineColourPicker name={id} value={currentvalue} />;
+    return <InlineColourPicker name={id} value={searchParams.get(id) ?? defaultValue} />;
   }
 
-  const defaultStringValue = searchParams.get(id) ?? defaultValue;
+  const defaultStringValue = searchParams.get(id) ?? defaultValue ?? '';
   const { placeholder } = paramField;
 
-  return <Input height='large' name={id} defaultValue={defaultStringValue} placeholder={placeholder} />;
+  return <ControlledInput id={id} initialValue={defaultStringValue} placeholder={placeholder} />;
 }
 
 interface EditFormMultiOptionProps {
@@ -83,7 +81,12 @@ function MultiOption({ paramField }: EditFormMultiOptionProps) {
   const { id, values, defaultValue = [''] } = paramField;
 
   const optionFromParams = searchParams.getAll(id);
-  const [paramState, setParamState] = useState<string[]>(optionFromParams || defaultValue);
+  const [paramState, setParamState] = useState<string[]>(optionFromParams.length ? optionFromParams : defaultValue);
+
+  useEffect(() => {
+    const params = searchParams.getAll(id);
+    setParamState(params.length ? params : defaultValue);
+  }, [searchParams, id, defaultValue]);
 
   const toggleValue = (value: string, checked: boolean) => {
     if (checked) {
@@ -129,5 +132,52 @@ interface ControlledSwitchProps {
 }
 function ControlledSwitch({ id, initialValue }: ControlledSwitchProps) {
   const [checked, setChecked] = useState(initialValue);
+
+  // synchronise checked state
+  useEffect(() => {
+    setChecked(initialValue);
+  }, [initialValue]);
+
   return <Switch size='large' name={id} checked={checked} onCheckedChange={setChecked} />;
+}
+
+interface ControlledSelectProps {
+  id: string;
+  initialValue?: string;
+  options: SelectOption[];
+}
+function ControlledSelect({ id, initialValue, options }: ControlledSelectProps) {
+  const [selected, setSelected] = useState(initialValue);
+
+  // synchronise selected state
+  useEffect(() => {
+    setSelected(initialValue);
+  }, [initialValue]);
+
+  return (
+    <Select size='large' name={id} options={options} value={selected} onValueChange={(value) => setSelected(value)} />
+  );
+}
+
+interface ControlledInputProps<T extends number | string> extends ComponentProps<typeof Input> {
+  id: string;
+  initialValue: T;
+}
+function ControlledInput<T extends number | string>({ id, initialValue, ...inputProps }: ControlledInputProps<T>) {
+  const [value, setValue] = useState(initialValue);
+
+  // synchronise selected state
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  return (
+    <Input
+      height='large'
+      name={id}
+      value={value}
+      onChange={(event) => setValue(event.target.value as T)}
+      {...inputProps}
+    />
+  );
 }
