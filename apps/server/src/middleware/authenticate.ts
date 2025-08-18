@@ -54,9 +54,17 @@ export function makeAuthenticateMiddleware(prefix: string) {
   }
 
   function authenticate(req: Request, res: Response, next: NextFunction) {
-    const token = req.query.token || req.cookies?.token;
-    if (token && token === hashedPassword) {
-      return next();
+    if (req.query.token) {
+      if (req.query.token === hashedPassword) {
+        return next();
+      }
+    }
+
+    if (req.cookies?.token) {
+      const tokenFromCookie = getTokenFromCookie(req.cookies.token);
+      if (tokenFromCookie === hashedPassword) {
+        return next();
+      }
     }
 
     res.status(401).send('Unauthorized');
@@ -74,8 +82,11 @@ export function makeAuthenticateMiddleware(prefix: string) {
     }
 
     // we expect the token to be in the cookies
-    if (req.cookies?.token === hashedPassword) {
-      return next();
+    if (req.cookies?.token) {
+      const tokenFromCookie = getTokenFromCookie(req.cookies.token);
+      if (tokenFromCookie === hashedPassword) {
+        return next();
+      }
     }
 
     // we use query params for generating authenticated URLs and for clients like the companion module
@@ -105,8 +116,11 @@ export function authenticateSocket(_ws: WebSocket, req: IncomingMessage, next: (
   const cookieString = req.headers.cookie;
   if (typeof cookieString === 'string') {
     const cookies = parseCookie(cookieString);
-    if (cookies.token === hashedPassword) {
-      return next();
+    if (cookies.token) {
+      const token = getTokenFromCookie(cookies.token);
+      if (token === hashedPassword) {
+        return next();
+      }
     }
   }
 
@@ -132,4 +146,19 @@ function setSessionCookie(res: Response, token: string) {
     path: '/', // allow cookie to be accessed from any path
     sameSite: 'none', // allow cookies to be sent in cross-origin requests (e.g., iframes)
   });
+}
+
+/**
+ * When calling this function we already know a cookie called 'token' exists
+ * And want to extract its value
+ */
+function getTokenFromCookie(cookieContents: string): string | undefined {
+  try {
+    const cookie = JSON.parse(cookieContents);
+    if (cookie && typeof cookie.token === 'string') {
+      return cookie.token;
+    }
+  } catch (_) {
+    // no error handling to do here
+  }
 }
