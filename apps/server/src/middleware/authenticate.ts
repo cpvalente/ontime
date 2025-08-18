@@ -53,6 +53,9 @@ export function makeAuthenticateMiddleware(prefix: string) {
     return { authenticate: noopMiddleware, authenticateAndRedirect: noopMiddleware };
   }
 
+  // pre-compute the login redirect base URL to avoid string concatenation on every request
+  const loginRedirectBase = `${prefix}/login?redirect=`;
+
   function authenticate(req: Request, res: Response, next: NextFunction) {
     if (req.query.token) {
       if (req.query.token === hashedPassword) {
@@ -98,7 +101,7 @@ export function makeAuthenticateMiddleware(prefix: string) {
       return next();
     }
 
-    res.redirect(`${prefix}/login?redirect=${req.originalUrl}`);
+    res.redirect(loginRedirectBase + req.originalUrl);
   }
 
   return { authenticate, authenticateAndRedirect };
@@ -124,11 +127,21 @@ export function authenticateSocket(_ws: WebSocket, req: IncomingMessage, next: (
     }
   }
 
-  // check if token is in the params
-  const url = new URL(req.url || '', `http://${req.headers.host}`);
-  const token = url.searchParams.get('token');
-  if (token === hashedPassword) {
+  // check if token is in the params - simple string check first
+  const urlString = req.url || '';
+  if (urlString.includes(`token=${hashedPassword}`)) {
     return next();
+  }
+
+  // fallback to full URL parsing for other formats
+  try {
+    const url = new URL(urlString, `http://${req.headers.host}`);
+    const token = url.searchParams.get('token');
+    if (token === hashedPassword) {
+      return next();
+    }
+  } catch (_) {
+    // ignore URL parsing errors
   }
 
   logger.warning(LogOrigin.Client, 'Unauthorized WebSocket connection attempt');
@@ -153,6 +166,14 @@ function setSessionCookie(res: Response, token: string) {
  * And want to extract its value
  */
 function getTokenFromCookie(cookieContents: string): string | undefined {
+  // Fast path: check if the hashed password is directly in the cookie string
+  // This avoids JSON parsing for the common case
+  const cookieTokenString = '"token":"' + hashedPassword + '}"';
+  if (cookieTokenString && cookieContents.includes(cookieTokenString)) {
+    return hashedPassword;
+  }
+
+  // Fallback to JSON parsing for other cases or validation
   try {
     const cookie = JSON.parse(cookieContents);
     if (cookie && typeof cookie.token === 'string') {
