@@ -1,4 +1,4 @@
-import { FormEvent, memo, useReducer } from 'react';
+import { FormEvent, memo } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useSearchParams } from 'react-router';
 import { Dialog } from '@base-ui-components/react/dialog';
@@ -12,7 +12,7 @@ import Info from '../info/Info';
 import { ViewOption } from './viewParams.types';
 import { getURLSearchParamsFromObj } from './viewParams.utils';
 import { useViewParamsEditorStore } from './viewParamsEditor.store';
-import { ViewParamsShare } from './ViewParamShare';
+import { ViewParamsPresets } from './ViewParamsPresets';
 import ViewParamsSection from './ViewParamsSection';
 
 import style from './ViewParamsEditor.module.scss';
@@ -24,12 +24,9 @@ interface EditFormDrawerProps {
 
 export default memo(ViewParamsEditor);
 function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
-  // TODO: can we ensure that the options update when the user loads an alias?
   const [_, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
   const { isOpen, close } = useViewParamsEditorStore();
-  // TODO: we dont want this as a permanent option
-  const forceRender = useReducer((x) => x + 1, 0)[1];
 
   const handleClose = () => {
     close();
@@ -37,7 +34,6 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
 
   const resetParams = () => {
     setSearchParams();
-    forceRender();
   };
 
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
@@ -46,7 +42,6 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
     setSearchParams(newSearchParams);
-    forceRender();
   };
 
   return (
@@ -71,7 +66,7 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
             {viewSettings.overrideStyles && (
               <Info className={style.info}>This view style is being modified by a custom CSS file.</Info>
             )}
-            <ViewParamsShare target={target} />
+            <ViewParamsPresets target={target} />
             <form id='edit-params-form' onSubmit={onParamsFormSubmit} className={style.sectionList}>
               {viewOptions.map((section) => (
                 <ViewParamsSection

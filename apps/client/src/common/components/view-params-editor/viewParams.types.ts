@@ -16,7 +16,7 @@ export type MultiselectOption = { value: string; label: string; colour: string }
 type MultiOptionsField = {
   type: 'multi-option';
   values: MultiselectOption[];
-  defaultValue?: string;
+  defaultValue?: string[];
 };
 
 type StringField = { type: 'string'; defaultValue?: string; placeholder?: string };

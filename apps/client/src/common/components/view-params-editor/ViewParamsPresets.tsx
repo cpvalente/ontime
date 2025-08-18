@@ -5,12 +5,12 @@ import { useViewUrlPresets } from '../../hooks-query/useUrlPresets';
 import { cx } from '../../utils/styleUtils';
 import Button from '../buttons/Button';
 
-import style from './ViewParamsShare.module.scss';
+import style from './ViewParamsPresets.module.scss';
 
 /**
  * Shows a list of presets for the current view
  */
-export function ViewParamsShare({ target }: { target: OntimeView }) {
+export function ViewParamsPresets({ target }: { target: OntimeView }) {
   const { viewPresets } = useViewUrlPresets(target);
   const [_, setSearchParams] = useSearchParams();
 
@@ -30,7 +30,7 @@ export function ViewParamsShare({ target }: { target: OntimeView }) {
           <div key={preset.alias} className={cx([style.preset, active && style.active])}>
             <div>{preset.alias}</div>
             <Button
-              variant='subtle-white'
+              variant={active ? 'ghosted' : 'subtle-white'}
               onClick={() => handleRecall(preset)}
               disabled={active}
               className={style.presetActions}
