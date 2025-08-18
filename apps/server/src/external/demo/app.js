@@ -6,7 +6,7 @@
 
 // Data that the user needs to provide depending on the Ontime URL
 const isSecure = window.location.protocol === 'https:';
-const userProvidedSocketUrl = `${isSecure ? 'wss' : 'ws'}://${window.location.hostname}:${window.location.port}/ws`;
+const userProvidedSocketUrl = `${isSecure ? 'wss' : 'ws'}://${window.location.hostname}${getStageHash()}${getUserPort()}/ws`;
 
 connectSocket();
 
@@ -135,4 +135,34 @@ function formatTimer(number) {
  */
 function formatObject(data) {
   return JSON.stringify(data, null, 2);
+}
+
+/**
+ * Utility to handle a demo deployed in an ontime stage
+ * You can likely ignore this in your app
+ *
+ * an url looks like
+ * https://cloud.getontime.no/stage-hash/external/demo/
+ * @returns {string} - The stage hash if the app is running in an ontime stage
+ */
+function getStageHash() {
+  const href = window.location.href;
+  if (!href.includes('getontime.no')) {
+    return '';
+  }
+
+  const hash = href.split('/');
+  const stageHash = hash.at(3);
+  return stageHash || '';
+}
+
+/**
+ * Utility to optionally use a URL port
+ * You can likely hard code this in your app
+ *
+ * @returns {string} - The port Ontime server is available at
+ */
+function getUserPort() {
+  const port = window.location.port;
+  return port ? `:${port}` : '';
 }
