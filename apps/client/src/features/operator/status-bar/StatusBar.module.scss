@@ -7,8 +7,8 @@
 }
 
 .timers {
-  padding-block: 0.75rem 0.5rem;
-  padding-inline: 1rem 0;
+  padding-block: 1rem 0.5rem;
+  padding-inline: 1rem 0.5rem;
 
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -18,11 +18,21 @@
 .runningTimer {
   grid-area: timers;
   justify-self: center;
+
+  :nth-child(2) {
+    font-size: 2.5rem;
+    line-height: 1.2;
+  }
 }
 
 .timeNow {
   grid-area: clock;
   justify-self: right;
+
+  :nth-child(2) {
+    font-size: 2.5rem;
+    line-height: 1.2;
+  }
 }
 
 .progressOverride {

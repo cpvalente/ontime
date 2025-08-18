@@ -144,11 +144,15 @@ function FlagTimes() {
       <span className={title ? style.labelTitle : style.label}>{`${title ? title : 'Flag'} `}</span>
       <div className={style.labelledElement}>
         <Tooltip text='Time to next flag planned start' render={<TbFlagPin className={style.icon} />} />
-        <span data-testid='flag-plannedStart' className={cx([style.time, !entry && style.muted])}>{plannedTimeUntilDisplay}</span>
+        <span data-testid='flag-plannedStart' className={cx([style.time, !entry && style.muted])}>
+          {plannedTimeUntilDisplay}
+        </span>
       </div>
       <div className={style.labelledElement}>
         <Tooltip text='Time to next flag expected start' render={<TbFlagStar className={style.icon} />} />
-        <span data-testid='flag-expectedStart' className={cx([style.time, expectedTimeUntil === null && style.muted])}>{expectedTimeUntilDisplay}</span>
+        <span data-testid='flag-expectedStart' className={cx([style.time, expectedTimeUntil === null && style.muted])}>
+          {expectedTimeUntilDisplay}
+        </span>
       </div>
     </div>
   );
