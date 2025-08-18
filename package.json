@@ -22,8 +22,6 @@
   "type": "module",
   "scripts": {
     "dev": "turbo run dev",
-    "dev:electron": "turbo run dev --filter=ontime",
-    "dev:server": "turbo run dev --filter=ontime-server",
     "lint": "turbo run lint",
     "build": "turbo run build",
     "build:local": "turbo run build:local",
