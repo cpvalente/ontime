@@ -47,15 +47,11 @@ interface SectionContentsProps {
 }
 
 function SectionContents({ options, collapsed }: SectionContentsProps) {
-  if (collapsed) {
-    return null;
-  }
-
   return (
     <>
       {options.map((option) => {
         return (
-          <label key={option.title} className={style.label}>
+          <label key={option.title} className={cx([style.label, collapsed && style.hidden])}>
             <span className={style.title}>{option.title}</span>
             <span className={style.description}>{option.description}</span>
             <ParamInput paramField={option} />
