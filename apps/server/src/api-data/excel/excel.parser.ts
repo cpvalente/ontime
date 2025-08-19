@@ -200,6 +200,9 @@ export const parseExcel = (
         } else if (maybeTimeType === 'milestone') {
           entry.type = SupportedEntry.Milestone;
           // the assumption is event
+        } else if (maybeTimeType === 'skip-import') {
+          // intentional skip
+          return;
         } else if (maybeTimeType === '' || maybeTimeType === 'event' || isKnownTimerType(maybeTimeType)) {
           entry.type = SupportedEntry.Event;
           entry.timerType = validateTimerType(maybeTimeType);
