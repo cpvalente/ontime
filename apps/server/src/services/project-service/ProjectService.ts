@@ -31,7 +31,7 @@ import {
   isLastLoadedProject,
   setLastLoadedProject,
 } from '../app-state-service/AppStateService.js';
-import { runtimeService } from '../runtime-service/RuntimeService.js';
+import { runtimeService } from '../runtime-service/runtime.service.js';
 
 import {
   doesProjectExist,

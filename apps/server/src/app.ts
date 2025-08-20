@@ -31,7 +31,7 @@ import { getDataProvider } from './classes/data-provider/DataProvider.js';
 import { logger } from './classes/Logger.js';
 import { populateStyles } from './setup/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
-import { runtimeService } from './services/runtime-service/RuntimeService.js';
+import { runtimeService } from './services/runtime-service/runtime.service.js';
 import { RestorePoint, restoreService } from './services/RestoreService.js';
 import * as messageService from './services/message-service/message.service.js';
 import { populateDemo } from './setup/loadDemo.js';

@@ -5,7 +5,7 @@ import { publicDir } from '../../setup/index.js';
 import { socket } from '../../adapters/WebsocketAdapter.js';
 import { getLastRequest } from '../../api-integration/integration.controller.js';
 import { getCurrentProject } from '../../services/project-service/ProjectService.js';
-import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
+import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 import { getNetworkInterfaces } from '../../utils/network.js';
 import { getTimezoneLabel } from '../../utils/time.js';
 import { password, routerPrefix } from '../../externals.js';

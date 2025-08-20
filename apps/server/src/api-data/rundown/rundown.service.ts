@@ -16,7 +16,7 @@ import {
 import { customFieldLabelToKey } from 'ontime-utils';
 
 import { updateRundownData } from '../../stores/runtimeState.js';
-import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
+import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 
 import { createTransaction, customFieldMutation, rundownCache, rundownMutation } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
