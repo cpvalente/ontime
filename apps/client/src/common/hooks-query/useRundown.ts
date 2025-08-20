@@ -26,10 +26,7 @@ export default function useRundown() {
     queryKey: RUNDOWN,
     queryFn: fetchCurrentRundown,
     placeholderData: (previousData, _previousQuery) => previousData,
-    retry: 5,
-    retryDelay: (attempt) => attempt * 2500,
     refetchInterval: queryRefetchIntervalSlow,
-    networkMode: 'always',
   });
   return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
 }

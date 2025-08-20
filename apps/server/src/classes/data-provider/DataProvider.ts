@@ -149,14 +149,15 @@ async function setAutomation(newData: AutomationSettings): ReadonlyPromise<Autom
 }
 
 function getRundown(rundownKey: string): Readonly<Rundown> {
-  if (!(rundownKey in db.data.rundowns)) throw new Error(`Rundown with id: ${rundownKey} dose not exist in DB`);
+  if (!(rundownKey in db.data.rundowns)) throw new Error(`Rundown with id: ${rundownKey} not found`);
   return db.data.rundowns[rundownKey];
 }
 
-async function deleteRundown(rundownKey: string): Promise<void> {
-  if (!(rundownKey in db.data.rundowns)) throw new Error(`Rundown with id: ${rundownKey} dose not exist in DB`);
+async function deleteRundown(rundownKey: string): Promise<ProjectRundowns> {
+  if (!(rundownKey in db.data.rundowns)) throw new Error(`Rundown with id: ${rundownKey} not found`);
   delete db.data.rundowns[rundownKey];
   await persist();
+  return db.data.rundowns;
 }
 
 function getProjectRundowns(): Readonly<ProjectRundowns> {

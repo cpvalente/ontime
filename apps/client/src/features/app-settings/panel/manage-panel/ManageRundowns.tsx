@@ -2,12 +2,11 @@ import { useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
 import { useDisclosure } from '@mantine/hooks';
 
-import { deleteRundown, loadRundown, newRundown } from '../../../../common/api/rundown';
 import Button from '../../../../common/components/buttons/Button';
 import Dialog from '../../../../common/components/dialog/Dialog';
 import Input from '../../../../common/components/input/input/Input';
 import Tag from '../../../../common/components/tag/Tag';
-import { useProjectRundowns } from '../../../../common/hooks-query/useProjectRundowns';
+import { useMutateProjectRundowns, useProjectRundowns } from '../../../../common/hooks-query/useProjectRundowns';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -15,38 +14,39 @@ import style from './ManagePanel.module.scss';
 
 export default function ManageRundowns() {
   const { data, refetch } = useProjectRundowns();
+  const { create, remove, load } = useMutateProjectRundowns();
   const [isOpenDelete, deleteHandlers] = useDisclosure();
   const [isOpenLoad, loadHandlers] = useDisclosure();
   const [isNewLoad, newHandlers] = useDisclosure();
-  const [value, setValue] = useState('');
+  const [targetRundown, setTargetRundown] = useState('');
 
   const openLoad = (id: string) => {
-    setValue(id);
+    setTargetRundown(id);
     loadHandlers.open();
   };
 
   const openDelete = (id: string) => {
-    setValue(id);
+    setTargetRundown(id);
     deleteHandlers.open();
   };
 
   const submitRundownLoad = async () => {
     try {
-      await loadRundown(value);
+      await load(targetRundown);
       loadHandlers.close();
-    } catch (err) {
+    } catch (error) {
       //TODO: show the error somewhere
-      console.error(err);
+      console.error(error);
     }
   };
 
   const submitRundownDelete = async () => {
     try {
-      await deleteRundown(value);
+      await remove(targetRundown);
       deleteHandlers.close();
-    } catch (err) {
+    } catch (error) {
       //TODO: show the error somewhere
-      console.error(err);
+      console.error(error);
     } finally {
       refetch();
     }
@@ -54,11 +54,11 @@ export default function ManageRundowns() {
 
   const submitRundownNew = async () => {
     try {
-      await newRundown(value);
+      await create(targetRundown);
       newHandlers.close();
-    } catch (err) {
+    } catch (error) {
       //TODO: show the error somewhere
-      console.error(err);
+      console.error(error);
     } finally {
       refetch();
     }
@@ -139,7 +139,7 @@ export default function ManageRundowns() {
       <Dialog
         isOpen={isOpenLoad}
         onClose={loadHandlers.close}
-        title='Delete rundown'
+        title='Load rundown'
         showBackdrop
         showCloseButton
         bodyElements={
@@ -161,13 +161,13 @@ export default function ManageRundowns() {
       <Dialog
         isOpen={isNewLoad}
         onClose={newHandlers.close}
-        title='Delete rundown'
+        title='Create rundown'
         showBackdrop
         showCloseButton
         bodyElements={
           <>
             Write the name of the new rundown
-            <Input fluid onChange={(e) => setValue(e.target.value)} />
+            <Input fluid onChange={(e) => setTargetRundown(e.target.value)} />
           </>
         }
         footerElements={

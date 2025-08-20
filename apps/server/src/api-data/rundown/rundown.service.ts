@@ -12,6 +12,7 @@ import {
   PatchWithId,
   RefetchKey,
   Rundown,
+  LogOrigin,
 } from 'ontime-types';
 import { customFieldLabelToKey } from 'ontime-utils';
 
@@ -246,7 +247,7 @@ export async function deleteAllEntries(): Promise<Rundown> {
  * Handles moving across root orders (a group order and top level order)
  * @throws if entryId or destinationId not found
  */
-export function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
+export async function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
 
   // check that both entries exist
@@ -574,7 +575,7 @@ export async function initRundown(rundown: Readonly<Rundown>, customFields: Read
   updateRuntimeOnChange(rundownMetadata);
 
   setImmediate(() => {
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true, reload: true });
+    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
     setLastLoadedRundown(rundown.id);
   });
 }

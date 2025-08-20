@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import {
+  EntryId,
   isOntimeDelay,
   isOntimeEvent,
   isOntimeMilestone,
@@ -114,7 +115,7 @@ export default function RundownEntry({
       }
       case 'swap': {
         const { value } = payload as FieldValue;
-        return swapEvents({ from: value as string, to: data.id });
+        return swapEvents(value as EntryId, data.id);
       }
       case 'delete': {
         if (selectedEvents.size > 1) {
