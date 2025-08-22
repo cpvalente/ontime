@@ -10,7 +10,7 @@
   color: $section-white; // to override inline
 
   display: grid;
-  grid-template-columns: 2rem 1fr 3fr;
+  grid-template-columns: 2rem 0.4fr 1fr;
   align-items: center;
   height: $secondary-block-height;
   gap: 0.5rem;
