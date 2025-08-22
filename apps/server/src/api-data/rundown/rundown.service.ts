@@ -576,6 +576,8 @@ export async function initRundown(rundown: Readonly<Rundown>, customFields: Read
 
   setImmediate(() => {
     notifyChanges(rundownMetadata, revision, { timer: true, external: true });
-    setLastLoadedRundown(rundown.id);
+    setLastLoadedRundown(rundown.id).catch((error) => {
+      logger.error(LogOrigin.Server, `Failed to persist last loaded rundown: ${error}`);
+    });
   });
 }
