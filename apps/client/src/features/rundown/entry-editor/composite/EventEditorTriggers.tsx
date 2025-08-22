@@ -155,7 +155,7 @@ function ExistingEventTriggers({ eventId, triggers }: ExistingEventTriggersProps
               <div key={id} className={style.trigger}>
                 <Tag>{triggerLifeCycle}</Tag>
                 <Tag>{automationTitle}</Tag>
-                <IconButton variant='subtle-destructive' onClick={() => handleDelete(id)}>
+                <IconButton variant='ghosted-destructive' onClick={() => handleDelete(id)}>
                   <IoTrash />
                 </IconButton>
               </div>
