@@ -2,6 +2,9 @@
   max-height: 100%;
   display: flex;
   flex-direction: column;
+  
+  // width is locked to swatch picker elements
+  width: calc(15 * 2rem + 13 * 0.5rem);
   overflow-x: auto;
 }
 
