@@ -83,11 +83,7 @@ export default function CustomFieldForm({
   const isEditMode = initialKey !== undefined;
 
   return (
-    <form
-      onSubmit={handleSubmit(setupSubmit)}
-      className={style.fieldForm}
-      onKeyDown={(event) => preventEscape(event, onCancel)}
-    >
+    <Panel.Indent as='form' onSubmit={handleSubmit(setupSubmit)} onKeyDown={(event) => preventEscape(event, onCancel)}>
       <Info>
         Please note that images can quickly deteriorate your app&apos;s performance.
         <br />
@@ -107,7 +103,7 @@ export default function CustomFieldForm({
         />
       </div>
       <div className={style.twoCols}>
-        <div>
+        <label>
           <Panel.Description>Label (only alphanumeric characters are allowed)</Panel.Description>
           {errors.label && <Panel.Error>{errors.label.message}</Panel.Error>}
           <Input
@@ -116,7 +112,8 @@ export default function CustomFieldForm({
               onChange: () => setValue('key', customFieldLabelToKey(getValues('label')) ?? 'N/A'),
               validate: (value) => {
                 if (value.trim().length === 0) return 'Required field';
-                if (!checkRegex.isAlphanumericWithSpace(value)) return 'Only alphanumeric characters and space are allowed';
+                if (!checkRegex.isAlphanumericWithSpace(value))
+                  return 'Only alphanumeric characters and space are allowed';
                 if (!isEditMode) {
                   if (isEditMode && Object.keys(data).includes(value)) return 'Custom fields must be unique';
                 }
@@ -125,17 +122,17 @@ export default function CustomFieldForm({
             })}
             fluid
           />
-        </div>
+        </label>
 
-        <div>
+        <label>
           <Panel.Description>Key (use in Integrations and API)</Panel.Description>
-          <Input {...register('key')} readOnly fluid />
-        </div>
+          <Input {...register('key')} variant='ghosted' readOnly fluid />
+        </label>
       </div>
-      <div>
+      <label>
         <Panel.Description>Colour</Panel.Description>
         <SwatchSelect name='colour' value={colour} handleChange={(_field, value) => handleSelectColour(value)} />
-      </div>
+      </label>
       {errors.root && <Panel.Error>{errors.root.message}</Panel.Error>}
       <Panel.InlineElements relation='inner' align='end'>
         <Button variant='ghosted' onClick={onCancel}>
@@ -145,6 +142,6 @@ export default function CustomFieldForm({
           Save
         </Button>
       </Panel.InlineElements>
-    </form>
+    </Panel.Indent>
   );
 }

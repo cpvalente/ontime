@@ -26,8 +26,8 @@ export function useMutateProjectRundowns() {
     onMutate: () => {
       ontimeQueryClient.cancelQueries({ queryKey: PROJECT_RUNDOWNS });
     },
-    onSuccess: (data) => {
-      ontimeQueryClient.setQueryData(PROJECT_RUNDOWNS, data);
+    onSuccess: (response) => {
+      ontimeQueryClient.setQueryData(PROJECT_RUNDOWNS, response.data);
     },
   });
 
@@ -36,8 +36,8 @@ export function useMutateProjectRundowns() {
     onMutate: () => {
       ontimeQueryClient.cancelQueries({ queryKey: PROJECT_RUNDOWNS });
     },
-    onSuccess: (data) => {
-      ontimeQueryClient.setQueryData(PROJECT_RUNDOWNS, data);
+    onSuccess: (response) => {
+      ontimeQueryClient.setQueryData(PROJECT_RUNDOWNS, response.data);
     },
   });
 
@@ -46,8 +46,8 @@ export function useMutateProjectRundowns() {
     onMutate: () => {
       ontimeQueryClient.cancelQueries({ queryKey: PROJECT_RUNDOWNS });
     },
-    onSuccess: (data) => {
-      ontimeQueryClient.setQueryData(PROJECT_RUNDOWNS, data);
+    onSuccess: (response) => {
+      ontimeQueryClient.setQueryData(PROJECT_RUNDOWNS, response.data);
     },
   });
 
