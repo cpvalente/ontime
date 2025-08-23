@@ -150,7 +150,7 @@ async function handleMigratedFile(filePath: string, fileName: string): Promise<s
     /* while we have to catch the error, we dont need to handle it */
   });
 
-  // and make a new file with the recovered data
+  // and make a new file with the migrated data
   const newPath = appendToName(filePath, '(migrated)');
   await dockerSafeRename(filePath, newPath);
   return getFileNameFromPath(newPath);
@@ -202,13 +202,12 @@ export async function loadProjectFile(fileName: string): Promise<string> {
   const result = parseDatabaseModel(fileData);
   let parsedFileName = fileName;
 
-  if (result.errors.length > 0) {
-    logger.warning(LogOrigin.Server, 'Project loaded with errors');
-    parsedFileName = await handleCorruptedFile(filePath, fileName);
-  }
   if (result.migrated) {
     logger.warning(LogOrigin.Server, 'The imported project is migrate, the original file has been backed up');
-    parsedFileName = await handleMigratedFile(filePath, fileName);
+    parsedFileName = await handleMigratedFile(filePath, parsedFileName);
+  } else if (result.errors.length > 0) {
+    logger.warning(LogOrigin.Server, 'Project loaded with errors');
+    parsedFileName = await handleCorruptedFile(filePath, parsedFileName);
   }
 
   const projectName = await loadProject(result.data, parsedFileName);
