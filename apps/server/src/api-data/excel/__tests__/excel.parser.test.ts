@@ -1,9 +1,10 @@
 import { CustomFields, OntimeEvent, OntimeGroup, SupportedEntry, TimerType } from 'ontime-types';
 import { defaultImportMap, ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
 
-import { getCustomFieldData, parseExcel } from '../excel.parser.js';
+import { parseExcel } from '../excel.parser.js';
 
 import { dataFromExcelTemplate } from './mockData.js';
+import { getCustomFieldData } from '../parsing/utils.js';
 
 describe('parseExcel()', () => {
   it('parses the example file', () => {

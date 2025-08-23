@@ -7,7 +7,6 @@ import {
   SupportedEntry,
   isOntimeGroup,
   TimerType,
-  CustomFieldKey,
   OntimeMilestone,
   OntimeEntry,
   isOntimeMilestone,
@@ -19,8 +18,6 @@ import {
   isKnownTimerType,
   validateTimerType,
   validateEndAction,
-  customFieldLabelToKey,
-  checkRegex,
 } from 'ontime-utils';
 
 import { Prettify } from 'ts-essentials';
@@ -28,6 +25,7 @@ import { Prettify } from 'ts-essentials';
 import { is } from '../../utils/is.js';
 import { makeString } from '../../utils/parserUtils.js';
 import { parseExcelDate } from '../../utils/time.js';
+import { generateImportHandlers, getCustomFieldData, parseBooleanString, SheetMetadata } from './parsing/utils.js';
 
 type MergedOntimeEntry = Prettify<
   Omit<Omit<Omit<OntimeEvent, keyof OntimeGroup> & OntimeGroup, keyof OntimeMilestone> & OntimeMilestone, 'type'> & {
@@ -49,9 +47,8 @@ export const parseExcel = (
 ): {
   rundown: Rundown;
   customFields: CustomFields;
-  rundownMetadata: Record<string, { row: number; col: number }>;
+  sheetMetadata: SheetMetadata;
 } => {
-  const rundownMetadata: Record<string, { row: number; col: number }> = {};
   const importMap: ImportMap = { ...defaultImportMap, ...options };
 
   for (const [key, value] of Object.entries(importMap)) {
@@ -71,117 +68,15 @@ export const parseExcel = (
     revision: 0,
   };
 
-  // title stuff: strings
-  let titleIndex: number | null = null;
-  let cueIndex: number | null = null;
-  let notesIndex: number | null = null;
-  let colourIndex: number | null = null;
-
-  // options: booleans
-  let flagIndex: number | null = null;
-  let skipIndex: number | null = null;
-  let countToEndIndex: number | null = null;
-
-  let linkStartIndex: number | null = null;
-
-  // times: numbers
-  let timeStartIndex: number | null = null;
-  let timeEndIndex: number | null = null;
-  let durationIndex: number | null = null;
-  let timeWarningIndex: number | null = null;
-  let timeDangerIndex: number | null = null;
-
-  // options: enum properties
-  let endActionIndex: number | null = null;
-  let timerTypeIndex: number | null = null;
-
-  //ID
-  let entryIdIndex: number | null = null;
-
-  // record of column index and the name of the field
-  const customFieldIndexes: Record<number, string> = {};
-
   // for placing entries into groups
   let currentGroupId: string | null = null;
   const groupEntries: string[] = [];
+  const { handlers, indexMap, sheetMetadata } = generateImportHandlers(importMap);
 
   excelData.forEach((row, rowIndex) => {
     if (row.length === 0) {
       return;
     }
-
-    // TODO: extract generating handlers from importMap
-    const handlers = {
-      [importMap.timeStart]: (row: number, col: number) => {
-        timeStartIndex = col;
-        rundownMetadata['timeStart'] = { row, col };
-      },
-      [importMap.linkStart]: (row: number, col: number) => {
-        linkStartIndex = col;
-        rundownMetadata['linkStart'] = { row, col };
-      },
-      [importMap.timeEnd]: (row: number, col: number) => {
-        timeEndIndex = col;
-        rundownMetadata['timeEnd'] = { row, col };
-      },
-      [importMap.duration]: (row: number, col: number) => {
-        durationIndex = col;
-        rundownMetadata['duration'] = { row, col };
-      },
-
-      [importMap.cue]: (row: number, col: number) => {
-        cueIndex = col;
-        rundownMetadata['cue'] = { row, col };
-      },
-      [importMap.title]: (row: number, col: number) => {
-        titleIndex = col;
-        rundownMetadata['title'] = { row, col };
-      },
-      [importMap.flag]: (row: number, col: number) => {
-        flagIndex = col;
-        rundownMetadata['flag'] = { row, col };
-      },
-      [importMap.countToEnd]: (row: number, col: number) => {
-        countToEndIndex = col;
-        rundownMetadata['countToEnd'] = { row, col };
-      },
-      [importMap.skip]: (row: number, col: number) => {
-        skipIndex = col;
-        rundownMetadata['skip'] = { row, col };
-      },
-      [importMap.note]: (row: number, col: number) => {
-        notesIndex = col;
-        rundownMetadata['note'] = { row, col };
-      },
-      [importMap.colour]: (row: number, col: number) => {
-        colourIndex = col;
-        rundownMetadata['colour'] = { row, col };
-      },
-      [importMap.endAction]: (row: number, col: number) => {
-        endActionIndex = col;
-        rundownMetadata['endAction'] = { row, col };
-      },
-      [importMap.timerType]: (row: number, col: number) => {
-        timerTypeIndex = col;
-        rundownMetadata['timerType'] = { row, col };
-      },
-      [importMap.timeWarning]: (row: number, col: number) => {
-        timeWarningIndex = col;
-        rundownMetadata['timeWarning'] = { row, col };
-      },
-      [importMap.timeDanger]: (row: number, col: number) => {
-        timeDangerIndex = col;
-        rundownMetadata['timeDanger'] = { row, col };
-      },
-      [importMap.entryId]: (row: number, col: number) => {
-        entryIdIndex = col;
-        rundownMetadata['id'] = { row, col };
-      },
-      custom: (row: number, col: number, columnText: string, ontimeKey: string) => {
-        customFieldIndexes[col] = columnText;
-        rundownMetadata[`custom:${ontimeKey}`] = { row, col };
-      },
-    } as const;
 
     const entry: Partial<MergedOntimeEntry> = {};
 
@@ -190,7 +85,7 @@ export const parseExcel = (
     for (let j = 0; j < row.length; j++) {
       const column = row[j];
       // 1. we check if we have set a flag for a known field
-      if (j === timerTypeIndex) {
+      if (j === indexMap.timerType) {
         const maybeTimeType = makeString(column, '').toLocaleLowerCase();
         if (maybeTimeType === 'group' || maybeTimeType === 'group-start') {
           entry.type = SupportedEntry.Group;
@@ -210,38 +105,38 @@ export const parseExcel = (
           // if it is not a group or a known type, we dont import it
           return;
         }
-      } else if (j === titleIndex) {
+      } else if (j === indexMap.title) {
         entry.title = makeString(column, '');
-      } else if (j === timeStartIndex) {
+      } else if (j === indexMap.timeStart) {
         entry.timeStart = parseExcelDate(column);
-      } else if (j === linkStartIndex) {
+      } else if (j === indexMap.linkStart) {
         entry.linkStart = parseBooleanString(column);
-      } else if (j === timeEndIndex) {
+      } else if (j === indexMap.timeEnd) {
         entry.timeEnd = parseExcelDate(column);
-      } else if (j === durationIndex) {
+      } else if (j === indexMap.duration) {
         entry.duration = parseExcelDate(column);
-      } else if (j === cueIndex) {
+      } else if (j === indexMap.cue) {
         entry.cue = makeString(column, '');
-      } else if (j === flagIndex) {
+      } else if (j === indexMap.flag) {
         entry.flag = parseBooleanString(column);
-      } else if (j === countToEndIndex) {
+      } else if (j === indexMap.countToEnd) {
         entry.countToEnd = parseBooleanString(column);
-      } else if (j === skipIndex) {
+      } else if (j === indexMap.skip) {
         entry.skip = parseBooleanString(column);
-      } else if (j === notesIndex) {
+      } else if (j === indexMap.note) {
         entry.note = makeString(column, '');
-      } else if (j === endActionIndex) {
+      } else if (j === indexMap.endAction) {
         entry.endAction = validateEndAction(column);
-      } else if (j === timeWarningIndex) {
+      } else if (j === indexMap.timeWarning) {
         entry.timeWarning = parseExcelDate(column);
-      } else if (j === timeDangerIndex) {
+      } else if (j === indexMap.timeDanger) {
         entry.timeDanger = parseExcelDate(column);
-      } else if (j === colourIndex) {
+      } else if (j === indexMap.colour) {
         entry.colour = makeString(column, '');
-      } else if (j === entryIdIndex) {
+      } else if (j === indexMap.entryId) {
         entry.id = encodeURIComponent(makeString(column, undefined));
-      } else if (j in customFieldIndexes) {
-        const importKey = customFieldIndexes[j];
+      } else if (j in indexMap.custom) {
+        const importKey = indexMap.custom[j];
         const ontimeKey = customFieldImportKeys[importKey];
         entryCustomFields[ontimeKey] = makeString(column, '');
       } else {
@@ -325,7 +220,7 @@ export const parseExcel = (
       type: SupportedEntry.Event,
     } as OntimeEvent;
 
-    if (timerTypeIndex === null) {
+    if (indexMap.timerType === null) {
       event.timerType = TimerType.CountDown;
     }
 
@@ -350,67 +245,6 @@ export const parseExcel = (
   return {
     rundown,
     customFields: mergedCustomFields,
-    rundownMetadata,
+    sheetMetadata,
   };
 };
-
-/**
- * Utility function infers a boolean from a string value
- */
-function parseBooleanString(value: unknown): boolean {
-  if (typeof value === 'boolean') {
-    return value;
-  }
-
-  // falsy values would be nullish or empty string
-  if (!value || typeof value !== 'string') {
-    return false;
-  }
-  return value.toLowerCase() !== 'false';
-}
-
-/**
- * Receives an import map which contains custom field labels and a custom fields object
- * the result importkeys is an inverted record of <importKey, ontimeKey>
- * We need this function since, when importing from sheets, the user gives us custom field labels, not keys
- * @returns the new custom fields, and a map of excel column names to ontime keys
- * @private exported for testing
- */
-export function getCustomFieldData(
-  importMap: ImportMap,
-  existingCustomFields: CustomFields,
-): {
-  mergedCustomFields: CustomFields;
-  customFieldImportKeys: Record<keyof CustomFields, string>;
-} {
-  const mergedCustomFields: CustomFields = {};
-  /**
-   * A map of import keys to ontime keys
-   * Map<excel column name, ontime key>
-   */
-  const customFieldImportKeys: Record<string, CustomFieldKey> = {};
-
-  for (const ontimeLabel in importMap.custom) {
-    // if the label is not valid, we skip the import
-    if (!checkRegex.isAlphanumericWithSpace(ontimeLabel)) {
-      continue;
-    }
-
-    // generate a key for the custom field
-    const keyInCustomFields = customFieldLabelToKey(ontimeLabel);
-    // we lower case the excel key to make it easier to match
-    const columnNameInExcel = importMap.custom[ontimeLabel].toLowerCase();
-    const maybeExistingColour = existingCustomFields[keyInCustomFields]?.colour ?? '';
-
-    // 1. add the custom field to the merged custom fields
-    mergedCustomFields[keyInCustomFields] = {
-      type: 'text', // we currently only support text custom fields
-      colour: maybeExistingColour,
-      label: ontimeLabel,
-    };
-
-    // 2. add the column to the import keys
-    customFieldImportKeys[columnNameInExcel] = keyInCustomFields;
-  }
-  return { mergedCustomFields, customFieldImportKeys };
-}
