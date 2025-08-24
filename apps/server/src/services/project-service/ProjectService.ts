@@ -94,7 +94,7 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
       ? projectData.rundowns[rundownId]
       : getFirstRundown(projectData.rundowns);
 
-  await initRundown(rundown, projectData.customFields);
+  await initRundown(rundown, projectData.customFields, true);
 
   // persist the project selection
   await setLastLoaded(fileName, rundown.id);

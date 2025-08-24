@@ -568,14 +568,18 @@ function notifyChanges(rundownMetadata: RundownMetadata, revision: number, optio
  * Sets a new rundown in the cache
  * and marks it as the currently loaded one
  */
-export async function initRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
+export async function initRundown(
+  rundown: Readonly<Rundown>,
+  customFields: Readonly<CustomFields>,
+  reload: boolean = false,
+) {
   const { rundownMetadata, revision } = rundownCache.init(rundown, customFields);
   logger.info(LogOrigin.Server, `Switch to rundown: ${rundown.id}`);
   // notify runtime that rundown has changed
   updateRuntimeOnChange(rundownMetadata);
 
   setImmediate(() => {
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    notifyChanges(rundownMetadata, revision, { timer: true, external: true, reload });
     setLastLoadedRundown(rundown.id).catch((error) => {
       logger.error(LogOrigin.Server, `Failed to persist last loaded rundown: ${error}`);
     });
