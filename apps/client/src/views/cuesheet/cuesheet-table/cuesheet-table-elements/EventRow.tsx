@@ -54,7 +54,6 @@ export default function EventRow({
   useEffect(() => {
     const element = ownRef.current;
     if (element) {
-      element.id = rowId;
       observeRow(element);
     }
 
@@ -63,7 +62,7 @@ export default function EventRow({
         unobserveRow(element);
       }
     };
-  }, [rowId]);
+  }, []);
 
   const { color, backgroundColor } = getAccessibleColour(event.colour);
   const tmpColour = cssOrHexToColour(color) as RGBColour; // we know this to be a correct colour
@@ -106,7 +105,7 @@ export default function EventRow({
           {eventIndex}
         </td>
       )}
-      {isVisible
+      {isVisible || Boolean(selectedRef?.current)
         ? table
             .getRow(rowId)
             .getVisibleCells()
