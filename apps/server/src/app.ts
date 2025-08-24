@@ -31,12 +31,11 @@ import { getDataProvider } from './classes/data-provider/DataProvider.js';
 import { logger } from './classes/Logger.js';
 import { populateStyles } from './setup/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
-import { runtimeService } from './services/runtime-service/RuntimeService.js';
+import { runtimeService } from './services/runtime-service/runtime.service.js';
 import { RestorePoint, restoreService } from './services/RestoreService.js';
 import * as messageService from './services/message-service/message.service.js';
 import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
-import { initRundown } from './api-data/rundown/rundown.service.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
 import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
 import { oscServer } from './adapters/OscAdapter.js';
@@ -214,11 +213,6 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
     },
     ping: 1,
   });
-
-  // initialise rundown service
-  const persistedRundown = getDataProvider().getRundown();
-  const persistedCustomFields = getDataProvider().getCustomFields();
-  await initRundown(persistedRundown, persistedCustomFields);
 
   // initialise message service
   messageService.init(eventStore.set, eventStore.get);

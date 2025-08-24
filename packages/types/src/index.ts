@@ -16,7 +16,11 @@ export {
   type TimeField,
   SupportedEntry as SupportedEntry,
 } from './definitions/core/OntimeEntry.js';
-export type { RundownEntries, Rundown, ProjectRundowns } from './definitions/core/Rundown.type.js';
+export type {
+  RundownEntries,
+  Rundown,
+  ProjectRundowns,
+} from './definitions/core/Rundown.type.js';
 export { TimeStrategy } from './definitions/TimeStrategy.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
 
@@ -80,6 +84,7 @@ export type {
 export type {
   EventPostPayload,
   PatchWithId,
+  ProjectRundown,
   ProjectRundownsList,
   TransientEventPayload,
 } from './api/rundown-controller/BackendResponse.type.js';
