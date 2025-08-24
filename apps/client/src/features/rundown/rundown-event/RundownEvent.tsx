@@ -13,7 +13,7 @@ import {
   IoTrash,
   IoUnlink,
 } from 'react-icons/io5';
-import { TbFlagFilled, TbListNumbers } from 'react-icons/tb';
+import { TbClockPin, TbFlagFilled, TbListNumbers } from 'react-icons/tb';
 
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
@@ -102,7 +102,8 @@ export default function RundownEvent({
   const clearSelectedEventId = useEventIdSwapping((state) => state.clearSelectedEventId);
   const openRenumberDialog = useRenumberCuesDialogStore((state) => state.onOpen);
 
-  const { updateEntry, batchUpdateEvents, clone, deleteEntry, groupEntries, swapEvents } = useEntryActionsContext();
+  const { updateEntry, batchUpdateEvents, clone, deleteEntry, groupEntries, swapEvents, matchGroupDuration } =
+    useEntryActionsContext();
 
   const isSelected = useEventSelection((state) => state.selectedEvents.has(eventId));
   const unselect = useEventSelection((state) => state.unselect);
@@ -171,6 +172,16 @@ export default function RundownEvent({
             onClick: () => {
               updateEntry({ id: eventId, flag: !flag });
             },
+          },
+          {
+            type: 'item',
+            label: 'Match Group Target Duration',
+            icon: TbClockPin,
+            onClick: () => {
+              if (!parent) return;
+              matchGroupDuration(eventId, parent);
+            },
+            disabled: !parent,
           },
           { type: 'divider' },
           {
