@@ -1,4 +1,4 @@
-import { MouseEvent, useRef } from 'react';
+import { MouseEvent, useCallback, useRef } from 'react';
 import {
   IoChevronDown,
   IoChevronUp,
@@ -7,6 +7,7 @@ import {
   IoReorderTwo,
   IoTrash,
 } from 'react-icons/io5';
+import { TbClockPin } from 'react-icons/tb';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId, OntimeGroup } from 'ontime-types';
@@ -34,8 +35,12 @@ interface RundownGroupProps {
 //TODO: the group should maybe include a multiple day indicator
 export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }: RundownGroupProps) {
   const handleRef = useRef<null | HTMLSpanElement>(null);
-  const { clone, ungroup, deleteEntry } = useEntryActions();
+  const { clone, ungroup, deleteEntry, updateEntry } = useEntryActions();
   const { selectedEvents, setSingleEntrySelection } = useEventSelection();
+
+  const matchDuration = useCallback(() => {
+    updateEntry({ id: data.id, targetDuration: data.duration });
+  }, [data.duration, data.id]);
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>([
     {
@@ -50,6 +55,13 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
       icon: IoFolderOpenOutline,
       onClick: () => ungroup(data.id),
       disabled: data.entries.length === 0,
+    },
+    { type: 'divider' },
+    {
+      type: 'item',
+      label: 'Match Group Duration',
+      icon: TbClockPin,
+      onClick: matchDuration,
     },
     { type: 'divider' },
     {
