@@ -365,6 +365,19 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
     [getCurrentRundownData, updateEntryMutation],
   );
 
+  const matchGroupDuration = useCallback(async (eventId: EntryId, groupId: EntryId) => {
+    const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+    if (!rundown) return;
+    const group = rundown.entries[groupId];
+    if (!group || !isOntimeGroup(group) || group.targetDuration === null) return;
+    const event = rundown.entries[eventId];
+    if (!event || !isOntimeEvent(event)) return;
+    const durationDiff = group.targetDuration - group.duration;
+    const newDuration = event.duration + durationDiff;
+    if (newDuration < 0) return;
+    updateTimer(eventId, 'duration', String(newDuration / MILLIS_PER_SECOND) + 's', false);
+  }, []);
+
   /**
    * Updates time of existing event
    * @param eventId {EntryId} - id of the event
@@ -1003,6 +1016,7 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
       swapEvents,
       updateEntry,
       updateTimer,
+      matchGroupDuration,
     }),
     [
       addEntry,
@@ -1020,6 +1034,7 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
       swapEvents,
       updateEntry,
       updateTimer,
+      matchGroupDuration,
     ],
   );
 }
