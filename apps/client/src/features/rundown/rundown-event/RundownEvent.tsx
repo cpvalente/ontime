@@ -9,7 +9,7 @@ import {
   IoTrash,
   IoUnlink,
 } from 'react-icons/io5';
-import { TbFlagFilled } from 'react-icons/tb';
+import { TbClockPin, TbFlagFilled } from 'react-icons/tb';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EndAction, EntryId, Playback, TimerType, TimeStrategy } from 'ontime-types';
@@ -94,7 +94,8 @@ export default function RundownEvent({
   createCloneEvent,
 }: RundownEventProps) {
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
-  const { updateEntry, batchUpdateEvents, deleteEntry, groupEntries, swapEvents } = useEntryActions();
+  const { updateEntry, batchUpdateEvents, deleteEntry, groupEntries, swapEvents, matchGroupDuration } =
+    useEntryActions();
 
   const { selectedEvents, unselect, setSelectedEvents, clearSelectedEvents } = useEventSelection();
   const handleRef = useRef<null | HTMLSpanElement>(null);
@@ -149,6 +150,16 @@ export default function RundownEvent({
             onClick: () => {
               updateEntry({ id: eventId, flag: !flag });
             },
+          },
+          {
+            type: 'item',
+            label: 'Match Target Group Duration',
+            icon: TbClockPin,
+            onClick: () => {
+              if (!parent) return;
+              matchGroupDuration(eventId, parent);
+            },
+            disabled: !parent,
           },
           { type: 'divider' },
           {
