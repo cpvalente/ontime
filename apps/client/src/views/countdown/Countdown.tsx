@@ -18,6 +18,7 @@ import { getCountdownOptions, useCountdownOptions } from './countdown.options';
 import { getOrderedSubscriptions } from './countdown.utils';
 import CountdownSelect from './CountdownSelect';
 import CountdownSubscriptions from './CountdownSubscriptions';
+import SingleEventCountdown from './SingleEventCountdown';
 import { CountdownData, useCountdownData } from './useCountdownData';
 
 import './Countdown.scss';
@@ -114,6 +115,12 @@ function CountdownContents({ playableEvents, subscriptions, goToEditMode }: Coun
         </Button>
       </div>
     );
+  }
+
+  if (subscribedEvents.length === 1) {
+    const event = subscribedEvents.at(0);
+    if (!event) return null;
+    return <SingleEventCountdown subscribedEvent={event} goToEditMode={goToEditMode} />;
   }
 
   return <CountdownSubscriptions subscribedEvents={subscribedEvents} goToEditMode={goToEditMode} />;
