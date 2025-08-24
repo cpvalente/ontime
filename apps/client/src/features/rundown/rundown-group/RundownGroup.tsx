@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId, OntimeGroup } from 'ontime-types';
 import { MILLIS_PER_MINUTE, millisToString } from 'ontime-utils';
-import { MouseEvent, useCallback, useRef } from 'react';
+import { MouseEvent, useCallback, useCallback, useRef } from 'react';
 import {
   IoChevronDown,
   IoChevronUp,
