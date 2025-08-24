@@ -30,7 +30,6 @@ import {
   requestEventSwap,
   requestGroupEntries,
   requestUngroup,
-  SwapEntry,
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
@@ -59,15 +58,25 @@ export const useEntryActions = () => {
     defaultEndAction,
   } = useEditorSettings();
 
+  /**
+   * Returns the currently loaded rundown
+   */
+  const getCurrentRundownData = useCallback(() => {
+    return queryClient.getQueryData<Rundown>(RUNDOWN);
+  }, [queryClient]);
+
+  /**
+   * Looks for an entry with a given ID in the currently loaded rundown
+   */
   const getEntryById = useCallback(
-    (eventId: string): OntimeEntry | undefined => {
-      const cachedRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+    (eventId: EntryId): OntimeEntry | undefined => {
+      const cachedRundown = getCurrentRundownData();
       if (!cachedRundown?.entries) {
         return;
       }
       return cachedRundown.entries[eventId];
     },
-    [queryClient],
+    [getCurrentRundownData],
   );
 
   /**
@@ -75,8 +84,8 @@ export const useEntryActions = () => {
    * @private
    */
   const { mutateAsync: addEntryMutation } = useMutation({
-    // TODO(v4): optimistic create entry
-    mutationFn: postAddEntry,
+    mutationFn: ([rundownId, entry]: Parameters<typeof postAddEntry>) => postAddEntry(rundownId, entry),
+    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
     onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
   });
 
@@ -85,13 +94,19 @@ export const useEntryActions = () => {
    */
   const addEntry = useCallback(
     async (entry: Partial<OntimeEntry>, options?: EventOptions) => {
+      const rundownData = getCurrentRundownData();
+      const rundownId = rundownData?.id;
+
+      if (!rundownId) {
+        throw new Error('Rundown not initialised');
+      }
+
       const newEntry: TransientEventPayload = { ...entry, id: generateId() };
 
       // ************* CHECK OPTIONS specific to events
       if (isOntimeEvent(newEntry)) {
         if (options?.lastEventId) {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this is a value
-          const rundownData = queryClient.getQueryData<Rundown>(RUNDOWN)!;
           const previousEvent = rundownData.entries[options?.lastEventId];
           if (isOntimeEvent(previousEvent)) {
             newEntry.timeStart = previousEvent.timeEnd;
@@ -135,21 +150,21 @@ export const useEntryActions = () => {
       }
 
       try {
-        await addEntryMutation(newEntry);
+        await addEntryMutation([rundownId, newEntry]);
       } catch (error) {
         logAxiosError('Failed adding event', error);
       }
     },
     [
-      addEntryMutation,
-      defaultDangerTime,
-      defaultDuration,
-      defaultEndAction,
-      defaultTimerType,
-      defaultTimeStrategy,
-      defaultWarnTime,
+      getCurrentRundownData,
       linkPrevious,
-      queryClient,
+      defaultDuration,
+      defaultDangerTime,
+      defaultWarnTime,
+      defaultTimerType,
+      defaultEndAction,
+      defaultTimeStrategy,
+      addEntryMutation,
     ],
   );
 
@@ -158,22 +173,28 @@ export const useEntryActions = () => {
    * @private
    */
   const { mutateAsync: cloneEntryMutation } = useMutation({
-    mutationFn: postCloneEntry,
+    mutationFn: ([rundownId, entryId]: Parameters<typeof postCloneEntry>) => postCloneEntry(rundownId, entryId),
+    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
     onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
   });
 
   /**
-   * Clone a selection
+   * Clone an entry
    */
   const clone = useCallback(
     async (entryId: EntryId) => {
       try {
-        await cloneEntryMutation(entryId);
+        const rundownId = getCurrentRundownData()?.id;
+        if (!rundownId) {
+          throw new Error('Rundown not initialised');
+        }
+
+        await cloneEntryMutation([rundownId, entryId]);
       } catch (error) {
         logAxiosError('Error cloning entry', error);
       }
     },
-    [cloneEntryMutation],
+    [cloneEntryMutation, getCurrentRundownData],
   );
 
   /**
@@ -181,9 +202,9 @@ export const useEntryActions = () => {
    * @private
    */
   const { mutateAsync: updateEntryMutation } = useMutation({
-    mutationFn: putEditEntry,
+    mutationFn: ([rundownId, newEvent]: Parameters<typeof putEditEntry>) => putEditEntry(rundownId, newEvent),
     // we optimistically update here
-    onMutate: async (newEvent) => {
+    onMutate: async ([_rundownId, newEvent]) => {
       // cancel ongoing queries
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
@@ -211,7 +232,9 @@ export const useEntryActions = () => {
     },
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _newEvent, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      if (context?.previousData) {
+        queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      }
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
@@ -226,19 +249,17 @@ export const useEntryActions = () => {
   const updateEntry = useCallback(
     async (entry: Partial<OntimeEntry>) => {
       try {
-        await updateEntryMutation(entry);
+        const rundownId = getCurrentRundownData()?.id;
+        if (!rundownId) {
+          throw new Error('Rundown not initialised');
+        }
+
+        await updateEntryMutation([rundownId, entry]);
       } catch (error) {
         logAxiosError('Error updating event', error);
       }
     },
-    [updateEntryMutation],
-  );
-
-  const updateCustomField = useCallback(
-    async (entryId: EntryId, field: string, value: string) => {
-      updateEntry({ id: entryId, custom: { [field]: value } });
-    },
-    [updateEntry],
+    [getCurrentRundownData, updateEntryMutation],
   );
 
   /**
@@ -250,6 +271,11 @@ export const useEntryActions = () => {
    */
   const updateTimer = useCallback(
     async (eventId: EntryId, field: TimeField, value: string, lockOnUpdate?: boolean) => {
+      const rundownId = getCurrentRundownData()?.id;
+      if (!rundownId) {
+        throw new Error('Rundown not initialised');
+      }
+
       // an empty value with no lock has no domain validity
       if (!lockOnUpdate && value === '') {
         return;
@@ -279,7 +305,7 @@ export const useEntryActions = () => {
       }
 
       try {
-        await updateEntryMutation(newEvent);
+        await updateEntryMutation([rundownId, newEvent]);
       } catch (error) {
         logAxiosError('Error updating event', error);
       }
@@ -331,7 +357,7 @@ export const useEntryActions = () => {
         return previousEnd;
       }
     },
-    [updateEntryMutation, queryClient],
+    [getCurrentRundownData, updateEntryMutation, queryClient],
   );
 
   /**
@@ -339,8 +365,8 @@ export const useEntryActions = () => {
    * @private
    */
   const { mutateAsync: batchUpdateEventsMutation } = useMutation({
-    mutationFn: putBatchEditEvents,
-    onMutate: async ({ ids, data }) => {
+    mutationFn: ([rundownId, data]: Parameters<typeof putBatchEditEvents>) => putBatchEditEvents(rundownId, data),
+    onMutate: async ([_rundownId, data]) => {
       // cancel ongoing queries
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
@@ -348,7 +374,7 @@ export const useEntryActions = () => {
       const previousRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
 
       if (previousRundown) {
-        const eventIds = new Set(ids);
+        const eventIds = new Set(data.ids);
         const newRundown = { ...previousRundown.entries };
 
         eventIds.forEach((eventId) => {
@@ -395,14 +421,19 @@ export const useEntryActions = () => {
   });
 
   const batchUpdateEvents = useCallback(
-    async (data: Partial<OntimeEvent>, eventIds: string[]) => {
+    async (data: Partial<OntimeEvent>, eventIds: EntryId[]) => {
       try {
-        await batchUpdateEventsMutation({ ids: eventIds, data });
+        const rundownId = getCurrentRundownData()?.id;
+        if (!rundownId) {
+          throw new Error('Rundown not initialised');
+        }
+
+        await batchUpdateEventsMutation([rundownId, { data, ids: eventIds }]);
       } catch (error) {
         logAxiosError('Error updating events', error);
       }
     },
-    [batchUpdateEventsMutation],
+    [batchUpdateEventsMutation, getCurrentRundownData],
   );
 
   /**
@@ -410,9 +441,9 @@ export const useEntryActions = () => {
    * @private
    */
   const { mutateAsync: deleteEntryMutation } = useMutation({
-    mutationFn: deleteEntries,
+    mutationFn: ([rundownId, entryIds]: Parameters<typeof deleteEntries>) => deleteEntries(rundownId, entryIds),
     // we optimistically update here
-    onMutate: async (entryIds: EntryId[]) => {
+    onMutate: async ([_rundownId, entryIds]) => {
       // cancel ongoing queries
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
@@ -454,12 +485,17 @@ export const useEntryActions = () => {
   const deleteEntry = useCallback(
     async (entryIds: EntryId[]) => {
       try {
-        await deleteEntryMutation(entryIds);
+        const rundownId = getCurrentRundownData()?.id;
+        if (!rundownId) {
+          throw new Error('Rundown not initialised');
+        }
+
+        await deleteEntryMutation([rundownId, entryIds]);
       } catch (error) {
         logAxiosError('Error deleting event', error);
       }
     },
-    [deleteEntryMutation],
+    [deleteEntryMutation, getCurrentRundownData],
   );
 
   /**
@@ -467,7 +503,7 @@ export const useEntryActions = () => {
    * @private
    */
   const { mutateAsync: deleteAllEntriesMutation } = useMutation({
-    mutationFn: requestDeleteAll,
+    mutationFn: ([rundownId]: Parameters<typeof requestDeleteAll>) => requestDeleteAll(rundownId),
     // we optimistically update here
     onMutate: async () => {
       // cancel ongoing queries
@@ -506,18 +542,24 @@ export const useEntryActions = () => {
    */
   const deleteAllEntries = useCallback(async () => {
     try {
-      await deleteAllEntriesMutation();
+      const rundownId = getCurrentRundownData()?.id;
+      if (!rundownId) {
+        throw new Error('Rundown not initialised');
+      }
+
+      await deleteAllEntriesMutation([rundownId]);
     } catch (error) {
       logAxiosError('Error deleting events', error);
     }
-  }, [deleteAllEntriesMutation]);
+  }, [deleteAllEntriesMutation, getCurrentRundownData]);
 
   /**
    * Calls mutation to apply a delay
    * @private
    */
   const { mutateAsync: applyDelayMutation } = useMutation({
-    mutationFn: requestApplyDelay,
+    mutationFn: ([rundownId, delayId]: Parameters<typeof requestApplyDelay>) => requestApplyDelay(rundownId, delayId),
+    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
     onSuccess: (response) => {
       if (!response.data) return;
 
@@ -543,12 +585,17 @@ export const useEntryActions = () => {
   const applyDelay = useCallback(
     async (delayEventId: EntryId) => {
       try {
-        await applyDelayMutation(delayEventId);
+        const rundownId = getCurrentRundownData()?.id;
+        if (!rundownId) {
+          throw new Error('Rundown not initialised');
+        }
+
+        await applyDelayMutation([rundownId, delayEventId]);
       } catch (error) {
         logAxiosError('Error applying delay', error);
       }
     },
-    [applyDelayMutation],
+    [applyDelayMutation, getCurrentRundownData],
   );
 
   /**
@@ -556,7 +603,8 @@ export const useEntryActions = () => {
    * @private
    */
   const { mutateAsync: ungroupMutation } = useMutation({
-    mutationFn: requestUngroup,
+    mutationFn: ([rundownId, groupId]: Parameters<typeof requestUngroup>) => requestUngroup(rundownId, groupId),
+    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
     onSuccess: (response) => {
       if (!response.data) return;
 
@@ -579,12 +627,17 @@ export const useEntryActions = () => {
   const ungroup = useCallback(
     async (groupId: EntryId) => {
       try {
-        await ungroupMutation(groupId);
+        const rundownId = getCurrentRundownData()?.id;
+        if (!rundownId) {
+          throw new Error('Rundown not initialised');
+        }
+
+        await ungroupMutation([rundownId, groupId]);
       } catch (error) {
         logAxiosError('Error dissolving group', error);
       }
     },
-    [ungroupMutation],
+    [getCurrentRundownData, ungroupMutation],
   );
 
   /**
@@ -592,7 +645,9 @@ export const useEntryActions = () => {
    * @private
    */
   const { mutateAsync: groupEntriesMutation } = useMutation({
-    mutationFn: requestGroupEntries,
+    mutationFn: ([rundownId, entryIds]: Parameters<typeof requestGroupEntries>) =>
+      requestGroupEntries(rundownId, entryIds),
+    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
     onSuccess: (response) => {
       if (!response.data) return;
 
@@ -617,19 +672,24 @@ export const useEntryActions = () => {
       if (entryIds.length === 0) return;
 
       try {
+        const rundownData = getCurrentRundownData();
+        const rundownId = rundownData?.id;
+        if (!rundownId) {
+          throw new Error('Rundown not initialised');
+        }
+
         if (entryIds.length === 1) {
-          await groupEntriesMutation(entryIds);
+          await groupEntriesMutation([rundownId, entryIds]);
         } else {
-          const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
-          if (!rundown) return;
-          const orderedIds = orderEntries(entryIds, rundown.flatOrder);
-          await groupEntriesMutation(orderedIds);
+          // the user selection may be out of order
+          const orderedIds = orderEntries(entryIds, rundownData.flatOrder);
+          await groupEntriesMutation([rundownId, orderedIds]);
         }
       } catch (error) {
         logAxiosError('Error grouping entries', error);
       }
     },
-    [groupEntriesMutation, queryClient],
+    [getCurrentRundownData, groupEntriesMutation],
   );
 
   /**
@@ -637,9 +697,8 @@ export const useEntryActions = () => {
    * @private
    */
   const { mutateAsync: reorderEntryMutation } = useMutation({
-    mutationFn: patchReorderEntry,
-    // Mutation finished, failed or successful
-    // Fetch anyway, just to be sure
+    mutationFn: ([rundownId, data]: Parameters<typeof patchReorderEntry>) => patchReorderEntry(rundownId, data),
+    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
@@ -650,34 +709,36 @@ export const useEntryActions = () => {
    */
   const move = useCallback(
     async (entryId: EntryId, direction: 'up' | 'down') => {
-      const rundown = queryClient.getQueryData<Rundown>(RUNDOWN);
-      if (!rundown) {
-        return;
-      }
-
-      const { destinationId, order } =
-        direction === 'up'
-          ? moveUp(entryId, rundown.flatOrder, rundown.entries)
-          : moveDown(entryId, rundown.flatOrder, rundown.entries);
-
-      if (!destinationId) {
-        return; // noop
-      }
-
       try {
+        const rundownData = getCurrentRundownData();
+        const rundownId = rundownData?.id;
+        if (!rundownId) {
+          throw new Error('Rundown not initialised');
+        }
+
+        const { destinationId, order } =
+          direction === 'up'
+            ? moveUp(entryId, rundownData.flatOrder, rundownData.entries)
+            : moveDown(entryId, rundownData.flatOrder, rundownData.entries);
+
+        if (!destinationId) {
+          return; // noop
+        }
+
         const reorderObject: ReorderEntry = {
           entryId,
           destinationId,
           order,
         };
-        await reorderEntryMutation(reorderObject);
+        await reorderEntryMutation([rundownId, reorderObject]);
+        // the rundown needs to know whether we moved into a group
+        return rundownData.entries[destinationId]?.type === SupportedEntry.Group ? destinationId : undefined;
       } catch (error) {
         logAxiosError('Error re-ordering event', error);
       }
-      // the rundown needs to know whether we moved into a group
-      return rundown.entries[destinationId]?.type === SupportedEntry.Group ? destinationId : undefined;
+      return undefined;
     },
-    [queryClient, reorderEntryMutation],
+    [getCurrentRundownData, reorderEntryMutation],
   );
   /**
    * Reorders a given entry
@@ -685,18 +746,25 @@ export const useEntryActions = () => {
   const reorderEntry = useCallback(
     async (entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') => {
       try {
-        const reorderObject: ReorderEntry = {
-          entryId,
-          destinationId,
-          order,
-        };
-        await reorderEntryMutation(reorderObject);
+        const rundownId = getCurrentRundownData()?.id;
+        if (!rundownId) {
+          throw new Error('Rundown not initialised');
+        }
+
+        await reorderEntryMutation([
+          rundownId,
+          {
+            entryId,
+            destinationId,
+            order,
+          },
+        ]);
       } catch (error) {
         logAxiosError('Error re-ordering event', error);
         throw error; // rethrow to handle in the component
       }
     },
-    [reorderEntryMutation],
+    [getCurrentRundownData, reorderEntryMutation],
   );
 
   /**
@@ -704,9 +772,9 @@ export const useEntryActions = () => {
    * @private
    */
   const { mutateAsync: swapEventsMutation } = useMutation({
-    mutationFn: requestEventSwap,
+    mutationFn: ([rundownId, from, to]: Parameters<typeof requestEventSwap>) => requestEventSwap(rundownId, from, to),
     // we optimistically update here
-    onMutate: async ({ from, to }) => {
+    onMutate: async ([_rundownId, from, to]) => {
       // cancel ongoing queries
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
@@ -755,14 +823,19 @@ export const useEntryActions = () => {
    * Swaps the schedule of two events
    */
   const swapEvents = useCallback(
-    async ({ from, to }: SwapEntry) => {
+    async (from: EntryId, to: EntryId) => {
       try {
-        await swapEventsMutation({ from, to });
+        const rundownId = getCurrentRundownData()?.id;
+        if (!rundownId) {
+          throw new Error('Rundown not initialised');
+        }
+
+        await swapEventsMutation([rundownId, from, to]);
       } catch (error) {
         logAxiosError('Error re-ordering event', error);
       }
     },
-    [swapEventsMutation],
+    [getCurrentRundownData, swapEventsMutation],
   );
 
   return {
@@ -780,7 +853,6 @@ export const useEntryActions = () => {
     swapEvents,
     updateEntry,
     updateTimer,
-    updateCustomField,
   };
 };
 

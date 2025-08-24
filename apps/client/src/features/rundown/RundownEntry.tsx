@@ -1,4 +1,5 @@
 import {
+  EntryId,
   isOntimeDelay,
   isOntimeEvent,
   isOntimeMilestone,

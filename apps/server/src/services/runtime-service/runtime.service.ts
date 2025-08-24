@@ -37,7 +37,7 @@ import {
   getShouldOffsetUpdate,
   getShouldTimerUpdate,
   isNewSecond,
-} from './rundownService.utils.js';
+} from './runtime.utils.js';
 import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 
 /**

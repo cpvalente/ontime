@@ -7,7 +7,8 @@ import { isPath } from '../../utils/fileManagement.js';
 import { shouldCrashDev } from '../../utils/development.js';
 
 interface AppState {
-  lastLoadedProject?: string;
+  projectName?: string;
+  rundownId?: string;
   showWelcomeDialog?: boolean;
 }
 
@@ -15,24 +16,33 @@ const adapter = new JSONFile<AppState>(publicFiles.appState);
 const config = new Low<AppState>(adapter, {});
 
 export async function isLastLoadedProject(projectName: string): Promise<boolean> {
-  const lastLoaded = await getLastLoadedProject();
-  return lastLoaded === projectName;
+  const lastLoaded = await getLastLoaded();
+  return lastLoaded?.projectName === projectName;
 }
 
-export async function getLastLoadedProject(): Promise<string | undefined> {
+export async function getLastLoaded(): Promise<Pick<AppState, 'projectName' | 'rundownId'> | undefined> {
   // in test environment, we want to start the demo project
   if (isTest) return;
 
   await config.read();
-  return config.data.lastLoadedProject;
+  return { projectName: config.data.projectName, rundownId: config.data.rundownId };
 }
 
-export async function setLastLoadedProject(filename: string): Promise<void> {
+export async function setLastLoaded(projectName: string, rundownId?: string): Promise<void> {
   if (isTest) return;
-  // eslint-disable-next-line no-unused-labels -- dev code path
-  DEV: shouldCrashDev(isPath(filename), 'setLastLoadedProject should not be called with a path');
 
-  config.data.lastLoadedProject = filename;
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: shouldCrashDev(isPath(projectName), 'setLastLoaded should not be called with a path');
+
+  config.data.projectName = projectName;
+  config.data.rundownId = rundownId;
+  await config.write();
+}
+
+export async function setLastLoadedRundown(rundownKey: string): Promise<void> {
+  if (isTest) return;
+
+  config.data.rundownId = rundownKey;
   await config.write();
 }
 

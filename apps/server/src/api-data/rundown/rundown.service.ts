@@ -12,16 +12,19 @@ import {
   PatchWithId,
   RefetchKey,
   Rundown,
+  LogOrigin,
 } from 'ontime-types';
 import { customFieldLabelToKey } from 'ontime-utils';
 
 import { updateRundownData } from '../../stores/runtimeState.js';
-import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
+import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 
 import { createTransaction, customFieldMutation, rundownCache, rundownMutation } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
 import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { setLastLoadedRundown } from '../../services/app-state-service/AppStateService.js';
+import { logger } from '../../classes/Logger.js';
 
 /**
  * creates a new entry with given data
@@ -244,7 +247,7 @@ export async function deleteAllEntries(): Promise<Rundown> {
  * Handles moving across root orders (a group order and top level order)
  * @throws if entryId or destinationId not found
  */
-export function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
+export async function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
 
   // check that both entries exist
@@ -565,14 +568,20 @@ function notifyChanges(rundownMetadata: RundownMetadata, revision: number, optio
  * Sets a new rundown in the cache
  * and marks it as the currently loaded one
  */
-export async function initRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
+export async function initRundown(
+  rundown: Readonly<Rundown>,
+  customFields: Readonly<CustomFields>,
+  reload: boolean = false,
+) {
   const { rundownMetadata, revision } = rundownCache.init(rundown, customFields);
-
+  logger.info(LogOrigin.Server, `Switch to rundown: ${rundown.id}`);
   // notify runtime that rundown has changed
   updateRuntimeOnChange(rundownMetadata);
 
-  // notify timer of change
   setImmediate(() => {
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true, reload: true });
+    notifyChanges(rundownMetadata, revision, { timer: true, external: true, reload });
+    setLastLoadedRundown(rundown.id).catch((error) => {
+      logger.error(LogOrigin.Server, `Failed to persist last loaded rundown: ${error}`);
+    });
   });
 }
