@@ -14,6 +14,8 @@ import {
   RundownEntries,
   isPlayableEvent,
   isOntimeMilestone,
+  OntimeMilestone,
+  OntimeGroup,
 } from 'ontime-types';
 import { isObjectEmpty, generateId, getLinkedTimes, getTimeFrom, isNewLatest } from 'ontime-utils';
 
@@ -172,40 +174,16 @@ export function parseRundown(
 }
 
 /**
- * Utility function to add an entry, mutates given assignedCustomFields in place
- * @param label
- * @param eventId
+ * Ensures that custom fields have references
+ * If a field is exists in the entry but not in the project customFields, it is deleted
+ * Mutates the given event in place
  */
-export function addToCustomAssignment(
-  key: CustomFieldKey,
-  eventId: EntryId,
-  assignedCustomFields: Record<string, string[]>,
-) {
-  if (!Array.isArray(assignedCustomFields[key])) {
-    assignedCustomFields[key] = [];
+export function sanitiseCustomFields(customFields: CustomFields, entry: OntimeEvent | OntimeMilestone | OntimeGroup) {
+  for (const field in entry.custom) {
+    if (field in customFields) continue;
+    delete entry.custom[field];
   }
-  assignedCustomFields[key].push(eventId);
-}
-
-/**
- * Keeps track of which custom fields are assigned to which events
- * Mutates the given assignedCustomFields in place
- * If a field is referenced but is not in the customFields map, it is deleted
- */
-export function handleCustomField(
-  customFields: CustomFields,
-  event: OntimeEvent,
-  assignedCustomFields: Record<CustomFieldKey, EntryId[]>,
-) {
-  for (const field in event.custom) {
-    if (field in customFields) {
-      // add field to assignment map
-      addToCustomAssignment(field, event.id, assignedCustomFields);
-    } else {
-      // delete data if it is not declared in project level custom fields
-      delete event.custom[field];
-    }
-  }
+  return entry;
 }
 
 export type ProcessedRundownMetadata = RundownMetadata & {
@@ -292,7 +270,7 @@ function processEntry<T extends OntimeEntry>(
     }
 
     // 2. handle custom fields - mutates currentEntry
-    handleCustomField(customFields, currentEntry, processedData.assignedCustomFields);
+    sanitiseCustomFields(customFields, currentEntry);
 
     processedData.totalDays += calculateDayOffset(currentEntry, processedData.previousEvent);
     currentEntry.dayOffset = processedData.totalDays;

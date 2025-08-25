@@ -458,7 +458,7 @@ export async function createCustomField(customField: CustomField): Promise<Custo
  * @throws if the new label already exists
  */
 export async function editCustomField(key: CustomFieldKey, newField: Partial<CustomField>): Promise<CustomFields> {
-  const { customFields, customFieldsMetadata, rundown, commit } = createTransaction({
+  const { customFields, rundown, commit } = createTransaction({
     mutableRundown: true,
     mutableCustomFields: true,
   });
@@ -475,14 +475,12 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 
   const { oldKey, newKey } = customFieldMutation.edit(customFields, key, existingField, newField);
 
-  // if key has changed
+  // if key has changed ...
   if (oldKey !== newKey) {
-    // 1. delete the old key
+    // ... reassign references
+    customFieldMutation.renameUsages(rundown, oldKey, newKey);
+    // ... delete the old key
     customFieldMutation.remove(customFields, oldKey);
-    if (oldKey in customFieldsMetadata.assigned) {
-      // 2. reassign references
-      customFieldMutation.renameUsages(rundown, customFieldsMetadata.assigned, oldKey, newKey);
-    }
   }
 
   // the custom fields have been removed and there is no processing to be done
@@ -490,6 +488,7 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 
   // schedule the side effects
   setImmediate(() => {
+    sendRefetch(RefetchKey.CustomFields);
     notifyChanges(rundownMetadata, revision, { timer: true, external: true });
   });
 
@@ -500,7 +499,7 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
  * Deletes an existing custom field
  */
 export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFields> {
-  const { customFields, customFieldsMetadata, rundown, commit } = createTransaction({
+  const { customFields, rundown, commit } = createTransaction({
     mutableRundown: true,
     mutableCustomFields: true,
   });
@@ -508,16 +507,15 @@ export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFiel
     return customFields;
   }
 
+  customFieldMutation.removeUsages(rundown, key);
   customFieldMutation.remove(customFields, key);
-  if (key in customFieldsMetadata.assigned) {
-    customFieldMutation.removeUsages(rundown, customFieldsMetadata.assigned, key);
-  }
 
   // the custom fields have been removed and there is no processing to be done
   const { rundownMetadata, revision, customFields: resultCustomFields } = commit(false);
 
   // schedule the side effects
   setImmediate(() => {
+    sendRefetch(RefetchKey.CustomFields);
     notifyChanges(rundownMetadata, revision, { timer: true, external: true });
   });
 

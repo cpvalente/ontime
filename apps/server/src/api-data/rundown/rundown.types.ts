@@ -1,4 +1,4 @@
-import { CustomFieldKey, EntryId, MaybeNumber } from 'ontime-types';
+import { EntryId, MaybeNumber } from 'ontime-types';
 
 export type RundownMetadata = {
   totalDelay: number;
@@ -11,9 +11,4 @@ export type RundownMetadata = {
   timedEventOrder: EntryId[]; // flat order of timed events
   flatEntryOrder: EntryId[]; // flat order of entries
   flags: EntryId[]; // flat order of flagged entries
-};
-
-export type AssignedMap = Record<CustomFieldKey, EntryId[]>;
-export type CustomFieldsMetadata = {
-  assigned: AssignedMap;
 };
