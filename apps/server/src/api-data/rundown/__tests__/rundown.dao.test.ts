@@ -1,4 +1,4 @@
-import { CustomFields, OntimeGroup, OntimeDelay, OntimeEvent, SupportedEntry, TimeStrategy } from 'ontime-types';
+import { CustomFields, OntimeGroup, OntimeDelay, OntimeEvent, SupportedEntry, TimeStrategy, OntimeMilestone } from 'ontime-types';
 import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import {
@@ -7,6 +7,7 @@ import {
   makeOntimeGroup,
   makeOntimeDelay,
   makeCustomField,
+  makeOntimeMilestone,
 } from '../__mocks__/rundown.mocks.js';
 
 import {
@@ -17,7 +18,6 @@ import {
   rundownMutation,
 } from '../rundown.dao.js';
 import { demoDb } from '../../../models/demoProject.js';
-import type { AssignedMap } from '../rundown.types.js';
 import { type ProcessedRundownMetadata } from '../rundown.parser.js';
 
 const setRundownMock = vi.fn();
@@ -554,10 +554,6 @@ describe('processRundown()', () => {
       });
       const initResult = processRundown(rundown, customProperties);
       expect(initResult.order.length).toBe(2);
-      expect(initResult.assignedCustomFields).toMatchObject({
-        lighting: ['1', '2'],
-        sound: ['2'],
-      });
       expect((initResult.entries['1'] as OntimeEvent).custom).toMatchObject({ lighting: 'event 1 lx' });
       expect((initResult.entries['2'] as OntimeEvent).custom).toMatchObject({
         lighting: 'event 2 lx',
@@ -1742,22 +1738,26 @@ describe('customFieldMutation.renameUsages()', () => {
       },
     });
 
-    const assigned: AssignedMap = {
-      one: ['1', '2'],
-      two: ['3'],
-    };
-
-    customFieldMutation.renameUsages(rundown, assigned, 'one', 'new-one');
+    customFieldMutation.renameUsages(rundown, 'one', 'new-one');
     expect(rundown.entries).toMatchObject({
       '1': { id: '1', custom: { 'new-one': 'value1' } },
       '2': { id: '2', custom: { 'new-one': 'value2' } },
       '3': { id: '3', custom: { two: 'value3' } },
     });
+  });
 
-    expect(assigned).toStrictEqual({
-      'new-one': ['1', '2'],
-      two: ['3'],
+  it('renames usages inside groups and milestones', () => {
+    const rundown = makeRundown({
+      order: ['group', 'm1'],
+      entries: {
+        group: makeOntimeGroup({ id: 'group', entries: ['e1'] }),
+        e1: makeOntimeEvent({ id: 'e1', parent: 'group', custom: { one: 'v' } }),
+        m1: makeOntimeMilestone({ id: 'm1', custom: { two: 'keep' } }),
+      },
     });
+    customFieldMutation.renameUsages(rundown, 'one', 'new-one');
+    expect((rundown.entries['e1'] as OntimeEvent).custom).toMatchObject({ 'new-one': 'v' });
+    expect((rundown.entries['m1'] as OntimeMilestone).custom).toMatchObject({ two: 'keep' });
   });
 });
 
@@ -1772,17 +1772,8 @@ describe('customFieldMutation.removeUsages()', () => {
       },
     });
 
-    const assigned: AssignedMap = {
-      one: ['1', '2'],
-      two: ['3'],
-    };
-
-    customFieldMutation.removeUsages(rundown, assigned, 'one');
+    customFieldMutation.removeUsages(rundown, 'one');
     expect((rundown.entries['1'] as OntimeEvent).custom).not.toHaveProperty('one');
     expect((rundown.entries['2'] as OntimeEvent).custom).not.toHaveProperty('one');
-
-    expect(assigned).toStrictEqual({
-      two: ['3'],
-    });
   });
 });
