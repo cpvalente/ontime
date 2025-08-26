@@ -543,8 +543,6 @@ export default function Rundown({ data }: RundownProps) {
                           loaded={rundownMetadata.isLoaded}
                           hasCursor={hasCursor}
                           isNext={isNext}
-                          previousEntryId={rundownMetadata.previousEntryId}
-                          previousEventId={rundownMetadata.previousEvent?.id}
                           playback={rundownMetadata.isLoaded ? featureData.playback : undefined}
                           isRolling={featureData.playback === Playback.Roll}
                           isNextDay={rundownMetadata.isNextDay}
