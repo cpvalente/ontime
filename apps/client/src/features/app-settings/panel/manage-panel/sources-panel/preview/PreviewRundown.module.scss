@@ -12,6 +12,7 @@ tr .secondaryRow {
 }
 
 .linkStartActive {
+  flex-shrink: 0;
   color: $active-indicator;
   transform: rotate(-45deg);
 }

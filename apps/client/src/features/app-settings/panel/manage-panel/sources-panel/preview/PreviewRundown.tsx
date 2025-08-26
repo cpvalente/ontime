@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { IoLink } from 'react-icons/io5';
-import { CustomFields, isOntimeEvent, isOntimeGroup, Rundown } from 'ontime-types';
+import { CustomFields, isOntimeEvent, isOntimeGroup, isOntimeMilestone, Rundown } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import Tag from '../../../../../../common/components/tag/Tag';
@@ -53,9 +53,10 @@ export default function PreviewRundown(props: PreviewRundownProps) {
         </tr>
       </thead>
       <tbody>
-        {rundown.order.map((entryId) => {
+        {rundown.flatOrder.map((entryId) => {
           const entry = rundown.entries[entryId];
           if (isOntimeGroup(entry)) {
+            const colour = entry.colour ? getAccessibleColour(entry.colour) : {};
             return (
               <tr key={entry.id}>
                 <td className={style.center}>
@@ -64,9 +65,73 @@ export default function PreviewRundown(props: PreviewRundownProps) {
                 <td className={style.center}>
                   <Tag>{entry.type}</Tag>
                 </td>
-                <td />
-                <td colSpan={99}>{entry.title}</td>
+                <td /> {/** CUE */}
+                <td>{entry.title}</td>
+                <td /> {/** Flag */}
+                <td /> {/** Time Start */}
+                <td /> {/** Time End */}
+                <td /> {/** Duration */}
+                <td /> {/** Warning Time */}
+                <td /> {/** Danger Time */}
+                <td /> {/** Count to end */}
+                <td /> {/** Skip */}
+                <td style={{ ...colour }}>{entry.colour}</td>
+                <td /> {/** Timer Type */}
+                <td /> {/** End Action */}
+                {fieldKeys.map((field) => {
+                  let value = '';
+                  if (field in entry.custom) {
+                    value = entry.custom[field];
+                  }
+                  return <td key={field}>{value}</td>;
+                })}
+                <td className={style.center}>
+                  <Tag>{entry.id}</Tag>
+                </td>
               </tr>
+            );
+          }
+          if (isOntimeMilestone(entry)) {
+            const colour = entry.colour ? getAccessibleColour(entry.colour) : {};
+            return (
+              <Fragment key={entry.id}>
+                <tr>
+                  <td /> {/** Index */}
+                  <td className={style.center}>
+                    <Tag>{entry.type}</Tag>
+                  </td>
+                  <td className={style.nowrap}>{entry.cue}</td>
+                  <td>{entry.title}</td>
+                  <td /> {/** Flag */}
+                  <td /> {/** Time Start */}
+                  <td /> {/** Time End */}
+                  <td /> {/** Duration */}
+                  <td /> {/** Warning Time */}
+                  <td /> {/** Danger Time */}
+                  <td /> {/** Count to end */}
+                  <td /> {/** Skip */}
+                  <td style={{ ...colour }}>{entry.colour}</td>
+                  <td /> {/** Timer Type */}
+                  <td /> {/** End Action */}
+                  {fieldKeys.map((field) => {
+                    let value = '';
+                    if (field in entry.custom) {
+                      value = entry.custom[field];
+                    }
+                    return <td key={field}>{value}</td>;
+                  })}
+                  <td className={style.center}>
+                    <Tag>{entry.id}</Tag>
+                  </td>
+                </tr>
+                {entry.note && (
+                  <tr>
+                    <td colSpan={99} className={style.secondaryRow}>
+                      Note: {entry.note}
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
             );
           }
           if (!isOntimeEvent(entry)) {
@@ -107,14 +172,13 @@ export default function PreviewRundown(props: PreviewRundownProps) {
                 <td className={style.center}>
                   <Tag>{entry.endAction}</Tag>
                 </td>
-                {isOntimeEvent(entry) &&
-                  fieldKeys.map((field) => {
-                    let value = '';
-                    if (field in entry.custom) {
-                      value = entry.custom[field];
-                    }
-                    return <td key={field}>{value}</td>;
-                  })}
+                {fieldKeys.map((field) => {
+                  let value = '';
+                  if (field in entry.custom) {
+                    value = entry.custom[field];
+                  }
+                  return <td key={field}>{value}</td>;
+                })}
                 <td className={style.center}>
                   <Tag>{entry.id}</Tag>
                 </td>

@@ -1,7 +1,7 @@
-import { CustomFields, OntimeEvent, SupportedEntry, TimerType } from 'ontime-types';
-import { defaultImportMap, ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { CustomFields, OntimeEvent, OntimeGroup, SupportedEntry, TimerType } from 'ontime-types';
+import { ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
 
-import { getCustomFieldData, parseExcel } from '../excel.parser.js';
+import { parseExcel } from '../excel.parser.js';
 
 import { dataFromExcelTemplate } from './mockData.js';
 
@@ -156,10 +156,37 @@ describe('parseExcel()', () => {
     expect((firstEvent as OntimeEvent).title).toBe('A song from the hearth');
   });
 
-  it('imports groups', () => {
+  it('imports group', () => {
+    const testdata = [
+      ['Title', 'Timer type', 'duration'],
+      ['a group', 'group', '10m'],
+      ['an event', 'clock', '1m'],
+    ];
+
+    const importMap = {
+      title: 'title',
+      timerType: 'timer type',
+      duration: 'duration',
+    } as ImportMap;
+
+    const result = parseExcel(testdata, {}, 'testSheet', importMap);
+    const firstGroup = result.rundown.entries[result.rundown.order[0]];
+
+    expect(result.rundown.order.length).toBe(1);
+    expect(result.rundown.flatOrder.length).toBe(2);
+    expect((firstGroup as OntimeGroup).type).toBe(SupportedEntry.Group);
+    expect((firstGroup as OntimeGroup).targetDuration).toBe(10 * MILLIS_PER_MINUTE);
+  });
+
+  it('places event between groups inside the group', () => {
     const testdata = [
       ['Title', 'Timer type'],
       ['a group', 'group'],
+      ['an event', 'clock'],
+      ['an event', 'clock'],
+      ['an event', 'clock'],
+      ['a second group ', 'group'],
+      ['an event', 'clock'],
       ['an event', 'clock'],
     ];
 
@@ -168,10 +195,17 @@ describe('parseExcel()', () => {
       timerType: 'timer type',
     };
     const result = parseExcel(testdata, {}, 'testSheet', importMap);
-    const firstEvent = result.rundown.entries[result.rundown.order[0]];
+    const firstGroup = result.rundown.entries[result.rundown.order[0]] as OntimeGroup;
+    const secondGroup = result.rundown.entries[result.rundown.order[1]] as OntimeGroup;
 
     expect(result.rundown.order.length).toBe(2);
-    expect((firstEvent as OntimeEvent).type).toBe(SupportedEntry.Group);
+    expect(result.rundown.flatOrder.length).toBe(7);
+
+    expect(firstGroup.type).toBe(SupportedEntry.Group);
+    expect(firstGroup.entries.length).toBe(3);
+
+    expect(secondGroup.type).toBe(SupportedEntry.Group);
+    expect(secondGroup.entries.length).toBe(2);
   });
 
   it('imports as events if there is no timer type column', () => {
@@ -314,8 +348,10 @@ describe('parseExcel()', () => {
     };
 
     const result = parseExcel(testData, {}, 'testSheet', importMap);
-    expect(result.rundown.order.length).toBe(6);
-    expect(result.rundown.order).toMatchObject(['A', 'B', 'C', 'D', 'GROUP', 'E']);
+    expect(result.rundown.order.length).toBe(5);
+    expect(result.rundown.order).toMatchObject(['A', 'B', 'C', 'D', 'GROUP']);
+    expect(result.rundown.flatOrder.length).toBe(6);
+    expect(result.rundown.flatOrder).toMatchObject(['A', 'B', 'C', 'D', 'GROUP', 'E']);
 
     expect(result.rundown.entries).toMatchObject({
       A: {
@@ -417,162 +453,41 @@ describe('parseExcel()', () => {
       linkStart: true,
     });
   });
-});
 
-describe('getCustomFieldData()', () => {
-  it('generates a list of keys from the given import map', () => {
+  it('handles milestones', () => {
+    const testdata = [
+      ['Title', 'type', 'notes'],
+      ['event...', 'count-down', ''],
+      ['also event...', 'count-down', ''],
+      ['this i a milestone', 'milestone', 'milestone note'],
+    ];
+
     const importMap = {
-      worksheet: 'event schedule',
-      timeStart: 'time start',
-      linkStart: 'link start',
-      timeEnd: 'time end',
-      duration: 'duration',
-      flag: 'flag',
-      cue: 'cue',
       title: 'title',
-      countToEnd: 'count to end',
-      skip: 'skip',
+      timerType: 'type',
       note: 'notes',
-      colour: 'colour',
-      endAction: 'end action',
-      timerType: 'timer type',
-      timeWarning: 'warning time',
-      timeDanger: 'danger time',
-      custom: {
-        lighting: 'lx',
-        sound: 'sound',
-        video: 'av',
-      },
-      entryId: 'id',
     } as ImportMap;
 
-    const result = getCustomFieldData(importMap, {});
-    expect(result.mergedCustomFields).toStrictEqual({
-      lighting: {
-        type: 'text',
-        colour: '',
-        label: 'lighting',
-      },
-      sound: {
-        type: 'text',
-        colour: '',
-        label: 'sound',
-      },
-      video: {
-        type: 'text',
-        colour: '',
-        label: 'video',
-      },
+    const result = parseExcel(testdata, {}, 'testSheet', importMap);
+    const firstEvent = result.rundown.entries[result.rundown.order[0]];
+    const secondEvent = result.rundown.entries[result.rundown.order[1]];
+    const milestone = result.rundown.entries[result.rundown.order[2]];
+
+    expect(result.rundown.order.length).toBe(3);
+    expect(firstEvent).toMatchObject({
+      type: SupportedEntry.Event,
+      timerType: TimerType.CountDown,
     });
 
-    // it is an inverted record of <importKey, ontimeKey>
-    expect(result.customFieldImportKeys).toStrictEqual({
-      lx: 'lighting',
-      sound: 'sound',
-      av: 'video',
-    });
-  });
-
-  it('keeps colour information from existing fields', () => {
-    const importMap = {
-      worksheet: 'event schedule',
-      timeStart: 'time start',
-      linkStart: 'link start',
-      timeEnd: 'time end',
-      duration: 'duration',
-      flag: 'flag',
-      cue: 'cue',
-      title: 'title',
-      countToEnd: 'count to end',
-      skip: 'skip',
-      note: 'notes',
-      colour: 'colour',
-      endAction: 'end action',
-      timerType: 'timer type',
-      timeWarning: 'warning time',
-      timeDanger: 'danger time',
-      custom: {
-        lighting: 'lx',
-        sound: 'sound',
-        video: 'av',
-        'ontime key': 'excel label',
-      },
-      entryId: 'id',
-    } as ImportMap;
-
-    const existingCustomFields: CustomFields = {
-      lighting: { label: 'lighting', type: 'text', colour: 'red' },
-      sound: { label: 'sound', type: 'text', colour: 'green' },
-      ontime_key: { label: 'ontime key', type: 'text', colour: 'blue' },
-    };
-
-    const result = getCustomFieldData(importMap, existingCustomFields);
-    expect(result.mergedCustomFields).toStrictEqual({
-      lighting: {
-        type: 'text',
-        colour: 'red',
-        label: 'lighting',
-      },
-      sound: {
-        type: 'text',
-        colour: 'green',
-        label: 'sound',
-      },
-      video: {
-        type: 'text',
-        colour: '',
-        label: 'video',
-      },
-      ontime_key: {
-        type: 'text',
-        colour: 'blue',
-        label: 'ontime key',
-      },
+    expect(secondEvent).toMatchObject({
+      type: SupportedEntry.Event,
+      timerType: TimerType.CountDown,
     });
 
-    // it is an inverted record of <importKey, ontimeKey>
-    expect(result.customFieldImportKeys).toStrictEqual({
-      lx: 'lighting',
-      sound: 'sound',
-      av: 'video',
-      'excel label': 'ontime_key',
-    });
-  });
-
-  it('lowercases the keys in the import map', () => {
-    const importMap: ImportMap = {
-      ...defaultImportMap,
-      custom: {
-        Lighting: 'Lx',
-        Sound: 'sound',
-        video: 'av',
-      },
-    };
-
-    const result = getCustomFieldData(importMap, {});
-    expect(result.mergedCustomFields).toStrictEqual({
-      Lighting: {
-        type: 'text',
-        colour: '',
-        label: 'Lighting',
-      },
-      Sound: {
-        type: 'text',
-        colour: '',
-        label: 'Sound',
-      },
-      video: {
-        type: 'text',
-        colour: '',
-        label: 'video',
-      },
-    });
-
-    // notice that the keys excel keys are lowercased
-    expect(result.customFieldImportKeys).toStrictEqual({
-      lx: 'Lighting',
-      sound: 'Sound',
-      av: 'video',
+    expect(milestone).toMatchObject({
+      type: SupportedEntry.Milestone,
+      title: 'this i a milestone',
+      note: 'milestone note',
     });
   });
 });
