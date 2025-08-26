@@ -552,6 +552,15 @@ export const rundownMutation = {
 };
 
 /**
+ * Exposes a way to update a rundown which is not active
+ */
+export function updateBackgroundRundown(rundownId: string, rundown: Rundown) {
+  setImmediate(async () => {
+    await getDataProvider().setRundown(rundownId, rundown);
+  });
+}
+
+/**
  * Adds a new custom field to the object and returns it
  */
 function customFieldAdd(customFields: CustomFields, key: CustomFieldKey, newCustomField: CustomField): CustomFields {

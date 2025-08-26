@@ -4,6 +4,8 @@ import { getErrorMessage } from 'ontime-utils';
 import express from 'express';
 import type { Request, Response } from 'express';
 
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+
 import { getProjectCustomFields } from '../rundown/rundown.dao.js';
 import { createCustomField, editCustomField, deleteCustomField } from '../rundown/rundown.service.js';
 
@@ -39,8 +41,9 @@ router.put('/:key', validateEditCustomField, async (req: Request, res: Response<
   try {
     const currentKey = req.params.key;
     const { colour, type, label } = req.body;
-    const newFields = await editCustomField(currentKey, { label, colour, type });
-    res.status(200).send(newFields);
+
+    const projectRundowns = getDataProvider().getProjectRundowns();
+    const newFields = await editCustomField(currentKey, { label, colour, type }, projectRundowns);
     res.status(200).json(newFields);
   } catch (error) {
     const message = getErrorMessage(error);
@@ -53,8 +56,8 @@ router.put('/:key', validateEditCustomField, async (req: Request, res: Response<
  */
 router.delete('/:key', validateDeleteCustomField, async (req: Request, res: Response<CustomFields | ErrorResponse>) => {
   try {
-    const customFields = await deleteCustomField(req.params.key);
-    res.status(200).send(customFields);
+    const projectRundowns = getDataProvider().getProjectRundowns();
+    const customFields = await deleteCustomField(req.params.key, projectRundowns);
     res.status(200).json(customFields);
   } catch (error) {
     const message = getErrorMessage(error);
