@@ -100,7 +100,7 @@ export function generateImportHandlers(importMap: ImportMap) {
     },
     [importMap.linkStart]: (row: number, col: number) => {
       indexMap.linkStart = col;
-      sheetMetadata.timeEnd = { row, col };
+      sheetMetadata.linkStart = { row, col };
     },
     [importMap.timeEnd]: (row: number, col: number) => {
       indexMap.timeEnd = col;

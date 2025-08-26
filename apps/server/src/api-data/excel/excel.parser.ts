@@ -25,7 +25,7 @@ import { Prettify } from 'ts-essentials';
 import { is } from '../../utils/is.js';
 import { makeString } from '../../utils/parserUtils.js';
 import { parseExcelDate } from '../../utils/time.js';
-import { generateImportHandlers, getCustomFieldData, parseBooleanString, SheetMetadata } from './parsing/utils.js';
+import { generateImportHandlers, getCustomFieldData, parseBooleanString, SheetMetadata } from './excel.utils.js';
 
 type MergedOntimeEntry = Prettify<
   Omit<Omit<Omit<OntimeEvent, keyof OntimeGroup> & OntimeGroup, keyof OntimeMilestone> & OntimeMilestone, 'type'> & {
@@ -86,7 +86,7 @@ export const parseExcel = (
       const column = row[j];
       // 1. we check if we have set a flag for a known field
       if (j === indexMap.timerType) {
-        const maybeTimeType = makeString(column, '').toLocaleLowerCase();
+        const maybeTimeType = makeString(column, '').toLowerCase();
         if (maybeTimeType === 'group' || maybeTimeType === 'group-start') {
           entry.type = SupportedEntry.Group;
           entry.entries = [];
@@ -94,7 +94,6 @@ export const parseExcel = (
           entry.type = 'group-end';
         } else if (maybeTimeType === 'milestone') {
           entry.type = SupportedEntry.Milestone;
-          // the assumption is event
         } else if (maybeTimeType === 'skip-import') {
           // intentional skip
           return;
