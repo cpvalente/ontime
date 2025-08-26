@@ -13,13 +13,20 @@ import {
   RefetchKey,
   Rundown,
   LogOrigin,
+  ProjectRundowns,
 } from 'ontime-types';
 import { customFieldLabelToKey } from 'ontime-utils';
 
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 
-import { createTransaction, customFieldMutation, rundownCache, rundownMutation } from './rundown.dao.js';
+import {
+  createTransaction,
+  customFieldMutation,
+  rundownCache,
+  rundownMutation,
+  updateBackgroundRundown,
+} from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
 import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
@@ -457,7 +464,11 @@ export async function createCustomField(customField: CustomField): Promise<Custo
  * @throws if the label is missing or invalid
  * @throws if the new label already exists
  */
-export async function editCustomField(key: CustomFieldKey, newField: Partial<CustomField>): Promise<CustomFields> {
+export async function editCustomField(
+  key: CustomFieldKey,
+  newField: Partial<CustomField>,
+  projectRundowns: ProjectRundowns,
+): Promise<CustomFields> {
   const { customFields, rundown, commit } = createTransaction({
     mutableRundown: true,
     mutableCustomFields: true,
@@ -477,8 +488,18 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 
   // if key has changed ...
   if (oldKey !== newKey) {
-    // ... reassign references
+    // ... reassign references in the active rundown
     customFieldMutation.renameUsages(rundown, oldKey, newKey);
+
+    // ... reassign references in the background rundowns
+    for (const rundownId of Object.keys(projectRundowns)) {
+      if (rundownId !== rundown.id) {
+        const backgroundRundown = structuredClone(projectRundowns[rundownId]);
+        customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey);
+        updateBackgroundRundown(rundown.id, backgroundRundown);
+      }
+    }
+
     // ... delete the old key
     customFieldMutation.remove(customFields, oldKey);
   }
@@ -498,7 +519,7 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 /**
  * Deletes an existing custom field
  */
-export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFields> {
+export async function deleteCustomField(key: CustomFieldKey, projectRundowns: ProjectRundowns): Promise<CustomFields> {
   const { customFields, rundown, commit } = createTransaction({
     mutableRundown: true,
     mutableCustomFields: true,
@@ -507,7 +528,19 @@ export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFiel
     return customFields;
   }
 
+  // remove references in the active rundown
   customFieldMutation.removeUsages(rundown, key);
+
+  // remove references in the background rundowns
+  for (const rundownId of Object.keys(projectRundowns)) {
+    if (rundownId !== rundown.id) {
+      const backgroundRundown = structuredClone(projectRundowns[rundownId]);
+      customFieldMutation.removeUsages(backgroundRundown, key);
+      updateBackgroundRundown(rundown.id, backgroundRundown);
+    }
+  }
+
+  // delete the old key
   customFieldMutation.remove(customFields, key);
 
   // the custom fields have been removed and there is no processing to be done
