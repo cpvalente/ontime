@@ -160,14 +160,23 @@ export function makeSortableList(order: EntryId[], entries: RundownEntries): Ent
  * Checks whether a drop operation is valid
  * Currently only used for validating dropping groups
  */
-export function canDrop(targetType?: SupportedEntry | 'end-group', targetParent?: EntryId | null): boolean {
+export function canDrop(
+  targetType: SupportedEntry | 'end-group',
+  targetParent: EntryId | null,
+  order?: 'after' | 'before',
+  isTargetCollapsed?: boolean,
+): boolean {
   // this would mean inserting a group inside another
   if (targetType === 'end-group') {
     return false;
   }
 
   // this means swapping places with another group
+  // !!! if the user is dragging down, they could be inserting into a group depending on whether the group is collapsed
   if (targetType === 'group') {
+    if (order !== undefined && order === 'after' && !isTargetCollapsed) {
+      return false;
+    }
     return true;
   }
 
