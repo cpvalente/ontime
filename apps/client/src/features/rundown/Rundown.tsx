@@ -334,19 +334,24 @@ export default function Rundown({ data }: RundownProps) {
       return;
     }
 
-    // prevent dropping a group inside another
-    if (
-      active.data.current?.type === SupportedEntry.Group &&
-      !canDrop(over.data.current?.type, over.data.current?.parent)
-    ) {
+    if (!active.data.current || !over.data.current) {
       return;
     }
 
-    const fromIndex = active.data.current?.sortable.index;
-    const toIndex = over.data.current?.sortable.index;
+    const fromIndex: number = active.data.current.sortable.index;
+    const toIndex: number = over.data.current.sortable.index;
+    let order: 'before' | 'after' | 'insert' = fromIndex < toIndex ? 'after' : 'before';
 
     let destinationId = over.id as EntryId;
-    let order: 'before' | 'after' | 'insert' = fromIndex < toIndex ? 'after' : 'before';
+    const isDraggingGroup = active.data.current?.type === SupportedEntry.Group;
+
+    // prevent dropping a group inside another
+    if (
+      isDraggingGroup &&
+      !canDrop(over.data.current.type, over.data.current.parent, order, getIsCollapsed(destinationId))
+    ) {
+      return;
+    }
 
     /**
      * We need to specially handle the end-group
@@ -362,9 +367,18 @@ export default function Rundown({ data }: RundownProps) {
       }
     } else {
       const group = data.entries[destinationId];
+      // if dragging into a group
       if (isOntimeGroup(group) && order === 'after') {
-        if (group.entries.length === 0) order = 'insert';
-        else {
+        if (isDraggingGroup) {
+          // ... and the dragged entry is a group, we know that the group is collapsed, because of the safe check canDrop from before
+          // so we can safely push the dragged event after the group
+          destinationId = group.id;
+        } else if (group.entries.length === 0) {
+          // ... and the group is entry, we insert
+          destinationId = group.id;
+          order = 'insert';
+        } else {
+          // otherwise we add it to before the first group child
           destinationId = group.entries[0];
           order = 'before';
         }

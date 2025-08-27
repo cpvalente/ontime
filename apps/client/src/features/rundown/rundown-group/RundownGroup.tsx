@@ -92,7 +92,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
   };
 
   const binderColours = data.colour && getAccessibleColour(data.colour);
-  const isValidDrop = over?.id && canDrop(over.data.current?.type, over.data.current?.parent);
+  const isValidDrop = isDragging && over?.id && canDrop(over.data.current?.type, over.data.current?.parent);
 
   const [planOffset, planOffsetLabel] = (() => {
     if (data.targetDuration === null) {
