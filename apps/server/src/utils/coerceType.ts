@@ -13,7 +13,6 @@ export function coerceEnum<T>(value: unknown, list: object): T {
   return value as T;
 }
 
-//TODO: write tests
 /**
  * @description Converts a value to a string if possible, throws otherwise
  * @param {unknown} value - Value to be converted to a string.
@@ -21,13 +20,12 @@ export function coerceEnum<T>(value: unknown, list: object): T {
  * @throws {Error} Throws an error if the value is null or undefined.
  */
 export function coerceString(value: unknown): string {
-  if (value == null) {
+  if (value == null || typeof value === 'object') {
     throw new Error('Invalid value received');
   }
   return String(value);
 }
 
-//TODO: write tests
 /**
  * @description Converts a value to a boolean if possible, throws otherwise
  * @param {unknown} value - Value to be converted to a boolean.
@@ -35,7 +33,7 @@ export function coerceString(value: unknown): string {
  * @throws {Error} Throws an error if the value is null or undefined.
  */
 export function coerceBoolean(value: unknown): boolean {
-  if (value == null) {
+  if (value === undefined || typeof value === 'object') {
     throw new Error('Invalid value received');
   }
   if (typeof value === 'string') {
@@ -57,7 +55,6 @@ export function coerceBoolean(value: unknown): boolean {
   return Boolean(value);
 }
 
-//TODO: write tests
 /**
  * @description Converts a value to a number if possible, throws otherwise
  * @param {unknown} value - Value to be converted to a number.
