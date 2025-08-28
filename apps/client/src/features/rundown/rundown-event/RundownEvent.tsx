@@ -163,7 +163,7 @@ export default function RundownEvent({
             icon: IoSwapVertical,
             onClick: () => {
               if (!selectedEventId) return;
-              swapEvents({ from: selectedEventId, to: eventId });
+              swapEvents(selectedEventId, eventId);
               clearSelectedEventId();
             },
             disabled: selectedEventId == null || selectedEventId === eventId,
