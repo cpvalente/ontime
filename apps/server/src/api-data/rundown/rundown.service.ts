@@ -383,8 +383,8 @@ export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
     // notify runtime that rundown has changed
     updateRuntimeOnChange(rundownMetadata);
 
-    // we dont need to notify the timer since the grouping does not affect the runtime
-    notifyChanges(rundownMetadata, revision, { external: true });
+    // we need to notify the timer since we might be grouping a running event
+    notifyChanges(rundownMetadata, revision, { external: true, timer: true });
   });
 
   return rundownResult;
