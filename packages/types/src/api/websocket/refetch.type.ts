@@ -7,4 +7,5 @@ export enum RefetchKey {
   UrlPresets = 'url-presets',
   ViewSettings = 'view-settings',
   Translation = 'translation',
+  Settings = 'settings',
 }

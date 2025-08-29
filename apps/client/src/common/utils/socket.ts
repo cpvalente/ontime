@@ -11,6 +11,7 @@ import {
 
 import { isProduction, websocketUrl } from '../../externals';
 import {
+  APP_SETTINGS,
   CLIENT_LIST,
   CUSTOM_FIELDS,
   PROJECT_DATA,
