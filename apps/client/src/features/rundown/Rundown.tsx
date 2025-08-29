@@ -37,7 +37,7 @@ import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { cloneEvent } from '../../common/utils/clone';
-import { RundownMetadataObject } from '../../common/utils/rundownMetadata';
+import { lastMetadataKey, RundownMetadataObject } from '../../common/utils/rundownMetadata';
 import { AppMode, sessionKeys } from '../../ontimeConfig';
 
 import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
@@ -344,7 +344,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
 
     const fromIndex: number = active.data.current.sortable.index;
     const toIndex: number = over.data.current.sortable.index;
-    let order: 'before' | 'after' | 'insert' = fromIndex < toIndex ? 'after' : 'before';
+    let placement: 'before' | 'after' | 'insert' = fromIndex < toIndex ? 'after' : 'before';
 
     let destinationId = over.id as EntryId;
     const isDraggingGroup = active.data.current?.type === SupportedEntry.Group;
@@ -352,7 +352,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
     // prevent dropping a group inside another
     if (
       isDraggingGroup &&
-      !canDrop(over.data.current.type, over.data.current.parent, order, getIsCollapsed(destinationId))
+      !canDrop(over.data.current.type, over.data.current.parent, placement, getIsCollapsed(destinationId))
     ) {
       return;
     }
@@ -366,13 +366,13 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
     if (destinationId.startsWith('end-')) {
       destinationId = destinationId.replace('end-', '');
       // if we are moving before the end, we use the insert operation
-      if (order === 'before') {
-        order = 'insert';
+      if (placement === 'before') {
+        placement = 'insert';
       }
     } else {
       const group = data.entries[destinationId];
       // if dragging into a group
-      if (isOntimeGroup(group) && order === 'after') {
+      if (isOntimeGroup(group) && placement === 'after') {
         if (isDraggingGroup) {
           // ... and the dragged entry is a group, we know that the group is collapsed, because of the safe check canDrop from before
           // so we can safely push the dragged event after the group
@@ -380,11 +380,11 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
         } else if (group.entries.length === 0) {
           // ... and the group is entry, we insert
           destinationId = group.id;
-          order = 'insert';
+          placement = 'insert';
         } else {
           // otherwise we add it to before the first group child
           destinationId = group.entries[0];
-          order = 'before';
+          placement = 'before';
         }
       }
     }
@@ -395,7 +395,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
     setSortableData((currentEntries) => {
       return reorderArray(currentEntries, fromIndex, toIndex);
     });
-    reorderEntry(active.id as EntryId, destinationId, order).catch((_) => {
+    reorderEntry(active.id as EntryId, destinationId, placement).catch((_) => {
       setSortableData(currentEntries);
     });
   };
@@ -453,6 +453,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
               if (entryId.startsWith('end-')) {
                 const parentId = entryId.split('end-')[1];
                 const isGroupCollapsed = getIsCollapsed(parentId);
+                const parentMetadata = metadata[parentId];
 
                 if (isGroupCollapsed) {
                   return null;
@@ -463,14 +464,14 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
                 // and it does not cause the reassignment of the iteration id to the previous entry
                 return (
                   <Fragment key={entryId}>
-                    {isEditMode && metadata[parentId].groupEntries === 0 && (
+                    {isEditMode && parentMetadata?.groupEntries === 0 && (
                       <QuickAddButtons
                         previousEventId={null}
                         parentGroup={parentId}
-                        backgroundColor={metadata[parentId].groupColour}
+                        backgroundColor={parentMetadata?.groupColour}
                       />
                     )}
-                    <RundownGroupEnd key={entryId} id={entryId} colour={metadata[parentId].groupColour} />
+                    <RundownGroupEnd key={entryId} id={entryId} colour={parentMetadata?.groupColour} />
                   </Fragment>
                 );
               }
@@ -479,13 +480,14 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
               // this means that this can be out of sync with order until the useEffect runs
               // instead of writing all the logic guards, we simply short circuit rendering here
               const entry = entries[entryId];
-              if (!entry) return null;
+              const entryMetadata = metadata[entryId];
+              if (!entry || !entryMetadata) return null;
 
               // if the entry has a parent, and it is collapsed, render nothing
               if (
                 entry.type !== SupportedEntry.Group &&
-                metadata[entryId].groupId !== null &&
-                getIsCollapsed(metadata[entryId].groupId)
+                entryMetadata.groupId !== null &&
+                getIsCollapsed(entryMetadata.groupId)
               ) {
                 return null;
               }
@@ -499,7 +501,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
                * ie: we are inside a group, but there is no defined colour
                * we default to $gray-500 #9d9d9d
                */
-              const groupColour = metadata[entryId].groupColour === '' ? '#9d9d9d' : metadata[entryId].groupColour;
+              const groupColour = entryMetadata.groupColour === '' ? '#9d9d9d' : entryMetadata.groupColour;
 
               const isFirst = index === 0;
               const isLast = entryId === order.at(-1);
@@ -511,9 +513,8 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
                * - when adding after, we can use the group ID directly to insert at the top of the group
                */
 
-              const parentIdForBefore =
-                metadata[entryId].thisId !== metadata[entryId].groupId ? metadata[entryId].groupId : null;
-              const parentIdForAfter = metadata[entryId].groupId;
+              const parentIdForBefore = entryMetadata.thisId !== entryMetadata.groupId ? entryMetadata.groupId : null;
+              const parentIdForAfter = entryMetadata.groupId;
 
               return (
                 <Fragment key={entry.id}>
@@ -524,10 +525,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
                    * - if it is not the first entry (the buttons would be there)
                    */}
                   {isEditMode && hasCursor && !isFirst && (
-                    <QuickAddInline
-                      previousEventId={metadata[entryId].previousEntryId}
-                      parentGroup={parentIdForBefore}
-                    />
+                    <QuickAddInline previousEventId={entryMetadata.previousEntryId} parentGroup={parentIdForBefore} />
                   )}
                   {isOntimeGroup(entry) ? (
                     <RundownGroup
@@ -539,31 +537,29 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
                   ) : (
                     <div
                       className={style.entryWrapper}
-                      data-testid={`entry-${metadata[entryId].eventIndex}`}
+                      data-testid={`entry-${entryMetadata.eventIndex}`}
                       style={groupColour ? { '--user-bg': groupColour } : {}}
                     >
                       {isOntimeEvent(entry) && (
                         <div className={style.entryIndex}>
                           {entry.flag && <TbFlagFilled className={style.flag} />}
-                          <div className={style.index}>{metadata[entryId].eventIndex}</div>
+                          <div className={style.index}>{entryMetadata.eventIndex}</div>
                         </div>
                       )}
                       <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
                         <RundownEntry
                           type={entry.type}
-                          isPast={metadata[entryId].isPast}
-                          eventIndex={metadata[entryId].eventIndex}
+                          isPast={entryMetadata.isPast}
+                          eventIndex={entryMetadata.eventIndex}
                           data={entry}
-                          loaded={metadata[entryId].isLoaded}
+                          loaded={entryMetadata.isLoaded}
                           hasCursor={hasCursor}
                           isNext={isNext}
-                          previousEntryId={metadata[entryId].previousEntryId}
-                          previousEventId={metadata[entryId].previousEvent?.id}
-                          playback={metadata[entryId].isLoaded ? featureData.playback : undefined}
+                          isNextDay={entryMetadata.isNextDay}
+                          playback={entryMetadata.isLoaded ? featureData.playback : undefined}
                           isRolling={featureData.playback === Playback.Roll}
-                          isNextDay={metadata[entryId].isNextDay}
-                          totalGap={metadata[entryId].totalGap}
-                          isLinkedToLoaded={metadata[entryId].isLinkedToLoaded}
+                          totalGap={entryMetadata.totalGap}
+                          isLinkedToLoaded={entryMetadata.isLinkedToLoaded}
                         />
                       </div>
                     </div>
@@ -583,7 +579,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
             })}
             {isEditMode && (
               <QuickAddButtons
-                previousEventId={metadata['LAST'].groupId ?? metadata['LAST'].thisId}
+                previousEventId={metadata[lastMetadataKey]?.groupId ?? metadata[lastMetadataKey].thisId}
                 parentGroup={null}
               />
             )}

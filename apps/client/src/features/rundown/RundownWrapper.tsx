@@ -12,12 +12,16 @@ interface RundownWrapperProps {
 }
 
 export default function RundownWrapper({ isSmallDevice }: RundownWrapperProps) {
-  const { data, status,rundownMetadata } = useRundownWithMetadata();
+  const { data, status, rundownMetadata } = useRundownWithMetadata();
 
   return (
     <div className={styles.rundownWrapper}>
       {isSmallDevice ? <RundownHeaderMobile /> : <RundownHeader />}
-      {status === 'success' && data ? <Rundown data={data} rundownMetadata={rundownMetadata} /> : <Empty text='Connecting to server' />}
+      {status === 'success' && data && rundownMetadata ? (
+        <Rundown data={data} rundownMetadata={rundownMetadata} />
+      ) : (
+        <Empty text='Connecting to server' />
+      )}
     </div>
   );
 }

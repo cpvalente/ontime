@@ -2,7 +2,7 @@ import { OntimeDelay, OntimeEvent, OntimeGroup, SupportedEntry } from 'ontime-ty
 
 import { initRundownMetadata } from '../rundownMetadata';
 
-describe('makeRundownMetadata()', () => {
+describe('initRundownMetadata()', () => {
   it('processes nested rundown data', () => {
     const selectedEventId = '12';
     const demoEvents = {

@@ -28,22 +28,24 @@ export type RundownMetadata = {
   groupEntries: number | undefined;
 };
 
+export const lastMetadataKey = 'LAST';
+
 export type RundownMetadataObject = Record<string, Readonly<RundownMetadata>>;
 
 export function getRundownMetadata(data: Pick<Rundown, 'entries' | 'flatOrder'>, selectedEventId: MaybeString) {
   const { metadata, process } = initRundownMetadata(selectedEventId);
   // keep a single reference to the metadata which we override for every entry
-  let newMetadata = metadata;
+  let lastSnapshot = metadata;
   const rundownMetadata: RundownMetadataObject = {};
 
   for (const id of data.flatOrder) {
     const entry = data.entries[id];
-    newMetadata = process(entry);
-    rundownMetadata[id] = newMetadata;
+    lastSnapshot = process(entry);
+    rundownMetadata[id] = lastSnapshot;
   }
 
   // ensure some blank data even for empty rundowns
-  rundownMetadata['LAST'] = newMetadata;
+  rundownMetadata[lastMetadataKey] = lastSnapshot;
 
   return rundownMetadata;
 }

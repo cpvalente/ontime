@@ -40,7 +40,7 @@ describe('makeSortableList()', () => {
     expect(sortableList).toStrictEqual(['group-1', '11', '12', 'end-group-1']);
   });
 
-  it('handles a list with a with just groups', () => {
+  it('handles a list with just groups', () => {
     const order = ['group-1', 'group-2'];
     const entries: RundownEntries = {
       'group-1': { type: SupportedEntry.Group, id: 'group-1', entries: [] as string[] } as OntimeGroup,

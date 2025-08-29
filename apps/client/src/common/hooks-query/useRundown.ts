@@ -36,7 +36,7 @@ export default function useRundown() {
 export function useRundownWithMetadata() {
   const { data, status } = useRundown();
   const { selectedEventId } = useSelectedEventId();
-  const rundownMetadata = getRundownMetadata(data, selectedEventId);
+  const rundownMetadata = useMemo(() => getRundownMetadata(data, selectedEventId), [data, selectedEventId]);
   return { data, status, rundownMetadata };
 }
 
