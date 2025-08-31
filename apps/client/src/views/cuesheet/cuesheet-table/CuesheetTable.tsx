@@ -1,15 +1,23 @@
-import { memo, useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { OntimeEntry, TimeField } from 'ontime-types';
+import { isOntimeDelay, isOntimeGroup, isOntimeMilestone, OntimeEntry, TimeField } from 'ontime-types';
 
+import EmptyPage from '../../../common/components/state/EmptyPage';
+import EmptyTableBody from '../../../common/components/state/EmptyTableBody';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
-import { useFollowSelected } from '../../../common/hooks/useFollowComponent';
+import { useSelectedEventId } from '../../../common/hooks/useSocket';
+import { useFlatRundownWithMetadata } from '../../../common/hooks-query/useRundown';
+import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { AppMode } from '../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../cuesheet.options';
 
-import CuesheetBody from './cuesheet-table-elements/CuesheetBody';
 import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
+import DelayRow from './cuesheet-table-elements/DelayRow';
+import EventRow from './cuesheet-table-elements/EventRow';
+import GroupRow from './cuesheet-table-elements/GroupRow';
+import MilestoneRow from './cuesheet-table-elements/MilestoneRow';
 import CuesheetTableMenu from './cuesheet-table-menu/CuesheetTableMenu';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
 import useColumnManager from './useColumnManager';
@@ -17,19 +25,20 @@ import useColumnManager from './useColumnManager';
 import style from './CuesheetTable.module.scss';
 
 interface CuesheetTableProps {
-  data: OntimeEntry[];
-  columns: ColumnDef<OntimeEntry>[];
+  columns: ColumnDef<ExtendedEntry>[];
   cuesheetMode: AppMode;
 }
 
-export default function CuesheetTable({ data, columns, cuesheetMode }: CuesheetTableProps) {
+export default function CuesheetTable({ columns, cuesheetMode }: CuesheetTableProps) {
+  const { data, status } = useFlatRundownWithMetadata();
   const { updateEntry, updateTimer } = useEntryActions();
   const showDelayedTimes = usePersistedCuesheetOptions((state) => state.showDelayedTimes);
   const hideTableSeconds = usePersistedCuesheetOptions((state) => state.hideTableSeconds);
   const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
 
-  const { selectedRef, scrollRef } = useFollowSelected(cuesheetMode === AppMode.Run);
+  const { selectedEventId } = useSelectedEventId();
 
+  const virtuosoRef = useRef<TableVirtuosoHandle | null>(null);
   const { listeners } = useTableNav();
 
   const meta = useMemo(
@@ -96,9 +105,15 @@ export default function CuesheetTable({ data, columns, cuesheetMode }: CuesheetT
     setColumnSizing({});
   }, [setColumnSizing]);
 
-  const headerGroups = table.getHeaderGroups();
-  const rowModel = table.getRowModel();
-  const allLeafColumns = table.getAllLeafColumns();
+  // in run mode, we follow the selected row
+  useEffect(() => {
+    if (cuesheetMode === AppMode.Edit || virtuosoRef.current === null || !selectedEventId) {
+      return;
+    }
+
+    const eventIndex = data.findIndex((event) => event.id === selectedEventId);
+    virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'smooth' });
+  }, [cuesheetMode, data, selectedEventId]);
 
   /**
    * To improve performance on resizing, we memoise the column sizes
@@ -118,6 +133,15 @@ export default function CuesheetTable({ data, columns, cuesheetMode }: CuesheetT
     // eslint-disable-next-line react-hooks/exhaustive-deps -- this works well and follows documentation
   }, [table.getState().columnSizingInfo, table.getState().columnSizing]);
 
+  const allLeafColumns = table.getAllLeafColumns();
+  const { rows } = table.getRowModel();
+
+  const isLoading = !data || status === 'pending';
+
+  if (isLoading) {
+    return <EmptyPage text='Loading...' />;
+  }
+
   return (
     <>
       <CuesheetTableSettings
@@ -126,25 +150,97 @@ export default function CuesheetTable({ data, columns, cuesheetMode }: CuesheetT
         handleResetReordering={resetColumnOrder}
         handleClearToggles={setAllVisible}
       />
-      <div className={style.cuesheetContainer} ref={scrollRef}>
-        <table className={style.cuesheet} id='cuesheet' style={{ ...columnSizeVars }} {...listeners}>
-          <CuesheetHeader headerGroups={headerGroups} cuesheetMode={cuesheetMode} />
-          {table.getState().columnSizingInfo.isResizingColumn ? (
-            <MemoisedBody rowModel={rowModel} selectedRef={selectedRef} table={table} />
-          ) : (
-            <CuesheetBody rowModel={rowModel} selectedRef={selectedRef} table={table} />
-          )}
-        </table>
-      </div>
+      <TableVirtuoso
+        ref={virtuosoRef}
+        data={data}
+        overscan={3}
+        components={{
+          EmptyPlaceholder: () => <EmptyTableBody text='No data in rundown' />,
+          Table: ({ style: injectedStyles, ...virtuosoProps }) => {
+            return (
+              <table
+                className={style.cuesheet}
+                id='cuesheet'
+                style={{ ...injectedStyles, ...columnSizeVars }}
+                {...listeners}
+                {...virtuosoProps}
+              />
+            );
+          },
+          TableRow: (virtuosoProps) => {
+            // eslint-disable-next-line react/destructuring-assignment
+            const rowIndex = virtuosoProps['data-index'];
+            const row = rows[rowIndex];
+            const key = row.original.id;
+            const entry = row.original;
+
+            if (isOntimeGroup(entry)) {
+              return (
+                <GroupRow
+                  key={key}
+                  groupId={entry.id}
+                  colour={entry.colour}
+                  rowId={row.id}
+                  rowIndex={row.index}
+                  table={table}
+                  {...virtuosoProps}
+                />
+              );
+            }
+
+            if (isOntimeDelay(entry)) {
+              return <DelayRow key={key} duration={entry.duration} {...virtuosoProps} />;
+            }
+
+            if (isOntimeMilestone(entry)) {
+              return (
+                <MilestoneRow
+                  key={key}
+                  entryId={entry.id}
+                  isPast={entry.isPast}
+                  parentBgColour={entry.groupColour}
+                  parentId={entry.parent}
+                  colour={entry.colour}
+                  rowId={row.id}
+                  rowIndex={rowIndex}
+                  table={table}
+                  {...virtuosoProps}
+                />
+              );
+            }
+
+            return (
+              <EventRow
+                key={row.id}
+                id={entry.id}
+                eventIndex={entry.eventIndex}
+                colour={entry.colour}
+                isFirstAfterGroup={entry.isFirstAfterGroup}
+                isLoaded={entry.isLoaded}
+                isPast={entry.isPast}
+                groupColour={entry.groupColour}
+                flag={entry.flag}
+                skip={entry.skip}
+                parent={entry.parent}
+                rowId={row.id}
+                rowIndex={rowIndex}
+                table={table}
+                {...virtuosoProps}
+              />
+            );
+          },
+          TableHead: (virtuosoProps) => <thead className={style.tableHeader} {...virtuosoProps} />,
+        }}
+        fixedHeaderContent={() => {
+          return table
+            .getHeaderGroups()
+            .map((headerGroup) => (
+              <CuesheetHeader key={headerGroup.id} cuesheetMode={cuesheetMode} headerGroup={headerGroup} />
+            ));
+        }}
+      />
+
       <CuesheetTableMenu />
     </>
   );
 }
-
-/**
- * While dragging, we avoid re-rendering the body by render
- */
-const MemoisedBody = memo(
-  CuesheetBody,
-  (prev, next) => prev.table.options.data === next.table.options.data,
-) as typeof CuesheetBody;
