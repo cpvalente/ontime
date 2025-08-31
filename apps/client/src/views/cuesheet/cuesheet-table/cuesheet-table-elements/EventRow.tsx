@@ -1,88 +1,91 @@
-import { RefObject, useEffect, useRef } from 'react';
+import { useMemo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { flexRender, Table } from '@tanstack/react-table';
-import { OntimeEntry, OntimeEvent, RGBColour, SupportedEntry } from 'ontime-types';
+import { EntryId, OntimeEntry, RGBColour, SupportedEntry } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
+import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
-
-import { observeRow, unobserveRow } from './rowObserver';
-import { useVisibleRowsStore } from './visibleRowsStore';
 
 import style from './EventRow.module.scss';
 
 interface EventRowProps {
   rowId: string;
-  event: OntimeEvent;
+  id: EntryId;
   eventIndex: number;
+  colour: string;
+  isFirstAfterGroup: boolean;
+  isLoaded: boolean;
+  isPast: boolean;
+  groupColour: string | undefined;
+  flag: boolean;
+  skip: boolean;
+  parent: EntryId | null;
   rowIndex: number;
-  isPast?: boolean;
-  selectedRef?: RefObject<HTMLTableRowElement | null>;
-  skip?: boolean;
-  colour?: string;
-  rowBgColour?: string;
-  parentBgColour?: string;
-  table: Table<OntimeEntry>;
-  firstAfterGroup: boolean;
+  table: Table<ExtendedEntry<OntimeEntry>>;
 }
 
 export default function EventRow({
   rowId,
-  event,
+  id,
   eventIndex,
-  rowIndex,
+  colour,
+  isFirstAfterGroup,
+  isLoaded,
   isPast,
-  selectedRef,
-  rowBgColour,
-  parentBgColour,
+  groupColour,
+  flag,
+  skip,
+  parent,
+  rowIndex,
   table,
-  firstAfterGroup,
+  ...virtuosoProps
 }: EventRowProps) {
   const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
     cuesheetMode: AppMode.Edit,
     hideIndexColumn: false,
   };
 
-  const ownRef = useRef<HTMLTableRowElement>(null);
-  const isVisible = useVisibleRowsStore((state) => state.visibleRows.has(rowId));
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
-  // register this row with the intersection observer
-  useEffect(() => {
-    const element = ownRef.current;
-    if (element) {
-      observeRow(element);
-    }
-
-    return () => {
-      if (element) {
-        unobserveRow(element);
-      }
-    };
-  }, []);
-
-  const { color, backgroundColor } = getAccessibleColour(event.colour);
+  const { color, backgroundColor } = getAccessibleColour(colour);
   const tmpColour = cssOrHexToColour(color) as RGBColour; // we know this to be a correct colour
   const mutedText = colourToHex({ ...tmpColour, alpha: tmpColour.alpha * 0.8 });
+
+  const rowBgColour: string | undefined = useMemo(() => {
+    if (isLoaded) {
+      return '#087A27'; // $active-green
+    } else if (colour) {
+      // the colour is user defined and might be invalid
+      const accessibleBackgroundColor = cssOrHexToColour(getAccessibleColour(colour).backgroundColor);
+      if (accessibleBackgroundColor !== null) {
+        return colourToHex({
+          ...accessibleBackgroundColor,
+          alpha: accessibleBackgroundColor.alpha * 0.25,
+        });
+      }
+    }
+    return;
+  }, [colour, isLoaded]);
 
   return (
     <tr
       id={rowId}
       className={cx([
         style.eventRow,
-        event.skip && style.skip,
-        firstAfterGroup && style.firstAfterGroup,
-        Boolean(parentBgColour) && style.hasParent,
+        skip && style.skip,
+        isFirstAfterGroup && style.firstAfterGroup,
+        parent && style.hasParent,
       ])}
       style={{
         opacity: `${isPast ? '0.2' : '1'}`,
-        '--user-bg': parentBgColour ?? 'transparent',
+        '--user-bg': groupColour ?? 'transparent',
       }}
-      ref={selectedRef ?? ownRef}
       data-testid='cuesheet-event'
+      {...virtuosoProps}
     >
       {cuesheetMode === AppMode.Edit && (
         <td className={style.actionColumn} tabIndex={-1} role='cell'>
@@ -93,7 +96,7 @@ export default function EventRow({
             onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const yPos = 8 + rect.y + rect.height / 2;
-              openMenu({ x: rect.x, y: yPos }, event.id, SupportedEntry.Event, rowIndex, event.parent, event.flag);
+              openMenu({ x: rect.x, y: yPos }, id, SupportedEntry.Event, rowIndex, parent, flag);
             }}
           >
             <IoEllipsisHorizontal />
@@ -105,26 +108,24 @@ export default function EventRow({
           {eventIndex}
         </td>
       )}
-      {isVisible || Boolean(selectedRef?.current)
-        ? table
-            .getRow(rowId)
-            .getVisibleCells()
-            .map((cell) => {
-              return (
-                <td
-                  key={cell.id}
-                  style={{
-                    width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
-                    backgroundColor: rowBgColour,
-                  }}
-                  tabIndex={-1}
-                  role='cell'
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              );
-            })
-        : null}
+      {table
+        .getRow(rowId)
+        .getVisibleCells()
+        .map((cell) => {
+          return (
+            <td
+              key={cell.id}
+              style={{
+                width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
+                backgroundColor: rowBgColour,
+              }}
+              tabIndex={-1}
+              role='cell'
+            >
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </td>
+          );
+        })}
     </tr>
   );
 }

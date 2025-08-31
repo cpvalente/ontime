@@ -1,9 +1,9 @@
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { flexRender, Table } from '@tanstack/react-table';
-import { EntryId, OntimeEntry, SupportedEntry } from 'ontime-types';
+import { EntryId, SupportedEntry } from 'ontime-types';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
-import { useCurrentGroupId } from '../../../../common/hooks/useSocket';
+import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
 
@@ -12,15 +12,12 @@ import style from './GroupRow.module.scss';
 interface GroupRowProps {
   groupId: EntryId;
   colour: string;
-  hidePast: boolean;
   rowId: string;
   rowIndex: number;
-  table: Table<OntimeEntry>;
+  table: Table<ExtendedEntry>;
 }
 
-export default function GroupRow({ groupId, colour, hidePast, rowId, rowIndex, table }: GroupRowProps) {
-  const { currentGroupId } = useCurrentGroupId();
-
+export default function GroupRow({ groupId, colour, rowId, rowIndex, table, ...virtuosoProps }: GroupRowProps) {
   const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
     cuesheetMode: AppMode.Edit,
     hideIndexColumn: false,
@@ -28,12 +25,8 @@ export default function GroupRow({ groupId, colour, hidePast, rowId, rowIndex, t
 
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
-  if (hidePast && !currentGroupId) {
-    return null;
-  }
-
   return (
-    <tr className={style.groupRow} style={{ '--user-bg': colour }} data-testid='cuesheet-group'>
+    <tr className={style.groupRow} style={{ '--user-bg': colour }} data-testid='cuesheet-group' {...virtuosoProps}>
       {cuesheetMode === AppMode.Edit && (
         <td className={style.actionColumn} tabIndex={-1} role='cell'>
           <IconButton

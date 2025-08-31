@@ -1,7 +1,7 @@
 @import "../CuesheetTable.module.scss";
 
 .milestoneRow {
-  background: color-mix(in srgb, transparent 92%, var(--user-bg, $gray-500) 8%);
+  background: color-mix(in srgb, transparent 98%, var(--user-bg, $gray-500) 2%);
   border-left: 4px solid var(--user-bg, $gray-500);
 
   font-style: italic;
