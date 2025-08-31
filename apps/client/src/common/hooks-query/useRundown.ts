@@ -5,6 +5,8 @@ import { EntryId, OntimeEntry, Rundown } from 'ontime-types';
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/constants';
 import { fetchCurrentRundown } from '../api/rundown';
+import { useSelectedEventId } from '../hooks/useSocket';
+import { getRundownMetadata } from '../utils/rundownMetadata';
 
 import useProjectData from './useProjectData';
 
@@ -29,6 +31,13 @@ export default function useRundown() {
     refetchInterval: queryRefetchIntervalSlow,
   });
   return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
+}
+
+export function useRundownWithMetadata() {
+  const { data, status } = useRundown();
+  const { selectedEventId } = useSelectedEventId();
+  const rundownMetadata = useMemo(() => getRundownMetadata(data, selectedEventId), [data, selectedEventId]);
+  return { data, status, rundownMetadata };
 }
 
 /**
