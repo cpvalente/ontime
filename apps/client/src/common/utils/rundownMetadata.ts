@@ -26,13 +26,22 @@ export type RundownMetadata = {
   groupId: MaybeString;
   groupColour: string | undefined;
   groupEntries: number | undefined;
+  isFirstAfterGroup: boolean;
 };
+
+export type ExtendedEntry<T extends OntimeEntry = OntimeEntry> = T & RundownMetadata;
 
 export const lastMetadataKey = 'LAST';
 
 export type RundownMetadataObject = Record<string, Readonly<RundownMetadata>>;
 
-export function getRundownMetadata(data: Pick<Rundown, 'entries' | 'flatOrder'>, selectedEventId: MaybeString) {
+/**
+ * Generates a Rundown Metadata object from a rundown
+ */
+export function getRundownMetadata(
+  data: Pick<Rundown, 'entries' | 'flatOrder'>,
+  selectedEventId: MaybeString,
+): RundownMetadataObject {
   const { metadata, process } = initRundownMetadata(selectedEventId);
   // keep a single reference to the metadata which we override for every entry
   let lastSnapshot = metadata;
@@ -48,6 +57,22 @@ export function getRundownMetadata(data: Pick<Rundown, 'entries' | 'flatOrder'>,
   rundownMetadata[lastMetadataKey] = lastSnapshot;
 
   return rundownMetadata;
+}
+
+export function getFlatRundownMetadata(
+  data: Pick<Rundown, 'entries' | 'flatOrder'>,
+  selectedEventId: MaybeString,
+): ExtendedEntry[] {
+  const { process } = initRundownMetadata(selectedEventId);
+  const flatRundown: ExtendedEntry[] = [];
+
+  for (const id of data.flatOrder) {
+    const entry = data.entries[id];
+    const extendedEntry = { ...entry, ...process(entry) };
+    flatRundown.push(extendedEntry);
+  }
+
+  return flatRundown;
 }
 
 /**
@@ -68,6 +93,7 @@ export function initRundownMetadata(selectedEventId: MaybeString) {
     groupId: null,
     groupColour: undefined,
     groupEntries: undefined,
+    isFirstAfterGroup: false,
   };
 
   function process(entry: OntimeEntry): Readonly<RundownMetadata> {
@@ -120,6 +146,7 @@ function processEntry(
     if (isOntimeEvent(entry)) {
       // event indexes are 1 based in UI
       processedData.eventIndex += 1;
+      processedData.isFirstAfterGroup = Boolean(processedData.previousEvent?.parent) && entry.parent === null;
 
       if (isPlayableEvent(entry)) {
         processedData.isNextDay = checkIsNextDay(entry, processedData.previousEvent);
