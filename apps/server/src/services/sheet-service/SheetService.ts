@@ -247,7 +247,6 @@ export async function handleInitialConnection(
   clientSecret: ClientSecret,
   sheetId: string,
 ): Promise<{ verification_url: string; user_code: string }> {
-  // TODO: check if the clientSecret has changed
   currentClientSecret = clientSecret;
 
   // we know there is an ongoing process if there is a timeout for cleanup
