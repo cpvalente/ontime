@@ -9,68 +9,53 @@ import { useEntryActions } from '../../../../common/hooks/useEntryAction';
 import style from './QuickAddInline.module.scss';
 
 interface QuickAddInlineProps {
-  previousEventId: MaybeString;
+  referenceEntryId: MaybeString;
   parentGroup: MaybeString;
+  placement: 'before' | 'after';
 }
 
 export default memo(QuickAddInline);
-function QuickAddInline({ previousEventId, parentGroup }: QuickAddInlineProps) {
+function QuickAddInline({ referenceEntryId, parentGroup, placement }: QuickAddInlineProps) {
   const { addEntry } = useEntryActions();
 
-  const addEvent = () => {
-    addEntry(
-      {
-        type: SupportedEntry.Event,
-        parent: parentGroup,
-      },
-      {
-        after: previousEventId,
-        lastEventId: previousEventId,
-      },
-    );
-  };
-
-  const addDelay = () => {
-    addEntry(
-      { type: SupportedEntry.Delay, parent: parentGroup },
-      {
-        lastEventId: previousEventId,
-        after: previousEventId,
-      },
-    );
-  };
-
-  const addMilestone = () => {
-    addEntry(
-      { type: SupportedEntry.Milestone, parent: parentGroup },
-      {
-        lastEventId: previousEventId,
-        after: previousEventId,
-      },
-    );
-  };
-
-  const addGroup = () => {
-    if (parentGroup !== null) {
-      return;
+  const handleAddEntry = (type: SupportedEntry) => {
+    if (placement === 'before') {
+      addEntry(
+        { type, parent: type !== SupportedEntry.Group ? parentGroup : null },
+        {
+          before: referenceEntryId,
+        },
+      );
+    } else {
+      addEntry(
+        { type, parent: type !== SupportedEntry.Group ? parentGroup : null },
+        {
+          lastEventId: referenceEntryId,
+          after: referenceEntryId,
+        },
+      );
     }
-    addEntry(
-      { type: SupportedEntry.Group },
-      {
-        lastEventId: previousEventId,
-        after: previousEventId,
-      },
-    );
   };
 
   return (
     <div className={style.quickAdd} data-testid='quick-add-inline'>
       <DropdownMenu
         items={[
-          { type: 'item', icon: IoAdd, label: 'Add Event', onClick: addEvent },
-          { type: 'item', icon: IoAdd, label: 'Add Delay', onClick: addDelay },
-          { type: 'item', icon: IoAdd, label: 'Add Milestone', onClick: addMilestone },
-          { type: 'item', icon: IoAdd, label: 'Add Group', onClick: addGroup, disabled: parentGroup !== null },
+          { type: 'item', icon: IoAdd, label: 'Add Event', onClick: () => handleAddEntry(SupportedEntry.Event) },
+          { type: 'item', icon: IoAdd, label: 'Add Delay', onClick: () => handleAddEntry(SupportedEntry.Delay) },
+          {
+            type: 'item',
+            icon: IoAdd,
+            label: 'Add Milestone',
+            onClick: () => handleAddEntry(SupportedEntry.Milestone),
+          },
+          {
+            type: 'item',
+            icon: IoAdd,
+            label: 'Add Group',
+            onClick: () => handleAddEntry(SupportedEntry.Group),
+            disabled: parentGroup !== null,
+          },
         ]}
         render={<IconButton size='small' variant='primary' className={style.addButton} />}
       >
