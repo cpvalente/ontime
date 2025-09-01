@@ -96,6 +96,7 @@ describe('initRundownMetadata()', () => {
       groupId: null,
       groupColour: undefined,
       groupEntries: undefined,
+      isFirstAfterGroup: false,
     });
 
     expect(process(demoEvents['1'])).toStrictEqual({
@@ -112,6 +113,7 @@ describe('initRundownMetadata()', () => {
       groupId: null,
       groupColour: undefined,
       groupEntries: undefined,
+      isFirstAfterGroup: false,
     });
 
     expect(process(demoEvents['group'])).toMatchObject({
@@ -127,6 +129,7 @@ describe('initRundownMetadata()', () => {
       isLoaded: false,
       groupId: 'group',
       groupColour: 'red',
+      isFirstAfterGroup: false,
     });
 
     expect(process(demoEvents['11'])).toMatchObject({
@@ -142,6 +145,7 @@ describe('initRundownMetadata()', () => {
       isLoaded: false,
       groupId: 'group',
       groupColour: 'red',
+      isFirstAfterGroup: false,
     });
 
     expect(process(demoEvents['delay'])).toMatchObject({
@@ -157,6 +161,7 @@ describe('initRundownMetadata()', () => {
       isLoaded: false,
       groupId: 'group',
       groupColour: 'red',
+      isFirstAfterGroup: false,
     });
 
     expect(process(demoEvents['12'])).toMatchObject({
@@ -172,6 +177,7 @@ describe('initRundownMetadata()', () => {
       isLoaded: true,
       groupId: 'group',
       groupColour: 'red',
+      isFirstAfterGroup: false,
     });
 
     expect(process(demoEvents['13'])).toMatchObject({
@@ -187,6 +193,7 @@ describe('initRundownMetadata()', () => {
       isLoaded: false,
       groupId: 'group',
       groupColour: 'red',
+      isFirstAfterGroup: false,
     });
 
     expect(process(demoEvents['2'])).toMatchObject({
@@ -202,6 +209,7 @@ describe('initRundownMetadata()', () => {
       isLoaded: false,
       groupId: null,
       groupColour: undefined,
+      isFirstAfterGroup: true,
     });
   });
 
@@ -254,6 +262,7 @@ describe('initRundownMetadata()', () => {
       groupId: rundownStartsWithGroup.group.id,
       groupColour: 'red',
       groupEntries: 2,
+      isFirstAfterGroup: false,
     });
 
     expect(process(rundownStartsWithGroup['1'])).toStrictEqual({
@@ -270,7 +279,9 @@ describe('initRundownMetadata()', () => {
       groupId: rundownStartsWithGroup.group.id,
       groupColour: 'red',
       groupEntries: 2,
+      isFirstAfterGroup: false,
     });
+
     expect(process(rundownStartsWithGroup['2'])).toStrictEqual({
       previousEvent: rundownStartsWithGroup['1'],
       latestEvent: rundownStartsWithGroup['2'],
@@ -285,6 +296,7 @@ describe('initRundownMetadata()', () => {
       groupId: rundownStartsWithGroup.group.id,
       groupColour: 'red',
       groupEntries: 2,
+      isFirstAfterGroup: false,
     });
   });
 });

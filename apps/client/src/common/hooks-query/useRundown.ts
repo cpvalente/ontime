@@ -6,7 +6,7 @@ import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/constants';
 import { fetchCurrentRundown } from '../api/rundown';
 import { useSelectedEventId } from '../hooks/useSocket';
-import { getRundownMetadata } from '../utils/rundownMetadata';
+import { getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
 
 import useProjectData from './useProjectData';
 
@@ -72,6 +72,14 @@ export function useFlatRundown() {
   }, [projectData]);
 
   return { data: flatRundown, rundownId: data.id, status };
+}
+
+export function useFlatRundownWithMetadata() {
+  const { data, status } = useRundown();
+  const { selectedEventId } = useSelectedEventId();
+
+  const rundownWithMetadata = useMemo(() => getFlatRundownMetadata(data, selectedEventId), [data, selectedEventId]);
+  return { data: rundownWithMetadata, status };
 }
 
 /**
