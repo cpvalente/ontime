@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { isOntimeEvent, isOntimeGroup, OntimeEntry } from 'ontime-types';
+import { isOntimeEvent, isOntimeGroup, isOntimeMilestone, OntimeEntry } from 'ontime-types';
 
 import useRundown from '../../../common/hooks-query/useRundown';
 
 import EventEditor from './EventEditor';
 import GroupEditor from './GroupEditor';
+import MilestoneEditor from './MilestoneEditor';
 
 import style from './EntryEditor.module.scss';
 
@@ -34,6 +35,14 @@ export default function CuesheetEntryEditor({ entryId }: CuesheetEntryEditorProp
     return (
       <div className={style.entryEditor} data-testid='editor-container'>
         <EventEditor event={entry} />
+      </div>
+    );
+  }
+
+  if (isOntimeMilestone(entry)) {
+    return (
+      <div className={style.inModal} data-testid='editor-container'>
+        <MilestoneEditor milestone={entry} />
       </div>
     );
   }
