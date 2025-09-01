@@ -3,7 +3,6 @@
 .milestone {
   @include block-styling;
 
-  margin-left: calc(2rem + 1px); // binder + border
   margin-block: 0.125rem;
   padding-right: 0.25rem;
   background-color: $gray-1050; // to override inline
