@@ -16,6 +16,17 @@ $table-header-font-size: calc(1rem - 2px);
   font-weight: 400;
   color: $ui-white;
 
+  thead {
+    tr {
+      &::before {
+        content: '';
+        display: block;
+        width: 4px;
+        height: 100%;
+      }
+    }
+  }
+
   tr {
     display: flex;
   }
@@ -29,13 +40,6 @@ $table-header-font-size: calc(1rem - 2px);
       .resizer {
         width: 0.5rem;
       }
-    }
-
-    &:first-of-type {
-      box-sizing: content-box;
-      border-left: 4px solid $gray-1200; // compensate left border
-      margin-left: 0px;
-      padding-inline: 0px;
     }
   }
 
@@ -85,7 +89,7 @@ $table-header-font-size: calc(1rem - 2px);
 
   .actionColumn {
     background-color: $gray-1250;
-    width: calc(2rem + 1px); // button + padding + margin
+    width: 2rem; // button + padding + margin
   }
   .indexColumn {
     width: 3.5em;

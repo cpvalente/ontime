@@ -52,7 +52,7 @@ export default function RundownEntryEditor() {
 
   if (isOntimeEvent(entry)) {
     return (
-      <div className={style.entryEditor} data-testid='editor-container'>
+      <div className={style.rundownEditor} data-testid='editor-container'>
         <EventEditor event={entry} />
         <EventEditorFooter id={entry.id} cue={entry.cue} />
       </div>
@@ -61,7 +61,7 @@ export default function RundownEntryEditor() {
 
   if (isOntimeMilestone(entry)) {
     return (
-      <div className={style.entryEditor} data-testid='editor-container'>
+      <div className={style.rundownEditor} data-testid='editor-container'>
         <MilestoneEditor milestone={entry} />
       </div>
     );
@@ -69,7 +69,7 @@ export default function RundownEntryEditor() {
 
   if (isOntimeGroup(entry)) {
     return (
-      <div className={style.entryEditor} data-testid='editor-container'>
+      <div className={style.rundownEditor} data-testid='editor-container'>
         <GroupEditor group={entry} />
       </div>
     );
