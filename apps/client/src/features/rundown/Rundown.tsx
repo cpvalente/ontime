@@ -525,7 +525,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
                    * - if it is not the first entry (the buttons would be there)
                    */}
                   {isEditMode && hasCursor && !isFirst && (
-                    <QuickAddInline previousEventId={entryMetadata.previousEntryId} parentGroup={parentIdForBefore} />
+                    <QuickAddInline placement='before' referenceEntryId={entry.id} parentGroup={parentIdForBefore} />
                   )}
                   {isOntimeGroup(entry) ? (
                     <RundownGroup
@@ -572,7 +572,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
                    * - if the entry is not the group header
                    */}
                   {isEditMode && hasCursor && !isLast && (
-                    <QuickAddInline previousEventId={entry.id} parentGroup={parentIdForAfter} />
+                    <QuickAddInline placement='after' referenceEntryId={entry.id} parentGroup={parentIdForAfter} />
                   )}
                 </Fragment>
               );
