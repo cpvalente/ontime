@@ -1,10 +1,11 @@
 import express from 'express';
 import type { Request, Response } from 'express';
-import type { ErrorResponse } from 'ontime-types';
+import { RefetchKey, type ErrorResponse } from 'ontime-types';
 import { validatePostCss, validatePostTranslation } from './assets.validation.js';
 import { readCssFile, writeCssFile, writeUserTranslation } from './assets.service.js';
 import { getErrorMessage } from 'ontime-utils';
 import { defaultCss } from '../../user/styles/bundledCss.js';
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 
 export const router = express.Router();
 
@@ -49,6 +50,7 @@ router.post('/translations', validatePostTranslation, async (req: Request, res: 
 
   try {
     await writeUserTranslation(translation);
+    sendRefetch(RefetchKey.Translation);
     res.status(204).send();
   } catch (error) {
     const message = getErrorMessage(error);

@@ -6,4 +6,5 @@ export enum RefetchKey {
   Rundown = 'rundown',
   UrlPresets = 'url-presets',
   ViewSettings = 'view-settings',
+  Translation = 'translation',
 }
