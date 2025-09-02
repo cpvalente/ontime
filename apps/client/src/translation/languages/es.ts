@@ -1,4 +1,4 @@
-import { TranslationObject } from './en';
+import { TranslationObject } from 'ontime-types';
 
 export const langEs: TranslationObject = {
   'common.expected_finish': 'Finalización esperada',

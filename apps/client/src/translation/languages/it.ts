@@ -1,4 +1,4 @@
-import { TranslationObject } from './en';
+import { TranslationObject } from 'ontime-types';
 
 export const langIt: TranslationObject = {
   'common.expected_finish': 'Fine Prevista',

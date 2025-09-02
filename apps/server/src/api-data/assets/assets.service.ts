@@ -1,6 +1,9 @@
-import { publicFiles } from '../../setup/index.js';
+import type { TranslationObject } from 'ontime-types';
+
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
+
+import { publicFiles } from '../../setup/index.js';
 import { defaultCss } from '../../user/styles/bundledCss.js';
 
 /**
@@ -30,4 +33,14 @@ export async function writeCssFile(css: string) {
   }
 
   await writeFile(path, css, { encoding: 'utf8' });
+}
+
+/**
+ * Writes the user's custom translation file
+ * @param translations the updated translations to write to file
+ */
+export async function writeUserTranslation(translations: TranslationObject) {
+  const path = publicFiles.translationsFile;
+  const translationsString = JSON.stringify(translations, null, 2);
+  await writeFile(path, translationsString, { encoding: 'utf8' });
 }

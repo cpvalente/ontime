@@ -1,6 +1,9 @@
 import axios from 'axios';
+import { TranslationObject } from 'ontime-types';
 
-import { apiEntryUrl } from './constants';
+import { ontimeQueryClient } from '../../common/queryClient';
+
+import { apiEntryUrl, customTranslationsURL, TRANSLATION } from './constants';
 
 const assetsPath = `${apiEntryUrl}/assets`;
 
@@ -27,4 +30,22 @@ export async function postCSSContents(css: string): Promise<void> {
 export async function restoreCSSContents(): Promise<string> {
   const res = await axios.post(`${assetsPath}/css/restore`);
   return res.data;
+}
+
+/**
+ * HTTP request to get user translation
+ */
+export async function getUserTranslation(): Promise<TranslationObject> {
+  const res = await axios.get(customTranslationsURL);
+  return res.data;
+}
+
+/**
+ * HTTP request to post user translation
+ */
+export async function postUserTranslation(translation: TranslationObject): Promise<void> {
+  await axios.post(`${assetsPath}/translations`, {
+    translation,
+  });
+  await ontimeQueryClient.invalidateQueries({ queryKey: TRANSLATION });
 }
