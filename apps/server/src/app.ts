@@ -29,12 +29,13 @@ import { getDataProvider } from './classes/data-provider/DataProvider.js';
 
 // Services
 import { logger } from './classes/Logger.js';
+import { populateDemo } from './setup/loadDemo.js';
+import { populateTranslation } from './setup/loadTranslations.js';
 import { populateStyles } from './setup/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
 import { runtimeService } from './services/runtime-service/runtime.service.js';
 import { RestorePoint, restoreService } from './services/RestoreService.js';
 import * as messageService from './services/message-service/message.service.js';
-import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
 import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
@@ -157,6 +158,7 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
 
   await clearUploadfolder();
   populateStyles();
+  populateTranslation();
   await populateDemo();
   const project = await initialiseProject();
   logger.info(LogOrigin.Server, `Initialised Ontime with ${project}`);

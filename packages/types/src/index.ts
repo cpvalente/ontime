@@ -16,11 +16,7 @@ export {
   type TimeField,
   SupportedEntry as SupportedEntry,
 } from './definitions/core/OntimeEntry.js';
-export type {
-  RundownEntries,
-  Rundown,
-  ProjectRundowns,
-} from './definitions/core/Rundown.type.js';
+export type { RundownEntries, Rundown, ProjectRundowns } from './definitions/core/Rundown.type.js';
 export { TimeStrategy } from './definitions/TimeStrategy.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
 
@@ -131,3 +127,6 @@ export type { MaybeNumber, MaybeString } from './utils/utils.type.js';
 
 // Colour
 export type { RGBColour } from './definitions/Colour.type.js';
+
+// Translations
+export { langEn, type TranslationObject } from './translations/index.js';

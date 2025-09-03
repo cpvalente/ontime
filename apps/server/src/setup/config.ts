@@ -33,4 +33,8 @@ export const config = {
   },
   uploads: 'uploads',
   logo: 'logo',
+  translations: {
+    directory: 'translations',
+    filename: 'translations.json',
+  },
 };
