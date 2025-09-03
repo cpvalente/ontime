@@ -53,6 +53,8 @@ export function getAppDataPath(): string {
  * │  │  ├─ override.css
  * │  ├─ logo/
  * │  │  ├─ logo.png
+ * │  ├─ translations/
+ * │  │  ├─ translations.json
  */
 
 /** resolve file URL in both CJS and ESM (build and dev) */
