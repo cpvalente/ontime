@@ -153,7 +153,7 @@ export default function CuesheetTable({ columns, cuesheetMode }: CuesheetTablePr
       <TableVirtuoso
         ref={virtuosoRef}
         data={data}
-        overscan={3}
+        increaseViewportBy={{ top: 100, bottom: 200 }}
         components={{
           EmptyPlaceholder: () => <EmptyTableBody text='No data in rundown' />,
           Table: ({ style: injectedStyles, ...virtuosoProps }) => {
@@ -167,7 +167,7 @@ export default function CuesheetTable({ columns, cuesheetMode }: CuesheetTablePr
               />
             );
           },
-          TableRow: (virtuosoProps) => {
+          TableRow: ({ item: _item, ...virtuosoProps }) => {
             // eslint-disable-next-line react/destructuring-assignment
             const rowIndex = virtuosoProps['data-index'];
             const row = rows[rowIndex];
