@@ -11,6 +11,7 @@ import {
 
 import { isProduction, websocketUrl } from '../../externals';
 import {
+  APP_SETTINGS,
   CLIENT_LIST,
   CUSTOM_FIELDS,
   PROJECT_DATA,
@@ -176,6 +177,9 @@ export const connectSocket = () => {
               break;
             case RefetchKey.Translation:
               ontimeQueryClient.invalidateQueries({ queryKey: TRANSLATION });
+              break;
+            case RefetchKey.Settings:
+              ontimeQueryClient.invalidateQueries({ queryKey: APP_SETTINGS });
               break;
             default: {
               target satisfies never;
