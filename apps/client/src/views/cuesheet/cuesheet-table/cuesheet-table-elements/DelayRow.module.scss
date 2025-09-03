@@ -1,15 +1,13 @@
 @import '../CuesheetTable.module.scss';
 
 .delayRow {
-  width: calc(100vw - 2rem);
   color: $ontime-delay-text;
-  border-left: 4px solid var(--user-bg);
+  border-left: 4px solid transparent;
 
   td {
-    width: 100%;
+    width: calc(100% - 4px);
     padding-block: 0.5rem;
     text-align: center;
-    transform: translateX(45%);
 
     &:first-letter {
       text-transform: uppercase;

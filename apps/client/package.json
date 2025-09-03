@@ -1,6 +1,6 @@
 {
   "name": "ontime-ui",
-  "version": "4.0.0-alpha.4",
+  "version": "4.0.0-alpha.5",
   "private": true,
   "type": "module",
   "dependencies": {
@@ -29,6 +29,7 @@
     "react-qr-code": "^2.0.18",
     "react-router": "^7.8.0",
     "react-simple-code-editor": "^0.14.1",
+    "react-virtuoso": "^4.14.0",
     "web-vitals": "^5.1.0",
     "zustand": "^5.0.7"
   },

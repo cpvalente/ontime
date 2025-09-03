@@ -85,7 +85,7 @@ class SocketServer implements IAdapter {
       });
 
       this.lastConnection = new Date();
-      logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientId}`);
+      logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientName}`);
 
       sendPacket(MessageTag.ClientInit, { clientId, clientName });
 
@@ -98,7 +98,7 @@ class SocketServer implements IAdapter {
 
       ws.on('close', () => {
         this.clients.delete(clientId);
-        logger.info(LogOrigin.Client, `${this.clients.size} Connections with disconnected: ${clientId}`);
+        logger.info(LogOrigin.Client, `${this.clients.size} Connections with disconnected: ${clientName}`);
         this.sendClientList();
       });
 

@@ -12,16 +12,26 @@ import {
   PatchWithId,
   RefetchKey,
   Rundown,
+  LogOrigin,
+  ProjectRundowns,
 } from 'ontime-types';
 import { customFieldLabelToKey } from 'ontime-utils';
 
 import { updateRundownData } from '../../stores/runtimeState.js';
-import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
+import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 
-import { createTransaction, customFieldMutation, rundownCache, rundownMutation } from './rundown.dao.js';
+import {
+  createTransaction,
+  customFieldMutation,
+  rundownCache,
+  rundownMutation,
+  updateBackgroundRundown,
+} from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
 import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { setLastLoadedRundown } from '../../services/app-state-service/AppStateService.js';
+import { logger } from '../../classes/Logger.js';
 
 /**
  * creates a new entry with given data
@@ -244,7 +254,7 @@ export async function deleteAllEntries(): Promise<Rundown> {
  * Handles moving across root orders (a group order and top level order)
  * @throws if entryId or destinationId not found
  */
-export function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
+export async function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
 
   // check that both entries exist
@@ -383,8 +393,8 @@ export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
     // notify runtime that rundown has changed
     updateRuntimeOnChange(rundownMetadata);
 
-    // we dont need to notify the timer since the grouping does not affect the runtime
-    notifyChanges(rundownMetadata, revision, { external: true });
+    // we need to notify the timer since we might be grouping a running event
+    notifyChanges(rundownMetadata, revision, { external: true, timer: true });
   });
 
   return rundownResult;
@@ -454,8 +464,12 @@ export async function createCustomField(customField: CustomField): Promise<Custo
  * @throws if the label is missing or invalid
  * @throws if the new label already exists
  */
-export async function editCustomField(key: CustomFieldKey, newField: Partial<CustomField>): Promise<CustomFields> {
-  const { customFields, customFieldsMetadata, rundown, commit } = createTransaction({
+export async function editCustomField(
+  key: CustomFieldKey,
+  newField: Partial<CustomField>,
+  projectRundowns: ProjectRundowns,
+): Promise<CustomFields> {
+  const { customFields, rundown, commit } = createTransaction({
     mutableRundown: true,
     mutableCustomFields: true,
   });
@@ -472,14 +486,22 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 
   const { oldKey, newKey } = customFieldMutation.edit(customFields, key, existingField, newField);
 
-  // if key has changed
+  // if key has changed ...
   if (oldKey !== newKey) {
-    // 1. delete the old key
-    customFieldMutation.remove(customFields, oldKey);
-    if (oldKey in customFieldsMetadata.assigned) {
-      // 2. reassign references
-      customFieldMutation.renameUsages(rundown, customFieldsMetadata.assigned, oldKey, newKey);
+    // ... reassign references in the active rundown
+    customFieldMutation.renameUsages(rundown, oldKey, newKey);
+
+    // ... reassign references in the background rundowns
+    for (const rundownId of Object.keys(projectRundowns)) {
+      if (rundownId !== rundown.id) {
+        const backgroundRundown = structuredClone(projectRundowns[rundownId]);
+        customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey);
+        updateBackgroundRundown(rundown.id, backgroundRundown);
+      }
     }
+
+    // ... delete the old key
+    customFieldMutation.remove(customFields, oldKey);
   }
 
   // the custom fields have been removed and there is no processing to be done
@@ -487,6 +509,7 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 
   // schedule the side effects
   setImmediate(() => {
+    sendRefetch(RefetchKey.CustomFields);
     notifyChanges(rundownMetadata, revision, { timer: true, external: true });
   });
 
@@ -496,8 +519,8 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 /**
  * Deletes an existing custom field
  */
-export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFields> {
-  const { customFields, customFieldsMetadata, rundown, commit } = createTransaction({
+export async function deleteCustomField(key: CustomFieldKey, projectRundowns: ProjectRundowns): Promise<CustomFields> {
+  const { customFields, rundown, commit } = createTransaction({
     mutableRundown: true,
     mutableCustomFields: true,
   });
@@ -505,16 +528,27 @@ export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFiel
     return customFields;
   }
 
-  customFieldMutation.remove(customFields, key);
-  if (key in customFieldsMetadata.assigned) {
-    customFieldMutation.removeUsages(rundown, customFieldsMetadata.assigned, key);
+  // remove references in the active rundown
+  customFieldMutation.removeUsages(rundown, key);
+
+  // remove references in the background rundowns
+  for (const rundownId of Object.keys(projectRundowns)) {
+    if (rundownId !== rundown.id) {
+      const backgroundRundown = structuredClone(projectRundowns[rundownId]);
+      customFieldMutation.removeUsages(backgroundRundown, key);
+      updateBackgroundRundown(rundown.id, backgroundRundown);
+    }
   }
+
+  // delete the old key
+  customFieldMutation.remove(customFields, key);
 
   // the custom fields have been removed and there is no processing to be done
   const { rundownMetadata, revision, customFields: resultCustomFields } = commit(false);
 
   // schedule the side effects
   setImmediate(() => {
+    sendRefetch(RefetchKey.CustomFields);
     notifyChanges(rundownMetadata, revision, { timer: true, external: true });
   });
 
@@ -565,14 +599,20 @@ function notifyChanges(rundownMetadata: RundownMetadata, revision: number, optio
  * Sets a new rundown in the cache
  * and marks it as the currently loaded one
  */
-export async function initRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
+export async function initRundown(
+  rundown: Readonly<Rundown>,
+  customFields: Readonly<CustomFields>,
+  reload: boolean = false,
+) {
   const { rundownMetadata, revision } = rundownCache.init(rundown, customFields);
-
+  logger.info(LogOrigin.Server, `Switch to rundown: ${rundown.id}`);
   // notify runtime that rundown has changed
   updateRuntimeOnChange(rundownMetadata);
 
-  // notify timer of change
   setImmediate(() => {
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true, reload: true });
+    notifyChanges(rundownMetadata, revision, { timer: true, external: true, reload });
+    setLastLoadedRundown(rundown.id).catch((error) => {
+      logger.error(LogOrigin.Server, `Failed to persist last loaded rundown: ${error}`);
+    });
   });
 }

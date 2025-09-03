@@ -6,7 +6,7 @@ type RundownId = string;
 export type ProjectRundowns = Record<RundownId, Rundown>;
 
 export type Rundown = {
-  id: string;
+  id: RundownId;
   title: string;
   order: EntryId[];
   flatOrder: EntryId[];

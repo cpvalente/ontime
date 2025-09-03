@@ -15,6 +15,8 @@ import {
   Rundown,
   SupportedEntry,
   TimeStrategy,
+  ProjectRundown,
+  ProjectRundowns,
 } from 'ontime-types';
 import {
   dayInMs,
@@ -505,4 +507,13 @@ export function getTimedIndexFromPlayableIndex(metadata: RundownMetadata, index:
   const playableId = metadata.playableEventOrder[index];
   const timedIndex = metadata.timedEventOrder.findIndex((id) => id === playableId);
   return timedIndex;
+}
+
+/**
+ * converts a project rundowns map into an array of rundowns
+ */
+export function normalisedToRundownArray(rundowns: ProjectRundowns): ProjectRundown[] {
+  return Object.values(rundowns).map(({ id, flatOrder, title, revision }) => {
+    return { id, numEntries: flatOrder.length, title, revision };
+  });
 }

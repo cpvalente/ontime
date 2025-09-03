@@ -3,7 +3,7 @@ import { SupportedEntry, OntimeEvent, OntimeGroup, Rundown, CustomFields } from 
 import { defaultRundown } from '../../../models/dataModel.js';
 import { makeOntimeGroup, makeOntimeEvent, makeOntimeMilestone } from '../__mocks__/rundown.mocks.js';
 
-import { parseRundowns, parseRundown, handleCustomField, addToCustomAssignment } from '../rundown.parser.js';
+import { parseRundowns, parseRundown, sanitiseCustomFields } from '../rundown.parser.js';
 
 describe('parseRundowns()', () => {
   it('returns a default project rundown if nothing is given', () => {
@@ -293,20 +293,8 @@ describe('parseRundown()', () => {
   });
 });
 
-describe('addToCustomAssignment()', () => {
-  it('adds given entry to assignedCustomFields', () => {
-    const assignedCustomFields = {};
-
-    addToCustomAssignment('label1', 'eventId 1', assignedCustomFields);
-    expect(assignedCustomFields).toStrictEqual({ label1: ['eventId 1'] });
-
-    addToCustomAssignment('label1', 'eventId 2', assignedCustomFields);
-    expect(assignedCustomFields).toStrictEqual({ label1: ['eventId 1', 'eventId 2'] });
-  });
-});
-
-describe('handleCustomField()', () => {
-  it('creates a map of where custom fields are used', () => {
+describe('sanitiseCustomFields()', () => {
+  it('deletes unused custom fields', () => {
     const customFields = {
       lighting: {
         type: 'text',
@@ -327,13 +315,11 @@ describe('handleCustomField()', () => {
       linkStart: true,
       custom: {
         lighting: 'on',
+        unknown: 'does-not-exist',
       },
     });
-    const assignedCustomFields = {};
 
-    const result = handleCustomField(customFields, event, assignedCustomFields);
-    expect(result).toBeUndefined();
-    expect(assignedCustomFields).toStrictEqual({ lighting: ['2'] });
+    sanitiseCustomFields(customFields, event);
     expect(event.custom).toStrictEqual({
       lighting: 'on',
     });

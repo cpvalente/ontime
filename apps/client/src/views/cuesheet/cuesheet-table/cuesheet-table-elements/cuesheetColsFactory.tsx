@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { CustomFields, isOntimeDelay, isOntimeEvent, OntimeEntry, TimeStrategy, URLPreset } from 'ontime-types';
+import { CustomFields, isOntimeDelay, isOntimeEvent, TimeStrategy, URLPreset } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
+import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { formatDuration, formatTime } from '../../../../common/utils/time';
 import { AppMode } from '../../../../ontimeConfig';
 
@@ -16,7 +17,7 @@ import MutedText from './MutedText';
 import SingleLineCell from './SingleLineCell';
 import TimeInput from './TimeInput';
 
-function MakeStart({ getValue, row, table, column }: CellContext<OntimeEntry, unknown>) {
+function MakeStart({ getValue, row, table, column }: CellContext<ExtendedEntry, unknown>) {
   if (!table.options.meta) {
     return null;
   }
@@ -55,7 +56,7 @@ function MakeStart({ getValue, row, table, column }: CellContext<OntimeEntry, un
   );
 }
 
-function MakeEnd({ getValue, row, table, column }: CellContext<OntimeEntry, unknown>) {
+function MakeEnd({ getValue, row, table, column }: CellContext<ExtendedEntry, unknown>) {
   if (!table.options.meta) {
     return null;
   }
@@ -95,7 +96,7 @@ function MakeEnd({ getValue, row, table, column }: CellContext<OntimeEntry, unkn
   );
 }
 
-function MakeDuration({ getValue, row, table, column }: CellContext<OntimeEntry, unknown>) {
+function MakeDuration({ getValue, row, table, column }: CellContext<ExtendedEntry, unknown>) {
   if (!table.options.meta) {
     return null;
   }
@@ -126,7 +127,7 @@ function MakeDuration({ getValue, row, table, column }: CellContext<OntimeEntry,
   );
 }
 
-function MakeMultiLineField({ row, column, table }: CellContext<OntimeEntry, unknown>) {
+function MakeMultiLineField({ row, column, table }: CellContext<ExtendedEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
@@ -135,8 +136,8 @@ function MakeMultiLineField({ row, column, table }: CellContext<OntimeEntry, unk
   );
 
   // not all entries have all properties (eg groups)
-  const initialValue = row.original[column.id as keyof OntimeEntry];
-  if (initialValue === undefined) {
+  const initialValue = row.original[column.id as keyof ExtendedEntry];
+  if (typeof initialValue !== 'string') {
     return null;
   }
 
@@ -148,7 +149,7 @@ function MakeMultiLineField({ row, column, table }: CellContext<OntimeEntry, unk
   return <MultiLineCell initialValue={initialValue as string} handleUpdate={update} />;
 }
 
-function LazyImage({ row, column, table }: CellContext<OntimeEntry, unknown>) {
+function LazyImage({ row, column, table }: CellContext<ExtendedEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, true);
@@ -166,7 +167,7 @@ function LazyImage({ row, column, table }: CellContext<OntimeEntry, unknown>) {
   return <EditableImage initialValue={initialValue} updateValue={update} readOnly={!canWrite} />;
 }
 
-function MakeSingleLineField({ row, column, table }: CellContext<OntimeEntry, unknown>) {
+function MakeSingleLineField({ row, column, table }: CellContext<ExtendedEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
@@ -175,8 +176,8 @@ function MakeSingleLineField({ row, column, table }: CellContext<OntimeEntry, un
   );
 
   // not all entries have all properties (eg groups)
-  const initialValue = row.original[column.id as keyof OntimeEntry];
-  if (initialValue === undefined) {
+  const initialValue = row.original[column.id as keyof ExtendedEntry];
+  if (typeof initialValue !== 'string') {
     return null;
   }
 
@@ -188,7 +189,7 @@ function MakeSingleLineField({ row, column, table }: CellContext<OntimeEntry, un
   return <SingleLineCell initialValue={initialValue as string} handleUpdate={update} />;
 }
 
-function MakeFlagField({ row }: CellContext<OntimeEntry, unknown>) {
+function MakeFlagField({ row }: CellContext<ExtendedEntry, unknown>) {
   const event = row.original;
   if (!isOntimeEvent(event) || !event.flag) {
     return null;
@@ -196,7 +197,7 @@ function MakeFlagField({ row }: CellContext<OntimeEntry, unknown>) {
   return <FlagCell />;
 }
 
-function MakeCustomField({ row, column, table }: CellContext<OntimeEntry, unknown>) {
+function MakeCustomField({ row, column, table }: CellContext<ExtendedEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, true);
@@ -229,8 +230,8 @@ export function makeCuesheetColumns(
   customFields: CustomFields,
   cuesheetMode: AppMode,
   preset: URLPreset | undefined,
-): ColumnDef<OntimeEntry>[] {
-  const columnsDef: ColumnDef<OntimeEntry>[] = [];
+): ColumnDef<ExtendedEntry>[] {
+  const columnsDef: ColumnDef<ExtendedEntry>[] = [];
   const modeAllowsWrite = cuesheetMode === AppMode.Edit;
   const fullRead = preset ? preset.options?.read === 'full' : true;
   const fullWrite = preset ? preset.options?.write === 'full' : true;

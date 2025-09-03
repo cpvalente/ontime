@@ -1,0 +1,34 @@
+@use '@/theme/viewerDefs' as *;
+
+.single-container {
+  height: 100%;
+  margin-top: 5vh;
+  display: flex;
+  flex-direction: column;
+  gap: $view-element-gap;
+}
+
+.event__title {
+  background-color: var(--card-background-color-override, $viewer-card-bg-color);
+  padding: $view-card-padding;
+  border-radius: $element-border-radius;
+  font-size: clamp(40px, 4.5vw, 80px);
+  line-height: 1.1em;
+  text-align: center;
+}
+
+.event__status {
+  color: var(--secondary-color-override, $viewer-secondary-color);
+  font-size: clamp(2rem, 3.5vw, 3.5rem);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.event__timer {
+  color: var(--timer-color-override, $timer-color);
+  font-size: 15vw;
+  line-height: 0.9em;
+  text-align: center;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}

@@ -26,7 +26,6 @@ export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): {
   errors: ParsingError[];
   migrated: boolean;
 } {
-  //TODO: TEST THIS!!!!!!!
   let migrated = false;
   let migratedData = jsonData;
   if (v3.shouldUseThisMigration(jsonData)) {

@@ -5,6 +5,9 @@
   gap: 0.25rem;
   padding: 1rem 0.5rem;
   margin-bottom: 1rem;
+  max-height: 10rem;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 .preset {

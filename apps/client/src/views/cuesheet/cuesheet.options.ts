@@ -4,7 +4,6 @@ import { persist } from 'zustand/middleware';
 
 type OptionValues = {
   hideTableSeconds: boolean;
-  hidePast: boolean;
   hideIndexColumn: boolean;
   showDelayedTimes: boolean;
   hideDelays: boolean;
@@ -12,7 +11,6 @@ type OptionValues = {
 
 const defaultOptions: OptionValues = {
   hideTableSeconds: false,
-  hidePast: false,
   hideIndexColumn: false,
   showDelayedTimes: false,
   hideDelays: false,

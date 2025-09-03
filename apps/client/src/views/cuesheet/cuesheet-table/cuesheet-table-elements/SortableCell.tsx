@@ -2,12 +2,13 @@ import { CSSProperties, ReactNode } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Header } from '@tanstack/react-table';
-import { OntimeEntry } from 'ontime-types';
+
+import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 
 import style from '../CuesheetTable.module.scss';
 
 interface SortableCellProps {
-  header: Header<OntimeEntry, unknown>;
+  header: Header<ExtendedEntry, unknown>;
   injectedStyles: CSSProperties;
   children: ReactNode;
 }
@@ -34,11 +35,9 @@ export function SortableCell({ header, injectedStyles, children }: SortableCellP
         {children}
       </div>
       <div
-        {...{
-          onDoubleClick: () => header.column.resetSize(),
-          onMouseDown: header.getResizeHandler(),
-          onTouchStart: header.getResizeHandler(),
-        }}
+        onDoubleClick={() => header.column.resetSize()}
+        onMouseDown={header.getResizeHandler()}
+        onTouchStart={header.getResizeHandler()}
         className={style.resizer}
       />
     </th>

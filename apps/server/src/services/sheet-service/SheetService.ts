@@ -247,7 +247,6 @@ export async function handleInitialConnection(
   clientSecret: ClientSecret,
   sheetId: string,
 ): Promise<{ verification_url: string; user_code: string }> {
-  // TODO: check if the clientSecret has changed
   currentClientSecret = clientSecret;
 
   // we know there is an ongoing process if there is a timeout for cleanup
@@ -346,9 +345,14 @@ export async function upload(sheetId: string, options: ImportMap) {
     throw new Error(`Sheet read failed: ${readResponse.statusText}`);
   }
 
-  const { rundownMetadata } = parseExcel(readResponse.data.values, getProjectCustomFields(), 'not-used', options);
+  const { sheetMetadata } = parseExcel(readResponse.data.values, getProjectCustomFields(), 'not-used', options);
   const rundown = getCurrentRundown();
-  const titleRow = Object.values(rundownMetadata)[0]['row'];
+
+  const titleMetadata = Object.values(sheetMetadata)[0];
+  if (titleMetadata === undefined) {
+    throw new Error(`Sheet read failed: failed to find title row`);
+  }
+  const titleRow = titleMetadata['row'];
   const updateRundown = Array<sheets_v4.Schema$Request>();
 
   // we can't delete the last unfrozen row so we create an empty one
@@ -385,7 +389,7 @@ export async function upload(sheetId: string, options: ImportMap) {
   // update the corresponding row with event data
   rundown.order.forEach((entryId, index) => {
     const entry = rundown.entries[entryId];
-    return updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, rundownMetadata));
+    return updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, sheetMetadata));
   });
 
   const writeResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.batchUpdate({

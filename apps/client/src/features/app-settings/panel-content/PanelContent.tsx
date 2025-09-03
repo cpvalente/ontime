@@ -12,12 +12,12 @@ interface PanelContentProps {
 export default function PanelContent({ onClose, children }: PropsWithChildren<PanelContentProps>) {
   return (
     <div className={style.contentWrapper}>
+      <div className={style.content}>{children}</div>
       <div className={style.corner}>
         <Button size='large' onClick={onClose}>
           Close settings <IoClose />
         </Button>
       </div>
-      <div className={style.content}>{children}</div>
     </div>
   );
 }

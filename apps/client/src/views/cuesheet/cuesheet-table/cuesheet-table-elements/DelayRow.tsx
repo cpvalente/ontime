@@ -1,28 +1,26 @@
 import { memo } from 'react';
 
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
+import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 
 import style from './DelayRow.module.scss';
 
 interface DelayRowProps {
   duration: number;
-  parentBgColour: string | null;
 }
 
-function DelayRow({ duration, parentBgColour }: DelayRowProps) {
+function DelayRow({ duration, ...virtuosoProps }: DelayRowProps) {
+  const hideDelays = usePersistedCuesheetOptions((state) => state.hideDelays);
+
+  if (hideDelays || duration === 0) {
+    return null;
+  }
+
   const delayTime = millisToDelayString(duration, 'expanded');
 
   return (
-    <tr
-      className={style.delayRow}
-      style={{
-        '--user-bg': parentBgColour ?? 'transparent',
-      }}
-      data-testid='cuesheet-delay'
-    >
-      <td tabIndex={0} role='cell'>
-        {delayTime}
-      </td>
+    <tr className={style.delayRow} data-testid='cuesheet-delay' {...virtuosoProps}>
+      <td tabIndex={0}>{delayTime}</td>
     </tr>
   );
 }

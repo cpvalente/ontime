@@ -6,13 +6,13 @@ import { ToggleGroup } from '@base-ui-components/react/toggle-group';
 import { Toolbar } from '@base-ui-components/react/toolbar';
 import { useSessionStorage } from '@mantine/hooks';
 import type { Column } from '@tanstack/react-table';
-import { OntimeEntry } from 'ontime-types';
 
 import Button from '../../../../common/components/buttons/Button';
 import Checkbox from '../../../../common/components/checkbox/Checkbox';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import PopoverContents from '../../../../common/components/popover/Popover';
 import { PresetContext } from '../../../../common/context/PresetContext';
+import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { cx } from '../../../../common/utils/styleUtils';
 import { AppMode, sessionKeys } from '../../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
@@ -23,7 +23,7 @@ import CuesheetShareModal from './CuesheetShareModal';
 import style from './CuesheetTableSettings.module.scss';
 
 interface CuesheetTableSettingsProps {
-  columns: Column<OntimeEntry, unknown>[];
+  columns: Column<ExtendedEntry, unknown>[];
   handleResetResizing: () => void;
   handleResetReordering: () => void;
   handleClearToggles: () => void;
@@ -105,13 +105,6 @@ function ViewSettings() {
               onCheckedChange={(checked) => options.setOption('hideTableSeconds', checked)}
             />
             Hide seconds in table
-          </Editor.Label>
-          <Editor.Label className={style.option}>
-            <Checkbox
-              defaultChecked={options.hidePast}
-              onCheckedChange={(checked) => options.setOption('hidePast', checked)}
-            />
-            Hide past events
           </Editor.Label>
           <Editor.Label className={style.option}>
             <Checkbox

@@ -4,7 +4,6 @@ import { useSessionStorage } from '@mantine/hooks';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import { PresetContext } from '../../common/context/PresetContext';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
-import { useFlatRundown } from '../../common/hooks-query/useRundown';
 import { sessionScope } from '../../externals';
 import { AppMode, sessionKeys } from '../../ontimeConfig';
 
@@ -15,7 +14,6 @@ import { useCuesheetPermissions } from './useTablePermissions';
 
 export default memo(CuesheetTableWrapper);
 function CuesheetTableWrapper() {
-  const { data: flatRundown, status: rundownStatus } = useFlatRundown();
   const { data: customFields, status: customFieldStatus } = useCustomFields();
   const setPermissions = useCuesheetPermissions((state) => state.setPermissions);
   const preset = use(PresetContext);
@@ -52,15 +50,11 @@ function CuesheetTableWrapper() {
     [customFields, cuesheetMode, preset],
   );
 
-  const isLoading = !customFields || !flatRundown || rundownStatus === 'pending' || customFieldStatus === 'pending';
+  const isLoading = !customFields || customFieldStatus === 'pending';
 
   return (
     <CuesheetDnd columns={columns}>
-      {isLoading ? (
-        <EmptyPage text='Loading...' />
-      ) : (
-        <CuesheetTable data={flatRundown} columns={columns} cuesheetMode={cuesheetMode} />
-      )}
+      {isLoading ? <EmptyPage text='Loading...' /> : <CuesheetTable columns={columns} cuesheetMode={cuesheetMode} />}
     </CuesheetDnd>
   );
 }

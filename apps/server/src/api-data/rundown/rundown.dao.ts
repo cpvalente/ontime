@@ -29,7 +29,7 @@ import { customFieldLabelToKey, insertAtIndex } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
-import type { AssignedMap, CustomFieldsMetadata, RundownMetadata } from './rundown.types.js';
+import type { RundownMetadata } from './rundown.types.js';
 import {
   applyPatchToEntry,
   cloneGroup,
@@ -67,15 +67,6 @@ let rundownMetadata: RundownMetadata = {
   flags: [],
 };
 
-const customFieldsMetadata: CustomFieldsMetadata = {
-  /**
-   * Keep track of which custom fields are used.
-   * This will be handy for when we delete custom fields
-   * since we can clear the custom fields from every event where they are used
-   */
-  assigned: {},
-};
-
 /**
  * The custom fields that are used in the project
  * Not unique to the loaded rundown
@@ -89,7 +80,6 @@ export const getEntryWithId = (entryId: EntryId): OntimeEntry | undefined => cac
 
 type Transaction = {
   customFields: CustomFields;
-  customFieldsMetadata: Readonly<CustomFieldsMetadata>;
   rundown: Rundown;
   rundownMetadata: Readonly<RundownMetadata>;
 
@@ -136,13 +126,11 @@ export function createTransaction(options: TransactionOptions): Transaction {
         const processedData = processRundown(rundown, projectCustomFields);
         // update the cache values
         // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
-        const { previousEvent, latestEvent, previousEntry, entries, order, assignedCustomFields, ...metadata } =
-          processedData;
+        const { previousEvent, latestEvent, previousEntry, entries, order, ...metadata } = processedData;
 
         cachedRundown.entries = entries;
         cachedRundown.order = order;
         cachedRundown.flatOrder = metadata.flatEntryOrder;
-        customFieldsMetadata.assigned = assignedCustomFields;
         rundownMetadata = metadata;
       }
     }
@@ -167,7 +155,6 @@ export function createTransaction(options: TransactionOptions): Transaction {
 
   return {
     customFields,
-    customFieldsMetadata,
     rundown,
     rundownMetadata,
     commit,
@@ -565,6 +552,15 @@ export const rundownMutation = {
 };
 
 /**
+ * Exposes a way to update a rundown which is not active
+ */
+export function updateBackgroundRundown(rundownId: string, rundown: Rundown) {
+  setImmediate(async () => {
+    await getDataProvider().setRundown(rundownId, rundown);
+  });
+}
+
+/**
  * Adds a new custom field to the object and returns it
  */
 function customFieldAdd(customFields: CustomFields, key: CustomFieldKey, newCustomField: CustomField): CustomFields {
@@ -603,51 +599,29 @@ function customFieldRemove(customFields: CustomFields, key: CustomFieldKey) {
 }
 
 /**
- * Renames a custom field key in all the rundown entries that use it
+ * Iterates through all entries of a rundown and renames a custom field
  */
-function customFieldRenameUsages(
-  rundown: Rundown,
-  assigned: AssignedMap,
-  oldKey: CustomFieldKey,
-  newKey: CustomFieldKey,
-) {
-  const usages = assigned[oldKey];
-
-  // iterate through all the entries that use the custom field
-  for (let i = 0; i < usages.length; i++) {
-    const entryId = usages[i];
-    const entry = rundown.entries[entryId] as OntimeEvent;
-
-    // copy the data a new key and delete the old key
-    entry.custom[newKey] = entry.custom[oldKey];
-    delete entry.custom[oldKey];
-  }
-
-  // update assignment
-  assigned[newKey] = [...assigned[oldKey]];
-  delete assigned[oldKey];
+function customFieldRenameUsages(rundown: Rundown, oldKey: CustomFieldKey, newKey: CustomFieldKey) {
+  Object.keys(rundown.entries).forEach((entryId) => {
+    const entry = rundown.entries[entryId];
+    if ('custom' in entry && entry.custom[oldKey]) {
+      // copy the data a new key and delete the old key
+      entry.custom[newKey] = entry.custom[oldKey];
+      delete entry.custom[oldKey];
+    }
+  });
 }
 
 /**
- * Deletes data for a custom field from all the entries that use it
+ * Iterates through all entries of a rundown and removes data associated with a custom field
  */
-function customFieldRemoveUsages(rundown: Rundown, assigned: AssignedMap, key: CustomFieldKey) {
-  const usages = assigned[key];
-  if (!usages) {
-    return;
-  }
-
-  // iterate through all the entries that use the custom field
-  for (let i = 0; i < usages.length; i++) {
-    const entryId = usages[i];
-    const entry = rundown.entries[entryId] as OntimeEvent;
-
-    // delete the custom field entry
-    delete entry.custom[key];
-  }
-
-  // update assignment
-  delete assigned[key];
+function customFieldRemoveUsages(rundown: Rundown, key: CustomFieldKey) {
+  Object.keys(rundown.entries).forEach((entryId) => {
+    const entry = rundown.entries[entryId];
+    if ('custom' in entry && entry.custom[key]) {
+      delete entry.custom[key];
+    }
+  });
 }
 
 export const customFieldMutation = {
@@ -672,13 +646,11 @@ export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Rea
   projectCustomFields = customFields;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
-  const { previousEvent, latestEvent, previousEntry, entries, order, assignedCustomFields, ...metadata } =
-    processedData;
+  const { previousEvent, latestEvent, previousEntry, entries, order, ...metadata } = processedData;
   cachedRundown.entries = entries;
   cachedRundown.order = order;
   cachedRundown.flatOrder = metadata.flatEntryOrder;
   cachedRundown.revision = rundown.revision;
-  customFieldsMetadata.assigned = assignedCustomFields;
   rundownMetadata = metadata;
 
   // defer writing to the database
