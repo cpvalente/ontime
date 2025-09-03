@@ -46,8 +46,8 @@ router.post('/', validateSettings, async (req: Request, res: Response<Settings |
     data.version = settings.version;
 
     if (!deepEqual(data, settings)) {
-      sendRefetch(RefetchKey.Settings);
       await getDataProvider().setSettings(data);
+      sendRefetch(RefetchKey.Settings);
     }
 
     res.status(200).json(data);
