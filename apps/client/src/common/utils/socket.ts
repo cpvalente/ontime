@@ -17,6 +17,7 @@ import {
   REPORT,
   RUNDOWN,
   RUNTIME,
+  TRANSLATION,
   URL_PRESETS,
   VIEW_SETTINGS,
 } from '../api/constants';
@@ -172,6 +173,9 @@ export const connectSocket = () => {
               break;
             case RefetchKey.ViewSettings:
               ontimeQueryClient.invalidateQueries({ queryKey: VIEW_SETTINGS });
+              break;
+            case RefetchKey.Translation:
+              ontimeQueryClient.invalidateQueries({ queryKey: TRANSLATION });
               break;
             default: {
               target satisfies never;
