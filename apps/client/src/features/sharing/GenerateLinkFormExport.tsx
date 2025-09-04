@@ -29,7 +29,7 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
       { value: OntimeView.Timer, label: 'Timer' },
       { value: OntimeView.Cuesheet, label: 'Cuesheet' },
       { value: OntimeView.Operator, label: 'Operator' },
-      { value: '', label: 'Companion' },
+      { value: '<<companion>>', label: 'Companion' },
       ...urlPresetData.map((preset) => ({
         value: `preset-${preset.alias}`,
         label: `URL Preset: ${preset.alias}`,
