@@ -64,17 +64,20 @@ export function generateShareUrl(
 ): URL {
   const url = new URL(baseUrl);
 
-  // if the config is locked and we are in a preset, we hide the canonical path
-  const shouldMaskPath = Boolean(preset) && (canonicalPath === OntimeView.Cuesheet || lockConfig);
-  const maybePresetPath = shouldMaskPath ? `preset/${preset}` : preset || canonicalPath;
-  url.pathname = prefix ? `${prefix}/${maybePresetPath}` : maybePresetPath;
+  // companion links point to the root
+  if (canonicalPath !== '<<companion>>') {
+    // if the config is locked and we are in a preset, we hide the canonical path
+    const shouldMaskPath = Boolean(preset) && (canonicalPath === OntimeView.Cuesheet || lockConfig);
+    const maybePresetPath = shouldMaskPath ? `preset/${preset}` : preset || canonicalPath;
+    url.pathname = prefix ? `${prefix}/${maybePresetPath}` : maybePresetPath;
+
+    if (lockNav) {
+      url.searchParams.append('n', '1');
+    }
+  }
 
   if (authenticate && hash) {
     url.searchParams.append('token', hash);
-  }
-
-  if (lockNav) {
-    url.searchParams.append('n', '1');
   }
 
   return url;
