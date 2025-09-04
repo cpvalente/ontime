@@ -389,6 +389,10 @@ export function start(state: RuntimeState = runtimeState): boolean {
     state.rundown.actualStart = state.clock;
   }
 
+  if (state.groupNow !== null && state.rundown.actualGroupStart === null) {
+    state.rundown.actualGroupStart = state.clock;
+  }
+
   // update timer phase
   runtimeState.timer.phase = getTimerPhase(runtimeState);
 
@@ -752,16 +756,19 @@ export function loadGroupFlagAndEnd(
   rundown: Rundown,
   metadata: RundownMetadata,
   currentIndex: MaybeNumber,
-  state = runtimeState,
+  state = runtimeState, // used for testing
 ) {
+  const previousGroup = state.groupNow?.id;
   state.groupNow = null;
   state._group = null;
   state.eventFlag = null;
   state._flag = null;
   state._end = null;
 
-  if (currentIndex == null) return;
-  if (state.eventNow === null) return;
+  if (currentIndex === null || state.eventNow === null) {
+    state.rundown.actualGroupStart = null;
+    return;
+  }
 
   const currentGroupId = state.eventNow.parent;
   const flagsPresent = metadata.flags.length !== 0;
@@ -772,6 +779,10 @@ export function loadGroupFlagAndEnd(
   const orderInGroup = currentGroupId ? (entries[currentGroupId] as OntimeGroup).entries : null;
   state.groupNow = currentGroupId ? (entries[currentGroupId] as OntimeGroup) : null;
   const lastEventInGroup = orderInGroup ? getLastEventNormal(rundown.entries, orderInGroup).lastEvent : null;
+
+  if (previousGroup !== currentGroupId) {
+    state.rundown.actualGroupStart = null;
+  }
 
   // if we don't have a any flags in the rundown then no need to look for it
   let foundFlag = !flagsPresent;
