@@ -1,3 +1,4 @@
+import { CSSProperties } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { flexRender, Table } from '@tanstack/react-table';
 import { EntryId, SupportedEntry } from 'ontime-types';
@@ -15,9 +16,18 @@ interface GroupRowProps {
   rowId: string;
   rowIndex: number;
   table: Table<ExtendedEntry>;
+  injectedStyles?: CSSProperties;
 }
 
-export default function GroupRow({ groupId, colour, rowId, rowIndex, table, ...virtuosoProps }: GroupRowProps) {
+export default function GroupRow({
+  groupId,
+  colour,
+  rowId,
+  rowIndex,
+  table,
+  injectedStyles,
+  ...virtuosoProps
+}: GroupRowProps) {
   const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
     cuesheetMode: AppMode.Edit,
     hideIndexColumn: false,
@@ -26,7 +36,12 @@ export default function GroupRow({ groupId, colour, rowId, rowIndex, table, ...v
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
   return (
-    <tr className={style.groupRow} style={{ '--user-bg': colour }} data-testid='cuesheet-group' {...virtuosoProps}>
+    <tr
+      className={style.groupRow}
+      style={{ ...injectedStyles, '--user-bg': colour }}
+      data-testid='cuesheet-group'
+      {...virtuosoProps}
+    >
       {cuesheetMode === AppMode.Edit && (
         <td className={style.actionColumn} tabIndex={-1} role='cell'>
           <IconButton

@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { CSSProperties, memo } from 'react';
 
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
@@ -7,9 +7,10 @@ import style from './DelayRow.module.scss';
 
 interface DelayRowProps {
   duration: number;
+  injectedStyles?: CSSProperties;
 }
 
-function DelayRow({ duration, ...virtuosoProps }: DelayRowProps) {
+function DelayRow({ duration, injectedStyles, ...virtuosoProps }: DelayRowProps) {
   const hideDelays = usePersistedCuesheetOptions((state) => state.hideDelays);
 
   if (hideDelays || duration === 0) {
@@ -19,7 +20,7 @@ function DelayRow({ duration, ...virtuosoProps }: DelayRowProps) {
   const delayTime = millisToDelayString(duration, 'expanded');
 
   return (
-    <tr className={style.delayRow} data-testid='cuesheet-delay' {...virtuosoProps}>
+    <tr className={style.delayRow} data-testid='cuesheet-delay' style={injectedStyles} {...virtuosoProps}>
       <td tabIndex={0}>{delayTime}</td>
     </tr>
   );
