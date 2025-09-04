@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { CSSProperties, useMemo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { flexRender, Table } from '@tanstack/react-table';
 import { EntryId, OntimeEntry, RGBColour, SupportedEntry } from 'ontime-types';
@@ -26,6 +26,7 @@ interface EventRowProps {
   parent: EntryId | null;
   rowIndex: number;
   table: Table<ExtendedEntry<OntimeEntry>>;
+  injectedStyles?: CSSProperties;
 }
 
 export default function EventRow({
@@ -42,6 +43,7 @@ export default function EventRow({
   parent,
   rowIndex,
   table,
+  injectedStyles,
   ...virtuosoProps
 }: EventRowProps) {
   const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
@@ -81,6 +83,7 @@ export default function EventRow({
         parent && style.hasParent,
       ])}
       style={{
+        ...injectedStyles,
         opacity: `${isPast ? '0.2' : '1'}`,
         '--user-bg': groupColour ?? 'transparent',
       }}

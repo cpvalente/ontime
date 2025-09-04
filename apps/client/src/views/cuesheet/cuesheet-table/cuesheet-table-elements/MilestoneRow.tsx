@@ -1,3 +1,4 @@
+import { CSSProperties } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { flexRender, Table } from '@tanstack/react-table';
 import { EntryId, SupportedEntry } from 'ontime-types';
@@ -20,6 +21,7 @@ interface MilestoneRowProps {
   rowId: string;
   rowIndex: number;
   table: Table<ExtendedEntry>;
+  injectedStyles?: CSSProperties;
 }
 
 export default function MilestoneRow({
@@ -31,6 +33,7 @@ export default function MilestoneRow({
   rowId,
   rowIndex,
   table,
+  injectedStyles,
   ...virtuosoProps
 }: MilestoneRowProps) {
   const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
@@ -56,6 +59,7 @@ export default function MilestoneRow({
     <tr
       className={cx([style.milestoneRow, Boolean(parentBgColour) && style.hasParent])}
       style={{
+        ...injectedStyles,
         opacity: `${isPast ? '0.2' : '1'}`,
         '--user-bg': parentBgColour ?? 'transparent',
       }}

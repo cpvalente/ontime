@@ -167,7 +167,7 @@ export default function CuesheetTable({ columns, cuesheetMode }: CuesheetTablePr
               />
             );
           },
-          TableRow: ({ item: _item, ...virtuosoProps }) => {
+          TableRow: ({ item: _item, style: injectedStyles, ...virtuosoProps }) => {
             // eslint-disable-next-line react/destructuring-assignment
             const rowIndex = virtuosoProps['data-index'];
             const row = rows[rowIndex];
@@ -183,13 +183,16 @@ export default function CuesheetTable({ columns, cuesheetMode }: CuesheetTablePr
                   rowId={row.id}
                   rowIndex={row.index}
                   table={table}
+                  injectedStyles={injectedStyles}
                   {...virtuosoProps}
                 />
               );
             }
 
             if (isOntimeDelay(entry)) {
-              return <DelayRow key={key} duration={entry.duration} {...virtuosoProps} />;
+              return (
+                <DelayRow key={key} duration={entry.duration} injectedStyles={injectedStyles} {...virtuosoProps} />
+              );
             }
 
             if (isOntimeMilestone(entry)) {
@@ -204,6 +207,7 @@ export default function CuesheetTable({ columns, cuesheetMode }: CuesheetTablePr
                   rowId={row.id}
                   rowIndex={rowIndex}
                   table={table}
+                  injectedStyles={injectedStyles}
                   {...virtuosoProps}
                 />
               );
@@ -225,6 +229,7 @@ export default function CuesheetTable({ columns, cuesheetMode }: CuesheetTablePr
                 rowId={row.id}
                 rowIndex={rowIndex}
                 table={table}
+                injectedStyles={injectedStyles}
                 {...virtuosoProps}
               />
             );
