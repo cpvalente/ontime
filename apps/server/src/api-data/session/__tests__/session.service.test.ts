@@ -27,7 +27,7 @@ describe('generateAuthenticatedUrl()', () => {
         authenticate: true,
         hash: '1234',
       });
-      expect(withAuth.toString()).toBe('http://192.168.10.173:4001/timer?token=1234&n=1');
+      expect(withAuth.toString()).toBe('http://192.168.10.173:4001/timer?n=1&token=1234');
     });
 
     it('generates a link to an unlocked preset', () => {
@@ -69,6 +69,17 @@ describe('generateAuthenticatedUrl()', () => {
       });
       expect(withAuth.toString()).toBe('http://192.168.10.173:4001/preset/some-cuesheet-preset');
     });
+
+    it('generates a link for companion', () => {
+      const withAuth = generateShareUrl('http://192.168.10.173:4001', '<<companion>>', {
+        lockConfig: false,
+        lockNav: false,
+        authenticate: true,
+        preset: undefined,
+        hash: '1234',
+      });
+      expect(withAuth.toString()).toBe('http://192.168.10.173:4001/?token=1234');
+    });
   });
 
   describe('for ontime-cloud URLs', () => {
@@ -100,7 +111,7 @@ describe('generateAuthenticatedUrl()', () => {
         prefix: 'prefix',
         hash: '1234',
       });
-      expect(withAuth.toString()).toBe('https://cloud.getontime.no/prefix/timer?token=1234&n=1');
+      expect(withAuth.toString()).toBe('https://cloud.getontime.no/prefix/timer?n=1&token=1234');
     });
 
     it('generates a link to an unlocked preset', () => {

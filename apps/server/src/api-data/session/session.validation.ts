@@ -9,8 +9,6 @@ export const validateGenerateUrl = [
   body('lockConfig').isBoolean(),
   body('lockNav').isBoolean(),
   body('preset').optional().isString().trim().notEmpty(),
-  body('prefix').optional().isString().trim().notEmpty(),
-  body('hash').optional().isString().trim().notEmpty(),
 
   requestValidationFunction,
 ];
