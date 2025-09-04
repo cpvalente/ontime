@@ -64,7 +64,7 @@ export const initializeSentry = () => {
       /NetworkError/i,
       /The operation couldn't be completed/i,
     ],
-    denyUrls: [/extensions\//i, /^chrome:\/\//i, /^chrome-extension:\/\//i],
+    denyUrls: [/extensions\//i, /^chrome:\/\//i, /^chrome-extension:\/\//i, /external\//i],
     beforeSend(event) {
       // Drop errors that happen during known data-unavailable states
       const error = event.exception?.values?.[0]?.value;
