@@ -8,13 +8,15 @@ import {
   TbFolderPin,
   TbFolderStar,
 } from 'react-icons/tb';
-import { OntimeEvent, OntimeGroup, TimerPhase, TimerType } from 'ontime-types';
+import { OffsetMode, OntimeEvent, OntimeGroup, TimerPhase, TimerType } from 'ontime-types';
 import { isPlaybackActive, millisToString } from 'ontime-utils';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import {
   useClock,
   useCurrentGroupId,
+  useFlagTimerOverView,
+  useGroupTimerOverView,
   useNextFlag,
   useRundownOverview,
   useRuntimePlaybackOverview,
@@ -98,12 +100,18 @@ export function MetadataTimes() {
 
 //TODO: there a some things here we still need to think about, mainly what to do whit the planed group duration in relation to the events
 function GroupTimes() {
-  const { clock, groupExpectedEnd } = useRuntimePlaybackOverview();
+  const { clock, groupExpectedEnd, actualGroupStart, mode } = useGroupTimerOverView();
   const { currentGroupId } = useCurrentGroupId();
   const group = useEntry(currentGroupId) as OntimeGroup | null;
 
-  // the group end time dose not encode any day offsets
-  const plannedGroupEnd = group && group.timeStart !== null ? group.timeStart + group.duration - clock : null;
+  // the group end time dose not encode any day offsets so it is calculated with group start time and duration
+  const plannedGroupEnd =
+    group && group.timeStart !== null
+      ? mode === OffsetMode.Absolute
+        ? group.timeStart + group.duration - clock
+        : actualGroupStart + group.duration - clock
+      : null;
+
   const plannedTimeUntilGroupEnd = formattedTime(plannedGroupEnd, 3, TimerType.CountDown);
 
   const expectedGroupEnd = groupExpectedEnd !== null ? groupExpectedEnd - clock : null;
@@ -127,11 +135,15 @@ function GroupTimes() {
 }
 
 function FlagTimes() {
-  const { clock } = useClock();
+  const { clock, mode, actualStart, plannedStart } = useFlagTimerOverView();
   const { id, expectedStart } = useNextFlag();
   const entry = useEntry(id) as OntimeEvent | null;
 
-  const plannedFlagStart = entry ? entry.timeStart - clock : null;
+  const plannedFlagStart = entry
+    ? mode === OffsetMode.Absolute
+      ? entry.timeStart - clock
+      : entry.timeStart + actualStart - plannedStart - clock
+    : null;
   const plannedTimeUntilDisplay = formattedTime(plannedFlagStart, 3, TimerType.CountDown);
 
   const expectedTimeUntil = expectedStart !== null ? expectedStart - clock : null;

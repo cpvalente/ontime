@@ -171,6 +171,23 @@ export const useRundownOverview = createSelector((state: RuntimeStore) => ({
   expectedEnd: state.offset.expectedRundownEnd,
 }));
 
+export const useGroupTimerOverView = createSelector((state: RuntimeStore) => ({
+  clock: state.clock,
+  offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
+  mode: state.offset.mode,
+  groupExpectedEnd: state.offset.expectedGroupEnd,
+  // we can force these numbers to 0 fo this use case to avoid null checks
+  actualGroupStart: state.rundown.actualGroupStart ?? 0,
+}));
+
+export const useFlagTimerOverView = createSelector((state: RuntimeStore) => ({
+  clock: state.clock,
+  mode: state.offset.mode,
+  // we can force these numbers to 0 fo this use case to avoid null checks
+  actualStart: state.rundown.actualStart ?? 0,
+  plannedStart: state.rundown.plannedStart ?? 0,
+}));
+
 export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) => ({
   playback: state.timer.playback,
   clock: state.clock,
@@ -178,8 +195,10 @@ export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) =
   numEvents: state.rundown.numEvents,
   selectedEventIndex: state.rundown.selectedEventIndex,
   offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
+  mode: state.offset.mode,
 
   groupExpectedEnd: state.offset.expectedGroupEnd,
+  groupActualStart: state.rundown.actualGroupStart,
 }));
 
 export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
