@@ -56,13 +56,18 @@ export function makeCustomFieldSelectOptions(customFields: CustomFields, filterI
 /**
  * Creates data for a select element that displays project custom data
  */
-export function makeProjectDataOptions(projectData: ProjectData): SelectOption[] {
-  return projectData.custom.map((entry, index) => {
+export function makeProjectDataOptions(
+  projectData: ProjectData,
+  additionalOptions: SelectOption[] = [],
+): SelectOption[] {
+  const generatedOptions = projectData.custom.map((entry, index) => {
     return {
       value: `${index}-${entry.title}`,
       label: entry.title,
     };
   });
+
+  return [...additionalOptions, ...generatedOptions];
 }
 
 type ViewParamsObj = { [key: string]: string | FormDataEntryValue };

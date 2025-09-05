@@ -14,7 +14,10 @@ export const getCountdownOptions = (
   customFields: CustomFields,
   persistedSubscriptions: EntryId[],
 ): ViewOption[] => {
-  const secondaryOptions = makeOptionsFromCustomFields(customFields, [{ value: 'note', label: 'Note' }]);
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'none', label: 'None' },
+    { value: 'note', label: 'Note' },
+  ]);
 
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
@@ -28,7 +31,7 @@ export const getCountdownOptions = (
           description: 'Select the data source for auxiliary text shown in the card',
           type: 'option',
           values: secondaryOptions,
-          defaultValue: '',
+          defaultValue: 'none',
         },
       ],
     },

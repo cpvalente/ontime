@@ -13,6 +13,7 @@ import { isStringBoolean } from '../viewers/common/viewUtils';
 
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ViewOption[] => {
   const fieldOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'none', label: 'None' },
     { value: 'title', label: 'Title' },
     { value: 'note', label: 'Note' },
   ]);
@@ -38,7 +39,7 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
           description: 'Field to be shown in the second line of text',
           type: 'option',
           values: fieldOptions,
-          defaultValue: '',
+          defaultValue: 'none',
         },
         {
           id: 'subscribe',

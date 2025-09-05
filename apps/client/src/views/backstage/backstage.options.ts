@@ -17,8 +17,11 @@ export const getBackstageOptions = (
   customFields: CustomFields,
   projectData: ProjectData,
 ): ViewOption[] => {
-  const secondaryOptions = makeOptionsFromCustomFields(customFields, [{ value: 'note', label: 'Note' }]);
-  const projectDataOptions = makeProjectDataOptions(projectData);
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'none', label: 'None' },
+    { value: 'note', label: 'Note' },
+  ]);
+  const projectDataOptions = makeProjectDataOptions(projectData, [{ value: 'none', label: 'None' }]);
 
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
@@ -32,7 +35,7 @@ export const getBackstageOptions = (
           description: 'Select the data source for auxiliary text shown in now and next cards',
           type: 'option',
           values: secondaryOptions,
-          defaultValue: '',
+          defaultValue: 'none',
         },
       ],
     },
@@ -47,7 +50,7 @@ export const getBackstageOptions = (
           description: 'Select a project data source to show in the view',
           type: 'option',
           values: projectDataOptions,
-          defaultValue: '',
+          defaultValue: 'none',
         },
       ],
     },
