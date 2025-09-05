@@ -39,7 +39,14 @@ export default function ParamInput({ paramField }: ParamInputProps) {
   }
 
   if (type === 'multi-option') {
-    return <MultiOption paramField={paramField} />;
+    const optionFromParams = searchParams.getAll(id);
+
+    return (
+      <MultiOption
+        paramField={paramField}
+        options={optionFromParams.length ? optionFromParams : paramField.defaultValue ?? ['']}
+      />
+    );
   }
 
   if (type === 'boolean') {
@@ -74,19 +81,17 @@ export default function ParamInput({ paramField }: ParamInputProps) {
 
 interface EditFormMultiOptionProps {
   paramField: ParamField & { type: 'multi-option' };
+  options: string[];
 }
 
-function MultiOption({ paramField }: EditFormMultiOptionProps) {
-  const [searchParams] = useSearchParams();
-  const { id, values, defaultValue = [''] } = paramField;
+function MultiOption({ paramField, options }: EditFormMultiOptionProps) {
+  const { id, values } = paramField;
+  const [paramState, setParamState] = useState<string[]>(options);
 
-  const optionFromParams = searchParams.getAll(id);
-  const [paramState, setParamState] = useState<string[]>(optionFromParams.length ? optionFromParams : defaultValue);
-
+  // synchronise options
   useEffect(() => {
-    const params = searchParams.getAll(id);
-    setParamState(params.length ? params : defaultValue);
-  }, [searchParams, id, defaultValue]);
+    setParamState(options);
+  }, [options]);
 
   const toggleValue = (value: string, checked: boolean) => {
     if (checked) {
