@@ -179,8 +179,9 @@ export function OffsetOverview() {
 
 export function ClockOverview({ className }: { className?: string }) {
   const { clock } = useClock();
+  const formattedClock = formatTime(clock);
 
-  return <TimeColumn label='Time now' value={formattedTime(clock)} className={className} />;
+  return <TimeColumn label='Time now' value={formattedClock} className={className} />;
 }
 
 export function TimerOverview({ className }: { className?: string }) {
