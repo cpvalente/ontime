@@ -16,6 +16,7 @@ export const VIEW_SETTINGS = ['viewSettings'];
 export const CLIENT_LIST = ['clientList'];
 export const REPORT = ['report'];
 export const TRANSLATION = ['translation'];
+export const CSS_OVERRIDE = ['cssOverride']
 
 // API URLs
 export const apiEntryUrl = `${serverURL}/data`;
