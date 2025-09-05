@@ -190,7 +190,8 @@ export function updateRundownData(rundownData: {
   runtimeState.rundown.plannedStart = rundownData.firstStart;
   runtimeState.rundown.plannedEnd =
     rundownData.firstStart === null ? null : rundownData.firstStart + rundownData.totalDuration;
-  getExpectedTimes();
+
+  if (isPlaybackActive(runtimeState.timer.playback)) getExpectedTimes();
 }
 
 /**
@@ -825,5 +826,5 @@ export function loadGroupFlagAndEnd(
 
 export function setOffsetMode(mode: OffsetMode) {
   runtimeState.offset.mode = mode;
-  getExpectedTimes();
+  if (isPlaybackActive(runtimeState.timer.playback)) getExpectedTimes();
 }
