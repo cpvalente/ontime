@@ -100,17 +100,20 @@ export function MetadataTimes() {
 
 //TODO: there a some things here we still need to think about, mainly what to do whit the planed group duration in relation to the events
 function GroupTimes() {
-  const { clock, groupExpectedEnd, actualGroupStart, mode } = useGroupTimerOverView();
+  const { clock, groupExpectedEnd, actualGroupStart, mode, playback } = useGroupTimerOverView();
   const { currentGroupId } = useCurrentGroupId();
   const group = useEntry(currentGroupId) as OntimeGroup | null;
 
+  const active = isPlaybackActive(playback);
+
   // the group end time dose not encode any day offsets so it is calculated with group start time and duration
-  const plannedGroupEnd =
-    group && group.timeStart !== null
-      ? mode === OffsetMode.Absolute
-        ? group.timeStart + group.duration - clock
-        : actualGroupStart + group.duration - clock
-      : null;
+  const plannedGroupEnd = (() => {
+    if (!active) return null;
+    if (!group || group.timeStart === null) return null;
+    return mode === OffsetMode.Absolute
+      ? group.timeStart + group.duration - clock
+      : actualGroupStart + group.duration - clock;
+  })();
 
   const plannedTimeUntilGroupEnd = formattedTime(plannedGroupEnd, 3, TimerType.CountDown);
 
@@ -124,26 +127,31 @@ function GroupTimes() {
       <span className={groupTitle ? style.labelTitle : style.label}>{`${groupTitle ? groupTitle : 'Group'} `}</span>
       <div className={style.labelledElement}>
         <Tooltip text='Time to planned group end' render={<TbFolderPin className={style.icon} />} />
-        <span className={cx([style.time, !group && style.muted])}>{plannedTimeUntilGroupEnd}</span>
+        <span className={cx([style.time, (!group || !active) && style.muted])}>{plannedTimeUntilGroupEnd}</span>
       </div>
       <div className={style.labelledElement}>
         <Tooltip text='Time to expected group end' render={<TbFolderStar className={style.icon} />} />
-        <span className={cx([style.time, groupExpectedEnd === null && style.muted])}>{expectedTimeUntilGroupEnd}</span>
+        <span className={cx([style.time, !groupExpectedEnd && style.muted])}>{expectedTimeUntilGroupEnd}</span>
       </div>
     </div>
   );
 }
 
 function FlagTimes() {
-  const { clock, mode, actualStart, plannedStart } = useFlagTimerOverView();
+  const { clock, mode, actualStart, plannedStart, playback } = useFlagTimerOverView();
   const { id, expectedStart } = useNextFlag();
   const entry = useEntry(id) as OntimeEvent | null;
 
-  const plannedFlagStart = entry
-    ? mode === OffsetMode.Absolute
+  const active = isPlaybackActive(playback);
+
+  const plannedFlagStart = (() => {
+    if (!active) return null;
+    if (!entry) return null;
+    return mode === OffsetMode.Absolute
       ? entry.timeStart - clock
-      : entry.timeStart + actualStart - plannedStart - clock
-    : null;
+      : entry.timeStart + actualStart - plannedStart - clock;
+  })();
+
   const plannedTimeUntilDisplay = formattedTime(plannedFlagStart, 3, TimerType.CountDown);
 
   const expectedTimeUntil = expectedStart !== null ? expectedStart - clock : null;
@@ -156,7 +164,7 @@ function FlagTimes() {
       <span className={title ? style.labelTitle : style.label}>{`${title ? title : 'Flag'} `}</span>
       <div className={style.labelledElement}>
         <Tooltip text='Time to next flag planned start' render={<TbFlagPin className={style.icon} />} />
-        <span data-testid='flag-plannedStart' className={cx([style.time, !entry && style.muted])}>
+        <span data-testid='flag-plannedStart' className={cx([style.time, (!entry || !active) && style.muted])}>
           {plannedTimeUntilDisplay}
         </span>
       </div>
