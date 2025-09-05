@@ -9,7 +9,7 @@ import {
   TbFolderStar,
 } from 'react-icons/tb';
 import { OffsetMode, OntimeEvent, OntimeGroup, TimerPhase, TimerType } from 'ontime-types';
-import { isPlaybackActive, millisToString } from 'ontime-utils';
+import { dayInMs, isPlaybackActive, millisToString } from 'ontime-utils';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import {
@@ -100,7 +100,7 @@ export function MetadataTimes() {
 
 //TODO: there a some things here we still need to think about, mainly what to do whit the planed group duration in relation to the events
 function GroupTimes() {
-  const { clock, groupExpectedEnd, actualGroupStart, mode, playback } = useGroupTimerOverView();
+  const { clock, groupExpectedEnd, actualGroupStart, mode, playback, currentDay } = useGroupTimerOverView();
   const { currentGroupId } = useCurrentGroupId();
   const group = useEntry(currentGroupId) as OntimeGroup | null;
 
@@ -110,9 +110,10 @@ function GroupTimes() {
   const plannedGroupEnd = (() => {
     if (!active) return null;
     if (!group || group.timeStart === null) return null;
+    const normalizedClock = clock + currentDay * dayInMs; //TODO: <<--- is this correct
     return mode === OffsetMode.Absolute
-      ? group.timeStart + group.duration - clock
-      : actualGroupStart + group.duration - clock;
+      ? group.timeStart + group.duration - normalizedClock
+      : actualGroupStart + group.duration - normalizedClock;
   })();
 
   const plannedTimeUntilGroupEnd = formattedTime(plannedGroupEnd, 3, TimerType.CountDown);
@@ -138,7 +139,7 @@ function GroupTimes() {
 }
 
 function FlagTimes() {
-  const { clock, mode, actualStart, plannedStart, playback } = useFlagTimerOverView();
+  const { clock, mode, actualStart, plannedStart, playback, currentDay } = useFlagTimerOverView();
   const { id, expectedStart } = useNextFlag();
   const entry = useEntry(id) as OntimeEvent | null;
 
@@ -147,9 +148,11 @@ function FlagTimes() {
   const plannedFlagStart = (() => {
     if (!active) return null;
     if (!entry) return null;
+    const normalizedTimeStart = entry.timeStart + entry.dayOffset * dayInMs;
+    const normalizedClock = clock + currentDay * dayInMs; //TODO: <<--- is this correct
     return mode === OffsetMode.Absolute
-      ? entry.timeStart - clock
-      : entry.timeStart + actualStart - plannedStart - clock;
+      ? normalizedTimeStart - normalizedClock
+      : normalizedTimeStart + actualStart - plannedStart - normalizedClock;
   })();
 
   const plannedTimeUntilDisplay = formattedTime(plannedFlagStart, 3, TimerType.CountDown);
