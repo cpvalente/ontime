@@ -1,9 +1,17 @@
 import { IoPencil } from 'react-icons/io5';
-import { OntimeEvent } from 'ontime-types';
+import { MaybeNumber, OntimeEvent } from 'ontime-types';
+import { getExpectedStart } from 'ontime-utils';
 
 import Button from '../../common/components/buttons/Button';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
-import { useCountdownSocket, useCurrentDay, useRuntimeOffset, useSelectedEventId } from '../../common/hooks/useSocket';
+import {
+  useCountdownSocket,
+  useCurrentDay,
+  useExpectedStartData,
+  useRuntimeOffset,
+} from '../../common/hooks/useSocket';
+import useReport from '../../common/hooks-query/useReport';
+import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
 
@@ -13,16 +21,32 @@ import { getSubscriptionDisplayData, timerProgress } from './countdown.utils';
 import './SingleEventCountdown.scss';
 
 interface SingleEventCountdownProps {
-  subscribedEvent: OntimeEvent;
+  subscribedEvent: ExtendedEntry<OntimeEvent>;
   goToEditMode: () => void;
 }
 
 export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: SingleEventCountdownProps) {
   const showFab = useFadeOutOnInactivity(true);
+  const { data: reportData } = useReport();
+
+  const { offset, currentDay, actualStart, plannedStart, mode } = useExpectedStartData();
+  const { totalGap, isLinkedToLoaded } = subscribedEvent;
+  const expectedStart = getExpectedStart(subscribedEvent, {
+    currentDay,
+    totalGap,
+    actualStart,
+    plannedStart,
+    isLinkedToLoaded,
+    offset,
+    mode,
+  });
+
+  const { endedAt } = reportData[subscribedEvent.id] ?? { endedAt: null };
+  const countdownEvent = { ...subscribedEvent, expectedStart, endedAt };
 
   return (
     <div className='single-container' data-testid='countdown-event'>
-      <SubscriptionStatus event={subscribedEvent} />
+      <SubscriptionStatus event={countdownEvent} />
       <div className='event__title'>{subscribedEvent.title}</div>
       <div className={cx(['fab-container', !showFab && 'fab-container--hidden'])}>
         <Button variant='primary' size='xlarge' onClick={goToEditMode}>
@@ -34,12 +58,11 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
 }
 
 interface SubscriptionStatusProps {
-  event: OntimeEvent;
+  event: ExtendedEntry<OntimeEvent> & { endedAt: MaybeNumber; expectedStart: number };
 }
 
 function SubscriptionStatus({ event }: SubscriptionStatusProps) {
   const { getLocalizedString } = useTranslation();
-  const { selectedEventId } = useSelectedEventId();
   const { currentDay } = useCurrentDay();
   const { offset } = useRuntimeOffset();
   const { showExpected } = useCountdownOptions();
@@ -51,7 +74,6 @@ function SubscriptionStatus({ event }: SubscriptionStatusProps) {
     playback,
     clock,
     event,
-    selectedEventId,
     offset,
     currentDay,
     getLocalizedString('common.minutes'),
