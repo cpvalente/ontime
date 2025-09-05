@@ -825,4 +825,5 @@ export function loadGroupFlagAndEnd(
 
 export function setOffsetMode(mode: OffsetMode) {
   runtimeState.offset.mode = mode;
+  getExpectedTimes();
 }
