@@ -14,39 +14,31 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 10
-
+          run_install: false
+      
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
+    
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       # Run code quality per package
-      - name: React - Run linter +  TypeScript checks
-        if: always()
-        run: pnpm lint && tsc --noEmit
-        working-directory: ./apps/client
-
-      - name: Server - Run linter +  TypeScript checks
-        if: always()
-        run: pnpm lint && tsc --noEmit
-        working-directory: ./apps/server
-
-      - name: Utils - Run linter +  TypeScript checks
-        if: always()
-        run: pnpm lint && tsc --noEmit
-        working-directory: ./packages/utils
-
-      - name: Types - Run linter
+      - name: Run linter
         if: always()
         run: pnpm lint
-        working-directory: ./packages/types
+
+      - name: Run Typecheck
+        if: always()
+        run: pnpm typecheck
 
       # We choose to run tests separately
       - name: React - Run unit tests
@@ -70,21 +62,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 10
+          run_install: false
+      
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
       - name: Build client
-        run: pnpm build:local
+        run: pnpm build
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
