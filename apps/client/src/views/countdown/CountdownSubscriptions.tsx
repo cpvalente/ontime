@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { IoPencil } from 'react-icons/io5';
 import { EntryId, OntimeEvent } from 'ontime-types';
+import { getExpectedStart } from 'ontime-utils';
 
 import Button from '../../common/components/buttons/Button';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
@@ -8,11 +9,13 @@ import useFollowComponent from '../../common/hooks/useFollowComponent';
 import {
   useCountdownSocket,
   useCurrentDay,
+  useExpectedStartData,
   usePlayback,
   useRuntimeOffset,
   useSelectedEventId,
 } from '../../common/hooks/useSocket';
 import { getOffsetState } from '../../common/utils/offset';
+import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
 import FollowButton from '../../features/operator/follow-button/FollowButton';
@@ -35,6 +38,8 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
   const { playback } = usePlayback();
   const { selectedEventId } = useSelectedEventId();
   const showFab = useFadeOutOnInactivity(true);
+
+  const countdownEvents = useCountdownEvents(subscribedEvents);
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
@@ -89,7 +94,7 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
 
   return (
     <div className='list-container' onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
-      {subscribedEvents.map((event) => {
+      {countdownEvents.map((event) => {
         const secondaryData = getPropertyValue(event, secondarySource);
         const isLive = getIsLive(event.id, selectedEventId, playback);
 
@@ -98,16 +103,16 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
             <div className='sub__binder' style={{ '--user-color': event.colour }} />
             <div className={cx(['sub__schedule', event.delay > 0 && 'sub__schedule--delayed'])}>
               {showExpected ? (
-                <ExpectedSchedule timeStart={event.timeStart} timeEnd={event.timeEnd} delay={event.delay} />
+                <ExpectedSchedule
+                  timeStart={event.expectedStart}
+                  duration={event.duration}
+                  state={getOffsetState(event.expectedStart - event.timeStart)}
+                />
               ) : (
-                <>
-                  <ClockTime value={event.timeStart + event.delay} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
-                  →
-                  <ClockTime value={event.timeEnd + event.delay} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
-                </>
+                <ExpectedSchedule timeStart={event.timeStart + event.delay} duration={event.duration} state={null} />
               )}
             </div>
-            <SubscriptionStatus key={event.id} event={event} selectedEventId={selectedEventId} />
+            <SubscriptionStatus event={event} />
             <div className={cx(['sub__title', !event.title && 'subdued'])}>{sanitiseTitle(event.title)}</div>
             {secondaryData && <div className='sub__secondary'>{secondaryData}</div>}
           </div>
@@ -125,28 +130,23 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
 
 interface ExpectedScheduleProps {
   timeStart: number;
-  timeEnd: number;
-  delay: number;
+  duration: number;
+  state: 'over' | 'under' | 'muted' | null;
 }
 function ExpectedSchedule(props: ExpectedScheduleProps) {
-  const { timeStart, timeEnd, delay } = props;
-
-  const { offset } = useRuntimeOffset();
-
-  // offset is negative if we are ahead
-  const expectedOffset = offset - delay;
-  const expectedState = getOffsetState(expectedOffset);
+  const { timeStart, duration, state } = props;
 
   return (
     <>
       <ClockTime
-        value={timeStart - expectedOffset}
-        className={`sub__schedule--${expectedState}`}
+        value={timeStart}
+        className={`sub__schedule--${state}`}
         preferredFormat12='h:mm'
         preferredFormat24='HH:mm'
       />
       →
-      <ClockTime value={timeEnd - expectedOffset} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
+      <ClockTime value={timeStart + duration} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
+      {/* TODO: if cound to end then the end time would not move */}
     </>
   );
 }
@@ -182,4 +182,21 @@ function SubscriptionStatus({ event, selectedEventId }: SubscriptionStatusProps)
       <div className='sub__timer'>{timer}</div>
     </>
   );
+}
+
+function useCountdownEvents(subscribedEvents: ExtendedEntry<OntimeEvent>[]) {
+  const { offset, currentDay, actualStart, plannedStart, mode } = useExpectedStartData();
+  return subscribedEvents.map((event) => {
+    const { totalGap, isLinkedToLoaded } = event;
+    const expectedStart = getExpectedStart(event, {
+      currentDay,
+      totalGap,
+      actualStart,
+      plannedStart,
+      isLinkedToLoaded,
+      offset,
+      mode,
+    });
+    return { ...event, expectedStart };
+  });
 }
