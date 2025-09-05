@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { IoPencil } from 'react-icons/io5';
-import { MaybeNumber, OntimeEvent, OntimeReport } from 'ontime-types';
-import { getExpectedStart } from 'ontime-utils';
+import { MaybeNumber, OntimeEvent, TimerType } from 'ontime-types';
+import { dayInMs } from 'ontime-utils';
 
 import Button from '../../common/components/buttons/Button';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
@@ -21,11 +21,19 @@ import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
 import FollowButton from '../../features/operator/follow-button/FollowButton';
 import ClockTime from '../../features/viewers/common/clock-time/ClockTime';
-import { getPropertyValue } from '../../features/viewers/common/viewUtils';
+import { getFormattedTimer, getPropertyValue } from '../../features/viewers/common/viewUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import { useCountdownOptions } from './countdown.options';
-import { getIsLive, getSubscriptionDisplayData, sanitiseTitle, timerProgress } from './countdown.utils';
+import {
+  CountdownEvent,
+  extendEventData,
+  getIsLive,
+  getSubscriptionDisplayData,
+  isOutsideRange,
+  sanitiseTitle,
+  timerProgress,
+} from './countdown.utils';
 
 import './Countdown.scss';
 
@@ -41,7 +49,7 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
   const showFab = useFadeOutOnInactivity(true);
 
   const { data: reportData } = useReport();
-  const countdownEvents = useCountdownEvents(subscribedEvents, reportData);
+  const { offset, currentDay, actualStart, plannedStart, mode } = useExpectedStartData();
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
@@ -96,25 +104,16 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
 
   return (
     <div className='list-container' onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
-      {countdownEvents.map((event) => {
+      {subscribedEvents.map((event) => {
         const secondaryData = getPropertyValue(event, secondarySource);
         const isLive = getIsLive(event.id, selectedEventId, playback);
+        const countdownEvent = extendEventData(event, currentDay, actualStart, plannedStart, offset, mode, reportData);
 
         return (
           <div key={event.id} ref={isLive ? selectedRef : undefined} className={cx(['sub', isLive && 'sub--live'])}>
             <div className='sub__binder' style={{ '--user-color': event.colour }} />
-            <div className={cx(['sub__schedule', event.delay > 0 && 'sub__schedule--delayed'])}>
-              {showExpected ? (
-                <ExpectedSchedule
-                  timeStart={event.expectedStart}
-                  duration={event.duration}
-                  state={getOffsetState(event.expectedStart - event.timeStart)}
-                />
-              ) : (
-                <ExpectedSchedule timeStart={event.timeStart + event.delay} duration={event.duration} state={null} />
-              )}
-            </div>
-            <SubscriptionStatus event={event} />
+            <ScheduleTime event={countdownEvent} showExpected={showExpected} />
+            <SubscriptionStatus event={countdownEvent} />
             <div className={cx(['sub__title', !event.title && 'subdued'])}>{sanitiseTitle(event.title)}</div>
             {secondaryData && <div className='sub__secondary'>{secondaryData}</div>}
           </div>
@@ -130,26 +129,64 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
   );
 }
 
-interface ExpectedScheduleProps {
-  timeStart: number;
-  duration: number;
-  state: 'over' | 'under' | 'muted' | null;
-}
-function ExpectedSchedule(props: ExpectedScheduleProps) {
-  const { timeStart, duration, state } = props;
+type ScheduleTimeProps = {
+  event: CountdownEvent;
+  showExpected: boolean;
+};
+//TODO: consider relative mode
+function ScheduleTime(props: ScheduleTimeProps) {
+  const { event, showExpected } = props;
+  const { timeStart, duration, delay, expectedStart, countToEnd } = event;
+
+  const plannedStart = timeStart + delay + event.dayOffset * dayInMs;
+
+  // only show new exacted value if outside  range of the planned value
+  const isExpectedValueShow = showExpected && isOutsideRange(plannedStart, expectedStart);
+
+  const plannedStateClass = isExpectedValueShow ? 'sub__schedule--strike' : delay !== 0 ? 'sub__schedule--delayed' : '';
+
+  const expectedStateClass = `sub__schedule--${getOffsetState(expectedStart - plannedStart)}`;
+  const plannedEnd = timeStart + duration + delay;
+  const expectedEnd = countToEnd ? Math.max(expectedStart + duration, plannedEnd) : expectedStart + duration;
+  const expectedEndClass = `sub__schedule--${getOffsetState(expectedEnd - plannedEnd)}`;
 
   return (
-    <>
+    <div className='sub__schedule'>
       <ClockTime
-        value={timeStart}
-        className={`sub__schedule--${state}`}
+        value={plannedStart}
         preferredFormat12='h:mm'
         preferredFormat24='HH:mm'
+        className={plannedStateClass}
       />
-      →
-      <ClockTime value={timeStart + duration} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
-      {/* TODO: if cound to end then the end time would not move */}
-    </>
+      {!isExpectedValueShow && (
+        <>
+          →
+          <ClockTime
+            value={plannedEnd}
+            preferredFormat12='h:mm'
+            preferredFormat24='HH:mm'
+            className={plannedStateClass}
+          />
+        </>
+      )}
+      {isExpectedValueShow && (
+        <>
+          <ClockTime
+            value={expectedStart}
+            className={expectedStateClass}
+            preferredFormat12='h:mm'
+            preferredFormat24='HH:mm'
+          />
+          →
+          <ClockTime
+            value={expectedEnd}
+            className={expectedEndClass}
+            preferredFormat12='h:mm'
+            preferredFormat24='HH:mm'
+          />
+        </>
+      )}
+    </div>
   );
 }
 
@@ -172,32 +209,18 @@ function SubscriptionStatus({ event }: SubscriptionStatusProps) {
     event,
     offset,
     currentDay,
-    getLocalizedString('common.minutes'),
     showExpected,
   );
 
   return (
     <>
       <div className='sub__status'>{getLocalizedString(timerProgress[status])}</div>
-      <div className='sub__timer'>{timer}</div>
+      <div className='sub__timer'>
+        {getFormattedTimer(timer, TimerType.CountDown, getLocalizedString('common.minutes'), {
+          removeSeconds: true, // TODO: show seconds here when under some threshold
+          removeLeadingZero: true,
+        })}
+      </div>
     </>
   );
-}
-
-function useCountdownEvents(subscribedEvents: ExtendedEntry<OntimeEvent>[], reportData: OntimeReport) {
-  const { offset, currentDay, actualStart, plannedStart, mode } = useExpectedStartData();
-  return subscribedEvents.map((event) => {
-    const { totalGap, isLinkedToLoaded } = event;
-    const expectedStart = getExpectedStart(event, {
-      currentDay,
-      totalGap,
-      actualStart,
-      plannedStart,
-      isLinkedToLoaded,
-      offset,
-      mode,
-    });
-    const { endedAt } = reportData[event.id] ?? { endedAt: null };
-    return { ...event, expectedStart, endedAt };
-  });
 }

@@ -140,6 +140,10 @@ $item-height: 3.5rem;
     color: $delay-color;
   }
 
+  .sub__schedule--strike {
+    text-decoration: line-through;
+  }
+
   .sub__schedule--over {
     color: $playback-over
   }

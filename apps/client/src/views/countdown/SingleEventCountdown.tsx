@@ -1,5 +1,5 @@
 import { IoPencil } from 'react-icons/io5';
-import { MaybeNumber, OntimeEvent } from 'ontime-types';
+import { MaybeNumber, OntimeEvent, TimerType } from 'ontime-types';
 import { getExpectedStart } from 'ontime-utils';
 
 import Button from '../../common/components/buttons/Button';
@@ -13,6 +13,7 @@ import {
 import useReport from '../../common/hooks-query/useReport';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
+import { getFormattedTimer } from '../../features/viewers/common/viewUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import { useCountdownOptions } from './countdown.options';
@@ -76,14 +77,18 @@ function SubscriptionStatus({ event }: SubscriptionStatusProps) {
     event,
     offset,
     currentDay,
-    getLocalizedString('common.minutes'),
     showExpected,
   );
 
   return (
     <>
       <div className='event__status'>{getLocalizedString(timerProgress[status])}</div>
-      <div className='event__timer'>{timer}</div>
+      <div className='event__timer'>
+        {getFormattedTimer(timer, TimerType.CountDown, getLocalizedString('common.minutes'), {
+          removeSeconds: true,
+          removeLeadingZero: true,
+        })}
+      </div>
     </>
   );
 }
