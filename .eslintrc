@@ -49,5 +49,6 @@
         "endOfLine": "auto"
       }
     ]
-  }
+  },
+  "ignorePatterns": ["**/dist/**"]
 }

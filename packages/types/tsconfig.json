@@ -1,12 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "types": ["vitest/globals"],
     "rootDir": "src",
     "outDir": "dist"
-},
+  },
   "include": [
     "src",
-    "../node_modules/.pnpm/vitest@0.26.3/node_modules/vitest/globals.d.ts"
   ],
 }
