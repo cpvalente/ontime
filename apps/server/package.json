@@ -54,19 +54,17 @@
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --quiet --fix",
 
-    "dev": "cross-env NODE_ENV=development tsx watch ./src/index.ts",
+    "build": "cross-env NODE_ENV=development node esbuild.mjs",
+    "build:docker": "cross-env NODE_ENV=docker node esbuild.mjs",
+    "build:electron": "cross-env NODE_ENV=electron node esbuild.mjs",
+
+    "dev": "tsx watch ./src/index.ts",
+
     "dev:inspect": "cross-env NODE_ENV=development tsx watch --inspect ./src/index.ts",
     "dev:test": "cross-env IS_TEST=true tsx ./src/index.ts",
     "prebuild": "tsx ./scripts/bundleCss.ts && tsx ./scripts/bundleTranslation.ts",
-    "build": "node esbuild.electron.js",
-    "build:electron": "node esbuild.electron.js",
-    "build:local": "node esbuild.dev.js",
-    "build:docker": "node esbuild.docker.js",
-    "build:localdocker": "cross-env NODE_ENV=local node esbuild.docker.js",
-    "lint": "eslint . --quiet",
     "test": "cross-env IS_TEST=true vitest",
     "test:pipeline": "cross-env IS_TEST=true vitest run",
-    "typecheck": "tsc --noEmit",
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   }
 }

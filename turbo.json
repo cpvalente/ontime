@@ -2,14 +2,40 @@
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": ["NODE_ENV", "GITHUB_TOKEN", "APPLEID", "APPLEIDPASS", "TEAMID", "CSC_KEY_PASSWORD", "CSC_LINK"],
   "tasks": {
+    "transit-typecheck":{
+      "dependsOn": ["^transit-typecheck"]
+    },
+    "typecheck": {
+      "dependsOn": ["^transit-typecheck"]
+    },
+    "lint": {},
+    "lint:fix": {},
+    
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["build/**", "dist/**"],
+      "env": ["SENTRY_AUTH_TOKEN"]
+    },
+    "build:docker": {
+      "dependsOn": ["^build:docker"],
+      "outputs": ["build/**", "dist/**"],
+      "env": ["SENTRY_AUTH_TOKEN"]
+    },
+    "build:electron": {
+      "dependsOn": ["^build:electron"],
+      "outputs": ["build/**", "dist/**"],
+      "env": ["SENTRY_AUTH_TOKEN"]
+    },
+
+
     "dev": {
       "cache": false,
       "persistent": true
     },
-    "dev:server": {
-      "cache": false,
-      "persistent": true
-    },
+
+
+
+
     "dev:inspect": {
       "cache": false,
       "persistent": true
@@ -19,37 +45,27 @@
     },
     "test": {},
     "test:pipeline": {},
-    "lint": {
-      "cache": false
-    },
-    "typecheck": {
-      "cache": false
-    },
-    "build": {
-      "env": ["SENTRY_AUTH_TOKEN"]
-    },
-    "build:local": {},
-    "build:electron": {
-      "env": ["SENTRY_AUTH_TOKEN"]
-    },
-    "build:localdocker": {},
     "e2e": {
       "dependsOn": [
         "^build"
       ]
     },
+
     "dist-win": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build:electron"],
+      "outputs": ["build/**"]
     },
     "dist-mac": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build:electron"],
+      "outputs": ["build/**"]
     },
     "dist-mac:local": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build:electron"],
+      "outputs": ["build/**"]
     },
     "dist-linux": {
-      "dependsOn": ["build"]
-    },
-    "cleanup": {}
+      "dependsOn": ["build:electron"],
+      "outputs": ["build/**"]
+    }
   }
 }

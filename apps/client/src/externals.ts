@@ -21,7 +21,7 @@ export const isProduction = import.meta.env.MODE === 'production';
 export const isDev = !isProduction;
 export const currentHostName = window.location.hostname;
 export const isLocalhost = currentHostName === 'localhost' || currentHostName === '127.0.0.1';
-export const isDockerImage = Boolean(import.meta.env.VITE_IS_DOCKER);
+export const isDockerImage = import.meta.env.NODE_ENV === 'docker';
 export const isOntimeCloud = currentHostName.includes('cloud.getontime.no');
 
 // resolve entrypoint URLs

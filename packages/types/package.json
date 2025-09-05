@@ -6,8 +6,12 @@
   "private": true,
   "description": "shared typings for ontime",
   "scripts": {
-    "cleanup": "rm -rf .turbo && rm -rf node_modules",
-    "lint": "eslint . --quiet"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --quiet",
+    "lint:fix": "eslint . --quiet --fix",
+
+
+    "cleanup": "turbo rmraf .turbo && rm -rf node_modules",
   },
   "keywords": [],
   "author": "",

@@ -23,5 +23,9 @@
         "eslint": "catalog:",
         "eslint-config-prettier": "catalog:",
         "prettier": "catalog:"
+    },
+    "scripts": {
+        "lint": "eslint . --quiet",
+        "lint:fix": "eslint . --quiet --fix"
     }
 }

@@ -5,10 +5,13 @@
   "private": true,
   "description": "shared logic for ontime",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "lint": "eslint . --quiet",
+    "lint:fix": "eslint . --quiet --fix",
+
+
     "test": "vitest",
-    "test:pipeline": "vitest run",
-    "cleanup": "rm -rf .turbo && rm -rf node_modules"
+    "test:pipeline": "cross-env IS_TEST=true vitest run"
   },
   "dependencies": {
     "deepmerge-ts": "^7.0.3",

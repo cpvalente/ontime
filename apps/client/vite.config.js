@@ -8,14 +8,13 @@ import svgrPlugin from 'vite-plugin-svgr';
 import { ONTIME_VERSION } from './src/ONTIME_VERSION';
 
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
-const isDev = process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'development';
 
 export default defineConfig({
   base: './', // Ontime cloud: we use relative paths to allow them to reference a dynamic base set at runtime
   plugins: [
     react(),
     svgrPlugin(),
-    !isDev &&
+    sentryAuthToken &&
       sentryVitePlugin({
         org: 'get-ontime',
         project: 'ontime',

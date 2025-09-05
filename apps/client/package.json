@@ -41,14 +41,12 @@
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --quiet --fix",
 
+    "build": "cross-env NODE_ENV=development vite build",
+    "build:docker": "cross-env NODE_ENV=docker vite build",
+    "build:electron": "cross-env NODE_ENV=electron vite build",
 
     "dev": "cross-env BROWSER=none vite",
-    "build": "vite build",
-    "build:local": "cross-env NODE_ENV=local vite build",
-    "build:electron": "cross-env NODE_ENV=local vite build",
-    "build:docker": "cross-env VITE_IS_DOCKER=true vite build",
-    "build:localdocker": "cross-env NODE_ENV=local vite build",
-    "lint": "eslint . --quiet",
+
     "test": "vitest",
     "test:pipeline": "vitest run",
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf build",
