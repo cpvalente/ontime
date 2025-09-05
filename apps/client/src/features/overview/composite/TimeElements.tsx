@@ -61,7 +61,7 @@ export function StartTimes() {
           {maybePlannedDaySpan > 0 ? (
             <Tooltip
               text={`Event spans over ${maybePlannedDaySpan + 1} days`}
-              render={<span className={cx([style.time, style.daySpan])} />}
+              render={<span className={cx([style.time, style.daySpan])} data-day-offset={maybePlannedDaySpan} />}
             >
               {plannedEndText}
             </Tooltip>
@@ -74,7 +74,7 @@ export function StartTimes() {
           {maybeExpectedEnd !== null && maybeExpectedDaySpan > 0 ? (
             <Tooltip
               text={`Event spans over ${maybeExpectedDaySpan + 1} days`}
-              render={<span className={cx([style.time, style.daySpan])} />}
+              render={<span className={cx([style.time, style.daySpan])} data-day-offset={maybeExpectedDaySpan} />}
             >
               {formattedTime(maybeExpectedEnd)}
             </Tooltip>

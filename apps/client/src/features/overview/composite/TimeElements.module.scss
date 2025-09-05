@@ -47,7 +47,7 @@
 
 .daySpan {
   &::after {
-    content: '*';
+    content: "+"attr(data-day-offset);
     vertical-align: super;
     font-size: 0.75em;
     color: $info-blue;
