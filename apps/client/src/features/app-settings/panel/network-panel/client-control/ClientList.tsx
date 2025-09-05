@@ -8,6 +8,7 @@ import { RenameClientModal } from '../../../../../common/components/client-modal
 import Tag from '../../../../../common/components/tag/Tag';
 import { setClientRemote } from '../../../../../common/hooks/useSocket';
 import { useClientStore } from '../../../../../common/stores/clientStore';
+import { cx } from '../../../../../common/utils/styleUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import style from './ClientControlPanel.module.scss';
@@ -71,13 +72,13 @@ export default function ClientList() {
               const { identify, name, path } = client;
               const isCurrent = id === key;
               return (
-                <tr key={key}>
+                <tr key={key} className={cx([isCurrent && style.self])}>
                   <Panel.InlineElements relation='inner' as='td'>
                     {isCurrent && <Tag>SELF</Tag>}
                     {name}
                   </Panel.InlineElements>
                   <td className={style.copiable}>{path}</td>
-                  <Panel.InlineElements relation='inner'>
+                  <Panel.InlineElements relation='inner' as='td'>
                     <Button
                       size='small'
                       className={`${identify ? style.blink : ''}`}
