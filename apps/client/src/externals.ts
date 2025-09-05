@@ -2,7 +2,7 @@
  * This file contains a list of constants that may need to be resolved at runtime
  */
 
-import { version } from '../../../package.json';
+import { ONTIME_VERSION } from './ONTIME_VERSION';
 
 export const githubUrl = 'https://www.github.com/cpvalente/ontime';
 export const apiRepoLatest = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
@@ -16,7 +16,7 @@ export const githubSponsorUrl = 'https://github.com/sponsors/cpvalente';
 export const buyMeACoffeeUrl = 'https://buymeacoffee.com/cpvalente';
 
 // resolve environment
-export const appVersion = version;
+export const appVersion = ONTIME_VERSION;
 export const isProduction = import.meta.env.MODE === 'production';
 export const isDev = !isProduction;
 export const currentHostName = window.location.hostname;

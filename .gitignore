@@ -48,6 +48,7 @@ ontime-data/
 
 # versioning file
 **/ONTIME_VERSION.js
+**/ONTIME_VERSION.ts
 
 # temporary write files
 **.tmp
