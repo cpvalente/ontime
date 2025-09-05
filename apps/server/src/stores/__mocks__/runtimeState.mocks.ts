@@ -14,6 +14,7 @@ const baseState: RuntimeState = {
     plannedStart: 0,
     plannedEnd: 0,
     actualStart: null,
+    actualGroupStart: null,
   },
   offset: {
     absolute: 0,
