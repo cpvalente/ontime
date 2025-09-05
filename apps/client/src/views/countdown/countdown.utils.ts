@@ -1,6 +1,7 @@
 import { EntryId, MaybeNumber, OntimeEntry, OntimeEvent, Playback, TimerType } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
+import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { getFormattedTimer } from '../../features/viewers/common/viewUtils';
 import type { TranslationKey } from '../../translation/TranslationProvider';
 
@@ -48,8 +49,7 @@ export function getSubscriptionDisplayData(
   current: MaybeNumber,
   playback: Playback,
   clock: number,
-  subscribedEvent: OntimeEvent,
-  selectedId: EntryId | null,
+  subscribedEvent: ExtendedEntry<OntimeEvent> & { endedAt: MaybeNumber; expectedStart: number },
   offset: number,
   currentDay: number,
   minutesString: string,
@@ -57,14 +57,14 @@ export function getSubscriptionDisplayData(
 ): { status: ProgressStatus; timer: string } {
   const offsetAndDelay = showExpected ? offset + subscribedEvent.delay : 0;
 
-  if (selectedId === subscribedEvent.id) {
+  if (subscribedEvent.isLoaded) {
     // 1. An event that is loaded but not running is {'due': <countdown | overtime>}
     if (playback === Playback.Armed) {
       // if we are following the event, but it is not running, we show the scheduled start
       return {
         status: 'due',
         timer: getFormattedTimer(
-          subscribedEvent.timeStart + offsetAndDelay,
+          subscribedEvent.timeStart + subscribedEvent.delay,
           TimerType.CountDown,
           minutesString,
           subscriptionScheduledTimeDisplayOptions,
@@ -72,10 +72,36 @@ export function getSubscriptionDisplayData(
       };
     }
 
-    // 2. An event with a time-to-start lower than 0 is {'due': <countdown | scheduledStart>}, show the running timer
+    // 1. An event that is loaded but not armed can only be live {'live': <countdown | overtime>}
     return {
       status: 'live',
       timer: getFormattedTimer(current, TimerType.CountDown, minutesString, subscriptionTimerDisplayOptions),
+    };
+  }
+
+  /**
+   * If we are showing expected times we don't have to guess since that assumes a linear playback
+   */
+  if (showExpected) {
+    if (subscribedEvent.isPast) {
+      return {
+        status: 'done',
+        timer: getFormattedTimer(
+          subscribedEvent.endedAt,
+          TimerType.CountDown,
+          minutesString,
+          subscriptionScheduledTimeDisplayOptions,
+        ),
+      };
+    }
+    return {
+      status: 'future',
+      timer: getFormattedTimer(
+        subscribedEvent.expectedStart - clock,
+        TimerType.CountDown,
+        minutesString,
+        subscriptionScheduledTimeDisplayOptions,
+      ),
     };
   }
 

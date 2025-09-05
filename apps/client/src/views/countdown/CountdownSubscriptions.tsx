@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { IoPencil } from 'react-icons/io5';
-import { EntryId, OntimeEvent } from 'ontime-types';
+import { MaybeNumber, OntimeEvent, OntimeReport } from 'ontime-types';
 import { getExpectedStart } from 'ontime-utils';
 
 import Button from '../../common/components/buttons/Button';
@@ -14,6 +14,7 @@ import {
   useRuntimeOffset,
   useSelectedEventId,
 } from '../../common/hooks/useSocket';
+import useReport from '../../common/hooks-query/useReport';
 import { getOffsetState } from '../../common/utils/offset';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
@@ -39,7 +40,8 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
   const { selectedEventId } = useSelectedEventId();
   const showFab = useFadeOutOnInactivity(true);
 
-  const countdownEvents = useCountdownEvents(subscribedEvents);
+  const { data: reportData } = useReport();
+  const countdownEvents = useCountdownEvents(subscribedEvents, reportData);
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
@@ -152,11 +154,10 @@ function ExpectedSchedule(props: ExpectedScheduleProps) {
 }
 
 interface SubscriptionStatusProps {
-  event: OntimeEvent;
-  selectedEventId: EntryId | null;
+  event: ExtendedEntry<OntimeEvent> & { endedAt: MaybeNumber; expectedStart: number };
 }
 
-function SubscriptionStatus({ event, selectedEventId }: SubscriptionStatusProps) {
+function SubscriptionStatus({ event }: SubscriptionStatusProps) {
   const { getLocalizedString } = useTranslation();
   const { currentDay } = useCurrentDay();
   const { offset } = useRuntimeOffset();
@@ -169,7 +170,6 @@ function SubscriptionStatus({ event, selectedEventId }: SubscriptionStatusProps)
     playback,
     clock,
     event,
-    selectedEventId,
     offset,
     currentDay,
     getLocalizedString('common.minutes'),
@@ -184,7 +184,7 @@ function SubscriptionStatus({ event, selectedEventId }: SubscriptionStatusProps)
   );
 }
 
-function useCountdownEvents(subscribedEvents: ExtendedEntry<OntimeEvent>[]) {
+function useCountdownEvents(subscribedEvents: ExtendedEntry<OntimeEvent>[], reportData: OntimeReport) {
   const { offset, currentDay, actualStart, plannedStart, mode } = useExpectedStartData();
   return subscribedEvents.map((event) => {
     const { totalGap, isLinkedToLoaded } = event;
@@ -197,6 +197,7 @@ function useCountdownEvents(subscribedEvents: ExtendedEntry<OntimeEvent>[]) {
       offset,
       mode,
     });
-    return { ...event, expectedStart };
+    const { endedAt } = reportData[event.id] ?? { endedAt: null };
+    return { ...event, expectedStart, endedAt };
   });
 }
