@@ -1,4 +1,4 @@
-import { EntryId, MaybeNumber, OntimeEvent, Playback, TimerType } from 'ontime-types';
+import { EntryId, MaybeNumber, OntimeEntry, OntimeEvent, Playback, TimerType } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
 import { getFormattedTimer } from '../../features/viewers/common/viewUtils';
@@ -181,7 +181,7 @@ export function makeSubscriptionsUrl(urlRef: string, subscriptions: EntryId[]) {
  * Since the original array is already ordered, we simply filter out the events
  * which are not in the subscriptions list.
  */
-export function getOrderedSubscriptions(subscriptions: EntryId[], playableEvents: OntimeEvent[]): OntimeEvent[] {
+export function getOrderedSubscriptions<T extends OntimeEntry>(subscriptions: EntryId[], playableEvents: T[]): T[] {
   return playableEvents.filter((event) => subscriptions.includes(event.id));
 }
 

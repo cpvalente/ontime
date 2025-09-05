@@ -26,7 +26,7 @@ import { getIsLive, getSubscriptionDisplayData, sanitiseTitle, timerProgress } f
 import './Countdown.scss';
 
 interface CountdownSubscriptionsProps {
-  subscribedEvents: OntimeEvent[];
+  subscribedEvents: ExtendedEntry<OntimeEvent>[];
   goToEditMode: () => void;
 }
 
