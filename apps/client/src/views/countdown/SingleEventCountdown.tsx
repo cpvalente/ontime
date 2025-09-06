@@ -48,7 +48,9 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
   return (
     <div className='single-container' data-testid='countdown-event'>
       <SubscriptionStatus event={countdownEvent} />
-      <div className='event__title'>{subscribedEvent.title}</div>
+      <div className='event__title' style={{ borderColor: countdownEvent.colour }}>
+        {subscribedEvent.title}
+      </div>
       <div className={cx(['fab-container', !showFab && 'fab-container--hidden'])}>
         <Button variant='primary' size='xlarge' onClick={goToEditMode}>
           <IoPencil /> Edit
