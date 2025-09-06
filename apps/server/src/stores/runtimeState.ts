@@ -24,7 +24,7 @@ import {
 } from 'ontime-utils';
 
 import { timeNow } from '../utils/time.js';
-import type { RestorePoint } from '../services/RestoreService.js';
+import type { RestorePoint } from '../services/restore-service/restore.type.js';
 import { getCurrent, getExpectedFinish, getRuntimeOffset, getTimerPhase } from '../services/timerUtils.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';

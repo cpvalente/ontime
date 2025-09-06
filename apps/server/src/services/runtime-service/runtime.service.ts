@@ -25,7 +25,8 @@ import { triggerAutomations } from '../../api-data/automation/automation.service
 import { getCurrentRundown, getEntryWithId, getRundownMetadata } from '../../api-data/rundown/rundown.dao.js';
 
 import { EventTimer } from '../EventTimer.js';
-import { RestorePoint, restoreService } from '../RestoreService.js';
+import type { RestorePoint } from '../restore-service/restore.type.js';
+import { restoreService } from '../restore-service/restore.service.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
 
 import {
