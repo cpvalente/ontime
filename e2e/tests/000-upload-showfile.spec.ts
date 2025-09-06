@@ -3,19 +3,20 @@ import { randomUUID } from 'crypto';
 
 import { readFile, unlink } from 'fs/promises';
 
-const fileToUpload = 'e2e/tests/fixtures/e2e-test-db.json';
-const fileToDownload = 'e2e/tests/fixtures/tmp/';
+const fileToUpload = 'tests/fixtures/e2e-test-db.json';
+const fileToDownload = 'tests/fixtures/tmp/';
 
-test('project file upload', async ({ page }) => {
+// this is allowed to fail, might be the case when run locally
+test.fixme('welcome modal', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
   // Try to close welcome modal if it appears (times out silently if not present)
-  try {
-    await page.getByText('Welcome to Ontime').waitFor({ timeout: 1000 });
-    await page.getByRole('button', { name: 'close welcome modal' }).click();
-  } catch {
-    // Modal wasn't shown, continue with the test
-  }
+  await page.getByText('Welcome to Ontime').waitFor({ timeout: 1000 });
+  await page.getByRole('button', { name: 'close welcome modal' }).click();
+});
+
+test('project file upload', async ({ page }) => {
+  await page.goto('http://localhost:4001/editor');
 
   await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByRole('button', { name: 'Clear all' }).click();

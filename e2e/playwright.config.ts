@@ -5,7 +5,7 @@ import { devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 const config: PlaywrightTestConfig = {
-  testDir: './e2e/tests',
+  testDir: 'tests/',
   timeout: 60 * 1000,
   expect: {
     timeout: 5000,
@@ -16,7 +16,7 @@ const config: PlaywrightTestConfig = {
   workers: 1,
   reporter: 'html',
   webServer: {
-    command: 'turbo run dev --filter=ontime-server',
+    command: 'turbo run ontime-server#dev',
     port: 4001,
     reuseExistingServer: true,
     timeout: 60 * 1000,

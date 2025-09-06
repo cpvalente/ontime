@@ -1,0 +1,12 @@
+{
+  "name": "ontime-e2e",
+  "scripts": {
+    "e2e": "cross-env IS_TEST=true cross-env DEBUG=pw:webserver pnpm exec playwright test -c playwright.config.ts",
+    "e2e:ui": "cross-env IS_TEST=true cross-env DEBUG=pw:webserver pnpm exec playwright test --ui -c playwright.config.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "eslint-plugin-playwright": "^1.5.2",
+    "cross-env": "catalog:"
+  }
+}

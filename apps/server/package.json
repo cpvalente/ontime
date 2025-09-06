@@ -59,12 +59,12 @@
     "build:electron": "cross-env NODE_ENV=electron node esbuild.mjs",
 
     "dev": "tsx watch ./src/index.ts",
+    "test": "cross-env IS_TEST=true vitest",
+    "test:pipeline": "cross-env IS_TEST=true vitest run",
 
     "dev:inspect": "cross-env NODE_ENV=development tsx watch --inspect ./src/index.ts",
     "dev:test": "cross-env IS_TEST=true tsx ./src/index.ts",
     "prebuild": "tsx ./scripts/bundleCss.ts && tsx ./scripts/bundleTranslation.ts",
-    "test": "cross-env IS_TEST=true vitest",
-    "test:pipeline": "cross-env IS_TEST=true vitest run",
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   }
 }

@@ -41,14 +41,14 @@
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --quiet --fix",
 
-    "build": "cross-env NODE_ENV=development vite build",
+    "build": "cross-env NODE_ENV=production vite build",
     "build:docker": "cross-env NODE_ENV=docker vite build",
     "build:electron": "cross-env NODE_ENV=electron vite build",
 
     "dev": "cross-env BROWSER=none vite",
-
     "test": "vitest",
     "test:pipeline": "vitest run",
+
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf build",
     "analyse": "npx vite-bundle-visualizer"
   },

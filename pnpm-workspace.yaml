@@ -1,6 +1,7 @@
 packages:
   - apps/*
   - packages/*
+  - e2e
 catalog:
   typescript: 5.5.3
   '@typescript-eslint/eslint-plugin': 7.16.1
@@ -11,6 +12,7 @@ catalog:
   eslint-config-prettier: 9.1.0
   eslint-plugin-prettier: 5.1.3
   vitest: 3.2.1
+  cross-env: ^7.0.3
 onlyBuiltDependencies:
   - electron
   - esbuild

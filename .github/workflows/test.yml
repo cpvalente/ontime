@@ -31,7 +31,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Run code quality per package
       - name: Run linter
         if: always()
         run: pnpm lint
@@ -40,21 +39,9 @@ jobs:
         if: always()
         run: pnpm typecheck
 
-      # We choose to run tests separately
-      - name: React - Run unit tests
+      - name: Run unit tests
         if: always()
         run: pnpm test:pipeline
-        working-directory: ./apps/client
-
-      - name: Server - Run unit tests
-        if: always()
-        run: pnpm test:pipeline
-        working-directory: ./apps/server
-
-      - name: Utils - Run unit tests
-        if: always()
-        run: pnpm test:pipeline
-        working-directory: ./packages/utils
 
   e2e-test:
     runs-on: ubuntu-latest
@@ -78,11 +65,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build client
-        run: pnpm build
-
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+        working-directory: ./e2e
 
       - name: Run Playwright tests
         run: pnpm e2e
@@ -91,7 +76,7 @@ jobs:
         if: always()
         with:
           name: playwright-report
-          path: playwright-report/
+          path: e2e/playwright-report/
           retention-days: 30
 
       - uses: actions/upload-artifact@v4

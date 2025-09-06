@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["NODE_ENV", "GITHUB_TOKEN", "APPLEID", "APPLEIDPASS", "TEAMID", "CSC_KEY_PASSWORD", "CSC_LINK"],
+  "globalEnv": ["NODE_ENV", "IS_TEST", "GITHUB_TOKEN", "APPLEID", "APPLEIDPASS", "TEAMID", "CSC_KEY_PASSWORD", "CSC_LINK"],
   "tasks": {
     "transit-typecheck":{
       "dependsOn": ["^transit-typecheck"]
@@ -30,11 +30,22 @@
 
     "dev": {
       "cache": false,
+      "passThroughEnv": ["IS_TEST", "CI"],
       "persistent": true
     },
 
+    "test": {},
+    "test:pipeline": {},
+    "e2e": {
+      "dependsOn": ["ontime-ui#build"],
+      "passThroughEnv": ["PLAYWRIGHT_*"]
+    },
 
-
+    "e2e:ui": {
+      "dependsOn": ["ontime-ui#build"],
+      "passThroughEnv": ["PLAYWRIGHT_*"],
+      "persistent": true
+    },
 
     "dev:inspect": {
       "cache": false,
@@ -43,13 +54,7 @@
     "dev:test": {
       "cache": false
     },
-    "test": {},
-    "test:pipeline": {},
-    "e2e": {
-      "dependsOn": [
-        "^build"
-      ]
-    },
+
 
     "dist-win": {
       "dependsOn": ["build:electron"],

@@ -25,8 +25,8 @@
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "build": "turbo run build",
-    "build:docker": "turbo run build", 
-    "build:electron": "turbo run build:electron", 
+    "build:docker": "turbo run build",
+    "build:electron": "turbo run build:electron",
     "dev": "cross-env NODE_ENV=development turbo run dev",
     "dev:ui": "cross-env NODE_ENV=development turbo run ontime-ui#dev",
     "dev:server": "cross-env NODE_ENV=development turbo run ontime-server#dev",
@@ -34,24 +34,24 @@
     "dist-win": "turbo run dist-win",
     "dist-mac": "turbo run dist-mac",
     "dist-linux": "turbo run dist-linux",
-    "e2e": "pnpm clear-temp && cross-env DEBUG=pw:webserver npx playwright test -c playwright.config.ts",
-    "e2e:ui": "cross-env DEBUG=pw:webserver npx playwright test --ui -c playwright.config.ts",
+    "test": "turbo run test",
+    "test:pipeline": "turbo run test:pipeline",
+    "e2e": "turbo run e2e",
+    "e2e:ui": "turbo run e2e:ui",
     "e2e:i": "npx playwright codegen",
     "cleanup": "rm -rf node_modules && rm -rf **/node_modules && rm -rf **/**/node_modules",
     "clear-temp": "rm -rf e2e/tests/fixtures/tmp"
   },
   "devDependencies": {
-    "@playwright/test": "^1.51.1",
     "@types/node": "catalog:",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
-    "cross-env": "^7.0.3",
+    "cross-env": "catalog:",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
-    "eslint-plugin-playwright": "^1.5.2",
     "prettier": "catalog:",
     "turbo": "^2.3.3",
     "typescript": "catalog:"
   },
-  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
+  "packageManager": "pnpm@10.15.1+sha512.34e538c329b5553014ca8e8f4535997f96180a1d0f614339357449935350d924e22f8614682191264ec33d1462ac21561aff97f6bb18065351c162c7e8f6de67"
 }
