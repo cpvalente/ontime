@@ -91,7 +91,10 @@ export function cellRequestFromEvent(
 ): sheets_v4.Schema$Request {
   const rowData = Object.entries(metadata) // check what headings are available in the sheet
     .filter(([_, value]) => value !== undefined) // drop anything that is undefined
-    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [keyof OntimeEntry | 'blank', { col: number; row: number }][]; // sort the array by the column index
+    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [
+    OntimeEntryCommonKeys | 'blank',
+    { col: number; row: number },
+  ][]; // sort the array by the column index
 
   // inset blank data is there is spacing between relevant ontime columns
   for (const [index, e] of rowData.entries()) {
@@ -159,7 +162,8 @@ function getCellData(key: OntimeEntryCommonKeys | 'blank', entry: OntimeEntry) {
 
   // we need to remap the event type to timer type in the case of groups and milestones
   if (key === 'timerType') {
-    if (isOntimeGroup(entry)) return { userEnteredValue: { stringValue: 'group' } };
+    if (isOntimeGroup(entry))
+      return { userEnteredValue: { stringValue: entry.id.startsWith('group-end') ? 'group-end' : 'group' } };
     if (isOntimeMilestone(entry)) return { userEnteredValue: { stringValue: 'milestone' } };
     return { userEnteredValue: { stringValue: entry.timerType } };
   }
