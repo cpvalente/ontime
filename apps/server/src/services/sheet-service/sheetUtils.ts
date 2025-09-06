@@ -89,21 +89,19 @@ export function cellRequestFromEvent(
   worksheetId: number,
   metadata: object,
 ): sheets_v4.Schema$Request {
-  const rowData = Object.entries(metadata)
-    .filter(([_, value]) => value !== undefined)
-    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [keyof OntimeEntry | 'blank', { col: number; row: number }][];
+  const rowData = Object.entries(metadata) // check what headings are available in the sheet
+    .filter(([_, value]) => value !== undefined) // drop anything that is undefined
+    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [keyof OntimeEntry | 'blank', { col: number; row: number }][]; // sort the array by the column index
 
-  const titleCol = rowData[0][1].col;
-
+  // inset blank data is there is spacing between relevant ontime columns
   for (const [index, e] of rowData.entries()) {
-    if (index !== 0) {
-      const prevCol = rowData[index - 1][1].col;
-      const thisCol = e[1].col;
-      const diff = thisCol - prevCol;
-      if (diff > 1) {
-        const fillArr = new Array<(typeof rowData)[0]>(1).fill(['blank', { row: e[1].row, col: prevCol + 1 }]);
-        rowData.splice(index, 0, ...fillArr);
-      }
+    if (index === 0) continue;
+    const prevCol = rowData[index - 1][1].col;
+    const thisCol = e[1].col;
+    const diff = thisCol - prevCol;
+    if (diff > 1) {
+      const fillArr = new Array<(typeof rowData)[0]>(1).fill(['blank', { row: e[1].row, col: prevCol + 1 }]);
+      rowData.splice(index, 0, ...fillArr);
     }
   }
 
@@ -129,12 +127,14 @@ export function cellRequestFromEvent(
     return { ...getCellData(key, entry), ...cellColor };
   });
 
+  const headerLocation = rowData[0][1];
+
   return {
     updateCells: {
       start: {
         sheetId: worksheetId,
-        rowIndex: index + rowData[0][1]['row'] + 1,
-        columnIndex: titleCol,
+        rowIndex: index + headerLocation.row + 1,
+        columnIndex: headerLocation.col,
       },
       fields: 'userEnteredValue,userEnteredFormat',
       rows: [

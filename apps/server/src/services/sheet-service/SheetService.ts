@@ -389,7 +389,7 @@ export async function upload(sheetId: string, options: ImportMap) {
   // update the corresponding row with event data
   rundown.order.forEach((entryId, index) => {
     const entry = rundown.entries[entryId];
-    return updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, sheetMetadata));
+    updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, sheetMetadata));
   });
 
   const writeResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.batchUpdate({
