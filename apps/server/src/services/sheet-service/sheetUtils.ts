@@ -1,4 +1,11 @@
-import { isOntimeGroup, isOntimeEvent, OntimeEvent, OntimeEntry, RGBColour } from 'ontime-types';
+import {
+  OntimeEntry,
+  RGBColour,
+  isOntimeDelay,
+  OntimeEntryCommonKeys,
+  isOntimeGroup,
+  isOntimeMilestone,
+} from 'ontime-types';
 import { cssOrHexToColour, isLightColour, millisToString, mixColours } from 'ontime-utils';
 
 import type { sheets_v4 } from '@googleapis/sheets';
@@ -70,21 +77,21 @@ export function getA1Notation(row: number, column: number): string {
 
 /**
  * @description - creates updateCells request from ontime event
- * @param {OntimeEntry} event
+ * @param {OntimeEntry} entry
  * @param {number} index - index of the event
  * @param {number} worksheetId
  * @param {object} metadata - object with all the cell positions of the title of each attribute
  * @returns {sheets_v4.Schema} - list of update requests
  */
 export function cellRequestFromEvent(
-  event: OntimeEntry,
+  entry: OntimeEntry,
   index: number,
   worksheetId: number,
   metadata: object,
 ): sheets_v4.Schema$Request {
   const rowData = Object.entries(metadata)
     .filter(([_, value]) => value !== undefined)
-    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [keyof OntimeEvent | 'blank', { col: number; row: number }][];
+    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [keyof OntimeEntry | 'blank', { col: number; row: number }][];
 
   const titleCol = rowData[0][1].col;
 
@@ -100,26 +107,26 @@ export function cellRequestFromEvent(
     }
   }
 
-  const colors = isOntimeEvent(event) || isOntimeGroup(event) ? getAccessibleColour(event.colour) : undefined;
-  const cellColor: sheets_v4.Schema$CellData = !colors
+  const colours = 'colour' in entry ? getAccessibleColour(entry.colour) : undefined;
+  const cellColor: sheets_v4.Schema$CellData = !colours
     ? {}
     : {
         userEnteredFormat: {
-          backgroundColor: toSheetColourLevel(colors.background),
+          backgroundColor: toSheetColourLevel(colours.background),
           textFormat: {
-            foregroundColor: toSheetColourLevel(colors.text),
+            foregroundColor: toSheetColourLevel(colours.text),
           },
           borders: {
             bottom: {
               style: 'SOLID',
-              color: toSheetColourLevel(colors.border),
+              color: toSheetColourLevel(colours.border),
             },
           },
         },
       };
 
   const returnRows: sheets_v4.Schema$CellData[] = rowData.map(([key, _]) => {
-    return { ...getCellData(key, event), ...cellColor };
+    return { ...getCellData(key, entry), ...cellColor };
   });
 
   return {
@@ -139,40 +146,38 @@ export function cellRequestFromEvent(
   };
 }
 
-function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
-  if (isOntimeEvent(event)) {
-    if (key === 'blank') {
-      return {};
-    }
-    if (key === 'colour') {
-      return { userEnteredValue: { stringValue: event[key] } };
-    }
-    if (key.startsWith('custom')) {
-      const customKey = key.split(':')[1];
-      return { userEnteredValue: { stringValue: event.custom[customKey] } };
-    }
-
-    if (typeof event[key] === 'number') {
-      return { userEnteredValue: { stringValue: millisToString(event[key]) } };
-    }
-    if (typeof event[key] === 'string') {
-      return { userEnteredValue: { stringValue: event[key] } };
-    }
-    if (typeof event[key] === 'boolean') {
-      return { userEnteredValue: { boolValue: event[key] } };
-    }
+function getCellData(key: OntimeEntryCommonKeys | 'blank', entry: OntimeEntry) {
+  if (isOntimeDelay(entry) || key === 'blank') {
+    return {};
   }
 
-  if (isOntimeGroup(event)) {
-    if (key === 'title') {
-      return { userEnteredValue: { stringValue: event[key] } };
-    }
-    if (key === 'timerType') {
-      return { userEnteredValue: { stringValue: 'group' } };
-    }
+  // we need to flatten the milestones
+  if (key.startsWith('custom')) {
+    const customKey = key.split(':')[1];
+    return { userEnteredValue: { stringValue: entry.custom[customKey] } };
   }
 
-  return {};
+  // we need to remap the event type to timer type in the case of groups and milestones
+  if (key === 'timerType') {
+    if (isOntimeGroup(entry)) return { userEnteredValue: { stringValue: 'group' } };
+    if (isOntimeMilestone(entry)) return { userEnteredValue: { stringValue: 'milestone' } };
+    return { userEnteredValue: { stringValue: entry.timerType } };
+  }
+
+  // typescript cannot guarantee that the key exists for every entry
+  // so we check for the key existence and assert the type
+  if (!(key in entry)) return {};
+  const value = entry[key as keyof OntimeEntry];
+
+  if (typeof value === 'number') {
+    return { userEnteredValue: { stringValue: millisToString(value) } };
+  }
+  if (typeof value === 'string') {
+    return { userEnteredValue: { stringValue: value } };
+  }
+  if (typeof value === 'boolean') {
+    return { userEnteredValue: { boolValue: value } };
+  }
 }
 
 type googleSheetCellColour = {
