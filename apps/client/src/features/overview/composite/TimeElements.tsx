@@ -26,7 +26,7 @@ import { useEntry } from '../../../common/hooks-query/useRundown';
 import { getOffsetState, getOffsetText } from '../../../common/utils/offset';
 import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
-import { calculateEndAndDaySpan, formattedTime } from '../overview.utils';
+import { calculateEndAndDaySpan, formatDueTime, formattedTime } from '../overview.utils';
 
 import { OverUnder, TimeColumn } from './TimeLayout';
 
@@ -60,7 +60,7 @@ export function StartTimes() {
           <Tooltip text='Planned end time' render={<TbCalendarPin className={style.icon} />} />
           {maybePlannedDaySpan > 0 ? (
             <Tooltip
-              text={`Event spans over ${maybePlannedDaySpan + 1} days`}
+              text={`Rundown spans over ${maybePlannedDaySpan + 1} days`}
               render={<span className={cx([style.time, style.daySpan])} data-day-offset={maybePlannedDaySpan} />}
             >
               {plannedEndText}
@@ -73,7 +73,7 @@ export function StartTimes() {
           <Tooltip text='Expected end time' render={<TbCalendarStar className={style.icon} />} />
           {maybeExpectedEnd !== null && maybeExpectedDaySpan > 0 ? (
             <Tooltip
-              text={`Event spans over ${maybeExpectedDaySpan + 1} days`}
+              text={`Rundown spans over ${maybeExpectedDaySpan + 1} days`}
               render={<span className={cx([style.time, style.daySpan])} data-day-offset={maybeExpectedDaySpan} />}
             >
               {formattedTime(maybeExpectedEnd)}
@@ -116,23 +116,39 @@ function GroupTimes() {
       : actualGroupStart + group.duration - normalizedClock;
   })();
 
-  const plannedTimeUntilGroupEnd = formattedTime(plannedGroupEnd, 3, TimerType.CountDown);
+  const plannedTimeUntilGroupEnd = formatDueTime(plannedGroupEnd, 3, TimerType.CountDown);
 
   const expectedGroupEnd = groupExpectedEnd !== null ? groupExpectedEnd - clock : null;
-  const expectedTimeUntilGroupEnd = formattedTime(expectedGroupEnd, 3, TimerType.CountDown);
+  const expectedTimeUntilGroupEnd = formatDueTime(expectedGroupEnd, 3, TimerType.CountDown);
 
   const groupTitle = group?.title ?? null;
 
   return (
     <div className={style.metadataRow}>
-      <span className={groupTitle ? style.labelTitle : style.label}>{`${groupTitle ? groupTitle : 'Group'} `}</span>
+      <span className={groupTitle ? style.labelTitle : style.label}>{`${groupTitle || 'Group'} `}</span>
       <div className={style.labelledElement}>
         <Tooltip text='Time to planned group end' render={<TbFolderPin className={style.icon} />} />
-        <span className={cx([style.time, (!group || !active) && style.muted])}>{plannedTimeUntilGroupEnd}</span>
+        <span
+          className={cx([
+            style.time,
+            (!group || !active) && style.muted,
+            plannedTimeUntilGroupEnd === 'due' && style.dueTime,
+          ])}
+        >
+          {plannedTimeUntilGroupEnd}
+        </span>
       </div>
       <div className={style.labelledElement}>
         <Tooltip text='Time to expected group end' render={<TbFolderStar className={style.icon} />} />
-        <span className={cx([style.time, !groupExpectedEnd && style.muted])}>{expectedTimeUntilGroupEnd}</span>
+        <span
+          className={cx([
+            style.time,
+            !groupExpectedEnd && style.muted,
+            expectedTimeUntilGroupEnd === 'due' && style.dueTime,
+          ])}
+        >
+          {expectedTimeUntilGroupEnd}
+        </span>
       </div>
     </div>
   );
@@ -155,25 +171,39 @@ function FlagTimes() {
       : normalizedTimeStart + actualStart - plannedStart - normalizedClock;
   })();
 
-  const plannedTimeUntilDisplay = formattedTime(plannedFlagStart, 3, TimerType.CountDown);
+  const plannedTimeUntilDisplay = formatDueTime(plannedFlagStart, 3, TimerType.CountDown);
 
   const expectedTimeUntil = expectedStart !== null ? expectedStart - clock : null;
-  const expectedTimeUntilDisplay = formattedTime(expectedTimeUntil, 3, TimerType.CountDown);
+  const expectedTimeUntilDisplay = formatDueTime(expectedTimeUntil, 3, TimerType.CountDown);
 
   const title = entry?.title ?? null;
 
   return (
     <div className={style.metadataRow}>
-      <span className={title ? style.labelTitle : style.label}>{`${title ? title : 'Flag'} `}</span>
+      <span className={title ? style.labelTitle : style.label}>{`${title || 'Flag'} `}</span>
       <div className={style.labelledElement}>
         <Tooltip text='Time to next flag planned start' render={<TbFlagPin className={style.icon} />} />
-        <span data-testid='flag-plannedStart' className={cx([style.time, (!entry || !active) && style.muted])}>
+        <span
+          data-testid='flag-plannedStart'
+          className={cx([
+            style.time,
+            (!entry || !active) && style.muted,
+            plannedTimeUntilDisplay === 'due' && style.dueTime,
+          ])}
+        >
           {plannedTimeUntilDisplay}
         </span>
       </div>
       <div className={style.labelledElement}>
         <Tooltip text='Time to next flag expected start' render={<TbFlagStar className={style.icon} />} />
-        <span data-testid='flag-expectedStart' className={cx([style.time, expectedTimeUntil === null && style.muted])}>
+        <span
+          data-testid='flag-expectedStart'
+          className={cx([
+            style.time,
+            expectedTimeUntil === null && style.muted,
+            expectedTimeUntilDisplay === 'due' && style.dueTime,
+          ])}
+        >
           {expectedTimeUntilDisplay}
         </span>
       </div>

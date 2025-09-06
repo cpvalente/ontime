@@ -49,7 +49,8 @@
   &::after {
     content: "+"attr(data-day-offset);
     vertical-align: super;
-    font-size: 0.75em;
+    font-size: 0.6em;
+    letter-spacing: 0;
     color: $info-blue;
   }
 }
@@ -66,4 +67,11 @@
   color: $active-indicator;
   font-size: calc(1rem - 2px);
   text-align: right;
+}
+
+.dueTime {
+  text-transform: capitalize;
+  font-size: 1rem;
+  letter-spacing: 0;
+  color: $playback-over;
 }
