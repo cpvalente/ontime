@@ -4,7 +4,18 @@
  * @link https://developers.google.com/identity/protocols/oauth2/limited-input-device
  */
 
-import { AuthenticationStatus, CustomFields, DatabaseModel, LogOrigin, MaybeString, Rundown } from 'ontime-types';
+import {
+  AuthenticationStatus,
+  CustomFields,
+  DatabaseModel,
+  isOntimeEvent,
+  isOntimeMilestone,
+  LogOrigin,
+  MaybeString,
+  OntimeGroup,
+  Rundown,
+  SupportedEntry,
+} from 'ontime-types';
 import { ImportMap, getErrorMessage } from 'ontime-utils';
 
 import { sheets, type sheets_v4 } from '@googleapis/sheets';
@@ -348,6 +359,21 @@ export async function upload(sheetId: string, options: ImportMap) {
   const { sheetMetadata } = parseExcel(readResponse.data.values, getProjectCustomFields(), 'not-used', options);
   const rundown = getCurrentRundown();
 
+  const sheetOrder: string[] = [];
+  let prevGroup: string | null = null;
+  for (const id of rundown.flatOrder) {
+    const entry = rundown.entries[id];
+
+    if (isOntimeEvent(entry) || isOntimeMilestone(entry)) {
+      if (prevGroup && entry.parent === null) {
+        // if we were in a group and are now not insert a group end
+        sheetOrder.push(`group-end-${prevGroup}`);
+      }
+      prevGroup = entry.parent;
+    }
+    sheetOrder.push(entry.id);
+  }
+
   const titleMetadata = Object.values(sheetMetadata)[0];
   if (titleMetadata === undefined) {
     throw new Error(`Sheet read failed: failed to find title row`);
@@ -380,15 +406,19 @@ export async function upload(sheetId: string, options: ImportMap) {
       range: {
         dimension: 'ROWS',
         startIndex: titleRow + 1,
-        endIndex: titleRow + rundown.order.length,
+        endIndex: titleRow + sheetOrder.length,
         sheetId: worksheetId,
       },
     },
   });
 
   // update the corresponding row with event data
-  rundown.order.forEach((entryId, index) => {
-    const entry = rundown.entries[entryId];
+  sheetOrder.forEach((entryId, index) => {
+    const isGroupEnd = entryId.startsWith('group-end-');
+    const id = isGroupEnd ? entryId.split('group-end-')[1] : entryId;
+    const entry = isGroupEnd
+      ? ({ id: entryId, type: SupportedEntry.Group } as OntimeGroup)
+      : structuredClone(rundown.entries[id]);
     updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, sheetMetadata));
   });
 
