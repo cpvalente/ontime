@@ -164,47 +164,6 @@ export const useProgressData = createSelector((state: RuntimeStore) => ({
   timeDanger: state.eventNow?.timeDanger ?? null,
 }));
 
-export const useRundownOverview = createSelector((state: RuntimeStore) => ({
-  plannedStart: state.rundown.plannedStart,
-  actualStart: state.rundown.actualStart,
-  plannedEnd: state.rundown.plannedEnd,
-  expectedEnd: state.offset.expectedRundownEnd,
-}));
-
-export const useGroupTimerOverView = createSelector((state: RuntimeStore) => ({
-  clock: state.clock,
-  offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
-  mode: state.offset.mode,
-  groupExpectedEnd: state.offset.expectedGroupEnd,
-  // we can force these numbers to 0 fo this use case to avoid null checks
-  actualGroupStart: state.rundown.actualGroupStart ?? 0,
-  currentDay: state.eventNow?.dayOffset ?? 0,
-  playback: state.timer.playback,
-}));
-
-export const useFlagTimerOverView = createSelector((state: RuntimeStore) => ({
-  clock: state.clock,
-  mode: state.offset.mode,
-  // we can force these numbers to 0 fo this use case to avoid null checks
-  actualStart: state.rundown.actualStart ?? 0,
-  plannedStart: state.rundown.plannedStart ?? 0,
-  currentDay: state.eventNow?.dayOffset ?? 0,
-  playback: state.timer.playback,
-}));
-
-export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) => ({
-  playback: state.timer.playback,
-  clock: state.clock,
-
-  numEvents: state.rundown.numEvents,
-  selectedEventIndex: state.rundown.selectedEventIndex,
-  offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
-  mode: state.offset.mode,
-
-  groupExpectedEnd: state.offset.expectedGroupEnd,
-  groupActualStart: state.rundown.actualGroupStart,
-}));
-
 export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
   offset: state.offset.absolute,
@@ -249,6 +208,46 @@ export const usePlayback = () => {
 
   return useRuntimeStore(featureSelector);
 };
+
+/* ======================= Overview data subscriptions ======================= */
+
+export const useRundownOverview = createSelector((state: RuntimeStore) => ({
+  plannedStart: state.rundown.plannedStart,
+  actualStart: state.rundown.actualStart,
+  plannedEnd: state.rundown.plannedEnd,
+  expectedEnd: state.offset.expectedRundownEnd,
+}));
+
+export const useProgressOverview = createSelector((state: RuntimeStore) => ({
+  numEvents: state.rundown.numEvents,
+  selectedEventIndex: state.rundown.selectedEventIndex,
+}));
+
+export const useOffsetOverview = createSelector((state: RuntimeStore) => ({
+  offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
+  playback: state.timer.playback,
+}));
+
+export const useGroupTimerOverView = createSelector((state: RuntimeStore) => ({
+  clock: state.clock,
+  offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
+  mode: state.offset.mode,
+  groupExpectedEnd: state.offset.expectedGroupEnd,
+  // we can force these numbers to 0 fo this use case to avoid null checks
+  actualGroupStart: state.rundown.actualGroupStart ?? 0,
+  currentDay: state.eventNow?.dayOffset ?? 0,
+  playback: state.timer.playback,
+}));
+
+export const useFlagTimerOverView = createSelector((state: RuntimeStore) => ({
+  clock: state.clock,
+  mode: state.offset.mode,
+  // we can force these numbers to 0 fo this use case to avoid null checks
+  actualStart: state.rundown.actualStart ?? 0,
+  plannedStart: state.rundown.plannedStart ?? 0,
+  currentDay: state.eventNow?.dayOffset ?? 0,
+  playback: state.timer.playback,
+}));
 
 /* ======================= View specific subscriptions ======================= */
 

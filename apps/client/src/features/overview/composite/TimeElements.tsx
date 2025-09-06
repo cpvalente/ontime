@@ -18,8 +18,9 @@ import {
   useFlagTimerOverView,
   useGroupTimerOverView,
   useNextFlag,
+  useOffsetOverview,
+  useProgressOverview,
   useRundownOverview,
-  useRuntimePlaybackOverview,
   useTimer,
 } from '../../../common/hooks/useSocket';
 import { useEntry } from '../../../common/hooks-query/useRundown';
@@ -98,7 +99,6 @@ export function MetadataTimes() {
   );
 }
 
-//TODO: there a some things here we still need to think about, mainly what to do whit the planed group duration in relation to the events
 function GroupTimes() {
   const { clock, groupExpectedEnd, actualGroupStart, mode, playback, currentDay } = useGroupTimerOverView();
   const { currentGroupId } = useCurrentGroupId();
@@ -110,7 +110,7 @@ function GroupTimes() {
   const plannedGroupEnd = (() => {
     if (!active) return null;
     if (!group || group.timeStart === null) return null;
-    const normalizedClock = clock + currentDay * dayInMs; //TODO: <<--- is this correct
+    const normalizedClock = clock + currentDay * dayInMs;
     return mode === OffsetMode.Absolute
       ? group.timeStart + group.duration - normalizedClock
       : actualGroupStart + group.duration - normalizedClock;
@@ -165,7 +165,7 @@ function FlagTimes() {
     if (!active) return null;
     if (!entry) return null;
     const normalizedTimeStart = entry.timeStart + entry.dayOffset * dayInMs;
-    const normalizedClock = clock + currentDay * dayInMs; //TODO: <<--- is this correct
+    const normalizedClock = clock + currentDay * dayInMs;
     return mode === OffsetMode.Absolute
       ? normalizedTimeStart - normalizedClock
       : normalizedTimeStart + actualStart - plannedStart - normalizedClock;
@@ -212,7 +212,7 @@ function FlagTimes() {
 }
 
 export function ProgressOverview() {
-  const { numEvents, selectedEventIndex } = useRuntimePlaybackOverview();
+  const { numEvents, selectedEventIndex } = useProgressOverview();
 
   const current = selectedEventIndex !== null ? selectedEventIndex + 1 : enDash;
   const progressText = numEvents ? `${current} of ${numEvents || enDash}` : enDash;
@@ -221,7 +221,7 @@ export function ProgressOverview() {
 }
 
 export function OffsetOverview() {
-  const { offset, playback } = useRuntimePlaybackOverview();
+  const { offset, playback } = useOffsetOverview();
 
   const isPlaying = isPlaybackActive(playback);
   const offsetState = getOffsetState(isPlaying ? offset : null);
