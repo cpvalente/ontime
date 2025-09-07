@@ -27,23 +27,26 @@ export const useRuntimeStylesheet = (): { shouldRender: boolean } => {
    * @returns { shouldRender: boolean } - after the stylesheet is handled and the clients are ready to render
    */
   useEffect(() => {
+    let styleSheet = document.getElementById(scriptTagId);
+
     if (!cssData || !data.overrideStyles) {
-      /**
-       * No stylesheet was provided, remove any existing stylesheet
-       */
-      document.getElementById(scriptTagId)?.remove();
+      // No stylesheet was provided, remove any existing stylesheet
+      styleSheet?.remove();
       setShouldRender(true);
       return;
     }
 
     setShouldRender(false);
-    /**
-     * Add a stylesheet with given content to the document head
-     */
-    const styleSheet = document.createElement('style');
-    styleSheet.setAttribute('id', scriptTagId);
-    styleSheet.innerHTML = cssData;
-    document.head.append(styleSheet);
+
+    // Ensure the stylesheet is given to the document head
+    if (!styleSheet) {
+      styleSheet = document.createElement('style');
+      styleSheet.setAttribute('id', scriptTagId);
+      document.head.append(styleSheet);
+    }
+
+    // set style sheet content
+    styleSheet.textContent = cssData;
 
     // schedule render for next tick
     setTimeout(() => setShouldRender(true), 0);
