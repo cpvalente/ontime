@@ -173,7 +173,7 @@ describe('initRundownMetadata()', () => {
       isPast: false,
       isNextDay: false,
       totalGap: 10,
-      isLinkedToLoaded: false,
+      isLinkedToLoaded: true,
       isLoaded: true,
       groupId: 'group',
       groupColour: 'red',

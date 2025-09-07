@@ -1,8 +1,11 @@
-import { EntryId, MaybeNumber, OntimeEvent, Playback, TimerType } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
+import { EntryId, MaybeNumber, OffsetMode, OntimeEntry, OntimeEvent, OntimeReport, Playback } from 'ontime-types';
+import { getExpectedStart, MILLIS_PER_MINUTE, removeSeconds } from 'ontime-utils';
 
-import { getFormattedTimer } from '../../features/viewers/common/viewUtils';
-import type { TranslationKey } from '../../translation/TranslationProvider';
+import { useCountdownSocket } from '../../common/hooks/useSocket';
+import { ExtendedEntry } from '../../common/utils/rundownMetadata';
+import { timerPlaceholderMin } from '../../common/utils/styleUtils';
+import { formatDuration, formatTime } from '../../common/utils/time';
+import { type TranslationKey, useTranslation } from '../../translation/TranslationProvider';
 
 /**
  * Parses string as a title
@@ -11,6 +14,9 @@ export function sanitiseTitle(title: string | null) {
   return title ?? '{no title}';
 }
 
+export const preferredFormat12 = 'h:mm a';
+export const preferredFormat24 = 'HH:mm';
+
 /**
  * Whether the current event is live
  */
@@ -18,137 +24,96 @@ export function getIsLive(currentId: EntryId, selectedId: EntryId | null, playba
   return currentId === selectedId && playback !== Playback.Armed;
 }
 
-const subscriptionTimerDisplayOptions = {
-  removeSeconds: true,
-  removeLeadingZero: true,
-} as const;
-
-const subscriptionScheduledTimeDisplayOptions = {
-  removeSeconds: true,
-  removeLeadingZero: false,
-} as const;
-
-type TimerMessage = Record<string, TranslationKey>;
-export type ProgressStatus = 'future' | 'due' | 'live' | 'done';
+export type ProgressStatus = 'future' | 'due' | 'live' | 'done' | 'pending' | 'loaded';
+type TimerMessage = Record<ProgressStatus, TranslationKey>;
 
 export const timerProgress: TimerMessage = {
   future: 'countdown.to_start',
   due: 'timeline.due',
-  live: 'timeline.live',
+  live: 'countdown.running',
+  pending: 'countdown.waiting',
+  loaded: 'countdown.loaded',
   done: 'countdown.ended',
 };
+
+export function getFormattedTime(
+  value: MaybeNumber,
+  status: ProgressStatus,
+  minText: string,
+  secText: string,
+  dueText: string,
+) {
+  if (value === null) return timerPlaceholderMin;
+  if (status === 'future' || status === 'live') {
+    if (value <= 0) return dueText.toUpperCase();
+    return formatDuration(value, value > MILLIS_PER_MINUTE * 2)
+      .replace('m', `${minText} `)
+      .replace('s', secText);
+  }
+  return removeSeconds(formatTime(value));
+}
 
 /**
  * Returns a parsed timer and relevant status message
  * Handles events in different days but disregards whether an event has actually played
- * TODO: get data from reporter and check if the event has played
- * TODO: get timer data granularly
  */
-export function getSubscriptionDisplayData(
-  current: MaybeNumber,
-  playback: Playback,
-  clock: number,
-  subscribedEvent: OntimeEvent,
-  selectedId: EntryId | null,
-  offset: number,
-  currentDay: number,
-  minutesString: string,
-  showExpected = false,
-): { status: ProgressStatus; timer: string } {
-  const offsetAndDelay = showExpected ? offset + subscribedEvent.delay : 0;
+export function useSubscriptionDisplayData(
+  subscribedEvent: ExtendedEntry<OntimeEvent> & { endedAt: MaybeNumber; expectedStart: number },
+): { status: ProgressStatus; statusDisplay: string; timeDisplay: string } {
+  const { playback, current, clock } = useCountdownSocket();
+  const { getLocalizedString } = useTranslation();
 
-  if (selectedId === subscribedEvent.id) {
-    // 1. An event that is loaded but not running is {'due': <countdown | overtime>}
+  const bigDuration = (value: number) => {
+    if (value <= 0) return getLocalizedString('countdown.overtime').toUpperCase();
+    return formatDuration(value, value > MILLIS_PER_MINUTE * 2)
+      .replace('m', `${getLocalizedString('common.minutes')} `)
+      .replace('s', getLocalizedString('common.seconds'));
+  };
+
+  if (subscribedEvent.isLoaded) {
     if (playback === Playback.Armed) {
-      // if we are following the event, but it is not running, we show the scheduled start
       return {
-        status: 'due',
-        timer: getFormattedTimer(
-          subscribedEvent.timeStart + offsetAndDelay,
-          TimerType.CountDown,
-          minutesString,
-          subscriptionScheduledTimeDisplayOptions,
-        ),
+        status: 'loaded',
+        statusDisplay: getLocalizedString(timerProgress['loaded']),
+        timeDisplay: bigDuration(subscribedEvent.duration),
       };
     }
 
-    // 2. An event with a time-to-start lower than 0 is {'due': <countdown | scheduledStart>}, show the running timer
     return {
       status: 'live',
-      timer: getFormattedTimer(current, TimerType.CountDown, minutesString, subscriptionTimerDisplayOptions),
+      statusDisplay: getLocalizedString(timerProgress['live']),
+      timeDisplay: bigDuration(current ?? 0),
     };
   }
 
-  /**
-   * If the running timer is not the one we are following
-   * we can be in future, due or have ended
-   */
-
-  // 3. event is the day after, we show a countdown to start
-  if (subscribedEvent.dayOffset > currentDay) {
-    const dayOffset = (subscribedEvent.dayOffset - currentDay) * dayInMs;
+  if (playback === Playback.Stop || playback === Playback.Armed) {
     return {
-      status: 'future',
-      timer: getFormattedTimer(
-        subscribedEvent.timeStart + dayOffset - clock - offsetAndDelay,
-        TimerType.CountDown,
-        minutesString,
-        subscriptionTimerDisplayOptions,
-      ),
+      status: 'pending',
+      statusDisplay: getLocalizedString(timerProgress['pending']),
+      timeDisplay: ' ',
     };
   }
 
-  // 4. event is the before after, show the scheduled end
-  // TODO: get the time from the reporter
-  if (subscribedEvent.dayOffset < currentDay) {
+  if (subscribedEvent.isPast) {
     return {
       status: 'done',
-      timer: getFormattedTimer(
-        subscribedEvent.timeEnd,
-        TimerType.CountDown,
-        minutesString,
-        subscriptionScheduledTimeDisplayOptions,
-      ),
+      statusDisplay: getLocalizedString(timerProgress['done']),
+      timeDisplay: formatTime(subscribedEvent.endedAt, { format12: preferredFormat12, format24: preferredFormat24 }),
     };
   }
 
-  // 5. if event is in future, we count to the scheduled start
-  // TODO: get time until
-  if (clock < subscribedEvent.timeStart) {
+  if (subscribedEvent.expectedStart - clock <= 0) {
     return {
-      status: 'future',
-      timer: getFormattedTimer(
-        subscribedEvent.timeStart - clock - offsetAndDelay,
-        TimerType.CountDown,
-        minutesString,
-        subscriptionTimerDisplayOptions,
-      ),
+      status: 'due',
+      statusDisplay: getLocalizedString(timerProgress['future']), // We use future here on purpose for the look of it
+      timeDisplay: getLocalizedString(timerProgress['due']).toUpperCase(),
     };
   }
 
-  // 6. if event has ended, we show the scheduled end
-  // TODO: get the time from the reporter
-  if (clock > subscribedEvent.timeEnd) {
-    return {
-      status: 'done',
-      timer: getFormattedTimer(
-        subscribedEvent.timeEnd,
-        TimerType.CountDown,
-        minutesString,
-        subscriptionScheduledTimeDisplayOptions,
-      ),
-    };
-  }
-
-  // the event here has to be due, we show the countdown the expected start time
   return {
-    status: 'due',
-    timer: getFormattedTimer(
-      subscribedEvent.timeStart + offsetAndDelay,
-      TimerType.CountDown,
-      minutesString,
-      subscriptionScheduledTimeDisplayOptions,
-    ),
+    status: 'future',
+    statusDisplay: getLocalizedString(timerProgress['future']),
+    timeDisplay: bigDuration(subscribedEvent.expectedStart - clock),
   };
 }
 
@@ -181,7 +146,7 @@ export function makeSubscriptionsUrl(urlRef: string, subscriptions: EntryId[]) {
  * Since the original array is already ordered, we simply filter out the events
  * which are not in the subscriptions list.
  */
-export function getOrderedSubscriptions(subscriptions: EntryId[], playableEvents: OntimeEvent[]): OntimeEvent[] {
+export function getOrderedSubscriptions<T extends OntimeEntry>(subscriptions: EntryId[], playableEvents: T[]): T[] {
   return playableEvents.filter((event) => subscriptions.includes(event.id));
 }
 
@@ -211,4 +176,33 @@ export function isLinkedToLoadedEvent(events: OntimeEvent[], loadedId: EntryId |
   }
 
   return true;
+}
+
+export function isOutsideRange(a: number, b: number): boolean {
+  return Math.abs(a - b) > MILLIS_PER_MINUTE;
+}
+
+export type CountdownEvent = ExtendedEntry<OntimeEvent> & { expectedStart: number; endedAt: MaybeNumber };
+
+export function extendEventData(
+  event: ExtendedEntry<OntimeEvent>,
+  currentDay: number,
+  actualStart: MaybeNumber,
+  plannedStart: MaybeNumber,
+  offset: number,
+  mode: OffsetMode,
+  reportData: OntimeReport,
+): CountdownEvent {
+  const { totalGap, isLinkedToLoaded } = event;
+  const expectedStart = getExpectedStart(event, {
+    currentDay,
+    totalGap,
+    actualStart,
+    plannedStart,
+    isLinkedToLoaded,
+    offset,
+    mode,
+  });
+  const { endedAt } = reportData[event.id] ?? { endedAt: null };
+  return { ...event, expectedStart, endedAt };
 }

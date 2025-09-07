@@ -1,6 +1,7 @@
 export const langEn = {
   'common.expected_finish': 'Expected Finish',
   'common.minutes': 'min',
+  'common.seconds': 'sec',
   'common.now': 'Now',
   'common.next': 'Next',
   'common.scheduled_start': 'Scheduled start',
@@ -13,6 +14,7 @@ export const langEn = {
   'common.no_data': 'No data',
   'countdown.ended': 'Event ended at',
   'countdown.running': 'Event running',
+  'countdown.loaded': 'Event loaded',
   'countdown.select_event': 'Select an event to follow',
   'countdown.to_start': 'Time to start',
   'countdown.waiting': 'Waiting for event start',
