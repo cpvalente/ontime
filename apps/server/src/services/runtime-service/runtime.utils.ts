@@ -24,7 +24,6 @@ export function isNewSecond(
 /**
  * Checks whether we should update the clock value
  * - we have rolled into a new seconds unit
- * this is different from the timer update as it looks at the clock as counting up
  */
 export function getShouldClockUpdate(previousUpdate: number, now: number): boolean {
   const newSeconds = millisToSeconds(now, TimerType.CountUp) !== millisToSeconds(previousUpdate, TimerType.CountUp);
@@ -32,8 +31,10 @@ export function getShouldClockUpdate(previousUpdate: number, now: number): boole
 }
 
 /**
- * Checks whether we should update the timer value
- * - we have rolled into a new seconds unit
+ * Checks whether we should update the timer values
+ * - `current` and `secondaryTimer` trigger on seconds roll over
+ * - the rest trigger on any change
+ * - `elapsed` and `expectedFinish` is not checked
  */
 export function getShouldTimerUpdate(previousValue: TimerState | undefined, currentValue: TimerState): boolean {
   if (previousValue === undefined) return true;
@@ -53,6 +54,11 @@ export function getShouldTimerUpdate(previousValue: TimerState | undefined, curr
   );
 }
 
+/**
+ * Checks whether we should update the offset values
+ * - `mode` triggers update
+ * - `absolute`, `relative`, `expected**End` are ticked with `didDependencyUpdate`
+ */
 export function getShouldOffsetUpdate(
   previousValue: Offset | undefined,
   currentValue: Offset,
@@ -60,7 +66,6 @@ export function getShouldOffsetUpdate(
 ): boolean {
   if (previousValue === undefined) return true;
   if (previousValue.mode !== currentValue.mode) return true;
-  // absolute, relative, expected*End are ticked with `didDependencyUpdate`
   return didDependencyUpdate && !deepEqual(previousValue, currentValue);
 }
 
