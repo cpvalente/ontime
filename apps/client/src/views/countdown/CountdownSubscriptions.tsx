@@ -8,10 +8,8 @@ import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivit
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import {
   useCountdownSocket,
-  useCurrentDay,
   useExpectedStartData,
   usePlayback,
-  useRuntimeOffset,
   useSelectedEventId,
 } from '../../common/hooks/useSocket';
 import useReport from '../../common/hooks-query/useReport';
@@ -134,7 +132,7 @@ type ScheduleTimeProps = {
   showExpected: boolean;
 };
 //TODO: consider relative mode
-function ScheduleTime(props: ScheduleTimeProps) {
+export function ScheduleTime(props: ScheduleTimeProps) {
   const { event, showExpected } = props;
   const { timeStart, duration, delay, expectedStart, countToEnd } = event;
 
@@ -196,21 +194,9 @@ interface SubscriptionStatusProps {
 
 function SubscriptionStatus({ event }: SubscriptionStatusProps) {
   const { getLocalizedString } = useTranslation();
-  const { currentDay } = useCurrentDay();
-  const { offset } = useRuntimeOffset();
-  const { showExpected } = useCountdownOptions();
   const { playback, current, clock } = useCountdownSocket();
 
-  // TODO: use reporter values as in the event block chip
-  const { status, timer } = getSubscriptionDisplayData(
-    current,
-    playback,
-    clock,
-    event,
-    offset,
-    currentDay,
-    showExpected,
-  );
+  const { status, timer } = getSubscriptionDisplayData(current, playback, clock, event);
 
   return (
     <>

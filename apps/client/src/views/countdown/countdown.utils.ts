@@ -1,5 +1,5 @@
 import { EntryId, MaybeNumber, OffsetMode, OntimeEntry, OntimeEvent, OntimeReport, Playback } from 'ontime-types';
-import { dayInMs, getExpectedStart, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { getExpectedStart, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import type { TranslationKey } from '../../translation/TranslationProvider';
@@ -39,12 +39,7 @@ export function getSubscriptionDisplayData(
   playback: Playback,
   clock: number,
   subscribedEvent: ExtendedEntry<OntimeEvent> & { endedAt: MaybeNumber; expectedStart: number },
-  offset: number,
-  currentDay: number,
-  showExpected = false,
 ): { status: ProgressStatus; timer: MaybeNumber } {
-  const offsetAndDelay = showExpected ? offset + subscribedEvent.delay : 0;
-
   if (subscribedEvent.isLoaded) {
     // 1. An event that is loaded but not running is {'due': <countdown | overtime>}
     if (playback === Playback.Armed) {
@@ -59,47 +54,13 @@ export function getSubscriptionDisplayData(
   /**
    * If we are showing expected times we don't have to guess since that assumes a linear playback
    */
-  if (showExpected) {
-    if (subscribedEvent.isPast) {
-      return { status: 'done', timer: subscribedEvent.endedAt };
-    }
-    if (subscribedEvent.expectedStart - clock <= 0) {
-      return { status: 'due', timer: subscribedEvent.expectedStart - clock };
-    }
-    return { status: 'future', timer: subscribedEvent.expectedStart - clock };
+  if (subscribedEvent.isPast) {
+    return { status: 'done', timer: subscribedEvent.endedAt };
   }
-
-  /**
-   * If the running timer is not the one we are following
-   * we can be in future, due or have ended
-   */
-
-  // 3. event is the day after, we show a countdown to start
-  if (subscribedEvent.dayOffset > currentDay) {
-    const dayOffset = (subscribedEvent.dayOffset - currentDay) * dayInMs;
-    return { status: 'future', timer: subscribedEvent.timeStart + dayOffset - clock - offsetAndDelay };
+  if (subscribedEvent.expectedStart - clock <= 0) {
+    return { status: 'due', timer: subscribedEvent.expectedStart - clock };
   }
-
-  // 4. event is the before after, show the scheduled end
-  // TODO: get the time from the reporter
-  if (subscribedEvent.dayOffset < currentDay) {
-    return { status: 'done', timer: subscribedEvent.timeEnd };
-  }
-
-  // 5. if event is in future, we count to the scheduled start
-  // TODO: get time until
-  if (clock < subscribedEvent.timeStart) {
-    return { status: 'future', timer: subscribedEvent.timeStart - clock - offsetAndDelay };
-  }
-
-  // 6. if event has ended, we show the scheduled end
-  // TODO: get the time from the reporter
-  if (clock > subscribedEvent.timeEnd) {
-    return { status: 'done', timer: subscribedEvent.timeEnd };
-  }
-
-  // the event here has to be due, we show the countdown the expected start time
-  return { status: 'due', timer: subscribedEvent.timeStart + offsetAndDelay };
+  return { status: 'future', timer: subscribedEvent.expectedStart - clock };
 }
 
 /**
