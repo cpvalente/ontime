@@ -11,7 +11,7 @@ import {
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import { millisToString, validatePlayback } from 'ontime-utils';
+import { isPlaybackActive, millisToString, validatePlayback } from 'ontime-utils';
 
 import { deepEqual } from 'fast-equals';
 
@@ -672,8 +672,9 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // combine all big changes
     const hasImmediateChanges = entryChanged || justStarted || hasChangedPlayback || offsetModeChanged;
 
-    // clock has changed by a second or more
-    const updateClock = getShouldClockUpdate(RuntimeService.previousState.clock, state.clock);
+    // clock has changed by a second or more and playback is not active
+    const updateClock =
+      !isPlaybackActive(state.timer.playback) && getShouldClockUpdate(RuntimeService.previousState.clock, state.clock);
     if (updateClock) {
       batch.add('clock', state.clock);
       RuntimeService.previousState.clock = state.clock;
@@ -682,6 +683,11 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // if any values have changed, values that have the possibility to tick are updated when the seconds roll over
     const updateTimer = getShouldTimerUpdate(RuntimeService.previousState?.timer, state.timer);
     if (updateTimer) {
+      /**
+       * the clock only updates on non active playback
+       * we add the clock here to ensure that the timer and clocks are in sync
+       */
+      batch.add('clock', state.clock);
       batch.add('timer', state.timer);
       RuntimeService.previousState.timer = { ...state.timer };
     }
