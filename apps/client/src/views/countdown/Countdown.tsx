@@ -9,6 +9,7 @@ import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useClock } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { useTranslation } from '../../translation/TranslationProvider';
@@ -39,14 +40,14 @@ export default function CountdownLoader() {
   return <Countdown {...data} />;
 }
 
-function Countdown({ customFields, events, projectData, isMirrored, settings }: CountdownData) {
+function Countdown({ customFields, rundownData, projectData, isMirrored, settings }: CountdownData) {
   const { getLocalizedString } = useTranslation();
   const { subscriptions } = useCountdownOptions();
 
   const [editMode, setEditMode] = useState(false);
 
   // gather rundown data
-  const playableEvents = events.filter((event) => isOntimeEvent(event) && isPlayableEvent(event));
+  const playableEvents = rundownData.filter((entry) => isOntimeEvent(entry) && isPlayableEvent(entry));
 
   // gather presentation data
   const hasEvents = playableEvents.length > 0;
@@ -85,7 +86,7 @@ function Countdown({ customFields, events, projectData, isMirrored, settings }: 
 }
 
 interface CountdownContentsProps {
-  playableEvents: OntimeEvent[];
+  playableEvents: ExtendedEntry<OntimeEvent>[];
   subscriptions: EntryId[];
   goToEditMode: () => void;
 }

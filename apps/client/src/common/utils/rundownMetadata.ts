@@ -125,6 +125,7 @@ function processEntry(
   if (entry.id === selectedEventId) {
     processedData.isLoaded = true;
     processedData.isPast = false;
+    processedData.isLinkedToLoaded = true;
   }
 
   if (isOntimeGroup(entry)) {
@@ -158,7 +159,8 @@ function processEntry(
            * a) find an unlinked event
            * b) find a countToEnd event
            */
-          processedData.isLinkedToLoaded = entry.linkStart && !processedData.previousEvent?.countToEnd;
+          processedData.isLinkedToLoaded =
+            entry.linkStart && !processedData.previousEvent?.countToEnd && processedData.isLinkedToLoaded;
         }
 
         if (isNewLatest(entry, processedData.latestEvent)) {

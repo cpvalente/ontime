@@ -3,6 +3,7 @@ import { TranslationObject } from 'ontime-types';
 export const langDe: TranslationObject = {
   'common.expected_finish': 'Erwartetes Ende',
   'common.minutes': 'min',
+  'common.seconds': 'sek',
   'common.now': 'Jetzt',
   'common.next': 'Nächste',
   'common.scheduled_start': 'Geplanter beginn',
@@ -15,6 +16,7 @@ export const langDe: TranslationObject = {
   'common.no_data': 'Keine Daten',
   'countdown.ended': 'Veranstaltung endete um',
   'countdown.running': 'Veranstaltung läuft',
+  'countdown.loaded': 'Veranstaltung geladen',
   'countdown.select_event': 'Wählen Sie eine Veranstaltung aus, um sie zu verfolgen',
   'countdown.to_start': 'Zeit bis zum Start',
   'countdown.waiting': 'Warten auf den Veranstaltungsbeginn',
