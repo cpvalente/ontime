@@ -1,18 +1,18 @@
 import { IoPencil } from 'react-icons/io5';
-import { MaybeNumber, OntimeEvent, TimerType } from 'ontime-types';
+import { MaybeNumber, OntimeEvent } from 'ontime-types';
 import { getExpectedStart } from 'ontime-utils';
 
 import Button from '../../common/components/buttons/Button';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
-import { useCountdownSocket, useExpectedStartData } from '../../common/hooks/useSocket';
+import { useExpectedStartData } from '../../common/hooks/useSocket';
 import useReport from '../../common/hooks-query/useReport';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
-import { getFormattedTimer, getPropertyValue } from '../../features/viewers/common/viewUtils';
-import { useTranslation } from '../../translation/TranslationProvider';
+import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
+import { getPropertyValue } from '../../features/viewers/common/viewUtils';
 
 import { useCountdownOptions } from './countdown.options';
-import { getSubscriptionDisplayData, timerProgress } from './countdown.utils';
+import { useSubscriptionDisplayData } from './countdown.utils';
 import { ScheduleTime } from './CountdownSubscriptions';
 
 import './SingleEventCountdown.scss';
@@ -41,14 +41,14 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
 
   const { endedAt } = reportData[subscribedEvent.id] ?? { endedAt: null };
   const countdownEvent = { ...subscribedEvent, expectedStart, endedAt };
-  const title = subscribedEvent.title ? subscribedEvent.title : ' '; // insert utf-8 empty space to avoid the line collapsing
+  const title = subscribedEvent.title.length ? subscribedEvent.title : ' '; // insert utf-8 empty space to avoid the line collapsing
   const secondaryData = getPropertyValue(subscribedEvent, secondarySource);
 
   return (
     <div className='single-container' data-testid='countdown-event'>
-      <ScheduleTime event={countdownEvent} showExpected={showExpected} />
       <SubscriptionStatus event={countdownEvent} />
       <div className='event__title' style={{ borderColor: countdownEvent.colour }}>
+        <ScheduleTime event={countdownEvent} showExpected={showExpected} />
         {title}
         {secondaryData && <div className='secondary'>{secondaryData}</div>}
       </div>
@@ -66,20 +66,16 @@ interface SubscriptionStatusProps {
 }
 
 function SubscriptionStatus({ event }: SubscriptionStatusProps) {
-  const { getLocalizedString } = useTranslation();
-  const { playback, current, clock } = useCountdownSocket();
-
-  const { status, timer } = getSubscriptionDisplayData(current, playback, clock, event);
+  const { status, statusDisplay, timeDisplay } = useSubscriptionDisplayData(event);
 
   return (
     <>
-      <div className='event__status'>{getLocalizedString(timerProgress[status])}</div>
-      <div className='event__timer'>
-        {getFormattedTimer(timer, TimerType.CountDown, getLocalizedString('common.minutes'), {
-          removeSeconds: true,
-          removeLeadingZero: true,
-        })}
-      </div>
+      <div className='event__status'>{statusDisplay}</div>
+      {status === 'done' ? (
+        <SuperscriptTime className='event__timer' time={timeDisplay} />
+      ) : (
+        <div className='event__timer'>{timeDisplay}</div>
+      )}
     </>
   );
 }

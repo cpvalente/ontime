@@ -1,17 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { IoPencil } from 'react-icons/io5';
-import { MaybeNumber, OntimeEvent, TimerType } from 'ontime-types';
+import { MaybeNumber, OntimeEvent } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
 import Button from '../../common/components/buttons/Button';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
-import {
-  useCountdownSocket,
-  useExpectedStartData,
-  usePlayback,
-  useSelectedEventId,
-} from '../../common/hooks/useSocket';
+import { useExpectedStartData, usePlayback, useSelectedEventId } from '../../common/hooks/useSocket';
 import useReport from '../../common/hooks-query/useReport';
 import { getOffsetState } from '../../common/utils/offset';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
@@ -19,18 +14,18 @@ import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
 import FollowButton from '../../features/operator/follow-button/FollowButton';
 import ClockTime from '../../features/viewers/common/clock-time/ClockTime';
-import { getFormattedTimer, getPropertyValue } from '../../features/viewers/common/viewUtils';
-import { useTranslation } from '../../translation/TranslationProvider';
+import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
+import { getPropertyValue } from '../../features/viewers/common/viewUtils';
 
 import { useCountdownOptions } from './countdown.options';
 import {
   CountdownEvent,
   extendEventData,
   getIsLive,
-  getSubscriptionDisplayData,
   isOutsideRange,
-  sanitiseTitle,
-  timerProgress,
+  preferredFormat12,
+  preferredFormat24,
+  useSubscriptionDisplayData,
 } from './countdown.utils';
 
 import './Countdown.scss';
@@ -105,14 +100,19 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
       {subscribedEvents.map((event) => {
         const secondaryData = getPropertyValue(event, secondarySource);
         const isLive = getIsLive(event.id, selectedEventId, playback);
+        const isArmed = !isLive && event.id === selectedEventId;
         const countdownEvent = extendEventData(event, currentDay, actualStart, plannedStart, offset, mode, reportData);
-
+        const title = event.title.length ? event.title : ' '; // insert utf-8 empty space to avoid the line collapsing
         return (
-          <div key={event.id} ref={isLive ? selectedRef : undefined} className={cx(['sub', isLive && 'sub--live'])}>
+          <div
+            key={event.id}
+            ref={isLive ? selectedRef : undefined}
+            className={cx(['sub', isLive && 'sub--live', isArmed && 'sub--armed'])}
+          >
             <div className='sub__binder' style={{ '--user-color': event.colour }} />
             <ScheduleTime event={countdownEvent} showExpected={showExpected} />
             <SubscriptionStatus event={countdownEvent} />
-            <div className={cx(['sub__title', !event.title && 'subdued'])}>{sanitiseTitle(event.title)}</div>
+            <div className={cx(['sub__title', !event.title && 'subdued'])}>{title}</div>
             {secondaryData && <div className='sub__secondary'>{secondaryData}</div>}
           </div>
         );
@@ -144,7 +144,7 @@ export function ScheduleTime(props: ScheduleTimeProps) {
   const plannedStateClass = isExpectedValueShow ? 'sub__schedule--strike' : delay !== 0 ? 'sub__schedule--delayed' : '';
 
   const expectedStateClass = `sub__schedule--${getOffsetState(expectedStart - plannedStart)}`;
-  const plannedEnd = timeStart + duration + delay;
+  const plannedEnd = plannedStart + duration + delay;
   const expectedEnd = countToEnd ? Math.max(expectedStart + duration, plannedEnd) : expectedStart + duration;
   const expectedEndClass = `sub__schedule--${getOffsetState(expectedEnd - plannedEnd)}`;
 
@@ -152,8 +152,8 @@ export function ScheduleTime(props: ScheduleTimeProps) {
     <div className='sub__schedule'>
       <ClockTime
         value={plannedStart}
-        preferredFormat12='h:mm'
-        preferredFormat24='HH:mm'
+        preferredFormat12={preferredFormat12}
+        preferredFormat24={preferredFormat24}
         className={plannedStateClass}
       />
       {!isExpectedValueShow && (
@@ -161,8 +161,8 @@ export function ScheduleTime(props: ScheduleTimeProps) {
           →
           <ClockTime
             value={plannedEnd}
-            preferredFormat12='h:mm'
-            preferredFormat24='HH:mm'
+            preferredFormat12={preferredFormat12}
+            preferredFormat24={preferredFormat24}
             className={plannedStateClass}
           />
         </>
@@ -172,15 +172,15 @@ export function ScheduleTime(props: ScheduleTimeProps) {
           <ClockTime
             value={expectedStart}
             className={expectedStateClass}
-            preferredFormat12='h:mm'
-            preferredFormat24='HH:mm'
+            preferredFormat12={preferredFormat12}
+            preferredFormat24={preferredFormat24}
           />
           →
           <ClockTime
             value={expectedEnd}
             className={expectedEndClass}
-            preferredFormat12='h:mm'
-            preferredFormat24='HH:mm'
+            preferredFormat12={preferredFormat12}
+            preferredFormat24={preferredFormat24}
           />
         </>
       )}
@@ -193,20 +193,16 @@ interface SubscriptionStatusProps {
 }
 
 function SubscriptionStatus({ event }: SubscriptionStatusProps) {
-  const { getLocalizedString } = useTranslation();
-  const { playback, current, clock } = useCountdownSocket();
-
-  const { status, timer } = getSubscriptionDisplayData(current, playback, clock, event);
+  const { status, statusDisplay, timeDisplay } = useSubscriptionDisplayData(event);
 
   return (
     <>
-      <div className='sub__status'>{getLocalizedString(timerProgress[status])}</div>
-      <div className='sub__timer'>
-        {getFormattedTimer(timer, TimerType.CountDown, getLocalizedString('common.minutes'), {
-          removeSeconds: true, // TODO: show seconds here when under some threshold
-          removeLeadingZero: true,
-        })}
-      </div>
+      <div className='sub__status'>{statusDisplay}</div>
+      {status === 'done' ? (
+        <SuperscriptTime className='sub__timer' time={timeDisplay} />
+      ) : (
+        <div className='sub__timer'>{timeDisplay}</div>
+      )}
     </>
   );
 }

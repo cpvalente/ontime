@@ -16,6 +16,7 @@
   line-height: 1.1em;
   text-align: center;
   border-left: 0.25em solid;
+  border-color: var(--card-background-color-override, $viewer-card-bg-color);
 
   .secondary {
   text-align: left;

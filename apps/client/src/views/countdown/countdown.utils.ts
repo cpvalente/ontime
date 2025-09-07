@@ -1,8 +1,11 @@
 import { EntryId, MaybeNumber, OffsetMode, OntimeEntry, OntimeEvent, OntimeReport, Playback } from 'ontime-types';
-import { getExpectedStart, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { getExpectedStart, MILLIS_PER_MINUTE, removeSeconds } from 'ontime-utils';
 
+import { useCountdownSocket } from '../../common/hooks/useSocket';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
-import type { TranslationKey } from '../../translation/TranslationProvider';
+import { timerPlaceholderMin } from '../../common/utils/styleUtils';
+import { formatDuration, formatTime } from '../../common/utils/time';
+import { type TranslationKey, useTranslation } from '../../translation/TranslationProvider';
 
 /**
  * Parses string as a title
@@ -11,6 +14,9 @@ export function sanitiseTitle(title: string | null) {
   return title ?? '{no title}';
 }
 
+export const preferredFormat12 = 'h:mm a';
+export const preferredFormat24 = 'HH:mm';
+
 /**
  * Whether the current event is live
  */
@@ -18,49 +24,97 @@ export function getIsLive(currentId: EntryId, selectedId: EntryId | null, playba
   return currentId === selectedId && playback !== Playback.Armed;
 }
 
-type TimerMessage = Record<string, TranslationKey>;
-export type ProgressStatus = 'future' | 'due' | 'live' | 'done';
+export type ProgressStatus = 'future' | 'due' | 'live' | 'done' | 'pending' | 'loaded';
+type TimerMessage = Record<ProgressStatus, TranslationKey>;
 
 export const timerProgress: TimerMessage = {
   future: 'countdown.to_start',
   due: 'timeline.due',
-  live: 'timeline.live',
+  live: 'countdown.running',
+  pending: 'countdown.waiting',
+  loaded: 'countdown.loaded',
   done: 'countdown.ended',
 };
+
+export function getFormattedTime(
+  value: MaybeNumber,
+  status: ProgressStatus,
+  minText: string,
+  secText: string,
+  dueText: string,
+) {
+  if (value === null) return timerPlaceholderMin;
+  if (status === 'future' || status === 'live') {
+    if (value <= 0) return dueText.toUpperCase();
+    return formatDuration(value, value > MILLIS_PER_MINUTE * 2)
+      .replace('m', `${minText} `)
+      .replace('s', secText);
+  }
+  return removeSeconds(formatTime(value));
+}
 
 /**
  * Returns a parsed timer and relevant status message
  * Handles events in different days but disregards whether an event has actually played
- * TODO: get data from reporter and check if the event has played
- * TODO: get timer data granularly
  */
-export function getSubscriptionDisplayData(
-  current: MaybeNumber,
-  playback: Playback,
-  clock: number,
+export function useSubscriptionDisplayData(
   subscribedEvent: ExtendedEntry<OntimeEvent> & { endedAt: MaybeNumber; expectedStart: number },
-): { status: ProgressStatus; timer: MaybeNumber } {
+): { status: ProgressStatus; statusDisplay: string; timeDisplay: string } {
+  const { playback, current, clock } = useCountdownSocket();
+  const { getLocalizedString } = useTranslation();
+
+  const bigDuration = (value: number) => {
+    if (value <= 0) return getLocalizedString('countdown.overtime').toUpperCase();
+    return formatDuration(value, value > MILLIS_PER_MINUTE * 2)
+      .replace('m', `${getLocalizedString('common.minutes')} `)
+      .replace('s', getLocalizedString('common.seconds'));
+  };
+
   if (subscribedEvent.isLoaded) {
-    // 1. An event that is loaded but not running is {'due': <countdown | overtime>}
     if (playback === Playback.Armed) {
-      // if we are following the event, but it is not running, we show the scheduled start
-      return { status: 'due', timer: subscribedEvent.timeStart + subscribedEvent.delay };
+      return {
+        status: 'loaded',
+        statusDisplay: getLocalizedString(timerProgress['loaded']),
+        timeDisplay: bigDuration(subscribedEvent.duration),
+      };
     }
 
-    // 1. An event that is loaded but not armed can only be live {'live': <countdown | overtime>}
-    return { status: 'live', timer: current };
+    return {
+      status: 'live',
+      statusDisplay: getLocalizedString(timerProgress['live']),
+      timeDisplay: bigDuration(current ?? 0),
+    };
   }
 
-  /**
-   * If we are showing expected times we don't have to guess since that assumes a linear playback
-   */
+  if (playback === Playback.Stop || playback === Playback.Armed) {
+    return {
+      status: 'pending',
+      statusDisplay: getLocalizedString(timerProgress['pending']),
+      timeDisplay: ' ',
+    };
+  }
+
   if (subscribedEvent.isPast) {
-    return { status: 'done', timer: subscribedEvent.endedAt };
+    return {
+      status: 'done',
+      statusDisplay: getLocalizedString(timerProgress['done']),
+      timeDisplay: formatTime(subscribedEvent.endedAt, { format12: preferredFormat12, format24: preferredFormat24 }),
+    };
   }
+
   if (subscribedEvent.expectedStart - clock <= 0) {
-    return { status: 'due', timer: subscribedEvent.expectedStart - clock };
+    return {
+      status: 'due',
+      statusDisplay: getLocalizedString(timerProgress['future']), // We use future here on purpose for the look of it
+      timeDisplay: getLocalizedString(timerProgress['due']).toUpperCase(),
+    };
   }
-  return { status: 'future', timer: subscribedEvent.expectedStart - clock };
+
+  return {
+    status: 'future',
+    statusDisplay: getLocalizedString(timerProgress['future']),
+    timeDisplay: bigDuration(subscribedEvent.expectedStart - clock),
+  };
 }
 
 /**
