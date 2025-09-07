@@ -4,20 +4,16 @@ import { getExpectedStart } from 'ontime-utils';
 
 import Button from '../../common/components/buttons/Button';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
-import {
-  useCountdownSocket,
-  useCurrentDay,
-  useExpectedStartData,
-  useRuntimeOffset,
-} from '../../common/hooks/useSocket';
+import { useCountdownSocket, useExpectedStartData } from '../../common/hooks/useSocket';
 import useReport from '../../common/hooks-query/useReport';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
-import { getFormattedTimer } from '../../features/viewers/common/viewUtils';
+import { getFormattedTimer, getPropertyValue } from '../../features/viewers/common/viewUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import { useCountdownOptions } from './countdown.options';
 import { getSubscriptionDisplayData, timerProgress } from './countdown.utils';
+import { ScheduleTime } from './CountdownSubscriptions';
 
 import './SingleEventCountdown.scss';
 
@@ -27,6 +23,7 @@ interface SingleEventCountdownProps {
 }
 
 export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: SingleEventCountdownProps) {
+  const { secondarySource, showExpected } = useCountdownOptions();
   const showFab = useFadeOutOnInactivity(true);
   const { data: reportData } = useReport();
 
@@ -44,12 +41,16 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
 
   const { endedAt } = reportData[subscribedEvent.id] ?? { endedAt: null };
   const countdownEvent = { ...subscribedEvent, expectedStart, endedAt };
+  const title = subscribedEvent.title ? subscribedEvent.title : ' '; // insert utf-8 empty space to avoid the line collapsing
+  const secondaryData = getPropertyValue(subscribedEvent, secondarySource);
 
   return (
     <div className='single-container' data-testid='countdown-event'>
+      <ScheduleTime event={countdownEvent} showExpected={showExpected} />
       <SubscriptionStatus event={countdownEvent} />
       <div className='event__title' style={{ borderColor: countdownEvent.colour }}>
-        {subscribedEvent.title}
+        {title}
+        {secondaryData && <div className='secondary'>{secondaryData}</div>}
       </div>
       <div className={cx(['fab-container', !showFab && 'fab-container--hidden'])}>
         <Button variant='primary' size='xlarge' onClick={goToEditMode}>
@@ -66,21 +67,9 @@ interface SubscriptionStatusProps {
 
 function SubscriptionStatus({ event }: SubscriptionStatusProps) {
   const { getLocalizedString } = useTranslation();
-  const { currentDay } = useCurrentDay();
-  const { offset } = useRuntimeOffset();
-  const { showExpected } = useCountdownOptions();
   const { playback, current, clock } = useCountdownSocket();
 
-  // TODO: use reporter values as in the event block chip
-  const { status, timer } = getSubscriptionDisplayData(
-    current,
-    playback,
-    clock,
-    event,
-    offset,
-    currentDay,
-    showExpected,
-  );
+  const { status, timer } = getSubscriptionDisplayData(current, playback, clock, event);
 
   return (
     <>

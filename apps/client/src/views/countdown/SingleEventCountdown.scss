@@ -16,6 +16,12 @@
   line-height: 1.1em;
   text-align: center;
   border-left: 0.25em solid;
+
+  .secondary {
+  text-align: left;
+  font-size: clamp(20px, 2vw, 40px);
+
+  }
 }
 
 .event__status {
