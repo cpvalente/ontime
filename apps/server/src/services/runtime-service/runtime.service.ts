@@ -636,6 +636,8 @@ const eventTimer = new EventTimer({
 });
 export const runtimeService = new RuntimeService(eventTimer);
 
+type EntryUpdateKeys = keyof Pick<RuntimeState, 'eventNow' | 'eventNext' | 'eventFlag' | 'groupNow'>;
+
 /**
  * Decorator manages side effects from updating the runtime
  * This should only be applied to functions that are exposed for consumption
@@ -672,21 +674,30 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // combine all big changes
     const hasImmediateChanges = entryChanged || justStarted || hasChangedPlayback || offsetModeChanged;
 
-    // clock has changed by a second or more
-    const updateClock = getShouldClockUpdate(RuntimeService.previousState.clock, state.clock);
-    if (updateClock) {
-      batch.add('clock', state.clock);
-      RuntimeService.previousState.clock = state.clock;
-    }
-
-    // if any values have changed, values that have the possibility to tick are updated when the seconds roll over
+    /**
+     * if any values have changed.
+     * values that have the possibility to tick are updated when the seconds roll over
+     */
     const updateTimer = getShouldTimerUpdate(RuntimeService.previousState?.timer, state.timer);
     if (updateTimer) {
       batch.add('timer', state.timer);
       RuntimeService.previousState.timer = { ...state.timer };
     }
 
-    // if any values have changed, values that have the possibility to tick are modulated by `hasClockUpdate`
+    /**
+     * clock has changed by a second or more.
+     * or the timer updated so we ensure that the timer and clock ticks are in sync
+     */
+    const updateClock = updateTimer || getShouldClockUpdate(RuntimeService.previousState.clock, state.clock);
+    if (updateClock) {
+      batch.add('clock', state.clock);
+      RuntimeService.previousState.clock = state.clock;
+    }
+
+    /**
+     * if any values have changed.
+     * values that have the possibility to tick are modulated by `updateClock || hasImmediateChanges`
+     */
     const updateRuntime = getShouldOffsetUpdate(
       RuntimeService.previousState?.offset,
       state.offset,
@@ -697,16 +708,16 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       RuntimeService.previousState.offset = structuredClone(state.offset);
     }
 
-    // if any values have changed
+    /**
+     * if any values have changed.
+     */
     const updateRundownData = !deepEqual(RuntimeService.previousState.rundown, state.rundown);
     if (updateRundownData) {
       batch.add('rundown', state.rundown);
       RuntimeService.previousState.rundown = structuredClone(state.rundown);
     }
 
-    function updateMaybeEntryIfChanged<
-      K extends keyof Pick<RuntimeState, 'eventNow' | 'eventNext' | 'eventFlag' | 'groupNow'>,
-    >(key: K) {
+    function updateMaybeEntryIfChanged<K extends EntryUpdateKeys>(key: K) {
       const previousEntry = RuntimeService.previousState[key];
       const currentEntry = state[key];
 
