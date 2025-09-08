@@ -10,7 +10,7 @@ export const dataFromExcelTemplate = [
     'Timer type',
     'Count to end',
     'Skip',
-    'Notes',
+    'Note',
     't0',
     'Test1',
     'test2',
