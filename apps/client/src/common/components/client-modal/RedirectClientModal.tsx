@@ -35,10 +35,11 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
     }
 
     if (newPath.startsWith('preset-')) {
+      setRedirect({ target: id, redirect: newPath.slice(7) });
+    } else {
       setRedirect({ target: id, redirect: newPath });
     }
 
-    setRedirect({ target: id, redirect: newPath });
     onClose();
   };
 
