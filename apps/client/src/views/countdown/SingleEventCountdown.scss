@@ -1,11 +1,10 @@
 @use '@/theme/viewerDefs' as *;
 
 .single-container {
-  height: 100%;
-  margin-top: 5vh;
+  margin-top: 7.5vh;
   display: flex;
   flex-direction: column;
-  gap: $view-element-gap;
+  gap: 5rem;
 }
 
 .event__title {
@@ -13,21 +12,25 @@
   padding: $view-card-padding;
   border-radius: $element-border-radius;
   font-size: clamp(40px, 4.5vw, 80px);
-  line-height: 1.1em;
+  line-height: 1.1;
   text-align: center;
   border-left: 0.25em solid;
   border-color: var(--card-background-color-override, $viewer-card-bg-color);
 
   .secondary {
-  text-align: left;
-  font-size: clamp(20px, 2vw, 40px);
+    text-align: left;
+    font-size: $title-font-size;
+  }
 
+  .sub__schedule {
+    color: inherit;
+    font-size: $base-font-size;
   }
 }
 
 .event__status {
   color: var(--secondary-color-override, $viewer-secondary-color);
-  font-size: clamp(2rem, 3.5vw, 3.5rem);
+  font-size: $header-font-size;
   font-weight: 600;
   text-transform: uppercase;
 }
