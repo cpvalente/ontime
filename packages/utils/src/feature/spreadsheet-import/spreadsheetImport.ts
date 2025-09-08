@@ -14,7 +14,7 @@ export const defaultImportMap = {
   title: 'title',
   countToEnd: 'count to end',
   skip: 'skip',
-  note: 'notes',
+  note: 'note',
   colour: 'colour',
   endAction: 'end action',
   timerType: 'timer type',
