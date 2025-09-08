@@ -1,5 +1,6 @@
 import { PropsWithChildren } from 'react';
 
+import { apiEntryUrl } from '../common/api/constants';
 import { useRuntimeStylesheet } from '../common/hooks/useRuntimeStylesheet';
 
 import Loader from './common/loader/Loader';
@@ -15,6 +16,10 @@ export default function ViewLoader({ children }: PropsWithChildren) {
     return <Loader />;
   }
 
-  // eslint-disable-next-line react/jsx-no-useless-fragment -- ensuring JSX return
-  return <>{children}</>;
+  return (
+    <>
+      <link rel='stylesheet' href={`${apiEntryUrl}/assets/css`} precedence='override' />
+      {children}
+    </>
+  );
 }

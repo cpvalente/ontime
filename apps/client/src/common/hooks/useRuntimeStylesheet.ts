@@ -39,14 +39,14 @@ export const useRuntimeStylesheet = (): { shouldRender: boolean } => {
     setShouldRender(false);
 
     // Ensure the stylesheet is given to the document head
-    if (!styleSheet) {
-      styleSheet = document.createElement('style');
-      styleSheet.setAttribute('id', scriptTagId);
-      document.head.append(styleSheet);
-    }
+    // if (!styleSheet) {
+    //   styleSheet = document.createElement('style');
+    //   styleSheet.setAttribute('id', scriptTagId);
+    //   document.head.append(styleSheet);
+    // }
 
-    // set style sheet content
-    styleSheet.textContent = cssData;
+    // // set style sheet content
+    // styleSheet.textContent = cssData;
 
     // schedule render for next tick
     setTimeout(() => setShouldRender(true), 0);
