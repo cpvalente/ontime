@@ -11,7 +11,6 @@ const createSelector =
 export const setClientRemote = {
   setIdentify: (payload: { target: string; identify: boolean }) => sendSocket('client', payload),
   setRedirect: (payload: { target: string; redirect: string }) => {
-    console.log('--- got', payload);
     sendSocket('client', payload);
   },
   setClientName: (payload: { target: string; rename: string }) => sendSocket('client', payload),
