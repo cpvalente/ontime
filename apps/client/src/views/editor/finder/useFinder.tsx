@@ -1,6 +1,6 @@
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useSessionStorage } from '@mantine/hooks';
-import { EntryId, isOntimeEvent, isOntimeGroup, MaybeString, SupportedEntry } from 'ontime-types';
+import { EntryId, isOntimeEvent, isOntimeGroup, isOntimeMilestone, MaybeString, SupportedEntry } from 'ontime-types';
 
 import { useFlatRundown } from '../../../common/hooks-query/useRundown';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
@@ -9,14 +9,15 @@ const maxResults = 12;
 
 type FilterableGroup = {
   type: SupportedEntry.Group;
-  id: string;
+  id: EntryId;
   index: number;
   title: string;
+  colour: string;
 };
 
 type FilterableEvent = {
   type: SupportedEntry.Event;
-  id: string;
+  id: EntryId;
   index: number;
   eventIndex: number;
   title: string;
@@ -25,7 +26,17 @@ type FilterableEvent = {
   parent: MaybeString;
 };
 
-type FilterableEntry = FilterableGroup | FilterableEvent;
+type FilterableMilestone = {
+  type: SupportedEntry.Milestone;
+  id: EntryId;
+  index: number;
+  title: string;
+  cue: string;
+  colour: string;
+  parent: MaybeString;
+};
+
+type FilterableEntry = FilterableGroup | FilterableEvent | FilterableMilestone;
 
 export default function useFinder() {
   const { data, rundownId } = useFlatRundown();
@@ -59,7 +70,7 @@ export default function useFinder() {
       lastSearchString.current = searchValue;
 
       if (searchValue.startsWith('index ')) {
-        const searchString = searchValue.replace('index ', '').trim();
+        const searchString = searchValue.slice('index '.length).trim();
         const { results, error } = searchByIndex(searchString);
         setResults(results);
         setError(error);
@@ -67,14 +78,14 @@ export default function useFinder() {
       }
 
       if (searchValue.startsWith('cue ')) {
-        const searchString = searchValue.replace('cue ', '').trim();
+        const searchString = searchValue.slice('cue '.length).trim();
         const { results, error } = searchByCue(searchString);
         setResults(results);
         setError(error);
         return;
       }
 
-      const searchString = searchValue.replace('title ', '').trim();
+      const searchString = searchValue.startsWith('title ') ? searchValue.slice('title '.length).trim() : searchValue;
       const { results, error } = searchByTitle(searchString);
       setResults(results);
       setError(error);
@@ -162,32 +173,45 @@ export default function useFinder() {
             break;
           }
 
-          const event = data[i];
-          if (isOntimeEvent(event)) {
-            if (event.title.toLowerCase().includes(searchString)) {
+          const entry = data[i];
+          if (isOntimeEvent(entry)) {
+            if (entry.title.toLowerCase().includes(searchString)) {
               remaining--;
               results.push({
                 type: SupportedEntry.Event,
-                id: event.id,
+                id: entry.id,
                 index: i,
                 eventIndex,
-                title: event.title,
-                cue: event.cue,
-                colour: event.colour,
-                parent: event.parent,
+                title: entry.title,
+                cue: entry.cue,
+                colour: entry.colour,
+                parent: entry.parent,
               } satisfies FilterableEvent);
             }
             eventIndex++;
-          }
-          if (isOntimeGroup(event)) {
-            if (event.title.toLowerCase().includes(searchString)) {
+          } else if (isOntimeGroup(entry)) {
+            if (entry.title.toLowerCase().includes(searchString)) {
               remaining--;
               results.push({
                 type: SupportedEntry.Group,
-                id: event.id,
+                id: entry.id,
                 index: i,
-                title: event.title,
+                title: entry.title,
+                colour: entry.colour,
               } satisfies FilterableGroup);
+            }
+          } else if (isOntimeMilestone(entry)) {
+            if (entry.title.toLowerCase().includes(searchString)) {
+              remaining--;
+              results.push({
+                type: SupportedEntry.Milestone,
+                id: entry.id,
+                index: i,
+                title: entry.title,
+                cue: entry.cue,
+                colour: entry.colour,
+                parent: entry.parent,
+              } satisfies FilterableMilestone);
             }
           }
         }
@@ -200,7 +224,7 @@ export default function useFinder() {
   const select = useCallback(
     (selectedEvent: FilterableEntry) => {
       // First expand the parent group if this is an event inside a group
-      if (selectedEvent.type === SupportedEntry.Event && selectedEvent.parent !== null) {
+      if ('parent' in selectedEvent && selectedEvent.parent !== null) {
         // Try direct state update instead of using callback
         const currentGroups = [...new Set(collapsedGroups)];
         const newGroups = currentGroups.filter((id) => id !== selectedEvent.parent);
