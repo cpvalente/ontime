@@ -1,6 +1,5 @@
-import { RefObject, useCallback, useEffect, useRef } from 'react';
-
-import { useSelectedEventId } from './useSocket';
+import { RefObject, useCallback, useEffect } from 'react';
+import { MaybeString } from 'ontime-types';
 
 function scrollToComponent<ComponentRef extends HTMLElement, ScrollRef extends HTMLElement>(
   componentRef: RefObject<ComponentRef>,
@@ -18,37 +17,26 @@ function scrollToComponent<ComponentRef extends HTMLElement, ScrollRef extends H
   scrollRef.current.scrollTo({ top, behavior: 'smooth' });
 }
 
-function snapToComponent<ComponentRef extends HTMLElement, ScrollRef extends HTMLElement>(
-  componentRef: RefObject<ComponentRef>,
-  scrollRef: RefObject<ScrollRef>,
-  topOffset: number,
-) {
-  if (!componentRef.current || !scrollRef.current) {
-    return;
-  }
-
-  const componentRect = componentRef.current.getBoundingClientRect();
-  const scrollRect = scrollRef.current.getBoundingClientRect();
-  const top = componentRect.top - scrollRect.top + scrollRef.current.scrollTop - topOffset;
-
-  // maintain current x scroll position
-  scrollRef.current.scrollTo(scrollRef.current.scrollLeft, top);
-}
-
 interface UseFollowComponentProps {
   followRef: RefObject<HTMLElement | null>;
   scrollRef: RefObject<HTMLElement | null>;
   doFollow: boolean;
   topOffset?: number;
   setScrollFlag?: (newValue: boolean) => void;
+  followTrigger?: MaybeString; // this would be an entry id or null
 }
 
-export default function useFollowComponent(props: UseFollowComponentProps) {
-  const { followRef, scrollRef, doFollow, topOffset = 100, setScrollFlag } = props;
-
-  // when cursor moves, view should follow
+export default function useFollowComponent({
+  followRef,
+  scrollRef,
+  doFollow,
+  topOffset = 100,
+  setScrollFlag,
+  followTrigger,
+}: UseFollowComponentProps) {
+  // when trigger moves, view should follow
   useEffect(() => {
-    if (!doFollow) {
+    if (!doFollow || !followTrigger) {
       return;
     }
 
@@ -60,49 +48,18 @@ export default function useFollowComponent(props: UseFollowComponentProps) {
         setScrollFlag?.(false);
       });
     }
-
-    // eslint-disable-next-line -- the prompt seems incorrect
-  }, [followRef?.current, scrollRef?.current]);
+  }, [followTrigger, doFollow, followRef, scrollRef, setScrollFlag, topOffset]);
 
   const scrollToRefComponent = useCallback(
     (componentRef = followRef, containerRef = scrollRef, offset = topOffset) => {
-      if (componentRef.current && containerRef.current) {
+      if (componentRef && containerRef) {
         // @ts-expect-error -- we know this are not null
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        scrollToComponent(componentRef!, scrollRef!, offset);
+        scrollToComponent(componentRef!, containerRef!, offset);
       }
     },
     [followRef, scrollRef, topOffset],
   );
 
   return scrollToRefComponent;
-}
-
-export function useFollowSelected(doFollow: boolean, topOffset = 100) {
-  const selectedEvenId = useSelectedEventId();
-
-  const selectedRef = useRef<HTMLTableRowElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!doFollow) {
-      return;
-    }
-
-    if (selectedEvenId && selectedRef.current && scrollRef.current) {
-      // Use requestAnimationFrame to ensure the component is fully loaded
-      window.requestAnimationFrame(() => {
-        snapToComponent(
-          { current: selectedRef.current } as RefObject<HTMLElement>,
-          { current: scrollRef.current } as RefObject<HTMLElement>,
-          topOffset,
-        );
-      });
-    }
-  }, [doFollow, selectedEvenId, topOffset]);
-
-  return {
-    selectedRef,
-    scrollRef,
-  };
 }
