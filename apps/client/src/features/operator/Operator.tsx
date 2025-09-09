@@ -49,6 +49,7 @@ export default function Operator() {
     scrollRef,
     doFollow: !lockAutoScroll,
     topOffset: selectedOffset,
+    followTrigger: selectedEventId,
   });
 
   useWindowTitle('Operator');
