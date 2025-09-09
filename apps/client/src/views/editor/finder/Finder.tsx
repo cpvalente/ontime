@@ -71,8 +71,7 @@ export default function Finder({ isOpen, onClose }: FinderProps) {
               results.map((entry, index) => {
                 const isSelected = selected === index;
                 const displayIndex = entry.type === SupportedEntry.Event ? entry.eventIndex : '-';
-                const displayCue = entry.type === SupportedEntry.Event ? entry.cue : '';
-                const colour = entry.type === SupportedEntry.Event ? entry.colour : '';
+                const displayCue = 'cue' in entry ? entry.cue : '';
 
                 return (
                   <li
@@ -83,7 +82,7 @@ export default function Finder({ isOpen, onClose }: FinderProps) {
                     onClick={submit}
                   >
                     <div className={style.data}>
-                      <div className={style.index} style={{ '--color': colour }}>
+                      <div className={style.index} style={{ '--color': entry.colour }}>
                         {displayIndex}
                       </div>
                       <div className={style.cue}>{displayCue}</div>
@@ -99,7 +98,7 @@ export default function Finder({ isOpen, onClose }: FinderProps) {
       footerElements={
         <div className={style.footer}>
           Use the keywords <span className={style.em}>cue</span>, <span className={style.em}>index</span> or
-          <span className={style.em}>title</span> to filter search
+          <span className={style.em}>title</span> to filter search.
         </div>
       }
     />
