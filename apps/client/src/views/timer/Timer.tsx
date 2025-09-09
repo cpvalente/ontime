@@ -68,7 +68,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings }
     hidePhase,
     font,
     keyColour,
-    textColour,
+    timerColour,
   } = useTimerOptions();
 
   const { getLocalizedString } = useTranslation();
@@ -131,11 +131,11 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings }
   );
 
   // gather presentation styles
-  const timerColour = getTimerColour(viewSettings, textColour, showWarning, showDanger);
+  const resolvedTimerColour = getTimerColour(viewSettings, timerColour, showWarning, showDanger);
   const { timerFontSize, externalFontSize } = getEstimatedFontSize(display, secondaryContent);
   const userStyles = {
     ...(keyColour && { '--timer-bg': keyColour }),
-    ...(textColour && { '--timer-colour': timerColour }),
+    ...(resolvedTimerColour && { '--timer-colour': resolvedTimerColour }),
     ...(font && { '--timer-font': font }),
   };
 
