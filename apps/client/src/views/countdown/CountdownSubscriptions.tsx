@@ -53,6 +53,7 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
     scrollRef,
     doFollow: !lockAutoScroll,
     topOffset: 0,
+    followTrigger: selectedEventId,
   });
 
   // reset scroll if nothing is selected

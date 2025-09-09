@@ -82,7 +82,12 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
 
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: editorMode === AppMode.Run });
+  useFollowComponent({
+    followRef: cursorRef,
+    scrollRef,
+    doFollow: true,
+    followTrigger: editorMode === AppMode.Edit ? cursor : featureData?.selectedEventId,
+  });
 
   // DND KIT
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 10 } }));
@@ -312,7 +317,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
     setMetadata(rundownMetadata);
   }, [order, entries, rundownMetadata]);
 
-  // in run mode, we follow selection
+  // in run mode, we follow the playback selection and open groups as needed
   useEffect(() => {
     if (editorMode !== AppMode.Run || !featureData?.selectedEventId) {
       return;
