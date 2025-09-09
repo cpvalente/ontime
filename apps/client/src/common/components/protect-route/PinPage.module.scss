@@ -11,9 +11,11 @@
 }
 
 .pin {
+  margin-top: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
 
   input {
     font-size: 4rem;
