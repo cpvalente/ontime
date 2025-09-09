@@ -1,0 +1,29 @@
+{
+  "name": "@getontime/resolver",
+  "type": "module",
+  "types": "./dist/main.d.ts",
+  "main": "./dist/main.js",
+  "private": true,
+  "description": "shared typings for ontime",
+  "scripts": {
+    "lint": "eslint . --quiet",
+    "prebuild": "pnpm rimraf ./dist",
+    "build": "tsup && pnpm rimraf ./dist/index.js",
+    "postbuild": "pnpm rimraf ./dist/index.d.ts"
+  },
+  "keywords": ["ontime", "resolver", "parser"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@sprout2000/esbuild-copy-plugin": "^1.1.19",
+    "@typescript-eslint/parser": "catalog:",
+    "esbuild-plugin-node-externals": "^1.0.1",
+    "esbuild-plugin-resolve": "^2.0.0",
+    "eslint": "catalog:",
+    "ontime-types": "workspace:*",
+    "@types/ws": "^8.5.10",
+    "tsup": "^8.5.0",
+    "rimraf": "catalog:",
+    "typescript": "catalog:"
+  }
+}

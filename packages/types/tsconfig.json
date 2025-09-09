@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": false,
+    "isolatedModules": false,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "allowJs": true,
+    "declaration": true,
+    "outDir": "dist",
+  },
+  "include": [
+    "src/index.ts",
+  ],
+  "exclude": [
+    "node_modules", "dist"
+  ]
+}

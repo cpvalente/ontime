@@ -1,4 +1,9 @@
-import type { EndAction, EntryCustomFields, MaybeNumber, TimerType, TimeStrategy, Trigger } from '../../index.js';
+import type { MaybeNumber } from '../../utils/utils.type.js';
+import type { EndAction } from '../EndAction.type.js';
+import type { TimerType } from '../TimerType.type.js';
+import type { TimeStrategy } from '../TimeStrategy.type.js';
+import type { Trigger } from './Automation.type.js';
+import type { EntryCustomFields } from './CustomFields.type.js';
 
 export type EntryId = string;
 

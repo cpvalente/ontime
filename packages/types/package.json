@@ -1,4 +1,5 @@
 {
+  "$schema": "https://cdn.jsdelivr.net/npm/tsup/schema.json",
   "name": "ontime-types",
   "type": "module",
   "main": "./src/index.ts",
@@ -7,7 +8,8 @@
   "description": "shared typings for ontime",
   "scripts": {
     "cleanup": "rm -rf .turbo && rm -rf node_modules",
-    "lint": "eslint . --quiet"
+    "lint": "eslint . --quiet",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
