@@ -28,20 +28,22 @@
   padding-inline: 0;
   box-shadow: $box-shadow-right;
 
-  flex: 1 2 auto; /* flex-grow: 1, flex-shrink: 2, flex-basis: auto */
+  flex: 1 1 0; /* flex-grow: 1, flex-shrink: 1, flex-basis: 0 */
   min-width: 38rem;
-  max-width: 60rem;
+  max-width: none;
+  width: 0;
 }
 
 .side {
   max-height: 100%;
-  max-width: 45rem;
   margin: 0.5rem 0;
   padding: 1rem;
   padding-right: 0;
   background-color: $gray-1325;
   border-radius: 0 8px 8px 0;
 
-  flex: 1 1 auto; /* flex-grow: 1, flex-shrink: 1, flex-basis: auto */
-  max-width: 45rem;
+  flex: 1 1 0; /* flex-grow: 1, flex-shrink: 1, flex-basis: 0 */
+  // width is locked to swatch picker elements
+  min-width: calc(15 * 2rem + 13 * 0.5rem);
+  width: 0;
 }
