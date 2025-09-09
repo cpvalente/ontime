@@ -41,9 +41,9 @@ export function canDrop(
   order?: 'after' | 'before',
   isTargetCollapsed?: boolean,
 ): boolean {
-  // this would mean inserting a group inside another
+  // inserting before would mean adding a group inside another
   if (targetType === 'end-group') {
-    return false;
+    return order === 'after';
   }
 
   // this means swapping places with another group
