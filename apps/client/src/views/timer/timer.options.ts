@@ -25,10 +25,12 @@ const timerDisplayOptions: SelectOption[] = [
 
 export const getTimerOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
   const mainOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'none', label: 'None' },
     { value: 'title', label: 'Title' },
     { value: 'note', label: 'Note' },
   ]);
   const secondaryOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'none', label: 'None' },
     { value: 'title', label: 'Title' },
     { value: 'note', label: 'Note' },
   ]);
@@ -84,7 +86,7 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
           description: 'Select the data source for the main text',
           type: 'option',
           values: mainOptions,
-          defaultValue: 'Title',
+          defaultValue: 'title',
         },
         {
           id: 'secondary-src',
@@ -92,7 +94,7 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
           description: 'Select the data source for the secondary text',
           type: 'option',
           values: secondaryOptions,
-          defaultValue: '',
+          defaultValue: 'none',
         },
       ],
     },
