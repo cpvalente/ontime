@@ -32,7 +32,8 @@
     "preserveConstEnums": true,
     "allowJs": true,
     "baseUrl": "src",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "outDir": "build"
   },
   "include": [
     "src"
