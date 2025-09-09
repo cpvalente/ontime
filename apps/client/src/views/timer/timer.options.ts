@@ -163,9 +163,9 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
           defaultValue: '101010',
         },
         {
-          id: 'textColour',
-          title: 'Text Colour',
-          description: 'Text colour. Default: #f6f6f6',
+          id: 'timerColour',
+          title: 'Timer Colour',
+          description: 'Timer colour. Default: #f6f6f6',
           type: 'colour',
           defaultValue: 'f6f6f6',
         },
@@ -191,7 +191,7 @@ type TimerOptions = {
   hidePhase: boolean;
   font?: string;
   keyColour?: string;
-  textColour?: string;
+  timerColour?: string;
 };
 
 /**
@@ -226,7 +226,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
 
     font: getValue('font') ?? undefined,
     keyColour: makeColourString(getValue('keyColour')),
-    textColour: makeColourString(getValue('textColour')),
+    timerColour: makeColourString(getValue('timerColour')),
   };
 }
 
