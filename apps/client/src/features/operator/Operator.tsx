@@ -182,7 +182,7 @@ export default function Operator() {
                   const { isPast, isSelected, isLinkedToLoaded, totalGap } = process(nestedEntry);
 
                   // hide past events (if setting) and skipped events
-                  if (hidePast && isPast) {
+                  if ((hidePast && isPast) || nestedEntry.skip) {
                     return null;
                   }
 
