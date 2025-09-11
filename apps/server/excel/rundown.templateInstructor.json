@@ -1,0 +1,18 @@
+{
+  "id": "B12",
+  "cue": "C12",
+  "title": "D12",
+  "colour": "E12",
+  "timeStart": "F12",
+  "timeEnd": "G12",
+  "duration": "H12",
+  "linkStart": "I12",
+  "countToEnd": "J12",
+  "note": "K12",
+  "timerType": "L12",
+  "endAction": "M12",
+  "warningTime": "N12",
+  "dangerTime": "O12",
+  "skip": "P12",
+  "customFields": "Q12"
+}

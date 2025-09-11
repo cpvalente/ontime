@@ -4,6 +4,9 @@ import { uploadExcel } from './excel.middleware.js';
 import { validateFileExists, validateImportMapOptions } from './excel.validation.js';
 import { CustomFields, ErrorResponse, Rundown } from 'ontime-types';
 import { generateRundownPreview, listWorksheets, saveExcelFile } from './excel.service.js';
+import { createExcel } from './excel.creator.js';
+import { getCurrentRundown, getProjectCustomFields } from '../rundown/rundown.dao.js';
+import xlsx from 'xlsx';
 
 export const router = express.Router();
 
@@ -40,3 +43,17 @@ router.post(
     }
   },
 );
+
+router.get('/download', (req: Request, res: Response): void => {
+  try {
+    const workbook = createExcel(getCurrentRundown(), getProjectCustomFields());
+    const buffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+
+    res.setHeader('Content-Disposition', `attachment`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+    res.send(buffer);
+  } catch (error) {
+    res.status(500).send({ message: String(error) });
+  }
+});

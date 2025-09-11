@@ -3,6 +3,7 @@ import { IoCloudOutline, IoDownloadOutline } from 'react-icons/io5';
 import { getErrorMessage, ImportMap } from 'ontime-utils';
 
 import {
+  download as downloadExcel,
   getWorksheetNames as getWorksheetNamesExcel,
   importRundownPreview as importRundownPreviewExcel,
   upload as uploadExcel,
@@ -68,6 +69,10 @@ export default function SourcesPanel() {
 
   const handleUpload = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleDownload = async () => {
+    await downloadExcel();
   };
 
   const resetFlow = () => {
@@ -171,6 +176,14 @@ export default function SourcesPanel() {
               data-testid='file-input'
             />
             <div className={style.uploadSection}>
+              <div>
+                <Button variant='primary' onClick={handleDownload} loading={hasFile === 'loading'}>
+                  <IoDownloadOutline />
+                  Export in spreadsheet
+                </Button>
+                <Panel.Description>Create a .xlsx file</Panel.Description>
+              </div>
+              <Editor.Separator orientation='vertical' />
               <div>
                 <Button variant='primary' onClick={handleUpload} loading={hasFile === 'loading'}>
                   <IoDownloadOutline />

@@ -270,7 +270,7 @@ export function createMilestone(patch?: Partial<OntimeMilestone>): OntimeMilesto
  * @param fallback
  * @returns
  */
-function inferStrategy(end: unknown, duration: unknown, fallback: TimeStrategy): TimeStrategy {
+export function inferStrategy(end: unknown, duration: unknown, fallback: TimeStrategy): TimeStrategy {
   if (end && !duration) {
     return TimeStrategy.LockEnd;
   }

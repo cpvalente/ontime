@@ -47,3 +47,6 @@ ontime-data/
 
 # temporary write files
 **.tmp
+
+# temporary excel files
+~$**.xlsx

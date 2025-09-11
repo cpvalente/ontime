@@ -21,6 +21,29 @@ export async function upload(file: File) {
 }
 
 /**
+ * download Excel file from server
+ * @param fileName
+ */
+export async function download(fileName?: string) {
+  try {
+    const response = await axios.get(`${excelPath}/download`, {
+      responseType: 'blob',
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${fileName || 'Ontime_rundown'}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Erreur lors du téléchargement du fichier :', error);
+  }
+}
+
+/**
  * Get Worksheet names
  * @return string[] - array of available worksheets
  */
