@@ -285,17 +285,11 @@ importers:
       '@typescript-eslint/parser':
         specifier: 'catalog:'
         version: 7.16.1(eslint@8.56.0)(typescript@5.5.3)
-      esbuild-plugin-node-externals:
-        specifier: ^1.0.1
-        version: 1.0.1(esbuild@0.25.5)
-      esbuild-plugin-resolve:
-        specifier: ^2.0.0
-        version: 2.0.0
       eslint:
         specifier: 'catalog:'
         version: 8.56.0
       ontime-types:
-        specifier: workspace:*
+        specifier: workspace:^4.0.0
         version: link:../../packages/types
       rimraf:
         specifier: 'catalog:'
@@ -2800,14 +2794,6 @@ packages:
 
   es6-error@4.1.1:
     resolution: {integrity: sha512-Um/+FxMr9CISWh0bi5Zv0iOD+4cFh5qLeks1qhAopKVAJw3drgKbKySikp7wGhDL0HPeaja0P5ULZrxLkniUVg==}
-
-  esbuild-plugin-node-externals@1.0.1:
-    resolution: {integrity: sha512-USzpK87OpVT21TsDfzPg8THB876GCFFMvSlY3Tg8y+ZBG+imiTkz7AchNgJIPUWKdI+0z1WXyX9QVWJCFxH7sg==}
-    peerDependencies:
-      esbuild: '>= 0.14.0'
-
-  esbuild-plugin-resolve@2.0.0:
-    resolution: {integrity: sha512-eJy9B8yDW5X/J48eWtR1uVmv+DKfHvYYnrrcqQoe/nUkVHVOTZlJnSevkYyGOz6hI90t036Y5QIPDrGzmppxfg==}
 
   esbuild@0.24.2:
     resolution: {integrity: sha512-+9egpBW8I3CD5XPe0n6BfT5fxLzxrlDzqydF3aviG+9ni1lDC/OvMHcxqEFV0+LANZG5R1bFMWfUrjVsdwxJvA==}
@@ -8037,14 +8023,6 @@ snapshots:
 
   es6-error@4.1.1:
     optional: true
-
-  esbuild-plugin-node-externals@1.0.1(esbuild@0.25.5):
-    dependencies:
-      esbuild: 0.25.5
-      find-up: 5.0.0
-      jsonfile: 6.1.0
-
-  esbuild-plugin-resolve@2.0.0: {}
 
   esbuild@0.24.2:
     optionalDependencies:

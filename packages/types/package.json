@@ -1,5 +1,5 @@
 {
-  "$schema": "https://cdn.jsdelivr.net/npm/tsup/schema.json",
+  "version": "4.0.0-beta.3",
   "name": "ontime-types",
   "type": "module",
   "main": "./src/index.ts",
