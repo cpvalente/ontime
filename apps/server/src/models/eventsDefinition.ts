@@ -1,6 +1,6 @@
 import {
   EndAction,
-  OntimeBlock,
+  OntimeGroup,
   OntimeDelay,
   OntimeEvent,
   OntimeMilestone,
@@ -54,8 +54,8 @@ export const milestone: Omit<OntimeMilestone, 'id'> = {
   revision: 0, // calculated at runtime
 };
 
-export const block: Omit<OntimeBlock, 'id'> = {
-  type: SupportedEntry.Block,
+export const group: Omit<OntimeGroup, 'id'> = {
+  type: SupportedEntry.Group,
   title: '',
   note: '',
   entries: [],

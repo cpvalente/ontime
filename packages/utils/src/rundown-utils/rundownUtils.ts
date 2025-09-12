@@ -1,13 +1,13 @@
 import type {
   EntryId,
-  OntimeBlock,
   OntimeEntry,
   OntimeEvent,
+  OntimeGroup,
   PlayableEvent,
   Rundown,
   RundownEntries,
 } from 'ontime-types';
-import { isOntimeBlock, isOntimeEvent, isPlayableEvent } from 'ontime-types';
+import { isOntimeEvent, isOntimeGroup, isPlayableEvent } from 'ontime-types';
 
 type IndexAndEntry = { entry: OntimeEntry | null; index: number | null };
 
@@ -313,9 +313,9 @@ export function getEventWithId(rundown: OntimeEntry[], id: string): OntimeEntry 
 }
 
 /**
- * Gets relevant block element for a given ID
+ * Gets relevant group element for a given ID
  */
-export function getPreviousBlockNormal(rundown: RundownEntries, order: string[], currentId: string): IndexAndEntry {
+export function getPreviousGroupNormal(rundown: RundownEntries, order: string[], currentId: string): IndexAndEntry {
   let foundCurrentEvent = false;
   // Iterate backwards through the rundown to find the current event
   for (let index = order.length - 1; index >= 0; index--) {
@@ -325,20 +325,20 @@ export function getPreviousBlockNormal(rundown: RundownEntries, order: string[],
       foundCurrentEvent = true;
       continue;
     }
-    // the first block before the current event is the relevant one
+    // the first group before the current event is the relevant one
     const entry = rundown[id];
-    if (foundCurrentEvent && isOntimeBlock(entry)) {
+    if (foundCurrentEvent && isOntimeGroup(entry)) {
       return { entry, index };
     }
   }
-  // no blocks exist before current event
+  // no groups exist before current event
   return { entry: null, index: null };
 }
 
 /**
- * Gets next block element for a given ID
+ * Gets next group element for a given ID
  */
-export function getNextBlockNormal(rundown: RundownEntries, order: string[], currentId: string): IndexAndEntry {
+export function getNextGroupNormal(rundown: RundownEntries, order: string[], currentId: string): IndexAndEntry {
   let foundCurrentEvent = false;
   // Iterate backwards through the rundown to find the current event
   for (let index = 0; index < order.length; index++) {
@@ -348,25 +348,25 @@ export function getNextBlockNormal(rundown: RundownEntries, order: string[], cur
       foundCurrentEvent = true;
       continue;
     }
-    // the first block before the current event is the relevant one
+    // the first group before the current event is the relevant one
     const entry = rundown[id];
-    if (foundCurrentEvent && isOntimeBlock(entry)) {
+    if (foundCurrentEvent && isOntimeGroup(entry)) {
       return { entry, index };
     }
   }
-  // no blocks exist before current event
+  // no groups exist before current event
   return { entry: null, index: null };
 }
 
 /**
- * Gets relevant block element for a given ID
+ * Gets relevant group element for a given ID
  */
-export function getPreviousBlock(rundown: Pick<Rundown, 'entries' | 'order'>, currentId: EntryId): OntimeBlock | null {
+export function getPreviousGroup(rundown: Pick<Rundown, 'entries' | 'order'>, currentId: EntryId): OntimeGroup | null {
   const currentEvent = rundown.entries[currentId];
 
-  // check if event is inside a block
+  // check if event is inside a group
   if (isOntimeEvent(currentEvent) && currentEvent.parent) {
-    return rundown.entries[currentEvent.parent] as OntimeBlock;
+    return rundown.entries[currentEvent.parent] as OntimeGroup;
   }
 
   let foundCurrentEvent = false;
@@ -379,11 +379,11 @@ export function getPreviousBlock(rundown: Pick<Rundown, 'entries' | 'order'>, cu
       foundCurrentEvent = true;
       continue;
     }
-    // the first block before the current event is the relevant one
-    if (foundCurrentEvent && isOntimeBlock(entry)) {
+    // the first group before the current event is the relevant one
+    if (foundCurrentEvent && isOntimeGroup(entry)) {
       return entry;
     }
   }
-  // no blocks exist before null event
+  // no groups exist before null event
   return null;
 }

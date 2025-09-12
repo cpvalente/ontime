@@ -2,7 +2,7 @@ import {
   SupportedEntry,
   OntimeEvent,
   OntimeDelay,
-  OntimeBlock,
+  OntimeGroup,
   Rundown,
   CustomField,
   OntimeMilestone,
@@ -16,8 +16,8 @@ const baseEvent = {
   revision: 1,
 };
 
-const baseBlock = {
-  type: SupportedEntry.Block,
+const baseGroup = {
+  type: SupportedEntry.Group,
   entries: [],
 };
 
@@ -28,7 +28,7 @@ const baseMilestone = {
 };
 
 /**
- * Utility to create a Ontime event
+ * Utility to create an Ontime event
  */
 export function makeOntimeEvent(patch: Partial<OntimeEvent>): OntimeEvent {
   return {
@@ -38,21 +38,21 @@ export function makeOntimeEvent(patch: Partial<OntimeEvent>): OntimeEvent {
 }
 
 /**
- * Utility to create a delay event
+ * Utility to create a delay entry
  */
 export function makeOntimeDelay(patch: Partial<OntimeDelay>): OntimeDelay {
   return { id: 'delay', type: SupportedEntry.Delay, duration: 0, ...patch } as OntimeDelay;
 }
 
 /**
- * Utility to create a block event
+ * Utility to create a group entry
  */
-export function makeOntimeBlock(patch: Partial<OntimeBlock>): OntimeBlock {
-  return { id: 'block', ...baseBlock, ...patch } as OntimeBlock;
+export function makeOntimeGroup(patch: Partial<OntimeGroup>): OntimeGroup {
+  return { id: 'group', ...baseGroup, ...patch } as OntimeGroup;
 }
 
 /**
- * Utility to create a block event
+ * Utility to create a milestone entry
  */
 export function makeOntimeMilestone(patch: Partial<OntimeMilestone>): OntimeMilestone {
   return { id: 'milestone', ...baseMilestone, ...patch } as OntimeMilestone;

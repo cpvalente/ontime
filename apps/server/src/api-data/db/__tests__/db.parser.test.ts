@@ -46,7 +46,7 @@ describe('test parseDatabaseModel() with demo project (valid)', () => {
     // remove time-related fields from the comparison
     // these are not calculated in the parser
     Object.values(filteredDemoProject.rundowns.default.entries).forEach((entry: any) => {
-      if (entry.type === SupportedEntry.Block) {
+      if (entry.type === SupportedEntry.Group) {
         delete entry.timeStart;
         delete entry.timeEnd;
         delete entry.duration;
@@ -54,7 +54,7 @@ describe('test parseDatabaseModel() with demo project (valid)', () => {
       }
     });
     Object.values(data.rundowns.default.entries).forEach((entry: any) => {
-      if (entry.type === SupportedEntry.Block) {
+      if (entry.type === SupportedEntry.Group) {
         delete entry.timeStart;
         delete entry.timeEnd;
         delete entry.duration;

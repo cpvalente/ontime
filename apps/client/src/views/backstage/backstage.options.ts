@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { use, useMemo } from 'react';
+import { useSearchParams } from 'react-router';
 import { CustomFields, OntimeEvent, ProjectData } from 'ontime-types';
 
 import { getTimeOption } from '../../common/components/view-params-editor/common.options';
@@ -9,6 +9,7 @@ import {
   makeOptionsFromCustomFields,
   makeProjectDataOptions,
 } from '../../common/components/view-params-editor/viewParams.utils';
+import { PresetContext } from '../../common/context/PresetContext';
 import { scheduleOptions } from '../common/schedule/schedule.options';
 
 export const getBackstageOptions = (
@@ -16,8 +17,11 @@ export const getBackstageOptions = (
   customFields: CustomFields,
   projectData: ProjectData,
 ): ViewOption[] => {
-  const secondaryOptions = makeOptionsFromCustomFields(customFields, [{ value: 'note', label: 'Note' }]);
-  const projectDataOptions = makeProjectDataOptions(projectData);
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'none', label: 'None' },
+    { value: 'note', label: 'Note' },
+  ]);
+  const projectDataOptions = makeProjectDataOptions(projectData, [{ value: 'none', label: 'None' }]);
 
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
@@ -31,7 +35,7 @@ export const getBackstageOptions = (
           description: 'Select the data source for auxiliary text shown in now and next cards',
           type: 'option',
           values: secondaryOptions,
-          defaultValue: '',
+          defaultValue: 'none',
         },
       ],
     },
@@ -46,7 +50,7 @@ export const getBackstageOptions = (
           description: 'Select a project data source to show in the view',
           type: 'option',
           values: projectDataOptions,
-          defaultValue: '',
+          defaultValue: 'none',
         },
       ],
     },
@@ -62,11 +66,13 @@ type BackstageOptions = {
  * Utility extract the view options from URL Params
  * the names and fallback are manually matched with timerOptions
  */
-function getOptionsFromParams(searchParams: URLSearchParams): BackstageOptions {
-  // we manually make an object that matches the key above
+function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): BackstageOptions {
+  // Helper to get value from either source, prioritizing defaultValues
+  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
+
   return {
-    secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
-    extraInfo: searchParams.get('extra-info'),
+    secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
+    extraInfo: getValue('extra-info'),
   };
 }
 
@@ -75,6 +81,12 @@ function getOptionsFromParams(searchParams: URLSearchParams): BackstageOptions {
  */
 export function useBackstageOptions(): BackstageOptions {
   const [searchParams] = useSearchParams();
-  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  const maybePreset = use(PresetContext);
+
+  const options = useMemo(() => {
+    const defaultValues = maybePreset ? new URLSearchParams(maybePreset.search) : undefined;
+    return getOptionsFromParams(searchParams, defaultValues);
+  }, [maybePreset, searchParams]);
+
   return options;
 }

@@ -1,0 +1,37 @@
+@import '../CuesheetTable.module.scss';
+
+.groupRow {
+  margin-top: 2em;
+  width: 100%;
+  display: flex;
+  align-items: start;
+  font-size: 1rem;
+  border-radius: 2px 0 0 0;
+  background-color: $gray-1300;
+  border-left: 4px solid var(--user-bg, $gray-500);
+  background: color-mix(in srgb, transparent 90%, var(--user-bg, $gray-500) 10%);
+
+  position: relative;
+  line-height: 1em;
+
+  font-weight: bold;
+
+  td {
+    min-height: 3.5rem;
+    padding-top: 0.75rem !important; // fighting styles from cuesheet-table
+  }
+
+  .indexColumn {
+    background-color: transparent;
+  }
+
+  .title {
+    font-weight: 600;
+  }
+
+  &:hover {
+    outline: 1px solid $blue-500;
+    outline-offset: -1px;
+    background: color-mix(in srgb, transparent 80%, var(--user-bg, $gray-500) 20%);
+  }
+}

@@ -5,7 +5,7 @@ export type EntryId = string;
 export enum SupportedEntry {
   Event = 'event',
   Delay = 'delay',
-  Block = 'block',
+  Group = 'group',
   Milestone = 'milestone',
 }
 
@@ -32,8 +32,8 @@ export type OntimeMilestone = OntimeBaseEvent & {
   revision: number;
 };
 
-export type OntimeBlock = OntimeBaseEvent & {
-  type: SupportedEntry.Block;
+export type OntimeGroup = OntimeBaseEvent & {
+  type: SupportedEntry.Group;
   title: string;
   note: string;
   entries: EntryId[];
@@ -78,7 +78,7 @@ export type OntimeEvent = OntimeBaseEvent & {
 
 export type PlayableEvent = OntimeEvent & { skip: false };
 export type TimeField = 'timeStart' | 'timeEnd' | 'duration';
-export type OntimeEntry = OntimeDelay | OntimeBlock | OntimeEvent | OntimeMilestone;
+export type OntimeEntry = OntimeDelay | OntimeGroup | OntimeEvent | OntimeMilestone;
 
 // we need to create a manual union type since keys cannot be used in type unions
-export type OntimeEntryCommonKeys = keyof OntimeEvent | keyof OntimeDelay | keyof OntimeBlock | keyof OntimeMilestone;
+export type OntimeEntryCommonKeys = keyof OntimeEvent | keyof OntimeDelay | keyof OntimeGroup | keyof OntimeMilestone;

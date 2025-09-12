@@ -1,6 +1,6 @@
 import React from 'react';
-import { createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from 'react-router-dom';
-import { Routes } from 'react-router-dom';
+import { createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from 'react-router';
+import { Routes } from 'react-router';
 import * as Sentry from '@sentry/react';
 
 import { ONTIME_VERSION } from './ONTIME_VERSION';
@@ -35,7 +35,7 @@ export const initializeSentry = () => {
   Sentry.init({
     dsn: sentryDsn,
     integrations: [
-      Sentry.reactRouterV6BrowserTracingIntegration({
+      Sentry.reactRouterV7BrowserTracingIntegration({
         useEffect: React.useEffect,
         useLocation,
         useNavigationType,
@@ -64,7 +64,7 @@ export const initializeSentry = () => {
       /NetworkError/i,
       /The operation couldn't be completed/i,
     ],
-    denyUrls: [/extensions\//i, /^chrome:\/\//i, /^chrome-extension:\/\//i],
+    denyUrls: [/extensions\//i, /^chrome:\/\//i, /^chrome-extension:\/\//i, /external\//i],
     beforeSend(event) {
       // Drop errors that happen during known data-unavailable states
       const error = event.exception?.values?.[0]?.value;

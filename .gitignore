@@ -34,6 +34,10 @@ e2e/tests/fixtures/tmp/*
 build/
 dist/
 
+# bundled assets
+translations.json
+override.css
+
 # working stuff
 **/TODO.md
 

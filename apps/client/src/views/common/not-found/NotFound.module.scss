@@ -1,0 +1,11 @@
+@use '@/theme/viewerDefs' as *;
+
+.notFound {
+  display: grid;
+  place-items: center;
+  background-color: var(--background-color-override, $viewer-background-color);
+  margin-top: 10vh;
+  color: $ui-white;
+  justify-content: center;
+  text-align: center;
+}

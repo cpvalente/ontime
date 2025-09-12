@@ -6,6 +6,7 @@ import { PROJECT_DATA } from '../../../../common/api/constants';
 import { getDb, patchData } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
+import Info from '../../../../common/components/info/Info';
 import Switch from '../../../../common/components/switch/Switch';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -21,7 +22,7 @@ interface ProjectMergeFromProps {
 
 type ProjectMergeFormValues = {
   project: boolean;
-  rundown: boolean;
+  rundowns: boolean;
   viewSettings: boolean;
   urlPresets: boolean;
   automation: boolean;
@@ -39,7 +40,7 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
   } = useForm<ProjectMergeFormValues>({
     defaultValues: {
       project: false,
-      rundown: false,
+      rundowns: false,
       viewSettings: false,
       urlPresets: false,
       automation: false,
@@ -61,6 +62,10 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
 
       // make patch object
       const { data } = await getDb(fileName);
+      if (!data.settings.version.startsWith('4.')) {
+        setError('The project you are attempting to merge is from an older version and it need to be migrated first');
+        return;
+      }
       const patch = await makeProjectPatch(data, values);
 
       // request patch
@@ -75,7 +80,7 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
   return (
     <Panel.Section as='form' onSubmit={handleSubmit(handleSubmitCreate)}>
       <Panel.Title>
-        Merge {`"${fileName}"`}
+        Partial project merge
         <Panel.InlineElements>
           <Button onClick={onClose} variant='ghosted' disabled={isSubmitting}>
             Cancel
@@ -88,9 +93,12 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
       {error && <Panel.Error>{error}</Panel.Error>}
       <Panel.Section className={cx([style.innerColumn, style.inlineLabels])}>
         <Panel.Description>
-          Select partial data from {`"${fileName}"`} to merge into the current project.
-          <br /> This process is irreversible.
+          Select data from <i>{`"${fileName}"`}</i> to merge into the current project.
         </Panel.Description>
+        <Info type='warning'>
+          This process is irreversible and can result in data loss. <br />
+          You may want to create a duplicate backup beforehand.
+        </Info>
         <label>
           <Switch
             size='large'
@@ -102,8 +110,8 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
         <label>
           <Switch
             size='large'
-            checked={watch('rundown')}
-            onCheckedChange={(value: boolean) => setValue('rundown', value, { shouldDirty: true })}
+            checked={watch('rundowns')}
+            onCheckedChange={(value: boolean) => setValue('rundowns', value, { shouldDirty: true })}
           />
           Rundown + Custom Fields
         </label>

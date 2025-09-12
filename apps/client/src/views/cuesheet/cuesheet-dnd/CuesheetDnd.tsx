@@ -9,12 +9,12 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { ColumnDef } from '@tanstack/react-table';
-import { OntimeEntry } from 'ontime-types';
 
+import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import useColumnManager from '../cuesheet-table/useColumnManager';
 
 interface CuesheetDndProps {
-  columns: ColumnDef<OntimeEntry>[];
+  columns: ColumnDef<ExtendedEntry>[];
 }
 
 export default function CuesheetDnd({ columns, children }: PropsWithChildren<CuesheetDndProps>) {

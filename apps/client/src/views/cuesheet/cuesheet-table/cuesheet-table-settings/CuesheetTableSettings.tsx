@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, use } from 'react';
 import { IoChevronDown, IoOptions, IoSettingsOutline } from 'react-icons/io5';
 import { Popover } from '@base-ui-components/react/popover';
 import { Toggle } from '@base-ui-components/react/toggle';
@@ -6,22 +6,24 @@ import { ToggleGroup } from '@base-ui-components/react/toggle-group';
 import { Toolbar } from '@base-ui-components/react/toolbar';
 import { useSessionStorage } from '@mantine/hooks';
 import type { Column } from '@tanstack/react-table';
-import { OntimeEntry } from 'ontime-types';
 
 import Button from '../../../../common/components/buttons/Button';
 import Checkbox from '../../../../common/components/checkbox/Checkbox';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import PopoverContents from '../../../../common/components/popover/Popover';
+import { PresetContext } from '../../../../common/context/PresetContext';
+import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { cx } from '../../../../common/utils/styleUtils';
 import { AppMode, sessionKeys } from '../../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
+import { useCuesheetPermissions } from '../../useTablePermissions';
 
 import CuesheetShareModal from './CuesheetShareModal';
 
 import style from './CuesheetTableSettings.module.scss';
 
 interface CuesheetTableSettingsProps {
-  columns: Column<OntimeEntry, unknown>[];
+  columns: Column<ExtendedEntry, unknown>[];
   handleResetResizing: () => void;
   handleResetReordering: () => void;
   handleClearToggles: () => void;
@@ -33,9 +35,12 @@ export default function CuesheetTableSettings({
   handleResetReordering,
   handleClearToggles,
 }: CuesheetTableSettingsProps) {
+  const canShare = useCuesheetPermissions((state) => state.canShare);
+  const preset = use(PresetContext);
+
   const [cuesheetMode, setCuesheetMode] = useSessionStorage({
-    key: sessionKeys.cuesheetMode,
-    defaultValue: AppMode.Edit,
+    key: preset ? `${preset.alias}${sessionKeys.cuesheetMode}` : sessionKeys.cuesheetMode,
+    defaultValue: preset ? AppMode.Run : AppMode.Edit,
   });
 
   const toggleCuesheetMode = (mode: AppMode[]) => {
@@ -54,7 +59,6 @@ export default function CuesheetTableSettings({
         handleResetReordering={handleResetReordering}
         handleClearToggles={handleClearToggles}
       />
-
       <ToggleGroup value={[cuesheetMode]} onValueChange={toggleCuesheetMode} className={cx([style.group, style.apart])}>
         <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
           Run
@@ -64,8 +68,12 @@ export default function CuesheetTableSettings({
         </Toolbar.Button>
       </ToggleGroup>
 
-      <Editor.Separator orientation='vertical' />
-      <CuesheetShareModal />
+      {canShare && (
+        <>
+          <Editor.Separator orientation='vertical' />
+          <CuesheetShareModal />
+        </>
+      )}
     </Toolbar.Root>
   );
 }
@@ -97,13 +105,6 @@ function ViewSettings() {
               onCheckedChange={(checked) => options.setOption('hideTableSeconds', checked)}
             />
             Hide seconds in table
-          </Editor.Label>
-          <Editor.Label className={style.option}>
-            <Checkbox
-              defaultChecked={options.hidePast}
-              onCheckedChange={(checked) => options.setOption('hidePast', checked)}
-            />
-            Hide past events
           </Editor.Label>
           <Editor.Label className={style.option}>
             <Checkbox

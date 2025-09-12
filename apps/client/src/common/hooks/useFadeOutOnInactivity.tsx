@@ -23,6 +23,9 @@ export const useFadeOutOnInactivity = (initialState = false) => {
 
     const throttledShowMenu = throttle(setShowMenuTrue, 1000);
 
+    // we call the function on mount, to make sure the menu is hidden
+    throttledShowMenu();
+
     document.addEventListener('mousemove', throttledShowMenu);
     document.addEventListener('keydown', throttledShowMenu);
 

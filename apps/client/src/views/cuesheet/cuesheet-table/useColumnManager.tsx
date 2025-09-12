@@ -1,24 +1,32 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { ColumnDef } from '@tanstack/react-table';
-import { OntimeEntry } from 'ontime-types';
 
 import { debounce } from '../../../common/utils/debounce';
+import { makeStageKey } from '../../../common/utils/localStorage';
+import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
+
+const tableSizesKey = makeStageKey('cuesheet-sizes');
+const tableHiddenKey = makeStageKey('cuesheet-hidden');
+const tableOrderKey = makeStageKey('cuesheet-order');
 
 const saveSizesToStorage = debounce((sizes: Record<string, number>) => {
-  localStorage.setItem('table-sizes', JSON.stringify(sizes));
+  localStorage.setItem(tableSizesKey, JSON.stringify(sizes));
 }, 500);
 
-export default function useColumnManager(columns: ColumnDef<OntimeEntry>[]) {
-  const [columnVisibility, setColumnVisibility] = useLocalStorage({ key: 'table-hidden', defaultValue: {} });
+export default function useColumnManager(columns: ColumnDef<ExtendedEntry>[]) {
+  const [columnVisibility, setColumnVisibility] = useLocalStorage({
+    key: tableHiddenKey,
+    defaultValue: {},
+  });
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>({
-    key: 'table-order',
+    key: tableOrderKey,
     defaultValue: columns.map((col) => col.id as string),
   });
 
   const [columnSizing, setColumnSizingState] = useState(() => {
     try {
-      const stored = localStorage.getItem('table-sizes');
+      const stored = localStorage.getItem(tableSizesKey);
       return stored ? JSON.parse(stored) : {};
     } catch {
       return {};

@@ -118,7 +118,11 @@ $item-height: 3.5rem;
   }
 
   .sub--live {
-    background-color: $green-700;
+    background-color: $active-green;
+  }
+
+  .sub--armed {
+    background-color: $gray-1325;
   }
 
   .sub__binder {
@@ -140,12 +144,16 @@ $item-height: 3.5rem;
     color: $delay-color;
   }
 
+  .sub__schedule--strike {
+    text-decoration: line-through;
+  }
+
   .sub__schedule--over {
-    color: $playback-over
+    color: $playback-over;
   }
 
   .sub__schedule--under {
-    color: $playback-under
+    color: $playback-under;
   }
 
   .sub__title {

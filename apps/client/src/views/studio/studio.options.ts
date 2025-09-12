@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { use, useMemo } from 'react';
+import { useSearchParams } from 'react-router';
 
 import { getTimeOption } from '../../common/components/view-params-editor/common.options';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
+import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 
 export const getStudioOptions = (timeFormat: string): ViewOption[] => [
@@ -31,10 +32,12 @@ type StudioOptions = {
  * Utility extract the view options from URL Params
  * the names and fallback are manually matched with timerOptions
  */
-function getOptionsFromParams(searchParams: URLSearchParams): StudioOptions {
-  // we manually make an object that matches the key above
+function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): StudioOptions {
+  // Helper to get value from either source, prioritizing defaultValues
+  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
+
   return {
-    hideCards: isStringBoolean(searchParams.get('hideCards')),
+    hideCards: isStringBoolean(getValue('hideCards')),
   };
 }
 
@@ -43,6 +46,12 @@ function getOptionsFromParams(searchParams: URLSearchParams): StudioOptions {
  */
 export function useStudioOptions(): StudioOptions {
   const [searchParams] = useSearchParams();
-  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  const maybePreset = use(PresetContext);
+
+  const options = useMemo(() => {
+    const defaultValues = maybePreset ? new URLSearchParams(maybePreset.search) : undefined;
+    return getOptionsFromParams(searchParams, defaultValues);
+  }, [maybePreset, searchParams]);
+
   return options;
 }

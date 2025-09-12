@@ -1,12 +1,13 @@
 import { Toolbar } from '@base-ui-components/react/toolbar';
 import { useDisclosure } from '@mantine/hooks';
+import { OntimeView } from 'ontime-types';
 
 import Button from '../../../../common/components/buttons/Button';
 import RotatedLink from '../../../../common/components/icons/RotatedLink';
 import Modal from '../../../../common/components/modal/Modal';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
-import GenerateLinkFormExport from '../../../../features/app-settings/panel/feature-panel/GenerateLinkFormExport';
+import GenerateLinkFormExport from '../../../../features/sharing/GenerateLinkFormExport';
 
 function CuesheetShareModal() {
   const { data: infoData } = useInfo();
@@ -26,9 +27,12 @@ function CuesheetShareModal() {
         isOpen={isOpen}
         onClose={handler.close}
         title='Share cuesheet view'
+        showBackdrop
         showCloseButton
         bodyElements={
-          showModalContent ? <GenerateLinkFormExport lockedPath={{ value: 'cuesheet', label: 'Cuesheet' }} /> : null
+          showModalContent ? (
+            <GenerateLinkFormExport lockedPath={{ value: OntimeView.Cuesheet, label: 'Cuesheet' }} />
+          ) : null
         }
       />
     </>

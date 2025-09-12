@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import SwatchPicker from '../input/colour-input/SwatchPicker';
 
@@ -16,9 +16,12 @@ const ensureHex = (value: string) => {
   return value;
 };
 
-export default function InlineColourPicker(props: InlineColourPickerProps) {
-  const { name, value } = props;
+export default function InlineColourPicker({ name, value }: InlineColourPickerProps) {
   const [colour, setColour] = useState(() => ensureHex(value));
+
+  useEffect(() => {
+    setColour(ensureHex(value));
+  }, [value]);
 
   return (
     <div className={style.inline}>

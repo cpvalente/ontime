@@ -11,8 +11,8 @@
     background: color-mix(in srgb, transparent 80%, var(--user-bg, $gray-500) 20%);
   }
 
-  &.firstAfterBlock {
-    margin-top: 1rem;
+  &.firstAfterGroup {
+    margin-top: 2rem;
   }
 
   &.skip {

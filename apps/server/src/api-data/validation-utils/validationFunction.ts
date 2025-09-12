@@ -1,6 +1,10 @@
 import type { Request, Response, NextFunction } from 'express';
 import { param, validationResult } from 'express-validator';
 
+export const paramsWithId = [param('id').isString().trim().notEmpty(), requestValidationFunction];
+
+// #region operations on project rundowns =========================
+
 /**
  * Runs validation and any error are sent with status 422
  */
@@ -31,4 +35,7 @@ export function requestValidationFunctionWithFile(req: Request, res: Response, n
   next();
 }
 
-export const paramsWithId = [param('id').isString().trim().notEmpty(), requestValidationFunction];
+// #endregion operations on project rundowns ======================
+// #region operations on rundown entries ==========================
+
+// #endregion operations on rundown entries =======================

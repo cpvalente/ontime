@@ -33,7 +33,13 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
     if (newPath === '/' || newPath === currentPath) {
       return;
     }
-    setRedirect({ target: id, redirect: newPath });
+
+    if (newPath.startsWith('preset-')) {
+      setRedirect({ target: id, redirect: newPath.slice(7) });
+    } else {
+      setRedirect({ target: id, redirect: newPath });
+    }
+
     onClose();
   };
 
@@ -45,7 +51,7 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
       label: view.label,
     })),
     ...enabledPresets.map((preset) => ({
-      value: preset.search,
+      value: `preset-${preset.alias}`,
       label: `URL Preset: ${preset.alias}`,
     })),
   ];
@@ -61,32 +67,11 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
         <>
           <Info>
             Remotely redirect the client to a different URL. <br />
-            Either by selecting a URL Preset or entering a custom path.
+            Either by entering a custom path or selecting a URL Preset.
             <br />
             <br />
             <AppLink search='settings=sharing__presets'>Manage URL Presets</AppLink>
           </Info>
-          <div>
-            <span className={style.label}>Select View or URL Preset</span>
-            <div className={style.textEntry}>
-              <Select
-                fluid
-                options={viewOptions}
-                defaultValue={viewOptions[0].value}
-                onValueChange={(value) => setSelected(value)}
-                disabled={enabledPresets.length === 0}
-              />
-              <Button
-                variant='primary'
-                aria-label='Redirect to preset'
-                className={style.redirect}
-                disabled={enabledPresets.length === 0 || selected === '/'}
-                onClick={() => handleRedirect(selected)}
-              >
-                Redirect <IoArrowForward />
-              </Button>
-            </div>
-          </div>
           <div className={style.inlineEntry}>
             <span className={style.label}>Enter custom path</span>
             <label className={style.textEntry}>
@@ -100,8 +85,33 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
               className={style.redirect}
               onClick={() => handleRedirect(path)}
             >
-              Redirect <IoArrowForward />
+              Redirect
+              <IoArrowForward />
             </Button>
+          </div>
+          <div>
+            <span className={style.label}>Select View or URL Preset</span>
+            <div className={style.inlineEntry}>
+              <label className={style.textEntry}>
+                {origin}
+                <Select
+                  fluid
+                  options={viewOptions}
+                  defaultValue={viewOptions[0].value}
+                  onValueChange={(value) => setSelected(value)}
+                  disabled={enabledPresets.length === 0}
+                />
+              </label>
+              <Button
+                variant='primary'
+                aria-label='Redirect to preset'
+                className={style.redirect}
+                disabled={enabledPresets.length === 0 || selected === '/'}
+                onClick={() => handleRedirect(selected)}
+              >
+                Redirect <IoArrowForward />
+              </Button>
+            </div>
           </div>
         </>
       }
