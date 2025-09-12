@@ -101,7 +101,7 @@ function createRow(
       };
       break;
     }
-    case 'block': {
+    case 'group': {
       worksheet[xlsx.utils.encode_cell({ c: config.timerType.c, r: rowIndex })] = {
         t: 's',
         v: "group-start",
