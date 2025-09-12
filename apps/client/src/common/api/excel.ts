@@ -3,6 +3,7 @@ import { CustomFields, Rundown } from 'ontime-types';
 import { ImportMap } from 'ontime-utils';
 
 import { apiEntryUrl } from './constants';
+import { downloadBlob } from './utils';
 
 const excelPath = `${apiEntryUrl}/excel`;
 
@@ -30,16 +31,9 @@ export async function download(fileName?: string) {
       responseType: 'blob',
     });
 
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `${fileName || 'Ontime_rundown'}.xlsx`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    downloadBlob(response.data, (fileName ?? 'Ontime_rundown') + '.xlsx');
   } catch (error) {
-    console.error('Erreur lors du téléchargement du fichier :', error);
+    console.error('Error in download file :', error);
   }
 }
 

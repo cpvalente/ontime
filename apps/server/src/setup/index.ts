@@ -155,3 +155,13 @@ export const publicFiles = {
   /** path to CSS readme file */
   cssReadme: join(publicDir.stylesDir, 'README.md'),
 } as const;
+
+/**
+ * Paths to excel template resources
+ */
+export const excelTemplateFiles = {
+  /** path to excel template file */
+  rundownTemplate: join(process.cwd(), 'excel', 'rundown.template.xlsx'),
+  /** path to excel template config file */
+  rundownTemplateConfig: join(process.cwd(), 'excel', 'rundown.templateInstructor.json'),
+}

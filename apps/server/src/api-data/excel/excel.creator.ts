@@ -1,18 +1,17 @@
 import { defaultImportMap } from 'ontime-utils';
 import xlsx from 'xlsx';
-import path from 'path';
-import fs from 'fs';
-import { changeMaxSizeOfExcel, configXlsxTemplate } from './excel.utils.js';
+import { changeMaxSizeOfExcel, configForXlsxWriting, configXlsxTemplate } from './excel.utils.js';
 import { CustomFields, OntimeEntry, Rundown, TimerType, TimeStrategy } from 'ontime-types';
 import { inferStrategy } from '../rundown/rundown.utils.js';
+import { excelTemplateFiles } from '../../setup/index.js';
 
-const createRow = (
+function createRow(
   worksheet: xlsx.WorkSheet,
   config: configXlsxTemplate,
   rowIndex: number,
   entries: { [id: string]: OntimeEntry } | Rundown['entries'],
   entry: OntimeEntry,
-): number => {
+): number {
   if (entry.type == 'delay') return -1;
 
   changeMaxSizeOfExcel(worksheet, { r: rowIndex });
@@ -37,7 +36,7 @@ const createRow = (
   };
 
   switch (entry.type) {
-    case 'event':
+    case 'event': {
       const strategy = inferStrategy(entry.timeEnd, entry.duration, entry.timeStrategy);
       worksheet[xlsx.utils.encode_cell({ c: config.cue.c, r: rowIndex })] = {
         t: 's',
@@ -90,7 +89,8 @@ const createRow = (
         v: entry.skip,
       };
       break;
-    case 'milestone':
+    }
+    case 'milestone': {
       worksheet[xlsx.utils.encode_cell({ c: config.cue.c, r: rowIndex })] = {
         t: 's',
         v: entry.cue,
@@ -100,7 +100,8 @@ const createRow = (
         v: "milestone",
       };
       break;
-    case 'block':
+    }
+    case 'block': {
       worksheet[xlsx.utils.encode_cell({ c: config.timerType.c, r: rowIndex })] = {
         t: 's',
         v: "group-start",
@@ -116,48 +117,42 @@ const createRow = (
       };
 
       return entry.entries.length + 1; // +1 for the block row itself, because block use 2 rows (block-start & block-end), and 1 is already count by for loop
+    }
   }
 
   return 0;
 };
 
-export const createExcel = (
+export function createExcel(
   rundown: Rundown,
   customFields: CustomFields,
   options?: Partial<typeof defaultImportMap>,
-): xlsx.WorkBook => {
-  const workbook = xlsx.readFile(path.join(process.cwd(), 'excel', 'rundown template.xlsx'));
+): xlsx.WorkBook {
+  const workbook = xlsx.readFile(excelTemplateFiles.rundownTemplate);
   const sheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[sheetName];
 
-  const config: configXlsxTemplate<string> = JSON.parse(
-    fs.readFileSync(path.join(process.cwd(), 'excel', 'rundown.templateInstructor.json'), { encoding: 'utf8' }),
-  );
-  const configReadable = Object.fromEntries(
-    Object.entries(config).map(([k, v]) => [k, xlsx.utils.decode_cell(v)]),
-  ) as configXlsxTemplate;
-
   const customFieldsEntries = Object.entries(customFields);
   for (let i = 0; i < customFieldsEntries.length; i++) {
-    worksheet[xlsx.utils.encode_cell({ c: configReadable.customFields.c + i, r: configReadable.customFields.r })] = {
+    worksheet[xlsx.utils.encode_cell({ c: configForXlsxWriting.customFields.c + i, r: configForXlsxWriting.customFields.r })] = {
       t: 's',
       v: customFieldsEntries[i][1].label,
     };
   }
 
-  const startCol = configReadable.cue.r + 1;
+  const startCol = configForXlsxWriting.cue.r + 1;
   let inferSize = 0;
   for (let j = 0; j < rundown.order.length; j++) {
     const entryId = rundown.order[j];
     const entry = rundown.entries[entryId];
 
-    inferSize += createRow(worksheet, configReadable, startCol + j + inferSize, rundown.entries, entry);
+    inferSize += createRow(worksheet, configForXlsxWriting, startCol + j + inferSize, rundown.entries, entry);
   }
 
   if (options) {
     Object.entries(options).forEach(([k, r]) => {
       if (k === 'custom') return;
-      const pos = configReadable[k as keyof typeof configReadable];
+      const pos = configForXlsxWriting[k as keyof typeof configForXlsxWriting];
       if (r && pos) {
         worksheet[xlsx.utils.encode_cell({ c: pos.c, r: pos.r })] = {
           t: 's',
