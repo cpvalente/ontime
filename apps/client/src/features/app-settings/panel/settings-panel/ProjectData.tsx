@@ -243,12 +243,14 @@ export default function ProjectData() {
                       <div className={style.customImage}>
                         <Input
                           fluid
-                          defaultValue={field.value}
+                          defaultValue={field.url}
                           placeholder='Paste image URL (optional)'
                           {...register(`custom.${idx}.url`)}
                         />
                         <div className={style.imageContainer}>
-                          <img src={watch(`custom.${idx}.url`)} alt='' loading='lazy' className='info__image' />
+                          {watch(`custom.${idx}.url`) && (
+                            <img src={watch(`custom.${idx}.url`)} alt='' loading='lazy' className='info__image' />
+                          )}
                         </div>
                       </div>
                     </label>

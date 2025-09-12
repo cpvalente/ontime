@@ -3,14 +3,13 @@
 .milestone {
   @include block-styling;
 
-  margin-left: calc(2rem + 1px); // binder + border
   margin-block: 0.125rem;
   padding-right: 0.25rem;
   background-color: $gray-1050; // to override inline
   color: $section-white; // to override inline
 
   display: grid;
-  grid-template-columns: 2rem 1fr 3fr;
+  grid-template-columns: 2rem 0.4fr 1fr;
   align-items: center;
   height: $secondary-block-height;
   gap: 0.5rem;

@@ -58,7 +58,7 @@ export default function ProjectCreateForm({ onClose }: ProjectCreateFromProps) {
   };
 
   return (
-    <Panel.Section
+    <Panel.Indent
       as='form'
       onSubmit={handleSubmit(handleSubmitCreate)}
       onKeyDown={(event) => preventEscape(event, onClose)}
@@ -76,11 +76,9 @@ export default function ProjectCreateForm({ onClose }: ProjectCreateFromProps) {
       </Panel.Title>
       {error && <Panel.Error>{error}</Panel.Error>}
       <Panel.Section className={style.innerColumn}>
-        <label>
-          Project title
-          <Input fluid placeholder='Your project name' {...register('title')} />
-        </label>
+        <Panel.Description>Project title</Panel.Description>
+        <Input fluid placeholder='Your project name' {...register('title')} />
       </Panel.Section>
-    </Panel.Section>
+    </Panel.Indent>
   );
 }

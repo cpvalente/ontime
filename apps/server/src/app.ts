@@ -1,4 +1,4 @@
-import { LogOrigin, Playback, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { LogOrigin, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -29,14 +29,15 @@ import { getDataProvider } from './classes/data-provider/DataProvider.js';
 
 // Services
 import { logger } from './classes/Logger.js';
+import { populateDemo } from './setup/loadDemo.js';
+import { populateTranslation } from './setup/loadTranslations.js';
 import { populateStyles } from './setup/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
-import { runtimeService } from './services/runtime-service/RuntimeService.js';
-import { restoreService } from './services/RestoreService.js';
+import { runtimeService } from './services/runtime-service/runtime.service.js';
+import { restoreService } from './services/restore-service/restore.service.js';
+import type { RestorePoint } from './services/restore-service/restore.type.js';
 import * as messageService from './services/message-service/message.service.js';
-import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
-import { initRundown } from './api-data/rundown/rundown.service.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
 import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
 import { oscServer } from './adapters/OscAdapter.js';
@@ -89,7 +90,11 @@ app.use(`${prefix}/data`, authenticate, appRouter); // router for application da
 app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
 
 // serve static external files
-app.use(`${prefix}/external`, express.static(publicDir.externalDir, { etag: false, lastModified: true }));
+app.use(
+  `${prefix}/external`,
+  authenticateAndRedirect,
+  express.static(publicDir.externalDir, { etag: false, lastModified: true }),
+);
 app.use(`${prefix}/external`, (req, res) => {
   // if the user reaches to the root, we show a 404
   res.status(404).send(`${req.originalUrl} not found`);
@@ -142,13 +147,19 @@ const checkStart = (currentState: OntimeStartOrder) => {
   }
 };
 
+let restorePoint: RestorePoint | null = null;
+
 export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable: boolean) => void) => {
   checkStart(OntimeStartOrder.InitAssets);
   // initialise logging service, escalateErrorFn only exists in electron
   logger.init(escalateErrorFn);
 
+  // load restore point if it exists
+  restorePoint = await restoreService.load();
+
   await clearUploadfolder();
   populateStyles();
+  populateTranslation();
   await populateDemo();
   const project = await initialiseProject();
   logger.info(LogOrigin.Server, `Initialised Ontime with ${project}`);
@@ -178,14 +189,13 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   eventStore.init({
     clock: state.clock,
     timer: state.timer,
-    onAir: state.timer.playback !== Playback.Stop,
     message: { ...runtimeStorePlaceholder.message },
-    runtime: state.runtime,
+    offset: state.offset,
+    rundown: state.rundown,
     eventNow: state.eventNow,
     eventNext: state.eventNext,
-    blockNow: null,
-    blockNext: null,
-    nextFlag: null,
+    eventFlag: null,
+    groupNow: null,
     auxtimer1: {
       duration: timerConfig.auxTimerDefault,
       current: timerConfig.auxTimerDefault,
@@ -204,21 +214,14 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     },
-    ping: -1,
+    ping: 1,
   });
-
-  // initialise rundown service
-  const persistedRundown = getDataProvider().getRundown();
-  const persistedCustomFields = getDataProvider().getCustomFields();
-  await initRundown(persistedRundown, persistedCustomFields);
 
   // initialise message service
   messageService.init(eventStore.set, eventStore.get);
 
-  // load restore point if it exists
-  const maybeRestorePoint = await restoreService.load();
-
-  runtimeService.init(maybeRestorePoint);
+  // apply the restore point if it exists
+  runtimeService.init(restorePoint);
 
   const nif = getNetworkInterfaces();
   consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);

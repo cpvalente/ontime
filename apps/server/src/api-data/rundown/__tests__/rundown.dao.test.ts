@@ -1,12 +1,13 @@
-import { CustomFields, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEntry, TimeStrategy } from 'ontime-types';
+import { CustomFields, OntimeGroup, OntimeDelay, OntimeEvent, SupportedEntry, TimeStrategy, OntimeMilestone } from 'ontime-types';
 import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import {
   makeOntimeEvent,
   makeRundown,
-  makeOntimeBlock,
+  makeOntimeGroup,
   makeOntimeDelay,
   makeCustomField,
+  makeOntimeMilestone,
 } from '../__mocks__/rundown.mocks.js';
 
 import {
@@ -17,7 +18,6 @@ import {
   rundownMutation,
 } from '../rundown.dao.js';
 import { demoDb } from '../../../models/demoProject.js';
-import type { AssignedMap } from '../rundown.types.js';
 import { type ProcessedRundownMetadata } from '../rundown.parser.js';
 
 const setRundownMock = vi.fn();
@@ -112,7 +112,7 @@ describe('processRundown()', () => {
       order: ['1', '2', '3'],
       entries: {
         '1': makeOntimeEvent({ id: '1' }),
-        '2': makeOntimeBlock({ id: '2' }),
+        '2': makeOntimeGroup({ id: '2' }),
         '3': makeOntimeDelay({ id: '3' }),
       },
     });
@@ -121,7 +121,7 @@ describe('processRundown()', () => {
     expect(initResult.order.length).toBe(3);
     expect(initResult.order).toStrictEqual(['1', '2', '3']);
     expect(initResult.entries['1'].type).toBe(SupportedEntry.Event);
-    expect(initResult.entries['2'].type).toBe(SupportedEntry.Block);
+    expect(initResult.entries['2'].type).toBe(SupportedEntry.Group);
     expect(initResult.entries['3'].type).toBe(SupportedEntry.Delay);
   });
 
@@ -142,14 +142,14 @@ describe('processRundown()', () => {
 
   it('accounts for gaps in rundown when calculating delays', () => {
     const rundown = makeRundown({
-      order: ['1', 'delay', '2', 'block', '3', 'another-block', '4'],
+      order: ['1', 'delay', '2', 'group', '3', 'another-group', '4'],
       entries: {
         '1': makeOntimeEvent({ id: '1', timeStart: 100, timeEnd: 200, duration: 100 }),
         delay: makeOntimeDelay({ id: 'delay', duration: 200 }),
         '2': makeOntimeEvent({ id: '2', timeStart: 200, timeEnd: 300, duration: 100 }),
-        block: makeOntimeBlock({ id: 'block', title: 'break' }),
+        group: makeOntimeGroup({ id: 'group', title: 'break' }),
         '3': makeOntimeEvent({ id: '3', timeStart: 400, timeEnd: 500, duration: 100 }),
-        'another-block': makeOntimeBlock({ id: 'another-block', title: 'another-break' }),
+        'another-group': makeOntimeGroup({ id: 'another-group', title: 'another-break' }),
         '4': makeOntimeEvent({ id: '4', timeStart: 600, timeEnd: 700, duration: 100 }),
       },
     });
@@ -297,14 +297,14 @@ describe('processRundown()', () => {
 
   it('handles negative delays', () => {
     const rundown = makeRundown({
-      order: ['1', 'delay', '2', 'block', '3', 'another-block', '4'],
+      order: ['1', 'delay', '2', 'group', '3', 'another-group', '4'],
       entries: {
         '1': makeOntimeEvent({ id: '1', timeStart: 100, timeEnd: 200, duration: 100 }),
         delay: makeOntimeDelay({ id: 'delay', duration: -200 }),
         '2': makeOntimeEvent({ id: '2', timeStart: 200, timeEnd: 300, duration: 100 }),
-        block: makeOntimeBlock({ id: 'block', title: 'break' }),
+        group: makeOntimeGroup({ id: 'group', title: 'break' }),
         '3': makeOntimeEvent({ id: '3', timeStart: 400, timeEnd: 500, duration: 100 }),
-        'another-block': makeOntimeBlock({ id: 'another-block', title: 'another-break' }),
+        'another-group': makeOntimeGroup({ id: 'another-group', title: 'another-break' }),
         '4': makeOntimeEvent({ id: '4', timeStart: 600, timeEnd: 700, duration: 100 }),
       },
     });
@@ -321,7 +321,7 @@ describe('processRundown()', () => {
 
   it('links times across events', () => {
     const rundown = makeRundown({
-      order: ['1', '2', 'block', 'delay', '3'],
+      order: ['1', '2', 'group', 'delay', '3'],
       entries: {
         '1': makeOntimeEvent({
           id: '1',
@@ -338,7 +338,7 @@ describe('processRundown()', () => {
           linkStart: true,
           timeStrategy: TimeStrategy.LockEnd,
         }),
-        block: makeOntimeBlock({ id: 'block' }),
+        group: makeOntimeGroup({ id: 'group' }),
         delay: makeOntimeDelay({ id: 'delay' }),
         '3': makeOntimeEvent({
           id: '3',
@@ -554,10 +554,6 @@ describe('processRundown()', () => {
       });
       const initResult = processRundown(rundown, customProperties);
       expect(initResult.order.length).toBe(2);
-      expect(initResult.assignedCustomFields).toMatchObject({
-        lighting: ['1', '2'],
-        sound: ['2'],
-      });
       expect((initResult.entries['1'] as OntimeEvent).custom).toMatchObject({ lighting: 'event 1 lx' });
       expect((initResult.entries['2'] as OntimeEvent).custom).toMatchObject({
         lighting: 'event 2 lx',
@@ -570,7 +566,7 @@ describe('processRundown()', () => {
       const rundown = makeRundown({
         order: ['1'],
         entries: {
-          '1': makeOntimeBlock({ id: '1', entries: ['100', '200', '300'] }),
+          '1': makeOntimeGroup({ id: '1', entries: ['100', '200', '300'] }),
           '100': makeOntimeEvent({ id: '100', timeStart: 100, timeEnd: 200, duration: 100, linkStart: false }),
           '200': makeOntimeEvent({ id: '200', timeStart: 200, timeEnd: 300, duration: 100 }),
           '300': makeOntimeEvent({ id: '300', timeStart: 300, timeEnd: 400, duration: 100 }),
@@ -583,7 +579,7 @@ describe('processRundown()', () => {
       expect(generatedRundown.totalDelay).toBe(0);
       expect(generatedRundown.entries).toMatchObject({
         '1': {
-          type: SupportedEntry.Block,
+          type: SupportedEntry.Group,
           entries: ['100', '200', '300'],
           timeStart: 100,
           timeEnd: 400,
@@ -601,15 +597,15 @@ describe('processRundown()', () => {
         order: ['0', '1', '2', '3'],
         entries: {
           '0': makeOntimeEvent({ id: '0', timeStart: 0, timeEnd: 10, duration: 10, linkStart: false }),
-          '1': makeOntimeBlock({ id: '1', entries: ['101', '102', '103'] }),
+          '1': makeOntimeGroup({ id: '1', entries: ['101', '102', '103'] }),
           '101': makeOntimeEvent({ id: '101', timeStart: 100, timeEnd: 200, duration: 100, linkStart: false }),
           '102': makeOntimeEvent({ id: '102', timeStart: 200, timeEnd: 300, duration: 100, linkStart: true }),
           '103': makeOntimeEvent({ id: '103', timeStart: 300, timeEnd: 400, duration: 100, linkStart: true }),
-          '2': makeOntimeBlock({ id: '2', entries: ['201', '202', '203'] }),
+          '2': makeOntimeGroup({ id: '2', entries: ['201', '202', '203'] }),
           '201': makeOntimeEvent({ id: '201', timeStart: 500, timeEnd: 600, duration: 100, linkStart: false }),
           '202': makeOntimeEvent({ id: '202', timeStart: 600, timeEnd: 700, duration: 100, linkStart: true }),
           '203': makeOntimeEvent({ id: '203', timeStart: 700, timeEnd: 800, duration: 100, linkStart: true }),
-          '3': makeOntimeBlock({ id: '3', entries: ['301', '302', '303'] }),
+          '3': makeOntimeGroup({ id: '3', entries: ['301', '302', '303'] }),
           '301': makeOntimeEvent({ id: '301', timeStart: 900, timeEnd: 1000, duration: 100, linkStart: false }),
           '302': makeOntimeEvent({ id: '302', timeStart: 1000, timeEnd: 1100, duration: 100, linkStart: true }),
           '303': makeOntimeEvent({ id: '303', timeStart: 1100, timeEnd: 1200, duration: 100, linkStart: true }),
@@ -623,7 +619,7 @@ describe('processRundown()', () => {
       expect(generatedRundown.entries).toMatchObject({
         '0': { type: SupportedEntry.Event, parent: null },
         '1': {
-          type: SupportedEntry.Block,
+          type: SupportedEntry.Group,
           entries: ['101', '102', '103'],
           timeStart: 100,
           timeEnd: 400,
@@ -634,7 +630,7 @@ describe('processRundown()', () => {
         '102': { parent: '1' },
         '103': { parent: '1' },
         '2': {
-          type: SupportedEntry.Block,
+          type: SupportedEntry.Group,
           entries: ['201', '202', '203'],
           timeStart: 500,
           timeEnd: 800,
@@ -645,7 +641,7 @@ describe('processRundown()', () => {
         '202': { id: '202', timeStart: 600, timeEnd: 700, duration: 100 },
         '203': { id: '203', timeStart: 700, timeEnd: 800, duration: 100 },
         '3': {
-          type: SupportedEntry.Block,
+          type: SupportedEntry.Group,
           entries: ['301', '302', '303'],
           timeStart: 900,
           timeEnd: 1200,
@@ -688,36 +684,36 @@ describe('rundownMutation.add()', () => {
     expect(rundown.entries['mock']).toMatchObject(mockEvent);
   });
 
-  test('adds an event at the top of the block if no after is given', () => {
+  test('adds an event at the top of the group if no after is given', () => {
     const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
     const rundown = makeRundown({
       flatOrder: ['1', '1a'],
       order: ['1'],
       entries: {
-        '1': makeOntimeBlock({ id: '1' }),
+        '1': makeOntimeGroup({ id: '1' }),
         '1a': makeOntimeEvent({ id: '1a', parent: '1' }),
       },
     });
 
-    rundownMutation.add(rundown, mockEvent, null, rundown.entries['1'] as OntimeBlock);
+    rundownMutation.add(rundown, mockEvent, null, rundown.entries['1'] as OntimeGroup);
 
     expect(rundown.order).toStrictEqual(['1']);
     expect(rundown.flatOrder).toStrictEqual(['1', 'mock', '1a']);
     expect(rundown.entries['mock']).toMatchObject(mockEvent);
   });
 
-  test('adds an event at the a given location inside a block', () => {
+  test('adds an event at the a given location inside a group', () => {
     const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
     const rundown = makeRundown({
       flatOrder: ['1', '1a'],
       order: ['1'],
       entries: {
-        '1': makeOntimeBlock({ id: '1' }),
+        '1': makeOntimeGroup({ id: '1' }),
         '1a': makeOntimeEvent({ id: '1a', parent: '1' }),
       },
     });
 
-    rundownMutation.add(rundown, mockEvent, '1a', rundown.entries['1'] as OntimeBlock);
+    rundownMutation.add(rundown, mockEvent, '1a', rundown.entries['1'] as OntimeGroup);
 
     expect(rundown.order).toStrictEqual(['1']);
     expect(rundown.flatOrder).toStrictEqual(['1', '1a', 'mock']);
@@ -785,11 +781,11 @@ describe('rundownMutation.remove()', () => {
     expect(rundown.entries['3']).not.toBeUndefined();
   });
 
-  it('deletes a block and its children', () => {
+  it('deletes a group and its children', () => {
     const rundown = makeRundown({
       order: ['1', '4'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', entries: ['2', '3'] }),
+        '1': makeOntimeGroup({ id: '1', entries: ['2', '3'] }),
         '2': makeOntimeEvent({ id: '2', parent: '1' }),
         '3': makeOntimeDelay({ id: '3', parent: '1' }),
         '4': makeOntimeEvent({ id: '4', parent: null }),
@@ -811,7 +807,7 @@ describe('rundownMutation.remove()', () => {
     const rundown = makeRundown({
       order: ['1', '4'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', entries: ['2', '3'] }),
+        '1': makeOntimeGroup({ id: '1', entries: ['2', '3'] }),
         '2': makeOntimeEvent({ id: '2', parent: '1' }),
         '3': makeOntimeDelay({ id: '3', parent: '1' }),
         '4': makeOntimeEvent({ id: '4', parent: null }),
@@ -849,11 +845,11 @@ describe('rundownMutation.removeAll()', () => {
 });
 
 describe('rundownMutation.reorder()', () => {
-  it('moves an event into a block', () => {
+  it('moves an event into a group', () => {
     const rundown = makeRundown({
       order: ['1', '2', '3'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', entries: [] }),
+        '1': makeOntimeGroup({ id: '1', entries: [] }),
         '2': makeOntimeEvent({ id: '2', parent: null }),
         '3': makeOntimeEvent({ id: '3', parent: null }),
       },
@@ -870,12 +866,12 @@ describe('rundownMutation.reorder()', () => {
     });
   });
 
-  it('adds an event into a block', () => {
+  it('adds an event into a group', () => {
     const rundown = makeRundown({
       order: ['1', '2'],
       flatOrder: ['1', '11', '2'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
+        '1': makeOntimeGroup({ id: '1', entries: ['11'] }),
         '11': makeOntimeEvent({ id: '11', parent: '1' }),
         '2': makeOntimeEvent({ id: '2', parent: null }),
       },
@@ -926,12 +922,12 @@ describe('rundownMutation.reorder()', () => {
     expect(rundown.order).toStrictEqual(['3', '1', '2']);
   });
 
-  it('moves an event out and before a block', () => {
+  it('moves an event out and before a group', () => {
     const rundown = makeRundown({
       order: ['1', '2'],
       flatOrder: ['1', '11', '2'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
+        '1': makeOntimeGroup({ id: '1', entries: ['11'] }),
         '11': makeOntimeEvent({ id: '11', parent: '1' }),
         '2': makeOntimeEvent({ id: '2', parent: null }),
       },
@@ -951,22 +947,22 @@ describe('rundownMutation.reorder()', () => {
     });
   });
 
-  it('moves an event out and after a block', () => {
+  it('moves an event out and after a group', () => {
     const rundown = makeRundown({
-      order: ['1', 'block', '2'],
-      flatOrder: ['1', 'block', '11', '2'],
+      order: ['1', 'group', '2'],
+      flatOrder: ['1', 'group', '11', '2'],
       entries: {
         '1': makeOntimeEvent({ id: '1', parent: null }),
-        block: makeOntimeBlock({ id: 'block', entries: ['11'] }),
-        '11': makeOntimeEvent({ id: '11', parent: 'block' }),
+        group: makeOntimeGroup({ id: 'group', entries: ['11'] }),
+        '11': makeOntimeEvent({ id: '11', parent: 'group' }),
         '2': makeOntimeEvent({ id: '2', parent: null }),
       },
     });
 
-    rundownMutation.reorder(rundown, rundown.entries['11'], rundown.entries['block'], 'after');
+    rundownMutation.reorder(rundown, rundown.entries['11'], rundown.entries['group'], 'after');
 
-    expect(rundown.order).toStrictEqual(['1', 'block', '11', '2']);
-    expect(rundown.entries['block']).toMatchObject({
+    expect(rundown.order).toStrictEqual(['1', 'group', '11', '2']);
+    expect(rundown.entries['group']).toMatchObject({
       entries: [],
     });
     expect(rundown.entries['11']).toMatchObject({
@@ -977,14 +973,14 @@ describe('rundownMutation.reorder()', () => {
     });
   });
 
-  it('moves an event between blocks', () => {
+  it('moves an event between groups', () => {
     const rundown = makeRundown({
       order: ['1', '2'],
       flatOrder: ['1', '11', '2', '22'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
+        '1': makeOntimeGroup({ id: '1', entries: ['11'] }),
         '11': makeOntimeEvent({ id: '11', parent: '1' }),
-        '2': makeOntimeBlock({ id: '2', entries: ['22'] }),
+        '2': makeOntimeGroup({ id: '2', entries: ['22'] }),
         '22': makeOntimeEvent({ id: '22', parent: '2' }),
       },
     });
@@ -1003,13 +999,13 @@ describe('rundownMutation.reorder()', () => {
     });
   });
 
-  it('moves an event into an empty block', () => {
+  it('moves an event into an empty group', () => {
     const rundown = makeRundown({
       order: ['1', '2'],
       flatOrder: ['1', '2', '22'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', entries: [] }),
-        '2': makeOntimeBlock({ id: '2', entries: ['22'] }),
+        '1': makeOntimeGroup({ id: '1', entries: [] }),
+        '2': makeOntimeGroup({ id: '2', entries: ['22'] }),
         '22': makeOntimeEvent({ id: '22', parent: '2' }),
       },
     });
@@ -1028,14 +1024,14 @@ describe('rundownMutation.reorder()', () => {
     });
   });
 
-  it('moves an event out of a block (up)', () => {
+  it('moves an event out of a group (up)', () => {
     const rundown = makeRundown({
       order: ['1', '2'],
       flatOrder: ['1', '11', '2', '22'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
+        '1': makeOntimeGroup({ id: '1', entries: ['11'] }),
         '11': makeOntimeEvent({ id: '11', parent: '1' }),
-        '2': makeOntimeBlock({ id: '2', entries: ['22'] }),
+        '2': makeOntimeGroup({ id: '2', entries: ['22'] }),
         '22': makeOntimeEvent({ id: '22', parent: '2' }),
       },
     });
@@ -1059,14 +1055,14 @@ describe('rundownMutation.reorder()', () => {
     });
   });
 
-  it('moves an event out of a block (down)', () => {
+  it('moves an event out of a group (down)', () => {
     const rundown = makeRundown({
       order: ['1', '2'],
       flatOrder: ['1', '11', '2', '22'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
+        '1': makeOntimeGroup({ id: '1', entries: ['11'] }),
         '11': makeOntimeEvent({ id: '11', parent: '1' }),
-        '2': makeOntimeBlock({ id: '2', entries: ['22'] }),
+        '2': makeOntimeGroup({ id: '2', entries: ['22'] }),
         '22': makeOntimeEvent({ id: '22', parent: '2' }),
       },
     });
@@ -1088,14 +1084,14 @@ describe('rundownMutation.reorder()', () => {
     });
   });
 
-  it('moves a block (up)', () => {
+  it('moves a group (up)', () => {
     const rundown = makeRundown({
       order: ['1', '2'],
       flatOrder: ['1', '11', '2', '22'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
+        '1': makeOntimeGroup({ id: '1', entries: ['11'] }),
         '11': makeOntimeEvent({ id: '11', parent: '1' }),
-        '2': makeOntimeBlock({ id: '2', entries: ['22'] }),
+        '2': makeOntimeGroup({ id: '2', entries: ['22'] }),
         '22': makeOntimeEvent({ id: '22', parent: '2' }),
       },
     });
@@ -1105,14 +1101,14 @@ describe('rundownMutation.reorder()', () => {
     expect(rundown.order).toStrictEqual(['2', '1']);
   });
 
-  it('moves a block (down)', () => {
+  it('moves a group (down)', () => {
     const rundown = makeRundown({
       order: ['1', '2'],
       flatOrder: ['1', '11', '2', '22'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', entries: ['11'] }),
+        '1': makeOntimeGroup({ id: '1', entries: ['11'] }),
         '11': makeOntimeEvent({ id: '11', parent: '1' }),
-        '2': makeOntimeBlock({ id: '2', entries: ['22'] }),
+        '2': makeOntimeGroup({ id: '2', entries: ['22'] }),
         '22': makeOntimeEvent({ id: '22', parent: '2' }),
       },
     });
@@ -1132,7 +1128,7 @@ describe('rundownMutation.applyDelay()', () => {
         delay: makeOntimeDelay({ id: 'delay', duration: 10 }),
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 10, duration: 10 }),
         '2': makeOntimeEvent({ id: '2', timeStart: 10, timeEnd: 20, duration: 10, linkStart: true }),
-        '3': makeOntimeBlock({ id: '3' }),
+        '3': makeOntimeGroup({ id: '3' }),
         '4': makeOntimeEvent({ id: '4', timeStart: 20, timeEnd: 30, duration: 10, linkStart: false }),
         '5': makeOntimeEvent({ id: '5', timeStart: 30, timeEnd: 40, duration: 10, linkStart: true }),
       },
@@ -1158,7 +1154,7 @@ describe('rundownMutation.applyDelay()', () => {
         delay: makeOntimeDelay({ id: 'delay', duration: -10 }),
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 10, duration: 10 }),
         '2': makeOntimeEvent({ id: '2', timeStart: 10, timeEnd: 20, duration: 10, linkStart: true }),
-        '3': makeOntimeBlock({ id: '3' }),
+        '3': makeOntimeGroup({ id: '3' }),
         '4': makeOntimeEvent({ id: '4', timeStart: 20, timeEnd: 30, duration: 10, linkStart: false }),
         '5': makeOntimeEvent({ id: '5', timeStart: 30, timeEnd: 40, duration: 10, linkStart: true }),
       },
@@ -1398,13 +1394,13 @@ describe('rundownMutation.applyDelay()', () => {
     expect(testRundown.entries).toMatchObject({ '1': { id: '1', timeStart: 0, timeEnd: 100, duration: 100 } });
   });
 
-  it('unlinks events to across blocks is it is the first event after the delay', () => {
+  it('unlinks events to across groups is it is the first event after the delay', () => {
     const testRundown = makeRundown({
-      order: ['1', 'delay', 'block', '2'],
+      order: ['1', 'delay', 'group', '2'],
       entries: {
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100, revision: 1 }),
         delay: makeOntimeDelay({ id: 'delay', duration: 50 }),
-        block: makeOntimeBlock({ id: 'block' }),
+        group: makeOntimeGroup({ id: 'group' }),
         '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 150, duration: 50, revision: 1, linkStart: true }),
       },
     });
@@ -1420,7 +1416,7 @@ describe('rundownMutation.applyDelay()', () => {
         duration: 100,
         revision: 1,
       },
-      block: { id: 'block' },
+      group: { id: 'group' },
       '2': {
         id: '2',
         timeStart: 150,
@@ -1432,13 +1428,13 @@ describe('rundownMutation.applyDelay()', () => {
     });
   });
 
-  it('applies a delay from inside a block', () => {
+  it('applies a delay from inside a group', () => {
     const testRundown = makeRundown({
-      order: ['1', 'block', '2', '3'],
+      order: ['1', 'group', '2', '3'],
       entries: {
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100 }),
-        block: makeOntimeBlock({ id: 'block', entries: ['delay'] }),
-        delay: makeOntimeDelay({ id: 'delay', duration: 100, parent: 'block' }),
+        group: makeOntimeGroup({ id: 'group', entries: ['delay'] }),
+        delay: makeOntimeDelay({ id: 'delay', duration: 100, parent: 'group' }),
         '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 200, duration: 100, linkStart: true }),
         '3': makeOntimeEvent({ id: '3', timeStart: 200, timeEnd: 300, duration: 100, linkStart: true }),
       },
@@ -1476,18 +1472,18 @@ describe('rundownMutation.applyDelay()', () => {
 
   it('applies a delay from across nested orders', () => {
     const testRundown = makeRundown({
-      order: ['1', 'delay', 'block', '2', '3'],
+      order: ['1', 'delay', 'group', '2', '3'],
       entries: {
         '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100 }),
         delay: makeOntimeDelay({ id: 'delay', duration: 100 }),
-        block: makeOntimeBlock({ id: 'block', entries: ['block-1'] }),
-        'block-1': makeOntimeEvent({
-          id: 'block-1',
+        group: makeOntimeGroup({ id: 'group', entries: ['group-1'] }),
+        'group-1': makeOntimeEvent({
+          id: 'group-1',
           timeStart: 100,
           timeEnd: 200,
           duration: 100,
           linkStart: true,
-          parent: 'block',
+          parent: 'group',
         }),
         '2': makeOntimeEvent({ id: '2', timeStart: 200, timeEnd: 300, duration: 100, linkStart: true }),
         '3': makeOntimeEvent({ id: '3', timeStart: 300, timeEnd: 400, duration: 100, linkStart: true }),
@@ -1504,7 +1500,7 @@ describe('rundownMutation.applyDelay()', () => {
         duration: 100,
         revision: 1,
       },
-      'block-1': {
+      'group-1': {
         timeStart: 200,
         timeEnd: 300,
         duration: 100,
@@ -1579,11 +1575,11 @@ describe('rundownMutation.clone()', () => {
     });
   });
 
-  it('clones an event inside a block and adds it to the rundown', () => {
+  it('clones an event inside a group and adds it to the rundown', () => {
     const testRundown = makeRundown({
       order: ['1'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', entries: ['1a'] }),
+        '1': makeOntimeGroup({ id: '1', entries: ['1a'] }),
         '1a': makeOntimeEvent({ id: '1a', cue: 'nested', parent: '1' }),
       },
     });
@@ -1599,11 +1595,11 @@ describe('rundownMutation.clone()', () => {
     });
   });
 
-  it('clones a block and its nested elements', () => {
+  it('clones a group and its nested elements', () => {
     const testRundown = makeRundown({
       order: ['1'],
       entries: {
-        '1': makeOntimeBlock({ id: '1', title: 'top', entries: ['1a'] }),
+        '1': makeOntimeGroup({ id: '1', title: 'top', entries: ['1a'] }),
         '1a': makeOntimeEvent({ id: '1a', cue: 'nested', parent: '1' }),
       },
     });
@@ -1612,10 +1608,10 @@ describe('rundownMutation.clone()', () => {
 
     expect(testRundown.order).toStrictEqual(['1', newEntry.id]);
     expect(testRundown.entries[newEntry.id]).toMatchObject({
-      type: SupportedEntry.Block,
+      type: SupportedEntry.Group,
       entries: [expect.any(String)],
     });
-    expect((testRundown.entries[newEntry.id] as OntimeBlock).entries[0]).not.toBe('1a');
+    expect((testRundown.entries[newEntry.id] as OntimeGroup).entries[0]).not.toBe('1a');
   });
 });
 
@@ -1632,34 +1628,34 @@ describe('rundownMutation.group()', () => {
 
     rundownMutation.group(rundown, ['1', '2']);
 
-    const blockId = rundown.order[0];
-    expect(blockId).toStrictEqual(expect.any(String));
+    const groupId = rundown.order[0];
+    expect(groupId).toStrictEqual(expect.any(String));
     expect(rundown.order).toStrictEqual([expect.any(String), '3']);
     expect(rundown.entries).toMatchObject({
-      [blockId]: {
-        type: SupportedEntry.Block,
+      [groupId]: {
+        type: SupportedEntry.Group,
         entries: ['1', '2'],
       },
-      '1': { id: '1', type: SupportedEntry.Event, parent: blockId },
-      '2': { id: '2', type: SupportedEntry.Event, parent: blockId },
+      '1': { id: '1', type: SupportedEntry.Event, parent: groupId },
+      '2': { id: '2', type: SupportedEntry.Event, parent: groupId },
       '3': { id: '3', type: SupportedEntry.Event, parent: null },
     });
   });
 });
 
 describe('rundownMutation.ungroup()', () => {
-  it('should correctly dissolve a block into its events', () => {
+  it('should correctly dissolve a group into its events', () => {
     const testRundown = makeRundown({
       order: ['1', '2'],
       entries: {
         '1': makeOntimeEvent({ id: '1', cue: 'data1', parent: null }),
-        '2': makeOntimeBlock({ id: '2', entries: ['21', '22'] }),
+        '2': makeOntimeGroup({ id: '2', entries: ['21', '22'] }),
         '21': makeOntimeEvent({ id: '21', cue: 'data21', parent: '2' }),
         '22': makeOntimeEvent({ id: '22', cue: 'data22', parent: '2' }),
       },
     });
 
-    rundownMutation.ungroup(testRundown, testRundown.entries['2'] as OntimeBlock);
+    rundownMutation.ungroup(testRundown, testRundown.entries['2'] as OntimeGroup);
 
     expect(testRundown.order).toStrictEqual(['1', '21', '22']);
     expect(testRundown.entries['2']).toBeUndefined();
@@ -1742,22 +1738,26 @@ describe('customFieldMutation.renameUsages()', () => {
       },
     });
 
-    const assigned: AssignedMap = {
-      one: ['1', '2'],
-      two: ['3'],
-    };
-
-    customFieldMutation.renameUsages(rundown, assigned, 'one', 'new-one');
+    customFieldMutation.renameUsages(rundown, 'one', 'new-one');
     expect(rundown.entries).toMatchObject({
       '1': { id: '1', custom: { 'new-one': 'value1' } },
       '2': { id: '2', custom: { 'new-one': 'value2' } },
       '3': { id: '3', custom: { two: 'value3' } },
     });
+  });
 
-    expect(assigned).toStrictEqual({
-      'new-one': ['1', '2'],
-      two: ['3'],
+  it('renames usages inside groups and milestones', () => {
+    const rundown = makeRundown({
+      order: ['group', 'm1'],
+      entries: {
+        group: makeOntimeGroup({ id: 'group', entries: ['e1'] }),
+        e1: makeOntimeEvent({ id: 'e1', parent: 'group', custom: { one: 'v' } }),
+        m1: makeOntimeMilestone({ id: 'm1', custom: { two: 'keep' } }),
+      },
     });
+    customFieldMutation.renameUsages(rundown, 'one', 'new-one');
+    expect((rundown.entries['e1'] as OntimeEvent).custom).toMatchObject({ 'new-one': 'v' });
+    expect((rundown.entries['m1'] as OntimeMilestone).custom).toMatchObject({ two: 'keep' });
   });
 });
 
@@ -1772,17 +1772,8 @@ describe('customFieldMutation.removeUsages()', () => {
       },
     });
 
-    const assigned: AssignedMap = {
-      one: ['1', '2'],
-      two: ['3'],
-    };
-
-    customFieldMutation.removeUsages(rundown, assigned, 'one');
+    customFieldMutation.removeUsages(rundown, 'one');
     expect((rundown.entries['1'] as OntimeEvent).custom).not.toHaveProperty('one');
     expect((rundown.entries['2'] as OntimeEvent).custom).not.toHaveProperty('one');
-
-    expect(assigned).toStrictEqual({
-      two: ['3'],
-    });
   });
 });

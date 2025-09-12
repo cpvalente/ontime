@@ -36,11 +36,15 @@
 }
 
 .closed {
-  transition: rotate $transition-time-feedback;
+  transition: rotate 300ms cubic-bezier(0.45, 1.005, 0, 1.005);
   rotate: 0deg;
 }
 
 .open {
-  transition: rotate $transition-time-feedback;
+  transition: rotate 300ms cubic-bezier(0.45, 1.005, 0, 1.005);
   rotate: 180deg;
+}
+
+.hidden {
+  display: none;
 }

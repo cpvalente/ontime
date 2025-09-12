@@ -14,7 +14,7 @@ import { EndAction, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { cx } from '../../../common/utils/styleUtils';
-import EditableBlockTitle from '../common/EditableBlockTitle';
+import TitleEditor from '../common/TitleEditor';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
 import RundownEventChip from './composite/RundownEventChip';
@@ -105,7 +105,7 @@ function RundownEventInner({
         />
       </div>
       <div className={style.titleSection}>
-        <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
+        <TitleEditor title={title} entryId={eventId} placeholder='Event title' className={style.eventTitle} />
         {isNext && <span className={style.nextTag}>UP NEXT</span>}
       </div>
       <EventBlockPlayback
@@ -130,7 +130,7 @@ function RundownEventInner({
           duration={duration}
         />
       )}
-      <div className={style.statusElements} id='block-status' data-timertype={timerType}>
+      <div className={style.statusElements} id='entry-status' data-timertype={timerType}>
         <span className={style.eventNote}>{note}</span>
         <div className={loaded ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
           {loaded && <EventBlockProgressBar />}

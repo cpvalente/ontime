@@ -40,8 +40,8 @@
 }
 
 $track-color: $white-1;
-$thumb-color: $gray-1100;
-$thumb-color-hover: $gray-900;
+$thumb-color: $white-20;
+$thumb-color-hover: $white-60;
 
 /* Apply a natural box layout model to all elements */
 html {
@@ -157,7 +157,7 @@ input[type='number'] {
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: $white-1;
+  background: $track-color;
   border-radius: 2px;
 }
 

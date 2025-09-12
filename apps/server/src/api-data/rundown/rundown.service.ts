@@ -4,24 +4,34 @@ import {
   CustomFields,
   EntryId,
   EventPostPayload,
-  isOntimeBlock,
+  isOntimeGroup,
   isOntimeDelay,
   isOntimeEvent,
-  OntimeBlock,
+  OntimeGroup,
   OntimeEntry,
   PatchWithId,
   RefetchKey,
   Rundown,
+  LogOrigin,
+  ProjectRundowns,
 } from 'ontime-types';
 import { customFieldLabelToKey } from 'ontime-utils';
 
 import { updateRundownData } from '../../stores/runtimeState.js';
-import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
+import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 
-import { createTransaction, customFieldMutation, rundownCache, rundownMutation } from './rundown.dao.js';
+import {
+  createTransaction,
+  customFieldMutation,
+  rundownCache,
+  rundownMutation,
+  updateBackgroundRundown,
+} from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
 import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { setLastLoadedRundown } from '../../services/app-state-service/AppStateService.js';
+import { logger } from '../../classes/Logger.js';
 
 /**
  * creates a new entry with given data
@@ -35,12 +45,12 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
   }
 
   // the parent can be provided or inferred from position
-  let parent: OntimeBlock | null = null;
+  let parent: OntimeGroup | null = null;
 
   if ('parent' in eventData && eventData.parent != null) {
     // if the user provides a parent (inside a group), we make sure it exists and it is a group
     const maybeParent = rundown.entries[eventData.parent];
-    if (!maybeParent || !isOntimeBlock(maybeParent)) {
+    if (!maybeParent || !isOntimeGroup(maybeParent)) {
       throw new Error(`Invalid parent event with ID ${eventData.parent}`);
     }
     parent = maybeParent;
@@ -51,7 +61,7 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
       const maybeSibling = rundown.entries[referenceId];
       if (maybeSibling && 'parent' in maybeSibling && maybeSibling.parent) {
         const maybeParent = rundown.entries[maybeSibling.parent];
-        if (maybeParent && isOntimeBlock(maybeParent)) {
+        if (maybeParent && isOntimeGroup(maybeParent)) {
           parent = maybeParent;
         }
       }
@@ -241,10 +251,10 @@ export async function deleteAllEntries(): Promise<Rundown> {
 
 /**
  * Moves an event to a new position in the rundown
- * Handles moving across root orders (a block order and top level order)
+ * Handles moving across root orders (a group order and top level order)
  * @throws if entryId or destinationId not found
  */
-export function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
+export async function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
 
   // check that both entries exist
@@ -356,7 +366,7 @@ export async function cloneEntry(entryId: EntryId): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    if (isOntimeBlock(newEntry)) {
+    if (isOntimeGroup(newEntry)) {
       notifyChanges(rundownMetadata, revision, { timer: newEntry.entries, external: true });
     } else if (isOntimeEvent(newEntry)) {
       notifyChanges(rundownMetadata, revision, { timer: [newEntry.id], external: true });
@@ -370,7 +380,7 @@ export async function cloneEntry(entryId: EntryId): Promise<Rundown> {
 }
 
 /**
- * Groups a list of entries into a new block
+ * Groups a list of entries into a new group
  */
 export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
@@ -383,25 +393,25 @@ export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
     // notify runtime that rundown has changed
     updateRuntimeOnChange(rundownMetadata);
 
-    // we dont need to notify the timer since the grouping does not affect the runtime
-    notifyChanges(rundownMetadata, revision, { external: true });
+    // we need to notify the timer since we might be grouping a running event
+    notifyChanges(rundownMetadata, revision, { external: true, timer: true });
   });
 
   return rundownResult;
 }
 
 /**
- * Deletes a block and moves all its children to the top level
+ * Deletes a group and moves all its children to the top level
  */
-export async function ungroupEntries(blockId: EntryId): Promise<Rundown> {
+export async function ungroupEntries(groupId: EntryId): Promise<Rundown> {
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
 
-  const block = rundown.entries[blockId];
-  if (!block || !isOntimeBlock(block)) {
-    throw new Error(`Block with ID ${blockId} not found or is not a block`);
+  const group = rundown.entries[groupId];
+  if (!group || !isOntimeGroup(group)) {
+    throw new Error(`Group with ID ${groupId} not found or is not a group`);
   }
 
-  rundownMutation.ungroup(rundown, block);
+  rundownMutation.ungroup(rundown, group);
   const { rundown: rundownResult, rundownMetadata, revision } = commit();
 
   // schedule the side effects
@@ -454,8 +464,12 @@ export async function createCustomField(customField: CustomField): Promise<Custo
  * @throws if the label is missing or invalid
  * @throws if the new label already exists
  */
-export async function editCustomField(key: CustomFieldKey, newField: Partial<CustomField>): Promise<CustomFields> {
-  const { customFields, customFieldsMetadata, rundown, commit } = createTransaction({
+export async function editCustomField(
+  key: CustomFieldKey,
+  newField: Partial<CustomField>,
+  projectRundowns: ProjectRundowns,
+): Promise<CustomFields> {
+  const { customFields, rundown, commit } = createTransaction({
     mutableRundown: true,
     mutableCustomFields: true,
   });
@@ -472,14 +486,22 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 
   const { oldKey, newKey } = customFieldMutation.edit(customFields, key, existingField, newField);
 
-  // if key has changed
+  // if key has changed ...
   if (oldKey !== newKey) {
-    // 1. delete the old key
-    customFieldMutation.remove(customFields, oldKey);
-    if (oldKey in customFieldsMetadata.assigned) {
-      // 2. reassign references
-      customFieldMutation.renameUsages(rundown, customFieldsMetadata.assigned, oldKey, newKey);
+    // ... reassign references in the active rundown
+    customFieldMutation.renameUsages(rundown, oldKey, newKey);
+
+    // ... reassign references in the background rundowns
+    for (const rundownId of Object.keys(projectRundowns)) {
+      if (rundownId !== rundown.id) {
+        const backgroundRundown = structuredClone(projectRundowns[rundownId]);
+        customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey);
+        updateBackgroundRundown(rundown.id, backgroundRundown);
+      }
     }
+
+    // ... delete the old key
+    customFieldMutation.remove(customFields, oldKey);
   }
 
   // the custom fields have been removed and there is no processing to be done
@@ -487,6 +509,7 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 
   // schedule the side effects
   setImmediate(() => {
+    sendRefetch(RefetchKey.CustomFields);
     notifyChanges(rundownMetadata, revision, { timer: true, external: true });
   });
 
@@ -496,8 +519,8 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 /**
  * Deletes an existing custom field
  */
-export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFields> {
-  const { customFields, customFieldsMetadata, rundown, commit } = createTransaction({
+export async function deleteCustomField(key: CustomFieldKey, projectRundowns: ProjectRundowns): Promise<CustomFields> {
+  const { customFields, rundown, commit } = createTransaction({
     mutableRundown: true,
     mutableCustomFields: true,
   });
@@ -505,16 +528,27 @@ export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFiel
     return customFields;
   }
 
-  customFieldMutation.remove(customFields, key);
-  if (key in customFieldsMetadata.assigned) {
-    customFieldMutation.removeUsages(rundown, customFieldsMetadata.assigned, key);
+  // remove references in the active rundown
+  customFieldMutation.removeUsages(rundown, key);
+
+  // remove references in the background rundowns
+  for (const rundownId of Object.keys(projectRundowns)) {
+    if (rundownId !== rundown.id) {
+      const backgroundRundown = structuredClone(projectRundowns[rundownId]);
+      customFieldMutation.removeUsages(backgroundRundown, key);
+      updateBackgroundRundown(rundown.id, backgroundRundown);
+    }
   }
+
+  // delete the old key
+  customFieldMutation.remove(customFields, key);
 
   // the custom fields have been removed and there is no processing to be done
   const { rundownMetadata, revision, customFields: resultCustomFields } = commit(false);
 
   // schedule the side effects
   setImmediate(() => {
+    sendRefetch(RefetchKey.CustomFields);
     notifyChanges(rundownMetadata, revision, { timer: true, external: true });
   });
 
@@ -565,14 +599,20 @@ function notifyChanges(rundownMetadata: RundownMetadata, revision: number, optio
  * Sets a new rundown in the cache
  * and marks it as the currently loaded one
  */
-export async function initRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
+export async function initRundown(
+  rundown: Readonly<Rundown>,
+  customFields: Readonly<CustomFields>,
+  reload: boolean = false,
+) {
   const { rundownMetadata, revision } = rundownCache.init(rundown, customFields);
-
+  logger.info(LogOrigin.Server, `Switch to rundown: ${rundown.id}`);
   // notify runtime that rundown has changed
   updateRuntimeOnChange(rundownMetadata);
 
-  // notify timer of change
   setImmediate(() => {
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true, reload: true });
+    notifyChanges(rundownMetadata, revision, { timer: true, external: true, reload });
+    setLastLoadedRundown(rundown.id).catch((error) => {
+      logger.error(LogOrigin.Server, `Failed to persist last loaded rundown: ${error}`);
+    });
   });
 }

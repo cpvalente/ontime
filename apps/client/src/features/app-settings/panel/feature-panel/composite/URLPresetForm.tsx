@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { OntimeView, URLPreset } from 'ontime-types';
+import { OntimeView, OntimeViewPresettable, URLPreset } from 'ontime-types';
 
 import { maybeAxiosError, unwrapError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
 import Input from '../../../../../common/components/input/input/Input';
+import Textarea from '../../../../../common/components/input/textarea/Textarea';
 import Select, { SelectOption } from '../../../../../common/components/select/Select';
 import { useUpdateUrlPreset } from '../../../../../common/hooks-query/useUrlPresets';
 import { preventEscape } from '../../../../../common/utils/keyEvent';
@@ -13,7 +14,7 @@ import * as Panel from '../../../panel-utils/PanelUtils';
 
 import style from './URLPresetForm.module.scss';
 
-const targetOptions: SelectOption[] = [
+const targetOptions: SelectOption<OntimeViewPresettable>[] = [
   { value: OntimeView.Cuesheet, label: 'Cuesheet' },
   { value: OntimeView.Operator, label: 'Operator' },
   { value: OntimeView.Timer, label: 'Timer' },
@@ -114,7 +115,7 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
         <div className={style.expand}>
           <Panel.Description>Generate options (paste URL to generate options)</Panel.Description>
           <Panel.InlineElements>
-            <Input placeholder='Paste URL' fluid ref={urlRef} required />
+            <Input placeholder='Paste URL' fluid ref={urlRef} />
             <Button onClick={generateOptions}>Generate</Button>
           </Panel.InlineElements>
         </div>
@@ -126,14 +127,15 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
         <Select
           options={targetOptions}
           {...register('target', { required: 'Target is required' })}
-          value={watch('target') as OntimeView}
-          onValueChange={(value) => setValue('target', value)}
+          value={watch('target')}
+          onValueChange={(value) => setValue('target', value, { shouldDirty: true })}
         />
       </div>
       <div>
         <Panel.Description>Parameters</Panel.Description>
-        <Input
+        <Textarea
           fluid
+          rows={3}
           {...register('search', {
             validate: validateParams,
           })}

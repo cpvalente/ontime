@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { CustomFields, isOntimeDelay, isOntimeEvent, OntimeEntry, TimeStrategy } from 'ontime-types';
+import { CustomFields, isOntimeDelay, isOntimeEvent, TimeStrategy, URLPreset } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
+import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { formatDuration, formatTime } from '../../../../common/utils/time';
 import { AppMode } from '../../../../ontimeConfig';
 
@@ -16,7 +17,7 @@ import MutedText from './MutedText';
 import SingleLineCell from './SingleLineCell';
 import TimeInput from './TimeInput';
 
-function MakeStart({ getValue, row, table, column }: CellContext<OntimeEntry, unknown>) {
+function MakeStart({ getValue, row, table, column }: CellContext<ExtendedEntry, unknown>) {
   if (!table.options.meta) {
     return null;
   }
@@ -55,7 +56,7 @@ function MakeStart({ getValue, row, table, column }: CellContext<OntimeEntry, un
   );
 }
 
-function MakeEnd({ getValue, row, table, column }: CellContext<OntimeEntry, unknown>) {
+function MakeEnd({ getValue, row, table, column }: CellContext<ExtendedEntry, unknown>) {
   if (!table.options.meta) {
     return null;
   }
@@ -95,7 +96,7 @@ function MakeEnd({ getValue, row, table, column }: CellContext<OntimeEntry, unkn
   );
 }
 
-function MakeDuration({ getValue, row, table, column }: CellContext<OntimeEntry, unknown>) {
+function MakeDuration({ getValue, row, table, column }: CellContext<ExtendedEntry, unknown>) {
   if (!table.options.meta) {
     return null;
   }
@@ -126,7 +127,7 @@ function MakeDuration({ getValue, row, table, column }: CellContext<OntimeEntry,
   );
 }
 
-function MakeMultiLineField({ row, column, table }: CellContext<OntimeEntry, unknown>) {
+function MakeMultiLineField({ row, column, table }: CellContext<ExtendedEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
@@ -134,9 +135,9 @@ function MakeMultiLineField({ row, column, table }: CellContext<OntimeEntry, unk
     [column.id, row.index, table.options.meta],
   );
 
-  // not all entries have all properties (eg blocks)
-  const initialValue = row.original[column.id as keyof OntimeEntry];
-  if (initialValue === undefined) {
+  // not all entries have all properties (eg groups)
+  const initialValue = row.original[column.id as keyof ExtendedEntry];
+  if (typeof initialValue !== 'string') {
     return null;
   }
 
@@ -148,7 +149,7 @@ function MakeMultiLineField({ row, column, table }: CellContext<OntimeEntry, unk
   return <MultiLineCell initialValue={initialValue as string} handleUpdate={update} />;
 }
 
-function LazyImage({ row, column, table }: CellContext<OntimeEntry, unknown>) {
+function LazyImage({ row, column, table }: CellContext<ExtendedEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, true);
@@ -166,7 +167,7 @@ function LazyImage({ row, column, table }: CellContext<OntimeEntry, unknown>) {
   return <EditableImage initialValue={initialValue} updateValue={update} readOnly={!canWrite} />;
 }
 
-function MakeSingleLineField({ row, column, table }: CellContext<OntimeEntry, unknown>) {
+function MakeSingleLineField({ row, column, table }: CellContext<ExtendedEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
@@ -174,9 +175,9 @@ function MakeSingleLineField({ row, column, table }: CellContext<OntimeEntry, un
     [column.id, row.index, table.options.meta],
   );
 
-  // not all entries have all properties (eg blocks)
-  const initialValue = row.original[column.id as keyof OntimeEntry];
-  if (initialValue === undefined) {
+  // not all entries have all properties (eg groups)
+  const initialValue = row.original[column.id as keyof ExtendedEntry];
+  if (typeof initialValue !== 'string') {
     return null;
   }
 
@@ -188,7 +189,7 @@ function MakeSingleLineField({ row, column, table }: CellContext<OntimeEntry, un
   return <SingleLineCell initialValue={initialValue as string} handleUpdate={update} />;
 }
 
-function MakeFlagField({ row }: CellContext<OntimeEntry, unknown>) {
+function MakeFlagField({ row }: CellContext<ExtendedEntry, unknown>) {
   const event = row.original;
   if (!isOntimeEvent(event) || !event.flag) {
     return null;
@@ -196,7 +197,7 @@ function MakeFlagField({ row }: CellContext<OntimeEntry, unknown>) {
   return <FlagCell />;
 }
 
-function MakeCustomField({ row, column, table }: CellContext<OntimeEntry, unknown>) {
+function MakeCustomField({ row, column, table }: CellContext<ExtendedEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, true);
@@ -225,85 +226,113 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeEntry, unknow
  * we cant use the createColumnHelper() because we have custom logic for rendering the cells
  * This means that the display columns: index and action are added inline by the row components
  */
-export function makeCuesheetColumns(customFields: CustomFields, cuesheetMode: AppMode): ColumnDef<OntimeEntry>[] {
-  const columnsDef: ColumnDef<OntimeEntry>[] = [];
+export function makeCuesheetColumns(
+  customFields: CustomFields,
+  cuesheetMode: AppMode,
+  preset: URLPreset | undefined,
+): ColumnDef<ExtendedEntry>[] {
+  const columnsDef: ColumnDef<ExtendedEntry>[] = [];
   const modeAllowsWrite = cuesheetMode === AppMode.Edit;
+  const fullRead = preset ? preset.options?.read === 'full' : true;
+  const fullWrite = preset ? preset.options?.write === 'full' : true;
+  const canWriteKeys = preset?.options?.write ? new Set(preset.options.write.split(',')) : new Set<string>();
+  const canReadKeys = preset?.options?.read ? new Set(preset.options.read.split(',')) : new Set<string>();
 
-  columnsDef.push({
-    accessorKey: 'flag',
-    id: 'flag',
-    header: 'Flag',
-    cell: MakeFlagField,
-    size: 45,
-    minSize: 45,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  // helpers to check read/write for a given key
+  const canRead = (key: string) => fullRead || canReadKeys.has(key);
+  const canWrite = (key: string) => modeAllowsWrite && (fullWrite || canWriteKeys.has(key));
 
-  columnsDef.push({
-    accessorKey: 'cue',
-    id: 'cue',
-    header: 'Cue',
-    cell: MakeSingleLineField,
-    size: 75,
-    minSize: 40,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  if (canRead('flag')) {
+    columnsDef.push({
+      accessorKey: 'flag',
+      id: 'flag',
+      header: 'Flag',
+      cell: MakeFlagField,
+      size: 45,
+      minSize: 45,
+      meta: { canWrite: canWrite('flag') },
+    });
+  }
 
-  columnsDef.push({
-    accessorKey: 'timeStart',
-    id: 'timeStart',
-    header: 'Start',
-    cell: MakeStart,
-    size: 75,
-    minSize: 75,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  if (canRead('cue')) {
+    columnsDef.push({
+      accessorKey: 'cue',
+      id: 'cue',
+      header: 'Cue',
+      cell: MakeSingleLineField,
+      size: 75,
+      minSize: 40,
+      meta: { canWrite: canWrite('cue') },
+    });
+  }
 
-  columnsDef.push({
-    accessorKey: 'timeEnd',
-    id: 'timeEnd',
-    header: 'End',
-    cell: MakeEnd,
-    size: 75,
-    minSize: 75,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  if (canRead('timeStart')) {
+    columnsDef.push({
+      accessorKey: 'timeStart',
+      id: 'timeStart',
+      header: 'Start',
+      cell: MakeStart,
+      size: 75,
+      minSize: 75,
+      meta: { canWrite: canWrite('timeStart') },
+    });
+  }
 
-  columnsDef.push({
-    accessorKey: 'duration',
-    id: 'duration',
-    header: 'Duration',
-    cell: MakeDuration,
-    size: 75,
-    minSize: 75,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  if (canRead('timeEnd')) {
+    columnsDef.push({
+      accessorKey: 'timeEnd',
+      id: 'timeEnd',
+      header: 'End',
+      cell: MakeEnd,
+      size: 75,
+      minSize: 75,
+      meta: { canWrite: canWrite('timeEnd') },
+    });
+  }
 
-  columnsDef.push({
-    accessorKey: 'title',
-    id: 'title',
-    header: 'Title',
-    cell: MakeSingleLineField,
-    size: 250,
-    minSize: 75,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  if (canRead('duration')) {
+    columnsDef.push({
+      accessorKey: 'duration',
+      id: 'duration',
+      header: 'Duration',
+      cell: MakeDuration,
+      size: 75,
+      minSize: 75,
+      meta: { canWrite: canWrite('duration') },
+    });
+  }
 
-  columnsDef.push({
-    accessorKey: 'note',
-    id: 'note',
-    header: 'Note',
-    cell: MakeMultiLineField,
-    size: 250,
-    minSize: 75,
-    meta: { canWrite: modeAllowsWrite },
-  });
+  if (canRead('title')) {
+    columnsDef.push({
+      accessorKey: 'title',
+      id: 'title',
+      header: 'Title',
+      cell: MakeSingleLineField,
+      size: 250,
+      minSize: 75,
+      meta: { canWrite: canWrite('title') },
+    });
+  }
+
+  if (canRead('note')) {
+    columnsDef.push({
+      accessorKey: 'note',
+      id: 'note',
+      header: 'Note',
+      cell: MakeMultiLineField,
+      size: 250,
+      minSize: 75,
+      meta: { canWrite: canWrite('note') },
+    });
+  }
 
   // custom fields at the end
   const customFieldKeys = Object.keys(customFields);
 
   for (let i = 0; i < customFieldKeys.length; i++) {
     const key = customFieldKeys[i];
+    const permissionKey = `custom-${key}`;
+    if (!canRead(permissionKey)) continue;
     columnsDef.push({
       accessorKey: key,
       id: key,
@@ -313,7 +342,7 @@ export function makeCuesheetColumns(customFields: CustomFields, cuesheetMode: Ap
       minSize: 75,
       meta: {
         colour: customFields[key].colour,
-        canWrite: true,
+        canWrite: canWrite(permissionKey),
       },
     });
   }

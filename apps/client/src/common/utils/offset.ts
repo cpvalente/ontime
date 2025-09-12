@@ -21,5 +21,6 @@ export function getOffsetText(offset: MaybeNumber): string {
 export function getOffsetState(offset: MaybeNumber): 'over' | 'under' | 'muted' | null {
   if (offset === null) return 'muted';
   if (offset === 0) return null;
-  return offset < 0 ? 'over' : 'under';
+  // a positive value means that we are in over time aka behind schedule
+  return offset > 0 ? 'over' : 'under';
 }

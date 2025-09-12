@@ -10,6 +10,10 @@
       "cache": false,
       "persistent": true
     },
+    "dev:inspect": {
+      "cache": false,
+      "persistent": true
+    },
     "dev:test": {
       "cache": false
     },

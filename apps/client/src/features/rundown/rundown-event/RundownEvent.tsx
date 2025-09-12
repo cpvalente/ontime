@@ -12,12 +12,12 @@ import {
 import { TbFlagFilled } from 'react-icons/tb';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { EndAction, EntryId, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, EntryId, Playback, TimerType, TimeStrategy } from 'ontime-types';
 import { isPlaybackActive } from 'ontime-utils';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
+import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import type { EventItemActions } from '../RundownEntry';
 import { useEventIdSwapping } from '../useEventIdSwapping';
 import { getSelectionMode, useEventSelection } from '../useEventSelection';
 
@@ -56,15 +56,7 @@ interface RundownEventProps {
   dayOffset: number;
   totalGap: number;
   isLinkedToLoaded: boolean;
-  actionHandler: (
-    action: EventItemActions,
-    payload?:
-      | number
-      | {
-          field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
-          value: unknown;
-        },
-  ) => void;
+  createCloneEvent: () => void;
   hasTriggers: boolean;
 }
 
@@ -98,11 +90,13 @@ export default function RundownEvent({
   dayOffset,
   totalGap,
   isLinkedToLoaded,
-  actionHandler,
   hasTriggers,
+  createCloneEvent,
 }: RundownEventProps) {
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
-  const { selectedEvents, setSelectedEvents } = useEventSelection();
+  const { updateEntry, batchUpdateEvents, deleteEntry, groupEntries, swapEvents } = useEntryActions();
+
+  const { selectedEvents, unselect, setSelectedEvents, clearSelectedEvents } = useEventSelection();
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -113,37 +107,48 @@ export default function RundownEvent({
             type: 'item',
             label: 'Link to previous',
             icon: IoLink,
-            onClick: () =>
-              actionHandler('update', {
-                field: 'linkStart',
-                value: 'true',
-              }),
+            onClick: () => {
+              batchUpdateEvents({ linkStart: true }, Array.from(selectedEvents));
+            },
           },
           {
             type: 'item',
             label: 'Unlink from previous',
             icon: IoUnlink,
-            onClick: () =>
-              actionHandler('update', {
-                field: 'linkStart',
-                value: null,
-              }),
+            onClick: () => {
+              batchUpdateEvents({ linkStart: false }, Array.from(selectedEvents));
+            },
           },
           { type: 'divider' },
-          { type: 'item', label: 'Group', icon: IoFolder, onClick: () => actionHandler('group') },
+          {
+            type: 'item',
+            label: 'Group',
+            icon: IoFolder,
+            onClick: () => {
+              groupEntries(Array.from(selectedEvents));
+              clearSelectedEvents();
+            },
+            disabled: parent !== null,
+          },
           { type: 'divider' },
-          { type: 'item', label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
+          {
+            type: 'item',
+            label: 'Delete',
+            icon: IoTrash,
+            onClick: () => {
+              clearSelectedEvents();
+              deleteEntry(Array.from(selectedEvents));
+            },
+          },
         ]
       : [
           {
             type: 'item',
             label: flag ? 'Remove flag' : 'Add flag',
             icon: TbFlagFilled,
-            onClick: () =>
-              actionHandler('update', {
-                field: 'flag',
-                value: !flag,
-              }),
+            onClick: () => {
+              updateEntry({ id: eventId, flag: !flag });
+            },
           },
           { type: 'divider' },
           {
@@ -157,7 +162,8 @@ export default function RundownEvent({
             label: `Swap this event with ${selectedEventId ?? ''}`,
             icon: IoSwapVertical,
             onClick: () => {
-              actionHandler('swap', { field: 'id', value: selectedEventId });
+              if (!selectedEventId) return;
+              swapEvents(selectedEventId, eventId);
               clearSelectedEventId();
             },
             disabled: selectedEventId == null || selectedEventId === eventId,
@@ -166,10 +172,18 @@ export default function RundownEvent({
             type: 'item',
             label: 'Clone',
             icon: IoDuplicateOutline,
-            onClick: () => actionHandler('clone'),
+            onClick: createCloneEvent,
           },
           { type: 'divider' },
-          { type: 'item', label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
+          {
+            type: 'item',
+            label: 'Delete',
+            icon: IoTrash,
+            onClick: () => {
+              deleteEntry([eventId]);
+              unselect(eventId);
+            },
+          },
         ],
   );
 
@@ -205,8 +219,8 @@ export default function RundownEvent({
     }
 
     const elementInFocus = document.activeElement;
-    // we know the block is the grandparent of our binder
-    const blockElement = handleRef.current.closest('#event-block');
+    // we know the group is the grandparent of our binder
+    const blockElement = handleRef.current.closest('#event-group');
 
     // we only move focus if the block doesnt already contain focus
     if (blockElement && !blockElement.contains(elementInFocus)) {

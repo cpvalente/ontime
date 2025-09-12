@@ -5,6 +5,8 @@ import { EntryId, OntimeEntry, Rundown } from 'ontime-types';
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/constants';
 import { fetchCurrentRundown } from '../api/rundown';
+import { useSelectedEventId } from '../hooks/useSocket';
+import { getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
 
 import useProjectData from './useProjectData';
 
@@ -26,12 +28,16 @@ export default function useRundown() {
     queryKey: RUNDOWN,
     queryFn: fetchCurrentRundown,
     placeholderData: (previousData, _previousQuery) => previousData,
-    retry: 5,
-    retryDelay: (attempt) => attempt * 2500,
     refetchInterval: queryRefetchIntervalSlow,
-    networkMode: 'always',
   });
   return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
+}
+
+export function useRundownWithMetadata() {
+  const { data, status } = useRundown();
+  const { selectedEventId } = useSelectedEventId();
+  const rundownMetadata = useMemo(() => getRundownMetadata(data, selectedEventId), [data, selectedEventId]);
+  return { data, status, rundownMetadata };
 }
 
 /**
@@ -66,6 +72,14 @@ export function useFlatRundown() {
   }, [projectData]);
 
   return { data: flatRundown, rundownId: data.id, status };
+}
+
+export function useFlatRundownWithMetadata() {
+  const { data, status } = useRundown();
+  const { selectedEventId } = useSelectedEventId();
+
+  const rundownWithMetadata = useMemo(() => getFlatRundownMetadata(data, selectedEventId), [data, selectedEventId]);
+  return { data: rundownWithMetadata, status };
 }
 
 /**

@@ -1,10 +1,11 @@
 import express from 'express';
 import type { Request, Response } from 'express';
-import type { ErrorResponse } from 'ontime-types';
-import { validatePostCss } from './assets.validation.js';
-import { readCssFile, writeCssFile } from './assets.service.js';
+import { RefetchKey, type ErrorResponse } from 'ontime-types';
+import { validatePostCss, validatePostTranslation } from './assets.validation.js';
+import { readCssFile, writeCssFile, writeUserTranslation } from './assets.service.js';
 import { getErrorMessage } from 'ontime-utils';
 import { defaultCss } from '../../user/styles/bundledCss.js';
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 
 export const router = express.Router();
 
@@ -33,6 +34,24 @@ router.post('/css/restore', async (_req: Request, res: Response<string | ErrorRe
   try {
     await writeCssFile(defaultCss);
     res.status(200).send(defaultCss);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
+  }
+});
+
+router.post('/translations', validatePostTranslation, async (req: Request, res: Response<never | ErrorResponse>) => {
+  const { translation } = req.body;
+
+  if (!translation) {
+    res.status(400).send({ message: 'translation payload is required ' });
+    return;
+  }
+
+  try {
+    await writeUserTranslation(translation);
+    sendRefetch(RefetchKey.Translation);
+    res.status(204).send();
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(500).send({ message });

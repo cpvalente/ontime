@@ -27,7 +27,7 @@
     opacity: 0.4;
   }
 
-  &:hover {
+  &:hover:not(.disabled) {
     background-color: $gray-1100;
     cursor: text;
   }

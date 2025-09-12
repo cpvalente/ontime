@@ -1,10 +1,10 @@
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { isOntimeCloud } from '../../../../externals';
+import GenerateLinkFormExport from '../../../sharing/GenerateLinkFormExport';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import InfoNif from '../network-panel/NetworkInterfaces';
 
-import GenerateLinkFormExport from './GenerateLinkFormExport';
 import ReportSettings from './ReportSettings';
 import URLPresets from './URLPresets';
 

@@ -1,9 +1,15 @@
 .radioGroup {
   display: flex;
-  gap: 0.25rem;
   color: $gray-900;
   font-size: calc(1rem - 2px);
   color: $ui-white;
+
+  &[data-disabled] {
+    .item {
+      opacity: $opacity-disabled;
+      cursor: not-allowed;
+    }
+  }
 }
 
 .horizontal {
@@ -32,8 +38,8 @@
 .radio {
   box-sizing: border-box;
   display: flex;
-  width: 1rem;
-  height: 1rem;
+  width: 16px; // use absolute units to avoid subpixel rendering issues
+  height: 16px;
   align-items: center;
   justify-content: center;
   border-radius: 100%;
@@ -46,10 +52,7 @@
   }
 
   &[data-checked] {
-    background-color: $ui-white;
-    &:hover {
-      border-color: $gray-1000;
-    }
+    background-color: $blue-700;
   }
 
   &:focus-visible {
@@ -69,8 +72,9 @@
   &::before {
     content: '';
     border-radius: 100%;
-    width: 0.5rem;
-    height: 0.5rem;
-    background-color: $gray-1200;
+    width: 6px; // half of the radio size
+    height: 6px;
+    aspect-ratio: 1;
+    background-color: $ui-white;
   }
 }

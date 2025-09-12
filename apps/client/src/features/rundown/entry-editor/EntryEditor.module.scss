@@ -1,8 +1,19 @@
-.entryEditor {
+.cuesheetEditor,
+.rundownEditor {
   max-height: 100%;
   display: flex;
   flex-direction: column;
   overflow-x: auto;
+}
+
+.rundownEditor {
+  // width is locked to swatch picker elements
+  min-width: calc(15 * 2rem + 13 * 0.5rem);
+
+  // we dont want a scrollbar when in the modal
+  .content {
+    overflow-y: scroll;
+  }
 }
 
 .content {
@@ -13,7 +24,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  overflow-y: auto;
 }
 
 .timeSettings {
@@ -99,10 +109,6 @@
   width: 7.5em;
   border: 1px solid transparent;
   border-bottom: 1px solid $gray-1100;
-
-  &:hover {
-    background: transparent;
-  }
 }
 
 .inactive {

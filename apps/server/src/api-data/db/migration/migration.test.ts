@@ -2,6 +2,7 @@ import {
   AutomationSettings,
   CustomFields,
   EndAction,
+  OntimeView,
   ProjectData,
   Rundown,
   Settings,
@@ -47,7 +48,7 @@ describe('v3 to v4', () => {
         dayOffset: 0,
         gap: 0,
       },
-      { id: 'block0', type: 'block', title: 'BLOCK 0' },
+      { id: 'group0', type: 'block', title: 'GROUP 0' },
       {
         id: 'event2',
         type: SupportedEntry.Event,
@@ -106,7 +107,7 @@ describe('v3 to v4', () => {
         dayOffset: 0,
         gap: 0,
       },
-      { id: 'block1', type: 'block', title: 'BLOCK 1' },
+      { id: 'group1', type: 'block', title: 'GROUP 1' },
       { id: 'delay', type: 'delay', duration: 1000 },
     ],
     project: {
@@ -202,16 +203,18 @@ describe('v3 to v4', () => {
       {
         enabled: true,
         alias: 'clock',
-        target: 'timer',
+        target: OntimeView.Timer,
         search:
           'showLeadingZeros=true&timerType=clock&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+        options: {},
       },
       {
         enabled: true,
         alias: 'minimal',
-        target: 'timer',
+        target: OntimeView.Timer,
         search:
           'showLeadingZeros=true&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+        options: {},
       },
     ];
     const newUrlPreset = v3.migrateURLPresets(oldDb);
@@ -249,10 +252,10 @@ describe('v3 to v4', () => {
         colour: '#E80000',
       },
     };
-    const { customFields, translationTable } = v3.migrateCustomFields(oldDb)!;
-    expect(customFields).toEqual(expectCustomFields);
-
-    expect(translationTable).toEqual(
+    const parsedData = v3.migrateCustomFields(oldDb);
+    expect(parsedData).not.toBeUndefined();
+    expect(parsedData?.customFields).toEqual(expectCustomFields);
+    expect(parsedData?.translationTable).toEqual(
       new Map([
         ['song', 'Song_and_Dance'],
         ['artist', 'Artist_and_Host'],
@@ -265,8 +268,8 @@ describe('v3 to v4', () => {
     const expectedRundown: Rundown = {
       id: 'default',
       title: 'Default',
-      order: ['event1', 'block0', 'block1'],
-      flatOrder: ['event1', 'block0', 'event2', 'event3', 'block1', 'delay'],
+      order: ['event1', 'group0', 'group1'],
+      flatOrder: ['event1', 'group0', 'event2', 'event3', 'group1', 'delay'],
       entries: {
         event1: {
           id: 'event1',
@@ -295,10 +298,10 @@ describe('v3 to v4', () => {
           dayOffset: 0,
           gap: 0,
         },
-        block0: {
-          id: 'block0',
-          type: SupportedEntry.Block,
-          title: 'BLOCK 0',
+        group0: {
+          id: 'group0',
+          type: SupportedEntry.Group,
+          title: 'GROUP 0',
           colour: '',
           custom: {},
           duration: 0,
@@ -334,7 +337,7 @@ describe('v3 to v4', () => {
           },
           triggers: [{ id: 'testTrig', title: 'Test trigger', trigger: TimerLifeCycle.onStart, automationId: '1' }],
           flag: false,
-          parent: 'block0',
+          parent: 'group0',
           revision: -1,
           delay: 0,
           dayOffset: 0,
@@ -365,16 +368,16 @@ describe('v3 to v4', () => {
           },
           triggers: [{ id: 'testTrig', title: 'Test trigger', trigger: TimerLifeCycle.onStart, automationId: '1' }],
           flag: false,
-          parent: 'block0',
+          parent: 'group0',
           revision: -1,
           delay: 0,
           dayOffset: 0,
           gap: 0,
         },
-        block1: {
-          id: 'block1',
-          type: SupportedEntry.Block,
-          title: 'BLOCK 1',
+        group1: {
+          id: 'group1',
+          type: SupportedEntry.Group,
+          title: 'GROUP 1',
           colour: '',
           custom: {},
           duration: 0,
@@ -390,7 +393,7 @@ describe('v3 to v4', () => {
           type: SupportedEntry.Delay,
           id: 'delay',
           duration: 1000,
-          parent: 'block1',
+          parent: 'group1',
         },
       },
 

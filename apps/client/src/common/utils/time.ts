@@ -145,12 +145,12 @@ export function useTimeUntilExpectedStart(
     isLinkedToLoaded: boolean;
   },
 ): number {
-  const { offset, currentDay, offsetMode, actualStart, plannedStart, clock } = useExpectedStartData();
+  const { offset, currentDay, mode, actualStart, plannedStart, clock } = useExpectedStartData();
   if (event === null) return 0;
 
   const expectedStart = getExpectedStart(
     { ...event },
-    { ...state, currentDay, offset, offsetMode, actualStart, plannedStart },
+    { ...state, currentDay, offset, mode, actualStart, plannedStart },
   );
   return expectedStart - clock;
 }

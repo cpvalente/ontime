@@ -16,7 +16,7 @@ export default function RundownEmpty(props: RundownEmptyProps) {
 
   return (
     <div className={style.empty}>
-      <Empty style={{ marginTop: '5vh', marginBottom: '3rem' }} />
+      <Empty injectedStyles={{ marginTop: '5vh', marginBottom: '3rem' }} />
       <div className={style.inline}>
         <Button onClick={() => handleAddNew(SupportedEntry.Event)} variant='primary' size='large'>
           <IoAdd />
@@ -25,7 +25,7 @@ export default function RundownEmpty(props: RundownEmptyProps) {
 
         <Editor.Separator />
 
-        <Button onClick={() => handleAddNew(SupportedEntry.Block)} variant='primary' size='large'>
+        <Button onClick={() => handleAddNew(SupportedEntry.Group)} variant='primary' size='large'>
           <IoAdd /> Create Group
         </Button>
       </div>

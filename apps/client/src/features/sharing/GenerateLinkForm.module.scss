@@ -1,0 +1,31 @@
+.qrCode {
+  padding: 0.5rem;
+  background: $ui-white;
+  border-radius: 3px;
+}
+
+.column {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: $label-gray;
+  user-select: text;
+}
+
+.copiableLink {
+  user-select: text;
+  color: $ui-white;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.shareInline {
+  display: grid;
+  grid-template-columns: 1fr 172px;
+  gap: 1rem;
+}
+
+.end {
+  padding-right: 2rem;
+}

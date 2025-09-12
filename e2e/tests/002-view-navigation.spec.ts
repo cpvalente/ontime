@@ -47,6 +47,18 @@ test.describe('test view navigation feature', () => {
     page.locator('data-testid=timer-view');
     await expect(page).toHaveURL('http://localhost:4001/timer');
   });
+
+  test('not-found', async ({ page }) => {
+    await page.goto('http://localhost:4001/not-found');
+
+    await expect(page).toHaveTitle(/ontime/);
+    await expect(page.getByRole('heading', { name: 'Not found' })).toBeVisible();
+
+    await page.goto('http://localhost:4001/preset/not-found');
+
+    await expect(page).toHaveTitle(/ontime/);
+    await expect(page.getByRole('heading', { name: 'Not found' })).toBeVisible();
+  });
 });
 
 async function openNavigationMenu(page: Page) {

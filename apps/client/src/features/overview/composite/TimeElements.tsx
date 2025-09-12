@@ -8,15 +8,15 @@ import {
   TbFolderPin,
   TbFolderStar,
 } from 'react-icons/tb';
-import { OntimeBlock, OntimeEvent, TimerPhase, TimerType } from 'ontime-types';
+import { OntimeEvent, OntimeGroup, TimerPhase, TimerType } from 'ontime-types';
 import { isPlaybackActive, millisToString } from 'ontime-utils';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import {
   useClock,
-  useCurrentBlockId,
+  useCurrentGroupId,
   useNextFlag,
-  useRuntimeOverview,
+  useRundownOverview,
   useRuntimePlaybackOverview,
   useTimer,
 } from '../../../common/hooks/useSocket';
@@ -31,7 +31,7 @@ import { OverUnder, TimeColumn } from './TimeLayout';
 import style from './TimeElements.module.scss';
 
 export function StartTimes() {
-  const { plannedEnd, plannedStart, actualStart, expectedEnd } = useRuntimeOverview();
+  const { plannedEnd, plannedStart, actualStart, expectedEnd } = useRundownOverview();
 
   const plannedStartText = plannedStart === null ? timerPlaceholder : formatTime(plannedStart);
 
@@ -98,15 +98,15 @@ export function MetadataTimes() {
 
 //TODO: there a some things here we still need to think about, mainly what to do whit the planed group duration in relation to the events
 function GroupTimes() {
-  const { clock, blockExpectedEnd } = useRuntimePlaybackOverview();
-  const { currentBlockId } = useCurrentBlockId();
-  const group = useEntry(currentBlockId) as OntimeBlock | null;
+  const { clock, groupExpectedEnd } = useRuntimePlaybackOverview();
+  const { currentGroupId } = useCurrentGroupId();
+  const group = useEntry(currentGroupId) as OntimeGroup | null;
 
   // the group end time dose not encode any day offsets
   const plannedGroupEnd = group && group.timeStart !== null ? group.timeStart + group.duration - clock : null;
   const plannedTimeUntilGroupEnd = formattedTime(plannedGroupEnd, 3, TimerType.CountDown);
 
-  const expectedGroupEnd = blockExpectedEnd !== null ? blockExpectedEnd - clock : null;
+  const expectedGroupEnd = groupExpectedEnd !== null ? groupExpectedEnd - clock : null;
   const expectedTimeUntilGroupEnd = formattedTime(expectedGroupEnd, 3, TimerType.CountDown);
 
   const groupTitle = group?.title ?? null;
@@ -120,7 +120,7 @@ function GroupTimes() {
       </div>
       <div className={style.labelledElement}>
         <Tooltip text='Time to expected group end' render={<TbFolderStar className={style.icon} />} />
-        <span className={cx([style.time, blockExpectedEnd === null && style.muted])}>{expectedTimeUntilGroupEnd}</span>
+        <span className={cx([style.time, groupExpectedEnd === null && style.muted])}>{expectedTimeUntilGroupEnd}</span>
       </div>
     </div>
   );
@@ -144,11 +144,15 @@ function FlagTimes() {
       <span className={title ? style.labelTitle : style.label}>{`${title ? title : 'Flag'} `}</span>
       <div className={style.labelledElement}>
         <Tooltip text='Time to next flag planned start' render={<TbFlagPin className={style.icon} />} />
-        <span className={cx([style.time, !entry && style.muted])}>{plannedTimeUntilDisplay}</span>
+        <span data-testid='flag-plannedStart' className={cx([style.time, !entry && style.muted])}>
+          {plannedTimeUntilDisplay}
+        </span>
       </div>
       <div className={style.labelledElement}>
         <Tooltip text='Time to next flag expected start' render={<TbFlagStar className={style.icon} />} />
-        <span className={cx([style.time, expectedTimeUntil === null && style.muted])}>{expectedTimeUntilDisplay}</span>
+        <span data-testid='flag-expectedStart' className={cx([style.time, expectedTimeUntil === null && style.muted])}>
+          {expectedTimeUntilDisplay}
+        </span>
       </div>
     </div>
   );
@@ -167,17 +171,17 @@ export function OffsetOverview() {
   const { offset, playback } = useRuntimePlaybackOverview();
 
   const isPlaying = isPlaybackActive(playback);
-  const correctedOffset = offset * -1;
   const offsetState = getOffsetState(isPlaying ? offset : null);
-  const offsetText = getOffsetText(isPlaying ? correctedOffset : null);
+  const offsetText = getOffsetText(isPlaying ? offset : null);
 
   return <OverUnder state={offsetState} value={offsetText} testId='offset' />;
 }
 
 export function ClockOverview({ className }: { className?: string }) {
   const { clock } = useClock();
+  const formattedClock = formatTime(clock);
 
-  return <TimeColumn label='Time now' value={formattedTime(clock)} className={className} />;
+  return <TimeColumn label='Time now' value={formattedClock} className={className} />;
 }
 
 export function TimerOverview({ className }: { className?: string }) {

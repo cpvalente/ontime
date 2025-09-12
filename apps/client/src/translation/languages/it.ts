@@ -1,8 +1,9 @@
-import { TranslationObject } from './en';
+import { TranslationObject } from 'ontime-types';
 
 export const langIt: TranslationObject = {
   'common.expected_finish': 'Fine Prevista',
   'common.minutes': 'min',
+  'common.seconds': 'sec',
   'common.now': 'Adesso',
   'common.next': 'Prossimo',
   'common.scheduled_start': 'Inizio programmato',
@@ -15,6 +16,7 @@ export const langIt: TranslationObject = {
   'common.no_data': 'Nessun dato disponibile',
   'countdown.ended': 'Evento finito alle',
   'countdown.running': 'Evento in corso',
+  'countdown.loaded': 'Evento caricato', //TODO: check translation
   'countdown.select_event': 'Seleziona un evento da seguire',
   'countdown.to_start': 'Tempo alla partenza',
   'countdown.waiting': "In attesa dell'inizio dell'evento",

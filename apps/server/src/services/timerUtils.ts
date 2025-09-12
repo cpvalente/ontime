@@ -13,7 +13,7 @@ export const normaliseEndTime = (start: number, end: number) => (end < start ? e
  * @returns {number | null} new current time or null if nothing is running
  */
 export function getExpectedFinish(state: RuntimeState): MaybeNumber {
-  const { startedAt, finishedAt, duration, addedTime } = state.timer;
+  const { startedAt, duration, addedTime } = state.timer;
 
   if (state.eventNow === null) {
     return null;
@@ -25,10 +25,6 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
 
   if (startedAt === null) {
     return null;
-  }
-
-  if (finishedAt !== null) {
-    return finishedAt;
   }
 
   const pausedTime = pausedAt != null ? clock - pausedAt : 0;
@@ -113,57 +109,44 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
 
 /**
  * Calculates difference between the runtime and the schedule of an event
- * Positive offset is time ahead
- * Negative offset is time delayed
+ * Positive offset is over time / behind schedule
+ * Negative offset is under time / ahead of schedule
  */
-export function getRuntimeOffset(state: RuntimeState): { offsetAbs: number; offsetRel: number } {
+export function getRuntimeOffset(state: RuntimeState): { absolute: number; relative: number } {
+  const { eventNow, clock } = state;
+  const { addedTime, current, startedAt } = state.timer;
   // nothing to calculate if there are no loaded events or if we havent started
-  if (state.eventNow === null || state.runtime.actualStart === null) {
-    return { offsetAbs: 0, offsetRel: 0 };
+  if (eventNow === null || startedAt === null) {
+    return { absolute: 0, relative: 0 };
   }
 
-  const { clock } = state;
-  const { countToEnd, timeStart } = state.eventNow;
-  const { addedTime, current, startedAt } = state.timer;
-  const { actualStart, plannedStart } = state.runtime;
+  const { countToEnd, timeStart } = eventNow;
+  const { plannedStart, actualStart } = state.rundown;
 
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: {
     // we know current exists as long as eventNow exists
     if (current === null) throw new Error('timerUtils.getRuntimeOffset: state.timer.current must be set');
-    if (plannedStart === null) throw new Error('timerUtils.getRuntimeOffset: state.runtime.plannedStart must be set');
+    if (plannedStart === null) throw new Error('timerUtils.getRuntimeOffset: state.rundown.plannedStart must be set');
+    if (actualStart === null) throw new Error('timerUtils.getRuntimeOffset: state.rundown.plannedStart must be set');
   }
 
-  // if we havent started, but the timer is armed
-  // the offset is the difference to the schedule
-  if (startedAt === null) {
-    return { offsetAbs: timeStart - clock, offsetRel: 0 };
-  }
+  // difference between planned event start and actual event start (will be positive if we stared behind )
+  const eventStartOffset = startedAt - timeStart;
 
-  const overtime = Math.min(current, 0);
-  // in time-to-end, offset is overtime
+  // how long has the event been running over (is a negative number when in over timer so inverted before adding to offset)
+  const overtime = Math.abs(Math.min(current, 0));
 
-  const startOffset = timeStart - startedAt;
+  // time the playback was paused, the different from now to when we paused is added to the offset TODO: brakes when crossing midnight
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
-  // startOffset - difference between scheduled start and actual start
-  // addedTime - time added by user (negative offset)
-  // pausedTime - time the playback was paused (negative offset)
-  // overtime - how long the timer has been over-running (negative offset)
-  const offset = startOffset - addedTime - pausedTime + overtime;
+  const absolute = eventStartOffset + overtime + pausedTime + addedTime;
 
-  // offset between planned rundown start and actual rundown start
-  const rundownStartOffset = actualStart - plannedStart;
+  // the relative offset i the same as the absolute offset but adjusted relative to the actual start time
+  const relative = absolute + plannedStart - actualStart;
 
-  // offset offset relative to the actual rundown start
-  const offsetRel = offset + rundownStartOffset;
-
-  // in time-to-end, offset is overtime
-  if (countToEnd) {
-    return { offsetAbs: overtime, offsetRel };
-  }
-
-  return { offsetAbs: offset, offsetRel };
+  // in case of count to end, the absolute offset is just the overtime
+  return countToEnd ? { absolute: overtime, relative } : { absolute, relative };
 }
 
 /**

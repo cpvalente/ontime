@@ -5,7 +5,7 @@ import {
   EndAction,
   EntryCustomFields,
   NormalisedAutomation,
-  OntimeBlock,
+  OntimeGroup,
   OntimeEntry,
   ProjectData,
   ProjectRundowns,
@@ -104,13 +104,14 @@ type old_URLPreset = {
 /**
  * migrates a url presets from v3 to v4
  * - pathAndParams split into a target and search
+ *
  */
 export function migrateURLPresets(jsonData: object): URLPreset[] | undefined {
   if (is.objectWithKeys(jsonData, ['urlPresets']) && is.array(jsonData.urlPresets)) {
     const oldURLPresets = structuredClone(jsonData.urlPresets) as old_URLPreset;
     const newURLPreset: URLPreset[] = oldURLPresets.map(({ enabled, alias, pathAndParams }) => {
       const [target, search] = pathAndParams.split('?');
-      return { enabled, alias, target, search };
+      return { enabled, alias, target, search, options: {} } as URLPreset;
     });
     return newURLPreset;
   }
@@ -316,7 +317,8 @@ export function migrateAutomations(jsonData: object): AutomationSettings | undef
  *  - add parent
  *
  * - block:
- *  - add all the new blocks of the block that is now a group
+ *  - rename to group
+ *  - create group data
  */
 export function migrateRundown(
   jsonData: object,
@@ -391,13 +393,13 @@ export function migrateRundown(
         });
       } else if (entry.type === 'block') {
         if (parent) {
-          (newRundown.entries[parent] as OntimeBlock).entries = [...children];
+          (newRundown.entries[parent] as OntimeGroup).entries = [...children];
           children = [];
         }
         parent = entry.id;
         append({
           id: entry.id,
-          type: SupportedEntry.Block,
+          type: SupportedEntry.Group,
           title: entry.title,
           note: '', // leave blank
           entries: [], // leave empty
@@ -417,7 +419,7 @@ export function migrateRundown(
     }
 
     if (parent) {
-      (newRundown.entries[parent] as OntimeBlock).entries = [...children];
+      (newRundown.entries[parent] as OntimeGroup).entries = [...children];
       children = [];
     }
 

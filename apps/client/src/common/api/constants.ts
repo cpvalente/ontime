@@ -15,12 +15,15 @@ export const URL_PRESETS = ['urlpresets'];
 export const VIEW_SETTINGS = ['viewSettings'];
 export const CLIENT_LIST = ['clientList'];
 export const REPORT = ['report'];
+export const TRANSLATION = ['translation'];
 
 // API URLs
 export const apiEntryUrl = `${serverURL}/data`;
 
 const userAssetsPath = 'user';
 const cssOverridePath = 'styles/override.css';
+const customTranslationsPath = 'translations/translations.json';
 
 export const overrideStylesURL = `${serverURL}/${userAssetsPath}/${cssOverridePath}`;
 export const projectLogoPath = `${serverURL}/${userAssetsPath}/logo`;
+export const customTranslationsURL = `${serverURL}/${userAssetsPath}/${customTranslationsPath}`;

@@ -3,11 +3,11 @@ import { useCallback, useRef } from 'react';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import Input, { type InputProps } from '../../../../common/components/input/input/Input';
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
-import { BlockEditorUpdateTextFields } from '../BlockEditor';
 import { EventEditorUpdateFields } from '../EventEditor';
+import { GroupEditorUpdateTextFields } from '../GroupEditor';
 
 interface EntryEditorTextInputProps extends InputProps {
-  field: EventEditorUpdateFields | BlockEditorUpdateTextFields;
+  field: EventEditorUpdateFields | GroupEditorUpdateTextFields;
   label: string;
   initialValue: string;
   placeholder?: string;

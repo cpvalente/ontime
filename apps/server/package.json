@@ -2,7 +2,7 @@
   "name": "ontime-server",
   "type": "module",
   "main": "src/index.ts",
-  "version": "4.0.0-alpha.2",
+  "version": "4.0.0-beta.2",
   "exports": "./src/index.js",
   "dependencies": {
     "@googleapis/sheets": "^5.0.5",
@@ -52,7 +52,7 @@
     "dev": "cross-env NODE_ENV=development tsx watch ./src/index.ts",
     "dev:inspect": "cross-env NODE_ENV=development tsx watch --inspect ./src/index.ts",
     "dev:test": "cross-env IS_TEST=true tsx ./src/index.ts",
-    "prebuild": "tsx ./scripts/bundleCss.ts",
+    "prebuild": "tsx ./scripts/bundleCss.ts && tsx ./scripts/bundleTranslation.ts",
     "build": "node esbuild.electron.js",
     "build:electron": "node esbuild.electron.js",
     "build:local": "node esbuild.dev.js",

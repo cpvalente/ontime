@@ -15,7 +15,7 @@ import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.js';
 import * as messageService from '../services/message-service/message.service.js';
 import { validateMessage, validateTimerMessage } from '../services/message-service/message.utils.js';
-import { runtimeService } from '../services/runtime-service/RuntimeService.js';
+import { runtimeService } from '../services/runtime-service/runtime.service.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
 import { parseProperty } from './integration.utils.js';

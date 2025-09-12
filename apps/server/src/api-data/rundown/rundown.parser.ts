@@ -6,7 +6,7 @@ import {
   OntimeEvent,
   isOntimeEvent,
   isOntimeDelay,
-  isOntimeBlock,
+  isOntimeGroup,
   CustomFieldKey,
   EntryId,
   OntimeEntry,
@@ -14,6 +14,8 @@ import {
   RundownEntries,
   isPlayableEvent,
   isOntimeMilestone,
+  OntimeMilestone,
+  OntimeGroup,
 } from 'ontime-types';
 import { isObjectEmpty, generateId, getLinkedTimes, getTimeFrom, isNewLatest } from 'ontime-utils';
 
@@ -21,7 +23,7 @@ import { defaultRundown } from '../../models/dataModel.js';
 import { delay as delayDef } from '../../models/eventsDefinition.js';
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
 
-import { calculateDayOffset, cleanupCustomFields, createBlock, createEvent, createMilestone } from './rundown.utils.js';
+import { calculateDayOffset, cleanupCustomFields, createGroup, createEvent, createMilestone } from './rundown.utils.js';
 import { RundownMetadata } from './rundown.types.js';
 
 /**
@@ -110,7 +112,11 @@ export function parseRundown(
     } else if (isOntimeMilestone(event)) {
       newEvent = createMilestone({ ...event, id });
       cleanupCustomFields(newEvent.custom, parsedCustomFields);
-    } else if (isOntimeBlock(event)) {
+      /**
+       * We leave here an entry point for blocks for the alpha testers, should remove this after a while
+       */
+      // @ts-expect-error -- we are checking a legacy type
+    } else if (event.type === 'block' || isOntimeGroup(event)) {
       for (let i = 0; i < event.entries.length; i++) {
         const nestedEventId = event.entries[i];
         const nestedEvent = rundown.entries[nestedEventId];
@@ -143,7 +149,7 @@ export function parseRundown(
         }
       }
 
-      newEvent = createBlock({ ...structuredClone(event), id });
+      newEvent = createGroup({ ...structuredClone(event), id });
       // ensure entries exist
       if (event.entries?.length > 0) {
         newEvent.entries = event.entries.filter((eventId) => Object.hasOwn(rundown.entries, eventId));
@@ -168,40 +174,16 @@ export function parseRundown(
 }
 
 /**
- * Utility function to add an entry, mutates given assignedCustomFields in place
- * @param label
- * @param eventId
+ * Ensures that custom fields have references
+ * If a field is exists in the entry but not in the project customFields, it is deleted
+ * Mutates the given event in place
  */
-export function addToCustomAssignment(
-  key: CustomFieldKey,
-  eventId: EntryId,
-  assignedCustomFields: Record<string, string[]>,
-) {
-  if (!Array.isArray(assignedCustomFields[key])) {
-    assignedCustomFields[key] = [];
+export function sanitiseCustomFields(customFields: CustomFields, entry: OntimeEvent | OntimeMilestone | OntimeGroup) {
+  for (const field in entry.custom) {
+    if (field in customFields) continue;
+    delete entry.custom[field];
   }
-  assignedCustomFields[key].push(eventId);
-}
-
-/**
- * Keeps track of which custom fields are assigned to which events
- * Mutates the given assignedCustomFields in place
- * If a field is referenced but is not in the customFields map, it is deleted
- */
-export function handleCustomField(
-  customFields: CustomFields,
-  event: OntimeEvent,
-  assignedCustomFields: Record<CustomFieldKey, EntryId[]>,
-) {
-  for (const field in event.custom) {
-    if (field in customFields) {
-      // add field to assignment map
-      addToCustomAssignment(field, event.id, assignedCustomFields);
-    } else {
-      // delete data if it is not declared in project level custom fields
-      delete event.custom[field];
-    }
-  }
+  return entry;
 }
 
 export type ProcessedRundownMetadata = RundownMetadata & {
@@ -240,9 +222,9 @@ export function makeRundownMetadata(customFields: CustomFields) {
 
   function process<T extends OntimeEntry>(
     entry: T,
-    childOfBlock: EntryId | null,
+    childOfGroup: EntryId | null,
   ): { processedData: ProcessedRundownMetadata; processedEntry: T } {
-    const data = processEntry(rundownMeta, customFields, entry, childOfBlock);
+    const data = processEntry(rundownMeta, customFields, entry, childOfGroup);
     rundownMeta = data.processedData;
     return data;
   }
@@ -261,7 +243,7 @@ function processEntry<T extends OntimeEntry>(
   rundownMetadata: ProcessedRundownMetadata,
   customFields: CustomFields,
   entry: T,
-  childOfBlock: EntryId | null,
+  childOfGroup: EntryId | null,
 ): { processedData: ProcessedRundownMetadata; processedEntry: T } {
   const processedData = { ...rundownMetadata };
   const currentEntry = structuredClone(entry);
@@ -288,13 +270,13 @@ function processEntry<T extends OntimeEntry>(
     }
 
     // 2. handle custom fields - mutates currentEntry
-    handleCustomField(customFields, currentEntry, processedData.assignedCustomFields);
+    sanitiseCustomFields(customFields, currentEntry);
 
     processedData.totalDays += calculateDayOffset(currentEntry, processedData.previousEvent);
     currentEntry.dayOffset = processedData.totalDays;
     currentEntry.delay = 0; // this means we dont calculate delays or gaps for skipped events
     currentEntry.gap = 0; // this means we dont calculate delays or gaps for skipped events
-    currentEntry.parent = childOfBlock;
+    currentEntry.parent = childOfGroup;
 
     // update rundown metadata, it only concerns playable events
     if (isPlayableEvent(currentEntry)) {
@@ -353,10 +335,10 @@ function processEntry<T extends OntimeEntry>(
   } else if (isOntimeDelay(currentEntry)) {
     // !!! this must happen after handling the links
     processedData.totalDelay += currentEntry.duration;
-    currentEntry.parent = childOfBlock;
+    currentEntry.parent = childOfGroup;
   }
 
-  if (!childOfBlock) {
+  if (!childOfGroup) {
     processedData.order.push(currentEntry.id);
   }
   processedData.entries[currentEntry.id] = currentEntry;

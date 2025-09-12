@@ -19,13 +19,13 @@ export function getExpectedStart(
     totalGap: number;
     isLinkedToLoaded: boolean;
     offset: number;
-    offsetMode: OffsetMode;
+    mode: OffsetMode;
     actualStart: MaybeNumber;
     plannedStart: MaybeNumber;
   },
 ): number {
   const { timeStart, dayOffset, delay } = event;
-  const { currentDay, totalGap, isLinkedToLoaded, offset, offsetMode, actualStart, plannedStart } = state;
+  const { currentDay, totalGap, isLinkedToLoaded, offset, mode, actualStart, plannedStart } = state;
 
   //How many days from the currently running event to this one
   const relativeDayOffset = dayOffset - currentDay;
@@ -37,20 +37,20 @@ export function getExpectedStart(
 
   let relativeStartOffset = 0;
 
-  if (offsetMode === OffsetMode.Relative) {
+  if (mode === OffsetMode.Relative) {
     relativeStartOffset = (actualStart ?? 0) - (plannedStart ?? 0);
   }
 
   const scheduledStartTime = normalisedTimeStart + relativeStartOffset;
 
-  const offsetStartTime = scheduledStartTime - offset;
+  const offsetStartTime = scheduledStartTime + offset;
 
   if (isLinkedToLoaded) {
     //if we are directly linked back to the loaded event we just follow the offset
     return offsetStartTime;
   }
 
-  const gapsCanCompensateForOffset = totalGap + offset >= 0;
+  const gapsCanCompensateForOffset = totalGap > offset;
   if (gapsCanCompensateForOffset) {
     // if we are ahead of schedule or the gap can compensate for the amount we are behind then expect to start at the scheduled time
     return scheduledStartTime;

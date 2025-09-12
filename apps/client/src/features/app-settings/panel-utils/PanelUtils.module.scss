@@ -106,7 +106,6 @@ $inner-padding: 1rem;
   th,
   td {
     padding: 0.5rem;
-    vertical-align: top;
   }
 
   tr:nth-child(even) {
@@ -132,6 +131,7 @@ $inner-padding: 1rem;
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
+  gap: 1rem;
   padding: 0.5rem 0;
 }
 

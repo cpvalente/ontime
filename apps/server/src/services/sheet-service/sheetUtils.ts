@@ -1,4 +1,11 @@
-import { isOntimeBlock, isOntimeEvent, OntimeEvent, OntimeEntry, RGBColour } from 'ontime-types';
+import {
+  OntimeEntry,
+  RGBColour,
+  isOntimeDelay,
+  OntimeEntryCommonKeys,
+  isOntimeGroup,
+  isOntimeMilestone,
+} from 'ontime-types';
 import { cssOrHexToColour, isLightColour, millisToString, mixColours } from 'ontime-utils';
 
 import type { sheets_v4 } from '@googleapis/sheets';
@@ -70,64 +77,67 @@ export function getA1Notation(row: number, column: number): string {
 
 /**
  * @description - creates updateCells request from ontime event
- * @param {OntimeEntry} event
+ * @param {OntimeEntry} entry
  * @param {number} index - index of the event
  * @param {number} worksheetId
  * @param {object} metadata - object with all the cell positions of the title of each attribute
  * @returns {sheets_v4.Schema} - list of update requests
  */
 export function cellRequestFromEvent(
-  event: OntimeEntry,
+  entry: OntimeEntry,
   index: number,
   worksheetId: number,
   metadata: object,
 ): sheets_v4.Schema$Request {
-  const rowData = Object.entries(metadata)
-    .filter(([_, value]) => value !== undefined)
-    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [keyof OntimeEvent | 'blank', { col: number; row: number }][];
+  const rowData = Object.entries(metadata) // check what headings are available in the sheet
+    .filter(([_, value]) => value !== undefined) // drop anything that is undefined
+    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [
+    OntimeEntryCommonKeys | 'blank',
+    { col: number; row: number },
+  ][]; // sort the array by the column index
 
-  const titleCol = rowData[0][1].col;
-
+  // inset blank data is there is spacing between relevant ontime columns
   for (const [index, e] of rowData.entries()) {
-    if (index !== 0) {
-      const prevCol = rowData[index - 1][1].col;
-      const thisCol = e[1].col;
-      const diff = thisCol - prevCol;
-      if (diff > 1) {
-        const fillArr = new Array<(typeof rowData)[0]>(1).fill(['blank', { row: e[1].row, col: prevCol + 1 }]);
-        rowData.splice(index, 0, ...fillArr);
-      }
+    if (index === 0) continue;
+    const prevCol = rowData[index - 1][1].col;
+    const thisCol = e[1].col;
+    const diff = thisCol - prevCol;
+    if (diff > 1) {
+      const fillArr = new Array<(typeof rowData)[0]>(1).fill(['blank', { row: e[1].row, col: prevCol + 1 }]);
+      rowData.splice(index, 0, ...fillArr);
     }
   }
 
-  const colors = isOntimeEvent(event) || isOntimeBlock(event) ? getAccessibleColour(event.colour) : undefined;
-  const cellColor: sheets_v4.Schema$CellData = !colors
+  const colours = 'colour' in entry ? getAccessibleColour(entry.colour) : undefined;
+  const cellColor: sheets_v4.Schema$CellData = !colours
     ? {}
     : {
         userEnteredFormat: {
-          backgroundColor: toSheetColourLevel(colors.background),
+          backgroundColor: toSheetColourLevel(colours.background),
           textFormat: {
-            foregroundColor: toSheetColourLevel(colors.text),
+            foregroundColor: toSheetColourLevel(colours.text),
           },
           borders: {
             bottom: {
               style: 'SOLID',
-              color: toSheetColourLevel(colors.border),
+              color: toSheetColourLevel(colours.border),
             },
           },
         },
       };
 
   const returnRows: sheets_v4.Schema$CellData[] = rowData.map(([key, _]) => {
-    return { ...getCellData(key, event), ...cellColor };
+    return { ...getCellData(key, entry), ...cellColor };
   });
+
+  const headerLocation = rowData[0][1];
 
   return {
     updateCells: {
       start: {
         sheetId: worksheetId,
-        rowIndex: index + rowData[0][1]['row'] + 1,
-        columnIndex: titleCol,
+        rowIndex: index + headerLocation.row + 1,
+        columnIndex: headerLocation.col,
       },
       fields: 'userEnteredValue,userEnteredFormat',
       rows: [
@@ -139,40 +149,39 @@ export function cellRequestFromEvent(
   };
 }
 
-function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
-  if (isOntimeEvent(event)) {
-    if (key === 'blank') {
-      return {};
-    }
-    if (key === 'colour') {
-      return { userEnteredValue: { stringValue: event[key] } };
-    }
-    if (key.startsWith('custom')) {
-      const customKey = key.split(':')[1];
-      return { userEnteredValue: { stringValue: event.custom[customKey] } };
-    }
-
-    if (typeof event[key] === 'number') {
-      return { userEnteredValue: { stringValue: millisToString(event[key]) } };
-    }
-    if (typeof event[key] === 'string') {
-      return { userEnteredValue: { stringValue: event[key] } };
-    }
-    if (typeof event[key] === 'boolean') {
-      return { userEnteredValue: { boolValue: event[key] } };
-    }
+function getCellData(key: OntimeEntryCommonKeys | 'blank', entry: OntimeEntry) {
+  if (isOntimeDelay(entry) || key === 'blank') {
+    return {};
   }
 
-  if (isOntimeBlock(event)) {
-    if (key === 'title') {
-      return { userEnteredValue: { stringValue: event[key] } };
-    }
-    if (key === 'timerType') {
-      return { userEnteredValue: { stringValue: 'block' } };
-    }
+  // we need to flatten the milestones
+  if (key.startsWith('custom')) {
+    const customKey = key.split(':')[1];
+    return { userEnteredValue: { stringValue: entry.custom[customKey] } };
   }
 
-  return {};
+  // we need to remap the event type to timer type in the case of groups and milestones
+  if (key === 'timerType') {
+    if (isOntimeGroup(entry))
+      return { userEnteredValue: { stringValue: entry.id.startsWith('group-end') ? 'group-end' : 'group' } };
+    if (isOntimeMilestone(entry)) return { userEnteredValue: { stringValue: 'milestone' } };
+    return { userEnteredValue: { stringValue: entry.timerType } };
+  }
+
+  // typescript cannot guarantee that the key exists for every entry
+  // so we check for the key existence and assert the type
+  if (!(key in entry)) return {};
+  const value = entry[key as keyof OntimeEntry];
+
+  if (typeof value === 'number') {
+    return { userEnteredValue: { stringValue: millisToString(value) } };
+  }
+  if (typeof value === 'string') {
+    return { userEnteredValue: { stringValue: value } };
+  }
+  if (typeof value === 'boolean') {
+    return { userEnteredValue: { boolValue: value } };
+  }
 }
 
 type googleSheetCellColour = {

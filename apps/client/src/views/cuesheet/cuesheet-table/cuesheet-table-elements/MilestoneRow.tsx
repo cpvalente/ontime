@@ -1,12 +1,13 @@
+import { CSSProperties } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
-import { useSessionStorage } from '@mantine/hooks';
 import { flexRender, Table } from '@tanstack/react-table';
-import { EntryId, OntimeEntry, SupportedEntry } from 'ontime-types';
+import { EntryId, SupportedEntry } from 'ontime-types';
+import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
-import { cx, enDash } from '../../../../common/utils/styleUtils';
-import { AppMode, sessionKeys } from '../../../../ontimeConfig';
-import { usePersistedCuesheetOptions } from '../../cuesheet.options';
+import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
+import { cx, enDash, getAccessibleColour } from '../../../../common/utils/styleUtils';
+import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
 
 import style from './MilestoneRow.module.scss';
@@ -14,12 +15,13 @@ import style from './MilestoneRow.module.scss';
 interface MilestoneRowProps {
   entryId: EntryId;
   isPast: boolean;
-  parentBgColour: string | null;
+  parentBgColour?: string;
   parentId: EntryId | null;
-  rowBgColour?: string;
+  colour: string;
   rowId: string;
   rowIndex: number;
-  table: Table<OntimeEntry>;
+  table: Table<ExtendedEntry>;
+  injectedStyles?: CSSProperties;
 }
 
 export default function MilestoneRow({
@@ -27,26 +29,42 @@ export default function MilestoneRow({
   isPast,
   parentBgColour,
   parentId,
-  rowBgColour,
+  colour,
   rowId,
   rowIndex,
   table,
+  injectedStyles,
+  ...virtuosoProps
 }: MilestoneRowProps) {
-  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
-  const [cuesheetMode] = useSessionStorage<AppMode>({
-    key: sessionKeys.cuesheetMode,
-    defaultValue: AppMode.Edit,
-  });
+  const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
+    cuesheetMode: AppMode.Edit,
+    hideIndexColumn: false,
+  };
+
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
+
+  let rowBgColour: string | undefined;
+  if (colour) {
+    // the colour is user defined and might be invalid
+    const accessibleBackgroundColor = cssOrHexToColour(getAccessibleColour(colour).backgroundColor);
+    if (accessibleBackgroundColor !== null) {
+      rowBgColour = colourToHex({
+        ...accessibleBackgroundColor,
+        alpha: accessibleBackgroundColor.alpha * 0.25,
+      });
+    }
+  }
 
   return (
     <tr
       className={cx([style.milestoneRow, Boolean(parentBgColour) && style.hasParent])}
       style={{
+        ...injectedStyles,
         opacity: `${isPast ? '0.2' : '1'}`,
         '--user-bg': parentBgColour ?? 'transparent',
       }}
       data-testid='cuesheet-milestone'
+      {...virtuosoProps}
     >
       {cuesheetMode === AppMode.Edit && (
         <td className={style.actionColumn} tabIndex={-1} role='cell'>
@@ -81,9 +99,9 @@ export default function MilestoneRow({
               style={{
                 width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
                 backgroundColor: rowBgColour,
+                opacity: canRender ? 1 : 0.4,
               }}
               tabIndex={-1}
-              role='cell'
             >
               {canRender && flexRender(cell.column.columnDef.cell, cell.getContext())}
             </td>

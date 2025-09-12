@@ -181,7 +181,7 @@
           }
         },
         "01e85": {
-          "type": "block",
+          "type": "group",
           "id": "01e85",
           "title": "Lunch break",
           "note": "",
@@ -336,7 +336,7 @@
           }
         },
         "cb90b": {
-          "type": "block",
+          "type": "group",
           "id": "cb90b",
           "title": "Afternoon break",
           "note": "",

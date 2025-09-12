@@ -1,4 +1,4 @@
-import { DatabaseModel, EndAction, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
+import { DatabaseModel, EndAction, OntimeView, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
 
 export const demoDb: DatabaseModel = {
   rundowns: {
@@ -40,7 +40,7 @@ export const demoDb: DatabaseModel = {
         },
         '7eaf99': {
           id: '7eaf99',
-          type: SupportedEntry.Block,
+          type: SupportedEntry.Group,
           title: 'Morning Sessions',
           note: '',
           entries: ['9bf60f', 'bf71a2', 'c2697f', 'fa593e', 'a8b0b3'],
@@ -160,7 +160,7 @@ export const demoDb: DatabaseModel = {
         },
         f60403: {
           id: 'f60403',
-          type: SupportedEntry.Block,
+          type: SupportedEntry.Group,
           title: 'Lunch',
           note: '',
           entries: ['0aaa7d'],
@@ -202,7 +202,7 @@ export const demoDb: DatabaseModel = {
         },
         '6b0edb': {
           id: '6b0edb',
-          type: SupportedEntry.Block,
+          type: SupportedEntry.Group,
           title: 'Afternoon Sessions',
           note: '',
           entries: ['02afca', '75ce86', 'e10ed9', '07df89'],
@@ -327,8 +327,15 @@ export const demoDb: DatabaseModel = {
   urlPresets: [
     {
       enabled: true,
+      alias: 'clock',
+      target: OntimeView.Timer,
+      search:
+        'showLeadingZeros=true&timerType=clock&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+    },
+    {
+      enabled: true,
       alias: 'minimal',
-      target: 'timer',
+      target: OntimeView.Timer,
       search:
         'hideclock=true&hidecards=true&hideprogress=true&hidemessage=true&hidesecondary=true&hidelogo=true&font=arial+black&keycolour=00ff00&textcolour=ffffff',
     },
