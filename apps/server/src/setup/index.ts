@@ -169,11 +169,16 @@ export const publicFiles = {
 } as const;
 
 /**
+ * The directory where excel templates are stored
+ */
+const excelTemplateDirectory = join(srcDirectory, isProduction ? "" : "..", 'excel-template');
+
+/**
  * Paths to excel template resources
  */
 export const excelTemplateFiles = {
   /** path to excel template file */
-  rundownTemplate: join(process.cwd(), 'excel', 'rundown.template.xlsx'),
+  rundownXlsxTemplate: join(excelTemplateDirectory, 'rundown.template.xlsx'),
   /** path to excel template config file */
-  rundownTemplateConfig: join(process.cwd(), 'excel', 'rundown.templateInstructor.json'),
-}
+  rundownXlsxTemplateConfig: join(excelTemplateDirectory, 'rundown.templateInstructor.json'),
+} as const;

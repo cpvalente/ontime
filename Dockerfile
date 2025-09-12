@@ -25,6 +25,7 @@ COPY --from=builder /app/apps/server/dist/ ./server/
 COPY --from=builder /app/apps/server/src/external/ ./external/
 COPY --from=builder /app/apps/server/src/user/ ./user/
 COPY --from=builder /app/apps/server/src/html/ ./html/
+COPY --from=builder /app/apps/server/excel-template/ ./excel-template/
 
 # Export default ports
 EXPOSE 4001/tcp 8888/udp 9999/udp

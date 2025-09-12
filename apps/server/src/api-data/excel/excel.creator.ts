@@ -121,14 +121,14 @@ function createRow(
   }
 
   return 0;
-};
+}
 
 export function createExcel(
   rundown: Rundown,
   customFields: CustomFields,
   options?: Partial<typeof defaultImportMap>,
 ): xlsx.WorkBook {
-  const workbook = xlsx.readFile(excelTemplateFiles.rundownTemplate);
+  const workbook = xlsx.readFile(excelTemplateFiles.rundownXlsxTemplate);
   const sheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[sheetName];
 
@@ -163,4 +163,4 @@ export function createExcel(
   }
 
   return workbook;
-};
+}
