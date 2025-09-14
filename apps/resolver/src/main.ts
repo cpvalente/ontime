@@ -1,6 +1,6 @@
 // api
 export { MessageTag } from 'ontime-types';
-export type { ApiAction } from 'ontime-types';
+export type { ApiAction, ApiActionTag } from 'ontime-types';
 export type { WsPacketToClient, WsPacketToServer } from 'ontime-types';
 
 // stores
@@ -12,8 +12,9 @@ export type { SimpleTimerState } from 'ontime-types';
 export { SimplePlayback, SimpleDirection } from 'ontime-types';
 
 // entries
-export type { OntimeEvent, OntimeGroup, EntryCustomFields, CustomFields } from 'ontime-types';
+export type { OntimeEvent, OntimeGroup, EntryCustomFields, CustomFields, Rundown } from 'ontime-types';
 export { SupportedEntry } from 'ontime-types';
 
 // functions
 export { sendWebSocket, isWsPacketToClient } from './websocket.js';
+export { getFlatRundown } from './rundown.js';
