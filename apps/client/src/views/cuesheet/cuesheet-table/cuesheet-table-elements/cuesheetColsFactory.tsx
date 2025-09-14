@@ -143,7 +143,7 @@ function MakeMultiLineField({ row, column, table }: CellContext<ExtendedEntry, u
 
   const canWrite = column.columnDef.meta?.canWrite;
   if (!canWrite) {
-    return <GhostedText>{initialValue}</GhostedText>;
+    return <GhostedText multiline>{initialValue}</GhostedText>;
   }
 
   return <MultiLineCell initialValue={initialValue as string} handleUpdate={update} />;
