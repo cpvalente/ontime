@@ -1,4 +1,5 @@
 import { PlayableEvent, Playback, TimerPhase } from 'ontime-types';
+import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { makeOntimeGroup, makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
@@ -7,6 +8,7 @@ import {
   type RuntimeState,
   addTime,
   clearState,
+  findDayOffset,
   getState,
   load,
   loadGroupFlagAndEnd,
@@ -485,5 +487,23 @@ describe('loadGroupFlagAndEnd()', () => {
       groupNow: null,
       eventNow: rundown.entries[0],
     });
+  });
+});
+
+describe('findDay()', () => {
+  test('finds dayOffset', () => {
+    //both have 1 hour offset but the clock are on different days
+    expect(findDayOffset(0, 23 * MILLIS_PER_HOUR)).toBe(-1); //                 -> 23
+    expect(findDayOffset(0, 13 * MILLIS_PER_HOUR)).toBe(-1); //                 -> 13
+    expect(findDayOffset(0, 12 * MILLIS_PER_HOUR)).toBe(-1); //                 -> 12
+    expect(findDayOffset(0, 11 * MILLIS_PER_HOUR)).toBe(0); //                 -> 11
+    expect(findDayOffset(1 * MILLIS_PER_HOUR, 0)).toBe(0); //                  -> -1
+
+    //both have 1 hour offset but the clock are on different days
+    expect(findDayOffset(23 * MILLIS_PER_HOUR, 0)).toBe(1); //                  -> -23
+    expect(findDayOffset(13 * MILLIS_PER_HOUR, 0)).toBe(1); //                  -> -13
+    expect(findDayOffset(12 * MILLIS_PER_HOUR, 0)).toBe(0); //                  -> -12
+    expect(findDayOffset(11 * MILLIS_PER_HOUR, 0)).toBe(0); //                  -> -11
+    expect(findDayOffset(22 * MILLIS_PER_HOUR, 23 * MILLIS_PER_HOUR)).toBe(0); //   -> 1
   });
 });

@@ -6,5 +6,6 @@ export type RundownState = {
   plannedStart: MaybeNumber;
   plannedEnd: MaybeNumber;
   actualStart: MaybeNumber;
+  currentDay: MaybeNumber;
   actualGroupStart: MaybeNumber;
 };

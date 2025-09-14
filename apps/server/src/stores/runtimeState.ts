@@ -21,9 +21,10 @@ import {
   getExpectedStart,
   getLastEventNormal,
   isPlaybackActive,
+  MILLIS_PER_HOUR,
 } from 'ontime-utils';
 
-import { timeNow } from '../utils/time.js';
+import { getTimeObject, timeNow } from '../utils/time.js';
 import type { RestorePoint } from '../services/restore-service/restore.type.js';
 import { getCurrent, getExpectedFinish, getRuntimeOffset, getTimerPhase } from '../services/timerUtils.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
@@ -55,6 +56,8 @@ export type RuntimeState = {
   _group: ExpectedMetadata;
   _flag: ExpectedMetadata;
   _end: ExpectedMetadata;
+  _startEpoch: MaybeNumber; //TODO: add to restore point
+  _startDayOffset: MaybeNumber;
 };
 
 const runtimeState: RuntimeState = {
@@ -78,6 +81,8 @@ const runtimeState: RuntimeState = {
   _group: null,
   _flag: null,
   _end: null,
+  _startEpoch: null,
+  _startDayOffset: null,
 };
 
 export function getState(): Readonly<RuntimeState> {
@@ -152,6 +157,10 @@ export function clearState() {
   runtimeState._timer.pausedAt = null;
   runtimeState._timer.secondaryTarget = null;
   runtimeState._timer.hasFinished = false;
+
+  runtimeState._startEpoch = null;
+  runtimeState._startDayOffset = null;
+  runtimeState.rundown.currentDay = null;
 }
 
 /**
@@ -360,6 +369,17 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   loadGroupFlagAndEnd(rundown, metadata, eventNowIndex);
 }
 
+/**
+ * Finds the day offset relative to an event start
+ * TODO: move to utils
+ */
+export function findDayOffset(plannedStart: number, clock: number): number {
+  const distance = clock - plannedStart;
+  if (distance >= 12 * MILLIS_PER_HOUR) return -1;
+  if (distance < -12 * MILLIS_PER_HOUR) return 1;
+  return 0;
+}
+
 export function start(state: RuntimeState = runtimeState): boolean {
   if (state.eventNow === null) {
     return false;
@@ -368,7 +388,8 @@ export function start(state: RuntimeState = runtimeState): boolean {
     return false;
   }
 
-  state.clock = timeNow();
+  const [epoch, now] = getTimeObject();
+  state.clock = now;
   state.timer.secondaryTimer = null;
 
   // add paused time if it exists
@@ -387,6 +408,9 @@ export function start(state: RuntimeState = runtimeState): boolean {
   state.timer.elapsed = 0;
 
   if (state.rundown.actualStart === null) {
+    state._startDayOffset = findDayOffset(state.eventNow.timeStart, state.clock);
+    state.rundown.currentDay = state._startDayOffset;
+    state._startEpoch = epoch;
     state.rundown.actualStart = state.clock;
   }
 
@@ -485,11 +509,18 @@ export type UpdateResult = {
 export function update(): UpdateResult {
   // 0. there are some things we always do
   const previousClock = runtimeState.clock;
-  runtimeState.clock = timeNow(); // we update the clock on every update call
+  const [epoch, fromMidnight] = getTimeObject();
+  runtimeState.clock = fromMidnight; // we update the clock on every update call
 
   // 1. is playback idle?
   if (!isPlaybackActive(runtimeState.timer.playback)) {
     return updateIfIdle();
+  }
+
+  // if we are playing and playback changes. we tick the current runtime day
+  if (runtimeState._startDayOffset !== null && runtimeState._startEpoch) {
+    runtimeState.rundown.currentDay =
+      runtimeState._startDayOffset + Math.floor((epoch - runtimeState._startEpoch) / dayInMs);
   }
 
   // 2. are we waiting to roll?
@@ -709,7 +740,7 @@ function getExpectedTimes(state = runtimeState) {
     if (_group !== null) {
       const { event: lastEvent, accumulatedGap, isLinkedToLoaded } = _group;
       const lastEventExpectedStart = getExpectedStart(lastEvent, {
-        currentDay: eventNow.dayOffset,
+        currentDay: state.rundown.currentDay!,
         totalGap: accumulatedGap,
         isLinkedToLoaded,
         mode: offset.mode,
@@ -726,7 +757,7 @@ function getExpectedTimes(state = runtimeState) {
     if (_flag) {
       const { event, accumulatedGap, isLinkedToLoaded } = _flag;
       const expectedStart = getExpectedStart(event, {
-        currentDay: eventNow.dayOffset,
+        currentDay: state.rundown.currentDay!,
         totalGap: accumulatedGap,
         isLinkedToLoaded,
         mode: offset.mode,
@@ -741,7 +772,7 @@ function getExpectedTimes(state = runtimeState) {
   if (state._end) {
     const { event, accumulatedGap, isLinkedToLoaded } = state._end;
     const expectedStart = getExpectedStart(event, {
-      currentDay: eventNow.dayOffset,
+      currentDay: state.rundown.currentDay!,
       totalGap: accumulatedGap,
       isLinkedToLoaded,
       mode: offset.mode,

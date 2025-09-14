@@ -172,7 +172,7 @@ export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
 export const useExpectedStartData = createSelector((state: RuntimeStore) => ({
   offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
   mode: state.offset.mode,
-  currentDay: state.eventNow?.dayOffset ?? 0,
+  currentDay: state.rundown.currentDay ?? 0,
   actualStart: state.rundown.actualStart,
   plannedStart: state.rundown.plannedStart,
   clock: state.clock,

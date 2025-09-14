@@ -15,7 +15,7 @@ import { dayInMs } from './conversionUtils.js';
 export function getExpectedStart(
   event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'>,
   state: {
-    currentDay: number;
+    currentDay: number; // the current day from the rundown
     totalGap: number;
     isLinkedToLoaded: boolean;
     offset: number;

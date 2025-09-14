@@ -34,6 +34,7 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
     plannedEnd: 0, // only changes if event changes, overflows over dayInMs
     actualStart: null, // set once we start the timer
     actualGroupStart: null, // maybe set once we start the timer
+    currentDay: null,
   },
   offset: {
     absolute: 0, // changes at runtime
