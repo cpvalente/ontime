@@ -30,6 +30,9 @@ catalogs:
     rimraf:
       specifier: 6.0.1
       version: 6.0.1
+    ts-essentials:
+      specifier: ^10.0.3
+      version: 10.1.1
     typescript:
       specifier: 5.5.3
       version: 5.5.3
@@ -68,6 +71,9 @@ importers:
       prettier:
         specifier: 'catalog:'
         version: 3.3.1
+      rimraf:
+        specifier: 'catalog:'
+        version: 6.0.1
       turbo:
         specifier: ^2.3.3
         version: 2.5.6
@@ -407,7 +413,7 @@ importers:
         specifier: ^0.3.4
         version: 0.3.4
       ts-essentials:
-        specifier: ^10.0.3
+        specifier: 'catalog:'
         version: 10.1.1(typescript@5.5.3)
       tsx:
         specifier: ^4.19.2
@@ -430,6 +436,9 @@ importers:
       eslint:
         specifier: 'catalog:'
         version: 8.56.0
+      ts-essentials:
+        specifier: 'catalog:'
+        version: 10.1.1(typescript@5.5.3)
       typescript:
         specifier: 'catalog:'
         version: 5.5.3
