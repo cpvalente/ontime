@@ -99,3 +99,16 @@ Other useful commands
 
 - __List running processes__ by running `docker ps`
 - __Kill running process__ by running `docker kill <process-id>`
+
+## CONTRIBUTION GUIDELINES
+
+If you want to propose changes to the codebase, please reach out before opening a Pull Request.
+
+For new PRs, please follow the following checklist:
+* [ ] You have updated and ran unit locally and they are passing. Unit tests are generally created for all utility functions and business logic 
+* [ ] You have ran code formatting and linting in all your changes
+* [ ] The branch is clean and the commits are meaningfully separated and contain descriptive messages
+* [ ] The PR body contains description and motivation for the changes
+
+After this checklist is complete, you can request a review from one of the maintainers to get feedback and approval on the changes. \
+We will review as soon as possible
