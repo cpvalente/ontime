@@ -155,4 +155,20 @@ export type ApiAction =
   | ClientAction
   | OffsetmodeAction;
 
+  export type ApiResponds =
+  | VersionResponds
+  | PollResponds
+  | ChangeResponds
+  | MessageResponds
+  | StartResponds
+  | PauseResponds
+  | StopResponds
+  | ReloadResponds
+  | RollResponds
+  | LoadResponds
+  | AddtimeResponds
+  | AuxtimerResponds
+  | ClientResponds
+  | OffsetmodeResponds;
+
 export type ApiActionTag = ApiAction['tag'];

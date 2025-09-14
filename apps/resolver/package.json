@@ -20,7 +20,6 @@
     "@sprout2000/esbuild-copy-plugin": "^1.1.19",
     "@typescript-eslint/parser": "catalog:",
     "eslint": "catalog:",
-    "@types/ws": "^8.5.10",
     "tsup": "^8.5.0",
     "rimraf": "catalog:",
     "typescript": "catalog:",

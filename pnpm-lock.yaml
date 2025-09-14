@@ -285,9 +285,6 @@ importers:
       '@sprout2000/esbuild-copy-plugin':
         specifier: ^1.1.19
         version: 1.1.19
-      '@types/ws':
-        specifier: ^8.5.10
-        version: 8.18.1
       '@typescript-eslint/parser':
         specifier: 'catalog:'
         version: 7.16.1(eslint@8.56.0)(typescript@5.5.3)
