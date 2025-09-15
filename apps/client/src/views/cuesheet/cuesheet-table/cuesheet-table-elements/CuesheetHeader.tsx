@@ -7,7 +7,7 @@ import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { AppMode } from '../../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 
-import { SortableCell } from './SortableCell';
+import { Draggable, SortableCell, TableCell } from './SortableCell';
 
 import style from '../CuesheetTable.module.scss';
 
@@ -16,8 +16,9 @@ interface CuesheetHeaderProps {
   cuesheetMode: AppMode;
 }
 
-export default function CuesheetHeader({ headerGroup, cuesheetMode }: CuesheetHeaderProps) {
+export function SortableCuesheetHeader({ headerGroup, cuesheetMode }: CuesheetHeaderProps) {
   const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
+
   return (
     <tr key={headerGroup.id}>
       {cuesheetMode === AppMode.Edit && <th className={style.actionColumn} tabIndex={-1} />}
@@ -43,14 +44,56 @@ export default function CuesheetHeader({ headerGroup, cuesheetMode }: CuesheetHe
           return (
             <SortableCell
               key={header.column.columnDef.id}
-              header={header}
+              columnId={header.column.id}
+              colSpan={header.colSpan}
               injectedStyles={{ width: `calc(var(--header-${header?.id}-size) * 1px)`, ...customStyles }}
+              draggable={<Draggable header={header} />}
             >
               {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
             </SortableCell>
           );
         })}
       </SortableContext>
+    </tr>
+  );
+}
+
+export function CuesheetHeader({ headerGroup, cuesheetMode }: CuesheetHeaderProps) {
+  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
+
+  return (
+    <tr key={headerGroup.id}>
+      {cuesheetMode === AppMode.Edit && <th className={style.actionColumn} tabIndex={-1} />}
+      {!hideIndexColumn && (
+        <th className={style.indexColumn} tabIndex={-1}>
+          #
+        </th>
+      )}
+      {headerGroup.headers.map((header) => {
+        const customBackground = header.column.columnDef.meta?.colour;
+        const canWrite = header.column.columnDef.meta?.canWrite;
+
+        const customStyles: CSSProperties = {
+          opacity: canWrite ? 1 : 0.6,
+        };
+        if (customBackground) {
+          const customColour = getAccessibleColour(customBackground);
+          customStyles.backgroundColor = customColour.backgroundColor;
+          customStyles.color = customColour.color;
+        }
+
+        return (
+          <TableCell
+            key={header.column.columnDef.id}
+            columnId={header.column.id}
+            colSpan={header.colSpan}
+            injectedStyles={{ width: `calc(var(--header-${header?.id}-size) * 1px)`, ...customStyles }}
+            draggable={<Draggable header={header} />}
+          >
+            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+          </TableCell>
+        );
+      })}
     </tr>
   );
 }

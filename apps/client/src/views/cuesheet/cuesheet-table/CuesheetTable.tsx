@@ -13,14 +13,14 @@ import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { AppMode } from '../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../cuesheet.options';
 
-import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
+import { CuesheetHeader, SortableCuesheetHeader } from './cuesheet-table-elements/CuesheetHeader';
 import DelayRow from './cuesheet-table-elements/DelayRow';
 import EventRow from './cuesheet-table-elements/EventRow';
 import GroupRow from './cuesheet-table-elements/GroupRow';
 import MilestoneRow from './cuesheet-table-elements/MilestoneRow';
 import CuesheetTableMenu from './cuesheet-table-menu/CuesheetTableMenu';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
-import useColumnManager from './useColumnManager';
+import { useColumnOrder, useColumnSizes, useColumnVisibility } from './useColumnManager';
 
 import style from './CuesheetTable.module.scss';
 
@@ -79,8 +79,9 @@ export default function CuesheetTable({ columns, cuesheetMode }: CuesheetTablePr
     [cuesheetMode, data, hideIndexColumn, hideTableSeconds, showDelayedTimes, updateEntry, updateTimer],
   );
 
-  const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
-    useColumnManager(columns);
+  const { columnOrder, resetColumnOrder } = useColumnOrder(columns);
+  const { columnSizing, setColumnSizing } = useColumnSizes();
+  const { columnVisibility, setColumnVisibility } = useColumnVisibility();
 
   const table = useReactTable({
     data,
@@ -237,11 +238,14 @@ export default function CuesheetTable({ columns, cuesheetMode }: CuesheetTablePr
           TableHead: (virtuosoProps) => <thead className={style.tableHeader} {...virtuosoProps} />,
         }}
         fixedHeaderContent={() => {
-          return table
-            .getHeaderGroups()
-            .map((headerGroup) => (
-              <CuesheetHeader key={headerGroup.id} cuesheetMode={cuesheetMode} headerGroup={headerGroup} />
-            ));
+          return table.getHeaderGroups().map((headerGroup) => {
+            const HeaderComponent = table.getState().columnSizingInfo.isResizingColumn
+              ? CuesheetHeader
+              : SortableCuesheetHeader;
+
+            // if the table is being resized, we render non-sortable headers to avoid performance issues
+            return <HeaderComponent key={headerGroup.id} cuesheetMode={cuesheetMode} headerGroup={headerGroup} />;
+          });
         }}
       />
 

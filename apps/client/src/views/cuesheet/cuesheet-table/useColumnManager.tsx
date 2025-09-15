@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef, ColumnSizingState, Updater } from '@tanstack/react-table';
 
 import { debounce } from '../../../common/utils/debounce';
 import { makeStageKey } from '../../../common/utils/localStorage';
@@ -14,17 +14,8 @@ const saveSizesToStorage = debounce((sizes: Record<string, number>) => {
   localStorage.setItem(tableSizesKey, JSON.stringify(sizes));
 }, 500);
 
-export default function useColumnManager(columns: ColumnDef<ExtendedEntry>[]) {
-  const [columnVisibility, setColumnVisibility] = useLocalStorage({
-    key: tableHiddenKey,
-    defaultValue: {},
-  });
-  const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>({
-    key: tableOrderKey,
-    defaultValue: columns.map((col) => col.id as string),
-  });
-
-  const [columnSizing, setColumnSizingState] = useState(() => {
+export function useColumnSizes() {
+  const [columnSizing, setColumnSizingState] = useState<Record<string, number>>(() => {
     try {
       const stored = localStorage.getItem(tableSizesKey);
       return stored ? JSON.parse(stored) : {};
@@ -38,9 +29,21 @@ export default function useColumnManager(columns: ColumnDef<ExtendedEntry>[]) {
     saveSizesToStorage(columnSizing);
   }, [columnSizing]);
 
-  const setColumnSizing = useCallback((sizes: typeof columnSizing) => {
-    setColumnSizingState(sizes);
+  const setColumnSizing = useCallback((sizesOrUpdater: Updater<ColumnSizingState>) => {
+    setColumnSizingState(sizesOrUpdater);
   }, []);
+
+  return {
+    columnSizing,
+    setColumnSizing,
+  };
+}
+
+export function useColumnOrder(columns: ColumnDef<ExtendedEntry>[]) {
+  const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>({
+    key: tableOrderKey,
+    defaultValue: columns.map((col) => col.id as string),
+  });
 
   // update column order if columns change
   useEffect(() => {
@@ -55,12 +58,20 @@ export default function useColumnManager(columns: ColumnDef<ExtendedEntry>[]) {
   }, [columns, saveColumnOrder]);
 
   return {
-    columnVisibility,
     columnOrder,
-    columnSizing,
-    resetColumnOrder,
-    setColumnVisibility,
     saveColumnOrder,
-    setColumnSizing,
+    resetColumnOrder,
+  };
+}
+
+export function useColumnVisibility() {
+  const [columnVisibility, setColumnVisibility] = useLocalStorage({
+    key: tableHiddenKey,
+    defaultValue: {},
+  });
+
+  return {
+    columnVisibility,
+    setColumnVisibility,
   };
 }
