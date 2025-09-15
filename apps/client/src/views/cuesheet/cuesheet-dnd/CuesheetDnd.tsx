@@ -11,14 +11,14 @@ import {
 import { ColumnDef } from '@tanstack/react-table';
 
 import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
-import useColumnManager from '../cuesheet-table/useColumnManager';
+import { useColumnOrder } from '../cuesheet-table/useColumnManager';
 
 interface CuesheetDndProps {
   columns: ColumnDef<ExtendedEntry>[];
 }
 
 export default function CuesheetDnd({ columns, children }: PropsWithChildren<CuesheetDndProps>) {
-  const { columnOrder, saveColumnOrder } = useColumnManager(columns);
+  const { columnOrder, saveColumnOrder } = useColumnOrder(columns);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
