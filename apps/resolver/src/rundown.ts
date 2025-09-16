@@ -1,27 +1,26 @@
 import { isOntimeEvent, OntimeEntry, OntimeEvent, Rundown } from 'ontime-types';
 
-export function getFlatRundown<T extends true | false, O = T extends true ? OntimeEvent : OntimeEntry>(
-  rundown: Rundown,
-  eventsOnly: T,
-): O[] {
+export function getFlatRundown(rundown: Rundown, eventsOnly: true): OntimeEvent[];
+export function getFlatRundown(rundown: Rundown, eventsOnly: false): OntimeEntry[];
+export function getFlatRundown(rundown: Rundown, eventsOnly: boolean) {
   const { flatOrder, entries } = rundown;
-  const flatRundown = new Array(flatOrder.length);
   let idx = 0;
   if (eventsOnly) {
+    const flatRundown = new Array<OntimeEvent>(flatOrder.length);
     for (const id of flatOrder) {
       const entry = entries[id];
       if (!isOntimeEvent(entry)) continue;
       flatRundown[idx] = entry;
       idx++;
     }
+    return flatRundown;
   } else {
+    const flatRundown = new Array<OntimeEntry>(flatOrder.length);
     for (const id of flatOrder) {
       const entry = entries[id];
       flatRundown[idx] = entry;
       idx++;
     }
+    return flatRundown;
   }
-
-  return flatRundown;
 }
-
