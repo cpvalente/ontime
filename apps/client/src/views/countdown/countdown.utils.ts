@@ -14,6 +14,8 @@ export function sanitiseTitle(title: string | null) {
   return title ?? '{no title}';
 }
 
+export type CountdownSubscription = EntryId[] | 'all';
+
 export const preferredFormat12 = 'h:mm a';
 export const preferredFormat24 = 'HH:mm';
 
@@ -120,7 +122,7 @@ export function useSubscriptionDisplayData(
 /**
  * Adds a set of subscriptions to the URL parameters
  */
-export function makeSubscriptionsUrl(urlRef: string, subscriptions: EntryId[]) {
+export function makeSubscriptionsUrl(urlRef: string, subscriptions: CountdownSubscription) {
   const url = new URL(urlRef);
   const newParams = new URLSearchParams();
 
@@ -131,10 +133,14 @@ export function makeSubscriptionsUrl(urlRef: string, subscriptions: EntryId[]) {
     }
   }
 
-  // add new subscriptions
-  subscriptions.forEach((id) => {
-    newParams.append('sub', id);
-  });
+  if (subscriptions === 'all') {
+    newParams.append('sub', 'all');
+  } else {
+    // add new subscriptions
+    subscriptions.forEach((id) => {
+      newParams.append('sub', id);
+    });
+  }
 
   url.search = newParams.toString();
 
@@ -146,7 +152,11 @@ export function makeSubscriptionsUrl(urlRef: string, subscriptions: EntryId[]) {
  * Since the original array is already ordered, we simply filter out the events
  * which are not in the subscriptions list.
  */
-export function getOrderedSubscriptions<T extends OntimeEntry>(subscriptions: EntryId[], playableEvents: T[]): T[] {
+export function getOrderedSubscriptions<T extends OntimeEntry>(
+  subscriptions: CountdownSubscription,
+  playableEvents: T[],
+): T[] {
+  if (subscriptions === 'all') return playableEvents;
   return playableEvents.filter((event) => subscriptions.includes(event.id));
 }
 

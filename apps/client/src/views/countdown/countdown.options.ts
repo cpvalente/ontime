@@ -8,11 +8,12 @@ import { ViewOption } from '../../common/components/view-params-editor/viewParam
 import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
 import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
+import { CountdownSubscription } from './countdown.utils';
 
 export const getCountdownOptions = (
   timeFormat: string,
   customFields: CustomFields,
-  persistedSubscriptions: EntryId[],
+  persistedSubscriptions: CountdownSubscription,
 ): ViewOption[] => {
   const secondaryOptions = makeOptionsFromCustomFields(customFields, [
     { value: 'none', label: 'None' },
@@ -55,7 +56,7 @@ export const getCountdownOptions = (
           id: 'sub',
           title: 'Event subscription',
           description: 'The events to follow',
-          values: persistedSubscriptions,
+          values: persistedSubscriptions === 'all' ? ['all'] : persistedSubscriptions,
           type: 'persist',
         },
       ],
@@ -64,7 +65,7 @@ export const getCountdownOptions = (
 };
 
 type CountdownOptions = {
-  subscriptions: EntryId[];
+  subscriptions: CountdownSubscription;
   secondarySource: keyof OntimeEvent | null;
   showExpected: boolean;
 };
@@ -85,8 +86,10 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
     return searchParams.getAll(key) as EntryId[];
   };
 
+  const subscriptions = getArrayValues('sub');
+
   return {
-    subscriptions: getArrayValues('sub'),
+    subscriptions: subscriptions.at(0) === 'all' ? 'all' : subscriptions,
     secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
     showExpected: isStringBoolean(getValue('showExpected')),
   };
