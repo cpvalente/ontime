@@ -197,6 +197,10 @@ export const changeMaxSizeOfExcel = (
 const contentOfConfigForXlsxWritingFile: configXlsxTemplate<string> = JSON.parse(
   fs.readFileSync(excelTemplateFiles.rundownXlsxTemplateConfig, { encoding: 'utf8' }),
 );
+
+/**
+ * the config for writing xlsx files
+ */
 export const configForXlsxWriting = Object.fromEntries(
   Object.entries(contentOfConfigForXlsxWritingFile).map(([k, v]) => [k, xlsx.utils.decode_cell(v)]),
 ) as configXlsxTemplate;
