@@ -7,4 +7,5 @@ export type RestorePoint = {
   addedTime: number;
   pausedAt: MaybeNumber;
   firstStart: MaybeNumber;
+  startEpoch: MaybeNumber;
 };

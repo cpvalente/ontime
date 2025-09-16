@@ -12,6 +12,7 @@ describe('isRestorePoint()', () => {
       addedTime: 2,
       pausedAt: 3,
       firstStart: 1,
+      startEpoch: 1,
     };
     expect(isRestorePoint(restorePoint)).toBe(true);
 
@@ -22,6 +23,7 @@ describe('isRestorePoint()', () => {
       addedTime: 0,
       pausedAt: null,
       firstStart: 1,
+      startEpoch: 1,
     };
     expect(isRestorePoint(restorePoint)).toBe(true);
   });
@@ -35,6 +37,7 @@ describe('isRestorePoint()', () => {
         addedTime: 0,
         pausedAt: null,
         groupStartAt: 10,
+        startEpoch: 1,
       };
       expect(isRestorePoint(restorePoint)).toBe(false);
     });
@@ -56,6 +59,7 @@ describe('isRestorePoint()', () => {
         addedTime: 0,
         pausedAt: null,
         groupStartAt: 10,
+        startEpoch: 1,
       };
       expect(isRestorePoint(restorePoint)).toBe(false);
     });

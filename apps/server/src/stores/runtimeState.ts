@@ -239,9 +239,14 @@ export function load(
   // patch with potential provided data
   if (initialData) {
     patchTimer(initialData);
+    const startEpoch = initialData?.startEpoch;
     const firstStart = initialData?.firstStart;
-    if (firstStart === null || typeof firstStart === 'number') {
+    if (
+      (firstStart === null || typeof firstStart === 'number') &&
+      (startEpoch === null || typeof startEpoch === 'number')
+    ) {
       runtimeState.rundown.actualStart = firstStart;
+      runtimeState._startEpoch = startEpoch;
       const { absolute, relative } = getRuntimeOffset(runtimeState);
       runtimeState.offset.absolute = absolute;
       runtimeState.offset.relative = relative;
