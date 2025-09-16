@@ -23,6 +23,7 @@ import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 
 import style from './SourcesPanel.module.scss';
+import useProjectData from '../../../../../common/hooks-query/useProjectData';
 
 export default function SourcesPanel() {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet' | 'finished'>('none');
@@ -71,8 +72,9 @@ export default function SourcesPanel() {
     fileInputRef.current?.click();
   };
 
+  const projectTitle = useProjectData().data.title;
   const handleDownload = async () => {
-    await downloadExcel();
+    await downloadExcel(projectTitle);
   };
 
   const resetFlow = () => {
