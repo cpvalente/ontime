@@ -38,7 +38,7 @@ export function getExpectedStart(
   let relativeStartOffset = 0;
 
   if (mode === OffsetMode.Relative) {
-    relativeStartOffset = (actualStart ?? 0) - (plannedStart ?? 0);
+    relativeStartOffset = (actualStart ?? 0) + currentDay * dayInMs - (plannedStart ?? 0);
   }
 
   const scheduledStartTime = normalisedTimeStart + relativeStartOffset;
