@@ -1,6 +1,6 @@
 // api
 export { MessageTag, RefetchKey } from 'ontime-types';
-export type { ApiAction, ApiActionTag, ApiResponds } from 'ontime-types';
+export type { ApiAction, ApiActionTag, ApiResponse } from 'ontime-types';
 export type { WsPacketToClient, WsPacketToServer } from 'ontime-types';
 
 // stores

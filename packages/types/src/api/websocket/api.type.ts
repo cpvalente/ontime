@@ -10,7 +10,7 @@ export type VersionAction = {
   tag: 'version';
   payload: undefined;
 };
-export type VersionResponds = {
+export type VersionResponse = {
   tag: 'version';
   payload: string;
 };
@@ -19,7 +19,7 @@ export type PollAction = {
   tag: 'poll';
   payload: undefined;
 };
-export type PollResponds = {
+export type PollResponse = {
   tag: 'poll';
   payload: RuntimeStore;
 };
@@ -28,7 +28,7 @@ export type ChangeAction = {
   tag: 'change';
   payload: { [x: string]: Partial<OntimeEvent> };
 };
-export type ChangeResponds = {
+export type ChangeResponse = {
   tag: 'change';
   payload: 'success' | 'throttled';
 };
@@ -37,7 +37,7 @@ export type MessageAction = {
   tag: 'message';
   payload: DeepPartial<MessageState>;
 };
-export type MessageResponds = {
+export type MessageResponse = {
   tag: 'message';
   payload: MessageState;
 };
@@ -46,7 +46,7 @@ export type StartAction = {
   tag: 'start';
   payload: undefined | { index: number } | { id: string } | { cue: string } | 'next' | 'previous';
 };
-export type StartResponds = {
+export type StartResponse = {
   tag: 'start';
   payload: 'success';
 };
@@ -55,7 +55,7 @@ export type PauseAction = {
   tag: 'pause';
   payload: undefined;
 };
-export type PauseResponds = {
+export type PauseResponse = {
   tag: 'pause';
   payload: 'success';
 };
@@ -64,7 +64,7 @@ export type StopAction = {
   tag: 'stop';
   payload: undefined;
 };
-export type StopResponds = {
+export type StopResponse = {
   tag: 'stop';
   payload: 'success';
 };
@@ -73,7 +73,7 @@ export type ReloadAction = {
   tag: 'reload';
   payload: undefined;
 };
-export type ReloadResponds = {
+export type ReloadResponse = {
   tag: 'reload';
   payload: 'success';
 };
@@ -82,7 +82,7 @@ export type RollAction = {
   tag: 'roll';
   payload: undefined;
 };
-export type RollResponds = {
+export type RollResponse = {
   tag: 'roll';
   payload: 'success';
 };
@@ -91,7 +91,7 @@ export type LoadAction = {
   tag: 'load';
   payload: { index: number } | { id: string } | { cue: string } | 'next' | 'previous';
 };
-export type LoadResponds = {
+export type LoadResponse = {
   tag: 'load';
   payload: 'success';
 };
@@ -100,7 +100,7 @@ export type AddtimeAction = {
   tag: 'addtime';
   payload: { add: number } | { remove: number } | number;
 };
-export type AddtimeResponds = {
+export type AddtimeResponse = {
   tag: 'addtime';
   payload: 'success';
 };
@@ -116,7 +116,7 @@ export type AuxtimerAction = {
     | { '3': { duration?: number; addtime?: number; direction?: SimpleDirection } };
 };
 
-export type AuxtimerResponds = {
+export type AuxtimerResponse = {
   tag: 'auxtimer';
   payload: 'success';
 };
@@ -125,7 +125,7 @@ export type ClientAction = {
   tag: 'client';
   payload: { target: string } & ({ rename: string } | { redirect: string } | { identify: string });
 };
-export type ClientResponds = {
+export type ClientResponse = {
   tag: 'client';
   payload: 'success';
 };
@@ -134,7 +134,7 @@ export type OffsetmodeAction = {
   tag: 'offsetmode';
   payload: OffsetMode;
 };
-export type OffsetmodeResponds = {
+export type OffsetmodeResponse = {
   tag: 'offsetmode';
   payload: 'success';
 };
@@ -155,20 +155,20 @@ export type ApiAction =
   | ClientAction
   | OffsetmodeAction;
 
-  export type ApiResponds =
-  | VersionResponds
-  | PollResponds
-  | ChangeResponds
-  | MessageResponds
-  | StartResponds
-  | PauseResponds
-  | StopResponds
-  | ReloadResponds
-  | RollResponds
-  | LoadResponds
-  | AddtimeResponds
-  | AuxtimerResponds
-  | ClientResponds
-  | OffsetmodeResponds;
+  export type ApiResponse =
+  | VersionResponse
+  | PollResponse
+  | ChangeResponse
+  | MessageResponse
+  | StartResponse
+  | PauseResponse
+  | StopResponse
+  | ReloadResponse
+  | RollResponse
+  | LoadResponse
+  | AddtimeResponse
+  | AuxtimerResponse
+  | ClientResponse
+  | OffsetmodeResponse;
 
 export type ApiActionTag = ApiAction['tag'];
