@@ -150,34 +150,6 @@ export function getOrderedSubscriptions<T extends OntimeEntry>(subscriptions: En
   return playableEvents.filter((event) => subscriptions.includes(event.id));
 }
 
-/**
- * Checks through the rundown whether the current event is linked to the loaded event
- */
-export function isLinkedToLoadedEvent(events: OntimeEvent[], loadedId: EntryId | null, currentId: EntryId): boolean {
-  // if nothing is loaded, we return true to simplify the logic
-  if (!loadedId) {
-    return true;
-  }
-
-  const loadedIndex = events.findIndex((event) => event.id === loadedId);
-  if (loadedIndex === -1) {
-    return true;
-  }
-
-  for (let i = loadedIndex; i < events.length; i++) {
-    const event = events[i];
-    if (event.id === currentId) {
-      return true;
-    }
-
-    if (event.linkStart === null) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 export function isOutsideRange(a: number, b: number): boolean {
   return Math.abs(a - b) > MILLIS_PER_MINUTE;
 }
