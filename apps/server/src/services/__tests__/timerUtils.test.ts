@@ -726,6 +726,7 @@ describe('getRuntimeOffset()', () => {
       eventNow: {
         id: '1',
         timeStart: 100,
+        dayOffset: 0,
       },
       timer: {
         startedAt: 150,
@@ -738,7 +739,10 @@ describe('getRuntimeOffset()', () => {
       rundown: {
         actualStart: 150,
         plannedStart: 100,
+        currentDay: 0,
       },
+      clock: 150,
+      _startDayOffset: 0,
     } as RuntimeState;
 
     const { absolute } = getRuntimeOffset(state);
@@ -750,6 +754,7 @@ describe('getRuntimeOffset()', () => {
       eventNow: {
         id: '1',
         timeStart: 100,
+        dayOffset: 0,
       },
       timer: {
         startedAt: 150, // we started 50ms delayed
@@ -762,7 +767,9 @@ describe('getRuntimeOffset()', () => {
       rundown: {
         actualStart: 150,
         plannedStart: 100,
+        currentDay: 0,
       },
+      _startDayOffset: 0,
     } as RuntimeState;
 
     const { absolute } = getRuntimeOffset(state);
@@ -775,6 +782,7 @@ describe('getRuntimeOffset()', () => {
         id: '1',
         timeStart: 100,
         timeEnd: 140,
+        dayOffset: 0,
       },
       timer: {
         startedAt: 100, // we started ontime
@@ -787,7 +795,9 @@ describe('getRuntimeOffset()', () => {
       rundown: {
         actualStart: 100,
         plannedStart: 100,
+        currentDay: 0,
       },
+      _startDayOffset: 0,
     } as RuntimeState;
 
     const { absolute } = getRuntimeOffset(state);
@@ -800,6 +810,7 @@ describe('getRuntimeOffset()', () => {
         id: '1',
         timeStart: 100,
         timeEnd: 150,
+        dayOffset: 0,
       },
       clock: 150,
       timer: {
@@ -813,7 +824,9 @@ describe('getRuntimeOffset()', () => {
       rundown: {
         actualStart: 100,
         plannedStart: 100,
+        currentDay: 0,
       },
+      _startDayOffset: 0,
     } as RuntimeState;
 
     const { absolute } = getRuntimeOffset(state);
@@ -830,6 +843,7 @@ describe('getRuntimeOffset()', () => {
         duration: 3600000,
         timeStrategy: 'lock-duration',
         linkStart: false,
+        dayOffset: 0,
       },
       rundown: {
         selectedEventIndex: 0,
@@ -837,6 +851,7 @@ describe('getRuntimeOffset()', () => {
         plannedStart: 77400000,
         plannedEnd: 84600000,
         actualStart: null,
+        currentDay: 0,
       },
       offset: {
         absolute: -77400000,
@@ -852,6 +867,7 @@ describe('getRuntimeOffset()', () => {
         secondaryTimer: null,
         startedAt: null,
       },
+      _startDayOffset: 0,
       _timer: { pausedAt: null },
     } as RuntimeState;
 
@@ -874,6 +890,7 @@ describe('getRuntimeOffset()', () => {
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
         countToEnd: true,
+        dayOffset: 0,
         skip: false,
         note: '',
         colour: '',
@@ -890,6 +907,7 @@ describe('getRuntimeOffset()', () => {
         plannedStart: 77400000, // 21:30:00
         plannedEnd: 81000000, // 22:30:00
         actualStart: 78000000, // 21:40:00
+        currentDay: 0,
       },
       offset: {
         absolute: 0,
@@ -905,6 +923,7 @@ describe('getRuntimeOffset()', () => {
         secondaryTimer: null,
         startedAt: 78000000,
       },
+      _startDayOffset: 0,
       _timer: { pausedAt: null },
     } as RuntimeState;
 
@@ -922,6 +941,7 @@ describe('getRuntimeOffset()', () => {
         timeStart: 77400000, // 21:30:00
         timeEnd: 81000000, // 22:30:00
         duration: 3600000, // 01:00:00
+        dayOffset: 0,
         timeStrategy: TimeStrategy.LockEnd,
         linkStart: false,
         endAction: EndAction.None,
@@ -943,6 +963,7 @@ describe('getRuntimeOffset()', () => {
         plannedStart: 77400000, // 21:30:00
         plannedEnd: 81000000, // 22:30:00
         actualStart: 78000000, // 21:40:00
+        currentDay: 0,
       },
       offset: {
         absolute: 0,
@@ -958,6 +979,7 @@ describe('getRuntimeOffset()', () => {
         secondaryTimer: null,
         startedAt: 78000000,
       },
+      _startDayOffset: 0,
       _timer: { pausedAt: null },
     } as RuntimeState;
 
@@ -978,6 +1000,7 @@ describe('getRuntimeOffset()', () => {
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
         countToEnd: true,
+        dayOffset: 0,
       },
       rundown: {
         selectedEventIndex: 0,
@@ -985,6 +1008,7 @@ describe('getRuntimeOffset()', () => {
         plannedStart: 77400000, // 21:30:00
         plannedEnd: 81000000, // 22:30:00
         actualStart: 82000000, // 22:46:40 <--- started now
+        currentDay: 0,
       },
       offset: {
         absolute: 0,
@@ -1000,6 +1024,7 @@ describe('getRuntimeOffset()', () => {
         secondaryTimer: null,
         startedAt: 82000000, // <--- started now
       },
+      _startDayOffset: 0,
       _timer: { pausedAt: null },
     } as RuntimeState;
 
@@ -1017,6 +1042,7 @@ describe('getRuntimeOffset() relative', () => {
       eventNow: {
         id: '1',
         timeStart: 150,
+        dayOffset: 0,
       },
       timer: {
         startedAt: 150,
@@ -1029,7 +1055,9 @@ describe('getRuntimeOffset() relative', () => {
       rundown: {
         actualStart: 150,
         plannedStart: 150,
+        currentDay: 0,
       },
+      _startDayOffset: 0,
     } as RuntimeState;
 
     const { absolute, relative } = getRuntimeOffset(state);
@@ -1041,6 +1069,7 @@ describe('getRuntimeOffset() relative', () => {
       eventNow: {
         id: '1',
         timeStart: 100,
+        dayOffset: 0,
       },
       timer: {
         startedAt: 150,
@@ -1053,7 +1082,9 @@ describe('getRuntimeOffset() relative', () => {
       rundown: {
         actualStart: 150,
         plannedStart: 100,
+        currentDay: 0,
       },
+      _startDayOffset: 0,
     } as RuntimeState;
 
     const { absolute, relative } = getRuntimeOffset(state);
@@ -1065,6 +1096,7 @@ describe('getRuntimeOffset() relative', () => {
       eventNow: {
         id: '1',
         timeStart: 150,
+        dayOffset: 0,
       },
       timer: {
         startedAt: 100,
@@ -1077,7 +1109,9 @@ describe('getRuntimeOffset() relative', () => {
       rundown: {
         actualStart: 100,
         plannedStart: 150,
+        currentDay: 0,
       },
+      _startDayOffset: 0,
     } as RuntimeState;
 
     const { absolute, relative } = getRuntimeOffset(state);
