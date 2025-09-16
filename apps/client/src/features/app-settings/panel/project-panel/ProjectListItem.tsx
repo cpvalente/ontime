@@ -10,7 +10,7 @@ import {
 
 import {
   deleteProject,
-//  downloadCSV,
+  downloadCSV,
   downloadProject,
   duplicateProject,
   loadProject,
@@ -187,9 +187,9 @@ function ActionMenu(props: ActionMenuProps) {
     await downloadProject(filename);
   };
 
-  // const handleExportCSV = async () => {
-  //   await downloadCSV(filename);
-  // };
+  const handleExportCSV = async () => {
+    await downloadCSV(filename);
+  };
 
   return (
     <DropdownMenu
@@ -213,7 +213,7 @@ function ActionMenu(props: ActionMenuProps) {
         { type: 'item', icon: IoPencilOutline, label: 'Rename', onClick: handleRename },
         { type: 'item', icon: IoCopyOutline, label: 'Duplicate', onClick: handleDuplicate },
         { type: 'item', icon: IoDocumentOutline, label: 'Download', onClick: handleDownload },
-        // { type: 'item', icon: IoDocumentOutline, label: 'Export CSV Rundown', onClick: handleExportCSV },
+        { type: 'item', icon: IoDocumentOutline, label: 'Export CSV Rundown', onClick: handleExportCSV },
         { type: 'divider' },
         { type: 'item', icon: IoTrash, label: 'Delete', onClick: () => onDelete(filename), disabled: current },
       ]}
