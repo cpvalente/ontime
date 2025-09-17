@@ -1,14 +1,5 @@
-import {
-  createContext,
-  PropsWithChildren,
-  RefObject,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
-import { isOntimeEvent, OntimeEntry, OntimeEvent } from 'ontime-types';
+import { createContext, PropsWithChildren, RefObject, use, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { EntryId, isOntimeEvent, OntimeEntry, OntimeEvent } from 'ontime-types';
 
 import { usePartialRundown } from '../../../common/hooks-query/useRundown';
 
@@ -25,13 +16,18 @@ interface ScheduleContextState {
 const ScheduleContext = createContext<ScheduleContextState | undefined>(undefined);
 
 interface ScheduleProviderProps {
-  selectedEventId: string | null;
+  selectedEventId: EntryId | null;
 }
 
 export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildren<ScheduleProviderProps>) => {
-  const { cycleInterval, stopCycle } = useScheduleOptions();
-  const { data: events } = usePartialRundown((event: OntimeEntry) => {
-    return isOntimeEvent(event);
+  const { cycleInterval, stopCycle, filter } = useScheduleOptions();
+  const { data: events } = usePartialRundown((entry: OntimeEntry) => {
+    if (filter) {
+      // custom keys are prepended with custom-
+      const customKey = filter.startsWith('custom-') ? filter.slice('custom-'.length) : filter;
+      return isOntimeEvent(entry) && Boolean(entry.custom[customKey]);
+    }
+    return isOntimeEvent(entry);
   });
 
   const [firstIndex, setFirstIndex] = useState(-1);
@@ -135,7 +131,7 @@ export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildre
   selectedEventIndex = 0;
 
   return (
-    <ScheduleContext.Provider
+    <ScheduleContext
       value={{
         events: viewEvents as OntimeEvent[],
         selectedEventId,
@@ -145,12 +141,12 @@ export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildre
       }}
     >
       {children}
-    </ScheduleContext.Provider>
+    </ScheduleContext>
   );
 };
 
 export const useSchedule = () => {
-  const context = useContext(ScheduleContext);
+  const context = use(ScheduleContext);
   if (!context) {
     throw new Error('useSchedule() can only be used inside a ScheduleContext');
   }
