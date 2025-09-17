@@ -412,15 +412,19 @@ export async function upload(sheetId: string, options: ImportMap) {
     },
   });
 
-  // update the corresponding row with event data
-  sheetOrder.forEach((entryId, index) => {
-    const isGroupEnd = entryId.startsWith('group-end-');
-    const id = isGroupEnd ? entryId.split('group-end-')[1] : entryId;
-    const entry = isGroupEnd
+  try {
+    // update the corresponding row with event data
+    sheetOrder.forEach((entryId, index) => {
+      const isGroupEnd = entryId.startsWith('group-end-');
+      const id = isGroupEnd ? entryId.split('group-end-')[1] : entryId;
+      const entry = isGroupEnd
       ? ({ id: entryId, type: SupportedEntry.Group } as OntimeGroup)
       : structuredClone(rundown.entries[id]);
-    updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, sheetMetadata));
-  });
+      updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, sheetMetadata));
+    });
+  } catch (e) {
+    throw new Error(`Sheet write failed to correctly parse rundown: ${e}`)
+  }
 
   const writeResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.batchUpdate({
     spreadsheetId: sheetId,
