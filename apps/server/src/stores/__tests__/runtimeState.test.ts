@@ -393,6 +393,7 @@ describe('loadGroupFlagAndEnd()', () => {
     const state = {
       groupNow: null,
       eventNow: rundown.entries[11],
+      rundown: { actualGroupStart: null },
     } as RuntimeState;
 
     const metadata = { playableEventOrder: ['0', '11', '3'], flags: ['1'] } as RundownMetadata;
@@ -420,6 +421,7 @@ describe('loadGroupFlagAndEnd()', () => {
     const state = {
       groupNow: rundown.entries[1],
       eventNow: rundown.entries[22],
+      rundown: { actualGroupStart: null },
     } as RuntimeState;
 
     const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
@@ -447,6 +449,7 @@ describe('loadGroupFlagAndEnd()', () => {
     const state = {
       groupNow: rundown.entries[1],
       eventNow: rundown.entries[0],
+      rundown: { actualGroupStart: null },
     } as RuntimeState;
 
     const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
@@ -471,6 +474,7 @@ describe('loadGroupFlagAndEnd()', () => {
     const state = {
       groupNow: null,
       eventNow: rundown.entries[0],
+      rundown: { actualGroupStart: null },
     } as RuntimeState;
 
     const metadata = { playableEventOrder: ['0', '1'], flags: ['1'] } as RundownMetadata;

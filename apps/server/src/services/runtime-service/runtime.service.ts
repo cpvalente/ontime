@@ -743,6 +743,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           addedTime: state.timer.addedTime,
           pausedAt: state._timer.pausedAt,
           firstStart: state.rundown.actualStart,
+          startEpoch: state._startEpoch,
         })
         .catch((_e) => {
           //we don't do anything with the error here

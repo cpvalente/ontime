@@ -23,9 +23,15 @@ import {
   isPlaybackActive,
 } from 'ontime-utils';
 
-import { timeNow } from '../utils/time.js';
+import { getTimeObject, timeNow } from '../utils/time.js';
 import type { RestorePoint } from '../services/restore-service/restore.type.js';
-import { getCurrent, getExpectedFinish, getRuntimeOffset, getTimerPhase } from '../services/timerUtils.js';
+import {
+  findDayOffset,
+  getCurrent,
+  getExpectedFinish,
+  getRuntimeOffset,
+  getTimerPhase,
+} from '../services/timerUtils.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
@@ -55,6 +61,8 @@ export type RuntimeState = {
   _group: ExpectedMetadata;
   _flag: ExpectedMetadata;
   _end: ExpectedMetadata;
+  _startEpoch: MaybeNumber;
+  _startDayOffset: MaybeNumber;
 };
 
 const runtimeState: RuntimeState = {
@@ -78,6 +86,8 @@ const runtimeState: RuntimeState = {
   _group: null,
   _flag: null,
   _end: null,
+  _startEpoch: null,
+  _startDayOffset: null,
 };
 
 export function getState(): Readonly<RuntimeState> {
@@ -152,6 +162,10 @@ export function clearState() {
   runtimeState._timer.pausedAt = null;
   runtimeState._timer.secondaryTarget = null;
   runtimeState._timer.hasFinished = false;
+
+  runtimeState._startEpoch = null;
+  runtimeState._startDayOffset = null;
+  runtimeState.rundown.currentDay = null;
 }
 
 /**
@@ -190,7 +204,8 @@ export function updateRundownData(rundownData: {
   runtimeState.rundown.plannedStart = rundownData.firstStart;
   runtimeState.rundown.plannedEnd =
     rundownData.firstStart === null ? null : rundownData.firstStart + rundownData.totalDuration;
-  getExpectedTimes();
+
+  if (isPlaybackActive(runtimeState.timer.playback)) getExpectedTimes();
 }
 
 /**
@@ -229,9 +244,14 @@ export function load(
   // patch with potential provided data
   if (initialData) {
     patchTimer(initialData);
+    const startEpoch = initialData?.startEpoch;
     const firstStart = initialData?.firstStart;
-    if (firstStart === null || typeof firstStart === 'number') {
+    if (
+      (firstStart === null || typeof firstStart === 'number') &&
+      (startEpoch === null || typeof startEpoch === 'number')
+    ) {
       runtimeState.rundown.actualStart = firstStart;
+      runtimeState._startEpoch = startEpoch;
       const { absolute, relative } = getRuntimeOffset(runtimeState);
       runtimeState.offset.absolute = absolute;
       runtimeState.offset.relative = relative;
@@ -367,7 +387,8 @@ export function start(state: RuntimeState = runtimeState): boolean {
     return false;
   }
 
-  state.clock = timeNow();
+  const [epoch, now] = getTimeObject();
+  state.clock = now;
   state.timer.secondaryTimer = null;
 
   // add paused time if it exists
@@ -386,7 +407,14 @@ export function start(state: RuntimeState = runtimeState): boolean {
   state.timer.elapsed = 0;
 
   if (state.rundown.actualStart === null) {
+    state._startDayOffset = findDayOffset(state.eventNow.timeStart, state.clock);
+    state.rundown.currentDay = state._startDayOffset;
+    state._startEpoch = epoch;
     state.rundown.actualStart = state.clock;
+  }
+
+  if (state.groupNow !== null && state.rundown.actualGroupStart === null) {
+    state.rundown.actualGroupStart = state.clock;
   }
 
   // update timer phase
@@ -480,11 +508,18 @@ export type UpdateResult = {
 export function update(): UpdateResult {
   // 0. there are some things we always do
   const previousClock = runtimeState.clock;
-  runtimeState.clock = timeNow(); // we update the clock on every update call
+  const [epoch, fromMidnight] = getTimeObject();
+  runtimeState.clock = fromMidnight; // we update the clock on every update call
 
   // 1. is playback idle?
   if (!isPlaybackActive(runtimeState.timer.playback)) {
     return updateIfIdle();
+  }
+
+  // if we are playing and playback changes. we tick the current runtime day
+  if (runtimeState._startDayOffset !== null && runtimeState._startEpoch) {
+    runtimeState.rundown.currentDay =
+      runtimeState._startDayOffset + Math.floor((epoch - runtimeState._startEpoch) / dayInMs);
   }
 
   // 2. are we waiting to roll?
@@ -704,7 +739,7 @@ function getExpectedTimes(state = runtimeState) {
     if (_group !== null) {
       const { event: lastEvent, accumulatedGap, isLinkedToLoaded } = _group;
       const lastEventExpectedStart = getExpectedStart(lastEvent, {
-        currentDay: eventNow.dayOffset,
+        currentDay: state.rundown.currentDay!,
         totalGap: accumulatedGap,
         isLinkedToLoaded,
         mode: offset.mode,
@@ -721,7 +756,7 @@ function getExpectedTimes(state = runtimeState) {
     if (_flag) {
       const { event, accumulatedGap, isLinkedToLoaded } = _flag;
       const expectedStart = getExpectedStart(event, {
-        currentDay: eventNow.dayOffset,
+        currentDay: state.rundown.currentDay!,
         totalGap: accumulatedGap,
         isLinkedToLoaded,
         mode: offset.mode,
@@ -736,7 +771,7 @@ function getExpectedTimes(state = runtimeState) {
   if (state._end) {
     const { event, accumulatedGap, isLinkedToLoaded } = state._end;
     const expectedStart = getExpectedStart(event, {
-      currentDay: eventNow.dayOffset,
+      currentDay: state.rundown.currentDay!,
       totalGap: accumulatedGap,
       isLinkedToLoaded,
       mode: offset.mode,
@@ -752,16 +787,19 @@ export function loadGroupFlagAndEnd(
   rundown: Rundown,
   metadata: RundownMetadata,
   currentIndex: MaybeNumber,
-  state = runtimeState,
+  state = runtimeState, // used for testing
 ) {
+  const previousGroup = state.groupNow?.id;
   state.groupNow = null;
   state._group = null;
   state.eventFlag = null;
   state._flag = null;
   state._end = null;
 
-  if (currentIndex == null) return;
-  if (state.eventNow === null) return;
+  if (currentIndex === null || state.eventNow === null) {
+    state.rundown.actualGroupStart = null;
+    return;
+  }
 
   const currentGroupId = state.eventNow.parent;
   const flagsPresent = metadata.flags.length !== 0;
@@ -772,6 +810,10 @@ export function loadGroupFlagAndEnd(
   const orderInGroup = currentGroupId ? (entries[currentGroupId] as OntimeGroup).entries : null;
   state.groupNow = currentGroupId ? (entries[currentGroupId] as OntimeGroup) : null;
   const lastEventInGroup = orderInGroup ? getLastEventNormal(rundown.entries, orderInGroup).lastEvent : null;
+
+  if (previousGroup !== currentGroupId) {
+    state.rundown.actualGroupStart = null;
+  }
 
   // if we don't have a any flags in the rundown then no need to look for it
   let foundFlag = !flagsPresent;
@@ -814,4 +856,5 @@ export function loadGroupFlagAndEnd(
 
 export function setOffsetMode(mode: OffsetMode) {
   runtimeState.offset.mode = mode;
+  if (isPlaybackActive(runtimeState.timer.playback)) getExpectedTimes();
 }

@@ -15,7 +15,7 @@ import { dayInMs } from './conversionUtils.js';
 export function getExpectedStart(
   event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'>,
   state: {
-    currentDay: number;
+    currentDay: number; // the current day from the rundown
     totalGap: number;
     isLinkedToLoaded: boolean;
     offset: number;
@@ -38,7 +38,7 @@ export function getExpectedStart(
   let relativeStartOffset = 0;
 
   if (mode === OffsetMode.Relative) {
-    relativeStartOffset = (actualStart ?? 0) - (plannedStart ?? 0);
+    relativeStartOffset = (actualStart ?? 0) + currentDay * dayInMs - (plannedStart ?? 0);
   }
 
   const scheduledStartTime = normalisedTimeStart + relativeStartOffset;

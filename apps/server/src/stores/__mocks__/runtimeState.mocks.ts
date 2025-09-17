@@ -14,6 +14,8 @@ const baseState: RuntimeState = {
     plannedStart: 0,
     plannedEnd: 0,
     actualStart: null,
+    actualGroupStart: null,
+    currentDay: 0,
   },
   offset: {
     absolute: 0,
@@ -46,6 +48,8 @@ const baseState: RuntimeState = {
   _group: null,
   _end: null,
   _flag: null,
+  _startDayOffset: null,
+  _startEpoch: null,
 };
 
 export function makeRuntimeStateData(patch?: Partial<RuntimeState>): RuntimeState {

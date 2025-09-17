@@ -4,6 +4,8 @@ export type RundownState = {
   selectedEventIndex: MaybeNumber;
   numEvents: number;
   plannedStart: MaybeNumber;
-  actualStart: MaybeNumber;
   plannedEnd: MaybeNumber;
+  actualStart: MaybeNumber;
+  currentDay: MaybeNumber;
+  actualGroupStart: MaybeNumber;
 };

@@ -105,7 +105,7 @@ $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-over
 }
 
 .delay {
-  color: $delay-color;
+  color: $ontime-delay-text;
 }
 
 .timeOverview {
@@ -117,7 +117,7 @@ $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-over
 .cross {
   text-decoration: line-through;
   text-decoration-thickness: 2px;
-  text-decoration-color: $delay-color;
+  text-decoration-color: $ontime-delay-text;
 }
 
 .separeLeft {
