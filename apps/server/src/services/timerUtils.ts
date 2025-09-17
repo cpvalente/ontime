@@ -142,7 +142,7 @@ export function getRuntimeOffset(state: RuntimeState): { absolute: number; relat
 
   const absolute = eventStartOffset + overtime + pausedTime + addedTime;
 
-  // the relative offset is the same as the absolute offset but adjusted relative to the actual start time TODO: brakes when crossing midnight
+  // the relative offset is the same as the absolute offset but adjusted relative to the actual start time
   const relative = absolute + plannedStart - actualStart - _startDayOffset * dayInMs;
 
   // in case of count to end, the absolute offset is just the overtime

@@ -56,7 +56,7 @@ export type RuntimeState = {
   _group: ExpectedMetadata;
   _flag: ExpectedMetadata;
   _end: ExpectedMetadata;
-  _startEpoch: MaybeNumber; //TODO: add to restore point
+  _startEpoch: MaybeNumber;
   _startDayOffset: MaybeNumber;
 };
 
