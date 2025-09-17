@@ -7,8 +7,6 @@ export default defineConfig({
   outDir: 'dist',
   bundle: true,
 
-  // experimentalDts: true,
-  noExternal: ['ontime-types'],
   dts: { resolve: true },
   format: 'esm',
   target: 'esnext',
