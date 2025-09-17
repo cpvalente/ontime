@@ -508,8 +508,8 @@ export type UpdateResult = {
 export function update(): UpdateResult {
   // 0. there are some things we always do
   const previousClock = runtimeState.clock;
-  const [epoch, fromMidnight] = getTimeObject();
-  runtimeState.clock = fromMidnight; // we update the clock on every update call
+  const [epoch, now] = getTimeObject();
+  runtimeState.clock = now; // we update the clock on every update call
 
   // 1. is playback idle?
   if (!isPlaybackActive(runtimeState.timer.playback)) {
@@ -603,6 +603,10 @@ export function roll(
     return { eventId: runtimeState.eventNow?.id ?? null, didStart: false };
   }
 
+  // we will need to do some calculations, update the time first
+  const [epoch, now] = getTimeObject();
+  runtimeState.clock = now;
+
   // 2. if there is an event armed, we use it
   if (runtimeState.timer.playback === Playback.Armed || runtimeState.timer.phase === TimerPhase.Pending) {
     // eslint-disable-next-line no-unused-labels -- dev code path
@@ -634,11 +638,13 @@ export function roll(
     const isNow = checkIsNow(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd, offsetClock);
     if (isNow) {
       runtimeState.timer.startedAt = runtimeState.clock;
+      runtimeState.timer.secondaryTimer = null;
 
       if (runtimeState.rundown.actualStart === null) {
         runtimeState.rundown.actualStart = runtimeState.clock;
+        runtimeState._startDayOffset = 0;
+        runtimeState._startEpoch = epoch;
       }
-      runtimeState.timer.secondaryTimer = null;
     } else {
       runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, offsetClock);
       runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - offsetClock;
@@ -713,6 +719,10 @@ export function roll(
 
   // update runtime
   runtimeState.rundown.actualStart = runtimeState.clock;
+  // update metadata
+  runtimeState._startDayOffset = 0;
+  runtimeState._startEpoch = epoch;
+
   return { eventId: runtimeState.eventNow.id, didStart: true };
 }
 
