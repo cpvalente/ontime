@@ -10,13 +10,14 @@ import {
   makeProjectDataOptions,
 } from '../../common/components/view-params-editor/viewParams.utils';
 import { PresetContext } from '../../common/context/PresetContext';
-import { scheduleOptions } from '../common/schedule/schedule.options';
+import { getScheduleOptions } from '../common/schedule/schedule.options';
 
 export const getBackstageOptions = (
   timeFormat: string,
   customFields: CustomFields,
   projectData: ProjectData,
 ): ViewOption[] => {
+  const customFieldOptions = makeOptionsFromCustomFields(customFields, []);
   const secondaryOptions = makeOptionsFromCustomFields(customFields, [
     { value: 'none', label: 'None' },
     { value: 'note', label: 'Note' },
@@ -39,7 +40,7 @@ export const getBackstageOptions = (
         },
       ],
     },
-    scheduleOptions,
+    getScheduleOptions(customFieldOptions),
     {
       title: OptionTitle.ElementVisibility,
       collapsible: true,
