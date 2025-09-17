@@ -1,14 +1,23 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
+import { SelectOption } from '../../../common/components/select/Select';
 import { OptionTitle } from '../../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../../common/components/view-params-editor/viewParams.types';
+import type { ViewOption } from '../../../common/components/view-params-editor/viewParams.types';
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 
-export const scheduleOptions: ViewOption = {
+export const getScheduleOptions = (customFieldOptions: SelectOption[]): ViewOption => ({
   title: OptionTitle.Schedule,
   collapsible: true,
   options: [
+    {
+      id: 'filter',
+      title: 'Filter',
+      description: 'Hide events without data in the selected custom field',
+      type: 'option',
+      values: customFieldOptions,
+      defaultValue: 'None',
+    },
     {
       id: 'stopCycle',
       title: 'Stop cycling through event pages',
@@ -31,9 +40,10 @@ export const scheduleOptions: ViewOption = {
       defaultValue: false,
     },
   ],
-};
+});
 
 type ScheduleOptions = {
+  filter: string | null;
   cycleInterval: number;
   stopCycle: boolean;
   showExpected: boolean;
@@ -41,6 +51,7 @@ type ScheduleOptions = {
 
 function getScheduleOptionsFromParams(searchParams: URLSearchParams): ScheduleOptions {
   return {
+    filter: searchParams.get('filter'),
     cycleInterval: Number(searchParams.get('cycleInterval')) || 10,
     stopCycle: isStringBoolean(searchParams.get('stopCycle')),
     showExpected: isStringBoolean(searchParams.get('showExpected')),
