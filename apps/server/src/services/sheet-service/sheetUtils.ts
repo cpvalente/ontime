@@ -154,18 +154,23 @@ function getCellData(key: OntimeEntryCommonKeys | 'blank', entry: OntimeEntry) {
     return {};
   }
 
-  // we need to flatten the milestones
-  if (key.startsWith('custom')) {
-    const customKey = key.split(':')[1];
-    return { userEnteredValue: { stringValue: entry.custom[customKey] } };
-  }
-
   // we need to remap the event type to timer type in the case of groups and milestones
   if (key === 'timerType') {
     if (isOntimeGroup(entry))
       return { userEnteredValue: { stringValue: entry.id.startsWith('group-end') ? 'group-end' : 'group' } };
     if (isOntimeMilestone(entry)) return { userEnteredValue: { stringValue: 'milestone' } };
     return { userEnteredValue: { stringValue: entry.timerType } };
+  }
+
+  // all other data is not relevant for the group end entry
+  if (entry.id.startsWith('group-end')) {
+    return {};
+  }
+
+  // we need to flatten the milestones
+  if (key.startsWith('custom')) {
+    const customKey = key.split(':')[1];
+    return { userEnteredValue: { stringValue: entry.custom[customKey] } };
   }
 
   // typescript cannot guarantee that the key exists for every entry
