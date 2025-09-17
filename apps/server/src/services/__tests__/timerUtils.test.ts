@@ -1,7 +1,8 @@
-import { dayInMs, millisToString } from 'ontime-utils';
+import { dayInMs, MILLIS_PER_HOUR, millisToString } from 'ontime-utils';
 import { EndAction, Playback, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 
 import {
+  findDayOffset,
   getCurrent,
   getExpectedFinish,
   getRuntimeOffset,
@@ -1290,5 +1291,23 @@ describe('getTimerPhase()', () => {
 
     const phase = getTimerPhase(state);
     expect(phase).toBe(TimerPhase.Pending);
+  });
+});
+
+describe('findDay()', () => {
+  test('finds dayOffset', () => {
+    //both have 1 hour offset but the clock are on different days
+    expect(findDayOffset(0, 23 * MILLIS_PER_HOUR)).toBe(-1); //                 -> 23
+    expect(findDayOffset(0, 13 * MILLIS_PER_HOUR)).toBe(-1); //                 -> 13
+    expect(findDayOffset(0, 12 * MILLIS_PER_HOUR)).toBe(-1); //                 -> 12
+    expect(findDayOffset(0, 11 * MILLIS_PER_HOUR)).toBe(0); //                 -> 11
+    expect(findDayOffset(1 * MILLIS_PER_HOUR, 0)).toBe(0); //                  -> -1
+
+    //both have 1 hour offset but the clock are on different days
+    expect(findDayOffset(23 * MILLIS_PER_HOUR, 0)).toBe(1); //                  -> -23
+    expect(findDayOffset(13 * MILLIS_PER_HOUR, 0)).toBe(1); //                  -> -13
+    expect(findDayOffset(12 * MILLIS_PER_HOUR, 0)).toBe(0); //                  -> -12
+    expect(findDayOffset(11 * MILLIS_PER_HOUR, 0)).toBe(0); //                  -> -11
+    expect(findDayOffset(22 * MILLIS_PER_HOUR, 23 * MILLIS_PER_HOUR)).toBe(0); //   -> 1
   });
 });

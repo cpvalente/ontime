@@ -21,12 +21,17 @@ import {
   getExpectedStart,
   getLastEventNormal,
   isPlaybackActive,
-  MILLIS_PER_HOUR,
 } from 'ontime-utils';
 
 import { getTimeObject, timeNow } from '../utils/time.js';
 import type { RestorePoint } from '../services/restore-service/restore.type.js';
-import { getCurrent, getExpectedFinish, getRuntimeOffset, getTimerPhase } from '../services/timerUtils.js';
+import {
+  findDayOffset,
+  getCurrent,
+  getExpectedFinish,
+  getRuntimeOffset,
+  getTimerPhase,
+} from '../services/timerUtils.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
@@ -372,17 +377,6 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   loadNext(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   updateLoaded(runtimeState.eventNow ?? undefined);
   loadGroupFlagAndEnd(rundown, metadata, eventNowIndex);
-}
-
-/**
- * Finds the day offset relative to an event start
- * TODO: move to utils
- */
-export function findDayOffset(plannedStart: number, clock: number): number {
-  const distance = clock - plannedStart;
-  if (distance >= 12 * MILLIS_PER_HOUR) return -1;
-  if (distance < -12 * MILLIS_PER_HOUR) return 1;
-  return 0;
 }
 
 export function start(state: RuntimeState = runtimeState): boolean {

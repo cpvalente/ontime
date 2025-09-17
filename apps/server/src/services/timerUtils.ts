@@ -1,5 +1,5 @@
 import { MaybeNumber, TimerPhase } from 'ontime-types';
-import { dayInMs, isPlaybackActive } from 'ontime-utils';
+import { dayInMs, isPlaybackActive, MILLIS_PER_HOUR } from 'ontime-utils';
 import type { RuntimeState } from '../stores/runtimeState.js';
 
 /**
@@ -179,4 +179,15 @@ export function getTimerPhase(state: RuntimeState): TimerPhase {
   }
 
   return TimerPhase.Default;
+}
+
+/**
+ * Finds the day offset relative to an event start
+ * used byt the runtimeState on first start to get correct offsets
+ */
+export function findDayOffset(plannedStart: number, clock: number): number {
+  const distance = clock - plannedStart;
+  if (distance >= 12 * MILLIS_PER_HOUR) return -1;
+  if (distance < -12 * MILLIS_PER_HOUR) return 1;
+  return 0;
 }
