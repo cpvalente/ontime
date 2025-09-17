@@ -73,9 +73,7 @@ interface EventUntilProps {
   isLinkedToLoaded: boolean;
 }
 
-function EventUntil(props: EventUntilProps) {
-  const { timeStart, delay, dayOffset, totalGap, isLinkedToLoaded } = props;
-
+function EventUntil({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded }: EventUntilProps) {
   const timeUntil = useTimeUntilExpectedStart({ timeStart, delay, dayOffset }, { totalGap, isLinkedToLoaded });
   const isDue = timeUntil < MILLIS_PER_SECOND;
 

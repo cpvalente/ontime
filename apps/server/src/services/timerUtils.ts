@@ -1,5 +1,5 @@
 import { MaybeNumber, TimerPhase } from 'ontime-types';
-import { dayInMs, isPlaybackActive } from 'ontime-utils';
+import { dayInMs, isPlaybackActive, MILLIS_PER_HOUR } from 'ontime-utils';
 import type { RuntimeState } from '../stores/runtimeState.js';
 
 /**
@@ -113,14 +113,14 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
  * Negative offset is under time / ahead of schedule
  */
 export function getRuntimeOffset(state: RuntimeState): { absolute: number; relative: number } {
-  const { eventNow, clock } = state;
+  const { eventNow, clock, _startDayOffset } = state;
   const { addedTime, current, startedAt } = state.timer;
   // nothing to calculate if there are no loaded events or if we havent started
-  if (eventNow === null || startedAt === null) {
+  if (eventNow === null || startedAt === null || _startDayOffset === null) {
     return { absolute: 0, relative: 0 };
   }
 
-  const { countToEnd, timeStart } = eventNow;
+  const { countToEnd, timeStart, dayOffset } = eventNow;
   const { plannedStart, actualStart } = state.rundown;
 
   // eslint-disable-next-line no-unused-labels -- dev code path
@@ -131,8 +131,8 @@ export function getRuntimeOffset(state: RuntimeState): { absolute: number; relat
     if (actualStart === null) throw new Error('timerUtils.getRuntimeOffset: state.rundown.plannedStart must be set');
   }
 
-  // difference between planned event start and actual event start (will be positive if we stared behind )
-  const eventStartOffset = startedAt - timeStart;
+  // difference between planned event start and actual event start (will be positive if we started behind )
+  const eventStartOffset = startedAt + _startDayOffset * dayInMs - (timeStart + dayOffset * dayInMs);
 
   // how long has the event been running over (is a negative number when in over timer so inverted before adding to offset)
   const overtime = Math.abs(Math.min(current, 0));
@@ -142,8 +142,8 @@ export function getRuntimeOffset(state: RuntimeState): { absolute: number; relat
 
   const absolute = eventStartOffset + overtime + pausedTime + addedTime;
 
-  // the relative offset i the same as the absolute offset but adjusted relative to the actual start time
-  const relative = absolute + plannedStart - actualStart;
+  // the relative offset is the same as the absolute offset but adjusted relative to the actual start time
+  const relative = absolute + plannedStart - actualStart - _startDayOffset * dayInMs;
 
   // in case of count to end, the absolute offset is just the overtime
   return countToEnd ? { absolute: overtime, relative } : { absolute, relative };
@@ -179,4 +179,15 @@ export function getTimerPhase(state: RuntimeState): TimerPhase {
   }
 
   return TimerPhase.Default;
+}
+
+/**
+ * Finds the day offset relative to an event start
+ * used byt the runtimeState on first start to get correct offsets
+ */
+export function findDayOffset(plannedStart: number, clock: number): number {
+  const distance = clock - plannedStart;
+  if (distance >= 12 * MILLIS_PER_HOUR) return -1;
+  if (distance < -12 * MILLIS_PER_HOUR) return 1;
+  return 0;
 }

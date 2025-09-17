@@ -1,6 +1,6 @@
 import { OffsetMode } from 'ontime-types';
 
-import { dayInMs } from './conversionUtils';
+import { dayInMs, MILLIS_PER_HOUR } from './conversionUtils';
 import { getExpectedStart } from './getExpectedStart';
 
 describe('getExpectedStart()', () => {
@@ -276,5 +276,42 @@ describe('getExpectedStart()', () => {
 
     // the overlap will be pushed out to the expected available time
     expect(getExpectedStart(testEvent, { ...testState, totalGap: -5 })).toBe(110);
+  });
+
+  test('we started on the day before', () => {
+    const testEvent = {
+      timeStart: 5,
+      dayOffset: 0,
+      delay: 0,
+    };
+    const testState = {
+      currentDay: -1,
+      actualStart: 23 * MILLIS_PER_HOUR,
+      plannedStart: 0,
+      offset: -1 * MILLIS_PER_HOUR,
+      mode: OffsetMode.Absolute,
+      isLinkedToLoaded: true,
+      totalGap: 0,
+    };
+    expect(getExpectedStart(testEvent, { ...testState })).toBe(23 * MILLIS_PER_HOUR + 5);
+  });
+
+  test('next day in multi-day rundown', () => {
+    const testEvent = {
+      timeStart: 5,
+      dayOffset: 1,
+      delay: 0,
+    };
+    const testState = {
+      currentDay: -1,
+      actualStart: 23 * MILLIS_PER_HOUR,
+      plannedStart: 0,
+      offset: -1 * MILLIS_PER_HOUR,
+      mode: OffsetMode.Absolute,
+      isLinkedToLoaded: true,
+      totalGap: 0,
+    };
+    expect(getExpectedStart(testEvent, { ...testState })).toBe(23 * MILLIS_PER_HOUR + 5 + dayInMs);
+    expect(getExpectedStart(testEvent, { ...testState, currentDay: 0 })).toBe(23 * MILLIS_PER_HOUR + 5);
   });
 });

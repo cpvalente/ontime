@@ -20,6 +20,7 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
       'addedTime',
       'pausedAt',
       'firstStart',
+      'startEpoch',
     ])
   ) {
     return false;
@@ -46,6 +47,10 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
   }
 
   if (!is.number(restorePoint.firstStart) && restorePoint.firstStart !== null) {
+    return false;
+  }
+
+    if (!is.number(restorePoint.startEpoch) && restorePoint.startEpoch !== null) {
     return false;
   }
 

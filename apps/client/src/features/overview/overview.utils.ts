@@ -4,6 +4,23 @@ import { dayInMs, millisToString } from 'ontime-utils';
 import { timerPlaceholder, timerPlaceholderMin } from '../../common/utils/styleUtils';
 
 /**
+ * Composition to stop negative timers from being formatted
+ * They should show a due string instead
+ *
+ * This is used for cases when a negative timer is unwanted
+ * eg: count down to a milestone
+ */
+export function formatDueTime(
+  time: MaybeNumber,
+  segments: number = 3,
+  direction?: TimerType.CountDown | TimerType.CountUp,
+  dueString = 'due',
+): string {
+  if (time !== null && time <= 0) return dueString;
+  return formattedTime(time, segments, direction);
+}
+
+/**
  * Encapsulates the logic for formatting time in overview
  */
 export function formattedTime(

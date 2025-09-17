@@ -72,4 +72,6 @@ test('time until relative', async ({ page }) => {
   await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('30s');
   await expect(page.getByTestId('entry-3').getByTestId('rundown-event')).toContainText('10m');
   await expect(page.getByTestId('entry-4').getByTestId('rundown-event')).toContainText('20m');
+
+  await page.getByRole('button', { name: 'Absolute' }).click();
 });
