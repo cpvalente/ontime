@@ -183,7 +183,7 @@ export function getUpcomingEvents(events: PlayableEvent[], selectedId: MaybeStri
  * Utility function calculates time to start
  */
 export function getTimeToStart(now: number, start: number, delay: number, offset: number): number {
-  return start + delay - now - offset;
+  return start + delay - now + offset;
 }
 
 interface TimelineLayout {
