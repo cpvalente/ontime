@@ -22,8 +22,7 @@ interface ScheduleItemProps {
   delay: number;
 }
 
-export default function ScheduleItem(props: ScheduleItemProps) {
-  const { timeStart, timeEnd, title, colour, skip, delay } = props;
+export default function ScheduleItem({ timeStart, timeEnd, title, colour, skip, delay }: ScheduleItemProps) {
   const { showExpected } = useScheduleOptions();
 
   if (showExpected) {
@@ -67,9 +66,7 @@ export default function ScheduleItem(props: ScheduleItemProps) {
   );
 }
 
-function DelayedScheduleItem(props: ScheduleItemProps) {
-  const { timeStart, timeEnd, title, colour, skip, delay } = props;
-
+function DelayedScheduleItem({ timeStart, timeEnd, title, colour, skip, delay }: ScheduleItemProps) {
   const start = formatTime(timeStart, formatOptions);
   const end = formatTime(timeEnd, formatOptions);
   const delayedStart = formatTime(timeStart + delay, formatOptions);
@@ -95,9 +92,7 @@ function DelayedScheduleItem(props: ScheduleItemProps) {
   );
 }
 
-function ExpectedScheduleItem(props: ScheduleItemProps) {
-  const { timeStart, timeEnd, title, colour, skip, delay } = props;
-
+function ExpectedScheduleItem({ timeStart, timeEnd, title, colour, skip, delay }: ScheduleItemProps) {
   return (
     <li className={cx(['entry', skip && 'entry--skip'])}>
       <div className='entry-times'>
@@ -116,12 +111,11 @@ interface ExpectedTimeProps {
   delay: number;
 }
 
-function ExpectedTime(props: ExpectedTimeProps) {
-  const { time, delay } = props;
+function ExpectedTime({ time, delay }: ExpectedTimeProps) {
   const { offset } = useRuntimeOffset();
 
   const expectedOffset = offset - delay;
-  const expectedTime = formatTime(time - offset, formatOptions);
+  const expectedTime = formatTime(time + offset, formatOptions);
   const expectedState = getOffsetState(expectedOffset);
 
   return <SuperscriptTime className={`entry-times--${expectedState}`} time={expectedTime} />;
