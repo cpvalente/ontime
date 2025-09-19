@@ -640,6 +640,10 @@ export function roll(
       runtimeState.timer.startedAt = runtimeState.clock;
       runtimeState.timer.secondaryTimer = null;
 
+      if (runtimeState.groupNow !== null && runtimeState.rundown.actualGroupStart === null) {
+        runtimeState.rundown.actualGroupStart = runtimeState.clock;
+      }
+
       if (runtimeState.rundown.actualStart === null) {
         runtimeState.rundown.actualStart = runtimeState.clock;
         runtimeState._startDayOffset = 0;
@@ -719,6 +723,11 @@ export function roll(
 
   // update runtime
   runtimeState.rundown.actualStart = runtimeState.clock;
+
+  if (runtimeState.groupNow !== null && runtimeState.rundown.actualGroupStart === null) {
+    runtimeState.rundown.actualGroupStart = runtimeState.clock;
+  }
+
   // update metadata
   runtimeState._startDayOffset = 0;
   runtimeState._startEpoch = epoch;
