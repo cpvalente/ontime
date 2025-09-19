@@ -4,9 +4,10 @@ import { EntryId, isOntimeEvent, OntimeEntry, OntimeEvent } from 'ontime-types';
 import { usePartialRundown } from '../../../common/hooks-query/useRundown';
 
 import { useScheduleOptions } from './schedule.options';
+import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 
 interface ScheduleContextState {
-  events: OntimeEvent[];
+  events: ExtendedEntry<OntimeEvent>[];
   selectedEventId: string | null;
   numPages: number;
   visiblePage: number;
@@ -133,7 +134,7 @@ export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildre
   return (
     <ScheduleContext
       value={{
-        events: viewEvents as OntimeEvent[],
+        events: viewEvents as ExtendedEntry<OntimeEvent>[],
         selectedEventId,
         numPages,
         visiblePage,

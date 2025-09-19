@@ -86,7 +86,7 @@ export function useFlatRundownWithMetadata() {
  * Provides access to a partial rundown based on a filter callback
  */
 export function usePartialRundown(cb: (event: OntimeEntry) => boolean) {
-  const { data, status } = useFlatRundown();
+  const { data, status } = useFlatRundownWithMetadata();
   const filteredData = useMemo(() => {
     return data.filter(cb);
   }, [data, cb]);

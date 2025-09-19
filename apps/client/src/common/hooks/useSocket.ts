@@ -179,7 +179,7 @@ export const useExpectedStartData = createSelector((state: RuntimeStore) => ({
 }));
 
 export const useCurrentDay = createSelector((state: RuntimeStore) => ({
-  currentDay: state.eventNow?.dayOffset ?? 0,
+  currentDay: state.rundown.currentDay ?? 0,
 }));
 
 export const useRuntimeOffset = createSelector((state: RuntimeStore) => ({
@@ -204,6 +204,18 @@ export const setOffsetMode = (payload: OffsetMode) => sendSocket('offsetmode', p
 export const usePlayback = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.timer.playback,
+  });
+
+  return useRuntimeStore(featureSelector);
+};
+
+export const useExpectedTimeSocket = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    currentDay: state.rundown.currentDay ?? 0,
+    offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
+    mode: state.offset.mode,
+    actualStart: state.rundown.actualStart,
+    plannedStart: state.rundown.plannedStart,
   });
 
   return useRuntimeStore(featureSelector);
@@ -235,7 +247,7 @@ export const useGroupTimerOverView = createSelector((state: RuntimeStore) => ({
   groupExpectedEnd: state.offset.expectedGroupEnd,
   // we can force these numbers to 0 fo this use case to avoid null checks
   actualGroupStart: state.rundown.actualGroupStart ?? 0,
-  currentDay: state.eventNow?.dayOffset ?? 0,
+  currentDay: state.rundown.currentDay ?? 0,
   playback: state.timer.playback,
 }));
 
@@ -245,7 +257,7 @@ export const useFlagTimerOverView = createSelector((state: RuntimeStore) => ({
   // we can force these numbers to 0 fo this use case to avoid null checks
   actualStart: state.rundown.actualStart ?? 0,
   plannedStart: state.rundown.plannedStart ?? 0,
-  currentDay: state.eventNow?.dayOffset ?? 0,
+  currentDay: state.rundown.currentDay ?? 0,
   playback: state.timer.playback,
 }));
 

@@ -1,5 +1,8 @@
+import { OntimeEvent } from 'ontime-types';
 import { useRuntimeOffset } from '../../../common/hooks/useSocket';
+import { useExpectedTime } from '../../../common/utils/expected';
 import { getOffsetState } from '../../../common/utils/offset';
+import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { cx } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
 import SuperscriptTime from '../../../features/viewers/common/superscript-time/SuperscriptTime';
@@ -14,94 +17,83 @@ const formatOptions = {
 };
 
 interface ScheduleItemProps {
-  timeStart: number;
-  timeEnd: number;
-  title: string;
-  colour?: string;
-  skip?: boolean;
-  delay: number;
+  event: ExtendedEntry<OntimeEvent>;
 }
 
-export default function ScheduleItem({ timeStart, timeEnd, title, colour, skip, delay }: ScheduleItemProps) {
+export default function ScheduleItem({ event }: ScheduleItemProps) {
   const { showExpected } = useScheduleOptions();
 
   if (showExpected) {
-    return (
-      <ExpectedScheduleItem
-        timeStart={timeStart}
-        timeEnd={timeEnd}
-        title={title}
-        colour={colour}
-        skip={skip}
-        delay={delay}
-      />
-    );
+    return <ExpectedScheduleItem event={event} />;
   }
 
-  if (delay > 0) {
-    return (
-      <DelayedScheduleItem
-        timeStart={timeStart}
-        timeEnd={timeEnd}
-        title={title}
-        colour={colour}
-        skip={skip}
-        delay={delay}
-      />
-    );
-  }
+  // TODO:
+  // if (delay > 0) {
+  //   return (
+  //     <DelayedScheduleItem
+  //       timeStart={timeStart}
+  //       timeEnd={timeEnd}
+  //       title={title}
+  //       colour={colour}
+  //       skip={skip}
+  //       delay={delay}
+  //     />
+  //   );
+  // }
 
-  const start = formatTime(timeStart, formatOptions);
-  const end = formatTime(timeEnd, formatOptions);
+  const start = formatTime(event.timeStart, formatOptions);
+  const end = formatTime(event.timeEnd, formatOptions);
   return (
-    <li className={cx(['entry', skip && 'entry--skip'])}>
+    <li className={cx(['entry', event.skip && 'entry--skip'])}>
       <div className='entry-times'>
-        <span className='entry-colour' style={{ backgroundColor: colour }} />
+        <span className='entry-colour' style={{ backgroundColor: event.colour }} />
         <SuperscriptTime time={start} />
         →
         <SuperscriptTime time={end} />
       </div>
-      <div className='entry-title'>{title}</div>
+      <div className='entry-title'>{event.title}</div>
     </li>
   );
 }
 
-function DelayedScheduleItem({ timeStart, timeEnd, title, colour, skip, delay }: ScheduleItemProps) {
-  const start = formatTime(timeStart, formatOptions);
-  const end = formatTime(timeEnd, formatOptions);
-  const delayedStart = formatTime(timeStart + delay, formatOptions);
-  const delayedEnd = formatTime(timeEnd + delay, formatOptions);
+// function DelayedScheduleItem({ timeStart, timeEnd, title, colour, skip, delay }: ScheduleItemProps) {
+//   const start = formatTime(timeStart, formatOptions);
+//   const end = formatTime(timeEnd, formatOptions);
+//   const delayedStart = formatTime(timeStart + delay, formatOptions);
+//   const delayedEnd = formatTime(timeEnd + delay, formatOptions);
+
+//   return (
+//     <li className={cx(['entry', skip && 'entry--skip'])}>
+//       <div className='entry-times'>
+//         <span className='entry-times--delayed'>
+//           <span className='entry-colour' style={{ backgroundColor: colour }} />
+//           <SuperscriptTime time={start} />
+//           →
+//           <SuperscriptTime time={end} />
+//         </span>
+//         <span className='entry-times--delay'>
+//           <SuperscriptTime time={delayedStart} />
+//           →
+//           <SuperscriptTime time={delayedEnd} />
+//         </span>
+//       </div>
+//       <div className='entry-title'>{title}</div>
+//     </li>
+//   );
+// }
+
+function ExpectedScheduleItem({ event }: ScheduleItemProps) {
+  const { timeStart, timeEnd } = useExpectedTime(event);
 
   return (
-    <li className={cx(['entry', skip && 'entry--skip'])}>
+    <li className={cx(['entry', event.skip && 'entry--skip'])}>
       <div className='entry-times'>
-        <span className='entry-times--delayed'>
-          <span className='entry-colour' style={{ backgroundColor: colour }} />
-          <SuperscriptTime time={start} />
-          →
-          <SuperscriptTime time={end} />
-        </span>
-        <span className='entry-times--delay'>
-          <SuperscriptTime time={delayedStart} />
-          →
-          <SuperscriptTime time={delayedEnd} />
-        </span>
-      </div>
-      <div className='entry-title'>{title}</div>
-    </li>
-  );
-}
-
-function ExpectedScheduleItem({ timeStart, timeEnd, title, colour, skip, delay }: ScheduleItemProps) {
-  return (
-    <li className={cx(['entry', skip && 'entry--skip'])}>
-      <div className='entry-times'>
-        <span className='entry-colour' style={{ backgroundColor: colour }} />
-        <ExpectedTime time={timeStart} delay={delay} />
+        <span className='entry-colour' style={{ backgroundColor: event.colour }} />
+        <ExpectedTime time={timeStart} delay={timeStart - event.timeStart} />
         →
-        <ExpectedTime time={timeEnd} delay={delay} />
+        <ExpectedTime time={timeEnd} delay={timeEnd - event.timeEnd} />
       </div>
-      <div className='entry-title'>{title}</div>
+      <div className='entry-title'>{event.title}</div>
     </li>
   );
 }
@@ -112,11 +104,8 @@ interface ExpectedTimeProps {
 }
 
 function ExpectedTime({ time, delay }: ExpectedTimeProps) {
-  const { offset } = useRuntimeOffset();
-
-  const expectedOffset = offset - delay;
-  const expectedTime = formatTime(time + offset, formatOptions);
-  const expectedState = getOffsetState(expectedOffset);
+  const expectedTime = formatTime(time, formatOptions);
+  const expectedState = getOffsetState(delay);
 
   return <SuperscriptTime className={`entry-times--${expectedState}`} time={expectedTime} />;
 }
