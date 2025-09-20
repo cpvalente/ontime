@@ -1,5 +1,6 @@
 import { MaybeNumber, TimerPhase } from 'ontime-types';
 import { dayInMs, isPlaybackActive, MILLIS_PER_HOUR } from 'ontime-utils';
+
 import type { RuntimeState } from '../stores/runtimeState.js';
 
 /**
@@ -131,7 +132,7 @@ export function getRuntimeOffset(state: RuntimeState): { absolute: number; relat
     if (actualStart === null) throw new Error('timerUtils.getRuntimeOffset: state.rundown.plannedStart must be set');
   }
 
-  // difference between planned event start and actual event start (will be positive if we started behind )
+  // difference between planned event start and actual event start (will be positive if we started behind)
   const eventStartOffset = startedAt + _startDayOffset * dayInMs - (timeStart + dayOffset * dayInMs);
 
   // how long has the event been running over (is a negative number when in over timer so inverted before adding to offset)
@@ -140,9 +141,10 @@ export function getRuntimeOffset(state: RuntimeState): { absolute: number; relat
   // time the playback was paused, the different from now to when we paused is added to the offset TODO: brakes when crossing midnight
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
+  // absolute offset is difference between schedule and playback time
   const absolute = eventStartOffset + overtime + pausedTime + addedTime;
 
-  // the relative offset is the same as the absolute offset but adjusted relative to the actual start time
+  // the relative offset is the same as the absolute but adjusted relative to the actual start time
   const relative = absolute + plannedStart - actualStart - _startDayOffset * dayInMs;
 
   // in case of count to end, the absolute offset is just the overtime

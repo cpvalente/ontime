@@ -100,7 +100,7 @@ export function MetadataTimes() {
 }
 
 function GroupTimes() {
-  const { clock, groupExpectedEnd, actualGroupStart, mode, playback, currentDay } = useGroupTimerOverView();
+  const { clock, mode, groupExpectedEnd, actualGroupStart, currentDay, playback } = useGroupTimerOverView();
   const { currentGroupId } = useCurrentGroupId();
   const group = useEntry(currentGroupId) as OntimeGroup | null;
 
@@ -111,6 +111,7 @@ function GroupTimes() {
     if (!active) return null;
     if (!group || group.timeStart === null) return null;
     const normalizedClock = clock + currentDay * dayInMs;
+
     return mode === OffsetMode.Absolute
       ? group.timeStart + group.duration - normalizedClock
       : actualGroupStart + group.duration - normalizedClock;
@@ -121,11 +122,9 @@ function GroupTimes() {
   const expectedGroupEnd = groupExpectedEnd !== null ? groupExpectedEnd - clock : null;
   const expectedTimeUntilGroupEnd = formatDueTime(expectedGroupEnd, 3, TimerType.CountDown);
 
-  const groupTitle = group?.title ?? null;
-
   return (
     <div className={style.metadataRow}>
-      <span className={groupTitle ? style.labelTitle : style.label}>{`${groupTitle || 'Group'} `}</span>
+      <span className={group?.title ? style.labelTitle : style.label}>{`${group?.title || 'Group'} `}</span>
       <div className={style.labelledElement}>
         <Tooltip text='Time to planned group end' render={<TbFolderPin className={style.icon} />} />
         <span
