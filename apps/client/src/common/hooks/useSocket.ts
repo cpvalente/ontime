@@ -230,7 +230,6 @@ export const useOffsetOverview = createSelector((state: RuntimeStore) => ({
 
 export const useGroupTimerOverView = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
-  offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
   mode: state.offset.mode,
   groupExpectedEnd: state.offset.expectedGroupEnd,
   // we can force these numbers to 0 fo this use case to avoid null checks
