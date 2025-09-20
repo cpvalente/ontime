@@ -33,8 +33,8 @@ export function coerceString(value: unknown): string {
  * @throws {Error} Throws an error if the value is null or undefined.
  */
 export function coerceBoolean(value: unknown): boolean {
-  if (value === undefined || typeof value === 'object') {
-    throw new Error('Invalid value received');
+  if (typeof value === 'boolean') {
+    return value;
   }
   if (typeof value === 'string') {
     const lowerCaseValue = value.toLocaleLowerCase();
@@ -52,7 +52,10 @@ export function coerceBoolean(value: unknown): boolean {
         throw new Error('Invalid value received');
     }
   }
-  return Boolean(value);
+  if (typeof value === 'number') {
+    return value > 0;
+  }
+  throw new Error('Invalid value received');
 }
 
 /**

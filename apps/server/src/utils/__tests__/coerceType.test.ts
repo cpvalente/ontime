@@ -151,7 +151,7 @@ describe('coerce unknown value to a boolean', () => {
     expect(coerceBoolean(100000)).toStrictEqual(true);
   });
 
-  test.todo('false numbers', () => {
+  test('false numbers', () => {
     expect(coerceBoolean(0)).toStrictEqual(false);
     expect(coerceBoolean(-1)).toStrictEqual(false);
     expect(coerceBoolean(-10000)).toStrictEqual(false);
