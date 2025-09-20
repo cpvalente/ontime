@@ -637,15 +637,21 @@ export function roll(
     // check if the event is ready to start or if needs to be pending
     const isNow = checkIsNow(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd, offsetClock);
     if (isNow) {
-      runtimeState.timer.startedAt = runtimeState.clock;
+      /**
+       * If we are starting an event in roll mode
+       * we backtrace all the start times to the supposed start time of the event
+       */
+      const plannedStart = runtimeState.eventNow.timeStart;
+      runtimeState.timer.startedAt = plannedStart;
+      // reset the secondary timer to cancel any countdowns
       runtimeState.timer.secondaryTimer = null;
 
       if (runtimeState.groupNow !== null && runtimeState.rundown.actualGroupStart === null) {
-        runtimeState.rundown.actualGroupStart = runtimeState.clock;
+        runtimeState.rundown.actualGroupStart = plannedStart;
       }
 
       if (runtimeState.rundown.actualStart === null) {
-        runtimeState.rundown.actualStart = runtimeState.clock;
+        runtimeState.rundown.actualStart = plannedStart;
         runtimeState._startDayOffset = 0;
         runtimeState._startEpoch = epoch;
       }
@@ -703,18 +709,21 @@ export function roll(
     return { eventId: runtimeState.eventNow.id, didStart: false };
   }
 
-  // there is something to run, load event
-  // event will finish on time
-  // account for event that finishes the day after
+  /**
+   * At this point we know that there is something to run and the event is loaded
+   * - ensure the event will finish ontime
+   * - account for events that finish the day after
+   *
+   * when we start in roll mode
+   * we need to backtrace all times to the supposed start time of the event
+   */
+  const plannedStart = runtimeState.eventNow.timeStart;
   const endTime =
     runtimeState.eventNow.timeEnd < runtimeState.eventNow.timeStart
       ? runtimeState.eventNow.timeEnd + dayInMs
       : runtimeState.eventNow.timeEnd;
-  runtimeState.timer.startedAt = runtimeState.clock;
+  runtimeState.timer.startedAt = plannedStart;
   runtimeState.timer.expectedFinish = endTime;
-
-  // we add time to allow timer to catch up
-  runtimeState.timer.addedTime = -(runtimeState.clock - runtimeState.eventNow.timeStart);
 
   // state catch up
   runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, endTime);
@@ -722,10 +731,9 @@ export function roll(
   runtimeState.timer.elapsed = 0;
 
   // update runtime
-  runtimeState.rundown.actualStart = runtimeState.clock;
-
+  runtimeState.rundown.actualStart = plannedStart;
   if (runtimeState.groupNow !== null && runtimeState.rundown.actualGroupStart === null) {
-    runtimeState.rundown.actualGroupStart = runtimeState.clock;
+    runtimeState.rundown.actualGroupStart = plannedStart;
   }
 
   // update metadata
