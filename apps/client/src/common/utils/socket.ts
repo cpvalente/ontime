@@ -1,5 +1,5 @@
 import {
-  ApiAction,
+  ApiActionTag,
   Log,
   MessageTag,
   RefetchKey,
@@ -199,7 +199,7 @@ export const connectSocket = () => {
   };
 };
 
-export function sendSocket<T extends MessageTag | ApiAction>(
+export function sendSocket<T extends MessageTag | ApiActionTag>(
   tag: T,
   payload: T extends MessageTag ? Pick<WsPacketToServer & { tag: T }, 'payload'>['payload'] : unknown,
 ): void {

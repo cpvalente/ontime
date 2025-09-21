@@ -1,0 +1,29 @@
+{
+  "name": "@getontime/resolver",
+  "version": "4.0.0-beta.3",
+  "type": "module",
+  "repository": "https://github.com/cpvalente/ontime",
+  "types": "./dist/main.d.ts",
+  "main": "./dist/main.js",
+  "private": true,
+  "description": "shared typings for ontime",
+  "scripts": {
+    "lint": "eslint . --quiet",
+    "prebuild": "pnpm rimraf ./dist",
+    "build": "tsup && pnpm rimraf ./dist/index.js",
+    "postbuild": "pnpm rimraf ./dist/index.d.ts"
+  },
+  "keywords": ["ontime", "resolver", "parser"],
+  "author": "",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "@sprout2000/esbuild-copy-plugin": "^1.1.19",
+    "@typescript-eslint/parser": "catalog:",
+    "eslint": "catalog:",
+    "tsup": "^8.5.0",
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "ontime-types": "workspace:^4.0.0"
+  },
+  "files": ["dist"]
+}

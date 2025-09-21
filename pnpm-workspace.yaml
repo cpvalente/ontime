@@ -11,6 +11,8 @@ catalog:
   eslint-config-prettier: 9.1.0
   eslint-plugin-prettier: 5.1.3
   vitest: 3.2.1
+  rimraf: 6.0.1
+  ts-essentials: 10.1.1
 onlyBuiltDependencies:
   - electron
   - esbuild

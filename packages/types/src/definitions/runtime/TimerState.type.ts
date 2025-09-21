@@ -1,4 +1,4 @@
-import type { MaybeNumber } from '../../index.js';
+import type { MaybeNumber } from '../../utils/utils.type.js';
 import type { Playback } from './Playback.type.js';
 
 export enum TimerPhase {
