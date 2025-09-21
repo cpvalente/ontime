@@ -107,16 +107,16 @@ export default function AutomationsList(props: AutomationsListProps) {
                     </IconButton>
                   </Panel.InlineElements>
                 </tr>
-                {deleteError && (
-                  <tr>
-                    <td colSpan={5}>
-                      <Panel.Error>{deleteError}</Panel.Error>
-                    </td>
-                  </tr>
-                )}
               </Fragment>
             );
           })}
+          {deleteError && (
+            <tr>
+              <td colSpan={5}>
+                <Panel.Error>{deleteError}</Panel.Error>
+              </td>
+            </tr>
+          )}
         </tbody>
       </Panel.Table>
     </Panel.Card>

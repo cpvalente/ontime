@@ -1,6 +1,6 @@
-import { TriggerDTO, TimerLifeCycle, AutomationDTO, Automation, EntryId } from 'ontime-types';
+import { TriggerDTO, TimerLifeCycle, AutomationDTO, Automation, ProjectRundowns } from 'ontime-types';
 
-import { makeRundown } from '../../rundown/__mocks__/rundown.mocks.js';
+import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
 
 import {
   addTrigger,
@@ -203,10 +203,29 @@ describe('deleteAutomation()', () => {
     const automations = getAutomations();
     expect(Object.keys(automations).length).toEqual(1);
 
-    const rundown = makeRundown({});
-    const timedEventOrder: EntryId[] = [];
-
-    await deleteAutomation(rundown, timedEventOrder, Object.keys(automations)[0]);
+    const projectRundowns: ProjectRundowns = {
+      'rundown-1': {
+        id: 'rundown-1',
+        title: 'Rundown 1',
+        order: ['1'],
+        flatOrder: ['1'],
+        entries: {
+          '1': makeOntimeEvent({
+            id: '1',
+            triggers: [
+              {
+                id: 'trigger-1',
+                title: 'Trigger 1',
+                trigger: TimerLifeCycle.onClock,
+                automationId: 'test-automation',
+              },
+            ],
+          }),
+        },
+        revision: 1,
+      },
+    };
+    await deleteAutomation(projectRundowns, Object.keys(automations)[0]);
     const removed = getAutomations();
     expect(Object.keys(removed).length).toEqual(0);
   });
