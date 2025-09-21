@@ -176,7 +176,9 @@ export function generateImportHandlers(importMap: ImportMap) {
 /**
  * the content type of the rundown.templateInstructor.json
  */
-export type configXlsxTemplate<Key = { [key in 'c' | 'r']: number }> = { [key in "cue" | "title" | "colour" | "timeStart" | "timeEnd" | "duration" | "note" | "timerType" | "customFields"]: Key } & { [key in "id" | "linkStart" | "countToEnd" | "endAction" | "warningTime" | "dangerTime" | "skip"]?: Key };
+export type configXlsxTemplate<Key = { [key in 'c' | 'r']: number }> =
+  { [key in "cue" | "title" | "colour" | "timeStart" | "timeEnd" | "duration" | "note" | "timerType" | "customFields"]: Key } &
+  { [key in "id" | "linkStart" | "countToEnd" | "endAction" | "warningTime" | "dangerTime" | "skip"]?: Key };
 
 /**
  * change the size of the excel sheet
