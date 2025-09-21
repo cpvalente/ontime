@@ -1,4 +1,13 @@
-import { EntryId, FilterRule, isOntimeEvent, MaybeNumber, OntimeAction, ontimeActionKeyValues, Rundown } from 'ontime-types';
+import {
+  EntryId,
+  FilterRule,
+  isOntimeEvent,
+  MaybeNumber,
+  OntimeAction,
+  ontimeActionKeyValues,
+  ProjectRundowns,
+  RundownEntries,
+} from 'ontime-types';
 import { millisToString, removeLeadingZero, splitWhitespace, getPropertyFromPath } from 'ontime-utils';
 import type { OscArgOrArrayInput, OscArgInput } from 'osc-min';
 
@@ -198,22 +207,40 @@ export function isBooleanEquals(a: boolean, b: string): boolean {
 
 /**
  * Checks is an automation is used in a rundown
- * TODO(v4): this currently only checks the current rundown, we will need to check all rundowns in the future
  */
-export function isAutomationUsed(
-  rundown: Rundown,
-  timedEventOrder: EntryId[],
+function isAutomationUsedInRundown(
+  entries: RundownEntries,
+  flatOrder: EntryId[],
   automationId: string,
 ): EntryId | undefined {
-  for (let i = 0; i < timedEventOrder.length; i++) {
-    const eventId = timedEventOrder[i];
-    const event = rundown.entries[eventId];
-    if (isOntimeEvent(event) && event.triggers) {
-      for (const trigger of event.triggers) {
+  for (let i = 0; i < flatOrder.length; i++) {
+    const eventId = flatOrder[i];
+    const entry = entries[eventId];
+
+    // only ontime events can contain triggers
+    if (isOntimeEvent(entry) && entry.triggers) {
+      for (const trigger of entry.triggers) {
         if (trigger.automationId === automationId) {
-          return eventId;
+          return entry.id;
         }
       }
+    }
+  }
+}
+
+/**
+ * Checks if an automation is used in any of the project rundowns
+ */
+export function isAutomationUsed(
+  projectRundowns: ProjectRundowns,
+  automationId: string,
+): [string, EntryId] | undefined {
+  for (const rundownId in projectRundowns) {
+    const rundown = projectRundowns[rundownId];
+    const usedInEvent = isAutomationUsedInRundown(rundown.entries, rundown.flatOrder, automationId);
+
+    if (usedInEvent) {
+      return [rundown.title, usedInEvent];
     }
   }
 }

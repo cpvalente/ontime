@@ -1,5 +1,7 @@
-import { TimerLifeCycle } from 'ontime-types';
-import { makeOntimeEvent, makeRundown } from '../../rundown/__mocks__/rundown.mocks.js';
+import { ProjectRundowns, TimerLifeCycle } from 'ontime-types';
+
+import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
+
 import { isAutomationUsed, parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
 
 describe('parseTemplateNested()', () => {
@@ -250,50 +252,109 @@ describe('test stringToOSCArgs()', () => {
 
 describe('isAutomationUsed()', () => {
   it('returns the first event which uses an automation', () => {
-    const rundown = makeRundown({
-      entries: {
-        '1': makeOntimeEvent({
-          id: '1',
-          triggers: [
-            {
-              id: 'trigger-1',
-              title: 'Trigger 1',
-              trigger: TimerLifeCycle.onClock,
-              automationId: 'test-automation',
-            },
-          ],
-        }),
+    const projectRundowns: ProjectRundowns = {
+      'rundown-1': {
+        id: 'rundown-1',
+        title: 'Rundown 1',
+        order: ['1'],
+        flatOrder: ['1'],
+        entries: {
+          '1': makeOntimeEvent({
+            id: '1',
+            triggers: [
+              {
+                id: 'trigger-1',
+                title: 'Trigger 1',
+                trigger: TimerLifeCycle.onClock,
+                automationId: 'test-automation',
+              },
+            ],
+          }),
+        },
+        revision: 1,
       },
-    });
-
-    const timedEventOrder = ['1'];
+    };
     const automationId = 'test-automation';
 
-    const result = isAutomationUsed(rundown, timedEventOrder, automationId);
-    expect(result).toBe('1');
+    const result = isAutomationUsed(projectRundowns, automationId);
+    expect(result).toStrictEqual(['Rundown 1', '1']);
+  });
+
+  it('finds usages in any rundown', () => {
+    const projectRundowns: ProjectRundowns = {
+      'rundown-1': {
+        id: 'rundown-1',
+        title: 'Rundown 1',
+        order: ['1'],
+        flatOrder: ['1'],
+        entries: {
+          '1': makeOntimeEvent({
+            id: '1',
+            triggers: [
+              {
+                id: 'trigger-1',
+                title: 'Trigger 1',
+                trigger: TimerLifeCycle.onClock,
+                automationId: 'test-automation',
+              },
+            ],
+          }),
+        },
+        revision: 1,
+      },
+      'rundown-2': {
+        id: 'rundown-2',
+        title: 'Rundown 2',
+        order: ['1'],
+        flatOrder: ['1'],
+        entries: {
+          '1': makeOntimeEvent({
+            id: '1',
+            triggers: [
+              {
+                id: 'trigger-1',
+                title: 'Trigger 1',
+                trigger: TimerLifeCycle.onClock,
+                automationId: 'in-the-second-rundown',
+              },
+            ],
+          }),
+        },
+        revision: 1,
+      },
+    };
+    const automationId = 'in-the-second-rundown';
+
+    const result = isAutomationUsed(projectRundowns, automationId);
+    expect(result).toStrictEqual(['Rundown 2', '1']);
   });
 
   it('returns returns undefined if there are no matches', () => {
-    const rundown = makeRundown({
-      entries: {
-        '1': makeOntimeEvent({
-          id: '1',
-          triggers: [
-            {
-              id: 'trigger-1',
-              title: 'Trigger 1',
-              trigger: TimerLifeCycle.onClock,
-              automationId: 'test-automation',
-            },
-          ],
-        }),
+    const projectRundowns: ProjectRundowns = {
+      'rundown-1': {
+        id: 'rundown-1',
+        title: 'Rundown 1',
+        order: ['1'],
+        flatOrder: ['1'],
+        entries: {
+          '1': makeOntimeEvent({
+            id: '1',
+            triggers: [
+              {
+                id: 'trigger-1',
+                title: 'Trigger 1',
+                trigger: TimerLifeCycle.onClock,
+                automationId: 'test-automation',
+              },
+            ],
+          }),
+        },
+        revision: 1,
       },
-    });
-
-    const timedEventOrder = ['1'];
+    };
     const automationId = 'does-not-exist';
 
-    const result = isAutomationUsed(rundown, timedEventOrder, automationId);
+    const result = isAutomationUsed(projectRundowns, automationId);
     expect(result).toBeUndefined();
   });
 });
