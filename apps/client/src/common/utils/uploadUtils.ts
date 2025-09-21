@@ -33,8 +33,8 @@ export function validateProjectFile(file: File) {
   }
 
   // Limit file size of a project file to around 1MB
-  if (file.size > 1_000_000) {
-    throw new Error('File size limit (1MB) exceeded');
+  if (file.size > 2_000_000) {
+    throw new Error('File size limit (2MB) exceeded');
   }
 }
 
@@ -56,8 +56,8 @@ export function validateLogo(file: File) {
     throw new Error('File is empty');
   }
 
-  // Limit file size of a project file to around 1MB
-  if (file.size > 1_000_000) {
-    throw new Error('File size limit (1MB) exceeded');
+  // Limit file size of a project file to around 1.5MB
+  if (file.size > 1_500_000) {
+    throw new Error('File size limit (1.5MB) exceeded');
   }
 }
