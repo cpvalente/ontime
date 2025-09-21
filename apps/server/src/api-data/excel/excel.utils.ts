@@ -194,7 +194,17 @@ export const changeMaxSizeOfExcel = (
   return worksheet;
 }
 
-const contentOfConfigForXlsxWritingFile: configXlsxTemplate<string> = isTest ? {} : JSON.parse(
+const contentOfConfigForXlsxWritingFile: configXlsxTemplate<string> = isTest ? {
+  cue: "B2",
+  title: "C2",
+  colour: "D2",
+  timeStart: "E2",
+  timeEnd: "F2",
+  duration: "G2",
+  note: "H2",
+  timerType: "I2",
+  customFields: "J2"
+} : JSON.parse(
   fs.readFileSync(excelTemplateFiles.rundownXlsxTemplateConfig, { encoding: 'utf8' }),
 );
 
