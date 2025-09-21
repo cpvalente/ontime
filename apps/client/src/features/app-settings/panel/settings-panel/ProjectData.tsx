@@ -27,6 +27,7 @@ export default function ProjectData() {
     reset,
     formState: { isSubmitting, isValid, isDirty, errors },
     setError,
+    clearErrors,
     watch,
     control,
     setValue,
@@ -53,6 +54,7 @@ export default function ProjectData() {
 
   const handleUploadProjectLogo = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    clearErrors('logo');
 
     if (!file) {
       return;
@@ -93,6 +95,7 @@ export default function ProjectData() {
 
   const onSubmit = async (formData: ProjectData) => {
     try {
+      clearErrors();
       await updateProjectData(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
