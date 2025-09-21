@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IoArrowBack, IoClose, IoSaveOutline } from 'react-icons/io5';
+import { IoArrowBack, IoClose, IoSaveOutline, IoAlbumsOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
 import { EntryId, OntimeEvent } from 'ontime-types';
 
@@ -7,18 +7,19 @@ import Button from '../../common/components/buttons/Button';
 import { cx } from '../../common/utils/styleUtils';
 import ClockTime from '../../features/viewers/common/clock-time/ClockTime';
 
-import { makeSubscriptionsUrl } from './countdown.utils';
+import { CountdownSubscription, makeSubscriptionsUrl } from './countdown.utils';
 
 import './Countdown.scss';
 
 interface CountdownSelectProps {
   events: OntimeEvent[];
-  subscriptions: EntryId[];
+  subscriptions: CountdownSubscription;
   disableEdit: () => void;
 }
 
 export default function CountdownSelect({ events, subscriptions, disableEdit }: CountdownSelectProps) {
-  const [selected, setSelected] = useState<EntryId[]>(subscriptions);
+  const maybeAllSubscriptions: EntryId[] = subscriptions === 'all' ? events.map((event) => event.id) : subscriptions;
+  const [selected, setSelected] = useState<EntryId[]>(maybeAllSubscriptions);
   const navigate = useNavigate();
 
   /**
@@ -42,6 +43,18 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
     // we remove events that no longer exist to avoid stale subscriptions
     const filteredSelected = selected.filter((id) => events.some((event) => event.id === id));
     const url = makeSubscriptionsUrl(window.location.href, filteredSelected);
+    disableEdit();
+    setSelected([]);
+    navigate(url.search.toString());
+  };
+
+  /**
+   * Creates a URL with all
+   * and navigates to it
+   */
+  const applyAll = () => {
+    // we remove events that no longer exist to avoid stale subscriptions
+    const url = makeSubscriptionsUrl(window.location.href, 'all');
     disableEdit();
     setSelected([]);
     navigate(url.search.toString());
@@ -85,6 +98,10 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
       <div className='fab-container'>
         <Button variant='subtle' size='xlarge' onClick={disableEdit}>
           <IoArrowBack /> Go back
+        </Button>
+        <Button variant='subtle' size='xlarge' onClick={applyAll}>
+          {/* TODO: icon ??? */}
+          <IoAlbumsOutline /> Use All
         </Button>
         <Button variant='subtle' size='xlarge' onClick={() => setSelected([])} disabled={selected.length === 0}>
           <IoClose /> Clear

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { EntryId, isOntimeEvent, isPlayableEvent, OntimeEvent, OntimeView } from 'ontime-types';
+import { isOntimeEvent, isPlayableEvent, OntimeEvent, OntimeView } from 'ontime-types';
 
 import Button from '../../common/components/buttons/Button';
 import Empty from '../../common/components/state/Empty';
@@ -16,7 +16,7 @@ import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
 
 import { getCountdownOptions, useCountdownOptions } from './countdown.options';
-import { getOrderedSubscriptions } from './countdown.utils';
+import { CountdownSubscription, getOrderedSubscriptions } from './countdown.utils';
 import CountdownSelect from './CountdownSelect';
 import CountdownSubscriptions from './CountdownSubscriptions';
 import SingleEventCountdown from './SingleEventCountdown';
@@ -59,6 +59,8 @@ function Countdown({ customFields, rundownData, projectData, isMirrored, setting
     [defaultFormat, customFields, subscriptions],
   );
 
+  console.log(subscriptions)
+
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
       <ViewParamsEditor target={OntimeView.Countdown} viewOptions={countdownOptions} />
@@ -87,7 +89,7 @@ function Countdown({ customFields, rundownData, projectData, isMirrored, setting
 
 interface CountdownContentsProps {
   playableEvents: ExtendedEntry<OntimeEvent>[];
-  subscriptions: EntryId[];
+  subscriptions: CountdownSubscription;
   goToEditMode: () => void;
 }
 
