@@ -1,5 +1,5 @@
 import {
-  ApiAction,
+  ApiActionTag,
   MessageState,
   OffsetMode,
   OntimeEvent,
@@ -30,7 +30,7 @@ let lastRequest: Date | null = null;
 
 export function dispatchFromAdapter(tag: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = tag.toLowerCase();
-  const handler = actionHandlers[action as ApiAction];
+  const handler = actionHandlers[action as ApiActionTag];
   lastRequest = new Date();
 
   if (handler) {
@@ -46,7 +46,7 @@ export function getLastRequest() {
 
 type ActionHandler = (payload: unknown) => { payload: unknown };
 
-const actionHandlers: Record<ApiAction, ActionHandler> = {
+const actionHandlers: Record<ApiActionTag, ActionHandler> = {
   /* General */
   version: () => ({ payload: ONTIME_VERSION }),
   poll: () => ({

@@ -26,6 +26,9 @@
       "cache": false
     },
     "build": {
+      "dependsOn": [
+        "^build"
+      ],
       "env": ["SENTRY_AUTH_TOKEN"]
     },
     "build:local": {},
