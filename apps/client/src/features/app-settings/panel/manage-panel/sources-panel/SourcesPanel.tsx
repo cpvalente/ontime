@@ -12,6 +12,7 @@ import { getWorksheetNames } from '../../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
 import * as Editor from '../../../../../common/components/editor-utils/EditorUtils';
+import useProjectData from '../../../../../common/hooks-query/useProjectData';
 import { validateExcelImport } from '../../../../../common/utils/uploadUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
@@ -23,7 +24,6 @@ import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 
 import style from './SourcesPanel.module.scss';
-import useProjectData from '../../../../../common/hooks-query/useProjectData';
 
 export default function SourcesPanel() {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet' | 'finished'>('none');

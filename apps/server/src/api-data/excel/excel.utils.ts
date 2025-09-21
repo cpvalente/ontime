@@ -3,6 +3,7 @@ import { checkRegex, customFieldLabelToKey, ImportMap } from 'ontime-utils';
 import xlsx from 'xlsx';
 import fs from 'fs';
 import { excelTemplateFiles } from '../../setup/index.js';
+import { isTest } from '../../setup/environment.js';
 
 /**
  * Receives an import map which contains custom field labels and a custom fields object
@@ -178,7 +179,7 @@ export function generateImportHandlers(importMap: ImportMap) {
 export type configXlsxTemplate<Key = { [key in 'c' | 'r']: number }> = { [key in "cue" | "title" | "colour" | "timeStart" | "timeEnd" | "duration" | "note" | "timerType" | "customFields"]: Key } & { [key in "id" | "linkStart" | "countToEnd" | "endAction" | "warningTime" | "dangerTime" | "skip"]?: Key };
 
 /**
- * change the size of the  excel sheet
+ * change the size of the excel sheet
  */
 export const changeMaxSizeOfExcel = (
   worksheet: xlsx.WorkSheet,
@@ -193,8 +194,7 @@ export const changeMaxSizeOfExcel = (
   return worksheet;
 }
 
-
-const contentOfConfigForXlsxWritingFile: configXlsxTemplate<string> = JSON.parse(
+const contentOfConfigForXlsxWritingFile: configXlsxTemplate<string> = isTest ? {} : JSON.parse(
   fs.readFileSync(excelTemplateFiles.rundownXlsxTemplateConfig, { encoding: 'utf8' }),
 );
 
