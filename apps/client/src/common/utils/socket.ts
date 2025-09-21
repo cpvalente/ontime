@@ -13,6 +13,7 @@ import { isProduction, websocketUrl } from '../../externals';
 import {
   APP_SETTINGS,
   CLIENT_LIST,
+  CSS_OVERRIDE,
   CUSTOM_FIELDS,
   PROJECT_DATA,
   REPORT,
@@ -180,6 +181,9 @@ export const connectSocket = () => {
               break;
             case RefetchKey.Settings:
               ontimeQueryClient.invalidateQueries({ queryKey: APP_SETTINGS });
+              break;
+            case RefetchKey.CssOverride:
+              ontimeQueryClient.invalidateQueries({ queryKey: CSS_OVERRIDE });
               break;
             default: {
               target satisfies never;

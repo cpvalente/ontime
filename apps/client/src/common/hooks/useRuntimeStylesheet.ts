@@ -1,9 +1,24 @@
 import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { MILLIS_PER_HOUR } from 'ontime-utils';
+
+import { getCSSContents } from '../api/assets';
+import { CSS_OVERRIDE } from '../api/constants';
+import useViewSettings from '../hooks-query/useViewSettings';
 
 const scriptTagId = 'ontime-override';
 
-export const useRuntimeStylesheet = (pathToFile?: string): { shouldRender: boolean } => {
+export const useRuntimeStylesheet = (): { shouldRender: boolean } => {
   const [shouldRender, setShouldRender] = useState(false);
+  const { data } = useViewSettings();
+
+  const { data: cssData } = useQuery({
+    queryKey: CSS_OVERRIDE,
+    queryFn: getCSSContents,
+    enabled: data.overrideStyles,
+    placeholderData: (previousData, _previousQuery) => previousData,
+    staleTime: MILLIS_PER_HOUR,
+  });
 
   /**
    * When a view mounts or the stylesheet path changes we need to handle potentially loading a new stylesheet
@@ -12,64 +27,30 @@ export const useRuntimeStylesheet = (pathToFile?: string): { shouldRender: boole
    * @returns { shouldRender: boolean } - after the stylesheet is handled and the clients are ready to render
    */
   useEffect(() => {
-    if (!pathToFile) {
-      handleNoStylesheet();
-      return;
-    }
+    let styleSheet = document.getElementById(scriptTagId);
 
-    // there is already a stylesheet loaded, nothing further to do
-    if (document.getElementById(scriptTagId)) {
+    if (!cssData || !data.overrideStyles) {
+      // No stylesheet was provided, remove any existing stylesheet
+      styleSheet?.remove();
       setShouldRender(true);
       return;
     }
 
     setShouldRender(false);
 
-    fetchStylesheetData(pathToFile)
-      .then((data: string | undefined) => {
-        if (!data) {
-          console.error('Error loading stylesheet: no data');
-          return;
-        }
-        return injectStylesheet(data);
-      })
-      .catch((error: unknown) => {
-        console.error(`Error loading stylesheet: ${error}`);
-      })
-      .finally(() => {
-        // schedule render for next tick
-        setTimeout(() => setShouldRender(true), 0);
-      });
+    // Ensure the stylesheet is given to the document head
+    // if (!styleSheet) {
+    //   styleSheet = document.createElement('style');
+    //   styleSheet.setAttribute('id', scriptTagId);
+    //   document.head.append(styleSheet);
+    // }
 
-    /**
-     * No stylesheet was provided, remove any existing stylesheet
-     */
-    function handleNoStylesheet() {
-      document.getElementById(scriptTagId)?.remove();
-      setShouldRender(true);
-    }
+    // // set style sheet content
+    // styleSheet.textContent = cssData;
 
-    /**
-     * Get data from backend
-     */
-    async function fetchStylesheetData(path: string) {
-      const response = await fetch(path);
-      if (response.ok) {
-        return response.text();
-      }
-      return undefined;
-    }
-
-    /**
-     * Add a stylesheet with given content to the document head
-     */
-    async function injectStylesheet(styleContent: string) {
-      const styleSheet = document.createElement('style');
-      styleSheet.setAttribute('id', scriptTagId);
-      styleSheet.innerHTML = styleContent;
-      document.head.append(styleSheet);
-    }
-  }, [pathToFile]);
+    // schedule render for next tick
+    setTimeout(() => setShouldRender(true), 0);
+  }, [cssData, data.overrideStyles]);
 
   return { shouldRender };
 };
