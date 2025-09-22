@@ -4,12 +4,8 @@ import { useEffect, useState } from 'react';
 export async function useKeepAwake(lock: boolean) {
   const [wakeLockSentinel, setWakeLockSentinel] = useState<WakeLockSentinel | null>(null);
 
-  const removeLock = async () => {
-    if (wakeLockSentinel) {
-      await wakeLockSentinel.release();
-      console.log(wakeLockSentinel);
-      setWakeLockSentinel(null);
-    }
+  const removeLock = () => {
+    if (wakeLockSentinel) wakeLockSentinel.release().finally(() => setWakeLockSentinel(null));
   };
 
   const acquireLock = () => {
@@ -26,15 +22,26 @@ export async function useKeepAwake(lock: boolean) {
   };
 
   useEffect(() => {
-    console.log('widown lock?', lock);
+    const controller = new AbortController();
     if (lock) {
       acquireLock();
+      document.addEventListener(
+        'visibilitychange',
+        () => {
+          console.log('visibilitychange');
+          if (wakeLockSentinel !== null && document.visibilityState === 'visible') {
+            acquireLock();
+          }
+        },
+        { signal: controller.signal },
+      );
     } else {
-      removeLock().catch(console.error);
+      removeLock();
     }
 
     return () => {
-      removeLock().catch(console.error);
+      controller.abort();
+      removeLock();
     };
   }, [lock]);
 }
