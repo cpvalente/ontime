@@ -20,7 +20,6 @@
     "ontime-utils": "workspace:*",
     "osc-min": "2.1.2",
     "sanitize-filename": "^1.6.3",
-    "steno": "^4.0.2",
     "ws": "^8.18.0",
     "xlsx": "^0.18.5"
   },
