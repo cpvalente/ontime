@@ -11,6 +11,7 @@ import { connectSocket } from './common/utils/socket';
 import { TranslationProvider } from './translation/TranslationProvider';
 import AppRouter from './AppRouter';
 import { baseURI } from './externals';
+import KeepAwake from './common/components/keepawake/keepawake';
 
 connectSocket();
 
@@ -24,6 +25,7 @@ function App() {
               <ErrorBoundary>
                 <TranslationProvider>
                   <IdentifyOverlay />
+                  <KeepAwake />
                   <AppRouter />
                 </TranslationProvider>
               </ErrorBoundary>

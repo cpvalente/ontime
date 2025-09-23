@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useViewOptionsStore } from '../../stores/viewOptions';
 
 /** @url https://developer.mozilla.org/en-US/docs/Web/API/WakeLock */
-export async function useKeepAwake(lock: boolean) {
+export default function KeepAwake() {
+  const { keepAwake } = useViewOptionsStore();
   const [wakeLockSentinel, setWakeLockSentinel] = useState<WakeLockSentinel | null>(null);
 
   const removeLock = () => {
@@ -14,7 +16,6 @@ export async function useKeepAwake(lock: boolean) {
       navigator.wakeLock
         .request('screen')
         .then((sentinel) => {
-          console.info(sentinel);
           setWakeLockSentinel(sentinel);
         })
         .catch(console.error);
@@ -23,12 +24,11 @@ export async function useKeepAwake(lock: boolean) {
 
   useEffect(() => {
     const controller = new AbortController();
-    if (lock) {
+    if (keepAwake) {
       acquireLock();
       document.addEventListener(
         'visibilitychange',
         () => {
-          console.log('visibilitychange');
           if (wakeLockSentinel !== null && document.visibilityState === 'visible') {
             acquireLock();
           }
@@ -43,5 +43,7 @@ export async function useKeepAwake(lock: boolean) {
       controller.abort();
       removeLock();
     };
-  }, [lock]);
+  }, [keepAwake]);
+
+  return <></>;
 }

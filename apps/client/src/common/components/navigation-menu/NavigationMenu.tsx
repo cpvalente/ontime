@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { IoClose, IoContract, IoExpand, IoLockClosedOutline, IoSwapVertical } from 'react-icons/io5';
+import { IoClose, IoContract, IoExpand, IoLockClosedOutline, IoSwapVertical, IoEye } from 'react-icons/io5';
 import { useLocation } from 'react-router';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { useDisclosure, useFullscreen } from '@mantine/hooks';
@@ -30,7 +30,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
 
   const [isRenameOpen, handlers] = useDisclosure(false);
   const { fullscreen, toggle } = useFullscreen();
-  const { mirror, toggleMirror } = useViewOptionsStore();
+  const { mirror, keepAwake, toggleMirror, toggleKeepAwake } = useViewOptionsStore();
   const location = useLocation();
 
   return (
@@ -62,6 +62,13 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
               <IoSwapVertical />
               {mirror && <span className={style.note}>Active</span>}
             </NavigationMenuItem>
+            {window.isSecureContext && (
+              <NavigationMenuItem active={keepAwake} onClick={() => toggleKeepAwake()}>
+                Keep Awake
+                <IoEye />
+                {keepAwake && <span className={style.note}>Active</span>}
+              </NavigationMenuItem>
+            )}
             <NavigationMenuItem onClick={handlers.open}>Rename Client</NavigationMenuItem>
 
             <hr className={style.separator} />
