@@ -53,7 +53,8 @@ export function coerceBoolean(value: unknown): boolean {
     }
   }
   if (typeof value === 'number') {
-    return value > 0;
+    if (value === 0) return false;
+    if (value === 1) return true;
   }
   throw new Error('Invalid value received');
 }
