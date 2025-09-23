@@ -323,11 +323,15 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
 
     /**
      * The user may have multiple rundowns
-     * We currently ignore all other rundowns
+     * so attempt to get the one that was used last
+     * otherwise just pick the first
      */
-    const firstRundown = getFirstRundown(result);
+    const last = await getLastLoaded();
+    const rundownToLoad =
+      last?.rundownId && last.rundownId in result ? result[last.rundownId] : getFirstRundown(result);
 
-    await initRundown(firstRundown, customFields);
+    // console.log('last', rundownToLoad.id, rundownToLoad.title);
+    await initRundown(rundownToLoad, customFields);
   }
 
   const updatedData = await getDataProvider().getData();
