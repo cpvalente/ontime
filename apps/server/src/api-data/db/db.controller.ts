@@ -4,6 +4,7 @@ import {
   MessageResponse,
   ProjectFileListResponse,
   ProjectLogoResponse,
+  RefetchKey,
 } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
@@ -16,6 +17,7 @@ import {
   handleUploaded,
 } from '../../services/project-service/projectServiceUtils.js';
 import * as projectService from '../../services/project-service/ProjectService.js';
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   try {
@@ -33,6 +35,7 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
     const newData = await projectService.patchCurrentProject(patchDb);
 
     res.status(200).send(newData);
+    sendRefetch(RefetchKey.All);
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });
