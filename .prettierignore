@@ -8,3 +8,4 @@ playwright-report
 **/*.toml
 **/*.yml
 **/*.json
+!tsconfig.common.json
