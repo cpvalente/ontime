@@ -330,8 +330,7 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
     const rundownToLoad =
       last?.rundownId && last.rundownId in result ? result[last.rundownId] : getFirstRundown(result);
 
-    // console.log('last', rundownToLoad.id, rundownToLoad.title);
-    await initRundown(rundownToLoad, customFields);
+    await initRundown(rundownToLoad, customFields, true);
   }
 
   const updatedData = await getDataProvider().getData();
