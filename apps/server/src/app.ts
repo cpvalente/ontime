@@ -8,6 +8,8 @@ import serverTiming from 'server-timing';
 import cookieParser from 'cookie-parser';
 
 // import utils
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { publicDir, srcDir } from './setup/index.js';
 import { environment, isProduction } from './setup/environment.js';
 import { updateRouterPrefix } from './externals.js';
@@ -103,6 +105,23 @@ app.use(`${prefix}/user`, express.static(publicDir.userDir, { etag: false, lastM
 
 // Base route for static files
 app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);
+
+app.get(`${prefix}/manifest.webmanifest`, (req, res) => {
+  // get the referer, if it doesnt exist, we send the default manifest
+  const referer = req.headers.referer || '/';
+
+  // read the manifest file
+  const manifest = JSON.parse(
+    readFileSync(join(publicDir.root, 'manifest.webmanifest'), 'utf-8'),
+  );
+
+  // set the start_url to the referer
+  manifest.start_url = referer;
+
+  // send the manifest
+  res.json(manifest);
+});
+
 app.use(`${prefix}/*splat`, authenticateAndRedirect, compressedStatic);
 
 // Implement catch all
