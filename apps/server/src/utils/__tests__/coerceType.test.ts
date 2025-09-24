@@ -145,16 +145,25 @@ describe('coerce unknown value to a boolean', () => {
     expect(coerceBoolean('')).toStrictEqual(false);
   });
 
-  test('true numbers', () => {
-    expect(coerceBoolean(1)).toStrictEqual(true);
-    expect(coerceBoolean(2)).toStrictEqual(true);
-    expect(coerceBoolean(100000)).toStrictEqual(true);
+  test('invalid strings', () => {
+    expect(() => coerceBoolean('bla')).toThrowError('Invalid value received');
+    expect(() => coerceBoolean(' ')).toThrowError('Invalid value received');
   });
 
-  test.todo('false numbers', () => {
+  test('true numbers', () => {
+    expect(coerceBoolean(1)).toStrictEqual(true);
+  });
+
+  test('false numbers', () => {
     expect(coerceBoolean(0)).toStrictEqual(false);
-    expect(coerceBoolean(-1)).toStrictEqual(false);
-    expect(coerceBoolean(-10000)).toStrictEqual(false);
+  });
+
+  test('invalid numbers', () => {
+    expect(() => coerceBoolean(0.5)).toThrowError('Invalid value received');
+    expect(() => coerceBoolean(-1)).toThrowError('Invalid value received');
+    expect(() => coerceBoolean(2)).toThrowError('Invalid value received');
+    expect(() => coerceBoolean(NaN)).toThrowError('Invalid value received');
+    expect(() => coerceBoolean(Infinity)).toThrowError('Invalid value received');
   });
 
   test('booleans', () => {
