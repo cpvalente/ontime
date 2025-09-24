@@ -96,3 +96,61 @@ export function getCueCandidate(entries: RundownEntries, order: EntryId[], inser
 export function sanitiseCue(cue: string) {
   return cue.replaceAll(' ', '').replaceAll(',', '.');
 }
+
+type CueNameMethod = 'number' | 'letter';
+
+export function renumberEntries(
+  entries: RundownEntries,
+  order: EntryId[],
+  from: EntryId,
+  to: EntryId,
+  increment: undefined | number,
+  start: undefined | string,
+) {
+  let foundFrom = false;
+  let foundTo = false;
+  let currentCue = '';
+  let cueNameMethod: CueNameMethod = 'number';
+  for (const id of order) {
+    const entry = entries[id];
+    if (!isOntimeEvent(entry)) continue;
+    if (!foundFrom && id === from) {
+      foundFrom = true;
+      currentCue = start === undefined ? entry.cue : start;
+      increment = increment === undefined ? 1 : increment;
+      if (isNumeric(currentCue)) {
+        cueNameMethod = 'number';
+        continue;
+      }
+      cueNameMethod = 'letter';
+      continue;
+    }
+
+    switch (cueNameMethod) {
+      case 'number': {
+        // we cant do simple floating point as will will quickly hit precision errors
+        let newCue = (Number(currentCue) + increment!).toFixed(5);
+        while (newCue.endsWith('0')) newCue = newCue.slice(0, -1);
+        entry.cue = newCue.endsWith('.') ? newCue.slice(0, -1) : newCue;
+        currentCue = entry.cue;
+        break;
+      }
+      case 'letter': {
+        let [letter, number] = currentCue.split('.');
+        number = number === undefined ? '1' : (Number(number) + increment!).toFixed(5);
+        while (number.endsWith('0')) number = number.slice(0, -1);
+        number = number.endsWith('.') ? number.slice(0, -1) : number;
+        entry.cue = `${letter}.${number}`;
+        currentCue = entry.cue;
+        break;
+      }
+    }
+
+    if (id === to) {
+      foundTo = true;
+      break;
+    }
+  }
+  if (!foundFrom || !foundTo) throw new Error('Can not renumber without proper from and to ids');
+  return entries;
+}
