@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.common.json",
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
     "allowUnusedLabels": false,

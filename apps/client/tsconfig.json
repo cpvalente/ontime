@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.common.json",
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "esnext",
     "lib": [
       "dom",
       "dom.iterable",
