@@ -5,7 +5,6 @@
   "repository": "https://github.com/cpvalente/ontime",
   "types": "./dist/main.d.ts",
   "main": "./dist/main.js",
-  "private": true,
   "description": "shared typings for ontime",
   "scripts": {
     "lint": "eslint . --quiet",
