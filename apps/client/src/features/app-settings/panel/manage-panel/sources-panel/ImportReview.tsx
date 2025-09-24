@@ -18,8 +18,7 @@ interface ImportReviewProps {
 
 export default function ImportReview(props: ImportReviewProps) {
   const { rundown, customFields, onFinished, onCancel } = props;
-  const { data } = useRundown();
-  const { id, title } = data;
+  const { data: currentRundown } = useRundown();
   const [loading, setLoading] = useState(false);
   const { importRundown } = useGoogleSheet();
   const resetPreview = useSheetStore((state) => state.resetPreview);
@@ -36,7 +35,7 @@ export default function ImportReview(props: ImportReviewProps) {
     // so the id needs to match
     await importRundown(
       {
-        [id]: { ...rundown, id, title },
+        [currentRundown.id]: { ...rundown, id: currentRundown.id, title: currentRundown.title },
       },
       customFields,
     );
