@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { CustomFields, Rundown } from 'ontime-types';
 
 import Button from '../../../../../common/components/buttons/Button';
+import useRundown from '../../../../../common/hooks-query/useRundown';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import PreviewSpreadsheet from './preview/PreviewRundown';
@@ -17,7 +18,7 @@ interface ImportReviewProps {
 
 export default function ImportReview(props: ImportReviewProps) {
   const { rundown, customFields, onFinished, onCancel } = props;
-
+  const { data: currentRundown } = useRundown();
   const [loading, setLoading] = useState(false);
   const { importRundown } = useGoogleSheet();
   const resetPreview = useSheetStore((state) => state.resetPreview);
@@ -29,9 +30,12 @@ export default function ImportReview(props: ImportReviewProps) {
 
   const applyImport = async () => {
     setLoading(true);
+
+    // we need to import on-top of the currently loaded rundown
+    // so the id needs to match
     await importRundown(
       {
-        [rundown.id]: rundown,
+        [currentRundown.id]: { ...rundown, id: currentRundown.id, title: currentRundown.title },
       },
       customFields,
     );
