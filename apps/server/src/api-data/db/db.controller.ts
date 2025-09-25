@@ -31,7 +31,6 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
     };
 
     const newData = await projectService.patchCurrentProject(patchDb);
-
     res.status(200).send(newData);
   } catch (error) {
     const message = getErrorMessage(error);
