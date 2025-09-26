@@ -1,10 +1,11 @@
 import { memo } from 'react';
-import { IoClose, IoContract, IoExpand, IoLockClosedOutline, IoSwapVertical, IoEye } from 'react-icons/io5';
+import { IoClose, IoContract, IoExpand, IoEye, IoLockClosedOutline, IoSwapVertical } from 'react-icons/io5';
 import { useLocation } from 'react-router';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { useDisclosure, useFullscreen } from '@mantine/hooks';
 
 import { isLocalhost } from '../../../externals';
+import { useKeepAwakeOptions } from '../../../features/keep-awake/KeepAwake';
 import { navigatorConstants } from '../../../viewerConfig';
 import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
@@ -30,7 +31,8 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
 
   const [isRenameOpen, handlers] = useDisclosure(false);
   const { fullscreen, toggle } = useFullscreen();
-  const { mirror, keepAwake, toggleMirror, toggleKeepAwake } = useViewOptionsStore();
+  const { mirror, toggleMirror } = useViewOptionsStore();
+  const { keepAwake, toggleKeepAwake } = useKeepAwakeOptions();
   const location = useLocation();
 
   return (
@@ -63,7 +65,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
               {mirror && <span className={style.note}>Active</span>}
             </NavigationMenuItem>
             {window.isSecureContext && (
-              <NavigationMenuItem active={keepAwake} onClick={() => toggleKeepAwake()}>
+              <NavigationMenuItem active={keepAwake} onClick={toggleKeepAwake}>
                 Keep Awake
                 <IoEye />
                 {keepAwake && <span className={style.note}>Active</span>}

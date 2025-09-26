@@ -8,10 +8,10 @@ import IdentifyOverlay from './common/components/identify-overlay/IdentifyOverla
 import { AppContextProvider } from './common/context/AppContext';
 import { ontimeQueryClient } from './common/queryClient';
 import { connectSocket } from './common/utils/socket';
+import KeepAwake from './features/keep-awake/KeepAwake';
 import { TranslationProvider } from './translation/TranslationProvider';
 import AppRouter from './AppRouter';
 import { baseURI } from './externals';
-import KeepAwake from './common/components/keepawake/keepawake';
 
 connectSocket();
 
