@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_cli:
+  build_resolver:
     permissions:
       id-token: write
     runs-on: ubuntu-latest
