@@ -1,13 +1,12 @@
 {
+  "extends": "../../tsconfig.common.json",
   "compilerOptions": {
-    "strict": true,
-    "target": "ESNext",
-    "module": "Node16",
-    "moduleResolution": "Node16",
-    "allowSyntheticDefaultImports": true,
+    "target": "esnext",
+    "module": "node16",
+    "moduleResolution": "node16",
+    "noImplicitReturns": false, //TODO: fix this
     "allowJs": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
     "types": ["vitest/globals"],
     "outDir": "dist",
     "experimentalDecorators": true,
