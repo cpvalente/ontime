@@ -108,12 +108,15 @@ export type AddtimeResponse = {
 export type AuxtimerAction = {
   tag: 'auxtimer';
   payload:
-    | { '1': SimplePlayback }
-    | { '1': { duration?: number; addtime?: number; direction?: SimpleDirection } }
-    | { '2': SimplePlayback }
-    | { '2': { duration?: number; addtime?: number; direction?: SimpleDirection } }
-    | { '3': SimplePlayback }
-    | { '3': { duration?: number; addtime?: number; direction?: SimpleDirection } };
+    | {
+        ['1']?: SimplePlayback | { duration?: number; addtime?: number; direction?: SimpleDirection };
+      }
+    | {
+        ['2']?: SimplePlayback | { duration?: number; addtime?: number; direction?: SimpleDirection };
+      }
+    | {
+        ['3']?: SimplePlayback | { duration?: number; addtime?: number; direction?: SimpleDirection };
+      };
 };
 
 export type AuxtimerResponse = {
@@ -155,7 +158,7 @@ export type ApiAction =
   | ClientAction
   | OffsetmodeAction;
 
-  export type ApiResponse =
+export type ApiResponse =
   | VersionResponse
   | PollResponse
   | ChangeResponse
