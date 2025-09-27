@@ -1,5 +1,9 @@
-import { useRuntimeOffset } from '../../../common/hooks/useSocket';
+import { OntimeEvent } from 'ontime-types';
+import { getExpectedStart } from 'ontime-utils';
+
+import { useExpectedStartData } from '../../../common/hooks/useSocket';
 import { getOffsetState } from '../../../common/utils/offset';
+import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { cx } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
 import SuperscriptTime from '../../../features/viewers/common/superscript-time/SuperscriptTime';
@@ -14,41 +18,20 @@ const formatOptions = {
 };
 
 interface ScheduleItemProps {
-  timeStart: number;
-  timeEnd: number;
-  title: string;
-  colour?: string;
-  skip?: boolean;
-  delay: number;
+  event: ExtendedEntry<OntimeEvent>;
 }
 
-export default function ScheduleItem({ timeStart, timeEnd, title, colour, skip, delay }: ScheduleItemProps) {
+export default function ScheduleItem({ event }: ScheduleItemProps) {
   const { showExpected } = useScheduleOptions();
 
   if (showExpected) {
-    return (
-      <ExpectedScheduleItem
-        timeStart={timeStart}
-        timeEnd={timeEnd}
-        title={title}
-        colour={colour}
-        skip={skip}
-        delay={delay}
-      />
-    );
+    return <ExpectedScheduleItem event={event} />;
   }
 
+  const { delay, timeStart, timeEnd, title, colour, skip } = event;
+
   if (delay > 0) {
-    return (
-      <DelayedScheduleItem
-        timeStart={timeStart}
-        timeEnd={timeEnd}
-        title={title}
-        colour={colour}
-        skip={skip}
-        delay={delay}
-      />
-    );
+    return <DelayedScheduleItem event={event} />;
   }
 
   const start = formatTime(timeStart, formatOptions);
@@ -66,7 +49,8 @@ export default function ScheduleItem({ timeStart, timeEnd, title, colour, skip, 
   );
 }
 
-function DelayedScheduleItem({ timeStart, timeEnd, title, colour, skip, delay }: ScheduleItemProps) {
+function DelayedScheduleItem({ event }: ScheduleItemProps) {
+  const { timeStart, timeEnd, title, colour, skip, delay } = event;
   const start = formatTime(timeStart, formatOptions);
   const end = formatTime(timeEnd, formatOptions);
   const delayedStart = formatTime(timeStart + delay, formatOptions);
@@ -92,14 +76,30 @@ function DelayedScheduleItem({ timeStart, timeEnd, title, colour, skip, delay }:
   );
 }
 
-function ExpectedScheduleItem({ timeStart, timeEnd, title, colour, skip, delay }: ScheduleItemProps) {
+function ExpectedScheduleItem({ event }: ScheduleItemProps) {
+  const { timeStart, duration, delay, countToEnd, isLinkedToLoaded, totalGap, skip, colour, title } = event;
+  const { offset, currentDay, actualStart, plannedStart: plannedRundownStart, mode } = useExpectedStartData();
+
+  const expectedStart = getExpectedStart(event, {
+    currentDay,
+    totalGap,
+    actualStart,
+    plannedStart: plannedRundownStart,
+    isLinkedToLoaded,
+    offset,
+    mode,
+  });
+
+  const plannedEnd = timeStart + duration + delay;
+  const expectedEnd = countToEnd ? Math.max(expectedStart + duration, plannedEnd) : expectedStart + duration;
+
   return (
     <li className={cx(['entry', skip && 'entry--skip'])}>
       <div className='entry-times'>
         <span className='entry-colour' style={{ backgroundColor: colour }} />
-        <ExpectedTime time={timeStart} delay={delay} />
+        <ExpectedTime expectedTime={expectedStart} plannedTime={timeStart} />
         →
-        <ExpectedTime time={timeEnd} delay={delay} />
+        <ExpectedTime expectedTime={expectedEnd} plannedTime={plannedEnd} />
       </div>
       <div className='entry-title'>{title}</div>
     </li>
@@ -107,16 +107,12 @@ function ExpectedScheduleItem({ timeStart, timeEnd, title, colour, skip, delay }
 }
 
 interface ExpectedTimeProps {
-  time: number;
-  delay: number;
+  expectedTime: number;
+  plannedTime: number;
 }
 
-function ExpectedTime({ time, delay }: ExpectedTimeProps) {
-  const { offset } = useRuntimeOffset();
-
-  const expectedOffset = offset - delay;
-  const expectedTime = formatTime(time + offset, formatOptions);
-  const expectedState = getOffsetState(expectedOffset);
-
-  return <SuperscriptTime className={`entry-times--${expectedState}`} time={expectedTime} />;
+function ExpectedTime({ expectedTime, plannedTime }: ExpectedTimeProps) {
+  const timeDisplay = formatTime(expectedTime);
+  const expectedState = getOffsetState(plannedTime - expectedTime);
+  return <SuperscriptTime className={`entry-times--${expectedState}`} time={timeDisplay} />;
 }
