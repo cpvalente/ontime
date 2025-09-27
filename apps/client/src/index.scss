@@ -63,7 +63,6 @@ body,
 html {
   font-size: 15px;
   font-family: $ontime-font-family;
-  background-color: var(--background-color-override, $ui-black);
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
 }
