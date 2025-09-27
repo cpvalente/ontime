@@ -8,7 +8,7 @@ import { useSelectedEventId } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import useProjectData from '../../common/hooks-query/useProjectData';
-import useRundown from '../../common/hooks-query/useRundown';
+import { useRundownWithMetadata } from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
 import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
@@ -21,14 +21,14 @@ import OperatorGroup from './operator-group/OperatorGroup';
 import StatusBar from './status-bar/StatusBar';
 import { getOperatorOptions, useOperatorOptions } from './operator.options';
 import type { EditEvent } from './operator.types';
-import { getEventData, makeOperatorMetadata } from './operator.utils';
+import { getEventData } from './operator.utils';
 
 import style from './Operator.module.scss';
 
 const selectedOffset = 50;
 
 export default function Operator() {
-  const { data, status } = useRundown();
+  const { data, rundownMetadata, status } = useRundownWithMetadata();
   const { data: customFields, status: customFieldStatus } = useCustomFields();
   const { data: projectData, status: projectDataStatus } = useProjectData();
 
@@ -113,7 +113,6 @@ export default function Operator() {
   }
 
   const canEdit = shouldEdit && subscribe.length;
-  const { process } = makeOperatorMetadata(selectedEventId);
 
   return (
     <div className={style.operatorContainer} data-testid='operator-view'>
@@ -130,8 +129,7 @@ export default function Operator() {
         {data.order.map((entryId) => {
           const entry = data.entries[entryId];
           if (isOntimeEvent(entry)) {
-            const { isPast, isSelected, isLinkedToLoaded, totalGap } = process(entry);
-
+            const { isPast, isLinkedToLoaded, isLoaded, totalGap } = rundownMetadata[entryId];
             // hide past events (if setting) and skipped events
             if ((hidePast && isPast) || entry.skip) {
               return null;
@@ -158,9 +156,9 @@ export default function Operator() {
                 delay={entry.delay}
                 dayOffset={entry.dayOffset}
                 isLinkedToLoaded={isLinkedToLoaded}
-                isSelected={isSelected}
+                isSelected={isLoaded}
                 isPast={isPast}
-                selectedRef={isSelected ? selectedRef : undefined}
+                selectedRef={isLoaded ? selectedRef : undefined}
                 showStart={showStart}
                 subscribed={subscribedData}
                 totalGap={totalGap}
@@ -179,7 +177,7 @@ export default function Operator() {
                     return null;
                   }
 
-                  const { isPast, isSelected, isLinkedToLoaded, totalGap } = process(nestedEntry);
+                  const { isPast, isLoaded, isLinkedToLoaded, totalGap } = rundownMetadata[entryId];
 
                   // hide past events (if setting) and skipped events
                   if ((hidePast && isPast) || nestedEntry.skip) {
@@ -207,9 +205,9 @@ export default function Operator() {
                       delay={nestedEntry.delay}
                       dayOffset={nestedEntry.dayOffset}
                       isLinkedToLoaded={isLinkedToLoaded}
-                      isSelected={isSelected}
+                      isSelected={isLoaded}
                       isPast={isPast}
-                      selectedRef={isSelected ? selectedRef : undefined}
+                      selectedRef={isLoaded ? selectedRef : undefined}
                       showStart={showStart}
                       subscribed={subscribedData}
                       totalGap={totalGap}
