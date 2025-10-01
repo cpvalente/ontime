@@ -29,6 +29,7 @@ export function loadRoll(
 
   for (let i = 0; i < metadata.playableEventOrder.length; i++) {
     const event = rundown.entries[metadata.playableEventOrder[i]] as PlayableEvent;
+    // rolling into events of 0 duration would make the playback be stuck
     if (event.duration === 0) {
       continue;
     }

@@ -626,7 +626,7 @@ export function roll(
         : runtimeState.eventNow.timeEnd;
     runtimeState.timer.expectedFinish = normalisedEndTime;
 
-    //account for offset
+    // account for offset
     const offsetClock = runtimeState.clock - runtimeState.offset.absolute;
 
     // state catch up
@@ -672,7 +672,7 @@ export function roll(
   // we need to persist the current group state across loads
   clearEventData();
 
-  //account for offset but we only keep it if passed to us
+  // account for offset but we only keep it if passed to us
   runtimeState.offset.absolute = offset;
   const offsetClock = runtimeState.clock - runtimeState.offset.absolute;
 
