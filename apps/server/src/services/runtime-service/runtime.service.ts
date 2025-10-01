@@ -1,5 +1,6 @@
 import {
   EndAction,
+  EntryId,
   isOntimeEvent,
   isPlayableEvent,
   LogOrigin,
@@ -386,11 +387,12 @@ class RuntimeService {
    * startSelected being a private function does not trigger emits
    * and pass on runtime offset in case of roll mode
    */
-  private handleLoadNext(): boolean {
+  private handleLoadNext(fromId?: EntryId): boolean {
     const state = runtimeState.getState();
     const { playableEventOrder } = getRundownMetadata();
 
-    const nextId = findNextPlayableId(playableEventOrder, state.eventNow?.id);
+    const nextId = findNextPlayableId(playableEventOrder, fromId ?? state.eventNow?.id);
+
     if (nextId) {
       const nextEvent = getEntryWithId(nextId);
       if (!nextEvent || !isOntimeEvent(nextEvent)) {
@@ -398,6 +400,14 @@ class RuntimeService {
       }
 
       if (state.timer.playback === Playback.Roll) {
+        if (nextEvent.duration === 0) {
+          /**
+           * when loading next in roll mode,
+           * we need to prevent loading events of 0 duration since
+           * this would make the playback be stuck
+           */
+          return this.handleLoadNext(nextId);
+        }
         return this.loadEvent(nextEvent, { firstStart: state.rundown.actualStart });
       }
       return this.loadEvent(nextEvent);

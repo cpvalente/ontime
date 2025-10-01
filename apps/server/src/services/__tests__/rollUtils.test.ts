@@ -1,10 +1,12 @@
 import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
-import { loadRoll } from '../rollUtils.js';
-import { makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { PlayableEvent } from 'ontime-types';
+
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
-import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
+import { processRundown, rundownCache } from '../../api-data/rundown/rundown.dao.js';
+import { makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+
+import { loadRoll } from '../rollUtils.js';
 
 beforeAll(() => {
   vi.mock('../../classes/data-provider/DataProvider.js', () => {
@@ -197,6 +199,24 @@ describe('loadRoll()', () => {
 
     const state = loadRoll(rundown, metadata, now);
     expect(state).toStrictEqual(expected);
+  });
+
+  it('should ignore events with 0 duration', () => {
+    const rundown = makeRundown({
+      entries: {
+        '1': makeOntimeEvent({ id: '1', timeStart: 70, timeEnd: 70, duration: 0 }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 70, timeEnd: 170, duration: 100 }),
+      },
+      order: ['1', '2'],
+    });
+    const metadata = processRundown(rundown, {});
+    const now = 70;
+
+    const state = loadRoll(rundown, metadata, now);
+    expect(state).toStrictEqual({
+      event: rundown.entries['2'],
+      index: 1,
+    });
   });
 });
 
