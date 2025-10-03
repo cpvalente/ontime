@@ -113,6 +113,6 @@ interface ExpectedTimeProps {
 
 function ExpectedTime({ expectedTime, plannedTime }: ExpectedTimeProps) {
   const timeDisplay = formatTime(expectedTime);
-  const expectedState = getOffsetState(plannedTime - expectedTime);
+  const expectedState = getOffsetState(expectedTime - plannedTime);
   return <SuperscriptTime className={`entry-times--${expectedState}`} time={timeDisplay} />;
 }
