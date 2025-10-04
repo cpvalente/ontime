@@ -3,8 +3,8 @@ import { OntimeEntry, ProjectData, Settings } from 'ontime-types';
 import useProjectData from '../../common/hooks-query/useProjectData';
 import { useFlatRundownWithMetadata } from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
-import { aggregateQueryStatus, ViewData } from '../utils/viewLoader.utils';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
+import { aggregateQueryStatus, ViewData } from '../utils/viewLoader.utils';
 
 export interface TimelineData {
   events: ExtendedEntry<OntimeEntry>[];

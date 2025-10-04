@@ -4,6 +4,7 @@ import { isOntimeEvent, isPlayableEvent, OntimeEntry, PlayableEvent } from 'onti
 import { dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import useHorizontalFollowComponent from '../../common/hooks/useHorizontalFollowComponent';
+import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 
 import TimelineMarkers from './timeline-markers/TimelineMarkers';
@@ -12,7 +13,6 @@ import { calculateTimelineLayout, getEndHour, getStartHour } from './timeline.ut
 import { ProgressStatus, TimelineEntry } from './TimelineEntry';
 
 import style from './Timeline.module.scss';
-import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 
 interface TimelineProps {
   firstStart: number;

@@ -1,11 +1,11 @@
 import { OntimeEvent } from 'ontime-types';
 
 import { useExpectedStartData } from '../../common/hooks/useSocket';
+import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { formatDuration, getExpectedTimesFromExtendedEvent } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import TimelineSection from './timeline-section/TimelineSection';
-import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 
 interface TimelineSectionsProps {
   now: ExtendedEntry<OntimeEvent> | null;

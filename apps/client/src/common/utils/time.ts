@@ -11,6 +11,7 @@ import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
 import { APP_SETTINGS } from '../api/constants';
 import { useExpectedStartData } from '../hooks/useSocket';
 import { ontimeQueryClient } from '../queryClient';
+
 import { ExtendedEntry } from './rundownMetadata';
 
 /**

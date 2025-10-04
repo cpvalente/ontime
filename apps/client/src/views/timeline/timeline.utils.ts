@@ -10,11 +10,11 @@ import {
   MILLIS_PER_HOUR,
 } from 'ontime-utils';
 
+import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { formatDuration } from '../../common/utils/time';
 
 import { useTimelineOptions } from './timeline.options';
 import type { ProgressStatus } from './TimelineEntry';
-import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 
 type CSSPosition = {
   left: number;
