@@ -70,6 +70,7 @@ function PipTimerHost() {
     pipRootRef.current = PIP_ROOT;
     pipWindow.addEventListener('pagehide', () => {
       PIP_ROOT.unmount();
+      pipRootRef.current = null;
     });
     PIP_ROOT.render(
       <BrowserRouter>
