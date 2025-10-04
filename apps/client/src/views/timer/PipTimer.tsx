@@ -67,14 +67,13 @@ function PipTimerHost() {
       onRecoverableError: (err, _errInfo) => console.error(err),
     });
 
-    pipRootRef.current = PIP_ROOT;
     pipWindow.addEventListener('pagehide', () => {
       PIP_ROOT.unmount();
       pipRootRef.current = null;
     });
     PIP_ROOT.render(
       <BrowserRouter>
-        <PipTimer data={data} />
+        <PipTimer data={data} onMounted={() => pipRootRef.current = PIP_ROOT}/>
       </BrowserRouter>,
     );
   }
@@ -104,9 +103,10 @@ function PipTimerHost() {
 
 interface PipTimerProps {
   data: TimerData;
+  onMounted?: () => void;
 }
 
-function PipTimer({ data }: PipTimerProps) {
+function PipTimer({ data, onMounted }: PipTimerProps) {
   const { projectData, isMirrored, viewSettings } = data;
   const { eventNext, eventNow, message, time, clock, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
   const {
@@ -195,6 +195,10 @@ function PipTimer({ data }: PipTimerProps) {
     ...(resolvedTimerColour && { '--timer-colour': resolvedTimerColour }),
     ...(font && { '--timer-font': font }),
   };
+
+  useEffect(() => {
+    onMounted?.();
+  }, [])
 
   return (
     <div
