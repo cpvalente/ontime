@@ -22,6 +22,7 @@ declare global {
     // Experimental browser feature
     documentPictureInPicture: {
       requestWindow: () => Promise<Window>;
+      window: Window;
     };
   }
 }
