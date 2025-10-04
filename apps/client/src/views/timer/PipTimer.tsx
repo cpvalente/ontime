@@ -1,4 +1,4 @@
-import { createRoot, Root } from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import MultiPartProgressBar from '../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import { useTimerSocket } from '../../common/hooks/useSocket';
 import { useTimerOptions } from './timer.options';
@@ -20,7 +20,7 @@ import { cx } from '../../common/utils/styleUtils';
 import TitleCard from '../../common/components/title-card/TitleCard';
 import { FitText } from '../../common/components/fit-text/FitText';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect } from 'react';
 import { TimerData, useTimerData } from './useTimerData';
 
 import './Timer.scss';
