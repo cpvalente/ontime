@@ -27,11 +27,12 @@ import './Timer.scss';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import { BrowserRouter } from 'react-router';
 import Button from '../../common/components/buttons/Button';
+import { usePipStore } from './pipTimer.store';
 
 export default memo(PipTimerHost);
 function PipTimerHost() {
   const { data } = useTimerData();
-  const pipRootRef = useRef<Root | null>(null);
+  const { root, setRoot } = usePipStore();
 
   const isPipSupported = 'documentPictureInPicture' in window;
 
@@ -73,18 +74,22 @@ function PipTimerHost() {
 
     pipWindow.addEventListener('pagehide', () => {
       PIP_ROOT.unmount();
-      pipRootRef.current = null;
+      setRoot(null);
     });
+
+    setRoot(PIP_ROOT);
+
     PIP_ROOT.render(
       <BrowserRouter>
-        <PipTimer data={data} onMounted={() => pipRootRef.current = PIP_ROOT}/>
+        <PipTimer data={data} />
       </BrowserRouter>,
     );
   }
 
+  // re-render timer when data changes
   useEffect(() => {
-    if (pipRootRef.current) {
-      pipRootRef.current.render(
+    if (root) {
+      root.render(
         <BrowserRouter>
           <PipTimer data={data} />
         </BrowserRouter>,
@@ -107,10 +112,9 @@ function PipTimerHost() {
 
 interface PipTimerProps {
   data: TimerData;
-  onMounted?: () => void;
 }
 
-function PipTimer({ data, onMounted }: PipTimerProps) {
+function PipTimer({ data }: PipTimerProps) {
   const { projectData, isMirrored, viewSettings } = data;
   const { eventNext, eventNow, message, time, clock, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
   const {
@@ -199,10 +203,6 @@ function PipTimer({ data, onMounted }: PipTimerProps) {
     ...(resolvedTimerColour && { '--timer-colour': resolvedTimerColour }),
     ...(font && { '--timer-font': font }),
   };
-
-  useEffect(() => {
-    onMounted?.();
-  }, [])
 
   return (
     <div
