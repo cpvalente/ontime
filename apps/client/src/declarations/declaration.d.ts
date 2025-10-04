@@ -19,6 +19,10 @@ declare global {
     process: {
       type: string;
     };
+    // Experimental browser feature
+    documentPictureInPicture: {
+      requestWindow: () => Promise<Window>;
+    };
   }
 }
 
