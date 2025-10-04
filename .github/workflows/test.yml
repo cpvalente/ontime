@@ -21,42 +21,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Run code quality per package
-      - name: React - Run linter +  TypeScript checks
-        if: always()
-        run: pnpm lint && tsc --noEmit
-        working-directory: ./apps/client
-
-      - name: Server - Run linter +  TypeScript checks
-        if: always()
-        run: pnpm lint && tsc --noEmit
-        working-directory: ./apps/server
-
-      - name: Utils - Run linter +  TypeScript checks
-        if: always()
-        run: pnpm lint && tsc --noEmit
-        working-directory: ./packages/utils
-
-      - name: Types - Run linter
-        if: always()
+      # Run code quality 
+      - name: Run linter
         run: pnpm lint
-        working-directory: ./packages/types
+      
+      - name: Run TypeScript checks
+        run: pnpm typecheck
 
       # We choose to run tests separately
-      - name: React - Run unit tests
+      - name: Run unit tests
         if: always()
-        run: pnpm test:pipeline
-        working-directory: ./apps/client
-
-      - name: Server - Run unit tests
-        if: always()
-        run: pnpm test:pipeline
-        working-directory: ./apps/server
-
-      - name: Utils - Run unit tests
-        if: always()
-        run: pnpm test:pipeline
-        working-directory: ./packages/utils
+        run: pnpm turbo run test:pipeline
 
   e2e-test:
     runs-on: ubuntu-latest
@@ -64,14 +39,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Build client
-        run: pnpm build:local
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps

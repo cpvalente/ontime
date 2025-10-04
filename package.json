@@ -22,19 +22,18 @@
   "type": "module",
   "scripts": {
     "dev": "turbo run dev",
+    "dev:electron": "turbo run dev:electron",
     "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
     "build": "turbo run build",
-    "build:local": "turbo run build:local",
-    "build:electron": "turbo run build:electron",
-    "build:localdocker": "turbo run build:localdocker",
+    "build:docker": "cross-env NODE_ENV=docker turbo run build --filter=ontime-server --filter=ontime-ui",
     "dist-win": "turbo run dist-win",
     "dist-mac": "turbo run dist-mac",
     "dist-linux": "turbo run dist-linux",
     "e2e": "pnpm clear-temp && cross-env DEBUG=pw:webserver npx playwright test -c playwright.config.ts",
-    "e2e:ui": "cross-env DEBUG=pw:webserver npx playwright test --ui -c playwright.config.ts",
+    "e2e:ui": "cross-env NODE_ENV=development cross-env DEBUG=pw:webserver npx playwright test --ui -c playwright.config.ts",
     "e2e:i": "npx playwright codegen",
-    "cleanup": "pnpm rimraf node_modules && rimraf **/node_modules && rimraf **/**/node_modules",
-    "clear-temp": "rm -rf e2e/tests/fixtures/tmp"
+    "clear-temp": "rimraf e2e/tests/fixtures/tmp"
   },
   "devDependencies": {
     "@playwright/test": "^1.51.1",
@@ -46,9 +45,9 @@
     "eslint-config-prettier": "catalog:",
     "eslint-plugin-playwright": "^1.5.2",
     "prettier": "catalog:",
-    "turbo": "^2.3.3",
+    "turbo": "2.5.8",
     "typescript": "catalog:",
-    "rimraf":  "catalog:"
+    "rimraf": "catalog:"
   },
-  "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"
+  "packageManager": "pnpm@10.18.0+sha512.e804f889f1cecc40d572db084eec3e4881739f8dec69c0ff10d2d1beff9a4e309383ba27b5b750059d7f4c149535b6cd0d2cb1ed3aeb739239a4284a68f40cfa"
 }

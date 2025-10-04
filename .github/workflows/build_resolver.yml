@@ -21,7 +21,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build project packages
-        run: pnpm turbo @getontime/resolver#build
+        run: pnpm build:resolver
 
       - name: Publish to NPM
         run: pnpm publish --access public --no-git-checks

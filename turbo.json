@@ -1,12 +1,21 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["NODE_ENV", "GITHUB_TOKEN", "APPLEID", "APPLEIDPASS", "TEAMID", "CSC_KEY_PASSWORD", "CSC_LINK"],
+  "globalEnv": [
+    "NODE_ENV",
+    "GITHUB_TOKEN",
+    "APPLEID",
+    "APPLEIDPASS",
+    "TEAMID",
+    "CSC_KEY_PASSWORD",
+    "CSC_LINK",
+    "SENTRY_AUTH_TOKEN"
+  ],
   "tasks": {
     "dev": {
       "cache": false,
       "persistent": true
     },
-    "dev:server": {
+    "dev:electron": {
       "cache": false,
       "persistent": true
     },
@@ -14,33 +23,25 @@
       "cache": false,
       "persistent": true
     },
-    "dev:test": {
-      "cache": false
-    },
+
     "test": {},
     "test:pipeline": {},
+
     "lint": {
-      "cache": false
+      "dependsOn": ["^lint"]
     },
     "typecheck": {
-      "cache": false
+      "dependsOn": ["^typecheck"]
     },
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "env": ["SENTRY_AUTH_TOKEN"]
+      "dependsOn": ["^build"],
+      "outputs": ["/dist", "/build"]
     },
-    "build:local": {},
-    "build:electron": {
-      "env": ["SENTRY_AUTH_TOKEN"]
-    },
-    "build:localdocker": {},
+
     "e2e": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["build"]
     },
+
     "dist-win": {
       "dependsOn": ["build"]
     },
@@ -52,7 +53,6 @@
     },
     "dist-linux": {
       "dependsOn": ["build"]
-    },
-    "cleanup": {}
+    }
   }
 }
