@@ -11,6 +11,7 @@ import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
 import { APP_SETTINGS } from '../api/constants';
 import { useExpectedStartData } from '../hooks/useSocket';
 import { ontimeQueryClient } from '../queryClient';
+import { ExtendedEntry } from './rundownMetadata';
 
 /**
  * Returns current time in milliseconds from midnight
@@ -153,4 +154,21 @@ export function useTimeUntilExpectedStart(
     { ...state, currentDay, offset, mode, actualStart, plannedStart },
   );
   return expectedStart - clock;
+}
+
+export function getExpectedTimesFromExtendedEvent(
+  event: Pick<ExtendedEntry<OntimeEvent>, 'timeStart' | 'dayOffset' | 'delay' | 'totalGap' | 'isLinkedToLoaded'> | null,
+  state: ReturnType<typeof useExpectedStartData>,
+) {
+  if (event === null) return { expectedStart: 0, timeToStart: 0 };
+
+  const expectedStart = getExpectedStart(
+    { timeStart: event.timeStart, delay: event.delay, dayOffset: event.dayOffset },
+    {
+      totalGap: event.totalGap,
+      isLinkedToLoaded: event.isLinkedToLoaded,
+      ...state,
+    },
+  );
+  return { expectedStart, timeToStart: expectedStart - state.clock };
 }

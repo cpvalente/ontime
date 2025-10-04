@@ -1,12 +1,12 @@
 import { RefObject } from 'react';
 
-import { useTimelineStatus, useTimer } from '../../common/hooks/useSocket';
+import { useExpectedStartData, useTimer } from '../../common/hooks/useSocket';
 import { getProgress } from '../../common/utils/getProgress';
 import { alpha, cx } from '../../common/utils/styleUtils';
-import { formatDuration, formatTime } from '../../common/utils/time';
+import { formatDuration, formatTime, getExpectedTimesFromExtendedEvent } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 
-import { getStatusLabel, getTimeToStart } from './timeline.utils';
+import { getStatusLabel } from './timeline.utils';
 
 import style from './Timeline.module.scss';
 
@@ -20,6 +20,9 @@ interface TimelineEntryProps {
   left: number;
   status: ProgressStatus;
   start: number;
+  dayOffset: number;
+  totalGap: number;
+  isLinkedToLoaded: boolean;
   title: string;
   width: number;
   ref?: RefObject<HTMLDivElement | null>;
@@ -38,6 +41,9 @@ export function TimelineEntry({
   left,
   status,
   start,
+  dayOffset,
+  totalGap,
+  isLinkedToLoaded,
   title,
   width,
   ref,
@@ -73,11 +79,29 @@ export function TimelineEntry({
         <div className={style.maybeInline}>
           <div className={cx([hasDelay && style.cross])}>{formattedStartTime}</div>
           {hasDelay && <div className={style.delay}>{formatTime(delayedStart, formatOptions)}</div>}
-          {smallArea && <TimelineEntryStatus delay={delay} start={start} status={status} />}
+          {smallArea && (
+            <TimelineEntryStatus
+              delay={delay}
+              start={start}
+              dayOffset={dayOffset}
+              totalGap={totalGap}
+              isLinkedToLoaded={isLinkedToLoaded}
+              status={status}
+            />
+          )}
         </div>
         {showTitle && (
           <>
-            {!smallArea && <TimelineEntryStatus delay={delay} start={start} status={status} />}
+            {!smallArea && (
+              <TimelineEntryStatus
+                delay={delay}
+                start={start}
+                dayOffset={dayOffset}
+                totalGap={totalGap}
+                isLinkedToLoaded={isLinkedToLoaded}
+                status={status}
+              />
+            )}
             <div>{title}</div>
           </>
         )}
@@ -92,16 +116,31 @@ export function TimelineEntry({
 interface TimelineEntryStatusProps {
   delay: number;
   start: number;
+  dayOffset: number;
+  totalGap: number;
+  isLinkedToLoaded: boolean;
   status: ProgressStatus;
 }
 
 // extract component to isolate re-renders provoked by the clock changes
-function TimelineEntryStatus({ delay, start, status }: TimelineEntryStatusProps) {
-  const { clock, offset } = useTimelineStatus();
+function TimelineEntryStatus({
+  delay,
+  start,
+  dayOffset,
+  totalGap,
+  isLinkedToLoaded,
+  status,
+}: TimelineEntryStatusProps) {
+  const state = useExpectedStartData();
+
   const { getLocalizedString } = useTranslation();
 
-  // start times need to be normalised in a rundown that crosses midnight
-  let statusText = getStatusLabel(getTimeToStart(clock, start, delay, offset), status);
+  const { timeToStart } = getExpectedTimesFromExtendedEvent(
+    { timeStart: start, delay, dayOffset, totalGap, isLinkedToLoaded },
+    state,
+  );
+
+  let statusText = getStatusLabel(timeToStart, status);
   if (statusText === 'live') {
     statusText = getLocalizedString('timeline.live');
   } else if (statusText === 'pending') {

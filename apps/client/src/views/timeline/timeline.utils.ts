@@ -14,6 +14,7 @@ import { formatDuration } from '../../common/utils/time';
 
 import { useTimelineOptions } from './timeline.options';
 import type { ProgressStatus } from './TimelineEntry';
+import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 
 type CSSPosition = {
   left: number;
@@ -76,7 +77,7 @@ export function getStatusLabel(timeToStart: number, status: ProgressStatus): str
     return status;
   }
 
-  if (timeToStart < 0) {
+  if (timeToStart <= 0) {
     return 'pending';
   }
 
@@ -84,12 +85,15 @@ export function getStatusLabel(timeToStart: number, status: ProgressStatus): str
 }
 
 interface ScopedRundownData {
-  scopedRundown: PlayableEvent[];
+  scopedRundown: ExtendedEntry<PlayableEvent>[];
   firstStart: number;
   totalDuration: number;
 }
 
-export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeString): ScopedRundownData {
+export function useScopedRundown(
+  rundown: ExtendedEntry<OntimeEntry>[],
+  selectedEventId: MaybeString,
+): ScopedRundownData {
   const { hidePast } = useTimelineOptions();
 
   const data = useMemo(() => {
@@ -97,11 +101,11 @@ export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeS
       return { scopedRundown: [], firstStart: 0, totalDuration: 0 };
     }
 
-    const scopedRundown: PlayableEvent[] = [];
+    const scopedRundown: ExtendedEntry<PlayableEvent>[] = [];
     let selectedIndex = selectedEventId ? Infinity : -1;
     let firstStart = null;
     let totalDuration = 0;
-    let lastEntry: PlayableEvent | null = null;
+    let lastEntry: ExtendedEntry<PlayableEvent> | null = null;
 
     for (let i = 0; i < rundown.length; i++) {
       const currentEntry = rundown[i];
@@ -150,26 +154,28 @@ export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeS
 }
 
 type UpcomingEvents = {
-  now: OntimeEvent | null;
-  next: OntimeEvent | null;
-  followedBy: OntimeEvent | null;
+  now: ExtendedEntry<OntimeEvent> | null;
+  next: ExtendedEntry<OntimeEvent> | null;
+  followedBy: ExtendedEntry<OntimeEvent> | null;
 };
 
 /**
  * Returns upcoming events from current: now, next and followedBy
  */
-export function getUpcomingEvents(events: PlayableEvent[], selectedId: MaybeString): UpcomingEvents {
+export function getUpcomingEvents(events: ExtendedEntry<PlayableEvent>[], selectedId: MaybeString): UpcomingEvents {
   if (events.length === 0) {
     return { now: null, next: null, followedBy: null };
   }
 
-  let now = selectedId ? getEventWithId(events, selectedId) : null;
+  let now = selectedId ? (getEventWithId(events, selectedId) as ExtendedEntry<OntimeEvent>) : null;
   if (!isOntimeEvent(now)) {
     now = null;
   }
 
-  const next = now ? getNextEvent(events, now.id)?.nextEvent : getFirstEvent(events).firstEvent;
-  const followedBy = next ? getNextEvent(events, next.id)?.nextEvent : null;
+  const next = now
+    ? (getNextEvent(events, now.id)?.nextEvent as ExtendedEntry<OntimeEvent> | null)
+    : (getFirstEvent(events).firstEvent as ExtendedEntry<OntimeEvent> | null);
+  const followedBy = next ? (getNextEvent(events, next.id)?.nextEvent as ExtendedEntry<OntimeEvent> | null) : null;
 
   // Return the titles, handling nulls appropriately
   return {
