@@ -1,11 +1,10 @@
 import { OntimeEvent } from 'ontime-types';
-import { getExpectedStart } from 'ontime-utils';
 
 import { useExpectedStartData } from '../../../common/hooks/useSocket';
 import { getOffsetState } from '../../../common/utils/offset';
 import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { cx } from '../../../common/utils/styleUtils';
-import { formatTime } from '../../../common/utils/time';
+import { formatTime, getExpectedTimesFromExtendedEvent } from '../../../common/utils/time';
 import SuperscriptTime from '../../../features/viewers/common/superscript-time/SuperscriptTime';
 
 import { useScheduleOptions } from './schedule.options';
@@ -17,21 +16,64 @@ const formatOptions = {
   format24: 'HH:mm',
 };
 
-interface ScheduleItemProps {
-  event: ExtendedEntry<OntimeEvent>;
-}
+type ScheduleItemProps = Pick<
+  ExtendedEntry<OntimeEvent>,
+  | 'timeStart'
+  | 'dayOffset'
+  | 'delay'
+  | 'totalGap'
+  | 'isLinkedToLoaded'
+  | 'countToEnd'
+  | 'duration'
+  | 'colour'
+  | 'skip'
+  | 'title'
+  | 'timeEnd'
+>;
 
-export default function ScheduleItem({ event }: ScheduleItemProps) {
+export default function ScheduleItem({
+  timeStart,
+  dayOffset,
+  delay,
+  totalGap,
+  isLinkedToLoaded,
+  countToEnd,
+  colour,
+  duration,
+  skip,
+  title,
+  timeEnd,
+}: ScheduleItemProps) {
   const { showExpected } = useScheduleOptions();
 
   if (showExpected) {
-    return <ExpectedScheduleItem event={event} />;
+    return (
+      <ExpectedScheduleItem
+        timeStart={timeStart}
+        dayOffset={dayOffset}
+        delay={delay}
+        totalGap={totalGap}
+        isLinkedToLoaded={isLinkedToLoaded}
+        countToEnd={countToEnd}
+        duration={duration}
+        colour={colour}
+        skip={skip}
+        title={title}
+      />
+    );
   }
 
-  const { delay, timeStart, timeEnd, title, colour, skip } = event;
-
   if (delay > 0) {
-    return <DelayedScheduleItem event={event} />;
+    return (
+      <DelayedScheduleItem
+        timeStart={timeStart}
+        delay={delay}
+        colour={colour}
+        skip={skip}
+        timeEnd={timeEnd}
+        title={title}
+      />
+    );
   }
 
   const start = formatTime(timeStart, formatOptions);
@@ -49,8 +91,14 @@ export default function ScheduleItem({ event }: ScheduleItemProps) {
   );
 }
 
-function DelayedScheduleItem({ event }: ScheduleItemProps) {
-  const { timeStart, timeEnd, title, colour, skip, delay } = event;
+function DelayedScheduleItem({
+  timeStart,
+  timeEnd,
+  title,
+  colour,
+  skip,
+  delay,
+}: Pick<ScheduleItemProps, 'timeStart' | 'timeEnd' | 'title' | 'colour' | 'skip' | 'delay'>) {
   const start = formatTime(timeStart, formatOptions);
   const end = formatTime(timeEnd, formatOptions);
   const delayedStart = formatTime(timeStart + delay, formatOptions);
@@ -76,22 +124,31 @@ function DelayedScheduleItem({ event }: ScheduleItemProps) {
   );
 }
 
-function ExpectedScheduleItem({ event }: ScheduleItemProps) {
-  const { timeStart, duration, delay, countToEnd, isLinkedToLoaded, totalGap, skip, colour, title } = event;
-  const { offset, currentDay, actualStart, plannedStart: plannedRundownStart, mode } = useExpectedStartData();
-
-  const expectedStart = getExpectedStart(event, {
-    currentDay,
-    totalGap,
-    actualStart,
-    plannedStart: plannedRundownStart,
-    isLinkedToLoaded,
-    offset,
-    mode,
-  });
-
-  const plannedEnd = timeStart + duration + delay;
-  const expectedEnd = countToEnd ? Math.max(expectedStart + duration, plannedEnd) : expectedStart + duration;
+function ExpectedScheduleItem({
+  timeStart,
+  dayOffset,
+  delay,
+  totalGap,
+  isLinkedToLoaded,
+  countToEnd,
+  colour,
+  duration,
+  skip,
+  title,
+}: Omit<ScheduleItemProps, 'timeEnd'>) {
+  const expectedStartData = useExpectedStartData();
+  const { expectedStart, expectedEnd, plannedEnd } = getExpectedTimesFromExtendedEvent(
+    {
+      timeStart,
+      dayOffset,
+      delay,
+      totalGap,
+      isLinkedToLoaded,
+      countToEnd,
+      duration,
+    },
+    expectedStartData,
+  );
 
   return (
     <li className={cx(['entry', skip && 'entry--skip'])}>

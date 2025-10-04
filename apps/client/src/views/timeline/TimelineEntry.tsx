@@ -136,7 +136,7 @@ function TimelineEntryStatus({
   const { getLocalizedString } = useTranslation();
 
   const { timeToStart } = getExpectedTimesFromExtendedEvent(
-    { timeStart: start, delay, dayOffset, totalGap, isLinkedToLoaded },
+    { timeStart: start, delay, dayOffset, totalGap, isLinkedToLoaded, countToEnd: false, duration: 0 },
     state,
   );
 

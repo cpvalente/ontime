@@ -19,7 +19,22 @@ export default function Schedule({ className }: ScheduleProps) {
   return (
     <ul className={cx(['schedule', className])} ref={containerRef}>
       {events.map((event) => {
-        return <ScheduleItem key={event.id} event={event} />;
+        return (
+          <ScheduleItem
+            key={event.id}
+            timeStart={event.timeStart}
+            dayOffset={event.dayOffset}
+            delay={event.delay}
+            totalGap={event.totalGap}
+            isLinkedToLoaded={event.isLinkedToLoaded}
+            countToEnd={event.countToEnd}
+            duration={event.duration}
+            colour={event.colour}
+            skip={event.skip}
+            title={event.title}
+            timeEnd={event.timeEnd}
+          />
+        );
       })}
     </ul>
   );

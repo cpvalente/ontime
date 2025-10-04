@@ -157,10 +157,13 @@ export function useTimeUntilExpectedStart(
 }
 
 export function getExpectedTimesFromExtendedEvent(
-  event: Pick<ExtendedEntry<OntimeEvent>, 'timeStart' | 'dayOffset' | 'delay' | 'totalGap' | 'isLinkedToLoaded'> | null,
+  event: Pick<
+    ExtendedEntry<OntimeEvent>,
+    'timeStart' | 'dayOffset' | 'delay' | 'totalGap' | 'isLinkedToLoaded' | 'countToEnd' | 'duration'
+  > | null,
   state: ReturnType<typeof useExpectedStartData>,
 ) {
-  if (event === null) return { expectedStart: 0, timeToStart: 0 };
+  if (event === null) return { expectedStart: 0, timeToStart: 0, expectedEnd: 0, plannedEnd: 0 };
 
   const expectedStart = getExpectedStart(
     { timeStart: event.timeStart, delay: event.delay, dayOffset: event.dayOffset },
@@ -170,5 +173,15 @@ export function getExpectedTimesFromExtendedEvent(
       ...state,
     },
   );
-  return { expectedStart, timeToStart: expectedStart - state.clock };
+
+  const plannedEnd = event.timeStart + event.duration + event.delay;
+
+  return {
+    expectedStart,
+    timeToStart: expectedStart - state.clock,
+    expectedEnd: event.countToEnd
+      ? Math.max(expectedStart + event.duration, plannedEnd)
+      : expectedStart + event.duration,
+    plannedEnd,
+  };
 }
