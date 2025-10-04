@@ -38,6 +38,10 @@ function PipTimerHost() {
   async function openPictureInPicture() {
     if (!isPipSupported) return;
 
+    if (window.documentPictureInPicture.window) {
+      return
+    }
+
     const pipWindow = await window.documentPictureInPicture.requestWindow();
 
     [...document.styleSheets].forEach((sheet) => {
