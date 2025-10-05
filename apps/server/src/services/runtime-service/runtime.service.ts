@@ -4,6 +4,7 @@ import {
   isOntimeEvent,
   isPlayableEvent,
   LogOrigin,
+  Offset,
   OffsetMode,
   OntimeEvent,
   Playback,
@@ -88,18 +89,17 @@ class RuntimeService {
     // 2. handle edge cases related to roll
     if (newState.timer.playback === Playback.Roll) {
       // check if we need to call any side effects
-      const keepOffset = newState.offset.absolute;
       if (hasSecondaryTimerFinished) {
         // if the secondary timer has finished, we need to call roll
         // since event is already loaded
-        this.rollLoaded(keepOffset);
+        this.rollLoaded(newState.offset);
       } else if (hasTimerFinished) {
         // if the timer has finished, we need to load next and keep rolling
         process.nextTick(() => {
           triggerAutomations(TimerLifeCycle.onFinish, newState);
         });
         this.handleLoadNext();
-        this.rollLoaded(keepOffset);
+        this.rollLoaded(newState.offset);
       } else if (
         // if there is no previous clock, we could not have skipped
         RuntimeService.previousState?.clock &&
@@ -541,7 +541,7 @@ class RuntimeService {
   /**
    * Handles special case to call roll on a loaded event which we do not want to discard
    */
-  private rollLoaded(offset?: number) {
+  private rollLoaded(offset: Offset) {
     const rundown = getCurrentRundown();
     const metadata = getRundownMetadata();
 

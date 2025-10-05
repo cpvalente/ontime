@@ -595,7 +595,7 @@ export function update(): UpdateResult {
 export function roll(
   rundown: Rundown,
   metadata: RundownMetadata,
-  offset = 0,
+  offset?: Offset,
 ): { eventId: MaybeString; didStart: boolean } {
   // 1. if an event is running, we simply take over the playback
   if (runtimeState.timer.playback === Playback.Play && runtimeState.rundown.selectedEventIndex !== null) {
@@ -616,7 +616,9 @@ export function roll(
       }
     }
 
-    runtimeState.offset.absolute = offset;
+    if (offset) {
+      runtimeState.offset = { ...offset };
+    }
     runtimeState.timer.playback = Playback.Roll;
 
     // account for event that finishes the day after
@@ -673,7 +675,9 @@ export function roll(
   clearEventData();
 
   // account for offset but we only keep it if passed to us
-  runtimeState.offset.absolute = offset;
+  if (offset) {
+    runtimeState.offset = { ...offset };
+  }
   const offsetClock = runtimeState.clock - runtimeState.offset.absolute;
 
   const { index, isPending } = loadRoll(rundown, metadata, offsetClock);
