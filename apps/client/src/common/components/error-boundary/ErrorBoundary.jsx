@@ -49,15 +49,14 @@ class ErrorBoundary extends React.Component {
       return (
         <div className={style.errorContainer} data-testid='error-container'>
           <div>
-            <p className={style.error}>:/</p>
-            <p>Something went wrong</p>
-            <div
-              role='button'
+            <p className={style.error}>: /</p>
+            <p>Something went wrong.</p>
+            <a
               className={style.report}
-              onClick={() => Sentry.showReportDialog({ eventId: this.state.eventId })}
+              href={`mailto:mail@getontime.no?subject=Error%20Report&body=${encodeURIComponent(this.reportContent)}`}
             >
               Report error
-            </div>
+            </a>
             <div
               role='button'
               className={style.report}

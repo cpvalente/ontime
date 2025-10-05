@@ -11,8 +11,7 @@ interface AppLinkProps {
  * Component used to navigate to an editor link inside the same window
  * Handles the path to respect Ontime Clouds base URL
  */
-export default function AppLink(props: PropsWithChildren<AppLinkProps>) {
-  const { search, children } = props;
+export default function AppLink({ search, children }: PropsWithChildren<AppLinkProps>) {
   const navigate = useNavigate();
 
   const handleClick = () => navigate({ search });
