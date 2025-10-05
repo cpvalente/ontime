@@ -5,14 +5,15 @@
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
   "keywords": [
-    "lighdev",
     "ontime",
-    "timer"
+    "timer",
+    "stage timer",
+    "rundown"
   ],
   "license": "AGPL-3.0-only",
   "main": "src/main.js",
   "devDependencies": {
-    "electron": "37.2.1",
+    "electron": "38.2.1",
     "electron-builder": "26.0.18",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
