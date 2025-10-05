@@ -357,18 +357,18 @@ describe('roll mode', () => {
       start();
       // the current offset after manual play
       const currentOffset = getState().offset.absolute;
-      let result = roll(rundown, metadata, getState().offset.absolute);
+      let result = roll(rundown, metadata, getState().offset);
       expect(result).toStrictEqual({ eventId: '1', didStart: false });
       // the current offset should be maintain by roll mode when taking over from play
       expect(getState().offset.absolute).toBe(currentOffset);
 
       vi.setSystemTime('jan 1 00:00:01');
-      result = roll(rundown, metadata, getState().offset.absolute);
+      result = roll(rundown, metadata, getState().offset);
       expect(result).toStrictEqual({ eventId: '2', didStart: true });
       expect(getState().offset.absolute).toBe(-1000);
 
       vi.setSystemTime('jan 1 00:00:02');
-      result = roll(rundown, metadata, getState().offset.absolute);
+      result = roll(rundown, metadata, getState().offset);
       expect(result).toStrictEqual({ eventId: '3', didStart: true });
       expect(getState().offset.absolute).toBe(-1000);
 
