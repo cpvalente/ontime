@@ -6,7 +6,7 @@ import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/constants';
 import { fetchCurrentRundown } from '../api/rundown';
 import { useSelectedEventId } from '../hooks/useSocket';
-import { getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
+import { ExtendedEntry, getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
 
 import useProjectData from './useProjectData';
 
@@ -85,8 +85,8 @@ export function useFlatRundownWithMetadata() {
 /**
  * Provides access to a partial rundown based on a filter callback
  */
-export function usePartialRundown(cb: (event: OntimeEntry) => boolean) {
-  const { data, status } = useFlatRundown();
+export function usePartialRundown(cb: (event: ExtendedEntry<OntimeEntry>) => boolean) {
+  const { data, status } = useFlatRundownWithMetadata();
   const filteredData = useMemo(() => {
     return data.filter(cb);
   }, [data, cb]);

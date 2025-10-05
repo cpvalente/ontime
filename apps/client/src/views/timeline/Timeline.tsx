@@ -4,6 +4,7 @@ import { isOntimeEvent, isPlayableEvent, OntimeEntry, PlayableEvent } from 'onti
 import { dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import useHorizontalFollowComponent from '../../common/hooks/useHorizontalFollowComponent';
+import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 
 import TimelineMarkers from './timeline-markers/TimelineMarkers';
@@ -15,7 +16,7 @@ import style from './Timeline.module.scss';
 
 interface TimelineProps {
   firstStart: number;
-  rundown: OntimeEntry[];
+  rundown: ExtendedEntry<OntimeEntry>[];
   selectedEventId: string | null;
   totalDuration: number;
 }
@@ -45,7 +46,7 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
 
   const { positions, totalWidth } = useMemo(() => {
     const playableEvents = rundown
-      .filter((event): event is PlayableEvent => isOntimeEvent(event) && isPlayableEvent(event))
+      .filter((event): event is ExtendedEntry<PlayableEvent> => isOntimeEvent(event) && isPlayableEvent(event))
       .map((event) => ({
         start: event.timeStart + (event.dayOffset ?? 0) * dayInMs + (event.delay ?? 0),
         duration: event.duration,
@@ -96,6 +97,9 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
               left={position.left}
               status={statusMap[event.id]}
               start={event.timeStart + (event.dayOffset ?? 0) * dayInMs}
+              totalGap={event.totalGap}
+              isLinkedToLoaded={event.isLinkedToLoaded}
+              dayOffset={event.dayOffset}
               title={event.title}
               width={position.width}
             />
