@@ -1,9 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import { DatabaseModel, MessageResponse, ProjectData, ProjectFileListResponse, QuickStartData } from 'ontime-types';
 
-import { makeTable } from '../../views/cuesheet/cuesheet.utils';
-import { aggregateRundowns, makeCSVFromArrayOfArrays } from '../utils/csv';
-
 import { apiEntryUrl } from './constants';
 import { createBlob, downloadBlob } from './utils';
 
@@ -28,27 +25,6 @@ export async function downloadProject(fileName: string) {
 
     const blob = createBlob(fileContent, 'application/json;charset=utf-8;');
     downloadBlob(blob, `${name}.json`);
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-/**
- * Request download of the current rundown as a CSV file
- * @param fileName
- */
-export async function downloadCSV(fileName: string = 'rundown') {
-  try {
-    const { data, name } = await fileDownload(fileName);
-    const { project, rundowns, customFields } = data;
-
-    const flatRundowns = aggregateRundowns(rundowns);
-    const sheetData = makeTable(project, flatRundowns, customFields);
-
-    const fileContent = makeCSVFromArrayOfArrays(sheetData);
-
-    const blob = createBlob(fileContent, 'text/csv;charset=utf-8;');
-    downloadBlob(blob, `${name}.csv`);
   } catch (error) {
     console.error(error);
   }
