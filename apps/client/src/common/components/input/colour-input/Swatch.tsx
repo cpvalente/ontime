@@ -1,3 +1,4 @@
+import { MouseEvent } from 'react';
 import { IoBan } from 'react-icons/io5';
 
 import { cx } from '../../../utils/styleUtils';
@@ -10,12 +11,13 @@ interface SwatchProps {
   isSelected?: boolean;
 }
 
-export default function Swatch(props: SwatchProps) {
-  const { color, isSelected, onClick } = props;
-
-  const handleClick = () => {
+export default function Swatch({ color, isSelected, onClick }: SwatchProps) {
+  const handleClick = (event: MouseEvent) => {
     onClick?.(color);
+    event.preventDefault();
+    event.stopPropagation();
   };
+
   const classes = cx([style.swatch, isSelected && style.selected, onClick && style.selectable]);
 
   if (!color) {
