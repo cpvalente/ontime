@@ -24,7 +24,6 @@ export function SortableCell({ columnId, colSpan, injectedStyles, children, drag
   const dragStyle = {
     ...injectedStyles,
     zIndex: isDragging ? 2 : 'inherit',
-    cursor: isDragging ? 'grabbing' : 'grab',
     transform: CSS.Translate.toString(transform),
     transition,
   };
