@@ -114,7 +114,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
     zIndex: isDragging ? 2 : 'inherit',
     transform: CSS.Translate.toString(transform),
     transition,
-    cursor: isOver ? (isValidDrop ? 'grabbing' : 'no-drop') : 'grab',
+    cursor: isOver ? (isValidDrop ? 'grabbing' : 'no-drop') : 'inherit',
   };
 
   return (
