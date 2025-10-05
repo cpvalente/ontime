@@ -498,7 +498,7 @@ function group(rundown: Rundown, entryIds: EntryId[]): OntimeGroup {
     // the group will be created at the first selected event position
     // note that this is not the lowest index
     if (firstIndex === -1) {
-      firstIndex = rundown.flatOrder.indexOf(entryId);
+      firstIndex = rundown.order.indexOf(entryId);
     }
 
     nestedEvents.push(entryId);

@@ -1,4 +1,12 @@
-import { CustomFields, OntimeGroup, OntimeDelay, OntimeEvent, SupportedEntry, TimeStrategy, OntimeMilestone } from 'ontime-types';
+import {
+  CustomFields,
+  OntimeGroup,
+  OntimeDelay,
+  OntimeEvent,
+  SupportedEntry,
+  TimeStrategy,
+  OntimeMilestone,
+} from 'ontime-types';
 import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import {
@@ -1639,6 +1647,38 @@ describe('rundownMutation.group()', () => {
       '1': { id: '1', type: SupportedEntry.Event, parent: groupId },
       '2': { id: '2', type: SupportedEntry.Event, parent: groupId },
       '3': { id: '3', type: SupportedEntry.Event, parent: null },
+    });
+  });
+
+  it('BUG: creates a group in between groups', () => {
+    const rundown = makeRundown({
+      order: ['group-1', '1', '2', '3', '4', 'group-2'],
+      entries: {
+        'group-1': makeOntimeGroup({ id: 'group-1', entries: ['1a', '1b'] }),
+        'group-2': makeOntimeGroup({ id: 'group-2', entries: ['2a', '2b'] }),
+        '1': makeOntimeEvent({ id: '1', parent: null }),
+        '2': makeOntimeEvent({ id: '2', parent: null }),
+        '3': makeOntimeEvent({ id: '3', parent: null }),
+        '4': makeOntimeEvent({ id: '4', parent: null }),
+        '1a': makeOntimeEvent({ id: '1a', parent: 'group-1' }),
+        '1b': makeOntimeEvent({ id: '1b', parent: 'group-1' }),
+        '2a': makeOntimeEvent({ id: '2a', parent: 'group-2' }),
+        '2b': makeOntimeEvent({ id: '2b', parent: 'group-2' }),
+      },
+    });
+
+    rundownMutation.group(rundown, ['2', '3']);
+
+    const groupId = rundown.order[2];
+    expect(groupId).toStrictEqual(expect.any(String));
+    expect(rundown.order).toStrictEqual(['group-1', '1', expect.any(String), '4', 'group-2']);
+    expect(rundown.entries).toMatchObject({
+      [groupId]: {
+        type: SupportedEntry.Group,
+        entries: ['2', '3'],
+      },
+      '2': { id: '2', type: SupportedEntry.Event, parent: groupId },
+      '3': { id: '3', type: SupportedEntry.Event, parent: groupId },
     });
   });
 });
