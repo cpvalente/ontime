@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { IoClose, IoContract, IoExpand, IoEye, IoLockClosedOutline, IoSwapVertical } from 'react-icons/io5';
+import { IoClose, IoContract, IoExpand, IoLockClosedOutline, IoSwapVertical } from 'react-icons/io5';
+import { LuCoffee } from 'react-icons/lu';
 import { useLocation } from 'react-router';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { useDisclosure, useFullscreen } from '@mantine/hooks';
@@ -67,7 +68,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
             {window.isSecureContext && (
               <NavigationMenuItem active={keepAwake} onClick={toggleKeepAwake}>
                 Keep Awake
-                <IoEye />
+                <LuCoffee />
                 {keepAwake && <span className={style.note}>Active</span>}
               </NavigationMenuItem>
             )}
