@@ -12,9 +12,7 @@ interface ExternalLinkProps {
   inline?: boolean;
 }
 
-export default function ExternalLink(props: ExternalLinkProps) {
-  const { href, inline, children } = props;
-
+export default function ExternalLink({ href, inline, children }: ExternalLinkProps) {
   const handleClick = (event: MouseEvent) => {
     event.preventDefault();
     openLink(href);

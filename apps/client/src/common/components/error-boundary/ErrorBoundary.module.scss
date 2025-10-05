@@ -3,24 +3,21 @@
   height: 100%;
   display: grid;
   place-content: center;
-  background-color: #121212;
-  color: white;
+  background-color: $ui-black;
+  color: $ui-white;
+}
 
-  .error {
-    color: $error-red;
-    font-weight: 600;
-  }
+.error {
+  color: $error-red;
+}
 
-  .report {
-    text-decoration: underline  $error-red;
-    cursor: pointer;
-  }
+.report {
+  color: $blue-500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 
-  .report:hover {
-    color: $error-red;
-  }
-
-  .report:active {
-    color: white;
+  &:hover {
+    color: $ontime-color;
   }
 }
