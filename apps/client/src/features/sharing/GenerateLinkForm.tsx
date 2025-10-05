@@ -225,6 +225,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
               <Switch
                 size='large'
                 name='lockNav'
+                data-testid='lockNav'
                 checked={watch('lockNav')}
                 onCheckedChange={(checked) => setValue('lockNav', checked, { shouldDirty: true })}
                 disabled={watch('lockConfig')}
@@ -239,6 +240,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                 <Switch
                   size='large'
                   name='lockConfig'
+                  data-testid='lockConfig'
                   checked={watch('lockConfig')}
                   onCheckedChange={(checked) => {
                     if (checked) {
@@ -254,6 +256,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
               <Switch
                 size='large'
                 name='authenticate'
+                data-testid='authenticate'
                 checked={watch('authenticate')}
                 onCheckedChange={(checked) => setValue('authenticate', checked, { shouldDirty: true })}
               />

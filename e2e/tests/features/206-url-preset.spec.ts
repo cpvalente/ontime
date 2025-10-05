@@ -92,11 +92,12 @@ test.describe('URL Preset', () => {
     // select options
     await page.getByRole('combobox').filter({ hasText: 'Timer' }).click();
     await page.getByText('URL Preset: testing').click();
-    await page.locator('button[name="lockNav"]').click();
-    await page.locator('button[name="lockConfig"]').click();
+    await page.getByTestId('lockNav').click();
+    await page.getByTestId('lockConfig').click();
 
     // create and verify link
     await page.getByRole('button', { name: 'Create share link' }).click();
+    await expect(page.getByTestId('copy-link')).toContainText('/preset/testing');
     await expect(page.getByTestId('copy-link')).toContainText('/preset/testing');
     await expect(page.getByTestId('copy-link')).toContainText('n=1');
 
@@ -140,7 +141,7 @@ test.describe('Sharing from cuesheet', () => {
     await page.getByRole('textbox').fill('cuesheet-read-test');
     await page.getByText('Custom write').click();
     await page.getByText('Custom read').click();
-    await page.locator('button[name="lockNav"]').click();
+    await page.getByTestId('lockNav').click();
     await page.getByTestId('write-flag').click();
     await page.getByTestId('write-cue').click();
     await page.getByTestId('write-title').click();
@@ -184,7 +185,7 @@ test.describe('Sharing from cuesheet', () => {
     await page.getByRole('textbox').fill('cuesheet-scope-test');
     await page.getByText('Custom write').click();
     await page.getByText('Custom read').click();
-    await page.locator('button[name="lockNav"]').click();
+    await page.getByTestId('lockNav').click();
     await page.getByTestId('write-flag').click();
     await page.getByTestId('write-cue').click();
     await page.getByTestId('write-timeStart').click();
