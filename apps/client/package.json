@@ -16,7 +16,7 @@
     "@tanstack/react-query-devtools": "^5.85.9",
     "@tanstack/react-table": "^8.21.3",
     "autosize": "^6.0.1",
-    "axios": "^1.11.0",
+    "axios": "^1.12.2",
     "babel-plugin-react-compiler": "19.1.0-rc.3",
     "csv-stringify": "^6.6.0",
     "prismjs": "^1.30.0",
