@@ -27,7 +27,7 @@ export default function StudioTimers({ viewSettings }: StudioTimersProps) {
   const event = getFormattedEventData(eventNow, time);
   const eventNextTitle = eventNext?.title || '-';
   const formattedTimerMessage = (message.timer.visible && message.timer.text) || '-';
-  const formattedSecondaryMessage = message.secondary || '-';
+  const formattedSecondaryMessage = message.timer.secondarySource === 'secondary' ? message.secondary || '-' : '-';
 
   // gather presentation styles
   const timerColour = getTimerColour(
