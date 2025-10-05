@@ -30,10 +30,11 @@
     "dist-win": "turbo run dist-win",
     "dist-mac": "turbo run dist-mac",
     "dist-linux": "turbo run dist-linux",
-    "e2e": "pnpm clear-temp && cross-env DEBUG=pw:webserver npx playwright test -c playwright.config.ts",
+    "e2e": "turbo run build --filter=ontime-ui && pnpm clear-temp && cross-env DEBUG=pw:webserver npx playwright test -c playwright.config.ts",
     "e2e:ui": "cross-env NODE_ENV=development cross-env DEBUG=pw:webserver npx playwright test --ui -c playwright.config.ts",
     "e2e:i": "npx playwright codegen",
-    "clear-temp": "rimraf e2e/tests/fixtures/tmp"
+    "clear-temp": "rimraf e2e/tests/fixtures/tmp",
+    "test": "turbo run test:pipeline"
   },
   "devDependencies": {
     "@playwright/test": "^1.51.1",

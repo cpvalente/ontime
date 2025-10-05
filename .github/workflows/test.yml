@@ -31,7 +31,7 @@ jobs:
       # We choose to run tests separately
       - name: Run unit tests
         if: always()
-        run: pnpm turbo run test:pipeline
+        run: pnpm test
 
   e2e-test:
     runs-on: ubuntu-latest

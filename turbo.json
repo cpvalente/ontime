@@ -35,24 +35,24 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["/dist", "/build"]
-    },
-
-    "e2e": {
-      "dependsOn": ["build"]
+      "outputs": ["dist/**", "build/**"]
     },
 
     "dist-win": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build"],
+      "outputs": ["dist/**"]
     },
     "dist-mac": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build"],
+      "outputs": ["dist/**"]
     },
     "dist-mac:local": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build"],
+      "outputs": ["dist/**"]
     },
     "dist-linux": {
-      "dependsOn": ["build"]
+      "dependsOn": ["build"],
+      "outputs": ["dist/**"]
     }
   }
 }
