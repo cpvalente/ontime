@@ -31,14 +31,17 @@ export default function Select<T>({ options, fluid, size = 'medium', ...selectRo
         <BaseSelect.Positioner side='bottom' align='start'>
           <BaseSelect.ScrollUpArrow className={styles.scrollArrow} />
           <BaseSelect.Popup className={styles.popup}>
-            {options.map(({ disabled, label, value }) => (
-              <BaseSelect.Item key={String(value)} className={styles.item} value={value} disabled={disabled}>
-                <BaseSelect.ItemIndicator className={styles.itemIndicator}>
-                  <IoCheckmark className={styles.itemIndicatorIcon} />
-                </BaseSelect.ItemIndicator>
-                <BaseSelect.ItemText className={styles.itemLabel}>{label}</BaseSelect.ItemText>
-              </BaseSelect.Item>
-            ))}
+            <BaseSelect.Arrow />
+            <BaseSelect.List className={styles.list}>
+              {options.map(({ disabled, label, value }) => (
+                <BaseSelect.Item key={String(value)} className={styles.item} value={value} disabled={disabled}>
+                  <BaseSelect.ItemIndicator className={styles.itemIndicator}>
+                    <IoCheckmark className={styles.itemIndicatorIcon} />
+                  </BaseSelect.ItemIndicator>
+                  <BaseSelect.ItemText className={styles.itemLabel}>{label}</BaseSelect.ItemText>
+                </BaseSelect.Item>
+              ))}
+            </BaseSelect.List>
           </BaseSelect.Popup>
           <BaseSelect.ScrollDownArrow className={styles.scrollArrow} />
         </BaseSelect.Positioner>

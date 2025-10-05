@@ -62,8 +62,6 @@
   padding: 2px;
   border-radius: $component-border-radius-md;
   color: $ui-white;
-  overflow-y: auto;
-  max-height: 20rem;
   border: 1px solid $gray-1000;
 
   &[data-side='start'] {
@@ -71,6 +69,16 @@
     transform: 100%;
     opacity: 1;
   }
+}
+
+.list {
+  box-sizing: border-box;
+  position: relative;
+  padding-block: 0.25rem;
+  overflow-y: auto;
+  max-height: 20rem;
+  max-height: var(--available-height);
+  scroll-padding-block: 1.5rem;
 }
 
 .item {
