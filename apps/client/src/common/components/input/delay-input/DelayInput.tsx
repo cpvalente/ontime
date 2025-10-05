@@ -20,7 +20,7 @@ export default function DelayInput(props: DelayInputProps) {
   const [value, setValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement | null>(null);
   // avoid wrong submit on cancel
-  let ignoreChange = false;
+  const ignoreChangeRef = useRef(false);
 
   // set internal value on duration change
   useEffect(() => {
@@ -35,8 +35,8 @@ export default function DelayInput(props: DelayInputProps) {
    * @param {string} newValue string to be parsed
    */
   const validateAndSubmit = (newValue: string) => {
-    if (ignoreChange) {
-      ignoreChange = false;
+    if (ignoreChangeRef.current) {
+      ignoreChangeRef.current = false;
       return;
     }
 
@@ -78,7 +78,7 @@ export default function DelayInput(props: DelayInputProps) {
     } else if (event.key === 'Tab') {
       validateAndSubmit((event.target as HTMLInputElement).value);
     } else if (event.key === 'Escape') {
-      ignoreChange = true;
+      ignoreChangeRef.current = true;
       setValue(millisToString(duration));
       inputRef.current?.blur();
     }
