@@ -1,21 +1,21 @@
 import { OntimeEvent } from 'ontime-types';
 
-import { useTimelineSocket } from '../../common/hooks/useSocket';
-import { formatDuration } from '../../common/utils/time';
+import { useExpectedStartData } from '../../common/hooks/useSocket';
+import { ExtendedEntry } from '../../common/utils/rundownMetadata';
+import { formatDuration, getExpectedTimesFromExtendedEvent } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import TimelineSection from './timeline-section/TimelineSection';
-import { getTimeToStart } from './timeline.utils';
 
 interface TimelineSectionsProps {
-  now: OntimeEvent | null;
-  next: OntimeEvent | null;
-  followedBy: OntimeEvent | null;
+  now: ExtendedEntry<OntimeEvent> | null;
+  next: ExtendedEntry<OntimeEvent> | null;
+  followedBy: ExtendedEntry<OntimeEvent> | null;
 }
 
 export default function TimelineSections({ now, next, followedBy }: TimelineSectionsProps) {
   const { getLocalizedString } = useTranslation();
-  const { clock, offset } = useTimelineSocket();
+  const state = useExpectedStartData();
 
   // gather card data
   const titleNow = now?.title ?? '-';
@@ -26,20 +26,20 @@ export default function TimelineSections({ now, next, followedBy }: TimelineSect
   let followedByStatus: string | undefined;
 
   if (next !== null) {
-    const timeToStart = getTimeToStart(clock, next.timeStart, next?.delay ?? 0, offset);
-    if (timeToStart < 0) {
+    const { timeToStart } = getExpectedTimesFromExtendedEvent(next, state);
+    if (timeToStart <= 0) {
       nextStatus = dueText;
     } else {
-      nextStatus = `T - ${formatDuration(timeToStart)}`;
+      nextStatus = formatDuration(timeToStart);
     }
   }
 
   if (followedBy !== null) {
-    const timeToStart = getTimeToStart(clock, followedBy.timeStart, followedBy?.delay ?? 0, offset);
-    if (timeToStart < 0) {
+    const { timeToStart } = getExpectedTimesFromExtendedEvent(followedBy, state);
+    if (timeToStart <= 0) {
       followedByStatus = dueText;
     } else {
-      followedByStatus = `T - ${formatDuration(timeToStart)}`;
+      followedByStatus = formatDuration(timeToStart);
     }
   }
 

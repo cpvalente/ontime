@@ -2,11 +2,12 @@ import { createContext, PropsWithChildren, RefObject, use, useEffect, useLayoutE
 import { EntryId, isOntimeEvent, OntimeEntry, OntimeEvent } from 'ontime-types';
 
 import { usePartialRundown } from '../../../common/hooks-query/useRundown';
+import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 
 import { useScheduleOptions } from './schedule.options';
 
 interface ScheduleContextState {
-  events: OntimeEvent[];
+  events: ExtendedEntry<OntimeEvent>[];
   selectedEventId: string | null;
   numPages: number;
   visiblePage: number;
@@ -21,7 +22,7 @@ interface ScheduleProviderProps {
 
 export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildren<ScheduleProviderProps>) => {
   const { cycleInterval, stopCycle, filter } = useScheduleOptions();
-  const { data: events } = usePartialRundown((entry: OntimeEntry) => {
+  const { data: events } = usePartialRundown((entry: ExtendedEntry<OntimeEntry>) => {
     if (filter) {
       // custom keys are prepended with custom-
       const customKey = filter.startsWith('custom-') ? filter.slice('custom-'.length) : filter;
@@ -133,7 +134,7 @@ export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildre
   return (
     <ScheduleContext
       value={{
-        events: viewEvents as OntimeEvent[],
+        events: viewEvents as ExtendedEntry<OntimeEvent>[],
         selectedEventId,
         numPages,
         visiblePage,
