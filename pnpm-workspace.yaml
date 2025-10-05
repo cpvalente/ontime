@@ -16,3 +16,4 @@ catalog:
 onlyBuiltDependencies:
   - electron
   - esbuild
+useNodeVersion: 22.15.1
