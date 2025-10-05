@@ -71,7 +71,7 @@ function OperatorEvent({
   ]);
 
   return (
-    <div className={operatorClasses} ref={selectedRef} onContextMenu={handleLongPress} {...mouseHandlers}>
+    <div className={operatorClasses} data-testid={cue} ref={selectedRef} onContextMenu={handleLongPress} {...mouseHandlers}>
       <div className={style.binder} style={{ ...cueColours }}>
         <span className={style.cue}>{cue}</span>
       </div>
@@ -167,5 +167,5 @@ function TimeUntil({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded }: 
   const isDue = timeUntil < MILLIS_PER_SECOND;
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
 
-  return <span className={style.timeUntil}>{timeUntilString}</span>;
+  return <span className={style.timeUntil} data-testid='time-until'>{timeUntilString}</span>;
 }

@@ -56,7 +56,7 @@ export default function TimelineSections({ now, next, followedBy }: TimelineSect
         title={getLocalizedString('timeline.followedby')}
         status={followedByStatus}
         content={followedByText}
-        category='next'
+        category='followedBy'
       />
     </div>
   );

@@ -101,6 +101,7 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
               isLinkedToLoaded={event.isLinkedToLoaded}
               dayOffset={event.dayOffset}
               title={event.title}
+              cue={event.cue}
               width={position.width}
             />
           );
