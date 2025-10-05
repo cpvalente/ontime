@@ -6,6 +6,7 @@ import { formatDuration, getExpectedTimesFromExtendedEvent } from '../../common/
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import TimelineSection from './timeline-section/TimelineSection';
+import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 interface TimelineSectionsProps {
   now: ExtendedEntry<OntimeEvent> | null;
@@ -30,7 +31,7 @@ export default function TimelineSections({ now, next, followedBy }: TimelineSect
     if (timeToStart <= 0) {
       nextStatus = dueText;
     } else {
-      nextStatus = formatDuration(timeToStart);
+      nextStatus = formatDuration(timeToStart, timeToStart > MILLIS_PER_MINUTE * 2);
     }
   }
 
@@ -39,7 +40,7 @@ export default function TimelineSections({ now, next, followedBy }: TimelineSect
     if (timeToStart <= 0) {
       followedByStatus = dueText;
     } else {
-      followedByStatus = formatDuration(timeToStart);
+      followedByStatus = formatDuration(timeToStart, timeToStart > MILLIS_PER_MINUTE * 2);
     }
   }
 
