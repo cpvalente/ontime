@@ -11,6 +11,9 @@ const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 
 export default defineConfig({
   base: './', // Ontime cloud: we use relative paths to allow them to reference a dynamic base set at runtime
+  define: {
+    'import.meta.env.IS_DOCKER': process.env.NODE_ENV === 'docker',
+  },
   plugins: [
     react(),
     svgrPlugin(),

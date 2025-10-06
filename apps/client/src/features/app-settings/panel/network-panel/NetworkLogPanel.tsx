@@ -4,7 +4,7 @@ import { MessageTag } from 'ontime-types';
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { usePing } from '../../../../common/hooks/useSocket';
 import { sendSocket } from '../../../../common/utils/socket';
-import { isDockerImage } from '../../../../externals';
+import { isDocker } from '../../../../externals';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -18,7 +18,7 @@ export default function NetworkLogPanel({ location }: PanelBaseProps) {
   return (
     <>
       <Panel.Header>Network</Panel.Header>
-      {isDockerImage && (
+      {isDocker && (
         <Panel.Section>
           <OntimeCloudStats />
         </Panel.Section>

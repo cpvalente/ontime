@@ -32,6 +32,5 @@ EXPOSE 4001/tcp 8888/udp 9999/udp
 CMD ["node", "server/docker.cjs"]
 
 # Build and run commands
-# !!! Note that this command needs pre-build versions of the UI and server apps
 # docker buildx build . -t getontime/ontime
 # docker run -p 4001:4001 -p 8888:8888/udp -p 9999:9999/udp -v ./ontime-db:/data/ getontime/ontime

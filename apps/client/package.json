@@ -40,9 +40,7 @@
     "dev:electron": "pnpm dev",
     "lint": "eslint . --quiet",
     "typecheck": "tsc --noEmit",
-
     "build": "vite build",
-
     "test": "vitest",
     "test:pipeline": "vitest run",
     "analyse": "npx vite-bundle-visualizer"
