@@ -218,7 +218,7 @@ function makeSettingsMenu(redirectWindow) {
         ],
       },
       {
-        label: 'Project data',
+        label: 'Project settings',
         submenu: [
           {
             label: 'Rundown defaults',
