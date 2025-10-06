@@ -276,6 +276,7 @@ export const useStudioTimersSocket = createSelector((state: RuntimeStore) => ({
   eventNow: state.eventNow,
   message: state.message,
   time: state.timer,
-  offset: state.offset,
+  offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
   rundown: state.rundown,
+  expectedRundownEnd: state.offset.expectedRundownEnd,
 }));
