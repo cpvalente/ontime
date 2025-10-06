@@ -34,7 +34,7 @@ jobs:
       - name: Build project packages
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        run: pnpm build:electron
+        run: pnpm build
 
       - name: Copy server
         run: mkdir -p apps/cli/server && cp apps/server/dist/index.cjs apps/cli/server/index.cjs
