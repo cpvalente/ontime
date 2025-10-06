@@ -31,7 +31,7 @@ const staticOptions = [
   },
   {
     id: 'manage',
-    label: 'Project data',
+    label: 'Project settings',
     secondary: [
       { id: 'manage__defaults', label: 'Rundown defaults' },
       { id: 'manage__custom', label: 'Custom fields' },
