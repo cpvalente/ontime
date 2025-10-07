@@ -44,10 +44,14 @@ jobs:
 
       - name: Copy external
         run: cp -R apps/server/src/external apps/cli/external
+
+      - name: Setup pnpm auth config
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       
       - name: Publish to NPM
         run: pnpm publish --access public --no-git-checks
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
         working-directory: ./apps/cli
