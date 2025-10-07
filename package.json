@@ -27,6 +27,7 @@
     "typecheck": "turbo run typecheck",
     "build": "turbo run build",
     "build:docker": "cross-env NODE_ENV=docker turbo run build --filter=ontime-server --filter=ontime-ui",
+    "build:resolver": "cross-env turbo run build --filter=@getontime/resolver",
     "dist-win": "turbo run dist-win",
     "dist-mac": "turbo run dist-mac",
     "dist-linux": "turbo run dist-linux",
