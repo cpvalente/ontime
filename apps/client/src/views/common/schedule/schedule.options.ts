@@ -16,7 +16,7 @@ export const getScheduleOptions = (customFieldOptions: SelectOption[]): ViewOpti
       description: 'Hide events without data in the selected custom field',
       type: 'option',
       values: customFieldOptions,
-      defaultValue: 'None',
+      defaultValue: 'none',
     },
     {
       id: 'stopCycle',

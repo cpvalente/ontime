@@ -17,7 +17,7 @@ export const getBackstageOptions = (
   customFields: CustomFields,
   projectData: ProjectData,
 ): ViewOption[] => {
-  const customFieldOptions = makeOptionsFromCustomFields(customFields, []);
+  const customFieldOptions = makeOptionsFromCustomFields(customFields, [{ value: 'none', label: 'None' }]);
   const secondaryOptions = makeOptionsFromCustomFields(customFields, [
     { value: 'none', label: 'None' },
     { value: 'note', label: 'Note' },
