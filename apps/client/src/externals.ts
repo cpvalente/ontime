@@ -17,7 +17,7 @@ export const buyMeACoffeeUrl = 'https://buymeacoffee.com/cpvalente';
 
 // resolve environment
 export const appVersion = version;
-export const isDocker = import.meta.env.IS_DOCKER;
+export const isDocker = import.meta.env.IS_DOCKER; // this env is made available by the vite.config.js define function
 export const isProduction = import.meta.env.PROD;
 export const isDev = import.meta.env.DEV;
 export const currentHostName = window.location.hostname;
