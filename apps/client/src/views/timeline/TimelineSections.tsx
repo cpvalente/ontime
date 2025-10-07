@@ -1,4 +1,5 @@
 import { OntimeEvent } from 'ontime-types';
+import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { useExpectedStartData } from '../../common/hooks/useSocket';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
@@ -6,7 +7,6 @@ import { formatDuration, getExpectedTimesFromExtendedEvent } from '../../common/
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import TimelineSection from './timeline-section/TimelineSection';
-import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 interface TimelineSectionsProps {
   now: ExtendedEntry<OntimeEvent> | null;
