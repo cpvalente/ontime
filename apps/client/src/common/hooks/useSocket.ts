@@ -164,11 +164,6 @@ export const useProgressData = createSelector((state: RuntimeStore) => ({
   timeDanger: state.eventNow?.timeDanger ?? null,
 }));
 
-export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
-  clock: state.clock,
-  offset: state.offset.absolute,
-}));
-
 export const useExpectedStartData = createSelector((state: RuntimeStore) => ({
   offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
   mode: state.offset.mode,
@@ -176,14 +171,6 @@ export const useExpectedStartData = createSelector((state: RuntimeStore) => ({
   actualStart: state.rundown.actualStart,
   plannedStart: state.rundown.plannedStart,
   clock: state.clock,
-}));
-
-export const useCurrentDay = createSelector((state: RuntimeStore) => ({
-  currentDay: state.eventNow?.dayOffset ?? 0,
-}));
-
-export const useRuntimeOffset = createSelector((state: RuntimeStore) => ({
-  offset: state.offset.absolute,
 }));
 
 export const usePing = createSelector((state: RuntimeStore) => ({
@@ -211,7 +198,7 @@ export const usePlayback = () => {
 
 /* ======================= Overview data subscriptions ======================= */
 
-export const useRundownOverview = createSelector((state: RuntimeStore) => ({
+export const useStartTimesOverview = createSelector((state: RuntimeStore) => ({
   plannedStart: state.rundown.plannedStart,
   actualStart: state.rundown.actualStart,
   plannedEnd: state.rundown.plannedEnd,
@@ -289,11 +276,7 @@ export const useStudioTimersSocket = createSelector((state: RuntimeStore) => ({
   eventNow: state.eventNow,
   message: state.message,
   time: state.timer,
-  offset: state.offset,
+  offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
   rundown: state.rundown,
-}));
-
-export const useTimelineSocket = createSelector((state: RuntimeStore) => ({
-  clock: state.clock,
-  offset: state.offset.absolute,
+  expectedRundownEnd: state.offset.expectedRundownEnd,
 }));
