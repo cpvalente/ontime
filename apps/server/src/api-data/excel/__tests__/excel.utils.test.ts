@@ -1,11 +1,13 @@
 import { CustomFields } from 'ontime-types';
 import { defaultImportMap, ImportMap } from 'ontime-utils';
 
-import { getCustomFieldData } from '../excel.utils.js';
+import { demoDb } from '../../../models/demoProject.js';
+
+import { getCustomFieldData, rundownToTabular } from '../excel.utils.js';
 
 describe('getCustomFieldData()', () => {
   it('generates a list of keys from the given import map', () => {
-    const importMap = {
+    const importMap: ImportMap = {
       worksheet: 'event schedule',
       timeStart: 'time start',
       linkStart: 'link start',
@@ -27,8 +29,8 @@ describe('getCustomFieldData()', () => {
         sound: 'sound',
         video: 'av',
       },
-      entryId: 'id',
-    } as ImportMap;
+      id: 'id',
+    };
 
     const result = getCustomFieldData(importMap, {});
     expect(result.mergedCustomFields).toStrictEqual({
@@ -58,7 +60,7 @@ describe('getCustomFieldData()', () => {
   });
 
   it('keeps colour information from existing fields', () => {
-    const importMap = {
+    const importMap: ImportMap = {
       worksheet: 'event schedule',
       timeStart: 'time start',
       linkStart: 'link start',
@@ -81,8 +83,8 @@ describe('getCustomFieldData()', () => {
         video: 'av',
         'ontime key': 'excel label',
       },
-      entryId: 'id',
-    } as ImportMap;
+      id: 'id',
+    };
 
     const existingCustomFields: CustomFields = {
       lighting: { label: 'lighting', type: 'text', colour: 'red' },
@@ -158,5 +160,15 @@ describe('getCustomFieldData()', () => {
       sound: 'Sound',
       av: 'video',
     });
+  });
+});
+
+describe('rundownToTabular()', () => {
+  it('returns an array of arrays describing a rundown', () => {
+    const testRundown = demoDb.rundowns['default'];
+    const testCustomFields = demoDb.customFields;
+
+    const result = rundownToTabular(testRundown, testCustomFields);
+    expect(result).toMatchSnapshot();
   });
 });

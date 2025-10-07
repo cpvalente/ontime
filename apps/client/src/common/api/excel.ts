@@ -3,6 +3,7 @@ import { CustomFields, Rundown } from 'ontime-types';
 import { ImportMap } from 'ontime-utils';
 
 import { apiEntryUrl } from './constants';
+import { downloadBlob } from './utils';
 
 const excelPath = `${apiEntryUrl}/excel`;
 
@@ -38,4 +39,19 @@ export async function importRundownPreview(options: ImportMap): Promise<PreviewS
     options,
   });
   return response.data;
+}
+
+/**
+ * Downloads a xlsx representation of the rundown from the server
+ */
+export async function downloadAsExcel(rundownId: string, fileName?: string) {
+  try {
+    const response = await axios.get(`${excelPath}/${rundownId}/export`, {
+      responseType: 'blob',
+    });
+
+    downloadBlob(response.data, `${fileName ?? 'Ontime_rundown'}.xlsx`);
+  } catch (error) {
+    console.error('Error downloading file:', error);
+  }
 }

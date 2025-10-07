@@ -132,7 +132,7 @@ export const parseExcel = (
         entry.timeDanger = parseExcelDate(column);
       } else if (j === indexMap.colour) {
         entry.colour = makeString(column, '');
-      } else if (j === indexMap.entryId) {
+      } else if (j === indexMap.id) {
         entry.id = encodeURIComponent(makeString(column, undefined));
       } else if (j in indexMap.custom) {
         const importKey = indexMap.custom[j];

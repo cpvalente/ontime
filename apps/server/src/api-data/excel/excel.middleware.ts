@@ -3,7 +3,7 @@ import multer, { type FileFilterCallback } from 'multer';
 
 import { storage } from '../../utils/upload.js';
 
-export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+import { EXCEL_MIME } from './excel.constants.js';
 
 const filterExcel = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
   if (file.mimetype.includes(EXCEL_MIME)) {

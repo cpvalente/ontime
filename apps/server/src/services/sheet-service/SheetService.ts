@@ -8,6 +8,7 @@ import {
   AuthenticationStatus,
   CustomFields,
   DatabaseModel,
+  EntryId,
   isOntimeEvent,
   isOntimeMilestone,
   LogOrigin,
@@ -360,7 +361,7 @@ export async function upload(sheetId: string, options: ImportMap) {
   const rundown = getCurrentRundown();
 
   const sheetOrder: string[] = [];
-  let prevGroup: string | null = null;
+  let prevGroup: EntryId | null = null;
   for (const id of rundown.flatOrder) {
     const entry = rundown.entries[id];
 
@@ -418,12 +419,12 @@ export async function upload(sheetId: string, options: ImportMap) {
       const isGroupEnd = entryId.startsWith('group-end-');
       const id = isGroupEnd ? entryId.split('group-end-')[1] : entryId;
       const entry = isGroupEnd
-      ? ({ id: entryId, type: SupportedEntry.Group } as OntimeGroup)
-      : structuredClone(rundown.entries[id]);
+        ? ({ id: entryId, type: SupportedEntry.Group } as OntimeGroup)
+        : structuredClone(rundown.entries[id]);
       updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, sheetMetadata));
     });
   } catch (e) {
-    throw new Error(`Sheet write failed to correctly parse rundown: ${e}`)
+    throw new Error(`Sheet write failed to correctly parse rundown: ${e}`);
   }
 
   const writeResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.batchUpdate({

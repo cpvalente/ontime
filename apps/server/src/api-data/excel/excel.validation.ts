@@ -1,6 +1,7 @@
 import { isImportMap } from 'ontime-utils';
 
-import { body } from 'express-validator';
+import { body, param } from 'express-validator';
+
 import {
   requestValidationFunction,
   requestValidationFunctionWithFile,
@@ -17,3 +18,5 @@ export const validateImportMapOptions = [
 
   requestValidationFunction,
 ];
+
+export const validateRundownExport = [param('rundownId').isString().trim().notEmpty(), requestValidationFunction];

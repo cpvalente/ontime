@@ -59,7 +59,7 @@ export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
     timeWarning: namedImportMap['Time warning'],
     timeDanger: namedImportMap['Time danger'],
     custom,
-    entryId: namedImportMap.ID,
+    id: namedImportMap.ID,
   };
 }
 

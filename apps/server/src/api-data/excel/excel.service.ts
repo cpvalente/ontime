@@ -18,10 +18,15 @@ import { getProjectCustomFields } from '../rundown/rundown.dao.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 
 import { parseExcel } from './excel.parser.js';
+import { rundownToTabular } from './excel.utils.js';
 
 let excelData: WorkBook = xlsx.utils.book_new();
 
-export async function saveExcelFile(filePath: string) {
+/**
+ * Receives and parses an excel file
+ * The file is deleted after being read
+ */
+export async function readExcelFile(filePath: string) {
   if (!existsSync(filePath)) {
     throw new Error('Upload of excel file failed');
   }
@@ -33,6 +38,9 @@ export async function saveExcelFile(filePath: string) {
   await deleteFile(filePath);
 }
 
+/**
+ * List all worksheets in the current spreadsheet file
+ */
 export function listWorksheets(): string[] {
   return excelData.SheetNames;
 }
@@ -59,4 +67,20 @@ export function generateRundownPreview(options: ImportMap): { rundown: Rundown; 
   excelData = xlsx.utils.book_new();
 
   return { rundown, customFields: parsedCustomFields };
+}
+
+/**
+ * Creates an xlsx file from a given rundown and custom fields
+ * @throws if the rundown is empty
+ */
+export function generateExcelFile(rundown: Rundown, customFields: CustomFields): Buffer {
+  if (rundown.order.length === 0) {
+    throw new Error('Cannot generate an Excel file from an empty rundown');
+  }
+
+  const workbook = xlsx.utils.book_new();
+  const worksheet = xlsx.utils.aoa_to_sheet(rundownToTabular(rundown, customFields));
+  xlsx.utils.book_append_sheet(workbook, worksheet, rundown.title || 'Rundown');
+
+  return xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 }

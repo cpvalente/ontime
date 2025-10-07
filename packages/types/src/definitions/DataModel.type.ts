@@ -1,4 +1,3 @@
-
 import type { AutomationSettings } from './core/Automation.type.js';
 import type { CustomFields } from './core/CustomFields.type.js';
 import type { ProjectData } from './core/ProjectData.type.js';
