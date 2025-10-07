@@ -1,4 +1,5 @@
-FROM node:22-alpine
+ARG NODE_VERSION=22.15.1
+FROM node:${NODE_VERSION}-alpine
 
 # Set environment variables
 # Environment Variable to signal that we are running production
