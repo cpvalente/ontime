@@ -1,10 +1,13 @@
 import { useState } from 'react';
-import { IoAdd } from 'react-icons/io5';
+import { IoAdd, IoDocumentOutline, IoDownloadOutline, IoEllipsisHorizontal, IoTrash } from 'react-icons/io5';
 import { useDisclosure } from '@mantine/hooks';
 
+import { downloadAsExcel } from '../../../../common/api/excel';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
+import IconButton from '../../../../common/components/buttons/IconButton';
 import Dialog from '../../../../common/components/dialog/Dialog';
+import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import Tag from '../../../../common/components/tag/Tag';
 import { useMutateProjectRundowns, useProjectRundowns } from '../../../../common/hooks-query/useProjectRundowns';
 import { cx } from '../../../../common/utils/styleUtils';
@@ -55,6 +58,10 @@ export default function ManageRundowns() {
     }
   };
 
+  const handleDownloadXlsx = async (rundownId: string, title: string) => {
+    await downloadAsExcel(rundownId, title);
+  };
+
   return (
     <>
       <Panel.Section>
@@ -93,19 +100,35 @@ export default function ManageRundowns() {
                       <td>
                         {title} {isLoaded && <Tag>Loaded</Tag>}
                       </td>
-                      <Panel.InlineElements as='td'>
-                        <Button size='small' onClick={() => openLoad(id)} disabled={isLoaded}>
-                          Load
-                        </Button>
-                        <Button
-                          size='small'
-                          variant='subtle-destructive'
-                          onClick={() => openDelete(id)}
-                          disabled={isLoaded}
+                      <td>
+                        <DropdownMenu
+                          render={<IconButton variant='ghosted-white' />}
+                          items={[
+                            {
+                              type: 'item',
+                              icon: IoDownloadOutline,
+                              label: 'Load',
+                              onClick: () => openLoad(id),
+                              disabled: isLoaded,
+                            },
+                            {
+                              type: 'item',
+                              icon: IoDocumentOutline,
+                              label: 'Download .xlsx',
+                              onClick: () => handleDownloadXlsx(id, title),
+                            },
+                            {
+                              type: 'item',
+                              icon: IoTrash,
+                              label: 'Delete',
+                              onClick: () => openDelete(id),
+                              disabled: isLoaded,
+                            },
+                          ]}
                         >
-                          Delete
-                        </Button>
-                      </Panel.InlineElements>
+                          <IoEllipsisHorizontal />
+                        </DropdownMenu>
+                      </td>
                     </tr>
                   );
                 })}

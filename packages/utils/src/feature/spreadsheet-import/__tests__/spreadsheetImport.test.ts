@@ -21,7 +21,7 @@ describe('isImportMap()', () => {
       timeWarning: 'warning time',
       timeDanger: 'danger time',
       custom: {},
-      entryId: 'id',
+      id: 'id',
     };
 
     expect(isImportMap(importMap)).toBe(true);
@@ -72,7 +72,7 @@ describe('isImportMap()', () => {
         userDefined: 'userDefined',
         anotherOne: 'anotherOne',
       },
-      entryId: 'id',
+      id: 'id',
     };
 
     expect(isImportMap(importMap)).toBe(true);
