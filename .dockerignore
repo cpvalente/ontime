@@ -17,7 +17,6 @@
 # Ignore build folders
 node_modules
 **/node_modules
-**/dist
 
 # Ignore default volumes created by running docker compose up
 ontime-db
