@@ -20,7 +20,7 @@ import {
   useNextFlag,
   useOffsetOverview,
   useProgressOverview,
-  useRundownOverview,
+  useStartTimesOverview,
   useTimer,
 } from '../../../common/hooks/useSocket';
 import { useEntry } from '../../../common/hooks-query/useRundown';
@@ -34,7 +34,7 @@ import { OverUnder, TimeColumn } from './TimeLayout';
 import style from './TimeElements.module.scss';
 
 export function StartTimes() {
-  const { plannedEnd, plannedStart, actualStart, expectedEnd } = useRundownOverview();
+  const { plannedEnd, plannedStart, actualStart, expectedEnd } = useStartTimesOverview();
 
   const plannedStartText = plannedStart === null ? timerPlaceholder : formatTime(plannedStart);
 
