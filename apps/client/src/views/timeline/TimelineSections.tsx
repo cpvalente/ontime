@@ -1,4 +1,5 @@
 import { OntimeEvent } from 'ontime-types';
+import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { useExpectedStartData } from '../../common/hooks/useSocket';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
@@ -30,7 +31,7 @@ export default function TimelineSections({ now, next, followedBy }: TimelineSect
     if (timeToStart <= 0) {
       nextStatus = dueText;
     } else {
-      nextStatus = formatDuration(timeToStart);
+      nextStatus = formatDuration(timeToStart, timeToStart > MILLIS_PER_MINUTE * 2);
     }
   }
 
@@ -39,7 +40,7 @@ export default function TimelineSections({ now, next, followedBy }: TimelineSect
     if (timeToStart <= 0) {
       followedByStatus = dueText;
     } else {
-      followedByStatus = formatDuration(timeToStart);
+      followedByStatus = formatDuration(timeToStart, timeToStart > MILLIS_PER_MINUTE * 2);
     }
   }
 
@@ -56,7 +57,7 @@ export default function TimelineSections({ now, next, followedBy }: TimelineSect
         title={getLocalizedString('timeline.followedby')}
         status={followedByStatus}
         content={followedByText}
-        category='next'
+        category='followedBy'
       />
     </div>
   );

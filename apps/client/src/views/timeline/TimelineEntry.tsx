@@ -25,6 +25,7 @@ interface TimelineEntryProps {
   isLinkedToLoaded: boolean;
   title: string;
   width: number;
+  cue: string;
   ref?: RefObject<HTMLDivElement | null>;
 }
 
@@ -46,6 +47,7 @@ export function TimelineEntry({
   isLinkedToLoaded,
   title,
   width,
+  cue,
   ref,
 }: TimelineEntryProps) {
   const formattedStartTime = formatTime(start, formatOptions);
@@ -67,6 +69,7 @@ export function TimelineEntry({
         left: `${left}px`,
         width: `${width}px`,
       }}
+      data-testid={cue}
     >
       {status === 'live' ? <ActiveBlock /> : <div data-status={status} className={style.timelineBlock} />}
       <div

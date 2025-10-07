@@ -33,6 +33,7 @@ export default function Schedule({ className }: ScheduleProps) {
             skip={event.skip}
             title={event.title}
             timeEnd={event.timeEnd}
+            cue={event.cue}
           />
         );
       })}
