@@ -111,12 +111,12 @@ function makeFileMenu(serverUrl, redirectWindow, showDialog, download) {
         click: () => redirectWindow('/editor?settings=project__create'),
       },
       {
-        label: 'Edit project info...',
-        click: () => redirectWindow('/editor?settings=project__data'),
+        label: 'Edit project data...',
+        click: () => redirectWindow('/editor?settings=settings__data'),
       },
       {
         label: 'Manage projects',
-        click: () => redirectWindow('/editor?settings=project__manage'),
+        click: () => redirectWindow('/editor?settings=project__list'),
       },
       {
         label: 'Download project',
@@ -148,22 +148,16 @@ function makeViewMenu(clientUrl) {
   return {
     label: 'Views',
     submenu: [
-      makeItemOpenInBrowser('Public', `${clientUrl}/public`),
-      makeItemOpenInBrowser('Lower Thirds', `${clientUrl}/lower`),
-      { type: 'separator' },
-      makeItemOpenInBrowser('Timer', `${clientUrl}/timer`),
-      makeItemOpenInBrowser('Minimal Timer', `${clientUrl}/minimal`),
-      makeItemOpenInBrowser('Clock', `${clientUrl}/clock`),
-      makeItemOpenInBrowser('Backstage', `${clientUrl}/backstage`),
-      makeItemOpenInBrowser('Timeline (beta)', `${clientUrl}/timeline`),
-      makeItemOpenInBrowser('Studio Clock', `${clientUrl}/studio`),
-      makeItemOpenInBrowser('Countdown', `${clientUrl}/countdown`),
-      { type: 'separator' },
       makeItemOpenInBrowser('Editor', `${clientUrl}/editor`),
       makeItemOpenInBrowser('Cuesheet', `${clientUrl}/cuesheet`),
       makeItemOpenInBrowser('Operator', `${clientUrl}/op`),
+      { type: 'separator' },
+      makeItemOpenInBrowser('Timer', `${clientUrl}/timer`),
+      makeItemOpenInBrowser('Backstage', `${clientUrl}/backstage`),
+      makeItemOpenInBrowser('Timeline', `${clientUrl}/timeline`),
+      makeItemOpenInBrowser('Studio Clock', `${clientUrl}/studio`),
+      makeItemOpenInBrowser('Countdown', `${clientUrl}/countdown`),
       makeItemOpenInBrowser('Project info', `${clientUrl}/info`),
-
       { type: 'separator' },
       { role: 'forceReload' },
       { type: 'separator' },
@@ -191,65 +185,60 @@ function makeSettingsMenu(redirectWindow) {
       {
         label: 'Open Settings',
         accelerator: 'CommandOrControl+,',
-        click: () => redirectWindow('/editor?settings=project'),
-      },
-      {
-        label: 'Project',
-        submenu: [
-          {
-            label: 'Project data',
-            click: () => redirectWindow('/editor?settings=project__data'),
-          },
-          {
-            label: 'Manage projects',
-            click: () => redirectWindow('/editor?settings=project__manage'),
-          },
-        ],
+        click: () => redirectWindow('/editor?settings=settings'),
       },
       {
         label: 'App Settings',
         submenu: [
           {
-            label: 'General settings',
-            click: () => redirectWindow('/editor?settings=general__settings'),
+            label: 'Project data',
+            click: () => redirectWindow('/editor?settings=settings__data'),
           },
           {
-            label: 'Editor settings',
-            click: () => redirectWindow('/editor?settings=general__editor'),
+            label: 'General settings',
+            click: () => redirectWindow('/editor?settings=settings__general'),
           },
           {
             label: 'View settings',
-            click: () => redirectWindow('/editor?settings=general__view'),
+            click: () => redirectWindow('/editor?settings=settings__view'),
           },
         ],
       },
       {
-        label: 'Feature Settings',
+        label: 'Project',
         submenu: [
+          {
+            label: 'Create...',
+            click: () => redirectWindow('/editor?settings=project__create'),
+          },
+          {
+            label: 'Manage projects',
+            click: () => redirectWindow('/editor?settings=project__list'),
+          },
+        ],
+      },
+      {
+        label: 'Project settings',
+        submenu: [
+          {
+            label: 'Rundown defaults',
+            click: () => redirectWindow('/editor?settings=manage__defaults'),
+          },
           {
             label: 'Custom fields',
-            click: () => redirectWindow('/editor?settings=feature_settings__custom'),
+            click: () => redirectWindow('/editor?settings=manage__custom'),
           },
           {
-            label: 'URL presets',
-            click: () => redirectWindow('/editor?settings=feature_settings__urlpresets'),
+            label: 'Manage rundowns',
+            click: () => redirectWindow('/editor?settings=manage__rundowns'),
           },
-          {
-            label: 'Report',
-            click: () => redirectWindow('/editor?settings=feature_settings__report'),
-          },
-        ],
-      },
-      {
-        label: 'Data Sources',
-        submenu: [
           {
             label: 'Import spreadsheet',
-            click: () => redirectWindow('/editor?settings=sources__xlsx'),
+            click: () => redirectWindow('/editor?settings=manage__sheets'),
           },
           {
             label: 'Sync with Google Sheet',
-            click: () => redirectWindow('/editor?settings=sources__gsheet'),
+            click: () => redirectWindow('/editor?settings=manage__sheets'),
           },
         ],
       },
@@ -271,12 +260,25 @@ function makeSettingsMenu(redirectWindow) {
         ],
       },
       {
-        label: 'Network',
+        label: 'Sharing and reporting',
         submenu: [
           {
-            label: 'Share link',
-            click: () => redirectWindow('/editor?settings=network__link'),
+            label: 'URL presets',
+            click: () => redirectWindow('/editor?settings=sharing__presets'),
           },
+          {
+            label: 'Share link',
+            click: () => redirectWindow('/editor?settings=sharing__link'),
+          },
+          {
+            label: 'Runtime report',
+            click: () => redirectWindow('/editor?settings=sharing__report'),
+          },
+        ],
+      },
+      {
+        label: 'Network',
+        submenu: [
           {
             label: 'Event log',
             click: () => redirectWindow('/editor?settings=network__log'),

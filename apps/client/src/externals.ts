@@ -17,11 +17,11 @@ export const buyMeACoffeeUrl = 'https://buymeacoffee.com/cpvalente';
 
 // resolve environment
 export const appVersion = version;
-export const isProduction = import.meta.env.MODE === 'production';
-export const isDev = !isProduction;
+export const isDocker = import.meta.env.IS_DOCKER; // this env is made available by the vite.config.js define function
+export const isProduction = import.meta.env.PROD;
+export const isDev = import.meta.env.DEV;
 export const currentHostName = window.location.hostname;
 export const isLocalhost = currentHostName === 'localhost' || currentHostName === '127.0.0.1';
-export const isDockerImage = Boolean(import.meta.env.VITE_IS_DOCKER);
 export const isOntimeCloud = currentHostName.includes('cloud.getontime.no');
 
 // resolve entrypoint URLs
@@ -49,10 +49,7 @@ function resolveUrl(protocol: 'http' | 'ws', path: string) {
   url.pathname = baseURI ? `${baseURI}/${path}` : path;
 
   // in development mode, we use the React port for UI, but need the requests to target the server
-  if (isDev) {
-    // this is used as a fallback port for development
-    url.port = '4001';
-  }
+  // this is done with a proxy in the vite config to avoid CORS issues in the dev environment
 
   const result = url.toString();
 
@@ -76,4 +73,27 @@ function resolveBaseURI(): string {
   }
 
   return base;
+}
+
+/**
+ * Resolves a session scope for the session
+ */
+export const sessionScope = resolveSessionScope();
+export const getIsNavigationLocked = () => new URLSearchParams(window.location.search).get('n') === '1';
+
+/**
+ * The session scope is read from the cookie and will only exist if the app is password protected
+ */
+function resolveSessionScope() {
+  const tokenCookie = document.cookie.split('; ').find((cookie) => cookie.startsWith('token='));
+
+  if (tokenCookie) {
+    try {
+      const { scope } = JSON.parse(tokenCookie.split('=')[1]);
+      return scope;
+    } catch {
+      return 'rw';
+    }
+  }
+  return 'rw';
 }

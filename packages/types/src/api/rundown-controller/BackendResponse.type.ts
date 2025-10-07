@@ -1,22 +1,25 @@
-import type { OntimeBlock, OntimeDelay, OntimeEvent } from '../../definitions/core/OntimeEvent.type.js';
-import type { OntimeRundownEntry } from '../../definitions/core/Rundown.type.js';
+import type { EntryId, OntimeEntry } from '../../definitions/core/OntimeEntry.js';
 
-type EventId = string;
-export type NormalisedRundown = Record<EventId, OntimeRundownEntry>;
+export type PatchWithId<T extends OntimeEntry = OntimeEntry> = Partial<T> & { id: EntryId };
 
-export interface RundownCached {
-  rundown: NormalisedRundown;
-  order: EventId[];
-  revision: number;
-}
-
-export type PatchWithId = Partial<OntimeEvent | OntimeDelay | OntimeBlock> & { id: string };
-export type EventPostPayload = Partial<OntimeRundownEntry> & {
-  after?: string;
-  before?: string;
+export type EventPostPayload = Partial<OntimeEntry> & {
+  after?: EntryId;
+  before?: EntryId;
 };
 
-export type TransientEventPayload = Partial<OntimeEvent | OntimeDelay | OntimeBlock> & {
-  after?: string;
-  before?: string;
+export type TransientEventPayload = Partial<OntimeEntry> & {
+  after?: EntryId;
+  before?: EntryId;
+};
+
+export type ProjectRundown = {
+  id: string;
+  title: string;
+  numEntries: number;
+  revision: number;
+};
+
+export type ProjectRundownsList = {
+  loaded: string;
+  rundowns: ProjectRundown[];
 };

@@ -1,7 +1,6 @@
 .label {
   color: $label-gray;
   font-size: calc(1rem - 2px);
-  width: 10em; // a number large enough to force right alignment
 }
 
 .clock {
@@ -9,6 +8,8 @@
   font-size: 1.5rem;
   letter-spacing: 0.5px;
   min-width: 5em;
+  font-variant-numeric: tabular-nums;
+  color: $ui-white;
 
   &::after {
     content: '\200b';
@@ -18,36 +19,42 @@
 .column {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  justify-content: end;
 
   .label {
     line-height: 0.9em;
-  }
-}
-
-.row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  height: 2.25em;
-
-  .label {
-    text-align: right;
+    width: 7em;
+    display: flex;
+    gap: 0.25rem;
   }
 
-  .clock {
-    font-size: 1.25rem;
+  &[data-state='waiting'] {
+    .label {
+      color: $ontime-roll;
+    }
   }
-}
-
-.daySpan {
-  &::after {
-    content: "*";
-    vertical-align: super;
-    font-size: 0.75em;
-    color: $info-blue;
+  &[data-state='over'] {
+    .label .over {
+      color: $playback-over;
+    }
+    .clock {
+      color: $playback-over;
+    }
   }
-}
 
-.muted {
-  color: $muted-gray;
+  &[data-state='under'] {
+    .label .under {
+      color: $playback-under;
+    }
+    .clock {
+      color: $playback-under;
+    }
+  }
+
+  &[data-state='muted'] {
+    .clock {
+      color: $muted-gray;
+    }
+  }
 }

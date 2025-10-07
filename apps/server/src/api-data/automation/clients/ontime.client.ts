@@ -2,23 +2,42 @@ import { LogOrigin, OntimeAction } from 'ontime-types';
 
 import { logger } from '../../../classes/Logger.js';
 import { auxTimerService } from '../../../services/aux-timer-service/AuxTimerService.js';
-import * as messageService from '../../../services/message-service/MessageService.js';
+import * as messageService from '../../../services/message-service/message.service.js';
+import { parseUserTime } from 'ontime-utils';
 
 export function toOntimeAction(action: OntimeAction) {
-  switch (action.action) {
+  const actionType = action.action;
+  switch (actionType) {
     // Aux timer actions
-    case 'aux-start':
-      auxTimerService.start();
-      break;
-    case 'aux-stop':
-      auxTimerService.stop();
-      break;
-    case 'aux-pause':
-      auxTimerService.pause();
-      break;
-    case 'aux-set': {
-      auxTimerService.setTime(action.time);
-      break;
+    case 'aux1-start':
+      return auxTimerService.start(1);
+    case 'aux1-stop':
+      return auxTimerService.stop(1);
+    case 'aux1-pause':
+      return auxTimerService.pause(1);
+    case 'aux1-set': {
+      const time = parseUserTime(action.time);
+      return auxTimerService.setTime(time, 1);
+    }
+    case 'aux2-start':
+      return auxTimerService.start(2);
+    case 'aux2-stop':
+      return auxTimerService.stop(2);
+    case 'aux2-pause':
+      return auxTimerService.pause(2);
+    case 'aux2-set': {
+      const time = parseUserTime(action.time);
+      return auxTimerService.setTime(time, 2);
+    }
+    case 'aux3-start':
+      return auxTimerService.start(3);
+    case 'aux3-stop':
+      return auxTimerService.stop(3);
+    case 'aux3-pause':
+      return auxTimerService.pause(3);
+    case 'aux3-set': {
+      const time = parseUserTime(action.time);
+      return auxTimerService.setTime(time, 3);
     }
 
     // Message actions
@@ -40,9 +59,10 @@ export function toOntimeAction(action: OntimeAction) {
       break;
     }
 
-    default:
-      // @ts-expect-error -- this guard checks that we handled all the cases, but we still want to log just in case
-      logger.warning(LogOrigin.Tx, `Unknown action type: ${action.type}`);
+    default: {
+      actionType satisfies never;
+      logger.warning(LogOrigin.Tx, `Unknown action type: ${actionType}`);
       break;
+    }
   }
 }

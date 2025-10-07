@@ -5,9 +5,6 @@
 
 .rundownContainer {
   margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  padding-right: 4px; // size of scrollbar
   overflow-y: scroll;
   height: 100%;
 }
@@ -16,20 +13,17 @@
   overflow-x: clip;
   display: flex;
   flex-direction: column;
+  padding-inline: 1rem;
+
+  :is([data-target='small-device']) & {
+    padding-inline: 0;
+    overflow-x: auto;
+  }
 }
 
 .empty {
   opacity: 0.3;
   align-self: center;
-}
-
-.alignCenter {
-  text-align: center;
-  flex-direction: column;
-
-  .spaceTop {
-    margin-top: 1.5rem;
-  }
 }
 
 .spacer {
@@ -40,13 +34,29 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  background: color-mix(in srgb, transparent 90%, var(--user-bg, transparent) 10%);
 }
 
 .entryIndex {
-  text-align: right;
+  padding-block: 0.25rem;
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;  
+  justify-items: end;
   min-width: 2em;
   color: $label-gray;
   font-size: calc(1rem - 3px);
+  height: 6.5rem;
+}
+
+.flag {
+  grid-row: 1;
+  color: $active-indicator;
+  font-size: 1rem;
+}
+
+.index {
+  grid-row: 2;
+  align-content: center;
 }
 
 .entry {

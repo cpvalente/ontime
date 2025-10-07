@@ -1,8 +1,6 @@
-import { EndAction, OntimeEvent, TimerType, isKeyOfType, isOntimeEvent } from 'ontime-types';
+import { EndAction, TimerType, isKeyOfType } from 'ontime-types';
 import { MILLIS_PER_SECOND, maxDuration } from 'ontime-utils';
 
-import { editEvent } from '../services/rundown-service/RundownService.js';
-import { getEventWithId } from '../services/rundown-service/rundownUtils.js';
 import { coerceBoolean, coerceColour, coerceEnum, coerceNumber, coerceString } from '../utils/coerceType.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
 
@@ -24,7 +22,6 @@ const propertyConversion = {
   note: coerceString,
   cue: coerceString,
 
-  isPublic: coerceBoolean,
   skip: coerceBoolean,
 
   colour: coerceColour,
@@ -57,20 +54,4 @@ export function parseProperty(property: string, value: unknown) {
   }
   const parserFn = propertyConversion[property];
   return { [property]: parserFn(value) };
-}
-
-/**
- * Updates a property of the event with the given id
- * @param {Partial<OntimeEvent>} patchEvent
- */
-export function updateEvent(patchEvent: Partial<OntimeEvent> & { id: string }) {
-  const event = getEventWithId(patchEvent?.id ?? '');
-  if (!event) {
-    throw new Error(`Event with ID ${patchEvent?.id} not found`);
-  }
-
-  if (!isOntimeEvent(event)) {
-    throw new Error('Can only update events');
-  }
-  editEvent(patchEvent);
 }

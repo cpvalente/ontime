@@ -4,8 +4,8 @@ import { router as automationsRouter } from './automation/automation.router.js';
 import { router as urlPresetsRouter } from './url-presets/urlPresets.router.js';
 import { router as customFieldsRouter } from './custom-fields/customFields.router.js';
 import { router as dbRouter } from './db/db.router.js';
-import { router as projectRouter } from './project/project.router.js';
-import { router as rundownRouter } from './rundown/rundown.router.js';
+import { router as projectRouter } from './project-data/projectData.router.js';
+import { router as rundownsRouter } from './rundown/rundown.router.js';
 import { router as settingsRouter } from './settings/settings.router.js';
 import { router as sheetsRouter } from './sheets/sheets.router.js';
 import { router as excelRouter } from './excel/excel.router.js';
@@ -20,7 +20,7 @@ appRouter.use('/automations', automationsRouter);
 appRouter.use('/custom-fields', customFieldsRouter);
 appRouter.use('/db', dbRouter);
 appRouter.use('/project', projectRouter);
-appRouter.use('/rundown', rundownRouter);
+appRouter.use('/rundowns', rundownsRouter);
 appRouter.use('/settings', settingsRouter);
 appRouter.use('/sheets', sheetsRouter);
 appRouter.use('/excel', excelRouter);
@@ -30,7 +30,7 @@ appRouter.use('/view-settings', viewSettingsRouter);
 appRouter.use('/report', reportRouter);
 appRouter.use('/assets', assetsRouter);
 
-//we don't want to redirect to react index when using api routes
-appRouter.all('/*', (_req, res) => {
-  res.status(404).send();
+// we don't want to redirect to react index when using api routes
+appRouter.all('/*splat', (_req, res) => {
+  res.status(404).send('Unhandled request');
 });

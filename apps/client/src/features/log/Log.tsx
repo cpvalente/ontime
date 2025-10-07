@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
-import { Button } from '@chakra-ui/react';
+import { IoClose } from 'react-icons/io5';
 import { LogOrigin } from 'ontime-types';
 
+import Button from '../../common/components/buttons/Button';
 import { clearLogs, useLogData } from '../../common/stores/logger';
 import * as Panel from '../app-settings/panel-utils/PanelUtils';
 
@@ -52,8 +53,8 @@ export default function Log() {
     <>
       <Panel.InlineElements className={style.buttonBar}>
         <Button
-          variant={showUser ? 'ontime-filled' : 'ontime-outlined'}
-          size='xs'
+          variant={showUser ? 'primary' : 'subtle'}
+          size='small'
           onClick={() => setShowUser((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.User)}
           onContextMenu={(e) => e.preventDefault()}
@@ -61,8 +62,8 @@ export default function Log() {
           {LogOrigin.User}
         </Button>
         <Button
-          variant={showClient ? 'ontime-filled' : 'ontime-outlined'}
-          size='xs'
+          variant={showClient ? 'primary' : 'subtle'}
+          size='small'
           onClick={() => setShowClient((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Client)}
           onContextMenu={(e) => e.preventDefault()}
@@ -70,8 +71,8 @@ export default function Log() {
           {LogOrigin.Client}
         </Button>
         <Button
-          variant={showServer ? 'ontime-filled' : 'ontime-outlined'}
-          size='xs'
+          variant={showServer ? 'primary' : 'subtle'}
+          size='small'
           onClick={() => setShowServer((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Server)}
           onContextMenu={(e) => e.preventDefault()}
@@ -79,8 +80,8 @@ export default function Log() {
           {LogOrigin.Server}
         </Button>
         <Button
-          variant={showPlayback ? 'ontime-filled' : 'ontime-outlined'}
-          size='xs'
+          variant={showPlayback ? 'primary' : 'subtle'}
+          size='small'
           onClick={() => setShowPlayback((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Playback)}
           onContextMenu={(e) => e.preventDefault()}
@@ -88,8 +89,8 @@ export default function Log() {
           {LogOrigin.Playback}
         </Button>
         <Button
-          variant={showRx ? 'ontime-filled' : 'ontime-outlined'}
-          size='xs'
+          variant={showRx ? 'primary' : 'subtle'}
+          size='small'
           onClick={() => setShowRx((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Rx)}
           onContextMenu={(e) => e.preventDefault()}
@@ -97,16 +98,16 @@ export default function Log() {
           {LogOrigin.Rx}
         </Button>
         <Button
-          variant={showTx ? 'ontime-filled' : 'ontime-outlined'}
-          size='xs'
+          variant={showTx ? 'primary' : 'subtle'}
+          size='small'
           onClick={() => setShowTx((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Tx)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.Tx}
         </Button>
-        <Button variant='ontime-subtle' size='xs' onClick={clearLogs}>
-          Clear
+        <Button variant='subtle-destructive' size='small' onClick={clearLogs} className={style.apart}>
+          <IoClose /> Clear
         </Button>
       </Panel.InlineElements>
       <ul className={style.log}>

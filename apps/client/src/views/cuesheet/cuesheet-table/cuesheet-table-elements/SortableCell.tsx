@@ -2,27 +2,28 @@ import { CSSProperties, ReactNode } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Header } from '@tanstack/react-table';
-import { OntimeRundownEntry } from 'ontime-types';
 
-import styles from '../CuesheetTable.module.scss';
+import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
+
+import style from '../CuesheetTable.module.scss';
 
 interface SortableCellProps {
-  header: Header<OntimeRundownEntry, unknown>;
-  style: CSSProperties;
+  columnId: string;
+  colSpan: number;
+  injectedStyles: CSSProperties;
   children: ReactNode;
+  draggable: ReactNode;
 }
 
-export function SortableCell({ header, style, children }: SortableCellProps) {
-  const { column, colSpan } = header;
-
+export function SortableCell({ columnId, colSpan, injectedStyles, children, draggable }: SortableCellProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: column.id,
+    id: columnId,
   });
 
   // build drag styles
   const dragStyle = {
-    ...style,
-    opacity: isDragging ? 0.5 : 1,
+    ...injectedStyles,
+    zIndex: isDragging ? 2 : 'inherit',
     transform: CSS.Translate.toString(transform),
     transition,
   };
@@ -32,13 +33,31 @@ export function SortableCell({ header, style, children }: SortableCellProps) {
       <div {...attributes} {...listeners}>
         {children}
       </div>
-      <div
-        {...{
-          onMouseDown: header.getResizeHandler(),
-          onTouchStart: header.getResizeHandler(),
-        }}
-        className={styles.resizer}
-      />
+      {draggable}
     </th>
+  );
+}
+
+export function TableCell({ colSpan, injectedStyles, children, draggable }: SortableCellProps) {
+  return (
+    <th style={injectedStyles} colSpan={colSpan} tabIndex={-1}>
+      <div>{children}</div>
+      {draggable}
+    </th>
+  );
+}
+
+interface DraggableProps {
+  header: Header<ExtendedEntry, unknown>;
+}
+
+export function Draggable({ header }: DraggableProps) {
+  return (
+    <div
+      onDoubleClick={() => header.column.resetSize()}
+      onMouseDown={header.getResizeHandler()}
+      onTouchStart={header.getResizeHandler()}
+      className={style.resizer}
+    />
   );
 }

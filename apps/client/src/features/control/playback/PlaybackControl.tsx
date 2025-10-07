@@ -1,5 +1,3 @@
-import { Playback } from 'ontime-types';
-
 import { usePlaybackControl } from '../../../common/hooks/useSocket';
 
 import AddTime from './add-time/AddTime';
@@ -14,7 +12,7 @@ export default function PlaybackControl() {
 
   return (
     <div className={style.mainContainer}>
-      <PlaybackTimer playback={data.playback as Playback}>
+      <PlaybackTimer>
         <AddTime playback={data.playback} />
       </PlaybackTimer>
       <PlaybackButtons
@@ -23,7 +21,11 @@ export default function PlaybackControl() {
         selectedEventIndex={data.selectedEventIndex}
         timerPhase={data.timerPhase}
       />
-      <AuxTimer />
+      <div className={style.auxTimers}>
+        <AuxTimer index={1} />
+        <AuxTimer index={2} />
+        <AuxTimer index={3} />
+      </div>
     </div>
   );
 }

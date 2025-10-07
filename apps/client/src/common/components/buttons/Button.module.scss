@@ -1,0 +1,84 @@
+@use '@/theme/viewerDefs' as *;
+@import './BaseButtonStyles.module.scss';
+
+.baseButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+
+  width: fit-content;
+  padding-inline: 1em;
+  white-space: nowrap;
+
+  border: 1px solid transparent;
+  border-radius: $component-border-radius-md;
+
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $blue-500;
+    outline-offset: 2px;
+  }
+
+  &.loading {
+    cursor: wait;
+    .content {
+      opacity: 0;
+    }
+  }
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: inherit;
+}
+
+.loadingOverlay {
+  position: absolute;
+  display: grid;
+  place-content: center;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  stroke-dasharray: 8;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.small {
+  height: 1.5rem;
+  font-size: calc(1rem - 3px);
+}
+
+.medium {
+  height: 2rem;
+  font-size: calc(1rem - 2px);
+}
+
+.large {
+  height: 2.5rem;
+  font-weight: 600;
+}
+
+.xlarge {
+  height: 3rem;
+  font-weight: 600;
+}
+
+.fluid {
+  width: 100%;
+}
+

@@ -7,7 +7,7 @@ import { addLog } from '../stores/logger';
 import { nowInMillis } from '../utils/time';
 
 /**
- * Utility unrwap a potential axios error
+ * Utility unwrap a potential axios error
  * @param error
  * @returns
  */
@@ -34,7 +34,21 @@ export function maybeAxiosError(error: unknown) {
 }
 
 /**
- * Utility unrwaps a potential axios error and sends to logger
+ * Utility unwrap a an instance of Error
+ */
+export function unwrapError(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  } else {
+    if (typeof error !== 'string') {
+      return JSON.stringify(error);
+    }
+    return error;
+  }
+}
+
+/**
+ * Utility unwraps a potential axios error and sends to logger
  * @param prepend
  * @param error
  */

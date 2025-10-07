@@ -1,45 +1,41 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { isOntimeEvent, OntimeEvent, SupportedEvent } from 'ontime-types';
-import { getFirstEventNormal, getLastEventNormal } from 'ontime-utils';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isOntimeEvent, isOntimeGroup, OntimeView } from 'ontime-types';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
-import { useOperator } from '../../common/hooks/useSocket';
+import { useSelectedEventId } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import useProjectData from '../../common/hooks-query/useProjectData';
-import useRundown from '../../common/hooks-query/useRundown';
+import { useRundownWithMetadata } from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
+import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
 import { getDefaultFormat } from '../../common/utils/time';
-import { getPropertyValue, isStringBoolean } from '../viewers/common/viewUtils';
 
 import EditModal from './edit-modal/EditModal';
 import FollowButton from './follow-button/FollowButton';
-import OperatorBlock from './operator-block/OperatorBlock';
 import OperatorEvent from './operator-event/OperatorEvent';
+import OperatorGroup from './operator-group/OperatorGroup';
 import StatusBar from './status-bar/StatusBar';
-import { getOperatorOptions } from './operator.options';
+import { getOperatorOptions, useOperatorOptions } from './operator.options';
+import type { EditEvent } from './operator.types';
+import { getEventData } from './operator.utils';
 
 import style from './Operator.module.scss';
 
 const selectedOffset = 50;
 
-export type Subscribed = { id: string; label: string; colour: string; value: string }[];
-type TitleFields = Pick<OntimeEvent, 'title'>;
-export type EditEvent = Pick<OntimeEvent, 'id' | 'cue'> & { subscriptions: Subscribed };
-
 export default function Operator() {
-  const { data, status } = useRundown();
+  const { data, rundownMetadata, status } = useRundownWithMetadata();
   const { data: customFields, status: customFieldStatus } = useCustomFields();
   const { data: projectData, status: projectDataStatus } = useProjectData();
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
-  const featureData = useOperator();
-  const [searchParams] = useSearchParams();
+  const { selectedEventId } = useSelectedEventId();
+  const { subscribe, mainSource, secondarySource, shouldEdit, hidePast, showStart } = useOperatorOptions();
   const { data: settings } = useSettings();
 
   const [showEditPrompt, setShowEditPrompt] = useState(false);
@@ -53,21 +49,22 @@ export default function Operator() {
     scrollRef,
     doFollow: !lockAutoScroll,
     topOffset: selectedOffset,
+    followTrigger: selectedEventId,
   });
 
   useWindowTitle('Operator');
 
   // reset scroll if nothing is selected
   useEffect(() => {
-    if (!featureData?.selectedEventId) {
+    if (!selectedEventId) {
       if (!lockAutoScroll) {
         scrollRef.current?.scrollTo(0, 0);
       }
     }
-  }, [featureData?.selectedEventId, lockAutoScroll, scrollRef]);
+  }, [selectedEventId, lockAutoScroll, scrollRef]);
 
   const handleOffset = () => {
-    if (featureData.selectedEventId) {
+    if (selectedEventId) {
       scrollToComponent();
     }
     setLockAutoScroll(false);
@@ -107,74 +104,44 @@ export default function Operator() {
   const missingData = !data || !customFields || !projectData;
   const isLoading = status === 'pending' || customFieldStatus === 'pending' || projectDataStatus === 'pending';
 
+  // gather option data
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const operatorOptions = useMemo(() => getOperatorOptions(customFields, defaultFormat), [customFields, defaultFormat]);
+
   if (missingData || isLoading) {
     return <EmptyPage text='Loading...' />;
   }
 
-  // get fields which the user subscribed to
-  const shouldEdit = searchParams.get('shouldEdit');
-
-  // subscriptions is a MultiSelect and may have multiple values
-  const subscriptions = searchParams.getAll('subscribe').filter((value) => Object.hasOwn(customFields, value));
-  const canEdit = shouldEdit && subscriptions.length;
-
-  const main = searchParams.get('main') as keyof TitleFields | null;
-  const secondary = searchParams.get('secondary');
-
-  const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const operatorOptions = getOperatorOptions(customFields, defaultFormat);
-  let isPast = Boolean(featureData.selectedEventId);
-  const hidePast = isStringBoolean(searchParams.get('hidepast'));
-
-  const { firstEvent } = getFirstEventNormal(data.rundown, data.order);
-  const { lastEvent } = getLastEventNormal(data.rundown, data.order);
+  const canEdit = shouldEdit && subscribe.length;
 
   return (
-    <div className={style.operatorContainer}>
-      <ViewParamsEditor viewOptions={operatorOptions} />
+    <div className={style.operatorContainer} data-testid='operator-view'>
+      <ViewParamsEditor target={OntimeView.Operator} viewOptions={operatorOptions} />
       {editEvent && <EditModal event={editEvent} onClose={() => setEditEvent(null)} />}
 
-      <StatusBar
-        projectTitle={projectData.title}
-        playback={featureData.playback}
-        selectedEventId={featureData.selectedEventId}
-        firstStart={firstEvent?.timeStart}
-        firstId={firstEvent?.id}
-        lastEnd={lastEvent?.timeEnd}
-        lastId={lastEvent?.id}
-      />
+      <StatusBar />
 
       {canEdit && (
-        <div className={`${style.editPrompt} ${showEditPrompt ? style.show : undefined}`}>
-          Press and hold to edit user field
-        </div>
+        <div className={cx([style.editPrompt, showEditPrompt && style.show])}>Press and hold to edit user field</div>
       )}
 
       <div className={style.operatorEvents} onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
-        {data.order.map((eventId) => {
-          const entry = data.rundown[eventId];
+        {data.order.map((entryId) => {
+          const entry = data.entries[entryId];
           if (isOntimeEvent(entry)) {
-            const isSelected = featureData.selectedEventId === entry.id;
-            if (isSelected) {
-              isPast = false;
-            }
-
+            const { isPast, isLinkedToLoaded, isLoaded, totalGap } = rundownMetadata[entryId];
             // hide past events (if setting) and skipped events
             if ((hidePast && isPast) || entry.skip) {
               return null;
             }
 
-            const mainField = main ? getPropertyValue(entry, main) ?? '' : entry.title;
-            const secondaryField = getPropertyValue(entry, secondary) ?? '';
-            const subscribedData = subscriptions
-              ? subscriptions.flatMap((id) => {
-                  if (!customFields[id]) {
-                    return [];
-                  }
-                  const { label, colour } = customFields[id];
-                  return [{ id, label, colour, value: entry.custom[id] }];
-                })
-              : null;
+            const { mainField, secondaryField, subscribedData } = getEventData(
+              entry,
+              mainSource,
+              secondarySource,
+              subscribe,
+              customFields,
+            );
 
             return (
               <OperatorEvent
@@ -185,24 +152,74 @@ export default function Operator() {
                 main={mainField}
                 secondary={secondaryField}
                 timeStart={entry.timeStart}
-                timeEnd={entry.timeEnd}
                 duration={entry.duration}
                 delay={entry.delay}
-                isSelected={isSelected}
-                subscribed={subscribedData}
+                dayOffset={entry.dayOffset}
+                isLinkedToLoaded={isLinkedToLoaded}
+                isSelected={isLoaded}
                 isPast={isPast}
-                selectedRef={isSelected ? selectedRef : undefined}
+                selectedRef={isLoaded ? selectedRef : undefined}
+                showStart={showStart}
+                subscribed={subscribedData}
+                totalGap={totalGap}
                 onLongPress={canEdit ? handleEdit : () => undefined}
               />
             );
           }
 
-          if (entry.type === SupportedEvent.Block) {
-            return <OperatorBlock key={entry.id} title={entry.title} />;
+          if (isOntimeGroup(entry)) {
+            return (
+              <Fragment key={entry.id}>
+                <OperatorGroup key={entry.id} title={entry.title} />
+                {entry.entries.map((nestedEntryId) => {
+                  const nestedEntry = data.entries[nestedEntryId];
+                  if (!isOntimeEvent(nestedEntry)) {
+                    return null;
+                  }
+
+                  const { isPast, isLoaded, isLinkedToLoaded, totalGap } = rundownMetadata[entryId];
+
+                  // hide past events (if setting) and skipped events
+                  if ((hidePast && isPast) || nestedEntry.skip) {
+                    return null;
+                  }
+
+                  const { mainField, secondaryField, subscribedData } = getEventData(
+                    nestedEntry,
+                    mainSource,
+                    secondarySource,
+                    subscribe,
+                    customFields,
+                  );
+
+                  return (
+                    <OperatorEvent
+                      key={nestedEntry.id}
+                      id={nestedEntry.id}
+                      colour={nestedEntry.colour}
+                      cue={nestedEntry.cue}
+                      main={mainField}
+                      secondary={secondaryField}
+                      timeStart={nestedEntry.timeStart}
+                      duration={nestedEntry.duration}
+                      delay={nestedEntry.delay}
+                      dayOffset={nestedEntry.dayOffset}
+                      isLinkedToLoaded={isLinkedToLoaded}
+                      isSelected={isLoaded}
+                      isPast={isPast}
+                      selectedRef={isLoaded ? selectedRef : undefined}
+                      showStart={showStart}
+                      subscribed={subscribedData}
+                      totalGap={totalGap}
+                      onLongPress={canEdit ? handleEdit : () => undefined}
+                    />
+                  );
+                })}
+              </Fragment>
+            );
           }
           return null;
         })}
-        <div className={style.spacer} />
       </div>
       <FollowButton isVisible={lockAutoScroll} onClickHandler={handleOffset} />
     </div>

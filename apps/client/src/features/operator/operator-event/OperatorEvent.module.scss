@@ -1,24 +1,19 @@
+@use '@/theme/viewerDefs' as *;
 @import '../Operator.module.scss';
-
-@mixin clock-size {
-  font-size: calc(1rem - 2px);
-  @media (min-width: $min-tablet) {
-    font-size: 1rem;
-  }
-}
 
 .event {
   opacity: 1;
   border-top: 1px solid $white-1;
   padding-right: 0.5rem;
   color: $white-90;
-  background-color: $gray-1300;
+  background-color: $viewer-card-bg-color;
 
   display: grid;
   align-items: center;
-  grid-template-columns: 1.25rem 1fr auto;
-  grid-template-rows: auto auto auto;
   column-gap: 0.5rem;
+  row-gap: 0.5rem;
+  grid-template-rows: auto auto auto;
+  grid-template-columns: 1.25rem 1fr auto;
   grid-template-areas:
     'binder main      schedule'
     'binder secondary running'
@@ -30,7 +25,7 @@
 
   &.running {
     border-top: 1px solid $gray-1300;
-    background-color: var(--operator-running-bg-override, $active-red);
+    background-color: var(--operator-running-bg-override, $active-green);
   }
 
   &.past {
@@ -63,7 +58,6 @@
 .mainField {
   grid-area: main;
   font-size: 1.5rem;
-  letter-spacing: 0.5px;
   color: $ui-white;
 
   @include ellipsis-text;
@@ -72,21 +66,38 @@
 .secondaryField {
   grid-area: secondary;
   font-size: 1.25rem;
-  letter-spacing: 0.5px;
-  @include ellipsis-text;
+  line-height: 1em;
+  // allow multi-line text but trim before
+  white-space: pre-line;
 }
 
-.schedule {
-  @include clock-size;
+.plannedStart, .timeUntil {
+  line-height: 1em;
+  background-color: $gray-1000;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1px;
+}
+
+.plannedStart {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.timeUntil {
+  font-size: calc(1rem - 2px);
+  line-height: 1em;
   grid-area: schedule;
   justify-self: end;
 }
 
 .runningTime {
-  @include clock-size;
+  font-size: 1.25rem;
+  line-height: 1em;
   grid-area: running;
   justify-self: end;
+  align-self: flex-start;
   display: flex;
+  align-items: center;
   gap: 0.5em;
 }
 
@@ -100,6 +111,7 @@
   flex-wrap: wrap;
   gap: 0.5em;
   row-gap: 0.25em;
+  line-height: 1.25em;
 
   .field {
     font-weight: 600;
@@ -118,7 +130,8 @@
     padding-inline: 0.25rem;
     background-color: $gray-1250;
     color: $ui-white;
-    white-space: pre;
+    // allow multi-line text but trim before
+    white-space: pre-line;
   }
 }
 

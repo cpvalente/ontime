@@ -1,32 +1,43 @@
 import { memo } from 'react';
 import { IoAlertCircleOutline, IoLink, IoLockClosed, IoLockOpenOutline, IoUnlink } from 'react-icons/io5';
-import { InputRightElement, Tooltip } from '@chakra-ui/react';
-import { MaybeString, TimeField, TimeStrategy } from 'ontime-types';
+import { TimeField, TimeStrategy } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
-import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
-import { useEventAction } from '../../../common/hooks/useEventAction';
-import { cx } from '../../../common/utils/styleUtils';
-import { tooltipDelayFast, tooltipDelayMid } from '../../../ontimeConfig';
-import * as Editor from '../../editors/editor-utils/EditorUtils';
+import IconButton from '../../../common/components/buttons/IconButton';
+import * as Editor from '../../../common/components/editor-utils/EditorUtils';
+import TimeInput from '../../../common/components/input/time-input/TimeInput';
+import Tooltip from '../../../common/components/tooltip/Tooltip';
+import { useEntryActions } from '../../../common/hooks/useEntryAction';
+
+import TimeInputGroup from './TimeInputGroup';
 
 import style from './TimeInputFlow.module.scss';
 
-interface EventBlockTimerProps {
+interface TimeInputFlowProps {
   eventId: string;
   countToEnd: boolean;
   timeStart: number;
   timeEnd: number;
   duration: number;
   timeStrategy: TimeStrategy;
-  linkStart: MaybeString;
+  linkStart: boolean;
   delay: number;
   showLabels?: boolean;
 }
 
-function TimeInputFlow(props: EventBlockTimerProps) {
-  const { eventId, countToEnd, timeStart, timeEnd, duration, timeStrategy, linkStart, delay, showLabels } = props;
-  const { updateEvent, updateTimer } = useEventAction();
+export default memo(TimeInputFlow);
+function TimeInputFlow({
+  eventId,
+  countToEnd,
+  timeStart,
+  timeEnd,
+  duration,
+  timeStrategy,
+  linkStart,
+  delay,
+  showLabels,
+}: TimeInputFlowProps) {
+  const { updateEntry, updateTimer } = useEntryActions();
 
   // In sync with EventEditorTimes
   const handleSubmit = (field: TimeField, value: string) => {
@@ -34,11 +45,11 @@ function TimeInputFlow(props: EventBlockTimerProps) {
   };
 
   const handleChangeStrategy = (timeStrategy: TimeStrategy) => {
-    updateEvent({ id: eventId, timeStrategy });
+    updateEntry({ id: eventId, timeStrategy });
   };
 
   const handleLink = (doLink: boolean) => {
-    updateEvent({ id: eventId, linkStart: doLink ? 'true' : null });
+    updateEntry({ id: eventId, linkStart: doLink });
   };
 
   const warnings = [];
@@ -51,89 +62,81 @@ function TimeInputFlow(props: EventBlockTimerProps) {
   }
 
   const hasDelay = delay !== 0;
-
   const isLockedEnd = timeStrategy === TimeStrategy.LockEnd;
   const isLockedDuration = timeStrategy === TimeStrategy.LockDuration;
-
-  const activeStart = cx([style.timeAction, linkStart ? style.active : null]);
-  const activeEnd = cx([style.timeAction, isLockedEnd ? style.active : null]);
-  const activeDuration = cx([style.timeAction, isLockedDuration ? style.active : null]);
 
   return (
     <>
       <div>
         {showLabels && <Editor.Label className={style.sectionTitle}>Start time</Editor.Label>}
-        <TimeInputWithButton<TimeField>
-          name='timeStart'
-          submitHandler={handleSubmit}
-          time={timeStart}
-          hasDelay={hasDelay}
-          placeholder='Start'
-          disabled={Boolean(linkStart)}
-        >
-          <Tooltip label='Link start to previous end' openDelay={tooltipDelayMid}>
-            <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)}>
-              <span className={style.timeLabel}>S</span>
-              <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
-            </InputRightElement>
+        <TimeInputGroup hasDelay={hasDelay}>
+          <TimeInput
+            name='timeStart'
+            submitHandler={handleSubmit}
+            time={timeStart}
+            placeholder='Start'
+            align='left'
+            disabled={linkStart}
+          />
+          <Tooltip
+            text='Link start to previous end'
+            onClick={() => handleLink(!linkStart)}
+            render={<IconButton variant='subtle-white' className={linkStart ? style.active : style.inactive} />}
+          >
+            <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
           </Tooltip>
-        </TimeInputWithButton>
+        </TimeInputGroup>
       </div>
 
       <div>
         {showLabels && <Editor.Label>End time</Editor.Label>}
-        <TimeInputWithButton<TimeField>
-          name='timeEnd'
-          submitHandler={handleSubmit}
-          time={timeEnd}
-          hasDelay={hasDelay}
-          disabled={isLockedDuration}
-          placeholder='End'
-        >
-          <Tooltip label='Lock end' openDelay={tooltipDelayMid}>
-            <InputRightElement
-              className={activeEnd}
-              onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
-              data-testid='lock__end'
-            >
-              <span className={style.timeLabel}>E</span>
-              {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
-            </InputRightElement>
+        <TimeInputGroup hasDelay={hasDelay}>
+          <TimeInput
+            name='timeEnd'
+            submitHandler={handleSubmit}
+            time={timeEnd}
+            placeholder='End'
+            align='left'
+            disabled={isLockedDuration}
+          />
+          <Tooltip
+            text='Lock end'
+            render={<IconButton variant='subtle-white' className={isLockedEnd ? style.active : style.inactive} />}
+            onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
+            data-testid='lock__end'
+          >
+            {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
           </Tooltip>
-        </TimeInputWithButton>
+        </TimeInputGroup>
       </div>
 
       <div>
         {showLabels && <Editor.Label>Duration</Editor.Label>}
-        <TimeInputWithButton<TimeField>
-          name='duration'
-          submitHandler={handleSubmit}
-          time={duration}
-          disabled={isLockedEnd}
-          placeholder='Duration'
-        >
-          <Tooltip label='Lock duration' openDelay={tooltipDelayMid}>
-            <InputRightElement
-              className={activeDuration}
-              onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
-              data-testid='lock__duration'
-            >
-              <span className={style.timeLabel}>D</span>
-              {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
-            </InputRightElement>
+        <TimeInputGroup hasDelay={hasDelay}>
+          <TimeInput
+            name='duration'
+            submitHandler={handleSubmit}
+            time={duration}
+            placeholder='Duration'
+            align='left'
+            disabled={isLockedEnd}
+          />
+          <Tooltip
+            text='Lock duration'
+            render={<IconButton variant='subtle-white' className={isLockedDuration ? style.active : style.inactive} />}
+            onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
+            data-testid='lock__duration'
+          >
+            {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
           </Tooltip>
-        </TimeInputWithButton>
+        </TimeInputGroup>
       </div>
 
       {warnings.length > 0 && (
-        <div className={style.timerNote} data-testid='event-warning'>
-          <Tooltip label={warnings.join(' - ')} openDelay={tooltipDelayFast} variant='ontime-ondark' shouldWrapChildren>
-            <IoAlertCircleOutline />
-          </Tooltip>
-        </div>
+        <Tooltip text={warnings.join(' - ')} className={style.timerNote} data-testid='event-warning' render={<span />}>
+          <IoAlertCircleOutline />
+        </Tooltip>
       )}
     </>
   );
 }
-
-export default memo(TimeInputFlow);

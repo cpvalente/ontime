@@ -1,37 +1,9 @@
 import { DatabaseModel, AutomationSettings, NormalisedAutomation, Trigger } from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
-import type { ErrorEmitter } from '../../utils/parser.js';
+import type { ErrorEmitter } from '../../utils/parserUtils.js';
 
-interface LegacyData extends Partial<DatabaseModel> {
-  http?: unknown;
-  osc?: {
-    enabledIn?: boolean;
-    portIn?: number;
-  };
-}
-
-export function parseAutomationSettings(data: LegacyData, emitError?: ErrorEmitter): AutomationSettings {
-  /**
-   * Leaving a path for migrating users to the new automations
-   * This should be removed after a few releases
-   */
-  if (data.http || data.osc) {
-    emitError?.('Found legacy integrations');
-    console.log('Found legacy integrations...');
-    if (data.osc) {
-      return {
-        enabledAutomations: dbModel.automation.enabledAutomations,
-        enabledOscIn: data.osc?.enabledIn ?? dbModel.automation.enabledOscIn,
-        oscPortIn: data.osc?.portIn ?? dbModel.automation.oscPortIn,
-        triggers: [],
-        automations: {},
-      };
-    } else {
-      return { ...dbModel.automation };
-    }
-  }
-
+export function parseAutomationSettings(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): AutomationSettings {
   if (!data.automation) {
     emitError?.('No data found to import');
     return { ...dbModel.automation };

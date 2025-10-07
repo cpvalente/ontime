@@ -1,70 +1,66 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 
 test.describe('test view navigation feature', () => {
-  test('user flow through links', async ({ page }) => {
-    // default view is timer view
+  test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:4001/');
-    page.locator('data-test-id=timer-view');
+    await expect(page.locator('data-testid=timer-view')).toBeVisible();
+  });
 
-    await page.getByRole('button', { name: 'toggle menu' }).click();
-    page.locator('data-test-id=navigation__menu');
-    await page.getByRole('link', { name: 'Minimal Timer' }).click();
-    page.locator('data-test-id=minimal-timer');
-    await expect(page).toHaveURL('http://localhost:4001/minimal');
-
-    await page.getByRole('button', { name: 'toggle menu' }).click();
-    page.locator('data-test-id=navigation__menu');
-    await page.getByRole('link', { name: 'Wall Clock', exact: true }).click();
-    page.locator('data-test-id=clock-view');
-    await expect(page).toHaveURL('http://localhost:4001/clock');
-
-    await page.getByRole('button', { name: 'toggle menu' }).click();
-    page.locator('data-test-id=navigation__menu');
-    await page.getByRole('link', { name: 'timeline' }).click();
-    page.locator('data-test-id=timeline-view');
+  test('Timeline', async ({ page }) => {
+    await openNavigationMenu(page);
+    await page.getByRole('button', { name: 'Timeline' }).click();
+    page.locator('data-testid=timeline-view');
     await expect(page).toHaveURL('http://localhost:4001/timeline');
+  });
 
-    await page.getByRole('button', { name: 'toggle menu' }).click();
-    page.locator('data-test-id=navigation__menu');
-    await page.getByRole('link', { name: 'Backstage' }).click();
-    page.locator('data-test-id=backstage-view');
+  test('Backstage', async ({ page }) => {
+    await openNavigationMenu(page);
+    await page.getByRole('button', { name: 'Backstage' }).click();
+    page.locator('data-testid=backstage-view');
     await expect(page).toHaveURL('http://localhost:4001/backstage');
+  });
 
-    await page.getByRole('button', { name: 'toggle menu' }).click();
-    page.locator('data-test-id=navigation__menu');
-    await page.getByRole('link', { name: 'Public' }).click();
-    page.locator('data-test-id=public-view');
-    await expect(page).toHaveURL('http://localhost:4001/public');
-
-    await page.getByRole('button', { name: 'toggle menu' }).click();
-    page.locator('data-test-id=navigation__menu');
-    await page.getByRole('link', { name: 'Lower Thirds' }).click();
-    await expect(page).toHaveURL('http://localhost:4001/lower');
-    const errorBoundary = page.locator('data-test-id=error-container');
-    await expect(errorBoundary).toHaveCount(0);
-
-    await page.getByRole('button', { name: 'toggle menu' }).click();
-    page.locator('data-test-id=navigation__menu');
-    await page.getByRole('link', { name: 'Studio Clock' }).click();
-    page.locator('data-test-id=studio-view');
+  test('Studio Clock', async ({ page }) => {
+    await openNavigationMenu(page);
+    await page.getByRole('button', { name: 'Studio Clock' }).click();
+    page.locator('data-testid=studio-view');
     await expect(page).toHaveURL('http://localhost:4001/studio');
+  });
 
-    await page.getByRole('button', { name: 'toggle menu' }).click();
-    page.locator('data-test-id=navigation__menu');
-    await page.getByRole('link', { name: 'Countdown' }).click();
-    page.locator('data-test-id=countdown-view');
+  test('Countdown', async ({ page }) => {
+    await openNavigationMenu(page);
+    await page.getByRole('button', { name: 'Countdown' }).click();
+    page.locator('data-testid=countdown-view');
     await expect(page).toHaveURL('http://localhost:4001/countdown');
+  });
 
-    await page.getByRole('button', { name: 'toggle menu' }).click();
-    page.locator('data-test-id=navigation__menu');
-    await page.getByRole('link', { name: 'Project Info' }).click();
-    page.locator('data-test-id=project-view');
+  test('Project Info', async ({ page }) => {
+    await openNavigationMenu(page);
+    await page.getByRole('button', { name: 'Project Info' }).click();
+    page.locator('data-testid=project-view');
     await expect(page).toHaveURL('http://localhost:4001/info');
+  });
 
-    await page.getByRole('button', { name: 'toggle menu' }).click();
-    page.locator('data-test-id=navigation__menu');
-    await page.getByRole('link', { name: 'Timer', exact: true }).click();
-    page.locator('data-test-id=timer-view');
+  test('Timer', async ({ page }) => {
+    await openNavigationMenu(page);
+    await page.getByRole('button', { name: 'Timer', exact: true }).click();
+    page.locator('data-testid=timer-view');
     await expect(page).toHaveURL('http://localhost:4001/timer');
   });
+
+  test('not-found', async ({ page }) => {
+    await page.goto('http://localhost:4001/not-found');
+
+    await expect(page).toHaveTitle(/ontime/);
+    await expect(page.getByRole('heading', { name: 'Not found' })).toBeVisible();
+
+    await page.goto('http://localhost:4001/preset/not-found');
+
+    await expect(page).toHaveTitle(/ontime/);
+    await expect(page.getByRole('heading', { name: 'Not found' })).toBeVisible();
+  });
 });
+
+async function openNavigationMenu(page: Page) {
+  await page.keyboard.press('Space');
+}

@@ -54,24 +54,52 @@ export type HTTPOutput = {
   url: string;
 };
 
+const ontimeAuxTriggerAction = [
+  'aux1-start',
+  'aux1-stop',
+  'aux1-pause',
+  'aux2-start',
+  'aux2-stop',
+  'aux2-pause',
+  'aux3-start',
+  'aux3-stop',
+  'aux3-pause',
+] as const;
+
+const ontimeAuxSetAction = ['aux1-set', 'aux2-set', 'aux3-set'] as const;
+
+type OntimeAuxTriggerAction = (typeof ontimeAuxTriggerAction)[number];
+type OntimeAuxSetAction = (typeof ontimeAuxSetAction)[number];
+type OntimeMessageSet = 'message-set';
+type OntimeMessageSecondary = 'message-secondary';
+
+export type OntimeActionKey = OntimeAuxTriggerAction | OntimeAuxSetAction | OntimeMessageSet | OntimeMessageSecondary;
+
+export const ontimeActionKeyValues = [
+  ...ontimeAuxTriggerAction,
+  ...ontimeAuxSetAction,
+  'message-set',
+  'message-secondary',
+];
+
 export type OntimeAction =
   | {
       type: 'ontime';
-      action: 'aux-start' | 'aux-stop' | 'aux-pause';
+      action: OntimeAuxTriggerAction;
     }
   | {
       type: 'ontime';
-      action: 'aux-set';
-      time: number;
+      action: OntimeAuxSetAction;
+      time: string;  //TODO:(automation set aux) not sure what way around to have the string and where to have the ms value
     }
   | {
       type: 'ontime';
-      action: 'message-set';
+      action: OntimeMessageSet;
       text?: string;
       visible?: boolean;
     }
   | {
       type: 'ontime';
-      action: 'message-secondary';
+      action: OntimeMessageSecondary;
       secondarySource: SecondarySource;
     };

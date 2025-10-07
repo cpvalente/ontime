@@ -1,7 +1,27 @@
-import { Log, RundownCached, RuntimeStore } from 'ontime-types';
+import {
+  ApiActionTag,
+  Log,
+  MessageTag,
+  RefetchKey,
+  Rundown,
+  RuntimeStore,
+  WsPacketToClient,
+  WsPacketToServer,
+} from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
-import { CLIENT_LIST, CUSTOM_FIELDS, REPORT, RUNDOWN, RUNTIME } from '../api/constants';
+import {
+  APP_SETTINGS,
+  CLIENT_LIST,
+  CUSTOM_FIELDS,
+  PROJECT_DATA,
+  REPORT,
+  RUNDOWN,
+  RUNTIME,
+  TRANSLATION,
+  URL_PRESETS,
+  VIEW_SETTINGS,
+} from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
 import {
@@ -14,13 +34,12 @@ import {
 } from '../stores/clientStore';
 import { addDialog } from '../stores/dialogStore';
 import { addLog } from '../stores/logger';
-import { addToBatchUpdates, flushBatchUpdates, patchRuntime, patchRuntimeProperty } from '../stores/runtime';
+import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
 
-export let websocket: WebSocket | null = null;
+let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 const reconnectInterval = 1000;
 
-export let shouldReconnect = true;
 export let hasConnected = false;
 export let reconnectAttempts = 0;
 
@@ -34,89 +53,78 @@ export const connectSocket = () => {
     hasConnected = true;
     reconnectAttempts = 0;
 
-    socketSendJson('set-client-patch', {
+    sendSocket(MessageTag.ClientSet, {
       type: 'ontime',
       origin: window.location.origin,
       path: window.location.pathname + window.location.search,
+      name: preferredClientName,
     });
+    invalidateAllCaches(); // assume all data to be stale after a reconnect
     setOnlineStatus(true);
-
-    if (preferredClientName) {
-      socketSendJson('set-client-name', preferredClientName);
-    }
   };
 
   websocket.onclose = () => {
     console.warn('WebSocket disconnected');
 
-    if (shouldReconnect) {
-      reconnectTimeout = setTimeout(() => {
-        if (reconnectAttempts > 2) {
-          setOnlineStatus(false);
-        }
-        console.warn('WebSocket: attempting reconnect');
-        if (websocket && websocket.readyState === WebSocket.CLOSED) {
-          reconnectAttempts += 1;
-          connectSocket();
-        }
-      }, reconnectInterval);
-    }
+    // we decide to allows reconnect
+    reconnectTimeout = setTimeout(() => {
+      if (reconnectAttempts > 2) {
+        setOnlineStatus(false);
+      }
+      console.warn('WebSocket: attempting reconnect');
+      if (websocket && websocket.readyState === WebSocket.CLOSED) {
+        reconnectAttempts += 1;
+        connectSocket();
+      }
+    }, reconnectInterval);
   };
 
   websocket.onerror = (error) => {
     console.error('WebSocket error:', error);
   };
 
-  websocket.onmessage = (event) => {
+  websocket.onmessage = async (event) => {
     try {
-      const data = JSON.parse(event.data);
+      const data = JSON.parse(event.data) as WsPacketToClient;
 
-      const { type, payload } = data;
+      const { tag, payload } = data;
 
-      if (!type) {
+      if (!tag) {
         return;
       }
 
-      switch (type) {
-        case 'pong': {
+      switch (tag) {
+        case MessageTag.Pong: {
           const offset = (new Date().getTime() - new Date(payload).getTime()) * 0.5;
           patchRuntimeProperty('ping', offset);
           updateDevTools({ ping: offset });
           break;
         }
-        case 'client': {
-          if (typeof payload === 'object' || payload !== null) {
-            if (payload.clientId && payload.clientName) {
-              setClientId(payload.clientId);
-              if (!preferredClientName) {
-                setClientName(payload.clientName);
-              }
-            }
+        case MessageTag.ClientInit: {
+          setClientId(payload.clientId);
+          if (!preferredClientName) {
+            setClientName(payload.clientName);
           }
           break;
         }
 
-        case 'client-rename': {
-          if (typeof payload === 'object') {
-            const id = getClientId();
-            if (payload.target && payload.target === id) {
-              setClientName(payload.name);
-            }
+        case MessageTag.ClientRename: {
+          const id = getClientId();
+          if (payload.target === id) {
+            setClientName(payload.name);
           }
           break;
         }
 
-        case 'client-redirect': {
-          if (typeof payload === 'object') {
-            const id = getClientId();
-            if (payload.target && payload.target === id) {
-              setClientRedirect(payload.path);
-            }
+        case MessageTag.ClientRedirect: {
+          const id = getClientId();
+          if (payload.target === id) {
+            setClientRedirect(payload.path);
           }
           break;
         }
 
-        case 'client-list': {
+        case MessageTag.ClientList: {
           setClients(payload);
           if (!isProduction) {
             ontimeQueryClient.setQueryData(CLIENT_LIST, payload);
@@ -124,99 +132,64 @@ export const connectSocket = () => {
           break;
         }
 
-        case 'dialog': {
+        case MessageTag.Dialog: {
           if (payload.dialog === 'welcome') {
             addDialog('welcome');
           }
           break;
         }
 
-        case 'ontime-log': {
+        case MessageTag.Log: {
           addLog(payload as Log);
           break;
         }
-        case 'ontime': {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- removing the key from the payload
-          const { ping, ...serverPayload } = payload as Partial<RuntimeStore>;
-
-          patchRuntime(serverPayload);
-          updateDevTools(serverPayload);
+        case MessageTag.RuntimeData: {
+          patchRuntime(payload);
+          updateDevTools(payload);
           break;
         }
-        case 'ontime-clock': {
-          addToBatchUpdates('clock', payload);
-          updateDevTools({ clock: payload });
-          break;
-        }
-        case 'ontime-timer': {
-          addToBatchUpdates('timer', payload);
-          updateDevTools({ timer: payload });
-          break;
-        }
-        case 'ontime-onAir': {
-          addToBatchUpdates('onAir', payload);
-          updateDevTools({ onAir: payload });
-          break;
-        }
-        case 'ontime-message': {
-          addToBatchUpdates('message', payload);
-          updateDevTools({ message: payload });
-          break;
-        }
-        case 'ontime-runtime': {
-          addToBatchUpdates('runtime', payload);
-          updateDevTools({ runtime: payload });
-          break;
-        }
-        case 'ontime-eventNow': {
-          addToBatchUpdates('eventNow', payload);
-          updateDevTools({ eventNow: payload });
-          break;
-        }
-        case 'ontime-currentBlock': {
-          addToBatchUpdates('currentBlock', payload);
-          updateDevTools({ currentBlock: payload });
-          break;
-        }
-        case 'ontime-publicEventNow': {
-          addToBatchUpdates('publicEventNow', payload);
-          updateDevTools({ publicEventNow: payload });
-          break;
-        }
-        case 'ontime-eventNext': {
-          addToBatchUpdates('eventNext', payload);
-          updateDevTools({ eventNext: payload });
-          break;
-        }
-        case 'ontime-publicEventNext': {
-          addToBatchUpdates('publicEventNext', payload);
-          updateDevTools({ publicEventNext: payload });
-          break;
-        }
-        case 'ontime-auxtimer1': {
-          addToBatchUpdates('auxtimer1', payload);
-          updateDevTools({ auxtimer1: payload });
-          break;
-        }
-        case 'ontime-refetch': {
+        case MessageTag.Refetch: {
           // the refetch message signals that the rundown has changed in the server side
-          const { reload, target } = payload;
-          if (reload) {
-            invalidateAllCaches();
-          } else if (target === 'RUNDOWN') {
-            const { revision } = payload;
-            const currentRevision = ontimeQueryClient.getQueryData<RundownCached>(RUNDOWN)?.revision ?? -1;
-            if (revision > currentRevision) {
+          const { target, revision } = payload;
+          switch (target) {
+            case RefetchKey.All:
+              invalidateAllCaches();
+              break;
+            case RefetchKey.CustomFields:
+              ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
+              break;
+            case RefetchKey.ProjectData:
+              ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_DATA });
+              break;
+            case RefetchKey.Report:
+              ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
+              break;
+            case RefetchKey.Rundown:
+              if (revision === (ontimeQueryClient.getQueryData(RUNDOWN) as Rundown).revision) break;
               ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
+              break;
+            case RefetchKey.UrlPresets:
+              ontimeQueryClient.invalidateQueries({ queryKey: URL_PRESETS });
+              break;
+            case RefetchKey.ViewSettings:
+              ontimeQueryClient.invalidateQueries({ queryKey: VIEW_SETTINGS });
+              break;
+            case RefetchKey.Translation:
+              ontimeQueryClient.invalidateQueries({ queryKey: TRANSLATION });
+              break;
+            case RefetchKey.Settings:
+              ontimeQueryClient.invalidateQueries({ queryKey: APP_SETTINGS });
+              break;
+            default: {
+              target satisfies never;
+              break;
             }
-          } else if (target === 'REPORT') {
-            ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
           }
           break;
         }
-        case 'ontime-flush': {
-          flushBatchUpdates();
+        default: {
+          tag satisfies never;
           break;
         }
       }
@@ -226,25 +199,14 @@ export const connectSocket = () => {
   };
 };
 
-export const disconnectSocket = () => {
-  shouldReconnect = false;
-  websocket?.close();
-};
-
-export const socketSend = (message: any) => {
+export function sendSocket<T extends MessageTag | ApiActionTag>(
+  tag: T,
+  payload: T extends MessageTag ? Pick<WsPacketToServer & { tag: T }, 'payload'>['payload'] : unknown,
+): void {
   if (websocket && websocket.readyState === WebSocket.OPEN) {
-    websocket.send(message);
+    websocket.send(JSON.stringify({ tag, payload }));
   }
-};
-
-export const socketSendJson = (type: string, payload?: unknown) => {
-  socketSend(
-    JSON.stringify({
-      type,
-      payload,
-    }),
-  );
-};
+}
 
 function updateDevTools(newData: Partial<RuntimeStore>) {
   if (!isProduction) {

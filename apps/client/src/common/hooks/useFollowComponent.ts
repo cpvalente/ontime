@@ -1,8 +1,9 @@
-import { MutableRefObject, useCallback, useEffect } from 'react';
+import { RefObject, useCallback, useEffect } from 'react';
+import { MaybeString } from 'ontime-types';
 
 function scrollToComponent<ComponentRef extends HTMLElement, ScrollRef extends HTMLElement>(
-  componentRef: MutableRefObject<ComponentRef>,
-  scrollRef: MutableRefObject<ScrollRef>,
+  componentRef: RefObject<ComponentRef>,
+  scrollRef: RefObject<ScrollRef>,
   topOffset: number,
 ) {
   if (!componentRef.current || !scrollRef.current) {
@@ -17,19 +18,25 @@ function scrollToComponent<ComponentRef extends HTMLElement, ScrollRef extends H
 }
 
 interface UseFollowComponentProps {
-  followRef: MutableRefObject<HTMLElement | null>;
-  scrollRef: MutableRefObject<HTMLElement | null>;
+  followRef: RefObject<HTMLElement | null>;
+  scrollRef: RefObject<HTMLElement | null>;
   doFollow: boolean;
   topOffset?: number;
   setScrollFlag?: (newValue: boolean) => void;
+  followTrigger?: MaybeString; // this would be an entry id or null
 }
 
-export default function useFollowComponent(props: UseFollowComponentProps) {
-  const { followRef, scrollRef, doFollow, topOffset = 100, setScrollFlag } = props;
-
-  // when cursor moves, view should follow
+export default function useFollowComponent({
+  followRef,
+  scrollRef,
+  doFollow,
+  topOffset = 100,
+  setScrollFlag,
+  followTrigger,
+}: UseFollowComponentProps) {
+  // when trigger moves, view should follow
   useEffect(() => {
-    if (!doFollow) {
+    if (!doFollow || !followTrigger) {
       return;
     }
 
@@ -37,24 +44,18 @@ export default function useFollowComponent(props: UseFollowComponentProps) {
       setScrollFlag?.(true);
       // Use requestAnimationFrame to ensure the component is fully loaded
       window.requestAnimationFrame(() => {
-        scrollToComponent(
-          followRef as MutableRefObject<HTMLElement>,
-          scrollRef as MutableRefObject<HTMLElement>,
-          topOffset,
-        );
+        scrollToComponent(followRef as RefObject<HTMLElement>, scrollRef as RefObject<HTMLElement>, topOffset);
         setScrollFlag?.(false);
       });
     }
-
-    // eslint-disable-next-line -- the prompt seems incorrect
-  }, [followRef?.current, scrollRef?.current]);
+  }, [followTrigger, doFollow, followRef, scrollRef, setScrollFlag, topOffset]);
 
   const scrollToRefComponent = useCallback(
     (componentRef = followRef, containerRef = scrollRef, offset = topOffset) => {
-      if (componentRef.current && containerRef.current) {
+      if (componentRef && containerRef) {
         // @ts-expect-error -- we know this are not null
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        scrollToComponent(componentRef!, scrollRef!, offset);
+        scrollToComponent(componentRef!, containerRef!, offset);
       }
     },
     [followRef, scrollRef, topOffset],

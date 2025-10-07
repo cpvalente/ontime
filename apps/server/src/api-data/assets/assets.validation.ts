@@ -1,12 +1,14 @@
-import { Request, Response, NextFunction } from 'express';
-import { body, validationResult } from 'express-validator';
+import { body } from 'express-validator';
 
-export const validatePostCss = [
-  body('css').exists().isString().trim(),
+import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+export const validatePostCss = [body('css').isString().trim(), requestValidationFunction];
+
+export const validatePostTranslation = [
+  body('translation')
+    .custom((v) => v != null && typeof v === 'object' && !Array.isArray(v))
+    .withMessage('translation must be an object (key -> string)')
+    .bail(),
+  body('translation.*').isString().trim().notEmpty(),
+  requestValidationFunction,
 ];

@@ -1,17 +1,28 @@
-import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { CustomFields, OntimeEvent } from 'ontime-types';
+import { use, useMemo } from 'react';
+import { useSearchParams } from 'react-router';
+import { CustomFields, OntimeEvent, ProjectData } from 'ontime-types';
 
+import { getTimeOption } from '../../common/components/view-params-editor/common.options';
+import { OptionTitle } from '../../common/components/view-params-editor/constants';
+import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import {
-  getTimeOption,
   makeOptionsFromCustomFields,
-  OptionTitle,
-} from '../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../common/components/view-params-editor/types';
-import { scheduleOptions } from '../common/schedule/schedule.options';
+  makeProjectDataOptions,
+} from '../../common/components/view-params-editor/viewParams.utils';
+import { PresetContext } from '../../common/context/PresetContext';
+import { getScheduleOptions } from '../common/schedule/schedule.options';
 
-export const getBackstageOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
-  const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
+export const getBackstageOptions = (
+  timeFormat: string,
+  customFields: CustomFields,
+  projectData: ProjectData,
+): ViewOption[] => {
+  const customFieldOptions = makeOptionsFromCustomFields(customFields, []);
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'none', label: 'None' },
+    { value: 'note', label: 'Note' },
+  ]);
+  const projectDataOptions = makeProjectDataOptions(projectData, [{ value: 'none', label: 'None' }]);
 
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
@@ -25,26 +36,44 @@ export const getBackstageOptions = (timeFormat: string, customFields: CustomFiel
           description: 'Select the data source for auxiliary text shown in now and next cards',
           type: 'option',
           values: secondaryOptions,
-          defaultValue: '',
+          defaultValue: 'none',
         },
       ],
     },
-    scheduleOptions,
+    getScheduleOptions(customFieldOptions),
+    {
+      title: OptionTitle.ElementVisibility,
+      collapsible: true,
+      options: [
+        {
+          id: 'extra-info',
+          title: 'Extra info',
+          description: 'Select a project data source to show in the view',
+          type: 'option',
+          values: projectDataOptions,
+          defaultValue: 'none',
+        },
+      ],
+    },
   ];
 };
 
 type BackstageOptions = {
   secondarySource: keyof OntimeEvent | null;
+  extraInfo: string | null;
 };
 
 /**
  * Utility extract the view options from URL Params
  * the names and fallback are manually matched with timerOptions
  */
-function getOptionsFromParams(searchParams: URLSearchParams): BackstageOptions {
-  // we manually make an object that matches the key above
+function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): BackstageOptions {
+  // Helper to get value from either source, prioritizing defaultValues
+  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
+
   return {
-    secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
+    secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
+    extraInfo: getValue('extra-info'),
   };
 }
 
@@ -53,6 +82,12 @@ function getOptionsFromParams(searchParams: URLSearchParams): BackstageOptions {
  */
 export function useBackstageOptions(): BackstageOptions {
   const [searchParams] = useSearchParams();
-  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  const maybePreset = use(PresetContext);
+
+  const options = useMemo(() => {
+    const defaultValues = maybePreset ? new URLSearchParams(maybePreset.search) : undefined;
+    return getOptionsFromParams(searchParams, defaultValues);
+  }, [maybePreset, searchParams]);
+
   return options;
 }

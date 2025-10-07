@@ -1,16 +1,23 @@
 import { useState } from 'react';
-import { IoEllipsisHorizontal } from 'react-icons/io5';
-import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
+import {
+  IoCopyOutline,
+  IoDocumentOutline,
+  IoDownloadOutline,
+  IoEllipsisHorizontal,
+  IoPencilOutline,
+  IoTrash,
+} from 'react-icons/io5';
 
 import {
   deleteProject,
-  downloadCSV,
   downloadProject,
   duplicateProject,
   loadProject,
   renameProject,
 } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
+import IconButton from '../../../../common/components/buttons/IconButton';
+import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -179,36 +186,33 @@ function ActionMenu(props: ActionMenuProps) {
     await downloadProject(filename);
   };
 
-  const handleExportCSV = async () => {
-    await downloadCSV(filename);
-  };
-
   return (
-    <Menu variant='ontime-on-dark' size='sm'>
-      <MenuButton
-        as={IconButton}
-        aria-label='Options'
-        icon={<IoEllipsisHorizontal />}
-        color='#e2e2e2' // $gray-200
-        variant='ontime-ghosted'
-        size='sm'
-        isDisabled={isDisabled}
-      />
-      <MenuList>
-        <MenuItem onClick={() => onLoad(filename)} isDisabled={current}>
-          Load
-        </MenuItem>
-        <MenuItem onClick={() => onMerge(filename)} isDisabled={current}>
-          Partial Load
-        </MenuItem>
-        <MenuItem onClick={handleRename}>Rename</MenuItem>
-        <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
-        <MenuItem onClick={handleDownload}>Download</MenuItem>
-        <MenuItem onClick={handleExportCSV}>Export CSV Rundown</MenuItem>
-        <MenuItem isDisabled={current} onClick={() => onDelete(filename)}>
-          Delete
-        </MenuItem>
-      </MenuList>
-    </Menu>
+    <DropdownMenu
+      render={<IconButton variant='ghosted-white' />}
+      disabled={isDisabled}
+      items={[
+        {
+          type: 'item',
+          icon: IoDownloadOutline,
+          label: 'Load',
+          onClick: () => onLoad(filename),
+          disabled: current,
+        },
+        {
+          type: 'item',
+          icon: IoDownloadOutline,
+          label: 'Partial Load',
+          onClick: () => onMerge(filename),
+          disabled: current,
+        },
+        { type: 'item', icon: IoPencilOutline, label: 'Rename', onClick: handleRename },
+        { type: 'item', icon: IoCopyOutline, label: 'Duplicate', onClick: handleDuplicate },
+        { type: 'item', icon: IoDocumentOutline, label: 'Download', onClick: handleDownload },
+        { type: 'divider' },
+        { type: 'item', icon: IoTrash, label: 'Delete', onClick: () => onDelete(filename), disabled: current },
+      ]}
+    >
+      <IoEllipsisHorizontal />
+    </DropdownMenu>
   );
 }

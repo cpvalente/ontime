@@ -1,6 +1,8 @@
 import { PropsWithChildren } from 'react';
 import { HexAlphaColorPicker, HexColorInput } from 'react-colorful';
-import { Popover, PopoverContent, PopoverTrigger } from '@chakra-ui/react';
+import { Popover } from '@base-ui-components/react/popover';
+
+import PopoverContents from '../../popover/Popover';
 
 import style from './PopoverPicker.module.scss';
 
@@ -9,15 +11,14 @@ interface PopoverPickerProps {
   onChange: (color: string) => void;
 }
 
-export default function PopoverPicker(props: PropsWithChildren<PopoverPickerProps>) {
-  const { color, onChange, children } = props;
+export default function PopoverPicker({ color, onChange, children }: PropsWithChildren<PopoverPickerProps>) {
   return (
-    <Popover>
-      <PopoverTrigger>{children}</PopoverTrigger>
-      <PopoverContent className={style.small} style={{ borderRadius: '9px', width: 'auto' }}>
+    <Popover.Root>
+      <Popover.Trigger>{children}</Popover.Trigger>
+      <PopoverContents>
         <HexAlphaColorPicker color={color} onChange={onChange} />
         <HexColorInput color={color} onChange={onChange} className={style.input} prefixed />
-      </PopoverContent>
-    </Popover>
+      </PopoverContents>
+    </Popover.Root>
   );
 }

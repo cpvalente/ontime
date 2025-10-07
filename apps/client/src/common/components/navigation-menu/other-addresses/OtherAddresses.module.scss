@@ -1,0 +1,23 @@
+.header {
+  font-size: calc(1rem - 2px);
+  margin-left: 1rem;
+  color: $gray-700;
+}
+
+.interfaces {
+  padding: 0.5rem 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.interfaceCopy {
+  display: flex;
+  align-items: center;
+}
+
+.goIcon {
+  @include rotate-fourty-five;
+  margin-left: 0.25rem;
+  margin-bottom: 0.25rem;
+}

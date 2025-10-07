@@ -1,4 +1,4 @@
-import type { MaybeNumber } from '../../index.js';
+import type { MaybeNumber } from '../../utils/utils.type.js';
 import type { Playback } from './Playback.type.js';
 
 export enum TimerPhase {
@@ -11,23 +11,26 @@ export enum TimerPhase {
   Pending = 'pending',
 }
 
+/**
+ * Gathers the current running timer state
+ */
 export type TimerState = {
-  /** time added by user, can be negative */
+  /** Additional time added to the running timer, can be negative */
   addedTime: number;
-  /** running countdown */
+  /** Current running timer countdown */
   current: MaybeNumber;
-  /** normalised duration of current event */
+  /** Total duration of the running event */
   duration: MaybeNumber;
-  /** elapsed time in current timer */
+  /** Time elapsed since the timer started */
   elapsed: MaybeNumber;
-  /** time we expect timer to finish */
+  /** Timestamp of the expected finish time */
   expectedFinish: MaybeNumber;
-  /** only if timer has already finished */
-  finishedAt: MaybeNumber;
+  /** Current phase of the running event */
   phase: TimerPhase;
+  /** Timer's playback state */
   playback: Playback;
-  /** used for roll mode */
+  /** Secondary timer, used to count to an event start in roll mode */
   secondaryTimer: MaybeNumber;
-  /** only if timer has already started */
+  /** Timestamp when the timer started */
   startedAt: MaybeNumber;
 };

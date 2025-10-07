@@ -1,4 +1,13 @@
-import { FilterRule, MaybeNumber, OntimeAction } from 'ontime-types';
+import {
+  EntryId,
+  FilterRule,
+  isOntimeEvent,
+  MaybeNumber,
+  OntimeAction,
+  ontimeActionKeyValues,
+  ProjectRundowns,
+  RundownEntries,
+} from 'ontime-types';
 import { millisToString, removeLeadingZero, splitWhitespace, getPropertyFromPath } from 'ontime-utils';
 import type { OscArgOrArrayInput, OscArgInput } from 'osc-min';
 
@@ -13,7 +22,7 @@ export function isFilterRule(value: string): value is FilterRule {
 }
 
 export function isOntimeActionAction(value: string): value is OntimeAction['action'] {
-  return ['aux-start', 'aux-stop', 'aux-pause', 'aux-set', 'message-set', 'message-secondary'].includes(value);
+  return ontimeActionKeyValues.includes(value);
 }
 
 function toOscValue(argString: string): OscArgInput {
@@ -194,4 +203,44 @@ export function isBooleanEquals(a: boolean, b: string): boolean {
     return a === false;
   }
   return false;
+}
+
+/**
+ * Checks is an automation is used in a rundown
+ */
+function isAutomationUsedInRundown(
+  entries: RundownEntries,
+  flatOrder: EntryId[],
+  automationId: string,
+): EntryId | undefined {
+  for (let i = 0; i < flatOrder.length; i++) {
+    const eventId = flatOrder[i];
+    const entry = entries[eventId];
+
+    // only ontime events can contain triggers
+    if (isOntimeEvent(entry) && entry.triggers) {
+      for (const trigger of entry.triggers) {
+        if (trigger.automationId === automationId) {
+          return entry.id;
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Checks if an automation is used in any of the project rundowns
+ */
+export function isAutomationUsed(
+  projectRundowns: ProjectRundowns,
+  automationId: string,
+): [string, EntryId] | undefined {
+  for (const rundownId in projectRundowns) {
+    const rundown = projectRundowns[rundownId];
+    const usedInEvent = isAutomationUsedInRundown(rundown.entries, rundown.flatOrder, automationId);
+
+    if (usedInEvent) {
+      return [rundown.title, usedInEvent];
+    }
+  }
 }

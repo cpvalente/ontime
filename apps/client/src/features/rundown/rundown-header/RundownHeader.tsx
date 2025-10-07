@@ -1,48 +1,61 @@
-import { Button, ButtonGroup } from '@chakra-ui/react';
+import { memo } from 'react';
+import { Toggle } from '@base-ui-components/react/toggle';
+import { ToggleGroup } from '@base-ui-components/react/toggle-group';
+import { Toolbar } from '@base-ui-components/react/toolbar';
+import { useSessionStorage } from '@mantine/hooks';
 import { OffsetMode } from 'ontime-types';
 
+import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import { setOffsetMode, useOffsetMode } from '../../../common/hooks/useSocket';
-import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
+import { AppMode, sessionKeys } from '../../../ontimeConfig';
 
 import RundownMenu from './RundownMenu';
 
 import style from './RundownHeader.module.scss';
 
-export default function RundownHeader() {
-  const appMode = useAppMode((state) => state.mode);
-  const setAppMode = useAppMode((state) => state.setMode);
-  const setRunMode = () => setAppMode(AppMode.Run);
-  const setEditMode = () => setAppMode(AppMode.Edit);
+export default memo(RundownHeader);
+function RundownHeader() {
+  const [editorMode, setEditorMode] = useSessionStorage({ key: sessionKeys.editorMode, defaultValue: AppMode.Edit });
 
   const { offsetMode } = useOffsetMode();
 
+  const toggleAppMode = (mode: AppMode[]) => {
+    // we need to stop user from deselecting a mode
+    const newValue = mode.at(0);
+    if (!newValue) return;
+    setEditorMode(newValue);
+  };
+
+  const toggleOffsetMode = (mode: OffsetMode[]) => {
+    // we need to stop user from deselecting a mode
+    const newValue = mode.at(0);
+    if (!newValue) return;
+    setOffsetMode(newValue);
+  };
+
   return (
-    <div className={style.header}>
-      <ButtonGroup isAttached>
-        <Button size='sm' variant={appMode === AppMode.Run ? 'ontime-filled' : 'ontime-subtle'} onClick={setRunMode}>
+    <Toolbar.Root className={style.header}>
+      <ToggleGroup value={[editorMode]} onValueChange={toggleAppMode} className={style.group}>
+        <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
           Run
-        </Button>
-        <Button size='sm' variant={appMode === AppMode.Edit ? 'ontime-filled' : 'ontime-subtle'} onClick={setEditMode}>
+        </Toolbar.Button>
+        <Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.radioButton}>
           Edit
-        </Button>
-      </ButtonGroup>
-      <ButtonGroup isAttached>
-        <Button
-          size='sm'
-          variant={offsetMode === OffsetMode.Absolute ? 'ontime-filled' : 'ontime-subtle'}
-          onClick={() => setOffsetMode(OffsetMode.Absolute)}
-        >
+        </Toolbar.Button>
+      </ToggleGroup>
+
+      <Editor.Separator className={style.separator} />
+
+      <ToggleGroup value={[offsetMode]} onValueChange={toggleOffsetMode} className={style.group}>
+        <Toolbar.Button render={<Toggle />} value={OffsetMode.Absolute} className={style.radioButton}>
           Absolute
-        </Button>
-        <Button
-          size='sm'
-          variant={offsetMode === OffsetMode.Relative ? 'ontime-filled' : 'ontime-subtle'}
-          onClick={() => setOffsetMode(OffsetMode.Relative)}
-        >
+        </Toolbar.Button>
+        <Toolbar.Button render={<Toggle />} value={OffsetMode.Relative} className={style.radioButton}>
           Relative
-        </Button>
-      </ButtonGroup>
+        </Toolbar.Button>
+      </ToggleGroup>
+
       <RundownMenu />
-    </div>
+    </Toolbar.Root>
   );
 }

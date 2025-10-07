@@ -1,0 +1,18 @@
+.twoCols {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  column-gap: 3rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, max-content);
+  column-gap: 1rem;
+  row-gap: 0.5rem;
+  align-content: start;
+}
+
+.inline {
+  display: flex;
+  gap: 0.5rem;
+}

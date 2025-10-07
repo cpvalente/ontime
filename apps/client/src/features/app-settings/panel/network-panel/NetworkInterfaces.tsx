@@ -21,12 +21,7 @@ export default function InfoNif() {
         const address = linkToOtherHost(nif.address);
 
         return (
-          <CopyTag
-            key={nif.name}
-            copyValue={address}
-            onClick={() => handleClick(address)}
-            label='Copy IP or navigate to address'
-          >
+          <CopyTag key={nif.name} copyValue={address} onClick={() => handleClick(address)}>
             {`${nif.name} - ${nif.address}`} <IoArrowUp className={style.goIcon} />
           </CopyTag>
         );

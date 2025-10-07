@@ -1,57 +1,99 @@
+import { CSSProperties } from 'react';
 import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import { flexRender, HeaderGroup } from '@tanstack/react-table';
-import { OntimeRundownEntry } from 'ontime-types';
 
+import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
-import { useCuesheetOptions } from '../../cuesheet.options';
+import { AppMode } from '../../../../ontimeConfig';
+import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 
-import { SortableCell } from './SortableCell';
+import { Draggable, SortableCell, TableCell } from './SortableCell';
 
 import style from '../CuesheetTable.module.scss';
 
 interface CuesheetHeaderProps {
-  headerGroups: HeaderGroup<OntimeRundownEntry>[];
+  headerGroup: HeaderGroup<ExtendedEntry>;
+  cuesheetMode: AppMode;
 }
 
-export default function CuesheetHeader(props: CuesheetHeaderProps) {
-  const { headerGroups } = props;
-  const { hideIndexColumn, showActionMenu } = useCuesheetOptions();
+export function SortableCuesheetHeader({ headerGroup, cuesheetMode }: CuesheetHeaderProps) {
+  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
 
   return (
-    <thead className={style.tableHeader}>
-      {headerGroups.map((headerGroup) => {
-        const key = headerGroup.id;
+    <tr key={headerGroup.id}>
+      {cuesheetMode === AppMode.Edit && <th className={style.actionColumn} tabIndex={-1} />}
+      {!hideIndexColumn && (
+        <th className={style.indexColumn} tabIndex={-1}>
+          #
+        </th>
+      )}
+      <SortableContext key={headerGroup.id} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
+        {headerGroup.headers.map((header) => {
+          const customBackground = header.column.columnDef.meta?.colour;
+          const canWrite = header.column.columnDef.meta?.canWrite;
+
+          const customStyles: CSSProperties = {
+            opacity: canWrite ? 1 : 0.6,
+          };
+          if (customBackground) {
+            const customColour = getAccessibleColour(customBackground);
+            customStyles.backgroundColor = customColour.backgroundColor;
+            customStyles.color = customColour.color;
+          }
+
+          return (
+            <SortableCell
+              key={header.column.columnDef.id}
+              columnId={header.column.id}
+              colSpan={header.colSpan}
+              injectedStyles={{ width: `calc(var(--header-${header?.id}-size) * 1px)`, ...customStyles }}
+              draggable={<Draggable header={header} />}
+            >
+              {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+            </SortableCell>
+          );
+        })}
+      </SortableContext>
+    </tr>
+  );
+}
+
+export function CuesheetHeader({ headerGroup, cuesheetMode }: CuesheetHeaderProps) {
+  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
+
+  return (
+    <tr key={headerGroup.id}>
+      {cuesheetMode === AppMode.Edit && <th className={style.actionColumn} tabIndex={-1} />}
+      {!hideIndexColumn && (
+        <th className={style.indexColumn} tabIndex={-1}>
+          #
+        </th>
+      )}
+      {headerGroup.headers.map((header) => {
+        const customBackground = header.column.columnDef.meta?.colour;
+        const canWrite = header.column.columnDef.meta?.canWrite;
+
+        const customStyles: CSSProperties = {
+          opacity: canWrite ? 1 : 0.6,
+        };
+        if (customBackground) {
+          const customColour = getAccessibleColour(customBackground);
+          customStyles.backgroundColor = customColour.backgroundColor;
+          customStyles.color = customColour.color;
+        }
 
         return (
-          <tr key={headerGroup.id}>
-            {showActionMenu && <th className={style.actionColumn} tabIndex={-1} />}
-            {!hideIndexColumn && (
-              <th className={style.indexColumn} tabIndex={-1}>
-                #
-              </th>
-            )}
-            <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
-              {headerGroup.headers.map((header) => {
-                const width = header.getSize();
-                // @ts-expect-error -- we inject this into react-table
-                const customBackground = header.column.columnDef?.meta?.colour;
-
-                let customStyles = {};
-                if (customBackground) {
-                  const customColour = getAccessibleColour(customBackground);
-                  customStyles = { backgroundColor: customColour.backgroundColor, color: customColour.color };
-                }
-
-                return (
-                  <SortableCell key={header.column.columnDef.id} header={header} style={{ width, ...customStyles }}>
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                  </SortableCell>
-                );
-              })}
-            </SortableContext>
-          </tr>
+          <TableCell
+            key={header.column.columnDef.id}
+            columnId={header.column.id}
+            colSpan={header.colSpan}
+            injectedStyles={{ width: `calc(var(--header-${header?.id}-size) * 1px)`, ...customStyles }}
+            draggable={<Draggable header={header} />}
+          >
+            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+          </TableCell>
         );
       })}
-    </thead>
+    </tr>
   );
 }

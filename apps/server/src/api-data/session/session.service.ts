@@ -1,11 +1,11 @@
-import { GetInfo, SessionStats } from 'ontime-types';
+import { GetInfo, LinkOptions, OntimeView, SessionStats } from 'ontime-types';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { publicDir } from '../../setup/index.js';
 import { socket } from '../../adapters/WebsocketAdapter.js';
 import { getLastRequest } from '../../api-integration/integration.controller.js';
-import { getLastLoadedProject } from '../../services/app-state-service/AppStateService.js';
-import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
+import { getCurrentProject } from '../../services/project-service/ProjectService.js';
+import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 import { getNetworkInterfaces } from '../../utils/network.js';
 import { getTimezoneLabel } from '../../utils/time.js';
 import { password, routerPrefix } from '../../externals.js';
@@ -18,7 +18,7 @@ const startedAt = new Date();
 export async function getSessionStats(): Promise<SessionStats> {
   const { connectedClients, lastConnection } = socket.getStats();
   const lastRequest = getLastRequest();
-  const projectName = await getLastLoadedProject();
+  const { filename } = await getCurrentProject();
   const { playback } = runtimeService.getRuntimeState();
 
   return {
@@ -26,7 +26,7 @@ export async function getSessionStats(): Promise<SessionStats> {
     connectedClients,
     lastConnection: lastConnection !== null ? lastConnection.toISOString() : null,
     lastRequest: lastRequest !== null ? lastRequest.toISOString() : null,
-    projectName,
+    projectName: filename,
     playback,
     timezone: getTimezoneLabel(startedAt),
     version: ONTIME_VERSION,
@@ -57,22 +57,28 @@ export const hashedPassword = hasPassword ? hashPassword(password as string) : u
 /**
  * Generates a pre-authenticated URL by injecting a token in the URL params
  */
-export function generateAuthenticatedUrl(
+export function generateShareUrl(
   baseUrl: string,
-  path: string,
-  lock: boolean,
-  authenticate: boolean,
-  prefix = routerPrefix,
-  hash = hashedPassword,
+  canonicalPath: string,
+  { authenticate, lockConfig, lockNav, preset, prefix = routerPrefix, hash = hashedPassword }: LinkOptions,
 ): URL {
   const url = new URL(baseUrl);
-  url.pathname = prefix ? `${prefix}/${path}` : path;
+
+  // companion links point to the root
+  if (canonicalPath !== '<<companion>>') {
+    // if the config is locked and we are in a preset, we hide the canonical path
+    const shouldMaskPath = Boolean(preset) && (canonicalPath === OntimeView.Cuesheet || lockConfig);
+    const maybePresetPath = shouldMaskPath ? `preset/${preset}` : preset || canonicalPath;
+    url.pathname = prefix ? `${prefix}/${maybePresetPath}` : maybePresetPath;
+
+    if (lockNav) {
+      url.searchParams.append('n', '1');
+    }
+  }
 
   if (authenticate && hash) {
     url.searchParams.append('token', hash);
   }
-  if (lock) {
-    url.searchParams.append('locked', 'true');
-  }
+
   return url;
 }

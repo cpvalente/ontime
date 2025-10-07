@@ -14,4 +14,8 @@ test('message control sends messages to screens', async ({ context }) => {
   await featurePage.goto('http://localhost:4001/timer');
   await featurePage.waitForLoadState('load', { timeout: 5000 });
   await expect(featurePage.getByText('testing stage')).toBeVisible();
+
+  await editorPage.getByRole('button', { name: /toggle timer message/i }).click({ timeout: 5000 });
+
+  await expect(featurePage.getByText('TIME NOW')).toBeVisible();
 });

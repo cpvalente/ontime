@@ -7,6 +7,7 @@
   transition-property: color;
   transition-duration: $transition-time-action;
   width: fit-content;
+  text-decoration: none;
 
   &.inline {
     display: inline-flex;
@@ -15,4 +16,9 @@
   &:hover {
     color: $ontime-color;
   }
-}
+
+  &:focus {
+    outline: none; 
+    box-shadow: 0 1px 0 0 currentColor;
+  }
+} 

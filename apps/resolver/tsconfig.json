@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.common.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "allowUnusedLabels": false,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "allowJs": true,
+    "declaration": true,
+    "outDir": "dist",
+    "sourceMap": true,
+    "baseUrl": "src",
+  },
+  "include": [
+    "src",
+  ],
+  "exclude": [
+    "node_modules",
+  ]
+}

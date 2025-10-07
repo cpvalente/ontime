@@ -1,36 +1,42 @@
-import { MessageState, OffsetMode, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
-import { MILLIS_PER_HOUR, MILLIS_PER_SECOND } from 'ontime-utils';
+import {
+  ApiActionTag,
+  MessageState,
+  OffsetMode,
+  OntimeEvent,
+  PatchWithId,
+  SimpleDirection,
+  SimplePlayback,
+} from 'ontime-types';
+import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { DeepPartial } from 'ts-essentials';
 
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.js';
-import * as messageService from '../services/message-service/MessageService.js';
-import { validateMessage, validateTimerMessage } from '../services/message-service/messageUtils.js';
-import { runtimeService } from '../services/runtime-service/RuntimeService.js';
+import * as messageService from '../services/message-service/message.service.js';
+import { validateMessage, validateTimerMessage } from '../services/message-service/message.utils.js';
+import { runtimeService } from '../services/runtime-service/runtime.service.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
-import { isEmptyObject } from '../utils/parserUtils.js';
-import { parseProperty, updateEvent } from './integration.utils.js';
+import { parseProperty } from './integration.utils.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { throttle } from '../utils/throttle.js';
-import { willCauseRegeneration } from '../services/rundown-service/rundownCacheUtils.js';
-
-import { handleLegacyMessageConversion } from './integration.legacy.js';
 import { coerceEnum } from '../utils/coerceType.js';
+import { editEntry } from '../api-data/rundown/rundown.service.js';
+import { willCauseRegeneration } from '../api-data/rundown/rundown.utils.js';
 
-const throttledUpdateEvent = throttle(updateEvent, 20);
+const throttledEditEvent = throttle(editEntry, 20);
 let lastRequest: Date | null = null;
 
-export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
-  const action = type.toLowerCase();
-  const handler = actionHandlers[action];
+export function dispatchFromAdapter(tag: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
+  const action = tag.toLowerCase();
+  const handler = actionHandlers[action as ApiActionTag];
   lastRequest = new Date();
 
   if (handler) {
     return handler(payload);
   } else {
-    throw new Error(`Unhandled message ${type}`);
+    throw new Error(`Unhandled message ${tag}`);
   }
 }
 
@@ -40,7 +46,7 @@ export function getLastRequest() {
 
 type ActionHandler = (payload: unknown) => { payload: unknown };
 
-const actionHandlers: Record<string, ActionHandler> = {
+const actionHandlers: Record<ApiActionTag, ActionHandler> = {
   /* General */
   version: () => ({ payload: ONTIME_VERSION }),
   poll: () => ({
@@ -58,7 +64,7 @@ const actionHandlers: Record<string, ActionHandler> = {
     }
 
     const data = payload[id as keyof typeof payload];
-    const patchEvent: Partial<OntimeEvent> & { id: string } = { id };
+    const patchEvent: PatchWithId<OntimeEvent> = { id };
 
     let shouldThrottle = false;
 
@@ -78,11 +84,13 @@ const actionHandlers: Record<string, ActionHandler> = {
     });
 
     if (shouldThrottle) {
-      if (throttledUpdateEvent(patchEvent)) {
+      if (throttledEditEvent(patchEvent)) {
         return { payload: 'throttled' };
       }
     } else {
-      updateEvent(patchEvent);
+      editEntry(patchEvent).catch((_error) => {
+        /** No error handling */
+      });
     }
     return { payload: 'success' };
   },
@@ -90,12 +98,9 @@ const actionHandlers: Record<string, ActionHandler> = {
   message: (payload) => {
     assert.isObject(payload);
 
-    // TODO: remove this once we feel its been enough time, ontime 3.6.0, 20/09/2024
-    const migratedPayload = handleLegacyMessageConversion(payload);
-
     const patch: DeepPartial<MessageState> = {
-      timer: 'timer' in migratedPayload ? validateTimerMessage(migratedPayload.timer) : undefined,
-      external: 'external' in migratedPayload ? validateMessage(migratedPayload.external) : undefined,
+      timer: 'timer' in payload ? validateTimerMessage(payload.timer) : undefined,
+      secondary: 'secondary' in payload ? validateMessage(payload.secondary) : undefined,
     };
 
     const newMessage = messageService.patch(patch);
@@ -192,70 +197,81 @@ const actionHandlers: Record<string, ActionHandler> = {
     throw new Error('No matching method provided');
   },
   addtime: (payload) => {
-    let time = 0;
-    if (payload && typeof payload === 'object') {
-      if ('add' in payload) {
-        time = numberOrError(payload.add);
-      } else if ('remove' in payload) {
-        time = numberOrError(payload.remove) * -1;
+    const time = (() => {
+      if (payload && typeof payload === 'object') {
+        if ('add' in payload) return numberOrError(payload.add);
+        if ('remove' in payload) return numberOrError(payload.remove) * -1;
       }
-    } else {
-      time = numberOrError(payload);
-    }
+      return numberOrError(payload);
+    })();
+
     assert.isNumber(time);
     if (time === 0) {
       return { payload: 'success' };
     }
 
-    const timeToAdd = time * MILLIS_PER_SECOND; // frontend is seconds based
-    if (Math.abs(timeToAdd) > MILLIS_PER_HOUR) {
+    if (Math.abs(time) > MILLIS_PER_HOUR) {
       throw new Error(`Payload too large: ${time}`);
     }
 
-    runtimeService.addTime(timeToAdd);
+    runtimeService.addTime(time);
     return { payload: 'success' };
   },
-  /* Extra timers */
+  /**
+   * Auxiliary timers, payload can be either:
+   *
+   * 1. a simple playback command
+   * {
+   *  "1": "start" | "pause" | "stop"
+   * }
+   *
+   * - or -
+   *
+   * 2. a patch object with properties
+   * {
+   *   "1": {
+   *       duration: "count-down"
+   *   }
+   * }
+   *
+   */
   auxtimer: (payload) => {
     assert.isObject(payload);
-    if (!('1' in payload)) {
+    const timerIndex = Object.keys(payload).at(0);
+    if (timerIndex !== '1' && timerIndex !== '2' && timerIndex !== '3') {
       throw new Error('Invalid auxtimer index');
     }
-    const command = payload['1'];
+
+    const command = payload[timerIndex as keyof typeof payload] as unknown;
+    const index = Number(timerIndex);
+
+    // 1. handle simple playback commands: start, pause, stop
     if (typeof command === 'string') {
-      if (command === SimplePlayback.Start) {
-        const reply = auxTimerService.start();
-        return { payload: reply };
+      switch (command) {
+        case SimplePlayback.Start:
+          return { payload: auxTimerService.start(index) };
+        case SimplePlayback.Pause:
+          return { payload: auxTimerService.pause(index) };
+        case SimplePlayback.Stop:
+          return { payload: auxTimerService.stop(index) };
+        default:
+          throw new Error('Invalid command');
       }
-      if (command === SimplePlayback.Pause) {
-        const reply = auxTimerService.pause();
-        return { payload: reply };
-      }
-      if (command === SimplePlayback.Stop) {
-        const reply = auxTimerService.stop();
-        return { payload: reply };
-      }
-    } else if (command && typeof command === 'object') {
-      const reply = { payload: {} };
+    }
+
+    // 2. command can be a patch object: duration, addtime, direction
+    if (command && typeof command === 'object') {
       if ('duration' in command) {
-        // convert duration in seconds to ms
-        const timeInMs = numberOrError(command.duration) * 1000;
-        reply.payload = auxTimerService.setTime(timeInMs);
+        return { payload: auxTimerService.setTime(numberOrError(command.duration), index) };
       }
       if ('addtime' in command) {
-        // convert addTime in seconds to ms
-        const timeInMs = numberOrError(command.addtime) * 1000;
-        reply.payload = auxTimerService.addTime(timeInMs);
+        return { payload: auxTimerService.addTime(numberOrError(command.addtime), index) };
       }
       if ('direction' in command) {
         if (command.direction === SimpleDirection.CountUp || command.direction === SimpleDirection.CountDown) {
-          reply.payload = auxTimerService.setDirection(command.direction);
-        } else {
-          throw new Error('Invalid direction payload');
+          return { payload: auxTimerService.setDirection(command.direction, index) };
         }
-      }
-      if (!isEmptyObject(reply.payload)) {
-        return reply;
+        throw new Error('Invalid direction payload');
       }
     }
     throw new Error('No matching method provided');

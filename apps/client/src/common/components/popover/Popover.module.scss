@@ -1,0 +1,30 @@
+.popup {
+  box-sizing: border-box;
+  padding: 1rem 1.5rem;
+
+  color: $ui-white;
+  background-color: $gray-1250;
+
+  border-radius: 3px;  
+  box-shadow: $box-shadow-l1;
+  border: 1px solid $gray-1000;
+
+  max-width: 90vw;
+
+  transform-origin: var(--transform-origin);
+  transition:
+    transform 150ms,
+    opacity 150ms;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+.title {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+

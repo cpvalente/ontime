@@ -1,15 +1,22 @@
-import { CustomFields } from 'ontime-types';
+import { useMemo } from 'react';
+import { useSearchParams } from 'react-router';
+import { CustomFields, OntimeEvent } from 'ontime-types';
 
+import { getTimeOption } from '../../common/components/view-params-editor/common.options';
+import { OptionTitle } from '../../common/components/view-params-editor/constants';
+import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import {
-  getTimeOption,
   makeCustomFieldSelectOptions,
   makeOptionsFromCustomFields,
-  OptionTitle,
-} from '../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../common/components/view-params-editor/types';
+} from '../../common/components/view-params-editor/viewParams.utils';
+import { isStringBoolean } from '../viewers/common/viewUtils';
 
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ViewOption[] => {
-  const fieldOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
+  const fieldOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'none', label: 'None' },
+    { value: 'title', label: 'Title' },
+    { value: 'note', label: 'Note' },
+  ]);
   const customFieldSelect = makeCustomFieldSelectOptions(customFields);
 
   return [
@@ -27,17 +34,17 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
           defaultValue: 'title',
         },
         {
-          id: 'secondary',
+          id: 'secondary-src',
           title: 'Secondary data field',
           description: 'Field to be shown in the second line of text',
           type: 'option',
           values: fieldOptions,
-          defaultValue: '',
+          defaultValue: 'none',
         },
         {
           id: 'subscribe',
-          title: 'Highlight Field',
-          description: 'Choose a custom field to highlight',
+          title: 'Highlight Fields',
+          description: 'Choose custom fields to highlight',
           type: 'multi-option',
           values: customFieldSelect,
         },
@@ -55,9 +62,16 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
       collapsible: true,
       options: [
         {
-          id: 'hidepast',
+          id: 'hidePast',
           title: 'Hide Past Events',
           description: 'Whether to hide events that have passed',
+          type: 'boolean',
+          defaultValue: false,
+        },
+        {
+          id: 'showStart',
+          title: 'Show planned start',
+          description: 'Whether to prepend the planned start to the items',
           type: 'boolean',
           defaultValue: false,
         },
@@ -65,3 +79,37 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
     },
   ];
 };
+
+type OperatorOptions = {
+  mainSource: keyof OntimeEvent | null;
+  secondarySource: keyof OntimeEvent | null;
+  subscribe: string[];
+  shouldEdit: boolean;
+  hidePast: boolean;
+  showStart: boolean;
+};
+
+/**
+ * Utility extract the view options from URL Params
+ * the names and fallback are manually matched with timerOptions
+ */
+function getOptionsFromParams(searchParams: URLSearchParams): OperatorOptions {
+  // we manually make an object that matches the key above
+  return {
+    mainSource: searchParams.get('main') as keyof OntimeEvent | null,
+    secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
+    subscribe: searchParams.getAll('subscribe'),
+    shouldEdit: isStringBoolean(searchParams.get('shouldEdit')),
+    hidePast: isStringBoolean(searchParams.get('hidePast')),
+    showStart: isStringBoolean(searchParams.get('showStart')),
+  };
+}
+
+/**
+ * Hook exposes the operator view options
+ */
+export function useOperatorOptions(): OperatorOptions {
+  const [searchParams] = useSearchParams();
+  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  return options;
+}

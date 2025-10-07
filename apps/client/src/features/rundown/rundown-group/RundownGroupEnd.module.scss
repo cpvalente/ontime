@@ -1,0 +1,10 @@
+@use '../blockMixins' as *;
+
+.groupEnd {
+  cursor: default;
+  height: 1rem;
+  background-color: var(--user-bg, $gray-1050);
+
+  border-radius: 0 0 $block-border-radius $block-border-radius;
+  margin-bottom: 0.5rem;
+}

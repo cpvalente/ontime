@@ -10,7 +10,7 @@
 .previewContainer {
   display: grid;
   gap: $element-spacing;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 3fr 2fr;
 }
 
 .preview {
@@ -39,6 +39,7 @@
 .mainContent {
   font-size: 1rem;
   font-weight: 600;
+  width: 100%;
   color: var(--override-colour, $ui-white);
 
   &[data-phase='pending'] {
@@ -71,8 +72,4 @@
   &[data-active='true'] {
     color: $active-indicator;
   }
-}
-
-.divider {
-  border-top: 1px solid $gray-1000;
 }

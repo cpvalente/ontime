@@ -1,0 +1,19 @@
+.chip {
+  white-space: nowrap;
+
+  font-size: calc(1rem - 3px);
+  color: $label-gray;
+  justify-self: end;
+
+  &.over {
+    color: $playback-over;
+  }
+
+  &.under {
+    color: $playback-under;
+  }
+
+  &.due {
+    color: $warning-orange;
+  }
+}

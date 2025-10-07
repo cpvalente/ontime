@@ -1,117 +1,39 @@
-import { FormEvent, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import {
-  Button,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { FormEvent, memo } from 'react';
+import { IoClose } from 'react-icons/io5';
+import { useSearchParams } from 'react-router';
+import { Dialog } from '@base-ui-components/react/dialog';
+import { OntimeView } from 'ontime-types';
 
 import useViewSettings from '../../hooks-query/useViewSettings';
+import Button from '../buttons/Button';
+import IconButton from '../buttons/IconButton';
 import Info from '../info/Info';
 
-import { ViewOption } from './types';
+import { ViewOption } from './viewParams.types';
+import { getURLSearchParamsFromObj } from './viewParams.utils';
+import { useViewParamsEditorStore } from './viewParamsEditor.store';
+import { ViewParamsPresets } from './ViewParamsPresets';
 import ViewParamsSection from './ViewParamsSection';
 
 import style from './ViewParamsEditor.module.scss';
 
-type ViewParamsObj = { [key: string]: string | FormDataEntryValue };
-
-/**
- * Utility remove the # character from a hex string
- */
-function sanitiseColour(colour: string) {
-  if (colour.startsWith('#')) {
-    return colour.substring(1);
-  }
-  return colour;
-}
-
-/**
- * Makes a new URLSearchParams object from the given params object
- */
-const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ViewOption[]) => {
-  const newSearchParams = new URLSearchParams();
-
-  // Convert paramFields to an object that contains default values
-  const defaultValues: Record<string, string> = {};
-  paramFields.forEach((section) => {
-    section.options.forEach((option) => {
-      defaultValues[option.id] = String(option.defaultValue);
-
-      // extract persisted values
-      if ('type' in option && option.type === 'persist') {
-        newSearchParams.set(option.id, option.value);
-      }
-    });
-  });
-
-  // compare which values are different from the default values
-  Object.entries(paramsObj).forEach(([id, value]) => {
-    if (typeof value === 'string' && value.length) {
-      // we dont know which values contain colours
-      // unfortunately this means we run all the strings through the sanitation
-      const valueWithoutHash = sanitiseColour(value);
-      if (defaultValues[id] !== valueWithoutHash) {
-        handleValueString(id, valueWithoutHash);
-      }
-    }
-  });
-
-  /** Utility function contains logic to add a value into the searchParams object */
-  function handleValueString(id: string, value: string) {
-    const maybeMultipleValues = value.split(',');
-
-    // we need to check if the value contains comma separated list, for the case of the multi-select data
-    if (Array.isArray(maybeMultipleValues) && maybeMultipleValues.length > 1) {
-      const added = new Set();
-      maybeMultipleValues.forEach((v) => {
-        if (!added.has(v)) {
-          added.add(v);
-          newSearchParams.append(id, v);
-        }
-      });
-    } else {
-      newSearchParams.set(id, value);
-    }
-  }
-  return newSearchParams;
-};
-
 interface EditFormDrawerProps {
+  target: OntimeView;
   viewOptions: ViewOption[];
 }
 
-// TODO: this is a good candidate for memoisation, but needs the paramFields to be stable
-export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
-  const [searchParams, setSearchParams] = useSearchParams();
+export default memo(ViewParamsEditor);
+function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
+  const [_, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
-
-  const { isOpen, onClose, onOpen } = useDisclosure();
-
-  useEffect(() => {
-    const isEditing = searchParams.get('edit');
-
-    if (isEditing === 'true') {
-      return onOpen();
-    }
-  }, [searchParams, onOpen]);
+  const { isOpen, close } = useViewParamsEditorStore();
 
   const handleClose = () => {
-    searchParams.delete('edit');
-    setSearchParams(searchParams);
-
-    onClose();
+    close();
   };
 
   const resetParams = () => {
     setSearchParams();
-    onClose();
   };
 
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
@@ -123,39 +45,55 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   };
 
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={handleClose} variant='ontime' size='lg'>
-      <DrawerOverlay />
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerCloseButton size='lg' />
-          Customise
-        </DrawerHeader>
-
-        <DrawerBody>
-          {viewSettings.overrideStyles && (
-            <Info className={style.info}>This view style is being modified by a custom CSS file.</Info>
-          )}
-          <form id='edit-params-form' onSubmit={onParamsFormSubmit} className={style.sectionList}>
-            {viewOptions.map((section) => (
-              <ViewParamsSection
-                key={section.title}
-                title={section.title}
-                collapsible={section.collapsible}
-                options={section.options}
-              />
-            ))}
-          </form>
-        </DrawerBody>
-
-        <DrawerFooter className={style.drawerFooter}>
-          <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
-            Reset to default
-          </Button>
-          <Button variant='ontime-filled' form='edit-params-form' type='submit'>
-            Save
-          </Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          handleClose();
+        }
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Backdrop className={style.backdrop} />
+        <Dialog.Popup className={style.drawer}>
+          <div className={style.header}>
+            <Dialog.Title>Customise</Dialog.Title>
+            <IconButton variant='subtle-white' size='large' data-testid='close-view-params' onClick={handleClose}>
+              <IoClose />
+            </IconButton>
+          </div>
+          <div className={style.body}>
+            {viewSettings.overrideStyles && (
+              <Info className={style.info}>This view style is being modified by a custom CSS file.</Info>
+            )}
+            <ViewParamsPresets target={target} />
+            <form id='edit-params-form' onSubmit={onParamsFormSubmit} className={style.sectionList}>
+              {viewOptions.map((section) => (
+                <ViewParamsSection
+                  key={section.title}
+                  title={section.title}
+                  collapsible={section.collapsible}
+                  options={section.options}
+                />
+              ))}
+            </form>
+          </div>
+          <div className={style.footer}>
+            <Button variant='subtle' size='large' onClick={resetParams} type='reset'>
+              Reset to default
+            </Button>
+            <Button
+              variant='primary'
+              size='large'
+              form='edit-params-form'
+              type='submit'
+              data-testid='apply-view-params'
+            >
+              Apply
+            </Button>
+          </div>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

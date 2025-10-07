@@ -1,13 +1,4 @@
-import {
-  MaybeNumber,
-  MessageState,
-  OntimeEvent,
-  Playback,
-  TimerMessage,
-  TimerPhase,
-  TimerType,
-  ViewSettings,
-} from 'ontime-types';
+import { MaybeNumber, MessageState, OntimeEvent, Playback, TimerMessage, TimerPhase, TimerType } from 'ontime-types';
 import { isPlaybackActive } from 'ontime-utils';
 
 import { getFormattedTimer, getPropertyValue } from '../../features/viewers/common/viewUtils';
@@ -51,8 +42,8 @@ const fontSizeMap: { [key: number]: number } = {
   4: 28, // 9:01
   5: 28, // -9:01, 10:01, 9 min
   6: 25, // -10:01, 10 min
-  8: 20, // 23:01:01
-  9: 20, // -23:01:01
+  8: 18, // 23:01:01
+  9: 18, // -23:01:01
 };
 
 /**
@@ -90,25 +81,35 @@ export function getShowModifiers(
   timerType: TimerType,
   countToEnd: boolean,
   phase: TimerPhase,
-  viewSettings: ViewSettings,
+  freezeOvertime: boolean,
+  freezeMessage: string,
+  hidePhase: boolean,
 ) {
-  const showModifiers = timerType === TimerType.CountDown || countToEnd;
-  const finished = phase === TimerPhase.Overtime;
-  return {
-    showEndMessage: showModifiers && finished && viewSettings.endMessage,
-    showFinished: showModifiers && finished, // ????
-    showWarning: showModifiers && phase === TimerPhase.Warning,
-    showDanger: showModifiers && phase === TimerPhase.Danger,
-  };
-}
+  if (hidePhase) {
+    return {
+      showEndMessage: false,
+      showFinished: false,
+      showWarning: false,
+      showDanger: false,
+    };
+  }
 
-/**
- * Which colour should the timer have at a given moment
- */
-export function getTimerColour(viewSettings: ViewSettings, showWarning: boolean, showDanger: boolean) {
-  if (showWarning) return viewSettings.warningColor;
-  if (showDanger) return viewSettings.dangerColor;
-  return viewSettings.normalColor;
+  const showModifiers = timerType === TimerType.CountDown || countToEnd;
+  if (!showModifiers) {
+    return {
+      showEndMessage: false,
+      showFinished: false,
+      showWarning: false,
+      showDanger: false,
+    };
+  }
+
+  return {
+    showEndMessage: freezeOvertime && freezeMessage !== '',
+    showFinished: phase === TimerPhase.Overtime,
+    showWarning: phase === TimerPhase.Warning,
+    showDanger: phase === TimerPhase.Danger,
+  };
 }
 
 /**
@@ -120,19 +121,23 @@ export function getSecondaryDisplay(
   localisedMinutes: string,
   removeSeconds: boolean,
   removeLeadingZero: boolean,
-  hideExternal: boolean,
+  hideSecondary: boolean,
 ): string | undefined {
-  if (hideExternal) {
+  if (hideSecondary) {
     return;
   }
-  if (message.timer.secondarySource === 'aux') {
+  if (
+    message.timer.secondarySource === 'aux1' ||
+    message.timer.secondarySource === 'aux2' ||
+    message.timer.secondarySource === 'aux3'
+  ) {
     return getFormattedTimer(currentAux, TimerType.CountDown, localisedMinutes, {
       removeSeconds,
       removeLeadingZero,
     });
   }
-  if (message.timer.secondarySource === 'external' && message.external) {
-    return message.external;
+  if (message.timer.secondarySource === 'secondary' && message.secondary) {
+    return message.secondary;
   }
   return;
 }

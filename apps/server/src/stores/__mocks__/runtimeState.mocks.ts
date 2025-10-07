@@ -4,24 +4,26 @@ import type { RuntimeState } from '../runtimeState.js';
 
 const baseState: RuntimeState = {
   clock: 0,
-  currentBlock: {
-    block: null,
-    startedAt: null,
-  },
   eventNow: null,
-  publicEventNow: null,
   eventNext: null,
-  publicEventNext: null,
-  runtime: {
+  eventFlag: null,
+  groupNow: null,
+  rundown: {
     selectedEventIndex: null,
     numEvents: 0,
-    offset: 0,
-    relativeOffset: 0,
     plannedStart: 0,
     plannedEnd: 0,
     actualStart: null,
-    expectedEnd: null,
-    offsetMode: OffsetMode.Absolute,
+    actualGroupStart: null,
+    currentDay: 0,
+  },
+  offset: {
+    absolute: 0,
+    relative: 0,
+    mode: OffsetMode.Absolute,
+    expectedRundownEnd: null,
+    expectedGroupEnd: null,
+    expectedFlagStart: null,
   },
   timer: {
     addedTime: 0,
@@ -29,7 +31,6 @@ const baseState: RuntimeState = {
     duration: null,
     elapsed: null,
     expectedFinish: null,
-    finishedAt: null,
     phase: TimerPhase.None,
     playback: Playback.Stop,
     secondaryTimer: null,
@@ -39,10 +40,16 @@ const baseState: RuntimeState = {
     forceFinish: null,
     pausedAt: null,
     secondaryTarget: null,
+    hasFinished: false,
   },
   _rundown: {
     totalDelay: 0,
   },
+  _group: null,
+  _end: null,
+  _flag: null,
+  _startDayOffset: null,
+  _startEpoch: null,
 };
 
 export function makeRuntimeStateData(patch?: Partial<RuntimeState>): RuntimeState {

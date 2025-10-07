@@ -1,0 +1,70 @@
+.positioner {
+  outline: 0;
+}
+
+.popup {
+  box-sizing: border-box;
+  padding-block: 0.25rem;
+
+  color: $ui-white;
+  background-color: $gray-1250;
+  font-size: calc(1rem - 2px);
+
+  border-radius: 3px;
+  border: 1px solid $gray-1000;
+  box-shadow: $box-shadow-l1;
+  outline: none;
+
+  transform-origin: var(--transform-origin);
+  transition:
+    transform 150ms,
+    opacity 150ms;
+
+  &[data-starting-style],
+  &[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+
+.item {
+  outline: 0;
+  cursor: default;
+  padding-block: 0.5rem;
+  padding-inline: 1rem 2rem;
+
+  display: flex;
+  gap: 0.5rem;
+  line-height: 1em;
+
+  svg {
+    color: $gray-500;
+  }
+
+  &[data-disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+  }
+
+  &[data-highlighted]:not([data-disabled])::before {
+    content: '';
+    z-index: -1;
+    position: absolute;
+    inset-block: 0;
+    inset-inline: 0.25rem;
+    border-radius: 3px;
+    background-color: $gray-1000;
+  }
+}
+
+.separator {
+  margin: 0.25rem 0.75rem;
+  height: 1px;
+  background-color: $white-7;
+}

@@ -1,7 +1,7 @@
 @use '../../theme/ontimeColours' as *;
 @use '../../theme/ontimeStyles' as *;
 
-$block-width: 33rem;
+$block-width: 32rem;
 
 $block-gap: 0.25rem;
 $block-element-spacing: 0.25rem;
@@ -20,17 +20,11 @@ $block-cursor-color: $orange-400;
   box-sizing: content-box;
   border: 1px solid $white-7;
   border-radius: $block-border-radius;
-  margin-block: 0.25rem;
-  margin-right: 0.125rem;
   position: relative;
   color: $block-text-color;
+  overflow: hidden;
 
   min-width: $block-width;
-}
-
-@mixin block-spacing() {
-  padding-right: 0.5rem;
-  gap: 2px;
 }
 
 @mixin drag-style() {
@@ -39,9 +33,11 @@ $block-cursor-color: $orange-400;
   opacity: 0.3;
   cursor: grab;
   transition: opacity 0.3s;
+
   &:hover {
     opacity: 1;
   }
+
   &:focus {
     box-shadow: none;
     outline: none;

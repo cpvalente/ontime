@@ -1,9 +1,8 @@
-import { useCallback } from 'react';
 import { useController, UseControllerProps } from 'react-hook-form';
 import { IoEyedrop } from 'react-icons/io5';
+import { useDebouncedCallback } from '@mantine/hooks';
 import { ViewSettings } from 'ontime-types';
 
-import { debounce } from '../../../utils/debounce';
 import { cx, getAccessibleColour } from '../../../utils/styleUtils';
 import PopoverPicker from '../popover-picker/PopoverPicker';
 
@@ -19,12 +18,9 @@ interface SwatchPickerProps {
 export default function SwatchPicker(props: SwatchPickerProps) {
   const { color, onChange, isSelected, alwaysDisplayColor } = props;
 
-  const debouncedOnChange = useCallback(
-    debounce((newValue: string) => {
-      onChange(newValue);
-    }, 500),
-    [onChange],
-  );
+  const debouncedOnChange = useDebouncedCallback((newValue: string) => {
+    onChange(newValue);
+  }, 100);
 
   const displayColor = alwaysDisplayColor || isSelected ? color : '';
   const { color: iconColor } = getAccessibleColour(displayColor);

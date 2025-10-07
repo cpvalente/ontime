@@ -1,0 +1,56 @@
+.corner {
+  transform: rotate(45deg);
+
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  cursor: pointer;
+  color: $ui-white;
+  transition-property: color;
+  transition-duration: $transition-time-action;
+  border-radius: $component-border-radius-full;
+
+  // similar styles to ontime-button-subtle
+  background-color: $gray-1050;
+  outline: 2px solid $gray-1050;
+
+  &:hover {
+    color: $ontime-color;
+    background-color: $gray-1000;
+    outline: 2px solid $gray-1000;
+  }
+}
+
+.header {
+  font-size: 1.5rem;
+}
+
+.title {
+  font-size: 1rem;
+  color: $title-gray;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label {
+  display: block;
+  font-size: $aux-text-size;
+  color: $label-gray;
+  margin-bottom: $element-inner-spacing;
+  max-width: max-content; // prevent label from taking entire row
+}
+
+.separator {
+  background-color: $border-color-ondark;
+
+  &.horizontal {
+    width: 100%;
+    height: 1px;
+  }
+
+  &.vertical {
+    width: 1px;
+    height: 0.75em;  
+  }
+}

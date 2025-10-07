@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Select } from '@chakra-ui/react';
 import { NormalisedAutomation, TimerLifeCycle, TriggerDTO } from 'ontime-types';
 
 import { addTrigger, editTrigger } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
+import Input from '../../../../common/components/input/input/Input';
+import Select from '../../../../common/components/select/Select';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -20,19 +22,28 @@ interface TriggerFormProps {
   postSubmit: () => void;
 }
 
-export default function TriggerForm(props: TriggerFormProps) {
-  const { automations, initialId, initialTitle, initialAutomationId, initialTrigger, onCancel, postSubmit } = props;
+export default function TriggerForm({
+  automations,
+  initialId,
+  initialTitle,
+  initialAutomationId,
+  initialTrigger,
+  onCancel,
+  postSubmit,
+}: TriggerFormProps) {
   const {
     handleSubmit,
     register,
     setFocus,
     setError,
+    watch,
+    setValue,
     formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm<TriggerDTO>({
     defaultValues: {
       title: initialTitle,
-      trigger: initialTrigger,
-      automationId: initialAutomationId,
+      trigger: initialTrigger ?? (cycles[0].value as TimerLifeCycle | undefined),
+      automationId: initialAutomationId ?? automations?.[Object.keys(automations)[0]]?.id,
     },
     resetOptions: {
       keepDirtyValues: true,
@@ -42,8 +53,7 @@ export default function TriggerForm(props: TriggerFormProps) {
   // give initial focus to the title field
   useEffect(() => {
     setFocus('title');
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- focus on mount
-  }, []);
+  }, [setFocus]);
 
   const onSubmit = async (values: TriggerDTO) => {
     // if we were passed an ID we are editing a Trigger
@@ -87,9 +97,7 @@ export default function TriggerForm(props: TriggerFormProps) {
         Title
         <Input
           {...register('title', { required: { value: true, message: 'Required field' } })}
-          size='sm'
-          variant='ontime-filled'
-          autoComplete='off'
+          fluid
           defaultValue={initialTitle}
         />
         <Panel.Error>{errors.title?.message}</Panel.Error>
@@ -97,40 +105,28 @@ export default function TriggerForm(props: TriggerFormProps) {
       <label>
         Lifecycle trigger
         <Select
-          size='sm'
-          variant='ontime'
-          defaultValue={initialTrigger}
-          {...register('trigger', { required: { value: true, message: 'Required field' } })}
-        >
-          {cycles.map((cycle) => (
-            <option key={cycle.id} value={cycle.value}>
-              {cycle.label}
-            </option>
-          ))}
-        </Select>
+          value={watch('trigger')}
+          onValueChange={(value) => setValue('trigger', value as TimerLifeCycle, { shouldDirty: true })}
+          options={cycles.map((cycle) => ({ value: cycle.value, label: cycle.label }))}
+          aria-label='Lifecycle trigger'
+        />
         <Panel.Error>{errors.trigger?.message}</Panel.Error>
       </label>
       <label>
         Automation title
         <Select
-          size='sm'
-          variant='ontime'
-          defaultValue={initialAutomationId}
-          {...register('automationId', { required: { value: true, message: 'Required field' } })}
-        >
-          {automationSelect.map((automation) => (
-            <option key={automation.value} value={automation.value}>
-              {automation.label}
-            </option>
-          ))}
-        </Select>
+          value={watch('automationId')}
+          onValueChange={(value) => setValue('automationId', value, { shouldDirty: true })}
+          options={automationSelect}
+          aria-label='Automation title'
+        />
         <Panel.Error>{errors.automationId?.message}</Panel.Error>
       </label>
       <Panel.InlineElements align='end'>
-        <Button size='sm' variant='ontime-subtle' isDisabled={isSubmitting} onClick={onCancel}>
+        <Button disabled={isSubmitting} onClick={onCancel}>
           Cancel
         </Button>
-        <Button type='submit' size='sm' variant='ontime-filled' isDisabled={!canSubmit} isLoading={isSubmitting}>
+        <Button type='submit' variant='primary' disabled={!canSubmit} loading={isSubmitting}>
           Save
         </Button>
       </Panel.InlineElements>

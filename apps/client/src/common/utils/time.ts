@@ -1,10 +1,18 @@
-import { MaybeNumber, OffsetMode, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
-import { dayInMs, formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+import { MaybeNumber, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
+import {
+  formatFromMillis,
+  getExpectedStart,
+  MILLIS_PER_HOUR,
+  MILLIS_PER_MINUTE,
+  MILLIS_PER_SECOND,
+} from 'ontime-utils';
 
 import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
 import { APP_SETTINGS } from '../api/constants';
-import { useTimeUntilData } from '../hooks/useSocket';
+import { useExpectedStartData } from '../hooks/useSocket';
 import { ontimeQueryClient } from '../queryClient';
+
+import { ExtendedEntry } from './rundownMetadata';
 
 /**
  * Returns current time in milliseconds from midnight
@@ -35,7 +43,7 @@ function getFormatFromParams() {
  * Gets the format options from the applicaton settings
  * @returns a string equivalent to the format, ie: hh:mm:ss a or HH:mm:ss
  */
-export function getFormatFromSettings(): TimeFormat {
+function getFormatFromSettings(): TimeFormat {
   const settings: Settings | undefined = ontimeQueryClient.getQueryData(APP_SETTINGS);
   return settings?.timeFormat ?? '24';
 }
@@ -99,8 +107,7 @@ export const formatTime = (
 
 /**
  * Handles case for formatting a duration time
- * @param duration
- * @returns
+ * eg: "1h 0m 0s" or "0h 30m"
  */
 export function formatDuration(duration: number, hideSeconds = true): string {
   // durations should never be negative, we handle it here to flag if there is an issue in future
@@ -119,7 +126,7 @@ export function formatDuration(duration: number, hideSeconds = true): string {
   }
 
   if (!hideSeconds) {
-    const seconds = Math.floor((duration % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND);
+    const seconds = Math.ceil((duration % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND);
     if (seconds > 0) {
       result += `${seconds}s`;
     }
@@ -128,87 +135,54 @@ export function formatDuration(duration: number, hideSeconds = true): string {
 }
 
 /**
- *
  * @param totalGap accumulated gap from the current event
  * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
  * @returns
  */
-export function useTimeUntilStart(
+export function useTimeUntilExpectedStart(
   // typed like this to make it very clear what the data is
-  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> & {
+  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> | null,
+  state: {
     totalGap: number;
     isLinkedToLoaded: boolean;
   },
 ): number {
-  const { offset, clock, currentDay, offsetMode, actualStart, plannedStart } = useTimeUntilData();
-  return calculateTimeUntilStart({ ...data, currentDay, clock, offset, offsetMode, actualStart, plannedStart });
+  const { offset, currentDay, mode, actualStart, plannedStart, clock } = useExpectedStartData();
+  if (event === null) return 0;
+
+  const expectedStart = getExpectedStart(
+    { ...event },
+    { ...state, currentDay, offset, mode, actualStart, plannedStart },
+  );
+  return expectedStart - clock;
 }
 
-/**
- *
- * @param currentDay the day offset of the urrently running event
- * @param totalGap accumulated gap from the current event
- * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
- * @param clock
- * @param offset
- * @returns
- */
-export function calculateTimeUntilStart(
-  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> & {
-    currentDay: number;
-    totalGap: number;
-    isLinkedToLoaded: boolean;
-    clock: number;
-    offset: number;
-    offsetMode: OffsetMode;
-    actualStart: MaybeNumber;
-    plannedStart: MaybeNumber;
-  },
-): number {
-  const {
-    timeStart,
-    dayOffset,
-    currentDay,
-    totalGap,
-    isLinkedToLoaded,
-    clock,
-    offset,
-    delay,
-    offsetMode,
-    actualStart,
-    plannedStart,
-  } = data;
+export function getExpectedTimesFromExtendedEvent(
+  event: Pick<
+    ExtendedEntry<OntimeEvent>,
+    'timeStart' | 'dayOffset' | 'delay' | 'totalGap' | 'isLinkedToLoaded' | 'countToEnd' | 'duration'
+  > | null,
+  state: ReturnType<typeof useExpectedStartData>,
+) {
+  if (event === null) return { expectedStart: 0, timeToStart: 0, expectedEnd: 0, plannedEnd: 0 };
 
-  //How many days from the currently running event to this one
-  const relativeDayOffset = dayOffset - currentDay;
+  const expectedStart = getExpectedStart(
+    { timeStart: event.timeStart, delay: event.delay, dayOffset: event.dayOffset },
+    {
+      totalGap: event.totalGap,
+      isLinkedToLoaded: event.isLinkedToLoaded,
+      ...state,
+    },
+  );
 
-  const delayedStart = Math.max(0, timeStart + delay);
+  const plannedEnd = event.timeStart + event.duration + event.delay;
 
-  //The normalised start time of this event relative to the currently running event
-  const normalisedTimeStart = delayedStart + relativeDayOffset * dayInMs;
-
-  let relativeStartOffset = 0;
-
-  if (offsetMode === OffsetMode.Relative) {
-    relativeStartOffset = (actualStart ?? 0) - (plannedStart ?? 0);
-  }
-
-  const scheduledTimeUntil = normalisedTimeStart - clock + relativeStartOffset;
-
-  const offsetTimeUntil = scheduledTimeUntil - offset;
-
-  if (isLinkedToLoaded) {
-    //if we are directly linked back to the loaded event we just follow the offset
-    return offsetTimeUntil;
-  }
-
-  const gapsCanCompensateForOffset = totalGap + offset >= 0;
-  if (gapsCanCompensateForOffset) {
-    // if we are ahead of schedule or the gap can compensate for the amount we are behind then expect to start at the scheduled time
-    return scheduledTimeUntil;
-  }
-
-  // otherwise consume as much of the offset as possible with the gap
-  const offsetTimeUntilBufferedByGaps = offsetTimeUntil - totalGap;
-  return offsetTimeUntilBufferedByGaps;
+  return {
+    expectedStart,
+    timeToStart: expectedStart - state.clock,
+    expectedEnd: event.countToEnd
+      ? Math.max(expectedStart + event.duration, plannedEnd)
+      : expectedStart + event.duration,
+    plannedEnd,
+  };
 }

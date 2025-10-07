@@ -1,13 +1,19 @@
 import type { AutomationOutput, HTTPOutput, OntimeAction, OSCOutput } from '../definitions/core/Automation.type.js';
-import type { OntimeBlock, OntimeDelay, OntimeEvent, PlayableEvent } from '../definitions/core/OntimeEvent.type.js';
-import { SupportedEvent } from '../definitions/core/OntimeEvent.type.js';
-import type { OntimeRundownEntry } from '../definitions/core/Rundown.type.js';
+import type {
+  OntimeDelay,
+  OntimeEntry,
+  OntimeEvent,
+  OntimeGroup,
+  OntimeMilestone,
+  PlayableEvent,
+} from '../definitions/core/OntimeEntry.js';
+import { SupportedEntry } from '../definitions/core/OntimeEntry.js';
 import { type TimerLifeCycle, timerLifecycleValues } from '../definitions/core/TimerLifecycle.type.js';
 
-type MaybeEvent = OntimeRundownEntry | Partial<OntimeRundownEntry> | null | undefined;
+type MaybeEvent = OntimeEntry | Partial<OntimeEntry> | null | undefined;
 
 export function isOntimeEvent(event: MaybeEvent): event is OntimeEvent {
-  return event?.type === SupportedEvent.Event;
+  return event?.type === SupportedEntry.Event;
 }
 
 export function isPlayableEvent(event: OntimeEvent): event is PlayableEvent {
@@ -15,11 +21,15 @@ export function isPlayableEvent(event: OntimeEvent): event is PlayableEvent {
 }
 
 export function isOntimeDelay(event: MaybeEvent): event is OntimeDelay {
-  return event?.type === SupportedEvent.Delay;
+  return event?.type === SupportedEntry.Delay;
 }
 
-export function isOntimeBlock(event: MaybeEvent): event is OntimeBlock {
-  return event?.type === SupportedEvent.Block;
+export function isOntimeGroup(event: MaybeEvent): event is OntimeGroup {
+  return event?.type === SupportedEntry.Group;
+}
+
+export function isOntimeMilestone(event: MaybeEvent): event is OntimeMilestone {
+  return event?.type === SupportedEntry.Milestone;
 }
 
 type AnyKeys<T> = keyof T;

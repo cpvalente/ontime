@@ -1,8 +1,8 @@
 .corner {
-  position: absolute;
-  top: 1rem;
-  right: 2rem;
-  z-index: 100;
+  position: fixed;
+  top: 6rem;
+  right: 4rem;
+  z-index: $zindex-floating;
 }
 
 .contentWrapper {

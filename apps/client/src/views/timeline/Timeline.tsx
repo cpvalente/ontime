@@ -1,79 +1,112 @@
-import { memo } from 'react';
+import { memo, useMemo, useRef } from 'react';
 import { useViewportSize } from '@mantine/hooks';
-import { isOntimeEvent, isPlayableEvent, OntimeRundown } from 'ontime-types';
+import { isOntimeEvent, isPlayableEvent, OntimeEntry, PlayableEvent } from 'ontime-types';
 import { dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
 
+import useHorizontalFollowComponent from '../../common/hooks/useHorizontalFollowComponent';
+import { ExtendedEntry } from '../../common/utils/rundownMetadata';
+import { cx } from '../../common/utils/styleUtils';
+
 import TimelineMarkers from './timeline-markers/TimelineMarkers';
-import { getElementPosition, getEndHour, getStartHour } from './timeline.utils';
+import { useTimelineOptions } from './timeline.options';
+import { calculateTimelineLayout, getEndHour, getStartHour } from './timeline.utils';
 import { ProgressStatus, TimelineEntry } from './TimelineEntry';
 
 import style from './Timeline.module.scss';
 
 interface TimelineProps {
   firstStart: number;
-  rundown: OntimeRundown;
+  rundown: ExtendedEntry<OntimeEntry>[];
   selectedEventId: string | null;
   totalDuration: number;
 }
 
 export default memo(Timeline);
-
-function Timeline(props: TimelineProps) {
-  const { firstStart, rundown, selectedEventId, totalDuration } = props;
+function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: TimelineProps) {
   const { width: screenWidth } = useViewportSize();
+  const { hidePast, autosize } = useTimelineOptions();
+  const selectedRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const { lastEvent } = getLastEvent(rundown);
+  const startHour = getStartHour(firstStart);
+  const endHour = getEndHour(firstStart + totalDuration + (lastEvent?.delay ?? 0));
+  const scheduleStart = startHour * MILLIS_PER_HOUR;
+  const scheduleEnd = endHour * MILLIS_PER_HOUR;
+
+  // use horizontal follow when scroll is enabled
+  useHorizontalFollowComponent({
+    followRef: selectedRef,
+    scrollRef: scrollContainerRef,
+    doFollow: autosize,
+    selectedEventId: selectedEventId,
+    // No offset when hiding past events to ensure content starts at 0
+    leftOffset: hidePast ? 0 : screenWidth / 6,
+  });
+
+  const { positions, totalWidth } = useMemo(() => {
+    const playableEvents = rundown
+      .filter((event): event is ExtendedEntry<PlayableEvent> => isOntimeEvent(event) && isPlayableEvent(event))
+      .map((event) => ({
+        start: event.timeStart + (event.dayOffset ?? 0) * dayInMs + (event.delay ?? 0),
+        duration: event.duration,
+      }));
+
+    return calculateTimelineLayout(playableEvents, scheduleStart, scheduleEnd, screenWidth, autosize);
+  }, [rundown, scheduleStart, scheduleEnd, screenWidth, autosize]);
 
   if (totalDuration === 0) {
     return null;
   }
 
-  const { lastEvent } = getLastEvent(rundown);
-  const startHour = getStartHour(firstStart);
-  const endHour = getEndHour(firstStart + totalDuration + (lastEvent?.delay ?? 0));
-
-  // we use selectedEventId as a signifier on whether the timeline is live
-  let eventStatus: ProgressStatus = selectedEventId ? 'done' : 'future';
+  // Pre-calculate event statuses
+  let currentStatus: ProgressStatus = selectedEventId ? 'done' : 'future';
+  const statusMap: Record<string, ProgressStatus> = {};
+  rundown.forEach((event) => {
+    if (isOntimeEvent(event) && isPlayableEvent(event)) {
+      if (currentStatus === 'live') {
+        currentStatus = 'future';
+      }
+      if (event.id === selectedEventId) {
+        currentStatus = 'live';
+      }
+      statusMap[event.id] = currentStatus;
+    }
+  });
 
   return (
-    <div className={style.timeline}>
-      <TimelineMarkers startHour={startHour} endHour={endHour} />
-      {rundown.map((event) => {
-        // for now we dont render delays and blocks
-        if (!isOntimeEvent(event) || !isPlayableEvent(event)) {
-          return null;
-        }
+    <div ref={scrollContainerRef} className={cx([style.timelineContainer, autosize && style.scroll])}>
+      <div className={style.timeline} style={{ width: totalWidth }}>
+        <TimelineMarkers startHour={startHour} endHour={endHour} />
+        {rundown.map((event, index) => {
+          if (!isOntimeEvent(event) || !isPlayableEvent(event)) {
+            return null;
+          }
 
-        // keep track of progress of rundown
-        if (eventStatus === 'live') {
-          eventStatus = 'future';
-        }
-        if (event.id === selectedEventId) {
-          eventStatus = 'live';
-        }
+          const position = positions[index];
+          if (!position) return null;
 
-        const normalisedStart = event.timeStart + event.dayOffset * dayInMs;
-
-        const { left: elementLeftPosition, width: elementWidth } = getElementPosition(
-          startHour * MILLIS_PER_HOUR,
-          endHour * MILLIS_PER_HOUR,
-          normalisedStart + (event.delay ?? 0),
-          event.duration,
-          screenWidth,
-        );
-
-        return (
-          <TimelineEntry
-            key={event.id}
-            colour={event.colour}
-            delay={event.delay ?? 0}
-            duration={event.duration}
-            left={elementLeftPosition}
-            status={eventStatus}
-            start={normalisedStart} // dataset solves issues related to crossing midnight
-            title={event.title}
-            width={elementWidth}
-          />
-        );
-      })}
+          return (
+            <TimelineEntry
+              key={event.id}
+              ref={event.id === selectedEventId ? selectedRef : undefined}
+              colour={event.colour}
+              delay={event.delay ?? 0}
+              duration={event.duration}
+              hasLink={Boolean(event.linkStart)}
+              left={position.left}
+              status={statusMap[event.id]}
+              start={event.timeStart + (event.dayOffset ?? 0) * dayInMs}
+              totalGap={event.totalGap}
+              isLinkedToLoaded={event.isLinkedToLoaded}
+              dayOffset={event.dayOffset}
+              title={event.title}
+              cue={event.cue}
+              width={position.width}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

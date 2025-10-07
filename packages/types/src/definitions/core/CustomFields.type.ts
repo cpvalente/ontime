@@ -1,10 +1,10 @@
-export type CustomFieldLabel = string;
+export type CustomFieldKey = string;
 
 export type CustomField = {
-  type: 'string' | 'image';
+  type: 'text' | 'image';
   colour: string;
-  label: CustomFieldLabel;
+  label: string;
 };
 
-export type CustomFields = Record<CustomFieldLabel, CustomField>;
-export type EventCustomFields = Record<CustomFieldLabel, string>;
+export type CustomFields = Record<CustomFieldKey, CustomField>;
+export type EntryCustomFields = Record<CustomFieldKey, string>;

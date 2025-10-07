@@ -1,0 +1,17 @@
+.halfWidth {
+  width: 50%;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.twoCols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.current {
+  background-color: $blue-1100;
+}

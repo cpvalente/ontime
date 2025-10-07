@@ -1,36 +1,35 @@
 {
   "name": "ontime-electron",
-  "version": "3.16.0",
+  "version": "4.0.0-beta.5",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
   "keywords": [
-    "lighdev",
     "ontime",
-    "timer"
+    "timer",
+    "stage timer",
+    "rundown"
   ],
   "license": "AGPL-3.0-only",
   "main": "src/main.js",
   "devDependencies": {
-    "electron": "36.3.1",
-    "electron-builder": "26.0.12",
+    "electron": "38.2.1",
+    "electron-builder": "26.0.18",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
     "prettier": "catalog:",
     "wait-on": "^7.2.0"
   },
   "scripts": {
-    "postinstall": "",
+    "dev:electron": "wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .",
     "lint": "eslint . --quiet",
-    "dev": "wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .",
     "dist-win": "electron-builder --publish=never --x64 --win",
     "dist-mac": "electron-builder --publish=never --mac",
     "dist-mac:local": "electron-builder --publish=never --mac -c.mac.identity=null",
-    "dist-linux": "electron-builder --publish=never --x64 --linux",
-    "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+    "dist-linux": "electron-builder --publish=never --x64 --linux"
   },
   "build": {
-    "productName": "ontime",
+    "productName": "ontime-prerelease",
     "appId": "no.lightdev.ontime",
     "asar": true,
     "dmg": {
@@ -67,7 +66,7 @@
       "runAfterFinish": false,
       "installerIcon": "icon.ico",
       "installerSidebar": "ontime-install.bmp",
-      "uninstallerSidebar": "ontime-uninstall.bmp"
+      "uninstallerSidebar": "ontime-install.bmp"
     },
     "linux": {
       "target": "AppImage",
@@ -121,7 +120,8 @@
         "from": "../server/src/user/",
         "to": "extraResources/user/",
         "filter": [
-          "**/*"
+          "**/*",
+          "*{.ts}"
         ]
       }
     ]

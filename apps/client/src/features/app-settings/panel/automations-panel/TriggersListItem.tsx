@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { IoPencil, IoTrash, IoWarningOutline } from 'react-icons/io5';
-import { IconButton } from '@chakra-ui/react';
 import { NormalisedAutomation, TimerLifeCycle } from 'ontime-types';
 
+import IconButton from '../../../../common/components/buttons/IconButton';
 import Tag from '../../../../common/components/tag/Tag';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -62,22 +62,12 @@ export default function TriggersListItem(props: TriggersListItemProps) {
         <Tag>{automations?.[automationId]?.title}</Tag>
       </td>
       <Panel.InlineElements align='end' relation='inner' as='td'>
-        <IconButton
-          size='sm'
-          variant='ontime-ghosted'
-          color='#e2e2e2' // $gray-200
-          icon={<IoPencil />}
-          aria-label='Edit entry'
-          onClick={() => setIsEditing(true)}
-        />
-        <IconButton
-          size='sm'
-          variant='ontime-ghosted'
-          color='#FA5656' // $red-500
-          icon={<IoTrash />}
-          aria-label='Delete entry'
-          onClick={handleDelete}
-        />
+        <IconButton variant='ghosted-white' aria-label='Edit entry' onClick={() => setIsEditing(true)}>
+          <IoPencil />
+        </IconButton>
+        <IconButton variant='ghosted-destructive' aria-label='Delete entry' onClick={handleDelete}>
+          <IoTrash />
+        </IconButton>
       </Panel.InlineElements>
     </tr>
   );

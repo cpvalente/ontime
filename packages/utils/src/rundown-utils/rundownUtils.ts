@@ -1,37 +1,31 @@
 import type {
-  NormalisedRundown,
-  OntimeBlock,
+  EntryId,
+  OntimeEntry,
   OntimeEvent,
-  OntimeRundown,
-  OntimeRundownEntry,
+  OntimeGroup,
   PlayableEvent,
+  Rundown,
+  RundownEntries,
 } from 'ontime-types';
-import { isOntimeBlock, isOntimeEvent, isPlayableEvent } from 'ontime-types';
+import { isOntimeEvent, isOntimeGroup, isPlayableEvent } from 'ontime-types';
 
-type IndexAndEntry = { entry: OntimeRundownEntry | null; index: number | null };
-
-/**
- * Gets first event in rundown, if it exists
- */
-export function getFirst(rundown: OntimeRundown) {
-  return rundown.length ? rundown[0] : null;
-}
+type IndexAndEntry = { entry: OntimeEntry | null; index: number | null };
 
 /**
  * Gets first event in a normalised rundown, if it exists
- * @param rundown
- * @param order
- * @returns
  */
-export function getFirstNormal(rundown: NormalisedRundown, order: string[]) {
-  const firstId = order[0];
-  return rundown[firstId] ?? null;
+export function getFirstNormal(entries: RundownEntries, order: EntryId[]): OntimeEntry | null {
+  if (!order.length) {
+    return null;
+  }
+  const eventId = order[0];
+  return entries[eventId] ?? null;
 }
 
 /**
  * Gets first scheduled event in rundown, if it exists
  */
-export function getFirstEvent(rundown: OntimeRundown): {
+export function getFirstEvent(rundown: OntimeEntry[]): {
   firstEvent: PlayableEvent | null;
   firstIndex: number | null;
 } {
@@ -48,8 +42,8 @@ export function getFirstEvent(rundown: OntimeRundown): {
  * Gets first scheduled event in a normalised rundown, if it exists
  */
 export function getFirstEventNormal(
-  rundown: NormalisedRundown,
-  order: string[],
+  rundown: RundownEntries,
+  order: EntryId[],
 ): {
   firstEvent: PlayableEvent | null;
   firstIndex: number | null;
@@ -67,18 +61,18 @@ export function getFirstEventNormal(
 /**
  * Gets last event in a normalised rundown, if it exists
  */
-export function getLastNormal(rundown: NormalisedRundown, order: string[]): OntimeRundownEntry | null {
+export function getLastNormal(entries: RundownEntries, order: EntryId[]): OntimeEntry | null {
   const lastId = order.at(-1);
   if (lastId === undefined) {
     return null;
   }
-  return rundown[lastId] ?? null;
+  return entries[lastId] ?? null;
 }
 
 /**
  * Gets last scheduled event in rundown, if it exists
  */
-export function getLastEvent(rundown: OntimeRundown): {
+export function getLastEvent(rundown: OntimeEntry[]): {
   lastEvent: PlayableEvent | null;
   lastIndex: number | null;
 } {
@@ -87,7 +81,7 @@ export function getLastEvent(rundown: OntimeRundown): {
   }
 
   for (let i = rundown.length - 1; i >= 0; i--) {
-    const lastEvent = rundown.at(i);
+    const lastEvent = rundown[i];
     if (isOntimeEvent(lastEvent) && isPlayableEvent(lastEvent)) {
       return { lastEvent, lastIndex: i };
     }
@@ -99,7 +93,7 @@ export function getLastEvent(rundown: OntimeRundown): {
  * Gets last scheduled event in a normalised rundown, if it exists
  */
 export function getLastEventNormal(
-  rundown: NormalisedRundown,
+  rundown: RundownEntries,
   order: string[],
 ): {
   lastEvent: OntimeEvent | null;
@@ -123,13 +117,14 @@ export function getLastEventNormal(
  * Gets next entry in rundown, if it exists
  */
 export function getNext(
-  rundown: OntimeRundown,
+  rundown: Pick<Rundown, 'entries' | 'order'>,
   currentId: string,
-): { nextEvent: OntimeRundownEntry | null; nextIndex: number | null } {
-  const index = rundown.findIndex((event) => event.id === currentId);
-  if (index !== -1 && index + 1 < rundown.length) {
+): { nextEvent: OntimeEntry | null; nextIndex: number | null } {
+  const index = rundown.order.findIndex((entryId) => entryId === currentId);
+  if (index !== -1 && index + 1 < rundown.order.length) {
     const nextIndex = index + 1;
-    const nextEvent = rundown[nextIndex];
+    const nextId = rundown.order[nextIndex];
+    const nextEvent = rundown.entries[nextId];
     return { nextEvent, nextIndex };
   } else {
     return { nextEvent: null, nextIndex: null };
@@ -139,7 +134,7 @@ export function getNext(
 /**
  * Gets next entry in rundown, if it exists
  */
-export function getNextNormal(rundown: NormalisedRundown, order: string[], currentId: string): IndexAndEntry {
+export function getNextNormal(rundown: RundownEntries, order: string[], currentId: string): IndexAndEntry {
   const currentIndex = order.findIndex((id) => id === currentId);
   if (currentIndex !== -1 && currentIndex + 1 < order.length) {
     const index = currentIndex + 1;
@@ -155,10 +150,10 @@ export function getNextNormal(rundown: NormalisedRundown, order: string[], curre
  * Gets next scheduled event in rundown, if it exists
  */
 export function getNextEvent(
-  rundown: OntimeRundown,
+  rundown: OntimeEntry[],
   currentId: string,
 ): { nextEvent: OntimeEvent | null; nextIndex: number | null } {
-  const index = rundown.findIndex((event) => event.id === currentId);
+  const index = rundown.findIndex((entry) => entry.id === currentId);
   if (index < 0) {
     return { nextEvent: null, nextIndex: null };
   }
@@ -176,18 +171,18 @@ export function getNextEvent(
  * Gets next scheduled event in a normalised rundown, if it exists
  */
 export function getNextEventNormal(
-  rundown: NormalisedRundown,
-  order: string[],
+  entries: RundownEntries,
+  order: EntryId[],
   currentId: string,
 ): { nextEvent: OntimeEvent | null; nextIndex: number | null } {
-  const index = order.findIndex((id) => id === currentId);
+  const index = order.findIndex((entryId) => entryId === currentId);
   if (index < 0) {
     return { nextEvent: null, nextIndex: null };
   }
 
   for (let i = index + 1; i < order.length; i++) {
     const nextId = order[i];
-    const nextEvent = rundown[nextId];
+    const nextEvent = entries[nextId];
     if (isOntimeEvent(nextEvent)) {
       return { nextEvent, nextIndex: i };
     }
@@ -198,11 +193,13 @@ export function getNextEventNormal(
 /**
  * Gets previous entry in rundown, if it exists
  */
-export function getPrevious(rundown: OntimeRundown, currentId: string): IndexAndEntry {
-  const currentIndex = rundown.findIndex((event) => event.id === currentId);
-  if (currentIndex !== -1 && currentIndex - 1 >= 0) {
+export function getPrevious(rundown: Pick<Rundown, 'entries' | 'order'>, currentId: string): IndexAndEntry {
+  const currentIndex = rundown.order.findIndex((entryId) => entryId === currentId);
+
+  if (currentIndex > 1) {
     const index = currentIndex - 1;
-    const entry = rundown[index];
+    const previousId = rundown.order[index];
+    const entry = rundown.entries[previousId];
     return { entry, index };
   } else {
     return { entry: null, index: null };
@@ -210,14 +207,15 @@ export function getPrevious(rundown: OntimeRundown, currentId: string): IndexAnd
 }
 
 /**
- * Gets previous entry in a nornalised rundown, if it exists
+ * Gets previous entry in a normalised rundown, if it exists
  */
-export function getPreviousNormal(rundown: NormalisedRundown, order: string[], currentId: string): IndexAndEntry {
+export function getPreviousNormal(entries: RundownEntries, order: string[], currentId: string): IndexAndEntry {
   const currentIndex = order.findIndex((id) => id === currentId);
+
   if (currentIndex !== -1 && currentIndex - 1 >= 0) {
     const index = currentIndex - 1;
     const previousId = order[index];
-    const entry = rundown[previousId];
+    const entry = entries[previousId];
     return { entry, index };
   } else {
     return { entry: null, index: null };
@@ -228,15 +226,16 @@ export function getPreviousNormal(rundown: NormalisedRundown, order: string[], c
  * Gets previous scheduled event in rundown, if it exists
  */
 export function getPreviousEvent(
-  rundown: OntimeRundown,
+  rundown: Pick<Rundown, 'entries' | 'order'>,
   currentId: string,
 ): { previousEvent: OntimeEvent | null; previousIndex: number | null } {
-  const index = rundown.findIndex((event) => event.id === currentId);
+  const index = rundown.order.findIndex((entryId) => entryId === currentId);
   if (index < 0) {
     return { previousEvent: null, previousIndex: null };
   }
   for (let i = index - 1; i >= 0; i--) {
-    const previousEvent = rundown[i];
+    const previousId = rundown.order[i];
+    const previousEvent = rundown.entries[previousId];
     if (isOntimeEvent(previousEvent)) {
       return { previousEvent, previousIndex: i };
     }
@@ -246,23 +245,19 @@ export function getPreviousEvent(
 
 /**
  * Gets previous scheduled event in a normalised rundown, if it exists
- * @param rundown
- * @param order
- * @param {string} currentId
- * @return {{ previousEvent: OntimeRundownEntry | null; previousIndex: number | null } }
  */
 export function getPreviousEventNormal(
-  rundown: NormalisedRundown,
-  order: string[],
+  entries: RundownEntries,
+  order: EntryId[],
   currentId: string,
 ): { previousEvent: OntimeEvent | null; previousIndex: number | null } {
-  const index = order.findIndex((id) => id === currentId);
+  const index = order.findIndex((entryId) => entryId === currentId);
   if (index < 0) {
     return { previousEvent: null, previousIndex: null };
   }
   for (let i = index - 1; i >= 0; i--) {
     const previousId = order[i];
-    const previousEvent = rundown[previousId];
+    const previousEvent = entries[previousId];
     if (isOntimeEvent(previousEvent)) {
       return { previousEvent, previousIndex: i };
     }
@@ -273,7 +268,7 @@ export function getPreviousEventNormal(
 /**
  * @description swaps two OntimeEvents in the rundown
  */
-export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA: OntimeEvent; newB: OntimeEvent } => {
+export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): [newA: OntimeEvent, newB: OntimeEvent] => {
   const newA = {
     ...eventB,
     // events keep the ID
@@ -283,10 +278,13 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
     timeEnd: eventA.timeEnd,
     duration: eventA.duration,
     linkStart: eventA.linkStart,
+    parent: eventA.parent,
     // keep schedule metadata
     delay: eventA.delay,
     gap: eventA.gap,
     dayOffset: eventA.dayOffset,
+    // keep revision number
+    revision: eventA.revision,
   };
 
   const newB = {
@@ -298,23 +296,26 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
     timeEnd: eventB.timeEnd,
     duration: eventB.duration,
     linkStart: eventB.linkStart,
+    parent: eventB.parent,
     // keep schedule metadata
     delay: eventB.delay,
     gap: eventB.gap,
     dayOffset: eventB.dayOffset,
+    // keep revision number
+    revision: eventB.revision,
   };
 
-  return { newA, newB };
+  return [newA, newB];
 };
 
-export function getEventWithId(rundown: OntimeRundown, id: string): OntimeRundownEntry | undefined {
+export function getEventWithId(rundown: OntimeEntry[], id: string): OntimeEntry | undefined {
   return rundown.find((event) => event.id === id);
 }
 
 /**
- * Gets relevant block element for a given ID
+ * Gets relevant group element for a given ID
  */
-export function getPreviousBlockNormal(rundown: NormalisedRundown, order: string[], currentId: string): IndexAndEntry {
+export function getPreviousGroupNormal(rundown: RundownEntries, order: string[], currentId: string): IndexAndEntry {
   let foundCurrentEvent = false;
   // Iterate backwards through the rundown to find the current event
   for (let index = order.length - 1; index >= 0; index--) {
@@ -324,20 +325,20 @@ export function getPreviousBlockNormal(rundown: NormalisedRundown, order: string
       foundCurrentEvent = true;
       continue;
     }
-    // the first block before the current event is the relevant one
+    // the first group before the current event is the relevant one
     const entry = rundown[id];
-    if (foundCurrentEvent && isOntimeBlock(entry)) {
+    if (foundCurrentEvent && isOntimeGroup(entry)) {
       return { entry, index };
     }
   }
-  // no blocks exist before current event
+  // no groups exist before current event
   return { entry: null, index: null };
 }
 
 /**
- * Gets next block element for a given ID
+ * Gets next group element for a given ID
  */
-export function getNextBlockNormal(rundown: NormalisedRundown, order: string[], currentId: string): IndexAndEntry {
+export function getNextGroupNormal(rundown: RundownEntries, order: string[], currentId: string): IndexAndEntry {
   let foundCurrentEvent = false;
   // Iterate backwards through the rundown to find the current event
   for (let index = 0; index < order.length; index++) {
@@ -347,48 +348,42 @@ export function getNextBlockNormal(rundown: NormalisedRundown, order: string[], 
       foundCurrentEvent = true;
       continue;
     }
-    // the first block before the current event is the relevant one
+    // the first group before the current event is the relevant one
     const entry = rundown[id];
-    if (foundCurrentEvent && isOntimeBlock(entry)) {
+    if (foundCurrentEvent && isOntimeGroup(entry)) {
       return { entry, index };
     }
   }
-  // no blocks exist before current event
+  // no groups exist before current event
   return { entry: null, index: null };
 }
 
 /**
- * Gets relevant block element for a given ID
+ * Gets relevant group element for a given ID
  */
-export function getPreviousBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
+export function getPreviousGroup(rundown: Pick<Rundown, 'entries' | 'order'>, currentId: EntryId): OntimeGroup | null {
+  const currentEvent = rundown.entries[currentId];
+
+  // check if event is inside a group
+  if (isOntimeEvent(currentEvent) && currentEvent.parent) {
+    return rundown.entries[currentEvent.parent] as OntimeGroup;
+  }
+
   let foundCurrentEvent = false;
   // Iterate backwards through the rundown to find the current event
-  for (let i = rundown.length - 1; i >= 0; i--) {
-    const entry = rundown[i];
+  for (let i = rundown.order.length - 1; i >= 0; i--) {
+    const entryId = rundown.order[i];
+    const entry = rundown.entries[entryId];
     if (!foundCurrentEvent && entry.id === currentId) {
       // set the flag when the current event is found
       foundCurrentEvent = true;
       continue;
     }
-    // the first block before the current event is the relevant one
-    if (foundCurrentEvent && isOntimeBlock(entry)) {
+    // the first group before the current event is the relevant one
+    if (foundCurrentEvent && isOntimeGroup(entry)) {
       return entry;
     }
   }
-  // no blocks exist before current event
+  // no groups exist before null event
   return null;
-}
-
-/**
- * filters a rundown to timed events
- */
-export function filterPlayable(rundown: OntimeRundown): PlayableEvent[] {
-  return rundown.filter((event) => isOntimeEvent(event) && !event.skip) as PlayableEvent[];
-}
-
-/**
- * filters a rundown to events that can be played
- */
-export function filterTimedEvents(rundown: OntimeRundown): OntimeEvent[] {
-  return rundown.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
 }

@@ -2,6 +2,7 @@
   grid-area: overview;
   font-size: $inner-section-text-size;
   display: flex;
+  overflow: hidden;
 }
 
 .isOffline {
@@ -17,42 +18,20 @@
     background-color: $red-700;
     border-radius: 2px;
     font-size: calc(1rem - 2px);
-    z-index: 10;
+    z-index: $zindex-sudo;
   }
 }
 
 .nav {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 
 .info {
   flex: 1;
-  padding-inline: 1rem;
+  padding-left: 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.title {
-  font-size: 1.5rem;
-  @include ellipsis-overflow;
-}
-
-.description {
-  font-size: 1rem;
-  color: $label-gray;
-  @include ellipsis-overflow;
-}
-
-.offset {
-  color: $muted-gray;
-}
-
-.ahead {
-  color: $playback-ahead;
-}
-
-.behind {
-  color: $ontime-delay-text;
 }

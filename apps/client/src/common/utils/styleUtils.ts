@@ -1,27 +1,27 @@
-import Color from 'color';
+import { RGBColour } from 'ontime-types';
+import { colourToHex, cssOrHexToColour, isLightColour, mixColours } from 'ontime-utils';
 
 type ColourCombination = {
   backgroundColor: string;
   color: string;
 };
 
+const defaultUiBackground: RGBColour = { red: 26, green: 26, blue: 26, alpha: 1 };
 /**
  * @description Selects text colour to maintain accessible contrast
  * @param bgColour
  * @return {{backgroundColor, color: string}}
  */
 export const getAccessibleColour = (bgColour?: string): ColourCombination => {
-  if (bgColour) {
-    try {
-      const originalColour = Color(bgColour);
-      const backgroundColorMix = originalColour.alpha(1).mix(Color('#1a1a1a'), 1 - originalColour.alpha());
-      const textColor = backgroundColorMix.isLight() ? 'black' : '#fffffa';
-      return { backgroundColor: backgroundColorMix.hexa(), color: textColor };
-    } catch (_error) {
-      /* we do not handle errors here */
-    }
-  }
-  return { backgroundColor: '#1a1a1a', color: '#fffffa' };
+  if (!bgColour) return { backgroundColor: '#1a1a1a', color: '#fffffa' };
+
+  const originalColour = cssOrHexToColour(bgColour);
+  if (!originalColour) return { backgroundColor: '#1a1a1a', color: '#fffffa' };
+
+  const backgroundColorMix = mixColours(defaultUiBackground, originalColour, 1 - originalColour.alpha);
+  const textColor = isLightColour(backgroundColorMix) ? 'black' : '#fffffa';
+
+  return { backgroundColor: colourToHex(backgroundColorMix), color: textColor };
 };
 
 /**
@@ -39,11 +39,8 @@ export const timerPlaceholderMin = '––:––';
  * Adds opacity to a given colour if possible
  */
 export function alpha(colour: string, amount: number): string {
-  try {
-    const withAlpha = Color(colour).alpha(amount).hexa();
-    return withAlpha;
-  } catch (_error) {
-    /* we do not handle errors here */
-  }
-  return colour;
+  const originalColour = cssOrHexToColour(colour);
+  if (!originalColour) return colour;
+  originalColour.alpha = amount;
+  return colourToHex(originalColour);
 }

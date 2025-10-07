@@ -1,6 +1,6 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
-import { fileURLToPath, URL } from 'node:url';
+import path from 'path';
 import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import svgrPlugin from 'vite-plugin-svgr';
@@ -8,14 +8,17 @@ import svgrPlugin from 'vite-plugin-svgr';
 import { ONTIME_VERSION } from './src/ONTIME_VERSION';
 
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
-const isDev = process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'development';
 
 export default defineConfig({
   base: './', // Ontime cloud: we use relative paths to allow them to reference a dynamic base set at runtime
+  define: {
+    // we pass along the NODE_ENV here in case it is a docker build
+    'import.meta.env.IS_DOCKER': process.env.NODE_ENV === 'docker',
+  },
   plugins: [
     react(),
     svgrPlugin(),
-    !isDev &&
+    sentryAuthToken &&
       sentryVitePlugin({
         org: 'get-ontime',
         project: 'ontime',
@@ -39,6 +42,35 @@ export default defineConfig({
   ],
   server: {
     port: 3000,
+    proxy: {
+      '^/login*': {
+        target: 'http://localhost:4001/',
+        changeOrigin: true,
+        configure: logProxyRequests,
+      },
+      '^/data*': {
+        target: 'http://localhost:4001/',
+        changeOrigin: true,
+        configure: logProxyRequests,
+      },
+      '^/api*': {
+        target: 'http://localhost:4001/',
+        changeOrigin: true,
+        configure: logProxyRequests,
+      },
+      '^/ws*': {
+        target: 'http://localhost:4001/',
+        changeOrigin: true,
+        configure: logProxyRequests,
+        ws: true,
+      },
+      '^/user*': {
+        target: 'http://localhost:4001/',
+        changeOrigin: true,
+        configure: logProxyRequests,
+        ws: true,
+      },
+    },
   },
   test: {
     globals: true,
@@ -60,7 +92,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@': path.resolve(__dirname, './src'),
     },
   },
   esbuild: {
@@ -78,3 +110,9 @@ export default defineConfig({
     },
   },
 });
+
+function logProxyRequests(proxy) {
+  proxy.on('proxyReq', (_proxyReq, req, _res) => {
+    console.log('Proxy:', req.method, req.url);
+  });
+}

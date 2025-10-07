@@ -1,0 +1,32 @@
+@use '../blockMixins' as *;
+
+.milestone {
+  @include block-styling;
+
+  margin-block: 0.125rem;
+  padding-right: 0.25rem;
+  background-color: $gray-1050; // to override inline
+  color: $section-white; // to override inline
+
+  display: grid;
+  grid-template-columns: 2rem 0.4fr 1fr;
+  align-items: center;
+  height: $secondary-block-height;
+  gap: 0.5rem;
+
+  &.hasCursor {
+    outline: 1px solid $block-cursor-color;
+  }
+}
+
+.binder {
+  height: 100%;
+  display: grid;
+  place-content: center;
+  background-color: $gray-1050; // to override inline
+  color: $section-white; // to override inline
+}
+
+.drag {
+  @include drag-style;
+}

@@ -1,33 +1,54 @@
 import { memo } from 'react';
-import { useDisclosure } from '@chakra-ui/react';
+import { useDisclosure, useHotkeys } from '@mantine/hooks';
 
-import FloatingNavigation from './FloatingNavigation';
+import { useViewParamsEditorStore } from '../view-params-editor/viewParamsEditor.store';
+
+import FloatingNavigation from './floating-navigation/FloatingNavigation';
+import ViewLockedIcon from './view-locked-icon/ViewLockedIcon';
 import NavigationMenu from './NavigationMenu';
-import useViewEditor from './useViewEditor';
-import ViewLockedIcon from './ViewLockedIcon';
 
 interface ViewNavigationMenuProps {
-  isLockable?: boolean;
+  /** prevent navigation */
+  isNavigationLocked?: boolean;
+  /** prevent showing settings */
+  suppressSettings?: boolean;
 }
 
-function ViewNavigationMenu(props: ViewNavigationMenuProps) {
-  const { isLockable } = props;
+export default memo(ViewNavigationMenu);
+function ViewNavigationMenu({ isNavigationLocked, suppressSettings }: ViewNavigationMenuProps) {
+  const [isMenuOpen, menuHandler] = useDisclosure();
+  const { open: showEditFormDrawer } = useViewParamsEditorStore();
 
-  const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
-  const { showEditFormDrawer, isViewLocked } = useViewEditor({ isLockable });
+  useHotkeys([
+    [
+      'Space',
+      () => {
+        if (isNavigationLocked) return;
+        menuHandler.toggle();
+      },
+      { preventDefault: true },
+    ],
+    [
+      'mod + ,',
+      () => {
+        if (suppressSettings) return;
+        showEditFormDrawer();
+      },
+      { preventDefault: true },
+    ],
+  ]);
 
-  const toggleMenu = () => (isMenuOpen ? onMenuClose() : onMenuOpen());
-
-  if (isViewLocked) {
+  if (isNavigationLocked && suppressSettings) {
     return <ViewLockedIcon />;
   }
 
   return (
     <>
-      <FloatingNavigation toggleMenu={toggleMenu} toggleSettings={showEditFormDrawer} />
-      <NavigationMenu isOpen={isMenuOpen} onClose={onMenuClose} />
+      <FloatingNavigation
+        toggleMenu={isNavigationLocked ? undefined : menuHandler.toggle}
+        toggleSettings={suppressSettings ? undefined : showEditFormDrawer}
+      />
+      {!isNavigationLocked && <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />}
     </>
   );
 }
-
-export default memo(ViewNavigationMenu);

@@ -1,175 +1,114 @@
-import React from 'react';
-import {
-  createRoutesFromChildren,
-  matchRoutes,
-  Navigate,
-  Route,
-  Routes,
-  useLocation,
-  useNavigationType,
-} from 'react-router-dom';
-import * as Sentry from '@sentry/react';
+import { ComponentType, lazy, Suspense, useEffect, useMemo } from 'react';
+import { Navigate, Route, useLocation, useNavigate, useParams } from 'react-router';
+import { OntimeView, OntimeViewPresettable, URLPreset } from 'ontime-types';
 
+import ViewNavigationMenu from './common/components/navigation-menu/ViewNavigationMenu';
+import { PresetContext } from './common/context/PresetContext';
 import { useClientPath } from './common/hooks/useClientPath';
+import useUrlPresets from './common/hooks-query/useUrlPresets';
+import { getRouteFromPreset } from './common/utils/urlPresets';
 import Log from './features/log/Log';
-import withPreset from './features/PresetWrapper';
-import withData from './features/viewers/ViewWrapper';
+import Loader from './views/common/loader/Loader';
+import NotFound from './views/common/not-found/NotFound';
 import ViewLoader from './views/ViewLoader';
-import { ONTIME_VERSION } from './ONTIME_VERSION';
-import { sentryDsn, sentryRecommendedIgnore } from './sentry.config';
+import { getIsNavigationLocked, sessionScope } from './externals';
+import { initializeSentry } from './sentry.config';
 
-const Editor = React.lazy(() => import('./features/editors/ProtectedEditor'));
-const Cuesheet = React.lazy(() => import('./views/cuesheet/ProtectedCuesheet'));
-const Operator = React.lazy(() => import('./features/operator/OperatorExport'));
+const Timer = lazy(() => import('./views/timer/Timer'));
+const Countdown = lazy(() => import('./views/countdown/Countdown'));
+const Backstage = lazy(() => import('./views/backstage/Backstage'));
+const StudioClock = lazy(() => import('./views/studio/Studio'));
+const Timeline = lazy(() => import('./views/timeline/TimelinePage'));
+const ProjectInfo = lazy(() => import('./views/project-info/ProjectInfo'));
 
-const TimerView = React.lazy(() => import('./views/timer/Timer'));
-const MinimalTimerView = React.lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
-const ClockView = React.lazy(() => import('./features/viewers/clock/Clock'));
-const Countdown = React.lazy(() => import('./features/viewers/countdown/Countdown'));
+const Editor = lazy(() => import('./views/editor/ProtectedEditor'));
+const Cuesheet = lazy(() => import('./views/cuesheet/ProtectedCuesheet'));
+const Operator = lazy(() => import('./features/operator/OperatorExport'));
 
-const Backstage = React.lazy(() => import('./views/backstage/Backstage'));
-const Timeline = React.lazy(() => import('./views/timeline/TimelinePage'));
-const Public = React.lazy(() => import('./views/public/Public'));
-const Lower = React.lazy(() => import('./features/viewers/lower-thirds/LowerThird'));
-const StudioClock = React.lazy(() => import('./features/viewers/studio/StudioClock'));
-const ProjectInfo = React.lazy(() => import('./views/project-info/ProjectInfo'));
+const EditorFeatureWrapper = lazy(() => import('./features/EditorFeatureWrapper'));
+const RundownPanel = lazy(() => import('./features/rundown/RundownExport'));
+const TimerControl = lazy(() => import('./features/control/playback/TimerControlExport'));
+const MessageControl = lazy(() => import('./features/control/message/MessageControlExport'));
 
-const STimer = withPreset(withData(TimerView));
-const SMinimalTimer = withPreset(withData(MinimalTimerView));
-const SClock = withPreset(withData(ClockView));
-const SCountdown = withPreset(withData(Countdown));
-const SBackstage = withPreset(withData(Backstage));
-const SProjectInfo = withPreset(withData(ProjectInfo));
-const SPublic = withPreset(withData(Public));
-const SLowerThird = withPreset(withData(Lower));
-const SStudio = withPreset(withData(StudioClock));
-const STimeline = withPreset(withData(Timeline));
-const PCuesheet = withPreset(Cuesheet);
-const POperator = withPreset(Operator);
-
-const EditorFeatureWrapper = React.lazy(() => import('./features/EditorFeatureWrapper'));
-const RundownPanel = React.lazy(() => import('./features/rundown/RundownExport'));
-const TimerControl = React.lazy(() => import('./features/control/playback/TimerControlExport'));
-const MessageControl = React.lazy(() => import('./features/control/message/MessageControlExport'));
-
-Sentry.init({
-  dsn: sentryDsn,
-  integrations: [
-    Sentry.reactRouterV6BrowserTracingIntegration({
-      useEffect: React.useEffect,
-      useLocation,
-      useNavigationType,
-      createRoutesFromChildren,
-      matchRoutes,
-    }),
-  ],
-  tracesSampleRate: 0.3,
-  release: ONTIME_VERSION,
-  enabled: import.meta.env.PROD,
-  ignoreErrors: [...sentryRecommendedIgnore, /Unable to preload CSS/i, /dynamically imported module/i],
-  denyUrls: [/extensions\//i, /^chrome:\/\//i, /^chrome-extension:\/\//i],
-});
-
-const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
+// Initialize Sentry with our configuration
+const SentryRouter = initializeSentry();
 
 export default function AppRouter() {
   // handle client path changes
   useClientPath();
 
   return (
-    <React.Suspense fallback={null}>
-      <SentryRoutes>
+    <Suspense fallback={<Loader />}>
+      <SentryRouter>
         <Route path='/' element={<Navigate to='/timer' />} />
         <Route
-          path='/timer'
+          path='timer'
           element={
             <ViewLoader>
-              <STimer />
+              <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} />
+              <Timer />
             </ViewLoader>
           }
         />
         <Route
-          path='/public'
+          path='countdown'
           element={
             <ViewLoader>
-              <SPublic />
+              <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} />
+              <Countdown />
             </ViewLoader>
           }
         />
         <Route
-          path='/minimal'
+          path='backstage'
           element={
             <ViewLoader>
-              <SMinimalTimer />
+              <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} />
+              <Backstage />
             </ViewLoader>
           }
         />
         <Route
-          path='/clock'
+          path='studio'
           element={
             <ViewLoader>
-              <SClock />
+              <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} />
+              <StudioClock />
             </ViewLoader>
           }
         />
         <Route
-          path='/countdown'
+          path='timeline'
           element={
             <ViewLoader>
-              <SCountdown />
+              <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} />
+              <Timeline />
             </ViewLoader>
           }
         />
         <Route
-          path='/backstage'
+          path='info'
           element={
             <ViewLoader>
-              <SBackstage />
+              <ViewNavigationMenu suppressSettings isNavigationLocked={getIsNavigationLocked()} />
+              <ProjectInfo />
             </ViewLoader>
           }
         />
-        <Route
-          path='/studio'
-          element={
-            <ViewLoader>
-              <SStudio />
-            </ViewLoader>
-          }
-        />
-        {/*/!* Lower third cannot have a loading screen *!/*/}
-        <Route path='/lower' element={<SLowerThird />} />
-        <Route
-          path='/timeline'
-          element={
-            <ViewLoader>
-              <STimeline />
-            </ViewLoader>
-          }
-        />
-        <Route
-          path='/info'
-          element={
-            <ViewLoader>
-              <SProjectInfo />
-            </ViewLoader>
-          }
-        />
-
         {/*/!* Protected Routes *!/*/}
-        <Route path='/editor' element={<Editor />} />
-        <Route path='/cuesheet' element={<PCuesheet />} />
+        <Route path='editor' element={<Editor />} />
+        <Route path='cuesheet' element={<Cuesheet />} />
         <Route
-          path='/op'
+          path='op'
           element={
             <ViewLoader>
-              <POperator />
+              <Operator />
             </ViewLoader>
           }
         />
-
         {/*/!* Protected Routes - Elements *!/*/}
         <Route
-          path='/rundown'
+          path='rundown'
           element={
             <EditorFeatureWrapper>
               <RundownPanel />
@@ -177,7 +116,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/timercontrol'
+          path='timercontrol'
           element={
             <EditorFeatureWrapper>
               <TimerControl />
@@ -185,7 +124,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/messagecontrol'
+          path='messagecontrol'
           element={
             <EditorFeatureWrapper>
               <MessageControl />
@@ -193,16 +132,119 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/log'
+          path='log'
           element={
             <EditorFeatureWrapper>
               <Log />
             </EditorFeatureWrapper>
           }
         />
-        {/*/!* Send to default if nothing found *!/*/}
-        <Route path='*' element={<STimer />} />
-      </SentryRoutes>
-    </React.Suspense>
+        {/**
+         * If the views are prefixed with the "preset" path, we are in a locked preset
+         * Locked presets do not expose their parameters
+         */}
+        <Route path='preset/:alias' element={<PresetView />} />
+
+        {/**
+         * If we havent matched any views or presets, we may be in an unlocked preset
+         * Unlocked presets are unwrapped to expose their target and parameters
+         */}
+        <Route path='*' element={<RedirectPreset />} />
+      </SentryRouter>
+    </Suspense>
+  );
+}
+
+const PresetViewMap: Record<OntimeViewPresettable, ComponentType> = {
+  [OntimeView.Cuesheet]: Cuesheet,
+  [OntimeView.Operator]: Operator,
+  [OntimeView.Timer]: Timer,
+  [OntimeView.Backstage]: Backstage,
+  [OntimeView.Timeline]: Timeline,
+  [OntimeView.StudioClock]: StudioClock,
+  [OntimeView.Countdown]: Countdown,
+  [OntimeView.ProjectInfo]: ProjectInfo,
+};
+
+/**
+ * This view will mask a configured canonical route
+ * and inject the preset search parameters to context
+ * User are not able to configure the parameters locked presets
+ */
+function PresetView() {
+  const { data, status } = useUrlPresets();
+  const { alias } = useParams();
+
+  const preset: URLPreset | undefined = useMemo(() => {
+    if (status === 'pending' || !alias) return;
+    return data.find((p) => p.alias === alias && p.enabled);
+  }, [data, status, alias]);
+
+  if (status === 'pending') {
+    return <Loader />;
+  }
+
+  /**
+   * We need to check the session scope to determine if the user can navigate
+   * If the user has a global scope, they can navigate freely
+   * Otherwise, they are locked to the preset view
+   */
+  const showNav = sessionScope === 'rw';
+
+  /**
+   * If we are in a preset path but cannot find a preset, we will need to show a not found page
+   * This can happen if the preset was deleted or disabled
+   */
+  if (!preset) {
+    return (
+      <>
+        <ViewNavigationMenu isNavigationLocked={!showNav} suppressSettings />
+        <NotFound />
+      </>
+    );
+  }
+
+  /**
+   * Locked presets do not allow configuration changes
+   * Whether the user can navigate is determined by the locked param
+   */
+  const Component = PresetViewMap[preset.target as OntimeViewPresettable];
+  return (
+    <PresetContext value={preset}>
+      {preset.target !== OntimeView.Cuesheet && (
+        <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} suppressSettings />
+      )}
+      {Component ? <Component /> : <NotFound />}
+    </PresetContext>
+  );
+}
+
+function RedirectPreset() {
+  const { data, status } = useUrlPresets();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // checks if we are in a preset path and resolves a destination URL
+  const destination = useMemo(() => {
+    if (status === 'pending') return null;
+    return getRouteFromPreset(location, data);
+  }, [data, location, status]);
+
+  // if we have a destination, we will navigate to it
+  useEffect(() => {
+    if (destination) {
+      navigate(`/${destination}`, { replace: true });
+    }
+  }, [destination, navigate]);
+
+  if (status === 'pending') {
+    return <Loader />;
+  }
+
+  return (
+    <>
+      <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} suppressSettings />
+      <NotFound />
+    </>
   );
 }

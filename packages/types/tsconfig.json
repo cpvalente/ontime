@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.common.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node10",
+    "allowUnusedLabels": false,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "allowJs": true,
+    "declaration": true,
+    "outDir": "dist",
+  },
+  "include": [
+    "src/index.ts",
+  ],
+  "exclude": [
+    "node_modules", "dist"
+  ]
+}

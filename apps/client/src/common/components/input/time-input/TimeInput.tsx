@@ -1,23 +1,34 @@
 import { FocusEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { Input } from '@chakra-ui/react';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
-import { useEmitLog } from '../../../stores/logger';
+import { cx } from '../../../utils/styleUtils';
+import Input from '../input/Input';
+
+import style from './TimeInput.module.scss';
 
 interface TimeInputProps<T extends string> {
   id?: T;
   name: T;
   submitHandler: (field: T, value: string) => void;
   time?: number;
-  placeholder: string;
+  placeholder?: string;
   disabled?: boolean;
   align?: 'left' | 'center';
+  delayed?: boolean;
   className?: string;
 }
 
-export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
-  const { id, name, submitHandler, time = 0, placeholder, disabled, align = 'center', className } = props;
-  const { emitError } = useEmitLog();
+export default function TimeInput<T extends string>({
+  id,
+  name,
+  submitHandler,
+  time,
+  placeholder,
+  disabled,
+  align = 'center',
+  delayed,
+  className,
+}: TimeInputProps<T>) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
   const ignoreChange = useRef(false);
@@ -26,13 +37,12 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
    * @description Resets input value to given
    */
   const resetValue = useCallback(() => {
-    try {
+    if (typeof time !== 'number' || isNaN(time)) {
+      setValue('00:00:00');
+    } else {
       setValue(millisToString(time));
-    } catch (error) {
-      setValue(millisToString(0));
-      emitError(`Unable to parse time ${time}: ${error}`);
     }
-  }, [emitError, time]);
+  }, [time]);
 
   /**
    * @description Selects input text on focus
@@ -113,32 +123,26 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
   );
 
   useEffect(() => {
-    if (time == null) return;
     resetValue();
-  }, [resetValue, time]);
+  }, [resetValue]);
 
   return (
     <Input
       id={id}
       disabled={disabled}
-      size='sm'
       ref={inputRef}
       data-testid={`time-input-${name}`}
-      className={className}
-      fontSize='1rem'
-      type='text'
+      className={cx([style.timeInput, delayed && style.delayed, className])}
       placeholder={placeholder}
-      variant='ontime-filled'
       onFocus={handleFocus}
       onChange={(event) => setValue(event.target.value)}
       onBlur={onBlurHandler}
       onKeyDown={onKeyDownHandler}
       value={value}
       maxLength={8}
-      maxWidth='7.5em'
-      letterSpacing='1px'
-      autoComplete='off'
-      textAlign={align}
+      style={{
+        textAlign: align,
+      }}
     />
   );
 }

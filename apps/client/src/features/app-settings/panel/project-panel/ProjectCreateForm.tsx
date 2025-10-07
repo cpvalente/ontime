@@ -1,14 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { IoTrash } from 'react-icons/io5';
-import { Button, Input, Textarea } from '@chakra-ui/react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
 
-import { PROJECT_LIST } from '../../../../common/api/constants';
 import { createProject } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
+import Input from '../../../../common/components/input/input/Input';
 import { preventEscape } from '../../../../common/utils/keyEvent';
-import { documentationUrl, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './ProjectPanel.module.scss';
@@ -20,23 +17,17 @@ interface ProjectCreateFromProps {
 type ProjectCreateFormValues = {
   title?: string;
   description?: string;
-  publicInfo?: string;
-  publicUrl?: string;
-  backstageInfo?: string;
-  backstageUrl?: string;
+  info?: string;
+  url?: string;
   custom?: { title: string; value: string }[];
 };
 
-export default function ProjectCreateForm(props: ProjectCreateFromProps) {
-  const { onClose } = props;
-
+export default function ProjectCreateForm({ onClose }: ProjectCreateFromProps) {
   const [error, setError] = useState<string | null>(null);
-  const queryClient = useQueryClient();
 
   const {
     handleSubmit,
     register,
-    control,
     formState: { isSubmitting, isValid },
     setFocus,
   } = useForm<ProjectCreateFormValues>({
@@ -45,11 +36,6 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
     resetOptions: {
       keepDirtyValues: true,
     },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'custom',
   });
 
   // set focus to first field
@@ -63,24 +49,16 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
 
       const filename = values.title ?? 'untitled';
 
-      await createProject({
-        ...values,
-        filename,
-      });
+      await createProject({ filename });
 
-      await queryClient.invalidateQueries({ queryKey: PROJECT_LIST });
       onClose();
     } catch (error) {
       setError(maybeAxiosError(error));
     }
   };
 
-  const handleAddCustom = () => {
-    append({ title: '', value: '' });
-  };
-
   return (
-    <Panel.Section
+    <Panel.Indent
       as='form'
       onSubmit={handleSubmit(handleSubmitCreate)}
       onKeyDown={(event) => preventEscape(event, onClose)}
@@ -88,119 +66,19 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
       <Panel.Title>
         Create new project
         <Panel.InlineElements>
-          <Button onClick={onClose} variant='ontime-ghosted' size='sm' isDisabled={isSubmitting}>
+          <Button onClick={onClose} variant='ghosted' disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button isDisabled={!isValid} type='submit' isLoading={isSubmitting} variant='ontime-filled' size='sm'>
+          <Button disabled={!isValid} type='submit' loading={isSubmitting} variant='primary'>
             Create project
           </Button>
         </Panel.InlineElements>
       </Panel.Title>
       {error && <Panel.Error>{error}</Panel.Error>}
       <Panel.Section className={style.innerColumn}>
-        <label>
-          Project title
-          <Input
-            variant='ontime-filled'
-            size='sm'
-            maxLength={50}
-            placeholder='Your project name'
-            autoComplete='off'
-            {...register('title')}
-          />
-        </label>
-        <label>
-          Project description
-          <Input
-            variant='ontime-filled'
-            size='sm'
-            maxLength={100}
-            placeholder='Euro Love, Malmö 2024'
-            autoComplete='off'
-            {...register('description')}
-          />
-        </label>
-        <label>
-          Public info
-          <Textarea
-            variant='ontime-filled'
-            size='sm'
-            maxLength={150}
-            placeholder='Shows always start ontime'
-            autoComplete='off'
-            resize='none'
-            {...register('publicInfo')}
-          />
-        </label>
-        <label>
-          Public QR code Url
-          <Input
-            variant='ontime-filled'
-            size='sm'
-            placeholder={websiteUrl}
-            autoComplete='off'
-            {...register('publicUrl')}
-          />
-        </label>
-        <label>
-          Backstage info
-          <Textarea
-            variant='ontime-filled'
-            size='sm'
-            maxLength={150}
-            placeholder='Wi-Fi password: 1234'
-            autoComplete='off'
-            resize='none'
-            {...register('backstageInfo')}
-          />
-        </label>
-        <label>
-          Backstage QR code Url
-          <Input
-            variant='ontime-filled'
-            size='sm'
-            placeholder={documentationUrl}
-            autoComplete='off'
-            {...register('backstageUrl')}
-          />
-        </label>
-        <Panel.Section>
-          <Panel.ListItem>
-            <Panel.Field title='Custom data' description='Add custom data for your project' />
-            <Button variant='ontime-subtle' onClick={handleAddCustom}>
-              +
-            </Button>
-          </Panel.ListItem>
-          {fields.map((field, idx) => (
-            <div key={field.id} className={style.customDataItem}>
-              <Panel.Paragraph>{idx + 1}.</Panel.Paragraph>
-              <label>
-                Title
-                <Input
-                  variant='ontime-filled'
-                  size='sm'
-                  placeholder={field.title}
-                  autoComplete='off'
-                  {...register(`custom.${idx}.title` as const)}
-                />
-              </label>
-              <label>
-                Value
-                <Input
-                  variant='ontime-filled'
-                  size='sm'
-                  placeholder={field.value}
-                  autoComplete='off'
-                  {...register(`custom.${idx}.value` as const)}
-                />
-              </label>
-              <Button variant='ontime-ghosted' onClick={() => remove(idx)}>
-                <IoTrash />
-              </Button>
-            </div>
-          ))}
-        </Panel.Section>
+        <Panel.Description>Project title</Panel.Description>
+        <Input fluid placeholder='Your project name' {...register('title')} />
       </Panel.Section>
-    </Panel.Section>
+    </Panel.Indent>
   );
 }

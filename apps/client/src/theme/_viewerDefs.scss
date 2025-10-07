@@ -13,19 +13,18 @@ $timer-label-size: clamp(12px, 1.25vw, 20px);
 $base-font-size: clamp(15px, 1.5vw, 28px);
 $title-font-size: clamp(18px, 2.25vw, 42px);
 $timer-value-size: clamp(24px, 2.5vw, 48px);
-$header-font-size: clamp(28px, 3.5vw, 64px);
+$header-font-size: clamp(24px, 2.5vw, 48px);
 
 // General styling
 $accent-color: $red-500; // --accent-color-override
-$delay-color: $ontime-delay-text;
 $viewer-label-color: rgba(white, 25%);
 
 // Main Properties of a viewer
 $viewer-background-color: $ui-black; // --background-color-override
 $viewer-color: rgba(white, 80%); // --color-override
 $viewer-secondary-color: rgba(white, 45%); // --secondary-color-override
-$viewer-card-bg-color: rgba(white, 7%); // --card-background-color-override
-$element-border-radius: 8px;
+$viewer-card-bg-color: rgba(white, 5%); // --card-background-color-override
+$element-border-radius: 4px;
 
 // Generic element sizes
 $view-element-gap: min(2vh, 16px);
@@ -41,3 +40,6 @@ $timer-finished-color: $playback-negative;
 $timer-bold-font-family: 'Arial Black', sans-serif; // --font-family-bold-override
 
 $external-color: rgba(white, 85%); // --external-color-override
+
+// properties related to the studio clock
+$studio-breakpoint: 1300px;

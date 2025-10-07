@@ -1,8 +1,10 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { Input, Radio, RadioGroup } from '@chakra-ui/react';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
-import { useEventAction } from '../../../hooks/useEventAction';
+import { useEntryActions } from '../../../hooks/useEntryAction';
+import Input from '../input/Input';
+
+import BlockRadio from './BlockRadio';
 
 import style from './DelayInput.module.scss';
 
@@ -13,12 +15,12 @@ interface DelayInputProps {
 
 export default function DelayInput(props: DelayInputProps) {
   const { eventId, duration } = props;
-  const { updateEvent } = useEventAction();
+  const { updateEntry } = useEntryActions();
 
   const [value, setValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement | null>(null);
   // avoid wrong submit on cancel
-  let ignoreChange = false;
+  const ignoreChangeRef = useRef(false);
 
   // set internal value on duration change
   useEffect(() => {
@@ -33,8 +35,8 @@ export default function DelayInput(props: DelayInputProps) {
    * @param {string} newValue string to be parsed
    */
   const validateAndSubmit = (newValue: string) => {
-    if (ignoreChange) {
-      ignoreChange = false;
+    if (ignoreChangeRef.current) {
+      ignoreChangeRef.current = false;
       return;
     }
 
@@ -54,7 +56,7 @@ export default function DelayInput(props: DelayInputProps) {
   };
 
   const submitChange = (value: number) => {
-    updateEvent({
+    updateEntry({
       id: eventId,
       duration: value,
     });
@@ -76,7 +78,7 @@ export default function DelayInput(props: DelayInputProps) {
     } else if (event.key === 'Tab') {
       validateAndSubmit((event.target as HTMLInputElement).value);
     } else if (event.key === 'Escape') {
-      ignoreChange = true;
+      ignoreChangeRef.current = true;
       setValue(millisToString(duration));
       inputRef.current?.blur();
     }
@@ -105,13 +107,10 @@ export default function DelayInput(props: DelayInputProps) {
   return (
     <div className={style.delayInput}>
       <Input
-        size='sm'
         ref={inputRef}
         data-testid='delay-input'
         className={style.inputField}
-        type='text'
         placeholder='-'
-        variant='ontime-filled'
         onFocus={handleFocus}
         onChange={(event) => setValue(event.target.value)}
         onBlur={(event) => validateAndSubmit(event.target.value)}
@@ -119,16 +118,14 @@ export default function DelayInput(props: DelayInputProps) {
         value={value}
         maxLength={9}
       />
-      <RadioGroup
-        className={style.delayOptions}
-        onChange={handleSlipChange}
+      <BlockRadio
+        onValueChange={handleSlipChange}
         value={checkedOption}
-        variant='ontime-block'
-        size='sm'
-      >
-        <Radio value='add'>Add time</Radio>
-        <Radio value='subtract'>Subtract time</Radio>
-      </RadioGroup>
+        items={[
+          { value: 'add', label: 'Add time' },
+          { value: 'subtract', label: 'Subtract time' },
+        ]}
+      />
     </div>
   );
 }

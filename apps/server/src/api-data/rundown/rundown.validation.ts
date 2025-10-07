@@ -1,90 +1,79 @@
-import { body, param, query, validationResult } from 'express-validator';
 import type { Request, Response, NextFunction } from 'express';
+import { body, param } from 'express-validator';
 
-export const rundownPostValidator = [
-  body('type').isString().exists().isIn(['event', 'delay', 'block']),
+import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import { getCurrentRundown } from './rundown.dao.js';
+
+// #region operations on project rundowns =========================
+
+export const rundownPostValidator = [body('title').isString().trim().notEmpty(), requestValidationFunction];
+
+// #endregion operations on project rundowns ======================
+// #region operations on rundown entries ==========================
+
+/**
+ * Middleware prevents mutating a rundown that is not selected
+ * This allows our service to still only handle the current rundown
+ *
+ * This would need to be removed in favour or rundown selection if we would like
+ * to implement the mutation of background rundowns
+ */
+export async function validateRundownMutation(req: Request, res: Response, next: NextFunction) {
+  const { rundownId } = req.params;
+
+  try {
+    if (getCurrentRundown().id !== rundownId) {
+      res.status(404).json({ message: 'Cannot mutate not selected rundown' });
+      return;
+    }
+
+    next();
+  } catch (error) {
+    res.status(404).json({ message: 'Rundown not found' });
+    return;
+  }
+}
+
+export const entryPostValidator = [
+  body('type').isString().isIn(['event', 'delay', 'group', 'milestone']),
   body('after').optional().isString(),
   body('before').optional().isString(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
-export const rundownPutValidator = [
-  body('id').isString().exists(),
+export const entryPutValidator = [body('id').isString().trim().notEmpty(), requestValidationFunction];
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
-
-export const rundownBatchPutValidator = [
-  body('data').isObject().exists(),
-  body('ids').isArray().exists(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
-
-export const rundownReorderValidator = [
-  body('eventId').isString().exists(),
-  body('from').isNumeric().exists(),
-  body('to').isNumeric().exists(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
-
-export const rundownSwapValidator = [
-  body('from').isString().exists(),
-  body('to').isString().exists(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
-
-export const paramsMustHaveEventId = [
-  param('eventId').exists(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
-
-export const rundownArrayOfIds = [
-  body('ids').isArray().exists(),
+export const entryBatchPutValidator = [
+  body('data').isObject(),
+  body('ids').isArray().notEmpty(),
   body('ids.*').isString(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
-export const rundownGetPaginatedQueryParams = [
-  query('offset').isNumeric().optional(),
-  query('limit').isNumeric().optional(),
+export const entryReorderValidator = [
+  body('entryId').isString().notEmpty(),
+  body('destinationId').isString().notEmpty(),
+  body('order').isIn(['before', 'after', 'insert']),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
+
+export const entrySwapValidator = [
+  body('from').isString().notEmpty(),
+  body('to').isString().notEmpty(),
+
+  requestValidationFunction,
+];
+
+export const paramsMustHaveEntryId = [param('entryId').isString().notEmpty(), requestValidationFunction];
+
+export const rundownArrayOfIds = [
+  body('ids').isArray().notEmpty(),
+  body('ids.*').isString(),
+
+  requestValidationFunction,
+];
+
+// #endregion operations on rundown entries =======================

@@ -1,0 +1,98 @@
+@use '@/theme/viewerDefs' as *;
+
+$studio-red: $red-600;
+$studio-idle: $red-1300;
+
+.studio__clock {
+  margin: auto;
+
+  --full-size: min(75vh, 45vw);
+  --half-size: calc(var(--full-size) / 2);
+  --smaller-half-size: calc(var(--half-size) - 2rem);
+  --timer-font-size: calc(var(--half-size) / 2.5);
+  --small-font-size: calc(var(--half-size) / 10);
+
+  .clock-container {
+    position: relative;
+    width: max-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: var(--full-size);
+    padding: 10vh;
+  }
+
+  .time {
+    display: grid;
+    place-content: center;
+    color: $studio-red;
+    font-size: var(--timer-font-size);
+  }
+
+  .time--small {
+    position: relative;
+    display: block;
+    text-align: center;
+  }
+
+  .tick {
+    background: $studio-idle;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 99px;
+
+    position: absolute;
+    top: 0;
+    top: 50%;
+    left: 50%;
+  }
+
+  .tick--active {
+    background: $studio-red;
+  }
+
+  .ampm,
+  .on-air {
+    margin: 0 auto;
+    text-align: center;
+    padding: 0.125em 0.25em;
+    line-height: 1em;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    font-size: var(--small-font-size);
+  }
+
+  .ampm {
+    color: $studio-red;
+  }
+
+  .on-air {
+    opacity: 0;
+  }
+
+  .on-air--active {
+    background: $studio-red;
+    color: $ui-white;
+    opacity: 1;
+  }
+}
+
+/* =================== MOBILE ===================*/
+@media screen and (max-width: $small-screen) {
+  .studio__clock {
+    --full-size: min(75vh, 75vw);
+  }
+}
+
+/* ================ SMALL SCREEN ================*/
+@media (min-width: $small-screen) and (max-width: $small-desktop) {
+  .studio__clock {
+    padding-block: 2.5vh;
+    margin-block: 0;
+  }
+}
+
+.studio__clock--small {
+  margin: 0;
+}

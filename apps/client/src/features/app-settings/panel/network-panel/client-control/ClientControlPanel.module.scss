@@ -1,0 +1,21 @@
+.fullWidth {
+  width: 100%;
+}
+
+.halfWidth {
+  width: 50%;
+}
+
+.halfWidthNoWrap {
+  width: 50%;
+  white-space: nowrap;
+}
+
+.copiable {
+  cursor: text  ;
+  user-select: text;
+}
+
+.self {
+  background-color: $blue-1100;
+}

@@ -1,18 +1,16 @@
-import { RuntimeStore } from 'ontime-types';
+import { RuntimeStore, MessageTag } from 'ontime-types';
 
 import { socket } from '../adapters/WebsocketAdapter.js';
+import { isEmptyObject } from '../utils/parserUtils.js';
 
 export type PublishFn = <T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) => void;
 export type StoreGetter = <T extends keyof RuntimeStore>(key: T) => Partial<RuntimeStore>[T];
 
 let store: Partial<RuntimeStore> = {};
 
-const changedKeys = new Set<keyof RuntimeStore>();
-let isUpdatePending: NodeJS.Immediate | null = null;
 /**
  * A runtime store that broadcasts its payload
  * - init: allows for adding an initial payload to the store
- * - batchSet: allows setting several keys with a single broadcast
  * - poll: utility to return state
  * - broadcast: send its payload as json object
  */
@@ -25,29 +23,28 @@ export const eventStore = {
   },
   set<T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) {
     store[key] = value;
-
-    // check if the key is already marked for and update otherwise push it onto the update array
-    changedKeys.add(key);
-
-    //if there is already and update pending we don't need to schedule another one
-    if (!isUpdatePending) {
-      isUpdatePending = setImmediate(() => {
-        for (const dataKey of changedKeys) {
-          socket.sendAsJson({ type: `ontime-${dataKey}`, payload: store[dataKey] });
-        }
-        socket.sendAsJson({ type: 'ontime-flush' });
-        isUpdatePending = null;
-        changedKeys.clear();
-      });
-    }
+    socket.sendAsJson(MessageTag.RuntimeData, { [key]: value });
+  },
+  createBatch() {
+    const patch: Partial<RuntimeStore> = {};
+    return {
+      add<T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) {
+        patch[key] = value;
+      },
+      send() {
+        if (isEmptyObject(patch)) return;
+        store = { ...store, ...patch };
+        socket.sendAsJson(MessageTag.RuntimeData, patch);
+      },
+    };
   },
   poll() {
     return store as RuntimeStore;
   },
   broadcast() {
-    socket.sendAsJson({
-      type: 'ontime',
-      payload: store,
-    });
+    socket.sendAsJson(
+      MessageTag.RuntimeData,
+      store as RuntimeStore, // We assume that it has been initialized at this point
+    );
   },
 };

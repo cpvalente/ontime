@@ -1,0 +1,28 @@
+.center {
+  text-align: center;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+tr .secondaryRow {
+  background-color: $white-7;
+  padding-left: 2em;
+}
+
+.linkStartActive {
+  flex-shrink: 0;
+  color: $active-indicator;
+  transform: rotate(-45deg);
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.subdued {
+  opacity: $opacity-disabled;
+}

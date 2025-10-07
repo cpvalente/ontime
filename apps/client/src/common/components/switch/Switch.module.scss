@@ -1,0 +1,58 @@
+.switch {
+  position: relative;
+  display: flex;
+  align-items: center;
+  
+  /* Reset and base styles */
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 99px;
+  background-color: $gray-1100;
+  
+  /* Transitions */
+  transition: background-color 125ms cubic-bezier(0.26, 0.75, 0.38, 0.45);
+
+  /* States */
+  &[data-checked] {
+    background-color: $blue-700;
+    box-shadow: none;
+  }
+
+  &:focus {
+    outline: 2px solid $blue-500;
+    outline-offset: 2px;
+  }
+
+  &[data-disabled] {
+    opacity: $opacity-disabled;
+    cursor: not-allowed;
+  }
+}
+
+.medium {
+  padding: 2px;
+  --width: calc(2.5rem + 4px);
+  --height: 1.5rem;
+  width: var(--width);
+  height: var(--height);
+}
+
+.large {
+  padding: 3px;
+  --width: calc(2.75rem + 6px);
+  --height: 1.75rem;
+  width: var(--width);
+  height: var(--height);
+}
+
+.thumb {
+  aspect-ratio: 1;
+  height: 100%;
+  border-radius: 99px;
+  background-color: $ui-white;
+  transition: translate 150ms ease;
+
+  &[data-checked] {
+    translate: calc(var(--width) - var(--height)) 0;
+  }
+}

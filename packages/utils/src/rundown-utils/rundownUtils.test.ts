@@ -1,50 +1,59 @@
-import type { NormalisedRundown, OntimeEvent, OntimeRundown } from 'ontime-types';
-import { SupportedEvent } from 'ontime-types';
+import type { OntimeDelay, OntimeEntry, OntimeEvent, OntimeGroup } from 'ontime-types';
+import { SupportedEntry } from 'ontime-types';
 
 import {
-  filterPlayable,
   getLastEvent,
   getLastNormal,
   getNext,
   getNextEvent,
   getPrevious,
-  getPreviousBlock,
   getPreviousEvent,
+  getPreviousGroup,
   swapEventData,
 } from './rundownUtils';
 
 describe('getNext()', () => {
   it('returns the next event of type event', () => {
-    const testRundown = [
-      { id: '1', type: SupportedEvent.Event },
-      { id: '2', type: SupportedEvent.Event },
-      { id: '3', type: SupportedEvent.Event },
-    ];
+    const testRundown = {
+      entries: {
+        '1': { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEntry.Event } as OntimeEvent,
+        '3': { id: '3', type: SupportedEntry.Event } as OntimeEvent,
+      },
+      order: ['1', '2', '3'],
+    };
 
-    const { nextEvent, nextIndex } = getNext(testRundown as OntimeRundown, '1');
+    const { nextEvent, nextIndex } = getNext(testRundown, '1');
     expect(nextEvent?.id).toBe('2');
     expect(nextIndex).toBe(1);
   });
-  it('alows other event types', () => {
-    const testRundown = [
-      { id: '1', type: SupportedEvent.Event },
-      { id: '2', type: SupportedEvent.Delay },
-      { id: '3', type: SupportedEvent.Block },
-      { id: '4', type: SupportedEvent.Event },
-    ];
 
-    const { nextEvent, nextIndex } = getNext(testRundown as OntimeRundown, '1');
+  it('returns any type of OntimeEntry ', () => {
+    const testRundown = {
+      entries: {
+        '1': { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEntry.Delay } as OntimeDelay,
+        '3': { id: '3', type: SupportedEntry.Group } as OntimeGroup,
+        '4': { id: '4', type: SupportedEntry.Event } as OntimeEvent,
+      },
+      order: ['1', '2', '3', '4'],
+    };
+
+    const { nextEvent, nextIndex } = getNext(testRundown, '1');
     expect(nextEvent?.id).toBe('2');
     expect(nextIndex).toBe(1);
   });
+
   it('returns null if none found', () => {
-    const testRundown = [
-      { id: '1', type: SupportedEvent.Event },
-      { id: '2', type: SupportedEvent.Delay },
-      { id: '3', type: SupportedEvent.Block },
-    ];
-
-    const { nextEvent, nextIndex } = getNext(testRundown as OntimeRundown, '3');
+    const testRundown = {
+      entries: {
+        '1': { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEntry.Event } as OntimeEvent,
+        '3': { id: '3', type: SupportedEntry.Event } as OntimeEvent,
+      },
+      order: ['1', '2', '3'],
+    };
+    const { nextEvent, nextIndex } = getNext(testRundown, '3');
     expect(nextEvent).toBe(null);
     expect(nextIndex).toBe(null);
   });
@@ -53,35 +62,37 @@ describe('getNext()', () => {
 describe('getNextEvent()', () => {
   it('returns the next event of type event', () => {
     const testRundown = [
-      { id: '1', type: SupportedEvent.Event },
-      { id: '2', type: SupportedEvent.Event },
-      { id: '3', type: SupportedEvent.Event },
+      { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+      { id: '2', type: SupportedEntry.Event } as OntimeEvent,
+      { id: '3', type: SupportedEntry.Event } as OntimeEvent,
     ];
 
-    const { nextEvent, nextIndex } = getNextEvent(testRundown as OntimeRundown, '1');
+    const { nextEvent, nextIndex } = getNextEvent(testRundown, '1');
     expect(nextEvent?.id).toBe('2');
     expect(nextIndex).toBe(1);
   });
+
   it('ignores other event types', () => {
     const testRundown = [
-      { id: '1', type: SupportedEvent.Event },
-      { id: '2', type: SupportedEvent.Delay },
-      { id: '3', type: SupportedEvent.Block },
-      { id: '4', type: SupportedEvent.Event },
+      { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+      { id: '2', type: SupportedEntry.Delay } as OntimeDelay,
+      { id: '3', type: SupportedEntry.Group } as OntimeGroup,
+      { id: '4', type: SupportedEntry.Event } as OntimeEvent,
     ];
 
-    const { nextEvent, nextIndex } = getNextEvent(testRundown as OntimeRundown, '1');
+    const { nextEvent, nextIndex } = getNextEvent(testRundown, '1');
     expect(nextEvent?.id).toBe('4');
     expect(nextIndex).toBe(3);
   });
+
   it('returns null if none found', () => {
     const testRundown = [
-      { id: '1', type: SupportedEvent.Event },
-      { id: '2', type: SupportedEvent.Delay },
-      { id: '3', type: SupportedEvent.Block },
+      { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+      { id: '2', type: SupportedEntry.Delay } as OntimeDelay,
+      { id: '3', type: SupportedEntry.Group } as OntimeGroup,
     ];
 
-    const { nextEvent, nextIndex } = getNextEvent(testRundown as OntimeRundown, '1');
+    const { nextEvent, nextIndex } = getNextEvent(testRundown, '1');
     expect(nextEvent).toBe(null);
     expect(nextIndex).toBe(null);
   });
@@ -89,36 +100,46 @@ describe('getNextEvent()', () => {
 
 describe('getPrevious()', () => {
   it('returns the previous event of type event', () => {
-    const testRundown = [
-      { id: '1', type: SupportedEvent.Event },
-      { id: '2', type: SupportedEvent.Event },
-      { id: '3', type: SupportedEvent.Event },
-    ];
+    const testRundown = {
+      entries: {
+        '1': { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEntry.Event } as OntimeEvent,
+        '3': { id: '3', type: SupportedEntry.Event } as OntimeEvent,
+      },
+      order: ['1', '2', '3'],
+    };
 
-    const { entry, index } = getPrevious(testRundown as OntimeRundown, '3');
+    const { entry, index } = getPrevious(testRundown, '3');
     expect(entry?.id).toBe('2');
     expect(index).toBe(1);
   });
+
   it('allow other event types', () => {
-    const testRundown = [
-      { id: '1', type: SupportedEvent.Event },
-      { id: '2', type: SupportedEvent.Delay },
-      { id: '3', type: SupportedEvent.Block },
-      { id: '4', type: SupportedEvent.Event },
-    ];
+    const testRundown = {
+      entries: {
+        '1': { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEntry.Delay } as OntimeDelay,
+        '3': { id: '3', type: SupportedEntry.Group } as OntimeGroup,
+        '4': { id: '4', type: SupportedEntry.Event } as OntimeEvent,
+      },
+      order: ['1', '2', '3', '4'],
+    };
 
-    const { entry, index } = getPrevious(testRundown as OntimeRundown, '3');
+    const { entry, index } = getPrevious(testRundown, '3');
     expect(entry?.id).toBe('2');
     expect(index).toBe(1);
   });
-  it('returns null if none found', () => {
-    const testRundown = [
-      { id: '2', type: SupportedEvent.Delay },
-      { id: '3', type: SupportedEvent.Block },
-      { id: '4', type: SupportedEvent.Event },
-    ];
 
-    const { entry, index } = getPrevious(testRundown as OntimeRundown, '2');
+  it('returns null if none found', () => {
+    const testRundown = {
+      entries: {
+        '2': { id: '2', type: SupportedEntry.Event } as OntimeEvent,
+        '3': { id: '3', type: SupportedEntry.Event } as OntimeEvent,
+      },
+      order: ['1', '2', '3'],
+    };
+
+    const { entry, index } = getPrevious(testRundown, '2');
     expect(entry).toBe(null);
     expect(index).toBe(null);
   });
@@ -126,36 +147,47 @@ describe('getPrevious()', () => {
 
 describe('getPreviousEvent()', () => {
   it('returns the previous event of type event', () => {
-    const testRundown = [
-      { id: '1', type: SupportedEvent.Event },
-      { id: '2', type: SupportedEvent.Event },
-      { id: '3', type: SupportedEvent.Event },
-    ];
+    const testRundown = {
+      entries: {
+        '1': { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEntry.Event } as OntimeEvent,
+        '3': { id: '3', type: SupportedEntry.Event } as OntimeEvent,
+      },
+      order: ['1', '2', '3'],
+    };
 
-    const { previousEvent, previousIndex } = getPreviousEvent(testRundown as OntimeRundown, '3');
+    const { previousEvent, previousIndex } = getPreviousEvent(testRundown, '3');
     expect(previousEvent?.id).toBe('2');
     expect(previousIndex).toBe(1);
   });
-  it('ignores other event types', () => {
-    const testRundown = [
-      { id: '1', type: SupportedEvent.Event },
-      { id: '2', type: SupportedEvent.Delay },
-      { id: '3', type: SupportedEvent.Block },
-      { id: '4', type: SupportedEvent.Event },
-    ];
 
-    const { previousEvent, previousIndex } = getPreviousEvent(testRundown as OntimeRundown, '4');
+  it('ignores other event types', () => {
+    const testRundown = {
+      entries: {
+        '1': { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEntry.Delay } as OntimeDelay,
+        '3': { id: '3', type: SupportedEntry.Group } as OntimeGroup,
+        '4': { id: '4', type: SupportedEntry.Event } as OntimeEvent,
+      },
+      order: ['1', '2', '3', '4'],
+    };
+
+    const { previousEvent, previousIndex } = getPreviousEvent(testRundown, '4');
     expect(previousEvent?.id).toBe('1');
     expect(previousIndex).toBe(0);
   });
-  it('returns null if none found', () => {
-    const testRundown = [
-      { id: '2', type: SupportedEvent.Delay },
-      { id: '3', type: SupportedEvent.Block },
-      { id: '4', type: SupportedEvent.Event },
-    ];
 
-    const { previousEvent, previousIndex } = getPreviousEvent(testRundown as OntimeRundown, '2');
+  it('returns null if none found', () => {
+    const testRundown = {
+      entries: {
+        '2': { id: '2', type: SupportedEntry.Delay } as OntimeDelay,
+        '3': { id: '3', type: SupportedEntry.Group } as OntimeGroup,
+        '4': { id: '4', type: SupportedEntry.Event } as OntimeEvent,
+      },
+      order: ['2', '3', '4'],
+    };
+
+    const { previousEvent, previousIndex } = getPreviousEvent(testRundown, '2');
     expect(previousEvent).toBe(null);
     expect(previousIndex).toBe(null);
   });
@@ -170,6 +202,8 @@ describe('swapEventData', () => {
       timeEnd: 1,
       duration: 1,
       delay: 1,
+      revision: 3,
+      parent: null,
     } as OntimeEvent;
     const eventB = {
       id: '2',
@@ -178,9 +212,11 @@ describe('swapEventData', () => {
       timeEnd: 2,
       duration: 2,
       delay: 2,
+      revision: 7,
+      parent: 'testing',
     } as OntimeEvent;
 
-    const { newA, newB } = swapEventData(eventA, eventB);
+    const [newA, newB] = swapEventData(eventA, eventB);
 
     expect(newA).toMatchObject({
       id: '1',
@@ -189,6 +225,8 @@ describe('swapEventData', () => {
       timeEnd: 1,
       duration: 1,
       delay: 1,
+      revision: 3,
+      parent: null,
     });
     expect(newB).toMatchObject({
       id: '2',
@@ -197,121 +235,120 @@ describe('swapEventData', () => {
       timeEnd: 2,
       duration: 2,
       delay: 2,
+      revision: 7,
+      parent: 'testing',
     });
   });
 });
 
 describe('getLastEvent', () => {
   it('returns the last event of type event', () => {
-    const testRundown = [
-      { id: '1', type: SupportedEvent.Event },
-      { id: '2', type: SupportedEvent.Delay },
-      { id: '3', type: SupportedEvent.Event },
-      { id: '4', type: SupportedEvent.Block },
+    const testRundown: OntimeEntry[] = [
+      { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+      { id: '2', type: SupportedEntry.Delay } as OntimeDelay,
+      { id: '3', type: SupportedEntry.Event } as OntimeEvent,
+      { id: '4', type: SupportedEntry.Group } as OntimeGroup,
     ];
 
-    const { lastEvent } = getLastEvent(testRundown as OntimeRundown);
+    const { lastEvent } = getLastEvent(testRundown);
     expect(lastEvent?.id).toBe('3');
   });
-  it('handles rundowns with a single event', () => {
-    const testRundown = [{ id: '1', type: SupportedEvent.Event }];
 
-    const { lastEvent } = getLastEvent(testRundown as OntimeRundown);
+  it('handles rundowns with a single event', () => {
+    const testRundown: OntimeEntry[] = [{ id: '1', type: SupportedEntry.Event } as OntimeEvent];
+    const { lastEvent } = getLastEvent(testRundown);
     expect(lastEvent?.id).toBe('1');
   });
 
   describe('getLastNormal', () => {
     it('returns the last entry', () => {
-      const testRundown = {
-        4: { id: '4', type: SupportedEvent.Block },
-        1: { id: '1', type: SupportedEvent.Event },
-        3: { id: '3', type: SupportedEvent.Event },
-        2: { id: '2', type: SupportedEvent.Delay },
+      const entries = {
+        4: { id: '4', type: SupportedEntry.Group } as OntimeGroup,
+        1: { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+        3: { id: '3', type: SupportedEntry.Event } as OntimeEvent,
+        2: { id: '2', type: SupportedEntry.Delay } as OntimeDelay,
       };
 
       const order = ['1', '2', '3', '4'];
 
-      const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
+      const lastEntry = getLastNormal(entries, order);
       expect(lastEntry?.id).toBe('4');
     });
-    it('handles rundowns with a single event', () => {
-      const testRundown = [{ id: '1', type: SupportedEvent.Event }];
 
-      const { lastEvent } = getLastEvent(testRundown as OntimeRundown);
+    it('handles rundowns with a single event', () => {
+      const entries = {
+        1: { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+      };
+
+      const lastEvent = getLastNormal(entries, ['1']);
       expect(lastEvent?.id).toBe('1');
     });
 
     it('handles empty order', () => {
       const testRundown = {
-        4: { id: '4', type: SupportedEvent.Block },
-        1: { id: '1', type: SupportedEvent.Event },
-        3: { id: '3', type: SupportedEvent.Event },
-        2: { id: '2', type: SupportedEvent.Delay },
+        1: { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+        2: { id: '2', type: SupportedEntry.Event } as OntimeEvent,
       };
 
-      const order: string[] = [];
-
-      const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
+      const lastEntry = getLastNormal(testRundown, []);
       expect(lastEntry).toBe(null);
     });
 
     it('handles empty rundown', () => {
-      const testRundown = {};
-
-      const order = ['1', '2', '3', '4'];
-
-      const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
+      const lastEntry = getLastNormal({}, ['1', '2', '3', '4']);
       expect(lastEntry).toBe(null);
     });
   });
 
-  describe('relevantBlock', () => {
-    const testRundown = [
-      { id: 'a', type: SupportedEvent.Event },
-      { id: 'b', type: SupportedEvent.Event },
-      { id: 'c', type: SupportedEvent.Event },
-      { id: 'd', type: SupportedEvent.Delay },
-      { id: 'e', type: SupportedEvent.Block },
-      { id: 'f', type: SupportedEvent.Event },
-      { id: 'g', type: SupportedEvent.Block },
-      { id: 'h', type: SupportedEvent.Event },
-    ];
+  describe('getPreviousGroup()', () => {
+    const testRundown = {
+      entries: {
+        a: { id: 'a', type: SupportedEntry.Event } as OntimeEvent,
+        b: { id: 'b', type: SupportedEntry.Event } as OntimeEvent,
+        c: { id: 'c', type: SupportedEntry.Event } as OntimeEvent,
+        d: { id: 'd', type: SupportedEntry.Delay } as OntimeDelay,
+        e: { id: 'e', type: SupportedEntry.Group } as OntimeGroup,
+        f: { id: 'f', type: SupportedEntry.Event } as OntimeEvent,
+        g: { id: 'g', type: SupportedEntry.Group } as OntimeGroup,
+        h: { id: 'h', type: SupportedEntry.Event } as OntimeEvent,
+      },
+      order: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'],
+    };
 
-    it('returns the relevant block', () => {
-      const block = getPreviousBlock(testRundown as unknown as OntimeRundown, 'h');
-
-      expect(block?.id).toBe('g');
+    test.each([
+      ['h', 'g'],
+      ['f', 'e'],
+    ])('returns the relevant group', (id, expected) => {
+      const group = getPreviousGroup(testRundown, id);
+      expect(group?.id).toBe(expected);
     });
-    it('returns the relevant block', () => {
-      const block = getPreviousBlock(testRundown as unknown as OntimeRundown, 'f');
 
-      expect(block?.id).toBe('e');
+    it('returns null if there is no parent group relevant group', () => {
+      const group = getPreviousGroup(testRundown, 'a');
+      expect(group).toBe(null);
     });
-    it('returns the relevant block', () => {
-      const block = getPreviousBlock(testRundown as unknown as OntimeRundown, 'a');
 
-      expect(block).toBeNull();
-    });
     it('also works on index 0', () => {
-      testRundown.unshift({ id: '0', type: SupportedEvent.Block });
-      const block = getPreviousBlock(testRundown as unknown as OntimeRundown, 'a');
-      expect(block?.id).toBe('0');
+      testRundown.order.unshift('0');
+      // @ts-expect-error -- we are adding an event to the rundown
+      testRundown.entries['0'] = { id: '0', type: SupportedEntry.Group } as OntimeGroup;
+      const group = getPreviousGroup(testRundown, 'a');
+      expect(group?.id).toBe('0');
     });
-  });
 
-  describe('filterPlayable()', () => {
-    test('should return an array with only playable events', () => {
-      const eventA = { id: 'a', type: SupportedEvent.Event } as OntimeEvent;
-      const eventB = { id: 'b', skip: true, type: SupportedEvent.Event } as OntimeEvent;
-      const testRundown = [
-        eventA,
-        eventB,
-        { id: 'c', type: SupportedEvent.Delay },
-        { id: 'd', type: SupportedEvent.Block },
-      ];
-
-      const result = filterPlayable(testRundown as unknown as OntimeRundown);
-      expect(result).toMatchObject([eventA]);
+    it('returns the parent group if nested event', () => {
+      const testRundown = {
+        entries: {
+          1: { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+          group: { id: 'group', type: SupportedEntry.Group, entries: ['21', '22', '23'] } as OntimeGroup,
+          21: { id: '21', type: SupportedEntry.Event, parent: 'group' } as OntimeEvent,
+          22: { id: '22', type: SupportedEntry.Event, parent: 'group' } as OntimeEvent,
+          23: { id: '23', type: SupportedEntry.Event, parent: 'group' } as OntimeEvent,
+        },
+        order: ['1', 'group'],
+      };
+      const group = getPreviousGroup(testRundown, '21');
+      expect(group?.id).toBe('group');
     });
   });
 });

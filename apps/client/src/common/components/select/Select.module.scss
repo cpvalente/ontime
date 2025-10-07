@@ -1,0 +1,152 @@
+.select {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  height: 2rem;
+
+  background-color: $gray-1200;
+  font-size: 1rem;
+  font-weight: 400;
+  color: $gray-200;
+  border-radius: $component-border-radius-md;
+  border: 1px solid transparent;
+
+  padding-inline: 0.5rem;
+  white-space: nowrap;
+
+  &:hover:not([data-disabled]) {
+    background-color: $gray-1100;
+  }
+
+  &:active:not([data-disabled]) {
+    background-color: $gray-1000;
+  }
+
+  &[data-popup-open] {
+    background-color: $gray-1000;
+  }
+
+  &[data-disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $blue-500;
+    outline-offset: 2px;
+  }
+}
+
+.medium {
+  height: 2rem;
+}
+
+.large {
+  height: 2.5rem;
+}
+
+.fluid {
+  width: 100%;
+}
+
+.selectIcon {
+  color: $gray-200;
+}
+
+.popup {
+  font-size: 1rem;
+  background-color: $gray-1200;
+  box-sizing: border-box;
+  padding: 2px;
+  border-radius: $component-border-radius-md;
+  color: $ui-white;
+  border: 1px solid $gray-1000;
+
+  &[data-side='start'] {
+    transition: 50%;
+    transform: 100%;
+    opacity: 1;
+  }
+}
+
+.list {
+  box-sizing: border-box;
+  position: relative;
+  padding-block: 0.25rem;
+  overflow-y: auto;
+  max-height: 20rem;
+  max-height: var(--available-height);
+  scroll-padding-block: 1.5rem;
+}
+
+.item {
+  box-sizing: border-box;
+  outline: 0;
+  line-height: 1rem;
+  padding: 0.25rem 0.5rem;
+
+  min-width: var(--anchor-width);
+  display: grid;
+  gap: 0.25rem;
+  align-items: center;
+  grid-template-columns: 0.75rem 1fr;
+  scroll-margin-block: 1rem;
+
+  &[data-highlighted] {
+    z-index: 0;
+    position: relative;
+    background-color: $blue-700;
+  }
+}
+
+.itemIndicator {
+  grid-column-start: 1;
+}
+
+.itemIndicatorIcon {
+  display: block;
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.itemLabel {
+  grid-column-start: 2;
+}
+
+.scrollArrow {
+  background-color: $gray-1000;
+  color: $ui-white;
+
+  width: 100%;
+  z-index: 1;
+  height: 1rem;
+  font-size: 0.5rem;
+  display: grid;
+  place-content: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+  }
+
+  &[data-direction='up'] {
+    border-radius: 3px 3px 0 0;
+    &::before {
+      top: -100%;
+    }
+  }
+
+  &[data-direction='down'] {
+    bottom: 0;
+    border-radius: 0 0 3px 3px;
+
+    &::before {
+      bottom: -100%;
+    }
+  }
+}

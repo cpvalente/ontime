@@ -1,11 +1,11 @@
+import { timerConfig } from '../setup/config.js';
 import * as runtimeState from '../stores/runtimeState.js';
 import type { UpdateResult } from '../stores/runtimeState.js';
-import { timerConfig } from '../config/config.js';
 
 type UpdateCallbackFn = (updateResult: UpdateResult) => void;
 
 /**
- * Service manages Ontime's main timer
+ * Manages Ontime's main timer
  */
 export class EventTimer {
   private readonly _interval: NodeJS.Timeout;
@@ -43,6 +43,15 @@ export class EventTimer {
     }
 
     const state = runtimeState.getState();
+
+    // eslint-disable-next-line no-unused-labels -- dev code path
+    DEV: {
+      if (state.timer.current === null) {
+        throw new Error('EventTimer.start: invalid state received');
+      }
+    }
+
+    // register a callback for the scheduled end
     const endTime = state.timer.current - timerConfig.triggerAhead;
     this.endCallback = setTimeout(() => this.update(), endTime);
     return true;

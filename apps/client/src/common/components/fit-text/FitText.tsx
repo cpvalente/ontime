@@ -13,8 +13,13 @@ interface FitTextProps extends HTMLAttributes<HTMLDivElement> {
   max?: number; // inclusive
 }
 
-export function FitText(props: PropsWithChildren<FitTextProps>) {
-  const { children, mode = 'multi', min = 16, max = 256, ...elementProps } = props;
+export function FitText({
+  children,
+  mode = 'multi',
+  min = 16,
+  max = 256,
+  ...elementProps
+}: PropsWithChildren<FitTextProps>) {
   const ref = useRef<HTMLDivElement>(null);
 
   const isOverflown = useCallback(() => {

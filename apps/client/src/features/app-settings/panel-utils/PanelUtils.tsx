@@ -1,7 +1,7 @@
 import { HTMLAttributes, PropsWithChildren, ReactNode } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { Button } from '@chakra-ui/react';
 
+import Button from '../../../common/components/buttons/Button';
 import { cx } from '../../../common/utils/styleUtils';
 
 import style from './PanelUtils.module.scss';
@@ -22,7 +22,7 @@ type AllowedTags = 'div' | 'form';
 type SectionProps<C extends AllowedTags> = {
   as?: C;
   children: ReactNode;
-} & JSX.IntrinsicElements[C];
+} & React.JSX.IntrinsicElements[C];
 
 export function Section<C extends AllowedTags = 'div'>({ as, className, children, ...props }: SectionProps<C>) {
   const Element = as ?? 'div';
@@ -46,7 +46,7 @@ export function Paragraph({ children }: { children: ReactNode }) {
   return <p className={style.paragraph}>{children}</p>;
 }
 
-export function Card({ children, className, ...props }: { children: ReactNode } & JSX.IntrinsicElements['div']) {
+export function Card({ children, className, ...props }: { children: ReactNode } & React.JSX.IntrinsicElements['div']) {
   return (
     <div className={cx([style.card, className])} {...props}>
       {children}
@@ -68,14 +68,8 @@ export function TableEmpty({ label, handleClick }: { label?: string; handleClick
       <td colSpan={99}>
         <div>{label ?? 'No data yet'}</div>
         {handleClick && (
-          <Button
-            onClick={handleClick}
-            isDisabled={!handleClick}
-            variant='ontime-filled'
-            rightIcon={<IoAdd />}
-            size='sm'
-          >
-            New
+          <Button onClick={handleClick} disabled={!handleClick} variant='primary'>
+            New <IoAdd />
           </Button>
         )}
       </td>
@@ -113,7 +107,7 @@ export function BlockQuote({ children }: { children: ReactNode }) {
   return <blockquote className={style.blockquote}>{children}</blockquote>;
 }
 
-export function Error({ children, className }: { children: ReactNode } & JSX.IntrinsicElements['div']) {
+export function Error({ children, className }: { children: ReactNode } & React.JSX.IntrinsicElements['div']) {
   return <div className={cx([style.fieldError, className])}>{children}</div>;
 }
 

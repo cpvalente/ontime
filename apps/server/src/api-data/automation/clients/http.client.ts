@@ -21,7 +21,6 @@ function preparePayload(output: HTTPOutput, state: RuntimeState): string {
 
 /** Emits message over transport */
 async function emit(url: string) {
-  logger.info(LogOrigin.Rx, `Sending HTTP: ${url}`);
   try {
     const response = await fetch(url);
     if (!response.ok) {

@@ -1,7 +1,66 @@
 .header {
-  padding-inline: calc(2rem - 6px + 0.5rem) calc(1rem + 2px);
-  
+  padding-inline: 1rem 2rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+
+  :is([data-target='small-device']) & {
+    padding-inline: 0;
+    overflow-x: auto;
+  }
+}
+
+/** styles should match CuesheetTableSettings.module.scss */
+.group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-inline: 2px;
+  background: $gray-1100;
+  border-radius: $component-border-radius-md;
+  height: 2rem;
+}
+
+/** styles should match CuesheetTableSettings.module.scss */
+.radioButton {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(2rem - 4px); // padding inline * 2
+  padding-inline: 1em;
+  border: 1px solid transparent;
+  border-radius: $component-border-radius-md;
+  color: $gray-400;
+  font-size: calc(1rem - 2px);
+  font-weight: 600;
+
+  &:focus-visible {
+    background: transparent;
+    outline: 1px solid $blue-500;
+  }
+
+  &:hover:not(:disabled):not(:active) {
+    background: $gray-1000;
+  }
+
+  &:active {
+    background: $gray-1100;
+  }
+
+  &[data-pressed] {
+    background: $blue-700;
+    color: $ui-white;
+
+    &:hover:not(:disabled):not(:active) {
+      background: $blue-600;
+    }
+  }
+}
+
+.apart {
+  margin-left: auto;
+}
+
+.separator {
+  margin-inline: 1rem;
 }

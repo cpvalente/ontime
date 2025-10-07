@@ -1,46 +1,34 @@
-import {
-  createContext,
-  PropsWithChildren,
-  RefObject,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
-import { isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
+import { createContext, PropsWithChildren, RefObject, use, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { EntryId, isOntimeEvent, OntimeEntry, OntimeEvent } from 'ontime-types';
 
 import { usePartialRundown } from '../../../common/hooks-query/useRundown';
+import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 
 import { useScheduleOptions } from './schedule.options';
 
 interface ScheduleContextState {
-  events: OntimeEvent[];
+  events: ExtendedEntry<OntimeEvent>[];
   selectedEventId: string | null;
   numPages: number;
   visiblePage: number;
-  isBackstage: boolean;
-  containerRef: RefObject<HTMLUListElement>;
+  containerRef: RefObject<HTMLUListElement | null>;
 }
 
 const ScheduleContext = createContext<ScheduleContextState | undefined>(undefined);
 
 interface ScheduleProviderProps {
-  selectedEventId: string | null;
-  isBackstage?: boolean;
+  selectedEventId: EntryId | null;
 }
 
-export const ScheduleProvider = ({
-  children,
-  selectedEventId,
-  isBackstage = false,
-}: PropsWithChildren<ScheduleProviderProps>) => {
-  const { cycleInterval, stopCycle } = useScheduleOptions();
-  const { data: events } = usePartialRundown((event: OntimeRundownEntry) => {
-    if (isBackstage) {
-      return isOntimeEvent(event);
+export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildren<ScheduleProviderProps>) => {
+  const { cycleInterval, stopCycle, filter } = useScheduleOptions();
+  const { data: events } = usePartialRundown((entry: ExtendedEntry<OntimeEntry>) => {
+    if (filter) {
+      // custom keys are prepended with custom-
+      const customKey = filter.startsWith('custom-') ? filter.slice('custom-'.length) : filter;
+      return isOntimeEvent(entry) && Boolean(entry.custom[customKey]);
     }
-    return isOntimeEvent(event) && event.isPublic && !event.skip;
+    return isOntimeEvent(entry);
   });
 
   const [firstIndex, setFirstIndex] = useState(-1);
@@ -48,7 +36,7 @@ export const ScheduleProvider = ({
   const [visiblePage, setVisiblePage] = useState(0);
 
   const lastIndex = useRef(-1);
-  const paginator = useRef<NodeJS.Timeout>();
+  const paginator = useRef<NodeJS.Timeout>(undefined);
 
   const containerRef = useRef<HTMLUListElement>(null);
 
@@ -144,23 +132,22 @@ export const ScheduleProvider = ({
   selectedEventIndex = 0;
 
   return (
-    <ScheduleContext.Provider
+    <ScheduleContext
       value={{
-        events: viewEvents as OntimeEvent[],
+        events: viewEvents as ExtendedEntry<OntimeEvent>[],
         selectedEventId,
         numPages,
         visiblePage,
-        isBackstage,
         containerRef,
       }}
     >
       {children}
-    </ScheduleContext.Provider>
+    </ScheduleContext>
   );
 };
 
 export const useSchedule = () => {
-  const context = useContext(ScheduleContext);
+  const context = use(ScheduleContext);
   if (!context) {
     throw new Error('useSchedule() can only be used inside a ScheduleContext');
   }

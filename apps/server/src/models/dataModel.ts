@@ -1,20 +1,28 @@
-import { DatabaseModel } from 'ontime-types';
+import { DatabaseModel, Rundown } from 'ontime-types';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
+export const defaultRundown: Rundown = {
+  id: 'default',
+  title: 'Default',
+  order: [],
+  flatOrder: [],
+  entries: {},
+  revision: 0,
+};
+
 export const dbModel: DatabaseModel = {
-  rundown: [],
+  rundowns: {
+    default: { ...defaultRundown },
+  },
   project: {
     title: '',
     description: '',
-    publicUrl: '',
-    publicInfo: '',
-    backstageUrl: '',
-    backstageInfo: '',
-    projectLogo: null,
+    url: '',
+    info: '',
+    logo: null,
     custom: [],
   },
   settings: {
-    app: 'ontime',
     version: ONTIME_VERSION,
     serverPort: 4001,
     editorKey: null,
@@ -25,10 +33,8 @@ export const dbModel: DatabaseModel = {
   viewSettings: {
     overrideStyles: false,
     normalColor: '#ffffffcc',
-    warningColor: '#FFAB33',
-    dangerColor: '#ED3333',
-    freezeEnd: false,
-    endMessage: '',
+    warningColor: '#ffa528',
+    dangerColor: '#ff7300',
   },
   urlPresets: [],
   customFields: {},

@@ -1,16 +1,11 @@
 import { DatabaseModel, MaybeString, ProjectFile } from 'ontime-types';
 
 import { existsSync } from 'fs';
-import { copyFile, readFile, stat } from 'fs/promises';
+import { readFile, stat } from 'fs/promises';
 import { extname, join } from 'path';
 
 import { publicDir } from '../../setup/index.js';
-import {
-  dockerSafeRename,
-  ensureDirectory,
-  getFilesFromFolder,
-  removeFileExtension,
-} from '../../utils/fileManagement.js';
+import { dockerSafeRename, getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
 
 /**
  * Handles the upload of a new project file
@@ -23,7 +18,6 @@ export async function handleUploaded(filePath: string, name: string) {
 }
 
 export async function handleImageUpload(filePath: string, name: string): Promise<string> {
-  ensureDirectory(publicDir.logoDir);
   const newFilePath = join(publicDir.logoDir, name);
   await dockerSafeRename(filePath, newFilePath);
 
@@ -76,14 +70,6 @@ export function doesProjectExist(name: string): MaybeString {
  */
 export function getPathToProject(name: string): string {
   return join(publicDir.projectsDir, name);
-}
-
-/**
- * Makes a copy of a given project to the corrupted directory
- */
-export async function copyCorruptFile(filePath: string, name: string): Promise<void> {
-  const newPath = join(publicDir.corruptDir, name);
-  return copyFile(filePath, newPath);
 }
 
 /**

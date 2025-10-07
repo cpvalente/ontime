@@ -1,7 +1,7 @@
-import { OntimeReport, OntimeEventReport, TimerLifeCycle } from 'ontime-types';
+import { OntimeReport, OntimeEventReport, TimerLifeCycle, RefetchKey } from 'ontime-types';
 import { RuntimeState } from '../../stores/runtimeState.js';
-import { sendRefetch } from '../../adapters/websocketAux.js';
 import { DeepReadonly } from 'ts-essentials';
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 
 const report = new Map<string, OntimeEventReport>();
 
@@ -57,9 +57,6 @@ export function triggerReportEntry(
     const startedAt = report.get(eventId)?.startedAt ?? null;
     report.set(eventId, { startedAt, endedAt: state.clock });
     formattedReport = null;
-    sendRefetch({
-      target: 'REPORT',
-    });
-    return;
+    sendRefetch(RefetchKey.Report);
   }
 }

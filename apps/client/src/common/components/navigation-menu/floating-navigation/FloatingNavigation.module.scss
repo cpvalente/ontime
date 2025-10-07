@@ -1,0 +1,24 @@
+.fadeable {
+  opacity: 1;
+
+  transition-property: opacity;
+  transition-duration: 0.3s;
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1rem;
+  padding-top: 0.75rem;
+  padding-left: 0.5em;
+
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: $zindex-nav;
+}

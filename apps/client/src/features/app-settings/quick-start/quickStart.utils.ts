@@ -8,8 +8,4 @@ export const quickStartDefaults: QuickStartData = {
     timeFormat: '24',
     language: 'en',
   },
-  viewSettings: {
-    freezeEnd: false,
-    endMessage: '',
-  },
 };

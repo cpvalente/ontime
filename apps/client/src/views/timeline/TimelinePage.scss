@@ -1,9 +1,11 @@
-@use '../../theme/viewerDefs' as *;
+@use '@/theme/viewerDefs' as *;
 
 .timeline {
-  width: 100vw;
+  margin: 0;
+  box-sizing: border-box; /* reset */
+  overflow: hidden;
+  width: 100%; /* restrict the page width to viewport */
   height: 100vh;
-  padding-top: 0.5rem;
 
   font-family: var(--font-family-override, $viewer-font-family);
   background: var(--background-color-override, $viewer-background-color);
@@ -11,11 +13,11 @@
 
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: $view-element-gap;
 
   .project-header {
-    padding-inline: 2rem;
-    font-size: clamp(32px, 4.5vw, 64px);
+    padding: $view-outer-padding;
+    font-size: $header-font-size;
     font-weight: 600;
     display: flex;
     gap: 1rem;
@@ -25,19 +27,22 @@
     max-width: min(200px, 20vw);
   }
 
+  .title {
+    line-height: 1.1em;
+  }
+
   .clock-container {
     margin-left: auto;
+    font-weight: 600;
 
     .label {
-      font-size: clamp(16px, 1.5vw, 24px);
-      font-weight: 600;
+      font-size: $timer-label-size;
       color: var(--label-color-override, $viewer-label-color);
       text-transform: uppercase;
     }
 
     .time {
-      font-size: clamp(32px, 3.5vw, 50px);
-      font-weight: 600;
+      font-size: $timer-value-size;
       color: var(--secondary-color-override, $viewer-secondary-color);
       letter-spacing: 0.05em;
       line-height: 0.95em;
@@ -79,6 +84,7 @@
 
   .section-title__label {
     text-transform: uppercase;
+    color: var(--label-color-override, $viewer-label-color);
   }
 
   .section-title__status {
@@ -105,7 +111,7 @@
     color: $red-500;
   }
 
-  .section-content--next {
+  .section-content--followedBy .section-content--next {
     color: $green-500;
   }
 

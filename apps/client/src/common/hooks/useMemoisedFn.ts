@@ -12,7 +12,7 @@ type noop = (this: any, ...args: any[]) => any;
 
 type PickFunction<T extends noop> = (this: ThisParameterType<T>, ...args: Parameters<T>) => ReturnType<T>;
 
-export const isFunction = (value: unknown): value is (...args: any) => any => typeof value === 'function';
+const isFunction = (value: unknown): value is (...args: any) => any => typeof value === 'function';
 
 export default function useMemoisedFn<T extends noop>(fn: T) {
   if (isDev) {
@@ -27,7 +27,7 @@ export default function useMemoisedFn<T extends noop>(fn: T) {
   // https://github.com/alibaba/hooks/issues/728
   fnRef.current = useMemo(() => fn, [fn]);
 
-  const memoizedFn = useRef<PickFunction<T>>();
+  const memoizedFn = useRef<PickFunction<T>>(undefined);
   if (!memoizedFn.current) {
     memoizedFn.current = function (this, ...args) {
       return fnRef.current.apply(this, args);

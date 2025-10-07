@@ -1,9 +1,9 @@
-import { Log, LogLevel } from 'ontime-types';
+import { Log, LogLevel, MessageTag } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 
-import { clock } from '../services/Clock.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { consoleSubdued, consoleError } from '../utils/console.js';
+import { timeNow } from '../utils/time.js';
 import { isProduction } from '../setup/environment.js';
 
 class Logger {
@@ -54,10 +54,7 @@ class Logger {
     }
 
     try {
-      socket.sendAsJson({
-        type: 'ontime-log',
-        payload: log,
-      });
+      socket.sendAsJson(MessageTag.Log, log);
     } catch (_e) {
       this.addToQueue(log);
     }
@@ -75,7 +72,7 @@ class Logger {
       level,
       origin,
       text,
-      time: millisToString(clock.getSystemTime() || 0),
+      time: millisToString(timeNow()),
     };
     this._push(log);
   }

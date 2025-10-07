@@ -1,21 +1,22 @@
-import { TranslationObject } from './en';
+import { TranslationObject } from 'ontime-types';
 
 export const langIt: TranslationObject = {
   'common.expected_finish': 'Fine Prevista',
   'common.minutes': 'min',
+  'common.seconds': 'sec',
   'common.now': 'Adesso',
   'common.next': 'Prossimo',
-  'common.public_message': 'Messaggio pubblico',
   'common.scheduled_start': 'Inizio programmato',
   'common.scheduled_end': 'Fine programmata',
-  'common.projected_start': 'Inizio previsto',
-  'common.projected_end': 'Fine prevista',
+  'common.expected_start': 'Inizio previsto',
+  'common.expected_end': 'Fine prevista',
   'common.stage_timer': 'Orologio Palco',
   'common.started_at': 'Iniziato Alle',
   'common.time_now': 'Ora attuale',
   'common.no_data': 'Nessun dato disponibile',
   'countdown.ended': 'Evento finito alle',
   'countdown.running': 'Evento in corso',
+  'countdown.loaded': 'Evento caricato', //TODO: check translation
   'countdown.select_event': 'Seleziona un evento da seguire',
   'countdown.to_start': 'Tempo alla partenza',
   'countdown.waiting': "In attesa dell'inizio dell'evento",
@@ -26,8 +27,6 @@ export const langIt: TranslationObject = {
   'timeline.followedby': 'Seguito da',
   'project.title': 'Titolo',
   'project.description': 'Descrizione',
-  'project.backstage_info': 'Informazioni di backstage',
-  'project.backstage_url': 'URL di backstage',
-  'project.public_info': 'Informazioni pubbliche',
-  'project.public_url': 'URL pubblico',
+  'project.info': 'Informazioni sul progetto',
+  'project.url': 'URL del progetto',
 };

@@ -1,0 +1,40 @@
+.copytag {
+  display: flex;
+  align-items: center;
+}
+
+.action {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.label {
+  border-radius: 3px 0 0 3px;
+  border: 1px solid $gray-1200;
+  background-color: $white-3;
+  padding-inline: 0.5rem 1rem;
+  line-height: 1em;
+  display: flex;
+  align-items: center;
+  color: $label-gray;
+}
+
+.small {
+  height: 1.5rem;
+  font-size: calc(1rem - 3px);
+}
+
+.medium {
+  height: 2rem;
+  font-size: calc(1rem - 2px);
+}
+
+.large {
+  height: 2.5rem;
+  font-weight: 600;
+}
+
+.copy {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}

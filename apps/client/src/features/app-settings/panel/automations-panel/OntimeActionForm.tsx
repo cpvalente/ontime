@@ -1,9 +1,9 @@
 import { PropsWithChildren, useState } from 'react';
-import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
-import { Input, Select } from '@chakra-ui/react';
-import { AutomationDTO, OntimeAction } from 'ontime-types';
+import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
+import { AutomationDTO, OntimeAction, OntimeActionKey, SecondarySource } from 'ontime-types';
 
-import { cx } from '../../../../common/utils/styleUtils';
+import Input from '../../../../common/components/input/input/Input';
+import Select from '../../../../common/components/select/Select';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './AutomationForm.module.scss';
@@ -19,50 +19,68 @@ interface OntimeActionFormProps {
     secondarySource?: { message?: string };
   };
   value: OntimeAction['action'];
+  watch: UseFormWatch<AutomationDTO>;
   setValue: UseFormSetValue<AutomationDTO>;
 }
 
-export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFormProps>) {
-  const { index, register, setValue, rowErrors, value, children } = props;
-  const [selectedAction, setSelectedAction] = useState<OntimeAction['action']>(value || 'aux-start');
+export default function OntimeActionForm({
+  index,
+  register,
+  setValue,
+  rowErrors,
+  value,
+  children,
+  watch,
+}: PropsWithChildren<OntimeActionFormProps>) {
+  const [selectedAction, setSelectedAction] = useState<string>(value);
 
-  const updateSelectedAction = (value: string) => {
-    setSelectedAction(value as OntimeAction['action']);
-    setValue(`outputs.${index}.action`, value as OntimeAction['action']);
+  const handleSetAction = (value: OntimeActionKey) => {
+    setValue(`outputs.${index}.action`, value, { shouldDirty: true });
+    setSelectedAction(value);
   };
 
   return (
-    <div className={cx([style.actionSection, selectedAction && style[selectedAction]])}>
-      <input type='hidden' {...register(`outputs.${index}.action`)} value={selectedAction} />
+    <div className={style.actionSection}>
       <label>
         Action
         <Select
-          variant='ontime'
-          size='sm'
-          value={selectedAction}
-          onChange={(event) => updateSelectedAction(event.target.value)}
-        >
-          <option value='aux-start'>Auxiliary timer: start</option>
-          <option value='aux-pause'>Auxiliary timer: pause</option>
-          <option value='aux-stop'>Auxiliary timer: stop</option>
-          <option value='aux-set'>Auxiliary timer: set</option>
-          <option value='message-set'>Timer: timer message</option>
-          <option value='message-secondary'>Timer: timer secondary</option>
-        </Select>
+          onValueChange={(value) => {
+            handleSetAction(value as OntimeActionKey);
+          }}
+          value={watch(`outputs.${index}.action`)}
+          options={[
+            { value: 'aux1-pause', label: 'Aux 1: pause' },
+            { value: 'aux2-pause', label: 'Aux 2: pause' },
+            { value: 'aux3-pause', label: 'Aux 3: pause' },
+
+            { value: 'aux1-start', label: 'Aux 1: start' },
+            { value: 'aux2-start', label: 'Aux 2: start' },
+            { value: 'aux3-start', label: 'Aux 3: start' },
+
+            { value: 'aux1-stop', label: 'Aux 1: stop' },
+            { value: 'aux2-stop', label: 'Aux 2: stop' },
+            { value: 'aux3-stop', label: 'Aux 3: stop' },
+
+            { value: 'aux1-set', label: 'Aux 1: set' },
+            { value: 'aux2-set', label: 'Aux 2: set' },
+            { value: 'aux3-set', label: 'Aux 3: set' },
+
+            { value: 'message-set', label: 'Primary Message: set' },
+            { value: 'message-secondary', label: 'Secondary Message: source' },
+          ]}
+        />
         <Panel.Error>{rowErrors?.action?.message}</Panel.Error>
       </label>
 
-      {selectedAction === 'aux-set' && (
+      {selectedAction.startsWith('aux') && selectedAction.endsWith('set') && (
         <label>
           New time
           <Input
             {...register(`outputs.${index}.time`, {
-              required: { value: true, message: 'Required field' },
+              required: { value: true, message: 'Required field' }, //TODO:(automation set aux) not sure what way around to have the string and where to have the ms value
             })}
-            variant='ontime-filled'
-            size='sm'
+            fluid
             placeholder='eg: 10m5s'
-            autoComplete='off'
           />
           <Panel.Error>{rowErrors?.time?.message}</Panel.Error>
         </label>
@@ -72,22 +90,24 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
         <>
           <label>
             Text (leave empty for no change)
-            <Input
-              {...register(`outputs.${index}.text`)}
-              variant='ontime-filled'
-              size='sm'
-              placeholder='eg: Timer is finished'
-              autoComplete='off'
-            />
+            <Input {...register(`outputs.${index}.text`)} fluid placeholder='eg: Timer is finished' />
             <Panel.Error>{rowErrors?.text?.message}</Panel.Error>
           </label>
           <label>
             Visibility
-            <Select variant='ontime' size='sm' {...register(`outputs.${index}.visible`)}>
-              <option value=''>Untouched</option>
-              <option value='true'>Show</option>
-              <option value='false'>Hide</option>
-            </Select>
+            <Select
+              onValueChange={(value) => {
+                // we need to translate the undefined value to 'untouched'
+                const translatedValue = value === 'untouched' ? undefined : (value as boolean | undefined);
+                setValue(`outputs.${index}.visible`, translatedValue, { shouldDirty: true });
+              }}
+              value={watch(`outputs.${index}.visible`) === undefined ? 'untouched' : watch(`outputs.${index}.visible`)}
+              options={[
+                { value: 'untouched', label: 'Untouched' },
+                { value: true, label: 'Show' },
+                { value: false, label: 'Hide' },
+              ]}
+            />
             <Panel.Error>{rowErrors?.visible?.message}</Panel.Error>
           </label>
         </>
@@ -96,11 +116,20 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
       {selectedAction === 'message-secondary' && (
         <label>
           Timer secondary source
-          <Select variant='ontime' size='sm' {...register(`outputs.${index}.secondarySource`)}>
-            <option value='aux'>Auxiliary timer</option>
-            <option value='external'>External</option>
-            <option value='null'>None</option>
-          </Select>
+          <Select
+            onValueChange={(value) => {
+              setValue(`outputs.${index}.secondarySource`, value as SecondarySource, { shouldDirty: true });
+            }}
+            value={watch(`outputs.${index}.secondarySource`)}
+            options={[
+              { value: null, label: 'Select secondary source', disabled: true },
+              { value: 'aux1', label: 'Auxiliary timer 1' },
+              { value: 'aux2', label: 'Auxiliary timer 2' },
+              { value: 'aux3', label: 'Auxiliary timer 3' },
+              { value: 'external', label: 'External' },
+              { value: 'null', label: 'None' },
+            ]}
+          />
           <Panel.Error>{rowErrors?.secondarySource?.message}</Panel.Error>
         </label>
       )}

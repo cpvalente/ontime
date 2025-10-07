@@ -14,55 +14,35 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
+
+      - name: Get pnpm store directory
+        run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
         with:
-          version: 10
+          path: ${{ env.PNPM_STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Run code quality per package
-      - name: React - Run linter +  TypeScript checks
-        if: always()
-        run: pnpm lint && tsc --noEmit
-        working-directory: ./apps/client
-
-      - name: Server - Run linter +  TypeScript checks
-        if: always()
-        run: pnpm lint && tsc --noEmit
-        working-directory: ./apps/server
-
-      - name: Utils - Run linter +  TypeScript checks
-        if: always()
-        run: pnpm lint && tsc --noEmit
-        working-directory: ./packages/utils
-
-      - name: Types - Run linter
-        if: always()
+      # Run code quality 
+      - name: Run linter
         run: pnpm lint
-        working-directory: ./packages/types
+      
+      - name: Run TypeScript checks
+        run: pnpm typecheck
 
       # We choose to run tests separately
-      - name: React - Run unit tests
+      - name: Run unit tests
         if: always()
-        run: pnpm test:pipeline
-        working-directory: ./apps/client
-
-      - name: Server - Run unit tests
-        if: always()
-        run: pnpm test:pipeline
-        working-directory: ./apps/server
-
-      - name: Utils - Run unit tests
-        if: always()
-        run: pnpm test:pipeline
-        working-directory: ./packages/utils
+        run: pnpm test
 
   e2e-test:
     runs-on: ubuntu-latest
@@ -70,21 +50,36 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
+        uses: pnpm/action-setup@v4
+
+      - name: Get pnpm store directory
+        run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
         with:
-          version: 10
+          path: ${{ env.PNPM_STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build client
-        run: pnpm build:local
+      - name: Get installed Playwright version
+        run: echo "PLAYWRIGHT_VERSION=$(pnpm ls @playwright/test --parseable | cut -s -d '@' -f3 | cut -d '/' -f1)" >> $GITHUB_ENV
+      - name: Cache playwright binaries
+        uses: actions/cache@v4
+        with:
+          path: |
+           ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+      - run: npx playwright install --with-deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps

@@ -1,45 +1,328 @@
+import { ErrorResponse, OntimeEntry, ProjectRundownsList, Rundown } from 'ontime-types';
+import { generateId, getErrorMessage } from 'ontime-utils';
+
+import type { Request, Response } from 'express';
 import express from 'express';
 
+import { getCurrentRundown } from './rundown.dao.js';
 import {
-  deletesEventById,
-  rundownApplyDelay,
-  rundownBatchPut,
-  rundownDelete,
-  rundownGetAll,
-  rundownGetById,
-  rundownGetNormalised,
-  rundownGetPaginated,
-  rundownPost,
-  rundownPut,
-  rundownReorder,
-  rundownSwap,
-} from './rundown.controller.js';
+  addEntry,
+  applyDelay,
+  batchEditEntries,
+  cloneEntry,
+  deleteAllEntries,
+  deleteEntries,
+  editEntry,
+  groupEntries,
+  initRundown,
+  reorderEntry,
+  swapEvents,
+  ungroupEntries,
+} from './rundown.service.js';
 import {
-  paramsMustHaveEventId,
   rundownArrayOfIds,
-  rundownBatchPutValidator,
-  rundownGetPaginatedQueryParams,
+  entryBatchPutValidator,
+  entryPostValidator,
   rundownPostValidator,
-  rundownPutValidator,
-  rundownReorderValidator,
-  rundownSwapValidator,
+  entryPutValidator,
+  entryReorderValidator,
+  entrySwapValidator,
+  validateRundownMutation,
 } from './rundown.validation.js';
+import { paramsWithId } from '../validation-utils/validationFunction.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { defaultRundown } from '../../models/dataModel.js';
+import { normalisedToRundownArray } from './rundown.utils.js';
 
 export const router = express.Router();
 
-router.get('/', rundownGetAll); // not used in Ontime frontend
-router.get('/paginated', rundownGetPaginatedQueryParams, rundownGetPaginated); // not used in Ontime frontend
-router.get('/normalised', rundownGetNormalised);
-router.get('/:eventId', paramsMustHaveEventId, rundownGetById); // not used in Ontime frontend
+// #region operations on project rundowns =========================
 
-router.post('/', rundownPostValidator, rundownPost);
+/**
+ * Returns all rundowns in the project
+ */
+router.get('/', async (_req: Request, res: Response<ProjectRundownsList>) => {
+  const projectRundowns = getDataProvider().getProjectRundowns();
+  res.json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
+});
 
-router.put('/', rundownPutValidator, rundownPut);
-router.put('/batch', rundownBatchPutValidator, rundownBatchPut);
+/**
+ * Returns the current rundown
+ */
+router.get('/current', async (_req: Request, res: Response<Rundown>) => {
+  const rundown = getCurrentRundown();
+  res.json(rundown);
+});
 
-router.patch('/reorder/', rundownReorderValidator, rundownReorder);
-router.patch('/swap', rundownSwapValidator, rundownSwap);
-router.patch('/applydelay/:eventId', paramsMustHaveEventId, rundownApplyDelay);
+/**
+ * Loads a given rundown
+ */
+router.post('/:id/load', paramsWithId, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
+  try {
+    // maybe the rundown is already loaded
+    if (req.params.id === getCurrentRundown().id) {
+      const projectRundowns = getDataProvider().getProjectRundowns();
+      res.status(200).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
+      return;
+    }
 
-router.delete('/', rundownArrayOfIds, deletesEventById);
-router.delete('/all', rundownDelete);
+    const dataProvider = getDataProvider();
+    const rundown = dataProvider.getRundown(req.params.id);
+    const customField = dataProvider.getCustomFields();
+    await initRundown(rundown, customField);
+
+    const projectRundowns = getDataProvider().getProjectRundowns();
+    res.status(200).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
+/**
+ * Creates a new rundown
+ */
+router.post('/', rundownPostValidator, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
+  try {
+    const id = generateId();
+    await getDataProvider().setRundown(id, { ...defaultRundown, id, title: req.body.title });
+
+    const projectRundowns = getDataProvider().getProjectRundowns();
+    res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
+/**
+ * Deletes a rundown if not loaded
+ */
+router.delete('/:id', paramsWithId, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
+  try {
+    if (req.params.id === getCurrentRundown().id) {
+      res.status(400).send({ message: 'Cannot delete loaded rundown' });
+      return;
+    }
+
+    const dataProvider = getDataProvider();
+    const projectRundowns = dataProvider.getProjectRundowns();
+
+    if (Object.keys(projectRundowns).length <= 1) {
+      // might never hit this as it is likely covered by the case of trying to delete the loaded rundown
+      res.status(400).send({ message: 'Cannot delete the last rundown' });
+      return;
+    }
+
+    await dataProvider.deleteRundown(req.params.id);
+    const newProjectRundowns = getDataProvider().getProjectRundowns();
+    res.status(200).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(newProjectRundowns) });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
+// #endregion operations on project rundowns ======================
+
+// #region operations on rundown entries ==========================
+
+/**
+ * Creates a new entry in a given rundown
+ */
+router.post(
+  '/:rundownId/entry',
+  entryPostValidator,
+  validateRundownMutation,
+  async (req: Request, res: Response<OntimeEntry | ErrorResponse>) => {
+    try {
+      const newEvent = await addEntry(req.body);
+      res.status(201).send(newEvent);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+/**
+ * Edits an entry in a given rundown
+ */
+router.put(
+  '/:rundownId/entry',
+  entryPutValidator,
+  validateRundownMutation,
+  async (req: Request, res: Response<OntimeEntry | ErrorResponse>) => {
+    try {
+      const event = await editEntry(req.body);
+      res.status(200).send(event);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+/**
+ * Edits an entry in a given rundown
+ */
+router.put(
+  '/:rundownId/batch',
+  entryBatchPutValidator,
+  validateRundownMutation,
+  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const rundown = await batchEditEntries(req.body.ids, req.body.data);
+      res.status(200).send(rundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+/**
+ * Reorders two entries in a rundown
+ */
+router.patch(
+  '/:rundownId/reorder',
+  entryReorderValidator,
+  validateRundownMutation,
+  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const { entryId, destinationId, order } = req.body;
+      const rundown = await reorderEntry(entryId, destinationId, order);
+      res.status(200).send(rundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+/**
+ * Applies a delay into the schedule
+ */
+router.patch(
+  '/:rundownId/applydelay/:id',
+  paramsWithId,
+  validateRundownMutation,
+  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const rundown = await applyDelay(req.params.id);
+      res.status(200).send(rundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+/**
+ * Swaps data between two Ontime events
+ */
+router.patch(
+  '/:rundownId/swap',
+  entrySwapValidator,
+  validateRundownMutation,
+  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const rundown = await swapEvents(req.body.from, req.body.to);
+      res.status(200).send(rundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+/**
+ * Clones the contents of an entry into a new one
+ */
+router.post(
+  '/:rundownId/clone/:id',
+  paramsWithId,
+  validateRundownMutation,
+  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const rundown = await cloneEntry(req.params.id);
+      res.status(200).send(rundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+/**
+ * Creates a group out of a list of entries
+ */
+router.post(
+  '/:rundownId/group',
+  rundownArrayOfIds,
+  validateRundownMutation,
+  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const rundown = await groupEntries(req.body.ids);
+      res.status(200).send(rundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+/**
+ * Dissolves a group by moving its children to the main rundown
+ */
+router.post(
+  '/:rundownId/ungroup/:id',
+  paramsWithId,
+  validateRundownMutation,
+  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const rundown = await ungroupEntries(req.params.id);
+      res.status(200).send(rundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+/**
+ * Deletes a list of entries by their ID
+ */
+router.delete(
+  '/:rundownId/entries',
+  rundownArrayOfIds,
+  validateRundownMutation,
+  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const rundown = await deleteEntries(req.body.ids);
+      res.status(200).send(rundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+/**
+ * Deletes all entries in a given rundown
+ */
+router.delete(
+  '/:rundownId/all',
+  validateRundownMutation,
+  async (_req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const rundown = await deleteAllEntries();
+      res.status(200).send(rundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+// #endregion operations on rundown entries =======================

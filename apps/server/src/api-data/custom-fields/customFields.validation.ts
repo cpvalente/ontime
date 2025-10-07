@@ -1,51 +1,35 @@
-import { isAlphanumericWithSpace } from 'ontime-utils';
+import { checkRegex } from 'ontime-utils';
 
-import type { Request, Response, NextFunction } from 'express';
-import { body, param, validationResult } from 'express-validator';
+import { body, param } from 'express-validator';
+import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 export const validateCustomField = [
   body('label')
-    .exists()
     .isString()
     .trim()
+    .notEmpty()
     .custom((value) => {
-      return isAlphanumericWithSpace(value);
+      return checkRegex.isAlphanumericWithSpace(value);
     }),
-  body('type').exists().isIn(['string', 'image']),
-  body('colour').exists().isString().trim(),
+  body('type').isIn(['text', 'image']),
+  body('colour').isString().trim(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
 export const validateEditCustomField = [
-  param('label').exists().isString().trim(),
+  param('key').isString().trim().notEmpty(),
   body('label')
-    .exists()
     .isString()
     .trim()
+    .notEmpty()
     .custom((value) => {
-      return isAlphanumericWithSpace(value);
+      return checkRegex.isAlphanumericWithSpace(value);
     }),
-  body('type').exists().isIn(['string', 'image']),
-  body('colour').exists().isString().trim(),
+  body('type').isIn(['text', 'image']),
+  body('colour').isString().trim(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
-export const validateDeleteCustomField = [
-  param('label').exists().isString(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
+export const validateDeleteCustomField = [param('key').isString().notEmpty(), requestValidationFunction];

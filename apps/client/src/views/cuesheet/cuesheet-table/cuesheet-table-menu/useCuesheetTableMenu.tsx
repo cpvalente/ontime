@@ -1,31 +1,54 @@
+import { EntryId, SupportedEntry } from 'ontime-types';
 import { create } from 'zustand';
 
 type Anchor = { x: number; y: number };
 
 type OpenMenu = {
   isOpen: true;
-  eventId: string;
+  entryId: EntryId;
+  entryType: SupportedEntry;
   entryIndex: number;
+  parentId: EntryId | null;
+  flag: boolean | null;
 };
 
 type ClosedMenu = {
   isOpen: false;
-  eventId: null;
+  entryId: null;
+  entryType: null;
   entryIndex: null;
+  parentId: null;
+  flag: null;
 };
 
 type CuesheetTableMenuStore = (OpenMenu | ClosedMenu) & {
   position: Anchor;
-  openMenu: (position: Anchor, eventId: string, entryIndex: number) => void;
+  openMenu: (
+    position: Anchor,
+    entryId: EntryId,
+    entryType: SupportedEntry,
+    entryIndex: number,
+    parentId: EntryId | null,
+    flag: boolean | null,
+  ) => void;
   closeMenu: () => void;
 };
 
 export const useCuesheetTableMenu = create<CuesheetTableMenuStore>((set) => ({
   isOpen: false,
-  eventId: null,
+  entryId: null,
+  entryType: null,
   entryIndex: null,
+  parentId: null,
   position: { x: 0, y: 0 },
-  openMenu: (position: Anchor, eventId: string, entryIndex: number) =>
-    set({ isOpen: true, position, eventId, entryIndex }),
+  flag: null,
+  openMenu: (
+    position: Anchor,
+    entryId: EntryId,
+    entryType: SupportedEntry,
+    entryIndex: number,
+    parentId: EntryId | null,
+    flag: null | boolean,
+  ) => set({ isOpen: true, position, entryId, entryType, entryIndex, parentId, flag }),
   closeMenu: () => set({ isOpen: false }),
 }));

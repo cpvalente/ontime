@@ -1,15 +1,14 @@
-import type {
-  AutomationSettings,
-  CustomFields,
-  OntimeRundown,
-  ProjectData,
-  Settings,
-  URLPreset,
-  ViewSettings,
-} from '../index.js';
+
+import type { AutomationSettings } from './core/Automation.type.js';
+import type { CustomFields } from './core/CustomFields.type.js';
+import type { ProjectData } from './core/ProjectData.type.js';
+import type { ProjectRundowns } from './core/Rundown.type.js';
+import type { Settings } from './core/Settings.type.js';
+import type { URLPreset } from './core/UrlPreset.type.js';
+import type { ViewSettings } from './core/Views.type.js';
 
 export type DatabaseModel = {
-  rundown: OntimeRundown;
+  rundowns: ProjectRundowns;
   project: ProjectData;
   settings: Settings;
   viewSettings: ViewSettings;

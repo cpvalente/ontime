@@ -1,4 +1,4 @@
-export type SecondarySource = 'aux' | 'external' | null;
+export type SecondarySource = 'aux1' | 'aux2' | 'aux3' | 'secondary' | null;
 
 export type TimerMessage = {
   text: string;
@@ -10,5 +10,5 @@ export type TimerMessage = {
 
 export type MessageState = {
   timer: TimerMessage;
-  external: string;
+  secondary: string;
 };

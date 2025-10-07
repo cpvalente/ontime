@@ -8,3 +8,6 @@ playwright-report
 **/*.toml
 **/*.yml
 **/*.json
+!tsconfig.common.json
+!turbo.json
+!package.json

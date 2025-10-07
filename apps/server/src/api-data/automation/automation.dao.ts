@@ -3,13 +3,15 @@ import type {
   AutomationDTO,
   AutomationSettings,
   NormalisedAutomation,
+  ProjectRundowns,
   Trigger,
   TriggerDTO,
 } from 'ontime-types';
 import { deleteAtIndex, generateId } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { getTimedEvents } from '../../services/rundown-service/rundownUtils.js';
+
+import { isAutomationUsed } from './automation.utils.js';
 
 /**
  * Gets a copy of the stored automation settings
@@ -133,15 +135,15 @@ export async function editAutomation(id: string, newAutomation: AutomationDTO): 
 /**
  * Deletes a automation given its ID
  */
-export async function deleteAutomation(id: string): Promise<void> {
+export async function deleteAutomation(projectRundowns: ProjectRundowns, automationId: string): Promise<void> {
   const automations = getAutomations();
   // ignore request if automation does not exist
-  if (!Object.hasOwn(automations, id)) {
+  if (!Object.hasOwn(automations, automationId)) {
     return;
   }
 
   // prevent deleting a automation that is in use in triggers
-  const triggers = getAutomationTriggers().filter((trigger) => trigger.automationId === id);
+  const triggers = getAutomationTriggers().filter((trigger) => trigger.automationId === automationId);
   if (triggers.length) {
     throw new Error(
       `Unable to delete automation used in trigger ${triggers[0].title}${triggers.length > 1 ? ` and ${triggers.length - 1} more` : ''}`,
@@ -149,16 +151,12 @@ export async function deleteAutomation(id: string): Promise<void> {
   }
 
   // prevent deleting a automation that is in use in events
-  const events = getTimedEvents().filter(
-    (event) => event.triggers && event.triggers.some((trigger) => trigger.automationId === id),
-  );
-  if (events.length) {
-    throw new Error(
-      `Unable to delete automation used in event: ${events[0].id}${events.length > 1 ? ` and ${events.length - 1} more` : ''}`,
-    );
+  const isInUse = isAutomationUsed(projectRundowns, automationId);
+  if (isInUse) {
+    throw new Error(`Unable to delete automation used in rundown: ${isInUse[0]}, in event with ID: ${isInUse[1]}`);
   }
 
-  delete automations[id];
+  delete automations[automationId];
   await saveChanges({ automations });
 }
 
@@ -169,7 +167,12 @@ async function saveChanges(patch: Partial<AutomationSettings>) {
   const automation = getDataProvider().getAutomation();
 
   // remove undefined keys from object, we probably want a better solution
-  Object.keys(patch).forEach((key) => (patch[key] === undefined ? delete patch[key] : {}));
+  Object.keys(patch).forEach((key) => {
+    const typedKey = key as keyof AutomationSettings;
+    if (patch[typedKey] === undefined) {
+      delete patch[typedKey];
+    }
+  });
   await getDataProvider().setAutomation({ ...automation, ...patch });
 }
 

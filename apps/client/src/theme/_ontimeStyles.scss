@@ -7,8 +7,16 @@ $component-border-radius-md: 3px;
 $component-border-radius-sm: 2px;
 $component-border-radius-full: 99px;
 
+// indexes
+$zindex-floating: 100;
+$zindex-nav: 200;
+$zindex-backdrop: 300;
+$zindex-dialog: 400;
+$zindex-modal: 500;
+$zindex-sudo: 1000;
+
 // semantic colours
-$action-blue: #3182ce;
+$action-blue: $blue-500;
 $action-text-color: $blue-400;
 $ontime-color: #ff7597;
 $error-red: $red-500;
@@ -16,10 +24,11 @@ $warning-orange: $orange-500;
 $info-blue: $blue-500;
 $opacity-disabled: 0.4;
 $active-red: $red-700;
+$active-green: $green-700;
 
 // playback colours
 $playback-start: $green-600;
-$ontime-roll: #0274B6;
+$ontime-roll: #22a0e9;
 $ontime-delay: #F57C13;
 $ontime-delay-text: #E69056;
 $ontime-paused: #c05621;
@@ -29,13 +38,16 @@ $playback-ahead: $green-500;
 $active-indicator: #8bb33d;
 $text-black: $gray-1350;
 
+$playback-over: #F57C13;
+$playback-under: $green-500;
+
 // interface panels
 $bg-container-l1: $gray-1350;
 $bg-container-l2: $gray-1300;
-$bg-container-l3: $gray-1350;
 
 $bg-container-onlight: $gray-100;
 
+$backdrop-color: rgba(0, 0, 0, 0.7);
 $box-shadow-l1: rgba(0, 0, 0, 0.15) 0 3px 3px 0;
 $box-shadow-l2: rgba(0, 0, 0, 0.15) 0 3px 3px 0;
 $box-shadow-right: rgba(0, 0, 0, 0.15) 3px 0 3px 0;
@@ -64,6 +76,7 @@ $aux-text-size: calc(1rem - 3px);
 // media queries
 $min-tablet: 500px;
 $small-screen: 800px;
+$small-desktop: 1440px;
 
 .blink {
   animation: blink 1s step-start infinite;

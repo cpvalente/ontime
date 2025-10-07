@@ -9,18 +9,16 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { ColumnDef } from '@tanstack/react-table';
-import { OntimeRundownEntry } from 'ontime-types';
 
-import useColumnManager from '../cuesheet-table/useColumnManager';
+import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
+import { useColumnOrder } from '../cuesheet-table/useColumnManager';
 
 interface CuesheetDndProps {
-  columns: ColumnDef<OntimeRundownEntry>[];
+  columns: ColumnDef<ExtendedEntry>[];
 }
 
-export default function CuesheetDnd(props: PropsWithChildren<CuesheetDndProps>) {
-  const { columns, children } = props;
-
-  const { columnOrder, saveColumnOrder } = useColumnManager(columns);
+export default function CuesheetDnd({ columns, children }: PropsWithChildren<CuesheetDndProps>) {
+  const { columnOrder, saveColumnOrder } = useColumnOrder(columns);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

@@ -15,10 +15,12 @@
   ],
   "plugins": [
     "react",
+    "react-compiler",
     "simple-import-sort",
     "@tanstack/query"
   ],
   "rules": {
+    "react-compiler/react-compiler": "warn",
     "react/jsx-no-bind": [
       "error",
       {

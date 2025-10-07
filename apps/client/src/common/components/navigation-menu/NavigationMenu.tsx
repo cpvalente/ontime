@@ -1,29 +1,22 @@
-import { memo, PropsWithChildren } from 'react';
-import { createPortal } from 'react-dom';
-import { IoArrowUp, IoContract, IoExpand, IoLockClosedOutline, IoSwapVertical } from 'react-icons/io5';
-import { Link, useLocation } from 'react-router-dom';
-import {
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-  useDisclosure,
-} from '@chakra-ui/react';
-import { useFullscreen } from '@mantine/hooks';
+import { memo } from 'react';
+import { IoClose, IoContract, IoExpand, IoLockClosedOutline, IoSwapVertical } from 'react-icons/io5';
+import { LuCoffee } from 'react-icons/lu';
+import { useLocation } from 'react-router';
+import { Dialog } from '@base-ui-components/react/dialog';
+import { useDisclosure, useFullscreen } from '@mantine/hooks';
 
 import { isLocalhost } from '../../../externals';
+import { useKeepAwakeOptions } from '../../../features/keep-awake/KeepAwake';
 import { navigatorConstants } from '../../../viewerConfig';
-import { useElectronEvent } from '../../hooks/useElectronEvent';
-import useInfo from '../../hooks-query/useInfo';
 import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
-import { isKeyEnter } from '../../utils/keyEvent';
-import { handleLinks, linkToOtherHost, openLink } from '../../utils/linkUtils';
-import { cx } from '../../utils/styleUtils';
+import IconButton from '../buttons/IconButton';
 import { RenameClientModal } from '../client-modal/RenameClientModal';
-import CopyTag from '../copy-tag/CopyTag';
+
+import ClientLink from './client-link/ClientLink';
+import EditorNavigation from './editor-navigation/EditorNavigation';
+import NavigationMenuItem from './navigation-menu-item/NavigationMenuItem';
+import OtherAddresses from './other-addresses/OtherAddresses';
 
 import style from './NavigationMenu.module.scss';
 
@@ -32,74 +25,58 @@ interface NavigationMenuProps {
   onClose: () => void;
 }
 
-function NavigationMenu(props: NavigationMenuProps) {
-  const { isOpen, onClose } = props;
-
+export default memo(NavigationMenu);
+function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
   const id = useClientStore((store) => store.id);
   const name = useClientStore((store) => store.name);
 
-  const { isOpen: isOpenRename, onOpen: onRenameOpen, onClose: onCloseRename } = useDisclosure();
+  const [isRenameOpen, handlers] = useDisclosure(false);
   const { fullscreen, toggle } = useFullscreen();
   const { mirror, toggleMirror } = useViewOptionsStore();
+  const { keepAwake, toggleKeepAwake } = useKeepAwakeOptions();
   const location = useLocation();
 
-  return createPortal(
-    <div id='navigation-menu-portal'>
-      <RenameClientModal id={id} name={name} isOpen={isOpenRename} onClose={onCloseRename} />
-      <Drawer placement='left' onClose={onClose} isOpen={isOpen} variant='ontime' data-testid='navigation__menu'>
-        <DrawerOverlay />
-        <DrawerContent maxWidth='22rem'>
-          <DrawerHeader>
-            <DrawerCloseButton size='lg' />
-            Ontime
-          </DrawerHeader>
-          <DrawerBody padding={0}>
-            <div className={style.buttonsContainer}>
-              <div
-                className={cx([style.link, fullscreen && style.current])}
-                tabIndex={0}
-                role='button'
-                onClick={toggle}
-                onKeyDown={(event) => {
-                  isKeyEnter(event) && toggle();
-                }}
-              >
-                Toggle Fullscreen
-                {fullscreen ? <IoContract /> : <IoExpand />}
-              </div>
-              <div
-                className={cx([style.link, mirror && style.current])}
-                tabIndex={0}
-                role='button'
-                onClick={() => toggleMirror()}
-                onKeyDown={(event) => {
-                  isKeyEnter(event) && toggleMirror();
-                }}
-              >
-                Flip Screen
-                <IoSwapVertical />
-              </div>
-              <div
-                className={style.link}
-                tabIndex={0}
-                role='button'
-                onClick={onRenameOpen}
-                onKeyDown={(event) => {
-                  isKeyEnter(event) && onRenameOpen();
-                }}
-              >
-                Rename Client
-              </div>
-            </div>
+  return (
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Backdrop className={style.backdrop} />
+        <RenameClientModal id={id} name={name} isOpen={isRenameOpen} onClose={handlers.close} />
+        <Dialog.Popup className={style.drawer}>
+          <div className={style.header}>
+            <Dialog.Title>Ontime</Dialog.Title>
+            <IconButton variant='subtle-white' size='large' onClick={onClose}>
+              <IoClose />
+            </IconButton>
+          </div>
+          <div className={style.body}>
+            <NavigationMenuItem active={fullscreen} onClick={toggle}>
+              Toggle Fullscreen
+              {fullscreen ? <IoContract /> : <IoExpand />}
+            </NavigationMenuItem>
+            <NavigationMenuItem active={mirror} onClick={() => toggleMirror()}>
+              Flip Screen
+              <IoSwapVertical />
+              {mirror && <span className={style.note}>Active</span>}
+            </NavigationMenuItem>
+            {window.isSecureContext && (
+              <NavigationMenuItem active={keepAwake} onClick={toggleKeepAwake}>
+                Keep Awake
+                <LuCoffee />
+                {keepAwake && <span className={style.note}>Active</span>}
+              </NavigationMenuItem>
+            )}
+            <NavigationMenuItem onClick={handlers.open}>Rename Client</NavigationMenuItem>
+
             <hr className={style.separator} />
-            <Link
-              to='/editor'
-              tabIndex={0}
-              className={`${style.link} ${location.pathname === '/editor' && style.current}`}
-            >
-              <IoLockClosedOutline />
-              Editor
-            </Link>
+
+            <EditorNavigation />
             <ClientLink to='cuesheet' current={location.pathname === '/cuesheet'}>
               <IoLockClosedOutline />
               Cuesheet
@@ -108,86 +85,23 @@ function NavigationMenu(props: NavigationMenuProps) {
               <IoLockClosedOutline />
               Operator
             </ClientLink>
+
             <hr className={style.separator} />
+
             {navigatorConstants.map((route) => (
               <ClientLink key={route.url} to={route.url} current={location.pathname === `/${route.url}`}>
                 {route.label}
               </ClientLink>
             ))}
-            {isLocalhost && <OtherAddresses currentLocation={location.pathname} />}
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-    </div>,
-    document.body,
+          </div>
+
+          {isLocalhost && (
+            <div>
+              <OtherAddresses currentLocation={location.pathname} />
+            </div>
+          )}
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
-
-interface OtherAddressesProps {
-  currentLocation: string;
-}
-
-function OtherAddresses(props: OtherAddressesProps) {
-  const { currentLocation } = props;
-  const { data } = useInfo();
-
-  // there is no point showing this if we only have one interface
-  if (data.networkInterfaces.length < 2) {
-    return null;
-  }
-
-  return (
-    <div className={style.bottom}>
-      <div className={style.sectionHeader}>Accessible on external networks</div>
-      <div className={style.interfaces}>
-        {data?.networkInterfaces?.map((nif) => {
-          if (nif.name === 'localhost') {
-            return null;
-          }
-
-          const address = linkToOtherHost(nif.address, currentLocation);
-
-          return (
-            <CopyTag
-              key={nif.name}
-              copyValue={address}
-              onClick={() => openLink(address)}
-              label='Copy IP or navigate to address'
-            >
-              {nif.address} <IoArrowUp className={style.goIcon} />
-            </CopyTag>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-interface ClientLinkProps {
-  current: boolean;
-  to: string;
-}
-
-function ClientLink(props: PropsWithChildren<ClientLinkProps>) {
-  const { current, to, children } = props;
-  const { isElectron } = useElectronEvent();
-
-  const classes = cx([style.link, current && style.current]);
-
-  if (isElectron) {
-    return (
-      <button className={classes} tabIndex={0} onClick={(event) => handleLinks(event, to)}>
-        {children}
-        <IoArrowUp className={style.linkIcon} />
-      </button>
-    );
-  }
-
-  return (
-    <Link to={`/${to}`} className={classes} tabIndex={0}>
-      {children}
-    </Link>
-  );
-}
-
-export default memo(NavigationMenu);

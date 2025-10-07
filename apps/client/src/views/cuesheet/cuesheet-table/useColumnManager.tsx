@@ -1,31 +1,54 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
-import { ColumnDef } from '@tanstack/react-table';
-import { OntimeRundownEntry } from 'ontime-types';
+import { ColumnDef, ColumnSizingState, Updater } from '@tanstack/react-table';
 
-export default function useColumnManager(columns: ColumnDef<OntimeRundownEntry>[]) {
-  const [columnVisibility, setColumnVisibility] = useLocalStorage({ key: 'table-hidden', defaultValue: {} });
+import { debounce } from '../../../common/utils/debounce';
+import { makeStageKey } from '../../../common/utils/localStorage';
+import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
+
+const tableSizesKey = makeStageKey('cuesheet-sizes');
+const tableHiddenKey = makeStageKey('cuesheet-hidden');
+const tableOrderKey = makeStageKey('cuesheet-order');
+
+const saveSizesToStorage = debounce((sizes: Record<string, number>) => {
+  localStorage.setItem(tableSizesKey, JSON.stringify(sizes));
+}, 500);
+
+export function useColumnSizes() {
+  const [columnSizing, setColumnSizingState] = useState<Record<string, number>>(() => {
+    try {
+      const stored = localStorage.getItem(tableSizesKey);
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // save sizes to localStorage whenever they change (debounced)
+  useEffect(() => {
+    saveSizesToStorage(columnSizing);
+  }, [columnSizing]);
+
+  const setColumnSizing = useCallback((sizesOrUpdater: Updater<ColumnSizingState>) => {
+    setColumnSizingState(sizesOrUpdater);
+  }, []);
+
+  return {
+    columnSizing,
+    setColumnSizing,
+  };
+}
+
+export function useColumnOrder(columns: ColumnDef<ExtendedEntry>[]) {
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>({
-    key: 'table-order',
+    key: tableOrderKey,
     defaultValue: columns.map((col) => col.id as string),
   });
-  const [columnSizing, setColumnSizing] = useLocalStorage({ key: 'table-sizes', defaultValue: {} });
 
-  // if the columns change, we update the dataset
+  // update column order if columns change
   useEffect(() => {
-    let shouldReplace = false;
-    const newColumns: string[] = [];
-
-    // iterate through columns to see if there are new ids
-    columns.forEach((column) => {
-      const columnnId = column.id as string;
-      if (!shouldReplace && !columnOrder.includes(columnnId)) {
-        shouldReplace = true;
-      }
-      newColumns.push(columnnId);
-    });
-
-    if (shouldReplace) {
+    const newColumns = columns.map((col) => col.id as string);
+    if (newColumns.some((id) => !columnOrder.includes(id))) {
       saveColumnOrder(newColumns);
     }
   }, [columnOrder, columns, saveColumnOrder]);
@@ -35,12 +58,20 @@ export default function useColumnManager(columns: ColumnDef<OntimeRundownEntry>[
   }, [columns, saveColumnOrder]);
 
   return {
-    columnVisibility,
     columnOrder,
-    columnSizing,
-    resetColumnOrder,
-    setColumnVisibility,
     saveColumnOrder,
-    setColumnSizing,
+    resetColumnOrder,
+  };
+}
+
+export function useColumnVisibility() {
+  const [columnVisibility, setColumnVisibility] = useLocalStorage({
+    key: tableHiddenKey,
+    defaultValue: {},
+  });
+
+  return {
+    columnVisibility,
+    setColumnVisibility,
   };
 }

@@ -1,18 +1,19 @@
 import { memo } from 'react';
-import { Input } from '@chakra-ui/react';
+
+import Button from '../../../../common/components/buttons/Button';
+import Input from '../../../../common/components/input/input/Input';
 
 import style from './EditableImage.module.scss';
 
 interface EditableImageProps {
   initialValue: string;
+  readOnly?: boolean;
   updateValue: (newValue: string) => void;
 }
 
 export default memo(EditableImage);
 
-function EditableImage(props: EditableImageProps) {
-  const { initialValue, updateValue } = props;
-
+function EditableImage({ initialValue, readOnly, updateValue }: EditableImageProps) {
   const handleUpdate = (newValue: string) => {
     if (newValue === initialValue) {
       return;
@@ -23,13 +24,21 @@ function EditableImage(props: EditableImageProps) {
     updateValue(newValue);
   };
 
+  const openInNewTab = () => {
+    if (initialValue) {
+      window.open(initialValue, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   if (!initialValue) {
     return (
       <Input
-        size='sm'
-        variant='ontime-transparent'
-        padding={0}
-        fontSize='md'
+        variant='ghosted'
+        className={style.imageInput}
+        fluid
+        readOnly={readOnly}
+        // we disable the field to prevent receiving focus
+        disabled={readOnly}
         placeholder='Paste image URL'
         onBlur={(event) => handleUpdate(event.currentTarget.value)}
         onKeyDown={(event) => {
@@ -38,18 +47,21 @@ function EditableImage(props: EditableImageProps) {
           }
         }}
         defaultValue={initialValue}
-        spellCheck={false}
-        autoComplete='off'
       />
     );
   }
 
   return (
     <div className={style.imageCell}>
-      <div className={style.overlay}>
-        <button onClick={() => handleUpdate('')}>Delete</button>
-      </div>
-      <img loading='lazy' src={initialValue} className={style.image} />
+      {!readOnly && (
+        <div className={style.overlay}>
+          <Button onClick={openInNewTab}>Preview</Button>
+          <Button variant='subtle-destructive' onClick={() => handleUpdate('')}>
+            Delete
+          </Button>
+        </div>
+      )}
+      {Boolean(initialValue) && <img loading='lazy' src={initialValue} className={style.image} />}
     </div>
   );
 }

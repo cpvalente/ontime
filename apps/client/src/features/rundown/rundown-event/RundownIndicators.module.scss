@@ -1,0 +1,29 @@
+/** binder + gap + pb-actions */
+$gap-left: calc(2rem + 0.25rem + 3rem);
+
+.indicators {
+  font-size: calc(1rem - 5px);
+  position: absolute;
+  top: -1em;
+  z-index: $zindex-floating;
+  margin-left: $gap-left;
+
+  display: flex;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+@mixin indicator($bg-colour) {
+  padding: 0 0.5rem;
+  border-radius: 2px;
+  background-color: $bg-colour;
+  color: $ui-white;
+}
+
+.delay {
+  @include indicator($ontime-delay);
+}
+
+.gap {
+  @include indicator($blue-500);
+}

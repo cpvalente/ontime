@@ -4,13 +4,14 @@ import { Automation, AutomationSettings, ErrorResponse, Trigger } from 'ontime-t
 import type { Request, Response } from 'express';
 
 import { oscServer } from '../../adapters/OscAdapter.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 import * as automationDao from './automation.dao.js';
 import * as automationService from './automation.service.js';
 import { parseOutput } from './automation.validation.js';
 
 export function getAutomationSettings(_req: Request, res: Response<AutomationSettings>) {
-  res.json(automationDao.getAutomationSettings());
+  res.status(200).json(automationDao.getAutomationSettings());
 }
 
 export async function postAutomationSettings(req: Request, res: Response<AutomationSettings | ErrorResponse>) {
@@ -106,7 +107,8 @@ export async function editAutomation(req: Request, res: Response<Automation | Er
 
 export async function deleteAutomation(req: Request, res: Response<void | ErrorResponse>) {
   try {
-    await automationDao.deleteAutomation(req.params.id);
+    const projectRundowns = getDataProvider().getProjectRundowns();
+    await automationDao.deleteAutomation(projectRundowns, req.params.id);
     res.status(204).send();
   } catch (error) {
     const message = getErrorMessage(error);

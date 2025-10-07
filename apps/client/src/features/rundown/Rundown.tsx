@@ -1,36 +1,50 @@
 import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
-import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useHotkeys } from '@mantine/hooks';
+import { TbFlagFilled } from 'react-icons/tb';
 import {
-  isOntimeBlock,
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useHotkeys, useSessionStorage } from '@mantine/hooks';
+import {
+  type EntryId,
+  type MaybeString,
+  type Rundown,
   isOntimeEvent,
-  isPlayableEvent,
-  MaybeString,
-  PlayableEvent,
+  isOntimeGroup,
+  OntimeEntry,
   Playback,
-  RundownCached,
-  SupportedEvent,
+  SupportedEntry,
 } from 'ontime-types';
 import {
-  checkIsNextDay,
   getFirstNormal,
   getLastNormal,
-  getNextBlockNormal,
+  getNextGroupNormal,
   getNextNormal,
-  getPreviousBlockNormal,
+  getPreviousGroupNormal,
   getPreviousNormal,
-  isNewLatest,
+  reorderArray,
 } from 'ontime-utils';
 
-import { type EventOptions, useEventAction } from '../../common/hooks/useEventAction';
+import { useEntryActions } from '../../common/hooks/useEntryAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
-import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
-import { cloneEvent } from '../../common/utils/eventsManager';
+import { cloneEvent } from '../../common/utils/clone';
+import { lastMetadataKey, RundownMetadataObject } from '../../common/utils/rundownMetadata';
+import { AppMode, sessionKeys } from '../../ontimeConfig';
 
-import QuickAddBlock from './quick-add-block/QuickAddBlock';
+import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
+import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
+import RundownGroup from './rundown-group/RundownGroup';
+import RundownGroupEnd from './rundown-group/RundownGroupEnd';
+import { canDrop, makeSortableList } from './rundown.utils';
 import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
 
@@ -39,84 +53,89 @@ import style from './Rundown.module.scss';
 const RundownEntry = lazy(() => import('./RundownEntry'));
 
 interface RundownProps {
-  data: RundownCached;
+  data: Rundown;
+  rundownMetadata: RundownMetadataObject;
 }
 
-export default function Rundown({ data }: RundownProps) {
-  const { order, rundown } = data;
-  const [statefulEntries, setStatefulEntries] = useState(order);
-
+export default function Rundown({ data, rundownMetadata }: RundownProps) {
+  const { order, entries, id } = data;
+  // we create a copy of the rundown with a data structured aligned with what dnd-kit needs
   const featureData = useRundownEditor();
-  const { addEvent, reorderEvent, deleteEvent } = useEventAction();
+  const [sortableData, setSortableData] = useState<EntryId[]>(() => makeSortableList(order, entries));
+  const [metadata, setMetadata] = useState(rundownMetadata);
+  const [collapsedGroups, setCollapsedGroups] = useSessionStorage<EntryId[]>({
+    // we ensure that this is unique to the rundown
+    key: `rundown.${id}-editor-collapsed-groups`,
+    defaultValue: [],
+  });
+
+  const { addEntry, deleteEntry, move, reorderEntry } = useEntryActions();
 
   const { entryCopyId, setEntryCopyId } = useEntryCopy();
 
   // cursor
-  const { mode: appMode } = useAppMode();
+  const [editorMode] = useSessionStorage<AppMode>({
+    key: sessionKeys.editorMode,
+    defaultValue: AppMode.Edit,
+  });
   const { clearSelectedEvents, setSelectedEvents, cursor } = useEventSelection();
 
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: appMode === AppMode.Run });
+  useFollowComponent({
+    followRef: cursorRef,
+    scrollRef,
+    doFollow: true,
+    followTrigger: editorMode === AppMode.Edit ? cursor : featureData?.selectedEventId,
+  });
 
   // DND KIT
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 10 } }));
 
   const deleteAtCursor = useCallback(
     (cursor: string | null) => {
       if (!cursor) return;
-      const { entry, index } = getPreviousNormal(rundown, order, cursor);
-      deleteEvent([cursor]);
+      const { entry, index } = getPreviousNormal(entries, order, cursor);
+      deleteEntry([cursor]);
       if (entry && index !== null) {
         setSelectedEvents({ id: entry.id, selectMode: 'click', index });
       }
     },
-    [rundown, order, deleteEvent, setSelectedEvents],
+    [entries, order, deleteEntry, setSelectedEvents],
   );
 
   const insertCopyAtId = useCallback(
     (atId: string | null, copyId: string | null, above = false) => {
-      const adjustedCursor = above ? getPreviousNormal(rundown, order, atId ?? '').entry?.id ?? null : atId;
+      const adjustedCursor = above ? getPreviousNormal(entries, order, atId ?? '').entry?.id ?? null : atId;
       if (copyId === null) {
         // we cant clone without selection
         return;
       }
-      const cloneEntry = rundown[copyId];
-      if (cloneEntry?.type === SupportedEvent.Event) {
+      const cloneEntry = entries[copyId];
+      if (cloneEntry?.type === SupportedEntry.Event) {
         //if we don't have a cursor add the new event on top
         const newEvent = cloneEvent(cloneEntry);
-        addEvent(newEvent, { after: adjustedCursor ?? undefined });
+        addEntry(newEvent, { after: adjustedCursor ?? undefined });
       }
     },
-    [addEvent, order, rundown],
+    [addEntry, order, entries],
   );
 
+  /**
+   * Add a new item referring to an existing one
+   */
   const insertAtId = useCallback(
-    (type: SupportedEvent, id: MaybeString, above = false) => {
-      const options: EventOptions =
-        id === null
-          ? {}
-          : {
-              after: above ? undefined : id,
-              before: above ? id : undefined,
-            };
-
-      if (type === SupportedEvent.Event) {
-        const newEvent = {
-          type: SupportedEvent.Event,
-        };
-        if (!above && id) {
-          options.lastEventId = id;
-        }
-        addEvent(newEvent, options);
-      } else {
-        addEvent({ type }, options);
-      }
+    (patch: Partial<OntimeEntry> & { type: SupportedEntry }, id: MaybeString, above = false) => {
+      addEntry(patch, {
+        after: id && !above ? id : undefined,
+        before: id && above ? id : undefined,
+        lastEventId: !above && id ? id : undefined,
+      });
     },
-    [addEvent],
+    [addEntry],
   );
 
-  const selectBlock = useCallback(
+  const selectGroup = useCallback(
     (cursor: string | null, direction: 'up' | 'down') => {
       if (order.length < 1) {
         return;
@@ -124,9 +143,9 @@ export default function Rundown({ data }: RundownProps) {
       let newCursor = cursor;
       if (cursor === null) {
         // there is no cursor, we select the first or last depending on direction
-        const selected = direction === 'up' ? getLastNormal(rundown, order) : getFirstNormal(rundown, order);
+        const selected = direction === 'up' ? getLastNormal(entries, order) : getFirstNormal(entries, order);
 
-        if (isOntimeBlock(selected)) {
+        if (isOntimeGroup(selected)) {
           setSelectedEvents({ id: selected.id, selectMode: 'click', index: direction === 'up' ? order.length : 0 });
           return;
         }
@@ -140,14 +159,14 @@ export default function Rundown({ data }: RundownProps) {
       // otherwise we select the next or previous
       const selected =
         direction === 'up'
-          ? getPreviousBlockNormal(rundown, order, newCursor)
-          : getNextBlockNormal(rundown, order, newCursor);
+          ? getPreviousGroupNormal(entries, order, newCursor)
+          : getNextGroupNormal(entries, order, newCursor);
 
       if (selected.entry !== null && selected.index !== null) {
         setSelectedEvents({ id: selected.entry.id, selectMode: 'click', index: selected.index });
       }
     },
-    [order, rundown, setSelectedEvents],
+    [order, entries, setSelectedEvents],
   );
 
   const selectEntry = useCallback(
@@ -158,7 +177,7 @@ export default function Rundown({ data }: RundownProps) {
 
       if (cursor === null) {
         // there is no cursor, we select the first or last depending on direction if it exists
-        const selected = direction === 'up' ? getLastNormal(rundown, order) : getFirstNormal(rundown, order);
+        const selected = direction === 'up' ? getLastNormal(entries, order) : getFirstNormal(entries, order);
         if (selected !== null) {
           setSelectedEvents({ id: selected.id, selectMode: 'click', index: direction === 'up' ? order.length : 0 });
         }
@@ -167,185 +186,408 @@ export default function Rundown({ data }: RundownProps) {
 
       // otherwise we select the next or previous
       const selected =
-        direction === 'up' ? getPreviousNormal(rundown, order, cursor) : getNextNormal(rundown, order, cursor);
+        direction === 'up' ? getPreviousNormal(entries, order, cursor) : getNextNormal(entries, order, cursor);
 
       if (selected.entry !== null && selected.index !== null) {
         setSelectedEvents({ id: selected.entry.id, selectMode: 'click', index: selected.index });
       }
     },
-    [order, rundown, setSelectedEvents],
+    [order, entries, setSelectedEvents],
+  );
+
+  /**
+   * Checks whether a group is collapsed
+   */
+  const getIsCollapsed = useCallback(
+    (groupId: EntryId): boolean => {
+      return Boolean(collapsedGroups.find((id) => id === groupId));
+    },
+    [collapsedGroups],
+  );
+
+  /**
+   * Handles logic for collapsing groups
+   */
+  const handleCollapseGroup = useCallback(
+    (collapsed: boolean, groupId: EntryId) => {
+      setCollapsedGroups((prev) => {
+        const isCollapsed = getIsCollapsed(groupId);
+        if (collapsed && !isCollapsed) {
+          const newSet = new Set(prev).add(groupId);
+          return [...newSet];
+        }
+        if (!collapsed && isCollapsed) {
+          return [...prev].filter((id) => id !== groupId);
+        }
+        return prev;
+      });
+    },
+    [getIsCollapsed, setCollapsedGroups],
   );
 
   const moveEntry = useCallback(
-    (cursor: string | null, direction: 'up' | 'down') => {
-      if (order.length < 2 || cursor == null) {
+    async (cursor: EntryId | null, direction: 'up' | 'down') => {
+      if (cursor == null) {
         return;
       }
-      const { index } =
-        direction === 'up' ? getPreviousNormal(rundown, order, cursor) : getNextNormal(rundown, order, cursor);
 
-      if (index !== null) {
-        const offsetIndex = direction === 'up' ? index + 1 : index - 1;
-        reorderEvent(cursor, offsetIndex, index);
+      const movedIntoGroupId = await move(cursor, direction);
+      // if we are moving into a group, we need to make sure it is expanded
+      if (movedIntoGroupId) {
+        handleCollapseGroup(false, movedIntoGroupId);
       }
     },
-    [order, reorderEvent, rundown],
+    [handleCollapseGroup, move],
   );
 
   // shortcuts
   useHotkeys([
-    ['alt + ArrowDown', () => selectEntry(cursor, 'down'), { preventDefault: true }],
-    ['alt + ArrowUp', () => selectEntry(cursor, 'up'), { preventDefault: true }],
+    ['alt + ArrowDown', () => selectEntry(cursor, 'down'), { preventDefault: true, usePhysicalKeys: true }],
+    ['alt + ArrowUp', () => selectEntry(cursor, 'up'), { preventDefault: true, usePhysicalKeys: true }],
 
-    ['alt + shift + ArrowDown', () => selectBlock(cursor, 'down'), { preventDefault: true }],
-    ['alt + shift + ArrowUp', () => selectBlock(cursor, 'up'), { preventDefault: true }],
+    ['alt + shift + ArrowDown', () => selectGroup(cursor, 'down'), { preventDefault: true, usePhysicalKeys: true }],
+    ['alt + shift + ArrowUp', () => selectGroup(cursor, 'up'), { preventDefault: true, usePhysicalKeys: true }],
 
-    ['alt + mod + ArrowDown', () => moveEntry(cursor, 'down'), { preventDefault: true }],
-    ['alt + mod + ArrowUp', () => moveEntry(cursor, 'up'), { preventDefault: true }],
+    ['alt + mod + ArrowDown', () => moveEntry(cursor, 'down'), { preventDefault: true, usePhysicalKeys: true }],
+    ['alt + mod + ArrowUp', () => moveEntry(cursor, 'up'), { preventDefault: true, usePhysicalKeys: true }],
 
-    ['Escape', () => clearSelectedEvents(), { preventDefault: true }],
+    ['Escape', () => clearSelectedEvents(), { preventDefault: true, usePhysicalKeys: true }],
 
-    ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
+    ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true, usePhysicalKeys: true }],
 
-    ['alt + E', () => insertAtId(SupportedEvent.Event, cursor), { preventDefault: true }],
-    ['alt + shift + E', () => insertAtId(SupportedEvent.Event, cursor, true), { preventDefault: true }],
+    [
+      'alt + E',
+      () => insertAtId({ type: SupportedEntry.Event }, cursor),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
+    [
+      'alt + shift + E',
+      () => insertAtId({ type: SupportedEntry.Event }, cursor, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
-    ['alt + B', () => insertAtId(SupportedEvent.Block, cursor), { preventDefault: true }],
-    ['alt + shift + B', () => insertAtId(SupportedEvent.Block, cursor, true), { preventDefault: true }],
+    [
+      'alt + G',
+      () => insertAtId({ type: SupportedEntry.Group }, cursor),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
+    [
+      'alt + shift + G',
+      () => insertAtId({ type: SupportedEntry.Group }, cursor, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
-    ['alt + D', () => insertAtId(SupportedEvent.Delay, cursor), { preventDefault: true }],
-    ['alt + shift + D', () => insertAtId(SupportedEvent.Delay, cursor, true), { preventDefault: true }],
+    [
+      'alt + D',
+      () => insertAtId({ type: SupportedEntry.Delay }, cursor),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
+    [
+      'alt + shift + D',
+      () => insertAtId({ type: SupportedEntry.Delay }, cursor, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
+
+    [
+      'alt + M',
+      () => insertAtId({ type: SupportedEntry.Milestone }, cursor),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
+    [
+      'alt + shift + M',
+      () => insertAtId({ type: SupportedEntry.Milestone }, cursor, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
     ['mod + C', () => setEntryCopyId(cursor)],
     ['mod + V', () => insertCopyAtId(cursor, entryCopyId)],
-    ['mod + shift + V', () => insertCopyAtId(cursor, entryCopyId, true), { preventDefault: true }],
+    [
+      'mod + shift + V',
+      () => insertCopyAtId(cursor, entryCopyId, true),
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
-    ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
+    ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true, usePhysicalKeys: true }],
   ]);
 
   // we copy the state from the store here
   // to workaround async updates on the drag mutations
   useEffect(() => {
-    setStatefulEntries(order);
-  }, [order]);
+    setSortableData(makeSortableList(order, entries));
+    setMetadata(rundownMetadata);
+  }, [order, entries, rundownMetadata]);
 
+  // in run mode, we follow the playback selection and open groups as needed
   useEffect(() => {
-    // in run mode, we follow selection
-    if (appMode !== AppMode.Run || !featureData?.selectedEventId) {
+    if (editorMode !== AppMode.Run || !featureData?.selectedEventId) {
       return;
     }
     const index = order.findIndex((id) => id === featureData.selectedEventId);
-    setSelectedEvents({ id: featureData.selectedEventId, selectMode: 'click', index });
-  }, [appMode, featureData.selectedEventId, order, setSelectedEvents]);
+    // @ts-expect-error -- but we safely check if the parent property exists
+    const maybeParent = entries[featureData.selectedEventId]?.parent;
+    if (maybeParent) {
+      // open the group
+      setCollapsedGroups((prev) => [...prev].filter((id) => id !== maybeParent));
+    }
 
+    setSelectedEvents({ id: featureData.selectedEventId, selectMode: 'click', index });
+  }, [editorMode, entries, featureData.selectedEventId, order, setCollapsedGroups, setSelectedEvents]);
+
+  /**
+   * On drag end, we reorder the events
+   */
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (over?.id) {
-      if (active.id !== over?.id) {
-        const fromIndex = active.data.current?.sortable.index;
-        const toIndex = over.data.current?.sortable.index;
-        // ugly hack to handle inconsistencies between dnd-kit and async store updates
-        setStatefulEntries((currentEntries) => {
-          return arrayMove(currentEntries, fromIndex, toIndex);
-        });
-        reorderEvent(String(active.id), fromIndex, toIndex);
+    if (!over?.id || active.id === over.id) {
+      return;
+    }
+
+    if (!active.data.current || !over.data.current) {
+      return;
+    }
+
+    const fromIndex: number = active.data.current.sortable.index;
+    const toIndex: number = over.data.current.sortable.index;
+    let placement: 'before' | 'after' | 'insert' = fromIndex < toIndex ? 'after' : 'before';
+
+    let destinationId = over.id as EntryId;
+    const isDraggingGroup = active.data.current?.type === SupportedEntry.Group;
+
+    // prevent dropping a group inside another
+    if (
+      isDraggingGroup &&
+      !canDrop(over.data.current.type, over.data.current.parent, placement, getIsCollapsed(destinationId))
+    ) {
+      return;
+    }
+
+    /**
+     * We need to specially handle the end-group
+     * Dragging before a end-group will add the entry to the end of the group
+     * Dragging after a end-group will add the event after the group itself
+     * Dragging to the top of a group either place before first entry or if no entries do insert
+     */
+    if (destinationId.startsWith('end-')) {
+      destinationId = destinationId.replace('end-', '');
+      // if we are moving before the end, we use the insert operation
+      if (placement === 'before') {
+        placement = 'insert';
       }
+    } else {
+      const group = data.entries[destinationId];
+      // if dragging into a group
+      if (isOntimeGroup(group) && placement === 'after') {
+        if (isDraggingGroup) {
+          // ... and the dragged entry is a group, we know that the group is collapsed, because of the safe check canDrop from before
+          // so we can safely push the dragged event after the group
+          destinationId = group.id;
+        } else if (group.entries.length === 0) {
+          // ... and the group is entry, we insert
+          destinationId = group.id;
+          placement = 'insert';
+        } else {
+          // otherwise we add it to before the first group child
+          destinationId = group.entries[0];
+          placement = 'before';
+        }
+      }
+    }
+
+    // keep copy of the current state in case we need to revert
+    const currentEntries = structuredClone(sortableData);
+    // we keep a copy of the state as a hack to handle inconsistencies between dnd-kit and async store updates
+    setSortableData((currentEntries) => {
+      return reorderArray(currentEntries, fromIndex, toIndex);
+    });
+    reorderEntry(active.id as EntryId, destinationId, placement).catch((_) => {
+      setSortableData(currentEntries);
+    });
+  };
+
+  /**
+   * When we drag a group, we force collapse it
+   * This avoids strange scenarios like dropping a group inside itself
+   */
+  const collapseDraggedGroups = (event: DragStartEvent) => {
+    const isGroup = event.active.data.current?.type === SupportedEntry.Group;
+    if (isGroup) {
+      handleCollapseGroup(true, event.active.id as EntryId);
     }
   };
 
-  if (statefulEntries.length < 1) {
-    return <RundownEmpty handleAddNew={() => insertAtId(SupportedEvent.Event, cursor)} />;
+  /**
+   * When we drag over a group, we expand it if it is collapsed
+   */
+  const expandOverGroup = (event: DragOverEvent) => {
+    // if we are dragging a group, the drop operation is invalid so we dont expand
+    if (event.active.data.current?.type === 'group') {
+      return;
+    }
+    if (event.over?.data.current?.type !== 'group') {
+      return;
+    }
+    const groupId = event.over?.id as EntryId;
+    const isCollapsed = getIsCollapsed(groupId);
+    if (isCollapsed) {
+      handleCollapseGroup(false, groupId);
+    }
+  };
+
+  if (sortableData.length < 1) {
+    return <RundownEmpty handleAddNew={(type: SupportedEntry) => addEntry({ type })} />;
   }
 
-  // last event is used to calculate relative timings
-  let lastEvent: PlayableEvent | undefined; // used by indicators
-  let thisEvent: PlayableEvent | undefined;
-  // previous entry is used to infer position in the rundown for new events
-  let previousEntryId: string | undefined;
-  let thisId = previousEntryId;
+  // 1. gather presentation options
+  const isEditMode = editorMode === AppMode.Edit;
 
-  let eventIndex = 0;
-  // all events before the current selected are in the past
-  let isPast = Boolean(featureData?.selectedEventId);
-  let isNextDay = false;
-  let totalGap = 0;
-  const isEditMode = appMode === AppMode.Edit;
-  let isLinkedToLoaded = true; //check if the event can link all the way back to the currently playing event
   return (
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
-      <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
-        <SortableContext items={statefulEntries} strategy={verticalListSortingStrategy}>
+      <DndContext
+        onDragEnd={handleOnDragEnd}
+        onDragStart={collapseDraggedGroups}
+        onDragOver={expandOverGroup}
+        sensors={sensors}
+        collisionDetection={closestCenter}
+      >
+        <SortableContext items={sortableData} strategy={verticalListSortingStrategy}>
           <div className={style.list}>
-            {statefulEntries.map((entryId, index) => {
-              // we iterate through a stateful copy of order to make the operations smoother
+            {isEditMode && <QuickAddButtons previousEventId={null} parentGroup={null} />}
+            {sortableData.map((entryId, index) => {
+              // the entry might be a pseudo end-group which does not generate metadata and should not be processed
+              if (entryId.startsWith('end-')) {
+                const parentId = entryId.split('end-')[1];
+                const isGroupCollapsed = getIsCollapsed(parentId);
+                const parentMetadata = metadata[parentId];
+
+                if (isGroupCollapsed) {
+                  return null;
+                }
+
+                // if the previous element is selected, it will have its own QuickAddInline
+                // we use thisId instead of previousEntryId because the end-group does not process
+                // and it does not cause the reassignment of the iteration id to the previous entry
+                return (
+                  <Fragment key={entryId}>
+                    {isEditMode && parentMetadata?.groupEntries === 0 && (
+                      <QuickAddButtons
+                        previousEventId={null}
+                        parentGroup={parentId}
+                        backgroundColor={parentMetadata?.groupColour}
+                      />
+                    )}
+                    <RundownGroupEnd key={entryId} id={entryId} colour={parentMetadata?.groupColour} />
+                  </Fragment>
+                );
+              }
+
+              // we iterate through a stateful copy of order to make the dnd operations smoother
               // this means that this can be out of sync with order until the useEffect runs
               // instead of writing all the logic guards, we simply short circuit rendering here
-              const entry = rundown[entryId];
-              if (!entry) {
+              const entry = entries[entryId];
+              const entryMetadata = metadata[entryId];
+              if (!entry || !entryMetadata) return null;
+
+              // if the entry has a parent, and it is collapsed, render nothing
+              if (
+                entry.type !== SupportedEntry.Group &&
+                entryMetadata.groupId !== null &&
+                getIsCollapsed(entryMetadata.groupId)
+              ) {
                 return null;
               }
-              if (index === 0) {
-                eventIndex = 0;
-              }
-              isNextDay = false;
-              previousEntryId = thisId;
-              thisId = entryId;
-              if (isOntimeEvent(entry)) {
-                // event indexes are 1 based in frontend
-                eventIndex++;
-                lastEvent = thisEvent;
 
-                if (isPlayableEvent(entry)) {
-                  isNextDay = checkIsNextDay(entry, lastEvent);
-                  if (!isPast) {
-                    totalGap += entry.gap;
-                    // We also include countToEnd in this test as the behavior of a linked event coming after a countToEnd is simelar to an unlinked event
-                    isLinkedToLoaded = isLinkedToLoaded && entry.linkStart !== null && !lastEvent?.countToEnd;
-                  }
-                  if (isNewLatest(entry, lastEvent)) {
-                    // populate previous entry
-                    thisEvent = entry;
-                  }
-                }
-              }
-              const isFirst = index === 0;
-              const isLast = index === order.length - 1;
-              const isLoaded = featureData?.selectedEventId === entry.id;
               const isNext = featureData?.nextEventId === entry.id;
               const hasCursor = entry.id === cursor;
-              if (isLoaded) {
-                isPast = false;
-              }
+
+              /**
+               * Outside a group, the value will be undefined
+               * If the colour is empty string ''
+               * ie: we are inside a group, but there is no defined colour
+               * we default to $gray-500 #9d9d9d
+               */
+              const groupColour = entryMetadata.groupColour === '' ? '#9d9d9d' : entryMetadata.groupColour;
+
+              const isFirst = index === 0;
+              const isLast = entryId === order.at(-1);
+
+              /**
+               * We need to provide the parent ID for the QuickAdd components
+               * This should be different depending on whether we are adding before or after an element
+               * - when adding before, we need to avoid a group referencing itself as the parent
+               * - when adding after, we can use the group ID directly to insert at the top of the group
+               */
+
+              const parentIdForBefore = entryMetadata.thisId !== entryMetadata.groupId ? entryMetadata.groupId : null;
+              const parentIdForAfter = entryMetadata.groupId;
 
               return (
                 <Fragment key={entry.id}>
-                  {isEditMode && (hasCursor || isFirst) && <QuickAddBlock previousEventId={previousEntryId} />}
-                  <div className={style.entryWrapper} data-testid={`entry-${eventIndex}`}>
-                    {isOntimeEvent(entry) && <div className={style.entryIndex}>{eventIndex}</div>}
-                    <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
-                      <RundownEntry
-                        type={entry.type}
-                        isPast={isPast}
-                        eventIndex={eventIndex}
-                        data={entry}
-                        loaded={isLoaded}
-                        hasCursor={hasCursor}
-                        isNext={isNext}
-                        previousEntryId={previousEntryId}
-                        previousEventId={lastEvent?.id}
-                        playback={isLoaded ? featureData.playback : undefined}
-                        isRolling={featureData.playback === Playback.Roll}
-                        isNextDay={isNextDay}
-                        totalGap={totalGap}
-                        isLinkedToLoaded={isLinkedToLoaded}
-                      />
+                  {/**
+                   * Before the entry
+                   * - edit mode only
+                   * - if there is a cursor
+                   * - if it is not the first entry (the buttons would be there)
+                   */}
+                  {isEditMode && hasCursor && !isFirst && (
+                    <QuickAddInline placement='before' referenceEntryId={entry.id} parentGroup={parentIdForBefore} />
+                  )}
+                  {isOntimeGroup(entry) ? (
+                    <RundownGroup
+                      data={entry}
+                      hasCursor={hasCursor}
+                      collapsed={getIsCollapsed(entry.id)}
+                      onCollapse={handleCollapseGroup}
+                    />
+                  ) : (
+                    <div
+                      className={style.entryWrapper}
+                      data-testid={`entry-${entryMetadata.eventIndex}`}
+                      style={groupColour ? { '--user-bg': groupColour } : {}}
+                    >
+                      {isOntimeEvent(entry) && (
+                        <div className={style.entryIndex}>
+                          {entry.flag && <TbFlagFilled className={style.flag} />}
+                          <div className={style.index}>{entryMetadata.eventIndex}</div>
+                        </div>
+                      )}
+                      <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
+                        <RundownEntry
+                          type={entry.type}
+                          isPast={entryMetadata.isPast}
+                          eventIndex={entryMetadata.eventIndex}
+                          data={entry}
+                          loaded={entryMetadata.isLoaded}
+                          hasCursor={hasCursor}
+                          isNext={isNext}
+                          isNextDay={entryMetadata.isNextDay}
+                          playback={entryMetadata.isLoaded ? featureData.playback : undefined}
+                          isRolling={featureData.playback === Playback.Roll}
+                          totalGap={entryMetadata.totalGap}
+                          isLinkedToLoaded={entryMetadata.isLinkedToLoaded}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  {isEditMode && (hasCursor || isLast) && <QuickAddBlock previousEventId={entry.id} />}
+                  )}
+                  {/**
+                   * After the entry
+                   * - edit mode only
+                   * - if there is a cursor
+                   * - if it is not the last entry (the buttons would be there)
+                   * - if the entry is not the group header
+                   */}
+                  {isEditMode && hasCursor && !isLast && (
+                    <QuickAddInline placement='after' referenceEntryId={entry.id} parentGroup={parentIdForAfter} />
+                  )}
                 </Fragment>
               );
             })}
+            {isEditMode && (
+              <QuickAddButtons
+                previousEventId={metadata[lastMetadataKey]?.groupId ?? metadata[lastMetadataKey].thisId}
+                parentGroup={null}
+              />
+            )}
             <div className={style.spacer} />
           </div>
         </SortableContext>

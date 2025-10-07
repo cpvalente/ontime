@@ -1,6 +1,6 @@
 import { PropsWithChildren, useEffect, useRef, useState } from 'react';
-import { Input } from '@chakra-ui/react';
 
+import Input from '../../../common/components/input/input/Input';
 import { cx } from '../../../common/utils/styleUtils';
 
 import style from './InputRow.module.scss';
@@ -47,15 +47,7 @@ export default function InputRow(props: PropsWithChildren<InputRowProps>) {
         {label}
       </label>
       <div className={style.inputItems}>
-        <Input
-          id={label}
-          ref={inputRef}
-          size='sm'
-          variant='ontime-filled'
-          value={value}
-          onChange={handleInputChange}
-          placeholder={placeholder}
-        />
+        <Input id={label} ref={inputRef} value={value} onChange={handleInputChange} placeholder={placeholder} />
         {children}
       </div>
     </div>

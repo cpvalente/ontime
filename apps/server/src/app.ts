@@ -1,4 +1,4 @@
-import { LogOrigin, Playback, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { LogOrigin, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -29,14 +29,15 @@ import { getDataProvider } from './classes/data-provider/DataProvider.js';
 
 // Services
 import { logger } from './classes/Logger.js';
+import { populateDemo } from './setup/loadDemo.js';
+import { populateTranslation } from './setup/loadTranslations.js';
 import { populateStyles } from './setup/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
-import { runtimeService } from './services/runtime-service/RuntimeService.js';
-import { restoreService } from './services/RestoreService.js';
-import * as messageService from './services/message-service/MessageService.js';
-import { populateDemo } from './setup/loadDemo.js';
+import { runtimeService } from './services/runtime-service/runtime.service.js';
+import { restoreService } from './services/restore-service/restore.service.js';
+import type { RestorePoint } from './services/restore-service/restore.type.js';
+import * as messageService from './services/message-service/message.service.js';
 import { getState } from './stores/runtimeState.js';
-import { initRundown } from './services/rundown-service/RundownService.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
 import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
 import { oscServer } from './adapters/OscAdapter.js';
@@ -44,7 +45,7 @@ import { oscServer } from './adapters/OscAdapter.js';
 // Utilities
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
-import { timerConfig } from './config/config.js';
+import { timerConfig } from './setup/config.js';
 import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
 
 console.log('\n');
@@ -73,10 +74,11 @@ if (!isProduction) {
   app.use(serverTiming());
 }
 app.disable('x-powered-by');
+app.enable('etag');
 
 // Implement middleware
 app.use(cors()); // setup cors for all routes
-app.options('*', cors()); // enable pre-flight cors
+app.options('*splat', cors()); // enable pre-flight cors
 
 app.use(bodyParser);
 app.use(cookieParser());
@@ -88,16 +90,20 @@ app.use(`${prefix}/data`, authenticate, appRouter); // router for application da
 app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
 
 // serve static external files
-app.use(`${prefix}/external`, express.static(publicDir.externalDir));
+app.use(
+  `${prefix}/external`,
+  authenticateAndRedirect,
+  express.static(publicDir.externalDir, { etag: false, lastModified: true }),
+);
 app.use(`${prefix}/external`, (req, res) => {
   // if the user reaches to the root, we show a 404
   res.status(404).send(`${req.originalUrl} not found`);
 });
-app.use(`${prefix}/user`, express.static(publicDir.userDir));
+app.use(`${prefix}/user`, express.static(publicDir.userDir, { etag: false, lastModified: true }));
 
 // Base route for static files
 app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);
-app.use(`${prefix}/*`, authenticateAndRedirect, compressedStatic);
+app.use(`${prefix}/*splat`, authenticateAndRedirect, compressedStatic);
 
 // Implement catch all
 app.use((_error, response) => {
@@ -141,10 +147,19 @@ const checkStart = (currentState: OntimeStartOrder) => {
   }
 };
 
-export const initAssets = async () => {
+let restorePoint: RestorePoint | null = null;
+
+export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable: boolean) => void) => {
   checkStart(OntimeStartOrder.InitAssets);
+  // initialise logging service, escalateErrorFn only exists in electron
+  logger.init(escalateErrorFn);
+
+  // load restore point if it exists
+  restorePoint = await restoreService.load();
+
   await clearUploadfolder();
   populateStyles();
+  populateTranslation();
   await populateDemo();
   const project = await initialiseProject();
   logger.info(LogOrigin.Server, `Initialised Ontime with ${project}`);
@@ -153,12 +168,8 @@ export const initAssets = async () => {
 /**
  * Starts servers
  */
-export const startServer = async (
-  escalateErrorFn?: (error: string, unrecoverable: boolean) => void,
-): Promise<{ message: string; serverPort: number }> => {
+export const startServer = async (): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
-  // initialise logging service, escalateErrorFn only exists in electron
-  logger.init(escalateErrorFn);
   const settings = getDataProvider().getSettings();
   const { serverPort: desiredPort } = settings;
 
@@ -178,39 +189,39 @@ export const startServer = async (
   eventStore.init({
     clock: state.clock,
     timer: state.timer,
-    onAir: state.timer.playback !== Playback.Stop,
     message: { ...runtimeStorePlaceholder.message },
-    runtime: state.runtime,
+    offset: state.offset,
+    rundown: state.rundown,
     eventNow: state.eventNow,
-    currentBlock: {
-      block: null,
-      startedAt: null,
-    },
-    publicEventNow: state.publicEventNow,
     eventNext: state.eventNext,
-    publicEventNext: state.publicEventNext,
+    eventFlag: null,
+    groupNow: null,
     auxtimer1: {
       duration: timerConfig.auxTimerDefault,
       current: timerConfig.auxTimerDefault,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     },
-    ping: -1,
+    auxtimer2: {
+      duration: timerConfig.auxTimerDefault,
+      current: timerConfig.auxTimerDefault,
+      playback: SimplePlayback.Stop,
+      direction: SimpleDirection.CountDown,
+    },
+    auxtimer3: {
+      duration: timerConfig.auxTimerDefault,
+      current: timerConfig.auxTimerDefault,
+      playback: SimplePlayback.Stop,
+      direction: SimpleDirection.CountDown,
+    },
+    ping: 1,
   });
-
-  // initialise rundown service
-  const persistedRundown = getDataProvider().getRundown();
-  const persistedCustomFields = getDataProvider().getCustomFields();
-  await initRundown(persistedRundown, persistedCustomFields);
 
   // initialise message service
   messageService.init(eventStore.set, eventStore.get);
 
-  // load restore point if it exists
-  const maybeRestorePoint = await restoreService.load();
-
-  // TODO: pass event store to rundownservice
-  runtimeService.init(maybeRestorePoint);
+  // apply the restore point if it exists
+  runtimeService.init(restorePoint);
 
   const nif = getNetworkInterfaces();
   consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);

@@ -1,9 +1,13 @@
-import { useRef, useState } from 'react';
-import { Button, Textarea } from '@chakra-ui/react';
+import { Fragment, useRef, useState } from 'react';
+import { IoClose } from 'react-icons/io5';
+import { Dialog } from '@base-ui-components/react/dialog';
 import { OntimeEvent } from 'ontime-types';
 
-import { useEventAction } from '../../../common/hooks/useEventAction';
-import type { EditEvent } from '../Operator';
+import Button from '../../../common/components/buttons/Button';
+import IconButton from '../../../common/components/buttons/IconButton';
+import Textarea from '../../../common/components/input/textarea/Textarea';
+import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { EditEvent } from '../operator.types';
 
 import style from './EditModal.module.scss';
 
@@ -15,7 +19,7 @@ interface EditModalProps {
 export default function EditModal(props: EditModalProps) {
   const { event, onClose } = props;
 
-  const { updateEvent } = useEventAction();
+  const { updateEntry } = useEntryActions();
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement[]>(new Array<HTMLTextAreaElement>());
 
@@ -36,7 +40,7 @@ export default function EditModal(props: EditModalProps) {
     });
 
     if (patchObject.custom) {
-      await updateEvent(patchObject);
+      await updateEntry(patchObject);
     }
 
     setLoading(false);
@@ -44,34 +48,53 @@ export default function EditModal(props: EditModalProps) {
   };
 
   return (
-    <div className={style.editModal}>
-      <div>{`Editing fields in cue ${event.cue}`}</div>
-      {event.subscriptions.map((field) => {
-        return (
-          <div key={field.label}>
-            <label>{field.label}</label>
-            <Textarea
-              ref={(element) => {
-                if (element) inputRef.current.push(element);
-              }}
-              variant='ontime-filled'
-              placeholder={`Add value for ${field.label} field`}
-              defaultValue={field.value}
-              data-field={field.id}
-              isDisabled={loading}
-              resize='none'
-            />
+    <Dialog.Root
+      open
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onClose();
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Popup className={style.editModal}>
+          <div className={style.title}>
+            {`Editing fields in cue ${event.cue}`}
+            <IconButton variant='subtle-white' onClick={onClose} disabled={loading}>
+              <IoClose />
+            </IconButton>
           </div>
-        );
-      })}
-      <div className={style.buttonRow}>
-        <Button variant='ontime-subtle' onClick={onClose} isDisabled={loading}>
-          Cancel
-        </Button>
-        <Button variant='ontime-filled' onClick={handleSave} isDisabled={loading}>
-          Save
-        </Button>
-      </div>
-    </div>
+          <div className={style.body}>
+            {event.subscriptions.map((field) => {
+              return (
+                <Fragment key={field.id}>
+                  <label htmlFor={field.id} className={style.label} style={{ '--user-bg': field.colour }}>
+                    {field.label}
+                  </label>
+                  <Textarea
+                    name={field.id}
+                    ref={(element) => {
+                      if (element) inputRef.current.push(element);
+                    }}
+                    placeholder={`Add value for ${field.label} field`}
+                    defaultValue={field.value}
+                    data-field={field.id}
+                    disabled={loading}
+                    rows={5}
+                  />
+                </Fragment>
+              );
+            })}
+          </div>
+
+          <div className={style.footer}>
+            <Button variant='subtle' size='large' onClick={onClose} disabled={loading}>
+              Cancel
+            </Button>
+            <Button variant='primary' size='large' onClick={handleSave} disabled={loading}>
+              Save
+            </Button>
+          </div>
+        </Dialog.Popup>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

@@ -1,5 +1,3 @@
-import { LogOrigin } from 'ontime-types';
-
 import express, { type Request, type Response, type NextFunction } from 'express';
 import type { IncomingMessage } from 'node:http';
 import type { WebSocket } from 'ws';
@@ -7,7 +5,6 @@ import { parse as parseCookie } from 'cookie';
 
 import { hashPassword } from '../utils/hash.js';
 import { srcFiles } from '../setup/index.js';
-import { logger } from '../classes/Logger.js';
 import { hashedPassword, hasPassword } from '../api-data/session/session.service.js';
 
 import { noopMiddleware } from './noop.js';
@@ -53,10 +50,21 @@ export function makeAuthenticateMiddleware(prefix: string) {
     return { authenticate: noopMiddleware, authenticateAndRedirect: noopMiddleware };
   }
 
+  // pre-compute the login redirect base URL to avoid string concatenation on every request
+  const loginRedirectBase = `${prefix}/login?redirect=`;
+
   function authenticate(req: Request, res: Response, next: NextFunction) {
-    const token = req.query.token || req.cookies?.token;
-    if (token && token === hashedPassword) {
-      return next();
+    if (req.query.token) {
+      if (req.query.token === hashedPassword) {
+        return next();
+      }
+    }
+
+    if (req.cookies?.token) {
+      const tokenFromCookie = getTokenFromCookie(req.cookies.token);
+      if (tokenFromCookie === hashedPassword) {
+        return next();
+      }
     }
 
     res.status(401).send('Unauthorized');
@@ -74,18 +82,23 @@ export function makeAuthenticateMiddleware(prefix: string) {
     }
 
     // we expect the token to be in the cookies
-    if (req.cookies?.token === hashedPassword) {
-      return next();
+    if (req.cookies?.token) {
+      const tokenFromCookie = getTokenFromCookie(req.cookies.token);
+      if (tokenFromCookie === hashedPassword) {
+        return next();
+      }
     }
 
     // we use query params for generating authenticated URLs and for clients like the companion module
     // if the user gives is a token in the query params, we set the cookie to be used in further requests
     if (req.query.token === hashedPassword) {
-      setSessionCookie(res, hashedPassword);
+      if (hashedPassword !== undefined) {
+        setSessionCookie(res, hashedPassword);
+      }
       return next();
     }
 
-    res.redirect(`${prefix}/login?redirect=${req.originalUrl}`);
+    res.redirect(loginRedirectBase + req.originalUrl);
   }
 
   return { authenticate, authenticateAndRedirect };
@@ -103,27 +116,66 @@ export function authenticateSocket(_ws: WebSocket, req: IncomingMessage, next: (
   const cookieString = req.headers.cookie;
   if (typeof cookieString === 'string') {
     const cookies = parseCookie(cookieString);
-    if (cookies.token === hashedPassword) {
-      return next();
+    if (cookies.token) {
+      const token = getTokenFromCookie(cookies.token);
+      if (token === hashedPassword) {
+        return next();
+      }
     }
   }
 
-  // check if token is in the params
-  const url = new URL(req.url || '', `http://${req.headers.host}`);
-  const token = url.searchParams.get('token');
-  if (token === hashedPassword) {
+  // check if token is in the params - simple string check first
+  const urlString = req.url || '';
+  if (urlString.includes(`token=${hashedPassword}`)) {
     return next();
   }
 
-  logger.warning(LogOrigin.Client, 'Unauthorized WebSocket connection attempt');
+  // fallback to full URL parsing for other formats
+  try {
+    const url = new URL(urlString, `http://${req.headers.host}`);
+    const token = url.searchParams.get('token');
+    if (token === hashedPassword) {
+      return next();
+    }
+  } catch (_) {
+    // ignore URL parsing errors
+  }
+
   return next(new Error('Unauthorized'));
 }
 
+/**
+ * Sets a cookie with the provided token
+ * We currently add a full 'rw' permission scope, this should be filtered when dealing with presets
+ */
 function setSessionCookie(res: Response, token: string) {
-  res.cookie('token', token, {
+  res.cookie('token', JSON.stringify({ token, scope: 'rw' }), {
     httpOnly: false, // allow websocket to access cookie
     secure: true,
     path: '/', // allow cookie to be accessed from any path
     sameSite: 'none', // allow cookies to be sent in cross-origin requests (e.g., iframes)
   });
+}
+
+/**
+ * When calling this function we already know a cookie called 'token' exists
+ * And want to extract its value
+ */
+function getTokenFromCookie(cookieContents: string): string | undefined {
+  // Fast path: check if the hashed password is directly in the cookie string
+  // This avoids JSON parsing for the common case
+  const cookieTokenString = '"token":"' + hashedPassword + '}"';
+  if (cookieTokenString && cookieContents.includes(cookieTokenString)) {
+    return hashedPassword;
+  }
+
+  // Fallback to JSON parsing for other cases or validation
+  try {
+    const cookie = JSON.parse(cookieContents);
+    if (cookie && typeof cookie.token === 'string') {
+      return cookie.token;
+    }
+  } catch (_) {
+    // no error handling to do here
+  }
 }

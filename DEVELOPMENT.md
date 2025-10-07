@@ -20,19 +20,20 @@ development.
 Locally, we would need to run both the React client and the node.js server in development mode
 
 From the project root, run the following commands
-
 - __Install the project dependencies__ by running `pnpm i`
-- __Run dev mode__ by running `turbo dev`
+- __Run dev mode__ by running `pnpm dev` or `pnpm dev:electron` to get the electron window
+
 
 ### Debugging backend
 
-To debug backend code in Node.js:
+The previous command will start the development servers for both the client, server and electron applications.
+Typically in dev mode we prefer to start these in separate terminals to help with error tracking and debugging.
 
-- Open two separate terminals and navigate to the `apps/client` and `apps/server` directories.
-- In each terminal, run the command `pnpm dev` to start the development servers for both the client and server
-  applications.
-- If you need to set breakpoints and inspect the code execution, enable Node.js inspect mode by
-  running `pnpm dev:inspect`.
+We do that by creating two terminals an running
+- __Run the React UI__ by running `pnpm dev --filter=ontime-ui`
+- __Run the nodejs server__ by running `pnpm dev --filter=ontime-server`
+
+- If you need to set breakpoints and inspect the code execution, enable Node.js inspect mode by running `pnpm dev:inspect --filter=ontime-server`.
 
 ## TESTING
 
@@ -45,7 +46,7 @@ Generally we have 2 types of tests.
 
 Unit tests are contained in mostly all the apps and packages (client, server and utils)
 
-You can run unit tests by running turbo `turbo test:pipeline` from the project root.
+You can run unit tests by running `pnpm test:pipeline` from the project root.
 This will run all tests and close test runner.
 
 Alternatively you can navigate to an app or project and run `pnpm test` to run those tests in watch mode
@@ -65,7 +66,7 @@ start the webserver with `pnpm dev:server`
 
 Some other useful commands
 
-- `pnpm e2e --ui` open playwright UI
+- `pnpm e2e:ui` open playwright UI
 - `pnpm e2e --headed` run tests with a visible browser window
 
 ## CREATE AN INSTALLABLE FILE (Windows | MacOS | Linux)
@@ -76,13 +77,13 @@ You can generate a distribution for your OS by running the following steps.
 From the project root, run the following commands
 
 - __Install the project dependencies__ by running `pnpm i`
-- __Build the UI and server__ by running `turbo build:electron`
-- __Create the package__ by running `turbo dist-win`, `turbo dist-mac` or `turbo dist-linux`
+- __Build the UI and server__ by running `pnpm build`
+- __Create the package__ by running `pnpm dist-win`, `pnpm dist-mac` or `pnpm dist-linux`
 
 The build distribution assets will be at `.apps/electron/dist`
 
 Note: The MacOS build will only work in CI, locally it will fail due to notarisation issues.
-Use the `turbo dist-mac:local` command to build a MacOS distribution locally.
+Use the `pnpm dist-mac:local` command to build a MacOS distribution locally and skip the notary process.
 
 ## DOCKER
 
@@ -99,9 +100,15 @@ Other useful commands
 - __List running processes__ by running `docker ps`
 - __Kill running process__ by running `docker kill <process-id>`
 
-## General Info
+## CONTRIBUTION GUIDELINES
 
-# APP Building
+If you want to propose changes to the codebase, please reach out before opening a Pull Request.
 
-We build the app from app.js for almost all applications. The output file will still be named index.cjs. This is because of Electron.
-Building the app from index.ts only applies for applications that don't use electron. index.ts will take over the initialization of the server and UI when electron isn't present.
+For new PRs, please follow the following checklist:
+* [ ] You have updated and ran unit locally and they are passing. Unit tests are generally created for all utility functions and business logic 
+* [ ] You have ran code formatting and linting in all your changes
+* [ ] The branch is clean and the commits are meaningfully separated and contain descriptive messages
+* [ ] The PR body contains description and motivation for the changes
+
+After this checklist is complete, you can request a review from one of the maintainers to get feedback and approval on the changes. \
+We will review as soon as possible

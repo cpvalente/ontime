@@ -1,6 +1,6 @@
 import { SimpleDirection, SimplePlayback } from './AuxTimer.type.js';
+import { OffsetMode } from './Offset.type.js';
 import { Playback } from './Playback.type.js';
-import { OffsetMode } from './Runtime.type.js';
 import type { RuntimeStore } from './RuntimeStore.type.js';
 import { TimerPhase } from './TimerState.type.js';
 
@@ -12,13 +12,11 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
     duration: null, // only changes if event changes
     elapsed: null, // changes on every update
     expectedFinish: null, // change can only be initiated by user, can roll over midnight
-    finishedAt: null, // can change on update or user action
     phase: TimerPhase.None, // can change on update or user action
     playback: Playback.Stop, // change initiated by user
     secondaryTimer: null, // change on every update
     startedAt: null, // change can only be initiated by user
   },
-  onAir: false,
   message: {
     timer: {
       text: '',
@@ -27,32 +25,46 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
       blackout: false,
       secondarySource: null,
     },
-    external: '',
+    secondary: '',
   },
-  runtime: {
+  rundown: {
     selectedEventIndex: null, // changes if rundown changes or we load a new event
     numEvents: 0, // change initiated by user
-    offset: 0, // changes at runtime
-    relativeOffset: 0, // changes at runtime
     plannedStart: 0, // only changes if event changes
     plannedEnd: 0, // only changes if event changes, overflows over dayInMs
     actualStart: null, // set once we start the timer
-    expectedEnd: null, // changes with runtime, based on offset, overflows over dayInMs
-    offsetMode: OffsetMode.Absolute,
+    actualGroupStart: null, // maybe set once we start the timer
+    currentDay: null,
   },
-  currentBlock: {
-    block: null,
-    startedAt: null,
+  offset: {
+    absolute: 0, // changes at runtime
+    relative: 0, // changes at runtime
+    mode: OffsetMode.Absolute,
+    expectedFlagStart: null,
+    expectedGroupEnd: null,
+    expectedRundownEnd: null,
   },
+  groupNow: null,
   eventNow: null,
   eventNext: null,
-  publicEventNow: null,
-  publicEventNext: null,
+  eventFlag: null,
   auxtimer1: {
     current: 0,
     direction: SimpleDirection.CountUp,
     duration: 0,
     playback: SimplePlayback.Stop,
   },
-  ping: -1,
+  auxtimer2: {
+    current: 0,
+    direction: SimpleDirection.CountUp,
+    duration: 0,
+    playback: SimplePlayback.Stop,
+  },
+  auxtimer3: {
+    current: 0,
+    direction: SimpleDirection.CountUp,
+    duration: 0,
+    playback: SimplePlayback.Stop,
+  },
+  ping: 1,
 };

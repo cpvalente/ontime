@@ -46,17 +46,17 @@ describe('parseOutput', () => {
     it('parses a valid payload', () => {
       const auxStart = {
         type: 'ontime',
-        action: 'aux-start',
+        action: 'aux1-start',
       };
       expect(parseOutput(auxStart)).toStrictEqual(auxStart);
       const auxStop = {
         type: 'ontime',
-        action: 'aux-stop',
+        action: 'aux3-stop',
       };
       expect(parseOutput(auxStop)).toStrictEqual(auxStop);
       const auxPause = {
         type: 'ontime',
-        action: 'aux-pause',
+        action: 'aux2-pause',
       };
       expect(parseOutput(auxPause)).toStrictEqual(auxPause);
     });
@@ -65,12 +65,12 @@ describe('parseOutput', () => {
       expect(
         parseOutput({
           type: 'ontime',
-          action: 'aux-start',
+          action: 'aux1-start',
           time: 10,
         }),
       ).toStrictEqual({
         type: 'ontime',
-        action: 'aux-start',
+        action: 'aux1-start',
       });
     });
 
@@ -88,7 +88,7 @@ describe('parseOutput', () => {
           type: 'ontime',
           action: 'message-set',
           text: 'test',
-          visible: 'true',
+          visible: true,
         }),
       ).toMatchObject({
         text: 'test',
@@ -99,7 +99,7 @@ describe('parseOutput', () => {
           type: 'ontime',
           action: 'message-set',
           text: '',
-          visible: 'false',
+          visible: false,
         }),
       ).toMatchObject({
         text: undefined,
@@ -110,7 +110,6 @@ describe('parseOutput', () => {
           type: 'ontime',
           action: 'message-set',
           text: '',
-          visible: '',
         }),
       ).toMatchObject({
         text: undefined,
@@ -149,19 +148,19 @@ describe('parseOutput', () => {
       parseOutput({
         type: 'ontime',
         action: 'message-secondary',
-        secondarySource: 'aux',
+        secondarySource: 'aux1',
       }),
     ).toMatchObject({
-      secondarySource: 'aux',
+      secondarySource: 'aux1',
     });
     expect(
       parseOutput({
         type: 'ontime',
         action: 'message-secondary',
-        secondarySource: 'external',
+        secondarySource: 'secondary',
       }),
     ).toMatchObject({
-      secondarySource: 'external',
+      secondarySource: 'secondary',
     });
   });
 });

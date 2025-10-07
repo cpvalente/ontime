@@ -1,0 +1,57 @@
+.input {
+  box-sizing: border-box;
+
+  font-size: 1rem;
+  font-weight: inherit;
+  color: $gray-200;
+  border-radius: $component-border-radius-md;
+  border: 1px solid transparent;
+
+  padding-inline: 0.5em;
+  outline: none;
+
+  &::placeholder {
+    color: $gray-500;
+    letter-spacing: 0;
+  }
+
+  &:hover:not(:disabled):not(:read-only) {
+    background-color: $gray-1100;
+  }
+
+  &:focus:not(:read-only) {
+    background-color: $gray-1000;
+    outline: 2px solid $blue-500;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &:read-only::placeholder {
+    opacity: 0;
+  }
+}
+
+.subtle {
+  background-color: $gray-1200;
+}
+
+.ghosted {
+  background-color: transparent;
+  padding: 0;
+}
+
+.medium {
+  height: 2rem;
+}
+
+.large {
+  height: 2.5rem;
+}
+
+.fluid {
+  width: 100%;
+}
