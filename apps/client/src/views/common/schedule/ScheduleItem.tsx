@@ -29,6 +29,7 @@ type ScheduleItemProps = Pick<
   | 'skip'
   | 'title'
   | 'timeEnd'
+  | 'cue'
 >;
 
 export default function ScheduleItem({
@@ -43,84 +44,78 @@ export default function ScheduleItem({
   skip,
   title,
   timeEnd,
+  cue,
 }: ScheduleItemProps) {
   const { showExpected } = useScheduleOptions();
 
-  if (showExpected) {
-    return (
-      <ExpectedScheduleItem
-        timeStart={timeStart}
-        dayOffset={dayOffset}
-        delay={delay}
-        totalGap={totalGap}
-        isLinkedToLoaded={isLinkedToLoaded}
-        countToEnd={countToEnd}
-        duration={duration}
-        colour={colour}
-        skip={skip}
-        title={title}
-      />
-    );
-  }
-
-  if (delay > 0) {
-    return (
-      <DelayedScheduleItem
-        timeStart={timeStart}
-        delay={delay}
-        colour={colour}
-        skip={skip}
-        timeEnd={timeEnd}
-        title={title}
-      />
-    );
-  }
-
-  const start = formatTime(timeStart, formatOptions);
-  const end = formatTime(timeEnd, formatOptions);
   return (
-    <li className={cx(['entry', skip && 'entry--skip'])}>
+    <li className={cx(['entry', skip && 'entry--skip'])} data-testid={cue}>
       <div className='entry-times'>
-        <span className='entry-colour' style={{ backgroundColor: colour }} />
-        <SuperscriptTime time={start} />
-        →
-        <SuperscriptTime time={end} />
+        {showExpected ? (
+          <ExpectedScheduleItem
+            timeStart={timeStart}
+            dayOffset={dayOffset}
+            delay={delay}
+            totalGap={totalGap}
+            isLinkedToLoaded={isLinkedToLoaded}
+            countToEnd={countToEnd}
+            duration={duration}
+            colour={colour}
+          />
+        ) : delay > 0 ? (
+          <DelayedScheduleItem timeStart={timeStart} delay={delay} colour={colour} timeEnd={timeEnd} />
+        ) : (
+          <PlannedScheduleItem timeStart={timeStart} timeEnd={timeEnd} colour={colour} />
+        )}
       </div>
       <div className='entry-title'>{title}</div>
     </li>
   );
 }
 
+function PlannedScheduleItem({
+  timeStart,
+  timeEnd,
+  colour,
+}: Pick<ScheduleItemProps, 'timeStart' | 'timeEnd' | 'colour'>) {
+  const start = formatTime(timeStart, formatOptions);
+  const end = formatTime(timeEnd, formatOptions);
+
+  return (
+    <>
+      <span className='entry-colour' style={{ backgroundColor: colour }} />
+      <SuperscriptTime time={start} />
+      →
+      <SuperscriptTime time={end} />
+    </>
+  );
+}
+
 function DelayedScheduleItem({
   timeStart,
   timeEnd,
-  title,
   colour,
-  skip,
   delay,
-}: Pick<ScheduleItemProps, 'timeStart' | 'timeEnd' | 'title' | 'colour' | 'skip' | 'delay'>) {
+}: Pick<ScheduleItemProps, 'timeStart' | 'timeEnd' | 'colour' | 'delay'>) {
   const start = formatTime(timeStart, formatOptions);
   const end = formatTime(timeEnd, formatOptions);
   const delayedStart = formatTime(timeStart + delay, formatOptions);
   const delayedEnd = formatTime(timeEnd + delay, formatOptions);
 
   return (
-    <li className={cx(['entry', skip && 'entry--skip'])}>
-      <div className='entry-times'>
-        <span className='entry-times--delayed'>
-          <span className='entry-colour' style={{ backgroundColor: colour }} />
-          <SuperscriptTime time={start} />
-          →
-          <SuperscriptTime time={end} />
-        </span>
-        <span className='entry-times--delay'>
-          <SuperscriptTime time={delayedStart} />
-          →
-          <SuperscriptTime time={delayedEnd} />
-        </span>
-      </div>
-      <div className='entry-title'>{title}</div>
-    </li>
+    <>
+      <span className='entry-times--delayed'>
+        <span className='entry-colour' style={{ backgroundColor: colour }} />
+        <SuperscriptTime time={start} />
+        →
+        <SuperscriptTime time={end} />
+      </span>
+      <span className='entry-times--delay'>
+        <SuperscriptTime time={delayedStart} />
+        →
+        <SuperscriptTime time={delayedEnd} />
+      </span>
+    </>
   );
 }
 
@@ -133,9 +128,7 @@ function ExpectedScheduleItem({
   countToEnd,
   colour,
   duration,
-  skip,
-  title,
-}: Omit<ScheduleItemProps, 'timeEnd'>) {
+}: Omit<ScheduleItemProps, 'timeEnd' | 'cue' | 'skip' | 'title'>) {
   const expectedStartData = useExpectedStartData();
   const { expectedStart, expectedEnd, plannedEnd } = getExpectedTimesFromExtendedEvent(
     {
@@ -151,15 +144,12 @@ function ExpectedScheduleItem({
   );
 
   return (
-    <li className={cx(['entry', skip && 'entry--skip'])}>
-      <div className='entry-times'>
-        <span className='entry-colour' style={{ backgroundColor: colour }} />
-        <ExpectedTime expectedTime={expectedStart} plannedTime={timeStart} />
-        →
-        <ExpectedTime expectedTime={expectedEnd} plannedTime={plannedEnd} />
-      </div>
-      <div className='entry-title'>{title}</div>
-    </li>
+    <>
+      <span className='entry-colour' style={{ backgroundColor: colour }} />
+      <ExpectedTime expectedTime={expectedStart} plannedTime={timeStart} />
+      →
+      <ExpectedTime expectedTime={expectedEnd} plannedTime={plannedEnd} />
+    </>
   );
 }
 

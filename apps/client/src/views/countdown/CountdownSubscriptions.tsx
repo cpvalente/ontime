@@ -109,6 +109,7 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
             key={event.id}
             ref={isLive ? selectedRef : undefined}
             className={cx(['sub', isLive && 'sub--live', isArmed && 'sub--armed'])}
+            data-testid={event.cue}
           >
             <div className='sub__binder' style={{ '--user-color': event.colour }} />
             <ScheduleTime event={countdownEvent} showExpected={showExpected} />

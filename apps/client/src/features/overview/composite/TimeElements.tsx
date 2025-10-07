@@ -50,7 +50,7 @@ export function StartTimes() {
           <Tooltip text='Planned start time' render={<TbCalendarPin className={style.icon} />} />
           <span className={cx([style.time, plannedStart === null && style.muted])}>{plannedStartText}</span>
         </div>
-        <div className={style.labelledElement}>
+        <div className={style.labelledElement} data-testid='actual-start-time'>
           <Tooltip text='Actual start time' render={<TbCalendarClock className={style.icon} />} />
           <span className={cx([style.time, actualStart === null && style.muted])}>{formattedTime(actualStart)}</span>
         </div>

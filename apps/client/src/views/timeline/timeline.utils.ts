@@ -8,6 +8,7 @@ import {
   getTimeFrom,
   isNewLatest,
   MILLIS_PER_HOUR,
+  MILLIS_PER_MINUTE,
 } from 'ontime-utils';
 
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
@@ -81,7 +82,7 @@ export function getStatusLabel(timeToStart: number, status: ProgressStatus): str
     return 'pending';
   }
 
-  return formatDuration(timeToStart);
+  return formatDuration(timeToStart, timeToStart > MILLIS_PER_MINUTE * 2);
 }
 
 interface ScopedRundownData {
