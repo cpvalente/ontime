@@ -17,11 +17,11 @@ export const buyMeACoffeeUrl = 'https://buymeacoffee.com/cpvalente';
 
 // resolve environment
 export const appVersion = version;
-export const isProduction = import.meta.env.MODE === 'production';
-export const isDev = !isProduction;
+export const isDocker = import.meta.env.IS_DOCKER; // this env is made available by the vite.config.js define function
+export const isProduction = import.meta.env.PROD;
+export const isDev = import.meta.env.DEV;
 export const currentHostName = window.location.hostname;
 export const isLocalhost = currentHostName === 'localhost' || currentHostName === '127.0.0.1';
-export const isDockerImage = Boolean(import.meta.env.VITE_IS_DOCKER);
 export const isOntimeCloud = currentHostName.includes('cloud.getontime.no');
 
 // resolve entrypoint URLs

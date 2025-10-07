@@ -7,8 +7,7 @@
   "scripts": {
     "lint": "eslint . --quiet",
     "test": "vitest",
-    "test:pipeline": "vitest run",
-    "cleanup": "rm -rf .turbo && rm -rf node_modules"
+    "test:pipeline": "vitest run"
   },
   "dependencies": {
     "deepmerge-ts": "^7.0.3",

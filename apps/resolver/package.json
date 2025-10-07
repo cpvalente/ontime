@@ -8,6 +8,7 @@
   "description": "shared typings for ontime",
   "scripts": {
     "lint": "eslint . --quiet",
+    "typecheck": "tsc --noEmit",
     "prebuild": "pnpm rimraf ./dist",
     "build": "tsup && pnpm rimraf ./dist/index.js",
     "postbuild": "pnpm rimraf ./dist/index.d.ts"
