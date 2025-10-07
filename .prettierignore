@@ -9,3 +9,5 @@ playwright-report
 **/*.yml
 **/*.json
 !tsconfig.common.json
+!turbo.json
+!package.json

@@ -37,15 +37,12 @@
     "addversion": "node -p \"'export const ONTIME_VERSION = ' + JSON.stringify(require('../../package.json').version) + ';'\" > src/ONTIME_VERSION.js",
     "postinstall": "pnpm addversion",
     "dev": "cross-env BROWSER=none vite",
-    "build": "vite build",
-    "build:local": "cross-env NODE_ENV=local vite build",
-    "build:electron": "cross-env NODE_ENV=local vite build",
-    "build:docker": "cross-env VITE_IS_DOCKER=true vite build",
-    "build:localdocker": "cross-env NODE_ENV=local vite build",
+    "dev:electron": "pnpm dev",
     "lint": "eslint . --quiet",
+    "typecheck": "tsc --noEmit",
+    "build": "vite build",
     "test": "vitest",
     "test:pipeline": "vitest run",
-    "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf build",
     "analyse": "npx vite-bundle-visualizer"
   },
   "browserslist": {

@@ -21,7 +21,7 @@ Locally, we would need to run both the React client and the node.js server in de
 
 From the project root, run the following commands
 - __Install the project dependencies__ by running `pnpm i`
-- __Run dev mode__ by running `pnpm turbo dev`
+- __Run dev mode__ by running `pnpm dev` or `pnpm dev:electron` to get the electron window
 
 
 ### Debugging backend
@@ -30,10 +30,10 @@ The previous command will start the development servers for both the client, ser
 Typically in dev mode we prefer to start these in separate terminals to help with error tracking and debugging.
 
 We do that by creating two terminals an running
-- __Run the React UI__ by running `pnpm turbo dev --filter=ontime-ui`
-- __Run the nodejs server__ by running `pnpm turbo dev --filter=ontime-server`
+- __Run the React UI__ by running `pnpm dev --filter=ontime-ui`
+- __Run the nodejs server__ by running `pnpm dev --filter=ontime-server`
 
-- If you need to set breakpoints and inspect the code execution, enable Node.js inspect mode by running `pnpm turbo dev:inspect --filter=ontime-server`.
+- If you need to set breakpoints and inspect the code execution, enable Node.js inspect mode by running `pnpm dev:inspect --filter=ontime-server`.
 
 ## TESTING
 
@@ -46,7 +46,7 @@ Generally we have 2 types of tests.
 
 Unit tests are contained in mostly all the apps and packages (client, server and utils)
 
-You can run unit tests by running `pnpm turbo test:pipeline` from the project root.
+You can run unit tests by running `pnpm test:pipeline` from the project root.
 This will run all tests and close test runner.
 
 Alternatively you can navigate to an app or project and run `pnpm test` to run those tests in watch mode
@@ -66,7 +66,7 @@ start the webserver with `pnpm dev:server`
 
 Some other useful commands
 
-- `pnpm e2e --ui` open playwright UI
+- `pnpm e2e:ui` open playwright UI
 - `pnpm e2e --headed` run tests with a visible browser window
 
 ## CREATE AN INSTALLABLE FILE (Windows | MacOS | Linux)
@@ -77,13 +77,13 @@ You can generate a distribution for your OS by running the following steps.
 From the project root, run the following commands
 
 - __Install the project dependencies__ by running `pnpm i`
-- __Build the UI and server__ by running `pnpm turbo run build:electron`
-- __Create the package__ by running `pnpm turbo run dist-win`, `pnpm turbo run dist-mac` or `pnpm turbo run dist-linux`
+- __Build the UI and server__ by running `pnpm build`
+- __Create the package__ by running `pnpm dist-win`, `pnpm dist-mac` or `pnpm dist-linux`
 
 The build distribution assets will be at `.apps/electron/dist`
 
 Note: The MacOS build will only work in CI, locally it will fail due to notarisation issues.
-Use the `pnpm turbo run dist-mac:local` command to build a MacOS distribution locally and skip the notary process.
+Use the `pnpm dist-mac:local` command to build a MacOS distribution locally and skip the notary process.
 
 ## DOCKER
 

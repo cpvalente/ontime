@@ -21,14 +21,12 @@
     "wait-on": "^7.2.0"
   },
   "scripts": {
-    "postinstall": "",
+    "dev:electron": "wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .",
     "lint": "eslint . --quiet",
-    "dev": "wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .",
     "dist-win": "electron-builder --publish=never --x64 --win",
     "dist-mac": "electron-builder --publish=never --mac",
     "dist-mac:local": "electron-builder --publish=never --mac -c.mac.identity=null",
-    "dist-linux": "electron-builder --publish=never --x64 --linux",
-    "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
+    "dist-linux": "electron-builder --publish=never --x64 --linux"
   },
   "build": {
     "productName": "ontime-prerelease",

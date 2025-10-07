@@ -1,6 +1,8 @@
 import type { PlaywrightTestConfig } from '@playwright/test';
 import { devices } from '@playwright/test';
 
+const isDevMode = process.env.NODE_ENV === 'development';
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -15,18 +17,25 @@ const config: PlaywrightTestConfig = {
   retries: process.env.CI ? 2 : 0,
   workers: 1,
   reporter: 'html',
-  webServer: {
-    command: 'turbo run dev --filter=ontime-server',
-    port: 4001,
-    reuseExistingServer: true,
-    timeout: 60 * 1000,
-  },
+  webServer: isDevMode
+    ? {
+        command: 'turbo run dev',
+        port: 3000,
+        reuseExistingServer: true,
+        timeout: 60 * 1000,
+      }
+    : {
+        command: 'turbo run dev --filter=ontime-server',
+        port: 4001,
+        reuseExistingServer: true,
+        timeout: 60 * 1000,
+      },
   use: {
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     viewport: { width: 1920, height: 1080 },
     actionTimeout: 5000,
-    baseURL: 'http://localhost:4001',
+    baseURL: isDevMode ? 'http://localhost:3000' : 'http://localhost:4001',
     ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
     launchOptions: {
