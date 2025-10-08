@@ -13,5 +13,5 @@
 }
 
 .current {
-  background-color: $blue-1100;
+  background-color: $blue-1100 !important; // fighting zebra styles
 }
