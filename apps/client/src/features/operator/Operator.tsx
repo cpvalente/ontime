@@ -177,7 +177,7 @@ export default function Operator() {
                     return null;
                   }
 
-                  const { isPast, isLoaded, isLinkedToLoaded, totalGap } = rundownMetadata[entryId];
+                  const { isPast, isLoaded, isLinkedToLoaded, totalGap } = rundownMetadata[nestedEntryId];
 
                   // hide past events (if setting) and skipped events
                   if ((hidePast && isPast) || nestedEntry.skip) {
