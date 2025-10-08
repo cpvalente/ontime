@@ -2,11 +2,16 @@ import { test, expect } from '@playwright/test';
 
 test('smoke test operator', async ({ page }) => {
   // make some boilerplate
-  await page.goto('http://localhost:4001/editor');
+  await page.goto('/editor');
   await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByRole('button', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
-  await page.getByRole('button', { name: 'Create Event' }).click();
+  await page.getByRole('button', { name: 'Create Group' }).click();
+  await page.getByTestId('rundown-group').getByTestId('entry__title').click();
+  await page.getByTestId('rundown-group').getByTestId('entry__title').fill('group 1');
+  await page.getByTestId('rundown-group').getByTestId('entry__title').press('Enter');
+
+  await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
 
   await page.getByTestId('time-input-timeStart').fill('1m');
   await page.getByTestId('time-input-timeStart').press('Enter');
@@ -24,10 +29,9 @@ test('smoke test operator', async ({ page }) => {
   await page.getByTestId('entry-3').getByTestId('time-input-duration').fill('1m');
   await page.getByTestId('entry-3').getByTestId('time-input-duration').press('Enter');
 
-  await page.getByRole('button', { name: 'Group' }).nth(1).click();
-
   await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByTestId('entry-1').click();
+  await page.getByTestId('editor-container').getByLabel('Cue').fill('--1');
   await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
 
   await page.getByTestId('entry-1').getByTestId('entry__title').click();
@@ -51,9 +55,11 @@ test('smoke test operator', async ({ page }) => {
   // start an event
   await page.getByTestId('panel-timer-control').getByRole('button', { name: 'Start' }).click();
 
-  await page.goto('http://localhost:4001/op');
+  await page.goto('/op');
 
+  await expect(page.getByText('group 1')).toBeInViewport();
   await expect(page.getByText('title 1')).toBeInViewport();
+  await expect(page.getByTestId('--1')).toHaveCSS('opacity', '1'); // BUG: ensure event doesn't inherit the past state of the group
   await expect(page.getByText('title 2')).toBeInViewport();
   await expect(page.getByText('title 3')).toBeInViewport();
 
