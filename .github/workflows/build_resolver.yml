@@ -13,13 +13,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
       - name: Get pnpm store directory
         run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      
+
       - name: Setup pnpm cache
         uses: actions/cache@v4
         with:
@@ -34,9 +34,13 @@ jobs:
       - name: Build project packages
         run: pnpm build:resolver
 
+      - name: Setup pnpm auth config
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
       - name: Publish to NPM
         run: pnpm publish --access public --no-git-checks
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
         working-directory: ./apps/resolver

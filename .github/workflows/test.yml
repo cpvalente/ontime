@@ -20,7 +20,7 @@ jobs:
 
       - name: Get pnpm store directory
         run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      
+
       - name: Setup pnpm cache
         uses: actions/cache@v4
         with:
@@ -32,10 +32,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Run code quality 
+      # Run code quality
       - name: Run linter
         run: pnpm lint
-      
+
       - name: Run TypeScript checks
         run: pnpm typecheck
 
@@ -56,7 +56,7 @@ jobs:
 
       - name: Get pnpm store directory
         run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      
+
       - name: Setup pnpm cache
         uses: actions/cache@v4
         with:
@@ -74,7 +74,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-           ~/.cache/ms-playwright
+            ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
           restore-keys: |
             ${{ runner.os }}-playwright-

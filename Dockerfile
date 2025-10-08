@@ -1,13 +1,5 @@
-FROM node:22-bullseye AS builder
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN npm install -g pnpm@10.11.0
-COPY . /app
-WORKDIR /app
-RUN pnpm --filter=ontime-ui --filter=ontime-server --filter=ontime-utils --filter=ontime-types install --config.dedupe-peer-dependents=false --frozen-lockfile
-RUN pnpm run build:docker
-
-FROM node:22-alpine
+ARG NODE_VERSION=22.15.1
+FROM node:${NODE_VERSION}-alpine
 
 # Set environment variables
 # Environment Variable to signal that we are running production
@@ -15,16 +7,17 @@ ENV NODE_ENV=docker
 # Ontime Data path
 ENV ONTIME_DATA=/data/
 
+RUN mkdir /app
 WORKDIR /app/
 
 # Prepare UI
-COPY --from=builder /app/apps/client/build ./client/
+COPY apps/client/build/ ./client/
 
 # Prepare Backend
-COPY --from=builder /app/apps/server/dist/ ./server/
-COPY --from=builder /app/apps/server/src/external/ ./external/
-COPY --from=builder /app/apps/server/src/user/ ./user/
-COPY --from=builder /app/apps/server/src/html/ ./html/
+COPY apps/server/dist/ ./server/
+COPY apps/server/src/external/ ./external/
+COPY apps/server/src/user/ ./user/
+COPY apps/server/src/html/ ./html/
 
 # Export default ports
 EXPOSE 4001/tcp 8888/udp 9999/udp
@@ -32,5 +25,6 @@ EXPOSE 4001/tcp 8888/udp 9999/udp
 CMD ["node", "server/docker.cjs"]
 
 # Build and run commands
+# pnpm build:docker
 # docker buildx build . -t getontime/ontime
 # docker run -p 4001:4001 -p 8888:8888/udp -p 9999:9999/udp -v ./ontime-db:/data/ getontime/ontime
