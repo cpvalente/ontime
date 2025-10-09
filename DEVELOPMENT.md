@@ -21,6 +21,7 @@ Locally, we would need to run both the React client and the node.js server in de
 
 From the project root, run the following commands
 - __Install the project dependencies__ by running `pnpm i`
+- __Create a local build__ by running `pnpm build`, this will populate local dependencies
 - __Run dev mode__ by running `pnpm dev` or `pnpm dev:electron` to get the electron window
 
 
