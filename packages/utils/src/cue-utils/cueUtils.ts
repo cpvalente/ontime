@@ -7,35 +7,60 @@ import { isNumeric } from '../types/types.js';
 // Zero or more non-digit characters at the beginning ((\D*)).
 // One or more digits ((\d+)).
 // Optionally, a decimal part starting with a dot ((\.\d+)?).
-const regex = /^(\D*)(\d+)(\.\d+)?$/;
+const regex = /^(\D*)(\d+)(\.)?(\d+)?$/;
 
 /**
  * Finds if last characters in input are a number and increments
  */
-export function getIncrement(input: string): string {
+export function getIncrement(input: string, next?: string): string {
+  console.log({ input, next });
   // Check if the input string contains a number at the end
   const match = regex.exec(input);
+  const matchNext = next ? regex.exec(next) : null;
+
   if (match) {
     // If a number is found, extract the non-numeric prefix, integer part, and decimal part
-    // eslint-disable-next-line prefer-const -- some items in the destructuring are modified
-    let [, prefix, integerPart, decimalPart] = match;
+    const [, prefix, integerPart, _dot, decimalPart] = match;
+    const floatPart = parseFloat(integerPart + '.' + decimalPart);
+
+    if (matchNext) {
+      const [, prefix_next, integerPart_next, _dot, decimalPart_next] = matchNext;
+      const floatPart_ext = parseFloat(integerPart_next + '.' + decimalPart_next);
+      if (prefix === prefix_next) {
+        const floatDistance = floatPart_ext - floatPart;
+        console.log({ prefix, prefix_next, floatPart_ext, floatPart, floatDistance });
+        if (floatDistance > 1) {
+          return `${prefix}${Number(integerPart) + 1}`;
+        }
+        if (floatDistance > 0.1001) {
+          // the 001 is here to catch floating point errors
+          const newDecimal = getFormatDecimalPart(floatPart + 0.1);
+          return `${prefix}${integerPart}.${newDecimal}`;
+        }
+        const newDecimal = getFormatDecimalPart(floatPart + floatDistance / 2);
+        return `${prefix}${integerPart}.${newDecimal}`;
+      }
+    }
+
+    if (integerPart) {
+      return `${prefix}${Number(integerPart) + 1}`;
+    }
 
     if (decimalPart) {
-      if (decimalPart === '.99') {
-        decimalPart = '.100';
-      } else {
-        const addDecimal = `${'0'.repeat(decimalPart.length - 2)}1`;
-        const incrementedDecimal = (Number(decimalPart) + Number(`0.${addDecimal}`)).toFixed(decimalPart.length - 1);
-        decimalPart = incrementedDecimal.toString().replace('0.', '.');
-      }
-      return `${prefix}${integerPart}${decimalPart}`;
+      const newDecimal = getFormatDecimalPart(floatPart + 0.1);
+      console.log({ floatPart, newDecimal });
+      return `${prefix}${integerPart}.${newDecimal}`;
     }
-    const incrementedInteger = Number(integerPart) + 1;
-    integerPart = incrementedInteger.toString();
-    return `${prefix}${integerPart}`;
   }
   // If no number is found, append "2" to the string and return the updated string
   return `${input}2`;
+}
+
+const dFormat = new Intl.NumberFormat('en-US', { style: 'decimal', maximumFractionDigits: 3 });
+
+function getFormatDecimalPart(value: number) {
+  const result = dFormat.formatToParts(value);
+  return result.length > 1 ? result.at(-1)?.value ?? '1' : result[0].value;
 }
 
 /**
@@ -56,33 +81,11 @@ export function getCueCandidate(entries: RundownEntries, order: EntryId[], inser
       return addAtTop();
     }
   }
-
-  // the cue is based on the previous event cue
-  const cue = getIncrement(previousEvent.cue);
   const { nextEvent } = getNextEventNormal(entries, order, insertAfterId);
 
-  // if increment is clashing with next, we add a decimal instead
-  if (cue !== nextEvent?.cue) {
-    return cue;
-  }
-
-  // there is a clash, bt the cue is a pure number
-  if (isNumeric(cue)) {
-    return incrementDecimal(previousEvent.cue);
-  }
-
-  /**
-   * at this point, we know the cue is not numeric
-   * but the increment failed, so we have a numeric ending
-   * eg. Presenter 1   .... Presenter 2   -> Presenter1.1
-   * eg. Presenter 1.1 .... Presenter 1.2 -> Presenter1.1.1
-   */
-  return `${previousEvent.cue}.1`;
-
-  function incrementDecimal(cue: string) {
-    const n = Number(cue);
-    return (n + 0.1).toString();
-  }
+  // the cue is based on the previous event cue
+  const cue = getIncrement(previousEvent.cue, nextEvent?.cue);
+  return cue;
 
   function addAtTop() {
     const firstEventCue = getFirstEventNormal(entries, order).firstEvent?.cue;

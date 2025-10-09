@@ -4,16 +4,32 @@ import { SupportedEntry } from 'ontime-types';
 import { getCueCandidate, getIncrement, sanitiseCue } from './cueUtils.js';
 
 describe('getIncrement()', () => {
-  it('increments number', () => {
+  it('increments number with no next cue', () => {
     expect(getIncrement('1')).toBe('2');
     expect(getIncrement('10')).toBe('11');
     expect(getIncrement('99')).toBe('100');
     expect(getIncrement('101')).toBe('102');
   });
-  it('increments decimal number', () => {
-    expect(getIncrement('1.1')).toBe('1.2');
-    expect(getIncrement('10.10')).toBe('10.11');
-    expect(getIncrement('99.99')).toBe('99.100');
+
+  it('increments number a next cue', () => {
+    expect(getIncrement('1', '5')).toBe('2');
+    expect(getIncrement('10', '15')).toBe('11');
+    expect(getIncrement('99', '101')).toBe('100');
+    expect(getIncrement('101', '500')).toBe('102');
+  });
+
+  it('increments decimal number with no next cue', () => {
+    expect(getIncrement('1.1')).toBe('2');
+    expect(getIncrement('10.10')).toBe('11');
+    expect(getIncrement('99.99')).toBe('100');
+    expect(getIncrement('101.101')).toBe('102');
+    expect(getIncrement('101.999')).toBe('102');
+  });
+
+  it('increments decimal number with a next cue', () => {
+    expect(getIncrement('1.1', '2')).toBe('1.2');
+    expect(getIncrement('10.10', '11')).toBe('10.2');
+    expect(getIncrement('99.99','100')).toBe('99.100');
     expect(getIncrement('101.101')).toBe('101.102');
     // NOTE: we know the below would fail, handling this amount of decimals is outside of scope
     // expect(getIncrement('101.999')).toBe('101.1000');
