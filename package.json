@@ -30,6 +30,7 @@
     "build:resolver": "cross-env turbo run build --filter=@getontime/resolver",
     "dist-win": "turbo run dist-win",
     "dist-mac": "turbo run dist-mac",
+    "dist-mac:local": "turbo run dist-mac:local",
     "dist-linux": "turbo run dist-linux",
     "e2e": "turbo run build --filter=ontime-ui && pnpm clear-temp && cross-env DEBUG=pw:webserver npx playwright test -c playwright.config.ts",
     "e2e:ui": "cross-env NODE_ENV=development cross-env DEBUG=pw:webserver npx playwright test --ui -c playwright.config.ts",
