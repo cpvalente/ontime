@@ -62,9 +62,4 @@ test('smoke test operator', async ({ page }) => {
   await expect(page.getByTestId('--1')).toHaveCSS('opacity', '1'); // BUG: ensure event doesn't inherit the past state of the group
   await expect(page.getByText('title 2')).toBeInViewport();
   await expect(page.getByText('title 3')).toBeInViewport();
-
-  // TODO: this part seems particularly flaky, to revise
-  // await expect(page.getByText('00:01 - 00:02')).toBeInViewport();
-  // await expect(page.getByText('00:02 - 00:03')).toBeInViewport();
-  // await expect(page.getByText('00:03 - 00:04')).toBeInViewport();
 });

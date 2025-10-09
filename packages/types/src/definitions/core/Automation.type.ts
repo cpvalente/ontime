@@ -90,7 +90,7 @@ export type OntimeAction =
   | {
       type: 'ontime';
       action: OntimeAuxSetAction;
-      time: string;  //TODO:(automation set aux) not sure what way around to have the string and where to have the ms value
+      time: string;
     }
   | {
       type: 'ontime';
