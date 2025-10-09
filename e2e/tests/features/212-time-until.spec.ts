@@ -1,4 +1,4 @@
-import { expect, Locator, Page, test } from '@playwright/test';
+import { expect, Locator, test } from '@playwright/test';
 
 test('time until absolute', async ({ context }) => {
   const editor = await context.newPage();
