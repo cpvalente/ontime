@@ -58,7 +58,7 @@ export function getEstimatedFontSize(stageTimer: string, secondaryContent?: stri
     timerFontSize = fontSizeMap[stageTimerCharacters];
   }
 
-  let externalFontSize = timerFontSize * 0.2;
+  let externalFontSize = timerFontSize * 0.325;
   if (secondaryContent) {
     // we need to shrink the timer if the external is going to be there
     // this number has been tweaked to fit in a landscape mobile screen
