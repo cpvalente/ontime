@@ -102,6 +102,7 @@ export default function AppRouter() {
           path='op'
           element={
             <ViewLoader>
+              <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} />
               <Operator />
             </ViewLoader>
           }
@@ -213,9 +214,7 @@ function PresetView() {
   const Component = PresetViewMap[preset.target as OntimeViewPresettable];
   return (
     <PresetContext value={preset}>
-      {preset.target !== OntimeView.Cuesheet && (
-        <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} suppressSettings />
-      )}
+      <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} suppressSettings />
       {Component ? <Component /> : <NotFound />}
     </PresetContext>
   );
