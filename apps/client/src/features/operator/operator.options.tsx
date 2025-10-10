@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
-import { CustomFields, OntimeEvent } from 'ontime-types';
+import { CustomFields, EntryId, OntimeEvent } from 'ontime-types';
 
 import { getTimeOption } from '../../common/components/view-params-editor/common.options';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
@@ -9,6 +9,7 @@ import {
   makeCustomFieldSelectOptions,
   makeOptionsFromCustomFields,
 } from '../../common/components/view-params-editor/viewParams.utils';
+import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean } from '../viewers/common/viewUtils';
 
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ViewOption[] => {
@@ -93,15 +94,26 @@ type OperatorOptions = {
  * Utility extract the view options from URL Params
  * the names and fallback are manually matched with timerOptions
  */
-function getOptionsFromParams(searchParams: URLSearchParams): OperatorOptions {
+function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): OperatorOptions {
+  // Helper to get value from either source, prioritizing defaultValues
+  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
+
+  // Helper to get array values from either source
+  const getArrayValues = (key: string): EntryId[] => {
+    if (defaultValues?.has(key)) {
+      return defaultValues.getAll(key) as EntryId[];
+    }
+    return searchParams.getAll(key) as EntryId[];
+  };
+
   // we manually make an object that matches the key above
   return {
-    mainSource: searchParams.get('main') as keyof OntimeEvent | null,
-    secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
-    subscribe: searchParams.getAll('subscribe'),
-    shouldEdit: isStringBoolean(searchParams.get('shouldEdit')),
-    hidePast: isStringBoolean(searchParams.get('hidePast')),
-    showStart: isStringBoolean(searchParams.get('showStart')),
+    mainSource: getValue('main') as keyof OntimeEvent | null,
+    secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
+    subscribe: getArrayValues('subscribe'),
+    shouldEdit: isStringBoolean(getValue('shouldEdit')),
+    hidePast: isStringBoolean(getValue('hidePast')),
+    showStart: isStringBoolean(getValue('showStart')),
   };
 }
 
@@ -110,6 +122,12 @@ function getOptionsFromParams(searchParams: URLSearchParams): OperatorOptions {
  */
 export function useOperatorOptions(): OperatorOptions {
   const [searchParams] = useSearchParams();
-  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  const maybePreset = use(PresetContext);
+
+  const options = useMemo(() => {
+    const defaultValues = maybePreset ? new URLSearchParams(maybePreset.search) : undefined;
+    return getOptionsFromParams(searchParams, defaultValues);
+  }, [maybePreset, searchParams]);
+
   return options;
 }
