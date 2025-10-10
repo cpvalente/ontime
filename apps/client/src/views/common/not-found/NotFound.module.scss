@@ -2,10 +2,16 @@
 
 .notFound {
   display: grid;
-  place-items: center;
+  height: 100vh;
+  padding-top: 20vh;
   background-color: var(--background-color-override, $viewer-background-color);
-  margin-top: 10vh;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+
   color: $ui-white;
-  justify-content: center;
+  align-items: center;
   text-align: center;
 }
