@@ -6,13 +6,10 @@ import ViewParamsEditor from '../../common/components/view-params-editor/ViewPar
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useSelectedEventId } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
-import useCustomFields from '../../common/hooks-query/useCustomFields';
-import useProjectData from '../../common/hooks-query/useProjectData';
-import { useRundownWithMetadata } from '../../common/hooks-query/useRundown';
-import useSettings from '../../common/hooks-query/useSettings';
 import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
 import { getDefaultFormat } from '../../common/utils/time';
+import Loader from '../../views/common/loader/Loader';
 
 import EditModal from './edit-modal/EditModal';
 import FollowButton from './follow-button/FollowButton';
@@ -22,21 +19,31 @@ import StatusBar from './status-bar/StatusBar';
 import { getOperatorOptions, useOperatorOptions } from './operator.options';
 import type { EditEvent } from './operator.types';
 import { getEventData } from './operator.utils';
+import { OperatorData, useOperatorData } from './useOperatorData';
 
 import style from './Operator.module.scss';
 
 const selectedOffset = 50;
 
-export default function Operator() {
-  const { data, rundownMetadata, status } = useRundownWithMetadata();
-  const { data: customFields, status: customFieldStatus } = useCustomFields();
-  const { data: projectData, status: projectDataStatus } = useProjectData();
+export default function OperatorLoader() {
+  const { data, status } = useOperatorData();
 
-  const timeoutId = useRef<NodeJS.Timeout | null>(null);
+  useWindowTitle('Operator');
 
+  if (status === 'pending') {
+    return <Loader />;
+  }
+
+  if (status === 'error') {
+    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+  }
+
+  return <Operator {...data} />;
+}
+
+function Operator({ rundown, rundownMetadata, customFields, settings }: OperatorData) {
   const { selectedEventId } = useSelectedEventId();
   const { subscribe, mainSource, secondarySource, shouldEdit, hidePast, showStart } = useOperatorOptions();
-  const { data: settings } = useSettings();
 
   const [showEditPrompt, setShowEditPrompt] = useState(false);
   const [editEvent, setEditEvent] = useState<EditEvent | null>(null);
@@ -52,7 +59,7 @@ export default function Operator() {
     followTrigger: selectedEventId,
   });
 
-  useWindowTitle('Operator');
+  const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
   // reset scroll if nothing is selected
   useEffect(() => {
@@ -101,16 +108,9 @@ export default function Operator() {
     setEditEvent({ ...event });
   }, []);
 
-  const missingData = !data || !customFields || !projectData;
-  const isLoading = status === 'pending' || customFieldStatus === 'pending' || projectDataStatus === 'pending';
-
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const operatorOptions = useMemo(() => getOperatorOptions(customFields, defaultFormat), [customFields, defaultFormat]);
-
-  if (missingData || isLoading) {
-    return <EmptyPage text='Loading...' />;
-  }
 
   const canEdit = shouldEdit && subscribe.length;
 
@@ -126,8 +126,8 @@ export default function Operator() {
       )}
 
       <div className={style.operatorEvents} onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
-        {data.order.map((entryId) => {
-          const entry = data.entries[entryId];
+        {rundown.order.map((entryId) => {
+          const entry = rundown.entries[entryId];
           if (isOntimeEvent(entry)) {
             const { isPast, isLinkedToLoaded, isLoaded, totalGap } = rundownMetadata[entryId];
             // hide past events (if setting) and skipped events
@@ -172,7 +172,7 @@ export default function Operator() {
               <Fragment key={entry.id}>
                 <OperatorGroup key={entry.id} title={entry.title} />
                 {entry.entries.map((nestedEntryId) => {
-                  const nestedEntry = data.entries[nestedEntryId];
+                  const nestedEntry = rundown.entries[nestedEntryId];
                   if (!isOntimeEvent(nestedEntry)) {
                     return null;
                   }
