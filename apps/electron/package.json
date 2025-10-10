@@ -28,7 +28,7 @@
     "dist-linux": "electron-builder --publish=never --x64 --linux"
   },
   "build": {
-    "productName": "ontime-prerelease",
+    "productName": "ontime",
     "appId": "no.lightdev.ontime",
     "asar": true,
     "dmg": {
