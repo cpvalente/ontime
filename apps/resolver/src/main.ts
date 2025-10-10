@@ -13,7 +13,14 @@ export { SimplePlayback, SimpleDirection } from 'ontime-types';
 
 // entries
 export type { OntimeEvent, OntimeGroup, EntryCustomFields, CustomFields, Rundown } from 'ontime-types';
-export { SupportedEntry, isOntimeEvent, isOntimeGroup, isOntimeDelay, isOntimeMilestone } from 'ontime-types';
+export {
+  SupportedEntry,
+  isOntimeEvent,
+  isOntimeGroup,
+  isOntimeDelay,
+  isOntimeMilestone,
+  TimeStrategy,
+} from 'ontime-types';
 
 // functions
 export { isWsPacketToClient } from './websocket.js';

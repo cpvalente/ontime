@@ -1,6 +1,5 @@
 import { PropsWithChildren, useRef, useState } from 'react';
-import { IoCheckmark } from 'react-icons/io5';
-import { IoCopy } from 'react-icons/io5';
+import { IoCheckmark, IoCopy } from 'react-icons/io5';
 
 import copyToClipboard from '../../utils/copyToClipboard';
 import { cx } from '../../utils/styleUtils';

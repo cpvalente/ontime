@@ -77,7 +77,7 @@ export default function OntimeActionForm({
           New time
           <Input
             {...register(`outputs.${index}.time`, {
-              required: { value: true, message: 'Required field' }, //TODO:(automation set aux) not sure what way around to have the string and where to have the ms value
+              required: { value: true, message: 'Required field' },
             })}
             fluid
             placeholder='eg: 10m5s'

@@ -199,7 +199,7 @@ function parseOntimeAction(maybeOntimeAction: object): OntimeAction {
     return {
       type: 'ontime',
       action: maybeOntimeAction.action,
-      time: maybeOntimeAction.time, //TODO:(automation set aux) not sure what way around to have the string and where to have the ms value
+      time: maybeOntimeAction.time,
     };
   }
 

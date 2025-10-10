@@ -14,7 +14,7 @@ export {
   type OntimeEvent,
   type PlayableEvent,
   type TimeField,
-  SupportedEntry as SupportedEntry,
+  SupportedEntry,
 } from './definitions/core/OntimeEntry.js';
 export type { RundownEntries, Rundown, ProjectRundowns } from './definitions/core/Rundown.type.js';
 export { TimeStrategy } from './definitions/TimeStrategy.type.js';

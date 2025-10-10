@@ -46,10 +46,6 @@
       "dependsOn": ["build"],
       "outputs": ["dist/**"]
     },
-    "dist-mac:local": {
-      "dependsOn": ["build"],
-      "outputs": ["dist/**"]
-    },
     "dist-linux": {
       "dependsOn": ["build"],
       "outputs": ["dist/**"]

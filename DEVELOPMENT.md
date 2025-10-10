@@ -82,9 +82,6 @@ From the project root, run the following commands
 
 The build distribution assets will be at `.apps/electron/dist`
 
-Note: The MacOS build will only work in CI, locally it will fail due to notarisation issues.
-Use the `pnpm dist-mac:local` command to build a MacOS distribution locally and skip the notary process.
-
 ## DOCKER
 
 Ontime provides a docker-compose file to aid with building and running docker images.
