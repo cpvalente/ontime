@@ -207,6 +207,8 @@ function PresetView() {
   /**
    * Locked presets do not allow configuration changes
    * Whether the user can navigate is determined by the locked param
+   *
+   * We inject the preset to the context value for the view to consume
    */
   const Component = PresetViewMap[preset.target as OntimeViewPresettable];
   return (
