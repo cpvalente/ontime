@@ -1,4 +1,4 @@
-import { EndAction, TimerType, isKeyOfType } from 'ontime-types';
+import { EndAction, TimeStrategy, TimerType, isKeyOfType } from 'ontime-types';
 import { maxDuration } from 'ontime-utils';
 
 import { coerceBoolean, coerceColour, coerceEnum, coerceNumber, coerceString } from '../utils/coerceType.js';
@@ -32,6 +32,9 @@ const propertyConversion = {
 
   endAction: (value: unknown) => coerceEnum<EndAction>(value, EndAction),
   timerType: (value: unknown) => coerceEnum<TimerType>(value, TimerType),
+
+  linkStart: coerceBoolean,
+  timeStrategy: (value: unknown) => coerceEnum<TimeStrategy>(value, TimeStrategy),
 
   duration: (value: unknown) => clampDuration(coerceNumber(value)),
   timeStart: (value: unknown) => clampDuration(coerceNumber(value)),
