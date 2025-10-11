@@ -14,6 +14,7 @@ import {
   roll,
   start,
   stop,
+  update,
 } from '../runtimeState.js';
 import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
 import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
