@@ -123,8 +123,8 @@ function formatTimer(number) {
    * @param {number} number - The number to pad
    * @returns {string} The padded number string
    */
-  function leftPad(number) {
-    return Math.floor(number).toString().padStart(2, '0');
+  function leftPad(val) {
+    return Math.floor(val).toString().padStart(2, '0');
   }
 }
 
