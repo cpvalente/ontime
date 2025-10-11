@@ -273,13 +273,14 @@ class RuntimeService {
   public startByCue(cue: string): boolean {
     const state = runtimeState.getState();
     const rundown = getCurrentRundown();
-    const { playableEventOrder } = getRundownMetadata();
+    const { timedEventOrder } = getRundownMetadata();
 
     const event = findNextPlayableWithCue(
       rundown,
-      playableEventOrder,
+      timedEventOrder,
       cue,
       state.rundown.selectedEventIndex ?? undefined,
+      state.timer.playback === Playback.Armed ? true : false, // If we are armed allow the armed event to be considered for playback
     );
 
     if (!event) {
@@ -341,6 +342,7 @@ class RuntimeService {
       playableEventOrder,
       cue,
       state.rundown.selectedEventIndex ?? undefined,
+      false,
     );
 
     if (!event) {
