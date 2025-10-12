@@ -95,7 +95,7 @@ function PipTimerHost() {
         </BrowserRouter>,
       );
     }
-  }, [data]);
+  }, [data, root]);
 
   if (!isPipSupported) {
     return null;
