@@ -92,10 +92,10 @@
     .end-message {
       text-align: center;
       font-size: 11.5vw;
-      line-height: 0.9em;
       font-weight: 600;
       color: var(--timer-overtime-color-override, $timer-finished-color);
       padding: 0;
+      height: 100%;
     }
 
     .timer {
