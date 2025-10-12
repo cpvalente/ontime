@@ -20,7 +20,7 @@ import { cx } from '../../common/utils/styleUtils';
 import TitleCard from '../../common/components/title-card/TitleCard';
 import { FitText } from '../../common/components/fit-text/FitText';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
-import { memo, useEffect } from 'react';
+import { memo, useCallback, useEffect } from 'react';
 import { TimerData, useTimerData } from './useTimerData';
 
 import './Timer.scss';
@@ -36,7 +36,7 @@ function PipTimerHost() {
 
   const isPipSupported = 'documentPictureInPicture' in window;
 
-  async function openPictureInPicture() {
+  const openPictureInPicture = useCallback(async () => {
     if (!isPipSupported) return;
 
     if (window.documentPictureInPicture.window) {
@@ -84,7 +84,7 @@ function PipTimerHost() {
         <PipTimer data={data} />
       </BrowserRouter>,
     );
-  }
+  }, [isPipSupported, setRoot, data])
 
   // re-render timer when data changes
   useEffect(() => {
