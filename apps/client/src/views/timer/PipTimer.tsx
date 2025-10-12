@@ -1,6 +1,20 @@
+import { memo, useCallback, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router';
+
+import Button from '../../common/components/buttons/Button';
+import { FitText } from '../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../common/components/multi-part-progress-bar/MultiPartProgressBar';
+import TitleCard from '../../common/components/title-card/TitleCard';
+import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import { useTimerSocket } from '../../common/hooks/useSocket';
+import { cx } from '../../common/utils/styleUtils';
+import { formatTime } from '../../common/utils/time';
+import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
+import { getFormattedTimer, getTimerByType } from '../../features/viewers/common/viewUtils';
+import { getTimerColour } from '../../views/utils/presentation.utils';
+
+import { usePipStore } from './pipTimer.store';
 import { useTimerOptions } from './timer.options';
 import {
   getCardData,
@@ -13,21 +27,9 @@ import {
   getShowProgressBar,
   getTotalTime,
 } from './timer.utils';
-import { getFormattedTimer, getTimerByType } from '../../features/viewers/common/viewUtils';
-import { formatTime } from '../../common/utils/time';
-import { getTimerColour } from '../../views/utils/presentation.utils';
-import { cx } from '../../common/utils/styleUtils';
-import TitleCard from '../../common/components/title-card/TitleCard';
-import { FitText } from '../../common/components/fit-text/FitText';
-import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
-import { memo, useCallback, useEffect } from 'react';
 import { TimerData, useTimerData } from './useTimerData';
 
 import './Timer.scss';
-import ViewLogo from '../../common/components/view-logo/ViewLogo';
-import { BrowserRouter } from 'react-router';
-import Button from '../../common/components/buttons/Button';
-import { usePipStore } from './pipTimer.store';
 
 export default memo(PipTimerHost);
 function PipTimerHost() {
