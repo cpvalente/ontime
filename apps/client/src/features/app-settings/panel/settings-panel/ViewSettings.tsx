@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { lazy, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDisclosure } from '@mantine/hooks';
 import { ViewSettings as ViewSettingsType } from 'ontime-types';
@@ -16,6 +16,8 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import CodeEditorModal from './composite/StyleEditorModal';
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
+
+const PipTimerHost = lazy(() => import('../../../../views/timer/PipTimer'))
 
 export default function ViewSettings() {
   const { data, status, mutateAsync } = useViewSettings();
@@ -118,6 +120,9 @@ export default function ViewSettings() {
             <Panel.ListItem>
               <Panel.Field title='Danger colour' description='Colour of a running timer in danger mode' />
               <SwatchPickerRHF name='dangerColor' control={control} />
+            </Panel.ListItem>
+            <Panel.ListItem>
+              <PipTimerHost />
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>
