@@ -26,8 +26,6 @@ We do our best to have most topics covered by the documentation. However, if you
 Let us know!
 Ontime improves from the collaboration with its users. We would like to understand how you use Ontime and appreciate your feedback.
 
-We would also like to include a testimonials section in our ✨new website✨. It would be great to showcase the diversity of users running Ontime.
-
 # Ontime
 
 Ontime is a browser-based application that manages event rundowns, scheduling, and cueing.
