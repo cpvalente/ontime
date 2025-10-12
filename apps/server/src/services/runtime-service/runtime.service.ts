@@ -280,7 +280,7 @@ class RuntimeService {
       timedEventOrder,
       cue,
       state.rundown.selectedEventIndex ?? undefined,
-      state.timer.playback === Playback.Armed ? true : false, // If we are armed allow the armed event to be considered for playback
+      state.timer.playback === Playback.Armed, // If we are armed allow the armed event to be considered for playback
     );
 
     if (!event) {
