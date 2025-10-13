@@ -11,14 +11,14 @@ describe('parseExcelDate', () => {
       ['1899-12-30T07:00:00.000Z', 28800000],
       ['1899-12-30T08:00:10.000Z', 32410000],
       ['1899-12-30T08:30:00.000Z', 34200000],
-    ])(`handles %s`, (fromExcel, expected) => {
+    ])('handles %s', (fromExcel, expected) => {
       expect(parseExcelDate(fromExcel)).toBe(expected);
     });
   });
 
   describe('parses a time string that passes validation', () => {
     test.each([['10:00:00'], ['10:00'], ['10:00AM'], ['10:00am'], ['10:00PM'], ['10:00pm']])(
-      `handles %s`,
+      'handles %s',
       (fromExcel) => {
         expect(parseExcelDate(fromExcel)).not.toBe(0);
       },
@@ -26,13 +26,13 @@ describe('parseExcelDate', () => {
   });
 
   describe('uses numeric fields as minutes', () => {
-    test.each([[1], [10], [100]])(`handles numeric fields %s`, (fromExcel) => {
+    test.each([[1], [10], [100]])('handles numeric fields %s', (fromExcel) => {
       expect(parseExcelDate(fromExcel)).toBe(fromExcel * MILLIS_PER_MINUTE);
     });
   });
 
   describe('returns 0 on other strings', () => {
-    test.each([['test'], [''], ['x']])(`handles invalid fields %s`, (fromExcel) => {
+    test.each([['test'], [''], ['x']])('handles invalid fields %s', (fromExcel) => {
       expect(parseExcelDate(fromExcel)).toBe(0);
     });
   });

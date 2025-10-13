@@ -52,7 +52,7 @@ router.get('/:rundownId/export', validateRundownExport, (req: Request, res: Resp
     const customFields = getProjectCustomFields();
     const buffer = generateExcelFile(rundown, customFields);
 
-    res.setHeader('Content-Disposition', `attachment;`);
+    res.setHeader('Content-Disposition', 'attachment;');
     res.setHeader('Content-Type', EXCEL_MIME);
     res.setHeader('Content-Length', buffer.length.toString());
     res.status(200).send(buffer);

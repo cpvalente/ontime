@@ -50,7 +50,7 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
     return false;
   }
 
-    if (!is.number(restorePoint.startEpoch) && restorePoint.startEpoch !== null) {
+  if (!is.number(restorePoint.startEpoch) && restorePoint.startEpoch !== null) {
     return false;
   }
 
