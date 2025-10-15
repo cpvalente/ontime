@@ -117,7 +117,7 @@
 
       // use a class instead of a phase, to allow suppressing overtime style
       &--finished {
-        color: var(--timer-colour, var(--timer-overtime-color-override, $timer-finished-color));
+        color: var(--timer-overtime-color-override, $timer-finished-color);
       }
 
       &[data-phase="warning"] {
