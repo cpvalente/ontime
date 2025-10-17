@@ -28,13 +28,9 @@ export const demoDb: DatabaseModel = {
           type: SupportedEntry.Milestone,
           cue: 'Demo',
           title: 'Clear all, or Create New Project to start fresh',
-          note: 'Go to Settings cog wheel top left of Editor, Project > Create',
+          note: 'Moderator - Emma Thompson\n\nSpeakers\n- Liam Carter + Sophia Patel\n- Ethan Brooks\n- Lucas Bennett',
           colour: '#9d9d9d',
-          custom: {
-            Custom_Field:
-              'Create Custom Fields to store specific text information or images.\n\nGo to Settings > Project data > Custom fields',
-            Images: 'https://www.getontime.no/images/icons/ontime-logo.png',
-          },
+          custom: {},
           parent: null,
           revision: 0,
         },
@@ -78,7 +74,10 @@ export const demoDb: DatabaseModel = {
           timeWarning: 600000,
           timeDanger: 300000,
           custom: {
-            Custom_Field: 'Put additional info here',
+            PowerPoint_Slide: 'https://www.getontime.no/images/aux/demo-slide1.webp',
+            Video_Notes: 'Camera + PowerPoint on stream\nPowerPoint on screens',
+            Audio_Notes: '2x Wireless Hand Helds',
+            PowerPoint_Name: 'HoldingSlide.pptx',
           },
           triggers: [],
         },
@@ -117,7 +116,12 @@ export const demoDb: DatabaseModel = {
           revision: 0,
           timeWarning: 120000,
           timeDanger: 60000,
-          custom: {},
+          custom: {
+            PowerPoint_Slide: 'https://www.getontime.no/images/aux/demo-slide1.webp',
+            Video_Notes: 'Cameras on stream\nPowerPoint on screens',
+            Audio_Notes: '1x Wireless Hand Held',
+            PowerPoint_Name: 'HoldingSlide.pptx',
+          },
           triggers: [],
         },
         fa593e: {
@@ -144,7 +148,12 @@ export const demoDb: DatabaseModel = {
           revision: 0,
           timeWarning: 120000,
           timeDanger: 60000,
-          custom: {},
+          custom: {
+            PowerPoint_Slide: 'https://www.getontime.no/images/aux/demo-slide2.webp',
+            Video_Notes: 'Camera + PowerPoint on stream\nPowerPoint on screens',
+            Audio_Notes: '2x Wireless Hand Helds',
+            PowerPoint_Name: 'Session1.pptx',
+          },
           triggers: [],
         },
         a8b0b3: {
@@ -187,7 +196,7 @@ export const demoDb: DatabaseModel = {
           timerType: TimerType.CountDown,
           countToEnd: false,
           skip: false,
-          note: 'Buffet in lobby\nMusic plays, holding slide on screens',
+          note: 'Buffet in lobby',
           colour: '#779BE7',
           delay: 0,
           dayOffset: 0,
@@ -197,7 +206,12 @@ export const demoDb: DatabaseModel = {
           revision: 0,
           timeWarning: 120000,
           timeDanger: 60000,
-          custom: {},
+          custom: {
+            PowerPoint_Slide: 'https://www.getontime.no/images/aux/demo-slide1.webp',
+            Video_Notes: 'Holding slide on screens',
+            Audio_Notes: 'House music',
+            PowerPoint_Name: 'HoldingSlide.pptx',
+          },
           triggers: [],
         },
         '6b0edb': {
@@ -250,7 +264,12 @@ export const demoDb: DatabaseModel = {
           revision: 0,
           timeWarning: 120000,
           timeDanger: 60000,
-          custom: {},
+          custom: {
+            PowerPoint_Slide: 'https://www.getontime.no/images/aux/demo-slide3.webp',
+            Video_Notes: 'Camera + PPT + Video on stream\nPowerPoint + Video on screens\n\nVideo file: Session2.mp4',
+            Audio_Notes: '1x Wireless Hand Held\n1x Video with audio',
+            PowerPoint_Name: 'Session2.pptx',
+          },
           triggers: [],
         },
         e10ed9: {
@@ -277,7 +296,12 @@ export const demoDb: DatabaseModel = {
           revision: 0,
           timeWarning: 120000,
           timeDanger: 60000,
-          custom: {},
+          custom: {
+            PowerPoint_Slide: 'https://www.getontime.no/images/aux/demo-slide1.webp',
+            Video_Notes: 'Holding slide on screens',
+            Audio_Notes: '1x Wireless Hand Held',
+            PowerPoint_Name: 'HoldingSlide.pptx',
+          },
           triggers: [],
         },
         '07df89': {
@@ -341,15 +365,25 @@ export const demoDb: DatabaseModel = {
     },
   ],
   customFields: {
-    Custom_Field: {
+    Video_Notes: {
+      type: 'text',
+      colour: '#FFAB33',
+      label: 'Video Notes',
+    },
+    Audio_Notes: {
+      type: 'text',
+      colour: '#339E4E',
+      label: 'Audio Notes',
+    },
+    PowerPoint_Name: {
       type: 'text',
       colour: '#3E75E8',
-      label: 'Custom Field',
+      label: 'PowerPoint Name',
     },
-    Images: {
+    PowerPoint_Slide: {
       type: 'image',
       colour: '#ED3333',
-      label: 'Images',
+      label: 'PowerPoint Slide',
     },
   },
   automation: {
