@@ -62,6 +62,11 @@ export function generateShareUrl(
   canonicalPath: string,
   { authenticate, lockConfig, lockNav, preset, prefix = routerPrefix, hash = hashedPassword }: LinkOptions,
 ): URL {
+  /**
+   * URL constructor will throw if given an IP address without protocol
+   * for the case of IP addresses, we expect that the base URL provides protocol and port
+   * eg: http://192.168.10.1:4001
+   */
   const url = new URL(baseUrl);
 
   // companion links point to the root

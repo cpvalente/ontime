@@ -80,6 +80,18 @@ describe('generateAuthenticatedUrl()', () => {
       });
       expect(withAuth.toString()).toBe('http://192.168.10.173:4001/?token=1234');
     });
+
+    it('throws if provided an IP address without protocol', () => {
+      expect(() =>
+        generateShareUrl('192.168.10.173', '<<companion>>', {
+          lockConfig: false,
+          lockNav: false,
+          authenticate: true,
+          preset: undefined,
+          hash: '1234',
+        }),
+      ).toThrowError('Invalid URL');
+    });
   });
 
   describe('for ontime-cloud URLs', () => {
