@@ -2,15 +2,21 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  height: 0;
   position: relative;
-
-  background: $blue-500;
   z-index: $zindex-floating;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: $blue-500;
+  }
 }
 
 .addButton {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translateY(-50%);
+  position: relative;
 }
