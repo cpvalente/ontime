@@ -175,7 +175,7 @@ describe('generateUrlPresetOptions', () => {
     expect(() => generateUrlPresetOptions('test', 'invalid-url')).toThrow();
   });
 
-  it('throws on on invalid route', () => {
+  it('throws on invalid route', () => {
     expect(() => generateUrlPresetOptions('test', 'www.getontime.no/somethingelse/')).toThrow();
   });
 });

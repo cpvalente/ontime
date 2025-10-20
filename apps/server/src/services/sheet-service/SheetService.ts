@@ -377,7 +377,7 @@ export async function upload(sheetId: string, options: ImportMap) {
 
   const titleMetadata = Object.values(sheetMetadata)[0];
   if (titleMetadata === undefined) {
-    throw new Error(`Sheet read failed: failed to find title row`);
+    throw new Error('Sheet read failed: failed to find title row');
   }
   const titleRow = titleMetadata['row'];
   const updateRundown = Array<sheets_v4.Schema$Request>();

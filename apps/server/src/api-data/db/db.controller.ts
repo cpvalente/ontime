@@ -109,7 +109,7 @@ export async function projectDownload(req: Request, res: Response) {
     return;
   }
 
-  res.download(pathToFile, filename, (error) => {
+  res.download(pathToFile, filename, { dotfiles: 'allow' }, (error) => {
     if (error) {
       const message = getErrorMessage(error);
       res.status(500).send({ message });

@@ -355,7 +355,7 @@ export function migrateRundown(
         const newCustom: EntryCustomFields = {};
 
         if (translationTable) {
-          Object.entries(custom).map(([key, value]) => {
+          Object.entries(custom).forEach(([key, value]) => {
             const newKey = translationTable.get(key);
             if (newKey) {
               newCustom[newKey] = value;

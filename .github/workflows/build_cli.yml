@@ -14,6 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # This step is only needed to setup the permissions to update npm as pnpm will setup the correct node version
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
@@ -45,10 +50,9 @@ jobs:
       - name: Copy external
         run: cp -R apps/server/src/external apps/cli/external
 
-      - name: Setup pnpm auth config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      # This will be included in v24 of NodeJS so when the project upgrades to that this can be removed
+      - name: Install newer version of npm
+        run: npm install -g npm@11
 
       - name: Publish to NPM
         run: pnpm publish --access public --no-git-checks

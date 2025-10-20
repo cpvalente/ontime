@@ -14,12 +14,18 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
   const { data: infoData } = useInfo();
   const { data: urlPresetData } = useUrlPresets({ skip: lockedPath === undefined });
 
+  /**
+   * hostOptions are only used for local networks
+   * the NIF address is a local IP address: 192.168.x.x or 10.x.x.x
+   * We need to inject the port and protocol to create a valid URL
+   * eg: http://192.168.x.x:port
+   */
   const hostOptions = useMemo(() => {
     return infoData.networkInterfaces.map((nif) => ({
-      value: nif.address,
+      value: `http://${nif.address}:${infoData.serverPort}`,
       label: `${nif.name} - ${nif.address}`,
     }));
-  }, [infoData.networkInterfaces]);
+  }, [infoData.networkInterfaces, infoData.serverPort]);
 
   const pathOptions = useMemo(() => {
     if (lockedPath) {

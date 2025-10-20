@@ -118,24 +118,25 @@ export function findNextPlayableId(playableEventsOrder: EntryId[], currentEventI
  */
 export function findNextPlayableWithCue(
   rundown: Rundown,
-  playableEventsOrder: EntryId[],
+  timedEventsOrder: EntryId[],
   targetCue: string,
   currentEventIndex = 0,
+  allowCurrent = false,
 ): OntimeEvent | undefined {
-  const lowerCaseCue = targetCue.toLowerCase();
+  const startFromIndex = allowCurrent ? currentEventIndex : currentEventIndex + 1;
 
-  for (let i = currentEventIndex; i < playableEventsOrder.length; i++) {
-    const eventId = playableEventsOrder[i];
+  for (let i = startFromIndex; i < timedEventsOrder.length; i++) {
+    const eventId = timedEventsOrder[i];
     const event = rundown.entries[eventId];
-    if (isOntimeEvent(event) && isPlayableEvent(event) && event.cue.toLowerCase() === lowerCaseCue) {
+    if (isOntimeEvent(event) && isPlayableEvent(event) && event.cue === targetCue) {
       return event;
     }
   }
 
-  for (let i = 0; i < currentEventIndex; i++) {
-    const eventId = playableEventsOrder[i];
+  for (let i = 0; i < startFromIndex; i++) {
+    const eventId = timedEventsOrder[i];
     const event = rundown.entries[eventId];
-    if (isOntimeEvent(event) && isPlayableEvent(event) && event.cue.toLowerCase() === lowerCaseCue) {
+    if (isOntimeEvent(event) && isPlayableEvent(event) && event.cue === targetCue) {
       return event;
     }
   }
