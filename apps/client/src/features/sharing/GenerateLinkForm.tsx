@@ -136,7 +136,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
         }
 
         const url = await generateUrl({
-          baseUrl: linkToOtherHost(options.baseUrl),
+          baseUrl: options.baseUrl,
           path,
           authenticate: options.authenticate,
           lockConfig: options.lockConfig,
