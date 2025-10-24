@@ -120,11 +120,15 @@
         color: var(--timer-overtime-color-override, $timer-finished-color);
       }
 
-      &[data-phase="warning"] {
+      &[data-phase='warning'] {
         color: var(--timer-colour, var(--timer-warning-color-override));
       }
-      &[data-phase="danger"] {
+      &[data-phase='danger'] {
         color: var(--timer-colour, var(--timer-danger-color-override));
+      }
+      &[data-type='none'] {
+        transition: 1s;
+        opacity: 0;
       }
     }
   }
