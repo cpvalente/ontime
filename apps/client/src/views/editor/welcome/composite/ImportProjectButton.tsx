@@ -30,7 +30,7 @@ export default function ImportProjectButton({ onFinish }: ImportProjectButtonPro
     try {
       validateProjectFile(selectedFile);
       await uploadProjectFile(selectedFile);
-    } catch (error) {
+    } catch (_error) {
       /** we do not handle errors here */
     } finally {
       await invalidateAllCaches();

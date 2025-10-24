@@ -28,7 +28,7 @@ export async function validateRundownMutation(req: Request, res: Response, next:
     }
 
     next();
-  } catch (error) {
+  } catch (_error) {
     res.status(404).json({ message: 'Rundown not found' });
     return;
   }
