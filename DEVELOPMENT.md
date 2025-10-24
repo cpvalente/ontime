@@ -24,6 +24,11 @@ From the project root, run the following commands
 - __Create a local build__ by running `pnpm build`, this will populate local dependencies
 - __Run dev mode__ by running `pnpm dev` or `pnpm dev:electron` to get the electron window
 
+### Cloud debugging
+
+The cloud uses a rout prefix to find stages, that is passed in by the docker container on the environment variable `ROUTER_PREFIX`
+To test this locally first build the ui and use the command `pnpm dev:prefix`
+
 
 ### Debugging backend
 
