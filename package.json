@@ -22,6 +22,7 @@
   "type": "module",
   "scripts": {
     "dev": "turbo run dev",
+    "dev:prefix": "cross-env ROUTER_PREFIX=test turbo run dev  --filter=ontime-server",
     "dev:electron": "turbo run dev:electron",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
