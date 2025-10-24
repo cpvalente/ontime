@@ -177,7 +177,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings }
           </FitText>
         ) : (
           <div
-            className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished'])}
+            className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished', `timer-type--${viewTimerType}`])}
             style={{ fontSize: `${timerFontSize}vw` }}
             data-phase={time.phase}
           >
