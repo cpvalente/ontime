@@ -24,7 +24,6 @@ From the project root, run the following commands
 - __Create a local build__ by running `pnpm build`, this will populate local dependencies
 - __Run dev mode__ by running `pnpm dev` or `pnpm dev:electron` to get the electron window
 
-
 ### Debugging backend
 
 The previous command will start the development servers for both the client, server and electron applications.
