@@ -1,0 +1,11 @@
+{
+    "$schema": "../../node_modules/oxlint/configuration_schema.json",
+    "extends": [
+        "../../.oxlintrc.json"
+    ],
+    "rules": {},
+    "env": {
+        "browser": true,
+        "node": true
+    }
+}

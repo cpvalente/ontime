@@ -56,7 +56,7 @@ router.get('/:rundownId/export', validateRundownExport, (req: Request, res: Resp
     res.setHeader('Content-Type', EXCEL_MIME);
     res.setHeader('Content-Length', buffer.length.toString());
     res.status(200).send(buffer);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).send({ message: 'Failed to generate Excel file' });
   }
 });

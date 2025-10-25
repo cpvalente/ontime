@@ -13,6 +13,8 @@ catalog:
   vitest: 3.2.1
   rimraf: 6.0.1
   ts-essentials: 10.1.1
+  oxlint: 1.24.0
+  oxlint-tsgolint: 0.3.0
 onlyBuiltDependencies:
   - electron
   - esbuild

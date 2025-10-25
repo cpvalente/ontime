@@ -26,10 +26,6 @@
 
     "test": {},
     "test:pipeline": {},
-
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
     "typecheck": {
       "dependsOn": ["^typecheck"]
     },

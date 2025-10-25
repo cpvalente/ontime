@@ -1,0 +1,141 @@
+{
+    "$schema": "../../node_modules/oxlint/configuration_schema.json",
+    "extends": [
+        "../../.oxlintrc.json"
+    ],
+    "env": {
+        "browser": true,
+        "node": true
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
+    },
+    "jsPlugins": [
+        // "eslint-plugin-react",
+        "eslint-plugin-react-compiler",
+        "@tanstack/eslint-plugin-query",
+        "eslint-plugin-simple-import-sort"
+    ],
+    "rules": {
+        "react-compiler/react-compiler": "warn",
+        "react/jsx-no-bind": [
+            "error",
+            {
+                "ignoreRefs": true,
+                "allowArrowFunctions": true,
+                "allowFunctions": false,
+                "allowBind": false,
+                "ignoreDOMComponents": true
+            }
+        ],
+        "react/jsx-boolean-value": [
+            "error",
+            "never",
+            {
+                "always": []
+            }
+        ],
+        "react/jsx-handler-names": [
+            "off",
+            {
+                "eventHandlerPrefix": "handle",
+                "eventHandlerPropPrefix": "on"
+            }
+        ],
+        "react/no-danger": "warn",
+        "react/no-deprecated": [
+            "error"
+        ],
+        "react/jsx-uses-react": "off",
+        "react/react-in-jsx-scope": "off",
+        "react/jsx-no-undef": "error",
+        "react/jsx-closing-tag-location": "warn",
+        "react/jsx-no-useless-fragment": "warn",
+        "react/no-unescaped-entities": "error",
+        "react/jsx-tag-spacing": [
+            "error",
+            {
+                "closingSlash": "never",
+                "beforeSelfClosing": "always",
+                "afterOpening": "never",
+                "beforeClosing": "never"
+            }
+        ],
+        "react/jsx-space-before-closing": [
+            "off",
+            "always"
+        ],
+        "react/jsx-curly-brace-presence": [
+            "error",
+            {
+                "props": "never",
+                "children": "never"
+            }
+        ],
+        "react/destructuring-assignment": [
+            "error",
+            "always"
+        ],
+        "react/no-unsafe": "off",
+        "react/prop-types": [
+            "error",
+            {
+                "ignore": [],
+                "customValidators": [],
+                "skipUndeclared": true
+            }
+        ],
+        "simple-import-sort/imports": "warn",
+        "simple-import-sort/exports": "warn"
+    },
+    "overrides": [
+        // override "simple-import-sort" config
+        {
+            "files": [
+                "*.js",
+                "*.jsx",
+                "*.ts",
+                "*.tsx"
+            ],
+            "rules": {
+                "simple-import-sort/imports": [
+                    "error",
+                    {
+                        "groups": [
+                            // Packages `react` related packages come first.
+                            [
+                                "^react",
+                                "^@?\\w"
+                            ],
+                            // Internal packages.
+                            [
+                                "^(@|components)(/.*|$)"
+                            ],
+                            // Side effect imports.
+                            [
+                                "^\\u0000"
+                            ],
+                            // Parent imports. Put `..` last.
+                            [
+                                "^\\.\\.(?!/?$)",
+                                "^\\.\\./?$"
+                            ],
+                            // Other relative imports. Put same-folder imports and `.` last.
+                            [
+                                "^\\./(?=.*/)(?!/?$)",
+                                "^\\.(?!/?$)",
+                                "^\\./?$"
+                            ],
+                            // Style imports.
+                            [
+                                "^.+\\.?(css)$"
+                            ]
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
