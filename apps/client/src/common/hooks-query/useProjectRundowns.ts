@@ -3,7 +3,7 @@ import { ProjectRundownsList } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { PROJECT_RUNDOWNS } from '../api/constants';
-import { createRundown, deleteRundown, fetchProjectRundownList, loadRundown } from '../api/rundown';
+import { createRundown, deleteRundown, duplicateRundown, fetchProjectRundownList, loadRundown } from '../api/rundown';
 
 /**
  * Project rundowns
@@ -23,6 +23,16 @@ export function useMutateProjectRundowns() {
 
   const { mutateAsync: create } = useMutation({
     mutationFn: createRundown,
+    onMutate: () => {
+      ontimeQueryClient.cancelQueries({ queryKey: PROJECT_RUNDOWNS });
+    },
+    onSuccess: (response) => {
+      ontimeQueryClient.setQueryData(PROJECT_RUNDOWNS, response.data);
+    },
+  });
+  
+  const { mutateAsync: duplicate } = useMutation({
+    mutationFn: duplicateRundown,
     onMutate: () => {
       ontimeQueryClient.cancelQueries({ queryKey: PROJECT_RUNDOWNS });
     },
@@ -51,5 +61,5 @@ export function useMutateProjectRundowns() {
     },
   });
 
-  return { create, remove, load };
+  return { create, duplicate, remove, load };
 }

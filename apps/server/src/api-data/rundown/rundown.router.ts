@@ -32,7 +32,7 @@ import {
 import { paramsWithId } from '../validation-utils/validationFunction.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { defaultRundown } from '../../models/dataModel.js';
-import { normalisedToRundownArray } from './rundown.utils.js';
+import { duplicateRundown, normalisedToRundownArray } from './rundown.utils.js';
 
 export const router = express.Router();
 
@@ -95,6 +95,24 @@ router.post('/', rundownPostValidator, async (req: Request, res: Response<Projec
   }
 });
 
+/**
+ * Duplicates an existing rundown
+ */
+router.post('/:id/duplicate', paramsWithId, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
+  try {
+    const dataProvider = getDataProvider();
+    const rundown = dataProvider.getRundown(req.params.id);
+
+    const duplicatedRundown: Rundown = duplicateRundown(rundown, `Copy of ${rundown.title}`);
+    await dataProvider.setRundown(duplicatedRundown.id, duplicatedRundown);
+
+    const projectRundowns = getDataProvider().getProjectRundowns();
+    res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
 /**
  * Deletes a rundown if not loaded
  */

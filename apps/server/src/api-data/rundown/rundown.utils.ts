@@ -34,6 +34,7 @@ import {
   milestone as milestoneDef,
 } from '../../models/eventsDefinition.js';
 import { makeString } from '../../utils/parserUtils.js';
+
 import { RundownMetadata } from './rundown.types.js';
 
 type CompleteEntry<T> =
@@ -516,4 +517,19 @@ export function normalisedToRundownArray(rundowns: ProjectRundowns): ProjectRund
   return Object.values(rundowns).map(({ id, flatOrder, title, revision }) => {
     return { id, numEntries: flatOrder.length, title, revision };
   });
+}
+
+
+/**
+ * Duplicates an existing rundown ensuring all IDs are unique
+ */
+export function duplicateRundown(rundown: Rundown, newTitle: string): Rundown {
+  const newRundownId = generateId();
+
+  const newRundown = structuredClone(rundown);
+  newRundown.id = newRundownId;
+  newRundown.title = newTitle;
+  newRundown.revision = 0;
+
+  return newRundown;
 }
