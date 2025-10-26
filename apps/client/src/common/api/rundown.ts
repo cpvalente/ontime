@@ -39,6 +39,13 @@ export async function createRundown(title: string): Promise<AxiosResponse<Projec
 }
 
 /**
+ * HTTP request to duplicate an existing rundown
+ */
+export async function duplicateRundown(rundownId: RundownId): Promise<AxiosResponse<ProjectRundownsList>> {
+  return axios.post(`${rundownPath}/${rundownId}/duplicate`);
+}
+
+/**
  * HTTP request to delete a rundown
  */
 export async function deleteRundown(rundownId: RundownId): Promise<AxiosResponse<ProjectRundownsList>> {

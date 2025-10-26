@@ -3,11 +3,14 @@ import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { assertType } from 'vitest';
 
+import { demoDb } from '../../../models/demoProject.js';
+
 import {
   calculateDayOffset,
   createEvent,
   deleteById,
   doesInvalidateMetadata,
+  duplicateRundown,
   getInsertAfterId,
   hasChanges,
 } from '../rundown.utils.js';
@@ -260,3 +263,22 @@ describe('getInsertAfterId()', () => {
     expect(getInsertAfterId(rundown, rundown.entries.group as OntimeGroup, undefined, '32')).toBe('31');
   });
 });
+
+describe('duplicateRundown', () => {
+  it("duplicates a given rundown", () => {
+    const demoRundown = demoDb.rundowns['default'];
+    const title = 'Duplicated Rundown';
+    const duplicatedRundown = duplicateRundown(demoRundown, title);
+
+    expect(duplicatedRundown).toMatchObject({
+      title: title,
+      entries: expect.any(Object),
+      order: expect.any(Array),
+      flatOrder: expect.any(Array),
+    })
+    expect(demoRundown.id).not.toEqual(duplicatedRundown.id);
+    expect(duplicatedRundown.order.length).toEqual(demoRundown.order.length);
+    expect(duplicatedRundown.flatOrder.length).toEqual(demoRundown.flatOrder.length);
+    expect(Object.keys(duplicatedRundown.entries).length).toEqual(Object.keys(demoRundown.entries).length);
+  })
+})

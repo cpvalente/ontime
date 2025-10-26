@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IoAdd, IoDocumentOutline, IoDownloadOutline, IoEllipsisHorizontal, IoTrash } from 'react-icons/io5';
+import { IoAdd, IoDocumentOutline, IoDownloadOutline, IoDuplicateOutline, IoEllipsisHorizontal, IoTrash } from 'react-icons/io5';
 import { useDisclosure } from '@mantine/hooks';
 
 import { downloadAsExcel } from '../../../../common/api/excel';
@@ -19,7 +19,7 @@ import style from './ManagePanel.module.scss';
 
 export default function ManageRundowns() {
   const { data } = useProjectRundowns();
-  const { remove, load } = useMutateProjectRundowns();
+  const { duplicate, remove, load } = useMutateProjectRundowns();
   const [isOpenDelete, deleteHandlers] = useDisclosure();
   const [isOpenLoad, loadHandlers] = useDisclosure();
   const [isNewLoad, newHandlers] = useDisclosure();
@@ -45,6 +45,18 @@ export default function ManageRundowns() {
       setActionError(`Failed to load rundown. ${maybeAxiosError(error)}`);
     } finally {
       loadHandlers.close();
+    }
+  };
+
+  const submitRundownDuplicate = async (id: string) => {
+    setActionError(null);
+    setRenamingRundown(null);
+    setTargetRundown('');
+
+    try {
+      await duplicate(id);
+    } catch (error) {
+      setActionError(`Failed to duplicate rundown. ${maybeAxiosError(error)}`);
     }
   };
 
@@ -117,6 +129,13 @@ export default function ManageRundowns() {
                               label: 'Download .xlsx',
                               onClick: () => handleDownloadXlsx(id, title),
                             },
+                            {
+                              type: 'item',
+                              icon: IoDuplicateOutline,
+                              label: 'Duplicate',
+                              onClick: () => submitRundownDuplicate(id),
+                            },
+                            { type: 'divider' },
                             {
                               type: 'item',
                               icon: IoTrash,
