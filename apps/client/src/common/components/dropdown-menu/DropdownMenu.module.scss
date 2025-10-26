@@ -27,7 +27,6 @@
   }
 }
 
-
 .item {
   outline: 0;
   cursor: default;
@@ -60,6 +59,13 @@
     inset-inline: 0.25rem;
     border-radius: 3px;
     background-color: $gray-1000;
+  }
+
+  &[data-type='destructive'] {
+    color: $red-500;
+    svg {
+      color: $red-500;
+    }
   }
 }
 
