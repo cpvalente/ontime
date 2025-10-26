@@ -15,3 +15,20 @@
 .active {
   color: $active-indicator;
 }
+
+.inputWrapper {
+  position: relative;
+}
+
+.hoverLabel {
+  position: absolute;
+  top: -1.5rem;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+  
+  &.visible {
+    opacity: 1;
+  }
+}
