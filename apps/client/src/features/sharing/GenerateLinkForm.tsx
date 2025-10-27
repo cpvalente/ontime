@@ -15,7 +15,6 @@ import Switch from '../../common/components/switch/Switch';
 import { useUpdateUrlPreset } from '../../common/hooks-query/useUrlPresets';
 import copyToClipboard from '../../common/utils/copyToClipboard';
 import { preventEscape } from '../../common/utils/keyEvent';
-import { linkToOtherHost } from '../../common/utils/linkUtils';
 import { isUrlSafe } from '../../common/utils/regex';
 import { isOntimeCloud, serverURL } from '../../externals';
 import * as Panel from '../app-settings/panel-utils/PanelUtils';
@@ -136,7 +135,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
         }
 
         const url = await generateUrl({
-          baseUrl: linkToOtherHost(options.baseUrl),
+          baseUrl: options.baseUrl,
           path,
           authenticate: options.authenticate,
           lockConfig: options.lockConfig,
