@@ -46,6 +46,13 @@ export async function duplicateRundown(rundownId: RundownId): Promise<AxiosRespo
 }
 
 /**
+ * HTTP request to rename an existing rundown
+ */
+export async function renameRundown(rundownId: RundownId, title: string): Promise<AxiosResponse<ProjectRundownsList>> {
+  return axios.patch(`${rundownPath}/${rundownId}`, { title });
+}
+
+/**
  * HTTP request to delete a rundown
  */
 export async function deleteRundown(rundownId: RundownId): Promise<AxiosResponse<ProjectRundownsList>> {
