@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { IoAdd, IoDocumentOutline, IoDownloadOutline, IoDuplicateOutline, IoEllipsisHorizontal, IoTrash } from 'react-icons/io5';
+import {
+  IoAdd,
+  IoDocumentOutline,
+  IoDownloadOutline,
+  IoDuplicateOutline,
+  IoEllipsisHorizontal,
+  IoPencilOutline,
+  IoTrash,
+} from 'react-icons/io5';
 import { useDisclosure } from '@mantine/hooks';
 
 import { downloadAsExcel } from '../../../../common/api/excel';
@@ -13,17 +21,19 @@ import { useMutateProjectRundowns, useProjectRundowns } from '../../../../common
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
+import RundownRenameForm from './composite/RundownRenameForm';
 import { ManageRundownForm } from './ManageRundownForm';
 
 import style from './ManagePanel.module.scss';
 
 export default function ManageRundowns() {
   const { data } = useProjectRundowns();
-  const { duplicate, remove, load } = useMutateProjectRundowns();
+  const { duplicate, remove, load, rename } = useMutateProjectRundowns();
   const [isOpenDelete, deleteHandlers] = useDisclosure();
   const [isOpenLoad, loadHandlers] = useDisclosure();
   const [isNewLoad, newHandlers] = useDisclosure();
   const [targetRundown, setTargetRundown] = useState('');
+  const [renamingRundown, setRenamingRundown] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const openLoad = (id: string) => {
@@ -36,6 +46,11 @@ export default function ManageRundowns() {
     setActionError(null);
     setTargetRundown(id);
     deleteHandlers.open();
+  };
+
+  const openRename = (id: string) => {
+    setActionError(null);
+    setRenamingRundown(id);
   };
 
   const submitRundownLoad = async () => {
@@ -57,6 +72,15 @@ export default function ManageRundowns() {
       await duplicate(id);
     } catch (error) {
       setActionError(`Failed to duplicate rundown. ${maybeAxiosError(error)}`);
+    }
+  };
+
+  const submitRundownRename = async (id: string, newTitle: string) => {
+    try {
+      await rename([id, newTitle]);
+      setRenamingRundown(null);
+    } catch (error) {
+      setActionError(`Failed to rename rundown. ${maybeAxiosError(error)}`);
     }
   };
 
@@ -106,6 +130,22 @@ export default function ManageRundowns() {
               <tbody>
                 {data?.rundowns?.map(({ id, numEntries, title }) => {
                   const isLoaded = data.loaded === id;
+                  const isRenaming = renamingRundown === id;
+
+                  if (isRenaming) {
+                    return (
+                      <tr key={id}>
+                        <td colSpan={3}>
+                          <RundownRenameForm
+                            onCancel={() => setRenamingRundown(null)}
+                            onSubmit={(newTitle: string) => submitRundownRename(id, newTitle)}
+                            initialTitle={title}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  }
+
                   return (
                     <tr key={id} className={cx([isLoaded && style.current])}>
                       <td>{numEntries}</td>
@@ -116,6 +156,12 @@ export default function ManageRundowns() {
                         <DropdownMenu
                           render={<IconButton variant='ghosted-white' />}
                           items={[
+                            {
+                              type: 'item',
+                              icon: IoPencilOutline,
+                              label: 'Rename',
+                              onClick: () => openRename(id),
+                            },
                             {
                               type: 'item',
                               icon: IoDownloadOutline,
@@ -137,7 +183,7 @@ export default function ManageRundowns() {
                             },
                             { type: 'divider' },
                             {
-                              type: 'item',
+                              type: 'destructive',
                               icon: IoTrash,
                               label: 'Delete',
                               onClick: () => openDelete(id),

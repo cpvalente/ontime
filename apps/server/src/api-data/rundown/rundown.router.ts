@@ -113,6 +113,38 @@ router.post('/:id/duplicate', paramsWithId, async (req: Request, res: Response<P
     res.status(400).send({ message });
   }
 });
+
+/**
+ * Patches the data of an existing rundown
+ * Currently only the title can be changed
+ */
+router.patch('/:id', paramsWithId, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
+  try {
+    const dataProvider = getDataProvider();
+    const rundown = dataProvider.getRundown(req.params.id);
+    if (!rundown) throw new Error(`Rundown with ID ${req.params.id} not found`);
+    if (!req.body.title) throw new Error('No title provided');
+
+    await dataProvider.setRundown(rundown.id, { ...rundown, title: req.body.title });
+
+    /**
+     * If loaded we re-init the rundown 
+     * This is likely over-kill but the simplest way to ensure state consistency
+     */
+    if (req.params.id === getCurrentRundown().id) {
+      const rundown = dataProvider.getRundown(req.params.id);
+      const customField = dataProvider.getCustomFields();
+      await initRundown(rundown, customField);
+    }
+
+    const projectRundowns = getDataProvider().getProjectRundowns();
+    res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
 /**
  * Deletes a rundown if not loaded
  */
