@@ -205,7 +205,7 @@ export default function ManageRundowns() {
       <Dialog
         isOpen={isOpenDelete}
         onClose={deleteHandlers.close}
-        title='Load rundown'
+        title='Delete rundown'
         showBackdrop
         showCloseButton
         bodyElements={
