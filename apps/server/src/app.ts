@@ -269,6 +269,7 @@ export const shutdown = async (exitCode = 0) => {
   // 0 means it was a SIGNAL
   // 1 means crash -> keep the file
   // 2 means dev crash -> do nothing
+  // 3 means container shutdown -> keep the file
   // 99 means there was a shutdown request from the UI
   if (exitCode === 0 || exitCode === 99) {
     await restoreService.clear();
@@ -305,4 +306,4 @@ process.on('uncaughtException', async (error) => {
 // register shutdown signals
 process.once('SIGHUP', async () => shutdown(0));
 process.once('SIGINT', async () => shutdown(0));
-process.once('SIGTERM', async () => shutdown(0));
+process.once('SIGTERM', async () => shutdown(3));
