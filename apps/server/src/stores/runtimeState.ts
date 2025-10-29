@@ -407,7 +407,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   state.timer.elapsed = 0;
 
   if (state.rundown.actualStart === null) {
-    state._startDayOffset = findDayOffset(state.eventNow.timeStart, state.clock);
+    state._startDayOffset = findDayOffset(state.eventNow.timeStart, state.clock) + state.eventNow.dayOffset;
     state.rundown.currentDay = state._startDayOffset;
     state._startEpoch = epoch;
     state.rundown.actualStart = state.clock;
