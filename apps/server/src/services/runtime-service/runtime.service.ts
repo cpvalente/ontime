@@ -683,8 +683,11 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // if playback changes most things should update
     const hasChangedPlayback = RuntimeService.previousState.timer?.playback !== state.timer.playback;
 
+    const addedTimeChanged = !justStarted && RuntimeService.previousState?.timer.addedTime !== state.timer.addedTime;
+
     // combine all big changes
-    const hasImmediateChanges = entryChanged || justStarted || hasChangedPlayback || offsetModeChanged;
+    const hasImmediateChanges =
+      entryChanged || justStarted || hasChangedPlayback || offsetModeChanged || addedTimeChanged;
 
     /**
      * if any values have changed.
