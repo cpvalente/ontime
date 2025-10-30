@@ -15,12 +15,15 @@ import FinderPlacement from './placements/FinderPlacement';
 import { RundownContextMenu } from './rundown-context-menu/RundownContextMenu';
 import RundownWrapper from './RundownWrapper';
 
+import { getIsNavigationLocked } from '../../externals';
+
 import style from './RundownExport.module.scss';
 
 export default memo(RundownExport);
 
 function RundownExport() {
   const isExtracted = window.location.pathname.includes('/rundown');
+  const isLocked = getIsNavigationLocked();
   const [editorMode] = useSessionStorage({
     key: sessionKeys.editorMode,
     defaultValue: AppMode.Edit,
@@ -55,7 +58,7 @@ function RundownExport() {
     <ProtectRoute permission='editor'>
       <div className={cx([style.rundownExport, isExtracted && style.extracted])} data-testid='panel-rundown'>
         <FinderPlacement />
-        {isExtracted && <ViewNavigationMenu suppressSettings />}
+        {(isExtracted || isLocked) && <ViewNavigationMenu suppressSettings={isExtracted} isNavigationLocked={isLocked} />}
         <div className={style.rundown}>
           <div className={style.list}>
             <ErrorBoundary>

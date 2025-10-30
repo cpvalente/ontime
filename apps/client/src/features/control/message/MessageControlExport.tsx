@@ -7,6 +7,8 @@ import ProtectRoute from '../../../common/components/protect-route/ProtectRoute'
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx } from '../../../common/utils/styleUtils';
 
+import { getIsNavigationLocked } from '../../../externals';
+
 import MessageControl from './MessageControl';
 
 import style from '../../../views/editor/Editor.module.scss';
@@ -14,13 +16,14 @@ import style from '../../../views/editor/Editor.module.scss';
 export default memo(MessageControlExport);
 function MessageControlExport() {
   const isExtracted = window.location.pathname.includes('/messagecontrol');
+  const isLocked = getIsNavigationLocked();
   const classes = cx([style.content, style.contentColumnLayout]);
 
   return (
     <ProtectRoute permission='editor'>
       <div className={style.messages} data-testid='panel-messages-control'>
         {!isExtracted && <Corner onClick={(event) => handleLinks('messagecontrol', event)} />}
-        {isExtracted && <ViewNavigationMenu suppressSettings />}
+        {(isExtracted || isLocked) && <ViewNavigationMenu suppressSettings={isExtracted} isNavigationLocked={isLocked} />}
 
         <div className={classes}>
           <ErrorBoundary>
