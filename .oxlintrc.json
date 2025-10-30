@@ -1,0 +1,135 @@
+{
+    "$schema": "./node_modules/oxlint/configuration_schema.json",
+    "categories": {
+        "correctness": "error",
+        "style": "error"
+    },
+    "rules": {
+        "no-labels": "allow",
+        "prefer-global-this": "allow",
+        "no-null": "allow",
+        "numeric-separators-style": "allow",
+        "typescript/consistent-type-imports": "off",
+        "sort-keys": "off",
+        "unicorn/filename-case": "allow",
+        "sort-imports": "off",
+        "prefer-destructuring": "allow",
+        "no-magic-numbers": [
+            "off",
+            {
+                "ignore": [
+                    -1,
+                    1,
+                    0
+                ]
+            }
+        ],
+        "no-empty-interface": "off",
+        "no-useless-computed-key": "off",
+        "no-continue": "allow",
+        "operator-assignment": "off",
+        "no-duplicate-imports": [
+            "warn",
+            {
+                "allowSeparateTypeImports": true
+            }
+        ],
+        "prefer-string-raw": "off",
+        "prefer-template": "off",
+        "no-inferrable-types": "off",
+        "arrow-body-style": "off",
+        "id-length": "off",
+        "eslint/no-ternary": "off",
+        "consistent-type-definitions": "allow",
+        "prefer-for-of": "off",
+        "func-style": "off",
+        "prefer-optional-catch-binding": "off",
+        "no-unused-vars": [
+            "error",
+            {
+                "argsIgnorePattern": "^_",
+                "caughtErrorsIgnorePattern": "^_",
+                "destructuredArrayIgnorePattern": "^_",
+                "varsIgnorePattern": "^_"
+            }
+        ],
+        "no-redundant-type-constituents": "off",
+        "no-floating-promises": "off",
+        "erasing-op": "off",
+        "unicorn/no-await-expression-member": "off",
+        "no-unused-expressions": "off",
+        "restrict-template-expressions": "off",
+        "no-base-to-string": "off",
+        "no-duplicate-type-constituents": "off",
+        "no-for-in-array": "off",
+        "await-thenable": "off",
+        "unbound-method": "off",
+        "no-new-array": "off",
+        "const-comparisons": "off",
+        "new-cap": "off",
+        "curly": "off",
+        "func-names": [
+            "off",
+            "as-needed"
+        ],
+        "array-type": "off",
+        "guard-for-in": "off",
+        "prefer-array-index-of": "off",
+        "max-params": [
+            "off",
+            {
+                "max": 4
+            }
+        ],
+        "unicorn/no-nested-ternary": "off",
+        "eslint/no-nested-ternary": "off",
+        "init-declarations": "off",
+        "unicorn/prefer-spread": "off",
+        "unicorn/switch-case-braces": [
+            "off",
+            "avoid"
+        ],
+        "catch-error-name": "off",
+        "consistent-indexed-object-style": "off",
+        "consistent-existence-index-check": "off",
+        "prefer-logical-operator-over-ternary": "off",
+        "text-encoding-identifier-case": "off",
+        "prefer-dom-node-text-content": "off",
+        "no-console-spaces": "off",
+        "no-restricted-imports": [
+            "error",
+            {
+                "patterns": [
+                    "ontime-types/src/*",
+                    "ontime-utils/src/*"
+                ]
+            }
+        ]
+    },
+    "plugins": [
+        "unicorn",
+        "typescript",
+        "oxc"
+    ],
+    "overrides": [
+        {
+            "files": [
+                "*.test.ts",
+                "*.spec.ts"
+            ],
+            "rules": {
+                "max-params": "allow",
+                "no-magic-numbers": "allow"
+            }
+        },
+        {
+            "files": [
+                "e2e/**/**.spec.ts",
+                "e2e/**/**.test.ts"
+            ],
+            "extends": [
+                "plugin:playwright/playwright-test"
+            ]
+        }
+    ]
+}

@@ -1,3 +1,4 @@
+import { isOntimeEvent, isOntimeGroup, isPlayableEvent } from 'ontime-types';
 import type {
   EntryId,
   OntimeEntry,
@@ -7,7 +8,6 @@ import type {
   Rundown,
   RundownEntries,
 } from 'ontime-types';
-import { isOntimeEvent, isOntimeGroup, isPlayableEvent } from 'ontime-types';
 
 type IndexAndEntry = { entry: OntimeEntry | null; index: number | null };
 

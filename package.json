@@ -24,7 +24,7 @@
     "dev": "turbo run dev",
     "dev:prefix": "cross-env ROUTER_PREFIX=test turbo run dev  --filter=ontime-server",
     "dev:electron": "turbo run dev:electron",
-    "lint": "turbo run lint",
+    "lint": "oxlint --type-aware",
     "typecheck": "turbo run typecheck",
     "build": "turbo run build",
     "build:docker": "cross-env NODE_ENV=docker turbo run build --filter=ontime-server --filter=ontime-ui",
@@ -36,9 +36,11 @@
     "e2e:ui": "cross-env NODE_ENV=development cross-env DEBUG=pw:webserver npx playwright test --ui -c playwright.config.ts",
     "e2e:i": "npx playwright codegen",
     "clear-temp": "rimraf e2e/tests/fixtures/tmp",
-    "test": "turbo run test:pipeline"
+    "test": "turbo run test:pipeline",
+    "migrate": "@oxlint/migrate --type-aware eslint.config.mjs "
   },
   "devDependencies": {
+    "@oxlint/migrate": "^1.22.0",
     "@playwright/test": "^1.51.1",
     "@types/node": "catalog:",
     "@typescript-eslint/eslint-plugin": "catalog:",
@@ -47,10 +49,12 @@
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
     "eslint-plugin-playwright": "^1.5.2",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
     "prettier": "catalog:",
+    "rimraf": "catalog:",
     "turbo": "2.5.8",
-    "typescript": "catalog:",
-    "rimraf": "catalog:"
+    "typescript": "catalog:"
   },
   "packageManager": "pnpm@10.18.0+sha512.e804f889f1cecc40d572db084eec3e4881739f8dec69c0ff10d2d1beff9a4e309383ba27b5b750059d7f4c149535b6cd0d2cb1ed3aeb739239a4284a68f40cfa"
 }

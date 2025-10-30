@@ -1,0 +1,13 @@
+{
+    "$schema": "../../node_modules/oxlint/configuration_schema.json",
+    "extends": [
+        "../../.oxlintrc.json"
+    ],
+    "rules": {},
+    "env": {
+        "node": true
+    },
+    "globals": {
+        "globalThis": "off"
+    }
+}
