@@ -32,7 +32,7 @@ import {
 import { paramsWithId } from '../validation-utils/validationFunction.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { defaultRundown } from '../../models/dataModel.js';
-import { normalisedToRundownArray } from './rundown.utils.js';
+import { duplicateRundown, normalisedToRundownArray } from './rundown.utils.js';
 
 export const router = express.Router();
 
@@ -86,6 +86,56 @@ router.post('/', rundownPostValidator, async (req: Request, res: Response<Projec
   try {
     const id = generateId();
     await getDataProvider().setRundown(id, { ...defaultRundown, id, title: req.body.title });
+
+    const projectRundowns = getDataProvider().getProjectRundowns();
+    res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
+/**
+ * Duplicates an existing rundown
+ */
+router.post('/:id/duplicate', paramsWithId, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
+  try {
+    const dataProvider = getDataProvider();
+    const rundown = dataProvider.getRundown(req.params.id);
+
+    const duplicatedRundown: Rundown = duplicateRundown(rundown, `Copy of ${rundown.title}`);
+    await dataProvider.setRundown(duplicatedRundown.id, duplicatedRundown);
+
+    const projectRundowns = getDataProvider().getProjectRundowns();
+    res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
+/**
+ * Patches the data of an existing rundown
+ * Currently only the title can be changed
+ */
+router.patch('/:id', paramsWithId, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
+  try {
+    const dataProvider = getDataProvider();
+    const rundown = dataProvider.getRundown(req.params.id);
+    if (!rundown) throw new Error(`Rundown with ID ${req.params.id} not found`);
+    if (!req.body.title) throw new Error('No title provided');
+
+    await dataProvider.setRundown(rundown.id, { ...rundown, title: req.body.title });
+
+    /**
+     * If loaded we re-init the rundown 
+     * This is likely over-kill but the simplest way to ensure state consistency
+     */
+    if (req.params.id === getCurrentRundown().id) {
+      const rundown = dataProvider.getRundown(req.params.id);
+      const customField = dataProvider.getCustomFields();
+      await initRundown(rundown, customField);
+    }
 
     const projectRundowns = getDataProvider().getProjectRundowns();
     res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });

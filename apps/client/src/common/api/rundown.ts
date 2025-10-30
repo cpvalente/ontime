@@ -3,6 +3,7 @@ import { EntryId, OntimeEntry, OntimeEvent, ProjectRundownsList, Rundown, Transi
 
 import { apiEntryUrl } from './constants';
 
+type RundownId = string;
 const rundownPath = `${apiEntryUrl}/rundowns`;
 
 // #region operations on project rundowns =========================
@@ -26,8 +27,8 @@ export async function fetchCurrentRundown(): Promise<Rundown> {
 /**
  * HTTP request to switch the currently loaded rundown
  */
-export async function loadRundown(id: string): Promise<AxiosResponse<ProjectRundownsList>> {
-  return axios.post(`${rundownPath}/${id}/load`);
+export async function loadRundown(rundownId: RundownId): Promise<AxiosResponse<ProjectRundownsList>> {
+  return axios.post(`${rundownPath}/${rundownId}/load`);
 }
 
 /**
@@ -38,10 +39,24 @@ export async function createRundown(title: string): Promise<AxiosResponse<Projec
 }
 
 /**
+ * HTTP request to duplicate an existing rundown
+ */
+export async function duplicateRundown(rundownId: RundownId): Promise<AxiosResponse<ProjectRundownsList>> {
+  return axios.post(`${rundownPath}/${rundownId}/duplicate`);
+}
+
+/**
+ * HTTP request to rename an existing rundown
+ */
+export async function renameRundown(rundownId: RundownId, title: string): Promise<AxiosResponse<ProjectRundownsList>> {
+  return axios.patch(`${rundownPath}/${rundownId}`, { title });
+}
+
+/**
  * HTTP request to delete a rundown
  */
-export async function deleteRundown(id: string): Promise<AxiosResponse<ProjectRundownsList>> {
-  return axios.delete(`${rundownPath}/${id}`);
+export async function deleteRundown(rundownId: RundownId): Promise<AxiosResponse<ProjectRundownsList>> {
+  return axios.delete(`${rundownPath}/${rundownId}`);
 }
 
 // #endregion operations on project rundowns ======================
@@ -51,7 +66,7 @@ export async function deleteRundown(id: string): Promise<AxiosResponse<ProjectRu
  * HTTP request to post new entry
  */
 export async function postAddEntry(
-  rundownId: string,
+  rundownId: RundownId,
   data: TransientEventPayload,
 ): Promise<AxiosResponse<OntimeEntry>> {
   return axios.post(`${rundownPath}/${rundownId}/entry`, data);
@@ -60,7 +75,7 @@ export async function postAddEntry(
 /**
  * HTTP request to edit an entry
  */
-export async function putEditEntry(rundownId: string, data: Partial<OntimeEntry>): Promise<AxiosResponse<OntimeEntry>> {
+export async function putEditEntry(rundownId: RundownId, data: Partial<OntimeEntry>): Promise<AxiosResponse<OntimeEntry>> {
   return axios.put(`${rundownPath}/${rundownId}/entry`, data);
 }
 
@@ -72,7 +87,7 @@ export type BatchEditEntry = {
 /**
  * HTTP request to edit multiple events
  */
-export async function putBatchEditEvents(rundownId: string, data: BatchEditEntry): Promise<AxiosResponse<Rundown>> {
+export async function putBatchEditEvents(rundownId: RundownId, data: BatchEditEntry): Promise<AxiosResponse<Rundown>> {
   return axios.put(`${rundownPath}/${rundownId}/batch`, data);
 }
 
@@ -85,56 +100,56 @@ export type ReorderEntry = {
 /**
  * HTTP request to reorder an entry
  */
-export async function patchReorderEntry(rundownId: string, data: ReorderEntry): Promise<AxiosResponse<Rundown>> {
+export async function patchReorderEntry(rundownId: RundownId, data: ReorderEntry): Promise<AxiosResponse<Rundown>> {
   return axios.patch(`${rundownPath}/${rundownId}/reorder`, data);
 }
 
 /**
  * HTTP request to swap two events
  */
-export async function requestEventSwap(rundownId: string, from: EntryId, to: EntryId): Promise<AxiosResponse<Rundown>> {
+export async function requestEventSwap(rundownId: RundownId, from: EntryId, to: EntryId): Promise<AxiosResponse<Rundown>> {
   return axios.patch(`${rundownPath}/${rundownId}/swap`, { from, to });
 }
 
 /**
  * HTTP request to request application of delay
  */
-export async function requestApplyDelay(rundownId: string, delayId: EntryId): Promise<AxiosResponse<Rundown>> {
+export async function requestApplyDelay(rundownId: RundownId, delayId: EntryId): Promise<AxiosResponse<Rundown>> {
   return axios.patch(`${rundownPath}/${rundownId}/applydelay/${delayId}`);
 }
 
 /**
  * HTTP request for cloning an entry
  */
-export async function postCloneEntry(rundownId: string, entryId: EntryId): Promise<AxiosResponse<Rundown>> {
+export async function postCloneEntry(rundownId: RundownId, entryId: EntryId): Promise<AxiosResponse<Rundown>> {
   return axios.post(`${rundownPath}/${rundownId}/clone/${entryId}`);
 }
 
 /**
  * HTTP request for grouping a list of entries into a group
  */
-export async function requestGroupEntries(rundownId: string, entryIds: EntryId[]): Promise<AxiosResponse<Rundown>> {
+export async function requestGroupEntries(rundownId: RundownId, entryIds: EntryId[]): Promise<AxiosResponse<Rundown>> {
   return axios.post(`${rundownPath}/${rundownId}/group`, { ids: entryIds });
 }
 
 /**
  * HTTP request for dissolving of a group
  */
-export async function requestUngroup(rundownId: string, groupId: EntryId): Promise<AxiosResponse<Rundown>> {
+export async function requestUngroup(rundownId: RundownId, groupId: EntryId): Promise<AxiosResponse<Rundown>> {
   return axios.post(`${rundownPath}/${rundownId}/ungroup/${groupId}`);
 }
 
 /**
  * HTTP request to delete entries of a given rundown
  */
-export async function deleteEntries(rundownId: string, entryIds: EntryId[]): Promise<AxiosResponse<Rundown>> {
+export async function deleteEntries(rundownId: RundownId, entryIds: EntryId[]): Promise<AxiosResponse<Rundown>> {
   return axios.delete(`${rundownPath}/${rundownId}/entries`, { data: { ids: entryIds } });
 }
 
 /**
  * HTTP request to delete all entries of a given rundown
  */
-export async function requestDeleteAll(rundownId: string): Promise<AxiosResponse<Rundown>> {
+export async function requestDeleteAll(rundownId: RundownId): Promise<AxiosResponse<Rundown>> {
   return axios.delete(`${rundownPath}/${rundownId}/all`);
 }
 
