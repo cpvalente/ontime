@@ -5,7 +5,6 @@ import ErrorBoundary from '../../../common/components/error-boundary/ErrorBounda
 import ViewNavigationMenu from '../../../common/components/navigation-menu/ViewNavigationMenu';
 import ProtectRoute from '../../../common/components/protect-route/ProtectRoute';
 import { handleLinks } from '../../../common/utils/linkUtils';
-
 import { getIsNavigationLocked } from '../../../externals';
 
 import PlaybackControl from './PlaybackControl';
