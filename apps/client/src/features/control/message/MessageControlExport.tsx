@@ -6,7 +6,6 @@ import ViewNavigationMenu from '../../../common/components/navigation-menu/ViewN
 import ProtectRoute from '../../../common/components/protect-route/ProtectRoute';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx } from '../../../common/utils/styleUtils';
-
 import { getIsNavigationLocked } from '../../../externals';
 
 import MessageControl from './MessageControl';
