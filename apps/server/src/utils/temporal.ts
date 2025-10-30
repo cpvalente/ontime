@@ -1,0 +1,28 @@
+import { Maybe } from 'ontime-types';
+import { timeNow } from './time.js';
+import { dayInMs, MILLIS_PER_MINUTE } from 'ontime-utils';
+
+const tzOffset = new Date().getTimezoneOffset() * MILLIS_PER_MINUTE;
+
+export type Instant = number & { __brand: 'instant' };
+export type Duration = number & { __brand: 'duration' };
+
+export const getInstant = (): Instant => Date.now() as Instant;
+
+export function clockToInstant(clock: null): null;
+export function clockToInstant(clock: number): Instant;
+export function clockToInstant(clock: Maybe<number>): Maybe<Instant>;
+export function clockToInstant(clock: Maybe<number>): Maybe<Instant> {
+  if (clock === null) return null;
+  const now = getInstant();
+  const day = now - timeNow();
+  return (day + clock) as Instant;
+}
+
+export function instantToClock(instant: null): null;
+export function instantToClock(instant: Instant): number;
+export function instantToClock(instant: Maybe<Instant>): Maybe<number>;
+export function instantToClock(instant: Maybe<Instant>): Maybe<number> {
+  if (instant === null) return null;
+  return (instant % dayInMs) - tzOffset;
+}
