@@ -16,8 +16,6 @@ catalog:
   vitest: 3.2.1
 
 onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - '@sentry/cli'
   - electron
   - esbuild
 
