@@ -179,6 +179,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings }
           <div
             className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished'])}
             style={{ fontSize: `${timerFontSize}vw` }}
+            data-type={viewTimerType}
             data-phase={time.phase}
           >
             {display}
