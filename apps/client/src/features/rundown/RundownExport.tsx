@@ -8,6 +8,7 @@ import ProtectRoute from '../../common/components/protect-route/ProtectRoute';
 import { useIsSmallDevice } from '../../common/hooks/useIsSmallDevice';
 import { handleLinks } from '../../common/utils/linkUtils';
 import { cx } from '../../common/utils/styleUtils';
+import { getIsNavigationLocked } from '../../externals';
 import { AppMode, sessionKeys } from '../../ontimeConfig';
 
 import RundownEntryEditor from './entry-editor/RundownEntryEditor';
@@ -55,7 +56,7 @@ function RundownExport() {
     <ProtectRoute permission='editor'>
       <div className={cx([style.rundownExport, isExtracted && style.extracted])} data-testid='panel-rundown'>
         <FinderPlacement />
-        {isExtracted && <ViewNavigationMenu suppressSettings />}
+        {isExtracted && <ViewNavigationMenu suppressSettings isNavigationLocked={getIsNavigationLocked()} />}
         <div className={style.rundown}>
           <div className={style.list}>
             <ErrorBoundary>

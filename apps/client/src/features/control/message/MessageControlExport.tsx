@@ -6,6 +6,7 @@ import ViewNavigationMenu from '../../../common/components/navigation-menu/ViewN
 import ProtectRoute from '../../../common/components/protect-route/ProtectRoute';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx } from '../../../common/utils/styleUtils';
+import { getIsNavigationLocked } from '../../../externals';
 
 import MessageControl from './MessageControl';
 
@@ -20,7 +21,7 @@ function MessageControlExport() {
     <ProtectRoute permission='editor'>
       <div className={style.messages} data-testid='panel-messages-control'>
         {!isExtracted && <Corner onClick={(event) => handleLinks('messagecontrol', event)} />}
-        {isExtracted && <ViewNavigationMenu suppressSettings />}
+        {isExtracted && <ViewNavigationMenu suppressSettings isNavigationLocked={getIsNavigationLocked()} />}
 
         <div className={classes}>
           <ErrorBoundary>
