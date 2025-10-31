@@ -23,7 +23,6 @@ export default memo(RundownExport);
 
 function RundownExport() {
   const isExtracted = window.location.pathname.includes('/rundown');
-  const isLocked = getIsNavigationLocked();
   const [editorMode] = useSessionStorage({
     key: sessionKeys.editorMode,
     defaultValue: AppMode.Edit,
@@ -58,7 +57,7 @@ function RundownExport() {
     <ProtectRoute permission='editor'>
       <div className={cx([style.rundownExport, isExtracted && style.extracted])} data-testid='panel-rundown'>
         <FinderPlacement />
-        {(isExtracted || isLocked) && <ViewNavigationMenu suppressSettings={isExtracted} isNavigationLocked={isLocked} />}
+        {isExtracted && <ViewNavigationMenu suppressSettings isNavigationLocked={getIsNavigationLocked()} />}
         <div className={style.rundown}>
           <div className={style.list}>
             <ErrorBoundary>

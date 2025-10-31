@@ -15,13 +15,12 @@ import style from '../../../views/editor/Editor.module.scss';
 export default memo(TimerControlExport);
 function TimerControlExport() {
   const isExtracted = window.location.pathname.includes('/timercontrol');
-  const isLocked = getIsNavigationLocked();
 
   return (
     <ProtectRoute permission='editor'>
       <div className={style.playback} data-testid='panel-timer-control'>
         {!isExtracted && <Corner onClick={(event) => handleLinks('timercontrol', event)} />}
-        {(isExtracted || isLocked) && <ViewNavigationMenu suppressSettings={isExtracted} isNavigationLocked={isLocked} />}
+        {isExtracted && <ViewNavigationMenu suppressSettings isNavigationLocked={getIsNavigationLocked()} />}
 
         <div className={style.content}>
           <ErrorBoundary>
