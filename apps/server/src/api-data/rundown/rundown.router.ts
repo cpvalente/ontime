@@ -98,21 +98,25 @@ router.post('/', rundownPostValidator, async (req: Request, res: Response<Projec
 /**
  * Duplicates an existing rundown
  */
-router.post('/:id/duplicate', paramsWithId, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
-  try {
-    const dataProvider = getDataProvider();
-    const rundown = dataProvider.getRundown(req.params.id);
+router.post(
+  '/:id/duplicate',
+  paramsWithId,
+  async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
+    try {
+      const dataProvider = getDataProvider();
+      const rundown = dataProvider.getRundown(req.params.id);
 
-    const duplicatedRundown: Rundown = duplicateRundown(rundown, `Copy of ${rundown.title}`);
-    await dataProvider.setRundown(duplicatedRundown.id, duplicatedRundown);
+      const duplicatedRundown: Rundown = duplicateRundown(rundown, `Copy of ${rundown.title}`);
+      await dataProvider.setRundown(duplicatedRundown.id, duplicatedRundown);
 
-    const projectRundowns = getDataProvider().getProjectRundowns();
-    res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
+      const projectRundowns = getDataProvider().getProjectRundowns();
+      res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
 
 /**
  * Patches the data of an existing rundown
@@ -128,7 +132,7 @@ router.patch('/:id', paramsWithId, async (req: Request, res: Response<ProjectRun
     await dataProvider.setRundown(rundown.id, { ...rundown, title: req.body.title });
 
     /**
-     * If loaded we re-init the rundown 
+     * If loaded we re-init the rundown
      * This is likely over-kill but the simplest way to ensure state consistency
      */
     if (req.params.id === getCurrentRundown().id) {

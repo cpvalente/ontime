@@ -519,7 +519,6 @@ export function normalisedToRundownArray(rundowns: ProjectRundowns): ProjectRund
   });
 }
 
-
 /**
  * Duplicates an existing rundown ensuring all IDs are unique
  */
