@@ -8,14 +8,13 @@ import ProtectRoute from '../../common/components/protect-route/ProtectRoute';
 import { useIsSmallDevice } from '../../common/hooks/useIsSmallDevice';
 import { handleLinks } from '../../common/utils/linkUtils';
 import { cx } from '../../common/utils/styleUtils';
+import { getIsNavigationLocked } from '../../externals';
 import { AppMode, sessionKeys } from '../../ontimeConfig';
 
 import RundownEntryEditor from './entry-editor/RundownEntryEditor';
 import FinderPlacement from './placements/FinderPlacement';
 import { RundownContextMenu } from './rundown-context-menu/RundownContextMenu';
 import RundownWrapper from './RundownWrapper';
-
-import { getIsNavigationLocked } from '../../externals';
 
 import style from './RundownExport.module.scss';
 
