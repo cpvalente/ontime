@@ -8,6 +8,7 @@ import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { cx } from '../../../common/utils/styleUtils';
 
 import TimeInputGroup from './TimeInputGroup';
 
@@ -23,6 +24,7 @@ interface TimeInputFlowProps {
   linkStart: boolean;
   delay: number;
   showLabels?: boolean;
+  showLabelsOnHover?: boolean;
 }
 
 export default memo(TimeInputFlow);
@@ -36,6 +38,7 @@ function TimeInputFlow({
   linkStart,
   delay,
   showLabels,
+  showLabelsOnHover,
 }: TimeInputFlowProps) {
   const { updateEntry, updateTimer } = useEntryActions();
 
@@ -67,8 +70,9 @@ function TimeInputFlow({
 
   return (
     <>
-      <div>
+      <div className={style.inputWrapper}>
         {showLabels && <Editor.Label className={style.sectionTitle}>Start time</Editor.Label>}
+        <Editor.Label className={cx([style.hoverLabel, showLabelsOnHover && style.visible])}>Start</Editor.Label>
         <TimeInputGroup hasDelay={hasDelay}>
           <TimeInput
             name='timeStart'
@@ -88,8 +92,9 @@ function TimeInputFlow({
         </TimeInputGroup>
       </div>
 
-      <div>
+      <div className={style.inputWrapper}>
         {showLabels && <Editor.Label>End time</Editor.Label>}
+        <Editor.Label className={cx([style.hoverLabel, showLabelsOnHover && style.visible])}>End</Editor.Label>
         <TimeInputGroup hasDelay={hasDelay}>
           <TimeInput
             name='timeEnd'
@@ -110,8 +115,9 @@ function TimeInputFlow({
         </TimeInputGroup>
       </div>
 
-      <div>
+      <div className={style.inputWrapper}>
         {showLabels && <Editor.Label>Duration</Editor.Label>}
+        <Editor.Label className={cx([style.hoverLabel, showLabelsOnHover && style.visible])}>Duration</Editor.Label>
         <TimeInputGroup hasDelay={hasDelay}>
           <TimeInput
             name='duration'
