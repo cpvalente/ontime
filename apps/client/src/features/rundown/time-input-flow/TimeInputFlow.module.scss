@@ -23,11 +23,15 @@
 .hoverLabel {
   position: absolute;
   top: -1.5rem;
+  background-color: $ui-white;
+  padding: 0.125rem 0.5rem;
+  color: $ui-black;
   left: 0;
   opacity: 0;
   transition: opacity 0.15s ease;
   pointer-events: none;
-  
+  z-index: $zindex-floating;
+
   &.visible {
     opacity: 1;
   }
