@@ -3,7 +3,7 @@
  * Google Sheets
  */
 
-import type { AuthenticationStatus, CustomFields, ErrorResponse, Rundown } from 'ontime-types';
+import type { AuthenticationStatus, CustomFields, ErrorResponse, Rundown, RundownSummary } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import { Request, Response } from 'express';
@@ -86,6 +86,7 @@ export async function readFromSheet(
     | {
         rundown: Rundown;
         customFields: CustomFields;
+        summary: RundownSummary;
       }
     | ErrorResponse
   >,

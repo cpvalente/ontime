@@ -1,4 +1,4 @@
-import { AuthenticationStatus, CustomFields, Rundown } from 'ontime-types';
+import { AuthenticationStatus, CustomFields, Rundown, RundownSummary } from 'ontime-types';
 import { defaultImportMap, ImportMap } from 'ontime-utils';
 import { create } from 'zustand';
 
@@ -17,10 +17,10 @@ type SheetStore = {
   // we get this from a preview response
   rundown: Rundown | null;
   setRundown: (rundown: Rundown | null) => void;
-
-  // we get this from a preview response
   customFields: CustomFields | null;
   setCustomFields: (customFields: CustomFields | null) => void;
+  summary: RundownSummary | null;
+  setSummary: (metadata: RundownSummary | null) => void;
 
   spreadsheetImportMap: ImportMap;
   patchSpreadsheetImportMap: <T extends keyof ImportMap>(field: T, value: ImportMap[T]) => void;
@@ -43,6 +43,7 @@ const initialState = {
   authenticationStatus: 'not_authenticated' as AuthenticationStatus,
   rundown: null,
   customFields: null,
+  summary: null,
   spreadsheetImportMap: defaultImportMap,
 };
 
@@ -64,6 +65,8 @@ export const useSheetStore = create<SheetStore>((set, get) => ({
 
   setCustomFields: (customFields: CustomFields | null) => set({ customFields }),
 
+  setSummary: (summary: RundownSummary | null) => set({ summary }),
+
   patchSpreadsheetImportMap: <T extends keyof ImportMap>(field: T, value: ImportMap[T]) => {
     const currentImportMap = get().spreadsheetImportMap;
     if (currentImportMap[field] !== value) {
@@ -72,5 +75,5 @@ export const useSheetStore = create<SheetStore>((set, get) => ({
   },
 
   reset: () => set(initialState),
-  resetPreview: () => set({ rundown: null, customFields: null }),
+  resetPreview: () => set({ rundown: null, customFields: null, summary: null }),
 }));

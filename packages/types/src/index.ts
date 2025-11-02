@@ -83,6 +83,7 @@ export type {
   ProjectRundown,
   ProjectRundownsList,
   TransientEventPayload,
+  RundownSummary,
 } from './api/rundown-controller/BackendResponse.type.js';
 export type { LinkOptions } from './api/session-controller/BackendResponse.type.js';
 
