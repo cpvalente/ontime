@@ -28,11 +28,13 @@
   color: $ui-black;
   left: 0;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  border-radius: $component-border-radius-md;
+  transition: opacity 0.15s ease;  // no delay on fade out
   pointer-events: none;
   z-index: $zindex-floating;
 
   &.visible {
     opacity: 1;
+    transition: opacity 0.15s 0.5s ease; // small delay before fade in
   }
 }

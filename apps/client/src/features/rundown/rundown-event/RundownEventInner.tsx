@@ -75,7 +75,6 @@ function RundownEventInner({
   hasTriggers,
 }: RundownEventInnerProps) {
   const [renderInner, setRenderInner] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
     setRenderInner(true);
@@ -93,11 +92,7 @@ function RundownEventInner({
 
   return !renderInner ? null : (
     <>
-      <div
-        className={style.eventTimers}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-      >
+      <div className={style.eventTimers}>
         <TimeInputFlow
           eventId={eventId}
           timeStart={timeStart}
@@ -107,7 +102,6 @@ function RundownEventInner({
           timeStrategy={timeStrategy}
           linkStart={linkStart}
           countToEnd={countToEnd}
-          showLabelsOnHover={isHovering}
         />
       </div>
       <div className={style.titleSection}>
