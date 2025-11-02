@@ -82,7 +82,7 @@ export function getStatusLabel(timeToStart: number, status: ProgressStatus): str
     return 'pending';
   }
 
-  return formatDuration(timeToStart, timeToStart > MILLIS_PER_MINUTE * 2);
+  return formatDuration(timeToStart, timeToStart > MILLIS_PER_MINUTE * 10);
 }
 
 interface ScopedRundownData {

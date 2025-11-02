@@ -31,7 +31,7 @@ export default function TimelineSections({ now, next, followedBy }: TimelineSect
     if (timeToStart <= 0) {
       nextStatus = dueText;
     } else {
-      nextStatus = formatDuration(timeToStart, timeToStart > MILLIS_PER_MINUTE * 2);
+      nextStatus = formatDuration(timeToStart, timeToStart > MILLIS_PER_MINUTE * 10);
     }
   }
 
@@ -40,7 +40,7 @@ export default function TimelineSections({ now, next, followedBy }: TimelineSect
     if (timeToStart <= 0) {
       followedByStatus = dueText;
     } else {
-      followedByStatus = formatDuration(timeToStart, timeToStart > MILLIS_PER_MINUTE * 2);
+      followedByStatus = formatDuration(timeToStart, timeToStart > MILLIS_PER_MINUTE * 10);
     }
   }
 

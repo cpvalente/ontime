@@ -1,9 +1,8 @@
 import { EntryId, MaybeNumber, OffsetMode, OntimeEntry, OntimeEvent, OntimeReport, Playback } from 'ontime-types';
-import { getExpectedStart, MILLIS_PER_MINUTE, removeSeconds } from 'ontime-utils';
+import { getExpectedStart, MILLIS_PER_MINUTE, millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { useCountdownSocket } from '../../common/hooks/useSocket';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
-import { timerPlaceholderMin } from '../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../common/utils/time';
 import { type TranslationKey, useTranslation } from '../../translation/TranslationProvider';
 
@@ -36,23 +35,6 @@ export const timerProgress: TimerMessage = {
   done: 'countdown.ended',
 };
 
-export function getFormattedTime(
-  value: MaybeNumber,
-  status: ProgressStatus,
-  minText: string,
-  secText: string,
-  dueText: string,
-) {
-  if (value === null) return timerPlaceholderMin;
-  if (status === 'future' || status === 'live') {
-    if (value <= 0) return dueText.toUpperCase();
-    return formatDuration(value, value > MILLIS_PER_MINUTE * 2)
-      .replace('m', `${minText} `)
-      .replace('s', secText);
-  }
-  return removeSeconds(formatTime(value));
-}
-
 /**
  * Returns a parsed timer and relevant status message
  * Handles events in different days but disregards whether an event has actually played
@@ -65,7 +47,11 @@ export function useSubscriptionDisplayData(
 
   const bigDuration = (value: number) => {
     if (value <= 0) return getLocalizedString('countdown.overtime').toUpperCase();
-    return formatDuration(value, value > MILLIS_PER_MINUTE * 2)
+    if (value < MILLIS_PER_MINUTE * 10) {
+      return removeLeadingZero(millisToString(value));
+    }
+
+    return formatDuration(value, value > MILLIS_PER_MINUTE * 10)
       .replace('m', `${getLocalizedString('common.minutes')} `)
       .replace('s', getLocalizedString('common.seconds'));
   };
@@ -90,7 +76,7 @@ export function useSubscriptionDisplayData(
     return {
       status: 'pending',
       statusDisplay: getLocalizedString(timerProgress['pending']),
-      timeDisplay: ' ',
+      timeDisplay: ' ',
     };
   }
 
