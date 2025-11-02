@@ -184,8 +184,8 @@ export const parseExcel = (
     // from excel, we can only get groups, milestones and events
     if (isOntimeGroup(entry as OntimeEntry)) {
       const group = {
-        id, // will be replaced by a potentially user given ID
         ...entry,
+        id,
         targetDuration: entry.duration ? entry.duration : null,
         custom: { ...entryCustomFields },
       } as OntimeGroup;
@@ -202,8 +202,8 @@ export const parseExcel = (
 
     if (isOntimeMilestone(entry as OntimeEntry)) {
       const milestone = {
-        id, // will be replaced by a potentially user given ID
         ...entry,
+        id,
         custom: { ...entryCustomFields },
       } as OntimeMilestone;
       if (currentGroupId) {
@@ -219,8 +219,8 @@ export const parseExcel = (
 
     // after group and milestones we only have events remaining
     const event = {
-      id, // will be replaced by a potentially user given ID
       ...entry,
+      id,
       custom: { ...entryCustomFields },
       type: SupportedEntry.Event,
     } as OntimeEvent;
