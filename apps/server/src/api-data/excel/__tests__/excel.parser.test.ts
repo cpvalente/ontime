@@ -1,12 +1,34 @@
 import { CustomFields, OntimeEvent, OntimeGroup, SupportedEntry, TimerType } from 'ontime-types';
-import { ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { ImportMap, MILLIS_PER_MINUTE, millisToString } from 'ontime-utils';
 
 import { parseExcel } from '../excel.parser.js';
 
 import { dataFromExcelTemplate } from './mockData.js';
+import { simpleTemplate } from '../__mocks__/simpleTemplate.js';
 
 describe('parseExcel()', () => {
-  it('parses the example file', () => {
+  it('parses the simple template file', () => {
+    const result = parseExcel(simpleTemplate, {});
+
+    expect(result.rundown.flatOrder.length).toBe(14);
+    expect(result.rundown.order.length).toBe(4);
+
+    const firstEvent = result.rundown.entries[result.rundown.flatOrder[2]];
+    expect(firstEvent).toMatchObject({
+      type: SupportedEntry.Event,
+      title: 'Pre-show Countdown',
+    });
+    expect(millisToString((firstEvent as OntimeEvent).timeStart)).toBe('10:00:00');
+
+    const lastEvent = result.rundown.entries[result.rundown.flatOrder[12]];
+    expect(lastEvent).toMatchObject({
+      type: SupportedEntry.Event,
+      title: 'Wrap up',
+    });
+    // the excel step does not relate elements yet
+    expect(millisToString((lastEvent as OntimeEvent).timeEnd)).toBe('00:00:00');
+  });
+  it('parses an import map with only custom fields', () => {
     // partial import map with only custom fields
     const importMap = {
       custom: {

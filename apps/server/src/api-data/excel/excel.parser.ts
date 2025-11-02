@@ -212,7 +212,7 @@ export const parseExcel = (
       return;
     }
 
-    //and fall through to treat it as an event
+    // after group and milestones we only have events remaining
     const event = {
       ...entry,
       custom: { ...entryCustomFields },
@@ -223,6 +223,7 @@ export const parseExcel = (
       event.timerType = TimerType.CountDown;
     }
 
+    // we link all events unless user specifies otherwise
     if (entry.linkStart === undefined) {
       event.linkStart = true;
     }

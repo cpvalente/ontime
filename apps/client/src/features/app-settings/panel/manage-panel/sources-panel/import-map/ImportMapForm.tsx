@@ -5,6 +5,7 @@ import { checkRegex, ImportMap } from 'ontime-utils';
 
 import Button from '../../../../../../common/components/buttons/Button';
 import IconButton from '../../../../../../common/components/buttons/IconButton';
+import Info from '../../../../../../common/components/info/Info';
 import Input from '../../../../../../common/components/input/input/Input';
 import Select from '../../../../../../common/components/select/Select';
 import Tooltip from '../../../../../../common/components/tooltip/Tooltip';
@@ -136,6 +137,10 @@ export default function ImportMapForm({
           </Button>
         </Panel.InlineElements>
       </Panel.Title>
+      <Info>
+        Match your spreadsheet columns to Ontime fields. <br />
+        You can also add Custom Fields by providing a name for Ontime and the spreadsheet column name.
+      </Info>
       <Panel.Table>
         <thead>
           <tr>
