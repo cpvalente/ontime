@@ -27,7 +27,7 @@ let excelData: WorkBook = xlsx.utils.book_new();
  * Receives and parses an excel file
  * The file is deleted after being read
  */
-export async function readExcelFile(filePath: string) {
+export async function readExcelFile(filePath: string): Promise<string[]> {
   if (!existsSync(filePath)) {
     throw new Error('Upload of excel file failed');
   }
@@ -39,12 +39,7 @@ export async function readExcelFile(filePath: string) {
   excelData = xlsx.readFile(filePath, { cellDates: true, cellFormula: false });
 
   await deleteFile(filePath);
-}
 
-/**
- * List all worksheets in the current spreadsheet file
- */
-export function listWorksheets(): string[] {
   return excelData.SheetNames;
 }
 
