@@ -114,7 +114,12 @@ class SocketServer implements IAdapter {
             }
             case MessageTag.ClientSet: {
               const previousData = this.getOrCreateClient(clientId);
-              this.clients.set(clientId, { ...previousData, ...payload });
+              const updatedClient = { ...previousData, ...payload };
+              this.clients.set(clientId, updatedClient);
+              if (this.shouldShowWelcome && updatedClient.path?.toLowerCase().includes('editor')) {
+                this.shouldShowWelcome = false;
+                sendPacket(MessageTag.Dialog, { dialog: 'welcome' });
+              }
               this.sendClientList();
               break;
             }
@@ -122,7 +127,7 @@ class SocketServer implements IAdapter {
               const previousData = this.getOrCreateClient(clientId);
               previousData.path = payload;
               this.clients.set(clientId, previousData);
-              if (payload.includes('editor') && this.shouldShowWelcome) {
+              if (this.shouldShowWelcome && payload.toLowerCase().includes('editor')) {
                 this.shouldShowWelcome = false;
                 sendPacket(MessageTag.Dialog, { dialog: 'welcome' });
               }
