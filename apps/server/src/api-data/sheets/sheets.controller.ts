@@ -9,6 +9,8 @@ import { getErrorMessage } from 'ontime-utils';
 import { Request, Response } from 'express';
 import { readFileSync } from 'fs';
 
+import { deleteFile } from '../../utils/fileManagement.js';
+
 import {
   revoke,
   handleClientSecret,
@@ -17,8 +19,7 @@ import {
   download,
   upload,
   getWorksheetOptions,
-} from '../../services/sheet-service/SheetService.js';
-import { deleteFile } from '../../utils/fileManagement.js';
+} from './sheets.service.js';
 
 export async function requestConnection(
   req: Request,

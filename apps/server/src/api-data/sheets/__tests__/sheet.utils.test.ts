@@ -1,7 +1,7 @@
 import { EndAction, OntimeEvent, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
-import { getA1Notation, cellRequestFromEvent } from '../sheetUtils.js';
+import { getA1Notation, cellRequestFromEvent } from '../sheets.utils.js';
 
 describe('getA1Notation()', () => {
   test('A1', () => {
