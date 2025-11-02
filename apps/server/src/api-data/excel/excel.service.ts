@@ -20,6 +20,7 @@ import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import { parseExcel } from './excel.parser.js';
 import { rundownToTabular } from './excel.utils.js';
 
+// we keep the excel data in memory to allow the flow upload -> preview
 let excelData: WorkBook = xlsx.utils.book_new();
 
 /**
@@ -33,6 +34,8 @@ export async function readExcelFile(filePath: string) {
   if (extname(filePath) != '.xlsx') {
     throw new Error('Wrong file format');
   }
+
+  // clear the data
   excelData = xlsx.readFile(filePath, { cellDates: true, cellFormula: false });
 
   await deleteFile(filePath);
@@ -55,18 +58,15 @@ export function generateRundownPreview(options: ImportMap): { rundown: Rundown; 
   const arrayOfData: unknown[][] = xlsx.utils.sheet_to_json(data, { header: 1, blankrows: false, raw: false });
 
   const dataFromExcel = parseExcel(arrayOfData, getProjectCustomFields(), options.worksheet, options);
-  const parsedCustomFields = parseCustomFields(dataFromExcel);
-
-  // we run the parsed data through an extra step to ensure the objects shape
-  const rundown = parseRundown(dataFromExcel.rundown, parsedCustomFields);
-  if (rundown.order.length === 0) {
+  if (dataFromExcel.rundown.flatOrder.length === 0) {
     throw new Error(`Could not find data to import in the worksheet: ${options.worksheet}`);
   }
 
-  // clear the data
-  excelData = xlsx.utils.book_new();
+  // we run the parsed data through an extra step to ensure the objects shape
+  const customFields = parseCustomFields(dataFromExcel);
+  const rundown = parseRundown(dataFromExcel.rundown, customFields);
 
-  return { rundown, customFields: parsedCustomFields };
+  return { rundown, customFields };
 }
 
 /**

@@ -39,6 +39,7 @@ export default function SourcesPanel() {
   const setCustomFields = useSheetStore((state) => state.setCustomFields);
   const setSheetId = useSheetStore((state) => state.setSheetId);
   const sheetId = useSheetStore((state) => state.sheetId);
+  const resetPreview = useSheetStore((state) => state.resetPreview);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -221,6 +222,7 @@ export default function SourcesPanel() {
             customFields={customFields}
             onFinished={handleFinished}
             onCancel={cancelImportMap}
+            onBack={resetPreview}
           />
         )}
       </Panel.Card>
