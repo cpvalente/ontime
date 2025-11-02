@@ -18,9 +18,7 @@ function booleanToText(value?: boolean) {
   return value ? 'Yes' : undefined;
 }
 
-export default function PreviewRundown(props: PreviewRundownProps) {
-  const { rundown, customFields } = props;
-
+export default function PreviewRundown({ rundown, customFields }: PreviewRundownProps) {
   // we only count Ontime Events which are 1 based in client
   let eventIndex = 0;
 
@@ -59,9 +57,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
             const colour = entry.colour ? getAccessibleColour(entry.colour) : {};
             return (
               <tr key={entry.id}>
-                <td className={style.center}>
-                  <Tag>-</Tag>
-                </td>
+                <td /> {/** Index */}
                 <td className={style.center}>
                   <Tag>{entry.type}</Tag>
                 </td>
