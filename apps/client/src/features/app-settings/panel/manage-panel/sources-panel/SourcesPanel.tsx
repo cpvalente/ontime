@@ -3,7 +3,6 @@ import { IoCloudOutline, IoDownloadOutline } from 'react-icons/io5';
 import { getErrorMessage, ImportMap } from 'ontime-utils';
 
 import {
-  getWorksheetNames as getWorksheetNamesExcel,
   importRundownPreview as importRundownPreviewExcel,
   upload as uploadExcel,
 } from '../../../../../common/api/excel';
@@ -54,8 +53,7 @@ export default function SourcesPanel() {
     try {
       setHasFile('loading');
       validateExcelImport(fileToUpload);
-      await uploadExcel(fileToUpload);
-      const names = await getWorksheetNamesExcel();
+      const names = await uploadExcel(fileToUpload);
       setWorksheets(names);
       setImportFlow('excel');
       setHasFile('done');

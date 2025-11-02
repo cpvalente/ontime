@@ -2,35 +2,32 @@ import express from 'express';
 import type { Request, Response } from 'express';
 import { CustomFields, ErrorResponse, Rundown } from 'ontime-types';
 
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+
 import { getProjectCustomFields } from '../rundown/rundown.dao.js';
 
 import { uploadExcel } from './excel.middleware.js';
 import { validateFileExists, validateImportMapOptions, validateRundownExport } from './excel.validation.js';
-import { generateExcelFile, generateRundownPreview, listWorksheets, readExcelFile } from './excel.service.js';
+import { generateExcelFile, generateRundownPreview, readExcelFile } from './excel.service.js';
 import { EXCEL_MIME } from './excel.constants.js';
-import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 export const router = express.Router();
 
-router.post('/upload', uploadExcel, validateFileExists, async (req: Request, res: Response<never | ErrorResponse>) => {
-  try {
-    // file has been validated by middleware
-    const filePath = (req.file as Express.Multer.File).path;
-    await readExcelFile(filePath);
-    res.status(201).send();
-  } catch (error) {
-    res.status(500).send({ message: String(error) });
-  }
-});
-
-router.get('/worksheets', (_req: Request, res: Response<string[] | ErrorResponse>) => {
-  try {
-    const names = listWorksheets();
-    res.status(200).send(names);
-  } catch (error) {
-    res.status(500).send({ message: String(error) });
-  }
-});
+router.post(
+  '/upload',
+  uploadExcel,
+  validateFileExists,
+  async (req: Request, res: Response<string[] | ErrorResponse>) => {
+    try {
+      // file has been validated by middleware
+      const filePath = (req.file as Express.Multer.File).path;
+      const worksheetNames = await readExcelFile(filePath);
+      res.status(200).send(worksheetNames);
+    } catch (error) {
+      res.status(500).send({ message: String(error) });
+    }
+  },
+);
 
 router.post(
   '/preview',

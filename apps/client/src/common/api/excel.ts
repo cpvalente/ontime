@@ -11,22 +11,14 @@ const excelPath = `${apiEntryUrl}/excel`;
  * upload Excel file to server
  * @return string - file ID op the uploaded file
  */
-export async function upload(file: File) {
+export async function upload(file: File): Promise<string[]> {
   const formData = new FormData();
   formData.append('excel', file);
-  await axios.post(`${excelPath}/upload`, formData, {
+  const response = await axios.post(`${excelPath}/upload`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
-}
-
-/**
- * Get Worksheet names
- * @return string[] - array of available worksheets
- */
-export async function getWorksheetNames(): Promise<string[]> {
-  const response: AxiosResponse<string[]> = await axios.get(`${excelPath}/worksheets`);
   return response.data;
 }
 
