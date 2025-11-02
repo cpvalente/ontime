@@ -13,21 +13,27 @@ describe('parseExcel()', () => {
     expect(result.rundown.flatOrder.length).toBe(14);
     expect(result.rundown.order.length).toBe(4);
 
-    const firstEvent = result.rundown.entries[result.rundown.flatOrder[2]];
+    const firstEventId = result.rundown.flatOrder[2];
+    const firstEvent = result.rundown.entries[firstEventId];
     expect(firstEvent).toMatchObject({
+      id: firstEventId,
       type: SupportedEntry.Event,
       title: 'Pre-show Countdown',
     });
     expect(millisToString((firstEvent as OntimeEvent).timeStart)).toBe('10:00:00');
 
-    const lastEvent = result.rundown.entries[result.rundown.flatOrder[12]];
+    const lastEventId = result.rundown.flatOrder[12];
+    const lastEvent = result.rundown.entries[lastEventId];
     expect(lastEvent).toMatchObject({
+      id: lastEventId,
       type: SupportedEntry.Event,
       title: 'Wrap up',
     });
+
     // the excel step does not relate elements yet
     expect(millisToString((lastEvent as OntimeEvent).timeEnd)).toBe('00:00:00');
   });
+
   it('parses an import map with only custom fields', () => {
     // partial import map with only custom fields
     const importMap = {
