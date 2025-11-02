@@ -9,6 +9,7 @@ import {
 import { cssOrHexToColour, isLightColour, millisToString, mixColours } from 'ontime-utils';
 
 import type { sheets_v4 } from '@googleapis/sheets';
+
 import { is } from '../../utils/is.js';
 
 export type ClientSecret = {
