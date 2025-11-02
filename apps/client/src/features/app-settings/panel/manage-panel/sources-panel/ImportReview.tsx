@@ -15,10 +15,10 @@ interface ImportReviewProps {
   customFields: CustomFields;
   onFinished: () => void;
   onCancel: () => void;
+  onBack: () => void;
 }
 
-export default function ImportReview(props: ImportReviewProps) {
-  const { rundown, customFields, onFinished, onCancel } = props;
+export default function ImportReview({ rundown, customFields, onFinished, onCancel, onBack }: ImportReviewProps) {
   const { data: currentRundown } = useRundown();
   const [loading, setLoading] = useState(false);
   const { importRundown } = useGoogleSheet();
@@ -54,6 +54,9 @@ export default function ImportReview(props: ImportReviewProps) {
         <Panel.InlineElements>
           <Button onClick={handleCancel} variant='ghosted' disabled={loading}>
             Cancel
+          </Button>
+          <Button onClick={onBack} variant='subtle' disabled={loading}>
+            Back
           </Button>
           <Button onClick={applyImport} variant='primary' loading={loading}>
             Apply
