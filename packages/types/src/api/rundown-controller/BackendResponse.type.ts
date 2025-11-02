@@ -1,4 +1,5 @@
 import type { EntryId, OntimeEntry } from '../../definitions/core/OntimeEntry.js';
+import type { MaybeNumber } from '../../utils/utils.type.js';
 
 export type PatchWithId<T extends OntimeEntry = OntimeEntry> = Partial<T> & { id: EntryId };
 
@@ -22,4 +23,10 @@ export type ProjectRundown = {
 export type ProjectRundownsList = {
   loaded: string;
   rundowns: ProjectRundown[];
+};
+
+export type RundownSummary = {
+  duration: number;
+  start: MaybeNumber;
+  end: MaybeNumber;
 };

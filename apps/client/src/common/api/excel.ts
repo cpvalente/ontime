@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { CustomFields, Rundown } from 'ontime-types';
+import { CustomFields, Rundown, RundownSummary } from 'ontime-types';
 import { ImportMap } from 'ontime-utils';
 
 import { apiEntryUrl } from './constants';
@@ -25,6 +25,7 @@ export async function upload(file: File): Promise<string[]> {
 type PreviewSpreadsheetResponse = {
   rundown: Rundown;
   customFields: CustomFields;
+  summary: RundownSummary;
 };
 export async function importRundownPreview(options: ImportMap): Promise<PreviewSpreadsheetResponse> {
   const response: AxiosResponse<PreviewSpreadsheetResponse> = await axios.post(`${excelPath}/preview`, {

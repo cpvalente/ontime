@@ -1,6 +1,6 @@
 import express from 'express';
 import type { Request, Response } from 'express';
-import { CustomFields, ErrorResponse, Rundown } from 'ontime-types';
+import { CustomFields, ErrorResponse, Rundown, RundownSummary } from 'ontime-types';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
@@ -32,7 +32,10 @@ router.post(
 router.post(
   '/preview',
   validateImportMapOptions,
-  (req: Request, res: Response<{ rundown: Rundown; customFields: CustomFields } | ErrorResponse>) => {
+  (
+    req: Request,
+    res: Response<{ rundown: Rundown; customFields: CustomFields; summary: RundownSummary } | ErrorResponse>,
+  ) => {
     try {
       const { options } = req.body;
       const data = generateRundownPreview(options);

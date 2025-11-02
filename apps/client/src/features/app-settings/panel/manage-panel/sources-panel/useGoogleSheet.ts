@@ -21,6 +21,7 @@ export default function useGoogleSheet() {
   const patchStepData = useSheetStore((state) => state.patchStepData);
   const setRundown = useSheetStore((state) => state.setRundown);
   const setCustomFields = useSheetStore((state) => state.setCustomFields);
+  const setSummary = useSheetStore((state) => state.setSummary);
 
   /** whether the current session has been authenticated */
   const verifyAuth = async (): Promise<{ authenticated: AuthenticationStatus; sheetId: string } | void> => {
@@ -58,6 +59,7 @@ export default function useGoogleSheet() {
       const data = await previewRundown(sheetId, fileOptions);
       setRundown(data.rundown);
       setCustomFields(data.customFields);
+      setSummary(data.summary);
     } catch (error) {
       patchStepData({ pullPush: { available: true, error: maybeAxiosError(error) } });
     }

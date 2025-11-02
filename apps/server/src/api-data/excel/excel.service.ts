@@ -3,7 +3,7 @@
  * Google Sheets
  */
 
-import { CustomFields, Rundown } from 'ontime-types';
+import { CustomFields, Rundown, RundownSummary } from 'ontime-types';
 import { type ImportMap } from 'ontime-utils';
 
 import { extname } from 'path';
@@ -14,7 +14,7 @@ import type { WorkBook } from 'xlsx';
 import { deleteFile } from '../../utils/fileManagement.js';
 
 import { parseRundown } from '../rundown/rundown.parser.js';
-import { getProjectCustomFields } from '../rundown/rundown.dao.js';
+import { getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 
 import { parseExcel } from './excel.parser.js';
@@ -43,7 +43,11 @@ export async function readExcelFile(filePath: string): Promise<string[]> {
   return excelData.SheetNames;
 }
 
-export function generateRundownPreview(options: ImportMap): { rundown: Rundown; customFields: CustomFields } {
+export function generateRundownPreview(options: ImportMap): {
+  rundown: Rundown;
+  summary: RundownSummary;
+  customFields: CustomFields;
+} {
   const data = excelData.Sheets[options.worksheet];
 
   if (!data) {
@@ -59,9 +63,25 @@ export function generateRundownPreview(options: ImportMap): { rundown: Rundown; 
 
   // we run the parsed data through an extra step to ensure the objects shape
   const customFields = parseCustomFields(dataFromExcel);
-  const rundown = parseRundown(dataFromExcel.rundown, customFields);
+  const parsedRundown = parseRundown(dataFromExcel.rundown, customFields);
+  const processedRundown = processRundown(parsedRundown, customFields);
 
-  return { rundown, customFields };
+  return {
+    rundown: {
+      id: parsedRundown.id,
+      title: parsedRundown.title,
+      order: processedRundown.order,
+      flatOrder: processedRundown.flatEntryOrder,
+      entries: processedRundown.entries,
+      revision: 0,
+    },
+    summary: {
+      duration: processedRundown.totalDuration,
+      start: processedRundown.firstStart,
+      end: processedRundown.lastEnd,
+    },
+    customFields,
+  };
 }
 
 /**

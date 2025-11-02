@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { CustomFields, Rundown } from 'ontime-types';
-import { getFirstEventNormal, getLastEventNormal, millisToString } from 'ontime-utils';
+import { CustomFields, Rundown, RundownSummary } from 'ontime-types';
+import { millisToString } from 'ontime-utils';
 
 import Button from '../../../../../common/components/buttons/Button';
 import useRundown from '../../../../../common/hooks-query/useRundown';
+import { formatDuration } from '../../../../../common/utils/time';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import PreviewSpreadsheet from './preview/PreviewRundown';
@@ -13,12 +14,20 @@ import { useSheetStore } from './useSheetStore';
 interface ImportReviewProps {
   rundown: Rundown;
   customFields: CustomFields;
+  summary: RundownSummary;
   onFinished: () => void;
   onCancel: () => void;
   onBack: () => void;
 }
 
-export default function ImportReview({ rundown, customFields, onFinished, onCancel, onBack }: ImportReviewProps) {
+export default function ImportReview({
+  rundown,
+  customFields,
+  summary,
+  onFinished,
+  onCancel,
+  onBack,
+}: ImportReviewProps) {
   const { data: currentRundown } = useRundown();
   const [loading, setLoading] = useState(false);
   const { importRundown } = useGoogleSheet();
@@ -44,9 +53,6 @@ export default function ImportReview({ rundown, customFields, onFinished, onCanc
     onFinished();
   };
 
-  const { firstEvent } = getFirstEventNormal(rundown.entries, rundown.flatOrder);
-  const { lastEvent } = getLastEventNormal(rundown.entries, rundown.flatOrder);
-
   return (
     <Panel.Section>
       <Panel.Title>
@@ -70,16 +76,15 @@ export default function ImportReview({ rundown, customFields, onFinished, onCanc
         <Panel.ListItem>
           <b>Number of entries</b> {rundown.flatOrder.length}
         </Panel.ListItem>
-        {firstEvent && (
-          <Panel.ListItem>
-            <b>Start Time</b> {millisToString(firstEvent.timeStart)}
-          </Panel.ListItem>
-        )}
-        {lastEvent && (
-          <Panel.ListItem>
-            <b>End Time</b> {millisToString(lastEvent.timeEnd)}
-          </Panel.ListItem>
-        )}
+        <Panel.ListItem>
+          <b>Start time</b> {millisToString(summary.start)}
+        </Panel.ListItem>
+        <Panel.ListItem>
+          <b>End time</b> {millisToString(summary.end)}
+        </Panel.ListItem>
+        <Panel.ListItem>
+          <b>Total duration</b> {formatDuration(summary.duration)}
+        </Panel.ListItem>
       </Panel.ListGroup>
       <PreviewSpreadsheet rundown={rundown} customFields={customFields} />
     </Panel.Section>
