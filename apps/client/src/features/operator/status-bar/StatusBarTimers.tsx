@@ -6,7 +6,7 @@ export default function StatusBarTimers() {
   return (
     <div className={style.timers}>
       <TimerOverview className={style.runningTimer} />
-      <ClockOverview className={style.timeNow} />
+      <ClockOverview className={style.timeNow} shouldFormat />
     </div>
   );
 }

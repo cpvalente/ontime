@@ -10,14 +10,14 @@ import {
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId, OntimeGroup } from 'ontime-types';
-import { MILLIS_PER_MINUTE } from 'ontime-utils';
+import { MILLIS_PER_MINUTE, millisToString } from 'ontime-utils';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { getOffsetState } from '../../../common/utils/offset';
-import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import { formatDuration, formatTime } from '../../../common/utils/time';
+import { cx, getAccessibleColour, timerPlaceholder } from '../../../common/utils/styleUtils';
+import { formatDuration } from '../../../common/utils/time';
 import TitleEditor from '../common/TitleEditor';
 import { canDrop } from '../rundown.utils';
 import { useEventSelection } from '../useEventSelection';
@@ -149,11 +149,11 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
         <div className={style.metaRow}>
           <div className={style.metaEntry}>
             <div>Start</div>
-            <div>{formatTime(data.timeStart)}</div>
+            <div>{millisToString(data.timeStart, { fallback: timerPlaceholder })}</div>
           </div>
           <div className={style.metaEntry}>
             <div>End</div>
-            <div>{formatTime(data.timeEnd)}</div>
+            <div>{millisToString(data.timeEnd, { fallback: timerPlaceholder })}</div>
           </div>
           <div className={style.metaEntry}>
             <div>Duration</div>

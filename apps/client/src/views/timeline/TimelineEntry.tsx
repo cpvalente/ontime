@@ -30,7 +30,7 @@ interface TimelineEntryProps {
 }
 
 const formatOptions = {
-  format12: 'hh:mm a',
+  format12: 'h:mm a',
   format24: 'HH:mm',
 };
 

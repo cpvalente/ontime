@@ -112,7 +112,7 @@ export const formatTime = (
 export function formatDuration(duration: number, hideSeconds = true): string {
   // durations should never be negative, we handle it here to flag if there is an issue in future
   if (duration <= 0) {
-    return '0h 0m';
+    return '0m';
   }
 
   const hours = Math.floor(duration / MILLIS_PER_HOUR);

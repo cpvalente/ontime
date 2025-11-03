@@ -1,11 +1,12 @@
 import { memo, RefObject, SyntheticEvent } from 'react';
 import { useLongPress } from '@mantine/hooks';
-import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString } from 'ontime-utils';
+import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import { formatDuration, useTimeUntilExpectedStart } from '../../../common/utils/time';
+import { formatDuration, formatTime, useTimeUntilExpectedStart } from '../../../common/utils/time';
 import RunningTime from '../../viewers/common/running-time/RunningTime';
+import SuperscriptPeriod from '../../viewers/common/superscript-time/SuperscriptPeriod';
 import type { EditEvent, Subscribed } from '../operator.types';
 
 import style from './OperatorEvent.module.scss';
@@ -64,22 +65,24 @@ function OperatorEvent({
   const mouseHandlers = useLongPress(handleLongPress);
   const cueColours = colour && getAccessibleColour(colour);
 
-  const operatorClasses = cx([
-    style.event,
-    isSelected && style.running,
-    isPast && style.past,
-  ]);
+  const operatorClasses = cx([style.event, isSelected && style.running, isPast && style.past]);
 
   return (
-    <div className={operatorClasses} data-testid={cue} ref={selectedRef} onContextMenu={handleLongPress} {...mouseHandlers}>
+    <div
+      className={operatorClasses}
+      data-testid={cue}
+      ref={selectedRef}
+      onContextMenu={handleLongPress}
+      {...mouseHandlers}
+    >
       <div className={style.binder} style={{ ...cueColours }}>
         <span className={style.cue}>{cue}</span>
       </div>
 
       <span className={style.mainField}>
-        {showStart && <span className={style.plannedStart}>{millisToString(timeStart)}</span>}
+        {showStart && <SuperscriptPeriod className={style.plannedStart} time={formatTime(timeStart)} />}
         {main}
-        </span>
+      </span>
       <span className={style.secondaryField}>{secondary}</span>
       <OperatorEventSchedule
         timeStart={timeStart}
@@ -167,5 +170,9 @@ function TimeUntil({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded }: 
   const isDue = timeUntil < MILLIS_PER_SECOND;
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
 
-  return <span className={style.timeUntil} data-testid='time-until'>{timeUntilString}</span>;
+  return (
+    <span className={style.timeUntil} data-testid='time-until'>
+      {timeUntilString}
+    </span>
+  );
 }

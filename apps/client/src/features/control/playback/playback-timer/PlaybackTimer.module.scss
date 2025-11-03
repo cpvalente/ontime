@@ -58,7 +58,6 @@
   height: 1.5rem;
   display: flex;
   gap: $section-spacing;
-  margin-left: 1.5rem;
 }
 
 .tag {
@@ -70,6 +69,7 @@
 .time {
   color: $section-white;
   font-size: $text-body-size;
+  display: inline-block;
 }
 
 .rolltag {

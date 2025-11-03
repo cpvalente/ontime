@@ -43,8 +43,8 @@ describe('formatTime()', () => {
 
 describe('formatDuration()', () => {
   it('formats durations correctly', () => {
-    expect(formatDuration(0)).toBe('0h 0m');
-    expect(formatDuration(-5000)).toBe('0h 0m');
+    expect(formatDuration(0)).toBe('0m');
+    expect(formatDuration(-5000)).toBe('0m');
     expect(formatDuration(MILLIS_PER_MINUTE)).toBe('1m');
     expect(formatDuration(6 * MILLIS_PER_MINUTE + 11 * MILLIS_PER_SECOND)).toBe('6m');
     expect(formatDuration(MILLIS_PER_MINUTE * 10)).toBe('10m');

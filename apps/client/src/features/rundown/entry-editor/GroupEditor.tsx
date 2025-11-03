@@ -59,9 +59,6 @@ export default function GroupEditor({ group }: GroupEditorProps) {
         <Editor.Title>Group schedule</Editor.Title>
         <div className={style.inline}>
           <div>
-            {
-              // TODO: format with user time settings
-            }
             <Editor.Label>First event start</Editor.Label>
             <TextLikeInput className={style.textLikeInput} disabled>
               {millisToString(group.timeStart, { fallback: timerPlaceholder })}
