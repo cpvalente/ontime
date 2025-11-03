@@ -1,5 +1,19 @@
 import { getInstant, clockToInstant, instantToClock } from '../temporal.js';
-import { timeNow } from '../time.js';
+
+/**
+ * The old clock function
+ * is here until is is no longer needed for reference
+ */
+function timeNow() {
+  const now = new Date();
+
+  // extract milliseconds since midnight
+  let elapsed = now.getHours() * 3600000;
+  elapsed += now.getMinutes() * 60000;
+  elapsed += now.getSeconds() * 1000;
+  elapsed += now.getMilliseconds();
+  return elapsed;
+}
 
 describe('instant utilities', () => {
   beforeAll(() => {
