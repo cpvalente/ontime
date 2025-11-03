@@ -76,13 +76,13 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
   const scheduledStart = (() => {
     if (showNow) return undefined;
     if (!hasEvents) return undefined;
-    return formatTime(rundown.plannedStart, { format12: 'hh:mm a', format24: 'HH:mm' });
+    return formatTime(rundown.plannedStart, { format12: 'h:mm a', format24: 'HH:mm' });
   })();
 
   const scheduledEnd = (() => {
     if (showNow) return undefined;
     if (!hasEvents) return undefined;
-    return formatTime(rundown.plannedEnd, { format12: 'hh:mm a', format24: 'HH:mm' });
+    return formatTime(rundown.plannedEnd, { format12: 'h:mm a', format24: 'HH:mm' });
   })();
 
   let displayTimer = millisToString(time.current, { fallback: timerPlaceholderMin });

@@ -73,9 +73,9 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
           >
             <div className='sub__binder' style={{ '--user-color': event?.colour ?? '' }} />
             <div className='sub__schedule'>
-              <ClockTime value={event.timeStart} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
+              <ClockTime value={event.timeStart} preferredFormat12='h:mm a' preferredFormat24='HH:mm' />
               →
-              <ClockTime value={event.timeEnd} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
+              <ClockTime value={event.timeEnd} preferredFormat12='h:mm a' preferredFormat24='HH:mm' />
             </div>
             <div className='sub__label'>{isSelected ? 'Click to remove' : 'Click to add'}</div>
             <div className='sub__title'>{title}</div>

@@ -5,14 +5,14 @@ import { getOffsetState } from '../../../common/utils/offset';
 import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { cx } from '../../../common/utils/styleUtils';
 import { formatTime, getExpectedTimesFromExtendedEvent } from '../../../common/utils/time';
-import SuperscriptTime from '../../../features/viewers/common/superscript-time/SuperscriptTime';
+import SuperscriptPeriod from '../../../features/viewers/common/superscript-time/SuperscriptPeriod';
 
 import { useScheduleOptions } from './schedule.options';
 
 import './Schedule.scss';
 
 const formatOptions = {
-  format12: 'hh:mm a',
+  format12: 'h:mm a',
   format24: 'HH:mm',
 };
 
@@ -84,9 +84,9 @@ function PlannedScheduleItem({
   return (
     <>
       <span className='entry-colour' style={{ backgroundColor: colour }} />
-      <SuperscriptTime time={start} />
+      <SuperscriptPeriod time={start} />
       →
-      <SuperscriptTime time={end} />
+      <SuperscriptPeriod time={end} />
     </>
   );
 }
@@ -106,14 +106,14 @@ function DelayedScheduleItem({
     <>
       <span className='entry-times--delayed'>
         <span className='entry-colour' style={{ backgroundColor: colour }} />
-        <SuperscriptTime time={start} />
+        <SuperscriptPeriod time={start} />
         →
-        <SuperscriptTime time={end} />
+        <SuperscriptPeriod time={end} />
       </span>
       <span className='entry-times--delay'>
-        <SuperscriptTime time={delayedStart} />
+        <SuperscriptPeriod time={delayedStart} />
         →
-        <SuperscriptTime time={delayedEnd} />
+        <SuperscriptPeriod time={delayedEnd} />
       </span>
     </>
   );
@@ -161,5 +161,5 @@ interface ExpectedTimeProps {
 function ExpectedTime({ expectedTime, plannedTime }: ExpectedTimeProps) {
   const timeDisplay = formatTime(expectedTime);
   const expectedState = getOffsetState(expectedTime - plannedTime);
-  return <SuperscriptTime className={`entry-times--${expectedState}`} time={timeDisplay} />;
+  return <SuperscriptPeriod className={`entry-times--${expectedState}`} time={timeDisplay} />;
 }

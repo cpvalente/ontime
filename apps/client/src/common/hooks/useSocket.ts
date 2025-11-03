@@ -202,6 +202,9 @@ export const useStartTimesOverview = createSelector((state: RuntimeStore) => ({
   plannedStart: state.rundown.plannedStart,
   actualStart: state.rundown.actualStart,
   plannedEnd: state.rundown.plannedEnd,
+}));
+
+export const useRundownExpectedEnd = createSelector((state: RuntimeStore) => ({
   expectedEnd: state.offset.expectedRundownEnd,
 }));
 

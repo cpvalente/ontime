@@ -1,3 +1,5 @@
+import { ReactNode } from 'react';
+
 import { cx } from '../../../common/utils/styleUtils';
 
 import style from './TimeLayout.module.scss';
@@ -22,6 +24,21 @@ export function TimeColumn({ label, value, state = 'active', className, testId }
   );
 }
 
+interface WrappedInTimeColumnProps {
+  label: string;
+  state?: 'muted' | 'waiting' | 'active';
+  className?: string;
+  render: (className: string) => ReactNode;
+}
+
+export function WrappedInTimeColumn({ label, state = 'active', className, render }: WrappedInTimeColumnProps) {
+  return (
+    <div className={cx([style.column, className])} data-state={state}>
+      <span className={style.label}>{label}</span>
+      {render(style.clock)}
+    </div>
+  );
+}
 interface OverUnderProps {
   state: 'over' | 'under' | 'muted' | null;
   value: string;

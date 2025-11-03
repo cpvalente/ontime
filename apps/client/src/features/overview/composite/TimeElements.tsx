@@ -20,6 +20,7 @@ import {
   useNextFlag,
   useOffsetOverview,
   useProgressOverview,
+  useRundownExpectedEnd,
   useStartTimesOverview,
   useTimer,
 } from '../../../common/hooks/useSocket';
@@ -27,66 +28,133 @@ import { useEntry } from '../../../common/hooks-query/useRundown';
 import { getOffsetState, getOffsetText } from '../../../common/utils/offset';
 import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
-import { calculateEndAndDaySpan, formatDueTime, formattedTime } from '../overview.utils';
+import SuperscriptPeriod from '../../viewers/common/superscript-time/SuperscriptPeriod';
+import { calculateEndAndDaySpan, formatDueTime } from '../overview.utils';
 
-import { OverUnder, TimeColumn } from './TimeLayout';
+import { OverUnder, TimeColumn, WrappedInTimeColumn } from './TimeLayout';
 
 import style from './TimeElements.module.scss';
 
-export function StartTimes() {
-  const { plannedEnd, plannedStart, actualStart, expectedEnd } = useStartTimesOverview();
+interface OverviewTimeElementsProps {
+  shouldFormat?: boolean;
+}
 
-  const plannedStartText = plannedStart === null ? timerPlaceholder : formatTime(plannedStart);
+export function StartTimes({ shouldFormat }: OverviewTimeElementsProps) {
+  const { plannedEnd, plannedStart, actualStart } = useStartTimesOverview();
+
+  const formatOptions = { format12: 'hh:mm:ss a', format24: 'HH:mm:ss' };
+
+  const plannedStartText = (() => {
+    if (plannedStart === null) return timerPlaceholder;
+    if (shouldFormat) return formatTime(plannedStart, formatOptions);
+    return millisToString(plannedStart, { fallback: timerPlaceholder });
+  })();
+
+  const actualStartText = (() => {
+    if (actualStart === null) return timerPlaceholder;
+    if (shouldFormat) return formatTime(actualStart, formatOptions);
+    return millisToString(actualStart, { fallback: timerPlaceholder });
+  })();
 
   const [maybePlannedEnd, maybePlannedDaySpan] = useMemo(() => calculateEndAndDaySpan(plannedEnd), [plannedEnd]);
-  const [maybeExpectedEnd, maybeExpectedDaySpan] = useMemo(() => calculateEndAndDaySpan(expectedEnd), [expectedEnd]);
-  const plannedEndText = maybePlannedEnd === null ? timerPlaceholder : formatTime(maybePlannedEnd);
+
+  const plannedEndText = (() => {
+    if (maybePlannedEnd === null) return timerPlaceholder;
+    if (shouldFormat) return formatTime(maybePlannedEnd, formatOptions);
+    return millisToString(maybePlannedEnd, { fallback: timerPlaceholder });
+  })();
+
+  const multipleDays = maybePlannedDaySpan > 0;
+  const plannedEndTooltip = multipleDays
+    ? `Planned end time (rundown spans over ${maybePlannedDaySpan + 1} days)`
+    : 'Planned end time';
 
   return (
     <div className={style.column}>
       <div className={style.row}>
         <span className={style.label}>Start</span>
-        <div className={style.labelledElement}>
-          <Tooltip text='Planned start time' render={<TbCalendarPin className={style.icon} />} />
-          <span className={cx([style.time, plannedStart === null && style.muted])}>{plannedStartText}</span>
-        </div>
-        <div className={style.labelledElement} data-testid='actual-start-time'>
-          <Tooltip text='Actual start time' render={<TbCalendarClock className={style.icon} />} />
-          <span className={cx([style.time, actualStart === null && style.muted])}>{formattedTime(actualStart)}</span>
-        </div>
+        <Tooltip
+          text='Planned start time'
+          render={
+            <div className={style.labelledElement}>
+              <TbCalendarPin className={style.icon} />
+              <SuperscriptPeriod
+                className={cx([style.time, plannedStart === null && style.muted])}
+                time={plannedStartText}
+              />
+            </div>
+          }
+        />
+        <Tooltip
+          text='Actual start time'
+          render={
+            <div className={style.labelledElement} data-testid='actual-start-time'>
+              <TbCalendarClock className={style.icon} />
+              <SuperscriptPeriod
+                className={cx([style.time, actualStart === null && style.muted])}
+                time={actualStartText}
+              />
+            </div>
+          }
+        />
       </div>
+
       <div className={style.row}>
         <span className={style.label}>End</span>
-        <div className={style.labelledElement}>
-          <Tooltip text='Planned end time' render={<TbCalendarPin className={style.icon} />} />
-          {maybePlannedDaySpan > 0 ? (
-            <Tooltip
-              text={`Rundown spans over ${maybePlannedDaySpan + 1} days`}
-              render={<span className={cx([style.time, style.daySpan])} data-day-offset={maybePlannedDaySpan} />}
-            >
-              {plannedEndText}
-            </Tooltip>
-          ) : (
-            <span className={cx([style.time, plannedEnd === null && style.muted])}>{plannedEndText}</span>
-          )}
-        </div>
-        <div className={style.labelledElement}>
-          <Tooltip text='Expected end time' render={<TbCalendarStar className={style.icon} />} />
-          {maybeExpectedEnd !== null && maybeExpectedDaySpan > 0 ? (
-            <Tooltip
-              text={`Rundown spans over ${maybeExpectedDaySpan + 1} days`}
-              render={<span className={cx([style.time, style.daySpan])} data-day-offset={maybeExpectedDaySpan} />}
-            >
-              {formattedTime(maybeExpectedEnd)}
-            </Tooltip>
-          ) : (
-            <span className={cx([style.time, maybeExpectedEnd === null && style.muted])}>
-              {formattedTime(maybeExpectedEnd)}
-            </span>
-          )}
-        </div>
+        <Tooltip
+          text={plannedEndTooltip}
+          render={
+            <div className={style.labelledElement}>
+              <TbCalendarPin className={style.icon} />
+              <SuperscriptPeriod
+                className={cx([style.time, plannedEnd === null && style.muted])}
+                time={plannedEndText}
+              />
+              {multipleDays && (
+                <span className={cx([style.time, style.daySpan])} data-day-offset={maybePlannedDaySpan} />
+              )}
+            </div>
+          }
+        />
+        <RundownExpectedEnd shouldFormat={shouldFormat} />
       </div>
     </div>
+  );
+}
+
+/**
+ * Shows the expected end for the rundown
+ * Extracted to improve performance as this is a ticking value
+ */
+function RundownExpectedEnd({ shouldFormat }: OverviewTimeElementsProps) {
+  const { expectedEnd } = useRundownExpectedEnd();
+
+  const [maybeExpectedEnd, maybeExpectedDaySpan] = useMemo(() => calculateEndAndDaySpan(expectedEnd), [expectedEnd]);
+  const maybeExpectedEndText = (() => {
+    if (maybeExpectedEnd === null) return timerPlaceholder;
+    if (shouldFormat) return formatTime(maybeExpectedEnd, { format12: 'hh:mm:ss a', format24: 'HH:mm:ss' });
+    return millisToString(maybeExpectedEnd, { fallback: timerPlaceholder });
+  })();
+
+  const multipleDays = maybeExpectedEnd !== null && maybeExpectedDaySpan > 0;
+  const tooltip = multipleDays
+    ? `Expected end time (rundown spans over ${maybeExpectedDaySpan + 1} days)`
+    : 'Expected end time';
+
+  return (
+    <Tooltip
+      text={tooltip}
+      render={
+        <div className={style.labelledElement}>
+          <TbCalendarStar className={style.icon} />
+          <SuperscriptPeriod
+            className={cx([style.time, maybeExpectedEnd === null && style.muted])}
+            time={maybeExpectedEndText}
+          />
+          {multipleDays && <span className={cx([style.time, style.daySpan])} data-day-offset={maybeExpectedDaySpan} />}
+        </div>
+      }
+    />
   );
 }
 
@@ -229,11 +297,17 @@ export function OffsetOverview() {
   return <OverUnder state={offsetState} value={offsetText} testId='offset' />;
 }
 
-export function ClockOverview({ className }: { className?: string }) {
+export function ClockOverview({ shouldFormat, className }: OverviewTimeElementsProps & { className?: string }) {
   const { clock } = useClock();
-  const formattedClock = formatTime(clock);
+  const formattedClock = shouldFormat ? formatTime(clock) : millisToString(clock);
 
-  return <TimeColumn label='Time now' value={formattedClock} className={className} />;
+  return (
+    <WrappedInTimeColumn
+      label='Time now'
+      className={className}
+      render={(clockClasses) => <SuperscriptPeriod className={clockClasses} time={formattedClock} />}
+    />
+  );
 }
 
 export function TimerOverview({ className }: { className?: string }) {

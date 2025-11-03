@@ -23,7 +23,7 @@ function MakeStart({ getValue, row, table, column }: CellContext<ExtendedEntry, 
   }
 
   const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
-  const formatOpts = hideTableSeconds ? { format12: 'hh:mm a', format24: 'HH:mm' } : undefined;
+  const formatOpts = hideTableSeconds ? { format12: 'h:mm a', format24: 'HH:mm' } : undefined;
 
   const event = row.original;
   if (!isOntimeEvent(event)) {
@@ -62,7 +62,7 @@ function MakeEnd({ getValue, row, table, column }: CellContext<ExtendedEntry, un
   }
 
   const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
-  const formatOpts = hideTableSeconds ? { format12: 'hh:mm a', format24: 'HH:mm' } : undefined;
+  const formatOpts = hideTableSeconds ? { format12: 'h:mm a', format24: 'HH:mm' } : undefined;
 
   const event = row.original;
   if (!isOntimeEvent(event)) {

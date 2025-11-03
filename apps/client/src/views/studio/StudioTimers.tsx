@@ -49,9 +49,7 @@ export default function StudioTimers({ viewSettings }: StudioTimersProps) {
           </div>
           <div>
             <div className='label center'>Over / under</div>
-            <div className={cx(['runtime-timer', 'center', !eventNow && 'muted', offsetState && offsetState])}>
-              {schedule.offset}
-            </div>
+            <div className={cx(['runtime-timer', 'center', !eventNow && 'muted', offsetState])}>{schedule.offset}</div>
           </div>
           <div>
             <div className='label right'>{getLocalizedString('common.expected_end')}</div>

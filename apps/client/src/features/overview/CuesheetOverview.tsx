@@ -27,11 +27,11 @@ function CuesheetDesktop({ children }: PropsWithChildren) {
   return (
     <OverviewWrapper navElements={children}>
       <TitleOverview />
-      <StartTimes />
+      <StartTimes shouldFormat />
       <TimerOverview />
       <OffsetOverview />
       <MetadataTimes />
-      <ClockOverview />
+      <ClockOverview shouldFormat />
     </OverviewWrapper>
   );
 }
