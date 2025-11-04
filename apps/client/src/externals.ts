@@ -22,7 +22,7 @@ export const isProduction = import.meta.env.PROD;
 export const isDev = import.meta.env.DEV;
 export const currentHostName = window.location.hostname;
 export const isLocalhost = currentHostName === 'localhost' || currentHostName === '127.0.0.1';
-export const isOntimeCloud = currentHostName.includes('cloud.getontime.no');
+export const isOntimeCloud = document.querySelector('base')?.hasAttribute('data-is-cloud')
 
 // resolve entrypoint URLs
 
