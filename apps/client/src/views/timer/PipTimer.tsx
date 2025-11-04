@@ -2,7 +2,7 @@ import { memo, useCallback, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router';
 
-import Button from '../../common/components/buttons/Button';
+import { CornerPipButton } from '../../common/components/editor-utils/EditorUtils';
 import { FitText } from '../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import TitleCard from '../../common/components/title-card/TitleCard';
@@ -104,11 +104,7 @@ function PipTimerHost() {
   }
 
   return (
-    <div>
-      <Button variant='subtle' onClick={openPictureInPicture}>
-        Pop out Timer
-      </Button>
-    </div>
+    <CornerPipButton onClick={openPictureInPicture} />
   );
 }
 

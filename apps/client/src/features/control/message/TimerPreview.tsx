@@ -1,13 +1,16 @@
+import { lazy } from 'react';
 import { IoArrowDown, IoArrowUp, IoBan, IoTime } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
 import { TimerPhase, TimerType } from 'ontime-types';
 
-import { Corner } from '../../../common/components/editor-utils/EditorUtils';
+import { CornerWithPip } from '../../../common/components/editor-utils/EditorUtils';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useMessagePreview } from '../../../common/hooks/useSocket';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx, timerPlaceholder } from '../../../common/utils/styleUtils';
+
+const PipTimerHost = lazy(() => import('../../../views/timer/PipTimer'))
 
 import style from './MessageControl.module.scss';
 
@@ -52,7 +55,7 @@ export default function TimerPreview() {
 
   return (
     <div className={style.preview}>
-      <Corner onClick={(event) => handleLinks('timer', event)} />
+      <CornerWithPip onExtractClick={(event) => handleLinks('timer', event)} pipElement={<PipTimerHost />} />
       <div className={contentClasses}>
         <div
           className={style.mainContent}
