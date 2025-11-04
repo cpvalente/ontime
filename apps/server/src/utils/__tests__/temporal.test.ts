@@ -1,3 +1,4 @@
+import { millisToString } from 'ontime-utils';
 import { getInstant, clockToInstant, instantToClock } from '../temporal.js';
 
 /**
@@ -33,6 +34,7 @@ describe('instant utilities', () => {
     'jan 1 22:46:40',
     'jan 1 22:46:41',
     'jan 1 22:46:42',
+    'jan 1 00:00:42',
   ];
   describe('epoch to clock', () => {
     test.each([...testTimes])('handles %s', (time) => {
@@ -52,5 +54,49 @@ describe('instant utilities', () => {
       expect(clock).not.toBeNaN();
       expect(clockToInstant(clock)).toEqual(instant);
     });
+  });
+
+  test('before DST', () => {
+    vi.setSystemTime('2025-03-30T00:58:18Z'); // right before DST
+    const instant = getInstant();
+    const clock = timeNow();
+    expect(millisToString(clock)).toEqual('01:58:18');
+    const convertedInstant = clockToInstant(clock);
+    expect(convertedInstant).toEqual(instant);
+    const backToClock = instantToClock(convertedInstant);
+    expect(backToClock).toEqual(clock);
+  });
+
+  test('after DST', () => {
+    vi.setSystemTime('2025-03-30T01:00:00Z'); // right before DST
+    const instant = getInstant();
+    const clock = timeNow();
+    expect(millisToString(clock)).toEqual('03:00:00');
+    const convertedInstant = clockToInstant(clock);
+    expect(convertedInstant).toEqual(instant);
+    const backToClock = instantToClock(convertedInstant);
+    expect(backToClock).toEqual(clock);
+  });
+
+  test('before winter time', () => {
+    vi.setSystemTime('2025-10-26T01:59:59Z'); // right before DST
+    const instant = getInstant();
+    const clock = timeNow();
+    expect(millisToString(clock)).toEqual('02:59:59');
+    const convertedInstant = clockToInstant(clock);
+    expect(convertedInstant).toEqual(instant);
+    const backToClock = instantToClock(convertedInstant);
+    expect(backToClock).toEqual(clock);
+  });
+
+  test('after winter time', () => {
+    vi.setSystemTime('2025-10-26T02:00:00Z'); // right before DST
+    const instant = getInstant();
+    const clock = timeNow();
+    expect(millisToString(clock)).toEqual('03:00:00');
+    const convertedInstant = clockToInstant(clock);
+    expect(convertedInstant).toEqual(instant);
+    const backToClock = instantToClock(convertedInstant);
+    expect(backToClock).toEqual(clock);
   });
 });
