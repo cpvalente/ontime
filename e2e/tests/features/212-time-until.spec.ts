@@ -55,7 +55,7 @@ test('time until absolute', async ({ context }) => {
 
   await editor.getByRole('button', { name: 'Absolute' }).click();
   await editor.getByTestId('entry-1').getByLabel('Start event').click();
-  await expect(editor.getByTestId('offset')).not.toContainText('00:00:00'); // This might be a bad test requires that the test is not run at 0h
+  await expect(editor.getByTestId('offset')).not.toContainText('0:00'); // This might be a bad test requires that the test is not run at 0h
   await editor.getByLabel('Pause event').click();
 
   // 1. initial check
@@ -139,7 +139,7 @@ test('time until relative', async ({ context }) => {
 
   await editor.getByRole('button', { name: 'Relative' }).click();
   await editor.getByTestId('entry-1').getByLabel('Start event').click();
-  await expect(editor.getByTestId('offset')).toContainText('00:00:00'); // This might be a bad test as it ruires the evaluation to happen within 1s
+  await expect(editor.getByTestId('offset')).toContainText('0:00'); // This might be a bad test as it ruires the evaluation to happen within 1s
   await editor.getByLabel('Pause event').click();
 
   await expect(editor.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('9m');

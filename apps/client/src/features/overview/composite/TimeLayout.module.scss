@@ -1,6 +1,6 @@
 .label {
   color: $label-gray;
-  font-size: calc(1rem - 2px);
+  font-size: calc(1rem - 3px);
 }
 
 .clock {
@@ -29,14 +29,21 @@
     gap: 0.25rem;
   }
 
+  .over,
+  .under {
+    transition: color 0.2s ease;
+  }
+
   &[data-state='waiting'] {
     .label {
       color: $ontime-roll;
     }
   }
+
   &[data-state='over'] {
     .label .over {
       color: $playback-over;
+      font-weight: 600;
     }
     .clock {
       color: $playback-over;
@@ -46,6 +53,7 @@
   &[data-state='under'] {
     .label .under {
       color: $playback-under;
+      font-weight: 600;
     }
     .clock {
       color: $playback-under;

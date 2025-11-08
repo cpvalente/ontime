@@ -1,10 +1,14 @@
 .title {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: $ui-white;
+  line-height: 1;
   @include ellipsis-overflow;
 }
 
 .description {
   font-size: 1rem;
-  color: $label-gray;
+  color: $secondary-text-gray;
+  font-weight: 400;
   @include ellipsis-overflow;
 }
