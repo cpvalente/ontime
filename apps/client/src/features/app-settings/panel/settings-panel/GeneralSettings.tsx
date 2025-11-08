@@ -6,6 +6,7 @@ import { Settings } from 'ontime-types';
 import { postSettings } from '../../../../common/api/settings';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
+import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
 import Select from '../../../../common/components/select/Select';
 import useSettings from '../../../../common/hooks-query/useSettings';
@@ -98,6 +99,7 @@ export default function GeneralSettings() {
           {submitError && <Panel.Error>{submitError}</Panel.Error>}
           <Panel.Divider />
           <Panel.Section>
+            <Info>Changes to the time format and views language do not affect the editor view</Info>
             <Panel.Loader isLoading={isLoading} />
             <Panel.ListGroup>
               <Panel.ListItem>
@@ -146,7 +148,7 @@ export default function GeneralSettings() {
               <Panel.ListItem>
                 <Panel.Field
                   title='Time format'
-                  description='Default time format to show in views 12 /24 hours'
+                  description='Default time format to show in views 12 / 24 hours'
                   error={errors.timeFormat?.message}
                 />
                 <Select
