@@ -24,6 +24,7 @@ import { throttle } from '../utils/throttle.js';
 import { coerceEnum } from '../utils/coerceType.js';
 import { editEntry } from '../api-data/rundown/rundown.service.js';
 import { willCauseRegeneration } from '../api-data/rundown/rundown.utils.js';
+import { getCurrentRundown } from '../api-data/rundown/rundown.dao.js';
 
 const throttledEditEvent = throttle(editEntry, 20);
 let lastRequest: Date | null = null;
@@ -63,32 +64,39 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
       throw new Error('Missing Event ID');
     }
 
+    const { entries } = getCurrentRundown();
+
+    const targetEntry = entries[id];
+    if (!targetEntry) {
+      throw new Error('ID do not exits in rundown');
+    }
+
     const data = payload[id as keyof typeof payload];
-    const patchEvent: PatchWithId<OntimeEvent> = { id };
+    const patchEntry: PatchWithId<OntimeEvent> = { id }; // It is not necessarily an event could also be milestone or group but we don't need to track that in the typing here
 
     let shouldThrottle = false;
 
     Object.entries(data).forEach(([property, value]) => {
-      if (typeof property !== 'string' || value === undefined) {
+      if (typeof property !== 'string' || value === undefined || !(property in targetEntry)) {
         throw new Error('Invalid property or value');
       }
       // parseProperty is async because of the data lock
       const newObjectProperty = parseProperty(property, value);
-      const key = Object.keys(newObjectProperty)[0] as keyof OntimeEvent;
+      const key = Object.keys(newObjectProperty)[0];
       shouldThrottle = shouldThrottle || willCauseRegeneration(key);
-      if (patchEvent.custom && newObjectProperty.custom) {
-        Object.assign(patchEvent.custom, newObjectProperty.custom);
+      if (patchEntry.custom && newObjectProperty.custom) {
+        Object.assign(patchEntry.custom, newObjectProperty.custom);
       } else {
-        Object.assign(patchEvent, newObjectProperty);
+        Object.assign(patchEntry, newObjectProperty);
       }
     });
 
     if (shouldThrottle) {
-      if (throttledEditEvent(patchEvent)) {
+      if (throttledEditEvent(patchEntry)) {
         return { payload: 'throttled' };
       }
     } else {
-      editEntry(patchEvent).catch((_error) => {
+      editEntry(patchEntry).catch((_error) => {
         /** No error handling */
       });
     }

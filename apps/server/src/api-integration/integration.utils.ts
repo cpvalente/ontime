@@ -38,6 +38,7 @@ const propertyConversion: Record<string, (value: unknown) => unknown> = {
   linkStart: coerceBoolean,
   timeStrategy: (value: unknown) => coerceEnum<TimeStrategy>(value, TimeStrategy),
 
+  targetDuration: (value: unknown) => clampDuration(coerceNumber(value)), // only exist in the group
   duration: (value: unknown) => clampDuration(coerceNumber(value)),
   timeStart: (value: unknown) => clampDuration(coerceNumber(value)),
   timeEnd: (value: unknown) => clampDuration(coerceNumber(value)),
