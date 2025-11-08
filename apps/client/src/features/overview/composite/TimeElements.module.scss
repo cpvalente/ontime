@@ -9,7 +9,7 @@
 
 .row {
   display: grid;
-  grid-template-columns: 3rem 10rem 8rem;
+  grid-template-columns: 3rem 9rem 9rem;
   align-items: center;
   gap: 0.5rem;
 }
@@ -29,7 +29,8 @@
 
 .icon {
   font-size: 1rem;
-  color: $label-gray;
+  color: $secondary-text-gray;
+  flex-shrink: 0;
 }
 
 .label {
@@ -40,18 +41,24 @@
 
 .time {
   font-size: 1.25rem;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.25px;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
 }
 
 .daySpan {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.25rem;
+  
   &::after {
-    content: "+"attr(data-day-offset);
-    vertical-align: super;
-    font-size: 0.6em;
-    letter-spacing: 0;
-    color: $info-blue;
+    content: "+" attr(data-day-offset);
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: $ui-white;
+    background: $gray-900; // same as the tag component
+    padding: 0.125rem 0.25rem;
+    border-radius: $component-border-radius-sm;
   }
 }
 
@@ -74,4 +81,7 @@
   font-size: 1rem;
   letter-spacing: 0;
   color: $playback-over;
+  border-left: 3px solid $playback-over;
+  padding-left: 0.375rem;
+  display: inline-block;
 }

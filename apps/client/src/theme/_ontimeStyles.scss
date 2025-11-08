@@ -35,7 +35,7 @@ $ontime-paused: #c05621;
 $ontime-stop: #E4281E;
 $playback-negative: $red-500;
 $playback-ahead: $green-500;
-$active-indicator: #8bb33d;
+$active-indicator: $green-400;
 $text-black: $gray-1350;
 
 $playback-over: #F57C13;
@@ -65,7 +65,7 @@ $main-spacing: 2rem;
 // interface text
 $ontime-font-family: "Open Sans", "Segoe UI", sans-serif;
 $title-gray: $gray-200;
-$label-gray: $gray-400;
+$label-gray: $gray-600;
 $secondary-text-gray: $gray-400;
 $muted-gray: $gray-600;
 $section-white: $ui-white;
