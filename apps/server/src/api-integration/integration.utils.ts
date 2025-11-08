@@ -16,7 +16,6 @@ function clampDuration(value: number): number {
   return value;
 }
 
-const propertyConversion = {
 const propertyConversion: Record<string, (value: unknown) => unknown> = {
   title: coerceString,
   note: coerceString,
@@ -46,7 +45,7 @@ const propertyConversion: Record<string, (value: unknown) => unknown> = {
 
 export function parseProperty(property: string, value: unknown) {
   if (property.startsWith('custom:')) {
-    const customKey = property.split(':')[1].toLocaleLowerCase(); // all custom fields keys are lowercase
+    const customKey = property.split(':')[1];
     const customFields = getDataProvider().getCustomFields();
     if (!(customKey in customFields)) {
       throw new Error(`Custom field ${customKey} not found`);
