@@ -17,11 +17,14 @@ function clampDuration(value: number): number {
 }
 
 const propertyConversion = {
+const propertyConversion: Record<string, (value: unknown) => unknown> = {
   title: coerceString,
   note: coerceString,
   cue: coerceString,
 
   skip: coerceBoolean,
+  flag: coerceBoolean,
+  countToEnd: coerceBoolean,
 
   colour: coerceColour,
 
