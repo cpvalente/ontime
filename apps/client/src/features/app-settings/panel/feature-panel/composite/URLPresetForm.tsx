@@ -9,6 +9,7 @@ import Textarea from '../../../../../common/components/input/textarea/Textarea';
 import Select, { SelectOption } from '../../../../../common/components/select/Select';
 import { useUpdateUrlPreset } from '../../../../../common/hooks-query/useUrlPresets';
 import { preventEscape } from '../../../../../common/utils/keyEvent';
+import { isUrlSafe } from '../../../../../common/utils/regex';
 import { generateUrlPresetOptions } from '../../../../../common/utils/urlPresets';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
@@ -110,7 +111,13 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
       <Panel.InlineElements>
         <div>
           <Panel.Description>Alias</Panel.Description>
-          <Input {...register('alias', { required: 'Alias is required' })} />
+          <Input {...register('alias', {
+            required: 'Alias is required',
+            pattern: {
+              value: isUrlSafe,
+              message: 'Field can only contain URL safe characters (a-z, 0-9, _ and -)',
+            }
+          })} />
         </div>
         <div className={style.expand}>
           <Panel.Description>Generate options (paste URL to generate options)</Panel.Description>

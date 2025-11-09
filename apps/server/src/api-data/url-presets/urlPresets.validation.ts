@@ -3,6 +3,7 @@ import { OntimeView } from 'ontime-types';
 import { body, param } from 'express-validator';
 
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import { regex } from 'ontime-utils';
 
 /**
  * validate array of URL preset objects
@@ -10,7 +11,7 @@ import { requestValidationFunction } from '../validation-utils/validationFunctio
 export const validateNewPreset = [
   body().isObject().withMessage('No data found in request'),
   body('enabled').isBoolean(),
-  body('alias').isString().trim().notEmpty(),
+  body('alias').isString().trim().notEmpty().matches(regex.isUrlSafe),
   body('target').isString().trim().notEmpty().isIn(Object.values(OntimeView)),
   body('search').isString().trim(),
 
