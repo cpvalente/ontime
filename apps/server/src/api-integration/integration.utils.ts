@@ -16,12 +16,14 @@ function clampDuration(value: number): number {
   return value;
 }
 
-const propertyConversion = {
+const propertyConversion: Record<string, (value: unknown) => unknown> = {
   title: coerceString,
   note: coerceString,
   cue: coerceString,
 
   skip: coerceBoolean,
+  flag: coerceBoolean,
+  countToEnd: coerceBoolean,
 
   colour: coerceColour,
 
@@ -36,6 +38,7 @@ const propertyConversion = {
   linkStart: coerceBoolean,
   timeStrategy: (value: unknown) => coerceEnum<TimeStrategy>(value, TimeStrategy),
 
+  targetDuration: (value: unknown) => clampDuration(coerceNumber(value)), // only exist in the group
   duration: (value: unknown) => clampDuration(coerceNumber(value)),
   timeStart: (value: unknown) => clampDuration(coerceNumber(value)),
   timeEnd: (value: unknown) => clampDuration(coerceNumber(value)),
@@ -43,7 +46,7 @@ const propertyConversion = {
 
 export function parseProperty(property: string, value: unknown) {
   if (property.startsWith('custom:')) {
-    const customKey = property.split(':')[1].toLocaleLowerCase(); // all custom fields keys are lowercase
+    const customKey = property.split(':')[1];
     const customFields = getDataProvider().getCustomFields();
     if (!(customKey in customFields)) {
       throw new Error(`Custom field ${customKey} not found`);
