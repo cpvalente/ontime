@@ -9,6 +9,8 @@ import Textarea from '../../../../../common/components/input/textarea/Textarea';
 import Select, { SelectOption } from '../../../../../common/components/select/Select';
 import { useUpdateUrlPreset } from '../../../../../common/hooks-query/useUrlPresets';
 import { preventEscape } from '../../../../../common/utils/keyEvent';
+import { isUrlSafe } from '../../../../../common/utils/regex';
+import { enDash } from '../../../../../common/utils/styleUtils';
 import { generateUrlPresetOptions } from '../../../../../common/utils/urlPresets';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
@@ -52,6 +54,7 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
     formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm<URLPreset>({
     defaultValues: urlPreset ?? defaultValues,
+    mode: 'onChange',
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -110,7 +113,15 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
       <Panel.InlineElements>
         <div>
           <Panel.Description>Alias</Panel.Description>
-          <Input {...register('alias', { required: 'Alias is required' })} />
+          <Input
+            {...register('alias', {
+              required: 'Alias is required',
+              pattern: {
+                value: isUrlSafe,
+                message: 'Field can only contain URL safe characters (a-z, 0-9, _ and -)',
+              },
+            })}
+          />
         </div>
         <div className={style.expand}>
           <Panel.Description>Generate options (paste URL to generate options)</Panel.Description>
@@ -120,7 +131,10 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
           </Panel.InlineElements>
         </div>
       </Panel.InlineElements>
-      <div> - or -</div>
+      {errors.alias?.message && <Panel.Error>{errors.alias.message}</Panel.Error>}
+      <div>
+        {enDash} or {enDash}
+      </div>
       <div>2. Choose a view and its parameters</div>
       <div>
         <Panel.Description>Target</Panel.Description>
