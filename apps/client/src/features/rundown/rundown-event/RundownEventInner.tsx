@@ -22,6 +22,8 @@ import EventBlockPlayback from './composite/RundownEventPlayback';
 import EventBlockProgressBar from './composite/RundownEventProgressBar';
 
 import style from './RundownEvent.module.scss';
+import { AppMode, sessionKeys } from '../../../ontimeConfig';
+import { useSessionStorage } from '@mantine/hooks';
 
 interface RundownEventInnerProps {
   eventId: string;
@@ -76,6 +78,11 @@ function RundownEventInner({
 }: RundownEventInnerProps) {
   const [renderInner, setRenderInner] = useState(false);
 
+  const [editorMode] = useSessionStorage({
+    key: sessionKeys.editorMode,
+    defaultValue: AppMode.Edit,
+  });
+
   useEffect(() => {
     setRenderInner(true);
   }, []);
@@ -92,7 +99,7 @@ function RundownEventInner({
 
   return !renderInner ? null : (
     <>
-      <div className={style.eventTimers}>
+      <div className={cx([style.eventTimers, editorMode === AppMode.Edit && style.editMode])}>
         <TimeInputFlow
           eventId={eventId}
           timeStart={timeStart}

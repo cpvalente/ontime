@@ -134,7 +134,7 @@ $skip-opacity: 0.2;
   height: 100%;
 }
 
-.eventTimers:hover {
+.eventTimers.editMode:hover {
   [class*="hoverLabel"] {
     opacity: 1;
     transition: opacity 0.15s 0.5s ease;
