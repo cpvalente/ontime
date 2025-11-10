@@ -10,10 +10,12 @@ import {
   IoTime,
 } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
+import { useSessionStorage } from '@mantine/hooks';
 import { EndAction, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { cx } from '../../../common/utils/styleUtils';
+import { AppMode, sessionKeys } from '../../../ontimeConfig';
 import TitleEditor from '../common/TitleEditor';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
@@ -22,8 +24,6 @@ import EventBlockPlayback from './composite/RundownEventPlayback';
 import EventBlockProgressBar from './composite/RundownEventProgressBar';
 
 import style from './RundownEvent.module.scss';
-import { AppMode, sessionKeys } from '../../../ontimeConfig';
-import { useSessionStorage } from '@mantine/hooks';
 
 interface RundownEventInnerProps {
   eventId: string;
