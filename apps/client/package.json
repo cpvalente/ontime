@@ -9,7 +9,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@fontsource/open-sans": "^5.2.6",
-    "@mantine/hooks": "^8.2.8",
+    "@mantine/hooks": "^8.3.7",
     "@sentry/react": "^10.2.0",
     "@table-nav/react": "^0.0.7",
     "@tanstack/react-query": "^5.85.9",
