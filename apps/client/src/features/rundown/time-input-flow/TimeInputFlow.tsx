@@ -67,8 +67,9 @@ function TimeInputFlow({
 
   return (
     <>
-      <div>
+      <div className={style.inputWrapper}>
         {showLabels && <Editor.Label className={style.sectionTitle}>Start time</Editor.Label>}
+        <Editor.Label className={style.hoverLabel}>Start</Editor.Label>
         <TimeInputGroup hasDelay={hasDelay}>
           <TimeInput
             name='timeStart'
@@ -88,8 +89,9 @@ function TimeInputFlow({
         </TimeInputGroup>
       </div>
 
-      <div>
+      <div className={style.inputWrapper}>
         {showLabels && <Editor.Label>End time</Editor.Label>}
+        <Editor.Label className={style.hoverLabel}>End</Editor.Label>
         <TimeInputGroup hasDelay={hasDelay}>
           <TimeInput
             name='timeEnd'
@@ -110,8 +112,9 @@ function TimeInputFlow({
         </TimeInputGroup>
       </div>
 
-      <div>
+      <div className={style.inputWrapper}>
         {showLabels && <Editor.Label>Duration</Editor.Label>}
+        <Editor.Label className={style.hoverLabel}>Duration</Editor.Label>
         <TimeInputGroup hasDelay={hasDelay}>
           <TimeInput
             name='duration'

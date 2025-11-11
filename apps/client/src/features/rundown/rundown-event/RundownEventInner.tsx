@@ -10,10 +10,12 @@ import {
   IoTime,
 } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
+import { useSessionStorage } from '@mantine/hooks';
 import { EndAction, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { cx } from '../../../common/utils/styleUtils';
+import { AppMode, sessionKeys } from '../../../ontimeConfig';
 import TitleEditor from '../common/TitleEditor';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
@@ -76,6 +78,11 @@ function RundownEventInner({
 }: RundownEventInnerProps) {
   const [renderInner, setRenderInner] = useState(false);
 
+  const [editorMode] = useSessionStorage({
+    key: sessionKeys.editorMode,
+    defaultValue: AppMode.Edit,
+  });
+
   useEffect(() => {
     setRenderInner(true);
   }, []);
@@ -92,7 +99,7 @@ function RundownEventInner({
 
   return !renderInner ? null : (
     <>
-      <div className={style.eventTimers}>
+      <div className={cx([style.eventTimers, editorMode === AppMode.Edit && style.editMode])}>
         <TimeInputFlow
           eventId={eventId}
           timeStart={timeStart}
