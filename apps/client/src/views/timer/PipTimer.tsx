@@ -8,13 +8,13 @@ import MultiPartProgressBar from '../../common/components/multi-part-progress-ba
 import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import { useTimerSocket } from '../../common/hooks/useSocket';
+import { usePipStore } from '../../common/stores/pipStore';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, getTimerByType } from '../../features/viewers/common/viewUtils';
 import { getTimerColour } from '../../views/utils/presentation.utils';
 
-import { usePipStore } from './pipTimer.store';
 import { useTimerOptions } from './timer.options';
 import {
   getCardData,

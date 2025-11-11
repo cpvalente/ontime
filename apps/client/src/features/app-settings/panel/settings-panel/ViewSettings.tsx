@@ -17,7 +17,6 @@ import CodeEditorModal from './composite/StyleEditorModal';
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
-
 export default function ViewSettings() {
   const { data, status, mutateAsync } = useViewSettings();
   const [isCodeEditorOpen, codeEditorHandler] = useDisclosure();
