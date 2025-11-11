@@ -23,6 +23,7 @@ export const isDev = import.meta.env.DEV;
 export const currentHostName = window.location.hostname;
 export const isLocalhost = currentHostName === 'localhost' || currentHostName === '127.0.0.1';
 export const isOntimeCloud = document.querySelector('base')?.hasAttribute('data-is-cloud')
+export const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 // resolve entrypoint URLs
 

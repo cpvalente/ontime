@@ -9,6 +9,7 @@ import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
 import { getDefaultFormat } from '../../common/utils/time';
+import { isTouchDevice } from '../../externals';
 import Loader from '../../views/common/loader/Loader';
 
 import EditModal from './edit-modal/EditModal';
@@ -122,7 +123,9 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
       <StatusBar />
 
       {canEdit && (
-        <div className={cx([style.editPrompt, showEditPrompt && style.show])}>Press and hold to edit user field</div>
+        <div className={cx([style.editPrompt, showEditPrompt && style.show])}>
+          {isTouchDevice ? 'Press and hold to edit user field' : 'Right click to edit user field'}
+        </div>
       )}
 
       <div className={style.operatorEvents} onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
