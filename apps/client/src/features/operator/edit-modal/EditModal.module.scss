@@ -30,12 +30,12 @@
   flex-direction: column;
   gap: 0.5rem;
 
-  max-height: min(80vh, 600px);
+  max-height: min(60vh, 600px);
   overflow-y: auto;
 }
 
 .label {
-  background-color: var(--user-bg);
+  background-color: var(--user-bg, $gray-900);
   width: fit-content;
   padding-inline: 1rem;
 }

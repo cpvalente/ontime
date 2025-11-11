@@ -46,7 +46,7 @@ export function makeCustomFieldSelectOptions(customFields: CustomFields, filterI
     options.push({
       value: key,
       label: value.label,
-      colour: value.colour || 'transparent',
+      colour: value.colour,
     });
   }
 
