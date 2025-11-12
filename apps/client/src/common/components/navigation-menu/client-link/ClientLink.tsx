@@ -11,15 +11,22 @@ import style from './ClientLink.module.scss';
 interface ClientLinkProps {
   current: boolean;
   to: string;
+  postAction?: () => void;
 }
 
-export default function ClientLink({ current, to, children }: PropsWithChildren<ClientLinkProps>) {
+export default function ClientLink({ current, to, postAction, children }: PropsWithChildren<ClientLinkProps>) {
   const { isElectron } = useElectronEvent();
   const navigate = useNavigate();
 
   if (isElectron) {
     return (
-      <NavigationMenuItem active={current} onClick={() => handleLinks(to)}>
+      <NavigationMenuItem
+        active={current}
+        onClick={() => {
+          handleLinks(to);
+          postAction?.();
+        }}
+      >
         {children}
         <IoArrowUp className={style.linkIcon} />
       </NavigationMenuItem>
@@ -27,7 +34,13 @@ export default function ClientLink({ current, to, children }: PropsWithChildren<
   }
 
   return (
-    <NavigationMenuItem active={current} onClick={() => navigate(`/${to}`)}>
+    <NavigationMenuItem
+      active={current}
+      onClick={() => {
+        navigate(`/${to}`);
+        postAction?.();
+      }}
+    >
       {children}
     </NavigationMenuItem>
   );
