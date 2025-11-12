@@ -8,6 +8,7 @@ import { useDisclosure, useFullscreen } from '@mantine/hooks';
 import { isLocalhost, supportsFullscreen } from '../../../externals';
 import { useKeepAwakeOptions } from '../../../features/keep-awake/KeepAwake';
 import { navigatorConstants } from '../../../viewerConfig';
+import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
 import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 import IconButton from '../buttons/IconButton';
@@ -29,6 +30,7 @@ export default memo(NavigationMenu);
 function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
   const id = useClientStore((store) => store.id);
   const name = useClientStore((store) => store.name);
+  const isSmallScreen = useIsSmallScreen();
 
   const [isRenameOpen, handlers] = useDisclosure(false);
   const { fullscreen, toggle } = useFullscreen();
@@ -79,11 +81,15 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
             <hr className={style.separator} />
 
             <EditorNavigation />
-            <ClientLink to='cuesheet' current={location.pathname === '/cuesheet'}>
+            <ClientLink
+              to='cuesheet'
+              current={location.pathname === '/cuesheet'}
+              postAction={isSmallScreen ? onClose : undefined}
+            >
               <IoLockClosedOutline />
               Cuesheet
             </ClientLink>
-            <ClientLink to='op' current={location.pathname === '/op'}>
+            <ClientLink to='op' current={location.pathname === '/op'} postAction={isSmallScreen ? onClose : undefined}>
               <IoLockClosedOutline />
               Operator
             </ClientLink>
@@ -91,7 +97,12 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
             <hr className={style.separator} />
 
             {navigatorConstants.map((route) => (
-              <ClientLink key={route.url} to={route.url} current={location.pathname === `/${route.url}`}>
+              <ClientLink
+                key={route.url}
+                to={route.url}
+                current={location.pathname === `/${route.url}`}
+                postAction={isSmallScreen ? onClose : undefined}
+              >
                 {route.label}
               </ClientLink>
             ))}

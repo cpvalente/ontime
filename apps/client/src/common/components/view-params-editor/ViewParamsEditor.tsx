@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { OntimeView } from 'ontime-types';
 
+import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
 import useViewSettings from '../../hooks-query/useViewSettings';
 import Button from '../buttons/Button';
 import IconButton from '../buttons/IconButton';
@@ -27,6 +28,7 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
   const [_, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
   const { isOpen, close } = useViewParamsEditorStore();
+  const isSmallScreen = useIsSmallScreen();
 
   const handleClose = () => {
     close();
@@ -42,6 +44,10 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
     setSearchParams(newSearchParams);
+
+    if (isSmallScreen) {
+      close();
+    }
   };
 
   return (
