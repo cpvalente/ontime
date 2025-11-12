@@ -14,4 +14,11 @@ describe('linkToOTherHost', () => {
     const destination = linkToOtherHost('cloud.getontime.no', 'path', serverUrl, baseUri);
     expect(destination).toBe('https://cloud.getontime.no/user-hash/path');
   });
+
+  it('should handle ontime app links', () => {
+    const serverUrl = 'https://app.getontime.no/user-hash';
+    const baseUri = 'user-hash';
+    const destination = linkToOtherHost('app.getontime.no', 'path', serverUrl, baseUri);
+    expect(destination).toBe('https://app.getontime.no/user-hash/path');
+  });
 });

@@ -14,7 +14,7 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": ["ROUTER_PREFIX"]
+      "env": ["ROUTER_PREFIX", "IS_CLOUD"]
     },
     "dev:electron": {
       "cache": false,

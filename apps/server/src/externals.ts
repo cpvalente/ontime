@@ -5,6 +5,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
 import { srcFiles } from './setup/index.js';
+import { isOntimeCloud } from './setup/environment.js';
 
 // =================================================
 export const password = process.env.SESSION_PASSWORD;
@@ -23,7 +24,7 @@ export function updateRouterPrefix(prefix: string | undefined = routerPrefix): s
   try {
     const data = readFileSync(srcFiles.clientIndexHtml, { encoding: 'utf-8', flag: 'r' }).replace(
       '<base href="/" />',
-      `<base href="/${prefix}/" />`,
+      `<base href="/${prefix}/" ${isOntimeCloud ? 'data-is-cloud' : ''}/>`,
     );
     writeFileSync(srcFiles.clientIndexHtml, data, { encoding: 'utf-8', flag: 'w' });
   } catch (_error) {
