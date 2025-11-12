@@ -22,9 +22,9 @@ export const getTimelineOptions = (timeFormat: string): ViewOption[] => {
           defaultValue: false,
         },
         {
-          id: 'autosize',
-          title: 'Autosize timeline',
-          description: 'Timeline will adjust sizes to help with readability and automatically scroll if necessary',
+          id: 'fixedSize',
+          title: 'Fixed timeline size',
+          description: 'Timeline will have a fixed size to prevent scrolling',
           type: 'boolean',
           defaultValue: false,
         },
@@ -35,7 +35,7 @@ export const getTimelineOptions = (timeFormat: string): ViewOption[] => {
 
 type TimelineOptions = {
   hidePast: boolean;
-  autosize: boolean;
+  fixedSize: boolean;
 };
 
 /**
@@ -48,7 +48,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
 
   return {
     hidePast: isStringBoolean(getValue('hidePast')),
-    autosize: isStringBoolean(getValue('autosize')),
+    fixedSize: isStringBoolean(getValue('fixedSize')),
   };
 }
 
