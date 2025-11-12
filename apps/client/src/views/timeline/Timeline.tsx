@@ -24,7 +24,7 @@ interface TimelineProps {
 export default memo(Timeline);
 function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: TimelineProps) {
   const { width: screenWidth } = useViewportSize();
-  const { hidePast, autosize } = useTimelineOptions();
+  const { hidePast, fixedSize } = useTimelineOptions();
   const selectedRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -38,7 +38,7 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
   useHorizontalFollowComponent({
     followRef: selectedRef,
     scrollRef: scrollContainerRef,
-    doFollow: autosize,
+    doFollow: !fixedSize,
     selectedEventId: selectedEventId,
     // No offset when hiding past events to ensure content starts at 0
     leftOffset: hidePast ? 0 : screenWidth / 6,
@@ -52,8 +52,8 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
         duration: event.duration,
       }));
 
-    return calculateTimelineLayout(playableEvents, scheduleStart, scheduleEnd, screenWidth, autosize);
-  }, [rundown, scheduleStart, scheduleEnd, screenWidth, autosize]);
+    return calculateTimelineLayout(playableEvents, scheduleStart, scheduleEnd, screenWidth, !fixedSize);
+  }, [rundown, scheduleStart, scheduleEnd, screenWidth, fixedSize]);
 
   if (totalDuration === 0) {
     return null;
@@ -75,7 +75,7 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
   });
 
   return (
-    <div ref={scrollContainerRef} className={cx([style.timelineContainer, autosize && style.scroll])}>
+    <div ref={scrollContainerRef} className={cx([style.timelineContainer, !fixedSize && style.scroll])}>
       <div className={style.timeline} style={{ width: totalWidth }}>
         <TimelineMarkers startHour={startHour} endHour={endHour} />
         {rundown.map((event, index) => {
