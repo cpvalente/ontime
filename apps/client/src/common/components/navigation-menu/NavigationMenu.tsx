@@ -5,7 +5,7 @@ import { useLocation } from 'react-router';
 import { Dialog } from '@base-ui-components/react/dialog';
 import { useDisclosure, useFullscreen } from '@mantine/hooks';
 
-import { isLocalhost } from '../../../externals';
+import { isLocalhost, supportsFullscreen } from '../../../externals';
 import { useKeepAwakeOptions } from '../../../features/keep-awake/KeepAwake';
 import { navigatorConstants } from '../../../viewerConfig';
 import { useClientStore } from '../../stores/clientStore';
@@ -56,10 +56,12 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
             </IconButton>
           </div>
           <div className={style.body}>
-            <NavigationMenuItem active={fullscreen} onClick={toggle}>
-              Toggle Fullscreen
-              {fullscreen ? <IoContract /> : <IoExpand />}
-            </NavigationMenuItem>
+            {supportsFullscreen && (
+              <NavigationMenuItem active={fullscreen} onClick={toggle}>
+                Toggle Fullscreen
+                {fullscreen ? <IoContract /> : <IoExpand />}
+              </NavigationMenuItem>
+            )}
             <NavigationMenuItem active={mirror} onClick={() => toggleMirror()}>
               Flip Screen
               <IoSwapVertical />
