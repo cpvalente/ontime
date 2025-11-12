@@ -74,8 +74,8 @@
   }
 
   .section-title {
-    line-height: 1em;
-    font-size: 1.5rem;
+    line-height: 1;
+    font-size: $base-font-size;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -83,8 +83,9 @@
   }
 
   .section-title__label {
-    text-transform: uppercase;
+    font-size: $timer-label-size;
     color: var(--label-color-override, $viewer-label-color);
+    text-transform: uppercase;
   }
 
   .section-title__status {
@@ -94,7 +95,7 @@
   .section-content {
     min-height: 2em;
     line-height: 1em;
-    font-size: 3rem;
+    font-size: $timer-value-size;
     text-transform: uppercase;
     font-weight: 600;
 
@@ -117,5 +118,14 @@
 
   .section-content--subdue {
     opacity: $opacity-disabled;
+  }
+}
+
+@media (max-width: $min-tablet) {
+  .timeline {
+    .title-grid {
+      display: flex;
+      flex-direction: column;
+    }
   }
 }
