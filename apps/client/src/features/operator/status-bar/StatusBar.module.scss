@@ -40,3 +40,10 @@
   height: 1rem;
   --progress-bar-br: 0;
 }
+
+@media (max-width: $min-tablet) {
+  .timers {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 'timers clock';
+  }
+}
