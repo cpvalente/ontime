@@ -10,7 +10,7 @@ export default function AppVersion() {
     return (
       <Panel.Paragraph>
         {`You are currently using Ontime version ${appVersion}`}
-        <Panel.Error>{`Could not fetch version information: ${isError}`}</Panel.Error>
+        <Panel.Error>Could not fetch version information</Panel.Error>
       </Panel.Paragraph>
     );
   }
