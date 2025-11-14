@@ -42,7 +42,7 @@ function PipTimerHost() {
     if (!isPipSupported) return;
 
     if (window.documentPictureInPicture.window) {
-      return
+      return;
     }
 
     const pipWindow = await window.documentPictureInPicture.requestWindow();
@@ -86,7 +86,7 @@ function PipTimerHost() {
         <PipTimer data={data} />
       </BrowserRouter>,
     );
-  }, [isPipSupported, setRoot, data])
+  }, [isPipSupported, setRoot, data]);
 
   // re-render timer when data changes
   useEffect(() => {
@@ -103,9 +103,7 @@ function PipTimerHost() {
     return null;
   }
 
-  return (
-    <CornerPipButton onClick={openPictureInPicture} />
-  );
+  return <CornerPipButton onClick={openPictureInPicture} />;
 }
 
 interface PipTimerProps {

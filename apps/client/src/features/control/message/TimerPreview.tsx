@@ -10,7 +10,7 @@ import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx, timerPlaceholder } from '../../../common/utils/styleUtils';
 
-const PipTimerHost = lazy(() => import('../../../views/timer/PipTimer'))
+const PipTimerHost = lazy(() => import('../../../views/editor/pip-timer/PipTimer'));
 
 import style from './MessageControl.module.scss';
 
