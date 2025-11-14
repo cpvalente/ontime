@@ -1,6 +1,6 @@
 import { memo } from 'react';
 
-import { Corner } from '../../../common/components/editor-utils/EditorUtils';
+import { CornerExtract } from '../../../common/components/editor-utils/EditorUtils';
 import ErrorBoundary from '../../../common/components/error-boundary/ErrorBoundary';
 import ViewNavigationMenu from '../../../common/components/navigation-menu/ViewNavigationMenu';
 import ProtectRoute from '../../../common/components/protect-route/ProtectRoute';
@@ -20,7 +20,7 @@ function MessageControlExport() {
   return (
     <ProtectRoute permission='editor'>
       <div className={style.messages} data-testid='panel-messages-control'>
-        {!isExtracted && <Corner onClick={(event) => handleLinks('messagecontrol', event)} />}
+        {!isExtracted && <CornerExtract onClick={(event) => handleLinks('messagecontrol', event)} />}
         {isExtracted && <ViewNavigationMenu suppressSettings isNavigationLocked={getIsNavigationLocked()} />}
 
         <div className={classes}>

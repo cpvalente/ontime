@@ -1,6 +1,7 @@
-.corner {
+.arrow {
   transform: rotate(45deg);
-
+}
+.corner {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
@@ -19,6 +20,10 @@
     background-color: $gray-1000;
     outline: 2px solid $gray-1000;
   }
+}
+
+.offsetCorner {
+  right: 2rem;
 }
 
 .header {
@@ -51,6 +56,6 @@
 
   &.vertical {
     width: 1px;
-    height: 0.75em;  
+    height: 0.75em;
   }
 }
