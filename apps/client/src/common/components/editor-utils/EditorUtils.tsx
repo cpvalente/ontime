@@ -1,7 +1,7 @@
 import type { HTMLAttributes, JSX, LabelHTMLAttributes, MouseEventHandler } from 'react';
 import { IconBaseProps } from 'react-icons';
 import { IoArrowUp } from 'react-icons/io5';
-import { TbPictureInPictureOff } from "react-icons/tb";
+import { TbPictureInPictureOff } from 'react-icons/tb';
 
 import { cx } from '../../utils/styleUtils';
 
@@ -11,22 +11,24 @@ export function CornerExtract({ className, ...elementProps }: IconBaseProps) {
   return <IoArrowUp className={cx([style.corner, style.arrow, className])} {...elementProps} />;
 }
 
-// this is for use by the pip element 
+// this is for use by the pip element
 export function CornerPipButton({ className, ...elementProps }: IconBaseProps) {
   return <TbPictureInPictureOff className={cx([style.corner, style.offsetCorner, className])} {...elementProps} />;
 }
 
 interface ExtractAndPip extends IconBaseProps {
-  onExtractClick: MouseEventHandler<SVGElement>
-  pipElement: JSX.Element,
+  onExtractClick: MouseEventHandler<SVGElement>;
+  pipElement: JSX.Element;
 }
 
 export function CornerWithPip({ className, pipElement, onExtractClick }: ExtractAndPip) {
-  return (<>
-    <IoArrowUp className={cx([style.corner, style.arrow, className])} onClick={onExtractClick} />
-    {/* the pip element returns the icon button */}
-    {pipElement}
-  </>)
+  return (
+    <>
+      <IoArrowUp className={cx([style.corner, style.arrow, className])} onClick={onExtractClick} />
+      {/* the pip element returns the icon button */}
+      {pipElement}
+    </>
+  );
 }
 
 export function Title({ children, className, ...elementProps }: HTMLAttributes<HTMLHeadingElement>) {
