@@ -37,8 +37,8 @@
 
     .timer {
       opacity: 1;
-      font-family: var(--timer-font, var(--font-family-override, $viewer-font-family));
-      color: var(--timer-colour, var(--timer-color-override, $ui-white));
+      font-family: var(--timer-font, $viewer-font-family);
+      color: var(--timer-colour, $ui-white);
       line-height: 0.9em;
       text-align: center;
       letter-spacing: 0.05em;
@@ -85,7 +85,7 @@
     line-height: 1em;
     transition-property: opacity, height;
     transition-duration: $viewer-transition-time;
-    border-top: 1px solid color-mix(in srgb, var(--external-color-override, $external-color) 10%, transparent);
+    border-top: 1px solid color-mix(in srgb, $external-color 10%, transparent);
 
     &--hidden {
       opacity: 0;
@@ -111,7 +111,7 @@
     position: fixed;
     inset: 0;
     padding: 2vw;
-    background: var(--background-color-override, $viewer-background-color);
+    background:  $viewer-background-color;
     opacity: 0;
     transition: opacity $viewer-transition-time;
 
@@ -127,7 +127,7 @@
     height: 100%;
     width: 100%;
 
-    color: var(--color-override, $viewer-color);
+    color: $viewer-color;
     text-align: center;
     font-weight: 600;
   }

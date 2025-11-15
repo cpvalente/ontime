@@ -1,11 +1,8 @@
-import { memo, useCallback, useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
+import { ViewSettings } from 'ontime-types';
 
-import { CornerPipButton } from '../../../common/components/editor-utils/EditorUtils';
 import { FitText } from '../../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import { useTimerSocket } from '../../../common/hooks/useSocket';
-import { usePipStore } from '../../../common/stores/pipStore';
 import { cx } from '../../../common/utils/styleUtils';
 import { getFormattedTimer, getTimerByType } from '../../../features/viewers/common/viewUtils';
 import {
@@ -19,83 +16,13 @@ import {
 } from '../../timer/timer.utils';
 import { getTimerColour } from '../../utils/presentation.utils';
 
-import { PipTimerData, usePipTimerData } from './usePipTimerData';
-
 import './PipTimer.scss';
 
-export default memo(PipTimerHost);
-function PipTimerHost() {
-  const { data } = usePipTimerData();
-  const { root, setRoot } = usePipStore();
-
-  const isPipSupported = 'documentPictureInPicture' in window;
-
-  const openPictureInPicture = useCallback(async () => {
-    if (!isPipSupported) return;
-
-    if (window.documentPictureInPicture.window) {
-      return;
-    }
-
-    const pipWindow = await window.documentPictureInPicture.requestWindow();
-
-    [...document.styleSheets].forEach((sheet) => {
-      try {
-        if (sheet.href) {
-          const link = pipWindow.document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = sheet.href;
-          pipWindow.document.head.appendChild(link);
-        } else if (sheet.cssRules) {
-          const style = pipWindow.document.createElement('style');
-          style.textContent = [...sheet.cssRules].map((rule) => rule.cssText).join('');
-          pipWindow.document.head.appendChild(style);
-        }
-      } catch (e) {
-        console.warn('Stylesheet copy blocked:', e);
-      }
-    });
-
-    const pipDiv = pipWindow.document.createElement('div');
-    pipDiv.setAttribute('id', 'pip-root');
-    pipWindow.document.body.append(pipDiv);
-
-    const PIP_ROOT = createRoot(pipWindow.document.getElementById('pip-root')!, {
-      onCaughtError: (err, _errInfo) => console.error(err),
-      onUncaughtError: (err, _errInfo) => console.error(err),
-      onRecoverableError: (err, _errInfo) => console.error(err),
-    });
-
-    pipWindow.addEventListener('pagehide', () => {
-      PIP_ROOT.unmount();
-      setRoot(null);
-    });
-
-    setRoot(PIP_ROOT);
-
-    PIP_ROOT.render(<PipTimer data={data} />);
-  }, [isPipSupported, setRoot, data]);
-
-  // re-render timer when data changes
-  useEffect(() => {
-    if (root) {
-      root.render(<PipTimer data={data} />);
-    }
-  }, [data, root]);
-
-  if (!isPipSupported) {
-    return null;
-  }
-
-  return <CornerPipButton onClick={openPictureInPicture} />;
-}
-
 interface PipTimerProps {
-  data: PipTimerData;
+  viewSettings: ViewSettings;
 }
 
-function PipTimer({ data }: PipTimerProps) {
-  const { viewSettings } = data;
+export function PipTimer({ viewSettings }: PipTimerProps) {
   const { eventNow, message, time, clock, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
 
   // gather modifiers
@@ -144,12 +71,12 @@ function PipTimer({ data }: PipTimerProps) {
   return (
     <div className={cx(['pip-timer', showFinished && 'pip-timer--finished'])} style={userStyles}>
       <div className={cx(['message-overlay', showOverlay && 'message-overlay--active'])}>
-        <FitText mode='multi' min={32} max={256} className={cx(['message', message.timer.blink && 'blink'])}>
+        <FitText mode='multi' min={12} max={256} className={cx(['message', message.timer.blink && 'blink'])}>
           {message.timer.text}
         </FitText>
       </div>
 
-      <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
+      <div className='timer-container'>
         <div
           className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished'])}
           style={{ fontSize: `${timerFontSize}vw` }}
