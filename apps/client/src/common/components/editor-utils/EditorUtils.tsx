@@ -11,7 +11,6 @@ export function CornerExtract({ className, ...elementProps }: IconBaseProps) {
   return <IoArrowUp className={cx([style.corner, style.arrow, className])} {...elementProps} />;
 }
 
-// this is for use by the pip element
 export function CornerPipButton({ className, ...elementProps }: IconBaseProps) {
   return <TbPictureInPictureOff className={cx([style.corner, style.offsetCorner, className])} {...elementProps} />;
 }

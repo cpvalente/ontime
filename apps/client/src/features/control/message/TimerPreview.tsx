@@ -10,7 +10,7 @@ import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx, timerPlaceholder } from '../../../common/utils/styleUtils';
 
-const PipTimerHost = lazy(() => import('../../../views/editor/pip-timer/PipTimer'));
+const PipRoot = lazy(() => import('../../../views/editor/pip-timer/PipRoot'));
 
 import style from './MessageControl.module.scss';
 
@@ -55,7 +55,7 @@ export default function TimerPreview() {
 
   return (
     <div className={style.preview}>
-      <CornerWithPip onExtractClick={(event) => handleLinks('timer', event)} pipElement={<PipTimerHost />} />
+      <CornerWithPip onExtractClick={(event) => handleLinks('timer', event)} pipElement={<PipRoot />} />
       <div className={contentClasses}>
         <div
           className={style.mainContent}
