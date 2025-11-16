@@ -150,7 +150,9 @@ function TimelineEntryStatus({
     statusText = getLocalizedString('timeline.due');
   }
 
-  return <div className={style.status}>{statusText}</div>;
+  const isDue = status === 'future' && timeToStart <= 0;
+
+  return <div className={cx([style.status, isDue && style.due])}>{statusText}</div>;
 }
 
 /** Generates a block level progress bar */

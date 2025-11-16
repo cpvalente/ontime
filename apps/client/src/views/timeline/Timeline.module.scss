@@ -93,14 +93,27 @@ $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-over
   &[data-status='live'] {
     box-shadow: 0 0.25rem 0 0 $active-red;
     .status {
-      color: $active-red;
+      padding: 0.125rem 0.25rem;
+      border-radius: $component-border-radius-sm;
+      background: $active-red;
+      text-transform: uppercase;
     }
   }
 
   &[data-status='future'] {
     .status {
-      color: $green-500;
+      padding: 0.125rem 0.25rem;
+      border-radius: $component-border-radius-sm;
+      background: $green-500;
     }
+  }
+
+  .status {
+    width: fit-content;
+  }
+
+  .status.due {
+    background: $orange-600;
   }
 }
 
