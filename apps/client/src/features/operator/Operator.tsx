@@ -171,6 +171,18 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
           }
 
           if (isOntimeGroup(entry)) {
+            const allEventsArePast = entry.entries.every((nestedEntryId) => {
+              const nestedEntry = rundown.entries[nestedEntryId];
+              if (!isOntimeEvent(nestedEntry)) return false;
+
+              const { isPast } = rundownMetadata[nestedEntryId];
+              return isPast;
+            });
+
+            if (hidePast && allEventsArePast) {
+              return null;
+            }
+
             return (
               <Fragment key={entry.id}>
                 <OperatorGroup key={entry.id} title={entry.title} />
