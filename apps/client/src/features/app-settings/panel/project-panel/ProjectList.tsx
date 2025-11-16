@@ -1,18 +1,22 @@
 import { useState } from 'react';
+import { IoArrowDown, IoArrowUp } from 'react-icons/io5';
 
 import Info from '../../../../common/components/info/Info';
-import { useOrderedProjectList } from '../../../../common/hooks-query/useProjectList';
+import { ProjectSortMode, useOrderedProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import ProjectListItem, { EditMode } from './ProjectListItem';
 
 import style from './ProjectPanel.module.scss';
 
-export default function ProjectList() {
-  const { data, refetch, status } = useOrderedProjectList();
+type SortParameter = 'alphabetical' | 'modified';
 
+export default function ProjectList() {
   const [editingMode, setEditingMode] = useState<EditMode | null>(null);
   const [editingFilename, setEditingFilename] = useState<string | null>(null);
+  const [sortMode, setSortMode] = useState<ProjectSortMode>('modified-desc');
+
+  const { data, refetch, status } = useOrderedProjectList(sortMode);
 
   const handleToggleEditMode = (editMode: EditMode, filename: string | null) => {
     setEditingMode((prev) => (prev === editMode && filename === editingFilename ? null : editMode));
@@ -26,6 +30,13 @@ export default function ProjectList() {
 
   const handleRefetch = async () => {
     await refetch();
+  };
+
+  const handleSort = (sortParameter: SortParameter) => {
+    setSortMode((current) => {
+      const isAscending = current === `${sortParameter}-asc`;
+      return `${sortParameter}-${isAscending ? 'desc' : 'asc'}` as ProjectSortMode;
+    });
   };
 
   if (status === 'pending') {
@@ -48,8 +59,18 @@ export default function ProjectList() {
       <Panel.Table>
         <thead>
           <tr>
-            <th className={style.containCell}>File Name</th>
-            <th>Last Used</th>
+            <th className={style.containCell} onClick={() => handleSort('alphabetical')}>
+              <span className={style.sortableHeader}>
+                File Name
+                <SortIcon sortMode={sortMode} type='alphabetical' />
+              </span>
+            </th>
+            <th onClick={() => handleSort('modified')}>
+              <span className={style.sortableHeader}>
+                Last Used
+                <SortIcon sortMode={sortMode} type='modified' />
+              </span>
+            </th>
             <th />
           </tr>
         </thead>
@@ -71,4 +92,11 @@ export default function ProjectList() {
       </Panel.Table>
     </>
   );
+}
+
+function SortIcon({ sortMode, type }: { sortMode: ProjectSortMode; type: SortParameter }) {
+  const prefix = `${type}-`;
+  if (sortMode === `${prefix}asc`) return <IoArrowDown />;
+  if (sortMode === `${prefix}desc`) return <IoArrowUp />;
+  return null;
 }
