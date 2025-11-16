@@ -23,7 +23,13 @@
 }
 
 .containCell {
-  max-width: 400px;
+  max-width: 50%;
+}
+
+.sortableHeader {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
 }
 
 .fullWidth {
