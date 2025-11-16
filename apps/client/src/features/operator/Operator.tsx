@@ -171,15 +171,11 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
           }
 
           if (isOntimeGroup(entry)) {
-            const allEventsArePast = entry.entries.every((nestedEntryId) => {
-              const nestedEntry = rundown.entries[nestedEntryId];
-              if (!isOntimeEvent(nestedEntry)) return false;
+            const { isPast } = rundownMetadata[entry.id];
 
-              const { isPast } = rundownMetadata[nestedEntryId];
-              return isPast;
-            });
+            const isCurrentParent = selectedEventId ? rundownMetadata[selectedEventId].groupId === entry.id : false;
 
-            if (hidePast && allEventsArePast) {
+            if (hidePast && isPast && !isCurrentParent) {
               return null;
             }
 
