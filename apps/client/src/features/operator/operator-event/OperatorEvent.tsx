@@ -1,4 +1,4 @@
-import { memo, RefObject, SyntheticEvent } from 'react';
+import { CSSProperties, memo, RefObject, SyntheticEvent } from 'react';
 import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
@@ -69,6 +69,15 @@ function OperatorEvent({
 
   const operatorClasses = cx([style.event, isSelected && style.running, isPast && style.past]);
 
+  const hasFields = subscribed.some((field) => field.value);
+  const columnCount = subscribed.length ? Math.min(subscribed.length, 4) : 0;
+  const fieldGridStyle =
+    columnCount > 0
+      ? ({
+          gridTemplateColumns: `repeat(${columnCount}, minmax(12rem, 1fr))`,
+        } satisfies CSSProperties)
+      : undefined;
+
   return (
     <div
       className={operatorClasses}
@@ -100,22 +109,25 @@ function OperatorEvent({
         <RunningTime className={cx([isSelected && style.muted])} value={duration} hideLeadingZero />
       </span>
 
-      <div className={style.fields}>
-        {subscribed
-          .filter((field) => field.value)
-          .map((field) => {
-            const fieldClasses = cx([style.field, !field.colour ? style.noColour : null]);
-            return (
-              <div key={field.id}>
-                <span className={fieldClasses} style={{ backgroundColor: field.colour }}>
-                  {field.label}
-                </span>
-                <span className={style.value} style={{ color: field.colour }}>
-                  {field.value}
-                </span>
-              </div>
-            );
-          })}
+      <div className={cx([style.fields, hasFields && style.fieldsWithContent])} style={fieldGridStyle}>
+        {subscribed.map((field) => {
+          if (!field.value) {
+            return <div key={field.id} />;
+          }
+          return (
+            <div key={field.id}>
+              <span
+                className={cx([style.field, !field.colour && style.noColour])}
+                style={{ backgroundColor: field.colour }}
+              >
+                {field.label}
+              </span>
+              <span className={style.value} style={{ color: field.colour }}>
+                {field.value}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -13,7 +13,7 @@
   column-gap: 0.5rem;
   row-gap: 0.5rem;
   grid-template-rows: auto auto auto;
-  grid-template-columns: 1.25rem 1fr auto;
+  grid-template-columns: 1.5rem 1fr auto;
   grid-template-areas:
     'binder main      schedule'
     'binder secondary running'
@@ -42,6 +42,7 @@
   place-content: center;
   position: relative;
   background-color: $gray-1050; // to override inline
+  font-weight: 600;
 
   .cue {
     white-space: nowrap;
@@ -71,48 +72,41 @@
   white-space: pre-line;
 }
 
-.plannedStart, .timeUntil {
-  line-height: 1em;
-  background-color: $gray-1000;
+.plannedStart,
+.timeUntil,
+.runningTime {
+  border-radius: $component-border-radius-md;
   padding: 0.25rem 0.5rem;
-  border-radius: 1px;
+  line-height: 1;
 }
 
 .plannedStart {
   font-size: 1.5rem;
   margin-right: 0.5rem;
   display: inline;
+  background-color: $white-20;
+  letter-spacing: 1px;
 }
 
 .timeUntil {
-  font-size: calc(1rem - 2px);
-  line-height: 1em;
   grid-area: schedule;
+  font-size: calc(1rem - 2px);
   justify-self: end;
+  background-color: $white-20;
+  letter-spacing: 1px;
 }
 
 .runningTime {
-  font-size: 1.25rem;
-  line-height: 1em;
   grid-area: running;
+  font-size: 1.25rem;
   justify-self: end;
-  align-self: flex-start;
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
+  background-color: $white-7;
 }
 
 .fields {
   grid-area: fields;
-  font-size: var(--operator-customfield-font-size-override, 1.25rem);
-  font-weight: 400;
-  color: $ui-black;
-  margin: 0.25rem 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5em;
-  row-gap: 0.25em;
-  line-height: 1.25em;
+  margin-top: 0;
+  border-top: 0;
 
   .field {
     font-weight: 600;
@@ -134,8 +128,18 @@
     // allow multi-line text but trim before
     white-space: pre-line;
   }
-}
 
-.fields::after {
-  content: '\200b';
+  &.fieldsWithContent {
+    margin-top: 0.25rem;
+    padding-block: 0.5rem;
+    border-top: 1px solid $white-13;
+
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 0.25rem 0.75rem;
+    line-height: 1.25em;
+    font-size: var(--operator-customfield-font-size-override, 1.25rem);
+    font-weight: 400;
+    color: $ui-black;
+  }
 }
