@@ -4,7 +4,7 @@ import { generateId, millisToString } from 'ontime-utils';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { consoleSubdued, consoleError } from '../utils/console.js';
 import { isProduction } from '../setup/environment.js';
-import { getInstant, instantToClock } from '../utils/temporal.js';
+import { getEpoch, epochToClock } from '../utils/temporal.js';
 
 class Logger {
   private queue: Log[];
@@ -72,7 +72,7 @@ class Logger {
       level,
       origin,
       text,
-      time: millisToString(instantToClock(getInstant())),
+      time: millisToString(epochToClock(getEpoch())),
     };
     this._push(log);
   }

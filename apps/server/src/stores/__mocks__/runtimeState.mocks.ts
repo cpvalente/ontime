@@ -1,11 +1,11 @@
 import { TimerPhase, Playback, OffsetMode } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 import type { RuntimeState } from '../runtimeState.js';
-import { Instant } from '../../utils/temporal.js';
+import { Epoch } from '../../utils/temporal.js';
 
 const baseState: RuntimeState = {
   clock: 0,
-  instant: 0 as Instant,
+  epoch: 0 as Epoch,
   eventNow: null,
   eventNext: null,
   eventFlag: null,
