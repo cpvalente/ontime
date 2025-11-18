@@ -1,5 +1,5 @@
 import { millisToString } from 'ontime-utils';
-import { getInstant, clockToInstant, instantToClock } from '../temporal.js';
+import { getEpoch, clockToEpoch, epochToClock } from '../temporal.js';
 
 /**
  * The old clock function
@@ -16,7 +16,7 @@ function timeNow() {
   return elapsed;
 }
 
-describe('instant utilities', () => {
+describe('epoch utilities', () => {
   beforeAll(() => {
     vi.useFakeTimers();
   });
@@ -39,64 +39,64 @@ describe('instant utilities', () => {
   describe('epoch to clock', () => {
     test.each([...testTimes])('handles %s', (time) => {
       vi.setSystemTime(time);
-      const instant = getInstant();
+      const instant = getEpoch();
       const clock = timeNow();
       expect(clock).not.toBeNaN();
-      expect(instantToClock(instant)).toEqual(clock);
+      expect(epochToClock(instant)).toEqual(clock);
     });
   });
 
   describe('clock to epoch', () => {
     test.each([...testTimes])('handles %s', (time) => {
       vi.setSystemTime(time);
-      const instant = getInstant();
+      const instant = getEpoch();
       const clock = timeNow();
       expect(clock).not.toBeNaN();
-      expect(clockToInstant(clock)).toEqual(instant);
+      expect(clockToEpoch(clock)).toEqual(instant);
     });
   });
 
   test('before DST', () => {
     vi.setSystemTime('2025-03-30T00:58:18Z'); // right before DST
-    const instant = getInstant();
+    const instant = getEpoch();
     const clock = timeNow();
     expect(millisToString(clock)).toEqual('01:58:18');
-    const convertedInstant = clockToInstant(clock);
+    const convertedInstant = clockToEpoch(clock);
     expect(convertedInstant).toEqual(instant);
-    const backToClock = instantToClock(convertedInstant);
+    const backToClock = epochToClock(convertedInstant);
     expect(backToClock).toEqual(clock);
   });
 
   test('after DST', () => {
     vi.setSystemTime('2025-03-30T01:00:00Z'); // right before DST
-    const instant = getInstant();
+    const instant = getEpoch();
     const clock = timeNow();
     expect(millisToString(clock)).toEqual('03:00:00');
-    const convertedInstant = clockToInstant(clock);
+    const convertedInstant = clockToEpoch(clock);
     expect(convertedInstant).toEqual(instant);
-    const backToClock = instantToClock(convertedInstant);
+    const backToClock = epochToClock(convertedInstant);
     expect(backToClock).toEqual(clock);
   });
 
   test('before winter time', () => {
     vi.setSystemTime('2025-10-26T01:59:59Z'); // right before DST
-    const instant = getInstant();
+    const instant = getEpoch();
     const clock = timeNow();
     expect(millisToString(clock)).toEqual('02:59:59');
-    const convertedInstant = clockToInstant(clock);
+    const convertedInstant = clockToEpoch(clock);
     expect(convertedInstant).toEqual(instant);
-    const backToClock = instantToClock(convertedInstant);
+    const backToClock = epochToClock(convertedInstant);
     expect(backToClock).toEqual(clock);
   });
 
   test('after winter time', () => {
     vi.setSystemTime('2025-10-26T02:00:00Z'); // right before DST
-    const instant = getInstant();
+    const instant = getEpoch();
     const clock = timeNow();
     expect(millisToString(clock)).toEqual('03:00:00');
-    const convertedInstant = clockToInstant(clock);
+    const convertedInstant = clockToEpoch(clock);
     expect(convertedInstant).toEqual(instant);
-    const backToClock = instantToClock(convertedInstant);
+    const backToClock = epochToClock(convertedInstant);
     expect(backToClock).toEqual(clock);
   });
 });
