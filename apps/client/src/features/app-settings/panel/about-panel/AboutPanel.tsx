@@ -5,6 +5,7 @@ import {
   documentationUrl,
   githubSponsorUrl,
   githubUrl,
+  subredditUrl,
   websiteUrl,
 } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -38,6 +39,7 @@ export default function AboutPanel() {
         <ExternalLink href={documentationUrl}>Read the docs</ExternalLink>
         <ExternalLink href={githubUrl}>Follow the project on GitHub</ExternalLink>
         <ExternalLink href={discordUrl}>Discord server</ExternalLink>
+        <ExternalLink href={subredditUrl}>Subreddit</ExternalLink>
       </Panel.Section>
     </>
   );
