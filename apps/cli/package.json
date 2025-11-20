@@ -1,6 +1,6 @@
 {
     "name": "@getontime/cli",
-    "version": "4.1.0",
+    "version": "4.2.0",
     "author": "Carlos Valente",
     "description": "Time keeping for live events",
     "repository": "https://github.com/cpvalente/ontime",
