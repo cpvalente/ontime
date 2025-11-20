@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useSessionStorage } from '@mantine/hooks';
 
-import { Corner } from '../../common/components/editor-utils/EditorUtils';
+import { CornerExtract } from '../../common/components/editor-utils/EditorUtils';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
 import ProtectRoute from '../../common/components/protect-route/ProtectRoute';
@@ -60,7 +60,7 @@ function RundownExport() {
         <div className={style.rundown}>
           <div className={style.list}>
             <ErrorBoundary>
-              {!isExtracted && <Corner onClick={(event) => handleLinks('rundown', event)} />}
+              {!isExtracted && <CornerExtract onClick={(event) => handleLinks('rundown', event)} />}
               <RundownContextMenu>
                 <RundownWrapper />
               </RundownContextMenu>
