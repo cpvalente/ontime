@@ -132,7 +132,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings }
 
   // gather presentation styles
   const resolvedTimerColour = getTimerColour(viewSettings, timerColour, showWarning, showDanger);
-  const { timerFontSize, externalFontSize } = getEstimatedFontSize(display, secondaryContent);
+  const timerFontSize = getEstimatedFontSize(display, secondaryContent);
   const userStyles = {
     ...(keyColour && { '--timer-bg': keyColour }),
     ...(resolvedTimerColour && { '--timer-colour': resolvedTimerColour }),
@@ -185,11 +185,10 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings }
             {display}
           </div>
         )}
-        <div
-          className={cx(['secondary', !secondaryContent && 'secondary--hidden'])}
-          style={{ fontSize: `${externalFontSize}vw` }}
-        >
-          {secondaryContent}
+        <div className={cx(['secondary', !secondaryContent && 'secondary--hidden'])}>
+          <FitText mode='multi' min={64} max={256}>
+            {secondaryContent}
+          </FitText>
         </div>
       </div>
 

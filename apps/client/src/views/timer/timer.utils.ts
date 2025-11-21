@@ -50,7 +50,7 @@ const fontSizeMap: { [key: number]: number } = {
  * Finds a font size that fits the timer in the screen
  * Unfortunately hand tweaked
  */
-export function getEstimatedFontSize(stageTimer: string, secondaryContent?: string) {
+export function getEstimatedFontSize(stageTimer: string, secondaryContent?: string): number {
   const stageTimerCharacters = stageTimer.length;
   let timerFontSize = (100 / (stageTimerCharacters - 1)) * 1.25;
 
@@ -58,20 +58,13 @@ export function getEstimatedFontSize(stageTimer: string, secondaryContent?: stri
     timerFontSize = fontSizeMap[stageTimerCharacters];
   }
 
-  let externalFontSize = timerFontSize * 0.325;
+  // we need to shrink the timer if the external is going to be there
+  // this number has been tweaked to fit in a landscape mobile screen
   if (secondaryContent) {
-    // we need to shrink the timer if the external is going to be there
-    // this number has been tweaked to fit in a landscape mobile screen
     timerFontSize *= 0.6;
-    if (secondaryContent.length > 25) {
-      externalFontSize = (100 / (secondaryContent.length - 1)) * 1.8;
-    }
   }
 
-  return {
-    timerFontSize,
-    externalFontSize,
-  };
+  return timerFontSize;
 }
 
 /**

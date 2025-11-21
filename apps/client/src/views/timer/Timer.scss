@@ -135,8 +135,8 @@
 
   .secondary {
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    max-height: 100%;
+    height: auto;
 
     margin-top: 0.125em;
     padding-block: 0.125em;
@@ -145,7 +145,7 @@
     text-align: center;
     color: var(--external-color-override, $external-color);
     letter-spacing: 0.5px;
-    line-height: 1em;
+    line-height: 1;
     transition-property: opacity, height;
     transition-duration: $viewer-transition-time;
     border-top: 1px solid color-mix(in srgb, var(--external-color-override, $external-color) 10%, transparent);
