@@ -37,7 +37,7 @@
 
     .timer {
       opacity: 1;
-      font-family: var(--timer-font, $viewer-font-family);
+      font-family: $viewer-font-family;
       color: var(--timer-colour, $ui-white);
       line-height: 0.9em;
       text-align: center;
@@ -72,17 +72,17 @@
 
   .secondary {
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    max-height: 100%;
+    height: auto;
 
     margin-top: 0.125em;
     padding-block: 0.125em;
 
     font-weight: 600;
     text-align: center;
-    color: var(--external-color-override, $external-color);
+    color: $external-color;
     letter-spacing: 0.5px;
-    line-height: 1em;
+    line-height: 1;
     transition-property: opacity, height;
     transition-duration: $viewer-transition-time;
     border-top: 1px solid color-mix(in srgb, $external-color 10%, transparent);
