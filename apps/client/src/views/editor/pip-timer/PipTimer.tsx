@@ -59,7 +59,7 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
     return null;
   })();
 
-  const secondaryContent = getSecondaryDisplay(message, currentAux, 'min', false, false, false);
+  const secondaryContent = getSecondaryDisplay(message, currentAux, 'min', false, true, false);
 
   // gather presentation styles
   const resolvedTimerColour = getTimerColour(viewSettings, undefined, showWarning, showDanger);
