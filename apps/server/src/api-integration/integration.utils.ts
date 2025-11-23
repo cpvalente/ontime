@@ -1,4 +1,4 @@
-import { EndAction, TimeStrategy, TimerType, isKeyOfType } from 'ontime-types';
+import { EndAction, OntimeEntry, TimeStrategy, TimerType, isKeyOfType } from 'ontime-types';
 import { maxDuration } from 'ontime-utils';
 
 import { coerceBoolean, coerceColour, coerceEnum, coerceNumber, coerceString } from '../utils/coerceType.js';
@@ -59,4 +59,15 @@ export function parseProperty(property: string, value: unknown) {
   }
   const parserFn = propertyConversion[property];
   return { [property]: parserFn(value) };
+}
+
+export function isValidChangeProperty(target: OntimeEntry, property: string, value: unknown): boolean {
+  if (typeof property !== 'string') return false;
+  if (value === undefined) return false;
+  if (property.startsWith('custom:') && 'custom' in target) {
+    const customProperty = property.slice('custom:'.length);
+    if (!customProperty) return false;
+    return Object.hasOwn(target.custom, customProperty);
+  }
+  return Object.hasOwn(target, property);
 }
