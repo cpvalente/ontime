@@ -1,7 +1,7 @@
 import { EntryCustomFields, OntimeEvent } from 'ontime-types';
 import { isValidChangeProperty } from '../integration.utils.js';
 
-describe('isValidateChangeProperty()', () => {
+describe('isValidChangeProperty()', () => {
   test('correct value and property', () => {
     const testEvent = {
       id: 'test',
@@ -53,7 +53,7 @@ describe('isValidateChangeProperty()', () => {
     expect(isValidChangeProperty(testEvent, 'custom:test', 123)).toBeTruthy();
   });
 
-  test('missing existing custom follower', () => {
+  test('empty custom definition', () => {
     const testEvent = {
       id: 'test',
       duration: 111,
@@ -65,7 +65,7 @@ describe('isValidateChangeProperty()', () => {
     expect(isValidChangeProperty(testEvent, 'custom:', 123)).toBeFalsy();
   });
 
-  test('disallow prototype values', () => {
+  test('build-in in custom', () => {
     const testEvent = {
       id: 'test',
       duration: 111,
@@ -74,6 +74,18 @@ describe('isValidateChangeProperty()', () => {
       } as EntryCustomFields,
     } as OntimeEvent;
 
-    expect(isValidChangeProperty(testEvent, 'custom:hasOwnProperty', 123)).toBeFalsy();
+    expect(isValidChangeProperty(testEvent, 'custom:toString', 123)).toBeFalsy();
+  });
+
+  test('build-in in top object', () => {
+    const testEvent = {
+      id: 'test',
+      duration: 111,
+      custom: {
+        test: 'test',
+      } as EntryCustomFields,
+    } as OntimeEvent;
+
+    expect(isValidChangeProperty(testEvent, 'toString', 123)).toBeFalsy();
   });
 });
