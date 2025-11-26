@@ -316,10 +316,17 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
   // we can pass some stuff straight to the data provider
   await getDataProvider().mergeIntoData(rest);
 
-  // ... but rundown and custom fields need to be checked
-  if (rundowns != null) {
-    const customFields = parseCustomFields(data);
-    const result = parseRundowns(data, customFields);
+  // the rundown depends on custom fields
+  // so custom fields needs to be checked first
+  if (customFields) {
+    const parsedCustomFields = parseCustomFields(data);
+    await getDataProvider().mergeIntoData({ customFields: parsedCustomFields });
+  }
+
+  // then we can checked the rundown
+  if (rundowns) {
+    const parsedCustomFields = await getDataProvider().getCustomFields();
+    const result = parseRundowns(data, parsedCustomFields);
 
     /**
      * The user may have multiple rundowns
@@ -330,7 +337,7 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
     const rundownToLoad =
       last?.rundownId && last.rundownId in result ? result[last.rundownId] : getFirstRundown(result);
 
-    await initRundown(rundownToLoad, customFields, true);
+    await initRundown(rundownToLoad, parsedCustomFields, true); //mergeIntoData is handled by the init function
   }
 
   const updatedData = await getDataProvider().getData();
