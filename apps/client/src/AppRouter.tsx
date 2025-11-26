@@ -5,6 +5,7 @@ import { OntimeView, OntimeViewPresettable, URLPreset } from 'ontime-types';
 import ViewNavigationMenu from './common/components/navigation-menu/ViewNavigationMenu';
 import { PresetContext } from './common/context/PresetContext';
 import { useClientPath } from './common/hooks/useClientPath';
+import { useKeepAwake } from './common/hooks/useKeepAwake';
 import useUrlPresets from './common/hooks-query/useUrlPresets';
 import { getRouteFromPreset } from './common/utils/urlPresets';
 import Log from './features/log/Log';
@@ -36,6 +37,9 @@ const SentryRouter = initializeSentry();
 export default function AppRouter() {
   // handle client path changes
   useClientPath();
+
+  // enable wake lock feature
+  useKeepAwake();
 
   return (
     <Suspense fallback={<Loader />}>

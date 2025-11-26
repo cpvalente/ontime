@@ -3,31 +3,39 @@ import { useSearchParams } from 'react-router';
 
 import { PresetContext } from '../../common/context/PresetContext';
 
+// wakelock is only available in secure contexts
+// however, that is covered by the navigator check
+export const canUseWakeLock = typeof window !== 'undefined' && 'wakeLock' in navigator;
+
 /** @url https://developer.mozilla.org/en-US/docs/Web/API/WakeLock */
-export default function KeepAwake() {
+export function useKeepAwake() {
   const { keepAwake } = useKeepAwakeOptions();
   const [wakeLockSentinel, setWakeLockSentinel] = useState<WakeLockSentinel | null>(null);
 
-  const removeLock = () => {
-    if (wakeLockSentinel) wakeLockSentinel.release().finally(() => setWakeLockSentinel(null));
-  };
-
-  const acquireLock = () => {
-    if (!wakeLockSentinel || wakeLockSentinel.released) {
-      setWakeLockSentinel(null);
-      navigator.wakeLock
-        .request('screen')
-        .then((sentinel) => {
-          setWakeLockSentinel(sentinel);
-        })
-        .catch(console.error);
-    }
-  };
-
+  // listen to changes in the keepAwake state and modify the wake lock accordingly
   useEffect(() => {
+    const removeLock = async () => {
+      if (wakeLockSentinel) wakeLockSentinel.release().finally(() => setWakeLockSentinel(null));
+    };
+
+    const acquireLock = async () => {
+      if (wakeLockSentinel && !wakeLockSentinel.released) return;
+      setWakeLockSentinel(null);
+      try {
+        const sentinel = await navigator.wakeLock.request('screen');
+        setWakeLockSentinel(sentinel);
+      } catch (_error) {
+        /** Nothing to do here */
+      }
+    };
+
     const controller = new AbortController();
+    if (!canUseWakeLock) return;
+
     if (keepAwake) {
       acquireLock();
+
+      // we need to reacquire the lock when the page becomes visible again
       document.addEventListener(
         'visibilitychange',
         () => {
@@ -45,9 +53,7 @@ export default function KeepAwake() {
       controller.abort();
       removeLock();
     };
-  }, [keepAwake]);
-
-  return <></>;
+  }, [keepAwake, wakeLockSentinel]);
 }
 
 const keepAwakeKey = 'keep-awake';
@@ -78,7 +84,7 @@ export function useKeepAwakeOptions() {
       }
       return searchParams;
     });
-  }, [keepAwake]);
+  }, [keepAwake, setSearchParams]);
 
   return { keepAwake, toggleKeepAwake };
 }
