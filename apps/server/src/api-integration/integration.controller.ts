@@ -24,10 +24,12 @@ import { coerceEnum } from '../utils/coerceType.js';
 import { editEntry } from '../api-data/rundown/rundown.service.js';
 import { willCauseRegeneration } from '../api-data/rundown/rundown.utils.js';
 import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
+import { syncService } from '../api-data/sync/sync.service.js';
 
 let lastRequest: Date | null = null;
 
 export function dispatchFromAdapter(tag: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
+  if (syncService.isListening()) return syncService.forwardIntegrationRequests(tag, payload);
   const action = tag.toLowerCase();
   const handler = actionHandlers[action as ApiActionTag];
   lastRequest = new Date();

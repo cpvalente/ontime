@@ -132,3 +132,7 @@ export type { RGBColour } from './definitions/Colour.type.js';
 
 // Translations
 export { langEn, type TranslationObject } from './translations/index.js';
+
+//Sync
+export { SyncRoll } from './api/sync/wsApi.type.js';
+export type { SyncClientList , SyncHostConnectionRequest} from './api/sync/BackendResponse.type.js';

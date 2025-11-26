@@ -10,6 +10,7 @@ import NetworkLogPanel from './panel/network-panel/NetworkLogPanel';
 import ProjectPanel from './panel/project-panel/ProjectPanel';
 import SettingsPanel from './panel/settings-panel/SettingsPanel';
 import ShutdownPanel from './panel/shutdown-panel/ShutdownPanel';
+import Sync from './panel/sync-panel/SyncPanel';
 import PanelContent from './panel-content/PanelContent';
 import PanelList from './panel-list/PanelList';
 import useAppSettingsNavigation from './useAppSettingsNavigation';
@@ -33,6 +34,7 @@ export default function AppSettings() {
           {panel === 'network' && <NetworkLogPanel location={location} />}
           {panel === 'about' && <AboutPanel />}
           {panel === 'shutdown' && <ShutdownPanel />}
+          {panel === 'sync' && <Sync />}
         </PanelContent>
       </ErrorBoundary>
     </div>

@@ -182,7 +182,7 @@ export const connectSocket = () => {
               ontimeQueryClient.invalidateQueries({ queryKey: APP_SETTINGS });
               break;
             default: {
-              target satisfies never;
+              target satisfies never | RefetchKey.RestorePoint;
               break;
             }
           }

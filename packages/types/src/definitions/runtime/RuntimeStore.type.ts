@@ -1,3 +1,4 @@
+import { SyncRoll } from '../../api/sync/wsApi.type.js';
 import type { OntimeEvent, OntimeGroup } from '../core/OntimeEntry.js';
 import type { SimpleTimerState } from './AuxTimer.type.js';
 import type { MessageState } from './MessageControl.type.js';
@@ -32,4 +33,7 @@ export type RuntimeStore = {
 
   // utils
   ping: number;
+  sync: {
+    roll: SyncRoll
+  }
 };
