@@ -13,6 +13,7 @@ import { router as sessionRouter } from './session/session.router.js';
 import { router as viewSettingsRouter } from './view-settings/viewSettings.router.js';
 import { router as reportRouter } from './report/report.router.js';
 import { router as assetsRouter } from './assets/assets.router.js';
+import { router as understudyRouter } from './understudy/understudy.router.js';
 
 export const appRouter = express.Router();
 
@@ -29,6 +30,7 @@ appRouter.use('/session', sessionRouter);
 appRouter.use('/view-settings', viewSettingsRouter);
 appRouter.use('/report', reportRouter);
 appRouter.use('/assets', assetsRouter);
+appRouter.use('/understudy', understudyRouter);
 
 // we don't want to redirect to react index when using api routes
 appRouter.all('/*splat', (_req, res) => {

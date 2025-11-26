@@ -5,6 +5,7 @@ import { publicFiles } from '../../setup/index.js';
 
 import { isRestorePoint } from './restore.parser.js';
 import type { RestorePoint } from './restore.type.js';
+import { updateUnderstudy } from '../../api-data/understudy/understudy.service.js';
 
 let failedCreateAttempts = 0;
 let savedState: RestorePoint | null = null;
@@ -36,6 +37,7 @@ async function save(data: RestorePoint, writeFn = write) {
   }
 
   try {
+    updateUnderstudy(data);
     await writeFn(data);
     savedState = { ...data };
     failedCreateAttempts = 0;

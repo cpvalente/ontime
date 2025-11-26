@@ -74,8 +74,6 @@ export const entrySwapValidator = [
   requestValidationFunction,
 ];
 
-export const paramsMustHaveEntryId = [param('entryId').isString().notEmpty(), requestValidationFunction];
-
 export const rundownArrayOfIds = [
   body('ids').isArray().notEmpty(),
   body('ids.*').isString(),

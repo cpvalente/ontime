@@ -39,7 +39,7 @@ import type { RestorePoint } from './services/restore-service/restore.type.js';
 import * as messageService from './services/message-service/message.service.js';
 import { getState } from './stores/runtimeState.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
-import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
+import { getShowWelcomeDialog, getUnderstudy } from './services/app-state-service/AppStateService.js';
 import { oscServer } from './adapters/OscAdapter.js';
 
 // Utilities
@@ -47,6 +47,7 @@ import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { timerConfig } from './setup/config.js';
 import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
+import { connectToDirector } from './api-data/understudy/understudy.service.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -227,6 +228,10 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
 
   // apply the restore point if it exists
   runtimeService.init(restorePoint);
+
+  //
+  const understudy = await getUnderstudy();
+  if (understudy) await connectToDirector(understudy);
 
   const nif = getNetworkInterfaces();
   consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);

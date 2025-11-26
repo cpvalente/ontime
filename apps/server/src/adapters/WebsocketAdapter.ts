@@ -43,6 +43,7 @@ class SocketServer implements IAdapter {
 
   private wss: WebSocketServer | null;
   private readonly clients: Map<ClientId, Client>;
+  private readonly understudy: Map<ClientId, Client>;
   private lastConnection: Date | null = null;
   private shouldShowWelcome = true;
 
@@ -54,6 +55,7 @@ class SocketServer implements IAdapter {
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
     this.clients = new Map<ClientId, Client>();
+    this.understudy = new Map<ClientId, Client>();
     this.wss = null;
   }
 
@@ -98,6 +100,7 @@ class SocketServer implements IAdapter {
 
       ws.on('close', () => {
         this.clients.delete(clientId);
+        this.understudy.delete(clientId);
         logger.info(LogOrigin.Client, `${this.clients.size} Connections with disconnected: ${clientName}`);
         this.sendClientList();
       });
@@ -115,10 +118,14 @@ class SocketServer implements IAdapter {
             case MessageTag.ClientSet: {
               const previousData = this.getOrCreateClient(clientId);
               const updatedClient = { ...previousData, ...payload };
-              this.clients.set(clientId, updatedClient);
-              if (this.shouldShowWelcome && updatedClient.path?.toLowerCase().includes('editor')) {
-                this.shouldShowWelcome = false;
-                sendPacket(MessageTag.Dialog, { dialog: 'welcome' });
+              if (updatedClient.type === 'understudy') {
+                this.understudy.set(clientId, updatedClient);
+              } else {
+                this.clients.set(clientId, updatedClient);
+                if (this.shouldShowWelcome && updatedClient.path?.toLowerCase().includes('editor')) {
+                  this.shouldShowWelcome = false;
+                  sendPacket(MessageTag.Dialog, { dialog: 'welcome' });
+                }
               }
               this.sendClientList();
               break;

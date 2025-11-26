@@ -1,4 +1,4 @@
-export type ClientType = 'unknown' | 'ontime' | string;
+export type ClientType = 'unknown' | 'ontime' | 'understudy' | string;
 
 export type Client = {
   name: string;
