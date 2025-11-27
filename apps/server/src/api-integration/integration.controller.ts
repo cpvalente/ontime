@@ -18,7 +18,7 @@ import { validateMessage, validateTimerMessage } from '../services/message-servi
 import { runtimeService } from '../services/runtime-service/runtime.service.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
-import { parseProperty } from './integration.utils.js';
+import { parseProperty, isValidChangeProperty } from './integration.utils.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { throttle } from '../utils/throttle.js';
 import { coerceEnum } from '../utils/coerceType.js';
@@ -77,10 +77,9 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
     let shouldThrottle = false;
 
     Object.entries(data).forEach(([property, value]) => {
-      if (typeof property !== 'string' || value === undefined || !(property in targetEntry)) {
+      if (!isValidChangeProperty(targetEntry, property, value)) {
         throw new Error('Invalid property or value');
       }
-      // parseProperty is async because of the data lock
       const newObjectProperty = parseProperty(property, value);
       const key = Object.keys(newObjectProperty)[0];
       shouldThrottle = shouldThrottle || willCauseRegeneration(key);
