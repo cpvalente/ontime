@@ -102,7 +102,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings }
   // gather timer data
   const totalTime = getTotalTime(time.duration, time.addedTime);
   const formattedClock = formatTime(clock);
-  const stageTimer = getTimerByType(freezeOvertime, timerTypeNow, countToEndNow, clock, time, timerType);
+  const stageTimer = getTimerByType(freezeOvertime, timerTypeNow, clock, time, timerType);
   const display = getFormattedTimer(stageTimer, viewTimerType, localisedMinutes, {
     removeSeconds: hideTimerSeconds,
     removeLeadingZero: removeLeadingZeros,

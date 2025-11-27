@@ -11,7 +11,6 @@ import { formatTime } from '../../../common/utils/time';
 export function getTimerByType(
   freezeEnd: boolean,
   timerTypeNow: TimerType,
-  countToEndNow: boolean,
   clock: number,
   timerObject: Pick<TimerState, 'current' | 'elapsed'>,
   timerTypeOverride?: TimerType,
@@ -21,13 +20,6 @@ export function getTimerByType(
   }
 
   const viewTimerType = timerTypeOverride ?? timerTypeNow;
-
-  if (countToEndNow) {
-    if (timerObject.current === null) {
-      return null;
-    }
-    return freezeEnd ? Math.max(timerObject.current, 0) : timerObject.current;
-  }
 
   switch (viewTimerType) {
     case TimerType.CountDown:
