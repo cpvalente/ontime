@@ -132,3 +132,6 @@ export type { RGBColour } from './definitions/Colour.type.js';
 
 // Translations
 export { langEn, type TranslationObject } from './translations/index.js';
+
+// Timer units
+export type { EpochMs, DayMs, DurationMs } from './definitions/core/TimeUnits.type.js';

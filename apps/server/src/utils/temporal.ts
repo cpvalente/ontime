@@ -1,13 +1,11 @@
-import { Maybe } from 'ontime-types';
+import { DayMs, EpochMs, Maybe } from 'ontime-types';
 import { dayInMs, MILLIS_PER_MINUTE } from 'ontime-utils';
-
-export type Epoch = number & { __brand: 'epoch' };
 
 /**
  * get the current instant in time irrespective of timezone
  * @returns {number}
  */
-export const getEpoch = (): Epoch => Date.now() as Epoch;
+export const getEpoch = (): EpochMs => Date.now() as EpochMs;
 
 /**
  * convert a 24 hour clamped value into the corresponding epoch
@@ -15,14 +13,14 @@ export const getEpoch = (): Epoch => Date.now() as Epoch;
  * @returns {(number|null)}
  */
 export function clockToEpoch(clock: null): null;
-export function clockToEpoch(clock: number): Epoch;
-export function clockToEpoch(clock: Maybe<number>): Maybe<Epoch>;
-export function clockToEpoch(clock: Maybe<number>): Maybe<Epoch> {
+export function clockToEpoch(clock: DayMs): EpochMs;
+export function clockToEpoch(clock: Maybe<DayMs>): Maybe<EpochMs>;
+export function clockToEpoch(clock: Maybe<DayMs>): Maybe<EpochMs> {
   if (clock === null) return null;
   const now = getEpoch();
   const timePart = epochToClock(now);
   const dayPart = now - timePart;
-  return (dayPart + clock) as Epoch;
+  return (dayPart + clock) as EpochMs;
 }
 
 /**
@@ -31,10 +29,10 @@ export function clockToEpoch(clock: Maybe<number>): Maybe<Epoch> {
  * @returns {(number|null)}
  */
 export function epochToClock(instant: null): null;
-export function epochToClock(instant: Epoch): number;
-export function epochToClock(instant: Maybe<Epoch>): Maybe<number>;
-export function epochToClock(instant: Maybe<Epoch>): Maybe<number> {
+export function epochToClock(instant: EpochMs): DayMs;
+export function epochToClock(instant: Maybe<EpochMs>): Maybe<DayMs>;
+export function epochToClock(instant: Maybe<EpochMs>): Maybe<DayMs> {
   if (instant === null) return null;
   const tzOffset = new Date().getTimezoneOffset() * MILLIS_PER_MINUTE;
-  return (instant - tzOffset) % dayInMs;
+  return ((instant - tzOffset) % dayInMs) as DayMs;
 }
