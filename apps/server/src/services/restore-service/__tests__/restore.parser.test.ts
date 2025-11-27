@@ -1,4 +1,4 @@
-import { Playback } from 'ontime-types';
+import { EpochMs, Playback } from 'ontime-types';
 
 import { isRestorePoint } from '../restore.parser.js';
 import { RestorePoint } from '../restore.type.js';
@@ -12,7 +12,7 @@ describe('isRestorePoint()', () => {
       addedTime: 2,
       pausedAt: 3,
       firstStart: 1,
-      startEpoch: 1,
+      startEpoch: 1 as EpochMs,
     };
     expect(isRestorePoint(restorePoint)).toBe(true);
 
@@ -23,7 +23,7 @@ describe('isRestorePoint()', () => {
       addedTime: 0,
       pausedAt: null,
       firstStart: 1,
-      startEpoch: 1,
+      startEpoch: 1 as EpochMs,
     };
     expect(isRestorePoint(restorePoint)).toBe(true);
   });

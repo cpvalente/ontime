@@ -1,5 +1,5 @@
 import { dayInMs, MILLIS_PER_HOUR, millisToString } from 'ontime-utils';
-import { EndAction, Playback, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
+import { DayMs, EndAction, Playback, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 
 import {
   findDayOffset,
@@ -554,7 +554,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock += testSkipLimit;
+    state.clock = (state.clock + testSkipLimit) as DayMs;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
 
@@ -574,7 +574,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock += testSkipLimit;
+    state.clock = (state.clock + testSkipLimit) as DayMs;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
 
@@ -593,7 +593,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock = testSkipLimit - 2;
+    state.clock = (testSkipLimit - 2) as DayMs;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
 
@@ -612,7 +612,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock -= testSkipLimit;
+    state.clock = (state.clock - testSkipLimit) as DayMs;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
 
@@ -632,7 +632,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock += testSkipLimit + 1;
+    state.clock = (state.clock + testSkipLimit + 1) as DayMs;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
 
@@ -652,7 +652,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock -= testSkipLimit + 1;
+    state.clock = (state.clock - (testSkipLimit + 1)) as DayMs;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
 
@@ -671,7 +671,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock = testSkipLimit - 2;
+    state.clock = (testSkipLimit - 2) as DayMs;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
 
@@ -690,7 +690,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock -= testSkipLimit + 1;
+    state.clock = (state.clock - (testSkipLimit + 1)) as DayMs;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
 });

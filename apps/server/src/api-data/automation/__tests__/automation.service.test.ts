@@ -1,4 +1,4 @@
-import { PlayableEvent, TimerLifeCycle } from 'ontime-types';
+import { DayMs, PlayableEvent, TimerLifeCycle } from 'ontime-types';
 
 import { makeRuntimeStateData } from '../../../stores/__mocks__/runtimeState.mocks.js';
 import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
@@ -102,7 +102,7 @@ describe('testConditions()', () => {
 
   describe('equals operator', () => {
     it('should compare two equal values', () => {
-      const mockStore = makeRuntimeStateData({ clock: 10 });
+      const mockStore = makeRuntimeStateData({ clock: 10 as DayMs });
       const result = testConditions([{ field: 'clock', operator: 'equals', value: '10' }], 'all', mockStore);
       expect(result).toBe(true);
     });
@@ -146,7 +146,7 @@ describe('testConditions()', () => {
 
   describe('not_equals operator', () => {
     it('should check if two values are different', () => {
-      const mockStore = makeRuntimeStateData({ clock: 10 });
+      const mockStore = makeRuntimeStateData({ clock: 10 as DayMs });
       const result = testConditions([{ field: 'clock', operator: 'not_equals', value: '11' }], 'all', mockStore);
       expect(result).toBe(true);
     });
@@ -154,12 +154,12 @@ describe('testConditions()', () => {
 
   describe('greater_than operator', () => {
     it('should check if the given value is smaller', () => {
-      const mockStore = makeRuntimeStateData({ clock: 10 });
+      const mockStore = makeRuntimeStateData({ clock: 10 as DayMs });
       const result = testConditions([{ field: 'clock', operator: 'greater_than', value: '9' }], 'all', mockStore);
       expect(result).toBe(true);
     });
     it('should handle values which are not numbers', () => {
-      const mockStore = makeRuntimeStateData({ clock: 10 });
+      const mockStore = makeRuntimeStateData({ clock: 10 as DayMs });
       const result = testConditions([{ field: 'clock', operator: 'greater_than', value: 'testing' }], 'all', mockStore);
       expect(result).toBe(false);
     });
@@ -167,12 +167,12 @@ describe('testConditions()', () => {
 
   describe('less_than operator', () => {
     it('should check if the given value is larger', () => {
-      const mockStore = makeRuntimeStateData({ clock: 10 });
+      const mockStore = makeRuntimeStateData({ clock: 10 as DayMs });
       const result = testConditions([{ field: 'clock', operator: 'less_than', value: '11' }], 'all', mockStore);
       expect(result).toBe(true);
     });
     it('should handle values which are not numbers', () => {
-      const mockStore = makeRuntimeStateData({ clock: 10 });
+      const mockStore = makeRuntimeStateData({ clock: 10 as DayMs });
       const result = testConditions([{ field: 'clock', operator: 'less_than', value: 'testing' }], 'all', mockStore);
       expect(result).toBe(false);
     });
@@ -217,7 +217,7 @@ describe('testConditions()', () => {
   describe('for all filter rule', () => {
     it('should return true when all filters are true', () => {
       const mockStore = makeRuntimeStateData({
-        clock: 10,
+        clock: 10 as DayMs,
         eventNow: makeOntimeEvent({
           title: 'test',
           custom: { av: 'av-value' },
@@ -237,7 +237,7 @@ describe('testConditions()', () => {
 
     it('should return false if any filters are false', () => {
       const mockStore = makeRuntimeStateData({
-        clock: 10,
+        clock: 10 as DayMs,
         eventNow: makeOntimeEvent({
           title: 'test',
           custom: { av: 'not-av-value' },
@@ -259,7 +259,7 @@ describe('testConditions()', () => {
   describe('for any filter rule', () => {
     it('should return true when all filters are true', () => {
       const mockStore = makeRuntimeStateData({
-        clock: 10,
+        clock: 10 as DayMs,
         eventNow: makeOntimeEvent({
           title: 'test',
           custom: { av: 'av-value' },
@@ -279,7 +279,7 @@ describe('testConditions()', () => {
 
     it('should return true if any filters are true', () => {
       const mockStore = makeRuntimeStateData({
-        clock: 10,
+        clock: 10 as DayMs,
         eventNow: makeOntimeEvent({
           title: 'not-test',
           custom: { av: 'av-value' },
@@ -299,7 +299,7 @@ describe('testConditions()', () => {
 
     it('should return false if all filters are false', () => {
       const mockStore = makeRuntimeStateData({
-        clock: 10,
+        clock: 10 as DayMs,
         eventNow: makeOntimeEvent({ title: 'test' }) as PlayableEvent,
       });
       const result = testConditions(
