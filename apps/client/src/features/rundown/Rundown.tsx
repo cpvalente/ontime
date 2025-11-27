@@ -70,15 +70,17 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
   });
 
   const { addEntry, deleteEntry, move, reorderEntry } = useEntryActions();
-
-  const { entryCopyId, setEntryCopyId } = useEntryCopy();
+  const setEntryCopyId = useEntryCopy((state) => state.setEntryCopyId);
 
   // cursor
   const [editorMode] = useSessionStorage<AppMode>({
     key: sessionKeys.editorMode,
     defaultValue: AppMode.Edit,
   });
-  const { clearSelectedEvents, setSelectedEvents, cursor } = useEventSelection();
+
+  const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
+  const setSelectedEvents = useEventSelection((state) => state.setSelectedEvents);
+  const cursor = useEventSelection((state) => state.cursor);
 
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -105,13 +107,16 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
   );
 
   const insertCopyAtId = useCallback(
-    (atId: string | null, copyId: string | null, above = false) => {
-      const adjustedCursor = above ? getPreviousNormal(entries, order, atId ?? '').entry?.id ?? null : atId;
-      if (copyId === null) {
+    (atId: string | null, above = false) => {
+      // lazily get the value from the store
+      const { entryCopyId } = useEntryCopy.getState();
+      if (entryCopyId === null) {
         // we cant clone without selection
         return;
       }
-      const cloneEntry = entries[copyId];
+
+      const cloneEntry = entries[entryCopyId];
+      const adjustedCursor = above ? getPreviousNormal(entries, order, atId ?? '').entry?.id ?? null : atId;
       if (cloneEntry?.type === SupportedEntry.Event) {
         //if we don't have a cursor add the new event on top
         const newEvent = cloneEvent(cloneEntry);
@@ -300,12 +305,8 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
     ],
 
     ['mod + C', () => setEntryCopyId(cursor)],
-    ['mod + V', () => insertCopyAtId(cursor, entryCopyId)],
-    [
-      'mod + shift + V',
-      () => insertCopyAtId(cursor, entryCopyId, true),
-      { preventDefault: true, usePhysicalKeys: true },
-    ],
+    ['mod + V', () => insertCopyAtId(cursor)],
+    ['mod + shift + V', () => insertCopyAtId(cursor, true), { preventDefault: true, usePhysicalKeys: true }],
 
     ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true, usePhysicalKeys: true }],
   ]);
