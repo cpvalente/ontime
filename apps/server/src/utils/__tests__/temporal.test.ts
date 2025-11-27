@@ -1,5 +1,6 @@
 import { millisToString } from 'ontime-utils';
 import { getEpoch, clockToEpoch, epochToClock } from '../temporal.js';
+import { DayMs } from 'ontime-types';
 
 /**
  * The old clock function
@@ -13,7 +14,7 @@ function timeNow() {
   elapsed += now.getMinutes() * 60000;
   elapsed += now.getSeconds() * 1000;
   elapsed += now.getMilliseconds();
-  return elapsed;
+  return elapsed as DayMs;
 }
 
 describe('epoch utilities', () => {

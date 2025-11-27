@@ -14,6 +14,8 @@ import {
   TimerState,
   RundownState,
   Maybe,
+  EpochMs,
+  DayMs,
 } from 'ontime-types';
 import {
   calculateDuration,
@@ -36,13 +38,13 @@ import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
-import { getEpoch, Epoch, epochToClock } from '../utils/temporal.js';
+import { getEpoch, epochToClock } from '../utils/temporal.js';
 
 type ExpectedMetadata = { event: OntimeEvent; accumulatedGap: number; isLinkedToLoaded: boolean } | null;
 
 export type RuntimeState = {
-  clock: number; // realtime clock
-  epoch: Epoch;
+  clock: DayMs;
+  epoch: EpochMs;
   groupNow: OntimeGroup | null;
   eventNow: PlayableEvent | null;
   eventNext: PlayableEvent | null;
@@ -63,7 +65,7 @@ export type RuntimeState = {
   _group: ExpectedMetadata;
   _flag: ExpectedMetadata;
   _end: ExpectedMetadata;
-  _startEpoch: Maybe<Epoch>;
+  _startEpoch: Maybe<EpochMs>;
   _startDayOffset: MaybeNumber;
 };
 
@@ -259,7 +261,7 @@ export function load(
       (startEpoch === null || typeof startEpoch === 'number')
     ) {
       runtimeState.rundown.actualStart = firstStart;
-      runtimeState._startEpoch = startEpoch as Epoch;
+      runtimeState._startEpoch = startEpoch as EpochMs;
       const { absolute, relative } = getRuntimeOffset(runtimeState);
       runtimeState.offset.absolute = absolute;
       runtimeState.offset.relative = relative;
