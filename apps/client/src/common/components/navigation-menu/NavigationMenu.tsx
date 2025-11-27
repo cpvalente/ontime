@@ -6,7 +6,7 @@ import { Dialog } from '@base-ui-components/react/dialog';
 import { useDisclosure, useFullscreen } from '@mantine/hooks';
 
 import { isLocalhost, supportsFullscreen } from '../../../externals';
-import { useKeepAwakeOptions } from '../../../features/keep-awake/KeepAwake';
+import { canUseWakeLock, useKeepAwakeOptions } from '../../../features/keep-awake/useWakeLock';
 import { navigatorConstants } from '../../../viewerConfig';
 import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
 import { useClientStore } from '../../stores/clientStore';
@@ -69,7 +69,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
               <IoSwapVertical />
               {mirror && <span className={style.note}>Active</span>}
             </NavigationMenuItem>
-            {window.isSecureContext && (
+            {canUseWakeLock && (
               <NavigationMenuItem active={keepAwake} onClick={toggleKeepAwake}>
                 Keep Awake
                 <LuCoffee />
