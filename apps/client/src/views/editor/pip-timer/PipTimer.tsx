@@ -40,7 +40,7 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
 
   // gather timer data
   const totalTime = getTotalTime(time.duration, time.addedTime);
-  const stageTimer = getTimerByType(false, timerTypeNow, countToEndNow, clock, time, timerTypeNow);
+  const stageTimer = getTimerByType(false, timerTypeNow, clock, time, timerTypeNow);
   const display = getFormattedTimer(stageTimer, timerTypeNow, 'min', {
     removeSeconds: false,
     removeLeadingZero: false,
