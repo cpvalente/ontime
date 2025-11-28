@@ -295,7 +295,7 @@ importers:
         specifier: 'catalog:'
         version: 8.56.0
       ontime-types:
-        specifier: workspace:^4.0.0
+        specifier: workspace:^4.2.1
         version: link:../../packages/types
       rimraf:
         specifier: 'catalog:'
