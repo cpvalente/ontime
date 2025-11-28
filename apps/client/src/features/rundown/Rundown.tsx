@@ -1,4 +1,4 @@
-import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TbFlagFilled } from 'react-icons/tb';
 import {
   closestCenter,
@@ -58,6 +58,8 @@ interface RundownProps {
 }
 
 export default function Rundown({ data, rundownMetadata }: RundownProps) {
+  'use memo';
+
   const { order, entries, id } = data;
   // we create a copy of the rundown with a data structured aligned with what dnd-kit needs
   const featureData = useRundownEditor();
@@ -68,6 +70,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
     key: `rundown.${id}-editor-collapsed-groups`,
     defaultValue: [],
   });
+  const collapsedGroupSet = useMemo(() => new Set(collapsedGroups), [collapsedGroups]);
 
   const { addEntry, deleteEntry, move, reorderEntry } = useEntryActions();
   const setEntryCopyId = useEntryCopy((state) => state.setEntryCopyId);
@@ -205,9 +208,9 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
    */
   const getIsCollapsed = useCallback(
     (groupId: EntryId): boolean => {
-      return Boolean(collapsedGroups.find((id) => id === groupId));
+      return collapsedGroupSet.has(groupId);
     },
-    [collapsedGroups],
+    [collapsedGroupSet],
   );
 
   /**
@@ -396,7 +399,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
     }
 
     // keep copy of the current state in case we need to revert
-    const currentEntries = structuredClone(sortableData);
+    const currentEntries = [...sortableData];
     // we keep a copy of the state as a hack to handle inconsistencies between dnd-kit and async store updates
     setSortableData((currentEntries) => {
       return reorderArray(currentEntries, fromIndex, toIndex);
@@ -439,8 +442,11 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
     return <RundownEmpty handleAddNew={(type: SupportedEntry) => addEntry({ type })} />;
   }
 
-  // 1. gather presentation options
+  // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
+
+  // gather rundown wide data
+  const lastEntryId = order.at(-1);
 
   return (
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
@@ -510,7 +516,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
               const groupColour = entryMetadata.groupColour === '' ? '#9d9d9d' : entryMetadata.groupColour;
 
               const isFirst = index === 0;
-              const isLast = entryId === order.at(-1);
+              const isLast = entryId === lastEntryId;
 
               /**
                * We need to provide the parent ID for the QuickAdd components
