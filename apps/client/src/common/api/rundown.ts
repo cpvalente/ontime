@@ -75,7 +75,10 @@ export async function postAddEntry(
 /**
  * HTTP request to edit an entry
  */
-export async function putEditEntry(rundownId: RundownId, data: Partial<OntimeEntry>): Promise<AxiosResponse<OntimeEntry>> {
+export async function putEditEntry(
+  rundownId: RundownId,
+  data: Partial<OntimeEntry>,
+): Promise<AxiosResponse<OntimeEntry>> {
   return axios.put(`${rundownPath}/${rundownId}/entry`, data);
 }
 
@@ -107,7 +110,11 @@ export async function patchReorderEntry(rundownId: RundownId, data: ReorderEntry
 /**
  * HTTP request to swap two events
  */
-export async function requestEventSwap(rundownId: RundownId, from: EntryId, to: EntryId): Promise<AxiosResponse<Rundown>> {
+export async function requestEventSwap(
+  rundownId: RundownId,
+  from: EntryId,
+  to: EntryId,
+): Promise<AxiosResponse<Rundown>> {
   return axios.patch(`${rundownPath}/${rundownId}/swap`, { from, to });
 }
 
@@ -121,8 +128,12 @@ export async function requestApplyDelay(rundownId: RundownId, delayId: EntryId):
 /**
  * HTTP request for cloning an entry
  */
-export async function postCloneEntry(rundownId: RundownId, entryId: EntryId): Promise<AxiosResponse<Rundown>> {
-  return axios.post(`${rundownPath}/${rundownId}/clone/${entryId}`);
+export async function postCloneEntry(
+  rundownId: RundownId,
+  entryId: EntryId,
+  options?: { before?: EntryId; after?: EntryId },
+): Promise<AxiosResponse<Rundown>> {
+  return axios.post(`${rundownPath}/${rundownId}/clone/${entryId}`, options);
 }
 
 /**

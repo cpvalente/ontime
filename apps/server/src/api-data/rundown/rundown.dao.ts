@@ -24,23 +24,25 @@ import {
   OntimeEvent,
   PatchWithId,
   Rundown,
+  InsertOptions,
 } from 'ontime-types';
 import { customFieldLabelToKey, insertAtIndex } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { consoleError } from '../../utils/console.js';
 
 import type { RundownMetadata } from './rundown.types.js';
 import {
   applyPatchToEntry,
-  cloneGroup,
-  cloneEntry,
+  cloneSimpleRundownEntry,
   createGroup,
   deleteById,
   doesInvalidateMetadata,
+  getInsertAfterId,
   getUniqueId,
+  makeDeepClone,
 } from './rundown.utils.js';
 import { makeRundownMetadata, ProcessedRundownMetadata } from './rundown.parser.js';
-import { consoleError } from '../../utils/console.js';
 
 /**
  * The currently loaded rundown in cache
@@ -171,6 +173,11 @@ export function createTransaction(options: TransactionOptions): Transaction {
 function add(rundown: Rundown, entry: OntimeEntry, afterId: EntryId | null, parent: OntimeGroup | null): OntimeEntry {
   if (parent) {
     // 1. inserting an entry inside a group
+
+    if ('parent' in entry) {
+      entry.parent = parent.id;
+    }
+
     if (afterId) {
       const atEventsIndex = parent.entries.indexOf(afterId) + 1;
       const atFlatIndex = rundown.flatOrder.indexOf(afterId) + 1;
@@ -439,40 +446,74 @@ function swap(rundown: Rundown, eventFrom: OntimeEvent, eventTo: OntimeEvent) {
  * Inserts a clone of the given entry into the rundown
  * Handles cloning children if the entry is a group
  */
-function clone(rundown: Rundown, entry: OntimeEntry): OntimeEntry {
+function clone(rundown: Rundown, entry: OntimeEntry, options?: InsertOptions): OntimeEntry {
   if (isOntimeGroup(entry)) {
-    const newGroup = cloneGroup(entry, getUniqueId(rundown));
-    const nestedIds: EntryId[] = [];
+    const { newGroup, nestedEntries } = makeDeepClone(entry, rundown);
 
-    for (let i = 0; i < entry.entries.length; i++) {
-      const nestedEntryId = entry.entries[i];
-      const nestedEntry = rundown.entries[nestedEntryId];
-      if (!nestedEntry) {
-        continue;
-      }
-
-      // clone the event and assign it to the new group
-      const newNestedEntry = cloneEntry(nestedEntry, getUniqueId(rundown));
-      (newNestedEntry as OntimeEvent | OntimeDelay).parent = newGroup.id;
-
-      nestedIds.push(newNestedEntry.id);
-      // we immediately insert the nested entries into the rundown
-      rundown.entries[newNestedEntry.id] = newNestedEntry;
+    // insert all entries into the rundown
+    rundown.entries[newGroup.id] = newGroup;
+    for (let i = 0; i < nestedEntries.length; i++) {
+      const nestedEntry = nestedEntries[i];
+      rundown.entries[nestedEntry.id] = nestedEntry;
     }
 
-    // indexes + 1 since we are inserting after the cloned group
-    const atIndex = rundown.order.indexOf(entry.id) + 1;
+    // by default we insert after the cloned element
+    let atIndex = rundown.order.indexOf(entry.id) + 1;
 
-    newGroup.entries = nestedIds;
-    newGroup.title = `${entry.title || 'Untitled'} (copy)`;
+    const referenceId = options?.after ?? options?.before;
+    if (referenceId) {
+      // trying to insert relatively to another entry
+      const referenceEntry = rundown.entries[referenceId];
+      if (referenceEntry) {
+        if (options?.after) {
+          atIndex = rundown.order.indexOf(referenceId) + 1;
+        } else if (options?.before) {
+          atIndex = rundown.order.indexOf(referenceId);
+        }
+      }
+    }
 
-    rundown.entries[newGroup.id] = newGroup;
+    // we only need to insert the group, the nested entries will be resolved by the rundown engine
     rundown.order = insertAtIndex(atIndex, newGroup.id, rundown.order);
 
     return newGroup;
   } else {
-    const parent: OntimeGroup | null = entry.parent ? (rundown.entries[entry.parent] as OntimeGroup) : null;
-    return add(rundown, cloneEntry(entry, getUniqueId(rundown)), entry.id, parent);
+    const clonedEntry = cloneSimpleRundownEntry(entry, getUniqueId(rundown));
+
+    let parent: OntimeGroup | null = null;
+
+    // trying to insert relatively to another entry, check that entries parent
+    const referenceId = options?.after ?? options?.before;
+
+    /**
+     * if we have a positioning reference, and that reference has a parent
+     * we need to maintain the same parent for the cloned entry
+     */
+    if (referenceId) {
+      const referenceEntry = rundown.entries[referenceId];
+
+      if (referenceEntry && !isOntimeGroup(referenceEntry)) {
+        if (referenceEntry.parent) {
+          const maybeParent = rundown.entries[referenceEntry.parent];
+          if (maybeParent && isOntimeGroup(maybeParent)) {
+            parent = maybeParent;
+          }
+        }
+      }
+    } else if (entry.parent) {
+      const maybeParent = rundown.entries[entry.parent];
+      if (maybeParent && isOntimeGroup(maybeParent)) {
+        parent = maybeParent;
+      }
+    }
+
+    // if we have resolved a parent, we add it to the cloned entry
+    let after = getInsertAfterId(rundown, parent, options?.after, options?.before);
+    if (!after) {
+      after = entry.id;
+    }
+
+    return add(rundown, clonedEntry, after, parent);
   }
 }
 

@@ -13,6 +13,7 @@ import {
   duplicateRundown,
   getInsertAfterId,
   hasChanges,
+  makeDeepClone,
 } from '../rundown.utils.js';
 import { makeOntimeGroup, makeOntimeEvent, makeRundown } from '../__mocks__/rundown.mocks.js';
 
@@ -265,7 +266,7 @@ describe('getInsertAfterId()', () => {
 });
 
 describe('duplicateRundown', () => {
-  it("duplicates a given rundown", () => {
+  it('duplicates a given rundown', () => {
     const demoRundown = demoDb.rundowns['default'];
     const title = 'Duplicated Rundown';
     const duplicatedRundown = duplicateRundown(demoRundown, title);
@@ -275,10 +276,51 @@ describe('duplicateRundown', () => {
       entries: expect.any(Object),
       order: expect.any(Array),
       flatOrder: expect.any(Array),
-    })
+    });
     expect(demoRundown.id).not.toEqual(duplicatedRundown.id);
     expect(duplicatedRundown.order.length).toEqual(demoRundown.order.length);
     expect(duplicatedRundown.flatOrder.length).toEqual(demoRundown.flatOrder.length);
     expect(Object.keys(duplicatedRundown.entries).length).toEqual(Object.keys(demoRundown.entries).length);
-  })
-})
+  });
+});
+
+describe('makeDeepClone()', () => {
+  it('deep clones a group along with its nested entries', () => {
+    const group1 = makeOntimeGroup({ id: 'group1', title: 'Group 1', entries: ['event1', 'event2'] });
+    const rundown = makeRundown({
+      entries: {
+        group1,
+        event1: makeOntimeEvent({ id: 'event1', title: 'Event 1', parent: 'group1' }),
+        event2: makeOntimeEvent({ id: 'event2', title: 'Event 2', parent: 'group1' }),
+      },
+      order: ['group1'],
+      flatOrder: ['group1', 'event1', 'event2'],
+    });
+
+    const { newGroup, nestedEntries } = makeDeepClone(group1, rundown);
+
+    expect(newGroup).toMatchObject({
+      id: expect.any(String),
+      title: 'Group 1 (copy)',
+      entries: [expect.any(String), expect.any(String)],
+      revision: 0,
+    });
+    expect(newGroup.id).not.toEqual('group1');
+    expect(newGroup.entries.length).toEqual(group1.entries.length);
+
+    expect(nestedEntries).toMatchObject([
+      {
+        id: expect.any(String),
+        title: 'Event 1',
+        parent: newGroup.id,
+        revision: 0,
+      },
+      {
+        id: expect.any(String),
+        title: 'Event 2',
+        parent: newGroup.id,
+        revision: 0,
+      },
+    ]);
+  });
+});

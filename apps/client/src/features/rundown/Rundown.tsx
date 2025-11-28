@@ -1,4 +1,4 @@
-import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
+import { Fragment, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TbFlagFilled } from 'react-icons/tb';
 import {
   closestCenter,
@@ -36,7 +36,6 @@ import { useEntryActions } from '../../common/hooks/useEntryAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
-import { cloneEvent } from '../../common/utils/clone';
 import { lastMetadataKey, RundownMetadataObject } from '../../common/utils/rundownMetadata';
 import { AppMode, sessionKeys } from '../../ontimeConfig';
 
@@ -58,6 +57,8 @@ interface RundownProps {
 }
 
 export default function Rundown({ data, rundownMetadata }: RundownProps) {
+  'use memo';
+
   const { order, entries, id } = data;
   // we create a copy of the rundown with a data structured aligned with what dnd-kit needs
   const featureData = useRundownEditor();
@@ -68,17 +69,20 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
     key: `rundown.${id}-editor-collapsed-groups`,
     defaultValue: [],
   });
+  const collapsedGroupSet = useMemo(() => new Set(collapsedGroups), [collapsedGroups]);
 
-  const { addEntry, deleteEntry, move, reorderEntry } = useEntryActions();
-
-  const { entryCopyId, setEntryCopyId } = useEntryCopy();
+  const { addEntry, clone, deleteEntry, move, reorderEntry } = useEntryActions();
+  const setEntryCopyId = useEntryCopy((state) => state.setEntryCopyId);
 
   // cursor
   const [editorMode] = useSessionStorage<AppMode>({
     key: sessionKeys.editorMode,
     defaultValue: AppMode.Edit,
   });
-  const { clearSelectedEvents, setSelectedEvents, cursor } = useEventSelection();
+
+  const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
+  const setSelectedEvents = useEventSelection((state) => state.setSelectedEvents);
+  const cursor = useEventSelection((state) => state.cursor);
 
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -105,20 +109,30 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
   );
 
   const insertCopyAtId = useCallback(
-    (atId: string | null, copyId: string | null, above = false) => {
-      const adjustedCursor = above ? getPreviousNormal(entries, order, atId ?? '').entry?.id ?? null : atId;
-      if (copyId === null) {
+    (atId: string | null, above = false) => {
+      // lazily get the value from the store
+      const { entryCopyId } = useEntryCopy.getState();
+      if (entryCopyId === null || !entries[entryCopyId]) {
         // we cant clone without selection
         return;
       }
-      const cloneEntry = entries[copyId];
-      if (cloneEntry?.type === SupportedEntry.Event) {
-        //if we don't have a cursor add the new event on top
-        const newEvent = cloneEvent(cloneEntry);
-        addEntry(newEvent, { after: adjustedCursor ?? undefined });
+
+      let normalisedAtId = atId;
+
+      const elementToCopy = entries[entryCopyId];
+      const refElement = atId ? entries[atId] : undefined;
+
+      if (refElement && 'parent' in refElement && refElement.parent && elementToCopy.type === SupportedEntry.Group) {
+        normalisedAtId = refElement.parent;
       }
+
+      clone(entryCopyId, {
+        after: above ? undefined : normalisedAtId ?? undefined,
+        // if we don't have a cursor add the new event on top
+        before: above ? normalisedAtId ?? undefined : undefined,
+      });
     },
-    [addEntry, order, entries],
+    [entries, clone],
   );
 
   /**
@@ -200,9 +214,9 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
    */
   const getIsCollapsed = useCallback(
     (groupId: EntryId): boolean => {
-      return Boolean(collapsedGroups.find((id) => id === groupId));
+      return collapsedGroupSet.has(groupId);
     },
-    [collapsedGroups],
+    [collapsedGroupSet],
   );
 
   /**
@@ -300,12 +314,8 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
     ],
 
     ['mod + C', () => setEntryCopyId(cursor)],
-    ['mod + V', () => insertCopyAtId(cursor, entryCopyId)],
-    [
-      'mod + shift + V',
-      () => insertCopyAtId(cursor, entryCopyId, true),
-      { preventDefault: true, usePhysicalKeys: true },
-    ],
+    ['mod + V', () => insertCopyAtId(cursor)],
+    ['mod + shift + V', () => insertCopyAtId(cursor, true), { preventDefault: true, usePhysicalKeys: true }],
 
     ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true, usePhysicalKeys: true }],
   ]);
@@ -395,7 +405,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
     }
 
     // keep copy of the current state in case we need to revert
-    const currentEntries = structuredClone(sortableData);
+    const currentEntries = [...sortableData];
     // we keep a copy of the state as a hack to handle inconsistencies between dnd-kit and async store updates
     setSortableData((currentEntries) => {
       return reorderArray(currentEntries, fromIndex, toIndex);
@@ -438,8 +448,11 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
     return <RundownEmpty handleAddNew={(type: SupportedEntry) => addEntry({ type })} />;
   }
 
-  // 1. gather presentation options
+  // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
+
+  // gather rundown wide data
+  const lastEntryId = order.at(-1);
 
   return (
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
@@ -509,7 +522,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
               const groupColour = entryMetadata.groupColour === '' ? '#9d9d9d' : entryMetadata.groupColour;
 
               const isFirst = index === 0;
-              const isLast = entryId === order.at(-1);
+              const isLast = entryId === lastEntryId;
 
               /**
                * We need to provide the parent ID for the QuickAdd components

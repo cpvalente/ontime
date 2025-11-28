@@ -3,15 +3,14 @@ import type { MaybeNumber } from '../../utils/utils.type.js';
 
 export type PatchWithId<T extends OntimeEntry = OntimeEntry> = Partial<T> & { id: EntryId };
 
-export type EventPostPayload = Partial<OntimeEntry> & {
+export type InsertOptions = {
   after?: EntryId;
   before?: EntryId;
-};
+}
 
-export type TransientEventPayload = Partial<OntimeEntry> & {
-  after?: EntryId;
-  before?: EntryId;
-};
+export type EventPostPayload = Partial<OntimeEntry> & InsertOptions;
+
+export type TransientEventPayload = Partial<OntimeEntry> & InsertOptions;
 
 export type ProjectRundown = {
   id: string;

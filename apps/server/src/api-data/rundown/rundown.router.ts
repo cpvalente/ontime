@@ -28,6 +28,7 @@ import {
   entryReorderValidator,
   entrySwapValidator,
   validateRundownMutation,
+  clonePostValidator,
 } from './rundown.validation.js';
 import { paramsWithId } from '../validation-utils/validationFunction.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -296,10 +297,14 @@ router.patch(
 router.post(
   '/:rundownId/clone/:id',
   paramsWithId,
+  clonePostValidator,
   validateRundownMutation,
   async (req: Request, res: Response<Rundown | ErrorResponse>) => {
     try {
-      const rundown = await cloneEntry(req.params.id);
+      const rundown = await cloneEntry(req.params.id, {
+        before: req.body?.before,
+        after: req.body?.after,
+      });
       res.status(200).send(rundown);
     } catch (error) {
       const message = getErrorMessage(error);
