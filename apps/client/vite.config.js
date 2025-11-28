@@ -9,6 +9,10 @@ import { ONTIME_VERSION } from './src/ONTIME_VERSION';
 
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 
+const ReactCompilerConfig = {
+  compilationMode: 'annotation',
+};
+
 export default defineConfig({
   base: './', // Ontime cloud: we use relative paths to allow them to reference a dynamic base set at runtime
   define: {
@@ -16,7 +20,11 @@ export default defineConfig({
     'import.meta.env.IS_DOCKER': process.env.NODE_ENV === 'docker',
   },
   plugins: [
-    react(),
+    react({
+      babel: {
+        plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
+      },
+    }),
     svgrPlugin(),
     sentryAuthToken &&
       sentryVitePlugin({
