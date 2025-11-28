@@ -36,7 +36,6 @@ import { useEntryActions } from '../../common/hooks/useEntryAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
-import { cloneEvent } from '../../common/utils/clone';
 import { lastMetadataKey, RundownMetadataObject } from '../../common/utils/rundownMetadata';
 import { AppMode, sessionKeys } from '../../ontimeConfig';
 
@@ -72,7 +71,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
   });
   const collapsedGroupSet = useMemo(() => new Set(collapsedGroups), [collapsedGroups]);
 
-  const { addEntry, deleteEntry, move, reorderEntry } = useEntryActions();
+  const { addEntry, clone, deleteEntry, move, reorderEntry } = useEntryActions();
   const setEntryCopyId = useEntryCopy((state) => state.setEntryCopyId);
 
   // cursor
@@ -113,20 +112,27 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
     (atId: string | null, above = false) => {
       // lazily get the value from the store
       const { entryCopyId } = useEntryCopy.getState();
-      if (entryCopyId === null) {
+      if (entryCopyId === null || !entries[entryCopyId]) {
         // we cant clone without selection
         return;
       }
 
-      const cloneEntry = entries[entryCopyId];
-      const adjustedCursor = above ? getPreviousNormal(entries, order, atId ?? '').entry?.id ?? null : atId;
-      if (cloneEntry?.type === SupportedEntry.Event) {
-        //if we don't have a cursor add the new event on top
-        const newEvent = cloneEvent(cloneEntry);
-        addEntry(newEvent, { after: adjustedCursor ?? undefined });
+      let normalisedAtId = atId;
+
+      const elementToCopy = entries[entryCopyId];
+      const refElement = atId ? entries[atId] : undefined;
+
+      if (refElement && 'parent' in refElement && refElement.parent && elementToCopy.type === SupportedEntry.Group) {
+        normalisedAtId = refElement.parent;
       }
+
+      clone(entryCopyId, {
+        after: above ? undefined : normalisedAtId ?? undefined,
+        // if we don't have a cursor add the new event on top
+        before: above ? normalisedAtId ?? undefined : undefined,
+      });
     },
-    [addEntry, order, entries],
+    [entries, clone],
   );
 
   /**

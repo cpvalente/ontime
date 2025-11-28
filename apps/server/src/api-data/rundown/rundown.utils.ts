@@ -396,20 +396,54 @@ export function cloneGroup(entry: OntimeGroup, newId: EntryId): OntimeGroup {
 
   // in groups, we need to remove the events references
   newEntry.entries = [];
+  newEntry.title = `${entry.title || 'Untitled'} (copy)`;
   newEntry.revision = 0;
   return newEntry;
 }
 
 /**
- * Receives an entry and chooses the correct cloning strategy
+ * Clones a group and all its nested entries
  */
-export function cloneEntry(entry: OntimeEntry, newId: EntryId): OntimeEntry {
+export function makeDeepClone(
+  group: OntimeGroup,
+  rundown: Rundown,
+): { newGroup: OntimeGroup; nestedEntries: OntimeEntry[] } {
+  const newGroupId = getUniqueId(rundown);
+  const newGroup = cloneGroup(group, newGroupId);
+  const nestedEntries: OntimeEntry[] = [];
+  const nestedEntryIds: EntryId[] = [];
+
+  for (let i = 0; i < group.entries.length; i++) {
+    const nestedEntryId = group.entries[i];
+    const nestedEntry = rundown.entries[nestedEntryId];
+    if (!nestedEntry) {
+      continue;
+    }
+
+    // clone the event and assign it to the new group
+    const nestedEntryNewId = getUniqueId(rundown);
+    const newNestedEntry = cloneSimpleRundownEntry(nestedEntry, nestedEntryNewId);
+    (newNestedEntry as OntimeEvent | OntimeDelay | OntimeMilestone).parent = newGroup.id;
+
+    nestedEntryIds.push(nestedEntryNewId);
+    nestedEntries.push(newNestedEntry);
+  }
+
+  // update the new group with the nested entries
+  newGroup.entries = nestedEntryIds;
+
+  return { newGroup, nestedEntries };
+}
+
+/**
+ * Receives an entry and chooses the correct cloning strategy
+ * @throws if the source entry is unknown or a group
+ */
+export function cloneSimpleRundownEntry(entry: OntimeEntry, newId: EntryId): OntimeEntry {
   if (isOntimeEvent(entry)) {
     return cloneEvent(entry, newId);
   } else if (isOntimeDelay(entry)) {
     return cloneDelay(entry, newId);
-  } else if (isOntimeGroup(entry)) {
-    return cloneGroup(entry, newId);
   } else if (isOntimeMilestone(entry)) {
     return cloneMilestone(entry, newId);
   }

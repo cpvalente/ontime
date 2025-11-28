@@ -42,6 +42,13 @@ export const entryPostValidator = [
   requestValidationFunction,
 ];
 
+export const clonePostValidator = [
+  body('after').optional().isString(),
+  body('before').optional().isString(),
+
+  requestValidationFunction,
+];
+
 export const entryPutValidator = [body('id').isString().trim().notEmpty(), requestValidationFunction];
 
 export const entryBatchPutValidator = [

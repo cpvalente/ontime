@@ -79,6 +79,7 @@ export type {
 } from './api/ontime-controller/BackendResponse.type.js';
 export type {
   EventPostPayload,
+  InsertOptions,
   PatchWithId,
   ProjectRundown,
   ProjectRundownsList,

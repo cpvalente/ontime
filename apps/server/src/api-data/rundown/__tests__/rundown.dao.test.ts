@@ -1564,7 +1564,7 @@ describe('rundownMutation.swap()', () => {
 });
 
 describe('rundownMutation.clone()', () => {
-  it('clones an event and adds it to the rundown', () => {
+  it('clones at the top level of the rundown', () => {
     const testRundown = makeRundown({
       order: ['1'],
       entries: {
@@ -1583,7 +1583,7 @@ describe('rundownMutation.clone()', () => {
     });
   });
 
-  it('clones an event inside a group and adds it to the rundown', () => {
+  it('clones an event inside a group', () => {
     const testRundown = makeRundown({
       order: ['1'],
       entries: {
@@ -1620,6 +1620,55 @@ describe('rundownMutation.clone()', () => {
       entries: [expect.any(String)],
     });
     expect((testRundown.entries[newEntry.id] as OntimeGroup).entries[0]).not.toBe('1a');
+  });
+
+  it('clones an entry from a group inside another group', () => {
+    const testRundown = makeRundown({
+      order: ['group1', 'group2'],
+      entries: {
+        group1: makeOntimeGroup({ id: 'group1', entries: ['event1'] }),
+        group2: makeOntimeGroup({ id: 'group2', entries: ['event2'] }),
+        event1: makeOntimeEvent({ id: 'event1', cue: 'nested-event', parent: 'group1' }),
+        event2: makeOntimeEvent({ id: 'event2', cue: 'nested-event', parent: 'group2' }),
+      },
+    });
+
+    const newEntry = rundownMutation.clone(testRundown, testRundown.entries['event2'], {
+      after: 'event1',
+    }) as OntimeEvent;
+
+    // new event is added to group
+    expect(testRundown.entries['group1']).toMatchObject({
+      entries: ['event1', newEntry.id],
+    });
+
+    // new references the parent group
+    expect(newEntry.parent).toBe('group1');
+
+    // the flat rundown remains unchanged
+    expect(testRundown.order).toStrictEqual(['group1', 'group2']);
+  });
+
+  it('clones an event and inserts it before another event', () => {
+    const testRundown = makeRundown({
+      order: ['1', '2'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: 'event1', parent: null }),
+        '2': makeOntimeEvent({ id: '2', cue: 'event2', parent: null }),
+      },
+    });
+
+    const newEntry = rundownMutation.clone(testRundown, testRundown.entries['1'], { before: '2' });
+
+    // Verify the rundown order is updated correctly
+    expect(testRundown.order).toStrictEqual(['1', newEntry.id, '2']);
+
+    // Verify the cloned entry is added to the rundown
+    expect(testRundown.entries[newEntry.id]).toMatchObject({
+      type: SupportedEntry.Event,
+      cue: 'event1',
+      parent: null,
+    });
   });
 });
 

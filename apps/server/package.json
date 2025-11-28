@@ -60,6 +60,7 @@
     "build": "node esbuild.js",
     
     "test": "cross-env IS_TEST=true vitest",
+    "test:inspect": "cross-env IS_TEST=true vitest --inspect --no-file-parallelism",
     "test:pipeline": "cross-env IS_TEST=true vitest run"
   }
 }

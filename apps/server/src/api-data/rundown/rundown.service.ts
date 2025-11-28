@@ -14,11 +14,15 @@ import {
   Rundown,
   LogOrigin,
   ProjectRundowns,
+  InsertOptions,
 } from 'ontime-types';
 import { customFieldLabelToKey } from 'ontime-utils';
 
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { setLastLoadedRundown } from '../../services/app-state-service/AppStateService.js';
+import { logger } from '../../classes/Logger.js';
 
 import {
   createTransaction,
@@ -29,9 +33,6 @@ import {
 } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
 import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
-import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
-import { setLastLoadedRundown } from '../../services/app-state-service/AppStateService.js';
-import { logger } from '../../classes/Logger.js';
 
 /**
  * creates a new entry with given data
@@ -347,17 +348,18 @@ export async function swapEvents(fromId: EntryId, toId: EntryId): Promise<Rundow
 
 /**
  * Clones an entry, ensuring that all dependencies are preserved
+ * Handles cloning children if the entry is a group
  * @throws if the entry to clone does not exist
  */
-export async function cloneEntry(entryId: EntryId): Promise<Rundown> {
+export async function cloneEntry(entryId: EntryId, options: InsertOptions): Promise<Rundown> {
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
   const originalEntry = rundown.entries[entryId];
 
   if (!originalEntry) {
-    throw new Error('Did not find event to clone');
+    throw new Error('Could not find entry to clone');
   }
 
-  const newEntry = rundownMutation.clone(rundown, originalEntry);
+  const newEntry = rundownMutation.clone(rundown, originalEntry, options);
   const { rundown: rundownResult, rundownMetadata, revision } = commit();
 
   // schedule the side effects
@@ -373,7 +375,6 @@ export async function cloneEntry(entryId: EntryId): Promise<Rundown> {
     } else if (isOntimeDelay(newEntry)) {
       notifyChanges(rundownMetadata, revision, { external: true });
     }
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
   });
 
   return rundownResult;

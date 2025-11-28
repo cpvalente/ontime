@@ -1,16 +1,4 @@
-import {
-  isOntimeDelay,
-  isOntimeEvent,
-  isOntimeMilestone,
-  OntimeEntry,
-  OntimeEvent,
-  Playback,
-  SupportedEntry,
-} from 'ontime-types';
-
-import { useEntryActions } from '../../common/hooks/useEntryAction';
-import useMemoisedFn from '../../common/hooks/useMemoisedFn';
-import { cloneEvent } from '../../common/utils/clone';
+import { isOntimeDelay, isOntimeEvent, isOntimeMilestone, OntimeEntry, Playback, SupportedEntry } from 'ontime-types';
 
 import RundownDelay from './rundown-delay/RundownDelay';
 import RundownEvent from './rundown-event/RundownEvent';
@@ -44,13 +32,6 @@ export default function RundownEntry({
   totalGap,
   isLinkedToLoaded,
 }: RundownEntryProps) {
-  const { addEntry } = useEntryActions();
-
-  const createCloneEvent = useMemoisedFn(() => {
-    const newEvent = cloneEvent(data as OntimeEvent);
-    addEntry(newEvent, { after: data.id });
-  });
-
   if (isOntimeEvent(data)) {
     return (
       <RundownEvent
@@ -83,7 +64,6 @@ export default function RundownEntry({
         dayOffset={data.dayOffset}
         totalGap={totalGap}
         isLinkedToLoaded={isLinkedToLoaded}
-        createCloneEvent={createCloneEvent}
         hasTriggers={data.triggers.length > 0}
       />
     );

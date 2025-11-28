@@ -56,7 +56,6 @@ interface RundownEventProps {
   dayOffset: number;
   totalGap: number;
   isLinkedToLoaded: boolean;
-  createCloneEvent: () => void;
   hasTriggers: boolean;
 }
 
@@ -91,10 +90,9 @@ export default function RundownEvent({
   totalGap,
   isLinkedToLoaded,
   hasTriggers,
-  createCloneEvent,
 }: RundownEventProps) {
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
-  const { updateEntry, batchUpdateEvents, deleteEntry, groupEntries, swapEvents } = useEntryActions();
+  const { updateEntry, batchUpdateEvents, clone, deleteEntry, groupEntries, swapEvents } = useEntryActions();
 
   const { selectedEvents, unselect, setSelectedEvents, clearSelectedEvents } = useEventSelection();
   const handleRef = useRef<null | HTMLSpanElement>(null);
@@ -172,7 +170,7 @@ export default function RundownEvent({
             type: 'item',
             label: 'Clone',
             icon: IoDuplicateOutline,
-            onClick: createCloneEvent,
+            onClick: () => clone(eventId, { after: eventId }),
           },
           { type: 'divider' },
           {

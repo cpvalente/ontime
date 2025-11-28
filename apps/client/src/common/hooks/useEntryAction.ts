@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   EntryId,
+  InsertOptions,
   isOntimeEvent,
   isOntimeGroup,
   MaybeString,
@@ -173,7 +174,8 @@ export const useEntryActions = () => {
    * @private
    */
   const { mutateAsync: cloneEntryMutation } = useMutation({
-    mutationFn: ([rundownId, entryId]: Parameters<typeof postCloneEntry>) => postCloneEntry(rundownId, entryId),
+    mutationFn: ([rundownId, entryId, options]: Parameters<typeof postCloneEntry>) =>
+      postCloneEntry(rundownId, entryId, options),
     onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
     onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
   });
@@ -182,14 +184,14 @@ export const useEntryActions = () => {
    * Clone an entry
    */
   const clone = useCallback(
-    async (entryId: EntryId) => {
+    async (entryId: EntryId, options?: InsertOptions) => {
       try {
         const rundownId = getCurrentRundownData()?.id;
         if (!rundownId) {
           throw new Error('Rundown not initialised');
         }
 
-        await cloneEntryMutation([rundownId, entryId]);
+        await cloneEntryMutation([rundownId, entryId, options]);
       } catch (error) {
         logAxiosError('Error cloning entry', error);
       }
