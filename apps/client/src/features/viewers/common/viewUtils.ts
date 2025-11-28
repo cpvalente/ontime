@@ -28,7 +28,7 @@ export function getTimerByType(
       }
       return freezeEnd ? Math.max(timerObject.current, 0) : timerObject.current;
     case TimerType.CountUp:
-      return Math.abs(timerObject.elapsed ?? 0);
+      return timerObject.elapsed;
     case TimerType.Clock:
       return clock;
     case TimerType.None:
