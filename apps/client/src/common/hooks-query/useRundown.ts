@@ -30,7 +30,15 @@ export default function useRundown() {
     placeholderData: (previousData, _previousQuery) => previousData,
     refetchInterval: queryRefetchIntervalSlow,
   });
-  return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
+
+  const returnData = useMemo(() => {
+    if (data && Array.isArray(data.flatOrder)) {
+      return data;
+    }
+    return cachedRundownPlaceholder;
+  }, [data]);
+
+  return { data: returnData, status, isError, refetch, isFetching };
 }
 
 export function useRundownWithMetadata() {
@@ -54,8 +62,10 @@ export function useFlatRundown() {
 
   // update data whenever the revision changes
   useEffect(() => {
-    if (data.revision !== -1 || data.revision !== prevRevision) {
-      const flatRundown = data.flatOrder.map((id) => data.entries[id]);
+    if (data.revision !== -1 && data.revision !== prevRevision) {
+      const flatRundown = data.flatOrder
+        .map((id) => data.entries[id])
+        .filter((entry): entry is OntimeEntry => entry !== undefined);
       setFlatRundown(flatRundown);
       setPrevRevision(data.revision);
     }
@@ -103,7 +113,7 @@ export function useEntry(entryId: EntryId | null): OntimeEntry | null {
   // track the specific entry we care about
   const entry = useMemo(() => {
     if (entryId === null) return null;
-    return rundown.entries[entryId];
+    return rundown.entries[entryId] ?? null;
   }, [entryId, rundown.entries]);
 
   return entry;
