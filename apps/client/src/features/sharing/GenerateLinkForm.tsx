@@ -13,7 +13,7 @@ import Input from '../../common/components/input/input/Input';
 import Select from '../../common/components/select/Select';
 import Switch from '../../common/components/switch/Switch';
 import { useUpdateUrlPreset } from '../../common/hooks-query/useUrlPresets';
-import copyToClipboard from '../../common/utils/copyToClipboard';
+import { safeCopyToClipboard } from '../../common/utils/copyToClipboard';
 import { preventEscape } from '../../common/utils/keyEvent';
 import { isUrlSafe } from '../../common/utils/regex';
 import { isOntimeCloud, serverURL } from '../../externals';
@@ -125,7 +125,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
           lockNav: options.lockNav,
           preset: urlPreset.alias,
         });
-        await copyToClipboard(url);
+        await safeCopyToClipboard(url);
         setUrl(url);
       } else {
         const presetPath = options.path.startsWith('preset-') ? options.path.replace('preset-', '') : undefined;
@@ -143,7 +143,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
           preset: presetPath,
         });
 
-        await copyToClipboard(url);
+        await safeCopyToClipboard(url);
         setUrl(url);
       }
       reset(options, {
