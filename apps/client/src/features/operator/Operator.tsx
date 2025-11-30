@@ -173,7 +173,7 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
           if (isOntimeGroup(entry)) {
             const { isPast } = rundownMetadata[entry.id];
 
-            const isCurrentParent = selectedEventId ? rundownMetadata[selectedEventId].groupId === entry.id : false;
+            const isCurrentParent = selectedEventId ? rundownMetadata[selectedEventId]?.groupId === entry.id : false;
 
             if (hidePast && isPast && !isCurrentParent) {
               return null;
