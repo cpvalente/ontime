@@ -55,7 +55,7 @@ export function useFlatRundown() {
   // update data whenever the revision changes
   useEffect(() => {
     if (data.revision !== -1 || data.revision !== prevRevision) {
-      const flatRundown = data.flatOrder.map((id) => data.entries[id]);
+      const flatRundown = (data.flatOrder ?? []).map((id) => data.entries[id]);
       setFlatRundown(flatRundown);
       setPrevRevision(data.revision);
     }
