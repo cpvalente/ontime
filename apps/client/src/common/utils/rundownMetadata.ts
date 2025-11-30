@@ -47,7 +47,7 @@ export function getRundownMetadata(
   let lastSnapshot = metadata;
   const rundownMetadata: RundownMetadataObject = {};
 
-  for (const id of data.flatOrder) {
+  for (const id of data.flatOrder ?? []) {
     const entry = data.entries[id];
     lastSnapshot = process(entry);
     rundownMetadata[id] = lastSnapshot;
@@ -66,7 +66,7 @@ export function getFlatRundownMetadata(
   const { process } = initRundownMetadata(selectedEventId);
   const flatRundown: ExtendedEntry[] = [];
 
-  for (const id of data.flatOrder) {
+  for (const id of data.flatOrder ?? []) {
     const entry = data.entries[id];
     const extendedEntry = { ...entry, ...process(entry) };
     flatRundown.push(extendedEntry);
