@@ -68,8 +68,15 @@
       "uninstallerSidebar": "ontime-install.bmp"
     },
     "linux": {
-      "target": "AppImage",
-      "artifactName": "ontime-linux.AppImage"
+      "target": {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64",
+            "armv7l"
+          ]
+      },
+      "artifactName": "ontime-linux-${arch}.AppImage"
     },
     "files": [
       "**/*",
