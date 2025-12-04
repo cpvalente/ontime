@@ -94,7 +94,6 @@ function DurationInput({
     <SingleLineCell
       ref={inputRef}
       initialValue={timeString}
-      allowSubmitSameValue={!lockedValue} // if the value is not locked, submitting will lock the value
       handleUpdate={handleUpdate}
       handleCancelUpdate={handleFakeBlur}
     />
