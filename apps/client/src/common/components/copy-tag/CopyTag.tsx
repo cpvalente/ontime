@@ -1,7 +1,7 @@
 import { PropsWithChildren, useRef, useState } from 'react';
 import { IoCheckmark, IoCopy } from 'react-icons/io5';
 
-import copyToClipboard from '../../utils/copyToClipboard';
+import { copyToClipboard } from '../../utils/copyToClipboard';
 import { cx } from '../../utils/styleUtils';
 import Button from '../buttons/Button';
 import IconButton from '../buttons/IconButton';
@@ -25,15 +25,19 @@ export default function CopyTag({
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleClick = () => {
-    copyToClipboard(copyValue);
-    setCopied(true);
+  const handleClick = async () => {
+    try {
+      await copyToClipboard(copyValue);
+      setCopied(true);
 
-    // reset copied state
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+      // reset copied state
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignore errors
     }
-    timeoutRef.current = setTimeout(() => setCopied(false), 2000);
   };
 
   return (
