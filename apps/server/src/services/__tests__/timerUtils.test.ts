@@ -813,7 +813,7 @@ describe('getRuntimeOffset()', () => {
         timeEnd: 150,
         dayOffset: 0,
       },
-      clock: 150,
+      epoch: 150,
       timer: {
         startedAt: 100, // started on time
         current: 25, // are 25ms into it

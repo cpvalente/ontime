@@ -55,7 +55,7 @@ export type RuntimeState = {
   // private properties of the timer calculations
   _timer: {
     forceFinish: MaybeNumber; // whether we should declare an event as finished, will contain the finish time
-    pausedAt: MaybeNumber;
+    pausedAt: Maybe<EpochMs>;
     secondaryTarget: MaybeNumber;
     hasFinished: boolean;
   };
@@ -455,7 +455,7 @@ export function pause(state: RuntimeState = runtimeState): boolean {
   state.timer.playback = Playback.Pause;
   runtimeState.epoch = getEpoch();
   runtimeState.clock = epochToClock(runtimeState.epoch);
-  state._timer.pausedAt = state.clock;
+  state._timer.pausedAt = state.epoch;
   return true;
 }
 

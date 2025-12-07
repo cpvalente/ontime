@@ -5,7 +5,7 @@ export type RestorePoint = {
   selectedEventId: MaybeString;
   startedAt: MaybeNumber;
   addedTime: number;
-  pausedAt: MaybeNumber;
+  pausedAt: Maybe<EpochMs>;
   firstStart: MaybeNumber;
   startEpoch: Maybe<EpochMs>;
 };
