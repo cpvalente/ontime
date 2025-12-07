@@ -7,9 +7,12 @@ import cors from 'cors';
 import serverTiming from 'server-timing';
 import cookieParser from 'cookie-parser';
 
+import * as OpenApiValidator from 'express-openapi-validator';
+
 // import utils
 import { publicDir, srcDir } from './setup/index.js';
 import { environment, isProduction } from './setup/environment.js';
+import { setupSwagger, swaggerSpec } from './setup/swagger.js';
 import { updateRouterPrefix } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
@@ -73,12 +76,21 @@ if (!isProduction) {
   // log server timings to requests
   app.use(serverTiming());
 }
+setupSwagger(app);
 app.disable('x-powered-by');
 app.enable('etag');
 
 // Implement middleware
 app.use(cors()); // setup cors for all routes
 app.options('*splat', cors()); // enable pre-flight cors
+
+app.use(
+  OpenApiValidator.middleware({
+    apiSpec: swaggerSpec,
+    validateRequests: true,
+    validateResponses: true,
+  }),
+);
 
 app.use(bodyParser);
 app.use(cookieParser());
