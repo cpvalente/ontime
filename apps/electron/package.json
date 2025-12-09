@@ -25,7 +25,7 @@
     "lint": "eslint . --quiet",
     "dist-win": "electron-builder --publish=never --x64 --win",
     "dist-mac": "electron-builder --publish=never --mac",
-    "dist-linux": "electron-builder --publish=never --x64 --linux"
+    "dist-linux": "electron-builder --publish=never --linux"
   },
   "build": {
     "productName": "ontime",
