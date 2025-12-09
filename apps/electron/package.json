@@ -25,7 +25,7 @@
     "lint": "eslint . --quiet",
     "dist-win": "electron-builder --publish=never --x64 --win",
     "dist-mac": "electron-builder --publish=never --mac",
-    "dist-linux": "electron-builder --publish=never --x64 --linux"
+    "dist-linux": "electron-builder --publish=never --linux"
   },
   "build": {
     "productName": "ontime",
@@ -68,8 +68,15 @@
       "uninstallerSidebar": "ontime-install.bmp"
     },
     "linux": {
-      "target": "AppImage",
-      "artifactName": "ontime-linux.AppImage"
+      "target": {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64",
+            "armv7l"
+          ]
+      },
+      "artifactName": "ontime-linux-${arch}.AppImage"
     },
     "files": [
       "**/*",
