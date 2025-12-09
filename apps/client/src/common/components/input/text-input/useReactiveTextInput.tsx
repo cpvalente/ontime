@@ -95,7 +95,7 @@ export default function useReactiveTextInput(
         'Escape',
         (event) => {
           event.preventDefault();
-          if (options?.allowSubmitOnEnterOnly && text === initialText) {
+          if (options?.allowSubmitOnEnterOnly) {
             isKeyboardSubmitting.current = true;
             options?.onCancelUpdate?.();
             setTimeout(() => {
