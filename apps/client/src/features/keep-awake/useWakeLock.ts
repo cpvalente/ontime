@@ -25,6 +25,11 @@ export function useWakelock() {
       const sentinel = wakeLockSentinelRef.current;
       if (!sentinel || sentinel.released) {
         wakeLockSentinelRef.current = null;
+
+        if (!canUseWakeLock) {
+          return;
+        }
+
         navigator.wakeLock
           .request('screen')
           .then((sentinel) => {
