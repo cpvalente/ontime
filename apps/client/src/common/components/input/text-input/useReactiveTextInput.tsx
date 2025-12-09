@@ -152,7 +152,7 @@ export default function useReactiveTextInput(
 
       hotKeyHandler(event);
     };
-  }, [handleEscape, handleSubmit, options?.submitOnCtrlEnter, options?.submitOnEnter, text]);
+  }, [handleEscape, handleSubmit, options?.submitOnCtrlEnter, options?.submitOnEnter, options?.allowSubmitOnEnterOnly, text]);
 
   return {
     value: text,
