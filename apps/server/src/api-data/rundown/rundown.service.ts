@@ -605,6 +605,7 @@ export async function initRundown(
   customFields: Readonly<CustomFields>,
   reload: boolean = false,
 ) {
+  runtimeService.stop();
   const { rundownMetadata, revision } = rundownCache.init(rundown, customFields);
   logger.info(LogOrigin.Server, `Switch to rundown: ${rundown.id}`);
   // notify runtime that rundown has changed
