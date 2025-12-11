@@ -9,18 +9,25 @@ import { dockerSafeRename, getFilesFromFolder, removeFileExtension } from '../..
 
 /**
  * Handles the upload of a new project file
+ * @throws if the file already exits
  * @param filePath
  * @param name
  */
-export async function handleUploaded(filePath: string, name: string) {
+export async function handleProjectUploaded(filePath: string, name: string) {
   const newFilePath = join(publicDir.projectsDir, name);
   await dockerSafeRename(filePath, newFilePath);
 }
 
+/**
+ * Handles the upload of a logo image
+ * @throws if the file already exits
+ * @param filePath
+ * @param name
+ * @returns
+ */
 export async function handleImageUpload(filePath: string, name: string): Promise<string> {
   const newFilePath = join(publicDir.logoDir, name);
   await dockerSafeRename(filePath, newFilePath);
-
   return name;
 }
 
