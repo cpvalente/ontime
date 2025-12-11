@@ -1,6 +1,8 @@
-import { existsSync, mkdirSync, PathLike } from 'fs';
+import { existsSync, mkdirSync, PathLike, constants } from 'fs';
 import { readdir, copyFile, unlink } from 'fs/promises';
 import { basename, join, parse } from 'path';
+import { consoleError } from './console.js';
+import { is } from './is.js';
 
 /**
  * @description Creates a directory if it doesn't exist
@@ -102,12 +104,23 @@ export async function copyDirectory(src: string, dest: string) {
 }
 
 /**
+ * @throws if the file already exits
  * workaround avoids origin errors in docker deployments
  * EXDEV cross-device link not permitted
  */
 export async function dockerSafeRename(oldPath: PathLike, newPath: PathLike) {
-  await copyFile(oldPath, newPath);
-  await unlink(oldPath);
+  try {
+    await copyFile(oldPath, newPath, constants.COPYFILE_EXCL);
+    await unlink(oldPath);
+  } catch (error) {
+    // for securely reasons we should not let the error or fs leak server file path up the error chain
+    if (is.object(error) && 'code' in error && error.code === 'EEXIST') {
+      consoleError(`rename error: File already exists ${newPath}`);
+      throw new Error(`File already exists`);
+    }
+    consoleError(`rename error ${error}`);
+    throw new Error('Unknown file rename error');
+  }
 }
 
 /**
