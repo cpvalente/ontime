@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.common.json",
+  "extends": "../../tsconfig.tests.json",
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
@@ -8,19 +8,12 @@
     "removeComments": true,
     "preserveConstEnums": true,
     "allowJs": true,
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "types": ["vitest/globals"],
+    "composite": true
   },
   "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.tests.json"
-    }
   ]
 }
