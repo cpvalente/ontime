@@ -8,7 +8,7 @@ import {
   OntimeMilestone,
 } from 'ontime-types';
 
-import { defaultRundown } from '../../../models/dataModel.js';
+import { makeNewRundown } from '../../../models/dataModel.js';
 
 const baseEvent = {
   type: SupportedEntry.Event,
@@ -63,7 +63,7 @@ export function makeOntimeMilestone(patch: Partial<OntimeMilestone>): OntimeMile
  */
 export function makeRundown(patch: Partial<Rundown>): Rundown {
   return {
-    ...defaultRundown,
+    ...makeNewRundown(),
     ...patch,
   };
 }

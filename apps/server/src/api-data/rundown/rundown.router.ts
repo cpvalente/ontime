@@ -1,8 +1,13 @@
 import { ErrorResponse, OntimeEntry, ProjectRundownsList, Rundown } from 'ontime-types';
-import { generateId, getErrorMessage } from 'ontime-utils';
+import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
 import express from 'express';
+
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { makeNewRundown } from '../../models/dataModel.js';
+
+import { paramsWithId } from '../validation-utils/validationFunction.js';
 
 import { getCurrentRundown } from './rundown.dao.js';
 import {
@@ -30,9 +35,6 @@ import {
   validateRundownMutation,
   clonePostValidator,
 } from './rundown.validation.js';
-import { paramsWithId } from '../validation-utils/validationFunction.js';
-import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { defaultRundown } from '../../models/dataModel.js';
 import { duplicateRundown, normalisedToRundownArray } from './rundown.utils.js';
 
 export const router = express.Router();
@@ -85,8 +87,9 @@ router.post('/:id/load', paramsWithId, async (req: Request, res: Response<Projec
  */
 router.post('/', rundownPostValidator, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
   try {
-    const id = generateId();
-    await getDataProvider().setRundown(id, { ...defaultRundown, id, title: req.body.title });
+    const emptyRundown = makeNewRundown();
+    emptyRundown.title = req.body.title;
+    await getDataProvider().setRundown(emptyRundown.id, emptyRundown);
 
     const projectRundowns = getDataProvider().getProjectRundowns();
     res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });

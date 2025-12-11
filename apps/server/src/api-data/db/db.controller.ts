@@ -49,15 +49,9 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
  */
 export async function createProjectFile(req: Request, res: Response<{ filename: string } | ErrorResponse>) {
   try {
-    const newFileName = await projectService.createProject(req.body.filename || 'untitled', {
-      project: {
-        title: req.body?.title ?? '',
-        description: req.body?.description ?? '',
-        url: req.body?.url ?? '',
-        info: req.body?.info ?? '',
-        logo: req.body?.logo ?? null,
-        custom: req.body?.custom ?? [],
-      },
+    const { filename, ...project } = req.body;
+    const newFileName = await projectService.createProjectWithPatch(filename, {
+      project,
     });
 
     res.status(200).send({

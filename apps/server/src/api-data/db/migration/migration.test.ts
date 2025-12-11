@@ -14,7 +14,7 @@ import {
   ViewSettings,
 } from 'ontime-types';
 import * as v3 from './db.migration.v3.js';
-import { dbModel } from '../../../models/dataModel.js';
+
 import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
 
 describe('v3 to v4', () => {
@@ -469,7 +469,7 @@ describe('v3 to v4', () => {
       const expectedAutomation: AutomationSettings = {
         enabledAutomations: true,
         enabledOscIn: true,
-        oscPortIn: dbModel.automation.oscPortIn,
+        oscPortIn: 8888,
         triggers: [
           {
             id: '1ge4r8-T',

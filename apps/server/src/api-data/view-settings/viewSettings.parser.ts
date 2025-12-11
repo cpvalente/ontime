@@ -1,23 +1,25 @@
 import { DatabaseModel, ViewSettings } from 'ontime-types';
 
-import { dbModel } from '../../models/dataModel.js';
+import { getPartialProject } from '../../models/dataModel.js';
 import { ErrorEmitter } from '../../utils/parserUtils.js';
 
 /**
  * Parse viewSettings portion of a project file
  */
 export function parseViewSettings(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): ViewSettings {
+  const defaultViewSettings: ViewSettings = getPartialProject('viewSettings');
+
   if (!data.viewSettings) {
     emitError?.('No data found to import');
-    return { ...dbModel.viewSettings };
+    return defaultViewSettings;
   }
 
   console.log('Found view settings, importing...');
 
   return {
-    dangerColor: data.viewSettings.dangerColor ?? dbModel.viewSettings.dangerColor,
-    normalColor: data.viewSettings.normalColor ?? dbModel.viewSettings.normalColor,
-    overrideStyles: data.viewSettings.overrideStyles ?? dbModel.viewSettings.overrideStyles,
-    warningColor: data.viewSettings.warningColor ?? dbModel.viewSettings.warningColor,
+    dangerColor: data.viewSettings.dangerColor ?? defaultViewSettings.dangerColor,
+    normalColor: data.viewSettings.normalColor ?? defaultViewSettings.normalColor,
+    overrideStyles: data.viewSettings.overrideStyles ?? defaultViewSettings.overrideStyles,
+    warningColor: data.viewSettings.warningColor ?? defaultViewSettings.warningColor,
   };
 }

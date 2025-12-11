@@ -19,8 +19,8 @@ import {
 } from 'ontime-types';
 import { isObjectEmpty, generateId, getLinkedTimes, getTimeFrom, isNewLatest } from 'ontime-utils';
 
-import { defaultRundown } from '../../models/dataModel.js';
 import { delay as delayDef } from '../../models/eventsDefinition.js';
+import { makeNewRundown } from '../../models/dataModel.js';
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
 
 import { calculateDayOffset, cleanupCustomFields, createGroup, createEvent, createMilestone } from './rundown.utils.js';
@@ -39,10 +39,9 @@ export function parseRundowns(
   // this is important since the rest of the app assumes this exist
   if (!data.rundowns || isObjectEmpty(data.rundowns)) {
     emitError?.('No data found to import');
+    const defaultRundown = makeNewRundown();
     return {
-      [defaultRundown.id]: {
-        ...defaultRundown,
-      },
+      [defaultRundown.id]: defaultRundown,
     };
   }
 

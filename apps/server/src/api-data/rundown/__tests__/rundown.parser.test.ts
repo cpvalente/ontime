@@ -1,15 +1,25 @@
 import { SupportedEntry, OntimeEvent, OntimeGroup, Rundown, CustomFields } from 'ontime-types';
 
-import { defaultRundown } from '../../../models/dataModel.js';
-import { makeOntimeGroup, makeOntimeEvent, makeOntimeMilestone } from '../__mocks__/rundown.mocks.js';
+import { makeNewRundown } from '../../../models/dataModel.js';
 
+import { makeOntimeGroup, makeOntimeEvent, makeOntimeMilestone } from '../__mocks__/rundown.mocks.js';
 import { parseRundowns, parseRundown, sanitiseCustomFields } from '../rundown.parser.js';
 
 describe('parseRundowns()', () => {
   it('returns a default project rundown if nothing is given', () => {
     const errorEmitter = vi.fn();
+    const defaultRundown = makeNewRundown();
     const result = parseRundowns({}, {}, errorEmitter);
-    expect(result).toStrictEqual({ default: defaultRundown });
+    const rundownIds = Object.keys(result);
+
+    expect(rundownIds).toHaveLength(1);
+    expect(result[rundownIds[0]]).toMatchObject({
+      id: rundownIds[0],
+      title: defaultRundown.title,
+      order: expect.any(Array),
+      entries: expect.any(Object),
+    });
+
     // one for not having custom fields
     // one for not having a rundown
     expect(errorEmitter).toHaveBeenCalledTimes(1);
@@ -17,6 +27,7 @@ describe('parseRundowns()', () => {
 
   it('ensures the rundown IDs are consistent', () => {
     const errorEmitter = vi.fn();
+    const defaultRundown = makeNewRundown();
     const r1 = { ...defaultRundown, id: '1' };
     const r2 = { ...defaultRundown, id: '2' };
     const result = parseRundowns(
