@@ -276,7 +276,12 @@ export function loadNow(
     return;
   }
 
-  const event = rundown.entries[metadata.timedEventOrder[eventIndex]] as PlayableEvent;
+  const eventId = metadata.timedEventOrder[eventIndex];
+  if (!eventId) {
+    runtimeState.eventNow = null;
+    return;
+  }
+  const event = rundown.entries[eventId] as PlayableEvent;
   runtimeState.rundown.selectedEventIndex = eventIndex;
   runtimeState.eventNow = event;
 }
@@ -302,6 +307,10 @@ export function loadNext(
     return;
   }
   const nextId = metadata.playableEventOrder[nowPlayableIndex + 1];
+  if (!nextId) {
+    runtimeState.eventNext = null;
+    return;
+  }
   runtimeState.eventNext = rundown.entries[nextId] as PlayableEvent;
 }
 

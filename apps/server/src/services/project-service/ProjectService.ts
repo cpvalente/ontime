@@ -94,6 +94,10 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
       ? projectData.rundowns[rundownId]
       : getFirstRundown(projectData.rundowns);
 
+  if (!rundown) {
+    throw new Error('No rundown found in project');
+  }
+
   await initRundown(rundown, projectData.customFields, true);
 
   // persist the project selection
