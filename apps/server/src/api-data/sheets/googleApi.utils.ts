@@ -31,8 +31,9 @@ export function catchCommonImportXlsxError(error: any) {
     isGoogleApiError(error) &&
     error.code === 400 &&
     Array.isArray(error.errors) &&
-    error.errors[0].reason === 'failedPrecondition' &&
-    error.errors[0].message === 'This operation is not supported for this document'
+    error.errors.length > 0 &&
+    error.errors[0]?.reason === 'failedPrecondition' &&
+    error.errors[0]?.message === 'This operation is not supported for this document'
   ) {
     throw new Error('Cannot read the linked file as a Google Sheet. It may be an .xlsx file instead.');
   }
