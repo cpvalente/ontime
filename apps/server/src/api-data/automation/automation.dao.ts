@@ -72,9 +72,13 @@ export async function editTrigger(id: string, newTrigger: TriggerDTO): Promise<T
     throw new Error(`Automation with id ${id} not found`);
   }
 
-  triggers[index] = { ...triggers[index], ...newTrigger };
+  triggers[index] = { ...triggers[index], ...newTrigger, id };
   await saveChanges({ triggers });
-  return triggers[index];
+  const updatedTrigger = triggers[index];
+  if (!updatedTrigger) {
+    throw new Error(`Failed to update trigger with id ${id}`);
+  }
+  return updatedTrigger;
 }
 
 /**
@@ -145,8 +149,10 @@ export async function deleteAutomation(projectRundowns: ProjectRundowns, automat
   // prevent deleting a automation that is in use in triggers
   const triggers = getAutomationTriggers().filter((trigger) => trigger.automationId === automationId);
   if (triggers.length) {
+    const firstTrigger = triggers[0];
+    const triggerTitle = firstTrigger?.title ?? 'Unknown trigger';
     throw new Error(
-      `Unable to delete automation used in trigger ${triggers[0].title}${triggers.length > 1 ? ` and ${triggers.length - 1} more` : ''}`,
+      `Unable to delete automation used in trigger ${triggerTitle}${triggers.length > 1 ? ` and ${triggers.length - 1} more` : ''}`,
     );
   }
 

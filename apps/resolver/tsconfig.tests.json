@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.common.json",
+  "extends": "../../tsconfig.tests.json",
   "compilerOptions": {
     "target": "esnext",
     "module": "preserve",
@@ -12,18 +12,10 @@
     "outDir": "dist",
     "sourceMap": true,
     "baseUrl": "src",
+    "composite": true
   },
   "include": [
-    "src",
-  ],
-  "exclude": [
-    "node_modules",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.tests.json"
-    }
   ]
 }

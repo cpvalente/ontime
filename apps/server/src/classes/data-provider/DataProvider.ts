@@ -150,7 +150,9 @@ async function setAutomation(newData: AutomationSettings): ReadonlyPromise<Autom
 
 function getRundown(rundownKey: string): Readonly<Rundown> {
   if (!(rundownKey in db.data.rundowns)) throw new Error(`Rundown with id: ${rundownKey} not found`);
-  return db.data.rundowns[rundownKey];
+  const rundown = db.data.rundowns[rundownKey];
+  if (!rundown) throw new Error(`Rundown with id: ${rundownKey} not found`);
+  return rundown;
 }
 
 async function deleteRundown(rundownKey: string): Promise<ProjectRundowns> {

@@ -213,6 +213,9 @@ function add(rundown: Rundown, entry: OntimeEntry, afterId: EntryId | null, pare
  */
 function edit(rundown: Rundown, patch: PatchWithId): { entry: OntimeEntry; didInvalidate: boolean } {
   const entry = rundown.entries[patch.id];
+  if (!entry) {
+    throw new Error(`Entry with id ${patch.id} not found`);
+  }
 
   // apply the patch and replace the entry
   const newEntry = applyPatchToEntry(entry, patch);
