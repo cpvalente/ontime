@@ -338,21 +338,11 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
     await getDataProvider().mergeIntoData({ customFields: parsedCustomFields });
   }
 
-  // then we can checked the rundown
+  // then we can check the rundown
   if (rundowns) {
     const parsedCustomFields = await getDataProvider().getCustomFields();
-    const result = parseRundowns(data, parsedCustomFields);
-
-    /**
-     * The user may have multiple rundowns
-     * so attempt to get the one that was used last
-     * otherwise just pick the first
-     */
-    const last = await getLastLoaded();
-    const rundownToLoad =
-      last?.rundownId && last.rundownId in result ? result[last.rundownId] : getFirstRundown(result);
-
-    await initRundown(rundownToLoad, parsedCustomFields, true); //mergeIntoData is handled by the init function
+    const parsedRundowns = parseRundowns(data, parsedCustomFields);
+    await getDataProvider().mergeIntoData({ rundowns: parsedRundowns });
   }
 
   const updatedData = await getDataProvider().getData();
