@@ -2,11 +2,12 @@ import { LogOrigin, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } f
 
 import 'dotenv/config';
 import express from 'express';
-import http, { type Server } from 'http';
+import fastifyExpress from '@fastify/express';
 import cors from 'cors';
 import serverTiming from 'server-timing';
 import cookieParser from 'cookie-parser';
 
+import { server } from './server.js';
 // import utils
 import { publicDir, srcDir } from './setup/index.js';
 import { environment, isProduction } from './setup/environment.js';
@@ -139,7 +140,6 @@ enum OntimeStartOrder {
 }
 
 let step = OntimeStartOrder.InitAssets;
-let expressServer: Server | null = null;
 
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
@@ -178,14 +178,17 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   const settings = getDataProvider().getSettings();
   const { serverPort: desiredPort } = settings;
 
-  expressServer = http.createServer(app);
+  await server.register(fastifyExpress);
+  server.use(app);
+
+  await server.ready();
 
   // the express server must be started before the socket otherwise the on error event listener will not attach properly
-  const resultPort = await serverTryDesiredPort(expressServer, desiredPort);
+  const resultPort = await serverTryDesiredPort(server.server, desiredPort);
   await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
   const showWelcome = await getShowWelcomeDialog();
 
-  socket.init(expressServer, showWelcome, prefix);
+  socket.init(server.server, showWelcome, prefix);
 
   /**
    * Module initialises the services and provides initial payload for the store
@@ -275,7 +278,7 @@ export const shutdown = async (exitCode = 0) => {
     await restoreService.clear();
   }
 
-  expressServer?.close();
+  server.close();
   runtimeService.shutdown();
   logger.shutdown();
   oscServer.shutdown();
