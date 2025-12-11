@@ -1,11 +1,13 @@
 import { DatabaseModel, Settings } from 'ontime-types';
 
-import { dbModel } from '../../models/dataModel.js';
+import { getPartialProject } from '../../models/dataModel.js';
 
 /**
  * Parse settings portion of a project file
  */
 export function parseSettings(data: Partial<DatabaseModel>): Settings {
+  const defaultSettings: Settings = getPartialProject('settings');
+
   // skip if file definition is missing
   // TODO: skip parsing if the version is not correct
   if (!data.settings || data.settings?.version == null) {
@@ -15,11 +17,11 @@ export function parseSettings(data: Partial<DatabaseModel>): Settings {
   console.log('Found settings, importing...');
 
   return {
-    version: dbModel.settings.version,
-    serverPort: data.settings.serverPort ?? dbModel.settings.serverPort,
-    editorKey: data.settings.editorKey ?? null,
-    operatorKey: data.settings.operatorKey ?? null,
-    timeFormat: data.settings.timeFormat ?? '24',
-    language: data.settings.language ?? 'en',
+    version: defaultSettings.version,
+    serverPort: data.settings.serverPort ?? defaultSettings.serverPort,
+    editorKey: data.settings.editorKey ?? defaultSettings.editorKey,
+    operatorKey: data.settings.operatorKey ?? defaultSettings.operatorKey,
+    timeFormat: data.settings.timeFormat ?? defaultSettings.timeFormat,
+    language: data.settings.language ?? defaultSettings.language,
   };
 }

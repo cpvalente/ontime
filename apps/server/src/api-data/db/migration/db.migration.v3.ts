@@ -17,11 +17,12 @@ import {
   URLPreset,
   ViewSettings,
 } from 'ontime-types';
-import { is } from '../../../utils/is.js';
-import { dbModel } from '../../../models/dataModel.js';
 import { customFieldLabelToKey, checkRegex, isKnownTimerType, validateEndAction } from 'ontime-utils';
+
+import { is } from '../../../utils/is.js';
 import { event as eventModel } from '../../../models/eventsDefinition.js';
 import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
+import { getPartialProject } from '../../../models/dataModel.js';
 
 // the methodology of the migrations is to just change the necessary keys to match with v4
 // and then let the normal project parser handle ensuring the the file is correct
@@ -148,8 +149,8 @@ export function migrateProjectData(jsonData: object): ProjectData | undefined {
       description,
       url: backstageUrl,
       info: backstageInfo,
-      logo: logo ?? dbModel.project.logo,
-      custom: custom ?? dbModel.project.custom,
+      logo: logo ?? null,
+      custom: custom ?? [],
     };
   }
 }
@@ -244,7 +245,7 @@ export function migrateAutomations(jsonData: object): AutomationSettings | undef
   }
 
   let foundOldSetting = false;
-  const migratedOldStuff = structuredClone(dbModel.automation);
+  const migratedOldStuff: AutomationSettings = getPartialProject('automation');
   const migratedAutomations: NormalisedAutomation = {};
   const migratedTriggers: Trigger[] = [];
 

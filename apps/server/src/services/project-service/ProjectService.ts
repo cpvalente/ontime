@@ -2,6 +2,7 @@ import { DatabaseModel, LogOrigin, ProjectFileListResponse } from 'ontime-types'
 import { getErrorMessage, getFirstRundown } from 'ontime-utils';
 
 import { copyFile } from 'fs/promises';
+import { join } from 'path';
 
 import { logger } from '../../classes/Logger.js';
 import { publicDir } from '../../setup/index.js';
@@ -15,15 +16,16 @@ import {
   getFileNameFromPath,
   removeFileExtension,
 } from '../../utils/fileManagement.js';
-import { dbModel } from '../../models/dataModel.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { demoDb } from '../../models/demoProject.js';
 import { config } from '../../setup/config.js';
 import { getDataProvider, initPersistence } from '../../classes/data-provider/DataProvider.js';
-import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
 import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
 import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
+import { makeNewProject } from '../../models/dataModel.js';
+import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
+import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
 
 import { getLastLoaded, isLastLoadedProject, setLastLoaded } from '../app-state-service/AppStateService.js';
 import { runtimeService } from '../runtime-service/runtime.service.js';
@@ -35,7 +37,6 @@ import {
   moveCorruptFile,
   parseJsonFile,
 } from './projectServiceUtils.js';
-import { join } from 'path';
 
 type ProjectState =
   | {
@@ -94,10 +95,6 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
       ? projectData.rundowns[rundownId]
       : getFirstRundown(projectData.rundowns);
 
-  if (!rundown) {
-    throw new Error('No rundown found in project');
-  }
-
   await initRundown(rundown, projectData.customFields, true);
 
   // persist the project selection
@@ -124,7 +121,8 @@ export async function loadDemoProject(): Promise<string> {
  * to be composed in the loading functions
  */
 async function loadNewProject(): Promise<string> {
-  return createProject(config.newProject, dbModel);
+  const emptyProject = makeNewProject();
+  return createProject(config.newProject, emptyProject);
 }
 
 /**
@@ -297,11 +295,21 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
  * @param fileName file name of the project including the extension
  * @param initialData db to initialize the project with
  */
-export async function createProject(fileName: string, initialData: Partial<DatabaseModel>): Promise<string> {
-  const data = safeMerge(dbModel, initialData);
+export async function createProject(fileName: string, initialData: DatabaseModel): Promise<string> {
   const fileNameWithExtension = generateUniqueFileName(publicDir.projectsDir, ensureJsonExtension(fileName));
-  await loadProject(data, fileNameWithExtension);
+  await loadProject(initialData, fileNameWithExtension);
   return fileNameWithExtension;
+}
+
+/**
+ * Creates a new project file from a patch and applies its result
+ * @param fileName file name of the project including the extension
+ * @param initialData patch of DB to initialize the project with
+ */
+export async function createProjectWithPatch(fileName: string, initialData: Partial<DatabaseModel>): Promise<string> {
+  const newProject = makeNewProject();
+  const sanitisedData = safeMerge(newProject, initialData);
+  return createProject(fileName, sanitisedData);
 }
 
 /**
@@ -328,6 +336,7 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars  -- we need to remove the fields before merging
   const { rundowns, customFields, ...rest } = data;
+
   // we can pass some stuff straight to the data provider
   await getDataProvider().mergeIntoData(rest);
 
@@ -340,9 +349,23 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
 
   // then we can check the rundown
   if (rundowns) {
-    const parsedCustomFields = await getDataProvider().getCustomFields();
-    const parsedRundowns = parseRundowns(data, parsedCustomFields);
-    await getDataProvider().mergeIntoData({ rundowns: parsedRundowns });
+    // use the already parsed custom fields if available, otherwise fetch from provider
+    const projectCustomFields = getDataProvider().getCustomFields();
+    const parsedRundowns = parseRundowns(data, projectCustomFields);
+    const currentRundown = getCurrentRundown();
+
+    const mergedData = await getDataProvider().mergeIntoData({ rundowns: parsedRundowns });
+
+    // check if the currently loaded rundown was modified
+    const didOverrideCurrentRundown = currentRundown.id in parsedRundowns;
+
+    if (didOverrideCurrentRundown) {
+      // verify the rundown exists in the merged data before reinitializing
+      const updatedCurrentRundown = mergedData.rundowns[currentRundown.id];
+      if (updatedCurrentRundown) {
+        await initRundown(updatedCurrentRundown, projectCustomFields, true);
+      }
+    }
   }
 
   const updatedData = await getDataProvider().getData();
