@@ -3,7 +3,7 @@ import { DatabaseModel, Settings, URLPreset } from 'ontime-types';
 import { demoDb } from '../../../models/demoProject.js';
 import { makeOntimeEvent, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 
-import { safeMerge } from '../DataProvider.utils.js';
+import { resolveRundownConflicts, safeMerge } from '../DataProvider.utils.js';
 
 describe('safeMerge', () => {
   it('returns existing data if new data is not provided', () => {
@@ -121,5 +121,83 @@ describe('safeMerge', () => {
     //@ts-expect-error -- testing partial merge
     const result = safeMerge(existing, newData);
     expect(result.customFields).toEqual(expected);
+  });
+});
+
+describe('resolveRundownConflicts', () => {
+  it('returns incoming rundowns unchanged when no conflicts', () => {
+    const existing = {
+      demo: makeRundown({ id: 'demo' }),
+    };
+    const incoming = {
+      rundown1: makeRundown({ id: 'rundown1' }),
+      rundown2: makeRundown({ id: 'rundown2' }),
+    };
+
+    const result = resolveRundownConflicts(existing, incoming);
+
+    expect(result).toEqual(incoming);
+    // Should preserve references when no conflict
+    expect(result.rundown1).toBe(incoming.rundown1);
+    expect(result.rundown2).toBe(incoming.rundown2);
+  });
+
+  it('generates new IDs for conflicting rundowns and preserves non-conflicting ones', () => {
+    const existing = {
+      rundown1: makeRundown({ id: 'rundown1' }),
+      rundown2: makeRundown({ id: 'rundown2' }),
+    };
+    const incoming = {
+      rundown1: makeRundown({ id: 'rundown1', title: 'Conflict' }),
+      rundown3: makeRundown({ id: 'rundown3', title: 'No Conflict' }),
+    };
+
+    const result = resolveRundownConflicts(existing, incoming);
+
+    // Should have 2 rundowns
+    expect(Object.keys(result).length).toBe(2);
+
+    // Non-conflicting rundown keeps original ID and reference
+    expect(result.rundown3).toBe(incoming.rundown3);
+    expect(result.rundown3.id).toBe('rundown3');
+
+    // Conflicting rundown gets new ID
+    expect(result.rundown1).toBeUndefined();
+    const newIds = Object.keys(result).filter((id) => id !== 'rundown3');
+    expect(newIds.length).toBe(1);
+    expect(newIds[0]).not.toBe('rundown1');
+
+    const resolvedRundown = result[newIds[0]];
+    expect(resolvedRundown.id).toBe(newIds[0]);
+    expect(resolvedRundown.title).toBe('Conflict');
+  });
+
+  it('does not mutate incoming data and creates deep clones for conflicts', () => {
+    const existing = {
+      demo: makeRundown({ id: 'demo' }),
+    };
+    const incoming = {
+      demo: makeRundown({
+        id: 'demo',
+        title: 'Original',
+        entries: {
+          '1': makeOntimeEvent({ id: '1', title: 'Event 1' }),
+        },
+        order: ['1'],
+      }),
+    };
+
+    const result = resolveRundownConflicts(existing, incoming);
+
+    // Original incoming data should be unchanged
+    expect(incoming.demo.id).toBe('demo');
+    expect(incoming.demo.title).toBe('Original');
+
+    // Resolved rundown should be a deep clone
+    const newKey = Object.keys(result)[0];
+    const resolvedRundown = result[newKey];
+    expect(resolvedRundown).not.toBe(incoming.demo);
+    expect(resolvedRundown.entries).not.toBe(incoming.demo.entries);
+    expect(resolvedRundown.entries['1']).not.toBe(incoming.demo.entries['1']);
   });
 });
