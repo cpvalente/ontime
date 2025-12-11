@@ -488,13 +488,13 @@ export function addTime(amount: number) {
 
   // we can update the state after handling the side effects
   runtimeState.timer.addedTime += amount;
-  runtimeState.timer.expectedFinish += amount;
   runtimeState.timer.current += amount;
 
   // update runtime delays: over - under
   const { absolute, relative } = getRuntimeOffset(runtimeState);
   runtimeState.offset.absolute = absolute;
   runtimeState.offset.relative = relative;
+  runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
   getExpectedTimes();
 
   return true;
