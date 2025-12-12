@@ -495,6 +495,7 @@ export function addTime(amount: number) {
   const { absolute, relative } = getRuntimeOffset(runtimeState);
   runtimeState.offset.absolute = absolute;
   runtimeState.offset.relative = relative;
+  runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
   getExpectedTimes();
 
   return true;

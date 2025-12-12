@@ -155,7 +155,8 @@ router.patch('/:id', paramsWithId, async (req: Request, res: Response<ProjectRun
  */
 router.delete('/:id', paramsWithId, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
   try {
-    if (req.params.id === getCurrentRundown().id) {
+    const currentRundownId = getCurrentRundown().id;
+    if (req.params.id === currentRundownId) {
       res.status(400).send({ message: 'Cannot delete loaded rundown' });
       return;
     }
@@ -170,8 +171,8 @@ router.delete('/:id', paramsWithId, async (req: Request, res: Response<ProjectRu
     }
 
     await dataProvider.deleteRundown(req.params.id);
-    const newProjectRundowns = getDataProvider().getProjectRundowns();
-    res.status(200).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(newProjectRundowns) });
+    const newProjectRundowns = dataProvider.getProjectRundowns();
+    res.status(200).json({ loaded: currentRundownId, rundowns: normalisedToRundownArray(newProjectRundowns) });
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });

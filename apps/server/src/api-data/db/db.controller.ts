@@ -13,7 +13,7 @@ import sanitize from 'sanitize-filename';
 import {
   doesProjectExist,
   handleImageUpload,
-  handleUploaded,
+  handleProjectUploaded,
 } from '../../services/project-service/projectServiceUtils.js';
 import * as projectService from '../../services/project-service/ProjectService.js';
 
@@ -129,7 +129,7 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
 
   try {
     const { filename, path } = req.file;
-    await handleUploaded(path, filename);
+    await handleProjectUploaded(path, filename);
     await projectService.loadProjectFile(filename);
 
     res.status(201).send({
