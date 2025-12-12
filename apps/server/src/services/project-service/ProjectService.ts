@@ -126,6 +126,7 @@ async function loadNewProject(): Promise<string> {
 /**
  * Private function handles side effects on corrupted files
  * Corrupted files in this context contain data that failed domain validation
+ * @throws
  * @param filePath path to the project type include the fileName and extension
  * @param fileName as extracted from filePath, includes extension
  */
@@ -142,6 +143,13 @@ async function handleCorruptedFile(filePath: string, fileName: string): Promise<
   return getFileNameFromPath(newPath);
 }
 
+/**
+ * Private function handles side effects on migrated files
+ * A file was migrated to a newer version, and the old one kept as backup
+ * @throws
+ * @param filePath path to the project type include the fileName and extension
+ * @param fileName as extracted from filePath, includes extension
+ */
 async function handleMigratedFile(filePath: string, fileName: string): Promise<string> {
   // copy file to migrated folder
   const copyPath = join(publicDir.migrateDir, fileName);
@@ -192,6 +200,7 @@ export async function initialiseProject(): Promise<string> {
 
 /**
  * Loads a data from a file into the runtime
+ * @throws
  * @param fileName file name of the project including the extension
  */
 export async function loadProjectFile(fileName: string, rundownId?: string): Promise<string> {
@@ -245,11 +254,13 @@ export async function duplicateProjectFile(originalFile: string, newFilename: st
   }
 
   const pathToDuplicate = getPathToProject(newFilename);
-  return copyFile(projectFilePath, pathToDuplicate);
+  await copyFile(projectFilePath, pathToDuplicate);
+  return;
 }
 
 /**
  * Renames an existing project file
+ * @throws
  */
 export async function renameProjectFile(originalFile: string, newFilename: string): Promise<string> {
   const projectFilePath = doesProjectExist(originalFile);
