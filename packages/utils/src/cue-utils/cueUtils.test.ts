@@ -4,19 +4,55 @@ import { SupportedEntry } from 'ontime-types';
 import { getCueCandidate, getIncrement, sanitiseCue } from './cueUtils.js';
 
 describe('getIncrement()', () => {
-  it('increments number', () => {
+  test('simple increment', () => {
     expect(getIncrement('1')).toBe('2');
     expect(getIncrement('10')).toBe('11');
     expect(getIncrement('99')).toBe('100');
     expect(getIncrement('101')).toBe('102');
   });
-  it('increments decimal number', () => {
+
+  test('simple increment decimal', () => {
     expect(getIncrement('1.1')).toBe('1.2');
-    expect(getIncrement('10.10')).toBe('10.11');
-    expect(getIncrement('99.99')).toBe('99.100');
-    expect(getIncrement('101.101')).toBe('101.102');
-    // NOTE: we know the below would fail, handling this amount of decimals is outside of scope
-    // expect(getIncrement('101.999')).toBe('101.1000');
+    expect(getIncrement('10.2')).toBe('10.3');
+    expect(getIncrement('99.3')).toBe('99.4');
+    expect(getIncrement('101.4')).toBe('101.5');
+  });
+
+  test('small increment decimal', () => {
+    expect(getIncrement('1.01')).toBe('1.02');
+    expect(getIncrement('1.001')).toBe('1.002');
+    expect(getIncrement('1.009')).toBe('1.010');
+  });
+
+  test('increment decimal to big number', () => {
+    expect(getIncrement('1.9')).toBe('2');
+    expect(getIncrement('5.999')).toBe('6');
+    expect(getIncrement('101.999')).toBe('102');
+  });
+
+  it('increments number a next cue', () => {
+    expect(getIncrement('1', '5')).toBe('2');
+    expect(getIncrement('10', '15')).toBe('11');
+    expect(getIncrement('99', '101')).toBe('100');
+    expect(getIncrement('101', '500')).toBe('102');
+  });
+
+  it('increments number a next cue', () => {
+    expect(getIncrement('1', '2')).toBe('1.1');
+    expect(getIncrement('10', '11')).toBe('10.1');
+  });
+
+  it('increments decimal number with a next cue', () => {
+    expect(getIncrement('1.1', '2')).toBe('1.2');
+    expect(getIncrement('10.10', '11')).toBe('10.11');
+    expect(getIncrement('99.09', '100')).toBe('99.10');
+    expect(getIncrement('99.09', '100')).toBe('99.10');
+    expect(getIncrement('99.99', '100')).toBe('99.991');
+  });
+
+  it('increments number a next cue has a decimal', () => {
+    expect(getIncrement('1', '2.1')).toBe('2');
+    expect(getIncrement('10.5', '11.5')).toBe('10.6');
   });
   // NOTE: we also know the following fails since we only handle one decimal
   //it('handles multiple decimals', () => {
