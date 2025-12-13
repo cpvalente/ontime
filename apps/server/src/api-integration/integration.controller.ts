@@ -1,5 +1,6 @@
 import {
   ApiActionTag,
+  LogOrigin,
   MessageState,
   OffsetMode,
   OntimeEvent,
@@ -7,7 +8,7 @@ import {
   SimpleDirection,
   SimplePlayback,
 } from 'ontime-types';
-import { MILLIS_PER_HOUR } from 'ontime-utils';
+import { getErrorMessage, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { DeepPartial } from 'ts-essentials';
 
@@ -25,17 +26,23 @@ import { coerceEnum } from '../utils/coerceType.js';
 import { editEntry } from '../api-data/rundown/rundown.service.js';
 import { willCauseRegeneration } from '../api-data/rundown/rundown.utils.js';
 import { getCurrentRundown } from '../api-data/rundown/rundown.dao.js';
+import { logger } from '../classes/Logger.js';
 
-const throttledEditEvent = throttle(editEntry, 20);
+const throttledEditEvent = throttle((patchEntry: PatchWithId<OntimeEvent>) => {
+  editEntry(patchEntry).catch((error) => {
+    const errorMessage = getErrorMessage(error);
+    logger.error(LogOrigin.Rx, `HTTP IN (throttled): ${errorMessage}`);
+  });
+}, 20);
 let lastRequest: Date | null = null;
 
-export function dispatchFromAdapter(tag: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
+export async function dispatchFromAdapter(tag: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = tag.toLowerCase();
   const handler = actionHandlers[action as ApiActionTag];
   lastRequest = new Date();
 
   if (handler) {
-    return handler(payload);
+    return await handler(payload);
   } else {
     throw new Error(`Unhandled message ${tag}`);
   }
@@ -45,7 +52,7 @@ export function getLastRequest() {
   return lastRequest;
 }
 
-type ActionHandler = (payload: unknown) => { payload: unknown };
+type ActionHandler = (payload: unknown) => { payload: unknown } | Promise<{ payload: unknown }>;
 
 const actionHandlers: Record<ApiActionTag, ActionHandler> = {
   /* General */
@@ -53,7 +60,7 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
   poll: () => ({
     payload: eventStore.poll(),
   }),
-  change: (payload) => {
+  change: async (payload) => {
     assert.isObject(payload);
     if (Object.keys(payload).length === 0) {
       throw new Error('Payload is empty');
@@ -90,14 +97,16 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
       }
     });
 
-    if (shouldThrottle) {
-      if (throttledEditEvent(patchEntry)) {
+    try {
+      if (shouldThrottle) {
+        throttledEditEvent(patchEntry);
         return { payload: 'throttled' };
+      } else {
+        await editEntry(patchEntry);
       }
-    } else {
-      editEntry(patchEntry).catch((_error) => {
-        /** No error handling */
-      });
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      logger.error(LogOrigin.Rx, `HTTP IN: ${errorMessage}`);
     }
     return { payload: 'success' };
   },
