@@ -103,6 +103,9 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: './apps/electron/dist/ontime-linux.AppImage'
+          files: |
+            ./apps/electron/dist/ontime-linux-x86_64.AppImage
+            ./apps/electron/dist/ontime-linux-arm64.AppImage
+            ./apps/electron/dist/ontime-linux-armv7l.AppImage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
