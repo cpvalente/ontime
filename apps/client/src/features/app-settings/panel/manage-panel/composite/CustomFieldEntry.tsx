@@ -6,6 +6,7 @@ import IconButton from '../../../../../common/components/buttons/IconButton';
 import CopyTag from '../../../../../common/components/copy-tag/CopyTag';
 import Swatch from '../../../../../common/components/input/colour-input/Swatch';
 import Tag from '../../../../../common/components/tag/Tag';
+import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import CustomFieldForm from './CustomFieldForm';
@@ -23,6 +24,7 @@ interface CustomFieldEntryProps {
 
 export default function CustomFieldEntry(props: CustomFieldEntryProps) {
   const { colour, label, fieldKey, type, onEdit, onDelete } = props;
+  const { data } = useCustomFields();
   const [isEditing, setIsEditing] = useState(false);
 
   const handleEdit = async (patch: CustomField) => {
@@ -31,6 +33,8 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
   };
 
   if (isEditing) {
+    // Get the full field data to pass TTS settings
+    const fullField = data?.[fieldKey];
     return (
       <tr>
         <td colSpan={99}>
@@ -40,6 +44,7 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
             initialColour={colour}
             initialLabel={label}
             initialKey={fieldKey}
+            initialTTS={fullField?.tts}
           />
         </td>
       </tr>

@@ -13,6 +13,10 @@ export const validateCustomField = [
     }),
   body('type').isIn(['text', 'image']),
   body('colour').isString().trim(),
+  body('tts.enabled').optional().isBoolean(),
+  body('tts.threshold').optional().isInt({ min: 0 }).withMessage('TTS threshold must be a non-negative integer'),
+  body('tts.voice').optional().isString(),
+  body('tts.language').optional().isString().trim().notEmpty(),
 
   requestValidationFunction,
 ];
@@ -28,6 +32,10 @@ export const validateEditCustomField = [
     }),
   body('type').isIn(['text', 'image']),
   body('colour').isString().trim(),
+  body('tts.enabled').optional().isBoolean(),
+  body('tts.threshold').optional().isInt({ min: 0 }).withMessage('TTS threshold must be a non-negative integer'),
+  body('tts.voice').optional().isString(),
+  body('tts.language').optional().isString().trim().notEmpty(),
 
   requestValidationFunction,
 ];

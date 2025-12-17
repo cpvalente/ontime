@@ -8,7 +8,7 @@ import serverTiming from 'server-timing';
 import cookieParser from 'cookie-parser';
 
 // import utils
-import { publicDir, srcDir } from './setup/index.js';
+import { publicDir, srcDir, srcFiles } from './setup/index.js';
 import { environment, isProduction } from './setup/environment.js';
 import { updateRouterPrefix } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
@@ -106,13 +106,27 @@ app.use(`${prefix}/external`, (req, res) => {
 });
 app.use(`${prefix}/user`, express.static(publicDir.userDir, { etag: false, lastModified: true }));
 
-// Base route for static files
-app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);
+// Base route for static files with SPA fallback
+// Chain the SPA fallback directly after static middleware
+app.use(
+  `${prefix}`,
+  authenticateAndRedirect,
+  compressedStatic,
+  // Fallback: serve index.html for SPA routes if static file wasn't found
+  (req, res, next) => {
+    // Skip if it's an API route (these should 404)
+    if (req.path.startsWith('/data/') || req.path.startsWith('/api/') || req.path.startsWith('/external/') || req.path.startsWith('/user/')) {
+      return next();
+    }
+    // Serve index.html for SPA routes (React Router handles client-side routing)
+    res.sendFile(srcFiles.clientIndexHtml);
+  },
+);
 app.use(`${prefix}/*splat`, authenticateAndRedirect, compressedStatic);
 
-// Implement catch all
-app.use((_error, response) => {
-  response.status(400).send('Unhandled request');
+// Implement catch all - must be last and handle all unmatched routes
+app.use((req, res) => {
+  res.status(404).send('Not found');
 });
 
 /***************  START SERVICES ***************/

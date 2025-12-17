@@ -627,7 +627,14 @@ function customFieldEdit(
   const newKey = newField?.label ? customFieldLabelToKey(newField.label ?? key) : key;
 
   // patch the new field and replace the reference in the object
-  customFields[newKey] = { ...existingField, ...newField };
+  const updatedField = { ...existingField, ...newField };
+  
+  // Remove tts property if it's explicitly set to undefined (to allow disabling TTS)
+  if ('tts' in newField && newField.tts === undefined) {
+    delete updatedField.tts;
+  }
+  
+  customFields[newKey] = updatedField;
 
   return { oldKey: key, newKey };
 }

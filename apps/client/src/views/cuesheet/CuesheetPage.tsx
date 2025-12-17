@@ -4,6 +4,7 @@ import { useDisclosure } from '@mantine/hooks';
 import IconButton from '../../common/components/buttons/IconButton';
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import { useCustomFieldTTS } from '../../common/hooks/useCustomFieldTTS';
 import { getIsNavigationLocked } from '../../externals';
 import CuesheetOverview from '../../features/overview/CuesheetOverview';
 
@@ -17,6 +18,7 @@ export default function CuesheetPage() {
   const [isMenuOpen, menuHandler] = useDisclosure();
 
   useWindowTitle('Cuesheet');
+  useCustomFieldTTS(); // Monitor custom fields and read aloud time values
 
   const isLocked = getIsNavigationLocked();
 

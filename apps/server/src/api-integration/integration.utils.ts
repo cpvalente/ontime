@@ -64,10 +64,19 @@ export function parseProperty(property: string, value: unknown) {
 export function isValidChangeProperty(target: OntimeEntry, property: string, value: unknown): boolean {
   if (typeof property !== 'string') return false;
   if (value === undefined) return false;
-  if (property.startsWith('custom:') && 'custom' in target) {
+  if (property.startsWith('custom:')) {
     const customProperty = property.slice('custom:'.length);
     if (!customProperty) return false;
-    return Object.hasOwn(target.custom, customProperty);
+    // Check if the custom field is defined in the custom fields configuration
+    const customFields = getDataProvider().getCustomFields();
+    if (customProperty in customFields) {
+      return true; // Custom field is defined, allow setting its value
+    }
+    // Fallback: check if it already exists in the entry (for backward compatibility)
+    if ('custom' in target && Object.hasOwn(target.custom, customProperty)) {
+      return true;
+    }
+    return false;
   }
   return Object.hasOwn(target, property);
 }
