@@ -81,11 +81,6 @@ export function usePartialRundown(cb: (event: ExtendedEntry<OntimeEntry>) => boo
 export function useEntry(entryId: EntryId | null): OntimeEntry | null {
   const { data: rundown } = useRundown();
 
-  // track the specific entry we care about
-  const entry = useMemo(() => {
-    if (entryId === null) return null;
-    return rundown.entries[entryId] ?? null;
-  }, [entryId, rundown.entries]);
-
-  return entry;
+  if (entryId === null) return null;
+  return rundown.entries[entryId] ?? null;
 }
