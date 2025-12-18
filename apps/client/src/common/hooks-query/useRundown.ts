@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { EntryId, OntimeEntry, Rundown } from 'ontime-types';
 
@@ -7,8 +7,6 @@ import { RUNDOWN } from '../api/constants';
 import { fetchCurrentRundown } from '../api/rundown';
 import { useSelectedEventId } from '../hooks/useSocket';
 import { ExtendedEntry, getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
-
-import useProjectData from './useProjectData';
 
 // revision is -1 so that the remote revision is higher
 const cachedRundownPlaceholder: Rundown = {
@@ -46,32 +44,13 @@ export function useRundownWithMetadata() {
  */
 export function useFlatRundown() {
   const { data, status } = useRundown();
-  const { data: projectData } = useProjectData();
 
-  const loadedProject = useRef<string>('');
-  const [prevRevision, setPrevRevision] = useState<number>(-1);
-  const [flatRundown, setFlatRundown] = useState<OntimeEntry[]>([]);
-
-  // update data whenever the revision changes
-  useEffect(() => {
-    if (data.revision !== -1 && data.revision !== prevRevision) {
-      const flatRundown = data.flatOrder
-        .map((id) => data.entries[id])
-        .filter((entry): entry is OntimeEntry => entry !== undefined);
-      setFlatRundown(flatRundown);
-      setPrevRevision(data.revision);
+  const flatRundown = useMemo(() => {
+    if (data.revision === -1) {
+      return [];
     }
-  }, [data.entries, data.flatOrder, data.revision, prevRevision]);
-
-  // TODO: should we have a project id field?
-  // TODO(v4): cleanup as part of load multiple rundowns
-  // invalidate current version if project changes
-  useEffect(() => {
-    if (projectData?.title !== loadedProject.current) {
-      setPrevRevision(-1);
-      loadedProject.current = projectData?.title ?? '';
-    }
-  }, [projectData]);
+    return data.flatOrder.map((id) => data.entries[id]).filter((entry): entry is OntimeEntry => entry !== undefined);
+  }, [data]);
 
   return { data: flatRundown, rundownId: data.id, status };
 }
