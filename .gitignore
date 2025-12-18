@@ -40,6 +40,7 @@ override.css
 
 # working stuff
 **/TODO.md
+**.local.**
 
 # docker utils
 ontime-db
