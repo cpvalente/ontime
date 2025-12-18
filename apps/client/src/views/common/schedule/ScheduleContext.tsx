@@ -1,4 +1,14 @@
-import { createContext, PropsWithChildren, RefObject, use, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  createContext,
+  PropsWithChildren,
+  RefObject,
+  use,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { EntryId, isOntimeEvent, OntimeEntry, OntimeEvent } from 'ontime-types';
 
 import { usePartialRundown } from '../../../common/hooks-query/useRundown';
@@ -22,14 +32,20 @@ interface ScheduleProviderProps {
 
 export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildren<ScheduleProviderProps>) => {
   const { cycleInterval, stopCycle, filter } = useScheduleOptions();
-  const { data: events } = usePartialRundown((entry: ExtendedEntry<OntimeEntry>) => {
-    if (filter) {
-      // custom keys are prepended with custom-
-      const customKey = filter.startsWith('custom-') ? filter.slice('custom-'.length) : filter;
-      return isOntimeEvent(entry) && Boolean(entry.custom[customKey]);
-    }
-    return isOntimeEvent(entry);
-  });
+
+  const filterCallback = useCallback(
+    (entry: ExtendedEntry<OntimeEntry>) => {
+      if (filter) {
+        // custom keys are prepended with custom-
+        const customKey = filter.startsWith('custom-') ? filter.slice('custom-'.length) : filter;
+        return isOntimeEvent(entry) && Boolean(entry.custom[customKey]);
+      }
+      return isOntimeEvent(entry);
+    },
+    [filter],
+  );
+
+  const { data: events } = usePartialRundown(filterCallback);
 
   const [firstIndex, setFirstIndex] = useState(-1);
   const [numPages, setNumPages] = useState(0);
