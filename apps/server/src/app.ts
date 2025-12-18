@@ -17,7 +17,7 @@ import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.
 // Import middleware configuration
 import { bodyParser } from './middleware/bodyParser.js';
 import { compressedStatic } from './middleware/staticGZip.js';
-import { loginRouter, makeAuthenticateMiddleware } from './middleware/authenticate.js';
+import { makeLoginRouter, makeAuthenticateMiddleware } from './middleware/authenticate.js';
 
 // Import Routers
 import { appRouter } from './api-data/index.js';
@@ -83,6 +83,7 @@ app.options('*splat', cors()); // enable pre-flight cors
 app.use(bodyParser);
 app.use(cookieParser());
 const { authenticate, authenticateAndRedirect } = makeAuthenticateMiddleware(prefix);
+const loginRouter = makeLoginRouter(prefix);
 
 // implement health check route
 app.get(`${prefix}/health`, (_req, res) => {

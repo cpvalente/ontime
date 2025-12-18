@@ -21,24 +21,33 @@ const publicAssets = new Set([
   '/site.webmanifest',
 ]);
 
-export const loginRouter = express.Router();
+/**
+ * Creates a login router with the provided prefix
+ * @param {string} prefix - Prefix is used for the client hashes in Ontime Cloud
+ */
+export function makeLoginRouter(prefix: string) {
+  const router = express.Router();
 
-// serve static files at root
-loginRouter.use('/', express.static(srcFiles.login));
+  // serve static files at root
+  router.use('/', express.static(srcFiles.login));
 
-// verify password and set cookies + redirect appropriately
-loginRouter.post('/', (req, res) => {
-  res.clearCookie('token');
-  const { password: reqPassword, redirect } = req.body;
+  // verify password and set cookies + redirect appropriately
+  router.post('/', (req, res) => {
+    res.clearCookie('token', { path: prefix || '/' });
+    const { password: reqPassword, redirect } = req.body;
 
-  if (hashPassword(reqPassword) === hashedPassword) {
-    setSessionCookie(res, hashedPassword);
-    res.redirect(redirect || '/');
-    return;
-  }
+    if (hashPassword(reqPassword) === hashedPassword) {
+      setSessionCookie(res, hashedPassword, prefix);
+      // If redirect is provided, use it; otherwise redirect to the prefix root
+      res.redirect(redirect || (prefix ? `${prefix}/` : '/'));
+      return;
+    }
 
-  res.status(401).send('Unauthorized');
-});
+    res.status(401).send('Unauthorized');
+  });
+
+  return router;
+}
 
 /**
  * Express middleware to authenticate requests
@@ -77,7 +86,8 @@ export function makeAuthenticateMiddleware(prefix: string) {
     }
 
     // we shouldnt be here in the login route
-    if (req.originalUrl.startsWith('/login')) {
+    const loginPath = prefix ? `${prefix}/login` : '/login';
+    if (req.originalUrl.startsWith(loginPath)) {
       return next();
     }
 
@@ -93,7 +103,7 @@ export function makeAuthenticateMiddleware(prefix: string) {
     // if the user gives is a token in the query params, we set the cookie to be used in further requests
     if (req.query.token === hashedPassword) {
       if (hashedPassword !== undefined) {
-        setSessionCookie(res, hashedPassword);
+        setSessionCookie(res, hashedPassword, prefix);
       }
       return next();
     }
@@ -148,11 +158,11 @@ export function authenticateSocket(_ws: WebSocket, req: IncomingMessage, next: (
  * Sets a cookie with the provided token
  * We currently add a full 'rw' permission scope, this should be filtered when dealing with presets
  */
-function setSessionCookie(res: Response, token: string) {
+function setSessionCookie(res: Response, token: string, prefix: string) {
   res.cookie('token', JSON.stringify({ token, scope: 'rw' }), {
     httpOnly: false, // allow websocket to access cookie
     secure: true,
-    path: '/', // allow cookie to be accessed from any path
+    path: prefix || '/', // allow cookie to be accessed from prefix path or root
     sameSite: 'none', // allow cookies to be sent in cross-origin requests (e.g., iframes)
   });
 }
