@@ -65,6 +65,10 @@ export function useFlatRundownWithMetadata() {
 
 /**
  * Provides access to a partial rundown based on a filter callback
+ *
+ * Callers MUST memoize the callback with useCallback to prevent
+ * re-filtering on every render.
+ *
  */
 export function usePartialRundown(cb: (event: ExtendedEntry<OntimeEntry>) => boolean) {
   const { data, status } = useFlatRundownWithMetadata();
