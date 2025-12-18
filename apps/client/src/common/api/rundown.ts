@@ -21,7 +21,23 @@ export async function fetchProjectRundownList(): Promise<ProjectRundownsList> {
  */
 export async function fetchCurrentRundown(): Promise<Rundown> {
   const res = await axios.get(`${rundownPath}/current`);
+  if (!isValidRundown(res.data)) {
+    throw new Error('Invalid rundown payload');
+  }
   return res.data;
+
+  function isValidRundown(x: any): x is Rundown {
+    return (
+      x &&
+      typeof x === 'object' &&
+      typeof x.id === 'string' &&
+      Array.isArray(x.order) &&
+      Array.isArray(x.flatOrder) &&
+      x.entries &&
+      typeof x.entries === 'object' &&
+      typeof x.revision === 'number'
+    );
+  }
 }
 
 /**
