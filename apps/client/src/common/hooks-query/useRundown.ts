@@ -27,18 +27,10 @@ export default function useRundown() {
   const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
     queryKey: RUNDOWN,
     queryFn: fetchCurrentRundown,
-    placeholderData: (previousData, _previousQuery) => previousData,
     refetchInterval: queryRefetchIntervalSlow,
   });
 
-  const returnData = useMemo(() => {
-    if (data && Array.isArray(data.flatOrder)) {
-      return data;
-    }
-    return cachedRundownPlaceholder;
-  }, [data]);
-
-  return { data: returnData, status, isError, refetch, isFetching };
+  return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
 }
 
 export function useRundownWithMetadata() {
