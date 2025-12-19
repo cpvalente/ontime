@@ -1,4 +1,4 @@
-import { ApiAction, ApiActionTag, MessageTag, WsPacketToClient, WsPacketToServer } from 'ontime-types';
+import type { ApiAction, ApiActionTag, MessageTag, WsPacketToClient, WsPacketToServer } from 'ontime-types';
 
 /**
  * A helper type for sending correct websocket messages to ontime
