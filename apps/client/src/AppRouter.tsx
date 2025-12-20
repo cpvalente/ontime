@@ -5,9 +5,7 @@ import { OntimeView, OntimeViewPresettable, URLPreset } from 'ontime-types';
 import ViewNavigationMenu from './common/components/navigation-menu/ViewNavigationMenu';
 import { PresetContext } from './common/context/PresetContext';
 import { useClientPath } from './common/hooks/useClientPath';
-import { useIsOnline } from './common/hooks/useSocket';
 import useUrlPresets from './common/hooks-query/useUrlPresets';
-import { cx } from './common/utils/styleUtils';
 import { getRouteFromPreset } from './common/utils/urlPresets';
 import Log from './features/log/Log';
 import Loader from './views/common/loader/Loader';
@@ -15,8 +13,6 @@ import NotFound from './views/common/not-found/NotFound';
 import ViewLoader from './views/ViewLoader';
 import { getIsNavigationLocked, sessionScope } from './externals';
 import { initializeSentry } from './sentry.config';
-
-import style from './views/ViewLoader.module.scss';
 
 const Timer = lazy(() => import('./views/timer/Timer'));
 const Countdown = lazy(() => import('./views/countdown/Countdown'));
@@ -179,7 +175,6 @@ const PresetViewMap: Record<OntimeViewPresettable, ComponentType> = {
 function PresetView() {
   const { data, status } = useUrlPresets();
   const { alias } = useParams();
-  const { isOnline } = useIsOnline();
 
   const preset: URLPreset | undefined = useMemo(() => {
     if (status === 'pending' || !alias) return;
@@ -203,10 +198,10 @@ function PresetView() {
    */
   if (!preset) {
     return (
-      <div className={cx([style.viewLoader, !isOnline && style.isOffline])}>
+      <>
         <ViewNavigationMenu isNavigationLocked={!showNav} suppressSettings />
         <NotFound />
-      </div>
+      </>
     );
   }
 
@@ -219,10 +214,8 @@ function PresetView() {
   const Component = PresetViewMap[preset.target as OntimeViewPresettable];
   return (
     <PresetContext value={preset}>
-      <div className={cx([style.viewLoader, !isOnline && style.isOffline])}>
-        <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} suppressSettings />
-        {Component ? <Component /> : <NotFound />}
-      </div>
+      <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} suppressSettings />
+      {Component ? <Component /> : <NotFound />}
     </PresetContext>
   );
 }
