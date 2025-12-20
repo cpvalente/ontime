@@ -4,6 +4,7 @@ import {
   MessageResponse,
   ProjectFileListResponse,
   ProjectLogoResponse,
+  TimeFormat,
 } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
@@ -16,6 +17,7 @@ import {
   handleProjectUploaded,
 } from '../../services/project-service/projectServiceUtils.js';
 import * as projectService from '../../services/project-service/ProjectService.js';
+import { getPartialProject } from '../../models/dataModel.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   try {
@@ -68,11 +70,24 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
  */
 export async function quickProjectFile(req: Request, res: Response<{ filename: string } | ErrorResponse>) {
   try {
-    const nameFromTitle = req.body.project.title ? sanitize(req.body.project.title) : 'untitled';
-    const filename = await projectService.createProject(nameFromTitle, req.body);
-    res.status(200).send({
-      filename,
+    const maybeProjectTitle: string | undefined = req.body.project?.title;
+    const maybeTimeFormat: TimeFormat | undefined = req.body.settings?.timeFormat;
+    const maybeLanguage: string | undefined = req.body.settings?.language;
+
+    const projectTitle = maybeProjectTitle ? sanitize(maybeProjectTitle) : 'untitled';
+    const project = getPartialProject('project');
+    const settings = getPartialProject('settings');
+
+    project.title = projectTitle;
+    if (maybeTimeFormat) settings.timeFormat = maybeTimeFormat;
+    if (maybeLanguage) settings.language = maybeLanguage;
+
+    const filename = await projectService.createProjectWithPatch(projectTitle, {
+      project,
+      settings,
     });
+
+    res.status(200).send({ filename });
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(500).send({ message });
