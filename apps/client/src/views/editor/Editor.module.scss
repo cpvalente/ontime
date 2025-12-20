@@ -1,24 +1,5 @@
-@use './EditorMixin' as editor;
-
 $min-playback-width: 27rem;
 $max-playback-width: 30rem;
-$panel-gap: 0.5rem;
-
-.mainContainer {
-  background-color: $ui-black;
-  width: 100%;
-  height: 100%;
-  color: $ui-white;
-  padding: 0.5rem;
-
-  display: grid;
-  grid-template-columns: auto;
-  grid-template-rows: 3.5rem 1fr;
-  grid-template-areas:
-    'overview'
-    'main';
-  gap: $panel-gap;
-}
 
 .panelContainer {
   grid-area: main;
@@ -26,15 +7,6 @@ $panel-gap: 0.5rem;
   display: flex;
   gap: $panel-gap;
   overflow: hidden;
-
-  .rundown,
-  .playback,
-  .messages {
-    position: relative;
-    border-radius: var(--editor--panel__br);
-    background-color: $bg-container-l2;
-    padding: 1rem;
-  }
 }
 
 .left {
@@ -44,19 +16,4 @@ $panel-gap: 0.5rem;
   display: flex;
   flex-direction: column;
   gap: $panel-gap;
-}
-
-.messages {
-  flex: 1;
-}
-
-.content {
-  padding-top: 1.5rem;
-}
-
-.contentColumnLayout {
-  display: flex;
-  flex-direction: column;
-  gap: $section-spacing;
-  color: $ui-white;
 }

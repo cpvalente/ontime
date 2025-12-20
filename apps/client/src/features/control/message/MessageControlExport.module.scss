@@ -1,0 +1,11 @@
+.flexPanel {
+  flex: 1;
+}
+
+.contentLayout {
+  display: flex;
+  flex-direction: column;
+  gap: $section-spacing;
+  color: $ui-white;
+  padding-top: $panel-top-padding;
+}

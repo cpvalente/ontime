@@ -1,5 +1,3 @@
-@use '../../views/editor/EditorMixin' as editor;
-
 .rundownExport {
   height: 100%;
   flex: 1 1 auto; /* flex-grow: 1, flex-shrink: 1, flex-basis: auto */
@@ -23,7 +21,7 @@
 }
 
 .list {
-  @include editor.panel;
+  display: flex;
   height: inherit;
   padding-inline: 0;
   box-shadow: $box-shadow-right;
