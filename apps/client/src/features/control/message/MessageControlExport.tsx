@@ -1,34 +1,32 @@
 import { memo } from 'react';
 
-import { CornerExtract } from '../../../common/components/editor-utils/EditorUtils';
+import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import ErrorBoundary from '../../../common/components/error-boundary/ErrorBoundary';
 import ViewNavigationMenu from '../../../common/components/navigation-menu/ViewNavigationMenu';
 import ProtectRoute from '../../../common/components/protect-route/ProtectRoute';
 import { handleLinks } from '../../../common/utils/linkUtils';
-import { cx } from '../../../common/utils/styleUtils';
 import { getIsNavigationLocked } from '../../../externals';
 
 import MessageControl from './MessageControl';
 
-import style from '../../../views/editor/Editor.module.scss';
+import style from './MessageControlExport.module.scss';
 
 export default memo(MessageControlExport);
 function MessageControlExport() {
   const isExtracted = window.location.pathname.includes('/messagecontrol');
-  const classes = cx([style.content, style.contentColumnLayout]);
 
   return (
     <ProtectRoute permission='editor'>
-      <div className={style.messages} data-testid='panel-messages-control'>
-        {!isExtracted && <CornerExtract onClick={(event) => handleLinks('messagecontrol', event)} />}
+      <Editor.Panel className={style.flexPanel} data-testid='panel-messages-control'>
+        {!isExtracted && <Editor.CornerExtract onClick={(event) => handleLinks('messagecontrol', event)} />}
         {isExtracted && <ViewNavigationMenu suppressSettings isNavigationLocked={getIsNavigationLocked()} />}
 
-        <div className={classes}>
+        <div className={style.contentLayout}>
           <ErrorBoundary>
             <MessageControl />
           </ErrorBoundary>
         </div>
-      </div>
+      </Editor.Panel>
     </ProtectRoute>
   );
 }

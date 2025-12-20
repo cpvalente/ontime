@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useSessionStorage } from '@mantine/hooks';
 
-import { CornerExtract } from '../../common/components/editor-utils/EditorUtils';
+import * as Editor from '../../common/components/editor-utils/EditorUtils';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
 import ProtectRoute from '../../common/components/protect-route/ProtectRoute';
@@ -58,14 +58,14 @@ function RundownExport() {
         <FinderPlacement />
         {isExtracted && <ViewNavigationMenu suppressSettings isNavigationLocked={getIsNavigationLocked()} />}
         <div className={style.rundown}>
-          <div className={style.list}>
+          <Editor.Panel className={style.list}>
             <ErrorBoundary>
-              {!isExtracted && <CornerExtract onClick={(event) => handleLinks('rundown', event)} />}
+              {!isExtracted && <Editor.CornerExtract onClick={(event) => handleLinks('rundown', event)} />}
               <RundownContextMenu>
                 <RundownWrapper />
               </RundownContextMenu>
             </ErrorBoundary>
-          </div>
+          </Editor.Panel>
           {!hideSideBar && (
             <div className={style.side}>
               <ErrorBoundary>
