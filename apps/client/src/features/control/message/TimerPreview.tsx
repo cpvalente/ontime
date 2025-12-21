@@ -10,7 +10,7 @@ import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx, timerPlaceholder } from '../../../common/utils/styleUtils';
 import PipRoot from '../../../views/editor/pip-timer/PipRoot';
 
-import style from './MessageControl.module.scss';
+import style from './TimerPreview.module.scss';
 
 const secondarySourceLabels: Record<string, string> = {
   aux1: 'Aux 1',

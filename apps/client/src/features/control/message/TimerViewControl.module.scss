@@ -1,0 +1,12 @@
+.previewContainer {
+  display: grid;
+  gap: $element-spacing;
+  grid-template-columns: 3fr 2fr;
+}
+
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: $element-spacing;
+}

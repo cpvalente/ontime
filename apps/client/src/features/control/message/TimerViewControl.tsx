@@ -8,7 +8,7 @@ import { setMessage, useTimerViewControl } from '../../../common/hooks/useSocket
 
 import TimerPreview from './TimerPreview';
 
-import style from './MessageControl.module.scss';
+import style from './TimerViewControl.module.scss';
 
 export default function TimerControlsPreview() {
   const { blackout, blink } = useTimerViewControl();
