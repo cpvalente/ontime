@@ -17,7 +17,7 @@ function MessageControlExport() {
 
   return (
     <ProtectRoute permission='editor'>
-      <Editor.Panel className={style.flexPanel} data-testid='panel-messages-control'>
+      <Editor.Panel className={style.growPanel} data-testid='panel-messages-control'>
         {!isExtracted && <Editor.CornerExtract onClick={(event) => handleLinks('messagecontrol', event)} />}
         {isExtracted && <ViewNavigationMenu suppressSettings isNavigationLocked={getIsNavigationLocked()} />}
 

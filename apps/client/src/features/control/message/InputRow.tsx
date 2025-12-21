@@ -42,7 +42,7 @@ export default function InputRow(props: PropsWithChildren<InputRowProps>) {
   };
 
   return (
-    <div className={style.inputRow}>
+    <div>
       <label className={cx([style.label, visible ?? style.active])} htmlFor={label}>
         {label}
       </label>
