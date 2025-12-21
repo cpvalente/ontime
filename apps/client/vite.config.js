@@ -110,9 +110,7 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         additionalData: `
-        @use '@/theme/ontimeColours' as *;
-        @use '@/theme/ontimeStyles' as *;
-        @use '@/theme/mixins' as *;
+        @use '@/theme/themeTokens' as *;
         `,
       },
     },
