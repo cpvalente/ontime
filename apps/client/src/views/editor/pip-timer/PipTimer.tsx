@@ -4,7 +4,7 @@ import { FitText } from '../../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import { useTimerSocket } from '../../../common/hooks/useSocket';
 import { cx } from '../../../common/utils/styleUtils';
-import { getFormattedTimer, getTimerByType } from '../../../features/viewers/common/viewUtils';
+import { getFormattedTimer, getTimerByType } from '../../common/viewUtils';
 import {
   getEstimatedFontSize,
   getIsPlaying,

@@ -28,7 +28,7 @@ import { useEntry } from '../../../common/hooks-query/useRundown';
 import { getOffsetState, getOffsetText } from '../../../common/utils/offset';
 import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
-import SuperscriptPeriod from '../../viewers/common/superscript-time/SuperscriptPeriod';
+import SuperscriptPeriod from '../../../views/common/superscript-time/SuperscriptPeriod';
 import { calculateEndAndDaySpan, formatDueTime } from '../overview.utils';
 
 import { OverUnder, TimeColumn, WrappedInTimeColumn } from './TimeLayout';

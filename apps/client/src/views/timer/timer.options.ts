@@ -13,7 +13,7 @@ import { OptionTitle } from '../../common/components/view-params-editor/constant
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
 import { PresetContext } from '../../common/context/PresetContext';
-import { isStringBoolean, makeColourString } from '../../features/viewers/common/viewUtils';
+import { isStringBoolean, makeColourString } from '../common/viewUtils';
 
 // manually match the properties of TimerType excluding the None
 const timerDisplayOptions: SelectOption[] = [

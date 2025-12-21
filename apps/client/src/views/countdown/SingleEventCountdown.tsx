@@ -8,8 +8,8 @@ import { useExpectedStartData } from '../../common/hooks/useSocket';
 import useReport from '../../common/hooks-query/useReport';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
-import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
-import { getPropertyValue } from '../../features/viewers/common/viewUtils';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import { getPropertyValue } from '../common/viewUtils';
 
 import { useCountdownOptions } from './countdown.options';
 import { useSubscriptionDisplayData } from './countdown.utils';

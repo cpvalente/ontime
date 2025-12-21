@@ -13,9 +13,9 @@ import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
 import FollowButton from '../../features/operator/follow-button/FollowButton';
-import ClockTime from '../../features/viewers/common/clock-time/ClockTime';
-import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
-import { getPropertyValue } from '../../features/viewers/common/viewUtils';
+import ClockTime from '../common/clock-time/ClockTime';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import { getPropertyValue } from '../common/viewUtils';
 
 import { useCountdownOptions } from './countdown.options';
 import {

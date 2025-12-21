@@ -4,7 +4,7 @@ import { useIsSmallScreen } from '../../common/hooks/useIsSmallScreen';
 import { useStudioClockSocket } from '../../common/hooks/useSocket';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime } from '../../common/utils/time';
-import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import { getLargeClockData } from './studioClock.utils';
 

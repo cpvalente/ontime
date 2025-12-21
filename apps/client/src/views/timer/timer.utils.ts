@@ -1,7 +1,7 @@
 import { MaybeNumber, MessageState, OntimeEvent, Playback, TimerMessage, TimerPhase, TimerType } from 'ontime-types';
 import { isPlaybackActive } from 'ontime-utils';
 
-import { getFormattedTimer, getPropertyValue } from '../../features/viewers/common/viewUtils';
+import { getFormattedTimer, getPropertyValue } from '../common/viewUtils';
 
 /**
  * Whether a message should be shown

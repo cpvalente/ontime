@@ -11,9 +11,9 @@ import { useClock } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
-import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import { getCountdownOptions, useCountdownOptions } from './countdown.options';
 import { getOrderedSubscriptions } from './countdown.utils';

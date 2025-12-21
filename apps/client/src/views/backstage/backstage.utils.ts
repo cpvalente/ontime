@@ -1,7 +1,7 @@
 import { MaybeNumber, OntimeEvent, Playback, TimerPhase } from 'ontime-types';
 
 import { enDash } from '../../common/utils/styleUtils';
-import { getPropertyValue } from '../../features/viewers/common/viewUtils';
+import { getPropertyValue } from '../common/viewUtils';
 
 /**
  * Whether the current time is in overtime

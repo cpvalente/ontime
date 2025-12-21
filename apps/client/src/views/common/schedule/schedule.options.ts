@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router';
 import { SelectOption } from '../../../common/components/select/Select';
 import { OptionTitle } from '../../../common/components/view-params-editor/constants';
 import type { ViewOption } from '../../../common/components/view-params-editor/viewParams.types';
-import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
+import { isStringBoolean } from '../viewUtils';
 
 export const getScheduleOptions = (customFieldOptions: SelectOption[]): ViewOption => ({
   title: OptionTitle.Schedule,

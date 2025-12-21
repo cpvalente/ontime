@@ -10,7 +10,7 @@ import {
   makeOptionsFromCustomFields,
 } from '../../common/components/view-params-editor/viewParams.utils';
 import { PresetContext } from '../../common/context/PresetContext';
-import { isStringBoolean } from '../viewers/common/viewUtils';
+import { isStringBoolean } from '../../views/common/viewUtils';
 
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ViewOption[] => {
   const fieldOptions = makeOptionsFromCustomFields(customFields, [

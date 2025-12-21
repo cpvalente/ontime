@@ -5,7 +5,7 @@ import { getOffsetState } from '../../../common/utils/offset';
 import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { cx } from '../../../common/utils/styleUtils';
 import { formatTime, getExpectedTimesFromExtendedEvent } from '../../../common/utils/time';
-import SuperscriptPeriod from '../../../features/viewers/common/superscript-time/SuperscriptPeriod';
+import SuperscriptPeriod from '../superscript-time/SuperscriptPeriod';
 
 import { useScheduleOptions } from './schedule.options';
 
