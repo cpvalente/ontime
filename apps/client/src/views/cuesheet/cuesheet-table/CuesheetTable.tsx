@@ -10,6 +10,8 @@ import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { useSelectedEventId } from '../../../common/hooks/useSocket';
 import { useFlatRundownWithMetadata } from '../../../common/hooks-query/useRundown';
 import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
+import { usePersistedRundownOptions } from '../../../features/rundown/rundown.options';
+import EditorTableSettings from '../../../features/rundown/rundown-table/EditorTableSettings';
 import { AppMode } from '../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../cuesheet.options';
 
@@ -19,6 +21,7 @@ import EventRow from './cuesheet-table-elements/EventRow';
 import GroupRow from './cuesheet-table-elements/GroupRow';
 import MilestoneRow from './cuesheet-table-elements/MilestoneRow';
 import CuesheetTableMenu from './cuesheet-table-menu/CuesheetTableMenu';
+import EditorTableMenu from './cuesheet-table-menu/EditorTableMenu';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
 import { useColumnOrder, useColumnSizes, useColumnVisibility } from './useColumnManager';
 
@@ -27,14 +30,17 @@ import style from './CuesheetTable.module.scss';
 interface CuesheetTableProps {
   columns: ColumnDef<ExtendedEntry>[];
   cuesheetMode: AppMode;
+  tableRoot?: 'editor' | 'cuesheet';
 }
 
-export default function CuesheetTable({ columns, cuesheetMode }: CuesheetTableProps) {
+export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cuesheet' }: CuesheetTableProps) {
   const { data, status } = useFlatRundownWithMetadata();
   const { updateEntry, updateTimer } = useEntryActions();
-  const showDelayedTimes = usePersistedCuesheetOptions((state) => state.showDelayedTimes);
-  const hideTableSeconds = usePersistedCuesheetOptions((state) => state.hideTableSeconds);
-  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
+
+  const useOptions = tableRoot === 'editor' ? usePersistedRundownOptions : usePersistedCuesheetOptions;
+  const showDelayedTimes = useOptions((state) => state.showDelayedTimes);
+  const hideTableSeconds = useOptions((state) => state.hideTableSeconds);
+  const hideIndexColumn = useOptions((state) => state.hideIndexColumn);
 
   const { selectedEventId } = useSelectedEventId();
 
@@ -79,9 +85,9 @@ export default function CuesheetTable({ columns, cuesheetMode }: CuesheetTablePr
     [cuesheetMode, data, hideIndexColumn, hideTableSeconds, showDelayedTimes, updateEntry, updateTimer],
   );
 
-  const { columnOrder, resetColumnOrder } = useColumnOrder(columns);
-  const { columnSizing, setColumnSizing } = useColumnSizes();
-  const { columnVisibility, setColumnVisibility } = useColumnVisibility();
+  const { columnOrder, resetColumnOrder } = useColumnOrder(columns, tableRoot);
+  const { columnSizing, setColumnSizing } = useColumnSizes(tableRoot);
+  const { columnVisibility, setColumnVisibility } = useColumnVisibility(tableRoot);
 
   const table = useReactTable({
     data,
@@ -143,9 +149,13 @@ export default function CuesheetTable({ columns, cuesheetMode }: CuesheetTablePr
     return <EmptyPage text='Loading...' />;
   }
 
+  // control components need different implementations for handling permissions
+  const TableRootSettings = tableRoot === 'editor' ? EditorTableSettings : CuesheetTableSettings;
+  const TableMenu = tableRoot === 'editor' ? EditorTableMenu : CuesheetTableMenu;
+
   return (
     <>
-      <CuesheetTableSettings
+      <TableRootSettings
         columns={allLeafColumns}
         handleResetResizing={resetColumnResizing}
         handleResetReordering={resetColumnOrder}
@@ -249,7 +259,7 @@ export default function CuesheetTable({ columns, cuesheetMode }: CuesheetTablePr
         }}
       />
 
-      <CuesheetTableMenu />
+      <TableMenu />
     </>
   );
 }

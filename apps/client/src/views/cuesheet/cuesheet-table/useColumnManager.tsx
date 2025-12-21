@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { ColumnDef, ColumnSizingState, Updater } from '@tanstack/react-table';
 
@@ -6,15 +6,11 @@ import { debounce } from '../../../common/utils/debounce';
 import { makeStageKey } from '../../../common/utils/localStorage';
 import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 
-const tableSizesKey = makeStageKey('cuesheet-sizes');
-const tableHiddenKey = makeStageKey('cuesheet-hidden');
-const tableOrderKey = makeStageKey('cuesheet-order');
+type TableRoot = 'editor' | 'cuesheet';
 
-const saveSizesToStorage = debounce((sizes: Record<string, number>) => {
-  localStorage.setItem(tableSizesKey, JSON.stringify(sizes));
-}, 500);
+export function useColumnSizes(tableRoot: TableRoot = 'cuesheet') {
+  const tableSizesKey = useMemo(() => makeStageKey(`${tableRoot}-table-sizes`), [tableRoot]);
 
-export function useColumnSizes() {
   const [columnSizing, setColumnSizingState] = useState<Record<string, number>>(() => {
     try {
       const stored = localStorage.getItem(tableSizesKey);
@@ -26,8 +22,11 @@ export function useColumnSizes() {
 
   // save sizes to localStorage whenever they change (debounced)
   useEffect(() => {
+    const saveSizesToStorage = debounce((sizes: Record<string, number>) => {
+      localStorage.setItem(tableSizesKey, JSON.stringify(sizes));
+    }, 500);
     saveSizesToStorage(columnSizing);
-  }, [columnSizing]);
+  }, [columnSizing, tableSizesKey]);
 
   const setColumnSizing = useCallback((sizesOrUpdater: Updater<ColumnSizingState>) => {
     setColumnSizingState(sizesOrUpdater);
@@ -39,7 +38,9 @@ export function useColumnSizes() {
   };
 }
 
-export function useColumnOrder(columns: ColumnDef<ExtendedEntry>[]) {
+export function useColumnOrder(columns: ColumnDef<ExtendedEntry>[], tableRoot: TableRoot = 'cuesheet') {
+  const tableOrderKey = useMemo(() => makeStageKey(`${tableRoot}-table-order`), [tableRoot]);
+
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>({
     key: tableOrderKey,
     defaultValue: columns.map((col) => col.id as string),
@@ -64,7 +65,9 @@ export function useColumnOrder(columns: ColumnDef<ExtendedEntry>[]) {
   };
 }
 
-export function useColumnVisibility() {
+export function useColumnVisibility(tableRoot: TableRoot = 'cuesheet') {
+  const tableHiddenKey = useMemo(() => makeStageKey(`${tableRoot}-table-hidden`), [tableRoot]);
+
   const [columnVisibility, setColumnVisibility] = useLocalStorage({
     key: tableHiddenKey,
     defaultValue: {},
