@@ -1,4 +1,5 @@
-@import "../CuesheetTable.module.scss";
+@use '../cuesheetRows' as rows;
+@include rows.cuesheet-row-columns;
 
 .milestoneRow {
   background: color-mix(in srgb, transparent 98%, var(--user-bg, $gray-500) 2%);
