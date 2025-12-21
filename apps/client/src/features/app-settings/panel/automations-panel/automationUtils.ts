@@ -27,6 +27,7 @@ export function isAutomation(automation: AutomationDTO | Automation): automation
 }
 
 const staticSelectProperties = [
+  { value: null, label: 'Select field' },
   { value: 'eventNow.id', label: 'ID' },
   { value: 'eventNow.title', label: 'Title' },
   { value: 'eventNow.cue', label: 'Cue' },
@@ -42,7 +43,7 @@ const staticNextSelectProperties = [
 ];
 
 type SelectableField = {
-  value: string; // string encodes path in runtime state object
+  value: string | null; // string encodes path in runtime state object
   label: string;
 };
 

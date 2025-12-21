@@ -124,8 +124,14 @@ export const validateTestPayload = [
   body('action').if(body('type').equals('ontime')).isString().trim(),
   body('text').if(body('type').equals('ontime')).optional().isString().trim(),
   body('time').if(body('type').equals('ontime')).optional().isString().trim(),
-  body('visible').if(body('type').equals('ontime')).optional().isString().trim(),
-  body('secondarySource').if(body('type').equals('ontime')).optional().isString().trim(),
+  body('visible').if(body('type').equals('ontime')).optional().isBoolean(),
+  // secondary source can be a enum case or null to clear it
+  body('secondarySource')
+    .if(body('type').equals('ontime'))
+    .optional({ nullable: true })
+    .if((value) => value !== null)
+    .isString()
+    .trim(),
 
   requestValidationFunction,
 ];
@@ -222,8 +228,16 @@ function parseOntimeAction(maybeOntimeAction: object): OntimeAction {
 
   if (maybeOntimeAction.action === 'message-secondary') {
     assert.hasKeys(maybeOntimeAction, ['secondarySource']);
-    assert.isString(maybeOntimeAction.secondarySource);
+    // null is used to clear the secondary source
+    if (maybeOntimeAction.secondarySource === null) {
+      return {
+        type: 'ontime',
+        action: 'message-secondary',
+        secondarySource: null,
+      };
+    }
 
+    assert.isString(maybeOntimeAction.secondarySource);
     return {
       type: 'ontime',
       action: 'message-secondary',

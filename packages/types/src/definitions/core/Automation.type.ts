@@ -98,6 +98,7 @@ export type OntimeAction =
       text?: string;
       visible?: boolean;
     }
+    // TODO: when setting a secondary source of type secondary we could specify a value to it
   | {
       type: 'ontime';
       action: OntimeMessageSecondary;
