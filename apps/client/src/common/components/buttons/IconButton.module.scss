@@ -1,5 +1,6 @@
-@use '@/theme/viewerDefs' as *;
-@import './BaseButtonStyles.module.scss';
+@use './buttonVariants' as base;
+
+@include base.button-variants;
 
 .baseIconButton {
   aspect-ratio: 1;

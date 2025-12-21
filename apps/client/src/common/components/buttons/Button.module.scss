@@ -1,5 +1,6 @@
-@use '@/theme/viewerDefs' as *;
-@import './BaseButtonStyles.module.scss';
+@use './buttonVariants' as base;
+
+@include base.button-variants;
 
 .baseButton {
   position: relative;
@@ -81,4 +82,3 @@
 .fluid {
   width: 100%;
 }
-
