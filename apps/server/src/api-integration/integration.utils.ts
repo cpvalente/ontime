@@ -3,6 +3,7 @@ import { maxDuration } from 'ontime-utils';
 
 import { coerceBoolean, coerceColour, coerceEnum, coerceNumber, coerceString } from '../utils/coerceType.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
+import { getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
 
 /**
  *
@@ -67,7 +68,7 @@ export function isValidChangeProperty(target: OntimeEntry, property: string, val
   if (property.startsWith('custom:') && 'custom' in target) {
     const customProperty = property.slice('custom:'.length);
     if (!customProperty) return false;
-    return Object.hasOwn(target.custom, customProperty);
+    return Object.hasOwn(getProjectCustomFields(), customProperty);
   }
   return Object.hasOwn(target, property);
 }
