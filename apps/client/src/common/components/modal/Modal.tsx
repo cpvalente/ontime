@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { IoClose } from 'react-icons/io5';
-import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
+import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 
 import IconButton from '../buttons/IconButton';
 
@@ -31,7 +31,7 @@ export default function Modal({
       onOpenChange={(isOpen) => {
         if (!isOpen) onClose();
       }}
-      dismissible={false}
+      disablePointerDismissal
     >
       <BaseDialog.Portal>
         {showBackdrop && <BaseDialog.Backdrop className={style.backdrop} />}

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { IoClose } from 'react-icons/io5';
-import { Dialog as BaseDialog } from '@base-ui-components/react/dialog';
+import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 
 import IconButton from '../buttons/IconButton';
 
@@ -12,7 +12,7 @@ interface DialogProps {
   showCloseButton?: boolean;
   showBackdrop?: boolean;
   bodyElements: ReactNode;
-  footerElements: ReactNode;
+  footerElements?: ReactNode;
   onClose: () => void;
 }
 

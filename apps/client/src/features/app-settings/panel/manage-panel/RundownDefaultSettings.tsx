@@ -51,7 +51,10 @@ export default function RundownDefaultSettings() {
               />
               <Select
                 value={defaultTimeStrategy}
-                onValueChange={(value) => setTimeStrategy(value as TimeStrategy)}
+                onValueChange={(value: TimeStrategy | null) => {
+                  if (value === null) return;
+                  setTimeStrategy(value);
+                }}
                 options={[
                   { value: TimeStrategy.LockDuration, label: 'Duration' },
                   { value: TimeStrategy.LockEnd, label: 'End Time' },
@@ -73,7 +76,10 @@ export default function RundownDefaultSettings() {
               <Panel.Field title='Timer type' description='Default type of timer for new events' />
               <Select
                 value={defaultTimerType}
-                onValueChange={(value) => setDefaultTimerType(value as TimerType)}
+                onValueChange={(value: TimerType | null) => {
+                  if (value === null) return;
+                  setDefaultTimerType(value);
+                }}
                 options={[
                   { value: TimerType.CountDown, label: 'Count down' },
                   { value: TimerType.CountUp, label: 'Count up' },
@@ -86,7 +92,10 @@ export default function RundownDefaultSettings() {
               <Panel.Field title='End Action' description='Default end action for new events' />
               <Select
                 value={defaultEndAction}
-                onValueChange={(value) => setDefaultEndAction(value as EndAction)}
+                onValueChange={(value: EndAction | null) => {
+                  if (value === null) return;
+                  setDefaultEndAction(value);
+                }}
                 options={[
                   { value: EndAction.None, label: 'None' },
                   { value: EndAction.LoadNext, label: 'Load next' },

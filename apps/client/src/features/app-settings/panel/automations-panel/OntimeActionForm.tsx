@@ -44,8 +44,9 @@ export default function OntimeActionForm({
       <label>
         Action
         <Select
-          onValueChange={(value) => {
-            handleSetAction(value as OntimeActionKey);
+          onValueChange={(value: OntimeActionKey | null) => {
+            if (value === null) return;
+            handleSetAction(value);
           }}
           value={watch(`outputs.${index}.action`)}
           options={[
@@ -96,7 +97,8 @@ export default function OntimeActionForm({
           <label>
             Visibility
             <Select
-              onValueChange={(value) => {
+              onValueChange={(value: boolean | 'untouched' | null) => {
+                if (value === null) return;
                 // we need to translate the undefined value to 'untouched'
                 const translatedValue = value === 'untouched' ? undefined : (value as boolean | undefined);
                 setValue(`outputs.${index}.visible`, translatedValue, { shouldDirty: true });
@@ -117,7 +119,8 @@ export default function OntimeActionForm({
         <label>
           Timer secondary source
           <Select
-            onValueChange={(value) => {
+            onValueChange={(value: SecondarySource | null) => {
+              if (value === null) return;
               setValue(`outputs.${index}.secondarySource`, value as SecondarySource, { shouldDirty: true });
             }}
             value={watch(`outputs.${index}.secondarySource`)}

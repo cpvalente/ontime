@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 
 import style from './Popover.module.scss';
 

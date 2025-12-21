@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { Toolbar } from '@base-ui-components/react/toolbar';
+import { Toolbar } from '@base-ui/react/toolbar';
 import { MaybeString, SupportedEntry } from 'ontime-types';
 
 import Button from '../../../../common/components/buttons/Button';

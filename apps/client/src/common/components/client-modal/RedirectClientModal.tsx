@@ -5,10 +5,10 @@ import { navigatorConstants } from '../../../viewerConfig';
 import { setClientRemote } from '../../hooks/useSocket';
 import useUrlPresets from '../../hooks-query/useUrlPresets';
 import Button from '../buttons/Button';
+import Dialog from '../dialog/Dialog';
 import Info from '../info/Info';
 import Input from '../input/input/Input';
 import AppLink from '../link/app-link/AppLink';
-import Modal from '../modal/Modal';
 import Select from '../select/Select';
 
 import style from './RedirectClientModal.module.scss';
@@ -57,7 +57,7 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
   ];
 
   return (
-    <Modal
+    <Dialog
       isOpen={isOpen}
       onClose={onClose}
       showCloseButton
@@ -98,7 +98,10 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
                   fluid
                   options={viewOptions}
                   defaultValue={viewOptions[0].value}
-                  onValueChange={(value) => setSelected(value)}
+                  onValueChange={(value) => {
+                    if (value === null) return;
+                    setSelected(value);
+                  }}
                   disabled={enabledPresets.length === 0}
                 />
               </label>

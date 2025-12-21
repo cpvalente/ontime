@@ -153,7 +153,10 @@ export default function GeneralSettings() {
                 />
                 <Select
                   value={watch('timeFormat')}
-                  onValueChange={(value) => setValue('timeFormat', value as '12' | '24', { shouldDirty: true })}
+                  onValueChange={(value: '12' | '24' | null) => {
+                    if (value === null) return;
+                    setValue('timeFormat', value, { shouldDirty: true });
+                  }}
                   defaultValue='24'
                   options={[
                     { value: '12', label: '12 hours 11:00:10 PM' },
@@ -169,7 +172,10 @@ export default function GeneralSettings() {
                 />
                 <Select
                   value={watch('language')}
-                  onValueChange={(value) => setValue('language', value, { shouldDirty: true })}
+                  onValueChange={(value: string | null) => {
+                    if (value === null) return;
+                    setValue('language', value, { shouldDirty: true });
+                  }}
                   disabled={disableInputs}
                   defaultValue='en'
                   options={[

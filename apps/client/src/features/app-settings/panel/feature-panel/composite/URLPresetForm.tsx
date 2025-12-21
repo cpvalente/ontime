@@ -142,7 +142,10 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
           options={targetOptions}
           {...register('target', { required: 'Target is required' })}
           value={watch('target')}
-          onValueChange={(value) => setValue('target', value, { shouldDirty: true })}
+          onValueChange={(value: OntimeViewPresettable | null) => {
+            if (value === null) return;
+            setValue('target', value, { shouldDirty: true });
+          }}
         />
       </div>
       <div>

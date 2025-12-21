@@ -1,7 +1,7 @@
 import { memo } from 'react';
-import { Toggle } from '@base-ui-components/react/toggle';
-import { ToggleGroup } from '@base-ui-components/react/toggle-group';
-import { Toolbar } from '@base-ui-components/react/toolbar';
+import { Toggle } from '@base-ui/react/toggle';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Toolbar } from '@base-ui/react/toolbar';
 import { useSessionStorage } from '@mantine/hooks';
 import { OffsetMode } from 'ontime-types';
 

@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { HexAlphaColorPicker, HexColorInput } from 'react-colorful';
-import { Popover } from '@base-ui-components/react/popover';
+import { Popover } from '@base-ui/react/popover';
 
 import PopoverContents from '../../popover/Popover';
 

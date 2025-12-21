@@ -232,7 +232,10 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                   Runtime data source
                   <Select
                     value={watch(`filters.${index}.field`)}
-                    onValueChange={(value) => setValue(`filters.${index}.field`, value, { shouldDirty: true })}
+                    onValueChange={(value: string | null) => {
+                      if (value === null) return;
+                      setValue(`filters.${index}.field`, value, { shouldDirty: true });
+                    }}
                     options={fieldList.map(({ value, label }) => ({ value, label }))}
                     aria-label='Event field'
                   />
@@ -242,11 +245,14 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                   Matching condition
                   <Select
                     value={watch(`filters.${index}.operator`)}
-                    onValueChange={(value) =>
-                      setValue(`filters.${index}.operator`, value as 'equals' | 'not_equals' | 'contains', {
-                        shouldDirty: true,
-                      })
-                    }
+                    onValueChange={(value: string | null) => {
+                      if (value === null) return;
+                      setValue(
+                        `filters.${index}.operator`,
+                        value as 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains' | 'not_contains',
+                        { shouldDirty: true },
+                      );
+                    }}
                     options={[
                       { value: 'equals', label: 'equals' },
                       { value: 'not_equals', label: 'not equals' },

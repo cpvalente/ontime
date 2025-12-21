@@ -102,7 +102,10 @@ function EventEditorTimes({
             <Editor.Label htmlFor='endAction'>End Action</Editor.Label>
             <Select
               value={endAction}
-              onValueChange={(value) => handleSubmit('endAction', value)}
+              onValueChange={(value: EndAction | null) => {
+                if (value === null) return;
+                handleSubmit('endAction', value);
+              }}
               options={[
                 { value: EndAction.None, label: 'None' },
                 { value: EndAction.LoadNext, label: 'Load next event' },
@@ -139,7 +142,10 @@ function EventEditorTimes({
             <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>
             <Select
               value={timerType}
-              onValueChange={(value) => handleSubmit('timerType', value)}
+              onValueChange={(value: TimerType | null) => {
+                if (value === null) return;
+                handleSubmit('timerType', value);
+              }}
               options={[
                 { value: TimerType.CountDown, label: 'Count down' },
                 { value: TimerType.CountUp, label: 'Count up' },

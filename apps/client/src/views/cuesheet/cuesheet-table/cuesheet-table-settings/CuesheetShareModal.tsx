@@ -1,4 +1,4 @@
-import { Toolbar } from '@base-ui-components/react/toolbar';
+import { Toolbar } from '@base-ui/react/toolbar';
 import { useDisclosure } from '@mantine/hooks';
 import { OntimeView } from 'ontime-types';
 

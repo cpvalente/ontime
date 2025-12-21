@@ -106,7 +106,10 @@ export default function TriggerForm({
         Lifecycle trigger
         <Select
           value={watch('trigger')}
-          onValueChange={(value) => setValue('trigger', value as TimerLifeCycle, { shouldDirty: true })}
+          onValueChange={(value) => {
+            if (value === null) return;
+            setValue('trigger', value as TimerLifeCycle, { shouldDirty: true });
+          }}
           options={cycles.map((cycle) => ({ value: cycle.value, label: cycle.label }))}
           aria-label='Lifecycle trigger'
         />
@@ -116,7 +119,10 @@ export default function TriggerForm({
         Automation title
         <Select
           value={watch('automationId')}
-          onValueChange={(value) => setValue('automationId', value, { shouldDirty: true })}
+          onValueChange={(value: string | null) => {
+            if (value === null) return;
+            setValue('automationId', value, { shouldDirty: true });
+          }}
           options={automationSelect}
           aria-label='Automation title'
         />

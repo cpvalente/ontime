@@ -160,7 +160,16 @@ function ControlledSelect({ id, initialValue, options }: ControlledSelectProps) 
   }, [initialValue]);
 
   return (
-    <Select size='large' name={id} options={options} value={selected} onValueChange={(value) => setSelected(value)} />
+    <Select
+      size='large'
+      name={id}
+      options={options}
+      value={selected}
+      onValueChange={(value) => {
+        if (value === null) return;
+        setSelected(value);
+      }}
+    />
   );
 }
 

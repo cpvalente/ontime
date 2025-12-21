@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { Tooltip as BaseTooltip } from '@base-ui-components/react/tooltip';
+import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 
 import style from './Tooltip.module.scss';
 

@@ -1,9 +1,9 @@
 import { ReactNode, use } from 'react';
 import { IoChevronDown, IoOptions, IoSettingsOutline } from 'react-icons/io5';
-import { Popover } from '@base-ui-components/react/popover';
-import { Toggle } from '@base-ui-components/react/toggle';
-import { ToggleGroup } from '@base-ui-components/react/toggle-group';
-import { Toolbar } from '@base-ui-components/react/toolbar';
+import { Popover } from '@base-ui/react/popover';
+import { Toggle } from '@base-ui/react/toggle';
+import { ToggleGroup } from '@base-ui/react/toggle-group';
+import { Toolbar } from '@base-ui/react/toolbar';
 import { useSessionStorage } from '@mantine/hooks';
 import type { Column } from '@tanstack/react-table';
 

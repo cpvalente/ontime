@@ -75,7 +75,10 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
               />
               <Select
                 value={watch('settings.timeFormat')}
-                onValueChange={(value: '12' | '24') => setValue('settings.timeFormat', value, { shouldDirty: true })}
+                onValueChange={(value: '12' | '24' | null) => {
+                  if (value === null) return;
+                  setValue('settings.timeFormat', value, { shouldDirty: true });
+                }}
                 defaultValue='24'
                 options={[
                   { value: '12', label: '12 hours 11:00:10 PM' },
@@ -91,7 +94,10 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
               />
               <Select
                 value={watch('settings.language')}
-                onValueChange={(value: string) => setValue('settings.language', value, { shouldDirty: true })}
+                onValueChange={(value: string | null) => {
+                  if (value === null) return;
+                  setValue('settings.language', value, { shouldDirty: true });
+                }}
                 defaultValue='en'
                 options={[
                   { value: 'en', label: 'English' },

@@ -1,7 +1,7 @@
 import { FormEvent, memo } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useSearchParams } from 'react-router';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Dialog } from '@base-ui/react/dialog';
 import { OntimeView } from 'ontime-types';
 
 import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
