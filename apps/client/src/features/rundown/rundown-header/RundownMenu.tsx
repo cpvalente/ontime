@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import { IoTrash } from 'react-icons/io5';
-import { Toolbar } from '@base-ui-components/react/toolbar';
+import { Toolbar } from '@base-ui/react/toolbar';
 import { useDisclosure, useSessionStorage } from '@mantine/hooks';
 
 import Button from '../../../common/components/buttons/Button';

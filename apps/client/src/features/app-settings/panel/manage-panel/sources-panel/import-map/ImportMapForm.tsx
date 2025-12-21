@@ -162,9 +162,10 @@ export default function ImportMapForm({
                     <Select
                       id={importName as string}
                       value={watch(label as keyof NamedImportMap) as string}
-                      onValueChange={(value: string) =>
-                        setValue(label as keyof NamedImportMap, value, { shouldDirty: true })
-                      }
+                      onValueChange={(value: string | null) => {
+                        if (value === null) return;
+                        setValue(label as keyof NamedImportMap, value, { shouldDirty: true });
+                      }}
                       options={worksheetNames?.map((name) => ({ value: name, label: name })) || []}
                     />
                   </td>

@@ -1,6 +1,6 @@
 import { Fragment, useRef, useState } from 'react';
 import { IoClose } from 'react-icons/io5';
-import { Dialog } from '@base-ui-components/react/dialog';
+import { Dialog } from '@base-ui/react/dialog';
 import { OntimeEvent } from 'ontime-types';
 
 import Button from '../../../common/components/buttons/Button';

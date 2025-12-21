@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { IconType } from 'react-icons';
-import { Menu as BaseMenu } from '@base-ui-components/react/menu';
+import { Menu as BaseMenu } from '@base-ui/react/menu';
 
 import style from './DropdownMenu.module.scss';
 
@@ -31,7 +31,13 @@ export function DropdownMenu({ items, children, ...triggerProps }: PropsWithChil
                 return <BaseMenu.Separator key={index} className={style.separator} />;
               }
               return (
-                <BaseMenu.Item key={index} className={style.item} onClick={item.onClick} disabled={item.disabled} data-type={item.type}>
+                <BaseMenu.Item
+                  key={index}
+                  className={style.item}
+                  onClick={item.onClick}
+                  disabled={item.disabled}
+                  data-type={item.type}
+                >
                   {item.icon && <item.icon />}
                   {item.label}
                 </BaseMenu.Item>

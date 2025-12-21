@@ -1,6 +1,6 @@
 import { IoCheckmark } from 'react-icons/io5';
 import { LuChevronsUpDown } from 'react-icons/lu';
-import { Select as BaseSelect } from '@base-ui-components/react/select';
+import { Select as BaseSelect } from '@base-ui/react/select';
 
 import { cx } from '../../utils/styleUtils';
 

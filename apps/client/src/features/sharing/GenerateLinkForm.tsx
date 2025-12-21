@@ -179,7 +179,10 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                 <Select
                   options={hostOptions}
                   value={watch('baseUrl')}
-                  onValueChange={(value) => setValue('baseUrl', value)}
+                  onValueChange={(value: string | null) => {
+                    if (value === null) return;
+                    setValue('baseUrl', value);
+                  }}
                 />
               </Panel.ListItem>
             )}
@@ -191,7 +194,10 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                 <Select
                   options={pathOptions}
                   value={watch('path')}
-                  onValueChange={(value) => setValue('path', value, { shouldDirty: true })}
+                  onValueChange={(value: OntimeView | string | null) => {
+                    if (value === null) return;
+                    setValue('path', value, { shouldDirty: true });
+                  }}
                 />
               </Panel.ListItem>
             )}
