@@ -14,7 +14,7 @@ import { AppMode, sessionKeys } from '../../ontimeConfig';
 import RundownEntryEditor from './entry-editor/RundownEntryEditor';
 import FinderPlacement from './placements/FinderPlacement';
 import { RundownContextMenu } from './rundown-context-menu/RundownContextMenu';
-import RundownWrapper from './RundownWrapper';
+import RundownWrapper, { RundownViewMode } from './RundownWrapper';
 
 import style from './RundownExport.module.scss';
 
@@ -25,6 +25,10 @@ function RundownExport() {
   const [editorMode] = useSessionStorage({
     key: sessionKeys.editorMode,
     defaultValue: AppMode.Edit,
+  });
+  const [viewMode, setViewMode] = useSessionStorage<RundownViewMode>({
+    key: 'rundown-view-mode',
+    defaultValue: 'list',
   });
   const isSmallDevice = useIsSmallDevice();
 
@@ -41,7 +45,7 @@ function RundownExport() {
           <div className={style.rundown}>
             <ErrorBoundary>
               <RundownContextMenu>
-                <RundownWrapper isSmallDevice />
+                <RundownWrapper isSmallDevice viewMode={viewMode} setViewMode={setViewMode} />
               </RundownContextMenu>
             </ErrorBoundary>
           </div>
@@ -50,7 +54,7 @@ function RundownExport() {
     );
   }
 
-  const hideSideBar = isExtracted && editorMode === 'run';
+  const hideSideBar = (isExtracted && editorMode === 'run') || viewMode === 'table';
 
   return (
     <ProtectRoute permission='editor'>
@@ -62,7 +66,7 @@ function RundownExport() {
             <ErrorBoundary>
               {!isExtracted && <Editor.CornerExtract onClick={(event) => handleLinks('rundown', event)} />}
               <RundownContextMenu>
-                <RundownWrapper />
+                <RundownWrapper viewMode={viewMode} setViewMode={setViewMode} />
               </RundownContextMenu>
             </ErrorBoundary>
           </Editor.Panel>
