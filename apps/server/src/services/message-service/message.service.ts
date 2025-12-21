@@ -3,6 +3,7 @@ import { DeepPartial } from 'ts-essentials';
 
 import { throttle } from '../../utils/throttle.js';
 import type { StoreGetter, PublishFn } from '../../stores/EventStore.js';
+import { withoutUndefinedValues } from '../../../../../packages/utils/src/common/objectUtils.js';
 
 /**
  * Create a throttled version of the set function
@@ -42,7 +43,10 @@ export function patch(patch: DeepPartial<MessageState>): MessageState {
   // make a copy of the state in store
   const newState = { ...getState() };
 
-  if ('timer' in patch) newState.timer = { ...newState.timer, ...patch.timer };
+  if (patch.timer !== undefined) {
+    const sanitisedTimer = withoutUndefinedValues(patch.timer);
+    newState.timer = { ...newState.timer, ...sanitisedTimer };
+  }
   if ('secondary' in patch && patch.secondary !== undefined) newState.secondary = patch.secondary;
 
   throttledSet('message', newState);

@@ -17,6 +17,19 @@ export function getPropertyFromPath<T extends object>(path: string, obj: T): unk
   return result;
 }
 
+/**
+ * Whether an object is empty
+ */
 export function isObjectEmpty(obj: object): boolean {
   return Object.keys(obj).length === 0;
+}
+
+/**
+ * Removes a copy of the object without the properties which have undefined values
+ */
+export function withoutUndefinedValues<T extends Record<string, unknown>>(
+  obj: T,
+): { [K in keyof T]: Exclude<T[K], undefined> } {
+  Object.keys(obj).forEach((key) => obj[key] === undefined && delete obj[key]);
+  return obj as { [K in keyof T]: Exclude<T[K], undefined> };
 }
