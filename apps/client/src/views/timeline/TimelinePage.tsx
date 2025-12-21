@@ -7,9 +7,9 @@ import ViewParamsEditor from '../../common/components/view-params-editor/ViewPar
 import { useClock, useSelectedEventId } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
-import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import Timeline from './Timeline';
 import { getTimelineOptions } from './timeline.options';

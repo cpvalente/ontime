@@ -4,8 +4,8 @@
 
 import { MaybeNumber } from 'ontime-types';
 
-import { formatTime } from '../../../../common/utils/time';
-import { FORMAT_12, FORMAT_24 } from '../../../../viewerConfig';
+import { formatTime } from '../../../common/utils/time';
+import { FORMAT_12, FORMAT_24 } from '../../../viewerConfig';
 import SuperscriptTime from '../superscript-time/SuperscriptTime';
 
 interface ClockTimeProps {

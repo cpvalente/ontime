@@ -5,8 +5,8 @@ import DelayIndicator from '../../../common/components/delay-indicator/DelayIndi
 import { useLongPress } from '../../../common/hooks/useLongPress';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime, useTimeUntilExpectedStart } from '../../../common/utils/time';
-import RunningTime from '../../viewers/common/running-time/RunningTime';
-import SuperscriptPeriod from '../../viewers/common/superscript-time/SuperscriptPeriod';
+import RunningTime from '../../../views/common/running-time/RunningTime';
+import SuperscriptPeriod from '../../../views/common/superscript-time/SuperscriptPeriod';
 import type { EditEvent, Subscribed } from '../operator.types';
 
 import style from './OperatorEvent.module.scss';

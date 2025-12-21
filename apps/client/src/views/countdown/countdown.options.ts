@@ -7,7 +7,7 @@ import { OptionTitle } from '../../common/components/view-params-editor/constant
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
 import { PresetContext } from '../../common/context/PresetContext';
-import { isStringBoolean } from '../../features/viewers/common/viewUtils';
+import { isStringBoolean } from '../common/viewUtils';
 
 export const getCountdownOptions = (
   timeFormat: string,

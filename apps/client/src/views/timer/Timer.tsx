@@ -11,10 +11,10 @@ import { useTimerSocket } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
-import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
-import { getFormattedTimer, getTimerByType } from '../../features/viewers/common/viewUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import { getFormattedTimer, getTimerByType } from '../common/viewUtils';
 import { getTimerColour } from '../utils/presentation.utils';
 
 import { getTimerOptions, useTimerOptions } from './timer.options';

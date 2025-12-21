@@ -5,7 +5,7 @@
 import { MaybeNumber } from 'ontime-types';
 import { removeLeadingZero, removeSeconds } from 'ontime-utils';
 
-import { formattedTime } from '../../../overview/overview.utils';
+import { formattedTime } from '../../../features/overview/overview.utils';
 
 interface RunningTimeProps {
   value: MaybeNumber;

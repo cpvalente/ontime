@@ -1,8 +1,8 @@
 import { MaybeNumber, MaybeString, OntimeEvent, TimerState, TimerType } from 'ontime-types';
 import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
-import { timerPlaceholder, timerPlaceholderMin } from '../../../common/utils/styleUtils';
-import { formatTime } from '../../../common/utils/time';
+import { timerPlaceholder, timerPlaceholderMin } from '../../common/utils/styleUtils';
+import { formatTime } from '../../common/utils/time';
 
 /**
  * Gathers all options that affect which timer is displayed and selects the correct data source to display

@@ -5,7 +5,7 @@ import { getTimeOption } from '../../common/components/view-params-editor/common
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import { PresetContext } from '../../common/context/PresetContext';
-import { isStringBoolean } from '../../features/viewers/common/viewUtils';
+import { isStringBoolean } from '../common/viewUtils';
 
 export const getStudioOptions = (timeFormat: string): ViewOption[] => [
   { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },

@@ -1,6 +1,6 @@
 import { CustomFields, MaybeString, OntimeEvent } from 'ontime-types';
 
-import { getPropertyValue } from '../viewers/common/viewUtils';
+import { getPropertyValue } from '../../views/common/viewUtils';
 
 import type { Subscribed } from './operator.types';
 

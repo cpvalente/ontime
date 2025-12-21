@@ -6,7 +6,7 @@ import { EntryId, PlayableEvent } from 'ontime-types';
 import Button from '../../common/components/buttons/Button';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
-import ClockTime from '../../features/viewers/common/clock-time/ClockTime';
+import ClockTime from '../common/clock-time/ClockTime';
 
 import { makeSubscriptionsUrl } from './countdown.utils';
 
