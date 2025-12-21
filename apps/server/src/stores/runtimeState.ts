@@ -407,7 +407,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   }
 
   state.epoch = getEpoch();
-  state.clock = epochToClock(runtimeState.epoch);
+  state.clock = epochToClock(state.epoch);
   state.timer.secondaryTimer = null;
 
   // add paused time if it exists
@@ -437,12 +437,12 @@ export function start(state: RuntimeState = runtimeState): boolean {
   }
 
   // update timer phase
-  runtimeState.timer.phase = getTimerPhase(runtimeState);
+  state.timer.phase = getTimerPhase(state);
 
   // update offset
-  const { absolute, relative } = getRuntimeOffset(runtimeState);
-  runtimeState.offset.absolute = absolute;
-  runtimeState.offset.relative = relative;
+  const { absolute, relative } = getRuntimeOffset(state);
+  state.offset.absolute = absolute;
+  state.offset.relative = relative;
 
   // as long as there is a timer, we need an planned end
   // eslint-disable-next-line no-unused-labels -- dev code path
@@ -462,8 +462,8 @@ export function pause(state: RuntimeState = runtimeState): boolean {
   }
 
   state.timer.playback = Playback.Pause;
-  runtimeState.epoch = getEpoch();
-  runtimeState.clock = epochToClock(runtimeState.epoch);
+  state.epoch = getEpoch();
+  state.clock = epochToClock(state.epoch);
   state._timer.pausedAt = state.clock;
   return true;
 }
