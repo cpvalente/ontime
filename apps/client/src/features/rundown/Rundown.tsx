@@ -57,6 +57,7 @@ interface RundownProps {
 }
 
 export default function Rundown({ data, rundownMetadata }: RundownProps) {
+  // invoke the compiler for the component
   'use memo';
 
   const { order, entries, id } = data;

@@ -15,10 +15,15 @@ import { useColumnOrder } from '../cuesheet-table/useColumnManager';
 
 interface CuesheetDndProps {
   columns: ColumnDef<ExtendedEntry>[];
+  tableRoot?: 'editor' | 'cuesheet';
 }
 
-export default function CuesheetDnd({ columns, children }: PropsWithChildren<CuesheetDndProps>) {
-  const { columnOrder, saveColumnOrder } = useColumnOrder(columns);
+export default function CuesheetDnd({
+  columns,
+  tableRoot = 'cuesheet',
+  children,
+}: PropsWithChildren<CuesheetDndProps>) {
+  const { columnOrder, saveColumnOrder } = useColumnOrder(columns, tableRoot);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
