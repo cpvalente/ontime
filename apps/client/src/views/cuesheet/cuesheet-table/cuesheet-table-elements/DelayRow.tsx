@@ -14,7 +14,16 @@ function DelayRow({ duration, injectedStyles, ...virtuosoProps }: DelayRowProps)
   const hideDelays = usePersistedCuesheetOptions((state) => state.hideDelays);
 
   if (hideDelays || duration === 0) {
-    return null;
+    return (
+      <tr
+        className={`${style.delayRow} ${style.delayRowHidden}`}
+        data-testid='cuesheet-delay-hidden'
+        style={injectedStyles}
+        {...virtuosoProps}
+      >
+        <td />
+      </tr>
+    );
   }
 
   const delayTime = millisToDelayString(duration, 'expanded');

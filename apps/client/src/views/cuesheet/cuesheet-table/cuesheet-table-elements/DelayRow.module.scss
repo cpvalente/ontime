@@ -15,3 +15,14 @@
     }
   }
 }
+
+.delayRowHidden {
+  visibility: hidden;
+
+  td {
+    padding: 0;
+    height: 1px;
+    line-height: 1px;
+    font-size: 0;
+  }
+}

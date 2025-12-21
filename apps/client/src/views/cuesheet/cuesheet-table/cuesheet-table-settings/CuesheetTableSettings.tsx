@@ -15,7 +15,7 @@ import { PresetContext } from '../../../../common/context/PresetContext';
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { cx } from '../../../../common/utils/styleUtils';
 import { AppMode, sessionKeys } from '../../../../ontimeConfig';
-import { usePersistedCuesheetOptions } from '../../cuesheet.options';
+import { CuesheetOptions, usePersistedCuesheetOptions } from '../../cuesheet.options';
 import { useCuesheetPermissions } from '../../useTablePermissions';
 
 import CuesheetShareModal from './CuesheetShareModal';
@@ -23,6 +23,17 @@ import CuesheetShareModal from './CuesheetShareModal';
 import style from './CuesheetTableSettings.module.scss';
 
 interface CuesheetTableSettingsProps {
+  columns: Column<ExtendedEntry, unknown>[];
+  handleResetResizing: () => void;
+  handleResetReordering: () => void;
+  handleClearToggles: () => void;
+}
+
+export interface ViewSettingsProps {
+  optionsStore: CuesheetOptions;
+}
+
+export interface ColumnSettingsProps {
   columns: Column<ExtendedEntry, unknown>[];
   handleResetResizing: () => void;
   handleResetReordering: () => void;
@@ -37,6 +48,7 @@ export default function CuesheetTableSettings({
 }: CuesheetTableSettingsProps) {
   const canShare = useCuesheetPermissions((state) => state.canShare);
   const preset = use(PresetContext);
+  const options = usePersistedCuesheetOptions();
 
   const [cuesheetMode, setCuesheetMode] = useSessionStorage({
     key: preset ? `${preset.alias}${sessionKeys.cuesheetMode}` : sessionKeys.cuesheetMode,
@@ -52,7 +64,7 @@ export default function CuesheetTableSettings({
 
   return (
     <Toolbar.Root className={style.tableSettings}>
-      <ViewSettings />
+      <ViewSettings optionsStore={options} />
       <ColumnSettings
         columns={columns}
         handleResetResizing={handleResetResizing}
@@ -78,8 +90,8 @@ export default function CuesheetTableSettings({
   );
 }
 
-function ViewSettings() {
-  const options = usePersistedCuesheetOptions();
+export function ViewSettings({ optionsStore }: ViewSettingsProps) {
+  const options = optionsStore;
 
   return (
     <Popover.Root>
@@ -137,12 +149,12 @@ function ViewSettings() {
   );
 }
 
-function ColumnSettings({
+export function ColumnSettings({
   columns,
   handleResetResizing,
   handleResetReordering,
   handleClearToggles,
-}: CuesheetTableSettingsProps) {
+}: ColumnSettingsProps) {
   return (
     <Popover.Root>
       <Popover.Trigger
