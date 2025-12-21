@@ -1,6 +1,6 @@
 import { millisToString } from 'ontime-utils';
-import { getEpoch, clockToEpoch, epochToClock } from '../temporal.js';
-import { DayMs } from 'ontime-types';
+import { getEpoch, clockToEpoch, epochToClock, addDurationToInstant } from '../temporal.js';
+import { DayMs, DurationMs, EpochMs } from 'ontime-types';
 
 /**
  * The old clock function
@@ -99,5 +99,17 @@ describe('epoch utilities', () => {
     expect(convertedInstant).toEqual(instant);
     const backToClock = epochToClock(convertedInstant);
     expect(backToClock).toEqual(clock);
+  });
+});
+
+describe('addDurationToInstant', () => {
+  test('simple add', () => {
+    expect(addDurationToInstant(100 as EpochMs, 10 as DurationMs, 5 as DurationMs)).toBe(115);
+  });
+  test('simple subtract', () => {
+    expect(addDurationToInstant(100 as EpochMs, -10 as DurationMs, -5 as DurationMs)).toBe(85);
+  });
+  test('mixed signs', () => {
+    expect(addDurationToInstant(100 as EpochMs, -100 as DurationMs, 5 as DurationMs, 55 as DurationMs)).toBe(60);
   });
 });

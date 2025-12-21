@@ -1,4 +1,4 @@
-import { DayMs, EpochMs, Maybe } from 'ontime-types';
+import { DayMs, DurationMs, EpochMs, Maybe } from 'ontime-types';
 import { dayInMs, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 /**
@@ -33,6 +33,20 @@ export function epochToClock(instant: EpochMs): DayMs;
 export function epochToClock(instant: Maybe<EpochMs>): Maybe<DayMs>;
 export function epochToClock(instant: Maybe<EpochMs>): Maybe<DayMs> {
   if (instant === null) return null;
-  const tzOffset = new Date().getTimezoneOffset() * MILLIS_PER_MINUTE;
+  const tzOffset = new Date(instant).getTimezoneOffset() * MILLIS_PER_MINUTE;
   return ((instant - tzOffset) % dayInMs) as DayMs;
+}
+
+export function timeUntilInstant(now: EpochMs, instant: EpochMs): DurationMs {
+  return (instant - now) as DurationMs;
+}
+
+export function timeSinceInstant(now: EpochMs, instant: EpochMs): DurationMs {
+  return (now - instant) as DurationMs;
+}
+
+export function addDurationToInstant(instant: EpochMs, ...durations: DurationMs[]): EpochMs {
+  return durations.reduce((accumulate, duration) => {
+    return (accumulate + duration) as EpochMs;
+  }, instant);
 }
