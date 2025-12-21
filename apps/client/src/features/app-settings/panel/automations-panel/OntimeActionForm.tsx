@@ -130,7 +130,7 @@ export default function OntimeActionForm({
             }}
             value={watch(`outputs.${index}.secondarySource`)}
             options={[
-              { value: null, label: 'Select secondary source', disabled: true },
+              { value: null, label: 'Select secondary source' },
               { value: 'aux1', label: 'Auxiliary timer 1' },
               { value: 'aux2', label: 'Auxiliary timer 2' },
               { value: 'aux3', label: 'Auxiliary timer 3' },
