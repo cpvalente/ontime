@@ -1,8 +1,7 @@
-import { EndAction, OntimeEntry, TimeStrategy, TimerType, isKeyOfType } from 'ontime-types';
+import { CustomFields, EndAction, OntimeEntry, TimeStrategy, TimerType, isKeyOfType } from 'ontime-types';
 import { maxDuration } from 'ontime-utils';
 
 import { coerceBoolean, coerceColour, coerceEnum, coerceNumber, coerceString } from '../utils/coerceType.js';
-import { getDataProvider } from '../classes/data-provider/DataProvider.js';
 
 /**
  *
@@ -44,13 +43,14 @@ const propertyConversion: Record<string, (value: unknown) => unknown> = {
   timeEnd: (value: unknown) => clampDuration(coerceNumber(value)),
 };
 
+/**
+ * coerces a property of an Ontime Entry
+ * @throws if the value does not conform to the expected type
+ */
 export function parseProperty(property: string, value: unknown) {
   if (property.startsWith('custom:')) {
+    // custom fields have been validated when used here
     const customKey = property.split(':')[1];
-    const customFields = getDataProvider().getCustomFields();
-    if (!(customKey in customFields)) {
-      throw new Error(`Custom field ${customKey} not found`);
-    }
     const parserFn = propertyConversion.custom;
     return { custom: { [customKey]: parserFn(value) } };
   }
@@ -61,13 +61,21 @@ export function parseProperty(property: string, value: unknown) {
   return { [property]: parserFn(value) };
 }
 
-export function isValidChangeProperty(target: OntimeEntry, property: string, value: unknown): boolean {
+/**
+ * Checks whether a valid property - value pair are applicable to an entry
+ */
+export function isValidChangeProperty(
+  target: OntimeEntry,
+  property: string,
+  value: unknown,
+  customFields: CustomFields,
+): boolean {
   if (typeof property !== 'string') return false;
   if (value === undefined) return false;
-  if (property.startsWith('custom:') && 'custom' in target) {
+  if (property.startsWith('custom:') && Object.hasOwn(target, 'custom')) {
     const customProperty = property.slice('custom:'.length);
     if (!customProperty) return false;
-    return Object.hasOwn(target.custom, customProperty);
+    return Object.hasOwn(customFields, customProperty);
   }
   return Object.hasOwn(target, property);
 }

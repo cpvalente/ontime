@@ -23,7 +23,7 @@ import { socket } from '../adapters/WebsocketAdapter.js';
 import { coerceEnum } from '../utils/coerceType.js';
 import { editEntry } from '../api-data/rundown/rundown.service.js';
 import { willCauseRegeneration } from '../api-data/rundown/rundown.utils.js';
-import { getCurrentRundown } from '../api-data/rundown/rundown.dao.js';
+import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
 
 let lastRequest: Date | null = null;
 
@@ -65,6 +65,7 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
     }
 
     const { entries } = getCurrentRundown();
+    const customFields = getProjectCustomFields();
 
     const targetEntry = entries[id];
     if (!targetEntry) {
@@ -77,7 +78,7 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
     let shouldThrottle = false;
 
     Object.entries(data).forEach(([property, value]) => {
-      if (!isValidChangeProperty(targetEntry, property, value)) {
+      if (!isValidChangeProperty(targetEntry, property, value, customFields)) {
         throw new Error('Invalid property or value');
       }
       const newObjectProperty = parseProperty(property, value);
