@@ -67,8 +67,9 @@ const currentDir = dirname(__dirname);
 /**
  * path to server src folder
  * when running in dev, this file is located in src/setup, so we go one level up
+ * in production, the bundled file is at the root of the server directory, so use __dirname directly
  * */
-const srcDirectory = isProduction ? currentDir : join(currentDir, '../');
+const srcDirectory = isProduction ? __dirname : join(currentDir, '../');
 
 export const srcDir = {
   root: srcDirectory,

@@ -16,6 +16,7 @@ export const compressedStatic = expressStaticGzip(srcDir.clientDir, {
     lastModified: false,
     immutable: true,
     maxAge: '1y',
+    index: 'index.html', // Serve index.html for directories
     setHeaders: (res, file) => {
       // make sure the HTML files are always revalidated
       if (extname(file) === '.html') {

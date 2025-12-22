@@ -40,10 +40,10 @@ router.post('/', validateCustomField, async (req: Request, res: Response<CustomF
 router.put('/:key', validateEditCustomField, async (req: Request, res: Response<CustomFields | ErrorResponse>) => {
   try {
     const currentKey = req.params.key;
-    const { colour, type, label } = req.body;
+    const { colour, type, label, tts } = req.body;
 
     const projectRundowns = getDataProvider().getProjectRundowns();
-    const newFields = await editCustomField(currentKey, { label, colour, type }, projectRundowns);
+    const newFields = await editCustomField(currentKey, { label, colour, type, tts }, projectRundowns);
     res.status(200).json(newFields);
   } catch (error) {
     const message = getErrorMessage(error);
