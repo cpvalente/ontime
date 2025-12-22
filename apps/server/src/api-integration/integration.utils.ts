@@ -62,7 +62,7 @@ export function parseProperty(property: string, value: unknown) {
 }
 
 /**
- * Checks wether a valid property - value pair are applicable to an entry
+ * Checks whether a valid property - value pair are applicable to an entry
  */
 export function isValidChangeProperty(
   target: OntimeEntry,
