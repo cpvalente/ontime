@@ -33,7 +33,6 @@ export default function ProjectData() {
     setValue,
   } = useForm({
     defaultValues: data,
-    values: data,
     resetOptions: {
       keepDirtyValues: true,
     },
