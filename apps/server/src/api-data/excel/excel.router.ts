@@ -13,6 +13,15 @@ import { EXCEL_MIME } from './excel.constants.js';
 
 export const router = express.Router();
 
+/**
+ * @swagger
+ * /data/excel/upload:
+ *   post:
+ *     summary: Upload an Excel file
+ *     responses:
+ *       200:
+ *         description: A list of worksheet names
+ */
 router.post(
   '/upload',
   uploadExcel,
@@ -29,6 +38,15 @@ router.post(
   },
 );
 
+/**
+ * @swagger
+ * /data/excel/preview:
+ *   post:
+ *     summary: Generate a rundown preview from an Excel file
+ *     responses:
+ *       200:
+ *         description: The rundown preview
+ */
 router.post(
   '/preview',
   validateImportMapOptions,
@@ -46,6 +64,21 @@ router.post(
   },
 );
 
+/**
+ * @swagger
+ * /data/excel/{rundownId}/export:
+ *   get:
+ *     summary: Export a rundown to an Excel file
+ *     parameters:
+ *       - in: path
+ *         name: rundownId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The Excel file
+ */
 router.get('/:rundownId/export', validateRundownExport, (req: Request, res: Response) => {
   try {
     const rundown = getDataProvider().getRundown(req.params.rundownId);
