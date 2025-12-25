@@ -13,6 +13,9 @@ import {
   TimerPhase,
   TimerState,
   RundownState,
+  Maybe,
+  EpochMs,
+  DayMs,
 } from 'ontime-types';
 import {
   calculateDuration,
@@ -23,7 +26,6 @@ import {
   isPlaybackActive,
 } from 'ontime-utils';
 
-import { getTimeObject, timeNow } from '../utils/time.js';
 import type { RestorePoint } from '../services/restore-service/restore.type.js';
 import {
   findDayOffset,
@@ -36,11 +38,13 @@ import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
+import { getEpoch, epochToClock } from '../utils/temporal.js';
 
 type ExpectedMetadata = { event: OntimeEvent; accumulatedGap: number; isLinkedToLoaded: boolean } | null;
 
 export type RuntimeState = {
-  clock: number; // realtime clock
+  clock: DayMs;
+  epoch: EpochMs;
   groupNow: OntimeGroup | null;
   eventNow: PlayableEvent | null;
   eventNext: PlayableEvent | null;
@@ -61,12 +65,16 @@ export type RuntimeState = {
   _group: ExpectedMetadata;
   _flag: ExpectedMetadata;
   _end: ExpectedMetadata;
-  _startEpoch: MaybeNumber;
+  _startEpoch: Maybe<EpochMs>;
   _startDayOffset: MaybeNumber;
 };
 
+const startupEpoch = getEpoch();
+const startupClock = epochToClock(startupEpoch);
+
 const runtimeState: RuntimeState = {
-  clock: timeNow(),
+  clock: startupClock,
+  epoch: startupEpoch,
   groupNow: null,
   eventNow: null,
   eventNext: null,
@@ -122,7 +130,8 @@ export function clearEventData() {
   runtimeState.rundown.selectedEventIndex = null;
 
   runtimeState.timer.playback = Playback.Stop;
-  runtimeState.clock = timeNow();
+  runtimeState.epoch = getEpoch();
+  runtimeState.clock = epochToClock(runtimeState.epoch);
   runtimeState.timer = { ...runtimeStorePlaceholder.timer };
 
   // when clearing, we maintain the total delay from the rundown
@@ -154,7 +163,8 @@ export function clearState() {
   runtimeState._end = null;
 
   runtimeState.timer.playback = Playback.Stop;
-  runtimeState.clock = timeNow();
+  runtimeState.epoch = getEpoch();
+  runtimeState.clock = epochToClock(runtimeState.epoch);
   runtimeState.timer = { ...runtimeStorePlaceholder.timer };
 
   // when clearing, we maintain the total delay from the rundown
@@ -251,7 +261,7 @@ export function load(
       (startEpoch === null || typeof startEpoch === 'number')
     ) {
       runtimeState.rundown.actualStart = firstStart;
-      runtimeState._startEpoch = startEpoch;
+      runtimeState._startEpoch = startEpoch as EpochMs;
       const { absolute, relative } = getRuntimeOffset(runtimeState);
       runtimeState.offset.absolute = absolute;
       runtimeState.offset.relative = relative;
@@ -396,8 +406,8 @@ export function start(state: RuntimeState = runtimeState): boolean {
     return false;
   }
 
-  const [epoch, now] = getTimeObject();
-  state.clock = now;
+  state.epoch = getEpoch();
+  state.clock = epochToClock(state.epoch);
   state.timer.secondaryTimer = null;
 
   // add paused time if it exists
@@ -418,7 +428,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   if (state.rundown.actualStart === null) {
     state._startDayOffset = findDayOffset(state.eventNow.timeStart, state.clock) + state.eventNow.dayOffset;
     state.rundown.currentDay = state._startDayOffset;
-    state._startEpoch = epoch;
+    state._startEpoch = state.epoch;
     state.rundown.actualStart = state.clock;
   }
 
@@ -427,12 +437,12 @@ export function start(state: RuntimeState = runtimeState): boolean {
   }
 
   // update timer phase
-  runtimeState.timer.phase = getTimerPhase(runtimeState);
+  state.timer.phase = getTimerPhase(state);
 
   // update offset
-  const { absolute, relative } = getRuntimeOffset(runtimeState);
-  runtimeState.offset.absolute = absolute;
-  runtimeState.offset.relative = relative;
+  const { absolute, relative } = getRuntimeOffset(state);
+  state.offset.absolute = absolute;
+  state.offset.relative = relative;
 
   // as long as there is a timer, we need an planned end
   // eslint-disable-next-line no-unused-labels -- dev code path
@@ -452,7 +462,8 @@ export function pause(state: RuntimeState = runtimeState): boolean {
   }
 
   state.timer.playback = Playback.Pause;
-  state.clock = timeNow();
+  state.epoch = getEpoch();
+  state.clock = epochToClock(state.epoch);
   state._timer.pausedAt = state.clock;
   return true;
 }
@@ -487,7 +498,7 @@ export function addTime(amount: number) {
 
   if (willGoNegative && !runtimeState._timer.hasFinished) {
     // set finished time so side effects are triggered
-    runtimeState._timer.forceFinish = timeNow();
+    runtimeState._timer.forceFinish = epochToClock(getEpoch());
   } else {
     const willGoPositive = runtimeState.timer.current < 0 && runtimeState.timer.current + amount > 0;
     if (willGoPositive) {
@@ -517,8 +528,9 @@ export type UpdateResult = {
 export function update(): UpdateResult {
   // 0. there are some things we always do
   const previousClock = runtimeState.clock;
-  const [epoch, now] = getTimeObject();
-  runtimeState.clock = now; // we update the clock on every update call
+  // we update the clock on every update call
+  runtimeState.epoch = getEpoch();
+  runtimeState.clock = epochToClock(runtimeState.epoch);
 
   // 1. is playback idle?
   if (!isPlaybackActive(runtimeState.timer.playback)) {
@@ -528,7 +540,7 @@ export function update(): UpdateResult {
   // if we are playing and playback changes. we tick the current runtime day
   if (runtimeState._startDayOffset !== null && runtimeState._startEpoch) {
     runtimeState.rundown.currentDay =
-      runtimeState._startDayOffset + Math.floor((epoch - runtimeState._startEpoch) / dayInMs);
+      runtimeState._startDayOffset + Math.floor((runtimeState.epoch - runtimeState._startEpoch) / dayInMs);
   }
 
   // 2. are we waiting to roll?
@@ -613,8 +625,8 @@ export function roll(
   }
 
   // we will need to do some calculations, update the time first
-  const [epoch, now] = getTimeObject();
-  runtimeState.clock = now;
+  runtimeState.epoch = getEpoch();
+  runtimeState.clock = epochToClock(runtimeState.epoch);
 
   // 2. if there is an event armed, we use it
   if (runtimeState.timer.playback === Playback.Armed || runtimeState.timer.phase === TimerPhase.Pending) {
@@ -664,7 +676,7 @@ export function roll(
       if (runtimeState.rundown.actualStart === null) {
         runtimeState.rundown.actualStart = plannedStart;
         runtimeState._startDayOffset = 0;
-        runtimeState._startEpoch = epoch;
+        runtimeState._startEpoch = runtimeState.epoch;
       }
     } else {
       runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, offsetClock);
@@ -751,7 +763,7 @@ export function roll(
 
   // update metadata
   runtimeState._startDayOffset = 0;
-  runtimeState._startEpoch = epoch;
+  runtimeState._startEpoch = runtimeState.epoch;
 
   return { eventId: runtimeState.eventNow.id, didStart: true };
 }
