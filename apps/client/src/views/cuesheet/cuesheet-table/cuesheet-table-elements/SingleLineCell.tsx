@@ -20,6 +20,7 @@ const SingleLineCell = forwardRef(
       allowKeyboardNavigation: true,
       submitOnEnter: true, // single line should submit on enter
       submitOnCtrlEnter: true,
+      allowSubmitOnEnterOnly: true,
       onCancelUpdate: handleCancelUpdate,
     });
 
