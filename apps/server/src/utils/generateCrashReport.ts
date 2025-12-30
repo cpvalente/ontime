@@ -29,7 +29,7 @@ function writeToFile(fileName: string, content: object) {
  * @param error
  */
 export function generateCrashReport(maybeError: unknown) {
-  const timeNow = new Date().toISOString();
+  const timeNow = new Date().toISOString().replaceAll(':', '_');
   const runtimeState = getState();
   const currentRundown = getCurrentRundown();
   const error =
