@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Playback } from 'ontime-types';
+import { EpochMs, Playback } from 'ontime-types';
 
 import { vi } from 'vitest';
 
@@ -16,7 +16,7 @@ describe('restoreService', () => {
         addedTime: 5678,
         pausedAt: 9087,
         firstStart: 1234,
-        startEpoch: 1234,
+        startEpoch: 1234 as EpochMs,
       };
 
       const mockRead = vi.fn().mockResolvedValue(expected);
@@ -34,7 +34,7 @@ describe('restoreService', () => {
         addedTime: 0,
         pausedAt: null,
         firstStart: 1234,
-        startEpoch: 1234,
+        startEpoch: 1234 as EpochMs,
       };
 
       const mockRead = vi.fn().mockResolvedValue(expected);
@@ -81,7 +81,7 @@ describe('restoreService', () => {
         addedTime: 1234,
         pausedAt: 1234,
         firstStart: 1234,
-        startEpoch: 1234,
+        startEpoch: 1234 as EpochMs,
       };
 
       const mockWrite = vi.fn().mockResolvedValue(undefined);
@@ -98,7 +98,7 @@ describe('restoreService', () => {
         addedTime: 5678,
         pausedAt: 5678,
         firstStart: 5678,
-        startEpoch: 5678,
+        startEpoch: 5678 as EpochMs,
       };
 
       const mockWrite = vi.fn().mockRejectedValue(new Error('Write failed'));
