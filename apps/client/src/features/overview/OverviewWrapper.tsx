@@ -11,7 +11,8 @@ interface OverviewWrapperProps {
 }
 
 export function OverviewWrapper({ navElements, children }: PropsWithChildren<OverviewWrapperProps>) {
-  const { isOnline } = useIsOnline();
+  const isOnline = useIsOnline();
+
   return (
     <div className={cx([style.overview, !isOnline && style.isOffline])}>
       <ErrorBoundary>

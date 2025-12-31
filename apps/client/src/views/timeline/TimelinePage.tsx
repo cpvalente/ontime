@@ -36,7 +36,7 @@ export default function TimelinePageLoader() {
 }
 
 function TimelinePage({ events, projectData, settings }: TimelineData) {
-  const { selectedEventId } = useSelectedEventId();
+  const selectedEventId = useSelectedEventId();
   // holds copy of the rundown with only relevant events
   const { scopedRundown, firstStart, totalDuration } = useScopedRundown(events, selectedEventId);
 
@@ -72,7 +72,7 @@ function TimelinePage({ events, projectData, settings }: TimelineData) {
 
 function TimelineClock() {
   const { getLocalizedString } = useTranslation();
-  const { clock } = useClock();
+  const clock = useClock();
 
   // gather timer data
   const formattedClock = formatTime(clock);
