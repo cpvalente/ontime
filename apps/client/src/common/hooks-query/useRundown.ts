@@ -33,7 +33,7 @@ export default function useRundown() {
 
 export function useRundownWithMetadata() {
   const { data, status } = useRundown();
-  const { selectedEventId } = useSelectedEventId();
+  const selectedEventId = useSelectedEventId();
   const rundownMetadata = useMemo(() => getRundownMetadata(data, selectedEventId), [data, selectedEventId]);
   return { data, status, rundownMetadata };
 }
@@ -57,7 +57,7 @@ export function useFlatRundown() {
 
 export function useFlatRundownWithMetadata() {
   const { data, status } = useRundown();
-  const { selectedEventId } = useSelectedEventId();
+  const selectedEventId = useSelectedEventId();
 
   const rundownWithMetadata = useMemo(() => getFlatRundownMetadata(data, selectedEventId), [data, selectedEventId]);
   return { data: rundownWithMetadata, status };

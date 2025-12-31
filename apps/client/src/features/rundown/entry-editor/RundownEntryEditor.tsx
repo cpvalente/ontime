@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import {
   isOntimeDelay,
   isOntimeEvent,
@@ -24,27 +24,22 @@ export default function RundownEntryEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const { data } = useRundown();
 
-  const [entry, setEntry] = useState<OntimeEvent | OntimeGroup | OntimeMilestone | null>(null);
-
-  useEffect(() => {
+  const entry = useMemo<OntimeEvent | OntimeGroup | OntimeMilestone | null>(() => {
     if (data.order.length === 0) {
-      setEntry(null);
-      return;
+      return null;
     }
 
     const selectedEventId = Array.from(selectedEvents).at(0);
     if (!selectedEventId) {
-      setEntry(null);
-      return;
+      return null;
     }
     const event = data.entries[selectedEventId];
 
     if (event && !isOntimeDelay(event)) {
-      setEntry(event);
-    } else {
-      setEntry(null);
+      return event;
     }
-  }, [data.order, data.entries, selectedEvents]);
+    return null;
+  }, [data.order.length, data.entries, selectedEvents]);
 
   if (!entry) {
     return <EventEditorEmpty />;

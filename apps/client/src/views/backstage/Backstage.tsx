@@ -215,7 +215,7 @@ function ExtraInfo({ projectData, size, source }: ExtraInfoProps) {
 
 function BackstageClock() {
   const { getLocalizedString } = useTranslation();
-  const { clock } = useClock();
+  const clock = useClock();
 
   // gather timer data
   const formattedClock = formatTime(clock);

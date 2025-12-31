@@ -43,7 +43,7 @@ export default function OperatorLoader() {
 }
 
 function Operator({ rundown, rundownMetadata, customFields, settings }: OperatorData) {
-  const { selectedEventId } = useSelectedEventId();
+  const selectedEventId = useSelectedEventId();
   const { subscribe, mainSource, secondarySource, shouldEdit, hidePast, showStart } = useOperatorOptions();
 
   const [showEditPrompt, setShowEditPrompt] = useState(false);
