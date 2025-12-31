@@ -141,7 +141,7 @@ function CountdownContents({ playableEvents, subscriptions, goToEditMode }: Coun
 
 function CountdownClock() {
   const { getLocalizedString } = useTranslation();
-  const { clock } = useClock();
+  const clock = useClock();
 
   // gather timer data
   const formattedClock = formatTime(clock);

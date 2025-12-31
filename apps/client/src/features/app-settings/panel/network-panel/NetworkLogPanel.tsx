@@ -34,7 +34,7 @@ export default function NetworkLogPanel({ location }: PanelBaseProps) {
 }
 
 function OntimeCloudStats() {
-  const { ping } = usePing();
+  const ping = usePing();
 
   /**
    * Send immediate ping request, and keep sending on an interval

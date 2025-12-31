@@ -91,10 +91,21 @@ export default function RundownEvent({
   isLinkedToLoaded,
   hasTriggers,
 }: RundownEventProps) {
-  const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
+  'use memo';
+
+  const selectedEventId = useEventIdSwapping((state) => state.selectedEventId);
+  const setSelectedEventId = useEventIdSwapping((state) => state.setSelectedEventId);
+  const clearSelectedEventId = useEventIdSwapping((state) => state.clearSelectedEventId);
+
   const { updateEntry, batchUpdateEvents, clone, deleteEntry, groupEntries, swapEvents } = useEntryActions();
 
-  const { selectedEvents, unselect, setSelectedEvents, clearSelectedEvents } = useEventSelection();
+  const isSelected = useEventSelection((state) => state.selectedEvents.has(eventId));
+  const unselect = useEventSelection((state) => state.unselect);
+  const setSelectedEvents = useEventSelection((state) => state.setSelectedEvents);
+  const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
+
+  const selectedEvents = useEventSelection((state) => state.selectedEvents);
+
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -250,7 +261,6 @@ export default function RundownEvent({
     };
   }, [handleRef]);
 
-  const isSelected = selectedEvents.has(eventId);
   const blockClasses = cx([
     style.rundownEvent,
     skip ? style.skip : null,

@@ -127,7 +127,7 @@ export function StartTimes({ shouldFormat }: OverviewTimeElementsProps) {
  * Extracted to improve performance as this is a ticking value
  */
 function RundownExpectedEnd({ shouldFormat }: OverviewTimeElementsProps) {
-  const { expectedEnd } = useRundownExpectedEnd();
+  const expectedEnd = useRundownExpectedEnd();
 
   const [maybeExpectedEnd, maybeExpectedDaySpan] = useMemo(() => calculateEndAndDaySpan(expectedEnd), [expectedEnd]);
   const maybeExpectedEndText = (() => {
@@ -169,7 +169,7 @@ export function MetadataTimes() {
 
 function GroupTimes() {
   const { clock, mode, groupExpectedEnd, actualGroupStart, currentDay, playback } = useGroupTimerOverView();
-  const { currentGroupId } = useCurrentGroupId();
+  const currentGroupId = useCurrentGroupId();
   const group = useEntry(currentGroupId) as OntimeGroup | null;
 
   const active = isPlaybackActive(playback);
@@ -298,7 +298,7 @@ export function OffsetOverview() {
 }
 
 export function ClockOverview({ shouldFormat, className }: OverviewTimeElementsProps & { className?: string }) {
-  const { clock } = useClock();
+  const clock = useClock();
   const formattedClock = shouldFormat ? formatTime(clock) : millisToString(clock);
 
   return (
