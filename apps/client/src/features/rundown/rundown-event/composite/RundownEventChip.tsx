@@ -35,7 +35,7 @@ export default function RundownEventChip({
   duration,
   isLinkedToLoaded,
 }: RundownEventChipProps) {
-  const { playback } = usePlayback();
+  const playback = usePlayback();
 
   if (isLoaded) {
     return null;

@@ -22,9 +22,13 @@ interface RundownMilestoneProps {
 }
 
 export default function RundownMilestone({ colour, cue, entryId, hasCursor, title }: RundownMilestoneProps) {
+  'use memo';
+
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const { updateEntry, deleteEntry } = useEntryActions();
-  const { selectedEvents, setSingleEntrySelection } = useEventSelection();
+
+  const selectedEvents = useEventSelection((state) => state.selectedEvents);
+  const setSingleEntrySelection = useEventSelection((state) => state.setSingleEntrySelection);
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>([
     {

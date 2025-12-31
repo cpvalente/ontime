@@ -17,6 +17,8 @@ interface RundownDelayProps {
 }
 
 export default function RundownDelay({ data, hasCursor }: RundownDelayProps) {
+  'use memo';
+
   const { applyDelay, deleteEntry } = useEntryActions();
   const handleRef = useRef<null | HTMLSpanElement>(null);
 

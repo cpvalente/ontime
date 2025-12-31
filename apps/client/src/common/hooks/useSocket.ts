@@ -128,13 +128,9 @@ export const setAuxTimer = {
   setDuration: (index: number, time: number) => sendSocket('auxtimer', { [index]: { duration: time } }),
 };
 
-export const useSelectedEventId = createSelector((state: RuntimeStore) => ({
-  selectedEventId: state.eventNow?.id ?? null,
-}));
+export const useSelectedEventId = createSelector((state: RuntimeStore) => state.eventNow?.id ?? null);
 
-export const useCurrentGroupId = createSelector((state: RuntimeStore) => ({
-  currentGroupId: state.groupNow?.id ?? null,
-}));
+export const useCurrentGroupId = createSelector((state: RuntimeStore) => state.groupNow?.id ?? null);
 
 export const setEventPlayback = {
   loadEvent: (id: string) => sendSocket('load', { id }),
@@ -147,9 +143,7 @@ export const useTimer = createSelector((state: RuntimeStore) => ({
   ...state.timer,
 }));
 
-export const useClock = createSelector((state: RuntimeStore) => ({
-  clock: state.clock,
-}));
+export const useClock = createSelector((state: RuntimeStore) => state.clock);
 
 export const useNextFlag = createSelector((state: RuntimeStore) => ({
   id: state.eventFlag?.id ?? null,
@@ -173,28 +167,16 @@ export const useExpectedStartData = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
 }));
 
-export const usePing = createSelector((state: RuntimeStore) => ({
-  ping: state.ping,
-}));
+export const usePing = createSelector((state: RuntimeStore) => state.ping);
 
 /** convert ping into a derived value which changes less often */
-export const useIsOnline = createSelector((state: RuntimeStore) => ({
-  isOnline: state.ping > 0,
-}));
+export const useIsOnline = createSelector((state: RuntimeStore) => state.ping > 0);
 
-export const useOffsetMode = createSelector((state: RuntimeStore) => ({
-  offsetMode: state.offset.mode,
-}));
+export const useOffsetMode = createSelector((state: RuntimeStore) => state.offset.mode);
 
 export const setOffsetMode = (payload: OffsetMode) => sendSocket('offsetmode', payload);
 
-export const usePlayback = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    playback: state.timer.playback,
-  });
-
-  return useRuntimeStore(featureSelector);
-};
+export const usePlayback = createSelector((state: RuntimeStore) => state.timer.playback);
 
 /* ======================= Overview data subscriptions ======================= */
 
@@ -204,9 +186,7 @@ export const useStartTimesOverview = createSelector((state: RuntimeStore) => ({
   plannedEnd: state.rundown.plannedEnd,
 }));
 
-export const useRundownExpectedEnd = createSelector((state: RuntimeStore) => ({
-  expectedEnd: state.offset.expectedRundownEnd,
-}));
+export const useRundownExpectedEnd = createSelector((state: RuntimeStore) => state.offset.expectedRundownEnd);
 
 export const useProgressOverview = createSelector((state: RuntimeStore) => ({
   numEvents: state.rundown.numEvents,

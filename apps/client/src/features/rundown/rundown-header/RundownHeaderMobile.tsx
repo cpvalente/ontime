@@ -18,7 +18,7 @@ function RundownHeader() {
     defaultValue: AppMode.Edit,
   });
 
-  const { offsetMode } = useOffsetMode();
+  const offsetMode = useOffsetMode();
 
   const toggleAppMode = (mode: AppMode[]) => {
     // we need to stop user from deselecting a mode

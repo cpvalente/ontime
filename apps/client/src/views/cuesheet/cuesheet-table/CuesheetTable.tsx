@@ -42,7 +42,7 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
   const hideTableSeconds = useOptions((state) => state.hideTableSeconds);
   const hideIndexColumn = useOptions((state) => state.hideIndexColumn);
 
-  const { selectedEventId } = useSelectedEventId();
+  const selectedEventId = useSelectedEventId();
 
   const virtuosoRef = useRef<TableVirtuosoHandle | null>(null);
   const { listeners } = useTableNav();

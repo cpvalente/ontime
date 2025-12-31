@@ -33,9 +33,13 @@ interface RundownGroupProps {
 
 //TODO: the group should maybe include a multiple day indicator
 export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }: RundownGroupProps) {
+  'use memo';
+
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const { clone, ungroup, deleteEntry } = useEntryActions();
-  const { selectedEvents, setSingleEntrySelection } = useEventSelection();
+
+  const setSingleEntrySelection = useEventSelection((state) => state.setSingleEntrySelection);
+  const selectedEvents = useEventSelection((state) => state.selectedEvents);
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>([
     {
