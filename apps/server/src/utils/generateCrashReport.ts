@@ -7,6 +7,7 @@ import { publicDir } from '../setup/index.js';
 
 import { ensureDirectory } from './fileManagement.js';
 import { getCurrentRundown } from '../api-data/rundown/rundown.dao.js';
+import { logger } from '../classes/Logger.js';
 /**
  * Writes a file to the crash report location
  * @param fileName
@@ -29,9 +30,10 @@ function writeToFile(fileName: string, content: object) {
  * @param error
  */
 export function generateCrashReport(maybeError: unknown) {
-  const timeNow = new Date().toISOString();
+  const timeNow = new Date().toISOString().replaceAll(':', '_');
   const runtimeState = getState();
   const currentRundown = getCurrentRundown();
+  const log = logger.dump();
   const error =
     maybeError instanceof Error
       ? {
@@ -44,6 +46,7 @@ export function generateCrashReport(maybeError: unknown) {
     time: timeNow,
     version: ONTIME_VERSION,
     error,
+    log: log,
     runtimeState,
     currentRundown,
   };

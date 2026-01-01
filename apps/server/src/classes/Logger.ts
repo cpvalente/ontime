@@ -53,10 +53,11 @@ class Logger {
       }
     }
 
+    this.addToQueue(log);
     try {
       socket.sendAsJson(MessageTag.Log, log);
     } catch (_e) {
-      this.addToQueue(log);
+      /* Nothing to catch */
     }
   }
 
@@ -115,6 +116,15 @@ class Logger {
   crash(origin: string, text: string) {
     this.emit(LogLevel.Severe, origin, text);
     this.escalateErrorFn?.(text, true);
+  }
+
+  /**
+   * Dumps the last 100 log entries
+   */
+  dump() {
+    const q = this.queue;
+    this.queue = [];
+    return q;
   }
 
   /**
