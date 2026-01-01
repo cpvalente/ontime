@@ -22,6 +22,7 @@ import {
   initRundown,
   reorderEntry,
   swapEvents,
+  loadRundown,
   ungroupEntries,
 } from './rundown.service.js';
 import {
@@ -62,19 +63,7 @@ router.get('/current', async (_req: Request, res: Response<Rundown>) => {
  */
 router.post('/:id/load', paramsWithId, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
   try {
-    // maybe the rundown is already loaded
-    if (req.params.id === getCurrentRundown().id) {
-      const projectRundowns = getDataProvider().getProjectRundowns();
-      res.status(200).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
-      return;
-    }
-
-    const dataProvider = getDataProvider();
-    const rundown = dataProvider.getRundown(req.params.id);
-    const customField = dataProvider.getCustomFields();
-    await initRundown(rundown, customField);
-
-    const projectRundowns = getDataProvider().getProjectRundowns();
+    const projectRundowns = await loadRundown(req.params.id);
     res.status(200).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
   } catch (error) {
     const message = getErrorMessage(error);

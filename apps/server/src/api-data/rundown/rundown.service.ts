@@ -27,12 +27,14 @@ import { logger } from '../../classes/Logger.js';
 import {
   createTransaction,
   customFieldMutation,
+  getCurrentRundown,
   rundownCache,
   rundownMutation,
   updateBackgroundRundown,
 } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
 import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 /**
  * creates a new entry with given data
@@ -594,6 +596,20 @@ function notifyChanges(rundownMetadata: RundownMetadata, revision: number, optio
   } else if (options.external) {
     sendRefetch(RefetchKey.Rundown, revision);
   }
+}
+
+/**
+ * @throws if the provided id does not exist
+ */
+export async function loadRundown(id: string) {
+  const dataProvider = getDataProvider();
+  if (id === getCurrentRundown().id) {
+    return dataProvider.getProjectRundowns();
+  }
+  const rundown = dataProvider.getRundown(id);
+  const customField = dataProvider.getCustomFields();
+  await initRundown(rundown, customField);
+  return dataProvider.getProjectRundowns();
 }
 
 /**
