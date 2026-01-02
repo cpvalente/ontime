@@ -106,6 +106,11 @@ export function testConditions(
         }
         return fieldValue == value;
       case 'not_equals':
+        // overload the edge case where we use empty string to check if a value does not exist
+        if (value === '' && fieldValue === undefined) {
+          return false;
+        }
+
         return fieldValue != value;
       case 'greater_than':
         return isGreaterThan(fieldValue, value);

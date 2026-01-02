@@ -150,6 +150,12 @@ describe('testConditions()', () => {
       const result = testConditions([{ field: 'clock', operator: 'not_equals', value: '11' }], 'all', mockStore);
       expect(result).toBe(true);
     });
+    it('should check if a value does exist', () => {
+      const mockStore = makeRuntimeStateData({ eventNow: null });
+      expect(testConditions([{ field: 'eventNow.title', operator: 'not_equals', value: '' }], 'all', mockStore)).toBe(
+        false,
+      );
+    });
   });
 
   describe('greater_than operator', () => {
