@@ -5,11 +5,13 @@ import { publicFiles } from '../../setup/index.js';
 import { isTest } from '../../setup/environment.js';
 import { isPath } from '../../utils/fileManagement.js';
 import { shouldCrashDev } from '../../utils/development.js';
+import { MaybeString } from 'ontime-types';
 
 interface AppState {
   projectName?: string;
   rundownId?: string;
   showWelcomeDialog?: boolean;
+  syncHost?: MaybeString;
 }
 
 const adapter = new JSONFile<AppState>(publicFiles.appState);
@@ -58,4 +60,17 @@ export async function setShowWelcomeDialog(show: boolean): Promise<boolean> {
   config.data.showWelcomeDialog = show;
   await config.write();
   return show;
+}
+
+export async function getUnderstudy(): Promise<MaybeString> {
+  if (isTest) return null;
+
+  await config.read();
+  return config.data.syncHost ?? null; // default to null
+}
+
+export async function setSyncHost(host: MaybeString): Promise<MaybeString> {
+  config.data.syncHost = host;
+  await config.write();
+  return host;
 }

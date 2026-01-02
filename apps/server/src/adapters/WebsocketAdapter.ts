@@ -34,6 +34,7 @@ import { logger } from '../classes/Logger.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
 import { generateId } from 'ontime-utils';
 import { authenticateSocket } from '../middleware/authenticate.js';
+import { syncService } from '../api-data/sync/sync.service.js';
 
 type ClientId = string;
 let instance: SocketServer | null = null;
@@ -115,10 +116,17 @@ class SocketServer implements IAdapter {
             case MessageTag.ClientSet: {
               const previousData = this.getOrCreateClient(clientId);
               const updatedClient = { ...previousData, ...payload };
-              this.clients.set(clientId, updatedClient);
-              if (this.shouldShowWelcome && updatedClient.path?.toLowerCase().includes('editor')) {
-                this.shouldShowWelcome = false;
-                sendPacket(MessageTag.Dialog, { dialog: 'welcome' });
+              if (updatedClient.type === 'sync') {
+                ws.removeAllListeners('message');
+                ws.removeAllListeners('close');
+                syncService.handleIncomingWsConnection(ws, clientId, updatedClient);
+                this.clients.delete(clientId);
+              } else {
+                this.clients.set(clientId, updatedClient);
+                if (this.shouldShowWelcome && updatedClient.path?.toLowerCase().includes('editor')) {
+                  this.shouldShowWelcome = false;
+                  sendPacket(MessageTag.Dialog, { dialog: 'welcome' });
+                }
               }
               this.sendClientList();
               break;
@@ -246,5 +254,6 @@ export const socket = new SocketServer();
  * Utility function to notify clients that the REST data is stale
  */
 export function sendRefetch(target: RefetchKey, revision: MaybeNumber = null) {
+  syncService.handleRefetch(target);
   socket.sendAsJson(MessageTag.Refetch, { target, revision });
 }

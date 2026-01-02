@@ -52,6 +52,8 @@
     "dev": "cross-env NODE_ENV=development tsx watch ./src/index.ts",
     "dev:electron": "pnpm dev",
     "dev:inspect": "cross-env NODE_ENV=development tsx watch --inspect ./src/index.ts",
+    "dev:synchost": "cross-env NODE_ENV=development HOST_SYNC=true PORT=4003 ONTIME_DATA=../../ontime-db tsx watch ./src/index.ts",
+
 
     "lint": "eslint . --quiet",
     "typecheck": "tsc --noEmit",

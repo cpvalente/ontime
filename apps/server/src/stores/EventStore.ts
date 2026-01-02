@@ -36,7 +36,15 @@ export const eventStore = {
         store = { ...store, ...patch };
         socket.sendAsJson(MessageTag.RuntimeData, patch);
       },
+      hasPendingUpdates() {
+        return !isEmptyObject(patch);
+      },
     };
+  },
+  createPatch(patch: Partial<RuntimeStore>) {
+    if (isEmptyObject(patch)) return;
+    store = { ...store, ...patch };
+    socket.sendAsJson(MessageTag.RuntimeData, patch);
   },
   poll() {
     return store as RuntimeStore;

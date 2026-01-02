@@ -1,3 +1,4 @@
+import { SyncRoll } from '../../api/sync/wsApi.type.js';
 import { SimpleDirection, SimplePlayback } from './AuxTimer.type.js';
 import { OffsetMode } from './Offset.type.js';
 import { Playback } from './Playback.type.js';
@@ -67,4 +68,7 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
     playback: SimplePlayback.Stop,
   },
   ping: 1,
+  sync: {
+    roll: SyncRoll.Unknown,
+  },
 };

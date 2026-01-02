@@ -5,6 +5,8 @@ import { publicFiles } from '../../setup/index.js';
 
 import { isRestorePoint } from './restore.parser.js';
 import type { RestorePoint } from './restore.type.js';
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { RefetchKey } from 'ontime-types';
 
 let failedCreateAttempts = 0;
 let savedState: RestorePoint | null = null;
@@ -18,7 +20,12 @@ export const restoreService = {
   save,
   load,
   clear,
+  get,
 };
+
+function get() {
+  return savedState;
+}
 
 /**
  * Saves a restore point
@@ -36,8 +43,9 @@ async function save(data: RestorePoint, writeFn = write) {
   }
 
   try {
-    await writeFn(data);
     savedState = { ...data };
+    await writeFn(data);
+    sendRefetch(RefetchKey.RestorePoint);
     failedCreateAttempts = 0;
   } catch (_error) {
     failedCreateAttempts += 1;

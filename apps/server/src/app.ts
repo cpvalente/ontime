@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 
 // import utils
 import { publicDir, srcDir } from './setup/index.js';
-import { environment, isProduction } from './setup/environment.js';
+import { environment, isProduction, override_port } from './setup/environment.js';
 import { updateRouterPrefix } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
@@ -182,7 +182,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   expressServer = http.createServer(app);
 
   // the express server must be started before the socket otherwise the on error event listener will not attach properly
-  const resultPort = await serverTryDesiredPort(expressServer, desiredPort);
+  const resultPort = await serverTryDesiredPort(expressServer, override_port || desiredPort);
   await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
   const showWelcome = await getShowWelcomeDialog();
 

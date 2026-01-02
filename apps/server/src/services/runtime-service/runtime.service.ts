@@ -42,6 +42,7 @@ import {
   isNewSecond,
 } from './runtime.utils.js';
 import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
+import { syncService } from '../../api-data/sync/sync.service.js';
 
 /**
  * Service manages runtime status of app
@@ -661,6 +662,10 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
   descriptor.value = function (...args: any[]) {
     // call the original method and get the state
     const result = originalMethod.apply(this, args);
+
+    // if the sync service is slaved to another server
+    if (syncService.isListening()) return result;
+
     const state = runtimeState.getState();
     const batch = eventStore.createBatch();
 
@@ -764,6 +769,10 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           //we don't do anything with the error here
         });
     }
+
+    // if (batch.hasPendingUpdates()) {
+    //   syncService.handleRuntimeUpdate(state);
+    // }
 
     batch.send();
     return result;
