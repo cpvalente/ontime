@@ -9,6 +9,7 @@ import * as oscClient from '../clients/osc.client.js';
 import * as httpClient from '../clients/http.client.js';
 
 import { makeOSCAction, makeHTTPAction } from './testUtils.js';
+import { runTestCondition } from './filterTestUtils.js';
 
 beforeAll(() => {
   vi.mock('../../../classes/data-provider/DataProvider.js', () => {
@@ -101,122 +102,207 @@ describe('testConditions()', () => {
   });
 
   describe('equals operator', () => {
-    it('should compare two equal values', () => {
-      const mockStore = makeRuntimeStateData({ clock: 10 });
-      const result = testConditions([{ field: 'clock', operator: 'equals', value: '10' }], 'all', mockStore);
-      expect(result).toBe(true);
-    });
-
-    it('string comparisons should be case insensitive', () => {
-      const mockStore = makeRuntimeStateData({ eventNow: { title: 'Title' } as PlayableEvent });
-      const result = testConditions(
-        [{ field: 'eventNow.title', operator: 'equals', value: 'title' }],
-        'all',
-        mockStore,
-      );
-      expect(result).toBe(true);
+    it('should be true when comparing two equal number/string', () => {
+      expect(runTestCondition('number', 10, 'equals', '10')).toBe(true);
+      expect(runTestCondition('string', 'Title', 'equals', 'Title')).toBe(true);
     });
 
     it('should check if a value does not exist', () => {
-      const mockStore = makeRuntimeStateData({ eventNow: null });
-      const result = testConditions([{ field: 'eventNow.title', operator: 'equals', value: '' }], 'all', mockStore);
-      expect(result).toBe(true);
+      expect(runTestCondition('null/undefined', null, 'equals', '')).toBe(true);
     });
 
     it('should handle trueness boolean comparisons', () => {
-      const mockStore = makeRuntimeStateData({ eventNow: { countToEnd: true } as PlayableEvent });
-      expect(
-        testConditions([{ field: 'eventNow.countToEnd', operator: 'equals', value: 'true' }], 'all', mockStore),
-      ).toBe(true);
-      expect(
-        testConditions([{ field: 'eventNow.countToEnd', operator: 'equals', value: 'false' }], 'all', mockStore),
-      ).toBe(false);
+      expect(runTestCondition('boolean', true, 'equals', 'true')).toBe(true);
+      expect(runTestCondition('boolean', true, 'equals', 'false')).toBe(false);
     });
 
     it('should handle falseness boolean comparisons', () => {
-      const mockStore = makeRuntimeStateData({ eventNow: { countToEnd: false } as PlayableEvent });
-      expect(
-        testConditions([{ field: 'eventNow.countToEnd', operator: 'equals', value: 'false' }], 'all', mockStore),
-      ).toBe(true);
-      expect(
-        testConditions([{ field: 'eventNow.countToEnd', operator: 'equals', value: 'true' }], 'all', mockStore),
-      ).toBe(false);
+      expect(runTestCondition('boolean', false, 'equals', 'false')).toBe(true);
+      expect(runTestCondition('boolean', false, 'equals', 'true')).toBe(false);
+    });
+
+    it('should be case insensitive', () => {
+      expect(runTestCondition('string', 'Title', 'equals', 'title')).toBe(true);
+      expect(runTestCondition('boolean', true, 'equals', 'TRUE')).toBe(true);
+    });
+
+    it('should be false in other cases', () => {
+      // Mismatched types
+      expect(runTestCondition('number', 10, 'equals', 'lighting')).toBe(false);
+      // Greater than / less than number
+      expect(runTestCondition('number', 10, 'equals', '100')).toBe(false);
+      expect(runTestCondition('number', 10, 'equals', '11')).toBe(false);
+      expect(runTestCondition('number', 10, 'equals', '5')).toBe(false);
+      expect(runTestCondition('number', 10, 'equals', '1')).toBe(false);
+      // String / Substring
+      expect(runTestCondition('string', 'testing-lighting-10', 'equals', 'lighting')).toBe(false);
+      expect(runTestCondition('string', 'testing-lighting-10', 'equals', 'sound')).toBe(false);
+      // Null / Empty / No value
+      expect(runTestCondition('null/undefined', null, 'equals', 'not-empty')).toBe(false);
+      expect(runTestCondition('boolean', false, 'equals', '')).toBe(false);
+
+      expect(runTestCondition('number', 0, 'equals', '')).toBe(true); // TO_DO: is this the desired behavior?
     });
   });
 
   describe('not_equals operator', () => {
-    it('should check if two values are different', () => {
-      const mockStore = makeRuntimeStateData({ clock: 10 });
-      const result = testConditions([{ field: 'clock', operator: 'not_equals', value: '11' }], 'all', mockStore);
-      expect(result).toBe(true);
+    it('should be false when comparing two equal number/string', () => {
+      expect(runTestCondition('number', 10, 'not_equals', '10')).toBe(false);
+      expect(runTestCondition('string', 'Title', 'not_equals', 'Title')).toBe(false);
     });
-    it('should check if a value does exist', () => {
-      const mockStore = makeRuntimeStateData({ eventNow: null });
-      expect(testConditions([{ field: 'eventNow.title', operator: 'not_equals', value: '' }], 'all', mockStore)).toBe(
-        false,
-      );
+
+    it('should check if a value does not exist', () => {
+      expect(runTestCondition('null/undefined', null, 'not_equals', '')).toBe(false);
+    });
+
+    it('should handle trueness boolean comparisons', () => {
+      expect(runTestCondition('boolean', true, 'not_equals', 'true')).toBe(false);
+      expect(runTestCondition('boolean', true, 'not_equals', 'false')).toBe(true);
+    });
+
+    it('should handle falseness boolean comparisons', () => {
+      expect(runTestCondition('boolean', false, 'not_equals', 'false')).toBe(false);
+      expect(runTestCondition('boolean', false, 'not_equals', 'true')).toBe(true);
+    });
+
+    it('should be case insensitive', () => {
+      expect(runTestCondition('string', 'Title', 'not_equals', 'title')).toBe(false);
+      expect(runTestCondition('boolean', true, 'not_equals', 'TRUE')).toBe(false);
+    });
+
+    it('should be true in other cases', () => {
+      // Mismatched types
+      expect(runTestCondition('number', 10, 'not_equals', 'lighting')).toBe(true);
+      // Greater than / less than number
+      expect(runTestCondition('number', 10, 'not_equals', '100')).toBe(true);
+      expect(runTestCondition('number', 10, 'not_equals', '11')).toBe(true);
+      expect(runTestCondition('number', 10, 'not_equals', '5')).toBe(true);
+      expect(runTestCondition('number', 10, 'not_equals', '1')).toBe(true);
+      // String / Substring
+      expect(runTestCondition('string', 'testing-lighting-10', 'not_equals', 'lighting')).toBe(true);
+      expect(runTestCondition('string', 'testing-lighting-10', 'not_equals', 'sound')).toBe(true);
+      // Null / Empty / No value
+      expect(runTestCondition('null/undefined', null, 'not_equals', 'not-empty')).toBe(true);
+      expect(runTestCondition('boolean', false, 'not_equals', '')).toBe(true);
+
+      expect(runTestCondition('number', 0, 'not_equals', '')).toBe(false); // TO_DO: is this the desired behavior?
     });
   });
 
   describe('greater_than operator', () => {
     it('should check if the given value is smaller', () => {
-      const mockStore = makeRuntimeStateData({ clock: 10 });
-      const result = testConditions([{ field: 'clock', operator: 'greater_than', value: '9' }], 'all', mockStore);
-      expect(result).toBe(true);
+      expect(runTestCondition('number', 10, 'greater_than', '10')).toBe(false);
+      expect(runTestCondition('number', 10, 'greater_than', '100')).toBe(false);
+      expect(runTestCondition('number', 10, 'greater_than', '11')).toBe(false);
+      expect(runTestCondition('number', 10, 'greater_than', '5')).toBe(true);
+      expect(runTestCondition('number', 10, 'greater_than', '1')).toBe(true);
     });
     it('should handle values which are not numbers', () => {
-      const mockStore = makeRuntimeStateData({ clock: 10 });
-      const result = testConditions([{ field: 'clock', operator: 'greater_than', value: 'testing' }], 'all', mockStore);
-      expect(result).toBe(false);
+      // Mismatched types / Empty / No value
+      expect(runTestCondition('number', 10, 'greater_than', 'lighting')).toBe(false);
+      expect(runTestCondition('number', 0, 'greater_than', '')).toBe(false);
+      // Other types
+      expect(runTestCondition('string', 'Title', 'greater_than', 'Title')).toBe(false);
+      expect(runTestCondition('null/undefined', null, 'greater_than', '')).toBe(false);
+      expect(runTestCondition('boolean', true, 'greater_than', 'true')).toBe(false);
+      expect(runTestCondition('boolean', true, 'greater_than', 'false')).toBe(false);
+      expect(runTestCondition('boolean', false, 'greater_than', 'false')).toBe(false);
+      expect(runTestCondition('boolean', false, 'greater_than', 'true')).toBe(false);
+      expect(runTestCondition('string', 'Title', 'greater_than', 'title')).toBe(false);
+      expect(runTestCondition('boolean', true, 'greater_than', 'TRUE')).toBe(false);
+      expect(runTestCondition('string', 'testing-lighting-10', 'greater_than', 'lighting')).toBe(false);
+      expect(runTestCondition('string', 'testing-lighting-10', 'greater_than', 'sound')).toBe(false);
+      expect(runTestCondition('null/undefined', null, 'greater_than', 'not-empty')).toBe(false);
+      expect(runTestCondition('boolean', false, 'greater_than', '')).toBe(false);
     });
   });
 
   describe('less_than operator', () => {
     it('should check if the given value is larger', () => {
-      const mockStore = makeRuntimeStateData({ clock: 10 });
-      const result = testConditions([{ field: 'clock', operator: 'less_than', value: '11' }], 'all', mockStore);
-      expect(result).toBe(true);
+      expect(runTestCondition('number', 10, 'less_than', '100')).toBe(true);
+      expect(runTestCondition('number', 10, 'less_than', '11')).toBe(true);
+      expect(runTestCondition('number', 10, 'less_than', '10')).toBe(false);
+      expect(runTestCondition('number', 10, 'less_than', '5')).toBe(false);
+      expect(runTestCondition('number', 10, 'less_than', '1')).toBe(false);
     });
     it('should handle values which are not numbers', () => {
-      const mockStore = makeRuntimeStateData({ clock: 10 });
-      const result = testConditions([{ field: 'clock', operator: 'less_than', value: 'testing' }], 'all', mockStore);
-      expect(result).toBe(false);
+      // Mismatched types / Empty / No value
+      expect(runTestCondition('number', 10, 'less_than', 'lighting')).toBe(false);
+      expect(runTestCondition('number', 0, 'less_than', '')).toBe(false);
+      // Other types
+      expect(runTestCondition('string', 'Title', 'less_than', 'Title')).toBe(false);
+      expect(runTestCondition('null/undefined', null, 'less_than', '')).toBe(false);
+      expect(runTestCondition('boolean', true, 'less_than', 'true')).toBe(false);
+      expect(runTestCondition('boolean', true, 'less_than', 'false')).toBe(false);
+      expect(runTestCondition('boolean', false, 'less_than', 'false')).toBe(false);
+      expect(runTestCondition('boolean', false, 'less_than', 'true')).toBe(false);
+      expect(runTestCondition('string', 'Title', 'less_than', 'title')).toBe(false);
+      expect(runTestCondition('boolean', true, 'less_than', 'TRUE')).toBe(false);
+      expect(runTestCondition('string', 'testing-lighting-10', 'less_than', 'lighting')).toBe(false);
+      expect(runTestCondition('string', 'testing-lighting-10', 'less_than', 'sound')).toBe(false);
+      expect(runTestCondition('null/undefined', null, 'less_than', 'not-empty')).toBe(false);
+      expect(runTestCondition('boolean', false, 'less_than', '')).toBe(false);
     });
   });
 
   describe('contains operator', () => {
     it('should check if value contains given string', () => {
-      const result = testConditions(
-        [{ field: 'eventNow.title', operator: 'contains', value: 'lighting' }],
-        'all',
-        makeRuntimeStateData({ eventNow: makeOntimeEvent({ title: 'test-lighting' }) as PlayableEvent }),
-      );
-      expect(result).toBe(true);
+      expect(runTestCondition('string', 'testing-lighting-10', 'contains', 'lighting')).toBe(true);
+      expect(runTestCondition('string', 'testing-lighting-10', 'contains', '10')).toBe(true);
+      expect(runTestCondition('string', 'testing-lighting-10', 'contains', '1')).toBe(true);
+      expect(runTestCondition('string', 'testing-lighting-10', 'contains', 'sound')).toBe(false);
+    });
 
-      const result2 = testConditions(
-        [{ field: 'eventNow.title', operator: 'contains', value: 'sound' }],
-        'all',
-        makeRuntimeStateData({ eventNow: makeOntimeEvent({ title: 'test-lighting' }) as PlayableEvent }),
-      );
-      expect(result2).toBe(false);
+    it('should match with equals string', () => {
+      expect(runTestCondition('string', '', 'contains', '')).toBe(true);
+      expect(runTestCondition('string', 'Title', 'contains', 'Title')).toBe(true);
+    });
+
+    it('should handle case sensitivity', () => {
+      // TO_DO: is this the desired behavior?
+      expect(runTestCondition('string', 'Title', 'contains', 'title')).toBe(false);
+    });
+
+    it('should handle non-string equals values', () => {
+      //TO_DO: is this the desired behavior? All the fields contain the value when converted to string.
+      expect(runTestCondition('number', 10, 'contains', '10')).toBe(false);
+      expect(runTestCondition('boolean', true, 'contains', 'true')).toBe(false);
+      expect(runTestCondition('boolean', false, 'contains', 'false')).toBe(false);
+    });
+
+    it('should handle number values contained in field number', () => {
+      expect(runTestCondition('number', 12345, 'contains', '234')).toBe(false); // TO_DO: is this the desired behavior?
+      expect(runTestCondition('number', 12345, 'contains', '456')).toBe(false);
     });
   });
 
   describe('not_contains operator', () => {
-    it('should check if value does not contain given string', () => {
-      const result = testConditions(
-        [{ field: 'eventNow.title', operator: 'not_contains', value: 'lighting' }],
-        'all',
-        makeRuntimeStateData({ eventNow: makeOntimeEvent({ title: 'test-lighting' }) as PlayableEvent }),
-      );
-      expect(result).toBe(false);
+    it("should check if value doesn't contains given string", () => {
+      expect(runTestCondition('string', 'testing-lighting-10', 'not_contains', 'lighting')).toBe(false);
+      expect(runTestCondition('string', 'testing-lighting-10', 'not_contains', '10')).toBe(false);
+      expect(runTestCondition('string', 'testing-lighting-10', 'not_contains', '1')).toBe(false);
+      expect(runTestCondition('string', 'testing-lighting-10', 'not_contains', 'sound')).toBe(true);
+    });
 
-      const result2 = testConditions(
-        [{ field: 'eventNow.title', operator: 'not_contains', value: 'sound' }],
-        'all',
-        makeRuntimeStateData({ eventNow: makeOntimeEvent({ title: 'test-lighting' }) as PlayableEvent }),
-      );
-      expect(result2).toBe(true);
+    it('should not match with equals string', () => {
+      expect(runTestCondition('string', '', 'not_contains', '')).toBe(false);
+      expect(runTestCondition('string', 'Title', 'not_contains', 'Title')).toBe(false);
+    });
+
+    it('should handle case sensitivity', () => {
+      // TO_DO: is this the desired behavior?
+      expect(runTestCondition('string', 'Title', 'not_contains', 'title')).toBe(true);
+    });
+
+    it('should handle non-string equals values', () => {
+      expect(runTestCondition('number', 10, 'not_contains', '10')).toBe(false);
+      expect(runTestCondition('boolean', true, 'not_contains', 'true')).toBe(false);
+      expect(runTestCondition('boolean', false, 'not_contains', 'false')).toBe(false);
+    });
+
+    it('should handle number values contained in field number', () => {
+      expect(runTestCondition('number', 12345, 'not_contains', '234')).toBe(false);
+      expect(runTestCondition('number', 12345, 'not_contains', '456')).toBe(false); // TO_DO: is this the desired behavior?
     });
   });
 
