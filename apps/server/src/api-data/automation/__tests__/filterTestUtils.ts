@@ -52,6 +52,7 @@ export function getFilterState<T extends FieldCategories>(
         field: 'eventNow.countToEnd',
       };
     case 'null/undefined':
+    default:
       return {
         state: { eventNow: null },
         field: 'eventNow.title',
