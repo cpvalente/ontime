@@ -8,8 +8,8 @@ import TimeInput from '../../../../common/components/input/time-input/TimeInput'
 import Select from '../../../../common/components/select/Select';
 import Switch from '../../../../common/components/switch/Switch';
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
-import { useEntryActions } from '../../../../common/hooks/useEntryAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
+import { useRundownEntryActions } from '../../context/RundownActionsContext';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
 import style from '../EntryEditor.module.scss';
@@ -46,7 +46,7 @@ function EventEditorTimes({
   timeWarning,
   timeDanger,
 }: EventEditorTimesProps) {
-  const { updateEntry } = useEntryActions();
+  const { updateEntry } = useRundownEntryActions();
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
     if (field === 'countToEnd') {

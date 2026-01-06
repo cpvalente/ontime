@@ -6,8 +6,8 @@ import { OntimeDelay } from 'ontime-types';
 
 import Button from '../../../common/components/buttons/Button';
 import DelayInput from '../../../common/components/input/delay-input/DelayInput';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx } from '../../../common/utils/styleUtils';
+import { useRundownEntryActions } from '../context/RundownActionsContext';
 
 import style from './RundownDelay.module.scss';
 
@@ -19,7 +19,7 @@ interface RundownDelayProps {
 export default function RundownDelay({ data, hasCursor }: RundownDelayProps) {
   'use memo';
 
-  const { applyDelay, deleteEntry } = useEntryActions();
+  const { applyDelay, deleteEntry } = useRundownEntryActions();
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
   const {
