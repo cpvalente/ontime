@@ -1,4 +1,3 @@
-import type { PropsWithChildren } from 'react';
 import { create } from 'zustand';
 
 import { DropdownMenuOption, PositionedDropdownMenu } from '../../../common/components/dropdown-menu/DropdownMenu';
@@ -24,7 +23,7 @@ export const useContextMenuStore = create<ContextMenuStore>((set) => ({
   setIsOpen: (newIsOpen) => set(() => ({ isOpen: newIsOpen })),
 }));
 
-export function RundownContextMenu({ children }: PropsWithChildren) {
+export function RundownContextMenu() {
   const { position, options, isOpen, setIsOpen } = useContextMenuStore();
 
   const onClose = () => {
@@ -32,13 +31,8 @@ export function RundownContextMenu({ children }: PropsWithChildren) {
   };
 
   if (!isOpen) {
-    return children;
+    return null;
   }
 
-  return (
-    <>
-      {children}
-      <PositionedDropdownMenu isOpen position={position} onClose={onClose} items={options} />
-    </>
-  );
+  return <PositionedDropdownMenu isOpen position={position} onClose={onClose} items={options} />;
 }

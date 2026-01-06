@@ -44,9 +44,8 @@ function RundownExport() {
           <ViewNavigationMenu suppressSettings />
           <div className={style.rundown}>
             <ErrorBoundary>
-              <RundownContextMenu>
-                <RundownWrapper isSmallDevice viewMode={viewMode} setViewMode={setViewMode} />
-              </RundownContextMenu>
+              <RundownWrapper isSmallDevice viewMode={viewMode} setViewMode={setViewMode} />
+              <RundownContextMenu />
             </ErrorBoundary>
           </div>
         </div>
@@ -65,9 +64,8 @@ function RundownExport() {
           <Editor.Panel className={style.list}>
             <ErrorBoundary>
               {!isExtracted && <Editor.CornerExtract onClick={(event) => handleLinks('rundown', event)} />}
-              <RundownContextMenu>
-                <RundownWrapper viewMode={viewMode} setViewMode={setViewMode} />
-              </RundownContextMenu>
+              <RundownWrapper viewMode={viewMode} setViewMode={setViewMode} />
+              <RundownContextMenu />
             </ErrorBoundary>
           </Editor.Panel>
           {!hideSideBar && (

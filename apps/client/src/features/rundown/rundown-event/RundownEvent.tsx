@@ -109,7 +109,7 @@ export default function RundownEvent({
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  const [onContextMenu] = useContextMenu<HTMLDivElement>(
+  const [onContextMenu] = useContextMenu<HTMLDivElement>(() =>
     selectedEvents.size > 1
       ? [
           {
