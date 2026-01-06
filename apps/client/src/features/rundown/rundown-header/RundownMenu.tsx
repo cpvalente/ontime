@@ -5,8 +5,8 @@ import { useDisclosure, useSessionStorage } from '@mantine/hooks';
 
 import Button from '../../../common/components/buttons/Button';
 import Dialog from '../../../common/components/dialog/Dialog';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { AppMode, sessionKeys } from '../../../ontimeConfig';
+import { useRundownEntryActions } from '../context/RundownActionsContext';
 import { useEventSelection } from '../useEventSelection';
 
 import style from './RundownHeader.module.scss';
@@ -20,7 +20,7 @@ function RundownMenu() {
     key: sessionKeys.editorMode,
     defaultValue: AppMode.Edit,
   });
-  const { deleteAllEntries } = useEntryActions();
+  const { deleteAllEntries } = useRundownEntryActions();
 
   const deleteAll = useCallback(() => {
     deleteAllEntries();

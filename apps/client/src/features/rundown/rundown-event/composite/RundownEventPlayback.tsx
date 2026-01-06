@@ -3,8 +3,8 @@ import { IoPause, IoPlay, IoReload, IoRemoveCircle, IoRemoveCircleOutline } from
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
-import { useEntryActions } from '../../../../common/hooks/useEntryAction';
 import { setEventPlayback } from '../../../../common/hooks/useSocket';
+import { useRundownEntryActions } from '../../context/RundownActionsContext';
 
 import style from '../RundownEvent.module.scss';
 
@@ -26,7 +26,7 @@ function RundownEventPlayback({
   loaded,
   disablePlayback,
 }: RundownEventPlaybackProps) {
-  const { updateEntry } = useEntryActions();
+  const { updateEntry } = useRundownEntryActions();
 
   const toggleSkip = (event: MouseEvent) => {
     event.stopPropagation();

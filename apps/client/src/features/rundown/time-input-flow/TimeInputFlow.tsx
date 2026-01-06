@@ -7,7 +7,7 @@ import IconButton from '../../../common/components/buttons/IconButton';
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { useRundownEntryActions } from '../context/RundownActionsContext';
 
 import TimeInputGroup from './TimeInputGroup';
 
@@ -37,7 +37,7 @@ function TimeInputFlow({
   delay,
   showLabels,
 }: TimeInputFlowProps) {
-  const { updateEntry, updateTimer } = useEntryActions();
+  const { updateEntry, updateTimer } = useRundownEntryActions();
 
   // In sync with EventEditorTimes
   const handleSubmit = (field: TimeField, value: string) => {

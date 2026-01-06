@@ -7,8 +7,8 @@ import { EntryId } from 'ontime-types';
 import Input from '../../../common/components/input/input/Input';
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
+import { useRundownEntryActions } from '../context/RundownActionsContext';
 import { useEventSelection } from '../useEventSelection';
 
 import style from './RundownMilestone.module.scss';
@@ -25,7 +25,7 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
   'use memo';
 
   const handleRef = useRef<null | HTMLSpanElement>(null);
-  const { updateEntry, deleteEntry } = useEntryActions();
+  const { updateEntry, deleteEntry } = useRundownEntryActions();
 
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const setSingleEntrySelection = useEventSelection((state) => state.setSingleEntrySelection);

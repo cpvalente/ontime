@@ -16,8 +16,8 @@ import { EndAction, EntryId, Playback, TimerType, TimeStrategy } from 'ontime-ty
 import { isPlaybackActive } from 'ontime-utils';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
+import { useRundownEntryActions } from '../context/RundownActionsContext';
 import { useEventIdSwapping } from '../useEventIdSwapping';
 import { getSelectionMode, useEventSelection } from '../useEventSelection';
 
@@ -97,7 +97,7 @@ export default function RundownEvent({
   const setSelectedEventId = useEventIdSwapping((state) => state.setSelectedEventId);
   const clearSelectedEventId = useEventIdSwapping((state) => state.clearSelectedEventId);
 
-  const { updateEntry, batchUpdateEvents, clone, deleteEntry, groupEntries, swapEvents } = useEntryActions();
+  const { updateEntry, batchUpdateEvents, clone, deleteEntry, groupEntries, swapEvents } = useRundownEntryActions();
 
   const isSelected = useEventSelection((state) => state.selectedEvents.has(eventId));
   const unselect = useEventSelection((state) => state.unselect);

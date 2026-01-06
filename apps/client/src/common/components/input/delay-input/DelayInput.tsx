@@ -1,7 +1,7 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
-import { useEntryActions } from '../../../hooks/useEntryAction';
+import { useRundownEntryActions } from '../../../../features/rundown/context/RundownActionsContext';
 import Input from '../input/Input';
 
 import BlockRadio from './BlockRadio';
@@ -13,9 +13,8 @@ interface DelayInputProps {
   duration: number;
 }
 
-export default function DelayInput(props: DelayInputProps) {
-  const { eventId, duration } = props;
-  const { updateEntry } = useEntryActions();
+export default function DelayInput({ eventId, duration }: DelayInputProps) {
+  const { updateEntry } = useRundownEntryActions();
 
   const [value, setValue] = useState<string>('');
   const inputRef = useRef<HTMLInputElement | null>(null);

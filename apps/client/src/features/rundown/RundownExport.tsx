@@ -5,12 +5,14 @@ import * as Editor from '../../common/components/editor-utils/EditorUtils';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
 import ProtectRoute from '../../common/components/protect-route/ProtectRoute';
+import { useEntryActions } from '../../common/hooks/useEntryAction';
 import { useIsSmallDevice } from '../../common/hooks/useIsSmallDevice';
 import { handleLinks } from '../../common/utils/linkUtils';
 import { cx } from '../../common/utils/styleUtils';
 import { getIsNavigationLocked } from '../../externals';
 import { AppMode, sessionKeys } from '../../ontimeConfig';
 
+import { RundownActionsProvider } from './context/RundownActionsContext';
 import RundownEntryEditor from './entry-editor/RundownEntryEditor';
 import FinderPlacement from './placements/FinderPlacement';
 import { RundownContextMenu } from './rundown-context-menu/RundownContextMenu';
@@ -31,52 +33,57 @@ function RundownExport() {
     defaultValue: 'list',
   });
   const isSmallDevice = useIsSmallDevice();
+  const entryActions = useEntryActions();
 
   if (isSmallDevice && isExtracted) {
     return (
-      <ProtectRoute permission='editor'>
-        <div
-          className={cx([style.rundownExport, style.extracted])}
-          data-target='small-device'
-          data-testid='panel-rundown'
-        >
-          <FinderPlacement />
-          <ViewNavigationMenu suppressSettings />
-          <div className={style.rundown}>
-            <ErrorBoundary>
-              <RundownWrapper isSmallDevice viewMode={viewMode} setViewMode={setViewMode} />
-              <RundownContextMenu />
-            </ErrorBoundary>
+      <RundownActionsProvider actions={entryActions}>
+        <ProtectRoute permission='editor'>
+          <div
+            className={cx([style.rundownExport, style.extracted])}
+            data-target='small-device'
+            data-testid='panel-rundown'
+          >
+            <FinderPlacement />
+            <ViewNavigationMenu suppressSettings />
+            <div className={style.rundown}>
+              <ErrorBoundary>
+                <RundownWrapper isSmallDevice viewMode={viewMode} setViewMode={setViewMode} />
+                <RundownContextMenu />
+              </ErrorBoundary>
+            </div>
           </div>
-        </div>
-      </ProtectRoute>
+        </ProtectRoute>
+      </RundownActionsProvider>
     );
   }
 
   const hideSideBar = (isExtracted && editorMode === 'run') || viewMode === 'table';
 
   return (
-    <ProtectRoute permission='editor'>
-      <div className={cx([style.rundownExport, isExtracted && style.extracted])} data-testid='panel-rundown'>
-        <FinderPlacement />
-        {isExtracted && <ViewNavigationMenu suppressSettings isNavigationLocked={getIsNavigationLocked()} />}
-        <div className={style.rundown}>
-          <Editor.Panel className={style.list}>
-            <ErrorBoundary>
-              {!isExtracted && <Editor.CornerExtract onClick={(event) => handleLinks('rundown', event)} />}
-              <RundownWrapper viewMode={viewMode} setViewMode={setViewMode} />
-              <RundownContextMenu />
-            </ErrorBoundary>
-          </Editor.Panel>
-          {!hideSideBar && (
-            <div className={style.side}>
+    <RundownActionsProvider actions={entryActions}>
+      <ProtectRoute permission='editor'>
+        <div className={cx([style.rundownExport, isExtracted && style.extracted])} data-testid='panel-rundown'>
+          <FinderPlacement />
+          {isExtracted && <ViewNavigationMenu suppressSettings isNavigationLocked={getIsNavigationLocked()} />}
+          <div className={style.rundown}>
+            <Editor.Panel className={style.list}>
               <ErrorBoundary>
-                <RundownEntryEditor />
+                {!isExtracted && <Editor.CornerExtract onClick={(event) => handleLinks('rundown', event)} />}
+                <RundownWrapper viewMode={viewMode} setViewMode={setViewMode} />
+                <RundownContextMenu />
               </ErrorBoundary>
-            </div>
-          )}
+            </Editor.Panel>
+            {!hideSideBar && (
+              <div className={style.side}>
+                <ErrorBoundary>
+                  <RundownEntryEditor />
+                </ErrorBoundary>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </ProtectRoute>
+      </ProtectRoute>
+    </RundownActionsProvider>
   );
 }
