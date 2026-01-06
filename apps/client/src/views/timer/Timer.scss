@@ -9,7 +9,7 @@
   transition: opacity 0.5s ease-in-out;
 
   font-family: var(--font-family-override, $viewer-font-family);
-  background: var(--timer-bg, var(--background-color-override, $viewer-background-color));
+  background: var(--timer-bg, var(--background-color-override, $viewer-background-color)) !important; // override any inline styles
   color: var(--color-override, $viewer-color);
   gap: $view-element-gap;
   padding: $view-outer-padding;
