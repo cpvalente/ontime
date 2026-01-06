@@ -2,8 +2,8 @@ import { useCallback, useRef } from 'react';
 
 import Input from '../../../common/components/input/input/Input';
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx } from '../../../common/utils/styleUtils';
+import { useRundownEntryActions } from '../context/RundownActionsContext';
 
 import style from './TitleEditor.module.scss';
 
@@ -15,7 +15,7 @@ interface TitleEditorProps {
 }
 
 export default function TitleEditor({ title, entryId, placeholder, className }: TitleEditorProps) {
-  const { updateEntry } = useEntryActions();
+  const { updateEntry } = useRundownEntryActions();
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback(
     (text: string) => {
