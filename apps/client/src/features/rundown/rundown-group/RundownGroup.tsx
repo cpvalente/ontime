@@ -41,7 +41,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
   const setSingleEntrySelection = useEventSelection((state) => state.setSingleEntrySelection);
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
 
-  const [onContextMenu] = useContextMenu<HTMLDivElement>([
+  const [onContextMenu] = useContextMenu<HTMLDivElement>(() => [
     {
       type: 'item',
       label: 'Clone Group',
