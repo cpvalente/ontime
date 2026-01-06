@@ -14,11 +14,11 @@ import { MILLIS_PER_MINUTE, millisToString } from 'ontime-utils';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { getOffsetState } from '../../../common/utils/offset';
 import { cx, getAccessibleColour, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatDuration } from '../../../common/utils/time';
 import TitleEditor from '../common/TitleEditor';
+import { useRundownEntryActions } from '../context/RundownActionsContext';
 import { canDrop } from '../rundown.utils';
 import { useEventSelection } from '../useEventSelection';
 
@@ -36,7 +36,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
   'use memo';
 
   const handleRef = useRef<null | HTMLSpanElement>(null);
-  const { clone, ungroup, deleteEntry } = useEntryActions();
+  const { clone, ungroup, deleteEntry } = useRundownEntryActions();
 
   const setSingleEntrySelection = useEventSelection((state) => state.setSingleEntrySelection);
   const selectedEvents = useEventSelection((state) => state.selectedEvents);

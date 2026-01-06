@@ -5,7 +5,7 @@ import * as Editor from '../../../../common/components/editor-utils/EditorUtils'
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
 import Input from '../../../../common/components/input/input/Input';
 import Switch from '../../../../common/components/switch/Switch';
-import { useEntryActions } from '../../../../common/hooks/useEntryAction';
+import { useRundownEntryActions } from '../../context/RundownActionsContext';
 
 import EventTextArea from './EventTextArea';
 import EntryEditorTextInput from './EventTextInput';
@@ -23,7 +23,7 @@ interface EventEditorTitlesProps {
 
 export default memo(EventEditorTitles);
 function EventEditorTitles({ eventId, cue, flag, title, note, colour }: EventEditorTitlesProps) {
-  const { updateEntry } = useEntryActions();
+  const { updateEntry } = useRundownEntryActions();
 
   const cueSubmitHandler = (_field: string, newValue: string) => {
     updateEntry({ id: eventId, cue: sanitiseCue(newValue) });
