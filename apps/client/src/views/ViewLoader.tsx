@@ -10,14 +10,27 @@ export default function ViewLoader({ children }: PropsWithChildren) {
   const { data } = useViewSettings();
   const { shouldRender } = useRuntimeStylesheet(data.overrideStyles ? overrideStylesURL : undefined);
 
+  // we need to be able to override the background colour with the key param
+  const searchParams = new URLSearchParams(window.location.search);
+  const colourFromParams = searchParams.get('keyColour') ?? '#101010';
+
   // eventually we would want to leverage suspense here
   // while the feature is not ready, we simply trigger a loader
   // suspense would have the advantage of being triggered also by react-query
 
   if (!shouldRender) {
-    return <Loader />;
+    return (
+      <>
+        <style>{`body { background: var(--background-color-override, ${colourFromParams}); }`}</style>
+        <Loader />
+      </>
+    );
   }
 
-  // eslint-disable-next-line react/jsx-no-useless-fragment -- ensuring JSX return
-  return <>{children}</>;
+  return (
+    <>
+      <style>{`body { background: var(--background-color-override, ${colourFromParams}); }`}</style>
+      {children}
+    </>
+  );
 }
