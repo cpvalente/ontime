@@ -30,7 +30,7 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const setSingleEntrySelection = useEventSelection((state) => state.setSingleEntrySelection);
 
-  const [onContextMenu] = useContextMenu<HTMLDivElement>([
+  const [onContextMenu] = useContextMenu<HTMLDivElement>(() => [
     {
       type: 'item',
       label: 'Delete',
