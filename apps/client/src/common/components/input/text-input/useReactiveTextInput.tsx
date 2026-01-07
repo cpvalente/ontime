@@ -17,6 +17,7 @@ export default function useReactiveTextInput(
     submitOnCtrlEnter?: boolean;
     onCancelUpdate?: () => void;
     allowSubmitSameValue?: boolean;
+    allowSubmitOnEnterOnly?: boolean;
     allowKeyboardNavigation?: boolean;
   },
 ): UseReactiveTextInputReturn {
@@ -94,7 +95,15 @@ export default function useReactiveTextInput(
         'Escape',
         (event) => {
           event.preventDefault();
-          handleEscape();
+          if (options?.allowSubmitOnEnterOnly) {
+            isKeyboardSubmitting.current = true;
+            options?.onCancelUpdate?.();
+            setTimeout(() => {
+              isKeyboardSubmitting.current = false;
+            }, 0);
+          } else {
+            handleEscape();
+          }
         },
         { preventDefault: true },
       ],
@@ -143,7 +152,7 @@ export default function useReactiveTextInput(
 
       hotKeyHandler(event);
     };
-  }, [handleEscape, handleSubmit, options?.submitOnCtrlEnter, options?.submitOnEnter, text]);
+  }, [handleEscape, handleSubmit, options?.submitOnCtrlEnter, options?.submitOnEnter, options?.allowSubmitOnEnterOnly, text]);
 
   return {
     value: text,
