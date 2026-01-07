@@ -11,15 +11,18 @@
     "cors": "2.8.5",
     "dotenv": "^16.0.1",
     "express": "5.1.0",
+    "express-openapi-validator": "^5.6.0",
     "express-static-gzip": "3.0.0",
     "express-validator": "7.2.1",
-    "multer": "2.0.1",
     "fast-equals": "^5.0.1",
     "google-auth-library": "^9.4.2",
     "lowdb": "^7.0.1",
+    "multer": "2.0.1",
     "ontime-utils": "workspace:*",
     "osc-min": "2.1.2",
     "sanitize-filename": "^1.6.3",
+    "swagger-jsdoc": "6.2.8",
+    "swagger-ui-express": "5.0.0",
     "ws": "^8.18.0",
     "xlsx": "^0.18.5"
   },
@@ -29,6 +32,8 @@
     "@types/express": "5.0.3",
     "@types/multer": "1.4.13",
     "@types/node": "catalog:",
+    "@types/swagger-jsdoc": "6.0.4",
+    "@types/swagger-ui-express": "4.1.6",
     "@types/websocket": "^1.0.5",
     "@types/ws": "^8.5.10",
     "@typescript-eslint/eslint-plugin": "catalog:",
@@ -48,17 +53,13 @@
   "scripts": {
     "addversion": "node -p \"'export const ONTIME_VERSION = ' + JSON.stringify(require('../../package.json').version) + ';'\" > src/ONTIME_VERSION.js",
     "postinstall": "pnpm addversion",
-
     "dev": "cross-env NODE_ENV=development tsx watch ./src/index.ts",
     "dev:electron": "pnpm dev",
     "dev:inspect": "cross-env NODE_ENV=development tsx watch --inspect ./src/index.ts",
-
     "lint": "eslint . --quiet",
     "typecheck": "tsc --noEmit",
-
     "prebuild": "tsx ./scripts/bundleCss.ts && tsx ./scripts/bundleTranslation.ts",
     "build": "node esbuild.js",
-    
     "test": "cross-env IS_TEST=true vitest",
     "test:inspect": "cross-env IS_TEST=true vitest --inspect --no-file-parallelism",
     "test:pipeline": "cross-env IS_TEST=true vitest run"
