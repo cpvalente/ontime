@@ -17,7 +17,7 @@ import { isOntimeCloud } from '../../setup/environment.js';
 import { emitOSC } from './clients/osc.client.js';
 import { emitHTTP } from './clients/http.client.js';
 import { getAutomationsEnabled, getAutomations, getAutomationTriggers } from './automation.dao.js';
-import { isBooleanEquals, isGreaterThan, isLessThan } from './automation.utils.js';
+import { isEquivalent, isGreaterThan, isLessThan } from './automation.utils.js';
 import { toOntimeAction } from './clients/ontime.client.js';
 
 /**
@@ -92,22 +92,9 @@ export function testConditions(
     // we use loose equality to be able to check for converted values (eg '10' == 10)
     switch (operator) {
       case 'equals':
-        // handle the case where we are comparing boolean strings
-        if (typeof fieldValue === 'boolean') {
-          return isBooleanEquals(fieldValue, lowerCasedValue);
-        }
-        // make string comparisons case insensitive
-        if (typeof fieldValue === 'string') {
-          return fieldValue.toLowerCase() === lowerCasedValue;
-        }
-        // overload the edge case where we use empty string to check if a value does not exist
-        if (value === '' && fieldValue === undefined) {
-          return true;
-        }
-        return fieldValue == value;
+        return isEquivalent(fieldValue, lowerCasedValue);
       case 'not_equals':
-        return !evaluateCondition({ field, operator: 'equals', value });
-
+        return !isEquivalent(fieldValue, lowerCasedValue);
       case 'greater_than':
         return isGreaterThan(fieldValue, value);
       case 'less_than':
