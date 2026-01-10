@@ -8,4 +8,5 @@ export type RestorePoint = {
   pausedAt: MaybeNumber;
   firstStart: MaybeNumber;
   startEpoch: MaybeNumber;
+  currentDay: MaybeNumber;
 };

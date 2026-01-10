@@ -11,9 +11,11 @@ import {
   load,
   loadGroupFlagAndEnd,
   pause,
+  resume,
   roll,
   start,
   stop,
+  update,
 } from '../runtimeState.js';
 import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
 import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
@@ -243,6 +245,44 @@ describe('mutation on runtimeState', () => {
     expect(newState.rundown.actualStart).toBeNull();
     expect(newState.offset.absolute).toBe(0);
     expect(newState.offset.expectedRundownEnd).toBeNull();
+  });
+
+  test('resume restores currentDay from restore point', async () => {
+    clearState();
+    const mockRundown = makeRundown({
+      entries: {
+        event1: { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000, dayOffset: 0 },
+      },
+      order: ['event1'],
+    });
+
+    const startEpoch = new Date('2024-01-01T00:00:00Z').getTime();
+    vi.setSystemTime(new Date('2024-01-03T00:00:00Z'));
+
+    await initRundown(mockRundown, {});
+    vi.runAllTimers();
+
+    const { rundown, metadata } = rundownCache.get();
+    const restorePoint = {
+      playback: Playback.Play,
+      selectedEventId: 'event1',
+      startedAt: 0,
+      addedTime: 0,
+      pausedAt: null,
+      firstStart: 60 * 1000,
+      startEpoch,
+      currentDay: 2,
+    };
+
+    resume(restorePoint, mockRundown.entries.event1 as PlayableEvent, rundown, metadata);
+
+    const newState = getState();
+    expect(newState.rundown.actualStart).toBe(60 * 1000);
+    expect(newState.rundown.currentDay).toBe(2);
+
+    vi.setSystemTime(new Date('2024-01-04T00:00:00Z'));
+    update();
+    expect(getState().rundown.currentDay).toBe(3);
   });
 });
 

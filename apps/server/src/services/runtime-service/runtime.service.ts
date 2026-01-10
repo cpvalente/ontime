@@ -759,6 +759,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           pausedAt: state._timer.pausedAt,
           firstStart: state.rundown.actualStart,
           startEpoch: state._startEpoch,
+          currentDay: state.rundown.currentDay,
         })
         .catch((_e) => {
           //we don't do anything with the error here

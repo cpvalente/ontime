@@ -17,6 +17,7 @@ describe('restoreService', () => {
         pausedAt: 9087,
         firstStart: 1234,
         startEpoch: 1234,
+        currentDay: 0,
       };
 
       const mockRead = vi.fn().mockResolvedValue(expected);
@@ -35,6 +36,7 @@ describe('restoreService', () => {
         pausedAt: null,
         firstStart: 1234,
         startEpoch: 1234,
+        currentDay: null,
       };
 
       const mockRead = vi.fn().mockResolvedValue(expected);
@@ -82,12 +84,46 @@ describe('restoreService', () => {
         pausedAt: 1234,
         firstStart: 1234,
         startEpoch: 1234,
+        currentDay: 0,
       };
 
       const mockWrite = vi.fn().mockResolvedValue(undefined);
 
       await restoreService.save(testData, mockWrite);
       expect(mockWrite).toHaveBeenCalledWith(testData);
+    });
+
+    it('writes updated data when values change', async () => {
+      const firstData: RestorePoint = {
+        playback: Playback.Play,
+        selectedEventId: '2345',
+        startedAt: 2345,
+        addedTime: 2345,
+        pausedAt: 2345,
+        firstStart: 2345,
+        startEpoch: 2345,
+        currentDay: 0,
+      };
+
+      const updatedData: RestorePoint = {
+        playback: Playback.Pause,
+        selectedEventId: '3456',
+        startedAt: 3456,
+        addedTime: 3456,
+        pausedAt: 3456,
+        firstStart: 3456,
+        startEpoch: 3456,
+        currentDay: 1,
+      };
+
+      const mockWrite = vi.fn().mockResolvedValue(undefined);
+
+      await restoreService.save(firstData, mockWrite);
+      await restoreService.save(updatedData, mockWrite);
+
+      expect(mockWrite).toHaveBeenCalledTimes(2);
+      expect(mockWrite).toHaveBeenNthCalledWith(1, firstData);
+      expect(mockWrite).toHaveBeenNthCalledWith(2, updatedData);
     });
 
     it('handles write failures gracefully', async () => {
@@ -99,6 +135,7 @@ describe('restoreService', () => {
         pausedAt: 5678,
         firstStart: 5678,
         startEpoch: 5678,
+        currentDay: 0,
       };
 
       const mockWrite = vi.fn().mockRejectedValue(new Error('Write failed'));

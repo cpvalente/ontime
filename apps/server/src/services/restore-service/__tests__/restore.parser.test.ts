@@ -13,6 +13,7 @@ describe('isRestorePoint()', () => {
       pausedAt: 3,
       firstStart: 1,
       startEpoch: 1,
+      currentDay: 0,
     };
     expect(isRestorePoint(restorePoint)).toBe(true);
 
@@ -24,6 +25,21 @@ describe('isRestorePoint()', () => {
       pausedAt: null,
       firstStart: 1,
       startEpoch: 1,
+      currentDay: 2,
+    };
+    expect(isRestorePoint(restorePoint)).toBe(true);
+  });
+
+  it('accepts null start fields', () => {
+    const restorePoint: RestorePoint = {
+      playback: Playback.Stop,
+      selectedEventId: null,
+      startedAt: null,
+      addedTime: 0,
+      pausedAt: null,
+      firstStart: null,
+      startEpoch: null,
+      currentDay: null,
     };
     expect(isRestorePoint(restorePoint)).toBe(true);
   });
@@ -59,6 +75,40 @@ describe('isRestorePoint()', () => {
         addedTime: 0,
         pausedAt: null,
         groupStartAt: 10,
+        startEpoch: 1,
+      };
+      expect(isRestorePoint(restorePoint)).toBe(false);
+    });
+    it('with missing firstStart', () => {
+      const restorePoint = {
+        playback: Playback.Roll,
+        selectedEventId: '123',
+        startedAt: null,
+        addedTime: 0,
+        pausedAt: null,
+        startEpoch: 1,
+      };
+      expect(isRestorePoint(restorePoint)).toBe(false);
+    });
+    it('with missing startEpoch', () => {
+      const restorePoint = {
+        playback: Playback.Roll,
+        selectedEventId: '123',
+        startedAt: null,
+        addedTime: 0,
+        pausedAt: null,
+        firstStart: 1,
+      };
+      expect(isRestorePoint(restorePoint)).toBe(false);
+    });
+    it('with missing currentDay', () => {
+      const restorePoint = {
+        playback: Playback.Roll,
+        selectedEventId: '123',
+        startedAt: null,
+        addedTime: 0,
+        pausedAt: null,
+        firstStart: 1,
         startEpoch: 1,
       };
       expect(isRestorePoint(restorePoint)).toBe(false);
