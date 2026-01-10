@@ -106,7 +106,8 @@ export function testConditions(
         }
         return fieldValue == value;
       case 'not_equals':
-        return fieldValue != value;
+        return !evaluateCondition({ field, operator: 'equals', value });
+
       case 'greater_than':
         return isGreaterThan(fieldValue, value);
       case 'less_than':
