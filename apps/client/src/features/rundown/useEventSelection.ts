@@ -12,9 +12,12 @@ interface EventSelectionStore {
   selectedEvents: Set<EntryId>;
   anchoredIndex: MaybeNumber;
   cursor: MaybeString;
+  scrollTargetId: MaybeString;
   entryMode: 'event' | 'single' | null;
   setSingleEntrySelection: (selectionArgs: { id: EntryId }) => void;
   setSelectedEvents: (selectionArgs: { id: EntryId; index: number; selectMode: SelectionMode }) => void;
+  setScrollTargetId: (id: EntryId | null) => void;
+  clearScrollTargetId: () => void;
   clearSelectedEvents: () => void;
   clearMultiSelect: () => void;
   unselect: (id: EntryId) => void;
@@ -24,6 +27,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   selectedEvents: new Set(),
   anchoredIndex: null,
   cursor: null,
+  scrollTargetId: null,
   entryMode: null,
   setSingleEntrySelection: ({ id }) => {
     set({ selectedEvents: new Set([id]), anchoredIndex: null, cursor: id, entryMode: 'single' });
@@ -99,7 +103,10 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       });
     }
   },
-  clearSelectedEvents: () => set({ selectedEvents: new Set(), anchoredIndex: null, cursor: null, entryMode: null }),
+  setScrollTargetId: (id) => set({ scrollTargetId: id }),
+  clearScrollTargetId: () => set({ scrollTargetId: null }),
+  clearSelectedEvents: () =>
+    set({ selectedEvents: new Set(), anchoredIndex: null, cursor: null, entryMode: null, scrollTargetId: null }),
   clearMultiSelect: () => {
     const { selectedEvents } = get();
     const [firstSelected] = selectedEvents;

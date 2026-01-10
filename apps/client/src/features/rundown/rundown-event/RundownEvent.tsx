@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { MouseEvent, useEffect, useRef } from 'react';
 import {
   IoAdd,
   IoDuplicateOutline,
@@ -15,9 +15,9 @@ import { CSS } from '@dnd-kit/utilities';
 import { EndAction, EntryId, Playback, TimerType, TimeStrategy } from 'ontime-types';
 import { isPlaybackActive } from 'ontime-utils';
 
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import { useRundownEntryActions } from '../context/RundownActionsContext';
 import { useEventIdSwapping } from '../useEventIdSwapping';
 import { getSelectionMode, useEventSelection } from '../useEventSelection';
 
@@ -97,7 +97,7 @@ export default function RundownEvent({
   const setSelectedEventId = useEventIdSwapping((state) => state.setSelectedEventId);
   const clearSelectedEventId = useEventIdSwapping((state) => state.clearSelectedEventId);
 
-  const { updateEntry, batchUpdateEvents, clone, deleteEntry, groupEntries, swapEvents } = useRundownEntryActions();
+  const { updateEntry, batchUpdateEvents, clone, deleteEntry, groupEntries, swapEvents } = useEntryActionsContext();
 
   const isSelected = useEventSelection((state) => state.selectedEvents.has(eventId));
   const unselect = useEventSelection((state) => state.unselect);
@@ -107,7 +107,6 @@ export default function RundownEvent({
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
 
   const handleRef = useRef<null | HTMLSpanElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>(() =>
     selectedEvents.size > 1
@@ -236,31 +235,6 @@ export default function RundownEvent({
     }
   }, [hasCursor]);
 
-  useLayoutEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      {
-        root: null,
-        threshold: 1,
-      },
-    );
-
-    const handleRefCurrent = handleRef.current;
-    if (handleRefCurrent) {
-      observer.observe(handleRefCurrent);
-    }
-
-    return () => {
-      if (handleRefCurrent) {
-        observer.unobserve(handleRefCurrent);
-      }
-    };
-  }, [handleRef]);
-
   const blockClasses = cx([
     style.rundownEvent,
     skip ? style.skip : null,
@@ -308,33 +282,31 @@ export default function RundownEvent({
         <span className={style.cue}>{cue}</span>
       </div>
 
-      {isVisible && (
-        <RundownEventInner
-          timeStart={timeStart}
-          timeEnd={timeEnd}
-          duration={duration}
-          linkStart={linkStart}
-          countToEnd={countToEnd}
-          timeStrategy={timeStrategy}
-          eventId={eventId}
-          eventIndex={eventIndex}
-          endAction={endAction}
-          timerType={timerType}
-          title={title}
-          note={note}
-          delay={delay}
-          isNext={isNext}
-          skip={skip}
-          loaded={loaded}
-          playback={playback}
-          isRolling={isRolling}
-          dayOffset={dayOffset}
-          isPast={isPast}
-          totalGap={totalGap}
-          isLinkedToLoaded={isLinkedToLoaded}
-          hasTriggers={hasTriggers}
-        />
-      )}
+      <RundownEventInner
+        timeStart={timeStart}
+        timeEnd={timeEnd}
+        duration={duration}
+        linkStart={linkStart}
+        countToEnd={countToEnd}
+        timeStrategy={timeStrategy}
+        eventId={eventId}
+        eventIndex={eventIndex}
+        endAction={endAction}
+        timerType={timerType}
+        title={title}
+        note={note}
+        delay={delay}
+        isNext={isNext}
+        skip={skip}
+        loaded={loaded}
+        playback={playback}
+        isRolling={isRolling}
+        dayOffset={dayOffset}
+        isPast={isPast}
+        totalGap={totalGap}
+        isLinkedToLoaded={isLinkedToLoaded}
+        hasTriggers={hasTriggers}
+      />
     </div>
   );
 }

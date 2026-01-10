@@ -13,6 +13,7 @@ import EditorOverview from '../../features/overview/EditorOverview';
 
 import WelcomePlacement from './welcome/WelcomePlacement';
 import Editor from './Editor';
+import EditorViewOptions from './EditorViewOptions';
 
 import styles from './ProtectedEditor.module.scss';
 
@@ -49,6 +50,7 @@ export default function ProtectedEditor() {
       <div className={styles.mainContainer} data-testid='event-editor'>
         <WelcomePlacement />
         <NavigationMenu isOpen={isOpen} onClose={handler.close} />
+        {isSettingsOpen ? <AppSettings /> : <Editor />}
         <EditorOverview>
           <IconButton aria-label='Toggle navigation' variant='subtle-white' size='xlarge' onClick={handler.open}>
             <IoApps />
@@ -56,8 +58,8 @@ export default function ProtectedEditor() {
           <IconButton aria-label='Toggle settings' variant='subtle-white' size='xlarge' onClick={toggleSettings}>
             {isSettingsOpen ? <IoClose /> : <IoSettingsOutline />}
           </IconButton>
+          <EditorViewOptions />
         </EditorOverview>
-        {isSettingsOpen ? <AppSettings /> : <Editor />}
       </div>
     </ProtectRoute>
   );

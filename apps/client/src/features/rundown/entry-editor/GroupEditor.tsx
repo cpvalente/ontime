@@ -9,7 +9,7 @@ import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import { getOffsetState } from '../../../common/utils/offset';
 import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
 import TextLikeInput from '../../../views/cuesheet/cuesheet-table/cuesheet-table-elements/TextLikeInput';
-import { useRundownEntryActions } from '../context/RundownActionsContext';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 
 import EntryEditorCustomFields from './composite/EventEditorCustomFields';
 import EventTextArea from './composite/EventTextArea';
@@ -28,7 +28,7 @@ interface GroupEditorProps {
 
 export default function GroupEditor({ group }: GroupEditorProps) {
   const { data: customFields } = useCustomFields();
-  const { updateEntry } = useRundownEntryActions();
+  const { updateEntry } = useEntryActionsContext();
 
   const handleSubmit = useCallback(
     (field: GroupEditorUpdateTextFields | GroupEditorUpdateMaybeNumberFields, value: string | MaybeNumber) => {

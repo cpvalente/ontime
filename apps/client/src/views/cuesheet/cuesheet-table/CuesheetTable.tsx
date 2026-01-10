@@ -6,12 +6,13 @@ import { isOntimeDelay, isOntimeGroup, isOntimeMilestone, OntimeEntry, TimeField
 
 import EmptyPage from '../../../common/components/state/EmptyPage';
 import EmptyTableBody from '../../../common/components/state/EmptyTableBody';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useSelectedEventId } from '../../../common/hooks/useSocket';
 import { useFlatRundownWithMetadata } from '../../../common/hooks-query/useRundown';
 import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { usePersistedRundownOptions } from '../../../features/rundown/rundown.options';
 import EditorTableSettings from '../../../features/rundown/rundown-table/EditorTableSettings';
+import { useEventSelection } from '../../../features/rundown/useEventSelection';
 import { AppMode } from '../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../cuesheet.options';
 
@@ -35,7 +36,7 @@ interface CuesheetTableProps {
 
 export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cuesheet' }: CuesheetTableProps) {
   const { data, status } = useFlatRundownWithMetadata();
-  const { updateEntry, updateTimer } = useEntryActions();
+  const { updateEntry, updateTimer } = useEntryActionsContext();
 
   const useOptions = tableRoot === 'editor' ? usePersistedRundownOptions : usePersistedCuesheetOptions;
   const showDelayedTimes = useOptions((state) => state.showDelayedTimes);
@@ -43,6 +44,7 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
   const hideIndexColumn = useOptions((state) => state.hideIndexColumn);
 
   const selectedEventId = useSelectedEventId();
+  const cursor = useEventSelection((state) => state.cursor);
 
   const virtuosoRef = useRef<TableVirtuosoHandle | null>(null);
   const { listeners } = useTableNav();
@@ -112,15 +114,22 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
     setColumnSizing({});
   }, [setColumnSizing]);
 
-  // in run mode, we follow the selected row
+  // in edit mode, we follow the cursor (e.g. from finder)
   useEffect(() => {
-    if (cuesheetMode === AppMode.Edit || virtuosoRef.current === null || !selectedEventId) {
+    if (virtuosoRef.current === null) {
       return;
     }
 
-    const eventIndex = data.findIndex((event) => event.id === selectedEventId);
-    virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'smooth' });
-  }, [cuesheetMode, data, selectedEventId]);
+    const targetId = cuesheetMode === AppMode.Edit ? cursor : selectedEventId;
+    if (!targetId) {
+      return;
+    }
+
+    const eventIndex = data.findIndex((event) => event.id === targetId);
+    if (eventIndex !== -1) {
+      virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'smooth', align: 'center' });
+    }
+  }, [cuesheetMode, data, selectedEventId, cursor]);
 
   /**
    * To improve performance on resizing, we memoise the column sizes
@@ -184,6 +193,7 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
             const row = rows[rowIndex];
             const key = row.original.id;
             const entry = row.original;
+            const hasCursor = entry.id === cursor;
 
             if (isOntimeGroup(entry)) {
               return (
@@ -195,6 +205,7 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
                   rowIndex={row.index}
                   table={table}
                   injectedStyles={injectedStyles}
+                  hasCursor={hasCursor}
                   {...virtuosoProps}
                 />
               );
@@ -202,7 +213,13 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
 
             if (isOntimeDelay(entry)) {
               return (
-                <DelayRow key={key} duration={entry.duration} injectedStyles={injectedStyles} {...virtuosoProps} />
+                <DelayRow
+                  key={key}
+                  duration={entry.duration}
+                  injectedStyles={injectedStyles}
+                  hasCursor={hasCursor}
+                  {...virtuosoProps}
+                />
               );
             }
 
@@ -219,6 +236,7 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
                   rowIndex={rowIndex}
                   table={table}
                   injectedStyles={injectedStyles}
+                  hasCursor={hasCursor}
                   {...virtuosoProps}
                 />
               );
@@ -241,6 +259,7 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
                 rowIndex={rowIndex}
                 table={table}
                 injectedStyles={injectedStyles}
+                hasCursor={hasCursor}
                 {...virtuosoProps}
               />
             );

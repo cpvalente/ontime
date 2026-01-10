@@ -1,6 +1,7 @@
 .rundownExport {
   height: 100%;
-  flex: 1 1 auto; /* flex-grow: 1, flex-shrink: 1, flex-basis: auto */
+  flex: 1 1 0; /* flex-grow: 1, flex-shrink: 1, flex-basis: 0 */
+  min-width: 0;
 
   &.extracted {
     .list {
@@ -18,6 +19,11 @@
   display: flex;
   max-height: 100%;
   height: 100%;
+}
+
+.rundownRoot {
+  height: calc(100% - 1.5rem);
+  width: 100%;
 }
 
 .list {

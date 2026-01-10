@@ -4,7 +4,7 @@ import { OntimeEvent } from 'ontime-types';
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
-import { useRundownEntryActions } from '../context/RundownActionsContext';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 
 import EntryEditorCustomFields from './composite/EventEditorCustomFields';
 import EventEditorTimes from './composite/EventEditorTimes';
@@ -22,7 +22,7 @@ interface EventEditorProps {
 
 export default function EventEditor({ event }: EventEditorProps) {
   const { data: customFields } = useCustomFields();
-  const { updateEntry } = useRundownEntryActions();
+  const { updateEntry } = useEntryActionsContext();
 
   const isEditor = window.location.pathname.includes('editor');
 
