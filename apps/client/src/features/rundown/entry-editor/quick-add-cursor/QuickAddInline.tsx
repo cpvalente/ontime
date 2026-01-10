@@ -4,7 +4,7 @@ import { MaybeString, SupportedEntry } from 'ontime-types';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
-import { useRundownEntryActions } from '../../context/RundownActionsContext';
+import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 
 import style from './QuickAddInline.module.scss';
 
@@ -16,7 +16,7 @@ interface QuickAddInlineProps {
 
 export default memo(QuickAddInline);
 function QuickAddInline({ referenceEntryId, parentGroup, placement }: QuickAddInlineProps) {
-  const { addEntry } = useRundownEntryActions();
+  const { addEntry } = useEntryActionsContext();
 
   const handleAddEntry = (type: SupportedEntry) => {
     if (placement === 'before') {

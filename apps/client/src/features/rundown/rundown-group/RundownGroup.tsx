@@ -18,7 +18,7 @@ import { getOffsetState } from '../../../common/utils/offset';
 import { cx, getAccessibleColour, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatDuration } from '../../../common/utils/time';
 import TitleEditor from '../common/TitleEditor';
-import { useRundownEntryActions } from '../context/RundownActionsContext';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { canDrop } from '../rundown.utils';
 import { useEventSelection } from '../useEventSelection';
 
@@ -36,7 +36,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
   'use memo';
 
   const handleRef = useRef<null | HTMLSpanElement>(null);
-  const { clone, ungroup, deleteEntry } = useRundownEntryActions();
+  const { clone, ungroup, deleteEntry } = useEntryActionsContext();
 
   const setSingleEntrySelection = useEventSelection((state) => state.setSingleEntrySelection);
   const selectedEvents = useEventSelection((state) => state.selectedEvents);

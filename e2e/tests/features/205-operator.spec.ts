@@ -4,7 +4,8 @@ test('smoke test operator', async ({ page }) => {
   // make some boilerplate
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Edit' }).click();
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
   await page.getByRole('button', { name: 'Create Group' }).click();
   await page.getByTestId('rundown-group').getByTestId('entry__title').click();

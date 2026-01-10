@@ -17,6 +17,7 @@ interface GroupRowProps {
   rowIndex: number;
   table: Table<ExtendedEntry>;
   injectedStyles?: CSSProperties;
+  hasCursor?: boolean;
 }
 
 export default function GroupRow({
@@ -26,6 +27,7 @@ export default function GroupRow({
   rowIndex,
   table,
   injectedStyles,
+  hasCursor,
   ...virtuosoProps
 }: GroupRowProps) {
   const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
@@ -40,6 +42,7 @@ export default function GroupRow({
       className={style.groupRow}
       style={{ ...injectedStyles, '--user-bg': colour }}
       data-testid='cuesheet-group'
+      data-cursor={hasCursor}
       {...virtuosoProps}
     >
       {cuesheetMode === AppMode.Edit && (

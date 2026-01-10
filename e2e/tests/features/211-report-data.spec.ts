@@ -3,7 +3,8 @@ import { expect, test } from '@playwright/test';
 test('show warning when event crosses midnight', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   await page.getByRole('button', { name: 'Create Event' }).click();
@@ -23,7 +24,8 @@ test('show warning when event crosses midnight', async ({ page }) => {
 test('show warning when event starts next day midnight', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   await page.getByRole('button', { name: 'Create Event' }).click();

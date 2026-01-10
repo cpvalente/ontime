@@ -4,7 +4,8 @@ test('Copy-paste', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
 
   // clear rundown
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   // create event
@@ -35,7 +36,8 @@ test('Move', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
 
   // clear rundown
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   // create events
@@ -63,7 +65,8 @@ test('Add group', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
 
   // clear rundown
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
   await expect(page.getByTestId('rundown-event')).toHaveCount(0);
   await expect(page.getByTestId('rundown-group')).toHaveCount(0);
@@ -96,7 +99,8 @@ test('Add delay', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
 
   // clear rundown
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
   await expect(page.getByTestId('rundown-event')).toHaveCount(0);
   await expect(page.getByTestId('rundown-delay')).toHaveCount(0);
@@ -125,7 +129,8 @@ test('Add event', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
 
   // clear rundown
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
   await expect(page.getByTestId('rundown-event')).toHaveCount(0);
 
@@ -151,7 +156,8 @@ test('Delete event', async ({ page }) => {
 
   // clear rundown
   await page.goto('http://localhost:4001/rundown');
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
   await expect(page.getByTestId('rundown-event')).toHaveCount(0);
 
