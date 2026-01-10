@@ -5,6 +5,12 @@
   color: $ontime-delay-text;
   border-left: 4px solid transparent;
 
+  &[data-cursor='true'] {
+    outline: 2px solid $blue-500;
+    outline-offset: -2px;
+    background: color-mix(in srgb, transparent 80%, var(--user-bg, $gray-500) 20%);
+  }
+
   td {
     width: calc(100% - 4px);
     padding-block: 0.5rem;

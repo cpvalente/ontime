@@ -6,7 +6,6 @@ import {
   ColumnSettings,
   ViewSettings,
 } from '../../../views/cuesheet/cuesheet-table/cuesheet-table-settings/CuesheetTableSettings';
-
 import { usePersistedRundownOptions } from '../rundown.options';
 
 import style from '../../../views/cuesheet/cuesheet-table/cuesheet-table-settings/CuesheetTableSettings.module.scss';
@@ -35,8 +34,6 @@ export default function EditorTableSettings({
         handleResetReordering={handleResetReordering}
         handleClearToggles={handleClearToggles}
       />
-      {/* No mode toggle - already in RundownHeader */}
-      {/* No share modal - cuesheet only */}
     </Toolbar.Root>
   );
 }

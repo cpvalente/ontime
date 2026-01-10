@@ -38,7 +38,7 @@ import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { lastMetadataKey, RundownMetadataObject } from '../../common/utils/rundownMetadata';
 import { AppMode, sessionKeys } from '../../ontimeConfig';
 
-import { useRundownEntryActions } from './context/RundownActionsContext';
+import { useEntryActionsContext } from '../../common/context/EntryActionsContext';
 import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
 import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
 import RundownGroup from './rundown-group/RundownGroup';
@@ -72,7 +72,7 @@ export default function Rundown({ data, rundownMetadata }: RundownProps) {
   });
   const collapsedGroupSet = useMemo(() => new Set(collapsedGroups), [collapsedGroups]);
 
-  const { addEntry, clone, deleteEntry, move, reorderEntry } = useRundownEntryActions();
+  const { addEntry, clone, deleteEntry, move, reorderEntry } = useEntryActionsContext();
   const setEntryCopyId = useEntryCopy((state) => state.setEntryCopyId);
 
   // cursor

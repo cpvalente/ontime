@@ -1,5 +1,5 @@
 import { ReactNode, use } from 'react';
-import { IoChevronDown, IoOptions, IoSettingsOutline } from 'react-icons/io5';
+import { IoBookOutline, IoChevronDown, IoOptions } from 'react-icons/io5';
 import { Popover } from '@base-ui/react/popover';
 import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
@@ -100,7 +100,7 @@ export function ViewSettings({ optionsStore }: ViewSettingsProps) {
           <Toolbar.Button
             render={
               <Button variant='ghosted-white'>
-                <IoSettingsOutline /> Settings
+                <IoOptions /> Settings
                 <IoChevronDown />
               </Button>
             }
@@ -162,7 +162,7 @@ export function ColumnSettings({
           <Toolbar.Button
             render={
               <Button variant='ghosted-white'>
-                <IoOptions /> View
+                <IoBookOutline /> Columns
                 <IoChevronDown />
               </Button>
             }
@@ -183,7 +183,6 @@ export function ColumnSettings({
             );
           })}
         </div>
-        <Editor.Separator orientation='vertical' />
         <div className={style.column}>
           <Editor.Label className={style.sectionTitle}>Reset Options</Editor.Label>
           <Button size='small' fluid onClick={handleClearToggles}>
