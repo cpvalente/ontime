@@ -30,6 +30,33 @@ function generateNewFileName(filePath: string, callback: (newName: string) => vo
   checkExistence(newPath);
 }
 
+/**
+ * Fixes encoding issues where UTF-8 bytes are incorrectly interpreted as Latin-1.
+ *
+ * Multer uses Busboy internally, which defaults to 'latin1' charset for parsing
+ * Content-Disposition header parameters (like filenames). This causes UTF-8
+ * characters to be misinterpreted.
+ *
+ * Example: 'ø' (UTF-8: 0xC3 0xB8) gets misinterpreted as 'Ã¸' (Latin-1: 0xC3 0xB8)
+ *
+ * Solution: Convert the string back to bytes using Latin-1 (which preserves
+ * byte values), then re-interpret those bytes as UTF-8.
+ *
+ * Note: This is the standard workaround since Multer doesn't expose Busboy's
+ * defParamCharset option directly.
+ * @link https://github.com/expressjs/multer/issues/1104
+ */
+function fixFilenameEncoding(filename: string): string {
+  try {
+    // Convert the string back to bytes using Latin-1 (which preserves byte values),
+    // then re-interpret those bytes as UTF-8
+    return Buffer.from(filename, 'latin1').toString('utf8');
+  } catch (error) {
+    // If conversion fails, return the original filename
+    return filename;
+  }
+}
+
 // Define multer storage object
 export const storage = multer.diskStorage({
   destination: function (_req, file, cb) {
@@ -40,7 +67,8 @@ export const storage = multer.diskStorage({
 
     ensureDirectory(publicDir.uploadsDir);
 
-    const sanitisedName = sanitize(file.originalname);
+    const fixedFilename = fixFilenameEncoding(file.originalname);
+    const sanitisedName = sanitize(fixedFilename);
     const filePath = path.join(publicDir.uploadsDir, sanitisedName);
 
     // Check if file already exists

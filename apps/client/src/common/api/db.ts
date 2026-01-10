@@ -32,15 +32,16 @@ export async function downloadProject(fileName: string) {
 
 /**
  * HTTP request to upload project file
+ *
+ * Note: The browser's FormData API automatically encodes filenames according to
+ * RFC 2231/RFC 5987 standards with UTF-8 charset. The issue is server-side where
+ * Busboy (used by Multer) defaults to 'latin1' charset. The server-side fix in
+ * upload.ts handles the encoding conversion.
  */
 export async function uploadProjectFile(file: File): Promise<MessageResponse> {
   const formData = new FormData();
   formData.append('project', file);
-  const response = await axios.post(`${dbPath}/upload`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
+  const response = await axios.post(`${dbPath}/upload`, formData);
   return response.data;
 }
 
