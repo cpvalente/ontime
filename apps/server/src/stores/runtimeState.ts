@@ -246,12 +246,19 @@ export function load(
     patchTimer(initialData);
     const startEpoch = initialData?.startEpoch;
     const firstStart = initialData?.firstStart;
+    const currentDay = initialData?.currentDay;
     if (
       (firstStart === null || typeof firstStart === 'number') &&
       (startEpoch === null || typeof startEpoch === 'number')
     ) {
       runtimeState.rundown.actualStart = firstStart;
       runtimeState._startEpoch = startEpoch;
+      if (firstStart !== null && runtimeState.rundown.plannedStart !== null) {
+        runtimeState._startDayOffset = findDayOffset(runtimeState.rundown.plannedStart, firstStart);
+      }
+      if (currentDay !== undefined) {
+        runtimeState.rundown.currentDay = currentDay;
+      }
       const { absolute, relative } = getRuntimeOffset(runtimeState);
       runtimeState.offset.absolute = absolute;
       runtimeState.offset.relative = relative;

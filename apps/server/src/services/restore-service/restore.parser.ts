@@ -21,6 +21,7 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
       'pausedAt',
       'firstStart',
       'startEpoch',
+      'currentDay',
     ])
   ) {
     return false;
@@ -51,6 +52,10 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
   }
 
   if (!is.number(restorePoint.startEpoch) && restorePoint.startEpoch !== null) {
+    return false;
+  }
+
+  if (!is.number(restorePoint.currentDay) && restorePoint.currentDay !== null) {
     return false;
   }
 
