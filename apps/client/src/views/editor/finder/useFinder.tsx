@@ -45,6 +45,7 @@ export default function useFinder() {
   const lastSearchString = useRef('');
 
   const setSelectedEvents = useEventSelection((state) => state.setSelectedEvents);
+  const setScrollTargetId = useEventSelection((state) => state.setScrollTargetId);
 
   const [collapsedGroups, setCollapsedGroups] = useSessionStorage<EntryId[]>({
     // we ensure that this is unique to the rundown
@@ -234,8 +235,9 @@ export default function useFinder() {
 
       // Then select the event
       setSelectedEvents({ id: selectedEvent.id, index: selectedEvent.index, selectMode: 'click' });
+      setScrollTargetId(selectedEvent.id);
     },
-    [collapsedGroups, setCollapsedGroups, setSelectedEvents],
+    [collapsedGroups, setCollapsedGroups, setSelectedEvents, setScrollTargetId],
   );
 
   /** clear results when source data changes */

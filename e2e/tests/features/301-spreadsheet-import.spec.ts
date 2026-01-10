@@ -5,7 +5,8 @@ const fileToUpload = 'e2e/tests/fixtures/test-sheet.xlsx';
 test('sheet file upload', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
   await page.getByRole('button', { name: 'Edit' }).click();
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   await page.getByRole('button', { name: 'Toggle settings' }).click();

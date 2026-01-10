@@ -22,6 +22,7 @@ interface MilestoneRowProps {
   rowIndex: number;
   table: Table<ExtendedEntry>;
   injectedStyles?: CSSProperties;
+  hasCursor?: boolean;
 }
 
 export default function MilestoneRow({
@@ -32,6 +33,7 @@ export default function MilestoneRow({
   colour,
   rowId,
   rowIndex,
+  hasCursor,
   table,
   injectedStyles,
   ...virtuosoProps
@@ -64,6 +66,7 @@ export default function MilestoneRow({
         '--user-bg': parentBgColour ?? 'transparent',
       }}
       data-testid='cuesheet-milestone'
+      data-cursor={hasCursor}
       {...virtuosoProps}
     >
       {cuesheetMode === AppMode.Edit && (

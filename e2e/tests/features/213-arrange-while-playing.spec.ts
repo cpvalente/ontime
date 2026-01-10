@@ -4,7 +4,8 @@ test('Rearrange while playing', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
 
   // clear rundown
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   // create events
@@ -34,7 +35,8 @@ test('Rearrange while playing', async ({ page }) => {
 test('flag and unflag an event while playing', async ({ page }) => {
   await page.goto('http://localhost:4001/editor/');
 
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
   await page.getByRole('button', { name: 'Create Event' }).click();
   await page.getByRole('button', { name: 'Event' }).nth(4).click();

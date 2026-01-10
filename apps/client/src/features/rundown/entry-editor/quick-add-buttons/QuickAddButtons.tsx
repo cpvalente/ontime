@@ -4,8 +4,8 @@ import { Toolbar } from '@base-ui/react/toolbar';
 import { MaybeString, SupportedEntry } from 'ontime-types';
 
 import Button from '../../../../common/components/buttons/Button';
+import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 import { cx } from '../../../../common/utils/styleUtils';
-import { useRundownEntryActions } from '../../context/RundownActionsContext';
 
 import style from './QuickAddButtons.module.scss';
 
@@ -17,7 +17,7 @@ interface QuickAddButtonsProps {
 
 export default memo(QuickAddButtons);
 function QuickAddButtons({ previousEventId, parentGroup, backgroundColor }: QuickAddButtonsProps) {
-  const { addEntry } = useRundownEntryActions();
+  const { addEntry } = useEntryActionsContext();
 
   const addEvent = () => {
     addEntry(
