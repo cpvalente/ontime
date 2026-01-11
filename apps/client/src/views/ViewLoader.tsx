@@ -15,9 +15,18 @@ export default function ViewLoader({ children }: PropsWithChildren) {
   // suspense would have the advantage of being triggered also by react-query
 
   if (!shouldRender) {
-    return <Loader />;
+    return (
+      <>
+        <style>{` body { background: var(--background-color-override, #101010); } `}</style>
+        <Loader />
+      </>
+    );
   }
 
-  // eslint-disable-next-line react/jsx-no-useless-fragment -- ensuring JSX return
-  return <>{children}</>;
+  return (
+    <>
+      <style>{` body { background: var(--background-color-override, #101010); } `}</style>
+      {children}
+    </>
+  );
 }
