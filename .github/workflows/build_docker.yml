@@ -43,7 +43,17 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Docker Setup Buildx
-        uses: docker/setup-buildx-action@v2.5.0
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+
+      - name: Setup Docker metadata
+        id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
+        with:
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/ontime
+          tags: |
+            type=semver,pattern=v{{version}}
+            type=semver,pattern=v{{major}}
+            type=raw,value=nightly,enable=${{ github.event.release.prerelease == true }}
 
       - name: Build and push stable release
         if: github.event.release.prerelease == false
@@ -54,15 +64,5 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           # Push is a shorthand for --output=type=registry
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ github.event.release.tag_name }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:latest
-
-      - name: Build and push pre-release
-        if: github.event.release.prerelease == true
-        uses: docker/build-push-action@v4.0.0
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
-          # Push is a shorthand for --output=type=registry
-          push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ github.event.release.tag_name }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:nightly
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
