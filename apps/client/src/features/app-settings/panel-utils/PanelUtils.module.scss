@@ -196,7 +196,6 @@ $inner-padding: 1rem;
 .inlineElements {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
 
   &.inner {
     gap: 0.5rem;
@@ -212,6 +211,11 @@ $inner-padding: 1rem;
   }
   &.apart {
     justify-content: space-between;
+  }
+
+  &.wrap {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
   }
 }
 
