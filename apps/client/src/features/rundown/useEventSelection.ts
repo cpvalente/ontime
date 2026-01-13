@@ -1,5 +1,5 @@
 import { MouseEvent } from 'react';
-import { EntryId, isOntimeEvent, MaybeNumber, MaybeString, Rundown } from 'ontime-types';
+import { EntryId, isOntimeEvent, MaybeNumber, Rundown } from 'ontime-types';
 import { create } from 'zustand';
 
 import { RUNDOWN } from '../../common/api/constants';
@@ -11,13 +11,10 @@ type SelectionMode = 'shift' | 'click' | 'ctrl';
 interface EventSelectionStore {
   selectedEvents: Set<EntryId>;
   anchoredIndex: MaybeNumber;
-  cursor: MaybeString;
-  scrollTargetId: MaybeString;
+  cursor: EntryId | null;
   entryMode: 'event' | 'single' | null;
   setSingleEntrySelection: (selectionArgs: { id: EntryId }) => void;
   setSelectedEvents: (selectionArgs: { id: EntryId; index: number; selectMode: SelectionMode }) => void;
-  setScrollTargetId: (id: EntryId | null) => void;
-  clearScrollTargetId: () => void;
   clearSelectedEvents: () => void;
   clearMultiSelect: () => void;
   unselect: (id: EntryId) => void;
@@ -27,7 +24,6 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   selectedEvents: new Set(),
   anchoredIndex: null,
   cursor: null,
-  scrollTargetId: null,
   entryMode: null,
   setSingleEntrySelection: ({ id }) => {
     set({ selectedEvents: new Set([id]), anchoredIndex: null, cursor: id, entryMode: 'single' });
@@ -103,10 +99,8 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       });
     }
   },
-  setScrollTargetId: (id) => set({ scrollTargetId: id }),
-  clearScrollTargetId: () => set({ scrollTargetId: null }),
   clearSelectedEvents: () =>
-    set({ selectedEvents: new Set(), anchoredIndex: null, cursor: null, entryMode: null, scrollTargetId: null }),
+    set({ selectedEvents: new Set(), anchoredIndex: null, cursor: null, entryMode: null }),
   clearMultiSelect: () => {
     const { selectedEvents } = get();
     const [firstSelected] = selectedEvents;
