@@ -14,7 +14,7 @@ export default function InfoNif() {
   const handleClick = (address: string) => openLink(address);
 
   return (
-    <Panel.InlineElements>
+    <Panel.InlineElements wrap='wrap'>
       {data.networkInterfaces.map((nif) => {
         // interfaces outside localhost wont have access
         if (nif.name === 'localhost' && !isLocalhost) return null;

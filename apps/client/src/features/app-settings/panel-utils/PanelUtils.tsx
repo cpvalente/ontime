@@ -107,7 +107,7 @@ export function BlockQuote({ children }: { children: ReactNode }) {
   return <blockquote className={style.blockquote}>{children}</blockquote>;
 }
 
-export function Error({ children, className }: { children: ReactNode } & React.JSX.IntrinsicElements['div']) {
+export function Error({ children, className }: PropsWithChildren & React.JSX.IntrinsicElements['div']) {
   return <div className={cx([style.fieldError, className])}>{children}</div>;
 }
 
@@ -131,16 +131,25 @@ type InlineProps<C extends AllowedInlineTags> = {
   as?: C;
   relation?: 'inner' | 'component' | 'section';
   align?: 'start' | 'end' | 'apart';
-  className?: string;
-};
+  wrap?: 'wrap' | 'nowrap';
+} & Omit<React.JSX.IntrinsicElements[C], 'align'>;
 
 export function InlineElements<C extends AllowedInlineTags = 'div'>({
   children,
   as,
   relation = 'component',
   align = 'start',
+  wrap = 'nowrap',
   className,
+  ...elementProps
 }: PropsWithChildren<InlineProps<C>>) {
   const Element = as ?? 'div';
-  return <Element className={cx([style.inlineElements, style[relation], style[align], className])}>{children}</Element>;
+  return (
+    <Element
+      {...(elementProps as HTMLAttributes<HTMLElement>)}
+      className={cx([style.inlineElements, style[relation], style[align], style[wrap], className])}
+    >
+      {children}
+    </Element>
+  );
 }
