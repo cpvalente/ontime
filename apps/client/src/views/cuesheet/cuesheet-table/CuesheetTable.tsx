@@ -114,21 +114,23 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
     setColumnSizing({});
   }, [setColumnSizing]);
 
-  // in edit mode, we follow the cursor (e.g. from finder)
+  // Follow selection changes depending on mode
   useEffect(() => {
     if (virtuosoRef.current === null) {
       return;
     }
 
-    const targetId = cuesheetMode === AppMode.Edit ? cursor : selectedEventId;
+    const targetId = cuesheetMode === AppMode.Run ? selectedEventId : cursor ?? selectedEventId;
     if (!targetId) {
       return;
     }
 
     const eventIndex = data.findIndex((event) => event.id === targetId);
-    if (eventIndex !== -1) {
-      virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'smooth', align: 'center' });
+    if (eventIndex === -1) {
+      return;
     }
+
+    virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'smooth', align: 'start', offset: -50 });
   }, [cuesheetMode, data, selectedEventId, cursor]);
 
   /**
