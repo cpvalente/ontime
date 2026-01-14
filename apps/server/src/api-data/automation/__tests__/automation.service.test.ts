@@ -468,6 +468,16 @@ describe('testConditions()', () => {
         value: 'Title',
         state: 'Title',
       },
+      {
+        description: 'case sensitive',
+        value: 'title',
+        state: 'Title',
+      },
+      {
+        description: 'number does contain string',
+        value: '10',
+        state: 2105,
+      },
     ])('$description', ({ value, state }) => {
       expect(
         testConditions([{ field: 'test.path', operator: 'contains', value }], 'all', {
@@ -485,35 +495,14 @@ describe('testConditions()', () => {
   describe('not_contains', () => {
     test.each([
       {
+        description: 'number does not contain substring',
+        value: '456',
+        state: 12345,
+      },
+      {
         description: 'substring not in string',
         value: 'sound',
         state: 'testing-lighting-10',
-      },
-      {
-        description: 'case sensitive',
-        value: 'title', // TODO: is this the desired behavior?
-        state: 'Title',
-      },
-    ])('$description', ({ value, state }) => {
-      expect(
-        testConditions([{ field: 'test.path', operator: 'not_contains', value }], 'all', {
-          test: { path: state },
-        } as unknown as RuntimeState),
-      ).toBe(true);
-      expect(
-        testConditions([{ field: 'test.path', operator: 'contains', value }], 'all', {
-          test: { path: state },
-        } as unknown as RuntimeState),
-      ).toBe(false);
-    });
-  });
-
-  describe('edge case contains', () => {
-    test.each([
-      {
-        description: 'number does not contain string',
-        value: '10',
-        state: 10, // TODO: is this the desired behavior? All the fields contain the value when converted to string.
       },
       {
         description: 'string and undefined',
@@ -535,24 +524,14 @@ describe('testConditions()', () => {
         value: 'false',
         state: false,
       },
-      {
-        description: 'number does not contain substring',
-        value: '234',
-        state: 12345, // TODO: is this the desired behavior?
-      },
-      {
-        description: 'number does not contain different substring',
-        value: '456',
-        state: 12345, // TODO: is this the desired behavior?
-      },
     ])('$description', ({ value, state }) => {
       expect(
-        testConditions([{ field: 'test.path', operator: 'contains', value }], 'all', {
+        testConditions([{ field: 'test.path', operator: 'not_contains', value }], 'all', {
           test: { path: state },
         } as unknown as RuntimeState),
-      ).toBe(false);
+      ).toBe(true);
       expect(
-        testConditions([{ field: 'test.path', operator: 'not_contains', value }], 'all', {
+        testConditions([{ field: 'test.path', operator: 'contains', value }], 'all', {
           test: { path: state },
         } as unknown as RuntimeState),
       ).toBe(false);

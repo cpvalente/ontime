@@ -17,7 +17,7 @@ import { isOntimeCloud } from '../../setup/environment.js';
 import { emitOSC } from './clients/osc.client.js';
 import { emitHTTP } from './clients/http.client.js';
 import { getAutomationsEnabled, getAutomations, getAutomationTriggers } from './automation.dao.js';
-import { isEquivalent, isGreaterThan, isLessThan } from './automation.utils.js';
+import { isContained, isEquivalent, isGreaterThan, isLessThan } from './automation.utils.js';
 import { toOntimeAction } from './clients/ontime.client.js';
 
 /**
@@ -100,9 +100,9 @@ export function testConditions(
       case 'less_than':
         return isLessThan(fieldValue, value);
       case 'contains':
-        return typeof fieldValue === 'string' && fieldValue.includes(value);
+        return isContained(fieldValue, lowerCasedValue);
       case 'not_contains':
-        return typeof fieldValue === 'string' && !fieldValue.includes(value);
+        return !isContained(fieldValue, lowerCasedValue);
       default: {
         operator satisfies never;
         return false;
