@@ -18,6 +18,7 @@ export default function useReactiveTextInput(
     onCancelUpdate?: () => void;
     allowSubmitSameValue?: boolean;
     allowKeyboardNavigation?: boolean;
+    allowSubmitOnEnterOnly?: boolean;
   },
 ): UseReactiveTextInputReturn {
   const [text, setText] = useState<string>(initialText);
@@ -50,9 +51,16 @@ export default function useReactiveTextInput(
    * @param {string} valueToSubmit
    */
   const handleSubmit = useCallback(
-    (valueToSubmit: string) => {
+    (valueToSubmit: string, triggeredKey?: string) => {
       // No need to update if it hasn't changed
       if (valueToSubmit === initialText && !options?.allowSubmitSameValue) {
+        options?.onCancelUpdate?.();
+      } else if (
+        valueToSubmit === initialText &&
+        options?.allowSubmitOnEnterOnly &&
+        triggeredKey !== 'Enter' &&
+        triggeredKey !== 'mod + Enter'
+      ) {
         options?.onCancelUpdate?.();
       } else {
         const cleanVal = valueToSubmit.trim();
@@ -105,7 +113,7 @@ export default function useReactiveTextInput(
         'Enter',
         () => {
           isKeyboardSubmitting.current = true;
-          handleSubmit(text);
+          handleSubmit(text, 'Enter');
           // clear flag after blur has been processed
           setTimeout(() => {
             isKeyboardSubmitting.current = false;
@@ -119,7 +127,7 @@ export default function useReactiveTextInput(
         'mod + Enter',
         () => {
           isKeyboardSubmitting.current = true;
-          handleSubmit(text);
+          handleSubmit(text, 'mod + Enter');
           // clear flag after blur has been processed
           setTimeout(() => {
             isKeyboardSubmitting.current = false;
