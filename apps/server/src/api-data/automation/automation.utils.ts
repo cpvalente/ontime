@@ -148,6 +148,38 @@ const quickAliases: AliasesDefinition = {
   startedAt: { key: 'timer.startedAt', cb: (value: string) => formatDisplayFromString(value) },
 };
 
+export function isEquivalent(a: unknown, b: string): boolean {
+  // handle the case where we are comparing boolean strings
+  if (typeof a === 'boolean') {
+    return isBooleanEquals(a, b);
+  }
+  // make string comparisons case insensitive
+  if (typeof a === 'string') {
+    return a.toLowerCase() === b;
+  }
+  // overload the edge case where we use empty string to check if a value does not exist
+  // this also avoids the case where 0 == ''
+  if (b === '') {
+    return a === null || a === undefined;
+  }
+  return a == b;
+}
+
+export function isContained(a: unknown, b: string): boolean {
+  // handle the case where we are comparing boolean strings
+  if (typeof a === 'boolean') {
+    return false;
+  }
+  // make string comparisons case insensitive
+  if (typeof a === 'string') {
+    return a.toLowerCase().includes(b);
+  }
+  if (typeof a === 'number') {
+    return a.toString().toLowerCase().includes(b);
+  }
+  return false;
+}
+
 /**
  * Utility encapsulates logic for comparing two strings which may encode numbers
  * @example isGreaterThan('10', '5') // true
