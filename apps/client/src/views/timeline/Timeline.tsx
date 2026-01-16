@@ -6,6 +6,7 @@ import { dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
 import useHorizontalFollowComponent from '../../common/hooks/useHorizontalFollowComponent';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
+import { getPropertyValue } from '../common/viewUtils';
 
 import TimelineMarkers from './timeline-markers/TimelineMarkers';
 import { useTimelineOptions } from './timeline.options';
@@ -24,7 +25,7 @@ interface TimelineProps {
 export default memo(Timeline);
 function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: TimelineProps) {
   const { width: screenWidth } = useViewportSize();
-  const { hidePast, fixedSize } = useTimelineOptions();
+  const { mainSource, hidePast, fixedSize } = useTimelineOptions();
   const selectedRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -86,6 +87,8 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
           const position = positions[index];
           if (!position) return null;
 
+          const displayTitle = getPropertyValue(event, mainSource ?? 'title') || event.title;
+
           return (
             <TimelineEntry
               key={event.id}
@@ -100,7 +103,7 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
               totalGap={event.totalGap}
               isLinkedToLoaded={event.isLinkedToLoaded}
               dayOffset={event.dayOffset}
-              title={event.title}
+              title={displayTitle}
               cue={event.cue}
               width={position.width}
             />

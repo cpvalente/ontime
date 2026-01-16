@@ -12,7 +12,7 @@ import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import Timeline from './Timeline';
-import { getTimelineOptions } from './timeline.options';
+import { getTimelineOptions, useTimelineOptions } from './timeline.options';
 import { getUpcomingEvents, useScopedRundown } from './timeline.utils';
 import TimelineSections from './TimelineSections';
 import { TimelineData, useTimelineData } from './useTimelineData';
@@ -35,8 +35,9 @@ export default function TimelinePageLoader() {
   return <TimelinePage {...data} />;
 }
 
-function TimelinePage({ events, projectData, settings }: TimelineData) {
+function TimelinePage({ events, customFields, projectData, settings }: TimelineData) {
   const { selectedEventId } = useSelectedEventId();
+  const { mainSource } = useTimelineOptions();
   // holds copy of the rundown with only relevant events
   const { scopedRundown, firstStart, totalDuration } = useScopedRundown(events, selectedEventId);
 
@@ -47,7 +48,7 @@ function TimelinePage({ events, projectData, settings }: TimelineData) {
 
   // populate options
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const progressOptions = useMemo(() => getTimelineOptions(defaultFormat), [defaultFormat]);
+  const progressOptions = useMemo(() => getTimelineOptions(defaultFormat, customFields), [defaultFormat, customFields]);
 
   return (
     <div className='timeline' data-testid='timeline-view'>
@@ -58,7 +59,7 @@ function TimelinePage({ events, projectData, settings }: TimelineData) {
         <TimelineClock />
       </div>
 
-      <TimelineSections now={now} next={next} followedBy={followedBy} />
+      <TimelineSections now={now} next={next} followedBy={followedBy} mainSource={mainSource} />
 
       <Timeline
         firstStart={firstStart}

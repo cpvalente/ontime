@@ -32,12 +32,12 @@ export default function StudioLoader() {
   return <Studio {...data} />;
 }
 
-function Studio({ projectData, isMirrored, settings, viewSettings }: StudioData) {
+function Studio({ customFields, projectData, isMirrored, settings, viewSettings }: StudioData) {
   const { hideCards } = useStudioOptions();
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const studioOptions = useMemo(() => getStudioOptions(defaultFormat), [defaultFormat]);
+  const studioOptions = useMemo(() => getStudioOptions(defaultFormat, customFields), [defaultFormat, customFields]);
 
   return (
     <div className={cx(['studio', isMirrored && 'mirror'])} data-testid='studio-view'>
