@@ -13,6 +13,10 @@
     outline: 1px solid $block-cursor-color;
   }
 
+  &.copyTarget {
+    outline: 2px dashed $block-cursor-color;
+  }
+
   &.expanded {
     margin-block: 0.5rem 0;
     border-radius: $block-border-radius $block-border-radius 0 0;

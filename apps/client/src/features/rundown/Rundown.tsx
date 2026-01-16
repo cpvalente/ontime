@@ -30,6 +30,7 @@ interface RundownProps {
   entries: Rundown['entries'];
   id: Rundown['id'];
   order: Rundown['order'];
+  flatOrder: Rundown['flatOrder'];
   rundownMetadata: RundownMetadataObject;
   featureData: {
     playback: Playback;
@@ -38,7 +39,7 @@ interface RundownProps {
   };
 }
 
-export default function Rundown({ order, entries, id, rundownMetadata, featureData }: RundownProps) {
+export default function Rundown({ order, flatOrder, entries, id, rundownMetadata, featureData }: RundownProps) {
   // invoke the compiler for the component
   'use memo';
 
@@ -73,6 +74,8 @@ export default function Rundown({ order, entries, id, rundownMetadata, featureDa
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
   const setSelectedEvents = useEventSelection((state) => state.setSelectedEvents);
   const cursor = useEventSelection((state) => state.cursor);
+  const scrollToEntry = useEventSelection((state) => state.scrollToEntry);
+  const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
 
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -111,7 +114,7 @@ export default function Rundown({ order, entries, id, rundownMetadata, featureDa
   // Commands layer - business logic
   const commands = useRundownCommands({
     entries,
-    order,
+    flatOrder,
     entryActions,
     setSelectedEvents,
     handleCollapseGroup,
@@ -142,41 +145,42 @@ export default function Rundown({ order, entries, id, rundownMetadata, featureDa
     return filterVisibleEntries(sortableData, entries, getIsCollapsed);
   }, [sortableData, entries, getIsCollapsed]);
 
-  // Follow-scroll with Virtuoso in run mode
-  // Always scrolls when playback selection changes, not during drag operations
+  // Scroll to a specific entry when requested by keyboard/finder
   useEffect(() => {
-    if (editorMode !== AppMode.Run || !virtuosoRef.current || dnd.isDraggingRef.current) return;
+    setScrollHandler('rundown-list', (entryId) => {
+      if (!virtuosoRef.current || dnd.isDraggingRef.current) {
+        return;
+      }
+      const index = visibleData.indexOf(entryId);
+      if (index === -1) {
+        return;
+      }
+      virtuosoRef.current.scrollToIndex({
+        index,
+        align: 'start',
+        behavior: 'smooth',
+        offset: -100, // show the previous entry for context
+      });
+    });
+
+    return () => {
+      setScrollHandler('rundown-list', null);
+    };
+  }, [visibleData, dnd.isDraggingRef, setScrollHandler]);
+
+  // Follow-scroll in run mode via the shared scroll handler
+  useEffect(() => {
+    if (editorMode !== AppMode.Run || dnd.isDraggingRef.current) {
+      return;
+    }
 
     const targetId = featureData?.selectedEventId;
-    if (!targetId) return;
+    if (!targetId) {
+      return;
+    }
 
-    const index = visibleData.indexOf(targetId);
-    if (index === -1) return;
-
-    virtuosoRef.current.scrollToIndex({
-      index,
-      align: 'start',
-      behavior: 'smooth',
-      offset: -100,
-    });
-  }, [editorMode, featureData?.selectedEventId, visibleData, dnd.isDraggingRef]);
-
-  // Scroll to the active cursor when editing (e.g. finder results)
-  useEffect(() => {
-    if (editorMode !== AppMode.Edit || !virtuosoRef.current || dnd.isDraggingRef.current) return;
-
-    if (!cursor) return;
-
-    const index = visibleData.indexOf(cursor);
-    if (index === -1) return;
-
-    virtuosoRef.current.scrollToIndex({
-      index,
-      align: 'start',
-      behavior: 'smooth',
-      offset: -100, // show the previous entry for context
-    });
-  }, [editorMode, cursor, visibleData, dnd.isDraggingRef]);
+    scrollToEntry(targetId);
+  }, [editorMode, featureData?.selectedEventId, visibleData, dnd.isDraggingRef, scrollToEntry]);
 
   // in run mode, we follow the playback selection and open groups as needed
   useEffect(() => {

@@ -11,6 +11,7 @@ type DropdownMenuItem = {
   icon?: IconType;
   disabled?: boolean;
   onClick: () => void;
+  shortcut?: string;
 };
 
 export type DropdownMenuOption = DropdownMenuItemDivider | DropdownMenuItem;
@@ -38,8 +39,11 @@ export function DropdownMenu({ items, children, ...triggerProps }: PropsWithChil
                   disabled={item.disabled}
                   data-type={item.type}
                 >
-                  {item.icon && <item.icon />}
-                  {item.label}
+                  <span className={style.label}>
+                    {item.icon && <item.icon />}
+                    {item.label}
+                  </span>
+                  {item.shortcut && <span className={style.shortcut}>{item.shortcut}</span>}
                 </BaseMenu.Item>
               );
             })}
@@ -75,8 +79,11 @@ export function PositionedDropdownMenu({ items, isOpen, position, onClose }: Pos
               }
               return (
                 <BaseMenu.Item key={index} className={style.item} onClick={item.onClick} disabled={item.disabled}>
-                  {item.icon && <item.icon />}
-                  {item.label}
+                  <span className={style.label}>
+                    {item.icon && <item.icon />}
+                    {item.label}
+                  </span>
+                  {item.shortcut && <span className={style.shortcut}>{item.shortcut}</span>}
                 </BaseMenu.Item>
               );
             })}

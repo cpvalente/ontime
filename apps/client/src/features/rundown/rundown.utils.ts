@@ -152,7 +152,7 @@ export function moveUp(
   }
 
   // 4. moving into the same group as previous entry
-  if (isOntimeEvent(previousEntry) && previousEntry.parent !== null && currentEntryParent === null) {
+  if ('parent' in previousEntry && previousEntry.parent !== null && currentEntryParent === null) {
     return { destinationId: previousEntryId, order: 'after' };
   }
 
@@ -227,7 +227,7 @@ export function moveDown(
   }
 
   // 5. handle moving between group and top level
-  const nextEntryParent = isOntimeEvent(nextEntry) ? nextEntry.parent : null;
+  const nextEntryParent = 'parent' in nextEntry ? nextEntry.parent : null;
   if (nextEntryParent !== null && currentEntryParent === null) {
     return { destinationId: nextEntryId, order: 'after' };
   }
