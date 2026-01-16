@@ -61,6 +61,19 @@ export const getCountdownOptions = (
       ],
     },
     {
+      title: OptionTitle.ElementVisibility,
+      collapsible: true,
+      options: [
+        {
+          id: 'hidePast',
+          title: 'Hide Past Events',
+          description: 'Whether to hide events that have passed',
+          type: 'boolean',
+          defaultValue: false,
+        },
+      ],
+    },
+    {
       title: OptionTitle.Hidden,
       options: [
         {
@@ -80,6 +93,7 @@ type CountdownOptions = {
   mainSource: keyof OntimeEvent | null;
   secondarySource: keyof OntimeEvent | null;
   showExpected: boolean;
+  hidePast: boolean;
 };
 
 /**
@@ -103,6 +117,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
     mainSource: getValue('main') as keyof OntimeEvent | null,
     secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
     showExpected: isStringBoolean(getValue('showExpected')),
+    hidePast: isStringBoolean(getValue('hidePast')),
   };
 }
 
