@@ -43,7 +43,7 @@ export default function BackstageLoader() {
 
 function Backstage({ events, customFields, projectData, isMirrored, settings }: BackstageData) {
   const { getLocalizedString } = useTranslation();
-  const { secondarySource, extraInfo } = useBackstageOptions();
+  const { mainSource, secondarySource, extraInfo } = useBackstageOptions();
   const { eventNext, eventNow, rundown, selectedEventId, time } = useBackstageSocket();
   const [blinkClass, setBlinkClass] = useState(false);
   const { height: screenHeight } = useViewportSize();
@@ -64,7 +64,7 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
   const { showNow, nowMain, nowSecondary, showNext, nextMain, nextSecondary } = getCardData(
     eventNow,
     eventNext,
-    'title',
+    mainSource,
     secondarySource,
     time.playback,
   );
