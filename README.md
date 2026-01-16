@@ -10,9 +10,11 @@
 <a href="https://www.buymeacoffee.com/cpvalente" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="32"></a>
 
 - Download for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-win64.exe">Windows</a>
-- Download for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS-arm64.dmg">MacOS Arm</a>
-- Download for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS-x64.dmg">MacOS Intel</a>
-- Download AppImage for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux.AppImage">Linux</a>
+- Download for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS-arm64.dmg">macOS (Apple Silicon)</a>
+- Download for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS-x64.dmg">macOS (Intel)</a>
+- Download AppImage for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux-x86_64.AppImage">Linux (Intel / AMD 64-bit)</a>
+- Download AppImage for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux-arm64.AppImage">Linux (ARM 64-bit, Raspberry Pi 4+)</a>
+- Download AppImage for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux-armv7l.AppImage">Linux (ARM 32-bit, older Raspberry Pi)</a>
 
 ... or
 - Get from <a href="https://hub.docker.com/r/getontime/ontime">Docker hub</a>
