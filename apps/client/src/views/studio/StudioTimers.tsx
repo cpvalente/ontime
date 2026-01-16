@@ -5,8 +5,10 @@ import { useAuxTimersTime, useStudioTimersSocket } from '../../common/hooks/useS
 import { getOffsetState } from '../../common/utils/offset';
 import { cx } from '../../common/utils/styleUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
+import { getPropertyValue } from '../common/viewUtils';
 import { getTimerColour } from '../utils/presentation.utils';
 
+import { useStudioOptions } from './studio.options';
 import { getFormattedEventData, getFormattedScheduleTimes } from './studioTimers.utils';
 
 import './StudioTimers.scss';
@@ -17,6 +19,7 @@ interface StudioTimersProps {
 
 export default function StudioTimers({ viewSettings }: StudioTimersProps) {
   const { getLocalizedString } = useTranslation();
+  const { mainSource } = useStudioOptions();
   const { eventNow, eventNext, message, time, offset, rundown, expectedRundownEnd } = useStudioTimersSocket();
 
   const schedule = getFormattedScheduleTimes({
@@ -24,8 +27,8 @@ export default function StudioTimers({ viewSettings }: StudioTimersProps) {
     actualStart: rundown.actualStart,
     expectedEnd: expectedRundownEnd,
   });
-  const event = getFormattedEventData(eventNow, time);
-  const eventNextTitle = eventNext?.title || '-';
+  const event = getFormattedEventData(eventNow, time, mainSource);
+  const eventNextTitle = getPropertyValue(eventNext, mainSource ?? 'title') || '-';
   const formattedTimerMessage = (message.timer.visible && message.timer.text) || '-';
   const formattedSecondaryMessage = message.timer.secondarySource === 'secondary' ? message.secondary || '-' : '-';
 
