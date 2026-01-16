@@ -19,6 +19,7 @@ export const langEn = {
   'countdown.to_start': 'Time to start',
   'countdown.waiting': 'Waiting for event start',
   'countdown.overtime': 'in overtime',
+  'countdown.all_have_past': 'Alle selected events have past',
   'timeline.live': 'live',
   'timeline.done': 'done',
   'timeline.due': 'due',
