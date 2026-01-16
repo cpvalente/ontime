@@ -1,15 +1,36 @@
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
+import { CustomFields, OntimeEvent } from 'ontime-types';
 
 import { getTimeOption } from '../../common/components/view-params-editor/common.options';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
+import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
 import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean } from '../common/viewUtils';
 
-export const getTimelineOptions = (timeFormat: string): ViewOption[] => {
+export const getTimelineOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
+  const mainOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'title', label: 'Title' },
+    { value: 'note', label: 'Note' },
+  ]);
+
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
+    {
+      title: OptionTitle.DataSources,
+      collapsible: true,
+      options: [
+        {
+          id: 'main',
+          title: 'Main text',
+          description: 'Select the data source for the main text',
+          type: 'option',
+          values: mainOptions,
+          defaultValue: 'title',
+        },
+      ],
+    },
     {
       title: OptionTitle.ElementVisibility,
       collapsible: true,
@@ -34,6 +55,7 @@ export const getTimelineOptions = (timeFormat: string): ViewOption[] => {
 };
 
 type TimelineOptions = {
+  mainSource: keyof OntimeEvent | null;
   hidePast: boolean;
   fixedSize: boolean;
 };
@@ -47,6 +69,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
   const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
 
   return {
+    mainSource: getValue('main') as keyof OntimeEvent | null,
     hidePast: isStringBoolean(getValue('hidePast')),
     fixedSize: isStringBoolean(getValue('fixedSize')),
   };
