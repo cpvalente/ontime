@@ -23,7 +23,7 @@ interface SingleEventCountdownProps {
 }
 
 export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: SingleEventCountdownProps) {
-  const { secondarySource, showExpected } = useCountdownOptions();
+  const { mainSource, secondarySource, showExpected } = useCountdownOptions();
   const showFab = useFadeOutOnInactivity(true);
   const { data: reportData } = useReport();
 
@@ -41,7 +41,7 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
 
   const { endedAt } = reportData[subscribedEvent.id] ?? { endedAt: null };
   const countdownEvent = { ...subscribedEvent, expectedStart, endedAt };
-  const title = subscribedEvent.title.length ? subscribedEvent.title : ' '; // insert utf-8 empty space to avoid the line collapsing
+  const title = getPropertyValue(subscribedEvent, mainSource ?? 'title'); //TODO: do we want to force a whitespace here to keep the box hight
   const secondaryData = getPropertyValue(subscribedEvent, secondarySource);
 
   return (
