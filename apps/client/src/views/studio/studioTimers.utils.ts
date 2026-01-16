@@ -17,9 +17,13 @@ export function getFormattedScheduleTimes(data: {
   };
 }
 
-export function getFormattedEventData(eventNow: OntimeEvent | null, timer: TimerState) {
+export function getFormattedEventData(
+  eventNow: OntimeEvent | null,
+  timer: TimerState,
+  mainSource: keyof OntimeEvent | null,
+) {
   return {
-    title: eventNow?.title || '-',
+    title: (eventNow?.[mainSource ?? 'title'] as string) || '-',
     startedAt: formatTime(timer.startedAt, timeFormat),
     expectedEnd: formatTime(timer.expectedFinish, timeFormat),
     timer: millisToString(timer.current),
