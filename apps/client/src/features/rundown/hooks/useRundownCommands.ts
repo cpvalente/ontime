@@ -13,6 +13,7 @@ import type { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
 
 type SelectionMode = 'shift' | 'click' | 'ctrl';
+const PAGE_SIZE = 5;
 
 interface UseRundownCommandsOptions {
   entries: Rundown['entries'];
@@ -22,6 +23,9 @@ interface UseRundownCommandsOptions {
   handleCollapseGroup: (collapsed: boolean, groupId: EntryId) => void;
 }
 
+/**
+ * Common operations for the rundown lists
+ */
 export function useRundownCommands({
   entries,
   order,
@@ -29,7 +33,8 @@ export function useRundownCommands({
   setSelectedEvents,
   handleCollapseGroup,
 }: UseRundownCommandsOptions) {
-  const { addEntry, clone, deleteEntry, move } = entryActions;
+  const { addEntry, clone, deleteEntry, move, reorderEntry } = entryActions;
+
   const deleteAtCursor = useCallback(
     (cursor: string | null) => {
       if (!cursor) return;
@@ -45,7 +50,7 @@ export function useRundownCommands({
   const insertCopyAtId = useCallback(
     (atId: EntryId | null, above = false) => {
       // lazily get the value from the store
-      const { entryCopyId } = useEntryCopy.getState();
+      const { entryCopyId, entryCopyMode, setEntryCopyId } = useEntryCopy.getState();
       if (entryCopyId === null || !entries[entryCopyId]) {
         // we cant clone without selection
         return;
@@ -60,13 +65,34 @@ export function useRundownCommands({
         normalisedAtId = refElement.parent;
       }
 
+      if (entryCopyMode === 'cut') {
+        if (!normalisedAtId) {
+          const firstId = order[0];
+          if (!firstId || firstId === entryCopyId) {
+            return;
+          }
+          reorderEntry(entryCopyId, firstId, 'before')
+            .then(() => setEntryCopyId(null))
+            .catch(() => {});
+          return;
+        }
+        if (normalisedAtId === entryCopyId) {
+          return;
+        }
+        const placement = above ? 'before' : 'after';
+        reorderEntry(entryCopyId, normalisedAtId, placement)
+          .then(() => setEntryCopyId(null))
+          .catch(() => {});
+        return;
+      }
+
       clone(entryCopyId, {
         after: above ? undefined : normalisedAtId ?? undefined,
         // if we don't have a cursor add the new event on top
         before: above ? normalisedAtId ?? undefined : undefined,
       });
     },
-    [entries, clone],
+    [entries, order, clone, reorderEntry],
   );
 
   /**
@@ -86,7 +112,7 @@ export function useRundownCommands({
   const selectGroup = useCallback(
     (cursor: EntryId | null, direction: 'up' | 'down') => {
       if (order.length < 1) {
-        return;
+        return null;
       }
       let newCursor = cursor;
       if (cursor === null) {
@@ -95,13 +121,13 @@ export function useRundownCommands({
 
         if (isOntimeGroup(selected)) {
           setSelectedEvents({ id: selected.id, selectMode: 'click', index: direction === 'up' ? order.length : 0 });
-          return;
+          return selected.id;
         }
         newCursor = selected?.id ?? null;
       }
 
       if (newCursor === null) {
-        return;
+        return null;
       }
 
       // otherwise we select the next or previous
@@ -112,7 +138,9 @@ export function useRundownCommands({
 
       if (selected.entry !== null && selected.index !== null) {
         setSelectedEvents({ id: selected.entry.id, selectMode: 'click', index: selected.index });
+        return selected.entry.id;
       }
+      return null;
     },
     [order, entries, setSelectedEvents],
   );
@@ -123,7 +151,7 @@ export function useRundownCommands({
   const selectEntry = useCallback(
     (cursor: EntryId | null, direction: 'up' | 'down') => {
       if (order.length < 1) {
-        return;
+        return null;
       }
 
       if (cursor === null) {
@@ -131,8 +159,9 @@ export function useRundownCommands({
         const selected = direction === 'up' ? getLastNormal(entries, order) : getFirstNormal(entries, order);
         if (selected !== null) {
           setSelectedEvents({ id: selected.id, selectMode: 'click', index: direction === 'up' ? order.length : 0 });
+          return selected.id;
         }
-        return;
+        return null;
       }
 
       // otherwise we select the next or previous
@@ -141,7 +170,9 @@ export function useRundownCommands({
 
       if (selected.entry !== null && selected.index !== null) {
         setSelectedEvents({ id: selected.entry.id, selectMode: 'click', index: selected.index });
+        return selected.entry.id;
       }
+      return null;
     },
     [order, entries, setSelectedEvents],
   );
@@ -161,12 +192,90 @@ export function useRundownCommands({
     [handleCollapseGroup, move],
   );
 
+  const cloneEntry = useCallback(
+    (cursor: EntryId | null) => {
+      if (!cursor) {
+        return;
+      }
+      clone(cursor, { after: cursor });
+    },
+    [clone],
+  );
+
+  const selectEdge = useCallback(
+    (direction: 'top' | 'bottom') => {
+      if (order.length < 1) {
+        return null;
+      }
+
+      const selected = direction === 'top' ? getFirstNormal(entries, order) : getLastNormal(entries, order);
+      if (!selected) {
+        return null;
+      }
+
+      const index = order.indexOf(selected.id);
+      if (index === -1) {
+        return null;
+      }
+
+      setSelectedEvents({ id: selected.id, selectMode: 'click', index });
+      return selected.id;
+    },
+    [entries, order, setSelectedEvents],
+  );
+
+  const selectPage = useCallback(
+    (cursor: EntryId | null, direction: 'up' | 'down') => {
+      if (order.length < 1) {
+        return null;
+      }
+
+      if (cursor === null) {
+        const selected = direction === 'down' ? getFirstNormal(entries, order) : getLastNormal(entries, order);
+        if (!selected) {
+          return null;
+        }
+        const index = order.indexOf(selected.id);
+        if (index !== -1) {
+          setSelectedEvents({ id: selected.id, selectMode: 'click', index });
+          return selected.id;
+        }
+        return null;
+      }
+
+      let nextCursor = cursor;
+      let target: { entry: OntimeEntry | null; index: number | null } | null = null;
+
+      for (let step = 0; step < PAGE_SIZE; step += 1) {
+        const next =
+          direction === 'down'
+            ? getNextNormal(entries, order, nextCursor)
+            : getPreviousNormal(entries, order, nextCursor);
+        if (next.entry === null || next.index === null) {
+          break;
+        }
+        target = next;
+        nextCursor = next.entry.id;
+      }
+
+      if (target?.entry && target.index !== null) {
+        setSelectedEvents({ id: target.entry.id, selectMode: 'click', index: target.index });
+        return target.entry.id;
+      }
+      return null;
+    },
+    [entries, order, setSelectedEvents],
+  );
+
   return {
+    cloneEntry,
     deleteAtCursor,
     insertCopyAtId,
     insertAtId,
     selectGroup,
     selectEntry,
     moveEntry,
+    selectEdge,
+    selectPage,
   };
 }

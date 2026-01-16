@@ -31,10 +31,11 @@
   outline: 0;
   cursor: default;
   padding-block: 0.5rem;
-  padding-inline: 1rem 2rem;
+  padding-inline: 1rem;
 
   display: flex;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 1rem;
   line-height: 1em;
 
   svg {
@@ -67,6 +68,18 @@
       color: $red-500;
     }
   }
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shortcut {
+  color: $gray-500;
+  font-size: calc(1rem - 4px);
+  letter-spacing: 0.02em;
 }
 
 .separator {

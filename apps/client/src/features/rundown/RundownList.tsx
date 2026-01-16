@@ -20,6 +20,7 @@ function RundownList() {
   return (
     <Rundown
       order={data.order}
+      flatOrder={data.flatOrder}
       entries={data.entries}
       id={data.id}
       rundownMetadata={rundownMetadata}

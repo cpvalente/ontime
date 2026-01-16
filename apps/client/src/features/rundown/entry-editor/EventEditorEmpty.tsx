@@ -54,6 +54,22 @@ function EventEditorEmpty() {
               </td>
             </tr>
             <tr>
+              <td>Jump to top / bottom</td>
+              <td>
+                <Kbd>Home</Kbd>
+                <AuxKey>/</AuxKey>
+                <Kbd>End</Kbd>
+              </td>
+            </tr>
+            <tr>
+              <td>Page up / down</td>
+              <td>
+                <Kbd>PgUp</Kbd>
+                <AuxKey>/</AuxKey>
+                <Kbd>PgDn</Kbd>
+              </td>
+            </tr>
+            <tr>
               <td>Deselect entry</td>
               <td>
                 <Kbd>Esc</Kbd>
@@ -81,6 +97,14 @@ function EventEditorEmpty() {
               </td>
             </tr>
             <tr>
+              <td>Cut selected entry</td>
+              <td>
+                <Kbd>{deviceMod}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>X</Kbd>
+              </td>
+            </tr>
+            <tr>
               <td>Paste above</td>
               <td>
                 <Kbd>{deviceMod}</Kbd>
@@ -99,9 +123,17 @@ function EventEditorEmpty() {
               </td>
             </tr>
             <tr>
-              <td>Delete selected entry</td>
+              <td>Clone selected entry</td>
               <td>
                 <Kbd>{deviceMod}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>D</Kbd>
+              </td>
+            </tr>
+            <tr>
+              <td>Delete selected entry</td>
+              <td>
+                <Kbd>{deviceAlt}</Kbd>
                 <AuxKey>+</AuxKey>
                 <Kbd>Backspace</Kbd>
               </td>
@@ -140,7 +172,7 @@ function EventEditorEmpty() {
                 <AuxKey>+</AuxKey>
                 <Kbd>Shift</Kbd>
                 <AuxKey>+</AuxKey>
-                <Kbd>M</Kbd>
+                <Kbd>G</Kbd>
               </td>
             </tr>
             <tr>
@@ -148,7 +180,7 @@ function EventEditorEmpty() {
               <td>
                 <Kbd>{deviceAlt}</Kbd>
                 <AuxKey>+</AuxKey>
-                <Kbd>G</Kbd>
+                <Kbd>M</Kbd>
               </td>
             </tr>
             <tr>

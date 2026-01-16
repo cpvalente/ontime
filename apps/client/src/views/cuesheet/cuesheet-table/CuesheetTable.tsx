@@ -45,6 +45,8 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
 
   const selectedEventId = useSelectedEventId();
   const cursor = useEventSelection((state) => state.cursor);
+  const scrollToEntry = useEventSelection((state) => state.scrollToEntry);
+  const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
 
   const virtuosoRef = useRef<TableVirtuosoHandle | null>(null);
   const { listeners } = useTableNav();
@@ -114,24 +116,34 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
     setColumnSizing({});
   }, [setColumnSizing]);
 
-  // Follow selection changes depending on mode
+  // Auto-scroll only in run mode, routed through the shared scroll handler
   useEffect(() => {
-    if (virtuosoRef.current === null) {
+    if (cuesheetMode !== AppMode.Run || !selectedEventId) {
       return;
     }
 
-    const targetId = cuesheetMode === AppMode.Run ? selectedEventId : cursor ?? selectedEventId;
-    if (!targetId) {
-      return;
-    }
+    scrollToEntry(selectedEventId);
+  }, [cuesheetMode, data, selectedEventId, scrollToEntry]);
 
-    const eventIndex = data.findIndex((event) => event.id === targetId);
-    if (eventIndex === -1) {
-      return;
-    }
+  // Provide an imperative scroll handler for explicit jumps (finder/keyboard)
+  useEffect(() => {
+    setScrollHandler(`cuesheet-table-${tableRoot}`, (entryId) => {
+      if (virtuosoRef.current === null) {
+        return;
+      }
 
-    virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'smooth', align: 'start', offset: -50 });
-  }, [cuesheetMode, data, selectedEventId, cursor]);
+      const eventIndex = data.findIndex((event) => event.id === entryId);
+      if (eventIndex === -1) {
+        return;
+      }
+
+      virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'smooth', align: 'start', offset: -50 });
+    });
+
+    return () => {
+      setScrollHandler(`cuesheet-table-${tableRoot}`, null);
+    };
+  }, [data, setScrollHandler, tableRoot]);
 
   /**
    * To improve performance on resizing, we memoise the column sizes

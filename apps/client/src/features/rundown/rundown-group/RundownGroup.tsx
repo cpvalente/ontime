@@ -13,12 +13,14 @@ import { EntryId, OntimeGroup } from 'ontime-types';
 import { MILLIS_PER_MINUTE, millisToString } from 'ontime-utils';
 
 import IconButton from '../../../common/components/buttons/IconButton';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
+import { useEntryCopy } from '../../../common/stores/entryCopyStore';
+import { deviceMod } from '../../../common/utils/deviceUtils';
 import { getOffsetState } from '../../../common/utils/offset';
 import { cx, getAccessibleColour, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatDuration } from '../../../common/utils/time';
 import TitleEditor from '../common/TitleEditor';
-import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { canDrop } from '../rundown.utils';
 import { useEventSelection } from '../useEventSelection';
 
@@ -40,12 +42,14 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
 
   const setSingleEntrySelection = useEventSelection((state) => state.setSingleEntrySelection);
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
+  const entryCopyId = useEntryCopy((state) => state.entryCopyId);
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>(() => [
     {
       type: 'item',
       label: 'Clone Group',
       icon: IoDuplicateOutline,
+      shortcut: `${deviceMod}+D`,
       onClick: () => clone(data.id),
     },
     {
@@ -60,6 +64,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
       type: 'item',
       label: 'Delete Group',
       icon: IoTrash,
+      shortcut: `${deviceMod}+Del`,
       onClick: () => deleteEntry([data.id]),
     },
   ]);
@@ -123,7 +128,12 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
 
   return (
     <div
-      className={cx([style.group, hasCursor && style.hasCursor, !collapsed && style.expanded])}
+      className={cx([
+        style.group,
+        hasCursor && style.hasCursor,
+        !collapsed && style.expanded,
+        entryCopyId === data.id && style.copyTarget,
+      ])}
       ref={setNodeRef}
       onClick={handleFocusClick}
       onContextMenu={onContextMenu}
