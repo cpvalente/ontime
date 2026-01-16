@@ -14,11 +14,11 @@ import { MILLIS_PER_MINUTE, millisToString } from 'ontime-utils';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { getOffsetState } from '../../../common/utils/offset';
 import { cx, getAccessibleColour, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatDuration } from '../../../common/utils/time';
 import TitleEditor from '../common/TitleEditor';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { canDrop } from '../rundown.utils';
 import { useEventSelection } from '../useEventSelection';
 
@@ -33,11 +33,15 @@ interface RundownGroupProps {
 
 //TODO: the group should maybe include a multiple day indicator
 export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }: RundownGroupProps) {
-  const handleRef = useRef<null | HTMLSpanElement>(null);
-  const { clone, ungroup, deleteEntry } = useEntryActions();
-  const { selectedEvents, setSingleEntrySelection } = useEventSelection();
+  'use memo';
 
-  const [onContextMenu] = useContextMenu<HTMLDivElement>([
+  const handleRef = useRef<null | HTMLSpanElement>(null);
+  const { clone, ungroup, deleteEntry } = useEntryActionsContext();
+
+  const setSingleEntrySelection = useEventSelection((state) => state.setSingleEntrySelection);
+  const selectedEvents = useEventSelection((state) => state.selectedEvents);
+
+  const [onContextMenu] = useContextMenu<HTMLDivElement>(() => [
     {
       type: 'item',
       label: 'Clone Group',

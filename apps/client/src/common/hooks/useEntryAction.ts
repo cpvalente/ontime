@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   EntryId,
@@ -840,22 +840,40 @@ export const useEntryActions = () => {
     [getCurrentRundownData, swapEventsMutation],
   );
 
-  return {
-    addEntry,
-    applyDelay,
-    batchUpdateEvents,
-    clone,
-    deleteEntry,
-    deleteAllEntries,
-    ungroup,
-    getEntryById,
-    groupEntries,
-    move,
-    reorderEntry,
-    swapEvents,
-    updateEntry,
-    updateTimer,
-  };
+  return useMemo(
+    () => ({
+      addEntry,
+      applyDelay,
+      batchUpdateEvents,
+      clone,
+      deleteEntry,
+      deleteAllEntries,
+      ungroup,
+      getEntryById,
+      groupEntries,
+      move,
+      reorderEntry,
+      swapEvents,
+      updateEntry,
+      updateTimer,
+    }),
+    [
+      addEntry,
+      applyDelay,
+      batchUpdateEvents,
+      clone,
+      deleteEntry,
+      deleteAllEntries,
+      ungroup,
+      getEntryById,
+      groupEntries,
+      move,
+      reorderEntry,
+      swapEvents,
+      updateEntry,
+      updateTimer,
+    ],
+  );
 };
 
 /**

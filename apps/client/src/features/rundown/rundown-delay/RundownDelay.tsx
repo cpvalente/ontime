@@ -5,9 +5,9 @@ import { CSS } from '@dnd-kit/utilities';
 import { OntimeDelay } from 'ontime-types';
 
 import Button from '../../../common/components/buttons/Button';
-import DelayInput from '../../../common/components/input/delay-input/DelayInput';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import DelayInput from './DelayInput';
 import { cx } from '../../../common/utils/styleUtils';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 
 import style from './RundownDelay.module.scss';
 
@@ -17,7 +17,9 @@ interface RundownDelayProps {
 }
 
 export default function RundownDelay({ data, hasCursor }: RundownDelayProps) {
-  const { applyDelay, deleteEntry } = useEntryActions();
+  'use memo';
+
+  const { applyDelay, deleteEntry } = useEntryActionsContext();
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
   const {

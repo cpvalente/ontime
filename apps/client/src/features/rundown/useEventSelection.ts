@@ -1,5 +1,5 @@
 import { MouseEvent } from 'react';
-import { EntryId, isOntimeEvent, MaybeNumber, MaybeString, Rundown } from 'ontime-types';
+import { EntryId, isOntimeEvent, MaybeNumber, Rundown } from 'ontime-types';
 import { create } from 'zustand';
 
 import { RUNDOWN } from '../../common/api/constants';
@@ -11,7 +11,7 @@ type SelectionMode = 'shift' | 'click' | 'ctrl';
 interface EventSelectionStore {
   selectedEvents: Set<EntryId>;
   anchoredIndex: MaybeNumber;
-  cursor: MaybeString;
+  cursor: EntryId | null;
   entryMode: 'event' | 'single' | null;
   setSingleEntrySelection: (selectionArgs: { id: EntryId }) => void;
   setSelectedEvents: (selectionArgs: { id: EntryId; index: number; selectMode: SelectionMode }) => void;
@@ -99,7 +99,8 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       });
     }
   },
-  clearSelectedEvents: () => set({ selectedEvents: new Set(), anchoredIndex: null, cursor: null, entryMode: null }),
+  clearSelectedEvents: () =>
+    set({ selectedEvents: new Set(), anchoredIndex: null, cursor: null, entryMode: null }),
   clearMultiSelect: () => {
     const { selectedEvents } = get();
     const [firstSelected] = selectedEvents;

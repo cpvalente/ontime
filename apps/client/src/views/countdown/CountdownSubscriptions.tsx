@@ -37,8 +37,8 @@ interface CountdownSubscriptionsProps {
 
 export default function CountdownSubscriptions({ subscribedEvents, goToEditMode }: CountdownSubscriptionsProps) {
   const { secondarySource, showExpected } = useCountdownOptions();
-  const { playback } = usePlayback();
-  const { selectedEventId } = useSelectedEventId();
+  const playback = usePlayback();
+  const selectedEventId = useSelectedEventId();
   const showFab = useFadeOutOnInactivity(true);
 
   const { data: reportData } = useReport();

@@ -7,8 +7,8 @@ import { EntryId } from 'ontime-types';
 import Input from '../../../common/components/input/input/Input';
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useEventSelection } from '../useEventSelection';
 
 import style from './RundownMilestone.module.scss';
@@ -22,11 +22,15 @@ interface RundownMilestoneProps {
 }
 
 export default function RundownMilestone({ colour, cue, entryId, hasCursor, title }: RundownMilestoneProps) {
-  const handleRef = useRef<null | HTMLSpanElement>(null);
-  const { updateEntry, deleteEntry } = useEntryActions();
-  const { selectedEvents, setSingleEntrySelection } = useEventSelection();
+  'use memo';
 
-  const [onContextMenu] = useContextMenu<HTMLDivElement>([
+  const handleRef = useRef<null | HTMLSpanElement>(null);
+  const { updateEntry, deleteEntry } = useEntryActionsContext();
+
+  const selectedEvents = useEventSelection((state) => state.selectedEvents);
+  const setSingleEntrySelection = useEventSelection((state) => state.setSingleEntrySelection);
+
+  const [onContextMenu] = useContextMenu<HTMLDivElement>(() => [
     {
       type: 'item',
       label: 'Delete',
