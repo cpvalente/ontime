@@ -12,8 +12,8 @@
 
 .shortcutSection {
   flex: 1;
-  display: grid;
-  place-content: center;
+  margin-top: 15vh;
+  margin-inline: auto;
   gap: 1rem;
 }
 
@@ -23,12 +23,12 @@
   border-spacing: 4rem 0;
 
   tr {
+    white-space: nowrap;
     td:nth-child(odd) {
       text-align: left;
     }
     td:nth-child(even) {
       text-align: right;
-      white-space: nowrap;
     }
   }
 }

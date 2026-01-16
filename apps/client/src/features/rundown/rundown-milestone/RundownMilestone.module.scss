@@ -17,6 +17,10 @@
   &.hasCursor {
     outline: 1px solid $block-cursor-color;
   }
+
+  &.copyTarget {
+    outline: 2px dashed $block-cursor-color;
+  }
 }
 
 .binder {

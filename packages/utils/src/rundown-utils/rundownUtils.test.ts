@@ -4,13 +4,20 @@ import { SupportedEntry } from 'ontime-types';
 import {
   getLastEvent,
   getLastNormal,
+  getLastGroupNormal,
   getNext,
   getNextEvent,
+  getNextGroupNormal,
+  getNextNormal,
+  getFirstGroupNormal,
   getPrevious,
   getPreviousEvent,
   getPreviousGroup,
+  getPreviousGroupNormal,
+  getPreviousNormal,
   swapEventData,
 } from './rundownUtils';
+import { demoDb } from '../../../../apps/server/src/models/demoProject';
 
 describe('getNext()', () => {
   it('returns the next event of type event', () => {
@@ -238,6 +245,72 @@ describe('swapEventData', () => {
       revision: 7,
       parent: 'testing',
     });
+  });
+});
+
+describe('getNextNormal / getPreviousNormal (flat order)', () => {
+  const demoRundown = demoDb.rundowns.default;
+
+  it('steps forward using flat order', () => {
+    const { entry, index } = getNextNormal(demoRundown.entries, demoRundown.flatOrder, '7eaf99');
+    expect(entry?.id).toBe('9bf60f');
+    expect(index).toBe(2);
+  });
+
+  it('steps backward using flat order', () => {
+    const { entry, index } = getPreviousNormal(demoRundown.entries, demoRundown.flatOrder, '9bf60f');
+    expect(entry?.id).toBe('7eaf99');
+    expect(index).toBe(1);
+  });
+
+  it('uses start/end boundaries for null cursor', () => {
+    const next = getNextNormal(demoRundown.entries, demoRundown.flatOrder, null);
+    const previous = getPreviousNormal(demoRundown.entries, demoRundown.flatOrder, null);
+    expect(next.entry?.id).toBe('e2163f');
+    expect(next.index).toBe(0);
+    expect(previous.entry?.id).toBe('07df89');
+    expect(previous.index).toBe(demoRundown.flatOrder.length - 1);
+  });
+});
+
+describe('getNextGroupNormal / getPreviousGroupNormal (flat order)', () => {
+  const demoRundown = demoDb.rundowns.default;
+
+  it('finds the next group from inside a group', () => {
+    const { entry, index } = getNextGroupNormal(demoRundown.entries, demoRundown.flatOrder, '9bf60f');
+    expect(entry?.id).toBe('f60403');
+    expect(index).toBe(7);
+  });
+
+  it('finds the previous group from inside a group', () => {
+    const { entry, index } = getPreviousGroupNormal(demoRundown.entries, demoRundown.flatOrder, '9bf60f');
+    expect(entry?.id).toBe('7eaf99');
+    expect(index).toBe(1);
+  });
+
+  it('uses start/end boundaries for null cursor', () => {
+    const next = getNextGroupNormal(demoRundown.entries, demoRundown.flatOrder, null);
+    const previous = getPreviousGroupNormal(demoRundown.entries, demoRundown.flatOrder, null);
+    expect(next.entry?.id).toBe('7eaf99');
+    expect(next.index).toBe(1);
+    expect(previous.entry?.id).toBe('6b0edb');
+    expect(previous.index).toBe(9);
+  });
+});
+
+describe('getFirstGroupNormal / getLastGroupNormal (flat order)', () => {
+  const demoRundown = demoDb.rundowns.default;
+
+  it('finds the first group in flat order', () => {
+    const { entry, index } = getFirstGroupNormal(demoRundown.entries, demoRundown.flatOrder);
+    expect(entry?.id).toBe('7eaf99');
+    expect(index).toBe(1);
+  });
+
+  it('finds the last group in flat order', () => {
+    const { entry, index } = getLastGroupNormal(demoRundown.entries, demoRundown.flatOrder);
+    expect(entry?.id).toBe('6b0edb');
+    expect(index).toBe(9);
   });
 });
 

@@ -13,11 +13,15 @@ interface EventSelectionStore {
   anchoredIndex: MaybeNumber;
   cursor: EntryId | null;
   entryMode: 'event' | 'single' | null;
+  scrollHandler: ((id: EntryId) => void) | null;
+  scrollHandlerSource: string | null;
   setSingleEntrySelection: (selectionArgs: { id: EntryId }) => void;
   setSelectedEvents: (selectionArgs: { id: EntryId; index: number; selectMode: SelectionMode }) => void;
   clearSelectedEvents: () => void;
   clearMultiSelect: () => void;
   unselect: (id: EntryId) => void;
+  setScrollHandler: (source: string, handler: ((id: EntryId) => void) | null) => void;
+  scrollToEntry: (id: EntryId) => void;
 }
 
 export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
@@ -25,6 +29,8 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   anchoredIndex: null,
   cursor: null,
   entryMode: null,
+  scrollHandler: null,
+  scrollHandlerSource: null,
   setSingleEntrySelection: ({ id }) => {
     set({ selectedEvents: new Set([id]), anchoredIndex: null, cursor: id, entryMode: 'single' });
   },
@@ -99,8 +105,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       });
     }
   },
-  clearSelectedEvents: () =>
-    set({ selectedEvents: new Set(), anchoredIndex: null, cursor: null, entryMode: null }),
+  clearSelectedEvents: () => set({ selectedEvents: new Set(), anchoredIndex: null, cursor: null, entryMode: null }),
   clearMultiSelect: () => {
     const { selectedEvents } = get();
     const [firstSelected] = selectedEvents;
@@ -117,6 +122,22 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       selectedEvents,
       entryMode: selectedEvents.size === 0 ? null : entryMode,
     });
+  },
+  setScrollHandler: (source, handler) =>
+    set((state) => {
+      if (handler) {
+        return { scrollHandler: handler, scrollHandlerSource: source };
+      }
+      if (state.scrollHandlerSource !== source) {
+        return state;
+      }
+      return { scrollHandler: null, scrollHandlerSource: null };
+    }),
+  scrollToEntry: (id: EntryId) => {
+    const handler = get().scrollHandler;
+    if (handler) {
+      handler(id);
+    }
   },
 }));
 

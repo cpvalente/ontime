@@ -17,6 +17,8 @@ import { isPlaybackActive } from 'ontime-utils';
 
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
+import { useEntryCopy } from '../../../common/stores/entryCopyStore';
+import { deviceMod } from '../../../common/utils/deviceUtils';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useEventIdSwapping } from '../useEventIdSwapping';
 import { getSelectionMode, useEventSelection } from '../useEventSelection';
@@ -105,6 +107,7 @@ export default function RundownEvent({
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
 
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
+  const entryCopyId = useEntryCopy((state) => state.entryCopyId);
 
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
@@ -143,6 +146,7 @@ export default function RundownEvent({
             type: 'item',
             label: 'Delete',
             icon: IoTrash,
+            shortcut: `${deviceMod}+Del`,
             onClick: () => {
               clearSelectedEvents();
               deleteEntry(Array.from(selectedEvents));
@@ -180,6 +184,7 @@ export default function RundownEvent({
             type: 'item',
             label: 'Clone',
             icon: IoDuplicateOutline,
+            shortcut: `${deviceMod}+D`,
             onClick: () => clone(eventId, { after: eventId }),
           },
           { type: 'divider' },
@@ -187,6 +192,7 @@ export default function RundownEvent({
             type: 'item',
             label: 'Delete',
             icon: IoTrash,
+            shortcut: `${deviceMod}+Del`,
             onClick: () => {
               deleteEntry([eventId]);
               unselect(eventId);
@@ -237,12 +243,13 @@ export default function RundownEvent({
 
   const blockClasses = cx([
     style.rundownEvent,
-    skip ? style.skip : null,
-    isPast ? style.past : null,
-    loaded ? style.loaded : null,
-    playback ? style[playback] : null,
-    isSelected ? style.selected : null,
-    hasCursor ? style.hasCursor : null,
+    skip && style.skip,
+    isPast && style.past,
+    loaded && style.loaded,
+    playback && style[playback],
+    isSelected && style.selected,
+    hasCursor && style.hasCursor,
+    entryCopyId === eventId && style.copyTarget,
   ]);
 
   const handleFocusClick = (event: MouseEvent) => {

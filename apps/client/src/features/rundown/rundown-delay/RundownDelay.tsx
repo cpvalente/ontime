@@ -5,9 +5,11 @@ import { CSS } from '@dnd-kit/utilities';
 import { OntimeDelay } from 'ontime-types';
 
 import Button from '../../../common/components/buttons/Button';
-import DelayInput from './DelayInput';
-import { cx } from '../../../common/utils/styleUtils';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
+import { useEntryCopy } from '../../../common/stores/entryCopyStore';
+import { cx } from '../../../common/utils/styleUtils';
+
+import DelayInput from './DelayInput';
 
 import style from './RundownDelay.module.scss';
 
@@ -21,6 +23,7 @@ export default function RundownDelay({ data, hasCursor }: RundownDelayProps) {
 
   const { applyDelay, deleteEntry } = useEntryActionsContext();
   const handleRef = useRef<null | HTMLSpanElement>(null);
+  const entryCopyId = useEntryCopy((state) => state.entryCopyId);
 
   const {
     attributes: dragAttributes,
@@ -59,7 +62,7 @@ export default function RundownDelay({ data, hasCursor }: RundownDelayProps) {
 
   return (
     <div
-      className={cx([style.delay, hasCursor ? style.hasCursor : null])}
+      className={cx([style.delay, hasCursor && style.hasCursor, entryCopyId === data.id && style.copyTarget])}
       ref={setNodeRef}
       style={dragStyle}
       data-testid='rundown-delay'
