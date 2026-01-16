@@ -23,7 +23,7 @@ interface SingleEventCountdownProps {
 }
 
 export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: SingleEventCountdownProps) {
-  const { secondarySource, showExpected } = useCountdownOptions();
+  const { mainSource, secondarySource, showExpected } = useCountdownOptions();
   const showFab = useFadeOutOnInactivity(true);
   const { data: reportData } = useReport();
 
@@ -41,7 +41,8 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
 
   const { endedAt } = reportData[subscribedEvent.id] ?? { endedAt: null };
   const countdownEvent = { ...subscribedEvent, expectedStart, endedAt };
-  const title = subscribedEvent.title.length ? subscribedEvent.title : ' '; // insert utf-8 empty space to avoid the line collapsing
+  const titleTmp = getPropertyValue(subscribedEvent, mainSource ?? 'title');
+  const title = titleTmp?.length ? titleTmp : ' '; // insert utf-8 empty space to avoid the line collapsing;
   const secondaryData = getPropertyValue(subscribedEvent, secondarySource);
 
   return (
