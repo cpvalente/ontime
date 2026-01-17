@@ -56,7 +56,6 @@ export default function useReactiveTextInput(
       if (valueToSubmit === initialText && !options?.allowSubmitSameValue) {
         options?.onCancelUpdate?.();
       } else if (
-        valueToSubmit === initialText &&
         options?.allowSubmitOnEnterOnly &&
         triggeredKey !== 'Enter' &&
         triggeredKey !== 'mod + Enter'
