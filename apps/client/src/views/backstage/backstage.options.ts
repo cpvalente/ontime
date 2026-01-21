@@ -23,10 +23,7 @@ export const getBackstageOptions = (
     { value: 'note', label: 'Note' },
   ]);
   const projectDataOptions = makeProjectDataOptions(projectData, [{ value: 'none', label: 'None' }]);
-  const mainOptions = makeOptionsFromCustomFields(customFields, [
-    { value: 'title', label: 'Title' },
-    { value: 'note', label: 'Note' },
-  ]);
+  const mainOptions = makeOptionsFromCustomFields(customFields, [{ value: 'title', label: 'Title' }]);
 
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
