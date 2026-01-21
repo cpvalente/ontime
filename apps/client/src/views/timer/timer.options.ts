@@ -27,7 +27,6 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
   const mainOptions = makeOptionsFromCustomFields(customFields, [
     { value: 'none', label: 'None' },
     { value: 'title', label: 'Title' },
-    { value: 'note', label: 'Note' },
   ]);
   const secondaryOptions = makeOptionsFromCustomFields(customFields, [
     { value: 'none', label: 'None' },

@@ -14,10 +14,7 @@ export const getCountdownOptions = (
   customFields: CustomFields,
   persistedSubscriptions: EntryId[],
 ): ViewOption[] => {
-  const mainOptions = makeOptionsFromCustomFields(customFields, [
-    { value: 'title', label: 'Title' },
-    { value: 'note', label: 'Note' },
-  ]);
+  const mainOptions = makeOptionsFromCustomFields(customFields, [{ value: 'title', label: 'Title' }]);
   const secondaryOptions = makeOptionsFromCustomFields(customFields, [
     { value: 'none', label: 'None' },
     { value: 'note', label: 'Note' },

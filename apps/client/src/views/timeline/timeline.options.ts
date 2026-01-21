@@ -10,10 +10,7 @@ import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean } from '../common/viewUtils';
 
 export const getTimelineOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
-  const mainOptions = makeOptionsFromCustomFields(customFields, [
-    { value: 'title', label: 'Title' },
-    { value: 'note', label: 'Note' },
-  ]);
+  const mainOptions = makeOptionsFromCustomFields(customFields, [{ value: 'title', label: 'Title' }]);
 
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
