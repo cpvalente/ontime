@@ -1,13 +1,5 @@
 import { useMemo } from 'react';
-import {
-  isOntimeDelay,
-  isOntimeEvent,
-  isOntimeGroup,
-  isOntimeMilestone,
-  OntimeEvent,
-  OntimeGroup,
-  OntimeMilestone,
-} from 'ontime-types';
+import { isOntimeEvent, isOntimeGroup, isOntimeMilestone, OntimeEntry } from 'ontime-types';
 
 import useRundown from '../../../common/hooks-query/useRundown';
 import { useEventSelection } from '../useEventSelection';
@@ -24,7 +16,7 @@ export default function RundownEntryEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const { data } = useRundown();
 
-  const entry = useMemo<OntimeEvent | OntimeGroup | OntimeMilestone | null>(() => {
+  const entry = useMemo<OntimeEntry | null>(() => {
     if (data.order.length === 0) {
       return null;
     }
@@ -33,12 +25,9 @@ export default function RundownEntryEditor() {
     if (!selectedEventId) {
       return null;
     }
-    const event = data.entries[selectedEventId];
 
-    if (event && !isOntimeDelay(event)) {
-      return event;
-    }
-    return null;
+    const event = data.entries[selectedEventId];
+    return event ?? null;
   }, [data.order.length, data.entries, selectedEvents]);
 
   if (!entry) {

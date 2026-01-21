@@ -1,0 +1,142 @@
+@use '../../../theme/ontimeColours' as *;
+@use '../../../theme/ontimeStyles' as *;
+
+$font-size-current: calc(1rem + 2px);
+$font-size-next: 1rem;
+$font-size-default: calc(1rem - 2px);
+
+.item {
+  --color-bar-gap: 0.5rem;
+  --color-bar-width: 4px;
+  // color bar + gap x 2
+  --title-left: calc(4px + 0.5rem + 0.5rem);
+  --indicator-width: 2rem;
+  --chip-width: 3.25rem;
+  --chip-padding: 0.5rem;
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 2.5rem;
+  gap: 1rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: $white-3;
+    border-radius: $component-border-radius-md;
+
+    .title {
+      color: $ui-white;
+      font-size: $font-size-current;
+    }
+  }
+
+  &[data-state='past'] {
+    opacity: 0.4;
+  }
+
+  &[data-state='running'],
+  &[data-state='selected'] {
+    gap: 0.25rem;
+    background: $white-7;
+    border-radius: $component-border-radius-md;
+
+    .title {
+      color: $ui-white;
+      font-weight: 500;
+      padding-left: 0.25rem;
+      padding-right: calc(var(--chip-width) + var(--chip-padding));
+      font-size: $font-size-current;
+      text-align: left;
+    }
+  }
+
+  &[data-state='running'] {
+    background: color-mix(in srgb, $playback-start 22%, $bg-container-l1);
+
+    .title {
+      color: $ui-white;
+    }
+  }
+
+  &[data-state='next'] {
+    .title {
+      color: $ui-white;
+      font-size: $font-size-next;
+    }
+  }
+
+  &[data-skipped] {
+    opacity: 0.3;
+
+    .title {
+      text-decoration: line-through;
+    }
+  }
+
+  &[data-group-end='true'] {
+    margin-bottom: $panel-gap;
+  }
+}
+
+.colourBar {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.title {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding-block: 0.5rem;
+  padding-left: 0.25rem;
+  padding-right: calc(var(--chip-width) + var(--chip-padding));
+
+  color: $gray-400;
+  font-size: $font-size-default;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.chipSlot {
+  position: absolute;
+  right: var(--chip-padding);
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: var(--chip-width);
+
+  &[data-hover-only] {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+}
+
+.item:hover .chipSlot[data-hover-only] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.chipText {
+  white-space: nowrap;
+  font-size: calc(1rem - 3px);
+  color: $label-gray;
+
+  &[data-chip-status='live'] {
+    color: $ui-white;
+  }
+
+  &[data-chip-status='due'] {
+    color: $warning-orange;
+  }
+}

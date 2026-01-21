@@ -58,3 +58,8 @@ export function makeRundownCustomColumns(customFields: CustomFields) {
     };
   });
 }
+
+export enum RundownViewMode {
+  List = 'list',
+  Table = 'table',
+}

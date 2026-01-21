@@ -2,14 +2,14 @@ import type { OntimeDelay, OntimeEntry, OntimeEvent, OntimeGroup } from 'ontime-
 import { SupportedEntry } from 'ontime-types';
 
 import {
+  getFirstGroupNormal,
   getLastEvent,
-  getLastNormal,
   getLastGroupNormal,
+  getLastNormal,
   getNext,
   getNextEvent,
   getNextGroupNormal,
   getNextNormal,
-  getFirstGroupNormal,
   getPrevious,
   getPreviousEvent,
   getPreviousGroup,
@@ -17,7 +17,7 @@ import {
   getPreviousNormal,
   swapEventData,
 } from './rundownUtils';
-import { demoDb } from '../../../../apps/server/src/models/demoProject';
+import { demoDb } from './rundownUtils.mock';
 
 describe('getNext()', () => {
   it('returns the next event of type event', () => {

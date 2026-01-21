@@ -13,8 +13,12 @@ import { useEventSelection } from '../useEventSelection';
 
 import style from './RundownHeader.module.scss';
 
+interface RundownMenuProps {
+  allowNavigation?: boolean;
+}
+
 export default memo(RundownMenu);
-function RundownMenu() {
+function RundownMenu({ allowNavigation }: RundownMenuProps) {
   const [isOpen, handlers] = useDisclosure();
 
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
@@ -38,6 +42,7 @@ function RundownMenu() {
               label: 'Manage Rundowns...',
               icon: IoList,
               onClick: () => setLocation('manage'),
+              disabled: !allowNavigation,
             },
             { type: 'divider' },
             {

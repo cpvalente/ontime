@@ -11,6 +11,11 @@ $table-header-font-size: calc(1rem - 2px);
   color: $ui-white;
   padding-bottom: 70vh; // allow focus to reach last elements
 
+  :is([data-target='small-device']) & {
+    width: max-content;
+    min-width: 100%;
+  }
+
   thead {
     tr {
       &::before {
