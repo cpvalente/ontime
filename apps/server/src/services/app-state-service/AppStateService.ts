@@ -46,9 +46,11 @@ export async function setLastLoadedRundown(rundownKey: string): Promise<void> {
   await config.write();
 }
 
-export async function getShowWelcomeDialog(): Promise<boolean> {
+export async function getShowWelcomeDialog(restorePointExists: boolean): Promise<boolean> {
   // in test environment, we do not want the dialog
   if (isTest) return false;
+
+  if (restorePointExists) return false;
 
   await config.read();
   return config.data.showWelcomeDialog ?? true; // default to  true
