@@ -1,7 +1,8 @@
-import { CustomFields, ProjectData, Settings, ViewSettings } from 'ontime-types';
+import { CustomFields, ProjectData, RundownEntries, Settings, ViewSettings } from 'ontime-types';
 
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import useProjectData from '../../common/hooks-query/useProjectData';
+import useRundown from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
@@ -13,6 +14,7 @@ export interface TimerData {
   isMirrored: boolean;
   settings: Settings;
   viewSettings: ViewSettings;
+  entries: RundownEntries;
 }
 
 export function useTimerData(): ViewData<TimerData> {
@@ -24,6 +26,8 @@ export function useTimerData(): ViewData<TimerData> {
   const { data: viewSettings, status: viewSettingsStatus } = useViewSettings();
   const { data: settings, status: settingsStatus } = useSettings();
   const { data: customFields, status: customFieldsStatus } = useCustomFields();
+  const { data: rundown, status: rundownStatus } = useRundown();
+  const { entries } = rundown;
 
   return {
     data: {
@@ -32,7 +36,14 @@ export function useTimerData(): ViewData<TimerData> {
       isMirrored,
       settings,
       viewSettings,
+      entries,
     },
-    status: aggregateQueryStatus([projectDataStatus, viewSettingsStatus, settingsStatus, customFieldsStatus]),
+    status: aggregateQueryStatus([
+      projectDataStatus,
+      viewSettingsStatus,
+      settingsStatus,
+      customFieldsStatus,
+      rundownStatus,
+    ]),
   };
 }

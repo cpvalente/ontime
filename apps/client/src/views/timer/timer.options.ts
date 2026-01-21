@@ -32,6 +32,7 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
     { value: 'none', label: 'None' },
     { value: 'title', label: 'Title' },
     { value: 'note', label: 'Note' },
+    { value: 'parent', label: 'Group Title' },
   ]);
 
   return [
@@ -184,8 +185,8 @@ type TimerOptions = {
   hideLogo: boolean;
   hideTimerSeconds: boolean;
   removeLeadingZeros: boolean;
-  mainSource: keyof OntimeEvent | null;
-  secondarySource: keyof OntimeEvent | null;
+  mainSource: keyof OntimeEvent | null | 'none';
+  secondarySource: keyof OntimeEvent | null | 'none';
   timerType?: TimerType;
   freezeOvertime: boolean;
   freezeMessage: string;

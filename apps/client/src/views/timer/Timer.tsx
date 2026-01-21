@@ -49,7 +49,7 @@ export default function TimerLoader() {
   return <Timer {...data} />;
 }
 
-function Timer({ customFields, projectData, isMirrored, settings, viewSettings }: TimerData) {
+function Timer({ customFields, projectData, isMirrored, settings, viewSettings, entries }: TimerData) {
   const { eventNext, eventNow, message, time, clock, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
   const {
     hideClock,
@@ -97,6 +97,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings }
     secondarySource,
     time.playback,
     time.phase,
+    entries,
   );
 
   // gather timer data

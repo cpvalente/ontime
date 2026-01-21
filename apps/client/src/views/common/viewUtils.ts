@@ -1,4 +1,12 @@
-import { MaybeNumber, MaybeString, OntimeEvent, TimerState, TimerType } from 'ontime-types';
+import {
+  MaybeNumber,
+  MaybeString,
+  OntimeEvent,
+  OntimeGroup,
+  RundownEntries,
+  TimerState,
+  TimerType,
+} from 'ontime-types';
 import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
 import { timerPlaceholder, timerPlaceholderMin } from '../../common/utils/styleUtils';
@@ -66,10 +74,20 @@ export function makeColourString(hex: string | null): string | undefined {
 /**
  * Retrieves a dynamic property from an event
  * Considers custom fields
+ * if rundown entries are provided it can also find the parent title
  */
-export function getPropertyValue(event: OntimeEvent | null, property: MaybeString): string | undefined {
+export function getPropertyValue(
+  event: OntimeEvent | null,
+  property: MaybeString,
+  entries?: RundownEntries,
+): string | undefined {
   if (!event || typeof property !== 'string' || property === 'none') {
     return undefined;
+  }
+
+  if (property === 'parent') {
+    if (!entries || !event.parent) return undefined;
+    return (entries[event.parent] as OntimeGroup)?.title;
   }
 
   if (property.startsWith('custom-')) {
