@@ -16,6 +16,7 @@
 .title-card__title {
   color: var(--color-override, $viewer-color);
   padding-right: 1em;
+  min-height: 1.2em;
 }
 
 .title-card__placeholder {

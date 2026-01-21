@@ -1,4 +1,13 @@
-import { MaybeNumber, MessageState, OntimeEvent, Playback, TimerMessage, TimerPhase, TimerType } from 'ontime-types';
+import {
+  MaybeNumber,
+  MessageState,
+  OntimeEvent,
+  Playback,
+  RundownEntries,
+  TimerMessage,
+  TimerPhase,
+  TimerType,
+} from 'ontime-types';
 import { isPlaybackActive } from 'ontime-utils';
 
 import { getFormattedTimer, getPropertyValue } from '../common/viewUtils';
@@ -141,10 +150,11 @@ export function getSecondaryDisplay(
 export function getCardData(
   eventNow: OntimeEvent | null,
   eventNext: OntimeEvent | null,
-  mainSource: keyof OntimeEvent | null,
-  secondarySource: keyof OntimeEvent | null,
+  mainSource: keyof OntimeEvent | null | 'none',
+  secondarySource: keyof OntimeEvent | null | 'none',
   playback: Playback,
   phase: TimerPhase,
+  entries: RundownEntries,
 ) {
   if (playback === Playback.Stop) {
     return {
@@ -162,19 +172,19 @@ export function getCardData(
 
   // if we are loaded, we show the upcoming event as next
   const nowMain = hasActiveTimer ? getPropertyValue(eventNow, mainSource ?? 'title') : undefined;
-  const nowSecondary = hasActiveTimer ? getPropertyValue(eventNow, secondarySource) : undefined;
+  const nowSecondary = hasActiveTimer ? getPropertyValue(eventNow, secondarySource, entries) : undefined;
   const nextMain = hasActiveTimer
     ? getPropertyValue(eventNext, mainSource ?? 'title')
     : getPropertyValue(eventNow, mainSource ?? 'title');
   const nextSecondary = hasActiveTimer
-    ? getPropertyValue(eventNext, secondarySource)
-    : getPropertyValue(eventNow, secondarySource);
+    ? getPropertyValue(eventNext, secondarySource, entries)
+    : getPropertyValue(eventNow, secondarySource, entries);
 
   return {
-    showNow: Boolean(nowMain) || Boolean(nowSecondary),
+    showNow: mainSource !== 'none' || Boolean(nowSecondary),
     nowMain,
     nowSecondary,
-    showNext: Boolean(nextMain) || Boolean(nextSecondary),
+    showNext: mainSource !== 'none' || Boolean(nextSecondary),
     nextMain,
     nextSecondary,
   };
