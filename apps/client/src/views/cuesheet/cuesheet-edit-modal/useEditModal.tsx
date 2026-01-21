@@ -7,7 +7,7 @@ interface SelectedEntryState {
   clearSelection: () => void;
 }
 
-export const useEditorEditModal = create<SelectedEntryState>((set) => ({
+export const useEditModal = create<SelectedEntryState>((set) => ({
   selectedEntryId: null,
   setEditableEntry: (entryId: EntryId) => set({ selectedEntryId: entryId }),
   clearSelection: () => set({ selectedEntryId: null }),

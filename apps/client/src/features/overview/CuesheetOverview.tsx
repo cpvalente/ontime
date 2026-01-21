@@ -2,7 +2,13 @@ import { memo, PropsWithChildren } from 'react';
 
 import { useIsMobileScreen } from '../../common/hooks/useIsMobileScreen';
 
-import { ClockOverview, MetadataTimes, OffsetOverview, StartTimes, TimerOverview } from './composite/TimeElements';
+import {
+  ClockOverview,
+  MetadataTimes,
+  OffsetOverview,
+  StartTimesRuntime,
+  TimerOverview,
+} from './composite/TimeElements';
 import TitleOverview from './composite/TitleOverview';
 import { OverviewWrapper } from './OverviewWrapper';
 
@@ -10,8 +16,10 @@ export default memo(CuesheetOverview);
 function CuesheetOverview({ children }: PropsWithChildren) {
   const isMobileScreen = useIsMobileScreen();
 
-  if (isMobileScreen) return <CuesheetMobile>{children}</CuesheetMobile>;
-  else return <CuesheetDesktop>{children}</CuesheetDesktop>;
+  if (isMobileScreen) {
+    return <CuesheetMobile>{children}</CuesheetMobile>;
+  }
+  return <CuesheetDesktop>{children}</CuesheetDesktop>;
 }
 
 function CuesheetMobile({ children }: PropsWithChildren) {
@@ -27,7 +35,7 @@ function CuesheetDesktop({ children }: PropsWithChildren) {
   return (
     <OverviewWrapper navElements={children}>
       <TitleOverview />
-      <StartTimes shouldFormat />
+      <StartTimesRuntime shouldFormat />
       <TimerOverview />
       <OffsetOverview />
       <MetadataTimes />

@@ -35,8 +35,8 @@
 
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 1rem;
-  line-height: 1em;
 
   svg {
     color: $gray-500;
@@ -70,10 +70,27 @@
   }
 }
 
+.item .iconStrong {
+  color: $ui-white;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
 .label {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  line-height: 1.2;
+}
+
+.description {
+  color: $gray-400;
+  font-size: calc(1rem - 2px);
+  line-height: 1.3;
 }
 
 .shortcut {

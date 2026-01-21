@@ -3,13 +3,19 @@ import { TbFlagFilled } from 'react-icons/tb';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { closestCenter, DndContext } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useSessionStorage } from '@mantine/hooks';
-import { type EntryId, type Rundown, isOntimeEvent, isOntimeGroup, Playback, SupportedEntry } from 'ontime-types';
+import {
+  type EntryId,
+  type Rundown as RundownType,
+  isOntimeEvent,
+  isOntimeGroup,
+  Playback,
+  SupportedEntry,
+} from 'ontime-types';
 
 import { useEntryActionsContext } from '../../common/context/EntryActionsContext';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { lastMetadataKey, RundownMetadataObject } from '../../common/utils/rundownMetadata';
-import { AppMode, sessionKeys } from '../../ontimeConfig';
+import { AppMode } from '../../ontimeConfig';
 
 import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
 import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
@@ -20,6 +26,8 @@ import RundownGroup from './rundown-group/RundownGroup';
 import RundownGroupEnd from './rundown-group/RundownGroupEnd';
 import { filterVisibleEntries, makeSortableList } from './rundown.utils';
 import RundownEmpty from './RundownEmpty';
+import { useCollapsedGroups } from './useCollapsedGroups';
+import { useEditorFollowMode } from './useEditorFollowMode';
 import { useEventSelection } from './useEventSelection';
 
 import style from './Rundown.module.scss';
@@ -27,10 +35,10 @@ import style from './Rundown.module.scss';
 const RundownEntry = lazy(() => import('./RundownEntry'));
 
 interface RundownProps {
-  entries: Rundown['entries'];
-  id: Rundown['id'];
-  order: Rundown['order'];
-  flatOrder: Rundown['flatOrder'];
+  entries: RundownType['entries'];
+  id: RundownType['id'];
+  order: RundownType['order'];
+  flatOrder: RundownType['flatOrder'];
   rundownMetadata: RundownMetadataObject;
   featureData: {
     playback: Playback;
@@ -55,60 +63,36 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     setMetadata(rundownMetadata);
   }, [order, entries, rundownMetadata]);
 
-  const [collapsedGroups, setCollapsedGroups] = useSessionStorage<EntryId[]>({
-    // we ensure that this is unique to the rundown
-    key: `rundown.${id}-editor-collapsed-groups`,
-    defaultValue: [],
-  });
-  const collapsedGroupSet = useMemo(() => new Set(collapsedGroups), [collapsedGroups]);
+  const { getIsCollapsed, collapseGroup, expandGroup } = useCollapsedGroups(id);
 
   const entryActions = useEntryActionsContext();
   const setEntryCopyId = useEntryCopy((state) => state.setEntryCopyId);
 
   // cursor
-  const [editorMode] = useSessionStorage<AppMode>({
-    key: sessionKeys.editorMode,
-    defaultValue: AppMode.Edit,
-  });
+  const { editorMode } = useEditorFollowMode();
 
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
-  const setSelectedEvents = useEventSelection((state) => state.setSelectedEvents);
   const cursor = useEventSelection((state) => state.cursor);
   const scrollToEntry = useEventSelection((state) => state.scrollToEntry);
   const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
+  const selectEntry = useEventSelection((state) => state.setSelectedEvents);
 
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const virtuosoRef = useRef<VirtuosoHandle | null>(null);
 
   /**
-   * Checks whether a group is collapsed
-   */
-  const getIsCollapsed = useCallback(
-    (groupId: EntryId): boolean => {
-      return collapsedGroupSet.has(groupId);
-    },
-    [collapsedGroupSet],
-  );
-
-  /**
    * Handles logic for collapsing groups
    */
   const handleCollapseGroup = useCallback(
-    (collapsed: boolean, groupId: EntryId) => {
-      setCollapsedGroups((prev) => {
-        const isCollapsed = getIsCollapsed(groupId);
-        if (collapsed && !isCollapsed) {
-          const newSet = new Set(prev).add(groupId);
-          return [...newSet];
-        }
-        if (!collapsed && isCollapsed) {
-          return [...prev].filter((id) => id !== groupId);
-        }
-        return prev;
-      });
+    (collapsed: boolean, groupId: EntryId | undefined) => {
+      if (collapsed) {
+        collapseGroup(groupId);
+      } else {
+        expandGroup(groupId);
+      }
     },
-    [getIsCollapsed, setCollapsedGroups],
+    [collapseGroup, expandGroup],
   );
 
   // Commands layer - business logic
@@ -116,7 +100,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     entries,
     flatOrder,
     entryActions,
-    setSelectedEvents,
+    selectEntry,
     handleCollapseGroup,
   });
 
@@ -145,9 +129,9 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     return filterVisibleEntries(sortableData, entries, getIsCollapsed);
   }, [sortableData, entries, getIsCollapsed]);
 
-  // Scroll to a specific entry when requested by keyboard/finder
+  // Provide an imperative scroll handler for explicit jumps (finder/keyboard)
   useEffect(() => {
-    setScrollHandler('rundown-list', (entryId) => {
+    setScrollHandler((entryId) => {
       if (!virtuosoRef.current || dnd.isDraggingRef.current) {
         return;
       }
@@ -164,39 +148,45 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     });
 
     return () => {
-      setScrollHandler('rundown-list', null);
+      setScrollHandler(null);
     };
   }, [visibleData, dnd.isDraggingRef, setScrollHandler]);
 
-  // Follow-scroll in run mode via the shared scroll handler
+  // Keep selected cursor visible by expanding its parent group in any mode.
+  // Finder can select entries while layout is in Run mode, where we do not follow cursor scroll.
   useEffect(() => {
-    if (editorMode !== AppMode.Run || dnd.isDraggingRef.current) {
+    if (!cursor) {
       return;
     }
 
-    const targetId = featureData?.selectedEventId;
-    if (!targetId) {
-      return;
+    const entry = entries[cursor];
+    if (entry && 'parent' in entry) {
+      expandGroup(entry.parent);
     }
+  }, [cursor, entries, expandGroup]);
 
-    scrollToEntry(targetId);
-  }, [editorMode, featureData?.selectedEventId, visibleData, dnd.isDraggingRef, scrollToEntry]);
-
-  // in run mode, we follow the playback selection and open groups as needed
+  // Auto-follow behavior in Edit mode: follow the user's cursor
   useEffect(() => {
-    if (editorMode !== AppMode.Run || !featureData?.selectedEventId) {
+    if (dnd.isDraggingRef.current || editorMode !== AppMode.Edit || !cursor) {
       return;
     }
-    const index = order.findIndex((id) => id === featureData.selectedEventId);
-    // @ts-expect-error -- but we safely check if the parent property exists
-    const maybeParent = entries[featureData.selectedEventId]?.parent;
-    if (maybeParent) {
-      // open the group
-      setCollapsedGroups((prev) => [...prev].filter((id) => id !== maybeParent));
+
+    scrollToEntry(cursor);
+  }, [editorMode, cursor, scrollToEntry, dnd.isDraggingRef]);
+
+  // Auto-follow behavior in Run mode: follow the currently playing event
+  useEffect(() => {
+    if (dnd.isDraggingRef.current || editorMode !== AppMode.Run || !featureData?.selectedEventId) {
+      return;
     }
 
-    setSelectedEvents({ id: featureData.selectedEventId, selectMode: 'click', index });
-  }, [editorMode, entries, featureData.selectedEventId, order, setCollapsedGroups, setSelectedEvents]);
+    // Open parent group if the target is inside a collapsed group
+    const entry = entries[featureData.selectedEventId];
+    if (entry && 'parent' in entry) {
+      expandGroup(entry.parent);
+    }
+    scrollToEntry(featureData.selectedEventId);
+  }, [editorMode, featureData?.selectedEventId, entries, expandGroup, scrollToEntry, dnd.isDraggingRef]);
 
   // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
@@ -232,11 +222,9 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
         );
       }
 
-      // Regular entry handling - compute all values upfront
       const entry = entries[entryId];
       const entryMetadata = metadata[entryId];
 
-      // Null check after computing - return null if missing
       if (!entry || !entryMetadata) {
         return null;
       }

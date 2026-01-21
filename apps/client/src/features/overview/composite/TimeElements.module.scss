@@ -14,6 +14,13 @@
   gap: 0.5rem;
 }
 
+.row2 {
+  display: grid;
+  grid-template-columns: 3rem 9rem;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .metadataRow {
   display: grid;
   grid-template-columns: minmax(3rem, 10rem) 8rem 8rem;

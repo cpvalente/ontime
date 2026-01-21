@@ -103,8 +103,8 @@ export default function RundownEvent({
 
   const isSelected = useEventSelection((state) => state.selectedEvents.has(eventId));
   const unselect = useEventSelection((state) => state.unselect);
-  const setSelectedEvents = useEventSelection((state) => state.setSelectedEvents);
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
+  const selectEntry = useEventSelection((state) => state.setSelectedEvents);
 
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const entryCopyId = useEntryCopy((state) => state.entryCopyId);
@@ -265,7 +265,7 @@ export default function RundownEvent({
     // UI indexes are 1 based
     const index = eventIndex - 1;
     const editMode = getSelectionMode(event);
-    setSelectedEvents({ id: eventId, index, selectMode: editMode });
+    selectEntry({ id: eventId, index, selectMode: editMode });
   };
 
   const isPlaying = playback ? isPlaybackActive(playback) : false;
