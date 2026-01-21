@@ -184,7 +184,10 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   // the express server must be started before the socket otherwise the on error event listener will not attach properly
   const resultPort = await serverTryDesiredPort(expressServer, desiredPort);
   await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
-  const showWelcome = await getShowWelcomeDialog();
+  let showWelcome = await getShowWelcomeDialog();
+  if (restorePoint) {
+    showWelcome = false;
+  }
 
   socket.init(expressServer, showWelcome, prefix);
 
