@@ -1,4 +1,4 @@
-import { MaybeNumber } from 'ontime-types';
+import { MaybeNumber, TimerPhase } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { cx, timerPlaceholder } from '../../../../common/utils/styleUtils';
@@ -7,19 +7,20 @@ import style from './TimerDisplay.module.scss';
 
 interface TimerDisplayProps {
   time: MaybeNumber;
+  phase: TimerPhase;
+  className?: string;
 }
 
 /**
  * Displays time in ms in formatted timetag
  * Used in editor
  */
-export default function TimerDisplay(props: TimerDisplayProps) {
-  const { time } = props;
+export default function TimerDisplay({ time, phase, className }: TimerDisplayProps) {
+  const display = millisToString(time, { fallback: timerPlaceholder }).replace('-', '');
 
-  const isNegative = (time ?? 0) < 0;
-  const display =
-    time == null ? timerPlaceholder : millisToString(time, { fallback: timerPlaceholder }).replace('-', '');
-  const classes = cx([style.timer, isNegative ? style.finished : null, time === null && style.muted]);
-
-  return <div className={classes}>{display}</div>;
+  return (
+    <div className={cx([style.timer, className])} data-phase={phase}>
+      {display}
+    </div>
+  );
 }

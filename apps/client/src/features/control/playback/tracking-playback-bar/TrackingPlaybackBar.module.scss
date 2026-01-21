@@ -1,0 +1,146 @@
+@use '../../../../theme/ontimeColours' as *;
+@use '../../../../theme/ontimeStyles' as *;
+
+$element-height: 4.5rem; // matches go button height in PlaybackButtons
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: $panel-gap $section-spacing;
+  background: $bg-container-l2;
+  border-radius: $panel-border-radius;
+}
+
+.itemGroup {
+  display: flex;
+  align-items: center;
+  gap: $element-spacing;
+  flex-shrink: 0;
+}
+
+.goButton,
+.iconButtonWithLabel,
+.iconButton {
+  width: $element-height;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    font-size: 1.25rem;
+  }
+}
+
+.goButton {
+  height: $element-height;
+  min-width: 8rem;
+  line-height: 1.1;
+}
+
+.goLabel {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.shortcutHint {
+  font-size: calc(1rem - 4px);
+  opacity: 0.6;
+}
+
+.addSection {
+  display: contents;
+}
+
+.separator {
+  width: 1px;
+  height: 1.5rem;
+  background: $white-10;
+  margin-inline: 0.25rem;
+}
+
+.timerSection {
+  display: flex;
+  justify-content: center;
+  min-width: 0;
+  gap: 0.5rem;
+}
+
+.negativeIndicator {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1;
+  color: $playback-negative;
+  opacity: 0;
+
+  &[data-active='true'] {
+    opacity: 1;
+  }
+}
+
+// -----> Aux timer section (right)
+
+.auxSection {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: $element-inner-spacing;
+  flex-shrink: 0;
+}
+
+.auxControls {
+  display: flex;
+  gap: $element-inner-spacing;
+}
+
+.auxTimeInput,
+.auxTimeDisplay {
+  width: 6.5rem;
+  min-width: 6.5rem;
+  max-width: 6.5rem;
+  height: $element-height;
+
+  text-align: center;
+  background: $gray-1050;
+  border-radius: $component-border-radius-md;
+  color: $ui-white;
+}
+
+.auxTimeDisplay {
+  display: grid;
+  place-content: center;
+
+  font-size: 1rem;
+  font-weight: 400;
+  color: $gray-200;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+
+  padding-inline: 0.5em;
+  outline: none;
+}
+
+// hardcoded value where the timer is over the buttons
+@media (max-width: 1048px) {
+  .container {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .timerSection {
+    justify-self: end;
+  }
+
+  .auxSection {
+    display: none;
+  }
+}
+
+// hardcoded value where the timer is over the buttons
+@media (max-width: 728px) {
+  .addSection {
+    display: none;
+  }
+}

@@ -11,8 +11,9 @@ import { useIsSmallDevice } from '../../common/hooks/useIsSmallDevice';
 import { handleLinks } from '../../common/utils/linkUtils';
 import { cx } from '../../common/utils/styleUtils';
 import { getIsNavigationLocked } from '../../externals';
-import { AppMode, sessionKeys } from '../../ontimeConfig';
-import EditorEditModal from '../../views/cuesheet/cuesheet-edit-modal/EditorEditModal';
+import { AppMode } from '../../ontimeConfig';
+import EntryEditModal from '../../views/cuesheet/cuesheet-edit-modal/EntryEditModal';
+import { EditorLayoutMode, useEditorLayout } from '../../views/editor/useEditorLayout';
 
 import RundownEntryEditor from './entry-editor/RundownEntryEditor';
 import FinderPlacement from './placements/FinderPlacement';
@@ -20,8 +21,9 @@ import { RundownContextMenu } from './rundown-context-menu/RundownContextMenu';
 import RundownHeader from './rundown-header/RundownHeader';
 import RundownHeaderMobile from './rundown-header/RundownHeaderMobile';
 import RundownTable from './rundown-table/RundownTable';
+import { RundownViewMode } from './rundown.options';
 import RundownList from './RundownList';
-import { DEFAULT_RUNDOWN_VIEW_MODE, RUNDOWN_VIEW_MODE_STORAGE_KEY, RundownViewMode } from './rundownViewMode';
+import { useEditorFollowMode } from './useEditorFollowMode';
 
 import style from './RundownExport.module.scss';
 
@@ -29,13 +31,11 @@ export default memo(RundownExport);
 
 function RundownExport() {
   const isExtracted = window.location.pathname.includes('/rundown');
-  const [editorMode] = useSessionStorage({
-    key: sessionKeys.editorMode,
-    defaultValue: AppMode.Edit,
-  });
+  const { editorMode } = useEditorFollowMode();
+  const { layoutMode } = useEditorLayout();
   const [viewMode, setViewMode] = useSessionStorage<RundownViewMode>({
-    key: RUNDOWN_VIEW_MODE_STORAGE_KEY,
-    defaultValue: DEFAULT_RUNDOWN_VIEW_MODE,
+    key: 'rundown-view-mode',
+    defaultValue: RundownViewMode.List,
   });
   const isSmallDevice = useIsSmallDevice();
   const entryActions = useEntryActions();
@@ -53,7 +53,7 @@ function RundownExport() {
             <ViewNavigationMenu suppressSettings />
             <div className={style.rundown}>
               <ErrorBoundary>
-                <RundownRoot isSmallDevice viewMode={viewMode} setViewMode={setViewMode} />
+                <RundownRoot isSmallDevice isExtracted viewMode={viewMode} setViewMode={setViewMode} />
                 <RundownContextMenu />
               </ErrorBoundary>
             </div>
@@ -63,7 +63,10 @@ function RundownExport() {
     );
   }
 
-  const hideSideBar = (isExtracted && editorMode === 'run') || viewMode === 'table';
+  const hideSideBar =
+    layoutMode === EditorLayoutMode.TRACKING ||
+    (isExtracted && editorMode === AppMode.Run) ||
+    viewMode === RundownViewMode.Table;
 
   return (
     <EntryActionsProvider actions={entryActions}>
@@ -75,7 +78,7 @@ function RundownExport() {
             <Editor.Panel className={style.list}>
               <ErrorBoundary>
                 {!isExtracted && <Editor.CornerExtract onClick={(event) => handleLinks('rundown', event)} />}
-                <RundownRoot viewMode={viewMode} setViewMode={setViewMode} />
+                <RundownRoot isExtracted={isExtracted} viewMode={viewMode} setViewMode={setViewMode} />
                 <RundownContextMenu />
               </ErrorBoundary>
             </Editor.Panel>
@@ -95,16 +98,21 @@ function RundownExport() {
 
 interface RundownRootProps {
   isSmallDevice?: boolean;
+  isExtracted?: boolean;
   viewMode: RundownViewMode;
   setViewMode: (mode: RundownViewMode) => void;
 }
 
-function RundownRoot({ isSmallDevice, viewMode, setViewMode }: RundownRootProps) {
+function RundownRoot({ isSmallDevice, isExtracted, viewMode, setViewMode }: RundownRootProps) {
   return (
     <div className={style.rundownRoot}>
-      {isSmallDevice ? <RundownHeaderMobile /> : <RundownHeader viewMode={viewMode} setViewMode={setViewMode} />}
-      {viewMode === 'list' ? <RundownList /> : <RundownTable />}
-      <EditorEditModal />
+      {isSmallDevice ? (
+        <RundownHeaderMobile viewMode={viewMode} setViewMode={setViewMode} />
+      ) : (
+        <RundownHeader isExtracted={isExtracted} viewMode={viewMode} setViewMode={setViewMode} />
+      )}
+      {viewMode === RundownViewMode.List ? <RundownList /> : <RundownTable />}
+      {viewMode === RundownViewMode.Table && <EntryEditModal />}
     </div>
   );
 }

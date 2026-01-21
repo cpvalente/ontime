@@ -11,7 +11,7 @@ interface UseRundownDndOptions {
   sortableData: EntryId[];
   setSortableData: Dispatch<SetStateAction<EntryId[]>>;
   getIsCollapsed: (groupId: EntryId) => boolean;
-  handleCollapseGroup: (collapsed: boolean, groupId: EntryId) => void;
+  handleCollapseGroup: (collapsed: boolean, groupId: EntryId | undefined) => void;
   entryActions: ReturnType<typeof useEntryActions>;
 }
 
@@ -132,13 +132,11 @@ export function useRundownDnd({
       if (event.over?.data.current?.type !== SupportedEntry.Group) {
         return;
       }
-      const groupId = event.over?.id as EntryId;
-      const isCollapsed = getIsCollapsed(groupId);
-      if (isCollapsed) {
-        handleCollapseGroup(false, groupId);
-      }
+
+      const groupId = event.over?.id as EntryId | undefined;
+      handleCollapseGroup(false, groupId);
     },
-    [getIsCollapsed, handleCollapseGroup],
+    [handleCollapseGroup],
   );
 
   return useMemo(

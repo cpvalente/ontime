@@ -29,11 +29,22 @@
 }
 
 .info {
-  flex: 1;
   padding-left: 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  overflow-x: auto;
-  overflow-y: hidden;
+  width: max-content;
+  height: 100%;
+}
+
+.infoScroll {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+.inline {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }

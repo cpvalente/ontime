@@ -12,7 +12,7 @@ import { getDefaultFormat } from '../../common/utils/time';
 import { isTouchDevice } from '../../externals';
 import Loader from '../../views/common/loader/Loader';
 
-import EditModal from './edit-modal/EditModal';
+import CustomFieldEditModal from './custom-field-edit-modal/CustomFieldEditModal';
 import FollowButton from './follow-button/FollowButton';
 import OperatorEvent from './operator-event/OperatorEvent';
 import OperatorGroup from './operator-group/OperatorGroup';
@@ -118,7 +118,7 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
   return (
     <div className={style.operatorContainer} data-testid='operator-view'>
       <ViewParamsEditor target={OntimeView.Operator} viewOptions={operatorOptions} />
-      {editEvent && <EditModal event={editEvent} onClose={() => setEditEvent(null)} />}
+      {editEvent && <CustomFieldEditModal event={editEvent} onClose={() => setEditEvent(null)} />}
 
       <StatusBar />
 

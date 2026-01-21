@@ -30,7 +30,7 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
   const { updateEntry, deleteEntry } = useEntryActionsContext();
 
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
-  const setSingleEntrySelection = useEventSelection((state) => state.setSingleEntrySelection);
+  const selectSingleEntry = useEventSelection((state) => state.setSingleEntrySelection);
   const entryCopyId = useEntryCopy((state) => state.entryCopyId);
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>(() => [
@@ -69,7 +69,7 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
     }
 
     // UI indexes are 1 based
-    setSingleEntrySelection({ id: entryId });
+    selectSingleEntry({ id: entryId });
   };
 
   const handleUpdate = (field: 'cue' | 'title', value: string) => {

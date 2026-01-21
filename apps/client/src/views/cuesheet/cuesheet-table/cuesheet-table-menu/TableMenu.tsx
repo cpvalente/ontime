@@ -4,17 +4,17 @@ import { SupportedEntry } from 'ontime-types';
 
 import { PositionedDropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
-import { useCuesheetEditModal } from '../../cuesheet-edit-modal/useCuesheetEditModal';
+import { useEditModal } from '../../cuesheet-edit-modal/useEditModal';
 import { useCuesheetPermissions } from '../../useTablePermissions';
 
 import { useCuesheetTableMenu } from './useCuesheetTableMenu';
 
-export default memo(CuesheetTableMenu);
+export default memo(TableMenu);
 
-function CuesheetTableMenu() {
+function TableMenu() {
   const { isOpen, entryId, entryIndex, parentId, flag, position, closeMenu } = useCuesheetTableMenu();
   const { addEntry, clone, deleteEntry, move, updateEntry } = useEntryActionsContext();
-  const showModal = useCuesheetEditModal((state) => state.setEditableEntry);
+  const showModal = useEditModal((state) => state.setEditableEntry);
   const permissions = useCuesheetPermissions();
 
   if (!isOpen) {

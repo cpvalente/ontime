@@ -27,7 +27,7 @@ import {
 import { useEntry } from '../../../common/hooks-query/useRundown';
 import { getOffsetState, getOffsetText } from '../../../common/utils/offset';
 import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
-import { formatTime } from '../../../common/utils/time';
+import { formatDuration, formatTime } from '../../../common/utils/time';
 import SuperscriptPeriod from '../../../views/common/superscript-time/SuperscriptPeriod';
 import { calculateEndAndDaySpan, formatDueTime } from '../overview.utils';
 
@@ -39,30 +39,22 @@ interface OverviewTimeElementsProps {
   shouldFormat?: boolean;
 }
 
-export function StartTimes({ shouldFormat }: OverviewTimeElementsProps) {
+const timeFormatOptions = { format12: 'hh:mm:ss a', format24: 'HH:mm:ss' };
+
+function formatTimeValue(time: number | null, shouldFormat: boolean | undefined): string {
+  if (time === null) return timerPlaceholder;
+  if (shouldFormat) return formatTime(time, timeFormatOptions);
+  return millisToString(time, { fallback: timerPlaceholder });
+}
+
+export function StartTimesRuntime({ shouldFormat }: OverviewTimeElementsProps) {
   const { plannedEnd, plannedStart, actualStart } = useStartTimesOverview();
 
-  const formatOptions = { format12: 'hh:mm:ss a', format24: 'HH:mm:ss' };
-
-  const plannedStartText = (() => {
-    if (plannedStart === null) return timerPlaceholder;
-    if (shouldFormat) return formatTime(plannedStart, formatOptions);
-    return millisToString(plannedStart, { fallback: timerPlaceholder });
-  })();
-
-  const actualStartText = (() => {
-    if (actualStart === null) return timerPlaceholder;
-    if (shouldFormat) return formatTime(actualStart, formatOptions);
-    return millisToString(actualStart, { fallback: timerPlaceholder });
-  })();
+  const plannedStartText = formatTimeValue(plannedStart, shouldFormat);
+  const actualStartText = formatTimeValue(actualStart, shouldFormat);
 
   const [maybePlannedEnd, maybePlannedDaySpan] = useMemo(() => calculateEndAndDaySpan(plannedEnd), [plannedEnd]);
-
-  const plannedEndText = (() => {
-    if (maybePlannedEnd === null) return timerPlaceholder;
-    if (shouldFormat) return formatTime(maybePlannedEnd, formatOptions);
-    return millisToString(maybePlannedEnd, { fallback: timerPlaceholder });
-  })();
+  const plannedEndText = formatTimeValue(maybePlannedEnd, shouldFormat);
 
   const multipleDays = maybePlannedDaySpan > 0;
   const plannedEndTooltip = multipleDays
@@ -122,6 +114,59 @@ export function StartTimes({ shouldFormat }: OverviewTimeElementsProps) {
   );
 }
 
+export function StartTimesPlanning({ shouldFormat }: OverviewTimeElementsProps) {
+  const { plannedEnd, plannedStart } = useStartTimesOverview();
+
+  const plannedStartText = formatTimeValue(plannedStart, shouldFormat);
+
+  const [maybePlannedEnd, maybePlannedDaySpan] = useMemo(() => calculateEndAndDaySpan(plannedEnd), [plannedEnd]);
+  const plannedEndText = formatTimeValue(maybePlannedEnd, shouldFormat);
+
+  const multipleDays = maybePlannedDaySpan > 0;
+  const plannedEndTooltip = multipleDays
+    ? `Planned end time (rundown spans over ${maybePlannedDaySpan + 1} days)`
+    : 'Planned end time';
+
+  return (
+    <div className={style.column}>
+      <div className={style.row2}>
+        <span className={style.label}>Start</span>
+        <Tooltip
+          text='Planned start time'
+          render={
+            <div className={style.labelledElement}>
+              <TbCalendarPin className={style.icon} />
+              <SuperscriptPeriod
+                className={cx([style.time, plannedStart === null && style.muted])}
+                time={plannedStartText}
+              />
+            </div>
+          }
+        />
+      </div>
+
+      <div className={style.row2}>
+        <span className={style.label}>End</span>
+        <Tooltip
+          text={plannedEndTooltip}
+          render={
+            <div className={style.labelledElement}>
+              <TbCalendarPin className={style.icon} />
+              <SuperscriptPeriod
+                className={cx([style.time, plannedEnd === null && style.muted])}
+                time={plannedEndText}
+              />
+              {multipleDays && (
+                <span className={cx([style.time, style.daySpan])} data-day-offset={maybePlannedDaySpan} />
+              )}
+            </div>
+          }
+        />
+      </div>
+    </div>
+  );
+}
+
 /**
  * Shows the expected end for the rundown
  * Extracted to improve performance as this is a ticking value
@@ -130,11 +175,7 @@ function RundownExpectedEnd({ shouldFormat }: OverviewTimeElementsProps) {
   const expectedEnd = useRundownExpectedEnd();
 
   const [maybeExpectedEnd, maybeExpectedDaySpan] = useMemo(() => calculateEndAndDaySpan(expectedEnd), [expectedEnd]);
-  const maybeExpectedEndText = (() => {
-    if (maybeExpectedEnd === null) return timerPlaceholder;
-    if (shouldFormat) return formatTime(maybeExpectedEnd, { format12: 'hh:mm:ss a', format24: 'HH:mm:ss' });
-    return millisToString(maybeExpectedEnd, { fallback: timerPlaceholder });
-  })();
+  const maybeExpectedEndText = formatTimeValue(maybeExpectedEnd, shouldFormat);
 
   const multipleDays = maybeExpectedEnd !== null && maybeExpectedDaySpan > 0;
   const tooltip = multipleDays
@@ -316,11 +357,27 @@ export function TimerOverview({ className }: { className?: string }) {
   const isWaiting = timer.phase === TimerPhase.Pending;
   const title = isWaiting ? 'Count to start' : 'Running timer';
   const display = millisToString(isWaiting ? timer.secondaryTimer : timer.current, { fallback: timerPlaceholder });
-  const timerState = (() => {
+
+  function getTimerState(): 'waiting' | 'muted' | 'active' {
     if (isWaiting) return 'waiting';
     if (timer.current === null) return 'muted';
     return 'active';
-  })();
+  }
 
-  return <TimeColumn label={title} value={display} state={timerState} className={className} />;
+  return <TimeColumn label={title} value={display} state={getTimerState()} className={className} />;
+}
+
+export function PlanningStats() {
+  const { numEvents } = useProgressOverview();
+  const { plannedEnd, plannedStart } = useStartTimesOverview();
+
+  const hasTimes = plannedStart !== null && plannedEnd !== null;
+  const formattedDuration = hasTimes ? formatDuration(plannedEnd - plannedStart) : timerPlaceholder;
+
+  return (
+    <>
+      <TimeColumn label='Total duration' value={formattedDuration} />
+      <TimeColumn label='Events' value={String(numEvents)} />
+    </>
+  );
 }

@@ -2,23 +2,21 @@ import { memo } from 'react';
 import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toolbar } from '@base-ui/react/toolbar';
-import { useSessionStorage } from '@mantine/hooks';
-import { OffsetMode } from 'ontime-types';
 
-import * as Editor from '../../../common/components/editor-utils/EditorUtils';
-import { setOffsetMode, useOffsetMode } from '../../../common/hooks/useSocket';
-import { AppMode, sessionKeys } from '../../../ontimeConfig';
+import { AppMode } from '../../../ontimeConfig';
+import { RundownViewMode } from '../rundown.options';
+import { useEditorFollowMode } from '../useEditorFollowMode';
 
 import style from './RundownHeader.module.scss';
 
-export default memo(RundownHeader);
-function RundownHeader() {
-  const [editorMode, setEditorMode] = useSessionStorage<AppMode>({
-    key: sessionKeys.editorMode,
-    defaultValue: AppMode.Edit,
-  });
+interface RundownHeaderMobileProps {
+  viewMode: RundownViewMode;
+  setViewMode: (mode: RundownViewMode) => void;
+}
 
-  const offsetMode = useOffsetMode();
+export default memo(RundownHeaderMobile);
+function RundownHeaderMobile({ viewMode, setViewMode }: RundownHeaderMobileProps) {
+  const { editorMode, setEditorMode } = useEditorFollowMode();
 
   const toggleAppMode = (mode: AppMode[]) => {
     // we need to stop user from deselecting a mode
@@ -27,11 +25,10 @@ function RundownHeader() {
     setEditorMode(newValue);
   };
 
-  const toggleOffsetMode = (mode: OffsetMode[]) => {
-    // we need to stop user from deselecting a mode
+  const toggleViewMode = (mode: RundownViewMode[]) => {
     const newValue = mode.at(0);
     if (!newValue) return;
-    setOffsetMode(newValue);
+    setViewMode(newValue);
   };
 
   return (
@@ -40,19 +37,18 @@ function RundownHeader() {
         <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
           Run
         </Toolbar.Button>
+
         <Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.radioButton}>
           Edit
         </Toolbar.Button>
       </ToggleGroup>
 
-      <Editor.Separator className={style.separator} />
-
-      <ToggleGroup value={[offsetMode]} onValueChange={toggleOffsetMode} className={style.group}>
-        <Toolbar.Button render={<Toggle />} value={OffsetMode.Absolute} className={style.radioButton}>
-          Absolute
+      <ToggleGroup value={[viewMode]} onValueChange={toggleViewMode} className={style.group}>
+        <Toolbar.Button render={<Toggle />} value={RundownViewMode.List} className={style.radioButton}>
+          List
         </Toolbar.Button>
-        <Toolbar.Button render={<Toggle />} value={OffsetMode.Relative} className={style.radioButton}>
-          Relative
+        <Toolbar.Button render={<Toggle />} value={RundownViewMode.Table} className={style.radioButton}>
+          Table
         </Toolbar.Button>
       </ToggleGroup>
     </Toolbar.Root>

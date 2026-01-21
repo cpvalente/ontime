@@ -9,8 +9,9 @@ test('time until absolute', async ({ context }) => {
   await op.goto('/op');
   await timeline.goto('/timeline');
 
+  await editor.getByRole('button', { name: 'Edit' }).click();
   await editor.getByRole('button', { name: 'Rundown menu' }).click();
-  await editor.getByRole('button', { name: 'Clear all' }).click();
+  await editor.getByRole('menuitem', { name: 'Clear all' }).click();
   await editor.getByRole('button', { name: 'Delete all' }).click();
 
   await editor.getByRole('button', { name: 'Create Event' }).click();
@@ -130,8 +131,9 @@ test('time until relative', async ({ context }) => {
   const editor = await context.newPage();
   editor.goto('http://localhost:4001/editor');
 
+  await editor.getByRole('button', { name: 'Edit' }).click();
   await editor.getByRole('button', { name: 'Rundown menu' }).click();
-  await editor.getByRole('button', { name: 'Clear all' }).click();
+  await editor.getByRole('menuitem', { name: 'Clear all' }).click();
   await editor.getByRole('button', { name: 'Delete all' }).click();
 
   await editor.getByRole('button', { name: 'Create Event' }).click();

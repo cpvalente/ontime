@@ -10,14 +10,14 @@ import {
   IoTime,
 } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
-import { useSessionStorage } from '@mantine/hooks';
 import { EndAction, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { cx } from '../../../common/utils/styleUtils';
-import { AppMode, sessionKeys } from '../../../ontimeConfig';
+import { AppMode } from '../../../ontimeConfig';
 import TitleEditor from '../common/TitleEditor';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';
+import { useEditorFollowMode } from '../useEditorFollowMode';
 
 import RundownEventChip from './composite/RundownEventChip';
 import EventBlockPlayback from './composite/RundownEventPlayback';
@@ -76,10 +76,7 @@ function RundownEventInner({
   isLinkedToLoaded,
   hasTriggers,
 }: RundownEventInnerProps) {
-  const [editorMode] = useSessionStorage({
-    key: sessionKeys.editorMode,
-    defaultValue: AppMode.Edit,
-  });
+  const { editorMode } = useEditorFollowMode();
 
   const eventIsPlaying = playback === Playback.Play;
   const eventIsPaused = playback === Playback.Pause;

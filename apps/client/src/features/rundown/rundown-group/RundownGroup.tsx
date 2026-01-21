@@ -40,7 +40,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const { clone, ungroup, deleteEntry } = useEntryActionsContext();
 
-  const setSingleEntrySelection = useEventSelection((state) => state.setSingleEntrySelection);
+  const selectSingleEntry = useEventSelection((state) => state.setSingleEntrySelection);
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const entryCopyId = useEntryCopy((state) => state.entryCopyId);
 
@@ -97,7 +97,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
     }
 
     // UI indexes are 1 based
-    setSingleEntrySelection({ id: data.id });
+    selectSingleEntry({ id: data.id });
   };
 
   const binderColours = data.colour && getAccessibleColour(data.colour);

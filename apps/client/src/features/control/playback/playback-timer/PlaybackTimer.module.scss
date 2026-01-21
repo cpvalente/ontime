@@ -8,6 +8,13 @@
   gap: $element-inner-spacing;
 }
 
+.timerDisplay {
+  grid-area: timer;
+  max-width: 18.75rem;
+  min-width: 5em;
+  text-align: center;
+}
+
 // ---------> INDICATORS
 
 .indicators {

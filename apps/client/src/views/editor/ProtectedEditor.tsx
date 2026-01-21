@@ -13,7 +13,7 @@ import EditorOverview from '../../features/overview/EditorOverview';
 
 import WelcomePlacement from './welcome/WelcomePlacement';
 import Editor from './Editor';
-import EditorViewOptions from './EditorViewOptions';
+import EditorLayoutOptions from './EditorLayoutOptions';
 
 import styles from './ProtectedEditor.module.scss';
 
@@ -58,7 +58,7 @@ export default function ProtectedEditor() {
           <IconButton aria-label='Toggle settings' variant='subtle-white' size='xlarge' onClick={toggleSettings}>
             {isSettingsOpen ? <IoClose /> : <IoSettingsOutline />}
           </IconButton>
-          <EditorViewOptions />
+          <EditorLayoutOptions />
         </EditorOverview>
       </div>
     </ProtectRoute>

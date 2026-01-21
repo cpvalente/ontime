@@ -6,7 +6,7 @@ import { RUNDOWN } from '../../common/api/constants';
 import { ontimeQueryClient } from '../../common/queryClient';
 import { isMacOS } from '../../common/utils/deviceUtils';
 
-type SelectionMode = 'shift' | 'click' | 'ctrl';
+export type SelectionMode = 'shift' | 'click' | 'ctrl';
 
 interface EventSelectionStore {
   selectedEvents: Set<EntryId>;
@@ -14,23 +14,25 @@ interface EventSelectionStore {
   cursor: EntryId | null;
   entryMode: 'event' | 'single' | null;
   scrollHandler: ((id: EntryId) => void) | null;
-  scrollHandlerSource: string | null;
   setSingleEntrySelection: (selectionArgs: { id: EntryId }) => void;
   setSelectedEvents: (selectionArgs: { id: EntryId; index: number; selectMode: SelectionMode }) => void;
   clearSelectedEvents: () => void;
   clearMultiSelect: () => void;
   unselect: (id: EntryId) => void;
-  setScrollHandler: (source: string, handler: ((id: EntryId) => void) | null) => void;
+  setScrollHandler: (handler: ((id: EntryId) => void) | null) => void;
   scrollToEntry: (id: EntryId) => void;
 }
 
+/**
+ * Keeps track of the selected entries and selection mode
+ * Provides methods to update the selection based on user interactions
+ */
 export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   selectedEvents: new Set(),
   anchoredIndex: null,
   cursor: null,
   entryMode: null,
   scrollHandler: null,
-  scrollHandlerSource: null,
   setSingleEntrySelection: ({ id }) => {
     set({ selectedEvents: new Set([id]), anchoredIndex: null, cursor: id, entryMode: 'single' });
   },
@@ -123,16 +125,9 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       entryMode: selectedEvents.size === 0 ? null : entryMode,
     });
   },
-  setScrollHandler: (source, handler) =>
-    set((state) => {
-      if (handler) {
-        return { scrollHandler: handler, scrollHandlerSource: source };
-      }
-      if (state.scrollHandlerSource !== source) {
-        return state;
-      }
-      return { scrollHandler: null, scrollHandlerSource: null };
-    }),
+  // Sets the scroll handler for programmatic scrolling to entries
+  setScrollHandler: (handler) => set({ scrollHandler: handler }),
+  // Scrolls to the specified entry using the registered scroll handler
   scrollToEntry: (id: EntryId) => {
     const handler = get().scrollHandler;
     if (handler) {
