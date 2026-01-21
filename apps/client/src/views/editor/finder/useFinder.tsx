@@ -1,9 +1,8 @@
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { useSessionStorage } from '@mantine/hooks';
 import { EntryId, isOntimeEvent, isOntimeGroup, isOntimeMilestone, MaybeString, SupportedEntry } from 'ontime-types';
 
 import { useFlatRundown } from '../../../common/hooks-query/useRundown';
-import { useEventSelection } from '../../../features/rundown/useEventSelection';
+import { useSelectAndRevealEntry } from '../../../features/rundown/useSelectAndRevealEntry';
 
 const maxResults = 12;
 
@@ -44,14 +43,7 @@ export default function useFinder() {
   const [error, setError] = useState<MaybeString>(null);
   const lastSearchString = useRef('');
 
-  const setSelectedEvents = useEventSelection((state) => state.setSelectedEvents);
-  const scrollToEntry = useEventSelection((state) => state.scrollToEntry);
-
-  const [collapsedGroups, setCollapsedGroups] = useSessionStorage<EntryId[]>({
-    // we ensure that this is unique to the rundown
-    key: `rundown.${rundownId}-editor-collapsed-groups`,
-    defaultValue: [],
-  });
+  const selectAndRevealEntry = useSelectAndRevealEntry(rundownId);
 
   /** Filters the rundown to a given evaluation */
   const find = useCallback(
@@ -224,20 +216,13 @@ export default function useFinder() {
 
   const select = useCallback(
     (selectedEvent: FilterableEntry) => {
-      // First expand the parent group if this is an event inside a group
-      if ('parent' in selectedEvent && selectedEvent.parent !== null) {
-        // Try direct state update instead of using callback
-        const currentGroups = [...new Set(collapsedGroups)];
-        const newGroups = currentGroups.filter((id) => id !== selectedEvent.parent);
-        // Force a direct update
-        setCollapsedGroups(newGroups);
-      }
-
-      // Then select the event
-      setSelectedEvents({ id: selectedEvent.id, index: selectedEvent.index, selectMode: 'click' });
-      scrollToEntry(selectedEvent.id);
+      selectAndRevealEntry({
+        id: selectedEvent.id,
+        index: selectedEvent.index,
+        parent: 'parent' in selectedEvent ? selectedEvent.parent : null,
+      });
     },
-    [collapsedGroups, setCollapsedGroups, setSelectedEvents, scrollToEntry],
+    [selectAndRevealEntry],
   );
 
   /** clear results when source data changes */

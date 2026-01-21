@@ -21,8 +21,7 @@ import DelayRow from './cuesheet-table-elements/DelayRow';
 import EventRow from './cuesheet-table-elements/EventRow';
 import GroupRow from './cuesheet-table-elements/GroupRow';
 import MilestoneRow from './cuesheet-table-elements/MilestoneRow';
-import CuesheetTableMenu from './cuesheet-table-menu/CuesheetTableMenu';
-import EditorTableMenu from './cuesheet-table-menu/EditorTableMenu';
+import TableMenu from './cuesheet-table-menu/TableMenu';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
 import { useColumnOrder, useColumnSizes, useColumnVisibility } from './useColumnManager';
 
@@ -45,7 +44,6 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
 
   const selectedEventId = useSelectedEventId();
   const cursor = useEventSelection((state) => state.cursor);
-  const scrollToEntry = useEventSelection((state) => state.scrollToEntry);
   const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
 
   const virtuosoRef = useRef<TableVirtuosoHandle | null>(null);
@@ -116,18 +114,23 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
     setColumnSizing({});
   }, [setColumnSizing]);
 
-  // Auto-scroll only in run mode, routed through the shared scroll handler
+  // in Run mode, follow the current event
   useEffect(() => {
-    if (cuesheetMode !== AppMode.Run || !selectedEventId) {
+    if (virtuosoRef.current === null || cuesheetMode !== AppMode.Run || !selectedEventId) {
       return;
     }
 
-    scrollToEntry(selectedEventId);
-  }, [cuesheetMode, data, selectedEventId, scrollToEntry]);
+    const eventIndex = data.findIndex((event) => event.id === selectedEventId);
+    if (eventIndex === -1) {
+      return;
+    }
+
+    virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'auto', align: 'start', offset: -50 });
+  }, [cuesheetMode, data, selectedEventId]);
 
   // Provide an imperative scroll handler for explicit jumps (finder/keyboard)
   useEffect(() => {
-    setScrollHandler(`cuesheet-table-${tableRoot}`, (entryId) => {
+    const handler = (entryId: string) => {
       if (virtuosoRef.current === null) {
         return;
       }
@@ -137,13 +140,15 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
         return;
       }
 
-      virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'smooth', align: 'start', offset: -50 });
-    });
+      virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'auto', align: 'start', offset: -50 });
+    };
+
+    setScrollHandler(handler);
 
     return () => {
-      setScrollHandler(`cuesheet-table-${tableRoot}`, null);
+      setScrollHandler(null);
     };
-  }, [data, setScrollHandler, tableRoot]);
+  }, [data, setScrollHandler]);
 
   /**
    * To improve performance on resizing, we memoise the column sizes
@@ -174,7 +179,6 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
 
   // control components need different implementations for handling permissions
   const TableRootSettings = tableRoot === 'editor' ? EditorTableSettings : CuesheetTableSettings;
-  const TableMenu = tableRoot === 'editor' ? EditorTableMenu : CuesheetTableMenu;
 
   return (
     <>

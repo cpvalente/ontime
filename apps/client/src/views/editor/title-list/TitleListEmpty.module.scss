@@ -1,0 +1,33 @@
+@use '../../../theme/ontimeColours' as *;
+@use '../../../theme/ontimeStyles' as *;
+
+.container {
+  height: 100%;
+  background: $bg-container-l1;
+}
+
+.emptyState {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.emptyMessage {
+  width: min(320px, 100%);
+  text-align: center;
+  color: rgba($gray-200, 0.55);
+}
+
+.emptyTitle {
+  margin: 0 0 0.25rem;
+  font-size: calc(1rem + 2px);
+  font-weight: 400;
+  color: rgba($gray-200, 0.72);
+}
+
+.emptyBody {
+  margin: 0;
+  font-size: calc(1rem - 3px);
+}

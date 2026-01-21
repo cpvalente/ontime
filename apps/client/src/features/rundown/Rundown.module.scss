@@ -4,8 +4,14 @@
 }
 
 .rundownContainer {
-  margin-top: 1rem;
-  height: 100%;
+  padding-top: 1rem;
+  flex: 1 1 auto;
+  min-height: 0;
+
+  :is([data-target='small-device']) & {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 .list {
@@ -17,6 +23,7 @@
   :is([data-target='small-device']) & {
     padding-inline: 0;
     overflow-x: auto;
+    min-width: max-content;
   }
 }
 

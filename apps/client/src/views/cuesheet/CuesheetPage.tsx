@@ -9,7 +9,7 @@ import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { getIsNavigationLocked } from '../../externals';
 import CuesheetOverview from '../../features/overview/CuesheetOverview';
 
-import CuesheetEditModal from './cuesheet-edit-modal/CuesheetEditModal';
+import EntryEditModal from './cuesheet-edit-modal/EntryEditModal';
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
 import CuesheetTableWrapper from './CuesheetTableWrapper';
 
@@ -26,7 +26,7 @@ export default function CuesheetPage() {
   return (
     <EntryActionsProvider actions={entryActions}>
       <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />
-      <CuesheetEditModal />
+      <EntryEditModal />
       <div className={styles.tableWrapper} data-testid='cuesheet'>
         <CuesheetOverview>
           {!isLocked && (
