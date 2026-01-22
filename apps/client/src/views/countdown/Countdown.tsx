@@ -131,7 +131,7 @@ function CountdownContents({ playableEvents, subscriptions, goToEditMode }: Coun
   if (eventsToShow.length === 0) {
     return (
       <div className='empty-container'>
-        <Empty text={getLocalizedString('countdown.all_have_past')} className='empty-container' />
+        <Empty text={getLocalizedString('countdown.all_have_finished')} className='empty-container' />
       </div>
     );
   }
