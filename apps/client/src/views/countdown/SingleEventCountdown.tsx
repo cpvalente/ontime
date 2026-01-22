@@ -3,6 +3,7 @@ import { MaybeNumber, OntimeEvent } from 'ontime-types';
 import { getExpectedStart } from 'ontime-utils';
 
 import Button from '../../common/components/buttons/Button';
+import ScheduleTime from '../../common/components/schedule-time/ScheduleTime';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import { useExpectedStartData } from '../../common/hooks/useSocket';
 import useReport from '../../common/hooks-query/useReport';
@@ -13,7 +14,6 @@ import { getPropertyValue } from '../common/viewUtils';
 
 import { useCountdownOptions } from './countdown.options';
 import { useSubscriptionDisplayData } from './countdown.utils';
-import { ScheduleTime } from './CountdownSubscriptions';
 
 import './SingleEventCountdown.scss';
 
