@@ -21,7 +21,7 @@ export const langDe: TranslationObject = {
   'countdown.to_start': 'Zeit bis zum Start',
   'countdown.waiting': 'Warten auf den Veranstaltungsbeginn',
   'countdown.overtime': 'überfällig',
-  'countdown.all_have_past': 'Alle ausgewählten Veranstaltungen sind vorbei',
+  'countdown.all_have_finished': 'Alle ausgewählten Veranstaltungen sind beendet',
   'timeline.live': 'live',
   'timeline.done': 'Beendet',
   'timeline.due': 'fällig',
