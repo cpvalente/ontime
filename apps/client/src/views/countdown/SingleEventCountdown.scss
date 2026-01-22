@@ -7,27 +7,6 @@
   gap: 5rem;
 }
 
-.event__title {
-  background-color: var(--card-background-color-override, $viewer-card-bg-color);
-  padding: $view-card-padding;
-  border-radius: $element-border-radius;
-  font-size: clamp(40px, 4.5vw, 80px);
-  line-height: 1.1;
-  text-align: center;
-  border-left: 0.25em solid;
-  border-color: var(--card-background-color-override, $viewer-card-bg-color);
-
-  .secondary {
-    text-align: left;
-    font-size: $title-font-size;
-  }
-
-  .sub__schedule {
-    color: inherit;
-    font-size: $base-font-size;
-  }
-}
-
 .event__status {
   color: var(--secondary-color-override, $viewer-secondary-color);
   font-size: $header-font-size;
