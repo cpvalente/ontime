@@ -3,7 +3,7 @@ import { MaybeNumber, OntimeEvent } from 'ontime-types';
 import { getExpectedStart } from 'ontime-utils';
 
 import Button from '../../common/components/buttons/Button';
-import ScheduleTime from '../../common/components/schedule-time/ScheduleTime';
+import TitleCard from '../../common/components/title-card/TitleCard';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import { useExpectedStartData } from '../../common/hooks/useSocket';
 import useReport from '../../common/hooks-query/useReport';
@@ -41,17 +41,21 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
 
   const { endedAt } = reportData[subscribedEvent.id] ?? { endedAt: null };
   const countdownEvent = { ...subscribedEvent, expectedStart, endedAt };
-  const title = getPropertyValue(subscribedEvent, mainSource ?? 'title'); //TODO: do we want to force a whitespace here to keep the box hight
+  const title = getPropertyValue(subscribedEvent, mainSource ?? 'title');
   const secondaryData = getPropertyValue(subscribedEvent, secondarySource);
 
   return (
     <div className='single-container' data-testid='countdown-event'>
       <SubscriptionStatus event={countdownEvent} />
-      <div className='event__title' style={{ borderColor: countdownEvent.colour }}>
-        <ScheduleTime event={countdownEvent} showExpected={showExpected} />
-        {title}
-        {secondaryData && <div className='secondary'>{secondaryData}</div>}
-      </div>
+      <TitleCard
+        title={title}
+        secondary={secondaryData}
+        colour={countdownEvent.colour}
+        textAlign='center'
+        size='lg'
+        event={countdownEvent}
+        showExpected={showExpected}
+      />
       <div className={cx(['fab-container', !showFab && 'fab-container--hidden'])}>
         <Button variant='primary' size='xlarge' onClick={goToEditMode}>
           <IoPencil /> Edit
