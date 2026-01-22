@@ -65,10 +65,6 @@
   /* =================== TITLES ===================*/
 
   .event {
-    background-color: var(--card-background-color-override, $viewer-card-bg-color);
-    padding: $view-card-padding;
-    border-radius: $element-border-radius;
-
     &.now {
       grid-area: now;
     }

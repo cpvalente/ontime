@@ -192,6 +192,11 @@
   }
 }
 
+.title-card {
+  // overwrite the title-card bg color so they don't stack as it is transparent
+  background-color: transparent;
+}
+
 /* =================== MOBILE ===================*/
 @media screen and (max-width: 768px) {
   .backstage {

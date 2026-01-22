@@ -1,0 +1,27 @@
+@use '@/theme/viewerDefs' as *;
+
+.schedule__ {
+  padding-top: 0.5rem;
+
+  display: flex;
+  gap: 0.25em;
+  font-size: $timer-label-size;
+  color: var(--label-color-override, $timer-color);
+}
+
+.schedule__--delayed {
+  color: $ontime-delay-text;
+}
+
+.schedule__--strike {
+  text-decoration: line-through;
+  color: var(--label-color-override, $viewer-label-color);
+}
+
+.schedule__--over {
+  color: $playback-over;
+}
+
+.schedule__--under {
+  color: $playback-under;
+}
