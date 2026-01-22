@@ -118,7 +118,8 @@ $item-height: 3.5rem;
   }
 
   .sub--live {
-    background-color: $active-green;
+    // we need to dim this if the schedule times are ahead of schedule they will be green and diaper in a full green background
+    background-color: darken($active-green, 10%);
   }
 
   .sub--armed {
@@ -132,28 +133,16 @@ $item-height: 3.5rem;
 
   .sub__schedule {
     grid-area: schedule;
+  }
+
+  .sub__schedule-inline {
+    grid-area: schedule;
     padding-top: 0.5rem;
 
     display: flex;
     gap: 0.25em;
     font-size: $timer-label-size;
     color: var(--label-color-override, $viewer-label-color);
-  }
-
-  .sub__schedule--delayed {
-    color: $ontime-delay-text;
-  }
-
-  .sub__schedule--strike {
-    text-decoration: line-through;
-  }
-
-  .sub__schedule--over {
-    color: $playback-over;
-  }
-
-  .sub__schedule--under {
-    color: $playback-under;
   }
 
   .sub__title {
