@@ -37,6 +37,7 @@ import {
   moveCorruptFile,
   parseJsonFile,
 } from './projectServiceUtils.js';
+import { populateOntimeLogo } from '../../setup/loadOntimeLogo.js';
 
 type ProjectState =
   | {
@@ -113,6 +114,7 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
  * Loads the demo project
  */
 export async function loadDemoProject(): Promise<string> {
+  populateOntimeLogo();
   return createProject(config.demoProject, demoDb);
 }
 
