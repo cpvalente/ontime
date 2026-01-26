@@ -6,6 +6,11 @@ export type NetworkInterface = {
   address: string;
 };
 
+export type PortInfo = {
+  port: number;
+  pendingRestart: boolean;
+};
+
 export interface SessionStats {
   startedAt: string;
   connectedClients: number;

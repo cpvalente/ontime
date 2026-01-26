@@ -15,6 +15,7 @@ export const config = {
   crash: 'crash logs',
   demoProject: 'demo project.json',
   newProject: 'new project.json',
+  defaultServerPort: 4001,
   database: {
     directory: 'db',
     filename: 'db.json',

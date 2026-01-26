@@ -1,6 +1,7 @@
 import {
   AutomationSettings,
   CustomFields,
+  DatabaseModel,
   EndAction,
   OntimeView,
   ProjectData,
@@ -14,8 +15,7 @@ import {
   ViewSettings,
 } from 'ontime-types';
 import * as v3 from './db.migration.v3.js';
-
-import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
+import * as v4 from './db.migration.v4.js';
 
 describe('v3 to v4', () => {
   const oldDb = {
@@ -175,8 +175,8 @@ describe('v3 to v4', () => {
   };
 
   test('migrate settings', () => {
-    const expectSettings: Settings = {
-      version: ONTIME_VERSION,
+    const expectSettings: Settings & { serverPort: number } = {
+      version: '4.0.0',
       serverPort: 4001,
       editorKey: null,
       operatorKey: null,
@@ -491,5 +491,103 @@ describe('v3 to v4', () => {
 
       expect(v3.migrateAutomations({ http: oldData })).toStrictEqual(expectedAutomation);
     });
+  });
+});
+
+describe('v4 remove server port', () => {
+  const demoDb = {
+    rundowns: {},
+    project: {
+      title: 'Eurovision Song Contest',
+      description: 'Turin 2022',
+      url: 'www.github.com/cpvalente/ontime',
+      info: 'Rehearsal Schedule - Turin 2022\nAll performers to wear full costumes for 1st rehearsal',
+      logo: null,
+      custom: [],
+    },
+    settings: {
+      app: 'ontime',
+      version: '4.0.0',
+      serverPort: 4001,
+      editorKey: null,
+      operatorKey: null,
+      timeFormat: '24',
+      language: 'en',
+    },
+    viewSettings: {
+      dangerColor: '#ff7300',
+      normalColor: '#ffffffcc',
+      overrideStyles: false,
+      warningColor: '#ffa528',
+    },
+    customFields: {
+      song: {
+        label: 'Song',
+        type: 'text',
+        colour: '#339E4E',
+      },
+      artist: {
+        label: 'Artist',
+        type: 'text',
+        colour: '#3E75E8',
+      },
+    },
+    urlPresets: [
+      {
+        enabled: true,
+        alias: 'clock',
+        target: 'timer',
+        search:
+          'timer?showLeadingZeros=true&timerType=clock&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+      },
+      {
+        enabled: true,
+        alias: 'minimal',
+        target: 'timer',
+        search:
+          'timer?showLeadingZeros=true&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+      },
+    ],
+    automation: {
+      enabledAutomations: false,
+      enabledOscIn: true,
+      oscPortIn: 8888,
+      triggers: [],
+      automations: {},
+    },
+  };
+
+  it('should migrate if server port exists', () => {
+    expect(v4.shouldMigrateServerPort(demoDb)).toBeTruthy();
+  });
+
+  test('should not migrate if the version is newer', () => {
+    expect(
+      v4.shouldMigrateServerPort({ settings: { version: '5.0.0', serverPort: 4001 } } as unknown as DatabaseModel),
+    ).toBeFalsy();
+  });
+
+  test('should not migrate if there is no server port', () => {
+    expect(v4.shouldMigrateServerPort({ settings: { version: '4.0.0' } } as DatabaseModel)).toBeFalsy();
+  });
+
+  it('remove server port from project', () => {
+    const { db: result, serverPort } = v4.migrateServerPort(demoDb as DatabaseModel);
+    expect(result).not.toHaveProperty('settings.serverPort');
+    expect(serverPort).toBe(4001);
+    expect(result.automation).toMatchObject(demoDb.automation);
+    expect(result.customFields).toMatchObject(demoDb.customFields);
+    expect(result.project).toMatchObject(demoDb.project);
+    expect(result.rundowns).toMatchObject(demoDb.rundowns);
+    expect(result.settings).toMatchObject({
+      app: 'ontime',
+      version: '4.5.0',
+      editorKey: null,
+      operatorKey: null,
+      timeFormat: '24',
+      language: 'en',
+    });
+    expect(result.urlPresets).toMatchObject(demoDb.urlPresets);
+    expect(result.viewSettings).toMatchObject(demoDb.viewSettings);
   });
 });
