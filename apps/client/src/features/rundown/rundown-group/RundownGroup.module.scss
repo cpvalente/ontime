@@ -57,29 +57,48 @@
 
   .metaRow {
     display: flex;
-    gap: 3rem;
+    gap: $block-clearance; // same as RundownEvent.eventTimers
     margin-bottom: 0.25rem;
+    padding-left: 0.25rem;
     white-space: nowrap;
   }
 
   .metaEntry {
-    width: 4.5em;
+    width: 8rem; // timeInput + button
 
-    :first-child {
-      font-size: calc(1rem - 3px);
-      color: $label-gray;
+    &:first-of-type {
+      width: 4.5rem; // binder + buttons
     }
+  }
+
+  .metaLabel {
+    color: $muted-gray;
+    font-size: calc(1rem - 3px);
   }
 }
 
 .strike {
-  text-decoration: line-through;
+  text-decoration: wavy underline;
+  margin-right: 0.25rem;
+  color: $ui-white;
 }
 .over {
   color: $playback-over;
+  .strike {
+    text-decoration-color: $playback-over;
+  }
+  .offsetLabel {
+    background-color: $playback-over;
+  }
 }
 .under {
   color: $playback-under;
+  .strike {
+    text-decoration-color: $playback-under;
+  }
+  .offsetLabel {
+    background-color: $playback-under;
+  }
 }
 
 .drag {
