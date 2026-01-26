@@ -3,6 +3,7 @@ import {
   isOntimeAction,
   isOSCOutput,
   LogOrigin,
+  RuntimeStore,
   TimerLifeCycle,
   type AutomationFilter,
   type AutomationOutput,
@@ -11,7 +12,6 @@ import {
 import { getPropertyFromPath } from 'ontime-utils';
 
 import { logger } from '../../classes/Logger.js';
-import { getState, type RuntimeState } from '../../stores/runtimeState.js';
 import { isOntimeCloud } from '../../setup/environment.js';
 
 import { emitOSC } from './clients/osc.client.js';
@@ -19,20 +19,20 @@ import { emitHTTP } from './clients/http.client.js';
 import { getAutomationsEnabled, getAutomations, getAutomationTriggers } from './automation.dao.js';
 import { isContained, isEquivalent, isGreaterThan, isLessThan } from './automation.utils.js';
 import { toOntimeAction } from './clients/ontime.client.js';
+import { eventStore } from '../../stores/EventStore.js';
 
 /**
  * Exposes a method for triggering actions based on a TimerLifeCycle event
  */
-export function triggerAutomations(cycle: TimerLifeCycle, state: RuntimeState) {
+export function triggerAutomations(cycle: TimerLifeCycle, store: RuntimeStore = eventStore.poll()) {
   if (!getAutomationsEnabled()) {
     return;
   }
-
   let triggers = getAutomationTriggers();
 
   // get triggers from event
-  if (state.eventNow?.triggers) {
-    triggers = triggers.concat(state.eventNow.triggers);
+  if (store.eventNow?.triggers) {
+    triggers = triggers.concat(store.eventNow.triggers);
   }
 
   // note: there are no onStop triggers in event
@@ -51,9 +51,9 @@ export function triggerAutomations(cycle: TimerLifeCycle, state: RuntimeState) {
     if (!automation || automation.outputs.length === 0) {
       return;
     }
-    const shouldSend = testConditions(automation.filters, automation.filterRule, state);
+    const shouldSend = testConditions(automation.filters, automation.filterRule, store);
     if (shouldSend) {
-      send(automation.outputs, state);
+      send(automation.outputs, store);
     }
   });
 }
@@ -71,7 +71,7 @@ export function testOutput(payload: AutomationOutput) {
 export function testConditions(
   filters: AutomationFilter[],
   filterRule: FilterRule,
-  state: Partial<RuntimeState>,
+  state: Partial<RuntimeStore>,
 ): boolean {
   if (filters.length === 0) {
     return true;
@@ -115,13 +115,13 @@ export function testConditions(
  * Handles preparing and sending of the data
  * Returns a boolean indicating whether a message was sent
  */
-function send(output: AutomationOutput[], state?: RuntimeState) {
-  const stateSnapshot = state ?? getState();
+function send(output: AutomationOutput[], state?: RuntimeStore) {
+  const storeSnapshot = state ?? eventStore.poll();
   output.forEach((payload) => {
     if (isOSCOutput(payload) && !isOntimeCloud) {
-      emitOSC(payload, stateSnapshot);
+      emitOSC(payload, storeSnapshot);
     } else if (isHTTPOutput(payload)) {
-      emitHTTP(payload, stateSnapshot);
+      emitHTTP(payload, storeSnapshot);
     } else if (isOntimeAction(payload)) {
       toOntimeAction(payload);
     } else {

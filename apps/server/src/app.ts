@@ -1,4 +1,4 @@
-import { LogOrigin, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { LogOrigin } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -37,7 +37,6 @@ import { runtimeService } from './services/runtime-service/runtime.service.js';
 import { restoreService } from './services/restore-service/restore.service.js';
 import type { RestorePoint } from './services/restore-service/restore.type.js';
 import * as messageService from './services/message-service/message.service.js';
-import { getState } from './stores/runtimeState.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
 import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
 import { oscServer } from './adapters/OscAdapter.js';
@@ -45,7 +44,6 @@ import { oscServer } from './adapters/OscAdapter.js';
 // Utilities
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
-import { timerConfig } from './setup/config.js';
 import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
 
 console.log('\n');
@@ -188,40 +186,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
 
   socket.init(expressServer, showWelcome, prefix);
 
-  /**
-   * Module initialises the services and provides initial payload for the store
-   */
-  const state = getState();
-  eventStore.init({
-    clock: state.clock,
-    timer: state.timer,
-    message: { ...runtimeStorePlaceholder.message },
-    offset: state.offset,
-    rundown: state.rundown,
-    eventNow: state.eventNow,
-    eventNext: state.eventNext,
-    eventFlag: null,
-    groupNow: null,
-    auxtimer1: {
-      duration: timerConfig.auxTimerDefault,
-      current: timerConfig.auxTimerDefault,
-      playback: SimplePlayback.Stop,
-      direction: SimpleDirection.CountDown,
-    },
-    auxtimer2: {
-      duration: timerConfig.auxTimerDefault,
-      current: timerConfig.auxTimerDefault,
-      playback: SimplePlayback.Stop,
-      direction: SimpleDirection.CountDown,
-    },
-    auxtimer3: {
-      duration: timerConfig.auxTimerDefault,
-      current: timerConfig.auxTimerDefault,
-      playback: SimplePlayback.Stop,
-      direction: SimpleDirection.CountDown,
-    },
-    ping: 1,
-  });
+  eventStore.init();
 
   // initialise message service
   messageService.init(eventStore.set, eventStore.get);

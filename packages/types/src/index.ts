@@ -125,7 +125,7 @@ export {
   isOntimeAction,
   isTimerLifeCycle,
 } from './utils/guards.js';
-export type { MaybeNumber, MaybeString } from './utils/utils.type.js';
+export type { MaybeNumber, MaybeString, Maybe } from './utils/utils.type.js';
 
 // Colour
 export type { RGBColour } from './definitions/Colour.type.js';
