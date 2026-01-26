@@ -13,8 +13,11 @@ import { EntryId, OntimeGroup } from 'ontime-types';
 import { MILLIS_PER_MINUTE, millisToString } from 'ontime-utils';
 
 import IconButton from '../../../common/components/buttons/IconButton';
+import Tag from '../../../common/components/tag/Tag';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { useEntryCopy } from '../../../common/stores/entryCopyStore';
+import { deviceMod } from '../../../common/utils/deviceUtils';
 import { getOffsetState } from '../../../common/utils/offset';
 import { cx, getAccessibleColour, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatDuration } from '../../../common/utils/time';
@@ -33,15 +36,21 @@ interface RundownGroupProps {
 
 //TODO: the group should maybe include a multiple day indicator
 export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }: RundownGroupProps) {
-  const handleRef = useRef<null | HTMLSpanElement>(null);
-  const { clone, ungroup, deleteEntry } = useEntryActions();
-  const { selectedEvents, setSingleEntrySelection } = useEventSelection();
+  'use memo';
 
-  const [onContextMenu] = useContextMenu<HTMLDivElement>([
+  const handleRef = useRef<null | HTMLSpanElement>(null);
+  const { clone, ungroup, deleteEntry } = useEntryActionsContext();
+
+  const selectSingleEntry = useEventSelection((state) => state.setSingleEntrySelection);
+  const selectedEvents = useEventSelection((state) => state.selectedEvents);
+  const entryCopyId = useEntryCopy((state) => state.entryCopyId);
+
+  const [onContextMenu] = useContextMenu<HTMLDivElement>(() => [
     {
       type: 'item',
       label: 'Clone Group',
       icon: IoDuplicateOutline,
+      shortcut: `${deviceMod}+D`,
       onClick: () => clone(data.id),
     },
     {
@@ -56,6 +65,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
       type: 'item',
       label: 'Delete Group',
       icon: IoTrash,
+      shortcut: `${deviceMod}+Del`,
       onClick: () => deleteEntry([data.id]),
     },
   ]);
@@ -88,7 +98,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
     }
 
     // UI indexes are 1 based
-    setSingleEntrySelection({ id: data.id });
+    selectSingleEntry({ id: data.id });
   };
 
   const binderColours = data.colour && getAccessibleColour(data.colour);
@@ -119,7 +129,12 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
 
   return (
     <div
-      className={cx([style.group, hasCursor && style.hasCursor, !collapsed && style.expanded])}
+      className={cx([
+        style.group,
+        hasCursor && style.hasCursor,
+        !collapsed && style.expanded,
+        entryCopyId === data.id && style.copyTarget,
+      ])}
       ref={setNodeRef}
       onClick={handleFocusClick}
       onContextMenu={onContextMenu}
@@ -148,29 +163,27 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
         </div>
         <div className={style.metaRow}>
           <div className={style.metaEntry}>
-            <div>Start</div>
+            <div className={style.metaLabel}>Entries</div>
+            <div>{data.entries.length}</div>
+          </div>
+          <div className={style.metaEntry}>
+            <div className={style.metaLabel}>Start</div>
             <div>{millisToString(data.timeStart, { fallback: timerPlaceholder })}</div>
           </div>
           <div className={style.metaEntry}>
-            <div>End</div>
+            <div className={style.metaLabel}>End</div>
             <div>{millisToString(data.timeEnd, { fallback: timerPlaceholder })}</div>
           </div>
           <div className={style.metaEntry}>
-            <div>Duration</div>
+            <div className={style.metaLabel}>Duration</div>
             {planOffset === null ? (
-              <div className={cx([planOffsetLabel !== null && style[planOffsetLabel]])}>
-                {formatDuration(data.duration)}
-              </div>
+              <div>{formatDuration(data.duration)}</div>
             ) : (
-              <div>
+              <div className={cx([planOffsetLabel && style[planOffsetLabel]])}>
                 <span className={style.strike}>{formatDuration(data.duration)}</span>
-                <span className={cx([planOffsetLabel !== null && style[planOffsetLabel]])}>{planOffset}</span>
+                <Tag className={style.offsetLabel}>{planOffset}</Tag>
               </div>
             )}
-          </div>
-          <div className={style.metaEntry}>
-            <div>Entries</div>
-            <div>{data.entries.length}</div>
           </div>
         </div>
       </div>

@@ -1,10 +1,13 @@
-import { EntryId, isOntimeEvent, isOntimeGroup, RundownEntries, SupportedEntry } from 'ontime-types';
+import { EntryId, isOntimeGroup, RundownEntries, SupportedEntry } from 'ontime-types';
 
 /**
  * Creates a sortable list of entries
  * ------------------------------------
  * Due to limitations in dnd-kit we need to flatten the list of entries
  * This list should also be aware of any elements that are sortable (ie: group ends)
+ *
+ * Note: This creates the FULL structure including all entries and pseudo end-group entries.
+ * For rendering, use filterVisibleEntries() to exclude collapsed items.
  */
 export function makeSortableList(order: EntryId[], entries: RundownEntries): EntryId[] {
   const flatIds: EntryId[] = [];
@@ -29,6 +32,42 @@ export function makeSortableList(order: EntryId[], entries: RundownEntries): Ent
     }
   }
   return flatIds;
+}
+
+/**
+ * Filters sortable list to only include visible entries based on collapsed state
+ * ------------------------------------
+ * Excludes:
+ * - Children of collapsed groups
+ * - End-group markers of collapsed groups
+ *
+ * This is used by Virtuoso for rendering, while DND-kit uses the full sortableData.
+ */
+export function filterVisibleEntries(
+  sortableData: EntryId[],
+  entries: RundownEntries,
+  getIsCollapsed: (groupId: EntryId) => boolean,
+): EntryId[] {
+  return sortableData.filter((entryId) => {
+    // group end pseudo entries are only shown if the group is expanded
+    if (entryId.startsWith('end-')) {
+      const parentId = entryId.split('end-')[1];
+      return !getIsCollapsed(parentId);
+    }
+
+    // retrieve the entry as usual
+    const entry = entries[entryId];
+    if (!entry) {
+      return false;
+    }
+
+    // if entry has a parent and parent is collapsed, filter it out
+    if (entry.type !== SupportedEntry.Group && 'parent' in entry && entry.parent) {
+      return !getIsCollapsed(entry.parent);
+    }
+
+    return true;
+  });
 }
 
 /**
@@ -113,7 +152,7 @@ export function moveUp(
   }
 
   // 4. moving into the same group as previous entry
-  if (isOntimeEvent(previousEntry) && previousEntry.parent !== null && currentEntryParent === null) {
+  if ('parent' in previousEntry && previousEntry.parent !== null && currentEntryParent === null) {
     return { destinationId: previousEntryId, order: 'after' };
   }
 
@@ -188,7 +227,7 @@ export function moveDown(
   }
 
   // 5. handle moving between group and top level
-  const nextEntryParent = isOntimeEvent(nextEntry) ? nextEntry.parent : null;
+  const nextEntryParent = 'parent' in nextEntry ? nextEntry.parent : null;
   if (nextEntryParent !== null && currentEntryParent === null) {
     return { destinationId: nextEntryId, order: 'after' };
   }

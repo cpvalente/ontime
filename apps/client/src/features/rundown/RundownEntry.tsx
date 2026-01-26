@@ -32,6 +32,8 @@ export default function RundownEntry({
   totalGap,
   isLinkedToLoaded,
 }: RundownEntryProps) {
+  'use memo';
+
   if (isOntimeEvent(data)) {
     return (
       <RundownEvent

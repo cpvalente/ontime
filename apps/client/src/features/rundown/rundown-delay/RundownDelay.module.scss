@@ -16,6 +16,11 @@
   &.hasCursor {
     outline: 1px solid $block-cursor-color;
   }
+
+  &.copyTarget {
+    outline: 1px dashed $blue-500;
+    outline-offset: -2px;
+  }
 }
 
 .drag {

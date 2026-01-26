@@ -3,12 +3,12 @@ import { memo } from 'react';
 import Modal from '../../../common/components/modal/Modal';
 import CuesheetEntryEditor from '../../../features/rundown/entry-editor/CuesheetEventEditor';
 
-import { useCuesheetEditModal } from './useCuesheetEditModal';
+import { useEditModal } from './useEditModal';
 
-export default memo(CuesheetEditModal);
-function CuesheetEditModal() {
-  const entryId = useCuesheetEditModal((state) => state.selectedEntryId);
-  const closeModal = useCuesheetEditModal((state) => state.clearSelection);
+export default memo(EntryEditModal);
+function EntryEditModal() {
+  const entryId = useEditModal((state) => state.selectedEntryId);
+  const closeModal = useEditModal((state) => state.clearSelection);
 
   if (entryId === null) {
     return null;

@@ -4,7 +4,8 @@ test('CRUD operations on the rundown', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
   await page.getByRole('button', { name: 'Edit' }).click();
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
   await expect(page.getByTestId('rundown-event')).toHaveCount(0);
   await expect(page.getByTestId('rundown-delay')).toHaveCount(0);

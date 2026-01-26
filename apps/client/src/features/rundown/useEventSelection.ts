@@ -1,30 +1,38 @@
 import { MouseEvent } from 'react';
-import { EntryId, isOntimeEvent, MaybeNumber, MaybeString, Rundown } from 'ontime-types';
+import { EntryId, isOntimeEvent, MaybeNumber, Rundown } from 'ontime-types';
 import { create } from 'zustand';
 
 import { RUNDOWN } from '../../common/api/constants';
 import { ontimeQueryClient } from '../../common/queryClient';
 import { isMacOS } from '../../common/utils/deviceUtils';
 
-type SelectionMode = 'shift' | 'click' | 'ctrl';
+export type SelectionMode = 'shift' | 'click' | 'ctrl';
 
 interface EventSelectionStore {
   selectedEvents: Set<EntryId>;
   anchoredIndex: MaybeNumber;
-  cursor: MaybeString;
+  cursor: EntryId | null;
   entryMode: 'event' | 'single' | null;
+  scrollHandler: ((id: EntryId) => void) | null;
   setSingleEntrySelection: (selectionArgs: { id: EntryId }) => void;
   setSelectedEvents: (selectionArgs: { id: EntryId; index: number; selectMode: SelectionMode }) => void;
   clearSelectedEvents: () => void;
   clearMultiSelect: () => void;
   unselect: (id: EntryId) => void;
+  setScrollHandler: (handler: ((id: EntryId) => void) | null) => void;
+  scrollToEntry: (id: EntryId) => void;
 }
 
+/**
+ * Keeps track of the selected entries and selection mode
+ * Provides methods to update the selection based on user interactions
+ */
 export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   selectedEvents: new Set(),
   anchoredIndex: null,
   cursor: null,
   entryMode: null,
+  scrollHandler: null,
   setSingleEntrySelection: ({ id }) => {
     set({ selectedEvents: new Set([id]), anchoredIndex: null, cursor: id, entryMode: 'single' });
   },
@@ -116,6 +124,15 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       selectedEvents,
       entryMode: selectedEvents.size === 0 ? null : entryMode,
     });
+  },
+  // Sets the scroll handler for programmatic scrolling to entries
+  setScrollHandler: (handler) => set({ scrollHandler: handler }),
+  // Scrolls to the specified entry using the registered scroll handler
+  scrollToEntry: (id: EntryId) => {
+    const handler = get().scrollHandler;
+    if (handler) {
+      handler(id);
+    }
   },
 }));
 

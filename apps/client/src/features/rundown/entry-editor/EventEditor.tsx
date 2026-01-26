@@ -3,7 +3,7 @@ import { OntimeEvent } from 'ontime-types';
 
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import AppLink from '../../../common/components/link/app-link/AppLink';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 
 import EntryEditorCustomFields from './composite/EventEditorCustomFields';
@@ -22,7 +22,7 @@ interface EventEditorProps {
 
 export default function EventEditor({ event }: EventEditorProps) {
   const { data: customFields } = useCustomFields();
-  const { updateEntry } = useEntryActions();
+  const { updateEntry } = useEntryActionsContext();
 
   const isEditor = window.location.pathname.includes('editor');
 

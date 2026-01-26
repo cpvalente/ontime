@@ -3,18 +3,18 @@ import { IoAdd, IoArrowDown, IoArrowUp, IoDuplicateOutline, IoOptions, IoTrash }
 import { SupportedEntry } from 'ontime-types';
 
 import { PositionedDropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
-import { useEntryActions } from '../../../../common/hooks/useEntryAction';
-import { useCuesheetEditModal } from '../../cuesheet-edit-modal/useCuesheetEditModal';
+import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
+import { useEditModal } from '../../cuesheet-edit-modal/useEditModal';
 import { useCuesheetPermissions } from '../../useTablePermissions';
 
 import { useCuesheetTableMenu } from './useCuesheetTableMenu';
 
-export default memo(CuesheetTableMenu);
+export default memo(TableMenu);
 
-function CuesheetTableMenu() {
+function TableMenu() {
   const { isOpen, entryId, entryIndex, parentId, flag, position, closeMenu } = useCuesheetTableMenu();
-  const { addEntry, clone, deleteEntry, move, updateEntry } = useEntryActions();
-  const showModal = useCuesheetEditModal((state) => state.setEditableEntry);
+  const { addEntry, clone, deleteEntry, move, updateEntry } = useEntryActionsContext();
+  const showModal = useEditModal((state) => state.setEditableEntry);
   const permissions = useCuesheetPermissions();
 
   if (!isOpen) {

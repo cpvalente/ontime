@@ -31,11 +31,12 @@
   outline: 0;
   cursor: default;
   padding-block: 0.5rem;
-  padding-inline: 1rem 2rem;
+  padding-inline: 1rem;
 
   display: flex;
-  gap: 0.5rem;
-  line-height: 1em;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
 
   svg {
     color: $gray-500;
@@ -67,6 +68,35 @@
       color: $red-500;
     }
   }
+}
+
+.item .iconStrong {
+  color: $ui-white;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.2;
+}
+
+.description {
+  color: $gray-400;
+  font-size: calc(1rem - 2px);
+  line-height: 1.3;
+}
+
+.shortcut {
+  color: $gray-500;
+  font-size: calc(1rem - 4px);
+  letter-spacing: 0.02em;
 }
 
 .separator {

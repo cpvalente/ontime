@@ -6,8 +6,10 @@ import { EntryId } from 'ontime-types';
 
 import Input from '../../../common/components/input/input/Input';
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { useEntryCopy } from '../../../common/stores/entryCopyStore';
+import { deviceMod } from '../../../common/utils/deviceUtils';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useEventSelection } from '../useEventSelection';
 
@@ -22,15 +24,21 @@ interface RundownMilestoneProps {
 }
 
 export default function RundownMilestone({ colour, cue, entryId, hasCursor, title }: RundownMilestoneProps) {
-  const handleRef = useRef<null | HTMLSpanElement>(null);
-  const { updateEntry, deleteEntry } = useEntryActions();
-  const { selectedEvents, setSingleEntrySelection } = useEventSelection();
+  'use memo';
 
-  const [onContextMenu] = useContextMenu<HTMLDivElement>([
+  const handleRef = useRef<null | HTMLSpanElement>(null);
+  const { updateEntry, deleteEntry } = useEntryActionsContext();
+
+  const selectedEvents = useEventSelection((state) => state.selectedEvents);
+  const selectSingleEntry = useEventSelection((state) => state.setSingleEntrySelection);
+  const entryCopyId = useEntryCopy((state) => state.entryCopyId);
+
+  const [onContextMenu] = useContextMenu<HTMLDivElement>(() => [
     {
       type: 'item',
       label: 'Delete',
       icon: IoTrash,
+      shortcut: `${deviceMod}+Del`,
       onClick: () => deleteEntry([entryId]),
     },
   ]);
@@ -61,7 +69,7 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
     }
 
     // UI indexes are 1 based
-    setSingleEntrySelection({ id: entryId });
+    selectSingleEntry({ id: entryId });
   };
 
   const handleUpdate = (field: 'cue' | 'title', value: string) => {
@@ -78,7 +86,11 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
 
   return (
     <div
-      className={cx([style.milestone, hasCursor ? style.hasCursor : null])}
+      className={cx([
+        style.milestone,
+        hasCursor ? style.hasCursor : null,
+        entryCopyId === entryId ? style.copyTarget : null,
+      ])}
       ref={setNodeRef}
       onClick={handleFocusClick}
       onContextMenu={onContextMenu}

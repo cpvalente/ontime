@@ -13,6 +13,12 @@
     background: color-mix(in srgb, transparent 80%, var(--user-bg, $gray-500) 20%);
   }
 
+  &[data-cursor='true'] {
+    outline: 2px solid $blue-500;
+    outline-offset: -2px;
+    background: color-mix(in srgb, transparent 80%, var(--user-bg, $gray-500) 20%);
+  }
+
   td {
     background-color: $gray-1250;
     border-radius: 2px;

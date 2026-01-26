@@ -5,7 +5,7 @@ import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../common/components/input/colour-input/SwatchSelect';
 import Input from '../../../common/components/input/input/Input';
 import AppLink from '../../../common/components/link/app-link/AppLink';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 
 import EntryEditorCustomFields from './composite/EventEditorCustomFields';
@@ -22,7 +22,7 @@ interface MilestoneEditorProps {
 }
 export default function MilestoneEditor({ milestone }: MilestoneEditorProps) {
   const { data: customFields } = useCustomFields();
-  const { updateEntry } = useEntryActions();
+  const { updateEntry } = useEntryActionsContext();
 
   const handleSubmit = useCallback(
     (field: MilestoneEditorUpdateTextFields, value: string) => {

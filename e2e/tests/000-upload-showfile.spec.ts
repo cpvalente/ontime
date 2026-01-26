@@ -18,7 +18,8 @@ test('project file upload', async ({ page }) => {
   }
 
   await page.getByRole('button', { name: 'Edit' }).click();
-  await page.getByRole('button', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   await page.getByRole('button', { name: 'toggle settings' }).click();

@@ -5,7 +5,7 @@ import { millisToString } from 'ontime-utils';
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../common/components/input/colour-input/SwatchSelect';
 import AppLink from '../../../common/components/link/app-link/AppLink';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import { getOffsetState } from '../../../common/utils/offset';
 import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
@@ -28,7 +28,7 @@ interface GroupEditorProps {
 
 export default function GroupEditor({ group }: GroupEditorProps) {
   const { data: customFields } = useCustomFields();
-  const { updateEntry } = useEntryActions();
+  const { updateEntry } = useEntryActionsContext();
 
   const handleSubmit = useCallback(
     (field: GroupEditorUpdateTextFields | GroupEditorUpdateMaybeNumberFields, value: string | MaybeNumber) => {

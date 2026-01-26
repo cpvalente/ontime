@@ -8,7 +8,7 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import Select from '../../../../common/components/select/Select';
 import Tag from '../../../../common/components/tag/Tag';
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
-import { useEntryActions } from '../../../../common/hooks/useEntryAction';
+import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 
 import { eventTriggerOptions } from './eventTrigger.constants';
@@ -38,7 +38,7 @@ interface EventTriggerFormProps {
 
 function EventTriggerForm({ eventId, triggers }: EventTriggerFormProps) {
   const { data: automationSettings } = useAutomationSettings();
-  const { updateEntry } = useEntryActions();
+  const { updateEntry } = useEntryActionsContext();
   const [automationId, setAutomationId] = useState<string | undefined>(undefined);
   const [cycleValue, setCycleValue] = useState(TimerLifeCycle.onStart);
 
@@ -123,7 +123,7 @@ interface ExistingEventTriggersProps {
 }
 
 function ExistingEventTriggers({ eventId, triggers }: ExistingEventTriggersProps) {
-  const { updateEntry } = useEntryActions();
+  const { updateEntry } = useEntryActionsContext();
   const { data: automationSettings } = useAutomationSettings();
 
   const handleDelete = useCallback(

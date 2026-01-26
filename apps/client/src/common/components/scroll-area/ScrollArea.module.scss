@@ -1,0 +1,56 @@
+@use '../../../theme/ontimeColours' as *;
+@use '../../../theme/ontimeStyles' as *;
+
+// copied from index.scss
+$track-color: $white-1;
+$thumb-color: $white-20;
+$thumb-color-hover: $white-60;
+
+.root {
+  position: relative;
+  overflow: hidden;
+}
+
+.viewport {
+  height: 100%;
+  width: 100%;
+  overscroll-behavior: contain;
+}
+
+.scrollbar {
+  background: transparent;
+  opacity: 0;
+  transition: opacity 150ms;
+
+  &[data-orientation='vertical'] {
+    width: 6px;
+  }
+
+  &[data-orientation='horizontal'] {
+    height: 6px;
+  }
+
+  &[data-orientation='horizontal'][data-has-overflow-x] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  &[data-scrolling] {
+    transition-duration: 0ms;
+  }
+
+  &[data-hovering],
+  &[data-scrolling] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.thumb {
+  background: $thumb-color;
+  border-radius: 2px;
+
+  &:hover {
+    background: $thumb-color-hover;
+  }
+}

@@ -121,7 +121,8 @@ test.describe('Sharing from cuesheet', () => {
     await page.goto('http://localhost:4001/editor');
 
     // we create some elements to test with
-    await page.getByRole('button', { name: 'Clear all' }).click();
+    await page.getByRole('button', { name: 'Rundown menu' }).click();
+    await page.getByRole('menuitem', { name: 'Clear all' }).click();
     await page.getByRole('button', { name: 'Delete all' }).click();
     await page.getByRole('button', { name: 'Create Event' }).click();
     await page.getByTestId('entry-1').getByTestId('entry__title').click();

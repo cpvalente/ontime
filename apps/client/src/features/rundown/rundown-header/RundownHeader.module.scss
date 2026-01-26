@@ -2,6 +2,7 @@
   padding-inline: 1rem 2rem;
   display: flex;
   align-items: center;
+  gap: 1rem;
 
   :is([data-target='small-device']) & {
     padding-inline: 0;
@@ -57,10 +58,24 @@
   }
 }
 
+.toggleTooltipTrigger {
+  display: flex;
+}
+
 .apart {
   margin-left: auto;
 }
 
-.separator {
-  margin-inline: 1rem;
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-self: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-self: start;
 }

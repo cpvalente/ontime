@@ -12,9 +12,11 @@ export {
   getFirstEvent,
   getFirstEventNormal,
   getFirstNormal,
+  getFirstGroupNormal,
   getLastEvent,
   getLastEventNormal,
   getLastNormal,
+  getLastGroupNormal,
   getNext,
   getNextGroupNormal,
   getNextEvent,
@@ -62,7 +64,7 @@ export { deepmerge } from './src/externals/deepmerge.js';
 // array utils
 export { deleteAtIndex, insertAtIndex, mergeAtIndex, reorderArray } from './src/common/arrayUtils.js';
 // object utils
-export { getPropertyFromPath, isObjectEmpty } from './src/common/objectUtils.js';
+export { getPropertyFromPath, isObjectEmpty, withoutUndefinedValues, isValueOfEnum } from './src/common/objectUtils.js';
 
 // generic utilities
 export { getErrorMessage } from './src/generic/generic.js';

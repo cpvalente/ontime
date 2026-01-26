@@ -9,8 +9,8 @@ function FinderPlacement() {
   const [isOpen, handler] = useDisclosure();
 
   useHotkeys([
-    ['mod + f', handler.toggle],
-    ['Escape', handler.close],
+    ['mod + f', handler.toggle, { preventDefault: true }],
+    ['Escape', handler.close, { preventDefault: true }],
   ]);
 
   if (isOpen) {

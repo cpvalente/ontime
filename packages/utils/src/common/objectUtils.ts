@@ -33,3 +33,10 @@ export function withoutUndefinedValues<T extends Record<string, unknown>>(
   Object.keys(obj).forEach((key) => obj[key] === undefined && delete obj[key]);
   return obj as { [K in keyof T]: Exclude<T[K], undefined> };
 }
+
+/**
+ * Checks whether a value is part of an enum
+ */
+export function isValueOfEnum<T extends object>(enumObj: T, value: unknown): value is T[keyof T] {
+  return Object.values(enumObj).includes(value);
+}

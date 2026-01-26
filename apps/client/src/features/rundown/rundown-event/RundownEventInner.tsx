@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo } from 'react';
 import {
   IoArrowDown,
   IoArrowUp,
@@ -10,14 +10,14 @@ import {
   IoTime,
 } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
-import { useSessionStorage } from '@mantine/hooks';
 import { EndAction, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { cx } from '../../../common/utils/styleUtils';
-import { AppMode, sessionKeys } from '../../../ontimeConfig';
+import { AppMode } from '../../../ontimeConfig';
 import TitleEditor from '../common/TitleEditor';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';
+import { useEditorFollowMode } from '../useEditorFollowMode';
 
 import RundownEventChip from './composite/RundownEventChip';
 import EventBlockPlayback from './composite/RundownEventPlayback';
@@ -76,16 +76,7 @@ function RundownEventInner({
   isLinkedToLoaded,
   hasTriggers,
 }: RundownEventInnerProps) {
-  const [renderInner, setRenderInner] = useState(false);
-
-  const [editorMode] = useSessionStorage({
-    key: sessionKeys.editorMode,
-    defaultValue: AppMode.Edit,
-  });
-
-  useEffect(() => {
-    setRenderInner(true);
-  }, []);
+  const { editorMode } = useEditorFollowMode();
 
   const eventIsPlaying = playback === Playback.Play;
   const eventIsPaused = playback === Playback.Pause;
@@ -97,7 +88,7 @@ function RundownEventInner({
     playBtnStyles._hover = {};
   }
 
-  return !renderInner ? null : (
+  return (
     <>
       <div className={cx([style.eventTimers, editorMode === AppMode.Edit && style.editMode])}>
         <TimeInputFlow
@@ -161,8 +152,7 @@ function RundownEventInner({
   );
 }
 
-function EndActionIcon(props: { action: EndAction; className: string }) {
-  const { action, className } = props;
+function EndActionIcon({ action, className }: { action: EndAction; className: string }) {
   const maybeActiveClasses = cx([action !== EndAction.None && style.active, className]);
 
   if (action === EndAction.LoadNext) {
@@ -174,8 +164,7 @@ function EndActionIcon(props: { action: EndAction; className: string }) {
   return <IoPlay className={className} />;
 }
 
-function TimerIcon(props: { type: TimerType; className: string }) {
-  const { type, className } = props;
+function TimerIcon({ type, className }: { type: TimerType; className: string }) {
   if (type === TimerType.CountUp) {
     return <IoArrowUp className={className} />;
   }

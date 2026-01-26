@@ -1,9 +1,8 @@
-import { useMemo } from 'react';
 import { IoPause, IoPlay, IoPlaySkipBack, IoPlaySkipForward, IoReload, IoStop } from 'react-icons/io5';
 import { Playback, TimerPhase } from 'ontime-types';
-import { validatePlayback } from 'ontime-utils';
 
 import { setPlayback } from '../../../../common/hooks/useSocket';
+import { getPlaybackControlState } from '../playbackControl.utils';
 import TapButton from '../tap-button/TapButton';
 
 import style from './PlaybackButtons.module.scss';
@@ -15,44 +14,32 @@ interface PlaybackButtonsProps {
   timerPhase: TimerPhase;
 }
 
-export default function PlaybackButtons(props: PlaybackButtonsProps) {
-  const { playback, numEvents, selectedEventIndex, timerPhase } = props;
-
-  const isRolling = playback === Playback.Roll;
-  const isPlaying = playback === Playback.Play;
-  const isPaused = playback === Playback.Pause;
-  const isArmed = playback === Playback.Armed;
-
-  const isFirst = selectedEventIndex === 0;
-  const isLast = selectedEventIndex === numEvents - 1;
-  const noEvents = numEvents === 0;
-
-  const disableGo = isRolling || noEvents;
-  const disableNext = isRolling || noEvents || isLast;
-  const disablePrev = isRolling || noEvents || isFirst;
-
-  const playbackCan = validatePlayback(playback, timerPhase);
-  const disableStart = !playbackCan.start;
-  const disablePause = !playbackCan.pause;
-  const disableRoll = !playbackCan.roll || noEvents;
-  const disableStop = !playbackCan.stop;
-  const disableReload = !playbackCan.reload;
-
-  const [goModeAction, goModeText] = useMemo(() => {
-    if (isArmed) {
-      return [setPlayback.start, 'Start'];
-    } else if (isLast) {
-      return [setPlayback.stop, 'Finish'];
-    } else if (selectedEventIndex === null) {
-      return [setPlayback.startNext, 'Start'];
-    }
-    return [setPlayback.startNext, 'Next'];
-  }, [isArmed, isLast, selectedEventIndex]);
+export default function PlaybackButtons({ playback, numEvents, selectedEventIndex, timerPhase }: PlaybackButtonsProps) {
+  const {
+    isPlaying,
+    isPaused,
+    isRolling,
+    disableGo,
+    disableNext,
+    disablePrev,
+    disableStart,
+    disablePause,
+    disableRoll,
+    disableStop,
+    disableReload,
+    goAction,
+    goLabel,
+  } = getPlaybackControlState({
+    playback,
+    numEvents,
+    selectedEventIndex,
+    timerPhase,
+  });
 
   return (
     <div className={style.buttonContainer}>
-      <TapButton disabled={disableGo} onClick={goModeAction} aspect='fill' className={style.go}>
-        {goModeText}
+      <TapButton disabled={disableGo} onClick={goAction} aspect='fill' className={style.go}>
+        {goLabel}
       </TapButton>
       <div className={style.playbackContainer}>
         <TapButton onClick={setPlayback.start} disabled={disableStart} theme={Playback.Play} active={isPlaying}>

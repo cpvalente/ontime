@@ -9,14 +9,14 @@ import Textarea from '../../../common/components/input/textarea/Textarea';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { EditEvent } from '../operator.types';
 
-import style from './EditModal.module.scss';
+import style from './CustomFieldEditModal.module.scss';
 
-interface EditModalProps {
+interface CustomFieldEditModalProps {
   event: EditEvent;
   onClose: () => void;
 }
 
-export default function EditModal(props: EditModalProps) {
+export default function CustomFieldEditModal(props: CustomFieldEditModalProps) {
   const { event, onClose } = props;
 
   const { updateEntry } = useEntryActions();
