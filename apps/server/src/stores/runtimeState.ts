@@ -21,6 +21,7 @@ import {
   getExpectedStart,
   getLastEventNormal,
   isPlaybackActive,
+  validatePlayback,
 } from 'ontime-utils';
 
 import { getTimeObject, timeNow } from '../utils/time.js';
@@ -65,7 +66,7 @@ export type RuntimeState = {
   _startDayOffset: MaybeNumber;
 };
 
-const runtimeState: RuntimeState = {
+export const runtimeState: RuntimeState = {
   clock: timeNow(),
   groupNow: null,
   eventNow: null,
@@ -109,7 +110,7 @@ export function getState(): Readonly<RuntimeState> {
 /* clear data related to the current event, but leave in place data about the global run state
  * used when loading a new event but the playback is not interrupted
  */
-export function clearEventData() {
+function clearEventData() {
   runtimeState.eventNow = null;
   runtimeState.eventNext = null;
 
@@ -133,7 +134,7 @@ export function clearEventData() {
 }
 
 // clear all necessary data when doing a full stop and the event is unloaded
-export function clearState() {
+function clearState() {
   runtimeState.eventNow = null;
   runtimeState.eventNext = null;
   runtimeState.eventFlag = null;
@@ -205,7 +206,7 @@ export function updateRundownData(rundownData: {
   runtimeState.rundown.plannedEnd =
     rundownData.firstStart === null ? null : rundownData.firstStart + rundownData.totalDuration;
 
-  if (isPlaybackActive(runtimeState.timer.playback)) getExpectedTimes();
+  if (isPlaybackActive(runtimeState.timer.playback)) updateExpectedTimes();
 }
 
 /**
@@ -262,7 +263,7 @@ export function load(
       const { absolute, relative } = getRuntimeOffset(runtimeState);
       runtimeState.offset.absolute = absolute;
       runtimeState.offset.relative = relative;
-      getExpectedTimes();
+      updateExpectedTimes();
     }
   }
   return event.id === runtimeState.eventNow?.id;
@@ -399,7 +400,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   if (state.eventNow === null) {
     return false;
   }
-  if (state.timer.playback === Playback.Play) {
+  if (!validatePlayback(state.timer.playback, state.timer.phase).start) {
     return false;
   }
 
@@ -449,12 +450,12 @@ export function start(state: RuntimeState = runtimeState): boolean {
     }
   }
 
-  getExpectedTimes();
+  updateExpectedTimes();
   return true;
 }
 
 export function pause(state: RuntimeState = runtimeState): boolean {
-  if (state.timer.playback !== Playback.Play) {
+  if (!validatePlayback(state.timer.playback, state.timer.phase).pause) {
     return false;
   }
 
@@ -465,7 +466,7 @@ export function pause(state: RuntimeState = runtimeState): boolean {
 }
 
 export function stop(state: RuntimeState = runtimeState): boolean {
-  if (state.timer.playback === Playback.Stop) {
+  if (!validatePlayback(state.timer.playback, state.timer.phase).stop) {
     return false;
   }
   clearState();
@@ -511,7 +512,7 @@ export function addTime(amount: number) {
   runtimeState.offset.absolute = absolute;
   runtimeState.offset.relative = relative;
   runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
-  getExpectedTimes();
+  updateExpectedTimes();
 
   return true;
 }
@@ -576,7 +577,7 @@ export function update(): UpdateResult {
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
   }
 
-  getExpectedTimes();
+  updateExpectedTimes();
 
   return { hasTimerFinished: finishedNow, hasSecondaryTimerFinished: false };
 
@@ -769,7 +770,7 @@ export function roll(
  * - offset.expectedGroupEnd
  * - offset.expectedFlagStart
  */
-function getExpectedTimes(state = runtimeState) {
+function updateExpectedTimes(state = runtimeState) {
   state.offset.expectedRundownEnd = null;
   state.offset.expectedGroupEnd = null;
   state.offset.expectedFlagStart = null;
@@ -903,5 +904,5 @@ export function loadGroupFlagAndEnd(
 
 export function setOffsetMode(mode: OffsetMode) {
   runtimeState.offset.mode = mode;
-  if (isPlaybackActive(runtimeState.timer.playback)) getExpectedTimes();
+  if (isPlaybackActive(runtimeState.timer.playback)) updateExpectedTimes();
 }

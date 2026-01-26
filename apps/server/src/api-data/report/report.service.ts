@@ -1,7 +1,6 @@
-import { OntimeReport, OntimeEventReport, TimerLifeCycle, RefetchKey } from 'ontime-types';
-import { RuntimeState } from '../../stores/runtimeState.js';
-import { DeepReadonly } from 'ts-essentials';
+import { OntimeReport, OntimeEventReport, TimerLifeCycle, RefetchKey, Maybe } from 'ontime-types';
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { reportDTO } from './report.dto.js';
 
 const report = new Map<string, OntimeEventReport>();
 
@@ -34,28 +33,27 @@ export function clear(id?: string) {
 /**
  * trigger report entry
  * @param cycle
- * @param state
+ * @param state - it can pull in the state itself or it can be provided if the state is from a previous time
  * @returns
  */
 export function triggerReportEntry(
   cycle: TimerLifeCycle.onStart | TimerLifeCycle.onStop,
-  state: DeepReadonly<RuntimeState>,
+  state: { eventId: Maybe<string>; startedAt: Maybe<number>; clock: number } = reportDTO.stateToReport(),
 ) {
-  if (!state.eventNow?.id) {
+  const { eventId, startedAt, clock } = state;
+  if (!eventId) {
     return;
   }
 
-  const eventId = state.eventNow.id;
-
   if (cycle === TimerLifeCycle.onStart) {
-    report.set(eventId, { startedAt: state.timer.startedAt, endedAt: null });
+    report.set(eventId, { startedAt: startedAt, endedAt: null });
     formattedReport = null;
     return;
   }
 
   if (cycle === TimerLifeCycle.onStop) {
     const startedAt = report.get(eventId)?.startedAt ?? null;
-    report.set(eventId, { startedAt, endedAt: state.clock });
+    report.set(eventId, { startedAt, endedAt: clock });
     formattedReport = null;
     sendRefetch(RefetchKey.Report);
   }
