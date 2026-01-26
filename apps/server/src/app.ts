@@ -39,7 +39,7 @@ import type { RestorePoint } from './services/restore-service/restore.type.js';
 import * as messageService from './services/message-service/message.service.js';
 import { getState } from './stores/runtimeState.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
-import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
+import { getShowWelcomeDialog, getServerPort, setServerPort } from './services/app-state-service/AppStateService.js';
 import { oscServer } from './adapters/OscAdapter.js';
 
 // Utilities
@@ -176,14 +176,13 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
  */
 export const startServer = async (): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
-  const settings = getDataProvider().getSettings();
-  const { serverPort: desiredPort } = settings;
+  const desiredPort = await getServerPort();
 
   expressServer = http.createServer(app);
 
   // the express server must be started before the socket otherwise the on error event listener will not attach properly
   const resultPort = await serverTryDesiredPort(expressServer, desiredPort);
-  await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
+  await setServerPort(resultPort);
   const showWelcome = await getShowWelcomeDialog(!!restorePoint);
 
   socket.init(expressServer, showWelcome, prefix);
