@@ -336,7 +336,6 @@ export const demoDb: DatabaseModel = {
   },
   settings: {
     version: '-',
-    serverPort: 4001,
     editorKey: null,
     operatorKey: null,
     timeFormat: '24',

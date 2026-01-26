@@ -26,3 +26,18 @@ export async function postSettings(data: Settings): Promise<AxiosResponse<Settin
 export async function postShowWelcomeDialog(show: boolean) {
   axios.post(`${settingsPath}/welcomedialog`, { show });
 }
+
+/**
+ * HTTP request to retrieve server port
+ */
+export async function getServerPort(): Promise<number> {
+  const res = await axios.get(`${settingsPath}/serverport`);
+  return res.data.serverPort;
+}
+
+/**
+ * HTTP request to set server port
+ */
+export async function postServerPort(serverPort: number): Promise<AxiosResponse<{ serverPort: number }>> {
+  return axios.post(`${settingsPath}/serverport`, { serverPort });
+}

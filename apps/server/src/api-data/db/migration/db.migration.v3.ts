@@ -64,7 +64,7 @@ type old_Settings = {
  * migrates a settings from v3 to v4
  * - update the version number
  */
-export function migrateSettings(jsonData: object): Settings | undefined {
+export function migrateSettings(jsonData: object): (Settings & { serverPort: number }) | undefined {
   if (is.objectWithKeys(jsonData, ['settings']) && is.object(jsonData.settings)) {
     const { serverPort, editorKey, operatorKey, timeFormat, language } = structuredClone(
       jsonData.settings,

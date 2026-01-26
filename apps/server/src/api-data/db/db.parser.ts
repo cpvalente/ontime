@@ -10,6 +10,7 @@ import { parseUrlPresets } from '../url-presets/urlPresets.parser.js';
 import { parseViewSettings } from '../view-settings/viewSettings.parser.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import * as v3 from './migration/db.migration.v3.js';
+import * as v4 from './migration/db.migration.v4.js';
 
 type ParsingError = {
   context: string;
@@ -36,6 +37,16 @@ export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): {
     } catch (_error) {
       logger.error(LogOrigin.Server, 'Failed to migrate the data');
       migratedData = jsonData;
+    }
+  }
+
+  if (v4.shouldMigrateServerPort(migratedData)) {
+    try {
+      migrated = true;
+      logger.warning(LogOrigin.Server, 'Migrating serverPort from settings to AppState');
+      migratedData = v4.migrateServerPort(migratedData);
+    } catch (_error) {
+      logger.error(LogOrigin.Server, 'Failed to migrate serverPort');
     }
   }
 
