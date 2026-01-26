@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 
 // import utils
 import { publicDir, srcDir } from './setup/index.js';
-import { environment, isProduction } from './setup/environment.js';
+import { environment, isProduction, startUpPort } from './setup/environment.js';
 import { updateRouterPrefix } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
@@ -176,7 +176,7 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
  */
 export const startServer = async (): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
-  const desiredPort = await getServerPort();
+  const desiredPort = startUpPort ? startUpPort : await getServerPort();
 
   expressServer = http.createServer(app);
 
