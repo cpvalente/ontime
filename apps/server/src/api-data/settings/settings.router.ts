@@ -3,14 +3,15 @@ import { matchedData } from 'express-validator';
 import type { Request, Response } from 'express';
 import { deepEqual } from 'fast-equals';
 
-import { ErrorResponse, RefetchKey, Settings } from 'ontime-types';
+import { ErrorResponse, PortInfo, RefetchKey, Settings } from 'ontime-types';
 import { getErrorMessage, obfuscate } from 'ontime-utils';
 
-import { validateSettings, validateWelcomeDialog } from './settings.validation.js';
+import { validateSettings, validateWelcomeDialog, validateServerPort } from './settings.validation.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import * as appState from '../../services/app-state-service/AppStateService.js';
-import { isDocker } from '../../setup/environment.js';
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { portManager } from '../../classes/port-manager/PortManager.js';
+import { canChangePort } from '../../classes/port-manager/PortManager.utils.js';
 
 export const router = express.Router();
 
@@ -38,11 +39,6 @@ router.post('/', validateSettings, async (req: Request, res: Response<Settings |
     const data = matchedData<Settings>(req);
     const settings = getDataProvider().getSettings();
 
-    if (isDocker && settings.serverPort !== data.serverPort) {
-      res.status(403).json({ message: 'Can`t change port when running inside docker' });
-      return;
-    }
-
     data.version = settings.version;
 
     if (!deepEqual(data, settings)) {
@@ -51,6 +47,34 @@ router.post('/', validateSettings, async (req: Request, res: Response<Settings |
     }
 
     res.status(200).json(data);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).json({ message });
+  }
+});
+
+router.get('/serverport', (_req: Request, res: Response<PortInfo | ErrorResponse>) => {
+  try {
+    const { port, pendingRestart } = portManager.getPort();
+    res.status(200).json({ port, pendingRestart });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(500).json({ message });
+  }
+});
+
+router.post('/serverport', validateServerPort, async (req: Request, res: Response<PortInfo | ErrorResponse>) => {
+  if (!canChangePort()) {
+    res.status(403).json({ message: 'Can not change port when running inside docker' });
+    return;
+  }
+
+  try {
+    const { serverPort } = matchedData<{ serverPort: number }>(req);
+    portManager.changePort(serverPort);
+    const { port, pendingRestart } = portManager.getPort();
+
+    res.status(200).json({ port, pendingRestart });
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).json({ message });

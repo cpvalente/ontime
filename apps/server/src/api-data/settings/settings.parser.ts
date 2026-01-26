@@ -18,7 +18,6 @@ export function parseSettings(data: Partial<DatabaseModel>): Settings {
 
   return {
     version: defaultSettings.version,
-    serverPort: data.settings.serverPort ?? defaultSettings.serverPort,
     editorKey: data.settings.editorKey ?? defaultSettings.editorKey,
     operatorKey: data.settings.operatorKey ?? defaultSettings.operatorKey,
     timeFormat: data.settings.timeFormat ?? defaultSettings.timeFormat,

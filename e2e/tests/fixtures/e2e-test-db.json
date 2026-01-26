@@ -477,7 +477,6 @@
   "settings": {
     "app": "ontime",
     "version": "-",
-    "serverPort": 4001,
     "editorKey": null,
     "operatorKey": null,
     "timeFormat": "24",

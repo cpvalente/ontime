@@ -76,6 +76,7 @@ export type {
   MessageResponse,
   SessionStats,
   ProjectLogoResponse,
+  PortInfo,
 } from './api/ontime-controller/BackendResponse.type.js';
 export type {
   EventPostPayload,
