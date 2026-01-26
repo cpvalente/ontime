@@ -13,6 +13,7 @@ import { EntryId, OntimeGroup } from 'ontime-types';
 import { MILLIS_PER_MINUTE, millisToString } from 'ontime-utils';
 
 import IconButton from '../../../common/components/buttons/IconButton';
+import Tag from '../../../common/components/tag/Tag';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
@@ -162,29 +163,27 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
         </div>
         <div className={style.metaRow}>
           <div className={style.metaEntry}>
-            <div>Start</div>
+            <div className={style.metaLabel}>Entries</div>
+            <div>{data.entries.length}</div>
+          </div>
+          <div className={style.metaEntry}>
+            <div className={style.metaLabel}>Start</div>
             <div>{millisToString(data.timeStart, { fallback: timerPlaceholder })}</div>
           </div>
           <div className={style.metaEntry}>
-            <div>End</div>
+            <div className={style.metaLabel}>End</div>
             <div>{millisToString(data.timeEnd, { fallback: timerPlaceholder })}</div>
           </div>
           <div className={style.metaEntry}>
-            <div>Duration</div>
+            <div className={style.metaLabel}>Duration</div>
             {planOffset === null ? (
-              <div className={cx([planOffsetLabel !== null && style[planOffsetLabel]])}>
-                {formatDuration(data.duration)}
-              </div>
+              <div>{formatDuration(data.duration)}</div>
             ) : (
-              <div>
+              <div className={cx([planOffsetLabel && style[planOffsetLabel]])}>
                 <span className={style.strike}>{formatDuration(data.duration)}</span>
-                <span className={cx([planOffsetLabel !== null && style[planOffsetLabel]])}>{planOffset}</span>
+                <Tag className={style.offsetLabel}>{planOffset}</Tag>
               </div>
             )}
-          </div>
-          <div className={style.metaEntry}>
-            <div>Entries</div>
-            <div>{data.entries.length}</div>
           </div>
         </div>
       </div>

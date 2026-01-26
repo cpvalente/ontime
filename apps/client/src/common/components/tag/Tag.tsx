@@ -1,7 +1,11 @@
-import { ReactNode } from 'react';
+import { PropsWithChildren } from 'react';
 
 import style from './Tag.module.scss';
 
-export default function Tag({ children }: { children: ReactNode }) {
-  return <span className={style.tag}>{children}</span>;
+interface TagProps {
+  className?: string;
+}
+
+export default function Tag({ className, children }: PropsWithChildren<TagProps>) {
+  return <span className={`${style.tag} ${className || ''}`}>{children}</span>;
 }
