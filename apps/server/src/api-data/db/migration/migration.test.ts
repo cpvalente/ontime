@@ -175,7 +175,7 @@ describe('v3 to v4', () => {
   };
 
   test('migrate settings', () => {
-    const expectSettings: Settings = {
+    const expectSettings: Settings & { serverPort: number } = {
       version: ONTIME_VERSION,
       serverPort: 4001,
       editorKey: null,
