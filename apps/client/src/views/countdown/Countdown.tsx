@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { EntryId, isOntimeEvent, isPlayableEvent, OntimeEvent, OntimeView } from 'ontime-types';
+import { EntryId, isOntimeEvent, isPlayableEvent, OntimeEvent, OntimeView, PlayableEvent } from 'ontime-types';
 
 import Button from '../../common/components/buttons/Button';
 import Empty from '../../common/components/state/Empty';
@@ -47,7 +47,9 @@ function Countdown({ customFields, rundownData, projectData, isMirrored, setting
   const [editMode, setEditMode] = useState(false);
 
   // gather rundown data
-  const playableEvents = rundownData.filter((entry) => isOntimeEvent(entry) && isPlayableEvent(entry));
+  const playableEvents = rundownData.filter((entry): entry is ExtendedEntry<PlayableEvent> => {
+    return isOntimeEvent(entry) && isPlayableEvent(entry);
+  });
 
   // gather presentation data
   const hasEvents = playableEvents.length > 0;
@@ -93,6 +95,7 @@ interface CountdownContentsProps {
 
 function CountdownContents({ playableEvents, subscriptions, goToEditMode }: CountdownContentsProps) {
   const { getLocalizedString } = useTranslation();
+  const { hidePast } = useCountdownOptions();
 
   if (subscriptions.length === 0) {
     return (
@@ -106,6 +109,7 @@ function CountdownContents({ playableEvents, subscriptions, goToEditMode }: Coun
   }
 
   const subscribedEvents = getOrderedSubscriptions(subscriptions, playableEvents);
+  const eventsToShow = !hidePast ? subscribedEvents : subscribedEvents.filter((event) => !event.isPast);
 
   if (subscribedEvents.length === 0) {
     return (
@@ -118,13 +122,21 @@ function CountdownContents({ playableEvents, subscriptions, goToEditMode }: Coun
     );
   }
 
-  if (subscribedEvents.length === 1) {
+  if (subscribedEvents.length === 1 && eventsToShow.length === 1) {
     const event = subscribedEvents.at(0);
     if (!event) return null;
     return <SingleEventCountdown subscribedEvent={event} goToEditMode={goToEditMode} />;
   }
 
-  return <CountdownSubscriptions subscribedEvents={subscribedEvents} goToEditMode={goToEditMode} />;
+  if (eventsToShow.length === 0) {
+    return (
+      <div className='empty-container'>
+        <Empty text={getLocalizedString('countdown.all_have_finished')} className='empty-container' />
+      </div>
+    );
+  }
+
+  return <CountdownSubscriptions subscribedEvents={eventsToShow} goToEditMode={goToEditMode} />;
 }
 
 function CountdownClock() {

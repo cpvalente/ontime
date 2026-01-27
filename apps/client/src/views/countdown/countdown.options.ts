@@ -14,6 +14,7 @@ export const getCountdownOptions = (
   customFields: CustomFields,
   persistedSubscriptions: EntryId[],
 ): ViewOption[] => {
+  const mainOptions = makeOptionsFromCustomFields(customFields, [{ value: 'title', label: 'Title' }]);
   const secondaryOptions = makeOptionsFromCustomFields(customFields, [
     { value: 'none', label: 'None' },
     { value: 'note', label: 'Note' },
@@ -25,6 +26,14 @@ export const getCountdownOptions = (
       title: OptionTitle.DataSources,
       collapsible: true,
       options: [
+        {
+          id: 'main',
+          title: 'Main text',
+          description: 'Select the data source for the main text',
+          type: 'option',
+          values: mainOptions,
+          defaultValue: 'title',
+        },
         {
           id: 'secondary-src',
           title: 'Event secondary text',
@@ -49,6 +58,19 @@ export const getCountdownOptions = (
       ],
     },
     {
+      title: OptionTitle.ElementVisibility,
+      collapsible: true,
+      options: [
+        {
+          id: 'hidePast',
+          title: 'Hide Past Events',
+          description: 'Whether to hide events that have passed',
+          type: 'boolean',
+          defaultValue: false,
+        },
+      ],
+    },
+    {
       title: OptionTitle.Hidden,
       options: [
         {
@@ -65,8 +87,10 @@ export const getCountdownOptions = (
 
 type CountdownOptions = {
   subscriptions: EntryId[];
+  mainSource: keyof OntimeEvent | null;
   secondarySource: keyof OntimeEvent | null;
   showExpected: boolean;
+  hidePast: boolean;
 };
 
 /**
@@ -87,8 +111,10 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
 
   return {
     subscriptions: getArrayValues('sub'),
+    mainSource: getValue('main') as keyof OntimeEvent | null,
     secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
     showExpected: isStringBoolean(getValue('showExpected')),
+    hidePast: isStringBoolean(getValue('hidePast')),
   };
 }
 

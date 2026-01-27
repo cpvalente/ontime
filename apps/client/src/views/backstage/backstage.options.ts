@@ -23,6 +23,7 @@ export const getBackstageOptions = (
     { value: 'note', label: 'Note' },
   ]);
   const projectDataOptions = makeProjectDataOptions(projectData, [{ value: 'none', label: 'None' }]);
+  const mainOptions = makeOptionsFromCustomFields(customFields, [{ value: 'title', label: 'Title' }]);
 
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
@@ -30,6 +31,14 @@ export const getBackstageOptions = (
       title: OptionTitle.DataSources,
       collapsible: true,
       options: [
+        {
+          id: 'main',
+          title: 'Main text',
+          description: 'Select the data source for the main text',
+          type: 'option',
+          values: mainOptions,
+          defaultValue: 'title',
+        },
         {
           id: 'secondary-src',
           title: 'Event secondary text',
@@ -59,6 +68,7 @@ export const getBackstageOptions = (
 };
 
 type BackstageOptions = {
+  mainSource: keyof OntimeEvent | null;
   secondarySource: keyof OntimeEvent | null;
   extraInfo: string | null;
 };
@@ -72,6 +82,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
   const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
 
   return {
+    mainSource: getValue('main') as keyof OntimeEvent | null,
     secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
     extraInfo: getValue('extra-info'),
   };
