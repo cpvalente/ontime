@@ -147,8 +147,7 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
     throw new Error('No matching start function');
   },
   pause: () => {
-    runtimeService.pause();
-    return { payload: 'success' };
+    return successPayloadOrError(runtimeService.pause(), 'Unable to pause');
   },
   stop: () => {
     runtimeService.stop();
@@ -213,9 +212,7 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
     if (Math.abs(time) > MILLIS_PER_HOUR) {
       throw new Error(`Payload too large: ${time}`);
     }
-
-    runtimeService.addTime(time);
-    return { payload: 'success' };
+    return successPayloadOrError(runtimeService.addTime(time), 'time could not be added/removed');
   },
   /**
    * Auxiliary timers, payload can be either:
