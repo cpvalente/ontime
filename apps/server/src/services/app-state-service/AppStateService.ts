@@ -10,10 +10,11 @@ interface AppState {
   projectName?: string;
   rundownId?: string;
   showWelcomeDialog?: boolean;
+  serverPort: number;
 }
 
 const adapter = new JSONFile<AppState>(publicFiles.appState);
-const config = new Low<AppState>(adapter, {});
+const config = new Low<AppState>(adapter, { serverPort: 4001 });
 
 export async function isLastLoadedProject(projectName: string): Promise<boolean> {
   const lastLoaded = await getLastLoaded();
@@ -60,4 +61,15 @@ export async function setShowWelcomeDialog(show: boolean): Promise<boolean> {
   config.data.showWelcomeDialog = show;
   await config.write();
   return show;
+}
+
+export async function getServerPort(): Promise<number> {
+  if (isTest) return 4001;
+  await config.read();
+  return config.data.serverPort;
+}
+
+export async function setServerPort(port: number): Promise<void> {
+  config.data.serverPort = port;
+  await config.write();
 }
