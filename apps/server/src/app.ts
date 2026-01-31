@@ -176,7 +176,7 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
  */
 export const startServer = async (): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
-  const desiredPort = startUpPort ? startUpPort : await getServerPort();
+  const desiredPort = startUpPort || (await getServerPort());
 
   expressServer = http.createServer(app);
 
