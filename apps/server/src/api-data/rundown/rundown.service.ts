@@ -499,7 +499,7 @@ export async function editCustomField(
       if (rundownId !== rundown.id) {
         const backgroundRundown = structuredClone(projectRundowns[rundownId]);
         customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey);
-        updateBackgroundRundown(rundown.id, backgroundRundown);
+        updateBackgroundRundown(rundownId, backgroundRundown);
       }
     }
 
@@ -539,7 +539,7 @@ export async function deleteCustomField(key: CustomFieldKey, projectRundowns: Pr
     if (rundownId !== rundown.id) {
       const backgroundRundown = structuredClone(projectRundowns[rundownId]);
       customFieldMutation.removeUsages(backgroundRundown, key);
-      updateBackgroundRundown(rundown.id, backgroundRundown);
+      updateBackgroundRundown(rundownId, backgroundRundown);
     }
   }
 
