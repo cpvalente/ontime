@@ -25,7 +25,7 @@ import { integrationRouter } from './api-integration/integration.router.js';
 
 // Import adapters
 import { socket } from './adapters/WebsocketAdapter.js';
-import { getDataProvider } from './classes/data-provider/DataProvider.js';
+import { getDataProvider, flushPendingWrites } from './classes/data-provider/DataProvider.js';
 
 // Services
 import { logger } from './classes/Logger.js';
@@ -265,6 +265,10 @@ export const startIntegrations = async () => {
  */
 export const shutdown = async (exitCode = 0) => {
   consoleHighlight(`Ontime shutting down with code ${exitCode}`);
+
+  await flushPendingWrites().catch((_error) => {
+    /** nothing do to here */
+  });
 
   // clear the restore file if it was a normal exit
   // 0 means it was a SIGNAL

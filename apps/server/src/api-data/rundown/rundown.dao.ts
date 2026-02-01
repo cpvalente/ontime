@@ -108,11 +108,6 @@ export function createTransaction(options: TransactionOptions): Transaction {
   function commit(shouldProcess: boolean = true) {
     // if the rundown is mutable we persist the changes
     if (options.mutableRundown) {
-      // schedule a database update
-      setImmediate(async () => {
-        await getDataProvider().setRundown(cachedRundown.id, cachedRundown);
-      });
-
       // update fields which are agnostic of whether the rundown is processed
       cachedRundown.revision = cachedRundown.revision + 1;
       cachedRundown.title = rundown.title;
@@ -133,16 +128,17 @@ export function createTransaction(options: TransactionOptions): Transaction {
         cachedRundown.flatOrder = metadata.flatEntryOrder;
         rundownMetadata = metadata;
       }
+
+      // persist after all mutations are applied
+      getDataProvider().setRundown(cachedRundown.id, cachedRundown);
     }
 
     // if the customFields are mutable we persist the changes
     if (options.mutableCustomFields) {
-      // schedule a database update
-      setImmediate(async () => {
-        await getDataProvider().setCustomFields(projectCustomFields);
-      });
-
       projectCustomFields = customFields;
+
+      // persist after reassignment
+      getDataProvider().setCustomFields(projectCustomFields);
     }
 
     return {
@@ -552,10 +548,8 @@ export const rundownMutation = {
 /**
  * Exposes a way to update a rundown which is not active
  */
-export function updateBackgroundRundown(rundownId: string, rundown: Rundown) {
-  setImmediate(async () => {
-    await getDataProvider().setRundown(rundownId, rundown);
-  });
+export async function updateBackgroundRundown(rundownId: string, rundown: Rundown) {
+  await getDataProvider().setRundown(rundownId, rundown);
 }
 
 /**
@@ -652,9 +646,7 @@ export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Rea
   rundownMetadata = metadata;
 
   // defer writing to the database
-  setImmediate(async () => {
-    await getDataProvider().setRundown(cachedRundown.id, cachedRundown);
-  });
+  getDataProvider().setRundown(cachedRundown.id, cachedRundown);
 
   return { rundown, rundownMetadata, customFields, revision: rundown.revision };
 }

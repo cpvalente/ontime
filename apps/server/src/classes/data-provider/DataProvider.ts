@@ -180,10 +180,58 @@ async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<D
   return db.data;
 }
 
+// Module-level state for debounced writes
+let pendingWrite: NodeJS.Timeout | null = null;
+let activeWrite: Promise<void> | null = null;
+const writeDelayMs = 3000; // 3 seconds
+
 /**
- * Handles persisting data to file
+ * Handles persisting data to file with trailing-edge debounce
+ * Multiple rapid calls will be coalesced into a single write
  */
 async function persist() {
   if (isTest) return;
+
+  // Cancel any pending write and reschedule
+  if (pendingWrite) {
+    clearTimeout(pendingWrite);
+  }
+
+  // Schedule new write after quiet period
+  pendingWrite = setTimeout(async () => {
+    pendingWrite = null;
+
+    // Wait for any in-progress write to finish first
+    if (activeWrite) {
+      await activeWrite;
+    }
+
+    try {
+      activeWrite = db.write();
+      await activeWrite;
+    } catch (error) {
+      console.error('Failed to persist database:', error);
+    } finally {
+      activeWrite = null;
+    }
+  }, writeDelayMs);
+}
+
+/**
+ * Force immediate write of any pending changes
+ */
+export async function flushPendingWrites() {
+  if (isTest) return;
+
+  if (pendingWrite) {
+    clearTimeout(pendingWrite);
+    pendingWrite = null;
+  }
+
+  // Wait for any in-progress write to finish
+  if (activeWrite) {
+    await activeWrite;
+  }
+
   await db.write();
 }
