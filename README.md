@@ -18,7 +18,7 @@
 
 ... or
 - Get from <a href="https://hub.docker.com/r/getontime/ontime">Docker hub</a>
-- Install from <a href="https://www.npmjs.com/package/ontime">NPM</a>
+- Install from <a href="https://www.npmjs.com/package/@getontime/cli">NPM</a>
 - Install from <a href="https://formulae.brew.sh/cask/ontime">Homebrew</a>
 
 ## Need help?
