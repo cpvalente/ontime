@@ -9,9 +9,8 @@ import type {
 } from 'ontime-types';
 import { deleteAtIndex, generateId } from 'ontime-utils';
 
-import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-
 import { isAutomationUsed } from './automation.utils.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 /**
  * Gets a copy of the stored automation settings

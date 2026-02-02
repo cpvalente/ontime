@@ -77,11 +77,11 @@ class RuntimeService {
     if (timerPhaseChanged) {
       if (newState.timer.phase === TimerPhase.Warning) {
         process.nextTick(() => {
-          triggerAutomations(TimerLifeCycle.onWarning, newState);
+          triggerAutomations(TimerLifeCycle.onWarning);
         });
       } else if (newState.timer.phase === TimerPhase.Danger) {
         process.nextTick(() => {
-          triggerAutomations(TimerLifeCycle.onDanger, newState);
+          triggerAutomations(TimerLifeCycle.onDanger);
         });
       }
     }
@@ -96,7 +96,7 @@ class RuntimeService {
       } else if (hasTimerFinished) {
         // if the timer has finished, we need to load next and keep rolling
         process.nextTick(() => {
-          triggerAutomations(TimerLifeCycle.onFinish, newState);
+          triggerAutomations(TimerLifeCycle.onFinish);
         });
         this.handleLoadNext();
         this.rollLoaded(newState.offset);
@@ -116,7 +116,7 @@ class RuntimeService {
     // 3. find if we need to process actions related to the timer finishing
     if (newState.timer.playback === Playback.Play && hasTimerFinished) {
       process.nextTick(() => {
-        triggerAutomations(TimerLifeCycle.onFinish, newState);
+        triggerAutomations(TimerLifeCycle.onFinish);
       });
 
       // handle end action if there was a timer playing
@@ -134,7 +134,7 @@ class RuntimeService {
     const shouldUpdateTimer = isNewSecond(this.lastIntegrationTimerValue, newState.timer.current);
     if (shouldUpdateTimer) {
       process.nextTick(() => {
-        triggerAutomations(TimerLifeCycle.onUpdate, newState);
+        triggerAutomations(TimerLifeCycle.onUpdate);
       });
 
       this.lastIntegrationTimerValue = newState.timer.current ?? -1;
@@ -144,7 +144,7 @@ class RuntimeService {
     const shouldUpdateClock = getShouldClockUpdate(this.lastIntegrationClockUpdate, newState.clock);
     if (shouldUpdateClock) {
       process.nextTick(() => {
-        triggerAutomations(TimerLifeCycle.onClock, newState);
+        triggerAutomations(TimerLifeCycle.onClock);
       });
 
       this.lastIntegrationClockUpdate = newState.clock;
@@ -209,10 +209,9 @@ class RuntimeService {
 
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
-      const newState = runtimeState.getState();
       process.nextTick(() => {
         triggerReportEntry(TimerLifeCycle.onStop, previousState);
-        triggerAutomations(TimerLifeCycle.onLoad, newState);
+        triggerAutomations(TimerLifeCycle.onLoad);
       });
     }
     return success;
@@ -447,7 +446,7 @@ class RuntimeService {
     if (didStart) {
       process.nextTick(() => {
         triggerReportEntry(TimerLifeCycle.onStart, newState);
-        triggerAutomations(TimerLifeCycle.onStart, newState);
+        triggerAutomations(TimerLifeCycle.onStart);
       });
     }
     return didStart;
@@ -500,7 +499,7 @@ class RuntimeService {
     const newState = runtimeState.getState();
     logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
     process.nextTick(() => {
-      triggerAutomations(TimerLifeCycle.onPause, newState);
+      triggerAutomations(TimerLifeCycle.onPause);
     });
   }
 
@@ -520,7 +519,7 @@ class RuntimeService {
       logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
       process.nextTick(() => {
         triggerReportEntry(TimerLifeCycle.onStop, previousState);
-        triggerAutomations(TimerLifeCycle.onStop, newState);
+        triggerAutomations(TimerLifeCycle.onStop);
       });
 
       return true;
@@ -577,14 +576,14 @@ class RuntimeService {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${result.eventId}`);
         process.nextTick(() => {
           triggerReportEntry(TimerLifeCycle.onStop, previousState);
-          triggerAutomations(TimerLifeCycle.onLoad, newState);
+          triggerAutomations(TimerLifeCycle.onLoad);
         });
       }
 
       if (result.didStart) {
         process.nextTick(() => {
           triggerReportEntry(TimerLifeCycle.onStart, newState);
-          triggerAutomations(TimerLifeCycle.onStart, newState);
+          triggerAutomations(TimerLifeCycle.onStart);
         });
       }
     } catch (error) {
