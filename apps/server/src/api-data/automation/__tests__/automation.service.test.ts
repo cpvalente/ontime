@@ -1,7 +1,6 @@
 import { PlayableEvent, TimerLifeCycle } from 'ontime-types';
 
-import { makeRuntimeStateData } from '../../../stores/__mocks__/runtimeState.mocks.js';
-import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
+import { makeRuntimeStoreData } from '../../../stores/__mocks__/runtimeStore.mocks.js';
 
 import { deleteAllTriggers, addTrigger, addAutomation } from '../automation.dao.js';
 import { testConditions, triggerAutomations } from '../automation.service.js';
@@ -10,6 +9,7 @@ import * as httpClient from '../clients/http.client.js';
 
 import { makeOSCAction, makeHTTPAction } from './testUtils.js';
 import { RuntimeState } from '../../../stores/runtimeState.js';
+import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
 
 beforeAll(() => {
   vi.mock('../../../classes/data-provider/DataProvider.js', () => {
@@ -40,9 +40,20 @@ describe('triggerAction()', () => {
   let oscSpy = vi.spyOn(oscClient, 'emitOSC');
   let httpSpy = vi.spyOn(httpClient, 'emitHTTP');
 
+  beforeAll(() => {
+    vi.mock('../../../stores/EventStore.js', () => {
+      // Create a small mock store
+      return {
+        eventStore: {
+          poll: vi.fn().mockImplementation(() => makeRuntimeStoreData()),
+        },
+      };
+    });
+  })
+
   beforeEach(async () => {
-    oscSpy = vi.spyOn(oscClient, 'emitOSC').mockImplementation(() => {});
-    httpSpy = vi.spyOn(httpClient, 'emitHTTP').mockImplementation(() => {});
+    oscSpy = vi.spyOn(oscClient, 'emitOSC').mockImplementation(() => { });
+    httpSpy = vi.spyOn(httpClient, 'emitHTTP').mockImplementation(() => { });
 
     await deleteAllTriggers();
     const oscAutomation = await addAutomation({
@@ -70,26 +81,25 @@ describe('triggerAction()', () => {
   });
 
   it('should trigger automations for a given action', () => {
-    const state = makeRuntimeStateData();
-    triggerAutomations(TimerLifeCycle.onLoad, state);
+    triggerAutomations(TimerLifeCycle.onLoad);
     expect(oscSpy).toHaveBeenCalledTimes(1);
     expect(httpSpy).not.toBeCalled();
     oscSpy.mockReset();
     httpSpy.mockReset();
 
-    triggerAutomations(TimerLifeCycle.onStart, state);
+    triggerAutomations(TimerLifeCycle.onStart);
     expect(oscClient.emitOSC).not.toBeCalled();
     expect(httpSpy).not.toBeCalled();
     oscSpy.mockReset();
     httpSpy.mockReset();
 
-    triggerAutomations(TimerLifeCycle.onFinish, state);
+    triggerAutomations(TimerLifeCycle.onFinish);
     expect(oscSpy).not.toBeCalled();
     expect(httpSpy).toHaveBeenCalledTimes(1);
     oscSpy.mockReset();
     httpSpy.mockReset();
 
-    triggerAutomations(TimerLifeCycle.onStop, state);
+    triggerAutomations(TimerLifeCycle.onStop);
     expect(oscSpy).not.toBeCalled();
     expect(httpSpy).not.toBeCalled();
   });
@@ -540,7 +550,7 @@ describe('testConditions()', () => {
 
   describe('for all filter rule', () => {
     it('should return true when all filters are true', () => {
-      const mockStore = makeRuntimeStateData({
+      const mockStore = makeRuntimeStoreData({
         clock: 10,
         eventNow: makeOntimeEvent({
           title: 'test',
@@ -560,7 +570,7 @@ describe('testConditions()', () => {
     });
 
     it('should return false if any filters are false', () => {
-      const mockStore = makeRuntimeStateData({
+      const mockStore = makeRuntimeStoreData({
         clock: 10,
         eventNow: makeOntimeEvent({
           title: 'test',
@@ -582,7 +592,7 @@ describe('testConditions()', () => {
 
   describe('for any filter rule', () => {
     it('should return true when all filters are true', () => {
-      const mockStore = makeRuntimeStateData({
+      const mockStore = makeRuntimeStoreData({
         clock: 10,
         eventNow: makeOntimeEvent({
           title: 'test',
@@ -602,7 +612,7 @@ describe('testConditions()', () => {
     });
 
     it('should return true if any filters are true', () => {
-      const mockStore = makeRuntimeStateData({
+      const mockStore = makeRuntimeStoreData({
         clock: 10,
         eventNow: makeOntimeEvent({
           title: 'not-test',
@@ -622,7 +632,7 @@ describe('testConditions()', () => {
     });
 
     it('should return false if all filters are false', () => {
-      const mockStore = makeRuntimeStateData({
+      const mockStore = makeRuntimeStoreData({
         clock: 10,
         eventNow: makeOntimeEvent({ title: 'test' }) as PlayableEvent,
       });
