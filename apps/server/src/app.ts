@@ -1,4 +1,4 @@
-import { LogOrigin, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { LogOrigin, Maybe, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -34,7 +34,7 @@ import { populateTranslation } from './setup/loadTranslations.js';
 import { populateStyles } from './setup/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
 import { runtimeService } from './services/runtime-service/runtime.service.js';
-import { restoreService } from './services/restore-service/restore.service.js';
+import { RestoreService } from './services/restore-service/restore.service.js';
 import type { RestorePoint } from './services/restore-service/restore.type.js';
 import * as messageService from './services/message-service/message.service.js';
 import { getState } from './stores/runtimeState.js';
@@ -47,6 +47,7 @@ import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { timerConfig } from './setup/config.js';
 import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
+import assert from 'assert';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -139,8 +140,11 @@ enum OntimeStartOrder {
   InitIO,
 }
 
+let expressServer: Maybe<Server> = null;
+let restorePoint: Maybe<RestorePoint> = null;
+let restoreService: Maybe<RestoreService> = null;
+
 let step = OntimeStartOrder.InitAssets;
-let expressServer: Server | null = null;
 
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
@@ -153,22 +157,23 @@ const checkStart = (currentState: OntimeStartOrder) => {
   }
 };
 
-let restorePoint: RestorePoint | null = null;
-
 export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable: boolean) => void) => {
   checkStart(OntimeStartOrder.InitAssets);
+  assert(expressServer === null, 'Init Error');
+
   // initialise logging service, escalateErrorFn only exists in electron
   logger.init(escalateErrorFn);
 
   // load restore point if it exists
+  restoreService = new RestoreService();
   restorePoint = await restoreService.load();
 
   await clearUploadfolder();
   populateStyles();
   populateTranslation();
   await populateDemo();
-  const project = await initialiseProject();
-  logger.info(LogOrigin.Server, `Initialised Ontime with ${project}`);
+  const projectName = await initialiseProject();
+  logger.info(LogOrigin.Server, `Initialised Ontime with ${projectName}`);
 };
 
 /**
@@ -176,14 +181,17 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
  */
 export const startServer = async (): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
+  assert(expressServer === null, 'Init Error');
+  assert(restoreService !== null, 'Init Error');
+
   const settings = getDataProvider().getSettings();
   const { serverPort: desiredPort } = settings;
-
   expressServer = http.createServer(app);
 
   // the express server must be started before the socket otherwise the on error event listener will not attach properly
   const resultPort = await serverTryDesiredPort(expressServer, desiredPort);
   await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
+
   const showWelcome = await getShowWelcomeDialog(!!restorePoint);
 
   socket.init(expressServer, showWelcome, prefix);
@@ -227,7 +235,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   messageService.init(eventStore.set, eventStore.get);
 
   // apply the restore point if it exists
-  runtimeService.init(restorePoint);
+  runtimeService.init(restorePoint, restoreService);
 
   const nif = getNetworkInterfaces();
   consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);
@@ -273,7 +281,7 @@ export const shutdown = async (exitCode = 0) => {
   // 3 means container shutdown -> keep the file
   // 99 means there was a shutdown request from the UI
   if (exitCode === 0 || exitCode === 99) {
-    await restoreService.clear();
+    await restoreService?.clear();
   }
 
   expressServer?.close();

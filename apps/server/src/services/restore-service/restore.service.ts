@@ -5,102 +5,96 @@ import { publicFiles } from '../../setup/index.js';
 
 import { isRestorePoint } from './restore.parser.js';
 import type { RestorePoint } from './restore.type.js';
-
-let failedCreateAttempts = 0;
-let savedState: RestorePoint | null = null;
-let fileRef: JSONFile<RestorePoint | null> | null = null;
+import { Maybe } from 'ontime-types';
 
 /**
  * Service manages saving snapshot of application state
  * that can then be restored when reopening
  */
-export const restoreService = {
-  save,
-  load,
-  clear,
-};
+export class RestoreService {
+  private fileRef: JSONFile<Maybe<RestorePoint>>;
+  private failedCreateAttempts = 0;
+  private savedState: RestorePoint | null = null;
 
-/**
- * Saves a restore point
- * @param [writeFn=write] - allows overriding the write function for testing
- * @public
- */
-async function save(data: RestorePoint, writeFn = write) {
-  // after three failed attempts, mark the service as unavailable
-  if (failedCreateAttempts > 3) {
-    return;
+  constructor() {
+    this.fileRef = new JSONFile<Maybe<RestorePoint>>(publicFiles.restoreFile);
   }
 
-  if (deepEqual(data, savedState)) {
-    return;
-  }
-
-  try {
-    await writeFn(data);
-    savedState = { ...data };
-    failedCreateAttempts = 0;
-  } catch (_error) {
-    failedCreateAttempts += 1;
-  }
-}
-
-/**
- * Attempts reading a restore point from a given file path
- * Returns null if none found, restore point otherwise
- * @param [readFn=read] - allows overriding the read function for testing
- * @public
- */
-async function load(readFn = read): Promise<RestorePoint | null> {
-  try {
-    const maybeRestorePoint = await readFn();
-    if (isRestorePoint(maybeRestorePoint)) {
-      return maybeRestorePoint;
+  /**
+   * Saves a restore point
+   * @param [data] - the restore point to save
+   * @param [writeFn=write] - allows overriding the write function for testing
+   */
+  public async save(data: RestorePoint, writeFn = this.write) {
+    // after three failed attempts, mark the service as unavailable
+    if (this.failedCreateAttempts > 3) {
+      return;
     }
-  } catch (_error) {
-    // no need to notify the user
+
+    if (deepEqual(data, this.savedState)) {
+      return;
+    }
+
+    try {
+      await writeFn(data);
+      this.savedState = { ...data };
+      this.failedCreateAttempts = 0;
+    } catch (_error) {
+      this.failedCreateAttempts += 1;
+    }
   }
-  return null;
-}
 
-/**
- * Clears the restore file
- * @param [writeFn=write] - allows overriding the write function for testing
- * @public
- */
-async function clear(writeFn = write) {
-  try {
-    await writeFn(null);
-  } catch (_error) {
-    // nothing to do
+  /**
+   * Attempts reading a restore point from a given file path
+   * Returns null if none found, restore point otherwise
+   * @param [readFn=read] - allows overriding the read function for testing
+   */
+  public async load(readFn = this.read): Promise<RestorePoint | null> {
+    try {
+      const maybeRestorePoint = await readFn();
+      if (isRestorePoint(maybeRestorePoint)) {
+        return maybeRestorePoint;
+      }
+    } catch (_error) {
+      // no need to notify the user
+    }
+    return null;
   }
-}
 
-/**
- * Initialised file reference
- * @private
- */
-async function init(): Promise<JSONFile<RestorePoint | null>> {
-  if (fileRef) return fileRef;
+  /**
+   * Saves a restore point
+   * @param [data] - the restore point to save
+   * @param [writeFn=write] - allows overriding the write function for testing
+   */
+  public async clear(writeFn = this.write) {
+    // after three failed attempts, mark the service as unavailable
+    if (this.failedCreateAttempts > 3) {
+      return;
+    }
 
-  fileRef = new JSONFile<RestorePoint | null>(publicFiles.restoreFile);
-  return fileRef;
-}
+    this.savedState = null;
 
-/**
- * Reads from an intialized file reference
- * @private
- */
-async function read(): Promise<RestorePoint | null> {
-  const file = await init();
-  return file.read();
-}
+    try {
+      await writeFn(null);
+      this.failedCreateAttempts = 0;
+    } catch (_error) {
+      this.failedCreateAttempts += 1;
+    }
+  }
 
-/**
- * Writes to an intialized file reference
- * @throws - if writing fails
- * @private
- */
-async function write(data: RestorePoint | null) {
-  const file = await init();
-  return file.write(data);
+  /**
+   * Reads from an initialized file reference
+   * @private
+   */
+  private async read(): Promise<RestorePoint | null> {
+    return this.fileRef.read();
+  }
+
+  /**
+   * Writes to an initialized file reference
+   * @throws - if writing fails
+   */
+  private async write(data: Maybe<RestorePoint>) {
+    return this.fileRef.write(data);
+  }
 }

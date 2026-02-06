@@ -4,6 +4,7 @@ import {
   isOntimeEvent,
   isPlayableEvent,
   LogOrigin,
+  Maybe,
   Offset,
   OffsetMode,
   OntimeEvent,
@@ -28,7 +29,7 @@ import { getCurrentRundown, getEntryWithId, getRundownMetadata } from '../../api
 
 import { EventTimer } from '../EventTimer.js';
 import type { RestorePoint } from '../restore-service/restore.type.js';
-import { restoreService } from '../restore-service/restore.service.js';
+import { RestoreService } from '../restore-service/restore.service.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
 
 import {
@@ -51,6 +52,7 @@ class RuntimeService {
   private readonly eventTimer: EventTimer;
   private lastIntegrationClockUpdate = -1;
   private lastIntegrationTimerValue = -1;
+  public restoreService: RestoreService | null = null;
 
   /** last known state */
   static previousState: RuntimeState;
@@ -152,10 +154,11 @@ class RuntimeService {
   }
 
   /** delay initialisation until we have a restore point */
-  public init(resumable: RestorePoint | null) {
+  public init(resumable: Maybe<RestorePoint>, restoreService: RestoreService) {
     logger.info(LogOrigin.Server, 'Runtime service started');
     this.eventTimer.setOnUpdateCallback((updateResult) => this.checkTimerUpdate(updateResult));
 
+    this.restoreService = restoreService;
     if (resumable) {
       this.resume(resumable);
     }
@@ -749,8 +752,8 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     }
 
     // save the restore state
-    if (hasImmediateChanges) {
-      restoreService
+    if (hasImmediateChanges && runtimeService.restoreService) {
+      runtimeService.restoreService
         .save({
           playback: state.timer.playback,
           selectedEventId: state.eventNow?.id ?? null,

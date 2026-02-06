@@ -4,10 +4,11 @@ import { Playback } from 'ontime-types';
 import { vi } from 'vitest';
 
 import { RestorePoint } from '../restore.type.js';
-import { restoreService } from '../restore.service.js';
+import { RestoreService } from '../restore.service.js';
 
-describe('restoreService', () => {
+describe('RestoreService', () => {
   describe('load()', () => {
+    const restoreService = new RestoreService();
     it('loads working file with times', async () => {
       const expected: RestorePoint = {
         playback: Playback.Play,
@@ -75,6 +76,7 @@ describe('restoreService', () => {
   });
 
   describe('save()', () => {
+    const restoreService = new RestoreService();
     it('saves data to file', async () => {
       const testData: RestorePoint = {
         playback: Playback.Play,
@@ -147,6 +149,7 @@ describe('restoreService', () => {
   });
 
   describe('clear()', () => {
+    const restoreService = new RestoreService();
     it('clears the restore file', async () => {
       const mockWrite = vi.fn().mockResolvedValue(undefined);
 
