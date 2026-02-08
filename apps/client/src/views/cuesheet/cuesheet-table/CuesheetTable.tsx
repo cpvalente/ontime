@@ -1,7 +1,14 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { TableVirtuoso, TableVirtuosoHandle } from 'react-virtuoso';
+import { ComponentProps, memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  ContextProp,
+  ItemProps,
+  TableComponents,
+  TableProps,
+  TableVirtuoso,
+  TableVirtuosoHandle,
+} from 'react-virtuoso';
 import { useTableNav } from '@table-nav/react';
-import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { ColumnDef, getCoreRowModel, Table, useReactTable } from '@tanstack/react-table';
 import { isOntimeDelay, isOntimeGroup, isOntimeMilestone, OntimeEntry, TimeField } from 'ontime-types';
 
 import EmptyPage from '../../../common/components/state/EmptyPage';
@@ -170,6 +177,28 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
 
   const allLeafColumns = table.getAllLeafColumns();
   const { rows } = table.getRowModel();
+  const virtuosoContext = useMemo(
+    () => ({
+      columnSizeVars,
+      cursor,
+      listeners,
+      rows,
+      table,
+    }),
+    [columnSizeVars, cursor, listeners, rows, table],
+  );
+
+  const computeItemKey = useCallback((_: number, item: ExtendedEntry) => item.id, []);
+  const fixedHeaderContent = useCallback(() => {
+    return table.getHeaderGroups().map((headerGroup) => {
+      const HeaderComponent = table.getState().columnSizingInfo.isResizingColumn
+        ? CuesheetHeader
+        : SortableCuesheetHeader;
+
+      // if the table is being resized, we render non-sortable headers to avoid performance issues
+      return <HeaderComponent key={headerGroup.id} cuesheetMode={cuesheetMode} headerGroup={headerGroup} />;
+    });
+  }, [cuesheetMode, table]);
 
   const isLoading = !data || status === 'pending';
 
@@ -191,113 +220,146 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
       <TableVirtuoso
         ref={virtuosoRef}
         data={data}
+        context={virtuosoContext}
         style={tableRoot === 'editor' ? { paddingLeft: '1rem' } : undefined}
+        computeItemKey={computeItemKey}
         increaseViewportBy={{ top: 100, bottom: 200 }}
-        components={{
-          EmptyPlaceholder: () => <EmptyTableBody text='No data in rundown' />,
-          Table: ({ style: injectedStyles, ...virtuosoProps }) => {
-            return (
-              <table
-                className={style.cuesheet}
-                id='cuesheet'
-                style={{ ...injectedStyles, ...columnSizeVars }}
-                {...listeners}
-                {...virtuosoProps}
-              />
-            );
-          },
-          TableRow: ({ item: _item, style: injectedStyles, ...virtuosoProps }) => {
-            // eslint-disable-next-line react/destructuring-assignment
-            const rowIndex = virtuosoProps['data-index'];
-            const row = rows[rowIndex];
-            const key = row.original.id;
-            const entry = row.original;
-            const hasCursor = entry.id === cursor;
-
-            if (isOntimeGroup(entry)) {
-              return (
-                <GroupRow
-                  key={key}
-                  groupId={entry.id}
-                  colour={entry.colour}
-                  rowId={row.id}
-                  rowIndex={row.index}
-                  table={table}
-                  injectedStyles={injectedStyles}
-                  hasCursor={hasCursor}
-                  {...virtuosoProps}
-                />
-              );
-            }
-
-            if (isOntimeDelay(entry)) {
-              return (
-                <DelayRow
-                  key={key}
-                  duration={entry.duration}
-                  injectedStyles={injectedStyles}
-                  hasCursor={hasCursor}
-                  {...virtuosoProps}
-                />
-              );
-            }
-
-            if (isOntimeMilestone(entry)) {
-              return (
-                <MilestoneRow
-                  key={key}
-                  entryId={entry.id}
-                  isPast={entry.isPast}
-                  parentBgColour={entry.groupColour}
-                  parentId={entry.parent}
-                  colour={entry.colour}
-                  rowId={row.id}
-                  rowIndex={rowIndex}
-                  table={table}
-                  injectedStyles={injectedStyles}
-                  hasCursor={hasCursor}
-                  {...virtuosoProps}
-                />
-              );
-            }
-
-            return (
-              <EventRow
-                key={row.id}
-                id={entry.id}
-                eventIndex={entry.eventIndex}
-                colour={entry.colour}
-                isFirstAfterGroup={entry.isFirstAfterGroup}
-                isLoaded={entry.isLoaded}
-                isPast={entry.isPast}
-                groupColour={entry.groupColour}
-                flag={entry.flag}
-                skip={entry.skip}
-                parent={entry.parent}
-                rowId={row.id}
-                rowIndex={rowIndex}
-                table={table}
-                injectedStyles={injectedStyles}
-                hasCursor={hasCursor}
-                {...virtuosoProps}
-              />
-            );
-          },
-          TableHead: (virtuosoProps) => <thead className={style.tableHeader} {...virtuosoProps} />,
-        }}
-        fixedHeaderContent={() => {
-          return table.getHeaderGroups().map((headerGroup) => {
-            const HeaderComponent = table.getState().columnSizingInfo.isResizingColumn
-              ? CuesheetHeader
-              : SortableCuesheetHeader;
-
-            // if the table is being resized, we render non-sortable headers to avoid performance issues
-            return <HeaderComponent key={headerGroup.id} cuesheetMode={cuesheetMode} headerGroup={headerGroup} />;
-          });
-        }}
+        components={virtuosoComponents}
+        fixedHeaderContent={fixedHeaderContent}
       />
 
       <TableMenu />
     </>
   );
 }
+
+
+interface CuesheetVirtuosoContext {
+  columnSizeVars: { [key: string]: number };
+  cursor: string | null;
+  listeners: ReturnType<typeof useTableNav>['listeners'];
+  rows: ReturnType<Table<ExtendedEntry>['getRowModel']>['rows'];
+  table: Table<ExtendedEntry>;
+}
+
+const EmptyPlaceholder = memo(function EmptyPlaceholder() {
+  return <EmptyTableBody text='No data in rundown' />;
+});
+
+const CuesheetTableElement = memo(function CuesheetTableElement({
+  style: injectedStyles,
+  context,
+  ...virtuosoProps
+}: TableProps & ContextProp<CuesheetVirtuosoContext>) {
+  return (
+    <table
+      className={style.cuesheet}
+      id='cuesheet'
+      style={{ ...injectedStyles, ...context.columnSizeVars }}
+      {...context.listeners}
+      {...virtuosoProps}
+    />
+  );
+});
+
+const CuesheetTableHead = memo(function CuesheetTableHead({
+  context: _context,
+  className: _className,
+  ...virtuosoProps
+}: ComponentProps<'thead'> & ContextProp<CuesheetVirtuosoContext>) {
+  return <thead className={style.tableHeader} {...virtuosoProps} />;
+});
+
+const CuesheetTableRow = memo(function CuesheetTableRow({
+  item: _item,
+  style: injectedStyles,
+  context,
+  ...virtuosoProps
+}: ItemProps<ExtendedEntry> & ContextProp<CuesheetVirtuosoContext>) {
+  // eslint-disable-next-line react/destructuring-assignment
+  const rowIndex = virtuosoProps['data-index'];
+  const row = context.rows[rowIndex];
+  if (!row) {
+    return null;
+  }
+
+  const key = row.original.id;
+  const entry = row.original;
+  const hasCursor = entry.id === context.cursor;
+
+  if (isOntimeGroup(entry)) {
+    return (
+      <GroupRow
+        key={key}
+        groupId={entry.id}
+        colour={entry.colour}
+        rowId={row.id}
+        rowIndex={row.index}
+        table={context.table}
+        injectedStyles={injectedStyles}
+        hasCursor={hasCursor}
+        {...virtuosoProps}
+      />
+    );
+  }
+
+  if (isOntimeDelay(entry)) {
+    return (
+      <DelayRow
+        key={key}
+        duration={entry.duration}
+        injectedStyles={injectedStyles}
+        hasCursor={hasCursor}
+        {...virtuosoProps}
+      />
+    );
+  }
+
+  if (isOntimeMilestone(entry)) {
+    return (
+      <MilestoneRow
+        key={key}
+        entryId={entry.id}
+        isPast={entry.isPast}
+        parentBgColour={entry.groupColour}
+        parentId={entry.parent}
+        colour={entry.colour}
+        rowId={row.id}
+        rowIndex={rowIndex}
+        table={context.table}
+        injectedStyles={injectedStyles}
+        hasCursor={hasCursor}
+        {...virtuosoProps}
+      />
+    );
+  }
+
+  return (
+    <EventRow
+      key={row.id}
+      id={entry.id}
+      eventIndex={entry.eventIndex}
+      colour={entry.colour}
+      isFirstAfterGroup={entry.isFirstAfterGroup}
+      isLoaded={entry.isLoaded}
+      isPast={entry.isPast}
+      groupColour={entry.groupColour}
+      flag={entry.flag}
+      skip={entry.skip}
+      parent={entry.parent}
+      rowId={row.id}
+      rowIndex={rowIndex}
+      table={context.table}
+      injectedStyles={injectedStyles}
+      hasCursor={hasCursor}
+      {...virtuosoProps}
+    />
+  );
+});
+
+const virtuosoComponents: TableComponents<ExtendedEntry, CuesheetVirtuosoContext> = {
+  EmptyPlaceholder,
+  Table: CuesheetTableElement,
+  TableHead: CuesheetTableHead,
+  TableRow: CuesheetTableRow,
+};

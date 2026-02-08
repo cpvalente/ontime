@@ -91,6 +91,7 @@ export default function EventRow({
       }}
       data-cursor={hasCursor}
       data-testid='cuesheet-event'
+      data-entry-id={id}
       {...virtuosoProps}
     >
       {cuesheetMode === AppMode.Edit && (
@@ -127,6 +128,8 @@ export default function EventRow({
               }}
               tabIndex={-1}
               role='cell'
+              data-testid={`cuesheet-cell-${cell.column.id}`}
+              data-column-id={cell.column.id}
             >
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </td>

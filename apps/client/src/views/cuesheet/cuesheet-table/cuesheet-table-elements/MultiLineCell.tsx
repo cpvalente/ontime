@@ -5,12 +5,14 @@ import useReactiveTextInput from '../../../../common/components/input/text-input
 
 interface MultiLineCellProps {
   initialValue: string;
+  fieldId?: string;
+  fieldLabel?: string;
   handleUpdate: (newValue: string) => void;
 }
 
 export default memo(MultiLineCell);
 
-function MultiLineCell({ initialValue, handleUpdate }: MultiLineCellProps) {
+function MultiLineCell({ initialValue, fieldId, fieldLabel, handleUpdate }: MultiLineCellProps) {
   const ref = useRef<HTMLTextAreaElement | null>(null);
   const submitCallback = useCallback((newValue: string) => handleUpdate(newValue), [handleUpdate]);
 
@@ -30,6 +32,8 @@ function MultiLineCell({ initialValue, handleUpdate }: MultiLineCellProps) {
       onBlur={onBlur}
       onKeyDown={onKeyDown}
       spellCheck={false}
+      data-testid={fieldId ? `cuesheet-editor-${fieldId}` : undefined}
+      aria-label={fieldLabel ? `${fieldLabel} editor` : undefined}
     />
   );
 }
