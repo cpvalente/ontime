@@ -11,7 +11,7 @@ import IconButton from '../buttons/IconButton';
 import Info from '../info/Info';
 
 import { ViewOption } from './viewParams.types';
-import { getURLSearchParamsFromObj } from './viewParams.utils';
+import { getPreservedSearchParams, getURLSearchParamsFromObj } from './viewParams.utils';
 import { useViewParamsEditorStore } from './viewParamsEditor.store';
 import { ViewParamsPresets } from './ViewParamsPresets';
 import ViewParamsSection from './ViewParamsSection';
@@ -25,17 +25,19 @@ interface EditFormDrawerProps {
 
 export default memo(ViewParamsEditor);
 function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
-  const [_, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
   const { isOpen, close } = useViewParamsEditorStore();
   const isSmallScreen = useIsSmallScreen();
+
+  const getPreservedParams = () => getPreservedSearchParams(searchParams, viewOptions);
 
   const handleClose = () => {
     close();
   };
 
   const resetParams = () => {
-    setSearchParams();
+    setSearchParams(getPreservedParams());
   };
 
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
@@ -43,6 +45,10 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
 
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
+    const preservedParams = getPreservedParams();
+    preservedParams.forEach((value, key) => {
+      newSearchParams.append(key, value);
+    });
     setSearchParams(newSearchParams);
 
     if (isSmallScreen) {

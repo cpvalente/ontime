@@ -191,3 +191,26 @@ export function getURLSearchParamsFromObj(paramsObj: ViewParamsObj, paramFields:
 
   return newSearchParams;
 }
+
+/**
+ * Extracts search params that are not managed by the view params editor
+ * @param currentParams - The current URL search params
+ * @param paramFields - The view options that define the managed parameters
+ * @returns A new URLSearchParams object with preserved params
+ */
+export function getPreservedSearchParams(currentParams: URLSearchParams, paramFields: ViewOption[]) {
+  const managedParamIds = new Set<string>();
+  paramFields.forEach((section) => {
+    section.options.forEach((option) => {
+      managedParamIds.add(option.id);
+    });
+  });
+
+  const preserved = new URLSearchParams();
+  currentParams.forEach((value, key) => {
+    if (!managedParamIds.has(key)) {
+      preserved.append(key, value);
+    }
+  });
+  return preserved;
+}
