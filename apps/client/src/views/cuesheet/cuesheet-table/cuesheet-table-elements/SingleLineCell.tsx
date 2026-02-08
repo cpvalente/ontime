@@ -5,13 +5,18 @@ import useReactiveTextInput from '../../../../common/components/input/text-input
 
 interface SingleLineCellProps {
   initialValue: string;
+  fieldId?: string;
+  fieldLabel?: string;
   allowSubmitSameValue?: boolean;
   handleUpdate: (newValue: string) => void;
   handleCancelUpdate?: () => void;
 }
 
 const SingleLineCell = forwardRef(
-  ({ initialValue, allowSubmitSameValue, handleUpdate, handleCancelUpdate }: SingleLineCellProps, inputRef) => {
+  (
+    { initialValue, fieldId, fieldLabel, allowSubmitSameValue, handleUpdate, handleCancelUpdate }: SingleLineCellProps,
+    inputRef,
+  ) => {
     const ref = useRef<HTMLInputElement | null>(null);
     const submitCallback = useCallback((newValue: string) => handleUpdate(newValue), [handleUpdate]);
 
@@ -47,6 +52,8 @@ const SingleLineCell = forwardRef(
         onChange={onChange}
         onBlur={onBlur}
         onKeyDown={onKeyDown}
+        data-testid={fieldId ? `cuesheet-editor-${fieldId}` : undefined}
+        aria-label={fieldLabel ? `${fieldLabel} editor` : undefined}
       />
     );
   },
