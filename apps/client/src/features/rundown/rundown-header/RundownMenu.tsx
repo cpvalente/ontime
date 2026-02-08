@@ -41,7 +41,7 @@ function RundownMenu({ allowNavigation }: RundownMenuProps) {
               type: 'item',
               label: 'Manage Rundowns...',
               icon: IoList,
-              onClick: () => setLocation('manage'),
+              onClick: () => setLocation('manage__rundowns'),
               disabled: !allowNavigation,
             },
             { type: 'divider' },

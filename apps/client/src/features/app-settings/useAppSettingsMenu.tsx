@@ -90,7 +90,10 @@ const staticOptions = [
   },
 ] as const;
 
-export type SettingsOptionId = (typeof staticOptions)[number]['id'];
+// a child of navigation or a child of secondary navigation
+export type SettingsOptionId =
+  | (typeof staticOptions)[number]['id']
+  | Extract<(typeof staticOptions)[number], { secondary: object }>['secondary'][number]['id'];
 
 export function useAppSettingsMenu() {
   const { data } = useAppVersion();
