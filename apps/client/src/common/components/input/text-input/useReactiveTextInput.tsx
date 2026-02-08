@@ -25,12 +25,15 @@ export default function useReactiveTextInput(
   const isKeyboardSubmitting = useRef(false);
 
   useEffect(() => {
+    const isFocused = document.activeElement === ref.current;
+    if (isFocused) return;
+
     if (typeof initialText === 'undefined') {
       setText('');
     } else {
       setText(initialText);
     }
-  }, [initialText]);
+  }, [initialText, ref]);
 
   /**
    * @description Handles Input value change

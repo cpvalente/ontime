@@ -1,0 +1,94 @@
+
+> ontime@4.3.1 dev /app
+> turbo run dev
+
+
+Attention:
+Turborepo now collects completely anonymous telemetry regarding usage.
+This information is used to shape the Turborepo roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://turborepo.com/docs/telemetry
+
+turbo 2.5.8
+
+• Packages in scope: @getontime/cli, @getontime/resolver, ontime-electron, ontime-server, ontime-types, ontime-ui, ontime-utils
+• Running dev in 7 packages
+• Remote caching disabled
+ontime-server:dev: cache bypass, force executing 736e67d68a6b5681
+ontime-ui:dev: cache bypass, force executing 9eacdb30152cd80e
+ontime-ui:dev:
+ontime-ui:dev: > ontime-ui@4.3.1 dev /app/apps/client
+ontime-ui:dev: > cross-env BROWSER=none vite
+ontime-ui:dev:
+ontime-server:dev:
+ontime-server:dev: > ontime-server@4.3.1 dev /app/apps/server
+ontime-server:dev: > cross-env NODE_ENV=development tsx watch ./src/index.ts
+ontime-server:dev:
+ontime-ui:dev:
+ontime-ui:dev:   VITE v6.3.1  ready in 748 ms
+ontime-ui:dev:
+ontime-ui:dev:   ➜  Local:   http://localhost:3000/
+ontime-ui:dev:   ➜  Network: use --host to expose
+ontime-server:dev:
+ontime-server:dev:
+ontime-server:dev: [96mStarting Ontime version 4.3.1[0m
+ontime-server:dev: Ontime running in development environment
+ontime-server:dev: Ontime source directory at /app/apps/server/src/
+ontime-server:dev: Ontime public directory at /home/jules/.Ontime
+ontime-server:dev:
+ontime-server:dev:
+ontime-server:dev: [96mRequest: Initialise assets...[0m
+ontime-server:dev: [2m[INFO] 	 SERVER 	 Loaded project demo project.json[0m
+ontime-server:dev: [2m[INFO] 	 SERVER 	 Switch to rundown: default[0m
+ontime-server:dev: [2m[INFO] 	 SERVER 	 Initialised Ontime with demo project.json[0m
+ontime-server:dev:
+ontime-server:dev:
+ontime-server:dev: [96mRequest: Start server...[0m
+ontime-server:dev: [2m[INFO] 	 SERVER 	 Runtime service started[0m
+ontime-server:dev: [32mLocal: http://localhost:4001/editor[0m
+ontime-server:dev: [32mNetwork: http://192.168.0.2:4001/editor[0m
+ontime-server:dev: [2m[INFO] 	 SERVER 	 Ontime is listening on port 4001[0m
+ontime-server:dev:
+ontime-server:dev:
+ontime-server:dev: [96mRequest: Start integrations...[0m
+ontime-server:dev: [2m[INFO] 	 SERVER 	 Skipping OSC integration[0m
+ontime-ui:dev: Browserslist: browsers data (caniuse-lite) is 9 months old. Please run:
+ontime-ui:dev:   npx update-browserslist-db@latest
+ontime-ui:dev:   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ontime-ui:dev: Browserslist: caniuse-lite is outdated. Please run:
+ontime-ui:dev:   npx update-browserslist-db@latest
+ontime-ui:dev:   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ontime-server:dev: [2m[INFO] 	 CLIENT 	 1 Connections with new: low-fi instrument[0m
+ontime-ui:dev: Proxy: GET /data/settings
+ontime-ui:dev: Proxy: GET /user/translations/translations.json
+ontime-ui:dev: Proxy: GET /data/report
+ontime-ui:dev: Proxy: GET /data/view-settings
+ontime-ui:dev: Proxy: GET /data/rundowns/current
+ontime-ui:dev: Proxy: GET /data/project
+ontime-ui:dev: Proxy: GET /data/db/all
+ontime-ui:dev: Proxy: GET /data/rundowns/current
+ontime-ui:dev: Proxy: GET /data/project
+ontime-ui:dev: Proxy: GET /data/db/all
+ontime-server:dev: [2m[INFO] 	 CLIENT 	 0 Connections with disconnected: low-fi instrument[0m
+ontime-server:dev: [2m[INFO] 	 CLIENT 	 1 Connections with new: mellow uplight[0m
+ontime-ui:dev: Proxy: GET /data/settings
+ontime-ui:dev: Proxy: GET /user/translations/translations.json
+ontime-ui:dev: Proxy: GET /data/report
+ontime-ui:dev: Proxy: GET /data/view-settings
+ontime-ui:dev: Proxy: GET /data/rundowns/current
+ontime-ui:dev: Proxy: GET /data/project
+ontime-ui:dev: Proxy: GET /data/rundowns/current
+ontime-ui:dev: Proxy: GET /data/project
+ontime-server:dev: [2m[INFO] 	 CLIENT 	 0 Connections with disconnected: mellow uplight[0m
+ontime-server:dev: [2m[INFO] 	 CLIENT 	 1 Connections with new: nostalgic mix[0m
+ontime-ui:dev: Proxy: GET /data/settings
+ontime-ui:dev: Proxy: GET /user/translations/translations.json
+ontime-ui:dev: Proxy: GET /data/report
+ontime-ui:dev: Proxy: GET /data/view-settings
+ontime-ui:dev: Proxy: GET /data/rundowns/current
+ontime-ui:dev: Proxy: GET /data/project
+ontime-ui:dev: Proxy: GET /data/rundowns/current
+ontime-ui:dev: Proxy: GET /data/project
+ontime-ui:dev: Proxy: GET /data/custom-fields
+ontime-ui:dev: Proxy: GET /data/rundowns/current
+ontime-server:dev: [2m[INFO] 	 CLIENT 	 0 Connections with disconnected: nostalgic mix[0m
