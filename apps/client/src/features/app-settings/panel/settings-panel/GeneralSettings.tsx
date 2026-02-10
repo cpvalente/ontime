@@ -32,7 +32,6 @@ export default function GeneralSettings() {
   } = useForm<Settings>({
     mode: 'onChange',
     defaultValues: data,
-    values: data,
     resetOptions: {
       keepDirtyValues: true,
     },

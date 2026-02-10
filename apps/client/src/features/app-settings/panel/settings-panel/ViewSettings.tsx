@@ -31,7 +31,6 @@ export default function ViewSettings() {
     formState: { isSubmitting, isDirty, errors },
   } = useForm<ViewSettingsType>({
     defaultValues: data,
-    values: data,
     resetOptions: {
       keepDirtyValues: true,
     },
