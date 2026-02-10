@@ -1,4 +1,4 @@
-import { lazy, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 
 import { getCSSContents, postCSSContents, restoreCSSContents } from '../../../../../common/api/assets';
 import Button from '../../../../../common/components/buttons/Button';
@@ -81,7 +81,9 @@ export default function CodeEditorModal({ isOpen, onClose }: CodeEditorModalProp
       showCloseButton
       showBackdrop
       bodyElements={
-        <CodeEditor ref={cssRef} initialValue={css} language='css' isDirty={isDirty} setIsDirty={setIsDirty} />
+        <Suspense fallback={null}>
+          <CodeEditor ref={cssRef} initialValue={css} language='css' isDirty={isDirty} setIsDirty={setIsDirty} />
+        </Suspense>
       }
       footerElements={
         <div className={style.column}>
