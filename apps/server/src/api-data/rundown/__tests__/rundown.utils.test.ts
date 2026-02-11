@@ -1,4 +1,4 @@
-import { TimeStrategy, EndAction, TimerType, OntimeEvent, OntimeGroup } from 'ontime-types';
+import { TimeStrategy, EndAction, TimerType, OntimeEvent } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { assertType } from 'vitest';
@@ -11,7 +11,6 @@ import {
   deleteById,
   doesInvalidateMetadata,
   duplicateRundown,
-  getInsertAfterId,
   hasChanges,
   makeDeepClone,
 } from '../rundown.utils.js';
@@ -223,45 +222,6 @@ describe('calculateDayOffset()', () => {
         { timeStart: 23 * MILLIS_PER_HOUR, duration: 6 * MILLIS_PER_HOUR }, // ends at 24:00:00
       ),
     ).toBe(1);
-  });
-});
-
-describe('getInsertAfterId()', () => {
-  const rundown = makeRundown({
-    entries: {
-      '1': makeOntimeEvent({ id: '1', parent: null }),
-      '2': makeOntimeEvent({ id: '2', parent: null }),
-      group: makeOntimeGroup({ id: 'group', entries: ['31', '32'] }),
-      '31': makeOntimeEvent({ id: '31', parent: 'group' }),
-      '32': makeOntimeEvent({ id: '32', parent: 'group' }),
-      '4': makeOntimeEvent({ id: '4', parent: null }),
-    },
-    order: ['1', '2', 'group', '4'],
-    flatOrder: ['1', '2', 'group', '31', '32', '4'],
-  });
-
-  it('returns afterId if provided', () => {
-    expect(getInsertAfterId(rundown, null, 'b')).toBe('b');
-  });
-
-  it('returns null if neither afterId nor beforeId is provided', () => {
-    expect(getInsertAfterId(rundown, null)).toBeNull();
-  });
-
-  it('returns null if beforeId is not found', () => {
-    expect(getInsertAfterId(rundown, null, undefined, 'z')).toBeNull();
-    expect(getInsertAfterId(rundown, null, undefined, '1')).toBeNull();
-  });
-
-  it('returns the previous id of an entry in the rundown', () => {
-    expect(getInsertAfterId(rundown, null, undefined, '2')).toBe('1');
-    expect(getInsertAfterId(rundown, null, undefined, '4')).toBe('group');
-    expect(getInsertAfterId(rundown, null, undefined, 'group')).toBe('2');
-  });
-
-  it('returns the previous id of an event in a group', () => {
-    expect(getInsertAfterId(rundown, rundown.entries.group as OntimeGroup, undefined, '31')).toBeNull();
-    expect(getInsertAfterId(rundown, rundown.entries.group as OntimeGroup, undefined, '32')).toBe('31');
   });
 });
 
