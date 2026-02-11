@@ -484,31 +484,6 @@ export function calculateDayOffset(
 }
 
 /**
- * Receives an insertion order and returns the reference to an event ID
- * after which we will insert the new event
- */
-export function getInsertAfterId(
-  rundown: Rundown,
-  parent: OntimeGroup | null,
-  afterId?: EntryId,
-  beforeId?: EntryId,
-): EntryId | null {
-  if (afterId) return afterId;
-  if (!beforeId) return null;
-
-  /**
-   * At this point we know we want to insert before a given ID
-   * We need to check which list we should use to insert and find the event there
-   */
-  const insertionList = parent ? parent.entries : rundown.order;
-  if (!insertionList || insertionList.length === 0) return null;
-
-  const atIndex = insertionList.findIndex((id) => id === beforeId);
-  if (atIndex < 1) return null;
-  return insertionList[atIndex - 1];
-}
-
-/**
  * Sanitises custom fields in an entry by removing fields
  * - if it does not exist in the project
  * - if the value is empty string

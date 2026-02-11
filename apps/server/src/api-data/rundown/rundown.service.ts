@@ -16,7 +16,7 @@ import {
   ProjectRundowns,
   InsertOptions,
 } from 'ontime-types';
-import { customFieldLabelToKey } from 'ontime-utils';
+import { customFieldLabelToKey, getInsertAfterId } from 'ontime-utils';
 
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
@@ -33,7 +33,7 @@ import {
   updateBackgroundRundown,
 } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
-import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
+import { generateEvent, hasChanges } from './rundown.utils.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 /**

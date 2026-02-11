@@ -9,6 +9,8 @@ import type {
 } from 'ontime-types';
 import { isOntimeEvent, isOntimeGroup, isPlayableEvent } from 'ontime-types';
 
+import { insertAtIndex } from '../common/arrayUtils.js';
+
 type IndexAndEntry = { entry: OntimeEntry | null; index: number | null };
 type GroupIndexAndEntry = { entry: OntimeGroup | null; index: number | null };
 
@@ -360,11 +362,76 @@ export function getNextGroupNormal(
 }
 
 /**
- * Gets relevant group element for a given ID
+ * Receives an insertion order and returns the reference to an entry ID
+ * after which we will insert the new entry
  */
+export function getInsertAfterId(
+  rundown: Rundown,
+  parent: OntimeGroup | null,
+  afterId?: EntryId,
+  beforeId?: EntryId,
+): EntryId | null {
+  if (afterId) return afterId;
+  if (!beforeId) return null;
 
+  const insertionList = parent ? parent.entries : rundown.order;
+  if (!insertionList || insertionList.length === 0) return null;
 
+  const atIndex = insertionList.findIndex((id) => id === beforeId);
+  if (atIndex < 1) return null;
+  return insertionList[atIndex - 1];
+}
+
+/**
+ * Add entry to rundown, mutates the rundown in place.
+ * Handles the following cases:
+ * - 1a. add entry in group, after a given entry
+ * - 1b. add entry in group, at the beginning (right after the group header)
+ * - 2a. add entry to the rundown, after a given entry
+ * - 2b. add entry to the rundown, at the beginning
+ */
+export function addToRundown(
+  rundown: Rundown,
+  entry: OntimeEntry,
+  afterId: EntryId | null,
+  parent: OntimeGroup | null,
+): OntimeEntry {
+  if (parent) {
+    // 1. inserting an entry inside a group
+
+    // assign the parent reference on the entry
+    if ('parent' in entry) {
+      entry.parent = parent.id;
     }
+
+    if (afterId) {
+      // 1a. insert after a given entry within the group
+      const atEventsIndex = parent.entries.indexOf(afterId) + 1;
+      const atFlatIndex = rundown.flatOrder.indexOf(afterId) + 1;
+      parent.entries = insertAtIndex(atEventsIndex, entry.id, parent.entries);
+      rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
+    } else {
+      // 1b. insert at the beginning of the group (right after the group header in flatOrder)
+      parent.entries = insertAtIndex(0, entry.id, parent.entries);
+      const atFlatIndex = rundown.flatOrder.indexOf(parent.id) + 1;
+      rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
+    }
+  } else {
+    // 2. inserting an entry at top level
+    if (afterId) {
+      // 2a. insert after a given entry
+      const atOrderIndex = rundown.order.indexOf(afterId) + 1;
+      const atFlatIndex = rundown.flatOrder.indexOf(afterId) + 1;
+      rundown.order = insertAtIndex(atOrderIndex, entry.id, rundown.order);
+      rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
+    } else {
+      // 2b. insert at the beginning
+      rundown.order = insertAtIndex(0, entry.id, rundown.order);
+      rundown.flatOrder = insertAtIndex(0, entry.id, rundown.flatOrder);
     }
   }
+
+  // either way, we register the entry in the entries map
+  rundown.entries[entry.id] = entry;
+  return entry;
 }
