@@ -117,24 +117,6 @@ export function getLastEventNormal(
 /**
  * Gets next entry in rundown, if it exists
  */
-export function getNext(
-  rundown: Pick<Rundown, 'entries' | 'order'>,
-  currentId: EntryId,
-): { nextEvent: OntimeEntry | null; nextIndex: number | null } {
-  const index = rundown.order.findIndex((entryId) => entryId === currentId);
-  if (index !== -1 && index + 1 < rundown.order.length) {
-    const nextIndex = index + 1;
-    const nextId = rundown.order[nextIndex];
-    const nextEvent = rundown.entries[nextId];
-    return { nextEvent, nextIndex };
-  } else {
-    return { nextEvent: null, nextIndex: null };
-  }
-}
-
-/**
- * Gets next entry in rundown, if it exists
- */
 export function getNextNormal(rundown: RundownEntries, flatOrder: EntryId[], currentId: EntryId | null): IndexAndEntry {
   if (currentId === null) {
     const entry = getFirstNormal(rundown, flatOrder);
@@ -196,22 +178,6 @@ export function getNextEventNormal(
 }
 
 /**
- * Gets previous entry in rundown, if it exists
- */
-export function getPrevious(rundown: Pick<Rundown, 'entries' | 'order'>, currentId: EntryId): IndexAndEntry {
-  const currentIndex = rundown.order.findIndex((entryId) => entryId === currentId);
-
-  if (currentIndex > 1) {
-    const index = currentIndex - 1;
-    const previousId = rundown.order[index];
-    const entry = rundown.entries[previousId];
-    return { entry, index };
-  } else {
-    return { entry: null, index: null };
-  }
-}
-
-/**
  * Gets previous entry in a normalised rundown, if it exists
  */
 export function getPreviousNormal(
@@ -260,27 +226,6 @@ export function getLastGroupNormal(entries: RundownEntries, flatOrder: EntryId[]
     }
   }
   return { entry: null, index: null };
-}
-
-/**
- * Gets previous scheduled event in rundown, if it exists
- */
-export function getPreviousEvent(
-  rundown: Pick<Rundown, 'entries' | 'order'>,
-  currentId: EntryId,
-): { previousEvent: OntimeEvent | null; previousIndex: number | null } {
-  const index = rundown.order.findIndex((entryId) => entryId === currentId);
-  if (index < 0) {
-    return { previousEvent: null, previousIndex: null };
-  }
-  for (let i = index - 1; i >= 0; i--) {
-    const previousId = rundown.order[i];
-    const previousEvent = rundown.entries[previousId];
-    if (isOntimeEvent(previousEvent)) {
-      return { previousEvent, previousIndex: i };
-    }
-  }
-  return { previousEvent: null, previousIndex: null };
 }
 
 /**
@@ -417,29 +362,9 @@ export function getNextGroupNormal(
 /**
  * Gets relevant group element for a given ID
  */
-export function getPreviousGroup(rundown: Pick<Rundown, 'entries' | 'order'>, currentId: EntryId): OntimeGroup | null {
-  const currentEvent = rundown.entries[currentId];
 
-  // check if entry is inside a group
-  if ('parent' in currentEvent && currentEvent.parent) {
-    return rundown.entries[currentEvent.parent] as OntimeGroup;
-  }
 
-  let foundCurrentEvent = false;
-  // Iterate backwards through the rundown to find the current event
-  for (let i = rundown.order.length - 1; i >= 0; i--) {
-    const entryId = rundown.order[i];
-    const entry = rundown.entries[entryId];
-    if (!foundCurrentEvent && entry.id === currentId) {
-      // set the flag when the current event is found
-      foundCurrentEvent = true;
-      continue;
     }
-    // the first group before the current event is the relevant one
-    if (foundCurrentEvent && isOntimeGroup(entry)) {
-      return entry;
     }
   }
-  // no groups exist before null event
-  return null;
 }
