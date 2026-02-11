@@ -36,6 +36,12 @@ $font-size-default: calc(1rem - 2px);
     opacity: 0.4;
   }
 
+  &[data-loading] {
+    opacity: 0.5;
+    font-style: italic;
+    cursor: wait;
+  }
+
   &[data-state='running'],
   &[data-state='selected'] {
     gap: 0.25rem;

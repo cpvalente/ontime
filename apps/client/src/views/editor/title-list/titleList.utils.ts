@@ -1,14 +1,14 @@
-import { OntimeEvent } from 'ontime-types';
+import { OntimeEvent, OntimeLoading } from 'ontime-types';
 
 import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 
 // Display time chips for current + next 5 upcoming events
 const UPCOMING_CHIP_COUNT = 5;
 
-export function getCurrentEventInfo(data: ExtendedEntry<OntimeEvent>[]) {
+export function getCurrentEventInfo(data: ExtendedEntry<OntimeEvent | OntimeLoading>[]) {
   const index = data.findIndex((entry) => entry.isLoaded);
   const event = index !== -1 ? data[index] : null;
-  const eventIndex = event?.eventIndex ?? 0;
+  const eventIndex = (event as ExtendedEntry<OntimeEvent>)?.eventIndex ?? 0;
 
   return {
     index,

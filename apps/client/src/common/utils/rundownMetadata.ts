@@ -6,6 +6,7 @@ import {
   OntimeDelay,
   OntimeEntry,
   OntimeEvent,
+  OntimeLoading,
   OntimeMilestone,
   PlayableEvent,
   Rundown,
@@ -133,12 +134,13 @@ function processEntry(
     processedData.groupColour = entry.colour;
     processedData.groupEntries = entry.entries.length;
   } else {
-    // for delays and groups, we insert the group metadata
-    if ((entry as OntimeEvent | OntimeDelay | OntimeMilestone).parent !== processedData.groupId) {
+    // for delays and milestones, we insert the group metadata
+    const parent = (entry as OntimeEvent | OntimeDelay | OntimeMilestone | OntimeLoading).parent;
+    if (parent !== processedData.groupId) {
       // if the parent is not the current group, we need to update the groupId
-      processedData.groupId = (entry as OntimeEvent | OntimeDelay | OntimeMilestone).parent;
+      processedData.groupId = parent;
       processedData.groupEntries = undefined;
-      if ((entry as OntimeEvent | OntimeDelay | OntimeMilestone).parent === null) {
+      if (parent === null) {
         // if the entry has no parent, it cannot have a group colour
         processedData.groupColour = undefined;
       }

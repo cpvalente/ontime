@@ -9,7 +9,14 @@ import {
 } from 'react-virtuoso';
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, Table, useReactTable } from '@tanstack/react-table';
-import { isOntimeDelay, isOntimeGroup, isOntimeMilestone, OntimeEntry, TimeField } from 'ontime-types';
+import {
+  isOntimeDelay,
+  isOntimeGroup,
+  isOntimeLoading,
+  isOntimeMilestone,
+  OntimeEntry,
+  TimeField,
+} from 'ontime-types';
 
 import EmptyPage from '../../../common/components/state/EmptyPage';
 import EmptyTableBody from '../../../common/components/state/EmptyTableBody';
@@ -27,6 +34,7 @@ import { CuesheetHeader, SortableCuesheetHeader } from './cuesheet-table-element
 import DelayRow from './cuesheet-table-elements/DelayRow';
 import EventRow from './cuesheet-table-elements/EventRow';
 import GroupRow from './cuesheet-table-elements/GroupRow';
+import LoadingRow from './cuesheet-table-elements/LoadingRow';
 import MilestoneRow from './cuesheet-table-elements/MilestoneRow';
 import TableMenu from './cuesheet-table-menu/TableMenu';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
@@ -287,10 +295,20 @@ const CuesheetTableRow = memo(function CuesheetTableRow({
   const entry = row.original;
   const hasCursor = entry.id === context.cursor;
 
+  if (isOntimeLoading(entry)) {
+    return (
+      <LoadingRow
+        rowId={row.id}
+        table={context.table}
+        injectedStyles={injectedStyles}
+        {...virtuosoProps}
+      />
+    );
+  }
+
   if (isOntimeGroup(entry)) {
     return (
       <GroupRow
-        key={key}
         groupId={entry.id}
         colour={entry.colour}
         rowId={row.id}
@@ -306,7 +324,6 @@ const CuesheetTableRow = memo(function CuesheetTableRow({
   if (isOntimeDelay(entry)) {
     return (
       <DelayRow
-        key={key}
         duration={entry.duration}
         injectedStyles={injectedStyles}
         hasCursor={hasCursor}
@@ -318,7 +335,6 @@ const CuesheetTableRow = memo(function CuesheetTableRow({
   if (isOntimeMilestone(entry)) {
     return (
       <MilestoneRow
-        key={key}
         entryId={entry.id}
         isPast={entry.isPast}
         parentBgColour={entry.groupColour}
@@ -336,7 +352,6 @@ const CuesheetTableRow = memo(function CuesheetTableRow({
 
   return (
     <EventRow
-      key={row.id}
       id={entry.id}
       eventIndex={entry.eventIndex}
       colour={entry.colour}

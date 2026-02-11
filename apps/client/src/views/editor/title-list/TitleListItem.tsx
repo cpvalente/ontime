@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { OntimeEvent } from 'ontime-types';
+import { isOntimeLoading, OntimeEvent, OntimeLoading } from 'ontime-types';
 import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
@@ -10,7 +10,7 @@ import { AppMode } from '../../../ontimeConfig';
 import style from './TitleListItem.module.scss';
 
 interface TitleListItemProps {
-  entry: ExtendedEntry<OntimeEvent>;
+  entry: ExtendedEntry<OntimeEvent | OntimeLoading>;
   currentEventIndex: number;
   upcomingChipLimit: number;
   isRunning: boolean;
@@ -30,8 +30,9 @@ function TitleListItem({
   onSelect,
 }: TitleListItemProps) {
   const handleClick = useCallback(() => {
+    if (isOntimeLoading(entry)) return;
     onSelect({ id: entry.id, index: entry.eventIndex - 1, parent: entry.parent ?? undefined });
-  }, [onSelect, entry.id, entry.eventIndex, entry.parent]);
+  }, [onSelect, entry.id, entry.eventIndex, entry.parent, entry]);
 
   // Show "next" highlight for 2 events after current
   const isNext =
@@ -39,6 +40,7 @@ function TitleListItem({
   const isPast = mode === AppMode.Run && entry.isPast;
 
   const state = (() => {
+    if (isOntimeLoading(entry)) return 'default';
     if (entry.isLoaded) {
       return mode === AppMode.Run ? 'running' : 'selected';
     }
@@ -47,20 +49,29 @@ function TitleListItem({
     return 'default';
   })();
 
-  const shouldRenderChip = isRunning && !entry.isLoaded && !entry.isPast && !entry.skip;
-  const showChipByDefault = shouldRenderChip && entry.eventIndex <= upcomingChipLimit;
+  const isLoading = isOntimeLoading(entry);
+  const shouldRenderChip =
+    !isLoading && isRunning && !entry.isLoaded && !entry.isPast && !entry.skip;
+  const showChipByDefault =
+    !isLoading && shouldRenderChip && entry.eventIndex <= upcomingChipLimit;
 
   return (
     <li
       data-state={state}
-      data-skipped={entry.skip || undefined}
+      data-skipped={(!isLoading && entry.skip) || undefined}
       data-group-end={isGroupEnd || undefined}
       className={style.item}
+      data-loading={isLoading || undefined}
       onClick={handleClick}
     >
-      <div className={style.colourBar} style={{ backgroundColor: entry.groupColour || 'transparent' }} />
-      <span className={style.title}>{entry.title || 'Untitled'}</span>
-      {shouldRenderChip && (
+      <div
+        className={style.colourBar}
+        style={{ backgroundColor: entry.groupColour || 'transparent' }}
+      />
+      <span className={style.title}>
+        {isLoading ? 'Loading...' : (entry as OntimeEvent).title || 'Untitled'}
+      </span>
+      {shouldRenderChip && !isOntimeLoading(entry) && (
         <TitleListTimeUntilChip
           timeStart={entry.timeStart}
           delay={entry.delay}

@@ -5,6 +5,7 @@ import {
   OntimeEntryCommonKeys,
   isOntimeGroup,
   isOntimeMilestone,
+  isOntimeLoading,
 } from 'ontime-types';
 import { cssOrHexToColour, isLightColour, millisToString, mixColours } from 'ontime-utils';
 
@@ -160,6 +161,7 @@ function getCellData(key: OntimeEntryCommonKeys | 'blank', entry: OntimeEntry) {
     if (isOntimeGroup(entry))
       return { userEnteredValue: { stringValue: entry.id.startsWith('group-end') ? 'group-end' : 'group' } };
     if (isOntimeMilestone(entry)) return { userEnteredValue: { stringValue: 'milestone' } };
+    if (isOntimeLoading(entry)) return { userEnteredValue: { stringValue: 'loading' } };
     return { userEnteredValue: { stringValue: entry.timerType } };
   }
 

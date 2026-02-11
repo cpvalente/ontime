@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { isOntimeEvent, OntimeEvent } from 'ontime-types';
+import { isOntimeEvent, isOntimeLoading, OntimeEvent, OntimeLoading } from 'ontime-types';
 
 import ScrollArea from '../../../common/components/scroll-area/ScrollArea';
 import { useSelectedEventId } from '../../../common/hooks/useSocket';
@@ -34,7 +34,9 @@ export default function TitleList({ mode }: TitleListProps) {
   // Filter and memoize event-only data
   const eventData = useMemo(() => {
     const flatData = getFlatRundownMetadata(rundown, resolvedFollowEventId);
-    return flatData.filter(isOntimeEvent) as ExtendedEntry<OntimeEvent>[];
+    return flatData.filter((e) => isOntimeEvent(e) || isOntimeLoading(e)) as ExtendedEntry<
+      OntimeEvent | OntimeLoading
+    >[];
   }, [rundown, resolvedFollowEventId]);
 
   if (eventData.length === 0) {
@@ -54,7 +56,7 @@ export default function TitleList({ mode }: TitleListProps) {
 
 interface TitleListContentProps {
   mode: AppMode;
-  eventData: ExtendedEntry<OntimeEvent>[];
+  eventData: ExtendedEntry<OntimeEvent | OntimeLoading>[];
   selectedEventId: string | null;
   resolvedFollowEventId: string | null;
   rundownId: string;
@@ -112,7 +114,7 @@ function TitleListContent({
 
   // Virtuoso item renderer
   const itemContent = useCallback(
-    (index: number, entry: ExtendedEntry<OntimeEvent>) => {
+    (index: number, entry: ExtendedEntry<OntimeEvent | OntimeLoading>) => {
       const nextEntry = eventData[index + 1];
       const isGroupEnd = Boolean(entry.parent) && entry.parent !== (nextEntry?.parent ?? null);
       return (

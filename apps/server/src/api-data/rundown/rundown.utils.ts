@@ -6,11 +6,13 @@ import {
   isOntimeDelay,
   isOntimeEvent,
   isOntimeMilestone,
+  isOntimeLoading,
   OntimeBaseEvent,
   OntimeGroup,
   OntimeDelay,
   OntimeEntry,
   OntimeEvent,
+  OntimeLoading,
   OntimeMilestone,
   Rundown,
   SupportedEntry,
@@ -46,13 +48,20 @@ type CompleteEntry<T> =
         ? OntimeGroup
         : T extends Partial<OntimeMilestone>
           ? OntimeMilestone
-          : never;
+          : T extends Partial<OntimeLoading>
+            ? OntimeLoading
+            : never;
 
 /**
  * Generates a fully formed RundownEntry of the patch type
  */
 export function generateEvent<
-  T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeGroup> | Partial<OntimeMilestone>,
+  T extends
+    | Partial<OntimeEvent>
+    | Partial<OntimeDelay>
+    | Partial<OntimeGroup>
+    | Partial<OntimeMilestone>
+    | Partial<OntimeLoading>,
 >(rundown: Rundown, eventData: T, afterId: EntryId | null): CompleteEntry<T> {
   if (isOntimeEvent(eventData)) {
     return createEvent(eventData, getCueCandidate(rundown.entries, rundown.order, afterId)) as CompleteEntry<T>;
@@ -71,6 +80,15 @@ export function generateEvent<
 
   if (isOntimeMilestone(eventData)) {
     return createMilestone({ ...eventData, id }) as CompleteEntry<T>;
+  }
+
+  if (isOntimeLoading(eventData)) {
+    return {
+      id,
+      type: SupportedEntry.Loading,
+      parent: (eventData as OntimeLoading).parent ?? null,
+      custom: (eventData as OntimeLoading).custom ?? {},
+    } as CompleteEntry<T>;
   }
 
   throw new Error('Invalid event type');
@@ -483,30 +501,6 @@ export function calculateDayOffset(
   return 0;
 }
 
-/**
- * Receives an insertion order and returns the reference to an event ID
- * after which we will insert the new event
- */
-export function getInsertAfterId(
-  rundown: Rundown,
-  parent: OntimeGroup | null,
-  afterId?: EntryId,
-  beforeId?: EntryId,
-): EntryId | null {
-  if (afterId) return afterId;
-  if (!beforeId) return null;
-
-  /**
-   * At this point we know we want to insert before a given ID
-   * We need to check which list we should use to insert and find the event there
-   */
-  const insertionList = parent ? parent.entries : rundown.order;
-  if (!insertionList || insertionList.length === 0) return null;
-
-  const atIndex = insertionList.findIndex((id) => id === beforeId);
-  if (atIndex < 1) return null;
-  return insertionList[atIndex - 1];
-}
 
 /**
  * Sanitises custom fields in an entry by removing fields

@@ -4,6 +4,7 @@ import type {
   OntimeEntry,
   OntimeEvent,
   OntimeGroup,
+  OntimeLoading,
   OntimeMilestone,
   PlayableEvent,
 } from '../definitions/core/OntimeEntry.js';
@@ -30,6 +31,10 @@ export function isOntimeGroup(event: MaybeEvent): event is OntimeGroup {
 
 export function isOntimeMilestone(event: MaybeEvent): event is OntimeMilestone {
   return event?.type === SupportedEntry.Milestone;
+}
+
+export function isOntimeLoading(event: MaybeEvent): event is OntimeLoading {
+  return event?.type === SupportedEntry.Loading;
 }
 
 type AnyKeys<T> = keyof T;

@@ -8,13 +8,23 @@ import {
   MaybeString,
   OntimeEntry,
   OntimeEvent,
+  OntimeGroup,
+  OntimeLoading,
   Rundown,
   SupportedEntry,
   TimeField,
   TimeStrategy,
   TransientEventPayload,
 } from 'ontime-types';
-import { dayInMs, generateId, MILLIS_PER_SECOND, parseUserTime, swapEventData } from 'ontime-utils';
+import {
+  dayInMs,
+  generateId,
+  getInsertAfterId,
+  insertAtIndex,
+  MILLIS_PER_SECOND,
+  parseUserTime,
+  swapEventData,
+} from 'ontime-utils';
 
 import { moveDown, moveUp, orderEntries } from '../../features/rundown/rundown.utils';
 import { RUNDOWN } from '../api/constants';
@@ -86,7 +96,92 @@ export const useEntryActions = () => {
    */
   const { mutateAsync: addEntryMutation } = useMutation({
     mutationFn: ([rundownId, entry]: Parameters<typeof postAddEntry>) => postAddEntry(rundownId, entry),
-    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
+    onMutate: async ([_rundownId, newEntry]) => {
+      // cancel ongoing queries
+      await queryClient.cancelQueries({ queryKey: RUNDOWN });
+
+      // Snapshot the previous value
+      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+
+      if (previousData) {
+        const optimisticEntry: OntimeLoading = {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know the ID is set in addEntry
+          id: newEntry.id!,
+          type: SupportedEntry.Loading,
+          parent: (newEntry as any).parent ?? null,
+          custom: {},
+        };
+
+        const updatedRundown = {
+          ...previousData,
+          entries: { ...previousData.entries, [optimisticEntry.id]: optimisticEntry },
+          order: [...previousData.order],
+          flatOrder: [...previousData.flatOrder],
+        };
+
+        // Infer parent if not provided but after/before are
+        let parent: OntimeGroup | null = null;
+        if (optimisticEntry.parent) {
+          const maybeParent = updatedRundown.entries[optimisticEntry.parent];
+          if (isOntimeGroup(maybeParent)) {
+            parent = maybeParent;
+          }
+        } else {
+          const referenceId = newEntry.after ?? newEntry.before;
+          if (referenceId) {
+            const maybeSibling = updatedRundown.entries[referenceId];
+            if (maybeSibling && 'parent' in maybeSibling && maybeSibling.parent) {
+              const maybeParent = updatedRundown.entries[maybeSibling.parent];
+              if (isOntimeGroup(maybeParent)) {
+                parent = maybeParent;
+                optimisticEntry.parent = parent.id;
+              }
+            }
+          }
+        }
+
+        // Calculate afterId using shared utility
+        const afterId = getInsertAfterId(updatedRundown, parent, newEntry.after, newEntry.before);
+
+        // Insert into arrays
+        if (parent) {
+          const updatedParent = { ...parent, entries: [...parent.entries] };
+          updatedRundown.entries[parent.id] = updatedParent;
+          if (afterId) {
+            const atEventsIndex = updatedParent.entries.indexOf(afterId) + 1;
+            const atFlatIndex = updatedRundown.flatOrder.indexOf(afterId) + 1;
+            updatedParent.entries = insertAtIndex(atEventsIndex, optimisticEntry.id, updatedParent.entries);
+            updatedRundown.flatOrder = insertAtIndex(atFlatIndex, optimisticEntry.id, updatedRundown.flatOrder);
+          } else {
+            updatedParent.entries = insertAtIndex(0, optimisticEntry.id, updatedParent.entries);
+            const atFlatIndex = updatedRundown.flatOrder.indexOf(parent.id) + 1;
+            updatedRundown.flatOrder = insertAtIndex(atFlatIndex, optimisticEntry.id, updatedRundown.flatOrder);
+          }
+        } else {
+          if (afterId) {
+            const atOrderIndex = updatedRundown.order.indexOf(afterId) + 1;
+            const atFlatIndex = updatedRundown.flatOrder.indexOf(afterId) + 1;
+            updatedRundown.order = insertAtIndex(atOrderIndex, optimisticEntry.id, updatedRundown.order);
+            updatedRundown.flatOrder = insertAtIndex(atFlatIndex, optimisticEntry.id, updatedRundown.flatOrder);
+          } else {
+            updatedRundown.order = insertAtIndex(0, optimisticEntry.id, updatedRundown.order);
+            updatedRundown.flatOrder = insertAtIndex(0, optimisticEntry.id, updatedRundown.flatOrder);
+          }
+        }
+
+        queryClient.setQueryData<Rundown>(RUNDOWN, {
+          ...updatedRundown,
+          revision: -1,
+        });
+      }
+
+      return { previousData };
+    },
+    onError: (_error, _newEntry, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData<Rundown>(RUNDOWN, context.previousData);
+      }
+    },
     onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
   });
 

@@ -1,5 +1,5 @@
 import { TimeStrategy, EndAction, TimerType, OntimeEvent, OntimeGroup } from 'ontime-types';
-import { MILLIS_PER_HOUR } from 'ontime-utils';
+import { MILLIS_PER_HOUR, getInsertAfterId } from 'ontime-utils';
 
 import { assertType } from 'vitest';
 
@@ -11,7 +11,6 @@ import {
   deleteById,
   doesInvalidateMetadata,
   duplicateRundown,
-  getInsertAfterId,
   hasChanges,
   makeDeepClone,
 } from '../rundown.utils.js';
