@@ -382,6 +382,32 @@ export function getInsertAfterId(
   return insertionList[atIndex - 1];
 }
 
+type ResolveInsertParentOptions = {
+  parent?: EntryId | null;
+  after?: EntryId;
+  before?: EntryId;
+};
+
+/**
+ * Resolves the parent ID for an insertion.
+ * Uses explicit parent first, then infers from sibling references.
+ */
+export function resolveInsertParent(rundown: Rundown, options: ResolveInsertParentOptions): EntryId | null {
+  if (options.parent) {
+    return options.parent;
+  }
+
+  const referenceId = options.after ?? options.before;
+  if (!referenceId) return null;
+
+  const maybeSibling = rundown.entries[referenceId];
+  if (maybeSibling && 'parent' in maybeSibling && maybeSibling.parent) {
+    return maybeSibling.parent;
+  }
+
+  return null;
+}
+
 /**
  * Add entry to rundown, mutates the rundown in place.
  * Handles the following cases:

@@ -13,6 +13,7 @@ import {
   getNextNormal,
   getPreviousGroupNormal,
   getPreviousNormal,
+  resolveInsertParent,
   swapEventData,
 } from './rundownUtils';
 import { demoDb } from './rundownUtils.mock';
@@ -269,6 +270,43 @@ describe('getInsertAfterId()', () => {
   it('returns the previous id of an event in a group', () => {
     expect(getInsertAfterId(rundown, rundown.entries.group as OntimeGroup, undefined, '31')).toBeNull();
     expect(getInsertAfterId(rundown, rundown.entries.group as OntimeGroup, undefined, '32')).toBe('31');
+  });
+});
+
+describe('resolveInsertParent()', () => {
+  const rundown = {
+    id: 'test',
+    title: 'test',
+    entries: {
+      top: { id: 'top', type: SupportedEntry.Event, parent: null } as OntimeEvent,
+      group: { id: 'group', type: SupportedEntry.Group, entries: ['31', '32'] } as unknown as OntimeGroup,
+      '31': { id: '31', type: SupportedEntry.Event, parent: 'group' } as OntimeEvent,
+      '32': { id: '32', type: SupportedEntry.Event, parent: 'group' } as OntimeEvent,
+    },
+    order: ['top', 'group'],
+    flatOrder: ['top', 'group', '31', '32'],
+    revision: 1,
+  } as Rundown;
+
+  it('returns explicit parent id', () => {
+    expect(resolveInsertParent(rundown, { parent: 'group' })).toBe('group');
+  });
+
+  it('returns non-existent explicit parent id as-is', () => {
+    expect(resolveInsertParent(rundown, { parent: 'missing' })).toBe('missing');
+  });
+
+  it('infers parent id from sibling when parent is omitted', () => {
+    expect(resolveInsertParent(rundown, { after: '31' })).toBe('group');
+    expect(resolveInsertParent(rundown, { before: '32' })).toBe('group');
+  });
+
+  it('returns null when no grouped sibling reference exists', () => {
+    expect(resolveInsertParent(rundown, { after: 'top' })).toBeNull();
+  });
+
+  it('returns null when no references are provided', () => {
+    expect(resolveInsertParent(rundown, {})).toBeNull();
   });
 });
 
