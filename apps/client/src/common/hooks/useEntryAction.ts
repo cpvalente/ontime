@@ -6,15 +6,31 @@ import {
   isOntimeEvent,
   isOntimeGroup,
   MaybeString,
+  OntimeDelay,
   OntimeEntry,
   OntimeEvent,
+  OntimeGroup,
+  OntimeMilestone,
+  PatchWithId,
   Rundown,
   SupportedEntry,
   TimeField,
   TimeStrategy,
-  TransientEventPayload,
 } from 'ontime-types';
-import { dayInMs, generateId, MILLIS_PER_SECOND, parseUserTime, swapEventData } from 'ontime-utils';
+import {
+  addToRundown,
+  createDelay,
+  createEvent,
+  createGroup,
+  createMilestone,
+  dayInMs,
+  generateId,
+  getInsertAfterId,
+  MILLIS_PER_SECOND,
+  parseUserTime,
+  resolveInsertParent,
+  swapEventData,
+} from 'ontime-utils';
 
 import { moveDown, moveUp, orderEntries } from '../../features/rundown/rundown.utils';
 import { RUNDOWN } from '../api/constants';
@@ -85,9 +101,64 @@ export const useEntryActions = () => {
    * @private
    */
   const { mutateAsync: addEntryMutation } = useMutation({
-    mutationFn: ([rundownId, entry]: Parameters<typeof postAddEntry>) => postAddEntry(rundownId, entry),
-    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+    mutationFn: ([rundownId, entry]: [string, PatchWithId & InsertOptions]) => postAddEntry(rundownId, entry),
+    onMutate: async ([_rundownId, entry]) => {
+      await queryClient.cancelQueries({ queryKey: RUNDOWN });
+
+      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+
+      if (previousData) {
+        const optimisticEntry = createOptimisticEntry(entry);
+        const parentId = resolveInsertParent(previousData, entry);
+        const maybeParent = parentId ? previousData.entries[parentId] : null;
+        const parent = maybeParent && isOntimeGroup(maybeParent) ? maybeParent : null;
+        const afterId = getInsertAfterId(previousData, parent, entry.after, entry.before);
+
+        // create a mutable copy — addToRundown mutates in place using immutable array operations
+        const newRundown: Rundown = {
+          ...previousData,
+          entries: { ...previousData.entries },
+          revision: -1,
+        };
+
+        // copy the parent group so we don't mutate the original
+        if (parent && parentId) {
+          newRundown.entries[parentId] = { ...parent, entries: [...parent.entries] };
+        }
+
+        addToRundown(
+          newRundown,
+          optimisticEntry,
+          afterId,
+          parent ? (newRundown.entries[parent.id] as OntimeGroup) : null,
+        );
+
+        queryClient.setQueryData<Rundown>(RUNDOWN, newRundown);
+      }
+
+      return { previousData };
+    },
+    onSuccess: (response) => {
+      if (!response.data) return;
+
+      const serverEntry = response.data;
+      const currentData = queryClient.getQueryData<Rundown>(RUNDOWN);
+
+      if (currentData) {
+        queryClient.setQueryData<Rundown>(RUNDOWN, {
+          ...currentData,
+          entries: { ...currentData.entries, [serverEntry.id]: serverEntry },
+        });
+      }
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData<Rundown>(RUNDOWN, context.previousData);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+    },
   });
 
   /**
@@ -102,7 +173,15 @@ export const useEntryActions = () => {
         throw new Error('Rundown not initialised');
       }
 
-      const newEntry: TransientEventPayload = { ...entry, id: generateId() };
+      const newEntry: PatchWithId & InsertOptions = { ...entry, id: generateId() };
+
+      // handle adding options that concern all event types
+      if (options?.after) {
+        newEntry.after = options.after;
+      }
+      if (options?.before) {
+        newEntry.before = options.before;
+      }
 
       // ************* CHECK OPTIONS specific to events
       if (isOntimeEvent(newEntry)) {
@@ -140,14 +219,6 @@ export const useEntryActions = () => {
         if (newEntry.timeStrategy === undefined) {
           newEntry.timeStrategy = defaultTimeStrategy;
         }
-      }
-
-      // handle adding options that concern all event type
-      if (options?.after) {
-        (newEntry as TransientEventPayload).after = options.after;
-      }
-      if (options?.before) {
-        (newEntry as TransientEventPayload).before = options.before;
       }
 
       try {
@@ -904,4 +975,30 @@ function optimisticDeleteEntries(entryIds: EntryId[], rundown: Rundown) {
   }
 
   return { entries, order, flatOrder };
+}
+
+/**
+ * Utility to create an optimistic entry for immediate cache insertion
+ */
+function createOptimisticEntry(payload: PatchWithId & InsertOptions): OntimeEntry {
+  const { after: _after, before: _before, ...entryData } = payload;
+  const id = entryData.id;
+  let parent: EntryId | null = null;
+  if ('parent' in entryData && entryData.parent) {
+    parent = entryData.parent;
+  }
+
+  switch (entryData.type) {
+    case SupportedEntry.Event: {
+      return createEvent({ ...entryData, id, parent }) as OntimeEvent;
+    }
+    case SupportedEntry.Delay:
+      return createDelay({ id, duration: (entryData as Partial<OntimeDelay>).duration ?? 0, parent });
+    case SupportedEntry.Group:
+      return createGroup({ ...(entryData as Partial<OntimeGroup>), id });
+    case SupportedEntry.Milestone:
+      return createMilestone({ ...(entryData as Partial<OntimeMilestone>), id, parent });
+    default:
+      throw new Error('Unknown entry type');
+  }
 }

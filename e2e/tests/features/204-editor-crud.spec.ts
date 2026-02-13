@@ -28,7 +28,7 @@ test('CRUD operations on the rundown', async ({ page }) => {
   // test quick add options - star2+5-t is last end
   await page.getByTestId('entry-2').getByTestId('time-input-duration').fill('20m');
   await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
-  expect(await page.getByTestId('entry-3').getByTestId('time-input-timeStart').inputValue()).toContain('00:30:00');
+  await expect(page.getByTestId('entry-3').getByTestId('time-input-timeStart')).toHaveValue('00:30:00');
   await expect(page.getByTestId('rundown-event')).toHaveCount(3);
   await expect(page.getByTestId('rundown-delay')).toHaveCount(1);
   await expect(page.getByTestId('rundown-group')).toHaveCount(1);
