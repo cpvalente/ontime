@@ -1,18 +1,6 @@
 export type ErrorEmitter = (message: string) => void;
 
 /**
- * @description Ensures variable is string, it skips object types
- * @param val - variable to convert
- * @param {string} [fallback=''] - fallback value
- * @returns {string} - value as string or fallback if not possible
- */
-export const makeString = (val: unknown, fallback = ''): string => {
-  if (typeof val === 'string') return val.trim();
-  else if (val == null || val.constructor === Object) return fallback;
-  return val.toString().trim();
-};
-
-/**
  * @description Verifies if object is empty
  * @param {object} obj
  */

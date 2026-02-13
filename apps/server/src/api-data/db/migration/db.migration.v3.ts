@@ -17,10 +17,15 @@ import {
   URLPreset,
   ViewSettings,
 } from 'ontime-types';
-import { customFieldLabelToKey, checkRegex, isKnownTimerType, validateEndAction } from 'ontime-utils';
+import {
+  customFieldLabelToKey,
+  checkRegex,
+  isKnownTimerType,
+  validateEndAction,
+  eventDef as eventModel,
+} from 'ontime-utils';
 
 import { is } from '../../../utils/is.js';
-import { event as eventModel } from '../../../models/eventsDefinition.js';
 import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
 import { getPartialProject } from '../../../models/dataModel.js';
 

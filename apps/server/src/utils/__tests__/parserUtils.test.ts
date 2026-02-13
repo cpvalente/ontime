@@ -1,4 +1,6 @@
-import { isEmptyObject, makeString, removeUndefined } from '../parserUtils.js';
+import { makeString } from 'ontime-utils';
+
+import { isEmptyObject, removeUndefined } from '../parserUtils.js';
 
 describe('isEmptyObject()', () => {
   test('finds an empty object', () => {

@@ -30,6 +30,12 @@ export {
   swapEventData,
 } from './src/rundown-utils/rundownUtils.js';
 export { getFirstRundown } from './src/rundown/rundown.utils.js';
+export {
+  event as eventDef,
+  group as groupDef,
+  milestone as milestoneDef,
+} from './src/rundown-utils/entryDefinitions.js';
+export { createDelay, createEvent, createGroup, createMilestone, makeString } from './src/rundown-utils/entryUtils.js';
 
 // time format utils
 export {
