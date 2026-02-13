@@ -1,5 +1,5 @@
 import { TimeStrategy, EndAction, TimerType, OntimeEvent } from 'ontime-types';
-import { MILLIS_PER_HOUR } from 'ontime-utils';
+import { createEvent, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { assertType } from 'vitest';
 
@@ -7,7 +7,6 @@ import { demoDb } from '../../../models/demoProject.js';
 
 import {
   calculateDayOffset,
-  createEvent,
   deleteById,
   doesInvalidateMetadata,
   duplicateRundown,

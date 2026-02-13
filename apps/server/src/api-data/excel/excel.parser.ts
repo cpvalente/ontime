@@ -18,12 +18,12 @@ import {
   isKnownTimerType,
   validateTimerType,
   validateEndAction,
+  makeString,
 } from 'ontime-utils';
 
 import { Prettify } from 'ts-essentials';
 
 import { is } from '../../utils/is.js';
-import { makeString } from '../../utils/parserUtils.js';
 import { parseExcelDate } from '../../utils/time.js';
 import { generateImportHandlers, getCustomFieldData, parseBooleanString, SheetMetadata } from './excel.utils.js';
 

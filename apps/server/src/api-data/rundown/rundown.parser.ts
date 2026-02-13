@@ -17,13 +17,22 @@ import {
   OntimeMilestone,
   OntimeGroup,
 } from 'ontime-types';
-import { isObjectEmpty, generateId, getLinkedTimes, getTimeFrom, isNewLatest } from 'ontime-utils';
+import {
+  isObjectEmpty,
+  generateId,
+  getLinkedTimes,
+  getTimeFrom,
+  isNewLatest,
+  createDelay,
+  createEvent,
+  createGroup,
+  createMilestone,
+} from 'ontime-utils';
 
-import { delay as delayDef } from '../../models/eventsDefinition.js';
 import { makeNewRundown } from '../../models/dataModel.js';
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
 
-import { calculateDayOffset, cleanupCustomFields, createGroup, createEvent, createMilestone } from './rundown.utils.js';
+import { calculateDayOffset, cleanupCustomFields } from './rundown.utils.js';
 import { RundownMetadata } from './rundown.types.js';
 
 /**
@@ -107,7 +116,7 @@ export function parseRundown(
       cleanupCustomFields(newEvent.custom, parsedCustomFields);
       eventIndex += 1;
     } else if (isOntimeDelay(event)) {
-      newEvent = { ...delayDef, duration: event.duration, id };
+      newEvent = createDelay({ duration: event.duration, id });
     } else if (isOntimeMilestone(event)) {
       newEvent = createMilestone({ ...event, id });
       cleanupCustomFields(newEvent.custom, parsedCustomFields);
@@ -134,7 +143,7 @@ export function parseRundown(
           cleanupCustomFields(newNestedEvent.custom, parsedCustomFields);
           eventIndex += 1;
         } else if (isOntimeDelay(nestedEvent)) {
-          newNestedEvent = { ...delayDef, duration: nestedEvent.duration, id: nestedEventId };
+          newNestedEvent = createDelay({ duration: nestedEvent.duration, id: nestedEventId });
           newNestedEvent.parent = event.id;
         } else if (isOntimeMilestone(nestedEvent)) {
           newNestedEvent = createMilestone({ ...nestedEvent, id: nestedEventId });

@@ -26,7 +26,7 @@ import {
   Rundown,
   InsertOptions,
 } from 'ontime-types';
-import { addToRundown, customFieldLabelToKey, getInsertAfterId, insertAtIndex } from 'ontime-utils';
+import { addToRundown, customFieldLabelToKey, getInsertAfterId, insertAtIndex, createGroup } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { consoleError } from '../../utils/console.js';
@@ -35,7 +35,6 @@ import type { RundownMetadata } from './rundown.types.js';
 import {
   applyPatchToEntry,
   cloneSimpleRundownEntry,
-  createGroup,
   deleteById,
   doesInvalidateMetadata,
   getUniqueId,
