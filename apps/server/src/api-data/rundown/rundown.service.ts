@@ -16,7 +16,7 @@ import {
   ProjectRundowns,
   InsertOptions,
 } from 'ontime-types';
-import { customFieldLabelToKey, getInsertAfterId } from 'ontime-utils';
+import { customFieldLabelToKey, getInsertAfterId, resolveInsertParent } from 'ontime-utils';
 
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
@@ -47,28 +47,15 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
     throw new Error(`Event with ID ${eventData.id} already exists`);
   }
 
-  // the parent can be provided or inferred from position
+  // resolve the parent, either from the payload or inferred from sibling position
+  const parentId = resolveInsertParent(rundown, eventData);
   let parent: OntimeGroup | null = null;
-
-  if ('parent' in eventData && eventData.parent != null) {
-    // if the user provides a parent (inside a group), we make sure it exists and it is a group
-    const maybeParent = rundown.entries[eventData.parent];
+  if (parentId) {
+    const maybeParent = rundown.entries[parentId];
     if (!maybeParent || !isOntimeGroup(maybeParent)) {
-      throw new Error(`Invalid parent event with ID ${eventData.parent}`);
+      throw new Error(`Invalid parent event with ID ${parentId}`);
     }
     parent = maybeParent;
-  } else {
-    // otherwise, we may infer the parent from relative positioning (after/before)
-    const referenceId = eventData?.after ?? eventData?.before;
-    if (referenceId) {
-      const maybeSibling = rundown.entries[referenceId];
-      if (maybeSibling && 'parent' in maybeSibling && maybeSibling.parent) {
-        const maybeParent = rundown.entries[maybeSibling.parent];
-        if (maybeParent && isOntimeGroup(maybeParent)) {
-          parent = maybeParent;
-        }
-      }
-    }
   }
 
   // normalise the position of the event in the rundown order

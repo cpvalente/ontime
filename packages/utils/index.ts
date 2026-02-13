@@ -26,6 +26,7 @@ export {
   getPreviousEventNormal,
   getPreviousNormal,
   getPreviousGroupNormal,
+  resolveInsertParent,
   swapEventData,
 } from './src/rundown-utils/rundownUtils.js';
 export { getFirstRundown } from './src/rundown/rundown.utils.js';
