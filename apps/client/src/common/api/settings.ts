@@ -2,14 +2,15 @@ import axios, { AxiosResponse } from 'axios';
 import { Settings } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
+import type { RequestOptions } from './requestOptions';
 
 const settingsPath = `${apiEntryUrl}/settings`;
 
 /**
  * HTTP request to retrieve application settings
  */
-export async function getSettings(): Promise<Settings> {
-  const res = await axios.get(settingsPath);
+export async function getSettings(options?: RequestOptions): Promise<Settings> {
+  const res = await axios.get(settingsPath, { signal: options?.signal });
   return res.data;
 }
 

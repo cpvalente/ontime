@@ -4,14 +4,15 @@ import { TranslationObject } from 'ontime-types';
 import { ontimeQueryClient } from '../../common/queryClient';
 
 import { apiEntryUrl, customTranslationsURL, TRANSLATION } from './constants';
+import type { RequestOptions } from './requestOptions';
 
 const assetsPath = `${apiEntryUrl}/assets`;
 
 /**
  * HTTP request to get css contents
  */
-export async function getCSSContents(): Promise<string> {
-  const res = await axios.get(`${assetsPath}/css`);
+export async function getCSSContents(options?: RequestOptions): Promise<string> {
+  const res = await axios.get(`${assetsPath}/css`, { signal: options?.signal });
   return res.data;
 }
 
@@ -35,8 +36,8 @@ export async function restoreCSSContents(): Promise<string> {
 /**
  * HTTP request to get user translation
  */
-export async function getUserTranslation(): Promise<TranslationObject> {
-  const res = await axios.get(customTranslationsURL);
+export async function getUserTranslation(options?: RequestOptions): Promise<TranslationObject> {
+  const res = await axios.get(customTranslationsURL, { signal: options?.signal });
   return res.data;
 }
 

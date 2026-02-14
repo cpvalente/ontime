@@ -4,14 +4,15 @@ import { OntimeReport } from 'ontime-types';
 import { ontimeQueryClient } from '../../common/queryClient';
 
 import { apiEntryUrl, REPORT } from './constants';
+import type { RequestOptions } from './requestOptions';
 
 export const reportUrl = `${apiEntryUrl}/report`;
 
 /**
  * HTTP request to fetch all reports
  */
-export async function fetchReport(): Promise<OntimeReport> {
-  const res = await axios.get(reportUrl);
+export async function fetchReport(options?: RequestOptions): Promise<OntimeReport> {
+  const res = await axios.get(reportUrl, { signal: options?.signal });
   return res.data;
 }
 

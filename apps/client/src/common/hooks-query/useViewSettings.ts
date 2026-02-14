@@ -9,7 +9,7 @@ import { viewsSettingsPlaceholder } from '../models/ViewSettings.type';
 export default function useViewSettings() {
   const { data, status } = useQuery({
     queryKey: VIEW_SETTINGS,
-    queryFn: getViewSettings,
+    queryFn: ({ signal }) => getViewSettings({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
     staleTime: MILLIS_PER_HOUR,
   });

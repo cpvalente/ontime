@@ -9,14 +9,15 @@ import type {
 } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
+import type { RequestOptions } from './requestOptions';
 
 const automationsPath = `${apiEntryUrl}/automations`;
 
 /**
  * HTTP request to get the automations settings
  */
-export async function getAutomationSettings(): Promise<AutomationSettings> {
-  const res = await axios.get(automationsPath);
+export async function getAutomationSettings(options?: RequestOptions): Promise<AutomationSettings> {
+  const res = await axios.get(automationsPath, { signal: options?.signal });
   return res.data;
 }
 

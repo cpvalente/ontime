@@ -8,7 +8,7 @@ import { projectDataPlaceholder } from '../models/ProjectData';
 export default function useProjectData() {
   const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: PROJECT_DATA,
-    queryFn: getProjectData,
+    queryFn: ({ signal }) => getProjectData({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
     refetchInterval: queryRefetchIntervalSlow,
   });

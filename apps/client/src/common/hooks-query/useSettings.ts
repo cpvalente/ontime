@@ -8,7 +8,7 @@ import { ontimePlaceholderSettings } from '../models/OntimeSettings';
 export default function useSettings() {
   const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: APP_SETTINGS,
-    queryFn: getSettings,
+    queryFn: ({ signal }) => getSettings({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
     select: (data) => {
       const unobfuscated = { ...data };

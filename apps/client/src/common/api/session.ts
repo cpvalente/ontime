@@ -2,14 +2,15 @@ import axios from 'axios';
 import { GetInfo, LinkOptions } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
+import type { RequestOptions } from './requestOptions';
 
 const sessionPath = `${apiEntryUrl}/session`;
 
 /**
  * HTTP request to retrieve application info
  */
-export async function getInfo(): Promise<GetInfo> {
-  const res = await axios.get(`${sessionPath}/info`);
+export async function getInfo(options?: RequestOptions): Promise<GetInfo> {
+  const res = await axios.get(`${sessionPath}/info`, { signal: options?.signal });
   return res.data;
 }
 

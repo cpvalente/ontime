@@ -3,6 +3,8 @@ import { AuthenticationStatus, CustomFields, Rundown, RundownSummary } from 'ont
 import { ImportMap } from 'ontime-utils';
 
 import { apiEntryUrl } from './constants';
+import type { RequestOptions } from './requestOptions';
+import { axiosConfig } from './requestTimeouts';
 
 const sheetsPath = `${apiEntryUrl}/sheets`;
 
@@ -23,6 +25,7 @@ export const verifyAuthenticationStatus = async (): Promise<{
 export const requestConnection = async (
   file: File,
   sheetId: string,
+  requestOptions?: RequestOptions,
 ): Promise<{
   verification_url: string;
   user_code: string;
@@ -31,6 +34,8 @@ export const requestConnection = async (
   formData.append('client_secret', file);
 
   const response = await axios.post(`${sheetsPath}/${sheetId}/connect`, formData, {
+    signal: requestOptions?.signal,
+    timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -53,24 +58,50 @@ export const revokeAuthentication = async (): Promise<{ authenticated: Authentic
 export const previewRundown = async (
   sheetId: string,
   options: ImportMap,
+  requestOptions?: RequestOptions,
 ): Promise<{
   rundown: Rundown;
   customFields: CustomFields;
   summary: RundownSummary;
 }> => {
-  const response = await axios.post(`${sheetsPath}/${sheetId}/read`, { options });
+  const response = await axios.post(
+    `${sheetsPath}/${sheetId}/read`,
+    { options },
+    {
+      signal: requestOptions?.signal,
+      timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
+    },
+  );
   return response.data;
 };
 
-export const getWorksheetNames = async (sheetId: string): Promise<string[]> => {
-  const response: AxiosResponse<string[]> = await axios.post(`${sheetsPath}/${sheetId}/worksheets`);
+export const getWorksheetNames = async (sheetId: string, requestOptions?: RequestOptions): Promise<string[]> => {
+  const response: AxiosResponse<string[]> = await axios.post(
+    `${sheetsPath}/${sheetId}/worksheets`,
+    undefined,
+    {
+      signal: requestOptions?.signal,
+      timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
+    },
+  );
   return response.data;
 };
 
 /**
  * HTTP request to upload the rundown to a google sheet
  */
-export const uploadRundown = async (sheetId: string, options: ImportMap): Promise<void> => {
-  const response = await axios.post(`${sheetsPath}/${sheetId}/write`, { options });
+export const uploadRundown = async (
+  sheetId: string,
+  options: ImportMap,
+  requestOptions?: RequestOptions,
+): Promise<void> => {
+  const response = await axios.post(
+    `${sheetsPath}/${sheetId}/write`,
+    { options },
+    {
+      signal: requestOptions?.signal,
+      timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
+    },
+  );
   return response.data;
 };

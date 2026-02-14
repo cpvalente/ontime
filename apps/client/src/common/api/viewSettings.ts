@@ -2,6 +2,7 @@ import axios from 'axios';
 import type { ViewSettings } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
+import type { RequestOptions } from './requestOptions';
 
 const viewSettingsPath = `${apiEntryUrl}/view-settings`;
 
@@ -9,8 +10,8 @@ const viewSettingsPath = `${apiEntryUrl}/view-settings`;
  * HTTP request to fetch view settings
  * @returns
  */
-export async function getViewSettings(): Promise<ViewSettings> {
-  const res = await axios.get(viewSettingsPath);
+export async function getViewSettings(options?: RequestOptions): Promise<ViewSettings> {
+  const res = await axios.get(viewSettingsPath, { signal: options?.signal });
   return res.data;
 }
 
