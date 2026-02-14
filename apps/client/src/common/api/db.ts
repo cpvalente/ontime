@@ -2,6 +2,8 @@ import axios, { AxiosResponse } from 'axios';
 import { DatabaseModel, MessageResponse, ProjectData, ProjectFileListResponse, QuickStartData } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
+import type { RequestOptions } from './requestOptions';
+import { axiosConfig } from './requestTimeouts';
 import { createBlob, downloadBlob } from './utils';
 
 const dbPath = `${apiEntryUrl}/db`;
@@ -10,7 +12,7 @@ const dbPath = `${apiEntryUrl}/db`;
  * HTTP request to the current DB
  */
 export function getDb(filename: string): Promise<AxiosResponse<DatabaseModel>> {
-  return axios.post(`${dbPath}/download`, { filename });
+  return axios.post(`${dbPath}/download`, { filename }, { timeout: axiosConfig.longTimeout });
 }
 
 /**
@@ -37,6 +39,7 @@ export async function uploadProjectFile(file: File): Promise<MessageResponse> {
   const formData = new FormData();
   formData.append('project', file);
   const response = await axios.post(`${dbPath}/upload`, formData, {
+    timeout: axiosConfig.longTimeout,
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -76,8 +79,11 @@ export async function quickProject(data: QuickStartData): Promise<MessageRespons
 /**
  * HTTP request to get the list of available project files
  */
-export async function getProjects(): Promise<ProjectFileListResponse> {
-  const res = await axios.get(`${dbPath}/all`);
+export async function getProjects(options?: RequestOptions): Promise<ProjectFileListResponse> {
+  const res = await axios.get(`${dbPath}/all`, {
+    signal: options?.signal,
+    timeout: options?.timeout,
+  });
   return res.data;
 }
 

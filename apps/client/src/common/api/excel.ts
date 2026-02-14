@@ -3,6 +3,8 @@ import { CustomFields, Rundown, RundownSummary } from 'ontime-types';
 import { ImportMap } from 'ontime-utils';
 
 import { apiEntryUrl } from './constants';
+import type { RequestOptions } from './requestOptions';
+import { axiosConfig } from './requestTimeouts';
 import { downloadBlob } from './utils';
 
 const excelPath = `${apiEntryUrl}/excel`;
@@ -11,10 +13,12 @@ const excelPath = `${apiEntryUrl}/excel`;
  * upload Excel file to server
  * @return string - file ID op the uploaded file
  */
-export async function upload(file: File): Promise<string[]> {
+export async function upload(file: File, requestOptions?: RequestOptions): Promise<string[]> {
   const formData = new FormData();
   formData.append('excel', file);
   const response = await axios.post(`${excelPath}/upload`, formData, {
+    signal: requestOptions?.signal,
+    timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -27,19 +31,31 @@ type PreviewSpreadsheetResponse = {
   customFields: CustomFields;
   summary: RundownSummary;
 };
-export async function importRundownPreview(options: ImportMap): Promise<PreviewSpreadsheetResponse> {
-  const response: AxiosResponse<PreviewSpreadsheetResponse> = await axios.post(`${excelPath}/preview`, {
-    options,
-  });
+export async function importRundownPreview(
+  options: ImportMap,
+  requestOptions?: RequestOptions,
+): Promise<PreviewSpreadsheetResponse> {
+  const response: AxiosResponse<PreviewSpreadsheetResponse> = await axios.post(
+    `${excelPath}/preview`,
+    {
+      options,
+    },
+    {
+      signal: requestOptions?.signal,
+      timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
+    },
+  );
   return response.data;
 }
 
 /**
  * Downloads a xlsx representation of the rundown from the server
  */
-export async function downloadAsExcel(rundownId: string, fileName?: string) {
+export async function downloadAsExcel(rundownId: string, fileName?: string, requestOptions?: RequestOptions) {
   try {
     const response = await axios.get(`${excelPath}/${rundownId}/export`, {
+      signal: requestOptions?.signal,
+      timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
       responseType: 'blob',
     });
 

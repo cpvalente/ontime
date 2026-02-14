@@ -2,14 +2,15 @@ import axios from 'axios';
 import { URLPreset } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
+import type { RequestOptions } from './requestOptions';
 
 const urlPresetsPath = `${apiEntryUrl}/url-presets`;
 
 /**
  * HTTP request to retrieve all presets
  */
-export async function getUrlPresets(): Promise<URLPreset[]> {
-  const res = await axios.get(urlPresetsPath);
+export async function getUrlPresets(options?: RequestOptions): Promise<URLPreset[]> {
+  const res = await axios.get(urlPresetsPath, { signal: options?.signal });
   return res.data;
 }
 

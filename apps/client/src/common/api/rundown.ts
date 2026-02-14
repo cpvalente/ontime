@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { EntryId, OntimeEntry, OntimeEvent, ProjectRundownsList, Rundown, TransientEventPayload } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
+import type { RequestOptions } from './requestOptions';
 
 type RundownId = string;
 const rundownPath = `${apiEntryUrl}/rundowns`;
@@ -11,16 +12,16 @@ const rundownPath = `${apiEntryUrl}/rundowns`;
 /**
  * HTTP request to fetch a list of existing rundowns
  */
-export async function fetchProjectRundownList(): Promise<ProjectRundownsList> {
-  const res = await axios.get(rundownPath);
+export async function fetchProjectRundownList(options?: RequestOptions): Promise<ProjectRundownsList> {
+  const res = await axios.get(rundownPath, { signal: options?.signal });
   return res.data;
 }
 
 /**
  * HTTP request to fetch all entries in the currently loaded rundown
  */
-export async function fetchCurrentRundown(): Promise<Rundown> {
-  const res = await axios.get(`${rundownPath}/current`);
+export async function fetchCurrentRundown(options?: RequestOptions): Promise<Rundown> {
+  const res = await axios.get(`${rundownPath}/current`, { signal: options?.signal });
   if (!isValidRundown(res.data)) {
     throw new Error('Invalid rundown payload');
   }

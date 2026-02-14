@@ -2,14 +2,15 @@ import axios from 'axios';
 import { CustomField, CustomFieldKey, CustomFields } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
+import type { RequestOptions } from './requestOptions';
 
 const customFieldsPath = `${apiEntryUrl}/custom-fields`;
 
 /**
  * Requests list of known custom fields
  */
-export async function getCustomFields(): Promise<CustomFields> {
-  const res = await axios.get(customFieldsPath);
+export async function getCustomFields(options?: RequestOptions): Promise<CustomFields> {
+  const res = await axios.get(customFieldsPath, { signal: options?.signal });
   return res.data;
 }
 

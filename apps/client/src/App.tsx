@@ -3,6 +3,9 @@ import { Tooltip } from '@base-ui/react/tooltip';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
+// apply global axios config defaults
+import './common/api/axios.config';
+
 import ErrorBoundary from './common/components/error-boundary/ErrorBoundary';
 import IdentifyOverlay from './common/components/identify-overlay/IdentifyOverlay';
 import { AppContextProvider } from './common/context/AppContext';

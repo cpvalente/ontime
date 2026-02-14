@@ -8,7 +8,7 @@ import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 export function useCustomTranslation() {
   const { data, status, refetch } = useQuery({
     queryKey: TRANSLATION,
-    queryFn: getUserTranslation,
+    queryFn: ({ signal }) => getUserTranslation({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
     refetchInterval: queryRefetchIntervalSlow,
   });

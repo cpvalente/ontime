@@ -8,11 +8,8 @@ import { fetchReport } from '../api/report';
 export default function useReport() {
   const { data, refetch } = useQuery<OntimeReport>({
     queryKey: REPORT,
-    queryFn: fetchReport,
+    queryFn: ({ signal }) => fetchReport({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
-    retry: 5,
-    retryDelay: (attempt) => attempt * 2500,
-    networkMode: 'always',
     staleTime: MILLIS_PER_HOUR,
   });
 

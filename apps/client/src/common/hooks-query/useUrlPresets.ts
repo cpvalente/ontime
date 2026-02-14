@@ -13,7 +13,7 @@ interface FetchProps {
 export default function useUrlPresets({ skip = false }: FetchProps = {}) {
   const { data, status, isError, refetch } = useQuery({
     queryKey: URL_PRESETS,
-    queryFn: getUrlPresets,
+    queryFn: ({ signal }) => getUrlPresets({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
     refetchInterval: queryRefetchIntervalSlow,
     enabled: !skip,

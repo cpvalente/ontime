@@ -11,7 +11,7 @@ import { createRundown, deleteRundown, duplicateRundown, fetchProjectRundownList
 export function useProjectRundowns() {
   const { data, status, isError, refetch, isFetching } = useQuery<ProjectRundownsList>({
     queryKey: PROJECT_RUNDOWNS,
-    queryFn: fetchProjectRundownList,
+    queryFn: ({ signal }) => fetchProjectRundownList({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
     refetchInterval: queryRefetchIntervalSlow,
   });

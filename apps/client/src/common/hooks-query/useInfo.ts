@@ -9,12 +9,9 @@ import { ontimePlaceholderInfo } from '../models/Info';
 export default function useInfo() {
   const { data, status, isError, refetch, isFetching } = useQuery<GetInfo>({
     queryKey: APP_INFO,
-    queryFn: getInfo,
+    queryFn: ({ signal }) => getInfo({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
-    retry: 5,
-    retryDelay: (attempt) => attempt * 2500,
     refetchInterval: queryRefetchIntervalSlow,
-    networkMode: 'always',
   });
 
   return { data: data ?? ontimePlaceholderInfo, status, isError, refetch, isFetching };

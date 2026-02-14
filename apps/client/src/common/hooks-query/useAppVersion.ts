@@ -17,7 +17,7 @@ export default function useAppVersion() {
     refetch,
   } = useQuery({
     queryKey: APP_VERSION,
-    queryFn: getLatestVersion,
+    queryFn: ({ signal }) => getLatestVersion({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,

@@ -24,7 +24,7 @@ const cachedRundownPlaceholder: Rundown = {
 export default function useRundown() {
   const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
     queryKey: RUNDOWN,
-    queryFn: fetchCurrentRundown,
+    queryFn: ({ signal }) => fetchCurrentRundown({ signal }),
     refetchInterval: queryRefetchIntervalSlow,
   });
 
