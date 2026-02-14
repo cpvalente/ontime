@@ -1,4 +1,4 @@
-import { type HTMLProps, forwardRef, Fragment, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type HTMLProps, forwardRef, Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TbFlagFilled } from 'react-icons/tb';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { closestCenter, DndContext } from '@dnd-kit/core';
@@ -26,13 +26,12 @@ import RundownGroup from './rundown-group/RundownGroup';
 import RundownGroupEnd from './rundown-group/RundownGroupEnd';
 import { filterVisibleEntries, makeSortableList } from './rundown.utils';
 import RundownEmpty from './RundownEmpty';
+import RundownEntry from './RundownEntry';
 import { useCollapsedGroups } from './useCollapsedGroups';
 import { useEditorFollowMode } from './useEditorFollowMode';
 import { useEventSelection } from './useEventSelection';
 
 import style from './Rundown.module.scss';
-
-const RundownEntry = lazy(() => import('./RundownEntry'));
 
 interface RundownProps {
   entries: RundownType['entries'];
