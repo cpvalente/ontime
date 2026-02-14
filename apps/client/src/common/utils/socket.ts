@@ -38,7 +38,13 @@ import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
 
 let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
-const reconnectInterval = 1000;
+const socketConfig = {
+  reconnectBaseInterval: 1000, // 1 second
+  reconnectMaxInterval: 30000, // 30 seconds
+  reconnectMinInterval: 500, // 0.5 seconds
+  reconnectJitter: 0.25,
+  offlineAttemptsThreshold: 2, // when we consider the client disconnected
+} as const;
 
 export let hasConnected = false;
 export let reconnectAttempts = 0;
@@ -49,7 +55,11 @@ export const connectSocket = () => {
   const preferredClientName = getClientName();
 
   websocket.onopen = () => {
-    clearTimeout(reconnectTimeout as NodeJS.Timeout);
+    const isReconnect = hasConnected;
+    if (reconnectTimeout) {
+      clearTimeout(reconnectTimeout);
+      reconnectTimeout = null;
+    }
     hasConnected = true;
     reconnectAttempts = 0;
 
@@ -59,24 +69,38 @@ export const connectSocket = () => {
       path: window.location.pathname + window.location.search,
       name: preferredClientName,
     });
-    invalidateAllCaches(); // assume all data to be stale after a reconnect
+
+    if (isReconnect) {
+      invalidateAllCaches();
+    }
     setOnlineStatus(true);
   };
 
   websocket.onclose = () => {
     console.warn('WebSocket disconnected');
+    if (reconnectTimeout) {
+      clearTimeout(reconnectTimeout);
+      reconnectTimeout = null;
+    }
 
-    // we decide to allows reconnect
+    const exponentialDelay = Math.min(
+      socketConfig.reconnectBaseInterval * 2 ** reconnectAttempts,
+      socketConfig.reconnectMaxInterval,
+    );
+    const jitterOffset = exponentialDelay * socketConfig.reconnectJitter * (Math.random() * 2 - 1);
+    const delay = Math.max(socketConfig.reconnectMinInterval, Math.round(exponentialDelay + jitterOffset));
+
     reconnectTimeout = setTimeout(() => {
-      if (reconnectAttempts > 2) {
+      reconnectTimeout = null;
+      if (reconnectAttempts > socketConfig.offlineAttemptsThreshold) {
         setOnlineStatus(false);
       }
-      console.warn('WebSocket: attempting reconnect');
+      console.warn(`WebSocket: reconnecting now (#${reconnectAttempts + 1}, waited ${delay}ms)`);
       if (websocket && websocket.readyState === WebSocket.CLOSED) {
         reconnectAttempts += 1;
         connectSocket();
       }
-    }, reconnectInterval);
+    }, delay);
   };
 
   websocket.onerror = (error) => {
