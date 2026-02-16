@@ -20,6 +20,9 @@ export type { RundownEntries, Rundown, ProjectRundowns } from './definitions/cor
 export { TimeStrategy } from './definitions/TimeStrategy.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
 
+// ---> Core
+export type { Day, Duration, Instant, TimeOfDay } from './definitions/core/Temporal.js';
+
 // ---> Report
 export type { OntimeReport, OntimeEventReport } from './definitions/core/Report.type.js';
 
@@ -125,7 +128,7 @@ export {
   isOntimeAction,
   isTimerLifeCycle,
 } from './utils/guards.js';
-export type { MaybeNumber, MaybeString } from './utils/utils.type.js';
+export type { Maybe, MaybeNumber, MaybeString } from './utils/utils.type.js';
 
 // Colour
 export type { RGBColour } from './definitions/Colour.type.js';

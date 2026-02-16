@@ -1,4 +1,4 @@
-import { Playback, MaybeString, MaybeNumber } from 'ontime-types';
+import { Playback, MaybeString, MaybeNumber, Maybe, Instant } from 'ontime-types';
 
 export type RestorePoint = {
   playback: Playback;
@@ -7,6 +7,6 @@ export type RestorePoint = {
   addedTime: number;
   pausedAt: MaybeNumber;
   firstStart: MaybeNumber;
-  startEpoch: MaybeNumber;
+  startEpoch: Maybe<Instant>;
   currentDay: MaybeNumber;
 };
