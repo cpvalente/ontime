@@ -181,10 +181,10 @@ export function getCardData(
     : getPropertyValue(eventNow, secondarySource, entries);
 
   return {
-    showNow: mainSource !== 'none' || Boolean(nowSecondary),
+    showNow: mainSource !== 'none' && (Boolean(nowMain) || Boolean(nowSecondary)),
     nowMain,
     nowSecondary,
-    showNext: mainSource !== 'none' || Boolean(nextSecondary),
+    showNext: mainSource !== 'none' && (Boolean(nextMain) || Boolean(nextSecondary)),
     nextMain,
     nextSecondary,
   };
