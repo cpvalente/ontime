@@ -468,7 +468,7 @@ describe('v3 to v4', () => {
 
       const expectedAutomation: AutomationSettings = {
         enabledAutomations: true,
-        enabledOscIn: true,
+        enabledOscIn: false,
         oscPortIn: 8888,
         triggers: [
           {

@@ -41,7 +41,7 @@ const dbModel: DatabaseModel = {
   customFields: {},
   automation: {
     enabledAutomations: true,
-    enabledOscIn: true,
+    enabledOscIn: false,
     oscPortIn: 8888,
     triggers: [],
     automations: {},
