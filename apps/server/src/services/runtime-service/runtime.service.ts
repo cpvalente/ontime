@@ -548,7 +548,14 @@ class RuntimeService {
     const metadata = getRundownMetadata();
 
     try {
-      runtimeState.roll(rundown, metadata, offset);
+      const result = runtimeState.roll(rundown, metadata, offset);
+      if (result.didStart) {
+        const newState = runtimeState.getState();
+        process.nextTick(() => {
+          triggerReportEntry(TimerLifeCycle.onStart, newState);
+          triggerAutomations(TimerLifeCycle.onStart, newState);
+        });
+      }
     } catch (error) {
       logger.error(LogOrigin.Server, `Roll: ${error}`);
     }
