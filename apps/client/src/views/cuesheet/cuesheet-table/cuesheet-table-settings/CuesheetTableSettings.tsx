@@ -46,6 +46,7 @@ export default function CuesheetTableSettings({
   handleResetReordering,
   handleClearToggles,
 }: CuesheetTableSettingsProps) {
+  const canChangeMode = useCuesheetPermissions((state) => state.canChangeMode);
   const canShare = useCuesheetPermissions((state) => state.canShare);
   const preset = use(PresetContext);
   const options = usePersistedCuesheetOptions();
@@ -71,14 +72,20 @@ export default function CuesheetTableSettings({
         handleResetReordering={handleResetReordering}
         handleClearToggles={handleClearToggles}
       />
-      <ToggleGroup value={[cuesheetMode]} onValueChange={toggleCuesheetMode} className={cx([style.group, style.apart])}>
-        <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
-          Run
-        </Toolbar.Button>
-        <Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.radioButton}>
-          Edit
-        </Toolbar.Button>
-      </ToggleGroup>
+      {canChangeMode && (
+        <ToggleGroup
+          value={[cuesheetMode]}
+          onValueChange={toggleCuesheetMode}
+          className={cx([style.group, style.apart])}
+        >
+          <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
+            Run
+          </Toolbar.Button>
+          <Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.radioButton}>
+            Edit
+          </Toolbar.Button>
+        </ToggleGroup>
+      )}
 
       {canShare && (
         <>
