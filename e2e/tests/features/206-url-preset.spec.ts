@@ -220,6 +220,8 @@ test.describe('Sharing from cuesheet', () => {
 
     // Verify that the title is visible and editable
     await expect(page.getByTestId('cuesheet-event').getByRole('cell', { name: 'title' })).toBeVisible();
+    await page.getByTestId('cuesheet-event').getByTestId('cuesheet-editor-title').click();
+    await expect(page.getByTestId('cuesheet-event').getByTestId('cuesheet-editor-title').locator('input')).toBeVisible();
 
     // other elements are not there
     await expect(page.getByRole('cell', { name: 'Duration' })).toBeHidden();
