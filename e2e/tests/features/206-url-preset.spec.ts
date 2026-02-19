@@ -165,8 +165,9 @@ test.describe('Sharing from cuesheet', () => {
     await expect(page.getByTestId('navigation__toggle-settings')).toBeHidden();
     await expect(page.getByRole('button', { name: 'Share...' })).toBeHidden();
 
-    // check that we are locked and cannot edit
-    await page.getByRole('button', { name: 'Edit' }).click();
+    // mode toggle should not be rendered for readonly users
+    await expect(page.getByRole('button', { name: 'Edit' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Run' })).toHaveCount(0);
 
     // Verify that the title is visible but not editable
     await expect(page.getByTestId('cuesheet-event').getByText('title 1')).toBeVisible();
