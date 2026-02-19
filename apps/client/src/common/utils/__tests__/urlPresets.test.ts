@@ -82,6 +82,31 @@ describe('getRouteFromPreset()', () => {
       expect(getRouteFromPreset(location, presets)).toBe('timer?user=guest&alias=demopage&n=1&token=123');
     });
   });
+
+  describe('cuesheet preset options', () => {
+    const cuesheetPreset: URLPreset[] = [
+      {
+        enabled: true,
+        alias: 'cuesheet-4685d6',
+        target: OntimeView.Cuesheet,
+        search: '',
+        options: {
+          read: 'full',
+          write: '-',
+        },
+      },
+    ];
+
+    it('keeps cuesheet aliases masked when permissions are stored in preset options', () => {
+      const location = resolvePath('/cuesheet-4685d6');
+      expect(getRouteFromPreset(location, cuesheetPreset)).toBe('preset/cuesheet-4685d6');
+    });
+
+    it('preserves feature params when redirecting masked cuesheet aliases', () => {
+      const location = resolvePath('/cuesheet-4685d6?n=1&token=123');
+      expect(getRouteFromPreset(location, cuesheetPreset)).toBe('preset/cuesheet-4685d6?n=1&token=123');
+    });
+  });
 });
 
 describe('generatePathFromPreset()', () => {

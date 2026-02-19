@@ -53,7 +53,9 @@ export function getRouteFromPreset(location: Path, urlPresets: URLPreset[]): str
      * we need to compare the saved preset to the current path to see if we need to redirect
      */
     if (preset.alias === currentURL || preset.target === currentURL) {
-      const newPath = generatePathFromPreset(preset.target, preset.search, preset.alias, isLocked, token);
+      const newPath = shouldMaskPresetPath(preset)
+        ? generateMaskedPathFromPreset(preset.alias, isLocked, token)
+        : generatePathFromPreset(preset.target, preset.search, preset.alias, isLocked, token);
       /**
        * if the current path is equivalent to the new path, we return null
        * this means we will not redirect
@@ -112,6 +114,30 @@ export function generatePathFromPreset(
 
   // return path concatenated without the leading slash
   return `${path.pathname}?${searchParams}`.substring(1);
+}
+
+function generateMaskedPathFromPreset(alias: string, locked: boolean, token: string | null): string {
+  const searchParams = new URLSearchParams();
+
+  if (locked) {
+    searchParams.set('n', '1');
+  }
+
+  if (token) {
+    searchParams.set('token', token);
+  }
+
+  const path = `preset/${alias}`;
+  const search = searchParams.toString();
+  return search ? `${path}?${search}` : path;
+}
+
+function shouldMaskPresetPath(preset: URLPreset): boolean {
+  if (preset.target !== OntimeView.Cuesheet) {
+    return false;
+  }
+
+  return Boolean(preset.options?.read || preset.options?.write);
 }
 
 /**
