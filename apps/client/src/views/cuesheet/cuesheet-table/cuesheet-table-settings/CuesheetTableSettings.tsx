@@ -1,20 +1,18 @@
-import { ReactNode, use } from 'react';
+import { ReactNode } from 'react';
 import { IoBookOutline, IoChevronDown, IoOptions } from 'react-icons/io5';
 import { Popover } from '@base-ui/react/popover';
 import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toolbar } from '@base-ui/react/toolbar';
-import { useSessionStorage } from '@mantine/hooks';
 import type { Column } from '@tanstack/react-table';
 
 import Button from '../../../../common/components/buttons/Button';
 import Checkbox from '../../../../common/components/checkbox/Checkbox';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import PopoverContents from '../../../../common/components/popover/Popover';
-import { PresetContext } from '../../../../common/context/PresetContext';
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { cx } from '../../../../common/utils/styleUtils';
-import { AppMode, sessionKeys } from '../../../../ontimeConfig';
+import { AppMode } from '../../../../ontimeConfig';
 import { CuesheetOptions, usePersistedCuesheetOptions } from '../../cuesheet.options';
 import { useCuesheetPermissions } from '../../useTablePermissions';
 
@@ -24,6 +22,8 @@ import style from './CuesheetTableSettings.module.scss';
 
 interface CuesheetTableSettingsProps {
   columns: Column<ExtendedEntry, unknown>[];
+  cuesheetMode: AppMode;
+  setCuesheetMode: (mode: AppMode) => void;
   handleResetResizing: () => void;
   handleResetReordering: () => void;
   handleClearToggles: () => void;
@@ -42,19 +42,15 @@ export interface ColumnSettingsProps {
 
 export default function CuesheetTableSettings({
   columns,
+  cuesheetMode,
+  setCuesheetMode,
   handleResetResizing,
   handleResetReordering,
   handleClearToggles,
 }: CuesheetTableSettingsProps) {
   const canChangeMode = useCuesheetPermissions((state) => state.canChangeMode);
   const canShare = useCuesheetPermissions((state) => state.canShare);
-  const preset = use(PresetContext);
   const options = usePersistedCuesheetOptions();
-
-  const [cuesheetMode, setCuesheetMode] = useSessionStorage({
-    key: preset ? `${preset.alias}${sessionKeys.cuesheetMode}` : sessionKeys.cuesheetMode,
-    defaultValue: preset ? AppMode.Run : AppMode.Edit,
-  });
 
   const toggleCuesheetMode = (mode: AppMode[]) => {
     // we need to stop user from deselecting a mode
