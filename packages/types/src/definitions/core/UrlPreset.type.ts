@@ -28,9 +28,9 @@ type CuesheetUrlPreset = {
   enabled: boolean;
   alias: string;
   search: string;
-  options: {
-    read: string;
-    write: string;
+  options?: {
+    read?: string;
+    write?: string;
   };
 };
 

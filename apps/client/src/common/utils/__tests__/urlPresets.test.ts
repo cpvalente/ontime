@@ -83,7 +83,7 @@ describe('getRouteFromPreset()', () => {
     });
   });
 
-  describe('cuesheet preset options', () => {
+  describe('cuesheet presets', () => {
     const cuesheetPreset: URLPreset[] = [
       {
         enabled: true,
@@ -96,6 +96,22 @@ describe('getRouteFromPreset()', () => {
         },
       },
     ];
+    const cuesheetPresetWithoutOptions: URLPreset[] = [
+      {
+        enabled: true,
+        alias: 'cuesheet-basic',
+        target: OntimeView.Cuesheet,
+        search: '',
+      },
+    ];
+    const cuesheetPresetWithNavLock: URLPreset[] = [
+      {
+        enabled: true,
+        alias: 'cuesheet-locked',
+        target: OntimeView.Cuesheet,
+        search: 'n=1',
+      },
+    ];
 
     it('keeps cuesheet aliases masked when permissions are stored in preset options', () => {
       const location = resolvePath('/cuesheet-4685d6');
@@ -105,6 +121,16 @@ describe('getRouteFromPreset()', () => {
     it('preserves feature params when redirecting masked cuesheet aliases', () => {
       const location = resolvePath('/cuesheet-4685d6?n=1&token=123');
       expect(getRouteFromPreset(location, cuesheetPreset)).toBe('preset/cuesheet-4685d6?n=1&token=123');
+    });
+
+    it('keeps cuesheet aliases masked even when preset options are absent', () => {
+      const location = resolvePath('/cuesheet-basic');
+      expect(getRouteFromPreset(location, cuesheetPresetWithoutOptions)).toBe('preset/cuesheet-basic');
+    });
+
+    it('applies navigation lock from preset search params when alias is opened', () => {
+      const location = resolvePath('/cuesheet-locked');
+      expect(getRouteFromPreset(location, cuesheetPresetWithNavLock)).toBe('preset/cuesheet-locked?n=1');
     });
   });
 });
