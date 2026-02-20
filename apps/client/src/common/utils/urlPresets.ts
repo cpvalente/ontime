@@ -39,11 +39,13 @@ export function getRouteFromPreset(location: Path, urlPresets: URLPreset[]): str
   // NOTE: verify that this resolves correctly in cloud
   const currentPath = `${location.pathname}${location.search}`.substring(1);
   const currentURL = getCurrentPath(location);
-  const token = new URLSearchParams(location.search).get('token');
-  const isLocked = location.search.includes('n=1');
+  const locationParams = new URLSearchParams(location.search);
+  const token = locationParams.get('token');
 
   for (const preset of urlPresets) {
     if (!preset.enabled) continue;
+    const presetParams = new URLSearchParams(preset.search);
+    const isLocked = locationParams.get('n') === '1' || presetParams.get('n') === '1';
     /**
      * If the page is a known alias it would be like
      * /preset/{alias} <- locked to a preset
@@ -129,15 +131,15 @@ function generateMaskedPathFromPreset(alias: string, locked: boolean, token: str
 
   const path = `preset/${alias}`;
   const search = searchParams.toString();
-  return search ? `${path}?${search}` : path;
+  if (!search) {
+    return path;
+  }
+
+  return `${path}?${search}`;
 }
 
 function shouldMaskPresetPath(preset: URLPreset): boolean {
-  if (preset.target !== OntimeView.Cuesheet) {
-    return false;
-  }
-
-  return Boolean(preset.options?.read || preset.options?.write);
+  return preset.target === OntimeView.Cuesheet;
 }
 
 /**

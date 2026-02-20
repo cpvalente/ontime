@@ -43,18 +43,24 @@ router.post('/', validateNewPreset, async (req: Request, res: Response<URLPreset
 router.put('/:alias', validateUpdatePreset, async (req: Request, res: Response<URLPreset[] | ErrorResponse>) => {
   try {
     const alias = req.params.alias;
+    const currentPresets = getDataProvider().getUrlPresets();
+    const existingPreset = currentPresets.find((preset) => preset.alias === alias);
+    if (!existingPreset) {
+      throw new Error(`Preset with alias ${alias} does not exist.`);
+    }
+
     const updatedPreset: URLPreset = {
       enabled: req.body.enabled,
       alias: req.body.alias,
       target: req.body.target,
       search: req.body.search,
+      options: req.body.options ?? existingPreset.options,
     };
 
     if (alias !== updatedPreset.alias) {
       throw new Error('Changing alias is not permitted');
     }
 
-    const currentPresets = getDataProvider().getUrlPresets();
     const newPresets = currentPresets.map((preset) => (preset.alias === alias ? updatedPreset : preset));
 
     // Update the URL presets in the data provider
