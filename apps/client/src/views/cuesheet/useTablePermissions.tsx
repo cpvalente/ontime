@@ -6,8 +6,10 @@ interface CuesheetPermissionsStore {
   canEditEntries: boolean;
   canFlag: boolean;
   canShare: boolean;
-  setPermissions: (permissions: Omit<CuesheetPermissionsStore, 'setPermissions'>) => void;
+  setPermissions: (permissions: CuesheetPermissions) => void;
 }
+
+export type CuesheetPermissions = Omit<CuesheetPermissionsStore, 'setPermissions'>;
 
 export const useCuesheetPermissions = create<CuesheetPermissionsStore>((set) => ({
   canChangeMode: false,

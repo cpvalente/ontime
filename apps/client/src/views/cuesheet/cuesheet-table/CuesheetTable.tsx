@@ -34,13 +34,24 @@ import { useColumnOrder, useColumnSizes, useColumnVisibility } from './useColumn
 
 import style from './CuesheetTable.module.scss';
 
-interface CuesheetTableProps {
+type CuesheetTableBaseProps = {
   columns: ColumnDef<ExtendedEntry>[];
   cuesheetMode: AppMode;
-  tableRoot?: 'editor' | 'cuesheet';
-}
+};
 
-export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cuesheet' }: CuesheetTableProps) {
+type EditorCuesheetTableProps = CuesheetTableBaseProps & {
+  tableRoot: 'editor';
+  setCuesheetMode?: undefined;
+};
+
+type ViewCuesheetTableProps = CuesheetTableBaseProps & {
+  tableRoot: 'cuesheet';
+  setCuesheetMode: (mode: AppMode) => void;
+};
+
+type CuesheetTableProps = EditorCuesheetTableProps | ViewCuesheetTableProps;
+
+export default function CuesheetTable({ columns, cuesheetMode, tableRoot, setCuesheetMode }: CuesheetTableProps) {
   const { data, status } = useFlatRundownWithMetadata();
   const { updateEntry, updateTimer } = useEntryActionsContext();
 
@@ -206,17 +217,25 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot = 'cues
     return <EmptyPage text='Loading...' />;
   }
 
-  // control components need different implementations for handling permissions
-  const TableRootSettings = tableRoot === 'editor' ? EditorTableSettings : CuesheetTableSettings;
-
   return (
     <>
-      <TableRootSettings
-        columns={allLeafColumns}
-        handleResetResizing={resetColumnResizing}
-        handleResetReordering={resetColumnOrder}
-        handleClearToggles={setAllVisible}
-      />
+      {tableRoot === 'editor' ? (
+        <EditorTableSettings
+          columns={allLeafColumns}
+          handleResetResizing={resetColumnResizing}
+          handleResetReordering={resetColumnOrder}
+          handleClearToggles={setAllVisible}
+        />
+      ) : (
+        <CuesheetTableSettings
+          columns={allLeafColumns}
+          cuesheetMode={cuesheetMode}
+          setCuesheetMode={setCuesheetMode}
+          handleResetResizing={resetColumnResizing}
+          handleResetReordering={resetColumnOrder}
+          handleClearToggles={setAllVisible}
+        />
+      )}
       <TableVirtuoso
         ref={virtuosoRef}
         data={data}
