@@ -7,6 +7,8 @@ ul {
 
 .tabs {
   width: min(30vw, 300px);
+  flex: 0 0 min(30vw, 300px);
+  min-width: min(30vw, 300px);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
