@@ -151,16 +151,19 @@ export function arePathsEquivalent(currentPath: string, newPath: string): boolea
   const currentUrl = new URL(currentPath, document.location.origin);
   const newUrl = new URL(newPath, document.location.origin);
 
-  // For preset paths, only compare the path
-  if (currentUrl.pathname.startsWith('/preset/') || newUrl.pathname.startsWith('/preset/')) {
-    return currentUrl.pathname === newUrl.pathname;
-  }
-
-  // For regular paths, compare path and search params (ignoring token)
   if (currentUrl.pathname !== newUrl.pathname) {
     return false;
   }
 
+  // For preset paths, only n and token are meaningful — ignore everything else
+  if (currentUrl.pathname.startsWith('/preset/')) {
+    return (
+      currentUrl.searchParams.get('n') === newUrl.searchParams.get('n') &&
+      currentUrl.searchParams.get('token') === newUrl.searchParams.get('token')
+    );
+  }
+
+  // For regular paths, compare all search params except n and token
   currentUrl.searchParams.delete('token');
   currentUrl.searchParams.delete('n');
   newUrl.searchParams.delete('token');

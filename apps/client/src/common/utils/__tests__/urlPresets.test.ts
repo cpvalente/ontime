@@ -166,6 +166,14 @@ describe('arePathsEquivalent()', () => {
     expect(arePathsEquivalent('preset/minimal', 'preset/minimal?test=b')).toBeTruthy();
   });
 
+  it('distinguishes preset paths with different lock or token params', () => {
+    expect(arePathsEquivalent('preset/minimal', 'preset/minimal?n=1')).toBeFalsy();
+    expect(arePathsEquivalent('preset/minimal?n=1', 'preset/minimal?n=1')).toBeTruthy();
+    expect(arePathsEquivalent('preset/minimal', 'preset/minimal?token=abc')).toBeFalsy();
+    expect(arePathsEquivalent('preset/minimal?n=1&token=abc', 'preset/minimal?n=1')).toBeFalsy();
+    expect(arePathsEquivalent('preset/minimal?n=1&token=abc', 'preset/minimal?n=1&token=abc')).toBeTruthy();
+  });
+
   it('considers edge cases for the url sharing feature', () => {
     expect(arePathsEquivalent('timer?test=a&n=1=token=123', 'timer?test=b')).toBeFalsy();
     expect(arePathsEquivalent('timer?test=a&n=1=token=123', 'timer?test=a')).toBeTruthy();
