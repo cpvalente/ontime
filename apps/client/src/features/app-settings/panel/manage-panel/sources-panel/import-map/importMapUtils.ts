@@ -1,5 +1,7 @@
 import { ImportCustom, ImportMap } from 'ontime-utils';
 
+import { makeStageKey } from '../../../../../../common/utils/localStorage';
+
 export type NamedImportMap = typeof namedImportMap;
 
 // Record of label and import name
@@ -63,12 +65,14 @@ export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
   };
 }
 
+const importMapKey = makeStageKey('import-map');
+
 export function persistImportMap(options: NamedImportMap) {
-  localStorage.setItem('import-options', JSON.stringify(options));
+  localStorage.setItem(importMapKey, JSON.stringify(options));
 }
 
 function getPersistImportMap(): unknown {
-  const options = localStorage.getItem('import-options');
+  const options = localStorage.getItem(importMapKey);
   if (!options) {
     throw new Error('no import options found');
   }
