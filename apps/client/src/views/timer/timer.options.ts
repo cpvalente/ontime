@@ -242,7 +242,7 @@ export function useTimerOptions(): TimerOptions {
   const options = useMemo(() => {
     const defaultValues = maybePreset ? new URLSearchParams(maybePreset.search) : undefined;
     return getOptionsFromParams(searchParams, defaultValues);
-  }, [maybePreset, searchParams]);
+  }, [maybePreset, searchParams.toString()]);
 
   return options;
 }
