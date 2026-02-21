@@ -14,7 +14,22 @@ import { validateCustomField, validateDeleteCustomField, validateEditCustomField
 export const router = express.Router();
 
 /**
- * Gets all the custom fields for the project
+ * @swagger
+ * /data/custom-fields:
+ *   get:
+ *     summary: Get all custom fields for the project
+ *     responses:
+ *       200:
+ *         description: A list of custom fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 customFields:
+ *                   type: array
+ *                   items:
+ *                     type: object
  */
 router.get('/', async (_req: Request, res: Response<CustomFields>) => {
   const customFields = getProjectCustomFields();
@@ -22,7 +37,19 @@ router.get('/', async (_req: Request, res: Response<CustomFields>) => {
 });
 
 /**
- * Creates a new custom field
+ * @swagger
+ * /data/custom-fields:
+ *   post:
+ *     summary: Create a new custom field
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       201:
+ *         description: The updated list of custom fields
  */
 router.post('/', validateCustomField, async (req: Request, res: Response<CustomFields | ErrorResponse>) => {
   try {
@@ -35,7 +62,25 @@ router.post('/', validateCustomField, async (req: Request, res: Response<CustomF
 });
 
 /**
- * Modifies the properties of an existing custom field
+ * @swagger
+ * /data/custom-fields/{key}:
+ *   put:
+ *     summary: Update a custom field
+ *     parameters:
+ *       - in: path
+ *         name: key
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: The updated list of custom fields
  */
 router.put('/:key', validateEditCustomField, async (req: Request, res: Response<CustomFields | ErrorResponse>) => {
   try {
@@ -52,7 +97,19 @@ router.put('/:key', validateEditCustomField, async (req: Request, res: Response<
 });
 
 /**
- * Deletes an existing custom field
+ * @swagger
+ * /data/custom-fields/{key}:
+ *   delete:
+ *     summary: Delete a custom field
+ *     parameters:
+ *       - in: path
+ *         name: key
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The updated list of custom fields
  */
 router.delete('/:key', validateDeleteCustomField, async (req: Request, res: Response<CustomFields | ErrorResponse>) => {
   try {
