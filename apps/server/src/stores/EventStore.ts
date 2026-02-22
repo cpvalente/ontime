@@ -1,13 +1,47 @@
-import { RuntimeStore, MessageTag } from 'ontime-types';
+import { RuntimeStore, MessageTag, runtimeStorePlaceholder, SimplePlayback, SimpleDirection } from 'ontime-types';
 
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
+import { runtimeState } from './runtimeState.js';
+import { timerConfig } from '../setup/config.js';
 
 export type PublishFn = <T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) => void;
 export type StoreGetter = <T extends keyof RuntimeStore>(key: T) => Partial<RuntimeStore>[T];
 
 let store: Partial<RuntimeStore> = {};
 
+function mapRuntimeState(): RuntimeStore {
+  return {
+    clock: runtimeState.clock,
+    timer: structuredClone(runtimeState.timer),
+    message: structuredClone(runtimeStorePlaceholder.message),
+    offset: structuredClone(runtimeState.offset),
+    rundown: structuredClone(runtimeState.rundown),
+    eventNow: structuredClone(runtimeState.eventNow),
+    eventNext: structuredClone(runtimeState.eventNext),
+    eventFlag: null,
+    groupNow: null,
+    auxtimer1: {
+      duration: timerConfig.auxTimerDefault,
+      current: timerConfig.auxTimerDefault,
+      playback: SimplePlayback.Stop,
+      direction: SimpleDirection.CountDown,
+    },
+    auxtimer2: {
+      duration: timerConfig.auxTimerDefault,
+      current: timerConfig.auxTimerDefault,
+      playback: SimplePlayback.Stop,
+      direction: SimpleDirection.CountDown,
+    },
+    auxtimer3: {
+      duration: timerConfig.auxTimerDefault,
+      current: timerConfig.auxTimerDefault,
+      playback: SimplePlayback.Stop,
+      direction: SimpleDirection.CountDown,
+    },
+    ping: 1,
+  };
+}
 /**
  * A runtime store that broadcasts its payload
  * - init: allows for adding an initial payload to the store
@@ -15,8 +49,8 @@ let store: Partial<RuntimeStore> = {};
  * - broadcast: send its payload as json object
  */
 export const eventStore = {
-  init(payload: RuntimeStore) {
-    store = payload;
+  init() {
+    store = mapRuntimeState();
   },
   get<T extends keyof RuntimeStore>(key: T) {
     return store[key];

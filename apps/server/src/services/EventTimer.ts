@@ -1,5 +1,6 @@
+import { Maybe } from 'ontime-types';
 import { timerConfig } from '../setup/config.js';
-import * as runtimeState from '../stores/runtimeState.js';
+import { runtimeState, update as runtimeUpdate } from '../stores/runtimeState.js';
 import type { UpdateResult } from '../stores/runtimeState.js';
 
 type UpdateCallbackFn = (updateResult: UpdateResult) => void;
@@ -38,63 +39,44 @@ export class EventTimer {
   }
 
   start() {
-    if (!runtimeState.start()) {
-      return false;
-    }
-
-    const state = runtimeState.getState();
+    const { current } = mapRuntimeState();
 
     // eslint-disable-next-line no-unused-labels -- dev code path
     DEV: {
-      if (state.timer.current === null) {
+      if (current === null) {
         throw new Error('EventTimer.start: invalid state received');
       }
     }
 
     // register a callback for the scheduled end
-    const endTime = state.timer.current - timerConfig.triggerAhead;
+    const endTime = current - timerConfig.triggerAhead;
     this.endCallback = setTimeout(() => this.update(), endTime);
-    return true;
   }
 
   pause() {
-    if (!runtimeState.pause()) {
-      return false;
-    }
-
     // cancel end callback
     clearTimeout(this.endCallback);
-    return true;
   }
 
   stop() {
-    if (!runtimeState.stop()) {
-      return false;
-    }
-
     // cancel end callback
     clearTimeout(this.endCallback);
-    return true;
   }
 
   /**
    * Adds time to running timer by given amount
    */
-  addTime(amount: number): boolean {
-    if (!runtimeState.addTime(amount)) {
-      return false;
-    }
-
+  addTime(): boolean {
     // renew end callback
     clearTimeout(this.endCallback);
-    const state = runtimeState.getState();
+    const { expectedFinish } = mapRuntimeState();
     // eslint-disable-next-line no-unused-labels -- dev code path
     DEV: {
-      if (state.timer.expectedFinish === null) {
+      if (expectedFinish === null) {
         throw new Error('TimerService.addTime: expectedFinish is negative');
       }
     }
-    this.endCallback = setTimeout(() => this.update(), state.timer.expectedFinish);
+    this.endCallback = setTimeout(() => this.update(), expectedFinish);
     return true;
   }
 
@@ -102,7 +84,7 @@ export class EventTimer {
    * Update the app at regular intervals
    */
   update() {
-    const updateResult = runtimeState.update();
+    const updateResult = runtimeUpdate();
     // pass the result to the parent
     this.onUpdateCallback?.(updateResult);
   }
@@ -111,4 +93,14 @@ export class EventTimer {
     clearInterval(this._interval);
     clearTimeout(this.endCallback);
   }
+}
+
+function mapRuntimeState(): {
+  expectedFinish: Maybe<number>;
+  current: Maybe<number>;
+} {
+  return {
+    expectedFinish: runtimeState.timer.expectedFinish,
+    current: runtimeState.timer.current,
+  };
 }

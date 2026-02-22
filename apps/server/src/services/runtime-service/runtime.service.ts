@@ -4,10 +4,13 @@ import {
   isOntimeEvent,
   isPlayableEvent,
   LogOrigin,
+  Maybe,
   Offset,
   OffsetMode,
   OntimeEvent,
+  OntimeGroup,
   Playback,
+  RundownState,
   RuntimeStore,
   TimerLifeCycle,
   TimerPhase,
@@ -18,7 +21,7 @@ import { millisToString, validatePlayback } from 'ontime-utils';
 import { deepEqual } from 'fast-equals';
 
 import { logger } from '../../classes/Logger.js';
-import * as runtimeState from '../../stores/runtimeState.js';
+import { runtimeState, setOffsetMode, UpdateResult } from '../../stores/runtimeState.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 import { eventStore } from '../../stores/EventStore.js';
 import { triggerReportEntry } from '../../api-data/report/report.service.js';
@@ -42,6 +45,20 @@ import {
   isNewSecond,
 } from './runtime.utils.js';
 import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
+import { restoreDTO } from '../restore-service/restore.dto.js';
+import { runtimeDTO } from './runtime.dto.js';
+import { reportDTO } from '../../api-data/report/report.dto.js';
+
+export type RuntimeServiceState = {
+  timer: TimerState;
+  offset: Offset;
+  clock: number;
+  rundown: RundownState;
+  eventNow: Maybe<OntimeEvent>;
+  eventNext: Maybe<OntimeEvent>;
+  eventFlag: Maybe<OntimeEvent>;
+  groupNow: Maybe<OntimeGroup>;
+};
 
 /**
  * Service manages runtime status of app
@@ -53,16 +70,16 @@ class RuntimeService {
   private lastIntegrationTimerValue = -1;
 
   /** last known state */
-  static previousState: RuntimeState;
+  static previousState: RuntimeServiceState;
 
   constructor(eventTimer: EventTimer) {
     this.eventTimer = eventTimer;
-    RuntimeService.previousState = {} as RuntimeState;
+    RuntimeService.previousState = {} as RuntimeServiceState;
   }
 
   @broadcastResult
   setOffsetMode(mode: OffsetMode) {
-    runtimeState.setOffsetMode(mode);
+    setOffsetMode(mode);
   }
 
   /**
@@ -70,40 +87,41 @@ class RuntimeService {
    * This is the only exception of a private method that has broadcast result
    * */
   @broadcastResult
-  private checkTimerUpdate({ hasTimerFinished, hasSecondaryTimerFinished }: runtimeState.UpdateResult) {
-    const newState = runtimeState.getState();
+  private checkTimerUpdate({ hasTimerFinished, hasSecondaryTimerFinished }: UpdateResult) {
+
+    const { phase, playback, endAction, current, clock, offset } = runtimeDTO.stateToTimerUpdateCheck();
     // 1. find if we need to dispatch integrations related to the phase
-    const timerPhaseChanged = RuntimeService.previousState.timer?.phase !== newState.timer.phase;
+    const timerPhaseChanged = RuntimeService.previousState.timer?.phase !== phase;
     if (timerPhaseChanged) {
-      if (newState.timer.phase === TimerPhase.Warning) {
+      if (phase === TimerPhase.Warning) {
         process.nextTick(() => {
-          triggerAutomations(TimerLifeCycle.onWarning, newState);
+          triggerAutomations(TimerLifeCycle.onWarning);
         });
-      } else if (newState.timer.phase === TimerPhase.Danger) {
+      } else if (phase === TimerPhase.Danger) {
         process.nextTick(() => {
-          triggerAutomations(TimerLifeCycle.onDanger, newState);
+          triggerAutomations(TimerLifeCycle.onDanger);
         });
       }
     }
 
     // 2. handle edge cases related to roll
-    if (newState.timer.playback === Playback.Roll) {
+    if (playback === Playback.Roll) {
       // check if we need to call any side effects
       if (hasSecondaryTimerFinished) {
         // if the secondary timer has finished, we need to call roll
         // since event is already loaded
-        this.rollLoaded(newState.offset);
+        this.rollLoaded(offset);
       } else if (hasTimerFinished) {
         // if the timer has finished, we need to load next and keep rolling
         process.nextTick(() => {
-          triggerAutomations(TimerLifeCycle.onFinish, newState);
+          triggerAutomations(TimerLifeCycle.onFinish);
         });
         this.handleLoadNext();
-        this.rollLoaded(newState.offset);
+        this.rollLoaded(offset);
       } else if (
         // if there is no previous clock, we could not have skipped
         RuntimeService.previousState?.clock &&
-        skippedOutOfEvent(newState, RuntimeService.previousState.clock, timerConfig.skipLimit)
+        skippedOutOfEvent(runtimeState, RuntimeService.previousState.clock, timerConfig.skipLimit)
       ) {
         // if we have skipped out of the event, we will recall roll
         // to push the playback to the right place
@@ -114,40 +132,38 @@ class RuntimeService {
     }
 
     // 3. find if we need to process actions related to the timer finishing
-    if (newState.timer.playback === Playback.Play && hasTimerFinished) {
+    if (playback === Playback.Play && hasTimerFinished) {
       process.nextTick(() => {
-        triggerAutomations(TimerLifeCycle.onFinish, newState);
+        triggerAutomations(TimerLifeCycle.onFinish);
       });
 
       // handle end action if there was a timer playing
       // actions are added to the queue stack to ensure that the order of operations is maintained
-      if (newState.eventNow) {
-        if (newState.eventNow.endAction === EndAction.LoadNext) {
-          setTimeout(this.loadNext.bind(this), 0);
-        } else if (newState.eventNow.endAction === EndAction.PlayNext) {
-          setTimeout(this.startNext.bind(this), 0);
-        }
+      if (endAction === EndAction.LoadNext) {
+        setTimeout(this.loadNext.bind(this), 0);
+      } else if (endAction === EndAction.PlayNext) {
+        setTimeout(this.startNext.bind(this), 0);
       }
     }
 
     // 4. find if we need to update the timer
-    const shouldUpdateTimer = isNewSecond(this.lastIntegrationTimerValue, newState.timer.current);
+    const shouldUpdateTimer = isNewSecond(this.lastIntegrationTimerValue, current);
     if (shouldUpdateTimer) {
       process.nextTick(() => {
-        triggerAutomations(TimerLifeCycle.onUpdate, newState);
+        triggerAutomations(TimerLifeCycle.onUpdate);
       });
 
-      this.lastIntegrationTimerValue = newState.timer.current ?? -1;
+      this.lastIntegrationTimerValue = current ?? -1;
     }
 
     // 5. find if we need to update the clock
-    const shouldUpdateClock = getShouldClockUpdate(this.lastIntegrationClockUpdate, newState.clock);
+    const shouldUpdateClock = getShouldClockUpdate(this.lastIntegrationClockUpdate, clock);
     if (shouldUpdateClock) {
       process.nextTick(() => {
-        triggerAutomations(TimerLifeCycle.onClock, newState);
+        triggerAutomations(TimerLifeCycle.onClock);
       });
 
-      this.lastIntegrationClockUpdate = newState.clock;
+      this.lastIntegrationClockUpdate = clock;
     }
   }
 
@@ -173,7 +189,7 @@ class RuntimeService {
    * we check if the change affects the runtime
    */
   public notifyOfChangedEvents(rundownMetadata: RundownMetadata) {
-    const state = runtimeState.getState();
+    const state = runtimeState
     const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
     if (!hasLoadedElements) {
       return;
@@ -200,7 +216,7 @@ class RuntimeService {
       logger.warning(LogOrigin.Playback, `Refused skipped event with ID ${event.id}`);
       return false;
     }
-    const previousState = runtimeState.getState();
+    const previousState = reportDTO.stateToReport();
 
     // we can ignore events which are not playable
     const rundown = getCurrentRundown();
@@ -209,10 +225,9 @@ class RuntimeService {
 
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
-      const newState = runtimeState.getState();
       process.nextTick(() => {
         triggerReportEntry(TimerLifeCycle.onStop, previousState);
-        triggerAutomations(TimerLifeCycle.onLoad, newState);
+        triggerAutomations(TimerLifeCycle.onLoad);
       });
     }
     return success;
@@ -434,23 +449,18 @@ class RuntimeService {
    * startSelected being a private function does not trigger emits
    */
   private handleStart(): boolean {
-    const previousState = runtimeState.getState();
-    const canStart = validatePlayback(previousState.timer.playback, previousState.timer.phase).start;
-    if (!canStart) {
-      return false;
-    }
-
-    const didStart = this.eventTimer?.start() ?? false;
-    const newState = runtimeState.getState();
-    logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
-
-    if (didStart) {
+    if (runtimeState.start()) {
+      this.eventTimer.start();
+      logger.info(LogOrigin.Playback, `Play Mode PLAY`);
       process.nextTick(() => {
-        triggerReportEntry(TimerLifeCycle.onStart, newState);
-        triggerAutomations(TimerLifeCycle.onStart, newState);
+        triggerReportEntry(TimerLifeCycle.onStart);
+        triggerAutomations(TimerLifeCycle.onStart);
       });
+      return true;
     }
-    return didStart;
+
+    logger.info(LogOrigin.Playback, `Attempted [start] could not be executed`);
+    return false;
   }
 
   /**
@@ -491,17 +501,18 @@ class RuntimeService {
    */
   @broadcastResult
   public pause() {
-    const state = runtimeState.getState();
-    const canPause = validatePlayback(state.timer.playback, state.timer.phase).pause;
-    if (!canPause) {
-      return;
+    if (runtimeState.pause()) {
+      const newState = runtimeState.getState();
+      logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
+      this.eventTimer?.pause();
+      process.nextTick(() => {
+        triggerAutomations(TimerLifeCycle.onPause);
+      });
+      return true;
     }
-    this.eventTimer?.pause();
-    const newState = runtimeState.getState();
-    logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
-    process.nextTick(() => {
-      triggerAutomations(TimerLifeCycle.onPause, newState);
-    });
+
+    logger.warning(LogOrigin.Playback, 'Attempted [pause] could not be executed');
+    return false;
   }
 
   /**
@@ -509,22 +520,17 @@ class RuntimeService {
    */
   @broadcastResult
   public stop(): boolean {
-    const previousState = runtimeState.getState();
-    const canStop = validatePlayback(previousState.timer.playback, previousState.timer.phase).stop;
-    if (!canStop) {
-      return false;
-    }
-    const didStop = this.eventTimer?.stop();
-    if (didStop) {
-      const newState = runtimeState.getState();
-      logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
+    const previousState = reportDTO.stateToReport();
+    if (runtimeState.stop()) {
+      this.eventTimer.stop();
+      logger.info(LogOrigin.Playback, `Play Mode STOP`);
       process.nextTick(() => {
         triggerReportEntry(TimerLifeCycle.onStop, previousState);
-        triggerAutomations(TimerLifeCycle.onStop, newState);
+        triggerAutomations(TimerLifeCycle.onStop);
       });
-
       return true;
     }
+    logger.warning(LogOrigin.Playback, 'Attempted [stop] could not be executed');
     return false;
   }
 
@@ -567,24 +573,23 @@ class RuntimeService {
       }
     }
 
+    const rundown = getCurrentRundown();
+    const metadata = getRundownMetadata();
     try {
-      const rundown = getCurrentRundown();
-      const metadata = getRundownMetadata();
       const result = runtimeState.roll(rundown, metadata);
 
-      const newState = runtimeState.getState();
       if (result.eventId !== previousState.eventNow?.id) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${result.eventId}`);
         process.nextTick(() => {
-          triggerReportEntry(TimerLifeCycle.onStop, previousState);
-          triggerAutomations(TimerLifeCycle.onLoad, newState);
+          triggerReportEntry(TimerLifeCycle.onStop, reportDTO.stateToReport(previousState));
+          triggerAutomations(TimerLifeCycle.onLoad);
         });
       }
 
       if (result.didStart) {
         process.nextTick(() => {
-          triggerReportEntry(TimerLifeCycle.onStart, newState);
-          triggerAutomations(TimerLifeCycle.onStart, newState);
+          triggerReportEntry(TimerLifeCycle.onStart, reportDTO.stateToReport());
+          triggerAutomations(TimerLifeCycle.onStart);
         });
       }
     } catch (error) {
@@ -635,9 +640,13 @@ class RuntimeService {
    */
   @broadcastResult
   public addTime(time: number) {
-    if (this.eventTimer.addTime(time)) {
+    if (runtimeState.addTime(time)) {
+      this.eventTimer.addTime();
       logger.info(LogOrigin.Playback, `${time > 0 ? 'Added' : 'Removed'} ${millisToString(time)}`);
+      return true;
     }
+    logger.warning(LogOrigin.Playback, 'Attempted [add time] could not be executed');
+    return false;
   }
 }
 
@@ -661,7 +670,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
   descriptor.value = function (...args: any[]) {
     // call the original method and get the state
     const result = originalMethod.apply(this, args);
-    const state = runtimeState.getState();
+    const state = runtimeDTO.stateToBroadcastResult();
     const batch = eventStore.createBatch();
 
     // we do the comparison by explicitly for each property
@@ -750,20 +759,9 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     // save the restore state
     if (hasImmediateChanges) {
-      restoreService
-        .save({
-          playback: state.timer.playback,
-          selectedEventId: state.eventNow?.id ?? null,
-          startedAt: state.timer.startedAt,
-          addedTime: state.timer.addedTime,
-          pausedAt: state._timer.pausedAt,
-          firstStart: state.rundown.actualStart,
-          startEpoch: state._startEpoch,
-          currentDay: state.rundown.currentDay,
-        })
-        .catch((_e) => {
-          //we don't do anything with the error here
-        });
+      restoreService.save(restoreDTO.stateToRestore()).catch((_e) => {
+        //we don't do anything with the error here
+      });
     }
 
     batch.send();
