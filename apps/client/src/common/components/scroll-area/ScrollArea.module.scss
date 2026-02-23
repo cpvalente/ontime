@@ -15,6 +15,11 @@ $thumb-color-hover: $white-60;
   height: 100%;
   width: 100%;
   overscroll-behavior: contain;
+
+    &:focus-visible {
+    outline: 2px solid $blue-500;
+    outline-offset: -2px;
+  }
 }
 
 .scrollbar {
