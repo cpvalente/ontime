@@ -42,7 +42,11 @@ export default function PlaybackTimer({ children }: PropsWithChildren) {
         <div className={style.indicatorNegative} data-active={isOvertime} />
         <Tooltip text={addedTimeLabel} render={<div />} className={style.indicatorDelay} data-active={hasAddedTime} />
       </div>
-      <TimerDisplay time={isWaiting ? timer.secondaryTimer : timer.current} phase={timer.phase} />
+      <TimerDisplay
+        className={style.timerDisplay}
+        time={isWaiting ? timer.secondaryTimer : timer.current}
+        phase={timer.phase}
+      />
       <div className={style.status}>
         {isWaiting ? (
           <span className={style.rolltag}>Roll: Countdown to start</span>
