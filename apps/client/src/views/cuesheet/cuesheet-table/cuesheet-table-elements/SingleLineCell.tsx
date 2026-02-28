@@ -23,6 +23,7 @@ const SingleLineCell = forwardRef(
     const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback, ref, {
       allowSubmitSameValue,
       allowKeyboardNavigation: true,
+      allowSubmitOnEnterOnly: true,
       submitOnEnter: true, // single line should submit on enter
       submitOnCtrlEnter: true,
       onCancelUpdate: handleCancelUpdate,
