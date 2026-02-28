@@ -1,7 +1,7 @@
-/* eslint-disable react/destructuring-assignment */
-import React from 'react';
 // skipcq: JS-C1003 - sentry does not expose itself as an ES Module.
 import * as Sentry from '@sentry/react';
+/* eslint-disable react/destructuring-assignment */
+import React from 'react';
 
 import { hasConnected, reconnectAttempts } from '../../../common/utils/socket';
 import { runtimeStore } from '../../stores/runtime';

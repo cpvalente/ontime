@@ -1,7 +1,6 @@
 import { PropsWithChildren, memo } from 'react';
 
 import { useIsMobileScreen } from '../../common/hooks/useIsMobileScreen';
-
 import {
   ClockOverview,
   MetadataTimes,

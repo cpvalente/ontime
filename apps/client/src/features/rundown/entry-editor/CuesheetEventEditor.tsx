@@ -1,8 +1,7 @@
-import { useMemo } from 'react';
 import { OntimeEntry, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
+import { useMemo } from 'react';
 
 import useRundown from '../../../common/hooks-query/useRundown';
-
 import EventEditor from './EventEditor';
 import GroupEditor from './GroupEditor';
 import MilestoneEditor from './MilestoneEditor';

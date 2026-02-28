@@ -57,9 +57,9 @@
   display: inline-flex;
   align-items: center;
   margin-left: 0.25rem;
-  
+
   &::after {
-    content: "+" attr(data-day-offset);
+    content: '+' attr(data-day-offset);
     font-size: 0.75rem;
     font-weight: 400;
     color: $ui-white;

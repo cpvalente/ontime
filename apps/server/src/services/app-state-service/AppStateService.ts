@@ -1,10 +1,10 @@
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 
-import { publicFiles } from '../../setup/index.js';
 import { isTest } from '../../setup/environment.js';
-import { isPath } from '../../utils/fileManagement.js';
+import { publicFiles } from '../../setup/index.js';
 import { shouldCrashDev } from '../../utils/development.js';
+import { isPath } from '../../utils/fileManagement.js';
 
 interface AppState {
   projectName?: string;

@@ -25,12 +25,6 @@
       {
         "patterns": ["ontime-types/src/*", "ontime-utils/src/*"]
       }
-    ],
-    "sort-imports": [
-      "error",
-      {
-        "ignoreDeclarationSort": true
-      }
     ]
   },
   "ignorePatterns": [

@@ -1,13 +1,12 @@
+import { EntryId, PlayableEvent } from 'ontime-types';
 import { useState } from 'react';
 import { IoArrowBack, IoClose, IoSaveOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
-import { EntryId, PlayableEvent } from 'ontime-types';
 
 import Button from '../../common/components/buttons/Button';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 import ClockTime from '../common/clock-time/ClockTime';
-
 import { makeSubscriptionsUrl } from './countdown.utils';
 
 import './Countdown.scss';

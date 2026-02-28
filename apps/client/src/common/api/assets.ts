@@ -2,7 +2,6 @@ import axios from 'axios';
 import { TranslationObject } from 'ontime-types';
 
 import { ontimeQueryClient } from '../../common/queryClient';
-
 import { TRANSLATION, apiEntryUrl, customTranslationsURL } from './constants';
 import type { RequestOptions } from './requestOptions';
 

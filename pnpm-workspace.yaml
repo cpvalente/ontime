@@ -4,7 +4,6 @@ packages:
 
 catalog:
   '@types/node': 22.15.26
-  prettier: 3.3.1
   rimraf: 6.0.1
   ts-essentials: 10.1.1
   typescript: 5.5.3

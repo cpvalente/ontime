@@ -1,6 +1,6 @@
+import { EntryId, OntimeEvent, OntimeView, PlayableEvent, isOntimeEvent, isPlayableEvent } from 'ontime-types';
 import { useMemo, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { EntryId, OntimeEvent, OntimeView, PlayableEvent, isOntimeEvent, isPlayableEvent } from 'ontime-types';
 
 import Button from '../../common/components/buttons/Button';
 import Empty from '../../common/components/state/Empty';
@@ -14,7 +14,6 @@ import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
-
 import { getCountdownOptions, useCountdownOptions } from './countdown.options';
 import { getOrderedSubscriptions } from './countdown.utils';
 import CountdownSelect from './CountdownSelect';

@@ -2,7 +2,6 @@ import axios from 'axios';
 import { OntimeReport } from 'ontime-types';
 
 import { ontimeQueryClient } from '../../common/queryClient';
-
 import { REPORT, apiEntryUrl } from './constants';
 import type { RequestOptions } from './requestOptions';
 

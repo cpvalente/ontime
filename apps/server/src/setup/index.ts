@@ -5,11 +5,11 @@
  * - 2. the public directory, exposed by getAppDataPath()
  */
 
-import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
-import { config } from './config.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
+import { config } from './config.js';
 import { isProduction } from './environment.js';
 
 /**

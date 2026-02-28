@@ -1,7 +1,7 @@
-import { lazy, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useDisclosure } from '@mantine/hooks';
 import { Settings } from 'ontime-types';
+import { lazy, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { postSettings } from '../../../../common/api/settings';
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -11,7 +11,6 @@ import Select from '../../../../common/components/select/Select';
 import useSettings from '../../../../common/hooks-query/useSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import GeneralPinInput from './composite/GeneralPinInput';
 
 const TranslationModal = lazy(() => import('./composite/CustomTranslationModal'));

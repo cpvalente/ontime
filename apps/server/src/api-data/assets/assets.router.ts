@@ -1,11 +1,12 @@
 import express from 'express';
 import type { Request, Response } from 'express';
 import { type ErrorResponse, RefetchKey } from 'ontime-types';
-import { validatePostCss, validatePostTranslation } from './assets.validation.js';
-import { readCssFile, writeCssFile, writeUserTranslation } from './assets.service.js';
 import { getErrorMessage } from 'ontime-utils';
-import { defaultCss } from '../../user/styles/bundledCss.js';
+
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { defaultCss } from '../../user/styles/bundledCss.js';
+import { readCssFile, writeCssFile, writeUserTranslation } from './assets.service.js';
+import { validatePostCss, validatePostTranslation } from './assets.validation.js';
 
 export const router = express.Router();
 

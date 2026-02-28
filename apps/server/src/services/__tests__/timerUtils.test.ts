@@ -1,6 +1,7 @@
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, dayInMs, millisToString } from 'ontime-utils';
 import { EndAction, Playback, TimeOfDay, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 
+import type { RuntimeState } from '../../stores/runtimeState.js';
 import {
   findDayOffset,
   getCurrent,
@@ -11,7 +12,6 @@ import {
   normaliseEndTime,
   skippedOutOfEvent,
 } from '../timerUtils.js';
-import type { RuntimeState } from '../../stores/runtimeState.js';
 
 describe('getExpectedFinish()', () => {
   it('is null if we havent started', () => {

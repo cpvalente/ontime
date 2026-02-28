@@ -2,8 +2,9 @@ import { Instant, PlayableEvent, Playback, SupportedEntry, TimerPhase } from 'on
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
-
+import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 import {
   type RuntimeState,
   addTime,
@@ -18,8 +19,6 @@ import {
   stop,
   update,
 } from '../runtimeState.js';
-import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
-import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 
 const mockEvent = {
   type: 'event',

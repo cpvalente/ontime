@@ -1,3 +1,7 @@
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { EntryId, OntimeGroup } from 'ontime-types';
+import { MILLIS_PER_MINUTE, millisToString } from 'ontime-utils';
 import { MouseEvent, useRef } from 'react';
 import {
   IoChevronDown,
@@ -7,10 +11,6 @@ import {
   IoReorderTwo,
   IoTrash,
 } from 'react-icons/io5';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { EntryId, OntimeGroup } from 'ontime-types';
-import { MILLIS_PER_MINUTE, millisToString } from 'ontime-utils';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import Tag from '../../../common/components/tag/Tag';

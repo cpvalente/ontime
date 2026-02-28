@@ -1,6 +1,5 @@
-import { isImportMap } from 'ontime-utils';
-
 import { body, param } from 'express-validator';
+import { isImportMap } from 'ontime-utils';
 
 import {
   requestValidationFunction,

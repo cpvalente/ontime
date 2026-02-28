@@ -33,7 +33,6 @@
     "@types/ws": "^8.5.10",
     "esbuild": "^0.24.0",
     "ontime-types": "workspace:*",
-    "prettier": "catalog:",
     "server-timing": "^3.3.3",
     "shx": "^0.3.4",
     "ts-essentials": "catalog:",

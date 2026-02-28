@@ -18,7 +18,6 @@ import { AppMode } from '../../../ontimeConfig';
 import TitleEditor from '../common/TitleEditor';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 import { useEditorFollowMode } from '../useEditorFollowMode';
-
 import RundownEventChip from './composite/RundownEventChip';
 import EventBlockPlayback from './composite/RundownEventPlayback';
 import EventBlockProgressBar from './composite/RundownEventProgressBar';

@@ -1,7 +1,7 @@
-import { CSSProperties } from 'react';
-import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { Table, flexRender } from '@tanstack/react-table';
 import { EntryId, SupportedEntry } from 'ontime-types';
+import { CSSProperties } from 'react';
+import { IoEllipsisHorizontal } from 'react-icons/io5';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';

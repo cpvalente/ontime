@@ -1,7 +1,6 @@
 import { Playback } from 'ontime-types';
 
 import { is } from '../../utils/is.js';
-
 import type { RestorePoint } from './restore.type.js';
 
 /**

@@ -1,5 +1,5 @@
-import { Path, resolvePath } from 'react-router';
 import { OntimeView, URLPreset } from 'ontime-types';
+import { Path, resolvePath } from 'react-router';
 
 import {
   arePathsEquivalent,

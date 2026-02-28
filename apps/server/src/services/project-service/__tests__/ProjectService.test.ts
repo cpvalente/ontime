@@ -1,7 +1,6 @@
 import { Mock } from 'vitest';
 
 import { isLastLoadedProject } from '../../app-state-service/AppStateService.js';
-
 import { deleteProjectFile, duplicateProjectFile, renameProjectFile } from '../ProjectService.js';
 import { doesProjectExist } from '../projectServiceUtils.js';
 

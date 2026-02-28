@@ -1,6 +1,6 @@
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
-import { useProgressData } from '../../../common/hooks/useSocket';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
+import { useProgressData } from '../../../common/hooks/useSocket';
 
 import styles from './CuesheetProgress.module.scss';
 

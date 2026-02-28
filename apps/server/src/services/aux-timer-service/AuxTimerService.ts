@@ -1,8 +1,8 @@
 import { RuntimeStore, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import { SimpleTimer } from '../../classes/simple-timer/SimpleTimer.js';
-import { eventStore } from '../../stores/EventStore.js';
 import { timerConfig } from '../../setup/config.js';
+import { eventStore } from '../../stores/EventStore.js';
 
 type AuxTimerStateUpdate = Partial<Pick<RuntimeStore, 'auxtimer1' | 'auxtimer2' | 'auxtimer3'>>;
 type EmitFn = (state: AuxTimerStateUpdate) => void;

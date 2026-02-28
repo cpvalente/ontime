@@ -1,12 +1,11 @@
-import { CSSProperties } from 'react';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { HeaderGroup, flexRender } from '@tanstack/react-table';
+import { CSSProperties } from 'react';
 
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { AppMode } from '../../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
-
 import { Draggable, SortableCell, TableCell } from './SortableCell';
 
 import style from '../CuesheetTable.module.scss';

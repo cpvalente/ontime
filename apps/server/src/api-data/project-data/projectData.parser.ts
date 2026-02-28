@@ -1,7 +1,7 @@
 import { DatabaseModel, ProjectData } from 'ontime-types';
 
-import { ErrorEmitter } from '../../utils/parserUtils.js';
 import { getPartialProject } from '../../models/dataModel.js';
+import { ErrorEmitter } from '../../utils/parserUtils.js';
 
 /**
  * Parse event portion of an entry

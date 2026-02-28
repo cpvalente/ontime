@@ -1,5 +1,5 @@
-import { IoPause, IoPlay, IoPlaySkipBack, IoPlaySkipForward, IoReload, IoStop } from 'react-icons/io5';
 import { Playback, TimerPhase } from 'ontime-types';
+import { IoPause, IoPlay, IoPlaySkipBack, IoPlaySkipForward, IoReload, IoStop } from 'react-icons/io5';
 
 import { setPlayback } from '../../../../common/hooks/useSocket';
 import { getPlaybackControlState } from '../playbackControl.utils';

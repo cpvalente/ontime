@@ -1,5 +1,6 @@
-import { Mock, describe, expect, it } from 'vitest';
 import * as fs from 'fs';
+
+import { Mock, describe, expect, it } from 'vitest';
 
 import {
   appendToName,

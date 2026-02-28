@@ -1,6 +1,6 @@
+import { initAssets, startIntegrations, startServer } from './app.js';
 /* eslint-disable no-console */
 import { consoleError, consoleHighlight } from './utils/console.js';
-import { initAssets, startIntegrations, startServer } from './app.js';
 
 async function startOntime() {
   try {

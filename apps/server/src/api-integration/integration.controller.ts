@@ -8,9 +8,12 @@ import {
   SimplePlayback,
 } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
-
 import { DeepPartial } from 'ts-essentials';
 
+import { socket } from '../adapters/WebsocketAdapter.js';
+import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
+import { editEntry } from '../api-data/rundown/rundown.service.js';
+import { willCauseRegeneration } from '../api-data/rundown/rundown.utils.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.js';
 import * as messageService from '../services/message-service/message.service.js';
@@ -18,12 +21,8 @@ import { validateMessage, validateTimerMessage } from '../services/message-servi
 import { runtimeService } from '../services/runtime-service/runtime.service.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
-import { isValidChangeProperty, parseProperty } from './integration.utils.js';
-import { socket } from '../adapters/WebsocketAdapter.js';
 import { coerceEnum } from '../utils/coerceType.js';
-import { editEntry } from '../api-data/rundown/rundown.service.js';
-import { willCauseRegeneration } from '../api-data/rundown/rundown.utils.js';
-import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
+import { isValidChangeProperty, parseProperty } from './integration.utils.js';
 
 let lastRequest: Date | null = null;
 

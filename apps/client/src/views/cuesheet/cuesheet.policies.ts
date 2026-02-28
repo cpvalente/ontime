@@ -1,7 +1,6 @@
 import { URLPreset } from 'ontime-types';
 
 import { AppMode } from '../../ontimeConfig';
-
 import type { CuesheetPermissions } from './useTablePermissions';
 
 function getPermissionKeys(permission: string | undefined): Set<string> {

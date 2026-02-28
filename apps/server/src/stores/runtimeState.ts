@@ -28,7 +28,11 @@ import {
   isPlaybackActive,
 } from 'ontime-utils';
 
+import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
+import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
+import * as timeCore from '../lib/time-core/timeCore.js';
 import type { RestorePoint } from '../services/restore-service/restore.type.js';
+import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import {
   findDayOffset,
   getCurrent,
@@ -37,11 +41,7 @@ import {
   getTimerPhase,
   hasCrossedMidnight,
 } from '../services/timerUtils.js';
-import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
-import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
-import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
-import * as timeCore from '../lib/time-core/timeCore.js';
 
 type ExpectedMetadata = {
   event: OntimeEvent;

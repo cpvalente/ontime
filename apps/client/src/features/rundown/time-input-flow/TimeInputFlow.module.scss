@@ -29,7 +29,7 @@
   left: 0;
   opacity: 0;
   border-radius: $component-border-radius-md;
-  transition: opacity 0.15s ease;  // no delay on fade out
+  transition: opacity 0.15s ease; // no delay on fade out
   pointer-events: none;
   z-index: $zindex-floating;
 

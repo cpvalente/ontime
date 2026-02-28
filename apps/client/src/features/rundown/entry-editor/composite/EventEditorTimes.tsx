@@ -1,7 +1,7 @@
-import { memo } from 'react';
-import { IoInformationCircle } from 'react-icons/io5';
 import { EndAction, TimeStrategy, TimerType } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
+import { memo } from 'react';
+import { IoInformationCircle } from 'react-icons/io5';
 
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';

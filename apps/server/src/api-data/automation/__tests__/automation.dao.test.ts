@@ -1,7 +1,6 @@
 import { Automation, AutomationDTO, ProjectRundowns, TimerLifeCycle, TriggerDTO } from 'ontime-types';
 
 import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
-
 import {
   addAutomation,
   addTrigger,
@@ -14,7 +13,6 @@ import {
   getAutomationTriggers,
   getAutomations,
 } from '../automation.dao.js';
-
 import { makeHTTPAction, makeOSCAction } from './testUtils.js';
 
 beforeAll(() => {
