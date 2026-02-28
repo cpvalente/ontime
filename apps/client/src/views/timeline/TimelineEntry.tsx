@@ -1,4 +1,4 @@
-import { RefObject } from 'react';
+import type { CSSProperties, RefObject } from 'react';
 
 import { useExpectedStartData, useTimer } from '../../common/hooks/useSocket';
 import { getProgress } from '../../common/utils/getProgress';
@@ -62,21 +62,25 @@ export function TimelineEntry({
     <div
       ref={ref}
       className={cx([style.column, smallArea && style.smallArea])}
-      style={{
-        '--color': colour,
-        '--lighter': lighterColour ?? '',
-        left: `${left}px`,
-        width: `${width}px`,
-      }}
+      style={
+        {
+          '--color': colour,
+          '--lighter': lighterColour ?? '',
+          left: `${left}px`,
+          width: `${width}px`,
+        } as CSSProperties
+      }
       data-testid={cue}
     >
       {status === 'live' ? <ActiveBlock /> : <div data-status={status} className={style.timelineBlock} />}
       <div
         className={cx([style.content, width < 20 && style.hide, !hasLink && style.separeLeft])}
         data-status={status}
-        style={{
-          '--color': colour,
-        }}
+        style={
+          {
+            '--color': colour,
+          } as CSSProperties
+        }
       >
         <div className={style.maybeInline}>
           <div className={cx([hasDelay && style.cross])}>{formattedStartTime}</div>
@@ -158,5 +162,11 @@ function TimelineEntryStatus({
 function ActiveBlock() {
   const { current, duration } = useTimer();
   const progress = getProgress(current, duration);
-  return <div data-status='live' className={style.timelineBlock} style={{ '--progress': `${progress}%` }} />;
+  return (
+    <div
+      data-status='live'
+      className={style.timelineBlock}
+      style={{ '--progress': `${progress}%` } as CSSProperties}
+    />
+  );
 }

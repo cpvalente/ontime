@@ -8,11 +8,10 @@
     "removeComments": true,
     "preserveConstEnums": true,
     "allowJs": true,
+    "types": ["vitest/globals"],
     "declaration": true,
     "outDir": "dist",
-    "sourceMap": true,
-    "baseUrl": "src",
-    "composite": true
+    "sourceMap": true
   },
   "include": [
     "src/**/*.test.ts",

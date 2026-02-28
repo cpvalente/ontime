@@ -47,7 +47,7 @@
     "dev:electron": "pnpm dev",
     "dev:inspect": "cross-env NODE_ENV=development tsx watch --inspect ./src/index.ts",
     "lint": "oxlint --quiet --type-aware",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.tests.json --noEmit",
     "prebuild": "tsx ./scripts/bundleCss.ts && tsx ./scripts/bundleTranslation.ts",
     "build": "node esbuild.js",
     "test": "cross-env IS_TEST=true vitest",

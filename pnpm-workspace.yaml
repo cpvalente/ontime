@@ -6,7 +6,7 @@ catalog:
   '@types/node': 22.15.26
   rimraf: 6.0.1
   ts-essentials: 10.1.1
-  typescript: 5.5.3
+  typescript: 6.0.0-beta
   vitest: 3.2.1
 
 onlyBuiltDependencies:

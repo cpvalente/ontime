@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Playback } from 'ontime-types';
+import type { Instant } from 'ontime-types';
 import { vi } from 'vitest';
 
 import { restoreService } from '../restore.service.js';
 import { RestorePoint } from '../restore.type.js';
+
+const asInstant = (value: number): Instant => value as Instant;
 
 describe('restoreService', () => {
   describe('load()', () => {
@@ -15,7 +18,7 @@ describe('restoreService', () => {
         addedTime: 5678,
         pausedAt: 9087,
         firstStart: 1234,
-        startEpoch: 1234,
+        startEpoch: asInstant(1234),
         currentDay: 0,
       };
 
@@ -34,7 +37,7 @@ describe('restoreService', () => {
         addedTime: 0,
         pausedAt: null,
         firstStart: 1234,
-        startEpoch: 1234,
+        startEpoch: asInstant(1234),
         currentDay: null,
       };
 
@@ -82,7 +85,7 @@ describe('restoreService', () => {
         addedTime: 1234,
         pausedAt: 1234,
         firstStart: 1234,
-        startEpoch: 1234,
+        startEpoch: asInstant(1234),
         currentDay: 0,
       };
 
@@ -100,7 +103,7 @@ describe('restoreService', () => {
         addedTime: 2345,
         pausedAt: 2345,
         firstStart: 2345,
-        startEpoch: 2345,
+        startEpoch: asInstant(2345),
         currentDay: 0,
       };
 
@@ -111,7 +114,7 @@ describe('restoreService', () => {
         addedTime: 3456,
         pausedAt: 3456,
         firstStart: 3456,
-        startEpoch: 3456,
+        startEpoch: asInstant(3456),
         currentDay: 1,
       };
 
@@ -133,7 +136,7 @@ describe('restoreService', () => {
         addedTime: 5678,
         pausedAt: 5678,
         firstStart: 5678,
-        startEpoch: 5678,
+        startEpoch: asInstant(5678),
         currentDay: 0,
       };
 

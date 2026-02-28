@@ -38,7 +38,7 @@
     "dev": "cross-env BROWSER=none vite",
     "dev:electron": "pnpm dev",
     "lint": "oxlint --quiet --type-aware",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.tests.json --noEmit",
     "build": "vite build",
     "test": "vitest",
     "test:pipeline": "vitest run",
