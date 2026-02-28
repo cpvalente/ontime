@@ -1,8 +1,9 @@
 import { PlayableEvent, Playback, TimerPhase } from 'ontime-types';
 
 import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
-
+import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 import {
   type RuntimeState,
   addTime,
@@ -17,8 +18,6 @@ import {
   stop,
   update,
 } from '../runtimeState.js';
-import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
-import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 
 const mockEvent = {
   type: 'event',

@@ -1,7 +1,6 @@
 import { CustomFields, OntimeEvent, OntimeGroup, Rundown, SupportedEntry } from 'ontime-types';
 
 import { makeNewRundown } from '../../../models/dataModel.js';
-
 import { makeOntimeEvent, makeOntimeGroup, makeOntimeMilestone } from '../__mocks__/rundown.mocks.js';
 import { parseRundown, parseRundowns, sanitiseCustomFields } from '../rundown.parser.js';
 

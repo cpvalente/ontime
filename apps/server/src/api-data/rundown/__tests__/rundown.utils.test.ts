@@ -1,10 +1,9 @@
 import { EndAction, OntimeEvent, TimeStrategy, TimerType } from 'ontime-types';
 import { MILLIS_PER_HOUR, createEvent } from 'ontime-utils';
-
 import { assertType } from 'vitest';
 
 import { demoDb } from '../../../models/demoProject.js';
-
+import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../__mocks__/rundown.mocks.js';
 import {
   calculateDayOffset,
   deleteById,
@@ -13,7 +12,6 @@ import {
   hasChanges,
   makeDeepClone,
 } from '../rundown.utils.js';
-import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../__mocks__/rundown.mocks.js';
 
 describe('test event validator', () => {
   it('validates a good object', () => {

@@ -1,16 +1,15 @@
-import { IoPencil } from 'react-icons/io5';
 import { MaybeNumber, OntimeEvent } from 'ontime-types';
 import { getExpectedStart } from 'ontime-utils';
+import { IoPencil } from 'react-icons/io5';
 
 import Button from '../../common/components/buttons/Button';
+import useReport from '../../common/hooks-query/useReport';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import { useExpectedStartData } from '../../common/hooks/useSocket';
-import useReport from '../../common/hooks-query/useReport';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getPropertyValue } from '../common/viewUtils';
-
 import { useCountdownOptions } from './countdown.options';
 import { useSubscriptionDisplayData } from './countdown.utils';
 import { ScheduleTime } from './CountdownSubscriptions';

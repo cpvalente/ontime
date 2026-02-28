@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
 import { OntimeView, TimerType } from 'ontime-types';
+import { useMemo } from 'react';
 
 import { FitText } from '../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -16,7 +16,6 @@ import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, getTimerByType } from '../common/viewUtils';
 import { getTimerColour } from '../utils/presentation.utils';
-
 import { getTimerOptions, useTimerOptions } from './timer.options';
 import {
   getCardData,

@@ -3,11 +3,11 @@ import type { Request, Response } from 'express';
 import type { ErrorResponse, ProjectData } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
-import { projectSanitiser } from './projectData.validation.js';
-import { uploadImageFile } from '../db/db.middleware.js';
-import { postProjectLogo } from '../db/db.controller.js';
-import * as projectDao from './projectData.dao.js';
 import { removeUndefined } from '../../utils/parserUtils.js';
+import { postProjectLogo } from '../db/db.controller.js';
+import { uploadImageFile } from '../db/db.middleware.js';
+import * as projectDao from './projectData.dao.js';
+import { projectSanitiser } from './projectData.validation.js';
 
 export const router = express.Router();
 

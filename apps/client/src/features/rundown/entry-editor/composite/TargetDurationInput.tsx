@@ -1,5 +1,5 @@
-import { IoLockClosed, IoLockOpenOutline } from 'react-icons/io5';
 import { MaybeNumber } from 'ontime-types';
+import { IoLockClosed, IoLockOpenOutline } from 'react-icons/io5';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';

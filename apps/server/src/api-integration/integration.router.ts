@@ -5,16 +5,14 @@
  *
  */
 
-import { ErrorResponse, LogOrigin } from 'ontime-types';
-
 import express, { type Request, type Response } from 'express';
-
-import { logger } from '../classes/Logger.js';
-import { integrationPayloadFromPath } from '../adapters/utils/parse.js';
-
-import { dispatchFromAdapter } from './integration.controller.js';
+import { ErrorResponse, LogOrigin } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
+
+import { integrationPayloadFromPath } from '../adapters/utils/parse.js';
+import { logger } from '../classes/Logger.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
+import { dispatchFromAdapter } from './integration.controller.js';
 
 export const integrationRouter = express.Router();
 

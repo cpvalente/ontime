@@ -151,13 +151,13 @@ function processEntry(
 
       if (isPlayableEvent(entry)) {
         processedData.isNextDay = checkIsNextDay(entry, processedData.previousEvent);
-        
+
         if (!processedData.isPast && !processedData.isLoaded) {
           /**
            * isLinkToLoaded is a chain value that we maintain until we
            * a) find an unlinked event
            * b) find a countToEnd event
-          */
+           */
           processedData.totalGap += entry.gap;
           processedData.isLinkedToLoaded =
             entry.linkStart && !processedData.previousEvent?.countToEnd && processedData.isLinkedToLoaded;

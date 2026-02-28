@@ -12,7 +12,6 @@ import {
   verifyAuthenticationStatus,
 } from '../../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../../common/api/utils';
-
 import { useSheetStore } from './useSheetStore';
 
 export default function useGoogleSheet() {

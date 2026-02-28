@@ -2,8 +2,8 @@ import { MessageState, runtimeStorePlaceholder } from 'ontime-types';
 import { withoutUndefinedValues } from 'ontime-utils';
 import { DeepPartial } from 'ts-essentials';
 
-import { throttle } from '../../utils/throttle.js';
 import type { PublishFn, StoreGetter } from '../../stores/EventStore.js';
+import { throttle } from '../../utils/throttle.js';
 
 /**
  * Create a throttled version of the set function

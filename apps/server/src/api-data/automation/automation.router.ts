@@ -1,5 +1,6 @@
 import express from 'express';
 
+import { paramsWithId } from '../validation-utils/validationFunction.js';
 import {
   deleteAutomation,
   deleteTrigger,
@@ -19,7 +20,6 @@ import {
   validateTrigger,
   validateTriggerPatch,
 } from './automation.validation.js';
-import { paramsWithId } from '../validation-utils/validationFunction.js';
 
 export const router = express.Router();
 

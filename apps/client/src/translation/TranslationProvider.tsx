@@ -1,10 +1,9 @@
-import { PropsWithChildren, createContext, useCallback, useContext } from 'react';
 import { TranslationObject, langEn } from 'ontime-types';
+import { PropsWithChildren, createContext, useCallback, useContext } from 'react';
 
 import { postUserTranslation } from '../common/api/assets';
 import { useCustomTranslation } from '../common/hooks-query/useCustomTranslation';
 import useSettings from '../common/hooks-query/useSettings';
-
 import { langDe } from './languages/de';
 import { langEs } from './languages/es';
 import { langFr } from './languages/fr';

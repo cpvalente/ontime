@@ -1,9 +1,8 @@
 import { memo } from 'react';
 
 import Empty from '../../common/components/state/Empty';
-import { useRundownEditor } from '../../common/hooks/useSocket';
 import { useRundownWithMetadata } from '../../common/hooks-query/useRundown';
-
+import { useRundownEditor } from '../../common/hooks/useSocket';
 import Rundown from './Rundown';
 
 export default memo(RundownList);

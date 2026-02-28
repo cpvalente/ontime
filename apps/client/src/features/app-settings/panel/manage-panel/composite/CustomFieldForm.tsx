@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { CustomField } from 'ontime-types';
 import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';

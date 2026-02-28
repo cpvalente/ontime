@@ -14,6 +14,8 @@
  * Payload: adds necessary payload for the request to be completed
  */
 
+import type { Server } from 'http';
+
 import {
   Client,
   LogOrigin,
@@ -23,17 +25,15 @@ import {
   WsPacketToClient,
   WsPacketToServer,
 } from 'ontime-types';
-
+import { generateId } from 'ontime-utils';
 import { WebSocket, WebSocketServer } from 'ws';
-import type { Server } from 'http';
 
+import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
+import { logger } from '../classes/Logger.js';
+import { authenticateSocket } from '../middleware/authenticate.js';
+import { eventStore } from '../stores/EventStore.js';
 import getRandomName from '../utils/getRandomName.js';
 import type { IAdapter } from './IAdapter.js';
-import { eventStore } from '../stores/EventStore.js';
-import { logger } from '../classes/Logger.js';
-import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
-import { generateId } from 'ontime-utils';
-import { authenticateSocket } from '../middleware/authenticate.js';
 
 type ClientId = string;
 let instance: SocketServer | null = null;

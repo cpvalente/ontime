@@ -1,5 +1,5 @@
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { OntimeView, isOntimeEvent, isOntimeGroup } from 'ontime-types';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -11,15 +11,14 @@ import { throttle } from '../../common/utils/throttle';
 import { getDefaultFormat } from '../../common/utils/time';
 import { isTouchDevice } from '../../externals';
 import Loader from '../../views/common/loader/Loader';
-
 import CustomFieldEditModal from './custom-field-edit-modal/CustomFieldEditModal';
 import FollowButton from './follow-button/FollowButton';
 import OperatorEvent from './operator-event/OperatorEvent';
 import OperatorGroup from './operator-group/OperatorGroup';
-import StatusBar from './status-bar/StatusBar';
 import { getOperatorOptions, useOperatorOptions } from './operator.options';
 import type { EditEvent } from './operator.types';
 import { getEventData } from './operator.utils';
+import StatusBar from './status-bar/StatusBar';
 import { OperatorData, useOperatorData } from './useOperatorData';
 
 import style from './Operator.module.scss';

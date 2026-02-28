@@ -10,7 +10,6 @@ import type {
 import { deleteAtIndex, generateId } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-
 import { isAutomationUsed } from './automation.utils.js';
 
 /**

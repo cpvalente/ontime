@@ -1,6 +1,6 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useQueryClient } from '@tanstack/react-query';
 
 import { PROJECT_DATA } from '../../../../common/api/constants';
 import { getDb, patchData } from '../../../../common/api/db';
@@ -10,7 +10,6 @@ import Info from '../../../../common/components/info/Info';
 import Switch from '../../../../common/components/switch/Switch';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import { makeProjectPatch } from './project.utils';
 
 import style from './ProjectPanel.module.scss';

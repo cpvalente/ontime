@@ -1,16 +1,16 @@
 import { GetInfo, LinkOptions, OntimeView, SessionStats } from 'ontime-types';
 
-import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { publicDir } from '../../setup/index.js';
 import { socket } from '../../adapters/WebsocketAdapter.js';
 import { getLastRequest } from '../../api-integration/integration.controller.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { password, routerPrefix } from '../../externals.js';
+import { ONTIME_VERSION } from '../../ONTIME_VERSION.js';
 import { getCurrentProject } from '../../services/project-service/ProjectService.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
+import { publicDir } from '../../setup/index.js';
+import { hashPassword } from '../../utils/hash.js';
 import { getNetworkInterfaces } from '../../utils/network.js';
 import { getTimezoneLabel } from '../../utils/time.js';
-import { password, routerPrefix } from '../../externals.js';
-import { hashPassword } from '../../utils/hash.js';
-import { ONTIME_VERSION } from '../../ONTIME_VERSION.js';
 
 const startedAt = new Date();
 

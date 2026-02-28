@@ -1,8 +1,7 @@
-import { PropsWithChildren, memo, useCallback, useEffect, useRef, useState } from 'react';
 import { parseUserTime } from 'ontime-utils';
+import { PropsWithChildren, memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { formatTime } from '../../../../common/utils/time';
-
 import SingleLineCell from './SingleLineCell';
 import TextLikeInput from './TextLikeInput';
 

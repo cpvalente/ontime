@@ -1,7 +1,6 @@
 import { PropsWithChildren, memo } from 'react';
 
 import { EditorLayoutMode, useEditorLayout } from '../../views/editor/useEditorLayout';
-
 import {
   ClockOverview,
   MetadataTimes,

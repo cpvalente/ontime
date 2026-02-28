@@ -1,3 +1,6 @@
+import { useTableNav } from '@table-nav/react';
+import { ColumnDef, Table, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { OntimeEntry, TimeField, isOntimeDelay, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 import { ComponentProps, memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   ContextProp,
@@ -7,22 +10,18 @@ import {
   TableVirtuoso,
   TableVirtuosoHandle,
 } from 'react-virtuoso';
-import { useTableNav } from '@table-nav/react';
-import { ColumnDef, Table, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { OntimeEntry, TimeField, isOntimeDelay, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 
 import EmptyPage from '../../../common/components/state/EmptyPage';
 import EmptyTableBody from '../../../common/components/state/EmptyTableBody';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
-import { useSelectedEventId } from '../../../common/hooks/useSocket';
 import { useFlatRundownWithMetadata } from '../../../common/hooks-query/useRundown';
+import { useSelectedEventId } from '../../../common/hooks/useSocket';
 import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
-import { usePersistedRundownOptions } from '../../../features/rundown/rundown.options';
 import EditorTableSettings from '../../../features/rundown/rundown-table/EditorTableSettings';
+import { usePersistedRundownOptions } from '../../../features/rundown/rundown.options';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
 import { AppMode } from '../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../cuesheet.options';
-
 import { CuesheetHeader, SortableCuesheetHeader } from './cuesheet-table-elements/CuesheetHeader';
 import DelayRow from './cuesheet-table-elements/DelayRow';
 import EventRow from './cuesheet-table-elements/EventRow';
@@ -251,7 +250,6 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot, setCue
     </>
   );
 }
-
 
 interface CuesheetVirtuosoContext {
   columnSizeVars: { [key: string]: number };

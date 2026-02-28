@@ -18,8 +18,5 @@
     "client",
     "external",
     "server"
-  ],
-  "devDependencies": {
-    "prettier": "catalog:"
-  }
+  ]
 }

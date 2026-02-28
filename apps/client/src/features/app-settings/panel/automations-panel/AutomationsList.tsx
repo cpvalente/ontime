@@ -1,6 +1,6 @@
+import { AutomationDTO, NormalisedAutomation } from 'ontime-types';
 import { Fragment, useState } from 'react';
 import { IoAdd, IoPencil, IoTrash } from 'react-icons/io5';
-import { AutomationDTO, NormalisedAutomation } from 'ontime-types';
 
 import { deleteAutomation } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -9,7 +9,6 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import AutomationForm from './AutomationForm';
 
 const automationPlaceholder: AutomationDTO = {

@@ -1,11 +1,11 @@
-import { PropsWithChildren } from 'react';
 import { MaybeNumber, Playback, TimerPhase } from 'ontime-types';
 import { dayInMs, millisToString } from 'ontime-utils';
+import { PropsWithChildren } from 'react';
 
 import AppLink from '../../../../common/components/link/app-link/AppLink';
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
-import { useTimer } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
+import { useTimer } from '../../../../common/hooks/useSocket';
 import { formatDuration } from '../../../../common/utils/time';
 import TimerDisplay from '../timer-display/TimerDisplay';
 

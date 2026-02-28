@@ -1,7 +1,6 @@
 import { ProjectRundowns, TimerLifeCycle } from 'ontime-types';
 
 import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
-
 import { isAutomationUsed, parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
 
 describe('parseTemplateNested()', () => {

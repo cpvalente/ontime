@@ -1,5 +1,4 @@
 import { usePlaybackControl } from '../../../common/hooks/useSocket';
-
 import AddTime from './add-time/AddTime';
 import { AuxTimer } from './aux-timer/AuxTimer';
 import PlaybackButtons from './playback-buttons/PlaybackButtons';

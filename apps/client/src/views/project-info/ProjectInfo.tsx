@@ -1,5 +1,5 @@
-import { IoOpenOutline } from 'react-icons/io5';
 import { OntimeView } from 'ontime-types';
+import { IoOpenOutline } from 'react-icons/io5';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
@@ -7,7 +7,6 @@ import ViewParamsEditor from '../../common/components/view-params-editor/ViewPar
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
-
 import { ProjectInfoData, useProjectInfoData } from './useProjectInfoData';
 
 import './ProjectInfo.scss';

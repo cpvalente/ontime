@@ -1,7 +1,7 @@
-import { Fragment } from 'react';
-import { IoLink } from 'react-icons/io5';
 import { CustomFields, Rundown, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
+import { Fragment } from 'react';
+import { IoLink } from 'react-icons/io5';
 
 import Tag from '../../../../../../common/components/tag/Tag';
 import { getAccessibleColour } from '../../../../../../common/utils/styleUtils';

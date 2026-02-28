@@ -1,9 +1,8 @@
-import { CSSProperties, Fragment } from 'react';
 import { CustomFields, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ontime-types';
+import { CSSProperties, Fragment } from 'react';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { EventEditorUpdateFields } from '../EventEditor';
-
 import EventEditorImage from './EventEditorImage';
 import EventTextArea from './EventTextArea';
 import EntryEditorTextInput from './EventTextInput';

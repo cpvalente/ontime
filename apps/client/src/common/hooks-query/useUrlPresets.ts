@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { OntimeView, URLPreset } from 'ontime-types';
+import { useMemo } from 'react';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { URL_PRESETS } from '../api/constants';

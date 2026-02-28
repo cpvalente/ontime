@@ -3,20 +3,18 @@
  * Google Sheets
  */
 
+import { existsSync } from 'fs';
+import { extname } from 'path';
+
 import { CustomFields, Rundown, RundownSummary } from 'ontime-types';
 import { type ImportMap } from 'ontime-utils';
-
-import { extname } from 'path';
-import { existsSync } from 'fs';
 import xlsx from 'xlsx';
 import type { WorkBook } from 'xlsx';
 
 import { deleteFile } from '../../utils/fileManagement.js';
-
-import { parseRundown } from '../rundown/rundown.parser.js';
-import { getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
-
+import { getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
+import { parseRundown } from '../rundown/rundown.parser.js';
 import { parseExcel } from './excel.parser.js';
 import { rundownToTabular } from './excel.utils.js';
 

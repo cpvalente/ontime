@@ -1,5 +1,5 @@
-# Ignore config files
-.prettier*
+# Ignore formatter config files
+.oxfmt*
 
 # Ignore install stuff
 **/yarn.lock

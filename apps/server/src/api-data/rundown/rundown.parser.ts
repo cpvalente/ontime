@@ -31,9 +31,8 @@ import {
 
 import { makeNewRundown } from '../../models/dataModel.js';
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
-
-import { calculateDayOffset, cleanupCustomFields } from './rundown.utils.js';
 import { RundownMetadata } from './rundown.types.js';
+import { calculateDayOffset, cleanupCustomFields } from './rundown.utils.js';
 
 /**
  * Parse a rundowns object along with the project custom fields

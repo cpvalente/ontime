@@ -5,7 +5,6 @@ import { getProgress } from '../../common/utils/getProgress';
 import { alpha, cx } from '../../common/utils/styleUtils';
 import { formatDuration, formatTime, getExpectedTimesFromExtendedEvent } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
-
 import { getStatusLabel } from './timeline.utils';
 
 import style from './Timeline.module.scss';

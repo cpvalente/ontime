@@ -1,6 +1,6 @@
+import { body, param } from 'express-validator';
 import { checkRegex } from 'ontime-utils';
 
-import { body, param } from 'express-validator';
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 export const validateCustomField = [

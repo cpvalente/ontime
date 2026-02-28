@@ -1,4 +1,3 @@
-import { PropsWithChildren } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -9,6 +8,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { ColumnDef } from '@tanstack/react-table';
+import { PropsWithChildren } from 'react';
 
 import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { useColumnOrder } from '../cuesheet-table/useColumnManager';

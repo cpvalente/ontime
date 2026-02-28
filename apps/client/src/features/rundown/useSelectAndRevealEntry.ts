@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
 import { EntryId, MaybeString } from 'ontime-types';
+import { useCallback } from 'react';
 
 import { useCollapsedGroups } from './useCollapsedGroups';
 import { useEventSelection } from './useEventSelection';

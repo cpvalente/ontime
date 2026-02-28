@@ -1,5 +1,5 @@
-import { PropsWithChildren, ReactNode } from 'react';
 import { ErrorBoundary } from '@sentry/react';
+import { PropsWithChildren, ReactNode } from 'react';
 
 import ScrollArea from '../../common/components/scroll-area/ScrollArea';
 import { useIsOnline } from '../../common/hooks/useSocket';

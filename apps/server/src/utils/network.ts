@@ -1,11 +1,11 @@
+import type { Server } from 'http';
+import type { AddressInfo } from 'net';
+import { networkInterfaces } from 'os';
+
 import { LogOrigin } from 'ontime-types';
 
-import type { Server } from 'http';
-import { networkInterfaces } from 'os';
-import type { AddressInfo } from 'net';
-
-import { isDocker, isOntimeCloud, isProduction } from '../setup/environment.js';
 import { logger } from '../classes/Logger.js';
+import { isDocker, isOntimeCloud, isProduction } from '../setup/environment.js';
 
 /**
  * @description Gets information on IPV4 non-internal interfaces

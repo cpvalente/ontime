@@ -1,4 +1,4 @@
-import { millisToSeconds } from 'ontime-utils';
+import { deepEqual } from 'fast-equals';
 import {
   EntryId,
   MaybeNumber,
@@ -10,8 +10,7 @@ import {
   isOntimeEvent,
   isPlayableEvent,
 } from 'ontime-types';
-
-import { deepEqual } from 'fast-equals';
+import { millisToSeconds } from 'ontime-utils';
 
 export function isNewSecond(
   previousValue: MaybeNumber | undefined,

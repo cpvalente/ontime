@@ -1,5 +1,5 @@
-import { memo } from 'react';
 import { useSessionStorage } from '@mantine/hooks';
+import { memo } from 'react';
 
 import * as Editor from '../../common/components/editor-utils/EditorUtils';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
@@ -14,7 +14,6 @@ import { getIsNavigationLocked } from '../../externals';
 import { AppMode } from '../../ontimeConfig';
 import EntryEditModal from '../../views/cuesheet/cuesheet-edit-modal/EntryEditModal';
 import { EditorLayoutMode, useEditorLayout } from '../../views/editor/useEditorLayout';
-
 import RundownEntryEditor from './entry-editor/RundownEntryEditor';
 import FinderPlacement from './placements/FinderPlacement';
 import { RundownContextMenu } from './rundown-context-menu/RundownContextMenu';

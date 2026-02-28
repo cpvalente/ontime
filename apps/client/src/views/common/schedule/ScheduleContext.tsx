@@ -1,3 +1,4 @@
+import { EntryId, OntimeEntry, OntimeEvent, isOntimeEvent } from 'ontime-types';
 import {
   PropsWithChildren,
   RefObject,
@@ -9,11 +10,9 @@ import {
   useRef,
   useState,
 } from 'react';
-import { EntryId, OntimeEntry, OntimeEvent, isOntimeEvent } from 'ontime-types';
 
 import { usePartialRundown } from '../../../common/hooks-query/useRundown';
 import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
-
 import { useScheduleOptions } from './schedule.options';
 
 interface ScheduleContextState {

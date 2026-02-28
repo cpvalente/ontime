@@ -1,7 +1,7 @@
-import { IoAdd, IoArrowDown, IoArrowUp, IoPause, IoPlay, IoPlaySkipForward, IoRemove, IoStop } from 'react-icons/io5';
 import { useHotkeys, useLocalStorage } from '@mantine/hooks';
 import { Playback, SimpleDirection, SimplePlayback, TimerPhase } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
+import { IoAdd, IoArrowDown, IoArrowUp, IoPause, IoPlay, IoPlaySkipForward, IoRemove, IoStop } from 'react-icons/io5';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import {

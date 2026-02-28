@@ -8,9 +8,9 @@
   display: grid;
   grid-template-rows: 3.5rem auto auto 1fr;
   grid-template-areas:
-          'overview'
-          'progress'
-          'settings'
-          'table';
+    'overview'
+    'progress'
+    'settings'
+    'table';
   color: $ui-white;
 }

@@ -1,12 +1,11 @@
+import { SupportedEntry } from 'ontime-types';
 import { memo } from 'react';
 import { IoAdd, IoArrowDown, IoArrowUp, IoDuplicateOutline, IoOptions, IoTrash } from 'react-icons/io5';
-import { SupportedEntry } from 'ontime-types';
 
 import { PositionedDropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 import { useEditModal } from '../../cuesheet-edit-modal/useEditModal';
 import { useCuesheetPermissions } from '../../useTablePermissions';
-
 import { useCuesheetTableMenu } from './useCuesheetTableMenu';
 
 export default memo(TableMenu);

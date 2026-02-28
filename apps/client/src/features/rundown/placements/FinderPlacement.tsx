@@ -1,5 +1,5 @@
-import { memo } from 'react';
 import { useDisclosure, useHotkeys } from '@mantine/hooks';
+import { memo } from 'react';
 
 import Finder from '../../../views/editor/finder/Finder';
 

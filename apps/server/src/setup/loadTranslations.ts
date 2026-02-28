@@ -1,8 +1,7 @@
 import { copyFileSync, existsSync, writeFileSync } from 'fs';
 
-import { ensureDirectory } from '../utils/fileManagement.js';
 import { defaultTranslation } from '../user/translations/bundledTranslations.js';
-
+import { ensureDirectory } from '../utils/fileManagement.js';
 import { publicDir, publicFiles, srcFiles } from './index.js';
 
 /**

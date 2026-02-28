@@ -6,7 +6,6 @@ import Checkbox from '../checkbox/Checkbox';
 import Input from '../input/input/Input';
 import Select, { SelectOption } from '../select/Select';
 import Switch from '../switch/Switch';
-
 import InlineColourPicker from './InlineColourPicker';
 import { ParamField } from './viewParams.types';
 
@@ -44,7 +43,7 @@ export default function ParamInput({ paramField }: ParamInputProps) {
     return (
       <MultiOption
         paramField={paramField}
-        options={optionFromParams.length ? optionFromParams : paramField.defaultValue ?? ['']}
+        options={optionFromParams.length ? optionFromParams : (paramField.defaultValue ?? [''])}
       />
     );
   }

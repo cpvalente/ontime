@@ -20,7 +20,6 @@ import {
   validateEndAction,
   validateTimerType,
 } from 'ontime-utils';
-
 import { Prettify } from 'ts-essentials';
 
 import { is } from '../../utils/is.js';

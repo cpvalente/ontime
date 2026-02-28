@@ -1,11 +1,11 @@
+import { TimerPhase, TimerType } from 'ontime-types';
 import { IoArrowDown, IoArrowUp, IoBan, IoTime } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
-import { TimerPhase, TimerType } from 'ontime-types';
 
 import { CornerWithPip } from '../../../common/components/editor-utils/EditorUtils';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
-import { useMessagePreview } from '../../../common/hooks/useSocket';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
+import { useMessagePreview } from '../../../common/hooks/useSocket';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx, timerPlaceholder } from '../../../common/utils/styleUtils';
 import PipRoot from '../../../views/editor/pip-timer/PipRoot';

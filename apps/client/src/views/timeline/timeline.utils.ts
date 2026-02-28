@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { MaybeString, OntimeEntry, OntimeEvent, PlayableEvent, isOntimeEvent, isPlayableEvent } from 'ontime-types';
 import {
   MILLIS_PER_HOUR,
@@ -10,10 +9,10 @@ import {
   getTimeFrom,
   isNewLatest,
 } from 'ontime-utils';
+import { useMemo } from 'react';
 
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { formatDuration } from '../../common/utils/time';
-
 import { useTimelineOptions } from './timeline.options';
 import type { ProgressStatus } from './TimelineEntry';
 

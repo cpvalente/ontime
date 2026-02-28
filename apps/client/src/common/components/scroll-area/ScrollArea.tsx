@@ -1,5 +1,5 @@
-import { CSSProperties, PropsWithChildren, Ref } from 'react';
 import { ScrollArea } from '@base-ui/react/scroll-area';
+import { CSSProperties, PropsWithChildren, Ref } from 'react';
 
 import { cx } from '../../utils/styleUtils';
 

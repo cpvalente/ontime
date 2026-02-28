@@ -1,7 +1,6 @@
 import type { CustomFields, ProjectData } from 'ontime-types';
 
 import type { SelectOption } from '../select/Select';
-
 import type { MultiselectOption, ViewOption } from './viewParams.types';
 
 /**

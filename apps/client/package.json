@@ -65,7 +65,6 @@
     "babel-plugin-react-compiler": "1.0.0",
     "ontime-types": "workspace:*",
     "ontime-utils": "workspace:*",
-    "prettier": "catalog:",
     "sass": "^1.57.1",
     "typescript": "catalog:",
     "vite": "6.3.1",

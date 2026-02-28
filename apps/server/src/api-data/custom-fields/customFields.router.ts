@@ -1,14 +1,11 @@
+import express from 'express';
+import type { Request, Response } from 'express';
 import { CustomField, CustomFields, ErrorResponse } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
-import express from 'express';
-import type { Request, Response } from 'express';
-
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-
 import { getProjectCustomFields } from '../rundown/rundown.dao.js';
 import { createCustomField, deleteCustomField, editCustomField } from '../rundown/rundown.service.js';
-
 import { validateCustomField, validateDeleteCustomField, validateEditCustomField } from './customFields.validation.js';
 
 export const router = express.Router();

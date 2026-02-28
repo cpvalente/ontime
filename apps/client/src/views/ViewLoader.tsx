@@ -1,9 +1,8 @@
 import { PropsWithChildren } from 'react';
 
 import { overrideStylesURL } from '../common/api/constants';
-import { useRuntimeStylesheet } from '../common/hooks/useRuntimeStylesheet';
 import useViewSettings from '../common/hooks-query/useViewSettings';
-
+import { useRuntimeStylesheet } from '../common/hooks/useRuntimeStylesheet';
 import Loader from './common/loader/Loader';
 
 export default function ViewLoader({ children }: PropsWithChildren) {

@@ -13,9 +13,9 @@ import {
   URLPreset,
   ViewSettings,
 } from 'ontime-types';
-import * as v3 from './db.migration.v3.js';
 
 import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
+import * as v3 from './db.migration.v3.js';
 
 describe('v3 to v4', () => {
   const oldDb = {

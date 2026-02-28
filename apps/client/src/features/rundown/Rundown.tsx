@@ -1,6 +1,3 @@
-import { Fragment, type HTMLProps, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { TbFlagFilled } from 'react-icons/tb';
-import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import {
@@ -11,12 +8,14 @@ import {
   isOntimeEvent,
   isOntimeGroup,
 } from 'ontime-types';
+import { Fragment, type HTMLProps, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { TbFlagFilled } from 'react-icons/tb';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import { useEntryActionsContext } from '../../common/context/EntryActionsContext';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { RundownMetadataObject, lastMetadataKey } from '../../common/utils/rundownMetadata';
 import { AppMode } from '../../ontimeConfig';
-
 import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
 import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
 import { useRundownCommands } from './hooks/useRundownCommands';

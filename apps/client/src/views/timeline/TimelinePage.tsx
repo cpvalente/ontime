@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
 import { OntimeView } from 'ontime-types';
+import { useMemo } from 'react';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
@@ -10,7 +10,6 @@ import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
-
 import Timeline from './Timeline';
 import { getTimelineOptions, useTimelineOptions } from './timeline.options';
 import { getUpcomingEvents, useScopedRundown } from './timeline.utils';

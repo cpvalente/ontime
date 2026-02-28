@@ -15,7 +15,6 @@
   },
   "devDependencies": {
     "ontime-types": "workspace:*",
-    "prettier": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },

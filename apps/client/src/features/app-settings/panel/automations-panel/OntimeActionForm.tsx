@@ -1,6 +1,6 @@
+import { AutomationDTO, OntimeAction, OntimeActionKey, SecondarySource } from 'ontime-types';
 import { PropsWithChildren, useState } from 'react';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
-import { AutomationDTO, OntimeAction, OntimeActionKey, SecondarySource } from 'ontime-types';
 
 import Input from '../../../../common/components/input/input/Input';
 import Select from '../../../../common/components/select/Select';

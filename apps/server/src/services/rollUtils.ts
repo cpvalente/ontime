@@ -1,9 +1,9 @@
-import { dayInMs } from 'ontime-utils';
 import { MaybeNumber, PlayableEvent, Rundown } from 'ontime-types';
+import { dayInMs } from 'ontime-utils';
 
-import { normaliseEndTime } from './timerUtils.js';
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { getTimedIndexFromPlayableIndex } from '../api-data/rundown/rundown.utils.js';
+import { normaliseEndTime } from './timerUtils.js';
 
 /**
  * Finds current event in a rolling rundown

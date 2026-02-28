@@ -1,3 +1,7 @@
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { EndAction, EntryId, Playback, TimeStrategy, TimerType } from 'ontime-types';
+import { isPlaybackActive } from 'ontime-utils';
 import { MouseEvent, useEffect, useRef } from 'react';
 import {
   IoAdd,
@@ -10,10 +14,6 @@ import {
   IoUnlink,
 } from 'react-icons/io5';
 import { TbFlagFilled } from 'react-icons/tb';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { EndAction, EntryId, Playback, TimeStrategy, TimerType } from 'ontime-types';
-import { isPlaybackActive } from 'ontime-utils';
 
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
@@ -22,7 +22,6 @@ import { deviceMod } from '../../../common/utils/deviceUtils';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useEventIdSwapping } from '../useEventIdSwapping';
 import { getSelectionMode, useEventSelection } from '../useEventSelection';
-
 import RundownEventInner from './RundownEventInner';
 import RundownIndicators from './RundownIndicators';
 

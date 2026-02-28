@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Playback } from 'ontime-types';
-
 import { vi } from 'vitest';
 
-import { RestorePoint } from '../restore.type.js';
 import { restoreService } from '../restore.service.js';
+import { RestorePoint } from '../restore.type.js';
 
 describe('restoreService', () => {
   describe('load()', () => {

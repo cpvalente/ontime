@@ -18,12 +18,12 @@ import {
 } from 'ontime-types';
 import { customFieldLabelToKey, getInsertAfterId, resolveInsertParent } from 'ontime-utils';
 
-import { updateRundownData } from '../../stores/runtimeState.js';
-import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
-import { setLastLoadedRundown } from '../../services/app-state-service/AppStateService.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { logger } from '../../classes/Logger.js';
-
+import { setLastLoadedRundown } from '../../services/app-state-service/AppStateService.js';
+import { runtimeService } from '../../services/runtime-service/runtime.service.js';
+import { updateRundownData } from '../../stores/runtimeState.js';
 import {
   createTransaction,
   customFieldMutation,
@@ -34,7 +34,6 @@ import {
 } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
 import { generateEvent, hasChanges } from './rundown.utils.js';
-import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 /**
  * creates a new entry with given data

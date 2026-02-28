@@ -1,6 +1,6 @@
+import { Menu as BaseMenu } from '@base-ui/react/menu';
 import { PropsWithChildren } from 'react';
 import { IconType } from 'react-icons';
-import { Menu as BaseMenu } from '@base-ui/react/menu';
 
 import style from './DropdownMenu.module.scss';
 

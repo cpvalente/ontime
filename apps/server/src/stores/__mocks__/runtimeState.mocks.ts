@@ -1,5 +1,6 @@
 import { OffsetMode, Playback, type TimeOfDay, TimerPhase } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
+
 import type { RuntimeState } from '../runtimeState.js';
 
 const baseState: RuntimeState = {

@@ -1,5 +1,5 @@
-import { defineConfig } from 'tsup';
 import copyPlugin from '@sprout2000/esbuild-copy-plugin';
+import { defineConfig } from 'tsup';
 
 export default defineConfig({
   clean: false, // we can't use clean as it runs after the copy plugin

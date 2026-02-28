@@ -1,6 +1,5 @@
-import { OntimeView } from 'ontime-types';
-
 import { body, param } from 'express-validator';
+import { OntimeView } from 'ontime-types';
 
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 

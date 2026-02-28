@@ -1,14 +1,13 @@
 import { DatabaseModel, LogOrigin } from 'ontime-types';
 
 import { logger } from '../../classes/Logger.js';
-
 import { parseAutomationSettings } from '../automation/automation.parser.js';
+import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import { parseProjectData } from '../project-data/projectData.parser.js';
 import { parseRundowns } from '../rundown/rundown.parser.js';
 import { parseSettings } from '../settings/settings.parser.js';
 import { parseUrlPresets } from '../url-presets/urlPresets.parser.js';
 import { parseViewSettings } from '../view-settings/viewSettings.parser.js';
-import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import * as v3 from './migration/db.migration.v3.js';
 
 type ParsingError = {

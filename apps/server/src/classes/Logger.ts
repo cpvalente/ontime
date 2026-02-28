@@ -2,9 +2,9 @@ import { Log, LogLevel, MessageTag } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 
 import { socket } from '../adapters/WebsocketAdapter.js';
+import { isProduction } from '../setup/environment.js';
 import { consoleError, consoleSubdued } from '../utils/console.js';
 import { timeNow } from '../utils/time.js';
-import { isProduction } from '../setup/environment.js';
 
 class Logger {
   private queue: Log[];

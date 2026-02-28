@@ -1,6 +1,6 @@
+import { checkRegex } from 'ontime-utils';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { checkRegex } from 'ontime-utils';
 
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';

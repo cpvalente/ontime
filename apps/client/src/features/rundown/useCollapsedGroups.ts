@@ -1,6 +1,6 @@
-import { useCallback, useMemo } from 'react';
 import { useSessionStorage } from '@mantine/hooks';
 import { EntryId } from 'ontime-types';
+import { useCallback, useMemo } from 'react';
 
 /**
  * Keeps track of which groups are collapsed

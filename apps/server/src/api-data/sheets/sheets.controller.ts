@@ -3,14 +3,13 @@
  * Google Sheets
  */
 
+import { readFileSync } from 'fs';
+
+import { Request, Response } from 'express';
 import type { AuthenticationStatus, CustomFields, ErrorResponse, Rundown, RundownSummary } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
-import { Request, Response } from 'express';
-import { readFileSync } from 'fs';
-
 import { deleteFile } from '../../utils/fileManagement.js';
-
 import {
   download,
   getWorksheetOptions,

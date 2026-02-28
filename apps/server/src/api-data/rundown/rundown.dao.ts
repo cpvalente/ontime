@@ -30,7 +30,7 @@ import { addToRundown, createGroup, customFieldLabelToKey, getInsertAfterId, ins
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { consoleError } from '../../utils/console.js';
-
+import { ProcessedRundownMetadata, makeRundownMetadata } from './rundown.parser.js';
 import type { RundownMetadata } from './rundown.types.js';
 import {
   applyPatchToEntry,
@@ -40,7 +40,6 @@ import {
   getUniqueId,
   makeDeepClone,
 } from './rundown.utils.js';
-import { ProcessedRundownMetadata, makeRundownMetadata } from './rundown.parser.js';
 
 /**
  * The currently loaded rundown in cache
