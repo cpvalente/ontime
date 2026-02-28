@@ -343,8 +343,8 @@ importers:
         specifier: ^7.0.1
         version: 7.0.1
       multer:
-        specifier: 2.0.1
-        version: 2.0.1
+        specifier: 2.1.0
+        version: 2.1.0
       ontime-utils:
         specifier: workspace:*
         version: link:../../packages/utils
@@ -1685,6 +1685,7 @@ packages:
 
   '@table-nav/core@0.0.7':
     resolution: {integrity: sha512-pCh18jHDRe3tw9sJZXfKi4cSD6VjHbn40CYdqhp5X91SIX7rakDEQAsTx6F7Fv9TUv265l+5rUDcYNaJ0N0cqQ==}
+    deprecated: Bad workplace dependencies
 
   '@table-nav/react@0.0.7':
     resolution: {integrity: sha512-S+DsD/qDqp50Z4dqt5tZFMWA3sRu0OOT/grMQuq/z/52jPEKJB+b9t+YSH8Ms55vCJOJ0DxuYldJpYrJLMG5ew==}
@@ -3193,6 +3194,7 @@ packages:
 
   glob@10.5.0:
     resolution: {integrity: sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg==}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@11.0.3:
@@ -3207,7 +3209,7 @@ packages:
   glob@8.1.0:
     resolution: {integrity: sha512-r8hpEjiQEYlF2QU0df3dS+nxxSIreXQS1qRhMJM0Q5NDdR386C7jb7Hwwod8Fgiuex+k0GFjgft18yvxm5XoCQ==}
     engines: {node: '>=12'}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   glob@9.3.5:
     resolution: {integrity: sha512-e1LleDykUz2Iu+MTYdkSsuWX8lvAjAcs0Xef0lNIu0S2wOAzuTxCJtcd9S3cijlwYF18EsU3rzb8jPVobxDh9Q==}
@@ -3900,10 +3902,6 @@ packages:
     resolution: {integrity: sha512-bAxsR8BVfj60DWXHE3u30oHzfl4G7khkSuPW+qvpd7jFRHm7dLxOjUk1EHACJ/hxLY8phGJ0YhYHZo7jil7Qdg==}
     engines: {node: '>= 8'}
 
-  mkdirp@0.5.6:
-    resolution: {integrity: sha512-FP+p8RB8OWpF3YZBCrP5gtADmtXApB5AMLn+vdyA+PyxCjrCs00mjyUozssO33cwDeT3wNGdLxJ5M//YqtHAJw==}
-    hasBin: true
-
   mkdirp@1.0.4:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
     engines: {node: '>=10'}
@@ -3915,8 +3913,8 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  multer@2.0.1:
-    resolution: {integrity: sha512-Ug8bXeTIUlxurg8xLTEskKShvcKDZALo1THEX5E41pYCD2sCVub5/kIRIGqWNoqV6szyLyQKV6mD4QUrWE5GCQ==}
+  multer@2.1.0:
+    resolution: {integrity: sha512-TBm6j41rxNohqawsxlsWsNNh/VdV4QFXcBvRcPhXaA05EZ79z0qJ2bQFpync6JBoHTeNY5Q1JpG7AlTjdlfAEA==}
     engines: {node: '>= 10.16.0'}
 
   mz@2.7.0:
@@ -5210,6 +5208,7 @@ packages:
   whatwg-encoding@2.0.0:
     resolution: {integrity: sha512-p41ogyeMUrw3jWclHWTQg1k05DSVXPLcVxRTYsXUk+ZooOCZLcoYgPZ/HL/D/N+uQPOtcp1me1WhBEaX02mhWg==}
     engines: {node: '>=12'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@3.0.0:
     resolution: {integrity: sha512-nt+N2dzIutVRxARx1nghPKGv1xHikU7HKdfafKkLNLindmPU/ch3U31NOCGGA/dmPcmb1VlofO0vnKAcsm0o/Q==}
@@ -5302,10 +5301,6 @@ packages:
 
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
-
-  xtend@4.0.2:
-    resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
-    engines: {node: '>=0.4'}
 
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
@@ -9340,10 +9335,6 @@ snapshots:
       minipass: 3.3.6
       yallist: 4.0.0
 
-  mkdirp@0.5.6:
-    dependencies:
-      minimist: 1.2.8
-
   mkdirp@1.0.4: {}
 
   mlly@1.8.0:
@@ -9355,15 +9346,12 @@ snapshots:
 
   ms@2.1.3: {}
 
-  multer@2.0.1:
+  multer@2.1.0:
     dependencies:
       append-field: 1.0.0
       busboy: 1.6.0
       concat-stream: 2.0.0
-      mkdirp: 0.5.6
-      object-assign: 4.1.1
       type-is: 1.6.18
-      xtend: 4.0.2
 
   mz@2.7.0:
     dependencies:
@@ -10844,8 +10832,6 @@ snapshots:
 
   xmlchars@2.2.0:
     optional: true
-
-  xtend@4.0.2: {}
 
   y18n@5.0.8: {}
 
