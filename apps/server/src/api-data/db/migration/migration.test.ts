@@ -1,6 +1,7 @@
 import {
   AutomationSettings,
   CustomFields,
+  type Day,
   DatabaseModel,
   EndAction,
   OntimeView,
@@ -295,7 +296,7 @@ describe('v3 to v4', () => {
           flag: false,
           parent: null,
           delay: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           gap: 0,
         },
         group0: {
@@ -340,7 +341,7 @@ describe('v3 to v4', () => {
           parent: 'group0',
           revision: -1,
           delay: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           gap: 0,
         },
         event3: {
@@ -371,7 +372,7 @@ describe('v3 to v4', () => {
           parent: 'group0',
           revision: -1,
           delay: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           gap: 0,
         },
         group1: {

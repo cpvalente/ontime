@@ -1,4 +1,4 @@
-import { EndAction, OntimeEvent, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
+import { type Day, EndAction, OntimeEvent, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { cellRequestFromEvent, getA1Notation } from '../sheets.utils.js';
@@ -38,7 +38,7 @@ describe('cellRequestFromEvent()', () => {
       colour: 'red',
       delay: 0,
       gap: 0,
-      dayOffset: 0,
+      dayOffset: 0 as Day,
       parent: null,
       revision: 0,
       id: '1358',
@@ -89,7 +89,7 @@ describe('cellRequestFromEvent()', () => {
       revision: 0,
       delay: 0,
       gap: 0,
-      dayOffset: 0,
+      dayOffset: 0 as Day,
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
@@ -140,7 +140,7 @@ describe('cellRequestFromEvent()', () => {
       revision: 0,
       delay: 0,
       gap: 0,
-      dayOffset: 0,
+      dayOffset: 0 as Day,
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
@@ -187,7 +187,7 @@ describe('cellRequestFromEvent()', () => {
       colour: 'red',
       delay: 0,
       gap: 0,
-      dayOffset: 0,
+      dayOffset: 0 as Day,
       parent: null,
       revision: 0,
       id: '1358',
@@ -226,7 +226,7 @@ describe('cellRequestFromEvent()', () => {
       revision: 0,
       delay: 0,
       gap: 0,
-      dayOffset: 0,
+      dayOffset: 0 as Day,
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
@@ -264,7 +264,7 @@ describe('cellRequestFromEvent()', () => {
       revision: 0,
       delay: 0,
       gap: 0,
-      dayOffset: 0,
+      dayOffset: 0 as Day,
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,

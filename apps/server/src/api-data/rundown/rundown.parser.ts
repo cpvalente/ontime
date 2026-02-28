@@ -14,6 +14,7 @@ import {
   RundownEntries,
   isOntimeDelay,
   isOntimeEvent,
+  isOntimeGroup,
   isOntimeMilestone,
   isPlayableEvent,
 } from 'ontime-types';
