@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { Settings } from 'ontime-types';
+import { PortInfo, Settings } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 import type { RequestOptions } from './requestOptions';
@@ -26,4 +26,19 @@ export async function postSettings(data: Settings): Promise<AxiosResponse<Settin
  */
 export async function postShowWelcomeDialog(show: boolean) {
   axios.post(`${settingsPath}/welcomedialog`, { show });
+}
+
+/**
+ * HTTP request to retrieve server port
+ */
+export async function getServerPort(): Promise<PortInfo> {
+  const res = await axios.get(`${settingsPath}/serverport`);
+  return res.data;
+}
+
+/**
+ * HTTP request to set server port
+ */
+export async function postServerPort(serverPort: number): Promise<AxiosResponse<PortInfo>> {
+  return axios.post(`${settingsPath}/serverport`, { serverPort });
 }

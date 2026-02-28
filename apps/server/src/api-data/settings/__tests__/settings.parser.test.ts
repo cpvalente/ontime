@@ -12,7 +12,6 @@ describe('parseSettings()', () => {
     expect(result).toBeTypeOf('object');
     expect(result).toMatchObject({
       version: expect.any(String),
-      serverPort: 4001,
       editorKey: null,
       operatorKey: null,
       timeFormat: '24',

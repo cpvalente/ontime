@@ -26,7 +26,6 @@ import {
 } from 'ontime-utils';
 
 import { is } from '../../../utils/is.js';
-import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
 import { getPartialProject } from '../../../models/dataModel.js';
 
 // the methodology of the migrations is to just change the necessary keys to match with v4
@@ -69,12 +68,12 @@ type old_Settings = {
  * migrates a settings from v3 to v4
  * - update the version number
  */
-export function migrateSettings(jsonData: object): Settings | undefined {
+export function migrateSettings(jsonData: object): (Settings & { serverPort: number }) | undefined {
   if (is.objectWithKeys(jsonData, ['settings']) && is.object(jsonData.settings)) {
     const { serverPort, editorKey, operatorKey, timeFormat, language } = structuredClone(
       jsonData.settings,
     ) as old_Settings;
-    return { version: ONTIME_VERSION, serverPort, editorKey, operatorKey, timeFormat, language };
+    return { version: '4.0.0', serverPort, editorKey, operatorKey, timeFormat, language };
   }
 }
 

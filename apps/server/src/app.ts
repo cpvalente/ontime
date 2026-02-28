@@ -46,7 +46,8 @@ import { oscServer } from './adapters/OscAdapter.js';
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { timerConfig } from './setup/config.js';
-import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
+import { getNetworkInterfaces } from './utils/network.js';
+import { portManager } from './classes/port-manager/PortManager.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -176,16 +177,12 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
  */
 export const startServer = async (): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
-  const settings = getDataProvider().getSettings();
-  const { serverPort: desiredPort } = settings;
-
-  expressServer = http.createServer(app);
 
   // the express server must be started before the socket otherwise the on error event listener will not attach properly
-  const resultPort = await serverTryDesiredPort(expressServer, desiredPort);
-  await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
-  const showWelcome = await getShowWelcomeDialog(!!restorePoint);
+  expressServer = http.createServer(app);
+  const resultPort = await portManager.attachServer(expressServer);
 
+  const showWelcome = await getShowWelcomeDialog(!!restorePoint);
   socket.init(expressServer, showWelcome, prefix);
 
   /**
@@ -278,6 +275,7 @@ export const shutdown = async (exitCode = 0) => {
   // 99 means there was a shutdown request from the UI
   if (exitCode === 0 || exitCode === 99) {
     await restoreService.clear();
+    await portManager.shutdown();
   }
 
   expressServer?.close();

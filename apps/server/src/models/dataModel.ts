@@ -25,7 +25,6 @@ const dbModel: DatabaseModel = {
   },
   settings: {
     version: ONTIME_VERSION,
-    serverPort: 4001,
     editorKey: null,
     operatorKey: null,
     timeFormat: '24',
