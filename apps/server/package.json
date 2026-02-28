@@ -13,7 +13,7 @@
     "express": "5.1.0",
     "express-static-gzip": "3.0.0",
     "express-validator": "7.2.1",
-    "multer": "2.0.1",
+    "multer": "2.1.0",
     "fast-equals": "^5.0.1",
     "google-auth-library": "^9.4.2",
     "lowdb": "^7.0.1",
