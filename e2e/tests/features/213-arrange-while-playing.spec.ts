@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test('Rearrange while playing', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');

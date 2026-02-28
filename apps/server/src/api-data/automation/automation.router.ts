@@ -1,20 +1,20 @@
 import express from 'express';
 
 import {
-  deleteTrigger,
   deleteAutomation,
+  deleteTrigger,
   editAutomation,
   getAutomationSettings,
-  postTrigger,
   postAutomation,
-  putTrigger,
   postAutomationSettings,
+  postTrigger,
+  putTrigger,
   testOutput,
 } from './automation.controller.js';
 import {
-  validateAutomationSettings,
   validateAutomation,
   validateAutomationPatch,
+  validateAutomationSettings,
   validateTestPayload,
   validateTrigger,
   validateTriggerPatch,

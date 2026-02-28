@@ -1,4 +1,4 @@
-import { ForwardedRef, forwardRef, PropsWithChildren } from 'react';
+import { ForwardedRef, PropsWithChildren, forwardRef } from 'react';
 import { Playback } from 'ontime-types';
 
 import { cx } from '../../../../common/utils/styleUtils';

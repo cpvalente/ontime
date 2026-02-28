@@ -1,5 +1,5 @@
 import { MaybeNumber, TimerPhase } from 'ontime-types';
-import { dayInMs, isPlaybackActive, MILLIS_PER_HOUR } from 'ontime-utils';
+import { MILLIS_PER_HOUR, dayInMs, isPlaybackActive } from 'ontime-utils';
 
 import type { RuntimeState } from '../stores/runtimeState.js';
 

@@ -1,4 +1,4 @@
-import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from './conversionUtils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from './conversionUtils';
 import { getTimeFrom } from './getTimeFrom';
 
 describe('getTimeFrom', () => {

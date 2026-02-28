@@ -1,7 +1,4 @@
 import {
-  isOntimeEvent,
-  isOntimeGroup,
-  isPlayableEvent,
   MaybeString,
   OntimeDelay,
   OntimeEntry,
@@ -9,6 +6,9 @@ import {
   OntimeMilestone,
   PlayableEvent,
   Rundown,
+  isOntimeEvent,
+  isOntimeGroup,
+  isPlayableEvent,
 } from 'ontime-types';
 import { checkIsNextDay, isNewLatest } from 'ontime-utils';
 

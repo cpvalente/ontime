@@ -9,14 +9,14 @@ import {
   CustomFields,
   DatabaseModel,
   EntryId,
-  isOntimeEvent,
-  isOntimeMilestone,
   LogOrigin,
   MaybeString,
   OntimeGroup,
   Rundown,
   RundownSummary,
   SupportedEntry,
+  isOntimeEvent,
+  isOntimeMilestone,
 } from 'ontime-types';
 import { ImportMap, getErrorMessage } from 'ontime-utils';
 
@@ -31,7 +31,7 @@ import { parseExcel } from '../excel/excel.parser.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import { consoleSubdued } from '../../utils/console.js';
 
-import { cellRequestFromEvent, type ClientSecret, getA1Notation, isClientSecret } from './sheets.utils.js';
+import { type ClientSecret, cellRequestFromEvent, getA1Notation, isClientSecret } from './sheets.utils.js';
 import { catchCommonImportXlsxError } from './googleApi.utils.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';

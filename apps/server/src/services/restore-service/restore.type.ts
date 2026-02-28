@@ -1,4 +1,4 @@
-import { Playback, MaybeString, MaybeNumber, Maybe, Instant } from 'ontime-types';
+import { Instant, Maybe, MaybeNumber, MaybeString, Playback } from 'ontime-types';
 
 export type RestorePoint = {
   playback: Playback;

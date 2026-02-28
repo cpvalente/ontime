@@ -5,8 +5,8 @@ import {
   EndAction,
   EntryCustomFields,
   NormalisedAutomation,
-  OntimeGroup,
   OntimeEntry,
+  OntimeGroup,
   ProjectData,
   ProjectRundowns,
   Rundown,
@@ -18,11 +18,11 @@ import {
   ViewSettings,
 } from 'ontime-types';
 import {
-  customFieldLabelToKey,
   checkRegex,
+  customFieldLabelToKey,
+  eventDef as eventModel,
   isKnownTimerType,
   validateEndAction,
-  eventDef as eventModel,
 } from 'ontime-utils';
 
 import { is } from '../../../utils/is.js';

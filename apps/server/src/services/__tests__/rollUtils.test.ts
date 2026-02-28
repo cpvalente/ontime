@@ -1,4 +1,4 @@
-import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
 import { PlayableEvent } from 'ontime-types';
 

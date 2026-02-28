@@ -1,11 +1,11 @@
 import {
-  SupportedEntry,
-  OntimeEvent,
-  OntimeDelay,
-  OntimeGroup,
-  Rundown,
   CustomField,
+  OntimeDelay,
+  OntimeEvent,
+  OntimeGroup,
   OntimeMilestone,
+  Rundown,
+  SupportedEntry,
 } from 'ontime-types';
 
 import { makeNewRundown } from '../../../models/dataModel.js';

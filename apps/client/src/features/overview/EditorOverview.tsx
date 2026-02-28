@@ -1,4 +1,4 @@
-import { memo, PropsWithChildren } from 'react';
+import { PropsWithChildren, memo } from 'react';
 
 import { EditorLayoutMode, useEditorLayout } from '../../views/editor/useEditorLayout';
 

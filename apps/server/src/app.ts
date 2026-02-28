@@ -1,4 +1,4 @@
-import { LogOrigin, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { LogOrigin, SimpleDirection, SimplePlayback, runtimeStorePlaceholder } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -12,12 +12,12 @@ import { publicDir, srcDir } from './setup/index.js';
 import { environment, isProduction } from './setup/environment.js';
 import { updateRouterPrefix } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
-import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
+import { consoleError, consoleHighlight, consoleSuccess } from './utils/console.js';
 
 // Import middleware configuration
 import { bodyParser } from './middleware/bodyParser.js';
 import { compressedStatic } from './middleware/staticGZip.js';
-import { makeLoginRouter, makeAuthenticateMiddleware } from './middleware/authenticate.js';
+import { makeAuthenticateMiddleware, makeLoginRouter } from './middleware/authenticate.js';
 
 // Import Routers
 import { appRouter } from './api-data/index.js';
@@ -25,7 +25,7 @@ import { integrationRouter } from './api-integration/integration.router.js';
 
 // Import adapters
 import { socket } from './adapters/WebsocketAdapter.js';
-import { getDataProvider, flushPendingWrites } from './classes/data-provider/DataProvider.js';
+import { flushPendingWrites, getDataProvider } from './classes/data-provider/DataProvider.js';
 
 // Services
 import { logger } from './classes/Logger.js';
@@ -46,7 +46,7 @@ import { oscServer } from './adapters/OscAdapter.js';
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { timerConfig } from './setup/config.js';
-import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
+import { getNetworkInterfaces, serverTryDesiredPort } from './utils/network.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);

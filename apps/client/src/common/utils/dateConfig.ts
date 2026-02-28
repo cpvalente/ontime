@@ -1,5 +1,5 @@
 import { MaybeNumber } from 'ontime-types';
-import { formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, formatFromMillis } from 'ontime-utils';
 
 /**
  * Parses a value in millis to a string which encodes a delay

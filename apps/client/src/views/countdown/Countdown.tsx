@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { EntryId, isOntimeEvent, isPlayableEvent, OntimeEvent, OntimeView, PlayableEvent } from 'ontime-types';
+import { EntryId, OntimeEvent, OntimeView, PlayableEvent, isOntimeEvent, isPlayableEvent } from 'ontime-types';
 
 import Button from '../../common/components/buttons/Button';
 import Empty from '../../common/components/state/Empty';

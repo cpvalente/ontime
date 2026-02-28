@@ -17,11 +17,11 @@
 import {
   Client,
   LogOrigin,
-  WsPacketToClient,
-  WsPacketToServer,
+  MaybeNumber,
   MessageTag,
   RefetchKey,
-  MaybeNumber,
+  WsPacketToClient,
+  WsPacketToServer,
 } from 'ontime-types';
 
 import { WebSocket, WebSocketServer } from 'ws';

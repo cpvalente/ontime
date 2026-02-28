@@ -7,7 +7,7 @@ import type { Request, Response } from 'express';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 import { getProjectCustomFields } from '../rundown/rundown.dao.js';
-import { createCustomField, editCustomField, deleteCustomField } from '../rundown/rundown.service.js';
+import { createCustomField, deleteCustomField, editCustomField } from '../rundown/rundown.service.js';
 
 import { validateCustomField, validateDeleteCustomField, validateEditCustomField } from './customFields.validation.js';
 

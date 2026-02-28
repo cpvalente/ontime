@@ -1,8 +1,6 @@
 import {
   EndAction,
   EntryId,
-  isOntimeEvent,
-  isPlayableEvent,
   LogOrigin,
   Offset,
   OffsetMode,
@@ -12,6 +10,8 @@ import {
   TimerLifeCycle,
   TimerPhase,
   TimerState,
+  isOntimeEvent,
+  isPlayableEvent,
 } from 'ontime-types';
 import { millisToString, validatePlayback } from 'ontime-utils';
 

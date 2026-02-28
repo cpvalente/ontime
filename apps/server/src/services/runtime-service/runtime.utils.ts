@@ -1,14 +1,14 @@
 import { millisToSeconds } from 'ontime-utils';
 import {
   EntryId,
-  isOntimeEvent,
-  isPlayableEvent,
   MaybeNumber,
+  Offset,
   OntimeEvent,
   Rundown,
-  Offset,
   TimerState,
   TimerType,
+  isOntimeEvent,
+  isPlayableEvent,
 } from 'ontime-types';
 
 import { deepEqual } from 'fast-equals';

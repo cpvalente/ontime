@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useMemo, useState } from 'react';
 import { IoAlertCircle, IoCheckmarkCircle, IoTrash } from 'react-icons/io5';
-import { TimerLifeCycle, timerLifecycleValues, Trigger } from 'ontime-types';
+import { TimerLifeCycle, Trigger, timerLifecycleValues } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import Button from '../../../../common/components/buttons/Button';

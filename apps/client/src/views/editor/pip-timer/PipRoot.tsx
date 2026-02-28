@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense } from 'react';
+import { Suspense, lazy, memo } from 'react';
 
 import { isPipSupported } from './pip.utils';
 

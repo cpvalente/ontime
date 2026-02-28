@@ -1,6 +1,6 @@
 import express from 'express';
 import type { Request, Response } from 'express';
-import { RefetchKey, type ErrorResponse, type URLPreset } from 'ontime-types';
+import { type ErrorResponse, RefetchKey, type URLPreset } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { validateNewPreset, validatePresetParam, validateUpdatePreset } from './urlPresets.validation.js';

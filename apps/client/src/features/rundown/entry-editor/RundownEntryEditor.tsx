@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { isOntimeEvent, isOntimeGroup, isOntimeMilestone, OntimeEntry } from 'ontime-types';
+import { OntimeEntry, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 
 import useRundown from '../../../common/hooks-query/useRundown';
 import { useEventSelection } from '../useEventSelection';

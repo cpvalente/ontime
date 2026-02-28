@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { consoleHighlight, consoleError } from './utils/console.js';
+import { consoleError, consoleHighlight } from './utils/console.js';
 import { initAssets, startIntegrations, startServer } from './app.js';
 
 async function startOntime() {

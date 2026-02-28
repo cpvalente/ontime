@@ -1,10 +1,10 @@
 import { PropsWithChildren } from 'react';
 import {
-  closestCorners,
   DndContext,
   DragEndEvent,
   PointerSensor,
   TouchSensor,
+  closestCorners,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { randomUUID } from 'crypto';
 
 import { readFile, unlink } from 'fs/promises';

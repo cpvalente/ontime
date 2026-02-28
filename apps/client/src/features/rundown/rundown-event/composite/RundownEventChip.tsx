@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { IoCheckmarkCircle } from 'react-icons/io5';
-import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString } from 'ontime-utils';
+import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND, isPlaybackActive, millisToString } from 'ontime-utils';
 
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { usePlayback } from '../../../../common/hooks/useSocket';

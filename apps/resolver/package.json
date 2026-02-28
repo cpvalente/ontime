@@ -7,23 +7,27 @@
   "main": "./dist/main.js",
   "description": "shared typings for ontime",
   "scripts": {
-    "lint": "eslint . --quiet",
+    "lint": "oxlint --quiet --type-aware",
     "typecheck": "tsc --noEmit",
     "prebuild": "pnpm rimraf ./dist",
     "build": "tsup && pnpm rimraf ./dist/index.js",
     "postbuild": "pnpm rimraf ./dist/index.d.ts"
   },
-  "keywords": ["ontime", "resolver", "parser"],
+  "keywords": [
+    "ontime",
+    "resolver",
+    "parser"
+  ],
   "author": "",
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@sprout2000/esbuild-copy-plugin": "^1.1.19",
-    "@typescript-eslint/parser": "catalog:",
-    "eslint": "catalog:",
-    "tsup": "^8.5.0",
+    "ontime-types": "workspace:^4.2.1",
     "rimraf": "catalog:",
-    "typescript": "catalog:",
-    "ontime-types": "workspace:^4.2.1"
+    "tsup": "^8.5.0",
+    "typescript": "catalog:"
   },
-  "files": ["dist"]
+  "files": [
+    "dist"
+  ]
 }

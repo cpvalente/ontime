@@ -24,7 +24,9 @@ export default function NavigationMenuItem({
       role='button'
       onClick={onClick}
       onKeyDown={(event) => {
-        isKeyEnter(event) && onClick();
+        if (isKeyEnter(event)) {
+          onClick();
+        }
       }}
     >
       {children}

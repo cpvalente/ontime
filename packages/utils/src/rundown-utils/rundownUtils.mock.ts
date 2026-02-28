@@ -1,5 +1,5 @@
 import type { DatabaseModel } from 'ontime-types';
-import { EndAction, OntimeView, SupportedEntry, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, OntimeView, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
 
 export const demoDb: DatabaseModel = {
   rundowns: {

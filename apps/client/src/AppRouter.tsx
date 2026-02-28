@@ -1,4 +1,4 @@
-import { ComponentType, lazy, Suspense, useEffect, useMemo } from 'react';
+import { ComponentType, Suspense, lazy, useEffect, useMemo } from 'react';
 import { Navigate, Route, useLocation, useNavigate, useParams } from 'react-router';
 import { OntimeView, OntimeViewPresettable, URLPreset } from 'ontime-types';
 

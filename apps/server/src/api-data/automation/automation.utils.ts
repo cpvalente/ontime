@@ -1,15 +1,15 @@
 import {
   EntryId,
   FilterRule,
-  isOntimeEvent,
   MaybeNumber,
   OntimeAction,
-  ontimeActionKeyValues,
   ProjectRundowns,
   RundownEntries,
+  isOntimeEvent,
+  ontimeActionKeyValues,
 } from 'ontime-types';
-import { millisToString, removeLeadingZero, splitWhitespace, getPropertyFromPath } from 'ontime-utils';
-import type { OscArgOrArrayInput, OscArgInput } from 'osc-min';
+import { getPropertyFromPath, millisToString, removeLeadingZero, splitWhitespace } from 'ontime-utils';
+import type { OscArgInput, OscArgOrArrayInput } from 'osc-min';
 
 type FilterOperator = 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains';
 

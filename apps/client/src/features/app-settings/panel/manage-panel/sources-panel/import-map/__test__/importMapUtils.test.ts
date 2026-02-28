@@ -1,6 +1,6 @@
 import { ImportCustom } from 'ontime-utils';
 
-import { convertToImportMap, NamedImportMap } from '../importMapUtils';
+import { NamedImportMap, convertToImportMap } from '../importMapUtils';
 
 describe('convertToImportMap', () => {
   it('converts a namedImportMap to a importMap', () => {

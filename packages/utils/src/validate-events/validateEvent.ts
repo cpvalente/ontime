@@ -1,4 +1,4 @@
-import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, TimeStrategy, TimerType } from 'ontime-types';
 
 /**
  * Check if a given value is a valid time strategy, returns the fallback otherwise

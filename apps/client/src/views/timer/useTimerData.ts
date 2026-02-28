@@ -6,7 +6,7 @@ import useRundown from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
-import { aggregateQueryStatus, ViewData } from '../utils/viewLoader.utils';
+import { ViewData, aggregateQueryStatus } from '../utils/viewLoader.utils';
 
 export interface TimerData {
   customFields: CustomFields;

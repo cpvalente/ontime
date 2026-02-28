@@ -15,14 +15,12 @@
   "devDependencies": {
     "electron": "38.2.1",
     "electron-builder": "26.0.18",
-    "eslint": "catalog:",
-    "eslint-config-prettier": "catalog:",
     "prettier": "catalog:",
     "wait-on": "^7.2.0"
   },
   "scripts": {
     "dev:electron": "wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .",
-    "lint": "eslint . --quiet",
+    "lint": "oxlint --quiet --type-aware",
     "dist-win": "electron-builder --publish=never --x64 --win",
     "dist-mac": "electron-builder --publish=never --mac",
     "dist-linux": "electron-builder --publish=never --linux"
@@ -69,12 +67,12 @@
     },
     "linux": {
       "target": {
-          "target": "AppImage",
-          "arch": [
-            "x64",
-            "arm64",
-            "armv7l"
-          ]
+        "target": "AppImage",
+        "arch": [
+          "x64",
+          "arm64",
+          "armv7l"
+        ]
       },
       "artifactName": "ontime-linux-${arch}.AppImage"
     },

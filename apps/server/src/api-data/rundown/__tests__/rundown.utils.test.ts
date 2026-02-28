@@ -1,5 +1,5 @@
-import { TimeStrategy, EndAction, TimerType, OntimeEvent } from 'ontime-types';
-import { createEvent, MILLIS_PER_HOUR } from 'ontime-utils';
+import { EndAction, OntimeEvent, TimeStrategy, TimerType } from 'ontime-types';
+import { MILLIS_PER_HOUR, createEvent } from 'ontime-utils';
 
 import { assertType } from 'vitest';
 
@@ -13,7 +13,7 @@ import {
   hasChanges,
   makeDeepClone,
 } from '../rundown.utils.js';
-import { makeOntimeGroup, makeOntimeEvent, makeRundown } from '../__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../__mocks__/rundown.mocks.js';
 
 describe('test event validator', () => {
   it('validates a good object', () => {

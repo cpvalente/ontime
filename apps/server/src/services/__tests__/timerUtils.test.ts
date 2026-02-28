@@ -1,4 +1,4 @@
-import { dayInMs, MILLIS_PER_HOUR, millisToString } from 'ontime-utils';
+import { MILLIS_PER_HOUR, dayInMs, millisToString } from 'ontime-utils';
 import { EndAction, Playback, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 
 import {

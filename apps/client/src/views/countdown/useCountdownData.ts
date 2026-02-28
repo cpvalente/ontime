@@ -6,7 +6,7 @@ import { useFlatRundownWithMetadata } from '../../common/hooks-query/useRundown'
 import useSettings from '../../common/hooks-query/useSettings';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
-import { aggregateQueryStatus, ViewData } from '../utils/viewLoader.utils';
+import { ViewData, aggregateQueryStatus } from '../utils/viewLoader.utils';
 
 export interface CountdownData {
   customFields: CustomFields;

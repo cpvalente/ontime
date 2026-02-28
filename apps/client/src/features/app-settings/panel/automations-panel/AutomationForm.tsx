@@ -5,11 +5,11 @@ import {
   Automation,
   AutomationDTO,
   HTTPOutput,
-  isHTTPOutput,
-  isOntimeAction,
-  isOSCOutput,
-  OntimeAction,
   OSCOutput,
+  OntimeAction,
+  isHTTPOutput,
+  isOSCOutput,
+  isOntimeAction,
 } from 'ontime-types';
 
 import { addAutomation, editAutomation, testOutput } from '../../../../common/api/automation';

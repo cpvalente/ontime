@@ -1,5 +1,5 @@
-import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
-import { validateEndAction, validateTimerType, validateTimeStrategy } from 'ontime-utils';
+import { EndAction, TimeStrategy, TimerType } from 'ontime-types';
+import { validateEndAction, validateTimeStrategy, validateTimerType } from 'ontime-utils';
 import { create } from 'zustand';
 
 import { booleanFromLocalStorage } from '../utils/localStorage';

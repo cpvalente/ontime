@@ -1,6 +1,6 @@
 import { PlayableEvent, Playback, TimerPhase } from 'ontime-types';
 
-import { makeOntimeGroup, makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
 
 import {

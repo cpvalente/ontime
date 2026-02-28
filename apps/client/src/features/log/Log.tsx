@@ -41,12 +41,12 @@ export default function Log() {
   const filteredData = logData.filter((entry) => matchers.some((match) => entry.origin === match));
 
   const disableOthers = useCallback((toEnable: LogOrigin) => {
-    toEnable === LogOrigin.User ? setShowUser(true) : setShowUser(false);
-    toEnable === LogOrigin.Client ? setShowClient(true) : setShowClient(false);
-    toEnable === LogOrigin.Server ? setShowServer(true) : setShowServer(false);
-    toEnable === LogOrigin.Rx ? setShowRx(true) : setShowRx(false);
-    toEnable === LogOrigin.Tx ? setShowTx(true) : setShowTx(false);
-    toEnable === LogOrigin.Playback ? setShowPlayback(true) : setShowPlayback(false);
+    setShowUser(toEnable === LogOrigin.User);
+    setShowClient(toEnable === LogOrigin.Client);
+    setShowServer(toEnable === LogOrigin.Server);
+    setShowRx(toEnable === LogOrigin.Rx);
+    setShowTx(toEnable === LogOrigin.Tx);
+    setShowPlayback(toEnable === LogOrigin.Playback);
   }, []);
 
   return (

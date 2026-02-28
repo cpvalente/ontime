@@ -1,13 +1,13 @@
 import {
-  ProjectData,
-  ViewSettings,
-  DatabaseModel,
-  Settings,
-  CustomFields,
-  URLPreset,
   AutomationSettings,
-  Rundown,
+  CustomFields,
+  DatabaseModel,
+  ProjectData,
   ProjectRundowns,
+  Rundown,
+  Settings,
+  URLPreset,
+  ViewSettings,
 } from 'ontime-types';
 
 import type { Low } from 'lowdb';

@@ -7,9 +7,9 @@ import {
   Rundown,
   Settings,
   SupportedEntry,
+  TimeStrategy,
   TimerLifeCycle,
   TimerType,
-  TimeStrategy,
   URLPreset,
   ViewSettings,
 } from 'ontime-types';

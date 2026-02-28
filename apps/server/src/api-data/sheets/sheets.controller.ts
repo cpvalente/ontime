@@ -12,13 +12,13 @@ import { readFileSync } from 'fs';
 import { deleteFile } from '../../utils/fileManagement.js';
 
 import {
-  revoke,
+  download,
+  getWorksheetOptions,
   handleClientSecret,
   handleInitialConnection,
   hasAuth,
-  download,
+  revoke,
   upload,
-  getWorksheetOptions,
 } from './sheets.service.js';
 
 export async function requestConnection(
