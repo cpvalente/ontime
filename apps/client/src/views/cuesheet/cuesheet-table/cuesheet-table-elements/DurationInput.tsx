@@ -1,4 +1,4 @@
-import { memo, PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
+import { PropsWithChildren, memo, useCallback, useEffect, useRef, useState } from 'react';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import SingleLineCell from './SingleLineCell';

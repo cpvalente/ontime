@@ -1,14 +1,14 @@
 import {
   CustomFields,
-  Rundown,
+  EntryCustomFields,
+  OntimeEntry,
   OntimeEvent,
   OntimeGroup,
-  EntryCustomFields,
-  SupportedEntry,
-  isOntimeGroup,
-  TimerType,
   OntimeMilestone,
-  OntimeEntry,
+  Rundown,
+  SupportedEntry,
+  TimerType,
+  isOntimeGroup,
   isOntimeMilestone,
 } from 'ontime-types';
 import {
@@ -16,16 +16,16 @@ import {
   defaultImportMap,
   generateId,
   isKnownTimerType,
-  validateTimerType,
-  validateEndAction,
   makeString,
+  validateEndAction,
+  validateTimerType,
 } from 'ontime-utils';
 
 import { Prettify } from 'ts-essentials';
 
 import { is } from '../../utils/is.js';
 import { parseExcelDate } from '../../utils/time.js';
-import { generateImportHandlers, getCustomFieldData, parseBooleanString, SheetMetadata } from './excel.utils.js';
+import { SheetMetadata, generateImportHandlers, getCustomFieldData, parseBooleanString } from './excel.utils.js';
 
 type MergedOntimeEntry = Prettify<
   Omit<Omit<Omit<OntimeEvent, keyof OntimeGroup> & OntimeGroup, keyof OntimeMilestone> & OntimeMilestone, 'type'> & {

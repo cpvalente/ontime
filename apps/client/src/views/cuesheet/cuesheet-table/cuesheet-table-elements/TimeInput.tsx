@@ -1,4 +1,4 @@
-import { memo, PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
+import { PropsWithChildren, memo, useCallback, useEffect, useRef, useState } from 'react';
 import { parseUserTime } from 'ontime-utils';
 
 import { formatTime } from '../../../../common/utils/time';

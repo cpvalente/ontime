@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { IoInformationCircle } from 'react-icons/io5';
-import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, TimeStrategy, TimerType } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';

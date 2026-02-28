@@ -1,5 +1,5 @@
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { EntryId, isOntimeEvent, isOntimeGroup, isOntimeMilestone, MaybeString, SupportedEntry } from 'ontime-types';
+import { EntryId, MaybeString, SupportedEntry, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 
 import { useFlatRundown } from '../../../common/hooks-query/useRundown';
 import { useSelectAndRevealEntry } from '../../../features/rundown/useSelectAndRevealEntry';

@@ -1,5 +1,5 @@
 import { Day, MaybeNumber, TimeOfDay, TimerPhase } from 'ontime-types';
-import { checkIsNow, dayInMs, isPlaybackActive, MILLIS_PER_HOUR } from 'ontime-utils';
+import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
 import type { RuntimeState } from '../stores/runtimeState.js';
 

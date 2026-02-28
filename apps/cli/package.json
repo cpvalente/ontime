@@ -18,10 +18,5 @@
         "client",
         "external",
         "server"
-    ],
-    "devDependencies": {
-        "eslint": "catalog:",
-        "eslint-config-prettier": "catalog:",
-        "prettier": "catalog:"
-    }
+    ]
 }

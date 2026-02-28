@@ -1,11 +1,11 @@
-import express, { type Request, type Response, type NextFunction } from 'express';
+import express, { type NextFunction, type Request, type Response } from 'express';
 import type { IncomingMessage } from 'node:http';
 import type { WebSocket } from 'ws';
 import { parse as parseCookie } from 'cookie';
 
 import { hashPassword } from '../utils/hash.js';
 import { srcFiles } from '../setup/index.js';
-import { hashedPassword, hasPassword } from '../api-data/session/session.service.js';
+import { hasPassword, hashedPassword } from '../api-data/session/session.service.js';
 
 import { noopMiddleware } from './noop.js';
 

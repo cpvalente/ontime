@@ -1,11 +1,11 @@
-import type { Day, OntimeDelay, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ontime-types';
-import { EndAction, SupportedEntry, TimerType, TimeStrategy } from 'ontime-types';
+import type { Day, OntimeDelay, OntimeEvent, OntimeGroup, OntimeMilestone } from "ontime-types";
+import { EndAction, SupportedEntry, TimeStrategy, TimerType } from "ontime-types";
 
-export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
+export const event: Omit<OntimeEvent, "id" | "cue"> = {
   type: SupportedEntry.Event,
   flag: false,
-  title: '',
-  note: '',
+  title: "",
+  note: "",
   endAction: EndAction.None,
   timerType: TimerType.CountDown,
   timeStrategy: TimeStrategy.LockDuration,
@@ -15,7 +15,7 @@ export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   timeEnd: 0,
   duration: 0,
   skip: false,
-  colour: '',
+  colour: "",
   timeWarning: 120000,
   timeDanger: 60000,
   triggers: [],
@@ -28,31 +28,31 @@ export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   gap: 0, // calculated at runtime
 };
 
-export const delay: Omit<OntimeDelay, 'id'> = {
+export const delay: Omit<OntimeDelay, "id"> = {
   type: SupportedEntry.Delay,
   duration: 0,
   parent: null,
 };
 
-export const milestone: Omit<OntimeMilestone, 'id'> = {
+export const milestone: Omit<OntimeMilestone, "id"> = {
   type: SupportedEntry.Milestone,
-  cue: '',
-  title: '',
-  note: '',
-  colour: '',
+  cue: "",
+  title: "",
+  note: "",
+  colour: "",
   custom: {},
   parent: null,
   // !==== RUNTIME METADATA ====! //
   revision: 0, // calculated at runtime
 };
 
-export const group: Omit<OntimeGroup, 'id'> = {
+export const group: Omit<OntimeGroup, "id"> = {
   type: SupportedEntry.Group,
-  title: '',
-  note: '',
+  title: "",
+  note: "",
   entries: [],
   targetDuration: null,
-  colour: '',
+  colour: "",
   custom: {},
   // !==== RUNTIME METADATA ====! //
   revision: 0, // calculated at runtime

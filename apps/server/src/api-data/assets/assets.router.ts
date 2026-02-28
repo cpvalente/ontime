@@ -1,6 +1,6 @@
 import express from 'express';
 import type { Request, Response } from 'express';
-import { RefetchKey, type ErrorResponse } from 'ontime-types';
+import { type ErrorResponse, RefetchKey } from 'ontime-types';
 import { validatePostCss, validatePostTranslation } from './assets.validation.js';
 import { readCssFile, writeCssFile, writeUserTranslation } from './assets.service.js';
 import { getErrorMessage } from 'ontime-utils';

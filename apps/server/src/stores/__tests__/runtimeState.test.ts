@@ -1,7 +1,7 @@
 import { Instant, PlayableEvent, Playback, SupportedEntry, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
-import { makeOntimeGroup, makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
 
 import {

@@ -1,6 +1,6 @@
 import { CSSProperties, useMemo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
-import { flexRender, Table } from '@tanstack/react-table';
+import { Table, flexRender } from '@tanstack/react-table';
 import { EntryId, OntimeEntry, RGBColour, SupportedEntry } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 

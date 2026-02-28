@@ -1,19 +1,19 @@
 import {
-  isHTTPOutput,
-  isOntimeAction,
-  isOSCOutput,
-  LogOrigin,
-  RuntimeStore,
-  TimerLifeCycle,
   type AutomationFilter,
   type AutomationOutput,
   type FilterRule,
+  LogOrigin,
+  RuntimeStore,
+  TimerLifeCycle,
+  isHTTPOutput,
+  isOSCOutput,
+  isOntimeAction,
 } from 'ontime-types';
 import { getPropertyFromPath } from 'ontime-utils';
 
 import { emitOSC } from './clients/osc.client.js';
 import { emitHTTP } from './clients/http.client.js';
-import { getAutomationsEnabled, getAutomations, getAutomationTriggers } from './automation.dao.js';
+import { getAutomationTriggers, getAutomations, getAutomationsEnabled } from './automation.dao.js';
 import { isContained, isEquivalent, isGreaterThan, isLessThan } from './automation.utils.js';
 import { toOntimeAction } from './clients/ontime.client.js';
 

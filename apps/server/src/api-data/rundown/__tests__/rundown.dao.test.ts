@@ -1,21 +1,21 @@
 import {
   CustomFields,
-  OntimeGroup,
   OntimeDelay,
   OntimeEvent,
+  OntimeGroup,
+  OntimeMilestone,
   SupportedEntry,
   TimeStrategy,
-  OntimeMilestone,
 } from 'ontime-types';
-import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
 import {
-  makeOntimeEvent,
-  makeRundown,
-  makeOntimeGroup,
-  makeOntimeDelay,
   makeCustomField,
+  makeOntimeDelay,
+  makeOntimeEvent,
+  makeOntimeGroup,
   makeOntimeMilestone,
+  makeRundown,
 } from '../__mocks__/rundown.mocks.js';
 
 import {

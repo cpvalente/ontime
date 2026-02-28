@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { isOntimeEvent, isOntimeGroup, OntimeView } from 'ontime-types';
+import { OntimeView, isOntimeEvent, isOntimeGroup } from 'ontime-types';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';

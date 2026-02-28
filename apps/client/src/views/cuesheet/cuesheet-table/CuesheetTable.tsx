@@ -8,8 +8,8 @@ import {
   TableVirtuosoHandle,
 } from 'react-virtuoso';
 import { useTableNav } from '@table-nav/react';
-import { ColumnDef, getCoreRowModel, Table, useReactTable } from '@tanstack/react-table';
-import { isOntimeDelay, isOntimeGroup, isOntimeMilestone, OntimeEntry, TimeField } from 'ontime-types';
+import { ColumnDef, Table, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { OntimeEntry, TimeField, isOntimeDelay, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 
 import EmptyPage from '../../../common/components/state/EmptyPage';
 import EmptyTableBody from '../../../common/components/state/EmptyTableBody';

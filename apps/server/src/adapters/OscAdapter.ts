@@ -1,6 +1,6 @@
 import { LogOrigin } from 'ontime-types';
 
-import { fromBuffer, type OscPacketOutput } from 'osc-min';
+import { type OscPacketOutput, fromBuffer } from 'osc-min';
 import * as dgram from 'node:dgram';
 
 import { logger } from '../classes/Logger.js';

@@ -18,7 +18,7 @@ import { validateMessage, validateTimerMessage } from '../services/message-servi
 import { runtimeService } from '../services/runtime-service/runtime.service.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
-import { parseProperty, isValidChangeProperty } from './integration.utils.js';
+import { isValidChangeProperty, parseProperty } from './integration.utils.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { coerceEnum } from '../utils/coerceType.js';
 import { editEntry } from '../api-data/rundown/rundown.service.js';

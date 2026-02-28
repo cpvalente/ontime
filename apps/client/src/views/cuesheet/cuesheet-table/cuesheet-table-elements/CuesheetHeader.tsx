@@ -1,6 +1,6 @@
 import { CSSProperties } from 'react';
-import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
-import { flexRender, HeaderGroup } from '@tanstack/react-table';
+import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { HeaderGroup, flexRender } from '@tanstack/react-table';
 
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';

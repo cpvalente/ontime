@@ -1,10 +1,10 @@
 import { MaybeNumber, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
 import {
-  formatFromMillis,
-  getExpectedStart,
   MILLIS_PER_HOUR,
   MILLIS_PER_MINUTE,
   MILLIS_PER_SECOND,
+  formatFromMillis,
+  getExpectedStart,
 } from 'ontime-utils';
 
 import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';

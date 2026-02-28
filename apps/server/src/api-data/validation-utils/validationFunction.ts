@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { param, validationResult } from 'express-validator';
 
 export const paramsWithId = [param('id').isString().trim().notEmpty(), requestValidationFunction];

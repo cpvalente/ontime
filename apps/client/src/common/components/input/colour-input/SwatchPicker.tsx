@@ -1,4 +1,4 @@
-import { useController, UseControllerProps } from 'react-hook-form';
+import { UseControllerProps, useController } from 'react-hook-form';
 import { IoEyedrop } from 'react-icons/io5';
 import { useDebouncedCallback } from '@mantine/hooks';
 import { ViewSettings } from 'ontime-types';

@@ -3,7 +3,7 @@ import { TranslationObject } from 'ontime-types';
 
 import { ontimeQueryClient } from '../../common/queryClient';
 
-import { apiEntryUrl, customTranslationsURL, TRANSLATION } from './constants';
+import { TRANSLATION, apiEntryUrl, customTranslationsURL } from './constants';
 import type { RequestOptions } from './requestOptions';
 
 const assetsPath = `${apiEntryUrl}/assets`;

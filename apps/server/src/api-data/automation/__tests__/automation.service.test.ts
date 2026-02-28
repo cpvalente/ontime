@@ -2,12 +2,12 @@ import { PlayableEvent, TimerLifeCycle } from 'ontime-types';
 
 import { makeRuntimeStoreData } from '../../../stores/__mocks__/runtimeStore.mocks.js';
 
-import { deleteAllTriggers, addTrigger, addAutomation } from '../automation.dao.js';
+import { addAutomation, addTrigger, deleteAllTriggers } from '../automation.dao.js';
 import { testConditions, triggerAutomations } from '../automation.service.js';
 import * as oscClient from '../clients/osc.client.js';
 import * as httpClient from '../clients/http.client.js';
 
-import { makeOSCAction, makeHTTPAction } from './testUtils.js';
+import { makeHTTPAction, makeOSCAction } from './testUtils.js';
 import { RuntimeState } from '../../../stores/runtimeState.js';
 import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
 

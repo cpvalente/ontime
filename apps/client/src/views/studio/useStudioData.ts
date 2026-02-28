@@ -5,7 +5,7 @@ import useProjectData from '../../common/hooks-query/useProjectData';
 import useSettings from '../../common/hooks-query/useSettings';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
-import { aggregateQueryStatus, ViewData } from '../utils/viewLoader.utils';
+import { ViewData, aggregateQueryStatus } from '../utils/viewLoader.utils';
 
 export interface StudioData {
   customFields: CustomFields;

@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useCallback, useMemo, useRef } from 'react';
 import { DragEndEvent, DragOverEvent, DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { type EntryId, type Rundown, isOntimeGroup, SupportedEntry } from 'ontime-types';
+import { type EntryId, type Rundown, SupportedEntry, isOntimeGroup } from 'ontime-types';
 import { reorderArray } from 'ontime-utils';
 
 import type { useEntryActions } from '../../../common/hooks/useEntryAction';

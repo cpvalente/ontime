@@ -3,8 +3,8 @@ import {
   AutomationFilter,
   AutomationOutput,
   HTTPOutput,
-  OntimeAction,
   OSCOutput,
+  OntimeAction,
   SecondarySource,
   timerLifecycleValues,
 } from 'ontime-types';

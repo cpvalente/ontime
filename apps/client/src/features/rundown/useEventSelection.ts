@@ -1,5 +1,5 @@
 import { MouseEvent } from 'react';
-import { EntryId, isOntimeEvent, MaybeNumber, Rundown } from 'ontime-types';
+import { EntryId, MaybeNumber, Rundown, isOntimeEvent } from 'ontime-types';
 import { create } from 'zustand';
 
 import { RUNDOWN } from '../../common/api/constants';

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
-import { checkRegex, ImportMap } from 'ontime-utils';
+import { ImportMap, checkRegex } from 'ontime-utils';
 
 import Button from '../../../../../../common/components/buttons/Button';
 import IconButton from '../../../../../../common/components/buttons/IconButton';
@@ -13,7 +13,7 @@ import * as Panel from '../../../../panel-utils/PanelUtils';
 import useGoogleSheet from '../useGoogleSheet';
 import { useSheetStore } from '../useSheetStore';
 
-import { convertToImportMap, getPersistedOptions, NamedImportMap, persistImportMap } from './importMapUtils';
+import { NamedImportMap, convertToImportMap, getPersistedOptions, persistImportMap } from './importMapUtils';
 
 import style from '../SourcesPanel.module.scss';
 

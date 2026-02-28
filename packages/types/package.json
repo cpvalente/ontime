@@ -7,7 +7,7 @@
   "private": true,
   "description": "shared typings for ontime",
   "scripts": {
-    "lint": "eslint . --quiet",
+    "lint": "oxlint --quiet --type-aware",
     "typecheck": "tsc --noEmit",
     "build": "tsc"
   },
@@ -15,9 +15,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "catalog:",
-    "@typescript-eslint/parser": "catalog:",
-    "eslint": "catalog:",
     "typescript": "catalog:",
     "ts-essentials": "catalog:"
   }

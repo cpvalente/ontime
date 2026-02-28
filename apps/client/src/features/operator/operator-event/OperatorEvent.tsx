@@ -1,4 +1,4 @@
-import { CSSProperties, memo, RefObject, SyntheticEvent } from 'react';
+import { CSSProperties, RefObject, SyntheticEvent, memo } from 'react';
 import { Day } from 'ontime-types';
 import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 

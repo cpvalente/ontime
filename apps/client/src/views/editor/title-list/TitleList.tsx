@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { isOntimeEvent, OntimeEvent } from 'ontime-types';
+import { OntimeEvent, isOntimeEvent } from 'ontime-types';
 
 import ScrollArea from '../../../common/components/scroll-area/ScrollArea';
 import { useSelectedEventId } from '../../../common/hooks/useSocket';
