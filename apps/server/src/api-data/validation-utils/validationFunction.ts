@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import { param, validationResult } from 'express-validator';
 
 export const paramsWithId = [param('id').isString().trim().notEmpty(), requestValidationFunction];
+type RequestWithFile = Request & { file?: unknown };
 
 // #region operations on project rundowns =========================
 
@@ -27,8 +28,9 @@ export function requestValidationFunctionWithFile(req: Request, res: Response, n
     res.status(422).json({ errors: errors.array() });
     return;
   }
+  const request = req as RequestWithFile;
   // check that the file exists
-  if (!req.file) {
+  if (!request.file) {
     res.status(422).json({ errors: 'File not found' });
     return;
   }

@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.common.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "node16",
+    "moduleResolution": "node16",
+    "noImplicitReturns": false, //TODO: fix this
+    "allowJs": true,
+    "esModuleInterop": true,
+    "types": ["node"],
+    "outDir": "dist",
+    "experimentalDecorators": true,
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.js",
+  ],
+  "exclude": [
+    "src/**/__tests__/**",
+    "src/**/__test__/**",
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
+  ],
+}

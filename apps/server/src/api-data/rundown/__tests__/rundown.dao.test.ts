@@ -1,4 +1,5 @@
 import {
+  type Day,
   CustomFields,
   OntimeDelay,
   OntimeEvent,
@@ -1344,7 +1345,7 @@ describe('rundownMutation.applyDelay()', () => {
         '1': makeOntimeEvent({
           id: '1',
           gap: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           timeStart: 46800000, // 13:00:00
           timeEnd: 50400000, // 14:00:00
           duration: MILLIS_PER_HOUR,
@@ -1353,7 +1354,7 @@ describe('rundownMutation.applyDelay()', () => {
         '2': makeOntimeEvent({
           id: '2',
           gap: 1 * MILLIS_PER_HOUR,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           timeStart: 54000000, // 15:00:00
           timeEnd: 57600000, // 16:00:00
           duration: MILLIS_PER_HOUR,

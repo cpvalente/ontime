@@ -1,21 +1,24 @@
 {
-  "extends": "../../tsconfig.tests.json",
+  "extends": "../../tsconfig.common.json",
   "compilerOptions": {
     "target": "esnext",
-    "module": "preserve",
+    "module": "esnext",
     "moduleResolution": "bundler",
     "allowUnusedLabels": false,
     "removeComments": true,
     "preserveConstEnums": true,
-    "allowJs": true,
-    "declaration": true,
-    "outDir": "dist",
-    "sourceMap": true,
-    "baseUrl": "src",
-    "composite": true
+    "allowJs": true
   },
   "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "src/**/__tests__/**",
+    "src/**/__test__/**",
     "src/**/*.test.ts",
+    "src/**/*.test.tsx",
     "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
   ]
 }

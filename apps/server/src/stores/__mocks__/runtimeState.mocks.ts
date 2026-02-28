@@ -53,6 +53,6 @@ const baseState: RuntimeState = {
   _startEpoch: null,
 };
 
-export function makeRuntimeStateData(patch?: Partial<RuntimeState>): RuntimeState {
-  return deepmerge(baseState, patch) as RuntimeState;
+export function makeRuntimeStateData(patch?: Partial<RuntimeState> | Record<string, unknown>): RuntimeState {
+  return deepmerge(baseState, (patch ?? {}) as Partial<RuntimeState>) as RuntimeState;
 }
