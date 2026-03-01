@@ -1,12 +1,11 @@
-import { memo } from 'react';
 import { sanitiseCue } from 'ontime-utils';
+import { memo } from 'react';
 
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
 import Input from '../../../../common/components/input/input/Input';
 import Switch from '../../../../common/components/switch/Switch';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
-
 import EventTextArea from './EventTextArea';
 import EntryEditorTextInput from './EventTextInput';
 

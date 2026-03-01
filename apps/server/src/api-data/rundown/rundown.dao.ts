@@ -15,22 +15,22 @@ import {
   CustomFieldKey,
   CustomFields,
   EntryId,
-  isOntimeGroup,
-  isOntimeEvent,
-  isPlayableEvent,
-  OntimeGroup,
+  InsertOptions,
   OntimeDelay,
   OntimeEntry,
   OntimeEvent,
+  OntimeGroup,
   PatchWithId,
   Rundown,
-  InsertOptions,
+  isOntimeEvent,
+  isOntimeGroup,
+  isPlayableEvent,
 } from 'ontime-types';
-import { addToRundown, customFieldLabelToKey, getInsertAfterId, insertAtIndex, createGroup } from 'ontime-utils';
+import { addToRundown, createGroup, customFieldLabelToKey, getInsertAfterId, insertAtIndex } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { consoleError } from '../../utils/console.js';
-
+import { ProcessedRundownMetadata, makeRundownMetadata } from './rundown.parser.js';
 import type { RundownMetadata } from './rundown.types.js';
 import {
   applyPatchToEntry,
@@ -40,7 +40,6 @@ import {
   getUniqueId,
   makeDeepClone,
 } from './rundown.utils.js';
-import { makeRundownMetadata, ProcessedRundownMetadata } from './rundown.parser.js';
 
 /**
  * The currently loaded rundown in cache

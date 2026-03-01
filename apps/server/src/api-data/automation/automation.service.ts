@@ -1,24 +1,23 @@
 import {
-  isHTTPOutput,
-  isOntimeAction,
-  isOSCOutput,
-  LogOrigin,
-  TimerLifeCycle,
   type AutomationFilter,
   type AutomationOutput,
   type FilterRule,
+  LogOrigin,
+  TimerLifeCycle,
+  isHTTPOutput,
+  isOSCOutput,
+  isOntimeAction,
 } from 'ontime-types';
 import { getPropertyFromPath } from 'ontime-utils';
 
 import { logger } from '../../classes/Logger.js';
-import { getState, type RuntimeState } from '../../stores/runtimeState.js';
 import { isOntimeCloud } from '../../setup/environment.js';
-
-import { emitOSC } from './clients/osc.client.js';
-import { emitHTTP } from './clients/http.client.js';
-import { getAutomationsEnabled, getAutomations, getAutomationTriggers } from './automation.dao.js';
+import { type RuntimeState, getState } from '../../stores/runtimeState.js';
+import { getAutomationTriggers, getAutomations, getAutomationsEnabled } from './automation.dao.js';
 import { isContained, isEquivalent, isGreaterThan, isLessThan } from './automation.utils.js';
+import { emitHTTP } from './clients/http.client.js';
 import { toOntimeAction } from './clients/ontime.client.js';
+import { emitOSC } from './clients/osc.client.js';
 
 /**
  * Exposes a method for triggering actions based on a TimerLifeCycle event

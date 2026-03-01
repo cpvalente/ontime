@@ -1,10 +1,9 @@
 import { CustomFields, OntimeEvent, OntimeGroup, SupportedEntry, TimerType } from 'ontime-types';
 import { ImportMap, MILLIS_PER_MINUTE, millisToString } from 'ontime-utils';
 
-import { parseExcel } from '../excel.parser.js';
-
-import { dataFromExcelTemplate } from './mockData.js';
 import { simpleTemplate } from '../__mocks__/simpleTemplate.js';
+import { parseExcel } from '../excel.parser.js';
+import { dataFromExcelTemplate } from './mockData.js';
 
 describe('parseExcel()', () => {
   it('parses the simple template file', () => {

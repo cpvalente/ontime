@@ -5,7 +5,6 @@ import { useStudioClockSocket } from '../../common/hooks/useSocket';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime } from '../../common/utils/time';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
-
 import { getLargeClockData } from './studioClock.utils';
 
 import './StudioClock.scss';

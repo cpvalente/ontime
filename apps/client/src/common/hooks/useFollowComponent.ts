@@ -1,5 +1,5 @@
-import { RefObject, useCallback, useEffect } from 'react';
 import { MaybeString } from 'ontime-types';
+import { RefObject, useCallback, useEffect } from 'react';
 
 function scrollToComponent<ComponentRef extends HTMLElement, ScrollRef extends HTMLElement>(
   componentRef: RefObject<ComponentRef>,

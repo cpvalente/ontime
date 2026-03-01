@@ -1,7 +1,7 @@
-import { memo } from 'react';
-import { IoAdd } from 'react-icons/io5';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { MaybeString, SupportedEntry } from 'ontime-types';
+import { memo } from 'react';
+import { IoAdd } from 'react-icons/io5';
 
 import Button from '../../../../common/components/buttons/Button';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';

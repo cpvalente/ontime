@@ -1,8 +1,7 @@
+import { deepEqual } from 'fast-equals';
 import {
   EndAction,
   EntryId,
-  isOntimeEvent,
-  isPlayableEvent,
   LogOrigin,
   Offset,
   OffsetMode,
@@ -12,25 +11,24 @@ import {
   TimerLifeCycle,
   TimerPhase,
   TimerState,
+  isOntimeEvent,
+  isPlayableEvent,
 } from 'ontime-types';
 import { millisToString, validatePlayback } from 'ontime-utils';
 
-import { deepEqual } from 'fast-equals';
-
+import { triggerAutomations } from '../../api-data/automation/automation.service.js';
+import { triggerReportEntry } from '../../api-data/report/report.service.js';
+import { getCurrentRundown, getEntryWithId, getRundownMetadata } from '../../api-data/rundown/rundown.dao.js';
+import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 import { logger } from '../../classes/Logger.js';
+import { timerConfig } from '../../setup/config.js';
+import { eventStore } from '../../stores/EventStore.js';
 import * as runtimeState from '../../stores/runtimeState.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
-import { eventStore } from '../../stores/EventStore.js';
-import { triggerReportEntry } from '../../api-data/report/report.service.js';
-import { timerConfig } from '../../setup/config.js';
-import { triggerAutomations } from '../../api-data/automation/automation.service.js';
-import { getCurrentRundown, getEntryWithId, getRundownMetadata } from '../../api-data/rundown/rundown.dao.js';
-
 import { EventTimer } from '../EventTimer.js';
-import type { RestorePoint } from '../restore-service/restore.type.js';
 import { restoreService } from '../restore-service/restore.service.js';
+import type { RestorePoint } from '../restore-service/restore.type.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
-
 import {
   findNextPlayableId,
   findNextPlayableWithCue,
@@ -41,7 +39,6 @@ import {
   getShouldTimerUpdate,
   isNewSecond,
 } from './runtime.utils.js';
-import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 
 /**
  * Service manages runtime status of app

@@ -6,7 +6,6 @@ import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { formatDuration, getExpectedTimesFromExtendedEvent } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 import { getPropertyValue } from '../common/viewUtils';
-
 import TimelineSection from './timeline-section/TimelineSection';
 
 interface TimelineSectionsProps {

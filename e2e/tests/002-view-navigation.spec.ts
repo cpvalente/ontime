@@ -1,4 +1,4 @@
-import { expect, type Page, test } from '@playwright/test';
+import { type Page, expect, test } from '@playwright/test';
 
 test.describe('test view navigation feature', () => {
   test.beforeEach(async ({ page }) => {

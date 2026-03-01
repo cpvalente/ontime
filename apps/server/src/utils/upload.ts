@@ -1,11 +1,11 @@
-import multer from 'multer';
-import path from 'path';
 import fs from 'fs';
 import { rm } from 'fs/promises';
+import path from 'path';
+
+import multer from 'multer';
 import sanitize from 'sanitize-filename';
 
 import { getAppDataPath, publicDir } from '../setup/index.js';
-
 import { ensureDirectory } from './fileManagement.js';
 
 function generateNewFileName(filePath: string, callback: (newName: string) => void) {

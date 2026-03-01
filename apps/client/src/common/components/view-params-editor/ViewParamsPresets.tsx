@@ -1,5 +1,5 @@
-import { useSearchParams } from 'react-router';
 import { OntimeView, URLPreset } from 'ontime-types';
+import { useSearchParams } from 'react-router';
 
 import { useViewUrlPresets } from '../../hooks-query/useUrlPresets';
 import { cx } from '../../utils/styleUtils';

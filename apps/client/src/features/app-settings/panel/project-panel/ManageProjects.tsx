@@ -7,7 +7,6 @@ import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/uti
 import Button from '../../../../common/components/buttons/Button';
 import { validateProjectFile } from '../../../../common/utils/uploadUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import ProjectCreateForm from './ProjectCreateForm';
 import ProjectList from './ProjectList';
 

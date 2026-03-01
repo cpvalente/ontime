@@ -8,7 +8,6 @@ import CopyTag from '../../../../../common/components/copy-tag/CopyTag';
 import Input from '../../../../../common/components/input/input/Input';
 import { openLink } from '../../../../../common/utils/linkUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
-
 import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 

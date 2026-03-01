@@ -1,13 +1,12 @@
+import { NormalisedAutomation, Trigger } from 'ontime-types';
 import { Fragment, useMemo, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { NormalisedAutomation, Trigger } from 'ontime-types';
 
 import { deleteTrigger } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import { checkDuplicates } from './automationUtils';
 import AutomationForm from './TriggerForm';
 import TriggersListItem from './TriggersListItem';

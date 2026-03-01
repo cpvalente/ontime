@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
 import { OntimeMilestone } from 'ontime-types';
+import { useCallback } from 'react';
 
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../common/components/input/colour-input/SwatchSelect';
@@ -7,7 +7,6 @@ import Input from '../../../common/components/input/input/Input';
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
-
 import EntryEditorCustomFields from './composite/EventEditorCustomFields';
 import EventTextArea from './composite/EventTextArea';
 import EntryEditorTextInput from './composite/EventTextInput';

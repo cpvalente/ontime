@@ -1,14 +1,13 @@
+import type { sheets_v4 } from '@googleapis/sheets';
 import {
   OntimeEntry,
+  OntimeEntryCommonKeys,
   RGBColour,
   isOntimeDelay,
-  OntimeEntryCommonKeys,
   isOntimeGroup,
   isOntimeMilestone,
 } from 'ontime-types';
 import { cssOrHexToColour, isLightColour, millisToString, mixColours } from 'ontime-utils';
-
-import type { sheets_v4 } from '@googleapis/sheets';
 
 import { is } from '../../utils/is.js';
 
@@ -104,6 +103,7 @@ export function cellRequestFromEvent(
     const thisCol = e[1].col;
     const diff = thisCol - prevCol;
     if (diff > 1) {
+      // TODO: we need to clarify this logic
       const fillArr = new Array<(typeof rowData)[0]>(1).fill(['blank', { row: e[1].row, col: prevCol + 1 }]);
       rowData.splice(index, 0, ...fillArr);
     }

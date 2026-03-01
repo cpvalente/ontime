@@ -1,7 +1,7 @@
-import { test, expect } from '@playwright/test';
 import { randomUUID } from 'crypto';
-
 import { readFile, unlink } from 'fs/promises';
+
+import { expect, test } from '@playwright/test';
 
 const fileToUpload = 'e2e/tests/fixtures/e2e-test-db.json';
 const fileToDownload = 'e2e/tests/fixtures/tmp/';

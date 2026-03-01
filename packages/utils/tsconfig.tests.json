@@ -3,14 +3,13 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowUnusedLabels": false,
     "removeComments": true,
     "preserveConstEnums": true,
     "allowJs": true,
-    "baseUrl": "src",
     "types": ["vitest/globals"],
-    "composite": true
+    "noEmit": true
   },
   "include": [
     "src/**/*.test.ts",

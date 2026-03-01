@@ -1,6 +1,6 @@
 import { OffsetMode } from 'ontime-types';
 
-import { dayInMs, MILLIS_PER_HOUR } from './conversionUtils';
+import { MILLIS_PER_HOUR, dayInMs } from './conversionUtils';
 import { getExpectedStart } from './getExpectedStart';
 
 describe('getExpectedStart()', () => {

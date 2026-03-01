@@ -1,8 +1,8 @@
-import { memo } from 'react';
 import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { OffsetMode } from 'ontime-types';
+import { memo } from 'react';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { setOffsetMode, useOffsetMode } from '../../../common/hooks/useSocket';
@@ -10,7 +10,6 @@ import { AppMode } from '../../../ontimeConfig';
 import { EditorLayoutMode, useEditorLayout } from '../../../views/editor/useEditorLayout';
 import { RundownViewMode } from '../rundown.options';
 import { useEditorFollowMode } from '../useEditorFollowMode';
-
 import RundownMenu from './RundownMenu';
 
 import style from './RundownHeader.module.scss';

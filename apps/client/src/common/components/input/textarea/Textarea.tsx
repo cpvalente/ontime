@@ -1,4 +1,4 @@
-import { forwardRef, TextareaHTMLAttributes } from 'react';
+import { TextareaHTMLAttributes, forwardRef } from 'react';
 
 import { cx } from '../../../utils/styleUtils';
 

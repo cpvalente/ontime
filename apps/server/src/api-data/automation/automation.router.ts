@@ -1,25 +1,25 @@
 import express from 'express';
 
+import { paramsWithId } from '../validation-utils/validationFunction.js';
 import {
-  deleteTrigger,
   deleteAutomation,
+  deleteTrigger,
   editAutomation,
   getAutomationSettings,
-  postTrigger,
   postAutomation,
-  putTrigger,
   postAutomationSettings,
+  postTrigger,
+  putTrigger,
   testOutput,
 } from './automation.controller.js';
 import {
-  validateAutomationSettings,
   validateAutomation,
   validateAutomationPatch,
+  validateAutomationSettings,
   validateTestPayload,
   validateTrigger,
   validateTriggerPatch,
 } from './automation.validation.js';
-import { paramsWithId } from '../validation-utils/validationFunction.js';
 
 export const router = express.Router();
 

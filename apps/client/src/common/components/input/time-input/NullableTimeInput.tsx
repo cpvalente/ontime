@@ -1,5 +1,5 @@
-import { FocusEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { millisToString, parseUserTime } from 'ontime-utils';
+import { FocusEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 
 import { cx } from '../../../utils/styleUtils';
 import Input from '../input/Input';

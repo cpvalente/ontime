@@ -1,11 +1,10 @@
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
-
-import SourcesPanel from './sources-panel/SourcesPanel';
 import CustomFieldSettings from './CustomFields';
 import ManageRundowns from './ManageRundowns';
 import RundownDefaultSettings from './RundownDefaultSettings';
+import SourcesPanel from './sources-panel/SourcesPanel';
 
 export default function ManagePanel({ location }: PanelBaseProps) {
   const defaultsRef = useScrollIntoView<HTMLDivElement>('defaults', location);

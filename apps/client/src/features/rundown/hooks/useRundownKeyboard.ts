@@ -1,5 +1,5 @@
 import { useHotkeys } from '@mantine/hooks';
-import { type OntimeEntry, EntryId, SupportedEntry } from 'ontime-types';
+import { EntryId, type OntimeEntry, SupportedEntry } from 'ontime-types';
 
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
 import { useEventSelection } from '../useEventSelection';

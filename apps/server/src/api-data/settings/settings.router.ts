@@ -1,16 +1,15 @@
 import express from 'express';
-import { matchedData } from 'express-validator';
 import type { Request, Response } from 'express';
+import { matchedData } from 'express-validator';
 import { deepEqual } from 'fast-equals';
-
 import { ErrorResponse, RefetchKey, Settings } from 'ontime-types';
 import { getErrorMessage, obfuscate } from 'ontime-utils';
 
-import { validateSettings, validateWelcomeDialog } from './settings.validation.js';
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import * as appState from '../../services/app-state-service/AppStateService.js';
 import { isDocker } from '../../setup/environment.js';
-import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { validateSettings, validateWelcomeDialog } from './settings.validation.js';
 
 export const router = express.Router();
 

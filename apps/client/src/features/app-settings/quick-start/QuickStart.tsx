@@ -1,6 +1,6 @@
-import { useForm } from 'react-hook-form';
 import { QuickStartData } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
+import { useForm } from 'react-hook-form';
 
 import { quickProject } from '../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../common/api/utils';
@@ -11,7 +11,6 @@ import Modal from '../../../common/components/modal/Modal';
 import Select from '../../../common/components/select/Select';
 import { editorSettingsDefaults, useEditorSettings } from '../../../common/stores/editorSettings';
 import * as Panel from '../panel-utils/PanelUtils';
-
 import { quickStartDefaults } from './quickStart.utils';
 
 interface QuickStartProps {

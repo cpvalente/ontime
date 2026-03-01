@@ -6,7 +6,6 @@ import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { cx } from '../../../common/utils/styleUtils';
 import { formatTime, getExpectedTimesFromExtendedEvent } from '../../../common/utils/time';
 import SuperscriptPeriod from '../superscript-time/SuperscriptPeriod';
-
 import { useScheduleOptions } from './schedule.options';
 
 import './Schedule.scss';

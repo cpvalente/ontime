@@ -6,7 +6,6 @@ import {
   useExternalMessageInput as useSecondaryMessageInput,
   useTimerMessageInput,
 } from '../../../common/hooks/useSocket';
-
 import InputRow from './InputRow';
 import TimerControlsPreview from './TimerViewControl';
 

@@ -2,14 +2,22 @@ import type { MouseEvent } from 'react';
 
 import { baseURI, serverURL } from '../../externals';
 
+type ElectronWindow = Window & {
+  process?: { type?: string };
+  ipcRenderer?: {
+    send: (channel: string, args?: string | object) => void;
+  };
+};
+
 /**
  * Open an external URLs: specifically for a electron / browser case
  * If electron: ask main process to call a new browser window
  * If browser: open in new tab
  */
 export function openLink(url: string) {
-  if (window.process?.type === 'renderer') {
-    window.ipcRenderer.send('send-to-link', url);
+  const electronWindow = window as ElectronWindow;
+  if (electronWindow.process?.type === 'renderer' && electronWindow.ipcRenderer) {
+    electronWindow.ipcRenderer.send('send-to-link', url);
   } else {
     window.open(url);
   }

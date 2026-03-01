@@ -1,9 +1,8 @@
-import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { millisToString, parseUserTime } from 'ontime-utils';
+import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 
 import Input from '../../../common/components/input/input/Input';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
-
 import BlockRadio from './BlockRadio';
 
 import style from './DelayInput.module.scss';

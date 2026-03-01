@@ -1,13 +1,12 @@
-import { memo, useMemo, useRef } from 'react';
 import { useViewportSize } from '@mantine/hooks';
-import { isOntimeEvent, isPlayableEvent, OntimeEntry, PlayableEvent } from 'ontime-types';
-import { dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
+import { OntimeEntry, PlayableEvent, isOntimeEvent, isPlayableEvent } from 'ontime-types';
+import { MILLIS_PER_HOUR, dayInMs, getLastEvent } from 'ontime-utils';
+import { memo, useMemo, useRef } from 'react';
 
 import useHorizontalFollowComponent from '../../common/hooks/useHorizontalFollowComponent';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 import { getPropertyValue } from '../common/viewUtils';
-
 import TimelineMarkers from './timeline-markers/TimelineMarkers';
 import { useTimelineOptions } from './timeline.options';
 import { calculateTimelineLayout, getEndHour, getStartHour } from './timeline.utils';

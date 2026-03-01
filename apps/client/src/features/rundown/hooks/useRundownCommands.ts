@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
 import { type EntryId, type OntimeEntry, type Rundown, SupportedEntry } from 'ontime-types';
 import { getNextGroupNormal, getNextNormal, getPreviousGroupNormal, getPreviousNormal } from 'ontime-utils';
+import { useCallback } from 'react';
 
 import type { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
@@ -80,9 +80,9 @@ export function useRundownCommands({
       }
 
       clone(entryCopyId, {
-        after: above ? undefined : normalisedAtId ?? undefined,
+        after: above ? undefined : (normalisedAtId ?? undefined),
         // if we don't have a cursor add the new event on top
-        before: above ? normalisedAtId ?? undefined : undefined,
+        before: above ? (normalisedAtId ?? undefined) : undefined,
       });
     },
     [entries, flatOrder, clone, reorderEntry],

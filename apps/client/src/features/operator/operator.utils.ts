@@ -1,7 +1,6 @@
 import { CustomFields, MaybeString, OntimeEvent } from 'ontime-types';
 
 import { getPropertyValue } from '../../views/common/viewUtils';
-
 import type { Subscribed } from './operator.types';
 
 export function getEventData(
@@ -11,7 +10,7 @@ export function getEventData(
   subscriptions: string[],
   customFields: CustomFields,
 ) {
-  const mainField = main ? getPropertyValue(event, main) ?? '' : event.title;
+  const mainField = main ? (getPropertyValue(event, main) ?? '') : event.title;
   const secondaryField = getPropertyValue(event, secondary) ?? '';
 
   // remove subscriptions that are not in customFields

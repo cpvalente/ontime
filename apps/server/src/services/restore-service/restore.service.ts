@@ -1,8 +1,7 @@
-import { JSONFile } from 'lowdb/node';
 import { deepEqual } from 'fast-equals';
+import { JSONFile } from 'lowdb/node';
 
 import { publicFiles } from '../../setup/index.js';
-
 import { isRestorePoint } from './restore.parser.js';
 import type { RestorePoint } from './restore.type.js';
 

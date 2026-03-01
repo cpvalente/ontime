@@ -1,16 +1,16 @@
-import { useEffect, useMemo } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { IoAdd, IoTrash } from 'react-icons/io5';
 import {
   Automation,
   AutomationDTO,
   HTTPOutput,
-  isHTTPOutput,
-  isOntimeAction,
-  isOSCOutput,
-  OntimeAction,
   OSCOutput,
+  OntimeAction,
+  isHTTPOutput,
+  isOSCOutput,
+  isOntimeAction,
 } from 'ontime-types';
+import { useEffect, useMemo } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { IoAdd, IoTrash } from 'react-icons/io5';
 
 import { addAutomation, editAutomation, testOutput } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -27,10 +27,9 @@ import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { startsWithHttp } from '../../../../common/utils/regex';
 import * as Panel from '../../panel-utils/PanelUtils';
-
-import TemplateInput from './template-input/TemplateInput';
 import { isAutomation, makeFieldList } from './automationUtils';
 import OntimeActionForm from './OntimeActionForm';
+import TemplateInput from './template-input/TemplateInput';
 
 import style from './AutomationForm.module.scss';
 

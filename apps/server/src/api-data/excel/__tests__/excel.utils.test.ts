@@ -1,8 +1,7 @@
 import { CustomFields } from 'ontime-types';
-import { defaultImportMap, ImportMap } from 'ontime-utils';
+import { ImportMap, defaultImportMap } from 'ontime-utils';
 
 import { demoDb } from '../../../models/demoProject.js';
-
 import { getCustomFieldData, rundownToTabular } from '../excel.utils.js';
 
 describe('getCustomFieldData()', () => {

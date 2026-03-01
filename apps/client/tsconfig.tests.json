@@ -13,26 +13,19 @@
       "vitest/globals"
     ],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowUnusedLabels": false,
     "removeComments": true,
     "preserveConstEnums": true,
     "allowJs": true,
-    "baseUrl": "src",
     "jsx": "react-jsx",
-    "outDir": "build",
-    "composite": true
+    "outDir": "build"
   },
   "include": [
     "src/**/*.test.ts",
     "src/**/*.test.tsx",
     "src/**/*.spec.ts",
     "src/**/*.spec.tsx",
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.json"
-    }
   ],
   "typeRoots": [
     "./src/declarations/**"

@@ -1,9 +1,9 @@
 import { LogOrigin, OntimeAction } from 'ontime-types';
+import { parseUserTime } from 'ontime-utils';
 
 import { logger } from '../../../classes/Logger.js';
 import { auxTimerService } from '../../../services/aux-timer-service/AuxTimerService.js';
 import * as messageService from '../../../services/message-service/message.service.js';
-import { parseUserTime } from 'ontime-utils';
 
 export function toOntimeAction(action: OntimeAction) {
   const actionType = action.action;

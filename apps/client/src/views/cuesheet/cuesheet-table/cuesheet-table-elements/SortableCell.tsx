@@ -1,7 +1,7 @@
-import { CSSProperties, ReactNode } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Header } from '@tanstack/react-table';
+import { CSSProperties, ReactNode } from 'react';
 
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 

@@ -1,5 +1,5 @@
-import { useRef } from 'react';
 import { useDisclosure } from '@mantine/hooks';
+import { useRef } from 'react';
 
 import Button from '../../../../common/components/buttons/Button';
 import Dialog from '../../../../common/components/dialog/Dialog';

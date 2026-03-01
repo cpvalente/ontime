@@ -1,7 +1,7 @@
-import { useController, UseControllerProps } from 'react-hook-form';
-import { IoEyedrop } from 'react-icons/io5';
 import { useDebouncedCallback } from '@mantine/hooks';
 import { ViewSettings } from 'ontime-types';
+import { UseControllerProps, useController } from 'react-hook-form';
+import { IoEyedrop } from 'react-icons/io5';
 
 import { cx, getAccessibleColour } from '../../../utils/styleUtils';
 import PopoverPicker from '../popover-picker/PopoverPicker';

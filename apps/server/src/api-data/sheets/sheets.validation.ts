@@ -1,7 +1,7 @@
+import { NextFunction, Request, Response } from 'express';
+import { body, param, validationResult } from 'express-validator';
 import { isImportMap } from 'ontime-utils';
 
-import { body, param, validationResult } from 'express-validator';
-import { NextFunction, Request, Response } from 'express';
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 export const validateRequestConnection = [

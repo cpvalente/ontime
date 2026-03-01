@@ -3,7 +3,6 @@
 import { SupportedEntry } from 'ontime-types';
 
 import { demoDb } from '../../../models/demoProject.js';
-
 import { parseDatabaseModel } from '../db.parser.js';
 
 // mock data provider

@@ -1,6 +1,6 @@
+import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import type { ReactNode } from 'react';
 import { IoClose } from 'react-icons/io5';
-import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 
 import IconButton from '../buttons/IconButton';
 

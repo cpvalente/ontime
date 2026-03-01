@@ -1,5 +1,5 @@
 import type { OntimeDelay, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ontime-types';
-import { EndAction, SupportedEntry, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
 
 export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   type: SupportedEntry.Event,

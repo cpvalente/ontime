@@ -1,6 +1,6 @@
-import { IoArrowDown, IoArrowUp, IoPause, IoPlay, IoStop } from 'react-icons/io5';
 import { Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
+import { IoArrowDown, IoArrowUp, IoPause, IoPlay, IoStop } from 'react-icons/io5';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { setAuxTimer, useAuxTimerControl, useAuxTimerTime } from '../../../../common/hooks/useSocket';

@@ -3,12 +3,11 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowUnusedLabels": false,
     "removeComments": true,
     "preserveConstEnums": true,
-    "allowJs": true,
-    "baseUrl": "src"
+    "allowJs": true
   },
   "include": [
     "src"
@@ -17,10 +16,5 @@
     "node_modules",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.tests.json"
-    }
   ]
 }

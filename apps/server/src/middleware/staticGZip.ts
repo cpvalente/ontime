@@ -1,5 +1,6 @@
-import expressStaticGzip from 'express-static-gzip';
 import { extname } from 'node:path';
+
+import expressStaticGzip from 'express-static-gzip';
 
 import { srcDir } from '../setup/index.js';
 

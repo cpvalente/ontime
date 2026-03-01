@@ -1,14 +1,13 @@
-import { useCallback } from 'react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { CustomFields, isOntimeDelay, isOntimeEvent, TimeStrategy, URLPreset } from 'ontime-types';
+import { CustomFields, TimeStrategy, URLPreset, isOntimeDelay, isOntimeEvent } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
+import { useCallback } from 'react';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { formatDuration, formatTime } from '../../../../common/utils/time';
 import { AppMode } from '../../../../ontimeConfig';
 import { getCuesheetColumnAccessPolicy } from '../../cuesheet.policies';
-
 import DurationInput from './DurationInput';
 import EditableImage from './EditableImage';
 import FlagCell from './FlagCell';

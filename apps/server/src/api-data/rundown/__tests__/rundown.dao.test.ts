@@ -1,23 +1,23 @@
 import {
   CustomFields,
-  OntimeGroup,
   OntimeDelay,
   OntimeEvent,
+  OntimeGroup,
+  OntimeMilestone,
   SupportedEntry,
   TimeStrategy,
-  OntimeMilestone,
 } from 'ontime-types';
-import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
+import { demoDb } from '../../../models/demoProject.js';
 import {
-  makeOntimeEvent,
-  makeRundown,
-  makeOntimeGroup,
-  makeOntimeDelay,
   makeCustomField,
+  makeOntimeDelay,
+  makeOntimeEvent,
+  makeOntimeGroup,
   makeOntimeMilestone,
+  makeRundown,
 } from '../__mocks__/rundown.mocks.js';
-
 import {
   createTransaction,
   customFieldMutation,
@@ -25,7 +25,6 @@ import {
   rundownCache,
   rundownMutation,
 } from '../rundown.dao.js';
-import { demoDb } from '../../../models/demoProject.js';
 import { type ProcessedRundownMetadata } from '../rundown.parser.js';
 
 const setRundownMock = vi.fn();

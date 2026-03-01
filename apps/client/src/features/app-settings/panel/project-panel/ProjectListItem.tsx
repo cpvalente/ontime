@@ -20,7 +20,6 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
 import ProjectMergeForm from './ProjectMergeForm';
 

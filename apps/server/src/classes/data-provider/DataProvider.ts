@@ -1,22 +1,20 @@
-import {
-  ProjectData,
-  ViewSettings,
-  DatabaseModel,
-  Settings,
-  CustomFields,
-  URLPreset,
-  AutomationSettings,
-  Rundown,
-  ProjectRundowns,
-} from 'ontime-types';
-
 import type { Low } from 'lowdb';
 import { JSONFilePreset } from 'lowdb/node';
+import {
+  AutomationSettings,
+  CustomFields,
+  DatabaseModel,
+  ProjectData,
+  ProjectRundowns,
+  Rundown,
+  Settings,
+  URLPreset,
+  ViewSettings,
+} from 'ontime-types';
 
-import { isPath } from '../../utils/fileManagement.js';
-import { shouldCrashDev } from '../../utils/development.js';
 import { isTest } from '../../setup/environment.js';
-
+import { shouldCrashDev } from '../../utils/development.js';
+import { isPath } from '../../utils/fileManagement.js';
 import { safeMerge } from './DataProvider.utils.js';
 
 type ReadonlyPromise<T> = Promise<Readonly<T>>;

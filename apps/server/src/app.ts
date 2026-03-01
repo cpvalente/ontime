@@ -1,52 +1,47 @@
-import { LogOrigin, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
+import http, { type Server } from 'http';
 
 import 'dotenv/config';
-import express from 'express';
-import http, { type Server } from 'http';
-import cors from 'cors';
-import serverTiming from 'server-timing';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import express from 'express';
+import { LogOrigin, SimpleDirection, SimplePlayback, runtimeStorePlaceholder } from 'ontime-types';
+import serverTiming from 'server-timing';
 
-// import utils
-import { publicDir, srcDir } from './setup/index.js';
-import { environment, isProduction } from './setup/environment.js';
-import { updateRouterPrefix } from './externals.js';
-import { ONTIME_VERSION } from './ONTIME_VERSION.js';
-import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
-
-// Import middleware configuration
-import { bodyParser } from './middleware/bodyParser.js';
-import { compressedStatic } from './middleware/staticGZip.js';
-import { makeLoginRouter, makeAuthenticateMiddleware } from './middleware/authenticate.js';
-
+import { oscServer } from './adapters/OscAdapter.js';
+// Import adapters
+import { socket } from './adapters/WebsocketAdapter.js';
 // Import Routers
 import { appRouter } from './api-data/index.js';
 import { integrationRouter } from './api-integration/integration.router.js';
-
-// Import adapters
-import { socket } from './adapters/WebsocketAdapter.js';
-import { getDataProvider, flushPendingWrites } from './classes/data-provider/DataProvider.js';
-
+import { flushPendingWrites, getDataProvider } from './classes/data-provider/DataProvider.js';
 // Services
 import { logger } from './classes/Logger.js';
-import { populateDemo } from './setup/loadDemo.js';
-import { populateTranslation } from './setup/loadTranslations.js';
-import { populateStyles } from './setup/loadStyles.js';
-import { eventStore } from './stores/EventStore.js';
-import { runtimeService } from './services/runtime-service/runtime.service.js';
+import { updateRouterPrefix } from './externals.js';
+import { makeAuthenticateMiddleware, makeLoginRouter } from './middleware/authenticate.js';
+// Import middleware configuration
+import { bodyParser } from './middleware/bodyParser.js';
+import { compressedStatic } from './middleware/staticGZip.js';
+import { ONTIME_VERSION } from './ONTIME_VERSION.js';
+import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
+import * as messageService from './services/message-service/message.service.js';
+import { initialiseProject } from './services/project-service/ProjectService.js';
 import { restoreService } from './services/restore-service/restore.service.js';
 import type { RestorePoint } from './services/restore-service/restore.type.js';
-import * as messageService from './services/message-service/message.service.js';
+import { runtimeService } from './services/runtime-service/runtime.service.js';
+import { timerConfig } from './setup/config.js';
+import { environment, isProduction } from './setup/environment.js';
+// import utils
+import { publicDir, srcDir } from './setup/index.js';
+import { populateDemo } from './setup/loadDemo.js';
+import { populateStyles } from './setup/loadStyles.js';
+import { populateTranslation } from './setup/loadTranslations.js';
+import { eventStore } from './stores/EventStore.js';
 import { getState } from './stores/runtimeState.js';
-import { initialiseProject } from './services/project-service/ProjectService.js';
-import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
-import { oscServer } from './adapters/OscAdapter.js';
-
+import { consoleError, consoleHighlight, consoleSuccess } from './utils/console.js';
+import { generateCrashReport } from './utils/generateCrashReport.js';
+import { getNetworkInterfaces, serverTryDesiredPort } from './utils/network.js';
 // Utilities
 import { clearUploadfolder } from './utils/upload.js';
-import { generateCrashReport } from './utils/generateCrashReport.js';
-import { timerConfig } from './setup/config.js';
-import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);

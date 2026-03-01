@@ -2,7 +2,6 @@ import { memo } from 'react';
 
 import Modal from '../../../common/components/modal/Modal';
 import CuesheetEntryEditor from '../../../features/rundown/entry-editor/CuesheetEventEditor';
-
 import { useEditModal } from './useEditModal';
 
 export default memo(EntryEditModal);

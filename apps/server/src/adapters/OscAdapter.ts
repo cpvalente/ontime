@@ -1,14 +1,13 @@
-import { LogOrigin } from 'ontime-types';
-
-import { fromBuffer, type OscPacketOutput } from 'osc-min';
 import * as dgram from 'node:dgram';
 
-import { logger } from '../classes/Logger.js';
-import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
-import { isOntimeCloud } from '../setup/environment.js';
+import { LogOrigin } from 'ontime-types';
+import { type OscPacketOutput, fromBuffer } from 'osc-min';
 
-import { integrationPayloadFromPath } from './utils/parse.js';
+import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
+import { logger } from '../classes/Logger.js';
+import { isOntimeCloud } from '../setup/environment.js';
 import type { IAdapter } from './IAdapter.js';
+import { integrationPayloadFromPath } from './utils/parse.js';
 
 class OscServer implements IAdapter {
   private udpSocket: dgram.Socket | null = null;

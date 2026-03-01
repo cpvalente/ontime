@@ -1,13 +1,12 @@
+import { CustomField, CustomFieldKey } from 'ontime-types';
 import { useState } from 'react';
 import { IoPencil, IoTrash } from 'react-icons/io5';
-import { CustomField, CustomFieldKey } from 'ontime-types';
 
 import IconButton from '../../../../../common/components/buttons/IconButton';
 import CopyTag from '../../../../../common/components/copy-tag/CopyTag';
 import Swatch from '../../../../../common/components/input/colour-input/Swatch';
 import Tag from '../../../../../common/components/tag/Tag';
 import * as Panel from '../../../panel-utils/PanelUtils';
-
 import CustomFieldForm from './CustomFieldForm';
 
 import style from '../ManagePanel.module.scss';

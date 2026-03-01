@@ -3,12 +3,13 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node10",
+    "moduleResolution": "bundler",
     "allowUnusedLabels": false,
     "removeComments": true,
     "preserveConstEnums": true,
     "allowJs": true,
     "declaration": true,
+    "rootDir": "src",
     "outDir": "dist",
   },
   "include": [

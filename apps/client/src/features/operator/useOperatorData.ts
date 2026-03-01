@@ -4,7 +4,7 @@ import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useRundownWithMetadata } from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
 import { RundownMetadataObject } from '../../common/utils/rundownMetadata';
-import { aggregateQueryStatus, ViewData } from '../../views/utils/viewLoader.utils';
+import { ViewData, aggregateQueryStatus } from '../../views/utils/viewLoader.utils';
 
 export interface OperatorData {
   rundown: Rundown;

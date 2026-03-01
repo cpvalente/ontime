@@ -1,4 +1,4 @@
-import { OSCOutput, HTTPOutput } from 'ontime-types';
+import { HTTPOutput, OSCOutput } from 'ontime-types';
 
 export function makeOSCAction(action?: Partial<OSCOutput>): OSCOutput {
   return {

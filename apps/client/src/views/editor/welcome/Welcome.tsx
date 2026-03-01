@@ -11,7 +11,6 @@ import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import ExternalLink from '../../../common/components/link/external-link/ExternalLink';
 import Modal from '../../../common/components/modal/Modal';
 import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
-
 import ImportProjectButton from './composite/ImportProjectButton';
 import WelcomeProjectList from './composite/WelcomeProjectList';
 

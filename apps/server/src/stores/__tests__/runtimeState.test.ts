@@ -1,8 +1,10 @@
-import { PlayableEvent, Playback, TimerPhase } from 'ontime-types';
+import { Playback, TimerPhase } from 'ontime-types';
+import type { Instant, PlayableEvent } from 'ontime-types';
 
-import { makeOntimeGroup, makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
-
+import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 import {
   type RuntimeState,
   addTime,
@@ -17,8 +19,6 @@ import {
   stop,
   update,
 } from '../runtimeState.js';
-import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
-import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 
 const mockEvent = {
   type: 'event',
@@ -30,6 +30,8 @@ const mockEvent = {
   skip: false,
   parent: null,
 } as PlayableEvent;
+
+const asInstant = (value: number): Instant => value as Instant;
 
 const mockState = {
   clock: 666,
@@ -256,7 +258,7 @@ describe('mutation on runtimeState', () => {
       order: ['event1'],
     });
 
-    const startEpoch = new Date('2024-01-01T00:00:00Z').getTime();
+    const startEpoch = asInstant(new Date('2024-01-01T00:00:00Z').getTime());
     vi.setSystemTime(new Date('2024-01-03T00:00:00Z'));
 
     await initRundown(mockRundown, {});

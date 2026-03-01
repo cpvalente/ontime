@@ -1,15 +1,14 @@
+import { OntimeEvent, isOntimeEvent } from 'ontime-types';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import ScrollArea from '../../../common/components/scroll-area/ScrollArea';
-import { useSelectedEventId } from '../../../common/hooks/useSocket';
 import useRundown from '../../../common/hooks-query/useRundown';
+import { useSelectedEventId } from '../../../common/hooks/useSocket';
 import { ExtendedEntry, getFlatRundownMetadata } from '../../../common/utils/rundownMetadata';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
 import { useSelectAndRevealEntry } from '../../../features/rundown/useSelectAndRevealEntry';
 import { AppMode } from '../../../ontimeConfig';
-
 import { getCurrentEventInfo } from './titleList.utils';
 import TitleListEmpty from './TitleListEmpty';
 import TitleListItem from './TitleListItem';

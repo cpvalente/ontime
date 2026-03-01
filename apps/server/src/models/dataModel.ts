@@ -1,6 +1,7 @@
 import { DatabaseModel, Rundown } from 'ontime-types';
-import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { generateId } from 'ontime-utils';
+
+import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
 const defaultRundown: Rundown = {
   id: 'default',

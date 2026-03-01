@@ -5,8 +5,8 @@ import {
   EndAction,
   EntryCustomFields,
   NormalisedAutomation,
-  OntimeGroup,
   OntimeEntry,
+  OntimeGroup,
   ProjectData,
   ProjectRundowns,
   Rundown,
@@ -18,16 +18,16 @@ import {
   ViewSettings,
 } from 'ontime-types';
 import {
-  customFieldLabelToKey,
   checkRegex,
+  customFieldLabelToKey,
+  eventDef as eventModel,
   isKnownTimerType,
   validateEndAction,
-  eventDef as eventModel,
 } from 'ontime-utils';
 
-import { is } from '../../../utils/is.js';
-import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
 import { getPartialProject } from '../../../models/dataModel.js';
+import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
+import { is } from '../../../utils/is.js';
 
 // the methodology of the migrations is to just change the necessary keys to match with v4
 // and then let the normal project parser handle ensuring the the file is correct

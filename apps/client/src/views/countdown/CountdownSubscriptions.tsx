@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
-import { IoPencil } from 'react-icons/io5';
 import { MaybeNumber, OntimeEvent } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
+import { useEffect, useRef, useState } from 'react';
+import { IoPencil } from 'react-icons/io5';
 
 import Button from '../../common/components/buttons/Button';
+import useReport from '../../common/hooks-query/useReport';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useExpectedStartData, usePlayback, useSelectedEventId } from '../../common/hooks/useSocket';
-import useReport from '../../common/hooks-query/useReport';
 import { getOffsetState } from '../../common/utils/offset';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
@@ -16,7 +16,6 @@ import FollowButton from '../../features/operator/follow-button/FollowButton';
 import ClockTime from '../common/clock-time/ClockTime';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getPropertyValue } from '../common/viewUtils';
-
 import { useCountdownOptions } from './countdown.options';
 import {
   CountdownEvent,

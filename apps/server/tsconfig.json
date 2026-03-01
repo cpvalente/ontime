@@ -2,7 +2,6 @@
   "extends": "../../tsconfig.common.json",
   "compilerOptions": {
     "target": "esnext",
-    "composite": true,
     "module": "node16",
     "moduleResolution": "node16",
     "noImplicitReturns": false, //TODO: fix this
@@ -18,10 +17,5 @@
   "exclude": [
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.tests.json"
-    }
   ]
 }

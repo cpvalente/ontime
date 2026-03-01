@@ -1,7 +1,7 @@
-import { memo } from 'react';
 import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toolbar } from '@base-ui/react/toolbar';
+import { memo } from 'react';
 
 import { AppMode } from '../../../ontimeConfig';
 import { RundownViewMode } from '../rundown.options';

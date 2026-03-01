@@ -1,4 +1,5 @@
 import { CustomFields, EntryCustomFields, OntimeDelay, OntimeEvent } from 'ontime-types';
+
 import { isValidChangeProperty } from '../integration.utils.js';
 
 describe('isValidChangeProperty()', () => {
