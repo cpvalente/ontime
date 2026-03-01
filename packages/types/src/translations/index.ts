@@ -8,6 +8,8 @@ export const langEn = {
   'common.scheduled_end': 'Scheduled end',
   'common.expected_start': 'Expected start',
   'common.expected_end': 'Expected end',
+  'common.timer_message': 'Timer message',
+  'common.secondary_message': 'Secondary message',
   'common.stage_timer': 'Stage Timer',
   'common.started_at': 'Started At',
   'common.time_now': 'Time now',
