@@ -54,6 +54,13 @@ const eventStaticPropertiesNext = [
   '{{eventNext.delay}}',
 ];
 
+const staticAuxProperties = (index: 1 | 2 | 3) => [
+  `{{auxtimer${index}.current}}`,
+  `{{auxtimer${index}.duration}}`,
+  `{{auxtimer${index}.playback}}`,
+  `{{auxtimer${index}.direction}}`,
+];
+
 /**
  * Creates a it of possible autocomplete suggestions
  * Based on RuntimeState
@@ -68,6 +75,9 @@ export function makeAutoCompleteList(customFields: CustomFields): string[] {
     ...Object.entries(customFields).map(([key]) => `{{eventNow.custom.${key}}}`),
     ...eventStaticPropertiesNext,
     ...Object.entries(customFields).map(([key]) => `{{eventNext.custom.${key}}}`),
+    ...staticAuxProperties(1),
+    ...staticAuxProperties(2),
+    ...staticAuxProperties(3),
   ];
 }
 
