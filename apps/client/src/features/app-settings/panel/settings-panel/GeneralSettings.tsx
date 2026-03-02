@@ -7,12 +7,9 @@ import { postSettings } from '../../../../common/api/settings';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
-import Input from '../../../../common/components/input/input/Input';
 import Select from '../../../../common/components/select/Select';
 import useSettings from '../../../../common/hooks-query/useSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
-import { isOnlyNumbers } from '../../../../common/utils/regex';
-import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import GeneralPinInput from './composite/GeneralPinInput';
@@ -101,33 +98,6 @@ export default function GeneralSettings() {
             <Info>Changes to the time format and views language do not affect the editor view</Info>
             <Panel.Loader isLoading={isLoading} />
             <Panel.ListGroup>
-              <Panel.ListItem>
-                <Panel.Field
-                  title='Ontime server port'
-                  description={
-                    isOntimeCloud
-                      ? 'Server port disabled for Ontime Cloud'
-                      : 'Port ontime server listens in. Defaults to 4001 (needs app restart)'
-                  }
-                  error={errors.serverPort?.message}
-                />
-                <Input
-                  id='serverPort'
-                  type='number'
-                  maxLength={5}
-                  style={{ width: '75px' }}
-                  disabled={isOntimeCloud}
-                  {...register('serverPort', {
-                    required: { value: true, message: 'Required field' },
-                    max: { value: 65535, message: 'Port must be within range 1024 - 65535' },
-                    min: { value: 1024, message: 'Port must be within range 1024 - 65535' },
-                    pattern: {
-                      value: isOnlyNumbers,
-                      message: 'Value should be numeric',
-                    },
-                  })}
-                />
-              </Panel.ListItem>
               <Panel.ListItem>
                 <Panel.Field
                   title='Editor pin code'

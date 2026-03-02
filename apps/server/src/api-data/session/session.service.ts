@@ -11,6 +11,7 @@ import { getTimezoneLabel } from '../../utils/time.js';
 import { password, routerPrefix } from '../../externals.js';
 import { hashPassword } from '../../utils/hash.js';
 import { ONTIME_VERSION } from '../../ONTIME_VERSION.js';
+import { portManager } from '../../classes/port-manager/PortManager.js';
 
 const startedAt = new Date();
 
@@ -37,7 +38,8 @@ export async function getSessionStats(): Promise<SessionStats> {
  * Adds business logic to gathering data for the info endpoint
  */
 export async function getInfo(): Promise<GetInfo> {
-  const { version, serverPort } = getDataProvider().getSettings();
+  const { version } = getDataProvider().getSettings();
+  const { port } = portManager.getPort();
 
   // get nif and inject localhost
   const ni = getNetworkInterfaces();
@@ -46,7 +48,7 @@ export async function getInfo(): Promise<GetInfo> {
   return {
     networkInterfaces: ni,
     version,
-    serverPort,
+    serverPort: port,
     publicDir: publicDir.root,
   };
 }

@@ -183,7 +183,10 @@ export async function initialiseProject(): Promise<string> {
   }
 
   try {
-    const projectName = await loadProjectFile(lastLoaded.projectName, lastLoaded.rundownId);
+    const projectName = await loadProjectFile(lastLoaded.projectName, {
+      rundownId: lastLoaded.rundownId,
+      initialLoad: true,
+    });
     return projectName;
   } catch (error) {
     // if we are here, most likely the json parsing failed and the file is corrupt
@@ -207,7 +210,10 @@ export async function initialiseProject(): Promise<string> {
  * @throws
  * @param fileName file name of the project including the extension
  */
-export async function loadProjectFile(fileName: string, rundownId?: string): Promise<string> {
+export async function loadProjectFile(
+  fileName: string,
+  options?: { rundownId?: string; initialLoad?: boolean },
+): Promise<string> {
   const filePath = doesProjectExist(fileName);
   if (filePath === null) {
     throw new Error('Project file not found');
@@ -215,7 +221,7 @@ export async function loadProjectFile(fileName: string, rundownId?: string): Pro
 
   // when loading a project file, we allow parsing to fail and interrupt the process
   const fileData = await parseJsonFile(filePath);
-  const result = parseDatabaseModel(fileData);
+  const result = parseDatabaseModel(fileData, options?.initialLoad);
   let parsedFileName = fileName;
 
   if (result.migrated) {
@@ -226,7 +232,7 @@ export async function loadProjectFile(fileName: string, rundownId?: string): Pro
     parsedFileName = await handleCorruptedFile(filePath, parsedFileName);
   }
 
-  const projectName = await loadProject(result.data, parsedFileName, rundownId);
+  const projectName = await loadProject(result.data, parsedFileName, options?.rundownId);
   return projectName;
 }
 

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
 import useAppVersion from '../../common/hooks-query/useAppVersion';
+import { isDocker } from '../../externals';
 
 export type SettingsOption = {
   id: string;
@@ -18,6 +19,7 @@ const staticOptions = [
       { id: 'settings__data', label: 'Project data' },
       { id: 'settings__general', label: 'General settings' },
       { id: 'settings__view', label: 'View settings' },
+      { id: 'settings__port', label: 'Server Port' },
     ],
   },
   {
@@ -102,6 +104,14 @@ export function useAppSettingsMenu() {
     () =>
       staticOptions.map((option) => ({
         ...option,
+        // if we are in docker don't show the port option
+        secondary:
+          'secondary' in option
+            ? isDocker && option.id === 'settings'
+              ? [...option.secondary.filter(({ id }) => id !== 'settings__port')]
+              : [...option.secondary]
+            : undefined,
+        // if there is an update then highlight the about setting
         highlight: option.id === 'about' && data.hasUpdates ? 'New version available' : undefined,
       })),
     [data],

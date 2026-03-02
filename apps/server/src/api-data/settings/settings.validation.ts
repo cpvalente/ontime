@@ -26,7 +26,11 @@ export const validateSettings = [
   pinValidator('operatorKey'),
   body('timeFormat').isString().isIn(['12', '24']).withMessage('Time format can only be "12" or "24"'),
   body('language').isString().trim().notEmpty(),
-  body('serverPort').isPort().withMessage('Invalid value found for server port').toInt(),
 
+  requestValidationFunction,
+];
+
+export const validateServerPort = [
+  body('serverPort').isPort().withMessage('Invalid value found for server port').toInt(),
   requestValidationFunction,
 ];
