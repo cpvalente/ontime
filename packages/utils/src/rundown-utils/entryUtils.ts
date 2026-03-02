@@ -137,6 +137,7 @@ function createEventPatch(originalEvent: OntimeEvent, patchEvent: Partial<Ontime
     endAction: validateEndAction(patchEvent.endAction, originalEvent.endAction),
     timerType: validateTimerType(patchEvent.timerType, originalEvent.timerType),
     countToEnd: typeof patchEvent.countToEnd === 'boolean' ? patchEvent.countToEnd : originalEvent.countToEnd,
+    breakRoll: typeof patchEvent.breakRoll === 'boolean' ? patchEvent.breakRoll : originalEvent.breakRoll,
     skip: typeof patchEvent.skip === 'boolean' ? patchEvent.skip : originalEvent.skip,
     note: makeString(patchEvent.note, originalEvent.note),
     colour: makeString(patchEvent.colour, originalEvent.colour),

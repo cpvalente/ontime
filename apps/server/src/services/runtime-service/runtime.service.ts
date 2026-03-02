@@ -98,8 +98,22 @@ class RuntimeService {
         process.nextTick(() => {
           triggerAutomations(TimerLifeCycle.onFinish, newState);
         });
-        this.handleLoadNext();
-        this.rollLoaded(newState.offset);
+
+        if (newState.eventNow?.breakRoll) {
+          const { id: currentId, endAction } = newState.eventNow;
+          this.stop();
+          if (endAction === EndAction.LoadNext) {
+            setTimeout(() => this.handleLoadNext(currentId), 0);
+          } else if (endAction === EndAction.PlayNext) {
+            setTimeout(() => {
+              const loaded = this.handleLoadNext(currentId);
+              if (loaded) this.handleStart();
+            }, 0);
+          }
+        } else {
+          this.handleLoadNext();
+          this.rollLoaded(newState.offset);
+        }
       } else if (
         // if there is no previous clock, we could not have skipped
         RuntimeService.previousState?.clock &&

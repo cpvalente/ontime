@@ -5,6 +5,7 @@ import {
   IoBan,
   IoFlash,
   IoPlay,
+  IoStop,
   IoPlayForward,
   IoPlaySkipForward,
   IoTime,
@@ -33,6 +34,7 @@ interface RundownEventInnerProps {
   timeStrategy: TimeStrategy;
   linkStart: boolean;
   countToEnd: boolean;
+  breakRoll: boolean;
   eventIndex: number;
   endAction: EndAction;
   timerType: TimerType;
@@ -60,6 +62,7 @@ function RundownEventInner({
   timeStrategy,
   linkStart,
   countToEnd,
+  breakRoll,
   endAction,
   timerType,
   title,
@@ -142,6 +145,9 @@ function RundownEventInner({
           </Tooltip>
           <Tooltip text={`${countToEnd ? 'Count to End' : 'Count duration'}`} render={<span />}>
             <LuArrowDownToLine className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
+          </Tooltip>
+          <Tooltip text={breakRoll ? 'Break roll mode' : 'Roll continues'} render={<span />}>
+            <IoStop className={`${style.statusIcon} ${breakRoll ? style.active : style.disabled}`} />
           </Tooltip>
           <Tooltip text='Event has Triggers' render={<span />}>
             <IoFlash className={`${style.statusIcon} ${hasTriggers ? style.active : style.disabled}`} />
