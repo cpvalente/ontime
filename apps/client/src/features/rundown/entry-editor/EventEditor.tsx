@@ -49,6 +49,7 @@ export default function EventEditor({ event }: EventEditorProps) {
         timeStrategy={event.timeStrategy}
         linkStart={event.linkStart}
         countToEnd={event.countToEnd}
+        breakRoll={event.breakRoll}
         delay={event.delay}
         endAction={event.endAction}
         timerType={event.timerType}

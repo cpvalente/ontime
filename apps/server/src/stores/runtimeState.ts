@@ -472,6 +472,16 @@ export function pause(state: RuntimeState = runtimeState): boolean {
   return true;
 }
 
+export function exitRoll(state: RuntimeState = runtimeState): boolean {
+  if (state.timer.playback !== Playback.Roll) {
+    return false;
+  }
+  state.timer.playback = Playback.Play;
+  state.timer.secondaryTimer = null;
+  state._timer.secondaryTarget = null;
+  return true;
+}
+
 export function stop(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Stop) {
     return false;
