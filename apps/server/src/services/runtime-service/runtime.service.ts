@@ -98,13 +98,8 @@ class RuntimeService {
         process.nextTick(() => {
           triggerAutomations(TimerLifeCycle.onFinish, newState);
         });
-
-        if (newState.eventNow?.breakRoll) {
-          runtimeState.exitRoll();
-        } else {
-          this.handleLoadNext();
-          this.rollLoaded(newState.offset);
-        }
+        this.handleLoadNext();
+        this.rollLoaded(newState.offset);
       } else if (
         // if there is no previous clock, we could not have skipped
         RuntimeService.previousState?.clock &&
@@ -556,6 +551,9 @@ class RuntimeService {
       const result = runtimeState.roll(rundown, metadata, offset);
       if (result.didStart) {
         const newState = runtimeState.getState();
+        if (newState.eventNow?.breakRoll) {
+          runtimeState.exitRoll();
+        }
         process.nextTick(() => {
           triggerReportEntry(TimerLifeCycle.onStart, newState);
           triggerAutomations(TimerLifeCycle.onStart, newState);
@@ -594,6 +592,9 @@ class RuntimeService {
       }
 
       if (result.didStart) {
+        if (newState.eventNow?.breakRoll) {
+          runtimeState.exitRoll();
+        }
         process.nextTick(() => {
           triggerReportEntry(TimerLifeCycle.onStart, newState);
           triggerAutomations(TimerLifeCycle.onStart, newState);
