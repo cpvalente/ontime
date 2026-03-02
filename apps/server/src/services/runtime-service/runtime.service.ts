@@ -101,8 +101,6 @@ class RuntimeService {
 
         if (newState.eventNow?.breakRoll) {
           runtimeState.exitRoll();
-          // Now in Play mode — the existing end action logic in section 3
-          // will handle LoadNext/PlayNext/None on the next update tick
         } else {
           this.handleLoadNext();
           this.rollLoaded(newState.offset);
