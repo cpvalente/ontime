@@ -72,7 +72,7 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
             className={cx(['sub', isSelected && 'sub--selected'])}
           >
             <div className='sub__binder' style={{ '--user-color': event?.colour ?? '' }} />
-            <div className='sub__schedule'>
+            <div className='sub__schedule-inline'>
               <ClockTime value={event.timeStart} preferredFormat12='h:mm a' preferredFormat24='HH:mm' />
               →
               <ClockTime value={event.timeEnd} preferredFormat12='h:mm a' preferredFormat24='HH:mm' />

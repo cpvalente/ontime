@@ -2,15 +2,18 @@ import {
   isOntimeEvent,
   isOntimeGroup,
   isPlayableEvent,
+  MaybeNumber,
   MaybeString,
+  OffsetMode,
   OntimeDelay,
   OntimeEntry,
   OntimeEvent,
   OntimeMilestone,
+  OntimeReport,
   PlayableEvent,
   Rundown,
 } from 'ontime-types';
-import { checkIsNextDay, isNewLatest } from 'ontime-utils';
+import { checkIsNextDay, getExpectedStart, isNewLatest } from 'ontime-utils';
 
 export type RundownMetadata = {
   previousEvent: PlayableEvent | null; // The playableEvent from the previous iteration, used by indicators
@@ -30,6 +33,7 @@ export type RundownMetadata = {
 };
 
 export type ExtendedEntry<T extends OntimeEntry = OntimeEntry> = T & RundownMetadata;
+export type ExpectedEvent = ExtendedEntry<OntimeEvent> & { expectedStart: number; endedAt: MaybeNumber };
 
 export const lastMetadataKey = 'LAST';
 
@@ -151,13 +155,13 @@ function processEntry(
 
       if (isPlayableEvent(entry)) {
         processedData.isNextDay = checkIsNextDay(entry, processedData.previousEvent);
-        
+
         if (!processedData.isPast && !processedData.isLoaded) {
           /**
            * isLinkToLoaded is a chain value that we maintain until we
            * a) find an unlinked event
            * b) find a countToEnd event
-          */
+           */
           processedData.totalGap += entry.gap;
           processedData.isLinkedToLoaded =
             entry.linkStart && !processedData.previousEvent?.countToEnd && processedData.isLinkedToLoaded;
@@ -172,4 +176,27 @@ function processEntry(
   }
 
   return processedData;
+}
+
+export function expectedEventData(
+  event: ExtendedEntry<OntimeEvent>,
+  currentDay: number,
+  actualStart: MaybeNumber,
+  plannedStart: MaybeNumber,
+  offset: number,
+  mode: OffsetMode,
+  reportData: OntimeReport,
+): ExpectedEvent {
+  const { totalGap, isLinkedToLoaded } = event;
+  const expectedStart = getExpectedStart(event, {
+    currentDay,
+    totalGap,
+    actualStart,
+    plannedStart,
+    isLinkedToLoaded,
+    offset,
+    mode,
+  });
+  const { endedAt } = reportData[event.id] ?? { endedAt: null };
+  return { ...event, expectedStart, endedAt };
 }

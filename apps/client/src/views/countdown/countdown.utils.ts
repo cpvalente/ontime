@@ -1,5 +1,5 @@
-import { EntryId, MaybeNumber, OffsetMode, OntimeEntry, OntimeEvent, OntimeReport, Playback } from 'ontime-types';
-import { getExpectedStart, MILLIS_PER_MINUTE, millisToString, removeLeadingZero } from 'ontime-utils';
+import { EntryId, MaybeNumber, OntimeEntry, OntimeEvent, Playback } from 'ontime-types';
+import { MILLIS_PER_MINUTE, millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { useCountdownSocket } from '../../common/hooks/useSocket';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
@@ -12,9 +12,6 @@ import { type TranslationKey, useTranslation } from '../../translation/Translati
 export function sanitiseTitle(title: string | null) {
   return title ?? '{no title}';
 }
-
-export const preferredFormat12 = 'h:mm a';
-export const preferredFormat24 = 'HH:mm';
 
 /**
  * Whether the current event is live
@@ -84,7 +81,7 @@ export function useSubscriptionDisplayData(
     return {
       status: 'done',
       statusDisplay: getLocalizedString(timerProgress['done']),
-      timeDisplay: formatTime(subscribedEvent.endedAt, { format12: preferredFormat12, format24: preferredFormat24 }),
+      timeDisplay: formatTime(subscribedEvent.endedAt, { format12: 'h:m m a', format24: 'HH:mm' }),
     };
   }
 
@@ -162,33 +159,4 @@ export function isLinkedToLoadedEvent(events: OntimeEvent[], loadedId: EntryId |
   }
 
   return true;
-}
-
-export function isOutsideRange(a: number, b: number): boolean {
-  return Math.abs(a - b) > MILLIS_PER_MINUTE;
-}
-
-export type CountdownEvent = ExtendedEntry<OntimeEvent> & { expectedStart: number; endedAt: MaybeNumber };
-
-export function extendEventData(
-  event: ExtendedEntry<OntimeEvent>,
-  currentDay: number,
-  actualStart: MaybeNumber,
-  plannedStart: MaybeNumber,
-  offset: number,
-  mode: OffsetMode,
-  reportData: OntimeReport,
-): CountdownEvent {
-  const { totalGap, isLinkedToLoaded } = event;
-  const expectedStart = getExpectedStart(event, {
-    currentDay,
-    totalGap,
-    actualStart,
-    plannedStart,
-    isLinkedToLoaded,
-    offset,
-    mode,
-  });
-  const { endedAt } = reportData[event.id] ?? { endedAt: null };
-  return { ...event, expectedStart, endedAt };
 }
