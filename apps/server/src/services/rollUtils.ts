@@ -1,4 +1,4 @@
-import { dayInMs } from 'ontime-utils';
+import { checkIsNow, dayInMs } from 'ontime-utils';
 import { MaybeNumber, PlayableEvent, Rundown } from 'ontime-types';
 
 import { normaliseEndTime } from './timerUtils.js';
@@ -36,11 +36,6 @@ export function loadRoll(
       continue;
     }
 
-    // we check if event crosses midnight
-    if (event.timeStart > event.timeEnd) {
-      daySpan++;
-    }
-
     const correctedDays = dayInMs * daySpan;
     const correctedStart = event.timeStart + correctedDays;
     const correctedEnd = event.timeEnd + correctedDays;
@@ -49,13 +44,18 @@ export function loadRoll(
      * there are 3 possible states for an event
      * 1. event is already finished
      * 2. event is running
-     * 3. event is in the future
+     * 3. event is running (midnight edge case)
+     * 4. event is in the future
      */
 
     // 1. event is already finished
     // when does the event end (handle midnight)
     const normalEnd = normaliseEndTime(correctedStart, correctedEnd);
     if (normalEnd <= timeNow) {
+      // keep track of day progress
+      if (event.timeStart > event.timeEnd) {
+        daySpan++;
+      }
       continue;
     }
 
@@ -66,8 +66,25 @@ export function loadRoll(
       return { event, index: getTimedIndexFromPlayableIndex(metadata, i) };
     }
 
-    // 3. event will run in the future
-    // we set the isPending flag to indicate that the event is currently playing
+    // 3. check if an overnight event that comes later is currently playing
+    for (let j = i + 1; j < metadata.playableEventOrder.length; j++) {
+      const futureEventId = metadata.playableEventOrder[j];
+      if (!futureEventId) continue;
+
+      const futureEvent = rundown.entries[futureEventId] as PlayableEvent;
+      if (!futureEvent || futureEvent.duration === 0) continue;
+
+      const crossesMidnight = futureEvent.timeStart > futureEvent.timeEnd;
+      if (!crossesMidnight) continue;
+
+      // check if timeNow is inside this overnight event
+      const isRunning = checkIsNow(futureEvent.timeStart, futureEvent.timeEnd, timeNow);
+      if (isRunning) {
+        return { event: futureEvent, index: getTimedIndexFromPlayableIndex(metadata, j) };
+      }
+    }
+
+    // 4. event will run in the future
     return { event, index: getTimedIndexFromPlayableIndex(metadata, i), isPending: true };
   }
 

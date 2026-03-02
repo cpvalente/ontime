@@ -709,6 +709,44 @@ describe('loadRoll() test that roll behaviour multi day event edge cases', () =>
     expect(state).toStrictEqual(expected);
   });
 
+  it('should recognise a playing event where its schedule spans over midnight, even with previous events', async () => {
+    vi.useFakeTimers();
+    await initRundown(
+      makeRundown({
+        order: ['1', '2'],
+        entries: {
+          '1': {
+            ...mockEvent,
+            id: '1',
+            timeStart: 10 * MILLIS_PER_HOUR,
+            timeEnd: 11 * MILLIS_PER_HOUR,
+            duration: 1 * MILLIS_PER_HOUR,
+          },
+          '2': {
+            ...mockEvent,
+            id: '2',
+            timeStart: 11 * MILLIS_PER_HOUR,
+            timeEnd: 2 * MILLIS_PER_HOUR,
+            duration: 14 * MILLIS_PER_HOUR
+          },
+        },
+      }),
+      {},
+    );
+    vi.runAllTimers();
+    vi.useRealTimers();
+
+    const { rundown, metadata } = rundownCache.get();
+    const now = 1 * MILLIS_PER_HOUR;
+    const expected = {
+      event: rundown.entries['2'],
+      index: 1,
+    };
+
+    const state = loadRoll(rundown, metadata, now);
+    expect(state).toStrictEqual(expected);
+  });
+
   it('if the start time is the day after end time, and both are later than now', async () => {
     vi.useFakeTimers();
     await initRundown(
