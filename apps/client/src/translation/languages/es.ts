@@ -10,6 +10,8 @@ export const langEs: TranslationObject = {
   'common.scheduled_end': 'Fin programado',
   'common.expected_start': 'Inicio previsto',
   'common.expected_end': 'Fin previsto',
+  'common.timer_message': 'Mensaje del temporizador',
+  'common.secondary_message': 'Mensaje secundario',
   'common.stage_timer': 'Temporizador de presentador',
   'common.started_at': 'Iniciado en',
   'common.time_now': 'Ahora',
