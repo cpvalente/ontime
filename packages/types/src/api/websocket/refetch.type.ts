@@ -8,4 +8,5 @@ export enum RefetchKey {
   ViewSettings = 'view-settings',
   Translation = 'translation',
   Settings = 'settings',
+  CssOverride = 'css',
 }

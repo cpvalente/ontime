@@ -1,10 +1,11 @@
-import type { TranslationObject } from 'ontime-types';
+import { RefetchKey, type TranslationObject } from 'ontime-types';
 
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 
 import { publicFiles } from '../../setup/index.js';
 import { defaultCss } from '../../user/styles/bundledCss.js';
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 
 /**
  * Reads the user's css file
@@ -33,6 +34,7 @@ export async function writeCssFile(css: string) {
   }
 
   await writeFile(path, css, { encoding: 'utf8' });
+  sendRefetch(RefetchKey.CssOverride);
 }
 
 /**

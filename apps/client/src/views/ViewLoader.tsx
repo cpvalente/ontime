@@ -1,14 +1,12 @@
 import { PropsWithChildren } from 'react';
 
-import { overrideStylesURL } from '../common/api/constants';
+import { apiEntryUrl } from '../common/api/constants';
 import { useRuntimeStylesheet } from '../common/hooks/useRuntimeStylesheet';
-import useViewSettings from '../common/hooks-query/useViewSettings';
 
 import Loader from './common/loader/Loader';
 
 export default function ViewLoader({ children }: PropsWithChildren) {
-  const { data } = useViewSettings();
-  const { shouldRender } = useRuntimeStylesheet(data.overrideStyles ? overrideStylesURL : undefined);
+  const { shouldRender } = useRuntimeStylesheet();
 
   // we need to be able to override the background colour with the key param
   const searchParams = new URLSearchParams(window.location.search);
