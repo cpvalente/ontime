@@ -100,16 +100,9 @@ class RuntimeService {
         });
 
         if (newState.eventNow?.breakRoll) {
-          const { id: currentId, endAction } = newState.eventNow;
-          this.stop();
-          if (endAction === EndAction.LoadNext) {
-            setTimeout(() => this.handleLoadNext(currentId), 0);
-          } else if (endAction === EndAction.PlayNext) {
-            setTimeout(() => {
-              const loaded = this.handleLoadNext(currentId);
-              if (loaded) this.handleStart();
-            }, 0);
-          }
+          runtimeState.exitRoll();
+          // Now in Play mode — the existing end action logic in section 3
+          // will handle LoadNext/PlayNext/None on the next update tick
         } else {
           this.handleLoadNext();
           this.rollLoaded(newState.offset);
