@@ -1,4 +1,4 @@
-import { Day, MaybeNumber, TimerPhase } from 'ontime-types';
+import { Day, MaybeNumber, TimeOfDay, TimerPhase } from 'ontime-types';
 import { checkIsNow, dayInMs, isPlaybackActive, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import type { RuntimeState } from '../stores/runtimeState.js';
@@ -7,6 +7,15 @@ import type { RuntimeState } from '../stores/runtimeState.js';
  * handle events that span over midnight
  */
 export const normaliseEndTime = (start: number, end: number) => (end < start ? end + dayInMs : end);
+
+/**
+ * Checks whether the local wall clock wrapped into a new day
+ * This currently uses a simple wrap heuristic and is centralized
+ * so day-boundary behavior can be evolved in one place later.
+ */
+export function hasCrossedMidnight(previous: TimeOfDay, current: TimeOfDay): boolean {
+  return previous > current;
+}
 
 /**
  * Calculates expected finish time of a running timer

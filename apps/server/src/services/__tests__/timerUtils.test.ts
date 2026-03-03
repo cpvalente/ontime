@@ -1,5 +1,5 @@
 import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString } from 'ontime-utils';
-import { EndAction, Playback, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
+import { EndAction, Playback, TimeOfDay, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 
 import {
   findDayOffset,
@@ -7,6 +7,7 @@ import {
   getExpectedFinish,
   getRuntimeOffset,
   getTimerPhase,
+  hasCrossedMidnight,
   normaliseEndTime,
   skippedOutOfEvent,
 } from '../timerUtils.js';
@@ -534,6 +535,25 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
     expect(expectedFinish).toBe(13);
     expect(elapsed).toBe(2);
     expect(current).toBe(8);
+  });
+});
+
+describe('hasCrossedMidnight()', () => {
+  it('returns true when clock wraps from late to early', () => {
+    const previous = (23 * MILLIS_PER_HOUR + 59 * MILLIS_PER_MINUTE) as TimeOfDay; // 23:59
+    const current = (1 * MILLIS_PER_MINUTE) as TimeOfDay; // 00:01
+    expect(hasCrossedMidnight(previous, current)).toBe(true);
+  });
+
+  it('returns false when clock moves forward on the same day', () => {
+    const previous = (10 * MILLIS_PER_HOUR) as TimeOfDay; // 10:00
+    const current = (10 * MILLIS_PER_HOUR + 5 * MILLIS_PER_MINUTE) as TimeOfDay; // 10:05
+    expect(hasCrossedMidnight(previous, current)).toBe(false);
+  });
+
+  it('returns false when clock value is unchanged', () => {
+    const time = (15 * MILLIS_PER_HOUR) as TimeOfDay; // 15:00
+    expect(hasCrossedMidnight(time, time)).toBe(false);
   });
 });
 

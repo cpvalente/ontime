@@ -35,6 +35,7 @@ import {
   getExpectedFinish,
   getRuntimeOffset,
   getTimerPhase,
+  hasCrossedMidnight,
 } from '../services/timerUtils.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { timerConfig } from '../setup/config.js';
@@ -555,8 +556,8 @@ export function update(): UpdateResult {
 
   // 2. are we waiting to roll?
   if (runtimeState.timer.playback === Playback.Roll && runtimeState.timer.secondaryTimer !== null) {
-    const hasCrossedMidnight = previousClock > now;
-    return updateIfWaitingToRoll(hasCrossedMidnight);
+    const clockHasCrossedMidnight = hasCrossedMidnight(previousClock, now);
+    return updateIfWaitingToRoll(clockHasCrossedMidnight);
   }
 
   // 3. at this point we know that we are playing an event
