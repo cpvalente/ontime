@@ -10,11 +10,12 @@ export const normaliseEndTime = (start: number, end: number) => (end < start ? e
 
 /**
  * Checks whether the local wall clock wrapped into a new day
- * This currently uses a simple wrap heuristic and is centralized
- * so day-boundary behavior can be evolved in one place later.
+ * Uses a threshold to distinguish midnight wrap (~23h backward jump)
+ * from DST fall back (~1h backward jump)
  */
 export function hasCrossedMidnight(previous: TimeOfDay, current: TimeOfDay): boolean {
-  return previous > current;
+  const backwardJump = previous - current;
+  return backwardJump > 12 * MILLIS_PER_HOUR;
 }
 
 /**

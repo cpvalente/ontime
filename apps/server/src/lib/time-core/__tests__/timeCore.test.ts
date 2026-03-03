@@ -260,4 +260,62 @@ describe('daysSinceStart() calculates full days elapsed since a start epoch', ()
 
     expect(timeCore.daysSinceStart(startEpoch, currentEpoch)).toBe(1);
   });
+
+  describe('handles DST transitions in Europe/Copenhagen', () => {
+    it('returns 1 when crossing midnight during spring forward (23h day)', () => {
+      // 2025-03-30: clocks spring forward at 02:00 → 03:00 (23h day)
+      // Start at 23:00 local on March 29 (22:00 UTC)
+      vi.setSystemTime('2025-03-29T22:00:00Z'); // 23:00 local CET
+      const startEpoch = timeCore.now();
+
+      // Current at 01:00 local on March 30 (00:00 UTC, still before DST)
+      // This is only 2 hours elapsed, but crosses midnight
+      vi.setSystemTime('2025-03-30T00:00:00Z'); // 01:00 local CET
+      const currentEpoch = timeCore.now();
+
+      // Should be 1 day (crossed midnight) even though <24h elapsed
+      expect(timeCore.daysSinceStart(startEpoch, currentEpoch)).toBe(1);
+    });
+
+    it('returns 0 when same calendar day spans 25h during fall back', () => {
+      // 2025-10-26: clocks fall back at 03:00 → 02:00 (25h day)
+      // Start at 01:00 local on October 26 (23:00 UTC Oct 25, CEST still)
+      vi.setSystemTime('2025-10-25T23:00:00Z'); // 01:00 local CEST on Oct 26
+      const startEpoch = timeCore.now();
+
+      // Current at 23:00 local on October 26 (22:00 UTC, now CET)
+      // This is 23 hours elapsed, but same calendar day
+      vi.setSystemTime('2025-10-26T22:00:00Z'); // 23:00 local CET on Oct 26
+      const currentEpoch = timeCore.now();
+
+      // Should be 0 days (same calendar day) even though 23h elapsed
+      expect(timeCore.daysSinceStart(startEpoch, currentEpoch)).toBe(0);
+    });
+
+    it('returns 1 when crossing midnight after fall back day', () => {
+      // Start at 23:00 local on October 26 (22:00 UTC, CET)
+      vi.setSystemTime('2025-10-26T22:00:00Z'); // 23:00 local CET
+      const startEpoch = timeCore.now();
+
+      // Current at 01:00 local on October 27 (00:00 UTC)
+      vi.setSystemTime('2025-10-27T00:00:00Z'); // 01:00 local CET
+      const currentEpoch = timeCore.now();
+
+      expect(timeCore.daysSinceStart(startEpoch, currentEpoch)).toBe(1);
+    });
+
+    it('handles starting just before spring forward', () => {
+      // Start at 01:58 local on March 30 (00:58 UTC, CET)
+      vi.setSystemTime('2025-03-30T00:58:00Z'); // 01:58 local CET
+      const startEpoch = timeCore.now();
+
+      // Current at 03:02 local on March 30 (01:02 UTC, CEST)
+      // Clock jumped from ~02:00 to 03:00, only 4 real minutes passed
+      vi.setSystemTime('2025-03-30T01:02:00Z'); // 03:02 local CEST
+      const currentEpoch = timeCore.now();
+
+      // Same calendar day
+      expect(timeCore.daysSinceStart(startEpoch, currentEpoch)).toBe(0);
+    });
+  });
 });

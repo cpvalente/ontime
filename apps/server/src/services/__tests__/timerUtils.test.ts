@@ -557,6 +557,36 @@ describe('hasCrossedMidnight()', () => {
     const time = (15 * MILLIS_PER_HOUR) as TimeOfDay; // 15:00
     expect(hasCrossedMidnight(time, time)).toBe(false);
   });
+
+  describe('DST transitions', () => {
+    it('returns false during DST fall back (~1h backward jump)', () => {
+      // During fall back, clock goes from 02:59 → 02:00 (1h backward)
+      const previous = (2 * MILLIS_PER_HOUR + 59 * MILLIS_PER_MINUTE) as TimeOfDay; // 02:59
+      const current = (2 * MILLIS_PER_HOUR) as TimeOfDay; // 02:00
+      expect(hasCrossedMidnight(previous, current)).toBe(false);
+    });
+
+    it('returns true at actual midnight (~23h backward jump)', () => {
+      // Actual midnight crossing: 23:59 → 00:01 (~23h58m backward)
+      const previous = (23 * MILLIS_PER_HOUR + 59 * MILLIS_PER_MINUTE) as TimeOfDay; // 23:59
+      const current = (1 * MILLIS_PER_MINUTE) as TimeOfDay; // 00:01
+      expect(hasCrossedMidnight(previous, current)).toBe(true);
+    });
+
+    it('returns false for small backward jumps near midnight boundary', () => {
+      // Edge case: 12h backward is NOT a midnight cross
+      const previous = (12 * MILLIS_PER_HOUR) as TimeOfDay; // 12:00
+      const current = (0 * MILLIS_PER_HOUR) as TimeOfDay; // 00:00
+      expect(hasCrossedMidnight(previous, current)).toBe(false);
+    });
+
+    it('returns true for backward jumps exceeding 12h', () => {
+      // 12h + 1ms backward IS a midnight cross
+      const previous = (12 * MILLIS_PER_HOUR + 1) as TimeOfDay; // 12:00:00.001
+      const current = (0 * MILLIS_PER_HOUR) as TimeOfDay; // 00:00
+      expect(hasCrossedMidnight(previous, current)).toBe(true);
+    });
+  });
 });
 
 describe('skippedOutOfEvent()', () => {
