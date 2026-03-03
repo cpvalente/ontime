@@ -16,6 +16,7 @@ import {
   isOntimeMilestone,
   OntimeMilestone,
   OntimeGroup,
+  Day,
 } from 'ontime-types';
 import {
   isObjectEmpty,
@@ -281,7 +282,7 @@ function processEntry<T extends OntimeEntry>(
     sanitiseCustomFields(customFields, currentEntry);
 
     processedData.totalDays += calculateDayOffset(currentEntry, processedData.previousEvent);
-    currentEntry.dayOffset = processedData.totalDays;
+    currentEntry.dayOffset = processedData.totalDays as Day;
     currentEntry.delay = 0; // this means we dont calculate delays or gaps for skipped events
     currentEntry.gap = 0; // this means we dont calculate delays or gaps for skipped events
     currentEntry.parent = childOfGroup;

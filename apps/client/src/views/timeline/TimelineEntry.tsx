@@ -1,4 +1,5 @@
 import { RefObject } from 'react';
+import { Day } from 'ontime-types';
 
 import { useExpectedStartData, useTimer } from '../../common/hooks/useSocket';
 import { getProgress } from '../../common/utils/getProgress';
@@ -20,7 +21,7 @@ interface TimelineEntryProps {
   left: number;
   status: ProgressStatus;
   start: number;
-  dayOffset: number;
+  dayOffset: Day;
   totalGap: number;
   isLinkedToLoaded: boolean;
   title: string;
@@ -119,7 +120,7 @@ export function TimelineEntry({
 interface TimelineEntryStatusProps {
   delay: number;
   start: number;
-  dayOffset: number;
+  dayOffset: Day;
   totalGap: number;
   isLinkedToLoaded: boolean;
   status: ProgressStatus;
