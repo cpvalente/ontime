@@ -121,7 +121,12 @@ function EventEditorTimes({
             />
           </div>
           <div>
-            <Editor.Label htmlFor='countToEnd'>Count to End</Editor.Label>
+            <Editor.Label htmlFor='countToEnd'>
+              <Tooltip text='When enabled, timer will count to the fixed end time, ignoring the set duration of the event and always counting to the time.' render={<span />}>
+                Count to End
+                <IoInformationCircle className={style.tooltipIcon} />
+              </Tooltip>
+            </Editor.Label>
             <Editor.Label className={style.switchLabel}>
               <Switch
                 id='countToEnd'
@@ -132,7 +137,12 @@ function EventEditorTimes({
             </Editor.Label>
           </div>
           <div>
-            <Editor.Label htmlFor='breakRoll'>Break Roll</Editor.Label>
+            <Editor.Label htmlFor='breakRoll'>
+              <Tooltip text='When enabled, this event will break out of roll mode and return to normal playback. End actions will take effect, even in roll mode.' render={<span />}>
+                Break Roll
+                <IoInformationCircle className={style.tooltipIcon} />
+              </Tooltip>
+            </Editor.Label>
             <Editor.Label className={style.switchLabel}>
               <Switch
                 id='breakRoll'
