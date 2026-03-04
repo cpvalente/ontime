@@ -147,7 +147,7 @@ function RundownEventInner({
             <LuArrowDownToLine className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
           </Tooltip>
           <Tooltip text={breakRoll ? 'Breaks roll' : 'Continues roll'} render={<span />}>
-            <TbClockStop className={`${style.statusIcon} ${breakRoll ? `${style.active} ${style.activeRed}` : style.disabled}`} />
+            <TbClockStop className={`${style.statusIcon} ${breakRoll ? `${style.active} ${style.activeOrange}` : style.disabled}`} />
           </Tooltip>
           <Tooltip text='Event has Triggers' render={<span />}>
             <IoFlash className={`${style.statusIcon} ${hasTriggers ? style.active : style.disabled}`} />
