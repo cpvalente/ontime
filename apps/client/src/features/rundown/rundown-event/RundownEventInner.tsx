@@ -7,10 +7,10 @@ import {
   IoPlay,
   IoPlayForward,
   IoPlaySkipForward,
-  IoStop,
   IoTime,
 } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
+import { TbClockStop } from 'react-icons/tb';
 import { Day, EndAction, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
@@ -147,7 +147,7 @@ function RundownEventInner({
             <LuArrowDownToLine className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
           </Tooltip>
           <Tooltip text={breakRoll ? 'Breaks roll' : 'Continues roll'} render={<span />}>
-            <IoStop className={`${style.statusIcon} ${breakRoll ? style.active : style.disabled}`} />
+            <TbClockStop className={`${style.statusIcon} ${breakRoll ? style.active : style.disabled}`} />
           </Tooltip>
           <Tooltip text='Event has Triggers' render={<span />}>
             <IoFlash className={`${style.statusIcon} ${hasTriggers ? style.active : style.disabled}`} />
