@@ -1,4 +1,4 @@
-import { dayInMs, MILLIS_PER_HOUR, millisToString } from 'ontime-utils';
+import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString } from 'ontime-utils';
 import { EndAction, Playback, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 
 import {
@@ -692,6 +692,44 @@ describe('skippedOutOfEvent()', () => {
 
     state.clock -= testSkipLimit + 1;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
+  });
+
+  it('handles events that cross midnight', () => {
+    const startedAt = 23 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE; // 23:50
+    const expectedFinish = 1 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE; // 01:50
+    const clock = 14 * MILLIS_PER_MINUTE + 47 * MILLIS_PER_SECOND; // 00:14:47
+    const previousTime = clock - 1021; // ~1 second ago
+
+    const state = {
+      clock,
+      timer: {
+        expectedFinish,
+        startedAt,
+      },
+    } as RuntimeState;
+
+    // Even though clock < startedAt numerically (00:14 < 23:50),
+    // we're inside the overnight event, so this should NOT be a skip
+    expect(skippedOutOfEvent(state, previousTime, 1000)).toBe(false);
+  });
+
+  it('correctly detects skip out of an event that crosses midnight', () => {
+    // Event 23:50-01:50, clock jumps to 02:00 (outside event)
+    const startedAt = 23 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE; // 23:50
+    const expectedFinish = 1 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE; // 01:50
+    const previousTime = 1 * MILLIS_PER_HOUR + 49 * MILLIS_PER_MINUTE; // 01:49
+    const clock = 2 * MILLIS_PER_HOUR; // 02:00 (outside event)
+
+    const state = {
+      clock,
+      timer: {
+        expectedFinish,
+        startedAt,
+      },
+    } as RuntimeState;
+
+    // Clock jumped from 01:49 to 02:00 (11 min skip) and is now outside the event
+    expect(skippedOutOfEvent(state, previousTime, 1000)).toBe(true);
   });
 });
 

@@ -1,5 +1,5 @@
 import { MaybeNumber, TimerPhase } from 'ontime-types';
-import { dayInMs, isPlaybackActive, MILLIS_PER_HOUR } from 'ontime-utils';
+import { checkIsNow, dayInMs, isPlaybackActive, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import type { RuntimeState } from '../stores/runtimeState.js';
 
@@ -98,14 +98,15 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
   const { startedAt, expectedFinish } = state.timer;
   const { clock } = state;
 
-  const hasPassedMidnight = previousTime > dayInMs - skipLimit && clock < skipLimit;
-  const adjustedClock = hasPassedMidnight ? clock + dayInMs : clock;
+  const isInsideEvent = checkIsNow(startedAt, expectedFinish, clock);
+  if (isInsideEvent) return false;
 
-  const timeDifference = previousTime - adjustedClock;
-  const hasSkipped = Math.abs(timeDifference) > skipLimit;
-  const adjustedExpectedFinish = expectedFinish >= startedAt ? expectedFinish : expectedFinish + dayInMs;
+  // we are outside the event, but we need to check if we skipped or just finished normally
+  const timeFromPrevious = Math.abs(previousTime - clock);
+  // account for midnight when checking skips
+  const hasSkipped = Math.min(timeFromPrevious, dayInMs - timeFromPrevious) > skipLimit;
 
-  return hasSkipped && (adjustedClock > adjustedExpectedFinish || adjustedClock < startedAt);
+  return hasSkipped;
 }
 
 /**
