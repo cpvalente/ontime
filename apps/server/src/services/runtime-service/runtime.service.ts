@@ -551,7 +551,7 @@ class RuntimeService {
       if (result.didStart) {
         const newState = runtimeState.getState();
         if (newState.eventNow?.breakRoll) {
-          runtimeState.exitRoll();
+          runtimeState.start();
         }
         process.nextTick(() => {
           triggerReportEntry(TimerLifeCycle.onStart, newState);
@@ -592,7 +592,7 @@ class RuntimeService {
 
       if (result.didStart) {
         if (newState.eventNow?.breakRoll) {
-          runtimeState.exitRoll();
+          runtimeState.start();
         }
         process.nextTick(() => {
           triggerReportEntry(TimerLifeCycle.onStart, newState);

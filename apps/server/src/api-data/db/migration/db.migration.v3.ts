@@ -379,7 +379,6 @@ export function migrateRundown(
           endAction: validateEndAction(entry.endAction, EndAction.None), // ensure end action is not stop
           timerType: isKnownTimerType(entry.timerType) ? entry.timerType : eventModel.timerType, // ensure the timer type is not count-to-end
           countToEnd: entry.timerType === 'count-to-end', // countToEnd was previously a timer type
-          breakRoll: false,
           linkStart: Boolean(entry.linkStart), //this has been null/string
           timeStrategy: entry.timeStrategy,
           timeStart: entry.timeStart,
