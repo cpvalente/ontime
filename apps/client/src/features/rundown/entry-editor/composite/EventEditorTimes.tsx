@@ -122,7 +122,7 @@ function EventEditorTimes({
           </div>
           <div>
             <Editor.Label htmlFor='countToEnd'>
-              <Tooltip text='When enabled, timer will count to the fixed end time, ignoring the set duration of the event and always counting to the time.' render={<span />}>
+              <Tooltip text='When enabled, the timer counts down to the scheduled end time instead of counting down from the event duration.' render={<span />}>
                 Count to End
                 <IoInformationCircle className={style.tooltipIcon} />
               </Tooltip>
