@@ -47,7 +47,7 @@ export default function RundownEntry({
         linkStart={data.linkStart}
         flag={data.flag}
         countToEnd={data.countToEnd}
-        breakRoll={data.breakRoll}
+        breakRoll={data.breakRoll ?? false}
         endAction={data.endAction}
         timerType={data.timerType}
         title={data.title}
