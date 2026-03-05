@@ -13,3 +13,20 @@
   color: $gray-500;
   font-style: italic;
 }
+
+.disabledDuration {
+  width: 100%;
+  max-width: 7.5em;
+  text-align: center;
+  color: $gray-600;
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.lockActive {
+  color: $active-indicator;
+}
+
+.lockInactive {
+  color: $muted-gray;
+}

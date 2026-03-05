@@ -1,7 +1,9 @@
 import { CSSProperties, useCallback, useEffect, useRef } from 'react';
+import { IoLockClosed, IoLockOpenOutline } from 'react-icons/io5';
 import { CustomFields, OntimeEvent, TimeField } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
+import IconButton from '../../../../common/components/buttons/IconButton';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
@@ -81,6 +83,25 @@ export default function MultiEventEditor() {
     <div className={editorStyle.content}>
       <div className={style.header}>{`Editing ${selectedIds.length} events`}</div>
       <div className={editorStyle.column}>
+        <Editor.Title>Event Schedule</Editor.Title>
+        <div>
+          <Editor.Label>Duration</Editor.Label>
+          <TimeInputGroup>
+            {durationEnabled ? (
+              <TimeInput name='duration' submitHandler={handleDurationSubmit} time={durationValue} />
+            ) : (
+              <span className={style.disabledDuration}>-</span>
+            )}
+            <IconButton variant='subtle-white' className={durationEnabled ? style.lockActive : style.lockInactive}>
+              {durationEnabled ? <IoLockClosed /> : <IoLockOpenOutline />}
+            </IconButton>
+          </TimeInputGroup>
+          {!durationEnabled && (
+            <Editor.Label className={style.hint}>All events must have duration lock</Editor.Label>
+          )}
+        </div>
+      </div>
+      <div className={editorStyle.column}>
         <Editor.Title>Event Data</Editor.Title>
         <div>
           <Editor.Label htmlFor='flag'>Flag</Editor.Label>
@@ -110,18 +131,6 @@ export default function MultiEventEditor() {
           initialValue={noteValue}
           submitHandler={handleTextSubmit}
         />
-      </div>
-      <div className={editorStyle.column}>
-        <Editor.Title>Event Schedule</Editor.Title>
-        <div>
-          <Editor.Label>Duration</Editor.Label>
-          <TimeInputGroup>
-            <TimeInput name='duration' submitHandler={handleDurationSubmit} time={durationValue} disabled={!durationEnabled} />
-          </TimeInputGroup>
-          {!durationEnabled && (
-            <Editor.Label className={style.hint}>All events must have duration lock</Editor.Label>
-          )}
-        </div>
       </div>
       {Object.keys(customFields).length > 0 && (
         <div className={editorStyle.column}>
