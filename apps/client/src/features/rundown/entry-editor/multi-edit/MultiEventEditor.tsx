@@ -8,6 +8,7 @@ import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Dialog from '../../../../common/components/dialog/Dialog';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
+import Info from '../../../../common/components/info/Info';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import Switch from '../../../../common/components/switch/Switch';
@@ -90,7 +91,7 @@ export default function MultiEventEditor() {
 
   return (
     <div className={editorStyle.content}>
-      <div className={style.header}>{`Editing ${selectedIds.length} events`}</div>
+      <Info type='info'>{`Editing ${selectedIds.length} events`}</Info>
       <div className={editorStyle.column}>
         <Editor.Title>Event Schedule</Editor.Title>
         <div>
