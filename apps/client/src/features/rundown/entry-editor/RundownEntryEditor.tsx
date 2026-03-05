@@ -9,6 +9,7 @@ import EventEditor from './EventEditor';
 import EventEditorEmpty from './EventEditorEmpty';
 import GroupEditor from './GroupEditor';
 import MilestoneEditor from './MilestoneEditor';
+import MultiEventEditor from './multi-edit/MultiEventEditor';
 
 import style from './EntryEditor.module.scss';
 
@@ -29,6 +30,14 @@ export default function RundownEntryEditor() {
     const event = data.entries[selectedEventId];
     return event ?? null;
   }, [data.order.length, data.entries, selectedEvents]);
+
+  if (selectedEvents.size > 1) {
+    return (
+      <div className={style.rundownEditor} data-testid='editor-container'>
+        <MultiEventEditor />
+      </div>
+    );
+  }
 
   if (!entry) {
     return <EventEditorEmpty />;
