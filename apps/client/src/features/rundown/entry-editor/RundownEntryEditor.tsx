@@ -5,11 +5,11 @@ import useRundown from '../../../common/hooks-query/useRundown';
 import { useEventSelection } from '../useEventSelection';
 
 import EventEditorFooter from './composite/EventEditorFooter';
+import MultiEventEditor from './multi-edit/MultiEventEditor';
 import EventEditor from './EventEditor';
 import EventEditorEmpty from './EventEditorEmpty';
 import GroupEditor from './GroupEditor';
 import MilestoneEditor from './MilestoneEditor';
-import MultiEventEditor from './multi-edit/MultiEventEditor';
 
 import style from './EntryEditor.module.scss';
 

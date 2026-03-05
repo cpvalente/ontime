@@ -55,4 +55,8 @@
   &[data-checked] {
     translate: calc(var(--width) - var(--height)) 0;
   }
+
+  &[data-indeterminate] {
+    opacity: 0;
+  }
 }

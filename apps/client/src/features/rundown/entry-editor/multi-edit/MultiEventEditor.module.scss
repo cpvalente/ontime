@@ -1,3 +1,12 @@
+.bold {
+  font-weight: 600;
+}
+
+.underline {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .hint {
   font-size: 0.75rem;
   color: $gray-500;

@@ -6,12 +6,13 @@ import style from './Switch.module.scss';
 
 interface SwitchProps extends BaseSwitch.Root.Props {
   size?: 'medium' | 'large';
+  indeterminate?: boolean;
 }
 
-export default function Switch({ size = 'medium', ...switchProps }: SwitchProps) {
+export default function Switch({ size = 'medium', indeterminate, ...switchProps }: SwitchProps) {
   return (
     <BaseSwitch.Root className={cx([style.switch, style[size]])} {...switchProps}>
-      <BaseSwitch.Thumb className={style.thumb} />
+      <BaseSwitch.Thumb className={style.thumb} data-indeterminate={indeterminate || undefined} />
     </BaseSwitch.Root>
   );
 }
