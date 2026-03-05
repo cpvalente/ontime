@@ -1,9 +1,12 @@
 import { CSSProperties, useCallback, useEffect, useRef } from 'react';
 import { IoLockClosed, IoLockOpenOutline } from 'react-icons/io5';
-import { CustomFields, OntimeEvent, TimeField } from 'ontime-types';
+import { useDisclosure } from '@mantine/hooks';
+import { CustomFields, OntimeEvent, TimeField, TimeStrategy } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
+import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
+import Dialog from '../../../../common/components/dialog/Dialog';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
@@ -26,6 +29,7 @@ export default function MultiEventEditor() {
   const { merged, selectedIds } = useMultiEventMerge();
   const { batchUpdateEvents } = useEntryActionsContext();
   const { data: customFields } = useCustomFields();
+  const [isLockDialogOpen, lockDialogHandlers] = useDisclosure();
 
   const handleTextSubmit = useCallback(
     (field: string, value: string) => {
@@ -55,6 +59,11 @@ export default function MultiEventEditor() {
     },
     [batchUpdateEvents, selectedIds],
   );
+
+  const handleConfirmLockDuration = useCallback(() => {
+    batchUpdateEvents({ timeStrategy: TimeStrategy.LockDuration }, selectedIds);
+    lockDialogHandlers.close();
+  }, [batchUpdateEvents, selectedIds, lockDialogHandlers]);
 
   const handleCustomSubmit = useCallback(
     (field: string, value: string) => {
@@ -92,7 +101,11 @@ export default function MultiEventEditor() {
             ) : (
               <span className={style.disabledDuration}>-</span>
             )}
-            <IconButton variant='subtle-white' className={durationEnabled ? style.lockActive : style.lockInactive}>
+            <IconButton
+              variant='subtle-white'
+              className={durationEnabled ? style.lockActive : style.lockInactive}
+              onClick={!durationEnabled ? lockDialogHandlers.open : undefined}
+            >
               {durationEnabled ? <IoLockClosed /> : <IoLockOpenOutline />}
             </IconButton>
           </TimeInputGroup>
@@ -142,6 +155,26 @@ export default function MultiEventEditor() {
           />
         </div>
       )}
+      <Dialog
+        isOpen={isLockDialogOpen}
+        onClose={lockDialogHandlers.close}
+        title='Change time strategy'
+        showBackdrop
+        showCloseButton
+        bodyElements={
+          <>This will set duration lock for all selected events and significantly impact this rundowns total duration.</>
+        }
+        footerElements={
+          <>
+            <Button variant='ghosted-white' size='large' onClick={lockDialogHandlers.close}>
+              No
+            </Button>
+            <Button variant='destructive' size='large' onClick={handleConfirmLockDuration}>
+              Yes
+            </Button>
+          </>
+        }
+      />
     </div>
   );
 }
