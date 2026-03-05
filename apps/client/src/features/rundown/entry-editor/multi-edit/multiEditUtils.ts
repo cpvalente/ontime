@@ -1,4 +1,4 @@
-import { isOntimeEvent, OntimeEvent, RundownEntries } from 'ontime-types';
+import { isOntimeEvent, OntimeEvent, RundownEntries, TimeStrategy } from 'ontime-types';
 
 export const INDETERMINATE = Symbol('indeterminate');
 type Indeterminate = typeof INDETERMINATE;
@@ -9,7 +9,7 @@ export function isIndeterminate<T>(v: MergedValue<T>): v is Indeterminate {
 }
 
 /** Fields included in multi-edit v1 */
-const mergeableFields = ['title', 'note', 'colour', 'flag'] as const;
+const mergeableFields = ['title', 'note', 'colour', 'flag', 'duration', 'timeStrategy'] as const;
 
 type MergeableField = (typeof mergeableFields)[number];
 
@@ -19,6 +19,7 @@ export type MergedEvent = {
   [K in MergeableField]: MergedValue<OntimeEvent[K]>;
 } & {
   custom: MergedCustomFields;
+  allLockDuration: boolean;
 };
 
 export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>): MergedEvent | null {
@@ -40,7 +41,10 @@ export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>): 
     note: first.note,
     colour: first.colour,
     flag: first.flag,
+    duration: first.duration,
+    timeStrategy: first.timeStrategy,
     custom: { ...first.custom },
+    allLockDuration: false,
   };
 
   for (let i = 1; i < events.length; i++) {
@@ -57,6 +61,9 @@ export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>): 
       }
     }
   }
+
+  merged.allLockDuration =
+    !isIndeterminate(merged.timeStrategy) && merged.timeStrategy === TimeStrategy.LockDuration;
 
   return merged;
 }

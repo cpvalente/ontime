@@ -1,12 +1,15 @@
 import { CSSProperties, useCallback, useEffect, useRef } from 'react';
-import { CustomFields, OntimeEvent } from 'ontime-types';
+import { CustomFields, OntimeEvent, TimeField } from 'ontime-types';
+import { parseUserTime } from 'ontime-utils';
 
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
+import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import Switch from '../../../../common/components/switch/Switch';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
+import TimeInputGroup from '../../time-input-flow/TimeInputGroup';
 import EventEditorImage from '../composite/EventEditorImage';
 import EntryEditorTextInput from '../composite/EventTextInput';
 import EventTextArea from '../composite/EventTextArea';
@@ -43,6 +46,14 @@ export default function MultiEventEditor() {
     [batchUpdateEvents, selectedIds],
   );
 
+  const handleDurationSubmit = useCallback(
+    (_field: TimeField, value: string) => {
+      const ms = parseUserTime(value);
+      batchUpdateEvents({ duration: ms }, selectedIds);
+    },
+    [batchUpdateEvents, selectedIds],
+  );
+
   const handleCustomSubmit = useCallback(
     (field: string, value: string) => {
       // field comes as "custom-{fieldKey}" from the input components
@@ -63,6 +74,8 @@ export default function MultiEventEditor() {
   const colourValue = isIndeterminate(merged.colour) ? '' : merged.colour;
   const flagIndeterminate = isIndeterminate(merged.flag);
   const flagChecked = flagIndeterminate ? false : merged.flag;
+  const durationValue = isIndeterminate(merged.duration) ? 0 : merged.duration;
+  const durationEnabled = merged.allLockDuration;
 
   return (
     <div className={editorStyle.content}>
@@ -97,6 +110,18 @@ export default function MultiEventEditor() {
           initialValue={noteValue}
           submitHandler={handleTextSubmit}
         />
+      </div>
+      <div className={editorStyle.column}>
+        <Editor.Title>Event Schedule</Editor.Title>
+        <div>
+          <Editor.Label>Duration</Editor.Label>
+          <TimeInputGroup>
+            <TimeInput name='duration' submitHandler={handleDurationSubmit} time={durationValue} disabled={!durationEnabled} />
+          </TimeInputGroup>
+          {!durationEnabled && (
+            <Editor.Label className={style.hint}>All events must have duration lock</Editor.Label>
+          )}
+        </div>
       </div>
       {Object.keys(customFields).length > 0 && (
         <div className={editorStyle.column}>
