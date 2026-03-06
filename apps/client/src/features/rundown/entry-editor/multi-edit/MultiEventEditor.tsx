@@ -1,5 +1,5 @@
 import { CSSProperties, useCallback } from 'react';
-import { IoLockClosed, IoLockOpenOutline } from 'react-icons/io5';
+import { IoLink, IoLockClosed, IoLockOpenOutline, IoUnlink } from 'react-icons/io5';
 import { useDisclosure } from '@mantine/hooks';
 import { CustomFields, EndAction, OntimeEvent, TimeField, TimerType, TimeStrategy } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
@@ -88,6 +88,13 @@ export default function MultiEventEditor() {
     [batchUpdateEvents, selectedIds],
   );
 
+  const handleLinkStart = useCallback(
+    (newValue: boolean) => {
+      batchUpdateEvents({ linkStart: newValue }, selectedIds);
+    },
+    [batchUpdateEvents, selectedIds],
+  );
+
   const handleTimeFieldSubmit = useCallback(
     (field: string, value: string) => {
       const ms = parseUserTime(value);
@@ -107,6 +114,9 @@ export default function MultiEventEditor() {
   const colourValue = colourIndeterminate ? '' : (merged.colour as string);
   const flagIndeterminate = isIndeterminate(merged.flag);
   const flagChecked = flagIndeterminate ? false : (merged.flag as boolean);
+  const linkStartIndeterminate = isIndeterminate(merged.linkStart);
+  const linkStartValue = linkStartIndeterminate ? false : (merged.linkStart as boolean);
+  const allLinked = !linkStartIndeterminate && linkStartValue;
   const durationIndeterminate = isIndeterminate(merged.duration);
   const durationValue = durationIndeterminate ? undefined : (merged.duration as number);
   const durationEnabled = merged.allLockDuration;
@@ -128,23 +138,48 @@ export default function MultiEventEditor() {
       </Info>
       <div className={editorStyle.column}>
         <Editor.Title>Event Schedule</Editor.Title>
-        <div>
-          <Editor.Label>Duration</Editor.Label>
-          <TimeInputGroup>
-            {durationEnabled ? (
-              <TimeInput name='duration' submitHandler={handleDurationSubmit} time={durationValue} placeholder='multiple' />
-            ) : (
-              <span className={style.disabledDuration}>-</span>
-            )}
-            <IconButton
-              variant='subtle-white'
-              className={durationEnabled ? style.lockActive : style.lockInactive}
-              onClick={!durationEnabled ? lockDialogHandlers.open : undefined}
-            >
-              {durationEnabled ? <IoLockClosed /> : <IoLockOpenOutline />}
-            </IconButton>
-          </TimeInputGroup>
-          {!durationEnabled && <Editor.Label className={style.hint}>All events must have duration lock</Editor.Label>}
+        <div className={editorStyle.inline}>
+          <div>
+            <Editor.Label>Start</Editor.Label>
+            <TimeInputGroup>
+              <span className={style.disabledInput}>&mdash;</span>
+              <IconButton
+                variant='subtle-white'
+                className={allLinked ? style.lockActive : style.lockInactive}
+                onClick={() => handleLinkStart(!allLinked)}
+              >
+                {allLinked ? <IoLink /> : <IoUnlink />}
+              </IconButton>
+            </TimeInputGroup>
+            {linkStartIndeterminate && <Editor.Label className={style.hint}>Mixed</Editor.Label>}
+          </div>
+          <div>
+            <Editor.Label>End</Editor.Label>
+            <TimeInputGroup>
+              <span className={style.disabledInput}>&mdash;</span>
+              <IconButton variant='subtle-white' className={style.lockDisabled}>
+                <IoLockOpenOutline />
+              </IconButton>
+            </TimeInputGroup>
+          </div>
+          <div>
+            <Editor.Label>Duration</Editor.Label>
+            <TimeInputGroup>
+              {durationEnabled ? (
+                <TimeInput name='duration' submitHandler={handleDurationSubmit} time={durationValue} placeholder='multiple' />
+              ) : (
+                <span className={style.disabledInput}>&mdash;</span>
+              )}
+              <IconButton
+                variant='subtle-white'
+                className={durationEnabled ? style.lockActive : style.lockInactive}
+                onClick={!durationEnabled ? lockDialogHandlers.open : undefined}
+              >
+                {durationEnabled ? <IoLockClosed /> : <IoLockOpenOutline />}
+              </IconButton>
+            </TimeInputGroup>
+            {!durationEnabled && <Editor.Label className={style.hint}>All events must have duration lock</Editor.Label>}
+          </div>
         </div>
       </div>
       <div className={editorStyle.column}>
