@@ -189,16 +189,15 @@ export default function MultiEventEditor() {
               ]}
             />
           </div>
-          <div />
-        </div>
-        <div className={editorStyle.splitTwo}>
-          <div>
-            <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
-            <TimeInput id='timeWarning' name='timeWarning' submitHandler={handleTimeFieldSubmit} time={timeWarningValue} placeholder={timeWarningIndeterminate ? 'multiple' : 'Duration'} />
-          </div>
-          <div>
-            <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
-            <TimeInput id='timeDanger' name='timeDanger' submitHandler={handleTimeFieldSubmit} time={timeDangerValue} placeholder={timeDangerIndeterminate ? 'multiple' : 'Duration'} />
+          <div className={editorStyle.inline}>
+            <div>
+              <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
+              <TimeInput id='timeWarning' name='timeWarning' submitHandler={handleTimeFieldSubmit} time={timeWarningValue} placeholder={timeWarningIndeterminate ? 'multiple' : 'Duration'} />
+            </div>
+            <div>
+              <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
+              <TimeInput id='timeDanger' name='timeDanger' submitHandler={handleTimeFieldSubmit} time={timeDangerValue} placeholder={timeDangerIndeterminate ? 'multiple' : 'Duration'} />
+            </div>
           </div>
         </div>
       </div>
