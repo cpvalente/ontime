@@ -20,8 +20,8 @@ import {
 } from 'ontime-types';
 import { ImportMap, getErrorMessage } from 'ontime-utils';
 
-import { sheets, type sheets_v4 } from '@googleapis/sheets';
-import { Credentials, OAuth2Client } from 'google-auth-library';
+import { type sheets_v4 } from '@googleapis/sheets';
+import { OAuth2Client } from 'google-auth-library';
 
 import { logger } from '../../classes/Logger.js';
 import { parseRundowns } from '../rundown/rundown.parser.js';
@@ -29,42 +29,18 @@ import { parseRundowns } from '../rundown/rundown.parser.js';
 import { getCurrentRundown, getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
 import { parseExcel } from '../excel/excel.parser.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
-import { consoleSubdued } from '../../utils/console.js';
 
 import { cellRequestFromEvent, type ClientSecret, getA1Notation, isClientSecret } from './sheets.utils.js';
 import { catchCommonImportXlsxError } from './googleApi.utils.js';
+import { DeviceAuthProvider } from './DeviceAuthProvider.js';
+import { GoogleSheetsClient } from './GoogleSheetsClient.js';
 
-const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
-const codesUrl = 'https://oauth2.googleapis.com/device/code';
-const tokenUrl = 'https://oauth2.googleapis.com/token';
-const grantType = 'urn:ietf:params:oauth:grant-type:device_code';
-
-let currentAuthClient: OAuth2Client | null = null;
-let currentClientSecret: ClientSecret | null = null;
-let currentAuthUrl: MaybeString = null;
-let currentAuthCode: MaybeString = null;
-
+const authProvider = new DeviceAuthProvider();
 let currentSheetId: MaybeString = null;
 
-let pollInterval: NodeJS.Timeout | null = null;
-let cleanupTimeout: NodeJS.Timeout | null = null;
-
 function reset() {
-  currentAuthClient = null;
-  currentClientSecret = null;
-  currentAuthUrl = null;
-  currentAuthCode = null;
-
+  authProvider.revoke();
   currentSheetId = null;
-
-  if (pollInterval) {
-    clearInterval(pollInterval);
-    pollInterval = null;
-  }
-  if (cleanupTimeout) {
-    clearTimeout(cleanupTimeout);
-    cleanupTimeout = null;
-  }
 }
 
 /**
@@ -95,148 +71,20 @@ export function handleClientSecret(clientSecret: string): ClientSecret {
   return clientSecretObject;
 }
 
-// https://developers.google.com/identity/protocols/oauth2/limited-input-device#success-response
-type CodesResponse = {
-  device_code: string;
-  expires_in: number;
-  interval: number;
-  user_code: string;
-  verification_url: string;
-};
-
-/**
- * Establishes connection with Google Auth server and retrieves device codes
- */
-async function getDeviceCodes(clientSecret: ClientSecret): Promise<CodesResponse> {
-  const response = await fetch(codesUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      client_id: clientSecret.installed.client_id,
-      scope: sheetScope,
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to fetch device codes: ${response.status} ${response.statusText} - ${errorText}`);
-  }
-
-  const deviceCodes: CodesResponse = await response.json();
-  return deviceCodes;
-}
-
-/**
- * Gets credentials from Google Auth server
- */
-function verifyConnection(
-  clientSecret: ClientSecret,
-  device_code: string,
-  interval: number,
-  expires_in: number,
-  postAction: () => Promise<any>,
-) {
-  logger.info(LogOrigin.Server, 'Start polling for auth...');
-
-  // create poller to check for auth
-  pollInterval = setInterval(pollForAuth, interval * 1000);
-
-  // schedule to clear the poller when we know the token is no longer valid
-  if (cleanupTimeout) {
-    clearTimeout(cleanupTimeout);
-    cleanupTimeout = null;
-  }
-  cleanupTimeout = setTimeout(() => {
-    if (pollInterval) {
-      clearInterval(pollInterval);
-      pollInterval = null;
-    }
-  }, expires_in * 1000);
-
-  async function pollForAuth() {
-    try {
-      const response = await fetch(tokenUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          client_id: clientSecret.installed.client_id,
-          client_secret: clientSecret.installed.client_secret,
-          device_code,
-          grant_type: grantType,
-        }),
-      });
-
-      // server returns 428 if user hasnt yet completed the auth process
-      if (response.status === 428) {
-        consoleSubdued('User not auth yet');
-        return;
-      }
-
-      if (!response.ok) {
-        logger.error(LogOrigin.Server, `Authentication poll failed with code: ${response.status}`);
-        return;
-      }
-
-      const auth: Credentials = await response.json();
-
-      logger.info(LogOrigin.Server, 'Successfully Authenticated');
-      const client = new OAuth2Client({
-        clientId: clientSecret.installed.client_id,
-        clientSecret: clientSecret.installed.client_secret,
-      });
-
-      client.setCredentials({
-        refresh_token: auth.refresh_token,
-        access_token: auth.access_token,
-        scope: auth.scope,
-        token_type: auth.token_type,
-      });
-
-      // save client and cancel tasks
-      currentAuthClient = client;
-
-      if (cleanupTimeout) {
-        clearTimeout(cleanupTimeout);
-        cleanupTimeout = null;
-      }
-
-      if (pollInterval) {
-        clearInterval(pollInterval);
-        pollInterval = null;
-      }
-
-      await postAction();
-    } catch (error) {
-      logger.error(LogOrigin.Server, `Authentication poll error: ${(error as Error).message}`);
-    }
-  }
-}
-
 export function hasAuth(): { authenticated: AuthenticationStatus; sheetId: string } {
   if (!currentSheetId) {
     throw new Error('No sheet ID');
   }
-  if (cleanupTimeout) {
-    return { authenticated: 'pending', sheetId: currentSheetId };
-  }
-  return { authenticated: currentAuthClient ? 'authenticated' : 'not_authenticated', sheetId: currentSheetId };
+  return { authenticated: authProvider.getStatus(), sheetId: currentSheetId };
 }
 
 async function verifySheet(
-  sheetId = currentSheetId,
-  authClient = currentAuthClient,
+  sheetId: string,
+  authClient: OAuth2Client,
 ): Promise<{ worksheetOptions: string[] }> {
-  if (!sheetId || !authClient) {
-    throw new Error('Missing sheet ID or authentication');
-  }
-
   try {
-    const spreadsheets = await sheets({ version: 'v4', auth: authClient }).spreadsheets.get({
-      spreadsheetId: sheetId,
-      includeGridData: false,
-    });
+    const client = new GoogleSheetsClient(authClient);
+    const spreadsheets = await client.getSpreadsheet(sheetId);
 
     const worksheets: string[] = [];
     spreadsheets.data.sheets?.forEach((sheet) => {
@@ -261,26 +109,17 @@ export async function handleInitialConnection(
   clientSecret: ClientSecret,
   sheetId: string,
 ): Promise<{ verification_url: string; user_code: string }> {
-  currentClientSecret = clientSecret;
-
-  // we know there is an ongoing process if there is a timeout for cleanup
-  // if there is an ongoing process, we return its data
-  if (cleanupTimeout) {
-    if (!currentAuthUrl || !currentAuthCode) {
-      throw new Error('No ongoing connection');
-    }
-    return { verification_url: currentAuthUrl, user_code: currentAuthCode };
-  }
-
-  const { device_code, expires_in, interval, user_code, verification_url } = await getDeviceCodes(currentClientSecret);
-  currentAuthUrl = verification_url;
-  currentAuthCode = user_code;
   currentSheetId = sheetId;
 
-  // schedule verifying token and the existence of the sheetID
-  verifyConnection(currentClientSecret, device_code, interval, expires_in, verifySheet);
+  if (authProvider.getStatus() === 'pending') {
+    const pendingData = authProvider.getPendingData();
+    if (!pendingData.verification_url || !pendingData.user_code) {
+      throw new Error('No ongoing connection');
+    }
+    return pendingData as { verification_url: string; user_code: string };
+  }
 
-  return { verification_url, user_code };
+  return authProvider.authenticate(clientSecret, (client) => verifySheet(sheetId, client).then(() => {}));
 }
 
 /**
@@ -288,22 +127,21 @@ export async function handleInitialConnection(
  * @returns
  */
 export async function getWorksheetOptions(sheetId: string): ReturnType<typeof verifySheet> {
-  if (!currentAuthClient) {
+  const authClient = authProvider.getAuthClient();
+  if (!authClient) {
     throw new Error('Not authenticated');
   }
   currentSheetId = sheetId;
 
-  return verifySheet(sheetId);
+  return verifySheet(sheetId, authClient);
 }
 
-async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ worksheetId: number; range: string }> {
-  if (!currentAuthClient) {
-    throw new Error('Not authenticated');
-  }
-
-  const spreadsheets = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.get({
-    spreadsheetId: sheetId,
-  });
+async function verifyWorksheet(
+  client: GoogleSheetsClient,
+  sheetId: string,
+  worksheet: string,
+): Promise<{ worksheetId: number; range: string }> {
+  const spreadsheets = await client.getSpreadsheet(sheetId);
 
   if (spreadsheets.status !== 200) {
     throw new Error(`Request failed: ${spreadsheets.status} ${spreadsheets.statusText}`);
@@ -320,13 +158,7 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
   if (!selectedWorksheet) {
     throw new Error('Could not find worksheet');
   }
-  /*
-    The first spreadsheet provided by google sheet has an id = 0,
-    so !0 returns true, the only other number that returns true in this setup is NaN,
-    so if x !== 0 && x !== NaN, then !x returns false, we indeed want !NaN to return true,
-    but we would like !0 to return false, reason why is also checked that the id is not 0,
-    because if it is 0, then I should not enter the condition.
-  */
+
   if (
     !selectedWorksheet.properties ||
     (!selectedWorksheet.properties.sheetId && selectedWorksheet.properties.sheetId !== 0)
@@ -342,18 +174,15 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
 }
 
 export async function upload(sheetId: string, options: ImportMap) {
-  if (!currentAuthClient) {
+  const authClient = authProvider.getAuthClient();
+  if (!authClient) {
     throw new Error('Not authenticated');
   }
+  const client = new GoogleSheetsClient(authClient);
 
-  const { worksheetId, range } = await verifyWorksheet(sheetId, options.worksheet);
+  const { worksheetId, range } = await verifyWorksheet(client, sheetId, options.worksheet);
 
-  const readResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.values.get({
-    spreadsheetId: sheetId,
-    valueRenderOption: 'FORMATTED_VALUE',
-    majorDimension: 'ROWS',
-    range,
-  });
+  const readResponse = await client.getValues(sheetId, range);
 
   if (readResponse.status !== 200 || !readResponse.data.values) {
     throw new Error(`Sheet read failed: ${readResponse.statusText}`);
@@ -429,14 +258,7 @@ export async function upload(sheetId: string, options: ImportMap) {
     throw new Error(`Sheet write failed to correctly parse rundown: ${e}`);
   }
 
-  const writeResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.batchUpdate({
-    spreadsheetId: sheetId,
-    requestBody: {
-      includeSpreadsheetInResponse: false,
-      responseRanges: [range],
-      requests: updateRundown,
-    },
-  });
+  const writeResponse = await client.batchUpdate(sheetId, updateRundown, [range]);
 
   if (writeResponse.status === 200) {
     logger.info(LogOrigin.Server, `Sheet write ${writeResponse.statusText}`);
@@ -459,18 +281,15 @@ export async function download(
   customFields: CustomFields;
   summary: RundownSummary;
 }> {
-  if (!currentAuthClient) {
+  const authClient = authProvider.getAuthClient();
+  if (!authClient) {
     throw new Error('Not authenticated');
   }
+  const client = new GoogleSheetsClient(authClient);
 
-  const { range } = await verifyWorksheet(sheetId, options.worksheet);
+  const { range } = await verifyWorksheet(client, sheetId, options.worksheet);
 
-  const googleResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.values.get({
-    spreadsheetId: sheetId,
-    valueRenderOption: 'FORMATTED_VALUE',
-    majorDimension: 'ROWS',
-    range,
-  });
+  const googleResponse = await client.getValues(sheetId, range);
 
   if (googleResponse.status !== 200) {
     throw new Error(`Sheet read failed: ${googleResponse.statusText}`);
