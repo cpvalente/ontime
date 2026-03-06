@@ -256,8 +256,8 @@ describe('mutation on runtimeState', () => {
       order: ['event1'],
     });
 
-    const startEpoch = new Date('2024-01-01T00:00:00Z').getTime();
-    vi.setSystemTime(new Date('2024-01-03T00:00:00Z'));
+    const startEpoch = new Date('jan 1 00:00').getTime() as Instant;
+    vi.setSystemTime('jan 3 23:59:59');
 
     await initRundown(mockRundown, {});
     vi.runAllTimers();
@@ -280,7 +280,8 @@ describe('mutation on runtimeState', () => {
     expect(newState.rundown.actualStart).toBe(60 * 1000);
     expect(newState.rundown.currentDay).toBe(2);
 
-    vi.setSystemTime(new Date('2024-01-04T00:00:00Z'));
+    // crossing midnight increments currentDay
+    vi.setSystemTime('jan 4 00:00:01');
     update();
     expect(getState().rundown.currentDay).toBe(3);
   });
@@ -295,6 +296,104 @@ describe('roll mode', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  describe('overnight event sets correct currentDay', () => {
+    test('roll into overnight event after midnight sets currentDay correctly', async () => {
+      // Event spans 23:30 to 00:30 (overnight)
+      const mockRundown = makeRundown({
+        entries: {
+          1: {
+            ...mockEvent,
+            id: '1',
+            timeStart: 23 * 60 * 60 * 1000 + 30 * 60 * 1000, // 23:30
+            timeEnd: 30 * 60 * 1000, // 00:30
+            duration: 60 * 60 * 1000, // 1 hour
+            dayOffset: 0,
+          },
+        },
+        order: ['1'],
+      });
+
+      await initRundown(mockRundown, {});
+      vi.runAllTimers();
+
+      // Clock is at 00:10 (morning part of overnight event)
+      vi.setSystemTime('jan 1 00:10');
+      const { rundown, metadata } = rundownCache.get();
+      const result = roll(rundown, metadata);
+
+      expect(result.eventId).toBe('1');
+      expect(result.didStart).toBe(true);
+
+      const state = getState();
+      // currentDay should be 1 because we're in the "next day" part of the overnight event
+      expect(state.rundown.currentDay).toBe(1);
+    });
+
+    test('roll into overnight event before midnight sets currentDay correctly', async () => {
+      // Event spans 23:30 to 00:30 (overnight)
+      const mockRundown = makeRundown({
+        entries: {
+          1: {
+            ...mockEvent,
+            id: '1',
+            timeStart: 23 * 60 * 60 * 1000 + 30 * 60 * 1000, // 23:30
+            timeEnd: 30 * 60 * 1000, // 00:30
+            duration: 60 * 60 * 1000, // 1 hour
+            dayOffset: 0,
+          },
+        },
+        order: ['1'],
+      });
+
+      await initRundown(mockRundown, {});
+      vi.runAllTimers();
+
+      // Clock is at 23:40 (evening part of overnight event)
+      vi.setSystemTime('jan 1 23:40');
+      const { rundown, metadata } = rundownCache.get();
+      const result = roll(rundown, metadata);
+
+      expect(result.eventId).toBe('1');
+      expect(result.didStart).toBe(true);
+
+      const state = getState();
+      // currentDay should be 0 because we're still on the same day as the event start
+      expect(state.rundown.currentDay).toBe(0);
+    });
+
+    test('currentDay increments when crossing midnight during roll', async () => {
+      const mockRundown = makeRundown({
+        entries: {
+          1: {
+            ...mockEvent,
+            id: '1',
+            timeStart: 23 * 60 * 60 * 1000 + 30 * 60 * 1000, // 23:30
+            timeEnd: 30 * 60 * 1000, // 00:30
+            duration: 60 * 60 * 1000, // 1 hour
+            dayOffset: 0,
+          },
+        },
+        order: ['1'],
+      });
+
+      await initRundown(mockRundown, {});
+      vi.runAllTimers();
+
+      // Start at 23:40
+      vi.setSystemTime('jan 1 23:40');
+      const { rundown, metadata } = rundownCache.get();
+      roll(rundown, metadata);
+
+      expect(getState().rundown.currentDay).toBe(0);
+
+      // Cross midnight
+      vi.setSystemTime('jan 2 00:10');
+      update();
+
+      expect(getState().rundown.currentDay).toBe(1);
+    });
   });
 
   describe('normal roll', async () => {
