@@ -125,6 +125,7 @@ export default function MultiEventEditor() {
   const durationIndeterminate = isIndeterminate(merged.duration);
   const durationValue = durationIndeterminate ? undefined : (merged.duration as number);
   const durationEnabled = merged.allLockDuration;
+  const durationLockIndeterminate = isIndeterminate(merged.timeStrategy);
   const endActionIndeterminate = isIndeterminate(merged.endAction);
   const endActionValue = endActionIndeterminate ? null : (merged.endAction as EndAction);
   const countToEndIndeterminate = isIndeterminate(merged.countToEnd);
@@ -182,10 +183,9 @@ export default function MultiEventEditor() {
                 onClick={!durationEnabled ? lockDialogHandlers.open : undefined}
                 render={<IconButton variant='subtle-white' className={durationEnabled ? style.lockActive : style.lockInactive} />}
               >
-                {durationEnabled ? <IoLockClosed /> : <IoLockOpenOutline />}
+                {durationLockIndeterminate ? <FaQuestion /> : durationEnabled ? <IoLockClosed /> : <IoLockOpenOutline />}
               </Tooltip>
             </TimeInputGroup>
-            {!durationEnabled && <Editor.Label className={style.hint}>All events must have duration lock</Editor.Label>}
           </div>
         </div>
       </div>
@@ -287,7 +287,7 @@ export default function MultiEventEditor() {
       </div>
       <div className={editorStyle.column}>
         <Editor.Title>Automations</Editor.Title>
-        <Editor.Label className={style.hint}>Not available when editing multiple events</Editor.Label>
+        <Info type='info'>Not available when editing multiple events</Info>
       </div>
       <Dialog
         isOpen={isLockDialogOpen}

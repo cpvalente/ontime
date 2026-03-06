@@ -45,6 +45,5 @@
 
 .lockDisabled {
   color: $muted-gray;
-  cursor: default;
-  pointer-events: none;
+  cursor: not-allowed;
 }
