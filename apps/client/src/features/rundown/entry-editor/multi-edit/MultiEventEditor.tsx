@@ -1,7 +1,7 @@
 import { CSSProperties, useCallback } from 'react';
 import { IoLockClosed, IoLockOpenOutline } from 'react-icons/io5';
 import { useDisclosure } from '@mantine/hooks';
-import { CustomFields, EndAction, OntimeEvent, TimeField, TimeStrategy } from 'ontime-types';
+import { CustomFields, EndAction, OntimeEvent, TimeField, TimerType, TimeStrategy } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
 import Button from '../../../../common/components/buttons/Button';
@@ -73,6 +73,14 @@ export default function MultiEventEditor() {
     [batchUpdateEvents, selectedIds],
   );
 
+  const handleTimerType = useCallback(
+    (value: TimerType | null) => {
+      if (value === null) return;
+      batchUpdateEvents({ timerType: value }, selectedIds);
+    },
+    [batchUpdateEvents, selectedIds],
+  );
+
   const handleCountToEnd = useCallback(
     (newValue: boolean) => {
       batchUpdateEvents({ countToEnd: newValue }, selectedIds);
@@ -106,6 +114,8 @@ export default function MultiEventEditor() {
   const endActionValue = endActionIndeterminate ? null : (merged.endAction as EndAction);
   const countToEndIndeterminate = isIndeterminate(merged.countToEnd);
   const countToEndChecked = countToEndIndeterminate ? false : (merged.countToEnd as boolean);
+  const timerTypeIndeterminate = isIndeterminate(merged.timerType);
+  const timerTypeValue = timerTypeIndeterminate ? null : (merged.timerType as TimerType);
   const timeWarningIndeterminate = isIndeterminate(merged.timeWarning);
   const timeWarningValue = timeWarningIndeterminate ? undefined : (merged.timeWarning as number);
   const timeDangerIndeterminate = isIndeterminate(merged.timeDanger);
@@ -164,6 +174,23 @@ export default function MultiEventEditor() {
       </div>
       <div className={editorStyle.column}>
         <Editor.Title>Display Options</Editor.Title>
+        <div className={editorStyle.splitTwo}>
+          <div>
+            <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>
+            <Select
+              value={timerTypeValue}
+              onValueChange={handleTimerType}
+              placeholder={timerTypeIndeterminate ? 'Mixed' : undefined}
+              options={[
+                { value: TimerType.CountDown, label: 'Count down' },
+                { value: TimerType.CountUp, label: 'Count up' },
+                { value: TimerType.Clock, label: 'Clock' },
+                { value: TimerType.None, label: 'None' },
+              ]}
+            />
+          </div>
+          <div />
+        </div>
         <div className={editorStyle.splitTwo}>
           <div>
             <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
