@@ -1,8 +1,7 @@
-import { CSSProperties, useCallback } from 'react';
+import { CSSProperties, useCallback, useState } from 'react';
 import { FaQuestion } from 'react-icons/fa6';
 import { IoLink, IoLockClosed, IoLockOpenOutline, IoUnlink } from 'react-icons/io5';
-import { useDisclosure } from '@mantine/hooks';
-import { CustomFields, EndAction, OntimeEvent, TimeField, TimerType, TimeStrategy } from 'ontime-types';
+import { CustomFields, EndAction, OntimeEvent, TimerType, TimeStrategy } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
 import Button from '../../../../common/components/buttons/Button';
@@ -13,6 +12,7 @@ import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import AppLink from '../../../../common/components/link/app-link/AppLink';
 import Select from '../../../../common/components/select/Select';
 import Switch from '../../../../common/components/switch/Switch';
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
@@ -24,7 +24,6 @@ import EventEditorImage from '../composite/EventEditorImage';
 import EventTextArea from '../composite/EventTextArea';
 import EntryEditorTextInput from '../composite/EventTextInput';
 
-import AppLink from '../../../../common/components/link/app-link/AppLink';
 import { isIndeterminate, MergedCustomFields } from './multiEditUtils';
 import { useMultiEventMerge } from './useMultiEventMerge';
 
@@ -35,13 +34,16 @@ export default function MultiEventEditor() {
   const { merged, selectedIds } = useMultiEventMerge();
   const { batchUpdateEvents } = useEntryActionsContext();
   const { data: customFields } = useCustomFields();
-  const [isLockDialogOpen, lockDialogHandlers] = useDisclosure();
+  const [pendingStrategy, setPendingStrategy] = useState<TimeStrategy | null>(null);
 
   const handleSubmit = useCallback(
-    (field: string, value: string) => {
+    (field: string, value: string | boolean) => {
       if (field.startsWith('custom-')) {
         const fieldKey = field.split('custom-')[1];
         batchUpdateEvents({ custom: { [fieldKey]: value } } as Partial<OntimeEvent>, selectedIds);
+      } else if (field === 'duration' || field === 'timeWarning' || field === 'timeDanger') {
+        const ms = parseUserTime(value as string);
+        batchUpdateEvents({ [field]: ms } as Partial<OntimeEvent>, selectedIds);
       } else {
         batchUpdateEvents({ [field]: value } as Partial<OntimeEvent>, selectedIds);
       }
@@ -49,63 +51,12 @@ export default function MultiEventEditor() {
     [batchUpdateEvents, selectedIds],
   );
 
-  const handleFlag = useCallback(
-    (newValue: boolean) => {
-      batchUpdateEvents({ flag: newValue }, selectedIds);
-    },
-    [batchUpdateEvents, selectedIds],
-  );
-
-  const handleDurationSubmit = useCallback(
-    (_field: TimeField, value: string) => {
-      const ms = parseUserTime(value);
-      batchUpdateEvents({ duration: ms }, selectedIds);
-    },
-    [batchUpdateEvents, selectedIds],
-  );
-
-  const handleConfirmLockDuration = useCallback(() => {
-    batchUpdateEvents({ timeStrategy: TimeStrategy.LockDuration }, selectedIds);
-    lockDialogHandlers.close();
-  }, [batchUpdateEvents, selectedIds, lockDialogHandlers]);
-
-  const handleEndAction = useCallback(
-    (value: EndAction | null) => {
-      if (value === null) return;
-      batchUpdateEvents({ endAction: value }, selectedIds);
-    },
-    [batchUpdateEvents, selectedIds],
-  );
-
-  const handleTimerType = useCallback(
-    (value: TimerType | null) => {
-      if (value === null) return;
-      batchUpdateEvents({ timerType: value }, selectedIds);
-    },
-    [batchUpdateEvents, selectedIds],
-  );
-
-  const handleCountToEnd = useCallback(
-    (newValue: boolean) => {
-      batchUpdateEvents({ countToEnd: newValue }, selectedIds);
-    },
-    [batchUpdateEvents, selectedIds],
-  );
-
-  const handleLinkStart = useCallback(
-    (newValue: boolean) => {
-      batchUpdateEvents({ linkStart: newValue }, selectedIds);
-    },
-    [batchUpdateEvents, selectedIds],
-  );
-
-  const handleTimeFieldSubmit = useCallback(
-    (field: string, value: string) => {
-      const ms = parseUserTime(value);
-      batchUpdateEvents({ [field]: ms } as Partial<OntimeEvent>, selectedIds);
-    },
-    [batchUpdateEvents, selectedIds],
-  );
+  const handleConfirmStrategy = useCallback(() => {
+    if (pendingStrategy) {
+      batchUpdateEvents({ timeStrategy: pendingStrategy }, selectedIds);
+    }
+    setPendingStrategy(null);
+  }, [batchUpdateEvents, selectedIds, pendingStrategy]);
 
   if (!merged) {
     return null;
@@ -151,7 +102,7 @@ export default function MultiEventEditor() {
               <span className={style.disabledInput}>&mdash;</span>
               <Tooltip
                 text='Link start to previous end'
-                onClick={() => handleLinkStart(!allLinked)}
+                onClick={() => handleSubmit('linkStart', !allLinked)}
                 render={<IconButton variant='subtle-white' className={allLinked ? style.lockActive : style.lockInactive} />}
               >
                 {linkStartIndeterminate ? <FaQuestion /> : allLinked ? <IoLink /> : <IoUnlink />}
@@ -163,10 +114,11 @@ export default function MultiEventEditor() {
             <TimeInputGroup>
               <span className={style.disabledInput}>&mdash;</span>
               <Tooltip
-                text='Batch editing does not support setting the end time'
-                render={<IconButton variant='subtle-white' className={style.lockDisabled} />}
+                text='Lock end'
+                onClick={!merged.allLockEnd ? () => setPendingStrategy(TimeStrategy.LockEnd) : undefined}
+                render={<IconButton variant='subtle-white' className={merged.allLockEnd ? style.lockActive : style.lockInactive} />}
               >
-                <IoLockOpenOutline />
+                {durationLockIndeterminate ? <FaQuestion /> : merged.allLockEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
               </Tooltip>
             </TimeInputGroup>
           </div>
@@ -174,13 +126,13 @@ export default function MultiEventEditor() {
             <Editor.Label>Duration</Editor.Label>
             <TimeInputGroup>
               {durationEnabled ? (
-                <TimeInput name='duration' submitHandler={handleDurationSubmit} time={durationValue} placeholder='multiple' />
+                <TimeInput name='duration' submitHandler={handleSubmit} time={durationValue} placeholder='multiple' />
               ) : (
                 <span className={style.disabledInput}>&mdash;</span>
               )}
               <Tooltip
                 text='Lock duration'
-                onClick={!durationEnabled ? lockDialogHandlers.open : undefined}
+                onClick={!durationEnabled ? () => setPendingStrategy(TimeStrategy.LockDuration) : undefined}
                 render={<IconButton variant='subtle-white' className={durationEnabled ? style.lockActive : style.lockInactive} />}
               >
                 {durationLockIndeterminate ? <FaQuestion /> : durationEnabled ? <IoLockClosed /> : <IoLockOpenOutline />}
@@ -196,7 +148,7 @@ export default function MultiEventEditor() {
             <Editor.Label htmlFor='endAction'>End Action</Editor.Label>
             <Select
               value={endActionValue}
-              onValueChange={handleEndAction}
+              onValueChange={(value) => value !== null && handleSubmit('endAction', value)}
               placeholder={endActionIndeterminate ? 'Mixed' : undefined}
               options={[
                 { value: EndAction.None, label: 'None' },
@@ -208,7 +160,7 @@ export default function MultiEventEditor() {
           <div>
             <Editor.Label htmlFor='countToEnd'>Count to End</Editor.Label>
             <Editor.Label className={editorStyle.switchLabel}>
-              <Switch indeterminate={countToEndIndeterminate} checked={countToEndChecked} onCheckedChange={handleCountToEnd} />
+              <Switch indeterminate={countToEndIndeterminate} checked={countToEndChecked} onCheckedChange={(value) => handleSubmit('countToEnd', value)} />
               {countToEndIndeterminate ? 'Mixed' : countToEndChecked ? 'On' : 'Off'}
             </Editor.Label>
           </div>
@@ -221,7 +173,7 @@ export default function MultiEventEditor() {
             <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>
             <Select
               value={timerTypeValue}
-              onValueChange={handleTimerType}
+              onValueChange={(value) => value !== null && handleSubmit('timerType', value)}
               placeholder={timerTypeIndeterminate ? 'Mixed' : undefined}
               options={[
                 { value: TimerType.CountDown, label: 'Count down' },
@@ -234,11 +186,11 @@ export default function MultiEventEditor() {
           <div className={editorStyle.inline}>
             <div>
               <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
-              <TimeInput id='timeWarning' name='timeWarning' submitHandler={handleTimeFieldSubmit} time={timeWarningValue} placeholder={timeWarningIndeterminate ? 'multiple' : 'Duration'} />
+              <TimeInput id='timeWarning' name='timeWarning' submitHandler={handleSubmit} time={timeWarningValue} placeholder={timeWarningIndeterminate ? 'multiple' : 'Duration'} />
             </div>
             <div>
               <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
-              <TimeInput id='timeDanger' name='timeDanger' submitHandler={handleTimeFieldSubmit} time={timeDangerValue} placeholder={timeDangerIndeterminate ? 'multiple' : 'Duration'} />
+              <TimeInput id='timeDanger' name='timeDanger' submitHandler={handleSubmit} time={timeDangerValue} placeholder={timeDangerIndeterminate ? 'multiple' : 'Duration'} />
             </div>
           </div>
         </div>
@@ -257,7 +209,7 @@ export default function MultiEventEditor() {
           <div>
             <Editor.Label htmlFor='flag'>Flag</Editor.Label>
             <Editor.Label className={editorStyle.switchLabel}>
-              <Switch indeterminate={flagIndeterminate} checked={flagChecked} onCheckedChange={handleFlag} />
+              <Switch indeterminate={flagIndeterminate} checked={flagChecked} onCheckedChange={(value) => handleSubmit('flag', value)} />
               {flagIndeterminate ? 'Mixed' : flagChecked ? 'On' : 'Off'}
             </Editor.Label>
           </div>
@@ -290,22 +242,24 @@ export default function MultiEventEditor() {
         <Info type='info'>Not available when editing multiple events</Info>
       </div>
       <Dialog
-        isOpen={isLockDialogOpen}
-        onClose={lockDialogHandlers.close}
-        title='Change time strategy'
+        isOpen={pendingStrategy !== null}
+        onClose={() => setPendingStrategy(null)}
+        title='Warning!'
         showBackdrop
         showCloseButton
         bodyElements={
           <>
-            This will set duration lock for all selected events and significantly impact this rundowns total duration.
+            {pendingStrategy === TimeStrategy.LockDuration
+              ? 'This will set duration lock for all selected events and may significantly impact this rundown\'s total duration.'
+              : 'This will set end lock for all selected events and may significantly impact this rundown\'s total duration.'}
           </>
         }
         footerElements={
           <>
-            <Button variant='ghosted-white' size='large' onClick={lockDialogHandlers.close}>
+            <Button variant='ghosted-white' size='large' onClick={() => setPendingStrategy(null)}>
               No
             </Button>
-            <Button variant='destructive' size='large' onClick={handleConfirmLockDuration}>
+            <Button variant='destructive' size='large' onClick={handleConfirmStrategy}>
               Yes
             </Button>
           </>

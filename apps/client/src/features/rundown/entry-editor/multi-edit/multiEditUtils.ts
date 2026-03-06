@@ -20,6 +20,7 @@ export type MergedEvent = {
 } & {
   custom: MergedCustomFields;
   allLockDuration: boolean;
+  allLockEnd: boolean;
 };
 
 export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>, flatOrder: EntryId[]): MergedEvent | null {
@@ -62,6 +63,7 @@ export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>, f
     linkStart: first.linkStart,
     custom: { ...first.custom },
     allLockDuration: false,
+    allLockEnd: false,
   };
 
   // If the first event in the merged set is the first rundown event, seed linkStart from the second event
@@ -104,6 +106,9 @@ export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>, f
 
   merged.allLockDuration =
     !isIndeterminate(merged.timeStrategy) && merged.timeStrategy === TimeStrategy.LockDuration;
+
+  merged.allLockEnd =
+    !isIndeterminate(merged.timeStrategy) && merged.timeStrategy === TimeStrategy.LockEnd;
 
   return merged;
 }
