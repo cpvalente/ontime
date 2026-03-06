@@ -9,7 +9,7 @@ export function isIndeterminate<T>(v: MergedValue<T>): v is Indeterminate {
 }
 
 /** Fields included in multi-edit v1 */
-const mergeableFields = ['title', 'note', 'colour', 'flag', 'duration', 'timeStrategy'] as const;
+const mergeableFields = ['title', 'note', 'colour', 'flag', 'duration', 'timeStrategy', 'endAction', 'countToEnd', 'timeWarning', 'timeDanger'] as const;
 
 type MergeableField = (typeof mergeableFields)[number];
 
@@ -43,6 +43,10 @@ export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>): 
     flag: first.flag,
     duration: first.duration,
     timeStrategy: first.timeStrategy,
+    endAction: first.endAction,
+    countToEnd: first.countToEnd,
+    timeWarning: first.timeWarning,
+    timeDanger: first.timeDanger,
     custom: { ...first.custom },
     allLockDuration: false,
   };

@@ -9,6 +9,8 @@ interface ColourInputProps {
   value: string;
   name: 'colour';
   handleChange: (newValue: 'colour', name: string) => void;
+  /** When true, no swatch appears selected */
+  noSelection?: boolean;
 }
 
 const colours = [
@@ -28,7 +30,7 @@ const colours = [
 ];
 
 export default function SwatchSelect(props: ColourInputProps) {
-  const { value, name, handleChange } = props;
+  const { value, name, handleChange, noSelection } = props;
 
   const setColour = useCallback(
     (newValue: string) => {
@@ -42,9 +44,9 @@ export default function SwatchSelect(props: ColourInputProps) {
   return (
     <div className={style.list}>
       {colours.map((colour) => (
-        <Swatch key={colour} color={colour} onClick={setColour} isSelected={value === colour} />
+        <Swatch key={colour} color={colour} onClick={setColour} isSelected={!noSelection && value === colour} />
       ))}
-      <SwatchPicker color={value} onChange={setColour} isSelected={!colours.includes(value)} />
+      <SwatchPicker color={value} onChange={setColour} isSelected={!noSelection && !colours.includes(value)} />
     </div>
   );
 }

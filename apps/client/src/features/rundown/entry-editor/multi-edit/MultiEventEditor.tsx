@@ -1,7 +1,7 @@
 import { CSSProperties, useCallback } from 'react';
 import { IoLockClosed, IoLockOpenOutline } from 'react-icons/io5';
 import { useDisclosure } from '@mantine/hooks';
-import { CustomFields, OntimeEvent, TimeField, TimeStrategy } from 'ontime-types';
+import { CustomFields, EndAction, OntimeEvent, TimeField, TimeStrategy } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
 import Button from '../../../../common/components/buttons/Button';
@@ -11,6 +11,7 @@ import * as Editor from '../../../../common/components/editor-utils/EditorUtils'
 import Info from '../../../../common/components/info/Info';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import Select from '../../../../common/components/select/Select';
 import Switch from '../../../../common/components/switch/Switch';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
@@ -64,6 +65,29 @@ export default function MultiEventEditor() {
     lockDialogHandlers.close();
   }, [batchUpdateEvents, selectedIds, lockDialogHandlers]);
 
+  const handleEndAction = useCallback(
+    (value: EndAction | null) => {
+      if (value === null) return;
+      batchUpdateEvents({ endAction: value }, selectedIds);
+    },
+    [batchUpdateEvents, selectedIds],
+  );
+
+  const handleCountToEnd = useCallback(
+    (newValue: boolean) => {
+      batchUpdateEvents({ countToEnd: newValue }, selectedIds);
+    },
+    [batchUpdateEvents, selectedIds],
+  );
+
+  const handleTimeFieldSubmit = useCallback(
+    (field: string, value: string) => {
+      const ms = parseUserTime(value);
+      batchUpdateEvents({ [field]: ms } as Partial<OntimeEvent>, selectedIds);
+    },
+    [batchUpdateEvents, selectedIds],
+  );
+
   if (!merged) {
     return null;
   }
@@ -71,11 +95,21 @@ export default function MultiEventEditor() {
   const titleValue = isIndeterminate(merged.title) ? '' : merged.title;
   const titlePlaceholder = isIndeterminate(merged.title) ? 'Multiple values' : undefined;
   const noteValue = isIndeterminate(merged.note) ? '' : merged.note;
-  const colourValue = isIndeterminate(merged.colour) ? '' : merged.colour;
+  const colourIndeterminate = isIndeterminate(merged.colour);
+  const colourValue = colourIndeterminate ? '' : (merged.colour as string);
   const flagIndeterminate = isIndeterminate(merged.flag);
   const flagChecked = flagIndeterminate ? false : (merged.flag as boolean);
-  const durationValue = isIndeterminate(merged.duration) ? 0 : merged.duration;
+  const durationIndeterminate = isIndeterminate(merged.duration);
+  const durationValue = durationIndeterminate ? undefined : (merged.duration as number);
   const durationEnabled = merged.allLockDuration;
+  const endActionIndeterminate = isIndeterminate(merged.endAction);
+  const endActionValue = endActionIndeterminate ? null : (merged.endAction as EndAction);
+  const countToEndIndeterminate = isIndeterminate(merged.countToEnd);
+  const countToEndChecked = countToEndIndeterminate ? false : (merged.countToEnd as boolean);
+  const timeWarningIndeterminate = isIndeterminate(merged.timeWarning);
+  const timeWarningValue = timeWarningIndeterminate ? undefined : (merged.timeWarning as number);
+  const timeDangerIndeterminate = isIndeterminate(merged.timeDanger);
+  const timeDangerValue = timeDangerIndeterminate ? undefined : (merged.timeDanger as number);
 
   return (
     <div className={editorStyle.content}>
@@ -88,7 +122,7 @@ export default function MultiEventEditor() {
           <Editor.Label>Duration</Editor.Label>
           <TimeInputGroup>
             {durationEnabled ? (
-              <TimeInput name='duration' submitHandler={handleDurationSubmit} time={durationValue} />
+              <TimeInput name='duration' submitHandler={handleDurationSubmit} time={durationValue} placeholder='multiple' />
             ) : (
               <span className={style.disabledDuration}>-</span>
             )}
@@ -104,6 +138,44 @@ export default function MultiEventEditor() {
         </div>
       </div>
       <div className={editorStyle.column}>
+        <Editor.Title>Event Behaviour</Editor.Title>
+        <div className={editorStyle.splitTwo}>
+          <div>
+            <Editor.Label htmlFor='endAction'>End Action</Editor.Label>
+            <Select
+              value={endActionValue}
+              onValueChange={handleEndAction}
+              placeholder={endActionIndeterminate ? 'Mixed' : undefined}
+              options={[
+                { value: EndAction.None, label: 'None' },
+                { value: EndAction.LoadNext, label: 'Load next event' },
+                { value: EndAction.PlayNext, label: 'Play next event' },
+              ]}
+            />
+          </div>
+          <div>
+            <Editor.Label htmlFor='countToEnd'>Count to End</Editor.Label>
+            <Editor.Label className={editorStyle.switchLabel}>
+              <Switch indeterminate={countToEndIndeterminate} checked={countToEndChecked} onCheckedChange={handleCountToEnd} />
+              {countToEndIndeterminate ? 'Mixed' : countToEndChecked ? 'On' : 'Off'}
+            </Editor.Label>
+          </div>
+        </div>
+      </div>
+      <div className={editorStyle.column}>
+        <Editor.Title>Display Options</Editor.Title>
+        <div className={editorStyle.splitTwo}>
+          <div>
+            <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
+            <TimeInput id='timeWarning' name='timeWarning' submitHandler={handleTimeFieldSubmit} time={timeWarningValue} placeholder={timeWarningIndeterminate ? 'multiple' : 'Duration'} />
+          </div>
+          <div>
+            <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
+            <TimeInput id='timeDanger' name='timeDanger' submitHandler={handleTimeFieldSubmit} time={timeDangerValue} placeholder={timeDangerIndeterminate ? 'multiple' : 'Duration'} />
+          </div>
+        </div>
+      </div>
+      <div className={editorStyle.column}>
         <Editor.Title>Event Data</Editor.Title>
         <div>
           <Editor.Label htmlFor='flag'>Flag</Editor.Label>
@@ -114,7 +186,8 @@ export default function MultiEventEditor() {
         </div>
         <div>
           <Editor.Label>Colour</Editor.Label>
-          <SwatchSelect name='colour' value={colourValue} handleChange={handleSubmit} />
+          {colourIndeterminate && <Editor.Label className={style.hint}>Multiple colours selected</Editor.Label>}
+          <SwatchSelect name='colour' value={colourValue} handleChange={handleSubmit} noSelection={colourIndeterminate} />
         </div>
         <EntryEditorTextInput
           field='title'
