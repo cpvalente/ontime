@@ -9,8 +9,8 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import Dialog from '../../../../common/components/dialog/Dialog';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import Info from '../../../../common/components/info/Info';
-import Input from '../../../../common/components/input/input/Input';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
+import Input from '../../../../common/components/input/input/Input';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import AppLink from '../../../../common/components/link/app-link/AppLink';
 import Select from '../../../../common/components/select/Select';
@@ -91,7 +91,8 @@ export default function MultiEventEditor() {
   return (
     <div className={editorStyle.content}>
       <Info type='info'>
-        <span className={style.bold}>Batch Edit:</span> <span className={style.underline}>{selectedIds.length} events</span>
+        <span className={style.bold}>Batch Edit:</span>{' '}
+        <span className={style.underline}>{selectedIds.length} events</span>
       </Info>
       <div className={editorStyle.column}>
         <Editor.Title>Event Schedule</Editor.Title>
@@ -103,7 +104,9 @@ export default function MultiEventEditor() {
               <Tooltip
                 text='Link start to previous end'
                 onClick={() => handleSubmit('linkStart', !allLinked)}
-                render={<IconButton variant='subtle-white' className={allLinked ? style.lockActive : style.lockInactive} />}
+                render={
+                  <IconButton variant='subtle-white' className={allLinked ? style.lockActive : style.lockInactive} />
+                }
               >
                 {linkStartIndeterminate ? <FaQuestion /> : allLinked ? <IoLink /> : <IoUnlink />}
               </Tooltip>
@@ -116,9 +119,20 @@ export default function MultiEventEditor() {
               <Tooltip
                 text='Lock end'
                 onClick={!merged.allLockEnd ? () => setPendingStrategy(TimeStrategy.LockEnd) : undefined}
-                render={<IconButton variant='subtle-white' className={merged.allLockEnd ? style.lockActive : style.lockInactive} />}
+                render={
+                  <IconButton
+                    variant='subtle-white'
+                    className={merged.allLockEnd ? style.lockActive : style.lockInactive}
+                  />
+                }
               >
-                {durationLockIndeterminate ? <FaQuestion /> : merged.allLockEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
+                {durationLockIndeterminate ? (
+                  <FaQuestion />
+                ) : merged.allLockEnd ? (
+                  <IoLockClosed />
+                ) : (
+                  <IoLockOpenOutline />
+                )}
               </Tooltip>
             </TimeInputGroup>
           </div>
@@ -133,9 +147,20 @@ export default function MultiEventEditor() {
               <Tooltip
                 text='Lock duration'
                 onClick={!durationEnabled ? () => setPendingStrategy(TimeStrategy.LockDuration) : undefined}
-                render={<IconButton variant='subtle-white' className={durationEnabled ? style.lockActive : style.lockInactive} />}
+                render={
+                  <IconButton
+                    variant='subtle-white'
+                    className={durationEnabled ? style.lockActive : style.lockInactive}
+                  />
+                }
               >
-                {durationLockIndeterminate ? <FaQuestion /> : durationEnabled ? <IoLockClosed /> : <IoLockOpenOutline />}
+                {durationLockIndeterminate ? (
+                  <FaQuestion />
+                ) : durationEnabled ? (
+                  <IoLockClosed />
+                ) : (
+                  <IoLockOpenOutline />
+                )}
               </Tooltip>
             </TimeInputGroup>
           </div>
@@ -160,7 +185,11 @@ export default function MultiEventEditor() {
           <div>
             <Editor.Label htmlFor='countToEnd'>Count to End</Editor.Label>
             <Editor.Label className={editorStyle.switchLabel}>
-              <Switch indeterminate={countToEndIndeterminate} checked={countToEndChecked} onCheckedChange={(value) => handleSubmit('countToEnd', value)} />
+              <Switch
+                indeterminate={countToEndIndeterminate}
+                checked={countToEndChecked}
+                onCheckedChange={(value) => handleSubmit('countToEnd', value)}
+              />
               {countToEndIndeterminate ? 'Mixed' : countToEndChecked ? 'On' : 'Off'}
             </Editor.Label>
           </div>
@@ -186,11 +215,23 @@ export default function MultiEventEditor() {
           <div className={editorStyle.inline}>
             <div>
               <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
-              <TimeInput id='timeWarning' name='timeWarning' submitHandler={handleSubmit} time={timeWarningValue} placeholder={timeWarningIndeterminate ? 'multiple' : 'Duration'} />
+              <TimeInput
+                id='timeWarning'
+                name='timeWarning'
+                submitHandler={handleSubmit}
+                time={timeWarningValue}
+                placeholder={timeWarningIndeterminate ? 'multiple' : 'Duration'}
+              />
             </div>
             <div>
               <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
-              <TimeInput id='timeDanger' name='timeDanger' submitHandler={handleSubmit} time={timeDangerValue} placeholder={timeDangerIndeterminate ? 'multiple' : 'Duration'} />
+              <TimeInput
+                id='timeDanger'
+                name='timeDanger'
+                submitHandler={handleSubmit}
+                time={timeDangerValue}
+                placeholder={timeDangerIndeterminate ? 'multiple' : 'Duration'}
+              />
             </div>
           </div>
         </div>
@@ -209,7 +250,11 @@ export default function MultiEventEditor() {
           <div>
             <Editor.Label htmlFor='flag'>Flag</Editor.Label>
             <Editor.Label className={editorStyle.switchLabel}>
-              <Switch indeterminate={flagIndeterminate} checked={flagChecked} onCheckedChange={(value) => handleSubmit('flag', value)} />
+              <Switch
+                indeterminate={flagIndeterminate}
+                checked={flagChecked}
+                onCheckedChange={(value) => handleSubmit('flag', value)}
+              />
               {flagIndeterminate ? 'Mixed' : flagChecked ? 'On' : 'Off'}
             </Editor.Label>
           </div>
@@ -217,7 +262,12 @@ export default function MultiEventEditor() {
         <div>
           <Editor.Label>Colour</Editor.Label>
           {colourIndeterminate && <Editor.Label className={style.hint}>Multiple colours selected</Editor.Label>}
-          <SwatchSelect name='colour' value={colourValue} handleChange={handleSubmit} noSelection={colourIndeterminate} />
+          <SwatchSelect
+            name='colour'
+            value={colourValue}
+            handleChange={handleSubmit}
+            noSelection={colourIndeterminate}
+          />
         </div>
         <EntryEditorTextInput
           field='title'
@@ -226,7 +276,13 @@ export default function MultiEventEditor() {
           placeholder={titlePlaceholder}
           submitHandler={handleSubmit}
         />
-        <EventTextArea field='note' label='Note' initialValue={noteValue} placeholder={notePlaceholder} submitHandler={handleSubmit} />
+        <EventTextArea
+          field='note'
+          label='Note'
+          initialValue={noteValue}
+          placeholder={notePlaceholder}
+          submitHandler={handleSubmit}
+        />
       </div>
       <div className={editorStyle.column}>
         <Editor.Title>
@@ -250,7 +306,7 @@ export default function MultiEventEditor() {
         bodyElements={
           <>
             {pendingStrategy === TimeStrategy.LockDuration
-              ? 'This will set duration lock for all selected events and may significantly impact this rundown\'s total duration.'
+              ? "This will set duration lock for all selected events and may significantly impact this rundown's total duration."
               : 'This will set end lock for all selected events and may cause the rundown to behave unexpectedly.'}
           </>
         }
