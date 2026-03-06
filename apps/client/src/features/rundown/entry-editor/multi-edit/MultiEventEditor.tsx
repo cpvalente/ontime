@@ -251,7 +251,7 @@ export default function MultiEventEditor() {
           <>
             {pendingStrategy === TimeStrategy.LockDuration
               ? 'This will set duration lock for all selected events and may significantly impact this rundown\'s total duration.'
-              : 'This will set end lock for all selected events and may significantly impact this rundown\'s total duration.'}
+              : 'This will set end lock for all selected events and may cause the rundown to behave unexpectedly.'}
           </>
         }
         footerElements={
