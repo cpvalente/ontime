@@ -1,4 +1,5 @@
 import { CSSProperties, useCallback } from 'react';
+import { FaQuestion } from 'react-icons/fa6';
 import { IoLink, IoLockClosed, IoLockOpenOutline, IoUnlink } from 'react-icons/io5';
 import { useDisclosure } from '@mantine/hooks';
 import { CustomFields, EndAction, OntimeEvent, TimeField, TimerType, TimeStrategy } from 'ontime-types';
@@ -9,10 +10,12 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import Dialog from '../../../../common/components/dialog/Dialog';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import Info from '../../../../common/components/info/Info';
+import Input from '../../../../common/components/input/input/Input';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import Select from '../../../../common/components/select/Select';
 import Switch from '../../../../common/components/switch/Switch';
+import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
@@ -21,6 +24,7 @@ import EventEditorImage from '../composite/EventEditorImage';
 import EventTextArea from '../composite/EventTextArea';
 import EntryEditorTextInput from '../composite/EventTextInput';
 
+import AppLink from '../../../../common/components/link/app-link/AppLink';
 import { isIndeterminate, MergedCustomFields } from './multiEditUtils';
 import { useMultiEventMerge } from './useMultiEventMerge';
 
@@ -108,8 +112,9 @@ export default function MultiEventEditor() {
   }
 
   const titleValue = isIndeterminate(merged.title) ? '' : merged.title;
-  const titlePlaceholder = isIndeterminate(merged.title) ? 'Multiple values' : undefined;
+  const titlePlaceholder = isIndeterminate(merged.title) ? 'multiple' : undefined;
   const noteValue = isIndeterminate(merged.note) ? '' : merged.note;
+  const notePlaceholder = isIndeterminate(merged.note) ? 'multiple' : undefined;
   const colourIndeterminate = isIndeterminate(merged.colour);
   const colourValue = colourIndeterminate ? '' : (merged.colour as string);
   const flagIndeterminate = isIndeterminate(merged.flag);
@@ -143,23 +148,25 @@ export default function MultiEventEditor() {
             <Editor.Label>Start</Editor.Label>
             <TimeInputGroup>
               <span className={style.disabledInput}>&mdash;</span>
-              <IconButton
-                variant='subtle-white'
-                className={allLinked ? style.lockActive : style.lockInactive}
+              <Tooltip
+                text='Link start to previous end'
                 onClick={() => handleLinkStart(!allLinked)}
+                render={<IconButton variant='subtle-white' className={allLinked ? style.lockActive : style.lockInactive} />}
               >
-                {allLinked ? <IoLink /> : <IoUnlink />}
-              </IconButton>
+                {linkStartIndeterminate ? <FaQuestion /> : allLinked ? <IoLink /> : <IoUnlink />}
+              </Tooltip>
             </TimeInputGroup>
-            {linkStartIndeterminate && <Editor.Label className={style.hint}>Mixed</Editor.Label>}
           </div>
           <div>
             <Editor.Label>End</Editor.Label>
             <TimeInputGroup>
               <span className={style.disabledInput}>&mdash;</span>
-              <IconButton variant='subtle-white' className={style.lockDisabled}>
+              <Tooltip
+                text='Batch editing does not support setting the end time'
+                render={<IconButton variant='subtle-white' className={style.lockDisabled} />}
+              >
                 <IoLockOpenOutline />
-              </IconButton>
+              </Tooltip>
             </TimeInputGroup>
           </div>
           <div>
@@ -170,13 +177,13 @@ export default function MultiEventEditor() {
               ) : (
                 <span className={style.disabledInput}>&mdash;</span>
               )}
-              <IconButton
-                variant='subtle-white'
-                className={durationEnabled ? style.lockActive : style.lockInactive}
+              <Tooltip
+                text='Lock duration'
                 onClick={!durationEnabled ? lockDialogHandlers.open : undefined}
+                render={<IconButton variant='subtle-white' className={durationEnabled ? style.lockActive : style.lockInactive} />}
               >
                 {durationEnabled ? <IoLockClosed /> : <IoLockOpenOutline />}
-              </IconButton>
+              </Tooltip>
             </TimeInputGroup>
             {!durationEnabled && <Editor.Label className={style.hint}>All events must have duration lock</Editor.Label>}
           </div>
@@ -238,12 +245,22 @@ export default function MultiEventEditor() {
       </div>
       <div className={editorStyle.column}>
         <Editor.Title>Event Data</Editor.Title>
-        <div>
-          <Editor.Label htmlFor='flag'>Flag</Editor.Label>
-          <Editor.Label className={editorStyle.switchLabel}>
-            <Switch indeterminate={flagIndeterminate} checked={flagChecked} onCheckedChange={handleFlag} />
-            {flagIndeterminate ? 'Mixed' : flagChecked ? 'On' : 'Off'}
-          </Editor.Label>
+        <div className={editorStyle.splitThree}>
+          <div>
+            <Editor.Label htmlFor='eventId'>Event ID (read only)</Editor.Label>
+            <Input id='eventId' data-testid='input-textfield' value='' readOnly disabled fluid />
+          </div>
+          <div>
+            <Editor.Label htmlFor='cue'>Cue</Editor.Label>
+            <Input id='cue' data-testid='input-textfield' value='' readOnly disabled fluid />
+          </div>
+          <div>
+            <Editor.Label htmlFor='flag'>Flag</Editor.Label>
+            <Editor.Label className={editorStyle.switchLabel}>
+              <Switch indeterminate={flagIndeterminate} checked={flagChecked} onCheckedChange={handleFlag} />
+              {flagIndeterminate ? 'Mixed' : flagChecked ? 'On' : 'Off'}
+            </Editor.Label>
+          </div>
         </div>
         <div>
           <Editor.Label>Colour</Editor.Label>
@@ -257,14 +274,21 @@ export default function MultiEventEditor() {
           placeholder={titlePlaceholder}
           submitHandler={handleSubmit}
         />
-        <EventTextArea field='note' label='Note' initialValue={noteValue} submitHandler={handleSubmit} />
+        <EventTextArea field='note' label='Note' initialValue={noteValue} placeholder={notePlaceholder} submitHandler={handleSubmit} />
       </div>
-      {Object.keys(customFields).length > 0 && (
-        <div className={editorStyle.column}>
-          <Editor.Title>Custom Fields</Editor.Title>
+      <div className={editorStyle.column}>
+        <Editor.Title>
+          Custom Fields
+          <AppLink search='settings=manage__custom'>Manage Custom Fields</AppLink>
+        </Editor.Title>
+        {Object.keys(customFields).length > 0 && (
           <MultiEditCustomFields fields={customFields} mergedCustom={merged.custom} handleSubmit={handleSubmit} />
-        </div>
-      )}
+        )}
+      </div>
+      <div className={editorStyle.column}>
+        <Editor.Title>Automations</Editor.Title>
+        <Editor.Label className={style.hint}>Not available when editing multiple events</Editor.Label>
+      </div>
       <Dialog
         isOpen={isLockDialogOpen}
         onClose={lockDialogHandlers.close}
@@ -305,7 +329,7 @@ function MultiEditCustomFields({ fields, mergedCustom, handleSubmit }: MultiEdit
         const mergedValue = mergedCustom[fieldKey];
         const indeterminate = mergedValue === undefined || isIndeterminate(mergedValue);
         const initialValue = indeterminate ? '' : mergedValue;
-        const placeholder = indeterminate ? 'Multiple values' : undefined;
+        const placeholder = indeterminate ? 'multiple' : undefined;
         const { backgroundColor, color } = getAccessibleColour(fields[fieldKey].colour);
         const labelStyle = { '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties;
         const labelText = fields[fieldKey].label;
@@ -317,6 +341,7 @@ function MultiEditCustomFields({ fields, mergedCustom, handleSubmit }: MultiEdit
               field={fieldName}
               label={labelText}
               initialValue={initialValue}
+              placeholder={placeholder}
               submitHandler={handleSubmit}
               className={editorStyle.decorated}
               style={labelStyle}

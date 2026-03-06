@@ -10,8 +10,8 @@ export function useMultiEventMerge() {
   const { data } = useRundown();
 
   const merged = useMemo(
-    () => mergeEvents(data.entries, selectedEvents),
-    [data.entries, selectedEvents],
+    () => mergeEvents(data.entries, selectedEvents, data.flatOrder),
+    [data.entries, selectedEvents, data.flatOrder],
   );
 
   const selectedIds = useMemo(() => Array.from(selectedEvents), [selectedEvents]);
