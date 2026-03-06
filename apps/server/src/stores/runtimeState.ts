@@ -40,7 +40,11 @@ import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
 import * as timeCore from '../lib/time-core/timeCore.js';
 
-type ExpectedMetadata = { event: OntimeEvent; accumulatedGap: number; isLinkedToLoaded: boolean } | null;
+type ExpectedMetadata = {
+  event: OntimeEvent;
+  accumulatedGap: number;
+  isLinkedToLoaded: boolean;
+} | null;
 
 export type RuntimeState = {
   clock: TimeOfDay;
@@ -541,21 +545,21 @@ export function update(): UpdateResult {
     return updateIfIdle();
   }
 
-  // if we are playing and playback changes. we tick the current runtime day
-  if (runtimeState._startDayOffset !== null && runtimeState._startEpoch) {
-    runtimeState.rundown.currentDay =
-      runtimeState._startDayOffset + Math.floor((epoch - runtimeState._startEpoch) / dayInMs);
-  }
+  const hasCrossedMidnight = previousClock > now;
 
   // 2. are we waiting to roll?
   if (runtimeState.timer.playback === Playback.Roll && runtimeState.timer.secondaryTimer !== null) {
-    const hasCrossedMidnight = previousClock > runtimeState.clock;
     return updateIfWaitingToRoll(hasCrossedMidnight);
   }
 
   // 3. at this point we know that we are playing an event
   // reset data
   runtimeState.timer.secondaryTimer = null;
+
+  // increment day if we crossed midnight
+  if (hasCrossedMidnight && runtimeState.rundown.currentDay !== null) {
+    runtimeState.rundown.currentDay++;
+  }
 
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: {
@@ -616,7 +620,10 @@ export function update(): UpdateResult {
     }
 
     runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget! - offsetClock;
-    return { hasTimerFinished: false, hasSecondaryTimerFinished: runtimeState.timer.secondaryTimer <= 0 };
+    return {
+      hasTimerFinished: false,
+      hasSecondaryTimerFinished: runtimeState.timer.secondaryTimer <= 0,
+    };
   }
 }
 
@@ -683,7 +690,9 @@ export function roll(
 
       if (runtimeState.rundown.actualStart === null) {
         runtimeState.rundown.actualStart = plannedStart;
-        runtimeState._startDayOffset = 0;
+        runtimeState._startDayOffset =
+          findDayOffset(runtimeState.eventNow.timeStart, runtimeState.clock) + runtimeState.eventNow.dayOffset;
+        runtimeState.rundown.currentDay = runtimeState._startDayOffset;
         runtimeState._startEpoch = epoch;
       }
     } else {
@@ -773,7 +782,9 @@ export function roll(
   }
 
   // update metadata
-  runtimeState._startDayOffset = 0;
+  runtimeState._startDayOffset =
+    findDayOffset(runtimeState.eventNow.timeStart, runtimeState.clock) + runtimeState.eventNow.dayOffset;
+  runtimeState.rundown.currentDay = runtimeState._startDayOffset;
   runtimeState._startEpoch = epoch;
 
   return { eventId: runtimeState.eventNow.id, didStart: true };
