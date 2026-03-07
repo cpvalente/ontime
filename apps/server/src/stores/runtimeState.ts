@@ -751,6 +751,13 @@ export function roll(
     // preload timer properties
     runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd);
     runtimeState.timer.current = runtimeState.timer.duration;
+
+    // reset rundown state - the rundown will start fresh when the event begins
+    runtimeState.rundown.actualStart = null;
+    runtimeState.rundown.currentDay = null;
+    runtimeState._startDayOffset = null;
+    runtimeState._startEpoch = null;
+
     return { eventId: runtimeState.eventNow.id, didStart: false };
   }
 
