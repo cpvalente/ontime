@@ -10,7 +10,7 @@ import {
   IoTime,
 } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
-import { EndAction, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { Day, EndAction, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { cx } from '../../../common/utils/styleUtils';
@@ -44,7 +44,7 @@ interface RundownEventInnerProps {
   loaded: boolean;
   playback?: Playback;
   isRolling: boolean;
-  dayOffset: number;
+  dayOffset: Day;
   isPast: boolean;
   totalGap: number;
   isLinkedToLoaded: boolean;

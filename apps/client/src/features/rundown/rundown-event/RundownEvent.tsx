@@ -12,7 +12,7 @@ import {
 import { TbFlagFilled } from 'react-icons/tb';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { EndAction, EntryId, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { Day, EndAction, EntryId, Playback, TimerType, TimeStrategy } from 'ontime-types';
 import { isPlaybackActive } from 'ontime-utils';
 
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
@@ -55,7 +55,7 @@ interface RundownEventProps {
   isRolling: boolean;
   gap: number;
   isNextDay: boolean;
-  dayOffset: number;
+  dayOffset: Day;
   totalGap: number;
   isLinkedToLoaded: boolean;
   hasTriggers: boolean;

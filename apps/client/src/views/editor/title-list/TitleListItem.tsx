@@ -1,5 +1,5 @@
 import { memo, useCallback } from 'react';
-import { OntimeEvent } from 'ontime-types';
+import { Day, OntimeEvent } from 'ontime-types';
 import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
@@ -78,7 +78,7 @@ function TitleListItem({
 interface TitleListTimeUntilChipProps {
   timeStart: number;
   delay: number;
-  dayOffset: number;
+  dayOffset: Day;
   totalGap: number;
   isLinkedToLoaded: boolean;
   isLoaded: boolean;
