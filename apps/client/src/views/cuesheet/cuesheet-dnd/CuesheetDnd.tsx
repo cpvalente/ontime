@@ -1,14 +1,14 @@
-import { PropsWithChildren } from 'react';
 import {
-  closestCorners,
   DndContext,
   DragEndEvent,
   PointerSensor,
   TouchSensor,
+  closestCorners,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
 import { ColumnDef } from '@tanstack/react-table';
+import { PropsWithChildren } from 'react';
 
 import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { useColumnOrder } from '../cuesheet-table/useColumnManager';

@@ -1,6 +1,6 @@
+import { MILLIS_PER_MINUTE } from 'ontime-utils';
 import { useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { setClientRemote } from '../../hooks/useSocket';
 import { useClientStore } from '../../stores/clientStore';

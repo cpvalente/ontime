@@ -6,7 +6,6 @@ import CuesheetDnd from '../../../views/cuesheet/cuesheet-dnd/CuesheetDnd';
 import CuesheetTable from '../../../views/cuesheet/cuesheet-table/CuesheetTable';
 import { useCuesheetPermissions } from '../../../views/cuesheet/useTablePermissions';
 import { useEditorFollowMode } from '../useEditorFollowMode';
-
 import { makeRundownColumns } from './makeRundownColumns';
 
 export default memo(RundownTable);

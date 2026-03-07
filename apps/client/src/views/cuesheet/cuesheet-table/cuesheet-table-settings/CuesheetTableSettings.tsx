@@ -1,10 +1,10 @@
-import { ReactNode } from 'react';
-import { IoBookOutline, IoChevronDown, IoOptions } from 'react-icons/io5';
 import { Popover } from '@base-ui/react/popover';
 import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toolbar } from '@base-ui/react/toolbar';
 import type { Column } from '@tanstack/react-table';
+import { ReactNode } from 'react';
+import { IoBookOutline, IoChevronDown, IoOptions } from 'react-icons/io5';
 
 import Button from '../../../../common/components/buttons/Button';
 import Checkbox from '../../../../common/components/checkbox/Checkbox';
@@ -15,7 +15,6 @@ import { cx } from '../../../../common/utils/styleUtils';
 import { AppMode } from '../../../../ontimeConfig';
 import { CuesheetOptions, usePersistedCuesheetOptions } from '../../cuesheet.options';
 import { useCuesheetPermissions } from '../../useTablePermissions';
-
 import CuesheetShareModal from './CuesheetShareModal';
 
 import style from './CuesheetTableSettings.module.scss';

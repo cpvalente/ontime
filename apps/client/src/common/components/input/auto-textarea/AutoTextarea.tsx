@@ -1,6 +1,6 @@
-import { RefObject, useEffect } from 'react';
 // @ts-expect-error no types from library
 import autosize from 'autosize/dist/autosize';
+import { RefObject, useEffect } from 'react';
 
 import Textarea, { type TextareaProps } from '../textarea/Textarea';
 

@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { body, param } from 'express-validator';
 
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';

@@ -1,5 +1,5 @@
 import { Day, Duration, Instant, TimeOfDay } from 'ontime-types';
-import { dayInMs, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
 /** Returns the current instant */
 export function now(): Instant {

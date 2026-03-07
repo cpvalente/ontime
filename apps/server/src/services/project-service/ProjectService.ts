@@ -1,11 +1,22 @@
-import { DatabaseModel, LogOrigin, ProjectFileListResponse } from 'ontime-types';
-import { getErrorMessage, getFirstRundown } from 'ontime-utils';
-
 import { copyFile } from 'fs/promises';
 import { join } from 'path';
 
+import { DatabaseModel, LogOrigin, ProjectFileListResponse } from 'ontime-types';
+import { getErrorMessage, getFirstRundown } from 'ontime-utils';
+
+import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
+import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
+import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
+import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
+import { initRundown } from '../../api-data/rundown/rundown.service.js';
+import { getDataProvider, initPersistence } from '../../classes/data-provider/DataProvider.js';
+import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 import { logger } from '../../classes/Logger.js';
+import { makeNewProject } from '../../models/dataModel.js';
+import { demoDb } from '../../models/demoProject.js';
+import { config } from '../../setup/config.js';
 import { publicDir } from '../../setup/index.js';
+import { populateOntimeLogo } from '../../setup/loadOntimeLogo.js';
 import {
   appendToName,
   deleteFile,
@@ -16,20 +27,8 @@ import {
   getFileNameFromPath,
   removeFileExtension,
 } from '../../utils/fileManagement.js';
-import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
-import { demoDb } from '../../models/demoProject.js';
-import { config } from '../../setup/config.js';
-import { getDataProvider, initPersistence } from '../../classes/data-provider/DataProvider.js';
-import { initRundown } from '../../api-data/rundown/rundown.service.js';
-import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
-import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
-import { makeNewProject } from '../../models/dataModel.js';
-import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
-import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
-
 import { getLastLoaded, isLastLoadedProject, setLastLoaded } from '../app-state-service/AppStateService.js';
 import { runtimeService } from '../runtime-service/runtime.service.js';
-
 import {
   doesProjectExist,
   getPathToProject,
@@ -37,7 +36,6 @@ import {
   moveCorruptFile,
   parseJsonFile,
 } from './projectServiceUtils.js';
-import { populateOntimeLogo } from '../../setup/loadOntimeLogo.js';
 
 type ProjectState =
   | {

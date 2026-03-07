@@ -76,14 +76,10 @@ export const previewRundown = async (
 };
 
 export const getWorksheetNames = async (sheetId: string, requestOptions?: RequestOptions): Promise<string[]> => {
-  const response: AxiosResponse<string[]> = await axios.post(
-    `${sheetsPath}/${sheetId}/worksheets`,
-    undefined,
-    {
-      signal: requestOptions?.signal,
-      timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
-    },
-  );
+  const response: AxiosResponse<string[]> = await axios.post(`${sheetsPath}/${sheetId}/worksheets`, undefined, {
+    signal: requestOptions?.signal,
+    timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
+  });
   return response.data;
 };
 

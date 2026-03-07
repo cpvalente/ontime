@@ -1,7 +1,7 @@
-import { DatabaseModel, AutomationSettings, NormalisedAutomation, Trigger } from 'ontime-types';
+import { AutomationSettings, DatabaseModel, NormalisedAutomation, Trigger } from 'ontime-types';
 
-import type { ErrorEmitter } from '../../utils/parserUtils.js';
 import { getPartialProject } from '../../models/dataModel.js';
+import type { ErrorEmitter } from '../../utils/parserUtils.js';
 
 export function parseAutomationSettings(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): AutomationSettings {
   const defaultAutomation: AutomationSettings = getPartialProject('automation');

@@ -4,7 +4,6 @@ import { IoArrowDown, IoArrowUp } from 'react-icons/io5';
 import Info from '../../../../common/components/info/Info';
 import { ProjectSortMode, useOrderedProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import ProjectListItem, { EditMode } from './ProjectListItem';
 
 import style from './ProjectPanel.module.scss';

@@ -112,7 +112,7 @@ describe('test parseUserTime()', () => {
       { value: '10AM', expect: 10 * MILLIS_PER_HOUR },
       { value: '10PM', expect: (12 + 10) * MILLIS_PER_HOUR },
 
-      { value: '12am', expect: 0 * MILLIS_PER_HOUR },
+      { value: '12am', expect: 0 },
       { value: '12pm', expect: 12 * MILLIS_PER_HOUR },
 
       { value: '1:10am', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
@@ -132,7 +132,7 @@ describe('test parseUserTime()', () => {
       { value: '10:10AM', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
       { value: '10:10PM', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
 
-      { value: '12:10am', expect: 0 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '12:10am', expect: 10 * MILLIS_PER_MINUTE },
       { value: '12:10pm', expect: 12 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
 
       { value: '1:10:10am', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
@@ -152,7 +152,7 @@ describe('test parseUserTime()', () => {
       { value: '10:10:10AM', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
       { value: '10:10:10PM', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
 
-      { value: '12:10:10am', expect: 0 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '12:10:10am', expect: 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
       { value: '12:10:10pm', expect: 12 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
     ];
 

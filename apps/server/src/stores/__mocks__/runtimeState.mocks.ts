@@ -1,5 +1,6 @@
-import { TimerPhase, Playback, OffsetMode, type TimeOfDay } from 'ontime-types';
+import { OffsetMode, Playback, type TimeOfDay, TimerPhase } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
+
 import type { RuntimeState } from '../runtimeState.js';
 
 const baseState: RuntimeState = {
@@ -52,6 +53,6 @@ const baseState: RuntimeState = {
   _startEpoch: null,
 };
 
-export function makeRuntimeStateData(patch?: Partial<RuntimeState>): RuntimeState {
-  return deepmerge(baseState, patch) as RuntimeState;
+export function makeRuntimeStateData(patch?: Partial<RuntimeState> | Record<string, unknown>): RuntimeState {
+  return deepmerge(baseState, (patch ?? {}) as Partial<RuntimeState>) as RuntimeState;
 }

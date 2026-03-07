@@ -9,7 +9,6 @@ import {
   websiteUrl,
 } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import AppVersion from './AppVersion';
 
 export default function AboutPanel() {

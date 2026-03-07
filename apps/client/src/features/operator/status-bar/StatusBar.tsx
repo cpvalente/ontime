@@ -1,5 +1,4 @@
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
-
 import StatusBarProgress from './StatusBarProgress';
 import StatusBarTimers from './StatusBarTimers';
 

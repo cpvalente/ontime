@@ -1,6 +1,6 @@
+import { useDisclosure, useHotkeys } from '@mantine/hooks';
 import { useCallback, useEffect } from 'react';
 import { IoApps, IoClose, IoSettingsOutline } from 'react-icons/io5';
-import { useDisclosure, useHotkeys } from '@mantine/hooks';
 
 import IconButton from '../../common/components/buttons/IconButton';
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
@@ -10,10 +10,9 @@ import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import AppSettings from '../../features/app-settings/AppSettings';
 import useAppSettingsNavigation from '../../features/app-settings/useAppSettingsNavigation';
 import EditorOverview from '../../features/overview/EditorOverview';
-
-import WelcomePlacement from './welcome/WelcomePlacement';
 import Editor from './Editor';
 import EditorLayoutOptions from './EditorLayoutOptions';
+import WelcomePlacement from './welcome/WelcomePlacement';
 
 import styles from './ProtectedEditor.module.scss';
 

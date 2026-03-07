@@ -1,5 +1,5 @@
 import { AuthenticationStatus, CustomFields, Rundown, RundownSummary } from 'ontime-types';
-import { defaultImportMap, ImportMap } from 'ontime-utils';
+import { ImportMap, defaultImportMap } from 'ontime-utils';
 import { create } from 'zustand';
 
 type SheetStore = {

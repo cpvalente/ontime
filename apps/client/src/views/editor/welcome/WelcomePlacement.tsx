@@ -1,5 +1,4 @@
 import { useDialogStore } from '../../../common/stores/dialogStore';
-
 import Welcome from './Welcome';
 
 export default function WelcomePlacement() {

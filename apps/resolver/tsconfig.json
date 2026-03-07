@@ -11,7 +11,7 @@
     "declaration": true,
     "outDir": "dist",
     "sourceMap": true,
-    "baseUrl": "src",
+    "ignoreDeprecations": "6.0"
   },
   "include": [
     "src",
@@ -20,10 +20,5 @@
     "node_modules",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
-  ],
-  "references": [
-    {
-      "path": "./tsconfig.tests.json"
-    }
   ]
 }

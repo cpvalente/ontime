@@ -7,7 +7,6 @@ import { cx } from '../../common/utils/styleUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
 import { getPropertyValue } from '../common/viewUtils';
 import { getTimerColour } from '../utils/presentation.utils';
-
 import { useStudioOptions } from './studio.options';
 import { getFormattedEventData, getFormattedScheduleTimes } from './studioTimers.utils';
 

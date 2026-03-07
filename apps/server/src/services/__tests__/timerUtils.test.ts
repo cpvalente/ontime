@@ -1,6 +1,7 @@
-import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, dayInMs, millisToString } from 'ontime-utils';
 import { EndAction, Playback, TimeOfDay, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 
+import type { RuntimeState } from '../../stores/runtimeState.js';
 import {
   findDayOffset,
   getCurrent,
@@ -11,7 +12,8 @@ import {
   normaliseEndTime,
   skippedOutOfEvent,
 } from '../timerUtils.js';
-import type { RuntimeState } from '../../stores/runtimeState.js';
+
+const asTimeOfDay = (value: number): RuntimeState['clock'] => value as RuntimeState['clock'];
 
 describe('getExpectedFinish()', () => {
   it('is null if we havent started', () => {
@@ -574,7 +576,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock += testSkipLimit;
+    state.clock = asTimeOfDay(state.clock + testSkipLimit);
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
 
@@ -594,7 +596,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock += testSkipLimit;
+    state.clock = asTimeOfDay(state.clock + testSkipLimit);
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
 
@@ -613,7 +615,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock = testSkipLimit - 2;
+    state.clock = asTimeOfDay(testSkipLimit - 2);
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
 
@@ -632,7 +634,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock -= testSkipLimit;
+    state.clock = asTimeOfDay(state.clock - testSkipLimit);
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
 
@@ -652,7 +654,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock += testSkipLimit + 1;
+    state.clock = asTimeOfDay(state.clock + testSkipLimit + 1);
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
 
@@ -672,7 +674,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock -= testSkipLimit + 1;
+    state.clock = asTimeOfDay(state.clock - testSkipLimit - 1);
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
 
@@ -691,7 +693,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock = testSkipLimit - 2;
+    state.clock = asTimeOfDay(testSkipLimit - 2);
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
 
@@ -710,7 +712,7 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    state.clock -= testSkipLimit + 1;
+    state.clock = asTimeOfDay(state.clock - testSkipLimit - 1);
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
 

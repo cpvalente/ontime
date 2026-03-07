@@ -2,7 +2,6 @@ import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { isDocker } from '../../../../externals';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import GeneralSettings from './GeneralSettings';
 import ProjectData from './ProjectData';
 import ServerPortSettings from './ServerPortSettings';

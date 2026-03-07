@@ -1,8 +1,8 @@
+import { OntimeView, URLPreset } from 'ontime-types';
+import { generateId } from 'ontime-utils';
 import { useRef, useState } from 'react';
 import { FieldErrors, useForm } from 'react-hook-form';
 import QRCode from 'react-qr-code';
-import { OntimeView, URLPreset } from 'ontime-types';
-import { generateId } from 'ontime-utils';
 
 import { generateUrl } from '../../common/api/session';
 import { maybeAxiosError } from '../../common/api/utils';
@@ -18,7 +18,6 @@ import { preventEscape } from '../../common/utils/keyEvent';
 import { isUrlSafe } from '../../common/utils/regex';
 import { isOntimeCloud, serverURL } from '../../externals';
 import * as Panel from '../app-settings/panel-utils/PanelUtils';
-
 import CuesheetLinkOptions from './composite/CuesheetLinkOptions';
 
 import style from './GenerateLinkForm.module.scss';
