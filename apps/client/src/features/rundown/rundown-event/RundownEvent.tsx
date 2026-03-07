@@ -38,6 +38,7 @@ interface RundownEventProps {
   linkStart: boolean;
   flag: boolean;
   countToEnd: boolean;
+  breakRoll: boolean;
   eventIndex: number;
   endAction: EndAction;
   timerType: TimerType;
@@ -71,6 +72,7 @@ export default function RundownEvent({
   linkStart,
   flag,
   countToEnd,
+  breakRoll,
   eventIndex,
   endAction,
   timerType,
@@ -295,6 +297,7 @@ export default function RundownEvent({
         duration={duration}
         linkStart={linkStart}
         countToEnd={countToEnd}
+        breakRoll={breakRoll}
         timeStrategy={timeStrategy}
         eventId={eventId}
         eventIndex={eventIndex}

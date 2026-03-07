@@ -39,3 +39,13 @@
   transform: rotateY(180deg);
 }
 
+.rollLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+
+  svg {
+    font-size: 0.85em;
+  }
+}
+

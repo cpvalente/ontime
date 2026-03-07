@@ -550,6 +550,9 @@ class RuntimeService {
       const result = runtimeState.roll(rundown, metadata, offset);
       if (result.didStart) {
         const newState = runtimeState.getState();
+        if (newState.eventNow?.breakRoll) {
+          runtimeState.start();
+        }
         process.nextTick(() => {
           triggerReportEntry(TimerLifeCycle.onStart, newState);
           triggerAutomations(TimerLifeCycle.onStart);
@@ -588,6 +591,9 @@ class RuntimeService {
       }
 
       if (result.didStart) {
+        if (newState.eventNow?.breakRoll) {
+          runtimeState.start();
+        }
         process.nextTick(() => {
           triggerReportEntry(TimerLifeCycle.onStart, newState);
           triggerAutomations(TimerLifeCycle.onStart);

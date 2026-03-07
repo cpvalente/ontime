@@ -120,6 +120,8 @@ export const parseExcel = (
         entry.flag = parseBooleanString(column);
       } else if (j === indexMap.countToEnd) {
         entry.countToEnd = parseBooleanString(column);
+      } else if (j === indexMap.breakRoll) {
+        entry.breakRoll = parseBooleanString(column);
       } else if (j === indexMap.skip) {
         entry.skip = parseBooleanString(column);
       } else if (j === indexMap.note) {

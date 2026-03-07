@@ -41,7 +41,7 @@ If waiting to start is finished, we load the next event and start it
 If an event is finished, we check if the next event is ready to start, this is similarly as if we had a conditional `load-next` `play-next` automation
 If there is a gap between the events, we add `secondaryTimer` to match and wait for the next event to start
 Finish time should account for `timer.addedTime`
-Finish actions are ignored in roll mode
+Finish actions are ignored in roll mode. Events with breakRoll enabled exit roll and apply their end action normally.
 
 #### time has skipped
 If we find that the new time update has slid in comparison to the old update (either too long, or time went backwards), we re-calculate
