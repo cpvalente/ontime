@@ -4,6 +4,7 @@ import type { TimerType } from '../TimerType.type.js';
 import type { TimeStrategy } from '../TimeStrategy.type.js';
 import type { Trigger } from './Automation.type.js';
 import type { EntryCustomFields } from './CustomFields.type.js';
+import type { Day } from './Temporal.js';
 
 export type EntryId = string;
 
@@ -77,7 +78,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   // !==== RUNTIME METADATA ====! //
   revision: number;
   delay: number; // calculated at runtime
-  dayOffset: number; // calculated at runtime
+  dayOffset: Day; // calculated at runtime
   gap: number; // calculated at runtime
 };
 

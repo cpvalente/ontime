@@ -1,4 +1,4 @@
-import { Instant, PlayableEvent, Playback, TimerPhase } from 'ontime-types';
+import { Instant, PlayableEvent, Playback, SupportedEntry, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { makeOntimeGroup, makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
@@ -573,6 +573,95 @@ describe('roll mode', () => {
       const stateAfterMidnight = getState();
       // secondaryTimer should now be 50 minutes until 01:00
       expect(stateAfterMidnight.timer.secondaryTimer).toBe(50 * MILLIS_PER_MINUTE);
+    });
+
+    test('rolling into overnight event after midnight has correct offset and expected times', async () => {
+      // Simulates a rundown with:
+      // - A group starting at 13:00, containing an overnight event
+      // - Overnight event: 23:50 to 01:50 (2 hours)
+      // Roll into the event at 00:21 (31 minutes into the event)
+      const groupId = 'group-1';
+      const eventId = 'event-1';
+      const eventStart = 23 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE; // 23:50
+      const eventEnd = 1 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE; // 01:50
+      const eventDuration = 2 * MILLIS_PER_HOUR; // 2 hours
+      const groupStart = 13 * MILLIS_PER_HOUR; // 13:00
+      const groupDuration = 12 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE; // 12h 50m (ends at 01:50)
+
+      const mockRundown = makeRundown({
+        entries: {
+          [groupId]: {
+            id: groupId,
+            type: SupportedEntry.Group,
+            title: 'Test Group',
+            timeStart: groupStart,
+            timeEnd: eventEnd,
+            duration: groupDuration,
+            entries: [eventId],
+            colour: '',
+            note: '',
+            custom: {},
+            revision: 0,
+            isFirstLinked: false,
+            targetDuration: null,
+          },
+          [eventId]: {
+            ...mockEvent,
+            id: eventId,
+            timeStart: eventStart,
+            timeEnd: eventEnd,
+            duration: eventDuration,
+            dayOffset: 0,
+            parent: groupId,
+          },
+        },
+        order: [groupId],
+      });
+
+      await initRundown(mockRundown, {});
+      vi.runAllTimers();
+
+      const { rundown, metadata } = rundownCache.get();
+
+      // Roll into the event AFTER midnight at 00:21 (31 minutes into the 2-hour event)
+      const rollTime = 21 * MILLIS_PER_MINUTE; // 00:21
+      vi.setSystemTime('jan 2 00:21');
+      const result = roll(rundown, metadata);
+
+      expect(result.eventId).toBe(eventId);
+      expect(result.didStart).toBe(true);
+
+      // Call update to recalculate all state (like runtime service does)
+      update();
+
+      const state = getState();
+
+      // currentDay should be 1 (we're on the next day after midnight)
+      expect(state.rundown.currentDay).toBe(1);
+
+      // offset.absolute should be 0 (event started on time, backdated to planned start)
+      expect(state.offset.absolute).toBe(0);
+
+      // Timer should show correct remaining time
+      // Event started at 23:50, duration is 2 hours, clock is 00:21
+      // Time elapsed = 31 minutes, time remaining = 2h - 31m = 1h 29m = 89 minutes
+      const expectedRemaining = eventDuration - (rollTime + (24 * MILLIS_PER_HOUR - eventStart));
+      expect(state.timer.current).toBe(expectedRemaining);
+
+      // expectedFinish should be 01:50 (event end time)
+      expect(state.timer.expectedFinish).toBe(eventEnd);
+
+      // expectedRundownEnd should be 01:50 (same as event end, only one event)
+      expect(state.offset.expectedRundownEnd).toBe(eventEnd);
+
+      // expectedGroupEnd should be 01:50 (group ends when the event ends)
+      expect(state.offset.expectedGroupEnd).toBe(eventEnd);
+
+      // Verify timer started at correct backdated time
+      expect(state.timer.startedAt).toBe(eventStart);
+
+      // Verify actualStart is backdated to planned start
+      expect(state.rundown.actualStart).toBe(eventStart);
     });
 
     test('rundown loops back after finishing and resets currentDay when first event starts again', async () => {
