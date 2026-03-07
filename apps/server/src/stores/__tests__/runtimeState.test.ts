@@ -1,4 +1,4 @@
-import { PlayableEvent, Playback, TimerPhase } from 'ontime-types';
+import { Instant, PlayableEvent, Playback, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { makeOntimeGroup, makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
@@ -437,6 +437,65 @@ describe('roll mode', () => {
       expect(stateAfterMidnight.rundown.currentDay).toBeNull();
       // should still be pending (event starts at 01:00)
       expect(stateAfterMidnight.timer.secondaryTimer).not.toBeNull();
+    });
+
+    test('waiting between events crossing midnight increments currentDay', async () => {
+      // Event 1: 23:00-23:30, Event 2: 00:30-01:00 (gap over midnight)
+      const mockRundown = makeRundown({
+        entries: {
+          1: {
+            ...mockEvent,
+            id: '1',
+            timeStart: 23 * MILLIS_PER_HOUR, // 23:00
+            timeEnd: 23 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE, // 23:30
+            duration: 30 * MILLIS_PER_MINUTE,
+            dayOffset: 0,
+          },
+          2: {
+            ...mockEvent,
+            id: '2',
+            timeStart: 30 * MILLIS_PER_MINUTE, // 00:30
+            timeEnd: 1 * MILLIS_PER_HOUR, // 01:00
+            duration: 30 * MILLIS_PER_MINUTE,
+            dayOffset: 0,
+          },
+        },
+        order: ['1', '2'],
+      });
+
+      await initRundown(mockRundown, {});
+      vi.runAllTimers();
+
+      const { rundown, metadata } = rundownCache.get();
+
+      // Start event 1 at 23:05
+      vi.setSystemTime('jan 1 23:05');
+      const startEpoch = Date.now() as Instant;
+      let result = roll(rundown, metadata);
+      expect(result.eventId).toBe('1');
+      expect(result.didStart).toBe(true);
+      expect(getState().rundown.currentDay).toBe(0);
+
+      // Simulate event 1 finishing and loading event 2 (what runtime service does)
+      // Load event 2 and call roll to put it in pending state
+      vi.setSystemTime('jan 1 23:35');
+      load(rundown.entries['2'] as PlayableEvent, rundown, metadata, {
+        firstStart: getState().rundown.actualStart,
+        startEpoch,
+      });
+      result = roll(rundown, metadata);
+      expect(result.eventId).toBe('2');
+      expect(result.didStart).toBe(false); // pending for 00:30
+      expect(getState().timer.secondaryTimer).not.toBeNull();
+      expect(getState().rundown.currentDay).toBe(0);
+
+      // Cross midnight while waiting for event 2
+      vi.setSystemTime('jan 2 00:10');
+      update();
+
+      // currentDay should increment even while waiting between events
+      expect(getState().rundown.currentDay).toBe(1);
+      expect(getState().timer.secondaryTimer).not.toBeNull(); // still waiting
     });
 
     test('pending roll sets currentDay to 0 when event starts (rundown starts fresh)', async () => {

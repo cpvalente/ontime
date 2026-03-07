@@ -545,21 +545,21 @@ export function update(): UpdateResult {
     return updateIfIdle();
   }
 
-  const hasCrossedMidnight = previousClock > now;
+  // calculate currentDay from epoch (days elapsed since playback was started)
+  if (runtimeState._startEpoch !== null && runtimeState._startDayOffset !== null) {
+    const daysSinceStart = timeCore.daysSinceStart(runtimeState._startEpoch, epoch);
+    runtimeState.rundown.currentDay = runtimeState._startDayOffset + daysSinceStart;
+  }
 
   // 2. are we waiting to roll?
   if (runtimeState.timer.playback === Playback.Roll && runtimeState.timer.secondaryTimer !== null) {
+    const hasCrossedMidnight = previousClock > now;
     return updateIfWaitingToRoll(hasCrossedMidnight);
   }
 
   // 3. at this point we know that we are playing an event
   // reset data
   runtimeState.timer.secondaryTimer = null;
-
-  // increment day if we crossed midnight
-  if (hasCrossedMidnight && runtimeState.rundown.currentDay !== null) {
-    runtimeState.rundown.currentDay++;
-  }
 
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: {
