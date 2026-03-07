@@ -202,19 +202,19 @@ export const useGroupTimerOverView = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
   mode: state.offset.mode,
   groupExpectedEnd: state.offset.expectedGroupEnd,
-  // we can force these numbers to 0 fo this use case to avoid null checks
+  // we can force these numbers to 0 for this use case to avoid null checks
   actualGroupStart: state.rundown.actualGroupStart ?? 0,
-  currentDay: state.eventNow?.dayOffset ?? 0,
+  currentDay: state.rundown.currentDay ?? 0,
   playback: state.timer.playback,
 }));
 
 export const useFlagTimerOverView = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
   mode: state.offset.mode,
-  // we can force these numbers to 0 fo this use case to avoid null checks
+  // we can force these numbers to 0 for this use case to avoid null checks
   actualStart: state.rundown.actualStart ?? 0,
   plannedStart: state.rundown.plannedStart ?? 0,
-  currentDay: state.eventNow?.dayOffset ?? 0,
+  currentDay: state.rundown.currentDay ?? 0,
   playback: state.timer.playback,
 }));
 
