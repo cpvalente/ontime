@@ -57,7 +57,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       // if it doesnt exist, simply add to the list and set an anchor
       if (!selectedEvents.has(id)) {
         return set({
-          selectedEvents: selectedEvents.add(id),
+          selectedEvents: new Set([...selectedEvents, id]),
           anchoredIndex: index,
           cursor: id,
           entryMode: 'event',
@@ -66,15 +66,16 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
 
       // if event is already selected, we remove it from selection
       // and set the anchor to the event after
-      selectedEvents.delete(id);
+      const remaining = new Set(selectedEvents);
+      remaining.delete(id);
 
       const nextIndex = rundownData.order.findIndex(
-        (eventId, i) => i > index && isOntimeEvent(rundownData.entries[eventId]) && selectedEvents.has(eventId),
+        (eventId, i) => i > index && isOntimeEvent(rundownData.entries[eventId]) && remaining.has(eventId),
       );
 
       // if we didnt find anything after, set the anchor to the last event
       return set({
-        selectedEvents,
+        selectedEvents: remaining,
         anchoredIndex: nextIndex < 0 ? rundownData.order.length - 1 : nextIndex,
         entryMode: 'event',
       });
@@ -119,10 +120,11 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   },
   unselect: (id: string) => {
     const { entryMode, selectedEvents } = get();
-    selectedEvents.delete(id);
+    const remaining = new Set(selectedEvents);
+    remaining.delete(id);
     set({
-      selectedEvents,
-      entryMode: selectedEvents.size === 0 ? null : entryMode,
+      selectedEvents: remaining,
+      entryMode: remaining.size === 0 ? null : entryMode,
     });
   },
   // Sets the scroll handler for programmatic scrolling to entries

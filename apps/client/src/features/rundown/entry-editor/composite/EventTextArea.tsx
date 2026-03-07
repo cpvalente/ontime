@@ -10,6 +10,7 @@ interface CountedTextAreaProps {
   field: EventEditorUpdateFields;
   label: string;
   initialValue: string;
+  placeholder?: string;
   style?: CSSProperties;
   submitHandler: (field: EventEditorUpdateFields, value: string) => void;
 }
@@ -19,6 +20,7 @@ export default function EventTextArea({
   field,
   label,
   initialValue,
+  placeholder,
   style: givenStyles,
   submitHandler,
 }: CountedTextAreaProps) {
@@ -40,6 +42,7 @@ export default function EventTextArea({
         rows={1}
         data-testid='input-textarea'
         fluid
+        placeholder={placeholder}
         value={value}
         onChange={onChange}
         onBlur={onBlur}
