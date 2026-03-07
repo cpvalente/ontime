@@ -1,4 +1,4 @@
-import type { OntimeDelay, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ontime-types';
+import type { Day, OntimeDelay, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ontime-types';
 import { EndAction, SupportedEntry, TimerType, TimeStrategy } from 'ontime-types';
 
 export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
@@ -24,7 +24,7 @@ export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   parent: null,
   revision: 0, // calculated at runtime
   delay: 0, // calculated at runtime
-  dayOffset: 0, // calculated at runtime
+  dayOffset: 0 as Day, // calculated at runtime
   gap: 0, // calculated at runtime
 };
 

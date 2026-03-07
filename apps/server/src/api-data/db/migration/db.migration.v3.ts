@@ -16,6 +16,7 @@ import {
   Trigger,
   URLPreset,
   ViewSettings,
+  Day,
 } from 'ontime-types';
 import {
   customFieldLabelToKey,
@@ -393,7 +394,7 @@ export function migrateRundown(
           // !==== RUNTIME METADATA ====! //
           revision: -1,
           delay: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           gap: 0,
         });
       } else if (entry.type === 'block') {

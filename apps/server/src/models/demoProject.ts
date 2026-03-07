@@ -1,4 +1,4 @@
-import { DatabaseModel, EndAction, OntimeView, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
+import { DatabaseModel, Day, EndAction, OntimeView, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
 
 export const demoDb: DatabaseModel = {
   rundowns: {
@@ -66,7 +66,7 @@ export const demoDb: DatabaseModel = {
           note: 'Music plays, holding slide on screens',
           colour: '#77C785',
           delay: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           gap: 0,
           cue: '1',
           parent: '7eaf99',
@@ -109,7 +109,7 @@ export const demoDb: DatabaseModel = {
           note: 'Emma Thompson',
           colour: '#FFCC78',
           delay: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           gap: 0,
           cue: '1.1',
           parent: '7eaf99',
@@ -141,7 +141,7 @@ export const demoDb: DatabaseModel = {
           note: 'Liam Carter, Sophia Patel + PowerPoint',
           colour: '#77C785',
           delay: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           gap: 0,
           cue: '1.2',
           parent: '7eaf99',
@@ -199,7 +199,7 @@ export const demoDb: DatabaseModel = {
           note: 'Buffet in lobby',
           colour: '#779BE7',
           delay: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           gap: 0,
           cue: '2.1',
           parent: 'f60403',
@@ -257,7 +257,7 @@ export const demoDb: DatabaseModel = {
           note: 'Ethan Brooks + PowerPoint + Video playback',
           colour: '#77C785',
           delay: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           gap: 0,
           cue: '3.1',
           parent: '6b0edb',
@@ -289,7 +289,7 @@ export const demoDb: DatabaseModel = {
           note: 'Lucas Bennett',
           colour: '#FFCC78',
           delay: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           gap: 0,
           cue: '3.2',
           parent: '6b0edb',

@@ -1,4 +1,4 @@
-import { Instant, TimeOfDay, Duration } from 'ontime-types';
+import { Day, Duration, Instant, TimeOfDay } from 'ontime-types';
 import { dayInMs, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 /** Returns the current instant */
@@ -57,4 +57,22 @@ export function addDuration(instant: Instant, duration: Duration | Duration[]): 
   const totalDuration = Array.isArray(duration) ? duration.reduce((total, current) => total + current, 0) : duration;
 
   return (instant + totalDuration) as Instant;
+}
+
+/**
+ * Calculates elapsed time on the clock from a starting time to the current time
+ * Handles overnight crossing (when current < start, assumes we've crossed midnight)
+ */
+export function elapsedTime(current: TimeOfDay, start: TimeOfDay): Duration {
+  return (current < start ? current + dayInMs - start : current - start) as Duration;
+}
+
+/**
+ * Calculates the number of full days elapsed since a start epoch
+ * Uses the start time-of-day to determine day boundaries
+ */
+export function daysSinceStart(startEpoch: Instant, currentEpoch: Instant): Day {
+  const startClock = toTimeOfDay(startEpoch);
+  const elapsedMs = currentEpoch - startEpoch;
+  return Math.floor((elapsedMs + startClock) / dayInMs) as Day;
 }

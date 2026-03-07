@@ -1,4 +1,4 @@
-import { MaybeNumber, TimerPhase } from 'ontime-types';
+import { Day, MaybeNumber, TimerPhase } from 'ontime-types';
 import { checkIsNow, dayInMs, isPlaybackActive, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import type { RuntimeState } from '../stores/runtimeState.js';
@@ -188,9 +188,9 @@ export function getTimerPhase(state: RuntimeState): TimerPhase {
  * Finds the day offset relative to an event start
  * used byt the runtimeState on first start to get correct offsets
  */
-export function findDayOffset(plannedStart: number, clock: number): number {
+export function findDayOffset(plannedStart: number, clock: number): Day {
   const distance = clock - plannedStart;
-  if (distance >= 12 * MILLIS_PER_HOUR) return -1;
-  if (distance < -12 * MILLIS_PER_HOUR) return 1;
-  return 0;
+  if (distance >= 12 * MILLIS_PER_HOUR) return -1 as Day;
+  if (distance < -12 * MILLIS_PER_HOUR) return 1 as Day;
+  return 0 as Day;
 }

@@ -1,5 +1,5 @@
-import { dayInMs, millisToString } from 'ontime-utils';
-import { Duration, Instant } from 'ontime-types';
+import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, millisToString } from 'ontime-utils';
+import { Duration, Instant, TimeOfDay } from 'ontime-types';
 
 import { timeNow } from '../../../utils/time.js';
 import * as timeCore from '../timeCore.js';
@@ -181,5 +181,83 @@ describe('addDuration() moves a point in time by a duration', () => {
   it('keeps the instant unchanged with an empty duration list', () => {
     const instant = 1000 as Instant;
     expect(timeCore.addDuration(instant, [])).toBe(1000);
+  });
+});
+
+describe('elapsedTime() calculates duration between two times of day', () => {
+  it('calculates elapsed time on the same day', () => {
+    const start = (10 * MILLIS_PER_HOUR) as TimeOfDay; // 10:00
+    const clock = (10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE) as TimeOfDay; // 10:30
+    expect(timeCore.elapsedTime(clock, start)).toBe(30 * MILLIS_PER_MINUTE);
+  });
+
+  it('calculates elapsed time when crossing midnight (overnight)', () => {
+    const start = (23 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE) as TimeOfDay; // 23:50
+    const clock = (21 * MILLIS_PER_MINUTE) as TimeOfDay; // 00:21
+    // From 23:50 to 00:21 = 31 minutes
+    expect(timeCore.elapsedTime(clock, start)).toBe(31 * MILLIS_PER_MINUTE);
+  });
+
+  it('returns 0 when start and clock are the same', () => {
+    const time = (15 * MILLIS_PER_HOUR) as TimeOfDay; // 15:00
+    expect(timeCore.elapsedTime(time, time)).toBe(0);
+  });
+
+  it('calculates correctly for just after midnight', () => {
+    const start = (23 * MILLIS_PER_HOUR + 59 * MILLIS_PER_MINUTE) as TimeOfDay; // 23:59
+    const clock = (1 * MILLIS_PER_MINUTE) as TimeOfDay; // 00:01
+    // From 23:59 to 00:01 = 2 minutes
+    expect(timeCore.elapsedTime(clock, start)).toBe(2 * MILLIS_PER_MINUTE);
+  });
+});
+
+describe('daysSinceStart() calculates full days elapsed since a start epoch', () => {
+  it('returns 0 when current epoch equals start epoch', () => {
+    vi.setSystemTime('2025-01-15T10:00:00Z');
+    const epoch = timeCore.now();
+    expect(timeCore.daysSinceStart(epoch, epoch)).toBe(0);
+  });
+
+  it('returns 0 when less than one day has elapsed', () => {
+    vi.setSystemTime('2025-01-15T10:00:00Z');
+    const startEpoch = timeCore.now();
+
+    vi.setSystemTime('2025-01-15T18:00:00Z'); // 8 hours later
+    const currentEpoch = timeCore.now();
+
+    expect(timeCore.daysSinceStart(startEpoch, currentEpoch)).toBe(0);
+  });
+
+  it('returns 1 when crossing midnight once', () => {
+    // Copenhagen is UTC+1 in winter, so 22:50 UTC = 23:50 local
+    vi.setSystemTime('2025-01-15T22:50:00Z'); // 23:50 local
+    const startEpoch = timeCore.now();
+
+    vi.setSystemTime('2025-01-15T23:21:00Z'); // 00:21 local next day
+    const currentEpoch = timeCore.now();
+
+    expect(timeCore.daysSinceStart(startEpoch, currentEpoch)).toBe(1);
+  });
+
+  it('returns 2 when crossing midnight twice', () => {
+    vi.setSystemTime('2025-01-15T10:00:00Z');
+    const startEpoch = timeCore.now();
+
+    vi.setSystemTime('2025-01-17T15:00:00Z'); // 2 days + 5 hours later
+    const currentEpoch = timeCore.now();
+
+    expect(timeCore.daysSinceStart(startEpoch, currentEpoch)).toBe(2);
+  });
+
+  it('handles overnight start correctly', () => {
+    // Copenhagen is UTC+1 in winter
+    // Start at 23:50 local (22:50 UTC), check at 00:10 local next day (23:10 UTC)
+    vi.setSystemTime('2025-01-15T22:50:00Z'); // 23:50 local
+    const startEpoch = timeCore.now();
+
+    vi.setSystemTime('2025-01-15T23:10:00Z'); // 00:10 local next day
+    const currentEpoch = timeCore.now();
+
+    expect(timeCore.daysSinceStart(startEpoch, currentEpoch)).toBe(1);
   });
 });
