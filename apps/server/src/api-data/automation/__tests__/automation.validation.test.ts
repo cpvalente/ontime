@@ -125,42 +125,44 @@ describe('parseOutput', () => {
       ).toThrow('Unexpected payload type:');
     });
 
-    it('parses message-secondary', () => {});
-    expect(
-      parseOutput({
-        type: 'ontime',
-        action: 'message-secondary',
-        secondarySource: 'test',
-      }),
-    ).toMatchObject({
-      secondarySource: null,
-    });
-    expect(
-      parseOutput({
-        type: 'ontime',
-        action: 'message-secondary',
-        secondarySource: '',
-      }),
-    ).toMatchObject({
-      secondarySource: null,
-    });
-    expect(
-      parseOutput({
-        type: 'ontime',
-        action: 'message-secondary',
+    it('parses message-secondary', () => {
+
+      expect(
+        parseOutput({
+          type: 'ontime',
+          action: 'message-secondary',
+          secondarySource: 'test',
+        }),
+      ).toMatchObject({
+        secondarySource: null,
+      });
+      expect(
+        parseOutput({
+          type: 'ontime',
+          action: 'message-secondary',
+          secondarySource: '',
+        }),
+      ).toMatchObject({
+        secondarySource: null,
+      });
+      expect(
+        parseOutput({
+          type: 'ontime',
+          action: 'message-secondary',
+          secondarySource: 'aux1',
+        }),
+      ).toMatchObject({
         secondarySource: 'aux1',
-      }),
-    ).toMatchObject({
-      secondarySource: 'aux1',
-    });
-    expect(
-      parseOutput({
-        type: 'ontime',
-        action: 'message-secondary',
+      });
+      expect(
+        parseOutput({
+          type: 'ontime',
+          action: 'message-secondary',
+          secondarySource: 'secondary',
+        }),
+      ).toMatchObject({
         secondarySource: 'secondary',
-      }),
-    ).toMatchObject({
-      secondarySource: 'secondary',
+      });
     });
   });
 });
