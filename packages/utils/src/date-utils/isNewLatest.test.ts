@@ -1,4 +1,5 @@
 import { Day } from 'ontime-types';
+
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from './conversionUtils';
 import { isNewLatest } from './isNewLatest';
 

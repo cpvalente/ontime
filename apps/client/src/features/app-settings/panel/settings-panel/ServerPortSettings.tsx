@@ -1,6 +1,6 @@
+import { PortInfo } from 'ontime-types';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { PortInfo } from 'ontime-types';
 
 import { getServerPort, postServerPort } from '../../../../common/api/settings';
 import { maybeAxiosError } from '../../../../common/api/utils';

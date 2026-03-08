@@ -2,14 +2,16 @@
 
 Congratulations! You got this far into Ontime's rabbit hole and want to manage your installation.
 
-The Resolver is an attempt to expose our ontime's api so it is easier to integrate with  
+The Resolver is an attempt to expose our ontime's api so it is easier to integrate with
 
 ## Links
+
 - [Ontime's repository](https://github.com/cpvalente/ontime)
 - [Ontime's documentation](https://docs.getontime.no/)
 - [Ontime's website](https://getontime.no/)
 
 ## Sponsoring
+
 You can help the development of this project or say thank you with a one time donation. \
 See the [terms of donations](https://github.com/cpvalente/ontime/blob/master/SPONSOR.md)
 

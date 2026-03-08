@@ -2,10 +2,10 @@ import * as dgram from 'node:dgram';
 
 import { LogOrigin, OSCOutput, RuntimeStore } from 'ontime-types';
 import { type OscPacketInput, toBuffer as oscPacketToBuffer } from 'osc-min';
+import { DeepReadonly } from 'ts-essentials';
 
 import { logger } from '../../../classes/Logger.js';
 import { parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
-import { DeepReadonly } from 'ts-essentials';
 
 const udpClient = dgram.createSocket('udp4');
 

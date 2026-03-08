@@ -126,7 +126,6 @@ describe('parseOutput', () => {
     });
 
     it('parses message-secondary', () => {
-
       expect(
         parseOutput({
           type: 'ontime',

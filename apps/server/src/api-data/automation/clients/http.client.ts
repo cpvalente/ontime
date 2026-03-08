@@ -1,5 +1,5 @@
-import { DeepReadonly } from 'ts-essentials';
 import { HTTPOutput, LogOrigin, RuntimeStore } from 'ontime-types';
+import { DeepReadonly } from 'ts-essentials';
 
 import { logger } from '../../../classes/Logger.js';
 import { parseTemplateNested } from '../automation.utils.js';

@@ -1,6 +1,8 @@
 import { DatabaseModel, LogOrigin } from 'ontime-types';
+import { getErrorMessage } from 'ontime-utils';
 
 import { logger } from '../../classes/Logger.js';
+import { portManager } from '../../classes/port-manager/PortManager.js';
 import { parseAutomationSettings } from '../automation/automation.parser.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import { parseProjectData } from '../project-data/projectData.parser.js';
@@ -10,8 +12,6 @@ import { parseUrlPresets } from '../url-presets/urlPresets.parser.js';
 import { parseViewSettings } from '../view-settings/viewSettings.parser.js';
 import * as v3 from './migration/db.migration.v3.js';
 import * as v4 from './migration/db.migration.v4.js';
-import { portManager } from '../../classes/port-manager/PortManager.js';
-import { getErrorMessage } from 'ontime-utils';
 
 type ParsingError = {
   context: string;
@@ -31,7 +31,6 @@ export function parseDatabaseModel(
   errors: ParsingError[];
   migrated: boolean;
 } {
-
   let migrated = false;
   let migratedData = jsonData;
   const errors: ParsingError[] = [];
@@ -45,10 +44,8 @@ export function parseDatabaseModel(
       logger.error(LogOrigin.Server, 'Failed to migrate the data');
       errors.push({ context: 'v3 migration', message: getErrorMessage(error) });
       migratedData = jsonData;
-    };
-
+    }
   }
-
 
   if (v4.shouldMigrateServerPort(migratedData)) {
     try {
@@ -61,7 +58,6 @@ export function parseDatabaseModel(
       logger.error(LogOrigin.Server, 'Failed to migrate serverPort');
       errors.push({ context: 'v4 migration', message: getErrorMessage(error) });
       migratedData = jsonData;
-
     }
   }
 

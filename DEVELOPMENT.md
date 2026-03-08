@@ -2,16 +2,16 @@
 
 Ontime consists of 3 distinct parts
 
-- __client__: A React app for Ontime's UI and web clients
-- __electron__: An electron app which facilitates the cross-platform distribution of Ontime
-- __server__: A node application which handles the domains services and integrations
+- **client**: A React app for Ontime's UI and web clients
+- **electron**: An electron app which facilitates the cross-platform distribution of Ontime
+- **server**: A node application which handles the domains services and integrations
 
 The steps below will assume you have locally installed the necessary dependencies.
 Other dependencies will be installed as part of the setup
 
-- __node__ (~22)
-- __pnpm__ (~10)
-- __docker__ (only necessary to run and build docker images)
+- **node** (~22)
+- **pnpm** (~10)
+- **docker** (only necessary to run and build docker images)
 
 ## LOCAL DEVELOPMENT
 
@@ -20,10 +20,10 @@ development.
 Locally, we would need to run both the React client and the node.js server in development mode
 
 From the project root, run the following commands
-- __Install the project dependencies__ by running `pnpm i`
-- __Create a local build__ by running `pnpm build`, this will populate local dependencies
-- __Run dev mode__ by running `pnpm dev` or `pnpm dev:electron` to get the electron window
 
+- **Install the project dependencies** by running `pnpm i`
+- **Create a local build** by running `pnpm build`, this will populate local dependencies
+- **Run dev mode** by running `pnpm dev` or `pnpm dev:electron` to get the electron window
 
 ### Debugging backend
 
@@ -31,8 +31,9 @@ The previous command will start the development servers for both the client, ser
 Typically in dev mode we prefer to start these in separate terminals to help with error tracking and debugging.
 
 We do that by creating two terminals an running
-- __Run the React UI__ by running `pnpm dev --filter=ontime-ui`
-- __Run the nodejs server__ by running `pnpm dev --filter=ontime-server`
+
+- **Run the React UI** by running `pnpm dev --filter=ontime-ui`
+- **Run the nodejs server** by running `pnpm dev --filter=ontime-server`
 
 - If you need to set breakpoints and inspect the code execution, enable Node.js inspect mode by running `pnpm dev:inspect --filter=ontime-server`.
 
@@ -77,9 +78,9 @@ You can generate a distribution for your OS by running the following steps.
 
 From the project root, run the following commands
 
-- __Install the project dependencies__ by running `pnpm i`
-- __Build the UI and server__ by running `pnpm build`
-- __Create the package__ by running `pnpm dist-win`, `pnpm dist-mac` or `pnpm dist-linux`
+- **Install the project dependencies** by running `pnpm i`
+- **Build the UI and server** by running `pnpm build`
+- **Create the package** by running `pnpm dist-win`, `pnpm dist-mac` or `pnpm dist-linux`
 
 The build distribution assets will be at `.apps/electron/dist`
 
@@ -90,23 +91,24 @@ While it should allow for a generic setup, it might need to be modified to fit y
 
 From the project root, run the following commands
 
-- __Build docker image from__ by running `docker build -t getontime/ontime .`
-- __Run docker image from compose__ by running `docker-compose up -d`
+- **Build docker image from** by running `docker build -t getontime/ontime .`
+- **Run docker image from compose** by running `docker-compose up -d`
 
 Other useful commands
 
-- __List running processes__ by running `docker ps`
-- __Kill running process__ by running `docker kill <process-id>`
+- **List running processes** by running `docker ps`
+- **Kill running process** by running `docker kill <process-id>`
 
 ## CONTRIBUTION GUIDELINES
 
 If you want to propose changes to the codebase, please reach out before opening a Pull Request.
 
 For new PRs, please follow the following checklist:
-* [ ] You have updated and ran unit locally and they are passing. Unit tests are generally created for all utility functions and business logic 
-* [ ] You have ran code formatting and linting in all your changes
-* [ ] The branch is clean and the commits are meaningfully separated and contain descriptive messages
-* [ ] The PR body contains description and motivation for the changes
+
+- [ ] You have updated and ran unit locally and they are passing. Unit tests are generally created for all utility functions and business logic
+- [ ] You have ran code formatting and linting in all your changes
+- [ ] The branch is clean and the commits are meaningfully separated and contain descriptive messages
+- [ ] The PR body contains description and motivation for the changes
 
 After this checklist is complete, you can request a review from one of the maintainers to get feedback and approval on the changes. \
 We will review as soon as possible

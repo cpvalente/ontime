@@ -98,7 +98,7 @@ describe('processRundown()', () => {
       Object.keys(result?.entries ?? {}).length,
       'events',
     );
-    expect(t2 - t1).lessThan(100)
+    expect(t2 - t1).lessThan(100);
   });
 
   it('generates metadata from given rundown', () => {
