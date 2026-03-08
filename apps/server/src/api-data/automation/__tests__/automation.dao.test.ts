@@ -15,25 +15,23 @@ import {
 } from '../automation.dao.js';
 import { makeHTTPAction, makeOSCAction } from './testUtils.js';
 
-beforeAll(() => {
-  vi.mock('../../../classes/data-provider/DataProvider.js', () => {
-    // Create a small mock store
-    let automations = {
-      enabledAutomations: true,
-      enabledOscIn: true,
-      oscPortIn: 8888,
-      triggers: [],
-      automations: {},
-    };
-    return {
-      getDataProvider: vi.fn().mockImplementation(() => {
-        return {
-          getAutomation: vi.fn().mockImplementation(() => automations),
-          setAutomation: vi.fn().mockImplementation((newData) => (automations = newData)),
-        };
-      }),
-    };
-  });
+vi.mock('../../../classes/data-provider/DataProvider.js', () => {
+  // Create a small mock store
+  let automations = {
+    enabledAutomations: true,
+    enabledOscIn: true,
+    oscPortIn: 8888,
+    triggers: [],
+    automations: {},
+  };
+  return {
+    getDataProvider: vi.fn().mockImplementation(() => {
+      return {
+        getAutomation: vi.fn().mockImplementation(() => automations),
+        setAutomation: vi.fn().mockImplementation((newData) => (automations = newData)),
+      };
+    }),
+  };
 });
 
 afterAll(() => {

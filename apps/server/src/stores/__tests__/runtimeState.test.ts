@@ -55,17 +55,15 @@ const mockState = {
   },
 } as RuntimeState;
 
-beforeAll(() => {
-  vi.mock('../../classes/data-provider/DataProvider.js', () => {
-    return {
-      getDataProvider: vi.fn().mockImplementation(() => {
-        return {
-          setCustomFields: vi.fn().mockImplementation((newData) => newData),
-          setRundown: vi.fn().mockImplementation((newData) => newData),
-        };
-      }),
-    };
-  });
+vi.mock('../../classes/data-provider/DataProvider.js', () => {
+  return {
+    getDataProvider: vi.fn().mockImplementation(() => {
+      return {
+        setCustomFields: vi.fn().mockImplementation((newData) => newData),
+        setRundown: vi.fn().mockImplementation((newData) => newData),
+      };
+    }),
+  };
 });
 
 describe('mutation on runtimeState', () => {

@@ -9,25 +9,23 @@ import * as httpClient from '../clients/http.client.js';
 import * as oscClient from '../clients/osc.client.js';
 import { makeHTTPAction, makeOSCAction } from './testUtils.js';
 
-beforeAll(() => {
-  vi.mock('../../../classes/data-provider/DataProvider.js', () => {
-    // Create a small mock store
-    let automations = {
-      enabledAutomations: true,
-      enabledOscIn: true,
-      oscPortIn: 8888,
-      triggers: [],
-      automations: {},
-    };
-    return {
-      getDataProvider: vi.fn().mockImplementation(() => {
-        return {
-          getAutomation: vi.fn().mockImplementation(() => automations),
-          setAutomation: vi.fn().mockImplementation((newData) => (automations = newData)),
-        };
-      }),
-    };
-  });
+vi.mock('../../../classes/data-provider/DataProvider.js', () => {
+  // Create a small mock store
+  let automations = {
+    enabledAutomations: true,
+    enabledOscIn: true,
+    oscPortIn: 8888,
+    triggers: [],
+    automations: {},
+  };
+  return {
+    getDataProvider: vi.fn().mockImplementation(() => {
+      return {
+        getAutomation: vi.fn().mockImplementation(() => automations),
+        setAutomation: vi.fn().mockImplementation((newData) => (automations = newData)),
+      };
+    }),
+  };
 });
 
 afterAll(() => {
@@ -39,7 +37,7 @@ describe('triggerAction()', () => {
   let httpSpy = vi.spyOn(httpClient, 'emitHTTP');
 
   beforeAll(() => {
-    vi.mock('../../../stores/EventStore.js', () => {
+    vi.doMock('../../../stores/EventStore.js', () => {
       // Create a small mock store
       return {
         eventStore: {
