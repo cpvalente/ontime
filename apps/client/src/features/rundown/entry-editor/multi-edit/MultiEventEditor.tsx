@@ -174,8 +174,8 @@ export default function MultiEventEditor() {
             <Select
               value={endActionValue}
               onValueChange={(value) => value !== null && handleSubmit('endAction', value)}
-              placeholder={endActionIndeterminate ? 'Mixed' : undefined}
               options={[
+                ...(endActionIndeterminate ? [{ value: null, label: 'Mixed' }] : []),
                 { value: EndAction.None, label: 'None' },
                 { value: EndAction.LoadNext, label: 'Load next event' },
                 { value: EndAction.PlayNext, label: 'Play next event' },
@@ -203,8 +203,8 @@ export default function MultiEventEditor() {
             <Select
               value={timerTypeValue}
               onValueChange={(value) => value !== null && handleSubmit('timerType', value)}
-              placeholder={timerTypeIndeterminate ? 'Mixed' : undefined}
               options={[
+                ...(timerTypeIndeterminate ? [{ value: null, label: 'Mixed' }] : []),
                 { value: TimerType.CountDown, label: 'Count down' },
                 { value: TimerType.CountUp, label: 'Count up' },
                 { value: TimerType.Clock, label: 'Clock' },
