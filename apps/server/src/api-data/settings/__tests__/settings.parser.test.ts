@@ -4,7 +4,7 @@ import { parseSettings } from '../settings.parser.js';
 
 describe('parseSettings()', () => {
   it('throws if settings object does not exist', () => {
-    expect(() => parseSettings({})).toThrow();
+    expect(() => parseSettings({})).toThrow('ERROR: unable to parse settings, missing or incorrect version');
   });
 
   it('returns an a base model as long as we have the app version', () => {
