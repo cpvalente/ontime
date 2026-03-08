@@ -16,6 +16,7 @@ import { integrationRouter } from './api-integration/integration.router.js';
 import { flushPendingWrites, getDataProvider } from './classes/data-provider/DataProvider.js';
 // Services
 import { logger } from './classes/Logger.js';
+import { portManager } from './classes/port-manager/PortManager.js';
 import { updateRouterPrefix } from './externals.js';
 import { makeAuthenticateMiddleware, makeLoginRouter } from './middleware/authenticate.js';
 // Import middleware configuration
@@ -28,6 +29,7 @@ import { initialiseProject } from './services/project-service/ProjectService.js'
 import { restoreService } from './services/restore-service/restore.service.js';
 import type { RestorePoint } from './services/restore-service/restore.type.js';
 import { runtimeService } from './services/runtime-service/runtime.service.js';
+import { timerConfig } from './setup/config.js';
 import { environment, isProduction } from './setup/environment.js';
 // import utils
 import { publicDir, srcDir } from './setup/index.js';
@@ -37,11 +39,9 @@ import { populateTranslation } from './setup/loadTranslations.js';
 import { eventStore } from './stores/EventStore.js';
 import { getState } from './stores/runtimeState.js';
 import { consoleError, consoleHighlight, consoleSuccess } from './utils/console.js';
-import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
-import { timerConfig } from './setup/config.js';
 import { getNetworkInterfaces } from './utils/network.js';
-import { portManager } from './classes/port-manager/PortManager.js';
+import { clearUploadfolder } from './utils/upload.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);

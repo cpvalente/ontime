@@ -1,3 +1,4 @@
+import { Day, EndAction, Playback, TimeStrategy, TimerType } from 'ontime-types';
 import { memo } from 'react';
 import {
   IoArrowDown,
@@ -10,7 +11,6 @@ import {
   IoTime,
 } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
-import { Day, EndAction, Playback, TimeStrategy, TimerType } from 'ontime-types';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { cx } from '../../../common/utils/styleUtils';

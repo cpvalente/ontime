@@ -1,5 +1,5 @@
-import { CSSProperties, RefObject } from 'react';
 import { Day } from 'ontime-types';
+import { CSSProperties, RefObject } from 'react';
 
 import { useExpectedStartData, useTimer } from '../../common/hooks/useSocket';
 import { getProgress } from '../../common/utils/getProgress';
@@ -164,10 +164,6 @@ function ActiveBlock() {
   const { current, duration } = useTimer();
   const progress = getProgress(current, duration);
   return (
-    <div
-      data-status='live'
-      className={style.timelineBlock}
-      style={{ '--progress': `${progress}%` } as CSSProperties}
-    />
+    <div data-status='live' className={style.timelineBlock} style={{ '--progress': `${progress}%` } as CSSProperties} />
   );
 }

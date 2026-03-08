@@ -1,11 +1,13 @@
-import { Server } from "http";
-import { config } from "../../setup/config.js";
-import { envPort, isDocker, isOntimeCloud } from "../../setup/environment.js";
-import * as appState from "../../services/app-state-service/AppStateService.js";
-import { logger } from "../Logger.js";
-import { LogOrigin, MaybeNumber } from "ontime-types";
-import { isAddressInfo, isPortInUseError } from "./PortManager.utils.js";
-import { shouldCrashDev } from "../../utils/development.js";
+import { Server } from 'http';
+
+import { LogOrigin, MaybeNumber } from 'ontime-types';
+
+import * as appState from '../../services/app-state-service/AppStateService.js';
+import { config } from '../../setup/config.js';
+import { envPort, isDocker, isOntimeCloud } from '../../setup/environment.js';
+import { shouldCrashDev } from '../../utils/development.js';
+import { logger } from '../Logger.js';
+import { isAddressInfo, isPortInUseError } from './PortManager.utils.js';
 
 class PortManager {
   private static port: number;
@@ -27,7 +29,7 @@ class PortManager {
    * @returns {void}
    */
   public changePort(newPort: number): void {
-    if (isDocker) throw new Error("Can not change port when running inside docker");
+    if (isDocker) throw new Error('Can not change port when running inside docker');
     if (PortManager.port === newPort) return;
     PortManager.newPort = newPort;
     PortManager.pendingRestart = true;
@@ -36,7 +38,7 @@ class PortManager {
   public migratePortFromProjectFile(port: number) {
     shouldCrashDev(
       PortManager.port !== undefined,
-      "this function should not be called after `PortManager.port` has been initialized",
+      'this function should not be called after `PortManager.port` has been initialized',
     );
     appState.setServerPort(port);
   }
@@ -61,8 +63,7 @@ class PortManager {
     if (isOntimeCloud) {
       PortManager.port = await this.forceCloudPort(server);
     } else {
-      PortManager.port =
-        this.parsePort(envPort) || (await appState.getServerPort()) || config.defaultServerPort;
+      PortManager.port = this.parsePort(envPort) || (await appState.getServerPort()) || config.defaultServerPort;
       PortManager.port = await this.tryServerPort(server);
     }
     await appState.setServerPort(PortManager.port);
@@ -70,8 +71,8 @@ class PortManager {
   }
 
   private parsePort(port: string | undefined) {
-    if (typeof port !== "string") return null;
-    if (port === "") return null;
+    if (typeof port !== 'string') return null;
+    if (port === '') return null;
     const maybePort = Number(port);
     if (isNaN(maybePort)) return null;
     return maybePort;
@@ -79,7 +80,7 @@ class PortManager {
 
   private async tryServerPort(server: Server): Promise<number> {
     return new Promise((resolve, reject) => {
-      server.once("error", (error) => {
+      server.once('error', (error) => {
         // we should only move ports if we are in a desktop environment
         if (isDocker) {
           reject(error);
@@ -93,10 +94,10 @@ class PortManager {
 
         // if we get an address in use error, we will try to open the server in an ephemeral port
         // port 0 will assign an ephemeral port
-        server.listen(0, "0.0.0.0", () => {
+        server.listen(0, '0.0.0.0', () => {
           const address = server.address();
           if (!isAddressInfo(address)) {
-            reject(new Error("Unknown port type, unable to proceed"));
+            reject(new Error('Unknown port type, unable to proceed'));
             return;
           }
           logger.error(
@@ -109,10 +110,10 @@ class PortManager {
         });
       });
 
-      server.listen(PortManager.port, "0.0.0.0", () => {
+      server.listen(PortManager.port, '0.0.0.0', () => {
         const address = server.address();
         if (!isAddressInfo(address)) {
-          reject(new Error("Unknown port type, unable to proceed"));
+          reject(new Error('Unknown port type, unable to proceed'));
           return;
         }
         resolve(address.port);
@@ -122,13 +123,13 @@ class PortManager {
 
   private forceCloudPort(server: Server): Promise<number> {
     return new Promise((resolve, reject) => {
-      server.once("error", (error) => {
+      server.once('error', (error) => {
         reject(error);
       });
-      server.listen(config.defaultServerPort, "0.0.0.0", () => {
+      server.listen(config.defaultServerPort, '0.0.0.0', () => {
         const address = server.address();
         if (!isAddressInfo(address)) {
-          reject(new Error("Unknown port type, unable to proceed"));
+          reject(new Error('Unknown port type, unable to proceed'));
           return;
         }
         resolve(address.port);

@@ -723,7 +723,7 @@ describe('loadRoll() test that roll behaviour multi day event edge cases', () =>
             id: '2',
             timeStart: 11 * MILLIS_PER_HOUR,
             timeEnd: 2 * MILLIS_PER_HOUR,
-            duration: 14 * MILLIS_PER_HOUR
+            duration: 14 * MILLIS_PER_HOUR,
           },
         },
       }),

@@ -1,4 +1,5 @@
 import { DatabaseModel, Settings } from 'ontime-types';
+
 import { is } from '../../../utils/is.js';
 
 export function shouldMigrateServerPort(jsonData: object): boolean {

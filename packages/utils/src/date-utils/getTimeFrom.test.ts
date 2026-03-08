@@ -1,4 +1,5 @@
 import { Day } from 'ontime-types';
+
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from './conversionUtils';
 import { getTimeFrom } from './getTimeFrom';
 
@@ -8,19 +9,27 @@ describe('getTimeFrom', () => {
     expect(
       getTimeFrom(
         { timeStart: 21 * MILLIS_PER_HOUR, dayOffset: 0 as Day },
-        { timeStart: 19 * MILLIS_PER_HOUR + 20 * MILLIS_PER_MINUTE, duration: 35 * MILLIS_PER_MINUTE, dayOffset: 0 as Day },
+        {
+          timeStart: 19 * MILLIS_PER_HOUR + 20 * MILLIS_PER_MINUTE,
+          duration: 35 * MILLIS_PER_MINUTE,
+          dayOffset: 0 as Day,
+        },
       ),
     ).toBe(expected);
   });
 
   it('accounts for partially overlapping events', () => {
     const expected = -1;
-    expect(getTimeFrom({ timeStart: 11, dayOffset: 0 as Day }, { timeStart: 10, duration: 2, dayOffset: 0 as Day })).toBe(expected);
+    expect(
+      getTimeFrom({ timeStart: 11, dayOffset: 0 as Day }, { timeStart: 10, duration: 2, dayOffset: 0 as Day }),
+    ).toBe(expected);
   });
 
   it('accounts for events that are fully contained', () => {
     const expected = -6;
-    expect(getTimeFrom({ timeStart: 10, dayOffset: 0 as Day }, { timeStart: 8, duration: 8, dayOffset: 0 as Day })).toBe(expected);
+    expect(
+      getTimeFrom({ timeStart: 10, dayOffset: 0 as Day }, { timeStart: 8, duration: 8, dayOffset: 0 as Day }),
+    ).toBe(expected);
   });
 
   it('fully overlapping events are the next day', () => {
