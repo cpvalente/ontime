@@ -1,15 +1,14 @@
+import { Dialog } from '@base-ui/react/dialog';
+import { OntimeView } from 'ontime-types';
 import { FormEvent, memo } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useSearchParams } from 'react-router';
-import { Dialog } from '@base-ui/react/dialog';
-import { OntimeView } from 'ontime-types';
 
-import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
 import useViewSettings from '../../hooks-query/useViewSettings';
+import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
 import Button from '../buttons/Button';
 import IconButton from '../buttons/IconButton';
 import Info from '../info/Info';
-
 import { ViewOption } from './viewParams.types';
 import { getPreservedSearchParams, getURLSearchParamsFromObj } from './viewParams.utils';
 import { useViewParamsEditorStore } from './viewParamsEditor.store';

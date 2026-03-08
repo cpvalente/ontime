@@ -9,7 +9,6 @@ import useRundown from '../../../../common/hooks-query/useRundown';
 import { cx } from '../../../../common/utils/styleUtils';
 import { formatTime } from '../../../../common/utils/time';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import { CombinedReport, getCombinedReport, makeReportCSV } from './reportSettings.utils';
 
 import style from './ReportSettings.module.scss';

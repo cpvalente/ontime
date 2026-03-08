@@ -3,7 +3,6 @@ import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import QuickStart from '../../quick-start/QuickStart';
 import type { SettingsOptionId } from '../../useAppSettingsMenu';
-
 import ManageProjects from './ManageProjects';
 
 interface ProjectPanelProps extends PanelBaseProps {

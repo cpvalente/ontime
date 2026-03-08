@@ -2,7 +2,6 @@ import { lazy } from 'react';
 
 import TrackingPlaybackBar from '../../features/control/playback/tracking-playback-bar/TrackingPlaybackBar';
 import { AppMode } from '../../ontimeConfig';
-
 import TitleList from './title-list/TitleList';
 import { EditorLayoutMode, useEditorLayout } from './useEditorLayout';
 

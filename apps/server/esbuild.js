@@ -7,6 +7,7 @@ await esbuild.build({
   platform: 'node',
   target: ['node20'],
   format: 'cjs',
+  tsconfig: 'tsconfig.app.json',
   bundle: true,
   minify: true,
   legalComments: 'external',

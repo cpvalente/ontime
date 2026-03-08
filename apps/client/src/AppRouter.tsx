@@ -1,18 +1,18 @@
-import { ComponentType, lazy, Suspense, useEffect, useMemo } from 'react';
-import { Navigate, Route, useLocation, useNavigate, useParams } from 'react-router';
 import { OntimeView, OntimeViewPresettable, URLPreset } from 'ontime-types';
+import { ComponentType, Suspense, lazy, useEffect, useMemo } from 'react';
+import { Navigate, Route, useLocation, useNavigate, useParams } from 'react-router';
 
 import ViewNavigationMenu from './common/components/navigation-menu/ViewNavigationMenu';
 import { PresetContext } from './common/context/PresetContext';
-import { useClientPath } from './common/hooks/useClientPath';
 import useUrlPresets from './common/hooks-query/useUrlPresets';
+import { useClientPath } from './common/hooks/useClientPath';
 import { getRouteFromPreset } from './common/utils/urlPresets';
+import { getIsNavigationLocked, sessionScope } from './externals';
 import Log from './features/log/Log';
+import { initializeSentry } from './sentry.config';
 import Loader from './views/common/loader/Loader';
 import NotFound from './views/common/not-found/NotFound';
 import ViewLoader from './views/ViewLoader';
-import { getIsNavigationLocked, sessionScope } from './externals';
-import { initializeSentry } from './sentry.config';
 
 const Timer = lazy(() => import('./views/timer/Timer'));
 const Countdown = lazy(() => import('./views/countdown/Countdown'));

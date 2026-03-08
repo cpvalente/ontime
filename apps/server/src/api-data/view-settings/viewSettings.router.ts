@@ -1,11 +1,11 @@
 import express from 'express';
 import type { Request, Response } from 'express';
-import { RefetchKey, type ErrorResponse, type ViewSettings } from 'ontime-types';
+import { type ErrorResponse, RefetchKey, type ViewSettings } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
-import { validateViewSettings } from './viewSettings.validation.js';
-import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { validateViewSettings } from './viewSettings.validation.js';
 
 export const router = express.Router();
 

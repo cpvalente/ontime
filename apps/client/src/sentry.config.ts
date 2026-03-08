@@ -1,6 +1,6 @@
-import React from 'react';
-import { createRoutesFromChildren, matchRoutes, Routes, useLocation, useNavigationType } from 'react-router';
 import * as Sentry from '@sentry/react';
+import React from 'react';
+import { Routes, createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from 'react-router';
 
 import { ONTIME_VERSION } from './ONTIME_VERSION';
 

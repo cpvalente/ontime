@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
 import { Client } from 'ontime-types';
+import { useState } from 'react';
 
 import Button from '../../../../../common/components/buttons/Button';
 import { RedirectClientModal } from '../../../../../common/components/client-modal/RedirectClientModal';

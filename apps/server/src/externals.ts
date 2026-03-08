@@ -4,8 +4,8 @@
 
 import { readFileSync, writeFileSync } from 'node:fs';
 
-import { srcFiles } from './setup/index.js';
 import { isOntimeCloud } from './setup/environment.js';
+import { srcFiles } from './setup/index.js';
 
 // =================================================
 export const password = process.env.SESSION_PASSWORD;

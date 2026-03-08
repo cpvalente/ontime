@@ -5,6 +5,11 @@ declare module '*.scss' {
   export default content;
 }
 
+declare module '*.css' {
+  const content: Record<string, string>;
+  export default content;
+}
+
 type ListenerType = (event: 'string', args: unknown[]) => void;
 
 declare global {

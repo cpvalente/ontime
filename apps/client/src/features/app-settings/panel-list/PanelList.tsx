@@ -59,7 +59,9 @@ function PanelListItem(props: PanelListItemProps) {
         key={panel.id}
         onClick={() => setLocation(panel.id as SettingsOptionId)}
         onKeyDown={(event) => {
-          isKeyEnter(event) && setLocation(panel.id as SettingsOptionId);
+          if (isKeyEnter(event)) {
+            setLocation(panel.id as SettingsOptionId);
+          }
         }}
         className={classes}
         tabIndex={0}
@@ -75,7 +77,9 @@ function PanelListItem(props: PanelListItemProps) {
             key={secondary.id + index}
             onClick={() => setLocation(secondary.id as SettingsOptionId)}
             onKeyDown={(event) => {
-              isKeyEnter(event) && setLocation(secondary.id as SettingsOptionId);
+              if (isKeyEnter(event)) {
+                setLocation(secondary.id as SettingsOptionId);
+              }
             }}
             className={secondaryClasses}
             role='button'

@@ -1,9 +1,10 @@
-import { Instant, PlayableEvent, Playback, SupportedEntry, TimerPhase } from 'ontime-types';
+import { type Day, Instant, PlayableEvent, Playback, SupportedEntry, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
-import { makeOntimeGroup, makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
-
+import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 import {
   type RuntimeState,
   addTime,
@@ -18,8 +19,6 @@ import {
   stop,
   update,
 } from '../runtimeState.js';
-import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
-import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 
 const mockEvent = {
   type: 'event',
@@ -56,17 +55,15 @@ const mockState = {
   },
 } as RuntimeState;
 
-beforeAll(() => {
-  vi.mock('../../classes/data-provider/DataProvider.js', () => {
-    return {
-      getDataProvider: vi.fn().mockImplementation(() => {
-        return {
-          setCustomFields: vi.fn().mockImplementation((newData) => newData),
-          setRundown: vi.fn().mockImplementation((newData) => newData),
-        };
-      }),
-    };
-  });
+vi.mock('../../classes/data-provider/DataProvider.js', () => {
+  return {
+    getDataProvider: vi.fn().mockImplementation(() => {
+      return {
+        setCustomFields: vi.fn().mockImplementation((newData) => newData),
+        setRundown: vi.fn().mockImplementation((newData) => newData),
+      };
+    }),
+  };
 });
 
 describe('mutation on runtimeState', () => {
@@ -79,7 +76,7 @@ describe('mutation on runtimeState', () => {
     vi.useRealTimers();
   });
 
-  describe('playback operations', async () => {
+  describe('playback operations', () => {
     it('refuses if nothing is loaded', async () => {
       // force update
       await initRundown(makeRundown({}), {});
@@ -252,7 +249,7 @@ describe('mutation on runtimeState', () => {
     clearState();
     const mockRundown = makeRundown({
       entries: {
-        event1: { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000, dayOffset: 0 },
+        event1: { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000, dayOffset: 0 as Day },
       },
       order: ['event1'],
     });
@@ -310,7 +307,7 @@ describe('roll mode', () => {
             timeStart: 23 * 60 * 60 * 1000 + 30 * 60 * 1000, // 23:30
             timeEnd: 30 * 60 * 1000, // 00:30
             duration: 60 * 60 * 1000, // 1 hour
-            dayOffset: 0,
+            dayOffset: 0 as Day,
           },
         },
         order: ['1'],
@@ -342,7 +339,7 @@ describe('roll mode', () => {
             timeStart: 23 * 60 * 60 * 1000 + 30 * 60 * 1000, // 23:30
             timeEnd: 30 * 60 * 1000, // 00:30
             duration: 60 * 60 * 1000, // 1 hour
-            dayOffset: 0,
+            dayOffset: 0 as Day,
           },
         },
         order: ['1'],
@@ -373,7 +370,7 @@ describe('roll mode', () => {
             timeStart: 23 * 60 * 60 * 1000 + 30 * 60 * 1000, // 23:30
             timeEnd: 30 * 60 * 1000, // 00:30
             duration: 60 * 60 * 1000, // 1 hour
-            dayOffset: 0,
+            dayOffset: 0 as Day,
           },
         },
         order: ['1'],
@@ -406,7 +403,7 @@ describe('roll mode', () => {
             timeStart: 1 * MILLIS_PER_HOUR, // 01:00
             timeEnd: 2 * MILLIS_PER_HOUR, // 02:00
             duration: 1 * MILLIS_PER_HOUR, // 1 hour
-            dayOffset: 0,
+            dayOffset: 0 as Day,
           },
         },
         order: ['1'],
@@ -449,7 +446,7 @@ describe('roll mode', () => {
             timeStart: 23 * MILLIS_PER_HOUR, // 23:00
             timeEnd: 23 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE, // 23:30
             duration: 30 * MILLIS_PER_MINUTE,
-            dayOffset: 0,
+            dayOffset: 0 as Day,
           },
           2: {
             ...mockEvent,
@@ -457,7 +454,7 @@ describe('roll mode', () => {
             timeStart: 30 * MILLIS_PER_MINUTE, // 00:30
             timeEnd: 1 * MILLIS_PER_HOUR, // 01:00
             duration: 30 * MILLIS_PER_MINUTE,
-            dayOffset: 0,
+            dayOffset: 0 as Day,
           },
         },
         order: ['1', '2'],
@@ -508,7 +505,7 @@ describe('roll mode', () => {
             timeStart: 1 * MILLIS_PER_HOUR, // 01:00
             timeEnd: 2 * MILLIS_PER_HOUR, // 02:00
             duration: 1 * MILLIS_PER_HOUR, // 1 hour
-            dayOffset: 0,
+            dayOffset: 0 as Day,
           },
         },
         order: ['1'],
@@ -548,7 +545,7 @@ describe('roll mode', () => {
             timeStart: 1 * MILLIS_PER_HOUR, // 01:00
             timeEnd: 2 * MILLIS_PER_HOUR, // 02:00
             duration: 1 * MILLIS_PER_HOUR, // 1 hour
-            dayOffset: 0,
+            dayOffset: 0 as Day,
           },
         },
         order: ['1'],
@@ -611,7 +608,7 @@ describe('roll mode', () => {
             timeStart: eventStart,
             timeEnd: eventEnd,
             duration: eventDuration,
-            dayOffset: 0,
+            dayOffset: 0 as Day,
             parent: groupId,
           },
         },
@@ -674,7 +671,7 @@ describe('roll mode', () => {
             timeStart: 9 * MILLIS_PER_HOUR, // 09:00
             timeEnd: 23 * MILLIS_PER_HOUR, // 23:00
             duration: 14 * MILLIS_PER_HOUR, // 14 hours
-            dayOffset: 0,
+            dayOffset: 0 as Day,
           },
           2: {
             ...mockEvent,
@@ -682,7 +679,7 @@ describe('roll mode', () => {
             timeStart: 23 * MILLIS_PER_HOUR, // 23:00
             timeEnd: 1 * MILLIS_PER_HOUR, // 01:00 (next day)
             duration: 2 * MILLIS_PER_HOUR, // 2 hours
-            dayOffset: 0,
+            dayOffset: 0 as Day,
           },
         },
         order: ['1', '2'],
@@ -730,7 +727,7 @@ describe('roll mode', () => {
     });
   });
 
-  describe('normal roll', async () => {
+  describe('normal roll', () => {
     beforeEach(async () => {
       vi.useFakeTimers();
       const mockRundown = makeRundown({

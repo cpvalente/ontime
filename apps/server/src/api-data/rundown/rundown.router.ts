@@ -1,14 +1,11 @@
+import type { Request, Response } from 'express';
+import express from 'express';
 import { ErrorResponse, OntimeEntry, ProjectRundownsList, Rundown } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
-import type { Request, Response } from 'express';
-import express from 'express';
-
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { makeNewRundown } from '../../models/dataModel.js';
-
 import { paramsWithId } from '../validation-utils/validationFunction.js';
-
 import { getCurrentRundown } from './rundown.dao.js';
 import {
   addEntry,
@@ -20,23 +17,23 @@ import {
   editEntry,
   groupEntries,
   initRundown,
+  loadRundown,
   reorderEntry,
   swapEvents,
-  loadRundown,
   ungroupEntries,
 } from './rundown.service.js';
+import { duplicateRundown, normalisedToRundownArray } from './rundown.utils.js';
 import {
-  rundownArrayOfIds,
+  clonePostValidator,
   entryBatchPutValidator,
   entryPostValidator,
-  rundownPostValidator,
   entryPutValidator,
   entryReorderValidator,
   entrySwapValidator,
+  rundownArrayOfIds,
+  rundownPostValidator,
   validateRundownMutation,
-  clonePostValidator,
 } from './rundown.validation.js';
-import { duplicateRundown, normalisedToRundownArray } from './rundown.utils.js';
 
 export const router = express.Router();
 

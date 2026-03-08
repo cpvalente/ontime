@@ -1,5 +1,5 @@
-import { useSearchParams } from 'react-router';
 import { isValueOfEnum } from 'ontime-utils';
+import { useSearchParams } from 'react-router';
 
 const layoutParam = 'layout';
 

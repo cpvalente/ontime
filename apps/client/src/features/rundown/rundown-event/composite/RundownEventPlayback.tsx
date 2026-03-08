@@ -1,4 +1,4 @@
-import { memo, MouseEvent } from 'react';
+import { MouseEvent, memo } from 'react';
 import { IoPause, IoPlay, IoReload, IoRemoveCircle, IoRemoveCircleOutline } from 'react-icons/io5';
 
 import IconButton from '../../../../common/components/buttons/IconButton';

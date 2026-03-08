@@ -1,24 +1,20 @@
-import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
-
 import { PlayableEvent } from 'ontime-types';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
-import { initRundown } from '../../api-data/rundown/rundown.service.js';
-import { processRundown, rundownCache } from '../../api-data/rundown/rundown.dao.js';
 import { makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
-
+import { processRundown, rundownCache } from '../../api-data/rundown/rundown.dao.js';
+import { initRundown } from '../../api-data/rundown/rundown.service.js';
 import { loadRoll } from '../rollUtils.js';
 
-beforeAll(() => {
-  vi.mock('../../classes/data-provider/DataProvider.js', () => {
-    return {
-      getDataProvider: vi.fn().mockImplementation(() => {
-        return {
-          setCustomFields: vi.fn().mockImplementation((newData) => newData),
-          setRundown: vi.fn().mockImplementation((newData) => newData),
-        };
-      }),
-    };
-  });
+vi.mock('../../classes/data-provider/DataProvider.js', () => {
+  return {
+    getDataProvider: vi.fn().mockImplementation(() => {
+      return {
+        setCustomFields: vi.fn().mockImplementation((newData) => newData),
+        setRundown: vi.fn().mockImplementation((newData) => newData),
+      };
+    }),
+  };
 });
 
 const mockEvent = {
@@ -727,7 +723,7 @@ describe('loadRoll() test that roll behaviour multi day event edge cases', () =>
             id: '2',
             timeStart: 11 * MILLIS_PER_HOUR,
             timeEnd: 2 * MILLIS_PER_HOUR,
-            duration: 14 * MILLIS_PER_HOUR
+            duration: 14 * MILLIS_PER_HOUR,
           },
         },
       }),
@@ -782,7 +778,7 @@ describe('loadRoll() test that roll behaviour multi day event edge cases', () =>
 });
 
 describe('loadRoll() should not roll skipped events', () => {
-  test('', async () => {
+  test('load roll', async () => {
     vi.useFakeTimers();
     await initRundown(
       makeRundown({

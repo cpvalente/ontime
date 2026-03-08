@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import { PropsWithChildren, createContext, useCallback, useEffect, useState } from 'react';
 
 import useSettings from '../hooks-query/useSettings';
 

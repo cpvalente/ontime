@@ -1,7 +1,7 @@
-import type { TranslationObject } from 'ontime-types';
-
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
+
+import type { TranslationObject } from 'ontime-types';
 
 import { publicFiles } from '../../setup/index.js';
 import { defaultCss } from '../../user/styles/bundledCss.js';

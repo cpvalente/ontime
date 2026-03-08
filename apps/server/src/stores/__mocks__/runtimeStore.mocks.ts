@@ -2,7 +2,7 @@ import { RuntimeStore, runtimeStorePlaceholder } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 
 const baseStore: RuntimeStore = {
-  ...runtimeStorePlaceholder
+  ...runtimeStorePlaceholder,
 };
 
 export function makeRuntimeStoreData(patch?: Partial<RuntimeStore>): RuntimeStore {

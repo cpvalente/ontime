@@ -1,20 +1,18 @@
+import { body, oneOf, param } from 'express-validator';
 import {
   Automation,
   AutomationFilter,
   AutomationOutput,
   HTTPOutput,
-  OntimeAction,
   OSCOutput,
+  OntimeAction,
   SecondarySource,
   timerLifecycleValues,
 } from 'ontime-types';
 
-import { body, oneOf, param } from 'express-validator';
-
 import * as assert from '../../utils/assert.js';
-
-import { isFilterOperator, isFilterRule, isOntimeActionAction } from './automation.utils.js';
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import { isFilterOperator, isFilterRule, isOntimeActionAction } from './automation.utils.js';
 
 export const validateAutomationSettings = [
   body('enabledAutomations').isBoolean(),

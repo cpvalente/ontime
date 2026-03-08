@@ -1,8 +1,8 @@
-import { DatabaseModel, MaybeString, ProjectFile } from 'ontime-types';
-
 import { existsSync } from 'fs';
 import { readFile, stat } from 'fs/promises';
 import { extname, join } from 'path';
+
+import { DatabaseModel, MaybeString, ProjectFile } from 'ontime-types';
 
 import { publicDir } from '../../setup/index.js';
 import { dockerSafeRename, getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';

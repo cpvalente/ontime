@@ -6,7 +6,7 @@ export type PatchWithId<T extends OntimeEntry = OntimeEntry> = Partial<T> & { id
 export type InsertOptions = {
   after?: EntryId;
   before?: EntryId;
-}
+};
 
 export type EventPostPayload = Partial<OntimeEntry> & InsertOptions;
 

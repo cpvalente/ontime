@@ -1,11 +1,10 @@
-import { memo } from 'react';
 import { useDisclosure, useHotkeys } from '@mantine/hooks';
+import { memo } from 'react';
 
 import { useViewParamsEditorStore } from '../view-params-editor/viewParamsEditor.store';
-
 import FloatingNavigation from './floating-navigation/FloatingNavigation';
-import ViewLockedIcon from './view-locked-icon/ViewLockedIcon';
 import NavigationMenu from './NavigationMenu';
+import ViewLockedIcon from './view-locked-icon/ViewLockedIcon';
 
 interface ViewNavigationMenuProps {
   /** prevent navigation */

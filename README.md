@@ -7,6 +7,7 @@
 [![](https://img.shields.io/static/v1?label=Buy%20me%20a%20coffee&message=%E2%9D%A4&logo=buymeacoffee&color=%23fe8e86)](https://www.buymeacoffee.com/cpvalente)
 
 ## Download the latest release
+
 <a href="https://www.buymeacoffee.com/cpvalente" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="32"></a>
 
 - Download for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-win64.exe">Windows</a>
@@ -17,14 +18,17 @@
 - Download AppImage for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux-armv7l.AppImage">Linux (ARM 32-bit, older Raspberry Pi)</a>
 
 ... or
+
 - Get from <a href="https://hub.docker.com/r/getontime/ontime">Docker hub</a>
 - Install from <a href="https://www.npmjs.com/package/@getontime/cli">NPM</a>
 - Install from <a href="https://formulae.brew.sh/cask/ontime">Homebrew</a>
 
 ## Need help?
+
 We do our best to have most topics covered by the documentation. However, if your question is not covered, you are welcome to [fill in a bug report in an issue](https://github.com/cpvalente/ontime/issues), [ask a question in GitHub discussions](https://github.com/cpvalente/ontime/discussions) or hop in the [discord server](https://discord.com/invite/eje3CSUEXm) for a chat.
 
 ## Using Ontime?
+
 Let us know!
 Ontime improves from the collaboration with its users. We would like to understand how you use Ontime and appreciate your feedback.
 
@@ -43,6 +47,7 @@ Ontime is made by entertainment and broadcast engineers and used by
 - Houses of worship
 
 ## Main features
+
 - **Multiplatform**: Available as a Cloud service and for Windows, macOS, Linux, or self-hosted via Docker.
 - **In any device**: Ontime is available to any device with a browser, eg: tablets, mobile phones, laptops, signage, media servers...
 - **Team Collaboration**: Dedicated views for directors, operators, backstage, and signage.
@@ -111,7 +116,8 @@ If you are a developer and would like to contribute with code, please open an is
 Information about the project setup can be found in the [development documentation](./DEVELOPMENT.md)
 
 ## Links
-- [Ontime website](https://getontime.no) 
+
+- [Ontime website](https://getontime.no)
 - [Documentation](https://docs.getontime.no)
 - [Video tutorials](https://www.youtube.com/@ontimeapp)
 - [Ontime discord server](https://discord.com/invite/eje3CSUEXm)

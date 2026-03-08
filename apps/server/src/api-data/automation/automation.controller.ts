@@ -1,11 +1,9 @@
-import { getErrorMessage } from 'ontime-utils';
-import { Automation, AutomationSettings, ErrorResponse, Trigger } from 'ontime-types';
-
 import type { Request, Response } from 'express';
+import { Automation, AutomationSettings, ErrorResponse, Trigger } from 'ontime-types';
+import { getErrorMessage } from 'ontime-utils';
 
 import { oscServer } from '../../adapters/OscAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-
 import * as automationDao from './automation.dao.js';
 import * as automationService from './automation.service.js';
 import { parseOutput } from './automation.validation.js';

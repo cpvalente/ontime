@@ -1,114 +1,116 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
   <head>
-  <!-- For detailed explanations and examples, refer to the README.md file in this directory -->
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>ontime demo</title>
-  <link href="./styles.css" rel="stylesheet" />
-</head>
+    <!-- For detailed explanations and examples, refer to the README.md file in this directory -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>ontime demo</title>
+    <link href="./styles.css" rel="stylesheet" />
+  </head>
 
-<body>
-  <header class="title-card">
-    <div class="logo-title">
-      <img src="https://www.getontime.no/images/icons/ontime-logo.png" alt="Ontime logo"
-        onerror="this.style.display='none'" />
-      <h1 class="title">Ontime demo</h1>
-    </div>
-    <div>
-      <span>Last message received at</span>
-      <span id="clock">-</span>
-    </div>
-    <nav>
-      <a href="https://docs.getontime.no/api/data/runtime-data" target="_blank">Help? See docs</a>
-      <div>See <a href="README.md">README.md</a> details.</div>
-    </nav>
-  </header>
+  <body>
+    <header class="title-card">
+      <div class="logo-title">
+        <img
+          src="https://www.getontime.no/images/icons/ontime-logo.png"
+          alt="Ontime logo"
+          onerror="this.style.display = 'none'"
+        />
+        <h1 class="title">Ontime demo</h1>
+      </div>
+      <div>
+        <span>Last message received at</span>
+        <span id="clock">-</span>
+      </div>
+      <nav>
+        <a href="https://docs.getontime.no/api/data/runtime-data" target="_blank">Help? See docs</a>
+        <div>See <a href="README.md">README.md</a> details.</div>
+      </nav>
+    </header>
 
-  <main class="container">
-    <section class="column">
-      <details class="card" open>
-        <summary class="title">Timer</summary>
-        <figure>
-          <figcaption class="description">Current timer values</figcaption>
-          <code id="timer">-</code>
-        </figure>
-      </details>
-      <details class="card" open>
-        <summary class="title">Rundown</summary>
-        <figure>
-          <figcaption class="description">Progress of the current rundown</figcaption>
-          <code id="rundown">-</code>
-        </figure>
-      </details>
-      <details class="card" open>
-        <summary class="title">Offset</summary>
-        <figure>
-          <figcaption class="description">Runtime offset and timings for upcoming targets</figcaption>
-          <code id="offset">-</code>
-        </figure>
-      </details>
-    </section>
-    <section class="column">
-      <details class="card" open>
-        <summary class="title">Event now</summary>
-        <figure>
-          <figcaption class="description">Currently loaded event</figcaption>
-          <code id="eventNow">-</code>
-        </figure>
-      </details>
-      <details class="card" open>
-        <summary class="title">Event next</summary>
-        <figure>
-          <figcaption class="description">Next scheduled event</figcaption>
-          <code id="eventNext">-</code>
-        </figure>
-      </details>
-    </section>
-    <section class="column">
-      <details class="card" open>
-        <summary class="title">Group now</summary>
-        <figure>
-          <figcaption class="description">Currently active group</figcaption>
-          <code id="groupNow">-</code>
-        </figure>
-      </details>
-      <details class="card" open>
-        <summary class="title">Event flag</summary>
-        <figure>
-          <figcaption class="description">Currently targeted flag</figcaption>
-          <code id="eventFlag">-</code>
-        </figure>
-      </details>
-    </section>
-    <section class="column">
-      <details class="card" open>
-        <summary class="title">Message</summary>
-        <figure>
-          <figcaption class="description">Messaging feature</figcaption>
-          <code id="message">-</code>
-        </figure>
-      </details>
-      <details class="card" open>
-        <summary class="title">Aux timers</summary>
-        <figure>
-          <figcaption class="description">Auxiliary Timer 1</figcaption>
-          <code id="auxtimer1">-</code>
-        </figure>
-        <figure>
-          <figcaption class="description">Auxiliary Timer 2</figcaption>
-          <code id="auxtimer2">-</code>
-        </figure>
-        <figure>
-          <figcaption class="description">Auxiliary Timer 3</figcaption>
-          <code id="auxtimer3">-</code>
-        </figure>
-      </details>
-    </section>
-  </main>
-  
-  <script src="./app.js" type="text/javascript"></script>
+    <main class="container">
+      <section class="column">
+        <details class="card" open>
+          <summary class="title">Timer</summary>
+          <figure>
+            <figcaption class="description">Current timer values</figcaption>
+            <code id="timer">-</code>
+          </figure>
+        </details>
+        <details class="card" open>
+          <summary class="title">Rundown</summary>
+          <figure>
+            <figcaption class="description">Progress of the current rundown</figcaption>
+            <code id="rundown">-</code>
+          </figure>
+        </details>
+        <details class="card" open>
+          <summary class="title">Offset</summary>
+          <figure>
+            <figcaption class="description">Runtime offset and timings for upcoming targets</figcaption>
+            <code id="offset">-</code>
+          </figure>
+        </details>
+      </section>
+      <section class="column">
+        <details class="card" open>
+          <summary class="title">Event now</summary>
+          <figure>
+            <figcaption class="description">Currently loaded event</figcaption>
+            <code id="eventNow">-</code>
+          </figure>
+        </details>
+        <details class="card" open>
+          <summary class="title">Event next</summary>
+          <figure>
+            <figcaption class="description">Next scheduled event</figcaption>
+            <code id="eventNext">-</code>
+          </figure>
+        </details>
+      </section>
+      <section class="column">
+        <details class="card" open>
+          <summary class="title">Group now</summary>
+          <figure>
+            <figcaption class="description">Currently active group</figcaption>
+            <code id="groupNow">-</code>
+          </figure>
+        </details>
+        <details class="card" open>
+          <summary class="title">Event flag</summary>
+          <figure>
+            <figcaption class="description">Currently targeted flag</figcaption>
+            <code id="eventFlag">-</code>
+          </figure>
+        </details>
+      </section>
+      <section class="column">
+        <details class="card" open>
+          <summary class="title">Message</summary>
+          <figure>
+            <figcaption class="description">Messaging feature</figcaption>
+            <code id="message">-</code>
+          </figure>
+        </details>
+        <details class="card" open>
+          <summary class="title">Aux timers</summary>
+          <figure>
+            <figcaption class="description">Auxiliary Timer 1</figcaption>
+            <code id="auxtimer1">-</code>
+          </figure>
+          <figure>
+            <figcaption class="description">Auxiliary Timer 2</figcaption>
+            <code id="auxtimer2">-</code>
+          </figure>
+          <figure>
+            <figcaption class="description">Auxiliary Timer 3</figcaption>
+            <code id="auxtimer3">-</code>
+          </figure>
+        </details>
+      </section>
+    </main>
 
+    <script src="./app.js" type="text/javascript"></script>
+  </body>
 </html>

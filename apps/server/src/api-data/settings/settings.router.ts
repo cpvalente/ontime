@@ -1,29 +1,24 @@
-import express from "express";
-import { matchedData } from "express-validator";
-import type { Request, Response } from "express";
-import { deepEqual } from "fast-equals";
+import express from 'express';
+import type { Request, Response } from 'express';
+import { matchedData } from 'express-validator';
+import { deepEqual } from 'fast-equals';
+import { ErrorResponse, PortInfo, RefetchKey, Settings } from 'ontime-types';
+import { getErrorMessage, obfuscate } from 'ontime-utils';
 
-import { ErrorResponse, PortInfo, RefetchKey, Settings } from "ontime-types";
-import { getErrorMessage, obfuscate } from "ontime-utils";
-
-import {
-  validateSettings,
-  validateWelcomeDialog,
-  validateServerPort,
-} from "./settings.validation.js";
-import { getDataProvider } from "../../classes/data-provider/DataProvider.js";
-import * as appState from "../../services/app-state-service/AppStateService.js";
-import { sendRefetch } from "../../adapters/WebsocketAdapter.js";
-import { portManager } from "../../classes/port-manager/PortManager.js";
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { portManager } from '../../classes/port-manager/PortManager.js';
+import * as appState from '../../services/app-state-service/AppStateService.js';
+import { validateSettings, validateWelcomeDialog, validateServerPort } from './settings.validation.js';
 
 export const router = express.Router();
 
-router.post("/welcomedialog", validateWelcomeDialog, async (req: Request, res: Response) => {
+router.post('/welcomedialog', validateWelcomeDialog, async (req: Request, res: Response) => {
   const show = await appState.setShowWelcomeDialog(req.body.show);
   res.status(200).json({ show });
 });
 
-router.get("/", (_req: Request, res: Response<Settings>) => {
+router.get('/', (_req: Request, res: Response<Settings>) => {
   const settings = getDataProvider().getSettings();
   const obfuscatedSettings = { ...settings };
   if (settings.editorKey) {
@@ -37,30 +32,26 @@ router.get("/", (_req: Request, res: Response<Settings>) => {
   res.status(200).json(obfuscatedSettings);
 });
 
-router.post(
-  "/",
-  validateSettings,
-  async (req: Request, res: Response<Settings | ErrorResponse>) => {
-    try {
-      const data = matchedData<Settings>(req);
-      const settings = getDataProvider().getSettings();
+router.post('/', validateSettings, async (req: Request, res: Response<Settings | ErrorResponse>) => {
+  try {
+    const data = matchedData<Settings>(req);
+    const settings = getDataProvider().getSettings();
 
-      data.version = settings.version;
+    data.version = settings.version;
 
-      if (!deepEqual(data, settings)) {
-        await getDataProvider().setSettings(data);
-        sendRefetch(RefetchKey.Settings);
-      }
-
-      res.status(200).json(data);
-    } catch (error) {
-      const message = getErrorMessage(error);
-      res.status(400).json({ message });
+    if (!deepEqual(data, settings)) {
+      await getDataProvider().setSettings(data);
+      sendRefetch(RefetchKey.Settings);
     }
-  },
-);
 
-router.get("/serverport", (_req: Request, res: Response<PortInfo | ErrorResponse>) => {
+    res.status(200).json(data);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).json({ message });
+  }
+});
+
+router.get('/serverport', (_req: Request, res: Response<PortInfo | ErrorResponse>) => {
   try {
     const { port, pendingRestart } = portManager.getPort();
     res.status(200).json({ port, pendingRestart });
@@ -70,19 +61,15 @@ router.get("/serverport", (_req: Request, res: Response<PortInfo | ErrorResponse
   }
 });
 
-router.post(
-  "/serverport",
-  validateServerPort,
-  async (req: Request, res: Response<PortInfo | ErrorResponse>) => {
-    try {
-      const { serverPort } = matchedData<{ serverPort: number }>(req);
-      portManager.changePort(serverPort);
-      const { port, pendingRestart } = portManager.getPort();
+router.post('/serverport', validateServerPort, async (req: Request, res: Response<PortInfo | ErrorResponse>) => {
+  try {
+    const { serverPort } = matchedData<{ serverPort: number }>(req);
+    portManager.changePort(serverPort);
+    const { port, pendingRestart } = portManager.getPort();
 
-      res.status(200).json({ port, pendingRestart });
-    } catch (error) {
-      const message = getErrorMessage(error);
-      res.status(400).json({ message });
-    }
-  },
-);
+    res.status(200).json({ port, pendingRestart });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).json({ message });
+  }
+});

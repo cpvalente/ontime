@@ -1,26 +1,8 @@
 {
-  "extends": "../../tsconfig.common.json",
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "allowUnusedLabels": false,
-    "removeComments": true,
-    "preserveConstEnums": true,
-    "allowJs": true,
-    "baseUrl": "src"
-  },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules",
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts",
-  ],
+  "extends": "./tsconfig.app.json",
+  "files": [],
+  "include": [],
   "references": [
-    {
-      "path": "./tsconfig.tests.json"
-    }
+    { "path": "./tsconfig.vitest.json" }
   ]
 }

@@ -1,6 +1,6 @@
 import { copyFileSync } from 'fs';
-import { copyDirectory, ensureDirectory } from '../utils/fileManagement.js';
 
+import { copyDirectory, ensureDirectory } from '../utils/fileManagement.js';
 import { publicDir, publicFiles, srcDir, srcFiles } from './index.js';
 
 /**

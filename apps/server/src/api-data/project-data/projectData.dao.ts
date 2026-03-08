@@ -1,10 +1,11 @@
+import { join } from 'node:path';
+
 import { ProjectData, RefetchKey } from 'ontime-types';
 
-import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { join } from 'node:path';
-import { deleteFile } from '../../utils/fileManagement.js';
-import { publicDir } from '../../setup/index.js';
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { publicDir } from '../../setup/index.js';
+import { deleteFile } from '../../utils/fileManagement.js';
 
 /**
  * Gets the stored project data

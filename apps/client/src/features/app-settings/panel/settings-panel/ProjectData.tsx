@@ -1,7 +1,7 @@
+import { type ProjectData } from 'ontime-types';
 import { ChangeEvent, useEffect, useRef } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoDownloadOutline, IoTrash } from 'react-icons/io5';
-import { type ProjectData } from 'ontime-types';
 
 import { projectLogoPath } from '../../../../common/api/constants';
 import { uploadProjectLogo } from '../../../../common/api/project';

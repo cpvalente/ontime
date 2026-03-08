@@ -1,5 +1,5 @@
-import { IoCheckmark } from 'react-icons/io5';
 import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox';
+import { IoCheckmark } from 'react-icons/io5';
 
 import style from './Checkbox.module.scss';
 

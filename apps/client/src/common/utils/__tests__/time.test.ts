@@ -3,15 +3,19 @@ import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-ut
 import { formatDuration, formatTime, nowInMillis } from '../time';
 
 describe('nowInMillis()', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('should return the current time in milliseconds', () => {
     const mockDate = new Date(2022, 1, 1, 13, 0, 0); // This date corresponds to 13:00:00
     const expectedMillis = 13 * 60 * 60 * 1000;
-    const dateSpy = vi.spyOn(global, 'Date').mockImplementation(() => mockDate as any);
+    vi.useFakeTimers();
+    vi.setSystemTime(mockDate);
 
     const result = nowInMillis();
 
     expect(result).toBe(expectedMillis);
-    dateSpy.mockRestore();
   });
 });
 
