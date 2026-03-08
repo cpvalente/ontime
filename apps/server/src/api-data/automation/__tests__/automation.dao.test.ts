@@ -137,7 +137,7 @@ describe('addAutomation()', () => {
   });
 });
 
-describe('editAutomation()', async () => {
+describe('editAutomation()', () => {
   // saving the ID of the added automation
   let firstAutomation: Automation;
   beforeEach(async () => {

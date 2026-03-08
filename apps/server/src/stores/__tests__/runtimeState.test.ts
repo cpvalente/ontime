@@ -76,7 +76,7 @@ describe('mutation on runtimeState', () => {
     vi.useRealTimers();
   });
 
-  describe('playback operations', async () => {
+  describe('playback operations', () => {
     it('refuses if nothing is loaded', async () => {
       // force update
       await initRundown(makeRundown({}), {});
