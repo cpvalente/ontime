@@ -1,4 +1,4 @@
-import { OffsetMode } from 'ontime-types';
+import { Day, OffsetMode } from 'ontime-types';
 
 import { MILLIS_PER_HOUR, dayInMs } from './conversionUtils';
 import { getExpectedStart } from './getExpectedStart';
@@ -9,7 +9,7 @@ describe('getExpectedStart()', () => {
       const testEvent = {
         timeStart: 100,
         delay: 0,
-        dayOffset: 0,
+        dayOffset: 0 as Day,
       };
       const testState = {
         currentDay: 0,
@@ -27,7 +27,7 @@ describe('getExpectedStart()', () => {
     test('running behind', () => {
       const testEvent = {
         timeStart: 100,
-        dayOffset: 0,
+        dayOffset: 0 as Day,
         delay: 0,
       };
       const testState = {
@@ -46,7 +46,7 @@ describe('getExpectedStart()', () => {
     test('running ahead', () => {
       const testEvent = {
         timeStart: 100,
-        dayOffset: 0,
+        dayOffset: 0 as Day,
         delay: 0,
       };
       const testState = {
@@ -65,7 +65,7 @@ describe('getExpectedStart()', () => {
     test('running behind with enough gaps', () => {
       const testEvent = {
         timeStart: 100,
-        dayOffset: 0,
+        dayOffset: 0 as Day,
         delay: 0,
       };
       const testState = {
@@ -84,7 +84,7 @@ describe('getExpectedStart()', () => {
     test('running behind with too little gaps', () => {
       const testEvent = {
         timeStart: 100,
-        dayOffset: 0,
+        dayOffset: 0 as Day,
         delay: 0,
       };
       const testState = {
@@ -120,13 +120,13 @@ describe('getExpectedStart()', () => {
       //event 2
       expect(
         getExpectedStart(
-          { dayOffset: 0, delay: 0, timeStart: timeStartEvent2 },
+          { dayOffset: 0 as Day, delay: 0, timeStart: timeStartEvent2 },
           { ...testState, isLinkedToLoaded: true },
         ),
       ).toBe(110);
       expect(
         getExpectedStart(
-          { dayOffset: 0, delay: 0, timeStart: timeStartEvent2 },
+          { dayOffset: 0 as Day, delay: 0, timeStart: timeStartEvent2 },
           { ...testState, isLinkedToLoaded: false },
         ),
       ).toBe(110);
@@ -134,13 +134,13 @@ describe('getExpectedStart()', () => {
       //event 3
       expect(
         getExpectedStart(
-          { dayOffset: 0, delay: 0, timeStart: timeStartEvent3 },
+          { dayOffset: 0 as Day, delay: 0, timeStart: timeStartEvent3 },
           { ...testState, isLinkedToLoaded: true },
         ),
       ).toBe(120);
       expect(
         getExpectedStart(
-          { dayOffset: 0, delay: 0, timeStart: timeStartEvent3 },
+          { dayOffset: 0 as Day, delay: 0, timeStart: timeStartEvent3 },
           { ...testState, isLinkedToLoaded: false },
         ),
       ).toBe(120);
@@ -151,13 +151,13 @@ describe('getExpectedStart()', () => {
       //event 2
       expect(
         getExpectedStart(
-          { dayOffset: 0, delay: 0, timeStart: timeStartEvent2 },
+          { dayOffset: 0 as Day, delay: 0, timeStart: timeStartEvent2 },
           { ...testState, isLinkedToLoaded: true },
         ),
       ).toBe(115);
       expect(
         getExpectedStart(
-          { dayOffset: 0, delay: 0, timeStart: timeStartEvent2 },
+          { dayOffset: 0 as Day, delay: 0, timeStart: timeStartEvent2 },
           { ...testState, isLinkedToLoaded: false },
         ),
       ).toBe(115);
@@ -165,13 +165,13 @@ describe('getExpectedStart()', () => {
       //event 3
       expect(
         getExpectedStart(
-          { dayOffset: 0, delay: 0, timeStart: timeStartEvent3 },
+          { dayOffset: 0 as Day, delay: 0, timeStart: timeStartEvent3 },
           { ...testState, isLinkedToLoaded: true },
         ),
       ).toBe(125);
       expect(
         getExpectedStart(
-          { dayOffset: 0, delay: 0, timeStart: timeStartEvent3 },
+          { dayOffset: 0 as Day, delay: 0, timeStart: timeStartEvent3 },
           { ...testState, isLinkedToLoaded: false },
         ),
       ).toBe(125);
@@ -180,7 +180,7 @@ describe('getExpectedStart()', () => {
     test('gaps', () => {
       const testEvent = {
         timeStart: 20,
-        dayOffset: 0,
+        dayOffset: 0 as Day,
         delay: 0,
       };
       const testState = {
@@ -204,7 +204,7 @@ describe('getExpectedStart()', () => {
     test('added/remove time', () => {
       const testEvent = {
         timeStart: 20,
-        dayOffset: 0,
+        dayOffset: 0 as Day,
         delay: 0,
       };
       const testState = {
@@ -242,7 +242,7 @@ describe('getExpectedStart()', () => {
       // this event will start the current day
       expect(
         getExpectedStart(
-          { timeStart: 10, delay: 0, dayOffset: 0 },
+          { timeStart: 10, delay: 0, dayOffset: 0 as Day },
           { ...testState, totalGap: 0, isLinkedToLoaded: false },
         ),
       ).toBe(110);
@@ -252,7 +252,7 @@ describe('getExpectedStart()', () => {
       // but in relative mode with and actual start that is 100 offset it starts in dayInMs
       expect(
         getExpectedStart(
-          { timeStart: 0, delay: 0, dayOffset: 1 },
+          { timeStart: 0, delay: 0, dayOffset: 1 as Day },
           { ...testState, totalGap: dayInMs - 20, isLinkedToLoaded: false },
         ),
       ).toBe(dayInMs + 100);
@@ -262,7 +262,7 @@ describe('getExpectedStart()', () => {
   test('overlap with negative total gap', () => {
     const testEvent = {
       timeStart: 5,
-      dayOffset: 0,
+      dayOffset: 0 as Day,
       delay: 0,
     };
     const testState = {
@@ -281,7 +281,7 @@ describe('getExpectedStart()', () => {
   test('we started on the day before', () => {
     const testEvent = {
       timeStart: 5,
-      dayOffset: 0,
+      dayOffset: 0 as Day,
       delay: 0,
     };
     const testState = {
@@ -299,7 +299,7 @@ describe('getExpectedStart()', () => {
   test('next day in multi-day rundown', () => {
     const testEvent = {
       timeStart: 5,
-      dayOffset: 1,
+      dayOffset: 1 as Day,
       delay: 0,
     };
     const testState = {
