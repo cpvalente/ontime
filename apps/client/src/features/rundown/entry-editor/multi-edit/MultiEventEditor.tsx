@@ -71,8 +71,7 @@ export default function MultiEventEditor() {
   const titlePlaceholder = isIndeterminate(merged.title) ? 'multiple' : undefined;
   const noteValue = isIndeterminate(merged.note) ? '' : merged.note;
   const notePlaceholder = isIndeterminate(merged.note) ? 'multiple' : undefined;
-  const colourIndeterminate = isIndeterminate(merged.colour);
-  const colourValue = colourIndeterminate ? '' : (merged.colour as string);
+  const colourValue = isIndeterminate(merged.colour) ? 'multiple' : (merged.colour as string);
   const flagIndeterminate = isIndeterminate(merged.flag);
   const flagChecked = flagIndeterminate ? merged.flagTally.majority : (merged.flag as boolean);
   const linkStartIndeterminate = isIndeterminate(merged.linkStart);
@@ -265,13 +264,11 @@ export default function MultiEventEditor() {
           </div>
         </div>
         <div>
-          <Editor.Label>Colour</Editor.Label>
-          {colourIndeterminate && <Editor.Label className={style.hint}>Multiple colours selected</Editor.Label>}
+          <Editor.Label>Colour {colourValue === 'multiple' && <span className={style.hint}>(multiple selected)</span>}</Editor.Label>
           <SwatchSelect
             name='colour'
             value={colourValue}
             handleChange={handleSubmit}
-            noSelection={colourIndeterminate}
           />
         </div>
         <EntryEditorTextInput
