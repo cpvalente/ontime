@@ -231,11 +231,11 @@ describe('generateUrlPresetOptions', () => {
   });
 
   it('throws on invalid URL', () => {
-    expect(() => generateUrlPresetOptions('test', 'invalid-url')).toThrow();
+    expect(() => generateUrlPresetOptions('test', 'invalid-url')).toThrow('Invalid target view:');
   });
 
   it('throws on invalid route', () => {
-    expect(() => generateUrlPresetOptions('test', 'www.getontime.no/somethingelse/')).toThrow();
+    expect(() => generateUrlPresetOptions('test', 'www.getontime.no/somethingelse/')).toThrow('Invalid target view:');
   });
 });
 

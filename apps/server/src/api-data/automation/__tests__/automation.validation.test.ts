@@ -22,7 +22,7 @@ describe('parseOutput', () => {
         address: '/test',
         args: 'test',
       };
-      expect(() => parseOutput(payload)).toThrow();
+      expect(() => parseOutput(payload)).toThrow('Unexpected payload type:');
     });
   });
   describe('handles HTTP outputs', () => {
@@ -39,7 +39,7 @@ describe('parseOutput', () => {
       const payload = {
         type: 'http',
       };
-      expect(() => parseOutput(payload)).toThrow();
+      expect(() => parseOutput(payload)).toThrow('Unexpected payload type:');
     });
   });
   describe('handles Ontime outputs', () => {
@@ -79,7 +79,7 @@ describe('parseOutput', () => {
         type: 'ontime',
         action: 'not-exist',
       };
-      expect(() => parseOutput(payload)).toThrow();
+      expect(() => parseOutput(payload)).toThrow('Invalid Ontime action');
     });
 
     it('parses message-set', () => {
@@ -122,7 +122,7 @@ describe('parseOutput', () => {
           text: 123,
           visible: '',
         }),
-      ).toThrow();
+      ).toThrow('Unexpected payload type:');
     });
 
     it('parses message-secondary', () => {});
