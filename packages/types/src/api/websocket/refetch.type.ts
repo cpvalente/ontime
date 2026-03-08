@@ -6,6 +6,7 @@ export enum RefetchKey {
   Rundown = 'rundown',
   UrlPresets = 'url-presets',
   ViewSettings = 'view-settings',
+  CssOverride = 'css-override',
   Translation = 'translation',
   Settings = 'settings',
 }
