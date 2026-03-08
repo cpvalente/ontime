@@ -21,6 +21,7 @@ interface CustomFieldsFormProps {
   initialColour?: string;
   initialLabel?: string;
   initialKey?: string;
+  initialType?: CustomField['type'];
 }
 
 type CustomFieldFormData = CustomField & { key: string };
@@ -31,6 +32,7 @@ export default function CustomFieldForm({
   initialColour,
   initialLabel,
   initialKey,
+  initialType,
 }: CustomFieldsFormProps) {
   const { data } = useCustomFields();
 
@@ -47,7 +49,7 @@ export default function CustomFieldForm({
     watch,
     formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm<CustomFieldFormData>({
-    defaultValues: { type: 'text', label: initialLabel || '', colour: initialColour || '' },
+    defaultValues: { type: initialType ?? 'text', label: initialLabel || '', colour: initialColour || '' },
     resetOptions: {
       keepDirtyValues: true,
     },

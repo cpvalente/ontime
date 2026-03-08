@@ -39,6 +39,7 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
             initialColour={colour}
             initialLabel={label}
             initialKey={fieldKey}
+            initialType={type}
           />
         </td>
       </tr>
