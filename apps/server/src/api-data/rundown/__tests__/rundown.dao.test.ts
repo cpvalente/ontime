@@ -31,17 +31,15 @@ import { type ProcessedRundownMetadata } from '../rundown.parser.js';
 const setRundownMock = vi.fn();
 const setCustomFieldsMock = vi.fn();
 
-beforeAll(() => {
-  vi.mock('../../../classes/data-provider/DataProvider.js', () => {
-    return {
-      getDataProvider: vi.fn().mockImplementation(() => {
-        return {
-          setRundown: setRundownMock,
-          setCustomFields: setCustomFieldsMock,
-        };
-      }),
-    };
-  });
+vi.mock('../../../classes/data-provider/DataProvider.js', () => {
+  return {
+    getDataProvider: vi.fn().mockImplementation(() => {
+      return {
+        setRundown: setRundownMock,
+        setCustomFields: setCustomFieldsMock,
+      };
+    }),
+  };
 });
 
 afterAll(() => {

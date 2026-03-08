@@ -6,17 +6,15 @@ import { processRundown, rundownCache } from '../../api-data/rundown/rundown.dao
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
 import { loadRoll } from '../rollUtils.js';
 
-beforeAll(() => {
-  vi.mock('../../classes/data-provider/DataProvider.js', () => {
-    return {
-      getDataProvider: vi.fn().mockImplementation(() => {
-        return {
-          setCustomFields: vi.fn().mockImplementation((newData) => newData),
-          setRundown: vi.fn().mockImplementation((newData) => newData),
-        };
-      }),
-    };
-  });
+vi.mock('../../classes/data-provider/DataProvider.js', () => {
+  return {
+    getDataProvider: vi.fn().mockImplementation(() => {
+      return {
+        setCustomFields: vi.fn().mockImplementation((newData) => newData),
+        setRundown: vi.fn().mockImplementation((newData) => newData),
+      };
+    }),
+  };
 });
 
 const mockEvent = {
