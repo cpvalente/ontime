@@ -15,7 +15,7 @@ export default function Switch({ size = 'medium', indeterminate, ...switchProps 
       className={cx([style.switch, style[size], indeterminate && style.indeterminate])}
       {...switchProps}
     >
-<BaseSwitch.Thumb className={style.thumb} />
+      <BaseSwitch.Thumb className={style.thumb} />
     </BaseSwitch.Root>
   );
 }

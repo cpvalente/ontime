@@ -25,12 +25,12 @@ import EventTextArea from '../composite/EventTextArea';
 import EntryEditorTextInput from '../composite/EventTextInput';
 
 import { BooleanTally, isIndeterminate, MergedCustomFields } from './multiEditUtils';
+import { useMultiEventMerge } from './useMultiEventMerge';
 
 function switchLabel(tally: BooleanTally, indeterminate: boolean, checked: boolean): string {
   if (indeterminate) return `${tally.offCount} off | ${tally.onCount} on`;
   return checked ? 'On' : 'Off';
 }
-import { useMultiEventMerge } from './useMultiEventMerge';
 
 import editorStyle from '../EntryEditor.module.scss';
 import style from './MultiEventEditor.module.scss';
