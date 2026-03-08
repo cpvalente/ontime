@@ -45,7 +45,7 @@ describe('test parseUserTime()', () => {
     }
   });
 
-  describe('#33 separators are parsed according to doc examples ', () => {
+  describe('#33 separators are parsed according to doc examples', () => {
     const ts = [
       { value: '0.1', expect: MILLIS_PER_MINUTE },
       { value: '0 1', expect: MILLIS_PER_MINUTE },
