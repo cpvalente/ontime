@@ -49,14 +49,22 @@
   aspect-ratio: 1;
   height: 100%;
   border-radius: 99px;
+  border: 2px solid transparent;
   background-color: $ui-white;
-  transition: translate 150ms ease;
+  transition: translate 150ms ease, opacity 150ms ease, background-color 150ms ease, border-color 150ms ease;
 
   &[data-checked] {
     translate: calc(var(--width) - var(--height)) 0;
   }
+}
 
-  &[data-indeterminate] {
-    opacity: 0;
-  }
+.indeterminate[data-checked] {
+  background-color: $gray-1100;
+}
+
+.indeterminate .thumb {
+  background-color: transparent;
+  border-color: $gray-500;
+  border-style: dashed;
+  opacity: 0.5;
 }

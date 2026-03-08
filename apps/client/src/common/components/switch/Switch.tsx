@@ -11,8 +11,11 @@ interface SwitchProps extends BaseSwitch.Root.Props {
 
 export default function Switch({ size = 'medium', indeterminate, ...switchProps }: SwitchProps) {
   return (
-    <BaseSwitch.Root className={cx([style.switch, style[size]])} {...switchProps}>
-      <BaseSwitch.Thumb className={style.thumb} data-indeterminate={indeterminate || undefined} />
+    <BaseSwitch.Root
+      className={cx([style.switch, style[size], indeterminate && style.indeterminate])}
+      {...switchProps}
+    >
+<BaseSwitch.Thumb className={style.thumb} />
     </BaseSwitch.Root>
   );
 }

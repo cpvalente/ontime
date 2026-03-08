@@ -8,6 +8,21 @@ export function isIndeterminate<T>(v: MergedValue<T>): v is Indeterminate {
   return v === INDETERMINATE;
 }
 
+export interface BooleanTally {
+  onCount: number;
+  offCount: number;
+  majority: boolean;
+}
+
+export function booleanTally(events: OntimeEvent[], field: keyof OntimeEvent): BooleanTally {
+  let onCount = 0;
+  for (const event of events) {
+    if (event[field]) onCount++;
+  }
+  const offCount = events.length - onCount;
+  return { onCount, offCount, majority: onCount >= offCount };
+}
+
 /** Fields included in multi-edit v1 */
 const mergeableFields = ['title', 'note', 'colour', 'flag', 'duration', 'timeStrategy', 'endAction', 'countToEnd', 'timerType', 'timeWarning', 'timeDanger', 'linkStart'] as const;
 
@@ -21,6 +36,8 @@ export type MergedEvent = {
   custom: MergedCustomFields;
   allLockDuration: boolean;
   allLockEnd: boolean;
+  flagTally: BooleanTally;
+  countToEndTally: BooleanTally;
 };
 
 export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>, flatOrder: EntryId[]): MergedEvent | null {
@@ -64,7 +81,7 @@ export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>, f
     custom: { ...first.custom },
     allLockDuration: false,
     allLockEnd: false,
-  };
+  } as MergedEvent;
 
   // If the first event in the merged set is the first rundown event, seed linkStart from the second event
   const firstIsRundownFirst = first.id === firstRundownEventId;
@@ -109,6 +126,9 @@ export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>, f
 
   merged.allLockEnd =
     !isIndeterminate(merged.timeStrategy) && merged.timeStrategy === TimeStrategy.LockEnd;
+
+  merged.flagTally = booleanTally(events, 'flag');
+  merged.countToEndTally = booleanTally(events, 'countToEnd');
 
   return merged;
 }

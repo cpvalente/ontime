@@ -24,7 +24,12 @@ import EventEditorImage from '../composite/EventEditorImage';
 import EventTextArea from '../composite/EventTextArea';
 import EntryEditorTextInput from '../composite/EventTextInput';
 
-import { isIndeterminate, MergedCustomFields } from './multiEditUtils';
+import { BooleanTally, isIndeterminate, MergedCustomFields } from './multiEditUtils';
+
+function switchLabel(tally: BooleanTally, indeterminate: boolean, checked: boolean): string {
+  if (indeterminate) return `${tally.offCount} off | ${tally.onCount} on`;
+  return checked ? 'On' : 'Off';
+}
 import { useMultiEventMerge } from './useMultiEventMerge';
 
 import editorStyle from '../EntryEditor.module.scss';
@@ -69,7 +74,7 @@ export default function MultiEventEditor() {
   const colourIndeterminate = isIndeterminate(merged.colour);
   const colourValue = colourIndeterminate ? '' : (merged.colour as string);
   const flagIndeterminate = isIndeterminate(merged.flag);
-  const flagChecked = flagIndeterminate ? false : (merged.flag as boolean);
+  const flagChecked = flagIndeterminate ? merged.flagTally.majority : (merged.flag as boolean);
   const linkStartIndeterminate = isIndeterminate(merged.linkStart);
   const linkStartValue = linkStartIndeterminate ? false : (merged.linkStart as boolean);
   const allLinked = !linkStartIndeterminate && linkStartValue;
@@ -80,7 +85,7 @@ export default function MultiEventEditor() {
   const endActionIndeterminate = isIndeterminate(merged.endAction);
   const endActionValue = endActionIndeterminate ? null : (merged.endAction as EndAction);
   const countToEndIndeterminate = isIndeterminate(merged.countToEnd);
-  const countToEndChecked = countToEndIndeterminate ? false : (merged.countToEnd as boolean);
+  const countToEndChecked = countToEndIndeterminate ? merged.countToEndTally.majority : (merged.countToEnd as boolean);
   const timerTypeIndeterminate = isIndeterminate(merged.timerType);
   const timerTypeValue = timerTypeIndeterminate ? null : (merged.timerType as TimerType);
   const timeWarningIndeterminate = isIndeterminate(merged.timeWarning);
@@ -186,11 +191,11 @@ export default function MultiEventEditor() {
             <Editor.Label htmlFor='countToEnd'>Count to End</Editor.Label>
             <Editor.Label className={editorStyle.switchLabel}>
               <Switch
-                indeterminate={countToEndIndeterminate}
                 checked={countToEndChecked}
-                onCheckedChange={(value) => handleSubmit('countToEnd', value)}
+                onCheckedChange={(value) => handleSubmit('countToEnd', countToEndIndeterminate ? merged.countToEndTally.majority : value)}
+                indeterminate={countToEndIndeterminate}
               />
-              {countToEndIndeterminate ? 'Mixed' : countToEndChecked ? 'On' : 'Off'}
+              {switchLabel(merged.countToEndTally, countToEndIndeterminate, countToEndChecked)}
             </Editor.Label>
           </div>
         </div>
@@ -251,11 +256,11 @@ export default function MultiEventEditor() {
             <Editor.Label htmlFor='flag'>Flag</Editor.Label>
             <Editor.Label className={editorStyle.switchLabel}>
               <Switch
-                indeterminate={flagIndeterminate}
                 checked={flagChecked}
-                onCheckedChange={(value) => handleSubmit('flag', value)}
+                onCheckedChange={(value) => handleSubmit('flag', flagIndeterminate ? merged.flagTally.majority : value)}
+                indeterminate={flagIndeterminate}
               />
-              {flagIndeterminate ? 'Mixed' : flagChecked ? 'On' : 'Off'}
+              {switchLabel(merged.flagTally, flagIndeterminate, flagChecked)}
             </Editor.Label>
           </div>
         </div>
