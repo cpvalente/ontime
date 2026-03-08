@@ -780,7 +780,7 @@ describe('loadRoll() test that roll behaviour multi day event edge cases', () =>
 });
 
 describe('loadRoll() should not roll skipped events', () => {
-  test('', async () => {
+  test('load roll', async () => {
     vi.useFakeTimers();
     await initRundown(
       makeRundown({

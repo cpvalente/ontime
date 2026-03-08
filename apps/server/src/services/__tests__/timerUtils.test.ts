@@ -1255,7 +1255,7 @@ describe('getTimerPhase()', () => {
     expect(phase).toBe(TimerPhase.Warning);
   });
 
-  it('it default if the timer is playing and there is none of the above', () => {
+  it('is default if the timer is playing and there is none of the above', () => {
     const state = {
       timer: {
         addedTime: 0,
