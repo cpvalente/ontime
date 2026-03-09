@@ -16,6 +16,7 @@ import style from '../EntryEditor.module.scss';
 interface EventEditorTitlesMultiEdit {
   flagIndeterminate: boolean;
   flagTally: BooleanTally;
+  colourIndeterminate: boolean;
 }
 
 interface EventEditorTitlesProps {
@@ -27,7 +28,7 @@ interface EventEditorTitlesProps {
   colour: string;
   titlePlaceholder?: string;
   notePlaceholder?: string;
-  handleSubmit?: (field: string, value: string | boolean) => void;
+  onSubmit?: (field: string, value: string | boolean) => void;
   multiEdit?: EventEditorTitlesMultiEdit;
 }
 
@@ -41,22 +42,22 @@ function EventEditorTitles({
   colour,
   titlePlaceholder,
   notePlaceholder,
-  handleSubmit: handleSubmitProp,
+  onSubmit: onSubmitProp,
   multiEdit,
 }: EventEditorTitlesProps) {
   const { updateEntry } = useEntryActionsContext();
 
   const submit = (field: string, value: string | boolean) => {
-    if (handleSubmitProp) {
-      handleSubmitProp(field, value);
+    if (onSubmitProp) {
+      onSubmitProp(field, value);
     } else {
       updateEntry({ id: eventId, [field]: value });
     }
   };
 
   const cueSubmitHandler = (_field: string, newValue: string) => {
-    if (handleSubmitProp) {
-      handleSubmitProp('cue', sanitiseCue(newValue));
+    if (onSubmitProp) {
+      onSubmitProp('cue', sanitiseCue(newValue));
     } else {
       updateEntry({ id: eventId, cue: sanitiseCue(newValue) });
     }
@@ -116,7 +117,7 @@ function EventEditorTitles({
         </div>
       </div>
       <div>
-        <Editor.Label>Colour {colour === 'multiple' && <span className={style.hint}>(multiple selected)</span>}</Editor.Label>
+        <Editor.Label>Colour {multiEdit?.colourIndeterminate && <span className={style.hint}>(multiple selected)</span>}</Editor.Label>
         <SwatchSelect name='colour' value={colour} handleChange={textSubmitHandler} />
       </div>
       <EntryEditorTextInput field='title' label='Title' initialValue={title} placeholder={titlePlaceholder} submitHandler={textSubmitHandler} />

@@ -33,7 +33,7 @@ interface EventEditorTimesProps {
   eventId: string;
   timeStart: number;
   timeEnd: number;
-  duration: number;
+  duration?: number;
   timeStrategy: TimeStrategy;
   linkStart: boolean;
   countToEnd: boolean;
@@ -42,7 +42,7 @@ interface EventEditorTimesProps {
   timerType: TimerType;
   timeWarning: number;
   timeDanger: number;
-  handleSubmit?: (field: string, value: string | boolean) => void;
+  onSubmit?: (field: string, value: string | boolean) => void;
   multiEdit?: EventEditorTimesMultiEdit;
   onStrategyChange?: (strategy: TimeStrategy) => void;
 }
@@ -63,15 +63,15 @@ function EventEditorTimes({
   timerType,
   timeWarning,
   timeDanger,
-  handleSubmit: handleSubmitProp,
+  onSubmit: onSubmitProp,
   multiEdit,
   onStrategyChange,
 }: EventEditorTimesProps) {
   const { updateEntry } = useEntryActionsContext();
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
-    if (handleSubmitProp) {
-      handleSubmitProp(field, value);
+    if (onSubmitProp) {
+      onSubmitProp(field, value);
       return;
     }
 
@@ -130,7 +130,7 @@ function EventEditorTimes({
               delay={delay}
               countToEnd={countToEnd}
               showLabels
-              handleSubmit={handleSubmitProp}
+              handleSubmit={onSubmitProp}
               multiEdit={
                 multiEdit
                   ? {

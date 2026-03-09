@@ -26,7 +26,7 @@ interface TimeInputFlowProps {
   countToEnd: boolean;
   timeStart: number;
   timeEnd: number;
-  duration: number;
+  duration?: number;
   timeStrategy: TimeStrategy;
   linkStart: boolean;
   delay: number;
@@ -79,7 +79,7 @@ function TimeInputFlow({
   };
 
   const warnings = [];
-  if (timeStart + duration > dayInMs) {
+  if (duration != null && timeStart + duration > dayInMs) {
     warnings.push('Over midnight');
   }
 

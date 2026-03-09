@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { EndAction, OntimeEvent, TimerType, TimeStrategy } from 'ontime-types';
+import { OntimeEvent, TimeStrategy } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
 import Button from '../../../common/components/buttons/Button';
@@ -15,6 +15,7 @@ import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
 import EventEditorTriggers from './composite/EventEditorTriggers';
 import { isIndeterminate, MergedEvent } from './multi-edit/multiEditUtils';
+import { resolveMergedValues } from './multi-edit/resolveMergedValues';
 
 import style from './EntryEditor.module.scss';
 
@@ -78,50 +79,8 @@ export default function EventEditor({ event, multiEdit }: EventEditorProps) {
 
   const handleSubmit = isMulti ? multiHandleSubmit : singleHandleSubmit;
 
-  // Compute multi-edit derived values
   const merged = multiEdit?.merged;
-
-  const titleValue = merged && isIndeterminate(merged.title) ? '' : event.title;
-  const titlePlaceholder = merged && isIndeterminate(merged.title) ? 'multiple' : undefined;
-  const noteValue = merged && isIndeterminate(merged.note) ? '' : event.note;
-  const notePlaceholder = merged && isIndeterminate(merged.note) ? 'multiple' : undefined;
-  const colourValue = merged && isIndeterminate(merged.colour) ? 'multiple' : event.colour;
-  const flagValue = merged
-    ? isIndeterminate(merged.flag)
-      ? merged.flagTally.majority
-      : (merged.flag as boolean)
-    : event.flag;
-  const linkStartValue = merged
-    ? isIndeterminate(merged.linkStart)
-      ? false
-      : (merged.linkStart as boolean)
-    : event.linkStart;
-  const durationValue = merged ? (isIndeterminate(merged.duration) ? undefined : (merged.duration as number)) : event.duration;
-  const endActionValue = merged
-    ? isIndeterminate(merged.endAction)
-      ? event.endAction
-      : (merged.endAction as EndAction)
-    : event.endAction;
-  const countToEndValue = merged
-    ? isIndeterminate(merged.countToEnd)
-      ? merged.countToEndTally.majority
-      : (merged.countToEnd as boolean)
-    : event.countToEnd;
-  const timerTypeValue = merged
-    ? isIndeterminate(merged.timerType)
-      ? event.timerType
-      : (merged.timerType as TimerType)
-    : event.timerType;
-  const timeWarningValue = merged
-    ? isIndeterminate(merged.timeWarning)
-      ? 0
-      : (merged.timeWarning as number)
-    : event.timeWarning;
-  const timeDangerValue = merged
-    ? isIndeterminate(merged.timeDanger)
-      ? 0
-      : (merged.timeDanger as number)
-    : event.timeDanger;
+  const resolved = resolveMergedValues(event, merged);
 
   return (
     <div className={style.content}>
@@ -135,16 +94,16 @@ export default function EventEditor({ event, multiEdit }: EventEditorProps) {
         eventId={event.id}
         timeStart={event.timeStart}
         timeEnd={event.timeEnd}
-        duration={durationValue}
+        duration={resolved.duration}
         timeStrategy={event.timeStrategy}
-        linkStart={linkStartValue}
-        countToEnd={countToEndValue}
+        linkStart={resolved.linkStart}
+        countToEnd={resolved.countToEnd}
         delay={event.delay}
-        endAction={endActionValue}
-        timerType={timerTypeValue}
-        timeWarning={timeWarningValue}
-        timeDanger={timeDangerValue}
-        handleSubmit={isMulti ? multiHandleSubmit : undefined}
+        endAction={resolved.endAction}
+        timerType={resolved.timerType}
+        timeWarning={resolved.timeWarning}
+        timeDanger={resolved.timeDanger}
+        onSubmit={isMulti ? multiHandleSubmit : undefined}
         multiEdit={
           merged
             ? {
@@ -167,18 +126,19 @@ export default function EventEditor({ event, multiEdit }: EventEditorProps) {
         key={`${event.id}-titles`}
         eventId={event.id}
         cue={event.cue}
-        flag={flagValue}
-        title={titleValue}
-        note={noteValue}
-        colour={colourValue}
-        titlePlaceholder={titlePlaceholder}
-        notePlaceholder={notePlaceholder}
-        handleSubmit={isMulti ? multiHandleSubmit : undefined}
+        flag={resolved.flag}
+        title={resolved.title}
+        note={resolved.note}
+        colour={resolved.colour}
+        titlePlaceholder={resolved.titlePlaceholder}
+        notePlaceholder={resolved.notePlaceholder}
+        onSubmit={isMulti ? multiHandleSubmit : undefined}
         multiEdit={
           merged
             ? {
                 flagIndeterminate: isIndeterminate(merged.flag),
                 flagTally: merged.flagTally,
+                colourIndeterminate: resolved.colourIndeterminate,
               }
             : undefined
         }
