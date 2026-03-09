@@ -1,7 +1,11 @@
-import { useCallback } from 'react';
-import { OntimeEvent } from 'ontime-types';
+import { useCallback, useState } from 'react';
+import { EndAction, OntimeEvent, TimerType, TimeStrategy } from 'ontime-types';
+import { parseUserTime } from 'ontime-utils';
 
+import Button from '../../../common/components/buttons/Button';
+import Dialog from '../../../common/components/dialog/Dialog';
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
+import Info from '../../../common/components/info/Info';
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
@@ -10,23 +14,33 @@ import EntryEditorCustomFields from './composite/EventEditorCustomFields';
 import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
 import EventEditorTriggers from './composite/EventEditorTriggers';
+import { isIndeterminate, MergedEvent } from './multi-edit/multiEditUtils';
 
 import style from './EntryEditor.module.scss';
 
 // any of the titles + colour + custom field labels
 export type EventEditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | string;
 
-interface EventEditorProps {
-  event: OntimeEvent;
+interface MultiEditConfig {
+  merged: MergedEvent;
+  selectedIds: string[];
 }
 
-export default function EventEditor({ event }: EventEditorProps) {
+interface EventEditorProps {
+  event: OntimeEvent;
+  multiEdit?: MultiEditConfig;
+}
+
+export default function EventEditor({ event, multiEdit }: EventEditorProps) {
   const { data: customFields } = useCustomFields();
-  const { updateEntry } = useEntryActionsContext();
+  const { updateEntry, batchUpdateEvents } = useEntryActionsContext();
+  const [pendingStrategy, setPendingStrategy] = useState<TimeStrategy | null>(null);
 
   const isEditor = window.location.pathname.includes('editor');
+  const isMulti = !!multiEdit;
 
-  const handleSubmit = useCallback(
+  // Single-event handleSubmit (used when no multiEdit)
+  const singleHandleSubmit = useCallback(
     (field: EventEditorUpdateFields, value: string) => {
       if (field.startsWith('custom-')) {
         const fieldLabel = field.split('custom-')[1];
@@ -38,46 +52,184 @@ export default function EventEditor({ event }: EventEditorProps) {
     [event.id, updateEntry],
   );
 
+  // Multi-event handleSubmit
+  const multiHandleSubmit = useCallback(
+    (field: string, value: string | boolean) => {
+      if (!multiEdit) return;
+      if (field.startsWith('custom-')) {
+        const fieldKey = field.split('custom-')[1];
+        batchUpdateEvents({ custom: { [fieldKey]: value } } as Partial<OntimeEvent>, multiEdit.selectedIds);
+      } else if (field === 'duration' || field === 'timeWarning' || field === 'timeDanger') {
+        const ms = parseUserTime(value as string);
+        batchUpdateEvents({ [field]: ms } as Partial<OntimeEvent>, multiEdit.selectedIds);
+      } else {
+        batchUpdateEvents({ [field]: value } as Partial<OntimeEvent>, multiEdit.selectedIds);
+      }
+    },
+    [batchUpdateEvents, multiEdit],
+  );
+
+  const handleConfirmStrategy = useCallback(() => {
+    if (pendingStrategy && multiEdit) {
+      batchUpdateEvents({ timeStrategy: pendingStrategy }, multiEdit.selectedIds);
+    }
+    setPendingStrategy(null);
+  }, [batchUpdateEvents, multiEdit, pendingStrategy]);
+
+  const handleSubmit = isMulti ? multiHandleSubmit : singleHandleSubmit;
+
+  // Compute multi-edit derived values
+  const merged = multiEdit?.merged;
+
+  const titleValue = merged && isIndeterminate(merged.title) ? '' : event.title;
+  const titlePlaceholder = merged && isIndeterminate(merged.title) ? 'multiple' : undefined;
+  const noteValue = merged && isIndeterminate(merged.note) ? '' : event.note;
+  const notePlaceholder = merged && isIndeterminate(merged.note) ? 'multiple' : undefined;
+  const colourValue = merged && isIndeterminate(merged.colour) ? 'multiple' : event.colour;
+  const flagValue = merged
+    ? isIndeterminate(merged.flag)
+      ? merged.flagTally.majority
+      : (merged.flag as boolean)
+    : event.flag;
+  const linkStartValue = merged
+    ? isIndeterminate(merged.linkStart)
+      ? false
+      : (merged.linkStart as boolean)
+    : event.linkStart;
+  const durationValue = merged ? (isIndeterminate(merged.duration) ? 0 : (merged.duration as number)) : event.duration;
+  const endActionValue = merged
+    ? isIndeterminate(merged.endAction)
+      ? event.endAction
+      : (merged.endAction as EndAction)
+    : event.endAction;
+  const countToEndValue = merged
+    ? isIndeterminate(merged.countToEnd)
+      ? merged.countToEndTally.majority
+      : (merged.countToEnd as boolean)
+    : event.countToEnd;
+  const timerTypeValue = merged
+    ? isIndeterminate(merged.timerType)
+      ? event.timerType
+      : (merged.timerType as TimerType)
+    : event.timerType;
+  const timeWarningValue = merged
+    ? isIndeterminate(merged.timeWarning)
+      ? 0
+      : (merged.timeWarning as number)
+    : event.timeWarning;
+  const timeDangerValue = merged
+    ? isIndeterminate(merged.timeDanger)
+      ? 0
+      : (merged.timeDanger as number)
+    : event.timeDanger;
+
   return (
     <div className={style.content}>
+      {isMulti && merged && (
+        <Info type='info'>
+          <span className={style.bold}>Batch Edit:</span> {multiEdit.selectedIds.length} events selected
+        </Info>
+      )}
       <EventEditorTimes
         key={`${event.id}-times`}
         eventId={event.id}
         timeStart={event.timeStart}
         timeEnd={event.timeEnd}
-        duration={event.duration}
+        duration={durationValue}
         timeStrategy={event.timeStrategy}
-        linkStart={event.linkStart}
-        countToEnd={event.countToEnd}
+        linkStart={linkStartValue}
+        countToEnd={countToEndValue}
         delay={event.delay}
-        endAction={event.endAction}
-        timerType={event.timerType}
-        timeWarning={event.timeWarning}
-        timeDanger={event.timeDanger}
+        endAction={endActionValue}
+        timerType={timerTypeValue}
+        timeWarning={timeWarningValue}
+        timeDanger={timeDangerValue}
+        handleSubmit={isMulti ? multiHandleSubmit : undefined}
+        multiEdit={
+          merged
+            ? {
+                endActionIndeterminate: isIndeterminate(merged.endAction),
+                countToEndIndeterminate: isIndeterminate(merged.countToEnd),
+                countToEndTally: merged.countToEndTally,
+                timerTypeIndeterminate: isIndeterminate(merged.timerType),
+                timeWarningIndeterminate: isIndeterminate(merged.timeWarning),
+                timeDangerIndeterminate: isIndeterminate(merged.timeDanger),
+                linkStartIndeterminate: isIndeterminate(merged.linkStart),
+                durationLockIndeterminate: isIndeterminate(merged.timeStrategy),
+                allLockDuration: merged.allLockDuration,
+                allLockEnd: merged.allLockEnd,
+              }
+            : undefined
+        }
+        onStrategyChange={isMulti ? setPendingStrategy : undefined}
       />
       <EventEditorTitles
         key={`${event.id}-titles`}
         eventId={event.id}
         cue={event.cue}
-        flag={event.flag}
-        title={event.title}
-        note={event.note}
-        colour={event.colour}
+        flag={flagValue}
+        title={titleValue}
+        note={noteValue}
+        colour={colourValue}
+        titlePlaceholder={titlePlaceholder}
+        notePlaceholder={notePlaceholder}
+        handleSubmit={isMulti ? multiHandleSubmit : undefined}
+        multiEdit={
+          merged
+            ? {
+                flagIndeterminate: isIndeterminate(merged.flag),
+                flagTally: merged.flagTally,
+              }
+            : undefined
+        }
       />
       <div className={style.column}>
         <Editor.Title>
           Custom Fields
           {isEditor && <AppLink search='settings=manage__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
-        <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} entry={event} />
+        <EntryEditorCustomFields
+          fields={customFields}
+          handleSubmit={handleSubmit}
+          entry={event}
+          mergedCustom={merged?.custom}
+        />
       </div>
       <div className={style.column}>
         <Editor.Title>
           Automations
-          {isEditor && <AppLink search='settings=automation'>Manage Automations</AppLink>}
+          {isEditor && !isMulti && <AppLink search='settings=automation'>Manage Automations</AppLink>}
         </Editor.Title>
-        <EventEditorTriggers triggers={event.triggers} eventId={event.id} />
+        {isMulti ? (
+          <Info type='info'>Not available when editing multiple events</Info>
+        ) : (
+          <EventEditorTriggers triggers={event.triggers} eventId={event.id} />
+        )}
       </div>
+      {isMulti && (
+        <Dialog
+          isOpen={pendingStrategy !== null}
+          onClose={() => setPendingStrategy(null)}
+          title='Warning!'
+          showBackdrop
+          showCloseButton
+          bodyElements={
+            pendingStrategy === TimeStrategy.LockDuration
+              ? "This will set duration lock for all selected events and may significantly impact this rundown's total duration."
+              : 'This will set end lock for all selected events and may cause the rundown to behave unexpectedly.'
+          }
+          footerElements={
+            <>
+              <Button variant='ghosted-white' size='large' onClick={() => setPendingStrategy(null)}>
+                No
+              </Button>
+              <Button variant='destructive' size='large' onClick={handleConfirmStrategy}>
+                Yes
+              </Button>
+            </>
+          }
+        />
+      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { FaQuestion } from 'react-icons/fa6';
 import { IoAlertCircleOutline, IoLink, IoLockClosed, IoLockOpenOutline, IoUnlink } from 'react-icons/io5';
 import { TimeField, TimeStrategy } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
@@ -13,6 +14,13 @@ import TimeInputGroup from './TimeInputGroup';
 
 import style from './TimeInputFlow.module.scss';
 
+interface TimeInputFlowMultiEdit {
+  linkStartIndeterminate: boolean;
+  durationLockIndeterminate: boolean;
+  allLockDuration: boolean;
+  allLockEnd: boolean;
+}
+
 interface TimeInputFlowProps {
   eventId: string;
   countToEnd: boolean;
@@ -23,6 +31,9 @@ interface TimeInputFlowProps {
   linkStart: boolean;
   delay: number;
   showLabels?: boolean;
+  handleSubmit?: (field: string, value: string | boolean) => void;
+  multiEdit?: TimeInputFlowMultiEdit;
+  onStrategyChange?: (strategy: TimeStrategy) => void;
 }
 
 export default memo(TimeInputFlow);
@@ -36,20 +47,35 @@ function TimeInputFlow({
   linkStart,
   delay,
   showLabels,
+  handleSubmit: handleSubmitProp,
+  multiEdit,
+  onStrategyChange,
 }: TimeInputFlowProps) {
   const { updateEntry, updateTimer } = useEntryActionsContext();
 
   // In sync with EventEditorTimes
-  const handleSubmit = (field: TimeField, value: string) => {
-    updateTimer(eventId, field, value);
+  const handleTimeSubmit = (field: TimeField, value: string) => {
+    if (handleSubmitProp) {
+      handleSubmitProp(field, value);
+    } else {
+      updateTimer(eventId, field, value);
+    }
   };
 
-  const handleChangeStrategy = (timeStrategy: TimeStrategy) => {
-    updateEntry({ id: eventId, timeStrategy });
+  const handleChangeStrategy = (strategy: TimeStrategy) => {
+    if (onStrategyChange) {
+      onStrategyChange(strategy);
+    } else {
+      updateEntry({ id: eventId, timeStrategy: strategy });
+    }
   };
 
   const handleLink = (doLink: boolean) => {
-    updateEntry({ id: eventId, linkStart: doLink });
+    if (handleSubmitProp) {
+      handleSubmitProp('linkStart', doLink);
+    } else {
+      updateEntry({ id: eventId, linkStart: doLink });
+    }
   };
 
   const warnings = [];
@@ -62,8 +88,8 @@ function TimeInputFlow({
   }
 
   const hasDelay = delay !== 0;
-  const isLockedEnd = timeStrategy === TimeStrategy.LockEnd;
-  const isLockedDuration = timeStrategy === TimeStrategy.LockDuration;
+  const isLockedEnd = multiEdit ? multiEdit.allLockEnd : timeStrategy === TimeStrategy.LockEnd;
+  const isLockedDuration = multiEdit ? multiEdit.allLockDuration : timeStrategy === TimeStrategy.LockDuration;
 
   return (
     <>
@@ -71,20 +97,28 @@ function TimeInputFlow({
         {showLabels && <Editor.Label className={style.sectionTitle}>Start time</Editor.Label>}
         <Editor.Label className={style.hoverLabel}>Start</Editor.Label>
         <TimeInputGroup hasDelay={hasDelay}>
-          <TimeInput
-            name='timeStart'
-            submitHandler={handleSubmit}
-            time={timeStart}
-            placeholder='Start'
-            align='left'
-            disabled={linkStart}
-          />
+          {multiEdit ? (
+            <span className={style.disabledInput}>&mdash;</span>
+          ) : (
+            <TimeInput
+              name='timeStart'
+              submitHandler={handleTimeSubmit}
+              time={timeStart}
+              placeholder='Start'
+              align='left'
+              disabled={linkStart}
+            />
+          )}
           <Tooltip
             text='Link start to previous end'
             onClick={() => handleLink(!linkStart)}
             render={<IconButton variant='subtle-white' className={linkStart ? style.active : style.inactive} />}
           >
-            <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
+            {multiEdit?.linkStartIndeterminate ? (
+              <FaQuestion />
+            ) : (
+              <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
+            )}
           </Tooltip>
         </TimeInputGroup>
       </div>
@@ -93,21 +127,31 @@ function TimeInputFlow({
         {showLabels && <Editor.Label>End time</Editor.Label>}
         <Editor.Label className={style.hoverLabel}>End</Editor.Label>
         <TimeInputGroup hasDelay={hasDelay}>
-          <TimeInput
-            name='timeEnd'
-            submitHandler={handleSubmit}
-            time={timeEnd}
-            placeholder='End'
-            align='left'
-            disabled={isLockedDuration}
-          />
+          {multiEdit ? (
+            <span className={style.disabledInput}>&mdash;</span>
+          ) : (
+            <TimeInput
+              name='timeEnd'
+              submitHandler={handleTimeSubmit}
+              time={timeEnd}
+              placeholder='End'
+              align='left'
+              disabled={isLockedDuration}
+            />
+          )}
           <Tooltip
             text='Lock end'
             render={<IconButton variant='subtle-white' className={isLockedEnd ? style.active : style.inactive} />}
             onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
             data-testid='lock__end'
           >
-            {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
+            {multiEdit?.durationLockIndeterminate ? (
+              <FaQuestion />
+            ) : isLockedEnd ? (
+              <IoLockClosed />
+            ) : (
+              <IoLockOpenOutline />
+            )}
           </Tooltip>
         </TimeInputGroup>
       </div>
@@ -116,26 +160,38 @@ function TimeInputFlow({
         {showLabels && <Editor.Label>Duration</Editor.Label>}
         <Editor.Label className={style.hoverLabel}>Duration</Editor.Label>
         <TimeInputGroup hasDelay={hasDelay}>
-          <TimeInput
-            name='duration'
-            submitHandler={handleSubmit}
-            time={duration}
-            placeholder='Duration'
-            align='left'
-            disabled={isLockedEnd}
-          />
+          {multiEdit && !multiEdit.allLockDuration ? (
+            <span className={style.disabledInput}>&mdash;</span>
+          ) : (
+            <TimeInput
+              name='duration'
+              submitHandler={handleTimeSubmit}
+              time={duration}
+              placeholder={multiEdit ? 'multiple' : 'Duration'}
+              align='left'
+              disabled={isLockedEnd}
+            />
+          )}
           <Tooltip
             text='Lock duration'
-            render={<IconButton variant='subtle-white' className={isLockedDuration ? style.active : style.inactive} />}
+            render={
+              <IconButton variant='subtle-white' className={isLockedDuration ? style.active : style.inactive} />
+            }
             onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
             data-testid='lock__duration'
           >
-            {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
+            {multiEdit?.durationLockIndeterminate ? (
+              <FaQuestion />
+            ) : isLockedDuration ? (
+              <IoLockClosed />
+            ) : (
+              <IoLockOpenOutline />
+            )}
           </Tooltip>
         </TimeInputGroup>
       </div>
 
-      {warnings.length > 0 && (
+      {!multiEdit && warnings.length > 0 && (
         <Tooltip text={warnings.join(' - ')} className={style.timerNote} data-testid='event-warning' render={<span />}>
           <IoAlertCircleOutline />
         </Tooltip>

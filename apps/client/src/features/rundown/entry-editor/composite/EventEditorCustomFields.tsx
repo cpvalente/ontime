@@ -3,6 +3,7 @@ import { CustomFields, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ontime-
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { EventEditorUpdateFields } from '../EventEditor';
+import { isIndeterminate, MergedCustomFields } from '../multi-edit/multiEditUtils';
 
 import EventEditorImage from './EventEditorImage';
 import EventTextArea from './EventTextArea';
@@ -14,21 +15,37 @@ interface EntryEditorCustomFieldsProps {
   fields: CustomFields;
   entry: OntimeEvent | OntimeGroup | OntimeMilestone;
   handleSubmit: (field: EventEditorUpdateFields, value: string) => void;
+  mergedCustom?: MergedCustomFields;
 }
 
 export default function EntryEditorCustomFields({
   fields: customFields,
   handleSubmit,
   entry,
+  mergedCustom,
 }: EntryEditorCustomFieldsProps) {
   return (
     <Fragment>
       {Object.keys(customFields).map((fieldKey) => {
         const key = `${entry.id}-${fieldKey}`;
         const fieldName = `custom-${fieldKey}`;
-        const initialValue = entry.custom[fieldKey] ?? '';
         const { backgroundColor, color } = getAccessibleColour(customFields[fieldKey].colour);
         const labelText = customFields[fieldKey].label;
+        const labelStyle = { '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties;
+
+        // When mergedCustom is provided, derive value/placeholder from it
+        let initialValue: string;
+        let placeholder: string | undefined;
+        let indeterminate = false;
+
+        if (mergedCustom) {
+          const mergedValue = mergedCustom[fieldKey];
+          indeterminate = mergedValue === undefined || isIndeterminate(mergedValue);
+          initialValue = indeterminate ? '' : mergedValue;
+          placeholder = indeterminate ? 'multiple' : undefined;
+        } else {
+          initialValue = entry.custom[fieldKey] ?? '';
+        }
 
         if (customFields[fieldKey].type === 'text') {
           return (
@@ -37,9 +54,10 @@ export default function EntryEditorCustomFields({
               field={fieldName}
               label={labelText}
               initialValue={initialValue}
+              placeholder={placeholder}
               submitHandler={handleSubmit}
               className={style.decorated}
-              style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
+              style={labelStyle}
             />
           );
         }
@@ -52,13 +70,13 @@ export default function EntryEditorCustomFields({
                 field={fieldName}
                 label={labelText}
                 initialValue={initialValue}
-                placeholder='Paste image URL'
+                placeholder={placeholder ?? 'Paste image URL'}
                 submitHandler={handleSubmit}
                 className={style.decorated}
                 maxLength={255}
-                style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
+                style={labelStyle}
               />
-              <EventEditorImage src={initialValue} />
+              {!indeterminate && <EventEditorImage src={initialValue} />}
             </div>
           );
         }

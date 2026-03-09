@@ -11,8 +11,23 @@ import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
+import { BooleanTally, switchLabel } from '../multi-edit/multiEditUtils';
 
 import style from '../EntryEditor.module.scss';
+
+interface EventEditorTimesMultiEdit {
+  endActionIndeterminate: boolean;
+  countToEndIndeterminate: boolean;
+  countToEndTally: BooleanTally;
+  timerTypeIndeterminate: boolean;
+  timeWarningIndeterminate: boolean;
+  timeDangerIndeterminate: boolean;
+  // TimeInputFlow passthrough
+  linkStartIndeterminate: boolean;
+  durationLockIndeterminate: boolean;
+  allLockDuration: boolean;
+  allLockEnd: boolean;
+}
 
 interface EventEditorTimesProps {
   eventId: string;
@@ -27,6 +42,9 @@ interface EventEditorTimesProps {
   timerType: TimerType;
   timeWarning: number;
   timeDanger: number;
+  handleSubmit?: (field: string, value: string | boolean) => void;
+  multiEdit?: EventEditorTimesMultiEdit;
+  onStrategyChange?: (strategy: TimeStrategy) => void;
 }
 
 type HandledActions = 'countToEnd' | 'timerType' | 'endAction' | 'timeWarning' | 'timeDanger';
@@ -45,10 +63,18 @@ function EventEditorTimes({
   timerType,
   timeWarning,
   timeDanger,
+  handleSubmit: handleSubmitProp,
+  multiEdit,
+  onStrategyChange,
 }: EventEditorTimesProps) {
   const { updateEntry } = useEntryActionsContext();
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
+    if (handleSubmitProp) {
+      handleSubmitProp(field, value);
+      return;
+    }
+
     if (field === 'countToEnd') {
       updateEntry({ id: eventId, countToEnd: value as boolean });
       return;
@@ -73,6 +99,21 @@ function EventEditorTimes({
       )} → ${millisToString(timeEnd + delay)}`
     : '';
 
+  const endActionOptions = [
+    ...(multiEdit?.endActionIndeterminate ? [{ value: null, label: 'Mixed' }] : []),
+    { value: EndAction.None, label: 'None' },
+    { value: EndAction.LoadNext, label: 'Load next event' },
+    { value: EndAction.PlayNext, label: 'Play next event' },
+  ];
+
+  const timerTypeOptions = [
+    ...(multiEdit?.timerTypeIndeterminate ? [{ value: null, label: 'Mixed' }] : []),
+    { value: TimerType.CountDown, label: 'Count down' },
+    { value: TimerType.CountUp, label: 'Count up' },
+    { value: TimerType.Clock, label: 'Clock' },
+    { value: TimerType.None, label: 'None' },
+  ];
+
   return (
     <>
       <div className={style.column}>
@@ -89,9 +130,21 @@ function EventEditorTimes({
               delay={delay}
               countToEnd={countToEnd}
               showLabels
+              handleSubmit={handleSubmitProp}
+              multiEdit={
+                multiEdit
+                  ? {
+                      linkStartIndeterminate: multiEdit.linkStartIndeterminate,
+                      durationLockIndeterminate: multiEdit.durationLockIndeterminate,
+                      allLockDuration: multiEdit.allLockDuration,
+                      allLockEnd: multiEdit.allLockEnd,
+                    }
+                  : undefined
+              }
+              onStrategyChange={onStrategyChange}
             />
           </div>
-          <div className={style.delayLabel}>{delayLabel}</div>
+          {!multiEdit && <div className={style.delayLabel}>{delayLabel}</div>}
         </div>
       </div>
 
@@ -101,16 +154,12 @@ function EventEditorTimes({
           <div>
             <Editor.Label htmlFor='endAction'>End Action</Editor.Label>
             <Select
-              value={endAction}
+              value={multiEdit?.endActionIndeterminate ? null : endAction}
               onValueChange={(value: EndAction | null) => {
                 if (value === null) return;
                 handleSubmit('endAction', value);
               }}
-              options={[
-                { value: EndAction.None, label: 'None' },
-                { value: EndAction.LoadNext, label: 'Load next event' },
-                { value: EndAction.PlayNext, label: 'Play next event' },
-              ]}
+              options={endActionOptions}
             />
           </div>
           <div>
@@ -119,9 +168,20 @@ function EventEditorTimes({
               <Switch
                 id='countToEnd'
                 checked={countToEnd}
-                onCheckedChange={(value) => handleSubmit('countToEnd', value)}
+                onCheckedChange={(value) => {
+                  if (multiEdit?.countToEndIndeterminate) {
+                    handleSubmit('countToEnd', multiEdit.countToEndTally.majority);
+                  } else {
+                    handleSubmit('countToEnd', value);
+                  }
+                }}
+                indeterminate={multiEdit?.countToEndIndeterminate}
               />
-              {countToEnd ? 'On' : 'Off'}
+              {multiEdit
+                ? switchLabel(multiEdit.countToEndTally, multiEdit.countToEndIndeterminate, countToEnd)
+                : countToEnd
+                  ? 'On'
+                  : 'Off'}
             </Editor.Label>
           </div>
         </div>
@@ -141,17 +201,12 @@ function EventEditorTimes({
           <div>
             <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>
             <Select
-              value={timerType}
+              value={multiEdit?.timerTypeIndeterminate ? null : timerType}
               onValueChange={(value: TimerType | null) => {
                 if (value === null) return;
                 handleSubmit('timerType', value);
               }}
-              options={[
-                { value: TimerType.CountDown, label: 'Count down' },
-                { value: TimerType.CountUp, label: 'Count up' },
-                { value: TimerType.Clock, label: 'Clock' },
-                { value: TimerType.None, label: 'None' },
-              ]}
+              options={timerTypeOptions}
             />
           </div>
 
@@ -162,8 +217,8 @@ function EventEditorTimes({
                 id='timeWarning'
                 name='timeWarning'
                 submitHandler={handleSubmit}
-                time={timeWarning}
-                placeholder='Duration'
+                time={multiEdit?.timeWarningIndeterminate ? undefined : timeWarning}
+                placeholder={multiEdit?.timeWarningIndeterminate ? 'multiple' : 'Duration'}
               />
             </div>
             <div>
@@ -172,8 +227,8 @@ function EventEditorTimes({
                 id='timeDanger'
                 name='timeDanger'
                 submitHandler={handleSubmit}
-                time={timeDanger}
-                placeholder='Duration'
+                time={multiEdit?.timeDangerIndeterminate ? undefined : timeDanger}
+                placeholder={multiEdit?.timeDangerIndeterminate ? 'multiple' : 'Duration'}
               />
             </div>
           </div>

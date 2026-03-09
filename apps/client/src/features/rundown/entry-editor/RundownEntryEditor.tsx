@@ -5,7 +5,7 @@ import useRundown from '../../../common/hooks-query/useRundown';
 import { useEventSelection } from '../useEventSelection';
 
 import EventEditorFooter from './composite/EventEditorFooter';
-import MultiEventEditor from './multi-edit/MultiEventEditor';
+import { useMultiEventMerge } from './multi-edit/useMultiEventMerge';
 import EventEditor from './EventEditor';
 import EventEditorEmpty from './EventEditorEmpty';
 import GroupEditor from './GroupEditor';
@@ -16,6 +16,7 @@ import style from './EntryEditor.module.scss';
 export default function RundownEntryEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const { data } = useRundown();
+  const { merged, selectedIds } = useMultiEventMerge();
 
   const entry = useMemo<OntimeEntry | null>(() => {
     if (data.order.length === 0) {
@@ -31,10 +32,11 @@ export default function RundownEntryEditor() {
     return event ?? null;
   }, [data.order.length, data.entries, selectedEvents]);
 
-  if (selectedEvents.size > 1) {
+  // Multi-edit: render unified EventEditor with merged data
+  if (selectedEvents.size > 1 && merged && entry && isOntimeEvent(entry)) {
     return (
       <div className={style.rundownEditor} data-testid='editor-container'>
-        <MultiEventEditor />
+        <EventEditor event={entry} multiEdit={{ merged, selectedIds }} />
       </div>
     );
   }

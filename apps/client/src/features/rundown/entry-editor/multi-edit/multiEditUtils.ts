@@ -8,6 +8,11 @@ export function isIndeterminate<T>(v: MergedValue<T>): v is Indeterminate {
   return v === INDETERMINATE;
 }
 
+export function switchLabel(tally: BooleanTally, indeterminate: boolean, checked: boolean): string {
+  if (indeterminate) return `${tally.offCount} off | ${tally.onCount} on`;
+  return checked ? 'On' : 'Off';
+}
+
 export interface BooleanTally {
   onCount: number;
   offCount: number;
@@ -55,21 +60,28 @@ export function mergeField<K extends keyof OntimeEvent>(events: OntimeEvent[], f
 }
 
 /**
- * Merge linkStart across events, excluding the first rundown event
- * (the first event can never be linked — there is nothing before it).
+ * Merge linkStart across events, excluding the first rundown event.
+ * The server always keeps the first event unlinked (nothing before it),
+ * so we exclude it from the merge to avoid false INDETERMINATE when
+ * all other events agree.
  */
 export function mergeLinkStart(events: OntimeEvent[], firstRundownEventId: string | undefined): MergedValue<boolean> {
-  const linkStartEvents = events.filter((e) => e.id !== firstRundownEventId);
-  if (linkStartEvents.length === 0) {
+  const linkableEvents = events.filter((e) => e.id !== firstRundownEventId);
+  if (linkableEvents.length === 0) {
     return false;
   }
-  const ref = linkStartEvents[0].linkStart;
-  for (let i = 1; i < linkStartEvents.length; i++) {
-    if (linkStartEvents[i].linkStart !== ref) {
-      return INDETERMINATE;
+  return mergeField(linkableEvents, 'linkStart');
+}
+
+/** Find the first OntimeEvent ID in the rundown order. */
+export function findFirstRundownEventId(entries: RundownEntries, flatOrder: EntryId[]): string | undefined {
+  for (const id of flatOrder) {
+    const entry = entries[id];
+    if (entry && isOntimeEvent(entry)) {
+      return id;
     }
   }
-  return ref;
+  return undefined;
 }
 
 /** Merge custom fields per-key across events. */
@@ -106,17 +118,6 @@ export function filterSelectedEvents(entries: RundownEntries, selectedIds: Set<s
     }
   }
   return events;
-}
-
-/** Find the first OntimeEvent ID in the rundown order. */
-export function findFirstRundownEventId(entries: RundownEntries, flatOrder: EntryId[]): string | undefined {
-  for (const id of flatOrder) {
-    const entry = entries[id];
-    if (entry && isOntimeEvent(entry)) {
-      return id;
-    }
-  }
-  return undefined;
 }
 
 export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>, flatOrder: EntryId[]): MergedEvent | null {
