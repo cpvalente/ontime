@@ -84,11 +84,6 @@ export default function EventEditor({ event, multiEdit }: EventEditorProps) {
 
   return (
     <div className={style.content}>
-      {isMulti && merged && (
-        <Info type='info'>
-          <span className={style.bold}>Batch Edit:</span> {multiEdit.selectedIds.length} events selected
-        </Info>
-      )}
       <EventEditorTimes
         key={`${event.id}-times`}
         eventId={event.id}

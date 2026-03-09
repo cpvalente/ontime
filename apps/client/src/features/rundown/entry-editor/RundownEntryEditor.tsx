@@ -37,6 +37,7 @@ export default function RundownEntryEditor() {
     return (
       <div className={style.rundownEditor} data-testid='editor-container'>
         <EventEditor event={entry} multiEdit={{ merged, selectedIds }} />
+        <EventEditorFooter selectedCount={selectedIds.length} />
       </div>
     );
   }
