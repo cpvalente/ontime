@@ -144,7 +144,7 @@ function EventEditorTimes({
               onStrategyChange={onStrategyChange}
             />
           </div>
-          {!multiEdit && <div className={style.delayLabel}>{delayLabel}</div>}
+          <div className={style.delayLabel}>{!multiEdit ? delayLabel : ''}</div>
         </div>
       </div>
 
