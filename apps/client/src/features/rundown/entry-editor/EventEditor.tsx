@@ -96,7 +96,7 @@ export default function EventEditor({ event, multiEdit }: EventEditorProps) {
       ? false
       : (merged.linkStart as boolean)
     : event.linkStart;
-  const durationValue = merged ? (isIndeterminate(merged.duration) ? 0 : (merged.duration as number)) : event.duration;
+  const durationValue = merged ? (isIndeterminate(merged.duration) ? undefined : (merged.duration as number)) : event.duration;
   const endActionValue = merged
     ? isIndeterminate(merged.endAction)
       ? event.endAction
