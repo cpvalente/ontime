@@ -40,7 +40,64 @@ export type MergedEvent = {
   countToEndTally: BooleanTally;
 };
 
-export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>, flatOrder: EntryId[]): MergedEvent | null {
+/**
+ * Generic single-field merge: compare all events to the first.
+ * Returns the common value if all agree, INDETERMINATE on mismatch.
+ */
+export function mergeField<K extends keyof OntimeEvent>(events: OntimeEvent[], field: K): MergedValue<OntimeEvent[K]> {
+  const ref = events[0][field];
+  for (let i = 1; i < events.length; i++) {
+    if (events[i][field] !== ref) {
+      return INDETERMINATE;
+    }
+  }
+  return ref;
+}
+
+/**
+ * Merge linkStart across events, excluding the first rundown event
+ * (the first event can never be linked — there is nothing before it).
+ */
+export function mergeLinkStart(events: OntimeEvent[], firstRundownEventId: string | undefined): MergedValue<boolean> {
+  const linkStartEvents = events.filter((e) => e.id !== firstRundownEventId);
+  if (linkStartEvents.length === 0) {
+    return false;
+  }
+  const ref = linkStartEvents[0].linkStart;
+  for (let i = 1; i < linkStartEvents.length; i++) {
+    if (linkStartEvents[i].linkStart !== ref) {
+      return INDETERMINATE;
+    }
+  }
+  return ref;
+}
+
+/** Merge custom fields per-key across events. */
+export function mergeCustomFields(events: OntimeEvent[]): MergedCustomFields {
+  const first = events[0];
+  const merged: MergedCustomFields = { ...first.custom };
+  for (let i = 1; i < events.length; i++) {
+    for (const key of Object.keys(merged)) {
+      if (merged[key] !== INDETERMINATE && events[i].custom[key] !== first.custom[key]) {
+        merged[key] = INDETERMINATE;
+      }
+    }
+  }
+  return merged;
+}
+
+/** Derive whether all events lock duration from the merged timeStrategy. */
+export function deriveAllLockDuration(mergedTimeStrategy: MergedValue<TimeStrategy>): boolean {
+  return !isIndeterminate(mergedTimeStrategy) && mergedTimeStrategy === TimeStrategy.LockDuration;
+}
+
+/** Derive whether all events lock end from the merged timeStrategy. */
+export function deriveAllLockEnd(mergedTimeStrategy: MergedValue<TimeStrategy>): boolean {
+  return !isIndeterminate(mergedTimeStrategy) && mergedTimeStrategy === TimeStrategy.LockEnd;
+}
+
+/** Filter selected entries down to OntimeEvents only. */
+export function filterSelectedEvents(entries: RundownEntries, selectedIds: Set<string>): OntimeEvent[] {
   const events: OntimeEvent[] = [];
   for (const id of selectedIds) {
     const entry = entries[id];
@@ -48,87 +105,44 @@ export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>, f
       events.push(entry);
     }
   }
+  return events;
+}
 
-  if (events.length < 2) {
-    return null;
-  }
-
-  // Find the first OntimeEvent in the rundown to exclude from linkStart merge
-  // (the first event can never be linked — there is nothing before it)
-  let firstRundownEventId: string | undefined;
+/** Find the first OntimeEvent ID in the rundown order. */
+export function findFirstRundownEventId(entries: RundownEntries, flatOrder: EntryId[]): string | undefined {
   for (const id of flatOrder) {
     const entry = entries[id];
     if (entry && isOntimeEvent(entry)) {
-      firstRundownEventId = id;
-      break;
+      return id;
     }
   }
+  return undefined;
+}
 
-  const first = events[0];
-  const merged: MergedEvent = {
-    title: first.title,
-    note: first.note,
-    colour: first.colour,
-    flag: first.flag,
-    duration: first.duration,
-    timeStrategy: first.timeStrategy,
-    endAction: first.endAction,
-    countToEnd: first.countToEnd,
-    timerType: first.timerType,
-    timeWarning: first.timeWarning,
-    timeDanger: first.timeDanger,
-    linkStart: first.linkStart,
-    custom: { ...first.custom },
-    allLockDuration: false,
-    allLockEnd: false,
-  } as MergedEvent;
+export function mergeEvents(entries: RundownEntries, selectedIds: Set<string>, flatOrder: EntryId[]): MergedEvent | null {
+  const events = filterSelectedEvents(entries, selectedIds);
+  if (events.length < 2) return null;
 
-  // If the first event in the merged set is the first rundown event, seed linkStart from the second event
-  const firstIsRundownFirst = first.id === firstRundownEventId;
-  if (firstIsRundownFirst && events.length >= 2) {
-    merged.linkStart = events[1].linkStart;
-  }
+  const firstRundownEventId = findFirstRundownEventId(entries, flatOrder);
+  const timeStrategy = mergeField(events, 'timeStrategy');
 
-  for (let i = 1; i < events.length; i++) {
-    const event = events[i];
-    for (const field of mergeableFields) {
-      if (field === 'linkStart') continue; // handled separately below
-      if (merged[field] !== INDETERMINATE && event[field] !== first[field]) {
-        (merged[field] as MergedValue<unknown>) = INDETERMINATE;
-      }
-    }
-    // Merge custom fields per-key
-    for (const key of Object.keys(merged.custom)) {
-      if (merged.custom[key] !== INDETERMINATE && event.custom[key] !== first.custom[key]) {
-        merged.custom[key] = INDETERMINATE;
-      }
-    }
-  }
-
-  // Merge linkStart separately, skipping the first rundown event
-  const linkStartEvents = events.filter((e) => e.id !== firstRundownEventId);
-  if (linkStartEvents.length === 0) {
-    // All selected events are the first event (shouldn't happen with 2+ events, but be safe)
-    merged.linkStart = false as MergedValue<boolean>;
-  } else {
-    const refValue = linkStartEvents[0].linkStart;
-    merged.linkStart = refValue;
-    for (let i = 1; i < linkStartEvents.length; i++) {
-      if (linkStartEvents[i].linkStart !== refValue) {
-        merged.linkStart = INDETERMINATE;
-        break;
-      }
-    }
-  }
-
-  merged.allLockDuration =
-    !isIndeterminate(merged.timeStrategy) && merged.timeStrategy === TimeStrategy.LockDuration;
-
-  merged.allLockEnd =
-    !isIndeterminate(merged.timeStrategy) && merged.timeStrategy === TimeStrategy.LockEnd;
-
-  merged.flagTally = booleanTally(events, 'flag');
-  merged.countToEndTally = booleanTally(events, 'countToEnd');
-
-  return merged;
+  return {
+    title: mergeField(events, 'title'),
+    note: mergeField(events, 'note'),
+    colour: mergeField(events, 'colour'),
+    flag: mergeField(events, 'flag'),
+    duration: mergeField(events, 'duration'),
+    timeStrategy,
+    endAction: mergeField(events, 'endAction'),
+    countToEnd: mergeField(events, 'countToEnd'),
+    timerType: mergeField(events, 'timerType'),
+    timeWarning: mergeField(events, 'timeWarning'),
+    timeDanger: mergeField(events, 'timeDanger'),
+    linkStart: mergeLinkStart(events, firstRundownEventId),
+    custom: mergeCustomFields(events),
+    allLockDuration: deriveAllLockDuration(timeStrategy),
+    allLockEnd: deriveAllLockEnd(timeStrategy),
+    flagTally: booleanTally(events, 'flag'),
+    countToEndTally: booleanTally(events, 'countToEnd'),
+  };
 }
