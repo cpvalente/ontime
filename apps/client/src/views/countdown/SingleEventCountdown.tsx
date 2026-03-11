@@ -3,6 +3,7 @@ import { getExpectedStart } from 'ontime-utils';
 import { IoPencil } from 'react-icons/io5';
 
 import Button from '../../common/components/buttons/Button';
+import TitleCard from '../../common/components/title-card/TitleCard';
 import useReport from '../../common/hooks-query/useReport';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import { useExpectedStartData } from '../../common/hooks/useSocket';
@@ -11,10 +12,9 @@ import { cx } from '../../common/utils/styleUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getPropertyValue } from '../common/viewUtils';
 import { useCountdownOptions } from './countdown.options';
-import { useSubscriptionDisplayData } from './countdown.utils';
-import { ScheduleTime } from './CountdownSubscriptions';
 
 import './SingleEventCountdown.scss';
+import { useSubscriptionDisplayData } from './countdown.utils';
 
 interface SingleEventCountdownProps {
   subscribedEvent: ExtendedEntry<OntimeEvent>;
@@ -40,18 +40,21 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
 
   const { endedAt } = reportData[subscribedEvent.id] ?? { endedAt: null };
   const countdownEvent = { ...subscribedEvent, expectedStart, endedAt };
-  const titleTmp = getPropertyValue(subscribedEvent, mainSource ?? 'title');
-  const title = titleTmp?.length ? titleTmp : ' '; // insert utf-8 empty space to avoid the line collapsing;
+  const title = getPropertyValue(subscribedEvent, mainSource ?? 'title');
   const secondaryData = getPropertyValue(subscribedEvent, secondarySource);
 
   return (
     <div className='single-container' data-testid='countdown-event'>
       <SubscriptionStatus event={countdownEvent} />
-      <div className='event__title' style={{ borderColor: countdownEvent.colour }}>
-        <ScheduleTime event={countdownEvent} showExpected={showExpected} />
-        {title}
-        {secondaryData && <div className='secondary'>{secondaryData}</div>}
-      </div>
+      <TitleCard
+        title={title}
+        secondary={secondaryData}
+        colour={countdownEvent.colour}
+        textAlign='center'
+        size='lg'
+        event={countdownEvent}
+        showExpected={showExpected}
+      />
       <div className={cx(['fab-container', !showFab && 'fab-container--hidden'])}>
         <Button variant='primary' size='xlarge' onClick={goToEditMode}>
           <IoPencil /> Edit
