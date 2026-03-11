@@ -1,0 +1,51 @@
+.uploadForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stepTitle {
+  font-weight: 600;
+  color: $gray-200;
+}
+
+.filePicker {
+  min-height: 2rem;
+}
+
+.fileName {
+  color: $gray-300;
+  font-size: calc(1rem - 2px);
+}
+
+.missing {
+  color: $warning-orange;
+}
+
+.urlCell {
+  font-size: calc(1rem - 2px);
+  color: $gray-300;
+  user-select: all;
+  white-space: nowrap;
+}
+
+.actionsHeader {
+  text-align: right;
+}
+
+.actionsCell {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.actionsGroup {
+  width: 100%;
+  justify-content: flex-end;
+}
