@@ -1,30 +1,34 @@
 ARG NODE_VERSION=22.15.1
+
+FROM node:${NODE_VERSION}-alpine AS builder
+
+WORKDIR /app
+RUN corepack enable
+
+ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+ENV PUPPETEER_SKIP_DOWNLOAD=1
+
+COPY . .
+
+RUN pnpm install --frozen-lockfile || pnpm install
+RUN pnpm build:docker
+
 FROM node:${NODE_VERSION}-alpine
 
-# Set environment variables
-# Environment Variable to signal that we are running production
+ENV PORT=4001
+ENV HOST=0.0.0.0
 ENV NODE_ENV=docker
-# Ontime Data path
 ENV ONTIME_DATA=/data/
 
-RUN mkdir /app
-WORKDIR /app/
+WORKDIR /app
 
-# Prepare UI
-COPY apps/client/build/ ./client/
+COPY --from=builder /app/apps/client/build/ ./client/
+COPY --from=builder /app/apps/server/dist/ ./server/
+COPY --from=builder /app/apps/server/src/external/ ./external/
+COPY --from=builder /app/apps/server/src/user/ ./user/
+COPY --from=builder /app/apps/server/src/html/ ./html/
 
-# Prepare Backend
-COPY apps/server/dist/ ./server/
-COPY apps/server/src/external/ ./external/
-COPY apps/server/src/user/ ./user/
-COPY apps/server/src/html/ ./html/
-
-# Export default ports
 EXPOSE 4001/tcp 8888/udp 9999/udp
 
 CMD ["node", "server/docker.cjs"]
-
-# Build and run commands
-# pnpm build:docker
-# docker buildx build . -t getontime/ontime
-# docker run -p 4001:4001 -p 8888:8888/udp -p 9999:9999/udp -v ./ontime-db:/data/ getontime/ontime
