@@ -1,14 +1,13 @@
-import { useEffect, useRef } from 'react';
-import { IoCheckmarkDone, IoClose, IoReorderTwo } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { OntimeDelay } from 'ontime-types';
+import { useEffect, useRef } from 'react';
+import { IoCheckmarkDone, IoClose, IoReorderTwo } from 'react-icons/io5';
 
 import Button from '../../../common/components/buttons/Button';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
 import { cx } from '../../../common/utils/styleUtils';
-
 import DelayInput from './DelayInput';
 
 import style from './RundownDelay.module.scss';

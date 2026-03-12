@@ -1,5 +1,4 @@
 import { cx } from '../../../common/utils/styleUtils';
-
 import { useSchedule } from './ScheduleContext';
 
 import './Schedule.scss';

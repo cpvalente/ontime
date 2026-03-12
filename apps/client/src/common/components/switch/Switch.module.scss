@@ -2,13 +2,13 @@
   position: relative;
   display: flex;
   align-items: center;
-  
+
   /* Reset and base styles */
   appearance: none;
   border: 1px solid transparent;
   border-radius: 99px;
   background-color: $gray-1100;
-  
+
   /* Transitions */
   transition: background-color 125ms cubic-bezier(0.26, 0.75, 0.38, 0.45);
 

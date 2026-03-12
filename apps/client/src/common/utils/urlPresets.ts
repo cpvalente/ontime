@@ -1,6 +1,6 @@
-import { Path, resolvePath } from 'react-router';
 import { OntimeView, OntimeViewPresettable, URLPreset } from 'ontime-types';
 import { checkRegex } from 'ontime-utils';
+import { Path, resolvePath } from 'react-router';
 
 /**
  * Validates a preset against defined parameters

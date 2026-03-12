@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 import { apiRepoLatest } from '../../externals';
-
 import type { RequestOptions } from './requestOptions';
 
 export type HasUpdate = {

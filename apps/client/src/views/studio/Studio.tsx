@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
 import { OntimeView } from 'ontime-types';
+import { useMemo } from 'react';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
@@ -8,7 +8,6 @@ import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { cx } from '../../common/utils/styleUtils';
 import { getDefaultFormat } from '../../common/utils/time';
 import Loader from '../common/loader/Loader';
-
 import { getStudioOptions, useStudioOptions } from './studio.options';
 import StudioClock from './StudioClock';
 import StudioTimers from './StudioTimers';

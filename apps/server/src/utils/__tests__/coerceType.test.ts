@@ -38,10 +38,10 @@ describe('match a string to an enum that is', () => {
     expect(key).toBe('abc');
   });
   it('invalid key', () => {
-    expect(() => coerceEnum('123', testEnum)).toThrow();
+    expect(() => coerceEnum('123', testEnum)).toThrow('Invalid value received');
   });
   it('invalid type', () => {
-    expect(() => coerceEnum(123, testEnum)).toThrow();
+    expect(() => coerceEnum(123, testEnum)).toThrow('Invalid value received');
   });
 });
 

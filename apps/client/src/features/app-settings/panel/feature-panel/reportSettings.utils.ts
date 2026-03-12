@@ -1,4 +1,4 @@
-import { EntryId, isOntimeEvent, MaybeNumber, OntimeReport, RundownEntries } from 'ontime-types';
+import { EntryId, MaybeNumber, OntimeReport, RundownEntries, isOntimeEvent } from 'ontime-types';
 
 import { makeCSVFromArrayOfArrays } from '../../../../common/utils/csv';
 import { formatTime } from '../../../../common/utils/time';

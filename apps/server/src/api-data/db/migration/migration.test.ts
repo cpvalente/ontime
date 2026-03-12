@@ -1,6 +1,7 @@
 import {
   AutomationSettings,
   CustomFields,
+  type Day,
   DatabaseModel,
   EndAction,
   OntimeView,
@@ -8,12 +9,13 @@ import {
   Rundown,
   Settings,
   SupportedEntry,
+  TimeStrategy,
   TimerLifeCycle,
   TimerType,
-  TimeStrategy,
   URLPreset,
   ViewSettings,
 } from 'ontime-types';
+
 import * as v3 from './db.migration.v3.js';
 import * as v4 from './db.migration.v4.js';
 
@@ -295,7 +297,7 @@ describe('v3 to v4', () => {
           flag: false,
           parent: null,
           delay: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           gap: 0,
         },
         group0: {
@@ -340,7 +342,7 @@ describe('v3 to v4', () => {
           parent: 'group0',
           revision: -1,
           delay: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           gap: 0,
         },
         event3: {
@@ -371,7 +373,7 @@ describe('v3 to v4', () => {
           parent: 'group0',
           revision: -1,
           delay: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           gap: 0,
         },
         group1: {

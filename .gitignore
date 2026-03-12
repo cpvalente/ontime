@@ -33,6 +33,7 @@ e2e/tests/fixtures/tmp/*
 # production
 build/
 dist/
+*.tsbuildinfo
 
 # bundled assets
 translations.json

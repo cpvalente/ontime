@@ -1,6 +1,6 @@
+import { MaybeString, SupportedEntry } from 'ontime-types';
 import { memo } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { MaybeString, SupportedEntry } from 'ontime-types';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';

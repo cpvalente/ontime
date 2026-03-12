@@ -1,8 +1,7 @@
-import { IoChevronDown } from 'react-icons/io5';
 import { useLocalStorage } from '@mantine/hooks';
+import { IoChevronDown } from 'react-icons/io5';
 
 import { cx } from '../../utils/styleUtils';
-
 import { OptionTitle } from './constants';
 import ParamInput from './ParamInput';
 import { type ParamField } from './viewParams.types';

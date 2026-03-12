@@ -1,8 +1,8 @@
 import { copyFileSync } from 'fs';
-import { ensureDirectory } from '../utils/fileManagement.js';
-
-import { publicDir, srcFiles } from './index.js';
 import { basename, join } from 'path';
+
+import { ensureDirectory } from '../utils/fileManagement.js';
+import { publicDir, srcFiles } from './index.js';
 
 /**
  * @description ensures directories exist and populates ontime logo

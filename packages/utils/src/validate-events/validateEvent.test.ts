@@ -4,7 +4,7 @@ import { expect } from 'vitest';
 import { validateEndAction, validateTimerType } from './validateEvent.js';
 
 describe('validateEndAction()', () => {
-  it('recognises a string representation of an action', () => {
+  it('recognizes a string representation of an action', () => {
     const endAction = validateEndAction('load-next');
     expect(endAction).toBe(EndAction.LoadNext);
   });
@@ -17,7 +17,7 @@ describe('validateEndAction()', () => {
 });
 
 describe('validateTimerType()', () => {
-  it('recognises a string representation of an action', () => {
+  it('recognizes a string representation of an action', () => {
     const timerType = validateTimerType('count-up');
     expect(timerType).toBe(TimerType.CountUp);
   });

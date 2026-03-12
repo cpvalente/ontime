@@ -1,9 +1,8 @@
-import { createRoot } from 'react-dom/client';
 import { ErrorBoundary } from '@sentry/react';
+import { createRoot } from 'react-dom/client';
 
 import { CornerPipButton } from '../../../common/components/editor-utils/EditorUtils';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
-
 import { PipTimer } from './PipTimer';
 
 export default function PipTimerHost() {

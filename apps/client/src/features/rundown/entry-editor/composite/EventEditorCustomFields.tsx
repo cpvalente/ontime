@@ -1,5 +1,5 @@
-import { CSSProperties, Fragment } from 'react';
 import { CustomFields, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ontime-types';
+import { CSSProperties, Fragment } from 'react';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { EventEditorUpdateFields } from '../EventEditor';
@@ -41,7 +41,7 @@ export default function EntryEditorCustomFields({
         if (mergedCustom) {
           const mergedValue = mergedCustom[fieldKey];
           indeterminate = isIndeterminate(mergedValue);
-          initialValue = indeterminate ? '' : (mergedValue ?? '');
+          initialValue = indeterminate ? '' : ((mergedValue as string) ?? '');
           placeholder = indeterminate ? 'multiple' : undefined;
         } else {
           initialValue = entry.custom[fieldKey] ?? '';

@@ -1,5 +1,5 @@
-import { IoApps } from 'react-icons/io5';
 import { useDisclosure } from '@mantine/hooks';
+import { IoApps } from 'react-icons/io5';
 
 import IconButton from '../../common/components/buttons/IconButton';
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
@@ -8,7 +8,6 @@ import { useEntryActions } from '../../common/hooks/useEntryAction';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { getIsNavigationLocked } from '../../externals';
 import CuesheetOverview from '../../features/overview/CuesheetOverview';
-
 import EntryEditModal from './cuesheet-edit-modal/EntryEditModal';
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
 import CuesheetTableWrapper from './CuesheetTableWrapper';

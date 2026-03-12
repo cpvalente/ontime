@@ -2,7 +2,8 @@
 
 This folder contains resources which will be distributed as part of Ontime's infrastructure.
 Folders added here would be available at
-``` bash
+
+```bash
 http://<ip-address>:<port>/external/<folder-name>
 ```
 

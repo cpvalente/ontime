@@ -1,7 +1,7 @@
+import { Settings } from 'ontime-types';
 import { PropsWithChildren, useState } from 'react';
 import { UseFormRegister } from 'react-hook-form';
 import { IoEyeOutline } from 'react-icons/io5';
-import { Settings } from 'ontime-types';
 
 import IconButton from '../../../../../common/components/buttons/IconButton';
 import Input from '../../../../../common/components/input/input/Input';

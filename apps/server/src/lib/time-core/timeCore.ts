@@ -1,5 +1,5 @@
 import { Day, Duration, Instant, TimeOfDay } from 'ontime-types';
-import { dayInMs, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
 /** Returns the current instant */
 export function now(): Instant {
@@ -68,11 +68,15 @@ export function elapsedTime(current: TimeOfDay, start: TimeOfDay): Duration {
 }
 
 /**
- * Calculates the number of full days elapsed since a start epoch
- * Uses the start time-of-day to determine day boundaries
+ * Calculates the number of calendar days elapsed since a start epoch
+ * Uses local midnight as day boundaries (DST-safe via timezone offset)
  */
 export function daysSinceStart(startEpoch: Instant, currentEpoch: Instant): Day {
-  const startClock = toTimeOfDay(startEpoch);
-  const elapsedMs = currentEpoch - startEpoch;
-  return Math.floor((elapsedMs + startClock) / dayInMs) as Day;
+  const startOffset = new Date(startEpoch).getTimezoneOffset() * MILLIS_PER_MINUTE;
+  const currentOffset = new Date(currentEpoch).getTimezoneOffset() * MILLIS_PER_MINUTE;
+
+  const startDaySerial = Math.floor((startEpoch - startOffset) / dayInMs);
+  const currentDaySerial = Math.floor((currentEpoch - currentOffset) / dayInMs);
+
+  return (currentDaySerial - startDaySerial) as Day;
 }

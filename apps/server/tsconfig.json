@@ -1,27 +1,8 @@
 {
-  "extends": "../../tsconfig.common.json",
-  "compilerOptions": {
-    "target": "esnext",
-    "composite": true,
-    "module": "node16",
-    "moduleResolution": "node16",
-    "noImplicitReturns": false, //TODO: fix this
-    "allowJs": true,
-    "esModuleInterop": true,
-    "outDir": "dist",
-    "experimentalDecorators": true,
-  },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.js",
-  ],
-  "exclude": [
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts",
-  ],
+  "extends": "./tsconfig.app.json",
+  "files": [],
+  "include": [],
   "references": [
-    {
-      "path": "./tsconfig.tests.json"
-    }
+    { "path": "./tsconfig.vitest.json" }
   ]
 }

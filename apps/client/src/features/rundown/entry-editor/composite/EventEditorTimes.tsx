@@ -1,11 +1,11 @@
+import { EndAction, TimeStrategy, TimerType } from 'ontime-types';
+import { millisToString, parseUserTime } from 'ontime-utils';
 import { memo } from 'react';
 import { IoInformationCircle } from 'react-icons/io5';
-import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
-import { millisToString, parseUserTime } from 'ontime-utils';
 
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
-import Select from '../../../../common/components/select/Select';
+import Select, { type SelectOption } from '../../../../common/components/select/Select';
 import Switch from '../../../../common/components/switch/Switch';
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
@@ -99,14 +99,14 @@ function EventEditorTimes({
       )} → ${millisToString(timeEnd + delay)}`
     : '';
 
-  const endActionOptions = [
+  const endActionOptions: SelectOption<EndAction | null>[] = [
     ...(multiEdit?.endActionIndeterminate ? [{ value: null, label: 'Mixed' }] : []),
     { value: EndAction.None, label: 'None' },
     { value: EndAction.LoadNext, label: 'Load next event' },
     { value: EndAction.PlayNext, label: 'Play next event' },
   ];
 
-  const timerTypeOptions = [
+  const timerTypeOptions: SelectOption<TimerType | null>[] = [
     ...(multiEdit?.timerTypeIndeterminate ? [{ value: null, label: 'Mixed' }] : []),
     { value: TimerType.CountDown, label: 'Count down' },
     { value: TimerType.CountUp, label: 'Count up' },
@@ -153,9 +153,9 @@ function EventEditorTimes({
         <div className={style.splitTwo}>
           <div>
             <Editor.Label htmlFor='endAction'>End Action</Editor.Label>
-            <Select
+            <Select<EndAction | null>
               value={multiEdit?.endActionIndeterminate ? null : endAction}
-              onValueChange={(value: EndAction | null) => {
+              onValueChange={(value) => {
                 if (value === null) return;
                 handleSubmit('endAction', value);
               }}
@@ -200,9 +200,9 @@ function EventEditorTimes({
         <div className={style.splitTwo}>
           <div>
             <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>
-            <Select
+            <Select<TimerType | null>
               value={multiEdit?.timerTypeIndeterminate ? null : timerType}
-              onValueChange={(value: TimerType | null) => {
+              onValueChange={(value) => {
                 if (value === null) return;
                 handleSubmit('timerType', value);
               }}

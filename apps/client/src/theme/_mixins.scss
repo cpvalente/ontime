@@ -10,7 +10,7 @@
 
 @mixin rotate-fourty-five {
   transform: rotate(45deg);
-} 
+}
 
 .fourtyfive {
   @include rotate-fourty-five;

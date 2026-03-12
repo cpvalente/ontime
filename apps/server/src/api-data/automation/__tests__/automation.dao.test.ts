@@ -1,41 +1,37 @@
-import { TriggerDTO, TimerLifeCycle, AutomationDTO, Automation, ProjectRundowns } from 'ontime-types';
+import { Automation, AutomationDTO, ProjectRundowns, TimerLifeCycle, TriggerDTO } from 'ontime-types';
 
 import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
-
 import {
-  addTrigger,
   addAutomation,
+  addTrigger,
   deleteAll,
   deleteAllTriggers,
-  deleteTrigger,
   deleteAutomation,
-  editTrigger,
+  deleteTrigger,
   editAutomation,
+  editTrigger,
   getAutomationTriggers,
   getAutomations,
 } from '../automation.dao.js';
+import { makeHTTPAction, makeOSCAction } from './testUtils.js';
 
-import { makeOSCAction, makeHTTPAction } from './testUtils.js';
-
-beforeAll(() => {
-  vi.mock('../../../classes/data-provider/DataProvider.js', () => {
-    // Create a small mock store
-    let automations = {
-      enabledAutomations: true,
-      enabledOscIn: true,
-      oscPortIn: 8888,
-      triggers: [],
-      automations: {},
-    };
-    return {
-      getDataProvider: vi.fn().mockImplementation(() => {
-        return {
-          getAutomation: vi.fn().mockImplementation(() => automations),
-          setAutomation: vi.fn().mockImplementation((newData) => (automations = newData)),
-        };
-      }),
-    };
-  });
+vi.mock('../../../classes/data-provider/DataProvider.js', () => {
+  // Create a small mock store
+  let automations = {
+    enabledAutomations: true,
+    enabledOscIn: true,
+    oscPortIn: 8888,
+    triggers: [],
+    automations: {},
+  };
+  return {
+    getDataProvider: vi.fn().mockImplementation(() => {
+      return {
+        getAutomation: vi.fn().mockImplementation(() => automations),
+        setAutomation: vi.fn().mockImplementation((newData) => (automations = newData)),
+      };
+    }),
+  };
 });
 
 afterAll(() => {
@@ -141,7 +137,7 @@ describe('addAutomation()', () => {
   });
 });
 
-describe('editAutomation()', async () => {
+describe('editAutomation()', () => {
   // saving the ID of the added automation
   let firstAutomation: Automation;
   beforeEach(async () => {

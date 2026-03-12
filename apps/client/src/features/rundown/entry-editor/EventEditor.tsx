@@ -9,7 +9,6 @@ import Info from '../../../common/components/info/Info';
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
-
 import EntryEditorCustomFields from './composite/EventEditorCustomFields';
 import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';

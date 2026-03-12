@@ -2,9 +2,9 @@
   padding-top: $element-spacing;
   display: grid;
   grid-template-areas:
-          "go playback"
-          "go transport"
-          "extra extra";
+    'go playback'
+    'go transport'
+    'extra extra';
   grid-template-rows: repeat(3, 2rem);
   gap: $element-spacing;
 }
@@ -38,4 +38,3 @@
 .invertX {
   transform: rotateY(180deg);
 }
-

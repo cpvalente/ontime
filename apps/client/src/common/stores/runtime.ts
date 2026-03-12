@@ -1,5 +1,5 @@
-import isEqual from 'react-fast-compare';
 import { RuntimeStore, runtimeStorePlaceholder } from 'ontime-types';
+import isEqual from 'react-fast-compare';
 import { createWithEqualityFn, useStoreWithEqualityFn } from 'zustand/traditional';
 
 const deepCompare = <T>(a: T, b: T) => isEqual(a, b);

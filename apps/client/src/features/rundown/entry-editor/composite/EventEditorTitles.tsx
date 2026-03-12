@@ -1,5 +1,5 @@
-import { memo } from 'react';
 import { sanitiseCue } from 'ontime-utils';
+import { memo } from 'react';
 
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';

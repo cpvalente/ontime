@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { MessageTag } from 'ontime-types';
+import { useEffect } from 'react';
 
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { usePing } from '../../../../common/hooks/useSocket';
@@ -7,7 +7,6 @@ import { sendSocket } from '../../../../common/utils/socket';
 import { isDocker } from '../../../../externals';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import ClientControlPanel from './client-control/ClientControlPanel';
 import LogExport from './NetworkLogExport';
 

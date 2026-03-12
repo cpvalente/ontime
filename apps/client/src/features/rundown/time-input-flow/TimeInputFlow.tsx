@@ -1,15 +1,14 @@
+import { TimeField, TimeStrategy } from 'ontime-types';
+import { dayInMs } from 'ontime-utils';
 import { memo } from 'react';
 import { FaQuestion } from 'react-icons/fa6';
 import { IoAlertCircleOutline, IoLink, IoLockClosed, IoLockOpenOutline, IoUnlink } from 'react-icons/io5';
-import { TimeField, TimeStrategy } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
-
 import TimeInputGroup from './TimeInputGroup';
 
 import style from './TimeInputFlow.module.scss';

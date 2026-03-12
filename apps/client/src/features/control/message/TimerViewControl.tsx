@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
 import { SecondarySource } from 'ontime-types';
+import { useEffect, useState } from 'react';
 
 import Button from '../../../common/components/buttons/Button';
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import Select from '../../../common/components/select/Select';
 import { setMessage, useTimerViewControl } from '../../../common/hooks/useSocket';
-
 import TimerPreview from './TimerPreview';
 
 import style from './TimerViewControl.module.scss';

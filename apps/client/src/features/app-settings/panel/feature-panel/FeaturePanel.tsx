@@ -4,7 +4,6 @@ import GenerateLinkFormExport from '../../../sharing/GenerateLinkFormExport';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import InfoNif from '../network-panel/NetworkInterfaces';
-
 import ReportSettings from './ReportSettings';
 import URLPresets from './URLPresets';
 
