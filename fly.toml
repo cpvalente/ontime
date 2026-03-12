@@ -1,23 +1,23 @@
-app = "on-time"
-primary_region = "yyz"
+# fly.toml app configuration file generated for on-time on 2026-03-12T06:15:46Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'on-time'
+primary_region = 'ams'
 
 [build]
-
-[env]
-  PORT = "4001"
-  HOST = "0.0.0.0"
-  NODE_ENV = "docker"
-  ONTIME_DATA = "/data/"
 
 [http_service]
   internal_port = 4001
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
-  processes = ["app"]
+  processes = ['app']
 
 [[vm]]
-  cpu_kind = "shared"
+  memory = '1gb'
+  cpu_kind = 'shared'
   cpus = 1
   memory_mb = 256
