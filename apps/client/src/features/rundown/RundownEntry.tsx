@@ -1,4 +1,4 @@
-import { isOntimeDelay, isOntimeEvent, isOntimeMilestone, OntimeEntry, Playback, SupportedEntry } from 'ontime-types';
+import { OntimeEntry, Playback, SupportedEntry, isOntimeDelay, isOntimeEvent, isOntimeMilestone } from 'ontime-types';
 
 import RundownDelay from './rundown-delay/RundownDelay';
 import RundownEvent from './rundown-event/RundownEvent';

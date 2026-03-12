@@ -1,6 +1,6 @@
+import { NormalisedAutomation, TimerLifeCycle, TriggerDTO } from 'ontime-types';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { NormalisedAutomation, TimerLifeCycle, TriggerDTO } from 'ontime-types';
 
 import { addTrigger, editTrigger } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -9,7 +9,6 @@ import Input from '../../../../common/components/input/input/Input';
 import Select from '../../../../common/components/select/Select';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import { cycles } from './automationUtils';
 
 interface TriggerFormProps {

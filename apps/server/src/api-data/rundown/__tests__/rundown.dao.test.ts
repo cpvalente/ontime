@@ -1,23 +1,24 @@
 import {
+  type Day,
   CustomFields,
-  OntimeGroup,
   OntimeDelay,
   OntimeEvent,
+  OntimeGroup,
+  OntimeMilestone,
   SupportedEntry,
   TimeStrategy,
-  OntimeMilestone,
 } from 'ontime-types';
-import { dayInMs, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
+import { demoDb } from '../../../models/demoProject.js';
 import {
-  makeOntimeEvent,
-  makeRundown,
-  makeOntimeGroup,
-  makeOntimeDelay,
   makeCustomField,
+  makeOntimeDelay,
+  makeOntimeEvent,
+  makeOntimeGroup,
   makeOntimeMilestone,
+  makeRundown,
 } from '../__mocks__/rundown.mocks.js';
-
 import {
   createTransaction,
   customFieldMutation,
@@ -25,23 +26,20 @@ import {
   rundownCache,
   rundownMutation,
 } from '../rundown.dao.js';
-import { demoDb } from '../../../models/demoProject.js';
 import { type ProcessedRundownMetadata } from '../rundown.parser.js';
 
 const setRundownMock = vi.fn();
 const setCustomFieldsMock = vi.fn();
 
-beforeAll(() => {
-  vi.mock('../../../classes/data-provider/DataProvider.js', () => {
-    return {
-      getDataProvider: vi.fn().mockImplementation(() => {
-        return {
-          setRundown: setRundownMock,
-          setCustomFields: setCustomFieldsMock,
-        };
-      }),
-    };
-  });
+vi.mock('../../../classes/data-provider/DataProvider.js', () => {
+  return {
+    getDataProvider: vi.fn().mockImplementation(() => {
+      return {
+        setRundown: setRundownMock,
+        setCustomFields: setCustomFieldsMock,
+      };
+    }),
+  };
 });
 
 afterAll(() => {
@@ -100,6 +98,7 @@ describe('processRundown()', () => {
       Object.keys(result?.entries ?? {}).length,
       'events',
     );
+    expect(t2 - t1).lessThan(100);
   });
 
   it('generates metadata from given rundown', () => {
@@ -1345,7 +1344,7 @@ describe('rundownMutation.applyDelay()', () => {
         '1': makeOntimeEvent({
           id: '1',
           gap: 0,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           timeStart: 46800000, // 13:00:00
           timeEnd: 50400000, // 14:00:00
           duration: MILLIS_PER_HOUR,
@@ -1354,7 +1353,7 @@ describe('rundownMutation.applyDelay()', () => {
         '2': makeOntimeEvent({
           id: '2',
           gap: 1 * MILLIS_PER_HOUR,
-          dayOffset: 0,
+          dayOffset: 0 as Day,
           timeStart: 54000000, // 15:00:00
           timeEnd: 57600000, // 16:00:00
           duration: MILLIS_PER_HOUR,

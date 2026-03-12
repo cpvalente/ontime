@@ -1,3 +1,5 @@
+import { OffsetMode, OntimeEvent, OntimeGroup, TimerPhase, TimerType } from 'ontime-types';
+import { dayInMs, isPlaybackActive, millisToString } from 'ontime-utils';
 import { useMemo } from 'react';
 import {
   TbCalendarClock,
@@ -8,10 +10,9 @@ import {
   TbFolderPin,
   TbFolderStar,
 } from 'react-icons/tb';
-import { OffsetMode, OntimeEvent, OntimeGroup, TimerPhase, TimerType } from 'ontime-types';
-import { dayInMs, isPlaybackActive, millisToString } from 'ontime-utils';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
+import { useEntry } from '../../../common/hooks-query/useRundown';
 import {
   useClock,
   useCurrentGroupId,
@@ -24,13 +25,11 @@ import {
   useStartTimesOverview,
   useTimer,
 } from '../../../common/hooks/useSocket';
-import { useEntry } from '../../../common/hooks-query/useRundown';
 import { getOffsetState, getOffsetText } from '../../../common/utils/offset';
 import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';
 import SuperscriptPeriod from '../../../views/common/superscript-time/SuperscriptPeriod';
 import { calculateEndAndDaySpan, formatDueTime } from '../overview.utils';
-
 import { OverUnder, TimeColumn, WrappedInTimeColumn } from './TimeLayout';
 
 import style from './TimeElements.module.scss';

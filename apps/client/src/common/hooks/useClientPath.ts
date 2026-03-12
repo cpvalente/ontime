@@ -1,11 +1,10 @@
+import { MessageTag } from 'ontime-types';
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { MessageTag } from 'ontime-types';
 import { useShallow } from 'zustand/shallow';
 
 import { useClientStore } from '../stores/clientStore';
 import { sendSocket } from '../utils/socket';
-
 import { useIsOnline } from './useSocket';
 
 export const useClientPath = () => {

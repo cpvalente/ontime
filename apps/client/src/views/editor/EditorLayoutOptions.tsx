@@ -4,7 +4,6 @@ import { LuLayoutDashboard } from 'react-icons/lu';
 
 import IconButton from '../../common/components/buttons/IconButton';
 import { DropdownMenu, DropdownMenuOption } from '../../common/components/dropdown-menu/DropdownMenu';
-
 import { EditorLayoutMode, useEditorLayout } from './useEditorLayout';
 
 export default memo(EditorLayoutOptions);

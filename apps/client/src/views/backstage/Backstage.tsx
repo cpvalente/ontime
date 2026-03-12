@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
-import QRCode from 'react-qr-code';
 import { useViewportSize } from '@mantine/hooks';
 import { OntimeView, ProjectData } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
+import { useEffect, useMemo, useState } from 'react';
+import QRCode from 'react-qr-code';
 
 import ProgressBar from '../../common/components/progress-bar/ProgressBar';
 import Empty from '../../common/components/state/Empty';
@@ -18,7 +18,6 @@ import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
 import ScheduleExport from '../common/schedule/ScheduleExport';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
-
 import { getBackstageOptions, useBackstageOptions } from './backstage.options';
 import { getCardData, getIsPendingStart, getShowProgressBar, isOvertime } from './backstage.utils';
 import { BackstageData, useBackstageData } from './useBackstageData';

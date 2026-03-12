@@ -1,7 +1,10 @@
 import { Playback } from 'ontime-types';
+import type { Instant } from 'ontime-types';
 
 import { isRestorePoint } from '../restore.parser.js';
 import { RestorePoint } from '../restore.type.js';
+
+const asInstant = (value: number): Instant => value as Instant;
 
 describe('isRestorePoint()', () => {
   it('validates a well defined object', () => {
@@ -12,7 +15,7 @@ describe('isRestorePoint()', () => {
       addedTime: 2,
       pausedAt: 3,
       firstStart: 1,
-      startEpoch: 1,
+      startEpoch: asInstant(1),
       currentDay: 0,
     };
     expect(isRestorePoint(restorePoint)).toBe(true);
@@ -24,7 +27,7 @@ describe('isRestorePoint()', () => {
       addedTime: 0,
       pausedAt: null,
       firstStart: 1,
-      startEpoch: 1,
+      startEpoch: asInstant(1),
       currentDay: 2,
     };
     expect(isRestorePoint(restorePoint)).toBe(true);

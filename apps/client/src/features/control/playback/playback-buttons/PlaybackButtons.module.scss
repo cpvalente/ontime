@@ -2,9 +2,9 @@
   padding-top: $element-spacing;
   display: grid;
   grid-template-areas:
-          "go playback"
-          "go transport"
-          "extra extra";
+    'go playback'
+    'go transport'
+    'extra extra';
   grid-template-rows: repeat(3, 2rem);
   gap: $element-spacing;
 }
@@ -48,4 +48,3 @@
     font-size: 0.85em;
   }
 }
-

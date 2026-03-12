@@ -3,21 +3,18 @@
 import { SupportedEntry } from 'ontime-types';
 
 import { demoDb } from '../../../models/demoProject.js';
-
 import { parseDatabaseModel } from '../db.parser.js';
 
 // mock data provider
-beforeAll(() => {
-  vi.mock('../../classes/data-provider/DataProvider.js', () => {
-    return {
-      getDataProvider: vi.fn().mockImplementation(() => {
-        return {
-          setRundown: vi.fn().mockImplementation((newData) => newData),
-          setCustomFields: vi.fn().mockImplementation((newData) => newData),
-        };
-      }),
-    };
-  });
+vi.mock('../../classes/data-provider/DataProvider.js', () => {
+  return {
+    getDataProvider: vi.fn().mockImplementation(() => {
+      return {
+        setRundown: vi.fn().mockImplementation((newData) => newData),
+        setCustomFields: vi.fn().mockImplementation((newData) => newData),
+      };
+    }),
+  };
 });
 
 describe('test parseDatabaseModel() with demo project (valid)', () => {

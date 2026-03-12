@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useDisclosure } from '@mantine/hooks';
 import { ViewSettings as ViewSettingsType } from 'ontime-types';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
@@ -12,7 +12,6 @@ import Switch from '../../../../common/components/switch/Switch';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import CodeEditorModal from './composite/StyleEditorModal';
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';

@@ -1,4 +1,4 @@
-import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, TimeStrategy, TimerType } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';

@@ -4,35 +4,32 @@
  * @link https://developers.google.com/identity/protocols/oauth2/limited-input-device
  */
 
+import { sheets, type sheets_v4 } from '@googleapis/sheets';
+import { Credentials, OAuth2Client } from 'google-auth-library';
 import {
   AuthenticationStatus,
   CustomFields,
   DatabaseModel,
   EntryId,
-  isOntimeEvent,
-  isOntimeMilestone,
   LogOrigin,
   MaybeString,
   OntimeGroup,
   Rundown,
   RundownSummary,
   SupportedEntry,
+  isOntimeEvent,
+  isOntimeMilestone,
 } from 'ontime-types';
 import { ImportMap, getErrorMessage } from 'ontime-utils';
 
-import { sheets, type sheets_v4 } from '@googleapis/sheets';
-import { Credentials, OAuth2Client } from 'google-auth-library';
-
 import { logger } from '../../classes/Logger.js';
-import { parseRundowns } from '../rundown/rundown.parser.js';
-
-import { getCurrentRundown, getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
-import { parseExcel } from '../excel/excel.parser.js';
-import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import { consoleSubdued } from '../../utils/console.js';
-
-import { cellRequestFromEvent, type ClientSecret, getA1Notation, isClientSecret } from './sheets.utils.js';
+import { parseCustomFields } from '../custom-fields/customFields.parser.js';
+import { parseExcel } from '../excel/excel.parser.js';
+import { getCurrentRundown, getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
+import { parseRundowns } from '../rundown/rundown.parser.js';
 import { catchCommonImportXlsxError } from './googleApi.utils.js';
+import { type ClientSecret, cellRequestFromEvent, getA1Notation, isClientSecret } from './sheets.utils.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
 const codesUrl = 'https://oauth2.googleapis.com/device/code';

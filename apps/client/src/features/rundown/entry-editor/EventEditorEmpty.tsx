@@ -1,4 +1,4 @@
-import { memo, PropsWithChildren } from 'react';
+import { PropsWithChildren, memo } from 'react';
 
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';

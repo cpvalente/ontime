@@ -1,5 +1,5 @@
 import { CustomFieldKey, CustomFields, MaybeNumber, OntimeEntry, Rundown } from 'ontime-types';
-import { checkRegex, customFieldLabelToKey, ImportMap, millisToString } from 'ontime-utils';
+import { ImportMap, checkRegex, customFieldLabelToKey, millisToString } from 'ontime-utils';
 
 /**
  * Receives an import map which contains custom field labels and a custom fields object

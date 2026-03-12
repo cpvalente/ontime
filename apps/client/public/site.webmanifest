@@ -1,9 +1,7 @@
 {
   "name": "",
   "short_name": "",
-  "icons": [
-    { "src": "/ontime-logo.png", "sizes": "295x295", "type": "image/png" }
-  ],
+  "icons": [{ "src": "/ontime-logo.png", "sizes": "295x295", "type": "image/png" }],
   "theme_color": "#2B5ABC",
   "background_color": "#101010",
   "display": "standalone"

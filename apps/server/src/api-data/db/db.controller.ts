@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express';
 import {
   DatabaseModel,
   ErrorResponse,
@@ -7,17 +8,15 @@ import {
   TimeFormat,
 } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
-
-import type { Request, Response } from 'express';
 import sanitize from 'sanitize-filename';
 
+import { getPartialProject } from '../../models/dataModel.js';
+import * as projectService from '../../services/project-service/ProjectService.js';
 import {
   doesProjectExist,
   handleImageUpload,
   handleProjectUploaded,
 } from '../../services/project-service/projectServiceUtils.js';
-import * as projectService from '../../services/project-service/ProjectService.js';
-import { getPartialProject } from '../../models/dataModel.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   try {

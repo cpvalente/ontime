@@ -1,9 +1,9 @@
+import { Dialog } from '@base-ui/react/dialog';
+import { useDisclosure, useFullscreen } from '@mantine/hooks';
 import { memo } from 'react';
 import { IoClose, IoContract, IoExpand, IoLockClosedOutline, IoSwapVertical } from 'react-icons/io5';
 import { LuCoffee } from 'react-icons/lu';
 import { useLocation } from 'react-router';
-import { Dialog } from '@base-ui/react/dialog';
-import { useDisclosure, useFullscreen } from '@mantine/hooks';
 
 import { isLocalhost, supportsFullscreen } from '../../../externals';
 import { canUseWakeLock, useKeepAwakeOptions } from '../../../features/keep-awake/useWakeLock';
@@ -13,7 +13,6 @@ import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 import IconButton from '../buttons/IconButton';
 import { RenameClientModal } from '../client-modal/RenameClientModal';
-
 import ClientLink from './client-link/ClientLink';
 import EditorNavigation from './editor-navigation/EditorNavigation';
 import NavigationMenuItem from './navigation-menu-item/NavigationMenuItem';

@@ -7,7 +7,6 @@ import { cx } from '../../common/utils/styleUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
 import { getPropertyValue } from '../common/viewUtils';
 import { getTimerColour } from '../utils/presentation.utils';
-
 import { useStudioOptions } from './studio.options';
 import { getFormattedEventData, getFormattedScheduleTimes } from './studioTimers.utils';
 
@@ -105,14 +104,14 @@ export default function StudioTimers({ viewSettings }: StudioTimersProps) {
 
       <div className='card' id='card-timer-message'>
         <div>
-          <div className='label'>Timer message</div>
+          <div className='label'>{getLocalizedString('common.timer_message')}</div>
           <div className={cx(['extra', !formattedTimerMessage && 'muted'])}>{formattedTimerMessage}</div>
         </div>
       </div>
 
       <div className='card' id='card-secondary-message'>
         <div>
-          <div className='label'>Secondary message</div>
+          <div className='label'>{getLocalizedString('common.secondary_message')}</div>
           <div className={cx(['extra', !formattedSecondaryMessage && 'muted'])}>{formattedSecondaryMessage}</div>
         </div>
       </div>

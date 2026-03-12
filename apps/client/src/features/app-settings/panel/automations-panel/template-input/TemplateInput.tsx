@@ -1,9 +1,8 @@
-import { forwardRef, useMemo, useState } from 'react';
 import { mergeRefs, useClickOutside } from '@mantine/hooks';
+import { forwardRef, useMemo, useState } from 'react';
 
 import Input, { type InputProps } from '../../../../../common/components/input/input/Input';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
-
 import { makeAutoCompleteList, matchRemaining, selectFromLastTemplate } from './templateInput.utils';
 
 import style from './TemplateInput.module.scss';

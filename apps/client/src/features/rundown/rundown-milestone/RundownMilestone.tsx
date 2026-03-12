@@ -1,8 +1,8 @@
-import { MouseEvent, useCallback, useRef } from 'react';
-import { IoReorderTwo, IoTrash } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId } from 'ontime-types';
+import { MouseEvent, useCallback, useRef } from 'react';
+import { IoReorderTwo, IoTrash } from 'react-icons/io5';
 
 import Input from '../../../common/components/input/input/Input';
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';

@@ -1,4 +1,4 @@
-import { EntryId, isOntimeGroup, RundownEntries, SupportedEntry } from 'ontime-types';
+import { EntryId, RundownEntries, SupportedEntry, isOntimeGroup } from 'ontime-types';
 
 /**
  * Creates a sortable list of entries

@@ -1,6 +1,6 @@
+import { URLPreset } from 'ontime-types';
 import { useState } from 'react';
 import { IoAdd, IoOpenOutline, IoPencil, IoTrash } from 'react-icons/io5';
-import { URLPreset } from 'ontime-types';
 
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
@@ -11,7 +11,6 @@ import Tag from '../../../../common/components/tag/Tag';
 import useUrlPresets, { useUpdateUrlPreset } from '../../../../common/hooks-query/useUrlPresets';
 import { handleLinks } from '../../../../common/utils/linkUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import URLPresetForm from './composite/URLPresetForm';
 
 type FormState = {

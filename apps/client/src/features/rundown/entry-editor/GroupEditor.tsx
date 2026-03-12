@@ -1,6 +1,6 @@
-import { useCallback } from 'react';
 import { MaybeNumber, OntimeGroup } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
+import { useCallback } from 'react';
 
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../common/components/input/colour-input/SwatchSelect';
@@ -10,7 +10,6 @@ import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import { getOffsetState } from '../../../common/utils/offset';
 import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
 import TextLikeInput from '../../../views/cuesheet/cuesheet-table/cuesheet-table-elements/TextLikeInput';
-
 import EntryEditorCustomFields from './composite/EventEditorCustomFields';
 import EventTextArea from './composite/EventTextArea';
 import EntryEditorTextInput from './composite/EventTextInput';

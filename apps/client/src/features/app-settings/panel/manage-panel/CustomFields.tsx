@@ -1,6 +1,6 @@
+import { CustomField, CustomFieldKey } from 'ontime-types';
 import { useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { CustomField, CustomFieldKey } from 'ontime-types';
 
 import { deleteCustomField, editCustomField, postCustomField } from '../../../../common/api/customFields';
 import Button from '../../../../common/components/buttons/Button';
@@ -10,7 +10,6 @@ import ExternalLink from '../../../../common/components/link/external-link/Exter
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import { customFieldsDocsUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
-
 import CustomFieldEntry from './composite/CustomFieldEntry';
 import CustomFieldForm from './composite/CustomFieldForm';
 

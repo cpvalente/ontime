@@ -1,7 +1,7 @@
-import { use, useMemo } from 'react';
-import { useSearchParams } from 'react-router';
 import { CustomFields, OntimeEvent, TimerType } from 'ontime-types';
 import { validateTimerType } from 'ontime-utils';
+import { use, useMemo } from 'react';
+import { useSearchParams } from 'react-router';
 
 import type { SelectOption } from '../../common/components/select/Select';
 import {

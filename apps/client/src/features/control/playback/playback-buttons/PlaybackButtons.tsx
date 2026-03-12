@@ -1,6 +1,6 @@
+import { Playback, TimerPhase } from 'ontime-types';
 import { IoPause, IoPlay, IoPlaySkipBack, IoPlaySkipForward, IoReload, IoStop } from 'react-icons/io5';
 import { TbClockHour4 } from 'react-icons/tb';
-import { Playback, TimerPhase } from 'ontime-types';
 
 import { setPlayback } from '../../../../common/hooks/useSocket';
 import { getPlaybackControlState } from '../playbackControl.utils';

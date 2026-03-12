@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { CustomField } from 'ontime-types';
 import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
@@ -21,6 +21,7 @@ interface CustomFieldsFormProps {
   initialColour?: string;
   initialLabel?: string;
   initialKey?: string;
+  initialType?: CustomField['type'];
 }
 
 type CustomFieldFormData = CustomField & { key: string };
@@ -31,6 +32,7 @@ export default function CustomFieldForm({
   initialColour,
   initialLabel,
   initialKey,
+  initialType,
 }: CustomFieldsFormProps) {
   const { data } = useCustomFields();
 
@@ -47,7 +49,7 @@ export default function CustomFieldForm({
     watch,
     formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm<CustomFieldFormData>({
-    defaultValues: { type: 'text', label: initialLabel || '', colour: initialColour || '' },
+    defaultValues: { type: initialType ?? 'text', label: initialLabel || '', colour: initialColour || '' },
     resetOptions: {
       keepDirtyValues: true,
     },
