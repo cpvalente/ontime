@@ -208,26 +208,28 @@ export function MetadataTimes() {
 }
 
 function GroupTimes() {
-  const { clock, mode, groupExpectedEnd, actualGroupStart, currentDay, playback } = useGroupTimerOverView();
+  const { clock, mode, groupExpectedEnd, actualGroupStart, currentDay, playback, phase } = useGroupTimerOverView();
   const currentGroupId = useCurrentGroupId();
   const group = useEntry(currentGroupId) as OntimeGroup | null;
 
-  const active = isPlaybackActive(playback);
+  const hasRunningTimer = phase !== TimerPhase.Pending && isPlaybackActive(playback) ;
 
-  // the group end time dose not encode any day offsets so it is calculated with group start time and duration
+  // the group end time does not encode any day offsets so it is calculated with group start time and duration
   const plannedGroupEnd = (() => {
-    if (!active) return null;
+    if (!hasRunningTimer) return null;
     if (!group || group.timeStart === null) return null;
     const normalizedClock = clock + currentDay * dayInMs;
 
-    return mode === OffsetMode.Absolute
-      ? group.timeStart + group.duration - normalizedClock
-      : actualGroupStart + group.duration - normalizedClock;
+    if (mode === OffsetMode.Absolute) {
+      return group.timeStart + group.duration - normalizedClock;
+    }
+    if (actualGroupStart === null) return null;
+    return actualGroupStart + group.duration - normalizedClock;
   })();
 
   const plannedTimeUntilGroupEnd = formatDueTime(plannedGroupEnd, 3, TimerType.CountDown);
 
-  const expectedGroupEnd = groupExpectedEnd !== null ? groupExpectedEnd - clock : null;
+  const expectedGroupEnd = hasRunningTimer && groupExpectedEnd !== null ? groupExpectedEnd - clock : null;
   const expectedTimeUntilGroupEnd = formatDueTime(expectedGroupEnd, 3, TimerType.CountDown);
 
   return (
@@ -238,7 +240,7 @@ function GroupTimes() {
         <span
           className={cx([
             style.time,
-            (!group || !active) && style.muted,
+            (!group || !hasRunningTimer) && style.muted,
             plannedTimeUntilGroupEnd === 'due' && style.dueTime,
           ])}
         >
@@ -250,7 +252,7 @@ function GroupTimes() {
         <span
           className={cx([
             style.time,
-            !groupExpectedEnd && style.muted,
+            expectedGroupEnd === null && style.muted,
             expectedTimeUntilGroupEnd === 'due' && style.dueTime,
           ])}
         >
@@ -262,25 +264,27 @@ function GroupTimes() {
 }
 
 function FlagTimes() {
-  const { clock, mode, actualStart, plannedStart, playback, currentDay } = useFlagTimerOverView();
+  const { clock, mode, actualStart, plannedStart, playback, currentDay, phase } = useFlagTimerOverView();
   const { id, expectedStart } = useNextFlag();
   const entry = useEntry(id) as OntimeEvent | null;
 
-  const active = isPlaybackActive(playback);
+  const hasRunningTimer = phase !== TimerPhase.Pending && isPlaybackActive(playback);
 
   const plannedFlagStart = (() => {
-    if (!active) return null;
+    if (!hasRunningTimer) return null;
     if (!entry) return null;
     const normalizedTimeStart = entry.timeStart + entry.dayOffset * dayInMs;
     const normalizedClock = clock + currentDay * dayInMs;
-    return mode === OffsetMode.Absolute
-      ? normalizedTimeStart - normalizedClock
-      : normalizedTimeStart + actualStart - plannedStart - normalizedClock;
+    if (mode === OffsetMode.Absolute) {
+      return normalizedTimeStart - normalizedClock;
+    }
+    if (actualStart === null || plannedStart === null) return null;
+    return normalizedTimeStart + actualStart - plannedStart - normalizedClock;
   })();
 
   const plannedTimeUntilDisplay = formatDueTime(plannedFlagStart, 3, TimerType.CountDown);
 
-  const expectedTimeUntil = expectedStart !== null ? expectedStart - clock : null;
+  const expectedTimeUntil = hasRunningTimer && expectedStart !== null ? expectedStart - clock : null;
   const expectedTimeUntilDisplay = formatDueTime(expectedTimeUntil, 3, TimerType.CountDown);
 
   const title = entry?.title ?? null;
@@ -294,7 +298,7 @@ function FlagTimes() {
           data-testid='flag-plannedStart'
           className={cx([
             style.time,
-            (!entry || !active) && style.muted,
+            (!entry || !hasRunningTimer) && style.muted,
             plannedTimeUntilDisplay === 'due' && style.dueTime,
           ])}
         >
