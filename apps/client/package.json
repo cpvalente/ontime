@@ -57,20 +57,20 @@
     ]
   },
   "devDependencies": {
-    "@sentry/vite-plugin": "^2.16.1",
+    "@sentry/vite-plugin": "5.1.1",
     "@types/prismjs": "^1.26.5",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
-    "@vitejs/plugin-react": "4.5.1",
+    "@vitejs/plugin-react": "6.0.1",
     "babel-plugin-react-compiler": "1.0.0",
     "ontime-types": "workspace:*",
     "ontime-utils": "workspace:*",
     "sass": "^1.57.1",
     "typescript": "catalog:",
-    "vite": "6.3.1",
-    "vite-plugin-compression2": "2.2.0",
-    "vite-plugin-svgr": "4.3.0",
-    "vite-tsconfig-paths": "5.1.4",
+    "vite": "8.0.0",
+    "vite-plugin-compression2": "2.5.1",
+    "vite-plugin-svgr": "4.5.0",
+    "vite-tsconfig-paths": "6.1.1",
     "vitest": "catalog:"
   }
 }
