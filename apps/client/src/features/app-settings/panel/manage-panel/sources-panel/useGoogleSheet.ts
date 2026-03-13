@@ -1,8 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { AuthenticationStatus, CustomFields, ProjectRundowns } from 'ontime-types';
+import { AuthenticationStatus, CustomFields, ProjectRundowns, ProjectRundownsList } from 'ontime-types';
 import { ImportMap } from 'ontime-utils';
 
-import { CUSTOM_FIELDS, RUNDOWN } from '../../../../../common/api/constants';
+import { CURRENT_RUNDOWN_QUERY_KEY, CUSTOM_FIELDS, PROJECT_RUNDOWNS, getRundownQueryKey } from '../../../../../common/api/constants';
 import { patchData } from '../../../../../common/api/db';
 import {
   previewRundown,
@@ -81,9 +81,10 @@ export default function useGoogleSheet() {
       await patchData({ rundowns, customFields });
       // we are unable to optimistically set the rundown since we need
       // it to be normalised
-      await queryClient.invalidateQueries({
-        queryKey: [RUNDOWN, CUSTOM_FIELDS],
-      });
+      const loadedRundownId = queryClient.getQueryData<ProjectRundownsList>(PROJECT_RUNDOWNS)?.loaded;
+      const rundownQueryKey = loadedRundownId ? getRundownQueryKey(loadedRundownId) : CURRENT_RUNDOWN_QUERY_KEY;
+      await queryClient.invalidateQueries({ queryKey: rundownQueryKey });
+      await queryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
     } catch (error) {
       patchStepData({ pullPush: { available: true, error: maybeAxiosError(error) } });
     }

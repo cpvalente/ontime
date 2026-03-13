@@ -1,12 +1,13 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { EntryId, OntimeEntry, Rundown } from 'ontime-types';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
-import { RUNDOWN } from '../api/constants';
+import { CURRENT_RUNDOWN_QUERY_KEY, getRundownQueryKey } from '../api/constants';
 import { fetchCurrentRundown } from '../api/rundown';
 import { useSelectedEventId } from '../hooks/useSocket';
 import { ExtendedEntry, getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
+import { useProjectRundowns } from './useProjectRundowns';
 
 // revision is -1 so that the remote revision is higher
 const cachedRundownPlaceholder: Rundown = {
@@ -22,11 +23,27 @@ const cachedRundownPlaceholder: Rundown = {
  * Normalised rundown data
  */
 export default function useRundown() {
+  const queryClient = useQueryClient();
+  const {
+    data: { loaded: loadedRundownId },
+  } = useProjectRundowns();
+
   const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
-    queryKey: RUNDOWN,
+    queryKey: loadedRundownId ? getRundownQueryKey(loadedRundownId) : CURRENT_RUNDOWN_QUERY_KEY,
     queryFn: ({ signal }) => fetchCurrentRundown({ signal }),
     refetchInterval: queryRefetchIntervalSlow,
   });
+
+  // Seed the ID-based cache when fetching via the 'current' alias (bootstrap)
+  useEffect(() => {
+    if (!data || loadedRundownId) return;
+    queryClient.setQueryData(getRundownQueryKey(data.id), data);
+  }, [data, loadedRundownId, queryClient]);
+
+  useEffect(() => {
+    if (!loadedRundownId) return;
+    queryClient.removeQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
+  }, [loadedRundownId, queryClient]);
 
   return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
 }
