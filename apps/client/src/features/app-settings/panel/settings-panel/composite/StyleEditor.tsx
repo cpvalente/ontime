@@ -1,4 +1,4 @@
-import Prism from 'prismjs/components/prism-core';
+import Prism from 'virtual:prismjs';
 import { forwardRef, memo, useEffect, useImperativeHandle, useState } from 'react';
 import Editor from 'react-simple-code-editor';
 import 'prismjs/components/prism-css';

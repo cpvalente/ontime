@@ -69,6 +69,7 @@
     "typescript": "catalog:",
     "vite": "8.0.0",
     "vite-plugin-compression2": "2.5.1",
+    "vite-plugin-prismjs-plus": "1.0.4",
     "vite-plugin-svgr": "4.5.0",
     "vite-tsconfig-paths": "6.1.1",
     "vitest": "catalog:"

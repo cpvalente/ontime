@@ -176,6 +176,9 @@ importers:
       vite-plugin-compression2:
         specifier: 2.5.1
         version: 2.5.1(rollup@4.41.1)
+      vite-plugin-prismjs-plus:
+        specifier: 1.0.4
+        version: 1.0.4(prismjs@1.30.0)(vite@8.0.0(@types/node@25.4.0)(jiti@2.6.1)(sass@1.92.0)(tsx@4.20.5))
       vite-plugin-svgr:
         specifier: 4.5.0
         version: 4.5.0(rollup@4.41.1)(typescript@6.0.0-beta)(vite@8.0.0(@types/node@25.4.0)(jiti@2.6.1)(sass@1.92.0)(tsx@4.20.5))
@@ -4384,6 +4387,12 @@ packages:
 
   vite-plugin-compression2@2.5.1:
     resolution: {integrity: sha512-2YpLZWs1ZRo9XwtSFA6/NVuBgOR+kvFk8M0HNDsP7Wu7OfJDOKT6fHB8kzuvw6jhgC9KYgDOttfaG2qC0wE9AQ==}
+
+  vite-plugin-prismjs-plus@1.0.4:
+    resolution: {integrity: sha512-Zce0abH8JWkMl6YRp1mC4P0xQrWPpbqrNHGjcpzgZVxxcpZPOP9QsRUGGAmxHchthuGLqji1+J+NBCAOWRMnRQ==}
+    peerDependencies:
+      prismjs: ^1.29.0
+      vite: ^5.0.0 || ^6.0.0 || ^7.0.0
 
   vite-plugin-svgr@4.5.0:
     resolution: {integrity: sha512-W+uoSpmVkSmNOGPSsDCWVW/DDAyv+9fap9AZXBvWiQqrboJ08j2vh0tFxTD/LjwqwAd3yYSVJgm54S/1GhbdnA==}
@@ -8849,6 +8858,11 @@ snapshots:
       tar-mini: 0.2.0
     transitivePeerDependencies:
       - rollup
+
+  vite-plugin-prismjs-plus@1.0.4(prismjs@1.30.0)(vite@8.0.0(@types/node@25.4.0)(jiti@2.6.1)(sass@1.92.0)(tsx@4.20.5)):
+    dependencies:
+      prismjs: 1.30.0
+      vite: 8.0.0(@types/node@25.4.0)(jiti@2.6.1)(sass@1.92.0)(tsx@4.20.5)
 
   vite-plugin-svgr@4.5.0(rollup@4.41.1)(typescript@6.0.0-beta)(vite@8.0.0(@types/node@25.4.0)(jiti@2.6.1)(sass@1.92.0)(tsx@4.20.5)):
     dependencies:
