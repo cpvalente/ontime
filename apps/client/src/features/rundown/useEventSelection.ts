@@ -1,8 +1,8 @@
-import { EntryId, MaybeNumber, Rundown, isOntimeEvent } from 'ontime-types';
+import { EntryId, MaybeNumber, ProjectRundownsList, Rundown, isOntimeEvent } from 'ontime-types';
 import { MouseEvent } from 'react';
 import { create } from 'zustand';
 
-import { RUNDOWN } from '../../common/api/constants';
+import { CURRENT_RUNDOWN_QUERY_KEY, PROJECT_RUNDOWNS, getRundownQueryKey } from '../../common/api/constants';
 import { ontimeQueryClient } from '../../common/queryClient';
 import { isMacOS } from '../../common/utils/deviceUtils';
 
@@ -51,7 +51,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
 
     // on ctrl + click, we toggle the selection of that event
     if (selectMode === 'ctrl') {
-      const rundownData = ontimeQueryClient.getQueryData<Rundown>(RUNDOWN);
+      const rundownData = getLoadedRundownData();
       if (!rundownData) return;
 
       // if it doesnt exist, simply add to the list and set an anchor
@@ -82,7 +82,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
 
     // on shift + click, we select a range of events up to the clicked event
     if (selectMode === 'shift') {
-      const rundownData = ontimeQueryClient.getQueryData<Rundown>(RUNDOWN);
+      const rundownData = getLoadedRundownData();
       if (!rundownData) return;
 
       // get list of rundown with only ontime events
@@ -135,6 +135,15 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
     }
   },
 }));
+
+function getLoadedRundownData() {
+  const loadedRundownId = ontimeQueryClient.getQueryData<ProjectRundownsList>(PROJECT_RUNDOWNS)?.loaded;
+  if (loadedRundownId) {
+    return ontimeQueryClient.getQueryData<Rundown>(getRundownQueryKey(loadedRundownId));
+  }
+
+  return ontimeQueryClient.getQueryData<Rundown>(CURRENT_RUNDOWN_QUERY_KEY);
+}
 
 export function getSelectionMode(event: MouseEvent): SelectionMode {
   if ((isMacOS() && event.metaKey) || event.ctrlKey) {
