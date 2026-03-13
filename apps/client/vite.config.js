@@ -94,16 +94,6 @@ export default defineConfig({
   build: {
     outDir: './build',
     sourcemap: true,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          // Split vendor code
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
-        },
-      },
-    },
   },
   resolve: {
     alias: {
