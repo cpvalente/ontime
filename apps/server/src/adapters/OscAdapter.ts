@@ -72,10 +72,17 @@ class OscServer implements IAdapter {
     });
     this.udpSocket.bind(port);
   }
-  shutdown() {
+  shutdown(): Promise<void> {
     logger.info(LogOrigin.Rx, 'OSC: Closing server');
-    this.udpSocket?.close();
+    const socket = this.udpSocket;
     this.udpSocket = null;
+    if (!socket) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+      socket.close(() => resolve());
+    });
   }
 }
 

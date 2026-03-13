@@ -42,6 +42,7 @@ import { consoleError, consoleHighlight, consoleSuccess } from './utils/console.
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { getNetworkInterfaces } from './utils/network.js';
 import { clearUploadfolder } from './utils/upload.js';
+import { withTimeout } from './utils/withTimeout.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -64,6 +65,7 @@ const prefix = updateRouterPrefix();
 
 // Create express APP
 const app = express();
+let isShuttingDown = false;
 if (!isProduction) {
   // log server timings to requests
   app.use(serverTiming());
@@ -83,6 +85,15 @@ const loginRouter = makeLoginRouter(prefix);
 // implement health check route
 app.get(`${prefix}/health`, (_req, res) => {
   res.status(200).send('OK');
+});
+
+// readiness probe route for orchestrators (e.g. kubernetes)
+app.get(`${prefix}/ready`, (_req, res) => {
+  if (isShuttingDown) {
+    res.status(503).send('SHUTTING_DOWN');
+    return;
+  }
+  res.status(200).send('READY');
 });
 
 // Implement route endpoints
@@ -136,6 +147,7 @@ enum OntimeStartOrder {
 
 let step = OntimeStartOrder.InitAssets;
 let expressServer: Server | null = null;
+let shutdownPromise: Promise<void> | null = null;
 
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
@@ -250,34 +262,88 @@ export const startIntegrations = async () => {
 };
 
 /**
- * @description clean shutdown app services
- * @param {number} exitCode
- * @return {Promise<void>}
+ * Clean shutdown app services
+ * - it avoid concurrency issues with deduplication of request to shutdown
+ * - extracts exit code to modify cleanup behaviour
  */
-export const shutdown = async (exitCode = 0) => {
-  consoleHighlight(`Ontime shutting down with code ${exitCode}`);
-
-  await flushPendingWrites().catch((_error) => {
-    /** nothing do to here */
-  });
-
-  // clear the restore file if it was a normal exit
-  // 0 means it was a SIGNAL
-  // 1 means crash -> keep the file
-  // 2 means dev crash -> do nothing
-  // 3 means container shutdown -> keep the file
-  // 99 means there was a shutdown request from the UI
-  if (exitCode === 0 || exitCode === 99) {
-    await restoreService.clear();
-    await portManager.shutdown();
+export async function shutdown(exitCode = 0): Promise<void> {
+  if (shutdownPromise) {
+    return shutdownPromise;
   }
 
-  expressServer?.close();
-  runtimeService.shutdown();
-  logger.shutdown();
-  oscServer.shutdown();
-  socket.shutdown();
-  process.exit(exitCode);
+  shutdownPromise = performShutdown(exitCode);
+  return shutdownPromise;
+};
+
+const closeHttpServer = async (server: Server | null): Promise<void> => {
+  if (!server) return;
+
+  const closePromise = new Promise<void>((resolve, reject) => {
+    server.close((error) => {
+      if (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ERR_SERVER_NOT_RUNNING') {
+          resolve();
+          return;
+        }
+        reject(error);
+        return;
+      }
+      resolve();
+    });
+  });
+
+  server.closeIdleConnections();
+  server.closeAllConnections();
+
+  await closePromise;
+};
+
+const shutdownGlobalTimeout = 10_000; // 10 seconds
+const shutdownTimeout = 4_000; // 4 seconds
+
+async function performShutdown(exitCode: number): Promise<void> {
+  isShuttingDown = true;
+  consoleHighlight(`Ontime shutting down with code ${exitCode}`);
+
+  // if shutdown takes longer than 10 seconds, force exit to avoid hanging processes
+  const forceExitTimer = setTimeout(() => {
+    consoleError('Forced shutdown after timeout');
+    process.exit(exitCode);
+  }, shutdownGlobalTimeout);
+
+  try {
+    runtimeService.shutdown();
+
+    // Block for at most 4 seconds on each shutdown segment
+    await withTimeout(
+      flushPendingWrites().catch((_error) => {
+        /** nothing do to here */
+      }),
+      shutdownTimeout,
+    );
+
+    // clear the restore file if it was a normal exit
+    // 0 means it was a SIGNAL
+    // 1 means crash -> keep the file
+    // 2 means dev crash -> do nothing
+    // 3 means container shutdown -> keep the file
+    // 99 means there was a shutdown request from the UI
+    if (exitCode === 0 || exitCode === 99) {
+      await withTimeout(restoreService.clear(), shutdownTimeout);
+      await withTimeout(portManager.shutdown(), shutdownTimeout);
+    }
+
+    await withTimeout(
+      Promise.all([closeHttpServer(expressServer), socket.shutdown(), oscServer.shutdown()]),
+      shutdownTimeout,
+    );
+  } catch (error) {
+    logger.error(LogOrigin.Server, `Shutdown error: ${error}`, false);
+  } finally {
+    clearTimeout(forceExitTimer);
+    logger.shutdown();
+    process.exit(exitCode);
+  }
 };
 
 process.on('exit', (code) => consoleHighlight(`Ontime shutdown with code: ${code}`));
