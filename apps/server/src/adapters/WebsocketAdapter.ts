@@ -235,8 +235,25 @@ class SocketServer implements IAdapter {
     }
   }
 
-  shutdown() {
-    this.wss?.close();
+  shutdown(): Promise<void> {
+    const wss = this.wss;
+    if (!wss) {
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+      // Notify clients first so they can reconnect gracefully
+      for (const client of wss.clients) {
+        if (client.readyState === WebSocket.OPEN || client.readyState === WebSocket.CONNECTING) {
+          client.close(1001, 'Server shutting down');
+        }
+      }
+
+      wss.close(() => {
+        this.wss = null;
+        resolve();
+      });
+    });
   }
 }
 

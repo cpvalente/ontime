@@ -1,3 +1,3 @@
 export interface IAdapter {
-  shutdown: () => void;
+  shutdown: () => Promise<void>;
 }
