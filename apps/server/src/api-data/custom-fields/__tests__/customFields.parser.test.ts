@@ -126,4 +126,15 @@ describe('sanitiseCustomFields()', () => {
     const sanitationResult = sanitiseCustomFields(customFields);
     expect(sanitationResult).toStrictEqual(expectedCustomFields);
   });
+
+  it('filters keys that collide with Object prototype properties', () => {
+    const customFields: CustomFields = {
+      toString: { label: 'toString', type: 'text', colour: 'red' },
+      normalField: { label: 'normalField', type: 'text', colour: 'green' },
+    };
+    const sanitationResult = sanitiseCustomFields(customFields);
+    expect(sanitationResult).toStrictEqual({
+      normalField: { label: 'normalField', type: 'text', colour: 'green' },
+    });
+  });
 });

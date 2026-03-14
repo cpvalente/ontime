@@ -188,7 +188,7 @@ export function parseRundown(
  */
 export function sanitiseCustomFields(customFields: CustomFields, entry: OntimeEvent | OntimeMilestone | OntimeGroup) {
   for (const field in entry.custom) {
-    if (field in customFields) continue;
+    if (Object.hasOwn(customFields, field)) continue;
     delete entry.custom[field];
   }
   return entry;

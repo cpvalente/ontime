@@ -1,5 +1,5 @@
 import { body, param } from 'express-validator';
-import { checkRegex } from 'ontime-utils';
+import { checkRegex, customFieldLabelToKey, isObjectPrototypeKey } from 'ontime-utils';
 
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
@@ -9,7 +9,7 @@ export const validateCustomField = [
     .trim()
     .notEmpty()
     .custom((value) => {
-      return checkRegex.isAlphanumericWithSpace(value);
+      return checkRegex.isAlphanumericWithSpace(value) && !isObjectPrototypeKey(customFieldLabelToKey(value));
     }),
   body('type').isIn(['text', 'image']),
   body('colour').isString().trim(),
@@ -24,7 +24,7 @@ export const validateEditCustomField = [
     .trim()
     .notEmpty()
     .custom((value) => {
-      return checkRegex.isAlphanumericWithSpace(value);
+      return checkRegex.isAlphanumericWithSpace(value) && !isObjectPrototypeKey(customFieldLabelToKey(value));
     }),
   body('type').isIn(['text', 'image']),
   body('colour').isString().trim(),

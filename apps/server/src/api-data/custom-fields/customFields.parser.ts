@@ -1,5 +1,5 @@
 import { CustomField, CustomFields, DatabaseModel } from 'ontime-types';
-import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import { checkRegex, customFieldLabelToKey, isObjectPrototypeKey } from 'ontime-utils';
 
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
 
@@ -45,6 +45,7 @@ export function sanitiseCustomFields(data: object): CustomFields {
       'type' in data &&
       (data.type === 'text' || data.type === 'image') &&
       checkRegex.isAlphanumericWithSpace(data.label) &&
+      !isObjectPrototypeKey(key) &&
       key === customFieldLabelToKey(data.label)
     );
   }

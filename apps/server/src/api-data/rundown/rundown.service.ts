@@ -16,7 +16,7 @@ import {
   isOntimeEvent,
   isOntimeGroup,
 } from 'ontime-types';
-import { customFieldLabelToKey, getInsertAfterId, resolveInsertParent } from 'ontime-utils';
+import { customFieldLabelToKey, getInsertAfterId, isObjectPrototypeKey, resolveInsertParent } from 'ontime-utils';
 
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -425,6 +425,9 @@ export async function createCustomField(customField: CustomField): Promise<Custo
   if (!key) {
     throw new Error('Unable to convert label to a valid key');
   }
+  if (isObjectPrototypeKey(key)) {
+    throw new Error('Label conflicts with a reserved field name');
+  }
 
   const { customFields, commit } = createTransaction({ mutableRundown: false, mutableCustomFields: true });
 
@@ -463,7 +466,7 @@ export async function editCustomField(
     mutableCustomFields: true,
   });
 
-  if (!(key in customFields)) {
+  if (!Object.hasOwn(customFields, key)) {
     throw new Error('Could not find label');
   }
 
@@ -471,6 +474,9 @@ export async function editCustomField(
   // if user provides a type, it must be the same from before
   if (newField.type && existingField.type !== newField.type) {
     throw new Error('Change of field type is not allowed');
+  }
+  if (newField.label && isObjectPrototypeKey(customFieldLabelToKey(newField.label))) {
+    throw new Error('Label conflicts with a reserved field name');
   }
 
   const { oldKey, newKey } = customFieldMutation.edit(customFields, key, existingField, newField);
@@ -513,7 +519,7 @@ export async function deleteCustomField(key: CustomFieldKey, projectRundowns: Pr
     mutableRundown: true,
     mutableCustomFields: true,
   });
-  if (!(key in customFields)) {
+  if (!Object.hasOwn(customFields, key)) {
     return customFields;
   }
 
