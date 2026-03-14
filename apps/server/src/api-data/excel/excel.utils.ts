@@ -80,6 +80,7 @@ export function generateImportHandlers(importMap: ImportMap) {
     flag: null,
     skip: null,
     countToEnd: null,
+    breakRoll: null,
     linkStart: null,
     timeStart: null,
     timeEnd: null,
@@ -127,6 +128,10 @@ export function generateImportHandlers(importMap: ImportMap) {
     [importMap.countToEnd]: (row: number, col: number) => {
       indexMap.countToEnd = col;
       sheetMetadata.countToEnd = { row, col };
+    },
+    [importMap.breakRoll]: (row: number, col: number) => {
+      indexMap.breakRoll = col;
+      sheetMetadata.breakRoll = { row, col };
     },
     [importMap.skip]: (row: number, col: number) => {
       indexMap.skip = col;
@@ -306,6 +311,7 @@ const matchedWithDefaultImportMap = {
   duration: 'Duration',
   linkStart: 'Link Start',
   countToEnd: 'Count to end',
+  breakRoll: 'Break Roll',
   note: 'Note',
   timerType: 'Timer Type',
   endAction: 'End Action',

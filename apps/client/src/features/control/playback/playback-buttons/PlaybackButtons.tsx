@@ -1,5 +1,6 @@
 import { Playback, TimerPhase } from 'ontime-types';
 import { IoPause, IoPlay, IoPlaySkipBack, IoPlaySkipForward, IoReload, IoStop } from 'react-icons/io5';
+import { TbClockHour4 } from 'react-icons/tb';
 
 import { setPlayback } from '../../../../common/hooks/useSocket';
 import { getPlaybackControlState } from '../playbackControl.utils';
@@ -60,7 +61,7 @@ export default function PlaybackButtons({ playback, numEvents, selectedEventInde
       </div>
       <div className={style.extra}>
         <TapButton onClick={setPlayback.roll} disabled={disableRoll} theme={Playback.Roll} active={isRolling}>
-          Roll
+          <span className={style.rollLabel}><TbClockHour4 /> Roll</span>
         </TapButton>
         <TapButton onClick={setPlayback.reload} disabled={disableReload}>
           <IoReload className={style.invertX} />

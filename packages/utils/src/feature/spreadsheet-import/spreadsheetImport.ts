@@ -13,6 +13,7 @@ export const defaultImportMap = {
   cue: 'cue',
   title: 'title',
   countToEnd: 'count to end',
+  breakRoll: 'break roll',
   skip: 'skip',
   note: 'note',
   colour: 'colour',

@@ -63,6 +63,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   endAction: EndAction;
   timerType: TimerType;
   countToEnd: boolean;
+  breakRoll?: boolean;
   linkStart: boolean;
   timeStrategy: TimeStrategy;
   timeStart: number;

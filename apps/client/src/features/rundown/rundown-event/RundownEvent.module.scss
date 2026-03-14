@@ -231,6 +231,10 @@ $skip-opacity: 0.2;
     color: var(--status-color-active-override, $active-indicator);
   }
 
+  .statusIcon.activeOrange {
+    --status-color-active-override: #{$ontime-paused};
+  }
+
   .statusIcon.disabled {
     color: $gray-1000;
   }

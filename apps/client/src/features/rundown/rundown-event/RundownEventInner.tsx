@@ -11,6 +11,7 @@ import {
   IoTime,
 } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
+import { TbClockStop } from 'react-icons/tb';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { cx } from '../../../common/utils/styleUtils';
@@ -32,6 +33,7 @@ interface RundownEventInnerProps {
   timeStrategy: TimeStrategy;
   linkStart: boolean;
   countToEnd: boolean;
+  breakRoll: boolean;
   eventIndex: number;
   endAction: EndAction;
   timerType: TimerType;
@@ -59,6 +61,7 @@ function RundownEventInner({
   timeStrategy,
   linkStart,
   countToEnd,
+  breakRoll,
   endAction,
   timerType,
   title,
@@ -141,6 +144,9 @@ function RundownEventInner({
           </Tooltip>
           <Tooltip text={`${countToEnd ? 'Count to End' : 'Count duration'}`} render={<span />}>
             <LuArrowDownToLine className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
+          </Tooltip>
+          <Tooltip text={breakRoll ? 'Breaks roll' : 'Continues roll'} render={<span />}>
+            <TbClockStop className={`${style.statusIcon} ${breakRoll ? `${style.active} ${style.activeOrange}` : style.disabled}`} />
           </Tooltip>
           <Tooltip text='Event has Triggers' render={<span />}>
             <IoFlash className={`${style.statusIcon} ${hasTriggers ? style.active : style.disabled}`} />
