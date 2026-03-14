@@ -9,6 +9,7 @@ import {
   OntimeGroup,
   OntimeMilestone,
   PatchWithId,
+  ProjectRundownsList,
   Rundown,
   SupportedEntry,
   TimeField,
@@ -33,7 +34,7 @@ import {
 import { useCallback, useMemo } from 'react';
 
 import { moveDown, moveUp, orderEntries } from '../../features/rundown/rundown.utils';
-import { RUNDOWN } from '../api/constants';
+import { CURRENT_RUNDOWN_QUERY_KEY, PROJECT_RUNDOWNS, getRundownQueryKey } from '../api/constants';
 import {
   ReorderEntry,
   deleteEntries,
@@ -75,12 +76,20 @@ export const useEntryActions = () => {
     defaultEndAction,
   } = useEditorSettings();
 
+  const resolveCurrentRundownQueryKey = useCallback(() => {
+    const loadedRundownId = queryClient.getQueryData<ProjectRundownsList>(PROJECT_RUNDOWNS)?.loaded;
+    if (loadedRundownId) {
+      return getRundownQueryKey(loadedRundownId);
+    }
+    return CURRENT_RUNDOWN_QUERY_KEY;
+  }, [queryClient]);
+
   /**
    * Returns the currently loaded rundown
    */
   const getCurrentRundownData = useCallback(() => {
-    return queryClient.getQueryData<Rundown>(RUNDOWN);
-  }, [queryClient]);
+    return queryClient.getQueryData<Rundown>(resolveCurrentRundownQueryKey());
+  }, [queryClient, resolveCurrentRundownQueryKey]);
 
   /**
    * Looks for an entry with a given ID in the currently loaded rundown
@@ -103,9 +112,10 @@ export const useEntryActions = () => {
   const { mutateAsync: addEntryMutation } = useMutation({
     mutationFn: ([rundownId, entry]: [string, PatchWithId & InsertOptions]) => postAddEntry(rundownId, entry),
     onMutate: async ([_rundownId, entry]) => {
-      await queryClient.cancelQueries({ queryKey: RUNDOWN });
+      const queryKey = resolveCurrentRundownQueryKey();
+      await queryClient.cancelQueries({ queryKey });
 
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<Rundown>(queryKey);
 
       if (previousData) {
         const optimisticEntry = createOptimisticEntry(entry);
@@ -133,31 +143,31 @@ export const useEntryActions = () => {
           parent ? (newRundown.entries[parent.id] as OntimeGroup) : null,
         );
 
-        queryClient.setQueryData<Rundown>(RUNDOWN, newRundown);
+        queryClient.setQueryData<Rundown>(queryKey, newRundown);
       }
 
-      return { previousData };
+      return { previousData, queryKey };
     },
-    onSuccess: (response) => {
-      if (!response.data) return;
+    onSuccess: (response, _variables, context) => {
+      if (!response.data || !context?.queryKey) return;
 
       const serverEntry = response.data;
-      const currentData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const currentData = queryClient.getQueryData<Rundown>(context.queryKey);
 
       if (currentData) {
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
+        queryClient.setQueryData<Rundown>(context.queryKey, {
           ...currentData,
           entries: { ...currentData.entries, [serverEntry.id]: serverEntry },
         });
       }
     },
     onError: (_error, _variables, context) => {
-      if (context?.previousData) {
-        queryClient.setQueryData<Rundown>(RUNDOWN, context.previousData);
+      if (context?.previousData && context?.queryKey) {
+        queryClient.setQueryData<Rundown>(context.queryKey, context.previousData);
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+    onSettled: (_data, _error, _variables, context) => {
+      queryClient.invalidateQueries({ queryKey: context?.queryKey ?? resolveCurrentRundownQueryKey() });
     },
   });
 
@@ -247,8 +257,8 @@ export const useEntryActions = () => {
   const { mutateAsync: cloneEntryMutation } = useMutation({
     mutationFn: ([rundownId, entryId, options]: Parameters<typeof postCloneEntry>) =>
       postCloneEntry(rundownId, entryId, options),
-    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+    onMutate: () => queryClient.cancelQueries({ queryKey: resolveCurrentRundownQueryKey() }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: resolveCurrentRundownQueryKey() }),
   });
 
   /**
@@ -278,11 +288,12 @@ export const useEntryActions = () => {
     mutationFn: ([rundownId, newEvent]: Parameters<typeof putEditEntry>) => putEditEntry(rundownId, newEvent),
     // we optimistically update here
     onMutate: async ([_rundownId, newEvent]) => {
+      const queryKey = resolveCurrentRundownQueryKey();
       // cancel ongoing queries
-      await queryClient.cancelQueries({ queryKey: RUNDOWN });
+      await queryClient.cancelQueries({ queryKey });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<Rundown>(queryKey);
       const eventId = newEvent.id;
 
       if (previousData && eventId) {
@@ -290,7 +301,7 @@ export const useEntryActions = () => {
         const newRundown = { ...previousData.entries };
         // @ts-expect-error -- we expect the events to be of same type
         newRundown[eventId] = { ...newRundown[eventId], ...newEvent };
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
+        queryClient.setQueryData<Rundown>(queryKey, {
           id: previousData.id,
           title: previousData.title,
           order: previousData.order,
@@ -301,18 +312,18 @@ export const useEntryActions = () => {
       }
 
       // Return a context with the previous and new events
-      return { previousData, newEvent };
+      return { previousData, newEvent, queryKey };
     },
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _newEvent, context) => {
-      if (context?.previousData) {
-        queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      if (context?.previousData && context?.queryKey) {
+        queryClient.setQueryData<Rundown>(context.queryKey, context.previousData);
       }
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: RUNDOWN });
+    onSettled: async (_data, _error, _variables, context) => {
+      await queryClient.invalidateQueries({ queryKey: context?.queryKey ?? resolveCurrentRundownQueryKey() });
     },
   });
 
@@ -409,7 +420,7 @@ export const useEntryActions = () => {
        * Utility function to get the previous event end time
        */
       function getPreviousEnd(): number {
-        const cachedRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+        const cachedRundown = queryClient.getQueryData<Rundown>(resolveCurrentRundownQueryKey());
 
         if (!cachedRundown?.order || !cachedRundown?.entries) {
           return 0;
@@ -440,11 +451,12 @@ export const useEntryActions = () => {
   const { mutateAsync: batchUpdateEventsMutation } = useMutation({
     mutationFn: ([rundownId, data]: Parameters<typeof putBatchEditEvents>) => putBatchEditEvents(rundownId, data),
     onMutate: async ([_rundownId, data]) => {
+      const queryKey = resolveCurrentRundownQueryKey();
       // cancel ongoing queries
-      await queryClient.cancelQueries({ queryKey: RUNDOWN });
+      await queryClient.cancelQueries({ queryKey });
 
       // Snapshot the previous value
-      const previousRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousRundown = queryClient.getQueryData<Rundown>(queryKey);
 
       if (previousRundown) {
         const eventIds = new Set(data.ids);
@@ -462,7 +474,7 @@ export const useEntryActions = () => {
           }
         });
 
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
+        queryClient.setQueryData<Rundown>(queryKey, {
           id: previousRundown.id,
           title: previousRundown.title,
           order: previousRundown.order,
@@ -473,13 +485,13 @@ export const useEntryActions = () => {
       }
 
       // Return a context with the previous rundown
-      return { previousRundown };
+      return { previousRundown, queryKey };
     },
-    onSuccess: (response) => {
-      if (!response.data) return;
+    onSuccess: (response, _variables, context) => {
+      if (!response.data || !context?.queryKey) return;
 
       const { id, title, order, flatOrder, entries, revision } = response.data;
-      queryClient.setQueryData<Rundown>(RUNDOWN, {
+      queryClient.setQueryData<Rundown>(context.queryKey, {
         id,
         title,
         order,
@@ -489,7 +501,9 @@ export const useEntryActions = () => {
       });
     },
     onError: (_error, _newEvent, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousRundown);
+      if (context?.queryKey) {
+        queryClient.setQueryData<Rundown>(context.queryKey, context?.previousRundown);
+      }
     },
   });
 
@@ -517,17 +531,18 @@ export const useEntryActions = () => {
     mutationFn: ([rundownId, entryIds]: Parameters<typeof deleteEntries>) => deleteEntries(rundownId, entryIds),
     // we optimistically update here
     onMutate: async ([_rundownId, entryIds]) => {
+      const queryKey = resolveCurrentRundownQueryKey();
       // cancel ongoing queries
-      await queryClient.cancelQueries({ queryKey: RUNDOWN });
+      await queryClient.cancelQueries({ queryKey });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<Rundown>(queryKey);
 
       if (previousData) {
         // optimistically update object
         const { entries, order, flatOrder } = optimisticDeleteEntries(entryIds, previousData);
 
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
+        queryClient.setQueryData<Rundown>(queryKey, {
           id: previousData.id,
           title: previousData.title,
           order,
@@ -538,17 +553,19 @@ export const useEntryActions = () => {
       }
 
       // Return a context with the previous and new events
-      return { previousData };
+      return { previousData, queryKey };
     },
 
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _entryIds, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      if (context?.queryKey) {
+        queryClient.setQueryData<Rundown>(context.queryKey, context?.previousData);
+      }
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+    onSettled: (_data, _error, _variables, context) => {
+      queryClient.invalidateQueries({ queryKey: context?.queryKey ?? resolveCurrentRundownQueryKey() });
     },
   });
 
@@ -579,14 +596,15 @@ export const useEntryActions = () => {
     mutationFn: ([rundownId]: Parameters<typeof requestDeleteAll>) => requestDeleteAll(rundownId),
     // we optimistically update here
     onMutate: async () => {
+      const queryKey = resolveCurrentRundownQueryKey();
       // cancel ongoing queries
-      await queryClient.cancelQueries({ queryKey: RUNDOWN });
+      await queryClient.cancelQueries({ queryKey });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<Rundown>(queryKey);
 
       // optimistically update object
-      queryClient.setQueryData<Rundown>(RUNDOWN, {
+      queryClient.setQueryData<Rundown>(queryKey, {
         id: previousData?.id ?? 'default',
         title: previousData?.title ?? '',
         order: [],
@@ -596,17 +614,19 @@ export const useEntryActions = () => {
       });
 
       // Return a context with the previous and new events
-      return { previousData };
+      return { previousData, queryKey };
     },
 
     // Mutation fails, rollback optimist update
     onError: (_error, _, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      if (context?.queryKey) {
+        queryClient.setQueryData<Rundown>(context.queryKey, context?.previousData);
+      }
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+    onSettled: (_data, _error, _variables, context) => {
+      queryClient.invalidateQueries({ queryKey: context?.queryKey ?? resolveCurrentRundownQueryKey() });
     },
   });
 
@@ -632,12 +652,12 @@ export const useEntryActions = () => {
    */
   const { mutateAsync: applyDelayMutation } = useMutation({
     mutationFn: ([rundownId, delayId]: Parameters<typeof requestApplyDelay>) => requestApplyDelay(rundownId, delayId),
-    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
+    onMutate: () => queryClient.cancelQueries({ queryKey: resolveCurrentRundownQueryKey() }),
     onSuccess: (response) => {
       if (!response.data) return;
 
       const { id, title, order, flatOrder, entries, revision } = response.data;
-      queryClient.setQueryData<Rundown>(RUNDOWN, {
+      queryClient.setQueryData<Rundown>(resolveCurrentRundownQueryKey(), {
         id,
         title,
         order,
@@ -648,7 +668,7 @@ export const useEntryActions = () => {
     },
     // Mutation finished, failed or successful
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+      queryClient.invalidateQueries({ queryKey: resolveCurrentRundownQueryKey() });
     },
   });
 
@@ -677,12 +697,12 @@ export const useEntryActions = () => {
    */
   const { mutateAsync: ungroupMutation } = useMutation({
     mutationFn: ([rundownId, groupId]: Parameters<typeof requestUngroup>) => requestUngroup(rundownId, groupId),
-    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
+    onMutate: () => queryClient.cancelQueries({ queryKey: resolveCurrentRundownQueryKey() }),
     onSuccess: (response) => {
       if (!response.data) return;
 
       const { id, title, order, flatOrder, entries, revision } = response.data;
-      queryClient.setQueryData<Rundown>(RUNDOWN, {
+      queryClient.setQueryData<Rundown>(resolveCurrentRundownQueryKey(), {
         id,
         title,
         order,
@@ -691,7 +711,7 @@ export const useEntryActions = () => {
         revision,
       });
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: resolveCurrentRundownQueryKey() }),
   });
 
   /**
@@ -720,12 +740,12 @@ export const useEntryActions = () => {
   const { mutateAsync: groupEntriesMutation } = useMutation({
     mutationFn: ([rundownId, entryIds]: Parameters<typeof requestGroupEntries>) =>
       requestGroupEntries(rundownId, entryIds),
-    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
+    onMutate: () => queryClient.cancelQueries({ queryKey: resolveCurrentRundownQueryKey() }),
     onSuccess: (response) => {
       if (!response.data) return;
 
       const { id, title, order, flatOrder, entries, revision } = response.data;
-      queryClient.setQueryData<Rundown>(RUNDOWN, {
+      queryClient.setQueryData<Rundown>(resolveCurrentRundownQueryKey(), {
         id,
         title,
         order,
@@ -734,7 +754,7 @@ export const useEntryActions = () => {
         revision,
       });
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: resolveCurrentRundownQueryKey() }),
   });
 
   /**
@@ -771,9 +791,9 @@ export const useEntryActions = () => {
    */
   const { mutateAsync: reorderEntryMutation } = useMutation({
     mutationFn: ([rundownId, data]: Parameters<typeof patchReorderEntry>) => patchReorderEntry(rundownId, data),
-    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
+    onMutate: () => queryClient.cancelQueries({ queryKey: resolveCurrentRundownQueryKey() }),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+      queryClient.invalidateQueries({ queryKey: resolveCurrentRundownQueryKey() });
     },
   });
 
@@ -848,11 +868,12 @@ export const useEntryActions = () => {
     mutationFn: ([rundownId, from, to]: Parameters<typeof requestEventSwap>) => requestEventSwap(rundownId, from, to),
     // we optimistically update here
     onMutate: async ([_rundownId, from, to]) => {
+      const queryKey = resolveCurrentRundownQueryKey();
       // cancel ongoing queries
-      await queryClient.cancelQueries({ queryKey: RUNDOWN });
+      await queryClient.cancelQueries({ queryKey });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<Rundown>(queryKey);
       if (previousData) {
         // optimistically update object
         const newRundown = { ...previousData.entries };
@@ -867,7 +888,7 @@ export const useEntryActions = () => {
         newRundown[from] = newA;
         newRundown[to] = newB;
 
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
+        queryClient.setQueryData<Rundown>(queryKey, {
           id: previousData.id,
           title: previousData.title,
           order: previousData.order,
@@ -878,17 +899,19 @@ export const useEntryActions = () => {
       }
 
       // Return a context with the previous events
-      return { previousData };
+      return { previousData, queryKey };
     },
 
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _eventId, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      if (context?.queryKey) {
+        queryClient.setQueryData<Rundown>(context.queryKey, context?.previousData);
+      }
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+    onSettled: (_data, _error, _variables, context) => {
+      queryClient.invalidateQueries({ queryKey: context?.queryKey ?? resolveCurrentRundownQueryKey() });
     },
   });
 
