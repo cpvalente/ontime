@@ -140,7 +140,6 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
 
   let batchDidInvalidate = false;
   const changedIds: EntryId[] = [];
-  const patchedEntries: OntimeEntry[] = [];
   for (let i = 0; i < ids.length; i++) {
     const currentId = ids[i];
     const currentEntry = rundown.entries[currentId];
@@ -165,15 +164,20 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
       continue;
     }
 
-    const { entry, didInvalidate } = rundownMutation.edit(rundown, { ...patch, id: currentId });
+    const { didInvalidate } = rundownMutation.edit(rundown, { ...patch, id: currentId });
 
     changedIds.push(currentId);
-    patchedEntries.push(entry);
 
     if (didInvalidate) {
       batchDidInvalidate = true;
     }
   }
+
+  // skip commit and notifications when the patch is no-op.
+  if (changedIds.length === 0) {
+    return getCurrentRundown() as Rundown;
+  }
+
   const { rundown: rundownResult, rundownMetadata, revision } = commit(batchDidInvalidate);
 
   // schedule the side effects
@@ -192,7 +196,14 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
  * Deletes a known entry from the current rundown
  */
 export async function deleteEntries(entryIds: EntryId[]): Promise<Rundown> {
+  const currentRundown = getCurrentRundown();
+  const shouldDelete = entryIds.some((entryId) => Object.hasOwn(currentRundown.entries, entryId));
+  if (!shouldDelete) {
+    return currentRundown as Rundown;
+  }
+
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+  const deletedIds: EntryId[] = [];
 
   for (let i = 0; i < entryIds.length; i++) {
     const entry = rundown.entries[entryIds[i]];
@@ -200,6 +211,11 @@ export async function deleteEntries(entryIds: EntryId[]): Promise<Rundown> {
       continue;
     }
     rundownMutation.remove(rundown, entry);
+    deletedIds.push(entry.id);
+  }
+
+  if (deletedIds.length === 0) {
+    return currentRundown as Rundown;
   }
 
   const { rundown: rundownResult, rundownMetadata, revision } = commit();
@@ -210,7 +226,7 @@ export async function deleteEntries(entryIds: EntryId[]): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: entryIds, external: true });
+    notifyChanges(rundownMetadata, revision, { timer: deletedIds, external: true });
   });
 
   return rundownResult;
@@ -571,8 +587,10 @@ type NotifyChangesOptions = {
  * Notify services of changes in the rundown
  */
 function notifyChanges(rundownMetadata: RundownMetadata, revision: number, options: NotifyChangesOptions) {
+  const shouldNotifyTimer = options.timer === true || (Array.isArray(options.timer) && options.timer.length > 0);
+
   // notify timer service of changed events
-  if (options.timer) {
+  if (shouldNotifyTimer) {
     runtimeService.notifyOfChangedEvents(rundownMetadata);
   }
 

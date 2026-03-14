@@ -139,9 +139,7 @@ export const setEventPlayback = {
   pause: () => sendSocket('pause', undefined),
 };
 
-export const useTimer = createSelector((state: RuntimeStore) => ({
-  ...state.timer,
-}));
+export const useTimer = createSelector((state: RuntimeStore) => state.timer);
 
 export const useClock = createSelector((state: RuntimeStore) => state.clock);
 

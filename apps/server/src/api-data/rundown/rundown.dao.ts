@@ -186,7 +186,8 @@ function remove(rundown: Rundown, entry: OntimeEntry) {
     // for ontime groups, we need to iterate through the children and delete them
     for (let i = 0; i < entry.entries.length; i++) {
       const nestedEntryId = entry.entries[i];
-      deleteEntry(nestedEntryId);
+      // nested entries are not part of the top-level order
+      deleteEntry(nestedEntryId, false);
     }
   } else if (entry.parent) {
     // at this point, we are handling entries inside a group, so we need to remove the reference
@@ -205,10 +206,13 @@ function remove(rundown: Rundown, entry: OntimeEntry) {
       edit(rundown, { id: parentGroup.id, entries: filteredEvents });
     }
   }
+
   deleteEntry(entry.id);
 
-  function deleteEntry(idToDelete: EntryId) {
-    rundown.order = deleteById(rundown.order, idToDelete);
+  function deleteEntry(idToDelete: EntryId, shouldDeleteFromOrder: boolean = true) {
+    if (shouldDeleteFromOrder) {
+      rundown.order = deleteById(rundown.order, idToDelete);
+    }
     delete rundown.entries[idToDelete];
   }
 }

@@ -223,9 +223,14 @@ class SocketServer implements IAdapter {
 
   // message is any serializable value
   public sendAsJson<T extends MessageTag>(tag: T, payload: Pick<WsPacketToClient & { tag: T }, 'payload'>['payload']) {
+    const wss = this.wss;
+    if (!wss || wss.clients.size === 0) {
+      return;
+    }
+
     try {
       const stringifiedMessage = JSON.stringify({ tag, payload });
-      this.wss?.clients.forEach((client) => {
+      wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
           client.send(stringifiedMessage);
         }
