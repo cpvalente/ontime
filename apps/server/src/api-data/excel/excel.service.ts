@@ -21,6 +21,18 @@ import { rundownToTabular } from './excel.utils.js';
 // we keep the excel data in memory to allow the flow upload -> preview
 let excelData: WorkBook = xlsx.utils.book_new();
 
+const maxWorksheetNameLength = 31;
+const invalidWorksheetCharsRegex = /[:\\/?*[\]]/g;
+
+function getValidWorksheetName(title: string): string {
+  const sanitisedTitle = title.replaceAll(invalidWorksheetCharsRegex, ' ').trim().replace(/\s+/g, ' ');
+
+  const withFallback = sanitisedTitle.length > 0 ? sanitisedTitle : 'Rundown';
+  const truncatedTitle = withFallback.slice(0, maxWorksheetNameLength).trim();
+
+  return truncatedTitle.length > 0 ? truncatedTitle : 'Rundown';
+}
+
 /**
  * Receives and parses an excel file
  * The file is deleted after being read
@@ -93,7 +105,8 @@ export function generateExcelFile(rundown: Rundown, customFields: CustomFields):
 
   const workbook = xlsx.utils.book_new();
   const worksheet = xlsx.utils.aoa_to_sheet(rundownToTabular(rundown, customFields));
-  xlsx.utils.book_append_sheet(workbook, worksheet, rundown.title || 'Rundown');
+  const worksheetName = getValidWorksheetName(rundown.title || 'Rundown');
+  xlsx.utils.book_append_sheet(workbook, worksheet, worksheetName);
 
   return xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 }
