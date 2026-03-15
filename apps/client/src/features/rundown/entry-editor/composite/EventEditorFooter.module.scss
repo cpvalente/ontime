@@ -5,3 +5,16 @@
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+
+.selectionFooter {
+  border-top: 1px solid $white-10;
+  padding-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.selectionLabel {
+  color: $orange-400;
+  font-weight: 700;
+  font-size: 1rem;
+}

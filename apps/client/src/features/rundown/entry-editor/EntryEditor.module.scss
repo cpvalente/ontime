@@ -118,3 +118,13 @@
 .active {
   color: $active-indicator;
 }
+
+.hint {
+  font-size: 0.75rem;
+  color: $gray-500;
+  font-style: italic;
+}
+
+.bold {
+  font-weight: 600;
+}

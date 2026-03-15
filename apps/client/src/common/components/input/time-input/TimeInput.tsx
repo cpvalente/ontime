@@ -38,7 +38,7 @@ export default function TimeInput<T extends string>({
    */
   const resetValue = useCallback(() => {
     if (typeof time !== 'number' || isNaN(time)) {
-      setValue('00:00:00');
+      setValue('');
     } else {
       setValue(millisToString(time));
     }
