@@ -31,6 +31,12 @@ export {
   getPreviousBlockNormal,
   swapEventData,
 } from './src/rundown-utils/rundownUtils.js';
+export {
+  calculateEffectiveSchedule,
+  calculatePropagationUntilGap,
+  type EffectiveScheduleItem,
+  type EffectiveSchedulePoint,
+} from './src/rundown-utils/effectiveSchedule.js';
 
 // time format utils
 export {

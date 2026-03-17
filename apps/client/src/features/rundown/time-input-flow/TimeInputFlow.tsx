@@ -27,6 +27,8 @@ interface EventBlockTimerProps {
 function TimeInputFlow(props: EventBlockTimerProps) {
   const { eventId, countToEnd, timeStart, timeEnd, duration, timeStrategy, linkStart, delay, showLabels } = props;
   const { updateEvent, updateTimer } = useEventAction();
+  const displayStart = timeStart + delay;
+  const displayEnd = timeEnd + delay;
 
   // In sync with EventEditorTimes
   const handleSubmit = (field: TimeField, value: string) => {
@@ -67,6 +69,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
           name='timeStart'
           submitHandler={handleSubmit}
           time={timeStart}
+          displayTime={displayStart}
           hasDelay={hasDelay}
           placeholder='Start'
           disabled={Boolean(linkStart)}
@@ -86,6 +89,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
           name='timeEnd'
           submitHandler={handleSubmit}
           time={timeEnd}
+          displayTime={displayEnd}
           hasDelay={hasDelay}
           disabled={isLockedDuration}
           placeholder='End'

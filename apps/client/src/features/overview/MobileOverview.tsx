@@ -136,14 +136,14 @@ function ProgressOverview() {
 }
 
 function RuntimeOverview() {
-  const { clock, offset } = useRuntimePlaybackOverview();
+  const { clock, globalDelay } = useRuntimePlaybackOverview();
 
-  const offsetText = getOffsetText(offset);
-  const offsetClasses = offset === null ? undefined : offset <= 0 ? style.behind : style.ahead;
+  const offsetText = getOffsetText(globalDelay);
+  const offsetClasses = globalDelay === 0 ? undefined : globalDelay > 0 ? style.behind : style.ahead;
 
   return (
     <>
-      <TimeColumn label='Offset' value={offsetText} className={offsetClasses} testId='offset' />
+      <TimeColumn label='Delay' value={offsetText} className={offsetClasses} testId='offset' />
       <TimeColumn label='Time now' value={formatedTime(clock)} />
     </>
   );

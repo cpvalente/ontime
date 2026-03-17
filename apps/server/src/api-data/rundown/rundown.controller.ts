@@ -1,7 +1,9 @@
 import {
   ErrorResponse,
+  isOntimeEvent,
   MessageResponse,
   OntimeRundown,
+  OntimeEvent,
   OntimeRundownEntry,
   RundownCached,
   RundownPaginated,
@@ -27,6 +29,8 @@ import {
   getPaginated,
   getRundown,
 } from '../../services/rundown-service/rundownUtils.js';
+import { getEffectiveEventOverlays } from '../../services/effectiveSchedule.js';
+import { getState } from '../../stores/runtimeState.js';
 
 export async function rundownGetAll(_req: Request, res: Response<OntimeRundown>) {
   const rundown = getRundown();
@@ -35,7 +39,36 @@ export async function rundownGetAll(_req: Request, res: Response<OntimeRundown>)
 
 export async function rundownGetNormalised(_req: Request, res: Response<RundownCached>) {
   const cachedRundown = getNormalisedRundown();
-  res.json(cachedRundown);
+  const state = getState();
+  const activeIndex = state.runtime.selectedEventIndex;
+  const globalDelay = state.runtime.globalDelay;
+
+  if (activeIndex === null || globalDelay === 0) {
+    res.json(cachedRundown);
+    return;
+  }
+
+  const timedEvents = cachedRundown.order
+    .map((id) => cachedRundown.rundown[id])
+    .filter((event): event is OntimeEvent => isOntimeEvent(event));
+  const overlays = getEffectiveEventOverlays(timedEvents, activeIndex, globalDelay);
+
+  const updatedRundown = { ...cachedRundown.rundown };
+  for (const event of timedEvents) {
+    const overlay = overlays.get(event.id);
+    if (!overlay) {
+      continue;
+    }
+    updatedRundown[event.id] = {
+      ...event,
+      delay: overlay.delay,
+    };
+  }
+
+  res.json({
+    ...cachedRundown,
+    rundown: updatedRundown,
+  });
 }
 
 export async function rundownGetById(req: Request, res: Response<OntimeRundownEntry | ErrorResponse>) {

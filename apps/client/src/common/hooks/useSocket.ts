@@ -86,9 +86,9 @@ export const setPlayback = {
   reload: () => {
     socketSendJson('reload');
   },
-  addTime: (amount: number) => {
-    socketSendJson('addtime', amount);
-  },
+  addTime: (amount: number) => socketSendJson('addtime', amount),
+  addGlobalDelay: (amount: number) => socketSendJson('globaldelay', amount),
+  resetGlobalDelay: () => socketSendJson('globaldelay', 'reset'),
 };
 
 export const useInfoPanel = createSelector((state: RuntimeStore) => ({
@@ -161,6 +161,7 @@ export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) =
   numEvents: state.runtime.numEvents,
   selectedEventIndex: state.runtime.selectedEventIndex,
   offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offset : state.runtime.relativeOffset,
+  globalDelay: state.runtime.globalDelay,
 
   currentBlock: state.currentBlock,
 }));
@@ -181,6 +182,10 @@ export const useTimeUntilData = createSelector((state: RuntimeStore) => ({
 
 export const useRuntimeOffset = createSelector((state: RuntimeStore) => ({
   offset: state.runtime.offset,
+}));
+
+export const useGlobalDelay = createSelector((state: RuntimeStore) => ({
+  globalDelay: state.runtime.globalDelay,
 }));
 
 export const usePing = createSelector((state: RuntimeStore) => ({

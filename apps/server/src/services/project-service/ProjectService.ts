@@ -174,7 +174,7 @@ export async function loadProjectFile(name: string) {
   // since load happens at runtime, we need to update the services that depend on the data
 
   // apply data model
-  runtimeService.stop();
+  runtimeService.stop(true);
 
   const { rundown, customFields } = result.data;
 
@@ -244,7 +244,7 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
     await setLastLoadedProject(newFilename);
 
     // apply data model
-    runtimeService.stop();
+    runtimeService.stop(true);
 
     const { rundown, customFields } = result.data;
 
@@ -297,7 +297,7 @@ export async function deleteProjectFile(filename: string) {
  * applies a partial database model
  */
 export async function patchCurrentProject(data: Partial<DatabaseModel>) {
-  runtimeService.stop();
+  runtimeService.stop(true);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars  -- we need to remove the fields before merging
   const { rundown, customFields, ...rest } = data;

@@ -1,17 +1,17 @@
 {
   "name": "ontime",
-  "version": "3.15.0",
+  "version": "3.16.0",
   "description": "Time keeping for live events",
   "keywords": [
     "ontime",
     "timer",
     "rundown"
   ],
-  "author": "Carlos Valente",
+  "author": "Alan Aiken",
   "homepage": "https://www.getontime.no/",
-  "repository": "https://github.com/cpvalente/ontime",
+  "repository": "https://github.com/lifenz-prod/ontime",
   "bugs": {
-    "url": "https://github.com/cpvalente/ontime/issues",
+    "url": "https://github.com/lifenz-prod/ontime/issues",
     "email": "mail@getontime.no"
   },
   "license": "AGPL-3.0-only",

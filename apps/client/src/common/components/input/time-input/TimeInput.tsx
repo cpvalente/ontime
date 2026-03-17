@@ -9,6 +9,7 @@ interface TimeInputProps<T extends string> {
   name: T;
   submitHandler: (field: T, value: string) => void;
   time?: number;
+  displayTime?: number;
   placeholder: string;
   disabled?: boolean;
   align?: 'left' | 'center';
@@ -16,23 +17,24 @@ interface TimeInputProps<T extends string> {
 }
 
 export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
-  const { id, name, submitHandler, time = 0, placeholder, disabled, align = 'center', className } = props;
+  const { id, name, submitHandler, time = 0, displayTime, placeholder, disabled, align = 'center', className } = props;
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
   const ignoreChange = useRef(false);
+  const comparisonTime = displayTime ?? time;
 
   /**
    * @description Resets input value to given
    */
   const resetValue = useCallback(() => {
     try {
-      setValue(millisToString(time));
+      setValue(millisToString(comparisonTime));
     } catch (error) {
       setValue(millisToString(0));
-      emitError(`Unable to parse time ${time}: ${error}`);
+      emitError(`Unable to parse time ${comparisonTime}: ${error}`);
     }
-  }, [emitError, time]);
+  }, [comparisonTime, emitError]);
 
   /**
    * @description Selects input text on focus
@@ -59,14 +61,14 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
       }
 
       const valueInMillis = parseUserTime(newValue);
-      if (valueInMillis === time) {
+      if (valueInMillis === comparisonTime) {
         return false;
       }
 
       submitHandler(name, newValue);
       return true;
     },
-    [name, submitHandler, time],
+    [comparisonTime, name, submitHandler],
   );
 
   /**
@@ -113,9 +115,9 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
   );
 
   useEffect(() => {
-    if (time == null) return;
+    if (comparisonTime == null) return;
     resetValue();
-  }, [resetValue, time]);
+  }, [comparisonTime, resetValue]);
 
   return (
     <Input

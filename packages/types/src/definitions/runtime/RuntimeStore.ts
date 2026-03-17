@@ -32,6 +32,7 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
   runtime: {
     selectedEventIndex: null, // changes if rundown changes or we load a new event
     numEvents: 0, // change initiated by user
+    globalDelay: 0, // user controlled runtime delay at currently selected event
     offset: 0, // changes at runtime
     relativeOffset: 0, // changes at runtime
     plannedStart: 0, // only changes if event changes

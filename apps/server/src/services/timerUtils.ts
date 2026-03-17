@@ -1,6 +1,8 @@
 import { MaybeNumber, TimerPhase } from 'ontime-types';
 import { dayInMs, isPlaybackActive } from 'ontime-utils';
 import type { RuntimeState } from '../stores/runtimeState.js';
+import { getTimedEvents } from './rundown-service/rundownUtils.js';
+import { getEffectiveEventOverlayAtIndex, getEffectiveEventOverlays } from './effectiveSchedule.js';
 
 /**
  * handle events that span over midnight
@@ -22,6 +24,7 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
   const { countToEnd, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
   const { clock } = state;
+  const activeIndex = state.runtime?.selectedEventIndex ?? null;
 
   if (startedAt === null) {
     return null;
@@ -34,7 +37,13 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
   const pausedTime = pausedAt != null ? clock - pausedAt : 0;
 
   if (countToEnd) {
-    return timeEnd + addedTime + pausedTime;
+    const globalDelay = state.runtime?.globalDelay ?? 0;
+    const effectiveCurrent =
+      activeIndex !== null && globalDelay !== 0
+        ? getEffectiveEventOverlayAtIndex(getTimedEvents(), activeIndex, globalDelay, activeIndex)
+        : null;
+    const computedEffectiveEnd = effectiveCurrent?.effectiveEnd ?? timeEnd + (state.eventNow.delay ?? 0);
+    return computedEffectiveEnd + addedTime + pausedTime;
   }
 
   // handle events that finish the day after
@@ -65,11 +74,18 @@ export function getCurrent(state: RuntimeState): number {
   const { countToEnd, timeStart, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
   const { clock } = state;
+  const activeIndex = state.runtime?.selectedEventIndex ?? null;
 
   if (countToEnd) {
     const isEventOverMidnight = timeStart > timeEnd;
     const correctDay = isEventOverMidnight ? dayInMs : 0;
-    return correctDay - clock + timeEnd + addedTime;
+    const globalDelay = state.runtime?.globalDelay ?? 0;
+    const effectiveCurrent =
+      activeIndex !== null && globalDelay !== 0
+        ? getEffectiveEventOverlayAtIndex(getTimedEvents(), activeIndex, globalDelay, activeIndex)
+        : null;
+    const computedEffectiveEnd = effectiveCurrent?.effectiveEnd ?? timeEnd + (state.eventNow.delay ?? 0);
+    return correctDay - clock + computedEffectiveEnd + addedTime;
   }
 
   if (startedAt === null) {
@@ -181,7 +197,9 @@ export function getExpectedEnd(state: RuntimeState): MaybeNumber {
   if (state.runtime.actualStart === null || state.runtime.plannedEnd === null) {
     return null;
   }
-  return state.runtime.plannedEnd - state.runtime.offset + state._rundown.totalDelay;
+  const projectedGlobalDelay = getProjectedDelayAtRundownEnd(state);
+  const expectedEnd = state.runtime.plannedEnd - state.runtime.offset + state._rundown.totalDelay + projectedGlobalDelay;
+  return expectedEnd;
 }
 
 /**
@@ -214,4 +232,21 @@ export function getTimerPhase(state: RuntimeState): TimerPhase {
   }
 
   return TimerPhase.Default;
+}
+
+function getProjectedDelayAtRundownEnd(state: RuntimeState): number {
+  const activeIndex = state.runtime?.selectedEventIndex ?? null;
+  const globalDelay = state.runtime?.globalDelay ?? 0;
+  if (activeIndex === null || globalDelay === 0) {
+    return 0;
+  }
+
+  const timedEvents = getTimedEvents();
+  if (timedEvents.length === 0) {
+    return 0;
+  }
+
+  const overlays = getEffectiveEventOverlays(timedEvents, activeIndex, globalDelay);
+  const projectedDelay = overlays.get(timedEvents.at(-1)?.id ?? '')?.delayAtThisPoint ?? 0;
+  return projectedDelay;
 }

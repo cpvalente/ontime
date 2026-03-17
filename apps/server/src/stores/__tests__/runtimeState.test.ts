@@ -3,6 +3,7 @@ import { deepmerge } from 'ontime-utils';
 
 import {
   type RuntimeState,
+  addGlobalDelay,
   addTime,
   clearState,
   getState,
@@ -33,6 +34,7 @@ const mockState = {
   publicEventNext: null,
   runtime: {
     selectedEventIndex: null,
+    globalDelay: 0,
     numEvents: 0,
   },
   timer: {
@@ -236,6 +238,24 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.actualStart).toBeNull();
       expect(newState.runtime.offset).toBe(0);
       expect(newState.runtime.expectedEnd).toBeNull();
+    });
+
+    test('global delay persists when loading next event and stopping playback', () => {
+      const event1 = { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000 };
+      const event2 = { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 2000, duration: 1000 };
+
+      load(event1, [event1, event2]);
+      addGlobalDelay(60_000);
+      expect(getState().runtime.globalDelay).toBe(60_000);
+
+      load(event2, [event1, event2]);
+      expect(getState().runtime.globalDelay).toBe(60_000);
+
+      stop();
+      expect(getState().runtime.globalDelay).toBe(60_000);
+
+      clearState(true);
+      expect(getState().runtime.globalDelay).toBe(0);
     });
 
     test.todo('runtime offset on timers in overtime', () => {});

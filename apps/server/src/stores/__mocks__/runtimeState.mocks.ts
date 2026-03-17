@@ -15,6 +15,7 @@ const baseState: RuntimeState = {
   runtime: {
     selectedEventIndex: null,
     numEvents: 0,
+    globalDelay: 0,
     offset: 0,
     relativeOffset: 0,
     plannedStart: 0,

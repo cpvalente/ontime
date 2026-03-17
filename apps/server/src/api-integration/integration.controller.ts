@@ -215,6 +215,38 @@ const actionHandlers: Record<string, ActionHandler> = {
     runtimeService.addTime(timeToAdd);
     return { payload: 'success' };
   },
+  globaldelay: (payload) => {
+    if (payload === 'reset') {
+      runtimeService.resetGlobalDelay();
+      return { payload: 'success' };
+    }
+
+    let time = 0;
+    if (payload && typeof payload === 'object') {
+      if ('add' in payload) {
+        time = numberOrError(payload.add);
+      } else if ('remove' in payload) {
+        time = numberOrError(payload.remove) * -1;
+      } else if ('reset' in payload) {
+        runtimeService.resetGlobalDelay();
+        return { payload: 'success' };
+      }
+    } else {
+      time = numberOrError(payload);
+    }
+
+    if (time === 0) {
+      return { payload: 'success' };
+    }
+
+    const timeToAdd = time * MILLIS_PER_SECOND;
+    if (Math.abs(timeToAdd) > MILLIS_PER_HOUR) {
+      throw new Error(`Payload too large: ${time}`);
+    }
+
+    runtimeService.addGlobalDelay(timeToAdd);
+    return { payload: 'success' };
+  },
   /* Extra timers */
   auxtimer: (payload) => {
     assert.isObject(payload);

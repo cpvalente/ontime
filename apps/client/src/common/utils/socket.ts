@@ -164,7 +164,14 @@ export const connectSocket = () => {
           break;
         }
         case 'ontime-runtime': {
+          const shouldInvalidateRundown =
+            typeof payload === 'object' &&
+            payload !== null &&
+            ('globalDelay' in payload || 'selectedEventIndex' in payload);
           addToBatchUpdates('runtime', payload);
+          if (shouldInvalidateRundown) {
+            ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
+          }
           updateDevTools({ runtime: payload });
           break;
         }

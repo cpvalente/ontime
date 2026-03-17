@@ -1,16 +1,45 @@
 .addTime {
   grid-area: addtime;
-  display: flex;
-  flex-direction: column;
-  gap: $element-inner-spacing;
+  width: 100%;
 }
 
-.addButtons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $element-inner-spacing;
+.label {
+  margin-bottom: 0.25rem;
+  font-size: $inner-section-text-size;
+  color: $label-gray;
 }
 
 .tallButtons {
   height: 28px;
+  min-width: 0;
+}
+
+.globalButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "reset reset"
+    "minus plus";
+  gap: $element-inner-spacing;
+  width: 100%;
+}
+
+.globalButtons > :nth-child(1) {
+  grid-area: minus;
+  min-width: 0;
+}
+
+.globalButtons > :nth-child(2) {
+  grid-area: reset;
+  min-width: 0;
+}
+
+.globalButtons > :nth-child(3) {
+  grid-area: plus;
+  min-width: 0;
+}
+
+.resetButton {
+  height: 28px;
+  min-width: 0;
 }

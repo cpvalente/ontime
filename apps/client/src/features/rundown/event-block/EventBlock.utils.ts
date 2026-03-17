@@ -5,10 +5,8 @@ import { formatDuration } from '../../../common/utils/time';
 export function formatDelay(timeStart: number, delay: number): string | undefined {
   if (!delay) return;
 
-  const delayedStart = Math.max(0, timeStart + delay);
-
-  const timeTag = removeTrailingZero(millisToString(delayedStart));
-  return `New start ${timeTag}`;
+  const timeTag = removeTrailingZero(millisToString(Math.max(0, timeStart)));
+  return `Original start ${timeTag}`;
 }
 export function formatGap(gap: number, isNextDay: boolean) {
   if (gap === 0) {

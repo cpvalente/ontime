@@ -38,6 +38,7 @@ import {
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
 import { triggerAutomations } from '../../api-data/automation/automation.service.js';
+import { applyEffectiveOverlay, getEffectiveEventOverlays } from '../effectiveSchedule.js';
 
 type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow' | 'publicEventNow' | 'publicEventNext'>;
 
@@ -509,7 +510,6 @@ class RuntimeService {
     if (!hasPrevious) {
       return false;
     }
-
     return this.handleStart();
   }
 
@@ -547,13 +547,13 @@ class RuntimeService {
    * Stops timer and unloads any events
    */
   @broadcastResult
-  public stop(): boolean {
+  public stop(resetGlobalDelay = false): boolean {
     const previousState = runtimeState.getState();
     const canStop = validatePlayback(previousState.timer.playback, previousState.timer.phase).stop;
-    if (!canStop) {
+    if (!canStop && !resetGlobalDelay) {
       return false;
     }
-    const didStop = this.eventTimer?.stop();
+    const didStop = this.eventTimer?.stop(resetGlobalDelay) ?? runtimeState.stop(undefined, resetGlobalDelay);
     if (didStop) {
       const newState = runtimeState.getState();
       logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
@@ -672,6 +672,32 @@ class RuntimeService {
       logger.info(LogOrigin.Playback, `${time > 0 ? 'Added' : 'Removed'} ${millisToString(time)}`);
     }
   }
+
+  /**
+   * Adds runtime global delay at the currently selected event
+   */
+  @broadcastResult
+  public addGlobalDelay(time: number) {
+    if (this.eventTimer.addGlobalDelay(time)) {
+      const state = runtimeState.getState();
+      logger.info(
+        LogOrigin.Playback,
+        `Global delay ${time > 0 ? 'increased' : 'decreased'} by ${millisToString(time)} (${millisToString(
+          state.runtime.globalDelay,
+        )})`,
+      );
+    }
+  }
+
+  /**
+   * Resets runtime global delay to zero
+   */
+  @broadcastResult
+  public resetGlobalDelay() {
+    if (this.eventTimer.resetGlobalDelay()) {
+      logger.info(LogOrigin.Playback, 'Global delay reset to 00:00');
+    }
+  }
 }
 
 // calculate at 30fps, refresh at 1fps
@@ -786,6 +812,12 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       eventStore.set('clock', state.clock);
     }
 
+    const effectiveEventOverlays = getEffectiveEventOverlays(
+      getTimedEvents(),
+      state.runtime.selectedEventIndex,
+      state.runtime.globalDelay,
+    );
+
     // Update the events if they have changed
     updateEventIfChanged('eventNow', state);
     updateEventIfChanged('publicEventNow', state);
@@ -795,7 +827,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // Helper function to update an event if it has changed
     function updateEventIfChanged(eventKey: RuntimeStateEventKeys, state: runtimeState.RuntimeState) {
       const previous = RuntimeService.previousState?.[eventKey];
-      const now = state[eventKey];
+      const now = applyEffectiveOverlay(state[eventKey], effectiveEventOverlays);
 
       // if there was nothing, and there is nothing, noop
       if (!previous?.id && !now?.id) {
@@ -804,19 +836,19 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
       // if load status changed, save new
       if (previous?.id !== now?.id) {
-        storeKey(eventKey);
+        storeKey(eventKey, now);
         return;
       }
 
       // maybe the event itself has changed
-      if (!deepEqual(RuntimeService.previousState?.[eventKey], state[eventKey])) {
-        storeKey(eventKey);
+      if (!deepEqual(RuntimeService.previousState?.[eventKey], now)) {
+        storeKey(eventKey, now);
         return;
       }
 
-      function storeKey(eventKey: RuntimeStateEventKeys) {
-        eventStore.set(eventKey, state[eventKey]);
-        RuntimeService.previousState[eventKey] = { ...state[eventKey] };
+      function storeKey(eventKey: RuntimeStateEventKeys, eventValue: runtimeState.RuntimeState[RuntimeStateEventKeys]) {
+        eventStore.set(eventKey, eventValue);
+        RuntimeService.previousState[eventKey] = eventValue ? { ...eventValue } : eventValue;
       }
     }
 

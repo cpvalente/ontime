@@ -43,6 +43,9 @@ export class EventTimer {
     }
 
     const state = runtimeState.getState();
+    if (!state) {
+      return true;
+    }
     const endTime = state.timer.current - timerConfig.triggerAhead;
     this.endCallback = setTimeout(() => this.update(), endTime);
     return true;
@@ -58,8 +61,8 @@ export class EventTimer {
     return true;
   }
 
-  stop() {
-    if (!runtimeState.stop()) {
+  stop(resetGlobalDelay = false) {
+    if (!runtimeState.stop(undefined, resetGlobalDelay)) {
       return false;
     }
 
@@ -79,6 +82,9 @@ export class EventTimer {
     // renew end callback
     clearTimeout(this.endCallback);
     const state = runtimeState.getState();
+    if (!state) {
+      return true;
+    }
     // eslint-disable-next-line no-unused-labels -- dev code path
     DEV: {
       if (state.timer.expectedFinish === null) {
@@ -86,6 +92,44 @@ export class EventTimer {
       }
     }
     this.endCallback = setTimeout(() => this.update(), state.timer.expectedFinish);
+    return true;
+  }
+
+  /**
+   * Adds runtime global delay and renews expected finish callback
+   */
+  addGlobalDelay(amount: number): boolean {
+    if (!runtimeState.addGlobalDelay(amount)) {
+      return false;
+    }
+
+    clearTimeout(this.endCallback);
+    const state = runtimeState.getState();
+    if (!state) {
+      return true;
+    }
+    if (state.timer.expectedFinish !== null) {
+      this.endCallback = setTimeout(() => this.update(), state.timer.expectedFinish);
+    }
+    return true;
+  }
+
+  /**
+   * Resets runtime global delay and renews expected finish callback
+   */
+  resetGlobalDelay(): boolean {
+    if (!runtimeState.resetGlobalDelay()) {
+      return false;
+    }
+
+    clearTimeout(this.endCallback);
+    const state = runtimeState.getState();
+    if (!state) {
+      return true;
+    }
+    if (state.timer.expectedFinish !== null) {
+      this.endCallback = setTimeout(() => this.update(), state.timer.expectedFinish);
+    }
     return true;
   }
 

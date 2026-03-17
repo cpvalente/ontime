@@ -11,13 +11,14 @@ interface TimeInputWithButtonProps<T extends string> {
   name: T;
   submitHandler: (field: T, value: string) => void;
   time?: number;
+  displayTime?: number;
   hasDelay?: boolean;
   disabled?: boolean;
   placeholder: string;
 }
 
 export default function TimeInputWithButton<T extends string>(props: PropsWithChildren<TimeInputWithButtonProps<T>>) {
-  const { name, submitHandler, time, hasDelay, placeholder, disabled, children } = props;
+  const { name, submitHandler, time, displayTime, hasDelay, placeholder, disabled, children } = props;
 
   const inputClasses = cx([style.timeInput, hasDelay ? style.delayed : null]);
 
@@ -27,6 +28,7 @@ export default function TimeInputWithButton<T extends string>(props: PropsWithCh
         name={name}
         submitHandler={submitHandler}
         time={time}
+        displayTime={displayTime}
         placeholder={placeholder}
         align='left'
         disabled={disabled}

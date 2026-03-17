@@ -114,7 +114,7 @@ export function clearEventData() {
 }
 
 // clear all necessary data when doing a full stop and the event is unloaded
-export function clearState() {
+export function clearState(resetGlobalDelay = false) {
   runtimeState.eventNow = null;
   runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
@@ -126,6 +126,9 @@ export function clearState() {
 
   runtimeState.runtime.offset = 0;
   runtimeState.runtime.relativeOffset = 0;
+  if (resetGlobalDelay) {
+    runtimeState.runtime.globalDelay = 0;
+  }
   runtimeState.runtime.actualStart = null;
   runtimeState.runtime.expectedEnd = null;
   runtimeState.runtime.selectedEventIndex = null;
@@ -422,7 +425,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   // update offset
   state.runtime.offset = getRuntimeOffset(state);
   state.runtime.relativeOffset = getRelativeOffset(state);
-  state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
+  state.runtime.expectedEnd = getExpectedEnd(state);
   return true;
 }
 
@@ -437,11 +440,15 @@ export function pause(state: RuntimeState = runtimeState): boolean {
   return true;
 }
 
-export function stop(state: RuntimeState = runtimeState): boolean {
+export function stop(state: RuntimeState = runtimeState, resetGlobalDelay = false): boolean {
   if (state.timer.playback === Playback.Stop) {
+    if (resetGlobalDelay) {
+      clearState(true);
+      return true;
+    }
     return false;
   }
-  clearState();
+  clearState(resetGlobalDelay);
   return true;
 }
 
@@ -486,6 +493,32 @@ export function addTime(amount: number) {
   runtimeState.runtime.relativeOffset = getRelativeOffset(runtimeState);
   runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 
+  return true;
+}
+
+export function addGlobalDelay(amount: number) {
+  if (runtimeState.eventNow === null || runtimeState.runtime.selectedEventIndex === null) {
+    return false;
+  }
+
+  runtimeState.runtime.globalDelay += amount;
+  runtimeState.timer.current = getCurrent(runtimeState);
+  runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
+  runtimeState.timer.phase = getTimerPhase(runtimeState);
+  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
+  return true;
+}
+
+export function resetGlobalDelay() {
+  if (runtimeState.runtime.globalDelay === 0) {
+    return false;
+  }
+
+  runtimeState.runtime.globalDelay = 0;
+  runtimeState.timer.current = getCurrent(runtimeState);
+  runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
+  runtimeState.timer.phase = getTimerPhase(runtimeState);
+  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
   return true;
 }
 

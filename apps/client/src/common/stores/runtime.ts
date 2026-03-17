@@ -22,7 +22,8 @@ export function addToBatchUpdates<K extends keyof RuntimeStore>(key: K, value: R
 
 export function flushBatchUpdates() {
   const state = runtimeStore.getState();
-  runtimeStore.setState({ ...state, ...batchStore });
+  const nextState = { ...state, ...batchStore };
+  runtimeStore.setState(nextState);
   batchStore = {};
 }
 
@@ -40,5 +41,6 @@ export function patchRuntimeProperty<K extends keyof RuntimeStore>(key: K, value
  */
 export function patchRuntime(patch: Partial<RuntimeStore>) {
   const state = runtimeStore.getState();
-  runtimeStore.setState({ ...state, ...patch });
+  const nextState = { ...state, ...patch };
+  runtimeStore.setState(nextState);
 }
