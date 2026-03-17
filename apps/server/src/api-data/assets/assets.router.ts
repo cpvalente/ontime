@@ -24,6 +24,7 @@ router.post('/css', validatePostCss, async (req: Request, res: Response<never | 
   const { css } = req.body;
   try {
     await writeCssFile(css);
+    sendRefetch(RefetchKey.CssOverride);
     res.status(204).send();
   } catch (error) {
     const message = getErrorMessage(error);
@@ -34,6 +35,7 @@ router.post('/css', validatePostCss, async (req: Request, res: Response<never | 
 router.post('/css/restore', async (_req: Request, res: Response<string | ErrorResponse>) => {
   try {
     await writeCssFile(defaultCss);
+    sendRefetch(RefetchKey.CssOverride);
     res.status(200).send(defaultCss);
   } catch (error) {
     const message = getErrorMessage(error);
