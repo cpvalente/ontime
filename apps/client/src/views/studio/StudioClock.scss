@@ -23,8 +23,12 @@ $studio-idle: $red-1300;
   }
 
   .time {
-    display: grid;
-    place-content: center;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-align-items: center;
+    align-items: center;
     color: $studio-red;
     font-size: var(--timer-font-size);
   }

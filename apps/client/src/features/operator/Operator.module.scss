@@ -1,5 +1,6 @@
 .operatorContainer {
   width: 100vw;
+  height: 100%;  /* fallback for browsers without 100vh support */
   height: 100vh;
 
   background-color: $ui-black;
@@ -8,6 +9,7 @@
 
 .operatorEvents {
   width: 100vw;
+  height: 100%;  /* fallback for browsers without 100vh support */
   height: 100vh;
   padding-top: 0.25rem;
 

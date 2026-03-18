@@ -2,6 +2,7 @@
 
 .notFound {
   display: grid;
+  height: 100%;  /* fallback for browsers without 100vh support */
   height: 100vh;
   padding-top: 20vh;
   background-color: var(--background-color-override, $viewer-background-color);

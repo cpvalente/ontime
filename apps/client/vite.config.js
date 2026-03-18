@@ -1,6 +1,7 @@
 import path from 'path';
 
 import { sentryVitePlugin } from '@sentry/vite-plugin';
+import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
@@ -26,6 +27,18 @@ export default defineConfig({
         plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
       },
     }),
+    legacy({
+      // Target Chrome 38 to force full ES5 transpilation (const/let/arrow/class).
+      // WebOS 4.x (and some 5.x) TV browsers use embedded V8 that doesn't
+      // support const in sloppy mode or arrow functions.
+      targets: ['chrome >= 38'],
+      modernPolyfills: true,
+      // Polyfill Web APIs missing in old WebOS Chromium builds
+      additionalLegacyPolyfills: [
+        'abortcontroller-polyfill/dist/umd-polyfill.js',
+        path.resolve(__dirname, 'src/polyfills-legacy.js'),
+      ],
+    }),
     svgrPlugin(),
     sentryAuthToken &&
       sentryVitePlugin({
@@ -47,6 +60,10 @@ export default defineConfig({
     compression({
       algorithm: 'brotliCompress',
       exclude: /\.(html)$/, // Ontime cloud: Exclude HTML files from compression so we can change the base property at runtime
+    }),
+    compression({
+      algorithm: 'gzip',
+      exclude: /\.(html)$/, // fallback for WebOS and other browsers without Brotli support
     }),
   ],
   server: {
@@ -86,7 +103,11 @@ export default defineConfig({
     environment: 'jsdom',
   },
   build: {
+    minify: false,
     outDir: './build',
+    // Target Chrome 68 (WebOS 4.x) so esbuild transpiles optional chaining,
+    // nullish coalescing, and other syntax not supported by Chrome 68
+    target: 'chrome68',
     sourcemap: true,
     rollupOptions: {
       output: {

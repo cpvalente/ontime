@@ -72,11 +72,14 @@ html {
 
 body,
 html,
-.App {
+.App,
+#root {
   margin: 0 auto;
   overflow: hidden;
   overflow: clip;
-  height: 100vh;
+  /* Use 100% so the JS-set height on <html> propagates correctly.
+     On old TV browsers 100vh can equal 50% of the physical screen. */
+  height: 100%;
   -webkit-user-select: none;
   user-select: none;
   -webkit-app-region: drag;

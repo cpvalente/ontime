@@ -51,6 +51,10 @@ class ErrorBoundary extends React.Component {
           <div>
             <p className={style.error}>: /</p>
             <p>Something went wrong.</p>
+            <pre style={{ fontSize: '11px', textAlign: 'left', background: '#1a0000', color: '#ff9999', padding: '8px', marginTop: '8px', whiteSpace: 'pre-wrap', wordBreak: 'break-all', maxHeight: '50vh', overflow: 'auto' }}>
+              {this.state.errorMessage}
+              {this.state.errorInfo ? '\n\nComponent stack:' + this.state.errorInfo.componentStack : ''}
+            </pre>
             <a
               className={style.report}
               href={`mailto:mail@getontime.no?subject=Error%20Report&body=${encodeURIComponent(this.reportContent)}`}
