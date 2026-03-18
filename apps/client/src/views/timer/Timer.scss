@@ -1,20 +1,26 @@
 @use '../../theme/viewerDefs' as *;
 
 .stage-timer {
+  position: relative; /* anchor for .blackout position:absolute */
   margin: 0;
   box-sizing: border-box; /* reset */
   overflow: hidden;
   width: 100%; /* restrict the page width to viewport */
-  height: 100vh;
+  height: 100vh; /* overridden by __vhfix script on old TV browsers */
+  height: 100%;
   transition: opacity 0.5s ease-in-out;
 
   font-family: var(--font-family-override, $viewer-font-family);
   background: var(--timer-bg, var(--background-color-override, $viewer-background-color));
   color: var(--color-override, $viewer-color);
+  gap: $view-element-gap-fallback;
   gap: $view-element-gap;
+  padding: $view-block-padding-fallback $view-inline-padding-fallback;
   padding: $view-outer-padding;
 
+  display: -webkit-flex;
   display: flex;
+  -webkit-flex-direction: column;
   flex-direction: column;
 
   &--finished {
@@ -25,7 +31,10 @@
 
   .blackout {
     position: absolute;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     z-index: 0;
     background-color: #000;
     opacity: 0;
@@ -45,13 +54,13 @@
     transition: opacity $viewer-transition-time;
 
     .label {
-      font-size: $timer-label-size;
+      @include font-size-compat($timer-label-size-fallback, $timer-label-size);
       color: var(--label-color-override, $viewer-label-color);
       text-transform: uppercase;
     }
 
     .clock {
-      font-size: $timer-value-size;
+      @include font-size-compat($timer-value-size-fallback, $timer-value-size);
       color: var(--secondary-color-override, $viewer-secondary-color);
       letter-spacing: 0.05em;
       line-height: 0.95em;
@@ -66,6 +75,7 @@
 
   .event {
     background-color: var(--card-background-color-override, $viewer-card-bg-color);
+    padding: $view-block-padding-fallback $view-inline-padding-fallback;
     padding: $view-card-padding;
     border-radius: $element-border-radius;
 
@@ -82,7 +92,16 @@
 
   .timer-container {
     flex: 1;
-    align-content: center;
+    /* align-content:center doesn't work in flex on Chrome < 57.
+       Use display:flex + justify-content:center instead. */
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-align-items: center;
+    align-items: center;
     justify-self: center;
     align-self: center;
 
@@ -148,6 +167,7 @@
     line-height: 1;
     transition-property: opacity, height;
     transition-duration: $viewer-transition-time;
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* fallback for browsers without color-mix() */
     border-top: 1px solid color-mix(in srgb, var(--external-color-override, $external-color) 10%, transparent);
 
     &--hidden {
@@ -172,7 +192,10 @@
 
   .message-overlay {
     position: fixed;
-    inset: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     padding: 2vw;
     background: var(--background-color-override, $viewer-background-color);
     opacity: 0;
@@ -185,8 +208,14 @@
   }
 
   .message {
-    display: grid;
-    place-content: center;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-justify-content: center;
+    justify-content: center;
+    -webkit-align-items: center;
+    align-items: center;
     height: 100%;
     width: 100%;
 

@@ -3,6 +3,30 @@
   <head>
     <meta charset="utf-8" />
     <base href="/" />
+    <script>
+      // Fix 100vh on TV browsers (e.g. LG WebOS) where window.innerHeight
+      // does not match the CSS viewport height unit (1vh).
+      // Runs before any stylesheet so the !important override wins.
+      (function() {
+        function applyHeight() {
+          var h = window.innerHeight;
+          var s = document.getElementById('__vhfix');
+          if (!s) {
+            s = document.createElement('style');
+            s.id = '__vhfix';
+            (document.head || document.getElementsByTagName('head')[0]).appendChild(s);
+          }
+          // Set html and body to the real inner height so that child height:100% chains work correctly.
+          // Keep it narrow - only html/body/root. The .App and view containers already use height:100%.
+          var css = 'html,body,#root{height:' + h + 'px!important;max-height:' + h + 'px!important}';
+
+          if (s.styleSheet) { s.styleSheet.cssText = css; }
+          else { s.textContent = css; }
+        }
+        applyHeight();
+        window.addEventListener('resize', applyHeight);
+      })();
+    </script>
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#101010" />
@@ -17,6 +41,31 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <!-- WebOS/legacy browser error reporter: shows JS errors visually on screen -->
+    <script>
+      window.__ontimeErrors = [];
+      function __ontimeShowError() {
+        // Don't cover a working React app - only show if root is still empty
+        var root = document.getElementById('root');
+        if (root && root.children.length > 0) return;
+        var d = document.getElementById('__ontime_err');
+        if (!d) {
+          d = document.createElement('div');
+          d.id = '__ontime_err';
+          d.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#1a0000;color:#ff6666;font:16px monospace;padding:20px;overflow:auto;z-index:99999;white-space:pre-wrap';
+          document.body.appendChild(d);
+        }
+        d.textContent = 'JS ERRORS:\n\n' + window.__ontimeErrors.join('\n\n');
+      }
+      window.addEventListener('error', function(e) {
+        window.__ontimeErrors.push(e.message + ' (' + (e.filename||'') + ':' + e.lineno + ')');
+        __ontimeShowError();
+      });
+      window.addEventListener('unhandledrejection', function(e) {
+        window.__ontimeErrors.push('Unhandled Promise rejection: ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason)));
+        __ontimeShowError();
+      });
+    </script>
     <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>

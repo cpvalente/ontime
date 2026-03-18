@@ -5,6 +5,7 @@
   box-sizing: border-box; /* reset */
   overflow: hidden;
   width: 100%; /* restrict the page width to viewport */
+  height: 100%;  /* fallback for browsers without 100vh support */
   height: 100vh;
   display: flex;
   flex-direction: column;

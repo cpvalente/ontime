@@ -2,5 +2,6 @@
   background: $bg-container-l1;
   width: 100%;
   height: 100%;
+  padding: 16px; /* fallback for browsers without max() (Chrome < 79) */
   padding: max(16px, 2vh);
 }

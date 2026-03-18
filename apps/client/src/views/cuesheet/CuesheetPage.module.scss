@@ -1,6 +1,7 @@
 .tableWrapper {
   background-color: $ui-black;
   width: 100%;
+  height: 100%;  /* fallback for browsers without 100vh support */
   height: 100vh;
   padding-inline: 0.5rem;
   padding-block: 0.5rem 1rem;

@@ -81,15 +81,25 @@ $small-screen: 800px;
 $small-desktop: 1440px;
 
 .blink {
+  -webkit-animation: blink 1s step-start infinite;
   animation: blink 1s step-start infinite;
+}
+
+@-webkit-keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
 }
 
 @keyframes blink {
   0% {
-    opacity: 100%;
+    opacity: 1;
   }
   50% {
-    opacity: 20%;
+    opacity: 0.2;
   }
 }
 

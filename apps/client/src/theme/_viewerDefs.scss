@@ -9,6 +9,12 @@ $viewer-transition-time: 0.5s;
 $viewer-font-family: 'Open Sans', 'Segoe UI', sans-serif; // --font-family-override
 $viewer-opacity-disabled: 0.6;
 
+// fallback px values are used by the mixin below for browsers that don't support clamp() (Chrome < 79)
+$timer-label-size-fallback: 16px;
+$base-font-size-fallback: 16px;
+$title-font-size-fallback: 24px;
+$timer-value-size-fallback: 32px;
+$header-font-size-fallback: 32px;
 $timer-label-size: clamp(12px, 1.25vw, 20px);
 $base-font-size: clamp(15px, 1.5vw, 28px);
 $title-font-size: clamp(18px, 2.25vw, 42px);
@@ -27,6 +33,10 @@ $viewer-card-bg-color: rgba(white, 5%); // --card-background-color-override
 $element-border-radius: 4px;
 
 // Generic element sizes
+// min() and clamp() require Chrome 79+; use px fallbacks that are emitted first
+$view-element-gap-fallback: 12px;
+$view-block-padding-fallback: 12px;
+$view-inline-padding-fallback: 20px;
 $view-element-gap: min(2vh, 16px);
 $view-block-padding: min(2vh, 16px);
 $view-inline-padding: clamp(16px, 2vw, 24px);
@@ -43,3 +53,20 @@ $external-color: rgba(white, 85%); // --external-color-override
 
 // properties related to the studio clock
 $studio-breakpoint: 1300px;
+
+// Emit a fallback px value then the modern clamp/min value so old Chrome uses the px.
+// Usage: @include font-size-compat($fallback-px, $modern-value);
+@mixin font-size-compat($fallback, $modern) {
+  font-size: $fallback;
+  font-size: $modern;
+}
+
+@mixin padding-compat($fallback, $modern) {
+  padding: $fallback;
+  padding: $modern;
+}
+
+@mixin gap-compat($fallback, $modern) {
+  gap: $fallback;
+  gap: $modern;
+}
