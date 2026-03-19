@@ -1,4 +1,3 @@
-import { sanitiseCue } from 'ontime-utils';
 import { memo } from 'react';
 
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
@@ -25,7 +24,7 @@ function EventEditorTitles({ eventId, cue, flag, title, note, colour }: EventEdi
   const { updateEntry } = useEntryActionsContext();
 
   const cueSubmitHandler = (_field: string, newValue: string) => {
-    updateEntry({ id: eventId, cue: sanitiseCue(newValue) });
+    updateEntry({ id: eventId, cue: newValue.trim() });
   };
 
   const flagSubmitHandler = (newValue: boolean) => {
