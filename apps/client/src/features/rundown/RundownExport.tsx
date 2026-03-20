@@ -16,6 +16,7 @@ import EntryEditModal from '../../views/cuesheet/cuesheet-edit-modal/EntryEditMo
 import { EditorLayoutMode, useEditorLayout } from '../../views/editor/useEditorLayout';
 import RundownEntryEditor from './entry-editor/RundownEntryEditor';
 import FinderPlacement from './placements/FinderPlacement';
+import RenumberCuesDialog from './renumber-cues-dialog/RenumberCuesDialog';
 import { RundownContextMenu } from './rundown-context-menu/RundownContextMenu';
 import RundownHeader from './rundown-header/RundownHeader';
 import RundownHeaderMobile from './rundown-header/RundownHeaderMobile';
@@ -112,6 +113,7 @@ function RundownRoot({ isSmallDevice, isExtracted, viewMode, setViewMode }: Rund
       )}
       {viewMode === RundownViewMode.List ? <RundownList /> : <RundownTable />}
       {viewMode === RundownViewMode.Table && <EntryEditModal />}
+      <RenumberCuesDialog />
     </div>
   );
 }
