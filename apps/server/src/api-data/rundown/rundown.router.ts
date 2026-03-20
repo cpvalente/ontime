@@ -18,6 +18,7 @@ import {
   groupEntries,
   initRundown,
   loadRundown,
+  renumberEntries,
   reorderEntry,
   swapEvents,
   ungroupEntries,
@@ -28,6 +29,7 @@ import {
   entryBatchPutValidator,
   entryPostValidator,
   entryPutValidator,
+  entryRenumberValidator,
   entryReorderValidator,
   entrySwapValidator,
   rundownArrayOfIds,
@@ -365,6 +367,25 @@ router.delete(
   async (_req: Request, res: Response<Rundown | ErrorResponse>) => {
     try {
       const rundown = await deleteAllEntries();
+      res.status(200).send(rundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+/**
+ * Reorders two entries in a rundown
+ */
+router.patch(
+  '/:rundownId/renumber',
+  entryRenumberValidator,
+  validateRundownMutation,
+  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const { ids, prefix, start, increment } = req.body;
+      const rundown = await renumberEntries(ids, prefix, start, increment);
       res.status(200).send(rundown);
     } catch (error) {
       const message = getErrorMessage(error);
