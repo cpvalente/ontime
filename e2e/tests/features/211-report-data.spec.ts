@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('show warning when event crosses midnight', async ({ page }) => {
-  await page.goto('http://localhost:4001/editor');
+  await page.goto('/editor');
 
   await page.getByRole('button', { name: 'Edit' }).click();
 
@@ -24,7 +24,7 @@ test('show warning when event crosses midnight', async ({ page }) => {
 });
 
 test('show warning when event starts next day midnight', async ({ page }) => {
-  await page.goto('http://localhost:4001/editor');
+  await page.goto('/editor');
 
   await page.getByRole('button', { name: 'Edit' }).click();
 
