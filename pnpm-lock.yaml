@@ -144,8 +144,8 @@ importers:
         specifier: 5.1.1
         version: 5.1.1(encoding@0.1.13)(rollup@4.59.0)
       '@types/prismjs':
-        specifier: ^1.26.5
-        version: 1.26.5
+        specifier: ^1.26.6
+        version: 1.26.6
       '@types/react':
         specifier: ^19.1.12
         version: 19.1.12
@@ -177,8 +177,8 @@ importers:
         specifier: 2.5.1
         version: 2.5.1(rollup@4.59.0)
       vite-plugin-prismjs-plus:
-        specifier: 1.1.0
-        version: 1.1.0(prismjs@1.30.0)(vite@7.3.1(@types/node@25.4.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.92.0)(tsx@4.20.5))
+        specifier: 1.1.1
+        version: 1.1.1(prismjs@1.30.0)(vite@7.3.1(@types/node@25.4.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.92.0)(tsx@4.20.5))
       vite-plugin-svgr:
         specifier: 4.5.0
         version: 4.5.0(rollup@4.59.0)(typescript@6.0.0-beta)(vite@7.3.1(@types/node@25.4.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.92.0)(tsx@4.20.5))
@@ -2041,8 +2041,8 @@ packages:
   '@types/plist@3.0.5':
     resolution: {integrity: sha512-E6OCaRmAe4WDmWNsL/9RMqdkkzDCY1etutkflWk4c+AcjDU07Pcz1fQwTX0TQz+Pxqn9i4L1TU3UFpjnrcDgxA==}
 
-  '@types/prismjs@1.26.5':
-    resolution: {integrity: sha512-AUZTa7hQ2KY5L7AmtSiqxlhWxb4ina0yd8hNbl4TWuqnv/pFP0nDMb3YrfSBf4hJVGLh2YEIBfKaBW/9UEl6IQ==}
+  '@types/prismjs@1.26.6':
+    resolution: {integrity: sha512-vqlvI7qlMvcCBbVe0AKAb4f97//Hy0EBTaiW8AalRnG/xAN5zOiWWyrNqNXeq8+KAuvRewjCVY1+IPxk4RdNYw==}
 
   '@types/qs@6.9.7':
     resolution: {integrity: sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==}
@@ -4642,8 +4642,8 @@ packages:
   vite-plugin-compression2@2.5.1:
     resolution: {integrity: sha512-2YpLZWs1ZRo9XwtSFA6/NVuBgOR+kvFk8M0HNDsP7Wu7OfJDOKT6fHB8kzuvw6jhgC9KYgDOttfaG2qC0wE9AQ==}
 
-  vite-plugin-prismjs-plus@1.1.0:
-    resolution: {integrity: sha512-H3XKZnO3svqSpQuezY/Db+xsJX59bbr03IJU3VlDBIwm8xbNXU5ARgRnu057mYGhoVCcY7APHY1EAlMd02yj9A==}
+  vite-plugin-prismjs-plus@1.1.1:
+    resolution: {integrity: sha512-RFmWuC3KiyXWe/Si3K2B2DOSITqUwVUtaSPoq+ss/7uo5tIdSi9lmrLjHlPe3G8AJCqhgTtKcPzM2HXUhwZ00A==}
     peerDependencies:
       prismjs: ^1.29.0
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
@@ -6316,7 +6316,7 @@ snapshots:
       xmlbuilder: 15.1.1
     optional: true
 
-  '@types/prismjs@1.26.5': {}
+  '@types/prismjs@1.26.6': {}
 
   '@types/qs@6.9.7': {}
 
@@ -9317,7 +9317,7 @@ snapshots:
     transitivePeerDependencies:
       - rollup
 
-  vite-plugin-prismjs-plus@1.1.0(prismjs@1.30.0)(vite@7.3.1(@types/node@25.4.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.92.0)(tsx@4.20.5)):
+  vite-plugin-prismjs-plus@1.1.1(prismjs@1.30.0)(vite@7.3.1(@types/node@25.4.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.92.0)(tsx@4.20.5)):
     dependencies:
       prismjs: 1.30.0
       vite: 7.3.1(@types/node@25.4.0)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.92.0)(tsx@4.20.5)
