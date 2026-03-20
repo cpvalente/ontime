@@ -140,7 +140,7 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
 
   let batchDidInvalidate = false;
   const changedIds: EntryId[] = [];
-  const patchedEntries: OntimeEntry[] = [];
+
   for (let i = 0; i < ids.length; i++) {
     const currentId = ids[i];
     const currentEntry = rundown.entries[currentId];
@@ -165,10 +165,9 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
       continue;
     }
 
-    const { entry, didInvalidate } = rundownMutation.edit(rundown, { ...patch, id: currentId });
+    const { didInvalidate } = rundownMutation.edit(rundown, { ...patch, id: currentId });
 
     changedIds.push(currentId);
-    patchedEntries.push(entry);
 
     if (didInvalidate) {
       batchDidInvalidate = true;
