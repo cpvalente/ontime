@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 
 import { getCSSContents, postCSSContents, restoreCSSContents } from '../../../../../common/api/assets';
 import Button from '../../../../../common/components/buttons/Button';
@@ -15,24 +15,21 @@ interface CodeEditorModalProps {
   onClose: () => void;
 }
 
-interface CSSRef {
-  getCss: () => string;
-}
-
 export default function CodeEditorModal({ isOpen, onClose }: CodeEditorModalProps) {
-  const [css, setCSS] = useState('');
-  const [isDirty, setIsDirty] = useState(false);
+  const [savedCss, setSavedCss] = useState('');
+  const [draftCss, setDraftCss] = useState('');
+  const [isLoadingCss, setIsLoadingCss] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const cssRef = useRef<CSSRef>(null);
+  const isDirty = savedCss.trim() !== draftCss.trim();
 
   const handleRestore = async () => {
     try {
       setResetLoading(true);
       const defaultCss = await restoreCSSContents();
-      setCSS(defaultCss);
+      setDraftCss(defaultCss);
     } catch (_error) {
       /** no error handling for now */
     } finally {
@@ -43,11 +40,8 @@ export default function CodeEditorModal({ isOpen, onClose }: CodeEditorModalProp
   const handleSave = async () => {
     try {
       setSaveLoading(true);
-      if (cssRef.current) {
-        await postCSSContents(cssRef.current.getCss());
-        setCSS(cssRef.current.getCss());
-        setIsDirty(false);
-      }
+      await postCSSContents(draftCss);
+      setSavedCss(draftCss);
     } catch (_error) {
       /** no error handling for now */
     } finally {
@@ -55,22 +49,43 @@ export default function CodeEditorModal({ isOpen, onClose }: CodeEditorModalProp
     }
   };
 
-  const clear = () => setCSS('');
+  const clear = () => setDraftCss('');
 
   useEffect(() => {
+    let isCancelled = false;
+
     async function fetchServerCSS() {
       // check for isOpen to fetch recent css
       if (isOpen) {
         try {
+          setError(null);
+          setIsLoadingCss(true);
           const css = await getCSSContents();
-          setCSS(css);
+          if (isCancelled) {
+            return;
+          }
+          setSavedCss(css);
+          setDraftCss(css);
         } catch (_error) {
+          if (isCancelled) {
+            return;
+          }
+          setSavedCss('');
+          setDraftCss('');
           setError('Failed to load CSS from server');
           /** no error handling for now */
+        } finally {
+          if (!isCancelled) {
+            setIsLoadingCss(false);
+          }
         }
       }
     }
     fetchServerCSS();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [isOpen]);
 
   return (
@@ -81,9 +96,14 @@ export default function CodeEditorModal({ isOpen, onClose }: CodeEditorModalProp
       showCloseButton
       showBackdrop
       bodyElements={
-        <Suspense fallback={null}>
-          <CodeEditor ref={cssRef} initialValue={css} language='css' isDirty={isDirty} setIsDirty={setIsDirty} />
-        </Suspense>
+        <div className={style.editorBody}>
+          {!isLoadingCss && (
+            <Suspense fallback={<Panel.Loader isLoading />}>
+              <CodeEditor value={draftCss} onChange={setDraftCss} language='css' />
+            </Suspense>
+          )}
+          <Panel.Loader isLoading={isLoadingCss} />
+        </div>
       }
       footerElements={
         <div className={style.column}>
