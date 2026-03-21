@@ -42,21 +42,25 @@ describe('test parseDatabaseModel() with demo project (valid)', () => {
 
     // remove time-related fields from the comparison
     // these are not calculated in the parser
-    Object.values(filteredDemoProject.rundowns.default.entries).forEach((entry: any) => {
-      if (entry.type === SupportedEntry.Group) {
-        delete entry.timeStart;
-        delete entry.timeEnd;
-        delete entry.duration;
-        delete entry.isFirstLinked;
-      }
+    Object.values(filteredDemoProject.rundowns).forEach((rundown: any) => {
+      Object.values(rundown.entries).forEach((entry: any) => {
+        if (entry.type === SupportedEntry.Group) {
+          delete entry.timeStart;
+          delete entry.timeEnd;
+          delete entry.duration;
+          delete entry.isFirstLinked;
+        }
+      });
     });
-    Object.values(data.rundowns.default.entries).forEach((entry: any) => {
-      if (entry.type === SupportedEntry.Group) {
-        delete entry.timeStart;
-        delete entry.timeEnd;
-        delete entry.duration;
-        delete entry.isFirstLinked;
-      }
+    Object.values(data.rundowns).forEach((rundown: any) => {
+      Object.values(rundown.entries).forEach((entry: any) => {
+        if (entry.type === SupportedEntry.Group) {
+          delete entry.timeStart;
+          delete entry.timeEnd;
+          delete entry.duration;
+          delete entry.isFirstLinked;
+        }
+      });
     });
 
     expect(data.automation).toMatchObject(filteredDemoProject.automation);
