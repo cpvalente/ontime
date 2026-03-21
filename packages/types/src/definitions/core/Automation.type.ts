@@ -1,5 +1,5 @@
-import type { SecondarySource } from '../runtime/MessageControl.type.js';
-import type { TimerLifeCycle } from './TimerLifecycle.type.js';
+import type { SecondarySource } from "../runtime/MessageControl.type.js";
+import type { TimerLifeCycle } from "./TimerLifecycle.type.js";
 
 export type AutomationSettings = {
   enabledAutomations: boolean;
@@ -10,7 +10,7 @@ export type AutomationSettings = {
 };
 
 type AutomationId = string;
-export type FilterRule = 'all' | 'any';
+export type FilterRule = "all" | "any";
 
 export type Automation = {
   id: AutomationId;
@@ -20,7 +20,7 @@ export type Automation = {
   outputs: AutomationOutput[];
 };
 
-export type AutomationDTO = Omit<Automation, 'id'>;
+export type AutomationDTO = Omit<Automation, "id">;
 
 export type NormalisedAutomation = Record<AutomationId, Automation>;
 
@@ -31,18 +31,24 @@ export type Trigger = {
   automationId: AutomationId;
 };
 
-export type TriggerDTO = Omit<Trigger, 'id'>;
+export type TriggerDTO = Omit<Trigger, "id">;
 
 export type AutomationFilter = {
   field: string; // this should be a key of a OntimeEvent + custom fields
-  operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains' | 'not_contains';
+  operator:
+    | "equals"
+    | "not_equals"
+    | "greater_than"
+    | "less_than"
+    | "contains"
+    | "not_contains";
   value: string; // we use string but would coerce to the field value
 };
 
 export type AutomationOutput = OSCOutput | HTTPOutput | OntimeAction;
 
 export type OSCOutput = {
-  type: 'osc';
+  type: "osc";
   targetIP: string;
   targetPort: number;
   address: string;
@@ -50,31 +56,36 @@ export type OSCOutput = {
 };
 
 export type HTTPOutput = {
-  type: 'http';
+  type: "http";
   url: string;
 };
 
 const ontimeAuxTriggerAction = [
-  'aux1-start',
-  'aux1-stop',
-  'aux1-pause',
-  'aux2-start',
-  'aux2-stop',
-  'aux2-pause',
-  'aux3-start',
-  'aux3-stop',
-  'aux3-pause',
+  "aux1-start",
+  "aux1-stop",
+  "aux1-pause",
+  "aux2-start",
+  "aux2-stop",
+  "aux2-pause",
+  "aux3-start",
+  "aux3-stop",
+  "aux3-pause",
 ] as const;
 
-const ontimeAuxSetAction = ['aux1-set', 'aux2-set', 'aux3-set'] as const;
+const ontimeAuxSetAction = ["aux1-set", "aux2-set", "aux3-set"] as const;
 
-const ontimePlaybackAction = ['event-start', 'event-stop', 'event-pause', 'event-roll'] as const;
+const ontimePlaybackAction = [
+  "event-start",
+  "event-stop",
+  "event-pause",
+  "event-roll",
+] as const;
 
 type OntimeAuxTriggerAction = (typeof ontimeAuxTriggerAction)[number];
 type OntimeAuxSetAction = (typeof ontimeAuxSetAction)[number];
 type OntimePlaybackAction = (typeof ontimePlaybackAction)[number];
-type OntimeMessageSet = 'message-set';
-type OntimeMessageSecondary = 'message-secondary';
+type OntimeMessageSet = "message-set";
+type OntimeMessageSecondary = "message-secondary";
 
 export type OntimeActionKey =
   | OntimeAuxTriggerAction
@@ -87,33 +98,33 @@ export const ontimeActionKeyValues = [
   ...ontimeAuxTriggerAction,
   ...ontimePlaybackAction,
   ...ontimeAuxSetAction,
-  'message-set',
-  'message-secondary',
+  "message-set",
+  "message-secondary",
 ];
 
 export type OntimeAction =
   | {
-      type: 'ontime';
+      type: "ontime";
       action: OntimeAuxTriggerAction;
     }
   | {
-      type: 'ontime';
+      type: "ontime";
       action: OntimePlaybackAction;
     }
   | {
-      type: 'ontime';
+      type: "ontime";
       action: OntimeAuxSetAction;
       time: string;
     }
   | {
-      type: 'ontime';
+      type: "ontime";
       action: OntimeMessageSet;
       text?: string;
       visible?: boolean;
     }
   // TODO: when setting a secondary source of type secondary we could specify a value to it
   | {
-      type: 'ontime';
+      type: "ontime";
       action: OntimeMessageSecondary;
       secondarySource: SecondarySource;
     };
