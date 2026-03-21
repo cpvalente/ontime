@@ -28,7 +28,7 @@ const {
 function getApplicationMenu(askToQuit, clientUrl, serverUrl, redirectWindow, showDialog, download) {
   const template = [
     ...(isMac ? [makeMacMenu(askToQuit)] : []),
-    makeFileMenu(serverUrl, redirectWindow, showDialog, download),
+    makeFileMenu(askToQuit, serverUrl, redirectWindow, showDialog, download),
     makeEditMenu(),
     makeViewMenu(clientUrl),
     makeSettingsMenu(redirectWindow),
@@ -56,7 +56,7 @@ function makeMacMenu(askToQuit) {
       {
         label: 'Quit',
         click: askToQuit,
-        accelerator: isMac ? 'Cmd+Q' : 'Alt+F4',
+        accelerator: 'Cmd+Q',
       },
     ],
   };
@@ -86,7 +86,7 @@ function makeEditMenu() {
  * @param {function} download - function to download a resource from url
  * @returns {Object}
  */
-function makeFileMenu(serverUrl, redirectWindow, showDialog, download) {
+function makeFileMenu(askToQuit, serverUrl, redirectWindow, showDialog, download) {
   const downloadProject = () => {
     try {
       download(serverUrl + downloadPath);
@@ -134,7 +134,9 @@ function makeFileMenu(serverUrl, redirectWindow, showDialog, download) {
         ],
       },
       { type: 'separator' },
-      { role: isMac ? 'close' : 'quit' },
+      isMac
+        ? { role: 'close' }
+        : { label: 'Quit', click: askToQuit, accelerator: 'Alt+F4' },
     ],
   };
 }
