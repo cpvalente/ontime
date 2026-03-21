@@ -3,6 +3,7 @@ import { serverURL } from '../../externals';
 // keys in tanstack store
 export const APP_INFO = ['appinfo'];
 export const APP_SETTINGS = ['appSettings'];
+export const APP_SERVER_PORT = ['appServerPort'];
 export const APP_VERSION = ['appVersion'];
 export const AUTOMATION = ['automation'];
 export const CUSTOM_FIELDS = ['customFields'];

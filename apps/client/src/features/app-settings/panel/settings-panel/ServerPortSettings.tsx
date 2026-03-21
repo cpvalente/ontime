@@ -1,12 +1,11 @@
-import { PortInfo } from 'ontime-types';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { getServerPort, postServerPort } from '../../../../common/api/settings';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Input from '../../../../common/components/input/input/Input';
 import Tag from '../../../../common/components/tag/Tag';
+import useServerPort from '../../../../common/hooks-query/useServerPort';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -16,29 +15,22 @@ interface ServerPortForm {
 }
 
 export default function ServerPortSettings() {
+  const { data, status, isError, refetch, mutateAsync } = useServerPort();
   const {
     handleSubmit,
     register,
     reset,
     setError,
+    clearErrors,
     formState: { isSubmitting, isDirty, isValid, errors },
   } = useForm<ServerPortForm>({
     mode: 'onChange',
     defaultValues: { serverPort: 4001 },
   });
 
-  const [pendingRestart, setPendingRestart] = useState<boolean>(false);
-
-  const setPort = useCallback((info: PortInfo) => {
-    reset({ serverPort: info.port });
-    setPendingRestart(info.pendingRestart);
-  }, []);
-
   useEffect(() => {
-    getServerPort()
-      .then(setPort)
-      .catch(() => setError('root', { message: 'Failed to load server port' }));
-  }, [reset, setError, setPort]);
+    reset({ serverPort: data.port });
+  }, [data.pendingRestart, data.port, reset]);
 
   const onSubmit = async (formData: ServerPortForm) => {
     if (formData.serverPort < 1024 || formData.serverPort > 65535) {
@@ -46,20 +38,26 @@ export default function ServerPortSettings() {
       return;
     }
     try {
-      await postServerPort(formData.serverPort);
-      setPort(await getServerPort());
+      clearErrors('root');
+      await mutateAsync(formData.serverPort);
     } catch (error) {
       setError('root', { message: maybeAxiosError(error) });
     }
   };
 
   const onReset = async () => {
-    try {
-      setPort(await getServerPort());
-    } catch (error) {
+    clearErrors('root');
+    const result = await refetch();
+
+    if (result.isError) {
       setError('root', { message: 'Failed to load server port' });
+      return;
     }
+
+    reset({ serverPort: result.data?.port ?? data.port });
   };
+
+  const rootError = isError ? 'Failed to load server port' : errors.root?.message;
 
   return (
     <Panel.Section
@@ -72,7 +70,7 @@ export default function ServerPortSettings() {
         <Panel.SubHeader>
           Server port
           <Panel.InlineElements>
-            {pendingRestart && <Tag>A port change is pending and will happen on the next restart</Tag>}
+            {data.pendingRestart && <Tag>A port change is pending and will happen on the next restart</Tag>}
             <Button disabled={!isDirty || isSubmitting} variant='ghosted' onClick={onReset}>
               Revert to saved
             </Button>
@@ -88,7 +86,8 @@ export default function ServerPortSettings() {
             </Button>
           </Panel.InlineElements>
         </Panel.SubHeader>
-        {errors.root && <Panel.Error>{errors.root.message}</Panel.Error>}
+        <Panel.Loader isLoading={status === 'pending'} />
+        {rootError && <Panel.Error>{rootError}</Panel.Error>}
         <Panel.Divider />
         <Panel.Section>
           <Panel.ListGroup>
