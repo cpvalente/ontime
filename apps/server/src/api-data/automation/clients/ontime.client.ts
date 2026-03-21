@@ -4,6 +4,7 @@ import { parseUserTime } from 'ontime-utils';
 import { logger } from '../../../classes/Logger.js';
 import { auxTimerService } from '../../../services/aux-timer-service/AuxTimerService.js';
 import * as messageService from '../../../services/message-service/message.service.js';
+import { runtimeService } from '../../../services/runtime-service/runtime.service.js';
 
 export function toOntimeAction(action: OntimeAction) {
   const actionType = action.action;
@@ -39,6 +40,16 @@ export function toOntimeAction(action: OntimeAction) {
       const time = parseUserTime(action.time);
       return auxTimerService.setTime(time, 3);
     }
+
+    // Playback actions
+    case 'event-start':
+      return runtimeService.start();
+    case 'event-stop':
+      return runtimeService.stop();
+    case 'event-pause':
+      return runtimeService.pause();
+    case 'event-roll':
+      return runtimeService.roll();
 
     // Message actions
     case 'message-set': {
