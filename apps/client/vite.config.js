@@ -51,13 +51,10 @@ export default defineConfig({
     }),
     prismjsPlugin({
       manual: true,
-      languages: ['css',],
-      css: true
+      languages: ['css'],
+      css: true,
     }),
   ],
-  legacy: {
-    inconsistentCjsInterop: true //TODO: remove this https://github.com/rosskhanas/react-qr-code/issues/285
-  },
   server: {
     port: 3000,
     proxy: {

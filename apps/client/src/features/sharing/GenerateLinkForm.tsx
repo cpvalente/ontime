@@ -2,7 +2,6 @@ import { OntimeView, URLPreset } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 import { useRef, useState } from 'react';
 import { FieldErrors, useForm } from 'react-hook-form';
-import QRCode from 'react-qr-code';
 
 import { generateUrl } from '../../common/api/session';
 import { maybeAxiosError } from '../../common/api/utils';
@@ -10,6 +9,7 @@ import Button from '../../common/components/buttons/Button';
 import CopyTag from '../../common/components/copy-tag/CopyTag';
 import Info from '../../common/components/info/Info';
 import Input from '../../common/components/input/input/Input';
+import QRCode from '../../common/components/qr-code/QrCode';
 import Select from '../../common/components/select/Select';
 import Switch from '../../common/components/switch/Switch';
 import { useUpdateUrlPreset } from '../../common/hooks-query/useUrlPresets';
@@ -275,7 +275,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
         </div>
         <Panel.Section className={style.column}>
           <Panel.Description>Share this link</Panel.Description>
-          <QRCode size={172} value={url} className={style.qrCode} />
+          <QRCode size={172} value={url} />
           <div className={style.copiableLink} data-testid='copy-link'>
             {url}
           </div>

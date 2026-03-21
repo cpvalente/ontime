@@ -273,7 +273,7 @@ export async function shutdown(exitCode = 0): Promise<void> {
 
   shutdownPromise = performShutdown(exitCode);
   return shutdownPromise;
-};
+}
 
 const closeHttpServer = async (server: Server | null): Promise<void> => {
   if (!server) return;
@@ -344,7 +344,7 @@ async function performShutdown(exitCode: number): Promise<void> {
     logger.shutdown();
     process.exit(exitCode);
   }
-};
+}
 
 process.on('exit', (code) => consoleHighlight(`Ontime shutdown with code: ${code}`));
 

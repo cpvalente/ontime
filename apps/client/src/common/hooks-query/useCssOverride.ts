@@ -9,10 +9,11 @@ export default function useCssOverride(enabled: boolean) {
     queryKey: CSS_OVERRIDE,
     queryFn: ({ signal }) => getCSSContents({ signal }),
     staleTime: MILLIS_PER_HOUR,
-    enabled
+    enabled,
   });
 
   return {
-    data: data ?? '', status
+    data: data ?? '',
+    status,
   };
 }
