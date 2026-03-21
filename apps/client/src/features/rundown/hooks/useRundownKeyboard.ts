@@ -6,6 +6,8 @@ import { useEventSelection } from '../useEventSelection';
 
 interface UseRundownKeyboardOptions {
   cursor: EntryId | null;
+  rundownId: string | undefined;
+  selectedEvents: Set<EntryId>;
   commands: {
     selectEntry: (cursor: EntryId | null, direction: 'up' | 'down') => EntryId | null;
     selectGroup: (cursor: EntryId | null, direction: 'up' | 'down') => EntryId | null;
@@ -15,10 +17,9 @@ interface UseRundownKeyboardOptions {
     moveEntry: (cursor: EntryId | null, direction: 'up' | 'down') => void;
     deleteAtCursor: (cursor: EntryId | null) => void;
     insertAtId: (patch: Partial<OntimeEntry> & { type: SupportedEntry }, id: EntryId | null, above?: boolean) => void;
-    insertCopyAtId: (atId: EntryId | null, above?: boolean) => void;
+    pasteAtCursor: (cursor: EntryId | null, above?: boolean) => void;
   };
   clearSelectedEvents: () => void;
-  setEntryCopyId: (id: EntryId | null, mode?: 'copy' | 'cut') => void;
 }
 
 /**
@@ -37,9 +38,10 @@ function isEditableElement(target: EventTarget | null): boolean {
 
 export function useRundownKeyboard({
   cursor,
+  rundownId,
+  selectedEvents,
   commands,
   clearSelectedEvents,
-  setEntryCopyId,
 }: UseRundownKeyboardOptions) {
   const scrollToEntry = useEventSelection((state) => state.scrollToEntry);
 
@@ -138,7 +140,7 @@ export function useRundownKeyboard({
       'Escape',
       () => {
         clearSelectedEvents();
-        setEntryCopyId(null);
+        useEntryCopy.getState().clearCopy();
       },
       { preventDefault: true, usePhysicalKeys: true },
     ],
@@ -192,33 +194,25 @@ export function useRundownKeyboard({
     [
       'mod + C',
       (event) => {
-        if (cursor === null || isEditableElement(event.target)) {
+        if (cursor === null || isEditableElement(event.target) || !rundownId) {
           return;
         }
         event.preventDefault();
-        setEntryCopyId(cursor);
-      },
-      { usePhysicalKeys: true },
-    ],
-    [
-      'mod + X',
-      (event) => {
-        if (cursor === null || isEditableElement(event.target)) {
-          return;
-        }
-        event.preventDefault();
-        setEntryCopyId(cursor, 'cut');
+
+        // if multiple events are selected, copy all of them; otherwise copy the cursor entry
+        const ids = selectedEvents.size > 1 ? Array.from(selectedEvents) : [cursor];
+        useEntryCopy.getState().setCopyEntries(ids, rundownId);
       },
       { usePhysicalKeys: true },
     ],
     [
       'mod + V',
       (event) => {
-        if (isEditableElement(event.target) || useEntryCopy.getState().entryCopyId === null) {
+        if (isEditableElement(event.target) || useEntryCopy.getState().entryIds.size === 0) {
           return;
         }
         event.preventDefault();
-        commands.insertCopyAtId(cursor);
+        commands.pasteAtCursor(cursor);
       },
       { usePhysicalKeys: true },
     ],
@@ -226,11 +220,11 @@ export function useRundownKeyboard({
     [
       'mod + shift + V',
       (event) => {
-        if (isEditableElement(event.target) || useEntryCopy.getState().entryCopyId === null) {
+        if (isEditableElement(event.target) || useEntryCopy.getState().entryIds.size === 0) {
           return;
         }
         event.preventDefault();
-        commands.insertCopyAtId(cursor, true);
+        commands.pasteAtCursor(cursor, true);
       },
       { usePhysicalKeys: true },
     ],

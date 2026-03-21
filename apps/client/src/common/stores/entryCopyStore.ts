@@ -1,14 +1,16 @@
 import { create } from 'zustand';
 
 type EntryCopyStore = {
-  entryCopyId: string | null;
-  entryCopyMode: 'copy' | 'cut';
-  setEntryCopyId: (eventId: string | null, mode?: 'copy' | 'cut') => void;
+  entryIds: Set<string>;
+  sourceRundownId: string | null;
+  setCopyEntries: (ids: string[], rundownId: string) => void;
+  clearCopy: () => void;
 };
 
 export const useEntryCopy = create<EntryCopyStore>()((set) => ({
-  entryCopyId: null,
-  entryCopyMode: 'copy',
-  setEntryCopyId: (entryCopyId: string | null, mode: 'copy' | 'cut' = 'copy') =>
-    set({ entryCopyId, entryCopyMode: mode }),
+  entryIds: new Set(),
+  sourceRundownId: null,
+  setCopyEntries: (ids: string[], rundownId: string) =>
+    set({ entryIds: new Set(ids), sourceRundownId: rundownId }),
+  clearCopy: () => set({ entryIds: new Set(), sourceRundownId: null }),
 }));

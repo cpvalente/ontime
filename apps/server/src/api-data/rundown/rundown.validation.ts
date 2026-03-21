@@ -83,4 +83,14 @@ export const rundownArrayOfIds = [
   requestValidationFunction,
 ];
 
+export const pastePostValidator = [
+  body('entryIds').isArray().notEmpty(),
+  body('entryIds.*').isString(),
+  body('sourceRundownId').isString().notEmpty(),
+  body('afterId').optional().isString(),
+  body('beforeId').optional().isString(),
+
+  requestValidationFunction,
+];
+
 // #endregion operations on rundown entries =======================

@@ -335,6 +335,102 @@ export async function swapEvents(fromId: EntryId, toId: EntryId): Promise<Rundow
 }
 
 /**
+ * Pastes a list of entries into the active rundown
+ * Supports cross-rundown paste within the same instance
+ * @throws if any entry is not found in the source rundown
+ */
+export async function pasteEntries(payload: {
+  entryIds: EntryId[];
+  sourceRundownId: string;
+  afterId?: EntryId;
+  beforeId?: EntryId;
+}): Promise<Rundown> {
+  const { entryIds, sourceRundownId, afterId, beforeId } = payload;
+  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+
+  // resolve source rundown
+  const sourceRundown =
+    sourceRundownId === rundown.id ? rundown : getDataProvider().getRundown(sourceRundownId);
+
+  // validate all entry IDs exist in source
+  for (const entryId of entryIds) {
+    if (!sourceRundown.entries[entryId]) {
+      throw new Error(`Entry with ID ${entryId} not found in source rundown`);
+    }
+  }
+
+  // resolve insertion position
+  let currentAfterId: EntryId | undefined;
+
+  if (afterId) {
+    currentAfterId = afterId;
+  } else if (beforeId) {
+    // for "before" positioning, pass it to the first clone and then chain after
+    currentAfterId = undefined;
+  }
+
+  const newEntryIds: EntryId[] = [];
+
+  // sort entry IDs by source rundown flatOrder so paste preserves rundown order
+  // regardless of the order they were selected (e.g. ctrl-click order)
+  const validIds = entryIds.filter((id) => sourceRundown.entries[id]);
+  const orderedIds = validIds.sort((a, b) => {
+    const idxA = sourceRundown.flatOrder.indexOf(a);
+    const idxB = sourceRundown.flatOrder.indexOf(b);
+    return idxA - idxB;
+  });
+
+  for (let i = 0; i < orderedIds.length; i++) {
+    const entryId = orderedIds[i];
+    const sourceEntry = sourceRundown.entries[entryId];
+
+    // resolve position reference for this entry
+    // when pasting a group and the reference is a child inside another group,
+    // normalise to the parent group so the pasted group lands at the top level
+    const options: InsertOptions = {};
+    if (i === 0 && beforeId && !afterId) {
+      options.before = normaliseGroupPosition(rundown, sourceEntry, beforeId);
+    } else if (currentAfterId) {
+      options.after = normaliseGroupPosition(rundown, sourceEntry, currentAfterId);
+    }
+
+    const newEntry = rundownMutation.clone(rundown, sourceEntry, options);
+    newEntryIds.push(newEntry.id);
+
+    // chain: each new entry becomes the afterId for the next
+    currentAfterId = newEntry.id;
+  }
+
+  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+
+  // schedule the side effects
+  setImmediate(() => {
+    updateRuntimeOnChange(rundownMetadata);
+    notifyChanges(rundownMetadata, revision, { timer: newEntryIds, external: true });
+  });
+
+  return rundownResult;
+}
+
+/**
+ * When pasting a group, the position reference must be a top-level entry.
+ * If the reference is a child inside another group, resolve to the parent
+ * so the pasted group ends up at the correct position in rundown.order.
+ */
+function normaliseGroupPosition(rundown: Rundown, sourceEntry: OntimeEntry, referenceId: EntryId): EntryId {
+  if (!isOntimeGroup(sourceEntry)) {
+    return referenceId;
+  }
+
+  const referenceEntry = rundown.entries[referenceId];
+  if (referenceEntry && 'parent' in referenceEntry && referenceEntry.parent) {
+    return referenceEntry.parent;
+  }
+
+  return referenceId;
+}
+
+/**
  * Clones an entry, ensuring that all dependencies are preserved
  * Handles cloning children if the entry is a group
  * @throws if the entry to clone does not exist

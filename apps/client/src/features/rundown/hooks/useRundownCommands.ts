@@ -26,7 +26,7 @@ export function useRundownCommands({
   selectEntry: applySelection,
   handleCollapseGroup,
 }: UseRundownCommandsOptions) {
-  const { addEntry, clone, deleteEntry, move, reorderEntry } = entryActions;
+  const { addEntry, clone, deleteEntry, move, pasteEntries } = entryActions;
 
   const deleteAtCursor = useCallback(
     (cursor: string | null) => {
@@ -40,52 +40,21 @@ export function useRundownCommands({
     [entries, flatOrder, deleteEntry, applySelection],
   );
 
-  const insertCopyAtId = useCallback(
-    (atId: EntryId | null, above = false) => {
-      // lazily get the value from the store
-      const { entryCopyId, entryCopyMode, setEntryCopyId } = useEntryCopy.getState();
-      if (entryCopyId === null || !entries[entryCopyId]) {
-        // we cant clone without selection
+  const pasteAtCursor = useCallback(
+    (cursor: EntryId | null, above = false) => {
+      const { entryIds, sourceRundownId } = useEntryCopy.getState();
+      if (entryIds.size === 0 || !sourceRundownId) {
         return;
       }
 
-      let normalisedAtId = atId;
-
-      const elementToCopy = entries[entryCopyId];
-      const refElement = atId ? entries[atId] : undefined;
-
-      if (refElement && 'parent' in refElement && refElement.parent && elementToCopy.type === SupportedEntry.Group) {
-        normalisedAtId = refElement.parent;
-      }
-
-      if (entryCopyMode === 'cut') {
-        if (!normalisedAtId) {
-          const firstId = flatOrder[0];
-          if (!firstId || firstId === entryCopyId) {
-            return;
-          }
-          reorderEntry(entryCopyId, firstId, 'before')
-            .then(() => setEntryCopyId(null))
-            .catch(() => {});
-          return;
-        }
-        if (normalisedAtId === entryCopyId) {
-          return;
-        }
-        const placement = above ? 'before' : 'after';
-        reorderEntry(entryCopyId, normalisedAtId, placement)
-          .then(() => setEntryCopyId(null))
-          .catch(() => {});
-        return;
-      }
-
-      clone(entryCopyId, {
-        after: above ? undefined : (normalisedAtId ?? undefined),
-        // if we don't have a cursor add the new event on top
-        before: above ? (normalisedAtId ?? undefined) : undefined,
+      pasteEntries({
+        entryIds: Array.from(entryIds),
+        sourceRundownId,
+        afterId: above ? undefined : (cursor ?? undefined),
+        beforeId: above ? (cursor ?? undefined) : undefined,
       });
     },
-    [entries, flatOrder, clone, reorderEntry],
+    [pasteEntries],
   );
 
   /**
@@ -217,7 +186,7 @@ export function useRundownCommands({
   return {
     cloneEntry,
     deleteAtCursor,
-    insertCopyAtId,
+    pasteAtCursor,
     insertAtId,
     selectGroup,
     selectEntry,

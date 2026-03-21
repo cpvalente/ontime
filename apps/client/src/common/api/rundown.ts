@@ -153,6 +153,20 @@ export async function postCloneEntry(
   return axios.post(`${rundownPath}/${rundownId}/clone/${entryId}`, options);
 }
 
+export type PastePayload = {
+  entryIds: EntryId[];
+  sourceRundownId: string;
+  afterId?: EntryId;
+  beforeId?: EntryId;
+};
+
+/**
+ * HTTP request for pasting entries into the active rundown
+ */
+export async function postPasteEntries(rundownId: RundownId, data: PastePayload): Promise<AxiosResponse<Rundown>> {
+  return axios.post(`${rundownPath}/${rundownId}/paste`, data);
+}
+
 /**
  * HTTP request for grouping a list of entries into a group
  */

@@ -17,7 +17,6 @@ import { TbFlagFilled } from 'react-icons/tb';
 
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEntryCopy } from '../../../common/stores/entryCopyStore';
 import { deviceMod } from '../../../common/utils/deviceUtils';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useEventIdSwapping } from '../useEventIdSwapping';
@@ -106,7 +105,6 @@ export default function RundownEvent({
   const selectEntry = useEventSelection((state) => state.setSelectedEvents);
 
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
-  const entryCopyId = useEntryCopy((state) => state.entryCopyId);
 
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
@@ -248,7 +246,6 @@ export default function RundownEvent({
     playback && style[playback],
     isSelected && style.selected,
     hasCursor && style.hasCursor,
-    entryCopyId === eventId && style.copyTarget,
   ]);
 
   const handleFocusClick = (event: MouseEvent) => {

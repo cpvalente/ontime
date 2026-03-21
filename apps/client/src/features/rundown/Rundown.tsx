@@ -13,7 +13,6 @@ import { TbFlagFilled } from 'react-icons/tb';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import { useEntryActionsContext } from '../../common/context/EntryActionsContext';
-import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { RundownMetadataObject, lastMetadataKey } from '../../common/utils/rundownMetadata';
 import { AppMode } from '../../ontimeConfig';
 import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
@@ -64,7 +63,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   const { getIsCollapsed, collapseGroup, expandGroup } = useCollapsedGroups(id);
 
   const entryActions = useEntryActionsContext();
-  const setEntryCopyId = useEntryCopy((state) => state.setEntryCopyId);
+  const selectedEvents = useEventSelection((state) => state.selectedEvents);
 
   // cursor
   const { editorMode } = useEditorFollowMode();
@@ -105,9 +104,10 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   // Keyboard shortcuts
   useRundownKeyboard({
     cursor,
+    rundownId: id,
+    selectedEvents,
     commands,
     clearSelectedEvents,
-    setEntryCopyId,
   });
 
   // DND handlers

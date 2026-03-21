@@ -31,7 +31,7 @@ test('Copy-paste', async ({ page }) => {
   await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('4');
 });
 
-test('Cut-paste', async ({ page }) => {
+test('Multi-event copy-paste', async ({ page }) => {
   await page.goto('http://localhost:4001/rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
@@ -40,27 +40,39 @@ test('Cut-paste', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
 
-  // create events
+  // create three events with distinct titles
   await page.getByRole('button', { name: 'Create Event' }).click();
   await page.getByTestId('entry-1').getByTestId('entry__title').click();
-  await page.getByTestId('entry-1').getByTestId('entry__title').fill('first');
+  await page.getByTestId('entry-1').getByTestId('entry__title').fill('alpha');
   await page.getByTestId('entry-1').getByTestId('entry__title').press('Enter');
 
   await page.getByRole('button', { name: 'Event' }).nth(4).click();
   await page.getByTestId('entry-2').getByTestId('entry__title').click();
-  await page.getByTestId('entry-2').getByTestId('entry__title').fill('second');
+  await page.getByTestId('entry-2').getByTestId('entry__title').fill('beta');
   await page.getByTestId('entry-2').getByTestId('entry__title').press('Enter');
 
-  // cut first event, paste below second
-  await page.getByTestId('entry-1').getByTestId('rundown-event').getByText('1').click();
-  await page.getByTestId('entry-1').getByTestId('rundown-event').filter({ hasText: '1' }).press('ControlOrMeta+x');
-  await page.getByTestId('entry-2').getByTestId('rundown-event').getByText('2').click();
-  await page.getByTestId('entry-2').getByTestId('rundown-event').filter({ hasText: '2' }).press('ControlOrMeta+v');
+  await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await page.getByTestId('entry-3').getByTestId('entry__title').click();
+  await page.getByTestId('entry-3').getByTestId('entry__title').fill('gamma');
+  await page.getByTestId('entry-3').getByTestId('entry__title').press('Enter');
 
-  // we can verify that the entries have swapped places
-  const events = await page.getByTestId('entry__title').all();
-  await expect(events[0]).toHaveValue('second');
-  await expect(events[1]).toHaveValue('first');
+  // multi-select first and third events via ctrl-click
+  await page.getByTestId('entry-1').getByTestId('rundown-event').click();
+  await page.getByTestId('entry-3').getByTestId('rundown-event').click({ modifiers: ['Control'] });
+
+  // copy and paste after the last event
+  await page.keyboard.press('ControlOrMeta+c');
+  await page.getByTestId('entry-3').getByTestId('rundown-event').click();
+  await page.keyboard.press('ControlOrMeta+v');
+
+  // should now have 5 events: alpha, beta, gamma, alpha-copy, gamma-copy
+  await expect(page.getByTestId('rundown-event')).toHaveCount(5);
+  const titles = await page.getByTestId('entry__title').all();
+  await expect(titles[0]).toHaveValue('alpha');
+  await expect(titles[1]).toHaveValue('beta');
+  await expect(titles[2]).toHaveValue('gamma');
+  await expect(titles[3]).toHaveValue('alpha');
+  await expect(titles[4]).toHaveValue('gamma');
 });
 
 test('Move', async ({ page }) => {

@@ -35,11 +35,13 @@ import { useCallback, useMemo } from 'react';
 import { moveDown, moveUp, orderEntries } from '../../features/rundown/rundown.utils';
 import { RUNDOWN } from '../api/constants';
 import {
+  PastePayload,
   ReorderEntry,
   deleteEntries,
   patchReorderEntry,
   postAddEntry,
   postCloneEntry,
+  postPasteEntries,
   putBatchEditEvents,
   putEditEntry,
   requestApplyDelay,
@@ -268,6 +270,35 @@ export const useEntryActions = () => {
       }
     },
     [cloneEntryMutation, getCurrentRundownData],
+  );
+
+  /**
+   * Calls mutation to paste entries
+   * @private
+   */
+  const { mutateAsync: pasteEntriesMutation } = useMutation({
+    mutationFn: ([rundownId, data]: [string, PastePayload]) => postPasteEntries(rundownId, data),
+    onMutate: () => queryClient.cancelQueries({ queryKey: RUNDOWN }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+  });
+
+  /**
+   * Paste entries from copy store into the active rundown
+   */
+  const pasteEntries = useCallback(
+    async (data: PastePayload) => {
+      try {
+        const rundownId = getCurrentRundownData()?.id;
+        if (!rundownId) {
+          throw new Error('Rundown not initialised');
+        }
+
+        await pasteEntriesMutation([rundownId, data]);
+      } catch (error) {
+        logAxiosError('Error pasting entries', error);
+      }
+    },
+    [pasteEntriesMutation, getCurrentRundownData],
   );
 
   /**
@@ -919,6 +950,7 @@ export const useEntryActions = () => {
       clone,
       deleteEntry,
       deleteAllEntries,
+      pasteEntries,
       ungroup,
       getEntryById,
       groupEntries,
@@ -935,6 +967,7 @@ export const useEntryActions = () => {
       clone,
       deleteEntry,
       deleteAllEntries,
+      pasteEntries,
       ungroup,
       getEntryById,
       groupEntries,

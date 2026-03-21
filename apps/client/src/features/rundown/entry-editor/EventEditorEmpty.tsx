@@ -97,14 +97,6 @@ function EventEditorEmpty() {
               </td>
             </tr>
             <tr>
-              <td>Cut selected entry</td>
-              <td>
-                <Kbd>{deviceMod}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>X</Kbd>
-              </td>
-            </tr>
-            <tr>
               <td>Paste above</td>
               <td>
                 <Kbd>{deviceMod}</Kbd>

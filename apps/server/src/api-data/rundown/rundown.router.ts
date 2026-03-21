@@ -18,6 +18,7 @@ import {
   groupEntries,
   initRundown,
   loadRundown,
+  pasteEntries,
   reorderEntry,
   swapEvents,
   ungroupEntries,
@@ -30,6 +31,7 @@ import {
   entryPutValidator,
   entryReorderValidator,
   entrySwapValidator,
+  pastePostValidator,
   rundownArrayOfIds,
   rundownPostValidator,
   validateRundownMutation,
@@ -293,6 +295,29 @@ router.post(
       const rundown = await cloneEntry(req.params.id, {
         before: req.body?.before,
         after: req.body?.after,
+      });
+      res.status(200).send(rundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+/**
+ * Pastes entries from a source rundown into the active rundown
+ */
+router.post(
+  '/:rundownId/paste',
+  pastePostValidator,
+  validateRundownMutation,
+  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const rundown = await pasteEntries({
+        entryIds: req.body.entryIds,
+        sourceRundownId: req.body.sourceRundownId,
+        afterId: req.body.afterId,
+        beforeId: req.body.beforeId,
       });
       res.status(200).send(rundown);
     } catch (error) {

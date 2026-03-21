@@ -16,7 +16,6 @@ import IconButton from '../../../common/components/buttons/IconButton';
 import Tag from '../../../common/components/tag/Tag';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEntryCopy } from '../../../common/stores/entryCopyStore';
 import { deviceMod } from '../../../common/utils/deviceUtils';
 import { getOffsetState } from '../../../common/utils/offset';
 import { cx, getAccessibleColour, timerPlaceholder } from '../../../common/utils/styleUtils';
@@ -43,7 +42,6 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
 
   const selectSingleEntry = useEventSelection((state) => state.setSingleEntrySelection);
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
-  const entryCopyId = useEntryCopy((state) => state.entryCopyId);
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>(() => [
     {
@@ -133,7 +131,6 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
         style.group,
         hasCursor && style.hasCursor,
         !collapsed && style.expanded,
-        entryCopyId === data.id && style.copyTarget,
       ])}
       ref={setNodeRef}
       onClick={handleFocusClick}
