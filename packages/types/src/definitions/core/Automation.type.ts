@@ -78,15 +78,15 @@ type OntimeMessageSecondary = 'message-secondary';
 
 export type OntimeActionKey =
   | OntimeAuxTriggerAction
-  | OntimeAuxSetAction
   | OntimePlaybackAction
+  | OntimeAuxSetAction
   | OntimeMessageSet
   | OntimeMessageSecondary;
 
 export const ontimeActionKeyValues = [
   ...ontimeAuxTriggerAction,
-  ...ontimeAuxSetAction,
   ...ontimePlaybackAction,
+  ...ontimeAuxSetAction,
   'message-set',
   'message-secondary',
 ];
