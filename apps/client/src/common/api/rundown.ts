@@ -111,6 +111,23 @@ export async function putBatchEditEvents(rundownId: RundownId, data: BatchEditEn
   return axios.put(`${rundownPath}/${rundownId}/batch`, data);
 }
 
+export type RenumberCuesBody = {
+  ids: EntryId[];
+  prefix: string;
+  start: string;
+  increment: string;
+};
+
+/**
+ * HTTP request to renumber cues for multiple events 
+ */
+export async function patchRenumberCues(
+  rundownId: RundownId,
+  data: RenumberCuesBody,
+): Promise<AxiosResponse<Rundown>> {
+  return axios.patch(`${rundownPath}/${rundownId}/renumber`, data);
+}
+
 export type ReorderEntry = {
   entryId: EntryId;
   destinationId: EntryId;

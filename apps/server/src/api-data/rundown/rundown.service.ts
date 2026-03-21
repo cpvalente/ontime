@@ -140,7 +140,7 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
 
   let batchDidInvalidate = false;
   const changedIds: EntryId[] = [];
-  const patchedEntries: OntimeEntry[] = [];
+
   for (let i = 0; i < ids.length; i++) {
     const currentId = ids[i];
     const currentEntry = rundown.entries[currentId];
@@ -165,10 +165,9 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
       continue;
     }
 
-    const { entry, didInvalidate } = rundownMutation.edit(rundown, { ...patch, id: currentId });
+    const { didInvalidate } = rundownMutation.edit(rundown, { ...patch, id: currentId });
 
     changedIds.push(currentId);
-    patchedEntries.push(entry);
 
     if (didInvalidate) {
       batchDidInvalidate = true;
@@ -269,6 +268,40 @@ export async function reorderEntry(entryId: EntryId, destinationId: EntryId, ord
 
   return rundownResult;
 }
+
+
+/**
+ * @throws if an id is missing or not an Ontime event
+ */
+export async function renumberEntries(ids: EntryId[], prefix: string, start: string, increment: string): Promise<Rundown> {
+  let [startInt, startFaction] = start.split('.', 2).map((val) => parseInt(val)) as [number, number | undefined]
+  let [incrementInt, incrementFaction] = increment.split('.', 2).map((val) => parseInt(val)) as [number, number | undefined]
+
+  startFaction = startFaction === undefined ? 0 : startFaction
+  incrementFaction = incrementFaction === undefined ? 0 : incrementFaction
+
+  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+
+  for (let i = 0; i < ids.length; i++) {
+    const currentId = ids[i]
+    const currentEntry = rundown.entries[currentId]
+    if (!currentEntry || !isOntimeEvent(currentEntry)) throw new Error('A given id was not an event')
+
+    const integer = startInt + incrementInt * i
+    const fraction = startFaction + incrementFaction * i
+
+    rundownMutation.edit(rundown, { id: currentId, cue: `${prefix}-${integer}${fraction !== 0 ? '.' + fraction : ''}` });
+  }
+  const { rundown: rundownResult, rundownMetadata, revision } = commit(false);
+
+  setImmediate(() => {
+    updateRuntimeOnChange(rundownMetadata);
+    notifyChanges(rundownMetadata, revision, { timer: ids, external: true, });
+  });
+
+  return rundownResult;
+}
+
 
 /**
  * Applies a delay into the rundown effectively changing the schedule

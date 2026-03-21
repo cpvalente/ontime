@@ -83,4 +83,12 @@ export const rundownArrayOfIds = [
   requestValidationFunction,
 ];
 
+export const entryRenumberValidator = [
+  body('ids').isArray().notEmpty(),
+  body('prefix').isString(),
+  body('start').isInt(),
+  body('increment').isNumeric(),
+  requestValidationFunction,
+];
+
 // #endregion operations on rundown entries =======================

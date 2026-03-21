@@ -4,10 +4,14 @@
   left: 50%;
   transform: translateX(-50%);
 
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   padding-inline: 1rem;
   min-width: min(880px, 90vw);
   min-height: min(200px, 10vh);
   max-width: min(1200px, 90vw);
+  max-height: min(90vh, 100vh - 10vh);
 
   background-color: $gray-1250;
   color: $ui-white;
@@ -30,6 +34,7 @@
 }
 
 .title {
+  flex-shrink: 0;
   font-size: 1rem;
   font-weight: 600;
   padding-block: 1rem;
@@ -40,15 +45,17 @@
 }
 
 .body {
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 
-  max-height: 60vh;
   overflow-y: auto;
 }
 
 .footer {
+  flex-shrink: 0;
   padding-block: 1rem;
   display: flex;
   align-items: center;
