@@ -31,8 +31,8 @@ export async function postShowWelcomeDialog(show: boolean) {
 /**
  * HTTP request to retrieve server port
  */
-export async function getServerPort(): Promise<PortInfo> {
-  const res = await axios.get(`${settingsPath}/serverport`);
+export async function getServerPort(options?: RequestOptions): Promise<PortInfo> {
+  const res = await axios.get(`${settingsPath}/serverport`, { signal: options?.signal });
   return res.data;
 }
 
