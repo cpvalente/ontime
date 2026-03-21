@@ -38,6 +38,7 @@ dist/
 # bundled assets
 translations.json
 override.css
+**/external/demo/index.html
 
 # working stuff
 **/TODO.md

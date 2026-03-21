@@ -48,7 +48,7 @@
     "dev:inspect": "cross-env NODE_ENV=development tsx watch --tsconfig tsconfig.app.json --inspect ./src/index.ts",
     "lint": "oxlint --quiet --type-aware",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
-    "prebuild": "tsx --tsconfig tsconfig.app.json ./scripts/bundleCss.ts && tsx --tsconfig tsconfig.app.json ./scripts/bundleTranslation.ts",
+    "prebuild": "tsx --tsconfig tsconfig.app.json ./scripts/bundleDefaults.ts",
     "build": "node esbuild.js",
     "test": "cross-env IS_TEST=true vitest",
     "test:inspect": "cross-env IS_TEST=true vitest --inspect --no-file-parallelism",
