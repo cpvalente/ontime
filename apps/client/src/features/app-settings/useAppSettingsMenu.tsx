@@ -19,7 +19,7 @@ const staticOptions = [
       { id: 'settings__data', label: 'Project data' },
       { id: 'settings__general', label: 'General settings' },
       { id: 'settings__view', label: 'View settings' },
-      { id: 'settings__port', label: 'Server Port' },
+      { id: 'settings__port', label: 'Server port' },
     ],
   },
   {
