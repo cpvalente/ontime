@@ -3,8 +3,8 @@ import { useForm } from 'react-hook-form';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
+import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
-import Tag from '../../../../common/components/tag/Tag';
 import useServerPort from '../../../../common/hooks-query/useServerPort';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
@@ -70,7 +70,6 @@ export default function ServerPortSettings() {
         <Panel.SubHeader>
           Server port
           <Panel.InlineElements>
-            {data.pendingRestart && <Tag>A port change is pending and will happen on the next restart</Tag>}
             <Button disabled={!isDirty || isSubmitting} variant='ghosted' onClick={onReset}>
               Revert to saved
             </Button>
@@ -90,6 +89,9 @@ export default function ServerPortSettings() {
         {rootError && <Panel.Error>{rootError}</Panel.Error>}
         <Panel.Divider />
         <Panel.Section>
+          {data.pendingRestart && (
+            <Info type='warning'>A port change is pending and will happen on the next restart.</Info>
+          )}
           <Panel.ListGroup>
             <Panel.ListItem>
               <Panel.Field
