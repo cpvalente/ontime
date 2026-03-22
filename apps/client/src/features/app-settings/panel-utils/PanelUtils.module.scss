@@ -140,9 +140,19 @@ $inner-padding: 1rem;
   font-size: 1rem;
 }
 
+.fieldHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .fieldDescription {
   font-size: calc(1rem - 2px);
   color: $gray-400;
+}
+
+.warningText {
+  color: $orange-500;
 }
 
 .fieldError {

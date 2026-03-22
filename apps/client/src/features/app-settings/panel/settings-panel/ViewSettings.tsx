@@ -9,6 +9,7 @@ import Info from '../../../../common/components/info/Info';
 import { SwatchPickerRHF } from '../../../../common/components/input/colour-input/SwatchPicker';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Switch from '../../../../common/components/switch/Switch';
+import Tag from '../../../../common/components/tag/Tag';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -55,6 +56,8 @@ export default function ViewSettings() {
     reset(data);
   };
 
+  const overrideStylesEnabled = watch('overrideStyles');
+
   if (!control) {
     return null;
   }
@@ -91,12 +94,22 @@ export default function ViewSettings() {
             <CodeEditorModal isOpen={isCodeEditorOpen} onClose={codeEditorHandler.close} />
             <Panel.ListItem>
               <Panel.Field
-                title='Override CSS styles'
-                description='Enables overriding view styles with custom stylesheet'
+                title={
+                  <>
+                    <span>Override CSS styles</span>
+                    {overrideStylesEnabled && <Tag variant='warning'>ON</Tag>}
+                  </>
+                }
+                description={
+                  overrideStylesEnabled
+                    ? 'CSS override is ON. Ontime views will use the custom override stylesheet.'
+                    : 'Enables overriding view styles with custom stylesheet'
+                }
+                descriptionTone={overrideStylesEnabled ? 'warning' : 'default'}
               />
               <Switch
                 size='large'
-                checked={watch('overrideStyles')}
+                checked={overrideStylesEnabled}
                 onCheckedChange={(value: boolean) => setValue('overrideStyles', value, { shouldDirty: true })}
               />
               <Button onClick={codeEditorHandler.open} disabled={isSubmitting}>
