@@ -282,7 +282,7 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
             );
           })}
           <div>
-            <Button type='submit' onClick={handleAddNewFilter}>
+            <Button onClick={handleAddNewFilter}>
               Add filter <IoAdd />
             </Button>
           </div>
