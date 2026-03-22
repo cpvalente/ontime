@@ -43,6 +43,7 @@ interface RundownEventProps {
   title: string;
   note: string;
   delay: number;
+  automationsEnabled?: boolean;
   colour: string;
   isPast: boolean;
   isNext: boolean;
@@ -76,6 +77,7 @@ export default function RundownEvent({
   title,
   note,
   delay,
+  automationsEnabled,
   colour,
   isPast,
   isNext,
@@ -302,6 +304,7 @@ export default function RundownEvent({
         title={title}
         note={note}
         delay={delay}
+        automationsEnabled={automationsEnabled}
         isNext={isNext}
         skip={skip}
         loaded={loaded}

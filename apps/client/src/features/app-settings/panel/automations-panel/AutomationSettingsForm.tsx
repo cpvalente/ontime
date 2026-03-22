@@ -7,6 +7,7 @@ import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Switch from '../../../../common/components/switch/Switch';
+import Tag from '../../../../common/components/tag/Tag';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
 import { isOntimeCloud } from '../../../../externals';
@@ -18,12 +19,16 @@ interface AutomationSettingsProps {
   enabledAutomations: boolean;
   enabledOscIn: boolean;
   oscPortIn: number;
+  automationState?: boolean;
+  oscInputState?: boolean;
 }
 
 export default function AutomationSettingsForm({
   enabledAutomations,
   enabledOscIn,
   oscPortIn,
+  automationState,
+  oscInputState,
 }: AutomationSettingsProps) {
   const {
     handleSubmit,
@@ -56,6 +61,8 @@ export default function AutomationSettingsForm({
   };
 
   const canSubmit = !isSubmitting && isDirty && isValid;
+  const automationsEnabled = watch('enabledAutomations');
+  const oscInputEnabled = watch('enabledOscIn');
 
   return (
     <Panel.Card>
@@ -102,33 +109,52 @@ export default function AutomationSettingsForm({
         <Panel.ListGroup>
           <Panel.ListItem>
             <Panel.Field
-              title='Enable automations'
-              description='Allow Ontime to send messages on lifecycle triggers'
+              title={
+                <>
+                  <span>Enable automations</span>
+                  {automationState === false && <Tag variant='warning'>OFF</Tag>}
+                </>
+              }
+              description={
+                automationState === false
+                  ? 'Automations are OFF. Triggers stay configured, but Ontime will not send messages.'
+                  : 'Allow Ontime to send messages on lifecycle triggers'
+              }
+              descriptionTone={automationState === false ? 'warning' : 'default'}
               error={errors.enabledAutomations?.message}
             />
             <Switch
               size='large'
-              checked={watch('enabledAutomations')}
+              checked={automationsEnabled}
               onCheckedChange={(value: boolean) =>
                 setValue('enabledAutomations', value, { shouldDirty: true, shouldValidate: true })
               }
             />
           </Panel.ListItem>
         </Panel.ListGroup>
-
         <Panel.Title>OSC Input</Panel.Title>
 
         <Panel.ListGroup>
           {isOntimeCloud && <Info>For security reasons OSC integrations are not available in the cloud service.</Info>}
           <Panel.ListItem>
             <Panel.Field
-              title='OSC input'
-              description='Allow control of Ontime through OSC'
+              title={
+                <>
+                  <span>OSC input</span>
+                  {oscInputState === false && <Tag variant='warning'>OFF</Tag>}
+                </>
+              }
+              description={
+                oscInputState === false
+                  ? 'OSC input is OFF. Ontime will not listen for incoming OSC control messages.'
+                  : 'Allow control of Ontime through OSC'
+              }
+              descriptionTone={oscInputState === false ? 'warning' : 'default'}
               error={errors.enabledOscIn?.message}
             />
             <Switch
               size='large'
-              checked={watch('enabledOscIn')}
+              checked={oscInputEnabled}
               onCheckedChange={(value: boolean) =>
                 setValue('enabledOscIn', value, { shouldDirty: true, shouldValidate: true })
               }

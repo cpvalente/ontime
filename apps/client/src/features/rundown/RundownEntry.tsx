@@ -8,6 +8,7 @@ interface RundownEntryProps {
   type: SupportedEntry;
   isPast: boolean;
   data: OntimeEntry;
+  automationsEnabled?: boolean;
   loaded: boolean;
   eventIndex: number;
   hasCursor: boolean;
@@ -22,6 +23,7 @@ interface RundownEntryProps {
 export default function RundownEntry({
   isPast,
   data,
+  automationsEnabled,
   loaded,
   hasCursor,
   isNext,
@@ -52,6 +54,7 @@ export default function RundownEntry({
         title={data.title}
         note={data.note}
         delay={data.delay}
+        automationsEnabled={automationsEnabled}
         colour={data.colour}
         isPast={isPast}
         isNext={isNext}

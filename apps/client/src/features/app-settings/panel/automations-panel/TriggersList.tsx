@@ -5,6 +5,7 @@ import { IoAdd } from 'react-icons/io5';
 import { deleteTrigger } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
+import Info from '../../../../common/components/info/Info';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
 import { checkDuplicates } from './automationUtils';
@@ -14,10 +15,11 @@ import TriggersListItem from './TriggersListItem';
 interface TriggersListProps {
   triggers: Trigger[];
   automations: NormalisedAutomation;
+  enabledAutomations?: boolean;
 }
 
 export default function TriggersList(props: TriggersListProps) {
-  const { triggers, automations } = props;
+  const { triggers, automations, enabledAutomations } = props;
   const [showForm, setShowForm] = useState(false);
   const { refetch } = useAutomationSettings();
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -52,6 +54,9 @@ export default function TriggersList(props: TriggersListProps) {
       </Panel.SubHeader>
       <Panel.Divider />
       <Panel.Section>
+        {enabledAutomations === false && (
+          <Info>Automations are disabled. You can still manage triggers here, but they will not run until enabled.</Info>
+        )}
         {duplicates && (
           <Panel.Error>
             You have created multiple links between the same trigger and automation which can performance issues.
