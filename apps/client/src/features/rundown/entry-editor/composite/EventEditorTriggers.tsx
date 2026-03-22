@@ -20,12 +20,13 @@ interface EventEditorTriggersProps {
 }
 
 export default function EventEditorTriggers({ triggers, eventId }: EventEditorTriggersProps) {
-  const { data: automationSettings } = useAutomationSettings();
+  const { data: automationSettings, status: automationStatus } = useAutomationSettings();
+  const automationsEnabled = automationStatus === 'pending' ? undefined : automationSettings.enabledAutomations;
   const showTriggers = triggers.length > 0;
 
   return (
     <div className={style.triggers}>
-      {!automationSettings.enabledAutomations && (
+      {automationsEnabled === false && (
         <Info>Automations are disabled. Event triggers stay configured, but they will not run until enabled.</Info>
       )}
       {showTriggers && (

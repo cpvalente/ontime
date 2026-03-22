@@ -43,7 +43,7 @@ interface RundownEventProps {
   title: string;
   note: string;
   delay: number;
-  automationsEnabled: boolean;
+  automationsEnabled?: boolean;
   colour: string;
   isPast: boolean;
   isNext: boolean;

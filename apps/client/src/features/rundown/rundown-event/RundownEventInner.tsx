@@ -38,7 +38,7 @@ interface RundownEventInnerProps {
   title: string;
   note: string;
   delay: number;
-  automationsEnabled: boolean;
+  automationsEnabled?: boolean;
   isNext: boolean;
   skip: boolean;
   loaded: boolean;
@@ -81,11 +81,21 @@ function RundownEventInner({
 
   const eventIsPlaying = playback === Playback.Play;
   const eventIsPaused = playback === Playback.Pause;
-  const automationTooltip = hasTriggers
-    ? automationsEnabled
-      ? 'Event has triggers'
-      : 'Event has triggers, but automations are disabled'
-    : 'Event has no triggers';
+  const automationTooltip = (() => {
+    if (!hasTriggers) {
+      return 'Event has no triggers';
+    }
+
+    if (automationsEnabled !== false) {
+      return 'Event has triggers';
+    }
+
+    return 'Event has triggers, but automations are disabled';
+  })();
+  const automationIconClasses = cx([
+    style.statusIcon,
+    hasTriggers ? (automationsEnabled === false ? style.warning : style.active) : style.disabled,
+  ]);
 
   const playBtnStyles = { _hover: {} };
   if (!skip && eventIsPlaying) {
@@ -150,11 +160,7 @@ function RundownEventInner({
             <LuArrowDownToLine className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
           </Tooltip>
           <Tooltip text={automationTooltip} render={<span />}>
-            <IoFlash
-              className={`${style.statusIcon} ${
-                hasTriggers ? (automationsEnabled ? style.active : style.warning) : style.disabled
-              }`}
-            />
+            <IoFlash className={automationIconClasses} />
           </Tooltip>
         </div>
       </div>

@@ -27,10 +27,14 @@ export default function AutomationPanel({ location }: PanelBaseProps) {
           />
         </div>
         <div ref={automationsRef}>
-          <AutomationsList automations={data.automations} />
+          <AutomationsList automations={data.automations} enabledAutomations={data.enabledAutomations} />
         </div>
         <div ref={triggersRef}>
-          <TriggersList triggers={data.triggers} automations={data.automations} />
+          <TriggersList
+            triggers={data.triggers}
+            automations={data.automations}
+            enabledAutomations={data.enabledAutomations}
+          />
         </div>
       </Panel.Section>
     </>

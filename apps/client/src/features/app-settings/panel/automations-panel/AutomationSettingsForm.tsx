@@ -7,6 +7,7 @@ import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Switch from '../../../../common/components/switch/Switch';
+import Tag from '../../../../common/components/tag/Tag';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
 import { isOntimeCloud } from '../../../../externals';
@@ -56,6 +57,7 @@ export default function AutomationSettingsForm({
   };
 
   const canSubmit = !isSubmitting && isDirty && isValid;
+  const automationsEnabled = watch('enabledAutomations');
 
   return (
     <Panel.Card>
@@ -102,8 +104,18 @@ export default function AutomationSettingsForm({
         <Panel.ListGroup>
           <Panel.ListItem>
             <Panel.Field
-              title='Enable automations'
-              description='Allow Ontime to send messages on lifecycle triggers'
+              title={
+                <>
+                  <span>Enable automations</span>
+                  {!automationsEnabled && <Tag variant='warning'>OFF</Tag>}
+                </>
+              }
+              description={
+                automationsEnabled
+                  ? 'Allow Ontime to send messages on lifecycle triggers'
+                  : 'Automations are OFF. Triggers stay configured, but Ontime will not send messages.'
+              }
+              descriptionTone={automationsEnabled ? 'default' : 'warning'}
               error={errors.enabledAutomations?.message}
             />
             <Switch
@@ -115,7 +127,6 @@ export default function AutomationSettingsForm({
             />
           </Panel.ListItem>
         </Panel.ListGroup>
-
         <Panel.Title>OSC Input</Panel.Title>
 
         <Panel.ListGroup>

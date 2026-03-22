@@ -8,7 +8,7 @@ interface RundownEntryProps {
   type: SupportedEntry;
   isPast: boolean;
   data: OntimeEntry;
-  automationsEnabled: boolean;
+  automationsEnabled?: boolean;
   loaded: boolean;
   eventIndex: number;
   hasCursor: boolean;

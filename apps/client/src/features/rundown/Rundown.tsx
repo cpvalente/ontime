@@ -50,7 +50,8 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   // invoke the compiler for the component
   'use memo';
 
-  const { data: automationSettings } = useAutomationSettings();
+  const { data: automationSettings, status: automationStatus } = useAutomationSettings();
+  const automationsEnabled = automationStatus === 'pending' ? undefined : automationSettings.enabledAutomations;
   const [sortableData, setSortableData] = useState<EntryId[]>(() => makeSortableList(order, entries));
   const [metadata, setMetadata] = useState<RundownMetadataObject>(rundownMetadata);
 
@@ -265,7 +266,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
                   isPast={entryMetadata.isPast}
                   eventIndex={entryMetadata.eventIndex}
                   data={entry}
-                  automationsEnabled={automationSettings.enabledAutomations}
+                  automationsEnabled={automationsEnabled}
                   loaded={entryMetadata.isLoaded}
                   hasCursor={hasCursor}
                   isNext={isNext}
@@ -295,7 +296,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
       playback,
       lastEntryId,
       handleCollapseGroup,
-      automationSettings.enabledAutomations,
+      automationsEnabled,
     ],
   );
 
