@@ -134,9 +134,7 @@ function makeFileMenu(askToQuit, serverUrl, redirectWindow, showDialog, download
         ],
       },
       { type: 'separator' },
-      isMac
-        ? { role: 'close' }
-        : { label: 'Quit', click: askToQuit, accelerator: 'Alt+F4' },
+      isMac ? { role: 'close' } : { label: 'Quit', click: askToQuit, accelerator: 'Alt+F4' },
     ],
   };
 }
