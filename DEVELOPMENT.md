@@ -99,6 +99,13 @@ Other useful commands
 - **List running processes** by running `docker ps`
 - **Kill running process** by running `docker kill <process-id>`
 
+## FORMATTING AND LINTING
+
+Ontime uses [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) for formatting and [oxlint](https://oxc.rs/docs/guide/usage/linter.html) for linting. Look for an [oxc extension](https://oxc.rs/docs/guide/usage/linter/editors) for your editor of choice.
+
+- **Run formatter** by running `pnpm format`
+- **Run linter** by running `pnpm lint`
+
 ## CONTRIBUTION GUIDELINES
 
 If you want to propose changes to the codebase, please reach out before opening a Pull Request.
