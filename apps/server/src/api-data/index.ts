@@ -3,6 +3,7 @@ import express from 'express';
 import { router as assetsRouter } from './assets/assets.router.js';
 import { router as automationsRouter } from './automation/automation.router.js';
 import { router as customFieldsRouter } from './custom-fields/customFields.router.js';
+import { router as customViewsRouter } from './custom-views/customViews.router.js';
 import { router as dbRouter } from './db/db.router.js';
 import { router as excelRouter } from './excel/excel.router.js';
 import { router as projectRouter } from './project-data/projectData.router.js';
@@ -18,6 +19,7 @@ export const appRouter = express.Router();
 
 appRouter.use('/automations', automationsRouter);
 appRouter.use('/custom-fields', customFieldsRouter);
+appRouter.use('/custom-views', customViewsRouter);
 appRouter.use('/db', dbRouter);
 appRouter.use('/project', projectRouter);
 appRouter.use('/rundowns', rundownsRouter);
