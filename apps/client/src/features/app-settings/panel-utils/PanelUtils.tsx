@@ -85,18 +85,34 @@ export function ListItem({ children }: { children: ReactNode }) {
   return <li className={style.listItem}>{children}</li>;
 }
 
-export function Field({ title, description, error }: { title: string; description: string; error?: string }) {
+export function Field({
+  title,
+  description,
+  error,
+  descriptionTone = 'default',
+}: {
+  title: ReactNode;
+  description: ReactNode;
+  error?: string;
+  descriptionTone?: 'default' | 'warning';
+}) {
   return (
     <div className={style.fieldTitle}>
-      {title}
+      <div className={style.fieldHeading}>{title}</div>
       {error && <Error>{error}</Error>}
-      {!error && description && <Description>{description}</Description>}
+      {!error && description && <Description tone={descriptionTone}>{description}</Description>}
     </div>
   );
 }
 
-export function Description({ children }: { children: ReactNode }) {
-  return <div className={style.fieldDescription}>{children}</div>;
+export function Description({
+  children,
+  tone = 'default',
+}: {
+  children: ReactNode;
+  tone?: 'default' | 'warning';
+}) {
+  return <div className={cx([style.fieldDescription, tone === 'warning' && style.warningText])}>{children}</div>;
 }
 
 export function Highlight({ children }: { children: ReactNode }) {
