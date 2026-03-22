@@ -1,9 +1,8 @@
-import Prism from 'virtual:prismjs';
 import { memo } from 'react';
 import Editor from 'react-simple-code-editor';
+import Prism from 'virtual:prismjs';
 import 'prismjs/components/prism-css';
 import 'prismjs/themes/prism-tomorrow.min.css';
-
 import style from './StyleEditor.module.scss';
 
 interface CodeEditorProps {

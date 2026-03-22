@@ -68,15 +68,24 @@ const ontimeAuxTriggerAction = [
 
 const ontimeAuxSetAction = ['aux1-set', 'aux2-set', 'aux3-set'] as const;
 
+const ontimePlaybackAction = ['playback-start', 'playback-stop', 'playback-pause', 'playback-roll'] as const;
+
 type OntimeAuxTriggerAction = (typeof ontimeAuxTriggerAction)[number];
 type OntimeAuxSetAction = (typeof ontimeAuxSetAction)[number];
+type OntimePlaybackAction = (typeof ontimePlaybackAction)[number];
 type OntimeMessageSet = 'message-set';
 type OntimeMessageSecondary = 'message-secondary';
 
-export type OntimeActionKey = OntimeAuxTriggerAction | OntimeAuxSetAction | OntimeMessageSet | OntimeMessageSecondary;
+export type OntimeActionKey =
+  | OntimeAuxTriggerAction
+  | OntimePlaybackAction
+  | OntimeAuxSetAction
+  | OntimeMessageSet
+  | OntimeMessageSecondary;
 
 export const ontimeActionKeyValues = [
   ...ontimeAuxTriggerAction,
+  ...ontimePlaybackAction,
   ...ontimeAuxSetAction,
   'message-set',
   'message-secondary',
@@ -86,6 +95,10 @@ export type OntimeAction =
   | {
       type: 'ontime';
       action: OntimeAuxTriggerAction;
+    }
+  | {
+      type: 'ontime';
+      action: OntimePlaybackAction;
     }
   | {
       type: 'ontime';
