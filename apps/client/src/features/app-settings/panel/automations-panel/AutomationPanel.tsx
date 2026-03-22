@@ -13,6 +13,8 @@ export default function AutomationPanel({ location }: PanelBaseProps) {
   const automationsRef = useScrollIntoView<HTMLDivElement>('automations', location);
 
   const isLoading = status === 'pending';
+  const automationState = isLoading ? undefined : data.enabledAutomations;
+  const oscInputState = isLoading ? undefined : data.enabledOscIn;
 
   return (
     <>
@@ -24,17 +26,15 @@ export default function AutomationPanel({ location }: PanelBaseProps) {
             enabledAutomations={data.enabledAutomations}
             enabledOscIn={data.enabledOscIn}
             oscPortIn={data.oscPortIn}
+            automationState={automationState}
+            oscInputState={oscInputState}
           />
         </div>
         <div ref={automationsRef}>
-          <AutomationsList automations={data.automations} enabledAutomations={data.enabledAutomations} />
+          <AutomationsList automations={data.automations} enabledAutomations={automationState} />
         </div>
         <div ref={triggersRef}>
-          <TriggersList
-            triggers={data.triggers}
-            automations={data.automations}
-            enabledAutomations={data.enabledAutomations}
-          />
+          <TriggersList triggers={data.triggers} automations={data.automations} enabledAutomations={automationState} />
         </div>
       </Panel.Section>
     </>
