@@ -42,13 +42,13 @@ export function toOntimeAction(action: OntimeAction) {
     }
 
     // Playback actions
-    case 'event-start':
+    case 'playback-start':
       return runtimeService.start();
-    case 'event-stop':
+    case 'playback-stop':
       return runtimeService.stop();
-    case 'event-pause':
+    case 'playback-pause':
       return runtimeService.pause();
-    case 'event-roll':
+    case 'playback-roll':
       return runtimeService.roll();
 
     // Message actions
