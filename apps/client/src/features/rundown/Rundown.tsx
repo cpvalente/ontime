@@ -13,6 +13,7 @@ import { TbFlagFilled } from 'react-icons/tb';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import { useEntryActionsContext } from '../../common/context/EntryActionsContext';
+import useAutomationSettings from '../../common/hooks-query/useAutomationSettings';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { RundownMetadataObject, lastMetadataKey } from '../../common/utils/rundownMetadata';
 import { AppMode } from '../../ontimeConfig';
@@ -49,6 +50,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   // invoke the compiler for the component
   'use memo';
 
+  const { data: automationSettings } = useAutomationSettings();
   const [sortableData, setSortableData] = useState<EntryId[]>(() => makeSortableList(order, entries));
   const [metadata, setMetadata] = useState<RundownMetadataObject>(rundownMetadata);
 
@@ -263,6 +265,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
                   isPast={entryMetadata.isPast}
                   eventIndex={entryMetadata.eventIndex}
                   data={entry}
+                  automationsEnabled={automationSettings.enabledAutomations}
                   loaded={entryMetadata.isLoaded}
                   hasCursor={hasCursor}
                   isNext={isNext}
@@ -282,7 +285,18 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
         </Fragment>
       );
     },
-    [entries, metadata, getIsCollapsed, isEditMode, cursor, nextEventId, playback, lastEntryId, handleCollapseGroup],
+    [
+      entries,
+      metadata,
+      getIsCollapsed,
+      isEditMode,
+      cursor,
+      nextEventId,
+      playback,
+      lastEntryId,
+      handleCollapseGroup,
+      automationSettings.enabledAutomations,
+    ],
   );
 
   if (sortableData.length < 1) {
