@@ -1,13 +1,13 @@
-import { TimerLifeCycle, Trigger, timerLifecycleValues } from 'ontime-types';
+import { NormalisedAutomation, TimerLifeCycle, Trigger, timerLifecycleValues } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 import { Fragment, useCallback, useMemo, useState } from 'react';
 import { IoAlertCircle, IoCheckmarkCircle, IoTrash } from 'react-icons/io5';
 
 import Button from '../../../../common/components/buttons/Button';
+import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
+import Info from '../../../../common/components/info/Info';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Select from '../../../../common/components/select/Select';
-import Tag from '../../../../common/components/tag/Tag';
-import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import { eventTriggerOptions } from './eventTrigger.constants';
@@ -20,23 +20,35 @@ interface EventEditorTriggersProps {
 }
 
 export default function EventEditorTriggers({ triggers, eventId }: EventEditorTriggersProps) {
+  const { data: automationSettings } = useAutomationSettings();
   const showTriggers = triggers.length > 0;
 
   return (
-    <>
-      {showTriggers && <ExistingEventTriggers triggers={triggers} eventId={eventId} />}
-      <EventTriggerForm triggers={triggers} eventId={eventId} />
-    </>
+    <div className={style.triggers}>
+      {!automationSettings.enabledAutomations && (
+        <Info>Automations are disabled. Event triggers stay configured, but they will not run until enabled.</Info>
+      )}
+      {showTriggers && (
+        <div className={style.section}>
+          <div className={style.sectionTitle}>Applied automations</div>
+          <ExistingEventTriggers triggers={triggers} eventId={eventId} automations={automationSettings.automations} />
+        </div>
+      )}
+      <Editor.Panel className={style.formSection}>
+        <div className={style.sectionTitle}>Add automation</div>
+        <EventTriggerForm triggers={triggers} eventId={eventId} automations={automationSettings.automations} />
+      </Editor.Panel>
+    </div>
   );
 }
 
 interface EventTriggerFormProps {
   eventId: string;
   triggers?: Trigger[];
+  automations: NormalisedAutomation;
 }
 
-function EventTriggerForm({ eventId, triggers }: EventTriggerFormProps) {
-  const { data: automationSettings } = useAutomationSettings();
+function EventTriggerForm({ eventId, triggers, automations }: EventTriggerFormProps) {
   const { updateEntry } = useEntryActionsContext();
   const [automationId, setAutomationId] = useState<string | undefined>(undefined);
   const [cycleValue, setCycleValue] = useState(TimerLifeCycle.onStart);
@@ -52,7 +64,7 @@ function EventTriggerForm({ eventId, triggers }: EventTriggerFormProps) {
     if (automationId === undefined) {
       return 'Select an automation';
     }
-    if (!Object.keys(automationSettings.automations).includes(automationId)) {
+    if (!Object.keys(automations).includes(automationId)) {
       return 'This automation does not exist';
     }
     if (triggers === undefined) {
@@ -64,10 +76,11 @@ function EventTriggerForm({ eventId, triggers }: EventTriggerFormProps) {
   };
 
   const validationError = getValidationError(cycleValue, automationId);
+  const validationLabel = validationError ?? 'Ready to add automation';
 
   const triggerOptions = useMemo(
     () => [
-      { value: null, label: 'Select Trigger' },
+      { value: null, label: 'Select lifecycle' },
       ...eventTriggerOptions.map((cycle) => ({ value: cycle, label: cycle })),
     ],
     [], // eventTriggerOptions is a constant, no need for dependency
@@ -76,42 +89,49 @@ function EventTriggerForm({ eventId, triggers }: EventTriggerFormProps) {
   const automationOptions = useMemo(
     () => [
       { value: null, label: 'Select Automation' },
-      ...Object.values(automationSettings.automations).map(({ id, title }) => ({ value: id, label: title })),
+      ...Object.values(automations).map(({ id, title }) => ({ value: id, label: title })),
     ],
-    [automationSettings.automations], // This needs to be a dependency as it can change
+    [automations], // This needs to be a dependency as it can change
   );
 
   return (
     <div className={style.triggerForm}>
-      <Select
-        value={cycleValue}
-        onValueChange={(value) => {
-          if (value !== null) setCycleValue(value);
-        }}
-        options={triggerOptions}
-      />
+      <div className={style.formFields}>
+        <div>
+          <Editor.Label>Lifecycle</Editor.Label>
+          <Select
+            value={cycleValue}
+            onValueChange={(value) => {
+              if (value !== null) setCycleValue(value);
+            }}
+            options={triggerOptions}
+          />
+        </div>
 
-      <Select
-        value={automationId ?? null}
-        onValueChange={(value) => {
-          if (value !== null) setAutomationId(value);
-        }}
-        options={automationOptions}
-      />
+        <div>
+          <Editor.Label>Automation</Editor.Label>
+          <Select
+            value={automationId ?? null}
+            onValueChange={(value) => {
+              if (value !== null) setAutomationId(value);
+            }}
+            options={automationOptions}
+          />
+        </div>
+      </div>
 
-      <Button
-        disabled={validationError !== undefined}
-        onClick={() => automationId && handleSubmit(cycleValue, automationId)}
-      >
-        Add
-      </Button>
-      {validationError !== undefined ? (
-        <Tooltip text={validationError} render={<span />}>
-          <IoAlertCircle className={style.errorLabel} />
-        </Tooltip>
-      ) : (
-        <IoCheckmarkCircle className={style.success} />
-      )}
+      <div className={style.formActions}>
+        <div className={validationError ? style.validationError : style.validationSuccess}>
+          {validationError ? <IoAlertCircle /> : <IoCheckmarkCircle />}
+          <span>{validationLabel}</span>
+        </div>
+        <Button
+          disabled={validationError !== undefined}
+          onClick={() => automationId && handleSubmit(cycleValue, automationId)}
+        >
+          Add automation
+        </Button>
+      </div>
     </div>
   );
 }
@@ -119,11 +139,11 @@ function EventTriggerForm({ eventId, triggers }: EventTriggerFormProps) {
 interface ExistingEventTriggersProps {
   eventId: string;
   triggers: Trigger[];
+  automations: NormalisedAutomation;
 }
 
-function ExistingEventTriggers({ eventId, triggers }: ExistingEventTriggersProps) {
+function ExistingEventTriggers({ eventId, triggers, automations }: ExistingEventTriggersProps) {
   const { updateEntry } = useEntryActionsContext();
-  const { data: automationSettings } = useAutomationSettings();
 
   const handleDelete = useCallback(
     (triggerId: string) => {
@@ -144,16 +164,22 @@ function ExistingEventTriggers({ eventId, triggers }: ExistingEventTriggersProps
   });
 
   return (
-    <div>
+    <div className={style.triggerList}>
       {Object.entries(filteredTriggers).map(([triggerLifeCycle, triggerGroup]) => (
         <Fragment key={triggerLifeCycle}>
           {triggerGroup.map((trigger) => {
             const { id, automationId } = trigger;
-            const automationTitle = automationSettings.automations[automationId]?.title ?? '<MISSING AUTOMATION>';
+            const automationTitle = automations[automationId]?.title ?? '<MISSING AUTOMATION>';
             return (
               <div key={id} className={style.trigger}>
-                <Tag>{triggerLifeCycle}</Tag>
-                <Tag>{automationTitle}</Tag>
+                <div className={style.triggerMeta}>
+                  <div className={style.metaLabel}>Lifecycle</div>
+                  <div>{triggerLifeCycle}</div>
+                </div>
+                <div className={style.triggerMeta}>
+                  <div className={style.metaLabel}>Automation</div>
+                  <div className={style.automationTitle}>{automationTitle}</div>
+                </div>
                 <IconButton variant='ghosted-destructive' onClick={() => handleDelete(id)}>
                   <IoTrash />
                 </IconButton>
