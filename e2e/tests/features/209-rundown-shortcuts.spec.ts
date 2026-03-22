@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('Copy-paste', async ({ page }) => {
-  await page.goto('http://localhost:4001/rundown');
+  await page.goto('/rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -32,7 +32,7 @@ test('Copy-paste', async ({ page }) => {
 });
 
 test('Cut-paste', async ({ page }) => {
-  await page.goto('http://localhost:4001/rundown');
+  await page.goto('/rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -64,7 +64,7 @@ test('Cut-paste', async ({ page }) => {
 });
 
 test('Move', async ({ page }) => {
-  await page.goto('http://localhost:4001/rundown');
+  await page.goto('/rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -102,7 +102,7 @@ test('Move', async ({ page }) => {
 });
 
 test('Add group', async ({ page }) => {
-  await page.goto('http://localhost:4001/rundown');
+  await page.goto('/rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -137,7 +137,7 @@ test('Add group', async ({ page }) => {
 });
 
 test('Add delay', async ({ page }) => {
-  await page.goto('http://localhost:4001/rundown');
+  await page.goto('/rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -168,7 +168,7 @@ test('Add delay', async ({ page }) => {
 });
 
 test('Add event', async ({ page }) => {
-  await page.goto('http://localhost:4001/rundown');
+  await page.goto('/rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -195,11 +195,11 @@ test('Add event', async ({ page }) => {
 });
 
 test('Delete event', async ({ page }) => {
-  await page.goto('http://localhost:4001/rundown');
+  await page.goto('/rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
-  await page.goto('http://localhost:4001/rundown');
+  await page.goto('/rundown');
   await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
@@ -218,7 +218,7 @@ test('Delete event', async ({ page }) => {
 });
 
 test('Find in rundown', async ({ page }) => {
-  await page.goto('http://localhost:4001/rundown');
+  await page.goto('/rundown');
   await expect(page.getByTestId('panel-rundown')).toBeVisible();
 
   await page.keyboard.press('ControlOrMeta+f');
@@ -229,7 +229,7 @@ test('Find in rundown', async ({ page }) => {
 });
 
 test('Open settings', async ({ page }) => {
-  await page.goto('http://localhost:4001/editor');
+  await page.goto('/editor');
   await expect(page.getByTestId('editor-container')).toBeVisible();
 
   await page.keyboard.press('ControlOrMeta+,');

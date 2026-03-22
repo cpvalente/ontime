@@ -212,7 +212,7 @@ function GroupTimes() {
   const currentGroupId = useCurrentGroupId();
   const group = useEntry(currentGroupId) as OntimeGroup | null;
 
-  const hasRunningTimer = phase !== TimerPhase.Pending && isPlaybackActive(playback) ;
+  const hasRunningTimer = phase !== TimerPhase.Pending && isPlaybackActive(playback);
 
   // the group end time does not encode any day offsets so it is calculated with group start time and duration
   const plannedGroupEnd = (() => {
