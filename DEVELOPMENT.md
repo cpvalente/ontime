@@ -101,7 +101,7 @@ Other useful commands
 
 ## FORMATTING AND LINTING
 
-Ontime uses oxfmt(https://oxc.rs/docs/guide/usage/formatter.html) for formatting and oxlint(https://oxc.rs/docs/guide/usage/linter.html) for linting. Look for an oxc extension(https://oxc.rs/docs/guide/usage/linter/editors) for your editor of choice.
+Ontime uses [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) for formatting and [oxlint](https://oxc.rs/docs/guide/usage/linter.html) for linting. Look for an [oxc extension](https://oxc.rs/docs/guide/usage/linter/editors) for your editor of choice.
 
 - **Run formatter** by running `pnpm format`
 - **Run linter** by running `pnpm lint`
