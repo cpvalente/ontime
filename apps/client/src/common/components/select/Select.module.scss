@@ -125,6 +125,11 @@
   font-size: 0.5rem;
   display: grid;
   place-content: center;
+  visibility: hidden;
+
+  &[data-visible] {
+    visibility: visible;
+  }
 
   &::before {
     content: '';
