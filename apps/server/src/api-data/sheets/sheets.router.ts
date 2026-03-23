@@ -6,7 +6,7 @@ import express from 'express';
 
 import {
   getWorksheetMetadataFromSheet,
-  getWorksheetNamesFromSheet,
+  getWorksheetOptionsFromSheet,
   readFromSheet,
   requestConnection,
   revokeAuthentication,
@@ -28,7 +28,7 @@ router.post('/:sheetId/connect', uploadClientSecret, validateRequestConnection, 
 
 router.post('/revoke', revokeAuthentication);
 
-router.post('/:sheetId/worksheets', validateSheetId, getWorksheetNamesFromSheet);
+router.post('/:sheetId/worksheet-options', validateSheetId, getWorksheetOptionsFromSheet);
 router.post('/:sheetId/metadata', validateWorksheetMetadata, getWorksheetMetadataFromSheet);
 
 router.post('/:sheetId/read', validateSheetOptions, readFromSheet);

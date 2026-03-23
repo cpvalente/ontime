@@ -7,7 +7,7 @@
   justify-content: center;
   background-color: $gray-1350;
   border: 1px solid $white-10;
-  border-radius: 3px;
+  border-radius: $component-border-radius-md;
 }
 
 .uploadSection {
@@ -29,7 +29,8 @@
   }
 }
 
-.singleActionCell {
-  width: 50px;
-  text-align: center;
+@media (max-width: $medium-screen) {
+  .uploadSection {
+    flex-direction: column;
+  }
 }
