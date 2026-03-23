@@ -1,7 +1,8 @@
+import type { SpreadsheetWorksheetOptions } from 'ontime-types';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { IoCheckmark, IoShieldCheckmarkOutline } from 'react-icons/io5';
 
-import { getWorksheetNames } from '../../../../../common/api/sheets';
+import { getWorksheetOptions } from '../../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
 import CopyTag from '../../../../../common/components/copy-tag/CopyTag';
@@ -13,10 +14,11 @@ import { useSheetStore } from './useSheetStore';
 
 interface GSheetSetupProps {
   onCancel: () => void;
+  onWorksheetOptionsLoaded?: (options: SpreadsheetWorksheetOptions) => void;
 }
 
 export default function GSheetSetup(props: GSheetSetupProps) {
-  const { onCancel } = props;
+  const { onCancel, onWorksheetOptionsLoaded } = props;
 
   const { revoke, connect, verifyAuth } = useGoogleSheet();
   const [file, setFile] = useState<File | null>(null);
@@ -92,8 +94,9 @@ export default function GSheetSetup(props: GSheetSetupProps) {
       if (result.authenticated !== 'pending') {
         if (result.authenticated == 'authenticated') {
           try {
-            const names = await getWorksheetNames(result.sheetId);
-            setWorksheets(names);
+            const worksheetOptions = await getWorksheetOptions(result.sheetId);
+            setWorksheets(worksheetOptions.worksheets);
+            onWorksheetOptionsLoaded?.(worksheetOptions);
           } catch (error) {
             const message = maybeAxiosError(error);
             patchStepData({ worksheet: { available: false, error: message } });

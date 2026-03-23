@@ -40,13 +40,16 @@
 }
 
 .title {
-  font-size: 1rem;
-  font-weight: 600;
   padding-block: 1rem;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.titleText {
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .body {

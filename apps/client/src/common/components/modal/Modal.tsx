@@ -38,9 +38,9 @@ export default function Modal({
     >
       <BaseDialog.Portal>
         {showBackdrop && <BaseDialog.Backdrop className={style.backdrop} />}
-        <BaseDialog.Popup className={cx([style.modal, size === 'wide' && style.wide])}>
+        <BaseDialog.Popup aria-label={title} className={cx([style.modal, size === 'wide' && style.wide])}>
           <div className={style.title}>
-            {title}
+            {title ? <BaseDialog.Title className={style.titleText}>{title}</BaseDialog.Title> : <div />}
             {showCloseButton && (
               <IconButton variant='subtle-white' onClick={onClose}>
                 <IoClose />

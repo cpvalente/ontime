@@ -1,21 +1,29 @@
-import { ImportMap, getErrorMessage } from 'ontime-utils';
-import { ChangeEvent, useRef, useState } from 'react';
+import type { SpreadsheetPreviewResponse, SpreadsheetWorksheetMetadata } from 'ontime-types';
+import { getErrorMessage, ImportMap } from 'ontime-utils';
+import { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { IoCloudOutline, IoDownloadOutline } from 'react-icons/io5';
 
 import {
-  importRundownPreview as importRundownPreviewExcel,
+  getWorksheetMetadata as getExcelWorksheetMetadata,
+  importRundownPreview as importExcelPreview,
   upload as uploadExcel,
 } from '../../../../../common/api/excel';
-import { getWorksheetNames } from '../../../../../common/api/sheets';
+import {
+  getWorksheetMetadata as getGoogleWorksheetMetadata,
+  getWorksheetOptions,
+  previewRundown as previewGoogleSheet,
+  uploadRundown,
+} from '../../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
 import * as Editor from '../../../../../common/components/editor-utils/EditorUtils';
+import Modal from '../../../../../common/components/modal/Modal';
+import useRundown from '../../../../../common/hooks-query/useRundown';
 import { validateExcelImport } from '../../../../../common/utils/uploadUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
 import GSheetInfo from './GSheetInfo';
 import GSheetSetup from './GSheetSetup';
-import ImportMapForm from './import-map/ImportMapForm';
-import ImportReview from './ImportReview';
+import SheetImportEditor from './sheet-import/SheetImportEditor';
 import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 
@@ -25,21 +33,17 @@ export default function SourcesPanel() {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet' | 'finished'>('none');
   const [error, setError] = useState('');
   const [hasFile, setHasFile] = useState<'none' | 'loading' | 'done'>('none');
+  const [initialWorksheetMetadata, setInitialWorksheetMetadata] = useState<SpreadsheetWorksheetMetadata | null>(null);
 
-  const { exportRundown, importRundownPreview, verifyAuth } = useGoogleSheet();
+  const { data: currentRundown } = useRundown();
+  const { importRundown, verifyAuth } = useGoogleSheet();
 
   const setWorksheets = useSheetStore((state) => state.setWorksheets);
+  const worksheetNames = useSheetStore((state) => state.worksheetNames);
   const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
   const setAuthenticationStatus = useSheetStore((state) => state.setAuthenticationStatus);
-  const rundown = useSheetStore((state) => state.rundown);
-  const setRundown = useSheetStore((state) => state.setRundown);
-  const customFields = useSheetStore((state) => state.customFields);
-  const setCustomFields = useSheetStore((state) => state.setCustomFields);
-  const summary = useSheetStore((state) => state.summary);
-  const setSummary = useSheetStore((state) => state.setSummary);
   const setSheetId = useSheetStore((state) => state.setSheetId);
   const sheetId = useSheetStore((state) => state.sheetId);
-  const resetPreview = useSheetStore((state) => state.resetPreview);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -53,15 +57,18 @@ export default function SourcesPanel() {
     }
     try {
       setHasFile('loading');
+      setError('');
       validateExcelImport(fileToUpload);
-      const names = await uploadExcel(fileToUpload);
-      setWorksheets(names);
+      const worksheetOptions = await uploadExcel(fileToUpload);
+      setWorksheets(worksheetOptions.worksheets);
+      setInitialWorksheetMetadata(worksheetOptions.metadata);
       setImportFlow('excel');
       setHasFile('done');
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       setError(`Error uploading file: ${errorMessage}`);
       setWorksheets(null);
+      setInitialWorksheetMetadata(null);
       setHasFile('none');
     }
   };
@@ -73,27 +80,29 @@ export default function SourcesPanel() {
   const resetFlow = () => {
     // we purposely omit clearing the authentication status
     setImportFlow('none');
-    setRundown(null);
     setHasFile('none');
     setWorksheets(null);
-    setCustomFields(null);
-    setSummary(null);
     setError('');
     setSheetId(null);
+    setInitialWorksheetMetadata(null);
   };
 
   const openGSheetFlow = async () => {
+    setError('');
+    setInitialWorksheetMetadata(null);
     const result = await verifyAuth();
     if (result) {
       setAuthenticationStatus(result.authenticated);
       setSheetId(result.sheetId);
       if (result.authenticated === 'authenticated' && result.sheetId) {
         try {
-          const names = await getWorksheetNames(result.sheetId);
-          setWorksheets(names);
+          const worksheetOptions = await getWorksheetOptions(result.sheetId);
+          setWorksheets(worksheetOptions.worksheets);
+          setInitialWorksheetMetadata(worksheetOptions.metadata);
         } catch (error) {
           const message = maybeAxiosError(error);
           setError(`Error getting worksheets: ${message}`);
+          setInitialWorksheetMetadata(null);
         }
       }
     }
@@ -104,57 +113,65 @@ export default function SourcesPanel() {
     resetFlow();
   };
 
-  const handleSubmitImportPreview = async (importMap: ImportMap) => {
-    setError(''); // to clear previous error
-    if (importFlow === 'excel') {
-      try {
-        const previewData = await importRundownPreviewExcel(importMap);
-        setRundown(previewData.rundown);
-        setCustomFields(previewData.customFields);
-        setSummary(previewData.summary);
-      } catch (error) {
-        setError(maybeAxiosError(error));
-      }
-    }
-
-    if (importFlow === 'gsheet') {
-      if (!sheetId) return;
-      await importRundownPreview(sheetId, importMap);
-    }
-  };
-
-  const cancelImportMap = async () => {
+  const cancelImportFlow = () => {
     resetFlow();
-    if (authenticationStatus === 'authenticated') {
-      const result = await verifyAuth();
-      if (result) {
-        setAuthenticationStatus(result.authenticated);
-      }
-    }
   };
 
   const handleFinished = () => {
     setImportFlow('finished');
-    setRundown(null);
     setHasFile('none');
     setWorksheets(null);
-    setCustomFields(null);
     setError('');
   };
 
-  const handleSubmitExport = async (importMap: ImportMap) => {
-    if (!sheetId) return;
-    await exportRundown(sheetId, importMap);
+  const handleApplyImport = async (preview: SpreadsheetPreviewResponse) => {
+    if (!currentRundown) {
+      throw new Error('No current rundown loaded');
+    }
+
+    await importRundown(
+      {
+        [currentRundown.id]: {
+          ...preview.rundown,
+          id: currentRundown.id,
+          title: currentRundown.title,
+        },
+      },
+      preview.customFields,
+    );
+    handleFinished();
   };
+
+  const loadWorksheetMetadata = useCallback(
+    (worksheet: string) =>
+      importFlow === 'excel'
+        ? getExcelWorksheetMetadata(worksheet)
+        : getGoogleWorksheetMetadata(sheetId as string, worksheet),
+    [importFlow, sheetId],
+  );
+
+  const previewImport = useCallback(
+    (importMap: ImportMap): Promise<SpreadsheetPreviewResponse> =>
+      importFlow === 'excel' ? importExcelPreview(importMap) : previewGoogleSheet(sheetId as string, importMap),
+    [importFlow, sheetId],
+  );
+
+  const exportToGoogleSheet = useCallback(
+    (importMap: ImportMap): Promise<void> => uploadRundown(sheetId as string, importMap),
+    [sheetId],
+  );
 
   const isExcelFlow = importFlow === 'excel';
   const isGSheetFlow = importFlow === 'gsheet';
   const isAuthenticated = authenticationStatus === 'authenticated';
   const showInput = importFlow === 'none';
   const showCompleted = importFlow === 'finished';
-  const showAuth = isGSheetFlow && !isAuthenticated;
-  const showImportMap = (isGSheetFlow && isAuthenticated) || (isExcelFlow && hasFile === 'done');
-  const showReview = rundown !== null && customFields !== null && summary !== null;
+  const showAuth = isGSheetFlow && (!isAuthenticated || !worksheetNames?.length);
+  const showImportWorkspace =
+    (isExcelFlow && hasFile === 'done' && Boolean(worksheetNames?.length)) ||
+    (isGSheetFlow && isAuthenticated && Boolean(sheetId) && Boolean(worksheetNames?.length));
+  const importModalTitle = isExcelFlow ? 'Import spreadsheet' : 'Synchronise with Google Sheet';
+  const sourceKey = isExcelFlow ? 'excel' : sheetId ? `gsheet:${sheetId}` : null;
 
   return (
     <Panel.Section>
@@ -207,26 +224,35 @@ export default function SourcesPanel() {
             </Button>
           </div>
         )}
-        {showAuth && <GSheetSetup onCancel={cancelGSheetFlow} />}
-        {showImportMap && !showReview && (
-          <ImportMapForm
-            hasErrors={Boolean(error)}
-            isSpreadsheet={isExcelFlow}
-            onCancel={cancelImportMap}
-            onSubmitExport={handleSubmitExport}
-            onSubmitImport={handleSubmitImportPreview}
+        {showAuth && (
+          <GSheetSetup
+            onCancel={cancelGSheetFlow}
+            onWorksheetOptionsLoaded={(worksheetOptions) => {
+              setWorksheets(worksheetOptions.worksheets);
+              setInitialWorksheetMetadata(worksheetOptions.metadata);
+            }}
           />
         )}
-        {showReview && (
-          <ImportReview
-            rundown={rundown}
-            customFields={customFields}
-            summary={summary}
-            onFinished={handleFinished}
-            onCancel={cancelImportMap}
-            onBack={resetPreview}
-          />
-        )}
+        <Modal
+          isOpen={showImportWorkspace}
+          title={importModalTitle}
+          showBackdrop
+          showCloseButton
+          size='wide'
+          onClose={cancelImportFlow}
+          bodyElements={
+            <SheetImportEditor
+              sourceKey={sourceKey ?? 'spreadsheet'}
+              worksheetNames={worksheetNames ?? []}
+              initialMetadata={initialWorksheetMetadata}
+              loadMetadata={loadWorksheetMetadata}
+              previewImport={previewImport}
+              onApply={handleApplyImport}
+              onCancel={cancelImportFlow}
+              onExport={isGSheetFlow && sheetId ? exportToGoogleSheet : undefined}
+            />
+          }
+        />
       </Panel.Card>
     </Panel.Section>
   );

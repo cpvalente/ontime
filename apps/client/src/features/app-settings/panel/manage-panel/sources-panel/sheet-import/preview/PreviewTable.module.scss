@@ -1,0 +1,64 @@
+.emptyState {
+  height: 100%;
+  min-height: 16rem;
+  display: grid;
+  place-content: center;
+  gap: 0.35rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.emptyTitle {
+  color: $ui-white;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.emptyBody {
+  color: $gray-400;
+  font-size: 0.95rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: calc(1rem - 2px);
+  text-align: left;
+  table-layout: auto;
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: $zindex-floating;
+    background-color: $gray-1350;
+  }
+
+  th {
+    font-weight: 400;
+    color: $gray-400;
+    text-transform: capitalize;
+    vertical-align: top;
+    white-space: normal;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+    min-width: 8rem;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) {
+    background-color: $white-1;
+  }
+}
+
+.rowNumber {
+  width: 4.5rem;
+  min-width: 4.5rem;
+}
+
+.rowType {
+  width: 7rem;
+  min-width: 7rem;
+}

@@ -1,5 +1,5 @@
 import { Autocomplete as BaseAutocomplete } from '@base-ui/react/autocomplete';
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
 import { cx } from '../../utils/styleUtils';
@@ -15,6 +15,7 @@ export interface AutocompleteInputProps extends Omit<InputProps, 'value' | 'defa
   onValueChange: (value: string) => void;
   emptyLabel?: string;
   trailingElement?: (option: string) => ReactNode;
+  inputRef?: Ref<HTMLInputElement>;
 }
 
 export default function AutocompleteInput({
@@ -23,6 +24,7 @@ export default function AutocompleteInput({
   emptyLabel,
   fluid,
   height = 'medium',
+  inputRef,
   onValueChange,
   options,
   trailingElement,
@@ -30,8 +32,23 @@ export default function AutocompleteInput({
   variant = 'subtle',
   ...inputProps
 }: AutocompleteInputProps) {
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const internalInputRef = useRef<HTMLInputElement | null>(null);
   const [open, setOpen] = useState(false);
+
+  const handleInputRef = (node: HTMLInputElement | null) => {
+    internalInputRef.current = node;
+
+    if (!inputRef) {
+      return;
+    }
+
+    if (typeof inputRef === 'function') {
+      inputRef(node);
+      return;
+    }
+
+    inputRef.current = node;
+  };
 
   // close the popover when the parent scrollable container scrolls or the window resizes
   useEffect(() => {
@@ -39,7 +56,7 @@ export default function AutocompleteInput({
       return;
     }
 
-    const scrollTarget = getScrollParent(inputRef.current);
+    const scrollTarget = getScrollParent(internalInputRef.current);
     const handleScroll = () => setOpen(false);
 
     scrollTarget.addEventListener('scroll', handleScroll, { passive: true });
@@ -63,7 +80,7 @@ export default function AutocompleteInput({
       onValueChange={onValueChange}
     >
       <BaseAutocomplete.Input
-        ref={inputRef}
+        ref={handleInputRef}
         className={cx([
           inputStyles.input,
           inputStyles[variant],
