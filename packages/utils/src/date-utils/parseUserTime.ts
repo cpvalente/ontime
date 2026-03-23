@@ -116,12 +116,14 @@ function checkMatchers(value: string): number | null {
   // if there's a number after 'h' without a unit and it's not followed by 's', treat it as minutes
   const implicitMinutesValue = hoursMatch?.[2] ? parse(hoursMatch[2]) : 0;
 
-  const minutesMatch = /(\d+)m/i.exec(value);
+  const minutesMatch = /(\d+)m(?:(\d+)?)/i.exec(value);
   // only use implicit minutes if there's no explicit minutes match
   const minutesMatchValue = minutesMatch ? parse(minutesMatch[1]) : implicitMinutesValue;
+  // if there's a number after 'm' without a unit treat it as seconds
+  const implicitSecondsValue = minutesMatch?.[2] ? parse(minutesMatch[2]) : 0;
 
   const secondsMatch = /(\d+)s/i.exec(value);
-  const secondsMatchValue = secondsMatch ? parse(secondsMatch[1]) : 0;
+  const secondsMatchValue = secondsMatch ? parse(secondsMatch[1]) : implicitSecondsValue;
 
   if (hoursMatch || minutesMatch || secondsMatch) {
     return (
