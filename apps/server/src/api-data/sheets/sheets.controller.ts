@@ -27,6 +27,9 @@ import {
   upload,
 } from './sheets.service.js';
 
+/**
+ * Starts the Google device authorization flow for the provided sheet.
+ */
 export async function requestConnection(
   req: Request,
   res: Response<{ verification_url: string; user_code: string } | ErrorResponse>,
@@ -50,6 +53,9 @@ export async function requestConnection(
   await deleteFile(filePath);
 }
 
+/**
+ * Returns the current Google Sheets authentication status for this server session.
+ */
 export async function verifyAuthentication(
   _req: Request,
   res: Response<{ authenticated: AuthenticationStatus } | ErrorResponse>,
@@ -63,6 +69,9 @@ export async function verifyAuthentication(
   }
 }
 
+/**
+ * Clears the current Google Sheets authentication session.
+ */
 export async function revokeAuthentication(
   _req: Request,
   res: Response<{ authenticated: AuthenticationStatus } | ErrorResponse>,
@@ -76,7 +85,10 @@ export async function revokeAuthentication(
   }
 }
 
-export async function getWorksheetNamesFromSheet(
+/**
+ * Lists worksheet titles. Metadata is loaded lazily for the selected worksheet.
+ */
+export async function getWorksheetOptionsFromSheet(
   req: Request,
   res: Response<SpreadsheetWorksheetOptions | ErrorResponse>,
 ) {
@@ -90,7 +102,13 @@ export async function getWorksheetNamesFromSheet(
   }
 }
 
-export async function getWorksheetMetadataFromSheet(req: Request, res: Response<SpreadsheetWorksheetMetadata | ErrorResponse>) {
+/**
+ * Returns derived metadata for a single worksheet by inspecting its row data.
+ */
+export async function getWorksheetMetadataFromSheet(
+  req: Request,
+  res: Response<SpreadsheetWorksheetMetadata | ErrorResponse>,
+) {
   try {
     const { sheetId } = req.params;
     const { worksheet } = req.body;
@@ -102,10 +120,10 @@ export async function getWorksheetMetadataFromSheet(req: Request, res: Response<
   }
 }
 
-export async function readFromSheet(
-  req: Request,
-  res: Response<SpreadsheetPreviewResponse | ErrorResponse>,
-) {
+/**
+ * Reads a Google Sheet worksheet and converts it into a rundown preview.
+ */
+export async function readFromSheet(req: Request, res: Response<SpreadsheetPreviewResponse | ErrorResponse>) {
   try {
     const { sheetId } = req.params;
     const { options } = req.body;
@@ -117,6 +135,9 @@ export async function readFromSheet(
   }
 }
 
+/**
+ * Writes the current rundown back to the selected Google Sheet worksheet.
+ */
 export async function writeToSheet(req: Request, res: Response<void | ErrorResponse>) {
   try {
     const { sheetId } = req.params;

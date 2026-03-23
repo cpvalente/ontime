@@ -7,6 +7,7 @@ import { existsSync } from 'fs';
 import { extname } from 'path';
 
 import { CustomFields, Rundown, RundownSummary } from 'ontime-types';
+import type { SpreadsheetWorksheetMetadata } from 'ontime-types';
 import { type ImportMap } from 'ontime-utils';
 import xlsx from 'xlsx';
 import type { WorkBook } from 'xlsx';
@@ -16,10 +17,8 @@ import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import { getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
 import { parseRundown } from '../rundown/rundown.parser.js';
 import { parseExcel } from './excel.parser.js';
-import type { SpreadsheetWorksheetMetadata } from 'ontime-types';
-
-import { getWorksheetMetadataFromRows } from './spreadsheetMetadata.utils.js';
 import { rundownToTabular } from './excel.utils.js';
+import { getWorksheetMetadataFromRows } from './spreadsheetMetadata.utils.js';
 
 // we keep the excel data in memory to allow the flow upload -> preview
 let excelData: WorkBook = xlsx.utils.book_new();

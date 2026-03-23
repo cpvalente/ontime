@@ -76,6 +76,9 @@ export const previewRundown = async (
   return response.data;
 };
 
+/**
+ * Fetches derived metadata for a single worksheet by reading its rows and detecting headers.
+ */
 export const getWorksheetMetadata = async (
   sheetId: string,
   worksheet: string,
@@ -92,12 +95,15 @@ export const getWorksheetMetadata = async (
   return response.data;
 };
 
-export const getWorksheetNames = async (
+/**
+ * Fetches the available worksheets for a Google Sheet. Metadata is loaded lazily per worksheet.
+ */
+export const getWorksheetOptions = async (
   sheetId: string,
   requestOptions?: RequestOptions,
 ): Promise<SpreadsheetWorksheetOptions> => {
   const response: AxiosResponse<SpreadsheetWorksheetOptions> = await axios.post(
-    `${sheetsPath}/${sheetId}/worksheets`,
+    `${sheetsPath}/${sheetId}/worksheet-options`,
     undefined,
     {
       signal: requestOptions?.signal,

@@ -20,14 +20,13 @@ import {
   isOntimeEvent,
   isOntimeMilestone,
 } from 'ontime-types';
+import type { SpreadsheetWorksheetMetadata } from 'ontime-types';
 import { ImportMap, getErrorMessage } from 'ontime-utils';
 
 import { logger } from '../../classes/Logger.js';
 import { consoleSubdued } from '../../utils/console.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import { parseExcel } from '../excel/excel.parser.js';
-import type { SpreadsheetWorksheetMetadata } from 'ontime-types';
-
 import { getWorksheetMetadataFromRows } from '../excel/spreadsheetMetadata.utils.js';
 import { getCurrentRundown, getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
 import { parseRundowns } from '../rundown/rundown.parser.js';
@@ -224,10 +223,10 @@ export function hasAuth(): { authenticated: AuthenticationStatus; sheetId: strin
   return { authenticated: currentAuthClient ? 'authenticated' : 'not_authenticated', sheetId: currentSheetId };
 }
 
-async function verifySheet(
-  sheetId = currentSheetId,
-  authClient = currentAuthClient,
-): Promise<string[]> {
+/**
+ * Validates that a spreadsheet exists and returns its worksheet titles without reading cell data.
+ */
+async function verifySheet(sheetId = currentSheetId, authClient = currentAuthClient): Promise<string[]> {
   if (!sheetId || !authClient) {
     throw new Error('Missing sheet ID or authentication');
   }
@@ -284,8 +283,7 @@ export async function handleInitialConnection(
 }
 
 /**
- * Allow calling verification for sheetId
- * @returns
+ * Returns the available worksheet titles. Metadata is loaded lazily per worksheet.
  */
 export async function getWorksheetOptions(
   sheetId: string,
@@ -296,29 +294,16 @@ export async function getWorksheetOptions(
   currentSheetId = sheetId;
 
   const worksheets = await verifySheet(sheetId);
-  const metadata = await getInitialWorksheetMetadata(sheetId, worksheets);
 
   return {
     worksheets,
-    metadata,
+    metadata: null,
   };
 }
 
-async function getInitialWorksheetMetadata(
-  sheetId: string,
-  worksheets: string[],
-): Promise<SpreadsheetWorksheetMetadata | null> {
-  for (const worksheet of worksheets) {
-    try {
-      return await getWorksheetMetadata(sheetId, worksheet);
-    } catch {
-      // Continue looking for the first worksheet with usable headers.
-    }
-  }
-
-  return null;
-}
-
+/**
+ * Reads worksheet rows from Google Sheets and derives import metadata from the detected header row.
+ */
 export async function getWorksheetMetadata(sheetId: string, worksheet: string) {
   if (!currentAuthClient) {
     throw new Error('Not authenticated');
@@ -344,6 +329,9 @@ export async function getWorksheetMetadata(sheetId: string, worksheet: string) {
   return getWorksheetMetadataFromRows(worksheet, googleResponse.data.values);
 }
 
+/**
+ * Validates that a worksheet exists and computes the A1 range needed to read its current grid.
+ */
 async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ worksheetId: number; range: string }> {
   if (!currentAuthClient) {
     throw new Error('Not authenticated');
