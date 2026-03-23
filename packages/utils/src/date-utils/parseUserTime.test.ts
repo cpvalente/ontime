@@ -30,6 +30,22 @@ describe('test parseUserTime()', () => {
     }
   });
 
+  describe('infer unit from bigger unit', () => {
+    const testData = [
+      { value: '1h2', expect: MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE },
+      { value: '1h2s', expect: MILLIS_PER_HOUR + 2 * MILLIS_PER_SECOND },
+      { value: '1m2', expect: MILLIS_PER_MINUTE + 2 * MILLIS_PER_SECOND },
+      { value: '1m2s', expect: MILLIS_PER_MINUTE + 2 * MILLIS_PER_SECOND },
+    ];
+
+    for (const s of testData) {
+      it(`handles ${s.value}`, () => {
+        expect(typeof parseUserTime(s.value)).toBe('number');
+        expect(parseUserTime(s.value)).toBe(s.expect);
+      });
+    }
+  });
+
   describe('parses strings correctly', () => {
     const ts = [
       { value: '1.1.1', expect: MILLIS_PER_HOUR + MILLIS_PER_MINUTE + MILLIS_PER_SECOND },
