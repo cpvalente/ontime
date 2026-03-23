@@ -369,4 +369,11 @@ process.on('uncaughtException', async (error) => {
 // register shutdown signals
 process.once('SIGHUP', async () => shutdown(0));
 process.once('SIGINT', async () => shutdown(0));
-process.once('SIGTERM', async () => shutdown(3));
+process.once('SIGTERM', async () => shutdown(0));
+process.once('SIGTKILL', async () => shutdown(3));
+
+/**
+ * @link https://docs.docker.com/reference/cli/docker/container/stop/
+ * the default shutdown signal from docker is SIGTERM
+ * with a timeout of 10 seconds after witch SIGKILL is sent
+ */
