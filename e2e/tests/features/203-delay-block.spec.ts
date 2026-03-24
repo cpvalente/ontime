@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 test('delays add time to events', async ({ page }) => {
-  await page.goto('http://localhost:4001/editor');
+  await page.goto('/editor');
 
   // delete all events and add a new one
   await page.getByRole('button', { name: 'Edit' }).click();
@@ -50,7 +50,7 @@ test('delays add time to events', async ({ page }) => {
 });
 
 test('delays are show correctly', async ({ page }) => {
-  await page.goto('http://localhost:4001/editor');
+  await page.goto('/editor');
 
   // add a test event
   await page.getByRole('button', { name: 'Edit' }).click();
@@ -81,10 +81,10 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByText('New start 00:11').click();
 
   // delay is shown in the cuesheet
-  await page.goto('http://localhost:4001/cuesheet');
+  await page.goto('/cuesheet');
   await page.getByRole('cell', { name: 'Delayed by 1 min' }).click();
 
   // delay is shown in the backstage view
-  await page.goto('http://localhost:4001/backstage');
+  await page.goto('/backstage');
   await page.getByText('00:11→00:21').click();
 });

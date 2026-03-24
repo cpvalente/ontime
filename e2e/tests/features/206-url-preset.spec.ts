@@ -8,7 +8,7 @@ test.describe('URL Preset', () => {
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await page.goto('http://localhost:4001/editor');
+    await page.goto('/editor');
 
     // Create the preset that will be used by other tests
     await page.getByRole('button', { name: 'Toggle settings' }).click();
@@ -31,7 +31,7 @@ test.describe('URL Preset', () => {
   });
 
   test('Unwrapping a preset from a view', async ({ page }) => {
-    await page.goto('http://localhost:4001/timer');
+    await page.goto('/timer');
 
     // 1. the URL points to the view
     expect(page.url().includes('hideTimerSeconds=true')).not.toBeTruthy();
@@ -52,7 +52,7 @@ test.describe('URL Preset', () => {
   });
 
   test('Sharing a link to an unwrapped preset', async ({ page }) => {
-    await page.goto('http://localhost:4001/editor');
+    await page.goto('/editor');
 
     // open settings
     await page.getByRole('button', { name: 'Toggle settings' }).click();
@@ -83,7 +83,7 @@ test.describe('URL Preset', () => {
   });
 
   test('Sharing a link to a masked preset', async ({ page }) => {
-    await page.goto('http://localhost:4001/editor');
+    await page.goto('/editor');
 
     // open settings
     await page.getByRole('button', { name: 'Toggle settings' }).click();
@@ -118,7 +118,7 @@ test.describe('Sharing from cuesheet', () => {
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await page.goto('http://localhost:4001/editor');
+    await page.goto('/editor');
 
     // we create some elements to test with
     await page.getByRole('button', { name: 'Rundown menu' }).click();
@@ -135,7 +135,7 @@ test.describe('Sharing from cuesheet', () => {
   test('Sharing a link with readonly permissions', async ({ page }, testInfo) => {
     const alias = `cuesheet-read-test-${testInfo.retry}-${Date.now()}`;
 
-    await page.goto('http://localhost:4001/cuesheet');
+    await page.goto('/cuesheet');
     await expect(page.getByTestId('cuesheet')).toBeVisible();
 
     await page.getByRole('button', { name: 'Share...' }).click();
@@ -189,7 +189,7 @@ test.describe('Sharing from cuesheet', () => {
   test('Sharing a link with scoped read-write permissions', async ({ page }, testInfo) => {
     const alias = `cuesheet-scope-test-${testInfo.retry}-${Date.now()}`;
 
-    await page.goto('http://localhost:4001/cuesheet');
+    await page.goto('/cuesheet');
     await expect(page.getByTestId('cuesheet')).toBeVisible();
 
     await page.getByRole('button', { name: 'Share...' }).click();

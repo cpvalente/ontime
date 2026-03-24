@@ -1,0 +1,22 @@
+@use '@/theme/viewerDefs' as *;
+
+.square {
+  border-radius: $component-border-radius-sm;
+  background-color: $viewer-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blink {
+  animation: blink 1s ease-in-out infinite alternate;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 10%;
+  }
+  100% {
+    opacity: 100%;
+  }
+}

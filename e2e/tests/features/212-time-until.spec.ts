@@ -129,7 +129,7 @@ test('time until absolute', async ({ context }) => {
 
 test('time until relative', async ({ context }) => {
   const editor = await context.newPage();
-  editor.goto('http://localhost:4001/editor');
+  editor.goto('/editor');
 
   await editor.getByRole('button', { name: 'Edit' }).click();
   await editor.getByRole('button', { name: 'Rundown menu' }).click();

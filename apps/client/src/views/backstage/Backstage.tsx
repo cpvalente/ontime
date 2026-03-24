@@ -2,9 +2,9 @@ import { useViewportSize } from '@mantine/hooks';
 import { OntimeView, ProjectData } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 import { useEffect, useMemo, useState } from 'react';
-import QRCode from 'react-qr-code';
 
 import ProgressBar from '../../common/components/progress-bar/ProgressBar';
+import QRCode from '../../common/components/qr-code/QrCode';
 import Empty from '../../common/components/state/Empty';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import TitleCard from '../../common/components/title-card/TitleCard';
@@ -171,7 +171,7 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
       <div className={cx(['info', !showSchedule && 'info--stretch'])}>
         {extraInfo && <ExtraInfo projectData={projectData} size={qrSize} source={extraInfo} />}
         <div className='info-card'>
-          {projectData.url && <QRCode value={projectData.url} size={qrSize} level='L' className='info-card__qr' />}
+          {projectData.url && <QRCode value={projectData.url} size={qrSize} />}
           {projectData.info && <div className='info-card__message'>{projectData.info}</div>}
         </div>
       </div>
