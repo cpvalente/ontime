@@ -1,5 +1,5 @@
-import { PathLike, constants, existsSync, mkdirSync } from 'fs';
-import { copyFile, readdir, unlink } from 'fs/promises';
+import { type Dirent, PathLike, type Stats, constants, existsSync, mkdirSync } from 'fs';
+import { access, copyFile, mkdir, readdir, rm, stat, unlink, writeFile } from 'fs/promises';
 import { basename, join, parse } from 'path';
 
 import { consoleError } from './console.js';
@@ -152,3 +152,77 @@ export const deleteFile = async (filePath: string) => {
     console.error('Could not delete file:', error);
   });
 };
+
+export function isNodeError(error: unknown): error is NodeJS.ErrnoException {
+  return error instanceof Error && 'code' in error;
+}
+
+/**
+ * Returns file stats, or null if the path does not exist.
+ * Re-throws any error that is not ENOENT.
+ */
+export async function statIfExists(filePath: string): Promise<Stats | null> {
+  try {
+    return await stat(filePath);
+  } catch (error) {
+    if (isNodeError(error) && error.code === 'ENOENT') {
+      return null;
+    }
+    throw error;
+  }
+}
+
+/**
+ * Recursively deletes a directory and all its contents.
+ * No-op if the directory does not exist.
+ */
+export async function deleteDirectory(directoryPath: string): Promise<void> {
+  await rm(directoryPath, { recursive: true, force: true });
+}
+
+/**
+ * Removes a directory if it exists and creates it fresh.
+ */
+export async function replaceDirectory(directoryPath: string): Promise<void> {
+  await rm(directoryPath, { recursive: true, force: true });
+  await mkdir(directoryPath, { recursive: true });
+}
+
+/**
+ * Creates a directory. Throws if it already exists.
+ */
+export async function createDirectory(directoryPath: string): Promise<void> {
+  await mkdir(directoryPath);
+}
+
+/**
+ * Returns directory entries with file type information.
+ */
+export async function readDirectoryEntries(directoryPath: string): Promise<Dirent[]> {
+  return readdir(directoryPath, { withFileTypes: true });
+}
+
+/**
+ * Writes content to a file, creating it if it does not exist.
+ */
+export async function writeToFile(
+  filePath: string,
+  content: string | Buffer,
+  options?: { encoding?: BufferEncoding },
+): Promise<void> {
+  await writeFile(filePath, content, options);
+}
+
+/**
+ * Returns true if the file exists and is readable, false if it does not exist.
+ * Re-throws any error that is not ENOENT.
+ */
+export async function fileIsReadable(filePath: string): Promise<boolean> {
+  try {
+    await access(filePath, constants.R_OK);
+    return true;
+  } catch (error) {
+    if (isNodeError(error) && error.code === 'ENOENT') return false;
+    throw error;
+  }
+}

@@ -7,6 +7,7 @@ export const APP_SERVER_PORT = ['appServerPort'];
 export const APP_VERSION = ['appVersion'];
 export const AUTOMATION = ['automation'];
 export const CUSTOM_FIELDS = ['customFields'];
+export const CUSTOM_VIEWS = ['customViews'];
 export const PROJECT_DATA = ['project'];
 export const PROJECT_LIST = ['projectList'];
 export const PROJECT_RUNDOWNS = ['projectRundowns'];
