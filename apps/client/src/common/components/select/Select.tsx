@@ -29,7 +29,7 @@ export default function Select<T>({ options, fluid, size = 'medium', ...selectRo
       </BaseSelect.Trigger>
       <BaseSelect.Portal>
         <BaseSelect.Positioner side='bottom' align='start'>
-          <BaseSelect.ScrollUpArrow className={styles.scrollArrow} />
+          <BaseSelect.ScrollUpArrow className={styles.scrollArrow} keepMounted />
           <BaseSelect.Popup className={styles.popup}>
             <BaseSelect.Arrow />
             <BaseSelect.List className={styles.list}>
@@ -43,7 +43,7 @@ export default function Select<T>({ options, fluid, size = 'medium', ...selectRo
               ))}
             </BaseSelect.List>
           </BaseSelect.Popup>
-          <BaseSelect.ScrollDownArrow className={styles.scrollArrow} />
+          <BaseSelect.ScrollDownArrow className={styles.scrollArrow} keepMounted />
         </BaseSelect.Positioner>
       </BaseSelect.Portal>
     </BaseSelect.Root>

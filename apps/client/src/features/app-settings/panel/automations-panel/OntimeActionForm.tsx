@@ -66,6 +66,11 @@ export default function OntimeActionForm({
             { value: 'aux2-set', label: 'Aux 2: set' },
             { value: 'aux3-set', label: 'Aux 3: set' },
 
+            { value: 'playback-start', label: 'Playback: start' },
+            { value: 'playback-stop', label: 'Playback: stop' },
+            { value: 'playback-pause', label: 'Playback: pause' },
+            { value: 'playback-roll', label: 'Playback: roll' },
+
             { value: 'message-set', label: 'Primary Message: set' },
             { value: 'message-secondary', label: 'Secondary Message: source' },
           ]}
