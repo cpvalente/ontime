@@ -9,11 +9,10 @@ import { downloadBlob } from './utils';
 const customViewsPath = `${apiEntryUrl}/custom-views`;
 
 export async function getCustomViews(options?: RequestOptions): Promise<CustomViewsListResponse> {
-  const response =
-    await axios.get<CustomViewsListResponse>(customViewsPath, {
-      signal: options?.signal,
-      timeout: options?.timeout ?? axiosConfig.shortTimeout,
-    })
+  const response = await axios.get<CustomViewsListResponse>(customViewsPath, {
+    signal: options?.signal,
+    timeout: options?.timeout ?? axiosConfig.shortTimeout,
+  });
   return response.data;
 }
 

@@ -105,13 +105,7 @@ export function Field({
   );
 }
 
-export function Description({
-  children,
-  tone = 'default',
-}: {
-  children: ReactNode;
-  tone?: 'default' | 'warning';
-}) {
+export function Description({ children, tone = 'default' }: { children: ReactNode; tone?: 'default' | 'warning' }) {
   return <div className={cx([style.fieldDescription, tone === 'warning' && style.warningText])}>{children}</div>;
 }
 

@@ -25,13 +25,7 @@ export default function CustomViewsList({ views, onOpenUpload, onMutate, onError
       <tbody>
         {views.length === 0 && <Panel.TableEmpty handleClick={onOpenUpload} label='No custom views yet' />}
         {views.map((view, index) => (
-          <CustomViewsListItem
-            key={view.slug}
-            slug={view.slug}
-            index={index}
-            onMutate={onMutate}
-            onError={onError}
-          />
+          <CustomViewsListItem key={view.slug} slug={view.slug} index={index} onMutate={onMutate} onError={onError} />
         ))}
       </tbody>
     </Panel.Table>

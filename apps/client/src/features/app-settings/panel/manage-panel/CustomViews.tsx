@@ -9,8 +9,8 @@ import ExternalLink from '../../../../common/components/link/external-link/Exter
 import useCustomViews from '../../../../common/hooks-query/useCustomViews';
 import * as Panel from '../../panel-utils/PanelUtils';
 import CustomViewForm from './CustomViewForm';
-import CustomViewsList from './CustomViewsList';
 import { customViewsDocs } from './customViews.utils';
+import CustomViewsList from './CustomViewsList';
 
 export default function CustomViews() {
   const { data, refetch, status } = useCustomViews();
@@ -72,7 +72,6 @@ export default function CustomViews() {
             onMutate={() => refetch()}
             onError={setActionError}
           />
-
         </Panel.Section>
       </Panel.Card>
     </Panel.Section>
