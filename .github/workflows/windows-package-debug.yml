@@ -1,0 +1,254 @@
+name: Windows package debug
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - '.github/workflows/windows-package-debug.yml'
+      - 'apps/electron/**'
+      - 'apps/server/**'
+      - 'apps/client/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'turbo.json'
+  pull_request:
+    paths:
+      - '.github/workflows/windows-package-debug.yml'
+      - 'apps/electron/**'
+      - 'apps/server/**'
+      - 'apps/client/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'turbo.json'
+  workflow_dispatch:
+
+jobs:
+  windows-packaged-smoke:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build project packages
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: pnpm build
+
+      - name: Capture Turbo graph
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path tmp/windows-debug | Out-Null
+          pnpm turbo run dist-win --dry=json | Set-Content -Path "tmp/windows-debug/turbo-dist-win-dry.json"
+
+      - name: Collect client build output
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path tmp/windows-debug | Out-Null
+          $clientBuild = "apps/client/build"
+          "apps/client/build/index.html exists: $(Test-Path "$clientBuild/index.html")" |
+            Set-Content -Path "tmp/windows-debug/client-build-check.txt"
+          "apps/client/build/assets exists: $(Test-Path "$clientBuild/assets")" |
+            Set-Content -Path "tmp/windows-debug/client-assets-check.txt"
+
+          if (Test-Path $clientBuild) {
+            Get-ChildItem $clientBuild -Recurse |
+              Select-Object FullName, Length |
+              Format-Table -AutoSize |
+              Out-String -Width 4096 |
+              Set-Content -Path "tmp/windows-debug/client-build-tree.txt"
+          } else {
+            "Missing client build directory: $clientBuild" |
+              Set-Content -Path "tmp/windows-debug/client-build-tree.txt"
+          }
+
+      - name: Build Windows Electron app
+        run: pnpm dist-win
+
+      - name: Collect packaged layout
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path tmp/windows-debug | Out-Null
+          $resources = "apps/electron/dist/win-unpacked/resources"
+          $packagedClient = "apps/electron/dist/win-unpacked/resources/extraResources/client"
+          "apps/electron/dist/win-unpacked/resources/extraResources/client/index.html exists: $(Test-Path "$packagedClient/index.html")" |
+            Set-Content -Path "tmp/windows-debug/packaged-client-check.txt"
+          "apps/electron/dist/win-unpacked/resources/extraResources/client/assets exists: $(Test-Path "$packagedClient/assets")" |
+            Set-Content -Path "tmp/windows-debug/packaged-assets-check.txt"
+
+          if (Test-Path $resources) {
+            Get-ChildItem $resources -Recurse |
+              Select-Object FullName, Length |
+              Format-Table -AutoSize |
+              Out-String -Width 4096 |
+              Set-Content -Path "tmp/windows-debug/resources-tree.txt"
+          } else {
+            "Missing packaged resources directory: $resources" | Set-Content -Path "tmp/windows-debug/resources-tree.txt"
+          }
+
+          if (Test-Path "$packagedClient/assets") {
+            Get-ChildItem "$packagedClient/assets" |
+              Select-Object -First 50 |
+              Select-Object FullName, Length |
+              Format-Table -AutoSize |
+              Out-String -Width 4096 |
+              Set-Content -Path "tmp/windows-debug/packaged-assets-sample.txt"
+          } else {
+            "Missing packaged assets directory: $packagedClient/assets" |
+              Set-Content -Path "tmp/windows-debug/packaged-assets-sample.txt"
+          }
+
+      - name: Launch packaged app and probe routes
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $debugDir = "tmp/windows-debug"
+          New-Item -ItemType Directory -Force -Path $debugDir | Out-Null
+
+          $exe = Resolve-Path "apps/electron/dist/win-unpacked/ontime.exe"
+          $stdout = Resolve-Path $debugDir
+          $stdoutFile = Join-Path $stdout "process-stdout.txt"
+          $stderrFile = Join-Path $stdout "process-stderr.txt"
+          $proc = Start-Process -FilePath $exe -PassThru -RedirectStandardOutput $stdoutFile -RedirectStandardError $stderrFile
+          "Started PID: $($proc.Id)" | Set-Content -Path "$debugDir/process.txt"
+
+          $routes = @(
+            "http://127.0.0.1:4001/",
+            "http://127.0.0.1:4001/editor",
+            "http://127.0.0.1:4001/index.html",
+            "http://127.0.0.1:4001/data/settings",
+            "http://127.0.0.1:4001/data/view-settings",
+            "http://127.0.0.1:4001/data/rundowns/current",
+            "http://127.0.0.1:4001/data/project",
+            "http://127.0.0.1:4001/user/translations/translations.json"
+          )
+
+          $results = @()
+          $deadline = (Get-Date).AddSeconds(90)
+          $responded = $false
+
+          while ((Get-Date) -lt $deadline -and -not $responded) {
+            foreach ($route in $routes) {
+              try {
+                $response = Invoke-WebRequest -Uri $route -UseBasicParsing -MaximumRedirection 0 -TimeoutSec 5
+                $results += [pscustomobject]@{
+                  route = $route
+                  status = [int]$response.StatusCode
+                  ok = $true
+                  contentType = $response.Headers["Content-Type"]
+                  location = $response.Headers["Location"]
+                  note = ""
+                }
+                $safeName = ($route -replace 'https?://', '' -replace '[^a-zA-Z0-9._-]', '_')
+                $response.Content | Out-String | Select-Object -First 1 | Set-Content -Path "$debugDir/$safeName.body.txt"
+                $responded = $true
+              } catch {
+                $statusCode = ""
+                $contentType = ""
+                $location = ""
+                $body = ""
+                if ($_.Exception.Response -and $_.Exception.Response.StatusCode) {
+                  $statusCode = [int]$_.Exception.Response.StatusCode
+                  $contentType = $_.Exception.Response.Headers["Content-Type"]
+                  $location = $_.Exception.Response.Headers["Location"]
+                  $responded = $true
+                  try {
+                    $stream = $_.Exception.Response.GetResponseStream()
+                    if ($stream) {
+                      $reader = New-Object System.IO.StreamReader($stream)
+                      $body = $reader.ReadToEnd()
+                      $reader.Close()
+                    }
+                  } catch {
+                  }
+                }
+                $results += [pscustomobject]@{
+                  route = $route
+                  status = $statusCode
+                  ok = $false
+                  contentType = $contentType
+                  location = $location
+                  note = $_.Exception.Message
+                }
+                if ($body -ne "") {
+                  $safeName = ($route -replace 'https?://', '' -replace '[^a-zA-Z0-9._-]', '_')
+                  $body | Set-Content -Path "$debugDir/$safeName.body.txt"
+                }
+              }
+            }
+
+            if (-not $responded) {
+              Start-Sleep -Seconds 3
+            }
+          }
+
+          $results | ConvertTo-Json -Depth 4 | Set-Content -Path "$debugDir/route-probe.json"
+          $results | Format-Table -AutoSize | Out-String -Width 4096 | Set-Content -Path "$debugDir/route-probe.txt"
+
+          Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue |
+            Sort-Object LocalPort |
+            Format-Table -AutoSize |
+            Out-String -Width 4096 |
+            Set-Content -Path "$debugDir/listeners.txt"
+
+          $appData = Join-Path $env:APPDATA "Ontime"
+          if (Test-Path $appData) {
+            Get-ChildItem $appData -Recurse |
+              Select-Object FullName, Length, LastWriteTime |
+              Format-Table -AutoSize |
+              Out-String -Width 4096 |
+              Set-Content -Path "$debugDir/appdata-tree.txt"
+          } else {
+            "Missing app data directory: $appData" | Set-Content -Path "$debugDir/appdata-tree.txt"
+          }
+
+          @(
+            Get-Content "$debugDir/client-build-check.txt"
+            Get-Content "$debugDir/client-assets-check.txt"
+            Get-Content "$debugDir/packaged-client-check.txt"
+            Get-Content "$debugDir/packaged-assets-check.txt"
+            "Listening on 4001: " + [string](Select-String -Path "$debugDir/listeners.txt" -Pattern "4001" -Quiet)
+          ) | Set-Content -Path "$debugDir/debug-summary.txt"
+
+          if (-not $proc.HasExited) {
+            Stop-Process -Id $proc.Id -Force
+          }
+
+      - name: Collect Turbo logs
+        shell: pwsh
+        if: always()
+        run: |
+          $debugDir = "tmp/windows-debug"
+          New-Item -ItemType Directory -Force -Path $debugDir | Out-Null
+
+          $logs = @(
+            "apps/electron/.turbo/turbo-dist-win.log",
+            "apps/client/.turbo/turbo-build.log",
+            "apps/server/.turbo/turbo-build.log"
+          )
+
+          foreach ($log in $logs) {
+            if (Test-Path $log) {
+              $name = Split-Path $log -Leaf
+              Copy-Item $log "$debugDir/$name" -Force
+            }
+          }
+
+      - name: Upload Windows debug artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-package-debug
+          path: |
+            tmp/windows-debug/
+            apps/electron/dist/
+          retention-days: 14
