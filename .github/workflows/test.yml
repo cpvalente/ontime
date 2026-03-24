@@ -33,6 +33,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # Run code quality
+      - name: Run formatter
+        run: pnpm format:check
+
       - name: Run linter
         run: pnpm lint
 
