@@ -44,6 +44,16 @@ jobs:
         run: pnpm dist-mac --env-mode=loose
         timeout-minutes: 60
 
+      - name: Upload macOS build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ontime-macos-build
+          path: |
+            ./apps/electron/dist/ontime-macOS-x64.dmg
+            ./apps/electron/dist/ontime-macOS-arm64.dmg
+          retention-days: 1
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -73,6 +83,16 @@ jobs:
       - name: Electron - Build app
         run: pnpm dist-win
 
+      - name: Upload Windows build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ontime-windows-build
+          path: |
+            ./apps/electron/dist/ontime-win64.exe
+            ./apps/electron/dist/win-unpacked/
+          retention-days: 1
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -99,6 +119,17 @@ jobs:
 
       - name: Electron - Build app
         run: pnpm dist-linux
+
+      - name: Upload Linux build artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ontime-linux-build
+          path: |
+            ./apps/electron/dist/ontime-linux-x86_64.AppImage
+            ./apps/electron/dist/ontime-linux-arm64.AppImage
+            ./apps/electron/dist/ontime-linux-armv7l.AppImage
+          retention-days: 1
 
       - name: Release
         uses: softprops/action-gh-release@v1
