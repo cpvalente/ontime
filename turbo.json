@@ -40,15 +40,15 @@
     },
 
     "dist-win": {
-      "dependsOn": ["build"],
+      "dependsOn": ["build", "ontime-ui#build", "ontime-server#build"],
       "outputs": ["dist/**"]
     },
     "dist-mac": {
-      "dependsOn": ["build"],
+      "dependsOn": ["build", "ontime-ui#build", "ontime-server#build"],
       "outputs": ["dist/**"]
     },
     "dist-linux": {
-      "dependsOn": ["build"],
+      "dependsOn": ["build", "ontime-ui#build", "ontime-server#build"],
       "outputs": ["dist/**"]
     }
   }
