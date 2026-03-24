@@ -55,7 +55,9 @@ export default function TriggersList(props: TriggersListProps) {
       <Panel.Divider />
       <Panel.Section>
         {enabledAutomations === false && (
-          <Info>Automations are disabled. You can still manage triggers here, but they will not run until enabled.</Info>
+          <Info>
+            Automations are disabled. You can still manage triggers here, but they will not run until enabled.
+          </Info>
         )}
         {duplicates && (
           <Panel.Error>

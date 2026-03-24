@@ -4,9 +4,9 @@ import { Fragment, useCallback, useMemo, useState } from 'react';
 import { IoAlertCircle, IoCheckmarkCircle, IoTrash } from 'react-icons/io5';
 
 import Button from '../../../../common/components/buttons/Button';
+import IconButton from '../../../../common/components/buttons/IconButton';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import Info from '../../../../common/components/info/Info';
-import IconButton from '../../../../common/components/buttons/IconButton';
 import Select from '../../../../common/components/select/Select';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';

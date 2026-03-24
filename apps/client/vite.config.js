@@ -51,8 +51,8 @@ export default defineConfig({
     }),
     prismjsPlugin({
       manual: true,
-      languages: ['css',],
-      css: true
+      languages: ['css'],
+      css: true,
     }),
   ],
   server: {
