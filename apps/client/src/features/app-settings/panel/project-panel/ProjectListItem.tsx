@@ -16,7 +16,9 @@ import {
   renameProject,
 } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
+import Dialog from '../../../../common/components/dialog/Dialog';
 import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -50,6 +52,7 @@ export default function ProjectListItem({
 }: ProjectListItemProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isDeleteOpen, setDeleteOpen] = useState(false);
 
   const handleSubmitAction = (actionType: 'rename' | 'duplicate') => {
     return async (values: ProjectFormValues) => {
@@ -99,6 +102,11 @@ export default function ProjectListItem({
     }
   };
 
+  const submitDelete = async () => {
+    await handleDelete(filename);
+    setDeleteOpen(false);
+  };
+
   const handleToggleEditMode = (editMode: EditMode, filename: string | null) => {
     setSubmitError(null);
     onToggleEditMode(editMode, filename);
@@ -141,7 +149,7 @@ export default function ProjectListItem({
                 current={current}
                 filename={filename}
                 onChangeEditMode={handleToggleEditMode}
-                onDelete={handleDelete}
+                onDelete={() => setDeleteOpen(true)}
                 onLoad={handleLoad}
                 isDisabled={loading || showMergeForm}
                 onMerge={(filename) => handleToggleEditMode('merge', filename)}
@@ -157,6 +165,24 @@ export default function ProjectListItem({
           </td>
         </tr>
       )}
+      <Dialog
+        isOpen={isDeleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        title='Delete project'
+        showBackdrop
+        showCloseButton
+        bodyElements='You will permanently remove this project file. Are you sure?'
+        footerElements={
+          <>
+            <Button size='large' onClick={() => setDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant='destructive' size='large' onClick={submitDelete} loading={loading}>
+              Delete project
+            </Button>
+          </>
+        }
+      />
     </>
   );
 }
@@ -166,7 +192,7 @@ interface ActionMenuProps {
   filename: string;
   isDisabled: boolean;
   onChangeEditMode: (editMode: EditMode, filename: string) => void;
-  onDelete: (filename: string) => Promise<void>;
+  onDelete: () => void;
   onLoad: (filename: string) => Promise<void>;
   onMerge: (filename: string) => void;
 }
@@ -208,7 +234,7 @@ function ActionMenu(props: ActionMenuProps) {
         { type: 'item', icon: IoCopyOutline, label: 'Duplicate', onClick: handleDuplicate },
         { type: 'item', icon: IoDocumentOutline, label: 'Download', onClick: handleDownload },
         { type: 'divider' },
-        { type: 'item', icon: IoTrash, label: 'Delete', onClick: () => onDelete(filename), disabled: current },
+        { type: 'item', icon: IoTrash, label: 'Delete', onClick: onDelete, disabled: current },
       ]}
     >
       <IoEllipsisHorizontal />

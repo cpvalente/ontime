@@ -1,6 +1,6 @@
 import { IoDownloadOutline, IoOpenOutline, IoTrash } from 'react-icons/io5';
 
-import { deleteCustomView, downloadCustomView } from '../../../../common/api/customViews';
+import { downloadCustomView } from '../../../../common/api/customViews';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { handleLinks } from '../../../../common/utils/linkUtils';
@@ -12,11 +12,11 @@ import style from './CustomViews.module.scss';
 interface CustomViewsListItemProps {
   slug: string;
   index: number;
-  onMutate: () => void;
+  onDelete: (slug: string) => void;
   onError: (message: string) => void;
 }
 
-export default function CustomViewsListItem({ slug, index, onMutate, onError }: CustomViewsListItemProps) {
+export default function CustomViewsListItem({ slug, index, onDelete, onError }: CustomViewsListItemProps) {
   const handlePreview = () => {
     handleLinks(`external/${encodeURIComponent(slug)}/`);
   };
@@ -24,15 +24,6 @@ export default function CustomViewsListItem({ slug, index, onMutate, onError }: 
   const handleDownload = async () => {
     try {
       await downloadCustomView(slug);
-    } catch (error) {
-      onError(maybeAxiosError(error));
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      await deleteCustomView(slug);
-      onMutate();
     } catch (error) {
       onError(maybeAxiosError(error));
     }
@@ -62,7 +53,7 @@ export default function CustomViewsListItem({ slug, index, onMutate, onError }: 
           </IconButton>
           <IconButton
             variant='ghosted-destructive'
-            onClick={handleDelete}
+            onClick={() => onDelete(slug)}
             aria-label='Delete custom view'
             data-testid={`custom-view__delete_${index}`}
           >
