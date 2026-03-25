@@ -17,6 +17,11 @@ const ReactCompilerConfig = {
 
 export default defineConfig({
   base: './', // Ontime cloud: we use relative paths to allow them to reference a dynamic base set at runtime
+  legacy: {
+    // Temporary compatibility for CJS packages affected by Vite 8 interop changes.
+    // ie: react-simple-code-editor
+    inconsistentCjsInterop: true,
+  },
   define: {
     // we pass along the NODE_ENV here in case it is a docker build
     'import.meta.env.IS_DOCKER': process.env.NODE_ENV === 'docker',
