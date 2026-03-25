@@ -14,7 +14,7 @@
   "main": "src/main.js",
   "devDependencies": {
     "electron": "38.2.1",
-    "electron-builder": "26.8.1",
+    "electron-builder": "26.0.18",
     "wait-on": "^7.2.0"
   },
   "scripts": {
@@ -29,7 +29,8 @@
     "appId": "no.lightdev.ontime",
     "asar": true,
     "dmg": {
-      "artifactName": "ontime-macOS-${arch}.dmg"
+      "artifactName": "ontime-macOS-${arch}.dmg",
+      "icon": "icon.icns"
     },
     "mac": {
       "notarize": true,
@@ -45,7 +46,7 @@
         ]
       },
       "category": "public.app-category.productivity",
-      "icon": "ontime.icon"
+      "icon": "icon.icns"
     },
     "win": {
       "target": "nsis"

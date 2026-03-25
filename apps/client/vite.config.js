@@ -105,9 +105,6 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  esbuild: {
-    legalComments: 'none',
-  },
   css: {
     preprocessorOptions: {
       scss: {
