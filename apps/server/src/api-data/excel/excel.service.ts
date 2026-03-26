@@ -16,6 +16,9 @@ import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import { getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
 import { parseRundown } from '../rundown/rundown.parser.js';
 import { parseExcel } from './excel.parser.js';
+import type { SpreadsheetWorksheetMetadata } from 'ontime-types';
+
+import { getWorksheetMetadataFromRows } from './spreadsheetMetadata.utils.js';
 import { rundownToTabular } from './excel.utils.js';
 
 // we keep the excel data in memory to allow the flow upload -> preview
@@ -33,11 +36,25 @@ function getValidWorksheetName(title: string): string {
   return truncatedTitle.length > 0 ? truncatedTitle : 'Rundown';
 }
 
+function getInitialWorksheetMetadata(worksheets: string[]): SpreadsheetWorksheetMetadata | null {
+  for (const worksheet of worksheets) {
+    try {
+      return getWorksheetMetadata(worksheet);
+    } catch {
+      // Continue looking for the first worksheet with usable headers.
+    }
+  }
+
+  return null;
+}
+
 /**
  * Receives and parses an excel file
  * The file is deleted after being read
  */
-export async function readExcelFile(filePath: string): Promise<string[]> {
+export async function readExcelFile(
+  filePath: string,
+): Promise<{ worksheets: string[]; metadata: SpreadsheetWorksheetMetadata | null }> {
   if (!existsSync(filePath)) {
     throw new Error('Upload of excel file failed');
   }
@@ -50,7 +67,13 @@ export async function readExcelFile(filePath: string): Promise<string[]> {
 
   await deleteFile(filePath);
 
-  return excelData.SheetNames;
+  const worksheets = excelData.SheetNames;
+  const metadata = getInitialWorksheetMetadata(worksheets);
+
+  return {
+    worksheets,
+    metadata,
+  };
 }
 
 export function generateRundownPreview(options: ImportMap): {
@@ -92,6 +115,17 @@ export function generateRundownPreview(options: ImportMap): {
     },
     customFields,
   };
+}
+
+export function getWorksheetMetadata(worksheet: string) {
+  const data = excelData.Sheets[worksheet];
+
+  if (!data) {
+    throw new Error(`Could not find worksheet: ${worksheet}`);
+  }
+
+  const arrayOfData: unknown[][] = xlsx.utils.sheet_to_json(data, { header: 1, blankrows: false, raw: false });
+  return getWorksheetMetadataFromRows(worksheet, arrayOfData);
 }
 
 /**

@@ -1,5 +1,10 @@
 import axios, { AxiosResponse } from 'axios';
-import { AuthenticationStatus, CustomFields, Rundown, RundownSummary } from 'ontime-types';
+import type {
+  AuthenticationStatus,
+  SpreadsheetPreviewResponse,
+  SpreadsheetWorksheetMetadata,
+  SpreadsheetWorksheetOptions,
+} from 'ontime-types';
 import { ImportMap } from 'ontime-utils';
 
 import { apiEntryUrl } from './constants';
@@ -59,11 +64,7 @@ export const previewRundown = async (
   sheetId: string,
   options: ImportMap,
   requestOptions?: RequestOptions,
-): Promise<{
-  rundown: Rundown;
-  customFields: CustomFields;
-  summary: RundownSummary;
-}> => {
+): Promise<SpreadsheetPreviewResponse> => {
   const response = await axios.post(
     `${sheetsPath}/${sheetId}/read`,
     { options },
@@ -75,11 +76,34 @@ export const previewRundown = async (
   return response.data;
 };
 
-export const getWorksheetNames = async (sheetId: string, requestOptions?: RequestOptions): Promise<string[]> => {
-  const response: AxiosResponse<string[]> = await axios.post(`${sheetsPath}/${sheetId}/worksheets`, undefined, {
-    signal: requestOptions?.signal,
-    timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
-  });
+export const getWorksheetMetadata = async (
+  sheetId: string,
+  worksheet: string,
+  requestOptions?: RequestOptions,
+): Promise<SpreadsheetWorksheetMetadata> => {
+  const response: AxiosResponse<SpreadsheetWorksheetMetadata> = await axios.post(
+    `${sheetsPath}/${sheetId}/metadata`,
+    { worksheet },
+    {
+      signal: requestOptions?.signal,
+      timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
+    },
+  );
+  return response.data;
+};
+
+export const getWorksheetNames = async (
+  sheetId: string,
+  requestOptions?: RequestOptions,
+): Promise<SpreadsheetWorksheetOptions> => {
+  const response: AxiosResponse<SpreadsheetWorksheetOptions> = await axios.post(
+    `${sheetsPath}/${sheetId}/worksheets`,
+    undefined,
+    {
+      signal: requestOptions?.signal,
+      timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
+    },
+  );
   return response.data;
 };
 

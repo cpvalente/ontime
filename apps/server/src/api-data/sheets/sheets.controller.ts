@@ -6,12 +6,19 @@
 import { readFileSync } from 'fs';
 
 import { Request, Response } from 'express';
-import type { AuthenticationStatus, CustomFields, ErrorResponse, Rundown, RundownSummary } from 'ontime-types';
+import type {
+  AuthenticationStatus,
+  ErrorResponse,
+  SpreadsheetPreviewResponse,
+  SpreadsheetWorksheetMetadata,
+  SpreadsheetWorksheetOptions,
+} from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import { deleteFile } from '../../utils/fileManagement.js';
 import {
   download,
+  getWorksheetMetadata,
   getWorksheetOptions,
   handleClientSecret,
   handleInitialConnection,
@@ -69,11 +76,26 @@ export async function revokeAuthentication(
   }
 }
 
-export async function getWorksheetNamesFromSheet(req: Request, res: Response<string[] | ErrorResponse>) {
+export async function getWorksheetNamesFromSheet(
+  req: Request,
+  res: Response<SpreadsheetWorksheetOptions | ErrorResponse>,
+) {
   try {
     const { sheetId } = req.params;
-    const { worksheetOptions } = await getWorksheetOptions(sheetId);
+    const worksheetOptions = await getWorksheetOptions(sheetId);
     res.status(200).send(worksheetOptions);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
+  }
+}
+
+export async function getWorksheetMetadataFromSheet(req: Request, res: Response<SpreadsheetWorksheetMetadata | ErrorResponse>) {
+  try {
+    const { sheetId } = req.params;
+    const { worksheet } = req.body;
+    const metadata = await getWorksheetMetadata(sheetId, worksheet);
+    res.status(200).send(metadata);
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(500).send({ message });
@@ -82,14 +104,7 @@ export async function getWorksheetNamesFromSheet(req: Request, res: Response<str
 
 export async function readFromSheet(
   req: Request,
-  res: Response<
-    | {
-        rundown: Rundown;
-        customFields: CustomFields;
-        summary: RundownSummary;
-      }
-    | ErrorResponse
-  >,
+  res: Response<SpreadsheetPreviewResponse | ErrorResponse>,
 ) {
   try {
     const { sheetId } = req.params;
