@@ -11,10 +11,20 @@
 
   background-color: $gray-1250;
   color: $ui-white;
-  border-radius: 3px;
+  border-radius: $component-border-radius-md;
   box-shadow: $box-shadow-l1;
   border: 1px solid $gray-1100;
   outline: none;
+}
+
+.wide {
+  top: 4vh;
+  min-width: min(1280px, 96vw);
+  max-width: min(1600px, 96vw);
+  height: 88vh;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .backdrop {
@@ -46,6 +56,13 @@
 
   max-height: 60vh;
   overflow-y: auto;
+}
+
+.wide .body {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  overflow: hidden;
 }
 
 .footer {

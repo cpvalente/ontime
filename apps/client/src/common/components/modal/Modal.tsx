@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { IoClose } from 'react-icons/io5';
 
 import IconButton from '../buttons/IconButton';
+import { cx } from '../../utils/styleUtils';
 
 import style from './Modal.module.scss';
 
@@ -11,6 +12,7 @@ interface ModalProps {
   title?: string;
   showCloseButton?: boolean;
   showBackdrop?: boolean;
+  size?: 'default' | 'wide';
   bodyElements: ReactNode;
   footerElements?: ReactNode;
   onClose: () => void;
@@ -21,6 +23,7 @@ export default function Modal({
   title,
   showCloseButton,
   showBackdrop,
+  size = 'default',
   bodyElements,
   footerElements,
   onClose,
@@ -35,7 +38,7 @@ export default function Modal({
     >
       <BaseDialog.Portal>
         {showBackdrop && <BaseDialog.Backdrop className={style.backdrop} />}
-        <BaseDialog.Popup className={style.modal}>
+        <BaseDialog.Popup className={cx([style.modal, size === 'wide' && style.wide])}>
           <div className={style.title}>
             {title}
             {showCloseButton && (
@@ -45,7 +48,7 @@ export default function Modal({
             )}
           </div>
           <div className={style.body}>{bodyElements}</div>
-          <div className={style.footer}>{footerElements}</div>
+          {footerElements ? <div className={style.footer}>{footerElements}</div> : null}
         </BaseDialog.Popup>
       </BaseDialog.Portal>
     </BaseDialog.Root>
