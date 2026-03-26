@@ -13,4 +13,4 @@ onlyBuiltDependencies:
   - electron
   - esbuild
 
-useNodeVersion: 22.15.1
+useNodeVersion: 22.22.2
