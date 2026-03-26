@@ -3,7 +3,7 @@ packages:
   - packages/*
 
 catalog:
-  '@types/node': 22.15.26
+  '@types/node': 22.19.11
   rimraf: 6.0.1
   ts-essentials: 10.1.1
   typescript: 6.0.2
