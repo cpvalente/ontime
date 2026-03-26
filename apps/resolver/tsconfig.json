@@ -10,8 +10,8 @@
     "allowJs": true,
     "declaration": true,
     "outDir": "dist",
-    "sourceMap": true,
-    "ignoreDeprecations": "6.0"
+    "rootDir": "./src",
+    "sourceMap": true
   },
   "include": [
     "src",
