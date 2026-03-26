@@ -5,7 +5,6 @@ import { CSSProperties } from 'react';
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { AppMode } from '../../../../ontimeConfig';
-import { usePersistedCuesheetOptions } from '../../cuesheet.options';
 import { Draggable, SortableCell, TableCell } from './SortableCell';
 
 import style from '../CuesheetTable.module.scss';
@@ -13,11 +12,10 @@ import style from '../CuesheetTable.module.scss';
 interface CuesheetHeaderProps {
   headerGroup: HeaderGroup<ExtendedEntry>;
   cuesheetMode: AppMode;
+  hideIndexColumn: boolean;
 }
 
-export function SortableCuesheetHeader({ headerGroup, cuesheetMode }: CuesheetHeaderProps) {
-  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
-
+export function SortableCuesheetHeader({ headerGroup, cuesheetMode, hideIndexColumn }: CuesheetHeaderProps) {
   return (
     <tr key={headerGroup.id}>
       {cuesheetMode === AppMode.Edit && <th className={style.actionColumn} tabIndex={-1} />}
@@ -57,9 +55,7 @@ export function SortableCuesheetHeader({ headerGroup, cuesheetMode }: CuesheetHe
   );
 }
 
-export function CuesheetHeader({ headerGroup, cuesheetMode }: CuesheetHeaderProps) {
-  const hideIndexColumn = usePersistedCuesheetOptions((state) => state.hideIndexColumn);
-
+export function CuesheetHeader({ headerGroup, cuesheetMode, hideIndexColumn }: CuesheetHeaderProps) {
   return (
     <tr key={headerGroup.id}>
       {cuesheetMode === AppMode.Edit && <th className={style.actionColumn} tabIndex={-1} />}

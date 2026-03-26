@@ -206,9 +206,16 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot, setCue
         : SortableCuesheetHeader;
 
       // if the table is being resized, we render non-sortable headers to avoid performance issues
-      return <HeaderComponent key={headerGroup.id} cuesheetMode={cuesheetMode} headerGroup={headerGroup} />;
+      return (
+        <HeaderComponent
+          key={headerGroup.id}
+          cuesheetMode={cuesheetMode}
+          headerGroup={headerGroup}
+          hideIndexColumn={hideIndexColumn}
+        />
+      );
     });
-  }, [cuesheetMode, table]);
+  }, [cuesheetMode, hideIndexColumn, table]);
 
   const isLoading = !data || status === 'pending';
 
