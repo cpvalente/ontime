@@ -4,7 +4,6 @@ import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
-import prismjsPlugin from 'vite-plugin-prismjs-plus';
 import svgrPlugin from 'vite-plugin-svgr';
 
 import { ONTIME_VERSION } from './src/ONTIME_VERSION';
@@ -17,11 +16,6 @@ const ReactCompilerConfig = {
 
 export default defineConfig({
   base: './', // Ontime cloud: we use relative paths to allow them to reference a dynamic base set at runtime
-  legacy: {
-    // Temporary compatibility for CJS packages affected by Vite 8 interop changes.
-    // ie: react-simple-code-editor
-    inconsistentCjsInterop: true,
-  },
   define: {
     // we pass along the NODE_ENV here in case it is a docker build
     'import.meta.env.IS_DOCKER': process.env.NODE_ENV === 'docker',
@@ -53,11 +47,6 @@ export default defineConfig({
     compression({
       algorithm: 'brotliCompress',
       exclude: /\.(html)$/, // Ontime cloud: Exclude HTML files from compression so we can change the base property at runtime
-    }),
-    prismjsPlugin({
-      manual: true,
-      languages: ['css'],
-      css: true,
     }),
   ],
   server: {
