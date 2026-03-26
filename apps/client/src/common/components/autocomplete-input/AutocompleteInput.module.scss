@@ -1,0 +1,61 @@
+.positioner {
+  outline: 0;
+}
+
+.popup {
+  font-size: 1rem;
+  box-sizing: border-box;
+  padding: 2px;
+  min-width: var(--anchor-width);
+  max-width: var(--available-width);
+  border: 1px solid $gray-1000;
+  border-radius: $component-border-radius-md;
+  background-color: $gray-1200;
+  color: $ui-white;
+
+  &[data-empty][data-hide-empty] {
+    display: none;
+  }
+}
+
+.list {
+  box-sizing: border-box;
+  max-height: 20rem;
+  max-height: var(--available-height);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-block: 0.25rem;
+  scroll-padding-block: 1.5rem;
+  outline: 0;
+}
+
+.item,
+.empty:not(:empty) {
+  box-sizing: border-box;
+  padding: 0.25rem 0.5rem;
+  line-height: 1rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  outline: 0;
+  cursor: default;
+  user-select: none;
+  overflow-wrap: break-word;
+
+  &[data-highlighted] {
+    background-color: $blue-700;
+  }
+}
+
+.itemLabel {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  color: $gray-400;
+}
