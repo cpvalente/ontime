@@ -183,7 +183,7 @@ test.describe('Sharing from cuesheet', () => {
     await expect(page.getByTestId('cuesheet-event').locator('input')).toBeHidden();
 
     // other elements are still there
-    await expect(page.getByRole('cell', { name: 'Duration' })).toBeVisible();
+    await expect(page.getByTestId('cuesheet-cell-duration')).toBeVisible();
   });
 
   test('Sharing a link with scoped read-write permissions', async ({ page }, testInfo) => {

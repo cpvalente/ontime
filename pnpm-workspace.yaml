@@ -3,14 +3,14 @@ packages:
   - packages/*
 
 catalog:
-  '@types/node': 22.15.26
+  '@types/node': 22.19.11
   rimraf: 6.0.1
   ts-essentials: 10.1.1
-  typescript: 6.0.0-beta
+  typescript: 6.0.2
   vitest: 4.0.17
 
 onlyBuiltDependencies:
   - electron
   - esbuild
 
-useNodeVersion: 22.15.1
+useNodeVersion: 22.22.2

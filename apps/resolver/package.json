@@ -9,9 +9,7 @@
   "scripts": {
     "lint": "oxlint --quiet --type-aware",
     "typecheck": "tsc --noEmit",
-    "prebuild": "pnpm rimraf ./dist",
-    "build": "tsup && pnpm rimraf ./dist/index.js",
-    "postbuild": "pnpm rimraf ./dist/index.d.ts"
+    "build": "tsdown"
   },
   "keywords": [
     "ontime",
@@ -21,10 +19,8 @@
   "author": "",
   "license": "AGPL-3.0-only",
   "devDependencies": {
-    "@sprout2000/esbuild-copy-plugin": "^1.1.19",
     "ontime-types": "workspace:^4.2.1",
-    "rimraf": "catalog:",
-    "tsup": "^8.5.0",
+    "tsdown": "^0.21.5",
     "typescript": "catalog:"
   },
   "files": [
