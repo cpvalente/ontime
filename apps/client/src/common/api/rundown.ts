@@ -119,12 +119,9 @@ export type RenumberCuesBody = {
 };
 
 /**
- * HTTP request to renumber cues for multiple events 
+ * HTTP request to renumber cues for multiple events
  */
-export async function patchRenumberCues(
-  rundownId: RundownId,
-  data: RenumberCuesBody,
-): Promise<AxiosResponse<Rundown>> {
+export async function patchRenumberCues(rundownId: RundownId, data: RenumberCuesBody): Promise<AxiosResponse<Rundown>> {
   return axios.patch(`${rundownPath}/${rundownId}/renumber`, data);
 }
 
