@@ -21,4 +21,3 @@ export function validateIncrementInput(raw: string): string | null {
   }
   return null;
 }
-
