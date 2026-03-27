@@ -5,6 +5,7 @@
     'go playback'
     'go transport'
     'extra extra';
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: repeat(3, 2rem);
   gap: $element-spacing;
 }
