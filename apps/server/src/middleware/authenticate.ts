@@ -21,6 +21,20 @@ const publicAssets = new Set([
   '/site.webmanifest',
 ]);
 
+export function isPublicAssetRequest(originalUrl: string, prefix: string): boolean {
+  const pathname = originalUrl.split('?')[0];
+
+  if (publicAssets.has(pathname)) {
+    return true;
+  }
+
+  if (prefix && pathname.startsWith(prefix)) {
+    return publicAssets.has(pathname.slice(prefix.length) || '/');
+  }
+
+  return false;
+}
+
 /**
  * Creates a login router with the provided prefix
  * @param {string} prefix - Prefix is used for the client hashes in Ontime Cloud
@@ -81,7 +95,7 @@ export function makeAuthenticateMiddleware(prefix: string) {
 
   function authenticateAndRedirect(req: Request, res: Response, next: NextFunction) {
     // Allow access to specific public assets without authentication
-    if (publicAssets.has(req.originalUrl)) {
+    if (isPublicAssetRequest(req.originalUrl, prefix)) {
       return next();
     }
 
