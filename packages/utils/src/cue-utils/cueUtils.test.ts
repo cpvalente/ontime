@@ -1,4 +1,4 @@
-import type { OntimeDelay, OntimeEntry, OntimeEvent, RundownEntries } from 'ontime-types';
+import type { OntimeDelay, OntimeEntry, OntimeEvent, OntimeGroup, OntimeMilestone, RundownEntries } from 'ontime-types';
 import { SupportedEntry } from 'ontime-types';
 
 import { getCueCandidate, getIncrement } from './cueUtils.js';
@@ -96,21 +96,32 @@ describe('getCueCandidate()', () => {
   describe('considers edge cases', () => {
     it('previousEvent might not be a cue', () => {
       const entries: RundownEntries = {
-        '1': { id: '1', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
+        '0': { id: '0', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', type: SupportedEntry.Milestone } as OntimeMilestone,
+        '2': { id: '2', type: SupportedEntry.Delay } as OntimeDelay,
+      };
+      const cue = getCueCandidate(entries, ['0', '1', '2'], '2');
+      expect(cue).toBe('11');
+    });
+
+    it('previousEvent might not be a group', () => {
+      const entries: RundownEntries = {
+        '0': { id: '0', cue: '10', type: SupportedEntry.Event } as OntimeEvent,
+        '1': { id: '1', type: SupportedEntry.Milestone } as OntimeMilestone,
+        '2': { id: '2', type: SupportedEntry.Group } as OntimeGroup,
+      };
+      const cue = getCueCandidate(entries, ['0', '1', '2'], null, '2');
+      expect(cue).toBe('11');
+    });
+
+    it('there might not be events before', () => {
+      const entries: RundownEntries = {
+        '1': { id: '1', type: SupportedEntry.Delay } as OntimeDelay,
         '2': { id: '2', type: SupportedEntry.Delay } as OntimeDelay,
       };
       const cue = getCueCandidate(entries, ['1', '2'], '2');
-      expect(cue).toBe('11');
+      expect(cue).toBe('1');
     });
-  });
-
-  it('there might not be events before', () => {
-    const entries: RundownEntries = {
-      '1': { id: '1', type: SupportedEntry.Delay } as OntimeDelay,
-      '2': { id: '2', type: SupportedEntry.Delay } as OntimeDelay,
-    };
-    const cue = getCueCandidate(entries, ['1', '2'], '2');
-    expect(cue).toBe('1');
   });
 });
 
@@ -137,8 +148,6 @@ describe('findCueName() with mixed events', () => {
   });
 
   describe('in the middle of the rundown', () => {
-    it.todo('test inside groupp', () => { });
-
     it('names cue as an increment if next event has different stem (case of numbers)', () => {
       const entries: RundownEntries = {
         '1': { id: '1', cue: '1', type: SupportedEntry.Event } as OntimeEvent,
