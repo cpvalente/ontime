@@ -143,8 +143,6 @@ export const useTimer = createSelector((state: RuntimeStore) => ({
   ...state.timer,
 }));
 
-export const useClock = createSelector((state: RuntimeStore) => state.clock);
-
 export const useNextFlag = createSelector((state: RuntimeStore) => ({
   id: state.eventFlag?.id ?? null,
   expectedStart: state.offset.expectedFlagStart,
