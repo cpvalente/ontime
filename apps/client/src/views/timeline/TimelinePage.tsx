@@ -4,7 +4,8 @@ import { useMemo } from 'react';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
-import { useClock, useSelectedEventId } from '../../common/hooks/useSocket';
+import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
+import { useSelectedEventId } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
@@ -72,7 +73,7 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
 
 function TimelineClock() {
   const { getLocalizedString } = useTranslation();
-  const clock = useClock();
+  const clock = useAutoTickingClock();
 
   // gather timer data
   const formattedClock = formatTime(clock);

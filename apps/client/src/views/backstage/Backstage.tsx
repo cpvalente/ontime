@@ -10,7 +10,8 @@ import EmptyPage from '../../common/components/state/EmptyPage';
 import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
-import { useBackstageSocket, useClock } from '../../common/hooks/useSocket';
+import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
+import { useBackstageSocket } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { cx, timerPlaceholderMin } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
@@ -214,7 +215,7 @@ function ExtraInfo({ projectData, size, source }: ExtraInfoProps) {
 
 function BackstageClock() {
   const { getLocalizedString } = useTranslation();
-  const clock = useClock();
+  const clock = useAutoTickingClock();
 
   // gather timer data
   const formattedClock = formatTime(clock);

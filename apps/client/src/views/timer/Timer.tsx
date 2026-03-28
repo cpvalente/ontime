@@ -7,6 +7,7 @@ import EmptyPage from '../../common/components/state/EmptyPage';
 import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
+import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
 import { useTimerSocket } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { cx } from '../../common/utils/styleUtils';
@@ -101,7 +102,6 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
 
   // gather timer data
   const totalTime = getTotalTime(time.duration, time.addedTime);
-  const formattedClock = formatTime(clock);
   const stageTimer = getTimerByType(freezeOvertime, timerTypeNow, clock, time, timerType);
   const display = getFormattedTimer(stageTimer, viewTimerType, localisedMinutes, {
     removeSeconds: hideTimerSeconds,
@@ -164,12 +164,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
         </div>
       )}
 
-      {showClock && (
-        <div className='clock-container'>
-          <div className='label'>{getLocalizedString('common.time_now')}</div>
-          <SuperscriptTime time={formattedClock} className='clock' />
-        </div>
-      )}
+      {showClock && <TimerAutoTickingClock />}
 
       <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
         {showEndMessage ? (
@@ -213,6 +208,19 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
           {showNext && <TitleCard className='event next' label='next' title={nextMain} secondary={nextSecondary} />}
         </>
       )}
+    </div>
+  );
+}
+
+function TimerAutoTickingClock() {
+  const autoTickingClock = useAutoTickingClock();
+  const formattedClock = formatTime(autoTickingClock);
+  const { getLocalizedString } = useTranslation();
+
+  return (
+    <div className='clock-container'>
+      <div className='label'>{getLocalizedString('common.time_now')}</div>
+      <SuperscriptTime time={formattedClock} className='clock' />
     </div>
   );
 }
