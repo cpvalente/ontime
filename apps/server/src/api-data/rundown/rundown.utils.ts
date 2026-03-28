@@ -50,9 +50,12 @@ type CompleteEntry<T> =
  */
 export function generateEvent<
   T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeGroup> | Partial<OntimeMilestone>,
->(rundown: Rundown, eventData: T, afterId: EntryId | null): CompleteEntry<T> {
+>(rundown: Rundown, eventData: T, afterId: EntryId | null, parent?: EntryId): CompleteEntry<T> {
   if (isOntimeEvent(eventData)) {
-    return createEvent(eventData, getCueCandidate(rundown.entries, rundown.order, afterId)) as CompleteEntry<T>;
+    return createEvent(
+      eventData,
+      getCueCandidate(rundown.entries, rundown.flatOrder, afterId, parent),
+    ) as CompleteEntry<T>;
   }
 
   const id = eventData.id || getUniqueId(rundown);

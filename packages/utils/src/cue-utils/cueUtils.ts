@@ -34,13 +34,21 @@ const incrementInteger = (prefix: string, integerPart: string, separator = '') =
 /**
  * Gets suitable name for a new event cue
  */
-export function getCueCandidate(entries: RundownEntries, order: EntryId[], insertAfterId: EntryId | null): string {
-  if (order.length === 0 || insertAfterId === null) return '1';
+export function getCueCandidate(
+  entries: RundownEntries,
+  flatOrder: EntryId[],
+  insertAfterId: EntryId | null,
+  parent?: EntryId,
+): string {
+  // we might not get a insertAfterId if we are inserting at the top of a group
+  // in that case we need to get the id of the group so we can find the proceeding event
+  const prevId = insertAfterId ? insertAfterId : (parent ?? null);
+  if (flatOrder.length === 0 || prevId === null) return '1';
 
-  let previousEvent: OntimeEntry | null | undefined = entries[insertAfterId];
+  let previousEvent: OntimeEntry | null | undefined = entries[prevId];
 
   if (!isOntimeEvent(previousEvent)) {
-    previousEvent = getPreviousEventNormal(entries, order, insertAfterId).previousEvent;
+    previousEvent = getPreviousEventNormal(entries, flatOrder, prevId).previousEvent;
     if (!isOntimeEvent(previousEvent)) return '1';
   }
 

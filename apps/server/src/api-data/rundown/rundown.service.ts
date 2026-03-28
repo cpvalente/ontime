@@ -61,7 +61,7 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
   const afterId = getInsertAfterId(rundown, parent, eventData?.after, eventData?.before);
 
   // generate a fully formed entry from the patch
-  const newEntry = generateEvent(rundown, eventData, afterId);
+  const newEntry = generateEvent(rundown, eventData, afterId, parent?.id);
 
   // make mutations to rundown
   rundownMutation.add(rundown, newEntry, afterId, parent);
@@ -284,6 +284,10 @@ export async function renumberEntries(
     number | undefined,
   ];
 
+  if (!prefix.endsWith('-') && !prefix.endsWith(' ')) {
+    prefix += '-';
+  }
+
   startFaction = startFaction === undefined ? 0 : startFaction;
   incrementFaction = incrementFaction === undefined ? 0 : incrementFaction;
 
@@ -299,7 +303,7 @@ export async function renumberEntries(
 
     rundownMutation.edit(rundown, {
       id: currentId,
-      cue: `${prefix}-${integer}${fraction !== 0 ? '.' + fraction : ''}`,
+      cue: `${prefix}${integer}${fraction !== 0 ? '.' + fraction : ''}`,
     });
   }
   const { rundown: rundownResult, rundownMetadata, revision } = commit(false);
