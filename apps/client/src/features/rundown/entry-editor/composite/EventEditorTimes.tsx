@@ -1,5 +1,5 @@
 import { EndAction, TimeStrategy, TimerType } from 'ontime-types';
-import { millisToString, parseUserTime } from 'ontime-utils';
+import { parseUserTime } from 'ontime-utils';
 import { memo } from 'react';
 import { IoInformationCircle } from 'react-icons/io5';
 
@@ -10,6 +10,7 @@ import Switch from '../../../../common/components/switch/Switch';
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
+import { formatTime } from '../../../../common/utils/time';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
 import style from '../EntryEditor.module.scss';
@@ -68,9 +69,7 @@ function EventEditorTimes({
 
   const hasDelay = delay !== 0;
   const delayLabel = hasDelay
-    ? `Event is ${millisToDelayString(delay, 'expanded')}. New schedule ${millisToString(
-        timeStart + delay,
-      )} → ${millisToString(timeEnd + delay)}`
+    ? `Event is ${millisToDelayString(delay, 'expanded')}. New schedule ${formatTime(timeStart + delay)} → ${formatTime(timeEnd + delay)}`
     : '';
 
   return (

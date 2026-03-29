@@ -77,6 +77,7 @@ function TimeInputFlow({
             placeholder='Start'
             align='left'
             disabled={linkStart}
+            shouldFormat
           />
           <Tooltip
             text='Link start to previous end'
@@ -99,6 +100,7 @@ function TimeInputFlow({
             placeholder='End'
             align='left'
             disabled={isLockedDuration}
+            shouldFormat
           />
           <Tooltip
             text='Lock end'

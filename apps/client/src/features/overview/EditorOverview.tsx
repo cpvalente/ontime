@@ -34,10 +34,10 @@ function OverviewPlanning() {
     <>
       <div className={style.inline}>
         <TitleOverview />
-        <StartTimesPlanning />
+        <StartTimesPlanning shouldFormat />
         <PlanningStats />
       </div>
-      <ClockOverview />
+      <ClockOverview shouldFormat />
     </>
   );
 }
@@ -46,12 +46,12 @@ function OverviewTracking() {
   return (
     <>
       <div className={style.inline}>
-        <StartTimesRuntime />
+        <StartTimesRuntime shouldFormat />
         <ProgressOverview />
         <OffsetOverview />
       </div>
       <MetadataTimes />
-      <ClockOverview />
+      <ClockOverview shouldFormat />
     </>
   );
 }
@@ -61,12 +61,12 @@ function OverviewControl() {
     <>
       <TitleOverview />
       <div className={style.inline}>
-        <StartTimesRuntime />
+        <StartTimesRuntime shouldFormat />
         <ProgressOverview />
         <OffsetOverview />
       </div>
       <MetadataTimes />
-      <ClockOverview />
+      <ClockOverview shouldFormat />
     </>
   );
 }
