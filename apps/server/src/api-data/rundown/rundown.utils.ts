@@ -473,3 +473,16 @@ export function duplicateRundown(rundown: Rundown, newTitle: string): Rundown {
 
   return newRundown;
 }
+
+export function getIntegerAndFraction(value: string) {
+  let [integerStr, factionStr] = value.split('.', 2);
+  const integer = parseInt(integerStr);
+  const precision = (factionStr ?? '').length;
+  const faction = precision === 0 ? 0 : parseInt(factionStr);
+  if (isNaN(integer) || isNaN(faction)) throw new Error('input can not be converted to a number');
+  return {
+    integer,
+    faction,
+    precision,
+  };
+}

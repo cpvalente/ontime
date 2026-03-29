@@ -149,7 +149,7 @@ export default function RundownEvent({
             type: 'item',
             label: 'Renumber cues',
             icon: TbListNumbers,
-            onClick: () => openRenumberDialog(),
+            onClick: openRenumberDialog,
           },
           { type: 'divider' },
           {
