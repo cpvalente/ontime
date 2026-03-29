@@ -33,7 +33,7 @@ import {
   updateBackgroundRundown,
 } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
-import { generateEvent, hasChanges } from './rundown.utils.js';
+import { generateEvent, getIntegerAndFraction, hasChanges } from './rundown.utils.js';
 
 /**
  * creates a new entry with given data
@@ -278,18 +278,12 @@ export async function renumberEntries(
   start: string,
   increment: string,
 ): Promise<Rundown> {
-  let [startInt, startFaction] = start.split('.', 2).map((val) => parseInt(val)) as [number, number | undefined];
-  let [incrementInt, incrementFaction] = increment.split('.', 2).map((val) => parseInt(val)) as [
-    number,
-    number | undefined,
-  ];
+  const startNumber = getIntegerAndFraction(start);
+  const incrementNumber = getIntegerAndFraction(increment);
+  const maxPrecision = Math.max(incrementNumber.precision, startNumber.precision);
 
-  if (!prefix.endsWith('-') && !prefix.endsWith(' ')) {
-    prefix += '-';
-  }
-
-  startFaction = startFaction === undefined ? 0 : startFaction;
-  incrementFaction = incrementFaction === undefined ? 0 : incrementFaction;
+  // if the prefix doesn't already include a separator or is empty, then insert a separator
+  if (prefix !== '' && !prefix.endsWith('-') && !prefix.endsWith(' ')) prefix += '-';
 
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
 
@@ -298,14 +292,17 @@ export async function renumberEntries(
     const currentEntry = rundown.entries[currentId];
     if (!currentEntry || !isOntimeEvent(currentEntry)) throw new Error('A given id was not an event');
 
-    const integer = startInt + incrementInt * i;
-    const fraction = startFaction + incrementFaction * i;
+    const integer = String(startNumber.integer + incrementNumber.integer * i);
+    const fraction = maxPrecision
+      ? '.' + String(startNumber.faction + incrementNumber.faction * i).padStart(maxPrecision, '0')
+      : '';
 
     rundownMutation.edit(rundown, {
       id: currentId,
-      cue: `${prefix}${integer}${fraction !== 0 ? '.' + fraction : ''}`,
+      cue: `${prefix}${integer}${fraction}`,
     });
   }
+
   const { rundown: rundownResult, rundownMetadata, revision } = commit(false);
 
   setImmediate(() => {

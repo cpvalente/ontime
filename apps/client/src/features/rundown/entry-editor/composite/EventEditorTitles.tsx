@@ -23,10 +23,6 @@ export default memo(EventEditorTitles);
 function EventEditorTitles({ eventId, cue, flag, title, note, colour }: EventEditorTitlesProps) {
   const { updateEntry } = useEntryActionsContext();
 
-  const cueSubmitHandler = (_field: string, newValue: string) => {
-    updateEntry({ id: eventId, cue: newValue.trim() });
-  };
-
   const flagSubmitHandler = (newValue: boolean) => {
     updateEntry({ id: eventId, flag: newValue });
   };
@@ -47,7 +43,7 @@ function EventEditorTitles({ eventId, cue, flag, title, note, colour }: EventEdi
           field='cue'
           label='Cue'
           initialValue={cue}
-          submitHandler={cueSubmitHandler}
+          submitHandler={textSubmitHandler}
           maxLength={10}
         />
         <div>

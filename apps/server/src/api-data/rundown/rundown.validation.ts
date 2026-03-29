@@ -86,7 +86,7 @@ export const rundownArrayOfIds = [
 export const entryRenumberValidator = [
   body('ids').isArray().notEmpty(),
   body('prefix').isString(),
-  body('start').isInt(),
+  body('start').isNumeric(),
   body('increment').isNumeric(),
   requestValidationFunction,
 ];

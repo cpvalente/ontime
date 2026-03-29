@@ -141,6 +141,7 @@ function InputWithError({ onChange, value, error, label }: InputProps) {
         fluid
         autoComplete='off'
         inputMode='numeric'
+        maxLength={10}
         className={error !== null ? style.inputInvalid : undefined}
       />
       <div className={style.fieldErrorSlot} aria-live='polite'>
