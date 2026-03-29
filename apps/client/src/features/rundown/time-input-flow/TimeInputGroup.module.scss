@@ -10,7 +10,7 @@
   }
 
   input {
-    max-width: 6.5em;
+    max-width: fit-content;
     border-radius: $component-border-radius-md 0 0 $component-border-radius-md;
     border: none;
     padding-right: 0;

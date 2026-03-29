@@ -69,7 +69,7 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
             <Panel.ListItem>
               <Panel.Field
                 title='Time format'
-                description='Default time format to show in views 12 / 24 hours (does not affect editor)'
+                description='Default time format to show in views 12 / 24 hours'
                 error={errors.settings?.timeFormat?.message}
               />
               <Select
