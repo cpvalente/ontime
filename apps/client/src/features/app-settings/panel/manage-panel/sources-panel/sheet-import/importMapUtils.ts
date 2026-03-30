@@ -1,6 +1,7 @@
 import type { ImportMap } from 'ontime-utils';
 
 import { makeStageKey } from '../../../../../../common/utils/localStorage';
+import { normaliseColumnName } from './spreadsheetImportUtils';
 
 export type MappingWarning = {
   kind: 'duplicate' | 'missing' | 'invalid-name' | 'name-collision';
@@ -149,10 +150,6 @@ export function getPersistedImportState(sourceKey: string): ImportFormValues {
   }
 }
 
-function normaliseColumn(value: string | undefined): string {
-  return value?.trim().toLowerCase() ?? '';
-}
-
 /**
  * Validates import mappings and generates warnings for duplicate or missing spreadsheet columns.
  */
@@ -161,7 +158,7 @@ export function getImportWarnings(
   detectedSpreadsheetColumns: string[],
   existingCustomFieldLabels: string[] = [],
 ): Record<string, MappingWarning | undefined> {
-  const normalisedHeaders = new Set(detectedSpreadsheetColumns.map(normaliseColumn).filter(Boolean));
+  const normalisedHeaders = new Set(detectedSpreadsheetColumns.map(normaliseColumnName).filter(Boolean));
   const builtInLabels = new Set(builtInFieldDefs.map((def) => def.label.toLowerCase()));
   const existingLabels = new Set(existingCustomFieldLabels.map((label) => label.trim().toLowerCase()).filter(Boolean));
   const seenColumns = new Set<string>();
@@ -173,7 +170,7 @@ export function getImportWarnings(
     const field = values.builtIn[i];
     if (!field.enabled) continue;
 
-    const normalised = normaliseColumn(field.header);
+    const normalised = normaliseColumnName(field.header);
     if (!normalised) continue;
 
     const key = `builtIn.${i}.header`;
@@ -189,7 +186,7 @@ export function getImportWarnings(
 
   // 2. check custom fields
   values.custom.forEach(({ importName }, index) => {
-    const normalised = normaliseColumn(importName);
+    const normalised = normaliseColumnName(importName);
     if (!normalised) return;
 
     const key = `custom.${index}.importName`;

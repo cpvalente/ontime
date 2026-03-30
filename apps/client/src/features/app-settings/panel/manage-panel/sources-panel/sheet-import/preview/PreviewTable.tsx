@@ -1,13 +1,13 @@
-import type { CustomField, CustomFieldKey } from 'ontime-types';
+import type { CustomField, CustomFieldKey, SpreadsheetPreviewResponse } from 'ontime-types';
 import { isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 import { useMemo } from 'react';
 
-import { type PreviewState, getCellValue } from './previewTableUtils';
+import { getCellValue } from './previewTableUtils';
 
 import style from './PreviewTable.module.scss';
 
 interface PreviewTableProps {
-  preview: PreviewState | null;
+  preview: SpreadsheetPreviewResponse | null;
   columnLabels: string[];
   isLoadingMetadata: boolean;
   worksheetHeaders: string[];

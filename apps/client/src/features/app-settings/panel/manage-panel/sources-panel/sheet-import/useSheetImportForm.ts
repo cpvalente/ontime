@@ -16,14 +16,13 @@ import {
   getResolvedCustomFields,
   persistImportState,
 } from './importMapUtils';
-import type { PreviewState } from './preview/previewTableUtils';
 import { deriveHeaderOptionsState } from './spreadsheetImportUtils';
 
 type ImportAction =
   | { type: 'startPreview' }
   | { type: 'startApply' }
   | { type: 'startExport' }
-  | { type: 'previewSuccess'; preview: PreviewState }
+  | { type: 'previewSuccess'; preview: SpreadsheetPreviewResponse }
   | { type: 'applySuccess' }
   | { type: 'exportSuccess' }
   | { type: 'clearPreview'; error?: string }
@@ -33,7 +32,7 @@ type ImportAction =
 type ImportState = {
   loading: '' | 'preview' | 'apply' | 'export';
   error: string;
-  preview: PreviewState | null;
+  preview: SpreadsheetPreviewResponse | null;
 };
 
 const initialImportState: ImportState = {
@@ -106,7 +105,7 @@ interface UseSheetImportFormProps {
   initialMetadata: SpreadsheetWorksheetMetadata | null;
   loadMetadata: (worksheet: string) => Promise<SpreadsheetWorksheetMetadata>;
   previewImport: (importMap: ReturnType<typeof convertToImportMap>) => Promise<SpreadsheetPreviewResponse>;
-  onApply: (preview: PreviewState) => Promise<void>;
+  onApply: (preview: SpreadsheetPreviewResponse) => Promise<void>;
   onExport?: (importMap: ReturnType<typeof convertToImportMap>) => Promise<void>;
 }
 
@@ -128,6 +127,7 @@ export function useSheetImportForm({
   const {
     control,
     handleSubmit,
+    getValues,
     reset,
     setValue,
     watch,
@@ -163,10 +163,7 @@ export function useSheetImportForm({
   const metadataError = worksheetMetadataQuery.error ? maybeAxiosError(worksheetMetadataQuery.error) : '';
 
   // --- Derived state ---
-  const { sampleHeaders, assignedHeaders } = useMemo(
-    () => deriveHeaderOptionsState(values, headers),
-    [values, headers],
-  );
+  const { sampleHeaders, assignedHeaders } = deriveHeaderOptionsState(values, headers);
   const columnLabels = buildColumnLabels(values);
 
   const [state, dispatch] = useReducer(importReducer, initialImportState);
@@ -176,12 +173,13 @@ export function useSheetImportForm({
   );
   const warnings = getImportWarnings(values, headers, existingCustomFieldLabels);
   const warningCount = Object.values(warnings).filter(Boolean).length;
+  const previewRef = useRef<SpreadsheetPreviewResponse | null>(null);
 
   // Rehydrate the form from persisted/default state whenever the source context changes.
   useEffect(() => {
     reset(initialFormValues);
     dispatch({ type: 'reset' });
-  }, [initialMetadata, initialFormValues, reset, sourceKey]);
+  }, [initialFormValues, reset]);
 
   // Keep the worksheet selection valid if the available worksheets change underneath the form.
   useEffect(() => {
@@ -190,15 +188,19 @@ export function useSheetImportForm({
     setValue('worksheet', worksheetNames[0], { shouldDirty: true, shouldValidate: true });
   }, [setValue, values.worksheet, worksheetNames]);
 
-  // Clear preview on any form change.
+  useEffect(() => {
+    previewRef.current = state.preview;
+  }, [state.preview]);
+
+  // Clear preview on any form change without re-subscribing on preview updates.
   useEffect(() => {
     const sub = watch(() => {
-      if (state.preview) {
-        dispatch({ type: 'clearPreview' });
-      }
+      if (!previewRef.current) return;
+      previewRef.current = null;
+      dispatch({ type: 'clearPreview' });
     });
     return () => sub.unsubscribe();
-  }, [watch, state.preview]);
+  }, [watch]);
 
   // Race condition guard for async preview requests.
   const requestIdRef = useRef(0);
@@ -229,12 +231,12 @@ export function useSheetImportForm({
     try {
       dispatch({ type: 'startApply' });
       await onApply(state.preview);
-      persistImportState(sourceKey, values);
+      persistImportState(sourceKey, getValues());
       dispatch({ type: 'applySuccess' });
     } catch (error) {
       dispatch({ type: 'failure', error: maybeAxiosError(error) });
     }
-  }, [onApply, sourceKey, state.preview, values]);
+  }, [getValues, onApply, sourceKey, state.preview]);
 
   const handleExport = useCallback(
     async (formValues: ImportFormValues) => {
