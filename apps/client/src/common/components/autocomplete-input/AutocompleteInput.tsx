@@ -16,6 +16,7 @@ export interface AutocompleteInputProps extends Omit<InputProps, 'value' | 'defa
   emptyLabel?: string;
   trailingElement?: (option: string) => ReactNode;
   inputRef?: Ref<HTMLInputElement>;
+  openOnFocus?: boolean;
 }
 
 export default function AutocompleteInput({
@@ -27,6 +28,7 @@ export default function AutocompleteInput({
   inputRef,
   onValueChange,
   options,
+  openOnFocus = false,
   trailingElement,
   value,
   variant = 'subtle',
@@ -34,6 +36,7 @@ export default function AutocompleteInput({
 }: AutocompleteInputProps) {
   const internalInputRef = useRef<HTMLInputElement | null>(null);
   const [open, setOpen] = useState(false);
+  const { onFocus, ...restInputProps } = inputProps;
 
   const handleInputRef = (node: HTMLInputElement | null) => {
     internalInputRef.current = node;
@@ -81,6 +84,12 @@ export default function AutocompleteInput({
     >
       <BaseAutocomplete.Input
         ref={handleInputRef}
+        onFocus={(event) => {
+          onFocus?.(event);
+          if (openOnFocus) {
+            setOpen(true);
+          }
+        }}
         className={cx([
           inputStyles.input,
           inputStyles[variant],
@@ -88,7 +97,7 @@ export default function AutocompleteInput({
           fluid && inputStyles.fluid,
           className,
         ])}
-        {...inputProps}
+        {...restInputProps}
       />
       <BaseAutocomplete.Portal>
         <BaseAutocomplete.Positioner side='bottom' align='start' className={styles.positioner}>

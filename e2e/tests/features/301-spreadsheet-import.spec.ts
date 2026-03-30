@@ -32,8 +32,9 @@ test('imports spreadsheet and applies imported rundown to editor', async ({ page
   // apply import
   await page.getByRole('button', { name: 'Preview import' }).click();
   await page.getByRole('button', { name: 'Apply import' }).click();
-  await expect(page.getByText('Import successful')).toBeVisible();
-  await page.getByRole('button', { name: 'Return' }).click();
+  await expect(page.getByText('Import complete')).toBeVisible();
+  await expect(page.getByText('Spreadsheet data applied.')).toBeVisible();
+  await page.getByRole('button', { name: 'Reset flow' }).click();
 
   // verify the data in the rundown
   await page.getByRole('button', { name: 'Close settings' }).scrollIntoViewIfNeeded();

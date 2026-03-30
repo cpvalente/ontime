@@ -11,6 +11,7 @@ export const CUSTOM_VIEWS = ['customViews'];
 export const PROJECT_DATA = ['project'];
 export const PROJECT_LIST = ['projectList'];
 export const PROJECT_RUNDOWNS = ['projectRundowns'];
+export const RUNDOWN = ['rundown'];
 export const CURRENT_RUNDOWN_QUERY_KEY = ['rundown', 'current'];
 export const getRundownQueryKey = (rundownId: string) => ['rundown', rundownId];
 export const RUNTIME = ['runtimeStore'];

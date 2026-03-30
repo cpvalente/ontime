@@ -49,14 +49,14 @@ describe('deriveHeaderOptionsState()', () => {
     const values = makeValues({});
     const { sampleHeaders } = deriveHeaderOptionsState(values, ['Title', 'Title', '', '  ', 'Cue']);
 
-    expect(sampleHeaders).toEqual(['title', 'cue']);
+    expect(sampleHeaders).toEqual(['Title', 'Cue']);
   });
 
   it('deduplicates headers case-insensitively', () => {
     const values = makeValues({});
     const { sampleHeaders } = deriveHeaderOptionsState(values, ['Title', 'TITLE', 'title', 'Artist']);
 
-    expect(sampleHeaders).toEqual(['title', 'artist']);
+    expect(sampleHeaders).toEqual(['Title', 'Artist']);
   });
 
   it('matches headers case-insensitively', () => {

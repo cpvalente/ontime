@@ -215,7 +215,7 @@ function verifyConnection(
 
 export function hasAuth(): { authenticated: AuthenticationStatus; sheetId: string } {
   if (!currentSheetId) {
-    throw new Error('No sheet ID');
+    return { authenticated: 'not_authenticated', sheetId: '' };
   }
   if (cleanupTimeout) {
     return { authenticated: 'pending', sheetId: currentSheetId };
