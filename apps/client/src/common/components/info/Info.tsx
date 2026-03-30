@@ -10,13 +10,37 @@ interface InfoProps {
   type?: 'info' | 'warning' | 'error';
 }
 
-export default function Info({ className, type = 'info', children }: PropsWithChildren<InfoProps>) {
+interface InfoSectionProps {
+  className?: string;
+}
+
+function InfoTitle({ className, children }: PropsWithChildren<InfoSectionProps>) {
+  return <p className={cx([style.title, className])}>{children}</p>;
+}
+
+function InfoBody({ className, children }: PropsWithChildren<InfoSectionProps>) {
+  return <p className={cx([style.body, className])}>{children}</p>;
+}
+
+function InfoFooter({ className, children }: PropsWithChildren<InfoSectionProps>) {
+  return <div className={cx([style.footer, className])}>{children}</div>;
+}
+
+function InfoRoot({ className, type = 'info', children }: PropsWithChildren<InfoProps>) {
   return (
     <div className={cx([style.infoLabel, style[type], className])}>
       {type === 'info' && <IoAlertCircle />}
       {type === 'warning' && <IoWarning />}
       {type === 'error' && <IoWarning />}
-      <div>{children}</div>
+      <div className={style.content}>{children}</div>
     </div>
   );
 }
+
+const Info = Object.assign(InfoRoot, {
+  Title: InfoTitle,
+  Body: InfoBody,
+  Footer: InfoFooter,
+});
+
+export default Info;
