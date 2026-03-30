@@ -1,15 +1,9 @@
-import type { CustomField, CustomFieldKey, CustomFields, OntimeEntry, Rundown, RundownSummary } from 'ontime-types';
+import type { CustomField, CustomFieldKey, OntimeEntry } from 'ontime-types';
 import { isOntimeEvent, isOntimeMilestone } from 'ontime-types';
 import type { ImportMap } from 'ontime-utils';
 import { millisToString } from 'ontime-utils';
 
 import { builtInFieldDefs } from '../importMapUtils';
-
-export type PreviewState = {
-  rundown: Rundown;
-  customFields: CustomFields;
-  summary: RundownSummary;
-};
 
 type BuiltInImportKey = keyof Omit<ImportMap, 'worksheet' | 'custom'>;
 

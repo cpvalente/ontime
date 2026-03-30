@@ -1,7 +1,7 @@
 import type { ImportFormValues } from './importMapUtils';
 
-export function normaliseHeaderName(value: string): string {
-  return value.trim().toLowerCase();
+export function normaliseColumnName(value: string | undefined): string {
+  return value?.trim().toLowerCase() ?? '';
 }
 
 /**
@@ -11,26 +11,37 @@ export function normaliseHeaderName(value: string): string {
  * offer in the UI and the subset already assigned to any field.
  */
 export function deriveHeaderOptionsState(values: ImportFormValues, headers: string[]) {
-  const sampleHeaders = [...new Set(headers.map(normaliseHeaderName).filter(Boolean))];
+  const seenHeaders = new Set<string>();
+  const sampleHeaders: string[] = [];
+
+  for (const header of headers) {
+    const normalized = normaliseColumnName(header);
+    if (!normalized || seenHeaders.has(normalized)) {
+      continue;
+    }
+
+    seenHeaders.add(normalized);
+    sampleHeaders.push(header.trim());
+  }
 
   const assignedColumns = new Set<string>();
 
   for (const field of values.builtIn) {
     if (!field.enabled) continue;
-    const normalized = normaliseHeaderName(field.header);
+    const normalized = normaliseColumnName(field.header);
     if (normalized) {
       assignedColumns.add(normalized);
     }
   }
 
   for (const { importName } of values.custom) {
-    const normalized = normaliseHeaderName(importName);
+    const normalized = normaliseColumnName(importName);
     if (normalized) {
       assignedColumns.add(normalized);
     }
   }
 
-  const assignedHeaders = new Set(sampleHeaders.filter((header) => assignedColumns.has(normaliseHeaderName(header))));
+  const assignedHeaders = new Set(sampleHeaders.filter((header) => assignedColumns.has(normaliseColumnName(header))));
 
   return { sampleHeaders, assignedHeaders };
 }

@@ -51,6 +51,7 @@ export default function MappingFieldRow({
         className={cx([style.columnInput, warning && style.columnInputWarn])}
         maxLength={50}
         options={options}
+        openOnFocus
         trailingElement={(option) => (assigned.has(option) ? <IoCheckmark /> : null)}
         placeholder='Spreadsheet column'
         disabled={disabled}

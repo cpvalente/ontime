@@ -1,4 +1,8 @@
-import type { SpreadsheetPreviewResponse, SpreadsheetWorksheetMetadata } from 'ontime-types';
+import type {
+  SpreadsheetPreviewResponse,
+  SpreadsheetWorksheetMetadata,
+  SpreadsheetWorksheetOptions,
+} from 'ontime-types';
 import { getErrorMessage, ImportMap } from 'ontime-utils';
 import { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { IoCloudOutline, IoDownloadOutline } from 'react-icons/io5';
@@ -10,40 +14,45 @@ import {
 } from '../../../../../common/api/excel';
 import {
   getWorksheetMetadata as getGoogleWorksheetMetadata,
-  getWorksheetOptions,
   previewRundown as previewGoogleSheet,
   uploadRundown,
 } from '../../../../../common/api/sheets';
-import { maybeAxiosError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
-import * as Editor from '../../../../../common/components/editor-utils/EditorUtils';
+import Info from '../../../../../common/components/info/Info';
+import ExternalLink from '../../../../../common/components/link/external-link/ExternalLink';
 import Modal from '../../../../../common/components/modal/Modal';
 import useRundown from '../../../../../common/hooks-query/useRundown';
 import { validateExcelImport } from '../../../../../common/utils/uploadUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
-import GSheetInfo from './GSheetInfo';
 import GSheetSetup from './GSheetSetup';
 import SheetImportEditor from './sheet-import/SheetImportEditor';
-import useGoogleSheet from './useGoogleSheet';
-import { useSheetStore } from './useSheetStore';
+import useSpreadsheetImport from './useSpreadsheetImport';
 
 import style from './SourcesPanel.module.scss';
+
+const googleSheetDocsUrl = 'https://docs.getontime.no/features/import-spreadsheet-gsheet/';
+
+type ActiveSource =
+  | {
+      kind: 'excel';
+      worksheetNames: string[];
+      initialWorksheetMetadata: SpreadsheetWorksheetMetadata | null;
+    }
+  | {
+      kind: 'gsheet';
+      sheetId: string;
+      worksheetNames: string[];
+      initialWorksheetMetadata: SpreadsheetWorksheetMetadata | null;
+    };
 
 export default function SourcesPanel() {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet' | 'finished'>('none');
   const [error, setError] = useState('');
   const [hasFile, setHasFile] = useState<'none' | 'loading' | 'done'>('none');
-  const [initialWorksheetMetadata, setInitialWorksheetMetadata] = useState<SpreadsheetWorksheetMetadata | null>(null);
+  const [activeSource, setActiveSource] = useState<ActiveSource | null>(null);
 
   const { data: currentRundown } = useRundown();
-  const { importRundown, verifyAuth } = useGoogleSheet();
-
-  const setWorksheets = useSheetStore((state) => state.setWorksheets);
-  const worksheetNames = useSheetStore((state) => state.worksheetNames);
-  const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
-  const setAuthenticationStatus = useSheetStore((state) => state.setAuthenticationStatus);
-  const setSheetId = useSheetStore((state) => state.setSheetId);
-  const sheetId = useSheetStore((state) => state.sheetId);
+  const { importRundown } = useSpreadsheetImport();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -51,7 +60,7 @@ export default function SourcesPanel() {
     const fileToUpload = event.target.files?.[0];
 
     if (!fileToUpload) {
-      setWorksheets(null);
+      setActiveSource(null);
       setHasFile('none');
       return;
     }
@@ -60,15 +69,17 @@ export default function SourcesPanel() {
       setError('');
       validateExcelImport(fileToUpload);
       const worksheetOptions = await uploadExcel(fileToUpload);
-      setWorksheets(worksheetOptions.worksheets);
-      setInitialWorksheetMetadata(worksheetOptions.metadata);
+      setActiveSource({
+        kind: 'excel',
+        worksheetNames: worksheetOptions.worksheets,
+        initialWorksheetMetadata: worksheetOptions.metadata,
+      });
       setImportFlow('excel');
       setHasFile('done');
     } catch (error) {
       const errorMessage = getErrorMessage(error);
       setError(`Error uploading file: ${errorMessage}`);
-      setWorksheets(null);
-      setInitialWorksheetMetadata(null);
+      setActiveSource(null);
       setHasFile('none');
     }
   };
@@ -78,34 +89,15 @@ export default function SourcesPanel() {
   };
 
   const resetFlow = () => {
-    // we purposely omit clearing the authentication status
     setImportFlow('none');
     setHasFile('none');
-    setWorksheets(null);
+    setActiveSource(null);
     setError('');
-    setSheetId(null);
-    setInitialWorksheetMetadata(null);
   };
 
-  const openGSheetFlow = async () => {
+  const openGSheetFlow = () => {
     setError('');
-    setInitialWorksheetMetadata(null);
-    const result = await verifyAuth();
-    if (result) {
-      setAuthenticationStatus(result.authenticated);
-      setSheetId(result.sheetId);
-      if (result.authenticated === 'authenticated' && result.sheetId) {
-        try {
-          const worksheetOptions = await getWorksheetOptions(result.sheetId);
-          setWorksheets(worksheetOptions.worksheets);
-          setInitialWorksheetMetadata(worksheetOptions.metadata);
-        } catch (error) {
-          const message = maybeAxiosError(error);
-          setError(`Error getting worksheets: ${message}`);
-          setInitialWorksheetMetadata(null);
-        }
-      }
-    }
+    setActiveSource(null);
     setImportFlow('gsheet');
   };
 
@@ -120,7 +112,7 @@ export default function SourcesPanel() {
   const handleFinished = () => {
     setImportFlow('finished');
     setHasFile('none');
-    setWorksheets(null);
+    setActiveSource(null);
     setError('');
   };
 
@@ -143,35 +135,62 @@ export default function SourcesPanel() {
   };
 
   const loadWorksheetMetadata = useCallback(
-    (worksheet: string) =>
-      importFlow === 'excel'
+    (worksheet: string) => {
+      if (!activeSource) {
+        throw new Error('No spreadsheet source loaded');
+      }
+
+      return activeSource.kind === 'excel'
         ? getExcelWorksheetMetadata(worksheet)
-        : getGoogleWorksheetMetadata(sheetId as string, worksheet),
-    [importFlow, sheetId],
+        : getGoogleWorksheetMetadata(activeSource.sheetId, worksheet);
+    },
+    [activeSource],
   );
 
   const previewImport = useCallback(
-    (importMap: ImportMap): Promise<SpreadsheetPreviewResponse> =>
-      importFlow === 'excel' ? importExcelPreview(importMap) : previewGoogleSheet(sheetId as string, importMap),
-    [importFlow, sheetId],
+    (importMap: ImportMap): Promise<SpreadsheetPreviewResponse> => {
+      if (!activeSource) {
+        throw new Error('No spreadsheet source loaded');
+      }
+
+      return activeSource.kind === 'excel'
+        ? importExcelPreview(importMap)
+        : previewGoogleSheet(activeSource.sheetId, importMap);
+    },
+    [activeSource],
   );
 
   const exportToGoogleSheet = useCallback(
-    (importMap: ImportMap): Promise<void> => uploadRundown(sheetId as string, importMap),
-    [sheetId],
+    (importMap: ImportMap): Promise<void> => {
+      if (!activeSource || activeSource.kind !== 'gsheet') {
+        throw new Error('Google Sheet source not available');
+      }
+
+      return uploadRundown(activeSource.sheetId, importMap);
+    },
+    [activeSource],
   );
 
-  const isExcelFlow = importFlow === 'excel';
+  const handleSheetLoaded = useCallback((sheetId: string, worksheetOptions: SpreadsheetWorksheetOptions) => {
+    setActiveSource({
+      kind: 'gsheet',
+      sheetId,
+      worksheetNames: worksheetOptions.worksheets,
+      initialWorksheetMetadata: worksheetOptions.metadata,
+    });
+  }, []);
+
   const isGSheetFlow = importFlow === 'gsheet';
-  const isAuthenticated = authenticationStatus === 'authenticated';
   const showInput = importFlow === 'none';
   const showCompleted = importFlow === 'finished';
-  const showAuth = isGSheetFlow && (!isAuthenticated || !worksheetNames?.length);
-  const showImportWorkspace =
-    (isExcelFlow && hasFile === 'done' && Boolean(worksheetNames?.length)) ||
-    (isGSheetFlow && isAuthenticated && Boolean(sheetId) && Boolean(worksheetNames?.length));
-  const importModalTitle = isExcelFlow ? 'Import spreadsheet' : 'Synchronise with Google Sheet';
-  const sourceKey = isExcelFlow ? 'excel' : sheetId ? `gsheet:${sheetId}` : null;
+  const showAuth = isGSheetFlow && activeSource === null;
+  const showImportWorkspace = activeSource !== null;
+  const importModalTitle = activeSource?.kind === 'excel' ? 'Import spreadsheet' : 'Synchronise with Google Sheet';
+  const sourceKey = (() => {
+    if (!activeSource) return null;
+    if (activeSource.kind === 'excel') return 'excel';
+    return `gsheet:${activeSource.sheetId}`;
+  })();
 
   return (
     <Panel.Section>
@@ -179,8 +198,17 @@ export default function SourcesPanel() {
         <Panel.SubHeader>Synchronise your rundown with an external source</Panel.SubHeader>
         {error && <Panel.Error>{error}</Panel.Error>}
         {showInput && (
-          <>
-            <GSheetInfo />
+          <div className={style.introStack}>
+            <Info>
+              <Info.Title>Choose between a quick file import or a live Google Sheet connection.</Info.Title>
+              <Info.Body>
+                Google Sheets sync needs a client secret and a one-time device authentication before you can load a
+                sheet by ID.
+              </Info.Body>
+              <Info.Footer>
+                <ExternalLink href={googleSheetDocsUrl}>Read setup guide</ExternalLink>
+              </Info.Footer>
+            </Info>
             <input
               ref={fileInputRef}
               style={{ display: 'none' }}
@@ -189,50 +217,47 @@ export default function SourcesPanel() {
               accept='.xlsx'
               data-testid='file-input'
             />
-            <div className={style.uploadSection}>
-              <div>
-                <Button variant='primary' onClick={handleUpload} loading={hasFile === 'loading'}>
+            <div className={style.sourceGrid}>
+              <section className={style.sourceCard}>
+                <div className={style.sourceHeader}>
+                  <h4 className={style.sourceTitle}>Import spreadsheet</h4>
+                </div>
+                <p className={style.sourceDescription}>
+                  Bring in a one-off spreadsheet, review the mapping, and apply the data to the current rundown.
+                </p>
+                <div className={style.sourceMeta}>Accepts `.xlsx` files</div>
+                <Button variant='primary' size='large' fluid onClick={handleUpload} loading={hasFile === 'loading'}>
                   <IoDownloadOutline />
                   Import from spreadsheet
                 </Button>
-                <Panel.Description>Accepts .xlsx files</Panel.Description>
-              </div>
-              <Editor.Separator orientation='vertical' />
-              <div>
-                <Button variant='primary' onClick={openGSheetFlow} disabled={hasFile !== 'none'}>
+              </section>
+              <section className={style.sourceCard}>
+                <div className={style.sourceHeader}>
+                  <h4 className={style.sourceTitle}>Synchronise with Google</h4>
+                </div>
+                <p className={style.sourceDescription}>
+                  Connect a Google account once, then load any sheet by ID and keep the import flow inside Ontime.
+                </p>
+                <div className={style.sourceMeta}>Requires Google OAuth client credentials</div>
+                <Button variant='primary' size='large' fluid onClick={openGSheetFlow} disabled={hasFile !== 'none'}>
                   <IoCloudOutline />
                   Synchronise with Google
                 </Button>
-                <Panel.Description>Start authentication process</Panel.Description>
-              </div>
+              </section>
             </div>
-          </>
+          </div>
         )}
         {showCompleted && (
           <div className={style.finishSection}>
-            {error ? (
-              <span key='finish__error' className={style.error}>
-                Import failed
-              </span>
-            ) : (
-              <span key='finish__success' className={style.success}>
-                Import successful
-              </span>
-            )}
-            <Button variant='primary' onClick={resetFlow}>
-              Return
+            <span className={style.finishBadge}>Import complete</span>
+            <div className={style.finishTitle}>Spreadsheet data applied.</div>
+            <div className={style.finishDescription}>You can close this flow or start another import.</div>
+            <Button variant='subtle-white' onClick={resetFlow}>
+              Reset flow
             </Button>
           </div>
         )}
-        {showAuth && (
-          <GSheetSetup
-            onCancel={cancelGSheetFlow}
-            onWorksheetOptionsLoaded={(worksheetOptions) => {
-              setWorksheets(worksheetOptions.worksheets);
-              setInitialWorksheetMetadata(worksheetOptions.metadata);
-            }}
-          />
-        )}
+        {showAuth && <GSheetSetup onCancel={cancelGSheetFlow} onSheetLoaded={handleSheetLoaded} />}
         <Modal
           isOpen={showImportWorkspace}
           title={importModalTitle}
@@ -243,13 +268,13 @@ export default function SourcesPanel() {
           bodyElements={
             <SheetImportEditor
               sourceKey={sourceKey ?? 'spreadsheet'}
-              worksheetNames={worksheetNames ?? []}
-              initialMetadata={initialWorksheetMetadata}
+              worksheetNames={activeSource?.worksheetNames ?? []}
+              initialMetadata={activeSource?.initialWorksheetMetadata ?? null}
               loadMetadata={loadWorksheetMetadata}
               previewImport={previewImport}
               onApply={handleApplyImport}
               onCancel={cancelImportFlow}
-              onExport={isGSheetFlow && sheetId ? exportToGoogleSheet : undefined}
+              onExport={activeSource?.kind === 'gsheet' ? exportToGoogleSheet : undefined}
             />
           }
         />
