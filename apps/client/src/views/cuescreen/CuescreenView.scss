@@ -1,0 +1,107 @@
+// Hide the floating navigation buttons while the cuescreen view is active.
+// The nav is injected as a fixed-position sibling by withData, so it can't be
+// targeted from inside .cuescreen. We use a body attribute set on mount instead.
+body[data-view='cuescreen'] {
+  [data-testid='navigation__toggle-menu'],
+  [data-testid='navigation__toggle-settings'] {
+    display: none;
+  }
+}
+
+.cuescreen {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0 10px 0 40px;
+  background-color: #000;
+  color: #fff;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  box-sizing: border-box;
+  position: relative;
+
+  &__timer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 96%;
+    position: absolute;
+    top: 18px;
+  }
+
+  &__timer-row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    position: relative;
+  }
+
+  &__main-timer {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    font-size: 150px;
+    color: limegreen;
+    text-align: center;
+    margin: 0;
+  }
+
+  &__aux-timer {
+    font-size: 145px;
+    font-weight: bold;
+    color: orange;
+    text-align: right;
+    margin-right: 40px;
+    flex-grow: 1;
+    margin-left: auto;
+  }
+
+  &__clock {
+    font-size: 145px;
+    font-weight: bold;
+    color: white;
+    text-align: left;
+    margin-left: 25px;
+    flex-grow: 1;
+  }
+
+  &__event-container {
+    position: absolute;
+    top: 160px;
+    left: 70px;
+    width: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  &__title-card {
+    min-width: 500px;
+    max-width: 1520px;
+    padding: 5px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  &__title-card__label {
+    font-size: 75px;
+    font-weight: bold;
+    color: white;
+    white-space: nowrap;
+  }
+
+  &__title-card__title {
+    font-size: 90px;
+    font-weight: normal;
+    color: limegreen;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    display: inline-block;
+  }
+}

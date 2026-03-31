@@ -10,8 +10,9 @@
 }
 
 .tallButtons {
-  height: 28px;
+  height: 38px;
   min-width: 0;
+  padding-inline: 1rem;
 }
 
 .globalButtons {
@@ -20,7 +21,8 @@
   grid-template-areas:
     "reset reset"
     "minus plus";
-  gap: $element-inner-spacing;
+  column-gap: $element-inner-spacing;
+  row-gap: calc($element-inner-spacing * 3);
   width: 100%;
 }
 
