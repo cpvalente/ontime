@@ -1,11 +1,12 @@
-import { lazy, useEffect } from 'react';
-import { IoApps } from 'react-icons/io5';
+import { lazy, useCallback, useEffect } from 'react';
+import { IoApps, IoClose, IoSettingsOutline } from 'react-icons/io5';
 import { IconButton, useDisclosure } from '@chakra-ui/react';
 import { useHotkeys } from '@mantine/hooks';
 
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import { useElectronListener } from '../../common/hooks/useElectronEvent';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import AppSettings from '../app-settings/AppSettings';
 import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
 
 import styles from './Editor.module.scss';
@@ -17,7 +18,7 @@ const MobileTimerControl = lazy(() => import('../control/playback/MobileTimerCon
 const MobileRundown = lazy(() => import('../rundown/MobileRundownExport'));
 const MobileRundownEventEditor = lazy(() => import('../rundown/event-editor/MobileRundownEventEditor'));
 export default function MobileEditor() {
-  const { setLocation } = useAppSettingsNavigation();
+  const { isOpen: isSettingsOpen, setLocation, close } = useAppSettingsNavigation();
   const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
   const { onToggle: onFinderToggle, onClose: onFinderClose } = useDisclosure();
 
@@ -36,7 +37,16 @@ export default function MobileEditor() {
   }, [setLocation]);
 
 
+  const toggleSettings = useCallback(() => {
+    if (isSettingsOpen) {
+      close();
+    } else {
+      setLocation('project');
+    }
+  }, [close, isSettingsOpen, setLocation]);
+
   useHotkeys([
+    ['mod + ,', toggleSettings],
     ['mod + f', onFinderToggle],
     ['Escape', onFinderClose],
   ]);
@@ -52,18 +62,29 @@ export default function MobileEditor() {
           icon={<IoApps />}
           onClick={onOpen}
         />
+        <IconButton
+          aria-label='Toggle settings'
+          variant={isSettingsOpen ? 'ontime-subtle' : 'ontime-subtle-white'}
+          size='lg'
+          icon={isSettingsOpen ? <IoClose /> : <IoSettingsOutline />}
+          onClick={toggleSettings}
+        />
       </MobileEditorOverview>
-      <div id='panels' className={styles.panelContainer}>
-        <div className={styles.left}>
-          <MobileTimerControl />
-          <div className={rundownStyle.side}>
-            <ErrorBoundary>
-              <MobileRundownEventEditor />
-            </ErrorBoundary>
+      {isSettingsOpen ? (
+        <AppSettings />
+      ) : (
+        <div id='panels' className={styles.panelContainer}>
+          <div className={styles.left}>
+            <MobileTimerControl />
+            <div className={rundownStyle.side}>
+              <ErrorBoundary>
+                <MobileRundownEventEditor />
+              </ErrorBoundary>
+            </div>
           </div>
+          <MobileRundown />
         </div>
-        <MobileRundown />
-      </div>
+      )}
     </div>
   );
 }

@@ -16,12 +16,12 @@
 
   display: grid;
   grid-template-columns: 1fr 40vw;
-  grid-template-rows: auto 12px 1fr auto;
+  grid-template-rows: auto auto 1fr auto;
   grid-template-areas:
-    'header    header'
-    'progress  schedule-nav'
-    'card      schedule'
-    'info      schedule';
+    'header        header'
+    'card          schedule-nav'
+    'card          schedule'
+    'info          schedule';
 
   .empty-container {
     position: absolute;
@@ -68,13 +68,7 @@
     }
   }
 
-  /* =================== MAIN - NOW ===================*/
-
-  .progress-container {
-    grid-area: progress;
-    width: 100%;
-    margin: 0 auto -8px;
-  }
+  /* =================== MAIN - CARDS ===================*/
 
   .card-container {
     grid-area: card;
@@ -83,10 +77,14 @@
     gap: $view-element-gap;
   }
 
-  .event {
+  /* =================== NOW CARD ===================*/
+
+  .now-card {
     background-color: var(--card-background-color-override, $viewer-card-bg-color);
     padding: $view-card-padding;
     border-radius: $element-border-radius;
+    display: flex;
+    flex-direction: column;
 
     &.blink {
       animation-name: blink;
@@ -96,37 +94,122 @@
     }
   }
 
-  .timer-group {
+  .now-card__header {
+    display: flex;
+    align-items: baseline;
+    gap: 1em;
+  }
+
+  .now-card__label {
+    font-size: $timer-label-size;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--accent-color-override, $accent-color);
+  }
+
+  .now-card__title {
+    font-size: $title-font-size;
+    font-weight: 600;
+    color: var(--color-override, $viewer-color);
+    line-height: 1.2em;
+  }
+
+  .now-card__timer {
+    font-size: clamp(80px, 15vw, 220px);
+    font-weight: 600;
+    font-family: var(--font-family-bold-override, $timer-bold-font-family);
+    color: var(--timer-color-override, $timer-color);
+    line-height: 1;
+    padding: 0.05em 0;
+    letter-spacing: 0.02em;
+
+    &--negative {
+      color: $timer-finished-color;
+    }
+  }
+
+  .now-card__progress {
+    width: 100%;
+    margin-top: 0.5em;
+  }
+
+  /* =================== PENDING CARD ===================*/
+
+  .pending-card {
+    background-color: var(--card-background-color-override, $viewer-card-bg-color);
+    padding: $view-card-padding;
+    border-radius: $element-border-radius;
+  }
+
+  .pending-card__placeholder {
+    font-weight: 600;
+    font-size: $title-font-size;
+    color: var(--label-color-override, $viewer-label-color);
+  }
+
+  .pending-card__times {
     border-top: 2px solid var(--background-color-override, $viewer-background-color);
     margin-top: max(1vh, 16px);
     padding-top: max(1vh, 16px);
     display: flex;
-    row-gap: 0.5em;
+    gap: 3em;
   }
 
-  .timer-gap {
-    flex: 1;
-    max-width: 7.5em;
-  }
-
-  .time-entry {
-    &__label {
-      font-size: $timer-label-size;
-      color: var(--label-color-override, $viewer-label-color);
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-
-    &__value {
-      font-size: $base-font-size;
-      color: var(--secondary-color-override, $viewer-secondary-color);
-      letter-spacing: 0.05em;
-      line-height: 0.95em;
-    }
+  .pending-card__label {
+    font-size: $timer-label-size;
+    color: var(--label-color-override, $viewer-label-color);
+    font-weight: 600;
+    text-transform: uppercase;
 
     &--pending {
       color: var(--timer-pending-color-override, $ontime-roll);
     }
+  }
+
+  .pending-card__value {
+    font-size: $base-font-size;
+    color: var(--secondary-color-override, $viewer-secondary-color);
+    letter-spacing: 0.05em;
+    line-height: 0.95em;
+  }
+
+  .pending-card__entry {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* =================== UPCOMING CARDS (NEXT / FOLLOWED BY) ===================*/
+
+  .upcoming-card {
+    background-color: var(--card-background-color-override, $viewer-card-bg-color);
+    padding: $view-card-padding;
+    border-radius: $element-border-radius;
+    display: flex;
+    align-items: baseline;
+    gap: 1em;
+  }
+
+  .upcoming-card__label {
+    font-size: $timer-label-size;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--secondary-color-override, $viewer-secondary-color);
+    white-space: nowrap;
+  }
+
+  .upcoming-card__title {
+    font-size: $title-font-size;
+    font-weight: 600;
+    color: var(--color-override, $viewer-color);
+    line-height: 1.2em;
+    flex: 1;
+  }
+
+  .upcoming-card__time {
+    font-size: $base-font-size;
+    color: var(--secondary-color-override, $viewer-secondary-color);
+    white-space: nowrap;
+    letter-spacing: 0.05em;
   }
 
   /* =================== MAIN - SCHEDULE ===================*/
@@ -187,8 +270,8 @@
       height: min(50px, 10vh);
     }
 
-    .timer-group {
-      flex-wrap: wrap;
+    .now-card__timer {
+      font-size: clamp(48px, 12vw, 120px);
     }
 
     .clock-container {

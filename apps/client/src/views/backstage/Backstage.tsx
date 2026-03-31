@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { useViewportSize } from '@mantine/hooks';
 import { CustomFields, OntimeEvent, ProjectData, Runtime, Settings } from 'ontime-types';
@@ -6,7 +6,6 @@ import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import ProgressBar from '../../common/components/progress-bar/ProgressBar';
 import Empty from '../../common/components/state/Empty';
-import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
@@ -18,7 +17,7 @@ import { useTranslation } from '../../translation/TranslationProvider';
 import ScheduleExport from '../common/schedule/ScheduleExport';
 
 import { getBackstageOptions, useBackstageOptions } from './backstage.options';
-import { getCardData, getIsPendingStart, getShowProgressBar, isOvertime } from './backstage.utils';
+import { getCardData, getFollowedByEvent, getIsPendingStart, getShowProgressBar, getTimeToMinutes, isOvertime } from './backstage.utils';
 
 import './Backstage.scss';
 
@@ -69,7 +68,7 @@ export default function Backstage(props: BackstageProps) {
 
   // gather card data
   const hasEvents = backstageEvents.length > 0;
-  const { showNow, nowMain, nowSecondary, showNext, nextMain, nextSecondary } = getCardData(
+  const { showNow, nowMain, showNext, nextMain } = getCardData(
     eventNow,
     eventNext,
     'title',
@@ -77,10 +76,15 @@ export default function Backstage(props: BackstageProps) {
     time.playback,
   );
 
+  // find the event after next ("followed by")
+  const eventFollowedBy = useMemo(
+    () => getFollowedByEvent(backstageEvents, eventNext),
+    [backstageEvents, eventNext],
+  );
+
   // gather timer data
   const clock = formatTime(time.clock);
   const isPendingStart = getIsPendingStart(time.playback, time.phase);
-  const startedAt = isPendingStart ? formatTime(time.secondaryTimer) : formatTime(time.startedAt);
 
   const scheduledStart = (() => {
     if (showNow) return undefined;
@@ -96,6 +100,11 @@ export default function Backstage(props: BackstageProps) {
 
   let displayTimer = millisToString(time.current, { fallback: timerPlaceholderMin });
   displayTimer = removeLeadingZero(displayTimer);
+  const overtime = isOvertime(time.current);
+
+  // compute time-to values for next and followed by
+  const timeToNext = getTimeToMinutes(time.current);
+  const timeToFollowedBy = getTimeToMinutes(time.current, eventNext?.duration);
 
   // gather presentation styles
   const qrSize = Math.max(window.innerWidth / 15, 72);
@@ -106,6 +115,8 @@ export default function Backstage(props: BackstageProps) {
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const backstageOptions = getBackstageOptions(defaultFormat, customFields);
+
+  const followedByMain = eventFollowedBy?.title;
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
@@ -119,60 +130,54 @@ export default function Backstage(props: BackstageProps) {
         </div>
       </div>
 
-      {showProgress && <ProgressBar className='progress-container' current={time.current} duration={time.duration} />}
-
       {!hasEvents && <Empty text={getLocalizedString('common.no_data')} className='empty-container' />}
 
       <div className='card-container'>
         {showNow && (
-          <div className={cx(['event', 'now', blinkClass && 'blink'])}>
-            <TitleCard title={nowMain} secondary={nowSecondary} />
-            <div className='timer-group'>
-              <div className='time-entry'>
-                <div className={cx(['time-entry__label', isPendingStart && 'time-entry--pending'])}>
-                  {isPendingStart ? getLocalizedString('countdown.waiting') : getLocalizedString('common.started_at')}
-                </div>
-                <SuperscriptTime time={startedAt} className='time-entry__value' />
-              </div>
-              <div className='timer-gap' />
-              <div className='time-entry'>
-                <div className='time-entry__label'>{getLocalizedString('common.expected_finish')}</div>
-                {isOvertime(time.current) ? (
-                  <div className='time-entry__value'>{getLocalizedString('countdown.overtime')}</div>
-                ) : (
-                  <SuperscriptTime time={formatTime(time.expectedFinish)} className='time-entry__value' />
-                )}
-              </div>
-              <div className='timer-gap' />
-              <div className='time-entry'>
-                <div className='time-entry__label'>{getLocalizedString('common.stage_timer')}</div>
-                <div className='time-entry__value'>{displayTimer}</div>
-              </div>
+          <div className={cx(['now-card', blinkClass && 'blink'])}>
+            <div className='now-card__header'>
+              <span className='now-card__label'>{getLocalizedString('common.now')}</span>
+              <span className='now-card__title'>{nowMain}</span>
             </div>
+            <div className={cx(['now-card__timer', overtime && 'now-card__timer--negative'])}>
+              {displayTimer}
+            </div>
+            {showProgress && <ProgressBar className='now-card__progress' current={time.current} duration={time.duration} />}
           </div>
         )}
 
         {showPending && (
-          <div className='event'>
-            <div className='title-card__placeholder'>{getLocalizedString('countdown.waiting')}</div>
-            <div className='timer-group'>
-              <div className='time-entry'>
-                <div className={cx(['time-entry__label', isPendingStart && 'time-entry--pending'])}>
+          <div className='pending-card'>
+            <div className='pending-card__placeholder'>{getLocalizedString('countdown.waiting')}</div>
+            <div className='pending-card__times'>
+              <div className='pending-card__entry'>
+                <span className={cx(['pending-card__label', isPendingStart && 'pending-card__label--pending'])}>
                   {getLocalizedString('common.scheduled_start')}
-                </div>
-                <SuperscriptTime time={scheduledStart} className='time-entry__value' />
+                </span>
+                <SuperscriptTime time={scheduledStart} className='pending-card__value' />
               </div>
-              <div className='timer-gap' />
-              <div className='time-entry'>
-                <div className='time-entry__label'>{getLocalizedString('common.scheduled_end')}</div>
-                <SuperscriptTime time={scheduledEnd} className='time-entry__value' />
+              <div className='pending-card__entry'>
+                <span className='pending-card__label'>{getLocalizedString('common.scheduled_end')}</span>
+                <SuperscriptTime time={scheduledEnd} className='pending-card__value' />
               </div>
             </div>
           </div>
         )}
 
         {showNext && hasEvents && (
-          <TitleCard className='event' label='next' title={nextMain} secondary={nextSecondary} />
+          <div className='upcoming-card'>
+            <span className='upcoming-card__label'>{getLocalizedString('common.next')}</span>
+            <span className='upcoming-card__title'>{nextMain}</span>
+            {timeToNext !== null && <span className='upcoming-card__time'>T - {timeToNext}m</span>}
+          </div>
+        )}
+
+        {eventFollowedBy && showNow && (
+          <div className='upcoming-card'>
+            <span className='upcoming-card__label'>{getLocalizedString('timeline.followedby')}</span>
+            <span className='upcoming-card__title'>{followedByMain}</span>
+            {timeToFollowedBy !== null && <span className='upcoming-card__time'>T - {timeToFollowedBy}m</span>}
+          </div>
         )}
       </div>
 
