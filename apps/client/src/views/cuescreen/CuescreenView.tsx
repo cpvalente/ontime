@@ -42,27 +42,22 @@ export default function CuescreenView({ time, auxTimer, eventNow, eventNext }: C
 
   const clock = formatTime(time.clock, { format12: 'h:mm a', format24: 'H:mm' });
 
-  // Auto-resize the NEXT title to fit on a single line within the available width
-  const nextContainerRef = useRef<HTMLDivElement>(null);
+  const eventContainerRef = useRef<HTMLDivElement>(null);
   const nextTitleRef = useRef<HTMLSpanElement>(null);
-  const nextLabelRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     function resizeNextTitle() {
       const titleEl = nextTitleRef.current;
-      const containerEl = nextContainerRef.current;
-      const labelEl = nextLabelRef.current;
-      if (!titleEl || !containerEl) return;
+      const eventEl = eventContainerRef.current;
+      if (!titleEl || !eventEl) return;
 
-      titleEl.style.fontSize = '';
-      const computedStyle = window.getComputedStyle(titleEl);
-      let fontSize = parseFloat(computedStyle.fontSize) || 90;
-      const minFontSize = 30;
-      const labelWidth = labelEl?.offsetWidth ?? 0;
-      const availableWidth = containerEl.clientWidth - labelWidth - 40;
-      if (availableWidth <= 0) return;
+      // Reset to max font size (matches label size) and shrink to fit single line
+      const maxFontSize = 75;
+      const minFontSize = 24;
+      let fontSize = maxFontSize;
+      titleEl.style.fontSize = `${fontSize}px`;
 
-      while (titleEl.scrollWidth > availableWidth && fontSize > minFontSize) {
+      while (titleEl.scrollWidth > titleEl.clientWidth && fontSize > minFontSize) {
         fontSize -= 1;
         titleEl.style.fontSize = `${fontSize}px`;
       }
@@ -70,8 +65,8 @@ export default function CuescreenView({ time, auxTimer, eventNow, eventNext }: C
 
     resizeNextTitle();
     const observer = new ResizeObserver(resizeNextTitle);
-    if (nextContainerRef.current) {
-      observer.observe(nextContainerRef.current);
+    if (eventContainerRef.current) {
+      observer.observe(eventContainerRef.current);
     }
     return () => observer.disconnect();
   }, [eventNext?.title]);
@@ -96,9 +91,9 @@ export default function CuescreenView({ time, auxTimer, eventNow, eventNext }: C
         </div>
       </div>
 
-      <div className='cuescreen__event-container'>
-        <div className='cuescreen__title-card' ref={nextContainerRef}>
-          <span className='cuescreen__title-card__label' ref={nextLabelRef}>
+      <div className='cuescreen__event-container' ref={eventContainerRef}>
+        <div className='cuescreen__title-card'>
+          <span className='cuescreen__title-card__label'>
             NEXT:&nbsp;
           </span>
           <span className='cuescreen__title-card__title' style={{ color: timerColor }} ref={nextTitleRef}>

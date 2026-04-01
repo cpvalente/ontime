@@ -14,8 +14,8 @@ body[data-view='cuescreen'] {
   padding: 0 10px 0 40px;
   background-color: #000;
   color: #fff;
-  height: 100vh;
-  width: 100vw;
+  height: 1080px;
+  width: 1920px;
   overflow: hidden;
   box-sizing: border-box;
   position: relative;
@@ -26,7 +26,7 @@ body[data-view='cuescreen'] {
     align-items: flex-start;
     width: 96%;
     position: absolute;
-    top: 18px;
+    top: -17px;
   }
 
   &__timer-row {
@@ -68,18 +68,18 @@ body[data-view='cuescreen'] {
 
   &__event-container {
     position: absolute;
-    top: 160px;
+    top: 125px;
     left: 70px;
-    width: auto;
+    width: 1450px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+    padding-top: 10px;
   }
 
   &__title-card {
-    min-width: 500px;
-    max-width: 1520px;
+    width: 100%;
     padding: 5px;
     border-radius: 10px;
     display: flex;
@@ -93,10 +93,11 @@ body[data-view='cuescreen'] {
     font-weight: bold;
     color: white;
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
   &__title-card__title {
-    font-size: 90px;
+    font-size: 75px;
     font-weight: normal;
     color: limegreen;
     text-align: left;

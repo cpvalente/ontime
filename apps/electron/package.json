@@ -1,6 +1,6 @@
 {
   "name": "ontime-electron",
-  "version": "3.17.0",
+  "version": "3.17.1",
   "author": "Alan Aiken",
   "description": "Time keeping for live events",
   "repository": "https://github.com/lifenz-prod/ontime",

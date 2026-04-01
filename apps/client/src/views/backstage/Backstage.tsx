@@ -100,10 +100,14 @@ export default function Backstage(props: BackstageProps) {
 
   let displayTimer = millisToString(time.current, { fallback: timerPlaceholderMin });
   displayTimer = removeLeadingZero(displayTimer);
-  // strip hours to show mm:ss only
-  const timerParts = displayTimer.split(':');
+  // roll hours into minutes to show mm:ss only (eg. 1:15:00 → 75:00)
+  const isNegative = displayTimer.startsWith('-');
+  const absTimer = isNegative ? displayTimer.slice(1) : displayTimer;
+  const timerParts = absTimer.split(':');
   if (timerParts.length === 3) {
-    displayTimer = timerParts.slice(1).join(':');
+    const hours = parseInt(timerParts[0], 10);
+    const mins = parseInt(timerParts[1], 10) + hours * 60;
+    displayTimer = `${isNegative ? '-' : ''}${mins}:${timerParts[2]}`;
   }
   const overtime = isOvertime(time.current);
 
