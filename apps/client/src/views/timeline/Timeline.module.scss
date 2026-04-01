@@ -54,6 +54,15 @@ $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-over
   .content {
     gap: 0rem;
     writing-mode: vertical-rl;
+    align-items: start;
+    justify-content: center;
+  }
+
+  .maybeInline {
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+    overflow: hidden;
+    justify-content: center;
   }
 
   .timeOverview {
@@ -115,6 +124,14 @@ $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-over
   .status.due {
     background: $orange-600;
   }
+}
+
+.title {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .delay {
