@@ -3,8 +3,10 @@
 ## 3.17.0
 
 ### Added
+- Cuescreen view now incorporated into Ontime app
 
 ### Changed
+- Backstage view now customised to LIFE preferences
 
 ### Fixed
 
