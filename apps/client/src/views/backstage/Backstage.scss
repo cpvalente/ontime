@@ -85,6 +85,8 @@
     border-radius: $element-border-radius;
     display: flex;
     flex-direction: column;
+    margin-top: 1.5em;
+    margin-bottom: 1em;
 
     &.blink {
       animation-name: blink;
@@ -94,34 +96,29 @@
     }
   }
 
-  .now-card__header {
-    display: flex;
-    align-items: baseline;
-    gap: 1em;
-  }
-
   .now-card__label {
-    font-size: $timer-label-size;
+    font-size: $title-font-size;
     font-weight: 600;
     text-transform: uppercase;
     color: var(--accent-color-override, $accent-color);
   }
 
   .now-card__title {
-    font-size: $title-font-size;
+    font-size: calc(#{$title-font-size} * 1.1);
     font-weight: 600;
     color: var(--color-override, $viewer-color);
     line-height: 1.2em;
   }
 
   .now-card__timer {
-    font-size: clamp(80px, 15vw, 220px);
+    font-size: clamp(100px, 15vw, 220px);
     font-weight: 600;
     font-family: var(--font-family-bold-override, $timer-bold-font-family);
     color: var(--timer-color-override, $timer-color);
     line-height: 1;
     padding: 0.05em 0;
     letter-spacing: 0.02em;
+    text-align: center;
 
     &--negative {
       color: $timer-finished-color;

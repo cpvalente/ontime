@@ -100,6 +100,11 @@ export default function Backstage(props: BackstageProps) {
 
   let displayTimer = millisToString(time.current, { fallback: timerPlaceholderMin });
   displayTimer = removeLeadingZero(displayTimer);
+  // strip hours to show mm:ss only
+  const timerParts = displayTimer.split(':');
+  if (timerParts.length === 3) {
+    displayTimer = timerParts.slice(1).join(':');
+  }
   const overtime = isOvertime(time.current);
 
   // compute time-to values for next and followed by
@@ -135,10 +140,8 @@ export default function Backstage(props: BackstageProps) {
       <div className='card-container'>
         {showNow && (
           <div className={cx(['now-card', blinkClass && 'blink'])}>
-            <div className='now-card__header'>
-              <span className='now-card__label'>{getLocalizedString('common.now')}</span>
-              <span className='now-card__title'>{nowMain}</span>
-            </div>
+            <span className='now-card__label'>{getLocalizedString('common.now')}</span>
+            <span className='now-card__title'>{nowMain}</span>
             <div className={cx(['now-card__timer', overtime && 'now-card__timer--negative'])}>
               {displayTimer}
             </div>

@@ -25,11 +25,16 @@ export const getBackstageOptions = (timeFormat: string, customFields: CustomFiel
           description: 'Select the data source for auxiliary text shown in now and next cards',
           type: 'option',
           values: secondaryOptions,
-          defaultValue: '',
+          defaultValue: 'note',
         },
       ],
     },
-    scheduleOptions,
+    {
+      ...scheduleOptions,
+      options: scheduleOptions.options.map((opt) =>
+        opt.id === 'stopCycle' ? { ...opt, defaultValue: true } : opt,
+      ),
+    },
   ];
 };
 
