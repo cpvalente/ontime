@@ -56,7 +56,7 @@ export function TimelineEntry({
   const hasDelay = delay > 0;
 
   const lighterColour = alpha(colour, 0.7);
-  const showTitle = width > 25;
+  const showTitle = width > 20;
   const smallArea = width < 40;
 
   return (
@@ -96,6 +96,7 @@ export function TimelineEntry({
               status={status}
             />
           )}
+          {smallArea && <div className={style.title}>{title}</div>}
         </div>
         {showTitle && (
           <>
@@ -109,7 +110,7 @@ export function TimelineEntry({
                 status={status}
               />
             )}
-            <div>{title}</div>
+            {!smallArea && <div className={style.title}>{title}</div>}
           </>
         )}
       </div>
