@@ -171,15 +171,13 @@ export default function Backstage(props: BackstageProps) {
           <div className='upcoming-card'>
             <span className='upcoming-card__label'>{getLocalizedString('common.next')}</span>
             <span className='upcoming-card__title'>{nextMain}</span>
-            {timeToNext !== null && <span className='upcoming-card__time'>T - {timeToNext}m</span>}
           </div>
         )}
 
         {eventFollowedBy && showNow && (
           <div className='upcoming-card'>
-            <span className='upcoming-card__label'>{getLocalizedString('timeline.followedby')}</span>
+            <span className='upcoming-card__label'>Then</span>
             <span className='upcoming-card__title'>{followedByMain}</span>
-            {timeToFollowedBy !== null && <span className='upcoming-card__time'>T - {timeToFollowedBy}m</span>}
           </div>
         )}
       </div>

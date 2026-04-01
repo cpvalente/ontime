@@ -192,6 +192,8 @@
     text-transform: uppercase;
     color: var(--secondary-color-override, $viewer-secondary-color);
     white-space: nowrap;
+    width: 4em;
+    flex-shrink: 0;
   }
 
   .upcoming-card__title {
