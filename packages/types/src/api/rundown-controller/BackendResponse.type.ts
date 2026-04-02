@@ -29,3 +29,10 @@ export type RundownSummary = {
   start: MaybeNumber;
   end: MaybeNumber;
 };
+
+export type RenumberCues = {
+  ids: EntryId[];
+  prefix: string;
+  start: string;
+  increment: string;
+};

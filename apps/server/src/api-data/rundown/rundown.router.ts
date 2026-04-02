@@ -1,6 +1,7 @@
 import type { Request, Response, Router } from 'express';
 import express from 'express';
-import { ErrorResponse, OntimeEntry, ProjectRundownsList, Rundown } from 'ontime-types';
+import { matchedData } from 'express-validator';
+import { ErrorResponse, OntimeEntry, ProjectRundownsList, RenumberCues, Rundown } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -384,7 +385,7 @@ router.patch(
   validateRundownMutation,
   async (req: Request, res: Response<Rundown | ErrorResponse>) => {
     try {
-      const { ids, prefix, start, increment } = req.body;
+      const { ids, prefix, start, increment } = matchedData<RenumberCues>(req);
       const rundown = await renumberEntries(ids, prefix, start, increment);
       res.status(200).send(rundown);
     } catch (error) {
