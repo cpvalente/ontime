@@ -27,6 +27,7 @@ function CuesheetShareModal() {
         isOpen={isOpen}
         onClose={handler.close}
         title='Share cuesheet view'
+        size='wide'
         showBackdrop
         showCloseButton
         bodyElements={

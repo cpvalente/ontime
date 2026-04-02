@@ -91,6 +91,7 @@ export default function CodeEditorModal({ isOpen, onClose }: CodeEditorModalProp
   return (
     <Modal
       title='Edit CSS override'
+      size='wide'
       isOpen={isOpen}
       onClose={onClose}
       showCloseButton
