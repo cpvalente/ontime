@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { create } from 'zustand';
 
 import { maybeAxiosError } from '../../../common/api/utils';
@@ -9,7 +9,6 @@ import { useEntryActionsContext } from '../../../common/context/EntryActionsCont
 import useRundown from '../../../common/hooks-query/useRundown';
 import { orderEntries } from '../rundown.utils';
 import { useEventSelection } from '../useEventSelection';
-import { validateIncrementInput, validateStartInput } from './renumber.utils';
 
 import style from './RenumberCuesDialog.module.scss';
 
@@ -17,36 +16,26 @@ export default function RenumberCuesDialog() {
   'use memo';
   const { data } = useRundown();
   const { flatOrder } = data;
-  const { isOpen, onClose } = useRenumberCuesDialogStore();
+  const { onClose, isOpen } = useRenumberCuesDialogStore();
   const { renumberCues } = useEntryActionsContext();
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
-  const [prefix, setPrefix] = useState('');
-  const [startStr, setStartStr] = useState('1');
-  const [incrementStr, setIncrementStr] = useState('1');
-  const [startError, setStartError] = useState<string | null>(null);
-  const [incrementError, setIncrementError] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    setError(null);
-    const orderedEvents = orderEntries(Array.from(selectedEvents), flatOrder);
-    const startValidation = validateStartInput(startStr);
-    const incrementValidation = validateIncrementInput(startStr);
-    setStartError(startValidation);
-    setIncrementError(incrementValidation);
-    if (startValidation || incrementValidation) return;
+  const {
+    register,
+    handleSubmit,
+    setError,
+    clearErrors,
+    formState: { errors, isSubmitting },
+  } = useForm<{ prefix: string; start: string; increment: string }>();
 
-    setLoading(true);
+  const onSubmit = async (data: { prefix: string; start: string; increment: string }) => {
+    clearErrors();
     try {
-      await renumberCues(orderedEvents, prefix, startStr.trim(), incrementStr.trim());
-      onClose();
+      const orderedEvents = orderEntries(Array.from(selectedEvents), flatOrder);
+      await renumberCues(orderedEvents, data.prefix, data.start.trim(), data.increment.trim());
     } catch (error) {
-      const errorMessage = maybeAxiosError(error);
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
+      const message = maybeAxiosError(error);
+      setError('root', { message });
     }
   };
 
@@ -58,45 +47,60 @@ export default function RenumberCuesDialog() {
       showCloseButton
       showBackdrop
       bodyElements={
-        <form id='renumber-cues-form' onSubmit={handleSubmit} className={style.fields}>
+        <form id='renumber-cues-form' onSubmit={handleSubmit(onSubmit)} className={style.fields}>
           <div className={style.field}>
-            <label htmlFor='renumber-prefix'>Prefix</label>
-            <Input
-              id='renumber-prefix'
-              value={prefix}
-              onChange={(e) => setPrefix(e.target.value)}
-              height='large'
-              fluid
-              autoComplete='off'
-            />
+            <label>
+              Prefix
+              <Input
+                {...register('prefix')}
+                type='text'
+                maxLength={8}
+                height='large'
+                fluid
+                autoComplete='off'
+                placeholder='A'
+              />
+            </label>
           </div>
-          <InputWithError
-            label='Start'
-            value={startStr}
-            error={startError}
-            onChange={(value) => {
-              setStartStr(value);
-              setStartError(validateStartInput(value));
-            }}
-          />
-          <InputWithError
-            label='Increment'
-            value={incrementStr}
-            error={incrementError}
-            onChange={(value) => {
-              setIncrementStr(value);
-              setIncrementError(validateIncrementInput(value));
-            }}
-          />
-          {error && <p className={style.error}>{error}</p>}
+          <div className={style.field}>
+            <label>
+              Start
+              <Input
+                {...register('start')}
+                type='number'
+                required
+                step={0.001}
+                height='large'
+                fluid
+                autoComplete='off'
+                placeholder='10'
+              />
+            </label>
+          </div>
+          <div className={style.field}>
+            <label>
+              Increment
+              <Input
+                {...register('increment')}
+                type='number'
+                required
+                step={0.001}
+                height='large'
+                fluid
+                autoComplete='off'
+                placeholder='0.1'
+              />
+            </label>
+          </div>
+          {errors.root && <p className={style.error}>{errors.root.message}</p>}
         </form>
       }
       footerElements={
         <>
-          <Button type='button' variant='subtle-white' onClick={onClose} disabled={loading}>
+          <Button type='button' variant='subtle-white' onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button type='submit' variant='primary' form='renumber-cues-form' loading={loading}>
+          <Button type='submit' variant='primary' form='renumber-cues-form' loading={isSubmitting}>
             Renumber
           </Button>
         </>
@@ -120,37 +124,3 @@ export const useRenumberCuesDialogStore = create<RenumberCuesDialogState>()((set
     set({ isOpen: true });
   },
 }));
-
-interface InputProps {
-  label: string;
-  value: string;
-  error: string | null;
-  onChange: (val: string) => void;
-}
-
-function InputWithError({ onChange, value, error, label }: InputProps) {
-  return (
-    <div className={style.field}>
-      <label>{label}</label>
-      <Input
-        value={value}
-        onChange={(e) => {
-          onChange(e.target.value);
-        }}
-        height='large'
-        fluid
-        autoComplete='off'
-        inputMode='numeric'
-        maxLength={10}
-        className={error !== null ? style.inputInvalid : undefined}
-      />
-      <div className={style.fieldErrorSlot} aria-live='polite'>
-        {error && (
-          <div className={style.fieldError} role='alert'>
-            {error}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
