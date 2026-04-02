@@ -1,18 +1,21 @@
 import useProjectData from '../../../common/hooks-query/useProjectData';
+import { useRundownAuxData } from '../../../common/hooks-query/useRundown';
 
 import style from './TitleOverview.module.scss';
 
 export default function TitleOverview() {
-  const { data } = useProjectData();
+  'use memo';
+  const { data: projectData } = useProjectData();
+  const { data: rundownData } = useRundownAuxData();
 
-  if (!data.title && !data.description) {
+  if (!projectData.title && !rundownData.title) {
     return null;
   }
 
   return (
     <div>
-      <div className={style.title}>{data.title}</div>
-      <div className={style.description}>{data.description}</div>
+      <div className={style.title}>{projectData.title}</div>
+      <div className={style.description}>{rundownData.title}</div>
     </div>
   );
 }
