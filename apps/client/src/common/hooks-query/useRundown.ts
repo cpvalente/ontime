@@ -105,3 +105,12 @@ export function useEntry(entryId: EntryId | null): OntimeEntry | null {
   if (entryId === null) return null;
   return rundown.entries[entryId] ?? null;
 }
+
+export function useRundownAuxData() {
+  const { data, status } = useRundown();
+  const filteredData = useMemo(() => {
+    const { title, id } = data;
+    return { title, id };
+  }, [data]);
+  return { data: filteredData, status };
+}
