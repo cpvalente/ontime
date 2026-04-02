@@ -1,3 +1,4 @@
+import { RenumberCues } from 'ontime-types';
 import { useForm } from 'react-hook-form';
 import { create } from 'zustand';
 
@@ -11,6 +12,8 @@ import { orderEntries } from '../rundown.utils';
 import { useEventSelection } from '../useEventSelection';
 
 import style from './RenumberCuesDialog.module.scss';
+
+type RenumberCueData = Pick<RenumberCues, 'increment' | 'prefix' | 'start'>;
 
 export default function RenumberCuesDialog() {
   'use memo';
@@ -26,13 +29,15 @@ export default function RenumberCuesDialog() {
     setError,
     clearErrors,
     formState: { errors, isSubmitting },
-  } = useForm<{ prefix: string; start: string; increment: string }>();
+  } = useForm<RenumberCueData>();
 
-  const onSubmit = async (data: { prefix: string; start: string; increment: string }) => {
+  const onSubmit = async (data: RenumberCueData) => {
     clearErrors();
     try {
+      const { prefix, start, increment } = data;
       const orderedEvents = orderEntries(Array.from(selectedEvents), flatOrder);
-      await renumberCues(orderedEvents, data.prefix, data.start.trim(), data.increment.trim());
+      await renumberCues(orderedEvents, prefix, start, increment);
+      onClose();
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
