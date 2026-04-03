@@ -1,5 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
-import { CustomFields, Rundown, RundownSummary } from 'ontime-types';
+import type {
+  SpreadsheetPreviewResponse,
+  SpreadsheetWorksheetMetadata,
+  SpreadsheetWorksheetOptions,
+} from 'ontime-types';
 import { ImportMap } from 'ontime-utils';
 
 import { apiEntryUrl } from './constants';
@@ -11,12 +15,12 @@ const excelPath = `${apiEntryUrl}/excel`;
 
 /**
  * upload Excel file to server
- * @return string - file ID op the uploaded file
+ * Uploads an Excel file and returns worksheet names plus metadata for the initial worksheet.
  */
-export async function upload(file: File, requestOptions?: RequestOptions): Promise<string[]> {
+export async function upload(file: File, requestOptions?: RequestOptions): Promise<SpreadsheetWorksheetOptions> {
   const formData = new FormData();
   formData.append('excel', file);
-  const response = await axios.post(`${excelPath}/upload`, formData, {
+  const response: AxiosResponse<SpreadsheetWorksheetOptions> = await axios.post(`${excelPath}/upload`, formData, {
     signal: requestOptions?.signal,
     timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
     headers: {
@@ -26,16 +30,11 @@ export async function upload(file: File, requestOptions?: RequestOptions): Promi
   return response.data;
 }
 
-type PreviewSpreadsheetResponse = {
-  rundown: Rundown;
-  customFields: CustomFields;
-  summary: RundownSummary;
-};
 export async function importRundownPreview(
   options: ImportMap,
   requestOptions?: RequestOptions,
-): Promise<PreviewSpreadsheetResponse> {
-  const response: AxiosResponse<PreviewSpreadsheetResponse> = await axios.post(
+): Promise<SpreadsheetPreviewResponse> {
+  const response: AxiosResponse<SpreadsheetPreviewResponse> = await axios.post(
     `${excelPath}/preview`,
     {
       options,
@@ -45,6 +44,22 @@ export async function importRundownPreview(
       timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
     },
   );
+  return response.data;
+}
+
+export async function getWorksheetMetadata(
+  worksheet: string,
+  requestOptions?: RequestOptions,
+): Promise<SpreadsheetWorksheetMetadata> {
+  const response: AxiosResponse<SpreadsheetWorksheetMetadata> = await axios.post(
+    `${excelPath}/metadata`,
+    { worksheet },
+    {
+      signal: requestOptions?.signal,
+      timeout: requestOptions?.timeout ?? axiosConfig.longTimeout,
+    },
+  );
+
   return response.data;
 }
 

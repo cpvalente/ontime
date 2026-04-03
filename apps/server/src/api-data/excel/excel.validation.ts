@@ -18,4 +18,9 @@ export const validateImportMapOptions = [
   requestValidationFunction,
 ];
 
+export const validateWorksheetMetadataRequest = [
+  body('worksheet').isString().trim().notEmpty(),
+  requestValidationFunction,
+];
+
 export const validateRundownExport = [param('rundownId').isString().trim().notEmpty(), requestValidationFunction];

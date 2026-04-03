@@ -1,57 +1,138 @@
-import { ChangeEvent, useEffect, useState } from 'react';
-import { IoCheckmark, IoShieldCheckmarkOutline } from 'react-icons/io5';
+import type { AuthenticationStatus, SpreadsheetWorksheetOptions } from 'ontime-types';
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { IoCheckmark, IoCloudDownloadOutline, IoShieldCheckmarkOutline } from 'react-icons/io5';
 
-import { getWorksheetNames } from '../../../../../common/api/sheets';
+import {
+  getWorksheetOptions,
+  requestConnection,
+  revokeAuthentication,
+  verifyAuthenticationStatus,
+} from '../../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
 import CopyTag from '../../../../../common/components/copy-tag/CopyTag';
 import Input from '../../../../../common/components/input/input/Input';
+import Tag from '../../../../../common/components/tag/Tag';
 import { openLink } from '../../../../../common/utils/linkUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
-import useGoogleSheet from './useGoogleSheet';
-import { useSheetStore } from './useSheetStore';
+
+import style from './SourcesPanel.module.scss';
 
 interface GSheetSetupProps {
   onCancel: () => void;
+  onSheetLoaded: (sheetId: string, options: SpreadsheetWorksheetOptions) => void;
 }
 
 export default function GSheetSetup(props: GSheetSetupProps) {
-  const { onCancel } = props;
+  const { onCancel, onSheetLoaded } = props;
 
-  const { revoke, connect, verifyAuth } = useGoogleSheet();
   const [file, setFile] = useState<File | null>(null);
+  const [sheetId, setSheetId] = useState('');
+  const [authenticationStatus, setAuthenticationStatus] = useState<AuthenticationStatus>('not_authenticated');
   const [authKey, setAuthKey] = useState<string | null>(null);
-  const [loading, setLoading] = useState<'' | 'cancel' | 'connect' | 'authenticate'>('');
+  const [loading, setLoading] = useState<'' | 'cancel' | 'connect' | 'authenticate' | 'load-sheet'>('');
   const [authLink, setAuthLink] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [worksheetError, setWorksheetError] = useState('');
+  const pollTimeoutRef = useRef<number | null>(null);
+  const authFallbackTimeoutRef = useRef<number | null>(null);
+  const focusListenerRef = useRef<(() => void) | null>(null);
 
-  const sheetId = useSheetStore((state) => state.sheetId);
-  const setSheetId = useSheetStore((state) => state.setSheetId);
-  const setWorksheets = useSheetStore((state) => state.setWorksheets);
-  const patchStepData = useSheetStore((state) => state.patchStepData);
-  const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
-  const setAuthenticationStatus = useSheetStore((state) => state.setAuthenticationStatus);
-  const authenticationError = useSheetStore((state) => state.stepData.authenticate.error);
-
-  /** Check if we are authenticated */
-  const getAuthStatus = async () => {
-    const result = await verifyAuth();
-    if (result) {
-      setAuthenticationStatus(result.authenticated);
+  const clearPollTimeout = useCallback(() => {
+    if (pollTimeoutRef.current !== null) {
+      window.clearTimeout(pollTimeoutRef.current);
+      pollTimeoutRef.current = null;
     }
-  };
+  }, []);
+
+  const clearAuthFallbackTimeout = useCallback(() => {
+    if (authFallbackTimeoutRef.current !== null) {
+      window.clearTimeout(authFallbackTimeoutRef.current);
+      authFallbackTimeoutRef.current = null;
+    }
+  }, []);
+
+  const clearFocusListener = useCallback(() => {
+    if (focusListenerRef.current !== null) {
+      window.removeEventListener('focus', focusListenerRef.current);
+      focusListenerRef.current = null;
+    }
+  }, []);
+
+  const loadWorksheetOptions = useCallback(
+    async (nextSheetId: string) => {
+      const worksheetOptions = await getWorksheetOptions(nextSheetId);
+      onSheetLoaded(nextSheetId, worksheetOptions);
+      setWorksheetError('');
+    },
+    [onSheetLoaded],
+  );
+
+  const pollUntilAuthenticated = useCallback(
+    async (attempts: number = 0) => {
+      clearPollTimeout();
+
+      try {
+        const result = await verifyAuthenticationStatus();
+        setAuthenticationStatus(result.authenticated);
+        setSheetId(result.sheetId);
+
+        if (result.authenticated === 'pending') {
+          if (attempts < 10) {
+            pollTimeoutRef.current = window.setTimeout(() => {
+              pollUntilAuthenticated(attempts + 1);
+            }, 2000);
+          } else {
+            setLoading('');
+          }
+          return;
+        }
+
+        if (result.authenticated === 'authenticated') {
+          try {
+            await loadWorksheetOptions(result.sheetId);
+          } catch (error) {
+            setWorksheetError(maybeAxiosError(error));
+          }
+        }
+
+        setLoading('');
+      } catch (error) {
+        setAuthError(maybeAxiosError(error));
+        setLoading('');
+      }
+    },
+    [clearPollTimeout, loadWorksheetOptions],
+  );
 
   /** check if the current session has been authenticated */
   useEffect(() => {
-    patchStepData({ authenticate: { available: false, error: '' } });
-    untilAuthenticated();
-  }, []);
+    setAuthError('');
+    pollUntilAuthenticated();
+
+    return () => {
+      clearFocusListener();
+      clearPollTimeout();
+      clearAuthFallbackTimeout();
+    };
+  }, [clearAuthFallbackTimeout, clearFocusListener, clearPollTimeout, pollUntilAuthenticated]);
 
   // user cancels the flow
   const handleRevoke = async () => {
     setLoading('cancel');
-    await revoke();
-    await getAuthStatus();
-    setLoading('');
+    try {
+      const result = await revokeAuthentication();
+      setAuthenticationStatus(result.authenticated);
+      setSheetId('');
+      setAuthKey(null);
+      setAuthLink('');
+      setAuthError('');
+      setWorksheetError('');
+    } catch (error) {
+      setAuthError(maybeAxiosError(error));
+    } finally {
+      setLoading('');
+    }
   };
 
   const handleCancelFlow = () => {
@@ -74,67 +155,81 @@ export default function GSheetSetup(props: GSheetSetupProps) {
   const handleConnect = async () => {
     if (!file) return;
     if (!sheetId) return;
-    patchStepData({ worksheet: { available: false, error: '' } });
-
     setLoading('connect');
-    const result = await connect(file, sheetId);
-    if (result) {
+    setAuthError('');
+    setWorksheetError('');
+
+    try {
+      const result = await requestConnection(file, sheetId);
       setAuthLink(result.verification_url);
       setAuthKey(result.user_code);
+    } catch (error) {
+      setAuthError(maybeAxiosError(error));
+    } finally {
+      setLoading('');
     }
-    setLoading('');
-  };
-
-  const untilAuthenticated = async (attempts: number = 0) => {
-    const result = await verifyAuth();
-    if (result?.authenticated) {
-      setAuthenticationStatus(result.authenticated);
-      if (result.authenticated !== 'pending') {
-        if (result.authenticated == 'authenticated') {
-          try {
-            const names = await getWorksheetNames(result.sheetId);
-            setWorksheets(names);
-          } catch (error) {
-            const message = maybeAxiosError(error);
-            patchStepData({ worksheet: { available: false, error: message } });
-          }
-        }
-        setLoading('');
-        return;
-      }
-    }
-    if (attempts <= 10) {
-      setTimeout(() => untilAuthenticated(attempts + 1), 2000);
-      return;
-    }
-    setLoading('');
   };
 
   /**
    * Open google auth
    */
-  const handleAuthenticate = async () => {
+  const handleAuthenticate = () => {
     setLoading('authenticate');
+    setAuthError('');
+    clearFocusListener();
+    clearPollTimeout();
+    clearAuthFallbackTimeout();
 
     // open link and schedule a check for when the user focuses again
     openLink(authLink);
-    window.addEventListener(
-      'focus',
-      async () => {
-        untilAuthenticated();
-      },
-      { once: true },
-    );
+    authFallbackTimeoutRef.current = window.setTimeout(() => {
+      if (document.hasFocus()) {
+        setLoading('');
+      }
+    }, 1500);
+
+    function authFocusHandler() {
+      clearAuthFallbackTimeout();
+      clearFocusListener();
+      pollUntilAuthenticated();
+    }
+
+    focusListenerRef.current = authFocusHandler;
+    window.addEventListener('focus', authFocusHandler, { once: true });
   };
 
-  const canConnect = file && sheetId;
+  const handleLoadSheet = async () => {
+    if (!sheetId) return;
+
+    setLoading('load-sheet');
+    setWorksheetError('');
+
+    try {
+      await loadWorksheetOptions(sheetId);
+    } catch (error) {
+      setWorksheetError(maybeAxiosError(error));
+    } finally {
+      setLoading('');
+    }
+  };
+
+  const canConnect = Boolean(file) && Boolean(sheetId);
+  const canLoadSheet = Boolean(sheetId);
   const canAuthenticate = Boolean(authKey) && Boolean(authLink);
   const isLoading = Boolean(loading);
   const isAuthenticated = authenticationStatus === 'authenticated';
   const isAuthenticating = authenticationStatus === 'pending';
+  const statusLabel = isAuthenticated ? 'Connected' : isAuthenticating ? 'Waiting for confirmation' : 'Not connected';
+  const statusClass = isAuthenticated ? style.statusReady : isAuthenticating ? style.statusPending : style.statusIdle;
+  const statusVariant = isAuthenticated ? 'default' : 'warning';
+  const setupMessage = isAuthenticated
+    ? 'Load a spreadsheet by its Google Sheet ID.'
+    : canAuthenticate
+      ? 'Finish the device verification in your browser, then return here.'
+      : 'Upload your client secret and enter the sheet ID you want to access.';
 
   return (
-    <Panel.Section>
+    <Panel.Section className={style.setupShell}>
       <Panel.Title>
         Sync with Google Sheet (experimental)
         {isAuthenticated ? (
@@ -145,24 +240,62 @@ export default function GSheetSetup(props: GSheetSetupProps) {
           <Button onClick={handleCancelFlow}>Go Back</Button>
         )}
       </Panel.Title>
-      <Panel.ListGroup>
-        <Panel.Description>Upload Client Secret provided by Google</Panel.Description>
-        <Panel.Error>{authenticationError}</Panel.Error>
-        <Input fluid type='file' onChange={handleClientSecret} accept='.json' disabled={isLoading || canAuthenticate} />
-      </Panel.ListGroup>
-      <Panel.ListGroup>
+      <div className={style.setupIntro}>
+        <div className={style.setupIntroText}>
+          <p className={style.setupLead}>{statusLabel}</p>
+          <p className={style.setupBody}>{setupMessage}</p>
+        </div>
+        <Tag className={statusClass} variant={statusVariant}>
+          {statusLabel}
+        </Tag>
+      </div>
+      {!isAuthenticated && (
+        <Panel.ListGroup className={style.setupBlock}>
+          <Panel.Description>Upload Client Secret provided by Google</Panel.Description>
+          <Panel.Error>{authError}</Panel.Error>
+          <Input
+            fluid
+            type='file'
+            onChange={handleClientSecret}
+            accept='.json'
+            disabled={isLoading || canAuthenticate}
+          />
+          <div className={style.setupHint}>Use the OAuth client JSON downloaded from your Google Cloud project.</div>
+        </Panel.ListGroup>
+      )}
+      {isAuthenticated && authError && (
+        <Panel.ListGroup className={style.setupBlock}>
+          <Panel.Error>{authError}</Panel.Error>
+        </Panel.ListGroup>
+      )}
+      <Panel.ListGroup className={style.setupBlock}>
         <Panel.Description>Enter ID of sheet to synchronise</Panel.Description>
-        <Panel.Error>{undefined}</Panel.Error>
+        <Panel.Error>{worksheetError}</Panel.Error>
         <Input
           fluid
+          value={sheetId}
           placeholder='Sheet ID'
-          onChange={(event) => setSheetId(event.target.value)}
+          onChange={(event) => {
+            setWorksheetError('');
+            setSheetId(event.target.value);
+          }}
           disabled={isLoading || canAuthenticate}
         />
       </Panel.ListGroup>
-      {!canAuthenticate ? (
-        <Panel.ListGroup>
-          <Panel.InlineElements>
+      {isAuthenticated ? (
+        <Panel.ListGroup className={style.setupBlock}>
+          <Panel.Description>Load the current spreadsheet configuration</Panel.Description>
+          <Panel.InlineElements wrap='wrap' className={style.setupActions}>
+            <Button onClick={handleLoadSheet} disabled={!canLoadSheet || isLoading} loading={loading === 'load-sheet'}>
+              <IoCloudDownloadOutline />
+              Load sheet
+            </Button>
+          </Panel.InlineElements>
+        </Panel.ListGroup>
+      ) : !canAuthenticate ? (
+        <Panel.ListGroup className={style.setupBlock}>
+          <Panel.Description>Generate a Google device code</Panel.Description>
+          <Panel.InlineElements wrap='wrap' className={style.setupActions}>
             <Button onClick={handleConnect} disabled={!canConnect || isLoading} loading={loading === 'connect'}>
               <IoCheckmark />
               Connect
@@ -170,8 +303,9 @@ export default function GSheetSetup(props: GSheetSetupProps) {
           </Panel.InlineElements>
         </Panel.ListGroup>
       ) : (
-        <Panel.ListGroup>
-          <Panel.InlineElements>
+        <Panel.ListGroup className={style.setupBlock}>
+          <Panel.Description>Authenticate this Ontime session with Google</Panel.Description>
+          <Panel.InlineElements wrap='wrap' className={style.setupActions}>
             {isAuthenticating && <span>Authenticating...</span>}
             <CopyTag copyValue={authKey ?? ''} disabled={!canAuthenticate}>
               {authKey ? authKey : 'Upload files to generate Auth Key'}
@@ -181,6 +315,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
               Authenticate
             </Button>
           </Panel.InlineElements>
+          <div className={style.setupHint}>Open the browser prompt, complete the code flow, then come back here.</div>
         </Panel.ListGroup>
       )}
     </Panel.Section>

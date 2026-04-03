@@ -30,6 +30,12 @@ export const validateRequestConnection = [
 
 export const validateSheetId = [param('sheetId').isString().trim().notEmpty(), requestValidationFunction];
 
+export const validateWorksheetMetadata = [
+  param('sheetId').isString().trim().notEmpty(),
+  body('worksheet').isString().trim().notEmpty(),
+  requestValidationFunction,
+];
+
 export const validateSheetOptions = [
   param('sheetId').isString().trim().notEmpty(),
   body('options')

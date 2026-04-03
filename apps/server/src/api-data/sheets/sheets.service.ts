@@ -20,12 +20,14 @@ import {
   isOntimeEvent,
   isOntimeMilestone,
 } from 'ontime-types';
+import type { SpreadsheetWorksheetMetadata } from 'ontime-types';
 import { ImportMap, getErrorMessage } from 'ontime-utils';
 
 import { logger } from '../../classes/Logger.js';
 import { consoleSubdued } from '../../utils/console.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import { parseExcel } from '../excel/excel.parser.js';
+import { getWorksheetMetadataFromRows } from '../excel/spreadsheetMetadata.utils.js';
 import { getCurrentRundown, getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
 import { parseRundowns } from '../rundown/rundown.parser.js';
 import { catchCommonImportXlsxError } from './googleApi.utils.js';
@@ -213,7 +215,7 @@ function verifyConnection(
 
 export function hasAuth(): { authenticated: AuthenticationStatus; sheetId: string } {
   if (!currentSheetId) {
-    throw new Error('No sheet ID');
+    return { authenticated: 'not_authenticated', sheetId: '' };
   }
   if (cleanupTimeout) {
     return { authenticated: 'pending', sheetId: currentSheetId };
@@ -221,10 +223,10 @@ export function hasAuth(): { authenticated: AuthenticationStatus; sheetId: strin
   return { authenticated: currentAuthClient ? 'authenticated' : 'not_authenticated', sheetId: currentSheetId };
 }
 
-async function verifySheet(
-  sheetId = currentSheetId,
-  authClient = currentAuthClient,
-): Promise<{ worksheetOptions: string[] }> {
+/**
+ * Validates that a spreadsheet exists and returns its worksheet titles without reading cell data.
+ */
+async function verifySheet(sheetId = currentSheetId, authClient = currentAuthClient): Promise<string[]> {
   if (!sheetId || !authClient) {
     throw new Error('Missing sheet ID or authentication');
   }
@@ -245,7 +247,7 @@ async function verifySheet(
     if (worksheets.length === 0) {
       throw new Error('No worksheets found');
     }
-    return { worksheetOptions: worksheets };
+    return worksheets;
   } catch (error) {
     // attempt to catch errors caused by importing xlsx
     catchCommonImportXlsxError(error);
@@ -281,18 +283,55 @@ export async function handleInitialConnection(
 }
 
 /**
- * Allow calling verification for sheetId
- * @returns
+ * Returns the available worksheet titles. Metadata is loaded lazily per worksheet.
  */
-export async function getWorksheetOptions(sheetId: string): ReturnType<typeof verifySheet> {
+export async function getWorksheetOptions(
+  sheetId: string,
+): Promise<{ worksheets: string[]; metadata: SpreadsheetWorksheetMetadata | null }> {
   if (!currentAuthClient) {
     throw new Error('Not authenticated');
   }
   currentSheetId = sheetId;
 
-  return verifySheet(sheetId);
+  const worksheets = await verifySheet(sheetId);
+
+  return {
+    worksheets,
+    metadata: null,
+  };
 }
 
+/**
+ * Reads worksheet rows from Google Sheets and derives import metadata from the detected header row.
+ */
+export async function getWorksheetMetadata(sheetId: string, worksheet: string) {
+  if (!currentAuthClient) {
+    throw new Error('Not authenticated');
+  }
+
+  const { range } = await verifyWorksheet(sheetId, worksheet);
+
+  const googleResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.values.get({
+    spreadsheetId: sheetId,
+    valueRenderOption: 'FORMATTED_VALUE',
+    majorDimension: 'ROWS',
+    range,
+  });
+
+  if (googleResponse.status !== 200) {
+    throw new Error(`Sheet read failed: ${googleResponse.statusText}`);
+  }
+
+  if (!googleResponse.data.values) {
+    throw new Error('Sheet: No data found in the worksheet');
+  }
+
+  return getWorksheetMetadataFromRows(worksheet, googleResponse.data.values);
+}
+
+/**
+ * Validates that a worksheet exists and computes the A1 range needed to read its current grid.
+ */
 async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ worksheetId: number; range: string }> {
   if (!currentAuthClient) {
     throw new Error('Not authenticated');
