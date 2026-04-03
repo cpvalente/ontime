@@ -50,9 +50,12 @@ type CompleteEntry<T> =
  */
 export function generateEvent<
   T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeGroup> | Partial<OntimeMilestone>,
->(rundown: Rundown, eventData: T, afterId: EntryId | null): CompleteEntry<T> {
+>(rundown: Rundown, eventData: T, afterId: EntryId | null, parent?: EntryId): CompleteEntry<T> {
   if (isOntimeEvent(eventData)) {
-    return createEvent(eventData, getCueCandidate(rundown.entries, rundown.order, afterId)) as CompleteEntry<T>;
+    return createEvent(
+      eventData,
+      getCueCandidate(rundown.entries, rundown.flatOrder, afterId, parent),
+    ) as CompleteEntry<T>;
   }
 
   const id = eventData.id || getUniqueId(rundown);
@@ -469,4 +472,17 @@ export function duplicateRundown(rundown: Rundown, newTitle: string): Rundown {
   newRundown.revision = 0;
 
   return newRundown;
+}
+
+export function getIntegerAndFraction(value: string) {
+  let [integerStr, factionStr] = value.split('.', 2);
+  const integer = parseInt(integerStr);
+  const precision = (factionStr ?? '').length;
+  const faction = precision === 0 ? 0 : parseInt(factionStr);
+  if (isNaN(integer) || isNaN(faction)) throw new Error('input can not be converted to a number');
+  return {
+    integer,
+    faction,
+    precision,
+  };
 }

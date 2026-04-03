@@ -1,0 +1,22 @@
+@use '../../../theme/ontimeColours' as *;
+@use '../../../theme/ontimeStyles' as *;
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-inline: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.label {
+  font-size: $inner-section-text-size;
+  color: $label-gray;
+}
+
+.error {
+  padding-inline: 0.5rem;
+  font-size: $inner-section-text-size;
+  color: $error-red;
+  margin: 0;
+}

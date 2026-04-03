@@ -33,7 +33,7 @@ import {
   updateBackgroundRundown,
 } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
-import { generateEvent, hasChanges } from './rundown.utils.js';
+import { generateEvent, getIntegerAndFraction, hasChanges } from './rundown.utils.js';
 
 /**
  * creates a new entry with given data
@@ -61,7 +61,7 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
   const afterId = getInsertAfterId(rundown, parent, eventData?.after, eventData?.before);
 
   // generate a fully formed entry from the patch
-  const newEntry = generateEvent(rundown, eventData, afterId);
+  const newEntry = generateEvent(rundown, eventData, afterId, parent?.id);
 
   // make mutations to rundown
   rundownMutation.add(rundown, newEntry, afterId, parent);
@@ -140,7 +140,7 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
 
   let batchDidInvalidate = false;
   const changedIds: EntryId[] = [];
-  const patchedEntries: OntimeEntry[] = [];
+
   for (let i = 0; i < ids.length; i++) {
     const currentId = ids[i];
     const currentEntry = rundown.entries[currentId];
@@ -165,10 +165,9 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
       continue;
     }
 
-    const { entry, didInvalidate } = rundownMutation.edit(rundown, { ...patch, id: currentId });
+    const { didInvalidate } = rundownMutation.edit(rundown, { ...patch, id: currentId });
 
     changedIds.push(currentId);
-    patchedEntries.push(entry);
 
     if (didInvalidate) {
       batchDidInvalidate = true;
@@ -265,6 +264,50 @@ export async function reorderEntry(entryId: EntryId, destinationId: EntryId, ord
 
     // notify timer and external services of change
     notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+  });
+
+  return rundownResult;
+}
+
+/**
+ * @throws if an id is missing or not an Ontime event
+ */
+export async function renumberEntries(
+  ids: EntryId[],
+  prefix: string,
+  start: string,
+  increment: string,
+): Promise<Rundown> {
+  const startNumber = getIntegerAndFraction(start);
+  const incrementNumber = getIntegerAndFraction(increment);
+  const maxPrecision = Math.max(incrementNumber.precision, startNumber.precision);
+
+  // if the prefix doesn't already include a separator or is empty, then insert a separator
+  if (prefix !== '' && !prefix.endsWith('-') && !prefix.endsWith(' ')) prefix += '-';
+
+  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+
+  for (let i = 0; i < ids.length; i++) {
+    const currentId = ids[i];
+    const currentEntry = rundown.entries[currentId];
+    if (!currentEntry || !isOntimeEvent(currentEntry)) throw new Error('A given id was not an event');
+
+    const integer = String(startNumber.integer + incrementNumber.integer * i);
+    const fraction = maxPrecision
+      ? '.' + String(startNumber.faction + incrementNumber.faction * i).padStart(maxPrecision, '0')
+      : '';
+
+    rundownMutation.edit(rundown, {
+      id: currentId,
+      cue: `${prefix}${integer}${fraction}`,
+    });
+  }
+
+  const { rundown: rundownResult, rundownMetadata, revision } = commit(false);
+
+  setImmediate(() => {
+    updateRuntimeOnChange(rundownMetadata);
+    notifyChanges(rundownMetadata, revision, { timer: ids, external: true });
   });
 
   return rundownResult;
