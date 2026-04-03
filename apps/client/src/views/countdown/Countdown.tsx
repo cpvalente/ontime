@@ -7,7 +7,7 @@ import Empty from '../../common/components/state/Empty';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
-import { useClock } from '../../common/hooks/useSocket';
+import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
@@ -140,7 +140,7 @@ function CountdownContents({ playableEvents, subscriptions, goToEditMode }: Coun
 
 function CountdownClock() {
   const { getLocalizedString } = useTranslation();
-  const clock = useClock();
+  const clock = useAutoTickingClock();
 
   // gather timer data
   const formattedClock = formatTime(clock);

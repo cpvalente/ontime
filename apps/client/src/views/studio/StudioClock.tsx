@@ -1,5 +1,6 @@
 import { Playback } from 'ontime-types';
 
+import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
 import { useIsSmallScreen } from '../../common/hooks/useIsSmallScreen';
 import { useStudioClockSocket } from '../../common/hooks/useSocket';
 import { cx } from '../../common/utils/styleUtils';
@@ -18,7 +19,8 @@ interface StudioClockProps {
 
 export default function StudioClock({ hideCards }: StudioClockProps) {
   const isSmallScreen = useIsSmallScreen();
-  const { clock, playback } = useStudioClockSocket();
+  const clock = useAutoTickingClock();
+  const { playback } = useStudioClockSocket();
   const onAir = playback !== Playback.Stop;
 
   // if we are on mobile and have to show the cards

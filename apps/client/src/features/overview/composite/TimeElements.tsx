@@ -13,8 +13,8 @@ import {
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useEntry } from '../../../common/hooks-query/useRundown';
+import { useAutoTickingClock } from '../../../common/hooks/useAutoTickingClock';
 import {
-  useClock,
   useCurrentGroupId,
   useFlagTimerOverView,
   useGroupTimerOverView,
@@ -342,7 +342,7 @@ export function OffsetOverview() {
 }
 
 export function ClockOverview({ shouldFormat, className }: OverviewTimeElementsProps & { className?: string }) {
-  const clock = useClock();
+  const clock = useAutoTickingClock();
   const formattedClock = shouldFormat ? formatTime(clock) : millisToString(clock);
 
   return (
