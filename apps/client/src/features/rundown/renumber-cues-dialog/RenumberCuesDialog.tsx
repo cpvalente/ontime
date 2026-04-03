@@ -54,7 +54,7 @@ export default function RenumberCuesDialog() {
       bodyElements={
         <form id='renumber-cues-form' onSubmit={handleSubmit(onSubmit)} className={style.fields}>
           <div className={style.field}>
-            <label>
+            <label className={style.label}>
               Prefix
               <Input
                 {...register('prefix')}
@@ -68,7 +68,7 @@ export default function RenumberCuesDialog() {
             </label>
           </div>
           <div className={style.field}>
-            <label>
+            <label className={style.label}>
               Start
               <Input
                 {...register('start')}
@@ -83,7 +83,7 @@ export default function RenumberCuesDialog() {
             </label>
           </div>
           <div className={style.field}>
-            <label>
+            <label className={style.label}>
               Increment
               <Input
                 {...register('increment')}
