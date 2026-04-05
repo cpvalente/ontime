@@ -1,7 +1,8 @@
 import { millisToString, parseUserTime } from 'ontime-utils';
-import { FocusEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { FocusEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { cx } from '../../../utils/styleUtils';
+import { formatTime, getFormatFromSettings } from '../../../utils/time';
 import Input from '../input/Input';
 
 import style from './TimeInput.module.scss';
@@ -16,6 +17,7 @@ interface TimeInputProps<T extends string> {
   align?: 'left' | 'center';
   delayed?: boolean;
   className?: string;
+  shouldFormat?: boolean;
 }
 
 export default function TimeInput<T extends string>({
@@ -28,10 +30,12 @@ export default function TimeInput<T extends string>({
   align = 'center',
   delayed,
   className,
+  shouldFormat,
 }: TimeInputProps<T>) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
   const ignoreChange = useRef(false);
+  const formatAs12Hr = useMemo(() => shouldFormat && getFormatFromSettings() === '12', [shouldFormat]);
 
   /**
    * @description Resets input value to given
@@ -39,10 +43,12 @@ export default function TimeInput<T extends string>({
   const resetValue = useCallback(() => {
     if (typeof time !== 'number' || isNaN(time)) {
       setValue('00:00:00');
+    } else if (shouldFormat) {
+      setValue(formatTime(time));
     } else {
       setValue(millisToString(time));
     }
-  }, [time]);
+  }, [time, shouldFormat]);
 
   /**
    * @description Selects input text on focus
@@ -139,9 +145,10 @@ export default function TimeInput<T extends string>({
       onBlur={onBlurHandler}
       onKeyDown={onKeyDownHandler}
       value={value}
-      maxLength={8}
+      maxLength={formatAs12Hr ? 11 : 8}
       style={{
         textAlign: align,
+        width: formatAs12Hr ? '7.5em' : '6.5em',
       }}
     />
   );

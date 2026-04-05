@@ -94,7 +94,7 @@ export default function GeneralSettings() {
           {submitError && <Panel.Error>{submitError}</Panel.Error>}
           <Panel.Divider />
           <Panel.Section>
-            <Info>Changes to the time format and views language do not affect the editor view</Info>
+            <Info>Changes to the views language does not affect the editor view</Info>
             <Panel.Loader isLoading={isLoading} />
             <Panel.ListGroup>
               <Panel.ListItem>

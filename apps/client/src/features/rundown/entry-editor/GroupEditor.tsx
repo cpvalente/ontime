@@ -8,7 +8,8 @@ import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import { getOffsetState } from '../../../common/utils/offset';
-import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
+import { cx, enDash } from '../../../common/utils/styleUtils';
+import { formatTime } from '../../../common/utils/time';
 import TextLikeInput from '../../../views/cuesheet/cuesheet-table/cuesheet-table-elements/TextLikeInput';
 import EntryEditorCustomFields from './composite/EventEditorCustomFields';
 import EventTextArea from './composite/EventTextArea';
@@ -60,13 +61,13 @@ export default function GroupEditor({ group }: GroupEditorProps) {
           <div>
             <Editor.Label>First event start</Editor.Label>
             <TextLikeInput className={style.textLikeInput} disabled>
-              {millisToString(group.timeStart, { fallback: timerPlaceholder })}
+              {formatTime(group.timeStart)}
             </TextLikeInput>
           </div>
           <div>
             <Editor.Label>Last event end</Editor.Label>
             <TextLikeInput className={style.textLikeInput} disabled>
-              {millisToString(group.timeEnd, { fallback: timerPlaceholder })}
+              {formatTime(group.timeEnd)}
             </TextLikeInput>
           </div>
           <div>
