@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # This step is only needed to setup the permissions to update npm as pnpm will setup the correct node version
       - uses: actions/setup-node@v6
