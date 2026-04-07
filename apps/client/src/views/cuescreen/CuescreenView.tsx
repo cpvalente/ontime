@@ -17,7 +17,7 @@ interface CuescreenViewProps {
 /** Formats milliseconds as mm:ss with no hour component (e.g. 90 minutes → 90:00). */
 function formatMs(ms: number | null): string {
   if (ms === null) return '0:00';
-  const totalSeconds = Math.floor(Math.abs(ms) / 1000);
+  const totalSeconds = ms < 0 ? Math.ceil(Math.abs(ms) / 1000) : Math.floor(Math.abs(ms) / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   const sign = ms < 0 ? '-' : '';
@@ -52,7 +52,7 @@ export default function CuescreenView({ time, auxTimer, eventNow, eventNext }: C
       if (!titleEl || !eventEl) return;
 
       // Reset to max font size (matches label size) and shrink to fit single line
-      const maxFontSize = 75;
+      const maxFontSize = 90;
       const minFontSize = 24;
       let fontSize = maxFontSize;
       titleEl.style.fontSize = `${fontSize}px`;
