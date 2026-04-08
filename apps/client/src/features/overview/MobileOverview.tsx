@@ -1,10 +1,11 @@
 import { memo, PropsWithChildren, ReactNode, useMemo } from 'react';
-import { millisToString } from 'ontime-utils';
+import { millisToString, removeLeadingZero } from 'ontime-utils';
 import { Box } from '@chakra-ui/react';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { useIsOnline, useRuntimeOverview, useRuntimePlaybackOverview, useTimer } from '../../common/hooks/useSocket';
 import useProjectData from '../../common/hooks-query/useProjectData';
+import { useRuntimeStore } from '../../common/stores/runtime';
 import { cx, enDash, timerPlaceholder } from '../../common/utils/styleUtils';
 
 import { TimeColumn, TimeRow } from './composite/TimeLayout';
@@ -45,6 +46,7 @@ function _MobileEditorOverview({ children }: PropsWithChildren) {
             muted={maybeExpectedEnd === null}
           />
         </div>
+        <QlabTimerOverview />
       </Box>
     </OverviewWrapper>
   );
@@ -147,4 +149,13 @@ function RuntimeOverview() {
       <TimeColumn label='Time now' value={formatedTime(clock)} />
     </>
   );
+}
+
+function QlabTimerOverview() {
+  const qlab = useRuntimeStore((state) => state.qlab);
+
+  if (!qlab.enabled) return null;
+
+  const display = removeLeadingZero(millisToString(qlab.remaining));
+  return <TimeColumn label='Qlab timer' value={display} />;
 }

@@ -44,6 +44,7 @@ const staticOptions = [
     secondary: [
       { id: 'sources__xlsx', label: 'Import spreadsheet' },
       { id: 'sources__gsheet', label: 'Sync with Google Sheet' },
+      { id: 'sources__gsheet_import', label: 'Import from sheet' },
     ],
     split: true,
   },
@@ -54,6 +55,13 @@ const staticOptions = [
       { id: 'automation__settings', label: 'Automation settings' },
       { id: 'automation__automations', label: 'Manage automations' },
       { id: 'automation__triggers', label: 'Manage triggers' },
+    ],
+  },
+  {
+    id: 'qlab',
+    label: 'QLab',
+    secondary: [
+      { id: 'qlab__settings', label: 'QLab settings' },
     ],
   },
   {

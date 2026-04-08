@@ -1,4 +1,4 @@
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { IoCloudOutline, IoDownloadOutline } from 'react-icons/io5';
 import { Button, Input } from '@chakra-ui/react';
 import { getErrorMessage, ImportMap } from 'ontime-utils';
@@ -22,7 +22,11 @@ import { useSheetStore } from './useSheetStore';
 
 import style from './SourcesPanel.module.scss';
 
-export default function SourcesPanel() {
+interface SourcesPanelProps {
+  location?: string;
+}
+
+export default function SourcesPanel({ location }: SourcesPanelProps) {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet' | 'finished'>('none');
   const [error, setError] = useState('');
   const [hasFile, setHasFile] = useState<'none' | 'loading' | 'done'>('none');
@@ -97,6 +101,13 @@ export default function SourcesPanel() {
     }
     setImportFlow('gsheet');
   };
+
+  useEffect(() => {
+    if (location === 'gsheet_import' && importFlow === 'none') {
+      openGSheetFlow();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
 
   const cancelGSheetFlow = () => {
     resetFlow();
