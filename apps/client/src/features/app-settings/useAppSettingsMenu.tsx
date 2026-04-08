@@ -1,7 +1,5 @@
 import { useMemo } from 'react';
 
-import useAppVersion from '../../common/hooks-query/useAppVersion';
-
 export type SettingsOption = {
   id: string;
   label: string;
@@ -98,15 +96,9 @@ const staticOptions = [
 export type SettingsOptionId = (typeof staticOptions)[number]['id'];
 
 export function useAppSettingsMenu() {
-  const { data } = useAppVersion();
-
   const options: Readonly<SettingsOption[]> = useMemo(
-    () =>
-      staticOptions.map((option) => ({
-        ...option,
-        highlight: option.id === 'about' && data.hasUpdates ? 'New version available' : undefined,
-      })),
-    [data],
+    () => staticOptions.map((option) => ({ ...option })),
+    [],
   );
 
   return { options };

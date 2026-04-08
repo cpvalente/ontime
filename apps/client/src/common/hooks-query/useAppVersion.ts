@@ -23,7 +23,7 @@ export default function useAppVersion() {
     refetchOnReconnect: false,
     retry: false,
     staleTime: dayInMs,
-    enabled: isLocalhost,
+    enabled: false,
   });
 
   const hasUpdates = fetchData?.version && !fetchData.version.includes(version);
