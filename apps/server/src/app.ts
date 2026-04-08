@@ -1,4 +1,4 @@
-import { LogOrigin, Playback, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { LogOrigin, Playback, qlabStatePlaceholder, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -39,6 +39,7 @@ import { initRundown } from './services/rundown-service/RundownService.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
 import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
 import { oscServer } from './adapters/OscAdapter.js';
+import { qlabService } from './services/qlab-service/QlabService.js';
 import { init as initSheetService } from './services/sheet-service/SheetService.js';
 
 // Utilities
@@ -196,6 +197,7 @@ export const startServer = async (
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     },
+    qlab: qlabStatePlaceholder,
     ping: -1,
   });
 
@@ -240,6 +242,9 @@ export const startIntegrations = async () => {
   } else {
     logger.info(LogOrigin.Server, 'Skipping OSC integration');
   }
+
+  const qlabSettings = getDataProvider().getQlab();
+  qlabService.init(qlabSettings);
 };
 
 /**
@@ -261,6 +266,7 @@ export const shutdown = async (exitCode = 0) => {
 
   expressServer?.close();
   runtimeService.shutdown();
+  qlabService.shutdown();
   logger.shutdown();
   oscServer.shutdown();
   socket.shutdown();

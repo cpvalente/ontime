@@ -4,6 +4,18 @@ import { OffsetMode } from './Runtime.type.js';
 import type { RuntimeStore } from './RuntimeStore.type.js';
 import { TimerPhase } from './TimerState.type.js';
 
+export const qlabStatePlaceholder: RuntimeStore['qlab'] = {
+  enabled: false,
+  connected: false,
+  cueName: '',
+  cueNumber: '',
+  duration: 0,
+  elapsed: 0,
+  remaining: 0,
+  isPaused: false,
+  phase: TimerPhase.None,
+};
+
 export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
   clock: 0,
   timer: {
@@ -55,5 +67,6 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
     duration: 0,
     playback: SimplePlayback.Stop,
   },
+  qlab: qlabStatePlaceholder,
   ping: -1,
 };

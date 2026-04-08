@@ -1,0 +1,135 @@
+@use '../../theme/viewerDefs' as *;
+@use '../../theme/ontimeColours' as *;
+
+.qlab-timer {
+  margin: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  width: 100%;
+  height: 100vh;
+  background: var(--background-color-override, $viewer-background-color);
+  color: var(--color-override, $viewer-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vh;
+
+  .status {
+    font-size: clamp(12px, 1.5vw, 20px);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    opacity: 0.6;
+
+    &--connected {
+      color: $green-500;
+      opacity: 1;
+    }
+
+    &--disconnected {
+      color: $gray-500;
+    }
+  }
+
+  .cue-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5vh;
+
+    .cue-number {
+      font-size: clamp(14px, 2vw, 28px);
+      font-family: var(--font-family-override, $viewer-font-family);
+      opacity: 0.7;
+      letter-spacing: 0.1em;
+    }
+
+    .cue-name {
+      font-size: clamp(18px, 3vw, 48px);
+      font-family: var(--font-family-override, $viewer-font-family);
+      font-weight: 600;
+      text-align: center;
+      max-width: 90vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .countdown {
+    font-family: var(--font-family-bold-override, $timer-bold-font-family);
+    font-size: clamp(48px, 20vw, 300px);
+    letter-spacing: 0.05em;
+    transition: color 0.3s ease;
+
+    &--default {
+      color: var(--color-override, $viewer-color);
+    }
+
+    &--warning {
+      color: $orange-600;
+    }
+
+    &--danger {
+      color: $red-500;
+    }
+
+    &--overtime {
+      color: $timer-finished-color;
+    }
+
+    &--paused {
+      opacity: $viewer-opacity-disabled;
+    }
+  }
+
+  .progress-bar {
+    width: 80vw;
+    height: clamp(4px, 0.5vh, 8px);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.25s linear, background-color 0.3s ease;
+
+      &--default {
+        background-color: var(--color-override, $viewer-color);
+      }
+
+      &--warning {
+        background-color: $orange-600;
+      }
+
+      &--danger {
+        background-color: $red-500;
+      }
+
+      &--overtime {
+        background-color: $timer-finished-color;
+      }
+    }
+  }
+
+  .pause-indicator {
+    font-size: clamp(14px, 2vw, 24px);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: $orange-600;
+    animation: blink 1s step-end infinite;
+  }
+
+  .idle {
+    font-size: clamp(18px, 3vw, 36px);
+    opacity: 0.4;
+    font-family: var(--font-family-override, $viewer-font-family);
+  }
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}

@@ -7,6 +7,7 @@ import {
   CustomFields,
   URLPreset,
   AutomationSettings,
+  QlabSettings,
 } from 'ontime-types';
 
 import type { Low } from 'lowdb';
@@ -53,6 +54,8 @@ export function getDataProvider() {
     setViewSettings,
     getAutomation,
     setAutomation,
+    getQlab,
+    setQlab,
     getRundown,
     mergeIntoData,
   };
@@ -128,6 +131,16 @@ async function setAutomation(newData: AutomationSettings): ReadonlyPromise<Autom
   return db.data.automation;
 }
 
+function getQlab(): Readonly<QlabSettings> {
+  return db.data.qlab;
+}
+
+async function setQlab(newData: QlabSettings): ReadonlyPromise<QlabSettings> {
+  db.data.qlab = { ...newData };
+  await persist();
+  return db.data.qlab;
+}
+
 function getRundown(): Readonly<OntimeRundown> {
   return db.data.rundown;
 }
@@ -141,6 +154,7 @@ async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<D
   db.data.urlPresets = mergedData.urlPresets;
   db.data.customFields = mergedData.customFields;
   db.data.rundown = mergedData.rundown;
+  db.data.qlab = mergedData.qlab;
 
   await persist();
   return db.data;

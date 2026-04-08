@@ -1,4 +1,5 @@
 import type { OntimeEvent } from '../core/OntimeEvent.type.js';
+import type { QlabState } from '../core/Qlab.type.js';
 import type { SimpleTimerState } from './AuxTimer.type.js';
 import type { CurrentBlockState } from './CurrentBlockState.type.js';
 import type { MessageState } from './MessageControl.type.js';
@@ -24,6 +25,9 @@ export type RuntimeStore = {
 
   // extra timers
   auxtimer1: SimpleTimerState;
+
+  // external integrations
+  qlab: QlabState;
 
   // utils
   ping: number;

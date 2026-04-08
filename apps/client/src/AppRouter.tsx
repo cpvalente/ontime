@@ -35,6 +35,7 @@ const Public = React.lazy(() => import('./views/public/Public'));
 const Lower = React.lazy(() => import('./features/viewers/lower-thirds/LowerThird'));
 const StudioClock = React.lazy(() => import('./features/viewers/studio/StudioClock'));
 const ProjectInfo = React.lazy(() => import('./views/project-info/ProjectInfo'));
+const QlabTimerView = React.lazy(() => import('./views/qlab/QlabTimer'));
 
 const STimer = withPreset(withData(TimerView));
 const SCuescreen = withPreset(withData(CuescreenView));
@@ -162,6 +163,14 @@ export default function AppRouter() {
           element={
             <ViewLoader>
               <SCuescreen />
+            </ViewLoader>
+          }
+        />
+        <Route
+          path='/qlab'
+          element={
+            <ViewLoader>
+              <QlabTimerView />
             </ViewLoader>
           }
         />

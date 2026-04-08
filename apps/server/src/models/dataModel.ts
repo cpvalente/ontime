@@ -38,4 +38,16 @@ export const dbModel: DatabaseModel = {
     triggers: [],
     automations: {},
   },
+  qlab: {
+    enabled: false,
+    host: '127.0.0.1',
+    port: 53000,
+    listenPort: 53001,
+    filterByColor: null,
+    filterByType: null,
+    filterByCueNumber: null,
+    warningThreshold: 30000,
+    dangerThreshold: 10000,
+    timeout: 3000,
+  },
 };

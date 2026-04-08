@@ -137,6 +137,9 @@ const quickAliases: AliasesDefinition = {
     cb: (value: string) => formatDisplayFromString(value, true),
   },
   startedAt: { key: 'timer.startedAt', cb: (value: string) => formatDisplayFromString(value) },
+  qlabTimer: { key: 'qlab.remaining', cb: (value: string) => formatDisplayFromString(value, true) },
+  qlabDuration: { key: 'qlab.duration', cb: (value: string) => formatDisplayFromString(value, true) },
+  qlabElapsed: { key: 'qlab.elapsed', cb: (value: string) => formatDisplayFromString(value, true) },
 };
 
 /**

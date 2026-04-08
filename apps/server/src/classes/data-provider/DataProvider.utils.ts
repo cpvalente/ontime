@@ -12,6 +12,7 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
     urlPresets = existing.urlPresets,
     customFields = existing.customFields,
     automation = existing.automation,
+    qlab = existing.qlab,
   } = newData;
 
   return {
@@ -23,5 +24,6 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
     urlPresets: urlPresets ?? existing.urlPresets,
     customFields: customFields ?? existing.customFields,
     automation: { ...existing.automation, ...automation },
+    qlab: { ...existing.qlab, ...qlab },
   };
 }

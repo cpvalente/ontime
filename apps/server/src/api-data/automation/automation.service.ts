@@ -12,6 +12,7 @@ import { getPropertyFromPath } from 'ontime-utils';
 
 import { logger } from '../../classes/Logger.js';
 import { getState, type RuntimeState } from '../../stores/runtimeState.js';
+import { eventStore } from '../../stores/EventStore.js';
 import { isOntimeCloud } from '../../externals.js';
 
 import { emitOSC } from './clients/osc.client.js';
@@ -126,7 +127,10 @@ export function testConditions(
  * Returns a boolean indicating whether a message was sent
  */
 function send(output: AutomationOutput[], state?: RuntimeState) {
-  const stateSnapshot = state ?? getState();
+  const baseState = state ?? getState();
+  // merge qlab state so it's available as {{qlab.remaining}}, {{qlab.cueName}}, etc.
+  const qlabState = eventStore.get('qlab');
+  const stateSnapshot = qlabState ? { ...baseState, qlab: qlabState } : baseState;
   output.forEach((payload) => {
     if (isOSCOutput(payload) && !isOntimeCloud) {
       emitOSC(payload, stateSnapshot);

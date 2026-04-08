@@ -23,6 +23,7 @@ import {
 } from 'ontime-types';
 
 import { parseAutomationSettings } from '../api-data/automation/automation.parser.js';
+import { parseQlabSettings } from '../api-data/qlab/qlab.parser.js';
 import { logger } from '../classes/Logger.js';
 import { event as eventDef } from '../models/eventsDefinition.js';
 
@@ -336,6 +337,7 @@ export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): { data: Da
     urlPresets: parseUrlPresets(jsonData, makeEmitError('URL Presets')),
     customFields,
     automation: parseAutomationSettings(jsonData),
+    qlab: parseQlabSettings(jsonData),
   };
 
   return { data, errors };

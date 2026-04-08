@@ -205,6 +205,11 @@ export const connectSocket = () => {
           updateDevTools({ auxtimer1: payload });
           break;
         }
+        case 'ontime-qlab': {
+          addToBatchUpdates('qlab', payload);
+          updateDevTools({ qlab: payload });
+          break;
+        }
         case 'ontime-refetch': {
           // the refetch message signals that the rundown has changed in the server side
           const { reload, target } = payload;

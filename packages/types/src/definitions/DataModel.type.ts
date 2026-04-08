@@ -3,6 +3,7 @@ import type {
   CustomFields,
   OntimeRundown,
   ProjectData,
+  QlabSettings,
   Settings,
   URLPreset,
   ViewSettings,
@@ -16,4 +17,5 @@ export type DatabaseModel = {
   urlPresets: URLPreset[];
   customFields: CustomFields;
   automation: AutomationSettings;
+  qlab: QlabSettings;
 };

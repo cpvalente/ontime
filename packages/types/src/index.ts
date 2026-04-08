@@ -41,6 +41,9 @@ export type { ProjectData } from './definitions/core/ProjectData.type.js';
 // ---> Settings
 export type { Settings } from './definitions/core/Settings.type.js';
 
+// ---> QLab
+export type { QlabState, QlabSettings } from './definitions/core/Qlab.type.js';
+
 // ---> Views
 export type { ViewSettings } from './definitions/core/Views.type.js';
 export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
@@ -89,7 +92,7 @@ export type { TimerMessage, MessageState, SecondarySource } from './definitions/
 export type { Runtime } from './definitions/runtime/Runtime.type.js';
 export { OffsetMode } from './definitions/runtime/Runtime.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
-export { runtimeStorePlaceholder } from './definitions/runtime/RuntimeStore.js';
+export { runtimeStorePlaceholder, qlabStatePlaceholder } from './definitions/runtime/RuntimeStore.js';
 export { type TimerState, TimerPhase } from './definitions/runtime/TimerState.type.js';
 export type { CurrentBlockState } from './definitions/runtime/CurrentBlockState.type.js';
 
