@@ -3,6 +3,7 @@ import { OntimeEvent, SimpleTimerState } from 'ontime-types';
 
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
+import { useRuntimeStore } from '../../common/stores/runtime';
 import { formatTime } from '../../common/utils/time';
 
 import './CuescreenView.scss';
@@ -26,6 +27,8 @@ function formatMs(ms: number | null): string {
 
 export default function CuescreenView({ time, auxTimer, eventNow, eventNext }: CuescreenViewProps) {
   useWindowTitle('Cuescreen');
+
+  const qlab = useRuntimeStore((state) => state.qlab);
 
   useEffect(() => {
     document.body.setAttribute('data-view', 'cuescreen');
@@ -101,6 +104,11 @@ export default function CuescreenView({ time, auxTimer, eventNow, eventNext }: C
           </span>
         </div>
       </div>
+      {qlab.enabled && (
+        <div className='cuescreen__qlab-timer'>
+          {formatMs(qlab.remaining)}
+        </div>
+      )}
     </div>
   );
 }

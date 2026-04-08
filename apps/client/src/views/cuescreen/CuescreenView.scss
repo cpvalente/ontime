@@ -48,13 +48,25 @@ body[data-view='cuescreen'] {
   }
 
   &__aux-timer {
-    font-size: 145px;
+    font-size: 140px;
     font-weight: bold;
     color: orange;
     text-align: right;
-    margin-right: 40px;
+    margin-right: 20px;
     flex-grow: 1;
     margin-left: auto;
+    position: relative;
+    top: -5px;
+  }
+
+  &__qlab-timer {
+    position: absolute;
+    top: 105px;
+    right: 70px;
+    font-size: 130px;
+    font-weight: bold;
+    color: white;
+    text-align: right;
   }
 
   &__clock {
@@ -62,14 +74,14 @@ body[data-view='cuescreen'] {
     font-weight: bold;
     color: white;
     text-align: left;
-    margin-left: 25px;
+    margin-left: 20px;
     flex-grow: 1;
   }
 
   &__event-container {
     position: absolute;
     top: 125px;
-    left: 70px;
+    left: 60px;
     width: 1450px;
     display: flex;
     flex-direction: column;
