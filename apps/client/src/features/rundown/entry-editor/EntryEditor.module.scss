@@ -104,6 +104,7 @@
 
 /* approximating the style of a disabled input */
 .textLikeInput {
+  color: $gray-200;
   background: transparent;
   justify-content: start;
   width: 7.5em;
