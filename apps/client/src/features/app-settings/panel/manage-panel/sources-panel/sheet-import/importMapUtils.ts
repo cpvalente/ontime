@@ -127,26 +127,26 @@ function isPersistedFormValues(obj: unknown): obj is ImportFormValues {
   );
 }
 
-export function getPersistedImportState(sourceKey: string): ImportFormValues {
+export function getPersistedImportState(sourceKey: string): { values: ImportFormValues; isPersisted: boolean } {
   const storageKey = getImportMapKey(sourceKey);
   try {
     const raw = localStorage.getItem(storageKey);
     if (!raw) {
-      return createDefaultFormValues();
+      return { values: createDefaultFormValues(), isPersisted: false };
     }
 
     const parsed: unknown = JSON.parse(raw);
     if (isPersistedFormValues(parsed)) {
-      return parsed;
+      return { values: parsed, isPersisted: true };
     }
 
     // Invalid schema - delete malformed data
     localStorage.removeItem(storageKey);
-    return createDefaultFormValues();
+    return { values: createDefaultFormValues(), isPersisted: false };
   } catch {
     // Parse error - delete corrupted data
     localStorage.removeItem(storageKey);
-    return createDefaultFormValues();
+    return { values: createDefaultFormValues(), isPersisted: false };
   }
 }
 

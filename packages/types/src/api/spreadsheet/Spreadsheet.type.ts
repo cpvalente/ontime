@@ -10,6 +10,7 @@ export type SpreadsheetWorksheetMetadata = {
 export type SpreadsheetWorksheetOptions = {
   worksheets: string[];
   metadata: SpreadsheetWorksheetMetadata | null;
+  title?: string;
 };
 
 export type SpreadsheetPreviewResponse = {

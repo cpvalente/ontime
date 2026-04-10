@@ -43,6 +43,7 @@ type ActiveSource =
       sheetId: string;
       worksheetNames: string[];
       initialWorksheetMetadata: SpreadsheetWorksheetMetadata | null;
+      title: string;
     };
 
 export default function SourcesPanel() {
@@ -106,7 +107,13 @@ export default function SourcesPanel() {
   };
 
   const cancelImportFlow = () => {
-    resetFlow();
+    if (importFlow === 'gsheet') {
+      // Return to GSheetSetup so the user can change the sheet ID or revoke auth
+      setActiveSource(null);
+      setError('');
+    } else {
+      resetFlow();
+    }
   };
 
   const handleFinished = () => {
@@ -177,6 +184,7 @@ export default function SourcesPanel() {
       sheetId,
       worksheetNames: worksheetOptions.worksheets,
       initialWorksheetMetadata: worksheetOptions.metadata,
+      title: worksheetOptions.title ?? '',
     });
   }, []);
 
@@ -185,7 +193,11 @@ export default function SourcesPanel() {
   const showCompleted = importFlow === 'finished';
   const showAuth = isGSheetFlow && activeSource === null;
   const showImportWorkspace = activeSource !== null;
-  const importModalTitle = activeSource?.kind === 'excel' ? 'Import spreadsheet' : 'Synchronise with Google Sheet';
+  const importModalTitle = (() => {
+    if (!activeSource) return '';
+    if (activeSource.kind === 'excel') return 'Import spreadsheet';
+    return activeSource.title ? `Sync: ${activeSource.title}` : 'Synchronise with Google Sheet';
+  })();
   const sourceKey = (() => {
     if (!activeSource) return null;
     if (activeSource.kind === 'excel') return 'excel';
