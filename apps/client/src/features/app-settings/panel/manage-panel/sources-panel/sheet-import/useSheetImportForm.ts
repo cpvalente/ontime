@@ -118,14 +118,14 @@ export function useSheetImportForm({
   onApply,
   onExport,
 }: UseSheetImportFormProps) {
-  const { initialFormValues, hasPersisted } = useMemo(() => {
+  const { initialFormValues, skipAutoPreview } = useMemo(() => {
     const { values, isPersisted } = getPersistedImportState(sourceKey);
     const worksheet = getPreferredWorksheet(worksheetNames, values.worksheet, initialMetadata?.worksheet ?? '');
-    // prevent applying import map from a different worksheet
+    // Skip auto-preview when restoring a persisted mapping that was saved for a different worksheet.
     const hasWorksheetChanged = values.worksheet !== worksheet;
     return {
       initialFormValues: { ...values, worksheet },
-      hasPersisted: isPersisted && !hasWorksheetChanged,
+      skipAutoPreview: isPersisted && hasWorksheetChanged,
     };
   }, [initialMetadata?.worksheet, sourceKey, worksheetNames]);
 
@@ -232,15 +232,15 @@ export function useSheetImportForm({
     [previewImport],
   );
 
-  // Auto-preview on mount when restoring a persisted mapping and metadata is ready.
+  // Auto-preview on mount once metadata is ready.
   useEffect(() => {
     if (autoPreviewFiredRef.current) return;
-    if (!hasPersisted) return;
+    if (skipAutoPreview) return;
     if (!isValid || headers.length === 0) return;
 
     autoPreviewFiredRef.current = true;
     handleSubmit(handlePreview)();
-  }, [hasPersisted, isValid, headers, handleSubmit, handlePreview]);
+  }, [skipAutoPreview, isValid, headers, handleSubmit, handlePreview]);
 
   const handleApply = useCallback(async () => {
     if (!state.preview) return;
