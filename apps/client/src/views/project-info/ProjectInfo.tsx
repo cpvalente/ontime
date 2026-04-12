@@ -80,6 +80,7 @@ function ProjectInfo({ projectData, isMirrored }: ProjectInfoData) {
         {projectData.custom.map((info, idx) => {
           const hasUrl = Boolean(info.url);
           return (
+            // oxlint-disable-next-line react/no-array-index-key - we only have the index to go of  here
             <div key={`${info.title}-${idx}`} className='info__custom'>
               {hasUrl && (
                 <div className='info__image-container'>
