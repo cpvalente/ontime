@@ -474,7 +474,13 @@ export function duplicateRundown(rundown: Rundown, newTitle: string): Rundown {
   return newRundown;
 }
 
-export function getIntegerAndFraction(value: string) {
+export type IncrementNumber = {
+  integer: number;
+  faction: number;
+  precision: number;
+};
+
+export function getIntegerAndFraction(value: string): IncrementNumber {
   let [integerStr, factionStr] = value.split('.', 2);
   const integer = parseInt(integerStr);
   const precision = (factionStr ?? '').length;

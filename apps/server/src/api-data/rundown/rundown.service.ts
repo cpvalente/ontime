@@ -287,21 +287,7 @@ export async function renumberEntries(
 
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
 
-  for (let i = 0; i < ids.length; i++) {
-    const currentId = ids[i];
-    const currentEntry = rundown.entries[currentId];
-    if (!currentEntry || !isOntimeEvent(currentEntry)) throw new Error('A given id was not an event');
-
-    const integer = String(startNumber.integer + incrementNumber.integer * i);
-    const fraction = maxPrecision
-      ? '.' + String(startNumber.faction + incrementNumber.faction * i).padStart(maxPrecision, '0')
-      : '';
-
-    rundownMutation.edit(rundown, {
-      id: currentId,
-      cue: `${prefix}${integer}${fraction}`,
-    });
-  }
+  rundownMutation.renumber(rundown, ids, prefix, startNumber, incrementNumber, maxPrecision);
 
   const { rundown: rundownResult, rundownMetadata, revision } = commit(false);
 

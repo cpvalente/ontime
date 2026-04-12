@@ -38,6 +38,7 @@ import {
   deleteById,
   doesInvalidateMetadata,
   getUniqueId,
+  IncrementNumber,
   makeDeepClone,
 } from './rundown.utils.js';
 
@@ -531,6 +532,34 @@ function ungroup(rundown: Rundown, group: OntimeGroup) {
   }
 }
 
+/**
+ * renumbers a range of events
+ */
+function renumber(
+  rundown: Rundown,
+  ids: EntryId[],
+  prefix: string,
+  start: IncrementNumber,
+  increment: IncrementNumber,
+  maxPrecision: number,
+) {
+  for (let i = 0; i < ids.length; i++) {
+    const currentId = ids[i];
+    const currentEntry = rundown.entries[currentId];
+    if (!currentEntry || !isOntimeEvent(currentEntry)) throw new Error('A given id was not an event');
+
+    const integer = String(start.integer + increment.integer * i);
+    const fraction = maxPrecision
+      ? '.' + String(start.faction + increment.faction * i).padStart(maxPrecision, '0')
+      : '';
+
+    rundownMutation.edit(rundown, {
+      id: currentId,
+      cue: `${prefix}${integer}${fraction}`,
+    });
+  }
+}
+
 export const rundownMutation = {
   add: addToRundown,
   edit,
@@ -542,6 +571,7 @@ export const rundownMutation = {
   clone,
   group,
   ungroup,
+  renumber,
 };
 
 /**
