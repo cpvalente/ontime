@@ -1,8 +1,9 @@
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 
-import type { TranslationObject } from 'ontime-types';
+import { RefetchKey, type TranslationObject } from 'ontime-types';
 
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { defaultCss } from '../../bundle/bundledCss.js';
 import { publicFiles } from '../../setup/index.js';
 
@@ -33,6 +34,9 @@ export async function writeCssFile(css: string) {
   }
 
   await writeFile(path, css, { encoding: 'utf8' });
+  setImmediate(() => {
+    sendRefetch(RefetchKey.CssOverride);
+  });
 }
 
 /**
@@ -43,4 +47,7 @@ export async function writeUserTranslation(translations: TranslationObject) {
   const path = publicFiles.translationsFile;
   const translationsString = JSON.stringify(translations, null, 2);
   await writeFile(path, translationsString, { encoding: 'utf8' });
+  setImmediate(() => {
+    sendRefetch(RefetchKey.Translation);
+  });
 }
