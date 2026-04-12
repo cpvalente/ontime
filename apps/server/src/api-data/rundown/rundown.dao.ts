@@ -533,7 +533,7 @@ function ungroup(rundown: Rundown, group: OntimeGroup) {
 }
 
 /**
- * renumbers a range of events
+ * Renumbers a range of events
  */
 function renumber(
   rundown: Rundown,

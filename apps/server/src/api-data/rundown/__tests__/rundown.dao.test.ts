@@ -851,6 +851,79 @@ describe('rundownMutation.removeAll()', () => {
   });
 });
 
+describe('rundownMutation.renumber()', () => {
+  it('sets cues from integer start and increment with no fractional part', () => {
+    const rundown = makeRundown({
+      order: ['a', 'b', 'c'],
+      entries: {
+        a: makeOntimeEvent({ id: 'a', cue: 'old-a' }),
+        b: makeOntimeEvent({ id: 'b', cue: 'old-b' }),
+        c: makeOntimeEvent({ id: 'c', cue: 'old-c' }),
+      },
+    });
+
+    rundownMutation.renumber(
+      rundown,
+      ['a', 'b', 'c'],
+      'Q',
+      { integer: 10, faction: 0, precision: 0 },
+      { integer: 2, faction: 0, precision: 0 },
+      0,
+    );
+
+    expect((rundown.entries['a'] as OntimeEvent).cue).toBe('Q10');
+    expect((rundown.entries['b'] as OntimeEvent).cue).toBe('Q12');
+    expect((rundown.entries['c'] as OntimeEvent).cue).toBe('Q14');
+  });
+
+  it('pads fractional segment to maxPrecision and steps faction by increment', () => {
+    const rundown = makeRundown({
+      order: ['a', 'b', 'c', 'd'],
+      entries: {
+        a: makeOntimeEvent({ id: 'a' }),
+        b: makeOntimeEvent({ id: 'b' }),
+        c: makeOntimeEvent({ id: 'c' }),
+        d: makeOntimeEvent({ id: 'd' }),
+      },
+    });
+
+    rundownMutation.renumber(
+      rundown,
+      ['a', 'b', 'c', 'd'],
+      '',
+      { integer: 1, faction: 0, precision: 2 },
+      { integer: 0, faction: 25, precision: 2 },
+      2,
+    );
+
+    expect((rundown.entries['a'] as OntimeEvent).cue).toBe('1.00');
+    expect((rundown.entries['b'] as OntimeEvent).cue).toBe('1.25');
+    expect((rundown.entries['c'] as OntimeEvent).cue).toBe('1.50');
+    expect((rundown.entries['d'] as OntimeEvent).cue).toBe('1.75');
+  });
+
+  it('throws when an id is not an event', () => {
+    const rundown = makeRundown({
+      order: ['e', 'd'],
+      entries: {
+        e: makeOntimeEvent({ id: 'e' }),
+        d: makeOntimeDelay({ id: 'd' }),
+      },
+    });
+
+    expect(() =>
+      rundownMutation.renumber(
+        rundown,
+        ['e', 'd'],
+        'X',
+        { integer: 1, faction: 0, precision: 0 },
+        { integer: 1, faction: 0, precision: 0 },
+        0,
+      ),
+    ).toThrowError('A given id was not an event');
+  });
+});
+
 describe('rundownMutation.reorder()', () => {
   it('moves an event into a group', () => {
     const rundown = makeRundown({

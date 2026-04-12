@@ -283,7 +283,7 @@ export async function renumberEntries(
   const maxPrecision = Math.max(incrementNumber.precision, startNumber.precision);
 
   // if the prefix doesn't already include a separator or is empty, then insert a separator
-  if (prefix !== '' && !prefix.endsWith('-') && !prefix.endsWith(' ')) prefix += '-';
+  if (prefix !== '' && !prefix.endsWith('-') && !prefix.endsWith(' ')) prefix += ' ';
 
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
 
