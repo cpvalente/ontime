@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Router } from 'express';
 
 import { paramsWithId } from '../validation-utils/validationFunction.js';
 import {
@@ -21,7 +21,7 @@ import {
   validateTriggerPatch,
 } from './automation.validation.js';
 
-export const router = express.Router();
+export const router: Router = express.Router();
 
 router.get('/', getAutomationSettings);
 router.post('/', validateAutomationSettings, postAutomationSettings);

@@ -1,5 +1,5 @@
 import express from 'express';
-import type { Request, Response } from 'express';
+import type { Request, Response, Router } from 'express';
 import { matchedData } from 'express-validator';
 import { deepEqual } from 'fast-equals';
 import { ErrorResponse, PortInfo, RefetchKey, Settings } from 'ontime-types';
@@ -11,7 +11,7 @@ import { portManager } from '../../classes/port-manager/PortManager.js';
 import * as appState from '../../services/app-state-service/AppStateService.js';
 import { validateSettings, validateWelcomeDialog, validateServerPort } from './settings.validation.js';
 
-export const router = express.Router();
+export const router: Router = express.Router();
 
 router.post('/welcomedialog', validateWelcomeDialog, async (req: Request, res: Response) => {
   const show = await appState.setShowWelcomeDialog(req.body.show);

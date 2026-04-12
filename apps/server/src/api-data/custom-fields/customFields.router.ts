@@ -1,5 +1,5 @@
 import express from 'express';
-import type { Request, Response } from 'express';
+import type { Request, Response, Router } from 'express';
 import { CustomField, CustomFields, ErrorResponse } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
@@ -8,7 +8,7 @@ import { getProjectCustomFields } from '../rundown/rundown.dao.js';
 import { createCustomField, deleteCustomField, editCustomField } from '../rundown/rundown.service.js';
 import { validateCustomField, validateDeleteCustomField, validateEditCustomField } from './customFields.validation.js';
 
-export const router = express.Router();
+export const router: Router = express.Router();
 
 /**
  * Gets all the custom fields for the project

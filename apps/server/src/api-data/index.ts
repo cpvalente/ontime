@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Router } from 'express';
 
 import { router as assetsRouter } from './assets/assets.router.js';
 import { router as automationsRouter } from './automation/automation.router.js';
@@ -15,7 +15,7 @@ import { router as sheetsRouter } from './sheets/sheets.router.js';
 import { router as urlPresetsRouter } from './url-presets/urlPresets.router.js';
 import { router as viewSettingsRouter } from './view-settings/viewSettings.router.js';
 
-export const appRouter = express.Router();
+export const appRouter: Router = express.Router();
 
 appRouter.use('/automations', automationsRouter);
 appRouter.use('/custom-fields', customFieldsRouter);

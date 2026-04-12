@@ -1,7 +1,7 @@
 import type { IncomingMessage } from 'node:http';
 
 import { parse as parseCookie } from 'cookie';
-import express, { type NextFunction, type Request, type Response } from 'express';
+import express, { Router, type NextFunction, type Request, type Response } from 'express';
 import type { WebSocket } from 'ws';
 
 import { hasPassword, hashedPassword } from '../api-data/session/session.service.js';
@@ -40,7 +40,7 @@ export function isPublicAssetRequest(originalUrl: string, prefix: string): boole
  * @param {string} prefix - Prefix is used for the client hashes in Ontime Cloud
  */
 export function makeLoginRouter(prefix: string) {
-  const router = express.Router();
+  const router: Router = express.Router();
 
   // serve static files at root
   router.use('/', express.static(srcFiles.login));

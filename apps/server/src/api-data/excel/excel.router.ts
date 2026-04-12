@@ -1,5 +1,5 @@
 import express from 'express';
-import type { Request, Response } from 'express';
+import type { Request, Response, Router } from 'express';
 import type {
   ErrorResponse,
   SpreadsheetPreviewResponse,
@@ -19,7 +19,7 @@ import {
   validateWorksheetMetadataRequest,
 } from './excel.validation.js';
 
-export const router = express.Router();
+export const router: Router = express.Router();
 
 router.post(
   '/upload',

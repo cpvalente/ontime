@@ -5,7 +5,7 @@
  *
  */
 
-import express, { type Request, type Response } from 'express';
+import express, { Router, type Request, type Response } from 'express';
 import { ErrorResponse, LogOrigin } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
@@ -14,7 +14,7 @@ import { logger } from '../classes/Logger.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
 import { dispatchFromAdapter } from './integration.controller.js';
 
-export const integrationRouter = express.Router();
+export const integrationRouter: Router = express.Router();
 
 const helloMessage = 'You have reached Ontime API server';
 
