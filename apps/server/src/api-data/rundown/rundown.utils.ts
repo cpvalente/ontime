@@ -480,6 +480,14 @@ export type IncrementNumber = {
   precision: number;
 };
 
+/**
+ * Parses a decimal string into integer part, fractional digits as an integer, and fractional digit count.
+ * Splits on the first `.` only
+ *
+ * @param value - Numeric string, e.g. `"123"` or `"123.456"`.
+ * @returns `integer` whole part, `faction` digits after the point as a number (0 when no fraction), `precision` digit count after `.`.
+ * @throws {Error} When the integer or fractional segment is not parseable as number
+ */
 export function getIntegerAndFraction(value: string): IncrementNumber {
   let [integerStr, factionStr] = value.split('.', 2);
   const integer = parseInt(integerStr);
