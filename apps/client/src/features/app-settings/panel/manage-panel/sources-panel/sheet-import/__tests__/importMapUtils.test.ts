@@ -58,7 +58,7 @@ describe('getImportWarnings()', () => {
     expect(warnings['custom.0.importName']).toStrictEqual({ kind: 'invalid-name' });
   });
 
-  it('warns when a custom header resolves to an existing Ontime field name', () => {
+  it('warns when a custom header resolves to a built-in or duplicate imported field name', () => {
     const values = createDefaultFormValues();
     values.custom = [
       { ontimeName: '', importName: 'Artist-1' },
@@ -67,12 +67,20 @@ describe('getImportWarnings()', () => {
       { ontimeName: '', importName: 'Presenter-1' },
     ];
 
-    const warnings = getImportWarnings(values, ['Artist-1', 'Artist/1', 'Title!', 'Presenter-1'], ['Presenter 1']);
+    const warnings = getImportWarnings(values, ['Artist-1', 'Artist/1', 'Title!', 'Presenter-1']);
 
     expect(warnings['custom.0.importName']).toBeUndefined();
     expect(warnings['custom.1.importName']).toStrictEqual({ kind: 'name-collision' });
     expect(warnings['custom.2.importName']).toStrictEqual({ kind: 'name-collision' });
-    expect(warnings['custom.3.importName']).toStrictEqual({ kind: 'name-collision' });
+    expect(warnings['custom.3.importName']).toBeUndefined();
+  });
+
+  it('does not give false warnings for pre-existing custom fields', () => {
+    const values = createDefaultFormValues();
+    values.custom = [{ ontimeName: '', importName: 'Video Info' }];
+
+    const warnings = getImportWarnings(values, ['Video Info']);
+    expect(warnings['custom.0.importName']).toBeUndefined();
   });
 });
 

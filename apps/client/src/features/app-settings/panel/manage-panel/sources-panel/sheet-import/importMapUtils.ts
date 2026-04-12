@@ -156,11 +156,9 @@ export function getPersistedImportState(sourceKey: string): { values: ImportForm
 export function getImportWarnings(
   values: ImportFormValues,
   detectedSpreadsheetColumns: string[],
-  existingCustomFieldLabels: string[] = [],
 ): Record<string, MappingWarning | undefined> {
   const normalisedHeaders = new Set(detectedSpreadsheetColumns.map(normaliseColumnName).filter(Boolean));
   const builtInLabels = new Set(builtInFieldDefs.map((def) => def.label.toLowerCase()));
-  const existingLabels = new Set(existingCustomFieldLabels.map((label) => label.trim().toLowerCase()).filter(Boolean));
   const seenColumns = new Set<string>();
   const seenDerivedLabels = new Set<string>();
   const warnings: Record<string, MappingWarning | undefined> = {};
@@ -200,11 +198,7 @@ export function getImportWarnings(
       warnings[key] = { kind: 'missing' };
     } else {
       const normalisedDerivedLabel = sanitisedLabel.toLowerCase();
-      if (
-        builtInLabels.has(normalisedDerivedLabel) ||
-        existingLabels.has(normalisedDerivedLabel) ||
-        seenDerivedLabels.has(normalisedDerivedLabel)
-      ) {
+      if (builtInLabels.has(normalisedDerivedLabel) || seenDerivedLabels.has(normalisedDerivedLabel)) {
         warnings[key] = { kind: 'name-collision' };
       }
     }

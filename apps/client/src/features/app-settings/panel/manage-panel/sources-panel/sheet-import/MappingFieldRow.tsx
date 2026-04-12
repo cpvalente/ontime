@@ -16,7 +16,7 @@ export function getWarningText(warning: MappingWarning): string {
     case 'invalid-name':
       return 'Column cannot be converted into an Ontime field name';
     case 'name-collision':
-      return 'Column name resolves to a duplicate column';
+      return 'Column name resolves to a duplicate Ontime field';
     default:
       return '';
   }

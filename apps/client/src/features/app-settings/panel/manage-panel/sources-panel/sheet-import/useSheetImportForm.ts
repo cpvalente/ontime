@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 
 import { maybeAxiosError } from '../../../../../../common/api/utils';
-import useCustomFields from '../../../../../../common/hooks-query/useCustomFields';
 import { formatDuration } from '../../../../../../common/utils/time';
 import {
   type ImportFormValues,
@@ -144,7 +143,6 @@ export function useSheetImportForm({
 
   const { fields, append, remove } = useFieldArray({ control, name: 'custom' });
   const values = watch();
-  const { data: existingCustomFields } = useCustomFields();
 
   // --- Worksheet metadata via react-query ---
   const queryClient = useQueryClient();
@@ -172,11 +170,7 @@ export function useSheetImportForm({
   const columnLabels = buildColumnLabels(values);
 
   const [state, dispatch] = useReducer(importReducer, initialImportState);
-  const existingCustomFieldLabels = useMemo(
-    () => Object.values(existingCustomFields).map((field) => field.label),
-    [existingCustomFields],
-  );
-  const warnings = getImportWarnings(values, headers, existingCustomFieldLabels);
+  const warnings = getImportWarnings(values, headers);
   const warningCount = Object.values(warnings).filter(Boolean).length;
   const previewRef = useRef<SpreadsheetPreviewResponse | null>(null);
   const autoPreviewFiredRef = useRef(false);
