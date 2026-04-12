@@ -527,20 +527,18 @@ export const useEntryActions = () => {
   const { mutateAsync: renumberCuesMutation } = useMutation({
     mutationFn: ([rundownId, body]: Parameters<typeof patchRenumberCues>) => patchRenumberCues(rundownId, body),
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: RUNDOWN });
-      const previousRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
-      return { previousRundown };
+      const queryKey = resolveCurrentRundownQueryKey();
+      await queryClient.cancelQueries({ queryKey });
+      const previousRundown = queryClient.getQueryData<Rundown>(queryKey);
+      return { previousRundown, queryKey };
     },
-    onSuccess: (response) => {
-      if (!response.data) return;
+    onSuccess: (response, _variables, context) => {
+      if (!response.data || !context?.queryKey) return;
       const updatedRundown = response.data;
-      queryClient.setQueryData<Rundown>(RUNDOWN, updatedRundown);
+      queryClient.setQueryData<Rundown>(context.queryKey, updatedRundown);
     },
     onError: (_error, _vars, context) => {
-      if (context?.previousRundown) queryClient.setQueryData<Rundown>(RUNDOWN, context.previousRundown);
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+      if (context?.previousRundown) queryClient.setQueryData<Rundown>(context.queryKey, context.previousRundown);
     },
   });
 
