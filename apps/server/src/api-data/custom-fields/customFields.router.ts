@@ -13,7 +13,7 @@ export const router = express.Router();
 /**
  * Gets all the custom fields for the project
  */
-router.get('/', async (_req: Request, res: Response<CustomFields>) => {
+router.get('/', (_req: Request, res: Response<CustomFields>) => {
   const customFields = getProjectCustomFields();
   res.status(200).json(customFields);
 });

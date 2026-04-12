@@ -56,7 +56,7 @@ export async function requestConnection(
 /**
  * Returns the current Google Sheets authentication status for this server session.
  */
-export async function verifyAuthentication(
+export function verifyAuthentication(
   _req: Request,
   res: Response<{ authenticated: AuthenticationStatus } | ErrorResponse>,
 ) {
@@ -72,7 +72,7 @@ export async function verifyAuthentication(
 /**
  * Clears the current Google Sheets authentication session.
  */
-export async function revokeAuthentication(
+export function revokeAuthentication(
   _req: Request,
   res: Response<{ authenticated: AuthenticationStatus } | ErrorResponse>,
 ) {
