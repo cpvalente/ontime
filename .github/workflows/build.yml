@@ -7,10 +7,11 @@ on:
 
 jobs:
   build_macos:
-    runs-on: macOS-latest
+    runs-on: macos-latest
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
@@ -29,15 +30,59 @@ jobs:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: pnpm build
 
-      - name: Electron - Build app
-        env: 
+      - name: Import signing certificate into keychain
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain"
+          CERT_PATH="$RUNNER_TEMP/certificate.p12"
+
+          # Decode base64 certificate
+          echo "$CSC_LINK" | base64 --decode > "$CERT_PATH"
+
+          # Create a temporary keychain with a random password
+          KEYCHAIN_PASSWORD=$(openssl rand -hex 20)
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          # Add to keychain search list and unlock
+          security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | tr -d '"')
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+
+          # Import certificate — allow codesign and productbuild to use it without UI prompt
+          security import "$CERT_PATH" \
+            -k "$KEYCHAIN_PATH" \
+            -P "$CSC_KEY_PASSWORD" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/productbuild
+          security set-key-partition-list \
+            -S apple-tool:,apple: \
+            -s -k "$KEYCHAIN_PASSWORD" \
+            "$KEYCHAIN_PATH"
+
+          rm -f "$CERT_PATH"
+
+      - name: Electron - Build and sign app
+        env:
           APPLE_ID: ${{ secrets.APPLEID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLEIDPASS }}
           APPLE_TEAM_ID: ${{ secrets.TEAMID }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          CSC_LINK: ${{ secrets.CSC_LINK }}
+          # Tell electron-builder to find the cert in the keychain by identity string
+          # rather than decoding CSC_LINK itself (we already imported it above).
+          CSC_NAME: ${{ secrets.APPLE_CERT_NAME }}
+          # Suppress electron-builder's own keychain import
+          CSC_LINK: ""
         run: pnpm dist-mac --env-mode=loose
         timeout-minutes: 60
+
+      - name: Clean up keychain
+        if: always()
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain"
+          if security list-keychains -d user | grep -q "$KEYCHAIN_PATH"; then
+            security delete-keychain "$KEYCHAIN_PATH"
+          fi
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -45,6 +90,8 @@ jobs:
           files: |
             ./apps/electron/dist/ontime-macOS-x64.dmg
             ./apps/electron/dist/ontime-macOS-arm64.dmg
+            ./apps/electron/dist/ontime-macOS-x64.zip
+            ./apps/electron/dist/ontime-macOS-arm64.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

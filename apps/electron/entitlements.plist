@@ -2,11 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 	<dict>
+		<!-- Required for Electron's V8 JIT -->
 		<key>com.apple.security.cs.allow-jit</key>
 		<true/>
+		<!-- Required for Electron renderer processes -->
 		<key>com.apple.security.cs.allow-unsigned-executable-memory</key>
 		<true/>
+		<!-- Required for Node.js native modules -->
 		<key>com.apple.security.cs.allow-dyld-environment-variables</key>
+		<true/>
+		<!-- Required for Ontime's embedded HTTP server -->
+		<key>com.apple.security.network.server</key>
+		<true/>
+		<!-- Required for outbound HTTP/WebSocket connections -->
+		<key>com.apple.security.network.client</key>
 		<true/>
 	</dict>
 </plist>

@@ -12,6 +12,7 @@
   "license": "AGPL-3.0-only",
   "main": "src/main.js",
   "devDependencies": {
+    "@electron/notarize": "^2.5.0",
     "electron": "^31.2.0",
     "electron-builder": "^24.13.3",
     "eslint": "catalog:",
@@ -37,21 +38,22 @@
       "artifactName": "ontime-macOS-${arch}.dmg",
       "icon": "icon.icns"
     },
+    "afterSign": "./notarize.cjs",
     "mac": {
-      "notarize": {
-        "teamId": "MDAU6QK6R4"
-      },
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "./entitlements.plist",
       "entitlementsInherit": "./entitlements.plist",
-      "target": {
-        "target": "dmg",
-        "arch": [
-          "x64",
-          "arm64"
-        ]
-      },
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64", "arm64"]
+        }
+      ],
       "category": "public.app-category.productivity",
       "icon": "icon.icns"
     },
