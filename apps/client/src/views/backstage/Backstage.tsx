@@ -16,6 +16,8 @@ import SuperscriptTime from '../../features/viewers/common/superscript-time/Supe
 import { useTranslation } from '../../translation/TranslationProvider';
 import ScheduleExport from '../common/schedule/ScheduleExport';
 
+import { useExternalMessageInput } from '../../common/hooks/useSocket';
+
 import { getBackstageOptions, useBackstageOptions } from './backstage.options';
 import { getCardData, getFollowedByEvent, getIsPendingStart, getShowProgressBar, getTimeToMinutes, isOvertime } from './backstage.utils';
 
@@ -50,6 +52,7 @@ export default function Backstage(props: BackstageProps) {
 
   const { getLocalizedString } = useTranslation();
   const { secondarySource } = useBackstageOptions();
+  const { text: externalMessage, visible: showExternalMessage } = useExternalMessageInput();
   const [blinkClass, setBlinkClass] = useState(false);
   const { height: screenHeight } = useViewportSize();
 
@@ -182,6 +185,13 @@ export default function Backstage(props: BackstageProps) {
           <div className='upcoming-card'>
             <span className='upcoming-card__label'>Then</span>
             <span className='upcoming-card__title'>{followedByMain}</span>
+          </div>
+        )}
+
+        {showExternalMessage && externalMessage && (
+          <div className='upcoming-card'>
+            <span className='upcoming-card__label'>Msg</span>
+            <span className='upcoming-card__title'>{externalMessage}</span>
           </div>
         )}
       </div>

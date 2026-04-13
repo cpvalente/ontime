@@ -16,6 +16,8 @@ export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   timeStrategy: TimeStrategy.LockDuration,
   linkStart: null,
   countToEnd: false,
+  showAsAuxTimer: false,
+  hideTimer: false,
   timeStart: 0,
   timeEnd: 0,
   duration: 0,

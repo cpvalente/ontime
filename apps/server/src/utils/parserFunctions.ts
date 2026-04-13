@@ -260,8 +260,30 @@ function migrateTimeToEnd(event: any): OntimeEvent {
 }
 
 /**
+ * showAsAuxTimer was added in place of the hardcoded "Altar Call" title check
+ * Backfill false for any events that predate this field
+ */
+function migrateShowAsAuxTimer(event: any): OntimeEvent {
+  if (typeof event.showAsAuxTimer !== 'boolean') {
+    event.showAsAuxTimer = false;
+  }
+  return event;
+}
+
+/**
+ * hideTimer was added to allow hiding the main timer display on the cuescreen
+ * Backfill false for any events that predate this field
+ */
+function migrateHideTimer(event: any): OntimeEvent {
+  if (typeof event.hideTimer !== 'boolean') {
+    event.hideTimer = false;
+  }
+  return event;
+}
+
+/**
  * Mutating function migrates event data entries
  */
 function runEventMigrations(event: any): OntimeEvent {
-  return migrateTimeToEnd(event);
+  return migrateHideTimer(migrateShowAsAuxTimer(migrateTimeToEnd(event)));
 }

@@ -8,13 +8,7 @@ import InputRow from './InputRow';
 import TimerControlsPreview from './TimerViewControl';
 
 export default function MessageControl() {
-  return (
-    <>
-      <TimerControlsPreview />
-      <TimerMessageInput />
-      <ExternalInput />
-    </>
-  );
+  return <ExternalInput />;
 }
 
 function TimerMessageInput() {
@@ -41,7 +35,7 @@ function TimerMessageInput() {
   );
 }
 
-function ExternalInput() {
+export function ExternalInput() {
   const { text, visible } = useExternalMessageInput();
 
   const toggleExternal = () => {
@@ -65,9 +59,9 @@ function ExternalInput() {
         tooltip={visible ? 'Make invisible' : 'Make visible'}
         aria-label='Toggle external message visibility'
         openDelay={tooltipDelayMid}
-        icon={visible ? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}
+        icon={visible ? <IoEye size='22px' /> : <IoEyeOffOutline size='22px' />}
         variant={visible ? 'ontime-filled' : 'ontime-subtle'}
-        size='sm'
+        size='md'
       />
     </InputRow>
   );

@@ -29,17 +29,21 @@ export default function CuescreenView({ time, auxTimer, eventNow, eventNext }: C
   useWindowTitle('Cuescreen');
 
   const qlab = useRuntimeStore((state) => state.qlab);
+  const externalMessage = useRuntimeStore((state) => state.message.external);
+  const showExternal = useRuntimeStore((state) => state.message.timer.secondarySource === 'external');
+  const overrideMessage = showExternal && externalMessage ? externalMessage : null;
 
   useEffect(() => {
     document.body.setAttribute('data-view', 'cuescreen');
     return () => document.body.removeAttribute('data-view');
   }, []);
 
-  const isAltarCall = eventNow?.title === 'Altar Call';
+  const isAltarCall = eventNow?.showAsAuxTimer === true;
+  const isHideTimer = eventNow?.hideTimer === true;
   const isOvertime = (time.current ?? 0) < 0;
   const timerColor = isOvertime ? 'red' : 'limegreen';
 
-  const mainTimerDisplay = isAltarCall ? '0:00' : formatMs(time.current);
+  const mainTimerDisplay = (isAltarCall || isHideTimer) ? '0:00' : formatMs(time.current);
   const auxTimerColor = isOvertime ? 'red' : 'orange';
   const regularAuxColor = (auxTimer.current ?? 0) < 0 ? 'red' : 'orange';
 
@@ -72,7 +76,7 @@ export default function CuescreenView({ time, auxTimer, eventNow, eventNext }: C
       observer.observe(eventContainerRef.current);
     }
     return () => observer.disconnect();
-  }, [eventNext?.title]);
+  }, [eventNext?.title, overrideMessage]);
 
   return (
     <div className='cuescreen'>
@@ -96,12 +100,25 @@ export default function CuescreenView({ time, auxTimer, eventNow, eventNext }: C
 
       <div className='cuescreen__event-container' ref={eventContainerRef}>
         <div className='cuescreen__title-card'>
-          <span className='cuescreen__title-card__label'>
-            NEXT:&nbsp;
-          </span>
-          <span className='cuescreen__title-card__title' style={{ color: timerColor }} ref={nextTitleRef}>
-            {eventNext?.title ?? ''}
-          </span>
+          {overrideMessage ? (
+            <>
+              <span className='cuescreen__title-card__label'>
+                MSG:&nbsp;
+              </span>
+              <span className='cuescreen__title-card__title' style={{ color: timerColor }} ref={nextTitleRef}>
+                {overrideMessage}
+              </span>
+            </>
+          ) : (
+            <>
+              <span className='cuescreen__title-card__label'>
+                NEXT:&nbsp;
+              </span>
+              <span className='cuescreen__title-card__title' style={{ color: timerColor }} ref={nextTitleRef}>
+                {eventNext?.title ?? ''}
+              </span>
+            </>
+          )}
         </div>
       </div>
       {qlab.enabled && (

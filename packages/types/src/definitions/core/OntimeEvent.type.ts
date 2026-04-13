@@ -29,6 +29,8 @@ export type OntimeEvent = OntimeBaseEvent & {
   endAction: EndAction;
   timerType: TimerType;
   countToEnd: boolean;
+  showAsAuxTimer: boolean;
+  hideTimer: boolean;
   linkStart: MaybeString; // ID of event to link to
   timeStrategy: TimeStrategy;
   timeStart: number;

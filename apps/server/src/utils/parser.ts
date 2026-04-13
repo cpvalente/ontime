@@ -107,6 +107,8 @@ export const parseExcel = (
   let isPublicIndex: number | null = null;
   let skipIndex: number | null = null;
   let countToEndIndex: number | null = null;
+  let showAsAuxTimerIndex: number | null = null;
+  let hideTimerIndex: number | null = null;
 
   let linkStartIndex: number | null = null;
 
@@ -162,6 +164,14 @@ export const parseExcel = (
       [importMap.countToEnd]: (row: number, col: number) => {
         countToEndIndex = col;
         rundownMetadata['countToEnd'] = { row, col };
+      },
+      [importMap.showAsAuxTimer]: (row: number, col: number) => {
+        showAsAuxTimerIndex = col;
+        rundownMetadata['showAsAuxTimer'] = { row, col };
+      },
+      [importMap.hideTimer]: (row: number, col: number) => {
+        hideTimerIndex = col;
+        rundownMetadata['hideTimer'] = { row, col };
       },
       [importMap.isPublic]: (row: number, col: number) => {
         isPublicIndex = col;
@@ -236,6 +246,10 @@ export const parseExcel = (
         event.cue = makeString(column, '');
       } else if (j === countToEndIndex) {
         event.countToEnd = parseBooleanString(column);
+      } else if (j === showAsAuxTimerIndex) {
+        event.showAsAuxTimer = parseBooleanString(column);
+      } else if (j === hideTimerIndex) {
+        event.hideTimer = parseBooleanString(column);
       } else if (j === isPublicIndex) {
         event.isPublic = parseBooleanString(column);
       } else if (j === skipIndex) {
@@ -385,6 +399,8 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     endAction: validateEndAction(patchEvent.endAction, originalEvent.endAction),
     timerType: validateTimerType(patchEvent.timerType, originalEvent.timerType),
     countToEnd: typeof patchEvent.countToEnd === 'boolean' ? patchEvent.countToEnd : originalEvent.countToEnd,
+    showAsAuxTimer: typeof patchEvent.showAsAuxTimer === 'boolean' ? patchEvent.showAsAuxTimer : originalEvent.showAsAuxTimer,
+    hideTimer: typeof patchEvent.hideTimer === 'boolean' ? patchEvent.hideTimer : originalEvent.hideTimer,
     isPublic: typeof patchEvent.isPublic === 'boolean' ? patchEvent.isPublic : originalEvent.isPublic,
     skip: typeof patchEvent.skip === 'boolean' ? patchEvent.skip : originalEvent.skip,
     note: makeString(patchEvent.note, originalEvent.note),

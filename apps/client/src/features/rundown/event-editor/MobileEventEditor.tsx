@@ -31,6 +31,8 @@ export default function MobileEventEditor(props: EventEditorProps) {
         timeStrategy={event.timeStrategy}
         linkStart={event.linkStart}
         countToEnd={event.countToEnd}
+        showAsAuxTimer={event.showAsAuxTimer}
+        hideTimer={event.hideTimer}
         delay={event.delay ?? 0}
         endAction={event.endAction}
       />

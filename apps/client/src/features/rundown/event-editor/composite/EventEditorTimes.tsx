@@ -20,6 +20,8 @@ interface EventEditorTimesProps {
   timeStrategy: TimeStrategy;
   linkStart: MaybeString;
   countToEnd: boolean;
+  showAsAuxTimer: boolean;
+  hideTimer: boolean;
   delay: number;
   isPublic: boolean;
   endAction: EndAction;
@@ -28,7 +30,7 @@ interface EventEditorTimesProps {
   timeDanger: number;
 }
 
-type HandledActions = 'countToEnd' | 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
+type HandledActions = 'countToEnd' | 'showAsAuxTimer' | 'hideTimer' | 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
 
 function EventEditorTimes(props: EventEditorTimesProps) {
   const {
@@ -39,6 +41,8 @@ function EventEditorTimes(props: EventEditorTimesProps) {
     timeStrategy,
     linkStart,
     countToEnd,
+    showAsAuxTimer,
+    hideTimer,
     delay,
     isPublic,
     endAction,
@@ -56,6 +60,18 @@ function EventEditorTimes(props: EventEditorTimesProps) {
 
     if (field === 'countToEnd') {
       updateEvent({ id: eventId, countToEnd: !(value as boolean) });
+      return;
+    }
+
+    if (field === 'showAsAuxTimer') {
+      const newValue = !(value as boolean);
+      updateEvent({ id: eventId, showAsAuxTimer: newValue, ...(newValue && { hideTimer: false }) });
+      return;
+    }
+
+    if (field === 'hideTimer') {
+      const newValue = !(value as boolean);
+      updateEvent({ id: eventId, hideTimer: newValue, ...(newValue && { showAsAuxTimer: false }) });
       return;
     }
 
@@ -130,6 +146,32 @@ function EventEditorTimes(props: EventEditorTimesProps) {
                 variant='ontime'
               />
               {countToEnd ? 'On' : 'Off'}
+            </Editor.Label>
+          </div>
+          <div>
+            <Editor.Label htmlFor='showAsAuxTimer'>Show as Aux Timer</Editor.Label>
+            <Editor.Label className={style.switchLabel}>
+              <Switch
+                id='showAsAuxTimer'
+                size='md'
+                isChecked={showAsAuxTimer}
+                onChange={() => handleSubmit('showAsAuxTimer', showAsAuxTimer)}
+                variant='ontime'
+              />
+              {showAsAuxTimer ? 'On' : 'Off'}
+            </Editor.Label>
+          </div>
+          <div>
+            <Editor.Label htmlFor='hideTimer'>Hide Timer</Editor.Label>
+            <Editor.Label className={style.switchLabel}>
+              <Switch
+                id='hideTimer'
+                size='md'
+                isChecked={hideTimer}
+                onChange={() => handleSubmit('hideTimer', hideTimer)}
+                variant='ontime'
+              />
+              {hideTimer ? 'Hide' : 'Show'}
             </Editor.Label>
           </div>
         </div>

@@ -12,6 +12,7 @@ import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
 import styles from './Editor.module.scss';
 import rundownStyle from '../rundown/RundownExport.module.scss';
 import { MobileEditorOverview } from '../overview/MobileOverview';
+import { ExternalInput } from '../control/message/MessageControl';
 import { ErrorBoundary } from '@sentry/react';
 
 const MobileTimerControl = lazy(() => import('../control/playback/MobileTimerControlExport'));
@@ -76,6 +77,7 @@ export default function MobileEditor() {
         <div id='panels' className={styles.panelContainer}>
           <div className={styles.left}>
             <MobileTimerControl />
+            <ExternalInput />
             <div className={rundownStyle.side}>
               <ErrorBoundary>
                 <MobileRundownEventEditor />

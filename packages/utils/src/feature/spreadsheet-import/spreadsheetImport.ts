@@ -12,6 +12,8 @@ export const defaultImportMap = {
   cue: 'cue',
   title: 'title',
   countToEnd: 'count to end',
+  showAsAuxTimer: 'aux timer',
+  hideTimer: 'hide timer',
   isPublic: 'public',
   skip: 'skip',
   note: 'notes',
