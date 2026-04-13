@@ -38,6 +38,7 @@
       "artifactName": "ontime-macOS-${arch}.dmg",
       "icon": "icon.icns"
     },
+    "afterPack": "./afterPack.cjs",
     "afterSign": "./notarize.cjs",
     "mac": {
       "hardenedRuntime": true,
