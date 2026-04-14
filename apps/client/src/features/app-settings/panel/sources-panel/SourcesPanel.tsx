@@ -24,9 +24,10 @@ import style from './SourcesPanel.module.scss';
 
 interface SourcesPanelProps {
   location?: string;
+  onClose?: () => void;
 }
 
-export default function SourcesPanel({ location }: SourcesPanelProps) {
+export default function SourcesPanel({ location, onClose }: SourcesPanelProps) {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet' | 'finished'>('none');
   const [error, setError] = useState('');
   const [hasFile, setHasFile] = useState<'none' | 'loading' | 'done'>('none');
@@ -220,7 +221,7 @@ export default function SourcesPanel({ location }: SourcesPanelProps) {
                   Import successful
                 </span>
               )}
-              <Button variant='ontime-filled' size='sm' onClick={resetFlow}>
+              <Button variant='ontime-filled' size='sm' onClick={onClose ?? resetFlow}>
                 Return
               </Button>
             </div>

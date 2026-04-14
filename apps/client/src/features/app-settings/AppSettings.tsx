@@ -29,7 +29,7 @@ export default function AppSettings() {
           {panel === 'project' && <ProjectPanel location={location} setLocation={setLocation} />}
           {panel === 'general' && <GeneralPanel location={location} />}
           {panel === 'feature_settings' && <FeatureSettingsPanel location={location} />}
-          {panel === 'sources' && <SourcesPanel location={location} />}
+          {panel === 'sources' && <SourcesPanel location={location} onClose={close} />}
           {panel === 'automation' && <AutomationPanel location={location} />}
           {panel === 'qlab' && <QlabPanel />}
           {panel === 'network' && <NetworkLogPanel location={location} />}
