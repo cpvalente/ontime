@@ -1,5 +1,5 @@
 import express from 'express';
-import type { Request, Response } from 'express';
+import type { Request, Response, Router } from 'express';
 import { type ErrorResponse, RefetchKey } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
@@ -8,7 +8,7 @@ import { defaultCss } from '../../bundle/bundledCss.js';
 import { readCssFile, writeCssFile, writeUserTranslation } from './assets.service.js';
 import { validatePostCss, validatePostTranslation } from './assets.validation.js';
 
-export const router = express.Router();
+export const router: Router = express.Router();
 
 router.get('/css', async (_req: Request, res: Response<string | ErrorResponse>) => {
   try {
@@ -24,7 +24,6 @@ router.post('/css', validatePostCss, async (req: Request, res: Response<never | 
   const { css } = req.body;
   try {
     await writeCssFile(css);
-    sendRefetch(RefetchKey.CssOverride);
     res.status(204).send();
   } catch (error) {
     const message = getErrorMessage(error);
@@ -53,7 +52,6 @@ router.post('/translations', validatePostTranslation, async (req: Request, res: 
 
   try {
     await writeUserTranslation(translation);
-    sendRefetch(RefetchKey.Translation);
     res.status(204).send();
   } catch (error) {
     const message = getErrorMessage(error);
