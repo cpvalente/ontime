@@ -28,13 +28,12 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
   const hasAutomations = automationIds.length > 0;
 
   const handleAdd = () => {
+    const defaultLifecycle = TimerLifeCycle.onStart;
+    const usedIds = triggers.filter((t) => t.trigger === defaultLifecycle).map((t) => t.automationId);
+    const firstAvailable = automationIds.find((id) => !usedIds.includes(id));
+    if (firstAvailable === undefined) return;
     const id = generateId();
-    const newTrigger: Trigger = {
-      id,
-      title: '',
-      trigger: TimerLifeCycle.onStart,
-      automationId: automationIds[0],
-    };
+    const newTrigger: Trigger = { id, title: '', trigger: defaultLifecycle, automationId: firstAvailable };
     updateEntry({ id: eventId, triggers: [...triggers, newTrigger] });
   };
 
@@ -55,10 +54,15 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
 
   const triggerOptions = eventTriggerOptions.map((cycle) => ({ value: cycle, label: cycle }));
 
-  const automationOptions = Object.values(automationSettings.automations).map(({ id, title }) => ({
+  const allAutomationOptions = Object.values(automationSettings.automations).map(({ id, title }) => ({
     value: id,
     label: title,
   }));
+
+  const getAutomationOptionsForTrigger = (triggerId: string, lifecycle: TimerLifeCycle) => {
+    const usedIds = triggers.filter((t) => t.id !== triggerId && t.trigger === lifecycle).map((t) => t.automationId);
+    return allAutomationOptions.filter((opt) => !usedIds.includes(opt.value));
+  };
 
   const filteredTriggers: Record<string, Trigger[]> = {};
   timerLifecycleValues.forEach((triggerType) => {
@@ -95,7 +99,7 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
                     onValueChange={(value) => {
                       if (value !== null) handleChange(trigger.id, 'automationId', value);
                     }}
-                    options={automationOptions}
+                    options={getAutomationOptionsForTrigger(trigger.id, trigger.trigger)}
                   />
                   <IconButton variant='ghosted-destructive' onClick={() => handleDelete(trigger.id)}>
                     <IoTrash />
@@ -111,7 +115,13 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
           No automations defined. <a href='?settings=automation'>Manage automations</a> to add some.
         </Editor.Label>
       ) : (
-        <Button variant='ghosted' onClick={handleAdd}>
+        <Button
+          variant='ghosted'
+          onClick={handleAdd}
+          disabled={automationIds.every((id) =>
+            triggers.some((t) => t.trigger === TimerLifeCycle.onStart && t.automationId === id),
+          )}
+        >
           <IoAdd /> Add automation
         </Button>
       )}
