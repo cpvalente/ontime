@@ -1,4 +1,4 @@
-import { NormalisedAutomation, TimerLifeCycle, Trigger, timerLifecycleValues } from 'ontime-types';
+import { TimerLifeCycle, Trigger, timerLifecycleValues } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 import { Fragment, useCallback } from 'react';
 import { IoAdd, IoTrash } from 'react-icons/io5';
