@@ -71,8 +71,6 @@ jobs:
           # Tell electron-builder to find the cert in the keychain by identity string
           # rather than decoding CSC_LINK itself (we already imported it above).
           CSC_NAME: ${{ secrets.APPLE_CERT_NAME }}
-          # Suppress electron-builder's own keychain import
-          CSC_LINK: ""
         run: pnpm dist-mac --env-mode=loose
         timeout-minutes: 60
 

@@ -25,7 +25,7 @@
     "lint": "eslint . --quiet",
     "dev": "wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .",
     "dist-win": "electron-builder --publish=never --x64 --win",
-    "dist-mac": "electron-builder --publish=never --mac --config.directories.output=/tmp/ontime-electron-dist && rsync -a --delete /tmp/ontime-electron-dist/ dist/",
+    "dist-mac": "electron-builder --publish=never --mac --x64 --config.directories.output=/tmp/ontime-electron-dist-x64 && electron-builder --publish=never --mac --arm64 --config.directories.output=/tmp/ontime-electron-dist-arm64 && mkdir -p dist && rsync -a /tmp/ontime-electron-dist-x64/ dist/ && rsync -a /tmp/ontime-electron-dist-arm64/ dist/",
     "dist-mac:local": "electron-builder --publish=never --mac -c.mac.identity=null",
     "dist-linux": "electron-builder --publish=never --x64 --linux",
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
@@ -41,6 +41,7 @@
     "afterPack": "./afterPack.cjs",
     "afterSign": "./notarize.cjs",
     "mac": {
+      "notarize": false,
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "./entitlements.plist",
