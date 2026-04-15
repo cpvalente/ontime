@@ -30,40 +30,39 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
 
   const triggerOptions = eventTriggerOptions.map((cycle) => ({ value: cycle, label: cycle }));
 
-  // per-row: exclude automations already used on the same lifecycle in other rows
-  function getAutomationOptionsForTrigger(triggerId: string, lifecycle: TimerLifeCycle) {
+  // returns automation options for a row, excluding automations already used on the same lifecycle
+  const getAutomationOptions = (triggerId: string, lifecycle: TimerLifeCycle) => {
     const usedIds = triggers.filter((t) => t.id !== triggerId && t.trigger === lifecycle).map((t) => t.automationId);
     return allAutomationOptions.filter((opt) => !usedIds.includes(opt.value));
-  }
+  };
 
-  // first lifecycle+automation pair not yet in use
-  function findFirstAvailable() {
+  // returns the first lifecycle+automation pair not yet in use, or null if all are taken
+  const getNextAvailable = () => {
     for (const lifecycle of eventTriggerOptions) {
       const usedIds = triggers.filter((t) => t.trigger === lifecycle).map((t) => t.automationId);
       const automation = allAutomationOptions.find((opt) => !usedIds.includes(opt.value));
       if (automation) return { lifecycle, automationId: automation.value };
     }
     return null;
-  }
+  };
 
-  const firstAvailable = findFirstAvailable();
-
-  function handleAdd() {
-    if (firstAvailable === null) return;
+  const handleAdd = () => {
+    const next = getNextAvailable();
+    if (next === null) return;
     updateEntry({
       id: eventId,
       triggers: [
         ...triggers,
-        { id: generateId(), title: '', trigger: firstAvailable.lifecycle, automationId: firstAvailable.automationId },
+        { id: generateId(), title: '', trigger: next.lifecycle, automationId: next.automationId },
       ],
     });
-  }
+  };
 
-  function handleDelete(triggerId: string) {
+  const handleDelete = (triggerId: string) => {
     updateEntry({ id: eventId, triggers: triggers.filter((t) => t.id !== triggerId) });
-  }
+  };
 
-  function handleChange(triggerId: string, field: 'trigger' | 'automationId', value: string) {
+  const handleChange = (triggerId: string, field: 'trigger' | 'automationId', value: string) => {
     const newTriggers = triggers.map((t) => {
       if (t.id !== triggerId) return t;
       const updated = { ...t, [field]: value };
@@ -84,7 +83,7 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
       return updated;
     });
     updateEntry({ id: eventId, triggers: newTriggers });
-  }
+  };
 
   return (
     <div className={style.triggers}>
@@ -111,7 +110,7 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
                 onValueChange={(value) => {
                   if (value !== null) handleChange(trigger.id, 'automationId', value);
                 }}
-                options={getAutomationOptionsForTrigger(trigger.id, trigger.trigger)}
+                options={getAutomationOptions(trigger.id, trigger.trigger)}
               />
               <IconButton variant='ghosted-destructive' onClick={() => handleDelete(trigger.id)}>
                 <IoTrash />
@@ -125,7 +124,7 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
           No automations defined. <a href='?settings=automation'>Manage automations</a> to add some.
         </Editor.Label>
       ) : (
-        <Button variant='ghosted' onClick={handleAdd} disabled={firstAvailable === null}>
+        <Button variant='ghosted' onClick={handleAdd} disabled={getNextAvailable() === null}>
           <IoAdd /> Add automation
         </Button>
       )}
