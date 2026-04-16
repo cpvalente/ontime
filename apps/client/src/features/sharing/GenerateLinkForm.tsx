@@ -15,6 +15,7 @@ import Switch from '../../common/components/switch/Switch';
 import { useUpdateUrlPreset } from '../../common/hooks-query/useUrlPresets';
 import { safeCopyToClipboard } from '../../common/utils/copyToClipboard';
 import { preventEscape } from '../../common/utils/keyEvent';
+import { buildShareUrl } from '../../common/utils/linkUtils';
 import { isUrlSafe } from '../../common/utils/regex';
 import { isOntimeCloud, serverURL } from '../../externals';
 import * as Panel from '../app-settings/panel-utils/PanelUtils';
@@ -106,45 +107,55 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
   const onSubmit = async (options: GenerateLinkFormOptions) => {
     try {
       setFormState('loading');
+
+      // Resolve canonical path and preset alias
+      let resolvedPath: string;
+      let resolvedPreset: string | undefined;
+
       if (options.path === OntimeView.Cuesheet) {
         const urlPreset = await createPresetFromOptions((options as CuesheetLinkOptions).alias, {
           read: cuesheetReadRef.current?.value ?? 'full',
           write: cuesheetWriteRef.current?.value ?? 'full',
         });
-
         if (!urlPreset) {
           throw new Error('Failed to create URL preset for Cuesheet');
         }
-
-        const url = await generateUrl({
-          baseUrl: options.baseUrl,
-          path: options.path,
-          authenticate: options.authenticate,
-          lockConfig: options.lockConfig,
-          lockNav: options.lockNav,
-          preset: urlPreset.alias,
-        });
-        await safeCopyToClipboard(url);
-        setUrl(url);
+        resolvedPath = options.path;
+        resolvedPreset = urlPreset.alias;
       } else {
-        const presetPath = options.path.startsWith('preset-') ? options.path.replace('preset-', '') : undefined;
-        const path = presetPath ? presets.find((preset) => preset.alias === presetPath)?.target : options.path;
-        if (!path) {
-          throw new Error(`Could not resolve preset: ${path}`);
+        resolvedPreset = options.path.startsWith('preset-') ? options.path.replace('preset-', '') : undefined;
+        resolvedPath = resolvedPreset
+          ? (presets.find((preset) => preset.alias === resolvedPreset)?.target ?? '')
+          : options.path;
+        if (!resolvedPath) {
+          throw new Error(`Could not resolve preset: ${resolvedPreset}`);
         }
+      }
 
-        const url = await generateUrl({
+      // Generate URL: client-side when not authenticating (avoids async gap that breaks clipboard in browsers)
+      // Authenticated URLs require the server to inject the password hash token
+      let url: string;
+      if (options.authenticate) {
+        url = await generateUrl({
           baseUrl: options.baseUrl,
-          path,
+          path: resolvedPath,
           authenticate: options.authenticate,
           lockConfig: options.lockConfig,
           lockNav: options.lockNav,
-          preset: presetPath,
+          preset: resolvedPreset,
         });
-
-        await safeCopyToClipboard(url);
-        setUrl(url);
+      } else {
+        url = buildShareUrl({
+          baseUrl: options.baseUrl,
+          path: resolvedPath,
+          lockNav: options.lockNav,
+          lockConfig: options.lockConfig,
+          preset: resolvedPreset,
+        });
       }
+
+      await safeCopyToClipboard(url);
+      setUrl(url);
       reset(options, {
         keepValues: true,
         keepDirty: false,

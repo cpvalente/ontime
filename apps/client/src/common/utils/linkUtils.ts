@@ -1,3 +1,4 @@
+import { OntimeView } from 'ontime-types';
 import type { MouseEvent } from 'react';
 
 import { baseURI, serverURL } from '../../externals';
@@ -39,6 +40,38 @@ export function handleLinks(
   const destination = new URL(externalServerUrl);
   destination.pathname = externalBaseURI ? `${externalBaseURI}/${location}` : location;
   openLink(destination.toString());
+}
+
+interface BuildShareUrlOptions {
+  baseUrl: string;
+  path: string;
+  lockNav: boolean;
+  lockConfig: boolean;
+  preset?: string;
+}
+
+/**
+ * Builds a share URL client-side, mirroring the server's generateShareUrl logic.
+ * Only valid when authenticate: false — authenticated URLs require the server (password hash).
+ */
+export function buildShareUrl(
+  { baseUrl, path, lockNav, lockConfig, preset }: BuildShareUrlOptions,
+  externalBaseURI: string = baseURI,
+): string {
+  const url = new URL(baseUrl);
+
+  // companion links point to the root
+  if (path !== '<<companion>>') {
+    const shouldMaskPath = Boolean(preset) && (path === OntimeView.Cuesheet || lockConfig);
+    const maybePresetPath = shouldMaskPath ? `preset/${preset}` : preset || path;
+    url.pathname = externalBaseURI ? `${externalBaseURI}/${maybePresetPath}` : maybePresetPath;
+
+    if (lockNav) {
+      url.searchParams.append('n', '1');
+    }
+  }
+
+  return url.toString();
 }
 
 export function linkToOtherHost(
