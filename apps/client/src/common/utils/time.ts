@@ -80,6 +80,14 @@ type FormatOptions = {
 };
 
 /**
+ * Creates a FormatOptions object using the same string for both 12h and 24h,
+ * used when an explicit format override should apply regardless of system settings.
+ */
+export function uniformFormatOptions(format: string): FormatOptions {
+  return { format12: format, format24: format };
+}
+
+/**
  * @description viewer specific utility function to format a date in 12 or 24 hour format
  * @param {MaybeNumber} milliseconds
  * @param {object} [options]
