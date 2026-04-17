@@ -10,7 +10,7 @@ import {
 import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
 import { timerPlaceholder, timerPlaceholderMin } from '../../common/utils/styleUtils';
-import { formatTime, uniformFormatOptions } from '../../common/utils/time';
+import { formatTime } from '../../common/utils/time';
 
 /**
  * Gathers all options that affect which timer is displayed and selects the correct data source to display
@@ -117,7 +117,7 @@ export function getFormattedTimer(
   if (timerType === TimerType.Clock) {
     if (!options.timeFormat) return formatTime(timer);
     const fmt = options.removeSeconds ? options.timeFormat.replace(':ss', '') : options.timeFormat;
-    return formatTime(timer, uniformFormatOptions(fmt));
+    return formatTime(timer, { format12: fmt, format24: fmt });
   }
 
   let timeToParse = timer;

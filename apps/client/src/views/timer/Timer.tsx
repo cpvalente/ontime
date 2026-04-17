@@ -11,7 +11,7 @@ import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
 import { useTimerSocket } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { cx } from '../../common/utils/styleUtils';
-import { formatTime, getDefaultFormat, uniformFormatOptions } from '../../common/utils/time';
+import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
@@ -216,7 +216,10 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
 
 function TimerAutoTickingClock({ timeFormat }: { timeFormat?: string }) {
   const autoTickingClock = useAutoTickingClock();
-  const formattedClock = formatTime(autoTickingClock, timeFormat ? uniformFormatOptions(timeFormat) : undefined);
+  const formattedClock = formatTime(
+    autoTickingClock,
+    timeFormat ? { format12: timeFormat, format24: timeFormat } : undefined,
+  );
   const { getLocalizedString } = useTranslation();
 
   return (
