@@ -77,7 +77,9 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
             .filter((other) => other.id !== triggerId && other.trigger === newLifecycle)
             .map((other) => other.automationId);
           const fallback = allAutomationOptions.find((opt) => !usedIds.includes(opt.value));
-          if (fallback) updated.automationId = fallback.value;
+          // no available automation for this lifecycle — reject the change
+          if (!fallback) return t;
+          updated.automationId = fallback.value;
         }
       }
       return updated;
