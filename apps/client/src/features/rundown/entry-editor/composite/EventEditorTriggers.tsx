@@ -1,4 +1,4 @@
-import { TimerLifeCycle, Trigger } from 'ontime-types';
+import { Trigger } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 import { IoAdd, IoTrash } from 'react-icons/io5';
 
@@ -30,35 +30,12 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
 
   const triggerOptions = eventTriggerOptions.map((cycle) => ({ value: cycle, label: cycle }));
 
-  const triggerRows = triggers.map((t) => {
-    const lifecycleOptions = triggerOptions.filter((opt) => {
-      const lifecycle = opt.value as TimerLifeCycle;
-      const usedIds = triggers.filter((o) => o.id !== t.id && o.trigger === lifecycle).map((o) => o.automationId);
-      return usedIds.length < allAutomationOptions.length;
-    });
-    const usedAutomationIds = triggers.filter((o) => o.id !== t.id && o.trigger === t.trigger).map((o) => o.automationId);
-    const automationOptions = allAutomationOptions.filter((opt) => !usedAutomationIds.includes(opt.value));
-    return { ...t, lifecycleOptions, automationOptions };
-  });
-
-  // returns the first lifecycle+automation pair not yet in use, or null if all are taken
-  const getNextAvailable = () => {
-    for (const lifecycle of eventTriggerOptions) {
-      const usedIds = triggers.filter((t) => t.trigger === lifecycle).map((t) => t.automationId);
-      const automation = allAutomationOptions.find((opt) => !usedIds.includes(opt.value));
-      if (automation) return { lifecycle, automationId: automation.value };
-    }
-    return null;
-  };
-
   const handleAdd = () => {
-    const next = getNextAvailable();
-    if (next === null) return;
     updateEntry({
       id: eventId,
       triggers: [
         ...triggers,
-        { id: generateId(), title: '', trigger: next.lifecycle, automationId: next.automationId },
+        { id: generateId(), title: '', trigger: eventTriggerOptions[0], automationId: allAutomationOptions[0].value },
       ],
     });
   };
@@ -68,27 +45,7 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
   };
 
   const handleChange = (triggerId: string, field: 'trigger' | 'automationId', value: string) => {
-    const newTriggers = triggers.map((t) => {
-      if (t.id !== triggerId) return t;
-      const updated = { ...t, [field]: value };
-      // when lifecycle changes, auto-resolve automationId if it now conflicts with another row
-      if (field === 'trigger') {
-        const newLifecycle = value as TimerLifeCycle;
-        const isConflict = triggers.some(
-          (other) => other.id !== triggerId && other.trigger === newLifecycle && other.automationId === t.automationId,
-        );
-        if (isConflict) {
-          const usedIds = triggers
-            .filter((other) => other.id !== triggerId && other.trigger === newLifecycle)
-            .map((other) => other.automationId);
-          const fallback = allAutomationOptions.find((opt) => !usedIds.includes(opt.value));
-          // no available automation for this lifecycle — reject the change
-          if (!fallback) return t;
-          updated.automationId = fallback.value;
-        }
-      }
-      return updated;
-    });
+    const newTriggers = triggers.map((t) => (t.id !== triggerId ? t : { ...t, [field]: value }));
     updateEntry({ id: eventId, triggers: newTriggers });
   };
 
@@ -103,21 +60,21 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
             <span>Lifecycle</span>
             <span>Automation</span>
           </div>
-          {triggerRows.map((trigger) => (
+          {triggers.map((trigger) => (
             <div key={trigger.id} className={style.trigger}>
               <Select
                 value={trigger.trigger}
                 onValueChange={(value) => {
                   if (value !== null) handleChange(trigger.id, 'trigger', value);
                 }}
-                options={trigger.lifecycleOptions}
+                options={triggerOptions}
               />
               <Select
                 value={trigger.automationId}
                 onValueChange={(value) => {
                   if (value !== null) handleChange(trigger.id, 'automationId', value);
                 }}
-                options={trigger.automationOptions}
+                options={allAutomationOptions}
               />
               <IconButton variant='ghosted-destructive' onClick={() => handleDelete(trigger.id)}>
                 <IoTrash />
@@ -127,11 +84,9 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
         </div>
       )}
       {allAutomationOptions.length === 0 ? (
-        <Editor.Label>
-          No automations defined.
-        </Editor.Label>
+        <Editor.Label>No automations defined.</Editor.Label>
       ) : (
-        <Button variant='ghosted' onClick={handleAdd} disabled={getNextAvailable() === null}>
+        <Button variant='ghosted' onClick={handleAdd}>
           <IoAdd /> Add automation
         </Button>
       )}

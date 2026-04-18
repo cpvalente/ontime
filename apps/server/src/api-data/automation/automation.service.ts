@@ -47,7 +47,15 @@ export function triggerAutomations(cycle: TimerLifeCycle) {
     return;
   }
 
-  filteredTrigger.forEach((trigger) => {
+  // deduplicate — if the same automation appears multiple times on one lifecycle, fire it once
+  const seen = new Set<string>();
+  const uniqueTriggers = filteredTrigger.filter((t) => {
+    if (seen.has(t.automationId)) return false;
+    seen.add(t.automationId);
+    return true;
+  });
+
+  uniqueTriggers.forEach((trigger) => {
     const automation = automations[trigger.automationId];
     if (!automation || automation.outputs.length === 0) {
       return;
