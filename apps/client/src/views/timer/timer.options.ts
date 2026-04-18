@@ -191,7 +191,6 @@ type TimerOptions = {
   freezeOvertime: boolean;
   freezeMessage: string;
   hidePhase: boolean;
-  timeFormat?: string;
   font?: string;
   keyColour?: string;
   timerColour?: string;
@@ -227,7 +226,6 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
     freezeMessage: getValue('freezeMessage') ?? '',
     hidePhase: isStringBoolean(getValue('hidePhase')),
 
-    timeFormat: getValue('timeformat') ?? undefined,
     font: getValue('font') ?? undefined,
     keyColour: makeColourString(getValue('keyColour')),
     timerColour: makeColourString(getValue('timerColour')),

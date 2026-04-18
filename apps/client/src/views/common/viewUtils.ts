@@ -101,7 +101,6 @@ export function getPropertyValue(
 type FormattingOptions = {
   removeSeconds: boolean;
   removeLeadingZero: boolean;
-  timeFormat?: string;
 };
 
 export function getFormattedTimer(
@@ -115,9 +114,10 @@ export function getFormattedTimer(
   }
 
   if (timerType === TimerType.Clock) {
-    if (!options.timeFormat) return formatTime(timer);
-    const fmt = options.removeSeconds ? options.timeFormat.replace(':ss', '') : options.timeFormat;
-    return formatTime(timer, { format12: fmt, format24: fmt });
+    if (options.removeSeconds) {
+      return formatTime(timer, { format12: 'h:mm a', format24: 'HH:mm' });
+    }
+    return formatTime(timer);
   }
 
   let timeToParse = timer;

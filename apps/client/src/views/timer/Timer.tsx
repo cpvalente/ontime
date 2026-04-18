@@ -66,7 +66,6 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
     freezeOvertime,
     freezeMessage,
     hidePhase,
-    timeFormat,
     font,
     keyColour,
     timerColour,
@@ -107,7 +106,6 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
   const display = getFormattedTimer(stageTimer, viewTimerType, localisedMinutes, {
     removeSeconds: hideTimerSeconds,
     removeLeadingZero: removeLeadingZeros,
-    timeFormat,
   });
 
   const currentAux = (() => {
@@ -166,7 +164,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
         </div>
       )}
 
-      {showClock && <TimerAutoTickingClock timeFormat={timeFormat} />}
+      {showClock && <TimerAutoTickingClock />}
 
       <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
         {showEndMessage ? (
@@ -214,12 +212,9 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
   );
 }
 
-function TimerAutoTickingClock({ timeFormat }: { timeFormat?: string }) {
+function TimerAutoTickingClock() {
   const autoTickingClock = useAutoTickingClock();
-  const formattedClock = formatTime(
-    autoTickingClock,
-    timeFormat ? { format12: timeFormat, format24: timeFormat } : undefined,
-  );
+  const formattedClock = formatTime(autoTickingClock);
   const { getLocalizedString } = useTranslation();
 
   return (
