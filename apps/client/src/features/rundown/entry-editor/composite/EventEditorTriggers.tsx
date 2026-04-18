@@ -30,12 +30,35 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
 
   const triggerOptions = eventTriggerOptions.map((cycle) => ({ value: cycle, label: cycle }));
 
+  // hide lifecycles where this row's automation is already used by another row
+  const getLifecycleOptions = (triggerId: string, automationId: string) =>
+    triggerOptions.filter(
+      (opt) => !triggers.some((t) => t.id !== triggerId && t.trigger === opt.value && t.automationId === automationId),
+    );
+
+  // hide automations already used on the same lifecycle by other rows
+  const getAutomationOptions = (triggerId: string, lifecycle: string) => {
+    const usedIds = triggers.filter((t) => t.id !== triggerId && t.trigger === lifecycle).map((t) => t.automationId);
+    return allAutomationOptions.filter((opt) => !usedIds.includes(opt.value));
+  };
+
+  const getNextAvailable = () => {
+    for (const lifecycle of eventTriggerOptions) {
+      const usedIds = triggers.filter((t) => t.trigger === lifecycle).map((t) => t.automationId);
+      const automation = allAutomationOptions.find((opt) => !usedIds.includes(opt.value));
+      if (automation) return { lifecycle, automationId: automation.value };
+    }
+    return null;
+  };
+
   const handleAdd = () => {
+    const next = getNextAvailable();
+    if (!next) return;
     updateEntry({
       id: eventId,
       triggers: [
         ...triggers,
-        { id: generateId(), title: '', trigger: eventTriggerOptions[0], automationId: allAutomationOptions[0].value },
+        { id: generateId(), title: '', trigger: next.lifecycle, automationId: next.automationId },
       ],
     });
   };
@@ -67,14 +90,14 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
                 onValueChange={(value) => {
                   if (value !== null) handleChange(trigger.id, 'trigger', value);
                 }}
-                options={triggerOptions}
+                options={getLifecycleOptions(trigger.id, trigger.automationId)}
               />
               <Select
                 value={trigger.automationId}
                 onValueChange={(value) => {
                   if (value !== null) handleChange(trigger.id, 'automationId', value);
                 }}
-                options={allAutomationOptions}
+                options={getAutomationOptions(trigger.id, trigger.trigger)}
               />
               <IconButton variant='ghosted-destructive' onClick={() => handleDelete(trigger.id)}>
                 <IoTrash />
@@ -85,6 +108,8 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
       )}
       {allAutomationOptions.length === 0 ? (
         <Editor.Label>No automations defined.</Editor.Label>
+      ) : getNextAvailable() === null ? (
+        <Editor.Label>All trigger and automation combinations are in use.</Editor.Label>
       ) : (
         <Button variant='ghosted' onClick={handleAdd}>
           <IoAdd /> Add automation
