@@ -123,7 +123,7 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
       )}
       {allAutomationOptions.length === 0 ? (
         <Editor.Label>
-          No automations defined. <a href='?settings=automation'>Manage automations</a> to add some.
+          No automations defined.
         </Editor.Label>
       ) : (
         <Button variant='ghosted' onClick={handleAdd} disabled={getNextAvailable() === null}>
