@@ -30,11 +30,16 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
 
   const triggerOptions = eventTriggerOptions.map((cycle) => ({ value: cycle, label: cycle }));
 
-  // returns automation options for a row, excluding automations already used on the same lifecycle
-  const getAutomationOptions = (triggerId: string, lifecycle: TimerLifeCycle) => {
-    const usedIds = triggers.filter((t) => t.id !== triggerId && t.trigger === lifecycle).map((t) => t.automationId);
-    return allAutomationOptions.filter((opt) => !usedIds.includes(opt.value));
-  };
+  const triggerRows = triggers.map((t) => {
+    const lifecycleOptions = triggerOptions.filter((opt) => {
+      const lifecycle = opt.value as TimerLifeCycle;
+      const usedIds = triggers.filter((o) => o.id !== t.id && o.trigger === lifecycle).map((o) => o.automationId);
+      return usedIds.length < allAutomationOptions.length;
+    });
+    const usedAutomationIds = triggers.filter((o) => o.id !== t.id && o.trigger === t.trigger).map((o) => o.automationId);
+    const automationOptions = allAutomationOptions.filter((opt) => !usedAutomationIds.includes(opt.value));
+    return { ...t, lifecycleOptions, automationOptions };
+  });
 
   // returns the first lifecycle+automation pair not yet in use, or null if all are taken
   const getNextAvailable = () => {
@@ -98,21 +103,21 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
             <span>Lifecycle</span>
             <span>Automation</span>
           </div>
-          {triggers.map((trigger) => (
+          {triggerRows.map((trigger) => (
             <div key={trigger.id} className={style.trigger}>
               <Select
                 value={trigger.trigger}
                 onValueChange={(value) => {
                   if (value !== null) handleChange(trigger.id, 'trigger', value);
                 }}
-                options={triggerOptions}
+                options={trigger.lifecycleOptions}
               />
               <Select
                 value={trigger.automationId}
                 onValueChange={(value) => {
                   if (value !== null) handleChange(trigger.id, 'automationId', value);
                 }}
-                options={getAutomationOptions(trigger.id, trigger.trigger)}
+                options={trigger.automationOptions}
               />
               <IconButton variant='ghosted-destructive' onClick={() => handleDelete(trigger.id)}>
                 <IoTrash />
