@@ -106,9 +106,7 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
           ))}
         </div>
       )}
-      {allAutomationOptions.length === 0 ? (
-        <Editor.Label>No automations defined.</Editor.Label>
-      ) : getNextAvailable() === null ? (
+      {allAutomationOptions.length === 0 ? null : getNextAvailable() === null ? (
         <Editor.Label>All trigger and automation combinations are in use.</Editor.Label>
       ) : (
         <Button variant='ghosted' onClick={handleAdd}>
