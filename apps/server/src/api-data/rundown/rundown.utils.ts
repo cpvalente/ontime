@@ -489,7 +489,7 @@ export type IncrementNumber = {
  * @throws {Error} When the integer or fractional segment is not parseable as number
  */
 export function getIntegerAndFraction(value: string): IncrementNumber {
-  let [integerStr, factionStr] = value.split('.', 2);
+  const [integerStr, factionStr] = value.split('.', 2);
   const integer = parseInt(integerStr);
   const precision = (factionStr ?? '').length;
   const faction = precision === 0 ? 0 : parseInt(factionStr);

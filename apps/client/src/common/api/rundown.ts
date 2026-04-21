@@ -122,7 +122,7 @@ export async function putBatchEditEvents(rundownId: RundownId, data: BatchEditEn
 /**
  * HTTP request to renumber cues for multiple events
  */
-export async function patchRenumberCues(rundownId: RundownId, data: RenumberCues): Promise<AxiosResponse<Rundown>> {
+export function patchRenumberCues(rundownId: RundownId, data: RenumberCues): Promise<AxiosResponse<Rundown>> {
   return axios.patch(`${rundownPath}/${rundownId}/renumber`, data);
 }
 

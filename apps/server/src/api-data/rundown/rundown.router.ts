@@ -383,10 +383,10 @@ router.patch(
   '/:rundownId/renumber',
   entryRenumberValidator,
   validateRundownMutation,
-  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+  (req: Request, res: Response<Rundown | ErrorResponse>) => {
     try {
       const { ids, prefix, start, increment } = matchedData<RenumberCues>(req);
-      const rundown = await renumberEntries(ids, prefix, start, increment);
+      const rundown = renumberEntries(ids, prefix, start, increment);
       res.status(200).send(rundown);
     } catch (error) {
       const message = getErrorMessage(error);

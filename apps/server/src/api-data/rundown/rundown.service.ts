@@ -272,12 +272,7 @@ export async function reorderEntry(entryId: EntryId, destinationId: EntryId, ord
 /**
  * @throws if an id is missing or not an Ontime event
  */
-export async function renumberEntries(
-  ids: EntryId[],
-  prefix: string,
-  start: string,
-  increment: string,
-): Promise<Rundown> {
+export function renumberEntries(ids: EntryId[], prefix: string, start: string, increment: string): Rundown {
   const startNumber = getIntegerAndFraction(start);
   const incrementNumber = getIntegerAndFraction(increment);
 
