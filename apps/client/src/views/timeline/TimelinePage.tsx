@@ -37,7 +37,7 @@ export default function TimelinePageLoader() {
 
 function TimelinePage({ events, customFields, projectData, settings }: TimelineData) {
   const selectedEventId = useSelectedEventId();
-  const { mainSource } = useTimelineOptions();
+  const { mainSource, timeformat } = useTimelineOptions();
   // holds copy of the rundown with only relevant events
   const { scopedRundown, firstStart, totalDuration } = useScopedRundown(events, selectedEventId);
 
@@ -56,7 +56,7 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
       <div className='project-header'>
         {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
         <div className='title'>{projectData.title}</div>
-        <TimelineClock />
+        <TimelineClock timeformat={timeformat} />
       </div>
 
       <TimelineSections now={now} next={next} followedBy={followedBy} mainSource={mainSource} />
@@ -71,12 +71,12 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
   );
 }
 
-function TimelineClock() {
+function TimelineClock({ timeformat }: { timeformat: string | null }) {
   const { getLocalizedString } = useTranslation();
   const clock = useAutoTickingClock();
 
   // gather timer data
-  const formattedClock = formatTime(clock);
+  const formattedClock = formatTime(clock, { override: timeformat });
 
   return (
     <div className='clock-container'>

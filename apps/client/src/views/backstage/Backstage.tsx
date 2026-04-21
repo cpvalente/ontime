@@ -43,7 +43,7 @@ export default function BackstageLoader() {
 
 function Backstage({ events, customFields, projectData, isMirrored, settings }: BackstageData) {
   const { getLocalizedString } = useTranslation();
-  const { mainSource, secondarySource, extraInfo } = useBackstageOptions();
+  const { mainSource, secondarySource, extraInfo, timeformat } = useBackstageOptions();
   const { eventNext, eventNow, rundown, selectedEventId, time } = useBackstageSocket();
   const [blinkClass, setBlinkClass] = useState(false);
   const { height: screenHeight } = useViewportSize();
@@ -71,18 +71,20 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
 
   // gather timer data
   const isPendingStart = getIsPendingStart(time.playback, time.phase);
-  const startedAt = isPendingStart ? formatTime(time.secondaryTimer) : formatTime(time.startedAt);
+  const startedAt = isPendingStart
+    ? formatTime(time.secondaryTimer, { override: timeformat })
+    : formatTime(time.startedAt, { override: timeformat });
 
   const scheduledStart = (() => {
     if (showNow) return undefined;
     if (!hasEvents) return undefined;
-    return formatTime(rundown.plannedStart, { format12: 'h:mm a', format24: 'HH:mm' });
+    return formatTime(rundown.plannedStart, { format12: 'h:mm a', format24: 'HH:mm', override: timeformat });
   })();
 
   const scheduledEnd = (() => {
     if (showNow) return undefined;
     if (!hasEvents) return undefined;
-    return formatTime(rundown.plannedEnd, { format12: 'h:mm a', format24: 'HH:mm' });
+    return formatTime(rundown.plannedEnd, { format12: 'h:mm a', format24: 'HH:mm', override: timeformat });
   })();
 
   let displayTimer = millisToString(time.current, { fallback: timerPlaceholderMin });
@@ -107,7 +109,7 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
       <div className='project-header'>
         {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
         <div className='title'>{projectData.title}</div>
-        <BackstageClock />
+        <BackstageClock timeformat={timeformat} />
       </div>
 
       {showProgress && <ProgressBar className='progress-container' current={time.current} duration={time.duration} />}
@@ -131,7 +133,10 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
                 {isOvertime(time.current) ? (
                   <div className='time-entry__value'>{getLocalizedString('countdown.overtime')}</div>
                 ) : (
-                  <SuperscriptTime time={formatTime(time.expectedFinish)} className='time-entry__value' />
+                  <SuperscriptTime
+                    time={formatTime(time.expectedFinish, { override: timeformat })}
+                    className='time-entry__value'
+                  />
                 )}
               </div>
               <div className='timer-gap' />
@@ -213,12 +218,12 @@ function ExtraInfo({ projectData, size, source }: ExtraInfoProps) {
   );
 }
 
-function BackstageClock() {
+function BackstageClock({ timeformat }: { timeformat: string | null }) {
   const { getLocalizedString } = useTranslation();
   const clock = useAutoTickingClock();
 
   // gather timer data
-  const formattedClock = formatTime(clock);
+  const formattedClock = formatTime(clock, { override: timeformat });
 
   return (
     <div className='clock-container'>

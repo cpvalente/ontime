@@ -2,7 +2,7 @@ import { CustomFields, OntimeEvent, ProjectData } from 'ontime-types';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
-import { getTimeOption } from '../../common/components/view-params-editor/common.options';
+import { getTimeOption, getTimeOptionsFromParams, TimeOptions } from '../../common/components/view-params-editor/common.options';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import {
@@ -71,7 +71,7 @@ type BackstageOptions = {
   mainSource: keyof OntimeEvent | null;
   secondarySource: keyof OntimeEvent | null;
   extraInfo: string | null;
-};
+} & TimeOptions;
 
 /**
  * Utility extract the view options from URL Params
@@ -85,6 +85,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
     mainSource: getValue('main') as keyof OntimeEvent | null,
     secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
     extraInfo: getValue('extra-info'),
+    ...getTimeOptionsFromParams(searchParams, defaultValues),
   };
 }
 
