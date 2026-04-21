@@ -26,3 +26,16 @@ export const showLeadingZeros: ParamField = {
   type: 'boolean',
   defaultValue: false,
 };
+
+export type TimeOptions = {
+  timeformat: string | null;
+};
+
+export function getTimeOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): TimeOptions {
+  // Helper to get value from either source, prioritizing defaultValues
+  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
+
+  return {
+    timeformat: getValue('timeformat'),
+  };
+}

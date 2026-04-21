@@ -1,4 +1,4 @@
-import { MaybeNumber, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
+import { MaybeNumber, MaybeString, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
 import {
   MILLIS_PER_HOUR,
   MILLIS_PER_MINUTE,
@@ -75,8 +75,9 @@ function resolveTimeFormat(fallback12: string, fallback24: string): string {
 }
 
 type FormatOptions = {
-  format12: string;
-  format24: string;
+  format12?: string;
+  format24?: string;
+  override?: MaybeString;
 };
 
 /**
@@ -97,7 +98,7 @@ export const formatTime = (
     return '...';
   }
 
-  const timeFormat = resolver(options?.format12 ?? FORMAT_12, options?.format24 ?? FORMAT_24);
+  const timeFormat = options?.override ?? resolver(options?.format12 ?? FORMAT_12, options?.format24 ?? FORMAT_24);
   const display = formatFromMillis(Math.abs(milliseconds), timeFormat);
 
   const isNegative = milliseconds < 0;
