@@ -280,14 +280,13 @@ export async function renumberEntries(
 ): Promise<Rundown> {
   const startNumber = getIntegerAndFraction(start);
   const incrementNumber = getIntegerAndFraction(increment);
-  const maxPrecision = Math.max(incrementNumber.precision, startNumber.precision);
 
   // if the prefix doesn't already include a separator or is empty, then insert a separator
   if (prefix !== '' && !prefix.endsWith('-') && !prefix.endsWith(' ')) prefix += ' ';
 
   const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
 
-  rundownMutation.renumber(rundown, ids, prefix, startNumber, incrementNumber, maxPrecision);
+  rundownMutation.renumber(rundown, ids, prefix, startNumber, incrementNumber);
 
   const { rundown: rundownResult, rundownMetadata, revision } = commit(false);
 

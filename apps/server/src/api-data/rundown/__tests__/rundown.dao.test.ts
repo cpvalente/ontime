@@ -868,7 +868,6 @@ describe('rundownMutation.renumber()', () => {
       'Q',
       { integer: 10, faction: 0, precision: 0 },
       { integer: 2, faction: 0, precision: 0 },
-      0,
     );
 
     expect((rundown.entries['a'] as OntimeEvent).cue).toBe('Q10');
@@ -893,7 +892,6 @@ describe('rundownMutation.renumber()', () => {
       '',
       { integer: 1, faction: 0, precision: 2 },
       { integer: 0, faction: 25, precision: 2 },
-      2,
     );
 
     expect((rundown.entries['a'] as OntimeEvent).cue).toBe('1.00');
@@ -918,9 +916,30 @@ describe('rundownMutation.renumber()', () => {
         'X',
         { integer: 1, faction: 0, precision: 0 },
         { integer: 1, faction: 0, precision: 0 },
-        0,
       ),
     ).toThrowError('A given id was not an event');
+  });
+
+  it('handles mixed precision', () => {
+    const rundown = makeRundown({
+      order: ['a', 'b', 'c', 'd'],
+      entries: {
+        a: makeOntimeEvent({ id: 'a' }),
+        b: makeOntimeEvent({ id: 'b' }),
+        c: makeOntimeEvent({ id: 'c' }),
+        d: makeOntimeEvent({ id: 'd' }),
+      },
+    });
+
+    const inc = { integer: 0, faction: 5, precision: 1 }; // 0.5
+    const start = { integer: 1, faction: 5, precision: 2 }; // 1.05
+
+    rundownMutation.renumber(rundown, ['a', 'b', 'c', 'd'], 'X', start, inc);
+
+    expect((rundown.entries['a'] as OntimeEvent).cue).toBe('X1.05');
+    expect((rundown.entries['b'] as OntimeEvent).cue).toBe('X1.55');
+    expect((rundown.entries['c'] as OntimeEvent).cue).toBe('X1.105');
+    expect((rundown.entries['d'] as OntimeEvent).cue).toBe('X1.155');
   });
 });
 

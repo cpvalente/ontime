@@ -541,13 +541,19 @@ function renumber(
   prefix: string,
   start: IncrementNumber,
   increment: IncrementNumber,
-  maxPrecision: number,
 ) {
+  const maxPrecision = Math.max(increment.precision, start.precision);
+
+  //scale both factions so they have matching precision
+  increment.faction = increment.faction * Math.pow(10, maxPrecision - increment.precision);
+  start.faction = start.faction * Math.pow(10, maxPrecision - start.precision);
+
   for (let i = 0; i < ids.length; i++) {
     const currentId = ids[i];
     const currentEntry = rundown.entries[currentId];
     if (!currentEntry || !isOntimeEvent(currentEntry)) throw new Error('A given id was not an event');
 
+    //note: we know this dose not handle role over from the fraction into the integer
     const integer = String(start.integer + increment.integer * i);
     const fraction = maxPrecision
       ? '.' + String(start.faction + increment.faction * i).padStart(maxPrecision, '0')
