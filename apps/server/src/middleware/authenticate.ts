@@ -90,6 +90,14 @@ export function makeAuthenticateMiddleware(prefix: string) {
       }
     }
 
+    const authHeader = req.headers.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      const bearerToken = authHeader.slice(7);
+      if (bearerToken === hashedPassword) {
+        return next();
+      }
+    }
+
     res.status(401).send('Unauthorized');
   }
 
