@@ -2,7 +2,11 @@ import { CustomFields, OntimeEvent } from 'ontime-types';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
-import { getTimeOption, getTimeOptionsFromParams, TimeOptions } from '../../common/components/view-params-editor/common.options';
+import {
+  getTimeOption,
+  getTimeOptionsFromParams,
+  TimeOptions,
+} from '../../common/components/view-params-editor/common.options';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
