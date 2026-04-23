@@ -355,12 +355,11 @@ async function handleToolCall(name: string, args: Record<string, unknown>): Prom
       try {
         const { id, title } = args as { id: string; title: string };
         const dataProvider = getDataProvider();
-        const rundown = structuredClone(dataProvider.getRundown(id)) as { id: string; title: string };
-        rundown.title = title;
-        await dataProvider.setRundown(id, rundown as never);
+        const rundown = dataProvider.getRundown(id);
+        if (!rundown) throw new Error(`Rundown ${id} not found`);
+        await dataProvider.setRundown(id, { ...rundown, title });
         if (id === getCurrentRundown().id) {
-          const customFields = dataProvider.getCustomFields();
-          await initRundown(rundown as never, customFields);
+          await initRundown(dataProvider.getRundown(id), dataProvider.getCustomFields());
         }
         return ok(rundownListResponse());
       } catch (e) {
@@ -536,17 +535,15 @@ mcpRouter.post('/', async (req, res) => {
   const sessionId = req.headers['mcp-session-id'] as string | undefined;
 
   if (isInitializeRequest(body)) {
-    // New session: create server + transport
+    // New session: pin the session ID so the map key matches what the transport
+    // sends back to the client in the mcp-session-id response header.
+    const sessionId = randomUUID();
     const transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: () => randomUUID(),
+      sessionIdGenerator: () => sessionId,
     });
 
-    const id = randomUUID();
-    sessions.set(id, transport);
-
-    transport.onclose = () => {
-      sessions.delete(id);
-    };
+    sessions.set(sessionId, transport);
+    transport.onclose = () => sessions.delete(sessionId);
 
     const mcpServer = createMcpServer();
     await mcpServer.connect(transport);
@@ -587,5 +584,5 @@ mcpRouter.delete('/', async (req, res) => {
   const transport = sessions.get(sessionId)!;
   sessions.delete(sessionId);
   await transport.close();
-  res.status(200).json({ ok: true });
+  res.status(204).send();
 });
