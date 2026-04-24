@@ -17,10 +17,19 @@ import {
   reorderEntry,
   loadRundown,
   initRundown,
+  batchEditEntries,
 } from '../api-data/rundown/rundown.service.js';
 import { duplicateRundown, normalisedToRundownArray } from '../api-data/rundown/rundown.utils.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
 import { makeNewRundown } from '../models/dataModel.js';
+import {
+  getProjectList,
+  loadProjectFile,
+  createProjectWithPatch,
+  renameProjectFile,
+  duplicateProjectFile,
+  deleteProjectFile,
+} from '../services/project-service/ProjectService.js';
 import { getState } from '../stores/runtimeState.js';
 
 // MCP SDK imports
@@ -230,7 +239,8 @@ const TOOL_DEFINITIONS = [
   },
   {
     name: 'create_automation',
-    description: 'Create a new automation',
+    description:
+      'Create a new automation (trigger + filter + outputs). Ontime provides a test button in the Automations panel — encourage the user to preview the output before relying on it in a live show.',
     inputSchema: {
       type: 'object',
       required: ['title', 'filterRule', 'filters', 'outputs'],
@@ -247,6 +257,136 @@ const TOOL_DEFINITIONS = [
     description: 'Get the project custom fields',
     inputSchema: { type: 'object', properties: {} },
   },
+  // --- Batch rundown edits ---
+  {
+    name: 'create_events_batch',
+    description:
+      'Create multiple events in one call. Use this for "build from agenda" flows to avoid many round trips. Events are inserted in array order; if `after` is provided it positions the first event, subsequent events chain from the previous.',
+    inputSchema: {
+      type: 'object',
+      required: ['events'],
+      properties: {
+        after: { type: 'string', description: 'Insert the first event after this entry ID' },
+        events: {
+          type: 'array',
+          description: 'Array of events to create, in desired order',
+          items: {
+            type: 'object',
+            required: ['cue', 'title', 'timeStart', 'timeEnd', 'duration'],
+            properties: {
+              cue: { type: 'string' },
+              title: { type: 'string' },
+              timeStart: { type: 'number' },
+              timeEnd: { type: 'number' },
+              duration: { type: 'number' },
+              note: { type: 'string' },
+              colour: { type: 'string' },
+              skip: { type: 'boolean' },
+              timerType: { type: 'string', enum: ['count-down', 'count-up', 'time-to-end', 'clock'] },
+              endAction: { type: 'string', enum: ['none', 'stop', 'load-next', 'play-next'] },
+              linkStart: { type: 'boolean' },
+              countToEnd: { type: 'boolean' },
+              timeWarning: { type: 'number' },
+              timeDanger: { type: 'number' },
+            },
+          },
+        },
+      },
+    },
+  },
+  {
+    name: 'batch_update_events',
+    description:
+      'Apply the same field changes to multiple events by ID. Use for bulk operations like recolouring all keynotes or shifting times by a constant offset (compute new times client-side first).',
+    inputSchema: {
+      type: 'object',
+      required: ['ids', 'data'],
+      properties: {
+        ids: { type: 'array', items: { type: 'string' }, description: 'Array of event IDs to update' },
+        data: {
+          type: 'object',
+          description: 'Partial event fields to apply to every ID',
+          properties: {
+            cue: { type: 'string' },
+            title: { type: 'string' },
+            note: { type: 'string' },
+            colour: { type: 'string' },
+            skip: { type: 'boolean' },
+            timerType: { type: 'string', enum: ['count-down', 'count-up', 'time-to-end', 'clock'] },
+            endAction: { type: 'string', enum: ['none', 'stop', 'load-next', 'play-next'] },
+            timeWarning: { type: 'number' },
+            timeDanger: { type: 'number' },
+          },
+        },
+      },
+    },
+  },
+  // --- Project file management ---
+  {
+    name: 'list_projects',
+    description: 'List all project files on disk. Returns filenames, timestamps, and the last-loaded project name.',
+    inputSchema: { type: 'object', properties: {} },
+  },
+  {
+    name: 'load_project',
+    description:
+      'Load a different project file by filename. This stops playback, swaps the database, and reinitialises runtime. Prefer to use when playback is stopped.',
+    inputSchema: {
+      type: 'object',
+      required: ['filename'],
+      properties: {
+        filename: { type: 'string', description: 'Project filename, e.g. "my-show.json"' },
+      },
+    },
+  },
+  {
+    name: 'create_project',
+    description: 'Create a new empty project file and save it to disk. Does not switch to the new project.',
+    inputSchema: {
+      type: 'object',
+      required: ['filename'],
+      properties: {
+        filename: { type: 'string', description: 'Filename for the new project (e.g. "my-show")' },
+        title: { type: 'string', description: 'Optional project title' },
+        description: { type: 'string', description: 'Optional project description' },
+      },
+    },
+  },
+  {
+    name: 'rename_project',
+    description: 'Rename a project file. If the renamed project is currently loaded, it is reloaded with the new name.',
+    inputSchema: {
+      type: 'object',
+      required: ['filename', 'newFilename'],
+      properties: {
+        filename: { type: 'string', description: 'Current filename' },
+        newFilename: { type: 'string', description: 'New filename' },
+      },
+    },
+  },
+  {
+    name: 'duplicate_project',
+    description: 'Duplicate a project file on disk with a new filename.',
+    inputSchema: {
+      type: 'object',
+      required: ['filename', 'newFilename'],
+      properties: {
+        filename: { type: 'string', description: 'Source filename to copy' },
+        newFilename: { type: 'string', description: 'Filename of the new copy' },
+      },
+    },
+  },
+  {
+    name: 'delete_project',
+    description: 'Delete a project file from disk. Fails if the file is currently loaded.',
+    inputSchema: {
+      type: 'object',
+      required: ['filename'],
+      properties: {
+        filename: { type: 'string', description: 'Project filename to delete' },
+      },
+    },
+  },
 ] as const;
 
 // ---- Helper to build rundown list response ----
@@ -261,6 +401,15 @@ async function handleToolCall(name: string, args: Record<string, unknown>): Prom
   const text = (data: unknown) => JSON.stringify(data);
   const ok = (data: unknown): CallToolResult => ({ content: [{ type: 'text', text: text(data) }] });
   const err = (e: unknown): CallToolResult => ({ content: [{ type: 'text', text: text({ error: String(e) }) }], isError: true });
+  // Wraps mutating-tool results with a warning when playback is active so the agent can relay it to the user.
+  const okMutation = (data: unknown): CallToolResult => {
+    const playback = getState().timer.playback;
+    const payload =
+      playback !== 'stop'
+        ? { warning: 'Playback is running — this change takes effect immediately.', result: data }
+        : data;
+    return { content: [{ type: 'text', text: text(payload) }] };
+  };
 
   switch (name) {
     case 'get_rundown': {
@@ -292,7 +441,7 @@ async function handleToolCall(name: string, args: Record<string, unknown>): Prom
     case 'create_event': {
       try {
         const entry = await addEntry({ type: SupportedEntry.Event, ...args } as never);
-        return ok(entry);
+        return okMutation(entry);
       } catch (e) {
         return err(e);
       }
@@ -301,7 +450,7 @@ async function handleToolCall(name: string, args: Record<string, unknown>): Prom
     case 'update_event': {
       try {
         const entry = await editEntry(args as never);
-        return ok(entry);
+        return okMutation(entry);
       } catch (e) {
         return err(e);
       }
@@ -311,7 +460,7 @@ async function handleToolCall(name: string, args: Record<string, unknown>): Prom
       try {
         const ids = args.ids as string[];
         const rundown = await deleteEntries(ids);
-        return ok({ deleted: ids, order: rundown.order });
+        return okMutation({ deleted: ids, order: rundown.order });
       } catch (e) {
         return err(e);
       }
@@ -321,7 +470,7 @@ async function handleToolCall(name: string, args: Record<string, unknown>): Prom
       try {
         const { entryId, destinationId, order } = args as { entryId: string; destinationId: string; order: 'before' | 'after' | 'insert' };
         const rundown = await reorderEntry(entryId, destinationId, order);
-        return ok({ order: rundown.order });
+        return okMutation({ order: rundown.order });
       } catch (e) {
         return err(e);
       }
@@ -336,7 +485,7 @@ async function handleToolCall(name: string, args: Record<string, unknown>): Prom
         const rundown = makeNewRundown();
         rundown.title = args.title as string;
         await getDataProvider().setRundown(rundown.id, rundown);
-        return ok(rundownListResponse());
+        return okMutation(rundownListResponse());
       } catch (e) {
         return err(e);
       }
@@ -345,7 +494,7 @@ async function handleToolCall(name: string, args: Record<string, unknown>): Prom
     case 'load_rundown': {
       try {
         await loadRundown(args.id as string);
-        return ok(rundownListResponse());
+        return okMutation(rundownListResponse());
       } catch (e) {
         return err(e);
       }
@@ -361,7 +510,7 @@ async function handleToolCall(name: string, args: Record<string, unknown>): Prom
         if (id === getCurrentRundown().id) {
           await initRundown(dataProvider.getRundown(id), dataProvider.getCustomFields());
         }
-        return ok(rundownListResponse());
+        return okMutation(rundownListResponse());
       } catch (e) {
         return err(e);
       }
@@ -380,7 +529,7 @@ async function handleToolCall(name: string, args: Record<string, unknown>): Prom
           return err('Cannot delete the last rundown');
         }
         await dataProvider.deleteRundown(id);
-        return ok(rundownListResponse());
+        return okMutation(rundownListResponse());
       } catch (e) {
         return err(e);
       }
@@ -393,7 +542,7 @@ async function handleToolCall(name: string, args: Record<string, unknown>): Prom
         const rundown = dataProvider.getRundown(id);
         const copy = duplicateRundown(rundown as never, `Copy of ${rundown.title}`);
         await dataProvider.setRundown(copy.id, copy);
-        return ok(rundownListResponse());
+        return okMutation(rundownListResponse());
       } catch (e) {
         return err(e);
       }
@@ -435,7 +584,7 @@ async function handleToolCall(name: string, args: Record<string, unknown>): Prom
     case 'create_automation': {
       try {
         const result = await addAutomation(args as never);
-        return ok(result);
+        return okMutation(result);
       } catch (e) {
         return err(e);
       }
@@ -443,6 +592,101 @@ async function handleToolCall(name: string, args: Record<string, unknown>): Prom
 
     case 'get_custom_fields': {
       return ok(getProjectCustomFields());
+    }
+
+    // --- Batch rundown edits ---
+
+    case 'create_events_batch': {
+      try {
+        const events = (args.events as Array<Record<string, unknown>>) ?? [];
+        let previousId = (args.after as string | undefined) ?? undefined;
+        const created: unknown[] = [];
+        for (const eventArgs of events) {
+          const entry = await addEntry({
+            type: SupportedEntry.Event,
+            ...eventArgs,
+            ...(previousId ? { after: previousId } : {}),
+          } as never);
+          created.push(entry);
+          previousId = (entry as { id: string }).id;
+        }
+        return okMutation({ created });
+      } catch (e) {
+        return err(e);
+      }
+    }
+
+    case 'batch_update_events': {
+      try {
+        const ids = args.ids as string[];
+        const data = args.data as Partial<Record<string, unknown>>;
+        const rundown = await batchEditEntries(ids, data as never);
+        return okMutation({ updated: ids, order: rundown.order });
+      } catch (e) {
+        return err(e);
+      }
+    }
+
+    // --- Project file management ---
+
+    case 'list_projects': {
+      return ok(await getProjectList());
+    }
+
+    case 'load_project': {
+      try {
+        await loadProjectFile(args.filename as string);
+        return okMutation(await getProjectList());
+      } catch (e) {
+        return err(e);
+      }
+    }
+
+    case 'create_project': {
+      try {
+        const { filename, title, description } = args as {
+          filename: string;
+          title?: string;
+          description?: string;
+        };
+        const patch =
+          title || description
+            ? { project: { title: title ?? '', description: description ?? '' } as never }
+            : {};
+        const newFileName = await createProjectWithPatch(filename, patch);
+        return ok({ filename: newFileName });
+      } catch (e) {
+        return err(e);
+      }
+    }
+
+    case 'rename_project': {
+      try {
+        const { filename, newFilename } = args as { filename: string; newFilename: string };
+        await renameProjectFile(filename, newFilename);
+        return ok(await getProjectList());
+      } catch (e) {
+        return err(e);
+      }
+    }
+
+    case 'duplicate_project': {
+      try {
+        const { filename, newFilename } = args as { filename: string; newFilename: string };
+        await duplicateProjectFile(filename, newFilename);
+        return ok(await getProjectList());
+      } catch (e) {
+        return err(e);
+      }
+    }
+
+    case 'delete_project': {
+      try {
+        await deleteProjectFile(args.filename as string);
+        return ok(await getProjectList());
+      } catch (e) {
+        return err(e);
+      }
     }
 
     default:
@@ -479,11 +723,38 @@ function createMcpServer(): Server {
       prompts: [
         {
           name: 'create_rundown_from_agenda',
-          description: 'Generate MCP tool calls to build a rundown from a plain-text agenda',
+          description: 'Build an Ontime rundown from a plain-text agenda',
           arguments: [
             {
               name: 'agenda',
               description: 'Plain-text agenda to convert into an Ontime rundown',
+              required: true,
+            },
+          ],
+        },
+        {
+          name: 'bulk_edit_rundown',
+          description: 'Apply a bulk change across the rundown (shift times, recolour, skip, etc.)',
+          arguments: [
+            {
+              name: 'instruction',
+              description: 'What to change (e.g. "shift everything 30 minutes later", "make all breaks 10 minutes")',
+              required: true,
+            },
+          ],
+        },
+        {
+          name: 'validate_rundown',
+          description: 'Check the current rundown for common issues before a show',
+          arguments: [],
+        },
+        {
+          name: 'restructure_rundown',
+          description: 'Reorder or group events in the rundown',
+          arguments: [
+            {
+              name: 'instruction',
+              description: 'What to restructure (e.g. "group all keynotes together", "reorder to match this template")',
               required: true,
             },
           ],
@@ -495,32 +766,120 @@ function createMcpServer(): Server {
   // Handle prompts/get
   server.setRequestHandler(GetPromptRequestSchema, async (request): Promise<GetPromptResult> => {
     const { name, arguments: args = {} } = request.params;
-    if (name !== 'create_rundown_from_agenda') {
-      throw new Error(`Unknown prompt: ${name}`);
-    }
-    const agenda = (args as Record<string, string>).agenda ?? '';
-    return {
-      description: 'Generate MCP tool calls to build a rundown from a plain-text agenda',
-      messages: [
-        {
-          role: 'user',
-          content: {
-            type: 'text',
-            text: `Convert the following agenda into an Ontime rundown using these rules:
+    const a = args as Record<string, string>;
 
-- Times are in milliseconds from midnight. 09:00 = 32400000, 10:30 = 37800000, etc.
+    if (name === 'create_rundown_from_agenda') {
+      const agenda = a.agenda ?? '';
+      return {
+        description: 'Build an Ontime rundown from a plain-text agenda',
+        messages: [
+          {
+            role: 'user',
+            content: {
+              type: 'text',
+              text: `Convert the following agenda into an Ontime rundown.
+
+Data model:
+- Times are milliseconds from midnight. 09:00 = 32400000, 10:30 = 37800000, etc.
 - duration = timeEnd - timeStart
-- Cue prefixes by type: K01/K02/... for keynotes, P01/P02/... for panels, B01/B02/... for breaks
-- Colours by type: #4A90D9 for keynotes, #7B68EE for panels, #888888 for breaks, #E8A838 for meals
-- First call get_rundown to see the current state, then use create_event for each agenda item
-- Pass \`after: <previous event id>\` to chain events in sequence
+- Cue prefixes by type: K01/K02/... for keynotes, P01/P02/... for panels, B01/B02/... for breaks, M01/... for meals
+- Colours by type: #4A90D9 keynotes, #7B68EE panels, #888888 breaks, #E8A838 meals
+- timerType: "count-down" for timed sessions, "clock" for clock-relative
+- endAction: "load-next" for back-to-back sessions, "none" otherwise
+
+Steps:
+1. Call get_rundown to see current state and identify an \`after\` anchor if appending.
+2. Build an array of events in order and call create_events_batch ONCE with all of them. This is much faster than calling create_event per item.
+3. If the rundown already has events, pass \`after: <last event id>\` on the batch call so new events chain from the end.
 
 Agenda:
 ${agenda}`,
+            },
           },
-        },
-      ],
-    };
+        ],
+      };
+    }
+
+    if (name === 'bulk_edit_rundown') {
+      const instruction = a.instruction ?? '';
+      return {
+        description: 'Apply a bulk change across the rundown',
+        messages: [
+          {
+            role: 'user',
+            content: {
+              type: 'text',
+              text: `Apply the following bulk edit to the current Ontime rundown: "${instruction}"
+
+Strategy:
+1. Call get_rundown to see the current events, their IDs, and field values.
+2. Determine which event IDs are affected by the instruction.
+3. If every affected event receives the SAME field changes (e.g. "colour all keynotes purple", "skip all breaks"): call batch_update_events once with { ids, data }.
+4. If each event needs DIFFERENT values (e.g. "shift everything 30 minutes" — each event gets a different timeStart/timeEnd): compute the new values per event, then call update_event for each, or call batch_update_events multiple times grouped by shared data.
+5. Time fields are milliseconds from midnight; compute arithmetic before calling the tools.
+
+Confirm with the user before making destructive changes like setting skip=true on many events.`,
+            },
+          },
+        ],
+      };
+    }
+
+    if (name === 'validate_rundown') {
+      return {
+        description: 'Check the current rundown for common issues',
+        messages: [
+          {
+            role: 'user',
+            content: {
+              type: 'text',
+              text: `Validate the currently loaded Ontime rundown and report issues.
+
+Steps:
+1. Call get_rundown to read all events.
+2. Call get_rundown_metadata for totals (total duration, first/last times, flagged IDs).
+3. Check and report:
+   - Events with missing or duplicate \`cue\`
+   - Events with missing \`title\`
+   - Events with \`duration\` of 0 or negative
+   - Events where \`timeEnd\` is before \`timeStart\`
+   - Events whose \`timeStart\` overlaps the previous event's \`timeEnd\` (schedule conflict)
+   - Large unexplained gaps between consecutive events (> 30 min) that may indicate missing breaks
+   - Events flagged \`skip: true\` — confirm with the user these are intentional
+   - Total rundown duration and whether it matches the user's expected show length (ask if unknown)
+
+Present issues grouped by severity: ERROR (breaks playback), WARNING (likely mistake), INFO (worth confirming).`,
+            },
+          },
+        ],
+      };
+    }
+
+    if (name === 'restructure_rundown') {
+      const instruction = a.instruction ?? '';
+      return {
+        description: 'Reorder events in the rundown',
+        messages: [
+          {
+            role: 'user',
+            content: {
+              type: 'text',
+              text: `Restructure the current Ontime rundown: "${instruction}"
+
+Steps:
+1. Call get_rundown to see the current order and event fields.
+2. Compute the target order as an array of event IDs.
+3. For each event that needs to move, call reorder_event with { entryId, destinationId, order: 'before' | 'after' }.
+4. Call get_rundown again at the end to confirm the new order.
+
+Tip: moving items in the "to" direction of the target position minimises reorder calls. Plan the sequence of moves to avoid moving the same event twice.`,
+            },
+          },
+        ],
+      };
+    }
+
+    throw new Error(`Unknown prompt: ${name}`);
   });
 
   return server;
