@@ -87,8 +87,8 @@ export const entryRenumberValidator = [
   body('ids').isArray().notEmpty(),
   body('ids.*').isString(),
   body('prefix').isString(),
-  body('start').isNumeric(),
-  body('increment').isNumeric(),
+  body('start').isDecimal(),
+  body('increment').isDecimal(),
   requestValidationFunction,
 ];
 
