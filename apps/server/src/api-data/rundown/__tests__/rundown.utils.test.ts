@@ -9,6 +9,7 @@ import {
   deleteById,
   doesInvalidateMetadata,
   duplicateRundown,
+  getIntegerAndFraction,
   hasChanges,
   makeDeepClone,
 } from '../rundown.utils.js';
@@ -279,5 +280,31 @@ describe('makeDeepClone()', () => {
         revision: 0,
       },
     ]);
+  });
+});
+
+describe('getIntegerAndFraction()', () => {
+  test('integer without fraction', () => {
+    expect(getIntegerAndFraction('123')).toStrictEqual({ integer: 123, faction: 0, precision: 0 });
+  });
+
+  test('integer and fraction', () => {
+    expect(getIntegerAndFraction('123.456')).toStrictEqual({ integer: 123, faction: 456, precision: 3 });
+  });
+
+  test('invalid integer', () => {
+    expect(() => getIntegerAndFraction('abc.456')).toThrowError('input can not be converted to a number');
+  });
+
+  test('indicate precision just with zeros', () => {
+    expect(getIntegerAndFraction('123.000')).toStrictEqual({ integer: 123, faction: 0, precision: 3 });
+  });
+
+  test('invalid fraction', () => {
+    expect(() => getIntegerAndFraction('123.abc')).toThrowError('input can not be converted to a number');
+  });
+
+  test('floating separator', () => {
+    expect(getIntegerAndFraction('123.')).toStrictEqual({ integer: 123, faction: 0, precision: 0 });
   });
 });

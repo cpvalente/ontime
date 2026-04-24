@@ -41,6 +41,7 @@ import {
   patchReorderEntry,
   postAddEntry,
   postCloneEntry,
+  patchRenumberCues,
   putBatchEditEvents,
   putEditEntry,
   requestApplyDelay,
@@ -523,6 +524,39 @@ export const useEntryActions = () => {
     [batchUpdateEventsMutation, getCurrentRundownData],
   );
 
+  const { mutateAsync: renumberCuesMutation } = useMutation({
+    mutationFn: ([rundownId, body]: Parameters<typeof patchRenumberCues>) => patchRenumberCues(rundownId, body),
+    onMutate: async () => {
+      const queryKey = resolveCurrentRundownQueryKey();
+      await queryClient.cancelQueries({ queryKey });
+      const previousRundown = queryClient.getQueryData<Rundown>(queryKey);
+      return { previousRundown, queryKey };
+    },
+    onSuccess: (response, _variables, context) => {
+      if (!response.data || !context?.queryKey) return;
+      const updatedRundown = response.data;
+      queryClient.setQueryData<Rundown>(context.queryKey, updatedRundown);
+    },
+    onError: (_error, _vars, context) => {
+      if (context?.previousRundown) queryClient.setQueryData<Rundown>(context.queryKey, context.previousRundown);
+    },
+  });
+
+  const renumberCues = useCallback(
+    async (eventIds: EntryId[], prefix: string, start: string, increment: string) => {
+      const rundown = getCurrentRundownData();
+      const rundownId = rundown?.id;
+      if (!rundownId) throw new Error('Rundown not initialized');
+      try {
+        await renumberCuesMutation([rundownId, { ids: eventIds, prefix, start, increment }]);
+      } catch (error) {
+        logAxiosError('Error renumbering cues', error);
+        throw error;
+      }
+    },
+    [getCurrentRundownData, renumberCuesMutation],
+  );
+
   /**
    * Calls mutation to delete an entry
    * @private
@@ -947,6 +981,7 @@ export const useEntryActions = () => {
       groupEntries,
       move,
       reorderEntry,
+      renumberCues,
       swapEvents,
       updateEntry,
       updateTimer,
@@ -963,6 +998,7 @@ export const useEntryActions = () => {
       groupEntries,
       move,
       reorderEntry,
+      renumberCues,
       swapEvents,
       updateEntry,
       updateTimer,

@@ -1,5 +1,13 @@
 import axios, { AxiosResponse } from 'axios';
-import { EntryId, OntimeEntry, OntimeEvent, ProjectRundownsList, Rundown, TransientEventPayload } from 'ontime-types';
+import {
+  EntryId,
+  OntimeEntry,
+  OntimeEvent,
+  ProjectRundownsList,
+  RenumberCues,
+  Rundown,
+  TransientEventPayload,
+} from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 import type { RequestOptions } from './requestOptions';
@@ -109,6 +117,13 @@ export type BatchEditEntry = {
  */
 export async function putBatchEditEvents(rundownId: RundownId, data: BatchEditEntry): Promise<AxiosResponse<Rundown>> {
   return axios.put(`${rundownPath}/${rundownId}/batch`, data);
+}
+
+/**
+ * HTTP request to renumber cues for multiple events
+ */
+export function patchRenumberCues(rundownId: RundownId, data: RenumberCues): Promise<AxiosResponse<Rundown>> {
+  return axios.patch(`${rundownPath}/${rundownId}/renumber`, data);
 }
 
 export type ReorderEntry = {

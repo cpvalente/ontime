@@ -50,9 +50,12 @@ type CompleteEntry<T> =
  */
 export function generateEvent<
   T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeGroup> | Partial<OntimeMilestone>,
->(rundown: Rundown, eventData: T, afterId: EntryId | null): CompleteEntry<T> {
+>(rundown: Rundown, eventData: T, afterId: EntryId | null, parent?: EntryId): CompleteEntry<T> {
   if (isOntimeEvent(eventData)) {
-    return createEvent(eventData, getCueCandidate(rundown.entries, rundown.order, afterId)) as CompleteEntry<T>;
+    return createEvent(
+      eventData,
+      getCueCandidate(rundown.entries, rundown.flatOrder, afterId, parent),
+    ) as CompleteEntry<T>;
   }
 
   const id = eventData.id || getUniqueId(rundown);
@@ -469,4 +472,31 @@ export function duplicateRundown(rundown: Rundown, newTitle: string): Rundown {
   newRundown.revision = 0;
 
   return newRundown;
+}
+
+export type IncrementNumber = {
+  integer: number;
+  faction: number;
+  precision: number;
+};
+
+/**
+ * Parses a decimal string into integer part, fractional digits as an integer, and fractional digit count.
+ * Splits on the first `.` only
+ *
+ * @param value - Numeric string, e.g. `"123"` or `"123.456"`.
+ * @returns `integer` whole part, `faction` digits after the point as a number (0 when no fraction), `precision` digit count after `.`.
+ * @throws {Error} When the integer or fractional segment is not parseable as number
+ */
+export function getIntegerAndFraction(value: string): IncrementNumber {
+  const [integerStr, factionStr] = value.split('.', 2);
+  const integer = parseInt(integerStr);
+  const precision = (factionStr ?? '').length;
+  const faction = precision === 0 ? 0 : parseInt(factionStr);
+  if (isNaN(integer) || isNaN(faction)) throw new Error('input can not be converted to a number');
+  return {
+    integer,
+    faction,
+    precision,
+  };
 }

@@ -89,6 +89,7 @@ export type {
   ProjectRundownsList,
   TransientEventPayload,
   RundownSummary,
+  RenumberCues,
 } from './api/rundown-controller/BackendResponse.type.js';
 export type { LinkOptions } from './api/session-controller/BackendResponse.type.js';
 export type { CustomViewSummary, CustomViewsListResponse } from './api/custom-views/customViews.type.js';
