@@ -1,7 +1,7 @@
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, Table, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { OntimeEntry, TimeField, isOntimeDelay, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
-import { ComponentProps, memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import { ComponentProps, ReactNode, memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   ContextProp,
   ItemProps,
@@ -14,10 +14,8 @@ import {
 import EmptyPage from '../../../common/components/state/EmptyPage';
 import EmptyTableBody from '../../../common/components/state/EmptyTableBody';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
-import { useFlatRundownWithMetadata } from '../../../common/hooks-query/useRundown';
-import { useSelectedEventId } from '../../../common/hooks/useSocket';
+import type { RundownSource } from '../../../common/hooks-query/useRundownSource';
 import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
-import EditorTableSettings from '../../../features/rundown/rundown-table/EditorTableSettings';
 import { usePersistedRundownOptions } from '../../../features/rundown/rundown.options';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
 import { AppMode } from '../../../ontimeConfig';
@@ -28,7 +26,7 @@ import EventRow from './cuesheet-table-elements/EventRow';
 import GroupRow from './cuesheet-table-elements/GroupRow';
 import MilestoneRow from './cuesheet-table-elements/MilestoneRow';
 import TableMenu from './cuesheet-table-menu/TableMenu';
-import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
+import CuesheetTableHeaderToolbar from './cuesheet-table-settings/CuesheetTableHeaderToolbar';
 import { useColumnOrder, useColumnSizes, useColumnVisibility } from './useColumnManager';
 
 import style from './CuesheetTable.module.scss';
@@ -36,6 +34,8 @@ import style from './CuesheetTable.module.scss';
 type CuesheetTableBaseProps = {
   columns: ColumnDef<ExtendedEntry>[];
   cuesheetMode: AppMode;
+  source: RundownSource;
+  headerLeadingContent?: ReactNode;
 };
 
 type EditorCuesheetTableProps = CuesheetTableBaseProps & {
@@ -46,20 +46,27 @@ type EditorCuesheetTableProps = CuesheetTableBaseProps & {
 type ViewCuesheetTableProps = CuesheetTableBaseProps & {
   tableRoot: 'cuesheet';
   setCuesheetMode: (mode: AppMode) => void;
+  isCurrentRundown?: boolean;
 };
 
 type CuesheetTableProps = EditorCuesheetTableProps | ViewCuesheetTableProps;
 
-export default function CuesheetTable({ columns, cuesheetMode, tableRoot, setCuesheetMode }: CuesheetTableProps) {
-  const { data, status } = useFlatRundownWithMetadata();
+export default function CuesheetTable({
+  columns,
+  cuesheetMode,
+  source,
+  tableRoot,
+  setCuesheetMode,
+  isCurrentRundown,
+  headerLeadingContent,
+}: CuesheetTableProps) {
+  const { flatRundown, status, selectedEventId } = source;
   const { updateEntry, updateTimer } = useEntryActionsContext();
 
   const useOptions = tableRoot === 'editor' ? usePersistedRundownOptions : usePersistedCuesheetOptions;
-  const showDelayedTimes = useOptions((state) => state.showDelayedTimes);
-  const hideTableSeconds = useOptions((state) => state.hideTableSeconds);
-  const hideIndexColumn = useOptions((state) => state.hideIndexColumn);
+  const optionsStore = useOptions();
+  const { showDelayedTimes, hideTableSeconds, hideIndexColumn } = optionsStore;
 
-  const selectedEventId = useSelectedEventId();
   const cursor = useEventSelection((state) => state.cursor);
   const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
 
@@ -70,7 +77,7 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot, setCue
     () => ({
       handleUpdate: (rowIndex: number, accessor: string, payload: string, isCustom = false) => {
         // check if value is the same
-        const event = data[rowIndex];
+        const event = flatRundown[rowIndex];
 
         if (!event) {
           return;
@@ -101,7 +108,7 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot, setCue
         hideIndexColumn,
       },
     }),
-    [cuesheetMode, data, hideIndexColumn, hideTableSeconds, showDelayedTimes, updateEntry, updateTimer],
+    [cuesheetMode, flatRundown, hideIndexColumn, hideTableSeconds, showDelayedTimes, updateEntry, updateTimer],
   );
 
   const { columnOrder, resetColumnOrder } = useColumnOrder(columns, tableRoot);
@@ -109,7 +116,7 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot, setCue
   const { columnVisibility, setColumnVisibility } = useColumnVisibility(tableRoot);
 
   const table = useReactTable({
-    data,
+    data: flatRundown,
     columns,
     columnResizeMode: 'onChange',
     state: {
@@ -137,13 +144,13 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot, setCue
       return;
     }
 
-    const eventIndex = data.findIndex((event) => event.id === selectedEventId);
+    const eventIndex = flatRundown.findIndex((event) => event.id === selectedEventId);
     if (eventIndex === -1) {
       return;
     }
 
     virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'auto', align: 'start', offset: -50 });
-  }, [cuesheetMode, data, selectedEventId]);
+  }, [cuesheetMode, flatRundown, selectedEventId]);
 
   // Provide an imperative scroll handler for explicit jumps (finder/keyboard)
   useEffect(() => {
@@ -152,7 +159,7 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot, setCue
         return;
       }
 
-      const eventIndex = data.findIndex((event) => event.id === entryId);
+      const eventIndex = flatRundown.findIndex((event) => event.id === entryId);
       if (eventIndex === -1) {
         return;
       }
@@ -165,7 +172,7 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot, setCue
     return () => {
       setScrollHandler(null);
     };
-  }, [data, setScrollHandler]);
+  }, [flatRundown, setScrollHandler]);
 
   /**
    * To improve performance on resizing, we memoise the column sizes
@@ -217,7 +224,7 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot, setCue
     });
   }, [cuesheetMode, hideIndexColumn, table]);
 
-  const isLoading = !data || status === 'pending';
+  const isLoading = !flatRundown || status === 'pending';
 
   if (isLoading) {
     return <EmptyPage text='Loading...' />;
@@ -225,26 +232,27 @@ export default function CuesheetTable({ columns, cuesheetMode, tableRoot, setCue
 
   return (
     <>
-      {tableRoot === 'editor' ? (
-        <EditorTableSettings
-          columns={allLeafColumns}
-          handleResetResizing={resetColumnResizing}
-          handleResetReordering={resetColumnOrder}
-          handleClearToggles={setAllVisible}
-        />
-      ) : (
-        <CuesheetTableSettings
-          columns={allLeafColumns}
-          cuesheetMode={cuesheetMode}
-          setCuesheetMode={setCuesheetMode}
-          handleResetResizing={resetColumnResizing}
-          handleResetReordering={resetColumnOrder}
-          handleClearToggles={setAllVisible}
-        />
-      )}
+      <CuesheetTableHeaderToolbar
+        columns={allLeafColumns}
+        optionsStore={optionsStore}
+        handleResetResizing={resetColumnResizing}
+        handleResetReordering={resetColumnOrder}
+        handleClearToggles={setAllVisible}
+        leadingContent={tableRoot === 'cuesheet' ? headerLeadingContent : undefined}
+        modeControls={
+          tableRoot === 'cuesheet'
+            ? {
+                cuesheetMode,
+                setCuesheetMode,
+                isCurrentRundown,
+              }
+            : undefined
+        }
+        showShare={tableRoot === 'cuesheet'}
+      />
       <TableVirtuoso
         ref={virtuosoRef}
-        data={data}
+        data={flatRundown}
         context={virtuosoContext}
         style={tableRoot === 'editor' ? { paddingLeft: '1rem' } : undefined}
         computeItemKey={computeItemKey}

@@ -38,8 +38,8 @@ import { generateEvent, hasChanges } from './rundown.utils.js';
 /**
  * creates a new entry with given data
  */
-export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+export async function addEntry(rundownId: string, eventData: EventPostPayload): Promise<OntimeEntry> {
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
 
   // we allow the user to provide an ID, but make sure it is unique
   if (eventData?.id && Object.hasOwn(rundown.entries, eventData.id)) {
@@ -66,7 +66,7 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
   // make mutations to rundown
   rundownMutation.add(rundown, newEntry, afterId, parent);
 
-  const { rundownMetadata, revision } = commit();
+  const { rundown: responseRundown, rundownMetadata, revision } = await commit();
 
   // schedule the side effects
   setImmediate(() => {
@@ -74,17 +74,17 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: [newEntry.id], external: true });
+    notifyChanges(rundownMetadata, revision, rundownId, { timer: [newEntry.id], external: true });
   });
 
-  return newEntry;
+  return responseRundown.entries[newEntry.id] ?? newEntry;
 }
 
 /**
  * Applies a patch to an entry in the rundown
  */
-export async function editEntry(patch: PatchWithId): Promise<OntimeEntry> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+export async function editEntry(rundownId: string, patch: PatchWithId): Promise<OntimeEntry> {
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
   const currentEntry = rundown.entries[patch.id];
 
   /**
@@ -110,7 +110,7 @@ export async function editEntry(patch: PatchWithId): Promise<OntimeEntry> {
   }
 
   const { entry, didInvalidate } = rundownMutation.edit(rundown, patch);
-  const { rundownMetadata, revision } = commit(didInvalidate);
+  const { rundown: responseRundown, rundownMetadata, revision } = await commit(didInvalidate);
 
   // schedule the side effects
   setImmediate(() => {
@@ -118,17 +118,17 @@ export async function editEntry(patch: PatchWithId): Promise<OntimeEntry> {
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: didInvalidate ? true : [entry.id], external: true });
+    notifyChanges(rundownMetadata, revision, rundownId, { timer: didInvalidate ? true : [entry.id], external: true });
   });
 
-  return entry;
+  return responseRundown.entries[entry.id] ?? entry;
 }
 
 /**
  * Applies a patch to several entries in the rundown
  */
-export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntry>): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+export async function batchEditEntries(rundownId: string, ids: EntryId[], patch: Partial<OntimeEntry>): Promise<Rundown> {
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
 
   /**
    * We can do some validation globally, but mostly we will validate each entry individually
@@ -174,7 +174,7 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
       batchDidInvalidate = true;
     }
   }
-  const { rundown: rundownResult, rundownMetadata, revision } = commit(batchDidInvalidate);
+  const { rundown: rundownResult, rundownMetadata, revision } = await commit(batchDidInvalidate);
 
   // schedule the side effects
   setImmediate(() => {
@@ -182,7 +182,7 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: batchDidInvalidate ? true : changedIds, external: true });
+    notifyChanges(rundownMetadata, revision, rundownId, { timer: batchDidInvalidate ? true : changedIds, external: true });
   });
 
   return rundownResult;
@@ -191,8 +191,8 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
 /**
  * Deletes a known entry from the current rundown
  */
-export async function deleteEntries(entryIds: EntryId[]): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+export async function deleteEntries(rundownId: string, entryIds: EntryId[]): Promise<Rundown> {
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
 
   for (let i = 0; i < entryIds.length; i++) {
     const entry = rundown.entries[entryIds[i]];
@@ -202,7 +202,7 @@ export async function deleteEntries(entryIds: EntryId[]): Promise<Rundown> {
     rundownMutation.remove(rundown, entry);
   }
 
-  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+  const { rundown: rundownResult, rundownMetadata, revision } = await commit();
 
   // schedule the side effects
   setImmediate(() => {
@@ -210,7 +210,7 @@ export async function deleteEntries(entryIds: EntryId[]): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: entryIds, external: true });
+    notifyChanges(rundownMetadata, revision, rundownId, { timer: entryIds, external: true });
   });
 
   return rundownResult;
@@ -219,12 +219,12 @@ export async function deleteEntries(entryIds: EntryId[]): Promise<Rundown> {
 /**
  * Deletes all entries from the current rundown
  */
-export async function deleteAllEntries(): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+export async function deleteAllEntries(rundownId: string): Promise<Rundown> {
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
 
   rundownMutation.removeAll(rundown);
 
-  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+  const { rundown: rundownResult, rundownMetadata, revision } = await commit();
 
   // schedule the side effects
   setImmediate(() => {
@@ -232,7 +232,7 @@ export async function deleteAllEntries(): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    notifyChanges(rundownMetadata, revision, rundownId, { timer: true, external: true });
   });
 
   return rundownResult;
@@ -243,8 +243,8 @@ export async function deleteAllEntries(): Promise<Rundown> {
  * Handles moving across root orders (a group order and top level order)
  * @throws if entryId or destinationId not found
  */
-export async function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+export async function reorderEntry(rundownId: string, entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
 
   // check that both entries exist
   const eventFrom = rundown.entries[entryId];
@@ -256,7 +256,7 @@ export async function reorderEntry(entryId: EntryId, destinationId: EntryId, ord
 
   rundownMutation.reorder(rundown, eventFrom, eventTo, order);
 
-  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+  const { rundown: rundownResult, rundownMetadata, revision } = await commit();
 
   // schedule the side effects
   setImmediate(() => {
@@ -264,7 +264,7 @@ export async function reorderEntry(entryId: EntryId, destinationId: EntryId, ord
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    notifyChanges(rundownMetadata, revision, rundownId, { timer: true, external: true });
   });
 
   return rundownResult;
@@ -274,8 +274,8 @@ export async function reorderEntry(entryId: EntryId, destinationId: EntryId, ord
  * Applies a delay into the rundown effectively changing the schedule
  * The applied delay is deleted
  */
-export async function applyDelay(delayId: EntryId): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+export async function applyDelay(rundownId: string, delayId: EntryId): Promise<Rundown> {
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
 
   // check that delay exists
   const delay = rundown.entries[delayId];
@@ -287,7 +287,7 @@ export async function applyDelay(delayId: EntryId): Promise<Rundown> {
   rundownMutation.applyDelay(rundown, delay);
   rundownMutation.remove(rundown, delay);
 
-  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+  const { rundown: rundownResult, rundownMetadata, revision } = await commit();
 
   // schedule the side effects
   setImmediate(() => {
@@ -295,7 +295,7 @@ export async function applyDelay(delayId: EntryId): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    notifyChanges(rundownMetadata, revision, rundownId, { timer: true, external: true });
   });
 
   return rundownResult;
@@ -304,8 +304,8 @@ export async function applyDelay(delayId: EntryId): Promise<Rundown> {
 /**
  * Swaps the data between two events in the rundown
  */
-export async function swapEvents(fromId: EntryId, toId: EntryId): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+export async function swapEvents(rundownId: string, fromId: EntryId, toId: EntryId): Promise<Rundown> {
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
   const eventFrom = rundown.entries[fromId];
   const eventTo = rundown.entries[toId];
 
@@ -320,7 +320,7 @@ export async function swapEvents(fromId: EntryId, toId: EntryId): Promise<Rundow
   }
 
   rundownMutation.swap(rundown, eventFrom, eventTo);
-  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+  const { rundown: rundownResult, rundownMetadata, revision } = await commit();
 
   // schedule the side effects
   setImmediate(() => {
@@ -328,7 +328,7 @@ export async function swapEvents(fromId: EntryId, toId: EntryId): Promise<Rundow
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    notifyChanges(rundownMetadata, revision, rundownId, { timer: true, external: true });
   });
 
   return rundownResult;
@@ -339,8 +339,8 @@ export async function swapEvents(fromId: EntryId, toId: EntryId): Promise<Rundow
  * Handles cloning children if the entry is a group
  * @throws if the entry to clone does not exist
  */
-export async function cloneEntry(entryId: EntryId, options: InsertOptions): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+export async function cloneEntry(rundownId: string, entryId: EntryId, options: InsertOptions): Promise<Rundown> {
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
   const originalEntry = rundown.entries[entryId];
 
   if (!originalEntry) {
@@ -348,7 +348,7 @@ export async function cloneEntry(entryId: EntryId, options: InsertOptions): Prom
   }
 
   const newEntry = rundownMutation.clone(rundown, originalEntry, options);
-  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+  const { rundown: rundownResult, rundownMetadata, revision } = await commit();
 
   // schedule the side effects
   setImmediate(() => {
@@ -357,11 +357,11 @@ export async function cloneEntry(entryId: EntryId, options: InsertOptions): Prom
 
     // notify timer and external services of change
     if (isOntimeGroup(newEntry)) {
-      notifyChanges(rundownMetadata, revision, { timer: newEntry.entries, external: true });
+      notifyChanges(rundownMetadata, revision, rundownId, { timer: newEntry.entries, external: true });
     } else if (isOntimeEvent(newEntry)) {
-      notifyChanges(rundownMetadata, revision, { timer: [newEntry.id], external: true });
+      notifyChanges(rundownMetadata, revision, rundownId, { timer: [newEntry.id], external: true });
     } else if (isOntimeDelay(newEntry)) {
-      notifyChanges(rundownMetadata, revision, { external: true });
+      notifyChanges(rundownMetadata, revision, rundownId, { external: true });
     }
   });
 
@@ -371,11 +371,11 @@ export async function cloneEntry(entryId: EntryId, options: InsertOptions): Prom
 /**
  * Groups a list of entries into a new group
  */
-export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+export async function groupEntries(rundownId: string, entryIds: EntryId[]): Promise<Rundown> {
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
 
   rundownMutation.group(rundown, entryIds);
-  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+  const { rundown: rundownResult, rundownMetadata, revision } = await commit();
 
   // schedule the side effects
   setImmediate(() => {
@@ -383,7 +383,7 @@ export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // we need to notify the timer since we might be grouping a running event
-    notifyChanges(rundownMetadata, revision, { external: true, timer: true });
+    notifyChanges(rundownMetadata, revision, rundownId, { external: true, timer: true });
   });
 
   return rundownResult;
@@ -392,8 +392,8 @@ export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
 /**
  * Deletes a group and moves all its children to the top level
  */
-export async function ungroupEntries(groupId: EntryId): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: false });
+export async function ungroupEntries(rundownId: string, groupId: EntryId): Promise<Rundown> {
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
 
   const group = rundown.entries[groupId];
   if (!group || !isOntimeGroup(group)) {
@@ -401,7 +401,7 @@ export async function ungroupEntries(groupId: EntryId): Promise<Rundown> {
   }
 
   rundownMutation.ungroup(rundown, group);
-  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+  const { rundown: rundownResult, rundownMetadata, revision } = await commit();
 
   // schedule the side effects
   setImmediate(() => {
@@ -409,7 +409,7 @@ export async function ungroupEntries(groupId: EntryId): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // we dont need to notify the timer since the grouping does not affect the runtime
-    notifyChanges(rundownMetadata, revision, { external: true });
+    notifyChanges(rundownMetadata, revision, rundownId, { external: true });
   });
 
   return rundownResult;
@@ -436,7 +436,7 @@ export async function createCustomField(customField: CustomField): Promise<Custo
   customFieldMutation.add(customFields, key, customField);
 
   // Adding a custom field has no immediate implications on the rundown
-  const { customFields: resultCustomFields } = commit(false);
+  const { customFields: resultCustomFields } = await commit(false);
 
   setImmediate(() => {
     sendRefetch(RefetchKey.CustomFields);
@@ -494,12 +494,12 @@ export async function editCustomField(
   }
 
   // the custom fields have been removed and there is no processing to be done
-  const { rundownMetadata, revision, customFields: resultCustomFields } = commit(false);
+  const { rundownMetadata, revision, customFields: resultCustomFields } = await commit(false);
 
   // schedule the side effects
   setImmediate(() => {
     sendRefetch(RefetchKey.CustomFields);
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    notifyChanges(rundownMetadata, revision, undefined, { timer: true, external: true });
   });
 
   return resultCustomFields;
@@ -533,12 +533,12 @@ export async function deleteCustomField(key: CustomFieldKey, projectRundowns: Pr
   customFieldMutation.remove(customFields, key);
 
   // the custom fields have been removed and there is no processing to be done
-  const { rundownMetadata, revision, customFields: resultCustomFields } = commit(false);
+  const { rundownMetadata, revision, customFields: resultCustomFields } = await commit(false);
 
   // schedule the side effects
   setImmediate(() => {
     sendRefetch(RefetchKey.CustomFields);
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    notifyChanges(rundownMetadata, revision, undefined, { timer: true, external: true });
   });
 
   return resultCustomFields;
@@ -550,7 +550,8 @@ export async function deleteCustomField(key: CustomFieldKey, projectRundowns: Pr
  *
  * @private - exported for testing
  */
-export function updateRuntimeOnChange(rundownMetadata: RundownMetadata) {
+export function updateRuntimeOnChange(rundownMetadata: RundownMetadata | null) {
+  if (!rundownMetadata) return;
   // we only declare the amount of playable events
   const numEvents = rundownMetadata.timedEventOrder.length;
 
@@ -570,17 +571,15 @@ type NotifyChangesOptions = {
 /**
  * Notify services of changes in the rundown
  */
-function notifyChanges(rundownMetadata: RundownMetadata, revision: number, options: NotifyChangesOptions) {
-  // notify timer service of changed events
-  if (options.timer) {
+function notifyChanges(rundownMetadata: RundownMetadata | null, revision: number, rundownId: string | undefined, options: NotifyChangesOptions) {
+  if (rundownMetadata && options.timer) {
     runtimeService.notifyOfChangedEvents(rundownMetadata);
   }
 
-  // notify external services of changes
   if (options.reload) {
     sendRefetch(RefetchKey.All);
   } else if (options.external) {
-    sendRefetch(RefetchKey.Rundown, revision);
+    sendRefetch(RefetchKey.Rundown, revision, rundownId);
   }
 }
 
@@ -614,7 +613,7 @@ export async function initRundown(
   updateRuntimeOnChange(rundownMetadata);
 
   setImmediate(() => {
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true, reload });
+    notifyChanges(rundownMetadata, revision, rundown.id, { timer: true, external: true, reload });
     setLastLoadedRundown(rundown.id).catch((error) => {
       logger.error(LogOrigin.Server, `Failed to persist last loaded rundown: ${error}`);
     });

@@ -61,10 +61,15 @@ export type EventOptions = Partial<{
   lastEventId: MaybeString;
 }>;
 
+type UseEntryActionsOptions = {
+  targetRundownId?: string | null;
+};
+
 /**
  * Gather utilities for actions on entries
+ * By default, actions affect the currently loaded rundown, unless given a targetRundownId
  */
-export const useEntryActions = () => {
+export const useEntryActions = ({ targetRundownId }: UseEntryActionsOptions = {}) => {
   const queryClient = useQueryClient();
   const {
     linkPrevious,
@@ -77,12 +82,12 @@ export const useEntryActions = () => {
   } = useEditorSettings();
 
   const resolveCurrentRundownQueryKey = useCallback(() => {
-    const loadedRundownId = queryClient.getQueryData<ProjectRundownsList>(PROJECT_RUNDOWNS)?.loaded;
-    if (loadedRundownId) {
-      return getRundownQueryKey(loadedRundownId);
+    if (targetRundownId) {
+      return getRundownQueryKey(targetRundownId);
     }
-    return CURRENT_RUNDOWN_QUERY_KEY;
-  }, [queryClient]);
+    const loadedRundownId = queryClient.getQueryData<ProjectRundownsList>(PROJECT_RUNDOWNS)?.loaded;
+    return loadedRundownId ? getRundownQueryKey(loadedRundownId) : CURRENT_RUNDOWN_QUERY_KEY;
+  }, [queryClient, targetRundownId]);
 
   /**
    * Returns the currently loaded rundown

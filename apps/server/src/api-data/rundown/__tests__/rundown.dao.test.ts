@@ -63,7 +63,7 @@ describe('createTransaction', () => {
     expect(typeof commit).toBe('function');
   });
 
-  it('should return the updated data after commit is called and writes are scheduled', () => {
+  it('should return the updated data after commit is called and writes are scheduled', async () => {
     const { rundown, customFields, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: true });
     rundown.title = 'Another Title';
     customFields['newField'] = {
@@ -72,8 +72,7 @@ describe('createTransaction', () => {
       colour: 'blue',
     };
 
-    const updated = commit();
-    vi.runAllTimers();
+    const updated = await commit();
 
     expect(updated.rundown.title).toBe('Another Title');
     expect(updated.customFields).toHaveProperty('newField');
@@ -130,6 +129,23 @@ describe('processRundown()', () => {
     expect(initResult.entries['1'].type).toBe(SupportedEntry.Event);
     expect(initResult.entries['2'].type).toBe(SupportedEntry.Group);
     expect(initResult.entries['3'].type).toBe(SupportedEntry.Delay);
+  });
+
+  it('produces order, flatOrder and applies delays to following events', () => {
+    const rundown = makeRundown({
+      order: ['1', 'delay', '2'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 1000, duration: 1000 }),
+        delay: makeOntimeDelay({ id: 'delay', duration: 250 }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 1000, timeEnd: 2000, duration: 1000 }),
+      },
+    });
+
+    const processed = processRundown(rundown, {});
+
+    expect(processed.order).toEqual(['1', 'delay', '2']);
+    expect(processed.flatEntryOrder).toEqual(['1', 'delay', '2']);
+    expect((processed.entries['2'] as OntimeEvent).delay).toBe(250);
   });
 
   it('calculates delays versions of a given rundown', () => {
@@ -1529,6 +1545,34 @@ describe('rundownMutation.applyDelay()', () => {
         revision: 2,
       },
     });
+  });
+
+  it('uses the passed rundown own order, not the loaded rundown metadata', () => {
+    // The loaded rundown has completely different events
+    const loadedRundown = makeRundown({
+      order: ['loaded-delay', 'loaded-ev'],
+      entries: {
+        'loaded-delay': makeOntimeDelay({ id: 'loaded-delay', duration: 9999 }),
+        'loaded-ev': makeOntimeEvent({ id: 'loaded-ev', timeStart: 0, timeEnd: 100, duration: 100 }),
+      },
+    });
+    rundownCache.init(loadedRundown, {});
+
+    // Background rundown is independent of the loaded one
+    const bgRundown = makeRundown({
+      order: ['bg-delay', 'bg-ev'],
+      entries: {
+        'bg-delay': makeOntimeDelay({ id: 'bg-delay', duration: 500 }),
+        'bg-ev': makeOntimeEvent({ id: 'bg-ev', timeStart: 0, timeEnd: 200, duration: 200 }),
+      },
+    });
+
+    rundownMutation.applyDelay(bgRundown, bgRundown.entries['bg-delay'] as OntimeDelay);
+
+    // bg-ev must be shifted by its own delay (500), not influenced by the loaded rundown
+    expect((bgRundown.entries['bg-ev'] as OntimeEvent).timeStart).toBe(500);
+    // loaded-ev must be untouched
+    expect((loadedRundown.entries['loaded-ev'] as OntimeEvent).timeStart).toBe(0);
   });
 });
 

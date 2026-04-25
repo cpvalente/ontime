@@ -2,7 +2,7 @@ import { EntryId, MaybeNumber, ProjectRundownsList, Rundown, isOntimeEvent } fro
 import { MouseEvent } from 'react';
 import { create } from 'zustand';
 
-import { CURRENT_RUNDOWN_QUERY_KEY, PROJECT_RUNDOWNS, getRundownQueryKey } from '../../common/api/constants';
+import { PROJECT_RUNDOWNS, getRundownQueryKey } from '../../common/api/constants';
 import { ontimeQueryClient } from '../../common/queryClient';
 import { isMacOS } from '../../common/utils/deviceUtils';
 
@@ -137,12 +137,9 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
 }));
 
 function getLoadedRundownData() {
-  const loadedRundownId = ontimeQueryClient.getQueryData<ProjectRundownsList>(PROJECT_RUNDOWNS)?.loaded;
-  if (loadedRundownId) {
-    return ontimeQueryClient.getQueryData<Rundown>(getRundownQueryKey(loadedRundownId));
-  }
-
-  return ontimeQueryClient.getQueryData<Rundown>(CURRENT_RUNDOWN_QUERY_KEY);
+  const rundownId = ontimeQueryClient.getQueryData<ProjectRundownsList>(PROJECT_RUNDOWNS)?.loaded;
+  if (!rundownId) return undefined;
+  return ontimeQueryClient.getQueryData<Rundown>(getRundownQueryKey(rundownId));
 }
 
 export function getSelectionMode(event: MouseEvent): SelectionMode {

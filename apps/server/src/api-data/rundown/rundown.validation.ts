@@ -1,8 +1,6 @@
-import type { NextFunction, Request, Response } from 'express';
 import { body, param } from 'express-validator';
 
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
-import { getCurrentRundown } from './rundown.dao.js';
 
 // #region operations on project rundowns =========================
 
@@ -10,29 +8,6 @@ export const rundownPostValidator = [body('title').isString().trim().notEmpty(),
 
 // #endregion operations on project rundowns ======================
 // #region operations on rundown entries ==========================
-
-/**
- * Middleware prevents mutating a rundown that is not selected
- * This allows our service to still only handle the current rundown
- *
- * This would need to be removed in favour or rundown selection if we would like
- * to implement the mutation of background rundowns
- */
-export async function validateRundownMutation(req: Request, res: Response, next: NextFunction) {
-  const { rundownId } = req.params;
-
-  try {
-    if (getCurrentRundown().id !== rundownId) {
-      res.status(404).json({ message: 'Cannot mutate not selected rundown' });
-      return;
-    }
-
-    next();
-  } catch (error) {
-    res.status(404).json({ message: 'Rundown not found' });
-    return;
-  }
-}
 
 export const entryPostValidator = [
   body('type').isString().isIn(['event', 'delay', 'group', 'milestone']),

@@ -15,7 +15,6 @@ import {
   CLIENT_LIST,
   CSS_OVERRIDE,
   CUSTOM_FIELDS,
-  CURRENT_RUNDOWN_QUERY_KEY,
   PROJECT_DATA,
   REPORT,
   RUNDOWN,
@@ -228,21 +227,22 @@ export const connectSocket = () => {
   };
 };
 
-export function maybeInvalidateRundownCache(revision: MaybeNumber, rundownId?: string) {
-  const queryKey = rundownId ? getRundownQueryKey(rundownId) : CURRENT_RUNDOWN_QUERY_KEY;
+export function maybeInvalidateRundownCache(revision: number, rundownId?: string) {
+  // No specific rundown — change affects all rundowns (e.g. custom field edits).
+  if (!rundownId) {
+    ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
+    return;
+  }
+
+  const queryKey = getRundownQueryKey(rundownId);
   const cachedRundown = ontimeQueryClient.getQueryData<{ revision: number }>(queryKey);
-  if (revision !== null && revision === cachedRundown?.revision) {
+
+  if (revision === cachedRundown?.revision) {
+    // we already have the latest change
     return;
   }
 
   ontimeQueryClient.invalidateQueries({ queryKey, exact: true });
-
-  // Keep the bootstrap alias in sync when targeting by ID
-  if (rundownId) {
-    ontimeQueryClient.invalidateQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
-  }
-
-  ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
 }
 
 export function sendSocket<T extends MessageTag | ApiActionTag>(

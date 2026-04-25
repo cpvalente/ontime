@@ -1,11 +1,13 @@
 import {
   CustomField,
+  EntryId,
   OntimeDelay,
   OntimeEvent,
   OntimeGroup,
   OntimeMilestone,
   Rundown,
   SupportedEntry,
+  isOntimeGroup,
 } from 'ontime-types';
 
 import { makeNewRundown } from '../../../models/dataModel.js';
@@ -59,13 +61,24 @@ export function makeOntimeMilestone(patch: Partial<OntimeMilestone>): OntimeMile
 }
 
 /**
- * Utility to create a rundown object
+ * Utility to create a rundown object.
+ * Derives flatOrder from order/entries when the patch does not provide one,
+ * so test fixtures match the shape of a processed rundown.
  */
 export function makeRundown(patch: Partial<Rundown>): Rundown {
-  return {
-    ...makeNewRundown(),
-    ...patch,
-  };
+  const rundown = { ...makeNewRundown(), ...patch };
+  if (!patch.flatOrder) {
+    const flatOrder: EntryId[] = [];
+    for (const id of rundown.order) {
+      flatOrder.push(id);
+      const entry = rundown.entries[id];
+      if (isOntimeGroup(entry)) {
+        flatOrder.push(...entry.entries);
+      }
+    }
+    rundown.flatOrder = flatOrder;
+  }
+  return rundown;
 }
 
 export function makeCustomField(patch: Partial<CustomField>): CustomField {

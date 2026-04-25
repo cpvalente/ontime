@@ -10,79 +10,104 @@ import Button from '../../../../common/components/buttons/Button';
 import Checkbox from '../../../../common/components/checkbox/Checkbox';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import PopoverContents from '../../../../common/components/popover/Popover';
+import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { cx } from '../../../../common/utils/styleUtils';
 import { AppMode } from '../../../../ontimeConfig';
-import { CuesheetOptions, usePersistedCuesheetOptions } from '../../cuesheet.options';
 import { useCuesheetPermissions } from '../../useTablePermissions';
 import CuesheetShareModal from './CuesheetShareModal';
 
 import style from './CuesheetTableSettings.module.scss';
 
-interface CuesheetTableSettingsProps {
-  columns: Column<ExtendedEntry, unknown>[];
+type TableHeaderOptionsStore = {
+  hideTableSeconds: boolean;
+  hideIndexColumn: boolean;
+  showDelayedTimes: boolean;
+  hideDelays: boolean;
+  setOption: <K extends keyof TableHeaderOptionValues>(key: K, value: TableHeaderOptionValues[K]) => void;
+};
+
+type TableHeaderOptionValues = Pick<
+  TableHeaderOptionsStore,
+  'hideTableSeconds' | 'hideIndexColumn' | 'showDelayedTimes' | 'hideDelays'
+>;
+
+type TableModeControls = {
   cuesheetMode: AppMode;
   setCuesheetMode: (mode: AppMode) => void;
-  handleResetResizing: () => void;
-  handleResetReordering: () => void;
-  handleClearToggles: () => void;
-}
+  isCurrentRundown?: boolean;
+};
 
-export interface ViewSettingsProps {
-  optionsStore: CuesheetOptions;
-}
-
-export interface ColumnSettingsProps {
+interface CuesheetTableHeaderToolbarProps {
   columns: Column<ExtendedEntry, unknown>[];
+  optionsStore: TableHeaderOptionsStore;
   handleResetResizing: () => void;
   handleResetReordering: () => void;
   handleClearToggles: () => void;
+  leadingContent?: ReactNode;
+  modeControls?: TableModeControls;
+  showShare?: boolean;
 }
 
-export default function CuesheetTableSettings({
+export default function CuesheetTableHeaderToolbar({
   columns,
-  cuesheetMode,
-  setCuesheetMode,
+  optionsStore,
   handleResetResizing,
   handleResetReordering,
   handleClearToggles,
-}: CuesheetTableSettingsProps) {
+  leadingContent,
+  modeControls,
+  showShare = false,
+}: CuesheetTableHeaderToolbarProps) {
   const canChangeMode = useCuesheetPermissions((state) => state.canChangeMode);
   const canShare = useCuesheetPermissions((state) => state.canShare);
-  const options = usePersistedCuesheetOptions();
 
   const toggleCuesheetMode = (mode: AppMode[]) => {
-    // we need to stop user from deselecting a mode
     const newValue = mode.at(0);
-    if (!newValue) return;
-    setCuesheetMode(newValue);
+    if (!newValue || !modeControls) {
+      return;
+    }
+
+    modeControls.setCuesheetMode(newValue);
   };
 
   return (
-    <Toolbar.Root className={style.tableSettings}>
-      <ViewSettings optionsStore={options} />
+    <Toolbar.Root className={cx([style.tableSettings, modeControls?.isCurrentRundown === false && style.backgroundMode])}>
+      {leadingContent}
+      <ViewSettings optionsStore={optionsStore} />
       <ColumnSettings
         columns={columns}
         handleResetResizing={handleResetResizing}
         handleResetReordering={handleResetReordering}
         handleClearToggles={handleClearToggles}
       />
-      {canChangeMode && (
+      {modeControls && canChangeMode && (
         <ToggleGroup
-          value={[cuesheetMode]}
+          value={[modeControls.cuesheetMode]}
           onValueChange={toggleCuesheetMode}
           className={cx([style.group, style.apart])}
         >
-          <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
-            Run
-          </Toolbar.Button>
+          {modeControls.isCurrentRundown === false ? (
+            <Tooltip
+              text='Run mode is only available for the loaded rundown'
+              render={<span style={{ display: 'inline-block' }} />}
+            >
+              <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton} disabled>
+                Run
+              </Toolbar.Button>
+            </Tooltip>
+          ) : (
+            <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
+              Run
+            </Toolbar.Button>
+          )}
           <Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.radioButton}>
             Edit
           </Toolbar.Button>
         </ToggleGroup>
       )}
 
-      {canShare && (
+      {showShare && canShare && (
         <>
           <Editor.Separator orientation='vertical' />
           <CuesheetShareModal />
@@ -92,9 +117,18 @@ export default function CuesheetTableSettings({
   );
 }
 
-export function ViewSettings({ optionsStore }: ViewSettingsProps) {
-  const options = optionsStore;
+interface ViewSettingsProps {
+  optionsStore: TableHeaderOptionsStore;
+}
 
+interface ColumnSettingsProps {
+  columns: Column<ExtendedEntry, unknown>[];
+  handleResetResizing: () => void;
+  handleResetReordering: () => void;
+  handleClearToggles: () => void;
+}
+
+function ViewSettings({ optionsStore }: ViewSettingsProps) {
   return (
     <Popover.Root>
       <Popover.Trigger
@@ -115,15 +149,15 @@ export function ViewSettings({ optionsStore }: ViewSettingsProps) {
           <Editor.Label className={style.sectionTitle}>Element visibility</Editor.Label>
           <Editor.Label className={style.option}>
             <Checkbox
-              defaultChecked={options.hideTableSeconds}
-              onCheckedChange={(checked) => options.setOption('hideTableSeconds', checked)}
+              defaultChecked={optionsStore.hideTableSeconds}
+              onCheckedChange={(checked) => optionsStore.setOption('hideTableSeconds', checked)}
             />
             Hide seconds in table
           </Editor.Label>
           <Editor.Label className={style.option}>
             <Checkbox
-              defaultChecked={options.hideIndexColumn}
-              onCheckedChange={(checked) => options.setOption('hideIndexColumn', checked)}
+              defaultChecked={optionsStore.hideIndexColumn}
+              onCheckedChange={(checked) => optionsStore.setOption('hideIndexColumn', checked)}
             />
             Hide index column
           </Editor.Label>
@@ -133,15 +167,15 @@ export function ViewSettings({ optionsStore }: ViewSettingsProps) {
           <Editor.Label className={style.sectionTitle}>Table Behaviour</Editor.Label>
           <Editor.Label className={style.option}>
             <Checkbox
-              defaultChecked={options.showDelayedTimes}
-              onCheckedChange={(checked) => options.setOption('showDelayedTimes', checked)}
+              defaultChecked={optionsStore.showDelayedTimes}
+              onCheckedChange={(checked) => optionsStore.setOption('showDelayedTimes', checked)}
             />
             Show delayed times
           </Editor.Label>
           <Editor.Label className={style.option}>
             <Checkbox
-              defaultChecked={options.hideDelays}
-              onCheckedChange={(checked) => options.setOption('hideDelays', checked)}
+              defaultChecked={optionsStore.hideDelays}
+              onCheckedChange={(checked) => optionsStore.setOption('hideDelays', checked)}
             />
             Hide delay entries
           </Editor.Label>
@@ -151,7 +185,7 @@ export function ViewSettings({ optionsStore }: ViewSettingsProps) {
   );
 }
 
-export function ColumnSettings({
+function ColumnSettings({
   columns,
   handleResetResizing,
   handleResetReordering,
@@ -177,6 +211,7 @@ export function ColumnSettings({
           {columns.map((column) => {
             const columnHeader = column.columnDef.header;
             const visible = column.getIsVisible();
+
             return (
               <Editor.Label key={`${column.id}-${visible}`} className={style.option}>
                 <Checkbox defaultChecked={visible} onCheckedChange={column.toggleVisibility} />

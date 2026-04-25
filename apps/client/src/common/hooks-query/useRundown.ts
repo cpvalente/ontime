@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { CURRENT_RUNDOWN_QUERY_KEY, getRundownQueryKey } from '../api/constants';
-import { fetchCurrentRundown } from '../api/rundown';
+import { fetchCurrentRundown, fetchRundown } from '../api/rundown';
 import { useSelectedEventId } from '../hooks/useSocket';
 import { ExtendedEntry, getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
 import { useProjectRundowns } from './useProjectRundowns';
@@ -20,7 +20,11 @@ const cachedRundownPlaceholder: Rundown = {
 };
 
 /**
- * Normalised rundown data
+ * Normalised rundown data for the currently loaded rundown.
+ *
+ * Bootstraps via the `/current` alias so the first paint is a single round-trip,
+ * independent of the project rundown list. Once the loaded id is known, the
+ * query key swaps to the id-keyed cache that is shared with `useRundownById`.
  */
 export default function useRundown() {
   const queryClient = useQueryClient();
@@ -34,12 +38,13 @@ export default function useRundown() {
     refetchInterval: queryRefetchIntervalSlow,
   });
 
-  // Seed the ID-based cache when fetching via the 'current' alias (bootstrap)
+  // Seed the id-keyed cache when fetching via the bootstrap alias
   useEffect(() => {
     if (!data || loadedRundownId) return;
     queryClient.setQueryData(getRundownQueryKey(data.id), data);
   }, [data, loadedRundownId, queryClient]);
 
+  // Drop the bootstrap alias once the id is known — the id-keyed entry is authoritative
   useEffect(() => {
     if (!loadedRundownId) return;
     queryClient.removeQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
@@ -113,4 +118,22 @@ export function useRundownAuxData() {
     return { title, id };
   }, [data]);
   return { data: filteredData, status };
+}
+
+/**
+ * Provides access to a specific rundown by ID.
+ * When rundownId is null/undefined the query is disabled and returns the placeholder.
+ */
+export function useRundownById(rundownId: string | null | undefined) {
+  const enabled = Boolean(rundownId);
+
+  const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
+    queryKey: getRundownQueryKey(rundownId ?? ''),
+    queryFn: ({ signal }) => fetchRundown(rundownId!, { signal }),
+    enabled,
+    placeholderData: (previousData, _previousQuery) => previousData,
+    refetchInterval: queryRefetchIntervalSlow,
+  });
+
+  return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
 }

@@ -205,10 +205,15 @@ export type ProcessedRundownMetadata = RundownMetadata & {
 
 /**
  * Factory function to create a rundown metadata processor
- * @returns {process, getMetadata} process() - processes entries in order | getMetadata() -> returns the current metadata
+ *
+ * @param customFields project custom fields used to sanitise entries
+ * @param options.mutate when true, entries are mutated in place rather than cloned.
+ *                      Callers must own (or have already cloned) the input rundown.
+ * @returns process() - processes entries in order | getMetadata() returns the accumulated metadata
  */
-export function makeRundownMetadata(customFields: CustomFields) {
-  let rundownMeta: ProcessedRundownMetadata = {
+export function makeRundownMetadata(customFields: CustomFields, options?: { mutate?: boolean }) {
+  const mutate = options?.mutate ?? false;
+  const rundownMeta: ProcessedRundownMetadata = {
     totalDelay: 0,
     totalDuration: 0,
     totalDays: 0,
@@ -228,13 +233,8 @@ export function makeRundownMetadata(customFields: CustomFields) {
     previousEntry: null,
   };
 
-  function process<T extends OntimeEntry>(
-    entry: T,
-    childOfGroup: EntryId | null,
-  ): { processedData: ProcessedRundownMetadata; processedEntry: T } {
-    const data = processEntry(rundownMeta, customFields, entry, childOfGroup);
-    rundownMeta = data.processedData;
-    return data;
+  function process<T extends OntimeEntry>(entry: T, childOfGroup: EntryId | null): T {
+    return processEntry(rundownMeta, customFields, mutate ? entry : structuredClone(entry), childOfGroup);
   }
 
   function getMetadata(): ProcessedRundownMetadata {
@@ -245,20 +245,19 @@ export function makeRundownMetadata(customFields: CustomFields) {
 }
 
 /**
- * Processes a single entry and updates the rundown metadata
+ * Processes a single entry, mutating both `entry` and `rundownMetadata` in place.
+ * Returns the same `entry` reference for caller convenience.
  */
 function processEntry<T extends OntimeEntry>(
   rundownMetadata: ProcessedRundownMetadata,
   customFields: CustomFields,
   entry: T,
   childOfGroup: EntryId | null,
-): { processedData: ProcessedRundownMetadata; processedEntry: T } {
-  const processedData = { ...rundownMetadata };
-  const currentEntry = structuredClone(entry);
-  processedData.flatEntryOrder.push(currentEntry.id);
+): T {
+  rundownMetadata.flatEntryOrder.push(entry.id);
 
-  if (isOntimeEvent(currentEntry)) {
-    processedData.timedEventOrder.push(currentEntry.id);
+  if (isOntimeEvent(entry)) {
+    rundownMetadata.timedEventOrder.push(entry.id);
 
     /**
      * 1.Checks that link can be established (ie, events exist and are valid)
@@ -266,91 +265,91 @@ function processEntry<T extends OntimeEntry>(
      * The linked event is always the previous playable event
      * If no previous event exists, the link is removed
      */
-    if (currentEntry.linkStart) {
-      if (processedData.previousEvent) {
-        const timePatch = getLinkedTimes(currentEntry, processedData.previousEvent);
-        currentEntry.timeStart = timePatch.timeStart;
-        currentEntry.timeEnd = timePatch.timeEnd;
-        currentEntry.duration = timePatch.duration;
+    if (entry.linkStart) {
+      if (rundownMetadata.previousEvent) {
+        const timePatch = getLinkedTimes(entry, rundownMetadata.previousEvent);
+        entry.timeStart = timePatch.timeStart;
+        entry.timeEnd = timePatch.timeEnd;
+        entry.duration = timePatch.duration;
       } else {
-        currentEntry.linkStart = false;
+        entry.linkStart = false;
       }
     }
 
-    // 2. handle custom fields - mutates currentEntry
-    sanitiseCustomFields(customFields, currentEntry);
+    // 2. handle custom fields - mutates entry
+    sanitiseCustomFields(customFields, entry);
 
-    processedData.totalDays += calculateDayOffset(currentEntry, processedData.previousEvent);
-    currentEntry.dayOffset = processedData.totalDays as Day;
-    currentEntry.delay = 0; // this means we dont calculate delays or gaps for skipped events
-    currentEntry.gap = 0; // this means we dont calculate delays or gaps for skipped events
-    currentEntry.parent = childOfGroup;
+    rundownMetadata.totalDays += calculateDayOffset(entry, rundownMetadata.previousEvent);
+    entry.dayOffset = rundownMetadata.totalDays as Day;
+    entry.delay = 0; // this means we dont calculate delays or gaps for skipped events
+    entry.gap = 0; // this means we dont calculate delays or gaps for skipped events
+    entry.parent = childOfGroup;
 
     // update rundown metadata, it only concerns playable events
-    if (isPlayableEvent(currentEntry)) {
-      processedData.playableEventOrder.push(currentEntry.id);
+    if (isPlayableEvent(entry)) {
+      rundownMetadata.playableEventOrder.push(entry.id);
 
       // first start is always the first event
-      if (processedData.firstStart === null) {
-        processedData.firstStart = currentEntry.timeStart;
+      if (rundownMetadata.firstStart === null) {
+        rundownMetadata.firstStart = entry.timeStart;
       }
 
       // check if event is flagged
-      if (currentEntry.flag) {
-        processedData.flags.push(currentEntry.id);
+      if (entry.flag) {
+        rundownMetadata.flags.push(entry.id);
       }
 
-      currentEntry.gap = getTimeFrom(currentEntry, processedData.latestEvent);
+      entry.gap = getTimeFrom(entry, rundownMetadata.latestEvent);
 
-      if (currentEntry.gap === 0) {
+      if (entry.gap === 0) {
         // event starts on previous finish, we add its duration
-        processedData.totalDuration += currentEntry.duration;
-      } else if (currentEntry.gap > 0) {
+        rundownMetadata.totalDuration += entry.duration;
+      } else if (entry.gap > 0) {
         // event has a gap, we add the gap and the duration
-        processedData.totalDuration += currentEntry.gap + currentEntry.duration;
-      } else if (currentEntry.gap < 0) {
+        rundownMetadata.totalDuration += entry.gap + entry.duration;
+      } else {
         // there is an overlap, we remove the overlap from the duration
         // ensuring that the sum is not negative (ie: fully overlapped events)
         // NOTE: we add the gap since it is a negative number
-        processedData.totalDuration += Math.max(currentEntry.duration + currentEntry.gap, 0);
+        rundownMetadata.totalDuration += Math.max(entry.duration + entry.gap, 0);
       }
 
       // remove eventual gaps from the accumulated delay
       // we only affect positive delays (time forwards)
-      if (processedData.totalDelay > 0 && currentEntry.gap > 0) {
+      if (rundownMetadata.totalDelay > 0 && entry.gap > 0) {
         let correctedDelay = 0;
         // we need to separate the delay that is accumulated from one that may exist after the gap
-        if (isOntimeDelay(processedData.previousEntry)) {
-          correctedDelay = processedData.previousEntry.duration;
-          processedData.totalDelay -= correctedDelay;
+        if (isOntimeDelay(rundownMetadata.previousEntry)) {
+          correctedDelay = rundownMetadata.previousEntry.duration;
+          rundownMetadata.totalDelay -= correctedDelay;
         }
-        processedData.totalDelay = Math.max(processedData.totalDelay - currentEntry.gap, 0);
-        processedData.totalDelay += correctedDelay;
+        rundownMetadata.totalDelay = Math.max(rundownMetadata.totalDelay - entry.gap, 0);
+        rundownMetadata.totalDelay += correctedDelay;
       }
 
       // current event delay is the current accumulated delay
-      currentEntry.delay = processedData.totalDelay;
+      entry.delay = rundownMetadata.totalDelay;
 
       // assign data for next iteration
-      processedData.previousEvent = currentEntry;
+      rundownMetadata.previousEvent = entry;
 
       // lastEntry is the event with the latest end time
-      if (isNewLatest(currentEntry, processedData.latestEvent)) {
-        processedData.latestEvent = currentEntry;
-        processedData.lastEnd = currentEntry.timeEnd;
+      if (isNewLatest(entry, rundownMetadata.latestEvent)) {
+        rundownMetadata.latestEvent = entry;
+        rundownMetadata.lastEnd = entry.timeEnd;
       }
     }
-  } else if (isOntimeDelay(currentEntry)) {
+  } else if (isOntimeDelay(entry)) {
     // !!! this must happen after handling the links
-    processedData.totalDelay += currentEntry.duration;
-    currentEntry.parent = childOfGroup;
+    rundownMetadata.totalDelay += entry.duration;
+    entry.parent = childOfGroup;
   }
 
   if (!childOfGroup) {
-    processedData.order.push(currentEntry.id);
+    rundownMetadata.order.push(entry.id);
   }
-  processedData.entries[currentEntry.id] = currentEntry;
-  processedData.previousEntry = currentEntry;
+  rundownMetadata.entries[entry.id] = entry;
+  rundownMetadata.previousEntry = entry;
 
-  return { processedData, processedEntry: currentEntry };
+  return entry;
 }

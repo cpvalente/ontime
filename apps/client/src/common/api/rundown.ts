@@ -26,19 +26,17 @@ export async function fetchCurrentRundown(options?: RequestOptions): Promise<Run
     throw new Error('Invalid rundown payload');
   }
   return res.data;
+}
 
-  function isValidRundown(x: any): x is Rundown {
-    return (
-      x &&
-      typeof x === 'object' &&
-      typeof x.id === 'string' &&
-      Array.isArray(x.order) &&
-      Array.isArray(x.flatOrder) &&
-      x.entries &&
-      typeof x.entries === 'object' &&
-      typeof x.revision === 'number'
-    );
+/**
+ * HTTP request to fetch all entries in the given rundown
+ */
+export async function fetchRundown(rundownId: RundownId, options?: RequestOptions): Promise<Rundown> {
+  const res = await axios.get(`${rundownPath}/${rundownId}`, { signal: options?.signal });
+  if (!isValidRundown(res.data)) {
+    throw new Error('Invalid rundown payload');
   }
+  return res.data;
 }
 
 /**
@@ -182,3 +180,16 @@ export async function requestDeleteAll(rundownId: RundownId): Promise<AxiosRespo
 }
 
 // #endregion operations on rundown entries =======================
+
+function isValidRundown(x: any): x is Rundown {
+  return (
+    x &&
+    typeof x === 'object' &&
+    typeof x.id === 'string' &&
+    Array.isArray(x.order) &&
+    Array.isArray(x.flatOrder) &&
+    x.entries &&
+    typeof x.entries === 'object' &&
+    typeof x.revision === 'number'
+  );
+}

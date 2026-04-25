@@ -80,56 +80,85 @@ export const getEntryWithId = (entryId: EntryId): OntimeEntry | undefined => cac
 type Transaction = {
   customFields: CustomFields;
   rundown: Rundown;
-  rundownMetadata: Readonly<RundownMetadata>;
 
-  commit: (shouldProcess?: boolean) => {
+  commit: (shouldProcess?: boolean) => Promise<{
     rundown: Readonly<Rundown>;
-    rundownMetadata: Readonly<RundownMetadata>;
+    rundownMetadata: Readonly<RundownMetadata> | null;
     customFields: Readonly<CustomFields>;
     revision: Readonly<number>;
-  };
+  }>;
 };
 
 type TransactionOptions = {
   mutableRundown?: boolean;
   mutableCustomFields?: boolean;
+  /**
+   * Target rundown ID. Defaults to the loaded rundown.
+   * When targeting a non-loaded ("background") rundown, the cache and runtime
+   * metadata are bypassed — the rundown is read from disk and persisted directly.
+   */
+  rundownId?: string;
 };
 
 export function createTransaction(options: TransactionOptions): Transaction {
-  const rundown = options.mutableRundown ? structuredClone(cachedRundown) : cachedRundown;
+  const targetId = options.rundownId ?? cachedRundown.id;
+  const isLoaded = targetId === cachedRundown.id;
+  const sourceRundown: Rundown = isLoaded ? cachedRundown : (getDataProvider().getRundown(targetId) as Rundown);
+  const rundown = options.mutableRundown ? structuredClone(sourceRundown) : sourceRundown;
   const customFields = options.mutableCustomFields ? structuredClone(projectCustomFields) : projectCustomFields;
 
   /**
-   * Applies a mutated rundown to the cache
+   * Applies a mutated rundown to its persistence target
    * @param shouldProcess - whether the rundown should be processed after the commit
    *                        Some edit mutations, and custom field changes do not require processing
    */
-  function commit(shouldProcess: boolean = true) {
+  async function commit(shouldProcess: boolean = true) {
+    let committedRundown: Readonly<Rundown> = isLoaded ? cachedRundown : rundown;
+    let committedMetadata: RundownMetadata | null = isLoaded ? rundownMetadata : null;
+    let committedRevision: number = sourceRundown.revision;
+
     // if the rundown is mutable we persist the changes
     if (options.mutableRundown) {
-      // update fields which are agnostic of whether the rundown is processed
-      cachedRundown.revision = cachedRundown.revision + 1;
-      cachedRundown.title = rundown.title;
+      if (isLoaded) {
+        // update fields which are agnostic of whether the rundown is processed
+        cachedRundown.revision = cachedRundown.revision + 1;
+        cachedRundown.title = rundown.title;
 
-      if (!shouldProcess) {
-        // if we dont need to process, we just reassign the commit data to the cache
-        cachedRundown.entries = rundown.entries;
-        cachedRundown.order = rundown.order;
-        cachedRundown.flatOrder = rundown.flatOrder;
+        if (!shouldProcess) {
+          // if we dont need to process, we just reassign the commit data to the cache
+          cachedRundown.entries = rundown.entries;
+          cachedRundown.order = rundown.order;
+          cachedRundown.flatOrder = rundown.flatOrder;
+        } else {
+          const processedData = processRundown(rundown, projectCustomFields, { mutate: true });
+          // update the cache values
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
+          const { previousEvent, latestEvent, previousEntry, entries, order, ...metadata } = processedData;
+
+          cachedRundown.entries = entries;
+          cachedRundown.order = order;
+          cachedRundown.flatOrder = metadata.flatEntryOrder;
+          rundownMetadata = metadata;
+        }
+
+        // persist after all mutations are applied
+        await getDataProvider().setRundown(cachedRundown.id, cachedRundown);
+        committedRundown = cachedRundown;
+        committedMetadata = rundownMetadata;
+        committedRevision = cachedRundown.revision;
       } else {
-        const processedData = processRundown(rundown, projectCustomFields);
-        // update the cache values
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
-        const { previousEvent, latestEvent, previousEntry, entries, order, ...metadata } = processedData;
-
-        cachedRundown.entries = entries;
-        cachedRundown.order = order;
-        cachedRundown.flatOrder = metadata.flatEntryOrder;
-        rundownMetadata = metadata;
+        // background rundown: process if requested, persist directly, no runtime metadata
+        rundown.revision = rundown.revision + 1;
+        if (shouldProcess) {
+          const processedData = processRundown(rundown, projectCustomFields, { mutate: true });
+          rundown.entries = processedData.entries;
+          rundown.order = processedData.order;
+          rundown.flatOrder = processedData.flatEntryOrder;
+        }
+        await getDataProvider().setRundown(targetId, rundown);
+        committedRundown = rundown;
+        committedRevision = rundown.revision;
       }
-
-      // persist after all mutations are applied
-      getDataProvider().setRundown(cachedRundown.id, cachedRundown);
     }
 
     // if the customFields are mutable we persist the changes
@@ -137,21 +166,20 @@ export function createTransaction(options: TransactionOptions): Transaction {
       projectCustomFields = customFields;
 
       // persist after reassignment
-      getDataProvider().setCustomFields(projectCustomFields);
+      await getDataProvider().setCustomFields(projectCustomFields);
     }
 
     return {
-      rundown: cachedRundown,
-      rundownMetadata,
+      rundown: committedRundown,
+      rundownMetadata: committedMetadata,
       customFields: projectCustomFields,
-      revision: cachedRundown.revision,
+      revision: committedRevision,
     };
   }
 
   return {
     customFields,
     rundown,
-    rundownMetadata,
     commit,
   };
 }
@@ -286,11 +314,11 @@ function reorder(rundown: Rundown, eventFrom: OntimeEntry, eventTo: OntimeEntry,
  * Mutates the given rundown
  */
 function applyDelay(rundown: Rundown, delay: OntimeDelay) {
-  const delayIndex = rundownMetadata.flatEntryOrder.indexOf(delay.id);
+  const delayIndex = rundown.flatOrder.indexOf(delay.id);
 
   // if the delay is empty, or the last element
   // there is nothing do apply
-  if (delay.duration === 0 || delayIndex === rundownMetadata.flatEntryOrder.length - 1) {
+  if (delay.duration === 0 || delayIndex === rundown.flatOrder.length - 1) {
     return;
   }
 
@@ -303,8 +331,8 @@ function applyDelay(rundown: Rundown, delay: OntimeDelay) {
   let lastEntry: OntimeEvent | null = null;
   let isFirstEvent = true;
 
-  for (let i = delayIndex + 1; i < rundownMetadata.flatEntryOrder.length; i++) {
-    const currentId = rundownMetadata.flatEntryOrder[i];
+  for (let i = delayIndex + 1; i < rundown.flatOrder.length; i++) {
+    const currentId = rundown.flatOrder[i];
     const currentEntry = rundown.entries[currentId];
 
     // we don't do operation on other event types
@@ -552,6 +580,23 @@ export async function updateBackgroundRundown(rundownId: string, rundown: Rundow
 }
 
 /**
+ * Reads a rundown from disk and returns it in the processed shape used by clients.
+ * Used for non-loaded rundowns — the loaded rundown is served directly from cache.
+ */
+export function getProcessedRundown(rundownId: string): Rundown {
+  const stored = getDataProvider().getRundown(rundownId);
+  const processed = processRundown(stored, getDataProvider().getCustomFields());
+  return {
+    id: stored.id,
+    title: stored.title,
+    entries: processed.entries,
+    order: processed.order,
+    flatOrder: processed.flatEntryOrder,
+    revision: stored.revision,
+  };
+}
+
+/**
  * Adds a new custom field to the object and returns it
  */
 function customFieldAdd(customFields: CustomFields, key: CustomFieldKey, newCustomField: CustomField): CustomFields {
@@ -629,7 +674,7 @@ export const customFieldMutation = {
 export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Readonly<CustomFields>) {
   const rundown = structuredClone(initialRundown);
   const customFields = structuredClone(initialCustomFields);
-  const processedData = processRundown(rundown, customFields);
+  const processedData = processRundown(rundown, customFields, { mutate: true });
 
   // update the cache values
   cachedRundown.id = rundown.id;
@@ -662,72 +707,57 @@ export const rundownCache = {
 };
 
 /**
- * Utility updates cache after a mutation
- * Handles calculating the rundown metadata
+ * Computes derived rundown metadata (delays, gaps, group times, ordered lists).
+ * By default the input rundown is not mutated — entries are cloned as they are processed.
+ * Callers that own a writable rundown can pass `{ mutate: true }` to skip the per-entry clone.
  * @private should not be called outside of `rundown.dao.ts`, exported for testing
  */
 export function processRundown(
   initialRundown: Readonly<Rundown>,
   customFields: Readonly<CustomFields>,
+  options?: { mutate?: boolean },
 ): ProcessedRundownMetadata {
-  const { process, getMetadata } = makeRundownMetadata(customFields);
+  const { process, getMetadata } = makeRundownMetadata(customFields, options);
 
   for (let i = 0; i < initialRundown.order.length; i++) {
-    // we assign a reference to the current entry, this will be mutated in place
-    const currentEntryId = initialRundown.order[i];
-    const currentEntry = initialRundown.entries[currentEntryId];
-    if (!currentEntry) {
-      continue;
-    }
-    const { processedEntry } = process(currentEntry, null);
+    const currentEntry = initialRundown.entries[initialRundown.order[i]];
+    if (!currentEntry) continue;
 
-    // if the event is a group, we process the nested entries
-    // the code here is a copy of the processing of top level events
-    if (isOntimeGroup(processedEntry)) {
-      let groupStartTime = null;
-      let groupEndTime = null;
-      let isFirstLinked = false;
-      const groupEvents: EntryId[] = [];
-      processedEntry.duration = 0;
+    const processedEntry = process(currentEntry, null);
+    if (!isOntimeGroup(processedEntry)) continue;
 
-      // check if the group contains nested entries
-      for (let j = 0; j < processedEntry.entries.length; j++) {
-        const nestedEntryId = processedEntry.entries[j];
-        const nestedEntry = initialRundown.entries[nestedEntryId];
+    // process nested entries and recompute aggregate group fields
+    let groupStartTime: number | null = null;
+    let groupEndTime: number | null = null;
+    let isFirstLinked = false;
+    const groupEvents: EntryId[] = [];
+    processedEntry.duration = 0;
 
-        if (!nestedEntry) {
-          continue;
-        }
+    for (let j = 0; j < processedEntry.entries.length; j++) {
+      const nestedEntry = initialRundown.entries[processedEntry.entries[j]];
+      if (!nestedEntry) continue;
 
-        groupEvents.push(nestedEntry.id);
-        const { processedEntry: processedNestedEntry } = process(nestedEntry, processedEntry.id);
+      groupEvents.push(nestedEntry.id);
+      const processedNestedEntry = process(nestedEntry, processedEntry.id);
 
-        // we dont extract metadata of skipped events,
-        // if this is not a playable event there is nothing else to do
-        if (!isOntimeEvent(processedNestedEntry) || !isPlayableEvent(processedNestedEntry)) {
-          continue;
-        }
+      // skip metadata aggregation for non-playable nested entries
+      if (!isOntimeEvent(processedNestedEntry) || !isPlayableEvent(processedNestedEntry)) continue;
 
-        // first start is always the first event
-        if (groupStartTime === null) {
-          groupStartTime = processedNestedEntry.timeStart;
-          isFirstLinked = Boolean(processedNestedEntry.linkStart);
-        }
-
-        // lastEntry is the event with the latest end time
-        groupEndTime = processedNestedEntry.timeEnd;
-        if (j > 0) {
-          processedEntry.duration += processedNestedEntry.gap;
-        }
-        processedEntry.duration = processedEntry.duration + processedNestedEntry.duration;
+      if (groupStartTime === null) {
+        groupStartTime = processedNestedEntry.timeStart;
+        isFirstLinked = Boolean(processedNestedEntry.linkStart);
       }
-
-      // update group metadata
-      processedEntry.timeStart = groupStartTime;
-      processedEntry.timeEnd = groupEndTime;
-      processedEntry.isFirstLinked = isFirstLinked;
-      processedEntry.entries = groupEvents;
+      groupEndTime = processedNestedEntry.timeEnd;
+      if (j > 0) {
+        processedEntry.duration += processedNestedEntry.gap;
+      }
+      processedEntry.duration += processedNestedEntry.duration;
     }
+
+    processedEntry.timeStart = groupStartTime;
+    processedEntry.timeEnd = groupEndTime;
+    processedEntry.isFirstLinked = isFirstLinked;
+    processedEntry.entries = groupEvents;
   }
 
   return getMetadata();

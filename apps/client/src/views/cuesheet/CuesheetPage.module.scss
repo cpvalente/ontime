@@ -14,3 +14,14 @@
     'table';
   color: $ui-white;
 }
+
+.rundownSelect {
+  min-width: min(20rem, calc(100vw - 6rem));
+}
+
+.backgroundBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $orange-400;
+  white-space: nowrap;
+}

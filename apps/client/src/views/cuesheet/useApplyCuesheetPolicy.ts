@@ -7,10 +7,18 @@ import { AppMode, sessionKeys } from '../../ontimeConfig';
 import { getCuesheetPermissionsPolicy } from './cuesheet.policies';
 import { useCuesheetPermissions } from './useTablePermissions';
 
+type CuesheetPolicyOptions = {
+  // Run mode is only meaningful for the loaded rundown — background rundowns force Edit.
+  canRunMode: boolean;
+};
+
 /**
  * Applies cuesheet permissions to shared state and exposes the effective mode for the UI.
  */
-export function useApplyCuesheetPolicy(preset: URLPreset | undefined): {
+export function useApplyCuesheetPolicy(
+  preset: URLPreset | undefined,
+  { canRunMode }: CuesheetPolicyOptions,
+): {
   cuesheetMode: AppMode;
   setCuesheetMode: (mode: AppMode) => void;
 } {
@@ -26,16 +34,15 @@ export function useApplyCuesheetPolicy(preset: URLPreset | undefined): {
     defaultValue: preset ? AppMode.Run : AppMode.Edit,
   });
 
-  const cuesheetMode = permissions.canChangeMode ? storedCuesheetMode : AppMode.Run;
+  const isModeLocked = !canRunMode || !permissions.canChangeMode;
+  const cuesheetMode = isModeLocked ? AppMode.Edit : storedCuesheetMode;
+
   const setCuesheetMode = useCallback(
     (mode: AppMode) => {
-      if (!permissions.canChangeMode) {
-        return;
-      }
-
+      if (isModeLocked) return;
       setStoredCuesheetMode(mode);
     },
-    [permissions.canChangeMode, setStoredCuesheetMode],
+    [isModeLocked, setStoredCuesheetMode],
   );
 
   // Keep the shared permissions store aligned with the active preset policy.
@@ -43,12 +50,12 @@ export function useApplyCuesheetPolicy(preset: URLPreset | undefined): {
     setPermissions(permissions);
   }, [permissions, setPermissions]);
 
-  // Force Run mode whenever the policy forbids mode switching.
+  // Persist Edit mode when the policy forbids switching, so reloads stay consistent.
   useEffect(() => {
-    if (!permissions.canChangeMode) {
-      setStoredCuesheetMode((mode) => (mode === AppMode.Run ? mode : AppMode.Run));
+    if (isModeLocked) {
+      setStoredCuesheetMode((mode) => (mode === AppMode.Edit ? mode : AppMode.Edit));
     }
-  }, [permissions.canChangeMode, setStoredCuesheetMode]);
+  }, [isModeLocked, setStoredCuesheetMode]);
 
   return { cuesheetMode, setCuesheetMode };
 }

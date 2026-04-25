@@ -1,7 +1,6 @@
-import { OntimeEntry, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
+import { OntimeEntry, Rundown, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 import { useMemo } from 'react';
 
-import useRundown from '../../../common/hooks-query/useRundown';
 import EventEditor from './EventEditor';
 import GroupEditor from './GroupEditor';
 import MilestoneEditor from './MilestoneEditor';
@@ -10,19 +9,18 @@ import style from './EntryEditor.module.scss';
 
 interface CuesheetEntryEditorProps {
   entryId: string;
+  rundown: Rundown;
 }
 
-export default function CuesheetEntryEditor({ entryId }: CuesheetEntryEditorProps) {
-  const { data } = useRundown();
-
+export default function CuesheetEntryEditor({ entryId, rundown }: CuesheetEntryEditorProps) {
   const entry = useMemo<OntimeEntry | null>(() => {
-    if (data.order.length === 0) {
+    if (rundown.order.length === 0) {
       return null;
     }
 
-    const event = data.entries[entryId];
+    const event = rundown.entries[entryId];
     return event ?? null;
-  }, [entryId, data.order, data.entries]);
+  }, [entryId, rundown.entries, rundown.order.length]);
 
   if (isOntimeEvent(entry)) {
     return (
