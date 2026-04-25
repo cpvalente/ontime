@@ -63,7 +63,7 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
       throw new Error('Missing Event ID');
     }
 
-    const { entries } = getCurrentRundown();
+    const { entries, id: currentRundownId } = getCurrentRundown();
     const customFields = getProjectCustomFields();
 
     const targetEntry = entries[id];
@@ -89,8 +89,8 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
         Object.assign(patchEntry, newObjectProperty);
       }
     });
-    //TODO: windowed edit function
-    await editEntry(patchEntry);
+
+    await editEntry(currentRundownId, patchEntry);
     return { payload: 'success' };
   },
   /* Message Service */

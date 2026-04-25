@@ -6,6 +6,7 @@ import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary'
 import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
 import ProtectRoute from '../../common/components/protect-route/ProtectRoute';
 import { EntryActionsProvider } from '../../common/context/EntryActionsContext';
+import { useLoadedRundownSource } from '../../common/hooks-query/useScopedRundown';
 import { useEntryActions } from '../../common/hooks/useEntryAction';
 import { useIsSmallDevice } from '../../common/hooks/useIsSmallDevice';
 import { handleLinks } from '../../common/utils/linkUtils';
@@ -104,6 +105,8 @@ interface RundownRootProps {
 }
 
 function RundownRoot({ isSmallDevice, isExtracted, viewMode, setViewMode }: RundownRootProps) {
+  const source = useLoadedRundownSource();
+
   return (
     <div className={style.rundownRoot}>
       {isSmallDevice ? (
@@ -112,7 +115,7 @@ function RundownRoot({ isSmallDevice, isExtracted, viewMode, setViewMode }: Rund
         <RundownHeader isExtracted={isExtracted} viewMode={viewMode} setViewMode={setViewMode} />
       )}
       {viewMode === RundownViewMode.List ? <RundownList /> : <RundownTable />}
-      {viewMode === RundownViewMode.Table && <EntryEditModal />}
+      {viewMode === RundownViewMode.Table && <EntryEditModal rundown={source.rundown} />}
       <RenumberCuesDialog />
     </div>
   );
