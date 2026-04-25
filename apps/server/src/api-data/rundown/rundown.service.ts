@@ -27,7 +27,7 @@ import { updateRundownData } from '../../stores/runtimeState.js';
 import {
   createTransaction,
   customFieldMutation,
-  getCurrentRundown,
+  getCurrentRundownId,
   rundownCache,
   rundownMutation,
   updateBackgroundRundown,
@@ -74,7 +74,7 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: [newEntry.id], external: true });
+    notifyChanges(rundown.id, rundownMetadata, revision, { timer: [newEntry.id], external: true });
   });
 
   return newEntry;
@@ -118,7 +118,10 @@ export async function editEntry(patch: PatchWithId): Promise<OntimeEntry> {
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: didInvalidate ? true : [entry.id], external: true });
+    notifyChanges(rundown.id, rundownMetadata, revision, {
+      timer: didInvalidate ? true : [entry.id],
+      external: true,
+    });
   });
 
   return entry;
@@ -181,7 +184,10 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: batchDidInvalidate ? true : changedIds, external: true });
+    notifyChanges(rundown.id, rundownMetadata, revision, {
+      timer: batchDidInvalidate ? true : changedIds,
+      external: true,
+    });
   });
 
   return rundownResult;
@@ -209,7 +215,7 @@ export async function deleteEntries(entryIds: EntryId[]): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: entryIds, external: true });
+    notifyChanges(rundown.id, rundownMetadata, revision, { timer: entryIds, external: true });
   });
 
   return rundownResult;
@@ -231,7 +237,7 @@ export async function deleteAllEntries(): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    notifyChanges(rundown.id, rundownMetadata, revision, { timer: true, external: true });
   });
 
   return rundownResult;
@@ -263,7 +269,7 @@ export async function reorderEntry(entryId: EntryId, destinationId: EntryId, ord
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    notifyChanges(rundown.id, rundownMetadata, revision, { timer: true, external: true });
   });
 
   return rundownResult;
@@ -287,7 +293,7 @@ export function renumberEntries(ids: EntryId[], prefix: string, start: string, i
 
   setImmediate(() => {
     updateRuntimeOnChange(rundownMetadata);
-    notifyChanges(rundownMetadata, revision, { timer: ids, external: true });
+    notifyChanges(rundown.id, rundownMetadata, revision, { timer: ids, external: true });
   });
 
   return rundownResult;
@@ -318,7 +324,7 @@ export async function applyDelay(delayId: EntryId): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    notifyChanges(rundown.id, rundownMetadata, revision, { timer: true, external: true });
   });
 
   return rundownResult;
@@ -351,7 +357,7 @@ export async function swapEvents(fromId: EntryId, toId: EntryId): Promise<Rundow
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    notifyChanges(rundown.id, rundownMetadata, revision, { timer: true, external: true });
   });
 
   return rundownResult;
@@ -380,11 +386,11 @@ export async function cloneEntry(entryId: EntryId, options: InsertOptions): Prom
 
     // notify timer and external services of change
     if (isOntimeGroup(newEntry)) {
-      notifyChanges(rundownMetadata, revision, { timer: newEntry.entries, external: true });
+      notifyChanges(rundown.id, rundownMetadata, revision, { timer: newEntry.entries, external: true });
     } else if (isOntimeEvent(newEntry)) {
-      notifyChanges(rundownMetadata, revision, { timer: [newEntry.id], external: true });
+      notifyChanges(rundown.id, rundownMetadata, revision, { timer: [newEntry.id], external: true });
     } else if (isOntimeDelay(newEntry)) {
-      notifyChanges(rundownMetadata, revision, { external: true });
+      notifyChanges(rundown.id, rundownMetadata, revision, { external: true });
     }
   });
 
@@ -406,7 +412,7 @@ export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // we need to notify the timer since we might be grouping a running event
-    notifyChanges(rundownMetadata, revision, { external: true, timer: true });
+    notifyChanges(rundown.id, rundownMetadata, revision, { external: true, timer: true });
   });
 
   return rundownResult;
@@ -432,7 +438,7 @@ export async function ungroupEntries(groupId: EntryId): Promise<Rundown> {
     updateRuntimeOnChange(rundownMetadata);
 
     // we dont need to notify the timer since the grouping does not affect the runtime
-    notifyChanges(rundownMetadata, revision, { external: true });
+    notifyChanges(rundown.id, rundownMetadata, revision, { external: true });
   });
 
   return rundownResult;
@@ -522,7 +528,7 @@ export async function editCustomField(
   // schedule the side effects
   setImmediate(() => {
     sendRefetch(RefetchKey.CustomFields);
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    notifyChanges(undefined, rundownMetadata, revision, { timer: true, external: true });
   });
 
   return resultCustomFields;
@@ -561,7 +567,7 @@ export async function deleteCustomField(key: CustomFieldKey, projectRundowns: Pr
   // schedule the side effects
   setImmediate(() => {
     sendRefetch(RefetchKey.CustomFields);
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+    notifyChanges(undefined, rundownMetadata, revision, { timer: true, external: true });
   });
 
   return resultCustomFields;
@@ -592,10 +598,17 @@ type NotifyChangesOptions = {
 
 /**
  * Notify services of changes in the rundown
+ * TODO: we could receive a runtime flag to call updateRuntimeOnChange
+ * instead of having it in every consumer
  */
-function notifyChanges(rundownMetadata: RundownMetadata, revision: number, options: NotifyChangesOptions) {
-  // notify timer service of changed events
-  if (options.timer) {
+function notifyChanges(
+  rundownId: string | undefined,
+  rundownMetadata: RundownMetadata,
+  revision: number,
+  options: NotifyChangesOptions,
+) {
+  // notify timer service of changed event
+  if (options.timer && rundownId && isCurrentRundown(rundownId)) {
     runtimeService.notifyOfChangedEvents(rundownMetadata);
   }
 
@@ -603,8 +616,12 @@ function notifyChanges(rundownMetadata: RundownMetadata, revision: number, optio
   if (options.reload) {
     sendRefetch(RefetchKey.All);
   } else if (options.external) {
-    sendRefetch(RefetchKey.Rundown, revision);
+    sendRefetch(RefetchKey.Rundown, revision, rundownId);
   }
+}
+
+export function isCurrentRundown(id: string) {
+  return id === getCurrentRundownId();
 }
 
 /**
@@ -612,9 +629,10 @@ function notifyChanges(rundownMetadata: RundownMetadata, revision: number, optio
  */
 export async function loadRundown(id: string) {
   const dataProvider = getDataProvider();
-  if (id === getCurrentRundown().id) {
+  if (isCurrentRundown(id)) {
     return dataProvider.getProjectRundowns();
   }
+
   const rundown = dataProvider.getRundown(id);
   const customField = dataProvider.getCustomFields();
   await initRundown(rundown, customField);
@@ -637,7 +655,7 @@ export async function initRundown(
   updateRuntimeOnChange(rundownMetadata);
 
   setImmediate(() => {
-    notifyChanges(rundownMetadata, revision, { timer: true, external: true, reload });
+    notifyChanges(rundown.id, rundownMetadata, revision, { timer: true, external: true, reload });
     setLastLoadedRundown(rundown.id).catch((error) => {
       logger.error(LogOrigin.Server, `Failed to persist last loaded rundown: ${error}`);
     });

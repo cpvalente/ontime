@@ -3,9 +3,7 @@ import {
   Log,
   MaybeNumber,
   MessageTag,
-  ProjectRundownsList,
   RefetchKey,
-  Rundown,
   RuntimeStore,
   WsPacketToClient,
   WsPacketToServer,
@@ -17,15 +15,16 @@ import {
   CLIENT_LIST,
   CSS_OVERRIDE,
   CUSTOM_FIELDS,
-  PROJECT_DATA,
   CURRENT_RUNDOWN_QUERY_KEY,
-  PROJECT_RUNDOWNS,
+  PROJECT_DATA,
   REPORT,
+  RUNDOWN,
   RUNTIME,
   TRANSLATION,
   URL_PRESETS,
   VIEW_SETTINGS,
   getRundownQueryKey,
+  PROJECT_RUNDOWNS,
 } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
@@ -181,7 +180,7 @@ export const connectSocket = () => {
         }
         case MessageTag.Refetch: {
           // the refetch message signals that the rundown has changed in the server side
-          const { target, revision } = payload;
+          const { target, revision, rundownId } = payload;
           switch (target) {
             case RefetchKey.All:
               invalidateAllCaches();
@@ -196,7 +195,7 @@ export const connectSocket = () => {
               ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
               break;
             case RefetchKey.Rundown: {
-              maybeInvalidateRundownCache(revision);
+              maybeInvalidateRundownCache(revision, rundownId);
               break;
             }
             case RefetchKey.UrlPresets:
@@ -232,34 +231,28 @@ export const connectSocket = () => {
   };
 };
 
-/**
- * When we receive a refetch message for the rundown
- * check which rundown needs to be invalidated
- */
-export function maybeInvalidateRundownCache(revision: MaybeNumber) {
-  const loadedRundownId: string | undefined = (ontimeQueryClient.getQueryData(PROJECT_RUNDOWNS) as ProjectRundownsList)
-    ?.loaded;
-
-  const activeRundownQueryKey = loadedRundownId ? getRundownQueryKey(loadedRundownId) : CURRENT_RUNDOWN_QUERY_KEY;
-  const cachedRundown = ontimeQueryClient.getQueryData<Rundown>(activeRundownQueryKey);
-  if (revision === cachedRundown?.revision) {
+export function maybeInvalidateRundownCache(revision: MaybeNumber, rundownId?: string) {
+  if (!rundownId) {
+    // we omit rundownId to signify invalidate all rundowns
+    ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
+    ontimeQueryClient.invalidateQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
     return;
   }
 
-  ontimeQueryClient.invalidateQueries({ queryKey: activeRundownQueryKey, exact: true });
-
-  if (loadedRundownId) {
-    // Keep bootstrap alias in sync with the ID-based cache
-    ontimeQueryClient.invalidateQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
-  } else {
-    // During bootstrap, loadedRundownId is not yet known.
-    // Invalidate any ID-based rundown caches that may have been seeded early.
-    ontimeQueryClient.invalidateQueries({
-      predicate: (query) => query.queryKey[0] === 'rundown' && query.queryKey[1] !== 'current',
-    });
+  // skip if we dont recognise the ID the revision is lower
+  const queryKey = getRundownQueryKey(rundownId);
+  const cachedRundown = ontimeQueryClient.getQueryData<{ revision: number }>(queryKey);
+  if (revision !== null && revision === cachedRundown?.revision) {
+    return;
   }
 
-  ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
+  ontimeQueryClient.invalidateQueries({ queryKey, exact: true });
+
+  // keep current alias in sync with the ID-based cache
+  const loadedRundownId = ontimeQueryClient.getQueryData<{ loaded: string }>(PROJECT_RUNDOWNS)?.loaded;
+  if (!loadedRundownId || loadedRundownId === rundownId) {
+    ontimeQueryClient.invalidateQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
+  }
 }
 
 export function sendSocket<T extends MessageTag | ApiActionTag>(

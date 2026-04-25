@@ -41,6 +41,7 @@ type RefetchPacket = {
   payload: {
     target: RefetchKey;
     revision: MaybeNumber;
+    rundownId?: string; // undefined means refetch all rundowns
   };
 };
 

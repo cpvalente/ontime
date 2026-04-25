@@ -262,6 +262,6 @@ export const socket = new SocketServer();
 /**
  * Utility function to notify clients that the REST data is stale
  */
-export function sendRefetch(target: RefetchKey, revision: MaybeNumber = null) {
-  socket.sendAsJson(MessageTag.Refetch, { target, revision });
+export function sendRefetch(target: RefetchKey, revision: MaybeNumber = null, rundownId?: string) {
+  socket.sendAsJson(MessageTag.Refetch, { target, revision, rundownId });
 }
