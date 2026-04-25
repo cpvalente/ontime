@@ -144,6 +144,38 @@ Custom fields are project-scoped name/type/colour definitions stored at \`ontime
 - \`ontime://rundowns\` — all rundowns in the project (JSON)
 - \`ontime://project/info\` — project metadata (JSON)
 - \`ontime://project/custom-fields\` — custom field definitions (JSON)
+- \`ontime://docs\` — index of Ontime documentation topics with URLs
+
+## Further reading
+Full Ontime documentation: **https://docs.getontime.no**
+Read \`ontime://docs\` for a topic index with direct links.
+`;
+
+// ---- Documentation index exposed as a resource ----
+const ONTIME_DOCS_MARKDOWN = `# Ontime Documentation Index
+
+Main site: https://docs.getontime.no
+
+## Getting started
+- Installation & setup: https://docs.getontime.no/installation/
+
+## Core concepts
+- Rundown: https://docs.getontime.no/concepts/rundown/
+- Timer types (count-down, count-up, time-to-end, clock): https://docs.getontime.no/concepts/timer/
+- Time entry format: https://docs.getontime.no/concepts/time-entry/
+- Event actions (end action, link start): https://docs.getontime.no/concepts/event-actions/
+- Delays and blocks: https://docs.getontime.no/concepts/delays-and-blocks/
+
+## Features
+- Custom fields: https://docs.getontime.no/features/custom-fields/
+- Automations (triggers, filters, outputs): https://docs.getontime.no/features/automations/
+- URL presets / shared views: https://docs.getontime.no/features/url-presets/
+- HTTP Integration: https://docs.getontime.no/api/http/
+- OSC Integration: https://docs.getontime.no/api/osc/
+
+## API reference
+- REST API overview: https://docs.getontime.no/api/
+- WebSocket events: https://docs.getontime.no/api/websocket/
 `;
 
 // ---- Tool definitions ----
@@ -1022,6 +1054,14 @@ Tip: moving items in the "to" direction of the target position minimises reorder
             'Map of custom field keys to their label, type, and colour. Events reference these keys in their `custom` object.',
           mimeType: 'application/json',
         },
+        {
+          uri: 'ontime://docs',
+          name: 'ontime-docs',
+          title: 'Ontime documentation index',
+          description:
+            'Curated index of Ontime documentation topics with direct links to https://docs.getontime.no. Read this when you need to understand a concept in more depth or want to point the user to official documentation.',
+          mimeType: 'text/markdown',
+        },
       ],
     };
   });
@@ -1060,6 +1100,12 @@ Tip: moving items in the "to" direction of the target position minimises reorder
     if (uri === 'ontime://project/custom-fields') {
       return {
         contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(getProjectCustomFields()) }],
+      };
+    }
+
+    if (uri === 'ontime://docs') {
+      return {
+        contents: [{ uri, mimeType: 'text/markdown', text: ONTIME_DOCS_MARKDOWN }],
       };
     }
 
