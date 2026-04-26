@@ -1,7 +1,7 @@
 import { Table, flexRender } from '@tanstack/react-table';
 import { EntryId, SupportedEntry } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
-import { CSSProperties } from 'react';
+import { CSSProperties, memo, useMemo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
@@ -25,7 +25,8 @@ interface MilestoneRowProps {
   hasCursor?: boolean;
 }
 
-export default function MilestoneRow({
+export default memo(MilestoneRow);
+function MilestoneRow({
   entryId,
   isPast,
   parentBgColour,
@@ -45,17 +46,12 @@ export default function MilestoneRow({
 
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
-  let rowBgColour: string | undefined;
-  if (colour) {
-    // the colour is user defined and might be invalid
-    const accessibleBackgroundColor = cssOrHexToColour(getAccessibleColour(colour).backgroundColor);
-    if (accessibleBackgroundColor !== null) {
-      rowBgColour = colourToHex({
-        ...accessibleBackgroundColor,
-        alpha: accessibleBackgroundColor.alpha * 0.25,
-      });
-    }
-  }
+  const rowBgColour = useMemo(() => {
+    if (!colour) return undefined;
+    const accessibleBg = cssOrHexToColour(getAccessibleColour(colour).backgroundColor);
+    if (accessibleBg === null) return undefined;
+    return colourToHex({ ...accessibleBg, alpha: accessibleBg.alpha * 0.25 });
+  }, [colour]);
 
   return (
     <tr

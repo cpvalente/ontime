@@ -1,7 +1,7 @@
 import { Table, flexRender } from '@tanstack/react-table';
 import { EntryId, OntimeEntry, RGBColour, SupportedEntry } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
-import { CSSProperties, useMemo } from 'react';
+import { CSSProperties, memo, useMemo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
@@ -30,7 +30,8 @@ interface EventRowProps {
   hasCursor?: boolean;
 }
 
-export default function EventRow({
+export default memo(EventRow);
+function EventRow({
   rowId,
   id,
   eventIndex,
@@ -55,24 +56,25 @@ export default function EventRow({
 
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
-  const { color, backgroundColor } = getAccessibleColour(colour);
-  const tmpColour = cssOrHexToColour(color) as RGBColour; // we know this to be a correct colour
-  const mutedText = colourToHex({ ...tmpColour, alpha: tmpColour.alpha * 0.8 });
+  const { rowBgColour, backgroundColor, mutedText } = useMemo(() => {
+    const accessible = getAccessibleColour(colour);
+    const tmpColour = cssOrHexToColour(accessible.color) as RGBColour;
 
-  const rowBgColour: string | undefined = useMemo(() => {
+    let rowBgColour: string | undefined;
     if (isLoaded) {
-      return '#087A27'; // $active-green
+      rowBgColour = '#087A27'; // $active-green
     } else if (colour) {
-      // the colour is user defined and might be invalid
-      const accessibleBackgroundColor = cssOrHexToColour(getAccessibleColour(colour).backgroundColor);
-      if (accessibleBackgroundColor !== null) {
-        return colourToHex({
-          ...accessibleBackgroundColor,
-          alpha: accessibleBackgroundColor.alpha * 0.25,
-        });
+      const accessibleBg = cssOrHexToColour(accessible.backgroundColor);
+      if (accessibleBg !== null) {
+        rowBgColour = colourToHex({ ...accessibleBg, alpha: accessibleBg.alpha * 0.25 });
       }
     }
-    return;
+
+    return {
+      rowBgColour,
+      backgroundColor: accessible.backgroundColor,
+      mutedText: colourToHex({ ...tmpColour, alpha: tmpColour.alpha * 0.8 }),
+    };
   }, [colour, isLoaded]);
 
   return (
