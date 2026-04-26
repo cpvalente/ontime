@@ -40,6 +40,7 @@ export default function useRundown() {
     queryClient.setQueryData(getRundownQueryKey(data.id), data);
   }, [data, loadedRundownId, queryClient]);
 
+  // Once we have the ID, drop the temporary current cache
   useEffect(() => {
     if (!loadedRundownId) return;
     queryClient.removeQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
