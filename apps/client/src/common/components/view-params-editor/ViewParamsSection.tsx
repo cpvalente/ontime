@@ -64,8 +64,8 @@ function SectionContents({ options, collapsed }: SectionContentsProps) {
 function HiddenContents({ options }: { options: ParamField[] }) {
   return (
     <>
-      {options.map((option, index) => {
-        return <ParamInput key={option.title + index} paramField={option} />;
+      {options.map((option) => {
+        return <ParamInput key={option.id} paramField={option} />;
       })}
     </>
   );

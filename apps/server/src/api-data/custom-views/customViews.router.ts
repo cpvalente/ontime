@@ -1,5 +1,5 @@
 import express from 'express';
-import type { Request, Response } from 'express';
+import type { Request, Response, Router } from 'express';
 import { type CustomViewsListResponse, type ErrorResponse, type MessageResponse } from 'ontime-types';
 
 import { handleCustomViewsError } from './customViews.errors.js';
@@ -13,7 +13,7 @@ import {
 } from './customViews.service.js';
 import { validateCustomViewSlugParam } from './customViews.validation.js';
 
-export const router = express.Router();
+export const router: Router = express.Router();
 
 router.get('/', async (_req: Request, res: Response<CustomViewsListResponse | ErrorResponse>) => {
   try {

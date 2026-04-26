@@ -1,11 +1,12 @@
 import express from 'express';
-import type { Request, Response } from 'express';
+import type { Request, Response, Router } from 'express';
 import type {
   ErrorResponse,
   SpreadsheetPreviewResponse,
   SpreadsheetWorksheetMetadata,
   SpreadsheetWorksheetOptions,
 } from 'ontime-types';
+import { getErrorMessage } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { getProjectCustomFields } from '../rundown/rundown.dao.js';
@@ -19,7 +20,7 @@ import {
   validateWorksheetMetadataRequest,
 } from './excel.validation.js';
 
-export const router = express.Router();
+export const router: Router = express.Router();
 
 router.post(
   '/upload',
@@ -32,7 +33,8 @@ router.post(
       const worksheetOptions = await readExcelFile(filePath);
       res.status(200).send(worksheetOptions);
     } catch (error) {
-      res.status(500).send({ message: String(error) });
+      const message = getErrorMessage(error);
+      res.status(500).send({ message });
     }
   },
 );
@@ -46,7 +48,8 @@ router.post(
       const data = generateRundownPreview(options);
       res.status(200).send(data);
     } catch (error) {
-      res.status(500).send({ message: String(error) });
+      const message = getErrorMessage(error);
+      res.status(500).send({ message });
     }
   },
 );
@@ -60,7 +63,8 @@ router.post(
       const data = getWorksheetMetadata(worksheet);
       res.status(200).send(data);
     } catch (error) {
-      res.status(500).send({ message: String(error) });
+      const message = getErrorMessage(error);
+      res.status(500).send({ message });
     }
   },
 );
@@ -75,7 +79,7 @@ router.get('/:rundownId/export', validateRundownExport, (req: Request, res: Resp
     res.setHeader('Content-Type', EXCEL_MIME);
     res.setHeader('Content-Length', buffer.length.toString());
     res.status(200).send(buffer);
-  } catch (error) {
+  } catch (_error) {
     res.status(500).send({ message: 'Failed to generate Excel file' });
   }
 });

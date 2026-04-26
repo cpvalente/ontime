@@ -51,8 +51,10 @@ const socketConfig = {
   offlineAttemptsThreshold: 2, // when we consider the client disconnected
 } as const;
 
-export let hasConnected = false;
-export let reconnectAttempts = 0;
+export const getConnectionState = () => hasConnected;
+export const getReconnectAttempts = () => reconnectAttempts;
+let hasConnected = false;
+let reconnectAttempts = 0;
 
 export const connectSocket = () => {
   websocket = new WebSocket(websocketUrl);

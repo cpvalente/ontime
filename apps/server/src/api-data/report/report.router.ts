@@ -1,10 +1,10 @@
 import express from 'express';
-import type { Request, Response } from 'express';
+import type { Request, Response, Router } from 'express';
 
 import { paramsWithId } from '../validation-utils/validationFunction.js';
 import * as report from './report.service.js';
 
-export const router = express.Router();
+export const router: Router = express.Router();
 
 router.get('/', (_req: Request, res: Response) => {
   res.status(200).json(report.generate());

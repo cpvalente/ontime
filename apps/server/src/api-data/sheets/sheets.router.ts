@@ -2,7 +2,7 @@
  * This is a feature specific router for integration with google sheets
  */
 
-import express from 'express';
+import express, { Router } from 'express';
 
 import {
   getWorksheetMetadataFromSheet,
@@ -21,7 +21,7 @@ import {
   validateWorksheetMetadata,
 } from './sheets.validation.js';
 
-export const router = express.Router();
+export const router: Router = express.Router();
 
 router.get('/connect', verifyAuthentication);
 router.post('/:sheetId/connect', uploadClientSecret, validateRequestConnection, requestConnection);

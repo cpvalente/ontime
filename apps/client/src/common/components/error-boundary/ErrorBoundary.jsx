@@ -1,10 +1,9 @@
 // skipcq: JS-C1003 - sentry does not expose itself as an ES Module.
 import * as Sentry from '@sentry/react';
-/* eslint-disable react/destructuring-assignment */
 import React from 'react';
 
-import { hasConnected, reconnectAttempts } from '../../../common/utils/socket';
 import { runtimeStore } from '../../stores/runtime';
+import { getConnectionState, getReconnectAttempts } from '../../utils/socket';
 
 import style from './ErrorBoundary.module.scss';
 
@@ -37,7 +36,7 @@ class ErrorBoundary extends React.Component {
       scope.setExtras({
         error,
         store: appState,
-        hasSocket: { hasConnected, reconnectAttempts },
+        hasSocket: { hasConnected: getConnectionState(), reconnectAttempts: getReconnectAttempts() },
       });
       const eventId = Sentry.captureException(error);
       this.setState({ eventId, info });

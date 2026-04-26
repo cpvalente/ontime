@@ -1,4 +1,4 @@
-import type { Request, Response } from 'express';
+import type { Request, Response, Router } from 'express';
 import express from 'express';
 import { ErrorResponse, OntimeEntry, ProjectRundownsList, Rundown } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
@@ -35,7 +35,7 @@ import {
   validateRundownMutation,
 } from './rundown.validation.js';
 
-export const router = express.Router();
+export const router: Router = express.Router();
 
 // #region operations on project rundowns =========================
 

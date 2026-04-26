@@ -1,12 +1,12 @@
 import express from 'express';
-import type { Request, Response } from 'express';
+import type { Request, Response, Router } from 'express';
 import type { ErrorResponse, GetInfo, GetUrl, SessionStats } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import * as sessionService from './session.service.js';
 import { validateGenerateUrl } from './session.validation.js';
 
-export const router = express.Router();
+export const router: Router = express.Router();
 
 router.get('/', async (_req: Request, res: Response<SessionStats | ErrorResponse>) => {
   try {
@@ -18,9 +18,9 @@ router.get('/', async (_req: Request, res: Response<SessionStats | ErrorResponse
   }
 });
 
-router.get('/info', async (_req: Request, res: Response<GetInfo | ErrorResponse>) => {
+router.get('/info', (_req: Request, res: Response<GetInfo | ErrorResponse>) => {
   try {
-    const info = await sessionService.getInfo();
+    const info = sessionService.getInfo();
     res.status(200).send(info);
   } catch (error) {
     const message = getErrorMessage(error);

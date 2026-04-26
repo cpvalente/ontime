@@ -37,7 +37,7 @@ export async function getSessionStats(): Promise<SessionStats> {
 /**
  * Adds business logic to gathering data for the info endpoint
  */
-export async function getInfo(): Promise<GetInfo> {
+export function getInfo(): GetInfo {
   const { version } = getDataProvider().getSettings();
   const { port } = portManager.getPort();
 
