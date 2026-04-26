@@ -6,8 +6,10 @@ import { useSearchParams } from 'react-router';
 import type { SelectOption } from '../../common/components/select/Select';
 import {
   getTimeOption,
+  getTimeOptionsFromParams,
   hideTimerSeconds,
   showLeadingZeros,
+  TimeOptions,
 } from '../../common/components/view-params-editor/common.options';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
@@ -194,7 +196,7 @@ type TimerOptions = {
   font?: string;
   keyColour?: string;
   timerColour?: string;
-};
+} & TimeOptions;
 
 /**
  * Utility extract the view options from URL Params
@@ -229,6 +231,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
     font: getValue('font') ?? undefined,
     keyColour: makeColourString(getValue('keyColour')),
     timerColour: makeColourString(getValue('timerColour')),
+    timeformat: getTimeOptionsFromParams(searchParams, defaultValues),
   };
 }
 

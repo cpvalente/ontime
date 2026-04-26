@@ -101,6 +101,7 @@ export function getPropertyValue(
 type FormattingOptions = {
   removeSeconds: boolean;
   removeLeadingZero: boolean;
+  clockFormat?: MaybeString;
 };
 
 export function getFormattedTimer(
@@ -114,7 +115,7 @@ export function getFormattedTimer(
   }
 
   if (timerType === TimerType.Clock) {
-    return formatTime(timer);
+    return formatTime(timer, { override: options?.clockFormat });
   }
 
   let timeToParse = timer;
