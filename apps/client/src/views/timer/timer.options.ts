@@ -231,7 +231,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
     font: getValue('font') ?? undefined,
     keyColour: makeColourString(getValue('keyColour')),
     timerColour: makeColourString(getValue('timerColour')),
-    ...getTimeOptionsFromParams(searchParams, defaultValues),
+    timeformat: getTimeOptionsFromParams(searchParams, defaultValues),
   };
 }
 

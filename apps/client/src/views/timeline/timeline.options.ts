@@ -73,7 +73,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
     mainSource: getValue('main') as keyof OntimeEvent | null,
     hidePast: isStringBoolean(getValue('hidePast')),
     fixedSize: isStringBoolean(getValue('fixedSize')),
-    ...getTimeOptionsFromParams(searchParams, defaultValues),
+    timeformat: getTimeOptionsFromParams(searchParams, defaultValues),
   };
 }
 

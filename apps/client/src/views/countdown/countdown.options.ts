@@ -119,7 +119,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
     secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
     showExpected: isStringBoolean(getValue('showExpected')),
     hidePast: isStringBoolean(getValue('hidePast')),
-    ...getTimeOptionsFromParams(searchParams, defaultValues),
+    timeformat: getTimeOptionsFromParams(searchParams, defaultValues),
   };
 }
 

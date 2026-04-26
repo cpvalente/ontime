@@ -89,7 +89,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
     mainSource: getValue('main') as keyof OntimeEvent | null,
     secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
     extraInfo: getValue('extra-info'),
-    ...getTimeOptionsFromParams(searchParams, defaultValues),
+    timeformat: getTimeOptionsFromParams(searchParams, defaultValues),
   };
 }
 

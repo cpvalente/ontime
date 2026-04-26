@@ -64,7 +64,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
   return {
     mainSource: getValue('main') as keyof OntimeEvent | null,
     hideCards: isStringBoolean(getValue('hideCards')),
-    ...getTimeOptionsFromParams(searchParams, defaultValues),
+    timeformat: getTimeOptionsFromParams(searchParams, defaultValues),
   };
 }
 
