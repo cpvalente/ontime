@@ -37,6 +37,7 @@ type ActiveSource =
       kind: 'excel';
       worksheetNames: string[];
       initialWorksheetMetadata: SpreadsheetWorksheetMetadata | null;
+      closedByUser: boolean;
     }
   | {
       kind: 'gsheet';
@@ -44,6 +45,7 @@ type ActiveSource =
       worksheetNames: string[];
       initialWorksheetMetadata: SpreadsheetWorksheetMetadata | null;
       title: string;
+      closedByUser: boolean;
     };
 
 export default function SourcesPanel() {
@@ -74,6 +76,7 @@ export default function SourcesPanel() {
         kind: 'excel',
         worksheetNames: worksheetOptions.worksheets,
         initialWorksheetMetadata: worksheetOptions.metadata,
+        closedByUser: false,
       });
       setImportFlow('excel');
       setHasFile('done');
@@ -107,9 +110,9 @@ export default function SourcesPanel() {
   };
 
   const cancelImportFlow = () => {
-    if (importFlow === 'gsheet') {
+    if (activeSource && activeSource.kind === 'gsheet') {
       // Return to GSheetSetup so the user can change the sheet ID or revoke auth
-      setActiveSource(null);
+      setActiveSource({ ...activeSource, closedByUser: true });
       setError('');
     } else {
       resetFlow();
@@ -185,14 +188,16 @@ export default function SourcesPanel() {
       worksheetNames: worksheetOptions.worksheets,
       initialWorksheetMetadata: worksheetOptions.metadata,
       title: worksheetOptions.title ?? '',
+      closedByUser: false,
     });
   }, []);
 
+  const closedByUser = activeSource?.closedByUser ?? false;
   const isGSheetFlow = importFlow === 'gsheet';
   const showInput = importFlow === 'none';
   const showCompleted = importFlow === 'finished';
-  const showAuth = isGSheetFlow && activeSource === null;
-  const showImportWorkspace = activeSource !== null;
+
+  const showImportWorkspace = activeSource !== null && !closedByUser;
   const importModalTitle = (() => {
     if (!activeSource) return '';
     if (activeSource.kind === 'excel') return 'Import spreadsheet';
@@ -269,7 +274,9 @@ export default function SourcesPanel() {
             </Button>
           </div>
         )}
-        {showAuth && <GSheetSetup onCancel={cancelGSheetFlow} onSheetLoaded={handleSheetLoaded} />}
+        {isGSheetFlow && (
+          <GSheetSetup onCancel={cancelGSheetFlow} onSheetLoaded={handleSheetLoaded} closedByUser={closedByUser} />
+        )}
         <Modal
           isOpen={showImportWorkspace}
           title={importModalTitle}

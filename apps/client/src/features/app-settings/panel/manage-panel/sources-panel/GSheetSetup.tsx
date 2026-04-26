@@ -22,10 +22,11 @@ import style from './SourcesPanel.module.scss';
 interface GSheetSetupProps {
   onCancel: () => void;
   onSheetLoaded: (sheetId: string, options: SpreadsheetWorksheetOptions) => void;
+  closedByUser: boolean;
 }
 
 export default function GSheetSetup(props: GSheetSetupProps) {
-  const { onCancel, onSheetLoaded } = props;
+  const { onCancel, onSheetLoaded, closedByUser } = props;
 
   const [file, setFile] = useState<File | null>(null);
   const [sheetId, setSheetId] = useState(getPersistedSheetId);
@@ -73,6 +74,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
   const pollUntilAuthenticated = useCallback(
     async (attempts: number = 0) => {
       clearPollTimeout();
+      if (closedByUser) return;
 
       try {
         const result = await verifyAuthenticationStatus();
@@ -109,7 +111,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
         setLoading('');
       }
     },
-    [clearPollTimeout, loadWorksheetOptions],
+    [clearPollTimeout, loadWorksheetOptions, closedByUser],
   );
 
   /** check if the current session has been authenticated */
