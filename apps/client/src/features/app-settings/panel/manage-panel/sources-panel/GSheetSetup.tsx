@@ -277,7 +277,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
         </Panel.ListGroup>
       )}
       <Panel.ListGroup className={style.setupBlock}>
-        <Panel.Description>Enter ID of sheet to synchronise</Panel.Description>
+        <Panel.Description>Enter ID of sheet to synchronize</Panel.Description>
         <Panel.Error>{worksheetError}</Panel.Error>
         <Input
           fluid

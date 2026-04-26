@@ -201,7 +201,7 @@ export default function SourcesPanel() {
   const importModalTitle = (() => {
     if (!activeSource) return '';
     if (activeSource.kind === 'excel') return 'Import spreadsheet';
-    return activeSource.title ? `Sync: ${activeSource.title}` : 'Synchronise with Google Sheet';
+    return activeSource.title ? `Sync: ${activeSource.title}` : 'Synchronize with Google Sheet';
   })();
   const sourceKey = (() => {
     if (!activeSource) return null;
@@ -212,7 +212,7 @@ export default function SourcesPanel() {
   return (
     <Panel.Section>
       <Panel.Card>
-        <Panel.SubHeader>Synchronise your rundown with an external source</Panel.SubHeader>
+        <Panel.SubHeader>Synchronize your rundown with an external source</Panel.SubHeader>
         {error && <Panel.Error>{error}</Panel.Error>}
         {showInput && (
           <div className={style.introStack}>
@@ -250,7 +250,7 @@ export default function SourcesPanel() {
               </section>
               <section className={style.sourceCard}>
                 <div className={style.sourceHeader}>
-                  <h4 className={style.sourceTitle}>Synchronise with Google</h4>
+                  <h4 className={style.sourceTitle}>Synchronize with Google</h4>
                 </div>
                 <p className={style.sourceDescription}>
                   Connect a Google account once, then load any sheet by ID and keep the import flow inside Ontime.
@@ -258,7 +258,7 @@ export default function SourcesPanel() {
                 <div className={style.sourceMeta}>Requires Google OAuth client credentials</div>
                 <Button variant='primary' size='large' fluid onClick={openGSheetFlow} disabled={hasFile !== 'none'}>
                   <IoCloudOutline />
-                  Synchronise with Google
+                  Synchronize with Google
                 </Button>
               </section>
             </div>
