@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 
 import { maybeAxiosError } from '../../../../../../common/api/utils';
-import useCustomFields from '../../../../../../common/hooks-query/useCustomFields';
 import { formatDuration } from '../../../../../../common/utils/time';
 import {
   type ImportFormValues,
@@ -118,10 +117,15 @@ export function useSheetImportForm({
   onApply,
   onExport,
 }: UseSheetImportFormProps) {
-  const initialFormValues = useMemo(() => {
-    const persisted = getPersistedImportState(sourceKey);
-    const worksheet = getPreferredWorksheet(worksheetNames, persisted.worksheet, initialMetadata?.worksheet ?? '');
-    return { ...persisted, worksheet };
+  const { initialFormValues, skipAutoPreview } = useMemo(() => {
+    const { values, isPersisted } = getPersistedImportState(sourceKey);
+    const worksheet = getPreferredWorksheet(worksheetNames, values.worksheet, initialMetadata?.worksheet ?? '');
+    // Skip auto-preview when restoring a persisted mapping that was saved for a different worksheet.
+    const hasWorksheetChanged = values.worksheet !== worksheet;
+    return {
+      initialFormValues: { ...values, worksheet },
+      skipAutoPreview: isPersisted && hasWorksheetChanged,
+    };
   }, [initialMetadata?.worksheet, sourceKey, worksheetNames]);
 
   const {
@@ -139,7 +143,6 @@ export function useSheetImportForm({
 
   const { fields, append, remove } = useFieldArray({ control, name: 'custom' });
   const values = watch();
-  const { data: existingCustomFields } = useCustomFields();
 
   // --- Worksheet metadata via react-query ---
   const queryClient = useQueryClient();
@@ -167,16 +170,14 @@ export function useSheetImportForm({
   const columnLabels = buildColumnLabels(values);
 
   const [state, dispatch] = useReducer(importReducer, initialImportState);
-  const existingCustomFieldLabels = useMemo(
-    () => Object.values(existingCustomFields).map((field) => field.label),
-    [existingCustomFields],
-  );
-  const warnings = getImportWarnings(values, headers, existingCustomFieldLabels);
+  const warnings = getImportWarnings(values, headers);
   const warningCount = Object.values(warnings).filter(Boolean).length;
   const previewRef = useRef<SpreadsheetPreviewResponse | null>(null);
+  const autoPreviewFiredRef = useRef(false);
 
   // Rehydrate the form from persisted/default state whenever the source context changes.
   useEffect(() => {
+    autoPreviewFiredRef.current = false;
     reset(initialFormValues);
     dispatch({ type: 'reset' });
   }, [initialFormValues, reset]);
@@ -224,6 +225,16 @@ export function useSheetImportForm({
     },
     [previewImport],
   );
+
+  // Auto-preview on mount once metadata is ready.
+  useEffect(() => {
+    if (autoPreviewFiredRef.current) return;
+    if (skipAutoPreview) return;
+    if (!isValid || headers.length === 0) return;
+
+    autoPreviewFiredRef.current = true;
+    handleSubmit(handlePreview)();
+  }, [skipAutoPreview, isValid, headers, handleSubmit, handlePreview]);
 
   const handleApply = useCallback(async () => {
     if (!state.preview) return;

@@ -50,7 +50,7 @@ export default function SheetImportMappingPane({
   return (
     <section className={style.mappingPane}>
       <Panel.InlineElements align='apart' className={style.mappingPaneHeader}>
-        <span className={style.mappingPaneTitle}>Fields</span>
+        <span className={style.mappingPaneTitle}>Column mapping</span>
         <Panel.InlineElements relation='inner' className={style.mappingPaneActions}>
           <Button className={style.addColumnTrigger} onClick={handleAddCustomField} disabled={isBusy}>
             <IoAdd />
