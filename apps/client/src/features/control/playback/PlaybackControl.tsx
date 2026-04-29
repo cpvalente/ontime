@@ -4,6 +4,7 @@ import { usePlaybackControl } from '../../../common/hooks/useSocket';
 
 import AddTime from './add-time/AddTime';
 import { AuxTimer } from './aux-timer/AuxTimer';
+import GlobalOffset from './global-offset/GlobalOffset';
 import PlaybackButtons from './playback-buttons/PlaybackButtons';
 import PlaybackTimer from './playback-timer/PlaybackTimer';
 
@@ -24,6 +25,7 @@ export default function PlaybackControl() {
         timerPhase={data.timerPhase}
       />
       <AuxTimer />
+      <GlobalOffset />
     </div>
   );
 }

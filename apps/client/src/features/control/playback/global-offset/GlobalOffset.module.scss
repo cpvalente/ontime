@@ -1,0 +1,28 @@
+.globalOffset {
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.label {
+  margin-bottom: 0.25rem;
+  font-size: $inner-section-text-size;
+  color: $label-gray;
+}
+
+.tallButtons {
+  height: 38px;
+  min-width: 0;
+  padding-inline: 1rem;
+}
+
+.globalButtons {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  column-gap: $element-inner-spacing;
+  width: 100%;
+}
+
+.resetButton {
+  height: 38px;
+  min-width: 0;
+}

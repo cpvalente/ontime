@@ -1,7 +1,10 @@
+import { IoAdd, IoRemove } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
+import { useLocalStorage } from '@mantine/hooks';
 import { Playback } from 'ontime-types';
-import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_SECOND, parseUserTime } from 'ontime-utils';
 
+import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { setPlayback } from '../../../../common/hooks/useSocket';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 import TapButton from '../tap-button/TapButton';
@@ -14,40 +17,38 @@ interface AddTimeProps {
 
 export default function AddTime(props: AddTimeProps) {
   const { playback } = props;
+  const [time, setTime] = useLocalStorage({ key: 'add-time', defaultValue: 300_000 }); // 5 minutes
+
+  const handleTimeChange = (_field: string, value: string) => {
+    const newTime = parseUserTime(value);
+    // cap add time to 1 hour
+    setTime(Math.min(newTime, MILLIS_PER_HOUR));
+  };
+
+  const handleAddTime = (direction: 'add' | 'remove') => {
+    // API expects input in seconds
+    if (direction === 'add') {
+      setPlayback.addTime(time / MILLIS_PER_SECOND);
+    } else {
+      setPlayback.addTime((-1 * time) / MILLIS_PER_SECOND);
+    }
+  };
+
   const canAddTime = playback === Playback.Play || playback === Playback.Pause;
+  const doDisableButtons = !canAddTime || time === 0;
 
   return (
     <div className={style.addTime}>
-      <div className={style.label}>Global Offset</div>
-      <div className={style.globalButtons}>
-        <Tooltip label='Global delay -1:00' openDelay={tooltipDelayMid} shouldWrapChildren>
-          <TapButton
-            onClick={() => setPlayback.addGlobalDelay((-1 * MILLIS_PER_MINUTE) / MILLIS_PER_SECOND)}
-            disabled={!canAddTime}
-            className={style.tallButtons}
-            theme='neutral'
-          >
-            -1m
+      <TimeInput name='addtime' submitHandler={handleTimeChange} time={time} placeholder='Add time' />
+      <div className={style.addButtons}>
+        <Tooltip label='Remove time' openDelay={tooltipDelayMid} shouldWrapChildren>
+          <TapButton onClick={() => handleAddTime('remove')} disabled={doDisableButtons} className={style.tallButtons}>
+            <IoRemove />
           </TapButton>
         </Tooltip>
-        <Tooltip label='Reset global delay' openDelay={tooltipDelayMid} shouldWrapChildren>
-          <TapButton
-            onClick={setPlayback.resetGlobalDelay}
-            disabled={!canAddTime}
-            className={style.resetButton}
-            theme='neutral'
-          >
-            Reset
-          </TapButton>
-        </Tooltip>
-        <Tooltip label='Global delay +1:00' openDelay={tooltipDelayMid} shouldWrapChildren>
-          <TapButton
-            onClick={() => setPlayback.addGlobalDelay(MILLIS_PER_MINUTE / MILLIS_PER_SECOND)}
-            disabled={!canAddTime}
-            className={style.tallButtons}
-            theme='neutral'
-          >
-            +1m
+        <Tooltip label='Add time' openDelay={tooltipDelayMid} shouldWrapChildren>
+          <TapButton onClick={() => handleAddTime('add')} disabled={doDisableButtons} className={style.tallButtons}>
+            <IoAdd />
           </TapButton>
         </Tooltip>
       </div>

@@ -1,47 +1,16 @@
 .addTime {
   grid-area: addtime;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: $element-inner-spacing;
 }
 
-.label {
-  margin-bottom: 0.25rem;
-  font-size: $inner-section-text-size;
-  color: $label-gray;
+.addButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $element-inner-spacing;
 }
 
 .tallButtons {
-  height: 38px;
-  min-width: 0;
-  padding-inline: 1rem;
-}
-
-.globalButtons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas:
-    "reset reset"
-    "minus plus";
-  column-gap: $element-inner-spacing;
-  row-gap: calc($element-inner-spacing * 3);
-  width: 100%;
-}
-
-.globalButtons > :nth-child(1) {
-  grid-area: minus;
-  min-width: 0;
-}
-
-.globalButtons > :nth-child(2) {
-  grid-area: reset;
-  min-width: 0;
-}
-
-.globalButtons > :nth-child(3) {
-  grid-area: plus;
-  min-width: 0;
-}
-
-.resetButton {
   height: 28px;
-  min-width: 0;
 }
