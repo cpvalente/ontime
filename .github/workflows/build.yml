@@ -5,6 +5,9 @@ on:
     tags: [ "*" ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build_macos:
     runs-on: macos-latest
