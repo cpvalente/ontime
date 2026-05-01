@@ -23,7 +23,7 @@ export default defineConfig({
   },
   plugins: [
     legacy({
-      targets: ['ios >= 12', 'safari >= 12'],
+      targets: ['ios >= 14.5', 'safari >= 14.1'],
     }),
     react({
       babel: {
