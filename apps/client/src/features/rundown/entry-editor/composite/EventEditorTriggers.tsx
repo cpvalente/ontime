@@ -29,9 +29,16 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
 
   const triggerOptions = eventTriggerOptions.map((cycle) => ({ value: cycle, label: cycle }));
 
-  const hasDuplicates = triggers.some((t, i) =>
-    triggers.some((u, j) => i !== j && t.trigger === u.trigger && t.automationId === u.automationId),
-  );
+  const duplicateIds = new Set<string>();
+  const seen = new Map<string, string>();
+  for (const trigger of triggers) {
+    const key = `${trigger.trigger}:${trigger.automationId}`;
+    if (seen.has(key)) {
+      duplicateIds.add(trigger.id);
+    } else {
+      seen.set(key, trigger.id);
+    }
+  }
 
   const handleAdd = () => {
     if (allAutomationOptions.length === 0) return;
@@ -64,30 +71,45 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
             <span>Lifecycle</span>
             <span>Automation</span>
           </div>
-          {triggers.map((trigger) => (
-            <div key={trigger.id} className={style.trigger}>
-              <Select
-                value={trigger.trigger}
-                onValueChange={(value) => {
-                  if (value !== null) handleChange(trigger.id, 'trigger', value);
-                }}
-                options={triggerOptions}
-              />
-              <Select
-                value={trigger.automationId}
-                onValueChange={(value) => {
-                  if (value !== null) handleChange(trigger.id, 'automationId', value);
-                }}
-                options={allAutomationOptions}
-              />
-              <IconButton variant='ghosted-destructive' onClick={() => handleDelete(trigger.id)}>
-                <IoTrash />
-              </IconButton>
-            </div>
-          ))}
+          {triggers.map((trigger) => {
+            const isDuplicate = duplicateIds.has(trigger.id);
+            const lifecycleOptions = isDuplicate
+              ? triggerOptions.map((opt) => (opt.value === trigger.trigger ? { ...opt, label: `${opt.label} *` } : opt))
+              : triggerOptions;
+            const automationOptions = isDuplicate
+              ? allAutomationOptions.map((opt) =>
+                  opt.value === trigger.automationId ? { ...opt, label: `${opt.label} *` } : opt,
+                )
+              : allAutomationOptions;
+            return (
+              <div key={trigger.id} className={style.trigger} data-duplicate={isDuplicate || undefined}>
+                <Select
+                  value={trigger.trigger}
+                  onValueChange={(value) => {
+                    if (value !== null) handleChange(trigger.id, 'trigger', value);
+                  }}
+                  options={lifecycleOptions}
+                />
+                <Select
+                  value={trigger.automationId}
+                  onValueChange={(value) => {
+                    if (value !== null) handleChange(trigger.id, 'automationId', value);
+                  }}
+                  options={automationOptions}
+                />
+                <IconButton variant='ghosted-destructive' onClick={() => handleDelete(trigger.id)}>
+                  <IoTrash />
+                </IconButton>
+              </div>
+            );
+          })}
         </div>
       )}
-      {hasDuplicates && <Info>Duplicate trigger combinations will only fire once per lifecycle event.</Info>}
+      {duplicateIds.size > 0 && (
+        <span className={style.duplicateMessage}>
+          * Duplicate combinations will only fire once per lifecycle event.
+        </span>
+      )}
       {allAutomationOptions.length > 0 && (
         <Button variant='ghosted' onClick={handleAdd}>
           <IoAdd /> Add automation

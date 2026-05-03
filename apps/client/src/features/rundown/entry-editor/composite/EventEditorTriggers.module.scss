@@ -33,4 +33,16 @@
   &:not(:first-child) {
     border-top: 1px solid $white-10;
   }
+
+  &[data-duplicate] {
+    > button:not(:last-child) {
+      border-color: $orange-500;
+    }
+  }
+}
+
+.duplicateMessage {
+  padding-left: 0.75rem;
+  font-size: $aux-text-size;
+  color: $orange-500;
 }
