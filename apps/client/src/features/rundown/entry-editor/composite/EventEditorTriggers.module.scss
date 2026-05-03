@@ -4,18 +4,6 @@
   gap: 0.75rem;
 }
 
-.section,
-.formSection {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.sectionTitle {
-  font-size: $aux-text-size;
-  color: $label-gray;
-}
-
 .triggerList {
   display: flex;
   flex-direction: column;
@@ -25,25 +13,13 @@
   overflow: hidden;
 }
 
-.triggerForm {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.formFields {
+.triggerHeader {
   display: grid;
-  grid-template-columns: 8rem 1fr;
-  gap: 0.75rem;
-  align-items: end;
-}
-
-.formActions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.75rem;
-  min-height: 2rem;
+  grid-template-columns: 8rem 1fr 2rem;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  font-size: $aux-text-size;
+  color: $label-gray;
 }
 
 .trigger {
@@ -51,40 +27,22 @@
   display: grid;
   grid-template-columns: 8rem 1fr 2rem;
   align-items: center;
+  gap: 0.5rem;
   min-height: 2.5rem;
 
   &:not(:first-child) {
     border-top: 1px solid $white-10;
   }
+
+  &[data-duplicate] {
+    > button:not(:last-child) {
+      border-color: $orange-500;
+    }
+  }
 }
 
-.triggerMeta {
-  min-width: 0;
-}
-
-.metaLabel {
-  color: $label-gray;
+.duplicateMessage {
+  padding-left: 0.75rem;
   font-size: $aux-text-size;
-  line-height: 1.2;
-  margin-bottom: 0.125rem;
-}
-
-.automationTitle {
-  overflow-wrap: anywhere;
-}
-
-.validationError,
-.validationSuccess {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: $aux-text-size;
-}
-
-.validationError {
-  color: $red-500;
-}
-
-.validationSuccess {
-  color: $green-500;
+  color: $orange-500;
 }
