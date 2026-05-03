@@ -4,7 +4,6 @@ import { IoAdd, IoTrash } from 'react-icons/io5';
 
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
-import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import Info from '../../../../common/components/info/Info';
 import Select from '../../../../common/components/select/Select';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
@@ -30,35 +29,17 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
 
   const triggerOptions = eventTriggerOptions.map((cycle) => ({ value: cycle, label: cycle }));
 
-  // hide lifecycles where this row's automation is already used by another row
-  const getLifecycleOptions = (triggerId: string, automationId: string) =>
-    triggerOptions.filter(
-      (opt) => !triggers.some((t) => t.id !== triggerId && t.trigger === opt.value && t.automationId === automationId),
-    );
-
-  // hide automations already used on the same lifecycle by other rows
-  const getAutomationOptions = (triggerId: string, lifecycle: string) => {
-    const usedIds = triggers.filter((t) => t.id !== triggerId && t.trigger === lifecycle).map((t) => t.automationId);
-    return allAutomationOptions.filter((opt) => !usedIds.includes(opt.value));
-  };
-
-  const getNextAvailable = () => {
-    for (const lifecycle of eventTriggerOptions) {
-      const usedIds = triggers.filter((t) => t.trigger === lifecycle).map((t) => t.automationId);
-      const automation = allAutomationOptions.find((opt) => !usedIds.includes(opt.value));
-      if (automation) return { lifecycle, automationId: automation.value };
-    }
-    return null;
-  };
+  const hasDuplicates = triggers.some((t, i) =>
+    triggers.some((u, j) => i !== j && t.trigger === u.trigger && t.automationId === u.automationId),
+  );
 
   const handleAdd = () => {
-    const next = getNextAvailable();
-    if (!next) return;
+    if (allAutomationOptions.length === 0) return;
     updateEntry({
       id: eventId,
       triggers: [
         ...triggers,
-        { id: generateId(), title: '', trigger: next.lifecycle, automationId: next.automationId },
+        { id: generateId(), title: '', trigger: eventTriggerOptions[0], automationId: allAutomationOptions[0].value },
       ],
     });
   };
@@ -90,14 +71,14 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
                 onValueChange={(value) => {
                   if (value !== null) handleChange(trigger.id, 'trigger', value);
                 }}
-                options={getLifecycleOptions(trigger.id, trigger.automationId)}
+                options={triggerOptions}
               />
               <Select
                 value={trigger.automationId}
                 onValueChange={(value) => {
                   if (value !== null) handleChange(trigger.id, 'automationId', value);
                 }}
-                options={getAutomationOptions(trigger.id, trigger.trigger)}
+                options={allAutomationOptions}
               />
               <IconButton variant='ghosted-destructive' onClick={() => handleDelete(trigger.id)}>
                 <IoTrash />
@@ -106,9 +87,8 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
           ))}
         </div>
       )}
-      {allAutomationOptions.length === 0 ? null : getNextAvailable() === null ? (
-        <Editor.Label>All trigger and automation combinations are in use.</Editor.Label>
-      ) : (
+      {hasDuplicates && <Info>Duplicate trigger combinations will only fire once per lifecycle event.</Info>}
+      {allAutomationOptions.length > 0 && (
         <Button variant='ghosted' onClick={handleAdd}>
           <IoAdd /> Add automation
         </Button>
