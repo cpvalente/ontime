@@ -43,6 +43,30 @@ describe('formatTime()', () => {
     const time = formatTime(-ms, { format12: 'hh:mm a', format24: 'HH:mm' }, (_format12, format24) => format24);
     expect(time).toStrictEqual('-01:00');
   });
+
+  it('uses the resolver-returned format, not a hard-coded override', () => {
+    // The override option was removed; the resolver now always picks the format
+    // from URL params or app settings. With injected resolver we can verify
+    // that passing format24 correctly routes through to formatFromMillis.
+    const ms = 8 * 60 * 60 * 1000; // 08:00:00
+    const time = formatTime(ms, { format12: 'h:mm a', format24: 'HH:mm:ss' }, (_f12, f24) => f24);
+    expect(time).toStrictEqual('08:00:00');
+  });
+
+  it('respects format12 when resolver chooses it', () => {
+    const ms = 8 * 60 * 60 * 1000; // 8 AM
+    const time = formatTime(ms, { format12: 'h:mm a', format24: 'HH:mm:ss' }, (f12, _f24) => f12);
+    expect(time).toStrictEqual('8:00 AM');
+  });
+
+  it('falls back to default formats when options are not provided', () => {
+    const ms = 13 * 60 * 60 * 1000;
+    // Without options, FORMAT_12 and FORMAT_24 are used; resolver receives those defaults
+    const time = formatTime(ms, undefined, (_f12, f24) => f24);
+    // The default FORMAT_24 should produce a time string (not '...')
+    expect(time).not.toBe('...');
+    expect(time.length).toBeGreaterThan(0);
+  });
 });
 
 describe('formatDuration()', () => {
