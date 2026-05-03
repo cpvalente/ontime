@@ -2,7 +2,11 @@ import { CustomFields, EntryId, OntimeEvent } from 'ontime-types';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
-import { getTimeOption } from '../../common/components/view-params-editor/common.options';
+import {
+  getTimeOption,
+  getTimeOptionsFromParams,
+  TimeOptions,
+} from '../../common/components/view-params-editor/common.options';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
@@ -91,7 +95,7 @@ type CountdownOptions = {
   secondarySource: keyof OntimeEvent | null;
   showExpected: boolean;
   hidePast: boolean;
-};
+} & TimeOptions;
 
 /**
  * Utility extract the view options from URL Params
@@ -115,6 +119,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
     secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
     showExpected: isStringBoolean(getValue('showExpected')),
     hidePast: isStringBoolean(getValue('hidePast')),
+    timeformat: getTimeOptionsFromParams(searchParams, defaultValues),
   };
 }
 

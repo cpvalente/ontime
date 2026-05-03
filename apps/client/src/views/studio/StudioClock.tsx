@@ -6,6 +6,7 @@ import { useStudioClockSocket } from '../../common/hooks/useSocket';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime } from '../../common/utils/time';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import { useStudioOptions } from './studio.options';
 import { getLargeClockData } from './studioClock.utils';
 
 import './StudioClock.scss';
@@ -18,6 +19,7 @@ interface StudioClockProps {
 }
 
 export default function StudioClock({ hideCards }: StudioClockProps) {
+  const { timeformat } = useStudioOptions();
   const isSmallScreen = useIsSmallScreen();
   const clock = useAutoTickingClock();
   const { playback } = useStudioClockSocket();
@@ -25,10 +27,10 @@ export default function StudioClock({ hideCards }: StudioClockProps) {
 
   // if we are on mobile and have to show the cards
   if (isSmallScreen && !hideCards) {
-    return <StudioClockMobile clock={clock} onAir={onAir} />;
+    return <StudioClockMobile clock={clock} onAir={onAir} timeformat={timeformat} />;
   }
 
-  const { seconds, display, meridian } = getLargeClockData(clock);
+  const { seconds, display, meridian } = getLargeClockData(clock, timeformat);
 
   return (
     <div className='studio__clock'>
@@ -62,10 +64,11 @@ export default function StudioClock({ hideCards }: StudioClockProps) {
 interface StudioClockMobileProps {
   clock: number;
   onAir: boolean;
+  timeformat: string | null;
 }
 
-function StudioClockMobile({ clock, onAir }: StudioClockMobileProps) {
-  const displayClock = formatTime(clock);
+function StudioClockMobile({ clock, onAir, timeformat }: StudioClockMobileProps) {
+  const displayClock = formatTime(clock, { override: timeformat });
 
   return (
     <div className='studio__clock studio__clock--small'>

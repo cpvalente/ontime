@@ -139,11 +139,12 @@ function CountdownContents({ playableEvents, subscriptions, goToEditMode }: Coun
 }
 
 function CountdownClock() {
+  const { timeformat } = useCountdownOptions();
   const { getLocalizedString } = useTranslation();
   const clock = useAutoTickingClock();
 
   // gather timer data
-  const formattedClock = formatTime(clock);
+  const formattedClock = formatTime(clock, { override: timeformat });
 
   return (
     <div className='clock-container'>

@@ -1,4 +1,4 @@
-import { OntimeView, TimerType } from 'ontime-types';
+import { MaybeString, OntimeView, TimerType } from 'ontime-types';
 import { useMemo } from 'react';
 
 import { FitText } from '../../common/components/fit-text/FitText';
@@ -69,6 +69,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
     font,
     keyColour,
     timerColour,
+    timeformat,
   } = useTimerOptions();
 
   const { getLocalizedString } = useTranslation();
@@ -106,6 +107,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
   const display = getFormattedTimer(stageTimer, viewTimerType, localisedMinutes, {
     removeSeconds: hideTimerSeconds,
     removeLeadingZero: removeLeadingZeros,
+    clockFormat: timeformat,
   });
 
   const currentAux = (() => {
@@ -164,7 +166,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
         </div>
       )}
 
-      {showClock && <TimerAutoTickingClock />}
+      {showClock && <TimerAutoTickingClock clockFormat={timeformat} />}
 
       <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
         {showEndMessage ? (
@@ -212,9 +214,9 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
   );
 }
 
-function TimerAutoTickingClock() {
+function TimerAutoTickingClock({ clockFormat }: { clockFormat: MaybeString }) {
   const autoTickingClock = useAutoTickingClock();
-  const formattedClock = formatTime(autoTickingClock);
+  const formattedClock = formatTime(autoTickingClock, { override: clockFormat });
   const { getLocalizedString } = useTranslation();
 
   return (

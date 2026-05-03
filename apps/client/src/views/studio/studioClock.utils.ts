@@ -5,9 +5,9 @@ import { formatTime } from '../../common/utils/time';
 /**
  * Gathers display elements for the large studio clock
  */
-export function getLargeClockData(clock: number) {
+export function getLargeClockData(clock: number, timeformat: string | null) {
   const [display, meridian] = (() => {
-    const formatted = formatTime(clock);
+    const formatted = formatTime(clock, { override: timeformat });
     if (formatted.endsWith('AM')) {
       return [formatted.slice(0, -2), 'AM'];
     }
