@@ -54,3 +54,6 @@ ontime-data/
 
 # temporary write files
 **.tmp
+
+# Claude Code metadata
+.claude/
