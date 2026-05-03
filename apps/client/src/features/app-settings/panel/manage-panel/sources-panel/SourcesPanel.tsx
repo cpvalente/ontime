@@ -37,12 +37,15 @@ type ActiveSource =
       kind: 'excel';
       worksheetNames: string[];
       initialWorksheetMetadata: SpreadsheetWorksheetMetadata | null;
+      closedByUser: boolean;
     }
   | {
       kind: 'gsheet';
       sheetId: string;
       worksheetNames: string[];
       initialWorksheetMetadata: SpreadsheetWorksheetMetadata | null;
+      title: string;
+      closedByUser: boolean;
     };
 
 export default function SourcesPanel() {
@@ -73,6 +76,7 @@ export default function SourcesPanel() {
         kind: 'excel',
         worksheetNames: worksheetOptions.worksheets,
         initialWorksheetMetadata: worksheetOptions.metadata,
+        closedByUser: false,
       });
       setImportFlow('excel');
       setHasFile('done');
@@ -106,7 +110,13 @@ export default function SourcesPanel() {
   };
 
   const cancelImportFlow = () => {
-    resetFlow();
+    if (activeSource && activeSource.kind === 'gsheet') {
+      // Return to GSheetSetup so the user can change the sheet ID or revoke auth
+      setActiveSource({ ...activeSource, closedByUser: true });
+      setError('');
+    } else {
+      resetFlow();
+    }
   };
 
   const handleFinished = () => {
@@ -177,15 +187,22 @@ export default function SourcesPanel() {
       sheetId,
       worksheetNames: worksheetOptions.worksheets,
       initialWorksheetMetadata: worksheetOptions.metadata,
+      title: worksheetOptions.title ?? '',
+      closedByUser: false,
     });
   }, []);
 
+  const closedByUser = activeSource?.closedByUser ?? false;
   const isGSheetFlow = importFlow === 'gsheet';
   const showInput = importFlow === 'none';
   const showCompleted = importFlow === 'finished';
-  const showAuth = isGSheetFlow && activeSource === null;
-  const showImportWorkspace = activeSource !== null;
-  const importModalTitle = activeSource?.kind === 'excel' ? 'Import spreadsheet' : 'Synchronise with Google Sheet';
+
+  const showImportWorkspace = activeSource !== null && !closedByUser;
+  const importModalTitle = (() => {
+    if (!activeSource) return '';
+    if (activeSource.kind === 'excel') return 'Import spreadsheet';
+    return activeSource.title ? `Sync: ${activeSource.title}` : 'Synchronize with Google Sheet';
+  })();
   const sourceKey = (() => {
     if (!activeSource) return null;
     if (activeSource.kind === 'excel') return 'excel';
@@ -195,7 +212,7 @@ export default function SourcesPanel() {
   return (
     <Panel.Section>
       <Panel.Card>
-        <Panel.SubHeader>Synchronise your rundown with an external source</Panel.SubHeader>
+        <Panel.SubHeader>Synchronize your rundown with an external source</Panel.SubHeader>
         {error && <Panel.Error>{error}</Panel.Error>}
         {showInput && (
           <div className={style.introStack}>
@@ -233,7 +250,7 @@ export default function SourcesPanel() {
               </section>
               <section className={style.sourceCard}>
                 <div className={style.sourceHeader}>
-                  <h4 className={style.sourceTitle}>Synchronise with Google</h4>
+                  <h4 className={style.sourceTitle}>Synchronize with Google</h4>
                 </div>
                 <p className={style.sourceDescription}>
                   Connect a Google account once, then load any sheet by ID and keep the import flow inside Ontime.
@@ -241,7 +258,7 @@ export default function SourcesPanel() {
                 <div className={style.sourceMeta}>Requires Google OAuth client credentials</div>
                 <Button variant='primary' size='large' fluid onClick={openGSheetFlow} disabled={hasFile !== 'none'}>
                   <IoCloudOutline />
-                  Synchronise with Google
+                  Synchronize with Google
                 </Button>
               </section>
             </div>
@@ -257,7 +274,9 @@ export default function SourcesPanel() {
             </Button>
           </div>
         )}
-        {showAuth && <GSheetSetup onCancel={cancelGSheetFlow} onSheetLoaded={handleSheetLoaded} />}
+        {isGSheetFlow && (
+          <GSheetSetup onCancel={cancelGSheetFlow} onSheetLoaded={handleSheetLoaded} closedByUser={closedByUser} />
+        )}
         <Modal
           isOpen={showImportWorkspace}
           title={importModalTitle}

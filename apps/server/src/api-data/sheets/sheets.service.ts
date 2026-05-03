@@ -223,10 +223,15 @@ export function hasAuth(): { authenticated: AuthenticationStatus; sheetId: strin
   return { authenticated: currentAuthClient ? 'authenticated' : 'not_authenticated', sheetId: currentSheetId };
 }
 
+type VerifySheetResult = {
+  worksheets: string[];
+  title: string;
+};
+
 /**
  * Validates that a spreadsheet exists and returns its worksheet titles without reading cell data.
  */
-async function verifySheet(sheetId = currentSheetId, authClient = currentAuthClient): Promise<string[]> {
+async function verifySheet(sheetId = currentSheetId, authClient = currentAuthClient): Promise<VerifySheetResult> {
   if (!sheetId || !authClient) {
     throw new Error('Missing sheet ID or authentication');
   }
@@ -247,7 +252,9 @@ async function verifySheet(sheetId = currentSheetId, authClient = currentAuthCli
     if (worksheets.length === 0) {
       throw new Error('No worksheets found');
     }
-    return worksheets;
+
+    const title = spreadsheets.data.properties?.title ?? '';
+    return { worksheets, title };
   } catch (error) {
     // attempt to catch errors caused by importing xlsx
     catchCommonImportXlsxError(error);
@@ -287,17 +294,18 @@ export async function handleInitialConnection(
  */
 export async function getWorksheetOptions(
   sheetId: string,
-): Promise<{ worksheets: string[]; metadata: SpreadsheetWorksheetMetadata | null }> {
+): Promise<{ worksheets: string[]; metadata: SpreadsheetWorksheetMetadata | null; title: string }> {
   if (!currentAuthClient) {
     throw new Error('Not authenticated');
   }
   currentSheetId = sheetId;
 
-  const worksheets = await verifySheet(sheetId);
+  const { worksheets, title } = await verifySheet(sheetId);
 
   return {
     worksheets,
     metadata: null,
+    title,
   };
 }
 

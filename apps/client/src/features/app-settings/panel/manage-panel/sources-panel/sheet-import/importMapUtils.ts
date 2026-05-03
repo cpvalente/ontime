@@ -127,26 +127,26 @@ function isPersistedFormValues(obj: unknown): obj is ImportFormValues {
   );
 }
 
-export function getPersistedImportState(sourceKey: string): ImportFormValues {
+export function getPersistedImportState(sourceKey: string): { values: ImportFormValues; isPersisted: boolean } {
   const storageKey = getImportMapKey(sourceKey);
   try {
     const raw = localStorage.getItem(storageKey);
     if (!raw) {
-      return createDefaultFormValues();
+      return { values: createDefaultFormValues(), isPersisted: false };
     }
 
     const parsed: unknown = JSON.parse(raw);
     if (isPersistedFormValues(parsed)) {
-      return parsed;
+      return { values: parsed, isPersisted: true };
     }
 
     // Invalid schema - delete malformed data
     localStorage.removeItem(storageKey);
-    return createDefaultFormValues();
+    return { values: createDefaultFormValues(), isPersisted: false };
   } catch {
     // Parse error - delete corrupted data
     localStorage.removeItem(storageKey);
-    return createDefaultFormValues();
+    return { values: createDefaultFormValues(), isPersisted: false };
   }
 }
 
@@ -156,11 +156,9 @@ export function getPersistedImportState(sourceKey: string): ImportFormValues {
 export function getImportWarnings(
   values: ImportFormValues,
   detectedSpreadsheetColumns: string[],
-  existingCustomFieldLabels: string[] = [],
 ): Record<string, MappingWarning | undefined> {
   const normalisedHeaders = new Set(detectedSpreadsheetColumns.map(normaliseColumnName).filter(Boolean));
   const builtInLabels = new Set(builtInFieldDefs.map((def) => def.label.toLowerCase()));
-  const existingLabels = new Set(existingCustomFieldLabels.map((label) => label.trim().toLowerCase()).filter(Boolean));
   const seenColumns = new Set<string>();
   const seenDerivedLabels = new Set<string>();
   const warnings: Record<string, MappingWarning | undefined> = {};
@@ -200,11 +198,7 @@ export function getImportWarnings(
       warnings[key] = { kind: 'missing' };
     } else {
       const normalisedDerivedLabel = sanitisedLabel.toLowerCase();
-      if (
-        builtInLabels.has(normalisedDerivedLabel) ||
-        existingLabels.has(normalisedDerivedLabel) ||
-        seenDerivedLabels.has(normalisedDerivedLabel)
-      ) {
+      if (builtInLabels.has(normalisedDerivedLabel) || seenDerivedLabels.has(normalisedDerivedLabel)) {
         warnings[key] = { kind: 'name-collision' };
       }
     }
