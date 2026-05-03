@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Timer</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background: #121212;
+        color: #ffffff;
+        font-family: sans-serif;
+        overflow: hidden;
+      }
+
+      #container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        -webkit-align-items: center;
+        align-items: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+      }
+
+      #timer {
+        font-size: 20vmin;
+        font-weight: bold;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.02em;
+        line-height: 1;
+        color: #ffffff;
+      }
+
+      #timer.overtime {
+        color: #ff4444;
+      }
+
+      #title {
+        color: #999999;
+        font-size: 5vmin;
+        margin-top: 3vmin;
+        text-align: center;
+        padding-left: 4vmin;
+        padding-right: 4vmin;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="timer">--:--:--</div>
+      <div id="title"></div>
+    </div>
+    <script>
+      var timerEl = document.getElementById('timer');
+      var titleEl = document.getElementById('title');
+
+      var state = { timerCurrent: null, timerPhase: 'none', eventTitle: null };
+
+      function pad(n) {
+        return n < 10 ? '0' + n : String(n);
+      }
+
+      function formatMs(ms) {
+        var sign = ms < 0 ? '-' : '';
+        var abs = Math.abs(ms);
+        var h = Math.floor(abs / 3600000);
+        var m = Math.floor((abs % 3600000) / 60000);
+        var s = Math.floor((abs % 60000) / 1000);
+        return sign + pad(h) + ':' + pad(m) + ':' + pad(s);
+      }
+
+      function render() {
+        var isOvertime = state.timerPhase === 'overtime';
+        timerEl.textContent = state.timerCurrent !== null ? formatMs(state.timerCurrent) : '--:--:--';
+        timerEl.className = isOvertime ? 'overtime' : '';
+        if (state.eventTitle) {
+          titleEl.textContent = state.eventTitle;
+          titleEl.style.display = '';
+        } else {
+          titleEl.style.display = 'none';
+        }
+      }
+
+      function applyPatch(payload) {
+        if (payload.timer) {
+          if (payload.timer.current !== undefined) state.timerCurrent = payload.timer.current;
+          if (payload.timer.phase !== undefined) state.timerPhase = payload.timer.phase;
+        }
+        if ('eventNow' in payload) {
+          state.eventTitle = payload.eventNow ? payload.eventNow.title : null;
+        }
+      }
+
+      var reconnectDelay = 1000;
+
+      function connect() {
+        var wsUrl = window.location.origin.replace(/^http/, 'ws') + '/ws';
+        var ws = new WebSocket(wsUrl);
+
+        ws.onopen = function () {
+          reconnectDelay = 1000;
+        };
+
+        ws.onmessage = function (event) {
+          try {
+            var msg = JSON.parse(event.data);
+            if (msg.tag === 'runtime-data') {
+              applyPatch(msg.payload);
+              render();
+            }
+          } catch (_) {}
+        };
+
+        ws.onclose = function () {
+          setTimeout(connect, reconnectDelay);
+          reconnectDelay = Math.min(reconnectDelay * 2, 30000);
+        };
+
+        ws.onerror = function () {
+          ws.close();
+        };
+      }
+
+      connect();
+    </script>
+  </body>
+</html>
