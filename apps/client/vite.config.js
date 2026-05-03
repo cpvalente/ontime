@@ -2,6 +2,7 @@ import path from 'path';
 
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
+import legacy from '@vitejs/plugin-legacy';
 import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import svgrPlugin from 'vite-plugin-svgr';
@@ -21,6 +22,9 @@ export default defineConfig({
     'import.meta.env.IS_DOCKER': process.env.NODE_ENV === 'docker',
   },
   plugins: [
+    legacy({
+      targets: ['ios >= 14.5', 'safari >= 14.1'],
+    }),
     react({
       babel: {
         plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
