@@ -95,6 +95,8 @@ export const srcFiles = {
   translationReadme: join(srcDir.root, config.user, config.translations.directory, 'README.md'),
   /** Path to login */
   login: join(srcDir.root, 'html/login.html'),
+  /** Path to legacy timer for old browsers */
+  timerLegacy: join(srcDir.root, 'html/timer-legacy.html'),
   /** Path to ontime-logo */
   logo: join(srcDir.root, config.user, config.logo, 'ontime-logo.png'),
 };

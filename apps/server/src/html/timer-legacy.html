@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Timer view for legacy browsers" />
+    <title>Ontime Timer</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background: #121212;
+        color: #ffffff;
+        font-family: sans-serif;
+        overflow: hidden;
+      }
+
+      #container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: -webkit-flex;
+        display: flex;
+        -webkit-flex-direction: column;
+        flex-direction: column;
+        -webkit-align-items: center;
+        align-items: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+      }
+
+      #timer {
+        font-size: 20vmin;
+        font-weight: bold;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.025em;
+        line-height: 1;
+        color: #ffffff;
+      }
+
+      #timer.short {
+        font-size: 35vmin;
+      }
+
+      #timer.warning {
+        color: #ffa528;
+      }
+
+      #timer.danger {
+        color: #ff7300;
+      }
+
+      #timer.overtime {
+        color: #fa5656;
+      }
+
+      #title {
+        color: #999999;
+        font-size: 5vmin;
+        margin-top: 3vmin;
+        text-align: center;
+        padding-left: 4vmin;
+        padding-right: 4vmin;
+        display: none;
+      }
+
+      #progress-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4vmin;
+        background: rgba(255, 255, 255, 0.15);
+        display: none;
+      }
+
+      #progress-fill {
+        height: 100%;
+        width: 0%;
+        background: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="timer">--:--</div>
+      <div id="title"></div>
+    </div>
+    <div id="progress-container">
+      <div id="progress-fill"></div>
+    </div>
+    <script>
+      var timerEl = document.getElementById('timer');
+      var titleEl = document.getElementById('title');
+      var progressContainerEl = document.getElementById('progress-container');
+      var progressFillEl = document.getElementById('progress-fill');
+
+      var phaseColors = { warning: '#ffa528', danger: '#ff7300', overtime: '#fa5656' };
+
+      var state = { timerCurrent: null, timerPhase: 'none', timerDuration: null, eventTitle: null };
+
+      function pad(n) {
+        return n < 10 ? '0' + n : String(n);
+      }
+
+      function formatMs(ms) {
+        var sign = ms < 0 ? '-' : '';
+        var abs = Math.abs(ms);
+        var h = Math.floor(abs / 3600000);
+        var m = Math.floor((abs % 3600000) / 60000);
+        var s = Math.floor((abs % 60000) / 1000);
+
+        // remove the hours if there is nothing to show
+        if (h === 0) {
+          return sign + pad(m) + ':' + pad(s);
+        }
+
+        return sign + pad(h) + ':' + pad(m) + ':' + pad(s);
+      }
+
+      function render() {
+        var text = state.timerCurrent !== null ? formatMs(state.timerCurrent) : '--:--:--';
+        var hasHours = text.lastIndexOf(':') !== text.indexOf(':');
+        timerEl.textContent = text;
+        var phase = state.timerPhase;
+        var cls = phase === 'warning' || phase === 'danger' || phase === 'overtime' ? phase : '';
+        if (!hasHours) {
+          cls = cls ? cls + ' short' : 'short';
+        }
+        timerEl.className = cls;
+        if (state.eventTitle) {
+          titleEl.textContent = state.eventTitle;
+          titleEl.style.display = 'block';
+        } else {
+          titleEl.style.display = 'none';
+        }
+
+        if (state.timerDuration > 0 && state.timerCurrent !== null) {
+          var elapsed = state.timerDuration - Math.max(0, state.timerCurrent);
+          var pct = Math.min(100, Math.max(0, (elapsed / state.timerDuration) * 100));
+          progressFillEl.style.width = pct + '%';
+          progressFillEl.style.backgroundColor = phaseColors[phase] || '#ffffff';
+          progressContainerEl.style.display = 'block';
+        } else {
+          progressContainerEl.style.display = 'none';
+        }
+      }
+
+      function applyPatch(payload) {
+        if (payload.timer) {
+          if (payload.timer.current !== undefined) state.timerCurrent = payload.timer.current;
+          if (payload.timer.duration !== undefined) state.timerDuration = payload.timer.duration;
+          if (payload.timer.phase !== undefined) state.timerPhase = payload.timer.phase;
+        }
+        if ('eventNow' in payload) {
+          state.eventTitle = payload.eventNow ? payload.eventNow.title : null;
+        }
+      }
+
+      function resolveConnectionUrl() {
+        var isSecure = window.location.protocol === 'https:';
+        var stageHash = '';
+        var href = window.location.href;
+
+        if (href.indexOf('getontime.no') !== -1) {
+          var hash = href.split('/')[3];
+          stageHash = '/' + hash;
+        }
+
+        if (isSecure) {
+          return 'wss://' + window.location.host + stageHash + '/ws';
+        }
+        return 'ws://' + window.location.host + stageHash + '/ws';
+      }
+
+      var reconnectDelay = 1000;
+
+      function connect() {
+        var wsUrl = resolveConnectionUrl();
+        var ws = new WebSocket(wsUrl);
+
+        ws.onopen = function () {
+          reconnectDelay = 1000;
+        };
+
+        ws.onmessage = function (event) {
+          try {
+            var msg = JSON.parse(event.data);
+            if (msg.tag === 'runtime-data') {
+              applyPatch(msg.payload);
+              render();
+            }
+          } catch (_) {}
+        };
+
+        ws.onclose = function () {
+          setTimeout(connect, reconnectDelay);
+          reconnectDelay = Math.min(reconnectDelay * 2, 30000);
+        };
+
+        ws.onerror = function () {
+          ws.close();
+        };
+      }
+
+      connect();
+    </script>
+  </body>
+</html>

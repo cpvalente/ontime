@@ -17,6 +17,13 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    <script>
+      if (/\/timer\/?$/.test(window.location.pathname) && typeof Promise.any !== 'function') {
+        var b = document.querySelector('base');
+        var base = b ? (b.getAttribute('href') || '').replace(/\/$/, '') : '';
+        window.location.replace(base + '/timer-legacy' + window.location.search);
+      }
+    </script>
     <script type="module" src="/src/index.tsx"></script>
   </body>
 </html>

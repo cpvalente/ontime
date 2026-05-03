@@ -32,7 +32,7 @@ import { runtimeService } from './services/runtime-service/runtime.service.js';
 import { timerConfig } from './setup/config.js';
 import { environment, isProduction } from './setup/environment.js';
 // import utils
-import { publicDir, srcDir } from './setup/index.js';
+import { publicDir, srcDir, srcFiles } from './setup/index.js';
 import { populateDemo } from './setup/loadDemo.js';
 import { populateStyles } from './setup/loadStyles.js';
 import { populateTranslation } from './setup/loadTranslations.js';
@@ -112,6 +112,11 @@ app.use(`${prefix}/external`, (req, res) => {
   res.status(404).send(`${req.originalUrl} not found`);
 });
 app.use(`${prefix}/user`, express.static(publicDir.userDir, { etag: false, lastModified: true }));
+
+// Serve legacy timer for old browsers that don't support modern JS
+app.get(`${prefix}/timer-legacy`, authenticateAndRedirect, (_req, res) => {
+  res.sendFile(srcFiles.timerLegacy);
+});
 
 // Base route for static files
 app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);
