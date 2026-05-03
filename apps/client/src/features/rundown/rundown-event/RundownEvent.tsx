@@ -13,13 +13,14 @@ import {
   IoTrash,
   IoUnlink,
 } from 'react-icons/io5';
-import { TbFlagFilled } from 'react-icons/tb';
+import { TbFlagFilled, TbListNumbers } from 'react-icons/tb';
 
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
 import { deviceMod } from '../../../common/utils/deviceUtils';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
+import { useRenumberCuesDialogStore } from '../renumber-cues-dialog/RenumberCuesDialog';
 import { useEventIdSwapping } from '../useEventIdSwapping';
 import { getSelectionMode, useEventSelection } from '../useEventSelection';
 import RundownEventInner from './RundownEventInner';
@@ -99,6 +100,7 @@ export default function RundownEvent({
   const selectedEventId = useEventIdSwapping((state) => state.selectedEventId);
   const setSelectedEventId = useEventIdSwapping((state) => state.setSelectedEventId);
   const clearSelectedEventId = useEventIdSwapping((state) => state.clearSelectedEventId);
+  const openRenumberDialog = useRenumberCuesDialogStore((state) => state.onOpen);
 
   const { updateEntry, batchUpdateEvents, clone, deleteEntry, groupEntries, swapEvents } = useEntryActionsContext();
 
@@ -141,6 +143,13 @@ export default function RundownEvent({
               clearSelectedEvents();
             },
             disabled: parent !== null,
+          },
+          { type: 'divider' },
+          {
+            type: 'item',
+            label: 'Renumber cues',
+            icon: TbListNumbers,
+            onClick: openRenumberDialog,
           },
           { type: 'divider' },
           {

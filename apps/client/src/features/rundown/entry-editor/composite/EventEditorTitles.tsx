@@ -1,4 +1,3 @@
-import { sanitiseCue } from 'ontime-utils';
 import { memo } from 'react';
 
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
@@ -24,10 +23,6 @@ export default memo(EventEditorTitles);
 function EventEditorTitles({ eventId, cue, flag, title, note, colour }: EventEditorTitlesProps) {
   const { updateEntry } = useEntryActionsContext();
 
-  const cueSubmitHandler = (_field: string, newValue: string) => {
-    updateEntry({ id: eventId, cue: sanitiseCue(newValue) });
-  };
-
   const flagSubmitHandler = (newValue: boolean) => {
     updateEntry({ id: eventId, flag: newValue });
   };
@@ -48,7 +43,7 @@ function EventEditorTitles({ eventId, cue, flag, title, note, colour }: EventEdi
           field='cue'
           label='Cue'
           initialValue={cue}
-          submitHandler={cueSubmitHandler}
+          submitHandler={textSubmitHandler}
           maxLength={10}
         />
         <div>

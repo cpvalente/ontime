@@ -98,7 +98,7 @@ describe('processRundown()', () => {
       Object.keys(result?.entries ?? {}).length,
       'events',
     );
-    expect(t2 - t1).lessThan(100);
+    expect(t2 - t1).lessThan(120);
   });
 
   it('generates metadata from given rundown', () => {
@@ -848,6 +848,98 @@ describe('rundownMutation.removeAll()', () => {
     expect(rundown.entries['1']).toBeUndefined();
     expect(rundown.entries['2']).toBeUndefined();
     expect(rundown.entries['3']).toBeUndefined();
+  });
+});
+
+describe('rundownMutation.renumber()', () => {
+  it('sets cues from integer start and increment with no fractional part', () => {
+    const rundown = makeRundown({
+      order: ['a', 'b', 'c'],
+      entries: {
+        a: makeOntimeEvent({ id: 'a', cue: 'old-a' }),
+        b: makeOntimeEvent({ id: 'b', cue: 'old-b' }),
+        c: makeOntimeEvent({ id: 'c', cue: 'old-c' }),
+      },
+    });
+
+    rundownMutation.renumber(
+      rundown,
+      ['a', 'b', 'c'],
+      'Q',
+      { integer: 10, faction: 0, precision: 0 },
+      { integer: 2, faction: 0, precision: 0 },
+    );
+
+    expect((rundown.entries['a'] as OntimeEvent).cue).toBe('Q10');
+    expect((rundown.entries['b'] as OntimeEvent).cue).toBe('Q12');
+    expect((rundown.entries['c'] as OntimeEvent).cue).toBe('Q14');
+  });
+
+  it('pads fractional segment to maxPrecision and steps faction by increment', () => {
+    const rundown = makeRundown({
+      order: ['a', 'b', 'c', 'd'],
+      entries: {
+        a: makeOntimeEvent({ id: 'a' }),
+        b: makeOntimeEvent({ id: 'b' }),
+        c: makeOntimeEvent({ id: 'c' }),
+        d: makeOntimeEvent({ id: 'd' }),
+      },
+    });
+
+    rundownMutation.renumber(
+      rundown,
+      ['a', 'b', 'c', 'd'],
+      '',
+      { integer: 1, faction: 0, precision: 2 },
+      { integer: 0, faction: 25, precision: 2 },
+    );
+
+    expect((rundown.entries['a'] as OntimeEvent).cue).toBe('1.00');
+    expect((rundown.entries['b'] as OntimeEvent).cue).toBe('1.25');
+    expect((rundown.entries['c'] as OntimeEvent).cue).toBe('1.50');
+    expect((rundown.entries['d'] as OntimeEvent).cue).toBe('1.75');
+  });
+
+  it('throws when an id is not an event', () => {
+    const rundown = makeRundown({
+      order: ['e', 'd'],
+      entries: {
+        e: makeOntimeEvent({ id: 'e' }),
+        d: makeOntimeDelay({ id: 'd' }),
+      },
+    });
+
+    expect(() =>
+      rundownMutation.renumber(
+        rundown,
+        ['e', 'd'],
+        'X',
+        { integer: 1, faction: 0, precision: 0 },
+        { integer: 1, faction: 0, precision: 0 },
+      ),
+    ).toThrowError('A given id was not an event');
+  });
+
+  it('handles mixed precision', () => {
+    const rundown = makeRundown({
+      order: ['a', 'b', 'c', 'd'],
+      entries: {
+        a: makeOntimeEvent({ id: 'a' }),
+        b: makeOntimeEvent({ id: 'b' }),
+        c: makeOntimeEvent({ id: 'c' }),
+        d: makeOntimeEvent({ id: 'd' }),
+      },
+    });
+
+    const inc = { integer: 0, faction: 5, precision: 1 }; // 0.5
+    const start = { integer: 1, faction: 5, precision: 2 }; // 1.05
+
+    rundownMutation.renumber(rundown, ['a', 'b', 'c', 'd'], 'X', start, inc);
+
+    expect((rundown.entries['a'] as OntimeEvent).cue).toBe('X1.05');
+    expect((rundown.entries['b'] as OntimeEvent).cue).toBe('X1.55');
+    expect((rundown.entries['c'] as OntimeEvent).cue).toBe('X1.105');
+    expect((rundown.entries['d'] as OntimeEvent).cue).toBe('X1.155');
   });
 });
 

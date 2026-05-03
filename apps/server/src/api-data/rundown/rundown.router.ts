@@ -1,6 +1,7 @@
 import type { Request, Response, Router } from 'express';
 import express from 'express';
-import { ErrorResponse, OntimeEntry, ProjectRundownsList, Rundown } from 'ontime-types';
+import { matchedData } from 'express-validator';
+import { ErrorResponse, OntimeEntry, ProjectRundownsList, RenumberCues, Rundown } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -18,6 +19,7 @@ import {
   groupEntries,
   initRundown,
   loadRundown,
+  renumberEntries,
   reorderEntry,
   swapEvents,
   ungroupEntries,
@@ -28,6 +30,7 @@ import {
   entryBatchPutValidator,
   entryPostValidator,
   entryPutValidator,
+  entryRenumberValidator,
   entryReorderValidator,
   entrySwapValidator,
   rundownArrayOfIds,
@@ -365,6 +368,25 @@ router.delete(
   async (_req: Request, res: Response<Rundown | ErrorResponse>) => {
     try {
       const rundown = await deleteAllEntries();
+      res.status(200).send(rundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
+/**
+ * Reorders two entries in a rundown
+ */
+router.patch(
+  '/:rundownId/renumber',
+  entryRenumberValidator,
+  validateRundownMutation,
+  (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const { ids, prefix, start, increment } = matchedData<RenumberCues>(req);
+      const rundown = renumberEntries(ids, prefix, start, increment);
       res.status(200).send(rundown);
     } catch (error) {
       const message = getErrorMessage(error);

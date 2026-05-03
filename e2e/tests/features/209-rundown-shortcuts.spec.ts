@@ -191,7 +191,7 @@ test('Add event', async ({ page }) => {
   // add event above
   await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+Shift+E');
   await expect(page.getByTestId('rundown-event')).toHaveCount(3);
-  await expect(page.getByTestId('entry-1').getByTestId('rundown-event')).toContainText('0.1');
+  await expect(page.getByTestId('entry-1').getByTestId('rundown-event')).toContainText('1');
 });
 
 test('Delete event', async ({ page }) => {
