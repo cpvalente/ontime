@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-import express from 'express';
+import express, { type Request, type Response } from 'express';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 
 import { createMcpServer } from './mcp.server.js';
@@ -22,10 +22,8 @@ mcpRouter.post('/', async (req, res) => {
 
 // Stateless mode: GET (SSE) and DELETE (session teardown) are not applicable.
 // All MCP interactions happen via POST in a single request/response cycle.
-mcpRouter.get('/', (_req, res) => {
-  res.status(405).json({ jsonrpc: '2.0', error: { code: -32000, message: 'Method not allowed.' }, id: null });
-});
+const methodNotAllowed = (_req: Request, res: Response) =>
+  void res.status(405).json({ jsonrpc: '2.0', error: { code: -32000, message: 'Method not allowed.' }, id: null });
 
-mcpRouter.delete('/', (_req, res) => {
-  res.status(405).json({ jsonrpc: '2.0', error: { code: -32000, message: 'Method not allowed.' }, id: null });
-});
+mcpRouter.get('/', methodNotAllowed);
+mcpRouter.delete('/', methodNotAllowed);

@@ -15,9 +15,10 @@ export async function renameRundown(id: string, title: string) {
   const dataProvider = getDataProvider();
   const rundown = dataProvider.getRundown(id);
   if (!rundown) throw new Error(`Rundown ${id} not found`);
-  await dataProvider.setRundown(id, { ...rundown, title });
+  const updated = { ...rundown, title };
+  await dataProvider.setRundown(id, updated);
   if (id === getCurrentRundown().id) {
-    await initRundown(dataProvider.getRundown(id), dataProvider.getCustomFields());
+    await initRundown(updated, dataProvider.getCustomFields());
   }
   return rundownListResponse();
 }
