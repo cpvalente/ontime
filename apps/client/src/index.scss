@@ -81,6 +81,8 @@ html,
   user-select: none;
   -webkit-app-region: drag;
   isolation: isolate;
+  // prevents Safari iOS from showing white in the overscroll (rubber-band) area
+  background-color: $ui-black;
 }
 
 // reset button styles

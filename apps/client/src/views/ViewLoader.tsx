@@ -23,15 +23,19 @@ export default function ViewLoader({ children }: PropsWithChildren) {
   const searchParams = new URLSearchParams(window.location.search);
   const colourFromParams = searchParams.get('keyColour') ?? '#101010';
 
+  // always keep body background in sync so Safari iOS overscroll area matches the view
+  const bodyBgStyle = `body { background-color: var(--background-color-override, ${colourFromParams}); }`;
+
   return (
     <Suspense
       fallback={
         <>
-          <style>{`body { background: var(--background-color-override, ${colourFromParams}); }`}</style>
+          <style>{bodyBgStyle}</style>
           <Loader />
         </>
       }
     >
+      <style>{bodyBgStyle}</style>
       <OverrideStyles />
       {children}
     </Suspense>
