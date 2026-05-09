@@ -7,6 +7,7 @@ import {
   githubUrl,
   subredditUrl,
   websiteUrl,
+  youtubeUrl,
 } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 import AppVersion from './AppVersion';
@@ -38,6 +39,7 @@ export default function AboutPanel() {
         <ExternalLink href={documentationUrl}>Read the docs</ExternalLink>
         <ExternalLink href={githubUrl}>Follow the project on GitHub</ExternalLink>
         <ExternalLink href={discordUrl}>Discord server</ExternalLink>
+        <ExternalLink href={youtubeUrl}>YouTube channel</ExternalLink>
         <ExternalLink href={subredditUrl}>Subreddit</ExternalLink>
       </Panel.Section>
     </>
