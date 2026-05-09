@@ -49,6 +49,10 @@ function DurationInput({
     setIsEditing(false);
     setTimeout(() => textRef.current?.focusParentElement()); // Immediate timeout to ensure state change takes place first
   };
+  const handleTabOut = useCallback(() => {
+    setIsEditing(false);
+    // Tab moves focus naturally; do not steal it back to parent
+  }, []);
 
   const handleUpdate = useCallback(
     (newValue: string) => {
@@ -95,8 +99,10 @@ function DurationInput({
       ref={inputRef}
       initialValue={timeString}
       allowSubmitSameValue={!lockedValue} // if the value is not locked, submitting will lock the value
+      submitOnTab={false}
       handleUpdate={handleUpdate}
       handleCancelUpdate={handleFakeBlur}
+      handleTabCancel={handleTabOut}
     />
   ) : (
     <TextLikeInput

@@ -6,6 +6,51 @@ test('cuesheet displays events', async ({ page }) => {
   await expect(page.getByTestId('cuesheet-event').first()).toBeVisible();
 });
 
+test('cuesheet datagrid does not submit timer cells on tab-out or escape', async ({ page }) => {
+  await page.goto('/cuesheet');
+
+  const firstEvent = page.getByTestId('cuesheet-event').first();
+  await expect(firstEvent).toBeVisible();
+
+  const durationCell = firstEvent.getByTestId('cuesheet-cell-duration');
+
+  /**
+   * 1. Tab out of a timer cell should not submit the typed value
+   */
+  await durationCell.click();
+  const durationInput = durationCell.locator('input');
+  await expect(durationInput).toBeVisible();
+  const originalDuration = await durationInput.inputValue();
+
+  await durationInput.fill('01:00:00');
+  await durationInput.press('Tab');
+
+  // cell should exit edit mode without submitting
+  await expect(durationInput).not.toBeVisible();
+
+  // re-enter edit mode: original value should be unchanged
+  await durationCell.click();
+  await expect(durationCell.locator('input')).toHaveValue(originalDuration);
+  await durationCell.locator('input').press('Escape');
+
+  /**
+   * 2. Escape on a timer cell should not submit, should revert to original value
+   */
+  await durationCell.click();
+  await expect(durationCell.locator('input')).toBeVisible();
+
+  await durationCell.locator('input').fill('02:00:00');
+  await durationCell.locator('input').press('Escape');
+
+  // cell should exit edit mode without submitting
+  await expect(durationCell.locator('input')).not.toBeVisible();
+
+  // re-enter edit mode: original value should be unchanged
+  await durationCell.click();
+  await expect(durationCell.locator('input')).toHaveValue(originalDuration);
+  await durationCell.locator('input').press('Escape');
+});
+
 test('cuesheet datagrid keeps keyboard focus flow while editing text cells', async ({ page }) => {
   await page.goto('/cuesheet');
 
