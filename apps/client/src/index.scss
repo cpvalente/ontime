@@ -81,6 +81,7 @@ html,
   user-select: none;
   -webkit-app-region: drag;
   isolation: isolate;
+  background-color: $ui-black; // prevent the safari from showing white background
 }
 
 // reset button styles

@@ -24,16 +24,18 @@ export default function ViewLoader({ children }: PropsWithChildren) {
   const colourFromParams = searchParams.get('keyColour') ?? '#101010';
 
   return (
-    <Suspense
-      fallback={
-        <>
-          <style>{`body { background: var(--background-color-override, ${colourFromParams}); }`}</style>
-          <Loader />
-        </>
-      }
-    >
-      <OverrideStyles />
-      {children}
-    </Suspense>
+    <>
+      <style>{`body { background: var(--background-color-override, ${colourFromParams}); }`}</style>
+      <Suspense
+        fallback={
+          <>
+            <Loader />
+          </>
+        }
+      >
+        <OverrideStyles />
+        {children}
+      </Suspense>
+    </>
   );
 }
