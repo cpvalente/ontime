@@ -25,7 +25,9 @@ export default function McpSection() {
       });
   }, [infoData]);
 
-  const mcpClientConfig = JSON.stringify({ mcpServers: { ontime: { url: mcpEndpointUrl } } }, null, 2);
+  const mcpClientConfig = mcpEndpointUrl
+    ? JSON.stringify({ mcpServers: { ontime: { url: mcpEndpointUrl } } }, null, 2)
+    : '';
 
   return (
     <Panel.Section>
