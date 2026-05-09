@@ -25,44 +25,10 @@ import { getState } from '../stores/runtimeState.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
 import { deleteRundown, renameRundown, rundownListResponse } from './mcp.service.js';
+import { EVENT_TIMER_FIELDS, EVENT_WRITABLE_FIELDS } from './mcp.schema.js';
 
 // Graceful truncation to keep tool responses within typical MCP context windows
 const CHARACTER_LIMIT = 25_000;
-
-// ---- Shared event field JSON schemas ----
-// Reused across create_event, update_event, create_events_batch, batch_update_events to avoid repetition.
-const EVENT_TIMER_FIELDS = {
-  timerType: {
-    type: 'string',
-    enum: ['count-down', 'count-up', 'clock', 'none'],
-    description: 'count-down: countdown from duration; count-up: elapsed time; clock: wall clock; none: no timer shown',
-  },
-  endAction: {
-    type: 'string',
-    enum: ['none', 'load-next', 'play-next'],
-    description: 'Action when event ends: none = stop, load-next = cue next event, play-next = auto-start next event',
-  },
-  linkStart: {
-    type: 'boolean',
-    description:
-      "Chain this event's start time to the previous event's end time — changing the first linked event propagates schedule changes to all linked followers",
-  },
-  countToEnd: { type: 'boolean', description: 'Timer counts toward the scheduled end time rather than elapsed time' },
-  timeWarning: { type: 'number', description: 'ms before timeEnd to enter warning state (e.g. 300000 = 5 min)' },
-  timeDanger: { type: 'number', description: 'ms before timeEnd to enter danger state (e.g. 60000 = 1 min)' },
-} as const;
-
-const EVENT_WRITABLE_FIELDS = {
-  cue: { type: 'string', description: 'Short free-form cue label — ask the user what naming convention they prefer' },
-  title: { type: 'string', description: 'Event title shown in the rundown and views' },
-  note: { type: 'string', description: 'Free-text note for production notes or references' },
-  colour: {
-    type: 'string',
-    description: 'Hex colour (#RRGGBB) for visual grouping — ask the user what colour convention they use',
-  },
-  skip: { type: 'boolean', description: 'If true, event is skipped during playback' },
-  ...EVENT_TIMER_FIELDS,
-} as const;
 
 // ---- MCP tool annotation presets ----
 // https://modelcontextprotocol.io/docs/concepts/tools#tool-annotations

@@ -46,12 +46,7 @@ export function handleGetPrompt(name: string, args: Record<string, string>): Get
           content: {
             type: 'text',
             text: `Convert the following agenda into an Ontime rundown.
-
-Data model:
-- Times are milliseconds from midnight. 09:00 = 32400000, 10:30 = 37800000, etc.
-- duration = timeEnd - timeStart
-- endAction: "load-next" for back-to-back sessions, "none" otherwise
-- Ask the user what cue naming and colour conventions they prefer
+Read the ontime://schema resource if you need a data model reference.
 
 Steps:
 1. Call ontime_get_rundown to see current state and identify an \`after\` anchor if appending.
