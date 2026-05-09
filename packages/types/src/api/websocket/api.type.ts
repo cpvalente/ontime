@@ -142,6 +142,18 @@ export type OffsetmodeResponse = {
   payload: 'success';
 };
 
+export type RundownAction = {
+  tag: 'rundown';
+  payload: {
+    /** load a rundown by id */
+    load: string;
+  };
+};
+export type RundownLoadResponse = {
+  tag: 'rundown-load';
+  payload: 'success';
+};
+
 export type ApiAction =
   | VersionAction
   | PollAction
@@ -156,7 +168,8 @@ export type ApiAction =
   | AddtimeAction
   | AuxtimerAction
   | ClientAction
-  | OffsetmodeAction;
+  | OffsetmodeAction
+  | RundownAction;
 
 export type ApiResponse =
   | VersionResponse
@@ -172,6 +185,7 @@ export type ApiResponse =
   | AddtimeResponse
   | AuxtimerResponse
   | ClientResponse
-  | OffsetmodeResponse;
+  | OffsetmodeResponse
+  | RundownLoadResponse;
 
 export type ApiActionTag = ApiAction['tag'];
