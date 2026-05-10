@@ -55,38 +55,33 @@ export const RESOURCE_DEFINITIONS: ListResourcesResult['resources'] = [
   },
 ];
 
+const RESOURCE_READERS: Record<string, { mimeType: string; read: () => string }> = {
+  'ontime://schema': { mimeType: 'text/markdown', read: () => ONTIME_SCHEMA_MARKDOWN },
+  'ontime://docs': { mimeType: 'text/markdown', read: () => ONTIME_DOCS_MARKDOWN },
+  'ontime://rundown/current': {
+    mimeType: 'application/json',
+    read: () => JSON.stringify(getCurrentRundown()),
+  },
+  'ontime://rundowns': {
+    mimeType: 'application/json',
+    read: () => {
+      const rundowns = normalisedToRundownArray(getDataProvider().getProjectRundowns());
+      const loaded = getCurrentRundown().id;
+      return JSON.stringify({ loaded, rundowns });
+    },
+  },
+  'ontime://project/info': {
+    mimeType: 'application/json',
+    read: () => JSON.stringify(getProjectData()),
+  },
+  'ontime://project/custom-fields': {
+    mimeType: 'application/json',
+    read: () => JSON.stringify(getProjectCustomFields()),
+  },
+};
+
 export function handleReadResource(uri: string): ReadResourceResult {
-  if (uri === 'ontime://schema') {
-    return { contents: [{ uri, mimeType: 'text/markdown', text: ONTIME_SCHEMA_MARKDOWN }] };
-  }
-
-  if (uri === 'ontime://rundown/current') {
-    return {
-      contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(getCurrentRundown()) }],
-    };
-  }
-
-  if (uri === 'ontime://rundowns') {
-    const rundowns = normalisedToRundownArray(getDataProvider().getProjectRundowns());
-    const loaded = getCurrentRundown().id;
-    return {
-      contents: [{ uri, mimeType: 'application/json', text: JSON.stringify({ loaded, rundowns }) }],
-    };
-  }
-
-  if (uri === 'ontime://project/info') {
-    return { contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(getProjectData()) }] };
-  }
-
-  if (uri === 'ontime://project/custom-fields') {
-    return {
-      contents: [{ uri, mimeType: 'application/json', text: JSON.stringify(getProjectCustomFields()) }],
-    };
-  }
-
-  if (uri === 'ontime://docs') {
-    return { contents: [{ uri, mimeType: 'text/markdown', text: ONTIME_DOCS_MARKDOWN }] };
-  }
-
-  throw new Error(`Unknown resource URI: ${uri}`);
+  const reader = RESOURCE_READERS[uri];
+  if (!reader) throw new Error(`Unknown resource URI: ${uri}`);
+  return { contents: [{ uri, mimeType: reader.mimeType, text: reader.read() }] };
 }
