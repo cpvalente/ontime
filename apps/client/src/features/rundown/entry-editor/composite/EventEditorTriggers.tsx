@@ -26,7 +26,7 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
     value: id,
     label: title,
   }));
-
+  const hasAutomationOptions = allAutomationOptions.length > 0;
   const triggerOptions = eventTriggerOptions.map((cycle) => ({ value: cycle, label: cycle }));
 
   const duplicateIds = new Set<string>();
@@ -41,7 +41,7 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
   }
 
   const handleAdd = () => {
-    if (allAutomationOptions.length === 0) return;
+    if (!hasAutomationOptions) return;
     updateEntry({
       id: eventId,
       triggers: [
@@ -64,6 +64,12 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
     <div className={style.triggers}>
       {automationsEnabled === false && (
         <Info>Automations are disabled. Event triggers stay configured, but they will not run until enabled.</Info>
+      )}
+      {automationsEnabled && !hasAutomationOptions && (
+        <Info>
+          <Info.Title>No automations available</Info.Title>
+          <Info.Body>Create an automation before attaching it to this event.</Info.Body>
+        </Info>
       )}
       {triggers.length > 0 && (
         <div className={style.triggerList}>
@@ -110,7 +116,7 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
           * Duplicate combinations will only fire once per lifecycle event.
         </span>
       )}
-      {allAutomationOptions.length > 0 && (
+      {hasAutomationOptions && (
         <Button variant='ghosted' onClick={handleAdd}>
           <IoAdd /> Add automation
         </Button>
