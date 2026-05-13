@@ -57,11 +57,11 @@ export default function CustomFieldSettings() {
         <Panel.Divider />
         <Panel.Section>
           <Info>
-            Custom fields allow for additional information to be added to an event.
-            <br />
-            <br />
-            To use custom fields as a data source in an{' '}
-            <AppLink search='settings=automation__automations'>Automation</AppLink>, please note the generated key.
+            <span>Custom fields allow for additional information to be added to an event.</span>
+            <span>
+              To use custom fields as a data source in an{' '}
+              <AppLink search='settings=automation__automations'>Automation</AppLink>, please note the generated key.
+            </span>
             <ExternalLink href={customFieldsDocsUrl}>See the docs</ExternalLink>
           </Info>
         </Panel.Section>

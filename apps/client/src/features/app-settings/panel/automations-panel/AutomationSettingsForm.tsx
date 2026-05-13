@@ -89,10 +89,9 @@ export default function AutomationSettingsForm({
 
       <Panel.Section>
         <Info>
-          <p>Control Ontime and share its data with external systems in your workflow.</p>
-          <p>- Automations allow Ontime to send its data on lifecycle triggers.</p>
-          <p>- OSC Input tells Ontime to listen to messages on the specific port.</p>
-          <br />
+          <span>Control Ontime and share its data with external systems in your workflow.</span>
+          <span>- Automations allow Ontime to send its data on lifecycle triggers.</span>
+          <span>- OSC Input tells Ontime to listen to messages on the specific port.</span>
           <ExternalLink href={oscApiDocsUrl}>See the docs</ExternalLink>
         </Info>
       </Panel.Section>
