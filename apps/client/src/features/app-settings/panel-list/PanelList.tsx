@@ -42,16 +42,9 @@ interface PanelListItemProps {
   location?: string;
 }
 
-function PanelListItem(props: PanelListItemProps) {
-  const { panel, isSelected, location } = props;
+function PanelListItem({ panel, isSelected, location }: PanelListItemProps) {
   const { setLocation } = useAppSettingsNavigation();
-
-  const classes = cx([
-    style.primary,
-    isSelected && style.active,
-    panel.split && style.split,
-    panel.highlight && style.highlight,
-  ]);
+  const classes = cx([style.primary, isSelected && style.active, panel.highlight && style.highlight]);
 
   return (
     <Fragment key={panel.id}>

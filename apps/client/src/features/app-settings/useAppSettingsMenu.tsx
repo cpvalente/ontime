@@ -7,7 +7,6 @@ export type SettingsOption = {
   id: string;
   label: string;
   secondary?: Readonly<SettingsOption[]>;
-  split?: boolean;
   highlight?: string;
 };
 
@@ -26,7 +25,6 @@ const staticOptions = [
   {
     id: 'project',
     label: 'Project',
-    split: true,
     secondary: [
       { id: 'project__create', label: 'Create...' },
       { id: 'project__list', label: 'Manage projects' },
@@ -46,7 +44,6 @@ const staticOptions = [
   {
     id: 'automation',
     label: 'Automation',
-    split: true,
     secondary: [
       { id: 'automation__settings', label: 'Automation settings' },
       { id: 'automation__automations', label: 'Manage automations' },
@@ -56,7 +53,6 @@ const staticOptions = [
   {
     id: 'sharing',
     label: 'Sharing and reporting',
-    split: true,
     secondary: [
       { id: 'sharing__presets', label: 'URL Presets' },
       {
@@ -69,7 +65,6 @@ const staticOptions = [
   {
     id: 'network',
     label: 'Network',
-    split: true,
     secondary: [
       {
         id: 'network__log',
@@ -84,12 +79,10 @@ const staticOptions = [
   {
     id: 'about',
     label: 'About',
-    split: true,
   },
   {
     id: 'shutdown',
     label: 'Shutdown',
-    split: true,
   },
 ] as const;
 
