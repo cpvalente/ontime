@@ -10,5 +10,9 @@ catalog:
   vitest: 4.0.17
 
 allowBuilds:
+  '@parcel/watcher': true
+  '@sentry/cli': false
+  core-js: false
   electron: true
+  electron-winstaller: false
   esbuild: true
