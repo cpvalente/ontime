@@ -9,8 +9,6 @@ catalog:
   typescript: 6.0.2
   vitest: 4.0.17
 
-onlyBuiltDependencies:
-  - electron
-  - esbuild
-
-useNodeVersion: 22.22.2
+allowBuilds:
+  electron: true
+  esbuild: true
