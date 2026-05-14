@@ -44,7 +44,7 @@ function CuesheetTableWrapper({ isCurrentRundown, source }: CuesheetTableWrapper
           tableRoot='cuesheet'
           setCuesheetMode={setCuesheetMode}
           isCurrentRundown={isCurrentRundown}
-          headerLeadingContent={
+          insertElement={
             <>
               <RundownSelect cuesheetMode={cuesheetMode} />
               {!isCurrentRundown && <span className={styles.backgroundBadge}>Background</span>}

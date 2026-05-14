@@ -44,7 +44,7 @@ interface CuesheetTableHeaderToolbarProps {
   handleResetResizing: () => void;
   handleResetReordering: () => void;
   handleClearToggles: () => void;
-  leadingContent?: ReactNode;
+  insertElement?: ReactNode;
   modeControls?: TableModeControls;
   showShare?: boolean;
 }
@@ -55,7 +55,7 @@ export default function CuesheetTableHeaderToolbar({
   handleResetResizing,
   handleResetReordering,
   handleClearToggles,
-  leadingContent,
+  insertElement,
   modeControls,
   showShare = false,
 }: CuesheetTableHeaderToolbarProps) {
@@ -75,7 +75,6 @@ export default function CuesheetTableHeaderToolbar({
     <Toolbar.Root
       className={cx([style.tableSettings, modeControls?.isCurrentRundown === false && style.backgroundMode])}
     >
-      {leadingContent}
       <ViewSettings optionsStore={optionsStore} />
       <ColumnSettings
         columns={columns}
@@ -84,29 +83,28 @@ export default function CuesheetTableHeaderToolbar({
         handleClearToggles={handleClearToggles}
       />
       {modeControls && canChangeMode && (
-        <ToggleGroup
-          value={[modeControls.cuesheetMode]}
-          onValueChange={toggleCuesheetMode}
-          className={cx([style.group, style.apart])}
-        >
-          {modeControls.isCurrentRundown === false ? (
-            <Tooltip
-              text='Run mode is only available for the loaded rundown'
-              render={<span style={{ display: 'inline-block' }} />}
-            >
-              <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton} disabled>
+        <div className={style.apart}>
+          {insertElement}
+          <ToggleGroup value={[modeControls.cuesheetMode]} onValueChange={toggleCuesheetMode} className={style.group}>
+            {modeControls.isCurrentRundown === false ? (
+              <Tooltip
+                text='Run mode is only available for the loaded rundown'
+                render={<span style={{ display: 'inline-block' }} />}
+              >
+                <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton} disabled>
+                  Run
+                </Toolbar.Button>
+              </Tooltip>
+            ) : (
+              <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
                 Run
               </Toolbar.Button>
-            </Tooltip>
-          ) : (
-            <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
-              Run
+            )}
+            <Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.radioButton}>
+              Edit
             </Toolbar.Button>
-          )}
-          <Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.radioButton}>
-            Edit
-          </Toolbar.Button>
-        </ToggleGroup>
+          </ToggleGroup>
+        </div>
       )}
 
       {showShare && canShare && (

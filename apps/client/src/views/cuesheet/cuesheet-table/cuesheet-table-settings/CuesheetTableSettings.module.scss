@@ -43,6 +43,9 @@
 
 .apart {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .backgroundMode {

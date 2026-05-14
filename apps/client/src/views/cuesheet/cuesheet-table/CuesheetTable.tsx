@@ -35,7 +35,7 @@ type CuesheetTableBaseProps = {
   columns: ColumnDef<ExtendedEntry>[];
   cuesheetMode: AppMode;
   source: RundownSource;
-  headerLeadingContent?: ReactNode;
+  insertElement?: ReactNode;
 };
 
 type EditorCuesheetTableProps = CuesheetTableBaseProps & {
@@ -59,7 +59,7 @@ export default function CuesheetTable({
   tableRoot,
   setCuesheetMode,
   isCurrentRundown,
-  headerLeadingContent,
+  insertElement,
 }: CuesheetTableProps) {
   const { flatRundown, status, selectedEventId } = source;
   const { updateEntry, updateTimer } = useEntryActionsContext();
@@ -239,7 +239,7 @@ export default function CuesheetTable({
         handleResetResizing={resetColumnResizing}
         handleResetReordering={resetColumnOrder}
         handleClearToggles={setAllVisible}
-        leadingContent={tableRoot === 'cuesheet' ? headerLeadingContent : undefined}
+        insertElement={insertElement}
         modeControls={
           tableRoot === 'cuesheet'
             ? {
