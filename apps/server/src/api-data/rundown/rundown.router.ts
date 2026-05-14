@@ -5,7 +5,6 @@ import { ErrorResponse, OntimeEntry, ProjectRundownsList, RenumberCues, Rundown 
 import { getErrorMessage } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { makeNewRundown } from '../../models/dataModel.js';
 import { paramsWithId } from '../validation-utils/validationFunction.js';
 import { getCurrentRundown, getProcessedRundown } from './rundown.dao.js';
 import {
@@ -13,6 +12,7 @@ import {
   applyDelay,
   batchEditEntries,
   cloneEntry,
+  createNewRundown,
   deleteAllEntries,
   deleteEntries,
   editEntry,
@@ -88,11 +88,7 @@ router.post('/:id/load', paramsWithId, async (req: Request, res: Response<Projec
  */
 router.post('/', rundownPostValidator, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
   try {
-    const emptyRundown = makeNewRundown();
-    emptyRundown.title = req.body.title;
-    await getDataProvider().setRundown(emptyRundown.id, emptyRundown);
-
-    const projectRundowns = getDataProvider().getProjectRundowns();
+    const projectRundowns = await createNewRundown(req.body.title);
     res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
   } catch (error) {
     const message = getErrorMessage(error);

@@ -213,6 +213,9 @@ export const connectSocket = () => {
             case RefetchKey.Settings:
               ontimeQueryClient.invalidateQueries({ queryKey: APP_SETTINGS });
               break;
+            case RefetchKey.ProjectRundowns:
+              ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_RUNDOWNS });
+              break;
             default: {
               target satisfies never;
               break;

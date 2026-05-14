@@ -21,6 +21,7 @@ import { customFieldLabelToKey, getInsertAfterId, resolveInsertParent } from 'on
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { logger } from '../../classes/Logger.js';
+import { makeNewRundown } from '../../models/dataModel.js';
 import { setLastLoadedRundown } from '../../services/app-state-service/AppStateService.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
@@ -671,8 +672,23 @@ export async function initRundown(
 
   setImmediate(() => {
     notifyChanges(rundown.id, rundownMetadata, revision, { timer: true, external: true, reload });
+    sendRefetch(RefetchKey.ProjectRundowns);
     setLastLoadedRundown(rundown.id).catch((error) => {
       logger.error(LogOrigin.Server, `Failed to persist last loaded rundown: ${error}`);
     });
   });
+}
+
+export async function createNewRundown(title: string) {
+  const emptyRundown = makeNewRundown();
+  emptyRundown.title = title;
+  await getDataProvider().setRundown(emptyRundown.id, emptyRundown);
+
+  const projectRundowns = getDataProvider().getProjectRundowns();
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectRundowns);
+  });
+
+  return projectRundowns;
 }

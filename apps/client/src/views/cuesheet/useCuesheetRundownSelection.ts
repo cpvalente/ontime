@@ -5,6 +5,8 @@ import { useOrderedProjectList } from '../../common/hooks-query/useProjectList';
 import { useProjectRundowns } from '../../common/hooks-query/useProjectRundowns';
 import { serverURL } from '../../externals';
 
+export const FOLLOW_LOADED_RUNDOWN_ID = '__follow-loaded__' as const;
+
 export function getCuesheetRundownStorageKey(server: string, projectFilename: string) {
   return `cuesheet-selected-rundown:${server}:${projectFilename || '__loading__'}`;
 }
@@ -14,39 +16,29 @@ export function resolveSelectedRundownId(
   loadedRundownId: string | null,
   availableRundownIds: Set<string>,
 ) {
-  if (storedSelectedRundownId && availableRundownIds.has(storedSelectedRundownId)) {
-    return storedSelectedRundownId;
-  }
-
+  if (storedSelectedRundownId && availableRundownIds.has(storedSelectedRundownId)) return storedSelectedRundownId;
   return loadedRundownId;
 }
 
 export function useCuesheetRundownSelection() {
+  'use memo';
+
+  const { data: projectRundowns } = useProjectRundowns();
   const {
     data: { lastLoadedProject },
   } = useOrderedProjectList();
-  const { data: projectRundowns } = useProjectRundowns();
   const storageKey = useMemo(() => getCuesheetRundownStorageKey(serverURL, lastLoadedProject), [lastLoadedProject]);
   const [storedSelectedRundownId, setStoredSelectedRundownId] = useSessionStorage<string | null>({
     key: storageKey,
     defaultValue: null,
   });
 
-  const availableRundownIds = useMemo(
-    () => new Set(projectRundowns.rundowns.map(({ id }) => id)),
-    [projectRundowns.rundowns],
-  );
-  const loadedRundownId = projectRundowns.loaded || null;
+  const availableRundownIds = new Set(projectRundowns.rundowns.map(({ id }) => id)).add(FOLLOW_LOADED_RUNDOWN_ID);
+  const { loaded: loadedRundownId } = projectRundowns;
 
-  // Sync stale session storage so future page loads start with a valid selection.
-  // resolveSelectedRundownId below already computes the correct value for the current render.
   useEffect(() => {
-    if (!loadedRundownId) {
-      return;
-    }
-
     if (!storedSelectedRundownId || !availableRundownIds.has(storedSelectedRundownId)) {
-      setStoredSelectedRundownId(loadedRundownId);
+      setStoredSelectedRundownId(FOLLOW_LOADED_RUNDOWN_ID);
     }
   }, [availableRundownIds, loadedRundownId, setStoredSelectedRundownId, storedSelectedRundownId]);
 

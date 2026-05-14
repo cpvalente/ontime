@@ -10,7 +10,7 @@ import CuesheetDnd from './cuesheet-dnd/CuesheetDnd';
 import { makeCuesheetColumns } from './cuesheet-table/cuesheet-table-elements/cuesheetColsFactory';
 import CuesheetTable from './cuesheet-table/CuesheetTable';
 import { useApplyCuesheetPolicy } from './useApplyCuesheetPolicy';
-import { useCuesheetRundownSelection } from './useCuesheetRundownSelection';
+import { FOLLOW_LOADED_RUNDOWN_ID, useCuesheetRundownSelection } from './useCuesheetRundownSelection';
 
 import styles from './CuesheetPage.module.scss';
 
@@ -61,16 +61,22 @@ interface RundownSelectProps {
 }
 
 function RundownSelect({ cuesheetMode }: RundownSelectProps) {
-  const { projectRundowns, loadedRundownId, selectedRundownId, setSelectedRundownId } = useCuesheetRundownSelection();
+  'use memo';
+  const { projectRundowns, selectedRundownId, setSelectedRundownId } = useCuesheetRundownSelection();
+  const options = projectRundowns.map(({ id, title }) => ({
+    value: id,
+    label: title,
+  }));
+  options.unshift({
+    value: FOLLOW_LOADED_RUNDOWN_ID,
+    label: 'Follow loaded', // TODO: Better wording and maybe icon? and translation
+  });
 
   return (
     <div className={styles.rundownSelect}>
       <Select
         value={selectedRundownId ?? undefined}
-        options={projectRundowns.map(({ id, title }) => ({
-          value: id,
-          label: id === loadedRundownId ? `${title} (Loaded)` : title,
-        }))}
+        options={options}
         onValueChange={(value) => {
           if (value) {
             setSelectedRundownId(value);

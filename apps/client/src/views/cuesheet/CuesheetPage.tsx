@@ -12,14 +12,15 @@ import CuesheetOverview from '../../features/overview/CuesheetOverview';
 import EntryEditModal from './cuesheet-edit-modal/EntryEditModal';
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
 import CuesheetTableWrapper from './CuesheetTableWrapper';
-import { useCuesheetRundownSelection } from './useCuesheetRundownSelection';
+import { FOLLOW_LOADED_RUNDOWN_ID, useCuesheetRundownSelection } from './useCuesheetRundownSelection';
 
 import styles from './CuesheetPage.module.scss';
 
 export default function CuesheetPage() {
+  'use memo';
   const [isMenuOpen, menuHandler] = useDisclosure();
   const { selectedRundownId, loadedRundownId } = useCuesheetRundownSelection();
-  const source = useScopedRundown(selectedRundownId);
+  const source = useScopedRundown(selectedRundownId === FOLLOW_LOADED_RUNDOWN_ID ? loadedRundownId : selectedRundownId);
 
   const isCurrentRundown = source.rundownId !== null && source.rundownId === loadedRundownId;
 
