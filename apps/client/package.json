@@ -67,6 +67,7 @@
     "@vitejs/plugin-legacy": "^8.0.1",
     "@vitejs/plugin-react": "5.2.0",
     "babel-plugin-react-compiler": "1.0.0",
+    "happy-dom": "^20.9.0",
     "ontime-types": "workspace:*",
     "ontime-utils": "workspace:*",
     "sass": "^1.57.1",

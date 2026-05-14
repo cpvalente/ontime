@@ -87,7 +87,7 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    environment: 'jsdom',
+    dom: true,
   },
   build: {
     outDir: './build',
