@@ -47,6 +47,11 @@ describe('getRouteFromPreset()', () => {
     expect(getRouteFromPreset(location, presets)).toStrictEqual('timer?user=guest&alias=demopage');
   });
 
+  it('returns null when already on a preset path', () => {
+    const location = resolvePath('/preset/demopage');
+    expect(getRouteFromPreset(location, presets)).toBeNull();
+  });
+
   it('returns null if the current location is the exact match of an unwrapped alias', () => {
     // we make the current location be the alias
     const location = resolvePath('/timer?user=guest&alias=demopage');
