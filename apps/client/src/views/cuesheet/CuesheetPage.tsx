@@ -19,10 +19,8 @@ import styles from './CuesheetPage.module.scss';
 export default function CuesheetPage() {
   'use memo';
   const [isMenuOpen, menuHandler] = useDisclosure();
-  const { selectedRundownId, loadedRundownId } = useCuesheetRundownSelection();
+  const { selectedRundownId, loadedRundownId, setSelectedRundownId, projectRundowns } = useCuesheetRundownSelection();
   const source = useScopedRundown(selectedRundownId === FOLLOW_LOADED_RUNDOWN_ID ? loadedRundownId : selectedRundownId);
-
-  const isCurrentRundown = source.rundownId !== null && source.rundownId === loadedRundownId;
 
   const actions = useScopedEntryActions(source.rundownId);
 
@@ -43,7 +41,13 @@ export default function CuesheetPage() {
           )}
         </CuesheetOverview>
         <CuesheetProgress />
-        <CuesheetTableWrapper isCurrentRundown={isCurrentRundown} source={source} />
+        <CuesheetTableWrapper
+          source={source}
+          selectedRundownId={selectedRundownId}
+          loadedRundownId={loadedRundownId}
+          setSelectedRundownId={setSelectedRundownId}
+          projectRundowns={projectRundowns}
+        />
       </div>
     </EntryActionsProvider>
   );

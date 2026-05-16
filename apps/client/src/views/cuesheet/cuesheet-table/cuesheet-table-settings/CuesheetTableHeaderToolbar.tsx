@@ -10,9 +10,7 @@ import Button from '../../../../common/components/buttons/Button';
 import Checkbox from '../../../../common/components/checkbox/Checkbox';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import PopoverContents from '../../../../common/components/popover/Popover';
-import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
-import { cx } from '../../../../common/utils/styleUtils';
 import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetPermissions } from '../../useTablePermissions';
 import CuesheetShareModal from './CuesheetShareModal';
@@ -64,17 +62,12 @@ export default function CuesheetTableHeaderToolbar({
 
   const toggleCuesheetMode = (mode: AppMode[]) => {
     const newValue = mode.at(0);
-    if (!newValue || !modeControls) {
-      return;
-    }
-
+    if (!newValue || !modeControls) return;
     modeControls.setCuesheetMode(newValue);
   };
 
   return (
-    <Toolbar.Root
-      className={cx([style.tableSettings, modeControls?.isCurrentRundown === false && style.backgroundMode])}
-    >
+    <Toolbar.Root className={style.tableSettings} data-background-rundown={!modeControls?.isCurrentRundown}>
       <ViewSettings optionsStore={optionsStore} />
       <ColumnSettings
         columns={columns}
@@ -85,21 +78,15 @@ export default function CuesheetTableHeaderToolbar({
       {modeControls && canChangeMode && (
         <div className={style.apart}>
           {insertElement}
-          <ToggleGroup value={[modeControls.cuesheetMode]} onValueChange={toggleCuesheetMode} className={style.group}>
-            {modeControls.isCurrentRundown === false ? (
-              <Tooltip
-                text='Run mode is only available for the loaded rundown'
-                render={<span style={{ display: 'inline-block' }} />}
-              >
-                <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton} disabled>
-                  Run
-                </Toolbar.Button>
-              </Tooltip>
-            ) : (
-              <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
-                Run
-              </Toolbar.Button>
-            )}
+          <ToggleGroup
+            value={[modeControls.cuesheetMode]}
+            onValueChange={toggleCuesheetMode}
+            className={style.group}
+            disabled={!modeControls.isCurrentRundown}
+          >
+            <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
+              Run
+            </Toolbar.Button>
             <Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.radioButton}>
               Edit
             </Toolbar.Button>

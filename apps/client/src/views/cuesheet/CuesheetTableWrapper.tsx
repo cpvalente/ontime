@@ -1,3 +1,4 @@
+import { MaybeString, ProjectRundown } from 'ontime-types';
 import { memo, use, useMemo } from 'react';
 
 import Select from '../../common/components/select/Select';
@@ -10,18 +11,28 @@ import CuesheetDnd from './cuesheet-dnd/CuesheetDnd';
 import { makeCuesheetColumns } from './cuesheet-table/cuesheet-table-elements/cuesheetColsFactory';
 import CuesheetTable from './cuesheet-table/CuesheetTable';
 import { useApplyCuesheetPolicy } from './useApplyCuesheetPolicy';
-import { FOLLOW_LOADED_RUNDOWN_ID, useCuesheetRundownSelection } from './useCuesheetRundownSelection';
+import { FOLLOW_LOADED_RUNDOWN_ID } from './useCuesheetRundownSelection';
 
 import styles from './CuesheetPage.module.scss';
 
 interface CuesheetTableWrapperProps {
-  isCurrentRundown: boolean;
   source: RundownSource;
+  selectedRundownId: MaybeString;
+  loadedRundownId: string;
+  setSelectedRundownId: (rundownId: string) => void;
+  projectRundowns: ProjectRundown[];
 }
 
 export default memo(CuesheetTableWrapper);
-function CuesheetTableWrapper({ isCurrentRundown, source }: CuesheetTableWrapperProps) {
+function CuesheetTableWrapper({
+  source,
+  selectedRundownId,
+  setSelectedRundownId,
+  loadedRundownId,
+  projectRundowns,
+}: CuesheetTableWrapperProps) {
   const preset = use(PresetContext);
+  const isCurrentRundown = source.rundownId !== null && source.rundownId === loadedRundownId;
   const { cuesheetMode, setCuesheetMode } = useApplyCuesheetPolicy(preset, { canRunMode: isCurrentRundown });
   const { data: customFields, status: customFieldStatus } = useCustomFields();
 
@@ -46,8 +57,13 @@ function CuesheetTableWrapper({ isCurrentRundown, source }: CuesheetTableWrapper
           isCurrentRundown={isCurrentRundown}
           insertElement={
             <>
-              <RundownSelect cuesheetMode={cuesheetMode} />
-              {!isCurrentRundown && <span className={styles.backgroundBadge}>Background</span>}
+              <RundownSelect
+                cuesheetMode={cuesheetMode}
+                selectedRundownId={selectedRundownId}
+                loadedRundownId={loadedRundownId}
+                setSelectedRundownId={setSelectedRundownId}
+                projectRundowns={projectRundowns}
+              />
             </>
           }
         />
@@ -58,11 +74,14 @@ function CuesheetTableWrapper({ isCurrentRundown, source }: CuesheetTableWrapper
 
 interface RundownSelectProps {
   cuesheetMode: AppMode;
+  selectedRundownId: MaybeString;
+  loadedRundownId: string;
+  setSelectedRundownId: (rundownId: string) => void;
+  projectRundowns: ProjectRundown[];
 }
 
-function RundownSelect({ cuesheetMode }: RundownSelectProps) {
+function RundownSelect({ cuesheetMode, projectRundowns, selectedRundownId, setSelectedRundownId }: RundownSelectProps) {
   'use memo';
-  const { projectRundowns, selectedRundownId, setSelectedRundownId } = useCuesheetRundownSelection();
   const options = projectRundowns.map(({ id, title }) => ({
     value: id,
     label: title,
