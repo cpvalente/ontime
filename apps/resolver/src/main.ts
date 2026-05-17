@@ -14,6 +14,9 @@ export { TimerPhase, Playback, runtimeStorePlaceholder, OffsetMode } from 'ontim
 export type { SimpleTimerState } from 'ontime-types';
 export { SimplePlayback, SimpleDirection } from 'ontime-types';
 
+// Client
+export type { ClientList, Client } from 'ontime-types';
+
 // entries
 export type {
   OntimeEntry,
