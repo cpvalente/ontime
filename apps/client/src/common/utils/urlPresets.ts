@@ -204,7 +204,7 @@ function isPresettableView(view: string): view is OntimeViewPresettable {
 /**
  * Check if current location is a preset path
  */
-export function isPresetPath(location: Path): boolean {
-  const segments = location.pathname.split('/').filter(Boolean);
-  return segments[0] === 'preset';
+function isPresetPath(location: Path): boolean {
+  const firstSegment = location.pathname.split('/').find(Boolean);
+  return firstSegment === 'preset';
 }

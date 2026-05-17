@@ -9,8 +9,10 @@ catalog:
   typescript: 6.0.2
   vitest: 4.0.17
 
-onlyBuiltDependencies:
-  - electron
-  - esbuild
-
-useNodeVersion: 22.22.2
+allowBuilds:
+  '@parcel/watcher': true
+  '@sentry/cli': false
+  core-js: false
+  electron: true
+  electron-winstaller: false
+  esbuild: true
