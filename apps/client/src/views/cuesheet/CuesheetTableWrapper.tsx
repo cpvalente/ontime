@@ -80,11 +80,17 @@ interface RundownSelectProps {
   projectRundowns: ProjectRundown[];
 }
 
-function RundownSelect({ cuesheetMode, projectRundowns, selectedRundownId, setSelectedRundownId }: RundownSelectProps) {
+function RundownSelect({
+  cuesheetMode,
+  projectRundowns,
+  loadedRundownId,
+  selectedRundownId,
+  setSelectedRundownId,
+}: RundownSelectProps) {
   'use memo';
   const options = projectRundowns.map(({ id, title }) => ({
     value: id,
-    label: title,
+    label: loadedRundownId === id ? `${title} (loaded)` : title,
   }));
   options.unshift({
     value: FOLLOW_LOADED_RUNDOWN_ID,
