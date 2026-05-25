@@ -9,6 +9,7 @@ import {
   IoPencilOutline,
   IoTrash,
 } from 'react-icons/io5';
+import { TbGhost3 } from 'react-icons/tb';
 
 import { downloadAsExcel } from '../../../../common/api/excel';
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -19,6 +20,7 @@ import { DropdownMenu } from '../../../../common/components/dropdown-menu/Dropdo
 import Tag from '../../../../common/components/tag/Tag';
 import { useMutateProjectRundowns, useProjectRundowns } from '../../../../common/hooks-query/useProjectRundowns';
 import { cx } from '../../../../common/utils/styleUtils';
+import { useDirectLinkToBackgroundEdit } from '../../../../views/cuesheet/useCuesheetRundownSelection';
 import * as Panel from '../../panel-utils/PanelUtils';
 import RundownRenameForm from './composite/RundownRenameForm';
 import { ManageRundownForm } from './ManageRundownForm';
@@ -96,6 +98,8 @@ export default function ManageRundowns() {
   const handleDownloadXlsx = async (rundownId: string, title: string) => {
     await downloadAsExcel(rundownId, title);
   };
+
+  const navigateToBackgroundEdit = useDirectLinkToBackgroundEdit();
 
   return (
     <>
@@ -179,6 +183,12 @@ export default function ManageRundowns() {
                               icon: IoDuplicateOutline,
                               label: 'Duplicate',
                               onClick: () => submitRundownDuplicate(id),
+                            },
+                            {
+                              type: 'item',
+                              icon: TbGhost3,
+                              label: 'Edit in background',
+                              onClick: () => navigateToBackgroundEdit(id),
                             },
                             { type: 'divider' },
                             {
