@@ -12,13 +12,9 @@ export function getCuesheetRundownStorageKey(server: string, projectFilename: st
   return `cuesheet-selected-rundown:${server}:${projectFilename}`;
 }
 
-export function resolveSelectedRundownId(
-  storedSelectedRundownId: string | null,
-  loadedRundownId: string | null,
-  availableRundownIds: Set<string>,
-) {
+export function resolveSelectedRundownId(storedSelectedRundownId: string | null, availableRundownIds: Set<string>) {
   if (storedSelectedRundownId && availableRundownIds.has(storedSelectedRundownId)) return storedSelectedRundownId;
-  return loadedRundownId;
+  return FOLLOW_LOADED_RUNDOWN_ID;
 }
 
 export function useCuesheetRundownSelection() {
@@ -31,13 +27,13 @@ export function useCuesheetRundownSelection() {
   const storageKey = useMemo(() => getCuesheetRundownStorageKey(serverURL, lastLoadedProject), [lastLoadedProject]);
   const [storedSelectedRundownId, setStoredSelectedRundownId] = useSessionStorage<string | null>({
     key: storageKey,
-    defaultValue: null,
+    defaultValue: FOLLOW_LOADED_RUNDOWN_ID,
   });
 
   const availableRundownIds = new Set(projectRundowns.rundowns.map(({ id }) => id)).add(FOLLOW_LOADED_RUNDOWN_ID);
   const { loaded: loadedRundownId } = projectRundowns;
 
-  const selectedRundownId = resolveSelectedRundownId(storedSelectedRundownId, loadedRundownId, availableRundownIds);
+  const selectedRundownId = resolveSelectedRundownId(storedSelectedRundownId, availableRundownIds);
 
   return {
     loadedRundownId,

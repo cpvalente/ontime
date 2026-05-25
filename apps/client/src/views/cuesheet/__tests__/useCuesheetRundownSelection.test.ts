@@ -1,4 +1,8 @@
-import { getCuesheetRundownStorageKey, resolveSelectedRundownId } from '../useCuesheetRundownSelection';
+import {
+  FOLLOW_LOADED_RUNDOWN_ID,
+  getCuesheetRundownStorageKey,
+  resolveSelectedRundownId,
+} from '../useCuesheetRundownSelection';
 
 describe('useCuesheetRundownSelection helpers', () => {
   it('builds a project-scoped storage key', () => {
@@ -7,11 +11,11 @@ describe('useCuesheetRundownSelection helpers', () => {
     );
   });
 
-  it('falls back to the loaded rundown when the stored selection is missing', () => {
-    expect(resolveSelectedRundownId('missing', 'loaded', new Set(['loaded', 'other']))).toBe('loaded');
+  it('falls back to the follow loaded rundown when the stored selection is missing', () => {
+    expect(resolveSelectedRundownId('missing', new Set(['loaded', 'other']))).toBe(FOLLOW_LOADED_RUNDOWN_ID);
   });
 
   it('keeps the stored selection when it still exists in the current project', () => {
-    expect(resolveSelectedRundownId('other', 'loaded', new Set(['loaded', 'other']))).toBe('other');
+    expect(resolveSelectedRundownId('other', new Set(['loaded', 'other']))).toBe('other');
   });
 });
