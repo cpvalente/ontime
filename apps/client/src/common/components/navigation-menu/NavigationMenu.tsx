@@ -33,7 +33,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
   const isSmallScreen = useIsSmallScreen();
 
   const [isRenameOpen, handlers] = useDisclosure(false);
-  const { fullscreen, isSupported: isFullscreenSupported, toggle: toggleFullscreen } = useFullscreen();
+  const { fullscreen, toggle, error } = useFullscreen();
   const { mirror, toggleMirror } = useViewOptionsStore();
   const { keepAwake, toggleKeepAwake } = useKeepAwakeOptions();
   const location = useLocation();
@@ -58,18 +58,17 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
             </IconButton>
           </div>
           <div className={style.body}>
-            {isFullscreenSupported && (
-              <NavigationMenuItem
-                active={fullscreen}
-                onClick={() => {
-                  onClose();
-                  toggleFullscreen();
-                }}
-              >
-                Toggle Fullscreen
-                {fullscreen ? <IoContract /> : <IoExpand />}
-              </NavigationMenuItem>
-            )}
+            <NavigationMenuItem
+              active={fullscreen}
+              disable={error}
+              onClick={() => {
+                onClose();
+                toggle();
+              }}
+            >
+              {error ? 'Toggle Fullscreen (Failed)' : 'Toggle Fullscreen'}
+              {fullscreen ? <IoContract /> : <IoExpand />}
+            </NavigationMenuItem>
             <NavigationMenuItem active={mirror} onClick={() => toggleMirror()}>
               Flip Screen
               <IoSwapVertical />

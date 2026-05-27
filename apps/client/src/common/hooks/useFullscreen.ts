@@ -1,60 +1,21 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useFullscreenDocument } from '@mantine/hooks';
 
 interface UseFullscreenReturn {
-  /** Whether the document is currently in fullscreen mode */
   fullscreen: boolean;
-  /**
-   * Whether the Fullscreen API is available and permitted in the current browsing context.
-   * When false, `toggle` is a no-op and the UI should hide or disable the action.
-   */
-  isSupported: boolean;
-  /**
-   * Toggles fullscreen on/off.
-   * Safe to use directly as an onClick handler — the underlying Promise is handled
-   * internally, so rejections (eg. browser policy, user denial) never surface as
-   * unhandled promise rejections.
-   */
+  error: boolean;
   toggle: () => void;
 }
 
-/**
- * Manages browser fullscreen state.
- *
- * Compared to @mantine/hooks useFullscreen:
- * - `isSupported` is co-located so there is a single source of truth
- * - `toggle` is a plain void callback, safe to pass directly to event handlers
- * - Error handling is internal; callers do not need try/catch
- * - Only targets document.documentElement (the ref API is not used in this project)
- * - No vendor-prefix shims (all supported browsers implement the standard API)
- */
+// error is set without state so it is reset by a page refresh
+let error = false;
+
 export function useFullscreen(): UseFullscreenReturn {
-  const isSupported = Boolean(document.fullscreenEnabled);
-  const [fullscreen, setFullscreen] = useState(Boolean(document.fullscreenElement));
-
-  // Keep `fullscreen` state in sync with the actual browser state.
-  // The fullscreenchange event fires whenever the document enters or exits fullscreen
-  // (including when the user presses Escape to exit), so React state never drifts
-  // from reality. The listener is removed on unmount via the cleanup return.
-  useEffect(() => {
-    const handleChange = () => setFullscreen(Boolean(document.fullscreenElement));
-    document.addEventListener('fullscreenchange', handleChange);
-    return () => document.removeEventListener('fullscreenchange', handleChange);
-  }, []);
-
-  const toggle = useCallback(() => {
-    if (!isSupported) return;
-
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {
-        // requestFullscreen() can be rejected in certain browser contexts
-        // (eg. browser security policy, extensions blocking fullscreen)
-      });
-    } else {
-      document.exitFullscreen().catch(() => {
-        // exitFullscreen() can also be rejected in rare edge cases
-      });
-    }
-  }, [isSupported]);
-
-  return { fullscreen, isSupported, toggle };
+  const { fullscreen, toggle } = useFullscreenDocument();
+  const toggleFullScreen = () => {
+    toggle().catch(() => {
+      console.log('failed ot open');
+      error = true;
+    });
+  };
+  return { fullscreen, toggle: toggleFullScreen, error };
 }
