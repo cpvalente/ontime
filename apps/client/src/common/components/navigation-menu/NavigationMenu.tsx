@@ -1,13 +1,14 @@
 import { Dialog } from '@base-ui/react/dialog';
-import { useDisclosure, useFullscreen } from '@mantine/hooks';
-import { memo, useCallback } from 'react';
+import { useDisclosure } from '@mantine/hooks';
+import { memo } from 'react';
 import { IoClose, IoContract, IoExpand, IoLockClosedOutline, IoSwapVertical } from 'react-icons/io5';
 import { LuCoffee } from 'react-icons/lu';
 import { useLocation } from 'react-router';
 
-import { isLocalhost, supportsFullscreen } from '../../../externals';
+import { isLocalhost } from '../../../externals';
 import { canUseWakeLock, useKeepAwakeOptions } from '../../../features/keep-awake/useWakeLock';
 import { navigatorConstants } from '../../../viewerConfig';
+import { useFullscreen } from '../../hooks/useFullscreen';
 import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
 import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
@@ -32,17 +33,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
   const isSmallScreen = useIsSmallScreen();
 
   const [isRenameOpen, handlers] = useDisclosure(false);
-  const { fullscreen, toggle } = useFullscreen();
-
-  const handleToggleFullscreen = useCallback(async () => {
-    onClose();
-    try {
-      await toggle();
-    } catch (_error) {
-      // requestFullscreen() may be rejected in certain browser contexts
-      // (eg. browser security policy, extensions blocking fullscreen, etc.)
-    }
-  }, [onClose, toggle]);
+  const { fullscreen, isSupported: isFullscreenSupported, toggle: toggleFullscreen } = useFullscreen();
   const { mirror, toggleMirror } = useViewOptionsStore();
   const { keepAwake, toggleKeepAwake } = useKeepAwakeOptions();
   const location = useLocation();
@@ -67,8 +58,14 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
             </IconButton>
           </div>
           <div className={style.body}>
-            {supportsFullscreen && (
-              <NavigationMenuItem active={fullscreen} onClick={handleToggleFullscreen}>
+            {isFullscreenSupported && (
+              <NavigationMenuItem
+                active={fullscreen}
+                onClick={() => {
+                  onClose();
+                  toggleFullscreen();
+                }}
+              >
                 Toggle Fullscreen
                 {fullscreen ? <IoContract /> : <IoExpand />}
               </NavigationMenuItem>
