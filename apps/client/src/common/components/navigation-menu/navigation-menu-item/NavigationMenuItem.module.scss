@@ -33,4 +33,10 @@
     background-color: $gray-1300;
     border-left: 4px solid $action-text-color;
   }
+
+  &[data-disabled='true'] {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 }

@@ -9,6 +9,7 @@ interface NavigationMenuItemProps {
   active?: boolean;
   className?: string;
   onClick: () => void;
+  disable?: boolean;
 }
 
 export default function NavigationMenuItem({
@@ -16,6 +17,7 @@ export default function NavigationMenuItem({
   className,
   children,
   onClick,
+  disable,
 }: PropsWithChildren<NavigationMenuItemProps>) {
   return (
     <div
@@ -23,8 +25,9 @@ export default function NavigationMenuItem({
       tabIndex={0}
       role='button'
       onClick={onClick}
+      data-disabled={disable}
       onKeyDown={(event) => {
-        if (isKeyEnter(event)) {
+        if (!!disable && isKeyEnter(event)) {
           onClick();
         }
       }}
