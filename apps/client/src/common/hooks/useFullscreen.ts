@@ -31,6 +31,10 @@ export function useFullscreen(): UseFullscreenReturn {
   const isSupported = Boolean(document.fullscreenEnabled);
   const [fullscreen, setFullscreen] = useState(Boolean(document.fullscreenElement));
 
+  // Keep `fullscreen` state in sync with the actual browser state.
+  // The fullscreenchange event fires whenever the document enters or exits fullscreen
+  // (including when the user presses Escape to exit), so React state never drifts
+  // from reality. The listener is removed on unmount via the cleanup return.
   useEffect(() => {
     const handleChange = () => setFullscreen(Boolean(document.fullscreenElement));
     document.addEventListener('fullscreenchange', handleChange);
