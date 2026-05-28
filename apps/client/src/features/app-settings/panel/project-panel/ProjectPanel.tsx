@@ -1,4 +1,5 @@
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
+import { useAppSettingsScroll } from '../../AppSettingsScrollContext';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import QuickStart from '../../quick-start/QuickStart';
@@ -10,7 +11,8 @@ interface ProjectPanelProps extends PanelBaseProps {
 }
 
 export default function ProjectPanel({ location, setLocation }: ProjectPanelProps) {
-  const manageProjectsRef = useScrollIntoView<HTMLDivElement>('list', location);
+  const { setActiveSection } = useAppSettingsScroll();
+  const manageProjectsRef = useScrollIntoView<HTMLDivElement>('list', location, setActiveSection);
 
   const handleQuickClose = () => {
     setLocation('project');

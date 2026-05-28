@@ -1,8 +1,19 @@
-.corner {
-  position: fixed;
-  top: 6rem;
-  right: 4rem;
-  z-index: $zindex-floating;
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  z-index: $zindex-nav;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background-color: $gray-1250;
+  border-bottom: 1px solid $white-10;
+  flex-shrink: 0;
+}
+
+.breadcrumb {
+  font-size: calc(1rem - 1px);
+  color: $gray-400;
 }
 
 .contentWrapper {
@@ -12,6 +23,7 @@
   flex: 1 1 auto;
   min-width: 0;
   position: relative;
+  overflow: hidden;
 }
 
 .content {

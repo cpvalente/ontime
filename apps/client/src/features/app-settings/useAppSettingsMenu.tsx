@@ -86,6 +86,15 @@ const staticOptions = [
   },
 ] as const;
 
+export function getPanelLabel(panel: string, location?: string): { panelLabel: string; sectionLabel?: string } {
+  const panelOption = staticOptions.find((o) => o.id === panel);
+  if (!panelOption) return { panelLabel: panel };
+  const panelLabel = panelOption.label;
+  if (!location || !('secondary' in panelOption)) return { panelLabel };
+  const match = panelOption.secondary.find((s) => s.id.split('__')[1] === location);
+  return { panelLabel, sectionLabel: match?.label };
+}
+
 // a child of navigation or a child of secondary navigation
 export type SettingsOptionId =
   | (typeof staticOptions)[number]['id']

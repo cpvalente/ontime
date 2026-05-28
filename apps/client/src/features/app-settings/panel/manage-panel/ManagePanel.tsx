@@ -1,4 +1,5 @@
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
+import { useAppSettingsScroll } from '../../AppSettingsScrollContext';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import CustomFieldSettings from './CustomFields';
@@ -7,10 +8,11 @@ import RundownDefaultSettings from './RundownDefaultSettings';
 import SourcesPanel from './sources-panel/SourcesPanel';
 
 export default function ManagePanel({ location }: PanelBaseProps) {
-  const defaultsRef = useScrollIntoView<HTMLDivElement>('defaults', location);
-  const customRef = useScrollIntoView<HTMLDivElement>('custom', location);
-  const rundownsRef = useScrollIntoView<HTMLDivElement>('rundowns', location);
-  const sheetsRef = useScrollIntoView<HTMLDivElement>('sheets', location);
+  const { setActiveSection } = useAppSettingsScroll();
+  const defaultsRef = useScrollIntoView<HTMLDivElement>('defaults', location, setActiveSection);
+  const customRef = useScrollIntoView<HTMLDivElement>('custom', location, setActiveSection);
+  const rundownsRef = useScrollIntoView<HTMLDivElement>('rundowns', location, setActiveSection);
+  const sheetsRef = useScrollIntoView<HTMLDivElement>('sheets', location, setActiveSection);
 
   return (
     <>

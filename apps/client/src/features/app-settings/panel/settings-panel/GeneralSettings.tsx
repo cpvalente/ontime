@@ -11,6 +11,7 @@ import Select from '../../../../common/components/select/Select';
 import useSettings from '../../../../common/hooks-query/useSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
+import { useSettingsDirty } from '../../useSettingsDirty';
 import GeneralPinInput from './composite/GeneralPinInput';
 
 const TranslationModal = lazy(() => import('./composite/CustomTranslationModal'));
@@ -32,6 +33,7 @@ export default function GeneralSettings() {
       keepDirtyValues: true,
     },
   });
+  useSettingsDirty(isDirty);
 
   const [isOpen, handler] = useDisclosure();
 

@@ -1,5 +1,6 @@
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
+import { useAppSettingsScroll } from '../../AppSettingsScrollContext';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import AutomationSettingsForm from './AutomationSettingsForm';
@@ -8,9 +9,10 @@ import TriggersList from './TriggersList';
 
 export default function AutomationPanel({ location }: PanelBaseProps) {
   const { data, status } = useAutomationSettings();
-  const settingsRef = useScrollIntoView<HTMLDivElement>('settings', location);
-  const triggersRef = useScrollIntoView<HTMLDivElement>('triggers', location);
-  const automationsRef = useScrollIntoView<HTMLDivElement>('automations', location);
+  const { setActiveSection } = useAppSettingsScroll();
+  const settingsRef = useScrollIntoView<HTMLDivElement>('settings', location, setActiveSection);
+  const triggersRef = useScrollIntoView<HTMLDivElement>('triggers', location, setActiveSection);
+  const automationsRef = useScrollIntoView<HTMLDivElement>('automations', location, setActiveSection);
 
   const isLoading = status === 'pending';
   const automationState = isLoading ? undefined : data.enabledAutomations;

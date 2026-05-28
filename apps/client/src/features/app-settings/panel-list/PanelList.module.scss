@@ -12,6 +12,9 @@ ul {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  background-color: $gray-1250;
+  border-right: 1px solid $white-10;
+  padding: 0.5rem 0;
 }
 
 .primary,
@@ -32,14 +35,16 @@ ul {
 
 .primary {
   font-size: 1rem;
-  border-radius: 2px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 
   &.active {
     color: $blue-400;
-    background-color: $gray-1100;
+    border-left: 3px solid $blue-400;
+    padding-left: calc(1rem - 3px);
+    border-radius: 0 6px 6px 0;
   }
 
   &.highlight {
@@ -63,5 +68,7 @@ ul {
 
   &.active {
     color: $blue-400;
+    border-left-color: $blue-400;
+    border-left-width: 2px;
   }
 }

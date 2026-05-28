@@ -12,6 +12,7 @@ import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
 import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
+import { useSettingsDirty } from '../../useSettingsDirty';
 
 const oscApiDocsUrl = 'https://docs.getontime.no/api/protocols/osc/';
 
@@ -45,6 +46,7 @@ export default function AutomationSettingsForm({
       keepDirtyValues: false,
     },
   });
+  useSettingsDirty(isDirty);
 
   const onSubmit = async (formData: AutomationSettingsProps) => {
     try {

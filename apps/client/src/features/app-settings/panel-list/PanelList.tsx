@@ -3,6 +3,8 @@ import { Fragment } from 'react';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { isKeyEnter } from '../../../common/utils/keyEvent';
 import { cx } from '../../../common/utils/styleUtils';
+import { getIsDirty, markClean } from '../appSettingsDirtyState';
+import { useAppSettingsScroll } from '../AppSettingsScrollContext';
 import { SettingsOption, SettingsOptionId, useAppSettingsMenu } from '../useAppSettingsMenu';
 import useAppSettingsNavigation from '../useAppSettingsNavigation';
 
@@ -42,18 +44,27 @@ interface PanelListItemProps {
   location?: string;
 }
 
+function navigateWithGuard(navigate: (id: SettingsOptionId) => void, id: SettingsOptionId) {
+  if (getIsDirty()) {
+    if (!window.confirm('You have unsaved changes. Leave without saving?')) return;
+    markClean();
+  }
+  navigate(id);
+}
+
 function PanelListItem({ panel, isSelected, location }: PanelListItemProps) {
   const { setLocation } = useAppSettingsNavigation();
+  const { activeSection } = useAppSettingsScroll();
   const classes = cx([style.primary, isSelected && style.active, panel.highlight && style.highlight]);
 
   return (
     <Fragment key={panel.id}>
       <li
         key={panel.id}
-        onClick={() => setLocation(panel.id as SettingsOptionId)}
+        onClick={() => navigateWithGuard(setLocation, panel.id as SettingsOptionId)}
         onKeyDown={(event) => {
           if (isKeyEnter(event)) {
-            setLocation(panel.id as SettingsOptionId);
+            navigateWithGuard(setLocation, panel.id as SettingsOptionId);
           }
         }}
         className={classes}
@@ -64,14 +75,15 @@ function PanelListItem({ panel, isSelected, location }: PanelListItemProps) {
       </li>
       {panel.secondary?.map((secondary, index) => {
         const id = secondary.id.split('__')[1];
-        const secondaryClasses = cx([style.secondary, isSelected && location === id ? style.active : null]);
+        const effectiveSection = isSelected ? (activeSection ?? location) : undefined;
+        const secondaryClasses = cx([style.secondary, effectiveSection === id ? style.active : null]);
         return (
           <li
             key={secondary.id + index}
-            onClick={() => setLocation(secondary.id as SettingsOptionId)}
+            onClick={() => navigateWithGuard(setLocation, secondary.id as SettingsOptionId)}
             onKeyDown={(event) => {
               if (isKeyEnter(event)) {
-                setLocation(secondary.id as SettingsOptionId);
+                navigateWithGuard(setLocation, secondary.id as SettingsOptionId);
               }
             }}
             className={secondaryClasses}

@@ -5,14 +5,16 @@ import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { usePing } from '../../../../common/hooks/useSocket';
 import { sendSocket } from '../../../../common/utils/socket';
 import { isDocker } from '../../../../externals';
+import { useAppSettingsScroll } from '../../AppSettingsScrollContext';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import ClientControlPanel from './client-control/ClientControlPanel';
 import LogExport from './NetworkLogExport';
 
 export default function NetworkLogPanel({ location }: PanelBaseProps) {
-  const clientsRef = useScrollIntoView<HTMLDivElement>('clients', location);
-  const logRef = useScrollIntoView<HTMLDivElement>('log', location);
+  const { setActiveSection } = useAppSettingsScroll();
+  const clientsRef = useScrollIntoView<HTMLDivElement>('clients', location, setActiveSection);
+  const logRef = useScrollIntoView<HTMLDivElement>('log', location, setActiveSection);
 
   return (
     <>

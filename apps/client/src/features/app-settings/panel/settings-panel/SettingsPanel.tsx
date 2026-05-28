@@ -1,5 +1,6 @@
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { isDocker } from '../../../../externals';
+import { useAppSettingsScroll } from '../../AppSettingsScrollContext';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import CustomViews from '../manage-panel/CustomViews';
@@ -9,11 +10,12 @@ import ServerPortSettings from './ServerPortSettings';
 import ViewSettings from './ViewSettings';
 
 export default function SettingsPanel({ location }: PanelBaseProps) {
-  const dataRef = useScrollIntoView<HTMLDivElement>('data', location);
-  const generalRef = useScrollIntoView<HTMLDivElement>('general', location);
-  const viewRef = useScrollIntoView<HTMLDivElement>('view', location);
-  const customViewsRef = useScrollIntoView<HTMLDivElement>('custom-views', location);
-  const portRef = useScrollIntoView<HTMLDivElement>('port', location);
+  const { setActiveSection } = useAppSettingsScroll();
+  const dataRef = useScrollIntoView<HTMLDivElement>('data', location, setActiveSection);
+  const generalRef = useScrollIntoView<HTMLDivElement>('general', location, setActiveSection);
+  const viewRef = useScrollIntoView<HTMLDivElement>('view', location, setActiveSection);
+  const customViewsRef = useScrollIntoView<HTMLDivElement>('custom-views', location, setActiveSection);
+  const portRef = useScrollIntoView<HTMLDivElement>('port', location, setActiveSection);
 
   return (
     <>

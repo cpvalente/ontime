@@ -13,6 +13,7 @@ import Tag from '../../../../common/components/tag/Tag';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
+import { useSettingsDirty } from '../../useSettingsDirty';
 import CodeEditorModal from './composite/StyleEditorModal';
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
@@ -35,6 +36,7 @@ export default function ViewSettings() {
       keepDirtyValues: true,
     },
   });
+  useSettingsDirty(isDirty);
 
   // update form if we get new data from server
   useEffect(() => {

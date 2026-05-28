@@ -1,5 +1,6 @@
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { isOntimeCloud } from '../../../../externals';
+import { useAppSettingsScroll } from '../../AppSettingsScrollContext';
 import GenerateLinkFormExport from '../../../sharing/GenerateLinkFormExport';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -8,9 +9,10 @@ import ReportSettings from './ReportSettings';
 import URLPresets from './URLPresets';
 
 export default function FeaturePanel({ location }: PanelBaseProps) {
-  const presetsRef = useScrollIntoView<HTMLDivElement>('presets', location);
-  const linkRef = useScrollIntoView<HTMLDivElement>('link', location);
-  const reportRef = useScrollIntoView<HTMLDivElement>('report', location);
+  const { setActiveSection } = useAppSettingsScroll();
+  const presetsRef = useScrollIntoView<HTMLDivElement>('presets', location, setActiveSection);
+  const linkRef = useScrollIntoView<HTMLDivElement>('link', location, setActiveSection);
+  const reportRef = useScrollIntoView<HTMLDivElement>('report', location, setActiveSection);
 
   return (
     <>

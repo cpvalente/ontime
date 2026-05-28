@@ -9,6 +9,7 @@ import useServerPort from '../../../../common/hooks-query/useServerPort';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
 import * as Panel from '../../panel-utils/PanelUtils';
+import { useSettingsDirty } from '../../useSettingsDirty';
 
 interface ServerPortForm {
   serverPort: number;
@@ -27,6 +28,7 @@ export default function ServerPortSettings() {
     mode: 'onChange',
     defaultValues: { serverPort: 4001 },
   });
+  useSettingsDirty(isDirty);
 
   useEffect(() => {
     reset({ serverPort: data.port });

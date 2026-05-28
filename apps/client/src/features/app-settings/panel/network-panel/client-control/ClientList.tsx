@@ -68,6 +68,7 @@ export default function ClientList() {
             </tr>
           </thead>
           <tbody>
+            {ontimeClients.length === 0 && <Panel.TableEmpty label='No clients connected' />}
             {ontimeClients.map(([key, client]) => {
               const { identify, name, path } = client;
               const isCurrent = id === key;
@@ -125,6 +126,7 @@ export default function ClientList() {
             </tr>
           </thead>
           <tbody>
+            {otherClients.length === 0 && <Panel.TableEmpty label='No other clients' />}
             {otherClients.map(([key, client]) => {
               const { name, type } = client;
 

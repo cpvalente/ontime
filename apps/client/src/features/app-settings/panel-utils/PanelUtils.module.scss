@@ -53,9 +53,10 @@ $inner-padding: 1rem;
 .card {
   position: relative;
   padding: 2rem;
-  background-color: $white-3;
+  background-color: $white-5;
   border: 1px solid $gray-1100;
-  border-radius: 3px;
+  border-radius: 8px;
+  box-shadow: $box-shadow-l1;
 }
 
 .highlight {

@@ -1,6 +1,7 @@
 import { ErrorBoundary } from '@sentry/react';
 
 import { useKeyDown } from '../../common/hooks/useKeyDown';
+import { AppSettingsScrollContext, useScrollContextState } from './AppSettingsScrollContext';
 import PanelContent from './panel-content/PanelContent';
 import PanelList from './panel-list/PanelList';
 import AboutPanel from './panel/about-panel/AboutPanel';
@@ -17,13 +18,15 @@ import style from './AppSettings.module.scss';
 
 export default function AppSettings() {
   const { close, panel, location, setLocation } = useAppSettingsNavigation();
+  const scrollContext = useScrollContextState(panel);
   useKeyDown(close, 'Escape');
 
   return (
     <div className={style.container}>
       <ErrorBoundary>
+        <AppSettingsScrollContext.Provider value={scrollContext}>
         <PanelList selectedPanel={panel} location={location} />
-        <PanelContent onClose={close}>
+        <PanelContent onClose={close} panel={panel} location={location}>
           {panel === 'settings' && <SettingsPanel location={location} />}
           {panel === 'project' && <ProjectPanel location={location} setLocation={setLocation} />}
           {panel === 'manage' && <ManagePanel location={location} />}
@@ -33,6 +36,7 @@ export default function AppSettings() {
           {panel === 'about' && <AboutPanel />}
           {panel === 'shutdown' && <ShutdownPanel />}
         </PanelContent>
+        </AppSettingsScrollContext.Provider>
       </ErrorBoundary>
     </div>
   );
