@@ -15,6 +15,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
 
@@ -54,6 +58,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v6
 
@@ -81,11 +89,11 @@ jobs:
           key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
           restore-keys: |
             ${{ runner.os }}-playwright-
-      - run: npx playwright install --with-deps
+      - run: pnpm playwright install --with-deps
         if: steps.playwright-cache.outputs.cache-hit != 'true'
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: pnpm playwright install --with-deps
 
       - name: Run Playwright tests
         run: pnpm e2e
