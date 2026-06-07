@@ -14,7 +14,7 @@ import {
 import EmptyPage from '../../../common/components/state/EmptyPage';
 import EmptyTableBody from '../../../common/components/state/EmptyTableBody';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
-import type { RundownSource } from '../../../common/hooks-query/useScopedRundown';
+import { useContextRundownTable } from '../../../common/hooks-query/useContextRundown';
 import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { usePersistedRundownOptions } from '../../../features/rundown/rundown.options';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
@@ -35,8 +35,6 @@ import style from './CuesheetTable.module.scss';
 type CuesheetTableBaseProps = {
   columns: ColumnDef<ExtendedEntry>[];
   cuesheetMode: AppMode;
-  source: RundownSource;
-  insertElement?: ReactNode;
 };
 
 type EditorCuesheetTableProps = CuesheetTableBaseProps & {
@@ -56,11 +54,9 @@ type CuesheetTableProps = EditorCuesheetTableProps | ViewCuesheetTableProps;
 export default function CuesheetTable({
   columns,
   cuesheetMode,
-  source,
   tableRoot,
   setCuesheetMode,
   isCurrentRundown,
-  insertElement,
 }: CuesheetTableProps) {
   const { flatRundown, status, selectedEventId } = source;
   const { updateEntry, updateTimer, addEntry } = useEntryActionsContext();
@@ -143,17 +139,17 @@ export default function CuesheetTable({
 
   // in Run mode, follow the current event
   useEffect(() => {
-    if (virtuosoRef.current === null || cuesheetMode !== AppMode.Run || !selectedEventId) {
+    if (virtuosoRef.current === null || cuesheetMode !== AppMode.Run || !loadedEventId) {
       return;
     }
 
-    const eventIndex = flatRundown.findIndex((event) => event.id === selectedEventId);
+    const eventIndex = flatRundown.findIndex((event) => event.id === loadedEventId);
     if (eventIndex === -1) {
       return;
     }
 
     virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'auto', align: 'start', offset: -50 });
-  }, [cuesheetMode, flatRundown, selectedEventId]);
+  }, [cuesheetMode, flatRundown, loadedEventId]);
 
   // Provide an imperative scroll handler for explicit jumps (finder/keyboard)
   useEffect(() => {
@@ -242,7 +238,6 @@ export default function CuesheetTable({
         handleResetResizing={resetColumnResizing}
         handleResetReordering={resetColumnOrder}
         handleClearToggles={setAllVisible}
-        insertElement={insertElement}
         modeControls={
           tableRoot === 'cuesheet'
             ? {

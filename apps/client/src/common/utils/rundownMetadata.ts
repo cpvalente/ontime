@@ -27,6 +27,7 @@ export type RundownMetadata = {
   groupColour: string | undefined;
   groupEntries: number | undefined;
   isFirstAfterGroup: boolean;
+  isParentToLoaded: boolean; // if the group contains the loaded event
 };
 
 export type ExtendedEntry<T extends OntimeEntry = OntimeEntry> = T & RundownMetadata;
@@ -94,6 +95,7 @@ export function initRundownMetadata(selectedEventId: MaybeString) {
     groupColour: undefined,
     groupEntries: undefined,
     isFirstAfterGroup: false,
+    isParentToLoaded: false,
   };
 
   function process(entry: OntimeEntry): Readonly<RundownMetadata> {
@@ -117,6 +119,7 @@ function processEntry(
   // initialise data to be overridden below
   processedData.isNextDay = false;
   processedData.isLoaded = false;
+  processedData.isParentToLoaded = false;
 
   processedData.previousEntryId = processedData.thisId; // thisId comes from the previous iteration
   processedData.thisId = entry.id; // we reassign thisId
@@ -132,6 +135,7 @@ function processEntry(
     processedData.groupId = entry.id;
     processedData.groupColour = entry.colour;
     processedData.groupEntries = entry.entries.length;
+    processedData.isParentToLoaded = selectedEventId ? entry.entries.includes(selectedEventId) : false;
   } else {
     // for delays and groups, we insert the group metadata
     if ((entry as OntimeEvent | OntimeDelay | OntimeMilestone).parent !== processedData.groupId) {

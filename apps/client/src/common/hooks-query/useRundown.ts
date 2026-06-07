@@ -1,10 +1,10 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { EntryId, OntimeEntry, Rundown } from 'ontime-types';
-import { useEffect, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { EntryId, Maybe, OntimeEntry, Rundown } from 'ontime-types';
+import { useMemo } from 'react';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
-import { CURRENT_RUNDOWN_QUERY_KEY, getRundownQueryKey } from '../api/constants';
-import { fetchCurrentRundown, fetchRundown } from '../api/rundown';
+import { getRundownQueryKey } from '../api/constants';
+import { fetchRundown } from '../api/rundown';
 import { useSelectedEventId } from '../hooks/useSocket';
 import { ExtendedEntry, getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
 import { useProjectRundowns } from './useProjectRundowns';
@@ -20,52 +20,49 @@ const cachedRundownPlaceholder: Rundown = {
 };
 
 /**
- * Normalised rundown data for the currently loaded rundown.
- *
- * Bootstraps via the `/current` alias so the first paint is a single round-trip,
- * independent of the project rundown list. Once the loaded id is known, the
- * query key swaps to the id-keyed cache that is shared with `useRundownById`.
+ * Provides access to a specific rundown by ID.
+ * When rundownId is not provided the loaded rundown is provided
  */
-export default function useRundown() {
-  const queryClient = useQueryClient();
+export function useRundown(rundownId: Maybe<string>) {
+  'use memo';
+
   const {
     data: { loaded: loadedRundownId },
   } = useProjectRundowns();
 
+  const effectiveRundownId = rundownId ? rundownId : loadedRundownId;
+  const isLoadedRundown = rundownId === loadedRundownId;
+
   const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
-    queryKey: loadedRundownId ? getRundownQueryKey(loadedRundownId) : CURRENT_RUNDOWN_QUERY_KEY,
-    queryFn: ({ signal }) => fetchCurrentRundown({ signal }),
+    queryKey: getRundownQueryKey(effectiveRundownId),
+    queryFn: ({ signal }) => fetchRundown(effectiveRundownId, { signal }),
+    placeholderData: (previousData, _previousQuery) => previousData,
     refetchInterval: queryRefetchIntervalSlow,
   });
 
-  // Seed the id-keyed cache when fetching via the bootstrap alias
-  useEffect(() => {
-    if (!data || loadedRundownId) return;
-    queryClient.setQueryData(getRundownQueryKey(data.id), data);
-  }, [data, loadedRundownId, queryClient]);
-
-  // Once we have the ID, drop the temporary current cache
-  useEffect(() => {
-    if (!loadedRundownId) return;
-    queryClient.removeQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
-  }, [loadedRundownId, queryClient]);
-
-  return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
+  return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching, isLoadedRundown };
 }
 
-export function useRundownWithMetadata() {
-  const { data, status } = useRundown();
+/**
+ * @deprecated
+ */
+export function useRundownWithMetadata(rundownId: Maybe<string>) {
+  'use memo';
+
+  const { data, status, isLoadedRundown } = useRundown(rundownId);
   const selectedEventId = useSelectedEventId();
-  const rundownMetadata = useMemo(() => getRundownMetadata(data, selectedEventId), [data, selectedEventId]);
+  const effectiveSelectedEventId = isLoadedRundown ? selectedEventId : null;
+  const rundownMetadata = getRundownMetadata(data, effectiveSelectedEventId);
   return { data, status, rundownMetadata };
 }
 
 /**
  * Provides access to a flat rundown
  * built from the order and rundown fields
+ * @deprecated
  */
-export function useFlatRundown() {
-  const { data, status } = useRundown();
+export function useFlatRundown(rundownId: Maybe<string>) {
+  const { data, status } = useRundown(rundownId);
 
   const flatRundown = useMemo(() => {
     if (data.revision === -1) {
@@ -77,11 +74,13 @@ export function useFlatRundown() {
   return { data: flatRundown, rundownId: data.id, status };
 }
 
-export function useFlatRundownWithMetadata() {
-  const { data, status } = useRundown();
-  const selectedEventId = useSelectedEventId();
+export function useFlatRundownWithMetadata(rundownId: Maybe<string>) {
+  'use memo';
 
-  const rundownWithMetadata = useMemo(() => getFlatRundownMetadata(data, selectedEventId), [data, selectedEventId]);
+  const { data, status, isLoadedRundown } = useRundown(rundownId);
+  const selectedEventId = useSelectedEventId();
+  const effectiveSelectedEventId = isLoadedRundown ? selectedEventId : null;
+  const rundownWithMetadata = getFlatRundownMetadata(data, effectiveSelectedEventId);
   return { data: rundownWithMetadata, status };
 }
 
@@ -91,9 +90,10 @@ export function useFlatRundownWithMetadata() {
  * Callers MUST memoize the callback with useCallback to prevent
  * re-filtering on every render.
  *
+ * @deprecated
  */
-export function usePartialRundown(cb: (event: ExtendedEntry<OntimeEntry>) => boolean) {
-  const { data, status } = useFlatRundownWithMetadata();
+export function usePartialRundown(rundownId: Maybe<string>, cb: (event: ExtendedEntry<OntimeEntry>) => boolean) {
+  const { data, status } = useFlatRundownWithMetadata(rundownId);
   const filteredData = useMemo(() => {
     return data.filter(cb);
   }, [data, cb]);
@@ -103,37 +103,24 @@ export function usePartialRundown(cb: (event: ExtendedEntry<OntimeEntry>) => boo
 
 /**
  * Hook to get a specific entry by ID from the rundown
+ * @deprecated
  */
-export function useEntry(entryId: EntryId | null): OntimeEntry | null {
-  const { data: rundown } = useRundown();
+export function useEntry(rundownId: Maybe<string>, entryId: EntryId | null): OntimeEntry | null {
+  const { data: rundown } = useRundown(rundownId);
 
   if (entryId === null) return null;
   return rundown.entries[entryId] ?? null;
 }
 
-export function useRundownAuxData() {
-  const { data, status } = useRundown();
+/**
+ *
+ * @deprecated
+ */
+export function useRundownAuxData(rundownId: Maybe<string>) {
+  const { data, status } = useRundown(rundownId);
   const filteredData = useMemo(() => {
     const { title, id } = data;
     return { title, id };
   }, [data]);
   return { data: filteredData, status };
-}
-
-/**
- * Provides access to a specific rundown by ID.
- * When rundownId is null/undefined the query is disabled and returns the placeholder.
- */
-export function useRundownById(rundownId: string | null | undefined) {
-  const enabled = Boolean(rundownId);
-
-  const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
-    queryKey: getRundownQueryKey(rundownId ?? ''),
-    queryFn: ({ signal }) => fetchRundown(rundownId!, { signal }),
-    enabled,
-    placeholderData: (previousData, _previousQuery) => previousData,
-    refetchInterval: queryRefetchIntervalSlow,
-  });
-
-  return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
 }

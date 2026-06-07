@@ -21,7 +21,7 @@ import Button from '../../../../../common/components/buttons/Button';
 import Info from '../../../../../common/components/info/Info';
 import ExternalLink from '../../../../../common/components/link/external-link/ExternalLink';
 import Modal from '../../../../../common/components/modal/Modal';
-import useRundown from '../../../../../common/hooks-query/useRundown';
+import { useRundown } from '../../../../../common/hooks-query/useRundown';
 import { validateExcelImport } from '../../../../../common/utils/uploadUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
 import GSheetSetup from './GSheetSetup';
@@ -54,7 +54,7 @@ export default function SourcesPanel() {
   const [hasFile, setHasFile] = useState<'none' | 'loading' | 'done'>('none');
   const [activeSource, setActiveSource] = useState<ActiveSource | null>(null);
 
-  const { data: currentRundown } = useRundown();
+  const { data: currentRundown } = useRundown(null);
   const { importRundown } = useSpreadsheetImport();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
