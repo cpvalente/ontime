@@ -14,7 +14,7 @@ export interface OperatorData {
 }
 
 export function useOperatorData(): ViewData<OperatorData> {
-  const { data: rundown, rundownMetadata, status: rundownStatus } = useRundownWithMetadata();
+  const { data: rundown, rundownMetadata, status: rundownStatus } = useRundownWithMetadata(null);
   const { data: customFields, status: customFieldStatus } = useCustomFields();
   const { data: settings, status: settingsStatus } = useSettings();
 
