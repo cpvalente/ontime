@@ -66,8 +66,10 @@ export default function CuesheetTableHeaderToolbar({
     modeControls.setCuesheetMode(newValue);
   };
 
+  const isBackground = !(modeControls?.isCurrentRundown ?? true);
+
   return (
-    <Toolbar.Root className={style.tableSettings} data-background-rundown={!modeControls?.isCurrentRundown}>
+    <Toolbar.Root className={style.tableSettings} data-background-rundown={isBackground}>
       <ViewSettings optionsStore={optionsStore} />
       <ColumnSettings
         columns={columns}
