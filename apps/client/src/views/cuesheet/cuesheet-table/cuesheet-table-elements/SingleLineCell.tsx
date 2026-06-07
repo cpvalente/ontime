@@ -8,13 +8,24 @@ interface SingleLineCellProps {
   fieldId?: string;
   fieldLabel?: string;
   allowSubmitSameValue?: boolean;
+  submitOnTab?: boolean;
   handleUpdate: (newValue: string) => void;
   handleCancelUpdate?: () => void;
+  handleTabCancel?: () => void;
 }
 
 const SingleLineCell = forwardRef(
   (
-    { initialValue, fieldId, fieldLabel, allowSubmitSameValue, handleUpdate, handleCancelUpdate }: SingleLineCellProps,
+    {
+      initialValue,
+      fieldId,
+      fieldLabel,
+      allowSubmitSameValue,
+      submitOnTab,
+      handleUpdate,
+      handleCancelUpdate,
+      handleTabCancel,
+    }: SingleLineCellProps,
     inputRef,
   ) => {
     const ref = useRef<HTMLInputElement | null>(null);
@@ -25,7 +36,9 @@ const SingleLineCell = forwardRef(
       allowKeyboardNavigation: true,
       submitOnEnter: true, // single line should submit on enter
       submitOnCtrlEnter: true,
+      submitOnTab,
       onCancelUpdate: handleCancelUpdate,
+      onTabCancel: handleTabCancel,
     });
 
     // expose a subset of the methods to the parent

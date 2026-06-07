@@ -3,8 +3,8 @@ import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo,
 
 interface UseReactiveTextInputReturn {
   value: string;
-  onChange: (event: ChangeEvent) => void;
-  onBlur: (event: ChangeEvent) => void;
+  onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onBlur: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
 }
 
@@ -15,7 +15,9 @@ export default function useReactiveTextInput(
   options?: {
     submitOnEnter?: boolean;
     submitOnCtrlEnter?: boolean;
+    submitOnTab?: boolean;
     onCancelUpdate?: () => void;
+    onTabCancel?: () => void;
     allowSubmitSameValue?: boolean;
     allowKeyboardNavigation?: boolean;
   },
@@ -23,6 +25,10 @@ export default function useReactiveTextInput(
   const [text, setText] = useState<string>(initialText);
   // track whether we are submitting via a submit key (eg enter) and avoid submitting again on blur
   const isKeyboardSubmitting = useRef(false);
+  // track escape to prevent the subsequent blur from submitting
+  const isEscaping = useRef(false);
+  // track tab-out to prevent blur from submitting (used by timer cells)
+  const isTabbing = useRef(false);
 
   useEffect(() => {
     if (typeof initialText === 'undefined') {
@@ -78,6 +84,7 @@ export default function useReactiveTextInput(
    * @param {string} valueToSubmit
    */
   const handleEscape = useCallback(() => {
+    isEscaping.current = true;
     // No need to update if it hasn't changed
     setText(initialText);
     // force the text to be the initial value
@@ -141,16 +148,30 @@ export default function useReactiveTextInput(
         event.stopPropagation();
       }
 
+      // for cells that opt out of tab-submit, track tab-out without preventing navigation
+      if (event.key === 'Tab' && options?.submitOnTab === false) {
+        isTabbing.current = true;
+      }
+
       hotKeyHandler(event);
     };
-  }, [handleEscape, handleSubmit, options?.submitOnCtrlEnter, options?.submitOnEnter, text]);
+  }, [handleEscape, handleSubmit, options?.submitOnCtrlEnter, options?.submitOnEnter, options?.submitOnTab, text]);
 
   return {
     value: text,
-    onChange: (event: ChangeEvent) => handleChange((event.target as HTMLInputElement).value),
-    onBlur: (event: ChangeEvent) => {
+    onChange: (event) => handleChange(event.target.value),
+    onBlur: (event) => {
+      if (isTabbing.current) {
+        isTabbing.current = false;
+        (options?.onTabCancel ?? options?.onCancelUpdate)?.();
+        return;
+      }
+      if (isEscaping.current) {
+        isEscaping.current = false;
+        return;
+      }
       if (!isKeyboardSubmitting.current) {
-        handleSubmit((event.target as HTMLInputElement).value);
+        handleSubmit(event.target.value);
       }
     },
     onKeyDown: keyHandler,
