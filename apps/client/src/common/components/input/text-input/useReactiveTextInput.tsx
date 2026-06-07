@@ -3,8 +3,8 @@ import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo,
 
 interface UseReactiveTextInputReturn {
   value: string;
-  onChange: (event: ChangeEvent) => void;
-  onBlur: (event: ChangeEvent) => void;
+  onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onBlur: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
 }
 
@@ -159,8 +159,8 @@ export default function useReactiveTextInput(
 
   return {
     value: text,
-    onChange: (event: ChangeEvent) => handleChange((event.target as HTMLInputElement).value),
-    onBlur: (event: ChangeEvent) => {
+    onChange: (event) => handleChange(event.target.value),
+    onBlur: (event) => {
       if (isTabbing.current) {
         isTabbing.current = false;
         (options?.onTabCancel ?? options?.onCancelUpdate)?.();
@@ -171,7 +171,7 @@ export default function useReactiveTextInput(
         return;
       }
       if (!isKeyboardSubmitting.current) {
-        handleSubmit((event.target as HTMLInputElement).value);
+        handleSubmit(event.target.value);
       }
     },
     onKeyDown: keyHandler,
