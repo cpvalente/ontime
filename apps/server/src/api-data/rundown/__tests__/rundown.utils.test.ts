@@ -2,13 +2,11 @@ import { EndAction, OntimeEvent, TimeStrategy, TimerType } from 'ontime-types';
 import { MILLIS_PER_HOUR, createEvent } from 'ontime-utils';
 import { assertType } from 'vitest';
 
-import { demoDb } from '../../../models/demoProject.js';
 import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../__mocks__/rundown.mocks.js';
 import {
   calculateDayOffset,
   deleteById,
   doesInvalidateMetadata,
-  duplicateRundown,
   getIntegerAndFraction,
   hasChanges,
   makeDeepClone,
@@ -220,25 +218,6 @@ describe('calculateDayOffset()', () => {
         { timeStart: 23 * MILLIS_PER_HOUR, duration: 6 * MILLIS_PER_HOUR }, // ends at 24:00:00
       ),
     ).toBe(1);
-  });
-});
-
-describe('duplicateRundown', () => {
-  it('duplicates a given rundown', () => {
-    const demoRundown = demoDb.rundowns['default'];
-    const title = 'Duplicated Rundown';
-    const duplicatedRundown = duplicateRundown(demoRundown, title);
-
-    expect(duplicatedRundown).toMatchObject({
-      title: title,
-      entries: expect.any(Object),
-      order: expect.any(Array),
-      flatOrder: expect.any(Array),
-    });
-    expect(demoRundown.id).not.toEqual(duplicatedRundown.id);
-    expect(duplicatedRundown.order.length).toEqual(demoRundown.order.length);
-    expect(duplicatedRundown.flatOrder.length).toEqual(demoRundown.flatOrder.length);
-    expect(Object.keys(duplicatedRundown.entries).length).toEqual(Object.keys(demoRundown.entries).length);
   });
 });
 

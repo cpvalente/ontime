@@ -16,7 +16,7 @@ import {
   isOntimeEvent,
   isOntimeGroup,
 } from 'ontime-types';
-import { customFieldLabelToKey, getInsertAfterId, resolveInsertParent } from 'ontime-utils';
+import { customFieldLabelToKey, generateId, getInsertAfterId, resolveInsertParent } from 'ontime-utils';
 
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -691,4 +691,74 @@ export async function createNewRundown(title: string) {
   });
 
   return projectRundowns;
+}
+
+/**
+ * duplicate a rundown
+ * @throws
+ */
+export async function duplicateRundown(id: string) {
+  const dataProvider = getDataProvider();
+  const rundown = dataProvider.getRundown(id);
+
+  const newRundownId = generateId();
+  const newRundown: Rundown = structuredClone(rundown);
+  newRundown.id = newRundownId;
+  newRundown.title = `Copy of ${rundown.title}`;
+  newRundown.revision = 0;
+
+  const newProjectRundowns = await dataProvider.setRundown(newRundownId, newRundown);
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectRundowns);
+  });
+
+  return newProjectRundowns;
+}
+
+/**
+ * rename a rundown
+ * @throws
+ */
+export async function renameRundown(id: string, title: string) {
+  const dataProvider = getDataProvider();
+  const rundown = dataProvider.getRundown(id);
+  const newProjectRundowns = await dataProvider.setRundown(rundown.id, { ...rundown, title });
+
+  /**
+   * If we are modifying the loaded rundown we re-init it
+   * This is likely over-kill but the simplest way to ensure state consistency
+   */
+  if (isCurrentRundown(id)) {
+    const rundown = dataProvider.getRundown(id);
+    const customField = dataProvider.getCustomFields();
+    await initRundown(rundown, customField);
+  }
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectRundowns);
+  });
+
+  return newProjectRundowns;
+}
+
+/**
+ * delete a rundown
+ * @throws
+ */
+export async function deleteRundown(id: string) {
+  if (isCurrentRundown(id)) throw new Error('Cannot delete loaded rundown');
+
+  const dataProvider = getDataProvider();
+  const projectRundowns = dataProvider.getProjectRundowns();
+
+  // might never hit this as it is likely covered by the case of trying to delete the loaded rundown
+  if (Object.keys(projectRundowns).length <= 1) throw new Error('Cannot delete the last rundown');
+  const newProjectRundowns = await dataProvider.deleteRundown(id);
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectRundowns);
+  });
+
+  return newProjectRundowns;
 }
