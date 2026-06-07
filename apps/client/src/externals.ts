@@ -27,7 +27,6 @@ export const isLocalhost = currentHostName === 'localhost' || currentHostName ==
 export const isOntimeCloud = document.querySelector('base')?.hasAttribute('data-is-cloud');
 
 export const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-export const supportsFullscreen = document.fullscreenEnabled;
 
 // resolve entrypoint URLs
 
