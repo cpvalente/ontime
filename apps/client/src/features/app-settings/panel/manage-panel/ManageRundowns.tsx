@@ -99,7 +99,7 @@ export default function ManageRundowns() {
     await downloadAsExcel(rundownId, title);
   };
 
-  const navigateToBackgroundEdit = useDirectLinkToBackgroundEdit();
+  const navigateToCuesheet = useDirectLinkToBackgroundEdit();
 
   return (
     <>
@@ -187,8 +187,8 @@ export default function ManageRundowns() {
                             {
                               type: 'item',
                               icon: TbGhost3,
-                              label: 'Edit in background',
-                              onClick: () => navigateToBackgroundEdit(id),
+                              label: 'Edit in cuesheet',
+                              onClick: () => navigateToCuesheet(id),
                             },
                             { type: 'divider' },
                             {
