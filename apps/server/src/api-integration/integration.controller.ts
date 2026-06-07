@@ -12,7 +12,7 @@ import { DeepPartial } from 'ts-essentials';
 
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
-import { editEntry } from '../api-data/rundown/rundown.service.js';
+import { editEntry, loadRundown } from '../api-data/rundown/rundown.service.js';
 import { willCauseRegeneration } from '../api-data/rundown/rundown.utils.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.js';
@@ -306,6 +306,15 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
     const mode = coerceEnum<OffsetMode>(payload, OffsetMode);
     runtimeService.setOffsetMode(mode);
     return { payload: 'success' };
+  },
+  rundown: async (payload) => {
+    assert.isObject(payload);
+    if ('load' in payload) {
+      assert.isString(payload.load);
+      await loadRundown(payload.load);
+      return { payload: 'success' };
+    }
+    throw new Error('No matching method provided');
   },
 };
 
