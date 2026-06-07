@@ -30,15 +30,16 @@ function EditableImage({ initialValue, readOnly, updateValue }: EditableImagePro
     }
   };
 
+  if (!initialValue && readOnly) {
+    return null;
+  }
+
   if (!initialValue) {
     return (
       <Input
         variant='ghosted'
         className={style.imageInput}
         fluid
-        readOnly={readOnly}
-        // we disable the field to prevent receiving focus
-        disabled={readOnly}
         placeholder='Paste image URL'
         onBlur={(event) => handleUpdate(event.currentTarget.value)}
         onKeyDown={(event) => {

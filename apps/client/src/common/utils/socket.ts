@@ -14,8 +14,8 @@ import {
   APP_SETTINGS,
   CLIENT_LIST,
   CSS_OVERRIDE,
-  CUSTOM_FIELDS,
   CURRENT_RUNDOWN_QUERY_KEY,
+  CUSTOM_FIELDS,
   PROJECT_DATA,
   REPORT,
   RUNDOWN,
@@ -213,6 +213,9 @@ export const connectSocket = () => {
             case RefetchKey.Settings:
               ontimeQueryClient.invalidateQueries({ queryKey: APP_SETTINGS });
               break;
+            case RefetchKey.ProjectRundowns:
+              ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_RUNDOWNS });
+              break;
             default: {
               target satisfies never;
               break;
@@ -242,7 +245,9 @@ export function maybeInvalidateRundownCache(revision: MaybeNumber, rundownId?: s
   // skip if we dont recognise the ID the revision is lower
   const queryKey = getRundownQueryKey(rundownId);
   const cachedRundown = ontimeQueryClient.getQueryData<{ revision: number }>(queryKey);
-  if (revision !== null && revision === cachedRundown?.revision) {
+
+  if (revision === cachedRundown?.revision) {
+    // we already have the latest change
     return;
   }
 

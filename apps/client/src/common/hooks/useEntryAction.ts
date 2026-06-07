@@ -63,9 +63,16 @@ export type EventOptions = Partial<{
 }>;
 
 /**
- * Gather utilities for actions on entries
+ * Gather utilities for actions on entries in the loaded rundown.
  */
-export const useEntryActions = () => {
+export const useEntryActions = () => useEntryActionsForRundown(undefined);
+
+/**
+ * Gather utilities for actions on entries in an explicitly selected rundown.
+ */
+export const useScopedEntryActions = (rundownId: string | null) => useEntryActionsForRundown(rundownId ?? '');
+
+function useEntryActionsForRundown(scopedRundownId: string | undefined) {
   const queryClient = useQueryClient();
   const {
     linkPrevious,
@@ -78,12 +85,12 @@ export const useEntryActions = () => {
   } = useEditorSettings();
 
   const resolveCurrentRundownQueryKey = useCallback(() => {
-    const loadedRundownId = queryClient.getQueryData<ProjectRundownsList>(PROJECT_RUNDOWNS)?.loaded;
-    if (loadedRundownId) {
-      return getRundownQueryKey(loadedRundownId);
+    if (scopedRundownId !== undefined) {
+      return getRundownQueryKey(scopedRundownId);
     }
-    return CURRENT_RUNDOWN_QUERY_KEY;
-  }, [queryClient]);
+    const loadedRundownId = queryClient.getQueryData<ProjectRundownsList>(PROJECT_RUNDOWNS)?.loaded;
+    return loadedRundownId ? getRundownQueryKey(loadedRundownId) : CURRENT_RUNDOWN_QUERY_KEY;
+  }, [queryClient, scopedRundownId]);
 
   /**
    * Returns the currently loaded rundown
@@ -1004,7 +1011,7 @@ export const useEntryActions = () => {
       updateTimer,
     ],
   );
-};
+}
 
 /**
  * Utility to optimistically delete entries from client cache
