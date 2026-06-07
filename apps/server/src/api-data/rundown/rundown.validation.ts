@@ -5,6 +5,11 @@ import { requestValidationFunction } from '../validation-utils/validationFunctio
 // #region operations on project rundowns =========================
 
 export const rundownPostValidator = [body('title').isString().trim().notEmpty(), requestValidationFunction];
+export const rundownPatchValidator = [
+  param('id').isString().trim().notEmpty(),
+  body('title').isString().trim().notEmpty().withMessage('No title provided'),
+  requestValidationFunction,
+];
 
 // #endregion operations on project rundowns ======================
 // #region operations on rundown entries ==========================

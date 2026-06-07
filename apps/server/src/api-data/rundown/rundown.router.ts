@@ -15,16 +15,18 @@ import {
   createNewRundown,
   deleteAllEntries,
   deleteEntries,
+  deleteRundown,
+  duplicateRundown,
   editEntry,
   groupEntries,
-  initRundown,
   loadRundown,
+  renameRundown,
   renumberEntries,
   reorderEntry,
   swapEvents,
   ungroupEntries,
 } from './rundown.service.js';
-import { duplicateRundown, normalisedToRundownArray } from './rundown.utils.js';
+import { normalisedToRundownArray } from './rundown.utils.js';
 import {
   clonePostValidator,
   entryBatchPutValidator,
@@ -34,6 +36,7 @@ import {
   entryReorderValidator,
   entrySwapValidator,
   rundownArrayOfIds,
+  rundownPatchValidator,
   rundownPostValidator,
 } from './rundown.validation.js';
 
@@ -104,12 +107,7 @@ router.post(
   paramsWithId,
   async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
     try {
-      const dataProvider = getDataProvider();
-      const rundown = dataProvider.getRundown(req.params.id);
-
-      const duplicatedRundown: Rundown = duplicateRundown(rundown, `Copy of ${rundown.title}`);
-      await dataProvider.setRundown(duplicatedRundown.id, duplicatedRundown);
-
+      await duplicateRundown(req.params.id)
       const projectRundowns = getDataProvider().getProjectRundowns();
       res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
     } catch (error) {
@@ -123,53 +121,27 @@ router.post(
  * Patches the data of an existing rundown
  * Currently only the title can be changed
  */
-router.patch('/:id', paramsWithId, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
-  try {
-    const dataProvider = getDataProvider();
-    const rundown = dataProvider.getRundown(req.params.id);
-    if (!rundown) throw new Error(`Rundown with ID ${req.params.id} not found`);
-    if (!req.body.title) throw new Error('No title provided');
-
-    await dataProvider.setRundown(rundown.id, { ...rundown, title: req.body.title });
-
-    /**
-     * If loaded we re-init the rundown
-     * This is likely over-kill but the simplest way to ensure state consistency
-     */
-    if (req.params.id === getCurrentRundown().id) {
-      const rundown = dataProvider.getRundown(req.params.id);
-      const customField = dataProvider.getCustomFields();
-      await initRundown(rundown, customField);
+router.patch(
+  '/:id',
+  rundownPatchValidator,
+  async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
+    try {
+      await renameRundown(req.params.id, req.body.title);
+      const projectRundowns = getDataProvider().getProjectRundowns();
+      res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
     }
-
-    const projectRundowns = getDataProvider().getProjectRundowns();
-    res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
+  },
+);
 
 /**
  * Deletes a rundown if not loaded
  */
 router.delete('/:id', paramsWithId, async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
   try {
-    if (req.params.id === getCurrentRundown().id) {
-      res.status(400).send({ message: 'Cannot delete loaded rundown' });
-      return;
-    }
-
-    const dataProvider = getDataProvider();
-    const projectRundowns = dataProvider.getProjectRundowns();
-
-    if (Object.keys(projectRundowns).length <= 1) {
-      // might never hit this as it is likely covered by the case of trying to delete the loaded rundown
-      res.status(400).send({ message: 'Cannot delete the last rundown' });
-      return;
-    }
-
-    await dataProvider.deleteRundown(req.params.id);
+    await deleteRundown(req.params.id);
     const newProjectRundowns = getDataProvider().getProjectRundowns();
     res.status(200).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(newProjectRundowns) });
   } catch (error) {
