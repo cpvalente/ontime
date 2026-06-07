@@ -14,6 +14,7 @@ import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetPermissions } from '../../useTablePermissions';
 import CuesheetShareModal from './CuesheetShareModal';
+import { RundownSelect } from './RundownSelect';
 
 import style from './CuesheetTableSettings.module.scss';
 
@@ -42,7 +43,6 @@ interface CuesheetTableHeaderToolbarProps {
   handleResetResizing: () => void;
   handleResetReordering: () => void;
   handleClearToggles: () => void;
-  insertElement?: ReactNode;
   modeControls?: TableModeControls;
   showShare?: boolean;
 }
@@ -53,7 +53,6 @@ export default function CuesheetTableHeaderToolbar({
   handleResetResizing,
   handleResetReordering,
   handleClearToggles,
-  insertElement,
   modeControls,
   showShare = false,
 }: CuesheetTableHeaderToolbarProps) {
@@ -79,7 +78,8 @@ export default function CuesheetTableHeaderToolbar({
       />
       {modeControls && canChangeMode && (
         <div className={style.apart}>
-          {insertElement}
+          {/* {insertElement} */}
+          <RundownSelect cuesheetMode={modeControls.cuesheetMode} />
           <ToggleGroup
             value={[modeControls.cuesheetMode]}
             onValueChange={toggleCuesheetMode}

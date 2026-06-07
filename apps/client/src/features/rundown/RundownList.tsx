@@ -1,16 +1,23 @@
+import { Playback } from 'ontime-types';
 import { memo } from 'react';
 
 import Empty from '../../common/components/state/Empty';
-import { useRundownWithMetadata } from '../../common/hooks-query/useRundown';
+import { useContextRundownList } from '../../common/hooks-query/useContextRundown';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import Rundown from './Rundown';
 
+const backgroundFeatureData = {
+  playback: Playback.Stop,
+  selectedEventId: null,
+  nextEventId: null,
+};
+
 export default memo(RundownList);
 function RundownList() {
-  const { data, status, rundownMetadata } = useRundownWithMetadata();
+  const { rundown, status, rundownMetadata, isLoadedRundown } = useContextRundownList();
   const featureData = useRundownEditor();
 
-  const isLoading = status !== 'success' || !data || !rundownMetadata;
+  const isLoading = status !== 'success' || !rundown || !rundownMetadata;
 
   if (isLoading) {
     return <Empty text='Connecting to server' />;
@@ -18,12 +25,12 @@ function RundownList() {
 
   return (
     <Rundown
-      order={data.order}
-      flatOrder={data.flatOrder}
-      entries={data.entries}
-      id={data.id}
+      order={rundown.order}
+      flatOrder={rundown.flatOrder}
+      entries={rundown.entries}
+      id={rundown.id}
       rundownMetadata={rundownMetadata}
-      featureData={featureData}
+      featureData={isLoadedRundown ? featureData : backgroundFeatureData}
     />
   );
 }

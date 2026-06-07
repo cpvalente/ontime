@@ -7,7 +7,7 @@ import Button from '../../../common/components/buttons/Button';
 import Dialog from '../../../common/components/dialog/Dialog';
 import Input from '../../../common/components/input/input/Input';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
-import useRundown from '../../../common/hooks-query/useRundown';
+import { useContextRundownCueRenumberModal } from '../../../common/hooks-query/useContextRundown';
 import { orderEntries } from '../rundown.utils';
 import { useEventSelection } from '../useEventSelection';
 
@@ -17,8 +17,7 @@ type RenumberCueData = Pick<RenumberCues, 'increment' | 'prefix' | 'start'>;
 
 export default function RenumberCuesDialog() {
   'use memo';
-  const { data } = useRundown();
-  const { flatOrder } = data;
+  const { flatOrder } = useContextRundownCueRenumberModal();
   const { onClose, isOpen } = useRenumberCuesDialogStore();
   const { renumberCues } = useEntryActionsContext();
   const selectedEvents = useEventSelection((state) => state.selectedEvents);

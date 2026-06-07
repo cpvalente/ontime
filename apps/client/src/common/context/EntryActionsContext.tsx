@@ -1,15 +1,15 @@
 import { PropsWithChildren, createContext, useContext } from 'react';
 
-import { useEntryActions } from '../hooks/useEntryAction';
+import { useEntryActions, useScopedEntryActions } from '../hooks/useEntryAction';
+import { useRundownSelectionContext } from './RundownSelectionContext';
 
 type EntryActionsContextValue = ReturnType<typeof useEntryActions>;
 const EntryActionsContext = createContext<EntryActionsContextValue | null>(null);
 
-interface EntryActionsProviderProps extends PropsWithChildren {
-  actions: EntryActionsContextValue;
-}
+export function EntryActionsProvider({ children }: PropsWithChildren) {
+  const { effectiveRundownId } = useRundownSelectionContext();
+  const actions = useScopedEntryActions(effectiveRundownId);
 
-export function EntryActionsProvider({ children, actions }: EntryActionsProviderProps) {
   return <EntryActionsContext.Provider value={actions}>{children}</EntryActionsContext.Provider>;
 }
 
