@@ -460,20 +460,6 @@ export function normalisedToRundownArray(rundowns: ProjectRundowns): ProjectRund
   });
 }
 
-/**
- * Duplicates an existing rundown ensuring all IDs are unique
- */
-export function duplicateRundown(rundown: Rundown, newTitle: string): Rundown {
-  const newRundownId = generateId();
-
-  const newRundown = structuredClone(rundown);
-  newRundown.id = newRundownId;
-  newRundown.title = newTitle;
-  newRundown.revision = 0;
-
-  return newRundown;
-}
-
 export type IncrementNumber = {
   integer: number;
   faction: number;
