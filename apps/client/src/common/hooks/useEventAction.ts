@@ -11,7 +11,7 @@ import {
   TimeStrategy,
   TransientEventPayload,
 } from 'ontime-types';
-import { dayInMs, MILLIS_PER_SECOND, parseUserTime, reorderArray, swapEventData } from 'ontime-utils';
+import { calculateDuration, dayInMs, MILLIS_PER_SECOND, parseUserTime, reorderArray, swapEventData } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/constants';
 import {
@@ -241,6 +241,36 @@ export const useEventAction = () => {
         return;
       }
 
+      // Inverted linked-start model: editing a LINKED event's start stretches the previous
+      // event — its end moves to the new start and its duration absorbs the change. The
+      // forward-cascade engine then re-derives this event's start from the previous end.
+      // Unlinked events and the first event in the chain edit their own start (fall through).
+      if (!lockOnUpdate && field === 'timeStart') {
+        const cachedRundown = queryClient.getQueryData<RundownCached>(RUNDOWN);
+        const targetEvent = cachedRundown?.rundown[eventId];
+        if (isOntimeEvent(targetEvent) && targetEvent.linkStart) {
+          const previous = getPrevious();
+          if (previous) {
+            const newStart = calculateNewValue();
+            // can't move the previous event's end before its own start
+            if (newStart <= previous.timeStart) {
+              return;
+            }
+            try {
+              await _updateEventMutation.mutateAsync({
+                id: previous.id,
+                timeStrategy: TimeStrategy.LockDuration,
+                duration: calculateDuration(previous.timeStart, newStart),
+              });
+            } catch (error) {
+              logAxiosError('Error updating event', error);
+            }
+            return;
+          }
+          // first event in the chain (no previous): fall through to self-edit below
+        }
+      }
+
       const newEvent: Partial<OntimeEvent> = {
         id: eventId,
       };
@@ -293,28 +323,34 @@ export const useEventAction = () => {
       }
 
       /**
-       * Utility function to get the previous event end time
+       * Utility function to get the previous playable (non-skipped) event.
+       * Matches the server's getLink so the client stretches the same event the server links to.
        */
-      function getPreviousEnd(): number {
+      function getPrevious(): OntimeEvent | null {
         const cachedRundown = queryClient.getQueryData<RundownCached>(RUNDOWN);
 
         if (!cachedRundown?.order || !cachedRundown?.rundown) {
-          return 0;
+          return null;
         }
 
         const index = cachedRundown.order.indexOf(eventId);
-        if (index === 0) {
-          return 0;
+        if (index <= 0) {
+          return null;
         }
-        let previousEnd = 0;
         for (let i = index - 1; i >= 0; i--) {
           const event = cachedRundown.rundown[cachedRundown.order[i]];
-          if (isOntimeEvent(event)) {
-            previousEnd = event.timeEnd;
-            break;
+          if (isOntimeEvent(event) && !event.skip) {
+            return event;
           }
         }
-        return previousEnd;
+        return null;
+      }
+
+      /**
+       * Utility function to get the previous event end time
+       */
+      function getPreviousEnd(): number {
+        return getPrevious()?.timeEnd ?? 0;
       }
     },
     [_updateEventMutation, queryClient],
