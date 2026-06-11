@@ -23,14 +23,26 @@ const {
  * @param {function} redirectWindow - function to redirect main window content
  * @param {function} showDialog - asks the react app to show a user dialog
  * @param {function} download - function to download a resource from url
+ * @param {import('../ndi/NdiOutputManager.js').NdiOutputManager} ndiOutputManager - NDI output manager
+ * @param {function} refreshMenu - rebuilds the application menu
  * @returns {Menu} - application menu
  */
-function getApplicationMenu(askToQuit, clientUrl, serverUrl, redirectWindow, showDialog, download) {
+function getApplicationMenu(
+  askToQuit,
+  clientUrl,
+  serverUrl,
+  redirectWindow,
+  showDialog,
+  download,
+  ndiOutputManager,
+  refreshMenu,
+) {
   const template = [
     ...(isMac ? [makeMacMenu(askToQuit)] : []),
     makeFileMenu(askToQuit, serverUrl, redirectWindow, showDialog, download),
     makeEditMenu(),
     makeViewMenu(clientUrl),
+    makeNdiMenu(clientUrl, ndiOutputManager, refreshMenu),
     makeSettingsMenu(redirectWindow),
     makeHelpMenu(redirectWindow),
     ...(isProduction ? [] : [{ label: 'Dev', submenu: [{ role: 'toggleDevTools' }] }]),
@@ -169,6 +181,91 @@ function makeViewMenu(clientUrl) {
       { role: 'zoomOut' },
       { type: 'separator' },
       { role: 'togglefullscreen' },
+    ],
+  };
+}
+
+const ndiViews = [
+  { id: 'timer', label: 'Timer', path: '/timer' },
+  { id: 'backstage', label: 'Backstage', path: '/backstage' },
+  { id: 'studio', label: 'Studio Clock', path: '/studio' },
+  { id: 'countdown', label: 'Countdown', path: '/countdown' },
+  { id: 'info', label: 'Project info', path: '/info' },
+];
+
+const ndiResolutions = [
+  { label: '720p', width: 1280, height: 720 },
+  { label: '1080p', width: 1920, height: 1080 },
+  { label: '1440p', width: 2560, height: 1440 },
+  { label: '2160p', width: 3840, height: 2160 },
+];
+
+const ndiFrameRates = [25, 30, 50, 60];
+
+/**
+ * Utility function generates the NDI menu
+ * @param {string} clientUrl - base url for the application
+ * @param {import('../ndi/NdiOutputManager.js').NdiOutputManager} ndiOutputManager - NDI output manager
+ * @param {function} refreshMenu - rebuilds the application menu
+ * @returns {Object}
+ */
+function makeNdiMenu(clientUrl, ndiOutputManager, refreshMenu) {
+  const format = ndiOutputManager.getFormat();
+  const hasActiveOutputs = ndiViews.some((view) => ndiOutputManager.isActive(view.id));
+
+  return {
+    label: 'NDI',
+    submenu: [
+      {
+        label: `Resolution: ${format.width}x${format.height}`,
+        submenu: ndiResolutions.map((resolution) => ({
+          label: `${resolution.label} (${resolution.width}x${resolution.height})`,
+          type: 'radio',
+          checked: format.width === resolution.width && format.height === resolution.height,
+          click: async () => {
+            await ndiOutputManager.setFormat(resolution);
+            refreshMenu();
+          },
+        })),
+      },
+      {
+        label: `Frame rate: ${format.fps}fps`,
+        submenu: ndiFrameRates.map((fps) => ({
+          label: `${fps}fps`,
+          type: 'radio',
+          checked: format.fps === fps,
+          click: async () => {
+            await ndiOutputManager.setFormat({ fps });
+            refreshMenu();
+          },
+        })),
+      },
+      { type: 'separator' },
+      ...ndiViews.map((view) => ({
+        label: `Output ${view.label}`,
+        type: 'checkbox',
+        checked: ndiOutputManager.isActive(view.id),
+        click: async () => {
+          if (ndiOutputManager.isActive(view.id)) {
+            ndiOutputManager.stopOutput(view.id);
+          } else {
+            await ndiOutputManager.startOutput(view.id, {
+              name: `Ontime ${view.label}`,
+              url: `${clientUrl}${view.path}?n=1`,
+            });
+          }
+          refreshMenu();
+        },
+      })),
+      { type: 'separator' },
+      {
+        label: 'Stop all NDI outputs',
+        enabled: hasActiveOutputs,
+        click: () => {
+          ndiOutputManager.stopAll();
+          refreshMenu();
+        },
+      },
     ],
   };
 }
