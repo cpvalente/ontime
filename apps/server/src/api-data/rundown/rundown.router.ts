@@ -16,7 +16,7 @@ import {
   deleteAllEntries,
   deleteEntries,
   deleteRundown,
-  duplicateRundown,
+  duplicateExistingRundown,
   editEntry,
   groupEntries,
   loadRundown,
@@ -107,7 +107,7 @@ router.post(
   paramsWithId,
   async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
     try {
-      const projectRundowns = await duplicateRundown(req.params.id);
+      const projectRundowns = await duplicateExistingRundown(req.params.id);
       res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
     } catch (error) {
       const message = getErrorMessage(error);

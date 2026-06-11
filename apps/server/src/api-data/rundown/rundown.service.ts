@@ -16,7 +16,7 @@ import {
   isOntimeEvent,
   isOntimeGroup,
 } from 'ontime-types';
-import { customFieldLabelToKey, generateId, getInsertAfterId, resolveInsertParent } from 'ontime-utils';
+import { customFieldLabelToKey, getInsertAfterId, resolveInsertParent } from 'ontime-utils';
 
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -34,7 +34,7 @@ import {
   updateBackgroundRundown,
 } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
-import { generateEvent, getIntegerAndFraction, hasChanges } from './rundown.utils.js';
+import { duplicateRundown, generateEvent, getIntegerAndFraction, hasChanges } from './rundown.utils.js';
 
 /**
  * creates a new entry with given data
@@ -643,7 +643,7 @@ export function isCurrentRundown(id: string) {
 /**
  * @throws if the provided id does not exist
  */
-export function loadRundown(id: string) {
+export async function loadRundown(id: string) {
   const dataProvider = getDataProvider();
   if (isCurrentRundown(id)) {
     return dataProvider.getProjectRundowns();
@@ -651,7 +651,7 @@ export function loadRundown(id: string) {
 
   const rundown = dataProvider.getRundown(id);
   const customField = dataProvider.getCustomFields();
-  initRundown(rundown, customField);
+  await initRundown(rundown, customField);
   return dataProvider.getProjectRundowns();
 }
 
@@ -659,7 +659,11 @@ export function loadRundown(id: string) {
  * Sets a new rundown in the cache
  * and marks it as the currently loaded one
  */
-export function initRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>, reload: boolean = false) {
+export async function initRundown(
+  rundown: Readonly<Rundown>,
+  customFields: Readonly<CustomFields>,
+  reload: boolean = false,
+) {
   runtimeService.stop();
   const { rundownMetadata, revision } = rundownCache.init(rundown, customFields);
   logger.info(LogOrigin.Server, `Switch to rundown: ${rundown.id}`);
@@ -690,71 +694,67 @@ export async function createNewRundown(title: string) {
 }
 
 /**
- * duplicate a rundown
- * @throws
- */
-export async function duplicateRundown(id: string) {
-  const dataProvider = getDataProvider();
-  const rundown = dataProvider.getRundown(id);
-
-  const newRundownId = generateId();
-  const newRundown: Rundown = structuredClone(rundown);
-  newRundown.id = newRundownId;
-  newRundown.title = `Copy of ${rundown.title}`;
-  newRundown.revision = 0;
-
-  const newProjectRundowns = await dataProvider.setRundown(newRundownId, newRundown);
-
-  setImmediate(() => {
-    sendRefetch(RefetchKey.ProjectRundowns);
-  });
-
-  return newProjectRundowns;
-}
-
-/**
- * rename a rundown
- * @throws
+ * Renames an existing rundown
+ * @throws if the provided id does not exist
  */
 export async function renameRundown(id: string, title: string) {
   const dataProvider = getDataProvider();
   const rundown = dataProvider.getRundown(id);
-  const newProjectRundowns = await dataProvider.setRundown(rundown.id, { ...rundown, title });
+
+  await dataProvider.setRundown(id, { ...rundown, title });
 
   /**
-   * If we are modifying the loaded rundown we re-init it
+   * If loaded we re-init the rundown
    * This is likely over-kill but the simplest way to ensure state consistency
    */
   if (isCurrentRundown(id)) {
-    const rundown = dataProvider.getRundown(id);
-    const customField = dataProvider.getCustomFields();
-    initRundown(rundown, customField);
+    await initRundown(dataProvider.getRundown(id), dataProvider.getCustomFields());
   } else {
     setImmediate(() => {
       sendRefetch(RefetchKey.ProjectRundowns);
     });
   }
 
-  return newProjectRundowns;
+  return dataProvider.getProjectRundowns();
 }
 
 /**
- * delete a rundown
- * @throws
+ * Duplicates an existing rundown without making it the loaded one
+ * @throws if the provided id does not exist
  */
-export async function deleteRundown(id: string) {
-  if (isCurrentRundown(id)) throw new Error('Cannot delete loaded rundown');
-
+export async function duplicateExistingRundown(id: string) {
   const dataProvider = getDataProvider();
-  const projectRundowns = dataProvider.getProjectRundowns();
+  const rundown = dataProvider.getRundown(id);
 
-  // might never hit this as it is likely covered by the case of trying to delete the loaded rundown
-  if (Object.keys(projectRundowns).length <= 1) throw new Error('Cannot delete the last rundown');
-  const newProjectRundowns = await dataProvider.deleteRundown(id);
+  const duplicatedRundown = duplicateRundown(rundown, `Copy of ${rundown.title}`);
+  await dataProvider.setRundown(duplicatedRundown.id, duplicatedRundown);
 
   setImmediate(() => {
     sendRefetch(RefetchKey.ProjectRundowns);
   });
 
-  return newProjectRundowns;
+  return dataProvider.getProjectRundowns();
+}
+
+/**
+ * Deletes a rundown
+ * @throws if attempting to delete the loaded rundown or the last rundown in the project
+ */
+export async function deleteRundown(id: string) {
+  if (isCurrentRundown(id)) {
+    throw new Error('Cannot delete loaded rundown');
+  }
+
+  const dataProvider = getDataProvider();
+  if (Object.keys(dataProvider.getProjectRundowns()).length <= 1) {
+    throw new Error('Cannot delete the last rundown');
+  }
+
+  const projectRundowns = await dataProvider.deleteRundown(id);
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectRundowns);
+  });
+
+  return projectRundowns;
 }
