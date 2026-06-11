@@ -3,7 +3,7 @@ import type { GetPromptResult, ListPromptsResult } from '@modelcontextprotocol/s
 export const PROMPT_DEFINITIONS: ListPromptsResult['prompts'] = [
   {
     name: 'create_rundown_from_agenda',
-    description: 'Convert a plain-text agenda into an Ontime rundown using ontime_create_events_batch',
+    description: 'Convert a plain-text agenda into an Ontime rundown using ontime_batch_create_entries',
     arguments: [{ name: 'agenda', description: 'Plain-text agenda to convert', required: true }],
   },
   {
@@ -48,14 +48,14 @@ Read the ontime://schema resource if you need a data model reference.
 
 Steps:
 1. Call ontime_get_rundown to see current state and identify an \`after\` anchor if appending.
-2. Build an array of events in order and call ontime_create_events_batch ONCE with all of them. This is much faster than calling ontime_create_event per item.
+2. Build an array of events in order and call ontime_batch_create_entries ONCE with all of them. This is much faster than calling ontime_create_entry per item.
 3. If the rundown already has events, pass \`after: <last event id>\` on the batch call so new events chain from the end.
 
 Entry type guidance:
 - Use \`event\` for anything with a scheduled time and duration (talks, panels, breaks, meals).
 - Use \`milestone\` for non-timed markers that don't advance playback (e.g. "Doors open", "Broadcast start").
 - Use \`delay\` only when the user explicitly wants to model schedule drift that shifts all following events.
-- Use \`group\` to collect related events into a named block — set \`targetDuration\` to the block's planned length.
+- Use \`group\` to collect related events into a named block. Groups are created with a title only — use ontime_update_entry afterwards to set \`targetDuration\` to the block's planned length.
 
 Timer type (timerType):
 - \`count-down\` (default): counts down from duration. Use for most timed sessions.
@@ -82,6 +82,10 @@ Colours:
 - Common pattern: one colour per event type (keynotes, panels, breaks, meals).
 - Colours are hex strings: \`#RRGGBB\`.
 
+Custom fields (custom):
+- Call ontime_get_custom_fields for the project's field keys (cuesheet-style columns such as camera, graphics, speaker).
+- Store values per entry at \`custom: { <fieldKey>: <value> }\` — only use keys that exist in the project.
+
 Agenda:
 ${args.agenda}`,
     );
@@ -95,8 +99,8 @@ ${args.agenda}`,
 Strategy:
 1. Call ontime_get_rundown to see the current events, their IDs, and field values.
 2. Determine which event IDs are affected by the instruction.
-3. If every affected event receives the SAME field changes (e.g. "colour all keynotes purple", "skip all breaks"): call ontime_batch_update_events once with { ids, data }.
-4. If each event needs DIFFERENT values (e.g. "shift everything 30 minutes"): check first if events use linkStart. If they do, changing the first linked event's timeStart cascades to all linked followers — you may only need to update one event. Otherwise, compute the new values per event and call ontime_update_event for each.
+3. If every affected event receives the SAME field changes (e.g. "colour all keynotes purple", "skip all breaks"): call ontime_batch_update_entries once with { ids, data }.
+4. If each event needs DIFFERENT values (e.g. "shift everything 30 minutes"): check first if events use linkStart. If they do, changing the first linked event's timeStart cascades to all linked followers — you may only need to update one event. Otherwise, compute the new values per event and call ontime_update_entry for each.
 
 Time shift mechanics:
 - All time fields are milliseconds from midnight; compute arithmetic before calling the tools.
@@ -156,7 +160,7 @@ Steps:
 1. Call ontime_get_rundown to see the current order, groups, and event fields.
 2. Note which events are inside groups (check each group's \`entries\` array vs the top-level \`order\` array).
 3. Compute the target arrangement as a sequence of moves.
-4. For each event that needs to move, call ontime_reorder_event:
+4. For each event that needs to move, call ontime_reorder_entry:
    - \`order: 'before'\` or \`'after'\` — places the event as a sibling next to destinationId
    - \`order: 'insert'\` — places the event inside a group (destinationId must be the group's ID)
 5. Call ontime_get_rundown again to confirm the new order.

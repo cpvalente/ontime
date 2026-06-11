@@ -42,6 +42,16 @@ export const EVENT_WRITABLE_FIELDS = {
     description: 'Hex colour (#RRGGBB) for visual grouping — ask the user what colour convention they use',
   },
   skip: { type: 'boolean', description: 'If true, event is skipped during playback' },
+  flag: {
+    type: 'boolean',
+    description: 'Mark the event as a critical operational marker — use sparingly for maximum impact',
+  },
+  custom: {
+    type: 'object',
+    additionalProperties: { type: 'string' },
+    description:
+      'Custom field values keyed by field key, e.g. { "camera": "CAM 2" }. Get available keys with ontime_get_custom_fields',
+  },
   ...EVENT_TIMER_FIELDS,
 } as const;
 
@@ -90,6 +100,7 @@ There are four entry types discriminated by \`type\`:
   linkStart: boolean         // chain start to previous event's end
   countToEnd: boolean        // timer counts to planned end time
   skip: boolean              // event is skipped during playback
+  flag: boolean              // critical operational marker, highlighted to operators
   timeWarning: number        // ms before end to trigger 'warning' state
   timeDanger: number         // ms before end to trigger 'danger' state
   custom: { [key: string]: string }   // custom field values
@@ -105,10 +116,11 @@ There are four entry types discriminated by \`type\`:
 \`\`\`
 { type: 'group', id, title, colour, note, entries: EntryId[], targetDuration?: number }
 \`\`\`
+Groups are created with a title only — set colour, note and targetDuration with an update after creation.
 
 ### \`milestone\` — OntimeMilestone (marker with no timer)
 \`\`\`
-{ type: 'milestone', id, cue, title, note, colour }
+{ type: 'milestone', id, cue, title, note, colour, custom }
 \`\`\`
 
 ## Time format
@@ -120,7 +132,7 @@ All time fields are **milliseconds from midnight (local)**. Examples:
 
 ## Custom fields
 Custom fields are project-scoped definitions. Get definitions at \`ontime://project/custom-fields\`.
-Each event stores values at \`event.custom[fieldKey]\`.
+Events, milestones and groups store values at \`entry.custom[fieldKey]\`.
 
 ## Playback states (runtime only)
 \`'stop' | 'play' | 'pause' | 'armed' | 'roll'\`
