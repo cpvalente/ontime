@@ -90,15 +90,6 @@ export function makeAuthenticateMiddleware(prefix: string) {
       }
     }
 
-    // MCP clients send Authorization: Bearer <token> rather than cookies
-    const authHeader = req.headers.authorization;
-    if (authHeader?.startsWith('Bearer ')) {
-      const bearerToken = authHeader.slice(7);
-      if (bearerToken === hashedPassword) {
-        return next();
-      }
-    }
-
     res.status(401).send('Unauthorized');
   }
 
