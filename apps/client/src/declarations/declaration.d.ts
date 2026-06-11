@@ -37,6 +37,7 @@ declare global {
  * - `handleUpdate` callback to update the entry when the user edits a cell
  * - `handleUpdateTimer` callback to update the timer for a specific event
  * - `options-showDelayedTimes` whether to show or hide delayed times
+ * - `options-showExpectedTimes` whether to show or hide live offset adjusted times
  * - `options-hideTableSeconds` whether to hide seconds in the table
  * - `options-hideIndexColumn` whether to hide the index column
  * - `options-cuesheetMode` run or edit mode
@@ -52,6 +53,7 @@ declare module '@tanstack/react-table' {
     handleUpdateTimer: (eventId: string, field: TimeField, payload: string) => void;
     options: {
       showDelayedTimes: boolean;
+      showExpectedTimes: boolean;
       hideTableSeconds: boolean;
       hideIndexColumn: boolean;
       cuesheetMode: AppMode;

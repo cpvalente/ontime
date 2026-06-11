@@ -21,13 +21,14 @@ type TableHeaderOptionsStore = {
   hideTableSeconds: boolean;
   hideIndexColumn: boolean;
   showDelayedTimes: boolean;
+  showExpectedTimes: boolean;
   hideDelays: boolean;
   setOption: <K extends keyof TableHeaderOptionValues>(key: K, value: TableHeaderOptionValues[K]) => void;
 };
 
 type TableHeaderOptionValues = Pick<
   TableHeaderOptionsStore,
-  'hideTableSeconds' | 'hideIndexColumn' | 'showDelayedTimes' | 'hideDelays'
+  'hideTableSeconds' | 'hideIndexColumn' | 'showDelayedTimes' | 'showExpectedTimes' | 'hideDelays'
 >;
 
 type TableModeControls = {
@@ -160,6 +161,13 @@ function ViewSettings({ optionsStore }: ViewSettingsProps) {
               onCheckedChange={(checked) => optionsStore.setOption('showDelayedTimes', checked)}
             />
             Show delayed times
+          </Editor.Label>
+          <Editor.Label className={style.option}>
+            <Checkbox
+              defaultChecked={optionsStore.showExpectedTimes}
+              onCheckedChange={(checked) => optionsStore.setOption('showExpectedTimes', checked)}
+            />
+            Show expected times
           </Editor.Label>
           <Editor.Label className={style.option}>
             <Checkbox

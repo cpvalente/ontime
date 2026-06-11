@@ -66,7 +66,7 @@ export default function CuesheetTable({
 
   const useOptions = tableRoot === 'editor' ? usePersistedRundownOptions : usePersistedCuesheetOptions;
   const optionsStore = useOptions();
-  const { showDelayedTimes, hideTableSeconds, hideIndexColumn } = optionsStore;
+  const { showDelayedTimes, showExpectedTimes, hideTableSeconds, hideIndexColumn } = optionsStore;
 
   const cursor = useEventSelection((state) => state.cursor);
   const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
@@ -104,12 +104,22 @@ export default function CuesheetTable({
       },
       options: {
         showDelayedTimes,
+        showExpectedTimes,
         hideTableSeconds,
         cuesheetMode,
         hideIndexColumn,
       },
     }),
-    [cuesheetMode, flatRundown, hideIndexColumn, hideTableSeconds, showDelayedTimes, updateEntry, updateTimer],
+    [
+      cuesheetMode,
+      flatRundown,
+      hideIndexColumn,
+      hideTableSeconds,
+      showDelayedTimes,
+      showExpectedTimes,
+      updateEntry,
+      updateTimer,
+    ],
   );
 
   const { columnOrder, resetColumnOrder } = useColumnOrder(columns, tableRoot);
