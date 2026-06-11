@@ -4,8 +4,10 @@ import { millisToString } from 'ontime-utils';
 import { useCallback } from 'react';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
+import { useExpectedStartData } from '../../../../common/hooks/useSocket';
+import { getOffsetState } from '../../../../common/utils/offset';
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
-import { formatDuration, formatTime } from '../../../../common/utils/time';
+import { formatDuration, formatTime, getExpectedTimesFromExtendedEvent } from '../../../../common/utils/time';
 import { AppMode } from '../../../../ontimeConfig';
 import { getCuesheetColumnAccessPolicy } from '../../cuesheet.policies';
 import DurationInput from './DurationInput';
@@ -22,11 +24,13 @@ function getColumnLabel(column: CellContext<ExtendedEntry, unknown>['column']): 
 }
 
 function MakeStart({ getValue, row, table, column }: CellContext<ExtendedEntry, unknown>) {
+  const expectedStartData = useExpectedStartData();
+
   if (!table.options.meta) {
     return null;
   }
 
-  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
+  const { showDelayedTimes, showExpectedTimes, hideTableSeconds } = table.options.meta.options;
   const formatOpts = hideTableSeconds ? { format12: 'h:mm a', format24: 'HH:mm' } : undefined;
 
   const event = row.original;
@@ -40,7 +44,9 @@ function MakeStart({ getValue, row, table, column }: CellContext<ExtendedEntry, 
 
   const startTime = getValue() as number;
   const isStartLocked = !event.linkStart;
-  const displayTime = showDelayedTimes ? startTime + event.delay : startTime;
+  const expectedTimes = showExpectedTimes ? getExpectedTimesFromExtendedEvent(event, expectedStartData) : null;
+  const displayTime = expectedTimes ? expectedTimes.expectedStart : showDelayedTimes ? startTime + event.delay : startTime;
+  const offsetState = expectedTimes ? getOffsetState(displayTime - startTime) : null;
   const formattedTime = formatTime(displayTime, formatOpts);
 
   const canWrite = column.columnDef.meta?.canWrite;
@@ -48,24 +54,32 @@ function MakeStart({ getValue, row, table, column }: CellContext<ExtendedEntry, 
     return (
       <MutedText numeric>
         {formattedTime}
-        <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(startTime)} />
+        {!expectedTimes && <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(startTime)} />}
       </MutedText>
     );
   }
   return (
-    <TimeInput initialValue={startTime} onSubmit={update} lockedValue={isStartLocked} delayed={event.delay !== 0}>
+    <TimeInput
+      initialValue={startTime}
+      onSubmit={update}
+      lockedValue={isStartLocked}
+      delayed={event.delay !== 0}
+      offset={offsetState}
+    >
       {formattedTime}
-      <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(startTime)} />
+      {!expectedTimes && <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(startTime)} />}
     </TimeInput>
   );
 }
 
 function MakeEnd({ getValue, row, table, column }: CellContext<ExtendedEntry, unknown>) {
+  const expectedStartData = useExpectedStartData();
+
   if (!table.options.meta) {
     return null;
   }
 
-  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
+  const { showDelayedTimes, showExpectedTimes, hideTableSeconds } = table.options.meta.options;
   const formatOpts = hideTableSeconds ? { format12: 'h:mm a', format24: 'HH:mm' } : undefined;
 
   const event = row.original;
@@ -79,7 +93,10 @@ function MakeEnd({ getValue, row, table, column }: CellContext<ExtendedEntry, un
 
   const endTime = getValue() as number;
   const isEndLocked = event.timeStrategy === TimeStrategy.LockEnd;
-  const displayTime = showDelayedTimes ? endTime + event.delay : endTime;
+  const expectedTimes = showExpectedTimes ? getExpectedTimesFromExtendedEvent(event, expectedStartData) : null;
+  const displayTime = expectedTimes ? expectedTimes.expectedEnd : showDelayedTimes ? endTime + event.delay : endTime;
+  const plannedTime = expectedTimes ? expectedTimes.plannedEnd : endTime;
+  const offsetState = expectedTimes ? getOffsetState(displayTime - plannedTime) : null;
   const formattedTime = formatTime(displayTime, formatOpts);
 
   const canWrite = column.columnDef.meta?.canWrite;
@@ -87,15 +104,21 @@ function MakeEnd({ getValue, row, table, column }: CellContext<ExtendedEntry, un
     return (
       <MutedText numeric>
         {formattedTime}
-        <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(endTime)} />
+        {!expectedTimes && <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(endTime)} />}
       </MutedText>
     );
   }
 
   return (
-    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={event.delay !== 0}>
+    <TimeInput
+      initialValue={endTime}
+      onSubmit={update}
+      lockedValue={isEndLocked}
+      delayed={event.delay !== 0}
+      offset={offsetState}
+    >
       {formattedTime}
-      <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(endTime)} />
+      {!expectedTimes && <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(endTime)} />}
     </TimeInput>
   );
 }

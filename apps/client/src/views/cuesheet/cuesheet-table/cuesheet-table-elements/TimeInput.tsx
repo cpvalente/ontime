@@ -9,6 +9,7 @@ interface TimeInputDurationProps {
   initialValue: number;
   lockedValue: boolean;
   delayed?: boolean;
+  offset?: 'over' | 'under' | 'muted' | null;
   onSubmit: (value: string) => void;
 }
 
@@ -22,6 +23,7 @@ function TimeInputDuration({
   initialValue,
   lockedValue,
   delayed,
+  offset,
   onSubmit,
   children,
 }: PropsWithChildren<TimeInputDurationProps>) {
@@ -110,7 +112,7 @@ function TimeInputDuration({
       onClick={handleFakeFocus}
       onFocus={handleFakeFocus}
       muted={!lockedValue}
-      offset={delayed ? 'over' : undefined}
+      offset={offset ?? (delayed ? 'over' : undefined)}
       ref={textRef}
     >
       {children}

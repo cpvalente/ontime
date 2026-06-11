@@ -6,6 +6,7 @@ type OptionValues = {
   hideTableSeconds: boolean;
   hideIndexColumn: boolean;
   showDelayedTimes: boolean;
+  showExpectedTimes: boolean;
   hideDelays: boolean;
 };
 
@@ -13,6 +14,7 @@ const defaultOptions: OptionValues = {
   hideTableSeconds: false,
   hideIndexColumn: false,
   showDelayedTimes: false,
+  showExpectedTimes: false,
   hideDelays: false,
 };
 
