@@ -1,31 +1,52 @@
-import { SupportedEntry } from 'ontime-types';
+import {
+  EntryId,
+  EventPostPayload,
+  InsertOptions,
+  OntimeDelay,
+  OntimeEvent,
+  OntimeGroup,
+  OntimeMilestone,
+  PatchWithId,
+  Playback,
+  ProjectData,
+  ProjectRundowns,
+  SupportedEntry,
+} from 'ontime-types';
 
 import { editCurrentProjectData, getProjectData } from '../api-data/project-data/projectData.dao.js';
-import { getCurrentRundown, getRundownMetadata, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
+import {
+  getCurrentRundown,
+  getCurrentRundownId,
+  getProjectCustomFields,
+  getRundownMetadata,
+} from '../api-data/rundown/rundown.dao.js';
 import {
   addEntry,
-  editEntry,
-  deleteEntries,
-  reorderEntry,
-  loadRundown,
   batchEditEntries,
+  createNewRundown,
+  deleteEntries,
+  deleteRundown,
+  duplicateExistingRundown,
+  editEntry,
+  loadRundown,
+  renameRundown,
+  reorderEntry,
 } from '../api-data/rundown/rundown.service.js';
-import { duplicateRundown } from '../api-data/rundown/rundown.utils.js';
+import { normalisedToRundownArray } from '../api-data/rundown/rundown.utils.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
-import { makeNewRundown } from '../models/dataModel.js';
+import { makeNewProject } from '../models/dataModel.js';
 import {
+  createProjectWithPatch,
+  deleteProjectFile,
+  duplicateProjectFile,
   getProjectList,
   loadProjectFile,
-  createProjectWithPatch,
   renameProjectFile,
-  duplicateProjectFile,
-  deleteProjectFile,
 } from '../services/project-service/ProjectService.js';
 import { getState } from '../stores/runtimeState.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
-import { deleteRundown, renameRundown, rundownListResponse } from './mcp.service.js';
-import { EVENT_TIMER_FIELDS, EVENT_WRITABLE_FIELDS } from './mcp.schema.js';
+import { EVENT_WRITABLE_FIELDS } from './mcp.schema.js';
 
 // Graceful truncation to keep tool responses within typical MCP context windows
 const CHARACTER_LIMIT = 25_000;
@@ -48,7 +69,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_get_rundown',
     description:
-      'Get the currently loaded rundown. Returns { order: EntryId[], entries: { [id]: OntimeEntry } }. If the rundown exceeds 25 000 chars, returns only the order array with a warning — fetch individual events with ontime_get_event.',
+      'Get the currently loaded rundown. Returns { order: EntryId[], entries: { [id]: OntimeEntry } }. If the rundown exceeds 25 000 chars, returns only the order array with a warning — fetch individual entries with ontime_get_entry.',
     inputSchema: { type: 'object', properties: {} },
     annotations: READ,
   },
@@ -60,12 +81,12 @@ export const TOOL_DEFINITIONS = [
     annotations: READ,
   },
   {
-    name: 'ontime_get_event',
-    description: 'Get a single event by id or cue. Provide either id or cue (not both). Returns the full entry object.',
+    name: 'ontime_get_entry',
+    description: 'Get a single entry by id or cue. Provide either id or cue (not both). Returns the full entry object.',
     inputSchema: {
       type: 'object',
       properties: {
-        id: { type: 'string', description: 'Event ID (from rundown.entries key or event.id)' },
+        id: { type: 'string', description: 'Entry ID (from rundown.entries key or entry.id)' },
         cue: { type: 'string', description: 'Human-facing cue label' },
       },
     },
@@ -73,50 +94,52 @@ export const TOOL_DEFINITIONS = [
   },
   // --- Rundown mutations ---
   {
-    name: 'ontime_create_event',
-    description: 'Create a new event in the rundown. Omit after/before to append at the end.',
+    name: 'ontime_create_entry',
+    description:
+      'Create a new entry in the current rundown. Omit after/before to append at the end. For type "event" provide title, timeStart, timeEnd and duration (cue is auto-numbered if omitted). For "milestone" provide cue/title/note/colour. For "delay" provide duration. For "group" provide title only — set other group fields with ontime_update_entry after creation.',
     inputSchema: {
       type: 'object',
-      required: ['cue', 'title', 'timeStart', 'timeEnd', 'duration'],
       properties: {
-        cue: { type: 'string', description: 'Short free-form cue label — ask the user what naming convention they prefer' },
-        title: { type: 'string', description: 'Event title shown in the rundown and views' },
-        timeStart: { type: 'number', description: 'Start time in ms from midnight (e.g. 09:00 = 32400000)' },
-        timeEnd: { type: 'number', description: 'End time in ms from midnight' },
-        duration: { type: 'number', description: 'Duration in ms (should equal timeEnd - timeStart)' },
-        after: { type: 'string', description: 'Insert after this event ID' },
-        before: { type: 'string', description: 'Insert before this event ID' },
-        note: { type: 'string', description: 'Free-text note for production notes or references' },
-        colour: {
+        type: {
           type: 'string',
-          description: 'Hex colour (#RRGGBB) for visual grouping — ask the user what colour convention they use',
+          enum: ['event', 'delay', 'milestone', 'group'],
+          description:
+            'Entry type, defaults to event. event: timed show item; milestone: non-timed marker; delay: schedule shift; group: named container of entries',
         },
-        skip: { type: 'boolean', description: 'If true, event is skipped during playback' },
-        ...EVENT_TIMER_FIELDS,
+        timeStart: { type: 'number', description: 'Event start time in ms from midnight (e.g. 09:00 = 32400000)' },
+        timeEnd: { type: 'number', description: 'Event end time in ms from midnight' },
+        duration: {
+          type: 'number',
+          description: 'Duration in ms (events: should equal timeEnd - timeStart; delays: the schedule shift)',
+        },
+        after: { type: 'string', description: 'Insert after this entry ID' },
+        before: { type: 'string', description: 'Insert before this entry ID' },
+        ...EVENT_WRITABLE_FIELDS,
       },
     },
     annotations: WRITE,
   },
   {
-    name: 'ontime_update_event',
+    name: 'ontime_update_entry',
     description:
-      'Update fields of an existing event. Only provided fields are changed. Time fields (timeStart, timeEnd, duration) are reconciled server-side — you may provide any combination.',
+      'Update fields of an existing entry (event, milestone, delay or group). Only provided fields are changed. Event time fields (timeStart, timeEnd, duration) are reconciled server-side — you may provide any combination. Group-only field: targetDuration.',
     inputSchema: {
       type: 'object',
       required: ['id'],
       properties: {
-        id: { type: 'string', description: 'ID of the event to update' },
+        id: { type: 'string', description: 'ID of the entry to update' },
         timeStart: { type: 'number', description: 'Start time in ms from midnight' },
         timeEnd: { type: 'number', description: 'End time in ms from midnight' },
         duration: { type: 'number', description: 'Duration in ms' },
+        targetDuration: { type: 'number', description: 'Groups only: planned length of the group in ms' },
         ...EVENT_WRITABLE_FIELDS,
       },
     },
     annotations: WRITE_DESTRUCTIVE,
   },
   {
-    name: 'ontime_delete_entry',
-    description: 'Delete one or more entries (events, delays, or groups) from the rundown',
+    name: 'ontime_delete_entries',
+    description: 'Delete one or more entries (events, milestones, delays, or groups) from the current rundown',
     inputSchema: {
       type: 'object',
       required: ['ids'],
@@ -127,15 +150,15 @@ export const TOOL_DEFINITIONS = [
     annotations: WRITE_DESTRUCTIVE,
   },
   {
-    name: 'ontime_reorder_event',
+    name: 'ontime_reorder_entry',
     description:
-      'Move an event to a new position relative to another event. Use before/after for sibling reordering; use insert to place an event inside a group.',
+      'Move an entry to a new position relative to another entry. Use before/after for sibling reordering; use insert to place an entry inside a group.',
     inputSchema: {
       type: 'object',
       required: ['entryId', 'destinationId', 'order'],
       properties: {
-        entryId: { type: 'string', description: 'ID of the event to move' },
-        destinationId: { type: 'string', description: 'ID of the target event (sibling or parent group)' },
+        entryId: { type: 'string', description: 'ID of the entry to move' },
+        destinationId: { type: 'string', description: 'ID of the target entry (sibling or parent group)' },
         order: {
           type: 'string',
           enum: ['before', 'after', 'insert'],
@@ -146,36 +169,29 @@ export const TOOL_DEFINITIONS = [
     annotations: WRITE_IDEM,
   },
   {
-    name: 'ontime_create_events_batch',
+    name: 'ontime_batch_create_entries',
     description:
-      'Create multiple events in one call. Use this for "build from agenda" flows to avoid many round trips. Events are inserted in array order; if `after` is provided it positions the first event, subsequent events chain from the previous.',
+      'Create multiple entries in one call. Use this for "build from agenda" flows to avoid many round trips. Entries are inserted in array order; if `after` is provided it positions the first entry, subsequent entries chain from the previous.',
     inputSchema: {
       type: 'object',
-      required: ['events'],
+      required: ['entries'],
       properties: {
-        after: { type: 'string', description: 'Insert the first event after this entry ID' },
-        events: {
+        after: { type: 'string', description: 'Insert the first entry after this entry ID' },
+        entries: {
           type: 'array',
-          description: 'Array of events to create, in desired order',
+          description: 'Array of entries to create, in desired order',
           items: {
             type: 'object',
-            required: ['cue', 'title', 'timeStart', 'timeEnd', 'duration'],
             properties: {
-              cue: {
+              type: {
                 type: 'string',
-                description: 'Short free-form cue label — ask the user what naming convention they prefer',
+                enum: ['event', 'delay', 'milestone', 'group'],
+                description: 'Entry type, defaults to event',
               },
-              title: { type: 'string', description: 'Event title shown in the rundown and views' },
-              timeStart: { type: 'number', description: 'Start time in ms from midnight' },
-              timeEnd: { type: 'number', description: 'End time in ms from midnight' },
-              duration: { type: 'number', description: 'Duration in ms (should equal timeEnd - timeStart)' },
-              note: { type: 'string', description: 'Free-text note for production notes or references' },
-              colour: {
-                type: 'string',
-                description: 'Hex colour (#RRGGBB) for visual grouping — ask the user what colour convention they use',
-              },
-              skip: { type: 'boolean', description: 'If true, event is skipped during playback' },
-              ...EVENT_TIMER_FIELDS,
+              timeStart: { type: 'number', description: 'Event start time in ms from midnight' },
+              timeEnd: { type: 'number', description: 'Event end time in ms from midnight' },
+              duration: { type: 'number', description: 'Duration in ms' },
+              ...EVENT_WRITABLE_FIELDS,
             },
           },
         },
@@ -184,17 +200,17 @@ export const TOOL_DEFINITIONS = [
     annotations: WRITE,
   },
   {
-    name: 'ontime_batch_update_events',
+    name: 'ontime_batch_update_entries',
     description:
-      'Apply the same field changes to multiple events by ID. Use for bulk operations like recolouring all keynotes or shifting times by a constant offset (compute new times client-side first).',
+      'Apply the same field changes to multiple entries by ID. Use for bulk operations like recolouring all keynotes or shifting times by a constant offset (compute new times client-side first).',
     inputSchema: {
       type: 'object',
       required: ['ids', 'data'],
       properties: {
-        ids: { type: 'array', items: { type: 'string' }, description: 'Array of event IDs to update' },
+        ids: { type: 'array', items: { type: 'string' }, description: 'Array of entry IDs to update' },
         data: {
           type: 'object',
-          description: 'Partial event fields to apply to every ID',
+          description: 'Partial entry fields to apply to every ID',
           properties: {
             timeStart: { type: 'number', description: 'Start time in ms from midnight' },
             timeEnd: { type: 'number', description: 'End time in ms from midnight' },
@@ -301,7 +317,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_get_custom_fields',
     description:
-      'Get the project custom field definitions. Returns { [key]: { label, type: "text"|"image", colour } }. Keys are referenced in event.custom[key].',
+      'Get the project custom field definitions. Returns { [key]: { label, type: "text"|"image", colour } }. Keys are referenced in entry.custom[key].',
     inputSchema: { type: 'object', properties: {} },
     annotations: READ,
   },
@@ -326,7 +342,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_create_project',
     description:
-      'Create a new empty project file and save it to disk. Does not switch to the new project. Omit the .json extension — Ontime appends it.',
+      'Create a new project file and switch to it. This stops playback and swaps the loaded project. Omit the .json extension — Ontime appends it.',
     inputSchema: {
       type: 'object',
       required: ['filename'],
@@ -336,7 +352,7 @@ export const TOOL_DEFINITIONS = [
         description: { type: 'string', description: 'Optional project description' },
       },
     },
-    annotations: WRITE,
+    annotations: WRITE_DESTRUCTIVE,
   },
   {
     name: 'ontime_rename_project',
@@ -377,6 +393,71 @@ export const TOOL_DEFINITIONS = [
   },
 ] as const;
 
+type ToolName = (typeof TOOL_DEFINITIONS)[number]['name'];
+
+// ---- Tool argument types ----
+// Arguments arrive as parsed JSON and are cast once, at the trust boundary, to the types below.
+// The types are derived (Pick) from the domain types in ontime-types so that a change to the
+// domain model or a service signature fails compilation here rather than drifting silently.
+
+type EventFieldArgs = Partial<
+  Pick<
+    OntimeEvent,
+    | 'cue'
+    | 'title'
+    | 'note'
+    | 'colour'
+    | 'skip'
+    | 'flag'
+    | 'custom'
+    | 'timerType'
+    | 'endAction'
+    | 'linkStart'
+    | 'countToEnd'
+    | 'timeWarning'
+    | 'timeDanger'
+    | 'timeStart'
+    | 'timeEnd'
+    | 'duration'
+  >
+>;
+type MilestoneFieldArgs = Partial<Pick<OntimeMilestone, 'cue' | 'title' | 'note' | 'colour' | 'custom'>>;
+type DelayFieldArgs = Partial<Pick<OntimeDelay, 'duration'>>;
+type GroupFieldArgs = Partial<Pick<OntimeGroup, 'title' | 'note' | 'colour' | 'targetDuration' | 'custom'>>;
+
+type EntryFieldArgs = EventFieldArgs & MilestoneFieldArgs & DelayFieldArgs & GroupFieldArgs;
+type CreateEntryArgs = EntryFieldArgs & InsertOptions & { type?: `${SupportedEntry}` };
+type UpdateEntryArgs = EntryFieldArgs & { id: EntryId };
+type ProjectInfoArgs = Partial<Pick<ProjectData, 'title' | 'description' | 'url' | 'info'>>;
+
+/** Translates tool arguments into the payload consumed by rundown.service addEntry */
+function toEntryPayload(args: CreateEntryArgs): EventPostPayload {
+  const { type = SupportedEntry.Event, after, before } = args;
+
+  switch (type) {
+    case SupportedEntry.Delay:
+      return { type: SupportedEntry.Delay, duration: args.duration, after, before };
+    case SupportedEntry.Milestone: {
+      const { cue, title, note, colour, custom } = args;
+      return { type: SupportedEntry.Milestone, cue, title, note, colour, custom, after, before };
+    }
+    case SupportedEntry.Group:
+      // group creation currently only accepts a title, see generateEvent in rundown.utils.ts
+      return { type: SupportedEntry.Group, title: args.title, after, before };
+    case SupportedEntry.Event: {
+      const { type: _type, ...eventFields } = args;
+      return { type: SupportedEntry.Event, ...eventFields };
+    }
+    default:
+      throw new Error(`Invalid entry type: ${String(type)}`);
+  }
+}
+
+/** Formats project rundowns in the standard list payload used by rundown management tools */
+function toRundownList(projectRundowns: Readonly<ProjectRundowns>) {
+  return { loaded: getCurrentRundownId(), rundowns: normalisedToRundownArray(projectRundowns) };
+}
+
 // ---- Response helpers (module-level to avoid re-allocation on every tool call) ----
 
 const text = (data: unknown): string => JSON.stringify(data);
@@ -384,7 +465,7 @@ const text = (data: unknown): string => JSON.stringify(data);
 export const ok = (data: unknown): CallToolResult => ({ content: [{ type: 'text', text: text(data) }] });
 
 export const err = (e: unknown): CallToolResult => ({
-  content: [{ type: 'text', text: text({ error: String(e) }) }],
+  content: [{ type: 'text', text: text({ error: e instanceof Error ? e.message : String(e) }) }],
   isError: true,
 });
 
@@ -392,263 +473,188 @@ export const err = (e: unknown): CallToolResult => ({
 export const okMutation = (data: unknown): CallToolResult => {
   const playback = getState().timer.playback;
   const payload =
-    playback !== 'stop'
+    playback !== Playback.Stop
       ? { warning: 'Playback is running — this change takes effect immediately.', result: data }
       : data;
   return { content: [{ type: 'text', text: text(payload) }] };
 };
 
-// ---- Tool call dispatcher ----
-export async function handleToolCall(name: string, args: Record<string, unknown>): Promise<CallToolResult> {
-  switch (name) {
-    case 'ontime_get_rundown': {
-      const rundown = getCurrentRundown();
-      const data = { order: rundown.order, entries: rundown.entries };
-      const serialised = text(data);
-      if (serialised.length > CHARACTER_LIMIT) {
-        return ok({
-          warning: `Rundown too large (${serialised.length} chars) — fetch individual entries with ontime_get_event. Entry IDs in order: ${rundown.order.join(', ')}`,
-          truncated: true,
-          order: rundown.order,
-        });
-      }
-      return ok(data);
-    }
-
-    case 'ontime_get_rundown_metadata':
-      return ok(getRundownMetadata());
-
-    case 'ontime_get_event': {
-      const rundown = getCurrentRundown();
-      const id = args.id as string | undefined;
-      const cue = args.cue as string | undefined;
-      if (id) {
-        const entry = rundown.entries[id];
-        if (!entry) return err(`No event with id ${id}`);
-        return ok(entry);
-      }
-      if (cue) {
-        const entry = Object.values(rundown.entries).find((e) => 'cue' in e && (e as { cue: string }).cue === cue);
-        if (!entry) return err(`No event with cue ${cue}`);
-        return ok(entry);
-      }
-      return err('Provide id or cue');
-    }
-
-    case 'ontime_create_event': {
-      try {
-        const entry = await addEntry({ type: SupportedEntry.Event, ...args } as never);
-        return okMutation(entry);
-      } catch (e) {
-        return err(e);
-      }
-    }
-
-    case 'ontime_update_event': {
-      try {
-        const entry = await editEntry(args as never);
-        return okMutation(entry);
-      } catch (e) {
-        return err(e);
-      }
-    }
-
-    case 'ontime_delete_entry': {
-      try {
-        const ids = args.ids as string[];
-        const rundown = await deleteEntries(ids);
-        return okMutation({ deleted: ids, order: rundown.order });
-      } catch (e) {
-        return err(e);
-      }
-    }
-
-    case 'ontime_reorder_event': {
-      try {
-        const { entryId, destinationId, order } = args as {
-          entryId: string;
-          destinationId: string;
-          order: 'before' | 'after' | 'insert';
-        };
-        const rundown = await reorderEntry(entryId, destinationId, order);
-        return okMutation({ order: rundown.order });
-      } catch (e) {
-        return err(e);
-      }
-    }
-
-    case 'ontime_create_events_batch': {
-      try {
-        const events = (args.events as Array<Record<string, unknown>>) ?? [];
-        let previousId = (args.after as string | undefined) ?? undefined;
-        const created: unknown[] = [];
-        for (const eventArgs of events) {
-          const entry = await addEntry({
-            type: SupportedEntry.Event,
-            ...eventArgs,
-            ...(previousId ? { after: previousId } : {}),
-          } as never);
-          created.push(entry);
-          previousId = (entry as { id: string }).id;
-        }
-        return okMutation({ created });
-      } catch (e) {
-        return err(e);
-      }
-    }
-
-    case 'ontime_batch_update_events': {
-      try {
-        const ids = args.ids as string[];
-        const data = args.data as Partial<Record<string, unknown>>;
-        const rundown = await batchEditEntries(ids, data as never);
-        return okMutation({ updated: ids, order: rundown.order });
-      } catch (e) {
-        return err(e);
-      }
-    }
-
-    case 'ontime_list_rundowns':
-      return ok(rundownListResponse());
-
-    case 'ontime_create_rundown': {
-      try {
-        const rundown = makeNewRundown();
-        rundown.title = args.title as string;
-        await getDataProvider().setRundown(rundown.id, rundown);
-        return okMutation(rundownListResponse());
-      } catch (e) {
-        return err(e);
-      }
-    }
-
-    case 'ontime_load_rundown': {
-      try {
-        await loadRundown(args.id as string);
-        return okMutation(rundownListResponse());
-      } catch (e) {
-        return err(e);
-      }
-    }
-
-    case 'ontime_rename_rundown': {
-      try {
-        const result = await renameRundown(args.id as string, args.title as string);
-        return okMutation(result);
-      } catch (e) {
-        return err(e);
-      }
-    }
-
-    case 'ontime_delete_rundown': {
-      try {
-        const result = await deleteRundown(args.id as string);
-        return okMutation(result);
-      } catch (e) {
-        return err(e);
-      }
-    }
-
-    case 'ontime_duplicate_rundown': {
-      try {
-        const id = args.id as string;
-        const dataProvider = getDataProvider();
-        const rundown = dataProvider.getRundown(id);
-        if (!rundown) throw new Error(`Rundown ${id} not found`);
-        const copy = duplicateRundown(rundown as never, `Copy of ${rundown.title}`);
-        await dataProvider.setRundown(copy.id, copy);
-        return okMutation(rundownListResponse());
-      } catch (e) {
-        return err(e);
-      }
-    }
-
-    case 'ontime_get_timer_state': {
-      const state = getState();
+// ---- Tool handlers ----
+// Each handler is a thin translation wrapper: it maps the wire arguments to a typed call
+// into an existing service and formats the response. Business logic belongs in the services.
+const TOOL_HANDLERS: Record<ToolName, (args: Record<string, unknown>) => Promise<CallToolResult>> = {
+  ontime_get_rundown: async () => {
+    const rundown = getCurrentRundown();
+    const data = { order: rundown.order, entries: rundown.entries };
+    const serialised = text(data);
+    if (serialised.length > CHARACTER_LIMIT) {
       return ok({
-        clock: state.clock,
-        timer: state.timer,
-        eventNow: state.eventNow,
-        eventNext: state.eventNext,
-        offset: state.offset,
+        warning: `Rundown too large (${serialised.length} chars) — fetch individual entries with ontime_get_entry. Entry IDs in order: ${rundown.order.join(', ')}`,
+        truncated: true,
+        order: rundown.order,
       });
     }
+    return ok(data);
+  },
 
-    case 'ontime_get_project_info':
-      return ok(getProjectData());
+  ontime_get_rundown_metadata: async () => ok(getRundownMetadata()),
 
-    case 'ontime_update_project_info': {
-      try {
-        const updated = await editCurrentProjectData(args as never);
-        return ok(updated);
-      } catch (e) {
-        return err(e);
-      }
+  ontime_get_entry: async (args) => {
+    const { id, cue } = args as { id?: EntryId; cue?: string };
+    const rundown = getCurrentRundown();
+    if (id) {
+      const entry = rundown.entries[id];
+      if (!entry) return err(`No entry with id ${id}`);
+      return ok(entry);
     }
-
-    case 'ontime_get_custom_fields':
-      return ok(getProjectCustomFields());
-
-    case 'ontime_list_projects':
-      return ok(await getProjectList());
-
-    case 'ontime_load_project': {
-      try {
-        await loadProjectFile(args.filename as string);
-        return okMutation(await getProjectList());
-      } catch (e) {
-        return err(e);
-      }
+    if (cue) {
+      const entry = Object.values(rundown.entries).find((entry) => 'cue' in entry && entry.cue === cue);
+      if (!entry) return err(`No entry with cue ${cue}`);
+      return ok(entry);
     }
+    return err('Provide id or cue');
+  },
 
-    case 'ontime_create_project': {
-      try {
-        const { filename, title, description } = args as {
-          filename: string;
-          title?: string;
-          description?: string;
-        };
-        const patch =
-          title || description
-            ? { project: { title: title ?? '', description: description ?? '' } as never }
-            : {};
-        const newFileName = await createProjectWithPatch(filename, patch);
-        return ok({ filename: newFileName });
-      } catch (e) {
-        return err(e);
-      }
+  ontime_create_entry: async (args) => {
+    const entry = await addEntry(getCurrentRundownId(), toEntryPayload(args as CreateEntryArgs));
+    return okMutation(entry);
+  },
+
+  ontime_update_entry: async (args) => {
+    const patch: PatchWithId = args as UpdateEntryArgs;
+    const entry = await editEntry(getCurrentRundownId(), patch);
+    return okMutation(entry);
+  },
+
+  ontime_delete_entries: async (args) => {
+    const { ids } = args as { ids: EntryId[] };
+    const rundown = await deleteEntries(getCurrentRundownId(), ids);
+    return okMutation({ deleted: ids, order: rundown.order });
+  },
+
+  ontime_reorder_entry: async (args) => {
+    const { entryId, destinationId, order } = args as {
+      entryId: EntryId;
+      destinationId: EntryId;
+      order: 'before' | 'after' | 'insert';
+    };
+    const rundown = await reorderEntry(getCurrentRundownId(), entryId, destinationId, order);
+    return okMutation({ order: rundown.order });
+  },
+
+  ontime_batch_create_entries: async (args) => {
+    const { entries = [], after } = args as { entries: CreateEntryArgs[]; after?: EntryId };
+    const rundownId = getCurrentRundownId();
+    let previousId = after;
+    const created: unknown[] = [];
+    for (const entryArgs of entries) {
+      const payload = toEntryPayload(entryArgs);
+      // eslint-disable-next-line no-await-in-loop -- each entry chains after the previously created one
+      const entry = await addEntry(rundownId, previousId ? { ...payload, after: previousId } : payload);
+      created.push(entry);
+      previousId = entry.id;
     }
+    return okMutation({ created });
+  },
 
-    case 'ontime_rename_project': {
-      try {
-        const { filename, newFilename } = args as { filename: string; newFilename: string };
-        await renameProjectFile(filename, newFilename);
-        return ok(await getProjectList());
-      } catch (e) {
-        return err(e);
-      }
-    }
+  ontime_batch_update_entries: async (args) => {
+    const { ids, data } = args as { ids: EntryId[]; data: EntryFieldArgs };
+    const rundown = await batchEditEntries(getCurrentRundownId(), ids, data);
+    return okMutation({ updated: ids, order: rundown.order });
+  },
 
-    case 'ontime_duplicate_project': {
-      try {
-        const { filename, newFilename } = args as { filename: string; newFilename: string };
-        await duplicateProjectFile(filename, newFilename);
-        return ok(await getProjectList());
-      } catch (e) {
-        return err(e);
-      }
-    }
+  ontime_list_rundowns: async () => ok(toRundownList(getDataProvider().getProjectRundowns())),
 
-    case 'ontime_delete_project': {
-      try {
-        await deleteProjectFile(args.filename as string);
-        return ok(await getProjectList());
-      } catch (e) {
-        return err(e);
-      }
-    }
+  ontime_create_rundown: async (args) => {
+    const { title } = args as { title: string };
+    return okMutation(toRundownList(await createNewRundown(title)));
+  },
 
-    default:
-      return err(`Unknown tool: ${name}`);
+  ontime_load_rundown: async (args) => {
+    const { id } = args as { id: string };
+    return okMutation(toRundownList(await loadRundown(id)));
+  },
+
+  ontime_rename_rundown: async (args) => {
+    const { id, title } = args as { id: string; title: string };
+    return okMutation(toRundownList(await renameRundown(id, title)));
+  },
+
+  ontime_delete_rundown: async (args) => {
+    const { id } = args as { id: string };
+    return okMutation(toRundownList(await deleteRundown(id)));
+  },
+
+  ontime_duplicate_rundown: async (args) => {
+    const { id } = args as { id: string };
+    return okMutation(toRundownList(await duplicateExistingRundown(id)));
+  },
+
+  ontime_get_timer_state: async () => {
+    const { clock, timer, eventNow, eventNext, offset } = getState();
+    return ok({ clock, timer, eventNow, eventNext, offset });
+  },
+
+  ontime_get_project_info: async () => ok(getProjectData()),
+
+  ontime_update_project_info: async (args) => {
+    const updated = await editCurrentProjectData(args as ProjectInfoArgs);
+    return ok(updated);
+  },
+
+  ontime_get_custom_fields: async () => ok(getProjectCustomFields()),
+
+  ontime_list_projects: async () => ok(await getProjectList()),
+
+  ontime_load_project: async (args) => {
+    const { filename } = args as { filename: string };
+    await loadProjectFile(filename);
+    return okMutation(await getProjectList());
+  },
+
+  ontime_create_project: async (args) => {
+    const {
+      filename,
+      title = '',
+      description = '',
+    } = args as {
+      filename: string;
+      title?: string;
+      description?: string;
+    };
+    const project: ProjectData = { ...makeNewProject().project, title, description };
+    const newFileName = await createProjectWithPatch(filename, { project });
+    return okMutation({ filename: newFileName });
+  },
+
+  ontime_rename_project: async (args) => {
+    const { filename, newFilename } = args as { filename: string; newFilename: string };
+    await renameProjectFile(filename, newFilename);
+    return ok(await getProjectList());
+  },
+
+  ontime_duplicate_project: async (args) => {
+    const { filename, newFilename } = args as { filename: string; newFilename: string };
+    await duplicateProjectFile(filename, newFilename);
+    return ok(await getProjectList());
+  },
+
+  ontime_delete_project: async (args) => {
+    const { filename } = args as { filename: string };
+    await deleteProjectFile(filename);
+    return ok(await getProjectList());
+  },
+};
+
+// ---- Tool call dispatcher ----
+export async function handleToolCall(name: string, args: Record<string, unknown>): Promise<CallToolResult> {
+  const handler = TOOL_HANDLERS[name as ToolName];
+  if (!handler) {
+    return err(`Unknown tool: ${name}`);
+  }
+  try {
+    return await handler(args);
+  } catch (error) {
+    return err(error);
   }
 }
