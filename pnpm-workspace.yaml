@@ -12,6 +12,7 @@ catalog:
 allowBuilds:
   '@parcel/watcher': true
   '@sentry/cli': false
+  '@stagetimerio/grandiose': true
   core-js: false
   electron: true
   electron-winstaller: false

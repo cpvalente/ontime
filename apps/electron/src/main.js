@@ -3,6 +3,7 @@ const path = require('path');
 
 const { getApplicationMenu } = require('./menu/applicationMenu.js');
 const { getTrayMenu } = require('./menu/trayMenu.js');
+const { NdiOutputManager } = require('./ndi/NdiOutputManager.js');
 
 const electronConfig = require('./electron.config.js');
 const {
@@ -35,6 +36,8 @@ let isQuitting = false;
 let win;
 let splash;
 let tray = null;
+let ndiOutputManager;
+let refreshApplicationMenu = () => {};
 
 /**
  * Coordinates the node process startup
@@ -76,6 +79,8 @@ function showNotification(title, body) {
  * Terminate node service and close electron app
  */
 function appShutdown() {
+  ndiOutputManager?.stopAll();
+
   // terminate node service
   (async () => {
     const ontimeServer = require(nodePath);
@@ -199,14 +204,29 @@ app.whenReady().then(() => {
   }
 
   createWindow();
+  ndiOutputManager = new NdiOutputManager({
+    icon: appIcon,
+    onError: (title, message) => dialog.showErrorBox(title, message),
+  });
+
   startBackend()
     .then((port) => {
       const clientUrl = getClientUrl(port);
       const serverUrl = getServerUrl(port);
-      const menu = getApplicationMenu(askToQuit, clientUrl, serverUrl, redirectWindow, showDialog, (url) =>
-        win.webContents.downloadURL(url),
-      );
-      Menu.setApplicationMenu(menu);
+      refreshApplicationMenu = () => {
+        const menu = getApplicationMenu(
+          askToQuit,
+          clientUrl,
+          serverUrl,
+          redirectWindow,
+          showDialog,
+          (url) => win.webContents.downloadURL(url),
+          ndiOutputManager,
+          refreshApplicationMenu,
+        );
+        Menu.setApplicationMenu(menu);
+      };
+      refreshApplicationMenu();
 
       win
         .loadURL(`${clientUrl}/editor`)

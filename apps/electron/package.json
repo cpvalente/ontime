@@ -17,6 +17,9 @@
     "electron-builder": "26.9.1",
     "wait-on": "^7.2.0"
   },
+  "dependencies": {
+    "@stagetimerio/grandiose": "0.2.0"
+  },
   "scripts": {
     "dev:electron": "wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .",
     "lint": "oxlint --quiet --type-aware",
@@ -28,6 +31,9 @@
     "productName": "ontime",
     "appId": "no.lightdev.ontime",
     "asar": true,
+    "asarUnpack": [
+      "node_modules/@stagetimerio/grandiose/dist/**"
+    ],
     "dmg": {
       "artifactName": "ontime-macOS-${arch}.dmg"
     },
