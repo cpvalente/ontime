@@ -126,7 +126,7 @@ router.patch(
   async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
     try {
       const projectRundowns = await renameRundown(req.params.id, req.body.title);
-      res.status(201).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
+      res.status(200).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
     } catch (error) {
       const message = getErrorMessage(error);
       res.status(400).send({ message });

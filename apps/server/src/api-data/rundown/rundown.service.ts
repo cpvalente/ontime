@@ -728,12 +728,12 @@ export async function renameRundown(id: string, title: string) {
   if (isCurrentRundown(id)) {
     const rundown = dataProvider.getRundown(id);
     const customField = dataProvider.getCustomFields();
-    await initRundown(rundown, customField);
+    initRundown(rundown, customField);
+  } else {
+    setImmediate(() => {
+      sendRefetch(RefetchKey.ProjectRundowns);
+    });
   }
-
-  setImmediate(() => {
-    sendRefetch(RefetchKey.ProjectRundowns);
-  });
 
   return newProjectRundowns;
 }
