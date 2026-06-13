@@ -34,43 +34,34 @@ import {
 
 import { RundownMetadata } from './rundown.types.js';
 
-type CompleteEntry<T> =
-  T extends Partial<OntimeEvent>
-    ? OntimeEvent
-    : T extends Partial<OntimeDelay>
-      ? OntimeDelay
-      : T extends Partial<OntimeGroup>
-        ? OntimeGroup
-        : T extends Partial<OntimeMilestone>
-          ? OntimeMilestone
-          : never;
-
 /**
  * Generates a fully formed RundownEntry of the patch type
  */
-export function generateEvent<
-  T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeGroup> | Partial<OntimeMilestone>,
->(rundown: Rundown, eventData: T, afterId: EntryId | null, parent?: EntryId): CompleteEntry<T> {
+export function generateEvent(
+  rundown: Rundown,
+  eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeGroup> | Partial<OntimeMilestone>,
+  afterId: EntryId | null,
+  parent?: EntryId,
+): OntimeEntry {
   if (isOntimeEvent(eventData)) {
-    return createEvent(
-      eventData,
-      getCueCandidate(rundown.entries, rundown.flatOrder, afterId, parent),
-    ) as CompleteEntry<T>;
+    const event = createEvent(eventData, getCueCandidate(rundown.entries, rundown.flatOrder, afterId, parent));
+    if (!event) throw new Error('Invalid event type');
+    return event;
   }
 
   const id = eventData.id || getUniqueId(rundown);
 
   if (isOntimeDelay(eventData)) {
-    return createDelay({ duration: eventData.duration ?? 0, id }) as CompleteEntry<T>;
+    return createDelay({ duration: eventData.duration ?? 0, id });
   }
 
   // TODO(v4): allow user to provide a larger patch of the group entry
   if (isOntimeGroup(eventData)) {
-    return createGroup({ id, title: eventData.title ?? '' }) as CompleteEntry<T>;
+    return createGroup({ id, title: eventData.title ?? '' });
   }
 
   if (isOntimeMilestone(eventData)) {
-    return createMilestone({ ...eventData, id }) as CompleteEntry<T>;
+    return createMilestone({ ...eventData, id });
   }
 
   throw new Error('Invalid event type');

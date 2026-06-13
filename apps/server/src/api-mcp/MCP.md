@@ -24,7 +24,15 @@ The MCP route is stateless. Clients should send MCP requests with `POST`; `GET` 
 
 If Ontime has no session password configured, no MCP authentication is required.
 
-If a session password is configured, authenticate with the hashed Ontime token:
+If a session password is configured, authenticate with the hashed Ontime token.
+The settings UI generates an endpoint URL with the token in the query string:
+
+```text
+http://localhost:4001/mcp?token=<hashed-token>
+```
+
+If your MCP client supports request headers, you can send the same token as a
+bearer token instead:
 
 ```http
 Authorization: Bearer <hashed-token>
@@ -41,16 +49,15 @@ Use a Streamable HTTP MCP client and point it at the MCP endpoint:
 {
   "mcpServers": {
     "ontime": {
-      "url": "http://localhost:4001/mcp",
-      "headers": {
-        "Authorization": "Bearer <hashed-token>"
-      }
+      "url": "http://localhost:4001/mcp?token=<hashed-token>"
     }
   }
 }
 ```
 
-Omit `headers` when Ontime is not password protected.
+Omit the token when Ontime is not password protected. If you prefer headers, use
+`"url": "http://localhost:4001/mcp"` and add an `Authorization` header with the
+same bearer token.
 
 ## Quick Check
 
