@@ -55,7 +55,14 @@ Entry type guidance:
 - Use \`event\` for anything with a scheduled time and duration (talks, panels, breaks, meals).
 - Use \`milestone\` for non-timed markers that don't advance playback (e.g. "Doors open", "Broadcast start").
 - Use \`delay\` only when the user explicitly wants to model schedule drift that shifts all following events.
-- Use \`group\` to collect related events into a named block. Groups are created with a title only — use ontime_update_entry afterwards to set \`targetDuration\` to the block's planned length.
+- Use \`group\` to collect related events into a named block. Groups are created with a title only — use ontime_update_entry afterwards to set \`colour\`, \`note\`, \`custom\`, or \`targetDuration\`.
+
+Event timing:
+- Provide a title plus enough timing data for Ontime to infer a timing strategy.
+- \`timeStart\` + \`duration\`: keeps duration fixed and calculates \`timeEnd\`.
+- \`timeStart\` + \`timeEnd\`: keeps end time fixed and calculates \`duration\`.
+- \`timeEnd\` + \`duration\`: calculates \`timeStart\`.
+- Avoid sending \`timeStart\`, \`timeEnd\`, and \`duration\` together unless you intentionally want Ontime to prioritise duration and recalculate \`timeEnd\`.
 
 Timer type (timerType):
 - \`count-down\` (default): counts down from duration. Use for most timed sessions.
@@ -69,9 +76,10 @@ End action (endAction):
 - \`play-next\`: automatically starts the next event. Use for seamless back-to-back segments with no gap.
 
 Linking (linkStart):
-- Set \`linkStart: true\` on events that must always follow directly after the previous event's end.
-- Changing the first linked event's timeStart or duration cascades to all linked followers.
-- Ideal for segments within a block where only the block's start time is managed directly.
+- \`linkStart\` controls schedule-change propagation through the rundown.
+- When an event is linked, it inherits the end time of the previous playable event as its start time.
+- The event's \`timeStrategy\` decides how it adapts to the inherited start: lock duration updates the end time; lock end updates the duration.
+- Ideal for segments within a block where only the anchor start time and individual durations are managed directly.
 
 Flags (flag):
 - Set \`flag: true\` on events that are critical operational markers (keynote starts, broadcast moments, VIP arrivals).
@@ -85,6 +93,7 @@ Colours:
 Custom fields (custom):
 - Call ontime_get_custom_fields for the project's field keys (cuesheet-style columns such as camera, graphics, speaker).
 - Store values per entry at \`custom: { <fieldKey>: <value> }\` — only use keys that exist in the project.
+- If the user's requested field is ambiguous, show the existing field list before choosing a key, so you avoid duplicate concepts such as \`Cam\`, \`camera\`, and \`Cameras\`.
 
 Agenda:
 ${args.agenda}`,
@@ -99,13 +108,13 @@ ${args.agenda}`,
 Strategy:
 1. Call ontime_get_rundown to see the current events, their IDs, and field values.
 2. Determine which event IDs are affected by the instruction.
-3. If every affected event receives the SAME field changes (e.g. "colour all keynotes purple", "skip all breaks"): call ontime_batch_update_entries once with { ids, data }.
-4. If each event needs DIFFERENT values (e.g. "shift everything 30 minutes"): check first if events use linkStart. If they do, changing the first linked event's timeStart cascades to all linked followers — you may only need to update one event. Otherwise, compute the new values per event and call ontime_update_entry for each.
+3. If every affected entry receives the SAME field values (e.g. "colour all keynotes purple", "skip all breaks"): call ontime_batch_update_entries once with { ids, data }.
+4. If each event needs DIFFERENT field values (e.g. "shift everything 30 minutes later"): check first if events use linkStart. If they do, changing the anchor event's timeStart or duration can cascade to linked followers — you may only need to update one event. Otherwise, compute the new values per event and call ontime_update_entry for each.
 
 Time shift mechanics:
 - All time fields are milliseconds from midnight; compute arithmetic before calling the tools.
 - timeEnd - timeStart = duration. When shifting times, decide whether to keep duration fixed (timeEnd moves with timeStart) or keep timeEnd fixed (duration shrinks). Provide only the fields you intend to change — the server infers the strategy from which fields are present.
-- For "shift everything N minutes later": update timeStart and timeEnd per event (or just timeStart on the first event of a linkStart chain).
+- For "shift everything N minutes later": update timeStart and timeEnd per event (or just timeStart on the anchor event of a linkStart chain). Do not use ontime_batch_update_entries for this unless every target event should receive the exact same timeStart/timeEnd values.
 
 Automation risks:
 - Setting \`endAction: 'play-next'\` on multiple events creates an automatic playback chain that removes operator control between those events. Confirm with the user before applying.
@@ -125,12 +134,12 @@ Steps:
 Check and report:
 
 Schedule integrity:
-- Events with missing or duplicate \`cue\`
-- Events with missing \`title\`
+- Events with missing \`cue\` or \`title\`: these are usually worth checking, but not necessarily errors
 - Events with \`duration\` of 0 or negative
-- Events where \`timeEnd\` < \`timeStart\`
-- Events whose \`timeStart\` overlaps the previous event's \`timeEnd\` (gap < 0 means a conflict)
-- Large unexplained gaps between consecutive events (> 30 min) that may indicate a missing break
+- Events with \`gap < 0\`: overlaps the previous timed event and is a conflict
+- Large unexplained positive gaps between consecutive timed events (> 30 min): check whether these are intentional
+- Events where \`timeEnd < timeStart\`: these cross midnight; confirm this is intentional
+- Events whose \`timeStart\` is the same as or earlier than the previous playable event's \`timeStart\`: Ontime schedules these on the next day; confirm this is intentional
 
 Timing and linking:
 - \`metadata.totalDays > 0\`: show spans midnight — confirm this is intentional

@@ -26,7 +26,7 @@ export const EVENT_TIMER_FIELDS = {
   linkStart: {
     type: 'boolean',
     description:
-      "Chain this event's start time to the previous event's end time — changing the first linked event propagates schedule changes to all linked followers",
+      "Link this event's start time to the previous playable event's end time. Linked events allow time changes to propagate through the rundown. Unlinking would prevent propagation and lock this event's start time to the schedule",
   },
   countToEnd: { type: 'boolean', description: 'Timer counts toward the scheduled end time rather than elapsed time' },
   timeWarning: { type: 'number', description: 'ms before timeEnd to enter warning state (e.g. 300000 = 5 min)' },
@@ -50,7 +50,7 @@ export const EVENT_WRITABLE_FIELDS = {
     type: 'object',
     additionalProperties: { type: 'string' },
     description:
-      'Custom field values keyed by field key, e.g. { "camera": "CAM 2" }. Get available keys with ontime_get_custom_fields',
+      'Custom field values keyed by existing project field key, e.g. { "camera": "CAM 2" }. Get available keys with ontime_get_custom_fields. Adding new custom field definitions is a separate project-level operation.',
   },
   ...EVENT_TIMER_FIELDS,
 } as const;
@@ -94,7 +94,9 @@ There are four entry types discriminated by \`type\`:
   timeStart: number          // ms from midnight (09:00 = 32400000)
   timeEnd: number            // ms from midnight
   duration: number           // ms (= timeEnd - timeStart)
-  delay: number              // accumulated delay in ms (runtime)
+  delay: number              // delay accumulated from rundown delay entries
+  dayOffset: number          // runtime calculated day offset from the rundown start schedule, increments when the rundown crosses midnight
+  gap: number                // schedule gap between sequential playable events; negative gap means overlap
   timerType: 'count-down' | 'count-up' | 'clock' | 'none'
   endAction: 'none' | 'load-next' | 'play-next'
   linkStart: boolean         // chain start to previous event's end
@@ -104,35 +106,57 @@ There are four entry types discriminated by \`type\`:
   timeWarning: number        // ms before end to trigger 'warning' state
   timeDanger: number         // ms before end to trigger 'danger' state
   custom: { [key: string]: string }   // custom field values
+  parent: EntryId | null     // parent group, when nested
+  revision: number           // entry revision
 }
 \`\`\`
 
 ### \`delay\` — OntimeDelay (schedule shift applied to following events)
 \`\`\`
-{ type: 'delay', id, duration: number }
+{ type: 'delay', id, duration: number, parent: EntryId | null }
 \`\`\`
 
 ### \`group\` — OntimeGroup (nested container of entries)
 \`\`\`
-{ type: 'group', id, title, colour, note, entries: EntryId[], targetDuration?: number }
+{
+  type: 'group'
+  id: EntryId
+  title: string
+  colour: string
+  note: string
+  entries: EntryId[]
+  targetDuration: number | null
+  custom: { [key: string]: string }
+  timeStart: number | null     // calculated from nested entries (runtime)
+  timeEnd: number | null       // calculated from nested entries (runtime)
+  duration: number             // calculated from nested entries (runtime)
+  isFirstLinked: boolean       // whether the first nested event is linked (runtime)
+  revision: number
+}
 \`\`\`
-Groups are created with a title only — set colour, note and targetDuration with an update after creation.
+Groups are created with a title only — set colour, note, custom values and targetDuration with an update after creation.
 
 ### \`milestone\` — OntimeMilestone (marker with no timer)
 \`\`\`
-{ type: 'milestone', id, cue, title, note, colour, custom }
+{ type: 'milestone', id, cue, title, note, colour, custom, parent: EntryId | null }
 \`\`\`
 
 ## Time format
-All time fields are **milliseconds from midnight (local)**. Examples:
+Ontime stores time values as **milliseconds from midnight (local)**. Convert user-facing times before calling tools: \`10:30\` means \`37800000\`, and a duration like \`45 min\` means \`2700000\`.
+
+\`timeEnd\` may be lower than \`timeStart\` when an event crosses midnight; duration is calculated across the day boundary.
+
+Examples:
 - 09:00:00 = 32400000
 - 09:30:00 = 34200000
 - 14:15:00 = 51300000
 - Duration of 45 min = 2700000
 
 ## Custom fields
-Custom fields are project-scoped definitions. Get definitions at \`ontime://project/custom-fields\`.
+Custom fields are project-scoped definitions. Get definitions at \`ontime://project/custom-fields\` or with \`ontime_get_custom_fields\`.
 Events, milestones and groups store values at \`entry.custom[fieldKey]\`.
+Only use existing field keys when setting \`custom\` values. Adding, renaming, or deleting custom field definitions is a separate project-level operation.
+When the user wants to assign custom values, show the existing custom field list first if there is any ambiguity, so you do not create duplicate concepts such as \`Cam\`, \`camera\`, and \`Cameras\`.
 
 ## Playback states (runtime only)
 \`'stop' | 'play' | 'pause' | 'armed' | 'roll'\`

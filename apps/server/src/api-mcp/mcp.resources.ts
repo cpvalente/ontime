@@ -1,9 +1,9 @@
+import type { ListResourcesResult, ReadResourceResult } from '@modelcontextprotocol/sdk/types.js';
+
 import { getProjectData } from '../api-data/project-data/projectData.dao.js';
 import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
 import { normalisedToRundownArray } from '../api-data/rundown/rundown.utils.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
-import type { ListResourcesResult, ReadResourceResult } from '@modelcontextprotocol/sdk/types.js';
-
 import { ONTIME_DOCS_MARKDOWN, ONTIME_SCHEMA_MARKDOWN } from './mcp.schema.js';
 
 export const RESOURCE_DEFINITIONS: ListResourcesResult['resources'] = [
