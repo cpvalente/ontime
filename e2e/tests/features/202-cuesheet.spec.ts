@@ -30,6 +30,8 @@ test('cuesheet datagrid does not submit timer cells on tab-out or escape', async
 
   // re-enter edit mode: original value should be unchanged
   await durationCell.click();
+  // tabbing selects the next input filed so we have to click twice to first leave input field and then select
+  await durationCell.click();
   await expect(durationCell.locator('input')).toHaveValue(originalDuration);
   await durationCell.locator('input').press('Escape');
 
