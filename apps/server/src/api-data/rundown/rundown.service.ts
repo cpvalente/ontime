@@ -659,11 +659,7 @@ export async function loadRundown(id: string) {
  * Sets a new rundown in the cache
  * and marks it as the currently loaded one
  */
-export async function initRundown(
-  rundown: Readonly<Rundown>,
-  customFields: Readonly<CustomFields>,
-  reload: boolean = false,
-) {
+export function initRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>, reload: boolean = false) {
   runtimeService.stop();
   const { rundownMetadata, revision } = rundownCache.init(rundown, customFields);
   logger.info(LogOrigin.Server, `Switch to rundown: ${rundown.id}`);

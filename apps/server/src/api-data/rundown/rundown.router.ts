@@ -47,7 +47,7 @@ export const router: Router = express.Router();
 /**
  * Returns all rundowns in the project
  */
-router.get('/', async (_req: Request, res: Response<ProjectRundownsList>) => {
+router.get('/', (_req: Request, res: Response<ProjectRundownsList>) => {
   const projectRundowns = getDataProvider().getProjectRundowns();
   res.json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
 });
@@ -55,7 +55,7 @@ router.get('/', async (_req: Request, res: Response<ProjectRundownsList>) => {
 /**
  * Returns the current rundown
  */
-router.get('/current', async (_req: Request, res: Response<Rundown>) => {
+router.get('/current', (_req: Request, res: Response<Rundown>) => {
   const rundown = getCurrentRundown();
   res.json(rundown);
 });
@@ -63,7 +63,7 @@ router.get('/current', async (_req: Request, res: Response<Rundown>) => {
 /**
  * Returns a given rundown in its normalised client shape
  */
-router.get('/:id', paramsWithId, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+router.get('/:id', paramsWithId, (req: Request, res: Response<Rundown | ErrorResponse>) => {
   try {
     const rundown = getProcessedRundown(req.params.id);
     res.json(rundown);
