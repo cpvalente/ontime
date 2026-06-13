@@ -1,12 +1,12 @@
 /**
- * Single source of truth for Ontime MCP documentation.
+ * Agent-facing Ontime MCP documentation.
  *
  * Tool field schemas (EVENT_TIMER_FIELDS, EVENT_WRITABLE_FIELDS) and the schema resource
- * (ONTIME_SCHEMA_MARKDOWN) are maintained here so that a single edit keeps tool descriptions,
- * prompt guidance, and the agent-readable reference document in sync.
+ * (ONTIME_SCHEMA_MARKDOWN) are maintained here so tool descriptions, prompt guidance,
+ * and the agent-readable reference document use the same wording.
  *
  * Canonical type definitions live in packages/types/src/definitions/core/OntimeEntry.ts.
- * Update this file when the data model changes.
+ * Keep this file concise and update it when MCP-exposed fields change.
  */
 
 // ---- Shared event field JSON schemas ----
@@ -29,6 +29,12 @@ export const EVENT_TIMER_FIELDS = {
       "Link this event's start time to the previous playable event's end time. Linked events allow time changes to propagate through the rundown. Unlinking would prevent propagation and lock this event's start time to the schedule",
   },
   countToEnd: { type: 'boolean', description: 'Timer counts toward the scheduled end time rather than elapsed time' },
+  timeStrategy: {
+    type: 'string',
+    enum: ['lock-duration', 'lock-end'],
+    description:
+      'How linked events adapt to an inherited start: lock-duration recalculates end, lock-end recalculates duration',
+  },
   timeWarning: { type: 'number', description: 'ms before timeEnd to enter warning state (e.g. 300000 = 5 min)' },
   timeDanger: { type: 'number', description: 'ms before timeEnd to enter danger state (e.g. 60000 = 1 min)' },
 } as const;
@@ -53,6 +59,14 @@ export const EVENT_WRITABLE_FIELDS = {
       'Custom field values keyed by existing project field key, e.g. { "camera": "CAM 2" }. Get available keys with ontime_get_custom_fields. Adding new custom field definitions is a separate project-level operation.',
   },
   ...EVENT_TIMER_FIELDS,
+} as const;
+
+export const RUNDOWN_TARGET_FIELD = {
+  rundownId: {
+    type: 'string',
+    description:
+      'Optional target rundown ID. Omit to target the currently loaded live rundown; provide an ID from ontime_list_rundowns to edit a background rundown without loading it.',
+  },
 } as const;
 
 // ---- Agent-readable schema document ----
@@ -103,9 +117,11 @@ There are four entry types discriminated by \`type\`:
   countToEnd: boolean        // timer counts to planned end time
   skip: boolean              // event is skipped during playback
   flag: boolean              // critical operational marker, highlighted to operators
+  timeStrategy: 'lock-duration' | 'lock-end'
   timeWarning: number        // ms before end to trigger 'warning' state
   timeDanger: number         // ms before end to trigger 'danger' state
   custom: { [key: string]: string }   // custom field values
+  triggers: Trigger[]        // automation trigger references
   parent: EntryId | null     // parent group, when nested
   revision: number           // entry revision
 }
@@ -158,9 +174,15 @@ Events, milestones and groups store values at \`entry.custom[fieldKey]\`.
 Only use existing field keys when setting \`custom\` values. Adding, renaming, or deleting custom field definitions is a separate project-level operation.
 When the user wants to assign custom values, show the existing custom field list first if there is any ambiguity, so you do not create duplicate concepts such as \`Cam\`, \`camera\`, and \`Cameras\`.
 
+## Targeting rundowns
+Entry read/write tools accept an optional \`rundownId\`.
+- Omit \`rundownId\` to target the currently loaded live rundown.
+- Pass a rundown ID from \`ontime_list_rundowns\` to edit a background rundown without loading it.
+- Loading a rundown with \`ontime_load_rundown\` switches the live rundown and resets runtime state; do not load a rundown just to edit it in the background.
+
 ## Playback states (runtime only)
 \`'stop' | 'play' | 'pause' | 'armed' | 'roll'\`
-When playback is not \`stop\`, mutating tools warn that changes are visible immediately.
+When playback is not \`stop\`, mutations to the loaded rundown affect the live rundown immediately, so confirm with the user before editing. Mutations to a background rundown using \`rundownId\` do not interrupt playback.
 
 ## Available resources
 - \`ontime://schema\` — this document

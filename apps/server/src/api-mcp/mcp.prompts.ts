@@ -47,9 +47,11 @@ export function handleGetPrompt(name: string, args: Record<string, string>): Get
 Read the ontime://schema resource if you need a data model reference.
 
 Steps:
-1. Call ontime_get_rundown to see current state and identify an \`after\` anchor if appending.
-2. Build an array of events in order and call ontime_batch_create_entries ONCE with all of them. This is much faster than calling ontime_create_entry per item.
-3. If the rundown already has events, pass \`after: <last event id>\` on the batch call so new events chain from the end.
+1. Call ontime_list_rundowns and identify the target rundown. If the user wants a background rundown, pass its \`rundownId\` in all entry read/write calls instead of loading it.
+2. Call ontime_get_rundown with the chosen \`rundownId\` to see current state and identify an \`after\` anchor if appending.
+3. Call ontime_get_timer_state. If playback is not \`stop\` and the target is the loaded rundown, explain that MCP edits affect the live rundown and ask the user to confirm before changing it. If the target is a background rundown, it can be edited without interrupting playback.
+4. Build an array of events in order and call ontime_batch_create_entries ONCE with all of them. This is much faster than calling ontime_create_entry per item.
+5. If the rundown already has events, pass \`after: <last event id>\` on the batch call so new events chain from the end.
 
 Entry type guidance:
 - Use \`event\` for anything with a scheduled time and duration (talks, panels, breaks, meals).
@@ -106,10 +108,12 @@ ${args.agenda}`,
       `Apply the following bulk edit to the current Ontime rundown: "${args.instruction}"
 
 Strategy:
-1. Call ontime_get_rundown to see the current events, their IDs, and field values.
-2. Determine which event IDs are affected by the instruction.
-3. If every affected entry receives the SAME field values (e.g. "colour all keynotes purple", "skip all breaks"): call ontime_batch_update_entries once with { ids, data }.
-4. If each event needs DIFFERENT field values (e.g. "shift everything 30 minutes later"): check first if events use linkStart. If they do, changing the anchor event's timeStart or duration can cascade to linked followers — you may only need to update one event. Otherwise, compute the new values per event and call ontime_update_entry for each.
+1. Call ontime_list_rundowns and identify the target rundown. If the user wants a background rundown, pass its \`rundownId\` in all entry read/write calls instead of loading it.
+2. Call ontime_get_rundown with the chosen \`rundownId\` to see the current events, their IDs, and field values.
+3. Call ontime_get_timer_state. If playback is not \`stop\` and the target is the loaded rundown, explain that MCP edits affect the live rundown and ask the user to confirm before changing it. If the target is a background rundown, it can be edited without interrupting playback.
+4. Determine which event IDs are affected by the instruction.
+5. If every affected entry receives the SAME field values (e.g. "colour all keynotes purple", "skip all breaks"): call ontime_batch_update_entries once with { ids, data, rundownId }.
+6. If each event needs DIFFERENT field values (e.g. "shift everything 30 minutes later"): check first if events use linkStart. If they do, changing the anchor event's timeStart or duration can cascade to linked followers — you may only need to update one event. Otherwise, compute the new values per event and call ontime_update_entry for each.
 
 Time shift mechanics:
 - All time fields are milliseconds from midnight; compute arithmetic before calling the tools.
@@ -166,13 +170,15 @@ Present issues grouped by severity: ERROR (breaks playback), WARNING (likely mis
       `Restructure the current Ontime rundown: "${args.instruction}"
 
 Steps:
-1. Call ontime_get_rundown to see the current order, groups, and event fields.
-2. Note which events are inside groups (check each group's \`entries\` array vs the top-level \`order\` array).
-3. Compute the target arrangement as a sequence of moves.
-4. For each event that needs to move, call ontime_reorder_entry:
+1. Call ontime_list_rundowns and identify the target rundown. If the user wants a background rundown, pass its \`rundownId\` in all entry read/write calls instead of loading it.
+2. Call ontime_get_rundown with the chosen \`rundownId\` to see the current order, groups, and event fields.
+3. Call ontime_get_timer_state. If playback is not \`stop\` and the target is the loaded rundown, explain that MCP reorders the live rundown and ask the user to confirm before changing it. If the target is a background rundown, it can be edited without interrupting playback.
+4. Note which events are inside groups (check each group's \`entries\` array vs the top-level \`order\` array).
+5. Compute the target arrangement as a sequence of moves.
+6. For each event that needs to move, call ontime_reorder_entry:
    - \`order: 'before'\` or \`'after'\` — places the event as a sibling next to destinationId
    - \`order: 'insert'\` — places the event inside a group (destinationId must be the group's ID)
-5. Call ontime_get_rundown again to confirm the new order.
+7. Call ontime_get_rundown again to confirm the new order.
 
 Group awareness:
 - Events inside a group appear in the group's \`entries\` array, not in the top-level \`order\`.

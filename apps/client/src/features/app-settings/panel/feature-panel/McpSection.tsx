@@ -18,10 +18,10 @@ export default function McpSection() {
         ? `http://${infoData.networkInterfaces[0].address}:${infoData.serverPort}`
         : serverURL;
 
-    generateUrl({ baseUrl, path: '/mcp', authenticate: true, lockConfig: false, lockNav: false })
+    generateUrl({ baseUrl, path: 'mcp', authenticate: true, lockConfig: false, lockNav: false })
       .then(setMcpEndpointUrl)
       .catch(() => {
-        setMcpEndpointUrl(`${baseUrl}/mcp`);
+        setMcpEndpointUrl('');
       });
   }, [infoData]);
 
