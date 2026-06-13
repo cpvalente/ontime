@@ -1,11 +1,12 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-import express, { type Request, type Response } from 'express';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import express from 'express';
+import type { Request, Response, Router } from 'express';
 
 import { createMcpServer } from './mcp.server.js';
 
-export const mcpRouter = express.Router();
+export const mcpRouter: Router = express.Router();
 
 mcpRouter.post('/', async (req, res) => {
   // A new Server instance is created per request — required for stateless mode where

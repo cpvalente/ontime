@@ -1,3 +1,4 @@
+import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import {
   EntryId,
   EventPostPayload,
@@ -44,8 +45,6 @@ import {
   renameProjectFile,
 } from '../services/project-service/ProjectService.js';
 import { getState } from '../stores/runtimeState.js';
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-
 import { EVENT_WRITABLE_FIELDS } from './mcp.schema.js';
 
 // Graceful truncation to keep tool responses within typical MCP context windows
@@ -96,7 +95,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_create_entry',
     description:
-      'Create a new entry in the current rundown. Omit after/before to append at the end. For type "event" provide title, timeStart, timeEnd and duration (cue is auto-numbered if omitted). For "milestone" provide cue/title/note/colour. For "delay" provide duration. For "group" provide title only — set other group fields with ontime_update_entry after creation.',
+      'Create a new entry in the current rundown. Omit after/before to append at the end. For type "event" provide title plus enough timing data for Ontime to infer a strategy: timeStart+duration calculates timeEnd, timeStart+timeEnd calculates duration, and timeEnd+duration calculates timeStart. For "milestone" provide cue/title/note/colour and optional custom values using existing project custom field keys. For "delay" provide duration. For "group" provide title only — set colour, note, custom, or targetDuration with ontime_update_entry after creation.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -122,7 +121,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_update_entry',
     description:
-      'Update fields of an existing entry (event, milestone, delay or group). Only provided fields are changed. Event time fields (timeStart, timeEnd, duration) are reconciled server-side — you may provide any combination. Group-only field: targetDuration.',
+      'Update fields of an existing entry (event, milestone, delay or group). Only provided fields are changed. Event time fields (timeStart, timeEnd, duration) are reconciled server-side — you may provide any combination. Group fields: title, note, colour, custom, targetDuration. Delay field: duration. Milestone fields: cue, title, note, colour, custom. Custom values must use existing project custom field keys; adding a new custom field is a separate operation.',
     inputSchema: {
       type: 'object',
       required: ['id'],
@@ -171,7 +170,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_batch_create_entries',
     description:
-      'Create multiple entries in one call. Use this for "build from agenda" flows to avoid many round trips. Entries are inserted in array order; if `after` is provided it positions the first entry, subsequent entries chain from the previous.',
+      'Create multiple entries in one call. Use this for "build from agenda" flows to avoid many round trips. Entries are inserted in array order; if `after` is provided it positions the first entry, subsequent entries chain from the previous. For events, provide title plus enough timing data for Ontime to infer a strategy: timeStart+duration calculates timeEnd, timeStart+timeEnd calculates duration, and timeEnd+duration calculates timeStart.',
     inputSchema: {
       type: 'object',
       required: ['entries'],
@@ -202,7 +201,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_batch_update_entries',
     description:
-      'Apply the same field changes to multiple entries by ID. Use for bulk operations like recolouring all keynotes or shifting times by a constant offset (compute new times client-side first).',
+      'Apply the same field values to multiple entries by ID. Use for bulk operations like recolouring all keynotes, skipping all breaks, or setting the same custom value on several entries. Custom values must use existing project custom field keys. Do not use for changes where each entry needs a different value, such as time shifts with different timeStart/timeEnd values; compute those per entry and call ontime_update_entry for each.',
     inputSchema: {
       type: 'object',
       required: ['ids', 'data'],
@@ -356,8 +355,7 @@ export const TOOL_DEFINITIONS = [
   },
   {
     name: 'ontime_rename_project',
-    description:
-      'Rename a project file. If the renamed project is currently loaded, it is reloaded with the new name.',
+    description: 'Rename a project file. If the renamed project is currently loaded, it is reloaded with the new name.',
     inputSchema: {
       type: 'object',
       required: ['filename', 'newFilename'],
@@ -429,6 +427,26 @@ type EntryFieldArgs = EventFieldArgs & MilestoneFieldArgs & DelayFieldArgs & Gro
 type CreateEntryArgs = EntryFieldArgs & InsertOptions & { type?: `${SupportedEntry}` };
 type UpdateEntryArgs = EntryFieldArgs & { id: EntryId };
 type ProjectInfoArgs = Partial<Pick<ProjectData, 'title' | 'description' | 'url' | 'info'>>;
+
+function assertKnownCustomFields(...customValues: Array<EntryFieldArgs['custom'] | undefined>) {
+  const customFields = getProjectCustomFields();
+  const knownKeys = new Set(Object.keys(customFields));
+  const unknownKeys = new Set<string>();
+
+  for (const custom of customValues) {
+    if (!custom) continue;
+    for (const key of Object.keys(custom)) {
+      if (!knownKeys.has(key)) {
+        unknownKeys.add(key);
+      }
+    }
+  }
+
+  if (unknownKeys.size > 0) {
+    const keys = [...unknownKeys].join(', ');
+    throw new Error(`Unknown custom field key(s): ${keys}. Call ontime_get_custom_fields to list available keys.`);
+  }
+}
 
 /** Translates tool arguments into the payload consumed by rundown.service addEntry */
 function toEntryPayload(args: CreateEntryArgs): EventPostPayload {
@@ -516,13 +534,16 @@ const TOOL_HANDLERS: Record<ToolName, (args: Record<string, unknown>) => Promise
   },
 
   ontime_create_entry: async (args) => {
-    const entry = await addEntry(getCurrentRundownId(), toEntryPayload(args as CreateEntryArgs));
+    const createArgs = args as CreateEntryArgs;
+    assertKnownCustomFields(createArgs.custom);
+    const entry = await addEntry(getCurrentRundownId(), toEntryPayload(createArgs));
     return okMutation(entry);
   },
 
   ontime_update_entry: async (args) => {
-    const patch: PatchWithId = args as UpdateEntryArgs;
-    const entry = await editEntry(getCurrentRundownId(), patch);
+    const updateArgs = args as UpdateEntryArgs;
+    assertKnownCustomFields(updateArgs.custom);
+    const entry = await editEntry(getCurrentRundownId(), updateArgs as PatchWithId);
     return okMutation(entry);
   },
 
@@ -544,6 +565,7 @@ const TOOL_HANDLERS: Record<ToolName, (args: Record<string, unknown>) => Promise
 
   ontime_batch_create_entries: async (args) => {
     const { entries = [], after } = args as { entries: CreateEntryArgs[]; after?: EntryId };
+    assertKnownCustomFields(...entries.map((entry) => entry.custom));
     const rundownId = getCurrentRundownId();
     let previousId = after;
     const created: unknown[] = [];
@@ -559,6 +581,7 @@ const TOOL_HANDLERS: Record<ToolName, (args: Record<string, unknown>) => Promise
 
   ontime_batch_update_entries: async (args) => {
     const { ids, data } = args as { ids: EntryId[]; data: EntryFieldArgs };
+    assertKnownCustomFields(data.custom);
     const rundown = await batchEditEntries(getCurrentRundownId(), ids, data);
     return okMutation({ updated: ids, order: rundown.order });
   },
