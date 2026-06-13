@@ -34,7 +34,7 @@ import {
   updateBackgroundRundown,
 } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
-import { generateEvent, getIntegerAndFraction, hasChanges } from './rundown.utils.js';
+import { duplicateRundown, generateEvent, getIntegerAndFraction, hasChanges } from './rundown.utils.js';
 
 /**
  * creates a new entry with given data
@@ -691,4 +691,56 @@ export async function createNewRundown(title: string) {
   });
 
   return projectRundowns;
+}
+
+/**
+ * Renames an existing rundown
+ * @throws if the provided id does not exist
+ */
+export async function renameRundown(id: string, title: string) {
+  const dataProvider = getDataProvider();
+  const rundown = dataProvider.getRundown(id);
+
+  await dataProvider.setRundown(id, { ...rundown, title });
+
+  /**
+   * If loaded we re-init the rundown
+   * This is likely over-kill but the simplest way to ensure state consistency
+   */
+  if (isCurrentRundown(id)) {
+    await initRundown(dataProvider.getRundown(id), dataProvider.getCustomFields());
+  }
+
+  return dataProvider.getProjectRundowns();
+}
+
+/**
+ * Duplicates an existing rundown without making it the loaded one
+ * @throws if the provided id does not exist
+ */
+export async function duplicateExistingRundown(id: string) {
+  const dataProvider = getDataProvider();
+  const rundown = dataProvider.getRundown(id);
+
+  const duplicatedRundown = duplicateRundown(rundown, `Copy of ${rundown.title}`);
+  await dataProvider.setRundown(duplicatedRundown.id, duplicatedRundown);
+
+  return dataProvider.getProjectRundowns();
+}
+
+/**
+ * Deletes a rundown
+ * @throws if attempting to delete the loaded rundown or the last rundown in the project
+ */
+export async function deleteRundown(id: string) {
+  if (isCurrentRundown(id)) {
+    throw new Error('Cannot delete loaded rundown');
+  }
+
+  const dataProvider = getDataProvider();
+  if (Object.keys(dataProvider.getProjectRundowns()).length <= 1) {
+    throw new Error('Cannot delete the last rundown');
+  }
+
+  return dataProvider.deleteRundown(id);
 }
