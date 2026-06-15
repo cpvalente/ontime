@@ -9,7 +9,7 @@ import type { RefObject } from 'react';
 import type { TableVirtuosoHandle } from 'react-virtuoso';
 
 import { PERF_ENABLED } from './perfConfig';
-import { dump, endSession, startSession } from './perfStore';
+import { dump, endSession, snapshot, startSession, type PerfSnapshot } from './perfStore';
 import { startFpsMonitor, stopFpsMonitor } from './scrollFpsMonitor';
 
 export interface BenchmarkOptions {
@@ -24,17 +24,17 @@ export interface BenchmarkOptions {
 export async function runScrollBenchmark(
   virtuosoRef: RefObject<TableVirtuosoHandle | null>,
   options: BenchmarkOptions = {},
-): Promise<void> {
+): Promise<PerfSnapshot | undefined> {
   if (!PERF_ENABLED) {
     // eslint-disable-next-line no-console
     console.warn('[cuesheet-perf] disabled — open the cuesheet with ?perf=1 in a dev build.');
-    return;
+    return undefined;
   }
   const handle = virtuosoRef.current;
   if (!handle) {
     // eslint-disable-next-line no-console
     console.warn('[cuesheet-perf] virtuoso handle not ready.');
-    return;
+    return undefined;
   }
 
   const { fromIndex = 0, toIndex = 200, stride = 8, stepMs = 16 } = options;
@@ -48,6 +48,7 @@ export async function runScrollBenchmark(
   stopFpsMonitor();
   endSession();
   dump();
+  return snapshot();
 }
 
 function scrollThrough(

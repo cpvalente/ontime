@@ -80,9 +80,21 @@ export function recordFrame(deltaMs: number): void {
   }
 }
 
-/** Dumps the collected metrics to the console as tables. */
-export function dump(): void {
-  const markRows = Object.entries(state.marks)
+export interface PerfSnapshot {
+  summary: {
+    rowsMounted: number;
+    frames: number;
+    longFrames: number;
+    avgFps: number;
+    minFps: number;
+    maxFrameMs: number;
+  };
+  marks: Array<{ mark: string; count: number; avgMs: number; maxMs: number; totalMs: number }>;
+}
+
+/** Returns the collected metrics as a structured object (for console or automated capture). */
+export function snapshot(): PerfSnapshot {
+  const marks = Object.entries(state.marks)
     .map(([name, m]) => ({
       mark: name,
       count: m.count,
@@ -95,19 +107,26 @@ export function dump(): void {
   const avgFps = state.totalFrameMs > 0 ? round((state.frameCount * 1000) / state.totalFrameMs) : 0;
   const minFps = state.maxFrameMs > 0 ? round(1000 / state.maxFrameMs) : 0;
 
-  const summary = {
-    rowsMounted: state.rowsMounted,
-    frames: state.frameCount,
-    longFrames: state.longFrames,
-    avgFps,
-    minFps,
-    maxFrameMs: round(state.maxFrameMs),
+  return {
+    summary: {
+      rowsMounted: state.rowsMounted,
+      frames: state.frameCount,
+      longFrames: state.longFrames,
+      avgFps,
+      minFps,
+      maxFrameMs: round(state.maxFrameMs),
+    },
+    marks,
   };
+}
 
+/** Dumps the collected metrics to the console as tables. */
+export function dump(): void {
+  const { summary, marks } = snapshot();
   /* eslint-disable no-console */
   console.group('[cuesheet-perf] benchmark result');
   console.table(summary);
-  console.table(markRows);
+  console.table(marks);
   console.groupEnd();
   /* eslint-enable no-console */
 }

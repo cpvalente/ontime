@@ -13,7 +13,7 @@ import type { TableVirtuosoHandle } from 'react-virtuoso';
 
 import { runScrollBenchmark, type BenchmarkOptions } from './benchmark';
 import { PERF_ENABLED } from './perfConfig';
-import { dump, endSession, reset, startSession } from './perfStore';
+import { dump, endSession, reset, snapshot, startSession } from './perfStore';
 import { startFpsMonitor, stopFpsMonitor } from './scrollFpsMonitor';
 
 export function useCuesheetPerf(virtuosoRef: RefObject<TableVirtuosoHandle | null>): void {
@@ -33,6 +33,7 @@ export function useCuesheetPerf(virtuosoRef: RefObject<TableVirtuosoHandle | nul
       },
       dump,
       reset,
+      getResults: snapshot,
     };
 
     (window as unknown as { __cuesheetPerf?: typeof api }).__cuesheetPerf = api;
