@@ -1,6 +1,8 @@
 import { HotkeyItem, getHotkeyHandler } from '@mantine/hooks';
 import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { timeSync } from '../../../devtools/cuesheet-metrics/usePerfMark'; // PERF-METRICS
+
 interface UseReactiveTextInputReturn {
   value: string;
   onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -95,7 +97,7 @@ export default function useReactiveTextInput(
     setTimeout(() => ref.current?.blur()); // Immediate timeout to ensure text is set before blurring
   }, [initialText, options, ref]);
 
-  const keyHandler = useMemo(() => {
+  const keyHandler = useMemo(() => timeSync('cell.reactiveInputInit', () => { // PERF-METRICS
     const hotKeys: HotkeyItem[] = [
       [
         'Escape',
@@ -155,7 +157,7 @@ export default function useReactiveTextInput(
 
       hotKeyHandler(event);
     };
-  }, [handleEscape, handleSubmit, options?.submitOnCtrlEnter, options?.submitOnEnter, options?.submitOnTab, text]);
+  }), [handleEscape, handleSubmit, options?.submitOnCtrlEnter, options?.submitOnEnter, options?.submitOnTab, text]); // PERF-METRICS
 
   return {
     value: text,

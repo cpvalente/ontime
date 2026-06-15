@@ -5,6 +5,7 @@ import { CSSProperties, memo, useMemo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
+import { timeSync, useMountProbe } from '../../../../common/devtools/cuesheet-metrics/usePerfMark'; // PERF-METRICS
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { AppMode } from '../../../../ontimeConfig';
@@ -56,25 +57,29 @@ function EventRow({
 
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
+  useMountProbe('EventRow', true); // PERF-METRICS
+
   const { rowBgColour, backgroundColor, mutedText } = useMemo(() => {
-    const accessible = getAccessibleColour(colour);
-    const tmpColour = cssOrHexToColour(accessible.color) as RGBColour;
+    return timeSync('row.colourCalc', () => { // PERF-METRICS
+      const accessible = getAccessibleColour(colour);
+      const tmpColour = cssOrHexToColour(accessible.color) as RGBColour;
 
-    let rowBgColour: string | undefined;
-    if (isLoaded) {
-      rowBgColour = '#087A27'; // $active-green
-    } else if (colour) {
-      const accessibleBg = cssOrHexToColour(accessible.backgroundColor);
-      if (accessibleBg !== null) {
-        rowBgColour = colourToHex({ ...accessibleBg, alpha: accessibleBg.alpha * 0.25 });
+      let rowBgColour: string | undefined;
+      if (isLoaded) {
+        rowBgColour = '#087A27'; // $active-green
+      } else if (colour) {
+        const accessibleBg = cssOrHexToColour(accessible.backgroundColor);
+        if (accessibleBg !== null) {
+          rowBgColour = colourToHex({ ...accessibleBg, alpha: accessibleBg.alpha * 0.25 });
+        }
       }
-    }
 
-    return {
-      rowBgColour,
-      backgroundColor: accessible.backgroundColor,
-      mutedText: colourToHex({ ...tmpColour, alpha: tmpColour.alpha * 0.8 }),
-    };
+      return {
+        rowBgColour,
+        backgroundColor: accessible.backgroundColor,
+        mutedText: colourToHex({ ...tmpColour, alpha: tmpColour.alpha * 0.8 }),
+      };
+    }); // PERF-METRICS
   }, [colour, isLoaded]);
 
   return (
@@ -117,9 +122,7 @@ function EventRow({
           {eventIndex}
         </td>
       )}
-      {table
-        .getRow(rowId)
-        .getVisibleCells()
+      {timeSync('row.getVisibleCells', () => table.getRow(rowId).getVisibleCells()) // PERF-METRICS
         .map((cell) => {
           return (
             <td

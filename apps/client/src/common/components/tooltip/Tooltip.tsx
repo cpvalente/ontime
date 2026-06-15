@@ -1,6 +1,8 @@
 import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import { PropsWithChildren } from 'react';
 
+import { useMountProbe } from '../../devtools/cuesheet-metrics/usePerfMark'; // PERF-METRICS
+
 import style from './Tooltip.module.scss';
 
 interface TooltipProps extends BaseTooltip.Trigger.Props {
@@ -8,6 +10,7 @@ interface TooltipProps extends BaseTooltip.Trigger.Props {
 }
 
 export default function Tooltip({ text, children, ...triggerProps }: PropsWithChildren<TooltipProps>) {
+  useMountProbe('cell.tooltip'); // PERF-METRICS
   return (
     <BaseTooltip.Root>
       <BaseTooltip.Trigger {...triggerProps}>{children}</BaseTooltip.Trigger>
