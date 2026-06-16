@@ -2,7 +2,6 @@
 import autosize from 'autosize/dist/autosize';
 import { RefObject, useEffect } from 'react';
 
-import { timeSync } from '../../../devtools/cuesheet-metrics/usePerfMark'; // PERF-METRICS
 import Textarea, { type TextareaProps } from '../textarea/Textarea';
 
 interface AutoTextAreaProps extends TextareaProps {
@@ -16,7 +15,7 @@ export function AutoTextarea({ value, inputref, ...textAreaProps }: AutoTextArea
   // when the value changes, we use the ref to reapply autosize
   useEffect(() => {
     const node = inputref.current;
-    timeSync('cell.autosize', () => autosize(inputref.current)); // PERF-METRICS
+    autosize(inputref.current);
 
     return () => {
       autosize.destroy(node);

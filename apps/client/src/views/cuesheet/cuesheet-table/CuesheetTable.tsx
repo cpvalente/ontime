@@ -14,7 +14,6 @@ import {
 import EmptyPage from '../../../common/components/state/EmptyPage';
 import EmptyTableBody from '../../../common/components/state/EmptyTableBody';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
-import { useCuesheetPerf } from '../../../common/devtools/cuesheet-metrics/useCuesheetPerf'; // PERF-METRICS
 import type { RundownSource } from '../../../common/hooks-query/useScopedRundown';
 import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { usePersistedRundownOptions } from '../../../features/rundown/rundown.options';
@@ -73,7 +72,6 @@ export default function CuesheetTable({
   const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
 
   const virtuosoRef = useRef<TableVirtuosoHandle | null>(null);
-  useCuesheetPerf(virtuosoRef); // PERF-METRICS
   const { listeners } = useTableNav();
 
   const meta = useMemo(
