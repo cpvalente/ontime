@@ -1,7 +1,7 @@
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, Table, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { OntimeEntry, SupportedEntry, TimeField, isOntimeDelay, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
-import { ComponentProps, ReactNode, memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import { ComponentProps, memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   ContextProp,
   ItemProps,
@@ -40,25 +40,17 @@ type CuesheetTableBaseProps = {
 type EditorCuesheetTableProps = CuesheetTableBaseProps & {
   tableRoot: 'editor';
   setCuesheetMode?: undefined;
-  isCurrentRundown?: undefined;
 };
 
 type ViewCuesheetTableProps = CuesheetTableBaseProps & {
   tableRoot: 'cuesheet';
   setCuesheetMode: (mode: AppMode) => void;
-  isCurrentRundown?: boolean;
 };
 
 type CuesheetTableProps = EditorCuesheetTableProps | ViewCuesheetTableProps;
 
-export default function CuesheetTable({
-  columns,
-  cuesheetMode,
-  tableRoot,
-  setCuesheetMode,
-  isCurrentRundown,
-}: CuesheetTableProps) {
-  const { flatRundown, status, selectedEventId } = source;
+export default function CuesheetTable({ columns, cuesheetMode, tableRoot, setCuesheetMode }: CuesheetTableProps) {
+  const { flatRundown, status, loadedEventId } = useContextRundownTable();
   const { updateEntry, updateTimer, addEntry } = useEntryActionsContext();
   const canCreateEntries = useCuesheetPermissions((state) => state.canCreateEntries) && cuesheetMode === AppMode.Edit;
 
@@ -238,16 +230,9 @@ export default function CuesheetTable({
         handleResetResizing={resetColumnResizing}
         handleResetReordering={resetColumnOrder}
         handleClearToggles={setAllVisible}
-        modeControls={
-          tableRoot === 'cuesheet'
-            ? {
-                cuesheetMode,
-                setCuesheetMode,
-                isCurrentRundown,
-              }
-            : undefined
-        }
-        showShare={tableRoot === 'cuesheet'}
+        appMode={cuesheetMode}
+        tableRoot={tableRoot}
+        setCuesheetMode={setCuesheetMode}
       />
       <TableVirtuoso
         ref={virtuosoRef}

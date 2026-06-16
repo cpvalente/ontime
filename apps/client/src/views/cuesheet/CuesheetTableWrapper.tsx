@@ -34,7 +34,6 @@ function CuesheetTableWrapper() {
           cuesheetMode={cuesheetMode}
           tableRoot='cuesheet'
           setCuesheetMode={setCuesheetMode}
-          isCurrentRundown={isLoadedRundown}
         />
       )}
     </CuesheetDnd>
