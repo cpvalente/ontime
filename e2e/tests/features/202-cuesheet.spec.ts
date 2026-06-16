@@ -100,3 +100,27 @@ test('cuesheet datagrid keeps keyboard focus flow while editing text cells', asy
   await expect(cueEditor).not.toBeFocused();
   await expect(cueEditor).toHaveValue(cueBeforeCancel);
 });
+
+test('cuesheet background edit from empty state', async ({ page }) => {
+  // create an empty rundown
+  await page.goto('/editor');
+  await page.getByRole('button', { name: 'Toggle settings' }).click();
+  await page.getByRole('button', { name: 'Manage rundowns' }).click();
+  await page.getByRole('button', { name: 'New' }).nth(1).click();
+  const emptyName = `empty-${Date.now()}`;
+  await page.getByRole('textbox', { name: 'Rundown title' }).fill(emptyName);
+  await page.getByRole('button', { name: 'Create rundown' }).click();
+
+  // edit it in the cuesheet
+  await page.getByRole('row', { name: '0 empty-' }).getByTestId('rundown_menu').click();
+  await page.getByText('Edit in cuesheet').click();
+
+  // expect to see and empty screen
+  await expect(page.getByRole('button', { name: 'Create Event' })).toBeVisible();
+
+  // create 1 event
+  await page.getByRole('button', { name: 'Create Event' }).click();
+
+  // and expect to find it
+  await expect(page.getByTestId('cuesheet-event')).toBeVisible();
+});
