@@ -20,7 +20,7 @@ export function useBackstageData(): ViewData<BackstageData> {
   const isMirrored = useViewOptionsStore((state) => state.mirror);
 
   // HTTP API data
-  const { data: rundownData, status: rundownStatus } = useFlatRundown();
+  const { data: rundownData, status: rundownStatus } = useFlatRundown(null);
   const { data: projectData, status: projectDataStatus } = useProjectData();
   const { data: settings, status: settingsStatus } = useSettings();
   const { data: customFields, status: customFieldsStatus } = useCustomFields();
