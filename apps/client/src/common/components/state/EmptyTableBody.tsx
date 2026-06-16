@@ -16,10 +16,12 @@ export default function EmptyTableBody({ handleAddNew }: EmptyTableBodyProps) {
       <tr>
         <td colSpan={99} className={style.emptyCell}>
           <Empty injectedStyles={{ marginTop: '5vh', marginBottom: '3rem' }} />
-          <Button onClick={() => handleAddNew(SupportedEntry.Event)} variant='primary' size='large'>
-            <IoAdd />
-            Create Event
-          </Button>
+          <div className={style.inline}>
+            <Button onClick={() => handleAddNew(SupportedEntry.Event)} variant='primary' size='large'>
+              <IoAdd />
+              Create Event
+            </Button>
+          </div>
         </td>
       </tr>
     </tbody>

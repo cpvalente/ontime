@@ -8,13 +8,10 @@
     padding-top: 10vh;
   }
 
-  .empty {
-    width: 100%;
-    opacity: 0.8;
-  }
-
-  .text {
-    font-weight: 600;
-    font-size: 2em;
+  .inline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
   }
 }
