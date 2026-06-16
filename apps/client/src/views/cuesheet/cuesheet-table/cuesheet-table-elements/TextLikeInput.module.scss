@@ -1,6 +1,8 @@
 /* element matching input styles */
 .textInput {
-  height: 2rem;
+  width: 100%;
+  height: 100%;
+  min-height: 2rem;
   background-color: transparent;
   border-radius: $component-border-radius-md;
   text-wrap: nowrap;
@@ -31,5 +33,15 @@
   &:hover:not(.disabled) {
     background-color: $gray-1100;
     cursor: text;
+  }
+
+  &.multiline {
+    height: auto;
+    min-height: 2rem;
+    text-wrap: wrap;
+    white-space: break-spaces;
+    overflow: hidden;
+    align-items: flex-start;
+    padding-top: 0.25em;
   }
 }

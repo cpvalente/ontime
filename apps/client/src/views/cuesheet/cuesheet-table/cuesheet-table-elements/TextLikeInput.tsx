@@ -8,11 +8,12 @@ interface TextLikeInputProps extends HTMLAttributes<HTMLSpanElement> {
   offset?: 'over' | 'under' | 'muted' | null;
   muted?: boolean;
   disabled?: boolean;
+  multiline?: boolean;
 }
 
 const TextLikeInput = forwardRef(
   (
-    { offset, muted, disabled, children, className, ...elementProps }: PropsWithChildren<TextLikeInputProps>,
+    { offset, muted, disabled, multiline, children, className, ...elementProps }: PropsWithChildren<TextLikeInputProps>,
     textRef,
   ) => {
     const ref = useRef<HTMLDivElement | null>(null);
@@ -21,6 +22,7 @@ const TextLikeInput = forwardRef(
       offset && style[offset],
       muted && style.muted,
       disabled && style.disabled,
+      multiline && style.multiline,
       className,
     ]);
 
