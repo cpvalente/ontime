@@ -20,6 +20,7 @@ import { usePersistedRundownOptions } from '../../../features/rundown/rundown.op
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
 import { AppMode } from '../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../cuesheet.options';
+import { useCuesheetPermissions } from '../useTablePermissions';
 import { CuesheetHeader, SortableCuesheetHeader } from './cuesheet-table-elements/CuesheetHeader';
 import DelayRow from './cuesheet-table-elements/DelayRow';
 import EventRow from './cuesheet-table-elements/EventRow';
@@ -63,6 +64,7 @@ export default function CuesheetTable({
 }: CuesheetTableProps) {
   const { flatRundown, status, selectedEventId } = source;
   const { updateEntry, updateTimer, addEntry } = useEntryActionsContext();
+  const canCreateEntries = useCuesheetPermissions((state) => state.canCreateEntries) && cuesheetMode === AppMode.Edit;
 
   const useOptions = tableRoot === 'editor' ? usePersistedRundownOptions : usePersistedCuesheetOptions;
   const optionsStore = useOptions();
@@ -202,9 +204,9 @@ export default function CuesheetTable({
       listeners,
       rows,
       table,
-      handleAddNew: (type: SupportedEntry) => addEntry({ type }),
+      handleAddNew: canCreateEntries ? (type: SupportedEntry) => addEntry({ type }) : undefined,
     }),
-    [columnSizeVars, cursor, listeners, rows, table, addEntry],
+    [columnSizeVars, cursor, listeners, rows, table, addEntry, canCreateEntries],
   );
 
   const computeItemKey = useCallback((_: number, item: ExtendedEntry) => item.id, []);
@@ -274,7 +276,7 @@ interface CuesheetVirtuosoContext {
   listeners: ReturnType<typeof useTableNav>['listeners'];
   rows: ReturnType<Table<ExtendedEntry>['getRowModel']>['rows'];
   table: Table<ExtendedEntry>;
-  handleAddNew: (type: SupportedEntry) => void;
+  handleAddNew?: (type: SupportedEntry) => void;
 }
 
 const EmptyPlaceholder = memo(function EmptyPlaceholder({
