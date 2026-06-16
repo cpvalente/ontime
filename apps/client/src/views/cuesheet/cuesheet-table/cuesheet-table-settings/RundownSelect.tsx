@@ -7,10 +7,10 @@ import styles from './RundownSelect.module.scss';
 const FOLLOW = '___null___';
 
 interface RundownSelectProps {
-  cuesheetMode: AppMode;
+  appMode: AppMode;
 }
 
-export function RundownSelect({ cuesheetMode }: RundownSelectProps) {
+export function RundownSelect({ appMode }: RundownSelectProps) {
   'use memo';
   const { selectRundownId, rundowns, loadedRundownId, selectedRundownId } = useRundownSelectionContext();
 
@@ -34,7 +34,7 @@ export function RundownSelect({ cuesheetMode }: RundownSelectProps) {
           if (value === FOLLOW) selectRundownId(null);
           else selectRundownId(value);
         }}
-        disabled={cuesheetMode === AppMode.Run}
+        disabled={appMode === AppMode.Run}
         fluid
       />
     </div>

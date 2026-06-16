@@ -59,7 +59,6 @@ export function useRundownWithMetadata(rundownId: Maybe<string>) {
 /**
  * Provides access to a flat rundown
  * built from the order and rundown fields
- * @deprecated
  */
 export function useFlatRundown(rundownId: Maybe<string>) {
   const { data, status } = useRundown(rundownId);
@@ -90,7 +89,6 @@ export function useFlatRundownWithMetadata(rundownId: Maybe<string>) {
  * Callers MUST memoize the callback with useCallback to prevent
  * re-filtering on every render.
  *
- * @deprecated
  */
 export function usePartialRundown(rundownId: Maybe<string>, cb: (event: ExtendedEntry<OntimeEntry>) => boolean) {
   const { data, status } = useFlatRundownWithMetadata(rundownId);
@@ -112,10 +110,6 @@ export function useEntry(rundownId: Maybe<string>, entryId: EntryId | null): Ont
   return rundown.entries[entryId] ?? null;
 }
 
-/**
- *
- * @deprecated
- */
 export function useRundownAuxData(rundownId: Maybe<string>) {
   const { data, status } = useRundown(rundownId);
   const filteredData = useMemo(() => {
