@@ -157,7 +157,7 @@ export default function ManageRundowns() {
                       </td>
                       <td>
                         <DropdownMenu
-                          render={<IconButton variant='ghosted-white' />}
+                          render={<IconButton variant='ghosted-white' data-testId='rundown_menu' />}
                           items={[
                             {
                               type: 'item',
