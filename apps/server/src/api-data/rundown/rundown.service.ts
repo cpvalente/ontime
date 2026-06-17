@@ -643,7 +643,7 @@ export function isCurrentRundown(id: string) {
 /**
  * @throws if the provided id does not exist
  */
-export async function loadRundown(id: string) {
+export function loadRundown(id: string) {
   const dataProvider = getDataProvider();
   if (isCurrentRundown(id)) {
     return dataProvider.getProjectRundowns();
@@ -651,7 +651,7 @@ export async function loadRundown(id: string) {
 
   const rundown = dataProvider.getRundown(id);
   const customField = dataProvider.getCustomFields();
-  await initRundown(rundown, customField);
+  initRundown(rundown, customField);
   return dataProvider.getProjectRundowns();
 }
 
