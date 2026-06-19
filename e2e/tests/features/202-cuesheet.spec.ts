@@ -57,46 +57,54 @@ test('cuesheet datagrid keeps keyboard focus flow while editing text cells', asy
   const firstEvent = page.getByTestId('cuesheet-event').first();
   await expect(firstEvent).toBeVisible();
 
+  const cueCell = firstEvent.getByTestId('cuesheet-cell-cue');
+  const titleCell = firstEvent.getByTestId('cuesheet-cell-title');
+  const noteCell = firstEvent.getByTestId('cuesheet-cell-note');
   const cueEditor = firstEvent.getByTestId('cuesheet-editor-cue');
   const titleEditor = firstEvent.getByTestId('cuesheet-editor-title');
   const noteEditor = firstEvent.getByTestId('cuesheet-editor-note');
 
   /**
-   * 1. focus a cell in the datagrid single line text
-   * submitting the data returns the focus to the parent
+   * 1. clicking a single line text cell opens the editor (mounted on demand)
+   * submitting with Enter closes the editor and returns focus to the parent cell
    */
-  await titleEditor.click();
+  await titleCell.click();
   await expect(titleEditor).toBeFocused();
   const updatedTitle = `focus-title-${Date.now()}`;
   await titleEditor.fill(updatedTitle);
   await titleEditor.press('Enter');
-  await expect(titleEditor).not.toBeFocused();
-  await expect(titleEditor).toHaveValue(updatedTitle);
+  await expect(titleEditor).toHaveCount(0);
+  await expect(titleCell).toContainText(updatedTitle);
+  await expect(titleCell).toBeFocused();
 
   /**
-   * 2. navigate and modify multiline text cell
+   * 2. navigate to the multiline text cell with the keyboard and open it with Enter
    * submitting works with ctrl/cmd + enter and the focus returns to the parent
    */
   await page.keyboard.press('ArrowRight');
+  await expect(noteCell).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(noteEditor).toBeFocused();
   const updatedNote = `focus-note-${Date.now()}`;
   await noteEditor.fill(updatedNote);
   await noteEditor.press('ControlOrMeta+Enter');
-  await expect(noteEditor).not.toBeFocused();
-  await expect(noteEditor).toHaveValue(updatedNote);
+  await expect(noteEditor).toHaveCount(0);
+  await expect(noteCell).toContainText(updatedNote);
+  await expect(noteCell).toBeFocused();
 
   /**
-   * 2. navigate and modify single line text cell again
-   * pressing escape cancels the edit and the focus returns to the parent
+   * 3. navigating back returns focus to the title cell
+   * opening the cue cell and pressing escape cancels the edit and reverts the value
    */
   await page.keyboard.press('ArrowLeft');
-  await page.keyboard.press('Enter');
-  await expect(titleEditor).toBeFocused();
+  await expect(titleCell).toBeFocused();
+
+  await cueCell.click();
+  await expect(cueEditor).toBeFocused();
   const cueBeforeCancel = await cueEditor.inputValue();
-  await cueEditor.click();
   await cueEditor.fill(`${cueBeforeCancel} temporary`);
   await cueEditor.press('Escape');
-  await expect(cueEditor).not.toBeFocused();
-  await expect(cueEditor).toHaveValue(cueBeforeCancel);
+  await expect(cueEditor).toHaveCount(0);
+  await expect(cueCell).toContainText(cueBeforeCancel);
+  await expect(cueCell).toBeFocused();
 });
