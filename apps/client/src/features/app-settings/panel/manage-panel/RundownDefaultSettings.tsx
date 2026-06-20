@@ -16,6 +16,7 @@ export default function RundownDefaultSettings() {
     defaultDangerTime,
     defaultTimerType,
     defaultEndAction,
+    inheritGroupColour,
     setDefaultDuration,
     setLinkPrevious,
     setTimeStrategy,
@@ -23,6 +24,7 @@ export default function RundownDefaultSettings() {
     setDangerTime,
     setDefaultTimerType,
     setDefaultEndAction,
+    setInheritGroupColour,
   } = useEditorSettings((state) => state);
 
   const durationInMs = parseUserTime(defaultDuration);
@@ -43,6 +45,13 @@ export default function RundownDefaultSettings() {
                 description='Whether the start time of new events should be linked to the previous event end time'
               />
               <Switch size='large' checked={linkPrevious} onCheckedChange={setLinkPrevious} />
+            </Panel.ListItem>
+            <Panel.ListItem>
+              <Panel.Field
+                title='Inherit group colour'
+                description='Whether new events and milestones inherit the colour of their parent group'
+              />
+              <Switch size='large' checked={inheritGroupColour} onCheckedChange={setInheritGroupColour} />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
