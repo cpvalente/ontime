@@ -23,6 +23,7 @@ import {
   calculateDuration,
   checkIsNow,
   dayInMs,
+  getExpectedEnd,
   getExpectedStart,
   getLastEventNormal,
   isPlaybackActive,
@@ -836,8 +837,8 @@ function getExpectedTimes(state = runtimeState) {
     const { _group } = state;
     if (_group !== null) {
       const { event: lastEvent, accumulatedGap, isLinkedToLoaded } = _group;
-      const lastEventExpectedStart = getExpectedStart(lastEvent, {
-        currentDay: state.rundown.currentDay!,
+      state.offset.expectedGroupEnd = getExpectedEnd(lastEvent, {
+        currentDay: state.rundown.currentDay ?? 0,
         totalGap: accumulatedGap,
         isLinkedToLoaded,
         mode: offset.mode,
@@ -845,7 +846,6 @@ function getExpectedTimes(state = runtimeState) {
         plannedStart,
         actualStart,
       });
-      state.offset.expectedGroupEnd = lastEventExpectedStart + lastEvent.duration;
     }
   }
 
@@ -868,8 +868,8 @@ function getExpectedTimes(state = runtimeState) {
 
   if (state._end) {
     const { event, accumulatedGap, isLinkedToLoaded } = state._end;
-    const expectedStart = getExpectedStart(event, {
-      currentDay: state.rundown.currentDay!,
+    state.offset.expectedRundownEnd = getExpectedEnd(event, {
+      currentDay: state.rundown.currentDay ?? 0,
       totalGap: accumulatedGap,
       isLinkedToLoaded,
       mode: offset.mode,
@@ -877,7 +877,6 @@ function getExpectedTimes(state = runtimeState) {
       plannedStart,
       actualStart,
     });
-    state.offset.expectedRundownEnd = expectedStart + event.duration;
   }
 }
 
@@ -920,6 +919,8 @@ export function loadGroupFlagAndEnd(
 
   let accumulatedGap = 0;
   let isLinkedToLoaded = true;
+  // a countToEnd event absorbs overtime and breaks the chain
+  let previousWasCountToEnd = false;
 
   for (let idx = currentIndex; idx < playableEventOrder.length; idx++) {
     const entry = entries[playableEventOrder[idx]];
@@ -928,7 +929,7 @@ export function loadGroupFlagAndEnd(
       if (idx !== currentIndex) {
         // we only accumulate data after the loaded event
         accumulatedGap += entry.gap;
-        isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
+        isLinkedToLoaded = isLinkedToLoaded && entry.linkStart && !previousWasCountToEnd;
 
         // and the loaded event is not allowed to be the next flag
         if (!foundFlag && metadata.flags.includes(entry.id)) {
@@ -942,6 +943,8 @@ export function loadGroupFlagAndEnd(
         foundGroupEnd = true;
         state._group = { event: lastEventInGroup, isLinkedToLoaded, accumulatedGap };
       }
+
+      previousWasCountToEnd = entry.countToEnd;
     }
   }
 

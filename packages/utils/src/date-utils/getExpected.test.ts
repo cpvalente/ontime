@@ -1,7 +1,7 @@
 import { Day, OffsetMode } from 'ontime-types';
 
 import { MILLIS_PER_HOUR, dayInMs } from './conversionUtils';
-import { getExpectedStart } from './getExpectedStart';
+import { getExpectedEnd, getExpectedStart } from './getExpected';
 
 describe('getExpectedStart()', () => {
   describe('Absolute offset mode', () => {
@@ -313,5 +313,72 @@ describe('getExpectedStart()', () => {
     };
     expect(getExpectedStart(testEvent, { ...testState })).toBe(23 * MILLIS_PER_HOUR + 5 + dayInMs);
     expect(getExpectedStart(testEvent, { ...testState, currentDay: 0 })).toBe(23 * MILLIS_PER_HOUR + 5);
+  });
+});
+
+describe('getExpectedEnd()', () => {
+  const baseState = {
+    currentDay: 0,
+    totalGap: 0,
+    mode: OffsetMode.Absolute,
+    actualStart: null,
+    plannedStart: null,
+    isLinkedToLoaded: true,
+  };
+
+  test('a regular event ends at its expected start plus duration', () => {
+    const testEvent = {
+      timeStart: 100,
+      duration: 50,
+      delay: 0,
+      dayOffset: 0 as Day,
+      countToEnd: false,
+    };
+
+    // on schedule
+    expect(getExpectedEnd(testEvent, { ...baseState, offset: 0 })).toBe(150);
+    // running 20 behind pushes the end out
+    expect(getExpectedEnd(testEvent, { ...baseState, offset: 20 })).toBe(170);
+  });
+
+  test('a countToEnd event pins to the planned end while in overtime', () => {
+    const testEvent = {
+      timeStart: 100,
+      duration: 50,
+      delay: 0,
+      dayOffset: 0 as Day,
+      countToEnd: true,
+    };
+
+    // overtime would otherwise push the end to 170, but countToEnd absorbs it and pins to 150
+    expect(getExpectedEnd(testEvent, { ...baseState, offset: 20 })).toBe(150);
+  });
+
+  test('a countToEnd event pins to the planned end while ahead of schedule', () => {
+    const testEvent = {
+      timeStart: 100,
+      duration: 50,
+      delay: 0,
+      dayOffset: 0 as Day,
+      countToEnd: true,
+    };
+
+    // ahead of schedule the start moves earlier (90) but the end stays pinned to 150
+    expect(getExpectedEnd(testEvent, { ...baseState, offset: -10 })).toBe(150);
+  });
+
+  test('an overnight countToEnd event returns a normalised end', () => {
+    // event starts at 23:00 and counts to 01:00 the next day -> duration spans midnight
+    const timeStart = 23 * MILLIS_PER_HOUR;
+    const duration = 2 * MILLIS_PER_HOUR;
+    const testEvent = {
+      timeStart,
+      duration,
+      delay: 0,
+      dayOffset: 0 as Day,
+      countToEnd: true,
+    };
+
+    expect(getExpectedEnd(testEvent, { ...baseState, offset: 0 })).toBe(timeStart + duration);
   });
 });
