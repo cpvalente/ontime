@@ -12,7 +12,7 @@ import {
   isOntimeGroup,
   isPlayableEvent,
 } from 'ontime-types';
-import { MILLIS_PER_MINUTE, getExpectedStart, millisToString, removeLeadingZero } from 'ontime-utils';
+import { MILLIS_PER_MINUTE, getExpectedEnd, getExpectedStart, millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { useCountdownSocket } from '../../common/hooks/useSocket';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
@@ -197,7 +197,11 @@ export type CountdownTarget = ExtendedEntry<OntimeEvent> & {
   liveEntry?: ExtendedEntry<OntimeEvent> | null; // the running child while a group is live
 };
 
-export type CountdownEvent = CountdownTarget & { expectedStart: number; endedAt: MaybeNumber };
+export type CountdownEvent = CountdownTarget & {
+  expectedStart: number;
+  expectedEnd: number;
+  endedAt: MaybeNumber;
+};
 
 /**
  * Resolves a subscription (event or group) into an event-shaped countdown target.
@@ -262,7 +266,7 @@ export function extendEventData(
   reportData: OntimeReport,
 ): CountdownEvent {
   const { totalGap, isLinkedToLoaded } = event;
-  const expectedStart = getExpectedStart(event, {
+  const expectedStartState = {
     currentDay,
     totalGap,
     actualStart,
@@ -270,7 +274,9 @@ export function extendEventData(
     isLinkedToLoaded,
     offset,
     mode,
-  });
+  };
+  const expectedStart = getExpectedStart(event, expectedStartState);
+  const expectedEnd = getExpectedEnd(event, expectedStartState);
   const { endedAt } = reportData[event.reportId ?? event.id] ?? { endedAt: null };
-  return { ...event, expectedStart, endedAt };
+  return { ...event, expectedStart, expectedEnd, endedAt };
 }
