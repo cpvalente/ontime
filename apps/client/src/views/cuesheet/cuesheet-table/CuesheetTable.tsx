@@ -1,6 +1,6 @@
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, Table, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { OntimeEntry, TimeField, isOntimeDelay, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
+import { OntimeEntry, SupportedEntry, TimeField, isOntimeDelay, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 import { ComponentProps, ReactNode, memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   ContextProp,
@@ -20,6 +20,7 @@ import { usePersistedRundownOptions } from '../../../features/rundown/rundown.op
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
 import { AppMode } from '../../../ontimeConfig';
 import { usePersistedCuesheetOptions } from '../cuesheet.options';
+import { useCuesheetPermissions } from '../useTablePermissions';
 import { CuesheetHeader, SortableCuesheetHeader } from './cuesheet-table-elements/CuesheetHeader';
 import DelayRow from './cuesheet-table-elements/DelayRow';
 import EventRow from './cuesheet-table-elements/EventRow';
@@ -62,7 +63,8 @@ export default function CuesheetTable({
   insertElement,
 }: CuesheetTableProps) {
   const { flatRundown, status, selectedEventId } = source;
-  const { updateEntry, updateTimer } = useEntryActionsContext();
+  const { updateEntry, updateTimer, addEntry } = useEntryActionsContext();
+  const canCreateEntries = useCuesheetPermissions((state) => state.canCreateEntries) && cuesheetMode === AppMode.Edit;
 
   const useOptions = tableRoot === 'editor' ? usePersistedRundownOptions : usePersistedCuesheetOptions;
   const optionsStore = useOptions();
@@ -202,8 +204,9 @@ export default function CuesheetTable({
       listeners,
       rows,
       table,
+      handleAddNew: canCreateEntries ? (type: SupportedEntry) => addEntry({ type }) : undefined,
     }),
-    [columnSizeVars, cursor, listeners, rows, table],
+    [columnSizeVars, cursor, listeners, rows, table, addEntry, canCreateEntries],
   );
 
   const computeItemKey = useCallback((_: number, item: ExtendedEntry) => item.id, []);
@@ -273,10 +276,13 @@ interface CuesheetVirtuosoContext {
   listeners: ReturnType<typeof useTableNav>['listeners'];
   rows: ReturnType<Table<ExtendedEntry>['getRowModel']>['rows'];
   table: Table<ExtendedEntry>;
+  handleAddNew?: (type: SupportedEntry) => void;
 }
 
-const EmptyPlaceholder = memo(function EmptyPlaceholder() {
-  return <EmptyTableBody text='No data in rundown' />;
+const EmptyPlaceholder = memo(function EmptyPlaceholder({
+  context,
+}: TableProps & ContextProp<CuesheetVirtuosoContext>) {
+  return <EmptyTableBody handleAddNew={context.handleAddNew} />;
 });
 
 const CuesheetTableElement = memo(function CuesheetTableElement({
