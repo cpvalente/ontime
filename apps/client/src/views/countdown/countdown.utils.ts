@@ -1,5 +1,5 @@
 import { EntryId, MaybeNumber, OffsetMode, OntimeEntry, OntimeEvent, OntimeReport, Playback } from 'ontime-types';
-import { MILLIS_PER_MINUTE, getExpectedStart, millisToString, removeLeadingZero } from 'ontime-utils';
+import { MILLIS_PER_MINUTE, getExpectedEnd, getExpectedStart, millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { useCountdownSocket } from '../../common/hooks/useSocket';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
@@ -168,7 +168,11 @@ export function isOutsideRange(a: number, b: number): boolean {
   return Math.abs(a - b) > MILLIS_PER_MINUTE;
 }
 
-export type CountdownEvent = ExtendedEntry<OntimeEvent> & { expectedStart: number; endedAt: MaybeNumber };
+export type CountdownEvent = ExtendedEntry<OntimeEvent> & {
+  expectedStart: number;
+  expectedEnd: number;
+  endedAt: MaybeNumber;
+};
 
 export function extendEventData(
   event: ExtendedEntry<OntimeEvent>,
@@ -180,7 +184,7 @@ export function extendEventData(
   reportData: OntimeReport,
 ): CountdownEvent {
   const { totalGap, isLinkedToLoaded } = event;
-  const expectedStart = getExpectedStart(event, {
+  const expectedStartState = {
     currentDay,
     totalGap,
     actualStart,
@@ -188,7 +192,9 @@ export function extendEventData(
     isLinkedToLoaded,
     offset,
     mode,
-  });
+  };
+  const expectedStart = getExpectedStart(event, expectedStartState);
+  const expectedEnd = getExpectedEnd(event, expectedStartState);
   const { endedAt } = reportData[event.id] ?? { endedAt: null };
-  return { ...event, expectedStart, endedAt };
+  return { ...event, expectedStart, expectedEnd, endedAt };
 }

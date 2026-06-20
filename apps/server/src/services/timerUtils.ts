@@ -41,7 +41,9 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
   const pausedTime = pausedAt != null ? clock - pausedAt : 0;
 
   if (countToEnd) {
-    return timeEnd + addedTime + pausedTime;
+    // count to end events are anchored to their fixed end: added time and pauses
+    // do not move the end, they surface as offset instead (see getRuntimeOffset)
+    return timeEnd;
   }
 
   // handle events that finish the day after
@@ -74,9 +76,10 @@ export function getCurrent(state: RuntimeState): number {
   const { clock } = state;
 
   if (countToEnd) {
+    // count to end runs to its fixed end, so added time does not stretch the countdown
     const isEventOverMidnight = timeStart > timeEnd;
     const correctDay = isEventOverMidnight ? dayInMs : 0;
-    return correctDay - clock + timeEnd + addedTime;
+    return correctDay - clock + timeEnd;
   }
 
   if (startedAt === null) {
@@ -153,13 +156,14 @@ export function getRuntimeOffset(state: RuntimeState): { absolute: number; relat
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
   // absolute offset is difference between schedule and playback time
-  const absolute = eventStartOffset + overtime + pausedTime + addedTime;
+  // count to end is anchored to its fixed end, so it absorbs the late start (eventStartOffset)
+  // and the pause (already reflected in overtime); added time surfaces here as offset
+  const absolute = countToEnd ? overtime + addedTime : eventStartOffset + overtime + pausedTime + addedTime;
 
   // the relative offset is the same as the absolute but adjusted relative to the actual start time
   const relative = absolute + plannedStart - actualStart - _startDayOffset * dayInMs;
 
-  // in case of count to end, the absolute offset is just the overtime
-  return countToEnd ? { absolute: overtime, relative } : { absolute, relative };
+  return { absolute, relative };
 }
 
 /**
