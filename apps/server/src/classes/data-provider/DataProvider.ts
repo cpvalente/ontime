@@ -101,9 +101,10 @@ function getCustomFields(): Readonly<CustomFields> {
   return db.data.customFields;
 }
 
-async function setRundown(rundownKey: string, newData: Rundown): Promise<void> {
+async function setRundown(rundownKey: string, newData: Rundown): ReadonlyPromise<ProjectRundowns> {
   db.data.rundowns[rundownKey] = structuredClone(newData);
   await persist();
+  return db.data.rundowns;
 }
 
 function getSettings(): Readonly<Settings> {
