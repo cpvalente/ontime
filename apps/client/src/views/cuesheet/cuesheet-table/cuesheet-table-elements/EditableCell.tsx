@@ -98,4 +98,3 @@ function EditableCell({ initialValue, multiline, fieldId, fieldLabel, handleUpda
 }
 
 export default memo(EditableCell);
-
