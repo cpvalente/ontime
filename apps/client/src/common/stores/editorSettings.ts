@@ -12,8 +12,10 @@ type EditorSettingsStore = {
   defaultDangerTime: string;
   defaultTimerType: TimerType;
   defaultEndAction: EndAction;
+  inheritGroupColour: boolean;
   setDefaultDuration: (defaultDuration: string) => void;
   setLinkPrevious: (linkPrevious: boolean) => void;
+  setInheritGroupColour: (inheritGroupColour: boolean) => void;
   setTimeStrategy: (timeStrategy: TimeStrategy) => void;
   setWarnTime: (warnTime: string) => void;
   setDangerTime: (dangerTime: string) => void;
@@ -29,6 +31,7 @@ export const editorSettingsDefaults = {
   dangerTime: '00:01:00', // 60000 same as backend
   timerType: TimerType.CountDown,
   endAction: EndAction.None,
+  inheritGroupColour: false,
 };
 
 enum EditorSettingsKeys {
@@ -39,6 +42,7 @@ enum EditorSettingsKeys {
   DefaultDangerTime = 'ontime-default-danger-time',
   DefaultTimerType = 'ontime-default-timer-type',
   DefaultEndAction = 'ontime-default-end-action',
+  InheritGroupColour = 'ontime-inherit-group-colour',
 }
 
 export const useEditorSettings = create<EditorSettingsStore>((set) => {
@@ -58,6 +62,10 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => {
     defaultEndAction: validateEndAction(
       localStorage.getItem(EditorSettingsKeys.DefaultEndAction),
       editorSettingsDefaults.endAction,
+    ),
+    inheritGroupColour: booleanFromLocalStorage(
+      EditorSettingsKeys.InheritGroupColour,
+      editorSettingsDefaults.inheritGroupColour,
     ),
 
     setDefaultDuration: (defaultDuration) =>
@@ -96,6 +104,11 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => {
       set(() => {
         localStorage.setItem(EditorSettingsKeys.DefaultEndAction, String(defaultEndAction));
         return { defaultEndAction };
+      }),
+    setInheritGroupColour: (inheritGroupColour) =>
+      set(() => {
+        localStorage.setItem(EditorSettingsKeys.InheritGroupColour, String(inheritGroupColour));
+        return { inheritGroupColour };
       }),
   };
 });

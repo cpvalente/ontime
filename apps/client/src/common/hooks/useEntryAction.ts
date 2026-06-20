@@ -16,6 +16,7 @@ import {
   TimeStrategy,
   isOntimeEvent,
   isOntimeGroup,
+  isOntimeMilestone,
 } from 'ontime-types';
 import {
   MILLIS_PER_SECOND,
@@ -82,6 +83,7 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
     defaultDangerTime,
     defaultTimerType,
     defaultEndAction,
+    inheritGroupColour,
   } = useEditorSettings();
 
   const resolveCurrentRundownQueryKey = useCallback(() => {
@@ -239,6 +241,14 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
         }
       }
 
+      if (inheritGroupColour && (isOntimeEvent(newEntry) || isOntimeMilestone(newEntry)) && !newEntry.colour) {
+        const parentId = resolveInsertParent(rundownData, newEntry);
+        const maybeParent = parentId ? rundownData.entries[parentId] : null;
+        if (maybeParent && isOntimeGroup(maybeParent)) {
+          newEntry.colour = maybeParent.colour;
+        }
+      }
+
       try {
         await addEntryMutation([rundownId, newEntry]);
       } catch (error) {
@@ -254,6 +264,7 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
       defaultTimerType,
       defaultEndAction,
       defaultTimeStrategy,
+      inheritGroupColour,
       addEntryMutation,
     ],
   );
