@@ -20,6 +20,7 @@ type BaseURLPreset = {
   enabled: boolean;
   alias: string;
   search: string;
+  displayInNav: boolean;
   options?: Record<string, string>;
 };
 
@@ -28,6 +29,7 @@ type CuesheetUrlPreset = {
   enabled: boolean;
   alias: string;
   search: string;
+  displayInNav: boolean;
   options?: {
     read?: string;
     write?: string;

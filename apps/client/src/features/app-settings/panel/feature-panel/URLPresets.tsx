@@ -2,6 +2,7 @@ import { URLPreset } from 'ontime-types';
 import { useState } from 'react';
 import { IoAdd, IoOpenOutline, IoPencil, IoTrash } from 'react-icons/io5';
 
+import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Info from '../../../../common/components/info/Info';
@@ -28,6 +29,14 @@ export default function URLPresets() {
   const openNewForm = () => setFormState({ isOpen: true });
   const openEditForm = (preset: URLPreset) => setFormState({ isOpen: true, preset });
   const closeForm = () => setFormState({ isOpen: false, preset: undefined });
+
+  const setDisplayInNav = async (preset: URLPreset, displayInNav: boolean) => {
+    try {
+      await updatePreset(preset.alias, { ...preset, displayInNav });
+    } catch (error) {
+      setError('root', { message: maybeAxiosError(error) });
+    }
+  };
 
   return (
     <Panel.Section>
@@ -71,9 +80,25 @@ export default function URLPresets() {
                       <Switch defaultChecked={preset.enabled} onCheckedChange={() => {}} />
                     </td>
                     <td>
+                      <Switch
+                        checked={preset.displayInNav}
+                        onCheckedChange={(checked) => setDisplayInNav(preset, checked)}
+                        disabled={isMutating}
+                      />
+                    </td>
+                    <Panel.InlineElements>
+                      <Panel.Description>Show in navigation menu</Panel.Description>
+                    </Panel.InlineElements>
+
+                    <td>
                       <Tag>{preset.target}</Tag>
                     </td>
-                    <td style={{ width: '100%' }}>{preset.alias}</td>
+                    <td style={{ width: '100%' }}>
+                      <Panel.InlineElements relation='inner'>
+                        {preset.alias}
+                        {preset.displayInNav && <Tag>In navigation</Tag>}
+                      </Panel.InlineElements>
+                    </td>
                     <Panel.InlineElements relation='inner' as='td'>
                       <IconButton
                         variant='ghosted-white'
