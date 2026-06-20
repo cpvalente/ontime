@@ -21,6 +21,7 @@ router.post('/', validateNewPreset, async (req: Request, res: Response<URLPreset
       alias: req.body.alias,
       target: req.body.target,
       search: req.body.search,
+      displayInNav: req.body.displayInNav,
       options: req.body.options,
     };
 
@@ -55,6 +56,7 @@ router.put('/:alias', validateUpdatePreset, async (req: Request, res: Response<U
       alias: req.body.alias,
       target: req.body.target,
       search: req.body.search,
+      displayInNav: req.body.displayInNav,
       options: req.body.options ?? existingPreset.options,
     };
 

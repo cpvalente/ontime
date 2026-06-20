@@ -194,6 +194,7 @@ export function generateUrlPresetOptions(alias: string, userUrl: string): URLPre
     target: path,
     search: url.searchParams.toString(),
     enabled: true,
+    displayInNav: false,
   };
 }
 

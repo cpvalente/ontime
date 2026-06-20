@@ -208,6 +208,7 @@ describe('v3 to v4', () => {
         target: OntimeView.Timer,
         search:
           'showLeadingZeros=true&timerType=clock&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+        displayInNav: false,
         options: {},
       },
       {
@@ -216,6 +217,7 @@ describe('v3 to v4', () => {
         target: OntimeView.Timer,
         search:
           'showLeadingZeros=true&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+        displayInNav: false,
         options: {},
       },
     ];

@@ -2,6 +2,7 @@ import { URLPreset } from 'ontime-types';
 import { useState } from 'react';
 import { IoAdd, IoOpenOutline, IoPencil, IoTrash } from 'react-icons/io5';
 
+import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Info from '../../../../common/components/info/Info';
@@ -22,12 +23,22 @@ const urlPresetsDocs = 'https://docs.getontime.no/features/url-presets/';
 
 export default function URLPresets() {
   const [formState, setFormState] = useState<FormState>({ isOpen: false, preset: undefined });
+  const [actionError, setActionError] = useState<string | null>(null);
   const { data, status } = useUrlPresets();
-  const { deletePreset, isMutating } = useUpdateUrlPreset();
+  const { updatePreset, deletePreset, isMutating } = useUpdateUrlPreset();
 
   const openNewForm = () => setFormState({ isOpen: true });
   const openEditForm = (preset: URLPreset) => setFormState({ isOpen: true, preset });
   const closeForm = () => setFormState({ isOpen: false, preset: undefined });
+
+  const setDisplayInNav = async (preset: URLPreset, displayInNav: boolean) => {
+    setActionError(null);
+    try {
+      await updatePreset(preset.alias, { ...preset, displayInNav });
+    } catch (error) {
+      setActionError(maybeAxiosError(error));
+    }
+  };
 
   return (
     <Panel.Section>
@@ -53,10 +64,12 @@ export default function URLPresets() {
         <Panel.Section>
           <Panel.Loader isLoading={status === 'pending'} />
           {formState.isOpen && <URLPresetForm urlPreset={formState.preset} onClose={closeForm} />}
+          {actionError && <Panel.Error>{actionError}</Panel.Error>}
           <Panel.Table>
             <thead>
               <tr>
                 <th>Enabled</th>
+                <th>Show in nav</th>
                 <th>Target view</th>
                 <th>Alias</th>
                 <th />
@@ -69,6 +82,13 @@ export default function URLPresets() {
                   <tr key={preset.alias}>
                     <td>
                       <Switch defaultChecked={preset.enabled} onCheckedChange={() => {}} />
+                    </td>
+                    <td>
+                      <Switch
+                        checked={preset.displayInNav}
+                        onCheckedChange={(checked) => setDisplayInNav(preset, checked)}
+                        disabled={isMutating}
+                      />
                     </td>
                     <td>
                       <Tag>{preset.target}</Tag>
