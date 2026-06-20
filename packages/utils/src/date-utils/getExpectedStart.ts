@@ -60,3 +60,20 @@ export function getExpectedStart(
   const offsetStartTimeBufferedByGaps = offsetStartTime - totalGap;
   return offsetStartTimeBufferedByGaps;
 }
+
+/**
+ * Computes the normalised expected end of an event.
+ * A countToEnd event ends at its fixed end time regardless of how much overtime
+ * precedes it, so its expected end is pinned to the planned end - it absorbs the
+ * accumulated offset (mirrors getExpectedFinish in the running timer). The end can
+ * only drift later if the event is projected to start after its own end time.
+ * The result lives in the same day-normalised space as getExpectedStart (it may exceed dayInMs).
+ */
+export function getExpectedEnd(
+  event: Pick<OntimeEvent, 'timeStart' | 'duration' | 'delay' | 'dayOffset' | 'countToEnd'>,
+  state: Parameters<typeof getExpectedStart>[1],
+): number {
+  const expectedStart = getExpectedStart(event, state);
+  const plannedEnd = event.timeStart + event.duration + event.delay;
+  return event.countToEnd ? Math.max(expectedStart, plannedEnd) : expectedStart + event.duration;
+}
