@@ -40,11 +40,30 @@ describe('getRouteFromPreset()', () => {
       options: {},
     },
   ];
+  const disabledPresets: URLPreset[] = [
+    {
+      enabled: false,
+      alias: 'demopage',
+      target: OntimeView.Timer,
+      search: 'user=guest',
+      options: {},
+    },
+  ];
 
   it('checks if the current location matches an enabled preset', () => {
     // we make the current location be the alias
     const location = resolvePath('demopage');
     expect(getRouteFromPreset(location, presets)).toStrictEqual('timer?user=guest&alias=demopage');
+  });
+
+  it('checks if the current location matches an enabled preset target', () => {
+    const location = resolvePath('/timer');
+    expect(getRouteFromPreset(location, presets)).toStrictEqual('timer?user=guest&alias=demopage');
+  });
+
+  it('does not redirect disabled presets', () => {
+    const location = resolvePath('/demopage');
+    expect(getRouteFromPreset(location, disabledPresets)).toBeNull();
   });
 
   it('returns null when already on a preset path', () => {
@@ -84,6 +103,11 @@ describe('getRouteFromPreset()', () => {
 
     it('appends the feature params to the alias', () => {
       const location = resolvePath('/demopage?n=1&token=123');
+      expect(getRouteFromPreset(location, presets)).toBe('timer?user=guest&alias=demopage&n=1&token=123');
+    });
+
+    it('redirects stale unwrapped params back to the saved preset params while preserving feature params', () => {
+      const location = resolvePath('/timer?user=admin&alias=demopage&n=1&token=123');
       expect(getRouteFromPreset(location, presets)).toBe('timer?user=guest&alias=demopage&n=1&token=123');
     });
   });
