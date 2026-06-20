@@ -119,8 +119,8 @@ test('cuesheet background edit from empty state', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Rundown title' }).fill(emptyName);
   await page.getByRole('button', { name: 'Create rundown' }).click();
 
-  // edit it in the cuesheet
-  await page.getByRole('row', { name: '0 empty-' }).getByTestId('rundown_menu').click();
+  // edit it in the cuesheet (scope to the rundown we just created so retries stay isolated)
+  await page.getByRole('row', { name: emptyName }).getByTestId('rundown_menu').click();
   await page.getByText('Edit in cuesheet').click();
 
   // expect to see and empty screen
