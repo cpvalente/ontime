@@ -82,5 +82,5 @@ export const initializeSentry = () => {
     },
   });
 
-  return Sentry.withSentryReactRouterV6Routing(Routes);
+  return Sentry.withSentryReactRouterV7Routing(Routes);
 };
