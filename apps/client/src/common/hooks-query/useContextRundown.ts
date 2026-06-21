@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useRundownSelectionContext } from '../context/RundownSelectionContext';
 import { useSelectedEventId } from '../hooks/useSocket';
 import { getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
-import { useRundown } from './useRundown';
+import { useFlatRundown, useRundown } from './useRundown';
 
 export function useContextRundownEditModal() {
   'use memo';
@@ -60,5 +60,20 @@ export function useContextRundownTable() {
       loadedEventId,
     }),
     [flatRundown, status, loadedEventId],
+  );
+}
+
+export function useContextRundownFinder() {
+  'use memo';
+  const { effectiveRundownId } = useRundownSelectionContext();
+  const { data: rundown, status } = useFlatRundown(effectiveRundownId);
+
+  return useMemo(
+    () => ({
+      rundown,
+      rundownId: effectiveRundownId,
+      status,
+    }),
+    [rundown, status, effectiveRundownId],
   );
 }
