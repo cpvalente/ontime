@@ -1,5 +1,5 @@
 import { OntimeView, OntimeViewPresettable, URLPreset } from 'ontime-types';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { maybeAxiosError, unwrapError } from '../../../../../common/api/utils';
@@ -12,6 +12,7 @@ import { preventEscape } from '../../../../../common/utils/keyEvent';
 import { isUrlSafe } from '../../../../../common/utils/regex';
 import { enDash } from '../../../../../common/utils/styleUtils';
 import { generateUrlPresetOptions } from '../../../../../common/utils/urlPresets';
+import CuesheetLinkOptions, { CuesheetPermissionValues } from '../../../../sharing/composite/CuesheetLinkOptions';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import style from './URLPresetForm.module.scss';
@@ -61,12 +62,31 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
   });
   const urlRef = useRef<HTMLInputElement>(null);
 
+  // Cuesheet read/write permissions live outside react-hook-form
+  const initialPermissions = useRef<CuesheetPermissionValues>({
+    read: urlPreset?.options?.read ?? 'full',
+    write: urlPreset?.options?.write ?? 'full',
+  });
+  const [cuesheetPermissions, setCuesheetPermissions] = useState<CuesheetPermissionValues>(initialPermissions.current);
+
+  const isCuesheet = watch('target') === OntimeView.Cuesheet;
+  const permissionsDirty =
+    isCuesheet &&
+    (cuesheetPermissions.read !== initialPermissions.current.read ||
+      cuesheetPermissions.write !== initialPermissions.current.write);
+  const noReadAccess = isCuesheet && cuesheetPermissions.read === '-';
+
   const setupSubmit = async (data: URLPreset) => {
     try {
+      // Preserve / apply cuesheet permissions, which are not part of the form fields
+      const payload: URLPreset =
+        data.target === OntimeView.Cuesheet
+          ? { ...data, target: OntimeView.Cuesheet, options: cuesheetPermissions }
+          : data;
       if (urlPreset) {
-        await updatePreset(urlPreset.alias, data);
+        await updatePreset(urlPreset.alias, payload);
       } else {
-        await addPreset(data);
+        await addPreset(payload);
       }
       onClose();
     } catch (error) {
@@ -159,11 +179,26 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
         />
         <Panel.Error>{errors.search?.message}</Panel.Error>
       </div>
+      {isCuesheet && (
+        <div>
+          <Panel.Description>Permissions</Panel.Description>
+          <CuesheetLinkOptions
+            initialRead={initialPermissions.current.read}
+            initialWrite={initialPermissions.current.write}
+            onChange={setCuesheetPermissions}
+          />
+        </div>
+      )}
       <div>
         <Panel.Error>{errors.root?.message}</Panel.Error>
         <Panel.InlineElements align='end'>
           <Button onClick={onClose}>Cancel</Button>
-          <Button variant='primary' type='submit' disabled={!isValid || !isDirty} loading={isSubmitting || isMutating}>
+          <Button
+            variant='primary'
+            type='submit'
+            disabled={!isValid || (!isDirty && !permissionsDirty) || noReadAccess}
+            loading={isSubmitting || isMutating}
+          >
             Save
           </Button>
         </Panel.InlineElements>
