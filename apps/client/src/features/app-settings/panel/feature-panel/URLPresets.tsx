@@ -23,18 +23,20 @@ const urlPresetsDocs = 'https://docs.getontime.no/features/url-presets/';
 
 export default function URLPresets() {
   const [formState, setFormState] = useState<FormState>({ isOpen: false, preset: undefined });
+  const [actionError, setActionError] = useState<string | null>(null);
   const { data, status } = useUrlPresets();
-  const { deletePreset, isMutating } = useUpdateUrlPreset();
+  const { updatePreset, deletePreset, isMutating } = useUpdateUrlPreset();
 
   const openNewForm = () => setFormState({ isOpen: true });
   const openEditForm = (preset: URLPreset) => setFormState({ isOpen: true, preset });
   const closeForm = () => setFormState({ isOpen: false, preset: undefined });
 
   const setDisplayInNav = async (preset: URLPreset, displayInNav: boolean) => {
+    setActionError(null);
     try {
       await updatePreset(preset.alias, { ...preset, displayInNav });
     } catch (error) {
-      setError('root', { message: maybeAxiosError(error) });
+      setActionError(maybeAxiosError(error));
     }
   };
 
@@ -62,10 +64,12 @@ export default function URLPresets() {
         <Panel.Section>
           <Panel.Loader isLoading={status === 'pending'} />
           {formState.isOpen && <URLPresetForm urlPreset={formState.preset} onClose={closeForm} />}
+          {actionError && <Panel.Error>{actionError}</Panel.Error>}
           <Panel.Table>
             <thead>
               <tr>
                 <th>Enabled</th>
+                <th>Show in nav</th>
                 <th>Target view</th>
                 <th>Alias</th>
                 <th />
@@ -86,19 +90,10 @@ export default function URLPresets() {
                         disabled={isMutating}
                       />
                     </td>
-                    <Panel.InlineElements>
-                      <Panel.Description>Show in navigation menu</Panel.Description>
-                    </Panel.InlineElements>
-
                     <td>
                       <Tag>{preset.target}</Tag>
                     </td>
-                    <td style={{ width: '100%' }}>
-                      <Panel.InlineElements relation='inner'>
-                        {preset.alias}
-                        {preset.displayInNav && <Tag>In navigation</Tag>}
-                      </Panel.InlineElements>
-                    </td>
+                    <td style={{ width: '100%' }}>{preset.alias}</td>
                     <Panel.InlineElements relation='inner' as='td'>
                       <IconButton
                         variant='ghosted-white'

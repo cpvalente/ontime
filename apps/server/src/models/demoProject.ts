@@ -43,6 +43,7 @@ export const demoDb: DatabaseModel = {
       target: OntimeView.Timer,
       search:
         'showLeadingZeros=true&timerType=clock&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true',
+      displayInNav: false,
     },
     {
       enabled: true,
@@ -50,6 +51,7 @@ export const demoDb: DatabaseModel = {
       target: OntimeView.Timer,
       search:
         'hideclock=true&hidecards=true&hideprogress=true&hidemessage=true&hidesecondary=true&hidelogo=true&font=arial+black&keycolour=00ff00&timerColour=ffffff',
+      displayInNav: false,
     },
   ],
   customFields: {
