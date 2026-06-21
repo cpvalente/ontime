@@ -85,9 +85,11 @@ export function getExpectedEnd(
 
   // count to end events should finish on schedule unlesss the start is compromised
   if (event.countToEnd) {
-    // count to end take scheduled delays into consideration
-    const plannedEnd = event.timeStart + event.duration + event.delay;
-    return Math.max(expectedStart, plannedEnd);
+    // the scheduled end, normalised to the same day-space as expectedStart
+    // (a raw timeStart + duration would miss the day offset on multi-day rundowns)
+    const relativeDayOffset = event.dayOffset - state.currentDay;
+    const scheduledEnd = event.timeStart + event.delay + relativeDayOffset * dayInMs + event.duration;
+    return Math.max(expectedStart, scheduledEnd);
   }
 
   return expectedStart + event.duration;

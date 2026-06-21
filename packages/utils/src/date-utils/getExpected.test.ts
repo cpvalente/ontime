@@ -381,4 +381,57 @@ describe('getExpectedEnd()', () => {
 
     expect(getExpectedEnd(testEvent, { ...baseState, offset: 0 })).toBe(timeStart + duration);
   });
+
+  test('a countToEnd event drifts when the start is compromised', () => {
+    const testEvent = {
+      timeStart: 100,
+      duration: 50,
+      delay: 0,
+      dayOffset: 0 as Day,
+      countToEnd: true,
+    };
+
+    // the offset pushes the start (160) past the scheduled end (150) so it can no longer
+    // finish on schedule - the end follows the compromised start
+    expect(getExpectedEnd(testEvent, { ...baseState, offset: 60 })).toBe(160);
+  });
+
+  test('a countToEnd event on a later day keeps the day offset on the end', () => {
+    const testEvent = {
+      timeStart: 100,
+      duration: 50,
+      delay: 0,
+      dayOffset: 1 as Day,
+      countToEnd: true,
+    };
+
+    // the scheduled end must include the day offset (delayedStart + dayInMs + duration),
+    // not collapse to the day-shifted start
+    expect(getExpectedEnd(testEvent, { ...baseState, currentDay: 0, offset: 0 })).toBe(150 + dayInMs);
+    // when the running event is already on the same day, no extra day is added
+    expect(getExpectedEnd({ ...testEvent, dayOffset: 0 as Day }, { ...baseState, currentDay: 0, offset: 0 })).toBe(150);
+  });
+
+  test('a countToEnd event is anchored to its wall-clock end in relative mode', () => {
+    const testEvent = {
+      timeStart: 100,
+      duration: 50,
+      delay: 0,
+      dayOffset: 0 as Day,
+      countToEnd: true,
+    };
+
+    const relativeState = {
+      ...baseState,
+      mode: OffsetMode.Relative,
+      actualStart: 30,
+      plannedStart: 0,
+      offset: 0,
+    };
+
+    // a regular event in the same state is shifted by the relative-start offset to 180
+    expect(getExpectedEnd({ ...testEvent, countToEnd: false }, relativeState)).toBe(180);
+    // the countToEnd event stays pinned to its wall-clock end (150), not shifted
+    expect(getExpectedEnd(testEvent, relativeState)).toBe(150);
+  });
 });
