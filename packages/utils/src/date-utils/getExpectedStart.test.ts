@@ -381,4 +381,44 @@ describe('getExpectedEnd()', () => {
 
     expect(getExpectedEnd(testEvent, { ...baseState, offset: 0 })).toBe(timeStart + duration);
   });
+
+  test('a countToEnd event is NOT shifted by the relative-start offset', () => {
+    const testEvent = {
+      timeStart: 100,
+      duration: 50,
+      delay: 0,
+      dayOffset: 0 as Day,
+      countToEnd: true,
+    };
+
+    // in relative mode a regular event would be shifted by actualStart - plannedStart (+30),
+    // but a countToEnd event is anchored to its wall-clock end and stays at 150
+    const relativeState = {
+      ...baseState,
+      mode: OffsetMode.Relative,
+      actualStart: 30,
+      plannedStart: 0,
+      offset: 0,
+    };
+
+    // sanity: a regular event in the same state is shifted to 180
+    expect(getExpectedEnd({ ...testEvent, countToEnd: false }, relativeState)).toBe(180);
+    // the countToEnd event is not shifted
+    expect(getExpectedEnd(testEvent, relativeState)).toBe(150);
+  });
+
+  test('a countToEnd event on a later day adds the day offset', () => {
+    const testEvent = {
+      timeStart: 100,
+      duration: 50,
+      delay: 0,
+      dayOffset: 1 as Day,
+      countToEnd: true,
+    };
+
+    // dayOffset 1 with currentDay 0 -> end normalised one day forward
+    expect(getExpectedEnd(testEvent, { ...baseState, currentDay: 0, offset: 0 })).toBe(150 + dayInMs);
+    // when the running event is already on the same day, no extra day is added
+    expect(getExpectedEnd({ ...testEvent, dayOffset: 0 as Day }, { ...baseState, currentDay: 0, offset: 0 })).toBe(150);
+  });
 });
