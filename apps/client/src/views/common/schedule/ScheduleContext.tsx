@@ -44,7 +44,7 @@ export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildre
     [filter],
   );
 
-  const { data: events } = usePartialRundown(filterCallback);
+  const { data: events } = usePartialRundown(null, filterCallback);
 
   const [firstIndex, setFirstIndex] = useState(-1);
   const [numPages, setNumPages] = useState(0);
