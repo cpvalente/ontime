@@ -83,8 +83,9 @@ export default function URLPresets() {
                     <td>
                       <Switch
                         checked={preset.enabled}
-                        onCheckedChange={(checked) => persistPreset({ ...preset, enabled: checked })}
+                        onCheckedChange={(enabled) => updatePreset(preset.alias, { ...preset, enabled })}
                         disabled={isMutating}
+                        aria-label='Toggle preset enabled'
                       />
                     </td>
                     <td>
