@@ -9,11 +9,22 @@ interface TextLikeInputProps extends HTMLAttributes<HTMLSpanElement> {
   muted?: boolean;
   disabled?: boolean;
   multiline?: boolean;
+  /** keep the content at the top of the cell (matches an editor that mounts top-aligned) */
+  topAligned?: boolean;
 }
 
 const TextLikeInput = forwardRef(
   (
-    { offset, muted, disabled, multiline, children, className, ...elementProps }: PropsWithChildren<TextLikeInputProps>,
+    {
+      offset,
+      muted,
+      disabled,
+      multiline,
+      topAligned,
+      children,
+      className,
+      ...elementProps
+    }: PropsWithChildren<TextLikeInputProps>,
     textRef,
   ) => {
     const ref = useRef<HTMLDivElement | null>(null);
@@ -23,6 +34,7 @@ const TextLikeInput = forwardRef(
       muted && style.muted,
       disabled && style.disabled,
       multiline && style.multiline,
+      topAligned && style.topAligned,
       className,
     ]);
 

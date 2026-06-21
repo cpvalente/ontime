@@ -35,9 +35,16 @@
     cursor: text;
   }
 
+  // single-line placeholder: keep the glyph in a 2rem band at the top of the cell so it lines up
+  // with the editor (which mounts top-aligned) and does not jump when the cell is taller than 2rem
+  &.topAligned:not(.multiline) {
+    align-items: flex-start;
+    line-height: 2rem;
+  }
+
   &.multiline {
     height: auto;
-    min-height: 2rem;
+    min-height: 100%; // fill the cell so the whole area is clickable (grows with content)
     text-wrap: wrap;
     white-space: break-spaces;
     overflow: hidden;

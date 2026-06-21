@@ -69,6 +69,7 @@ function EditableCell({ initialValue, multiline, fieldId, fieldLabel, handleUpda
         onClick={enterEdit}
         onFocus={enterEdit}
         multiline={multiline}
+        topAligned
         aria-label={fieldLabel ? `${fieldLabel} cell` : undefined}
       >
         {initialValue}
