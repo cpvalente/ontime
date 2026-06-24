@@ -49,12 +49,14 @@ export default function CuesheetLinkOptions({ initialRead, initialWrite, onChang
   const [writePermissions, setWritePermissions] = useState<AccessMode>(() => modeFromPermission(initialWrite));
 
   // Default for a column we have not seen yet: honour the seed in custom mode, otherwise grant access
-  const defaultRead = useCallback((key: string) => (initialReadKeys ? initialReadKeys.has(key) : true), [
-    initialReadKeys,
-  ]);
-  const defaultWrite = useCallback((key: string) => (initialWriteKeys ? initialWriteKeys.has(key) : true), [
-    initialWriteKeys,
-  ]);
+  const defaultRead = useCallback(
+    (key: string) => (initialReadKeys ? initialReadKeys.has(key) : true),
+    [initialReadKeys],
+  );
+  const defaultWrite = useCallback(
+    (key: string) => (initialWriteKeys ? initialWriteKeys.has(key) : true),
+    [initialWriteKeys],
+  );
 
   const [readSwitches, setReadSwitches] = useState<Record<string, boolean>>({});
   const [writeSwitches, setWriteSwitches] = useState<Record<string, boolean>>({});
@@ -164,8 +166,8 @@ export default function CuesheetLinkOptions({ initialRead, initialWrite, onChang
             orientation='horizontal'
             disabled={writePermissions === 'full'}
             items={[
-              { value: 'full', label: 'View all columns' },
-              { value: 'custom', label: 'Choose what to view' },
+              { value: 'full', label: 'Full read' },
+              { value: 'custom', label: 'Custom read' },
             ]}
           />
           <RadioGroup
@@ -173,8 +175,8 @@ export default function CuesheetLinkOptions({ initialRead, initialWrite, onChang
             onValueChange={handleWriteModeChange}
             orientation='horizontal'
             items={[
-              { value: 'full', label: 'Edit all columns' },
-              { value: 'custom', label: 'Choose what to edit' },
+              { value: 'full', label: 'Full write' },
+              { value: 'custom', label: 'Custom write' },
             ]}
           />
         </div>
@@ -185,15 +187,15 @@ export default function CuesheetLinkOptions({ initialRead, initialWrite, onChang
       <div className={style.twoCols}>
         <div className={style.grid}>
           <Panel.Description>Ontime columns</Panel.Description>
-          <Panel.Description>View</Panel.Description>
-          <Panel.Description>Edit</Panel.Description>
+          <Panel.Description>Read</Panel.Description>
+          <Panel.Description>Write</Panel.Description>
           {cuesheetDefaultColumns.map(renderColumn)}
         </div>
         {customFieldColumns.length > 0 && (
           <div className={style.grid}>
             <Panel.Description>Custom fields</Panel.Description>
-            <Panel.Description>View</Panel.Description>
-            <Panel.Description>Edit</Panel.Description>
+            <Panel.Description>Read</Panel.Description>
+            <Panel.Description>Write</Panel.Description>
             {customFieldColumns.map(renderColumn)}
           </div>
         )}
