@@ -1,4 +1,4 @@
-import { EntryId, PlayableEvent } from 'ontime-types';
+import { EntryId, OntimeEvent, OntimeGroup, isOntimeGroup } from 'ontime-types';
 import { useState } from 'react';
 import { IoArrowBack, IoClose, IoSaveOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
@@ -12,7 +12,7 @@ import { makeSubscriptionsUrl } from './countdown.utils';
 import './Countdown.scss';
 
 interface CountdownSelectProps {
-  events: ExtendedEntry<PlayableEvent>[];
+  events: ExtendedEntry<OntimeEvent | OntimeGroup>[];
   subscriptions: EntryId[];
   disableEdit: () => void;
 }
@@ -52,13 +52,15 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
 
   return (
     <div className='list-container'>
-      {events.map((event, index) => {
+      {events.map((event) => {
         const title = event.title || '{no title}';
         const isSelected = selectedIds.has(event.id);
+        const isGroup = isOntimeGroup(event);
+        const isGroupedEvent = !isGroup && Boolean(event.parent);
 
         return (
           <div
-            key={index}
+            key={event.id}
             role='button'
             tabIndex={0}
             onClick={() => toggleSelect(event.id)}
@@ -68,21 +70,33 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
                 e.stopPropagation();
               }
             }}
-            className={cx(['sub', isSelected && 'sub--selected'])}
+            className={cx([
+              'sub',
+              isSelected && 'sub--selected',
+              isGroup && 'sub--group',
+              isGroupedEvent && 'sub--in-group',
+            ])}
           >
-            <div className='sub__binder' style={{ '--user-color': event?.colour ?? '' }} />
+            <div
+              className='sub__binder'
+              style={{ '--user-color': event?.colour ?? '', '--group-color': event.groupColour ?? 'transparent' }}
+            />
             <div className='sub__schedule'>
               <ClockTime value={event.timeStart} preferredFormat12='h:mm a' preferredFormat24='HH:mm' />
               →
               <ClockTime value={event.timeEnd} preferredFormat12='h:mm a' preferredFormat24='HH:mm' />
             </div>
             <div className='sub__label'>{isSelected ? 'Click to remove' : 'Click to add'}</div>
-            <div className='sub__title'>{title}</div>
+            <div className='sub__title'>
+              {isGroup && <span className='sub__eyebrow'>Group</span>}
+              {title}
+            </div>
           </div>
         );
       })}
 
       <div className='fab-container'>
+        <div className='selection-count'>{selected.length} selected</div>
         <Button variant='subtle' size='xlarge' onClick={disableEdit}>
           <IoArrowBack /> Go back
         </Button>

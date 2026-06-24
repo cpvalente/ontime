@@ -1,4 +1,14 @@
-import { EntryId, OntimeEvent, OntimeView, PlayableEvent, isOntimeEvent, isPlayableEvent } from 'ontime-types';
+import {
+  EntryId,
+  OntimeEntry,
+  OntimeEvent,
+  OntimeGroup,
+  OntimeView,
+  PlayableEvent,
+  isOntimeEvent,
+  isOntimeGroup,
+  isPlayableEvent,
+} from 'ontime-types';
 import { useMemo, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
 
@@ -15,7 +25,7 @@ import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getCountdownOptions, useCountdownOptions } from './countdown.options';
-import { getOrderedSubscriptions } from './countdown.utils';
+import { getOrderedSubscriptions, resolveSubscriptionTarget } from './countdown.utils';
 import CountdownSelect from './CountdownSelect';
 import CountdownSubscriptions from './CountdownSubscriptions';
 import SingleEventCountdown from './SingleEventCountdown';
@@ -45,13 +55,19 @@ function Countdown({ customFields, rundownData, projectData, isMirrored, setting
 
   const [editMode, setEditMode] = useState(false);
 
-  // gather rundown data
-  const playableEvents = rundownData.filter((entry): entry is ExtendedEntry<PlayableEvent> => {
-    return isOntimeEvent(entry) && isPlayableEvent(entry);
+  // gather subscribable items: playable events and groups that contain at least one playable child
+  const candidates = rundownData.filter((entry): entry is ExtendedEntry<PlayableEvent | OntimeGroup> => {
+    if (isOntimeEvent(entry)) {
+      return isPlayableEvent(entry);
+    }
+    if (isOntimeGroup(entry)) {
+      return rundownData.some((item) => isOntimeEvent(item) && isPlayableEvent(item) && item.parent === entry.id);
+    }
+    return false;
   });
 
   // gather presentation data
-  const hasEvents = playableEvents.length > 0;
+  const hasEvents = candidates.length > 0;
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
@@ -69,15 +85,20 @@ function Countdown({ customFields, rundownData, projectData, isMirrored, setting
         <CountdownClock />
       </div>
 
-      {!hasEvents && <Empty text={getLocalizedString('common.no_data')} className='empty-container' />}
+      {!hasEvents && (
+        <div className='empty-state'>
+          <Empty text={getLocalizedString('common.no_data')} className='empty-state__content' />
+        </div>
+      )}
 
       {hasEvents && editMode && (
-        <CountdownSelect events={playableEvents} subscriptions={subscriptions} disableEdit={() => setEditMode(false)} />
+        <CountdownSelect events={candidates} subscriptions={subscriptions} disableEdit={() => setEditMode(false)} />
       )}
 
       {hasEvents && !editMode && (
         <CountdownContents
-          playableEvents={playableEvents}
+          candidates={candidates}
+          rundownData={rundownData}
           subscriptions={subscriptions}
           goToEditMode={() => setEditMode(true)}
         />
@@ -87,19 +108,20 @@ function Countdown({ customFields, rundownData, projectData, isMirrored, setting
 }
 
 interface CountdownContentsProps {
-  playableEvents: ExtendedEntry<OntimeEvent>[];
+  candidates: ExtendedEntry<OntimeEvent | OntimeGroup>[];
+  rundownData: ExtendedEntry<OntimeEntry>[];
   subscriptions: EntryId[];
   goToEditMode: () => void;
 }
 
-function CountdownContents({ playableEvents, subscriptions, goToEditMode }: CountdownContentsProps) {
+function CountdownContents({ candidates, rundownData, subscriptions, goToEditMode }: CountdownContentsProps) {
   const { getLocalizedString } = useTranslation();
   const { hidePast } = useCountdownOptions();
 
   if (subscriptions.length === 0) {
     return (
-      <div className='empty-container'>
-        <Empty text={getLocalizedString('countdown.select_event')} className='empty-container' />
+      <div className='empty-state'>
+        <Empty text={getLocalizedString('countdown.select_event')} className='empty-state__content' />
         <Button variant='primary' size='xlarge' onClick={goToEditMode}>
           <IoAdd /> Add
         </Button>
@@ -107,13 +129,15 @@ function CountdownContents({ playableEvents, subscriptions, goToEditMode }: Coun
     );
   }
 
-  const subscribedEvents = getOrderedSubscriptions(subscriptions, playableEvents);
+  const subscribedEvents = getOrderedSubscriptions(subscriptions, candidates)
+    .map((entry) => resolveSubscriptionTarget(entry, rundownData))
+    .filter((target): target is NonNullable<typeof target> => target !== null);
   const eventsToShow = !hidePast ? subscribedEvents : subscribedEvents.filter((event) => !event.isPast);
 
   if (subscribedEvents.length === 0) {
     return (
-      <div className='empty-container'>
-        <Empty text={getLocalizedString('countdown.select_event')} className='empty-container' />
+      <div className='empty-state'>
+        <Empty text={getLocalizedString('countdown.select_event')} className='empty-state__content' />
         <Button variant='primary' size='xlarge' onClick={goToEditMode}>
           <IoAdd /> Add
         </Button>
@@ -129,8 +153,8 @@ function CountdownContents({ playableEvents, subscriptions, goToEditMode }: Coun
 
   if (eventsToShow.length === 0) {
     return (
-      <div className='empty-container'>
-        <Empty text={getLocalizedString('countdown.all_have_finished')} className='empty-container' />
+      <div className='empty-state'>
+        <Empty text={getLocalizedString('countdown.all_have_finished')} className='empty-state__content' />
       </div>
     );
   }
