@@ -16,6 +16,7 @@ export const langEn = {
   'common.no_data': 'No data',
   'countdown.ended': 'Event ended at',
   'countdown.running': 'Event running',
+  'countdown.group_running': 'Event in group running',
   'countdown.loaded': 'Event loaded',
   'countdown.select_event': 'Select an event to follow',
   'countdown.to_start': 'Time to start',

@@ -18,6 +18,7 @@ export const langEs: TranslationObject = {
   'common.no_data': 'Sin datos',
   'countdown.ended': 'Evento finalizado a las',
   'countdown.running': 'Evento en curso',
+  'countdown.group_running': 'Evento en grupo en curso',
   'countdown.loaded': 'Evento está cargado', //TODO: check translation
   'countdown.select_event': 'Seleccionar un evento para seguir',
   'countdown.to_start': 'Tiempo para comenzar',

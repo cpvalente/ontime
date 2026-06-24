@@ -80,7 +80,7 @@ export const getCountdownOptions = (
         {
           id: 'sub',
           title: 'Event subscription',
-          description: 'The events to follow',
+          description: 'The events and groups to follow',
           values: persistedSubscriptions,
           type: 'persist',
         },

@@ -18,6 +18,7 @@ export const langFr: TranslationObject = {
   'common.no_data': 'Aucune donnée',
   'countdown.ended': 'Évènement terminé à',
   'countdown.running': 'Évènement en cours',
+  'countdown.group_running': 'Évènement du groupe en cours',
   'countdown.loaded': 'Évènement chargé',
   'countdown.select_event': 'Sélectionnez un évènement à suivre',
   'countdown.to_start': 'Évènement commence dans',

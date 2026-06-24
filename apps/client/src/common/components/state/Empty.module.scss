@@ -4,7 +4,9 @@
   color: $white-10;
 
   .empty {
-    width: 100%;
+    display: block;
+    width: min(100%, 24rem);
+    margin-inline: auto;
     opacity: 0.8;
   }
 
@@ -13,6 +15,6 @@
     margin-inline: auto;
     font-weight: 600;
     font-size: 2em;
-    max-width: 600px;
+    max-width: min(100%, 600px);
   }
 }
