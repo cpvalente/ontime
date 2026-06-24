@@ -23,7 +23,7 @@ const urlPresetsDocs = 'https://docs.getontime.no/features/url-presets/';
 export default function URLPresets() {
   const [formState, setFormState] = useState<FormState>({ isOpen: false, preset: undefined });
   const { data, status } = useUrlPresets();
-  const { deletePreset, isMutating } = useUpdateUrlPreset();
+  const { updatePreset, deletePreset, isMutating } = useUpdateUrlPreset();
 
   const openNewForm = () => setFormState({ isOpen: true });
   const openEditForm = (preset: URLPreset) => setFormState({ isOpen: true, preset });
@@ -68,7 +68,12 @@ export default function URLPresets() {
                 return (
                   <tr key={preset.alias}>
                     <td>
-                      <Switch defaultChecked={preset.enabled} onCheckedChange={() => {}} />
+                      <Switch
+                        checked={preset.enabled}
+                        onCheckedChange={(enabled) => updatePreset(preset.alias, { ...preset, enabled })}
+                        disabled={isMutating}
+                        aria-label='Toggle preset enabled'
+                      />
                     </td>
                     <td>
                       <Tag>{preset.target}</Tag>

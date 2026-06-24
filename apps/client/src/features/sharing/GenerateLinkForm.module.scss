@@ -14,6 +14,20 @@
   overflow-x: auto;
 }
 
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 172px;
+  height: 172px;
+  padding: 1rem;
+  border: 1px dashed $label-gray;
+  border-radius: 0.25rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: $label-gray;
+}
+
 .shareInline {
   display: grid;
   grid-template-columns: 1fr 172px;
