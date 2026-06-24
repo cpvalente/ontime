@@ -19,6 +19,7 @@ import { getPropertyValue } from '../common/viewUtils';
 import { useCountdownOptions } from './countdown.options';
 import {
   CountdownEvent,
+  CountdownTarget,
   extendEventData,
   getIsLive,
   isOutsideRange,
@@ -30,7 +31,7 @@ import {
 import './Countdown.scss';
 
 interface CountdownSubscriptionsProps {
-  subscribedEvents: ExtendedEntry<OntimeEvent>[];
+  subscribedEvents: CountdownTarget[];
   goToEditMode: () => void;
 }
 
@@ -98,16 +99,21 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
   return (
     <div className='list-container' onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
       {subscribedEvents.map((event) => {
-        const secondaryData = getPropertyValue(event, secondarySource);
-        const isLive = getIsLive(event.id, selectedEventId, playback);
-        const isArmed = !isLive && event.id === selectedEventId;
+        // while a group is live, surface the running event's title as the secondary line
+        const liveTitle = event.isGroup && event.liveEntry ? event.liveEntry.title : undefined;
+        const secondaryData = liveTitle ?? getPropertyValue(event, secondarySource);
+        // a subscribed group is live when any of its children is the selected/running event
+        const isLive = event.isGroup
+          ? Boolean(event.liveEntry) && getIsLive(event.liveEntry!.id, selectedEventId, playback)
+          : getIsLive(event.id, selectedEventId, playback);
+        const isArmed = !isLive && (event.isGroup ? event.liveEntry?.id : event.id) === selectedEventId;
         const countdownEvent = extendEventData(event, currentDay, actualStart, plannedStart, offset, mode, reportData);
         const displayTitle = getPropertyValue(event, mainSource ?? 'title');
         return (
           <div
             key={event.id}
             ref={isLive ? selectedRef : undefined}
-            className={cx(['sub', isLive && 'sub--live', isArmed && 'sub--armed'])}
+            className={cx(['sub', isLive && 'sub--live', isArmed && 'sub--armed', event.isGroup && 'sub--group'])}
             data-testid={event.cue}
           >
             <div className='sub__binder' style={{ '--user-color': event.colour }} />

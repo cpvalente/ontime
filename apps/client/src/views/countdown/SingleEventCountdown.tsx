@@ -11,13 +11,13 @@ import { cx } from '../../common/utils/styleUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getPropertyValue } from '../common/viewUtils';
 import { useCountdownOptions } from './countdown.options';
-import { useSubscriptionDisplayData } from './countdown.utils';
+import { CountdownTarget, useSubscriptionDisplayData } from './countdown.utils';
 import { ScheduleTime } from './CountdownSubscriptions';
 
 import './SingleEventCountdown.scss';
 
 interface SingleEventCountdownProps {
-  subscribedEvent: ExtendedEntry<OntimeEvent>;
+  subscribedEvent: CountdownTarget;
   goToEditMode: () => void;
 }
 
@@ -38,11 +38,13 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
     mode,
   });
 
-  const { endedAt } = reportData[subscribedEvent.id] ?? { endedAt: null };
+  const { endedAt } = reportData[subscribedEvent.reportId ?? subscribedEvent.id] ?? { endedAt: null };
   const countdownEvent = { ...subscribedEvent, expectedStart, endedAt };
   const titleTmp = getPropertyValue(subscribedEvent, mainSource ?? 'title');
   const title = titleTmp?.length ? titleTmp : ' '; // insert utf-8 empty space to avoid the line collapsing;
-  const secondaryData = getPropertyValue(subscribedEvent, secondarySource);
+  // while a group is live, surface the running event's title as the secondary line
+  const liveTitle = subscribedEvent.isGroup && subscribedEvent.liveEntry ? subscribedEvent.liveEntry.title : undefined;
+  const secondaryData = liveTitle ?? getPropertyValue(subscribedEvent, secondarySource);
 
   return (
     <div className='single-container' data-testid='countdown-event'>
