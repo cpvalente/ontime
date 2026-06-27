@@ -4,6 +4,7 @@ import {
   MILLIS_PER_MINUTE,
   MILLIS_PER_SECOND,
   formatFromMillis,
+  getExpectedEnd,
   getExpectedStart,
 } from 'ontime-utils';
 
@@ -172,13 +173,15 @@ export function getExpectedTimesFromExtendedEvent(
 ) {
   if (event === null) return { expectedStart: 0, timeToStart: 0, expectedEnd: 0, plannedEnd: 0 };
 
+  const expectedStartState = {
+    totalGap: event.totalGap,
+    isLinkedToLoaded: event.isLinkedToLoaded,
+    ...state,
+  };
+
   const expectedStart = getExpectedStart(
     { timeStart: event.timeStart, delay: event.delay, dayOffset: event.dayOffset },
-    {
-      totalGap: event.totalGap,
-      isLinkedToLoaded: event.isLinkedToLoaded,
-      ...state,
-    },
+    expectedStartState,
   );
 
   const plannedEnd = event.timeStart + event.duration + event.delay;
@@ -186,9 +189,7 @@ export function getExpectedTimesFromExtendedEvent(
   return {
     expectedStart,
     timeToStart: expectedStart - state.clock,
-    expectedEnd: event.countToEnd
-      ? Math.max(expectedStart + event.duration, plannedEnd)
-      : expectedStart + event.duration,
+    expectedEnd: getExpectedEnd(event, expectedStartState),
     plannedEnd,
   };
 }

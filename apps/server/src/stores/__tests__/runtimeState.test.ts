@@ -245,6 +245,52 @@ describe('mutation on runtimeState', () => {
     expect(newState.offset.expectedRundownEnd).toBeNull();
   });
 
+  test('a countToEnd last event absorbs overtime into its fixed rundown end', async () => {
+    const tenAM = 10 * MILLIS_PER_HOUR;
+    const elevenAM = 11 * MILLIS_PER_HOUR;
+    const noon = 12 * MILLIS_PER_HOUR;
+
+    const entries = {
+      event1: {
+        ...mockEvent,
+        id: 'event1',
+        timeStart: tenAM,
+        timeEnd: elevenAM,
+        duration: MILLIS_PER_HOUR,
+        parent: null,
+      },
+      event2: {
+        ...mockEvent,
+        id: 'event2',
+        timeStart: elevenAM,
+        timeEnd: noon,
+        duration: MILLIS_PER_HOUR,
+        countToEnd: true,
+        linkStart: true,
+        parent: null,
+      },
+    };
+    const mockRundown = makeRundown({ entries, order: ['event1', 'event2'] });
+
+    await initRundown(mockRundown, {});
+    vi.runAllTimers();
+
+    const { metadata, rundown } = rundownCache.get();
+
+    // start event1 five minutes behind schedule
+    vi.setSystemTime('jan 1 10:05');
+    load(entries.event1, rundown, metadata);
+    start();
+    update();
+
+    const newState = getState();
+    expect(newState.offset.absolute).toBe(5 * MILLIS_PER_MINUTE);
+
+    // without countToEnd the rundown would end at noon + 5min, but the countToEnd
+    // event absorbs the overtime so the rundown is still expected to end at noon
+    expect(newState.offset.expectedRundownEnd).toBe(noon);
+  });
+
   test('resume restores currentDay from restore point', async () => {
     clearState();
     const mockRundown = makeRundown({
@@ -955,5 +1001,33 @@ describe('loadGroupFlagAndEnd()', () => {
       groupNow: null,
       eventNow: rundown.entries[0],
     });
+  });
+
+  test('a countToEnd event breaks the link chain for the events that follow it', () => {
+    // chain: A (loaded) -> B (countToEnd, flagged) -> C (linked, last event)
+    // the chain stays intact up to and including B, but breaks for C since it follows a countToEnd event
+    const rundown = makeRundown({
+      entries: {
+        A: makeOntimeEvent({ id: 'A', parent: null, linkStart: false, countToEnd: false, gap: 0 }),
+        B: makeOntimeEvent({ id: 'B', parent: null, linkStart: true, countToEnd: true, gap: 0, flag: true }),
+        C: makeOntimeEvent({ id: 'C', parent: null, linkStart: true, countToEnd: false, gap: 0 }),
+      },
+      order: ['A', 'B', 'C'],
+    });
+
+    const state = {
+      groupNow: null,
+      eventNow: rundown.entries.A,
+      rundown: { actualGroupStart: null },
+    } as RuntimeState;
+
+    const metadata = { playableEventOrder: ['A', 'B', 'C'], flags: ['B'] } as RundownMetadata;
+
+    loadGroupFlagAndEnd(rundown, metadata, 0, state);
+
+    // the flag (B) is still part of the chain
+    expect(state._flag).toMatchObject({ event: rundown.entries.B, isLinkedToLoaded: true });
+    // the rundown end (C) follows the countToEnd event, so the chain is broken
+    expect(state._end).toMatchObject({ event: rundown.entries.C, isLinkedToLoaded: false });
   });
 });

@@ -8,7 +8,6 @@ import { dayInMs } from './conversionUtils.js';
  * @param currentDay the day offset of the currently running event
  * @param totalGap accumulated gap from the current event
  * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
- * @param clock
  * @param offset
  * @returns
  */
@@ -59,4 +58,39 @@ export function getExpectedStart(
   // otherwise consume as much of the offset as possible with the gap
   const offsetStartTimeBufferedByGaps = offsetStartTime - totalGap;
   return offsetStartTimeBufferedByGaps;
+}
+
+/**
+ * @param event the event that we are counting to
+ * @param currentDay the day offset of the currently running event
+ * @param totalGap accumulated gap from the current event
+ * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
+ * @param offset
+ * @returns
+ */
+export function getExpectedEnd(
+  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay' | 'duration' | 'countToEnd'>,
+  state: {
+    currentDay: number; // the current day from the rundown
+    totalGap: number;
+    isLinkedToLoaded: boolean;
+    offset: number;
+    mode: OffsetMode;
+    actualStart: MaybeNumber;
+    plannedStart: MaybeNumber;
+  },
+): number {
+  // expected start encodes the offset from current delays
+  const expectedStart = getExpectedStart(event, state);
+
+  // count to end events should finish on schedule unlesss the start is compromised
+  if (event.countToEnd) {
+    // the scheduled end, normalised to the same day-space as expectedStart
+    // (a raw timeStart + duration would miss the day offset on multi-day rundowns)
+    const relativeDayOffset = event.dayOffset - state.currentDay;
+    const scheduledEnd = event.timeStart + event.delay + relativeDayOffset * dayInMs + event.duration;
+    return Math.max(expectedStart, scheduledEnd);
+  }
+
+  return expectedStart + event.duration;
 }
