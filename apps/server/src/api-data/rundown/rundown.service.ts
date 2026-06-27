@@ -16,7 +16,7 @@ import {
   isOntimeEvent,
   isOntimeGroup,
 } from 'ontime-types';
-import { customFieldLabelToKey, getInsertAfterId, resolveInsertParent } from 'ontime-utils';
+import { customFieldLabelToKey, generateId, getInsertAfterId, resolveInsertParent } from 'ontime-utils';
 
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -34,7 +34,7 @@ import {
   updateBackgroundRundown,
 } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
-import { duplicateRundown, generateEvent, getIntegerAndFraction, hasChanges } from './rundown.utils.js';
+import { generateEvent, getIntegerAndFraction, hasChanges } from './rundown.utils.js';
 
 /**
  * creates a new entry with given data
@@ -726,7 +726,11 @@ export async function duplicateExistingRundown(id: string) {
   const dataProvider = getDataProvider();
   const rundown = dataProvider.getRundown(id);
 
-  const duplicatedRundown = duplicateRundown(rundown, `Copy of ${rundown.title}`);
+  const duplicatedRundown: Rundown = structuredClone(rundown);
+  duplicatedRundown.id = generateId();
+  duplicatedRundown.title = `Copy of ${rundown.title}`;
+  duplicatedRundown.revision = 0;
+
   await dataProvider.setRundown(duplicatedRundown.id, duplicatedRundown);
 
   setImmediate(() => {
