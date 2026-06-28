@@ -46,6 +46,10 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
     return false;
   }
 
+  if ('pausedDuration' in restorePoint && !is.number(restorePoint.pausedDuration)) {
+    return false;
+  }
+
   if (!is.number(restorePoint.firstStart) && restorePoint.firstStart !== null) {
     return false;
   }
