@@ -4,7 +4,6 @@ import GenerateLinkFormExport from '../../../sharing/GenerateLinkFormExport';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import InfoNif from '../network-panel/NetworkInterfaces';
-import McpSection from './McpSection';
 import ReportSettings from './ReportSettings';
 import URLPresets from './URLPresets';
 
@@ -12,7 +11,6 @@ export default function FeaturePanel({ location }: PanelBaseProps) {
   const presetsRef = useScrollIntoView<HTMLDivElement>('presets', location);
   const linkRef = useScrollIntoView<HTMLDivElement>('link', location);
   const reportRef = useScrollIntoView<HTMLDivElement>('report', location);
-  const mcpRef = useScrollIntoView<HTMLDivElement>('mcp', location);
 
   return (
     <>
@@ -34,9 +32,6 @@ export default function FeaturePanel({ location }: PanelBaseProps) {
             <GenerateLinkFormExport />
           </Panel.Card>
         </Panel.Section>
-      </div>
-      <div ref={mcpRef}>
-        <McpSection />
       </div>
       <div ref={reportRef}>
         <ReportSettings />

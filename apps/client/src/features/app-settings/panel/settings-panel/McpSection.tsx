@@ -6,7 +6,6 @@ import useInfo from '../../../../common/hooks-query/useInfo';
 import { isOntimeCloud, serverURL } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
-/** MCP endpoint card — isolated so that URL state changes don't re-render the rest of FeaturePanel */
 export default function McpSection() {
   const { data: infoData } = useInfo();
   const [mcpEndpointUrl, setMcpEndpointUrl] = useState('');

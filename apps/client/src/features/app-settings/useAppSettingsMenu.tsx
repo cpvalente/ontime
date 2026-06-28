@@ -20,6 +20,7 @@ const staticOptions = [
       { id: 'settings__view', label: 'View settings' },
       { id: 'settings__custom-views', label: 'Custom views' },
       { id: 'settings__port', label: 'Server port' },
+      { id: 'sharing__mcp', label: 'MCP Server' },
     ],
   },
   {

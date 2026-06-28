@@ -4,6 +4,7 @@ import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import CustomViews from '../manage-panel/CustomViews';
 import GeneralSettings from './GeneralSettings';
+import McpSection from './McpSection';
 import ProjectData from './ProjectData';
 import ServerPortSettings from './ServerPortSettings';
 import ViewSettings from './ViewSettings';
@@ -13,6 +14,7 @@ export default function SettingsPanel({ location }: PanelBaseProps) {
   const generalRef = useScrollIntoView<HTMLDivElement>('general', location);
   const viewRef = useScrollIntoView<HTMLDivElement>('view', location);
   const customViewsRef = useScrollIntoView<HTMLDivElement>('custom-views', location);
+  const mcpRef = useScrollIntoView<HTMLDivElement>('mcp', location);
   const portRef = useScrollIntoView<HTMLDivElement>('port', location);
 
   return (
@@ -29,6 +31,9 @@ export default function SettingsPanel({ location }: PanelBaseProps) {
       </div>
       <div ref={customViewsRef}>
         <CustomViews />
+      </div>
+      <div ref={mcpRef}>
+        <McpSection />
       </div>
       {!isDocker && (
         <div ref={portRef}>
