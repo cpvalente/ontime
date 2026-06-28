@@ -31,10 +31,10 @@ export default function URLPresets() {
   const openEditForm = (preset: URLPreset) => setFormState({ isOpen: true, preset });
   const closeForm = () => setFormState({ isOpen: false, preset: undefined });
 
-  const setDisplayInNav = async (preset: URLPreset, displayInNav: boolean) => {
+  const persistPreset = async (preset: URLPreset) => {
     setActionError(null);
     try {
-      await updatePreset(preset.alias, { ...preset, displayInNav });
+      await updatePreset(preset.alias, preset);
     } catch (error) {
       setActionError(maybeAxiosError(error));
     }
@@ -81,12 +81,16 @@ export default function URLPresets() {
                 return (
                   <tr key={preset.alias}>
                     <td>
-                      <Switch defaultChecked={preset.enabled} onCheckedChange={() => {}} />
+                      <Switch
+                        checked={preset.enabled}
+                        onCheckedChange={(checked) => persistPreset({ ...preset, enabled: checked })}
+                        disabled={isMutating}
+                      />
                     </td>
                     <td>
                       <Switch
                         checked={preset.displayInNav}
-                        onCheckedChange={(checked) => setDisplayInNav(preset, checked)}
+                        onCheckedChange={(checked) => persistPreset({ ...preset, displayInNav: checked })}
                         disabled={isMutating}
                       />
                     </td>

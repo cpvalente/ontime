@@ -122,6 +122,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
 }
 
 function PresetNavigation({ isSmallScreen, onClose }: { isSmallScreen: boolean; onClose: () => void }) {
+  const location = useLocation();
   const { data: urlPresets } = useUrlPresets();
   const navPresets = urlPresets.filter((preset) => preset.enabled && preset.displayInNav);
 
@@ -133,8 +134,8 @@ function PresetNavigation({ isSmallScreen, onClose }: { isSmallScreen: boolean; 
       {navPresets.map((preset) => (
         <ClientLink
           key={preset.alias}
-          to={preset.alias}
-          current={location.pathname === `/${preset.alias}` || location.pathname === `/preset/${preset.alias}`}
+          to={`preset/${preset.alias}`}
+          current={location.pathname === `/preset/${preset.alias}`}
           postAction={isSmallScreen ? onClose : undefined}
         >
           {preset.alias}
