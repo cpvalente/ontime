@@ -40,6 +40,7 @@ const baseState: RuntimeState = {
   _timer: {
     forceFinish: null,
     pausedAt: null,
+    pausedDuration: 0,
     secondaryTarget: null,
     hasFinished: false,
   },

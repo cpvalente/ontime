@@ -760,6 +760,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           startedAt: state.timer.startedAt,
           addedTime: state.timer.addedTime,
           pausedAt: state._timer.pausedAt,
+          pausedDuration: state._timer.pausedDuration,
           firstStart: state.rundown.actualStart,
           startEpoch: state._startEpoch,
           currentDay: state.rundown.currentDay,

@@ -33,7 +33,8 @@ export function getShouldClockUpdate(previousUpdate: number, now: number): boole
  * Checks whether we should update the timer values
  * - `current` and `secondaryTimer` trigger on seconds roll over
  * - the rest trigger on any change
- * - `elapsed` and `expectedFinish` is not checked
+ * - `elapsed` changes alongside `current`
+ * - `expectedFinish` is not checked
  */
 export function getShouldTimerUpdate(previousValue: TimerState | undefined, currentValue: TimerState): boolean {
   if (previousValue === undefined) return true;
@@ -48,7 +49,7 @@ export function getShouldTimerUpdate(previousValue: TimerState | undefined, curr
     previousValue.phase !== currentValue.phase ||
     previousValue.playback !== currentValue.playback ||
     previousValue.startedAt !== currentValue.startedAt
-    // elapsed - this would be the direct invert of current value so no need to check
+    // elapsed - this is derived from current / duration / addedTime, so the fields above cover it
     // expectedFinish - this will be moved out by the current value going into over time, no need to check
   );
 }

@@ -61,6 +61,13 @@ vi.mock('../../classes/data-provider/DataProvider.js', () => {
       return {
         setCustomFields: vi.fn().mockImplementation((newData) => newData),
         setRundown: vi.fn().mockImplementation((newData) => newData),
+        getAutomation: vi.fn().mockReturnValue({
+          enabledAutomations: false,
+          enabledOscIn: false,
+          oscPortIn: 0,
+          triggers: [],
+          automations: {},
+        }),
       };
     }),
   };
@@ -167,6 +174,79 @@ describe('mutation on runtimeState', () => {
         startedAt: null,
       });
       expect(newState.rundown.actualStart).toBeNull();
+    });
+
+    test('elapsed remains active time when adding and removing time', async () => {
+      clearState();
+      const event = {
+        ...mockEvent,
+        id: 'elapsed-add-time',
+        timeStart: 0,
+        timeEnd: 10 * MILLIS_PER_MINUTE,
+        duration: 10 * MILLIS_PER_MINUTE,
+      };
+      const mockRundown = makeRundown({
+        entries: { [event.id]: event },
+        order: [event.id],
+      });
+
+      await initRundown(mockRundown, {});
+      vi.runAllTimers();
+
+      const { metadata, rundown } = rundownCache.get();
+      vi.setSystemTime('jan 1 00:00');
+      load(event, rundown, metadata);
+      start();
+
+      vi.setSystemTime('jan 1 00:02');
+      update();
+
+      addTime(5 * MILLIS_PER_MINUTE);
+      let state = getState();
+      expect(state.timer.elapsed).toBe(2 * MILLIS_PER_MINUTE);
+      expect(state.timer.duration! - state.timer.current!).toBe(-3 * MILLIS_PER_MINUTE);
+
+      addTime(-8 * MILLIS_PER_MINUTE);
+      state = getState();
+      expect(state.timer.elapsed).toBe(2 * MILLIS_PER_MINUTE);
+      expect(state.timer.duration! - state.timer.current!).toBe(5 * MILLIS_PER_MINUTE);
+    });
+
+    test('elapsed excludes time spent paused after resume', async () => {
+      clearState();
+      const event = {
+        ...mockEvent,
+        id: 'elapsed-pause',
+        timeStart: 0,
+        timeEnd: 10 * MILLIS_PER_MINUTE,
+        duration: 10 * MILLIS_PER_MINUTE,
+      };
+      const mockRundown = makeRundown({
+        entries: { [event.id]: event },
+        order: [event.id],
+      });
+
+      await initRundown(mockRundown, {});
+      vi.runAllTimers();
+
+      const { metadata, rundown } = rundownCache.get();
+      vi.setSystemTime('jan 1 00:00');
+      load(event, rundown, metadata);
+      start();
+
+      vi.setSystemTime('jan 1 00:02');
+      update();
+      pause();
+
+      vi.setSystemTime('jan 1 00:07');
+      start();
+      let state = getState();
+      expect(state.timer.elapsed).toBe(2 * MILLIS_PER_MINUTE);
+
+      vi.setSystemTime('jan 1 00:08');
+      update();
+      state = getState();
+      expect(state.timer.elapsed).toBe(3 * MILLIS_PER_MINUTE);
     });
   });
 
