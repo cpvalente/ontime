@@ -28,7 +28,11 @@ export const EVENT_TIMER_FIELDS = {
     description:
       "Link this event's start time to the previous playable event's end time. Linked events allow time changes to propagate through the rundown. Unlinking would prevent propagation and lock this event's start time to the schedule",
   },
-  countToEnd: { type: 'boolean', description: 'Timer counts toward the scheduled end time rather than elapsed time' },
+  countToEnd: {
+    type: 'boolean',
+    description:
+      'Advanced timing mode: countdown targets the scheduled timeEnd instead of the event duration. This can surprise operators when an event starts late or the schedule shifts; only set true after explaining the behaviour and confirming the user wants it. This can be useful for a deadline, where an event always needs to end at the schedule time, ie: a curfew or a broadcast window.',
+  },
   timeStrategy: {
     type: 'string',
     enum: ['lock-duration', 'lock-end'],
@@ -114,7 +118,7 @@ There are four entry types discriminated by \`type\`:
   timerType: 'count-down' | 'count-up' | 'clock' | 'none'
   endAction: 'none' | 'load-next' | 'play-next'
   linkStart: boolean         // chain start to previous event's end
-  countToEnd: boolean        // timer counts to planned end time
+  countToEnd: boolean        // advanced mode: counts to scheduled timeEnd instead of duration; confirm before enabling
   skip: boolean              // event is skipped during playback
   flag: boolean              // critical operational marker, highlighted to operators
   timeStrategy: 'lock-duration' | 'lock-end'
@@ -150,7 +154,9 @@ There are four entry types discriminated by \`type\`:
   revision: number
 }
 \`\`\`
-Groups are created with a title only — set colour, note, custom values and targetDuration with an update after creation.
+MCP entry creation accepts title plus optional colour, note, custom values and targetDuration for groups. In batch creation, a group may also include \`children\` to create child events, milestones or delays inside the group. Groups cannot be nested.
+
+For existing entries, use \`ontime_group_entries\` to create a group from top-level non-group entries, and \`ontime_ungroup_entry\` to dissolve a group back into top-level entries. Use \`ontime_reorder_entry\` only for targeted moves into, out of, or around an existing group.
 
 ### \`milestone\` — OntimeMilestone (marker with no timer)
 \`\`\`

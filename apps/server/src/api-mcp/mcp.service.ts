@@ -19,7 +19,9 @@ import {
   batchEditEntries,
   deleteEntries,
   editEntry,
+  groupEntries,
   reorderEntry,
+  ungroupEntries,
 } from '../api-data/rundown/rundown.service.js';
 import { normalisedToRundownArray } from '../api-data/rundown/rundown.utils.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
@@ -53,7 +55,10 @@ export type GroupFieldArgs = Partial<Pick<OntimeGroup, 'title' | 'note' | 'colou
 export type EntryFieldArgs = EventFieldArgs & MilestoneFieldArgs & DelayFieldArgs & GroupFieldArgs;
 export type TargetRundownArgs = { rundownId?: string };
 export type CreateEntryArgs = EntryFieldArgs & InsertOptions & TargetRundownArgs & { type?: `${SupportedEntry}` };
+export type BatchCreateEntryArgs = CreateEntryArgs & { children?: BatchCreateEntryArgs[] };
 export type UpdateEntryArgs = EntryFieldArgs & TargetRundownArgs & { id: EntryId };
+export type GroupEntriesArgs = GroupFieldArgs & TargetRundownArgs & { ids: EntryId[] };
+export type UngroupEntryArgs = TargetRundownArgs & { id: EntryId };
 
 export function resolveTargetRundownId(args: TargetRundownArgs): string {
   return args.rundownId ?? getCurrentRundownId();
@@ -126,10 +131,36 @@ export function toEntryPayload(args: CreateEntryArgs): EventPostPayload {
   }
 }
 
+function toGroupPatch(args: CreateEntryArgs, id: EntryId): PatchWithId<OntimeGroup> | null {
+  const patch: PatchWithId<OntimeGroup> = { id };
+
+  if (args.title !== undefined) patch.title = args.title;
+  if (args.note !== undefined) patch.note = args.note;
+  if (args.colour !== undefined) patch.colour = args.colour;
+  if (args.targetDuration !== undefined) patch.targetDuration = args.targetDuration;
+  if (args.custom !== undefined) patch.custom = args.custom;
+
+  return Object.keys(patch).length > 1 ? patch : null;
+}
+
+async function updateCreatedGroup(rundownId: string, args: CreateEntryArgs, entry: OntimeEntry): Promise<OntimeEntry> {
+  if (args.type !== SupportedEntry.Group) {
+    return entry;
+  }
+
+  const patch = toGroupPatch(args, entry.id);
+  if (!patch) {
+    return entry;
+  }
+
+  return editEntry(rundownId, patch);
+}
+
 export async function createEntryForMcp(args: CreateEntryArgs) {
   assertKnownCustomFields(args.custom);
   const rundownId = resolveTargetRundownId(args);
-  const entry = await addEntry(rundownId, toEntryPayload(args));
+  const createdEntry = await addEntry(rundownId, toEntryPayload(args));
+  const entry = await updateCreatedGroup(rundownId, args, createdEntry);
   return { target: getTargetMeta(rundownId), entry };
 }
 
@@ -155,24 +186,132 @@ export async function reorderEntryForMcp(
   return { target: getTargetMeta(rundownId), order: rundown.order };
 }
 
+export async function groupEntriesForMcp(args: GroupEntriesArgs) {
+  assertKnownCustomFields(args.custom);
+  const rundownId = resolveTargetRundownId(args);
+  const rundown = getRundownById(rundownId);
+
+  if (!Array.isArray(args.ids) || args.ids.length === 0) {
+    throw new Error('Provide at least one entry ID to group.');
+  }
+
+  for (const id of args.ids) {
+    const entry = rundown.entries[id];
+    if (!entry) {
+      throw new Error(`No entry with id ${id}`);
+    }
+    if (entry.type === SupportedEntry.Group) {
+      throw new Error(`Cannot group group entry ${id}. Groups cannot be nested.`);
+    }
+    if ('parent' in entry && entry.parent) {
+      throw new Error(`Cannot group nested entry ${id}. Move it out of its group first.`);
+    }
+  }
+
+  const updatedRundown = await groupEntries(rundownId, args.ids);
+  const group = Object.values(updatedRundown.entries).find(
+    (entry): entry is OntimeGroup =>
+      entry.type === SupportedEntry.Group && args.ids.every((id) => entry.entries.includes(id)),
+  );
+
+  if (!group) {
+    throw new Error('Group operation did not create a group for the provided entries.');
+  }
+
+  const patch = toGroupPatch(args, group.id);
+  const entry = patch ? await editEntry(rundownId, patch) : group;
+
+  return { target: getTargetMeta(rundownId), entry, order: updatedRundown.order };
+}
+
+export async function ungroupEntryForMcp(args: UngroupEntryArgs) {
+  const rundownId = resolveTargetRundownId(args);
+  const rundown = getRundownById(rundownId);
+  const entry = rundown.entries[args.id];
+
+  if (!entry || entry.type !== SupportedEntry.Group) {
+    throw new Error(`Group with ID ${args.id} not found or is not a group`);
+  }
+
+  const updatedRundown = await ungroupEntries(rundownId, args.id);
+  return { target: getTargetMeta(rundownId), ungrouped: args.id, order: updatedRundown.order };
+}
+
 export async function batchCreateEntriesForMcp(
-  args: TargetRundownArgs & { entries: CreateEntryArgs[]; after?: EntryId },
+  args: TargetRundownArgs & { entries: BatchCreateEntryArgs[]; after?: EntryId },
 ) {
   const { entries = [], after } = args;
-  assertKnownCustomFields(...entries.map((entry) => entry.custom));
+  validateBatchCreateEntries(entries);
+  const allEntries = flattenBatchCreateEntries(entries);
+  assertKnownCustomFields(...allEntries.map((entry) => entry.custom));
   const rundownId = resolveTargetRundownId(args);
   let previousId = after;
   const created: OntimeEntry[] = [];
 
   for (const entryArgs of entries) {
-    const payload = toEntryPayload(entryArgs);
-    // eslint-disable-next-line no-await-in-loop -- each entry chains after the previously created one
-    const entry = await addEntry(rundownId, previousId ? { ...payload, after: previousId } : payload);
-    created.push(entry);
-    previousId = entry.id;
+    // eslint-disable-next-line no-await-in-loop -- top-level entries chain after the previously created one
+    const entry = await createBatchEntry(rundownId, entryArgs, previousId);
+    created.push(...entry.created);
+    previousId = entry.entry.id;
   }
 
   return { target: getTargetMeta(rundownId), created };
+}
+
+function flattenBatchCreateEntries(entries: BatchCreateEntryArgs[]): BatchCreateEntryArgs[] {
+  return entries.flatMap((entry) => [entry, ...flattenBatchCreateEntries(entry.children ?? [])]);
+}
+
+function validateBatchCreateEntries(entries: BatchCreateEntryArgs[], insideGroup = false) {
+  for (const entry of entries) {
+    if (insideGroup && entry.type === SupportedEntry.Group) {
+      throw new Error('Cannot create a group inside another group.');
+    }
+
+    if (entry.children?.length && entry.type !== SupportedEntry.Group) {
+      throw new Error('Only group entries can have children.');
+    }
+
+    validateBatchCreateEntries(entry.children ?? [], entry.type === SupportedEntry.Group);
+  }
+}
+
+async function createBatchEntry(
+  rundownId: string,
+  entryArgs: BatchCreateEntryArgs,
+  previousId?: EntryId,
+  parentId?: EntryId,
+): Promise<{ entry: OntimeEntry; created: OntimeEntry[] }> {
+  if (parentId && entryArgs.type === SupportedEntry.Group) {
+    throw new Error('Cannot create a group inside another group.');
+  }
+
+  const { children: _children, ...createArgs } = entryArgs;
+  const payload = toEntryPayload(createArgs);
+  const insertOptions = {
+    ...(previousId ? { after: previousId } : {}),
+    ...(parentId ? { parent: parentId } : {}),
+  };
+
+  const createdEntry = await addEntry(rundownId, { ...payload, ...insertOptions } as EventPostPayload);
+  const entry = await updateCreatedGroup(rundownId, createArgs, createdEntry);
+  const created = [entry];
+
+  if (entryArgs.children?.length) {
+    if (entry.type !== SupportedEntry.Group) {
+      throw new Error('Only group entries can have children.');
+    }
+
+    let previousChildId: EntryId | undefined;
+    for (const childArgs of entryArgs.children) {
+      // eslint-disable-next-line no-await-in-loop -- each entry chains after the previously created one
+      const child = await createBatchEntry(rundownId, childArgs, previousChildId, entry.id);
+      created.push(...child.created);
+      previousChildId = child.entry.id;
+    }
+  }
+
+  return { entry, created };
 }
 
 export async function batchUpdateEntriesForMcp(args: TargetRundownArgs & { ids: EntryId[]; data: EntryFieldArgs }) {

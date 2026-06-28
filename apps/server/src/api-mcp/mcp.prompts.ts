@@ -50,14 +50,14 @@ Steps:
 1. Call ontime_list_rundowns and identify the target rundown. If the user wants a background rundown, pass its \`rundownId\` in all entry read/write calls instead of loading it.
 2. Call ontime_get_rundown with the chosen \`rundownId\` to see current state and identify an \`after\` anchor if appending.
 3. Call ontime_get_timer_state. If playback is not \`stop\` and the target is the loaded rundown, explain that MCP edits affect the live rundown and ask the user to confirm before changing it. If the target is a background rundown, it can be edited without interrupting playback.
-4. Build an array of events in order and call ontime_batch_create_entries ONCE with all of them. This is much faster than calling ontime_create_entry per item.
+4. Build an array of entries in order and call ontime_batch_create_entries ONCE with all of them. This is much faster than calling ontime_create_entry per item.
 5. If the rundown already has events, pass \`after: <last event id>\` on the batch call so new events chain from the end.
 
 Entry type guidance:
 - Use \`event\` for anything with a scheduled time and duration (talks, panels, breaks, meals).
 - Use \`milestone\` for non-timed markers that don't advance playback (e.g. "Doors open", "Broadcast start").
 - Use \`delay\` only when the user explicitly wants to model schedule drift that shifts all following events.
-- Use \`group\` to collect related events into a named block. Groups are created with a title only — use ontime_update_entry afterwards to set \`colour\`, \`note\`, \`custom\`, or \`targetDuration\`.
+- Use \`group\` to collect related events into a named block. In ontime_batch_create_entries, put grouped items in the group's \`children\` array. A group may include \`title\`, \`colour\`, \`note\`, \`custom\`, and \`targetDuration\`; groups cannot be nested.
 
 Event timing:
 - Provide a title plus enough timing data for Ontime to infer a timing strategy.
@@ -71,6 +71,12 @@ Timer type (timerType):
 - \`count-up\`: counts elapsed time. Use for open-ended items like Q&A or audience discussion.
 - \`clock\`: shows wall-clock time. Use for broadcast-start or house-open markers.
 - \`none\`: no timer shown. Use for purely informational or non-timed items.
+
+Count to end (countToEnd):
+- This is an advanced countdown behaviour, not a timer type.
+- When \`countToEnd: true\`, the timer counts to the scheduled \`timeEnd\` instead of counting down the event duration.
+- This can surprise operators if an event starts late or the schedule shifts, because the displayed time may be shorter or longer than the nominal duration.
+- Do not set \`countToEnd: true\` unless the user explicitly asks for "count to end", "count to scheduled end", or confirms after you explain this behaviour.
 
 End action (endAction):
 - \`none\` (default): stops at end; operator must manually start the next event.
@@ -112,8 +118,10 @@ Strategy:
 2. Call ontime_get_rundown with the chosen \`rundownId\` to see the current events, their IDs, and field values.
 3. Call ontime_get_timer_state. If playback is not \`stop\` and the target is the loaded rundown, explain that MCP edits affect the live rundown and ask the user to confirm before changing it. If the target is a background rundown, it can be edited without interrupting playback.
 4. Determine which event IDs are affected by the instruction.
-5. If every affected entry receives the SAME field values (e.g. "colour all keynotes purple", "skip all breaks"): call ontime_batch_update_entries once with { ids, data, rundownId }.
-6. If each event needs DIFFERENT field values (e.g. "shift everything 30 minutes later"): check first if events use linkStart. If they do, changing the anchor event's timeStart or duration can cascade to linked followers — you may only need to update one event. Otherwise, compute the new values per event and call ontime_update_entry for each.
+5. If the user asks to group existing top-level entries: call ontime_group_entries once with { ids, title/note/colour/custom/targetDuration as needed, rundownId }.
+6. If the user asks to dissolve a group: call ontime_ungroup_entry with the group id and rundownId.
+7. If every affected entry receives the SAME field values (e.g. "colour all keynotes purple", "skip all breaks"): call ontime_batch_update_entries once with { ids, data, rundownId }.
+8. If each event needs DIFFERENT field values (e.g. "shift everything 30 minutes later"): check first if events use linkStart. If they do, changing the anchor event's timeStart or duration can cascade to linked followers — you may only need to update one event. Otherwise, compute the new values per event and call ontime_update_entry for each.
 
 Time shift mechanics:
 - All time fields are milliseconds from midnight; compute arithmetic before calling the tools.
@@ -149,6 +157,7 @@ Timing and linking:
 - \`metadata.totalDays > 0\`: show spans midnight — confirm this is intentional
 - \`metadata.totalDelay !== 0\`: active delay entries are shifting the schedule by this many ms; report the net shift
 - Events with \`linkStart: true\` that are first in the rundown (no predecessor to link to)
+- Events with \`countToEnd: true\`: confirm the operator expects countdowns to target scheduled end time instead of event duration, especially if starts can drift.
 
 Automation:
 - Events with \`endAction: 'play-next'\`: these form automatic playback chains. List each chain so the user can confirm the automation is intentional.
@@ -174,14 +183,18 @@ Steps:
 2. Call ontime_get_rundown with the chosen \`rundownId\` to see the current order, groups, and event fields.
 3. Call ontime_get_timer_state. If playback is not \`stop\` and the target is the loaded rundown, explain that MCP reorders the live rundown and ask the user to confirm before changing it. If the target is a background rundown, it can be edited without interrupting playback.
 4. Note which events are inside groups (check each group's \`entries\` array vs the top-level \`order\` array).
-5. Compute the target arrangement as a sequence of moves.
-6. For each event that needs to move, call ontime_reorder_entry:
+5. If the instruction groups existing top-level entries into a new group, call ontime_group_entries with the selected IDs and any group metadata.
+6. If the instruction dissolves a group, call ontime_ungroup_entry with that group ID.
+7. Otherwise compute the target arrangement as a sequence of moves.
+8. For each event that needs to move, call ontime_reorder_entry:
    - \`order: 'before'\` or \`'after'\` — places the event as a sibling next to destinationId
    - \`order: 'insert'\` — places the event inside a group (destinationId must be the group's ID)
-7. Call ontime_get_rundown again to confirm the new order.
+9. Call ontime_get_rundown again to confirm the new order.
 
 Group awareness:
 - Events inside a group appear in the group's \`entries\` array, not in the top-level \`order\`.
+- To create a group from existing top-level entries, prefer ontime_group_entries over creating an empty group and moving items one by one.
+- To dissolve a group, use ontime_ungroup_entry.
 - To move an event out of a group, reorder it before/after a top-level entry.
 - To move an event into a group, use \`order: 'insert'\` with the group as destinationId.
 - A group's \`targetDuration\` is a planning hint only — moving events in or out does not break anything.

@@ -29,12 +29,17 @@ import {
   deleteEntriesForMcp,
   findEntry,
   getRundownById,
+  groupEntriesForMcp,
   reorderEntryForMcp,
   toRundownList,
+  ungroupEntryForMcp,
   updateEntryForMcp,
+  type BatchCreateEntryArgs,
   type CreateEntryArgs,
   type EntryFieldArgs,
+  type GroupEntriesArgs,
   type TargetRundownArgs,
+  type UngroupEntryArgs,
   type UpdateEntryArgs,
 } from './mcp.service.js';
 
@@ -88,7 +93,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_create_entry',
     description:
-      'Create a new entry. Omit rundownId for the currently loaded live rundown, or provide a rundownId from ontime_list_rundowns to edit a background rundown without loading it. If playback is running and rundownId is omitted or matches the loaded rundown, confirm the user intends to change the live rundown before calling. Omit after/before to append at the end. For type "event" provide title plus enough timing data for Ontime to infer a strategy: timeStart+duration calculates timeEnd, timeStart+timeEnd calculates duration and locks end, timeEnd+duration calculates timeStart, and all three prioritise duration. For "milestone" provide cue/title/note/colour and optional custom values using existing project custom field keys. For "delay" provide duration. For "group" provide title only — set colour, note, custom, or targetDuration with ontime_update_entry after creation.',
+      'Create a new entry. Omit rundownId for the currently loaded live rundown, or provide a rundownId from ontime_list_rundowns to edit a background rundown without loading it. If playback is running and rundownId is omitted or matches the loaded rundown, confirm the user intends to change the live rundown before calling. Omit after/before to append at the end. For type "event" provide title plus enough timing data for Ontime to infer a strategy: timeStart+duration calculates timeEnd, timeStart+timeEnd calculates duration and locks end, timeEnd+duration calculates timeStart, and all three prioritise duration. For "milestone" provide cue/title/note/colour and optional custom values using existing project custom field keys. For "delay" provide duration. For "group" provide title plus optional note/colour/custom/targetDuration.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -105,6 +110,7 @@ export const TOOL_DEFINITIONS = [
           type: 'number',
           description: 'Duration in ms (events: should equal timeEnd - timeStart; delays: the schedule shift)',
         },
+        targetDuration: { type: 'number', description: 'Groups only: planned length of the group in ms' },
         after: { type: 'string', description: 'Insert after this entry ID' },
         before: { type: 'string', description: 'Insert before this entry ID' },
         ...EVENT_WRITABLE_FIELDS,
@@ -148,7 +154,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_reorder_entry',
     description:
-      'Move an entry to a new position relative to another entry. Omit rundownId for the currently loaded live rundown, or provide a rundownId from ontime_list_rundowns to edit a background rundown without loading it. Use before/after for sibling reordering; use insert to place an entry inside a group.',
+      'Move an entry to a new position relative to another entry. Omit rundownId for the currently loaded live rundown, or provide a rundownId from ontime_list_rundowns to edit a background rundown without loading it. Use before/after for sibling reordering; use insert for targeted moves into a group. For grouping several existing top-level entries, prefer ontime_group_entries.',
     inputSchema: {
       type: 'object',
       required: ['entryId', 'destinationId', 'order'],
@@ -166,9 +172,46 @@ export const TOOL_DEFINITIONS = [
     annotations: WRITE_IDEM,
   },
   {
+    name: 'ontime_group_entries',
+    description:
+      'Create a group from existing top-level entries. Omit rundownId for the currently loaded live rundown, or provide a rundownId from ontime_list_rundowns to edit a background rundown without loading it. If playback is running and rundownId is omitted or matches the loaded rundown, confirm the user intends to change the live rundown before calling. Entries must be existing top-level non-group entries; groups cannot be nested. Optional title, note, colour, custom, and targetDuration are applied to the created group.',
+    inputSchema: {
+      type: 'object',
+      required: ['ids'],
+      properties: {
+        ...RUNDOWN_TARGET_FIELD,
+        ids: { type: 'array', items: { type: 'string' }, description: 'Existing top-level entry IDs to group' },
+        title: { type: 'string', description: 'Group title shown in the rundown and views' },
+        note: { type: 'string', description: 'Free-text group note for production notes or references' },
+        colour: { type: 'string', description: 'Hex colour (#RRGGBB) for the group' },
+        custom: {
+          type: 'object',
+          additionalProperties: { type: 'string' },
+          description: 'Custom field values keyed by existing project field key',
+        },
+        targetDuration: { type: 'number', description: 'Planned length of the group in ms' },
+      },
+    },
+    annotations: WRITE,
+  },
+  {
+    name: 'ontime_ungroup_entry',
+    description:
+      'Dissolve a group by moving its children to the top level where the group was. Omit rundownId for the currently loaded live rundown, or provide a rundownId from ontime_list_rundowns to edit a background rundown without loading it. If playback is running and rundownId is omitted or matches the loaded rundown, confirm the user intends to change the live rundown before calling.',
+    inputSchema: {
+      type: 'object',
+      required: ['id'],
+      properties: {
+        ...RUNDOWN_TARGET_FIELD,
+        id: { type: 'string', description: 'Group entry ID to dissolve' },
+      },
+    },
+    annotations: WRITE_DESTRUCTIVE,
+  },
+  {
     name: 'ontime_batch_create_entries',
     description:
-      'Create multiple entries. Omit rundownId for the currently loaded live rundown, or provide a rundownId from ontime_list_rundowns to edit a background rundown without loading it. If playback is running and rundownId is omitted or matches the loaded rundown, confirm the user intends to change the live rundown before calling. Use this for "build from agenda" flows to avoid many round trips. Entries are inserted in array order; if `after` is provided it positions the first entry, subsequent entries chain from the previous. For events, provide title plus enough timing data for Ontime to infer a strategy: timeStart+duration calculates timeEnd, timeStart+timeEnd calculates duration and locks end, timeEnd+duration calculates timeStart, and all three prioritise duration.',
+      'Create multiple entries, including groups with nested children. Omit rundownId for the currently loaded live rundown, or provide a rundownId from ontime_list_rundowns to edit a background rundown without loading it. If playback is running and rundownId is omitted or matches the loaded rundown, confirm the user intends to change the live rundown before calling. Use this for "build from agenda" flows to avoid many round trips. Entries are inserted in array order; if `after` is provided it positions the first top-level entry, subsequent top-level entries chain from the previous. A group entry may include `children`; those entries are created inside the group in array order. Groups cannot be nested. For events, provide title plus enough timing data for Ontime to infer a strategy: timeStart+duration calculates timeEnd, timeStart+timeEnd calculates duration and locks end, timeEnd+duration calculates timeStart, and all three prioritise duration.',
     inputSchema: {
       type: 'object',
       required: ['entries'],
@@ -189,6 +232,13 @@ export const TOOL_DEFINITIONS = [
               timeStart: { type: 'number', description: 'Event start time in ms from midnight' },
               timeEnd: { type: 'number', description: 'Event end time in ms from midnight' },
               duration: { type: 'number', description: 'Duration in ms' },
+              targetDuration: { type: 'number', description: 'Groups only: planned length of the group in ms' },
+              children: {
+                type: 'array',
+                description:
+                  'For group entries only: child events, milestones, or delays to create inside this group in order. Nested groups are not supported.',
+                items: { type: 'object' },
+              },
               ...EVENT_WRITABLE_FIELDS,
             },
           },
@@ -214,6 +264,7 @@ export const TOOL_DEFINITIONS = [
             timeStart: { type: 'number', description: 'Start time in ms from midnight' },
             timeEnd: { type: 'number', description: 'End time in ms from midnight' },
             duration: { type: 'number', description: 'Duration in ms' },
+            targetDuration: { type: 'number', description: 'Groups only: planned length of the group in ms' },
             ...EVENT_WRITABLE_FIELDS,
           },
         },
@@ -461,9 +512,17 @@ const TOOL_HANDLERS: Record<ToolName, (args: Record<string, unknown>) => Promise
     );
   },
 
+  ontime_group_entries: async (args) => {
+    return ok(await groupEntriesForMcp(args as GroupEntriesArgs));
+  },
+
+  ontime_ungroup_entry: async (args) => {
+    return ok(await ungroupEntryForMcp(args as UngroupEntryArgs));
+  },
+
   ontime_batch_create_entries: async (args) => {
     return ok(
-      await batchCreateEntriesForMcp(args as TargetRundownArgs & { entries: CreateEntryArgs[]; after?: EntryId }),
+      await batchCreateEntriesForMcp(args as TargetRundownArgs & { entries: BatchCreateEntryArgs[]; after?: EntryId }),
     );
   },
 
