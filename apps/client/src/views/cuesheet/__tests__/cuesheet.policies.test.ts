@@ -20,6 +20,7 @@ describe('getCuesheetPermissionsPolicy()', () => {
       alias: 'cuesheet-read-only',
       target: OntimeView.Cuesheet,
       search: '',
+      displayInNav: false,
       options: {
         read: 'full',
         write: '-',
@@ -41,6 +42,7 @@ describe('getCuesheetPermissionsPolicy()', () => {
       alias: 'cuesheet-flag',
       target: OntimeView.Cuesheet,
       search: '',
+      displayInNav: false,
       options: {
         read: 'full',
         write: 'flag',
@@ -62,6 +64,7 @@ describe('getCuesheetPermissionsPolicy()', () => {
       alias: 'cuesheet-default',
       target: OntimeView.Cuesheet,
       search: '',
+      displayInNav: false,
     };
 
     const policy = getCuesheetColumnAccessPolicy(preset, AppMode.Edit);
@@ -76,6 +79,7 @@ describe('getCuesheetPermissionsPolicy()', () => {
       alias: 'cuesheet-granular',
       target: OntimeView.Cuesheet,
       search: '',
+      displayInNav: false,
       options: {
         read: 'cue,title',
         write: 'title',

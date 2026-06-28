@@ -32,6 +32,7 @@ const defaultValues: URLPreset = {
   target: OntimeView.Timer,
   search: '',
   enabled: true,
+  displayInNav: false,
 };
 
 interface URLPresetFormProps {

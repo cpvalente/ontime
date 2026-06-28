@@ -95,6 +95,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
       enabled: true,
       alias,
       search: '',
+      displayInNav: false,
       options: {
         read: options.read,
         write: options.write,

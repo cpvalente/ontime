@@ -8,6 +8,7 @@ import { useLocation } from 'react-router';
 import { isLocalhost, supportsFullscreen } from '../../../externals';
 import { canUseWakeLock, useKeepAwakeOptions } from '../../../features/keep-awake/useWakeLock';
 import { navigatorConstants } from '../../../viewerConfig';
+import useUrlPresets from '../../hooks-query/useUrlPresets';
 import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
 import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
@@ -105,6 +106,8 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
                 {route.label}
               </ClientLink>
             ))}
+
+            <PresetNavigation isSmallScreen={isSmallScreen} onClose={onClose} />
           </div>
 
           {isLocalhost && (
@@ -115,5 +118,29 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
         </Dialog.Popup>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+function PresetNavigation({ isSmallScreen, onClose }: { isSmallScreen: boolean; onClose: () => void }) {
+  const location = useLocation();
+  const { data: urlPresets } = useUrlPresets();
+  const navPresets = urlPresets.filter((preset) => preset.enabled && preset.displayInNav);
+
+  if (navPresets.length === 0) return null;
+
+  return (
+    <>
+      <hr className={style.separator} />
+      {navPresets.map((preset) => (
+        <ClientLink
+          key={preset.alias}
+          to={`preset/${preset.alias}`}
+          current={location.pathname === `/preset/${preset.alias}`}
+          postAction={isSmallScreen ? onClose : undefined}
+        >
+          {preset.alias}
+        </ClientLink>
+      ))}
+    </>
   );
 }

@@ -37,6 +37,7 @@ describe('getRouteFromPreset()', () => {
       alias: 'demopage',
       target: OntimeView.Timer,
       search: 'user=guest',
+      displayInNav: false,
       options: {},
     },
   ];
@@ -119,6 +120,7 @@ describe('getRouteFromPreset()', () => {
         alias: 'cuesheet-4685d6',
         target: OntimeView.Cuesheet,
         search: '',
+        displayInNav: false,
         options: {
           read: 'full',
           write: '-',
@@ -131,6 +133,7 @@ describe('getRouteFromPreset()', () => {
         alias: 'cuesheet-basic',
         target: OntimeView.Cuesheet,
         search: '',
+        displayInNav: false,
       },
     ];
     const cuesheetPresetWithNavLock: URLPreset[] = [
@@ -139,6 +142,7 @@ describe('getRouteFromPreset()', () => {
         alias: 'cuesheet-locked',
         target: OntimeView.Cuesheet,
         search: 'n=1',
+        displayInNav: false,
       },
     ];
 
@@ -220,6 +224,7 @@ describe('generateUrlPresetOptions', () => {
         target: 'timer',
         search: 'param1=value1&param2=value2',
         enabled: true,
+        displayInNav: false,
       },
     ],
     [
@@ -231,6 +236,7 @@ describe('generateUrlPresetOptions', () => {
         target: 'timer',
         search: 'param1=value1&param2=value2',
         enabled: true,
+        displayInNav: false,
       },
     ],
     [
@@ -242,6 +248,7 @@ describe('generateUrlPresetOptions', () => {
         target: 'timer',
         search: 'param1=value1&param2=value2',
         enabled: true,
+        displayInNav: false,
       },
     ],
     [
@@ -253,6 +260,7 @@ describe('generateUrlPresetOptions', () => {
         target: 'timer',
         search: 'param1=value1&param2=value2',
         enabled: true,
+        displayInNav: false,
       },
     ],
   ])('should generate URL preset options for %s', (_description, alias, url, expected) => {

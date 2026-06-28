@@ -12,7 +12,9 @@ describe('parseUrlPresets()', () => {
 
   it('parses data, skipping invalid results', () => {
     const errorEmitter = vi.fn();
-    const urlPresets = [{ enabled: true, alias: 'alias', target: 'timer', search: 'ss' }] as URLPreset[];
+    const urlPresets = [
+      { enabled: true, alias: 'alias', target: 'timer', search: 'ss', displayInNav: false },
+    ] as URLPreset[];
     const result = parseUrlPresets({ urlPresets }, errorEmitter);
     expect(result.length).toEqual(1);
     expect(result.at(0)).toMatchObject({
@@ -36,6 +38,7 @@ describe('parseUrlPresets()', () => {
           alias: 'testalias',
           target: 'timer',
           search: 'testpathAndParams',
+          displayInNav: false,
         },
       ],
     } as unknown as DatabaseModel;
