@@ -19,7 +19,7 @@ const staticOptions = [
       { id: 'settings__general', label: 'General settings' },
       { id: 'settings__view', label: 'View settings' },
       { id: 'settings__custom-views', label: 'Custom views' },
-      { id: 'sharing__mcp', label: 'MCP Server' },
+      { id: 'settings__mcp', label: 'MCP Server' },
       ...(isDocker ? [] : [{ id: 'settings__port', label: 'Server port' }]),
     ],
   },
