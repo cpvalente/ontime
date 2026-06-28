@@ -224,14 +224,14 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
               <>
                 <Panel.ListItem>
                   <Panel.Field
-                    title='Link name'
-                    description='A name to identify this shared link. You can manage links later in Settings → URL presets'
+                    title='Preset alias'
+                    description='The name of the preset we will create to hold this options'
                     error={(errors as FieldErrors<CuesheetLinkOptions>).alias?.message}
                   />
                   <Input
                     defaultValue={generatedAlias.current}
                     {...register('alias', {
-                      required: 'Name cannot be empty and must be unique',
+                      required: 'Alias cannot be empty and must be unique',
                       pattern: {
                         value: isUrlSafe,
                         message: 'Field can only contain URL safe characters (a-z, 0-9, _ and -)',
@@ -308,7 +308,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
               <CopyTag copyValue={url}>Copy link</CopyTag>
             </>
           ) : (
-            <div className={style.placeholder}>Your link will appear here once you create it.</div>
+            <Panel.Description>Your link will appear here once you create it.</Panel.Description>
           )}
         </Panel.Section>
       </div>
