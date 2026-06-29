@@ -55,10 +55,6 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
     return calculateTimelineLayout(playableEvents, scheduleStart, scheduleEnd, screenWidth, !fixedSize);
   }, [rundown, scheduleStart, scheduleEnd, screenWidth, fixedSize]);
 
-  if (totalDuration === 0) {
-    return null;
-  }
-
   // Pre-calculate event statuses
   let currentStatus: ProgressStatus = selectedEventId ? 'done' : 'future';
   const statusMap: Record<string, ProgressStatus> = {};
@@ -105,6 +101,7 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
               title={displayTitle}
               cue={event.cue}
               width={position.width}
+              groupColour={event.groupColour}
             />
           );
         })}

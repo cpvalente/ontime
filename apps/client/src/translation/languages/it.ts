@@ -28,6 +28,7 @@ export const langIt: TranslationObject = {
   'timeline.done': 'Terminato',
   'timeline.due': 'previsto',
   'timeline.followedby': 'Seguito da',
+  'timeline.standby': 'In attesa',
   'project.title': 'Titolo',
   'project.description': 'Descrizione',
   'project.info': 'Informazioni sul progetto',
