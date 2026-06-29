@@ -20,7 +20,7 @@ export default function TimelineSections({ now, next, followedBy, mainSource }: 
   const state = useExpectedStartData();
 
   // gather card data
-  const titleNow = getPropertyValue(now, mainSource ?? 'title') ?? '-';
+  const titleNow = now ? (getPropertyValue(now, mainSource ?? 'title') ?? '-') : getLocalizedString('timeline.standby');
   const dueText = getLocalizedString('timeline.due').toUpperCase();
   const nextText = getPropertyValue(next, mainSource ?? 'title') ?? '-';
   const followedByText = getPropertyValue(followedBy, mainSource ?? 'title') ?? '-';

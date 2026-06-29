@@ -1,6 +1,8 @@
 @use '@/theme/viewerDefs' as *;
 
 $timeline-height: 1rem;
+$group-band-height: 0.5rem;
+$group-band-gap: 0.25rem;
 $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-override, $viewer-background-color));
 
 .timelineContainer {
@@ -17,7 +19,21 @@ $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-over
   position: relative;
   font-weight: 600;
   height: 100%;
-  box-shadow: inset 0 1rem 0 0 var(--card-background-color-override, $viewer-card-bg-color);
+  // reserve the top region (progress bar + gap + group band) with the card background
+  box-shadow: inset 0 calc(#{$timeline-height} + #{$group-band-gap} + #{$group-band-height}) 0 0
+    var(--card-background-color-override, $viewer-card-bg-color);
+}
+
+.groupBand {
+  height: $group-band-height;
+  margin-top: $group-band-gap;
+  width: 100%;
+  background: var(--group-colour, transparent);
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  overflow: visible;
 }
 
 .column {
@@ -92,7 +108,6 @@ $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-over
   border-top: 2px solid var(--background-color-override, $viewer-background-color);
   box-shadow: 0 0.25rem 0 0 var(--color, $gray-300);
 
-  text-transform: capitalize;
   white-space: normal;
 
   &[data-status='done'] {
@@ -119,6 +134,7 @@ $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-over
 
   .status {
     width: fit-content;
+    text-transform: uppercase;
   }
 
   .status.due {

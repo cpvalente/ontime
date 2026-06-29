@@ -38,6 +38,8 @@ export default function TimelinePageLoader() {
 function TimelinePage({ events, customFields, projectData, settings }: TimelineData) {
   const selectedEventId = useSelectedEventId();
   const { mainSource, timeformat } = useTimelineOptions();
+  const { getLocalizedString } = useTranslation();
+
   // holds copy of the rundown with only relevant events
   const { scopedRundown, firstStart, totalDuration } = useScopedRundown(events, selectedEventId);
 
@@ -50,6 +52,8 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const progressOptions = useMemo(() => getTimelineOptions(defaultFormat, customFields), [defaultFormat, customFields]);
 
+  const hasContent = totalDuration > 0;
+
   return (
     <div className='timeline' data-testid='timeline-view'>
       <ViewParamsEditor target={OntimeView.Timeline} viewOptions={progressOptions} />
@@ -61,12 +65,16 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
 
       <TimelineSections now={now} next={next} followedBy={followedBy} mainSource={mainSource} />
 
-      <Timeline
-        firstStart={firstStart}
-        rundown={scopedRundown}
-        selectedEventId={selectedEventId}
-        totalDuration={totalDuration}
-      />
+      {hasContent ? (
+        <Timeline
+          firstStart={firstStart}
+          rundown={scopedRundown}
+          selectedEventId={selectedEventId}
+          totalDuration={totalDuration}
+        />
+      ) : (
+        <EmptyPage text={getLocalizedString('common.no_data')} />
+      )}
     </div>
   );
 }

@@ -96,61 +96,75 @@ export function useScopedRundown(
 ): ScopedRundownData {
   const { hidePast } = useTimelineOptions();
 
-  const data = useMemo(() => {
-    if (rundown.length === 0) {
-      return { scopedRundown: [], firstStart: 0, totalDuration: 0 };
-    }
-
-    const scopedRundown: ExtendedEntry<PlayableEvent>[] = [];
-    let selectedIndex = selectedEventId ? Infinity : -1;
-    let firstStart = null;
-    let totalDuration = 0;
-    let lastEntry: ExtendedEntry<PlayableEvent> | null = null;
-
-    for (let i = 0; i < rundown.length; i++) {
-      const currentEntry = rundown[i];
-      // we only deal with playableEvents
-      if (isOntimeEvent(currentEntry) && isPlayableEvent(currentEntry)) {
-        if (currentEntry.id === selectedEventId) {
-          selectedIndex = i;
-        }
-
-        // maybe filter past
-        if (hidePast && i < selectedIndex) {
-          continue;
-        }
-
-        // add to scopedRundown
-        scopedRundown.push(currentEntry);
-
-        /**
-         * Derive timers
-         * This logic is partially from rundownCache.generate
-         * With the addition of deriving the current day offset
-         */
-        if (firstStart === null) {
-          firstStart = currentEntry.timeStart;
-        }
-
-        const timeFromPrevious: number = getTimeFrom(currentEntry, lastEntry);
-
-        if (timeFromPrevious === 0) {
-          totalDuration += currentEntry.duration;
-        } else if (timeFromPrevious > 0) {
-          totalDuration += timeFromPrevious + currentEntry.duration;
-        } else if (timeFromPrevious < 0) {
-          totalDuration += Math.max(currentEntry.duration + timeFromPrevious, 0);
-        }
-        if (isNewLatest(currentEntry, lastEntry)) {
-          lastEntry = currentEntry;
-        }
-      }
-    }
-
-    return { scopedRundown, firstStart: firstStart ?? 0, totalDuration };
-  }, [hidePast, rundown, selectedEventId]);
+  const data = useMemo(
+    () => computeScopedRundown(rundown, selectedEventId, hidePast),
+    [hidePast, rundown, selectedEventId],
+  );
 
   return data;
+}
+
+/**
+ * Pure computation behind useScopedRundown: filters to playable events and derives timers
+ */
+export function computeScopedRundown(
+  rundown: ExtendedEntry<OntimeEntry>[],
+  selectedEventId: MaybeString,
+  hidePast: boolean,
+): ScopedRundownData {
+  if (rundown.length === 0) {
+    return { scopedRundown: [], firstStart: 0, totalDuration: 0 };
+  }
+
+  const scopedRundown: ExtendedEntry<PlayableEvent>[] = [];
+  let selectedIndex = selectedEventId ? Infinity : -1;
+  let firstStart: number | null = null;
+  let totalDuration = 0;
+  let lastEntry: ExtendedEntry<PlayableEvent> | null = null;
+
+  for (let i = 0; i < rundown.length; i++) {
+    // we only deal with playableEvents
+    const currentEntry = rundown[i];
+    if (!isOntimeEvent(currentEntry) || !isPlayableEvent(currentEntry)) {
+      continue;
+    }
+
+    if (currentEntry.id === selectedEventId) {
+      selectedIndex = i;
+    }
+
+    // maybe filter past
+    if (hidePast && i < selectedIndex) {
+      continue;
+    }
+
+    // add to scopedRundown
+    scopedRundown.push(currentEntry);
+
+    /**
+     * Derive timers
+     * This logic is partially from rundownCache.generate
+     * With the addition of deriving the current day offset
+     */
+    if (firstStart === null) {
+      firstStart = currentEntry.timeStart;
+    }
+
+    const timeFromPrevious: number = getTimeFrom(currentEntry, lastEntry);
+
+    if (timeFromPrevious === 0) {
+      totalDuration += currentEntry.duration;
+    } else if (timeFromPrevious > 0) {
+      totalDuration += timeFromPrevious + currentEntry.duration;
+    } else if (timeFromPrevious < 0) {
+      totalDuration += Math.max(currentEntry.duration + timeFromPrevious, 0);
+    }
+    if (isNewLatest(currentEntry, lastEntry)) {
+      lastEntry = currentEntry;
+    }
+  }
+
+  return { scopedRundown, firstStart: firstStart ?? 0, totalDuration };
 }
 
 type UpcomingEvents = {

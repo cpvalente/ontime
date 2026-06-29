@@ -26,6 +26,7 @@ export const langEn = {
   'timeline.done': 'done',
   'timeline.due': 'due',
   'timeline.followedby': 'Followed by',
+  'timeline.standby': 'Standby',
   'project.title': 'Title',
   'project.description': 'Description',
   'project.info': 'Project Info',
