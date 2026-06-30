@@ -39,7 +39,7 @@
     "postinstall": "pnpm addversion",
     "dev": "cross-env BROWSER=none vite",
     "dev:electron": "pnpm dev",
-    "lint": "oxlint --quiet --type-aware",
+    "lint": "oxlint --type-aware",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "build": "vite build",
     "test": "vitest",
