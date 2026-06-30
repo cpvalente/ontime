@@ -1,7 +1,7 @@
 import { OntimeEntry, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 import { useMemo } from 'react';
 
-import useRundown from '../../../common/hooks-query/useRundown';
+import { useRundown } from '../../../common/hooks-query/useRundown';
 import { useEventSelection } from '../useEventSelection';
 import EventEditorFooter from './composite/EventEditorFooter';
 import EventEditor from './EventEditor';
@@ -13,7 +13,7 @@ import style from './EntryEditor.module.scss';
 
 export default function RundownEntryEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
-  const { data } = useRundown();
+  const { data } = useRundown(null);
 
   const entry = useMemo<OntimeEntry | null>(() => {
     if (data.order.length === 0) {
