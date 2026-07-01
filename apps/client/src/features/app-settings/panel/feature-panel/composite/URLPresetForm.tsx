@@ -70,6 +70,16 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
   });
   const [cuesheetPermissions, setCuesheetPermissions] = useState<CuesheetPermissionValues>(initialPermissions.current);
 
+  // update initial permissions on mount
+  useEffect(() => {
+    initialPermissions.current = {
+      read: urlPreset?.options?.read ?? 'full',
+      write: urlPreset?.options?.write ?? 'full',
+    };
+    setCuesheetPermissions(initialPermissions.current);
+    // oxlint-disable-next-line eslint-plugin-react-hooks/exhaustive-deps -- run on mount
+  }, []);
+
   const isEditingCuesheet = urlPreset && urlPreset.target === OntimeView.Cuesheet;
   const isCuesheet = watch('target') === OntimeView.Cuesheet;
   const permissionsDirty =
