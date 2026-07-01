@@ -47,6 +47,23 @@ describe('isRestorePoint()', () => {
     expect(isRestorePoint(restorePoint)).toBe(true);
   });
 
+  it('accepts optional paused duration', () => {
+    const restorePoint: RestorePoint = {
+      playback: Playback.Roll,
+      selectedEventId: '123',
+      startedAt: 1,
+      addedTime: 2,
+      pausedAt: null,
+      pausedDuration: 3000,
+      firstStart: 1,
+      startEpoch: asInstant(1),
+      currentDay: 0,
+    };
+
+    expect(isRestorePoint(restorePoint)).toBe(true);
+    expect(isRestorePoint({ ...restorePoint, pausedDuration: '3000' })).toBe(false);
+  });
+
   describe('rejects a badly formatted file', () => {
     it('with invalid playback value', () => {
       const restorePoint = {

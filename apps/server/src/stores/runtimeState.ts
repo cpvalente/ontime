@@ -36,6 +36,7 @@ import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import {
   findDayOffset,
   getCurrent,
+  getElapsed,
   getExpectedFinish,
   getRuntimeOffset,
   getTimerPhase,
@@ -62,6 +63,7 @@ export type RuntimeState = {
   _timer: {
     forceFinish: Maybe<TimeOfDay>; // whether we should declare an event as finished, will contain the finish time
     pausedAt: Maybe<TimeOfDay>;
+    pausedDuration: number;
     secondaryTarget: Maybe<TimeOfDay>;
     hasFinished: boolean;
   };
@@ -87,6 +89,7 @@ const runtimeState: RuntimeState = {
   _timer: {
     forceFinish: null,
     pausedAt: null,
+    pausedDuration: 0,
     secondaryTarget: null,
     hasFinished: false,
   },
@@ -138,6 +141,7 @@ export function clearEventData() {
   // when clearing, we maintain the total delay from the rundown
   runtimeState._timer.forceFinish = null;
   runtimeState._timer.pausedAt = null;
+  runtimeState._timer.pausedDuration = 0;
   runtimeState._timer.secondaryTarget = null;
   runtimeState._timer.hasFinished = false;
 }
@@ -170,6 +174,7 @@ export function clearState() {
   // when clearing, we maintain the total delay from the rundown
   runtimeState._timer.forceFinish = null;
   runtimeState._timer.pausedAt = null;
+  runtimeState._timer.pausedDuration = 0;
   runtimeState._timer.secondaryTarget = null;
   runtimeState._timer.hasFinished = false;
 
@@ -426,6 +431,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   if (state._timer.pausedAt) {
     const timeToAdd = state.clock - state._timer.pausedAt;
     state.timer.addedTime += timeToAdd;
+    state._timer.pausedDuration += timeToAdd;
     state._timer.pausedAt = null;
   }
 
@@ -435,7 +441,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
 
   state.timer.playback = Playback.Play;
   state.timer.expectedFinish = getExpectedFinish(state);
-  state.timer.elapsed = 0;
+  state.timer.elapsed = getElapsed(state);
 
   if (state.rundown.actualStart === null) {
     state._startDayOffset = (findDayOffset(state.eventNow.timeStart, state.clock) + state.eventNow.dayOffset) as Day;
@@ -520,6 +526,7 @@ export function addTime(amount: number) {
   // we can update the state after handling the side effects
   runtimeState.timer.addedTime += amount;
   runtimeState.timer.current += amount;
+  runtimeState.timer.elapsed = getElapsed(runtimeState);
 
   // update runtime delays: over - under
   const { absolute, relative } = getRuntimeOffset(runtimeState);
@@ -575,7 +582,7 @@ export function update(): UpdateResult {
   runtimeState.timer.current = getCurrent(runtimeState);
   runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
   runtimeState.timer.phase = getTimerPhase(runtimeState);
-  runtimeState.timer.elapsed = runtimeState.timer.duration - runtimeState.timer.current;
+  runtimeState.timer.elapsed = getElapsed(runtimeState);
 
   // update runtime, needs up-to-date timer state
   const { absolute, relative } = getRuntimeOffset(runtimeState);

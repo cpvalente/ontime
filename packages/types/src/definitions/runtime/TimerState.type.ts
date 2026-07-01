@@ -21,7 +21,7 @@ export type TimerState = {
   current: MaybeNumber;
   /** Total duration of the running event */
   duration: MaybeNumber;
-  /** Time elapsed since the timer started */
+  /** Active time elapsed since the timer started */
   elapsed: MaybeNumber;
   /** Timestamp of the expected finish time */
   expectedFinish: MaybeNumber;

@@ -93,6 +93,33 @@ export function getCurrent(state: RuntimeState): number {
 }
 
 /**
+ * Calculates active time elapsed since the timer started.
+ */
+export function getElapsed(state: RuntimeState): MaybeNumber {
+  const { clock } = state;
+  const { startedAt } = state.timer;
+  const { pausedAt, pausedDuration } = state._timer;
+
+  if (startedAt === null) {
+    return null;
+  }
+
+  const referenceClock = pausedAt ?? clock;
+  const elapsedSinceStart = getTimeSinceStart(referenceClock, startedAt);
+  const activeElapsed = elapsedSinceStart - pausedDuration;
+
+  return Math.max(0, activeElapsed);
+}
+
+function getTimeSinceStart(clock: TimeOfDay, startedAt: number): number {
+  if (clock < startedAt) {
+    return clock + dayInMs - startedAt;
+  }
+
+  return clock - startedAt;
+}
+
+/**
  * Checks whether we have skipped out of the event
  * @param {RuntimeState} state runtime state
  * @param {number} previousTime previous clock

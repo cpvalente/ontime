@@ -5,6 +5,7 @@ import type { RuntimeState } from '../../stores/runtimeState.js';
 import {
   findDayOffset,
   getCurrent,
+  getElapsed,
   getExpectedFinish,
   getRuntimeOffset,
   getTimerPhase,
@@ -14,6 +15,56 @@ import {
 } from '../timerUtils.js';
 
 const asTimeOfDay = (value: number): RuntimeState['clock'] => value as RuntimeState['clock'];
+
+describe('getElapsed()', () => {
+  it('returns active elapsed time from startedAt without add-time adjustments', () => {
+    const state = {
+      clock: 5 * MILLIS_PER_MINUTE,
+      timer: {
+        addedTime: -10 * MILLIS_PER_MINUTE,
+        current: 15 * MILLIS_PER_MINUTE,
+        duration: 20 * MILLIS_PER_MINUTE,
+        startedAt: 2 * MILLIS_PER_MINUTE,
+      },
+      _timer: {
+        pausedAt: null,
+        pausedDuration: 0,
+      },
+    } as RuntimeState;
+
+    expect(getElapsed(state)).toBe(3 * MILLIS_PER_MINUTE);
+  });
+
+  it('subtracts accumulated pause time', () => {
+    const state = {
+      clock: 10 * MILLIS_PER_MINUTE,
+      timer: {
+        startedAt: 2 * MILLIS_PER_MINUTE,
+      },
+      _timer: {
+        pausedAt: null,
+        pausedDuration: 5 * MILLIS_PER_MINUTE,
+      },
+    } as RuntimeState;
+
+    expect(getElapsed(state)).toBe(3 * MILLIS_PER_MINUTE);
+  });
+
+  it('uses the current pause start while paused', () => {
+    const state = {
+      clock: 10 * MILLIS_PER_MINUTE,
+      timer: {
+        startedAt: 2 * MILLIS_PER_MINUTE,
+      },
+      _timer: {
+        pausedAt: 7 * MILLIS_PER_MINUTE,
+        pausedDuration: 1 * MILLIS_PER_MINUTE,
+      },
+    } as RuntimeState;
+
+    expect(getElapsed(state)).toBe(4 * MILLIS_PER_MINUTE);
+  });
+});
 
 describe('getExpectedFinish()', () => {
   it('is null if we havent started', () => {
