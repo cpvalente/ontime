@@ -21,7 +21,8 @@ export const EVENT_TIMER_FIELDS = {
   endAction: {
     type: 'string',
     enum: ['none', 'load-next', 'play-next'],
-    description: 'Action when event ends: none = stop, load-next = cue next event, play-next = auto-start next event',
+    description:
+      'Action when the event ends. Defaults to none. load-next and play-next create playback automations (load-next arms the next event, play-next auto-starts it) that remove operator control between events and can surprise operators. Only set load-next or play-next when the user explicitly asks for automatic cueing or chaining; otherwise omit this field and leave it as none. Do not add end actions just because events are back-to-back.',
   },
   linkStart: {
     type: 'boolean',
@@ -116,7 +117,7 @@ There are four entry types discriminated by \`type\`:
   dayOffset: number          // runtime calculated day offset from the rundown start schedule, increments when the rundown crosses midnight
   gap: number                // schedule gap between sequential playable events; negative gap means overlap
   timerType: 'count-down' | 'count-up' | 'clock' | 'none'
-  endAction: 'none' | 'load-next' | 'play-next'
+  endAction: 'none' | 'load-next' | 'play-next'   // load-next/play-next create playback automations; leave as none unless the user explicitly asks for cueing/chaining
   linkStart: boolean         // chain start to previous event's end
   countToEnd: boolean        // advanced mode: counts to scheduled timeEnd instead of duration; confirm before enabling
   skip: boolean              // event is skipped during playback

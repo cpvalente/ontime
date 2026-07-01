@@ -90,9 +90,11 @@ Count to end (countToEnd):
 - Do not set \`countToEnd: true\` unless the user explicitly asks for "count to end", "count to scheduled end", or confirms after you explain this behaviour.
 
 End action (endAction):
-- \`none\` (default): stops at end; operator must manually start the next event.
-- \`load-next\`: pre-arms the next event; operator triggers start. Use when a human handoff is needed.
-- \`play-next\`: automatically starts the next event. Use for seamless back-to-back segments with no gap.
+- Leave \`endAction\` unset unless the user explicitly asks for automatic cueing or chaining. It defaults to \`none\`.
+- \`load-next\` and \`play-next\` create playback automations that remove operator control between events and can surprise operators. Do NOT add them just because events are scheduled back-to-back — a seamless schedule does not imply automated playback.
+- \`none\` (default): stops at end; operator manually starts the next event. Use this for essentially every event unless told otherwise.
+- \`load-next\`: pre-arms the next event; operator triggers start. Only set when the user explicitly asks for it.
+- \`play-next\`: automatically starts the next event. Only set when the user explicitly asks for an automatic playback chain; confirm they understand it removes operator control between those events.
 
 Linking (linkStart):
 - \`linkStart\` controls schedule-change propagation through the rundown.
