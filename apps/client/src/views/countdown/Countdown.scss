@@ -156,12 +156,31 @@ $item-height: 3.5rem;
     color: $playback-under;
   }
 
+  .sub--group {
+    .sub__binder {
+      // give grouped items a slightly thicker accent so they stand out in the picker
+      box-shadow: inset 4px 0 0 var(--user-color, transparent);
+    }
+  }
+
   .sub__title {
     grid-area: title;
     padding-bottom: 0.5rem;
 
     font-size: $title-font-size;
     line-height: 1.1em;
+  }
+
+  .sub__badge {
+    display: inline-block;
+    margin-right: 0.5rem;
+    padding: 0 0.4em;
+    border-radius: $element-border-radius;
+    background-color: $gray-1325;
+    color: var(--label-color-override, $viewer-label-color);
+    font-size: $timer-label-size;
+    text-transform: uppercase;
+    vertical-align: middle;
   }
 
   .sub__secondary {

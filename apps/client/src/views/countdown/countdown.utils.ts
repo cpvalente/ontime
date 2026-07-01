@@ -1,4 +1,17 @@
-import { EntryId, MaybeNumber, OffsetMode, OntimeEntry, OntimeEvent, OntimeReport, Playback } from 'ontime-types';
+import {
+  EntryId,
+  MaybeNumber,
+  OffsetMode,
+  OntimeEntry,
+  OntimeEvent,
+  OntimeGroup,
+  OntimeReport,
+  Playback,
+  PlayableEvent,
+  isOntimeEvent,
+  isOntimeGroup,
+  isPlayableEvent,
+} from 'ontime-types';
 import { MILLIS_PER_MINUTE, getExpectedStart, millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { useCountdownSocket } from '../../common/hooks/useSocket';
@@ -168,10 +181,72 @@ export function isOutsideRange(a: number, b: number): boolean {
   return Math.abs(a - b) > MILLIS_PER_MINUTE;
 }
 
-export type CountdownEvent = ExtendedEntry<OntimeEvent> & { expectedStart: number; endedAt: MaybeNumber };
+/**
+ * A subscription target normalised to the event-shaped object the countdown display consumes.
+ * For events this is a pass-through; for groups it carries the group identity and display data
+ * while deriving timing from the group's first playable child (see resolveSubscriptionTarget).
+ */
+export type CountdownTarget = ExtendedEntry<OntimeEvent> & {
+  isGroup?: boolean;
+  reportId?: EntryId; // entry used for the report lookup (e.g. last child of a group)
+  liveEntry?: ExtendedEntry<OntimeEvent> | null; // the running child while a group is live
+};
+
+export type CountdownEvent = CountdownTarget & { expectedStart: number; endedAt: MaybeNumber };
+
+/**
+ * Resolves a subscription (event or group) into an event-shaped countdown target.
+ * - Events are returned unchanged.
+ * - Groups count down to their first playable child while displaying the group identity.
+ *   Status is group-aware: live while any child is loaded, past only once the whole group has finished.
+ * Returns null when a group has no playable children (nothing to count down to).
+ */
+export function resolveSubscriptionTarget(
+  entry: ExtendedEntry<OntimeEvent | OntimeGroup>,
+  flatRundown: ExtendedEntry<OntimeEntry>[],
+): CountdownTarget | null {
+  if (!isOntimeGroup(entry)) {
+    return entry;
+  }
+
+  const children = flatRundown.filter(
+    (item): item is ExtendedEntry<PlayableEvent> =>
+      isOntimeEvent(item) && isPlayableEvent(item) && item.parent === entry.id,
+  );
+
+  if (children.length === 0) {
+    return null;
+  }
+
+  const firstChild = children[0];
+  const lastChild = children[children.length - 1];
+  const liveEntry = children.find((child) => child.isLoaded) ?? null;
+  const isLoaded = liveEntry !== null;
+  const isPast = !isLoaded && lastChild.isPast;
+
+  return {
+    // timing derives from the first playable child
+    ...firstChild,
+    // group identity and display data
+    id: entry.id,
+    title: entry.title,
+    colour: entry.colour,
+    note: entry.note,
+    custom: entry.custom,
+    duration: entry.duration,
+    countToEnd: false,
+    // group-aware status
+    isLoaded,
+    isPast,
+    // group markers
+    isGroup: true,
+    reportId: lastChild.id,
+    liveEntry,
+  };
+}
 
 export function extendEventData(
-  event: ExtendedEntry<OntimeEvent>,
+  event: CountdownTarget,
   currentDay: number,
   actualStart: MaybeNumber,
   plannedStart: MaybeNumber,
@@ -189,6 +264,6 @@ export function extendEventData(
     offset,
     mode,
   });
-  const { endedAt } = reportData[event.id] ?? { endedAt: null };
+  const { endedAt } = reportData[event.reportId ?? event.id] ?? { endedAt: null };
   return { ...event, expectedStart, endedAt };
 }
