@@ -90,6 +90,7 @@ Count to end (countToEnd):
 - Do not set \`countToEnd: true\` unless the user explicitly asks for "count to end", "count to scheduled end", or confirms after you explain this behaviour.
 
 End action (endAction):
+- Controls what happens when the event's timer reaches zero and can have surprising effect. Use only if the user explicitly asks for it.
 - \`none\` (default): stops at end; operator must manually start the next event.
 - \`load-next\`: pre-arms the next event; operator triggers start. Use when a human handoff is needed.
 - \`play-next\`: automatically starts the next event. Use for seamless back-to-back segments with no gap.

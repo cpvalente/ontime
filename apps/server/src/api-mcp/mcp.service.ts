@@ -108,7 +108,8 @@ export function assertKnownCustomFields(...customValues: Array<EntryFieldArgs['c
   if (unknownKeys.size > 0) {
     const missing = [...unknownKeys].join(', ');
     const available = Object.keys(customFields);
-    const hint = available.length > 0 ? `Available keys: ${available.join(', ')}.` : 'No custom fields are defined yet.';
+    const hint =
+      available.length > 0 ? `Available keys: ${available.join(', ')}.` : 'No custom fields are defined yet.';
     throw new Error(
       `Unknown custom field key(s): ${missing}. ${hint} ` +
         `Call ontime_create_custom_field with { label, type, colour } to create a missing field — ` +

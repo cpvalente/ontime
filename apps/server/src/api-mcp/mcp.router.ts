@@ -17,9 +17,20 @@ mcpRouter.post('/', async (req, res) => {
     sessionIdGenerator: undefined, // stateless: no session tracking
     enableJsonResponse: true,
   });
-  res.on('close', () => transport.close());
+  const server = createMcpServer();
+
+  let cleanedUp = false;
+  const cleanup = async () => {
+    if (cleanedUp) return;
+    cleanedUp = true;
+    transport.close();
+    await server.close?.();
+  };
+
+  res.on('close', () => void cleanup());
+  res.on('finish', () => void cleanup());
+
   try {
-    const server = createMcpServer();
     await server.connect(transport);
     await transport.handleRequest(req as IncomingMessage, res as ServerResponse, req.body);
   } catch (error) {
@@ -28,6 +39,8 @@ mcpRouter.post('/', async (req, res) => {
     if (!res.headersSent) {
       res.status(500).json({ jsonrpc: '2.0', error: { code: -32603, message }, id: req.body?.id ?? null });
     }
+  } finally {
+    await cleanup();
   }
 });
 

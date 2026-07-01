@@ -232,8 +232,10 @@ Main site: https://docs.getontime.no
 - URL presets / shared views: https://docs.getontime.no/features/url-presets/
 - HTTP Integration: https://docs.getontime.no/api/http/
 - OSC Integration: https://docs.getontime.no/api/osc/
+- Make custom views: https://docs.getontime.no/features/custom-views/
 
-## API reference
-- REST API overview: https://docs.getontime.no/api/
-- WebSocket events: https://docs.getontime.no/api/websocket/
+## Helpful references
+- Ontime Cloud: https://docs.getontime.no/ontime-cloud/
+- Connect to companion module: https://docs.getontime.no/additional-notes/companion-module/
+- Import data from spreadsheets: https://docs.getontime.no/features/import-spreadsheet/
 `;

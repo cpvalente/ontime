@@ -704,11 +704,14 @@ export async function renameRundown(id: string, title: string) {
   await dataProvider.setRundown(id, { ...rundown, title });
 
   /**
-   * If loaded we re-init the rundown
+   * If we are modifying the loaded rundown we re-init it
    * This is likely over-kill but the simplest way to ensure state consistency
    */
   if (isCurrentRundown(id)) {
-    await initRundown(dataProvider.getRundown(id), dataProvider.getCustomFields());
+    const rundown = dataProvider.getRundown(id);
+    const customField = dataProvider.getCustomFields();
+    // init rundown does its own refetch
+    await initRundown(rundown, customField);
   } else {
     setImmediate(() => {
       sendRefetch(RefetchKey.ProjectRundowns);

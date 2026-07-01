@@ -10,13 +10,19 @@ export default function McpSection() {
   const { data: infoData } = useInfo();
   const [mcpEndpointUrl, setMcpEndpointUrl] = useState('');
 
+  // generate url
   useEffect(() => {
-    const baseUrl = isOntimeCloud
-      ? serverURL
-      : infoData.networkInterfaces.length > 0
-        ? `http://${infoData.networkInterfaces[0].address}:${infoData.serverPort}`
-        : serverURL;
+    const baseUrl = (() => {
+      if (isOntimeCloud) return serverURL;
 
+      // for local setups we prefer the localhost IP to avoid remote access
+      if (infoData.networkInterfaces.length > 0) {
+        return `http://${infoData.networkInterfaces[0].address}:${infoData.serverPort}`;
+      }
+      return serverURL;
+    })();
+
+    // we are reusing the endpoint, so locking config and nav have no effect
     generateUrl({ baseUrl, path: 'mcp', authenticate: true, lockConfig: false, lockNav: false })
       .then(setMcpEndpointUrl)
       .catch(() => {

@@ -390,7 +390,8 @@ export const TOOL_DEFINITIONS = [
         type: {
           type: 'string',
           enum: ['text', 'image'],
-          description: 'Field type — cannot be changed after creation. Use "text" for short text values; "image" for image URLs.',
+          description:
+            'Field type — cannot be changed after creation. Use "text" for short text values; "image" for image URLs.',
         },
         colour: {
           type: 'string',
@@ -409,7 +410,10 @@ export const TOOL_DEFINITIONS = [
       required: ['key'],
       properties: {
         key: { type: 'string', description: 'Current field key (from ontime_get_custom_fields)' },
-        label: { type: 'string', description: 'New human-readable label (optional). Changes the derived key and cascades to all entries.' },
+        label: {
+          type: 'string',
+          description: 'New human-readable label (optional). Changes the derived key and cascades to all entries.',
+        },
         colour: { type: 'string', description: 'New hex colour (#RRGGBB) (optional)' },
       },
     },
@@ -525,7 +529,7 @@ const TOOL_HANDLERS: Record<ToolName, (args: Record<string, unknown>) => Promise
     const serialised = text(data);
     if (serialised.length > CHARACTER_LIMIT) {
       return ok({
-        warning: `Rundown too large (${serialised.length} chars) — fetch individual entries with ontime_get_entry. Entry IDs in order: ${rundown.order.join(', ')}`,
+        warning: `Rundown too large (${serialised.length} chars) — fetch individual entries with ontime_get_entry.`,
         truncated: true,
         rundownId: rundown.id,
         order: rundown.order,
