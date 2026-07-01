@@ -1,6 +1,5 @@
 import { MaybeNumber, OntimeEvent, Playback, TimerPhase } from 'ontime-types';
 
-import { enDash } from '../../common/utils/styleUtils';
 import { getPropertyValue } from '../common/viewUtils';
 
 /**
@@ -46,9 +45,9 @@ export function getCardData(
   }
 
   // if we are loaded, we show the upcoming event as next
-  const nowMain = getPropertyValue(eventNow, mainSource ?? 'title') || enDash;
+  const nowMain = getPropertyValue(eventNow, mainSource ?? 'title');
   const nowSecondary = getPropertyValue(eventNow, secondarySource);
-  const nextMain = getPropertyValue(eventNext, mainSource ?? 'title') || enDash;
+  const nextMain = getPropertyValue(eventNext, mainSource ?? 'title');
   const nextSecondary = getPropertyValue(eventNext, secondarySource);
 
   return {
