@@ -7,11 +7,21 @@ import { initRundown } from '../../api-data/rundown/rundown.service.js';
 import { loadRoll } from '../rollUtils.js';
 
 vi.mock('../../classes/data-provider/DataProvider.js', () => {
+  let automation = {
+    enabledAutomations: false,
+    enabledOscIn: false,
+    oscPortIn: 8888,
+    triggers: [],
+    automations: {},
+  };
+
   return {
     getDataProvider: vi.fn().mockImplementation(() => {
       return {
+        getAutomation: vi.fn().mockImplementation(() => automation),
         setCustomFields: vi.fn().mockImplementation((newData) => newData),
         setRundown: vi.fn().mockImplementation((newData) => newData),
+        setAutomation: vi.fn().mockImplementation((newData) => (automation = newData)),
       };
     }),
   };

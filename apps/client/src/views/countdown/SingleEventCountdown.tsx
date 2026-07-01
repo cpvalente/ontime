@@ -1,5 +1,4 @@
 import { MaybeNumber, OntimeEvent } from 'ontime-types';
-import { getExpectedStart } from 'ontime-utils';
 import { IoPencil } from 'react-icons/io5';
 
 import Button from '../../common/components/buttons/Button';
@@ -11,7 +10,7 @@ import { cx } from '../../common/utils/styleUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getPropertyValue } from '../common/viewUtils';
 import { useCountdownOptions } from './countdown.options';
-import { useSubscriptionDisplayData } from './countdown.utils';
+import { extendEventData, useSubscriptionDisplayData } from './countdown.utils';
 import { ScheduleTime } from './CountdownSubscriptions';
 
 import './SingleEventCountdown.scss';
@@ -27,19 +26,15 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
   const { data: reportData } = useReport();
 
   const { offset, currentDay, actualStart, plannedStart, mode } = useExpectedStartData();
-  const { totalGap, isLinkedToLoaded } = subscribedEvent;
-  const expectedStart = getExpectedStart(subscribedEvent, {
+  const countdownEvent = extendEventData(
+    subscribedEvent,
     currentDay,
-    totalGap,
     actualStart,
     plannedStart,
-    isLinkedToLoaded,
     offset,
     mode,
-  });
-
-  const { endedAt } = reportData[subscribedEvent.id] ?? { endedAt: null };
-  const countdownEvent = { ...subscribedEvent, expectedStart, endedAt };
+    reportData,
+  );
   const titleTmp = getPropertyValue(subscribedEvent, mainSource ?? 'title');
   const title = titleTmp?.length ? titleTmp : ' '; // insert utf-8 empty space to avoid the line collapsing;
   const secondaryData = getPropertyValue(subscribedEvent, secondarySource);

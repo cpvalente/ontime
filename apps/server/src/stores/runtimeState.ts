@@ -23,6 +23,7 @@ import {
   calculateDuration,
   checkIsNow,
   dayInMs,
+  getExpectedEnd,
   getExpectedStart,
   getLastEventNormal,
   isPlaybackActive,
@@ -42,6 +43,7 @@ import {
   hasCrossedMidnight,
 } from '../services/timerUtils.js';
 import { timerConfig } from '../setup/config.js';
+import { shouldCrashDev } from '../utils/development.js';
 
 type ExpectedMetadata = {
   event: OntimeEvent;
@@ -503,23 +505,30 @@ export function addTime(amount: number) {
     }
   }
 
-  // handle edge cases
-  // !!! we need to handle side effects before updating the state
-  const willGoNegative = amount < 0 && Math.abs(amount) > runtimeState.timer.current;
-
-  if (willGoNegative && !runtimeState._timer.hasFinished) {
-    // set finished time so side effects are triggered
-    runtimeState._timer.forceFinish = timeCore.timeOfDayNow();
+  if (runtimeState.eventNow?.countToEnd) {
+    // count to end is anchored to its fixed end: added time cannot move the end or finish
+    // the event early, it only surfaces as offset. `current` is derived from the wall clock
+    // by the update loop, so we must not bump it here.
+    runtimeState.timer.addedTime += amount;
   } else {
-    const willGoPositive = runtimeState.timer.current < 0 && runtimeState.timer.current + amount > 0;
-    if (willGoPositive) {
-      runtimeState._timer.hasFinished = false;
-    }
-  }
+    // handle edge cases
+    // !!! we need to handle side effects before updating the state
+    const willGoNegative = amount < 0 && Math.abs(amount) > runtimeState.timer.current;
 
-  // we can update the state after handling the side effects
-  runtimeState.timer.addedTime += amount;
-  runtimeState.timer.current += amount;
+    if (willGoNegative && !runtimeState._timer.hasFinished) {
+      // set finished time so side effects are triggered
+      runtimeState._timer.forceFinish = timeCore.timeOfDayNow();
+    } else {
+      const willGoPositive = runtimeState.timer.current < 0 && runtimeState.timer.current + amount > 0;
+      if (willGoPositive) {
+        runtimeState._timer.hasFinished = false;
+      }
+    }
+
+    // we can update the state after handling the side effects
+    runtimeState.timer.addedTime += amount;
+    runtimeState.timer.current += amount;
+  }
 
   // update runtime delays: over - under
   const { absolute, relative } = getRuntimeOffset(runtimeState);
@@ -824,7 +833,6 @@ function getExpectedTimes(state = runtimeState) {
   state.offset.expectedRundownEnd = null;
   state.offset.expectedGroupEnd = null;
   state.offset.expectedFlagStart = null;
-  state.offset.expectedRundownEnd = null;
 
   const { offset } = state;
   const { plannedStart, actualStart } = state.rundown;
@@ -834,9 +842,11 @@ function getExpectedTimes(state = runtimeState) {
 
   if (state.groupNow) {
     const { _group } = state;
-    if (_group !== null) {
-      const { event: lastEvent, accumulatedGap, isLinkedToLoaded } = _group;
-      const lastEventExpectedStart = getExpectedStart(lastEvent, {
+    DEV: shouldCrashDev(_group === null, 'groupNow is set but _group is null');
+
+    if (_group) {
+      const { event, accumulatedGap, isLinkedToLoaded } = _group;
+      state.offset.expectedGroupEnd = getExpectedEnd(event, {
         currentDay: state.rundown.currentDay!,
         totalGap: accumulatedGap,
         isLinkedToLoaded,
@@ -845,15 +855,16 @@ function getExpectedTimes(state = runtimeState) {
         plannedStart,
         actualStart,
       });
-      state.offset.expectedGroupEnd = lastEventExpectedStart + lastEvent.duration;
     }
   }
 
   if (state.eventFlag) {
     const { _flag } = state;
+    DEV: shouldCrashDev(_flag === null, 'eventFlag is set but _flag is null');
+
     if (_flag) {
       const { event, accumulatedGap, isLinkedToLoaded } = _flag;
-      const expectedStart = getExpectedStart(event, {
+      state.offset.expectedFlagStart = getExpectedStart(event, {
         currentDay: state.rundown.currentDay!,
         totalGap: accumulatedGap,
         isLinkedToLoaded,
@@ -862,13 +873,13 @@ function getExpectedTimes(state = runtimeState) {
         plannedStart,
         actualStart,
       });
-      state.offset.expectedFlagStart = expectedStart;
     }
   }
 
   if (state._end) {
     const { event, accumulatedGap, isLinkedToLoaded } = state._end;
-    const expectedStart = getExpectedStart(event, {
+
+    state.offset.expectedRundownEnd = getExpectedEnd(event, {
       currentDay: state.rundown.currentDay!,
       totalGap: accumulatedGap,
       isLinkedToLoaded,
@@ -877,7 +888,6 @@ function getExpectedTimes(state = runtimeState) {
       plannedStart,
       actualStart,
     });
-    state.offset.expectedRundownEnd = expectedStart + event.duration;
   }
 }
 
@@ -920,6 +930,8 @@ export function loadGroupFlagAndEnd(
 
   let accumulatedGap = 0;
   let isLinkedToLoaded = true;
+  // a countToEnd event absorbs overtime and breaks the chain
+  let previousWasCountToEnd = false;
 
   for (let idx = currentIndex; idx < playableEventOrder.length; idx++) {
     const entry = entries[playableEventOrder[idx]];
@@ -928,7 +940,7 @@ export function loadGroupFlagAndEnd(
       if (idx !== currentIndex) {
         // we only accumulate data after the loaded event
         accumulatedGap += entry.gap;
-        isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
+        isLinkedToLoaded = isLinkedToLoaded && entry.linkStart && !previousWasCountToEnd;
 
         // and the loaded event is not allowed to be the next flag
         if (!foundFlag && metadata.flags.includes(entry.id)) {
@@ -942,6 +954,8 @@ export function loadGroupFlagAndEnd(
         foundGroupEnd = true;
         state._group = { event: lastEventInGroup, isLinkedToLoaded, accumulatedGap };
       }
+
+      previousWasCountToEnd = entry.countToEnd;
     }
   }
 

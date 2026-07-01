@@ -4,25 +4,21 @@ import { OffsetMode } from 'ontime-types';
 import { dayInMs } from './conversionUtils.js';
 
 /**
- * @param event the event that we are counting to
- * @param currentDay the day offset of the currently running event
- * @param totalGap accumulated gap from the current event
- * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
- * @param clock
- * @param offset
- * @returns
+ * Runtime context shared by the expected start/end calculations
  */
+type ExpectedTimesState = {
+  currentDay: number; // the current day from the rundown
+  totalGap: number; // accumulated gap from the current event
+  isLinkedToLoaded: boolean; // is this event part of a chain linking back to the loaded event
+  offset: number;
+  mode: OffsetMode;
+  actualStart: MaybeNumber;
+  plannedStart: MaybeNumber;
+};
+
 export function getExpectedStart(
   event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'>,
-  state: {
-    currentDay: number; // the current day from the rundown
-    totalGap: number;
-    isLinkedToLoaded: boolean;
-    offset: number;
-    mode: OffsetMode;
-    actualStart: MaybeNumber;
-    plannedStart: MaybeNumber;
-  },
+  state: ExpectedTimesState,
 ): number {
   const { timeStart, dayOffset, delay } = event;
   const { currentDay, totalGap, isLinkedToLoaded, offset, mode, actualStart, plannedStart } = state;
@@ -59,4 +55,28 @@ export function getExpectedStart(
   // otherwise consume as much of the offset as possible with the gap
   const offsetStartTimeBufferedByGaps = offsetStartTime - totalGap;
   return offsetStartTimeBufferedByGaps;
+}
+
+export function getExpectedEnd(
+  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay' | 'duration' | 'countToEnd'>,
+  state: ExpectedTimesState,
+): number {
+  // expected start includes the delay and any offset compensation
+  const expectedStart = getExpectedStart(event, state);
+
+  /**
+   * Count to end events are a special case
+   * - the end time is always the wall clock
+   */
+  if (event.countToEnd) {
+    // account for day offset
+    const relativeDayOffset = event.dayOffset - state.currentDay;
+    const plannedEnd = event.timeStart + event.duration + relativeDayOffset * dayInMs;
+
+    // count to end cant finish later than the plan
+    return Math.max(expectedStart, plannedEnd);
+  }
+
+  // for normal events, the expected end is when we would start + its duration
+  return expectedStart + event.duration;
 }
