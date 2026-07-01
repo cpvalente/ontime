@@ -1,6 +1,6 @@
 import { OntimeView, URLPreset } from 'ontime-types';
 import { generateId } from 'ontime-utils';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { FieldErrors, useForm } from 'react-hook-form';
 
 import { generateUrl } from '../../common/api/session';
@@ -18,7 +18,7 @@ import { preventEscape } from '../../common/utils/keyEvent';
 import { isUrlSafe } from '../../common/utils/regex';
 import { isOntimeCloud, serverURL } from '../../externals';
 import * as Panel from '../app-settings/panel-utils/PanelUtils';
-import CuesheetLinkOptions from './composite/CuesheetLinkOptions';
+import CuesheetLinkOptions, { CuesheetPermissionValues } from './composite/CuesheetLinkOptions';
 
 import style from './GenerateLinkForm.module.scss';
 
@@ -53,12 +53,26 @@ type GenerateLinkState = 'pending' | 'loading' | 'success' | 'error';
 
 export default function GenerateLinkForm({ hostOptions, pathOptions, presets, isLockedToView }: GenerateLinkFormProps) {
   const [formState, setFormState] = useState<GenerateLinkState>('pending');
-  const [url, setUrl] = useState(serverURL);
-  const cuesheetReadRef = useRef<HTMLInputElement>(null);
-  const cuesheetWriteRef = useRef<HTMLInputElement>(null);
+  const [url, setUrl] = useState('');
+  const [cuesheetPermissions, setCuesheetPermissions] = useState<CuesheetPermissionValues>({
+    read: 'full',
+    write: 'full',
+  });
   const generatedAlias = useRef<string>(`cuesheet-${generateId()}`);
 
-  const { addPreset } = useUpdateUrlPreset();
+  const { addPreset, updatePreset } = useUpdateUrlPreset();
+  // Tracks the alias we already created this session so re-generating updates rather than duplicates it
+  const createdAlias = useRef<string | null>(null);
+
+  /**
+   * Permissions live outside react-hook-form, so we reset a successful state manually
+   * whenever they change - this re-arms the "Create share link" button as the previous
+   * link no longer reflects the selected permissions.
+   */
+  const handlePermissionsChange = useCallback((permissions: CuesheetPermissionValues) => {
+    setCuesheetPermissions(permissions);
+    setFormState((current) => (current === 'success' ? 'pending' : current));
+  }, []);
 
   const {
     handleSubmit,
@@ -90,7 +104,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
     if (options.read === '-') {
       throw new Error('Cannot create a share with no read permissions');
     }
-    const presets = await addPreset({
+    const payload = {
       target: OntimeView.Cuesheet,
       enabled: true,
       alias,
@@ -100,7 +114,10 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
         read: options.read,
         write: options.write,
       },
-    });
+    } as const;
+    // Re-generating with the same name updates the existing preset instead of failing on a duplicate alias
+    const presets = createdAlias.current === alias ? await updatePreset(alias, payload) : await addPreset(payload);
+    createdAlias.current = alias;
     return presets.find((preset) => preset.alias === alias);
   };
 
@@ -109,8 +126,8 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
       setFormState('loading');
       if (options.path === OntimeView.Cuesheet) {
         const urlPreset = await createPresetFromOptions((options as CuesheetLinkOptions).alias, {
-          read: cuesheetReadRef.current?.value ?? 'full',
-          write: cuesheetWriteRef.current?.value ?? 'full',
+          read: cuesheetPermissions.read,
+          write: cuesheetPermissions.write,
         });
 
         if (!urlPreset) {
@@ -158,6 +175,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
     }
   };
 
+  const noReadAccess = watch('path') === OntimeView.Cuesheet && cuesheetPermissions.read === '-';
   const canSubmit = isDirty || formState !== 'success';
 
   return (
@@ -221,7 +239,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                     })}
                   />
                 </Panel.ListItem>
-                <CuesheetLinkOptions readRef={cuesheetReadRef} writeRef={cuesheetWriteRef} />
+                <CuesheetLinkOptions onChange={handlePermissionsChange} />
               </>
             )}
 
@@ -269,18 +287,29 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
           </Panel.ListGroup>
           <Panel.Error>{errors.root?.message}</Panel.Error>
           <Panel.InlineElements align='end' className={style.end}>
-            <Button type='submit' variant={canSubmit ? 'primary' : 'subtle'} loading={formState === 'loading'}>
+            <Button
+              type='submit'
+              variant={canSubmit ? 'primary' : 'subtle'}
+              loading={formState === 'loading'}
+              disabled={noReadAccess}
+            >
               {canSubmit ? 'Create share link' : 'Link copied to clipboard!'}
             </Button>
           </Panel.InlineElements>
         </div>
         <Panel.Section className={style.column}>
           <Panel.Description>Share this link</Panel.Description>
-          <QRCode size={172} value={url} />
-          <div className={style.copiableLink} data-testid='copy-link'>
-            {url}
-          </div>
-          <CopyTag copyValue={url}>Copy link</CopyTag>
+          {url ? (
+            <>
+              <QRCode size={172} value={url} />
+              <div className={style.copiableLink} data-testid='copy-link'>
+                {url}
+              </div>
+              <CopyTag copyValue={url}>Copy link</CopyTag>
+            </>
+          ) : (
+            <Panel.Description>Your link will appear here once you create it.</Panel.Description>
+          )}
         </Panel.Section>
       </div>
     </form>

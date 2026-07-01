@@ -1,4 +1,4 @@
-import { URLPreset } from 'ontime-types';
+import { OntimeView, URLPreset } from 'ontime-types';
 import { useState } from 'react';
 import { IoAdd, IoOpenOutline, IoPencil, IoTrash } from 'react-icons/io5';
 
@@ -78,20 +78,22 @@ export default function URLPresets() {
             <tbody>
               {data.length === 0 && <Panel.TableEmpty handleClick={openNewForm} />}
               {data.map((preset, index) => {
+                const isCuesheet = preset.target === OntimeView.Cuesheet;
                 return (
                   <tr key={preset.alias}>
                     <td>
                       <Switch
                         checked={preset.enabled}
-                        onCheckedChange={(checked) => persistPreset({ ...preset, enabled: checked })}
+                        onCheckedChange={(enabled) => persistPreset({ ...preset, enabled })}
                         disabled={isMutating}
+                        aria-label='Toggle preset enabled'
                       />
                     </td>
                     <td>
                       <Switch
                         checked={preset.displayInNav}
                         onCheckedChange={(checked) => persistPreset({ ...preset, displayInNav: checked })}
-                        disabled={isMutating}
+                        disabled={isMutating || isCuesheet}
                       />
                     </td>
                     <td>
