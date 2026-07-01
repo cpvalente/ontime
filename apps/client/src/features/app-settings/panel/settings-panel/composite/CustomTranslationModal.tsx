@@ -1,5 +1,5 @@
 import { TranslationObject, langEn } from 'ontime-types';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { maybeAxiosError } from '../../../../../common/api/utils';
@@ -10,6 +10,8 @@ import Modal from '../../../../../common/components/modal/Modal';
 import { useTranslation } from '../../../../../translation/TranslationProvider';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
+import style from './CustomTranslationModal.module.scss';
+
 interface CustomTranslationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -17,14 +19,7 @@ interface CustomTranslationModalProps {
 
 export default function CustomTranslationModal({ isOpen, onClose }: CustomTranslationModalProps) {
   const { userTranslation, postUserTranslation } = useTranslation();
-
-  const defaultValues = useMemo(() => {
-    const values: Record<string, string> = {};
-    Object.keys(langEn).forEach((key) => {
-      values[toFormKey(key)] = userTranslation[key as keyof TranslationObject] || '';
-    });
-    return values;
-  }, [userTranslation]);
+  const customTranslationFormValues = useMemo(() => toFormValues(userTranslation), [userTranslation]);
 
   const {
     handleSubmit,
@@ -33,12 +28,16 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
     formState: { isSubmitting, isDirty, errors, isValid },
     setError,
   } = useForm({
-    defaultValues,
-    resetOptions: {
-      keepDirtyValues: true,
-    },
+    defaultValues: customTranslationFormValues,
     mode: 'onChange',
   });
+
+  // keep data up to date
+  useEffect(() => {
+    if (isOpen) {
+      reset(customTranslationFormValues);
+    }
+  }, [customTranslationFormValues, isOpen, reset]);
 
   const onSubmit = async (formData: Record<string, string>) => {
     try {
@@ -52,6 +51,10 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
     } catch (error) {
       setError('root', { message: maybeAxiosError(error) });
     }
+  };
+
+  const resetToEnglish = () => {
+    reset(toFormValues(langEn), { keepDefaultValues: true });
   };
 
   return (
@@ -84,9 +87,12 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
         </Panel.Section>
       }
       footerElements={
-        <div>
+        <div className={style.footer}>
           {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
           <Panel.InlineElements align='apart'>
+            <Button variant='ghosted' size='large' onClick={resetToEnglish} disabled={isSubmitting}>
+              Reset to English
+            </Button>
             <Panel.InlineElements>
               <Button size='large' onClick={onClose}>
                 Cancel
@@ -107,6 +113,14 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
       }
     />
   );
+}
+
+function toFormValues(translation: Partial<TranslationObject>) {
+  const values: Record<string, string> = {};
+  Object.keys(langEn).forEach((key) => {
+    values[toFormKey(key)] = translation[key as keyof TranslationObject] || '';
+  });
+  return values;
 }
 
 function toFormKey(key: string) {
