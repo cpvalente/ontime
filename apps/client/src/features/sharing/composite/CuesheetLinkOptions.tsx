@@ -137,24 +137,6 @@ export default function CuesheetLinkOptions({ initialRead, initialWrite, onChang
 
   const noReadAccess = resolvedRead === '-';
 
-  const renderColumn = (column: { value: string; label: string }) => (
-    <Fragment key={column.value}>
-      <div>{column.label}</div>
-      <Switch
-        checked={isReadOn(column.value)}
-        onCheckedChange={(value: boolean) => handleReadSwitch(column.value, value)}
-        disabled={readPermissions === 'full' || writePermissions === 'full'}
-        data-testid={`read-${column.value}`}
-      />
-      <Switch
-        checked={isWriteOn(column.value)}
-        onCheckedChange={(value: boolean) => handleWriteSwitch(column.value, value)}
-        disabled={writePermissions === 'full'}
-        data-testid={`write-${column.value}`}
-      />
-    </Fragment>
-  );
-
   return (
     <Panel.Indent>
       <div>
@@ -166,7 +148,7 @@ export default function CuesheetLinkOptions({ initialRead, initialWrite, onChang
             orientation='horizontal'
             disabled={writePermissions === 'full'}
             items={[
-              { value: 'full', label: 'Full read' },
+              { value: 'full', label: 'Full read (view all existing and future columns)' },
               { value: 'custom', label: 'Custom read' },
             ]}
           />
@@ -175,7 +157,7 @@ export default function CuesheetLinkOptions({ initialRead, initialWrite, onChang
             onValueChange={handleWriteModeChange}
             orientation='horizontal'
             items={[
-              { value: 'full', label: 'Full write' },
+              { value: 'full', label: 'Full write (edit all existing and future columns)' },
               { value: 'custom', label: 'Custom write' },
             ]}
           />
@@ -189,14 +171,46 @@ export default function CuesheetLinkOptions({ initialRead, initialWrite, onChang
           <Panel.Description>Ontime columns</Panel.Description>
           <Panel.Description>Read</Panel.Description>
           <Panel.Description>Write</Panel.Description>
-          {cuesheetDefaultColumns.map(renderColumn)}
+          {cuesheetDefaultColumns.map((column) => (
+            <Fragment key={column.value}>
+              <div>{column.label}</div>
+              <Switch
+                checked={isReadOn(column.value)}
+                onCheckedChange={(value: boolean) => handleReadSwitch(column.value, value)}
+                disabled={readPermissions === 'full' || writePermissions === 'full'}
+                data-testid={`read-${column.value}`}
+              />
+              <Switch
+                checked={isWriteOn(column.value)}
+                onCheckedChange={(value: boolean) => handleWriteSwitch(column.value, value)}
+                disabled={writePermissions === 'full'}
+                data-testid={`write-${column.value}`}
+              />
+            </Fragment>
+          ))}
         </div>
         {customFieldColumns.length > 0 && (
           <div className={style.grid}>
             <Panel.Description>Custom fields</Panel.Description>
             <Panel.Description>Read</Panel.Description>
             <Panel.Description>Write</Panel.Description>
-            {customFieldColumns.map(renderColumn)}
+            {customFieldColumns.map((column) => (
+              <Fragment key={column.value}>
+                <div>{column.label}</div>
+                <Switch
+                  checked={isReadOn(column.value)}
+                  onCheckedChange={(value: boolean) => handleReadSwitch(column.value, value)}
+                  disabled={readPermissions === 'full' || writePermissions === 'full'}
+                  data-testid={`read-${column.value}`}
+                />
+                <Switch
+                  checked={isWriteOn(column.value)}
+                  onCheckedChange={(value: boolean) => handleWriteSwitch(column.value, value)}
+                  disabled={writePermissions === 'full'}
+                  data-testid={`write-${column.value}`}
+                />
+              </Fragment>
+            ))}
           </div>
         )}
       </div>
