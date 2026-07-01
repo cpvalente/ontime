@@ -19,7 +19,8 @@ const staticOptions = [
       { id: 'settings__general', label: 'General settings' },
       { id: 'settings__view', label: 'View settings' },
       { id: 'settings__custom-views', label: 'Custom views' },
-      { id: 'settings__port', label: 'Server port' },
+      { id: 'settings__mcp', label: 'MCP Server' },
+      ...(isDocker ? [] : [{ id: 'settings__port', label: 'Server port' }]),
     ],
   },
   {
@@ -96,18 +97,12 @@ export function useAppSettingsMenu() {
 
   const options: Readonly<SettingsOption[]> = useMemo(
     () =>
-      staticOptions.map((option) => ({
-        ...option,
-        // if we are in docker don't show the port option
-        secondary:
-          'secondary' in option
-            ? isDocker && option.id === 'settings'
-              ? [...option.secondary.filter(({ id }) => id !== 'settings__port')]
-              : [...option.secondary]
-            : undefined,
+      staticOptions.map((option) =>
         // if there is an update then highlight the about setting
-        highlight: option.id === 'about' && data.hasUpdates ? 'New version available' : undefined,
-      })),
+        option.id === 'about' && data.hasUpdates
+          ? Object.assign({}, option, { highlight: 'New version available' })
+          : option,
+      ),
     [data],
   );
 
