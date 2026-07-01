@@ -177,8 +177,15 @@ Examples:
 ## Custom fields
 Custom fields are project-scoped definitions. Get definitions at \`ontime://project/custom-fields\` or with \`ontime_get_custom_fields\`.
 Events, milestones and groups store values at \`entry.custom[fieldKey]\`.
-Only use existing field keys when setting \`custom\` values. Adding, renaming, or deleting custom field definitions is a separate project-level operation.
-When the user wants to assign custom values, show the existing custom field list first if there is any ambiguity, so you do not create duplicate concepts such as \`Cam\`, \`camera\`, and \`Cameras\`.
+
+Managing field definitions:
+- Read: \`ontime_get_custom_fields\` — returns \`{ [key]: { label, type, colour } }\`
+- Create: \`ontime_create_custom_field { label, type, colour }\` — key is auto-derived from label (spaces → underscores). Confirm the derived key before creating. Returns \`{ key, customFields }\`.
+- Rename/recolour: \`ontime_update_custom_field { key, label?, colour? }\` — renaming the label changes the derived key and cascades to all entry references across all rundowns. Type cannot be changed.
+- Delete: \`ontime_delete_custom_field { key }\` — removes the field definition and its values from every entry in all rundowns. Destructive, confirm first.
+
+When setting \`custom\` values on entries, only use existing field keys. If a key does not exist, create it with \`ontime_create_custom_field\` first.
+Show the existing field list before creating to avoid duplicates such as \`Cam\`, \`camera\`, and \`Cameras\`.
 
 ## Targeting rundowns
 Entry read/write tools accept an optional \`rundownId\`.
