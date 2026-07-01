@@ -17,7 +17,10 @@ import { getCurrentRundown, getCurrentRundownId, getProjectCustomFields } from '
 import {
   addEntry,
   batchEditEntries,
+  createCustomField,
+  deleteCustomField,
   deleteEntries,
+  editCustomField,
   editEntry,
   groupEntries,
   reorderEntry,
@@ -103,8 +106,15 @@ export function assertKnownCustomFields(...customValues: Array<EntryFieldArgs['c
   }
 
   if (unknownKeys.size > 0) {
-    const keys = [...unknownKeys].join(', ');
-    throw new Error(`Unknown custom field key(s): ${keys}. Call ontime_get_custom_fields to list available keys.`);
+    const missing = [...unknownKeys].join(', ');
+    const available = Object.keys(customFields);
+    const hint = available.length > 0 ? `Available keys: ${available.join(', ')}.` : 'No custom fields are defined yet.';
+    throw new Error(
+      `Unknown custom field key(s): ${missing}. ${hint} ` +
+        `Call ontime_create_custom_field with { label, type, colour } to create a missing field — ` +
+        `the key is auto-derived from the label (spaces → underscores, e.g. label "Camera" → key "Camera"). ` +
+        `Call ontime_get_custom_fields to list existing keys.`,
+    );
   }
 }
 
@@ -319,4 +329,22 @@ export async function batchUpdateEntriesForMcp(args: TargetRundownArgs & { ids: 
   const rundownId = resolveTargetRundownId(args);
   const rundown = await batchEditEntries(rundownId, args.ids, args.data);
   return { target: getTargetMeta(rundownId), updated: args.ids, order: rundown.order };
+}
+
+export async function createCustomFieldForMcp(args: { label: string; type: 'text' | 'image'; colour: string }) {
+  const updated = await createCustomField({ label: args.label, type: args.type, colour: args.colour });
+  const key = Object.keys(updated).find((k) => updated[k].label === args.label) ?? args.label;
+  return { key, customFields: updated };
+}
+
+export async function updateCustomFieldForMcp(args: { key: string; label?: string; colour?: string }) {
+  const projectRundowns = getDataProvider().getProjectRundowns();
+  const updated = await editCustomField(args.key, { label: args.label, colour: args.colour }, projectRundowns);
+  return { customFields: updated };
+}
+
+export async function deleteCustomFieldForMcp(args: { key: string }) {
+  const projectRundowns = getDataProvider().getProjectRundowns();
+  const updated = await deleteCustomField(args.key, projectRundowns);
+  return { customFields: updated };
 }

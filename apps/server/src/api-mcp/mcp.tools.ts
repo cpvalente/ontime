@@ -25,7 +25,9 @@ import { EVENT_WRITABLE_FIELDS, RUNDOWN_TARGET_FIELD } from './mcp.schema.js';
 import {
   batchCreateEntriesForMcp,
   batchUpdateEntriesForMcp,
+  createCustomFieldForMcp,
   createEntryForMcp,
+  deleteCustomFieldForMcp,
   deleteEntriesForMcp,
   findEntry,
   getRundownById,
@@ -33,6 +35,7 @@ import {
   reorderEntryForMcp,
   toRundownList,
   ungroupEntryForMcp,
+  updateCustomFieldForMcp,
   updateEntryForMcp,
   type BatchCreateEntryArgs,
   type CreateEntryArgs,
@@ -371,6 +374,60 @@ export const TOOL_DEFINITIONS = [
     inputSchema: { type: 'object', properties: {} },
     annotations: READ,
   },
+  {
+    name: 'ontime_create_custom_field',
+    description:
+      'Create a new project-level custom field definition. Custom fields add typed columns to every entry in all rundowns. The key is auto-derived from the label (spaces → underscores, e.g. "Camera Angle" → "Camera_Angle"). After creation, use the key in entry.custom when creating or updating entries.',
+    inputSchema: {
+      type: 'object',
+      required: ['label', 'type', 'colour'],
+      properties: {
+        label: {
+          type: 'string',
+          description:
+            'Human-readable label (alphanumeric with spaces, e.g. "Camera"). Determines the key — ask the user to confirm before creating to avoid duplicates like "Cam", "camera", "Cameras".',
+        },
+        type: {
+          type: 'string',
+          enum: ['text', 'image'],
+          description: 'Field type — cannot be changed after creation. Use "text" for short text values; "image" for image URLs.',
+        },
+        colour: {
+          type: 'string',
+          description: 'Hex colour (#RRGGBB) used to visually identify this column in the cuesheet.',
+        },
+      },
+    },
+    annotations: WRITE,
+  },
+  {
+    name: 'ontime_update_custom_field',
+    description:
+      'Update a custom field label or colour. Changing the label renames the derived key (spaces → underscores) and updates all entry references across all rundowns. Field type cannot be changed.',
+    inputSchema: {
+      type: 'object',
+      required: ['key'],
+      properties: {
+        key: { type: 'string', description: 'Current field key (from ontime_get_custom_fields)' },
+        label: { type: 'string', description: 'New human-readable label (optional). Changes the derived key and cascades to all entries.' },
+        colour: { type: 'string', description: 'New hex colour (#RRGGBB) (optional)' },
+      },
+    },
+    annotations: WRITE_IDEM,
+  },
+  {
+    name: 'ontime_delete_custom_field',
+    description:
+      'Delete a custom field definition and remove its values from all entries in all rundowns. Destructive and cannot be undone — confirm with the user before calling.',
+    inputSchema: {
+      type: 'object',
+      required: ['key'],
+      properties: {
+        key: { type: 'string', description: 'Field key to delete (from ontime_get_custom_fields)' },
+      },
+    },
+    annotations: WRITE_DESTRUCTIVE,
+  },
   // --- Project file management ---
   {
     name: 'ontime_list_projects',
@@ -570,6 +627,18 @@ const TOOL_HANDLERS: Record<ToolName, (args: Record<string, unknown>) => Promise
   },
 
   ontime_get_custom_fields: async () => ok(getProjectCustomFields()),
+
+  ontime_create_custom_field: async (args) => {
+    return ok(await createCustomFieldForMcp(args as { label: string; type: 'text' | 'image'; colour: string }));
+  },
+
+  ontime_update_custom_field: async (args) => {
+    return ok(await updateCustomFieldForMcp(args as { key: string; label?: string; colour?: string }));
+  },
+
+  ontime_delete_custom_field: async (args) => {
+    return ok(await deleteCustomFieldForMcp(args as { key: string }));
+  },
 
   ontime_list_projects: async () => ok(await getProjectList()),
 

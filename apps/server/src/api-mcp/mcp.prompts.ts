@@ -33,6 +33,17 @@ export const PROMPT_DEFINITIONS: ListPromptsResult['prompts'] = [
       },
     ],
   },
+  {
+    name: 'manage_custom_fields',
+    description: 'List, create, rename, recolour, or delete project-level custom field definitions',
+    arguments: [
+      {
+        name: 'instruction',
+        description: 'What to do, e.g. "add a Speaker field" or "delete the Camera field"',
+        required: true,
+      },
+    ],
+  },
 ];
 
 function userPrompt(description: string, text: string): GetPromptResult {
@@ -200,6 +211,37 @@ Group awareness:
 - A group's \`targetDuration\` is a planning hint only — moving events in or out does not break anything.
 
 Efficiency tip: plan moves in the direction of the target position to minimise reorder calls. Avoid moving the same event twice — compute the full target sequence before issuing any calls.`,
+    );
+  }
+
+  if (name === 'manage_custom_fields') {
+    return userPrompt(
+      'List, create, rename, recolour, or delete custom field definitions',
+      `Manage the project-level custom field definitions for this Ontime project: "${args.instruction}"
+
+Custom fields are project-scoped. They appear as columns in the cuesheet and can be set on any event, milestone, or group. Changes apply to all rundowns in the project.
+
+Steps:
+1. Call ontime_get_custom_fields to see what fields already exist. This is mandatory before creating — to avoid duplicates such as "Cam", "camera", and "Cameras".
+2. Carry out the instruction using the tools below. Confirm destructive changes (rename, delete) with the user before calling.
+
+Creating a field:
+- Call ontime_create_custom_field with { label, type, colour }.
+- label: human-readable name (alphanumeric with spaces). The key is auto-derived: spaces → underscores (e.g. "Camera Angle" → "Camera_Angle"). Confirm the derived key with the user before creating.
+- type: "text" for short string values, "image" for image URLs. Cannot be changed after creation.
+- colour: hex colour (#RRGGBB) used to visually identify this column in the cuesheet. Ask the user what colour to use if not specified.
+- Returns: { key, customFields } — use the returned key when setting values on entries.
+
+Renaming or recolouring a field:
+- Call ontime_update_custom_field with { key, label?, colour? }.
+- Warning: changing the label changes the derived key and cascades to all entry references in all rundowns. Confirm with the user before renaming.
+- The field type cannot be changed.
+
+Deleting a field:
+- Call ontime_delete_custom_field with { key }.
+- Warning: this permanently removes the field definition and its values from every entry in all rundowns. Confirm with the user before deleting.
+
+After any mutation, call ontime_get_custom_fields again to confirm the result and show the user the updated field list with their keys.`,
     );
   }
 
