@@ -26,8 +26,11 @@ interface CuesheetLinkOptionsProps {
 
 /** A null result means "full or unset" - there is no explicit per-column selection to seed */
 function parseKeys(permission: string | undefined): Set<string> | null {
-  if (permission == null || permission === 'full' || permission === '-') {
+  if (permission == null || permission === 'full') {
     return null;
+  }
+  if (permission === '-') {
+    return new Set();
   }
   return new Set(permission.split(','));
 }
@@ -163,9 +166,7 @@ export default function CuesheetLinkOptions({ initialRead, initialWrite, onChang
           />
         </div>
       </div>
-      {noReadAccess && (
-        <Panel.Error>Select at least one column to view, otherwise the link grants no access.</Panel.Error>
-      )}
+      {noReadAccess && <Panel.Error>Links must contain at least one readable column.</Panel.Error>}
       <div className={style.twoCols}>
         <div className={style.grid}>
           <Panel.Description>Ontime columns</Panel.Description>

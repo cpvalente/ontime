@@ -70,6 +70,7 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
   });
   const [cuesheetPermissions, setCuesheetPermissions] = useState<CuesheetPermissionValues>(initialPermissions.current);
 
+  const isEditingCuesheet = urlPreset && urlPreset.target === OntimeView.Cuesheet;
   const isCuesheet = watch('target') === OntimeView.Cuesheet;
   const permissionsDirty =
     isCuesheet &&
@@ -95,6 +96,7 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
     }
   };
 
+  // focus on alias when the form opens
   useEffect(() => {
     setFocus('alias');
   }, [setFocus]);
@@ -147,39 +149,46 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
         <div className={style.expand}>
           <Panel.Description>Generate options (paste URL to generate options)</Panel.Description>
           <Panel.InlineElements>
-            <Input placeholder='Paste URL' fluid ref={urlRef} />
-            <Button onClick={generateOptions}>Generate</Button>
+            <Input placeholder='Paste URL' fluid ref={urlRef} disabled={isEditingCuesheet} />
+            <Button onClick={generateOptions} disabled={isEditingCuesheet}>
+              Generate
+            </Button>
           </Panel.InlineElements>
         </div>
       </Panel.InlineElements>
       {errors.alias?.message && <Panel.Error>{errors.alias.message}</Panel.Error>}
-      <div>
-        {enDash} or {enDash}
-      </div>
-      <div>2. Choose a view and its parameters</div>
-      <div>
-        <Panel.Description>Target</Panel.Description>
-        <Select
-          options={targetOptions}
-          {...register('target', { required: 'Target is required' })}
-          value={watch('target')}
-          onValueChange={(value: OntimeViewPresettable | null) => {
-            if (value === null) return;
-            setValue('target', value, { shouldDirty: true });
-          }}
-        />
-      </div>
-      <div>
-        <Panel.Description>Parameters</Panel.Description>
-        <Textarea
-          fluid
-          rows={3}
-          {...register('search', {
-            validate: validateParams,
-          })}
-        />
-        <Panel.Error>{errors.search?.message}</Panel.Error>
-      </div>
+      {!isEditingCuesheet && (
+        <>
+          <div>
+            {enDash} or {enDash}
+          </div>
+          <div>2. Choose a view and its parameters</div>
+          <div>
+            <Panel.Description>Target</Panel.Description>
+            <Select
+              options={targetOptions}
+              {...register('target', { required: 'Target is required' })}
+              value={watch('target')}
+              onValueChange={(value: OntimeViewPresettable | null) => {
+                if (value === null) return;
+                setValue('target', value, { shouldDirty: true });
+              }}
+            />
+          </div>
+          <div>
+            <Panel.Description>Parameters</Panel.Description>
+            <Textarea
+              fluid
+              rows={3}
+              {...register('search', {
+                validate: validateParams,
+              })}
+            />
+            <Panel.Error>{errors.search?.message}</Panel.Error>
+          </div>
+        </>
+      )}
+
       {isCuesheet && (
         <div>
           <Panel.Description>Permissions</Panel.Description>
