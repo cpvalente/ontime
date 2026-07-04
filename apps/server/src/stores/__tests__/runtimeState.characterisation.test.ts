@@ -438,6 +438,91 @@ describe('characterisation: timed playback', () => {
   });
 });
 
+describe('characterisation: hot reload during playback', () => {
+  test('editing the running event recomputes the timer without interrupting playback', async () => {
+    const scenario = await createScenario(makeCountToEndRundown(), 'jan 5 10:00');
+    scenario.load('lead');
+    scenario.start();
+    scenario.tick(2 * m, 1000);
+
+    // the running event (10:00 - 10:30) is shortened to 10:00 - 10:20
+    const editedRundown = makeCountToEndRundown();
+    // @ts-expect-error -- fixture entries are events
+    editedRundown.entries.lead.timeEnd = 10 * h + 20 * m;
+    // @ts-expect-error -- fixture entries are events
+    editedRundown.entries.lead.duration = 20 * m;
+    scenario.hotReload(editedRundown);
+
+    expect(scenario.digest()).toMatchObject({
+      eventNow: 'lead',
+      // playback is not interrupted
+      playback: Playback.Play,
+      startedAt: 10 * h,
+      actualStart: 10 * h,
+      // the timer is recomputed against the new duration
+      duration: 20 * m,
+      current: 18 * m,
+      expectedFinish: 10 * h + 20 * m,
+      // expected times are recomputed: the 10min gap before toEnd absorbs
+      // nothing (offset 0), the rundown still ends on schedule
+      expectedRundownEnd: 11 * h,
+    });
+  });
+
+  test('removing the running event slides the selection to the event at the same index', async () => {
+    const scenario = await createScenario(makeCountToEndRundown(), 'jan 5 10:00');
+    scenario.load('lead');
+    scenario.start();
+    scenario.tick(2 * m, 1000);
+
+    // the running event is deleted from the rundown
+    const editedRundown = makeCountToEndRundown();
+    delete editedRundown.entries.lead;
+    editedRundown.order = ['toEnd'];
+    scenario.hotReload(editedRundown);
+
+    expect(scenario.digest()).toMatchObject({
+      // the event at the previously selected index is loaded in its place
+      eventNow: 'toEnd',
+      eventNext: null,
+      selectedEventIndex: 0,
+      playback: Playback.Play,
+      // !!! characterised: the original start time is kept, the replacement
+      // event plays as if it had started with the removed event
+      startedAt: 10 * h,
+      actualStart: 10 * h,
+      duration: 30 * m,
+      // toEnd counts to its scheduled end: 11:00 - 10:02
+      current: 58 * m,
+      expectedFinish: 11 * h,
+    });
+  });
+
+  test('reloading the loaded event re-arms the timer and clears progress', async () => {
+    const scenario = await createScenario(makeFlatRundown(), 'jan 5 10:00');
+    scenario.load('flat1');
+    scenario.start();
+    scenario.tick(2 * m, 1000);
+    scenario.addTime(1 * m);
+
+    const reloadedId = scenario.reloadLoaded();
+
+    expect(reloadedId).toBe('flat1');
+    expect(scenario.digest()).toMatchObject({
+      eventNow: 'flat1',
+      playback: Playback.Armed,
+      startedAt: null,
+      addedTime: 0,
+      pausedAt: null,
+      current: 10 * m,
+      duration: 10 * m,
+      elapsed: null,
+      expectedFinish: null,
+      hasFinished: false,
+    });
+  });
+});
+
 describe('characterisation: playback across midnight', () => {
   test('playing across midnight increments currentDay and keeps offsets', async () => {
     const scenario = await createScenario(makeOvernightRundown(), 'jan 5 23:30');

@@ -18,6 +18,8 @@ import {
   start,
   stop,
   update,
+  updateAll,
+  updateLoaded,
   updateRundownData,
 } from '../../runtimeState.js';
 
@@ -35,6 +37,7 @@ export function digest() {
     phase: state.timer.phase,
     current: state.timer.current,
     duration: state.timer.duration,
+    elapsed: state.timer.elapsed,
     addedTime: state.timer.addedTime,
     startedAt: state.timer.startedAt,
     secondaryTimer: state.timer.secondaryTimer,
@@ -75,6 +78,14 @@ export type Scenario = {
   roll: (keepOffset?: boolean) => { eventId: MaybeString; didStart: boolean };
   setOffsetMode: (mode: OffsetMode) => void;
   updateRundownData: (data: Parameters<typeof updateRundownData>[0]) => void;
+  /**
+   * emulates a rundown edit while playback continues: re-processes the
+   * rundown through the cache and hot-reloads the loaded events, as the
+   * rundown service does on a committed mutation
+   */
+  hotReload: (newRundown: Rundown) => void;
+  /** re-arms the loaded event, resetting timer progress, as used by reload() */
+  reloadLoaded: () => string | undefined;
   /**
    * advances fake time and calls update() in chunks, exactly as EventTimer would
    * @param ms total time to advance
@@ -126,6 +137,12 @@ export async function createScenario(initialRundown: Rundown, startTime: string)
     roll: (keepOffset) => roll(rundown, metadata, keepOffset ? getState().offset : undefined),
     setOffsetMode,
     updateRundownData,
+    hotReload: (newRundown) => {
+      rundownCache.init(newRundown, {});
+      const { rundown: processedRundown, metadata: processedMetadata } = rundownCache.get();
+      updateAll(processedRundown, processedMetadata);
+    },
+    reloadLoaded: () => updateLoaded(),
     tick: (ms = timerConfig.updateRate, stepMs = timerConfig.updateRate) => {
       const results: UpdateResult[] = [];
       let remaining = ms;
