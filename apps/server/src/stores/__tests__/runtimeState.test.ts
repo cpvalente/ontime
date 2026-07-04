@@ -11,11 +11,12 @@ import {
   clearState,
   getState,
   load,
-  loadGroupFlagAndEnd,
+  loadGroupFlagAndEndCore,
   pause,
   resume,
   roll,
   start,
+  startCore,
   stop,
   update,
 } from '../runtimeState.js';
@@ -82,7 +83,7 @@ describe('mutation on runtimeState', () => {
       await initRundown(makeRundown({}), {});
       vi.runAllTimers();
 
-      let success = start(mockState);
+      let success = startCore(mockState);
       expect(success).toBe(false);
 
       success = pause();
@@ -868,7 +869,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const metadata = { playableEventOrder: ['0', '11', '3'], flags: ['1'] } as RundownMetadata;
 
-    loadGroupFlagAndEnd(rundown, metadata, 2, state);
+    loadGroupFlagAndEndCore(state, rundown, metadata, 2);
 
     expect(state).toMatchObject({
       groupNow: rundown.entries[1],
@@ -896,7 +897,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
 
-    loadGroupFlagAndEnd(rundown, metadata, 1, state);
+    loadGroupFlagAndEndCore(state, rundown, metadata, 1);
 
     expect(state).toMatchObject({
       groupNow: rundown.entries[2],
@@ -924,7 +925,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
 
-    loadGroupFlagAndEnd(rundown, metadata, 1, state);
+    loadGroupFlagAndEndCore(state, rundown, metadata, 1);
 
     expect(state).toMatchObject({
       groupNow: null,
@@ -949,7 +950,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const metadata = { playableEventOrder: ['0', '1'], flags: ['1'] } as RundownMetadata;
 
-    loadGroupFlagAndEnd(rundown, metadata, 0, state);
+    loadGroupFlagAndEndCore(state, rundown, metadata, 0);
 
     expect(state).toMatchObject({
       groupNow: null,
