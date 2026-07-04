@@ -637,7 +637,7 @@ export function updateCore(state: RuntimeState): UpdateResult {
   // 2. are we waiting to roll?
   if (state.timer.playback === Playback.Roll && state.timer.secondaryTimer !== null) {
     const clockHasCrossedMidnight = hasCrossedMidnight(previousClock, now);
-    return updateIfWaitingToRoll(clockHasCrossedMidnight);
+    return updateIfWaitingToRoll(state, clockHasCrossedMidnight);
   }
 
   // 3. at this point we know that we are playing an event
@@ -674,36 +674,38 @@ export function updateCore(state: RuntimeState): UpdateResult {
   getExpectedTimesCore(state);
 
   return { hasTimerFinished: finishedNow, hasSecondaryTimerFinished: false };
+}
 
-  function updateIfIdle() {
-    // if nothing is running, nothing to do
-    return { hasTimerFinished: false, hasSecondaryTimerFinished: false };
+// module level so the hot path does not allocate a closure on every tick
+function updateIfIdle(): UpdateResult {
+  // if nothing is running, nothing to do
+  return { hasTimerFinished: false, hasSecondaryTimerFinished: false };
+}
+
+// module level so the hot path does not allocate a closure on every tick
+function updateIfWaitingToRoll(state: RuntimeState, hasCrossedMidnight: boolean): UpdateResult {
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    if (state.eventNow === null || state._timer.secondaryTarget === null) {
+      throw new Error('runtimeState.updateIfWaitingToRoll: invalid state received');
+    }
   }
 
-  function updateIfWaitingToRoll(hasCrossedMidnight: boolean) {
-    // eslint-disable-next-line no-unused-labels -- dev code path
-    DEV: {
-      if (state.eventNow === null || state._timer.secondaryTarget === null) {
-        throw new Error('runtimeState.updateIfWaitingToRoll: invalid state received');
-      }
-    }
+  // account for offset
+  const offsetClock = state.clock + state.offset.absolute;
+  state.timer.phase = TimerPhase.Pending;
 
-    // account for offset
-    const offsetClock = state.clock + state.offset.absolute;
-    state.timer.phase = TimerPhase.Pending;
-
-    if (hasCrossedMidnight) {
-      // if we crossed midnight, we need to update the target
-      // this is the same logic from the roll function
-      state._timer.secondaryTarget = normaliseRollStart(state.eventNow.timeStart, offsetClock) as TimeOfDay;
-    }
-
-    state.timer.secondaryTimer = state._timer.secondaryTarget! - offsetClock;
-    return {
-      hasTimerFinished: false,
-      hasSecondaryTimerFinished: state.timer.secondaryTimer <= 0,
-    };
+  if (hasCrossedMidnight) {
+    // if we crossed midnight, we need to update the target
+    // this is the same logic from the roll function
+    state._timer.secondaryTarget = normaliseRollStart(state.eventNow.timeStart, offsetClock) as TimeOfDay;
   }
+
+  state.timer.secondaryTimer = state._timer.secondaryTarget! - offsetClock;
+  return {
+    hasTimerFinished: false,
+    hasSecondaryTimerFinished: state.timer.secondaryTimer <= 0,
+  };
 }
 
 export function roll(
