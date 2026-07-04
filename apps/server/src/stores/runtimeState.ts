@@ -130,7 +130,7 @@ export function clearEventData() {
 /* clear data related to the current event, but leave in place data about the global run state
  * used when loading a new event but the playback is not interrupted
  */
-export function clearEventDataCore(state: RuntimeState) {
+function clearEventDataCore(state: RuntimeState) {
   state.eventNow = null;
   state.eventNext = null;
 
@@ -158,7 +158,7 @@ export function clearState() {
 }
 
 // clear all necessary data when doing a full stop and the event is unloaded
-export function clearStateCore(state: RuntimeState) {
+function clearStateCore(state: RuntimeState) {
   state.eventNow = null;
   state.eventNext = null;
   state.eventFlag = null;
@@ -227,7 +227,7 @@ export function updateRundownData(rundownData: RundownData) {
  * Utility, allows updating data derived from the rundown
  * @param playableRundown
  */
-export function updateRundownDataCore(state: RuntimeState, rundownData: RundownData) {
+function updateRundownDataCore(state: RuntimeState, rundownData: RundownData) {
   // we keep this in private state since there is no UI use case for it
   state._rundown.totalDelay = rundownData.totalDelay;
 
@@ -251,7 +251,7 @@ export function load(
 /**
  * Loads a given event into state
  */
-export function loadCore(
+function loadCore(
   state: RuntimeState,
   event: PlayableEvent,
   rundown: Rundown,
@@ -317,12 +317,7 @@ export function loadNow(rundown: Rundown, metadata: RundownMetadata, eventIndex?
  * Loads current event and its public counterpart
  * @param eventIndex the index to load, defaults to the currently selected index
  */
-export function loadNowCore(
-  state: RuntimeState,
-  rundown: Rundown,
-  metadata: RundownMetadata,
-  eventIndex?: MaybeNumber,
-) {
+function loadNowCore(state: RuntimeState, rundown: Rundown, metadata: RundownMetadata, eventIndex?: MaybeNumber) {
   const index = eventIndex === undefined ? state.rundown.selectedEventIndex : eventIndex;
   if (index === null) {
     // reset the state to indicate there is no selection
@@ -349,12 +344,7 @@ export function loadNext(rundown: Rundown, metadata: RundownMetadata, eventIndex
  * Loads the next event and its public counterpart
  * @param eventIndex the index to load from, defaults to the currently selected index
  */
-export function loadNextCore(
-  state: RuntimeState,
-  rundown: Rundown,
-  metadata: RundownMetadata,
-  eventIndex?: MaybeNumber,
-) {
+function loadNextCore(state: RuntimeState, rundown: Rundown, metadata: RundownMetadata, eventIndex?: MaybeNumber) {
   const index = eventIndex === undefined ? state.rundown.selectedEventIndex : eventIndex;
   if (index === null) {
     // reset the state to indicate there is no future event
@@ -383,7 +373,7 @@ export function resume(restorePoint: RestorePoint, event: PlayableEvent, rundown
 /**
  * Resume from restore point
  */
-export function resumeCore(
+function resumeCore(
   state: RuntimeState,
   restorePoint: RestorePoint,
   event: PlayableEvent,
@@ -401,7 +391,7 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
  * We only pass an event if we are hot reloading
  * @param {PlayableEvent} event only passed if we are changing the data if a playing timer
  */
-export function updateLoadedCore(state: RuntimeState, event?: PlayableEvent): string | undefined {
+function updateLoadedCore(state: RuntimeState, event?: PlayableEvent): string | undefined {
   // if there is no event loaded, nothing to do
   if (state.eventNow === null) {
     return;
@@ -458,7 +448,7 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
 /**
  * Used in situations when we want to hot-reload all events without interrupting timer
  */
-export function updateAllCore(state: RuntimeState, rundown: Rundown, metadata: RundownMetadata) {
+function updateAllCore(state: RuntimeState, rundown: Rundown, metadata: RundownMetadata) {
   // event now might have moved so we find the event now id and recalculate the the index again
   const eventNowIndex = metadata.timedEventOrder.findIndex((id) => id === state.eventNow?.id);
 
@@ -536,7 +526,7 @@ export function pause(): boolean {
   return pauseCore(runtimeState);
 }
 
-export function pauseCore(state: RuntimeState): boolean {
+function pauseCore(state: RuntimeState): boolean {
   if (state.timer.playback !== Playback.Play) {
     return false;
   }
@@ -551,7 +541,7 @@ export function stop(): boolean {
   return stopCore(runtimeState);
 }
 
-export function stopCore(state: RuntimeState): boolean {
+function stopCore(state: RuntimeState): boolean {
   if (state.timer.playback === Playback.Stop) {
     return false;
   }
@@ -716,7 +706,7 @@ export function roll(
   return rollCore(runtimeState, rundown, metadata, offset);
 }
 
-export function rollCore(
+function rollCore(
   state: RuntimeState,
   rundown: Rundown,
   metadata: RundownMetadata,
@@ -1037,7 +1027,7 @@ export function setOffsetMode(mode: OffsetMode) {
   setOffsetModeCore(runtimeState, mode);
 }
 
-export function setOffsetModeCore(state: RuntimeState, mode: OffsetMode) {
+function setOffsetModeCore(state: RuntimeState, mode: OffsetMode) {
   state.offset.mode = mode;
   if (isPlaybackActive(state.timer.playback)) getExpectedTimesCore(state);
 }
