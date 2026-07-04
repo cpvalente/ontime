@@ -1,4 +1,3 @@
-import { deepEqual } from 'fast-equals';
 import {
   EndAction,
   EntryId,
@@ -30,13 +29,12 @@ import { restoreService } from '../restore-service/restore.service.js';
 import type { RestorePoint } from '../restore-service/restore.type.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
 import {
+  collectRuntimeStateChanges,
   findNextPlayableId,
   findNextPlayableWithCue,
   findPreviousPlayableId,
   getEventAtIndex,
   getShouldClockUpdate,
-  getShouldOffsetUpdate,
-  getShouldTimerUpdate,
   isNewSecond,
 } from './runtime.utils.js';
 
@@ -651,8 +649,6 @@ const eventTimer = new EventTimer({
 });
 export const runtimeService = new RuntimeService(eventTimer);
 
-type EntryUpdateKeys = keyof Pick<RuntimeState, 'eventNow' | 'eventNext' | 'eventFlag' | 'groupNow'>;
-
 /**
  * Decorator manages side effects from updating the runtime
  * This should only be applied to functions that are exposed for consumption
@@ -665,90 +661,13 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // call the original method and get the state
     const result = originalMethod.apply(this, args);
     const state = runtimeState.getState();
+
+    // diff against the previously broadcast state to find what to send
+    const { patch, hasImmediateChanges } = collectRuntimeStateChanges(RuntimeService.previousState, state);
+
     const batch = eventStore.createBatch();
-
-    // we do the comparison by explicitly for each property
-    // to apply custom logic for different datasets
-
-    // Update the entry if they have changed
-    let entryChanged = false;
-    entryChanged ||= updateMaybeEntryIfChanged('eventNow');
-    entryChanged ||= updateMaybeEntryIfChanged('eventNext');
-    entryChanged ||= updateMaybeEntryIfChanged('eventFlag');
-    entryChanged ||= updateMaybeEntryIfChanged('groupNow');
-
-    // for the very fist run there will be nothing in the previousState so we force an update
-    const justStarted = !RuntimeService.previousState?.timer;
-
-    // offset mode has been changed
-    const offsetModeChanged = RuntimeService.previousState?.offset?.mode !== state.offset.mode;
-
-    // if playback changes most things should update
-    const hasChangedPlayback = RuntimeService.previousState.timer?.playback !== state.timer.playback;
-
-    const addedTimeChanged = !justStarted && RuntimeService.previousState?.timer.addedTime !== state.timer.addedTime;
-
-    // combine all big changes
-    const hasImmediateChanges =
-      entryChanged || justStarted || hasChangedPlayback || offsetModeChanged || addedTimeChanged;
-
-    /**
-     * if any values have changed.
-     * values that have the possibility to tick are updated when the seconds roll over
-     */
-    const updateTimer = getShouldTimerUpdate(RuntimeService.previousState?.timer, state.timer);
-    if (updateTimer) {
-      batch.add('timer', state.timer);
-      RuntimeService.previousState.timer = { ...state.timer };
-    }
-
-    /**
-     * clock has changed by a second or more.
-     * or the timer updated so we ensure that the timer and clock ticks are in sync
-     */
-    const updateClock = updateTimer || getShouldClockUpdate(RuntimeService.previousState.clock, state.clock);
-    if (updateClock) {
-      batch.add('clock', state.clock);
-      RuntimeService.previousState.clock = state.clock;
-    }
-
-    /**
-     * if any values have changed.
-     * values that have the possibility to tick are modulated by `updateClock || hasImmediateChanges`
-     */
-    const updateRuntime = getShouldOffsetUpdate(
-      RuntimeService.previousState?.offset,
-      state.offset,
-      updateClock || hasImmediateChanges,
-    );
-    if (updateRuntime) {
-      batch.add('offset', state.offset);
-      RuntimeService.previousState.offset = structuredClone(state.offset);
-    }
-
-    /**
-     * if any values have changed.
-     */
-    const updateRundownData = !deepEqual(RuntimeService.previousState.rundown, state.rundown);
-    if (updateRundownData) {
-      batch.add('rundown', state.rundown);
-      RuntimeService.previousState.rundown = structuredClone(state.rundown);
-    }
-
-    function updateMaybeEntryIfChanged<K extends EntryUpdateKeys>(key: K) {
-      const previousEntry = RuntimeService.previousState[key];
-      const currentEntry = state[key];
-
-      if (!previousEntry && !currentEntry) return false; // if both are null -> skip
-
-      // if they have the same id the check if the contents have changed
-      if (previousEntry?.id === currentEntry?.id) {
-        if (deepEqual(previousEntry, currentEntry)) return false; // contents are the same -> skip
-      }
-      // at this point we know that either the id or the contents has changed
-      batch.add(key, currentEntry as RuntimeStore[K]); // we know that there is the necessary overlap in the types to cast this
-      RuntimeService.previousState[key] = structuredClone(currentEntry);
-      return true;
+    for (const key of Object.keys(patch) as (keyof RuntimeStore)[]) {
+      batch.add(key, patch[key] as RuntimeStore[typeof key]);
     }
 
     // save the restore state

@@ -2,9 +2,18 @@
  * Characterisation tests for the change-detection predicates that gate
  * what gets broadcast to clients on every tick
  */
-import { Offset, OffsetMode, Playback, TimerPhase, TimerState, TimerType } from 'ontime-types';
+import { Offset, OffsetMode, PlayableEvent, Playback, TimerPhase, TimerState, TimerType } from 'ontime-types';
 
-import { getShouldClockUpdate, getShouldOffsetUpdate, getShouldTimerUpdate, isNewSecond } from '../runtime.utils.js';
+import { makeOntimeEvent } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { makeRuntimeStateData } from '../../../stores/__mocks__/runtimeState.mocks.js';
+import type { RuntimeState } from '../../../stores/runtimeState.js';
+import {
+  collectRuntimeStateChanges,
+  getShouldClockUpdate,
+  getShouldOffsetUpdate,
+  getShouldTimerUpdate,
+  isNewSecond,
+} from '../runtime.utils.js';
 
 const baseTimer: TimerState = {
   addedTime: 0,
@@ -140,5 +149,99 @@ describe('getShouldOffsetUpdate()', () => {
   test('expected times participate in the deep comparison', () => {
     const current = { ...baseOffset, expectedRundownEnd: 1000 };
     expect(getShouldOffsetUpdate(baseOffset, current, true)).toBe(true);
+  });
+});
+
+describe('collectRuntimeStateChanges()', () => {
+  test('the very first run emits everything and counts as an immediate change', () => {
+    const previousState = {} as RuntimeState;
+    const state = makeRuntimeStateData();
+
+    const { patch, hasImmediateChanges } = collectRuntimeStateChanges(previousState, state);
+
+    expect(Object.keys(patch).sort()).toStrictEqual(['clock', 'offset', 'rundown', 'timer']);
+    expect(hasImmediateChanges).toBe(true);
+    // the emitted keys are persisted into the previous state for the next diff
+    expect(previousState.timer).toStrictEqual(state.timer);
+    expect(previousState.offset).toStrictEqual(state.offset);
+  });
+
+  test('an unchanged state emits nothing', () => {
+    const previousState = makeRuntimeStateData();
+    const state = makeRuntimeStateData();
+
+    const { patch, hasImmediateChanges } = collectRuntimeStateChanges(previousState, state);
+
+    expect(patch).toStrictEqual({});
+    expect(hasImmediateChanges).toBe(false);
+  });
+
+  test('a playback change emits timer and clock together', () => {
+    const previousState = makeRuntimeStateData();
+    const state = makeRuntimeStateData({ timer: { playback: Playback.Armed } });
+
+    const { patch, hasImmediateChanges } = collectRuntimeStateChanges(previousState, state);
+
+    expect(Object.keys(patch).sort()).toStrictEqual(['clock', 'timer']);
+    expect(hasImmediateChanges).toBe(true);
+  });
+
+  test('an offset change is gated on a timer/clock dependency', () => {
+    // nothing else changed: the offset is held back
+    const previousState = makeRuntimeStateData();
+    const state = makeRuntimeStateData({ offset: { absolute: 1000 } });
+
+    const gated = collectRuntimeStateChanges(previousState, state);
+    expect(gated.patch).toStrictEqual({});
+
+    // with a clock rollover, the offset rides along
+    const stateWithClock = makeRuntimeStateData({ clock: 1000, offset: { absolute: 1000 } });
+    const emitted = collectRuntimeStateChanges(previousState, stateWithClock);
+    expect(Object.keys(emitted.patch).sort()).toStrictEqual(['clock', 'offset']);
+  });
+
+  test('!!! characterised bug: changed entries drip out one per call', () => {
+    const previousState = makeRuntimeStateData();
+    const eventNow = makeOntimeEvent({ id: 'now' }) as PlayableEvent;
+    const eventNext = makeOntimeEvent({ id: 'next' }) as PlayableEvent;
+    const state = makeRuntimeStateData({ eventNow, eventNext });
+
+    // both entries changed, but the ||= short-circuit only diffs the first
+    const first = collectRuntimeStateChanges(previousState, state);
+    expect(Object.keys(first.patch).sort()).toStrictEqual(['eventNow']);
+
+    // the second call flushes the next pending entry
+    const second = collectRuntimeStateChanges(previousState, state);
+    expect(Object.keys(second.patch).sort()).toStrictEqual(['eventNext']);
+
+    // from here on, nothing is pending
+    const third = collectRuntimeStateChanges(previousState, state);
+    expect(third.patch).toStrictEqual({});
+  });
+
+  test('rundown data changes are emitted on deep difference', () => {
+    const previousState = makeRuntimeStateData();
+    const state = makeRuntimeStateData({ rundown: { actualStart: 1000 } });
+
+    const { patch } = collectRuntimeStateChanges(previousState, state);
+    expect(Object.keys(patch).sort()).toStrictEqual(['rundown']);
+  });
+
+  test('addedTime changes count as immediate and emit the timer', () => {
+    const previousState = makeRuntimeStateData();
+    const state = makeRuntimeStateData({ timer: { addedTime: 60_000 } });
+
+    const { patch, hasImmediateChanges } = collectRuntimeStateChanges(previousState, state);
+    expect(Object.keys(patch).sort()).toStrictEqual(['clock', 'timer']);
+    expect(hasImmediateChanges).toBe(true);
+  });
+
+  test('an offset mode change is immediate and bypasses the dependency gate', () => {
+    const previousState = makeRuntimeStateData();
+    const state = makeRuntimeStateData({ offset: { mode: OffsetMode.Relative } });
+
+    const { patch, hasImmediateChanges } = collectRuntimeStateChanges(previousState, state);
+    expect(Object.keys(patch).sort()).toStrictEqual(['offset']);
+    expect(hasImmediateChanges).toBe(true);
   });
 });

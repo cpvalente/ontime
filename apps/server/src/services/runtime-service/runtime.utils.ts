@@ -5,12 +5,15 @@ import {
   Offset,
   OntimeEvent,
   Rundown,
+  RuntimeStore,
   TimerState,
   TimerType,
   isOntimeEvent,
   isPlayableEvent,
 } from 'ontime-types';
 import { millisToSeconds } from 'ontime-utils';
+
+import type { RuntimeState } from '../../stores/runtimeState.js';
 
 export function isNewSecond(
   previousValue: MaybeNumber | undefined,
@@ -66,6 +69,104 @@ export function getShouldOffsetUpdate(
   if (previousValue === undefined) return true;
   if (previousValue.mode !== currentValue.mode) return true;
   return didDependencyUpdate && !deepEqual(previousValue, currentValue);
+}
+
+type EntryUpdateKeys = keyof Pick<RuntimeState, 'eventNow' | 'eventNext' | 'eventFlag' | 'groupNow'>;
+
+/**
+ * Diffs a runtime state snapshot against the previously broadcast state
+ * and collects the store keys that should be sent to clients
+ *
+ * !!! mutates previousState in place: emitted keys are persisted so the
+ * next diff compares against what clients last received
+ */
+export function collectRuntimeStateChanges(
+  previousState: RuntimeState,
+  state: Readonly<RuntimeState>,
+): { patch: Partial<RuntimeStore>; hasImmediateChanges: boolean } {
+  const patch: Partial<RuntimeStore> = {};
+
+  // we do the comparison by explicitly for each property
+  // to apply custom logic for different datasets
+
+  // Update the entry if they have changed
+  let entryChanged = false;
+  entryChanged ||= updateMaybeEntryIfChanged('eventNow');
+  entryChanged ||= updateMaybeEntryIfChanged('eventNext');
+  entryChanged ||= updateMaybeEntryIfChanged('eventFlag');
+  entryChanged ||= updateMaybeEntryIfChanged('groupNow');
+
+  // for the very fist run there will be nothing in the previousState so we force an update
+  const justStarted = !previousState?.timer;
+
+  // offset mode has been changed
+  const offsetModeChanged = previousState?.offset?.mode !== state.offset.mode;
+
+  // if playback changes most things should update
+  const hasChangedPlayback = previousState.timer?.playback !== state.timer.playback;
+
+  const addedTimeChanged = !justStarted && previousState?.timer.addedTime !== state.timer.addedTime;
+
+  // combine all big changes
+  const hasImmediateChanges =
+    entryChanged || justStarted || hasChangedPlayback || offsetModeChanged || addedTimeChanged;
+
+  /**
+   * if any values have changed.
+   * values that have the possibility to tick are updated when the seconds roll over
+   */
+  const updateTimer = getShouldTimerUpdate(previousState?.timer, state.timer);
+  if (updateTimer) {
+    patch.timer = state.timer;
+    previousState.timer = { ...state.timer };
+  }
+
+  /**
+   * clock has changed by a second or more.
+   * or the timer updated so we ensure that the timer and clock ticks are in sync
+   */
+  const updateClock = updateTimer || getShouldClockUpdate(previousState.clock, state.clock);
+  if (updateClock) {
+    patch.clock = state.clock;
+    previousState.clock = state.clock;
+  }
+
+  /**
+   * if any values have changed.
+   * values that have the possibility to tick are modulated by `updateClock || hasImmediateChanges`
+   */
+  const updateRuntime = getShouldOffsetUpdate(previousState?.offset, state.offset, updateClock || hasImmediateChanges);
+  if (updateRuntime) {
+    patch.offset = state.offset;
+    previousState.offset = structuredClone(state.offset);
+  }
+
+  /**
+   * if any values have changed.
+   */
+  const updateRundownData = !deepEqual(previousState.rundown, state.rundown);
+  if (updateRundownData) {
+    patch.rundown = state.rundown;
+    previousState.rundown = structuredClone(state.rundown);
+  }
+
+  function updateMaybeEntryIfChanged<K extends EntryUpdateKeys>(key: K) {
+    const previousEntry = previousState[key];
+    const currentEntry = state[key];
+
+    if (!previousEntry && !currentEntry) return false; // if both are null -> skip
+
+    // if they have the same id the check if the contents have changed
+    if (previousEntry?.id === currentEntry?.id) {
+      if (deepEqual(previousEntry, currentEntry)) return false; // contents are the same -> skip
+    }
+    // at this point we know that either the id or the contents has changed
+    patch[key] = currentEntry as RuntimeStore[K]; // we know that there is the necessary overlap in the types to cast this
+    previousState[key] = structuredClone(currentEntry);
+    return true;
+  }
+
+  return { patch, hasImmediateChanges };
 }
 
 /**
