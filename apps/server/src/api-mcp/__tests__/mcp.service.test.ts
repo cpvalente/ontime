@@ -6,11 +6,13 @@ const editEntryMock = vi.hoisted(() => vi.fn());
 const groupEntriesMock = vi.hoisted(() => vi.fn());
 const ungroupEntriesMock = vi.hoisted(() => vi.fn());
 const getCurrentRundownMock = vi.hoisted(() => vi.fn());
+const getProjectCustomFieldsMock = vi.hoisted(() => vi.fn());
+const createCustomFieldMock = vi.hoisted(() => vi.fn());
 
 vi.mock('../../api-data/rundown/rundown.dao.js', () => ({
   getCurrentRundown: getCurrentRundownMock,
   getCurrentRundownId: vi.fn(() => 'loaded-rundown'),
-  getProjectCustomFields: vi.fn(() => ({})),
+  getProjectCustomFields: getProjectCustomFieldsMock,
 }));
 
 vi.mock('../../classes/data-provider/DataProvider.js', () => ({
@@ -20,6 +22,7 @@ vi.mock('../../classes/data-provider/DataProvider.js', () => ({
 vi.mock('../../api-data/rundown/rundown.service.js', () => ({
   addEntry: addEntryMock,
   batchEditEntries: vi.fn(),
+  createCustomField: createCustomFieldMock,
   deleteEntries: vi.fn(),
   editEntry: editEntryMock,
   groupEntries: groupEntriesMock,
@@ -27,7 +30,8 @@ vi.mock('../../api-data/rundown/rundown.service.js', () => ({
   ungroupEntries: ungroupEntriesMock,
 }));
 
-const { batchCreateEntriesForMcp, groupEntriesForMcp, ungroupEntryForMcp } = await import('../mcp.service.js');
+const { batchCreateEntriesForMcp, createCustomFieldForMcp, createEntryForMcp, groupEntriesForMcp, ungroupEntryForMcp } =
+  await import('../mcp.service.js');
 
 function makeRundown(entries: Rundown['entries'], order: string[] = Object.keys(entries)): Rundown {
   return {
@@ -44,6 +48,7 @@ describe('mcp.service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     getCurrentRundownMock.mockReturnValue(makeRundown({}));
+    getProjectCustomFieldsMock.mockReturnValue({});
 
     let id = 0;
     addEntryMock.mockImplementation(async (_rundownId: string, payload: EventPostPayload) => {
@@ -251,5 +256,43 @@ describe('mcp.service', () => {
 
     expect(ungroupEntriesMock).toHaveBeenCalledWith('loaded-rundown', 'group');
     expect(result).toMatchObject({ ungrouped: 'group', order: ['entry-1'] });
+  });
+
+  describe('createCustomFieldForMcp', () => {
+    it('creates a field and returns the derived key', async () => {
+      createCustomFieldMock.mockResolvedValue({
+        Camera_Angle: { label: 'Camera Angle', type: 'text', colour: '#3E75E8' },
+      });
+
+      const result = await createCustomFieldForMcp({ label: 'Camera Angle', type: 'text', colour: '#3E75E8' });
+
+      expect(createCustomFieldMock).toHaveBeenCalledWith({ label: 'Camera Angle', type: 'text', colour: '#3E75E8' });
+      expect(result.key).toBe('Camera_Angle');
+    });
+
+    it('rejects labels the editor UI would not accept', async () => {
+      await expect(createCustomFieldForMcp({ label: 'Camera/GFX', type: 'text', colour: '#000000' })).rejects.toThrow(
+        'Invalid label',
+      );
+      expect(createCustomFieldMock).not.toHaveBeenCalled();
+    });
+
+    it('rejects case-insensitive duplicates and points at the existing key', async () => {
+      getProjectCustomFieldsMock.mockReturnValue({ Camera: { label: 'Camera', type: 'text', colour: '' } });
+
+      await expect(createCustomFieldForMcp({ label: 'camera', type: 'text', colour: '#000000' })).rejects.toThrow(
+        'A custom field with key "Camera" (label "Camera") already exists.',
+      );
+      expect(createCustomFieldMock).not.toHaveBeenCalled();
+    });
+  });
+
+  it('suggests the correctly cased key when custom values use the wrong casing', async () => {
+    getProjectCustomFieldsMock.mockReturnValue({ Camera: { label: 'Camera', type: 'text', colour: '' } });
+
+    await expect(createEntryForMcp({ title: 'Talk', custom: { camera: 'CAM 2' } })).rejects.toThrow(
+      'Keys are case-sensitive — did you mean: "camera" → "Camera"?',
+    );
+    expect(addEntryMock).not.toHaveBeenCalled();
   });
 });

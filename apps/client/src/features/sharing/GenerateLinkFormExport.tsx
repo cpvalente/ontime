@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 
 import useInfo from '../../common/hooks-query/useInfo';
 import useUrlPresets from '../../common/hooks-query/useUrlPresets';
+import { hostToBaseUrl } from '../../common/utils/linkUtils';
 import GenerateLinkForm from './GenerateLinkForm';
 
 interface GenerateLinkFormExportProps {
@@ -21,7 +22,7 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
    */
   const hostOptions = useMemo(() => {
     return infoData.networkInterfaces.map((nif) => ({
-      value: `http://${nif.address}:${infoData.serverPort}`,
+      value: hostToBaseUrl(nif.address, infoData.serverPort),
       label: `${nif.name} - ${nif.address}`,
     }));
   }, [infoData.networkInterfaces, infoData.serverPort]);
