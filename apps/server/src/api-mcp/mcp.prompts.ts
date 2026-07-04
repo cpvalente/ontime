@@ -34,6 +34,18 @@ export const PROMPT_DEFINITIONS: ListPromptsResult['prompts'] = [
     ],
   },
   {
+    name: 'tidy_rundown',
+    description:
+      'Audit the rundown for readability (colours, grouping, cue naming, custom field usage) and propose improvements',
+    arguments: [
+      {
+        name: 'focus',
+        description: 'Optional area to focus on, e.g. "colours only" or "grouping"',
+        required: false,
+      },
+    ],
+  },
+  {
     name: 'manage_custom_fields',
     description: 'List, create, rename, recolour, or delete project-level custom field definitions',
     arguments: [
@@ -105,15 +117,17 @@ Flags (flag):
 - Set \`flag: true\` on events that are critical operational markers (keynote starts, broadcast moments, VIP arrivals).
 - The operator view shows a countdown to the next flagged event — use sparingly for maximum impact.
 
-Colours:
-- Ask the user what colour convention they use before applying any colours.
-- Common pattern: one colour per event type (keynotes, panels, breaks, meals).
-- Colours are hex strings: \`#RRGGBB\`.
+Structure and colours:
+- Read the ontime://style-guide resource before deciding on structure or colours.
+- Propose a group per agenda section (morning block, keynotes, breaks) rather than a flat list — in ontime_batch_create_entries this is just a group entry with \`children\`.
+- Ask the user what colour convention they use; if they have none, propose one from the default Ontime palette in the style guide: calm hues for normal content, red only for attention items, orange for changeovers, dark tone on a group with the light tone of the same hue on its children. Colours are hex strings: \`#RRGGBB\`.
 
 Custom fields (custom):
 - Call ontime_get_custom_fields for the project's field keys (cuesheet-style columns such as camera, graphics, speaker).
-- Store values per entry at \`custom: { <fieldKey>: <value> }\` — only use keys that exist in the project.
-- If the user's requested field is ambiguous, show the existing field list before choosing a key, so you avoid duplicate concepts such as \`Cam\`, \`camera\`, and \`Cameras\`.
+- Store values per entry at \`custom: { <fieldKey>: <value> }\` — keys are case-sensitive.
+- Reuse an existing field when it covers the concept (avoid duplicates such as \`Cam\`, \`camera\`, \`Cameras\`); when the agenda carries structured data with no matching field (speakers, locations), create it with ontime_create_custom_field and use the returned key — no confirmation needed.
+
+After creating the rundown, read ontime://views and suggest how the team can follow it — e.g. a timer view for speakers, a backstage view for crew, or an operator view subscribed to a department custom field.
 
 Agenda:
 ${args.agenda}`,
@@ -162,6 +176,7 @@ Schedule integrity:
 - Events with \`duration\` of 0 or negative
 - Events with \`gap < 0\`: overlaps the previous timed event and is a conflict
 - Large unexplained positive gaps between consecutive timed events (> 30 min): check whether these are intentional
+- Long segments scheduled back-to-back with no changeover or buffer between them: one overrun will cascade — suggest a buffer event
 - Events where \`timeEnd < timeStart\`: these cross midnight; confirm this is intentional
 - Events whose \`timeStart\` is the same as or earlier than the previous playable event's \`timeStart\`: Ontime schedules these on the next day; confirm this is intentional
 
@@ -180,6 +195,13 @@ Skipped events:
 
 Totals:
 - Total rundown duration and whether it matches the user's expected show length (ask if unknown)
+
+Readability (report at INFO level; see ontime://style-guide for the conventions):
+- Colour usage without a consistent convention, or key segments left uncoloured
+- Long runs of related ungrouped events that would read better as groups
+- Duplicate cues (cues are automation handles and should be unique) or mixed cue naming conventions
+- Structured department data in titles/notes that belongs in custom fields
+- If several readability issues surface, suggest running the tidy_rundown prompt to fix them systematically
 
 Present issues grouped by severity: ERROR (breaks playback), WARNING (likely mistake), INFO (worth confirming).`,
     );
@@ -215,6 +237,34 @@ Efficiency tip: plan moves in the direction of the target position to minimise r
     );
   }
 
+  if (name === 'tidy_rundown') {
+    const focus = args.focus ? `\nFocus specifically on: "${args.focus}".` : '';
+    return userPrompt(
+      'Audit and improve rundown readability',
+      `Audit the current Ontime rundown for readability and tidiness, then propose improvements.${focus}
+
+Steps:
+1. Read the ontime://style-guide resource — it defines the conventions to audit against, including the standard colour palette.
+2. Call ontime_list_rundowns and identify the target rundown. If the user wants a background rundown, pass its \`rundownId\` in all entry read/write calls instead of loading it.
+3. Call ontime_get_rundown with the chosen \`rundownId\`, and ontime_get_custom_fields for the project field definitions.
+4. Call ontime_get_timer_state. If playback is not \`stop\` and the target is the loaded rundown, explain that MCP edits affect the live rundown and ask the user to confirm before changing it.
+
+Audit for:
+- Colour consistency: entries coloured outside a discernible convention, missing colours on key segments, red/orange used for normal content (the style guide reserves them for attention items and changeovers), or group/children colours that ignore the dark/light tone pairing. Prefer the default Ontime palette.
+- Grouping: long runs (roughly 4+) of related consecutive top-level events that would read better as a named group; groups missing \`targetDuration\`.
+- Buffers: long segments back-to-back with no changeover event between them; propose short buffer events so one overrun cannot cascade.
+- Cue naming: mixed conventions (numeric vs semantic) without apparent intent, duplicate cues, or gaps that suggest mistakes. Remember cues are automation handles — renaming them can break external triggers, so flag renames explicitly.
+- Data in the wrong place: structured department data buried in titles or notes (e.g. "CAM 2", "GFX: lower third") that belongs in a custom field; overlong titles (over ~50 chars).
+- Entry types: zero-duration events that should be milestones; milestones that carry timing expectations and should be events.
+- Flags: \`flag: true\` on many events dilutes its meaning — critical markers only.
+
+Then:
+5. Present the findings as a short, scannable proposal (what changes, on which entries, and why) and WAIT for the user to approve before mutating anything. Be concise — a tight list beats prose.
+6. Apply approved changes with the cheapest calls: ontime_group_entries to group existing entries, ontime_batch_update_entries when several entries get the same values (e.g. recolouring), ontime_update_entry for per-entry changes, ontime_create_custom_field when moving data into a new field.
+7. Finish by reading ontime://views and suggesting views that put the improved structure to work — e.g. an operator view subscribed to a department custom field, or a cuesheet for cross-department editing.`,
+    );
+  }
+
   if (name === 'manage_custom_fields') {
     return userPrompt(
       'List, create, rename, recolour, or delete custom field definitions',
@@ -223,14 +273,14 @@ Efficiency tip: plan moves in the direction of the target position to minimise r
 Custom fields are project-scoped. They appear as columns in the cuesheet and can be set on any event, milestone, or group. Changes apply to all rundowns in the project.
 
 Steps:
-1. Call ontime_get_custom_fields to see what fields already exist. This is mandatory before creating — to avoid duplicates such as "Cam", "camera", and "Cameras".
-2. Carry out the instruction using the tools below. Confirm destructive changes (rename, delete) with the user before calling.
+1. Call ontime_get_custom_fields to see what fields already exist. Reuse an existing field when it covers the concept — avoid duplicates such as "Cam", "camera", and "Cameras".
+2. Carry out the instruction using the tools below. Creating a field is non-destructive — do it directly. Confirm destructive changes (rename, delete) with the user before calling.
 
 Creating a field:
 - Call ontime_create_custom_field with { label, type, colour }.
-- label: human-readable name (alphanumeric with spaces). The key is auto-derived: spaces → underscores (e.g. "Camera Angle" → "Camera_Angle"). Confirm the derived key with the user before creating.
+- label: human-readable name (letters, numbers and spaces). The key is auto-derived: spaces → underscores (e.g. "Camera Angle" → "Camera_Angle").
 - type: "text" for short string values, "image" for image URLs. Cannot be changed after creation.
-- colour: hex colour (#RRGGBB) used to visually identify this column in the cuesheet. Ask the user what colour to use if not specified.
+- colour: hex colour (#RRGGBB) used to visually identify this column in the cuesheet. If unspecified, pick one from the default Ontime palette matching the department.
 - Returns: { key, customFields } — use the returned key when setting values on entries.
 
 Renaming or recolouring a field:
@@ -242,7 +292,9 @@ Deleting a field:
 - Call ontime_delete_custom_field with { key }.
 - Warning: this permanently removes the field definition and its values from every entry in all rundowns. Confirm with the user before deleting.
 
-After any mutation, call ontime_get_custom_fields again to confirm the result and show the user the updated field list with their keys.`,
+After any mutation, call ontime_get_custom_fields again to confirm the result and show the user the updated field list with their keys.
+
+When a field was created for a department (camera, graphics, audio…), read ontime://views and offer the views that surface it: the cuesheet shows the field as a column for cross-department editing, and the operator view can display or highlight it for that department, e.g. /op?main=title&secondary-src=custom-<key>&subscribe=<key>.`,
     );
   }
 

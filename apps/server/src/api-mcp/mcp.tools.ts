@@ -186,7 +186,11 @@ export const TOOL_DEFINITIONS = [
         ids: { type: 'array', items: { type: 'string' }, description: 'Existing top-level entry IDs to group' },
         title: { type: 'string', description: 'Group title shown in the rundown and views' },
         note: { type: 'string', description: 'Free-text group note for production notes or references' },
-        colour: { type: 'string', description: 'Hex colour (#RRGGBB) for the group' },
+        colour: {
+          type: 'string',
+          description:
+            'Hex colour (#RRGGBB) for the group — prefer the default Ontime palette from ontime://style-guide',
+        },
         custom: {
           type: 'object',
           additionalProperties: { type: 'string' },
@@ -377,7 +381,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_create_custom_field',
     description:
-      'Create a new project-level custom field definition. Custom fields add typed columns to every entry in all rundowns. The key is auto-derived from the label (spaces → underscores, e.g. "Camera Angle" → "Camera_Angle"). After creation, use the key in entry.custom when creating or updating entries.',
+      'Create a new project-level custom field definition. Custom fields add typed columns to every entry in all rundowns. The key is auto-derived from the label (spaces → underscores, e.g. "Camera Angle" → "Camera_Angle"). Creation is non-destructive — check ontime_get_custom_fields for an existing field covering the concept, and if none exists create directly without asking the user. After creation, use the returned key in entry.custom.',
     inputSchema: {
       type: 'object',
       required: ['label', 'type', 'colour'],
@@ -385,7 +389,7 @@ export const TOOL_DEFINITIONS = [
         label: {
           type: 'string',
           description:
-            'Human-readable label (alphanumeric with spaces, e.g. "Camera"). Determines the key — ask the user to confirm before creating to avoid duplicates like "Cam", "camera", "Cameras".',
+            'Human-readable label (letters, numbers and spaces, e.g. "Camera"). Determines the key. Reuse an existing field over creating near-duplicates like "Cam", "camera", "Cameras".',
         },
         type: {
           type: 'string',
@@ -395,7 +399,8 @@ export const TOOL_DEFINITIONS = [
         },
         colour: {
           type: 'string',
-          description: 'Hex colour (#RRGGBB) used to visually identify this column in the cuesheet.',
+          description:
+            'Hex colour (#RRGGBB) used to visually identify this column in the cuesheet — for department fields, match the department colour convention (see ontime://style-guide).',
         },
       },
     },

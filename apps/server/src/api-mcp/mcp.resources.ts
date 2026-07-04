@@ -4,6 +4,7 @@ import { getProjectData } from '../api-data/project-data/projectData.dao.js';
 import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
 import { normalisedToRundownArray } from '../api-data/rundown/rundown.utils.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
+import { ONTIME_STYLE_GUIDE_MARKDOWN, ONTIME_VIEWS_MARKDOWN } from './mcp.guides.js';
 import { ONTIME_DOCS_MARKDOWN, ONTIME_SCHEMA_MARKDOWN } from './mcp.schema.js';
 
 export const RESOURCE_DEFINITIONS: ListResourcesResult['resources'] = [
@@ -46,6 +47,22 @@ export const RESOURCE_DEFINITIONS: ListResourcesResult['resources'] = [
     mimeType: 'application/json',
   },
   {
+    uri: 'ontime://style-guide',
+    name: 'ontime-style-guide',
+    title: 'Rundown style guide',
+    description:
+      'Best practices for tidy, easy-to-read rundowns: grouping, colour conventions and the default Ontime palette, cue naming, custom fields vs notes, timing hygiene. Read before creating or restyling a rundown.',
+    mimeType: 'text/markdown',
+  },
+  {
+    uri: 'ontime://views',
+    name: 'ontime-views',
+    title: 'Views and sharing guide',
+    description:
+      'What each Ontime view (timer, backstage, operator, cuesheet, timeline, countdown, studio clock, project info) is for, key URL parameters, URL presets, and custom views. Read when recommending how a team member should follow or edit the show.',
+    mimeType: 'text/markdown',
+  },
+  {
     uri: 'ontime://docs',
     name: 'ontime-docs',
     title: 'Ontime documentation index',
@@ -57,6 +74,8 @@ export const RESOURCE_DEFINITIONS: ListResourcesResult['resources'] = [
 
 const RESOURCE_READERS: Record<string, { mimeType: string; read: () => string }> = {
   'ontime://schema': { mimeType: 'text/markdown', read: () => ONTIME_SCHEMA_MARKDOWN },
+  'ontime://style-guide': { mimeType: 'text/markdown', read: () => ONTIME_STYLE_GUIDE_MARKDOWN },
+  'ontime://views': { mimeType: 'text/markdown', read: () => ONTIME_VIEWS_MARKDOWN },
   'ontime://docs': { mimeType: 'text/markdown', read: () => ONTIME_DOCS_MARKDOWN },
   'ontime://rundown/current': {
     mimeType: 'application/json',

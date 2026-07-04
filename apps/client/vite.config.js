@@ -71,6 +71,11 @@ export default defineConfig({
         changeOrigin: true,
         configure: logProxyRequests,
       },
+      '^/mcp': {
+        target: 'http://localhost:4001/',
+        changeOrigin: true,
+        configure: logProxyRequests,
+      },
       '^/ws*': {
         target: 'http://localhost:4001/',
         changeOrigin: true,

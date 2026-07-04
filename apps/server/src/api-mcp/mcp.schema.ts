@@ -49,7 +49,8 @@ export const EVENT_WRITABLE_FIELDS = {
   note: { type: 'string', description: 'Free-text note for production notes or references' },
   colour: {
     type: 'string',
-    description: 'Hex colour (#RRGGBB) for visual grouping — ask the user what colour convention they use',
+    description:
+      'Hex colour (#RRGGBB) for visual grouping — ask the user what colour convention they use, and prefer the default Ontime palette from ontime://style-guide so colours match the editor swatches',
   },
   skip: { type: 'boolean', description: 'If true, event is skipped during playback' },
   flag: {
@@ -60,7 +61,7 @@ export const EVENT_WRITABLE_FIELDS = {
     type: 'object',
     additionalProperties: { type: 'string' },
     description:
-      'Custom field values keyed by existing project field key, e.g. { "camera": "CAM 2" }. Get available keys with ontime_get_custom_fields. Adding new custom field definitions is a separate project-level operation.',
+      'Custom field values keyed by project field key, e.g. { "Camera": "CAM 2" }. Keys are case-sensitive — get them with ontime_get_custom_fields, and create missing fields with ontime_create_custom_field.',
   },
   ...EVENT_TIMER_FIELDS,
 } as const;
@@ -180,12 +181,11 @@ Events, milestones and groups store values at \`entry.custom[fieldKey]\`.
 
 Managing field definitions:
 - Read: \`ontime_get_custom_fields\` — returns \`{ [key]: { label, type, colour } }\`
-- Create: \`ontime_create_custom_field { label, type, colour }\` — key is auto-derived from label (spaces → underscores). Confirm the derived key before creating. Returns \`{ key, customFields }\`.
+- Create: \`ontime_create_custom_field { label, type, colour }\` — key is auto-derived from label (spaces → underscores). Returns \`{ key, customFields }\`.
 - Rename/recolour: \`ontime_update_custom_field { key, label?, colour? }\` — renaming the label changes the derived key and cascades to all entry references across all rundowns. Type cannot be changed.
 - Delete: \`ontime_delete_custom_field { key }\` — removes the field definition and its values from every entry in all rundowns. Destructive, confirm first.
 
-When setting \`custom\` values on entries, only use existing field keys. If a key does not exist, create it with \`ontime_create_custom_field\` first.
-Show the existing field list before creating to avoid duplicates such as \`Cam\`, \`camera\`, and \`Cameras\`.
+Keys are case-sensitive. When setting \`custom\` values, reuse an existing field when it covers the concept; otherwise create the missing field — creation is non-destructive and needs no confirmation. Rename and delete are the destructive operations: confirm those with the user.
 
 ## Targeting rundowns
 Entry read/write tools accept an optional \`rundownId\`.
@@ -199,6 +199,8 @@ When playback is not \`stop\`, mutations to the loaded rundown affect the live r
 
 ## Available resources
 - \`ontime://schema\` — this document
+- \`ontime://style-guide\` — rundown design best practices: grouping, colour palette, cue naming, custom field usage. Read before creating or restyling a rundown.
+- \`ontime://views\` — Ontime's role-specific views, URL parameters, URL presets, and custom views. Read when recommending how a team member should follow or edit the show.
 - \`ontime://rundown/current\` — the currently loaded rundown (JSON)
 - \`ontime://rundowns\` — all rundowns in the project (JSON)
 - \`ontime://project/info\` — project metadata (JSON)
@@ -233,6 +235,16 @@ Main site: https://docs.getontime.no
 - HTTP Integration: https://docs.getontime.no/api/http/
 - OSC Integration: https://docs.getontime.no/api/osc/
 - Make custom views: https://docs.getontime.no/features/custom-views/
+
+## Views
+- Configuring views: https://docs.getontime.no/quick-tips/configuring-views/
+- Operator view: https://docs.getontime.no/interface/production/operator/
+- Cuesheet: https://docs.getontime.no/interface/production/cuesheet/
+- Render views in third-party apps: https://docs.getontime.no/quick-tips/render-elsewhere/
+
+## Quick tips
+- Managing delays: https://docs.getontime.no/quick-tips/managing-delays/
+- Smart time entry: https://docs.getontime.no/quick-tips/smart-time-entry/
 
 ## Helpful references
 - Ontime Cloud: https://docs.getontime.no/ontime-cloud/

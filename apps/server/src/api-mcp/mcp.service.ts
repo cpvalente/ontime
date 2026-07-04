@@ -12,6 +12,7 @@ import {
   Rundown,
   SupportedEntry,
 } from 'ontime-types';
+import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
 
 import { getCurrentRundown, getCurrentRundownId, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
 import {
@@ -110,11 +111,21 @@ export function assertKnownCustomFields(...customValues: Array<EntryFieldArgs['c
     const available = Object.keys(customFields);
     const hint =
       available.length > 0 ? `Available keys: ${available.join(', ')}.` : 'No custom fields are defined yet.';
+
+    // keys are case-sensitive; a near-miss on casing is the most common mistake
+    const suggestions = [...unknownKeys]
+      .map((key) => {
+        const match = available.find((existing) => existing.toLowerCase() === key.toLowerCase());
+        return match ? `"${key}" → "${match}"` : null;
+      })
+      .filter(Boolean);
+    const caseHint =
+      suggestions.length > 0 ? ` Keys are case-sensitive — did you mean: ${suggestions.join(', ')}?` : '';
+
     throw new Error(
-      `Unknown custom field key(s): ${missing}. ${hint} ` +
+      `Unknown custom field key(s): ${missing}. ${hint}${caseHint} ` +
         `Call ontime_create_custom_field with { label, type, colour } to create a missing field — ` +
-        `the key is auto-derived from the label (spaces → underscores, e.g. label "Camera" → key "Camera"). ` +
-        `Call ontime_get_custom_fields to list existing keys.`,
+        `the key is auto-derived from the label (spaces → underscores, e.g. label "Mix Output" → key "Mix_Output").`,
     );
   }
 }
@@ -333,8 +344,23 @@ export async function batchUpdateEntriesForMcp(args: TargetRundownArgs & { ids: 
 }
 
 export async function createCustomFieldForMcp(args: { label: string; type: 'text' | 'image'; colour: string }) {
-  const updated = await createCustomField({ label: args.label, type: args.type, colour: args.colour });
-  const key = Object.keys(updated).find((k) => updated[k].label === args.label) ?? args.label;
+  const label = args.label?.trim();
+  // same constraint the HTTP route enforces in customFields.validation.ts
+  if (!label || !checkRegex.isAlphanumericWithSpace(label)) {
+    throw new Error('Invalid label: use letters, numbers and spaces only, e.g. "Camera Angle".');
+  }
+
+  const key = customFieldLabelToKey(label);
+  const existingFields = getProjectCustomFields();
+  const clash = Object.keys(existingFields).find((existing) => existing.toLowerCase() === key.toLowerCase());
+  if (clash) {
+    throw new Error(
+      `A custom field with key "${clash}" (label "${existingFields[clash].label}") already exists. ` +
+        `Reuse it in entry.custom["${clash}"] instead of creating a duplicate, or pick a clearly different label.`,
+    );
+  }
+
+  const updated = await createCustomField({ label, type: args.type, colour: args.colour });
   return { key, customFields: updated };
 }
 
