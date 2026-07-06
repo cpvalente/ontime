@@ -11,6 +11,27 @@ export const rundownPatchValidator = [
   requestValidationFunction,
 ];
 
+export const rundownImportValidator = [
+  body('mode').isString().isIn(['override', 'merge', 'new']),
+  body('targetRundownId')
+    .if(body('mode').isIn(['override', 'merge']))
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('targetRundownId is required when mode is override or merge'),
+  body('rundown').isObject(),
+  body('rundown.entries').isObject(),
+  body('rundown.order').isArray(),
+  body('rundown.flatOrder').isArray(),
+  body('customFields').isObject(),
+  body('providedFields').optional().isObject(),
+  body('providedFields.event').optional().isArray(),
+  body('providedFields.event.*').isString(),
+  body('providedFields.custom').optional().isArray(),
+  body('providedFields.custom.*').isString(),
+  requestValidationFunction,
+];
+
 // #endregion operations on project rundowns ======================
 // #region operations on rundown entries ==========================
 

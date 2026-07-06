@@ -6,6 +6,7 @@ import {
   ProjectRundownsList,
   RenumberCues,
   Rundown,
+  RundownImportPayload,
   TransientEventPayload,
 } from 'ontime-types';
 
@@ -80,6 +81,15 @@ export async function renameRundown(rundownId: RundownId, title: string): Promis
  */
 export async function deleteRundown(rundownId: RundownId): Promise<AxiosResponse<ProjectRundownsList>> {
   return axios.delete(`${rundownPath}/${rundownId}`);
+}
+
+/**
+ * HTTP request to apply an imported rundown using a merge strategy or into a new rundown
+ */
+export async function importRundownWithOptions(
+  payload: RundownImportPayload,
+): Promise<AxiosResponse<ProjectRundownsList>> {
+  return axios.post(`${rundownPath}/import`, payload);
 }
 
 // #endregion operations on project rundowns ======================

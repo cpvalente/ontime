@@ -1,4 +1,6 @@
 import type {
+  ImportedFields,
+  RundownImportMode,
   SpreadsheetPreviewResponse,
   SpreadsheetWorksheetMetadata,
   SpreadsheetWorksheetOptions,
@@ -22,7 +24,7 @@ import Info from '../../../../../common/components/info/Info';
 import ExternalLink from '../../../../../common/components/link/external-link/ExternalLink';
 import Modal from '../../../../../common/components/modal/Modal';
 import useRundown from '../../../../../common/hooks-query/useRundown';
-import { validateExcelImport } from '../../../../../common/utils/uploadUtils';
+import { removeFileExtension, validateExcelImport } from '../../../../../common/utils/uploadUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
 import GSheetSetup from './GSheetSetup';
 import SheetImportEditor from './sheet-import/SheetImportEditor';
@@ -35,6 +37,7 @@ const googleSheetDocsUrl = 'https://docs.getontime.no/features/import-spreadshee
 type ActiveSource =
   | {
       kind: 'excel';
+      fileName: string;
       worksheetNames: string[];
       initialWorksheetMetadata: SpreadsheetWorksheetMetadata | null;
       closedByUser: boolean;
@@ -55,7 +58,7 @@ export default function SourcesPanel() {
   const [activeSource, setActiveSource] = useState<ActiveSource | null>(null);
 
   const { data: currentRundown } = useRundown();
-  const { importRundown } = useSpreadsheetImport();
+  const { applyImport } = useSpreadsheetImport();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -74,6 +77,7 @@ export default function SourcesPanel() {
       const worksheetOptions = await uploadExcel(fileToUpload);
       setActiveSource({
         kind: 'excel',
+        fileName: fileToUpload.name,
         worksheetNames: worksheetOptions.worksheets,
         initialWorksheetMetadata: worksheetOptions.metadata,
         closedByUser: false,
@@ -126,21 +130,32 @@ export default function SourcesPanel() {
     setError('');
   };
 
-  const handleApplyImport = async (preview: SpreadsheetPreviewResponse) => {
+  const handleApplyImport = async (
+    preview: SpreadsheetPreviewResponse,
+    mode: RundownImportMode,
+    newRundownTitle: string,
+    providedFields: ImportedFields,
+  ) => {
+    if (mode === 'new') {
+      const title = newRundownTitle.trim() || preview.rundown.title;
+      await applyImport({ mode: 'new', rundown: { ...preview.rundown, title }, customFields: preview.customFields });
+      handleFinished();
+      return;
+    }
+
     if (!currentRundown) {
       throw new Error('No current rundown loaded');
     }
 
-    await importRundown(
-      {
-        [currentRundown.id]: {
-          ...preview.rundown,
-          id: currentRundown.id,
-          title: currentRundown.title,
-        },
-      },
-      preview.customFields,
-    );
+    // override or merge into the current rundown; merge uses providedFields to know which columns
+    // the sheet supplied so matched events keep the rest (e.g. automations)
+    await applyImport({
+      mode,
+      targetRundownId: currentRundown.id,
+      rundown: preview.rundown,
+      customFields: preview.customFields,
+      providedFields,
+    });
     handleFinished();
   };
 
@@ -207,6 +222,13 @@ export default function SourcesPanel() {
     if (!activeSource) return null;
     if (activeSource.kind === 'excel') return 'excel';
     return `gsheet:${activeSource.sheetId}`;
+  })();
+  // suggested name when importing into a new rundown: the spreadsheet file name (without extension)
+  // for Excel, or the document title for Google Sheets
+  const spreadsheetName = (() => {
+    if (!activeSource) return '';
+    if (activeSource.kind === 'excel') return removeFileExtension(activeSource.fileName);
+    return activeSource.title;
   })();
 
   return (
@@ -287,6 +309,7 @@ export default function SourcesPanel() {
           bodyElements={
             <SheetImportEditor
               sourceKey={sourceKey ?? 'spreadsheet'}
+              defaultRundownName={spreadsheetName}
               worksheetNames={activeSource?.worksheetNames ?? []}
               initialMetadata={activeSource?.initialWorksheetMetadata ?? null}
               loadMetadata={loadWorksheetMetadata}

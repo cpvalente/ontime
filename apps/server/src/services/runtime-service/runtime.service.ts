@@ -166,6 +166,13 @@ class RuntimeService {
   }
 
   /**
+   * Returns the id of the currently loaded event, or null if none is loaded
+   */
+  public getLoadedEventId(): EntryId | null {
+    return runtimeState.getState().eventNow?.id ?? null;
+  }
+
+  /**
    * Called when the underlying data has changed,
    * we check if the change affects the runtime
    */

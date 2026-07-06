@@ -1,3 +1,4 @@
+import type { ImportedFields, RundownImportMode } from 'ontime-types';
 import type { ImportMap } from 'ontime-utils';
 
 import { makeStageKey } from '../../../../../../common/utils/localStorage';
@@ -49,6 +50,16 @@ export function createDefaultFormValues(): ImportFormValues {
   };
 }
 
+/**
+ * Whether the mapping supplies an ID column. Merge matches entries by ID, so without one every
+ * imported entry gets a fresh id and nothing can reconcile with the current rundown.
+ */
+export function isIdColumnMapped(values: ImportFormValues): boolean {
+  const idIndex = builtInFieldDefs.findIndex((def) => def.importKey === 'id');
+  const field = values.builtIn[idIndex];
+  return Boolean(field?.enabled && field.header.trim());
+}
+
 function sanitiseOntimeCustomFieldLabel(importName: string): string {
   // Replace punctuation with spaces, then collapse repeated whitespace into single spaces.
   const sanitised = importName
@@ -79,6 +90,24 @@ export function getResolvedCustomFields(customFields: ImportFormValues['custom']
       ontimeName: baseLabel,
     };
   });
+}
+
+/**
+ * Returns the fields the import map supplies — the complete description of what the incoming data
+ * provides, for both built-in and custom fields. A merge uses this to patch exactly these fields
+ * onto a matched event and keep everything else (e.g. automations) untouched.
+ * Import-map keys are OntimeEvent field names; `worksheet`/`custom` are meta and `id` is only used
+ * for matching, not overwritten.
+ */
+export function getProvidedImportFields(importMap: ImportMap): ImportedFields {
+  const event: string[] = [];
+  for (const [key, value] of Object.entries(importMap)) {
+    if (key === 'worksheet' || key === 'custom' || key === 'id') continue;
+    if (typeof value === 'string' && value.trim() !== '') {
+      event.push(key);
+    }
+  }
+  return { event, custom: Object.keys(importMap.custom) };
 }
 
 export function convertToImportMap(values: ImportFormValues): ImportMap {
@@ -130,12 +159,12 @@ function isPersistedFormValues(obj: unknown): obj is ImportFormValues {
 export function getPersistedImportState(sourceKey: string): { values: ImportFormValues; isPersisted: boolean } {
   const storageKey = getImportMapKey(sourceKey);
   try {
-    const raw = localStorage.getItem(storageKey);
-    if (!raw) {
+    const persistedData = localStorage.getItem(storageKey);
+    if (!persistedData) {
       return { values: createDefaultFormValues(), isPersisted: false };
     }
 
-    const parsed: unknown = JSON.parse(raw);
+    const parsed: unknown = JSON.parse(persistedData);
     if (isPersistedFormValues(parsed)) {
       return { values: parsed, isPersisted: true };
     }
@@ -148,6 +177,32 @@ export function getPersistedImportState(sourceKey: string): { values: ImportForm
     localStorage.removeItem(storageKey);
     return { values: createDefaultFormValues(), isPersisted: false };
   }
+}
+
+/**
+ * The import mode (new / merge / override) is persisted separately from the field mapping
+ * so the mapping schema guard stays untouched.
+ */
+
+/** Default import mode: replace matched elements in the current rundown */
+export const defaultImportMode: RundownImportMode = 'override';
+
+function getImportModeKey(sourceKey: string) {
+  return makeStageKey(`import-mode:${sourceKey}`);
+}
+
+/** Persists the import mode for a given source */
+export function persistImportMode(sourceKey: string, mode: RundownImportMode) {
+  localStorage.setItem(getImportModeKey(sourceKey), mode);
+}
+
+/** Reads the persisted import mode for a source, falling back to the default when absent or invalid */
+export function getPersistedImportMode(sourceKey: string): RundownImportMode {
+  const persisted = localStorage.getItem(getImportModeKey(sourceKey));
+  if (persisted === 'new' || persisted === 'merge' || persisted === 'override') {
+    return persisted;
+  }
+  return defaultImportMode;
 }
 
 /**

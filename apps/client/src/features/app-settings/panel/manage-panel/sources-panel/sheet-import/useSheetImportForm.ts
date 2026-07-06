@@ -1,7 +1,12 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import type { SpreadsheetPreviewResponse, SpreadsheetWorksheetMetadata } from 'ontime-types';
+import type {
+  ImportedFields,
+  RundownImportMode,
+  SpreadsheetPreviewResponse,
+  SpreadsheetWorksheetMetadata,
+} from 'ontime-types';
 import { millisToString } from 'ontime-utils';
-import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 
 import { maybeAxiosError } from '../../../../../../common/api/utils';
@@ -11,8 +16,11 @@ import {
   builtInFieldDefs,
   convertToImportMap,
   getImportWarnings,
+  getPersistedImportMode,
   getPersistedImportState,
+  getProvidedImportFields,
   getResolvedCustomFields,
+  persistImportMode,
   persistImportState,
 } from './importMapUtils';
 import { deriveHeaderOptionsState } from './spreadsheetImportUtils';
@@ -100,16 +108,23 @@ function buildColumnLabels(values: ImportFormValues): string[] {
 
 interface UseSheetImportFormProps {
   sourceKey: string;
+  defaultRundownName: string;
   worksheetNames: string[];
   initialMetadata: SpreadsheetWorksheetMetadata | null;
   loadMetadata: (worksheet: string) => Promise<SpreadsheetWorksheetMetadata>;
   previewImport: (importMap: ReturnType<typeof convertToImportMap>) => Promise<SpreadsheetPreviewResponse>;
-  onApply: (preview: SpreadsheetPreviewResponse) => Promise<void>;
+  onApply: (
+    preview: SpreadsheetPreviewResponse,
+    mode: RundownImportMode,
+    newRundownTitle: string,
+    providedFields: ImportedFields,
+  ) => Promise<void>;
   onExport?: (importMap: ReturnType<typeof convertToImportMap>) => Promise<void>;
 }
 
 export function useSheetImportForm({
   sourceKey,
+  defaultRundownName,
   worksheetNames,
   initialMetadata,
   loadMetadata,
@@ -170,6 +185,8 @@ export function useSheetImportForm({
   const columnLabels = buildColumnLabels(values);
 
   const [state, dispatch] = useReducer(importReducer, initialImportState);
+  const [importMode, setImportMode] = useState<RundownImportMode>(() => getPersistedImportMode(sourceKey));
+  const [newRundownTitle, setNewRundownTitle] = useState(defaultRundownName);
   const warnings = getImportWarnings(values, headers);
   const warningCount = Object.values(warnings).filter(Boolean).length;
   const previewRef = useRef<SpreadsheetPreviewResponse | null>(null);
@@ -181,6 +198,12 @@ export function useSheetImportForm({
     reset(initialFormValues);
     dispatch({ type: 'reset' });
   }, [initialFormValues, reset]);
+
+  // Update import mode and rundown name if the source changes
+  useEffect(() => {
+    setImportMode(getPersistedImportMode(sourceKey));
+    setNewRundownTitle(defaultRundownName);
+  }, [sourceKey, defaultRundownName]);
 
   // Keep the worksheet selection valid if the available worksheets change underneath the form.
   useEffect(() => {
@@ -241,13 +264,15 @@ export function useSheetImportForm({
 
     try {
       dispatch({ type: 'startApply' });
-      await onApply(state.preview);
+      const providedFields = getProvidedImportFields(convertToImportMap(getValues()));
+      await onApply(state.preview, importMode, newRundownTitle, providedFields);
       persistImportState(sourceKey, getValues());
+      persistImportMode(sourceKey, importMode);
       dispatch({ type: 'applySuccess' });
     } catch (error) {
       dispatch({ type: 'failure', error: maybeAxiosError(error) });
     }
-  }, [getValues, onApply, sourceKey, state.preview]);
+  }, [getValues, importMode, newRundownTitle, onApply, sourceKey, state.preview]);
 
   const handleExport = useCallback(
     async (formValues: ImportFormValues) => {
@@ -300,6 +325,10 @@ export function useSheetImportForm({
     isBusy,
     canPreview,
     displayError,
+    importMode,
+    setImportMode,
+    newRundownTitle,
+    setNewRundownTitle,
     handlePreviewSubmit: handleSubmit(handlePreview),
     handleExportSubmit: handleSubmit(handleExport),
     handleApply,

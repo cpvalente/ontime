@@ -15,7 +15,7 @@ function EditorLayoutOptions() {
       {
         type: 'item',
         label: 'Planning',
-        description: 'Edit-focused list with planning stats',
+        description: 'Edit focused list with planning stats',
         icon: layoutMode === EditorLayoutMode.PLANNING ? IoCheckmark : undefined,
         onClick: () => setLayoutMode(EditorLayoutMode.PLANNING),
       },
