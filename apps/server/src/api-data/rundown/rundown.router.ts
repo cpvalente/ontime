@@ -1,7 +1,15 @@
 import type { Request, Response, Router } from 'express';
 import express from 'express';
 import { matchedData } from 'express-validator';
-import { ErrorResponse, OntimeEntry, ProjectRundownsList, RenumberCues, Rundown } from 'ontime-types';
+import {
+  ErrorResponse,
+  OntimeEntry,
+  ProjectRundowns,
+  ProjectRundownsList,
+  RenumberCues,
+  Rundown,
+  RundownImportPayload,
+} from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -12,7 +20,9 @@ import {
   applyDelay,
   batchEditEntries,
   cloneEntry,
+  applyImportToRundown,
   createNewRundown,
+  createRundownFromImport,
   deleteAllEntries,
   deleteEntries,
   deleteRundown,
@@ -36,6 +46,7 @@ import {
   entryReorderValidator,
   entrySwapValidator,
   rundownArrayOfIds,
+  rundownImportValidator,
   rundownPatchValidator,
   rundownPostValidator,
 } from './rundown.validation.js';
@@ -146,6 +157,39 @@ router.delete('/:id', paramsWithId, async (req: Request, res: Response<ProjectRu
     res.status(400).send({ message });
   }
 });
+
+/**
+ * Applies an imported rundown: override or merge into an existing rundown, or create a new one.
+ */
+router.post(
+  '/import',
+  rundownImportValidator,
+  async (req: Request, res: Response<ProjectRundownsList | ErrorResponse>) => {
+    try {
+      const { mode, targetRundownId, rundown, customFields, providedFields } = matchedData<RundownImportPayload>(req);
+      let projectRundowns: ProjectRundowns;
+      if (mode === 'new') {
+        projectRundowns = await createRundownFromImport(rundown, customFields);
+      } else {
+        // the validator guarantees this for override/merge, the guard narrows the type and adds defence in depth
+        if (!targetRundownId) {
+          throw new Error('targetRundownId is required when mode is override or merge');
+        }
+        projectRundowns = await applyImportToRundown(
+          mode,
+          targetRundownId,
+          rundown,
+          customFields,
+          providedFields ?? { event: [], custom: [] },
+        );
+      }
+      res.status(200).json({ loaded: getCurrentRundown().id, rundowns: normalisedToRundownArray(projectRundowns) });
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
 
 // #endregion operations on project rundowns ======================
 

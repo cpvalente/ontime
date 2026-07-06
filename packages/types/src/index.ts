@@ -97,6 +97,10 @@ export type {
   SpreadsheetWorksheetMetadata,
   SpreadsheetWorksheetOptions,
   SpreadsheetPreviewResponse,
+  RundownImportMergeStrategy,
+  RundownImportMode,
+  RundownImportPayload,
+  ImportedFields,
 } from './api/spreadsheet/Spreadsheet.type.js';
 
 // web socket

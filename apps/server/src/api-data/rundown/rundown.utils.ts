@@ -2,6 +2,7 @@ import {
   CustomFields,
   EntryCustomFields,
   EntryId,
+  ImportedFields,
   OntimeBaseEvent,
   OntimeDelay,
   OntimeEntry,
@@ -11,12 +12,14 @@ import {
   ProjectRundown,
   ProjectRundowns,
   Rundown,
+  RundownEntries,
   SupportedEntry,
   TimeStrategy,
   isOntimeDelay,
   isOntimeEvent,
   isOntimeGroup,
   isOntimeMilestone,
+  isPlayableEvent,
 } from 'ontime-types';
 import {
   createDelay,
@@ -223,6 +226,83 @@ export function getUniqueId(rundown: Rundown): EntryId {
     id = generateId();
   } while (rundown.entries[id]);
   return id;
+}
+
+/**
+ * Builds an entry patch containing exactly the fields the spreadsheet supplied, for both built-in
+ * and custom fields. Everything the sheet did not map is left out, so applying the patch keeps the
+ * existing value for those fields.
+ */
+function buildImportPatch(entry: OntimeEntry, providedFields: ImportedFields): Partial<OntimeEntry> {
+  const source = entry as Record<string, unknown>;
+  const patch: Record<string, unknown> = {};
+  for (const field of providedFields.event) {
+    patch[field] = source[field];
+  }
+  if (providedFields.custom.length > 0) {
+    const entryCustom = (source.custom ?? {}) as EntryCustomFields;
+    const custom: EntryCustomFields = {};
+    for (const key of providedFields.custom) {
+      custom[key] = entryCustom[key] ?? '';
+    }
+    patch.custom = custom;
+  }
+  return patch as Partial<OntimeEntry>;
+}
+
+/**
+ * Merges an imported rundown into an existing one
+ * - the incoming rundown is the source of truth for entry identity and structure (order + grouping)
+ * - a matched entry of the same type is merged field-by-field: a field the sheet provided overwrites
+ *   (even when empty), a field the sheet cannot express (an event's automations, a group's target
+ *   duration, an unmapped custom field) is kept from the existing entry
+ * - a new id, or an id whose type changed, takes the incoming entry wholesale
+ * - existing entries absent from the incoming rundown are dropped
+ */
+export function mergeRundownPreservingFields(
+  incoming: Readonly<Rundown>,
+  existing: Readonly<Rundown>,
+  providedFields: ImportedFields,
+): Rundown {
+  const entries: RundownEntries = {};
+
+  for (const [id, incomingEntry] of Object.entries(incoming.entries)) {
+    const existingEntry = existing.entries[id];
+
+    // a new id, or one whose type changed, is not compatible for a merge: take the incoming data
+    if (existingEntry === undefined || existingEntry.type !== incomingEntry.type) {
+      entries[id] = incomingEntry;
+      continue;
+    }
+
+    // merge the sheet's data onto the existing entry through the canonical patch function, which
+    // keeps every unmapped field and infers an event's time strategy from the provided times
+    const merged = applyPatchToEntry(existingEntry, buildImportPatch(incomingEntry, providedFields));
+    // grouping comes from the sheet structure, not a data column: a group owns its children, every
+    // other entry knows its parent
+    const structure = isOntimeGroup(incomingEntry)
+      ? { entries: incomingEntry.entries }
+      : { parent: incomingEntry.parent };
+    entries[id] = structuredClone({ ...merged, ...structure });
+  }
+
+  return {
+    id: existing.id,
+    title: existing.title,
+    order: [...incoming.order],
+    flatOrder: [...incoming.flatOrder],
+    revision: existing.revision + 1,
+    entries,
+  };
+}
+
+/**
+ * Whether the currently playing event survives a change to its rundown,
+ * i.e. it still exists and is playable in the new version.
+ */
+export function isLoadedPlayable(loadedEventId: EntryId, rundown: Readonly<Rundown>): boolean {
+  const entry = rundown.entries[loadedEventId];
+  return entry !== undefined && isOntimeEvent(entry) && isPlayableEvent(entry);
 }
 
 /** List of event properties which do not need the rundown to be regenerated */

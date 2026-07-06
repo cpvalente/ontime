@@ -38,6 +38,18 @@ export function validateProjectFile(file: File) {
   }
 }
 
+/**
+ * Removes a trailing file extension from a file name (e.g. "show.xlsx" -> "show")
+ * A leading dot (dotfiles like ".gitignore") is not treated as an extension
+ */
+export function removeFileExtension(fileName: string): string {
+  const lastDot = fileName.lastIndexOf('.');
+  if (lastDot <= 0) {
+    return fileName;
+  }
+  return fileName.slice(0, lastDot);
+}
+
 export function isExcelFile(file: File | null) {
   return file?.name.endsWith('.xlsx');
 }

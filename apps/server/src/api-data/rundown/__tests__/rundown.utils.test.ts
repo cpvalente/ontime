@@ -1,8 +1,18 @@
-import { EndAction, OntimeEvent, TimeStrategy, TimerType } from 'ontime-types';
+import {
+  EndAction,
+  OntimeEvent,
+  OntimeGroup,
+  OntimeMilestone,
+  TimeStrategy,
+  TimerLifeCycle,
+  TimerType,
+  Trigger,
+} from 'ontime-types';
 import { MILLIS_PER_HOUR, createEvent } from 'ontime-utils';
 import { assertType } from 'vitest';
 
-import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeOntimeGroup, makeOntimeMilestone, makeRundown } from '../__mocks__/rundown.mocks.js';
+import { parseRundown } from '../rundown.parser.js';
 import {
   calculateDayOffset,
   deleteById,
@@ -10,6 +20,8 @@ import {
   getIntegerAndFraction,
   hasChanges,
   makeDeepClone,
+  mergeRundownPreservingFields,
+  isLoadedPlayable,
 } from '../rundown.utils.js';
 
 describe('test event validator', () => {
@@ -285,5 +297,316 @@ describe('getIntegerAndFraction()', () => {
 
   test('floating separator', () => {
     expect(getIntegerAndFraction('123.')).toStrictEqual({ integer: 123, faction: 0, precision: 0 });
+  });
+});
+
+/**
+ * The merge strategy takes the incoming (spreadsheet) rundown as the source of truth for structure
+ * and order. For a matched event it only applies the fields the spreadsheet mapped (providedFields);
+ * any field it does not provide (e.g. automations) is kept from the existing event.
+ */
+describe('mergeRundownPreservingFields()', () => {
+  const automation: Trigger = {
+    id: 'trigger-onair',
+    title: 'Go on air',
+    trigger: TimerLifeCycle.onStart,
+    automationId: 'automation-onair',
+  };
+
+  it('keeps the current rundown identity but takes structure and order from the incoming rundown', () => {
+    const current = makeRundown({
+      id: 'show-rundown',
+      title: 'Main show',
+      revision: 3,
+      order: ['welcome', 'keynote'],
+      entries: {
+        welcome: makeOntimeEvent({ id: 'welcome', title: 'Welcome' }),
+        keynote: makeOntimeEvent({ id: 'keynote', title: 'Keynote' }),
+      },
+    });
+    const incoming = makeRundown({
+      id: 'spreadsheet-rundown',
+      title: 'From spreadsheet',
+      revision: 0,
+      order: ['welcome', 'lunch'],
+      entries: {
+        welcome: makeOntimeEvent({ id: 'welcome', title: 'Welcome' }),
+        lunch: makeOntimeEvent({ id: 'lunch', title: 'Lunch' }),
+      },
+    });
+
+    const merged = mergeRundownPreservingFields(incoming, current, { event: ['title'], custom: [] });
+
+    // identity and revision come from the current rundown
+    expect(merged.id).toBe('show-rundown');
+    expect(merged.title).toBe('Main show');
+    expect(merged.revision).toBe(4);
+    // structure and order come from the incoming rundown
+    expect(merged.order).toEqual(['welcome', 'lunch']);
+    expect(merged.flatOrder).toEqual(incoming.flatOrder);
+  });
+
+  it('deletes current entries that are absent from the incoming rundown', () => {
+    const current = makeRundown({
+      id: 'show-rundown',
+      order: ['welcome', 'keynote'],
+      entries: {
+        welcome: makeOntimeEvent({ id: 'welcome' }),
+        keynote: makeOntimeEvent({ id: 'keynote' }),
+      },
+    });
+    const incoming = makeRundown({
+      id: 'spreadsheet-rundown',
+      order: ['welcome'],
+      entries: { welcome: makeOntimeEvent({ id: 'welcome' }) },
+    });
+
+    const merged = mergeRundownPreservingFields(incoming, current, { event: ['title'], custom: [] });
+
+    expect(merged.entries.welcome).toBeDefined();
+    expect(merged.entries.keynote).toBeUndefined();
+  });
+
+  it('replaces an entry entirely with the incoming data when the id is kept but the type changes', () => {
+    const current = makeRundown({
+      id: 'show-rundown',
+      order: ['keynote'],
+      entries: { keynote: makeOntimeEvent({ id: 'keynote', title: 'Keynote', triggers: [automation] }) },
+    });
+    const incoming = makeRundown({
+      id: 'spreadsheet-rundown',
+      order: ['keynote'],
+      entries: { keynote: makeOntimeGroup({ id: 'keynote', title: 'Keynote group' }) },
+    });
+
+    const merged = mergeRundownPreservingFields(incoming, current, { event: ['title'], custom: [] });
+
+    // the incoming group fully replaces the previous event, no old data is carried over
+    expect(merged.entries.keynote).toEqual(incoming.entries.keynote);
+  });
+
+  it('applies the provided fields to a matched event, including when the incoming value is empty', () => {
+    const current = makeRundown({
+      id: 'show-rundown',
+      order: ['keynote'],
+      entries: { keynote: makeOntimeEvent({ id: 'keynote', title: 'Keynote', note: 'in the green room' }) },
+    });
+    const incoming = makeRundown({
+      id: 'spreadsheet-rundown',
+      order: ['keynote'],
+      entries: { keynote: makeOntimeEvent({ id: 'keynote', title: 'Opening keynote', note: '' }) },
+    });
+
+    // the sheet mapped title and note
+    const merged = mergeRundownPreservingFields(incoming, current, { event: ['title', 'note'], custom: [] });
+    const keynote = merged.entries.keynote as OntimeEvent;
+
+    expect(keynote.title).toBe('Opening keynote');
+    // an empty provided value replaces the current one
+    expect(keynote.note).toBe('');
+  });
+
+  it('keeps fields the sheet did not map on a matched event, regardless of the incoming values', () => {
+    const current = makeRundown({
+      id: 'show-rundown',
+      order: ['keynote'],
+      entries: {
+        keynote: makeOntimeEvent({ id: 'keynote', title: 'Keynote', note: 'green room', triggers: [automation] }),
+      },
+    });
+    // the preview always fully populates an entry, so the incoming carries a note and triggers; what
+    // the sheet actually supplied is providedFields, not the values that happen to be on the entry
+    const incoming = makeRundown({
+      id: 'spreadsheet-rundown',
+      order: ['keynote'],
+      entries: {
+        keynote: makeOntimeEvent({
+          id: 'keynote',
+          title: 'Opening keynote',
+          note: 'from a stale column',
+          triggers: [],
+        }),
+      },
+    });
+
+    // only title is mapped, so note and automations keep the existing values, not the incoming ones
+    const merged = mergeRundownPreservingFields(incoming, current, { event: ['title'], custom: [] });
+    const keynote = merged.entries.keynote as OntimeEvent;
+
+    expect(keynote.title).toBe('Opening keynote');
+    expect(keynote.note).toBe('green room');
+    expect(keynote.triggers).toEqual([automation]);
+  });
+
+  it('patches the provided custom fields on a matched event and keeps the unmapped ones', () => {
+    const current = makeRundown({
+      id: 'show-rundown',
+      order: ['keynote'],
+      entries: {
+        keynote: makeOntimeEvent({
+          id: 'keynote',
+          title: 'Keynote',
+          custom: { lighting: 'warm', song: 'intro theme' },
+        }),
+      },
+    });
+    const incoming = makeRundown({
+      id: 'spreadsheet-rundown',
+      order: ['keynote'],
+      entries: {
+        keynote: makeOntimeEvent({ id: 'keynote', title: 'Opening keynote', custom: { lighting: 'cold' } }),
+      },
+    });
+
+    // the sheet mapped the title and the lighting custom field, but not song
+    const merged = mergeRundownPreservingFields(incoming, current, { event: ['title'], custom: ['lighting'] });
+    const keynote = merged.entries.keynote as OntimeEvent;
+
+    expect(keynote.title).toBe('Opening keynote');
+    expect(keynote.custom.lighting).toBe('cold');
+    // an unmapped custom field is kept from the existing event
+    expect(keynote.custom.song).toBe('intro theme');
+  });
+
+  it('infers the time strategy from the provided times when the sheet is unambiguous', () => {
+    const current = makeRundown({
+      id: 'show-rundown',
+      order: ['keynote'],
+      entries: { keynote: makeOntimeEvent({ id: 'keynote', timeStrategy: TimeStrategy.LockEnd }) },
+    });
+    // the sheet provides only a duration, so the strategy is unambiguously LockDuration
+    const incoming = makeRundown({
+      id: 'spreadsheet-rundown',
+      order: ['keynote'],
+      entries: { keynote: makeOntimeEvent({ id: 'keynote', duration: 60000 }) },
+    });
+
+    const merged = mergeRundownPreservingFields(incoming, current, { event: ['duration'], custom: [] });
+
+    expect((merged.entries.keynote as OntimeEvent).timeStrategy).toBe(TimeStrategy.LockDuration);
+  });
+
+  it('keeps the existing time strategy when the provided times are ambiguous', () => {
+    const current = makeRundown({
+      id: 'show-rundown',
+      order: ['keynote'],
+      entries: { keynote: makeOntimeEvent({ id: 'keynote', timeStrategy: TimeStrategy.LockEnd }) },
+    });
+    // the sheet provides both an end and a duration, so the strategy cannot be inferred from them
+    const incoming = makeRundown({
+      id: 'spreadsheet-rundown',
+      order: ['keynote'],
+      entries: { keynote: makeOntimeEvent({ id: 'keynote', timeEnd: 60000, duration: 60000 }) },
+    });
+
+    const merged = mergeRundownPreservingFields(incoming, current, { event: ['timeEnd', 'duration'], custom: [] });
+
+    expect((merged.entries.keynote as OntimeEvent).timeStrategy).toBe(TimeStrategy.LockEnd);
+  });
+
+  it('merges a matched group, keeping the fields the sheet cannot express', () => {
+    const current = makeRundown({
+      id: 'show-rundown',
+      order: ['session'],
+      entries: { session: makeOntimeGroup({ id: 'session', title: 'Old session', targetDuration: 3_600_000 }) },
+    });
+    // the sheet cannot express a group's target duration, so the incoming group does not carry one
+    const incoming = makeRundown({
+      id: 'spreadsheet-rundown',
+      order: ['session'],
+      entries: { session: makeOntimeGroup({ id: 'session', title: 'New session', targetDuration: null }) },
+    });
+
+    const merged = mergeRundownPreservingFields(incoming, current, { event: ['title'], custom: [] });
+    const session = merged.entries.session as OntimeGroup;
+
+    expect(session.title).toBe('New session');
+    expect(session.targetDuration).toBe(3_600_000);
+  });
+
+  it('merges a matched milestone, keeping the fields the sheet did not map', () => {
+    const current = makeRundown({
+      id: 'show-rundown',
+      order: ['reminder'],
+      entries: { reminder: makeOntimeMilestone({ id: 'reminder', title: 'Reminder', note: 'call talent' }) },
+    });
+    const incoming = makeRundown({
+      id: 'spreadsheet-rundown',
+      order: ['reminder'],
+      entries: { reminder: makeOntimeMilestone({ id: 'reminder', title: 'Green room reminder', note: 'ignored' }) },
+    });
+
+    // only title is mapped, so the milestone's note keeps the existing value
+    const merged = mergeRundownPreservingFields(incoming, current, { event: ['title'], custom: [] });
+    const reminder = merged.entries.reminder as OntimeMilestone;
+
+    expect(reminder.title).toBe('Green room reminder');
+    expect(reminder.note).toBe('call talent');
+  });
+
+  it('does not mutate the current rundown and deep-clones the kept automations', () => {
+    const current = makeRundown({
+      id: 'show-rundown',
+      order: ['keynote'],
+      entries: { keynote: makeOntimeEvent({ id: 'keynote', triggers: [automation] }) },
+    });
+    const incoming = makeRundown({
+      id: 'spreadsheet-rundown',
+      order: ['keynote'],
+      entries: { keynote: makeOntimeEvent({ id: 'keynote', triggers: [] }) },
+    });
+
+    const merged = mergeRundownPreservingFields(incoming, current, { event: ['title'], custom: [] });
+
+    // kept automations are a copy, not a shared reference to the current rundown
+    (merged.entries.keynote as OntimeEvent).triggers.push({ ...automation, id: 'trigger-extra' });
+    expect((current.entries.keynote as OntimeEvent).triggers).toEqual([automation]);
+  });
+
+  it('keeps the not-provided fields through a parseRundown round-trip', () => {
+    const current = makeRundown({
+      id: 'show-rundown',
+      order: ['keynote'],
+      entries: {
+        keynote: makeOntimeEvent({ id: 'keynote', triggers: [automation], timeStrategy: TimeStrategy.LockEnd }),
+      },
+    });
+    const incoming = makeRundown({
+      id: 'spreadsheet-rundown',
+      order: ['keynote'],
+      entries: { keynote: makeOntimeEvent({ id: 'keynote', title: 'Keynote', triggers: [] }) },
+    });
+
+    const merged = mergeRundownPreservingFields(incoming, current, { event: ['title'], custom: [] });
+    const parsed = parseRundown(merged, {});
+    const keynote = parsed.entries.keynote as OntimeEvent;
+
+    expect(keynote.triggers).toEqual([automation]);
+    expect(keynote.timeStrategy).toBe(TimeStrategy.LockEnd);
+  });
+});
+
+describe('isLoadedPlayable()', () => {
+  it('returns true when the loaded event still exists and is playable', () => {
+    const rundown = makeRundown({ order: ['keynote'], entries: { keynote: makeOntimeEvent({ id: 'keynote' }) } });
+    expect(isLoadedPlayable('keynote', rundown)).toBe(true);
+  });
+
+  it('returns false when the loaded event was removed', () => {
+    const rundown = makeRundown({ order: ['welcome'], entries: { welcome: makeOntimeEvent({ id: 'welcome' }) } });
+    expect(isLoadedPlayable('keynote', rundown)).toBe(false);
+  });
+
+  it('returns false when the loaded event is now skipped', () => {
+    const rundown = makeRundown({
+      order: ['keynote'],
+      entries: { keynote: makeOntimeEvent({ id: 'keynote', skip: true }) },
+    });
+    expect(isLoadedPlayable('keynote', rundown)).toBe(false);
+  });
+
+  it('returns false when the matched entry is no longer an event', () => {
+    const rundown = makeRundown({ order: ['keynote'], entries: { keynote: makeOntimeGroup({ id: 'keynote' }) } });
+    expect(isLoadedPlayable('keynote', rundown)).toBe(false);
   });
 });

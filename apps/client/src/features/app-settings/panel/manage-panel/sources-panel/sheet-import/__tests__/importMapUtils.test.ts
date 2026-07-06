@@ -1,15 +1,21 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
   builtInFieldDefs,
   convertToImportMap,
   createDefaultFormValues,
+  defaultImportMode,
   getImportWarnings,
+  getPersistedImportMode,
+  getProvidedImportFields,
   getResolvedCustomFields,
+  isIdColumnMapped,
+  persistImportMode,
 } from '../importMapUtils';
 
 const cueIndex = builtInFieldDefs.findIndex((field) => field.label === 'Cue');
 const titleIndex = builtInFieldDefs.findIndex((field) => field.label === 'Title');
+const idIndex = builtInFieldDefs.findIndex((field) => field.importKey === 'id');
 
 describe('getImportWarnings()', () => {
   it('warns when two mappings target the same spreadsheet column', () => {
@@ -126,5 +132,66 @@ describe('convertToImportMap()', () => {
     expect(importMap.custom).toStrictEqual({
       'FOH Monitor': 'FOH/Monitor',
     });
+  });
+});
+
+describe('getProvidedImportFields()', () => {
+  it('reports the mapped built-in and custom fields the sheet supplies', () => {
+    const values = createDefaultFormValues();
+    values.builtIn[titleIndex] = { header: 'title', enabled: true };
+    values.builtIn[cueIndex] = { header: '', enabled: false };
+    values.custom = [{ ontimeName: 'ignored', importName: 'FOH/Monitor' }];
+
+    const provided = getProvidedImportFields(convertToImportMap(values));
+
+    // enabled built-in mappings are reported as event fields, disabled ones are not
+    expect(provided.event).toContain('title');
+    expect(provided.event).not.toContain('cue');
+    // the id column is only used for matching, never overwritten
+    expect(provided.event).not.toContain('id');
+    // custom fields are reported symmetrically by their resolved Ontime name
+    expect(provided.custom).toStrictEqual(['FOH Monitor']);
+  });
+});
+
+describe('isIdColumnMapped()', () => {
+  it('is true when the ID field is enabled with a header', () => {
+    // the default form maps the ID column
+    expect(isIdColumnMapped(createDefaultFormValues())).toBe(true);
+  });
+
+  it('is false when the ID field is disabled', () => {
+    const values = createDefaultFormValues();
+    values.builtIn[idIndex] = { header: 'id', enabled: false };
+    expect(isIdColumnMapped(values)).toBe(false);
+  });
+
+  it('is false when the ID field header is blank', () => {
+    const values = createDefaultFormValues();
+    values.builtIn[idIndex] = { header: '   ', enabled: true };
+    expect(isIdColumnMapped(values)).toBe(false);
+  });
+});
+
+describe('import mode persistence', () => {
+  const sourceKey = 'excel-test';
+
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it('defaults to override when nothing is persisted', () => {
+    expect(getPersistedImportMode(sourceKey)).toBe('override');
+    expect(defaultImportMode).toBe('override');
+  });
+
+  it('round-trips a persisted value', () => {
+    persistImportMode(sourceKey, 'merge');
+    expect(getPersistedImportMode(sourceKey)).toBe('merge');
+  });
+
+  it('falls back to the default when the persisted value is invalid', () => {
+    persistImportMode(sourceKey, 'nonsense' as never);
+    expect(getPersistedImportMode(sourceKey)).toBe('override');
   });
 });
