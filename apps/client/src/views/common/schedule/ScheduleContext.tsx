@@ -141,11 +141,11 @@ export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildre
     return () => clearInterval(paginator.current);
   }, [cycleInterval, numPages, stopCycle, visiblePage]);
 
-  let selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
-
   // we want to show the event after the current
-  const viewEvents = (events as ExtendedEntry<OntimeEvent>[]).slice(selectedEventIndex + 1);
-  selectedEventIndex = 0;
+  const viewEvents = useMemo(() => {
+    const selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
+    return (events as ExtendedEntry<OntimeEvent>[]).slice(selectedEventIndex + 1);
+  }, [events, selectedEventId]);
 
   const value = useMemo(() => {
     return {
