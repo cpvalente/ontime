@@ -83,7 +83,7 @@ export type OntimeActionKey =
   | OntimeMessageSet
   | OntimeMessageSecondary;
 
-export const ontimeActionKeyValues = [
+export const ontimeActionKeyValues: string[] = [
   ...ontimeAuxTriggerAction,
   ...ontimePlaybackAction,
   ...ontimeAuxSetAction,
