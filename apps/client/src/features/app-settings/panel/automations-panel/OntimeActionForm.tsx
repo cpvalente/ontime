@@ -120,31 +120,38 @@ export default function OntimeActionForm({
       )}
 
       {selectedAction === 'message-secondary' && (
-        <label>
-          Timer secondary source
-          <Select<SecondarySource | 'null' | null>
-            onValueChange={(value) => {
-              // null -> no selection
-              if (value === null) return;
-              // 'null' -> clear the secondary source
-              if (value === 'null') {
-                setValue(`outputs.${index}.secondarySource`, null, { shouldDirty: true });
-                return;
-              }
-              setValue(`outputs.${index}.secondarySource`, value, { shouldDirty: true });
-            }}
-            value={watch(`outputs.${index}.secondarySource`)}
-            options={[
-              { value: null, label: 'Select secondary source' },
-              { value: 'aux1', label: 'Auxiliary timer 1' },
-              { value: 'aux2', label: 'Auxiliary timer 2' },
-              { value: 'aux3', label: 'Auxiliary timer 3' },
-              { value: 'secondary', label: 'Secondary' },
-              { value: 'null', label: 'None' }, // allow the user to clear the secondary source
-            ]}
-          />
-          <Panel.Error>{rowErrors?.secondarySource?.message}</Panel.Error>
-        </label>
+        <>
+          <label>
+            Text (leave empty for no change)
+            <Input {...register(`outputs.${index}.text`)} fluid placeholder='eg: Next up: keynote' />
+            <Panel.Error>{rowErrors?.text?.message}</Panel.Error>
+          </label>
+          <label>
+            Timer secondary source
+            <Select<SecondarySource | 'null' | null>
+              onValueChange={(value) => {
+                // null -> no selection
+                if (value === null) return;
+                // 'null' -> clear the secondary source
+                if (value === 'null') {
+                  setValue(`outputs.${index}.secondarySource`, null, { shouldDirty: true });
+                  return;
+                }
+                setValue(`outputs.${index}.secondarySource`, value, { shouldDirty: true });
+              }}
+              value={watch(`outputs.${index}.secondarySource`)}
+              options={[
+                { value: null, label: 'Select secondary source' },
+                { value: 'aux1', label: 'Auxiliary timer 1' },
+                { value: 'aux2', label: 'Auxiliary timer 2' },
+                { value: 'aux3', label: 'Auxiliary timer 3' },
+                { value: 'secondary', label: 'Secondary' },
+                { value: 'null', label: 'None' }, // allow the user to clear the secondary source
+              ]}
+            />
+            <Panel.Error>{rowErrors?.secondarySource?.message}</Panel.Error>
+          </label>
+        </>
       )}
 
       <div className={style.test}>{children}</div>

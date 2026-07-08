@@ -163,5 +163,51 @@ describe('parseOutput', () => {
         secondarySource: 'secondary',
       });
     });
+
+    it('parses message-secondary with a text value', () => {
+      expect(
+        parseOutput({
+          type: 'ontime',
+          action: 'message-secondary',
+          secondarySource: 'secondary',
+          text: 'hello',
+        }),
+      ).toMatchObject({
+        secondarySource: 'secondary',
+        text: 'hello',
+      });
+      // an empty text is treated as no change
+      expect(
+        parseOutput({
+          type: 'ontime',
+          action: 'message-secondary',
+          secondarySource: 'secondary',
+          text: '',
+        }),
+      ).toMatchObject({
+        secondarySource: 'secondary',
+        text: undefined,
+      });
+      // text can be set while clearing the secondary source
+      expect(
+        parseOutput({
+          type: 'ontime',
+          action: 'message-secondary',
+          secondarySource: null,
+          text: 'hello',
+        }),
+      ).toMatchObject({
+        secondarySource: null,
+        text: 'hello',
+      });
+      expect(() =>
+        parseOutput({
+          type: 'ontime',
+          action: 'message-secondary',
+          secondarySource: 'secondary',
+          text: 123,
+        }),
+      ).toThrow('Unexpected payload type:');
+    });
   });
 });
