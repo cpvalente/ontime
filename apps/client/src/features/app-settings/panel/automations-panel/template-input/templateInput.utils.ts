@@ -54,6 +54,16 @@ const eventStaticPropertiesNext = [
   '{{eventNext.delay}}',
 ];
 
+const groupStaticPropertiesNow = [
+  '{{groupNow.id}}',
+  '{{groupNow.title}}',
+  '{{groupNow.note}}',
+  '{{groupNow.colour}}',
+  '{{groupNow.timeStart}}',
+  '{{groupNow.timeEnd}}',
+  '{{groupNow.duration}}',
+];
+
 const staticAuxProperties = (index: 1 | 2 | 3) => [
   `{{auxtimer${index}.current}}`,
   `{{auxtimer${index}.duration}}`,
@@ -75,6 +85,8 @@ export function makeAutoCompleteList(customFields: CustomFields): string[] {
     ...Object.entries(customFields).map(([key]) => `{{eventNow.custom.${key}}}`),
     ...eventStaticPropertiesNext,
     ...Object.entries(customFields).map(([key]) => `{{eventNext.custom.${key}}}`),
+    ...groupStaticPropertiesNow,
+    ...Object.entries(customFields).map(([key]) => `{{groupNow.custom.${key}}}`),
     ...staticAuxProperties(1),
     ...staticAuxProperties(2),
     ...staticAuxProperties(3),

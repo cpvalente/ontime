@@ -66,6 +66,7 @@ export function toOntimeAction(action: OntimeAction) {
         timer: {
           secondarySource: action.secondarySource,
         },
+        secondary: action.text,
       });
       break;
     }
