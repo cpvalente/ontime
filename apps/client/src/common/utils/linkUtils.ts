@@ -37,7 +37,12 @@ export function handleLinks(
   event?.preventDefault();
 
   const destination = new URL(externalServerUrl);
-  destination.pathname = externalBaseURI ? `${externalBaseURI}/${location}` : location;
+  // split off any query string so it is not encoded into the pathname
+  const [pathname, search] = location.split('?');
+  destination.pathname = externalBaseURI ? `${externalBaseURI}/${pathname}` : pathname;
+  if (search) {
+    destination.search = search;
+  }
   openLink(destination.toString());
 }
 
