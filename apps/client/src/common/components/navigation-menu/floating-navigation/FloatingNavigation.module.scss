@@ -22,3 +22,19 @@
   top: 0;
   z-index: $zindex-nav;
 }
+
+.buttonWithIndicator {
+  position: relative;
+  display: inline-flex;
+}
+
+.indicator {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background-color: $active-indicator;
+  pointer-events: none;
+}
