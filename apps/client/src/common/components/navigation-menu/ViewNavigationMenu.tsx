@@ -1,6 +1,8 @@
 import { useDisclosure, useHotkeys } from '@mantine/hooks';
 import { memo } from 'react';
+import { useSearchParams } from 'react-router';
 
+import { hasCustomParams, useSavedViewParams } from '../../stores/savedViewParams';
 import { useViewParamsEditorStore } from '../view-params-editor/viewParamsEditor.store';
 import FloatingNavigation from './floating-navigation/FloatingNavigation';
 import NavigationMenu from './NavigationMenu';
@@ -17,6 +19,9 @@ export default memo(ViewNavigationMenu);
 function ViewNavigationMenu({ isNavigationLocked, suppressSettings }: ViewNavigationMenuProps) {
   const [isMenuOpen, menuHandler] = useDisclosure();
   const { open: showEditFormDrawer } = useViewParamsEditorStore();
+  const [searchParams] = useSearchParams();
+  const savedParams = useSavedViewParams((store) => store.params);
+  const hasSavedChanges = hasCustomParams(searchParams) || Object.keys(savedParams).length > 0;
 
   useHotkeys([
     [
@@ -46,6 +51,7 @@ function ViewNavigationMenu({ isNavigationLocked, suppressSettings }: ViewNaviga
       <FloatingNavigation
         toggleMenu={isNavigationLocked ? undefined : menuHandler.toggle}
         toggleSettings={suppressSettings ? undefined : showEditFormDrawer}
+        hasSavedChanges={hasSavedChanges}
       />
       {!isNavigationLocked && <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />}
     </>

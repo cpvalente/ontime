@@ -9,9 +9,10 @@ import style from './FloatingNavigation.module.scss';
 interface FloatingNavigationProps {
   toggleMenu?: () => void;
   toggleSettings?: () => void;
+  hasSavedChanges?: boolean;
 }
 
-export default function FloatingNavigation({ toggleMenu, toggleSettings }: FloatingNavigationProps) {
+export default function FloatingNavigation({ toggleMenu, toggleSettings, hasSavedChanges }: FloatingNavigationProps) {
   const isButtonShown = useFadeOutOnInactivity(true);
 
   return (
@@ -20,15 +21,18 @@ export default function FloatingNavigation({ toggleMenu, toggleSettings }: Float
       className={cx([style.fadeable, style.buttonContainer, !isButtonShown && style.hidden])}
     >
       {toggleMenu && (
-        <IconButton
-          variant='subtle-white'
-          size='xlarge'
-          onClick={toggleMenu}
-          aria-label='toggle menu'
-          data-testid='navigation__toggle-menu'
-        >
-          <IoApps />
-        </IconButton>
+        <div className={style.buttonWithIndicator}>
+          <IconButton
+            variant='subtle-white'
+            size='xlarge'
+            onClick={toggleMenu}
+            aria-label='toggle menu'
+            data-testid='navigation__toggle-menu'
+          >
+            <IoApps />
+          </IconButton>
+          {hasSavedChanges && <span className={style.indicator} data-testid='navigation__saved-indicator' />}
+        </div>
       )}
       {toggleSettings && (
         <IconButton
