@@ -1,9 +1,10 @@
 import { copyFile } from 'fs/promises';
 import { join } from 'path';
 
-import { DatabaseModel, LogOrigin, ProjectFileListResponse } from 'ontime-types';
+import { DatabaseModel, LogOrigin, ProjectFileListResponse, RefetchKey } from 'ontime-types';
 import { getErrorMessage, getFirstRundown } from 'ontime-utils';
 
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
 import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
@@ -72,6 +73,9 @@ export async function getCurrentProject(): Promise<{ filename: string; pathToFil
   // we know the project is loaded since we force initialisation above
   const pathToFile = getPathToProject(currentProjectState.currentProjectName as string);
 
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return { filename: currentProjectState.currentProjectName as string, pathToFile };
 }
 
@@ -105,6 +109,9 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
     currentProjectName: fileName,
   };
 
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return fileName;
 }
 
@@ -113,6 +120,9 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
  */
 export async function loadDemoProject(): Promise<string> {
   populateOntimeLogo();
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return createProject(config.demoProject, demoDb);
 }
 
@@ -122,6 +132,9 @@ export async function loadDemoProject(): Promise<string> {
  */
 async function loadNewProject(): Promise<string> {
   const emptyProject = makeNewProject();
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return createProject(config.newProject, emptyProject);
 }
 
@@ -142,6 +155,9 @@ async function handleCorruptedFile(filePath: string, fileName: string): Promise<
   // and make a new file with the recovered data
   const newPath = appendToName(filePath, '(recovered)');
   await dockerSafeRename(filePath, newPath);
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return getFileNameFromPath(newPath);
 }
 
@@ -162,6 +178,9 @@ async function handleMigratedFile(filePath: string, fileName: string): Promise<s
   // and make a new file with the migrated data
   const newPath = appendToName(filePath, '(migrated)');
   await dockerSafeRename(filePath, newPath);
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return getFileNameFromPath(newPath);
 }
 
@@ -200,6 +219,9 @@ export async function initialiseProject(): Promise<string> {
     }
   }
 
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return loadNewProject();
 }
 
@@ -231,6 +253,10 @@ export async function loadProjectFile(
   }
 
   const projectName = await loadProject(result.data, parsedFileName, options?.rundownId);
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return projectName;
 }
 
@@ -241,6 +267,9 @@ export async function getProjectList(): Promise<ProjectFileListResponse> {
   const files = await getProjectFiles();
   const lastLoaded = await getLastLoaded();
 
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return {
     files,
     lastLoadedProject: lastLoaded?.projectName ? removeFileExtension(lastLoaded?.projectName) : '',
@@ -263,6 +292,10 @@ export async function duplicateProjectFile(originalFile: string, newFilename: st
 
   const pathToDuplicate = getPathToProject(newFilename);
   await copyFile(projectFilePath, pathToDuplicate);
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return;
 }
 
@@ -291,8 +324,16 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
     const projectData = parseDatabaseModel(fileData);
 
     const newFileName = await loadProject(projectData.data, newFilename);
+
+    setImmediate(() => {
+      sendRefetch(RefetchKey.ProjectFiles);
+    });
     return newFileName;
   }
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return newFilename;
 }
 
@@ -304,6 +345,10 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
 export async function createProject(fileName: string, initialData: DatabaseModel): Promise<string> {
   const fileNameWithExtension = generateUniqueFileName(publicDir.projectsDir, ensureJsonExtension(fileName));
   await loadProject(initialData, fileNameWithExtension);
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return fileNameWithExtension;
 }
 
@@ -315,6 +360,10 @@ export async function createProject(fileName: string, initialData: DatabaseModel
 export async function createProjectWithPatch(fileName: string, initialData: Partial<DatabaseModel>): Promise<string> {
   const newProject = makeNewProject();
   const sanitisedData = safeMerge(newProject, initialData);
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return createProject(fileName, sanitisedData);
 }
 
@@ -331,6 +380,9 @@ export async function deleteProjectFile(filename: string) {
     throw new Error('Project file not found');
   }
 
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   await deleteFile(projectFilePath);
 }
 
@@ -375,5 +427,9 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
   }
 
   const updatedData = await getDataProvider().getData();
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return updatedData;
 }

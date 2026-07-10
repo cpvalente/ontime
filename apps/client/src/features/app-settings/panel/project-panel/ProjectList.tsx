@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { IoArrowDown, IoArrowUp } from 'react-icons/io5';
 
 import Info from '../../../../common/components/info/Info';
@@ -11,11 +11,25 @@ import style from './ProjectPanel.module.scss';
 type SortParameter = 'alphabetical' | 'modified';
 
 export default function ProjectList() {
+  return (
+    <Suspense
+      fallback={
+        <div className={style.empty}>
+          <Panel.Loader isLoading />
+        </div>
+      }
+    >
+      <ProjectListSuspend />
+    </Suspense>
+  );
+}
+
+function ProjectListSuspend() {
   const [editingMode, setEditingMode] = useState<EditMode | null>(null);
   const [editingFilename, setEditingFilename] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<ProjectSortMode>('modified-desc');
 
-  const { data, refetch, status } = useOrderedProjectList(sortMode);
+  const { data, refetch } = useOrderedProjectList(sortMode);
 
   const handleToggleEditMode = (editMode: EditMode, filename: string | null) => {
     setEditingMode((prev) => (prev === editMode && filename === editingFilename ? null : editMode));
@@ -37,14 +51,6 @@ export default function ProjectList() {
       return `${sortParameter}-${isAscending ? 'desc' : 'asc'}` as ProjectSortMode;
     });
   };
-
-  if (status === 'pending') {
-    return (
-      <div className={style.empty}>
-        <Panel.Loader isLoading />
-      </div>
-    );
-  }
 
   const numProjects = data.reorderedProjectFiles.length;
 

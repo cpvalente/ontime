@@ -216,6 +216,9 @@ export const connectSocket = () => {
             case RefetchKey.ProjectRundowns:
               ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_RUNDOWNS });
               break;
+            case RefetchKey.ProjectFiles:
+              ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_RUNDOWNS });
+              break;
             default: {
               target satisfies never;
               break;
