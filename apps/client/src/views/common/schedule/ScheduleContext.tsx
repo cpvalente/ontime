@@ -7,6 +7,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -140,25 +141,23 @@ export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildre
     return () => clearInterval(paginator.current);
   }, [cycleInterval, numPages, stopCycle, visiblePage]);
 
-  let selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
-
   // we want to show the event after the current
-  const viewEvents = events.slice(selectedEventIndex + 1);
-  selectedEventIndex = 0;
+  const viewEvents = useMemo(() => {
+    const selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
+    return (events as ExtendedEntry<OntimeEvent>[]).slice(selectedEventIndex + 1);
+  }, [events, selectedEventId]);
 
-  return (
-    <ScheduleContext
-      value={{
-        events: viewEvents as ExtendedEntry<OntimeEvent>[],
-        selectedEventId,
-        numPages,
-        visiblePage,
-        containerRef,
-      }}
-    >
-      {children}
-    </ScheduleContext>
-  );
+  const value = useMemo(() => {
+    return {
+      events: viewEvents,
+      selectedEventId,
+      numPages,
+      visiblePage,
+      containerRef,
+    };
+  }, [viewEvents, selectedEventId, numPages, visiblePage, containerRef]);
+
+  return <ScheduleContext value={value}>{children}</ScheduleContext>;
 };
 
 export const useSchedule = () => {
