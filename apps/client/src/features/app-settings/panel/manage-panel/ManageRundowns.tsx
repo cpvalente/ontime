@@ -1,5 +1,5 @@
 import { useDisclosure } from '@mantine/hooks';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import {
   IoAdd,
   IoDocumentOutline,
@@ -28,6 +28,20 @@ import { ManageRundownForm } from './ManageRundownForm';
 import style from './ManagePanel.module.scss';
 
 export default function ManageRundowns() {
+  return (
+    <Suspense
+      fallback={
+        <div className={style.empty}>
+          <Panel.Loader isLoading />
+        </div>
+      }
+    >
+      <ManageRundownsSuspends />
+    </Suspense>
+  );
+}
+
+function ManageRundownsSuspends() {
   const { data } = useProjectRundowns();
   const { duplicate, remove, load, rename } = useMutateProjectRundowns();
   const [isOpenDelete, deleteHandlers] = useDisclosure();
