@@ -49,7 +49,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
     const preserved = new URLSearchParams();
     RESERVED_PARAMS.forEach((key) => {
       const value = searchParams.get(key);
-      if (value) preserved.set(key, value);
+      if (value !== null) preserved.set(key, value);
     });
     setSearchParams(preserved);
   };

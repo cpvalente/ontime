@@ -20,6 +20,25 @@ describe('savedViewParams store', () => {
     expect(useSavedViewParams.getState().params.timer).toBe('hideSeconds=false');
   });
 
+  it('does not store an entry for an empty search string', () => {
+    useSavedViewParams.getState().save('timer', '');
+
+    expect(useSavedViewParams.getState().params).toEqual({});
+  });
+
+  it('removes a previously saved entry when saved with an empty search string', () => {
+    useSavedViewParams.getState().save('timer', 'hideSeconds=true');
+    useSavedViewParams.getState().save('timer', '');
+
+    expect(useSavedViewParams.getState().params).toEqual({});
+  });
+
+  it('ignores empty view keys', () => {
+    useSavedViewParams.getState().save('', 'hideSeconds=true');
+
+    expect(useSavedViewParams.getState().params).toEqual({});
+  });
+
   it('clears all saved params', () => {
     useSavedViewParams.getState().save('timer', 'hideSeconds=true');
     useSavedViewParams.getState().clearAll();

@@ -16,7 +16,19 @@ interface SavedViewParamsStore {
  */
 export const useSavedViewParams = create<SavedViewParamsStore>((set) => ({
   params: {},
-  save: (view, search) => set((state) => ({ params: { ...state.params, [view]: search } })),
+  save: (view, search) =>
+    set((state) => {
+      // ignore empty view keys and do not store empty entries, so the
+      // "saved changes" indicator only reflects genuine customisation
+      if (!view) return state;
+      const params = { ...state.params };
+      if (search) {
+        params[view] = search;
+      } else {
+        delete params[view];
+      }
+      return { params };
+    }),
   clearAll: () => set({ params: {} }),
 }));
 
