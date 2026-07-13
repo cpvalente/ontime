@@ -1,8 +1,8 @@
 import { Day } from 'ontime-types';
 import { CSSProperties, RefObject } from 'react';
 
+import { useAnimatedProgress } from '../../common/hooks/useAnimatedProgress';
 import { useExpectedStartData, useTimer } from '../../common/hooks/useSocket';
-import { getProgress } from '../../common/utils/getProgress';
 import { alpha, cx } from '../../common/utils/styleUtils';
 import { formatDuration, formatTime, getExpectedTimesFromExtendedEvent } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
@@ -169,7 +169,7 @@ function TimelineEntryStatus({
 /** Generates a block level progress bar */
 function ActiveBlock() {
   const { current, duration } = useTimer();
-  const progress = getProgress(current, duration);
+  const progress = useAnimatedProgress(current, duration);
   return (
     <div data-status='live' className={style.timelineBlock} style={{ '--progress': `${progress}%` } as CSSProperties} />
   );

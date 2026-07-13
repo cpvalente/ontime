@@ -38,8 +38,6 @@ $progress-bar-br: 3px;
 .multiprogress-bar__indicator-bar {
   background-color: var(--background-color-override, $ui-black);
   opacity: 0.8;
-  transition: 1s linear;
-  transition-property: width;
 
   .multiprogress-bar--ignore-css-override & {
     background-color: $ui-black;
