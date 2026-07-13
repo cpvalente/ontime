@@ -1,5 +1,6 @@
 import { MaybeNumber } from 'ontime-types';
 
+import { useAnimatedProgress } from '../../hooks/useAnimatedProgress';
 import { getProgress } from '../../utils/getProgress';
 import { cx } from '../../utils/styleUtils';
 
@@ -34,7 +35,7 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
     className = '',
   } = props;
 
-  const percentRemaining = 100 - getProgress(now, complete);
+  const percentRemaining = 100 - useAnimatedProgress(now, complete);
   const dangerWidth = danger ? 100 - getProgress(danger, complete) : 0;
   const warningWidth = warning ? 100 - dangerWidth - getProgress(warning, complete) : 0;
   const isOvertime = now !== null && now < 0;
