@@ -169,6 +169,25 @@ describe('parseOutput', () => {
         parseOutput({
           type: 'ontime',
           action: 'message-secondary',
+          text: 'hello',
+        }),
+      ).toMatchObject({
+        text: 'hello',
+      });
+      expect(
+        parseOutput({
+          type: 'ontime',
+          action: 'message-secondary',
+          secondarySource: undefined,
+          text: 'hello',
+        }),
+      ).toMatchObject({
+        text: 'hello',
+      });
+      expect(
+        parseOutput({
+          type: 'ontime',
+          action: 'message-secondary',
           secondarySource: 'secondary',
           text: 'hello',
         }),

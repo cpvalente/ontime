@@ -1,12 +1,14 @@
-import { LogOrigin, OntimeAction } from 'ontime-types';
+import { LogOrigin, OntimeAction, RuntimeStore } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
+import { DeepReadonly } from 'ts-essentials';
 
 import { logger } from '../../../classes/Logger.js';
 import { auxTimerService } from '../../../services/aux-timer-service/AuxTimerService.js';
 import * as messageService from '../../../services/message-service/message.service.js';
 import { runtimeService } from '../../../services/runtime-service/runtime.service.js';
+import { parseTemplateNested } from '../automation.utils.js';
 
-export function toOntimeAction(action: OntimeAction) {
+export function toOntimeAction(action: OntimeAction, store: DeepReadonly<RuntimeStore>) {
   const actionType = action.action;
   switch (actionType) {
     // Aux timer actions
@@ -55,19 +57,25 @@ export function toOntimeAction(action: OntimeAction) {
     case 'message-set': {
       messageService.patch({
         timer: {
-          text: action.text,
+          text: action.text ? parseTemplateNested(action.text, store) : action.text,
           visible: action.visible,
         },
       });
       break;
     }
     case 'message-secondary': {
-      messageService.patch({
-        timer: {
-          secondarySource: action.secondarySource,
-        },
-        secondary: action.text,
-      });
+      const secondary = action.text ? parseTemplateNested(action.text, store) : action.text;
+      const patch =
+        action.secondarySource === undefined
+          ? { secondary }
+          : {
+              timer: {
+                secondarySource: action.secondarySource,
+              },
+              secondary,
+            };
+
+      messageService.patch(patch);
       break;
     }
 

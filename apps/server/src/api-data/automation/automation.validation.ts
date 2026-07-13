@@ -225,13 +225,19 @@ function parseOntimeAction(maybeOntimeAction: object): OntimeAction {
   }
 
   if (maybeOntimeAction.action === 'message-secondary') {
-    assert.hasKeys(maybeOntimeAction, ['secondarySource']);
-
     // the secondary text is optional, an empty string is treated as no change
     let text: string | undefined = undefined;
     if ('text' in maybeOntimeAction) {
       assert.isString(maybeOntimeAction.text);
       text = indeterminateText(maybeOntimeAction.text);
+    }
+
+    if (!('secondarySource' in maybeOntimeAction) || maybeOntimeAction.secondarySource === undefined) {
+      return {
+        type: 'ontime',
+        action: 'message-secondary',
+        text,
+      };
     }
 
     // null is used to clear the secondary source

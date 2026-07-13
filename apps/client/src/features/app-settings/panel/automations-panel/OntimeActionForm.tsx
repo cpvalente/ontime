@@ -5,6 +5,7 @@ import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form'
 import Input from '../../../../common/components/input/input/Input';
 import Select from '../../../../common/components/select/Select';
 import * as Panel from '../../panel-utils/PanelUtils';
+import TemplateInput from './template-input/TemplateInput';
 
 import style from './AutomationForm.module.scss';
 
@@ -71,8 +72,8 @@ export default function OntimeActionForm({
             { value: 'playback-pause', label: 'Playback: pause' },
             { value: 'playback-roll', label: 'Playback: roll' },
 
-            { value: 'message-set', label: 'Primary Message: set' },
-            { value: 'message-secondary', label: 'Secondary Message: source' },
+            { value: 'message-set', label: 'Primary Message' },
+            { value: 'message-secondary', label: 'Secondary Message' },
           ]}
         />
         <Panel.Error>{rowErrors?.action?.message}</Panel.Error>
@@ -96,7 +97,12 @@ export default function OntimeActionForm({
         <>
           <label>
             Text (leave empty for no change)
-            <Input {...register(`outputs.${index}.text`)} fluid placeholder='eg: Timer is finished' />
+            <TemplateInput
+              {...register(`outputs.${index}.text`)}
+              value={watch(`outputs.${index}.text`) ?? ''}
+              fluid
+              placeholder='eg: Timer is finished'
+            />
             <Panel.Error>{rowErrors?.text?.message}</Panel.Error>
           </label>
           <label>
@@ -123,15 +129,25 @@ export default function OntimeActionForm({
         <>
           <label>
             Text (leave empty for no change)
-            <Input {...register(`outputs.${index}.text`)} fluid placeholder='eg: Next up: keynote' />
+            <TemplateInput
+              {...register(`outputs.${index}.text`)}
+              value={watch(`outputs.${index}.text`) ?? ''}
+              fluid
+              placeholder='eg: Next up: keynote'
+            />
             <Panel.Error>{rowErrors?.text?.message}</Panel.Error>
           </label>
           <label>
             Timer secondary source
-            <Select<SecondarySource | 'null' | null>
+            <Select<SecondarySource | 'no-change' | 'null' | null>
               onValueChange={(value) => {
                 // null -> no selection
                 if (value === null) return;
+                // no-change -> leave the current secondary source untouched
+                if (value === 'no-change') {
+                  setValue(`outputs.${index}.secondarySource`, undefined, { shouldDirty: true });
+                  return;
+                }
                 // 'null' -> clear the secondary source
                 if (value === 'null') {
                   setValue(`outputs.${index}.secondarySource`, null, { shouldDirty: true });
@@ -139,9 +155,9 @@ export default function OntimeActionForm({
                 }
                 setValue(`outputs.${index}.secondarySource`, value, { shouldDirty: true });
               }}
-              value={watch(`outputs.${index}.secondarySource`)}
+              value={watch(`outputs.${index}.secondarySource`) ?? 'no-change'}
               options={[
-                { value: null, label: 'Select secondary source' },
+                { value: 'no-change', label: 'No change' },
                 { value: 'aux1', label: 'Auxiliary timer 1' },
                 { value: 'aux2', label: 'Auxiliary timer 2' },
                 { value: 'aux3', label: 'Auxiliary timer 3' },
