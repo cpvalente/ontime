@@ -8,6 +8,7 @@ import {
   IoChevronUp,
   IoDuplicateOutline,
   IoFolderOpenOutline,
+  IoLockClosed,
   IoReorderTwo,
   IoTrash,
 } from 'react-icons/io5';
@@ -176,14 +177,17 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
           </div>
           <div className={style.metaEntry}>
             <div className={style.metaLabel}>Duration</div>
-            {planOffset === null ? (
-              <div>{formatDuration(data.duration)}</div>
-            ) : (
-              <div className={cx([planOffsetLabel && style[planOffsetLabel]])}>
-                <span className={style.strike}>{formatDuration(data.duration)}</span>
-                <Tag className={style.offsetLabel}>{planOffset}</Tag>
-              </div>
-            )}
+            <div className={style.duration}>
+              {planOffset === null ? (
+                formatDuration(data.duration)
+              ) : (
+                <span className={cx([planOffsetLabel && style[planOffsetLabel]])}>
+                  <span className={style.strike}>{formatDuration(data.duration)}</span>
+                  <Tag className={style.offsetLabel}>{planOffset}</Tag>
+                </span>
+              )}
+              {data.targetDuration !== null && <IoLockClosed className={style.lockIcon} />}
+            </div>
           </div>
         </div>
       </div>

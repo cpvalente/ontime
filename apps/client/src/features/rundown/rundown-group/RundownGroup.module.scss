@@ -82,6 +82,17 @@
   margin-right: 0.25rem;
   color: $ui-white;
 }
+
+.duration {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.lockIcon {
+  opacity: 0.6;
+}
+
 .over {
   color: $playback-over;
   .strike {
