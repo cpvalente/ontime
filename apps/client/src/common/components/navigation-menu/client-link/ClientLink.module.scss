@@ -1,4 +1,30 @@
-.linkIcon {
+.trailing {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-left: auto;
+}
+
+.linkIcon {
   @include rotate-fourty-five;
+}
+
+.indicator {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: $active-indicator;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.clear {
+  // resting state stays subtle so the row reads cleanly, full opacity on interaction
+  opacity: 0.6;
+  transition: opacity $transition-time-action;
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1;
+  }
 }

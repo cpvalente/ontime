@@ -6,6 +6,7 @@ const RESERVED_PARAMS = new Set(['token', 'n', 'alias']);
 interface SavedViewParamsStore {
   params: Record<string, string>; // view key (e.g. "timer") -> search string without leading "?"
   save: (view: string, search: string) => void;
+  clear: (view: string) => void;
   clearAll: () => void;
 }
 
@@ -27,6 +28,13 @@ export const useSavedViewParams = create<SavedViewParamsStore>((set) => ({
       } else {
         delete params[view];
       }
+      return { params };
+    }),
+  clear: (view) =>
+    set((state) => {
+      if (!state.params[view]) return state;
+      const params = { ...state.params };
+      delete params[view];
       return { params };
     }),
   clearAll: () => set({ params: {} }),

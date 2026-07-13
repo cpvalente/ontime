@@ -1,9 +1,9 @@
 import { Dialog } from '@base-ui/react/dialog';
 import { useDisclosure, useFullscreen } from '@mantine/hooks';
 import { memo } from 'react';
-import { IoClose, IoContract, IoExpand, IoLockClosedOutline, IoRefreshOutline, IoSwapVertical } from 'react-icons/io5';
+import { IoClose, IoContract, IoExpand, IoLockClosedOutline, IoSwapVertical } from 'react-icons/io5';
 import { LuCoffee } from 'react-icons/lu';
-import { useLocation, useSearchParams } from 'react-router';
+import { useLocation } from 'react-router';
 
 import { isLocalhost, supportsFullscreen } from '../../../externals';
 import { canUseWakeLock, useKeepAwakeOptions } from '../../../features/keep-awake/useWakeLock';
@@ -11,7 +11,6 @@ import { navigatorConstants } from '../../../viewerConfig';
 import useUrlPresets from '../../hooks-query/useUrlPresets';
 import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
 import { useClientStore } from '../../stores/clientStore';
-import { hasCustomParams, RESERVED_PARAMS, useSavedViewParams } from '../../stores/savedViewParams';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 import IconButton from '../buttons/IconButton';
 import { RenameClientModal } from '../client-modal/RenameClientModal';
@@ -38,21 +37,6 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
   const { mirror, toggleMirror } = useViewOptionsStore();
   const { keepAwake, toggleKeepAwake } = useKeepAwakeOptions();
   const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const savedParams = useSavedViewParams((store) => store.params);
-  const clearSavedParams = useSavedViewParams((store) => store.clearAll);
-  const hasSavedChanges = hasCustomParams(searchParams) || Object.keys(savedParams).length > 0;
-
-  const clearViewSettings = () => {
-    clearSavedParams();
-    // reset the current view's URL, keeping only reserved (auth/preset) params
-    const preserved = new URLSearchParams();
-    RESERVED_PARAMS.forEach((key) => {
-      const value = searchParams.get(key);
-      if (value !== null) preserved.set(key, value);
-    });
-    setSearchParams(preserved);
-  };
 
   return (
     <Dialog.Root
@@ -93,13 +77,6 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
               </NavigationMenuItem>
             )}
             <NavigationMenuItem onClick={handlers.open}>Rename Client</NavigationMenuItem>
-            {hasSavedChanges && (
-              <NavigationMenuItem onClick={clearViewSettings}>
-                Clear View Settings
-                <IoRefreshOutline />
-                <span className={style.note}>Saved</span>
-              </NavigationMenuItem>
-            )}
 
             <hr className={style.separator} />
 

@@ -39,6 +39,21 @@ describe('savedViewParams store', () => {
     expect(useSavedViewParams.getState().params).toEqual({});
   });
 
+  it('clears the saved params for a single view without touching others', () => {
+    useSavedViewParams.getState().save('timer', 'hideSeconds=true');
+    useSavedViewParams.getState().save('backstage', 'showProgress=false');
+    useSavedViewParams.getState().clear('timer');
+
+    expect(useSavedViewParams.getState().params).toEqual({ backstage: 'showProgress=false' });
+  });
+
+  it('is a no-op when clearing a view without saved params', () => {
+    useSavedViewParams.getState().save('backstage', 'showProgress=false');
+    useSavedViewParams.getState().clear('timer');
+
+    expect(useSavedViewParams.getState().params).toEqual({ backstage: 'showProgress=false' });
+  });
+
   it('clears all saved params', () => {
     useSavedViewParams.getState().save('timer', 'hideSeconds=true');
     useSavedViewParams.getState().clearAll();
