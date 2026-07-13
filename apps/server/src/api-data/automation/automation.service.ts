@@ -132,7 +132,7 @@ function send(output: AutomationOutput[], store: RuntimeStore) {
     } else if (isHTTPOutput(payload)) {
       emitHTTP(payload, store);
     } else if (isOntimeAction(payload)) {
-      toOntimeAction(payload);
+      toOntimeAction(payload, store);
     } else {
       logger.warning(LogOrigin.Tx, `Unknown output type: ${payload}`);
     }

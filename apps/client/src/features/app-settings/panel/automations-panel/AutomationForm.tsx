@@ -293,8 +293,9 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
         <h3>Outputs</h3>
         <Info>
           Automation outputs can be used to send data from Ontime to external software <br />
-          or to change properties of Ontime itself.
-          <ExternalLink href={integrationsDocsUrl}>See the documentation for templates</ExternalLink>
+          or to change properties of Ontime itself. <br /> <br />
+          Use Ontime runtime data in these fields with template strings. Type {'{{'} to see autocomplete, or{' '}
+          <ExternalLink href={integrationsDocsUrl}>read the docs</ExternalLink>
         </Info>
 
         {fieldOutputs.map((output, index) => {
@@ -341,12 +342,17 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                   </label>
                   <label>
                     Address
-                    <Input {...register(`outputs.${index}.address`)} fluid placeholder='/cue/start' />
+                    <TemplateInput
+                      {...register(`outputs.${index}.address`)}
+                      value={output.address}
+                      fluid
+                      placeholder='/cue/start'
+                    />
                     <Panel.Error>{rowErrors?.address?.message}</Panel.Error>
                   </label>
                   <label>
                     Arguments
-                    <TemplateInput {...register(`outputs.${index}.args`)} value={output.args} placeholder='1' />
+                    <TemplateInput {...register(`outputs.${index}.args`)} value={output.args} fluid placeholder='1' />
                     <Panel.Error>{rowErrors?.args?.message}</Panel.Error>
                   </label>
                   <div>
@@ -376,7 +382,7 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                 <div className={style.httpSection}>
                   <label>
                     Target URL
-                    <Input
+                    <TemplateInput
                       {...register(`outputs.${index}.url`, {
                         required: { value: true, message: 'Required field' },
                         pattern: {
@@ -384,6 +390,7 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                           message: 'HTTP messages should target http:// or https://',
                         },
                       })}
+                      value={output.url}
                       fluid
                       placeholder='http://127.0.0.1/start/1'
                     />

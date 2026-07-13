@@ -1,29 +1,67 @@
-.wrapper {
+.inputShell {
   position: relative;
 }
 
-.suggestions {
-  background: $gray-1250;
-  color: $ui-white;
-
-  position: absolute;
-  top: 100%;
-  left: 0;
+.fluid {
   width: 100%;
-  margin: 0;
-  z-index: $zindex-floating;
-  padding-block: 0.25rem;
+}
 
-  max-height: 200px;
-  overflow-y: auto;
+.input {
+  padding-right: 2rem;
+}
+
+.expandButton {
+  position: absolute;
+  top: 50%;
+  right: 0.25rem;
+  transform: translateY(-50%);
+}
+
+.positioner {
+  outline: 0;
+}
+
+.popup {
+  box-sizing: border-box;
+  min-width: var(--anchor-width);
+  max-width: var(--available-width);
+  border: 1px solid $gray-1000;
+  border-radius: $component-border-radius-md;
+  background: $gray-1250;
   color: $label-gray;
+}
 
-  li {
-    padding: 0.25rem;
-  }
+.list {
+  box-sizing: border-box;
+  max-height: min(20rem, var(--available-height));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-block: 0.25rem;
+  outline: 0;
+}
 
-  li:hover {
+.item {
+  box-sizing: border-box;
+  padding: 0.25rem 0.5rem;
+  outline: 0;
+  cursor: default;
+  user-select: none;
+  overflow-wrap: anywhere;
+
+  &[data-highlighted] {
     color: $ui-white;
     background: $blue-700;
   }
+}
+
+.expandedEditor {
+  min-height: min(18rem, 45vh);
+  font-family: monospace;
+  line-height: 1.4;
+}
+
+.footerHint {
+  margin-right: auto;
+  color: $label-gray;
+  font-size: calc(1rem - 2px);
 }

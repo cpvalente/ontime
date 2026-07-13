@@ -93,6 +93,11 @@ export function makeAutoCompleteList(customFields: CustomFields): string[] {
   ];
 }
 
+interface TemplateCompletion {
+  cursorIndex: number;
+  value: string;
+}
+
 /**
  * Returns the partial string b needed to autocomplete string a
  * @example matchRemaining('te', 'test') -> 'st'
@@ -123,13 +128,54 @@ export function matchRemaining(a: string, b: string) {
   return '';
 }
 
-/**
- * Selects the last starting template in a string
- */
-export function selectFromLastTemplate(text: string) {
-  const lastBraceIndex = text.lastIndexOf('{{');
-  if (lastBraceIndex !== -1) {
-    return text.slice(lastBraceIndex);
+function getActiveTemplateRange(text: string, cursorIndex = text.length) {
+  const textBeforeCursor = text.slice(0, cursorIndex);
+  const start = textBeforeCursor.lastIndexOf('{{');
+  if (start === -1) {
+    return null;
   }
-  return '';
+
+  const closeBeforeCursor = textBeforeCursor.lastIndexOf('}}');
+  if (closeBeforeCursor > start) {
+    return null;
+  }
+
+  const closeAfterStart = text.indexOf('}}', start);
+  const nextStartAfterCursor = text.indexOf('{{', cursorIndex);
+  const closesBeforeNextTemplate = nextStartAfterCursor === -1 || closeAfterStart < nextStartAfterCursor;
+  const end = closeAfterStart !== -1 && closesBeforeNextTemplate ? closeAfterStart + 2 : cursorIndex;
+
+  return {
+    end,
+    start,
+    template: text.slice(start, cursorIndex),
+  };
+}
+
+/**
+ * Selects the last unclosed starting template before the cursor.
+ */
+export function selectActiveTemplate(text: string, cursorIndex = text.length) {
+  return getActiveTemplateRange(text, cursorIndex)?.template ?? '';
+}
+
+/**
+ * Replaces the active template fragment before the cursor with the selected suggestion.
+ */
+export function completeTemplateAtCursor(
+  text: string,
+  suggestion: string,
+  cursorIndex = text.length,
+): TemplateCompletion {
+  const activeTemplateRange = getActiveTemplateRange(text, cursorIndex);
+  if (!activeTemplateRange) {
+    const value = text + matchRemaining(text, suggestion);
+    return { value, cursorIndex: value.length };
+  }
+
+  const value = `${text.slice(0, activeTemplateRange.start)}${suggestion}${text.slice(activeTemplateRange.end)}`;
+  return {
+    value,
+    cursorIndex: activeTemplateRange.start + suggestion.length,
+  };
 }

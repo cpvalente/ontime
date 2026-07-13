@@ -114,6 +114,6 @@ export type OntimeAction =
   | {
       type: 'ontime';
       action: OntimeMessageSecondary;
-      secondarySource: SecondarySource;
+      secondarySource?: SecondarySource;
       text?: string;
     };
