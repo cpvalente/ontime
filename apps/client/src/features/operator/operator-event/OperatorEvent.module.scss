@@ -74,6 +74,9 @@
 .plannedStart,
 .timeUntil,
 .runningTime {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   border-radius: $component-border-radius-md;
   padding: 0.25rem 0.5rem;
   line-height: 1;
