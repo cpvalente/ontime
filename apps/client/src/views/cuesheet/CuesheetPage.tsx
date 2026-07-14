@@ -23,7 +23,7 @@ export default function CuesheetPage() {
   const isLocked = getIsNavigationLocked();
 
   return (
-    <RundownSelectionContextProvider>
+    <RundownSelectionContextProvider >
       <EntryActionsProvider>
         <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />
         <EntryEditModal />

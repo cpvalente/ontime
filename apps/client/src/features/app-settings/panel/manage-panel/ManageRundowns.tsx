@@ -20,12 +20,12 @@ import { DropdownMenu } from '../../../../common/components/dropdown-menu/Dropdo
 import Tag from '../../../../common/components/tag/Tag';
 import { useMutateProjectRundowns, useProjectRundowns } from '../../../../common/hooks-query/useProjectRundowns';
 import { cx } from '../../../../common/utils/styleUtils';
-import { useDirectLinkToBackgroundEdit } from '../../../../views/cuesheet/useCuesheetRundownSelection';
 import * as Panel from '../../panel-utils/PanelUtils';
 import RundownRenameForm from './composite/RundownRenameForm';
 import { ManageRundownForm } from './ManageRundownForm';
 
 import style from './ManagePanel.module.scss';
+import { useDirectLinkToBackgroundEdit } from '../../../../common/context/RundownSelectionContext';
 
 export default function ManageRundowns() {
   return (

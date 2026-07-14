@@ -1,14 +1,7 @@
 import { Maybe, ProjectRundown } from 'ontime-types';
-import {
-  PropsWithChildren,
-  createContext,
-  startTransition,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { PropsWithChildren, createContext, startTransition, useCallback, useContext, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router';
+import { useNavigate } from 'react-router';
 
 import { useProjectRundowns } from '../hooks-query/useProjectRundowns';
 
@@ -27,7 +20,8 @@ export function RundownSelectionContextProvider({ children }: PropsWithChildren)
   'use memo';
   const { data } = useProjectRundowns();
   const { loaded, rundowns } = data;
-  const [selectedRundownId, setSelectedRundownId] = useState<Maybe<string>>(null);
+
+  const [selectedRundownId, setSelectedRundownId] = useSelectRundownFromParams();
 
   const selectRundownId = useCallback(
     (rundownId: Maybe<string>) => {
@@ -36,7 +30,7 @@ export function RundownSelectionContextProvider({ children }: PropsWithChildren)
         else setSelectedRundownId(null);
       });
     },
-    [rundowns],
+    [rundowns, setSelectedRundownId],
   );
 
   const effectiveRundownId = selectedRundownId ? selectedRundownId : loaded;
@@ -44,7 +38,7 @@ export function RundownSelectionContextProvider({ children }: PropsWithChildren)
 
   useEffect(() => {
     if (!rundowns.find((entry) => entry.id === effectiveRundownId)) setSelectedRundownId(null);
-  }, [rundowns, effectiveRundownId]);
+  }, [rundowns, effectiveRundownId, setSelectedRundownId]);
 
   const value = useMemo(
     (): RundownScopeValue => ({
@@ -69,4 +63,58 @@ export function useRundownSelectionContext() {
   }
 
   return context;
+}
+
+const rundownParam = 'rundownId';
+
+export function useSelectRundownFromParams(): [Maybe<string>, (id: Maybe<string>) => void] {
+  'use memo';
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const selectedRundownId = searchParams.get(rundownParam);
+  const setSelectedRundownId = useCallback(
+    (id: Maybe<string>) => {
+      if (id === null) {
+        setSearchParams((searchParams) => {
+          searchParams.delete(rundownParam);
+          return searchParams;
+        });
+      } else {
+        setSearchParams((searchParams) => {
+          searchParams.set(rundownParam, id);
+          return searchParams;
+        });
+      }
+    },
+    [setSearchParams],
+  );
+
+  return [selectedRundownId, setSelectedRundownId];
+}
+
+/**
+ *
+ * mutates the provided `searchParams`
+ */
+export function setSelectRundownInParams(id: Maybe<string>, searchParams: URLSearchParams): void {
+  if (id === null) {
+    searchParams.delete(rundownParam);
+  } else {
+    searchParams.set(rundownParam, id);
+  }
+}
+
+export function useDirectLinkToBackgroundEdit() {
+  const navigate = useNavigate();
+  const [search] = useSearchParams();
+  return useCallback(
+    async (rundownId: string) => {
+      setSelectRundownInParams(rundownId, search);
+      navigate({
+        pathname: '/cuesheet',
+        search: search.toString(),
+      });
+    },
+    [navigate, search],
+  );
 }

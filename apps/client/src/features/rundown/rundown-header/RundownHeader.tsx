@@ -8,6 +8,7 @@ import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { setOffsetMode, useOffsetMode } from '../../../common/hooks/useSocket';
 import { AppMode } from '../../../ontimeConfig';
 import { EditorLayoutMode, useEditorLayout } from '../../../views/editor/useEditorLayout';
+import { RundownSelect } from '../common/RundownSelect';
 import { RundownViewMode } from '../rundown.options';
 import { useEditorFollowMode } from '../useEditorFollowMode';
 import RundownMenu from './RundownMenu';
@@ -24,6 +25,7 @@ interface HeaderControlsConfig {
   showRunEditToggle: boolean;
   showOffsetToggle: boolean;
   showOverflowMenu: boolean;
+  showRundownSelect: boolean;
 }
 
 export const HEADER_CONTROLS_CONFIG: Record<EditorLayoutMode, HeaderControlsConfig> = {
@@ -31,16 +33,19 @@ export const HEADER_CONTROLS_CONFIG: Record<EditorLayoutMode, HeaderControlsConf
     showRunEditToggle: true,
     showOffsetToggle: true,
     showOverflowMenu: true,
+    showRundownSelect: false,
   },
   [EditorLayoutMode.PLANNING]: {
     showRunEditToggle: false,
     showOffsetToggle: false,
     showOverflowMenu: true,
+    showRundownSelect: true,
   },
   [EditorLayoutMode.TRACKING]: {
     showRunEditToggle: false,
     showOffsetToggle: true,
     showOverflowMenu: false,
+    showRundownSelect: false,
   },
 } as const;
 
@@ -50,7 +55,8 @@ function RundownHeader({ isExtracted, viewMode, setViewMode }: RundownHeaderProp
   const offsetMode = useOffsetMode();
   const { layoutMode } = useEditorLayout();
 
-  const { showRunEditToggle, showOffsetToggle, showOverflowMenu } = HEADER_CONTROLS_CONFIG[layoutMode];
+  const { showRunEditToggle, showOffsetToggle, showOverflowMenu, showRundownSelect } =
+    HEADER_CONTROLS_CONFIG[layoutMode];
 
   const toggleAppMode = (mode: AppMode[]) => {
     // we need to stop user from deselecting a mode
@@ -121,6 +127,8 @@ function RundownHeader({ isExtracted, viewMode, setViewMode }: RundownHeaderProp
           </Tooltip>
         </ToggleGroup>
       )}
+
+      {showRundownSelect && <RundownSelect appMode={editorMode} />}
 
       {showOverflowMenu && <RundownMenu allowNavigation={!isExtracted} />}
     </Toolbar.Root>

@@ -112,6 +112,7 @@ function RundownRoot({ isSmallDevice, isExtracted, viewMode, setViewMode }: Rund
       {isSmallDevice ? (
         <RundownHeaderMobile viewMode={viewMode} setViewMode={setViewMode} />
       ) : (
+        // TODO: add data-background-rundown={!isLoadedRundown} styling
         <RundownHeader isExtracted={isExtracted} viewMode={viewMode} setViewMode={setViewMode} />
       )}
       {viewMode === RundownViewMode.List ? <RundownList /> : <RundownTable />}
