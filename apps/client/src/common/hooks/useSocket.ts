@@ -139,6 +139,17 @@ export const setEventPlayback = {
   pause: () => sendSocket('pause', undefined),
 };
 
+export const useTimerProgress = createSelector((state: RuntimeStore) => ({
+  playback: state.timer.playback,
+  phase: state.timer.phase,
+  addedTime: state.timer.addedTime,
+  secondaryTimer: state.timer.secondaryTimer,
+  current: state.timer.current,
+  expectedFinish: state.timer.expectedFinish,
+  startedAt: state.timer.startedAt,
+  isCountToEnd: state.eventNow?.countToEnd ?? false,
+}));
+
 export const useTimer = createSelector((state: RuntimeStore) => ({
   ...state.timer,
 }));
