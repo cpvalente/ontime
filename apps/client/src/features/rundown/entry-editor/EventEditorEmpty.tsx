@@ -1,6 +1,7 @@
 import { PropsWithChildren, memo } from 'react';
 
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
+import Kbd from '../../../common/components/kbd/Kbd';
 import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';
 
 import style from './EventEditorEmpty.module.scss';
@@ -12,216 +13,124 @@ function EventEditorEmpty() {
     <div className={style.entryEditor} data-testid='editor-container'>
       <div className={style.shortcutSection}>
         <Editor.Title className={style.prompt}>Rundown shortcuts</Editor.Title>
-        <table className={style.shortcuts}>
-          <tbody>
-            <tr>
-              <td>Find in rundown</td>
-              <td>
-                <Kbd>{deviceMod}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>F</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Open Settings</td>
-              <td>
-                <Kbd>{deviceMod}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>,</Kbd>
-              </td>
-            </tr>
-            <tr className={style.spacer} />
-            <tr>
-              <td>Select entry</td>
-              <td>
-                <Kbd>{deviceAlt}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>↑</Kbd>
-                <AuxKey>/</AuxKey>
-                <Kbd>↓</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Select group</td>
-              <td>
-                <Kbd>{deviceAlt}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>Shift</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>↑</Kbd>
-                <AuxKey>/</AuxKey>
-                <Kbd>↓</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Jump to top / bottom</td>
-              <td>
-                <Kbd>Home</Kbd>
-                <AuxKey>/</AuxKey>
-                <Kbd>End</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Page up / down</td>
-              <td>
-                <Kbd>PgUp</Kbd>
-                <AuxKey>/</AuxKey>
-                <Kbd>PgDn</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Deselect entry</td>
-              <td>
-                <Kbd>Esc</Kbd>
-              </td>
-            </tr>
-            <tr className={style.spacer} />
-            <tr>
-              <td>Reorder selected entry</td>
-              <td>
-                <Kbd>{deviceAlt}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>{deviceMod}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>↑</Kbd>
-                <AuxKey>/</AuxKey>
-                <Kbd>↓</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Copy selected entry</td>
-              <td>
-                <Kbd>{deviceMod}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>C</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Cut selected entry</td>
-              <td>
-                <Kbd>{deviceMod}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>X</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Paste above</td>
-              <td>
-                <Kbd>{deviceMod}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>Shift</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>V</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Paste below</td>
-              <td>
-                <Kbd>{deviceMod}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>V</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Clone selected entry</td>
-              <td>
-                <Kbd>{deviceMod}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>D</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Delete selected entry</td>
-              <td>
-                <Kbd>{deviceAlt}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>Backspace</Kbd>
-              </td>
-            </tr>
-            <tr className={style.spacer} />
-            <tr>
-              <td>Add event below</td>
-              <td>
-                <Kbd>{deviceAlt}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>E</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Add event above</td>
-              <td>
-                <Kbd>{deviceAlt}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>Shift</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>E</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Add group below</td>
-              <td>
-                <Kbd>{deviceAlt}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>G</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Add group above</td>
-              <td>
-                <Kbd>{deviceAlt}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>Shift</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>G</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Add milestone below</td>
-              <td>
-                <Kbd>{deviceAlt}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>M</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Add milestone above</td>
-              <td>
-                <Kbd>{deviceAlt}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>Shift</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>M</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Add delay below</td>
-              <td>
-                <Kbd>{deviceAlt}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>D</Kbd>
-              </td>
-            </tr>
-            <tr>
-              <td>Add delay above</td>
-              <td>
-                <Kbd>{deviceAlt}</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>Shift</Kbd>
-                <AuxKey>+</AuxKey>
-                <Kbd>D</Kbd>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div className={style.shortcuts}>
+          <ShortcutGroup title='Search'>
+            <Shortcut label='Find in rundown'>
+              <Combo keys={[deviceMod, 'F']} />
+            </Shortcut>
+            <Shortcut label='Open settings'>
+              <Combo keys={[deviceMod, ',']} />
+            </Shortcut>
+          </ShortcutGroup>
+
+          <ShortcutGroup title='Navigation'>
+            <Shortcut label='Select entry'>
+              <Combo keys={[deviceAlt, '↑']} />
+              <Separator />
+              <Combo keys={[deviceAlt, '↓']} />
+            </Shortcut>
+            <Shortcut label='Select group'>
+              <Combo keys={[deviceAlt, 'Shift', '↑']} />
+              <Separator />
+              <Combo keys={[deviceAlt, 'Shift', '↓']} />
+            </Shortcut>
+            <Shortcut label='Jump to top / bottom'>
+              <Combo keys={['Home']} />
+              <Separator />
+              <Combo keys={['End']} />
+            </Shortcut>
+            <Shortcut label='Page up / down'>
+              <Combo keys={['PgUp']} />
+              <Separator />
+              <Combo keys={['PgDn']} />
+            </Shortcut>
+            <Shortcut label='Deselect entry'>
+              <Combo keys={['Esc']} />
+            </Shortcut>
+          </ShortcutGroup>
+
+          <ShortcutGroup title='Editing'>
+            <Shortcut label='Reorder selected entry'>
+              <Combo keys={[deviceAlt, deviceMod, '↑']} />
+              <Separator />
+              <Combo keys={[deviceAlt, deviceMod, '↓']} />
+            </Shortcut>
+            <Shortcut label='Copy selected entry'>
+              <Combo keys={[deviceMod, 'C']} />
+            </Shortcut>
+            <Shortcut label='Cut selected entry'>
+              <Combo keys={[deviceMod, 'X']} />
+            </Shortcut>
+            <Shortcut label='Paste below'>
+              <Combo keys={[deviceMod, 'V']} />
+            </Shortcut>
+            <Shortcut label='Paste above'>
+              <Combo keys={[deviceMod, 'Shift', 'V']} />
+            </Shortcut>
+            <Shortcut label='Clone selected entry'>
+              <Combo keys={[deviceMod, 'D']} />
+            </Shortcut>
+            <Shortcut label='Delete selected entry'>
+              <Combo keys={[deviceAlt, 'Backspace']} />
+            </Shortcut>
+          </ShortcutGroup>
+
+          <ShortcutGroup title='Insert'>
+            <Shortcut label='Add event below / above'>
+              <Combo keys={[deviceAlt, 'E']} />
+              <Separator />
+              <Combo keys={[deviceAlt, 'Shift', 'E']} />
+            </Shortcut>
+            <Shortcut label='Add group below / above'>
+              <Combo keys={[deviceAlt, 'G']} />
+              <Separator />
+              <Combo keys={[deviceAlt, 'Shift', 'G']} />
+            </Shortcut>
+            <Shortcut label='Add milestone below / above'>
+              <Combo keys={[deviceAlt, 'M']} />
+              <Separator />
+              <Combo keys={[deviceAlt, 'Shift', 'M']} />
+            </Shortcut>
+            <Shortcut label='Add delay below / above'>
+              <Combo keys={[deviceAlt, 'D']} />
+              <Separator />
+              <Combo keys={[deviceAlt, 'Shift', 'D']} />
+            </Shortcut>
+          </ShortcutGroup>
+        </div>
       </div>
     </div>
   );
 }
 
-function AuxKey({ children }: PropsWithChildren) {
-  return <span className={style.divider}>{children}</span>;
+function ShortcutGroup({ title, children }: PropsWithChildren<{ title: string }>) {
+  return (
+    <section className={style.shortcutGroup}>
+      <h3>{title}</h3>
+      <div className={style.shortcutList}>{children}</div>
+    </section>
+  );
 }
 
-function Kbd({ children }: PropsWithChildren) {
-  return <span className={style.kbd}>{children}</span>;
+function Shortcut({ label, children }: PropsWithChildren<{ label: string }>) {
+  return (
+    <div className={style.shortcutRow}>
+      <span className={style.shortcutLabel}>{label}</span>
+      <span className={style.shortcutKeys}>{children}</span>
+    </div>
+  );
+}
+
+function Combo({ keys }: { keys: string[] }) {
+  return (
+    <span className={style.keyCombo}>
+      {keys.map((key) => (
+        <Kbd key={key}>{key}</Kbd>
+      ))}
+    </span>
+  );
+}
+
+function Separator() {
+  return <span className={style.separator}>/</span>;
 }
