@@ -22,15 +22,37 @@
     background-color: $gray-1250;
   }
 
+  &.grouped {
+    position: relative;
+    padding-left: 0.35rem;
+    background:
+      linear-gradient(90deg, color-mix(in srgb, transparent 88%, var(--group-colour, $gray-500) 12%), transparent 8rem),
+      $viewer-card-bg-color;
+  }
+
   &.running {
     border-top: 1px solid $gray-1300;
     background-color: var(--operator-running-bg-override, $active-green);
+  }
+
+  &.grouped.running {
+    background:
+      linear-gradient(90deg, color-mix(in srgb, transparent 82%, var(--group-colour, $gray-500) 18%), transparent 8rem),
+      var(--operator-running-bg-override, $active-green);
   }
 
   &.past {
     border-top: 1px solid transparent;
     opacity: 0.2;
   }
+}
+
+.groupRail {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 0.35rem;
+  background-color: var(--group-colour, $gray-500);
 }
 
 .binder {

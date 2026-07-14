@@ -1,13 +1,33 @@
 .group {
   width: 100%;
-  padding: 0.25rem 0.5rem;
+  min-height: 2.5rem;
+  padding: 0.4rem 0.75rem;
+  border-left: 0.35rem solid var(--group-colour, $gray-500);
   background-color: $gray-1350;
+  background: color-mix(in srgb, transparent 88%, var(--group-colour, $gray-500) 12%);
   font-size: 1.25rem;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  letter-spacing: 0;
 }
 
-// tablet
-@media (min-width: $min-tablet) {
-  .group {
-    padding: 0.25rem 1rem;
-  }
+.title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba($ui-white, 0.55);
+  font-size: 0.875rem;
+  font-weight: 500;
 }
