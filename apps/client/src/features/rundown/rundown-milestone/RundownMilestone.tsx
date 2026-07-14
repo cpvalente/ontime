@@ -9,7 +9,7 @@ import useReactiveTextInput from '../../../common/components/input/text-input/us
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
-import { deviceMod } from '../../../common/utils/deviceUtils';
+import { deviceAlt } from '../../../common/utils/deviceUtils';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useEventSelection } from '../useEventSelection';
 
@@ -38,7 +38,7 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
       type: 'item',
       label: 'Delete',
       icon: IoTrash,
-      shortcut: `${deviceMod}+Del`,
+      shortcut: `${deviceAlt}+Backspace`,
       onClick: () => deleteEntry([entryId]),
     },
   ]);

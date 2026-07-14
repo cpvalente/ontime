@@ -18,7 +18,7 @@ import Tag from '../../../common/components/tag/Tag';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
-import { deviceMod } from '../../../common/utils/deviceUtils';
+import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';
 import { getOffsetState } from '../../../common/utils/offset';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';
@@ -66,7 +66,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
       type: 'item',
       label: 'Delete Group',
       icon: IoTrash,
-      shortcut: `${deviceMod}+Del`,
+      shortcut: `${deviceAlt}+Backspace`,
       onClick: () => deleteEntry([data.id]),
     },
   ]);

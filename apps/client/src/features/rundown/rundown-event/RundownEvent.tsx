@@ -18,7 +18,7 @@ import { TbFlagFilled, TbListNumbers } from 'react-icons/tb';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
-import { deviceMod } from '../../../common/utils/deviceUtils';
+import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useRenumberCuesDialogStore } from '../renumber-cues-dialog/RenumberCuesDialog';
 import { useEventIdSwapping } from '../useEventIdSwapping';
@@ -156,7 +156,7 @@ export default function RundownEvent({
             type: 'item',
             label: 'Delete',
             icon: IoTrash,
-            shortcut: `${deviceMod}+Del`,
+            shortcut: `${deviceAlt}+Backspace`,
             onClick: () => {
               clearSelectedEvents();
               deleteEntry(Array.from(selectedEvents));
@@ -202,7 +202,7 @@ export default function RundownEvent({
             type: 'item',
             label: 'Delete',
             icon: IoTrash,
-            shortcut: `${deviceMod}+Del`,
+            shortcut: `${deviceAlt}+Backspace`,
             onClick: () => {
               deleteEntry([eventId]);
               unselect(eventId);
