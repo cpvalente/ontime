@@ -3,6 +3,7 @@ import {
   MILLIS_PER_HOUR,
   MILLIS_PER_MINUTE,
   MILLIS_PER_SECOND,
+  dayInMs,
   formatFromMillis,
   getExpectedStart,
 } from 'ontime-utils';
@@ -27,6 +28,11 @@ export function nowInMillis(): number {
   elapsed += now.getMilliseconds();
 
   return elapsed;
+}
+
+export function normaliseWallClock(time: number): number {
+  const timeOfDay = time % dayInMs;
+  return timeOfDay < 0 ? timeOfDay + dayInMs : timeOfDay;
 }
 
 /**
