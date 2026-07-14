@@ -115,12 +115,12 @@ function RundownEventInner({
           delay={delay}
           timeStrategy={timeStrategy}
           linkStart={linkStart}
-          countToEnd={countToEnd}
         />
       </div>
       <div className={style.titleSection}>
         <TitleEditor title={title} entryId={eventId} placeholder='Event title' className={style.eventTitle} />
-        {isNext && <span className={style.nextTag}>UP NEXT</span>}
+        {isNext && <span className={style.warningMeta}>UP NEXT</span>}
+        {!isNext && countToEnd && <span className={style.warningMeta}>COUNT TO END</span>}
       </div>
       <EventBlockPlayback
         eventId={eventId}
@@ -157,7 +157,13 @@ function RundownEventInner({
             <EndActionIcon action={endAction} className={style.statusIcon} />
           </Tooltip>
           <Tooltip text={`${countToEnd ? 'Count to End' : 'Count duration'}`} render={<span />}>
-            <LuArrowDownToLine className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
+            <LuArrowDownToLine
+              className={cx([
+                style.statusIcon,
+                countToEnd ? style.active : style.disabled,
+                countToEnd && style.countToEndStatus,
+              ])}
+            />
           </Tooltip>
           <Tooltip text={automationTooltip} render={<span />}>
             <IoFlash className={automationIconClasses} />

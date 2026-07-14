@@ -88,7 +88,6 @@ function EventEditorTimes({
               timeStrategy={timeStrategy}
               linkStart={linkStart}
               delay={delay}
-              countToEnd={countToEnd}
               showLabels
             />
           </div>
