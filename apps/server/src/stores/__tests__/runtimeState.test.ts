@@ -280,13 +280,19 @@ describe('mutation on runtimeState', () => {
       expect(getState().timer.elapsed).toBe(8 * MILLIS_PER_MINUTE);
       pause();
 
-      // resume 5 minutes later, having crossed midnight (23:58 -> 00:03)
+      // elapsed is active time since start, so it must not advance while paused,
+      // not even when the pause itself crosses midnight
+      vi.setSystemTime('jan 2 00:01');
+      update();
+      expect(getState().timer.elapsed).toBe(8 * MILLIS_PER_MINUTE);
+
+      // resume 5 minutes after pausing, having crossed midnight (23:58 -> 00:03)
       vi.setSystemTime('jan 2 00:03');
       start();
       let state = getState();
-      // the pause lasted 5 minutes, regardless of the midnight wrap
+      // the accumulated pause count is 5 minutes, regardless of the midnight wrap
       expect(state._timer.pausedDuration).toBe(5 * MILLIS_PER_MINUTE);
-      // elapsed must still exclude the paused time -> only the 8 active minutes
+      // and elapsed still reflects only the 8 active minutes
       expect(state.timer.elapsed).toBe(8 * MILLIS_PER_MINUTE);
 
       // 2 more active minutes after resume -> 10 minutes elapsed
