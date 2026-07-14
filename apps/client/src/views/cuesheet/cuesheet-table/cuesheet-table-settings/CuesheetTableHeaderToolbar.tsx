@@ -12,10 +12,10 @@ import * as Editor from '../../../../common/components/editor-utils/EditorUtils'
 import PopoverContents from '../../../../common/components/popover/Popover';
 import { useRundownSelectionContext } from '../../../../common/context/RundownSelectionContext';
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
+import { RundownSelect } from '../../../../features/rundown/common/RundownSelect';
 import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetPermissions } from '../../useTablePermissions';
 import CuesheetShareModal from './CuesheetShareModal';
-import { RundownSelect } from './RundownSelect';
 
 import style from './CuesheetTableSettings.module.scss';
 
@@ -55,6 +55,7 @@ export default function CuesheetTableHeaderToolbar({
 }: CuesheetTableHeaderToolbarProps) {
   const canChangeMode = useCuesheetPermissions((state) => state.canChangeMode) && tableRoot === 'cuesheet';
   const canShare = useCuesheetPermissions((state) => state.canShare) && tableRoot === 'cuesheet';
+  const showRundownSelect = tableRoot === 'cuesheet';
   const { isLoadedRundown } = useRundownSelectionContext();
 
   const toggleCuesheetMode = (mode: AppMode[]) => {
@@ -73,7 +74,7 @@ export default function CuesheetTableHeaderToolbar({
         handleClearToggles={handleClearToggles}
       />
       <div className={style.apart}>
-        <RundownSelect appMode={appMode} />
+        {showRundownSelect && <RundownSelect appMode={appMode} />}
         {canChangeMode && (
           <ToggleGroup
             value={[appMode]}

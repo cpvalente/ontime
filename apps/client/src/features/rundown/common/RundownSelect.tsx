@@ -1,6 +1,6 @@
-import Select from '../../../../common/components/select/Select';
-import { useRundownSelectionContext } from '../../../../common/context/RundownSelectionContext';
-import { AppMode } from '../../../../ontimeConfig';
+import Select from '../../../common/components/select/Select';
+import { useRundownSelectionContext } from '../../../common/context/RundownSelectionContext';
+import { AppMode } from '../../../ontimeConfig';
 
 import styles from './RundownSelect.module.scss';
 
