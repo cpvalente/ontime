@@ -162,11 +162,11 @@ function OperatorEventSchedule({
   isLinkedToLoaded,
 }: OperatorEventScheduleProps) {
   if (isPast) {
-    return <span className={style.timeUntil}>DONE</span>;
+    return <span className={cx([style.timeUntil, style.done])}>DONE</span>;
   }
 
   if (isSelected) {
-    return <span className={style.timeUntil}>LIVE</span>;
+    return <span className={cx([style.timeUntil, style.live])}>LIVE</span>;
   }
 
   return (
@@ -195,7 +195,7 @@ function TimeUntil({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded }: 
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
 
   return (
-    <span className={style.timeUntil} data-testid='time-until'>
+    <span className={cx([style.timeUntil, isDue && style.due])} data-testid='time-until'>
       {timeUntilString}
     </span>
   );

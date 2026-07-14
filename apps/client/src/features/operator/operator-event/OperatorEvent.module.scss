@@ -120,6 +120,21 @@
   letter-spacing: 1px;
 }
 
+.live {
+  color: $ui-black;
+  background-color: $ui-white;
+}
+
+.due {
+  color: $ui-black;
+  background-color: $orange-500;
+}
+
+.done {
+  color: $white-60;
+  background-color: $white-7;
+}
+
 .runningTime {
   grid-area: running;
   font-size: 1.25rem;
