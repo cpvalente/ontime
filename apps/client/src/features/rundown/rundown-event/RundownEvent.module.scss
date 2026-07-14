@@ -7,6 +7,7 @@ $skip-opacity: 0.2;
   background-color: $block-bg;
   margin-block: 0.25rem;
   overflow: initial;
+  position: relative;
 
   display: grid;
   grid-template-areas:
@@ -33,6 +34,10 @@ $skip-opacity: 0.2;
 
   &.loaded {
     background-color: $gray-1325;
+  }
+
+  &.countToEnd {
+    --status-color-active-override: #{$orange-400};
   }
 
   &.play {
@@ -155,7 +160,7 @@ $skip-opacity: 0.2;
   align-items: center;
   justify-content: space-between;
 
-  .nextTag {
+  .warningMeta {
     font-size: 1rem;
     color: $orange-500;
     letter-spacing: 0.03px;
