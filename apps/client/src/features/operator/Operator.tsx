@@ -180,7 +180,13 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
 
             return (
               <Fragment key={entry.id}>
-                <OperatorGroup key={entry.id} title={entry.title} />
+                <OperatorGroup
+                  key={entry.id}
+                  title={entry.title}
+                  colour={entry.colour}
+                  count={entry.entries.length}
+                  duration={entry.duration}
+                />
                 {entry.entries.map((nestedEntryId) => {
                   const nestedEntry = rundown.entries[nestedEntryId];
                   if (!isOntimeEvent(nestedEntry)) {
@@ -217,6 +223,7 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
                       isLinkedToLoaded={isLinkedToLoaded}
                       isSelected={isLoaded}
                       isPast={isPast}
+                      groupColour={entry.colour}
                       selectedRef={isLoaded ? selectedRef : undefined}
                       showStart={showStart}
                       subscribed={subscribedData}

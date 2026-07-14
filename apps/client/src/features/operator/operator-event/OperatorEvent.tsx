@@ -25,6 +25,7 @@ interface OperatorEventProps {
   isLinkedToLoaded: boolean;
   isSelected: boolean;
   isPast: boolean;
+  groupColour?: string;
   selectedRef?: RefObject<HTMLDivElement | null>;
   showStart: boolean;
   subscribed: Subscribed;
@@ -46,6 +47,7 @@ function OperatorEvent({
   isLinkedToLoaded,
   isSelected,
   isPast,
+  groupColour,
   selectedRef,
   showStart,
   subscribed,
@@ -68,7 +70,12 @@ function OperatorEvent({
   const mouseHandlers = useLongPress(handleLongPress);
   const cueColours = colour && getAccessibleColour(colour);
 
-  const operatorClasses = cx([style.event, isSelected && style.running, isPast && style.past]);
+  const operatorClasses = cx([
+    style.event,
+    groupColour && style.grouped,
+    isSelected && style.running,
+    isPast && style.past,
+  ]);
 
   const hasFields = subscribed.some((field) => field.value);
   const columnCount = subscribed.length ? Math.min(subscribed.length, 4) : 0;
@@ -85,8 +92,10 @@ function OperatorEvent({
       data-testid={cue}
       ref={selectedRef}
       onContextMenu={handleLongPress}
+      style={groupColour ? ({ '--group-colour': groupColour } as CSSProperties) : undefined}
       {...mouseHandlers}
     >
+      {groupColour && <div className={style.groupRail} />}
       <div className={style.binder} style={{ ...cueColours }}>
         <span className={style.cue}>{cue}</span>
       </div>
