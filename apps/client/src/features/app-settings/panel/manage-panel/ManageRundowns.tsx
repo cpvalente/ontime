@@ -36,12 +36,12 @@ export default function ManageRundowns() {
         </div>
       }
     >
-      <ManageRundownsSuspends />
+      <ManageRundownsSuspense />
     </Suspense>
   );
 }
 
-function ManageRundownsSuspends() {
+function ManageRundownsSuspense() {
   const { data } = useProjectRundowns();
   const { duplicate, remove, load, rename } = useMutateProjectRundowns();
   const [isOpenDelete, deleteHandlers] = useDisclosure();
