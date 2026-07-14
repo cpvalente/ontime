@@ -27,7 +27,7 @@
   flex: 0 0 auto;
   align-items: center;
   gap: 0.5rem;
-  color: rgba($ui-white, 0.55);
+  color: color-mix(in srgb, currentColor 60%, transparent);
   font-size: 0.875rem;
   font-weight: 500;
 }
