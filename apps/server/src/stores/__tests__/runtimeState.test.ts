@@ -248,6 +248,53 @@ describe('mutation on runtimeState', () => {
       state = getState();
       expect(state.timer.elapsed).toBe(3 * MILLIS_PER_MINUTE);
     });
+
+    test('elapsed excludes a pause that spans midnight', async () => {
+      clearState();
+      // an event that runs over midnight (23:00 -> 01:00)
+      const event = {
+        ...mockEvent,
+        id: 'elapsed-pause-midnight',
+        timeStart: 23 * MILLIS_PER_HOUR,
+        timeEnd: 1 * MILLIS_PER_HOUR,
+        duration: 2 * MILLIS_PER_HOUR,
+      };
+      const mockRundown = makeRundown({
+        entries: { [event.id]: event },
+        order: [event.id],
+      });
+
+      await initRundown(mockRundown, {});
+      vi.runAllTimers();
+
+      const { metadata, rundown } = rundownCache.get();
+
+      // start before midnight
+      vi.setSystemTime('jan 1 23:50');
+      load(event, rundown, metadata);
+      start();
+
+      // 8 minutes of active running before we pause
+      vi.setSystemTime('jan 1 23:58');
+      update();
+      expect(getState().timer.elapsed).toBe(8 * MILLIS_PER_MINUTE);
+      pause();
+
+      // resume 5 minutes later, having crossed midnight (23:58 -> 00:03)
+      vi.setSystemTime('jan 2 00:03');
+      start();
+      let state = getState();
+      // the pause lasted 5 minutes, regardless of the midnight wrap
+      expect(state._timer.pausedDuration).toBe(5 * MILLIS_PER_MINUTE);
+      // elapsed must still exclude the paused time -> only the 8 active minutes
+      expect(state.timer.elapsed).toBe(8 * MILLIS_PER_MINUTE);
+
+      // 2 more active minutes after resume -> 10 minutes elapsed
+      vi.setSystemTime('jan 2 00:05');
+      update();
+      state = getState();
+      expect(state.timer.elapsed).toBe(10 * MILLIS_PER_MINUTE);
+    });
   });
 
   test('runtime offset', async () => {
