@@ -10,7 +10,7 @@ import Switch from '../../../../common/components/switch/Switch';
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
-import { formatTime } from '../../../../common/utils/time';
+import { formatTime, normaliseWallClock } from '../../../../common/utils/time';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
 import style from '../EntryEditor.module.scss';
@@ -68,8 +68,10 @@ function EventEditorTimes({
   };
 
   const hasDelay = delay !== 0;
+  const delayedStart = normaliseWallClock(timeStart + delay);
+  const delayedEnd = normaliseWallClock(timeEnd + delay);
   const delayLabel = hasDelay
-    ? `Event is ${millisToDelayString(delay, 'expanded')}. New schedule ${formatTime(timeStart + delay)} → ${formatTime(timeEnd + delay)}`
+    ? `Event is ${millisToDelayString(delay, 'expanded')}. New schedule ${formatTime(delayedStart)} → ${formatTime(delayedEnd)}`
     : '';
 
   return (
