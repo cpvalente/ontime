@@ -3,6 +3,7 @@ import { SupportedEntry } from 'ontime-types';
 import { KeyboardEvent, useState } from 'react';
 
 import Input from '../../../common/components/input/input/Input';
+import Kbd from '../../../common/components/kbd/Kbd';
 import Modal from '../../../common/components/modal/Modal';
 import useFinder from './useFinder';
 
@@ -96,8 +97,25 @@ export default function Finder({ isOpen, onClose }: FinderProps) {
       }
       footerElements={
         <div className={style.footer}>
-          Use the keywords <span className={style.em}>cue</span>, <span className={style.em}>index</span> or
-          <span className={style.em}>title</span> to filter search.
+          <div className={style.hints}>
+            <span className={style.hintItem}>
+              <Kbd>↑</Kbd>
+              <Kbd>↓</Kbd>
+              Navigate
+            </span>
+            <span className={style.hintItem}>
+              <Kbd>Enter</Kbd>
+              Go
+            </span>
+            <span className={style.hintItem}>
+              <Kbd>Esc</Kbd>
+              Close
+            </span>
+          </div>
+          <div className={style.filterHint}>
+            Filter by <span className={style.em}>cue</span>, <span className={style.em}>index</span>, or
+            <span className={style.em}>title</span>
+          </div>
         </div>
       }
     />

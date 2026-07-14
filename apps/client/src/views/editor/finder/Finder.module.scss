@@ -54,8 +54,17 @@
 }
 
 .footer {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
   font-size: calc(1rem - 2px);
   color: $label-gray;
+}
+
+.filterHint {
+  text-align: right;
 }
 
 .em {
@@ -63,8 +72,33 @@
   margin-inline: 0.25rem;
 }
 
+.hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  color: $label-gray;
+  font-size: calc(1rem - 3px);
+}
+
+.hintItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .scrollContainer {
   max-height: 70vh;
   overflow: auto;
   padding-top: 1rem;
+}
+
+@media (max-width: 680px) {
+  .footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .filterHint {
+    text-align: left;
+  }
 }
