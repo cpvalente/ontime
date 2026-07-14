@@ -77,9 +77,11 @@ export function getCurrent(state: RuntimeState): number {
 
   if (countToEnd) {
     // count to end runs to its fixed end, so added time does not stretch the countdown
-    const isEventOverMidnight = timeStart > timeEnd;
-    const correctDay = isEventOverMidnight ? dayInMs : 0;
-    return correctDay - clock + timeEnd;
+    const dayOffset = state.eventNow.dayOffset ?? 0;
+    const currentDay =
+      state.rundown.currentDay ?? (timeStart > timeEnd && clock <= timeEnd ? dayOffset + 1 : dayOffset);
+    const endDay = timeStart > timeEnd ? dayOffset + 1 : dayOffset;
+    return timeEnd + endDay * dayInMs - (clock + currentDay * dayInMs);
   }
 
   if (startedAt === null) {

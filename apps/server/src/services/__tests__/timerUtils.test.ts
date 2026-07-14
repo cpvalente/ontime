@@ -506,6 +506,7 @@ describe('getCurrent()', () => {
           timeStart: 79200000, // 22:00:00
           timeEnd: 600000, // 00:10:00
           countToEnd: true,
+          dayOffset: 0,
         },
         clock: 79500000, // 22:05:00
         timer: {
@@ -516,6 +517,7 @@ describe('getCurrent()', () => {
         rundown: {
           actualStart: 79200000,
           plannedEnd: 600000,
+          currentDay: 0,
         },
         _timer: {
           pausedAt: null,
@@ -525,6 +527,35 @@ describe('getCurrent()', () => {
 
       const current = getCurrent(state);
       expect(current).toBe(dayInMs - 79500000 + 600000);
+    });
+
+    it('handles overnight count-to-end after midnight', () => {
+      const state = {
+        eventNow: {
+          timeStart: 23 * MILLIS_PER_HOUR, // 23:00:00
+          timeEnd: 1 * MILLIS_PER_HOUR, // 01:00:00
+          countToEnd: true,
+          dayOffset: 0,
+        },
+        clock: 30 * MILLIS_PER_MINUTE, // 00:30:00 on day 1
+        timer: {
+          addedTime: 0,
+          duration: Infinity,
+          startedAt: 23 * MILLIS_PER_HOUR,
+        },
+        rundown: {
+          actualStart: 23 * MILLIS_PER_HOUR,
+          plannedEnd: 1 * MILLIS_PER_HOUR,
+          currentDay: 1,
+        },
+        _timer: {
+          pausedAt: null,
+          hasFinished: false,
+        },
+      } as RuntimeState;
+
+      const current = getCurrent(state);
+      expect(current).toBe(30 * MILLIS_PER_MINUTE);
     });
 
     it('handles events that were started late', () => {

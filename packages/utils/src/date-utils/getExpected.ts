@@ -23,13 +23,8 @@ export function getExpectedStart(
   const { timeStart, dayOffset, delay } = event;
   const { currentDay, totalGap, isLinkedToLoaded, offset, mode, actualStart, plannedStart } = state;
 
-  //How many days from the currently running event to this one
-  const relativeDayOffset = dayOffset - currentDay;
-
-  const delayedStart = Math.max(0, timeStart + delay);
-
-  //The normalised start time of this event relative to the currently running event
-  const normalisedTimeStart = delayedStart + relativeDayOffset * dayInMs;
+  const absoluteDelayedStart = Math.max(0, dayOffset * dayInMs + timeStart + delay);
+  const normalisedTimeStart = absoluteDelayedStart - currentDay * dayInMs;
 
   let relativeStartOffset = 0;
 
@@ -69,9 +64,7 @@ export function getExpectedEnd(
    * - the end time is always the wall clock
    */
   if (event.countToEnd) {
-    // account for day offset
-    const relativeDayOffset = event.dayOffset - state.currentDay;
-    const plannedEnd = event.timeStart + event.duration + relativeDayOffset * dayInMs;
+    const plannedEnd = event.dayOffset * dayInMs + event.timeStart + event.duration - state.currentDay * dayInMs;
 
     // count to end should finish on the planned time or on start
     return Math.max(expectedStart, plannedEnd);
