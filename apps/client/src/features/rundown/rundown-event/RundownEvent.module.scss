@@ -7,6 +7,7 @@ $skip-opacity: 0.2;
   background-color: $block-bg;
   margin-block: 0.25rem;
   overflow: initial;
+  position: relative;
 
   display: grid;
   grid-template-areas:
@@ -155,7 +156,7 @@ $skip-opacity: 0.2;
   align-items: center;
   justify-content: space-between;
 
-  .nextTag {
+  .warningMeta {
     font-size: 1rem;
     color: $orange-500;
     letter-spacing: 0.03px;
@@ -229,6 +230,10 @@ $skip-opacity: 0.2;
 
   .statusIcon.active {
     color: var(--status-color-active-override, $active-indicator);
+  }
+
+  .statusIcon.countToEndStatus {
+    color: $orange-400;
   }
 
   .statusIcon.warning {
