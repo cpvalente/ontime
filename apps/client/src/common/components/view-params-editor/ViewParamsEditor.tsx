@@ -6,6 +6,7 @@ import { useSearchParams } from 'react-router';
 
 import useViewSettings from '../../hooks-query/useViewSettings';
 import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
+import { useSavedViewParams } from '../../stores/savedViewParams';
 import Button from '../buttons/Button';
 import IconButton from '../buttons/IconButton';
 import Info from '../info/Info';
@@ -27,6 +28,7 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
   const { isOpen, close } = useViewParamsEditorStore();
+  const clearSavedParams = useSavedViewParams((store) => store.clear);
   const isSmallScreen = useIsSmallScreen();
 
   const getPreservedParams = () => getPreservedSearchParams(searchParams, viewOptions);
@@ -36,6 +38,7 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
   };
 
   const resetParams = () => {
+    clearSavedParams(target);
     setSearchParams(getPreservedParams());
   };
 
