@@ -25,6 +25,7 @@ import {
   VIEW_SETTINGS,
   getRundownQueryKey,
   PROJECT_RUNDOWNS,
+  PROJECT_LIST,
 } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
@@ -215,6 +216,9 @@ export const connectSocket = () => {
               break;
             case RefetchKey.ProjectRundowns:
               ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_RUNDOWNS });
+              break;
+            case RefetchKey.ProjectFiles:
+              ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
               break;
             default: {
               target satisfies never;

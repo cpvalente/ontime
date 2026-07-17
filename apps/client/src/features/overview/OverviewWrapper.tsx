@@ -1,9 +1,10 @@
 import { ErrorBoundary } from '@sentry/react';
-import { PropsWithChildren, ReactNode } from 'react';
+import { PropsWithChildren, ReactNode, Suspense } from 'react';
 
 import ScrollArea from '../../common/components/scroll-area/ScrollArea';
 import { useIsOnline } from '../../common/hooks/useSocket';
 import { cx } from '../../common/utils/styleUtils';
+import Loader from '../../views/common/loader/Loader';
 
 import style from './Overview.module.scss';
 
@@ -15,18 +16,37 @@ export function OverviewWrapper({ navElements, children }: PropsWithChildren<Ove
   const isOnline = useIsOnline();
 
   return (
-    <div className={cx([style.overview, !isOnline && style.isOffline])}>
-      <ErrorBoundary>
-        <div className={style.nav}>{navElements}</div>
-        <ScrollArea
-          className={style.infoScroll}
-          contentClassName={style.info}
-          contentStyle={{ minWidth: '100%' }}
-          orientation='horizontal'
-        >
-          {children}
-        </ScrollArea>
-      </ErrorBoundary>
+    <Suspense fallback={<OverviewFallback navElements={navElements} />}>
+      <div className={cx([style.overview, !isOnline && style.isOffline])}>
+        <ErrorBoundary>
+          <div className={style.nav}>{navElements}</div>
+          <ScrollArea
+            className={style.infoScroll}
+            contentClassName={style.info}
+            contentStyle={{ minWidth: '100%' }}
+            orientation='horizontal'
+          >
+            {children}
+          </ScrollArea>
+        </ErrorBoundary>
+      </div>
+    </Suspense>
+  );
+}
+
+function OverviewFallback({ navElements }: OverviewWrapperProps) {
+  return (
+    <div className={style.overview}>
+      <div className={style.nav}>{navElements}</div>
+      <ScrollArea
+        className={style.infoScroll}
+        contentClassName={style.info}
+        contentStyle={{ minWidth: '100%' }}
+        orientation='horizontal'
+      >
+        {/* TODO: this could be alined in a nicer way */}
+        <Loader />
+      </ScrollArea>
     </div>
   );
 }

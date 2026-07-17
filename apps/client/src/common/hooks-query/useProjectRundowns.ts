@@ -1,7 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { ProjectRundownsList } from 'ontime-types';
+import { MILLIS_PER_HOUR } from 'ontime-utils';
 
-import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { PROJECT_RUNDOWNS } from '../api/constants';
 import {
   createRundown,
@@ -11,24 +11,21 @@ import {
   loadRundown,
   renameRundown,
 } from '../api/rundown';
+import { ontimeQueryClient } from '../queryClient';
 
-//TODO: make suspends so we don't have to deal with no value all over
 /**
  * Project rundowns
  */
 export function useProjectRundowns() {
-  const { data, status, isError, refetch, isFetching } = useQuery<ProjectRundownsList>({
+  const { data, status, isError, refetch, isFetching } = useSuspenseQuery<ProjectRundownsList>({
     queryKey: PROJECT_RUNDOWNS,
     queryFn: ({ signal }) => fetchProjectRundownList({ signal }),
-    placeholderData: (previousData, _previousQuery) => previousData,
-    refetchInterval: queryRefetchIntervalSlow,
+    staleTime: MILLIS_PER_HOUR,
   });
-  return { data: data ?? { loaded: '', rundowns: [] }, status, isError, refetch, isFetching };
+  return { data, status, isError, refetch, isFetching };
 }
 
 export function useMutateProjectRundowns() {
-  const ontimeQueryClient = useQueryClient();
-
   const { mutateAsync: create } = useMutation({
     mutationFn: createRundown,
     onMutate: () => {
