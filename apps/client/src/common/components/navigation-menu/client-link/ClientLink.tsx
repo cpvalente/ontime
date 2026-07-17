@@ -11,6 +11,7 @@ import {
 } from '../../../stores/savedViewParams';
 import { handleLinks } from '../../../utils/linkUtils';
 import IconButton from '../../buttons/IconButton';
+import Tooltip from '../../tooltip/Tooltip';
 import NavigationMenuItem from '../navigation-menu-item/NavigationMenuItem';
 
 import style from './ClientLink.module.scss';
@@ -105,16 +106,20 @@ function BrowserNavigationItem({ current, to, postAction, children }: PropsWithC
       {isCustomised && (
         <span className={style.trailing}>
           <span className={style.indicator} aria-hidden data-testid='client-link__saved-indicator' />
-          <IconButton
-            variant='ghosted-white'
-            size='small'
-            className={style.clear}
-            aria-label='Clear saved view settings'
-            title='Clear saved view settings'
-            onClick={clearViewSettings}
+          <Tooltip
+            text='Reset to default'
+            render={
+              <IconButton
+                variant='ghosted-white'
+                size='small'
+                className={style.clear}
+                aria-label='Reset to default'
+                onClick={clearViewSettings}
+              />
+            }
           >
             <IoCloseOutline />
-          </IconButton>
+          </Tooltip>
         </span>
       )}
     </NavigationMenuItem>
