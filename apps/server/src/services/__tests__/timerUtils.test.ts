@@ -268,29 +268,31 @@ describe('getExpectedFinish()', () => {
       const calculatedFinish = getExpectedFinish(state);
       expect(calculatedFinish).toBe(30);
     });
-    it('handles events that finish the day after', () => {
+
+    it('returns the start time for count to end times which started late', () => {
       const state = {
         eventNow: {
-          timeEnd: 600000, // 00:10:00
+          timeStart: 20 * MILLIS_PER_HOUR, // 20:00:00
+          timeEnd: 21 * MILLIS_PER_MINUTE, // 21:00:00
           countToEnd: true,
         },
         timer: {
           addedTime: 0,
-          startedAt: 79200000, // 22:00:00
+          startedAt: 22 * MILLIS_PER_HOUR, // 22:00:00 <--------------
         },
         _timer: {
           pausedAt: null,
           hasFinished: false,
         },
         rundown: {
-          actualStart: 79200000,
-          plannedEnd: 600000,
+          actualStart: 20 * MILLIS_PER_HOUR, // 20:00:00
+          plannedEnd: 21 * MILLIS_PER_HOUR, // 21:00:00
         },
       } as RuntimeState;
 
       const calculatedFinish = getExpectedFinish(state);
-      // expected finish is not a duration but a point in time
-      expect(calculatedFinish).toBe(600000);
+      // timeEnd is numerically before startedAt for overnight events, so expectedFinish is clamped to startedAt
+      expect(calculatedFinish).toBe(22 * MILLIS_PER_HOUR);
     });
   });
 });

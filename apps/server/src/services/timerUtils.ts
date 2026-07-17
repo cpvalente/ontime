@@ -2,6 +2,7 @@ import { Day, MaybeNumber, TimeOfDay, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
 import type { RuntimeState } from '../stores/runtimeState.js';
+import { InvalidStateError } from './generic.errors.js';
 
 /**
  * handle events that span over midnight
@@ -24,37 +25,35 @@ export function hasCrossedMidnight(previous: TimeOfDay, current: TimeOfDay): boo
  * @returns {number | null} new current time or null if nothing is running
  */
 export function getExpectedFinish(state: RuntimeState): MaybeNumber {
-  const { startedAt, duration, addedTime } = state.timer;
-
-  if (state.eventNow === null) {
+  // if there is a loaded event it must have started
+  // either way, we have no expected finish if nothing is playing
+  if (state.eventNow === null || state.timer.startedAt === null) {
     return null;
   }
 
-  const { countToEnd, timeEnd } = state.eventNow;
-  const { pausedAt } = state._timer;
-  const { clock } = state;
-
-  if (startedAt === null) {
-    return null;
-  }
-
-  const pausedTime = pausedAt != null ? clock - pausedAt : 0;
-
-  if (countToEnd) {
+  if (state.eventNow.countToEnd) {
     // count to end events are anchored to their fixed end: added time and pauses
     // do not move the end, they surface as offset instead (see getRuntimeOffset)
-    return timeEnd;
+    return Math.max(state.eventNow.timeEnd, state.timer.startedAt);
+  }
+
+  const pausedTime = state._timer.pausedAt != null ? state.clock - state._timer.pausedAt : 0;
+
+  DEV: {
+    if (state.timer.duration === null) {
+      throw new InvalidStateError('a running timer cannot have null duration');
+    }
   }
 
   // handle events that finish the day after
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- duration exists if ther eis a timer
-  const expectedFinish = startedAt + duration! + addedTime + pausedTime;
+  const expectedFinish = state.timer.startedAt + state.timer.duration + state.timer.addedTime + pausedTime;
   if (expectedFinish > dayInMs) {
     return expectedFinish - dayInMs;
   }
 
   // an event cannot finish before it started (user added too much negative time)
-  return Math.max(expectedFinish, startedAt);
+  return Math.max(expectedFinish, state.timer.startedAt);
 }
 
 /**
