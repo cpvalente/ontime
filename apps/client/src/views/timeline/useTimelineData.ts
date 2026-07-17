@@ -16,7 +16,7 @@ export interface TimelineData {
 
 export function useTimelineData(): ViewData<TimelineData> {
   // HTTP API data
-  const { data: rundownData, status: rundownStatus } = useFlatRundownWithMetadata();
+  const { data: rundownData, status: rundownStatus } = useFlatRundownWithMetadata(null);
   const { data: projectData, status: projectDataStatus } = useProjectData();
   const { data: settings, status: settingsStatus } = useSettings();
   const { data: customFields, status: customFieldsStatus } = useCustomFields();

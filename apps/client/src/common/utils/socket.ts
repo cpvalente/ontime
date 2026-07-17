@@ -14,7 +14,6 @@ import {
   APP_SETTINGS,
   CLIENT_LIST,
   CSS_OVERRIDE,
-  CURRENT_RUNDOWN_QUERY_KEY,
   CUSTOM_FIELDS,
   PROJECT_DATA,
   REPORT,
@@ -25,6 +24,7 @@ import {
   VIEW_SETTINGS,
   getRundownQueryKey,
   PROJECT_RUNDOWNS,
+  PROJECT_LIST,
 } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
@@ -216,6 +216,9 @@ export const connectSocket = () => {
             case RefetchKey.ProjectRundowns:
               ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_RUNDOWNS });
               break;
+            case RefetchKey.ProjectFiles:
+              ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
+              break;
             default: {
               target satisfies never;
               break;
@@ -238,7 +241,6 @@ export function maybeInvalidateRundownCache(revision: MaybeNumber, rundownId?: s
   if (!rundownId) {
     // we omit rundownId to signify invalidate all rundowns
     ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
-    ontimeQueryClient.invalidateQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
     return;
   }
 
@@ -252,12 +254,6 @@ export function maybeInvalidateRundownCache(revision: MaybeNumber, rundownId?: s
   }
 
   ontimeQueryClient.invalidateQueries({ queryKey, exact: true });
-
-  // keep current alias in sync with the ID-based cache
-  const loadedRundownId = ontimeQueryClient.getQueryData<{ loaded: string }>(PROJECT_RUNDOWNS)?.loaded;
-  if (!loadedRundownId || loadedRundownId === rundownId) {
-    ontimeQueryClient.invalidateQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
-  }
 }
 
 export function sendSocket<T extends MessageTag | ApiActionTag>(

@@ -1,5 +1,5 @@
 import { useDisclosure } from '@mantine/hooks';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import {
   IoAdd,
   IoDocumentOutline,
@@ -18,9 +18,9 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import Dialog from '../../../../common/components/dialog/Dialog';
 import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import Tag from '../../../../common/components/tag/Tag';
+import { useDirectLinkToBackgroundEdit } from '../../../../common/context/RundownSelectionContext';
 import { useMutateProjectRundowns, useProjectRundowns } from '../../../../common/hooks-query/useProjectRundowns';
 import { cx } from '../../../../common/utils/styleUtils';
-import { useDirectLinkToBackgroundEdit } from '../../../../views/cuesheet/useCuesheetRundownSelection';
 import * as Panel from '../../panel-utils/PanelUtils';
 import RundownRenameForm from './composite/RundownRenameForm';
 import { ManageRundownForm } from './ManageRundownForm';
@@ -28,6 +28,20 @@ import { ManageRundownForm } from './ManageRundownForm';
 import style from './ManagePanel.module.scss';
 
 export default function ManageRundowns() {
+  return (
+    <Suspense
+      fallback={
+        <div className={style.empty}>
+          <Panel.Loader isLoading />
+        </div>
+      }
+    >
+      <ManageRundownsSuspense />
+    </Suspense>
+  );
+}
+
+function ManageRundownsSuspense() {
   const { data } = useProjectRundowns();
   const { duplicate, remove, load, rename } = useMutateProjectRundowns();
   const [isOpenDelete, deleteHandlers] = useDisclosure();

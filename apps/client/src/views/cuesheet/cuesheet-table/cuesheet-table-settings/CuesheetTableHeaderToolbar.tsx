@@ -10,7 +10,9 @@ import Button from '../../../../common/components/buttons/Button';
 import Checkbox from '../../../../common/components/checkbox/Checkbox';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import PopoverContents from '../../../../common/components/popover/Popover';
+import { useRundownSelectionContext } from '../../../../common/context/RundownSelectionContext';
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
+import { RundownSelect } from '../../../../features/rundown/common/RundownSelect';
 import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetPermissions } from '../../useTablePermissions';
 import CuesheetShareModal from './CuesheetShareModal';
@@ -30,21 +32,15 @@ type TableHeaderOptionValues = Pick<
   'hideTableSeconds' | 'hideIndexColumn' | 'showDelayedTimes' | 'hideDelays'
 >;
 
-type TableModeControls = {
-  cuesheetMode: AppMode;
-  setCuesheetMode: (mode: AppMode) => void;
-  isCurrentRundown?: boolean;
-};
-
 interface CuesheetTableHeaderToolbarProps {
   columns: Column<ExtendedEntry, unknown>[];
   optionsStore: TableHeaderOptionsStore;
   handleResetResizing: () => void;
   handleResetReordering: () => void;
   handleClearToggles: () => void;
-  insertElement?: ReactNode;
-  modeControls?: TableModeControls;
-  showShare?: boolean;
+  setCuesheetMode?: (mode: AppMode) => void;
+  appMode: AppMode;
+  tableRoot: 'editor' | 'cuesheet';
 }
 
 export default function CuesheetTableHeaderToolbar({
@@ -53,23 +49,23 @@ export default function CuesheetTableHeaderToolbar({
   handleResetResizing,
   handleResetReordering,
   handleClearToggles,
-  insertElement,
-  modeControls,
-  showShare = false,
+  setCuesheetMode,
+  tableRoot,
+  appMode,
 }: CuesheetTableHeaderToolbarProps) {
-  const canChangeMode = useCuesheetPermissions((state) => state.canChangeMode);
-  const canShare = useCuesheetPermissions((state) => state.canShare);
+  const canChangeMode = useCuesheetPermissions((state) => state.canChangeMode) && tableRoot === 'cuesheet';
+  const canShare = useCuesheetPermissions((state) => state.canShare) && tableRoot === 'cuesheet';
+  const showRundownSelect = tableRoot === 'cuesheet';
+  const { isLoadedRundown } = useRundownSelectionContext();
 
   const toggleCuesheetMode = (mode: AppMode[]) => {
     const newValue = mode.at(0);
-    if (!newValue || !modeControls) return;
-    modeControls.setCuesheetMode(newValue);
+    if (!newValue || !setCuesheetMode) return;
+    setCuesheetMode(newValue);
   };
 
-  const isBackground = !(modeControls?.isCurrentRundown ?? true);
-
   return (
-    <Toolbar.Root className={style.tableSettings} data-background-rundown={isBackground}>
+    <Toolbar.Root className={style.tableSettings} data-background-rundown={!isLoadedRundown}>
       <ViewSettings optionsStore={optionsStore} />
       <ColumnSettings
         columns={columns}
@@ -77,14 +73,14 @@ export default function CuesheetTableHeaderToolbar({
         handleResetReordering={handleResetReordering}
         handleClearToggles={handleClearToggles}
       />
-      {modeControls && canChangeMode && (
-        <div className={style.apart}>
-          {insertElement}
+      <div className={style.apart}>
+        {showRundownSelect && <RundownSelect appMode={appMode} />}
+        {canChangeMode && (
           <ToggleGroup
-            value={[modeControls.cuesheetMode]}
+            value={[appMode]}
             onValueChange={toggleCuesheetMode}
             className={style.group}
-            disabled={!modeControls.isCurrentRundown}
+            disabled={!isLoadedRundown}
           >
             <Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton}>
               Run
@@ -93,10 +89,10 @@ export default function CuesheetTableHeaderToolbar({
               Edit
             </Toolbar.Button>
           </ToggleGroup>
-        </div>
-      )}
+        )}
+      </div>
 
-      {showShare && canShare && (
+      {canShare && (
         <>
           <Editor.Separator orientation='vertical' />
           <CuesheetShareModal />
