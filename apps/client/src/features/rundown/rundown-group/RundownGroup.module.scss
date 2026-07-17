@@ -90,7 +90,12 @@
 }
 
 .lockIcon {
-  opacity: 0.6;
+  &.inactive {
+    color: $muted-gray;
+  }
+  &.active {
+    color: $active-indicator;
+  }
 }
 
 .over {

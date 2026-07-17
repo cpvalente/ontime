@@ -1,5 +1,5 @@
 import { MaybeNumber } from 'ontime-types';
-import { IoLockClosed, IoLockOpenOutline } from 'react-icons/io5';
+import { TbTargetArrow, TbTarget } from 'react-icons/tb';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
@@ -37,7 +37,7 @@ export default function TargetDurationInput({ duration, targetDuration, submitHa
           data-testid='lock__duration'
           render={<IconButton variant='subtle-white' className={isLocked ? style.active : style.inactive} />}
         >
-          {isLocked ? <IoLockClosed /> : <IoLockOpenOutline />}
+          {isLocked ? <TbTargetArrow /> : <TbTarget />}
         </Tooltip>
       </TimeInputGroup>
     </div>

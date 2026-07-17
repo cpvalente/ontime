@@ -8,11 +8,10 @@ import {
   IoChevronUp,
   IoDuplicateOutline,
   IoFolderOpenOutline,
-  IoLockClosed,
   IoReorderTwo,
   IoTrash,
 } from 'react-icons/io5';
-import { TbClockPin } from 'react-icons/tb';
+import { TbTargetArrow, TbClockPin } from 'react-icons/tb';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import Tag from '../../../common/components/tag/Tag';
@@ -47,6 +46,8 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const entryCopyId = useEntryCopy((state) => state.entryCopyId);
 
+  const isDurationMatching = data.targetDuration !== null && data.targetDuration === data.duration;
+
   const matchDuration = useCallback(() => {
     updateEntry({ id: data.id, targetDuration: data.duration });
   }, [data.duration, data.id, updateEntry]);
@@ -72,6 +73,8 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
       label: 'Match Content Duration',
       icon: TbClockPin,
       onClick: matchDuration,
+      disabled: isDurationMatching,
+      description: "Change group target duration to match it's contents",
     },
     { type: 'divider' },
     {
@@ -198,7 +201,9 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
                   <Tag className={style.offsetLabel}>{planOffset}</Tag>
                 </span>
               )}
-              {data.targetDuration !== null && <IoLockClosed className={style.lockIcon} />}
+              {data.targetDuration !== null && (
+                <TbTargetArrow className={cx([style.lockIcon, isDurationMatching ? style.active : style.inactive])} />
+              )}
             </div>
           </div>
         </div>
