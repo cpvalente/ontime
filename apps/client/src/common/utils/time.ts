@@ -1,4 +1,4 @@
-import { MaybeNumber, MaybeString, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
+import { Maybe, MaybeNumber, MaybeString, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
 import {
   MILLIS_PER_HOUR,
   MILLIS_PER_MINUTE,
@@ -191,4 +191,30 @@ export function getExpectedTimesFromExtendedEvent(
       : expectedStart + event.duration,
     plannedEnd,
   };
+}
+
+/**
+ * Adjusts an event's duration so the group matches a target duration.
+ * The difference between the target and the current group duration is
+ * added to (or subtracted from) the event's duration.
+ * @param targetDuration - The desired total duration for the group, or null
+ * @param groupDuration - The current total duration of all events in the group
+ * @param eventDuration - The current duration of the event being adjusted
+ * @returns The adjusted event duration, or null if targetDuration is null or
+ *          the result would be negative
+ */
+export function eventDurationMatchGroupTarget({
+  targetDuration,
+  groupDuration,
+  eventDuration,
+}: {
+  targetDuration: Maybe<number>;
+  groupDuration: number;
+  eventDuration: number;
+}): Maybe<number> {
+  if (targetDuration === null) return null;
+  if (targetDuration === groupDuration) return null;
+  const durationDiff = targetDuration - groupDuration;
+  const newDuration = eventDuration + durationDiff;
+  return newDuration < 0 ? null : newDuration;
 }

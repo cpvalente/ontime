@@ -53,6 +53,7 @@ import {
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
+import { eventDurationMatchGroupTarget } from '../utils/time';
 
 export type EventOptions = Partial<{
   // options of any new entries (event / delay / group)
@@ -473,12 +474,16 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
       const rundown = queryClient.getQueryData<Rundown>(resolveCurrentRundownQueryKey());
       if (!rundown) return;
       const group = rundown.entries[groupId];
-      if (!group || !isOntimeGroup(group) || group.targetDuration === null) return;
+      if (!group || !isOntimeGroup(group)) return;
       const event = rundown.entries[eventId];
       if (!event || !isOntimeEvent(event)) return;
-      const durationDiff = group.targetDuration - group.duration;
-      const newDuration = event.duration + durationDiff;
-      if (newDuration < 0) return;
+
+      const newDuration = eventDurationMatchGroupTarget({
+        targetDuration: group.targetDuration,
+        groupDuration: group.duration,
+        eventDuration: event.duration,
+      });
+      if (!newDuration) return;
       updateTimer(eventId, 'duration', String(newDuration / MILLIS_PER_SECOND) + 's', false);
     },
     [queryClient, updateTimer, resolveCurrentRundownQueryKey],
