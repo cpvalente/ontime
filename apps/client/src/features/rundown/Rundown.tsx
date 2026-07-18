@@ -105,12 +105,29 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     handleCollapseGroup,
   });
 
+  // Jump to the current element on demand: the running event in Run mode, the edit cursor otherwise.
+  // Scrolls only (no selection change) so jumping to the running event does not hijack the edit cursor.
+  const jumpToCurrent = useCallback(() => {
+    const targetId = editorMode === AppMode.Run ? featureData?.selectedEventId : cursor;
+    if (!targetId) {
+      return;
+    }
+
+    // Open parent group if the target is inside a collapsed group
+    const entry = entries[targetId];
+    if (entry && 'parent' in entry) {
+      expandGroup(entry.parent);
+    }
+    scrollToEntry(targetId);
+  }, [editorMode, featureData?.selectedEventId, cursor, entries, expandGroup, scrollToEntry]);
+
   // Keyboard shortcuts
   useRundownKeyboard({
     cursor,
     commands,
     clearSelectedEvents,
     setEntryCopyId,
+    jumpToCurrent,
   });
 
   // DND handlers

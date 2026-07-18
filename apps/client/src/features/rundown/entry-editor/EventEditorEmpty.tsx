@@ -44,6 +44,9 @@ function EventEditorEmpty() {
               <Separator />
               <Combo keys={['PgDn']} />
             </Shortcut>
+            <Shortcut label='Jump to current entry'>
+              <Combo keys={[deviceAlt, 'L']} />
+            </Shortcut>
             <Shortcut label='Deselect entry'>
               <Combo keys={['Esc']} />
             </Shortcut>
