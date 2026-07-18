@@ -1,3 +1,6 @@
+import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
+import { z } from 'zod';
+
 /**
  * Agent-facing Ontime MCP documentation.
  *
@@ -9,70 +12,74 @@
  * Keep this file concise and update it when MCP-exposed fields change.
  */
 
-// ---- Shared event field JSON schemas ----
-// Imported by mcp.tools.ts and spread into tool inputSchema.properties.
+// ---- Shared event field schemas ----
+// Zod shape fragments, spread into z.object({...}) calls in mcp.tools.schema.ts.
+// Field descriptions carry through into the generated inputSchema (z.toJSONSchema) and
+// are what the MCP client/LLM actually reads — keep them in sync with reality.
 
 export const EVENT_TIMER_FIELDS = {
-  timerType: {
-    type: 'string',
-    enum: ['count-down', 'count-up', 'clock', 'none'],
-    description: 'count-down: countdown from duration; count-up: elapsed time; clock: wall clock; none: no timer shown',
-  },
-  endAction: {
-    type: 'string',
-    enum: ['none', 'load-next', 'play-next'],
-    description: 'Action when event ends: none = stop, load-next = cue next event, play-next = auto-start next event',
-  },
-  linkStart: {
-    type: 'boolean',
-    description:
+  timerType: z
+    .enum(TimerType)
+    .optional()
+    .describe('count-down: countdown from duration; count-up: elapsed time; clock: wall clock; none: no timer shown'),
+  endAction: z
+    .enum(EndAction)
+    .optional()
+    .describe('Action when event ends: none = stop, load-next = cue next event, play-next = auto-start next event'),
+  linkStart: z
+    .boolean()
+    .optional()
+    .describe(
       "Link this event's start time to the previous playable event's end time. Linked events allow time changes to propagate through the rundown. Unlinking would prevent propagation and lock this event's start time to the schedule",
-  },
-  countToEnd: {
-    type: 'boolean',
-    description:
+    ),
+  countToEnd: z
+    .boolean()
+    .optional()
+    .describe(
       'Advanced timing mode: countdown targets the scheduled timeEnd instead of the event duration. This can surprise operators when an event starts late or the schedule shifts; only set true after explaining the behaviour and confirming the user wants it. This can be useful for a deadline, where an event always needs to end at the schedule time, ie: a curfew or a broadcast window.',
-  },
-  timeStrategy: {
-    type: 'string',
-    enum: ['lock-duration', 'lock-end'],
-    description:
+    ),
+  timeStrategy: z
+    .enum(TimeStrategy)
+    .optional()
+    .describe(
       'How linked events adapt to an inherited start: lock-duration recalculates end, lock-end recalculates duration',
-  },
-  timeWarning: { type: 'number', description: 'ms before timeEnd to enter warning state (e.g. 300000 = 5 min)' },
-  timeDanger: { type: 'number', description: 'ms before timeEnd to enter danger state (e.g. 60000 = 1 min)' },
-} as const;
+    ),
+  timeWarning: z.number().optional().describe('ms before timeEnd to enter warning state (e.g. 300000 = 5 min)'),
+  timeDanger: z.number().optional().describe('ms before timeEnd to enter danger state (e.g. 60000 = 1 min)'),
+};
 
 export const EVENT_WRITABLE_FIELDS = {
-  cue: { type: 'string', description: 'Short free-form cue label — ask the user what naming convention they prefer' },
-  title: { type: 'string', description: 'Event title shown in the rundown and views' },
-  note: { type: 'string', description: 'Free-text note for production notes or references' },
-  colour: {
-    type: 'string',
-    description:
+  cue: z.string().optional().describe('Short free-form cue label — ask the user what naming convention they prefer'),
+  title: z.string().optional().describe('Event title shown in the rundown and views'),
+  note: z.string().optional().describe('Free-text note for production notes or references'),
+  colour: z
+    .string()
+    .optional()
+    .describe(
       'Hex colour (#RRGGBB) for visual grouping — ask the user what colour convention they use, and prefer the default Ontime palette from ontime://style-guide so colours match the editor swatches',
-  },
-  skip: { type: 'boolean', description: 'If true, event is skipped during playback' },
-  flag: {
-    type: 'boolean',
-    description: 'Mark the event as a critical operational marker — use sparingly for maximum impact',
-  },
-  custom: {
-    type: 'object',
-    additionalProperties: { type: 'string' },
-    description:
+    ),
+  skip: z.boolean().optional().describe('If true, event is skipped during playback'),
+  flag: z
+    .boolean()
+    .optional()
+    .describe('Mark the event as a critical operational marker — use sparingly for maximum impact'),
+  custom: z
+    .record(z.string(), z.string())
+    .optional()
+    .describe(
       'Custom field values keyed by project field key, e.g. { "Camera": "CAM 2" }. Keys are case-sensitive — get them with ontime_get_custom_fields, and create missing fields with ontime_create_custom_field.',
-  },
+    ),
   ...EVENT_TIMER_FIELDS,
-} as const;
+};
 
 export const RUNDOWN_TARGET_FIELD = {
-  rundownId: {
-    type: 'string',
-    description:
+  rundownId: z
+    .string()
+    .optional()
+    .describe(
       'Optional target rundown ID. Omit to target the currently loaded live rundown; provide an ID from ontime_list_rundowns to edit a background rundown without loading it.',
-  },
-} as const;
+    ),
+};
 
 // ---- Agent-readable schema document ----
 // Served at ontime://schema. Agents read this once per session to orient themselves

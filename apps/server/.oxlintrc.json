@@ -1,5 +1,13 @@
 {
   "$schema": "../../node_modules/oxlint/configuration_schema.json",
   "extends": ["../../.oxlintrc.json"],
-  "plugins": ["unicorn", "typescript", "oxc", "vitest", "node", "promise"]
+  "plugins": ["unicorn", "typescript", "oxc", "vitest", "node", "promise"],
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": ["ontime-types/src/*", "ontime-utils/src/*"]
+      }
+    ]
+  }
 }

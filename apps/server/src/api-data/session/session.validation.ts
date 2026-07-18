@@ -1,15 +1,14 @@
-import { body } from 'express-validator';
+import { z } from 'zod';
 
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import { validateBody } from '../validation-utils/validate.js';
 
-export const validateGenerateUrl = [
-  body('baseUrl').isString().trim().notEmpty(),
-  body('path').isString().trim().notEmpty(),
-
-  body('authenticate').isBoolean(),
-  body('lockConfig').isBoolean(),
-  body('lockNav').isBoolean(),
-  body('preset').optional().isString().trim().notEmpty(),
-
-  requestValidationFunction,
-];
+const generateUrlSchema = z.object({
+  baseUrl: z.string().trim().min(1),
+  path: z.string().trim().min(1),
+  authenticate: z.boolean(),
+  lockConfig: z.boolean(),
+  lockNav: z.boolean(),
+  preset: z.string().trim().min(1).optional(),
+});
+export type GenerateUrlInput = z.infer<typeof generateUrlSchema>;
+export const validateGenerateUrl = validateBody(generateUrlSchema);
