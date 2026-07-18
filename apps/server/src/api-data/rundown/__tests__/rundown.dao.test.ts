@@ -432,6 +432,40 @@ describe('processRundown()', () => {
     expect(initResult.totalDuration).toBe(500 - 100);
   });
 
+  it('skipped events do not advance day offsets or affect gaps', () => {
+    const rundown = makeRundown({
+      order: ['1', 'skipped', '2'],
+      entries: {
+        '1': makeOntimeEvent({
+          id: '1',
+          timeStart: 22 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE, // 22:30:00
+          timeEnd: 30 * MILLIS_PER_MINUTE, // 00:30:00
+          duration: 2 * MILLIS_PER_HOUR, // 02:00:00
+        }),
+        skipped: makeOntimeEvent({
+          id: 'skipped',
+          skip: true,
+          timeStart: 22 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE, // 22:30:00
+          timeEnd: 30 * MILLIS_PER_MINUTE, // 00:30:00
+          duration: 2 * MILLIS_PER_HOUR, // 02:00:00
+        }),
+        '2': makeOntimeEvent({
+          id: '2',
+          timeStart: 30 * MILLIS_PER_MINUTE, // 00:30:00
+          timeEnd: 8 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE, // 08:30:00
+          duration: 8 * MILLIS_PER_HOUR, // 08:00:00
+        }),
+      },
+    });
+
+    const initResult = processRundown(rundown, {});
+
+    expect((initResult.entries.skipped as OntimeEvent).dayOffset).toBe(0);
+    expect((initResult.entries.skipped as OntimeEvent).gap).toBe(0);
+    expect((initResult.entries['2'] as OntimeEvent).dayOffset).toBe(1);
+    expect((initResult.entries['2'] as OntimeEvent).gap).toBe(0);
+  });
+
   it('calculates total duration across days with gap', () => {
     const rundown = makeRundown({
       order: ['1', '2', '3'],
