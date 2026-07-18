@@ -71,10 +71,10 @@ Read the ontime://schema resource if you need a data model reference.
 
 Steps:
 1. Call ontime_list_rundowns and identify the target rundown. If the user wants a background rundown, pass its \`rundownId\` in all entry read/write calls instead of loading it.
-2. Call ontime_get_rundown with the chosen \`rundownId\` to see current state and identify an \`after\` anchor if appending.
+2. Call ontime_get_rundown with the chosen \`rundownId\` to see current state and avoid duplicating existing entries.
 3. Call ontime_get_timer_state. If playback is not \`stop\` and the target is the loaded rundown, explain that MCP edits affect the live rundown and ask the user to confirm before changing it. If the target is a background rundown, it can be edited without interrupting playback.
 4. Build an array of entries in order and call ontime_batch_create_entries ONCE with all of them. This is much faster than calling ontime_create_entry per item.
-5. If the rundown already has events, pass \`after: <last event id>\` on the batch call so new events chain from the end.
+5. Omit \`after\` and \`before\` on the batch call to append the new entries to the end of the rundown. Use \`after: true\` for an explicit append request, or \`before: true\` for an explicit prepend request.
 
 Entry type guidance:
 - Use \`event\` for anything with a scheduled time and duration (talks, panels, breaks, meals).

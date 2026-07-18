@@ -361,31 +361,26 @@ export function getNextGroupNormal(
   return { entry: null, index: null };
 }
 
-/**
- * Receives an insertion order and returns the reference to an entry ID
- * after which we will insert the new entry
- */
 export function getInsertAfterId(
   rundown: Rundown,
   parent: OntimeGroup | null,
-  afterId?: EntryId,
-  beforeId?: EntryId,
+  afterId?: EntryId | true,
+  beforeId?: EntryId | true,
 ): EntryId | null {
-  if (afterId) return afterId;
-  if (!beforeId) return null;
+  if (beforeId) {
+    const insertionList = parent ? parent.entries : rundown.order;
+    return beforeId === true ? (insertionList[0] ?? null) : beforeId;
+  }
 
-  const insertionList = parent ? parent.entries : rundown.order;
-  if (!insertionList || insertionList.length === 0) return null;
+  if (afterId) return afterId === true ? null : afterId;
 
-  const atIndex = insertionList.findIndex((id) => id === beforeId);
-  if (atIndex < 1) return null;
-  return insertionList[atIndex - 1];
+  return null;
 }
 
 type ResolveInsertParentOptions = {
   parent?: EntryId | null;
-  after?: EntryId;
-  before?: EntryId;
+  after?: EntryId | true;
+  before?: EntryId | true;
 };
 
 /**
@@ -393,15 +388,21 @@ type ResolveInsertParentOptions = {
  * Uses explicit parent first, then infers from sibling references.
  */
 export function resolveInsertParent(rundown: Rundown, options: ResolveInsertParentOptions): EntryId | null {
-  if (options.parent) {
+  // 1. if we have a parent reference we return that
+  if (options.parent !== undefined && options.parent !== null) {
     return options.parent;
   }
 
-  const referenceId = options.after ?? options.before;
-  if (!referenceId) return null;
+  // 2. ... otherwise we look for a sibling and get their parent
+  const referenceId = (() => {
+    if (typeof options.after === 'string') return options.after;
+    if (typeof options.before === 'string') return options.before;
+    return undefined;
+  })();
+  if (referenceId === undefined) return null;
 
   const maybeSibling = rundown.entries[referenceId];
-  if (maybeSibling && 'parent' in maybeSibling && maybeSibling.parent) {
+  if (maybeSibling !== undefined && 'parent' in maybeSibling && maybeSibling.parent !== null) {
     return maybeSibling.parent;
   }
 
@@ -410,52 +411,57 @@ export function resolveInsertParent(rundown: Rundown, options: ResolveInsertPare
 
 /**
  * Add entry to rundown, mutates the rundown in place.
- * Handles the following cases:
- * - 1a. add entry in group, after a given entry
- * - 1b. add entry in group, at the beginning (right after the group header)
- * - 2a. add entry to the rundown, after a given entry
- * - 2b. add entry to the rundown, at the beginning
+ * if afterId and beforeId are not provided, we add at the end of the rundown
  */
 export function addToRundown(
   rundown: Rundown,
   entry: OntimeEntry,
-  afterId: EntryId | null,
   parent: OntimeGroup | null,
+  afterId: EntryId | null,
+  beforeId: EntryId | null,
 ): OntimeEntry {
+  // which list to use, the top level or a group order
+  const insertionList = parent ? parent.entries : rundown.order;
+
+  // the index inside the list
+  const insertionIndex = (() => {
+    if (beforeId) return insertionList.indexOf(beforeId);
+    if (afterId) return insertionList.indexOf(afterId) + 1;
+    return insertionList.length;
+  })();
+
+  // the index inside the flat order
+  const flatIndex = (() => {
+    if (beforeId) return rundown.flatOrder.indexOf(beforeId);
+
+    if (afterId) {
+      const afterEntry = rundown.entries[afterId];
+      const flatReferenceId =
+        !parent && isOntimeGroup(afterEntry) && afterEntry.entries?.length > 0
+          ? afterEntry.entries[afterEntry.entries.length - 1]
+          : afterId;
+      return rundown.flatOrder.indexOf(flatReferenceId) + 1;
+    }
+
+    if (parent) {
+      const previousId = insertionList[insertionIndex - 1] ?? parent.id;
+      return rundown.flatOrder.indexOf(previousId) + 1;
+    }
+
+    return rundown.flatOrder.length;
+  })();
+
   if (parent) {
-    // 1. inserting an entry inside a group
-
-    // assign the parent reference on the entry
-    if ('parent' in entry) {
-      entry.parent = parent.id;
+    if (isOntimeGroup(entry)) {
+      throw new Error('Cannot add a group to another group');
     }
 
-    if (afterId) {
-      // 1a. insert after a given entry within the group
-      const atEventsIndex = parent.entries.indexOf(afterId) + 1;
-      const atFlatIndex = rundown.flatOrder.indexOf(afterId) + 1;
-      parent.entries = insertAtIndex(atEventsIndex, entry.id, parent.entries);
-      rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
-    } else {
-      // 1b. insert at the beginning of the group (right after the group header in flatOrder)
-      parent.entries = insertAtIndex(0, entry.id, parent.entries);
-      const atFlatIndex = rundown.flatOrder.indexOf(parent.id) + 1;
-      rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
-    }
+    entry.parent = parent.id;
+    parent.entries = insertAtIndex(insertionIndex, entry.id, parent.entries);
   } else {
-    // 2. inserting an entry at top level
-    if (afterId) {
-      // 2a. insert after a given entry
-      const atOrderIndex = rundown.order.indexOf(afterId) + 1;
-      const atFlatIndex = rundown.flatOrder.indexOf(afterId) + 1;
-      rundown.order = insertAtIndex(atOrderIndex, entry.id, rundown.order);
-      rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
-    } else {
-      // 2b. insert at the beginning
-      rundown.order = insertAtIndex(0, entry.id, rundown.order);
-      rundown.flatOrder = insertAtIndex(0, entry.id, rundown.flatOrder);
-    }
+    rundown.order = insertAtIndex(insertionIndex, entry.id, rundown.order);
   }
+  rundown.flatOrder = insertAtIndex(flatIndex, entry.id, rundown.flatOrder);
 
   // either way, we register the entry in the entries map
   rundown.entries[entry.id] = entry;

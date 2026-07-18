@@ -11,13 +11,17 @@ import style from './QuickAddButtons.module.scss';
 
 interface QuickAddButtonsProps {
   previousEventId: MaybeString;
+  nextEventId?: MaybeString;
   parentGroup: MaybeString;
   backgroundColor?: string;
 }
 
 export default memo(QuickAddButtons);
-function QuickAddButtons({ previousEventId, parentGroup, backgroundColor }: QuickAddButtonsProps) {
+function QuickAddButtons({ previousEventId, nextEventId, parentGroup, backgroundColor }: QuickAddButtonsProps) {
   const { addEntry } = useEntryActionsContext();
+  const appendOptions = previousEventId ? { after: previousEventId, lastEventId: previousEventId } : undefined;
+  const prependOptions = nextEventId ? { before: nextEventId } : undefined;
+  const insertionOptions = appendOptions ?? prependOptions;
 
   const addEvent = () => {
     addEntry(
@@ -25,44 +29,23 @@ function QuickAddButtons({ previousEventId, parentGroup, backgroundColor }: Quic
         type: SupportedEntry.Event,
         parent: parentGroup,
       },
-      {
-        after: previousEventId,
-        lastEventId: previousEventId,
-      },
+      insertionOptions,
     );
   };
 
   const addDelay = () => {
-    addEntry(
-      { type: SupportedEntry.Delay, parent: parentGroup },
-      {
-        lastEventId: previousEventId,
-        after: previousEventId,
-      },
-    );
+    addEntry({ type: SupportedEntry.Delay, parent: parentGroup }, insertionOptions);
   };
 
   const addMilestone = () => {
-    addEntry(
-      { type: SupportedEntry.Milestone, parent: parentGroup },
-      {
-        lastEventId: previousEventId,
-        after: previousEventId,
-      },
-    );
+    addEntry({ type: SupportedEntry.Milestone, parent: parentGroup }, insertionOptions);
   };
 
   const addGroup = () => {
     if (parentGroup !== null) {
       return;
     }
-    addEntry(
-      { type: SupportedEntry.Group },
-      {
-        lastEventId: previousEventId,
-        after: previousEventId,
-      },
-    );
+    addEntry({ type: SupportedEntry.Group }, insertionOptions);
   };
 
   /**

@@ -70,6 +70,50 @@ export function generateEvent(
   throw new Error('Invalid event type');
 }
 
+/**
+ * Gets the last valid insertion reference for a top-level rundown or group order.
+ * Used when appending entries and when generating cues from the preceding entry.
+ */
+export function getLastInsertId(rundown: Rundown, parent: OntimeGroup | null): EntryId | null {
+  const insertionList = parent ? parent.entries : rundown.order;
+  return insertionList[insertionList.length - 1] ?? null;
+}
+
+/**
+ * Resolves a `before` insertion option to the first entry in the relevant order when `true` is provided.
+ * String values are already explicit anchors and are returned unchanged.
+ */
+export function getFirstInsertId(rundown: Rundown, parent: OntimeGroup | null, before: EntryId | true): EntryId | null {
+  if (before !== true) {
+    return before;
+  }
+
+  const insertionList = parent ? parent.entries : rundown.order;
+  return insertionList[0] ?? null;
+}
+
+/**
+ * Gets the sibling before a `before` insertion anchor in the top-level or group order.
+ * Returns `null` when the new entry will be inserted at the start.
+ */
+export function getPreviousInsertId(
+  rundown: Rundown,
+  parent: OntimeGroup | null,
+  beforeId: EntryId | null,
+): EntryId | null {
+  if (beforeId === null) {
+    return null;
+  }
+
+  const insertionList = parent ? parent.entries : rundown.order;
+  const beforeIndex = insertionList.indexOf(beforeId);
+  if (beforeIndex < 1) {
+    return null;
+  }
+
+  return insertionList[beforeIndex - 1] ?? null;
+}
+
 export function createEventPatch(originalEvent: OntimeEvent, patchEvent: Partial<OntimeEvent>): OntimeEvent {
   if (Object.keys(patchEvent).length === 0) {
     return originalEvent;

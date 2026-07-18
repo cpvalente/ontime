@@ -96,7 +96,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_create_entry',
     description:
-      'Create a new entry. Omit rundownId for the currently loaded live rundown, or provide a rundownId from ontime_list_rundowns to edit a background rundown without loading it. If playback is running and rundownId is omitted or matches the loaded rundown, confirm the user intends to change the live rundown before calling. Omit after/before to append at the end. For type "event" provide title plus enough timing data for Ontime to infer a strategy: timeStart+duration calculates timeEnd, timeStart+timeEnd calculates duration and locks end, timeEnd+duration calculates timeStart, and all three prioritise duration. For "milestone" provide cue/title/note/colour and optional custom values using existing project custom field keys. For "delay" provide duration. For "group" provide title plus optional note/colour/custom/targetDuration.',
+      'Create a new entry. Omit after/before to append at the end, use after: true to explicitly append, use before: true to prepend, or use before/after with an entry ID to position the entry. Omit rundownId for the currently loaded live rundown, or provide a rundownId from ontime_list_rundowns to edit a background rundown without loading it. If playback is running and rundownId is omitted or matches the loaded rundown, confirm the user intends to change the live rundown before calling. For type "event" provide title plus enough timing data for Ontime to infer a strategy: timeStart+duration calculates timeEnd, timeStart+timeEnd calculates duration and locks end, timeEnd+duration calculates timeStart, and all three prioritise duration. For "milestone" provide cue/title/note/colour and optional custom values using existing project custom field keys. For "delay" provide duration. For "group" provide title plus optional note/colour/custom/targetDuration.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -114,8 +114,14 @@ export const TOOL_DEFINITIONS = [
           description: 'Duration in ms (events: should equal timeEnd - timeStart; delays: the schedule shift)',
         },
         targetDuration: { type: 'number', description: 'Groups only: planned length of the group in ms' },
-        after: { type: 'string', description: 'Insert after this entry ID' },
-        before: { type: 'string', description: 'Insert before this entry ID' },
+        after: {
+          type: ['string', 'boolean'],
+          description: 'Insert after this entry ID, or true to append',
+        },
+        before: {
+          type: ['string', 'boolean'],
+          description: 'Insert before this entry ID, or true to prepend',
+        },
         ...EVENT_WRITABLE_FIELDS,
       },
     },
@@ -218,13 +224,20 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_batch_create_entries',
     description:
-      'Create multiple entries, including groups with nested children. Omit rundownId for the currently loaded live rundown, or provide a rundownId from ontime_list_rundowns to edit a background rundown without loading it. If playback is running and rundownId is omitted or matches the loaded rundown, confirm the user intends to change the live rundown before calling. Use this for "build from agenda" flows to avoid many round trips. Entries are inserted in array order; if `after` is provided it positions the first top-level entry, subsequent top-level entries chain from the previous. A group entry may include `children`; those entries are created inside the group in array order. Groups cannot be nested. For events, provide title plus enough timing data for Ontime to infer a strategy: timeStart+duration calculates timeEnd, timeStart+timeEnd calculates duration and locks end, timeEnd+duration calculates timeStart, and all three prioritise duration.',
+      'Create multiple entries, including groups with nested children. Omit rundownId for the currently loaded live rundown, or provide a rundownId from ontime_list_rundowns to edit a background rundown without loading it. If playback is running and rundownId is omitted or matches the loaded rundown, confirm the user intends to change the live rundown before calling. Use this for "build from agenda" flows to avoid many round trips. Entries are inserted in array order; omit after/before to append the first entry at the end, use after: true to explicitly append, use before: true to prepend, or use after/before with an entry ID to position the first top-level entry. Subsequent top-level entries chain from the previous. A group entry may include `children`; those entries are created inside the group in array order. Groups cannot be nested. For events, provide title plus enough timing data for Ontime to infer a strategy: timeStart+duration calculates timeEnd, timeStart+timeEnd calculates duration and locks end, timeEnd+duration calculates timeStart, and all three prioritise duration.',
     inputSchema: {
       type: 'object',
       required: ['entries'],
       properties: {
         ...RUNDOWN_TARGET_FIELD,
-        after: { type: 'string', description: 'Insert the first entry after this entry ID' },
+        after: {
+          type: ['string', 'boolean'],
+          description: 'Insert the first entry after this entry ID, or true to append',
+        },
+        before: {
+          type: ['string', 'boolean'],
+          description: 'Insert the first entry before this entry ID, or true to prepend',
+        },
         entries: {
           type: 'array',
           description: 'Array of entries to create, in desired order',
@@ -588,7 +601,13 @@ const TOOL_HANDLERS: Record<ToolName, (args: Record<string, unknown>) => Promise
 
   ontime_batch_create_entries: async (args) => {
     return ok(
-      await batchCreateEntriesForMcp(args as TargetRundownArgs & { entries: BatchCreateEntryArgs[]; after?: EntryId }),
+      await batchCreateEntriesForMcp(
+        args as TargetRundownArgs & {
+          entries: BatchCreateEntryArgs[];
+          after?: EntryId | true;
+          before?: EntryId | true;
+        },
+      ),
     );
   },
 
