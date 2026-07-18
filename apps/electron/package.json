@@ -125,6 +125,13 @@
           "**/*",
           "*{.ts}"
         ]
+      },
+      {
+        "from": "../server/src/html/",
+        "to": "extraResources/html/",
+        "filter": [
+          "**/*"
+        ]
       }
     ]
   }

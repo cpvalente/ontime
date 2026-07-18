@@ -117,8 +117,9 @@ app.use(`${prefix}/external`, (req, res) => {
 app.use(`${prefix}/user`, express.static(publicDir.userDir, { etag: false, lastModified: true }));
 
 // Serve legacy timer for old browsers that don't support modern JS
+// dotfiles must be allowed since the install path can contain dot directories (eg AppImage mounts in /tmp/.mount_*)
 app.get(`${prefix}/timer-legacy`, authenticateAndRedirect, (_req, res) => {
-  res.sendFile(srcFiles.timerLegacy);
+  res.sendFile(srcFiles.timerLegacy, { dotfiles: 'allow' });
 });
 
 // Base route for static files
