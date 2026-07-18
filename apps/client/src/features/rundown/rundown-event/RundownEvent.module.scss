@@ -17,7 +17,7 @@ $skip-opacity: 0.2;
     'binder pb-actions estatus estatus'
     'binder ...        ...     ...';
 
-  grid-template-columns: $block-binder-width 3rem 1fr 3rem;
+  grid-template-columns: $block-binder-width 3rem minmax(0, 1fr) 3rem;
   grid-template-rows: 0.125rem 2rem 2rem auto 0.125rem;
   align-items: center;
   padding-right: $block-clearance;
@@ -137,6 +137,7 @@ $skip-opacity: 0.2;
   align-items: center;
   gap: $block-clearance;
   height: 100%;
+  min-width: 0;
 }
 
 .eventTimers.editMode:hover {

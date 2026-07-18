@@ -21,6 +21,7 @@ interface TimeInputFlowProps {
   linkStart: boolean;
   delay: number;
   showLabels?: boolean;
+  showWarnings?: boolean;
 }
 
 export default memo(TimeInputFlow);
@@ -33,6 +34,7 @@ function TimeInputFlow({
   linkStart,
   delay,
   showLabels,
+  showWarnings = true,
 }: TimeInputFlowProps) {
   const { updateEntry, updateTimer } = useEntryActionsContext();
 
@@ -130,11 +132,19 @@ function TimeInputFlow({
         </TimeInputGroup>
       </div>
 
-      {warnings.length > 0 && (
-        <Tooltip text={warnings.join(' - ')} className={style.timerNote} data-testid='event-warning' render={<span />}>
-          <IoAlertCircleOutline />
-        </Tooltip>
-      )}
+      {showWarnings &&
+        (warnings.length > 0 ? (
+          <Tooltip
+            text={warnings.join(' - ')}
+            className={style.timerNote}
+            data-testid='event-warning'
+            render={<span />}
+          >
+            <IoAlertCircleOutline />
+          </Tooltip>
+        ) : (
+          <span className={`${style.timerNote} ${style.timerNotePlaceholder}`} aria-hidden='true' />
+        ))}
     </>
   );
 }
