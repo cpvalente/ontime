@@ -63,6 +63,11 @@ export type BatchCreateEntryArgs = CreateEntryArgs & { children?: BatchCreateEnt
 export type UpdateEntryArgs = EntryFieldArgs & TargetRundownArgs & { id: EntryId };
 export type GroupEntriesArgs = GroupFieldArgs & TargetRundownArgs & { ids: EntryId[] };
 export type UngroupEntryArgs = TargetRundownArgs & { id: EntryId };
+type BatchCreateEntriesArgs = TargetRundownArgs & {
+  entries: BatchCreateEntryArgs[];
+  after?: EntryId | true;
+  before?: EntryId | true;
+};
 
 export function resolveTargetRundownId(args: TargetRundownArgs): string {
   return args.rundownId ?? getCurrentRundownId();
@@ -133,20 +138,24 @@ export function assertKnownCustomFields(...customValues: Array<EntryFieldArgs['c
 /** Translates tool arguments into the payload consumed by rundown.service addEntry */
 export function toEntryPayload(args: CreateEntryArgs): EventPostPayload {
   const { type = SupportedEntry.Event, after, before } = args;
+  const insertOptions = {
+    ...(after !== undefined ? { after } : {}),
+    ...(before !== undefined ? { before } : {}),
+  };
 
   switch (type) {
     case SupportedEntry.Delay:
-      return { type: SupportedEntry.Delay, duration: args.duration, after, before };
+      return { type: SupportedEntry.Delay, duration: args.duration, ...insertOptions };
     case SupportedEntry.Milestone: {
       const { cue, title, note, colour, custom } = args;
-      return { type: SupportedEntry.Milestone, cue, title, note, colour, custom, after, before };
+      return { type: SupportedEntry.Milestone, cue, title, note, colour, custom, ...insertOptions };
     }
     case SupportedEntry.Group:
       // group creation currently only accepts a title, see generateEvent in rundown.utils.ts
-      return { type: SupportedEntry.Group, title: args.title, after, before };
+      return { type: SupportedEntry.Group, title: args.title, ...insertOptions };
     case SupportedEntry.Event: {
-      const { type: _type, rundownId: _rundownId, ...eventFields } = args;
-      return { type: SupportedEntry.Event, ...eventFields };
+      const { type: _type, rundownId: _rundownId, after: _after, before: _before, ...eventFields } = args;
+      return { type: SupportedEntry.Event, ...eventFields, ...insertOptions };
     }
     default:
       throw new Error(`Invalid entry type: ${String(type)}`);
@@ -259,20 +268,25 @@ export async function ungroupEntryForMcp(args: UngroupEntryArgs) {
   return { target: getTargetMeta(rundownId), ungrouped: args.id, order: updatedRundown.order };
 }
 
-export async function batchCreateEntriesForMcp(
-  args: TargetRundownArgs & { entries: BatchCreateEntryArgs[]; after?: EntryId },
-) {
-  const { entries = [], after } = args;
+export async function batchCreateEntriesForMcp(args: BatchCreateEntriesArgs) {
+  const { entries = [], after, before } = args;
   validateBatchCreateEntries(entries);
   const allEntries = flattenBatchCreateEntries(entries);
   assertKnownCustomFields(...allEntries.map((entry) => entry.custom));
   const rundownId = resolveTargetRundownId(args);
-  let previousId = after;
+  let previousId: EntryId | undefined;
   const created: OntimeEntry[] = [];
 
   for (const entryArgs of entries) {
+    const firstInsertOptions =
+      created.length === 0
+        ? {
+            ...(after !== undefined ? { after } : {}),
+            ...(before !== undefined ? { before } : {}),
+          }
+        : undefined;
     // eslint-disable-next-line no-await-in-loop -- top-level entries chain after the previously created one
-    const entry = await createBatchEntry(rundownId, entryArgs, previousId);
+    const entry = await createBatchEntry(rundownId, entryArgs, previousId, undefined, firstInsertOptions);
     created.push(...entry.created);
     previousId = entry.entry.id;
   }
@@ -303,6 +317,7 @@ async function createBatchEntry(
   entryArgs: BatchCreateEntryArgs,
   previousId?: EntryId,
   parentId?: EntryId,
+  firstInsertOptions?: InsertOptions,
 ): Promise<{ entry: OntimeEntry; created: OntimeEntry[] }> {
   if (parentId && entryArgs.type === SupportedEntry.Group) {
     throw new Error('Cannot create a group inside another group.');
@@ -311,8 +326,9 @@ async function createBatchEntry(
   const { children: _children, ...createArgs } = entryArgs;
   const payload = toEntryPayload(createArgs);
   const insertOptions = {
-    ...(previousId ? { after: previousId } : {}),
-    ...(parentId ? { parent: parentId } : {}),
+    ...(previousId !== undefined ? { after: previousId } : {}),
+    ...(parentId !== undefined ? { parent: parentId } : {}),
+    ...(previousId === undefined ? firstInsertOptions : {}),
   };
 
   const createdEntry = await addEntry(rundownId, { ...payload, ...insertOptions } as EventPostPayload);

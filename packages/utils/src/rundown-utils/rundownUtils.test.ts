@@ -248,28 +248,30 @@ describe('getInsertAfterId()', () => {
     revision: 1,
   } as Rundown;
 
-  it('returns afterId if provided', () => {
+  it('returns the provided after id', () => {
     expect(getInsertAfterId(rundown, null, 'b')).toBe('b');
   });
 
-  it('returns null if neither afterId nor beforeId is provided', () => {
+  it('returns null if no anchors are provided', () => {
     expect(getInsertAfterId(rundown, null)).toBeNull();
   });
 
-  it('returns null if beforeId is not found', () => {
-    expect(getInsertAfterId(rundown, null, undefined, 'z')).toBeNull();
-    expect(getInsertAfterId(rundown, null, undefined, '1')).toBeNull();
+  it('returns null if after is true', () => {
+    expect(getInsertAfterId(rundown, null, true)).toBeNull();
   });
 
-  it('returns the previous id of an entry in the rundown', () => {
-    expect(getInsertAfterId(rundown, null, undefined, '2')).toBe('1');
-    expect(getInsertAfterId(rundown, null, undefined, '4')).toBe('group');
-    expect(getInsertAfterId(rundown, null, undefined, 'group')).toBe('2');
+  it('returns the before id if provided', () => {
+    expect(getInsertAfterId(rundown, null, undefined, '2')).toBe('2');
+    expect(getInsertAfterId(rundown, null, undefined, '4')).toBe('4');
+    expect(getInsertAfterId(rundown, null, undefined, 'group')).toBe('group');
   });
 
-  it('returns the previous id of an event in a group', () => {
-    expect(getInsertAfterId(rundown, rundown.entries.group as OntimeGroup, undefined, '31')).toBeNull();
-    expect(getInsertAfterId(rundown, rundown.entries.group as OntimeGroup, undefined, '32')).toBe('31');
+  it('returns the first top-level id if before is true', () => {
+    expect(getInsertAfterId(rundown, null, undefined, true)).toBe('1');
+  });
+
+  it('returns the first group entry if before is true inside a group', () => {
+    expect(getInsertAfterId(rundown, rundown.entries.group as OntimeGroup, undefined, true)).toBe('31');
   });
 });
 
@@ -331,22 +333,22 @@ describe('addToRundown()', () => {
     const rundown = { id: 'test', title: '', entries: {}, order: [], flatOrder: [], revision: 0 } as Rundown;
     const newEntry = { id: 'new', type: SupportedEntry.Event } as OntimeEvent;
 
-    addToRundown(rundown, newEntry, null, null);
+    addToRundown(rundown, newEntry, null, null, null);
 
     expect(rundown.order).toEqual(['new']);
     expect(rundown.flatOrder).toEqual(['new']);
     expect(rundown.entries['new']).toBe(newEntry);
   });
 
-  // case 2b: insert at the beginning of the rundown
-  it('adds at the beginning of order and flatOrder when afterId is null', () => {
+  // case 2c: insert at the end of the rundown
+  it('adds at the end of order and flatOrder when afterId is null', () => {
     const rundown = makeTestRundown();
     const newEntry = { id: 'new', type: SupportedEntry.Event } as OntimeEvent;
 
-    addToRundown(rundown, newEntry, null, null);
+    addToRundown(rundown, newEntry, null, null, null);
 
-    expect(rundown.order).toEqual(['new', '1', '2', 'group']);
-    expect(rundown.flatOrder).toEqual(['new', '1', '2', 'group', '31', '32']);
+    expect(rundown.order).toEqual(['1', '2', 'group', 'new']);
+    expect(rundown.flatOrder).toEqual(['1', '2', 'group', '31', '32', 'new']);
   });
 
   // case 2a: insert after a given entry at top level
@@ -354,19 +356,55 @@ describe('addToRundown()', () => {
     const rundown = makeTestRundown();
     const newEntry = { id: 'new', type: SupportedEntry.Event } as OntimeEvent;
 
-    addToRundown(rundown, newEntry, '1', null);
+    addToRundown(rundown, newEntry, null, '1', null);
 
     expect(rundown.order).toEqual(['1', 'new', '2', 'group']);
     expect(rundown.flatOrder).toEqual(['1', 'new', '2', 'group', '31', '32']);
   });
 
-  // case 1b: insert at the beginning of a group
-  it('inserts right after the group header in flatOrder and sets parent', () => {
+  it('prepends to the rundown when before is true', () => {
+    const rundown = makeTestRundown();
+    const newEntry = { id: 'new', type: SupportedEntry.Event } as OntimeEvent;
+    const afterId = getInsertAfterId(rundown, null, undefined, true);
+
+    addToRundown(rundown, newEntry, null, afterId, afterId);
+
+    expect(rundown.order).toEqual(['new', '1', '2', 'group']);
+    expect(rundown.flatOrder).toEqual(['new', '1', '2', 'group', '31', '32']);
+  });
+
+  it('inserts after a top-level group and its children in flatOrder', () => {
+    const rundown = makeTestRundown();
+    const newEntry = { id: 'new', type: SupportedEntry.Event } as OntimeEvent;
+
+    addToRundown(rundown, newEntry, null, 'group', null);
+
+    expect(rundown.order).toEqual(['1', '2', 'group', 'new']);
+    expect(rundown.flatOrder).toEqual(['1', '2', 'group', '31', '32', 'new']);
+  });
+
+  // case 1c: insert at the end of a group
+  it('inserts at the end of a group and sets parent', () => {
     const rundown = makeTestRundown();
     const parent = rundown.entries['group'] as OntimeGroup;
     const newEntry = { id: 'new', type: SupportedEntry.Event, parent: null } as OntimeEvent;
 
-    addToRundown(rundown, newEntry, null, parent);
+    addToRundown(rundown, newEntry, parent, null, null);
+
+    expect(parent.entries).toEqual(['31', '32', 'new']);
+    expect(newEntry.parent).toBe('group');
+    expect(rundown.flatOrder).toEqual(['1', '2', 'group', '31', '32', 'new']);
+    // top-level order must not change when inserting into a group
+    expect(rundown.order).toEqual(['1', '2', 'group']);
+  });
+
+  it('prepends to a group when before is true', () => {
+    const rundown = makeTestRundown();
+    const parent = rundown.entries['group'] as OntimeGroup;
+    const newEntry = { id: 'new', type: SupportedEntry.Event, parent: null } as OntimeEvent;
+    const afterId = getInsertAfterId(rundown, parent, undefined, true);
+
+    addToRundown(rundown, newEntry, parent, afterId, afterId);
 
     expect(parent.entries).toEqual(['new', '31', '32']);
     expect(newEntry.parent).toBe('group');
@@ -381,7 +419,7 @@ describe('addToRundown()', () => {
     const parent = rundown.entries['group'] as OntimeGroup;
     const newEntry = { id: 'new', type: SupportedEntry.Event, parent: null } as OntimeEvent;
 
-    addToRundown(rundown, newEntry, '31', parent);
+    addToRundown(rundown, newEntry, parent, '31', null);
 
     expect(parent.entries).toEqual(['31', 'new', '32']);
     expect(newEntry.parent).toBe('group');

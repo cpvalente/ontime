@@ -153,6 +153,41 @@ describe('mcp.service', () => {
     expect(result.created.map((entry) => entry.id)).toEqual(['entry-1', 'entry-2', 'entry-3', 'entry-4']);
   });
 
+  it('omits insert anchors when creating an entry without a position', async () => {
+    await createEntryForMcp({
+      type: SupportedEntry.Milestone,
+      title: 'End marker',
+    });
+
+    expect(addEntryMock).toHaveBeenCalledWith(
+      'loaded-rundown',
+      expect.objectContaining({ type: SupportedEntry.Milestone, title: 'End marker' }),
+    );
+    expect(addEntryMock.mock.calls[0][1]).not.toHaveProperty('after');
+    expect(addEntryMock.mock.calls[0][1]).not.toHaveProperty('before');
+  });
+
+  it('uses before true for the first batch entry and chains the rest', async () => {
+    await batchCreateEntriesForMcp({
+      before: true,
+      entries: [
+        { type: SupportedEntry.Event, title: 'First' },
+        { type: SupportedEntry.Event, title: 'Second' },
+      ],
+    });
+
+    expect(addEntryMock).toHaveBeenNthCalledWith(
+      1,
+      'loaded-rundown',
+      expect.objectContaining({ type: SupportedEntry.Event, title: 'First', before: true }),
+    );
+    expect(addEntryMock).toHaveBeenNthCalledWith(
+      2,
+      'loaded-rundown',
+      expect.objectContaining({ type: SupportedEntry.Event, title: 'Second', after: 'entry-1' }),
+    );
+  });
+
   it('rejects nested groups before creating entries', async () => {
     await expect(
       batchCreateEntriesForMcp({

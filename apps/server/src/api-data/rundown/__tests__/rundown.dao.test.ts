@@ -714,17 +714,17 @@ describe('processRundown()', () => {
 });
 
 describe('rundownMutation.add()', () => {
-  test('adds an event an empty rundown', () => {
+  test('adds an event to an empty rundown', () => {
     const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
     const rundown = makeRundown({});
 
-    rundownMutation.add(rundown, mockEvent, null, null);
+    rundownMutation.add(rundown, mockEvent, null, null, null);
 
     expect(rundown.order.length).toBe(1);
     expect(rundown.entries['mock']).toMatchObject(mockEvent);
   });
 
-  test('adds an event at the top if no afterId is given', () => {
+  test('adds an event at the end if no afterId is given', () => {
     const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
     const rundown = makeRundown({
       flatOrder: ['1'],
@@ -734,28 +734,28 @@ describe('rundownMutation.add()', () => {
       },
     });
 
-    rundownMutation.add(rundown, mockEvent, null, null);
+    rundownMutation.add(rundown, mockEvent, null, null, null);
 
-    expect(rundown.order).toStrictEqual(['mock', '1']);
-    expect(rundown.flatOrder).toStrictEqual(['mock', '1']);
+    expect(rundown.order).toStrictEqual(['1', 'mock']);
+    expect(rundown.flatOrder).toStrictEqual(['1', 'mock']);
     expect(rundown.entries['mock']).toMatchObject(mockEvent);
   });
 
-  test('adds an event at the top of the group if no after is given', () => {
+  test('adds an event at the end of the group if parent is provided but no after', () => {
     const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
     const rundown = makeRundown({
       flatOrder: ['1', '1a'],
       order: ['1'],
       entries: {
-        '1': makeOntimeGroup({ id: '1' }),
+        '1': makeOntimeGroup({ id: '1', entries: ['1a'] }),
         '1a': makeOntimeEvent({ id: '1a', parent: '1' }),
       },
     });
 
-    rundownMutation.add(rundown, mockEvent, null, rundown.entries['1'] as OntimeGroup);
+    rundownMutation.add(rundown, mockEvent, rundown.entries['1'] as OntimeGroup, null, null);
 
     expect(rundown.order).toStrictEqual(['1']);
-    expect(rundown.flatOrder).toStrictEqual(['1', 'mock', '1a']);
+    expect(rundown.flatOrder).toStrictEqual(['1', '1a', 'mock']);
     expect(rundown.entries['mock']).toMatchObject(mockEvent);
   });
 
@@ -765,12 +765,12 @@ describe('rundownMutation.add()', () => {
       flatOrder: ['1', '1a'],
       order: ['1'],
       entries: {
-        '1': makeOntimeGroup({ id: '1' }),
+        '1': makeOntimeGroup({ id: '1', entries: ['1a'] }),
         '1a': makeOntimeEvent({ id: '1a', parent: '1' }),
       },
     });
 
-    rundownMutation.add(rundown, mockEvent, '1a', rundown.entries['1'] as OntimeGroup);
+    rundownMutation.add(rundown, mockEvent, rundown.entries['1'] as OntimeGroup, '1a', null);
 
     expect(rundown.order).toStrictEqual(['1']);
     expect(rundown.flatOrder).toStrictEqual(['1', '1a', 'mock']);
@@ -1838,6 +1838,49 @@ describe('rundownMutation.clone()', () => {
       cue: 'event1',
       parent: null,
     });
+  });
+
+  it('clones an event and appends it with after true', () => {
+    const testRundown = makeRundown({
+      order: ['1', '2'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: 'event1', parent: null }),
+        '2': makeOntimeEvent({ id: '2', cue: 'event2', parent: null }),
+      },
+    });
+
+    const newEntry = rundownMutation.clone(testRundown, testRundown.entries['1'], { after: true });
+
+    expect(testRundown.order).toStrictEqual(['1', '2', newEntry.id]);
+  });
+
+  it('clones an event and prepends it with before true', () => {
+    const testRundown = makeRundown({
+      order: ['1', '2'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: 'event1', parent: null }),
+        '2': makeOntimeEvent({ id: '2', cue: 'event2', parent: null }),
+      },
+    });
+
+    const newEntry = rundownMutation.clone(testRundown, testRundown.entries['2'], { before: true });
+
+    expect(testRundown.order).toStrictEqual([newEntry.id, '1', '2']);
+  });
+
+  it('clones a group and appends it with after true', () => {
+    const testRundown = makeRundown({
+      order: ['1', '2'],
+      entries: {
+        '1': makeOntimeGroup({ id: '1', title: 'top', entries: ['1a'] }),
+        '1a': makeOntimeEvent({ id: '1a', cue: 'nested', parent: '1' }),
+        '2': makeOntimeEvent({ id: '2', cue: 'event2', parent: null }),
+      },
+    });
+
+    const newEntry = rundownMutation.clone(testRundown, testRundown.entries['1'], { after: true });
+
+    expect(testRundown.order).toStrictEqual(['1', '2', newEntry.id]);
   });
 });
 

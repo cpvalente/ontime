@@ -339,7 +339,9 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
             increaseViewportBy={{ top: 200, bottom: 400 }}
             style={{ height: '100%' }}
             components={{
-              Header: isEditMode ? () => <QuickAddButtons previousEventId={null} parentGroup={null} /> : undefined,
+              Header: isEditMode
+                ? () => <QuickAddButtons previousEventId={null} nextEventId={order[0]} parentGroup={null} />
+                : undefined,
               Footer: () => (
                 <>
                   {isEditMode && (

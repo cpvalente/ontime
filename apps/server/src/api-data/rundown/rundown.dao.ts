@@ -439,21 +439,27 @@ function clone(rundown: Rundown, entry: OntimeEntry, options?: InsertOptions): O
       rundown.entries[nestedEntry.id] = nestedEntry;
     }
 
-    // by default we insert after the cloned element
-    let atIndex = rundown.order.indexOf(entry.id) + 1;
-
-    const referenceId = options?.after ?? options?.before;
-    if (referenceId) {
-      // trying to insert relatively to another entry
-      const referenceEntry = rundown.entries[referenceId];
-      if (referenceEntry) {
-        if (options?.after) {
-          atIndex = rundown.order.indexOf(referenceId) + 1;
-        } else if (options?.before) {
-          atIndex = rundown.order.indexOf(referenceId);
-        }
+    const position: { after: EntryId | null; before: EntryId | null } = (() => {
+      if (options?.after === undefined && options?.before === undefined) {
+        return { after: entry.id, before: null };
       }
-    }
+
+      const after = getInsertAfterId(rundown, null, options.after, options.before);
+      const before = options.before === true ? (after ?? null) : (options.before ?? null);
+      return { after, before };
+    })();
+
+    const atIndex = (() => {
+      if (position.before !== null) {
+        return rundown.order.indexOf(position.before);
+      }
+
+      if (position.after !== null) {
+        return rundown.order.indexOf(position.after) + 1;
+      }
+
+      return rundown.order.length;
+    })();
 
     // we only need to insert the group, the nested entries will be resolved by the rundown engine
     rundown.order = insertAtIndex(atIndex, newGroup.id, rundown.order);
@@ -461,41 +467,33 @@ function clone(rundown: Rundown, entry: OntimeEntry, options?: InsertOptions): O
     return newGroup;
   } else {
     const clonedEntry = cloneSimpleRundownEntry(entry, getUniqueId(rundown));
+    const parent = (() => {
+      const referenceId = (() => {
+        if (typeof options?.after === 'string') return options.after;
+        if (typeof options?.before === 'string') return options.before;
+        return undefined;
+      })();
 
-    let parent: OntimeGroup | null = null;
+      const referenceEntry = referenceId ? rundown.entries[referenceId] : entry;
+      const parentId = referenceEntry && !isOntimeGroup(referenceEntry) ? referenceEntry.parent : null;
+      if (parentId === null) return null;
 
-    // trying to insert relatively to another entry, check that entries parent
-    const referenceId = options?.after ?? options?.before;
+      const maybeParent = rundown.entries[parentId];
+      return isOntimeGroup(maybeParent) ? maybeParent : null;
+    })();
 
-    /**
-     * if we have a positioning reference, and that reference has a parent
-     * we need to maintain the same parent for the cloned entry
-     */
-    if (referenceId) {
-      const referenceEntry = rundown.entries[referenceId];
-
-      if (referenceEntry && !isOntimeGroup(referenceEntry)) {
-        if (referenceEntry.parent) {
-          const maybeParent = rundown.entries[referenceEntry.parent];
-          if (maybeParent && isOntimeGroup(maybeParent)) {
-            parent = maybeParent;
-          }
-        }
+    const position = (() => {
+      // if no position is given, we add immediately after the element
+      if (options?.after === undefined && options?.before === undefined) {
+        return { after: entry.id, before: null };
       }
-    } else if (entry.parent) {
-      const maybeParent = rundown.entries[entry.parent];
-      if (maybeParent && isOntimeGroup(maybeParent)) {
-        parent = maybeParent;
-      }
-    }
 
-    // if we have resolved a parent, we add it to the cloned entry
-    let after = getInsertAfterId(rundown, parent, options?.after, options?.before);
-    if (!after) {
-      after = entry.id;
-    }
+      const after = getInsertAfterId(rundown, parent, options.after, options.before);
+      const before = options?.before === true ? after : (options.before ?? null);
+      return { after, before };
+    })();
 
-    return addToRundown(rundown, clonedEntry, after, parent);
+    return addToRundown(rundown, clonedEntry, parent, position.after, position.before);
   }
 }
 

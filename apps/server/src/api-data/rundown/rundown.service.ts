@@ -40,17 +40,23 @@ import { parseRundown } from './rundown.parser.js';
 import type { RundownMetadata } from './rundown.types.js';
 import {
   generateEvent,
+  getFirstInsertId,
   getIntegerAndFraction,
+  getLastInsertId,
+  getPreviousInsertId,
   hasChanges,
   mergeRundownPreservingFields,
   isLoadedPlayable,
 } from './rundown.utils.js';
+import { assertInsertAnchorExists, assertInsertAnchorInOrder, assertSingleInsertAnchor } from './rundown.validation.js';
 
 /**
  * creates a new entry with given data
  */
 export async function addEntry(rundownId: string, eventData: EventPostPayload): Promise<OntimeEntry> {
   const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
+
+  assertSingleInsertAnchor(eventData);
 
   // we allow the user to provide an ID, but make sure it is unique
   if (eventData?.id && Object.hasOwn(rundown.entries, eventData.id)) {
@@ -68,14 +74,29 @@ export async function addEntry(rundownId: string, eventData: EventPostPayload): 
     parent = maybeParent;
   }
 
+  assertInsertAnchorInOrder(rundown, parent, eventData);
+
   // normalise the position of the event in the rundown order
-  const afterId = getInsertAfterId(rundown, parent, eventData?.after, eventData?.before);
+  const insertPosition = (() => {
+    if (eventData.before !== undefined) {
+      const beforeId = getFirstInsertId(rundown, parent, eventData.before);
+      return { afterId: null, beforeId, cueAfterId: getPreviousInsertId(rundown, parent, beforeId) };
+    }
+
+    // if after is an ID, we will try and find the entry
+    if (eventData.after !== undefined && eventData.after !== true) {
+      const afterId = getInsertAfterId(rundown, parent, eventData.after);
+      return { afterId, beforeId: null, cueAfterId: afterId };
+    }
+
+    return { afterId: null, beforeId: null, cueAfterId: getLastInsertId(rundown, parent) };
+  })();
 
   // generate a fully formed entry from the patch
-  const newEntry = generateEvent(rundown, eventData, afterId, parent?.id);
+  const newEntry = generateEvent(rundown, eventData, insertPosition.cueAfterId, parent?.id);
 
   // make mutations to rundown
-  rundownMutation.add(rundown, newEntry, afterId, parent);
+  rundownMutation.add(rundown, newEntry, parent, insertPosition.afterId, insertPosition.beforeId);
 
   const { rundown: responseRundown, rundownMetadata, revision } = await commit();
 
@@ -395,7 +416,10 @@ export async function swapEvents(rundownId: string, fromId: EntryId, toId: Entry
  * @throws if the entry to clone does not exist
  */
 export async function cloneEntry(rundownId: string, entryId: EntryId, options: InsertOptions): Promise<Rundown> {
+  assertSingleInsertAnchor(options);
+
   const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
+  assertInsertAnchorExists(rundown, options);
   const originalEntry = rundown.entries[entryId];
 
   if (!originalEntry) {
