@@ -206,8 +206,24 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
 
       {!hideCards && (
         <>
-          {showNow && <TitleCard className='event now' label='now' title={nowMain} secondary={nowSecondary} />}
-          {showNext && <TitleCard className='event next' label='next' title={nextMain} secondary={nextSecondary} />}
+          {showNow && (
+            <TitleCard
+              className='event now'
+              label='now'
+              title={nowMain}
+              secondary={nowSecondary}
+              colour={eventNow?.colour}
+            />
+          )}
+          {showNext && (
+            <TitleCard
+              className='event next'
+              label='next'
+              title={nextMain}
+              secondary={nextSecondary}
+              colour={eventNext?.colour}
+            />
+          )}
         </>
       )}
     </div>
