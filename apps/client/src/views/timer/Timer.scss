@@ -154,6 +154,28 @@
       opacity: 0;
       height: 0;
     }
+
+    // when the event timer is demoted into the secondary slot it keeps its (phase-aware) colour
+    &--as-timer {
+      color: var(--timer-colour, var(--timer-color-override, $ui-white));
+      border-top-color: color-mix(in srgb, var(--timer-colour, $external-color) 10%, transparent);
+
+      &.secondary--paused {
+        opacity: $viewer-opacity-disabled;
+        transition: $viewer-transition-time;
+      }
+
+      &.secondary--finished {
+        color: var(--timer-overtime-color-override, $timer-finished-color);
+      }
+
+      &[data-phase='warning'] {
+        color: var(--timer-colour, var(--timer-warning-color-override));
+      }
+      &[data-phase='danger'] {
+        color: var(--timer-colour, var(--timer-danger-color-override));
+      }
+    }
   }
 
   .progress-container {

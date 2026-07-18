@@ -108,7 +108,12 @@ export type { ApiAction, ApiActionTag, ApiResponse } from './api/websocket/api.t
 export { type Log, LogLevel, type LogMessage, LogOrigin } from './definitions/runtime/Logger.type.js';
 export { Playback } from './definitions/runtime/Playback.type.js';
 export { TimerLifeCycle, timerLifecycleValues } from './definitions/core/TimerLifecycle.type.js';
-export type { TimerMessage, MessageState, SecondarySource } from './definitions/runtime/MessageControl.type.js';
+export type {
+  TimerMessage,
+  MessageState,
+  SecondarySource,
+  SecondaryPlacement,
+} from './definitions/runtime/MessageControl.type.js';
 
 export type { RundownState } from './definitions/runtime/RundownState.type.js';
 export type { Offset } from './definitions/runtime/Offset.type.js';

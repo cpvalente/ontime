@@ -26,6 +26,7 @@ export const useTimerViewControl = createSelector((state: RuntimeStore) => ({
   blackout: state.message.timer.blackout,
   blink: state.message.timer.blink,
   secondarySource: state.message.timer.secondarySource,
+  secondaryPlacement: state.message.timer.secondaryPlacement,
 }));
 
 export const useTimerMessageInput = createSelector((state: RuntimeStore) => ({
@@ -43,6 +44,7 @@ export const useMessagePreview = createSelector((state: RuntimeStore) => ({
   blackout: state.message.timer.blackout,
   phase: state.timer.phase,
   secondarySource: state.message.timer.secondarySource,
+  secondaryPlacement: state.message.timer.secondaryPlacement,
   showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
   timerType: state.eventNow?.timerType ?? null,
   countToEnd: state.eventNow?.countToEnd ?? false,
@@ -56,6 +58,8 @@ export const setMessage = {
   timerBlackout: (payload: boolean) => sendSocket('message', { timer: { blackout: payload } }),
   timerSecondarySource: (payload: TimerMessage['secondarySource']) =>
     sendSocket('message', { timer: { secondarySource: payload } }),
+  timerSecondaryPlacement: (payload: TimerMessage['secondaryPlacement']) =>
+    sendSocket('message', { timer: { secondaryPlacement: payload } }),
 };
 
 export const usePlaybackControl = createSelector((state: RuntimeStore) => ({
@@ -227,9 +231,9 @@ export const useTimerSocket = createSelector((state: RuntimeStore) => ({
   timerTypeNow: state.eventNow?.timerType ?? TimerType.CountDown,
   countToEndNow: state.eventNow?.countToEnd ?? false,
   auxTimer: {
-    aux1: state.auxtimer1.current,
-    aux2: state.auxtimer2.current,
-    aux3: state.auxtimer3.current,
+    aux1: { current: state.auxtimer1.current, direction: state.auxtimer1.direction },
+    aux2: { current: state.auxtimer2.current, direction: state.auxtimer2.direction },
+    aux3: { current: state.auxtimer3.current, direction: state.auxtimer3.direction },
   },
 }));
 
