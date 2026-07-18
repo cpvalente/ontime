@@ -1036,4 +1036,161 @@ describe('loadGroupFlagAndEnd()', () => {
       eventNow: rundown.entries[0],
     });
   });
+
+  test('countToEnd entries decouple the link chain for subsequent events', () => {
+    // Event 0 (loaded): no countToEnd, linkStart=true
+    // Event 1: countToEnd=true           → breaks the link chain
+    // Event 2: linkStart=true           → unlinked (chain broken by event 1)
+    // Event 3: flag event               → also unlinked
+    const rundown = makeRundown({
+      entries: {
+        group: makeOntimeGroup({ id: 'group', entries: ['0', '1', '2'] }),
+        0: makeOntimeEvent({
+          id: '0',
+          parent: 'group',
+          timeStart: 0,
+          duration: 3600000,
+          countToEnd: false,
+          linkStart: true,
+          gap: 0,
+        } as any),
+        1: makeOntimeEvent({
+          id: '1',
+          parent: 'group',
+          timeStart: 3600000,
+          duration: 3600000,
+          countToEnd: true,
+          linkStart: true,
+          gap: 0,
+        } as any),
+        2: makeOntimeEvent({
+          id: '2',
+          parent: 'group',
+          timeStart: 7200000,
+          duration: 3600000,
+          linkStart: true,
+          gap: 0,
+        } as any),
+        3: makeOntimeEvent({
+          id: '3',
+          parent: null,
+          timeStart: 10800000,
+          duration: 3600000,
+          linkStart: true,
+          gap: 0,
+        } as any),
+      },
+      order: ['group', '0', '1', '2', '3'],
+    });
+
+    const state = {
+      groupNow: null,
+      eventNow: rundown.entries[0],
+      rundown: { actualGroupStart: null },
+    } as RuntimeState;
+
+    const metadata = { playableEventOrder: ['0', '1', '2', '3'], flags: ['3'] } as RundownMetadata;
+
+    loadGroupFlagAndEnd(rundown, metadata, 0, state);
+
+    // _group is the last event in the group (event 2)
+    // isLinkedToLoaded is false because event 1 (between loaded and group end) has countToEnd=true
+    // accumulatedGap includes event 1's duration because countToEnd events add their duration
+    expect(state._group).toMatchObject({
+      event: rundown.entries[2],
+      isLinkedToLoaded: false,
+      accumulatedGap: 3600000,
+    });
+
+    // _flag (event 3): isLinkedToLoaded is false because chain was broken by event 1
+    expect(state._flag).toMatchObject({
+      event: rundown.entries[3],
+      isLinkedToLoaded: false,
+      accumulatedGap: 3600000, // includes event 1's duration
+    });
+
+    // _end (event 3): also unlinked because the chain was broken at event 1
+    expect(state._end).toMatchObject({
+      event: rundown.entries[3],
+      isLinkedToLoaded: false,
+    });
+  });
+
+  test('countToEnd in the middle of the chain breaks links for downstream events', () => {
+    // Event 0 (loaded): no countToEnd, linkStart=true
+    // Event 1: linkStart=true           → linked to loaded
+    // Event 2: countToEnd=true          → breaks the chain (also last in group)
+    // Event 3: linkStart=true           → unlinked (chain broken by event 2)
+    const rundown = makeRundown({
+      entries: {
+        group: makeOntimeGroup({ id: 'group', entries: ['0', '1', '2'] }),
+        0: makeOntimeEvent({
+          id: '0',
+          parent: 'group',
+          timeStart: 0,
+          duration: 3600000,
+          countToEnd: false,
+          linkStart: true,
+          gap: 0,
+        } as any),
+        1: makeOntimeEvent({
+          id: '1',
+          parent: 'group',
+          timeStart: 3600000,
+          duration: 3600000,
+          linkStart: true,
+          gap: 0,
+        } as any),
+        2: makeOntimeEvent({
+          id: '2',
+          parent: 'group',
+          timeStart: 7200000,
+          duration: 3600000,
+          countToEnd: true,
+          linkStart: true,
+          gap: 0,
+        } as any),
+        3: makeOntimeEvent({
+          id: '3',
+          parent: null,
+          timeStart: 10800000,
+          duration: 3600000,
+          linkStart: true,
+          gap: 0,
+        } as any),
+      },
+      order: ['group', '0', '1', '2', '3'],
+    });
+
+    const state = {
+      groupNow: null,
+      eventNow: rundown.entries[0],
+      rundown: { actualGroupStart: null },
+    } as RuntimeState;
+
+    const metadata = { playableEventOrder: ['0', '1', '2', '3'], flags: ['3'] } as RundownMetadata;
+
+    loadGroupFlagAndEnd(rundown, metadata, 0, state);
+
+    // _group is the last event in the group (event 2)
+    // isLinkedToLoaded is false because event 2 itself has countToEnd=true
+    expect(state._group).toMatchObject({
+      event: rundown.entries[2],
+      isLinkedToLoaded: true,
+      accumulatedGap: 3600000, // includes event 2's duration
+    });
+
+    // _flag (event 3): isLinkedToLoaded is false because chain was broken by  count-to-end event 2
+    expect(state._flag).toMatchObject({
+      event: rundown.entries[3],
+      isLinkedToLoaded: false,
+      accumulatedGap: 3600000,
+    });
+
+    // _end (event 3): unlinked because event 2 has countToEnd=true
+    expect(state._end).toMatchObject({
+      event: rundown.entries[3],
+      isLinkedToLoaded: false,
+    });
+  });
 });

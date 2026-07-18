@@ -23,6 +23,7 @@ import {
   calculateDuration,
   checkIsNow,
   dayInMs,
+  getExpectedEnd,
   getExpectedStart,
   getLastEventNormal,
   isPlaybackActive,
@@ -852,7 +853,7 @@ function getExpectedTimes(state = runtimeState) {
         plannedStart,
         actualStart,
       });
-      state.offset.expectedGroupEnd = lastEventExpectedStart + lastEvent.duration;
+      state.offset.expectedGroupEnd = getExpectedEnd(lastEvent, lastEventExpectedStart, state.rundown.currentDay!);
     }
   }
 
@@ -884,7 +885,7 @@ function getExpectedTimes(state = runtimeState) {
       plannedStart,
       actualStart,
     });
-    state.offset.expectedRundownEnd = expectedStart + event.duration;
+    state.offset.expectedRundownEnd = getExpectedEnd(event, expectedStart, state.rundown.currentDay!);
   }
 }
 
@@ -927,6 +928,7 @@ export function loadGroupFlagAndEnd(
 
   let accumulatedGap = 0;
   let isLinkedToLoaded = true;
+  let previousWasCountToEnd = false;
 
   for (let idx = currentIndex; idx < playableEventOrder.length; idx++) {
     const entry = entries[playableEventOrder[idx]];
@@ -935,7 +937,18 @@ export function loadGroupFlagAndEnd(
       if (idx !== currentIndex) {
         // we only accumulate data after the loaded event
         accumulatedGap += entry.gap;
-        isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
+        isLinkedToLoaded = isLinkedToLoaded && entry.linkStart && !previousWasCountToEnd;
+
+        /**
+         * countToEnd events have a fixed wall-clock end time so we can add
+         * their duration as a positive gap downstream.
+         */
+        if (entry.countToEnd) {
+          previousWasCountToEnd = true;
+          accumulatedGap += entry.duration;
+        } else {
+          previousWasCountToEnd = false;
+        }
 
         // and the loaded event is not allowed to be the next flag
         if (!foundFlag && metadata.flags.includes(entry.id)) {
