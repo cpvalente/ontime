@@ -279,14 +279,22 @@ function processEntry<T extends OntimeEntry>(
     // 2. handle custom fields - mutates entry
     sanitiseCustomFields(customFields, entry);
 
-    rundownMetadata.totalDays += calculateDayOffset(entry, rundownMetadata.previousEvent);
-    entry.dayOffset = rundownMetadata.totalDays as Day;
-    entry.delay = 0; // this means we dont calculate delays or gaps for skipped events
-    entry.gap = 0; // this means we dont calculate delays or gaps for skipped events
+    /*
+     * we initialise data so that is not calculated for skipped events
+     * consider especially the day offset, while skipped events have no
+     * day offset, we match it to the previous element to avoid
+     * pushing confusing data to the UI
+     */
+    entry.dayOffset = (rundownMetadata.previousEvent?.dayOffset ?? 0) as Day;
+    entry.delay = 0;
+    entry.gap = 0;
+
     entry.parent = childOfGroup;
 
     // update rundown metadata, it only concerns playable events
     if (isPlayableEvent(entry)) {
+      rundownMetadata.totalDays += calculateDayOffset(entry, rundownMetadata.previousEvent);
+      entry.dayOffset = rundownMetadata.totalDays as Day;
       rundownMetadata.playableEventOrder.push(entry.id);
 
       // first start is always the first event
