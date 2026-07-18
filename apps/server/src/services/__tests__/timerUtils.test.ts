@@ -225,7 +225,7 @@ describe('getExpectedFinish()', () => {
     expect(calculatedFinish).toBe(10);
   });
   describe('on timers of type time-to-end', () => {
-    it('finish time is as schedule + added time', () => {
+    it('finish time is the fixed end, ignoring added time', () => {
       const state = {
         eventNow: {
           timeEnd: 30,
@@ -242,32 +242,57 @@ describe('getExpectedFinish()', () => {
         },
       } as RuntimeState;
 
+      // the end is anchored: added time surfaces as offset, it does not move the finish
       const calculatedFinish = getExpectedFinish(state);
-      expect(calculatedFinish).toBe(40);
+      expect(calculatedFinish).toBe(30);
     });
-    it('handles events that finish the day after', () => {
+
+    it('finish time is the fixed end, ignoring pauses', () => {
       const state = {
         eventNow: {
-          timeEnd: 600000, // 00:10:00
+          timeEnd: 30,
+          countToEnd: true,
+        },
+        clock: 25,
+        timer: {
+          addedTime: 0,
+          duration: dayInMs,
+          startedAt: 10,
+        },
+        _timer: {
+          pausedAt: 20, // paused 5 ago - wall clock keeps approaching the fixed end
+          hasFinished: false,
+        },
+      } as RuntimeState;
+
+      const calculatedFinish = getExpectedFinish(state);
+      expect(calculatedFinish).toBe(30);
+    });
+
+    it('returns the start time for count to end times which started late', () => {
+      const state = {
+        eventNow: {
+          timeStart: 20 * MILLIS_PER_HOUR, // 20:00:00
+          timeEnd: 21 * MILLIS_PER_MINUTE, // 21:00:00
           countToEnd: true,
         },
         timer: {
           addedTime: 0,
-          startedAt: 79200000, // 22:00:00
+          startedAt: 22 * MILLIS_PER_HOUR, // 22:00:00 <--------------
         },
         _timer: {
           pausedAt: null,
           hasFinished: false,
         },
         rundown: {
-          actualStart: 79200000,
-          plannedEnd: 600000,
+          actualStart: 20 * MILLIS_PER_HOUR, // 20:00:00
+          plannedEnd: 21 * MILLIS_PER_HOUR, // 21:00:00
         },
       } as RuntimeState;
 
       const calculatedFinish = getExpectedFinish(state);
-      // expected finish is not a duration but a point in time
-      expect(calculatedFinish).toBe(600000);
+      // timeEnd is numerically before startedAt for overnight events, so expectedFinish is clamped to startedAt
+      expect(calculatedFinish).toBe(22 * MILLIS_PER_HOUR);
     });
   });
 });
@@ -451,7 +476,7 @@ describe('getCurrent()', () => {
       expect(current).toBe(70);
     });
 
-    it('current time is the time to end + added time', () => {
+    it('current time is the time to end, ignoring added time', () => {
       const state = {
         eventNow: {
           timeEnd: 100,
@@ -472,8 +497,9 @@ describe('getCurrent()', () => {
         },
       } as RuntimeState;
 
+      // counts to the fixed end; added time surfaces as offset, not extra countdown
       const current = getCurrent(state);
-      expect(current).toBe(77);
+      expect(current).toBe(70);
     });
 
     it('handles events that finish the day after', () => {
@@ -482,6 +508,7 @@ describe('getCurrent()', () => {
           timeStart: 79200000, // 22:00:00
           timeEnd: 600000, // 00:10:00
           countToEnd: true,
+          dayOffset: 0,
         },
         clock: 79500000, // 22:05:00
         timer: {
@@ -492,6 +519,7 @@ describe('getCurrent()', () => {
         rundown: {
           actualStart: 79200000,
           plannedEnd: 600000,
+          currentDay: 0,
         },
         _timer: {
           pausedAt: null,
@@ -501,6 +529,35 @@ describe('getCurrent()', () => {
 
       const current = getCurrent(state);
       expect(current).toBe(dayInMs - 79500000 + 600000);
+    });
+
+    it('handles overnight count-to-end after midnight', () => {
+      const state = {
+        eventNow: {
+          timeStart: 23 * MILLIS_PER_HOUR, // 23:00:00
+          timeEnd: 1 * MILLIS_PER_HOUR, // 01:00:00
+          countToEnd: true,
+          dayOffset: 0,
+        },
+        clock: 30 * MILLIS_PER_MINUTE, // 00:30:00 on day 1
+        timer: {
+          addedTime: 0,
+          duration: Infinity,
+          startedAt: 23 * MILLIS_PER_HOUR,
+        },
+        rundown: {
+          actualStart: 23 * MILLIS_PER_HOUR,
+          plannedEnd: 1 * MILLIS_PER_HOUR,
+          currentDay: 1,
+        },
+        _timer: {
+          pausedAt: null,
+          hasFinished: false,
+        },
+      } as RuntimeState;
+
+      const current = getCurrent(state);
+      expect(current).toBe(30 * MILLIS_PER_MINUTE);
     });
 
     it('handles events that were started late', () => {
@@ -1073,7 +1130,7 @@ describe('getRuntimeOffset()', () => {
     expect(absolute).toBe(0);
   });
 
-  it('with time-to-end, offset is the overtime', () => {
+  it('with time-to-end, offset combines overtime and added time', () => {
     const state = {
       clock: 82000000, // 22:46:40
       eventNow: {
@@ -1126,7 +1183,45 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const { absolute } = getRuntimeOffset(state);
-    expect(absolute).toBe(400000); // <--- offset is always the overtime
+    // overtime (400000) plus the operator's added time (-200000)
+    expect(absolute).toBe(200000);
+  });
+
+  it('with time-to-end, added time surfaces as offset', () => {
+    const state = {
+      clock: 80000000, // 22:13:20 - before the scheduled end, not in overtime
+      eventNow: {
+        id: 'd6a2ce',
+        timeStart: 77400000, // 21:30:00
+        timeEnd: 81000000, // 22:30:00
+        duration: 3600000, // 01:00:00
+        timeStrategy: TimeStrategy.LockEnd,
+        countToEnd: true,
+        dayOffset: 0,
+        delay: 0,
+      },
+      rundown: {
+        plannedStart: 77400000, // 21:30:00
+        plannedEnd: 81000000, // 22:30:00
+        actualStart: 78000000, // 21:40:00
+        currentDay: 0,
+      },
+      offset: {
+        absolute: 0,
+      },
+      timer: {
+        addedTime: 300000, // operator added 5 minutes
+        current: 1000000, // still counting down, no overtime
+        duration: 3600000,
+        startedAt: 78000000,
+      },
+      _startDayOffset: 0,
+      _timer: { pausedAt: null },
+    } as RuntimeState;
+
+    // the end is anchored, so the added 5 minutes shows up purely as offset
+    const { absolute } = getRuntimeOffset(state);
+    expect(absolute).toBe(300000);
   });
 
   it('handles time-to-end started after the end time', () => {

@@ -151,9 +151,8 @@ type ScheduleTimeProps = {
   showExpected: boolean;
 };
 //TODO: consider relative mode
-export function ScheduleTime(props: ScheduleTimeProps) {
-  const { event, showExpected } = props;
-  const { timeStart, duration, delay, expectedStart, countToEnd } = event;
+export function ScheduleTime({ event, showExpected }: ScheduleTimeProps) {
+  const { timeStart, duration, delay, expectedStart, expectedEnd, countToEnd } = event;
 
   const plannedStart = timeStart + delay + event.dayOffset * dayInMs;
 
@@ -163,8 +162,14 @@ export function ScheduleTime(props: ScheduleTimeProps) {
   const plannedStateClass = isExpectedValueShow ? 'sub__schedule--strike' : delay !== 0 ? 'sub__schedule--delayed' : '';
 
   const expectedStateClass = `sub__schedule--${getOffsetState(expectedStart - plannedStart)}`;
-  const plannedEnd = plannedStart + duration + delay;
-  const expectedEnd = countToEnd ? Math.max(expectedStart + duration, plannedEnd) : expectedStart + duration;
+
+  // count to end events are fixed to the scheduled end and ignore delays
+  const plannedEnd = (() => {
+    if (countToEnd) {
+      return timeStart + event.dayOffset * dayInMs + duration;
+    }
+    return plannedStart + duration;
+  })();
   const expectedEndClass = `sub__schedule--${getOffsetState(expectedEnd - plannedEnd)}`;
 
   return (

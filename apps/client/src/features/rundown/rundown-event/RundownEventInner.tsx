@@ -120,7 +120,8 @@ function RundownEventInner({
       </div>
       <div className={style.titleSection}>
         <TitleEditor title={title} entryId={eventId} placeholder='Event title' className={style.eventTitle} />
-        {isNext && <span className={style.nextTag}>UP NEXT</span>}
+        {isNext && <span className={style.warningMeta}>UP NEXT</span>}
+        {!isNext && countToEnd && <span className={style.warningMeta}>COUNT TO END</span>}
       </div>
       <EventBlockPlayback
         eventId={eventId}

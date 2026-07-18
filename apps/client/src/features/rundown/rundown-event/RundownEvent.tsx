@@ -253,6 +253,7 @@ export default function RundownEvent({
 
   const blockClasses = cx([
     style.rundownEvent,
+    countToEnd && style.countToEnd,
     skip && style.skip,
     isPast && style.past,
     loaded && style.loaded,

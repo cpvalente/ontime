@@ -80,7 +80,7 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 
 // feature business logic
 
-export { getExpectedStart } from './src/date-utils/getExpectedStart.js';
+export { getExpectedStart, getExpectedEnd } from './src/date-utils/getExpected.js';
 
 // feature business logic - rundown
 export { checkIsNow } from './src/date-utils/checkIsNow.js';

@@ -27,7 +27,6 @@ interface TimeInputFlowProps {
 export default memo(TimeInputFlow);
 function TimeInputFlow({
   eventId,
-  countToEnd,
   timeStart,
   timeEnd,
   duration,
@@ -54,10 +53,6 @@ function TimeInputFlow({
   const warnings = [];
   if (timeStart + duration > dayInMs) {
     warnings.push('Over midnight');
-  }
-
-  if (countToEnd) {
-    warnings.push('Count to End');
   }
 
   const hasDelay = delay !== 0;

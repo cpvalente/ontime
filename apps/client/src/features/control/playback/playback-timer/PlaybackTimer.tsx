@@ -1,11 +1,12 @@
 import { MaybeNumber, Playback, TimerPhase } from 'ontime-types';
-import { dayInMs, millisToString } from 'ontime-utils';
+import { millisToString } from 'ontime-utils';
 import { PropsWithChildren } from 'react';
 
 import AppLink from '../../../../common/components/link/app-link/AppLink';
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import useReport from '../../../../common/hooks-query/useReport';
-import { useTimer } from '../../../../common/hooks/useSocket';
+import { useTimerProgress } from '../../../../common/hooks/useSocket';
+import { cx } from '../../../../common/utils/styleUtils';
 import { formatDuration } from '../../../../common/utils/time';
 import TimerDisplay from '../timer-display/TimerDisplay';
 
@@ -24,15 +25,14 @@ function resolveAddedTimeLabel(addedTime: number) {
 }
 
 export default function PlaybackTimer({ children }: PropsWithChildren) {
-  const timer = useTimer();
+  'use memo';
+  const timer = useTimerProgress();
 
   const isRolling = timer.playback === Playback.Roll;
   const isWaiting = timer.phase === TimerPhase.Pending;
   const isOvertime = timer.phase === TimerPhase.Overtime;
   const hasAddedTime = Boolean(timer.addedTime);
-
   const rollLabel = isRolling ? 'Roll mode active' : '';
-
   const addedTimeLabel = resolveAddedTimeLabel(timer.addedTime);
 
   return (
@@ -51,7 +51,13 @@ export default function PlaybackTimer({ children }: PropsWithChildren) {
         {isWaiting ? (
           <span className={style.rolltag}>Roll: Countdown to start</span>
         ) : (
-          <RunningStatus startedAt={timer.startedAt} expectedFinish={timer.expectedFinish} playback={timer.playback} />
+          <RunningStatus
+            startedAt={timer.startedAt}
+            expectedFinish={timer.expectedFinish}
+            isStopped={timer.playback === Playback.Stop}
+            isCountToEnd={timer.isCountToEnd}
+            isOvertime={isOvertime}
+          />
         )}
       </div>
       {children}
@@ -62,16 +68,18 @@ export default function PlaybackTimer({ children }: PropsWithChildren) {
 interface RunningStatusProps {
   startedAt: MaybeNumber;
   expectedFinish: MaybeNumber;
-  playback: Playback;
+  isStopped: boolean;
+  isCountToEnd: boolean;
+  isOvertime: boolean;
 }
-function RunningStatus({ startedAt, expectedFinish, playback }: RunningStatusProps) {
-  if (playback === Playback.Stop) {
+
+function RunningStatus({ startedAt, expectedFinish, isStopped, isCountToEnd, isOvertime }: RunningStatusProps) {
+  if (isStopped) {
     return <StoppedStatus />;
   }
 
   const started = millisToString(startedAt);
-  const finishedMs = expectedFinish !== null ? expectedFinish % dayInMs : null;
-  const finish = millisToString(finishedMs);
+  const finish = millisToString(expectedFinish);
 
   return (
     <>
@@ -80,7 +88,9 @@ function RunningStatus({ startedAt, expectedFinish, playback }: RunningStatusPro
         <span className={style.time}>{started}</span>
       </span>
       <span className={style.finish}>
-        <span className={style.tag}>Expect end</span>
+        <span className={cx([style.tag, isOvertime && style.tagOvertime])}>
+          {isCountToEnd ? 'Scheduled end' : 'Expected end'}
+        </span>
         <span className={style.time}>{finish}</span>
       </span>
     </>

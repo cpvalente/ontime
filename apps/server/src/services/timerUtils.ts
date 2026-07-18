@@ -2,6 +2,7 @@ import { Day, MaybeNumber, TimeOfDay, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
 import type { RuntimeState } from '../stores/runtimeState.js';
+import { InvalidStateError } from './generic.errors.js';
 
 /**
  * handle events that span over midnight
@@ -24,35 +25,35 @@ export function hasCrossedMidnight(previous: TimeOfDay, current: TimeOfDay): boo
  * @returns {number | null} new current time or null if nothing is running
  */
 export function getExpectedFinish(state: RuntimeState): MaybeNumber {
-  const { startedAt, duration, addedTime } = state.timer;
-
-  if (state.eventNow === null) {
+  // if there is a loaded event it must have started
+  // either way, we have no expected finish if nothing is playing
+  if (state.eventNow === null || state.timer.startedAt === null) {
     return null;
   }
 
-  const { countToEnd, timeEnd } = state.eventNow;
-  const { pausedAt } = state._timer;
-  const { clock } = state;
-
-  if (startedAt === null) {
-    return null;
+  if (state.eventNow.countToEnd) {
+    // count to end events are anchored to their fixed end: added time and pauses
+    // do not move the end, they surface as offset instead (see getRuntimeOffset)
+    return Math.max(state.eventNow.timeEnd, state.timer.startedAt);
   }
 
-  const pausedTime = pausedAt != null ? clock - pausedAt : 0;
+  const pausedTime = state._timer.pausedAt != null ? state.clock - state._timer.pausedAt : 0;
 
-  if (countToEnd) {
-    return timeEnd + addedTime + pausedTime;
+  DEV: {
+    if (state.timer.duration === null) {
+      throw new InvalidStateError('a running timer cannot have null duration');
+    }
   }
 
   // handle events that finish the day after
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- duration exists if ther eis a timer
-  const expectedFinish = startedAt + duration! + addedTime + pausedTime;
+  const expectedFinish = state.timer.startedAt + state.timer.duration + state.timer.addedTime + pausedTime;
   if (expectedFinish > dayInMs) {
     return expectedFinish - dayInMs;
   }
 
   // an event cannot finish before it started (user added too much negative time)
-  return Math.max(expectedFinish, startedAt);
+  return Math.max(expectedFinish, state.timer.startedAt);
 }
 
 /**
@@ -74,9 +75,12 @@ export function getCurrent(state: RuntimeState): number {
   const { clock } = state;
 
   if (countToEnd) {
-    const isEventOverMidnight = timeStart > timeEnd;
-    const correctDay = isEventOverMidnight ? dayInMs : 0;
-    return correctDay - clock + timeEnd + addedTime;
+    // count to end runs to its fixed end, so added time does not stretch the countdown
+    const dayOffset = state.eventNow.dayOffset ?? 0;
+    const currentDay =
+      state.rundown.currentDay ?? (timeStart > timeEnd && clock <= timeEnd ? dayOffset + 1 : dayOffset);
+    const endDay = timeStart > timeEnd ? dayOffset + 1 : dayOffset;
+    return timeEnd + endDay * dayInMs - (clock + currentDay * dayInMs);
   }
 
   if (startedAt === null) {
@@ -180,13 +184,14 @@ export function getRuntimeOffset(state: RuntimeState): { absolute: number; relat
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
   // absolute offset is difference between schedule and playback time
-  const absolute = eventStartOffset + overtime + pausedTime + addedTime;
+  // count to end is anchored to its fixed end, so it absorbs the late start (eventStartOffset)
+  // and the pause (already reflected in overtime); added time surfaces here as offset
+  const absolute = countToEnd ? overtime + addedTime : eventStartOffset + overtime + pausedTime + addedTime;
 
   // the relative offset is the same as the absolute but adjusted relative to the actual start time
   const relative = absolute + plannedStart - actualStart - _startDayOffset * dayInMs;
 
-  // in case of count to end, the absolute offset is just the overtime
-  return countToEnd ? { absolute: overtime, relative } : { absolute, relative };
+  return { absolute, relative };
 }
 
 /**
