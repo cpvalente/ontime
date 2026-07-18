@@ -19,6 +19,7 @@ interface UseRundownKeyboardOptions {
   };
   clearSelectedEvents: () => void;
   setEntryCopyId: (id: EntryId | null, mode?: 'copy' | 'cut') => void;
+  jumpToCurrent: () => void;
 }
 
 /**
@@ -40,6 +41,7 @@ export function useRundownKeyboard({
   commands,
   clearSelectedEvents,
   setEntryCopyId,
+  jumpToCurrent,
 }: UseRundownKeyboardOptions) {
   const scrollToEntry = useEventSelection((state) => state.scrollToEntry);
 
@@ -126,6 +128,8 @@ export function useRundownKeyboard({
       },
       { preventDefault: true, usePhysicalKeys: true },
     ],
+
+    ['alt + L', () => jumpToCurrent(), { preventDefault: true, usePhysicalKeys: true }],
 
     [
       'alt + mod + ArrowDown',
