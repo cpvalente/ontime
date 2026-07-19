@@ -927,7 +927,7 @@ export function loadGroupFlagAndEnd(
 
   let accumulatedGap = 0;
   let isLinkedToLoaded = true;
-  let previousWasCountToEnd = false;
+  let previousWasCountToEnd: Maybe<number> = null;
 
   for (let idx = currentIndex; idx < playableEventOrder.length; idx++) {
     const entry = entries[playableEventOrder[idx]];
@@ -935,18 +935,22 @@ export function loadGroupFlagAndEnd(
     if (isOntimeEvent(entry)) {
       if (idx !== currentIndex) {
         // we only accumulate data after the loaded event
-        accumulatedGap += entry.gap;
-        isLinkedToLoaded = isLinkedToLoaded && entry.linkStart && !previousWasCountToEnd;
 
-        /**
-         * countToEnd events have a fixed wall-clock end time so we can add
-         * their duration as a positive gap downstream.
-         */
-        if (entry.countToEnd) {
-          previousWasCountToEnd = true;
-          accumulatedGap += entry.duration;
+        if (previousWasCountToEnd !== null) {
+          /** previous event was countToEnd: add its duration as a positive gap (it "gives back" time downstream)
+           *   and break the link to the loaded event since countToEnd events reset the schedule
+           */
+          accumulatedGap += entry.gap + previousWasCountToEnd;
+          isLinkedToLoaded = false;
         } else {
-          previousWasCountToEnd = false;
+          accumulatedGap += entry.gap;
+          isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
+        }
+
+        if (entry.countToEnd) {
+          previousWasCountToEnd = entry.duration;
+        } else {
+          previousWasCountToEnd = null;
         }
 
         // and the loaded event is not allowed to be the next flag

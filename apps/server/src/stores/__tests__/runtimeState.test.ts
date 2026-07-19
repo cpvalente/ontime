@@ -1095,7 +1095,8 @@ describe('loadGroupFlagAndEnd()', () => {
 
     // _group is the last event in the group (event 2)
     // isLinkedToLoaded is false because event 1 (between loaded and group end) has countToEnd=true
-    // accumulatedGap includes event 1's duration because countToEnd events add their duration
+    // accumulatedGap includes event 1's duration carried forward to event 2
+    // (the countToEnd duration is applied to the next event, not the countToEnd event itself)
     expect(state._group).toMatchObject({
       event: rundown.entries[2],
       isLinkedToLoaded: false,
@@ -1103,10 +1104,12 @@ describe('loadGroupFlagAndEnd()', () => {
     });
 
     // _flag (event 3): isLinkedToLoaded is false because chain was broken by event 1
+    // accumulatedGap is still 3600000 because event 2 is not countToEnd,
+    // so previousWasCountToEnd is null and no further duration is carried forward
     expect(state._flag).toMatchObject({
       event: rundown.entries[3],
       isLinkedToLoaded: false,
-      accumulatedGap: 3600000, // includes event 1's duration
+      accumulatedGap: 3600000,
     });
 
     // _end (event 3): also unlinked because the chain was broken at event 1
@@ -1173,14 +1176,17 @@ describe('loadGroupFlagAndEnd()', () => {
     loadGroupFlagAndEnd(rundown, metadata, 0, state);
 
     // _group is the last event in the group (event 2)
-    // isLinkedToLoaded is false because event 2 itself has countToEnd=true
+    // isLinkedToLoaded is true because no preceding event had countToEnd
+    // accumulatedGap is 0 because no preceding event was countToEnd
+    // (the countToEnd duration is carried forward to the next event, not added to the countToEnd event itself)
     expect(state._group).toMatchObject({
       event: rundown.entries[2],
       isLinkedToLoaded: true,
-      accumulatedGap: 3600000, // includes event 2's duration
+      accumulatedGap: 0,
     });
 
-    // _flag (event 3): isLinkedToLoaded is false because chain was broken by  count-to-end event 2
+    // _flag (event 3): isLinkedToLoaded is false because chain was broken by count-to-end event 2
+    // accumulatedGap includes event 2's duration carried forward
     expect(state._flag).toMatchObject({
       event: rundown.entries[3],
       isLinkedToLoaded: false,
