@@ -1126,7 +1126,7 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const { absolute } = getRuntimeOffset(state);
-    expect(absolute).toBe(400000); // <--- offset is always the overtime
+    expect(absolute).toBe(400000 - 200000); // <--- offset is always the overtime + added time
   });
 
   it('handles time-to-end started after the end time', () => {
