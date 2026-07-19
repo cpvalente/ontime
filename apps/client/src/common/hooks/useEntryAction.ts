@@ -60,6 +60,7 @@ export type EventOptions = Partial<{
   before: MaybeString;
   // options of entries of type OntimeEvent
   linkPrevious: boolean;
+  /** the timing reference for the new entry, usually the same as after */
   lastEventId: MaybeString;
 }>;
 
@@ -205,8 +206,8 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
 
       // ************* CHECK OPTIONS specific to events
       if (isOntimeEvent(newEntry)) {
+        // last event id is the timing reference of the previous OntimeEvent in rundown
         if (options?.lastEventId) {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this is a value
           const previousEvent = rundownData.entries[options?.lastEventId];
           if (isOntimeEvent(previousEvent)) {
             newEntry.timeStart = previousEvent.timeEnd;
