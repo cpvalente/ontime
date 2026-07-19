@@ -109,12 +109,18 @@ function RundownHeader({ isExtracted, viewMode, setViewMode }: RundownHeaderProp
       {showOffsetToggle && (
         <div className={style.group}>
           <ToggleGroup value={[offsetMode]} onValueChange={toggleOffsetMode} className={style.segments}>
-            <Toolbar.Button render={<Toggle />} value={OffsetMode.Absolute} className={style.radioButton}>
+            <Tooltip
+              text='Offset measured against the scheduled clock time'
+              render={<Toolbar.Button render={<Toggle />} value={OffsetMode.Absolute} className={style.radioButton} />}
+            >
               Absolute
-            </Toolbar.Button>
-            <Toolbar.Button render={<Toggle />} value={OffsetMode.Relative} className={style.radioButton}>
+            </Tooltip>
+            <Tooltip
+              text='Offset measured from when the rundown actually started'
+              render={<Toolbar.Button render={<Toggle />} value={OffsetMode.Relative} className={style.radioButton} />}
+            >
               Relative
-            </Toolbar.Button>
+            </Tooltip>
           </ToggleGroup>
           <Tooltip
             text='Absolute measures offset against the scheduled clock time. Relative measures it from when the rundown actually started.'
