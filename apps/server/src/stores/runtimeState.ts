@@ -832,7 +832,6 @@ function getExpectedTimes(state = runtimeState) {
   state.offset.expectedRundownEnd = null;
   state.offset.expectedGroupEnd = null;
   state.offset.expectedFlagStart = null;
-  state.offset.expectedRundownEnd = null;
 
   const { offset } = state;
   const { plannedStart, actualStart } = state.rundown;
