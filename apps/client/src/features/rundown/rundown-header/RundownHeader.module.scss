@@ -58,8 +58,31 @@
   }
 }
 
-.toggleTooltipTrigger {
+.controlGroup {
   display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.groupLabel {
+  color: $gray-400;
+  font-size: calc(1rem - 3px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.infoIcon {
+  display: flex;
+  align-items: center;
+  color: $gray-400;
+  font-size: calc(1rem + 1px);
+  cursor: help;
+
+  &:hover {
+    color: $gray-200;
+  }
 }
 
 .apart {

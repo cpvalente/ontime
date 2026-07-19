@@ -3,6 +3,7 @@ import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { OffsetMode } from 'ontime-types';
 import { memo } from 'react';
+import { IoInformationCircle } from 'react-icons/io5';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { setOffsetMode, useOffsetMode } from '../../../common/hooks/useSocket';
@@ -74,52 +75,61 @@ function RundownHeader({ isExtracted, viewMode, setViewMode }: RundownHeaderProp
   return (
     <Toolbar.Root className={style.header}>
       {showRunEditToggle && (
-        <ToggleGroup value={[editorMode]} onValueChange={toggleAppMode} className={style.group}>
-          <Tooltip
-            text='Live playback view with auto-follow'
-            render={<Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton} />}
-          >
-            Run
-          </Tooltip>
-          <Tooltip
-            text='Manual editing without playback automation'
-            render={<Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.radioButton} />}
-          >
-            Edit
-          </Tooltip>
-        </ToggleGroup>
+        <div className={style.controlGroup}>
+          <span className={style.groupLabel}>Mode</span>
+          <ToggleGroup value={[editorMode]} onValueChange={toggleAppMode} className={style.group}>
+            <Tooltip
+              text='Live playback view with auto-follow'
+              render={<Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton} />}
+            >
+              Run
+            </Tooltip>
+            <Tooltip
+              text='Manual editing without playback automation'
+              render={<Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.radioButton} />}
+            >
+              Edit
+            </Tooltip>
+          </ToggleGroup>
+        </div>
       )}
 
-      <ToggleGroup value={[viewMode]} onValueChange={toggleViewMode} className={style.group}>
-        <Tooltip
-          text='View rundown in list mode'
-          render={<Toolbar.Button render={<Toggle />} value={RundownViewMode.List} className={style.radioButton} />}
-        >
-          List
-        </Tooltip>
-        <Tooltip
-          text='View rundown in table mode'
-          render={<Toolbar.Button render={<Toggle />} value={RundownViewMode.Table} className={style.radioButton} />}
-        >
-          Table
-        </Tooltip>
-      </ToggleGroup>
-
-      {showOffsetToggle && (
-        <ToggleGroup value={[offsetMode]} onValueChange={toggleOffsetMode} className={style.group}>
+      <div className={style.controlGroup}>
+        <span className={style.groupLabel}>View</span>
+        <ToggleGroup value={[viewMode]} onValueChange={toggleViewMode} className={style.group}>
           <Tooltip
-            text='Offsets use fixed clock time'
-            render={<Toolbar.Button render={<Toggle />} value={OffsetMode.Absolute} className={style.radioButton} />}
+            text='View rundown in list mode'
+            render={<Toolbar.Button render={<Toggle />} value={RundownViewMode.List} className={style.radioButton} />}
           >
-            Absolute
+            List
           </Tooltip>
           <Tooltip
-            text='Offsets follow the rundown relative start'
-            render={<Toolbar.Button render={<Toggle />} value={OffsetMode.Relative} className={style.radioButton} />}
+            text='View rundown in table mode'
+            render={<Toolbar.Button render={<Toggle />} value={RundownViewMode.Table} className={style.radioButton} />}
           >
-            Relative
+            Table
           </Tooltip>
         </ToggleGroup>
+      </div>
+
+      {showOffsetToggle && (
+        <div className={style.controlGroup}>
+          <span className={style.groupLabel}>Offset</span>
+          <ToggleGroup value={[offsetMode]} onValueChange={toggleOffsetMode} className={style.group}>
+            <Toolbar.Button render={<Toggle />} value={OffsetMode.Absolute} className={style.radioButton}>
+              Absolute
+            </Toolbar.Button>
+            <Toolbar.Button render={<Toggle />} value={OffsetMode.Relative} className={style.radioButton}>
+              Relative
+            </Toolbar.Button>
+          </ToggleGroup>
+          <Tooltip
+            text='Absolute measures offset against the scheduled clock time. Relative measures it from when the rundown actually started.'
+            render={<span className={style.infoIcon} />}
+          >
+            <IoInformationCircle />
+          </Tooltip>
+        </div>
       )}
 
       {showOverflowMenu && <RundownMenu allowNavigation={!isExtracted} />}
