@@ -58,24 +58,19 @@
   }
 }
 
-.controlGroup {
+/** inner toggle row when the pill also holds a trailing element (e.g. info icon) */
+.segments {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
-}
-
-.groupLabel {
-  color: $gray-400;
-  font-size: calc(1rem - 3px);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
+  gap: 2px;
 }
 
 .infoIcon {
   display: flex;
   align-items: center;
+  height: calc(2rem - 4px); // match .radioButton height
+  padding-inline: 0.4rem;
+  border-left: 1px solid $gray-1000;
   color: $gray-400;
   font-size: calc(1rem + 1px);
   cursor: help;

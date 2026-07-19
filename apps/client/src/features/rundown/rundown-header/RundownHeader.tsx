@@ -75,47 +75,40 @@ function RundownHeader({ isExtracted, viewMode, setViewMode }: RundownHeaderProp
   return (
     <Toolbar.Root className={style.header}>
       {showRunEditToggle && (
-        <div className={style.controlGroup}>
-          <span className={style.groupLabel}>Mode</span>
-          <ToggleGroup value={[editorMode]} onValueChange={toggleAppMode} className={style.group}>
-            <Tooltip
-              text='Live playback view with auto-follow'
-              render={<Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton} />}
-            >
-              Run
-            </Tooltip>
-            <Tooltip
-              text='Manual editing without playback automation'
-              render={<Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.radioButton} />}
-            >
-              Edit
-            </Tooltip>
-          </ToggleGroup>
-        </div>
-      )}
-
-      <div className={style.controlGroup}>
-        <span className={style.groupLabel}>View</span>
-        <ToggleGroup value={[viewMode]} onValueChange={toggleViewMode} className={style.group}>
+        <ToggleGroup value={[editorMode]} onValueChange={toggleAppMode} className={style.group}>
           <Tooltip
-            text='View rundown in list mode'
-            render={<Toolbar.Button render={<Toggle />} value={RundownViewMode.List} className={style.radioButton} />}
+            text='Live playback view with auto-follow'
+            render={<Toolbar.Button render={<Toggle />} value={AppMode.Run} className={style.radioButton} />}
           >
-            List
+            Run
           </Tooltip>
           <Tooltip
-            text='View rundown in table mode'
-            render={<Toolbar.Button render={<Toggle />} value={RundownViewMode.Table} className={style.radioButton} />}
+            text='Manual editing without playback automation'
+            render={<Toolbar.Button render={<Toggle />} value={AppMode.Edit} className={style.radioButton} />}
           >
-            Table
+            Edit
           </Tooltip>
         </ToggleGroup>
-      </div>
+      )}
+
+      <ToggleGroup value={[viewMode]} onValueChange={toggleViewMode} className={style.group}>
+        <Tooltip
+          text='View rundown in list mode'
+          render={<Toolbar.Button render={<Toggle />} value={RundownViewMode.List} className={style.radioButton} />}
+        >
+          List
+        </Tooltip>
+        <Tooltip
+          text='View rundown in table mode'
+          render={<Toolbar.Button render={<Toggle />} value={RundownViewMode.Table} className={style.radioButton} />}
+        >
+          Table
+        </Tooltip>
+      </ToggleGroup>
 
       {showOffsetToggle && (
-        <div className={style.controlGroup}>
-          <span className={style.groupLabel}>Offset</span>
-          <ToggleGroup value={[offsetMode]} onValueChange={toggleOffsetMode} className={style.group}>
+        <div className={style.group}>
+          <ToggleGroup value={[offsetMode]} onValueChange={toggleOffsetMode} className={style.segments}>
             <Toolbar.Button render={<Toggle />} value={OffsetMode.Absolute} className={style.radioButton}>
               Absolute
             </Toolbar.Button>
