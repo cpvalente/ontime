@@ -153,7 +153,7 @@ type ScheduleTimeProps = {
 //TODO: consider relative mode
 export function ScheduleTime(props: ScheduleTimeProps) {
   const { event, showExpected } = props;
-  const { timeStart, duration, delay, expectedStart, countToEnd } = event;
+  const { timeStart, duration, delay, expectedStart, expectedEnd } = event;
 
   const plannedStart = timeStart + delay + event.dayOffset * dayInMs;
 
@@ -164,7 +164,6 @@ export function ScheduleTime(props: ScheduleTimeProps) {
 
   const expectedStateClass = `sub__schedule--${getOffsetState(expectedStart - plannedStart)}`;
   const plannedEnd = plannedStart + duration + delay;
-  const expectedEnd = countToEnd ? Math.max(expectedStart + duration, plannedEnd) : expectedStart + duration;
   const expectedEndClass = `sub__schedule--${getOffsetState(expectedEnd - plannedEnd)}`;
 
   return (
