@@ -4,6 +4,7 @@ import type { ErrorResponse, GetInfo, GetUrl, SessionStats } from 'ontime-types'
 import { getErrorMessage } from 'ontime-utils';
 
 import * as sessionService from './session.service.js';
+import type { GenerateUrlInput } from './session.validation.js';
 import { validateGenerateUrl } from './session.validation.js';
 
 export const router: Router = express.Router();
@@ -28,17 +29,21 @@ router.get('/info', (_req: Request, res: Response<GetInfo | ErrorResponse>) => {
   }
 });
 
-router.post('/url', validateGenerateUrl, (req: Request, res: Response<GetUrl | ErrorResponse>) => {
-  try {
-    const url = sessionService.generateShareUrl(req.body.baseUrl, req.body.path, {
-      authenticate: req.body.authenticate,
-      lockConfig: req.body.lockConfig,
-      lockNav: req.body.lockNav,
-      preset: req.body.preset,
-    });
-    res.status(200).send({ url: url.toString() });
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(500).send({ message });
-  }
-});
+router.post(
+  '/url',
+  validateGenerateUrl,
+  (req: Request<unknown, GetUrl | ErrorResponse, GenerateUrlInput>, res: Response<GetUrl | ErrorResponse>) => {
+    try {
+      const url = sessionService.generateShareUrl(req.body.baseUrl, req.body.path, {
+        authenticate: req.body.authenticate,
+        lockConfig: req.body.lockConfig,
+        lockNav: req.body.lockNav,
+        preset: req.body.preset,
+      });
+      res.status(200).send({ url: url.toString() });
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(500).send({ message });
+    }
+  },
+);

@@ -23,7 +23,7 @@
     "no-restricted-imports": [
       "error",
       {
-        "patterns": ["ontime-types/src/*", "ontime-utils/src/*"]
+        "patterns": ["ontime-types/src/*", "ontime-utils/src/*", "zod"]
       }
     ]
   },

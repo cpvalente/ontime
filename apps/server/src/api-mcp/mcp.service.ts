@@ -1,12 +1,8 @@
 import {
   EntryId,
   EventPostPayload,
-  InsertOptions,
-  OntimeDelay,
   OntimeEntry,
-  OntimeEvent,
   OntimeGroup,
-  OntimeMilestone,
   PatchWithId,
   ProjectRundowns,
   Rundown,
@@ -29,40 +25,25 @@ import {
 } from '../api-data/rundown/rundown.service.js';
 import { normalisedToRundownArray } from '../api-data/rundown/rundown.utils.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
-
-export type EventFieldArgs = Partial<
-  Pick<
-    OntimeEvent,
-    | 'cue'
-    | 'title'
-    | 'note'
-    | 'colour'
-    | 'skip'
-    | 'flag'
-    | 'custom'
-    | 'timerType'
-    | 'endAction'
-    | 'linkStart'
-    | 'countToEnd'
-    | 'timeStrategy'
-    | 'timeWarning'
-    | 'timeDanger'
-    | 'timeStart'
-    | 'timeEnd'
-    | 'duration'
-  >
->;
-export type MilestoneFieldArgs = Partial<Pick<OntimeMilestone, 'cue' | 'title' | 'note' | 'colour' | 'custom'>>;
-export type DelayFieldArgs = Partial<Pick<OntimeDelay, 'duration'>>;
-export type GroupFieldArgs = Partial<Pick<OntimeGroup, 'title' | 'note' | 'colour' | 'targetDuration' | 'custom'>>;
-
-export type EntryFieldArgs = EventFieldArgs & MilestoneFieldArgs & DelayFieldArgs & GroupFieldArgs;
-export type TargetRundownArgs = { rundownId?: string };
-export type CreateEntryArgs = EntryFieldArgs & InsertOptions & TargetRundownArgs & { type?: `${SupportedEntry}` };
-export type BatchCreateEntryArgs = CreateEntryArgs & { children?: BatchCreateEntryArgs[] };
-export type UpdateEntryArgs = EntryFieldArgs & TargetRundownArgs & { id: EntryId };
-export type GroupEntriesArgs = GroupFieldArgs & TargetRundownArgs & { ids: EntryId[] };
-export type UngroupEntryArgs = TargetRundownArgs & { id: EntryId };
+// *Args types are now derived from the Zod schemas in mcp.tools.schema.ts — that file is
+// the single source of truth for MCP tool input shape, validation, and typing.
+import type {
+  BatchCreateEntriesArgs,
+  BatchCreateEntryArgs,
+  BatchUpdateEntriesArgs,
+  CreateCustomFieldArgs,
+  CreateEntryArgs,
+  DeleteCustomFieldArgs,
+  DeleteEntriesArgs,
+  EntryFieldArgs,
+  GetEntryArgs,
+  GroupEntriesArgs,
+  ReorderEntryArgs,
+  TargetRundownArgs,
+  UngroupEntryArgs,
+  UpdateCustomFieldArgs,
+  UpdateEntryArgs,
+} from './mcp.tools.schema.js';
 
 export function resolveTargetRundownId(args: TargetRundownArgs): string {
   return args.rundownId ?? getCurrentRundownId();
@@ -78,7 +59,7 @@ export function getRundownById(rundownId?: string): Readonly<Rundown> {
   return targetId === getCurrentRundownId() ? getCurrentRundown() : getDataProvider().getRundown(targetId);
 }
 
-export function findEntry(args: TargetRundownArgs & { id?: EntryId; cue?: string }): OntimeEntry | undefined {
+export function findEntry(args: GetEntryArgs): OntimeEntry | undefined {
   const rundown = getRundownById(args.rundownId);
   if (args.id) {
     return rundown.entries[args.id];
@@ -194,15 +175,13 @@ export async function updateEntryForMcp(args: UpdateEntryArgs) {
   return { target: getTargetMeta(rundownId), entry };
 }
 
-export async function deleteEntriesForMcp(args: TargetRundownArgs & { ids: EntryId[] }) {
+export async function deleteEntriesForMcp(args: DeleteEntriesArgs) {
   const rundownId = resolveTargetRundownId(args);
   const rundown = await deleteEntries(rundownId, args.ids);
   return { target: getTargetMeta(rundownId), deleted: args.ids, order: rundown.order };
 }
 
-export async function reorderEntryForMcp(
-  args: TargetRundownArgs & { entryId: EntryId; destinationId: EntryId; order: 'before' | 'after' | 'insert' },
-) {
+export async function reorderEntryForMcp(args: ReorderEntryArgs) {
   const rundownId = resolveTargetRundownId(args);
   const rundown = await reorderEntry(rundownId, args.entryId, args.destinationId, args.order);
   return { target: getTargetMeta(rundownId), order: rundown.order };
@@ -259,9 +238,7 @@ export async function ungroupEntryForMcp(args: UngroupEntryArgs) {
   return { target: getTargetMeta(rundownId), ungrouped: args.id, order: updatedRundown.order };
 }
 
-export async function batchCreateEntriesForMcp(
-  args: TargetRundownArgs & { entries: BatchCreateEntryArgs[]; after?: EntryId },
-) {
+export async function batchCreateEntriesForMcp(args: BatchCreateEntriesArgs) {
   const { entries = [], after } = args;
   validateBatchCreateEntries(entries);
   const allEntries = flattenBatchCreateEntries(entries);
@@ -336,14 +313,14 @@ async function createBatchEntry(
   return { entry, created };
 }
 
-export async function batchUpdateEntriesForMcp(args: TargetRundownArgs & { ids: EntryId[]; data: EntryFieldArgs }) {
+export async function batchUpdateEntriesForMcp(args: BatchUpdateEntriesArgs) {
   assertKnownCustomFields(args.data.custom);
   const rundownId = resolveTargetRundownId(args);
   const rundown = await batchEditEntries(rundownId, args.ids, args.data);
   return { target: getTargetMeta(rundownId), updated: args.ids, order: rundown.order };
 }
 
-export async function createCustomFieldForMcp(args: { label: string; type: 'text' | 'image'; colour: string }) {
+export async function createCustomFieldForMcp(args: CreateCustomFieldArgs) {
   const label = args.label?.trim();
   // same constraint the HTTP route enforces in customFields.validation.ts
   if (!label || !checkRegex.isAlphanumericWithSpace(label)) {
@@ -364,13 +341,13 @@ export async function createCustomFieldForMcp(args: { label: string; type: 'text
   return { key, customFields: updated };
 }
 
-export async function updateCustomFieldForMcp(args: { key: string; label?: string; colour?: string }) {
+export async function updateCustomFieldForMcp(args: UpdateCustomFieldArgs) {
   const projectRundowns = getDataProvider().getProjectRundowns();
   const updated = await editCustomField(args.key, { label: args.label, colour: args.colour }, projectRundowns);
   return { customFields: updated };
 }
 
-export async function deleteCustomFieldForMcp(args: { key: string }) {
+export async function deleteCustomFieldForMcp(args: DeleteCustomFieldArgs) {
   const projectRundowns = getDataProvider().getProjectRundowns();
   const updated = await deleteCustomField(args.key, projectRundowns);
   return { customFields: updated };

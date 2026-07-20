@@ -5,6 +5,7 @@ import { getErrorMessage } from 'ontime-utils';
 
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import type { NewPresetInput, PresetAliasParam, UpdatePresetInput } from './urlPresets.validation.js';
 import { validateNewPreset, validatePresetParam, validateUpdatePreset } from './urlPresets.validation.js';
 
 export const router: Router = express.Router();
@@ -14,80 +15,98 @@ router.get('/', (_req: Request, res: Response<URLPreset[]>) => {
   res.status(200).send(presets as URLPreset[]);
 });
 
-router.post('/', validateNewPreset, async (req: Request, res: Response<URLPreset[] | ErrorResponse>) => {
-  try {
-    const newPreset: URLPreset = {
-      enabled: req.body.enabled,
-      alias: req.body.alias,
-      target: req.body.target,
-      search: req.body.search,
-      displayInNav: req.body.displayInNav,
-      options: req.body.options,
-    };
+router.post(
+  '/',
+  validateNewPreset,
+  async (
+    req: Request<unknown, URLPreset[] | ErrorResponse, NewPresetInput>,
+    res: Response<URLPreset[] | ErrorResponse>,
+  ) => {
+    try {
+      const newPreset: URLPreset = {
+        enabled: req.body.enabled,
+        alias: req.body.alias,
+        target: req.body.target,
+        search: req.body.search,
+        displayInNav: req.body.displayInNav,
+        options: req.body.options,
+      };
 
-    const currentPresets = getDataProvider().getUrlPresets();
-    if (currentPresets.some((preset) => preset.alias === newPreset.alias)) {
-      throw new Error(`Preset with alias ${newPreset.alias} already exists.`);
+      const currentPresets = getDataProvider().getUrlPresets();
+      if (currentPresets.some((preset) => preset.alias === newPreset.alias)) {
+        throw new Error(`Preset with alias ${newPreset.alias} already exists.`);
+      }
+
+      const newPresets = [...currentPresets, newPreset];
+
+      // Update the URL presets in the data provider
+      await getDataProvider().setUrlPresets(newPresets);
+      sendRefetch(RefetchKey.UrlPresets);
+      res.status(201).send(newPresets);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
     }
+  },
+);
 
-    const newPresets = [...currentPresets, newPreset];
+router.put(
+  '/:alias',
+  validateUpdatePreset,
+  async (
+    req: Request<PresetAliasParam, URLPreset[] | ErrorResponse, UpdatePresetInput>,
+    res: Response<URLPreset[] | ErrorResponse>,
+  ) => {
+    try {
+      const alias = req.params.alias;
+      const currentPresets = getDataProvider().getUrlPresets();
+      const existingPreset = currentPresets.find((preset) => preset.alias === alias);
+      if (!existingPreset) {
+        throw new Error(`Preset with alias ${alias} does not exist.`);
+      }
 
-    // Update the URL presets in the data provider
-    await getDataProvider().setUrlPresets(newPresets);
-    sendRefetch(RefetchKey.UrlPresets);
-    res.status(201).send(newPresets);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
+      const updatedPreset: URLPreset = {
+        enabled: req.body.enabled,
+        alias: req.body.alias,
+        target: req.body.target,
+        search: req.body.search,
+        displayInNav: req.body.displayInNav,
+        options: req.body.options ?? existingPreset.options,
+      };
 
-router.put('/:alias', validateUpdatePreset, async (req: Request, res: Response<URLPreset[] | ErrorResponse>) => {
-  try {
-    const alias = req.params.alias;
-    const currentPresets = getDataProvider().getUrlPresets();
-    const existingPreset = currentPresets.find((preset) => preset.alias === alias);
-    if (!existingPreset) {
-      throw new Error(`Preset with alias ${alias} does not exist.`);
+      if (alias !== updatedPreset.alias) {
+        throw new Error('Changing alias is not permitted');
+      }
+
+      const newPresets = currentPresets.map((preset) => (preset.alias === alias ? updatedPreset : preset));
+
+      // Update the URL presets in the data provider
+      await getDataProvider().setUrlPresets(newPresets);
+      sendRefetch(RefetchKey.UrlPresets);
+      res.status(200).send(newPresets);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
     }
+  },
+);
 
-    const updatedPreset: URLPreset = {
-      enabled: req.body.enabled,
-      alias: req.body.alias,
-      target: req.body.target,
-      search: req.body.search,
-      displayInNav: req.body.displayInNav,
-      options: req.body.options ?? existingPreset.options,
-    };
+router.delete(
+  '/:alias',
+  validatePresetParam,
+  async (req: Request<PresetAliasParam>, res: Response<URLPreset[] | ErrorResponse>) => {
+    try {
+      const alias = req.params.alias;
+      const currentPresets = getDataProvider().getUrlPresets();
+      const newPresets = currentPresets.filter((preset) => preset.alias !== alias);
 
-    if (alias !== updatedPreset.alias) {
-      throw new Error('Changing alias is not permitted');
+      // Update the URL presets in the data provider
+      await getDataProvider().setUrlPresets(newPresets);
+      sendRefetch(RefetchKey.UrlPresets);
+      res.status(200).send(newPresets);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
     }
-
-    const newPresets = currentPresets.map((preset) => (preset.alias === alias ? updatedPreset : preset));
-
-    // Update the URL presets in the data provider
-    await getDataProvider().setUrlPresets(newPresets);
-    sendRefetch(RefetchKey.UrlPresets);
-    res.status(200).send(newPresets);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
-
-router.delete('/:alias', validatePresetParam, async (req: Request, res: Response<URLPreset[] | ErrorResponse>) => {
-  try {
-    const alias = req.params.alias;
-    const currentPresets = getDataProvider().getUrlPresets();
-    const newPresets = currentPresets.filter((preset) => preset.alias !== alias);
-
-    // Update the URL presets in the data provider
-    await getDataProvider().setUrlPresets(newPresets);
-    sendRefetch(RefetchKey.UrlPresets);
-    res.status(200).send(newPresets);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-});
+  },
+);

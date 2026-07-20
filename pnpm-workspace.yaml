@@ -8,6 +8,7 @@ catalog:
   ts-essentials: 10.1.1
   typescript: 7.0.2
   vitest: 4.0.17
+  zod: 4.4.3
 
 allowBuilds:
   '@parcel/watcher': true
