@@ -2,16 +2,16 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId, OntimeGroup } from 'ontime-types';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
-import { MouseEvent, useRef } from 'react';
+import { MouseEvent, useCallback, useRef } from 'react';
 import {
   IoChevronDown,
   IoChevronUp,
   IoDuplicateOutline,
   IoFolderOpenOutline,
-  IoLockClosed,
   IoReorderTwo,
   IoTrash,
 } from 'react-icons/io5';
+import { TbTargetArrow, TbClockPin } from 'react-icons/tb';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import Tag from '../../../common/components/tag/Tag';
@@ -40,11 +40,17 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
   'use memo';
 
   const handleRef = useRef<null | HTMLSpanElement>(null);
-  const { clone, ungroup, deleteEntry } = useEntryActionsContext();
+  const { clone, ungroup, deleteEntry, updateEntry } = useEntryActionsContext();
 
   const selectSingleEntry = useEventSelection((state) => state.setSingleEntrySelection);
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const entryCopyId = useEntryCopy((state) => state.entryCopyId);
+
+  const isDurationMatching = data.targetDuration !== null && data.targetDuration === data.duration;
+
+  const matchDuration = useCallback(() => {
+    updateEntry({ id: data.id, targetDuration: data.duration });
+  }, [data.duration, data.id, updateEntry]);
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>(() => [
     {
@@ -60,6 +66,15 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
       icon: IoFolderOpenOutline,
       onClick: () => ungroup(data.id),
       disabled: data.entries.length === 0,
+    },
+    { type: 'divider' },
+    {
+      type: 'item',
+      label: 'Match Content Duration',
+      icon: TbClockPin,
+      onClick: matchDuration,
+      disabled: isDurationMatching,
+      description: "Change group target duration to match it's contents",
     },
     { type: 'divider' },
     {
@@ -186,7 +201,9 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
                   <Tag className={style.offsetLabel}>{planOffset}</Tag>
                 </span>
               )}
-              {data.targetDuration !== null && <IoLockClosed className={style.lockIcon} />}
+              {data.targetDuration !== null && (
+                <TbTargetArrow className={cx([style.lockIcon, isDurationMatching ? style.active : style.inactive])} />
+              )}
             </div>
           </div>
         </div>
