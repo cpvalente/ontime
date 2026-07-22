@@ -5,6 +5,7 @@ import {
   MILLIS_PER_SECOND,
   dayInMs,
   formatFromMillis,
+  getExpectedEnd,
   getExpectedStart,
 } from 'ontime-utils';
 
@@ -186,15 +187,13 @@ export function getExpectedTimesFromExtendedEvent(
       ...state,
     },
   );
-
+  const expectedEnd = getExpectedEnd(event, expectedStart, state.currentDay);
   const plannedEnd = event.timeStart + event.duration + event.delay;
 
   return {
     expectedStart,
     timeToStart: expectedStart - state.clock,
-    expectedEnd: event.countToEnd
-      ? Math.max(expectedStart + event.duration, plannedEnd)
-      : expectedStart + event.duration,
+    expectedEnd,
     plannedEnd,
   };
 }

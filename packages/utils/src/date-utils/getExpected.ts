@@ -3,15 +3,6 @@ import { OffsetMode } from 'ontime-types';
 
 import { dayInMs } from './conversionUtils.js';
 
-/**
- * @param event the event that we are counting to
- * @param currentDay the day offset of the currently running event
- * @param totalGap accumulated gap from the current event
- * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
- * @param clock
- * @param offset
- * @returns
- */
 export function getExpectedStart(
   event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'>,
   state: {
@@ -59,4 +50,26 @@ export function getExpectedStart(
   // otherwise consume as much of the offset as possible with the gap
   const offsetStartTimeBufferedByGaps = offsetStartTime - totalGap;
   return offsetStartTimeBufferedByGaps;
+}
+
+export function getExpectedEnd(
+  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'duration' | 'countToEnd'>,
+  expectedStart: number,
+  currentRuntimeDay: number,
+): number {
+  /**
+   * Count to end events are a special case
+   * - the end time is always the wall clock
+   */
+  if (event.countToEnd) {
+    // account for day offset
+    const relativeDayOffset = event.dayOffset - currentRuntimeDay;
+    const plannedEnd = event.timeStart + event.duration + relativeDayOffset * dayInMs;
+
+    // count to end should finish on the planned time or on start
+    return Math.max(expectedStart, plannedEnd);
+  }
+
+  // for normal events, the expected end is when we would start + its duration
+  return expectedStart + event.duration;
 }
