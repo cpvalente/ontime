@@ -49,7 +49,7 @@ function Studio({ customFields, projectData, isMirrored, settings, viewSettings 
 
       <div className={cx(['studio-contents', hideCards && 'studio-contents--onecol'])}>
         <StudioClock hideCards={hideCards} />
-        {!hideCards && <StudioTimers viewSettings={viewSettings} />}
+        {!hideCards && <StudioTimers viewSettings={viewSettings} auxTimerNames={settings?.auxTimerNames} />}
       </div>
     </div>
   );

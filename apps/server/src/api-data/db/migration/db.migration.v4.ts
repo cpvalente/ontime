@@ -23,6 +23,7 @@ export function migrateServerPort(jsonData: Partial<DatabaseModel>): {
   const operatorKey = settings?.operatorKey;
   const timeFormat = settings?.timeFormat;
   const language = settings?.language;
+  const auxTimerNames = settings?.auxTimerNames ?? ['', '', ''];
   const version = '4.5.0';
   db.settings = {
     version,
@@ -30,6 +31,7 @@ export function migrateServerPort(jsonData: Partial<DatabaseModel>): {
     operatorKey,
     timeFormat,
     language,
+    auxTimerNames,
     app: 'ontime',
   } as Settings;
   return { db, serverPort: settings?.serverPort };

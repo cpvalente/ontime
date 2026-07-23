@@ -22,5 +22,18 @@ export function parseSettings(data: Partial<DatabaseModel>): Settings {
     operatorKey: data.settings.operatorKey ?? defaultSettings.operatorKey,
     timeFormat: data.settings.timeFormat ?? defaultSettings.timeFormat,
     language: data.settings.language ?? defaultSettings.language,
+    auxTimerNames: sanitiseAuxTimerNames(data.settings.auxTimerNames, defaultSettings.auxTimerNames),
   };
+}
+
+/**
+ * Ensures the aux timer names are a fixed-length array of strings
+ * regardless of what is found in the file
+ */
+function sanitiseAuxTimerNames(maybeNames: unknown, fallback: string[]): string[] {
+  const source = Array.isArray(maybeNames) ? maybeNames : [];
+  return fallback.map((defaultName, index) => {
+    const value = source[index];
+    return typeof value === 'string' ? value : defaultName;
+  });
 }

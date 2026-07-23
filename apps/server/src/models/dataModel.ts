@@ -30,6 +30,7 @@ const dbModel: DatabaseModel = {
     operatorKey: null,
     timeFormat: '24',
     language: 'en',
+    auxTimerNames: ['', '', ''],
   },
   viewSettings: {
     overrideStyles: false,

@@ -2,6 +2,7 @@ import { Playback, TimerPhase, ViewSettings } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { useAuxTimersTime, useStudioTimersSocket } from '../../common/hooks/useSocket';
+import { getAuxTimerLabel } from '../../common/utils/auxTimerUtils';
 import { getOffsetState } from '../../common/utils/offset';
 import { cx } from '../../common/utils/styleUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
@@ -14,9 +15,10 @@ import './StudioTimers.scss';
 
 interface StudioTimersProps {
   viewSettings: ViewSettings;
+  auxTimerNames?: string[];
 }
 
-export default function StudioTimers({ viewSettings }: StudioTimersProps) {
+export default function StudioTimers({ viewSettings, auxTimerNames }: StudioTimersProps) {
   const { getLocalizedString } = useTranslation();
   const { mainSource } = useStudioOptions();
   const { eventNow, eventNext, message, time, offset, rundown, expectedRundownEnd } = useStudioTimersSocket();
@@ -100,7 +102,7 @@ export default function StudioTimers({ viewSettings }: StudioTimersProps) {
         </div>
       </div>
 
-      <StudioTimersAux />
+      <StudioTimersAux auxTimerNames={auxTimerNames} />
 
       <div className='card' id='card-timer-message'>
         <div>
@@ -119,24 +121,24 @@ export default function StudioTimers({ viewSettings }: StudioTimersProps) {
   );
 }
 
-function StudioTimersAux() {
+function StudioTimersAux({ auxTimerNames }: { auxTimerNames?: string[] }) {
   const auxTimer = useAuxTimersTime();
 
   return (
     <div className='card' id='card-aux'>
       <div className='card__row'>
         <div>
-          <div className='label'>Aux 1</div>
+          <div className='label'>{getAuxTimerLabel(auxTimerNames, 1, 'Aux 1')}</div>
           <div className='extra'>{millisToString(auxTimer.aux1)}</div>
         </div>
 
         <div>
-          <div className='label center'>Aux 2</div>
+          <div className='label center'>{getAuxTimerLabel(auxTimerNames, 2, 'Aux 2')}</div>
           <div className='extra center'>{millisToString(auxTimer.aux2)}</div>
         </div>
 
         <div>
-          <div className='label right'>Aux 3</div>
+          <div className='label right'>{getAuxTimerLabel(auxTimerNames, 3, 'Aux 3')}</div>
           <div className='extra right'>{millisToString(auxTimer.aux3)}</div>
         </div>
       </div>

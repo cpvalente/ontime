@@ -27,6 +27,14 @@ export const validateSettings = [
   pinValidator('operatorKey'),
   body('timeFormat').isString().isIn(['12', '24']).withMessage('Time format can only be "12" or "24"'),
   body('language').isString().trim().notEmpty(),
+  body('auxTimerNames')
+    .isArray()
+    .withMessage('auxTimerNames must be an array')
+    .customSanitizer((value: unknown) => {
+      // normalise to a fixed-length array of trimmed strings
+      const source = Array.isArray(value) ? value : [];
+      return [0, 1, 2].map((index) => (typeof source[index] === 'string' ? source[index].trim() : ''));
+    }),
 
   requestValidationFunction,
 ];

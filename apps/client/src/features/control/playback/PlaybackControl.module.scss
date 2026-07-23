@@ -3,6 +3,15 @@
   margin: 0 auto;
 }
 
+.auxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  font-size: $inner-section-text-size;
+  color: $label-gray;
+}
+
 .auxTimers {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
