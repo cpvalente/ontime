@@ -3,6 +3,7 @@ import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { OffsetMode } from 'ontime-types';
 import { memo } from 'react';
+import { IoInformationCircle } from 'react-icons/io5';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { setOffsetMode, useOffsetMode } from '../../../common/hooks/useSocket';
@@ -106,20 +107,28 @@ function RundownHeader({ isExtracted, viewMode, setViewMode }: RundownHeaderProp
       </ToggleGroup>
 
       {showOffsetToggle && (
-        <ToggleGroup value={[offsetMode]} onValueChange={toggleOffsetMode} className={style.group}>
+        <div className={style.group}>
+          <ToggleGroup value={[offsetMode]} onValueChange={toggleOffsetMode} className={style.segments}>
+            <Tooltip
+              text='Offset measured against the scheduled clock time'
+              render={<Toolbar.Button render={<Toggle />} value={OffsetMode.Absolute} className={style.radioButton} />}
+            >
+              Absolute
+            </Tooltip>
+            <Tooltip
+              text='Offset measured from when the rundown actually started'
+              render={<Toolbar.Button render={<Toggle />} value={OffsetMode.Relative} className={style.radioButton} />}
+            >
+              Relative
+            </Tooltip>
+          </ToggleGroup>
           <Tooltip
-            text='Offsets use fixed clock time'
-            render={<Toolbar.Button render={<Toggle />} value={OffsetMode.Absolute} className={style.radioButton} />}
+            text='Absolute measures offset against the scheduled clock time. Relative measures it from when the rundown actually started.'
+            render={<span className={style.infoIcon} />}
           >
-            Absolute
+            <IoInformationCircle />
           </Tooltip>
-          <Tooltip
-            text='Offsets follow the rundown relative start'
-            render={<Toolbar.Button render={<Toggle />} value={OffsetMode.Relative} className={style.radioButton} />}
-          >
-            Relative
-          </Tooltip>
-        </ToggleGroup>
+        </div>
       )}
 
       {showOverflowMenu && <RundownMenu allowNavigation={!isExtracted} />}

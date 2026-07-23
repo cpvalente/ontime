@@ -58,8 +58,26 @@
   }
 }
 
-.toggleTooltipTrigger {
+/** inner toggle row when the pill also holds a trailing element (e.g. info icon) */
+.segments {
   display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.infoIcon {
+  display: flex;
+  align-items: center;
+  height: calc(2rem - 4px); // match .radioButton height
+  padding-inline: 0.4rem;
+  border-left: 1px solid $gray-1000;
+  color: $gray-400;
+  font-size: calc(1rem + 1px);
+  cursor: help;
+
+  &:hover {
+    color: $gray-200;
+  }
 }
 
 .apart {
