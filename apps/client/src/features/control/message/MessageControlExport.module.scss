@@ -5,7 +5,7 @@
 .contentLayout {
   display: flex;
   flex-direction: column;
-  gap: $section-spacing;
+  gap: $element-spacing;
   color: $ui-white;
   padding-top: $panel-top-padding;
 }
