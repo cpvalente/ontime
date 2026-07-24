@@ -20,7 +20,8 @@ const secondarySourceLabels: Record<string, string> = {
 };
 
 export default function TimerPreview() {
-  const { blink, blackout, countToEnd, phase, secondarySource, showTimerMessage, timerType } = useMessagePreview();
+  const { blink, blackout, countToEnd, phase, secondarySource, showTimerMessage, timerType, questionEnabled } =
+    useMessagePreview();
   const { data } = useViewSettings();
 
   const main = (() => {
@@ -40,6 +41,9 @@ export default function TimerPreview() {
     // we need to check aux first since it takes priority
     return secondarySourceLabels[secondarySource];
   })();
+
+  // buttons only ever render for the secondary message, and only once it is shown (eye) with a question armed (?)
+  const showQuickResponses = secondary !== null && secondarySource === 'secondary' && questionEnabled;
 
   const overrideColour = (() => {
     // override fallback colours from starter project
@@ -63,6 +67,7 @@ export default function TimerPreview() {
           {main}
         </div>
         {secondary !== null && <div className={style.secondaryContent}>{secondary}</div>}
+        {showQuickResponses && <div className={style.secondaryContent}>Quick responses</div>}
       </div>
       <div className={style.eventStatus}>
         <Tooltip
