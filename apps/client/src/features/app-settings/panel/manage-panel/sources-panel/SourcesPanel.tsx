@@ -8,6 +8,7 @@ import type {
 import { getErrorMessage, ImportMap } from 'ontime-utils';
 import { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { IoCloudOutline, IoDownloadOutline } from 'react-icons/io5';
+import { useNavigate } from 'react-router';
 
 import {
   getWorksheetMetadata as getExcelWorksheetMetadata,
@@ -56,9 +57,11 @@ export default function SourcesPanel() {
   const [error, setError] = useState('');
   const [hasFile, setHasFile] = useState<'none' | 'loading' | 'done'>('none');
   const [activeSource, setActiveSource] = useState<ActiveSource | null>(null);
+  const [completedRundownTitle, setCompletedRundownTitle] = useState('');
 
   const { data: currentRundown } = useRundown();
   const { applyImport } = useSpreadsheetImport();
+  const navigate = useNavigate();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -101,6 +104,7 @@ export default function SourcesPanel() {
     setHasFile('none');
     setActiveSource(null);
     setError('');
+    setCompletedRundownTitle('');
   };
 
   const openGSheetFlow = () => {
@@ -123,11 +127,12 @@ export default function SourcesPanel() {
     }
   };
 
-  const handleFinished = () => {
+  const handleFinished = (rundownTitle: string) => {
     setImportFlow('finished');
     setHasFile('none');
     setActiveSource(null);
     setError('');
+    setCompletedRundownTitle(rundownTitle);
   };
 
   const handleApplyImport = async (
@@ -139,7 +144,7 @@ export default function SourcesPanel() {
     if (mode === 'new') {
       const title = newRundownTitle.trim() || preview.rundown.title;
       await applyImport({ mode: 'new', rundown: { ...preview.rundown, title }, customFields: preview.customFields });
-      handleFinished();
+      handleFinished(title);
       return;
     }
 
@@ -156,7 +161,7 @@ export default function SourcesPanel() {
       customFields: preview.customFields,
       providedFields,
     });
-    handleFinished();
+    handleFinished(currentRundown.title);
   };
 
   const loadWorksheetMetadata = useCallback(
@@ -289,11 +294,20 @@ export default function SourcesPanel() {
         {showCompleted && (
           <div className={style.finishSection}>
             <span className={style.finishBadge}>Import complete</span>
-            <div className={style.finishTitle}>Spreadsheet data applied.</div>
-            <div className={style.finishDescription}>You can close this flow or start another import.</div>
-            <Button variant='subtle-white' onClick={resetFlow}>
-              Reset flow
-            </Button>
+            <div className={style.finishTitle}>
+              Spreadsheet data applied to {completedRundownTitle || 'your rundown'}.
+            </div>
+            <div className={style.finishDescription}>
+              Review the imported rundown in the editor or start another import.
+            </div>
+            <div className={style.finishActions}>
+              <Button variant='primary' onClick={() => navigate('/editor')}>
+                Open editor
+              </Button>
+              <Button variant='subtle-white' onClick={resetFlow}>
+                Import another
+              </Button>
+            </div>
           </div>
         )}
         {isGSheetFlow && (
