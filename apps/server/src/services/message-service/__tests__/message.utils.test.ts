@@ -33,4 +33,11 @@ describe('validateTimerMessage()', () => {
 
     expect(validateTimerMessage(payload)).toStrictEqual(expected);
   });
+  it('coerces the secondary placement to a permitted value', () => {
+    expect(validateTimerMessage({ secondaryPlacement: 'main' })).toStrictEqual({ secondaryPlacement: 'main' });
+    expect(validateTimerMessage({ secondaryPlacement: 'below' })).toStrictEqual({ secondaryPlacement: 'below' });
+  });
+  it('falls back to below for an invalid placement', () => {
+    expect(validateTimerMessage({ secondaryPlacement: 'nonsense' })).toStrictEqual({ secondaryPlacement: 'below' });
+  });
 });

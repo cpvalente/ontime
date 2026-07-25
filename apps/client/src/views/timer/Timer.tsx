@@ -27,6 +27,7 @@ import {
   getShowMessage,
   getShowModifiers,
   getShowProgressBar,
+  getTimerSlots,
   getTotalTime,
 } from './timer.utils';
 import { TimerData, useTimerData } from './useTimerData';
@@ -132,15 +133,25 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
     hideSecondary,
   );
 
+  // when the operator promotes the secondary source to the main slot, swap the two so the event
+  // timer is demoted (never removed). Frozen overtime end-messages keep the event timer prominent.
+  const isSwapped = message.timer.secondaryPlacement === 'main' && Boolean(secondaryContent) && !showEndMessage;
+  const { main: mainSlot, secondary: secondarySlot } = getTimerSlots(
+    isSwapped,
+    { content: display, timerType: viewTimerType, phase: time.phase },
+    secondaryContent,
+  );
+
   // gather presentation styles
   const resolvedTimerColour = getTimerColour(viewSettings, timerColour, showWarning, showDanger);
-  const timerFontSize = getEstimatedFontSize(display, secondaryContent);
+  const timerFontSize = getEstimatedFontSize(mainSlot.content ?? display, secondarySlot.content);
   const subduePaused = !isPlaying && viewTimerType !== TimerType.Clock;
   const userStyles = {
     ...(keyColour && { '--timer-bg': keyColour }),
-    ...(resolvedTimerColour && { '--timer-colour': resolvedTimerColour }),
     ...(font && { '--timer-font': font }),
   };
+  // the event timer keeps its (phase-aware) colour in whichever slot it occupies
+  const eventTimerColour = resolvedTimerColour ? { '--timer-colour': resolvedTimerColour } : undefined;
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
@@ -175,17 +186,32 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
           </FitText>
         ) : (
           <div
-            className={cx(['timer', subduePaused && 'timer--paused', showFinished && 'timer--finished'])}
-            style={{ fontSize: `${timerFontSize}vw` }}
-            data-type={viewTimerType}
-            data-phase={time.phase}
+            className={cx([
+              'timer',
+              mainSlot.isEventTimer && subduePaused && 'timer--paused',
+              mainSlot.isEventTimer && showFinished && 'timer--finished',
+            ])}
+            style={{ fontSize: `${timerFontSize}vw`, ...(mainSlot.isEventTimer ? eventTimerColour : {}) }}
+            data-type={mainSlot.timerType}
+            data-phase={mainSlot.phase}
           >
-            {display}
+            {mainSlot.content}
           </div>
         )}
-        <div className={cx(['secondary', !secondaryContent && 'secondary--hidden'])}>
+        <div
+          className={cx([
+            'secondary',
+            !secondarySlot.content && 'secondary--hidden',
+            secondarySlot.isEventTimer && 'secondary--as-timer',
+            secondarySlot.isEventTimer && subduePaused && 'secondary--paused',
+            secondarySlot.isEventTimer && showFinished && 'secondary--finished',
+          ])}
+          style={secondarySlot.isEventTimer ? eventTimerColour : undefined}
+          data-type={secondarySlot.timerType}
+          data-phase={secondarySlot.phase}
+        >
           <FitText mode='multi' min={64} max={256}>
-            {secondaryContent}
+            {secondarySlot.content}
           </FitText>
         </div>
       </div>
