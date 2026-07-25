@@ -180,13 +180,13 @@ export function getRuntimeOffset(state: RuntimeState): { absolute: number; relat
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
   // absolute offset is difference between schedule and playback time
-  const absolute = eventStartOffset + overtime + pausedTime + addedTime;
+  // in case of count to end, the absolute offset is overtime and added time
+  const absolute = countToEnd ? overtime + addedTime : eventStartOffset + overtime + pausedTime + addedTime;
 
   // the relative offset is the same as the absolute but adjusted relative to the actual start time
   const relative = absolute + plannedStart - actualStart - _startDayOffset * dayInMs;
 
-  // in case of count to end, the absolute offset is just the overtime
-  return countToEnd ? { absolute: overtime, relative } : { absolute, relative };
+  return { absolute, relative };
 }
 
 /**

@@ -1,17 +1,15 @@
-import { MaybeNumber, OntimeEvent } from 'ontime-types';
-import { getExpectedStart } from 'ontime-utils';
+import { getExpectedEnd, getExpectedStart } from 'ontime-utils';
 import { IoPencil } from 'react-icons/io5';
 
 import Button from '../../common/components/buttons/Button';
 import useReport from '../../common/hooks-query/useReport';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import { useExpectedStartData } from '../../common/hooks/useSocket';
-import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getPropertyValue } from '../common/viewUtils';
 import { useCountdownOptions } from './countdown.options';
-import { CountdownTarget, useSubscriptionDisplayData } from './countdown.utils';
+import { CountdownEvent, CountdownTarget, useSubscriptionDisplayData } from './countdown.utils';
 import { ScheduleTime } from './CountdownSubscriptions';
 
 import './SingleEventCountdown.scss';
@@ -38,8 +36,10 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
     mode,
   });
 
+  const expectedEnd = getExpectedEnd(subscribedEvent, expectedStart, currentDay);
+
   const { endedAt } = reportData[subscribedEvent.reportId ?? subscribedEvent.id] ?? { endedAt: null };
-  const countdownEvent = { ...subscribedEvent, expectedStart, endedAt };
+  const countdownEvent = { ...subscribedEvent, expectedStart, endedAt, expectedEnd };
   const titleTmp = getPropertyValue(subscribedEvent, mainSource ?? 'title');
   const title = titleTmp?.length ? titleTmp : ' '; // insert utf-8 empty space to avoid the line collapsing;
   // while a group is live, surface the running event's title as the secondary line
@@ -64,7 +64,7 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
 }
 
 interface SubscriptionStatusProps {
-  event: ExtendedEntry<OntimeEvent> & { endedAt: MaybeNumber; expectedStart: number };
+  event: CountdownEvent;
 }
 
 function SubscriptionStatus({ event }: SubscriptionStatusProps) {
