@@ -2,7 +2,6 @@ import { MaybeString, ProjectRundown } from 'ontime-types';
 import { memo, use, useMemo } from 'react';
 
 import Select from '../../common/components/select/Select';
-import EmptyPage from '../../common/components/state/EmptyPage';
 import { PresetContext } from '../../common/context/PresetContext';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import type { RundownSource } from '../../common/hooks-query/useScopedRundown';
@@ -34,40 +33,34 @@ function CuesheetTableWrapper({
   const preset = use(PresetContext);
   const isCurrentRundown = source.rundownId !== null && source.rundownId === loadedRundownId;
   const { cuesheetMode, setCuesheetMode } = useApplyCuesheetPolicy(preset, { canRunMode: isCurrentRundown });
-  const { data: customFields, status: customFieldStatus } = useCustomFields();
+  const { data: customFields } = useCustomFields();
 
   const columns = useMemo(
     () => makeCuesheetColumns(customFields, cuesheetMode, preset),
     [customFields, cuesheetMode, preset],
   );
 
-  const isLoading = !customFields || customFieldStatus === 'pending';
-
   return (
     <CuesheetDnd columns={columns}>
-      {isLoading ? (
-        <EmptyPage text='Loading...' />
-      ) : (
-        <CuesheetTable
-          columns={columns}
-          source={source}
-          cuesheetMode={cuesheetMode}
-          tableRoot='cuesheet'
-          setCuesheetMode={setCuesheetMode}
-          isCurrentRundown={isCurrentRundown}
-          insertElement={
-            <>
-              <RundownSelect
-                cuesheetMode={cuesheetMode}
-                selectedRundownId={selectedRundownId}
-                loadedRundownId={loadedRundownId}
-                setSelectedRundownId={setSelectedRundownId}
-                projectRundowns={projectRundowns}
-              />
-            </>
-          }
-        />
-      )}
+      <CuesheetTable
+        columns={columns}
+        source={source}
+        cuesheetMode={cuesheetMode}
+        tableRoot='cuesheet'
+        setCuesheetMode={setCuesheetMode}
+        isCurrentRundown={isCurrentRundown}
+        insertElement={
+          <>
+            <RundownSelect
+              cuesheetMode={cuesheetMode}
+              selectedRundownId={selectedRundownId}
+              loadedRundownId={loadedRundownId}
+              setSelectedRundownId={setSelectedRundownId}
+              projectRundowns={projectRundowns}
+            />
+          </>
+        }
+      />
     </CuesheetDnd>
   );
 }

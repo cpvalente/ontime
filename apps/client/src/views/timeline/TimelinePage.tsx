@@ -1,6 +1,7 @@
 import { OntimeView } from 'ontime-types';
 import { useMemo } from 'react';
 
+import EmptyFill from '../../common/components/state/EmptyFill';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -29,7 +30,7 @@ export default function TimelinePageLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
   }
 
   return <TimelinePage {...data} />;
@@ -73,7 +74,7 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
           totalDuration={totalDuration}
         />
       ) : (
-        <EmptyPage text={getLocalizedString('common.no_data')} />
+        <EmptyFill text={getLocalizedString('common.no_data')} />
       )}
     </div>
   );

@@ -22,7 +22,7 @@ export default function ProjectInfoLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
   }
 
   return <ProjectInfo {...data} />;
@@ -73,12 +73,11 @@ function ProjectInfo({ projectData, isMirrored }: ProjectInfoData) {
           </div>
         )}
         {projectData.custom.map((info, idx) => {
-          const hasImage = Boolean(info.url);
           return (
             // oxlint-disable-next-line react/no-array-index-key - we only have the index to go of  here
             <div key={`${info.title}-${idx}`} className='info__card'>
               {info.title && <div className='info__label'>{info.title}</div>}
-              {hasImage ? (
+              {info.url ? (
                 <div className='info__media'>
                   <InfoImage src={info.url} />
                   {info.value && <div className='info__value'>{info.value}</div>}
@@ -108,10 +107,6 @@ function InfoCard({ label, children }: InfoCardProps) {
   );
 }
 
-/**
- * Renders an user provided image, collapsing itself if the image fails to load
- * We remove the container along with the image to avoid leaving an empty gap in the card
- */
 function InfoImage({ src }: { src: string }) {
   const [hasError, setHasError] = useState(false);
 
