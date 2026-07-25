@@ -1,6 +1,23 @@
 import { HotkeyItem, getHotkeyHandler } from '@mantine/hooks';
 import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+/**
+ * Whether a value should be sent to the server
+ * An undefined initial value means that the value is unknown, for example when several
+ * entries are being edited and they do not agree on a value
+ * It is shown as an empty field, so submitting it would overwrite data the user has not edited
+ */
+export function shouldSubmitValue(
+  valueToSubmit: string,
+  initialText: string | undefined,
+  allowSubmitSameValue?: boolean,
+): boolean {
+  if (allowSubmitSameValue) {
+    return true;
+  }
+  return valueToSubmit !== (initialText ?? '');
+}
+
 interface UseReactiveTextInputReturn {
   value: string;
   onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -58,9 +75,7 @@ export default function useReactiveTextInput(
    */
   const handleSubmit = useCallback(
     (valueToSubmit: string) => {
-      // No need to update if it hasn't changed
-      // an undefined initial value is shown as an empty field, submitting it would overwrite the underlying data
-      if (valueToSubmit === (initialText ?? '') && !options?.allowSubmitSameValue) {
+      if (!shouldSubmitValue(valueToSubmit, initialText, options?.allowSubmitSameValue)) {
         options?.onCancelUpdate?.();
       } else {
         const cleanVal = valueToSubmit.trim();

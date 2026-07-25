@@ -5,6 +5,8 @@ import { AutoTextarea } from '../../../../common/components/input/auto-textarea/
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
 import { EventEditorUpdateFields } from '../EventEditor';
 
+import style from '../EntryEditor.module.scss';
+
 interface CountedTextAreaProps {
   className?: string;
   field: EventEditorUpdateFields;
@@ -32,11 +34,21 @@ export default function EventTextArea({
     submitOnCtrlEnter: true,
   });
 
+  // an unknown value cannot be cleared by emptying the field, we offer an explicit action
+  const canClear = initialValue === undefined;
+
   return (
     <div>
-      <Editor.Label className={className} htmlFor={field} style={givenStyles}>
-        {label}
-      </Editor.Label>
+      <div className={style.labelRow}>
+        <Editor.Label className={className} htmlFor={field} style={givenStyles}>
+          {label}
+        </Editor.Label>
+        {canClear && (
+          <button type='button' className={style.clearAction} onClick={() => submitCallback('')}>
+            Clear
+          </button>
+        )}
+      </div>
       <AutoTextarea
         id={field}
         inputref={ref}

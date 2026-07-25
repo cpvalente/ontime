@@ -50,6 +50,16 @@ test('Editing multiple events', async ({ page }) => {
   await expect(page.getByTestId('entry-1').getByTestId('entry__title')).toHaveValue('first');
   await expect(page.getByTestId('entry-2').getByTestId('entry__title')).toHaveValue('second');
 
+  // a mixed field cannot be cleared by emptying it, so an explicit action is offered
+  const clearTitle = editor.getByRole('button', { name: 'Clear', exact: true }).first();
+  await expect(clearTitle).toBeVisible();
+  await clearTitle.click();
+  await expect(page.getByTestId('entry-1').getByTestId('entry__title')).toHaveValue('');
+  await expect(page.getByTestId('entry-2').getByTestId('entry__title')).toHaveValue('');
+
+  // the events now agree, so the field can be cleared by hand and the action is withdrawn
+  await expect(editor.getByLabel('Title', { exact: true })).not.toHaveAttribute('placeholder', 'Mixed');
+
   // editing a field applies it to the whole selection
   await title.fill('shared title');
   await title.press('Enter');

@@ -75,6 +75,26 @@
   gap: 1rem;
 }
 
+// a label with an action aligned to the end of the row
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.clearAction {
+  font-size: $aux-text-size;
+  color: $blue-400;
+  margin-bottom: $element-inner-spacing; // match the label
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &:hover {
+    color: $blue-500;
+  }
+}
+
 .splitTwo {
   display: grid;
   grid-template-columns: 1fr 1fr;

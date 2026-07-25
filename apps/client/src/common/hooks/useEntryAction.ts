@@ -52,6 +52,7 @@ import {
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
+import { applyPatchToEvents, canPredictBatchResult } from './entryAction.utils';
 
 export type EventOptions = Partial<{
   // options of any new entries (event / delay / group)
@@ -483,28 +484,9 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
       // Snapshot the previous value
       const previousRundown = queryClient.getQueryData<Rundown>(queryKey);
 
-      // changing the duration cascades through the rundown, we cannot resolve the new schedule here
-      // we skip the optimistic update and wait for the recalculated rundown from the server
-      const canPredictResult = !('duration' in data.data);
-
-      if (previousRundown && canPredictResult) {
-        const { data: patch, ids } = data;
-        const eventIds = new Set(ids);
-        const newRundown = { ...previousRundown.entries };
-
-        eventIds.forEach((eventId) => {
-          if (Object.hasOwn(newRundown, eventId)) {
-            const event = newRundown[eventId];
-            if (isOntimeEvent(event)) {
-              newRundown[eventId] = {
-                ...event,
-                ...patch,
-                // custom fields are patched, not replaced
-                custom: patch.custom ? { ...event.custom, ...patch.custom } : event.custom,
-              };
-            }
-          }
-        });
+      // when the result cannot be resolved here we wait for the recalculated rundown from the server
+      if (previousRundown && canPredictBatchResult(data.data)) {
+        const newRundown = applyPatchToEvents(previousRundown.entries, data.ids, data.data);
 
         queryClient.setQueryData<Rundown>(queryKey, {
           id: previousRundown.id,

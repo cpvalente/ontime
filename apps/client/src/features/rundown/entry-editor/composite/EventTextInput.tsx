@@ -6,6 +6,8 @@ import useReactiveTextInput from '../../../../common/components/input/text-input
 import { EventEditorUpdateFields } from '../EventEditor';
 import { GroupEditorUpdateTextFields } from '../GroupEditor';
 
+import style from '../EntryEditor.module.scss';
+
 interface EntryEditorTextInputProps extends InputProps {
   field: EventEditorUpdateFields | GroupEditorUpdateTextFields;
   label: string;
@@ -32,11 +34,21 @@ export default function EntryEditorTextInput({
     submitOnEnter: true,
   });
 
+  // an unknown value cannot be cleared by emptying the field, we offer an explicit action
+  const canClear = initialValue === undefined;
+
   return (
     <div>
-      <Editor.Label className={className} htmlFor={field} style={givenStyles}>
-        {label}
-      </Editor.Label>
+      <div className={style.labelRow}>
+        <Editor.Label className={className} htmlFor={field} style={givenStyles}>
+          {label}
+        </Editor.Label>
+        {canClear && (
+          <button type='button' className={style.clearAction} onClick={() => submitCallback('')}>
+            Clear
+          </button>
+        )}
+      </div>
       <Input
         id={field}
         ref={ref}
