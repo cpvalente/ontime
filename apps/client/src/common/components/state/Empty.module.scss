@@ -1,20 +1,43 @@
+@use '@/theme/viewerDefs' as *;
+
 .emptyContainer {
   width: 100%;
   text-align: center;
-  color: $white-10;
+  color: var(--secondary-color-override, $viewer-secondary-color);
 
   .empty {
     display: block;
-    width: min(100%, 24rem);
-    margin-inline: auto;
-    opacity: 0.8;
+    width: min(100%, 14rem);
+    margin: 0 auto -1.5rem;
+    opacity: 0.6;
   }
 
   .text {
     display: block;
     margin-inline: auto;
-    font-weight: 600;
-    font-size: 2em;
-    max-width: min(100%, 600px);
+    font-weight: 400;
+    font-size: clamp(1rem, 1.55vw, 1.5rem);
+    line-height: 1.35;
+    max-width: min(100%, 40rem);
+  }
+
+  &.error {
+    color: $error-red;
+
+    .empty {
+      opacity: 0.35;
+      filter: grayscale(1);
+    }
+
+    .text {
+      margin-top: 0.5rem;
+    }
+  }
+
+  .errorIcon {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: -0.125rem auto 0;
   }
 }

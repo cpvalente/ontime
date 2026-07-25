@@ -100,13 +100,17 @@ $content-width: min(100%, 1100px);
   }
 
   .info__image-container {
-    flex: 0 0 min(128px, 25%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 0 0 min(192px, 25%);
   }
 
   .info__image {
     display: block;
-    width: 100%;
+    max-width: 100%;
     height: auto;
+    object-fit: contain;
   }
 
   .link.info__value {

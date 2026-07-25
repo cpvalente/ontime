@@ -7,12 +7,13 @@ import style from './EmptyPage.module.scss';
 interface EmptyPageProps {
   text?: string;
   injectedStyles?: CSSProperties;
+  variant?: 'error';
 }
 
-export default function EmptyPage({ text, injectedStyles }: EmptyPageProps) {
+export default function EmptyPage({ text, injectedStyles, variant }: EmptyPageProps) {
   return (
     <div className={style.page}>
-      <Empty text={text} injectedStyles={injectedStyles} />
+      <Empty text={text} injectedStyles={injectedStyles} variant={variant} />
     </div>
   );
 }

@@ -43,7 +43,7 @@ export default function CountdownLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
   }
 
   return <Countdown {...data} />;
@@ -87,7 +87,7 @@ function Countdown({ customFields, rundownData, projectData, isMirrored, setting
 
       {!hasEvents && (
         <div className='empty-state'>
-          <Empty text={getLocalizedString('common.no_data')} className='empty-state__content' />
+          <Empty text={getLocalizedString('common.no_data')} />
         </div>
       )}
 
@@ -121,7 +121,7 @@ function CountdownContents({ candidates, rundownData, subscriptions, goToEditMod
   if (subscriptions.length === 0) {
     return (
       <div className='empty-state'>
-        <Empty text={getLocalizedString('countdown.select_event')} className='empty-state__content' />
+        <Empty text={getLocalizedString('countdown.select_event')} />
         <Button variant='primary' size='xlarge' onClick={goToEditMode}>
           <IoAdd /> Add
         </Button>
@@ -137,7 +137,7 @@ function CountdownContents({ candidates, rundownData, subscriptions, goToEditMod
   if (subscribedEvents.length === 0) {
     return (
       <div className='empty-state'>
-        <Empty text={getLocalizedString('countdown.select_event')} className='empty-state__content' />
+        <Empty text={getLocalizedString('countdown.select_event')} />
         <Button variant='primary' size='xlarge' onClick={goToEditMode}>
           <IoAdd /> Add
         </Button>
@@ -154,7 +154,7 @@ function CountdownContents({ candidates, rundownData, subscriptions, goToEditMod
   if (eventsToShow.length === 0) {
     return (
       <div className='empty-state'>
-        <Empty text={getLocalizedString('countdown.all_have_finished')} className='empty-state__content' />
+        <Empty text={getLocalizedString('countdown.all_have_finished')} />
       </div>
     );
   }

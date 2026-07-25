@@ -80,21 +80,7 @@ $item-height: 3.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    button {
-      margin-top: 1.75rem;
-    }
-  }
-
-  .empty-state__content {
-    max-width: none;
-
-    span {
-      max-width: none;
-      white-space: nowrap;
-      font-size: clamp(1.5rem, 4vw, 2.25rem);
-      line-height: 1.1;
-    }
+    gap: 1.5rem;
   }
 
   .list-container {

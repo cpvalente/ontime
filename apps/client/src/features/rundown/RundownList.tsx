@@ -1,19 +1,24 @@
 import { memo } from 'react';
 
-import Empty from '../../common/components/state/Empty';
+import EmptyFill from '../../common/components/state/EmptyFill';
 import { useRundownWithMetadata } from '../../common/hooks-query/useRundown';
 import { useRundownEditor } from '../../common/hooks/useSocket';
+import { useTranslation } from '../../translation/TranslationProvider';
 import Rundown from './Rundown';
 
 export default memo(RundownList);
 function RundownList() {
   const { data, status, rundownMetadata } = useRundownWithMetadata();
   const featureData = useRundownEditor();
+  const { getLocalizedString } = useTranslation();
 
-  const isLoading = status !== 'success' || !data || !rundownMetadata;
+  // avoid showing the editable empty state before we know whether the rundown is actually empty
+  if (status === 'pending') {
+    return <EmptyFill text='Loading…' />;
+  }
 
-  if (isLoading) {
-    return <Empty text='Connecting to server' />;
+  if (status === 'error') {
+    return <EmptyFill text={getLocalizedString('common.no_data')} />;
   }
 
   return (

@@ -11,7 +11,7 @@ import {
   TableVirtuosoHandle,
 } from 'react-virtuoso';
 
-import EmptyPage from '../../../common/components/state/EmptyPage';
+import EmptyFill from '../../../common/components/state/EmptyFill';
 import EmptyTableBody from '../../../common/components/state/EmptyTableBody';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import type { RundownSource } from '../../../common/hooks-query/useScopedRundown';
@@ -19,6 +19,7 @@ import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { usePersistedRundownOptions } from '../../../features/rundown/rundown.options';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
 import { AppMode } from '../../../ontimeConfig';
+import { useTranslation } from '../../../translation/TranslationProvider';
 import { usePersistedCuesheetOptions } from '../cuesheet.options';
 import { useCuesheetPermissions } from '../useTablePermissions';
 import { CuesheetHeader, SortableCuesheetHeader } from './cuesheet-table-elements/CuesheetHeader';
@@ -64,6 +65,7 @@ export default function CuesheetTable({
 }: CuesheetTableProps) {
   const { flatRundown, status, selectedEventId } = source;
   const { updateEntry, updateTimer, addEntry } = useEntryActionsContext();
+  const { getLocalizedString } = useTranslation();
   const canCreateEntries = useCuesheetPermissions((state) => state.canCreateEntries) && cuesheetMode === AppMode.Edit;
 
   const useOptions = tableRoot === 'editor' ? usePersistedRundownOptions : usePersistedCuesheetOptions;
@@ -228,10 +230,13 @@ export default function CuesheetTable({
     });
   }, [cuesheetMode, hideIndexColumn, table]);
 
-  const isLoading = !flatRundown || status === 'pending';
+  // avoid showing the editable empty state before we know whether the rundown is actually empty
+  if (status === 'pending') {
+    return <EmptyFill text='Loading…' className={style.tableLoading} />;
+  }
 
-  if (isLoading) {
-    return <EmptyPage text='Loading...' />;
+  if (status === 'error') {
+    return <EmptyFill text={getLocalizedString('common.no_data')} className={style.tableLoading} />;
   }
 
   return (

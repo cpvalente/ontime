@@ -25,7 +25,7 @@ export default function StudioLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
   }
 
   return <Studio {...data} />;
