@@ -1,7 +1,8 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 
 import Button from '../../../../common/components/buttons/Button';
 import Input from '../../../../common/components/input/input/Input';
+import { getRememberedAspectRatio, rememberAspectRatio } from '../../../../common/utils/imageDimensions';
 
 import style from './EditableImage.module.scss';
 
@@ -14,6 +15,14 @@ interface EditableImageProps {
 export default memo(EditableImage);
 
 function EditableImage({ initialValue, readOnly, updateValue }: EditableImageProps) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  /**
+   * The cuesheet is virtualised: rows are unmounted once they leave the viewport.
+   * When the row comes back, we reserve the space the image took
+   * so that the table does not shift while the browser makes it available.
+   */
+  const knownAspectRatio = getRememberedAspectRatio(initialValue);
+
   const handleUpdate = (newValue: string) => {
     if (newValue === initialValue) {
       return;
@@ -62,7 +71,17 @@ function EditableImage({ initialValue, readOnly, updateValue }: EditableImagePro
           </Button>
         </div>
       )}
-      {Boolean(initialValue) && <img loading='lazy' src={initialValue} className={style.image} />}
+      <img
+        src={initialValue}
+        alt=''
+        className={style.image}
+        onLoad={(event) => {
+          rememberAspectRatio(initialValue, event.currentTarget);
+          setIsLoaded(true);
+        }}
+        /** until the image is available, we reserve the space it took the last time we saw it */
+        style={!isLoaded && knownAspectRatio !== null ? { aspectRatio: knownAspectRatio, width: '100%' } : undefined}
+      />
     </div>
   );
 }
