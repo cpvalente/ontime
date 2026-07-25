@@ -1,11 +1,10 @@
 /**
  * Resolves the display label for an aux timer.
  * Falls back to the provided default when no custom name is set.
- * @param names - the auxTimerNames array from settings (indexed 0-based)
- * @param index - 1-based aux timer index (1, 2, 3)
+ * @param name - the aux timer's custom name (from the runtime store)
  * @param fallback - label to use when no custom name is set
  */
-export function getAuxTimerLabel(names: string[] | undefined, index: number, fallback: string): string {
-  const custom = names?.[index - 1]?.trim();
+export function getAuxTimerLabel(name: string | undefined, fallback: string): string {
+  const custom = name?.trim();
   return custom ? custom : fallback;
 }

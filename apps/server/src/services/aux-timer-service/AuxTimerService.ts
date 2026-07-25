@@ -25,6 +25,20 @@ export class AuxTimerService {
   }
 
   /**
+   * Applies custom names to the aux timers and broadcasts the change.
+   * Names are indexed by aux timer position (0 -> aux1, 1 -> aux2, 2 -> aux3).
+   * Used to seed the names at bootstrap and to keep them in sync with the settings.
+   */
+  loadNames(names: string[]) {
+    const patch: AuxTimerStateUpdate = {
+      auxtimer1: this.aux1.setName(names[0] ?? ''),
+      auxtimer2: this.aux2.setName(names[1] ?? ''),
+      auxtimer3: this.aux3.setName(names[2] ?? ''),
+    };
+    this.emit(patch);
+  }
+
+  /**
    * Whether any of the aux timers are currently running
    */
   private hasActiveTimers(): boolean {

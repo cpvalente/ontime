@@ -4,9 +4,8 @@ import { LuArrowDownToLine } from 'react-icons/lu';
 
 import { CornerWithPip } from '../../../common/components/editor-utils/EditorUtils';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
-import useSettings from '../../../common/hooks-query/useSettings';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
-import { useMessagePreview } from '../../../common/hooks/useSocket';
+import { useAuxTimersName, useMessagePreview } from '../../../common/hooks/useSocket';
 import { getAuxTimerLabel } from '../../../common/utils/auxTimerUtils';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx, timerPlaceholder } from '../../../common/utils/styleUtils';
@@ -17,12 +16,12 @@ import style from './TimerPreview.module.scss';
 export default function TimerPreview() {
   const { blink, blackout, countToEnd, phase, secondarySource, showTimerMessage, timerType } = useMessagePreview();
   const { data } = useViewSettings();
-  const { data: settings } = useSettings();
+  const auxName = useAuxTimersName();
 
   const secondarySourceLabels: Record<string, string> = {
-    aux1: getAuxTimerLabel(settings.auxTimerNames, 1, 'Aux 1'),
-    aux2: getAuxTimerLabel(settings.auxTimerNames, 2, 'Aux 2'),
-    aux3: getAuxTimerLabel(settings.auxTimerNames, 3, 'Aux 3'),
+    aux1: getAuxTimerLabel(auxName.aux1, 'Aux 1'),
+    aux2: getAuxTimerLabel(auxName.aux2, 'Aux 2'),
+    aux3: getAuxTimerLabel(auxName.aux3, 'Aux 3'),
     secondary: 'Secondary message',
   };
 

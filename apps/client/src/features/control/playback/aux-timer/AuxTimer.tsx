@@ -3,7 +3,6 @@ import { millisToString, parseUserTime } from 'ontime-utils';
 import { IoArrowDown, IoArrowUp, IoPause, IoPlay, IoStop } from 'react-icons/io5';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
-import useSettings from '../../../../common/hooks-query/useSettings';
 import { setAuxTimer, useAuxTimerControl, useAuxTimerTime } from '../../../../common/hooks/useSocket';
 import { getAuxTimerLabel } from '../../../../common/utils/auxTimerUtils';
 import TapButton from '../tap-button/TapButton';
@@ -15,12 +14,11 @@ interface AuxTimerProps {
 }
 
 export function AuxTimer({ index }: AuxTimerProps) {
-  const { playback, direction } = useAuxTimerControl(index);
-  const { data: settings } = useSettings();
+  const { playback, direction, name } = useAuxTimerControl(index);
 
   const { stop, setDirection } = setAuxTimer;
 
-  const label = getAuxTimerLabel(settings.auxTimerNames, index, `Aux Timer ${index}`);
+  const label = getAuxTimerLabel(name, `Aux Timer ${index}`);
 
   const toggleDirection = () => {
     const newDirection = direction === SimpleDirection.CountDown ? SimpleDirection.CountUp : SimpleDirection.CountDown;

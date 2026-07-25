@@ -14,4 +14,6 @@ export type SimpleTimerState = {
   current: number;
   playback: SimplePlayback;
   direction: SimpleDirection;
+  /** Custom name for the aux timer. Empty string when unnamed */
+  name: string;
 };

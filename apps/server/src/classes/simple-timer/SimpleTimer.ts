@@ -6,6 +6,7 @@ export class SimpleTimer {
     current: 0,
     playback: SimplePlayback.Stop,
     direction: SimpleDirection.CountDown,
+    name: '',
   };
   private startedAt: number | null = null;
   private pausedAt: number | null = null;
@@ -23,7 +24,17 @@ export class SimpleTimer {
       current: 0,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
+      // the name is a persisted configuration, independent of the timer runtime
+      name: this.state.name,
     };
+  }
+
+  /**
+   * Sets the custom name of the timer
+   */
+  public setName(name: string): SimpleTimerState {
+    this.state.name = name;
+    return this.state;
   }
 
   /**

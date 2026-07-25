@@ -26,6 +26,7 @@ import { bodyParser } from './middleware/bodyParser.js';
 import { compressedStatic } from './middleware/staticGZip.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
+import { auxTimerService } from './services/aux-timer-service/AuxTimerService.js';
 import * as messageService from './services/message-service/message.service.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
 import { restoreService } from './services/restore-service/restore.service.js';
@@ -204,6 +205,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
    * Module initialises the services and provides initial payload for the store
    */
   const state = getState();
+  const { auxTimerNames } = getDataProvider().getSettings();
   eventStore.init({
     clock: state.clock,
     timer: state.timer,
@@ -219,21 +221,27 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
       current: timerConfig.auxTimerDefault,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
+      name: auxTimerNames[0] ?? '',
     },
     auxtimer2: {
       duration: timerConfig.auxTimerDefault,
       current: timerConfig.auxTimerDefault,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
+      name: auxTimerNames[1] ?? '',
     },
     auxtimer3: {
       duration: timerConfig.auxTimerDefault,
       current: timerConfig.auxTimerDefault,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
+      name: auxTimerNames[2] ?? '',
     },
     ping: 1,
   });
+
+  // seed the aux timer names onto the running service so they persist across commands
+  auxTimerService.loadNames(auxTimerNames);
 
   // initialise message service
   messageService.init(eventStore.set, eventStore.get);

@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react';
 import Button from '../../../common/components/buttons/Button';
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import Select from '../../../common/components/select/Select';
-import useSettings from '../../../common/hooks-query/useSettings';
-import { setMessage, useTimerViewControl } from '../../../common/hooks/useSocket';
+import { setMessage, useAuxTimersName, useTimerViewControl } from '../../../common/hooks/useSocket';
 import { getAuxTimerLabel } from '../../../common/utils/auxTimerUtils';
 import TimerPreview from './TimerPreview';
 
@@ -45,7 +44,7 @@ export default function TimerControlsPreview() {
 
 function SecondarySourceControl() {
   const { secondarySource } = useTimerViewControl();
-  const { data: settings } = useSettings();
+  const auxName = useAuxTimersName();
   const [value, setValue] = useState<SecondarySource>('aux1');
 
   // sync secondary source with external changes
@@ -68,9 +67,9 @@ function SecondarySourceControl() {
       <Select
         value={value}
         options={[
-          { value: 'aux1', label: getAuxTimerLabel(settings.auxTimerNames, 1, 'Aux 1') },
-          { value: 'aux2', label: getAuxTimerLabel(settings.auxTimerNames, 2, 'Aux 2') },
-          { value: 'aux3', label: getAuxTimerLabel(settings.auxTimerNames, 3, 'Aux 3') },
+          { value: 'aux1', label: getAuxTimerLabel(auxName.aux1, 'Aux 1') },
+          { value: 'aux2', label: getAuxTimerLabel(auxName.aux2, 'Aux 2') },
+          { value: 'aux3', label: getAuxTimerLabel(auxName.aux3, 'Aux 3') },
           { value: 'secondary', label: 'Secondary message' },
         ]}
         onValueChange={(value: SecondarySource | null) => {

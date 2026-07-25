@@ -95,6 +95,14 @@ export const useAuxTimersTime = createSelector((state: RuntimeStore) => {
   };
 });
 
+export const useAuxTimersName = createSelector((state: RuntimeStore) => {
+  return {
+    aux1: state.auxtimer1.name,
+    aux2: state.auxtimer2.name,
+    aux3: state.auxtimer3.name,
+  };
+});
+
 export const useAuxTimerTime = (index: number) =>
   createSelector((state: RuntimeStore) => {
     if (index === 1) return state.auxtimer1.current;
@@ -108,15 +116,18 @@ export const useAuxTimerControl = (index: number) =>
       return {
         playback: state.auxtimer1.playback,
         direction: state.auxtimer1.direction,
+        name: state.auxtimer1.name,
       };
     if (index === 2)
       return {
         playback: state.auxtimer2.playback,
         direction: state.auxtimer2.direction,
+        name: state.auxtimer2.name,
       };
     return {
       playback: state.auxtimer3.playback,
       direction: state.auxtimer3.direction,
+      name: state.auxtimer3.name,
     };
   })();
 
