@@ -1,15 +1,36 @@
 import { CustomFieldKey, OntimeEvent } from 'ontime-types';
 
 /**
+ * Marks a value which is not the same across the entries being edited
+ * This is a distinct value from undefined, which means that the field is absent
+ * Being a symbol, it also cannot be assigned to a patch by accident
+ */
+export const conflict: unique symbol = Symbol('conflict');
+export type Conflict = typeof conflict;
+
+/** A value which may not be the same across the entries being edited */
+export type MergedValue<T> = T | Conflict;
+
+export function isConflict<T>(value: MergedValue<T>): value is Conflict {
+  return value === conflict;
+}
+
+/** Resolves a merged value for the UI, where an unknown value is represented by undefined */
+export function resolveConflict<T>(value: MergedValue<T>): T | undefined {
+  return isConflict(value) ? undefined : value;
+}
+
+/**
  * Fields which can be edited across a selection of events
- * Schedule fields, cue and triggers are deliberately excluded:
- * they are either unique to an event or would cascade through the rundown
+ * timeStart and timeEnd are absolute points in time and are excluded:
+ * giving several events the same start or end collapses their durations
  */
 export const batchEditableFields = [
   'title',
   'note',
   'colour',
   'flag',
+  'duration',
   'endAction',
   'countToEnd',
   'timerType',
@@ -20,21 +41,25 @@ export const batchEditableFields = [
 
 type BatchEditableField = (typeof batchEditableFields)[number];
 
-export type MergedCustomFields = Record<CustomFieldKey, string | undefined>;
+/**
+ * Custom fields of the entries being edited
+ * A missing key means that none of the entries have a value for that field
+ */
+export type MergedCustomFields = Record<CustomFieldKey, MergedValue<string>>;
 
 /**
  * A merged view over a set of events
- * A field is undefined when the events do not agree on its value
+ * A field holds the conflict symbol when the events do not agree on its value
  */
 export type MergedEvent = {
-  [K in BatchEditableField]: OntimeEvent[K] | undefined;
+  [K in BatchEditableField]: MergedValue<OntimeEvent[K]>;
 } & {
   custom: MergedCustomFields;
 };
 
 /**
  * Merges a list of events into a single view
- * For a single event, every field is defined and matches the event
+ * For a single event, no field is in conflict and every value matches the event
  * @param events - events to merge, must contain at least one element
  */
 export function mergeEvents(events: OntimeEvent[]): MergedEvent {
@@ -43,6 +68,7 @@ export function mergeEvents(events: OntimeEvent[]): MergedEvent {
     note: mergeField(events, 'note'),
     colour: mergeField(events, 'colour'),
     flag: mergeField(events, 'flag'),
+    duration: mergeField(events, 'duration'),
     endAction: mergeField(events, 'endAction'),
     countToEnd: mergeField(events, 'countToEnd'),
     timerType: mergeField(events, 'timerType'),
@@ -54,11 +80,11 @@ export function mergeEvents(events: OntimeEvent[]): MergedEvent {
 }
 
 /**
- * Returns the shared value of a field, or undefined if the events disagree
+ * Returns the shared value of a field, or the conflict symbol if the events disagree
  */
-function mergeField<K extends BatchEditableField>(events: OntimeEvent[], field: K): OntimeEvent[K] | undefined {
+function mergeField<K extends BatchEditableField>(events: OntimeEvent[], field: K): MergedValue<OntimeEvent[K]> {
   const value = events[0][field];
-  return events.some((event) => event[field] !== value) ? undefined : value;
+  return events.some((event) => event[field] !== value) ? conflict : value;
 }
 
 /**
@@ -74,7 +100,7 @@ function mergeCustomFields(events: OntimeEvent[]): MergedCustomFields {
         continue;
       }
       const value = event.custom[key] ?? '';
-      merged[key] = events.some((other) => (other.custom[key] ?? '') !== value) ? undefined : value;
+      merged[key] = events.some((other) => (other.custom[key] ?? '') !== value) ? conflict : value;
     }
   }
 

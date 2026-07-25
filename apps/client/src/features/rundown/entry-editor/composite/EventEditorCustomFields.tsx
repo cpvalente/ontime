@@ -3,7 +3,7 @@ import { CSSProperties, Fragment } from 'react';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { EventEditorUpdateFields } from '../EventEditor';
-import { MergedCustomFields } from '../mergeEvents';
+import { MergedCustomFields, resolveConflict } from '../mergeEvents';
 import EventEditorImage from './EventEditorImage';
 import EventTextArea from './EventTextArea';
 import EntryEditorTextInput from './EventTextInput';
@@ -32,8 +32,8 @@ export default function EntryEditorCustomFields({
       {Object.keys(customFields).map((fieldKey) => {
         const key = `${idKey}-${fieldKey}`;
         const fieldName = `custom-${fieldKey}`;
-        const value = custom[fieldKey];
-        const initialValue = fieldKey in custom ? value : '';
+        // a key which is absent from the merged view is not present in any of the entries
+        const initialValue = resolveConflict(custom[fieldKey] ?? '');
         const placeholder = initialValue === undefined ? mixedPlaceholder : undefined;
         const { backgroundColor, color } = getAccessibleColour(customFields[fieldKey].colour);
         const labelText = customFields[fieldKey].label;

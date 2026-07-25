@@ -483,7 +483,11 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
       // Snapshot the previous value
       const previousRundown = queryClient.getQueryData<Rundown>(queryKey);
 
-      if (previousRundown) {
+      // changing the duration cascades through the rundown, we cannot resolve the new schedule here
+      // we skip the optimistic update and wait for the recalculated rundown from the server
+      const canPredictResult = !('duration' in data.data);
+
+      if (previousRundown && canPredictResult) {
         const { data: patch, ids } = data;
         const eventIds = new Set(ids);
         const newRundown = { ...previousRundown.entries };

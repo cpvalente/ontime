@@ -6,13 +6,14 @@ import Info from '../../../common/components/info/Info';
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
+import EventEditorBatchSchedule from './composite/EventEditorBatchSchedule';
 import EntryEditorCustomFields from './composite/EventEditorCustomFields';
 import EventEditorSchedule from './composite/EventEditorSchedule';
 import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
 import EventEditorTriggers from './composite/EventEditorTriggers';
 import { mixedPlaceholder } from './entryEditor.utils';
-import { mergeEvents } from './mergeEvents';
+import { mergeEvents, resolveConflict } from './mergeEvents';
 
 import style from './EntryEditor.module.scss';
 
@@ -67,7 +68,7 @@ export default function EventEditor({ events }: EventEditorProps) {
 
   return (
     <div className={style.content}>
-      {singleEvent && (
+      {singleEvent ? (
         <EventEditorSchedule
           key={`${editorKey}-schedule`}
           eventId={singleEvent.id}
@@ -78,14 +79,20 @@ export default function EventEditor({ events }: EventEditorProps) {
           linkStart={singleEvent.linkStart}
           delay={singleEvent.delay}
         />
+      ) : (
+        <EventEditorBatchSchedule
+          key={`${editorKey}-schedule`}
+          duration={resolveConflict(merged.duration)}
+          submit={submit}
+        />
       )}
       <EventEditorTimes
         key={`${editorKey}-times`}
-        countToEnd={merged.countToEnd}
-        endAction={merged.endAction}
-        timerType={merged.timerType}
-        timeWarning={merged.timeWarning}
-        timeDanger={merged.timeDanger}
+        countToEnd={resolveConflict(merged.countToEnd)}
+        endAction={resolveConflict(merged.endAction)}
+        timerType={resolveConflict(merged.timerType)}
+        timeWarning={resolveConflict(merged.timeWarning)}
+        timeDanger={resolveConflict(merged.timeDanger)}
         submit={submit}
       />
       <EventEditorTitles
@@ -93,10 +100,10 @@ export default function EventEditor({ events }: EventEditorProps) {
         eventId={singleEvent?.id ?? null}
         eventCount={events.length}
         cue={singleEvent?.cue ?? ''}
-        flag={merged.flag}
-        title={merged.title}
-        note={merged.note}
-        colour={merged.colour}
+        flag={resolveConflict(merged.flag)}
+        title={resolveConflict(merged.title)}
+        note={resolveConflict(merged.note)}
+        colour={resolveConflict(merged.colour)}
         submit={submit}
       />
       <div className={style.column}>
