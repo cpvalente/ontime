@@ -62,7 +62,7 @@ function EditableImage({ initialValue, readOnly, updateValue }: EditableImagePro
           </Button>
         </div>
       )}
-      {Boolean(initialValue) && <img loading='lazy' src={initialValue} className={style.image} />}
+      {Boolean(initialValue) && <img src={initialValue} className={style.image} />}
     </div>
   );
 }

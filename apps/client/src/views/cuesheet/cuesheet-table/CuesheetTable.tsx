@@ -260,7 +260,7 @@ export default function CuesheetTable({
         context={virtuosoContext}
         style={tableRoot === 'editor' ? { paddingLeft: '1rem' } : undefined}
         computeItemKey={computeItemKey}
-        increaseViewportBy={{ top: 100, bottom: 200 }}
+        increaseViewportBy={{ top: 300, bottom: 600 }}
         components={virtuosoComponents}
         fixedHeaderContent={fixedHeaderContent}
       />
