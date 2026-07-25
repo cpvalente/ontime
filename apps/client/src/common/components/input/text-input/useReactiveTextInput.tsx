@@ -9,7 +9,8 @@ interface UseReactiveTextInputReturn {
 }
 
 export default function useReactiveTextInput(
-  initialText: string,
+  /** undefined represents an unknown value, the field is shown empty and blurring it submits nothing */
+  initialText: string | undefined,
   submitCallback: (newValue: string) => void,
   ref: RefObject<HTMLInputElement | HTMLTextAreaElement | null>,
   options?: {
@@ -22,7 +23,7 @@ export default function useReactiveTextInput(
     allowKeyboardNavigation?: boolean;
   },
 ): UseReactiveTextInputReturn {
-  const [text, setText] = useState<string>(initialText);
+  const [text, setText] = useState<string>(initialText ?? '');
   // track whether we are submitting via a submit key (eg enter) and avoid submitting again on blur
   const isKeyboardSubmitting = useRef(false);
   // track escape to prevent the subsequent blur from submitting
@@ -58,7 +59,8 @@ export default function useReactiveTextInput(
   const handleSubmit = useCallback(
     (valueToSubmit: string) => {
       // No need to update if it hasn't changed
-      if (valueToSubmit === initialText && !options?.allowSubmitSameValue) {
+      // an undefined initial value is shown as an empty field, submitting it would overwrite the underlying data
+      if (valueToSubmit === (initialText ?? '') && !options?.allowSubmitSameValue) {
         options?.onCancelUpdate?.();
       } else {
         const cleanVal = valueToSubmit.trim();
@@ -86,10 +88,10 @@ export default function useReactiveTextInput(
   const handleEscape = useCallback(() => {
     isEscaping.current = true;
     // No need to update if it hasn't changed
-    setText(initialText);
+    setText(initialText ?? '');
     // force the text to be the initial value
     if (ref.current) {
-      ref.current.value = initialText;
+      ref.current.value = initialText ?? '';
     }
     options?.onCancelUpdate?.();
     setTimeout(() => ref.current?.blur()); // Immediate timeout to ensure text is set before blurring

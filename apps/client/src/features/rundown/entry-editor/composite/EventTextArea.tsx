@@ -9,7 +9,9 @@ interface CountedTextAreaProps {
   className?: string;
   field: EventEditorUpdateFields;
   label: string;
-  initialValue: string;
+  /** undefined represents values which do not agree across the edited entries */
+  initialValue: string | undefined;
+  placeholder?: string;
   style?: CSSProperties;
   submitHandler: (field: EventEditorUpdateFields, value: string) => void;
 }
@@ -19,6 +21,7 @@ export default function EventTextArea({
   field,
   label,
   initialValue,
+  placeholder,
   style: givenStyles,
   submitHandler,
 }: CountedTextAreaProps) {
@@ -39,6 +42,7 @@ export default function EventTextArea({
         inputref={ref}
         rows={1}
         data-testid='input-textarea'
+        placeholder={placeholder}
         fluid
         value={value}
         onChange={onChange}

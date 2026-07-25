@@ -29,6 +29,11 @@
   }
 }
 
+/* values do not agree, we show an empty track instead of a thumb position */
+.mixed .thumb {
+  visibility: hidden;
+}
+
 .medium {
   padding: 2px;
   --width: calc(2.5rem + 4px);

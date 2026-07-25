@@ -6,7 +6,8 @@ import SwatchPicker from './SwatchPicker';
 import style from './SwatchSelect.module.scss';
 
 interface ColourInputProps {
-  value: string;
+  /** undefined represents values which do not agree, no swatch is highlighted */
+  value: string | undefined;
   name: 'colour';
   handleChange: (newValue: 'colour', name: string) => void;
 }
@@ -44,7 +45,11 @@ export default function SwatchSelect(props: ColourInputProps) {
       {colours.map((colour) => (
         <Swatch key={colour} color={colour} onClick={setColour} isSelected={value === colour} />
       ))}
-      <SwatchPicker color={value} onChange={setColour} isSelected={!colours.includes(value)} />
+      <SwatchPicker
+        color={value ?? ''}
+        onChange={setColour}
+        isSelected={value !== undefined && !colours.includes(value)}
+      />
     </div>
   );
 }

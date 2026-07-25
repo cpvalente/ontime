@@ -9,7 +9,8 @@ import { GroupEditorUpdateTextFields } from '../GroupEditor';
 interface EntryEditorTextInputProps extends InputProps {
   field: EventEditorUpdateFields | GroupEditorUpdateTextFields;
   label: string;
-  initialValue: string;
+  /** undefined represents values which do not agree across the edited entries */
+  initialValue: string | undefined;
   placeholder?: string;
   submitHandler: (field: EventEditorUpdateFields, value: string) => void;
 }

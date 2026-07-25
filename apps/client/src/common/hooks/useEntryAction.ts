@@ -484,7 +484,8 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
       const previousRundown = queryClient.getQueryData<Rundown>(queryKey);
 
       if (previousRundown) {
-        const eventIds = new Set(data.ids);
+        const { data: patch, ids } = data;
+        const eventIds = new Set(ids);
         const newRundown = { ...previousRundown.entries };
 
         eventIds.forEach((eventId) => {
@@ -493,7 +494,9 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
             if (isOntimeEvent(event)) {
               newRundown[eventId] = {
                 ...event,
-                ...data,
+                ...patch,
+                // custom fields are patched, not replaced
+                custom: patch.custom ? { ...event.custom, ...patch.custom } : event.custom,
               };
             }
           }

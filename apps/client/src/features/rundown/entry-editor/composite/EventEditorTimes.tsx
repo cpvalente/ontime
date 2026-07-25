@@ -1,4 +1,4 @@
-import { EndAction, TimeStrategy, TimerType } from 'ontime-types';
+import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 import { memo } from 'react';
 import { IoInformationCircle } from 'react-icons/io5';
@@ -8,103 +8,47 @@ import TimeInput from '../../../../common/components/input/time-input/TimeInput'
 import Select from '../../../../common/components/select/Select';
 import Switch from '../../../../common/components/switch/Switch';
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
-import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
-import { millisToDelayString } from '../../../../common/utils/dateConfig';
-import { formatTime, normaliseWallClock } from '../../../../common/utils/time';
-import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
+import { mixedPlaceholder, switchLabel } from '../entryEditor.utils';
 
 import style from '../EntryEditor.module.scss';
 
 interface EventEditorTimesProps {
-  eventId: string;
-  timeStart: number;
-  timeEnd: number;
-  duration: number;
-  timeStrategy: TimeStrategy;
-  linkStart: boolean;
-  countToEnd: boolean;
-  delay: number;
-  endAction: EndAction;
-  timerType: TimerType;
-  timeWarning: number;
-  timeDanger: number;
+  countToEnd: boolean | undefined;
+  endAction: EndAction | undefined;
+  timerType: TimerType | undefined;
+  timeWarning: number | undefined;
+  timeDanger: number | undefined;
+  submit: (patch: Partial<OntimeEvent>) => void;
 }
 
-type HandledActions = 'countToEnd' | 'timerType' | 'endAction' | 'timeWarning' | 'timeDanger';
+type TimeFields = 'timeWarning' | 'timeDanger';
 
 export default memo(EventEditorTimes);
 function EventEditorTimes({
-  eventId,
-  timeStart,
-  timeEnd,
-  duration,
-  timeStrategy,
-  linkStart,
   countToEnd,
-  delay,
   endAction,
   timerType,
   timeWarning,
   timeDanger,
+  submit,
 }: EventEditorTimesProps) {
-  const { updateEntry } = useEntryActionsContext();
-
-  const handleSubmit = (field: HandledActions, value: string | boolean) => {
-    if (field === 'countToEnd') {
-      updateEntry({ id: eventId, countToEnd: value as boolean });
-      return;
-    }
-
-    if (field === 'timeWarning' || field === 'timeDanger') {
-      const newTime = parseUserTime(value as string);
-      updateEntry({ id: eventId, [field]: newTime });
-      return;
-    }
-
-    if (field === 'timerType' || field === 'endAction') {
-      updateEntry({ id: eventId, [field]: value });
-      return;
-    }
+  const handleTimeSubmit = (field: TimeFields, value: string) => {
+    submit({ [field]: parseUserTime(value) });
   };
-
-  const hasDelay = delay !== 0;
-  const delayedStart = normaliseWallClock(timeStart + delay);
-  const delayedEnd = normaliseWallClock(timeEnd + delay);
-  const delayLabel = hasDelay
-    ? `Event is ${millisToDelayString(delay, 'expanded')}. New schedule ${formatTime(delayedStart)} → ${formatTime(delayedEnd)}`
-    : '';
 
   return (
     <>
-      <div className={style.column}>
-        <Editor.Title>Event schedule</Editor.Title>
-        <div>
-          <div className={style.inline}>
-            <TimeInputFlow
-              eventId={eventId}
-              timeStart={timeStart}
-              timeEnd={timeEnd}
-              duration={duration}
-              timeStrategy={timeStrategy}
-              linkStart={linkStart}
-              delay={delay}
-              showLabels
-            />
-          </div>
-          <div className={style.delayLabel}>{delayLabel}</div>
-        </div>
-      </div>
-
       <div className={style.column}>
         <Editor.Title>Event Behaviour</Editor.Title>
         <div className={style.splitTwo}>
           <div>
             <Editor.Label htmlFor='endAction'>End Action</Editor.Label>
             <Select
-              value={endAction}
+              value={endAction ?? null}
+              placeholder={mixedPlaceholder}
               onValueChange={(value: EndAction | null) => {
                 if (value === null) return;
-                handleSubmit('endAction', value);
+                submit({ endAction: value });
               }}
               options={[
                 { value: EndAction.None, label: 'None' },
@@ -118,10 +62,11 @@ function EventEditorTimes({
             <Editor.Label className={style.switchLabel}>
               <Switch
                 id='countToEnd'
-                checked={countToEnd}
-                onCheckedChange={(value) => handleSubmit('countToEnd', value)}
+                checked={countToEnd ?? false}
+                mixed={countToEnd === undefined}
+                onCheckedChange={(value) => submit({ countToEnd: value })}
               />
-              {countToEnd ? 'On' : 'Off'}
+              {switchLabel(countToEnd)}
             </Editor.Label>
           </div>
         </div>
@@ -141,10 +86,11 @@ function EventEditorTimes({
           <div>
             <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>
             <Select
-              value={timerType}
+              value={timerType ?? null}
+              placeholder={mixedPlaceholder}
               onValueChange={(value: TimerType | null) => {
                 if (value === null) return;
-                handleSubmit('timerType', value);
+                submit({ timerType: value });
               }}
               options={[
                 { value: TimerType.CountDown, label: 'Count down' },
@@ -161,9 +107,9 @@ function EventEditorTimes({
               <TimeInput
                 id='timeWarning'
                 name='timeWarning'
-                submitHandler={handleSubmit}
+                submitHandler={handleTimeSubmit}
                 time={timeWarning}
-                placeholder='Duration'
+                placeholder={timeWarning === undefined ? mixedPlaceholder : 'Duration'}
               />
             </div>
             <div>
@@ -171,9 +117,9 @@ function EventEditorTimes({
               <TimeInput
                 id='timeDanger'
                 name='timeDanger'
-                submitHandler={handleSubmit}
+                submitHandler={handleTimeSubmit}
                 time={timeDanger}
-                placeholder='Duration'
+                placeholder={timeDanger === undefined ? mixedPlaceholder : 'Duration'}
               />
             </div>
           </div>

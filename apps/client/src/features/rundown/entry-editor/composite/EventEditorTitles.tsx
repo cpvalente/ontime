@@ -1,34 +1,36 @@
+import { OntimeEvent } from 'ontime-types';
 import { memo } from 'react';
 
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
 import Input from '../../../../common/components/input/input/Input';
 import Switch from '../../../../common/components/switch/Switch';
-import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
+import { enDash } from '../../../../common/utils/styleUtils';
+import { mixedPlaceholder, switchLabel } from '../entryEditor.utils';
 import EventTextArea from './EventTextArea';
 import EntryEditorTextInput from './EventTextInput';
 
 import style from '../EntryEditor.module.scss';
 
 interface EventEditorTitlesProps {
-  eventId: string;
+  /** id of the event being edited, null when editing several events */
+  eventId: string | null;
+  /** amount of events being edited */
+  eventCount: number;
   cue: string;
-  flag: boolean;
-  title: string;
-  note: string;
-  colour: string;
+  flag: boolean | undefined;
+  title: string | undefined;
+  note: string | undefined;
+  colour: string | undefined;
+  submit: (patch: Partial<OntimeEvent>) => void;
 }
 
 export default memo(EventEditorTitles);
-function EventEditorTitles({ eventId, cue, flag, title, note, colour }: EventEditorTitlesProps) {
-  const { updateEntry } = useEntryActionsContext();
-
-  const flagSubmitHandler = (newValue: boolean) => {
-    updateEntry({ id: eventId, flag: newValue });
-  };
+function EventEditorTitles({ eventId, eventCount, cue, flag, title, note, colour, submit }: EventEditorTitlesProps) {
+  const isMulti = eventId === null;
 
   const textSubmitHandler = (field: string, newValue: string) => {
-    updateEntry({ id: eventId, [field]: newValue });
+    submit({ [field]: newValue });
   };
 
   return (
@@ -36,21 +38,39 @@ function EventEditorTitles({ eventId, cue, flag, title, note, colour }: EventEdi
       <Editor.Title>Event Data</Editor.Title>
       <div className={style.splitThree}>
         <div>
-          <Editor.Label htmlFor='eventId'>Event ID (read only)</Editor.Label>
-          <Input id='eventId' data-testid='input-textfield' value={eventId} readOnly fluid />
+          <Editor.Label htmlFor='eventId'>{isMulti ? 'Selection (read only)' : 'Event ID (read only)'}</Editor.Label>
+          <Input
+            id='eventId'
+            data-testid='input-textfield'
+            value={isMulti ? `${eventCount} events selected` : eventId}
+            readOnly
+            fluid
+          />
         </div>
-        <EntryEditorTextInput
-          field='cue'
-          label='Cue'
-          initialValue={cue}
-          submitHandler={textSubmitHandler}
-          maxLength={10}
-        />
+        {isMulti ? (
+          <div>
+            <Editor.Label htmlFor='cue'>Cue (not available)</Editor.Label>
+            <Input id='cue' value={enDash} readOnly fluid />
+          </div>
+        ) : (
+          <EntryEditorTextInput
+            field='cue'
+            label='Cue'
+            initialValue={cue}
+            submitHandler={textSubmitHandler}
+            maxLength={10}
+          />
+        )}
         <div>
           <Editor.Label htmlFor='flag'>Flag</Editor.Label>
           <Editor.Label className={style.switchLabel}>
-            <Switch id='flag' checked={flag} onCheckedChange={flagSubmitHandler} />
-            {flag ? 'On' : 'Off'}
+            <Switch
+              id='flag'
+              checked={flag ?? false}
+              mixed={flag === undefined}
+              onCheckedChange={(newValue) => submit({ flag: newValue })}
+            />
+            {switchLabel(flag)}
           </Editor.Label>
         </div>
       </div>
@@ -58,8 +78,20 @@ function EventEditorTitles({ eventId, cue, flag, title, note, colour }: EventEdi
         <Editor.Label>Colour</Editor.Label>
         <SwatchSelect name='colour' value={colour} handleChange={textSubmitHandler} />
       </div>
-      <EntryEditorTextInput field='title' label='Title' initialValue={title} submitHandler={textSubmitHandler} />
-      <EventTextArea field='note' label='Note' initialValue={note} submitHandler={textSubmitHandler} />
+      <EntryEditorTextInput
+        field='title'
+        label='Title'
+        initialValue={title}
+        placeholder={title === undefined ? mixedPlaceholder : undefined}
+        submitHandler={textSubmitHandler}
+      />
+      <EventTextArea
+        field='note'
+        label='Note'
+        initialValue={note}
+        placeholder={note === undefined ? mixedPlaceholder : undefined}
+        submitHandler={textSubmitHandler}
+      />
     </div>
   );
 }

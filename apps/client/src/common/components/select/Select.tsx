@@ -16,13 +16,21 @@ interface SelectProps<T> extends Omit<BaseSelect.Root.Props<T>, 'items'> {
   options: SelectOption<T>[];
   fluid?: boolean;
   size?: 'medium' | 'large';
+  /** shown when the value is null, used to represent values which do not agree */
+  placeholder?: string;
 }
 
-export default function Select<T>({ options, fluid, size = 'medium', ...selectRootProps }: SelectProps<T>) {
+export default function Select<T>({
+  options,
+  fluid,
+  size = 'medium',
+  placeholder,
+  ...selectRootProps
+}: SelectProps<T>) {
   return (
     <BaseSelect.Root items={options} {...selectRootProps}>
       <BaseSelect.Trigger className={cx([styles.select, styles[size], fluid && styles.fluid])}>
-        <BaseSelect.Value />
+        <BaseSelect.Value placeholder={placeholder} />
         <BaseSelect.Icon className={styles.selectIcon}>
           <LuChevronsUpDown />
         </BaseSelect.Icon>

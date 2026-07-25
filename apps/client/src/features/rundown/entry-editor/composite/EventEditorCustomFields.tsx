@@ -1,8 +1,9 @@
-import { CustomFields, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ontime-types';
+import { CustomFields, EntryCustomFields } from 'ontime-types';
 import { CSSProperties, Fragment } from 'react';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { EventEditorUpdateFields } from '../EventEditor';
+import { MergedCustomFields } from '../mergeEvents';
 import EventEditorImage from './EventEditorImage';
 import EventTextArea from './EventTextArea';
 import EntryEditorTextInput from './EventTextInput';
@@ -11,21 +12,29 @@ import style from '../EntryEditor.module.scss';
 
 interface EntryEditorCustomFieldsProps {
   fields: CustomFields;
-  entry: OntimeEvent | OntimeGroup | OntimeMilestone;
+  /** values of the entries being edited, undefined when the entries do not agree */
+  custom: EntryCustomFields | MergedCustomFields;
+  /** used to generate stable keys for the fields */
+  idKey: string;
+  mixedPlaceholder?: string;
   handleSubmit: (field: EventEditorUpdateFields, value: string) => void;
 }
 
 export default function EntryEditorCustomFields({
   fields: customFields,
+  custom,
+  idKey,
+  mixedPlaceholder,
   handleSubmit,
-  entry,
 }: EntryEditorCustomFieldsProps) {
   return (
     <Fragment>
       {Object.keys(customFields).map((fieldKey) => {
-        const key = `${entry.id}-${fieldKey}`;
+        const key = `${idKey}-${fieldKey}`;
         const fieldName = `custom-${fieldKey}`;
-        const initialValue = entry.custom[fieldKey] ?? '';
+        const value = custom[fieldKey];
+        const initialValue = fieldKey in custom ? value : '';
+        const placeholder = initialValue === undefined ? mixedPlaceholder : undefined;
         const { backgroundColor, color } = getAccessibleColour(customFields[fieldKey].colour);
         const labelText = customFields[fieldKey].label;
 
@@ -36,6 +45,7 @@ export default function EntryEditorCustomFields({
               field={fieldName}
               label={labelText}
               initialValue={initialValue}
+              placeholder={placeholder}
               submitHandler={handleSubmit}
               className={style.decorated}
               style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
@@ -51,13 +61,13 @@ export default function EntryEditorCustomFields({
                 field={fieldName}
                 label={labelText}
                 initialValue={initialValue}
-                placeholder='Paste image URL'
+                placeholder={placeholder ?? 'Paste image URL'}
                 submitHandler={handleSubmit}
                 className={style.decorated}
                 maxLength={255}
                 style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
               />
-              <EventEditorImage src={initialValue} />
+              <EventEditorImage src={initialValue ?? ''} />
             </div>
           );
         }

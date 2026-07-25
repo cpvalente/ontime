@@ -22,10 +22,13 @@ export default function CuesheetEntryEditor({ entryId, rundown }: CuesheetEntryE
     return event ?? null;
   }, [entryId, rundown.entries, rundown.order.length]);
 
-  if (isOntimeEvent(entry)) {
+  // the cuesheet always edits a single entry
+  const events = useMemo(() => (isOntimeEvent(entry) ? [entry] : null), [entry]);
+
+  if (events) {
     return (
       <div className={style.entryEditor} data-testid='editor-container'>
-        <EventEditor event={entry} />
+        <EventEditor events={events} />
       </div>
     );
   }

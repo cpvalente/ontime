@@ -69,7 +69,12 @@ export default function MilestoneEditor({ milestone }: MilestoneEditorProps) {
           Custom Fields
           {isEditor && <AppLink search='settings=manage__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
-        <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} entry={milestone} />
+        <EntryEditorCustomFields
+          fields={customFields}
+          handleSubmit={handleSubmit}
+          custom={milestone.custom}
+          idKey={milestone.id}
+        />
       </div>
     </div>
   );

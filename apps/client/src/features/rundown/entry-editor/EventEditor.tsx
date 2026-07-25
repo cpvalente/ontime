@@ -1,14 +1,18 @@
 import { OntimeEvent } from 'ontime-types';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
+import Info from '../../../common/components/info/Info';
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import EntryEditorCustomFields from './composite/EventEditorCustomFields';
+import EventEditorSchedule from './composite/EventEditorSchedule';
 import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
 import EventEditorTriggers from './composite/EventEditorTriggers';
+import { mixedPlaceholder } from './entryEditor.utils';
+import { mergeEvents } from './mergeEvents';
 
 import style from './EntryEditor.module.scss';
 
@@ -16,66 +20,109 @@ import style from './EntryEditor.module.scss';
 export type EventEditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | string;
 
 interface EventEditorProps {
-  event: OntimeEvent;
+  /** events being edited, editing several events at once shows a merged view of their values */
+  events: OntimeEvent[];
 }
 
-export default function EventEditor({ event }: EventEditorProps) {
+export default function EventEditor({ events }: EventEditorProps) {
   const { data: customFields } = useCustomFields();
-  const { updateEntry } = useEntryActionsContext();
+  const { updateEntry, batchUpdateEvents } = useEntryActionsContext();
 
   const isEditor = window.location.pathname.includes('editor');
+
+  const ids = useMemo(() => events.map((event) => event.id), [events]);
+  const merged = useMemo(() => mergeEvents(events), [events]);
+
+  // when editing a single event, we can show the values which are unique to it
+  const singleEvent = events.length === 1 ? events[0] : null;
+
+  /**
+   * Applies a patch to every event being edited
+   */
+  const submit = useCallback(
+    (patch: Partial<OntimeEvent>) => {
+      if (ids.length === 1) {
+        updateEntry({ id: ids[0], ...patch });
+        return;
+      }
+      batchUpdateEvents(patch, ids);
+    },
+    [batchUpdateEvents, ids, updateEntry],
+  );
 
   const handleSubmit = useCallback(
     (field: EventEditorUpdateFields, value: string) => {
       if (field.startsWith('custom-')) {
         const fieldLabel = field.split('custom-')[1];
-        updateEntry({ id: event.id, custom: { [fieldLabel]: value } });
+        submit({ custom: { [fieldLabel]: value } });
       } else {
-        updateEntry({ id: event.id, [field]: value });
+        submit({ [field]: value });
       }
     },
-    [event.id, updateEntry],
+    [submit],
   );
+
+  // inputs keep local state, we remount them when the edited entries change
+  const editorKey = ids.join();
 
   return (
     <div className={style.content}>
+      {singleEvent && (
+        <EventEditorSchedule
+          key={`${editorKey}-schedule`}
+          eventId={singleEvent.id}
+          timeStart={singleEvent.timeStart}
+          timeEnd={singleEvent.timeEnd}
+          duration={singleEvent.duration}
+          timeStrategy={singleEvent.timeStrategy}
+          linkStart={singleEvent.linkStart}
+          delay={singleEvent.delay}
+        />
+      )}
       <EventEditorTimes
-        key={`${event.id}-times`}
-        eventId={event.id}
-        timeStart={event.timeStart}
-        timeEnd={event.timeEnd}
-        duration={event.duration}
-        timeStrategy={event.timeStrategy}
-        linkStart={event.linkStart}
-        countToEnd={event.countToEnd}
-        delay={event.delay}
-        endAction={event.endAction}
-        timerType={event.timerType}
-        timeWarning={event.timeWarning}
-        timeDanger={event.timeDanger}
+        key={`${editorKey}-times`}
+        countToEnd={merged.countToEnd}
+        endAction={merged.endAction}
+        timerType={merged.timerType}
+        timeWarning={merged.timeWarning}
+        timeDanger={merged.timeDanger}
+        submit={submit}
       />
       <EventEditorTitles
-        key={`${event.id}-titles`}
-        eventId={event.id}
-        cue={event.cue}
-        flag={event.flag}
-        title={event.title}
-        note={event.note}
-        colour={event.colour}
+        key={`${editorKey}-titles`}
+        eventId={singleEvent?.id ?? null}
+        eventCount={events.length}
+        cue={singleEvent?.cue ?? ''}
+        flag={merged.flag}
+        title={merged.title}
+        note={merged.note}
+        colour={merged.colour}
+        submit={submit}
       />
       <div className={style.column}>
         <Editor.Title>
           Custom Fields
           {isEditor && <AppLink search='settings=manage__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
-        <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} entry={event} />
+        <EntryEditorCustomFields
+          key={`${editorKey}-custom`}
+          fields={customFields}
+          custom={merged.custom}
+          idKey={editorKey}
+          mixedPlaceholder={mixedPlaceholder}
+          handleSubmit={handleSubmit}
+        />
       </div>
       <div className={style.column}>
         <Editor.Title>
           Automations
-          {isEditor && <AppLink search='settings=automation'>Manage Automations</AppLink>}
+          {isEditor && singleEvent && <AppLink search='settings=automation'>Manage Automations</AppLink>}
         </Editor.Title>
-        <EventEditorTriggers triggers={event.triggers} eventId={event.id} />
+        {singleEvent ? (
+          <EventEditorTriggers triggers={singleEvent.triggers} eventId={singleEvent.id} />
+        ) : (
+          <Info>Automations are not available when editing multiple events</Info>
+        )}
       </div>
     </div>
   );

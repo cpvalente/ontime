@@ -1,4 +1,4 @@
-import { OntimeEntry, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
+import { OntimeEntry, OntimeEvent, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 import { useMemo } from 'react';
 
 import useRundown from '../../../common/hooks-query/useRundown';
@@ -15,6 +15,25 @@ export default function RundownEntryEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const { data } = useRundown();
 
+  /**
+   * Events in the current selection
+   * Only events can be multi selected, groups and milestones are always selected on their own
+   */
+  const events = useMemo<OntimeEvent[]>(() => {
+    if (data.order.length === 0) {
+      return [];
+    }
+
+    const selection: OntimeEvent[] = [];
+    selectedEvents.forEach((entryId) => {
+      const entry = data.entries[entryId];
+      if (isOntimeEvent(entry)) {
+        selection.push(entry);
+      }
+    });
+    return selection;
+  }, [data.order.length, data.entries, selectedEvents]);
+
   const entry = useMemo<OntimeEntry | null>(() => {
     if (data.order.length === 0) {
       return null;
@@ -29,17 +48,18 @@ export default function RundownEntryEditor() {
     return event ?? null;
   }, [data.order.length, data.entries, selectedEvents]);
 
-  if (!entry) {
-    return <EventEditorEmpty />;
-  }
-
-  if (isOntimeEvent(entry)) {
+  if (events.length > 0) {
+    const singleEvent = events.length === 1 ? events[0] : null;
     return (
       <div className={style.rundownEditor} data-testid='editor-container'>
-        <EventEditor event={entry} />
-        <EventEditorFooter id={entry.id} cue={entry.cue} />
+        <EventEditor events={events} />
+        {singleEvent && <EventEditorFooter id={singleEvent.id} cue={singleEvent.cue} />}
       </div>
     );
+  }
+
+  if (!entry) {
+    return <EventEditorEmpty />;
   }
 
   if (isOntimeMilestone(entry)) {

@@ -41,7 +41,10 @@ export default function TimeInput<T extends string>({
    * @description Resets input value to given
    */
   const resetValue = useCallback(() => {
-    if (typeof time !== 'number' || isNaN(time)) {
+    if (time === undefined) {
+      // there is no value to show, we leave the field empty so that the placeholder is visible
+      setValue('');
+    } else if (typeof time !== 'number' || isNaN(time)) {
       setValue('00:00:00');
     } else if (shouldFormat) {
       setValue(formatTime(time));
