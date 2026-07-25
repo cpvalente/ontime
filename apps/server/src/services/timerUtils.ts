@@ -62,34 +62,34 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
  */
 
 export function getCurrent(state: RuntimeState): number {
+  const { timer, eventNow } = state;
+
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: {
-    if (state.eventNow === null || state.timer.duration === null) {
+    if (eventNow === null || timer.duration === null) {
       throw new Error('timerUtils.getCurrent: invalid state received');
     }
   }
-  const { startedAt, duration, addedTime } = state.timer;
-  const { countToEnd, timeStart, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
   const { clock } = state;
 
-  if (countToEnd) {
-    const isEventOverMidnight = timeStart > timeEnd;
-    const correctDay = isEventOverMidnight ? dayInMs : 0;
-    return correctDay - clock + timeEnd + addedTime;
+  if (eventNow.countToEnd) {
+    const clockDayCorrected = clock + (state.rundown.currentDay ?? 0) * dayInMs;
+    const eventDayOffset = eventNow.dayOffset * dayInMs;
+    return eventDayOffset + eventNow.timeStart + eventNow.duration + timer.addedTime - clockDayCorrected;
   }
 
-  if (startedAt === null) {
-    return duration;
+  if (timer.startedAt === null) {
+    return timer.duration;
   }
 
   if (pausedAt != null) {
-    return startedAt + duration + addedTime - pausedAt;
+    return timer.startedAt + timer.duration + timer.addedTime - pausedAt;
   }
 
-  const hasPassedMidnight = startedAt > clock;
+  const hasPassedMidnight = timer.startedAt > clock;
   const correctDay = hasPassedMidnight ? dayInMs : 0;
-  return startedAt + duration + addedTime - clock - correctDay;
+  return timer.startedAt + timer.duration + timer.addedTime - clock - correctDay;
 }
 
 /**
