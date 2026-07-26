@@ -135,7 +135,7 @@ describe('mutation on runtimeState', () => {
         playback: Playback.Pause,
         addedTime: 0,
       });
-      expect(newState._timer.pausedAt).toEqual(newState.clock);
+      expect(newState._timer.pausedAt).toEqual(newState._now);
 
       success = pause();
       expect(success).toBe(false);
