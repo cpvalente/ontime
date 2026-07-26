@@ -1,10 +1,11 @@
-import { OffsetMode, Playback, type TimeOfDay, TimerPhase } from 'ontime-types';
+import { Instant, OffsetMode, Playback, type TimeOfDay, TimerPhase } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 
 import type { RuntimeState } from '../runtimeState.js';
 
 const baseState: RuntimeState = {
   clock: 0 as TimeOfDay,
+  _now: 0 as Instant,
   eventNow: null,
   eventNext: null,
   eventFlag: null,

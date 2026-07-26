@@ -1,6 +1,7 @@
 import { Day, MaybeNumber, TimeOfDay, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
+import * as timeCore from '../lib/time-core/timeCore.js';
 import type { RuntimeState } from '../stores/runtimeState.js';
 
 /**
@@ -96,17 +97,18 @@ export function getCurrent(state: RuntimeState): number {
  * Calculates active time elapsed since the timer started.
  */
 export function getElapsed(state: RuntimeState): MaybeNumber {
-  const { clock } = state;
+  const { clock, _now } = state;
   const { startedAt } = state.timer;
-  const { pausedAt, pausedDuration } = state._timer;
+  const { pausedDuration, pausedAt } = state._timer;
 
   if (startedAt === null) {
     return null;
   }
 
-  const referenceClock = pausedAt ?? clock;
-  const elapsedSinceStart = getTimeSinceStart(referenceClock, startedAt);
-  const activeElapsed = elapsedSinceStart - pausedDuration;
+  const currentPauseDuration = pausedAt !== null ? timeCore.timeSince(_now, pausedAt) : 0;
+
+  const elapsedSinceStart = getTimeSinceStart(clock, startedAt);
+  const activeElapsed = elapsedSinceStart - pausedDuration - currentPauseDuration;
 
   return Math.max(0, activeElapsed);
 }
