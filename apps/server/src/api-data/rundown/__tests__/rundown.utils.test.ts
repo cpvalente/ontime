@@ -15,6 +15,7 @@ import { makeOntimeEvent, makeOntimeGroup, makeOntimeMilestone, makeRundown } fr
 import { parseRundown } from '../rundown.parser.js';
 import {
   calculateDayOffset,
+  createGroupPatch,
   deleteById,
   doesInvalidateMetadata,
   getIntegerAndFraction,
@@ -608,5 +609,27 @@ describe('isLoadedPlayable()', () => {
   it('returns false when the matched entry is no longer an event', () => {
     const rundown = makeRundown({ order: ['keynote'], entries: { keynote: makeOntimeGroup({ id: 'keynote' }) } });
     expect(isLoadedPlayable('keynote', rundown)).toBe(false);
+  });
+});
+
+describe('createGroupPatch()', () => {
+  it('preserves useGroupTimer when it is not part of the patch', () => {
+    const original = makeOntimeGroup({ id: 'group', useGroupTimer: true });
+    const patched = createGroupPatch(original, { title: 'Morning sessions' });
+
+    expect(patched.title).toBe('Morning sessions');
+    expect(patched.useGroupTimer).toBe(true);
+  });
+
+  it('updates useGroupTimer when it is part of the patch', () => {
+    const original = makeOntimeGroup({ id: 'group', useGroupTimer: false });
+    expect(createGroupPatch(original, { useGroupTimer: true }).useGroupTimer).toBe(true);
+    expect(createGroupPatch(original, { useGroupTimer: false }).useGroupTimer).toBe(false);
+  });
+
+  it('ignores non boolean values for useGroupTimer', () => {
+    const original = makeOntimeGroup({ id: 'group', useGroupTimer: true });
+    // @ts-expect-error -- testing a value coming from an unvalidated request
+    expect(createGroupPatch(original, { useGroupTimer: 'nope' }).useGroupTimer).toBe(true);
   });
 });

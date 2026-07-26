@@ -301,6 +301,23 @@ describe('parseRundown()', () => {
     expect(parsedRundown.entries.group).toMatchObject({ entries: ['1', '2'] });
     expect(Object.keys(parsedRundown.entries).length).toEqual(3);
   });
+
+  it('normalises groups from projects made before the group timer existed', () => {
+    const rundown = {
+      id: 'test',
+      title: '',
+      order: ['group'],
+      flatOrder: ['group'],
+      entries: {
+        // a group as it would have been persisted by a previous version
+        group: { id: 'group', type: SupportedEntry.Group, title: 'legacy', entries: [] },
+      },
+      revision: 1,
+    } as unknown as Rundown;
+
+    const parsedRundown = parseRundown(rundown, {});
+    expect(parsedRundown.entries.group).toMatchObject({ id: 'group', useGroupTimer: false });
+  });
 });
 
 describe('sanitiseCustomFields()', () => {

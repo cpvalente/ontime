@@ -15,6 +15,7 @@ import {
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import Tag from '../../../common/components/tag/Tag';
+import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
@@ -189,6 +190,13 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
               {data.targetDuration !== null && <IoLockClosed className={style.lockIcon} />}
             </div>
           </div>
+          {data.useGroupTimer && (
+            <div className={style.metaEntry}>
+              <Tooltip text='Views show a shared timer for this group instead of the event timer'>
+                <Tag>Group timer</Tag>
+              </Tooltip>
+            </div>
+          )}
         </div>
       </div>
     </div>

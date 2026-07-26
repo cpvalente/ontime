@@ -179,6 +179,8 @@ export function createGroupPatch(originalGroup: OntimeGroup, patchGroup: Partial
     entries: patchGroup.entries ?? originalGroup.entries,
     targetDuration: maybeTargetDuration(),
     colour: makeString(patchGroup.colour, originalGroup.colour),
+    useGroupTimer:
+      typeof patchGroup.useGroupTimer === 'boolean' ? patchGroup.useGroupTimer : originalGroup.useGroupTimer,
     revision: originalGroup.revision,
     timeStart: originalGroup.timeStart,
     timeEnd: originalGroup.timeEnd,

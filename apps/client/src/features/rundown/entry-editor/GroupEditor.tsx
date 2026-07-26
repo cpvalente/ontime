@@ -5,6 +5,8 @@ import { useCallback } from 'react';
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../common/components/input/colour-input/SwatchSelect';
 import AppLink from '../../../common/components/link/app-link/AppLink';
+import Switch from '../../../common/components/switch/Switch';
+import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import { getOffsetState } from '../../../common/utils/offset';
@@ -94,6 +96,22 @@ export default function GroupEditor({ group }: GroupEditorProps) {
             targetDuration={group.targetDuration}
             submitHandler={handleSubmit}
           />
+        </div>
+        <div>
+          <Tooltip
+            text='Timer views count the scheduled duration of the whole group instead of the running event'
+            render={<Editor.Label htmlFor='useGroupTimer' />}
+          >
+            Group timer
+          </Tooltip>
+          <Editor.Label className={style.switchLabel}>
+            <Switch
+              id='useGroupTimer'
+              checked={group.useGroupTimer}
+              onCheckedChange={(value) => updateEntry({ id: group.id, useGroupTimer: value })}
+            />
+            {group.useGroupTimer ? 'On' : 'Off'}
+          </Editor.Label>
         </div>
       </div>
 

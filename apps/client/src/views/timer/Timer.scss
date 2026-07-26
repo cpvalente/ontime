@@ -131,6 +131,18 @@
         opacity: 0;
       }
     }
+
+    // signals that the displayed timer belongs to the group, not to the running event
+    .group-indicator {
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.25em;
+      font-weight: 600;
+      font-size: 1.5vw;
+      line-height: 1;
+      opacity: 0.7;
+      color: var(--timer-colour, var(--timer-color-override, $ui-white));
+    }
   }
 
   .secondary {

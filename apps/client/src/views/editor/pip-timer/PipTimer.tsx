@@ -1,7 +1,8 @@
-import { ViewSettings } from 'ontime-types';
+import { TimerPhase, ViewSettings } from 'ontime-types';
 
 import { FitText } from '../../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
+import { useGroupTimer } from '../../../common/hooks/useGroupTimer';
 import { useTimerSocket } from '../../../common/hooks/useSocket';
 import { cx } from '../../../common/utils/styleUtils';
 import { getFormattedTimer, getTimerByType } from '../../common/viewUtils';
@@ -24,23 +25,30 @@ interface PipTimerProps {
 
 export function PipTimer({ viewSettings }: PipTimerProps) {
   const { eventNow, message, time, clock, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
+  const groupTimer = useGroupTimer();
 
   // gather modifiers
   const showOverlay = getShowMessage(message.timer);
-  const { showFinished, showWarning, showDanger } = getShowModifiers(
-    timerTypeNow,
-    countToEndNow,
-    time.phase,
-    false,
-    '',
-    false,
-  );
+  const {
+    showFinished: eventShowFinished,
+    showWarning: eventShowWarning,
+    showDanger: eventShowDanger,
+  } = getShowModifiers(timerTypeNow, countToEndNow, time.phase, false, '', false);
+
+  /**
+   * warning and danger thresholds belong to the event, they carry no meaning against a group duration.
+   * overtime is kept, but only once the group itself has run out of time
+   */
+  const showWarning = eventShowWarning && !groupTimer.isActive;
+  const showDanger = eventShowDanger && !groupTimer.isActive;
+  const showFinished = eventShowFinished && (!groupTimer.isActive || (groupTimer.current ?? 0) <= 0);
+
   const isPlaying = getIsPlaying(time.playback);
   const showProgressBar = getShowProgressBar(timerTypeNow);
 
   // gather timer data
-  const totalTime = getTotalTime(time.duration, time.addedTime);
-  const stageTimer = getTimerByType(false, timerTypeNow, clock, time, timerTypeNow);
+  const totalTime = groupTimer.isActive ? groupTimer.duration : getTotalTime(time.duration, time.addedTime);
+  const stageTimer = getTimerByType(false, timerTypeNow, clock, groupTimer.isActive ? groupTimer : time, timerTypeNow);
   const display = getFormattedTimer(stageTimer, timerTypeNow, 'min', {
     removeSeconds: false,
     removeLeadingZero: false,
@@ -80,10 +88,11 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
         <div
           className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished'])}
           style={{ fontSize: `${timerFontSize}vw` }}
-          data-phase={time.phase}
+          data-phase={groupTimer.isActive ? TimerPhase.Default : time.phase}
         >
           {display}
         </div>
+        {groupTimer.isActive && <div className='group-indicator'>group</div>}
         <div className={cx(['secondary', !secondaryContent && 'secondary--hidden'])}>
           <FitText mode='multi' min={12} max={256}>
             {secondaryContent}
@@ -94,12 +103,12 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
       {showProgressBar && (
         <MultiPartProgressBar
           className={cx(['progress-container', !isPlaying && 'progress-container--paused'])}
-          now={time.current}
+          now={groupTimer.isActive ? groupTimer.current : time.current}
           complete={totalTime}
           normalColor={viewSettings.normalColor}
-          warning={eventNow?.timeWarning}
+          warning={groupTimer.isActive ? undefined : eventNow?.timeWarning}
           warningColor={viewSettings.warningColor}
-          danger={eventNow?.timeDanger}
+          danger={groupTimer.isActive ? undefined : eventNow?.timeDanger}
           dangerColor={viewSettings.dangerColor}
           hideOvertime={!showFinished}
         />

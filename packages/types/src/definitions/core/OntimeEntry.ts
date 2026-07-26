@@ -46,6 +46,8 @@ export type OntimeGroup = OntimeBaseEvent & {
   targetDuration: MaybeNumber;
   colour: string;
   custom: EntryCustomFields;
+  /** whether views should display a shared timer for the group instead of the event timer */
+  useGroupTimer: boolean;
   // !==== RUNTIME METADATA ====! //
   revision: number;
   timeStart: MaybeNumber; // calculated at runtime

@@ -316,6 +316,7 @@ describe('v3 to v4', () => {
           targetDuration: null,
           timeEnd: null,
           timeStart: null,
+          useGroupTimer: false,
         },
         event2: {
           id: 'event2',
@@ -392,6 +393,7 @@ describe('v3 to v4', () => {
           targetDuration: null,
           timeEnd: null,
           timeStart: null,
+          useGroupTimer: false,
         },
         delay: {
           type: SupportedEntry.Delay,

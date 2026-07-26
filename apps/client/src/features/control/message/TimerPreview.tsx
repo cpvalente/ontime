@@ -1,10 +1,11 @@
 import { TimerPhase, TimerType } from 'ontime-types';
-import { IoArrowDown, IoArrowUp, IoBan, IoTime } from 'react-icons/io5';
+import { IoArrowDown, IoArrowUp, IoBan, IoFolderOutline, IoTime } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
 
 import { CornerWithPip } from '../../../common/components/editor-utils/EditorUtils';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
+import { useGroupTimer } from '../../../common/hooks/useGroupTimer';
 import { useMessagePreview } from '../../../common/hooks/useSocket';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx, timerPlaceholder } from '../../../common/utils/styleUtils';
@@ -22,6 +23,7 @@ const secondarySourceLabels: Record<string, string> = {
 export default function TimerPreview() {
   const { blink, blackout, countToEnd, phase, secondarySource, showTimerMessage, timerType } = useMessagePreview();
   const { data } = useViewSettings();
+  const { isActive: isGroupTimerActive } = useGroupTimer();
 
   const main = (() => {
     if (showTimerMessage) return 'Message';
@@ -104,6 +106,14 @@ export default function TimerPreview() {
           data-active={countToEnd}
         >
           <LuArrowDownToLine />
+        </Tooltip>
+        <Tooltip
+          text={isGroupTimerActive ? 'Views are showing the shared group timer' : 'Views are showing the event timer'}
+          render={<span />}
+          className={style.statusIcon}
+          data-active={isGroupTimerActive}
+        >
+          <IoFolderOutline />
         </Tooltip>
       </div>
     </div>

@@ -411,6 +411,7 @@ export function migrateRundown(
           targetDuration: null,
           colour: '', //leave default colour
           custom: {}, // leave empty
+          useGroupTimer: false, // opt-in feature, off for migrated projects
           // !==== RUNTIME METADATA ====! //
           revision: -1,
           timeStart: null,

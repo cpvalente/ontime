@@ -147,6 +147,7 @@ There are four entry types discriminated by \`type\`:
   note: string
   entries: EntryId[]
   targetDuration: number | null
+  useGroupTimer: boolean       // views show a shared timer for the whole group
   custom: { [key: string]: string }
   timeStart: number | null     // calculated from nested entries (runtime)
   timeEnd: number | null       // calculated from nested entries (runtime)

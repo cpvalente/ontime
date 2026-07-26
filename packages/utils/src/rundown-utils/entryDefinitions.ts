@@ -54,6 +54,7 @@ export const group: Omit<OntimeGroup, 'id'> = {
   targetDuration: null,
   colour: '',
   custom: {},
+  useGroupTimer: false,
   // !==== RUNTIME METADATA ====! //
   revision: 0, // calculated at runtime
   timeStart: null, // calculated at runtime

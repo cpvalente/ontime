@@ -154,6 +154,13 @@ export const useTimer = createSelector((state: RuntimeStore) => ({
   ...state.timer,
 }));
 
+/** Runtime data needed to derive the shared group timer, see useGroupTimer */
+export const useGroupTimerData = createSelector((state: RuntimeStore) => ({
+  group: state.groupNow,
+  currentEventId: state.eventNow?.id ?? null,
+  current: state.timer.current,
+}));
+
 export const useNextFlag = createSelector((state: RuntimeStore) => ({
   id: state.eventFlag?.id ?? null,
   expectedStart: state.offset.expectedFlagStart,

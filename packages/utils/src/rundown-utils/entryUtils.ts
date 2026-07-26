@@ -69,6 +69,7 @@ export function createGroup(patch?: Partial<OntimeGroup>): OntimeGroup {
     targetDuration: patch.targetDuration ?? null,
     colour: makeString(patch.colour, ''),
     custom: patch.custom ?? {},
+    useGroupTimer: typeof patch.useGroupTimer === 'boolean' ? patch.useGroupTimer : false,
     revision: 0,
     timeStart: null,
     timeEnd: null,
