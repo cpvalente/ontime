@@ -5,8 +5,7 @@ import { LuArrowDownToLine } from 'react-icons/lu';
 import { CornerWithPip } from '../../../common/components/editor-utils/EditorUtils';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
-import { useGroupTimer } from '../../../common/hooks/useGroupTimer';
-import { useMessagePreview } from '../../../common/hooks/useSocket';
+import { useGroupTimer, useMessagePreview } from '../../../common/hooks/useSocket';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx, timerPlaceholder } from '../../../common/utils/styleUtils';
 import PipRoot from '../../../views/editor/pip-timer/PipRoot';
@@ -23,7 +22,7 @@ const secondarySourceLabels: Record<string, string> = {
 export default function TimerPreview() {
   const { blink, blackout, countToEnd, phase, secondarySource, showTimerMessage, timerType } = useMessagePreview();
   const { data } = useViewSettings();
-  const { isActive: isGroupTimerActive } = useGroupTimer();
+  const isGroupTimerActive = useGroupTimer() !== null;
 
   const main = (() => {
     if (showTimerMessage) return 'Message';

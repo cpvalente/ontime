@@ -12,6 +12,22 @@ export enum TimerPhase {
 }
 
 /**
+ * Timer for the running group, present when the group opted into a shared timer.
+ *
+ * The group is treated as a single event containing all its children: the values are
+ * derived from the running event timer plus the content scheduled around it, so pause,
+ * added time, overtime and roll are inherited from the event timer rather than recalculated.
+ */
+export type GroupTimerState = {
+  /** Time remaining in the group */
+  current: number;
+  /** Time elapsed since the group started */
+  elapsed: number;
+  /** Total time in the group, includes time added to the running event */
+  duration: number;
+};
+
+/**
  * Gathers the current running timer state
  */
 export type TimerState = {

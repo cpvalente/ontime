@@ -1,10 +1,8 @@
 import { ErrorBoundary } from '@sentry/react';
-import { QueryClientProvider } from '@tanstack/react-query';
 import { createRoot } from 'react-dom/client';
 
 import { CornerPipButton } from '../../../common/components/editor-utils/EditorUtils';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
-import { ontimeQueryClient } from '../../../common/queryClient';
 import { PipTimer } from './PipTimer';
 
 export default function PipTimerHost() {
@@ -57,10 +55,7 @@ export default function PipTimerHost() {
 
     pipRoot.render(
       <ErrorBoundary>
-        {/* the PiP document is a separate react root, it needs its own provider to reach the query cache */}
-        <QueryClientProvider client={ontimeQueryClient}>
-          <PipTimer viewSettings={data} />
-        </QueryClientProvider>
+        <PipTimer viewSettings={data} />
       </ErrorBoundary>,
     );
   };

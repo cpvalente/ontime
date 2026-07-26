@@ -1,4 +1,5 @@
 import {
+  GroupTimerState,
   MaybeNumber,
   MessageState,
   OntimeEvent,
@@ -6,6 +7,7 @@ import {
   RundownEntries,
   TimerMessage,
   TimerPhase,
+  TimerState,
   TimerType,
 } from 'ontime-types';
 import { isPlaybackActive } from 'ontime-utils';
@@ -111,6 +113,57 @@ export function getShowModifiers(
     showFinished: phase === TimerPhase.Overtime,
     showWarning: phase === TimerPhase.Warning,
     showDanger: phase === TimerPhase.Danger,
+  };
+}
+
+interface ResolveTimerDisplayOptions {
+  time: TimerState;
+  /** when present, views show the group instead of the running event */
+  groupTimer: GroupTimerState | null;
+  event: Pick<OntimeEvent, 'timeWarning' | 'timeDanger'> | null;
+  timerType: TimerType;
+  countToEnd: boolean;
+  freezeOvertime: boolean;
+  freezeMessage: string;
+  hidePhase: boolean;
+}
+
+/**
+ * Resolves which timer a view should display, and the modifiers that go with it.
+ *
+ * A group has no warning or danger thresholds of its own, so it only ever reports as
+ * running or overtime. Feeding that phase through `getShowModifiers` means the warning
+ * and danger states are suppressed as a consequence of what a group is, rather than
+ * every view having to remember to special case them.
+ */
+export function resolveTimerDisplay({
+  time,
+  groupTimer,
+  event,
+  timerType,
+  countToEnd,
+  freezeOvertime,
+  freezeMessage,
+  hidePhase,
+}: ResolveTimerDisplayOptions) {
+  const isGroup = groupTimer !== null;
+  const phase = isGroup
+    ? groupTimer.current <= 0
+      ? TimerPhase.Overtime
+      : TimerPhase.Default
+    : time.phase;
+
+  return {
+    isGroup,
+    phase,
+    /** the values to render, shaped for getTimerByType */
+    source: isGroup ? groupTimer : time,
+    /** the target of a progress bar */
+    total: isGroup ? groupTimer.duration : getTotalTime(time.duration, time.addedTime),
+    // thresholds belong to the event, they carry no meaning against a group duration
+    warning: isGroup ? undefined : event?.timeWarning,
+    danger: isGroup ? undefined : event?.timeDanger,
+    ...getShowModifiers(timerType, countToEnd, phase, freezeOvertime, freezeMessage, hidePhase),
   };
 }
 

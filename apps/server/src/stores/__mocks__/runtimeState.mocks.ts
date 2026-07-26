@@ -9,6 +9,8 @@ const baseState: RuntimeState = {
   eventNext: null,
   eventFlag: null,
   groupNow: null,
+  groupTimer: null,
+  _groupTiming: null,
   rundown: {
     selectedEventIndex: null,
     numEvents: 0,

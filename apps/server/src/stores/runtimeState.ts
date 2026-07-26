@@ -16,6 +16,7 @@ import {
   TimeOfDay,
   TimerPhase,
   TimerState,
+  GroupTimerState,
   isOntimeEvent,
   runtimeStorePlaceholder,
 } from 'ontime-types';
@@ -39,6 +40,8 @@ import {
   getCurrent,
   getElapsed,
   getExpectedFinish,
+  getGroupTimer,
+  getGroupTiming,
   getRuntimeOffset,
   getTimerPhase,
   hasCrossedMidnight,
@@ -51,6 +54,12 @@ type ExpectedMetadata = {
   isLinkedToLoaded: boolean;
 } | null;
 
+/** scheduled content of the running group, split around the loaded event */
+export type GroupTiming = {
+  before: number;
+  after: number;
+};
+
 export type RuntimeState = {
   clock: TimeOfDay;
   groupNow: OntimeGroup | null;
@@ -59,6 +68,8 @@ export type RuntimeState = {
   eventFlag: PlayableEvent | null;
   offset: Offset;
   timer: TimerState;
+  /** derived from the timer, only refreshed on the getState() projection */
+  groupTimer: GroupTimerState | null;
   rundown: RundownState;
   // private properties of the timer calculations
   _timer: {
@@ -72,6 +83,7 @@ export type RuntimeState = {
     totalDelay: number; // this value comes from rundown service
   };
   _group: ExpectedMetadata;
+  _groupTiming: GroupTiming | null;
   _flag: ExpectedMetadata;
   _end: ExpectedMetadata;
   _startEpoch: Maybe<Instant>;
@@ -86,6 +98,7 @@ const runtimeState: RuntimeState = {
   eventFlag: null,
   offset: { ...runtimeStorePlaceholder.offset },
   timer: { ...runtimeStorePlaceholder.timer },
+  groupTimer: null,
   rundown: { ...runtimeStorePlaceholder.rundown },
   _timer: {
     forceFinish: null,
@@ -98,6 +111,7 @@ const runtimeState: RuntimeState = {
     totalDelay: 0,
   },
   _group: null,
+  _groupTiming: null,
   _flag: null,
   _end: null,
   _startEpoch: null,
@@ -115,6 +129,8 @@ export function getState(): Readonly<RuntimeState> {
     offset: { ...runtimeState.offset },
     rundown: { ...runtimeState.rundown },
     timer: { ...runtimeState.timer },
+    // derived here so it can never drift from the timer values it is built on
+    groupTimer: getGroupTimer(runtimeState),
     _timer: { ...runtimeState._timer },
     _rundown: { ...runtimeState._rundown },
   };
@@ -156,6 +172,7 @@ export function clearState() {
 
   runtimeState.groupNow = null;
   runtimeState._group = null;
+  runtimeState._groupTiming = null;
 
   runtimeState.rundown.actualStart = null;
   runtimeState.rundown.selectedEventIndex = null;
@@ -897,6 +914,7 @@ export function loadGroupFlagAndEnd(
   const previousGroup = state.groupNow?.id;
   state.groupNow = null;
   state._group = null;
+  state._groupTiming = null;
   state.eventFlag = null;
   state._flag = null;
   state._end = null;
@@ -918,6 +936,11 @@ export function loadGroupFlagAndEnd(
 
   if (previousGroup !== currentGroupId) {
     state.rundown.actualGroupStart = null;
+  }
+
+  // the split is stable while the same event is loaded, so we only calculate it here
+  if (state.groupNow !== null) {
+    state._groupTiming = getGroupTiming(state.groupNow, rundown.entries, state.eventNow.id);
   }
 
   // if we don't have a any flags in the rundown then no need to look for it

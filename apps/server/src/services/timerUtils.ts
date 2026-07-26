@@ -1,7 +1,18 @@
-import { Day, MaybeNumber, TimeOfDay, TimerPhase } from 'ontime-types';
+import {
+  Day,
+  EntryId,
+  GroupTimerState,
+  MaybeNumber,
+  OntimeGroup,
+  Rundown,
+  TimeOfDay,
+  TimerPhase,
+  isOntimeEvent,
+  isPlayableEvent,
+} from 'ontime-types';
 import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
-import type { RuntimeState } from '../stores/runtimeState.js';
+import type { GroupTiming, RuntimeState } from '../stores/runtimeState.js';
 
 /**
  * handle events that span over midnight
@@ -230,4 +241,77 @@ export function findDayOffset(plannedStart: number, clock: number): Day {
   if (distance >= 12 * MILLIS_PER_HOUR) return -1 as Day;
   if (distance < -12 * MILLIS_PER_HOUR) return 1 as Day;
   return 0 as Day;
+}
+
+/**
+ * Splits a group's scheduled content around the loaded event.
+ *
+ * The result is stable for as long as the same event is loaded, so it is calculated
+ * when the group is loaded rather than on every update.
+ * The aggregation mirrors the group duration calculated in the rundown
+ * (see rundown.dao.ts): non playable entries are skipped and the gap is
+ * accounted for in every entry other than the first.
+ */
+export function getGroupTiming(
+  group: OntimeGroup,
+  entries: Rundown['entries'],
+  currentEventId: EntryId,
+): GroupTiming | null {
+  const currentIndex = group.entries.indexOf(currentEventId);
+  if (currentIndex === -1) {
+    return null;
+  }
+
+  let before = 0;
+  let after = 0;
+
+  for (let i = 0; i < group.entries.length; i++) {
+    const entry = entries[group.entries[i]];
+    if (!isOntimeEvent(entry) || !isPlayableEvent(entry)) {
+      continue;
+    }
+
+    // the first entry of the group has no gap to account for,
+    // any other entry could be preceded by idle time
+    const gap = i > 0 ? entry.gap : 0;
+
+    if (i < currentIndex) {
+      before += gap + entry.duration;
+    } else if (i === currentIndex) {
+      // the loaded event contributes its own duration through the event timer,
+      // but the idle time before it has already passed
+      before += gap;
+    } else {
+      after += gap + entry.duration;
+    }
+  }
+
+  return { before, after };
+}
+
+/**
+ * Derives the shared group timer from the event timer.
+ *
+ * Keeping this relative to the event timer is what makes the group behave as if it were
+ * a single event containing all its children: pause, added time, overtime, roll and
+ * midnight rollovers are all inherited instead of being recalculated.
+ */
+export function getGroupTimer(state: RuntimeState): GroupTimerState | null {
+  const { groupNow, _groupTiming } = state;
+
+  if (groupNow === null || !groupNow.useGroupTimer || _groupTiming === null) {
+    return null;
+  }
+
+  const { current, elapsed, addedTime } = state.timer;
+  if (current === null) {
+    return null;
+  }
+
+  return {
+    current: current + _groupTiming.after,
+    elapsed: (elapsed ?? 0) + _groupTiming.before,
+    // mirrors the total time of an event, which grows with the time added to it
+    duration: groupNow.duration + addedTime,
+  };
 }

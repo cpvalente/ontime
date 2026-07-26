@@ -17,6 +17,7 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
     secondaryTimer: null, // change on every update
     startedAt: null, // change can only be initiated by user
   },
+  groupTimer: null, // derived from the timer, null unless the running group opted in
   message: {
     timer: {
       text: '',

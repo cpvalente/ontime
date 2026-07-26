@@ -1,9 +1,8 @@
-import { TimerPhase, ViewSettings } from 'ontime-types';
+import { ViewSettings } from 'ontime-types';
 
 import { FitText } from '../../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
-import { useGroupTimer } from '../../../common/hooks/useGroupTimer';
-import { useTimerSocket } from '../../../common/hooks/useSocket';
+import { useGroupTimer, useTimerSocket } from '../../../common/hooks/useSocket';
 import { cx } from '../../../common/utils/styleUtils';
 import { getFormattedTimer, getTimerByType } from '../../common/viewUtils';
 import {
@@ -11,9 +10,8 @@ import {
   getIsPlaying,
   getSecondaryDisplay,
   getShowMessage,
-  getShowModifiers,
   getShowProgressBar,
-  getTotalTime,
+  resolveTimerDisplay,
 } from '../../timer/timer.utils';
 import { getTimerColour } from '../../utils/presentation.utils';
 
@@ -29,26 +27,23 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
 
   // gather modifiers
   const showOverlay = getShowMessage(message.timer);
-  const {
-    showFinished: eventShowFinished,
-    showWarning: eventShowWarning,
-    showDanger: eventShowDanger,
-  } = getShowModifiers(timerTypeNow, countToEndNow, time.phase, false, '', false);
-
-  /**
-   * warning and danger thresholds belong to the event, they carry no meaning against a group duration.
-   * overtime is kept, but only once the group itself has run out of time
-   */
-  const showWarning = eventShowWarning && !groupTimer.isActive;
-  const showDanger = eventShowDanger && !groupTimer.isActive;
-  const showFinished = eventShowFinished && (!groupTimer.isActive || (groupTimer.current ?? 0) <= 0);
+  const timerDisplay = resolveTimerDisplay({
+    time,
+    groupTimer,
+    event: eventNow,
+    timerType: timerTypeNow,
+    countToEnd: countToEndNow,
+    freezeOvertime: false,
+    freezeMessage: '',
+    hidePhase: false,
+  });
+  const { showFinished, showWarning, showDanger } = timerDisplay;
 
   const isPlaying = getIsPlaying(time.playback);
   const showProgressBar = getShowProgressBar(timerTypeNow);
 
   // gather timer data
-  const totalTime = groupTimer.isActive ? groupTimer.duration : getTotalTime(time.duration, time.addedTime);
-  const stageTimer = getTimerByType(false, timerTypeNow, clock, groupTimer.isActive ? groupTimer : time, timerTypeNow);
+  const stageTimer = getTimerByType(false, timerTypeNow, clock, timerDisplay.source, timerTypeNow);
   const display = getFormattedTimer(stageTimer, timerTypeNow, 'min', {
     removeSeconds: false,
     removeLeadingZero: false,
@@ -88,11 +83,11 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
         <div
           className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished'])}
           style={{ fontSize: `${timerFontSize}vw` }}
-          data-phase={groupTimer.isActive ? TimerPhase.Default : time.phase}
+          data-phase={timerDisplay.phase}
         >
           {display}
         </div>
-        {groupTimer.isActive && <div className='group-indicator'>group</div>}
+        {timerDisplay.isGroup && <div className='group-indicator'>group</div>}
         <div className={cx(['secondary', !secondaryContent && 'secondary--hidden'])}>
           <FitText mode='multi' min={12} max={256}>
             {secondaryContent}
@@ -103,12 +98,12 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
       {showProgressBar && (
         <MultiPartProgressBar
           className={cx(['progress-container', !isPlaying && 'progress-container--paused'])}
-          now={groupTimer.isActive ? groupTimer.current : time.current}
-          complete={totalTime}
+          now={timerDisplay.source.current}
+          complete={timerDisplay.total}
           normalColor={viewSettings.normalColor}
-          warning={groupTimer.isActive ? undefined : eventNow?.timeWarning}
+          warning={timerDisplay.warning}
           warningColor={viewSettings.warningColor}
-          danger={groupTimer.isActive ? undefined : eventNow?.timeDanger}
+          danger={timerDisplay.danger}
           dangerColor={viewSettings.dangerColor}
           hideOvertime={!showFinished}
         />

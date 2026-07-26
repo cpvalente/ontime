@@ -710,6 +710,18 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     }
 
     /**
+     * the group timer is the event timer offset by a constant, so it changes exactly when
+     * the event timer does and can share its throttling.
+     * entry changes are also considered since loading an event can move us between groups
+     */
+    if (updateTimer || entryChanged) {
+      if (!deepEqual(RuntimeService.previousState.groupTimer, state.groupTimer)) {
+        batch.add('groupTimer', state.groupTimer);
+        RuntimeService.previousState.groupTimer = state.groupTimer ? { ...state.groupTimer } : null;
+      }
+    }
+
+    /**
      * clock has changed by a second or more.
      * or the timer updated so we ensure that the timer and clock ticks are in sync
      */

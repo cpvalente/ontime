@@ -1,4 +1,16 @@
-import { EndAction, Playback, TimeOfDay, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
+import {
+  EndAction,
+  MaybeNumber,
+  OntimeEvent,
+  OntimeGroup,
+  Playback,
+  Rundown,
+  SupportedEntry,
+  TimeOfDay,
+  TimeStrategy,
+  TimerPhase,
+  TimerType,
+} from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, dayInMs, millisToString } from 'ontime-utils';
 
 import type { RuntimeState } from '../../stores/runtimeState.js';
@@ -7,6 +19,8 @@ import {
   getCurrent,
   getElapsed,
   getExpectedFinish,
+  getGroupTimer,
+  getGroupTiming,
   getRuntimeOffset,
   getTimerPhase,
   hasCrossedMidnight,
@@ -1450,5 +1464,140 @@ describe('findDay()', () => {
     expect(findDayOffset(12 * MILLIS_PER_HOUR, 0)).toBe(0); //                  -> -12
     expect(findDayOffset(11 * MILLIS_PER_HOUR, 0)).toBe(0); //                  -> -11
     expect(findDayOffset(22 * MILLIS_PER_HOUR, 23 * MILLIS_PER_HOUR)).toBe(0); //   -> 1
+  });
+});
+
+describe('getGroupTiming()', () => {
+  const makeEvent = (id: string, duration: number, patch: object = {}) =>
+    ({ id, type: SupportedEntry.Event, duration, gap: 0, skip: false, parent: 'group', ...patch }) as OntimeEvent;
+
+  const makeGroup = (entries: string[]) => ({ id: 'group', type: SupportedEntry.Group, entries }) as OntimeGroup;
+
+  const makeEntries = (...entries: OntimeEvent[]) =>
+    Object.fromEntries(entries.map((entry) => [entry.id, entry])) as Rundown['entries'];
+
+  it('splits the scheduled content around the loaded event', () => {
+    const group = makeGroup(['1', '2', '3']);
+    const entries = makeEntries(makeEvent('1', 10), makeEvent('2', 20), makeEvent('3', 30));
+
+    expect(getGroupTiming(group, entries, '1')).toStrictEqual({ before: 0, after: 50 });
+    expect(getGroupTiming(group, entries, '2')).toStrictEqual({ before: 10, after: 30 });
+    expect(getGroupTiming(group, entries, '3')).toStrictEqual({ before: 30, after: 0 });
+  });
+
+  it('accounts for the gaps between events', () => {
+    const group = makeGroup(['1', '2', '3']);
+    const entries = makeEntries(makeEvent('1', 10), makeEvent('2', 20, { gap: 5 }), makeEvent('3', 30, { gap: 7 }));
+
+    expect(getGroupTiming(group, entries, '1')).toStrictEqual({ before: 0, after: 20 + 5 + 30 + 7 });
+    // the gap before the loaded event has already passed, so it counts as time spent
+    expect(getGroupTiming(group, entries, '2')).toStrictEqual({ before: 10 + 5, after: 30 + 7 });
+  });
+
+  it('splits into values which add up to the group duration', () => {
+    const group = makeGroup(['1', '2', '3']);
+    const entries = makeEntries(makeEvent('1', 10), makeEvent('2', 20, { gap: 5 }), makeEvent('3', 30));
+    const groupDuration = 10 + 20 + 5 + 30;
+
+    for (const id of ['1', '2', '3']) {
+      const timing = getGroupTiming(group, entries, id)!;
+      expect(timing.before + entries[id].duration + timing.after).toBe(groupDuration);
+    }
+  });
+
+  it('skips entries which are not playable events', () => {
+    const group = makeGroup(['1', '2', '3', '4']);
+    const entries = {
+      ...makeEntries(makeEvent('1', 10), makeEvent('2', 20, { skip: true }), makeEvent('4', 40)),
+      '3': { id: '3', type: SupportedEntry.Milestone, parent: 'group' },
+    } as Rundown['entries'];
+
+    expect(getGroupTiming(group, entries, '1')).toStrictEqual({ before: 0, after: 40 });
+  });
+
+  it('returns null when the loaded event is not part of the group', () => {
+    const group = makeGroup(['1', '2']);
+    const entries = makeEntries(makeEvent('1', 10), makeEvent('2', 20));
+
+    expect(getGroupTiming(group, entries, 'elsewhere')).toBeNull();
+  });
+});
+
+describe('getGroupTimer()', () => {
+  const makeState = (patch: {
+    useGroupTimer?: boolean;
+    duration?: number;
+    timing?: { before: number; after: number } | null;
+    current?: MaybeNumber;
+    elapsed?: MaybeNumber;
+    addedTime?: number;
+  }) =>
+    ({
+      groupNow: { duration: patch.duration ?? 100, useGroupTimer: patch.useGroupTimer ?? true },
+      _groupTiming: patch.timing === undefined ? { before: 0, after: 0 } : patch.timing,
+      timer: {
+        current: patch.current ?? null,
+        elapsed: patch.elapsed ?? null,
+        addedTime: patch.addedTime ?? 0,
+      },
+    }) as RuntimeState;
+
+  it('is null when there is no group running', () => {
+    expect(getGroupTimer({ groupNow: null, _groupTiming: null } as RuntimeState)).toBeNull();
+  });
+
+  it('is null when the group has not opted in', () => {
+    expect(getGroupTimer(makeState({ useGroupTimer: false, current: 10 }))).toBeNull();
+  });
+
+  it('is null when the loaded event is not part of the group', () => {
+    expect(getGroupTimer(makeState({ timing: null, current: 10 }))).toBeNull();
+  });
+
+  it('offsets the event timer by the content scheduled around it', () => {
+    const state = makeState({ duration: 100, timing: { before: 30, after: 50 }, current: 20, elapsed: 0 });
+
+    expect(getGroupTimer(state)).toStrictEqual({ current: 70, elapsed: 30, duration: 100 });
+  });
+
+  it('keeps elapsed and current adding up to the total', () => {
+    const state = makeState({ duration: 100, timing: { before: 30, after: 50 }, current: 12, elapsed: 8 });
+    const groupTimer = getGroupTimer(state)!;
+
+    expect(groupTimer.elapsed + groupTimer.current).toBe(groupTimer.duration);
+  });
+
+  it('grows the total with the time added to the running event', () => {
+    const state = makeState({
+      duration: 100,
+      timing: { before: 0, after: 0 },
+      current: 160,
+      elapsed: 0,
+      addedTime: 60,
+    });
+    const groupTimer = getGroupTimer(state)!;
+
+    expect(groupTimer.duration).toBe(160);
+    // elapsed keeps counting up rather than clamping at zero once time is added
+    expect(groupTimer.elapsed).toBe(0);
+    expect(groupTimer.elapsed + groupTimer.current).toBe(groupTimer.duration);
+  });
+
+  it('reports elapsed time while the group is in credit from added time', () => {
+    const state = makeState({
+      duration: 100,
+      timing: { before: 0, after: 0 },
+      current: 150,
+      elapsed: 10,
+      addedTime: 60,
+    });
+
+    expect(getGroupTimer(state)).toStrictEqual({ current: 150, elapsed: 10, duration: 160 });
+  });
+
+  it('goes negative when the group runs into overtime', () => {
+    const state = makeState({ duration: 100, timing: { before: 90, after: 0 }, current: -15, elapsed: 25 });
+
+    expect(getGroupTimer(state)?.current).toBe(-15);
   });
 });

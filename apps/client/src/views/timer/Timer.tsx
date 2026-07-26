@@ -1,4 +1,4 @@
-import { MaybeString, OntimeView, TimerPhase, TimerType } from 'ontime-types';
+import { MaybeString, OntimeView, TimerType } from 'ontime-types';
 import { useMemo } from 'react';
 
 import { FitText } from '../../common/components/fit-text/FitText';
@@ -8,8 +8,7 @@ import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
-import { useGroupTimer } from '../../common/hooks/useGroupTimer';
-import { useTimerSocket } from '../../common/hooks/useSocket';
+import { useGroupTimer, useTimerSocket } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
@@ -26,9 +25,8 @@ import {
   getSecondaryDisplay,
   getShowClock,
   getShowMessage,
-  getShowModifiers,
   getShowProgressBar,
-  getTotalTime,
+  resolveTimerDisplay,
 } from './timer.utils';
 import { TimerData, useTimerData } from './useTimerData';
 
@@ -81,20 +79,17 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
   // gather modifiers
   const viewTimerType = timerType ?? timerTypeNow;
   const showOverlay = getShowMessage(message.timer);
-  const {
-    showEndMessage,
-    showFinished: eventShowFinished,
-    showWarning: eventShowWarning,
-    showDanger: eventShowDanger,
-  } = getShowModifiers(timerTypeNow, countToEndNow, time.phase, freezeOvertime, freezeMessage, hidePhase);
-
-  /**
-   * warning and danger thresholds belong to the event, they carry no meaning against a group duration.
-   * overtime is kept, but only once the group itself has run out of time
-   */
-  const showWarning = eventShowWarning && !groupTimer.isActive;
-  const showDanger = eventShowDanger && !groupTimer.isActive;
-  const showFinished = eventShowFinished && (!groupTimer.isActive || (groupTimer.current ?? 0) <= 0);
+  const timerDisplay = resolveTimerDisplay({
+    time,
+    groupTimer,
+    event: eventNow,
+    timerType: timerTypeNow,
+    countToEnd: countToEndNow,
+    freezeOvertime,
+    freezeMessage,
+    hidePhase,
+  });
+  const { showEndMessage, showFinished, showWarning, showDanger } = timerDisplay;
   const isPlaying = getIsPlaying(time.playback);
   const showClock = !hideClock && getShowClock(viewTimerType);
   const showProgressBar = !hideProgress && getShowProgressBar(viewTimerType);
@@ -111,9 +106,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
   );
 
   // gather timer data
-  const totalTime = groupTimer.isActive ? groupTimer.duration : getTotalTime(time.duration, time.addedTime);
-  const timerSource = groupTimer.isActive ? groupTimer : time;
-  const stageTimer = getTimerByType(freezeOvertime, timerTypeNow, clock, timerSource, timerType);
+  const stageTimer = getTimerByType(freezeOvertime, timerTypeNow, clock, timerDisplay.source, timerType);
   const display = getFormattedTimer(stageTimer, viewTimerType, localisedMinutes, {
     removeSeconds: hideTimerSeconds,
     removeLeadingZero: removeLeadingZeros,
@@ -188,12 +181,12 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
             className={cx(['timer', subduePaused && 'timer--paused', showFinished && 'timer--finished'])}
             style={{ fontSize: `${timerFontSize}vw` }}
             data-type={viewTimerType}
-            data-phase={groupTimer.isActive ? TimerPhase.Default : time.phase}
+            data-phase={timerDisplay.phase}
           >
             {display}
           </div>
         )}
-        {groupTimer.isActive && !showEndMessage && <div className='group-indicator'>group</div>}
+        {timerDisplay.isGroup && !showEndMessage && <div className='group-indicator'>group</div>}
         <div className={cx(['secondary', !secondaryContent && 'secondary--hidden'])}>
           <FitText mode='multi' min={64} max={256}>
             {secondaryContent}
@@ -204,12 +197,12 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
       {showProgressBar && (
         <MultiPartProgressBar
           className={cx(['progress-container', !isPlaying && 'progress-container--paused'])}
-          now={groupTimer.isActive ? groupTimer.current : time.current}
-          complete={totalTime}
+          now={timerDisplay.source.current}
+          complete={timerDisplay.total}
           normalColor={viewSettings.normalColor}
-          warning={groupTimer.isActive ? undefined : eventNow?.timeWarning}
+          warning={timerDisplay.warning}
           warningColor={viewSettings.warningColor}
-          danger={groupTimer.isActive ? undefined : eventNow?.timeDanger}
+          danger={timerDisplay.danger}
           dangerColor={viewSettings.dangerColor}
           hideOvertime={!showFinished}
         />

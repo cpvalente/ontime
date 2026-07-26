@@ -3,12 +3,14 @@ import type { SimpleTimerState } from './AuxTimer.type.js';
 import type { MessageState } from './MessageControl.type.js';
 import type { Offset } from './Offset.type.js';
 import type { RundownState } from './RundownState.type.js';
-import type { TimerState } from './TimerState.type.js';
+import type { GroupTimerState, TimerState } from './TimerState.type.js';
 
 export type RuntimeStore = {
   // timer data
   clock: number;
   timer: TimerState;
+  /** shared timer for the running group, null unless the group opted in */
+  groupTimer: GroupTimerState | null;
 
   // messages service
   message: MessageState;
