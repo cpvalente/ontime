@@ -30,8 +30,8 @@ export function useRundown(rundownId: Maybe<string>) {
     data: { loaded: loadedRundownId },
   } = useProjectRundowns();
 
-  const effectiveRundownId = rundownId ? rundownId : loadedRundownId;
-  const isLoadedRundown = rundownId === loadedRundownId;
+  const effectiveRundownId = rundownId !== null ? rundownId : loadedRundownId;
+  const isLoadedRundown = effectiveRundownId === loadedRundownId;
 
   const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
     queryKey: getRundownQueryKey(effectiveRundownId),
@@ -43,9 +43,6 @@ export function useRundown(rundownId: Maybe<string>) {
   return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching, isLoadedRundown };
 }
 
-/**
- * @deprecated
- */
 export function useRundownWithMetadata(rundownId: Maybe<string>) {
   'use memo';
 
