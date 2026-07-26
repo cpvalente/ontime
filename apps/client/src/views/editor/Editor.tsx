@@ -1,5 +1,6 @@
 import { lazy } from 'react';
 
+import { RundownSelectionContextProvider } from '../../common/context/RundownSelectionContext';
 import TrackingPlaybackBar from '../../features/control/playback/tracking-playback-bar/TrackingPlaybackBar';
 import { AppMode } from '../../ontimeConfig';
 import TitleList from './title-list/TitleList';
@@ -14,44 +15,51 @@ const MessageControl = lazy(() => import('../../features/control/message/Message
 export default function Editor() {
   const { layoutMode } = useEditorLayout();
 
-  if (layoutMode === EditorLayoutMode.CONTROL) {
-    return (
-      <div id='panels' className={styles.panelContainer}>
-        <div className={styles.left}>
-          <TimerControl />
-          <MessageControl />
-        </div>
-        <Rundown />
-      </div>
-    );
-  }
-
-  if (layoutMode === EditorLayoutMode.TRACKING) {
-    return (
-      <div id='panels' className={`${styles.panelContainer} ${styles.panelContainerTracking}`}>
-        <div className={styles.rundownLayout}>
-          <div className={styles.titlesPanel}>
-            <TitleList mode={AppMode.Run} />
+  switch (layoutMode) {
+    case EditorLayoutMode.TRACKING: {
+      return (
+        <div id='panels' className={`${styles.panelContainer} ${styles.panelContainerTracking}`}>
+          <div className={styles.rundownLayout}>
+            <div className={styles.titlesPanel}>
+              <RundownSelectionContextProvider>
+                <TitleList mode={AppMode.Run} />
+              </RundownSelectionContextProvider>
+            </div>
+            <div className={styles.rundownPanel}>
+              <Rundown />
+            </div>
           </div>
-          <div className={styles.rundownPanel}>
-            <Rundown />
+          <TrackingPlaybackBar />
+        </div>
+      );
+    }
+    case EditorLayoutMode.PLANNING: {
+      return (
+        <div id='panels' className={styles.panelContainer}>
+          <div className={styles.rundownLayout}>
+            <div className={styles.titlesPanel}>
+              <RundownSelectionContextProvider>
+                <TitleList mode={AppMode.Edit} />
+              </RundownSelectionContextProvider>
+            </div>
+            <div className={styles.rundownPanel}>
+              <Rundown />
+            </div>
           </div>
         </div>
-        <TrackingPlaybackBar />
-      </div>
-    );
-  }
-
-  return (
-    <div id='panels' className={styles.panelContainer}>
-      <div className={styles.rundownLayout}>
-        <div className={styles.titlesPanel}>
-          <TitleList mode={AppMode.Edit} />
-        </div>
-        <div className={styles.rundownPanel}>
+      );
+    }
+    case EditorLayoutMode.CONTROL:
+    default: {
+      return (
+        <div id='panels' className={styles.panelContainer}>
+          <div className={styles.left}>
+            <TimerControl />
+            <MessageControl />
+          </div>
           <Rundown />
         </div>
-      </div>
-    </div>
-  );
+      );
+    }
+  }
 }

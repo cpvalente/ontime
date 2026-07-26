@@ -1,8 +1,9 @@
+import { isOntimeEvent, OntimeEvent } from 'ontime-types';
 import { useMemo } from 'react';
 
 import { useRundownSelectionContext } from '../context/RundownSelectionContext';
 import { useSelectedEventId } from '../hooks/useSocket';
-import { getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
+import { ExtendedEntry, getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
 import { useFlatRundown, useRundown } from './useRundown';
 
 export function useContextRundownEditModal() {
@@ -39,6 +40,27 @@ export function useContextRundownList() {
       isLoadedRundown,
     }),
     [rundown, rundownMetadata, status, isLoadedRundown],
+  );
+}
+
+export function useContextRundownTitleList() {
+  'use memo';
+  const { effectiveRundownId, isLoadedRundown } = useRundownSelectionContext();
+  const loadedEventId = useSelectedEventId();
+  const effectiveSelectedEventId = isLoadedRundown ? loadedEventId : null;
+  const { data: rundown, status } = useRundown(effectiveRundownId);
+  const flatRundown = useMemo(() => {
+    const flatData = getFlatRundownMetadata(rundown, effectiveSelectedEventId);
+    return flatData.filter(isOntimeEvent) as ExtendedEntry<OntimeEvent>[];
+  }, [effectiveSelectedEventId, rundown]);
+
+  return useMemo(
+    () => ({
+      flatRundown,
+      status,
+      isLoadedRundown,
+    }),
+    [status, isLoadedRundown, flatRundown],
   );
 }
 
