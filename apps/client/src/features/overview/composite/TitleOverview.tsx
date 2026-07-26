@@ -6,7 +6,7 @@ import style from './TitleOverview.module.scss';
 export default function TitleOverview() {
   'use memo';
   const { data: projectData } = useProjectData();
-  const { data: rundownData } = useRundownAuxData();
+  const { data: rundownData } = useRundownAuxData(null);
 
   if (!projectData.title && !rundownData.title) {
     return null;

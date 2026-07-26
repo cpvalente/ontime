@@ -1,6 +1,7 @@
 export enum RefetchKey {
   All = 'all',
   CustomFields = 'custom-fields',
+  ProjectFiles = 'project-files',
   ProjectData = 'project-data',
   ProjectRundowns = 'project-rundowns',
   Report = 'report',

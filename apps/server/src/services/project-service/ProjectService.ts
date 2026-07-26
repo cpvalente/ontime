@@ -1,9 +1,10 @@
 import { copyFile } from 'fs/promises';
 import { join } from 'path';
 
-import { DatabaseModel, LogOrigin, ProjectFileListResponse } from 'ontime-types';
+import { DatabaseModel, LogOrigin, ProjectFileListResponse, RefetchKey } from 'ontime-types';
 import { getErrorMessage, getFirstRundown } from 'ontime-utils';
 
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
 import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
@@ -105,6 +106,9 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
     currentProjectName: fileName,
   };
 
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return fileName;
 }
 
@@ -263,6 +267,10 @@ export async function duplicateProjectFile(originalFile: string, newFilename: st
 
   const pathToDuplicate = getPathToProject(newFilename);
   await copyFile(projectFilePath, pathToDuplicate);
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return;
 }
 
@@ -293,6 +301,10 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
     const newFileName = await loadProject(projectData.data, newFilename);
     return newFileName;
   }
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
   return newFilename;
 }
 
@@ -332,6 +344,9 @@ export async function deleteProjectFile(filename: string) {
   }
 
   await deleteFile(projectFilePath);
+  setImmediate(() => {
+    sendRefetch(RefetchKey.ProjectFiles);
+  });
 }
 
 /**
@@ -374,6 +389,7 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
     }
   }
 
-  const updatedData = await getDataProvider().getData();
+  const updatedData = getDataProvider().getData();
+
   return updatedData;
 }

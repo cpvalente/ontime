@@ -1,7 +1,7 @@
 import { EntryId, MaybeString, SupportedEntry, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 
-import { useFlatRundown } from '../../../common/hooks-query/useRundown';
+import { useContextRundownFinder } from '../../../common/hooks-query/useContextRundown';
 import { useSelectAndRevealEntry } from '../../../features/rundown/useSelectAndRevealEntry';
 
 const maxResults = 12;
@@ -38,7 +38,7 @@ type FilterableMilestone = {
 type FilterableEntry = FilterableGroup | FilterableEvent | FilterableMilestone;
 
 export default function useFinder() {
-  const { data, rundownId } = useFlatRundown();
+  const { rundown: data, rundownId } = useContextRundownFinder();
   const [results, setResults] = useState<FilterableEntry[]>([]);
   const [error, setError] = useState<MaybeString>(null);
   const lastSearchString = useRef('');

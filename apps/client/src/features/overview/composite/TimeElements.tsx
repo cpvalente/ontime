@@ -210,7 +210,7 @@ export function MetadataTimes() {
 function GroupTimes() {
   const { clock, mode, groupExpectedEnd, actualGroupStart, currentDay, playback, phase } = useGroupTimerOverView();
   const currentGroupId = useCurrentGroupId();
-  const group = useEntry(currentGroupId) as OntimeGroup | null;
+  const group = useEntry(null, currentGroupId) as OntimeGroup | null;
 
   const hasRunningTimer = phase !== TimerPhase.Pending && isPlaybackActive(playback);
 
@@ -266,7 +266,7 @@ function GroupTimes() {
 function FlagTimes() {
   const { clock, mode, actualStart, plannedStart, playback, currentDay, phase } = useFlagTimerOverView();
   const { id, expectedStart } = useNextFlag();
-  const entry = useEntry(id) as OntimeEvent | null;
+  const entry = useEntry(null, id) as OntimeEvent | null;
 
   const hasRunningTimer = phase !== TimerPhase.Pending && isPlaybackActive(playback);
 

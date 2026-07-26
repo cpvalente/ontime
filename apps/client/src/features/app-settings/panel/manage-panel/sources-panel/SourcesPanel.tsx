@@ -24,7 +24,7 @@ import Button from '../../../../../common/components/buttons/Button';
 import Info from '../../../../../common/components/info/Info';
 import ExternalLink from '../../../../../common/components/link/external-link/ExternalLink';
 import Modal from '../../../../../common/components/modal/Modal';
-import useRundown from '../../../../../common/hooks-query/useRundown';
+import { useRundown } from '../../../../../common/hooks-query/useRundown';
 import { removeFileExtension, validateExcelImport } from '../../../../../common/utils/uploadUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
 import GSheetSetup from './GSheetSetup';
@@ -59,7 +59,7 @@ export default function SourcesPanel() {
   const [activeSource, setActiveSource] = useState<ActiveSource | null>(null);
   const [completedRundownTitle, setCompletedRundownTitle] = useState('');
 
-  const { data: currentRundown } = useRundown();
+  const { data: currentRundown } = useRundown(null);
   const { applyImport } = useSpreadsheetImport();
   const navigate = useNavigate();
 

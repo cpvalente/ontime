@@ -1,24 +1,18 @@
-import { useQuery } from '@tanstack/react-query';
-import { ProjectFile, ProjectFileList, ProjectFileListResponse } from 'ontime-types';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { ProjectFile, ProjectFileList } from 'ontime-types';
+import { MILLIS_PER_HOUR } from 'ontime-utils';
 import { useMemo } from 'react';
 
-import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { PROJECT_LIST } from '../api/constants';
 import { getProjects } from '../api/db';
 
-const placeholderProjectList: ProjectFileListResponse = {
-  files: [],
-  lastLoadedProject: '',
-};
-
-function useProjectList() {
-  const { data, status, refetch } = useQuery({
+export function useProjectList() {
+  const { data, status, refetch } = useSuspenseQuery({
     queryKey: PROJECT_LIST,
     queryFn: ({ signal }) => getProjects({ signal }),
-    placeholderData: (previousData, _previousQuery) => previousData,
-    refetchInterval: queryRefetchIntervalSlow,
+    staleTime: MILLIS_PER_HOUR,
   });
-  return { data: data ?? placeholderProjectList, status, refetch };
+  return { data, status, refetch };
 }
 
 export type ProjectSortMode = 'alphabetical-asc' | 'alphabetical-desc' | 'modified-asc' | 'modified-desc';

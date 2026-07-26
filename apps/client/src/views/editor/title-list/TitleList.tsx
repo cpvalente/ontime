@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import ScrollArea from '../../../common/components/scroll-area/ScrollArea';
-import useRundown from '../../../common/hooks-query/useRundown';
+import { useContextRundownList } from '../../../common/hooks-query/useContextRundown';
 import { useSelectedEventId } from '../../../common/hooks/useSocket';
 import { ExtendedEntry, getFlatRundownMetadata } from '../../../common/utils/rundownMetadata';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
@@ -20,7 +20,7 @@ interface TitleListProps {
 }
 
 export default function TitleList({ mode }: TitleListProps) {
-  const { data: rundown } = useRundown();
+  const { rundown } = useContextRundownList();
   const selectedEventId = useSelectedEventId();
   const cursor = useEventSelection((state) => state.cursor);
 

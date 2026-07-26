@@ -1,5 +1,8 @@
 import { isValueOfEnum } from 'ontime-utils';
+import { useCallback, useEffect } from 'react';
 import { useSearchParams } from 'react-router';
+
+import { setSelectRundownInParams } from '../../common/context/RundownSelectionContext';
 
 const layoutParam = 'layout';
 
@@ -20,14 +23,29 @@ function getEditorLayout(value: string | null): EditorLayoutMode {
 }
 
 export function useEditorLayout() {
+  'use memo';
+
   const [searchParams, setSearchParams] = useSearchParams();
   const layoutMode = getEditorLayout(searchParams.get(layoutParam));
 
-  const setLayoutMode = (mode: EditorLayoutMode) => {
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set(layoutParam, mode);
-    setSearchParams(nextParams, { replace: true });
-  };
+  useEffect(() => {
+    setSearchParams((searchParams) => {
+      if (layoutMode !== EditorLayoutMode.PLANNING) setSelectRundownInParams(null, searchParams);
+      return searchParams;
+    });
+  }, [setSearchParams, layoutMode]);
+
+  const setLayoutMode = useCallback(
+    (mode: EditorLayoutMode) => {
+      setSearchParams((searchParams) => {
+        searchParams.set(layoutParam, mode);
+        // Only the Planning layout is allowed to look at something other than the current rundown
+        if (mode !== EditorLayoutMode.PLANNING) setSelectRundownInParams(null, searchParams);
+        return searchParams;
+      });
+    },
+    [setSearchParams],
+  );
 
   return { layoutMode, setLayoutMode };
 }
