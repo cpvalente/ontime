@@ -1,33 +1,12 @@
-import { OffsetMode, Playback, type TimeOfDay, TimerPhase } from 'ontime-types';
+import { Day, type Duration, type Instant, OffsetMode, Playback, TimeOfDay, TimerPhase } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 
-import type { RuntimeState } from '../runtimeState.js';
+import { ZERO_DURATION } from '../../lib/time-core/timeCore.js';
+import type { InternalRuntimeState, RuntimeState } from '../runtimeState.js';
 
-const baseState: RuntimeState = {
-  clock: 0 as TimeOfDay,
-  eventNow: null,
-  eventNext: null,
-  eventFlag: null,
-  groupNow: null,
-  rundown: {
-    selectedEventIndex: null,
-    numEvents: 0,
-    plannedStart: 0,
-    plannedEnd: 0,
-    actualStart: null,
-    actualGroupStart: null,
-    currentDay: 0,
-  },
-  offset: {
-    absolute: 0,
-    relative: 0,
-    mode: OffsetMode.Absolute,
-    expectedRundownEnd: null,
-    expectedGroupEnd: null,
-    expectedFlagStart: null,
-  },
+export const runtimePlaceholder = {
   timer: {
-    addedTime: 0,
+    addedTime: ZERO_DURATION,
     current: null,
     duration: null,
     elapsed: null,
@@ -37,10 +16,43 @@ const baseState: RuntimeState = {
     secondaryTimer: null,
     startedAt: null,
   },
+  offset: {
+    absolute: ZERO_DURATION,
+    relative: ZERO_DURATION,
+    mode: OffsetMode.Absolute,
+    expectedGroupEnd: null,
+    expectedRundownEnd: null,
+    expectedFlagStart: null,
+  },
+  rundown: {
+    selectedEventIndex: null,
+    numEvents: 0,
+    plannedStart: 0 as TimeOfDay,
+    plannedEnd: 0 as TimeOfDay,
+    actualStart: null,
+    actualGroupStart: null,
+
+    currentDay: 0 as Day,
+  },
+} as Readonly<InternalRuntimeState>;
+
+const baseState: InternalRuntimeState = {
+  _now: 0 as Instant,
+  eventNow: null,
+  eventNext: null,
+  eventFlag: null,
+  groupNow: null,
+  rundown: {
+    ...runtimePlaceholder.rundown,
+  },
+  offset: {
+    ...runtimePlaceholder.offset,
+  },
+  timer: { ...runtimePlaceholder.timer },
   _timer: {
-    forceFinish: null,
+    forceFinish: false,
     pausedAt: null,
-    pausedDuration: 0,
+    pausedDuration: 0 as Duration,
     secondaryTarget: null,
     hasFinished: false,
   },
