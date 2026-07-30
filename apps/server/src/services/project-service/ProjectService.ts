@@ -1,9 +1,10 @@
 import { copyFile } from 'fs/promises';
 import { join } from 'path';
 
-import { DatabaseModel, LogOrigin, ProjectFileListResponse } from 'ontime-types';
+import { DatabaseModel, LogOrigin, ProjectFileListResponse, RefetchKey } from 'ontime-types';
 import { getErrorMessage, getFirstRundown } from 'ontime-utils';
 
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
 import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
@@ -28,6 +29,7 @@ import {
   removeFileExtension,
 } from '../../utils/fileManagement.js';
 import { getLastLoaded, isLastLoadedProject, setLastLoaded } from '../app-state-service/AppStateService.js';
+import { auxTimerService } from '../aux-timer-service/AuxTimerService.js';
 import { runtimeService } from '../runtime-service/runtime.service.js';
 import {
   doesProjectExist,
@@ -88,12 +90,16 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
   // stop the runtime service
   runtimeService.stop();
 
+  // the aux timer names belong to the project, apply the ones from the newly loaded project
+  auxTimerService.loadNames(projectData.settings.auxTimerNames);
+
   // load the rundown given by key otherwise load the first in the project
   const rundown =
     rundownId && rundownId in projectData.rundowns
       ? projectData.rundowns[rundownId]
       : getFirstRundown(projectData.rundowns);
 
+  // initialising the rundown with reload sends a refetch to the clients
   await initRundown(rundown, projectData.customFields, true);
 
   // persist the project selection
@@ -345,6 +351,12 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
 
   // we can pass some stuff straight to the data provider
   await getDataProvider().mergeIntoData(rest);
+
+  // the settings may contain new aux timer names, apply them and notify the clients
+  if (rest.settings) {
+    auxTimerService.loadNames(getDataProvider().getSettings().auxTimerNames);
+    sendRefetch(RefetchKey.Settings);
+  }
 
   // the rundown depends on custom fields
   // so custom fields needs to be checked first

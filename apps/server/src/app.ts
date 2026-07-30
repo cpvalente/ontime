@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import { LogOrigin, SimpleDirection, SimplePlayback, runtimeStorePlaceholder } from 'ontime-types';
+import { normaliseAuxTimerNames } from 'ontime-utils';
 import serverTiming from 'server-timing';
 
 import { oscServer } from './adapters/OscAdapter.js';
@@ -205,7 +206,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
    * Module initialises the services and provides initial payload for the store
    */
   const state = getState();
-  const { auxTimerNames } = getDataProvider().getSettings();
+  const auxTimerNames = normaliseAuxTimerNames(getDataProvider().getSettings().auxTimerNames);
   eventStore.init({
     clock: state.clock,
     timer: state.timer,

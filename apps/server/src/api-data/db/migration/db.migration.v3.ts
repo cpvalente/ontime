@@ -23,6 +23,7 @@ import {
   customFieldLabelToKey,
   eventDef as eventModel,
   isKnownTimerType,
+  normaliseAuxTimerNames,
   validateEndAction,
 } from 'ontime-utils';
 
@@ -74,7 +75,15 @@ export function migrateSettings(jsonData: object): (Settings & { serverPort: num
     const { serverPort, editorKey, operatorKey, timeFormat, language } = structuredClone(
       jsonData.settings,
     ) as old_Settings;
-    return { version: '4.0.0', serverPort, editorKey, operatorKey, timeFormat, language, auxTimerNames: ['', '', ''] };
+    return {
+      version: '4.0.0',
+      serverPort,
+      editorKey,
+      operatorKey,
+      timeFormat,
+      language,
+      auxTimerNames: normaliseAuxTimerNames(),
+    };
   }
 }
 

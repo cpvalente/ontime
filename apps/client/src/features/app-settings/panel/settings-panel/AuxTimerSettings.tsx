@@ -1,4 +1,5 @@
 import { Settings } from 'ontime-types';
+import { auxTimerNameMaxLength, numberOfAuxTimers } from 'ontime-utils';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -11,7 +12,8 @@ import useSettings from '../../../../common/hooks-query/useSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
 
-const auxTimerIndexes = [1, 2, 3];
+/** zero based index of each aux timer, used to address the auxTimerNames array */
+const auxTimerIndexes = Array.from({ length: numberOfAuxTimers }, (_, index) => index);
 
 export default function AuxTimerSettings() {
   const { data, status, refetch } = useSettings();
@@ -79,8 +81,12 @@ export default function AuxTimerSettings() {
           <Panel.ListGroup>
             {auxTimerIndexes.map((index) => (
               <Panel.ListItem key={index}>
-                <Panel.Field title={`Aux timer ${index}`} description={`Custom name for aux timer ${index}`} />
-                <Input maxLength={30} placeholder={`Aux ${index}`} {...register(`auxTimerNames.${index - 1}`)} />
+                <Panel.Field title={`Aux timer ${index + 1}`} description={`Custom name for aux timer ${index + 1}`} />
+                <Input
+                  maxLength={auxTimerNameMaxLength}
+                  placeholder={`Aux ${index + 1}`}
+                  {...register(`auxTimerNames.${index}`)}
+                />
               </Panel.ListItem>
             ))}
           </Panel.ListGroup>

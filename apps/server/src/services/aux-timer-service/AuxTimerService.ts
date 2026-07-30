@@ -1,4 +1,5 @@
 import { RuntimeStore, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { normaliseAuxTimerNames } from 'ontime-utils';
 
 import { SimpleTimer } from '../../classes/simple-timer/SimpleTimer.js';
 import { timerConfig } from '../../setup/config.js';
@@ -26,14 +27,16 @@ export class AuxTimerService {
 
   /**
    * Applies custom names to the aux timers and broadcasts the change.
-   * Names are indexed by aux timer position (0 -> aux1, 1 -> aux2, 2 -> aux3).
-   * Used to seed the names at bootstrap and to keep them in sync with the settings.
+   * Names are given in aux timer order (index 0 is aux timer 1).
+   * Used to seed the names at bootstrap and to keep them in sync
+   * with the settings of the loaded project.
    */
-  loadNames(names: string[]) {
+  loadNames(names?: string[]) {
+    const [name1, name2, name3] = normaliseAuxTimerNames(names);
     const patch: AuxTimerStateUpdate = {
-      auxtimer1: this.aux1.setName(names[0] ?? ''),
-      auxtimer2: this.aux2.setName(names[1] ?? ''),
-      auxtimer3: this.aux3.setName(names[2] ?? ''),
+      auxtimer1: this.aux1.setName(name1),
+      auxtimer2: this.aux2.setName(name2),
+      auxtimer3: this.aux3.setName(name3),
     };
     this.emit(patch);
   }

@@ -1,4 +1,5 @@
 import { DatabaseModel, OntimeView } from 'ontime-types';
+import { normaliseAuxTimerNames } from 'ontime-utils';
 
 import { backstageRundown, broadcastRundown, stageRundown } from './demoRundowns.js';
 
@@ -29,7 +30,7 @@ export const demoDb: DatabaseModel = {
     operatorKey: null,
     timeFormat: '24',
     language: 'en',
-    auxTimerNames: ['', '', ''],
+    auxTimerNames: normaliseAuxTimerNames(),
   },
   viewSettings: {
     dangerColor: '#ff7300',

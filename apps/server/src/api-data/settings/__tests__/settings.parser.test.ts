@@ -33,4 +33,21 @@ describe('parseSettings()', () => {
     });
     expect(result.auxTimerNames).toStrictEqual(['', '', '']);
   });
+
+  it('creates the aux timer names for project files made before the feature existed', () => {
+    // a settings object as found in a project file which predates aux timer naming
+    const oldSettings = {
+      version: '4.5.0',
+      editorKey: null,
+      operatorKey: null,
+      timeFormat: '24',
+      language: 'en',
+    };
+
+    const result = parseSettings({ settings: oldSettings as Settings });
+
+    expect(result.auxTimerNames).toStrictEqual(['', '', '']);
+    // the rest of the settings are untouched
+    expect(result).toMatchObject({ timeFormat: '24', language: 'en' });
+  });
 });

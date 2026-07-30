@@ -1,4 +1,5 @@
 import { body } from 'express-validator';
+import { normaliseAuxTimerNames } from 'ontime-utils';
 
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
@@ -30,11 +31,8 @@ export const validateSettings = [
   body('auxTimerNames')
     .isArray()
     .withMessage('auxTimerNames must be an array')
-    .customSanitizer((value: unknown) => {
-      // normalise to a fixed-length array of trimmed strings
-      const source = Array.isArray(value) ? value : [];
-      return [0, 1, 2].map((index) => (typeof source[index] === 'string' ? source[index].trim() : ''));
-    }),
+    // normalise to a fixed length array of trimmed, length capped strings
+    .customSanitizer(normaliseAuxTimerNames),
 
   requestValidationFunction,
 ];

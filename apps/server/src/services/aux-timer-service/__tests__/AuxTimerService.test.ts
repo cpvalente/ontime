@@ -28,6 +28,18 @@ describe('AuxTimerService', () => {
       expect(patch.auxtimer3?.name).toBe('');
     });
 
+    it('handles names missing from a project file', () => {
+      const emit = vi.fn();
+      const service = new AuxTimerService(emit, () => 0);
+
+      expect(() => service.loadNames(undefined)).not.toThrow();
+
+      const patch = emit.mock.calls.at(-1)?.[0] as Partial<RuntimeStore>;
+      expect(patch.auxtimer1?.name).toBe('');
+      expect(patch.auxtimer2?.name).toBe('');
+      expect(patch.auxtimer3?.name).toBe('');
+    });
+
     it('keeps the name on the timer through subsequent commands', () => {
       const emit = vi.fn();
       const service = new AuxTimerService(emit, () => 0);

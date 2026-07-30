@@ -1,5 +1,5 @@
 import { DatabaseModel, Rundown } from 'ontime-types';
-import { generateId } from 'ontime-utils';
+import { generateId, normaliseAuxTimerNames } from 'ontime-utils';
 
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
@@ -30,7 +30,7 @@ const dbModel: DatabaseModel = {
     operatorKey: null,
     timeFormat: '24',
     language: 'en',
-    auxTimerNames: ['', '', ''],
+    auxTimerNames: normaliseAuxTimerNames(),
   },
   viewSettings: {
     overrideStyles: false,
