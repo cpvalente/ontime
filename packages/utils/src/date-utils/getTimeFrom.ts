@@ -17,17 +17,11 @@ export function getTimeFrom(
   const normalisedCurrentStart = current.timeStart + current.dayOffset * dayInMs;
   const normalisedPreviousEnd = previous.timeStart + previous.duration + previous.dayOffset * dayInMs;
 
-  // event is linked to previous
-  if (normalisedCurrentStart === normalisedPreviousEnd) {
-    return 0;
-  }
-
-  // event has a gap from previous
-  if (normalisedCurrentStart > normalisedPreviousEnd) {
-    // time from previous is difference between start and previous end
-    return normalisedCurrentStart - normalisedPreviousEnd;
-  }
-
-  // event overlaps with previous
+  /**
+   * The distance between the current start and the previous end
+   * - positive: there is a gap between the events
+   * - zero: the current event starts on the previous end
+   * - negative: the events overlap
+   */
   return normalisedCurrentStart - normalisedPreviousEnd;
 }

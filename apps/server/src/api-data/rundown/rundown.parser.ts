@@ -309,18 +309,15 @@ function processEntry<T extends OntimeEntry>(
 
       entry.gap = getTimeFrom(entry, rundownMetadata.latestEvent);
 
-      if (entry.gap === 0) {
-        // event starts on previous finish, we add its duration
-        rundownMetadata.totalDuration += entry.duration;
-      } else if (entry.gap > 0) {
-        // event has a gap, we add the gap and the duration
-        rundownMetadata.totalDuration += entry.gap + entry.duration;
-      } else {
-        // there is an overlap, we remove the overlap from the duration
-        // ensuring that the sum is not negative (ie: fully overlapped events)
-        // NOTE: we add the gap since it is a negative number
-        rundownMetadata.totalDuration += Math.max(entry.duration + entry.gap, 0);
-      }
+      /**
+       * The rundown duration is the union of all event intervals, so each event
+       * only contributes the time it pushes past the latest event so far.
+       * - gap >= 0: the event contributes its gap plus its full duration
+       * - gap < 0: the event overlaps, only the part after the latest end counts
+       *   (clamped at 0 for events which are fully contained in a previous one)
+       * NOTE: gap is negative on overlap, so adding it removes the overlapping part
+       */
+      rundownMetadata.totalDuration += Math.max(entry.duration + entry.gap, 0);
 
       // remove eventual gaps from the accumulated delay
       // we only affect positive delays (time forwards)

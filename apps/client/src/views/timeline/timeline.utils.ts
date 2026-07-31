@@ -152,13 +152,10 @@ export function computeScopedRundown(
 
     const timeFromPrevious: number = getTimeFrom(currentEntry, lastEntry);
 
-    if (timeFromPrevious === 0) {
-      totalDuration += currentEntry.duration;
-    } else if (timeFromPrevious > 0) {
-      totalDuration += timeFromPrevious + currentEntry.duration;
-    } else if (timeFromPrevious < 0) {
-      totalDuration += Math.max(currentEntry.duration + timeFromPrevious, 0);
-    }
+    // each event only contributes the time it pushes past the latest event so far
+    // NOTE: timeFromPrevious is negative on overlap, so adding it removes the overlapping part
+    totalDuration += Math.max(currentEntry.duration + timeFromPrevious, 0);
+
     if (isNewLatest(currentEntry, lastEntry)) {
       lastEntry = currentEntry;
     }
