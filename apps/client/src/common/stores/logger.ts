@@ -15,11 +15,14 @@ const logger = createStore<LogStore>(() => ({
   logs: [],
 }));
 
+/** the log is kept in memory, we cap it to avoid it growing through a long show */
+const maxLogEntries = 500;
+
 export const useLogData = () => useStore(logger);
 
 export const addLog = (log: Log) =>
   logger.setState((state) => ({
-    logs: [log, ...state.logs],
+    logs: [log, ...state.logs].slice(0, maxLogEntries),
   }));
 
 export const clearLogs = () => logger.setState({ logs: [] });

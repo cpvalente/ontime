@@ -1,114 +1,89 @@
-import { LogOrigin } from 'ontime-types';
+import { LogLevel, LogOrigin } from 'ontime-types';
 import { useCallback, useState } from 'react';
 import { IoClose } from 'react-icons/io5';
 
 import Button from '../../common/components/buttons/Button';
+import Input from '../../common/components/input/input/Input';
 import { clearLogs, useLogData } from '../../common/stores/logger';
 import * as Panel from '../app-settings/panel-utils/PanelUtils';
 
 import style from './Log.module.scss';
 
+const allOrigins = [
+  LogOrigin.User,
+  LogOrigin.Client,
+  LogOrigin.Server,
+  LogOrigin.Playback,
+  LogOrigin.Rx,
+  LogOrigin.Tx,
+];
+
 export default function Log() {
   const { logs: logData } = useLogData();
 
-  const [showClient, setShowClient] = useState(true);
-  const [showServer, setShowServer] = useState(true);
-  const [showRx, setShowRx] = useState(true);
-  const [showTx, setShowTx] = useState(true);
-  const [showPlayback, setShowPlayback] = useState(true);
-  const [showUser, setShowUser] = useState(true);
+  // log entries are not guaranteed to have an origin from the enum
+  const [origins, setOrigins] = useState<Set<string>>(() => new Set<string>(allOrigins));
+  const [onlyProblems, setOnlyProblems] = useState(false);
+  const [search, setSearch] = useState('');
 
-  const matchers: LogOrigin[] = [];
-  if (showUser) {
-    matchers.push(LogOrigin.User);
-  }
-  if (showClient) {
-    matchers.push(LogOrigin.Client);
-  }
-  if (showServer) {
-    matchers.push(LogOrigin.Server);
-  }
-  if (showRx) {
-    matchers.push(LogOrigin.Rx);
-  }
-  if (showTx) {
-    matchers.push(LogOrigin.Tx);
-  }
-  if (showPlayback) {
-    matchers.push(LogOrigin.Playback);
-  }
-
-  const filteredData = logData.filter((entry) => matchers.some((match) => entry.origin === match));
-
-  const disableOthers = useCallback((toEnable: LogOrigin) => {
-    setShowUser(toEnable === LogOrigin.User);
-    setShowClient(toEnable === LogOrigin.Client);
-    setShowServer(toEnable === LogOrigin.Server);
-    setShowRx(toEnable === LogOrigin.Rx);
-    setShowTx(toEnable === LogOrigin.Tx);
-    setShowPlayback(toEnable === LogOrigin.Playback);
+  const toggleOrigin = useCallback((origin: LogOrigin) => {
+    setOrigins((previous) => {
+      const newOrigins = new Set(previous);
+      if (newOrigins.has(origin)) {
+        newOrigins.delete(origin);
+      } else {
+        newOrigins.add(origin);
+      }
+      return newOrigins;
+    });
   }, []);
+
+  /** middle click on an origin shows only that origin */
+  const showOnlyOrigin = useCallback((origin: LogOrigin) => {
+    setOrigins(new Set([origin]));
+  }, []);
+
+  const searchTerm = search.toLowerCase();
+  const filteredData = logData.filter((entry) => {
+    if (!origins.has(entry.origin)) return false;
+    if (onlyProblems && entry.level === LogLevel.Info) return false;
+    if (searchTerm && !entry.text.toLowerCase().includes(searchTerm)) return false;
+    return true;
+  });
+
+  const isFiltered = filteredData.length !== logData.length;
 
   return (
     <>
       <Panel.InlineElements className={style.buttonBar}>
+        {allOrigins.map((origin) => (
+          <Button
+            key={origin}
+            variant={origins.has(origin) ? 'primary' : 'subtle'}
+            size='small'
+            onClick={() => toggleOrigin(origin)}
+            onAuxClick={() => showOnlyOrigin(origin)}
+            onContextMenu={(event) => event.preventDefault()}
+          >
+            {origin}
+          </Button>
+        ))}
         <Button
-          variant={showUser ? 'primary' : 'subtle'}
+          variant={onlyProblems ? 'primary' : 'subtle'}
           size='small'
-          onClick={() => setShowUser((s) => !s)}
-          onAuxClick={() => disableOthers(LogOrigin.User)}
-          onContextMenu={(e) => e.preventDefault()}
+          onClick={() => setOnlyProblems((previous) => !previous)}
         >
-          {LogOrigin.User}
-        </Button>
-        <Button
-          variant={showClient ? 'primary' : 'subtle'}
-          size='small'
-          onClick={() => setShowClient((s) => !s)}
-          onAuxClick={() => disableOthers(LogOrigin.Client)}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          {LogOrigin.Client}
-        </Button>
-        <Button
-          variant={showServer ? 'primary' : 'subtle'}
-          size='small'
-          onClick={() => setShowServer((s) => !s)}
-          onAuxClick={() => disableOthers(LogOrigin.Server)}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          {LogOrigin.Server}
-        </Button>
-        <Button
-          variant={showPlayback ? 'primary' : 'subtle'}
-          size='small'
-          onClick={() => setShowPlayback((s) => !s)}
-          onAuxClick={() => disableOthers(LogOrigin.Playback)}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          {LogOrigin.Playback}
-        </Button>
-        <Button
-          variant={showRx ? 'primary' : 'subtle'}
-          size='small'
-          onClick={() => setShowRx((s) => !s)}
-          onAuxClick={() => disableOthers(LogOrigin.Rx)}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          {LogOrigin.Rx}
-        </Button>
-        <Button
-          variant={showTx ? 'primary' : 'subtle'}
-          size='small'
-          onClick={() => setShowTx((s) => !s)}
-          onAuxClick={() => disableOthers(LogOrigin.Tx)}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          {LogOrigin.Tx}
+          Issues only
         </Button>
         <Button variant='subtle-destructive' size='small' onClick={clearLogs} className={style.apart}>
           <IoClose /> Clear
         </Button>
+      </Panel.InlineElements>
+      <Panel.InlineElements className={style.buttonBar}>
+        <Input fluid placeholder='Filter messages' value={search} onChange={(event) => setSearch(event.target.value)} />
+        <span className={style.count}>
+          {isFiltered ? `${filteredData.length} of ${logData.length}` : logData.length} entries
+        </span>
       </Panel.InlineElements>
       <ul className={style.log}>
         {filteredData.map((logEntry) => (
@@ -118,6 +93,9 @@ export default function Log() {
             <span className={style.msg}>{logEntry.text}</span>
           </li>
         ))}
+        {filteredData.length === 0 && (
+          <li className={style.empty}>{logData.length === 0 ? 'No activity yet' : 'No entries match the filters'}</li>
+        )}
       </ul>
     </>
   );

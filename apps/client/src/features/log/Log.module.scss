@@ -51,3 +51,13 @@ $info-hover: $section-white;
   flex-wrap: wrap;
   padding-bottom: 0.5rem;
 }
+
+.count {
+  color: $info-gray;
+  white-space: nowrap;
+}
+
+.empty {
+  color: $info-gray;
+  padding: 0.5rem 0;
+}

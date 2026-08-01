@@ -19,10 +19,13 @@ export default function LogExport() {
         <Panel.SubHeader>
           Event log
           <Button onClick={extract}>
-            Extract <IoArrowUp className={style.iconRotate} />
+            Open in new window <IoArrowUp className={style.iconRotate} />
           </Button>
         </Panel.SubHeader>
         <Panel.Divider />
+        <Panel.Paragraph>
+          Activity in this session. The log is not saved with the project and is cleared when Ontime restarts.
+        </Panel.Paragraph>
         <Log />
       </Panel.Card>
     </Panel.Section>
