@@ -8,7 +8,7 @@ import { viewsSettingsPlaceholder } from '../models/ViewSettings.type';
 import { deriveQueryStatus } from '../utils/queryUtils';
 
 export default function useViewSettings() {
-  const { data, status } = useQuery({
+  const { data, status, isLoadingError } = useQuery({
     queryKey: VIEW_SETTINGS,
     queryFn: ({ signal }) => getViewSettings({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
@@ -25,5 +25,5 @@ export default function useViewSettings() {
     },
   });
 
-  return { data: data ?? viewsSettingsPlaceholder, status: deriveQueryStatus(status, data), mutateAsync };
+  return { data: data ?? viewsSettingsPlaceholder, status: deriveQueryStatus(status, isLoadingError), mutateAsync };
 }

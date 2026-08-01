@@ -7,14 +7,20 @@ import { projectDataPlaceholder } from '../models/ProjectData';
 import { deriveQueryStatus } from '../utils/queryUtils';
 
 export default function useProjectData() {
-  const { data, status, isFetching, isError, refetch } = useQuery({
+  const { data, status, isFetching, isError, isLoadingError, refetch } = useQuery({
     queryKey: PROJECT_DATA,
     queryFn: ({ signal }) => getProjectData({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
     refetchInterval: queryRefetchIntervalSlow,
   });
 
-  return { data: data ?? projectDataPlaceholder, status: deriveQueryStatus(status, data), isFetching, isError, refetch };
+  return {
+    data: data ?? projectDataPlaceholder,
+    status: deriveQueryStatus(status, isLoadingError),
+    isFetching,
+    isError,
+    refetch,
+  };
 }
 
 export function useUpdateProjectData() {

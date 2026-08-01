@@ -7,7 +7,7 @@ import { ontimePlaceholderSettings } from '../models/OntimeSettings';
 import { deriveQueryStatus } from '../utils/queryUtils';
 
 export default function useSettings() {
-  const { data, status, isFetching, isError, refetch } = useQuery({
+  const { data, status, isFetching, isError, isLoadingError, refetch } = useQuery({
     queryKey: APP_SETTINGS,
     queryFn: ({ signal }) => getSettings({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
@@ -23,5 +23,11 @@ export default function useSettings() {
     },
   });
 
-  return { data: data ?? ontimePlaceholderSettings, status: deriveQueryStatus(status, data), isFetching, isError, refetch };
+  return {
+    data: data ?? ontimePlaceholderSettings,
+    status: deriveQueryStatus(status, isLoadingError),
+    isFetching,
+    isError,
+    refetch,
+  };
 }

@@ -1,16 +1,14 @@
 import { deriveQueryStatus } from '../queryUtils';
 
 test('keeps pending and success statuses unchanged', () => {
-  expect(deriveQueryStatus('pending', undefined)).toBe('pending');
-  expect(deriveQueryStatus('success', { some: 'data' })).toBe('success');
+  expect(deriveQueryStatus('pending', false)).toBe('pending');
+  expect(deriveQueryStatus('success', false)).toBe('success');
 });
 
-test('keeps error status when there is no data', () => {
-  expect(deriveQueryStatus('error', undefined)).toBe('error');
+test('keeps error status on a genuine loading error (no data ever received)', () => {
+  expect(deriveQueryStatus('error', true)).toBe('error');
 });
 
-test('downgrades error to success when data is still available', () => {
-  expect(deriveQueryStatus('error', { some: 'data' })).toBe('success');
-  expect(deriveQueryStatus('error', [])).toBe('success');
-  expect(deriveQueryStatus('error', 0)).toBe('success');
+test('downgrades error to success on a refetch error (data still available)', () => {
+  expect(deriveQueryStatus('error', false)).toBe('success');
 });

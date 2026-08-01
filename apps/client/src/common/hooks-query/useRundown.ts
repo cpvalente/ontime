@@ -33,7 +33,7 @@ export default function useRundown() {
     data: { loaded: loadedRundownId },
   } = useProjectRundowns();
 
-  const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
+  const { data, status, isError, isLoadingError, refetch, isFetching } = useQuery<Rundown>({
     queryKey: loadedRundownId ? getRundownQueryKey(loadedRundownId) : CURRENT_RUNDOWN_QUERY_KEY,
     queryFn: ({ signal }) => fetchCurrentRundown({ signal }),
     refetchInterval: queryRefetchIntervalSlow,
@@ -51,7 +51,13 @@ export default function useRundown() {
     queryClient.removeQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
   }, [loadedRundownId, queryClient]);
 
-  return { data: data ?? cachedRundownPlaceholder, status: deriveQueryStatus(status, data), isError, refetch, isFetching };
+  return {
+    data: data ?? cachedRundownPlaceholder,
+    status: deriveQueryStatus(status, isLoadingError),
+    isError,
+    refetch,
+    isFetching,
+  };
 }
 
 export function useRundownWithMetadata() {
@@ -128,7 +134,7 @@ export function useRundownAuxData() {
 export function useRundownById(rundownId: string | null | undefined) {
   const enabled = Boolean(rundownId);
 
-  const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
+  const { data, status, isError, isLoadingError, refetch, isFetching } = useQuery<Rundown>({
     queryKey: getRundownQueryKey(rundownId ?? ''),
     queryFn: ({ signal }) => fetchRundown(rundownId!, { signal }),
     enabled,
@@ -136,5 +142,11 @@ export function useRundownById(rundownId: string | null | undefined) {
     refetchInterval: queryRefetchIntervalSlow,
   });
 
-  return { data: data ?? cachedRundownPlaceholder, status: deriveQueryStatus(status, data), isError, refetch, isFetching };
+  return {
+    data: data ?? cachedRundownPlaceholder,
+    status: deriveQueryStatus(status, isLoadingError),
+    isError,
+    refetch,
+    isFetching,
+  };
 }

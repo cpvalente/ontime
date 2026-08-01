@@ -9,12 +9,12 @@ import { deriveQueryStatus } from '../utils/queryUtils';
 const placeholder: CustomFields = {};
 
 export default function useCustomFields() {
-  const { data, status, isFetching, isError, refetch } = useQuery({
+  const { data, status, isFetching, isError, isLoadingError, refetch } = useQuery({
     queryKey: CUSTOM_FIELDS,
     queryFn: ({ signal }) => getCustomFields({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
     refetchInterval: queryRefetchIntervalSlow,
   });
 
-  return { data: data ?? placeholder, status: deriveQueryStatus(status, data), isFetching, isError, refetch };
+  return { data: data ?? placeholder, status: deriveQueryStatus(status, isLoadingError), isFetching, isError, refetch };
 }
