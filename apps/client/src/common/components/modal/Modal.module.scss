@@ -5,7 +5,6 @@
   transform: translateX(-50%);
 
   box-sizing: border-box;
-  width: min(880px, 90vw);
   min-height: min(200px, 10vh);
   max-height: calc(90vh - 1rem);
 
@@ -20,13 +19,17 @@
   outline: none;
 }
 
+/* size scale: every modal carries exactly one of these */
+
+.default {
+  width: min(880px, 90vw);
+}
+
 .compact {
-  min-width: 0;
   width: min(680px, 90vw);
 }
 
 .small {
-  min-width: 0;
   width: min(480px, 90vw);
 }
 

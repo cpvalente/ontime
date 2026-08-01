@@ -1,5 +1,5 @@
 import { NormalisedAutomation, Trigger } from 'ontime-types';
-import { Fragment, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
 
 import { deleteTrigger } from '../../../../common/api/automation';
@@ -112,24 +112,23 @@ export default function TriggersList(props: TriggersListProps) {
               )}
               {triggers.map((trigger, index) => {
                 return (
-                  <Fragment key={trigger.id}>
-                    <TriggersListItem
-                      automations={automations}
-                      trigger={trigger}
-                      duplicate={duplicates?.includes(index)}
-                      handleEdit={() => openEditForm(trigger)}
-                      handleDelete={() => handleDelete(trigger.id)}
-                    />
-                    {deleteError && (
-                      <tr>
-                        <td colSpan={5}>
-                          <Panel.Error>{deleteError}</Panel.Error>
-                        </td>
-                      </tr>
-                    )}
-                  </Fragment>
+                  <TriggersListItem
+                    key={trigger.id}
+                    automations={automations}
+                    trigger={trigger}
+                    duplicate={duplicates?.includes(index)}
+                    handleEdit={() => openEditForm(trigger)}
+                    handleDelete={() => handleDelete(trigger.id)}
+                  />
                 );
               })}
+              {deleteError && (
+                <tr>
+                  <td colSpan={99}>
+                    <Panel.Error>{deleteError}</Panel.Error>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </Panel.Table>
         </Panel.Section>

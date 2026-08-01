@@ -137,12 +137,17 @@ export type SettingsOptionId =
   | (typeof staticOptions)[number]['id']
   | Extract<(typeof staticOptions)[number], { secondary: object }>['secondary'][number]['id'];
 
-export function matchesSettingsOptionQuery(option: SettingsOption, query: string): boolean {
-  const normalised = query.trim().toLowerCase();
-  if (option.label.toLowerCase().includes(normalised)) {
+/** Brings a user query to the shape the matcher expects */
+export function normaliseSettingsQuery(query: string): string {
+  return query.trim().toLowerCase();
+}
+
+/** Matches an option against an already normalised query */
+export function matchesSettingsOptionQuery(option: SettingsOption, normalisedQuery: string): boolean {
+  if (option.label.toLowerCase().includes(normalisedQuery)) {
     return true;
   }
-  return Boolean(option.keywords?.some((keyword) => keyword.toLowerCase().includes(normalised)));
+  return Boolean(option.keywords?.some((keyword) => keyword.toLowerCase().includes(normalisedQuery)));
 }
 
 /**
@@ -150,7 +155,7 @@ export function matchesSettingsOptionQuery(option: SettingsOption, query: string
  * A group is kept if it matches itself (with all its children) or if any of its children match.
  */
 export function filterSettingsOptions(options: Readonly<SettingsOption[]>, query: string): SettingsOption[] {
-  const normalised = query.trim().toLowerCase();
+  const normalised = normaliseSettingsQuery(query);
   if (!normalised) {
     return [...options];
   }

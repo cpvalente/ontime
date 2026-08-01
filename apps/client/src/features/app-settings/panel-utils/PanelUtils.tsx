@@ -103,7 +103,7 @@ export function Field({
   descriptionTone = 'default',
 }: {
   title: ReactNode;
-  description: ReactNode;
+  description?: ReactNode;
   error?: string;
   descriptionTone?: 'default' | 'warning';
 }) {

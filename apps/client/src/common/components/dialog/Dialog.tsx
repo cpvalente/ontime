@@ -2,6 +2,7 @@ import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import type { ReactNode } from 'react';
 import { IoClose } from 'react-icons/io5';
 
+import { useRegisterOverlay } from '../../stores/overlayStore';
 import IconButton from '../buttons/IconButton';
 
 import style from './Dialog.module.scss';
@@ -25,6 +26,8 @@ export default function Dialog({
   footerElements,
   onClose,
 }: DialogProps) {
+  useRegisterOverlay(isOpen);
+
   return (
     <BaseDialog.Root
       open={isOpen}

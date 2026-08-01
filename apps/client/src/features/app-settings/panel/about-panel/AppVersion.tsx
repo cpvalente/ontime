@@ -9,7 +9,7 @@ export default function AppVersion() {
   if (isError) {
     return (
       <Panel.ListItem>
-        <Panel.Field title={`Ontime ${appVersion}`} description='' error='Could not fetch version information' />
+        <Panel.Field title={`Ontime ${appVersion}`} error='Could not fetch version information' />
       </Panel.ListItem>
     );
   }

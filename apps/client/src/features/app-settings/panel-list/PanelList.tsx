@@ -7,6 +7,7 @@ import * as Panel from '../panel-utils/PanelUtils';
 import {
   filterSettingsOptions,
   matchesSettingsOptionQuery,
+  normaliseSettingsQuery,
   SettingsOption,
   SettingsOptionId,
   useAppSettingsMenu,
@@ -25,13 +26,13 @@ interface PanelListProps extends PanelBaseProps {
 }
 
 /** Returns the first matching setting, preferring a matching child over its non-matching group. */
-function getFirstResultId(results: SettingsOption[], query: string): SettingsOptionId | null {
+function getFirstResultId(results: SettingsOption[], normalisedQuery: string): SettingsOptionId | null {
   const firstResult = results[0];
   if (!firstResult) {
     return null;
   }
 
-  if (matchesSettingsOptionQuery(firstResult, query.trim().toLowerCase())) {
+  if (matchesSettingsOptionQuery(firstResult, normalisedQuery)) {
     return firstResult.id as SettingsOptionId;
   }
 
@@ -43,10 +44,11 @@ export default function PanelList({ selectedPanel, location }: PanelListProps) {
   const { setLocation } = useAppSettingsNavigation();
   const [query, setQuery] = useState('');
 
-  const results = filterSettingsOptions(options, query);
+  const normalisedQuery = normaliseSettingsQuery(query);
+  const results = filterSettingsOptions(options, normalisedQuery);
 
   const handleSearchSubmit = () => {
-    const target = getFirstResultId(results, query);
+    const target = getFirstResultId(results, normalisedQuery);
     if (target) {
       setLocation(target);
       setQuery('');

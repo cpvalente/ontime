@@ -4,6 +4,8 @@
   border-radius: 2px;
   padding: 0 0.25rem;
   white-space: nowrap;
+  // reserved so variants that draw a border do not resize the tag
+  border: 1px solid transparent;
 }
 
 .default {
@@ -12,7 +14,7 @@
 }
 
 .active {
-  border: 1px solid $green-700;
+  border-color: $green-700;
   color: $green-400;
 }
 
