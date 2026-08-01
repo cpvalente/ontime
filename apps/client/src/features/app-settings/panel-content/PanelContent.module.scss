@@ -1,9 +1,4 @@
-.corner {
-  position: fixed;
-  top: 6rem;
-  right: 4rem;
-  z-index: $zindex-floating;
-}
+$content-max-width: 1280px;
 
 .contentWrapper {
   display: flex;
@@ -14,9 +9,29 @@
   position: relative;
 }
 
+.corner {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  // width is needed so the button can align to the right of the capped
+  // column, auto margins alone would shrink this to fit and centre it
+  width: 100%;
+  max-width: $content-max-width;
+  margin-inline: auto;
+  padding: 0 1rem 0.5rem;
+  box-sizing: border-box;
+}
+
 .content {
-  margin: 1rem;
+  box-sizing: border-box;
+  // as with .corner, the width is needed to fill the capped column, otherwise
+  // auto margins shrink this to fit and each panel ends up its own width
+  width: 100%;
+  max-width: $content-max-width;
+  margin: 0 auto 1rem;
+  padding-inline: 1rem;
   overflow-y: auto;
   flex-grow: 1;
-  padding-bottom: 300px;
+  // room for the last section to scroll to the top of the viewport
+  padding-bottom: 40vh;
 }

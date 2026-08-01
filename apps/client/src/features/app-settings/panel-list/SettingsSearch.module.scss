@@ -1,0 +1,24 @@
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin: 0.25rem 1rem 0.25rem 0.25rem;
+}
+
+.icon {
+  position: absolute;
+  left: 0.5rem;
+  color: $gray-400;
+  pointer-events: none;
+}
+
+.input {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.clear {
+  position: absolute;
+  right: 0.25rem;
+}

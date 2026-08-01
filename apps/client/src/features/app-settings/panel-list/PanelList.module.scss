@@ -1,3 +1,13 @@
+.container {
+  width: min(30vw, 300px);
+  flex: 0 0 min(30vw, 300px);
+  min-width: min(30vw, 300px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow-y: auto;
+}
+
 .tabs,
 ul {
   list-style: none;
@@ -6,22 +16,20 @@ ul {
 }
 
 .tabs {
-  width: min(30vw, 300px);
-  flex: 0 0 min(30vw, 300px);
-  min-width: min(30vw, 300px);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
 }
 
 .primary,
 .secondary {
   padding: 0.25rem 1rem;
   margin-right: 1rem;
+  border-radius: 2px;
 
-  &:focus {
+  &:focus-visible {
     background-color: $gray-1000;
-    outline: 0;
+    outline: 2px solid $blue-500;
+    outline-offset: -2px;
   }
 
   &:hover {
@@ -32,14 +40,21 @@ ul {
 
 .primary {
   font-size: 1rem;
-  border-radius: 2px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  border-left: 3px solid transparent;
+
+  &.groupActive {
+    color: $blue-400;
+    font-weight: 600;
+  }
 
   &.active {
-    color: $blue-400;
-    background-color: $gray-1100;
+    color: $ui-white;
+    border-left-color: $blue-400;
+    background-color: rgba($blue-500, 0.16);
+    font-weight: 600;
   }
 
   &.highlight {
@@ -62,6 +77,9 @@ ul {
   font-size: $inner-section-text-size;
 
   &.active {
-    color: $blue-400;
+    color: $ui-white;
+    border-left-color: $blue-400;
+    background-color: rgba($blue-500, 0.16);
+    font-weight: 600;
   }
 }
