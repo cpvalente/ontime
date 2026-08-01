@@ -3,6 +3,7 @@ import { millisToString, parseUserTime } from 'ontime-utils';
 import { IoArrowDown, IoArrowUp, IoPause, IoPlay, IoStop } from 'react-icons/io5';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { setAuxTimer, useAuxTimerControl, useAuxTimerTime } from '../../../../common/hooks/useSocket';
 import { getAuxTimerIndexedLabel } from '../../../../common/utils/auxTimerUtils';
 import TapButton from '../tap-button/TapButton';
@@ -30,9 +31,9 @@ export function AuxTimer({ index }: AuxTimerProps) {
 
   return (
     <label className={style.label}>
-      <span className={style.labelText} title={label}>
+      <Tooltip text={label} render={<span />} className={style.labelText}>
         {label}
-      </span>
+      </Tooltip>
       <div className={style.controls}>
         <div className={style.input}>
           <AuxTimerInput index={index} isActive={isActive} placeholder={`Aux ${index}`} />
