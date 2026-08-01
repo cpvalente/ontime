@@ -9,6 +9,7 @@ import './MultiPartProgressBar.scss';
 interface MultiPartProgressBar {
   now: MaybeNumber;
   complete: MaybeNumber;
+  eventId?: string | null;
   normalColor: string;
   warning?: MaybeNumber;
   warningColor: string;
@@ -24,6 +25,7 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
   const {
     now,
     complete,
+    eventId,
     normalColor,
     warning,
     warningColor,
@@ -35,7 +37,7 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
     className = '',
   } = props;
 
-  const percentRemaining = 100 - useAnimatedProgress(now, complete);
+  const percentRemaining = 100 - useAnimatedProgress(now, complete, eventId);
   const dangerWidth = danger ? 100 - getProgress(danger, complete) : 0;
   const warningWidth = warning ? 100 - dangerWidth - getProgress(warning, complete) : 0;
   const isOvertime = now !== null && now < 0;

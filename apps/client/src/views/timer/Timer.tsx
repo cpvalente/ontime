@@ -195,6 +195,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
           className={cx(['progress-container', !isPlaying && 'progress-container--paused'])}
           now={time.current}
           complete={totalTime}
+          eventId={eventNow?.id}
           normalColor={viewSettings.normalColor}
           warning={eventNow?.timeWarning}
           warningColor={viewSettings.warningColor}
