@@ -15,6 +15,7 @@ export const RUNDOWN = ['rundown'];
 export const CURRENT_RUNDOWN_QUERY_KEY = ['rundown', 'current'];
 export const getRundownQueryKey = (rundownId: string) => ['rundown', rundownId];
 export const RUNTIME = ['runtimeStore'];
+export const SESSION_STATS = ['sessionStats'];
 export const URL_PRESETS = ['urlpresets'];
 export const VIEW_SETTINGS = ['viewSettings'];
 export const CSS_OVERRIDE = ['cssOverride'];

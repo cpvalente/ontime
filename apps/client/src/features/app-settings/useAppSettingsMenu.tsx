@@ -68,6 +68,10 @@ const staticOptions = [
     label: 'Network',
     secondary: [
       {
+        id: 'network__status',
+        label: 'Server status',
+      },
+      {
         id: 'network__interfaces',
         label: 'Network interfaces',
       },

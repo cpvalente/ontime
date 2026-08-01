@@ -1,10 +1,18 @@
 import axios from 'axios';
-import { GetInfo, LinkOptions } from 'ontime-types';
+import { GetInfo, LinkOptions, SessionStats } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 import type { RequestOptions } from './requestOptions';
 
 const sessionPath = `${apiEntryUrl}/session`;
+
+/**
+ * HTTP request to retrieve statistics of the running session
+ */
+export async function getSessionStats(options?: RequestOptions): Promise<SessionStats> {
+  const res = await axios.get(sessionPath, { signal: options?.signal });
+  return res.data;
+}
 
 /**
  * HTTP request to retrieve application info
