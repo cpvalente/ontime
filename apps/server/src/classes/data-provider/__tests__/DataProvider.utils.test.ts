@@ -81,6 +81,7 @@ describe('safeMerge', () => {
       editorKey: null,
       timeFormat: baseDb.settings.timeFormat,
       language: 'pt',
+      auxTimerNames: baseDb.settings.auxTimerNames,
     });
   });
 
