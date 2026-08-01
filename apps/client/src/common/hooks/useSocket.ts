@@ -103,6 +103,14 @@ export const useAuxTimersName = createSelector((state: RuntimeStore) => {
   };
 });
 
+export const useAuxTimersActive = createSelector((state: RuntimeStore) => {
+  return (
+    state.auxtimer1.playback === SimplePlayback.Start ||
+    state.auxtimer2.playback === SimplePlayback.Start ||
+    state.auxtimer3.playback === SimplePlayback.Start
+  );
+});
+
 export const useAuxTimerTime = (index: number) =>
   createSelector((state: RuntimeStore) => {
     if (index === 1) return state.auxtimer1.current;

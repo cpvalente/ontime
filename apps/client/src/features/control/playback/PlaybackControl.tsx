@@ -1,8 +1,9 @@
-import { IoSettingsOutline } from 'react-icons/io5';
+import { IoChevronDown, IoChevronUp, IoSettingsOutline } from 'react-icons/io5';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
-import { usePlaybackControl } from '../../../common/hooks/useSocket';
+import { useAuxTimersActive, usePlaybackControl } from '../../../common/hooks/useSocket';
+import { useEditorSettings } from '../../../common/stores/editorSettings';
 import useAppSettingsNavigation from '../../app-settings/useAppSettingsNavigation';
 import AddTime from './add-time/AddTime';
 import { AuxTimer } from './aux-timer/AuxTimer';
@@ -14,6 +15,8 @@ import style from './PlaybackControl.module.scss';
 export default function PlaybackControl() {
   const data = usePlaybackControl();
   const { setLocation } = useAppSettingsNavigation();
+  const { auxTimersCollapsed, setAuxTimersCollapsed } = useEditorSettings();
+  const isAuxTimerActive = useAuxTimersActive();
 
   return (
     <div className={style.mainContainer}>
@@ -27,26 +30,41 @@ export default function PlaybackControl() {
         timerPhase={data.timerPhase}
       />
       <div className={style.auxHeader}>
-        <span className={style.label}>Aux timers</span>
-        <Tooltip
-          text='Name aux timers'
-          render={
-            <IconButton
-              size='small'
-              variant='subtle'
-              aria-label='Name aux timers'
-              onClick={() => setLocation('settings__aux-timers')}
-            />
-          }
-        >
-          <IoSettingsOutline />
-        </Tooltip>
+        <span className={style.label}>
+          Aux timers
+          {auxTimersCollapsed && isAuxTimerActive && <span className={style.activeIndicator} />}
+        </span>
+        <div className={style.auxHeaderButtons}>
+          <Tooltip
+            text='Name aux timers'
+            render={
+              <IconButton
+                size='small'
+                variant='subtle-white'
+                aria-label='Name aux timers'
+                onClick={() => setLocation('settings__aux-timers')}
+              />
+            }
+          >
+            <IoSettingsOutline />
+          </Tooltip>
+          <IconButton
+            size='small'
+            variant='subtle-white'
+            aria-label={auxTimersCollapsed ? 'Expand aux timers' : 'Collapse aux timers'}
+            onClick={() => setAuxTimersCollapsed(!auxTimersCollapsed)}
+          >
+            {auxTimersCollapsed ? <IoChevronUp /> : <IoChevronDown />}
+          </IconButton>
+        </div>
       </div>
-      <div className={style.auxTimers}>
-        <AuxTimer index={1} />
-        <AuxTimer index={2} />
-        <AuxTimer index={3} />
-      </div>
+      {!auxTimersCollapsed && (
+        <div className={style.auxTimers}>
+          <AuxTimer index={1} />
+          <AuxTimer index={2} />
+          <AuxTimer index={3} />
+        </div>
+      )}
     </div>
   );
 }
