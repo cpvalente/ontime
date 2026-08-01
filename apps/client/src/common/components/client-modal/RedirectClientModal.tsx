@@ -102,14 +102,13 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
                     if (value === null) return;
                     setSelected(value);
                   }}
-                  disabled={enabledPresets.length === 0}
                 />
               </label>
               <Button
                 variant='primary'
                 aria-label='Redirect to preset'
                 className={style.redirect}
-                disabled={enabledPresets.length === 0 || selected === '/'}
+                disabled={selected === '/' || selected === currentPath}
                 onClick={() => handleRedirect(selected)}
               >
                 Redirect <IoArrowForward />

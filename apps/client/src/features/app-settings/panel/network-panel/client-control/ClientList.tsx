@@ -1,17 +1,35 @@
 import { useDisclosure } from '@mantine/hooks';
 import { Client } from 'ontime-types';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import Button from '../../../../../common/components/buttons/Button';
 import { RedirectClientModal } from '../../../../../common/components/client-modal/RedirectClientModal';
 import { RenameClientModal } from '../../../../../common/components/client-modal/RenameClientModal';
+import CopyTag from '../../../../../common/components/copy-tag/CopyTag';
 import Tag from '../../../../../common/components/tag/Tag';
+import Tooltip from '../../../../../common/components/tooltip/Tooltip';
 import { setClientRemote } from '../../../../../common/hooks/useSocket';
 import { useClientStore } from '../../../../../common/stores/clientStore';
+import { openLink } from '../../../../../common/utils/linkUtils';
 import { cx } from '../../../../../common/utils/styleUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import style from './ClientControlPanel.module.scss';
+
+type ClientEntry = [string, Client];
+
+/**
+ * Clients arrive in whatever order the server broadcast them, which shuffles rows
+ * whenever a client reconnects. We keep the current client pinned to the top and
+ * sort the rest by name so rows stay where the user last saw them.
+ */
+function sortClients(clients: ClientEntry[], selfId: string): ClientEntry[] {
+  return [...clients].sort(([keyA, clientA], [keyB, clientB]) => {
+    if (keyA === selfId) return -1;
+    if (keyB === selfId) return 1;
+    return clientA.name.localeCompare(clientB.name);
+  });
+}
 
 export default function ClientList() {
   const id = useClientStore((store) => store.id);
@@ -32,8 +50,19 @@ export default function ClientList() {
     redirectHandler.open();
   };
 
-  const ontimeClients = Object.entries(clients).filter(([_, { type }]) => type === 'ontime');
-  const otherClients = Object.entries(clients).filter(([_, { type }]) => type !== 'ontime');
+  const { ontimeClients, otherClients } = useMemo(() => {
+    const entries = Object.entries(clients);
+    return {
+      ontimeClients: sortClients(
+        entries.filter(([_, { type }]) => type === 'ontime'),
+        id,
+      ),
+      otherClients: sortClients(
+        entries.filter(([_, { type }]) => type !== 'ontime'),
+        id,
+      ),
+    };
+  }, [clients, id]);
 
   const targetClient: Client | undefined = clients[targetId];
 
@@ -59,54 +88,84 @@ export default function ClientList() {
       )}
       <Panel.Section>
         <Panel.Title>Ontime Clients ({ontimeClients.length})</Panel.Title>
+        <Panel.Description>
+          Every browser window and Ontime view connected to this server. Use Identify to find a machine in the room, or
+          Redirect to send it to another view.
+        </Panel.Description>
         <Panel.Table>
           <thead>
             <tr>
-              <td style={{ width: '20%' }}>Client Name</td>
-              <td>Path</td>
-              <td />
+              <th className={style.halfWidthNoWrap}>Client Name</th>
+              <th>Path</th>
+              <th />
             </tr>
           </thead>
           <tbody>
+            {ontimeClients.length === 0 && <Panel.TableEmpty label='No Ontime clients connected.' />}
             {ontimeClients.map(([key, client]) => {
-              const { identify, name, path } = client;
+              const { identify, name, origin, path } = client;
               const isCurrent = id === key;
+              const clientUrl = `${origin}${path}`;
+
               return (
                 <tr key={key} className={cx([isCurrent && style.self])}>
                   <Panel.InlineElements relation='inner' as='td'>
                     {isCurrent && <Tag>SELF</Tag>}
-                    {name}
+                    <Tooltip text={`Connected through ${origin}`} render={<span />}>
+                      {name}
+                    </Tooltip>
                   </Panel.InlineElements>
-                  <td className={style.copiable}>{path}</td>
+                  <td>
+                    <CopyTag size='small' copyValue={clientUrl} onClick={() => openLink(clientUrl)}>
+                      {path}
+                    </CopyTag>
+                  </td>
                   <Panel.InlineElements relation='inner' as='td'>
-                    <Button
-                      size='small'
-                      className={`${identify ? style.blink : ''}`}
-                      disabled={isCurrent}
-                      variant={identify ? 'primary' : 'subtle'}
-                      data-testid={isCurrent ? '' : 'not-self-identify'}
-                      onClick={() => {
-                        setIdentify({ target: key, identify: !identify });
-                      }}
+                    <Tooltip
+                      text={
+                        isCurrent
+                          ? 'This is the window you are using'
+                          : "Flash this client's name full-screen so you can find the machine in the room"
+                      }
+                      render={<span />}
                     >
-                      Identify
-                    </Button>
-                    <Button
-                      size='small'
-                      data-testid={isCurrent ? '' : 'not-self-rename'}
-                      onClick={() => openRename(key)}
+                      <Button
+                        size='small'
+                        className={cx([identify && style.blink])}
+                        disabled={isCurrent}
+                        variant={identify ? 'primary' : 'subtle'}
+                        data-testid={isCurrent ? '' : 'not-self-identify'}
+                        onClick={() => {
+                          setIdentify({ target: key, identify: !identify });
+                        }}
+                      >
+                        Identify
+                      </Button>
+                    </Tooltip>
+                    <Tooltip text="Give this client a name you'll recognise in this list" render={<span />}>
+                      <Button
+                        size='small'
+                        data-testid={isCurrent ? '' : 'not-self-rename'}
+                        onClick={() => openRename(key)}
+                      >
+                        Rename
+                      </Button>
+                    </Tooltip>
+                    <Tooltip
+                      text={
+                        isCurrent ? 'This is the window you are using' : 'Send this client to a different Ontime view'
+                      }
+                      render={<span />}
                     >
-                      Rename
-                    </Button>
-
-                    <Button
-                      size='small'
-                      disabled={isCurrent}
-                      data-testid={isCurrent ? '' : 'not-self-redirect'}
-                      onClick={() => openRedirect(key)}
-                    >
-                      Redirect
-                    </Button>
+                      <Button
+                        size='small'
+                        disabled={isCurrent}
+                        data-testid={isCurrent ? '' : 'not-self-redirect'}
+                        onClick={() => openRedirect(key)}
+                      >
+                        Redirect
+                      </Button>
+                    </Tooltip>
                   </Panel.InlineElements>
                 </tr>
               );
@@ -117,14 +176,20 @@ export default function ClientList() {
       <Panel.Divider />
       <Panel.Section>
         <Panel.Title>Other Clients ({otherClients.length})</Panel.Title>
+        <Panel.Description>
+          Integrations connected over OSC, HTTP or websocket. These cannot be controlled from Ontime.
+        </Panel.Description>
         <Panel.Table>
           <thead>
             <tr>
-              <td className={style.halfWidthNoWrap}>Client Name</td>
-              <td className={style.halfWidthNoWrap}>Client type</td>
+              <th className={style.halfWidthNoWrap}>Client Name</th>
+              <th className={style.halfWidthNoWrap}>Client type</th>
             </tr>
           </thead>
           <tbody>
+            {otherClients.length === 0 && (
+              <Panel.TableEmpty label='No integrations connected. OSC, HTTP and websocket clients appear here.' />
+            )}
             {otherClients.map(([key, client]) => {
               const { name, type } = client;
 

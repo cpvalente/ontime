@@ -16,6 +16,19 @@
   user-select: text;
 }
 
-.self {
+// the shared table applies a zebra stripe to even rows, which outranks a plain
+// class selector; we raise specificity and add an accent so the marker survives
+tr.self {
   background-color: $blue-1100;
+  box-shadow: inset 2px 0 0 0 $blue-500;
+}
+
+.blink {
+  animation: identify-blink 1s step-start infinite;
+}
+
+@keyframes identify-blink {
+  50% {
+    opacity: 0.35;
+  }
 }

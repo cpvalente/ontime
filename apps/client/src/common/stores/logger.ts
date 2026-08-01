@@ -11,6 +11,13 @@ type LogStore = {
   logs: Log[];
 };
 
+/**
+ * Ontime clients can be left running for days, and a busy integration generates
+ * a steady stream of entries. We keep a bounded window so the store cannot grow
+ * without limit; the full server-side history remains available in the log view.
+ */
+const maxLogEntries = 500;
+
 const logger = createStore<LogStore>(() => ({
   logs: [],
 }));
@@ -19,7 +26,7 @@ export const useLogData = () => useStore(logger);
 
 export const addLog = (log: Log) =>
   logger.setState((state) => ({
-    logs: [log, ...state.logs],
+    logs: [log, ...state.logs].slice(0, maxLogEntries),
   }));
 
 export const clearLogs = () => logger.setState({ logs: [] });

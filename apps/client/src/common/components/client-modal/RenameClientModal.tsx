@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import Button from '../../../common/components/buttons/Button';
 import { setClientRemote } from '../../hooks/useSocket';
+import { isKeyEnter } from '../../utils/keyEvent';
 import Dialog from '../dialog/Dialog';
 import Input from '../input/input/Input';
 
@@ -33,7 +34,18 @@ export function RenameClientModal({ id, name: currentName = '', isOpen, onClose 
       showCloseButton
       onClose={onClose}
       bodyElements={
-        <Input height='large' placeholder='New name' value={name} onChange={(event) => setName(event.target.value)} />
+        <Input
+          autoFocus
+          height='large'
+          placeholder='New name'
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          onKeyDown={(event) => {
+            if (isKeyEnter(event) && canSubmit) {
+              handleRename();
+            }
+          }}
+        />
       }
       footerElements={
         <>

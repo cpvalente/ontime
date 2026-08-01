@@ -18,14 +18,20 @@ export default function InfoNif() {
       {data.networkInterfaces.map((nif) => {
         // interfaces outside localhost wont have access
         if (nif.name === 'localhost' && !isLocalhost) return null;
-        const address = linkToOtherHost(nif.address);
+        // show the resolved URL so the label matches what copy and click actually give the user
+        const address = stripTrailingSlash(linkToOtherHost(nif.address));
 
         return (
           <CopyTag key={nif.name} copyValue={address} onClick={() => handleClick(address)}>
-            {`${nif.name} - ${nif.address}`} <IoArrowUp className={style.goIcon} />
+            {`${nif.name} - ${address}`} <IoArrowUp className={style.goIcon} />
           </CopyTag>
         );
       })}
     </Panel.InlineElements>
   );
+}
+
+/** URL.toString() adds a trailing slash to bare origins, which reads as noise in a copiable address */
+function stripTrailingSlash(url: string): string {
+  return url.endsWith('/') ? url.slice(0, -1) : url;
 }
