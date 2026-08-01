@@ -5,25 +5,23 @@ import { LuArrowDownToLine } from 'react-icons/lu';
 import { CornerWithPip } from '../../../common/components/editor-utils/EditorUtils';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
-import { useAuxTimersName, useMessagePreview } from '../../../common/hooks/useSocket';
-import { getAuxTimerLabel } from '../../../common/utils/auxTimerUtils';
+import { useMessagePreview } from '../../../common/hooks/useSocket';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx, timerPlaceholder } from '../../../common/utils/styleUtils';
 import PipRoot from '../../../views/editor/pip-timer/PipRoot';
 
 import style from './TimerPreview.module.scss';
 
+const secondarySourceLabels: Record<string, string> = {
+  aux1: 'Aux 1',
+  aux2: 'Aux 2',
+  aux3: 'Aux 3',
+  secondary: 'Secondary message',
+};
+
 export default function TimerPreview() {
   const { blink, blackout, countToEnd, phase, secondarySource, showTimerMessage, timerType } = useMessagePreview();
   const { data } = useViewSettings();
-  const auxName = useAuxTimersName();
-
-  const secondarySourceLabels: Record<string, string> = {
-    aux1: getAuxTimerLabel(auxName.aux1, 'Aux 1'),
-    aux2: getAuxTimerLabel(auxName.aux2, 'Aux 2'),
-    aux3: getAuxTimerLabel(auxName.aux3, 'Aux 3'),
-    secondary: 'Secondary message',
-  };
 
   const main = (() => {
     if (showTimerMessage) return 'Message';

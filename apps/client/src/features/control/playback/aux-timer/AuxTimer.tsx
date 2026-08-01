@@ -4,7 +4,7 @@ import { IoArrowDown, IoArrowUp, IoPause, IoPlay, IoStop } from 'react-icons/io5
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { setAuxTimer, useAuxTimerControl, useAuxTimerTime } from '../../../../common/hooks/useSocket';
-import { getAuxTimerLabel } from '../../../../common/utils/auxTimerUtils';
+import { getAuxTimerIndexedLabel } from '../../../../common/utils/auxTimerUtils';
 import TapButton from '../tap-button/TapButton';
 
 import style from './AuxTimer.module.scss';
@@ -18,7 +18,7 @@ export function AuxTimer({ index }: AuxTimerProps) {
 
   const { stop, setDirection } = setAuxTimer;
 
-  const label = getAuxTimerLabel(name, `Aux Timer ${index}`);
+  const label = getAuxTimerIndexedLabel(name, index);
 
   const toggleDirection = () => {
     const newDirection = direction === SimpleDirection.CountDown ? SimpleDirection.CountUp : SimpleDirection.CountDown;
@@ -30,10 +30,12 @@ export function AuxTimer({ index }: AuxTimerProps) {
 
   return (
     <label className={style.label}>
-      {label}
+      <span className={style.labelText} title={label}>
+        {label}
+      </span>
       <div className={style.controls}>
         <div className={style.input}>
-          <AuxTimerInput index={index} isActive={isActive} placeholder={label} />
+          <AuxTimerInput index={index} isActive={isActive} placeholder={`Aux ${index}`} />
           <TapButton onClick={toggleDirection} aspect='tight' disabled={isActive}>
             {direction === SimpleDirection.CountDown && <IoArrowDown data-testid={`aux-timer-direction-${index}`} />}
             {direction === SimpleDirection.CountUp && <IoArrowUp data-testid={`aux-timer-direction-${index}`} />}
