@@ -21,4 +21,15 @@
     outline: none;
     box-shadow: 0 1px 0 0 currentColor;
   }
+
+  &:hover .icon,
+  &:focus-visible .icon {
+    transform: translateX(0.25rem);
+  }
+}
+
+.icon {
+  flex: 0 0 1.5em;
+  font-size: 1em;
+  transition: transform $transition-time-action;
 }
