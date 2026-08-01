@@ -6,6 +6,7 @@ import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { CURRENT_RUNDOWN_QUERY_KEY, getRundownQueryKey } from '../api/constants';
 import { fetchCurrentRundown, fetchRundown } from '../api/rundown';
 import { useSelectedEventId } from '../hooks/useSocket';
+import { deriveQueryStatus } from '../utils/queryUtils';
 import { ExtendedEntry, getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
 import { useProjectRundowns } from './useProjectRundowns';
 
@@ -50,7 +51,7 @@ export default function useRundown() {
     queryClient.removeQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
   }, [loadedRundownId, queryClient]);
 
-  return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
+  return { data: data ?? cachedRundownPlaceholder, status: deriveQueryStatus(status, data), isError, refetch, isFetching };
 }
 
 export function useRundownWithMetadata() {
@@ -135,5 +136,5 @@ export function useRundownById(rundownId: string | null | undefined) {
     refetchInterval: queryRefetchIntervalSlow,
   });
 
-  return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
+  return { data: data ?? cachedRundownPlaceholder, status: deriveQueryStatus(status, data), isError, refetch, isFetching };
 }

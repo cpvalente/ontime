@@ -36,8 +36,7 @@ export default function OperatorLoader() {
     return <Loader />;
   }
 
-  // only show the error state if we have never received data to fall back on
-  if (status === 'error' && data.rundown.revision === -1) {
+  if (status === 'error') {
     return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
   }
 

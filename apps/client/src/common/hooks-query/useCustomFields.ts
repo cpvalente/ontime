@@ -4,6 +4,7 @@ import { CustomFields } from 'ontime-types';
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { CUSTOM_FIELDS } from '../api/constants';
 import { getCustomFields } from '../api/customFields';
+import { deriveQueryStatus } from '../utils/queryUtils';
 
 const placeholder: CustomFields = {};
 
@@ -15,5 +16,5 @@ export default function useCustomFields() {
     refetchInterval: queryRefetchIntervalSlow,
   });
 
-  return { data: data ?? placeholder, status, isFetching, isError, refetch };
+  return { data: data ?? placeholder, status: deriveQueryStatus(status, data), isFetching, isError, refetch };
 }
