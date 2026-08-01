@@ -5,12 +5,41 @@ import { useState } from 'react';
 import Button from '../../../../../common/components/buttons/Button';
 import { RedirectClientModal } from '../../../../../common/components/client-modal/RedirectClientModal';
 import { RenameClientModal } from '../../../../../common/components/client-modal/RenameClientModal';
+import CopyTag from '../../../../../common/components/copy-tag/CopyTag';
 import Tag from '../../../../../common/components/tag/Tag';
+import Tooltip from '../../../../../common/components/tooltip/Tooltip';
 import { setClientRemote } from '../../../../../common/hooks/useSocket';
 import { useClientStore } from '../../../../../common/stores/clientStore';
+import { openLink } from '../../../../../common/utils/linkUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import style from './ClientControlPanel.module.scss';
+
+/**
+ * Shows the path a client is showing
+ * The full URL is available for copying or opening in a new window
+ */
+function ClientPath({ origin, path }: { origin: string; path: string }) {
+  // clients report their path on connection, we may not have it yet
+  if (!path) {
+    return <span className={style.muted}>unknown</span>;
+  }
+
+  // origin is empty for clients which have not reported their location
+  if (!origin) {
+    return <span className={style.copiable}>{path}</span>;
+  }
+
+  const fullUrl = `${origin}${path}`;
+
+  return (
+    <Tooltip text={fullUrl} render={<span />}>
+      <CopyTag copyValue={fullUrl} size='small' onClick={() => openLink(fullUrl)}>
+        {path}
+      </CopyTag>
+    </Tooltip>
+  );
+}
 
 export default function ClientList() {
   const id = useClientStore((store) => store.id);
@@ -69,6 +98,12 @@ export default function ClientList() {
       )}
       <Panel.Section>
         <Panel.Title>Ontime Clients ({ontimeClients.length})</Panel.Title>
+        <div className={style.note}>
+          <Panel.Description>
+            Ontime views connected to this server. Identify shows a marker in the client screen until you turn it off,
+            redirect sends the client to a different view.
+          </Panel.Description>
+        </div>
         <Panel.Table>
           <thead>
             <tr>
@@ -88,7 +123,9 @@ export default function ClientList() {
                     {isCurrent && <Tag>SELF</Tag>}
                     {name}
                   </Panel.InlineElements>
-                  <td className={style.copiable}>{path}</td>
+                  <td>
+                    <ClientPath origin={client.origin} path={path} />
+                  </td>
                   <Panel.InlineElements relation='inner' as='td'>
                     <Button
                       size='small'
@@ -127,6 +164,12 @@ export default function ClientList() {
       <Panel.Divider />
       <Panel.Section>
         <Panel.Title>Other Clients ({otherClients.length})</Panel.Title>
+        <div className={style.note}>
+          <Panel.Description>
+            Connections which are not Ontime views, such as integrations and custom clients. These cannot be controlled
+            from Ontime.
+          </Panel.Description>
+        </div>
         <Panel.Table>
           <thead>
             <tr>

@@ -68,6 +68,10 @@ const staticOptions = [
     label: 'Network',
     secondary: [
       {
+        id: 'network__interfaces',
+        label: 'Network interfaces',
+      },
+      {
         id: 'network__log',
         label: 'Event log',
       },

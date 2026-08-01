@@ -19,10 +19,12 @@ export default function InfoNif() {
         // interfaces outside localhost wont have access
         if (nif.name === 'localhost' && !isLocalhost) return null;
         const address = linkToOtherHost(nif.address);
+        // we show the address as it would be typed in a browser, including the port
+        const label = new URL(address).host;
 
         return (
-          <CopyTag key={nif.name} copyValue={address} onClick={() => handleClick(address)}>
-            {`${nif.name} - ${nif.address}`} <IoArrowUp className={style.goIcon} />
+          <CopyTag key={`${nif.name}-${nif.address}`} copyValue={address} onClick={() => handleClick(address)}>
+            {`${nif.name} - ${label}`} <IoArrowUp className={style.goIcon} />
           </CopyTag>
         );
       })}

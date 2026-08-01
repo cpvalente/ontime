@@ -7,3 +7,12 @@
   cursor: text;
   user-select: text;
 }
+
+.muted {
+  color: $label-gray;
+}
+
+// align section notes with the table contents
+.note {
+  padding: 0 2rem;
+}
