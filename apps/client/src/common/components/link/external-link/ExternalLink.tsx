@@ -1,5 +1,5 @@
 import { MouseEvent, ReactNode } from 'react';
-import { IoOpenOutline } from 'react-icons/io5';
+import { HiArrowLongRight } from 'react-icons/hi2';
 
 import { openLink } from '../../../utils/linkUtils';
 import { cx } from '../../../utils/styleUtils';
@@ -10,9 +10,10 @@ interface ExternalLinkProps {
   href: string;
   children: ReactNode;
   inline?: boolean;
+  className?: string;
 }
 
-export default function ExternalLink({ href, inline, children }: ExternalLinkProps) {
+export default function ExternalLink({ href, inline, className, children }: ExternalLinkProps) {
   const handleClick = (event: MouseEvent) => {
     event.preventDefault();
     openLink(href);
@@ -23,10 +24,11 @@ export default function ExternalLink({ href, inline, children }: ExternalLinkPro
       href='#!'
       target='_blank'
       rel='noreferrer'
-      className={cx([style.link, inline && style.inline])}
+      className={cx([style.link, inline && style.inline, className])}
       onClick={handleClick}
     >
-      {children} <IoOpenOutline style={{ fontSize: '1em' }} />
+      {children}
+      <HiArrowLongRight className={style.icon} />
     </a>
   );
 }
