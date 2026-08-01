@@ -4,10 +4,13 @@
   left: 50%;
   transform: translateX(-50%);
 
-  padding-inline: 1rem;
-  min-width: min(880px, 90vw);
+  box-sizing: border-box;
+  width: min(880px, 90vw);
   min-height: min(200px, 10vh);
-  max-width: min(1200px, 90vw);
+  max-height: calc(90vh - 1rem);
+
+  display: flex;
+  flex-direction: column;
 
   background-color: $gray-1250;
   color: $ui-white;
@@ -17,14 +20,21 @@
   outline: none;
 }
 
+.compact {
+  min-width: 0;
+  width: min(680px, 90vw);
+}
+
+.small {
+  min-width: 0;
+  width: min(480px, 90vw);
+}
+
 .wide {
   top: 4vh;
-  min-width: min(1280px, 96vw);
-  max-width: min(1800px, 98vw);
-  height: 88vh;
-  max-height: 88vh;
-  display: flex;
-  flex-direction: column;
+  width: min(1800px, 98vw);
+  height: min(88vh, calc(96vh - 1rem));
+  min-height: 0;
 }
 
 .backdrop {
@@ -41,15 +51,19 @@
 
 .title {
   padding-block: 1rem;
+  padding-inline: 1rem;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 }
 
 .titleText {
+  min-width: 0;
   font-size: 1rem;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .body {
@@ -57,21 +71,23 @@
   flex-direction: column;
   gap: 0.5rem;
 
-  max-height: 60vh;
+  flex: 1;
+  min-height: 0;
+  padding: 0.5rem 1rem;
   overflow-y: auto;
+  scroll-padding-block: 0.5rem;
 }
 
 .wide .body {
-  flex: 1;
-  min-height: 0;
-  max-height: none;
   overflow: hidden;
 }
 
 .footer {
   padding-block: 1rem;
+  padding-inline: 1rem;
   display: flex;
   align-items: center;
   justify-content: end;
   gap: 1rem;
+  flex-wrap: wrap;
 }
