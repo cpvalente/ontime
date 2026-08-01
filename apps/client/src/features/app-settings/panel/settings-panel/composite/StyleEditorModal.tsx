@@ -109,19 +109,16 @@ export default function CodeEditorModal({ isOpen, onClose }: CodeEditorModalProp
           <Info>Invalid CSS will be refused by the browser</Info>
           {error && <Panel.Error className={style.right}>{`Error: ${error}`}</Panel.Error>}
           <Panel.InlineElements align='apart' className={style.editorActions}>
-            <Button variant='ghosted' size='large' onClick={handleRestore} disabled={saveLoading || resetLoading}>
+            <Button variant='ghosted' onClick={handleRestore} disabled={saveLoading || resetLoading}>
               Reset to example
             </Button>
             <Panel.InlineElements>
-              <Button variant='ghosted' size='large' onClick={clear}>
+              <Button variant='ghosted' onClick={clear}>
                 Clear
               </Button>
-              <Button size='large' onClick={onClose}>
-                Cancel
-              </Button>
+              <Button onClick={onClose}>Cancel</Button>
               <Button
                 variant='primary'
-                size='large'
                 onClick={handleSave}
                 disabled={saveLoading || resetLoading || !isDirty}
                 loading={saveLoading}

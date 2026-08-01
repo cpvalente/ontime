@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import Button from '../../../../../../../common/components/buttons/Button';
 import Tag from '../../../../../../../common/components/tag/Tag';
 import { getRundownMetadata } from '../../../../../../../common/utils/rundownMetadata';
+import * as Panel from '../../../../../panel-utils/PanelUtils';
 import { getCellValue } from './previewTableUtils';
 
 import style from './PreviewTable.module.scss';
@@ -123,23 +124,17 @@ export default function PreviewTable({
     }
 
     return (
-      <div className={style.emptyState}>
-        <div className={style.emptyMessage}>
-          <div className={style.emptyTitle}>{emptyTitle}</div>
-          <div className={style.emptyBody}>{emptyContent}</div>
-          {needsPreviewRefresh && (
-            <Button
-              className={style.emptyAction}
-              variant='primary'
-              onClick={onRefresh}
-              disabled={!canRefresh}
-              loading={isRefreshing}
-            >
+      <Panel.EmptyState
+        title={emptyTitle}
+        description={emptyContent}
+        action={
+          needsPreviewRefresh && (
+            <Button variant='primary' onClick={onRefresh} disabled={!canRefresh} loading={isRefreshing}>
               Refresh preview
             </Button>
-          )}
-        </div>
-      </div>
+          )
+        }
+      />
     );
   }
 

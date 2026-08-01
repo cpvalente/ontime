@@ -90,16 +90,13 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
         <div className={style.footer}>
           {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
           <Panel.InlineElements align='apart'>
-            <Button variant='ghosted' size='large' onClick={resetToEnglish} disabled={isSubmitting}>
+            <Button variant='ghosted' onClick={resetToEnglish} disabled={isSubmitting}>
               Reset to English
             </Button>
             <Panel.InlineElements>
-              <Button size='large' onClick={onClose}>
-                Cancel
-              </Button>
+              <Button onClick={onClose}>Cancel</Button>
               <Button
                 variant='primary'
-                size='large'
                 type='submit'
                 form='custom-translations-form'
                 disabled={isSubmitting || !isDirty || !isValid}

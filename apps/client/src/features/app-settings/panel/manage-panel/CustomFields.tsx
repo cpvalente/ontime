@@ -13,27 +13,30 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import CustomFieldEntry from './composite/CustomFieldEntry';
 import CustomFieldForm from './composite/CustomFieldForm';
 
+type CustomFieldEntity = CustomField & { key: CustomFieldKey };
+
+type FormState = {
+  isOpen: boolean;
+  field?: CustomFieldEntity;
+};
+
 export default function CustomFieldSettings() {
   const { data, refetch } = useCustomFields();
-  const [isAdding, setIsAdding] = useState(false);
+  const [formState, setFormState] = useState<FormState>({ isOpen: false, field: undefined });
 
-  const handleInitiateCreate = () => {
-    setIsAdding(true);
-  };
+  const openNewForm = () => setFormState({ isOpen: true });
+  const openEditForm = (field: CustomFieldEntity) => setFormState({ isOpen: true, field });
+  const closeForm = () => setFormState({ isOpen: false, field: undefined });
 
-  const handleCancel = () => {
-    setIsAdding(false);
-  };
-
-  const handleCreate = async (customField: CustomField) => {
-    await postCustomField(customField);
+  const handleSubmit = async (customField: CustomField) => {
+    const editing = formState.field;
+    if (editing) {
+      await editCustomField(editing.key, customField);
+    } else {
+      await postCustomField(customField);
+    }
     refetch();
-    setIsAdding(false);
-  };
-
-  const handleEditField = async (key: CustomFieldKey, customField: CustomField) => {
-    await editCustomField(key, customField);
-    refetch();
+    closeForm();
   };
 
   const handleDelete = async (key: CustomFieldKey) => {
@@ -45,12 +48,24 @@ export default function CustomFieldSettings() {
     }
   };
 
+  const entries = Object.entries(data);
+
   return (
     <Panel.Section>
       <Panel.Card>
+        {formState.isOpen && (
+          <CustomFieldForm
+            onSubmit={handleSubmit}
+            onCancel={closeForm}
+            initialColour={formState.field?.colour}
+            initialLabel={formState.field?.label}
+            initialKey={formState.field?.key}
+            initialType={formState.field?.type}
+          />
+        )}
         <Panel.SubHeader>
           Custom fields
-          <Button onClick={handleInitiateCreate}>
+          <Button onClick={openNewForm}>
             New <IoAdd />
           </Button>
         </Panel.SubHeader>
@@ -66,7 +81,6 @@ export default function CustomFieldSettings() {
           </Info>
         </Panel.Section>
         <Panel.Section>
-          {isAdding && <CustomFieldForm onSubmit={handleCreate} onCancel={handleCancel} />}
           <Panel.Table>
             <thead>
               <tr>
@@ -78,7 +92,18 @@ export default function CustomFieldSettings() {
               </tr>
             </thead>
             <tbody>
-              {Object.entries(data).map(([key, { colour, label, type }]) => {
+              {entries.length === 0 && (
+                <Panel.TableEmpty
+                  title='No custom fields yet'
+                  description='Custom fields add your own columns to the rundown, and can be shown in views or used in automations.'
+                  action={
+                    <Button variant='primary' onClick={openNewForm}>
+                      Create custom field <IoAdd />
+                    </Button>
+                  }
+                />
+              )}
+              {entries.map(([key, { colour, label, type }]) => {
                 return (
                   <CustomFieldEntry
                     key={key}
@@ -86,7 +111,7 @@ export default function CustomFieldSettings() {
                     colour={colour}
                     label={label}
                     type={type}
-                    onEdit={handleEditField}
+                    onEdit={() => openEditForm({ key, colour, label, type })}
                     onDelete={handleDelete}
                   />
                 );

@@ -1,24 +1,26 @@
 $inner-padding: 1rem;
+$card-padding: 2rem;
 
 .header {
-  font-size: 2rem;
+  font-size: 1.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid $white-10;
   font-weight: 600;
 }
 
 .subheader {
-  font-size: 1.5rem;
+  font-size: 1.125rem;
   padding-bottom: 0.5rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 }
 
 .title {
-  font-size: 1.375rem;
-  padding: 0 2rem;
+  font-size: 1rem;
+  padding: 0 var(--panel-card-padding, #{$card-padding});
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -35,10 +37,12 @@ $inner-padding: 1rem;
   color: $ui-white;
 }
 
+// width is owned by the panel content column, which caps and centres itself.
+// sections must stay full width so top level cards line up with Panel.Header
+// and nested sections fill their card rather than shrinking to fit
 .section {
   position: relative;
   margin-top: 2rem;
-  max-width: 1024px;
 }
 
 .indent {
@@ -51,8 +55,10 @@ $inner-padding: 1rem;
 }
 
 .card {
+  --panel-card-padding: #{$card-padding};
+
   position: relative;
-  padding: 2rem;
+  padding: var(--panel-card-padding);
   background-color: $white-3;
   border: 1px solid $gray-1100;
   border-radius: 3px;
@@ -76,10 +82,10 @@ $inner-padding: 1rem;
   color: $error-red;
 }
 
+// tables scroll with the panel rather than owning a nested scroll area,
+// which keeps the sticky table head anchored to the panel viewport
 .pad {
-  padding: 0 2rem;
-  max-height: 550px;
-  overflow-y: scroll;
+  padding: 0 var(--panel-card-padding, #{$card-padding});
 }
 
 .table {
@@ -97,10 +103,13 @@ $inner-padding: 1rem;
   }
 
   th {
-    font-weight: 400;
-    color: $gray-400;
+    font-weight: 600;
+    color: $gray-300;
+    font-size: calc(1rem - 3px);
+    letter-spacing: 0.02em;
+    vertical-align: bottom;
     white-space: nowrap;
-    text-transform: capitalize;
+    text-transform: uppercase;
   }
 
   th,
@@ -112,6 +121,17 @@ $inner-padding: 1rem;
     background-color: $white-1;
   }
 
+  // active rows use a panel-local class today; keep the treatment here so all
+  // settings tables share the same state without each panel owning its colours
+  tr[class*='current'] {
+    background-color: rgba($blue-500, 0.16);
+
+    > td:first-child {
+      box-shadow: inset 3px 0 $blue-400;
+      font-weight: 500;
+    }
+  }
+
   // allow highlighting table elements
   tr[data-warn='true'],
   td[data-warn='true'] {
@@ -120,7 +140,7 @@ $inner-padding: 1rem;
 }
 
 .listGroup {
-  padding: 0 2rem;
+  padding: 0 var(--panel-card-padding, #{$card-padding});
 
   > li:not(:last-child) {
     border-bottom: 1px solid $white-10;
@@ -133,6 +153,17 @@ $inner-padding: 1rem;
   align-items: center;
   gap: 1rem;
   padding: 0.5rem 0;
+
+  &.interactive {
+    margin-inline: calc(var(--panel-card-padding, #{$card-padding}) * -1);
+    padding: 0.75rem var(--panel-card-padding, #{$card-padding});
+    transition: background-color $transition-time-action;
+
+    &:hover,
+    &:focus-within {
+      background-color: $white-3;
+    }
+  }
 }
 
 .fieldTitle {
@@ -163,7 +194,7 @@ $inner-padding: 1rem;
 .divider {
   border: none;
   border-top: 1px solid $white-10;
-  margin: 1rem -2rem;
+  margin: 1rem calc(var(--panel-card-padding, #{$card-padding}) * -1);
 }
 
 .overlay {
@@ -188,19 +219,35 @@ $inner-padding: 1rem;
   animation: animloader 1s ease-in infinite;
 }
 
-.empty {
-  background-color: $black-10;
+.emptyState {
+  padding: 3rem 1.5rem;
   text-align: center;
-  color: $muted-gray;
+}
 
-  td {
-    padding-block: 5rem;
-  }
+.emptyMessage {
+  width: min(30rem, 100%);
+  margin-inline: auto;
+}
 
-  button {
-    margin-top: 1rem;
-    margin-inline: auto;
-  }
+.emptyTitle {
+  margin-bottom: 0.25rem;
+  color: rgba($gray-200, 0.72);
+  font-size: calc(1rem + 2px);
+  font-weight: 400;
+}
+
+.emptyBody {
+  color: rgba($gray-200, 0.55);
+  font-size: calc(1rem - 3px);
+  line-height: 1.5;
+}
+
+.emptyAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
 
 .inlineElements {
@@ -226,17 +273,6 @@ $inner-padding: 1rem;
   &.wrap {
     flex-wrap: wrap;
     row-gap: 0.5rem;
-  }
-}
-
-@keyframes animloader {
-  0% {
-    transform: scale(0);
-    opacity: 0.6;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0;
   }
 }
 

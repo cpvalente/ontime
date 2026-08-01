@@ -21,6 +21,7 @@ interface AutomationSettingsProps {
   oscPortIn: number;
   automationState?: boolean;
   oscInputState?: boolean;
+  isLoading?: boolean;
 }
 
 export default function AutomationSettingsForm({
@@ -29,6 +30,7 @@ export default function AutomationSettingsForm({
   oscPortIn,
   automationState,
   oscInputState,
+  isLoading,
 }: AutomationSettingsProps) {
   const {
     handleSubmit,
@@ -65,126 +67,129 @@ export default function AutomationSettingsForm({
   const oscInputEnabled = watch('enabledOscIn');
 
   return (
-    <Panel.Card>
-      <Panel.SubHeader>
-        Automation settings
-        <Panel.InlineElements>
-          <Button variant='ghosted' onClick={onReset} disabled={!canSubmit}>
-            Revert to saved
-          </Button>
-          <Button
-            variant='primary'
-            type='submit'
-            form='automation-settings-form'
-            disabled={!canSubmit}
-            loading={isSubmitting}
-          >
-            Save
-          </Button>
-        </Panel.InlineElements>
-      </Panel.SubHeader>
-      {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
+    <Panel.Section>
+      <Panel.Card>
+        <Panel.Loader isLoading={Boolean(isLoading)} />
+        <Panel.SubHeader>
+          Automation settings
+          <Panel.InlineElements>
+            <Button variant='ghosted' onClick={onReset} disabled={!canSubmit}>
+              Revert to saved
+            </Button>
+            <Button
+              variant='primary'
+              type='submit'
+              form='automation-settings-form'
+              disabled={!canSubmit}
+              loading={isSubmitting}
+            >
+              Save
+            </Button>
+          </Panel.InlineElements>
+        </Panel.SubHeader>
+        {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
 
-      <Panel.Divider />
+        <Panel.Divider />
 
-      <Panel.Section>
-        <Info>
-          <span>Control Ontime and share its data with external systems in your workflow.</span>
-          <span>- Automations allow Ontime to send its data on lifecycle triggers.</span>
-          <span>- OSC Input tells Ontime to listen to messages on the specific port.</span>
-          <ExternalLink href={oscApiDocsUrl}>See the docs</ExternalLink>
-        </Info>
-      </Panel.Section>
+        <Panel.Section>
+          <Info>
+            <span>Control Ontime and share its data with external systems in your workflow.</span>
+            <span>- Automations allow Ontime to send its data on lifecycle triggers.</span>
+            <span>- OSC Input tells Ontime to listen to messages on the specific port.</span>
+            <ExternalLink href={oscApiDocsUrl}>See the docs</ExternalLink>
+          </Info>
+        </Panel.Section>
 
-      <Panel.Section
-        as='form'
-        id='automation-settings-form'
-        onSubmit={handleSubmit(onSubmit)}
-        onKeyDown={(event) => preventEscape(event, onReset)}
-      >
-        <Panel.Loader isLoading={false} />
+        <Panel.Section
+          as='form'
+          id='automation-settings-form'
+          onSubmit={handleSubmit(onSubmit)}
+          onKeyDown={(event) => preventEscape(event, onReset)}
+        >
+          <Panel.Title>Automation</Panel.Title>
+          <Panel.ListGroup>
+            <Panel.ListItem>
+              <Panel.Field
+                title={
+                  <>
+                    <span>Enable automations</span>
+                    {automationState === false && <Tag variant='warning'>OFF</Tag>}
+                  </>
+                }
+                description={
+                  automationState === false
+                    ? 'Automations are OFF. Triggers stay configured, but Ontime will not send messages.'
+                    : 'Allow Ontime to send messages on lifecycle triggers'
+                }
+                descriptionTone={automationState === false ? 'warning' : 'default'}
+                error={errors.enabledAutomations?.message}
+              />
+              <Switch
+                size='large'
+                checked={automationsEnabled}
+                onCheckedChange={(value: boolean) =>
+                  setValue('enabledAutomations', value, { shouldDirty: true, shouldValidate: true })
+                }
+              />
+            </Panel.ListItem>
+          </Panel.ListGroup>
+          <Panel.Title>OSC Input</Panel.Title>
 
-        <Panel.Title>Automation</Panel.Title>
-        <Panel.ListGroup>
-          <Panel.ListItem>
-            <Panel.Field
-              title={
-                <>
-                  <span>Enable automations</span>
-                  {automationState === false && <Tag variant='warning'>OFF</Tag>}
-                </>
-              }
-              description={
-                automationState === false
-                  ? 'Automations are OFF. Triggers stay configured, but Ontime will not send messages.'
-                  : 'Allow Ontime to send messages on lifecycle triggers'
-              }
-              descriptionTone={automationState === false ? 'warning' : 'default'}
-              error={errors.enabledAutomations?.message}
-            />
-            <Switch
-              size='large'
-              checked={automationsEnabled}
-              onCheckedChange={(value: boolean) =>
-                setValue('enabledAutomations', value, { shouldDirty: true, shouldValidate: true })
-              }
-            />
-          </Panel.ListItem>
-        </Panel.ListGroup>
-        <Panel.Title>OSC Input</Panel.Title>
-
-        <Panel.ListGroup>
-          {isOntimeCloud && <Info>For security reasons OSC integrations are not available in the cloud service.</Info>}
-          <Panel.ListItem>
-            <Panel.Field
-              title={
-                <>
-                  <span>OSC input</span>
-                  {oscInputState === false && <Tag variant='warning'>OFF</Tag>}
-                </>
-              }
-              description={
-                oscInputState === false
-                  ? 'OSC input is OFF. Ontime will not listen for incoming OSC control messages.'
-                  : 'Allow control of Ontime through OSC'
-              }
-              descriptionTone={oscInputState === false ? 'warning' : 'default'}
-              error={errors.enabledOscIn?.message}
-            />
-            <Switch
-              size='large'
-              checked={oscInputEnabled}
-              onCheckedChange={(value: boolean) =>
-                setValue('enabledOscIn', value, { shouldDirty: true, shouldValidate: true })
-              }
-            />
-          </Panel.ListItem>
-          <Panel.ListItem>
-            <Panel.Field
-              title='Listen on port'
-              description='Port for incoming OSC. Default: 8888'
-              error={errors.oscPortIn?.message}
-            />
-            <Input
-              id='oscPortIn'
-              placeholder='8888'
-              maxLength={5}
-              style={{ textAlign: 'right', width: '5rem' }}
-              type='number'
-              fluid
-              {...register('oscPortIn', {
-                required: { value: true, message: 'Required field' },
-                max: { value: 65535, message: 'Port must be within range 1024 - 65535' },
-                min: { value: 1024, message: 'Port must be within range 1024 - 65535' },
-                pattern: {
-                  value: isOnlyNumbers,
-                  message: 'Value should be numeric',
-                },
-              })}
-            />
-          </Panel.ListItem>
-        </Panel.ListGroup>
-      </Panel.Section>
-    </Panel.Card>
+          <Panel.ListGroup>
+            {isOntimeCloud && (
+              <Info>For security reasons OSC integrations are not available in the cloud service.</Info>
+            )}
+            <Panel.ListItem>
+              <Panel.Field
+                title={
+                  <>
+                    <span>OSC input</span>
+                    {oscInputState === false && <Tag variant='warning'>OFF</Tag>}
+                  </>
+                }
+                description={
+                  oscInputState === false
+                    ? 'OSC input is OFF. Ontime will not listen for incoming OSC control messages.'
+                    : 'Allow control of Ontime through OSC'
+                }
+                descriptionTone={oscInputState === false ? 'warning' : 'default'}
+                error={errors.enabledOscIn?.message}
+              />
+              <Switch
+                size='large'
+                checked={oscInputEnabled}
+                onCheckedChange={(value: boolean) =>
+                  setValue('enabledOscIn', value, { shouldDirty: true, shouldValidate: true })
+                }
+              />
+            </Panel.ListItem>
+            <Panel.ListItem>
+              <Panel.Field
+                title='Listen on port'
+                description='Port for incoming OSC. Default: 8888'
+                error={errors.oscPortIn?.message}
+              />
+              <Input
+                id='oscPortIn'
+                placeholder='8888'
+                maxLength={5}
+                style={{ textAlign: 'right', width: '5rem' }}
+                type='number'
+                fluid
+                {...register('oscPortIn', {
+                  required: { value: true, message: 'Required field' },
+                  max: { value: 65535, message: 'Port must be within range 1024 - 65535' },
+                  min: { value: 1024, message: 'Port must be within range 1024 - 65535' },
+                  pattern: {
+                    value: isOnlyNumbers,
+                    message: 'Value should be numeric',
+                  },
+                })}
+              />
+            </Panel.ListItem>
+          </Panel.ListGroup>
+        </Panel.Section>
+      </Panel.Card>
+    </Panel.Section>
   );
 }

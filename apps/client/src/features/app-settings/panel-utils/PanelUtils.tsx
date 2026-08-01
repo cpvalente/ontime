@@ -1,7 +1,5 @@
 import { HTMLAttributes, PropsWithChildren, ReactNode } from 'react';
-import { IoAdd } from 'react-icons/io5';
 
-import Button from '../../../common/components/buttons/Button';
 import { cx } from '../../../common/utils/styleUtils';
 
 import style from './PanelUtils.module.scss';
@@ -62,16 +60,29 @@ export function Table({ className, children }: { className?: string; children: R
   );
 }
 
-export function TableEmpty({ label, handleClick }: { label?: string; handleClick?: () => void }) {
+export interface EmptyStateProps {
+  title: string;
+  description?: ReactNode;
+  action?: ReactNode;
+}
+
+export function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
-    <tr className={style.empty}>
+    <div className={style.emptyState}>
+      <div className={style.emptyMessage}>
+        <div className={style.emptyTitle}>{title}</div>
+        {description && <div className={style.emptyBody}>{description}</div>}
+        {action && <div className={style.emptyAction}>{action}</div>}
+      </div>
+    </div>
+  );
+}
+
+export function TableEmpty(props: EmptyStateProps) {
+  return (
+    <tr>
       <td colSpan={99}>
-        <div>{label ?? 'No data yet'}</div>
-        {handleClick && (
-          <Button onClick={handleClick} disabled={!handleClick} variant='primary'>
-            New <IoAdd />
-          </Button>
-        )}
+        <EmptyState {...props} />
       </td>
     </tr>
   );
@@ -81,8 +92,8 @@ export function ListGroup({ className, children }: { className?: string; childre
   return <ul className={cx([style.listGroup, className])}>{children}</ul>;
 }
 
-export function ListItem({ children }: { children: ReactNode }) {
-  return <li className={style.listItem}>{children}</li>;
+export function ListItem({ children, interactive = false }: { children: ReactNode; interactive?: boolean }) {
+  return <li className={cx([style.listItem, interactive && style.interactive])}>{children}</li>;
 }
 
 export function Field({

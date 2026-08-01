@@ -22,10 +22,10 @@ const automationPlaceholder: AutomationDTO = {
 interface AutomationsListProps {
   automations: NormalisedAutomation;
   enabledAutomations?: boolean;
+  isLoading: boolean;
 }
 
-export default function AutomationsList(props: AutomationsListProps) {
-  const { automations, enabledAutomations } = props;
+export default function AutomationsList({ automations, enabledAutomations, isLoading }: AutomationsListProps) {
   const { refetch } = useAutomationSettings();
   const [automationFormData, setAutomationFormData] = useState<AutomationDTO | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -44,89 +44,94 @@ export default function AutomationsList(props: AutomationsListProps) {
   const arrayAutomations = Object.keys(automations);
 
   return (
-    <Panel.Card>
-      <Panel.SubHeader>
-        Manage automations
-        <Button
-          type='submit'
-          disabled={Boolean(automationFormData)}
-          onClick={() => setAutomationFormData(automationPlaceholder)}
-        >
-          New <IoAdd />
-        </Button>
-      </Panel.SubHeader>
+    <Panel.Section>
+      <Panel.Card>
+        {automationFormData !== null && (
+          <AutomationForm automation={automationFormData} onClose={() => setAutomationFormData(null)} />
+        )}
+        <Panel.SubHeader>
+          Manage automations
+          <Button onClick={() => setAutomationFormData(automationPlaceholder)}>
+            New <IoAdd />
+          </Button>
+        </Panel.SubHeader>
 
-      <Panel.Divider />
+        <Panel.Divider />
 
-      {enabledAutomations === false && (
-        <Info>
-          Automations are disabled. You can still manage automation definitions here, but they will not run until
-          enabled.
-        </Info>
-      )}
-
-      {automationFormData !== null && (
-        <AutomationForm automation={automationFormData} onClose={() => setAutomationFormData(null)} />
-      )}
-
-      <Panel.Table>
-        <thead>
-          <tr>
-            <th style={{ width: '45%' }}>Title</th>
-            <th style={{ width: '15%' }}>Trigger rule</th>
-            <th style={{ width: '15%' }}>Filters</th>
-            <th style={{ width: '15%' }}>Outputs</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {arrayAutomations.length === 0 && (
-            <Panel.TableEmpty
-              handleClick={!automationFormData ? () => setAutomationFormData(automationPlaceholder) : undefined}
-            />
+        <Panel.Section>
+          {enabledAutomations === false && (
+            <Info>
+              Automations are disabled. You can still manage automation definitions here, but they will not run until
+              enabled.
+            </Info>
           )}
-          {arrayAutomations.map((automationId) => {
-            if (!Object.hasOwn(automations, automationId)) {
-              return null;
-            }
-            return (
-              <Fragment key={automationId}>
+
+          <Panel.Table>
+            <thead>
+              <tr>
+                <th style={{ width: '45%' }}>Title</th>
+                <th style={{ width: '15%' }}>Trigger rule</th>
+                <th style={{ width: '15%' }}>Filters</th>
+                <th style={{ width: '15%' }}>Outputs</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {!isLoading && arrayAutomations.length === 0 && (
+                <Panel.TableEmpty
+                  title='No automations yet'
+                  description='An automation sends OSC or HTTP messages, or runs an Ontime action, whenever a trigger fires.'
+                  action={
+                    <Button variant='primary' onClick={() => setAutomationFormData(automationPlaceholder)}>
+                      Create automation <IoAdd />
+                    </Button>
+                  }
+                />
+              )}
+              {arrayAutomations.map((automationId) => {
+                if (!Object.hasOwn(automations, automationId)) {
+                  return null;
+                }
+                return (
+                  <Fragment key={automationId}>
+                    <tr>
+                      <td>{automations[automationId].title}</td>
+                      <td>
+                        <Tag>{automations[automationId].filterRule}</Tag>
+                      </td>
+                      <td>{automations[automationId].filters.length}</td>
+                      <td>{automations[automationId].outputs.length}</td>
+                      <Panel.InlineElements align='end' relation='inner' as='td'>
+                        <IconButton
+                          variant='ghosted-white'
+                          aria-label='Edit entry'
+                          onClick={() => setAutomationFormData(automations[automationId])}
+                        >
+                          <IoPencil />
+                        </IconButton>
+                        <IconButton
+                          variant='ghosted-destructive'
+                          aria-label='Delete entry'
+                          onClick={() => handleDelete(automationId)}
+                        >
+                          <IoTrash />
+                        </IconButton>
+                      </Panel.InlineElements>
+                    </tr>
+                  </Fragment>
+                );
+              })}
+              {deleteError && (
                 <tr>
-                  <td>{automations[automationId].title}</td>
-                  <td>
-                    <Tag>{automations[automationId].filterRule}</Tag>
+                  <td colSpan={5}>
+                    <Panel.Error>{deleteError}</Panel.Error>
                   </td>
-                  <td>{automations[automationId].filters.length}</td>
-                  <td>{automations[automationId].outputs.length}</td>
-                  <Panel.InlineElements align='end' relation='inner' as='td'>
-                    <IconButton
-                      variant='ghosted-white'
-                      aria-label='Edit entry'
-                      onClick={() => setAutomationFormData(automations[automationId])}
-                    >
-                      <IoPencil />
-                    </IconButton>
-                    <IconButton
-                      variant='ghosted-destructive'
-                      aria-label='Delete entry'
-                      onClick={() => handleDelete(automationId)}
-                    >
-                      <IoTrash />
-                    </IconButton>
-                  </Panel.InlineElements>
                 </tr>
-              </Fragment>
-            );
-          })}
-          {deleteError && (
-            <tr>
-              <td colSpan={5}>
-                <Panel.Error>{deleteError}</Panel.Error>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </Panel.Table>
-    </Panel.Card>
+              )}
+            </tbody>
+          </Panel.Table>
+        </Panel.Section>
+      </Panel.Card>
+    </Panel.Section>
   );
 }

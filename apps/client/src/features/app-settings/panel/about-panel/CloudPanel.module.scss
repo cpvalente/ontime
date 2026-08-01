@@ -1,0 +1,74 @@
+.card {
+  padding: 1.5rem;
+  border-color: rgba($action-blue, 0.42);
+  background-color: rgba($action-blue, 0.06);
+}
+
+.eyebrow {
+  color: $action-text-color;
+  font-size: calc(1rem - 3px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin-top: 0.35rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.description {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 33rem;
+  margin-top: 0.9rem;
+  color: $gray-300;
+  line-height: 1.5;
+}
+
+.portability {
+  padding-top: 0.75rem;
+  border-top: 1px solid $white-10;
+  color: $gray-400;
+  font-size: calc(1rem - 2px);
+}
+
+.benefits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+  margin-top: 1.5rem;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    line-height: 1.4;
+  }
+
+  svg {
+    flex: 0 0 auto;
+    margin-top: 0.1rem;
+    color: $action-text-color;
+    font-size: 1.1rem;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: $min-tablet) {
+  .benefits {
+    grid-template-columns: 1fr;
+  }
+}

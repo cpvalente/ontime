@@ -43,6 +43,7 @@ export default function URLPresets() {
   return (
     <Panel.Section>
       <Panel.Card>
+        {formState.isOpen && <URLPresetForm urlPreset={formState.preset} onClose={closeForm} />}
         <Panel.SubHeader>
           URL presets
           <Button onClick={openNewForm}>
@@ -63,7 +64,6 @@ export default function URLPresets() {
         </Panel.Section>
         <Panel.Section>
           <Panel.Loader isLoading={status === 'pending'} />
-          {formState.isOpen && <URLPresetForm urlPreset={formState.preset} onClose={closeForm} />}
           {actionError && <Panel.Error>{actionError}</Panel.Error>}
           <Panel.Table>
             <thead>
@@ -76,7 +76,17 @@ export default function URLPresets() {
               </tr>
             </thead>
             <tbody>
-              {data.length === 0 && <Panel.TableEmpty handleClick={openNewForm} />}
+              {data.length === 0 && (
+                <Panel.TableEmpty
+                  title='No URL presets yet'
+                  description='A preset gives one of your views a short, memorable address, with all of its options baked in.'
+                  action={
+                    <Button variant='primary' onClick={openNewForm}>
+                      Create preset <IoAdd />
+                    </Button>
+                  }
+                />
+              )}
               {data.map((preset, index) => {
                 const isCuesheet = preset.target === OntimeView.Cuesheet;
                 return (

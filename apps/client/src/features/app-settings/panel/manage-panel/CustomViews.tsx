@@ -37,13 +37,14 @@ export default function CustomViews() {
   return (
     <Panel.Section>
       <Panel.Card>
+        {isUploadOpen && <CustomViewForm onComplete={handleUploadComplete} onClose={() => setIsUploadOpen(false)} />}
         <Panel.SubHeader>
           Custom views
           <Panel.InlineElements>
             <Button variant='ghosted' onClick={handleRestoreDemo} disabled={hasDemoView}>
               Restore demo
             </Button>
-            <Button onClick={() => setIsUploadOpen(true)} disabled={isUploadOpen}>
+            <Button onClick={() => setIsUploadOpen(true)}>
               New <IoAdd />
             </Button>
           </Panel.InlineElements>
@@ -62,8 +63,6 @@ export default function CustomViews() {
 
         <Panel.Section>
           <Panel.Loader isLoading={status === 'pending'} />
-
-          {isUploadOpen && <CustomViewForm onComplete={handleUploadComplete} onClose={() => setIsUploadOpen(false)} />}
 
           {actionError && <Panel.Error>{actionError}</Panel.Error>}
 

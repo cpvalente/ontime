@@ -153,7 +153,7 @@ export default function ManageRundowns() {
                     <tr key={id} className={cx([isLoaded && style.current])}>
                       <td>{numEntries}</td>
                       <td>
-                        {title} {isLoaded && <Tag>Loaded</Tag>}
+                        {title} {isLoaded && <Tag variant='active'>Loaded</Tag>}
                       </td>
                       <td>
                         <DropdownMenu
