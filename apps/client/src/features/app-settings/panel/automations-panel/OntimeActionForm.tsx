@@ -51,21 +51,21 @@ export default function OntimeActionForm({
           }}
           value={watch(`outputs.${index}.action`)}
           options={[
-            { value: 'aux1-pause', label: 'Aux timer 1: pause' },
-            { value: 'aux2-pause', label: 'Aux timer 2: pause' },
-            { value: 'aux3-pause', label: 'Aux timer 3: pause' },
+            { value: 'aux1-pause', label: 'Aux 1: pause' },
+            { value: 'aux2-pause', label: 'Aux 2: pause' },
+            { value: 'aux3-pause', label: 'Aux 3: pause' },
 
-            { value: 'aux1-start', label: 'Aux timer 1: start' },
-            { value: 'aux2-start', label: 'Aux timer 2: start' },
-            { value: 'aux3-start', label: 'Aux timer 3: start' },
+            { value: 'aux1-start', label: 'Aux 1: start' },
+            { value: 'aux2-start', label: 'Aux 2: start' },
+            { value: 'aux3-start', label: 'Aux 3: start' },
 
-            { value: 'aux1-stop', label: 'Aux timer 1: stop' },
-            { value: 'aux2-stop', label: 'Aux timer 2: stop' },
-            { value: 'aux3-stop', label: 'Aux timer 3: stop' },
+            { value: 'aux1-stop', label: 'Aux 1: stop' },
+            { value: 'aux2-stop', label: 'Aux 2: stop' },
+            { value: 'aux3-stop', label: 'Aux 3: stop' },
 
-            { value: 'aux1-set', label: 'Aux timer 1: set' },
-            { value: 'aux2-set', label: 'Aux timer 2: set' },
-            { value: 'aux3-set', label: 'Aux timer 3: set' },
+            { value: 'aux1-set', label: 'Aux 1: set' },
+            { value: 'aux2-set', label: 'Aux 2: set' },
+            { value: 'aux3-set', label: 'Aux 3: set' },
 
             { value: 'playback-start', label: 'Playback: start' },
             { value: 'playback-stop', label: 'Playback: stop' },

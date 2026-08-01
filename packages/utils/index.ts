@@ -100,11 +100,7 @@ export {
 export { isPlaybackActive } from './src/playback-utils/playbackstate.js';
 
 // aux timers
-export {
-  auxTimerNameMaxLength,
-  normaliseAuxTimerNames,
-  numberOfAuxTimers,
-} from './src/aux-timer-utils/auxTimerUtils.js';
+export { auxTimerNameMaxLength, sanitiseAuxTimerNames } from './src/aux-timer-utils/auxTimerUtils.js';
 
 //Colour
 export {

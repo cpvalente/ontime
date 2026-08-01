@@ -1,5 +1,5 @@
 import { body } from 'express-validator';
-import { normaliseAuxTimerNames } from 'ontime-utils';
+import { sanitiseAuxTimerNames } from 'ontime-utils';
 
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
@@ -28,11 +28,7 @@ export const validateSettings = [
   pinValidator('operatorKey'),
   body('timeFormat').isString().isIn(['12', '24']).withMessage('Time format can only be "12" or "24"'),
   body('language').isString().trim().notEmpty(),
-  body('auxTimerNames')
-    .isArray()
-    .withMessage('auxTimerNames must be an array')
-    // normalise to a fixed length array of trimmed, length capped strings
-    .customSanitizer(normaliseAuxTimerNames),
+  body('auxTimerNames').isArray().withMessage('auxTimerNames must be an array').customSanitizer(sanitiseAuxTimerNames),
 
   requestValidationFunction,
 ];

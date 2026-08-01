@@ -1,5 +1,5 @@
 import { DatabaseModel, Settings } from 'ontime-types';
-import { normaliseAuxTimerNames } from 'ontime-utils';
+import { sanitiseAuxTimerNames } from 'ontime-utils';
 
 import { is } from '../../../utils/is.js';
 
@@ -24,7 +24,7 @@ export function migrateServerPort(jsonData: Partial<DatabaseModel>): {
   const operatorKey = settings?.operatorKey;
   const timeFormat = settings?.timeFormat;
   const language = settings?.language;
-  const auxTimerNames = normaliseAuxTimerNames(settings?.auxTimerNames);
+  const auxTimerNames = sanitiseAuxTimerNames(settings?.auxTimerNames);
   const version = '4.5.0';
   db.settings = {
     version,

@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import { LogOrigin, SimpleDirection, SimplePlayback, runtimeStorePlaceholder } from 'ontime-types';
-import { normaliseAuxTimerNames } from 'ontime-utils';
+import { sanitiseAuxTimerNames } from 'ontime-utils';
 import serverTiming from 'server-timing';
 
 import { oscServer } from './adapters/OscAdapter.js';
@@ -206,7 +206,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
    * Module initialises the services and provides initial payload for the store
    */
   const state = getState();
-  const auxTimerNames = normaliseAuxTimerNames(getDataProvider().getSettings().auxTimerNames);
+  const [auxName1, auxName2, auxName3] = sanitiseAuxTimerNames(getDataProvider().getSettings().auxTimerNames);
   eventStore.init({
     clock: state.clock,
     timer: state.timer,
@@ -222,27 +222,27 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
       current: timerConfig.auxTimerDefault,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
-      name: auxTimerNames[0] ?? '',
+      name: auxName1,
     },
     auxtimer2: {
       duration: timerConfig.auxTimerDefault,
       current: timerConfig.auxTimerDefault,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
-      name: auxTimerNames[1] ?? '',
+      name: auxName2,
     },
     auxtimer3: {
       duration: timerConfig.auxTimerDefault,
       current: timerConfig.auxTimerDefault,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
-      name: auxTimerNames[2] ?? '',
+      name: auxName3,
     },
     ping: 1,
   });
 
-  // seed the aux timer names onto the running service so they persist across commands
-  auxTimerService.loadNames(auxTimerNames);
+  // AuxTimerService owns its own SimpleTimer instances, so the store above doesn't update them
+  auxTimerService.loadNames(getDataProvider().getSettings().auxTimerNames);
 
   // initialise message service
   messageService.init(eventStore.set, eventStore.get);

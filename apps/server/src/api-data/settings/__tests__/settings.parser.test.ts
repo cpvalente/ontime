@@ -20,7 +20,7 @@ describe('parseSettings()', () => {
     });
   });
 
-  it('carries custom aux timer names through and normalises to a length-3 array', () => {
+  it('carries custom aux timer names through and pads to a length-3 array', () => {
     const result = parseSettings({
       settings: { version: '1', auxTimerNames: ['Speaker'] } as unknown as Settings,
     });
@@ -35,7 +35,6 @@ describe('parseSettings()', () => {
   });
 
   it('creates the aux timer names for project files made before the feature existed', () => {
-    // a settings object as found in a project file which predates aux timer naming
     const oldSettings = {
       version: '4.5.0',
       editorKey: null,
@@ -47,7 +46,6 @@ describe('parseSettings()', () => {
     const result = parseSettings({ settings: oldSettings as Settings });
 
     expect(result.auxTimerNames).toStrictEqual(['', '', '']);
-    // the rest of the settings are untouched
     expect(result).toMatchObject({ timeFormat: '24', language: 'en' });
   });
 });

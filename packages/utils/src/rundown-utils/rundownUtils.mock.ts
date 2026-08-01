@@ -1,8 +1,6 @@
 import type { DatabaseModel } from 'ontime-types';
 import { EndAction, OntimeView, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
 
-import { normaliseAuxTimerNames } from '../aux-timer-utils/auxTimerUtils.js';
-
 export const demoDb: DatabaseModel = {
   rundowns: {
     default: {
@@ -344,7 +342,7 @@ export const demoDb: DatabaseModel = {
     operatorKey: null,
     timeFormat: '24',
     language: 'en',
-    auxTimerNames: normaliseAuxTimerNames(),
+    auxTimerNames: ['', '', ''],
   },
   viewSettings: {
     dangerColor: '#ff7300',

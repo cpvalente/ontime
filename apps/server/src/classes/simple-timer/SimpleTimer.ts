@@ -29,9 +29,6 @@ export class SimpleTimer {
     };
   }
 
-  /**
-   * Sets the custom name of the timer
-   */
   public setName(name: string): SimpleTimerState {
     this.state.name = name;
     return this.state;

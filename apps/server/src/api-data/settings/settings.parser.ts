@@ -1,5 +1,5 @@
 import { DatabaseModel, Settings } from 'ontime-types';
-import { normaliseAuxTimerNames } from 'ontime-utils';
+import { sanitiseAuxTimerNames } from 'ontime-utils';
 
 import { getPartialProject } from '../../models/dataModel.js';
 
@@ -23,7 +23,7 @@ export function parseSettings(data: Partial<DatabaseModel>): Settings {
     operatorKey: data.settings.operatorKey ?? defaultSettings.operatorKey,
     timeFormat: data.settings.timeFormat ?? defaultSettings.timeFormat,
     language: data.settings.language ?? defaultSettings.language,
-    // property added in v4.6.0, older project files will not contain it
-    auxTimerNames: normaliseAuxTimerNames(data.settings.auxTimerNames),
+    // older project files predate this property
+    auxTimerNames: sanitiseAuxTimerNames(data.settings.auxTimerNames),
   };
 }

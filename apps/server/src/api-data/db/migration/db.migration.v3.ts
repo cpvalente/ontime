@@ -23,7 +23,6 @@ import {
   customFieldLabelToKey,
   eventDef as eventModel,
   isKnownTimerType,
-  normaliseAuxTimerNames,
   validateEndAction,
 } from 'ontime-utils';
 
@@ -82,7 +81,7 @@ export function migrateSettings(jsonData: object): (Settings & { serverPort: num
       operatorKey,
       timeFormat,
       language,
-      auxTimerNames: normaliseAuxTimerNames(),
+      auxTimerNames: ['', '', ''],
     };
   }
 }

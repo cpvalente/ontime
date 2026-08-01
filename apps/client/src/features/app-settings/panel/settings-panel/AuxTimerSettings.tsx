@@ -1,5 +1,5 @@
 import { Settings } from 'ontime-types';
-import { auxTimerNameMaxLength, numberOfAuxTimers } from 'ontime-utils';
+import { auxTimerNameMaxLength } from 'ontime-utils';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -11,9 +11,6 @@ import Input from '../../../../common/components/input/input/Input';
 import useSettings from '../../../../common/hooks-query/useSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
-
-/** zero based index of each aux timer, used to address the auxTimerNames array */
-const auxTimerIndexes = Array.from({ length: numberOfAuxTimers }, (_, index) => index);
 
 export default function AuxTimerSettings() {
   const { data, status, refetch } = useSettings();
@@ -30,7 +27,6 @@ export default function AuxTimerSettings() {
     },
   });
 
-  // update form if we get new data from server
   useEffect(() => {
     if (data) {
       reset(data);
@@ -79,16 +75,18 @@ export default function AuxTimerSettings() {
           <Panel.Loader isLoading={isLoading} />
           <Panel.Error>{errors.root?.message}</Panel.Error>
           <Panel.ListGroup>
-            {auxTimerIndexes.map((index) => (
-              <Panel.ListItem key={index}>
-                <Panel.Field title={`Aux timer ${index + 1}`} description={`Custom name for aux timer ${index + 1}`} />
-                <Input
-                  maxLength={auxTimerNameMaxLength}
-                  placeholder={`Aux ${index + 1}`}
-                  {...register(`auxTimerNames.${index}`)}
-                />
-              </Panel.ListItem>
-            ))}
+            <Panel.ListItem>
+              <Panel.Field title='Aux timer 1' description='Custom name for aux timer 1' />
+              <Input maxLength={auxTimerNameMaxLength} placeholder='Aux 1' {...register('auxTimerNames.0')} />
+            </Panel.ListItem>
+            <Panel.ListItem>
+              <Panel.Field title='Aux timer 2' description='Custom name for aux timer 2' />
+              <Input maxLength={auxTimerNameMaxLength} placeholder='Aux 2' {...register('auxTimerNames.1')} />
+            </Panel.ListItem>
+            <Panel.ListItem>
+              <Panel.Field title='Aux timer 3' description='Custom name for aux timer 3' />
+              <Input maxLength={auxTimerNameMaxLength} placeholder='Aux 3' {...register('auxTimerNames.2')} />
+            </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>
       </Panel.Card>

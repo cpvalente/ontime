@@ -27,7 +27,7 @@ export default function PlaybackControl() {
         timerPhase={data.timerPhase}
       />
       <div className={style.auxHeader}>
-        <span>Aux timers</span>
+        <span className={style.label}>Aux timers</span>
         <Tooltip
           text='Name aux timers'
           render={

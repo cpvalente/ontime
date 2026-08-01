@@ -90,7 +90,7 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
   // stop the runtime service
   runtimeService.stop();
 
-  // the aux timer names belong to the project, apply the ones from the newly loaded project
+  // AuxTimerService holds its own state, independent of the loaded project, so it needs to be updated explicitly
   auxTimerService.loadNames(projectData.settings.auxTimerNames);
 
   // load the rundown given by key otherwise load the first in the project
@@ -352,7 +352,7 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
   // we can pass some stuff straight to the data provider
   await getDataProvider().mergeIntoData(rest);
 
-  // the settings may contain new aux timer names, apply them and notify the clients
+  // AuxTimerService holds its own state, so a settings patch needs to be applied to it explicitly
   if (rest.settings) {
     auxTimerService.loadNames(getDataProvider().getSettings().auxTimerNames);
     sendRefetch(RefetchKey.Settings);
