@@ -16,19 +16,13 @@ export function getProjectData(): Readonly<ProjectData> {
 
 /**
  * Patches the current project data
- * Handles deleting the local logo if the logo has been removed
  */
 export async function editCurrentProjectData(newData: Partial<ProjectData>) {
   const currentProjectData = getDataProvider().getProjectData();
   const updatedProjectData = await getDataProvider().setProjectData(newData);
 
-  // Delete the old logo if the logo has been removed
-  if (!updatedProjectData.logo && currentProjectData.logo) {
-    const filePath = join(publicDir.logoDir, currentProjectData.logo);
-
-    deleteFile(filePath).catch((_error) => {
-      /** we do not handle this error */
-    });
+  if (currentProjectData.logo && currentProjectData.logo !== updatedProjectData.logo) {
+    deleteFile(join(publicDir.logoDir, currentProjectData.logo));
   }
 
   // Notify the websocket clients to refetch the project data
