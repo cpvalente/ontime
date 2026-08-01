@@ -148,7 +148,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
         const presetPath = options.path.startsWith('preset-') ? options.path.replace('preset-', '') : undefined;
         const path = presetPath ? presets.find((preset) => preset.alias === presetPath)?.target : options.path;
         if (!path) {
-          throw new Error(`Could not resolve preset: ${path}`);
+          throw new Error(`Could not resolve preset: ${presetPath}`);
         }
 
         const url = await generateUrl({
@@ -204,9 +204,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                 />
               </Panel.ListItem>
             )}
-            {isLockedToView ? (
-              <input type='hidden' value={watch('path')} />
-            ) : (
+            {!isLockedToView && (
               <Panel.ListItem>
                 <Panel.Field title='Ontime view' description='Which view or preset will the link point to' />
                 <Select
@@ -225,7 +223,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                 <Panel.ListItem>
                   <Panel.Field
                     title='Preset alias'
-                    description='The name of the preset we will create to hold this options'
+                    description='Names the URL preset which holds these options'
                     error={(errors as FieldErrors<CuesheetLinkOptions>).alias?.message}
                   />
                   <Input

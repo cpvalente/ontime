@@ -104,6 +104,7 @@ export default function URLPresets() {
                       <IconButton
                         variant='ghosted-white'
                         onClick={(event) => handleLinks(preset.alias, event)}
+                        aria-label='Open in new tab'
                         disabled={isMutating}
                       >
                         <IoOpenOutline />

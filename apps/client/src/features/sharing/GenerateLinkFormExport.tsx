@@ -12,7 +12,8 @@ interface GenerateLinkFormExportProps {
 
 export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormExportProps) {
   const { data: infoData } = useInfo();
-  const { data: urlPresetData } = useUrlPresets({ skip: lockedPath === undefined });
+  // presets are only offered as a destination in the unlocked form
+  const { data: urlPresetData } = useUrlPresets({ skip: Boolean(lockedPath) });
 
   /**
    * hostOptions are only used for local networks
