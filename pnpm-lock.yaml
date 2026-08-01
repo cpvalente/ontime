@@ -328,7 +328,7 @@ importers:
   packages/utils:
     dependencies:
       deepmerge-ts:
-        specifier: ^7.0.3
+        specifier: ^7.1.5
         version: 7.1.5
       nanoid:
         specifier: ^6.0.0

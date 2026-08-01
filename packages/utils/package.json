@@ -10,7 +10,7 @@
     "test:pipeline": "vitest run"
   },
   "dependencies": {
-    "deepmerge-ts": "^7.0.3",
+    "deepmerge-ts": "^7.1.5",
     "nanoid": "^6.0.0"
   },
   "devDependencies": {
