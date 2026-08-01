@@ -3,6 +3,7 @@ import { readFile, stat } from 'fs/promises';
 import { extname, join } from 'path';
 
 import { DatabaseModel, MaybeString, ProjectFile } from 'ontime-types';
+import { generateId } from 'ontime-utils';
 
 import { publicDir } from '../../setup/index.js';
 import { dockerSafeRename, getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
@@ -20,15 +21,16 @@ export async function handleProjectUploaded(filePath: string, name: string) {
 
 /**
  * Handles the upload of a logo image
- * @throws if the file already exits
+ * Each upload gets a unique filename so logos cannot conflict across projects.
  * @param filePath
  * @param name
- * @returns
+ * @returns the generated filename
  */
 export async function handleImageUpload(filePath: string, name: string): Promise<string> {
-  const newFilePath = join(publicDir.logoDir, name);
+  const filename = `${generateId()}${extname(name)}`;
+  const newFilePath = join(publicDir.logoDir, filename);
   await dockerSafeRename(filePath, newFilePath);
-  return name;
+  return filename;
 }
 
 /**

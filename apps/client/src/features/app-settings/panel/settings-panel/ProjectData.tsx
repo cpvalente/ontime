@@ -69,6 +69,9 @@ export default function ProjectData() {
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('logo', { message });
+    } finally {
+      // Allow selecting the same local file again after an upload attempt.
+      event.target.value = '';
     }
   };
 
@@ -153,14 +156,21 @@ export default function ProjectData() {
                 {watch('logo') ? (
                   <>
                     <img src={`${projectLogoPath}/${watch('logo')}`} />
-                    <Button
-                      variant='subtle-destructive'
-                      disabled={isSubmitting || !watch('logo')}
-                      onClick={handleDeleteLogo}
-                    >
-                      <IoTrash />
-                      Delete
-                    </Button>
+                    <div className={style.logoActions}>
+                      <Button disabled={isSubmitting} onClick={handleClickUpload} type='button'>
+                        <IoDownloadOutline />
+                        Replace logo
+                      </Button>
+                      <Button
+                        variant='subtle-destructive'
+                        disabled={isSubmitting || !watch('logo')}
+                        onClick={handleDeleteLogo}
+                        type='button'
+                      >
+                        <IoTrash />
+                        Delete
+                      </Button>
+                    </div>
                   </>
                 ) : (
                   <Button disabled={isSubmitting} onClick={handleClickUpload} type='button'>
