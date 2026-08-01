@@ -10,14 +10,31 @@
 .copiableLink {
   user-select: text;
   color: $ui-white;
-  white-space: nowrap;
-  overflow-x: auto;
+  // the link is the artefact of this form, it should be readable in full
+  overflow-wrap: anywhere;
 }
 
 .shareInline {
   display: grid;
-  grid-template-columns: 1fr 172px;
+  grid-template-columns: 1fr minmax(200px, 260px);
   gap: 1rem;
+
+  // the result panel drops below the options when there is no room for two columns
+  @media (max-width: $min-tablet) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/** Placeholder holds the space of the QR code so the panel does not jump on creation */
+.qrPlaceholder {
+  width: 172px;
+  height: 172px;
+  display: grid;
+  place-content: center;
+  border: 1px dashed $gray-1000;
+  border-radius: 3px;
+  color: $gray-1000;
+  font-size: 4rem;
 }
 
 .end {

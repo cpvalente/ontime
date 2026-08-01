@@ -1,17 +1,18 @@
 import { OntimeView, URLPreset } from 'ontime-types';
 import { generateId } from 'ontime-utils';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FieldErrors, useForm } from 'react-hook-form';
+import { IoQrCodeOutline } from 'react-icons/io5';
 
 import { generateUrl } from '../../common/api/session';
 import { maybeAxiosError } from '../../common/api/utils';
 import Button from '../../common/components/buttons/Button';
 import CopyTag from '../../common/components/copy-tag/CopyTag';
-import Info from '../../common/components/info/Info';
 import Input from '../../common/components/input/input/Input';
 import QRCode from '../../common/components/qr-code/QrCode';
 import Select from '../../common/components/select/Select';
 import Switch from '../../common/components/switch/Switch';
+import Tag from '../../common/components/tag/Tag';
 import { useUpdateUrlPreset } from '../../common/hooks-query/useUrlPresets';
 import { safeCopyToClipboard } from '../../common/utils/copyToClipboard';
 import { preventEscape } from '../../common/utils/keyEvent';
@@ -26,6 +27,8 @@ interface GenerateLinkFormProps {
   hostOptions: { value: string; label: string }[];
   pathOptions: { value: OntimeView | string; label: string }[];
   presets: URLPreset[];
+  /** whether the instance is password protected, links can only be pre-authenticated if it is */
+  hasPassword?: boolean;
   isLockedToView?: boolean;
 }
 
@@ -51,9 +54,37 @@ type GenerateLinkFormOptions = GenericLinkOptions | CuesheetLinkOptions;
 
 type GenerateLinkState = 'pending' | 'loading' | 'success' | 'error';
 
-export default function GenerateLinkForm({ hostOptions, pathOptions, presets, isLockedToView }: GenerateLinkFormProps) {
+/**
+ * Describes a set of permissions in a way that can be shown in a tag
+ * Permissions are either 'full', '-' (none) or a comma separated list of column keys
+ */
+function describePermission(permission: string): string {
+  if (permission === 'full') return 'all';
+  if (permission === '-') return 'none';
+  const amount = permission.split(',').filter(Boolean).length;
+  return `${amount} ${amount === 1 ? 'column' : 'columns'}`;
+}
+
+/** Snapshot of the options a link was created with, so the summary cannot drift from the link */
+type CreatedLink = {
+  url: string;
+  view: string;
+  lockNav: boolean;
+  lockConfig: boolean;
+  authenticate: boolean;
+  permissions?: CuesheetPermissionValues;
+};
+
+export default function GenerateLinkForm({
+  hostOptions,
+  pathOptions,
+  presets,
+  hasPassword,
+  isLockedToView,
+}: GenerateLinkFormProps) {
   const [formState, setFormState] = useState<GenerateLinkState>('pending');
-  const [url, setUrl] = useState('');
+  const [created, setCreated] = useState<CreatedLink | null>(null);
+  const [showCopied, setShowCopied] = useState(false);
   const [cuesheetPermissions, setCuesheetPermissions] = useState<CuesheetPermissionValues>({
     read: 'full',
     write: 'full',
@@ -93,6 +124,13 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
     },
   });
 
+  // the link is copied on creation, we show a transient confirmation so the side effect is visible
+  useEffect(() => {
+    if (!showCopied) return;
+    const timeout = setTimeout(() => setShowCopied(false), 2000);
+    return () => clearTimeout(timeout);
+  }, [showCopied]);
+
   /**
    * If the user is generating a link to the cuesheet we gather extra options
    * The extra options are saved into a URL preset which we then request a share link for
@@ -122,6 +160,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
   };
 
   const onSubmit = async (options: GenerateLinkFormOptions) => {
+    const viewLabel = pathOptions.find((option) => option.value === options.path)?.label ?? String(options.path);
     try {
       setFormState('loading');
       if (options.path === OntimeView.Cuesheet) {
@@ -143,7 +182,14 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
           preset: urlPreset.alias,
         });
         await safeCopyToClipboard(url);
-        setUrl(url);
+        setCreated({
+          url,
+          view: viewLabel,
+          lockNav: options.lockNav,
+          lockConfig: options.lockConfig,
+          authenticate: options.authenticate,
+          permissions: cuesheetPermissions,
+        });
       } else {
         const presetPath = options.path.startsWith('preset-') ? options.path.replace('preset-', '') : undefined;
         const path = presetPath ? presets.find((preset) => preset.alias === presetPath)?.target : options.path;
@@ -161,8 +207,15 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
         });
 
         await safeCopyToClipboard(url);
-        setUrl(url);
+        setCreated({
+          url,
+          view: viewLabel,
+          lockNav: options.lockNav,
+          lockConfig: options.lockConfig,
+          authenticate: options.authenticate,
+        });
       }
+      setShowCopied(true);
       reset(options, {
         keepValues: true,
         keepDirty: false,
@@ -175,16 +228,17 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
     }
   };
 
-  const noReadAccess = watch('path') === OntimeView.Cuesheet && cuesheetPermissions.read === '-';
+  const isCuesheet = watch('path') === OntimeView.Cuesheet;
+  const noReadAccess = isCuesheet && cuesheetPermissions.read === '-';
   const canSubmit = isDirty || formState !== 'success';
+  // the options have moved on from the link we are showing
+  const isStale = created !== null && formState !== 'loading' && (isDirty || formState === 'pending');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} onKeyDown={(event) => preventEscape(event)}>
-      {!isLockedToView && (
-        <Info>You can generate a link to share with your team or to use in automation (such as companion).</Info>
-      )}
       <div className={style.shareInline}>
         <div className={style.column}>
+          <Panel.Title>Destination</Panel.Title>
           <Panel.ListGroup>
             {isOntimeCloud ? (
               <input hidden readOnly name='baseUrl' value={serverURL} />
@@ -217,30 +271,38 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                 />
               </Panel.ListItem>
             )}
-
-            {watch('path') === OntimeView.Cuesheet && (
-              <>
-                <Panel.ListItem>
-                  <Panel.Field
-                    title='Preset alias'
-                    description='Names the URL preset which holds these options'
-                    error={(errors as FieldErrors<CuesheetLinkOptions>).alias?.message}
-                  />
-                  <Input
-                    defaultValue={generatedAlias.current}
-                    {...register('alias', {
-                      required: 'Alias cannot be empty and must be unique',
-                      pattern: {
-                        value: isUrlSafe,
-                        message: 'Field can only contain URL safe characters (a-z, 0-9, _ and -)',
-                      },
-                    })}
-                  />
-                </Panel.ListItem>
-                <CuesheetLinkOptions onChange={handlePermissionsChange} />
-              </>
+            {isCuesheet && (
+              <Panel.ListItem>
+                <Panel.Field
+                  title='Preset alias'
+                  description='Names the URL preset which holds these options'
+                  error={(errors as FieldErrors<CuesheetLinkOptions>).alias?.message}
+                />
+                <Input
+                  defaultValue={generatedAlias.current}
+                  {...register('alias', {
+                    required: 'Alias cannot be empty and must be unique',
+                    pattern: {
+                      value: isUrlSafe,
+                      message: 'Field can only contain URL safe characters (a-z, 0-9, _ and -)',
+                    },
+                  })}
+                />
+              </Panel.ListItem>
             )}
+          </Panel.ListGroup>
 
+          {isCuesheet && (
+            <>
+              <Panel.Title>Permissions</Panel.Title>
+              <Panel.ListGroup>
+                <CuesheetLinkOptions onChange={handlePermissionsChange} />
+              </Panel.ListGroup>
+            </>
+          )}
+
+          <Panel.Title>Access</Panel.Title>
+          <Panel.ListGroup>
             <Panel.ListItem>
               <Panel.Field title='Lock navigation' description='Whether to hide the navigation menu' />
               <Switch
@@ -252,7 +314,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                 disabled={watch('lockConfig')}
               />
             </Panel.ListItem>
-            {watch('path') !== OntimeView.Cuesheet && (
+            {!isCuesheet && (
               <Panel.ListItem>
                 <Panel.Field
                   title='Lock configuration'
@@ -272,16 +334,19 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                 />
               </Panel.ListItem>
             )}
-            <Panel.ListItem>
-              <Panel.Field title='Authenticate' description='Whether the URL should be pre-authenticated' />
-              <Switch
-                size='large'
-                name='authenticate'
-                data-testid='authenticate'
-                checked={watch('authenticate')}
-                onCheckedChange={(checked) => setValue('authenticate', checked, { shouldDirty: true })}
-              />
-            </Panel.ListItem>
+            {/* pre-authenticating a link is only meaningful if the instance is password protected */}
+            {hasPassword && (
+              <Panel.ListItem>
+                <Panel.Field title='Authenticate' description='Whether the URL should be pre-authenticated' />
+                <Switch
+                  size='large'
+                  name='authenticate'
+                  data-testid='authenticate'
+                  checked={watch('authenticate')}
+                  onCheckedChange={(checked) => setValue('authenticate', checked, { shouldDirty: true })}
+                />
+              </Panel.ListItem>
+            )}
           </Panel.ListGroup>
           <Panel.Error>{errors.root?.message}</Panel.Error>
           <Panel.InlineElements align='end' className={style.end}>
@@ -291,22 +356,40 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
               loading={formState === 'loading'}
               disabled={noReadAccess}
             >
-              {canSubmit ? 'Create share link' : 'Link copied to clipboard!'}
+              Create share link
             </Button>
           </Panel.InlineElements>
         </div>
         <Panel.Section className={style.column}>
           <Panel.Description>Share this link</Panel.Description>
-          {url ? (
+          {created ? (
             <>
-              <QRCode size={172} value={url} />
+              <QRCode size={172} value={created.url} />
               <div className={style.copiableLink} data-testid='copy-link'>
-                {url}
+                {created.url}
               </div>
-              <CopyTag copyValue={url}>Copy link</CopyTag>
+              <Panel.InlineElements relation='inner' wrap='wrap'>
+                <Tag>{created.view}</Tag>
+                {created.lockNav && <Tag>Nav locked</Tag>}
+                {created.lockConfig && <Tag>Config locked</Tag>}
+                {created.authenticate && <Tag>Authenticated</Tag>}
+                {created.permissions && (
+                  <>
+                    <Tag>Read: {describePermission(created.permissions.read)}</Tag>
+                    <Tag>Write: {describePermission(created.permissions.write)}</Tag>
+                  </>
+                )}
+                {isStale && <Tag variant='warning'>Options changed</Tag>}
+              </Panel.InlineElements>
+              <Panel.InlineElements relation='inner'>
+                <CopyTag copyValue={created.url}>Copy link</CopyTag>
+                {showCopied && <Tag>Copied</Tag>}
+              </Panel.InlineElements>
             </>
           ) : (
-            <Panel.Description>Your link will appear here once you create it.</Panel.Description>
+            <div className={style.qrPlaceholder} aria-hidden>
+              <IoQrCodeOutline />
+            </div>
           )}
         </Panel.Section>
       </div>

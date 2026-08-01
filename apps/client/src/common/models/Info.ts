@@ -5,4 +5,5 @@ export const ontimePlaceholderInfo: GetInfo = {
   version: '4.0.0',
   serverPort: 4001,
   publicDir: '',
+  hasPassword: false,
 };

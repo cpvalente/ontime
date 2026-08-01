@@ -50,6 +50,7 @@ export function getInfo(): GetInfo {
     version,
     serverPort: port,
     publicDir: publicDir.root,
+    hasPassword,
   };
 }
 

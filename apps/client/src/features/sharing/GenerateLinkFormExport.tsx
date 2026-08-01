@@ -49,6 +49,7 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
       hostOptions={hostOptions}
       pathOptions={pathOptions}
       presets={urlPresetData}
+      hasPassword={infoData.hasPassword}
       isLockedToView={Boolean(lockedPath)}
     />
   );

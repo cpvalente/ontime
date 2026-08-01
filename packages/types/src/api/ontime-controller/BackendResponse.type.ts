@@ -27,6 +27,8 @@ export interface GetInfo {
   version: string;
   serverPort: number;
   publicDir: string;
+  /** whether the instance is protected by a password, ie: whether links can be pre-authenticated */
+  hasPassword: boolean;
 }
 
 export interface GetUrl {
