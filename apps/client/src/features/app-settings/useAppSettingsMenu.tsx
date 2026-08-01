@@ -8,7 +8,6 @@ export type SettingsOption = {
   label: string;
   secondary?: Readonly<SettingsOption[]>;
   highlight?: string;
-  /** alternative terms a user may search for when looking for this section */
   keywords?: Readonly<string[]>;
 };
 

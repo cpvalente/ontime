@@ -6,9 +6,9 @@ import { maybeAxiosError, unwrapError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
 import Input from '../../../../../common/components/input/input/Input';
 import Textarea from '../../../../../common/components/input/textarea/Textarea';
+import Modal from '../../../../../common/components/modal/Modal';
 import Select, { SelectOption } from '../../../../../common/components/select/Select';
 import { useUpdateUrlPreset } from '../../../../../common/hooks-query/useUrlPresets';
-import { preventEscape } from '../../../../../common/utils/keyEvent';
 import { isUrlSafe } from '../../../../../common/utils/regex';
 import { enDash } from '../../../../../common/utils/styleUtils';
 import { generateUrlPresetOptions } from '../../../../../common/utils/urlPresets';
@@ -27,6 +27,8 @@ const targetOptions: SelectOption<OntimeViewPresettable>[] = [
   { value: OntimeView.Countdown, label: 'Countdown' },
   { value: OntimeView.ProjectInfo, label: 'Project Info' },
 ];
+
+const formId = 'url-preset-form';
 
 const defaultValues: URLPreset = {
   alias: '',
@@ -134,95 +136,101 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
   };
 
   return (
-    <Panel.Indent
-      as='form'
-      onSubmit={handleSubmit(setupSubmit)}
-      onKeyDown={(event) => preventEscape(event, onClose)}
-      className={style.column}
-    >
-      <input hidden name='enabled' value='true' />
+    <Modal
+      isOpen
+      onClose={onClose}
+      showBackdrop
+      showCloseButton
+      size='compact'
+      title={urlPreset ? 'Edit URL preset' : 'Create URL preset'}
+      bodyElements={
+        <form id={formId} onSubmit={handleSubmit(setupSubmit)} className={style.column}>
+          <input hidden name='enabled' value='true' />
 
-      <div>1. Enter URL and let Ontime generate the preset options</div>
-      <Panel.InlineElements>
-        <div>
-          <Panel.Description>Alias</Panel.Description>
-          <Input
-            {...register('alias', {
-              required: 'Alias is required',
-              pattern: {
-                value: isUrlSafe,
-                message: 'Field can only contain URL safe characters (a-z, 0-9, _ and -)',
-              },
-            })}
-          />
-        </div>
-        <div className={style.expand}>
-          <Panel.Description>Generate options (paste URL to generate options)</Panel.Description>
+          <div>1. Enter URL and let Ontime generate the preset options</div>
           <Panel.InlineElements>
-            <Input placeholder='Paste URL' fluid ref={urlRef} disabled={isEditingCuesheet} />
-            <Button onClick={generateOptions} disabled={isEditingCuesheet}>
-              Generate
-            </Button>
+            <div>
+              <Panel.Description>Alias</Panel.Description>
+              <Input
+                {...register('alias', {
+                  required: 'Alias is required',
+                  pattern: {
+                    value: isUrlSafe,
+                    message: 'Field can only contain URL safe characters (a-z, 0-9, _ and -)',
+                  },
+                })}
+              />
+            </div>
+            <div className={style.expand}>
+              <Panel.Description>Generate options (paste URL to generate options)</Panel.Description>
+              <Panel.InlineElements>
+                <Input placeholder='Paste URL' fluid ref={urlRef} disabled={isEditingCuesheet} />
+                <Button onClick={generateOptions} disabled={isEditingCuesheet}>
+                  Generate
+                </Button>
+              </Panel.InlineElements>
+            </div>
           </Panel.InlineElements>
-        </div>
-      </Panel.InlineElements>
-      {errors.alias?.message && <Panel.Error>{errors.alias.message}</Panel.Error>}
-      {!isEditingCuesheet && (
-        <>
-          <div>
-            {enDash} or {enDash}
-          </div>
-          <div>2. Choose a view and its parameters</div>
-          <div>
-            <Panel.Description>Target</Panel.Description>
-            <Select
-              options={targetOptions}
-              {...register('target', { required: 'Target is required' })}
-              value={watch('target')}
-              onValueChange={(value: OntimeViewPresettable | null) => {
-                if (value === null) return;
-                setValue('target', value, { shouldDirty: true });
-              }}
-            />
-          </div>
-          <div>
-            <Panel.Description>Parameters</Panel.Description>
-            <Textarea
-              fluid
-              rows={3}
-              {...register('search', {
-                validate: validateParams,
-              })}
-            />
-            <Panel.Error>{errors.search?.message}</Panel.Error>
-          </div>
-        </>
-      )}
+          {errors.alias?.message && <Panel.Error>{errors.alias.message}</Panel.Error>}
+          {!isEditingCuesheet && (
+            <>
+              <div>
+                {enDash} or {enDash}
+              </div>
+              <div>2. Choose a view and its parameters</div>
+              <div>
+                <Panel.Description>Target</Panel.Description>
+                <Select
+                  options={targetOptions}
+                  {...register('target', { required: 'Target is required' })}
+                  value={watch('target')}
+                  onValueChange={(value: OntimeViewPresettable | null) => {
+                    if (value === null) return;
+                    setValue('target', value, { shouldDirty: true });
+                  }}
+                />
+              </div>
+              <div>
+                <Panel.Description>Parameters</Panel.Description>
+                <Textarea
+                  fluid
+                  rows={3}
+                  {...register('search', {
+                    validate: validateParams,
+                  })}
+                />
+                <Panel.Error>{errors.search?.message}</Panel.Error>
+              </div>
+            </>
+          )}
 
-      {isCuesheet && (
-        <div>
-          <Panel.Description>Permissions</Panel.Description>
-          <CuesheetLinkOptions
-            initialRead={initialPermissions.current.read}
-            initialWrite={initialPermissions.current.write}
-            onChange={setCuesheetPermissions}
-          />
-        </div>
-      )}
-      <div>
-        <Panel.Error>{errors.root?.message}</Panel.Error>
-        <Panel.InlineElements align='end'>
+          {isCuesheet && (
+            <div>
+              <Panel.Description>Permissions</Panel.Description>
+              <CuesheetLinkOptions
+                initialRead={initialPermissions.current.read}
+                initialWrite={initialPermissions.current.write}
+                onChange={setCuesheetPermissions}
+              />
+            </div>
+          )}
+        </form>
+      }
+      footerElements={
+        <>
+          <Panel.Error>{errors.root?.message}</Panel.Error>
           <Button onClick={onClose}>Cancel</Button>
           <Button
             variant='primary'
             type='submit'
+            form={formId}
             disabled={!isValid || (!isDirty && !permissionsDirty) || noReadAccess}
             loading={isSubmitting || isMutating}
           >
             Save
           </Button>
-        </Panel.InlineElements>
-      </div>
-    </Panel.Indent>
+        </>
+      }
+    />
   );
 }

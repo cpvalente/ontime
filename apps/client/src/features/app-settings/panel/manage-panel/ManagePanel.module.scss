@@ -12,6 +12,13 @@
   gap: 1rem;
 }
 
+.formColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .current {
-  background-color: $blue-1100 !important; // fighting zebra styles
+  // marker consumed by the shared Panel.Table active-row treatment
+  background-color: inherit;
 }

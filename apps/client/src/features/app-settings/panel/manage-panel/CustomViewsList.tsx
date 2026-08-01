@@ -1,5 +1,6 @@
 import { CustomViewSummary } from 'ontime-types';
 import { useState } from 'react';
+import { IoCloudUploadOutline } from 'react-icons/io5';
 
 import { deleteCustomView } from '../../../../common/api/customViews';
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -53,7 +54,17 @@ export default function CustomViewsList({ views, onOpenUpload, onMutate, onError
           </tr>
         </thead>
         <tbody>
-          {views.length === 0 && <Panel.TableEmpty handleClick={onOpenUpload} label='No custom views yet' />}
+          {views.length === 0 && (
+            <Panel.TableEmpty
+              title='No custom views yet'
+              description='Upload a self-contained index.html to serve your own view alongside the built-in ones.'
+              action={
+                <Button variant='primary' onClick={onOpenUpload}>
+                  Upload view <IoCloudUploadOutline />
+                </Button>
+              }
+            />
+          )}
           {views.map((view, index) => (
             <CustomViewsListItem
               key={view.slug}

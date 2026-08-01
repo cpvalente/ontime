@@ -68,13 +68,19 @@ export default function ClientList() {
             </tr>
           </thead>
           <tbody>
+            {ontimeClients.length === 0 && (
+              <Panel.TableEmpty
+                title='No Ontime clients connected'
+                description='Editor, cuesheet and operator windows appear here as they connect.'
+              />
+            )}
             {ontimeClients.map(([key, client]) => {
               const { identify, name, path } = client;
               const isCurrent = id === key;
               return (
-                <tr key={key} className={cx([isCurrent && style.self])}>
+                <tr key={key} className={cx([isCurrent && style.current])}>
                   <Panel.InlineElements relation='inner' as='td'>
-                    {isCurrent && <Tag>SELF</Tag>}
+                    {isCurrent && <Tag variant='active'>SELF</Tag>}
                     {name}
                   </Panel.InlineElements>
                   <td className={style.copiable}>{path}</td>
@@ -125,6 +131,12 @@ export default function ClientList() {
             </tr>
           </thead>
           <tbody>
+            {otherClients.length === 0 && (
+              <Panel.TableEmpty
+                title='No other clients connected'
+                description='Views and integrations connected to this server are listed here.'
+              />
+            )}
             {otherClients.map(([key, client]) => {
               const { name, type } = client;
 

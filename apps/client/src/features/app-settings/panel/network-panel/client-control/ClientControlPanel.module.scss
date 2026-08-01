@@ -16,6 +16,7 @@
   user-select: text;
 }
 
-.self {
-  background-color: $blue-1100;
+.current {
+  // marker consumed by the shared Panel.Table active-row treatment
+  background-color: inherit;
 }

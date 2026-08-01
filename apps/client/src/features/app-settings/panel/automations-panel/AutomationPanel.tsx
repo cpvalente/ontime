@@ -19,24 +19,22 @@ export default function AutomationPanel({ location }: PanelBaseProps) {
   return (
     <>
       <Panel.Header>Automation</Panel.Header>
-      <Panel.Section>
-        <Panel.Loader isLoading={isLoading} />
-        <div ref={settingsRef}>
-          <AutomationSettingsForm
-            enabledAutomations={data.enabledAutomations}
-            enabledOscIn={data.enabledOscIn}
-            oscPortIn={data.oscPortIn}
-            automationState={automationState}
-            oscInputState={oscInputState}
-          />
-        </div>
-        <div ref={automationsRef}>
-          <AutomationsList automations={data.automations} enabledAutomations={automationState} />
-        </div>
-        <div ref={triggersRef}>
-          <TriggersList triggers={data.triggers} automations={data.automations} enabledAutomations={automationState} />
-        </div>
-      </Panel.Section>
+      <div ref={settingsRef}>
+        <AutomationSettingsForm
+          enabledAutomations={data.enabledAutomations}
+          enabledOscIn={data.enabledOscIn}
+          oscPortIn={data.oscPortIn}
+          automationState={automationState}
+          oscInputState={oscInputState}
+          isLoading={isLoading}
+        />
+      </div>
+      <div ref={automationsRef}>
+        <AutomationsList automations={data.automations} enabledAutomations={automationState} />
+      </div>
+      <div ref={triggersRef}>
+        <TriggersList triggers={data.triggers} automations={data.automations} enabledAutomations={automationState} />
+      </div>
     </>
   );
 }
