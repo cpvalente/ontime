@@ -12,7 +12,7 @@ interface ModalProps {
   title?: string;
   showCloseButton?: boolean;
   showBackdrop?: boolean;
-  size?: 'default' | 'wide';
+  size?: 'small' | 'compact' | 'default' | 'wide';
   bodyElements: ReactNode;
   footerElements?: ReactNode;
   onClose: () => void;
@@ -38,7 +38,7 @@ export default function Modal({
     >
       <BaseDialog.Portal>
         {showBackdrop && <BaseDialog.Backdrop className={style.backdrop} />}
-        <BaseDialog.Popup aria-label={title} className={cx([style.modal, size === 'wide' && style.wide])}>
+        <BaseDialog.Popup aria-label={title} className={cx([style.modal, style[size]])}>
           <div className={style.title}>
             {title ? <BaseDialog.Title className={style.titleText}>{title}</BaseDialog.Title> : <div />}
             {showCloseButton && (
