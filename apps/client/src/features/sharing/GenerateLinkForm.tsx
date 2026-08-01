@@ -17,6 +17,7 @@ import { useUpdateUrlPreset } from '../../common/hooks-query/useUrlPresets';
 import { safeCopyToClipboard } from '../../common/utils/copyToClipboard';
 import { preventEscape } from '../../common/utils/keyEvent';
 import { isUrlSafe } from '../../common/utils/regex';
+import { describePermission } from '../../common/utils/urlPresets';
 import { isOntimeCloud, serverURL } from '../../externals';
 import * as Panel from '../app-settings/panel-utils/PanelUtils';
 import CuesheetLinkOptions, { CuesheetPermissionValues } from './composite/CuesheetLinkOptions';
@@ -53,17 +54,6 @@ type CuesheetLinkOptions = GenericLinkOptions & {
 type GenerateLinkFormOptions = GenericLinkOptions | CuesheetLinkOptions;
 
 type GenerateLinkState = 'pending' | 'loading' | 'success' | 'error';
-
-/**
- * Describes a set of permissions in a way that can be shown in a tag
- * Permissions are either 'full', '-' (none) or a comma separated list of column keys
- */
-function describePermission(permission: string): string {
-  if (permission === 'full') return 'all';
-  if (permission === '-') return 'none';
-  const amount = permission.split(',').filter(Boolean).length;
-  return `${amount} ${amount === 1 ? 'column' : 'columns'}`;
-}
 
 /** Snapshot of the options a link was created with, so the summary cannot drift from the link */
 type CreatedLink = {

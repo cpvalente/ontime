@@ -173,6 +173,21 @@ export function arePathsEquivalent(currentPath: string, newPath: string): boolea
 }
 
 /**
+ * Describes a cuesheet permission set in a way that can be shown to a user.
+ * Permissions are either 'full', '-' (none) or a comma separated list of column keys.
+ */
+export function describePermission(permission: string | undefined): string {
+  if (permission == null || permission === 'full') {
+    return 'all';
+  }
+  if (permission === '-') {
+    return 'none';
+  }
+  const amount = permission.split(',').filter(Boolean).length;
+  return `${amount} ${amount === 1 ? 'column' : 'columns'}`;
+}
+
+/**
  * Generates a URL preset from a user given alias and URL.
  */
 export function generateUrlPresetOptions(alias: string, userUrl: string): URLPreset {

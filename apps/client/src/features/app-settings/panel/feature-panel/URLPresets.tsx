@@ -5,14 +5,17 @@ import { IoAdd, IoOpenOutline, IoPencil, IoTrash } from 'react-icons/io5';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
-import Info from '../../../../common/components/info/Info';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Switch from '../../../../common/components/switch/Switch';
 import Tag from '../../../../common/components/tag/Tag';
 import useUrlPresets, { useUpdateUrlPreset } from '../../../../common/hooks-query/useUrlPresets';
 import { handleLinks } from '../../../../common/utils/linkUtils';
+import { enDash } from '../../../../common/utils/styleUtils';
+import { describePermission } from '../../../../common/utils/urlPresets';
 import * as Panel from '../../panel-utils/PanelUtils';
 import URLPresetForm from './composite/URLPresetForm';
+
+import style from './URLPresets.module.scss';
 
 type FormState = {
   isOpen: boolean;
@@ -51,17 +54,6 @@ export default function URLPresets() {
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
-          <Info>
-            URL presets are user pre-defined aliases to Ontime URLs.
-            <br />
-            This URL can contain full configuration including parameters, or simply route to a specific view.
-            <br />
-            <br />
-            The easiest way to get started is to copy an URL from your browser and paste it into the form.
-            <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
-          </Info>
-        </Panel.Section>
-        <Panel.Section>
           <Panel.Loader isLoading={status === 'pending'} />
           {formState.isOpen && <URLPresetForm urlPreset={formState.preset} onClose={closeForm} />}
           {actionError && <Panel.Error>{actionError}</Panel.Error>}
@@ -72,11 +64,12 @@ export default function URLPresets() {
                 <th>Show in nav</th>
                 <th>Target view</th>
                 <th>Alias</th>
+                <th>Options</th>
                 <th />
               </tr>
             </thead>
             <tbody>
-              {data.length === 0 && <Panel.TableEmpty handleClick={openNewForm} />}
+              {data.length === 0 && <Panel.TableEmpty label='No URL presets yet' handleClick={openNewForm} />}
               {data.map((preset, index) => {
                 const isCuesheet = preset.target === OntimeView.Cuesheet;
                 return (
@@ -90,16 +83,25 @@ export default function URLPresets() {
                       />
                     </td>
                     <td>
-                      <Switch
-                        checked={preset.displayInNav}
-                        onCheckedChange={(checked) => persistPreset({ ...preset, displayInNav: checked })}
-                        disabled={isMutating || isCuesheet}
-                      />
+                      {/* cuesheet presets are always reached through a share link, never through the nav */}
+                      {isCuesheet ? (
+                        <span className={style.notApplicable}>{enDash}</span>
+                      ) : (
+                        <Switch
+                          checked={preset.displayInNav}
+                          onCheckedChange={(checked) => persistPreset({ ...preset, displayInNav: checked })}
+                          disabled={isMutating}
+                          aria-label='Toggle preset in navigation'
+                        />
+                      )}
                     </td>
                     <td>
                       <Tag>{preset.target}</Tag>
                     </td>
                     <td style={{ width: '100%' }}>{preset.alias}</td>
+                    <td>
+                      <PresetOptions preset={preset} />
+                    </td>
                     <Panel.InlineElements relation='inner' as='td'>
                       <IconButton
                         variant='ghosted-white'
@@ -133,8 +135,34 @@ export default function URLPresets() {
               })}
             </tbody>
           </Panel.Table>
+          <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
         </Panel.Section>
       </Panel.Card>
     </Panel.Section>
+  );
+}
+
+/**
+ * Shows the configuration held by a preset.
+ * Seeing the parameters is what distinguishes one preset from another.
+ */
+function PresetOptions({ preset }: { preset: URLPreset }) {
+  if (preset.target === OntimeView.Cuesheet) {
+    return (
+      <Panel.InlineElements relation='inner' wrap='wrap'>
+        <Tag>Read: {describePermission(preset.options?.read)}</Tag>
+        <Tag>Write: {describePermission(preset.options?.write)}</Tag>
+      </Panel.InlineElements>
+    );
+  }
+
+  if (!preset.search) {
+    return <span className={style.notApplicable}>{enDash}</span>;
+  }
+
+  return (
+    <div className={style.presetParams} title={preset.search}>
+      <Panel.Highlight>{preset.search}</Panel.Highlight>
+    </div>
   );
 }

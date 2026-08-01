@@ -3,6 +3,7 @@ import { Path, resolvePath } from 'react-router';
 
 import {
   arePathsEquivalent,
+  describePermission,
   generatePathFromPreset,
   generateUrlPresetOptions,
   getCurrentPath,
@@ -286,5 +287,18 @@ describe('getCurrentPath()', () => {
     [resolvePath('https://cloud.getontime.no/team-hash/timeline?params-are-ignored=true'), 'timeline'],
   ])('resolves the current: %s', (location, expected) => {
     expect(getCurrentPath(location as Path)).toEqual(expected);
+  });
+});
+
+describe('describePermission()', () => {
+  test.each([
+    ['treats a missing permission as full access', undefined, 'all'],
+    ['describes full access', 'full', 'all'],
+    ['describes no access', '-', 'none'],
+    ['describes a single column', 'title', '1 column'],
+    ['describes several columns', 'title,cue,duration', '3 columns'],
+    ['ignores empty entries', 'title,,cue', '2 columns'],
+  ])('%s', (_description, permission, expected) => {
+    expect(describePermission(permission)).toBe(expected);
   });
 });

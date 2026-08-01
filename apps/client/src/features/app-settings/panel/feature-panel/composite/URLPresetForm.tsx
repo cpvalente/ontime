@@ -10,7 +10,6 @@ import Select, { SelectOption } from '../../../../../common/components/select/Se
 import { useUpdateUrlPreset } from '../../../../../common/hooks-query/useUrlPresets';
 import { preventEscape } from '../../../../../common/utils/keyEvent';
 import { isUrlSafe } from '../../../../../common/utils/regex';
-import { enDash } from '../../../../../common/utils/styleUtils';
 import { generateUrlPresetOptions } from '../../../../../common/utils/urlPresets';
 import CuesheetLinkOptions, { CuesheetPermissionValues } from '../../../../sharing/composite/CuesheetLinkOptions';
 import * as Panel from '../../../panel-utils/PanelUtils';
@@ -142,7 +141,17 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
     >
       <input hidden name='enabled' value='true' />
 
-      <div>1. Enter URL and let Ontime generate the preset options</div>
+      {/* pasting a URL fills in the target and parameters below, so the two are shown together */}
+      {!isEditingCuesheet && (
+        <div className={style.expand}>
+          <Panel.Description>Paste a URL to fill in the options below</Panel.Description>
+          <Panel.InlineElements>
+            <Input placeholder='Paste URL' fluid ref={urlRef} />
+            <Button onClick={generateOptions}>Generate</Button>
+          </Panel.InlineElements>
+        </div>
+      )}
+
       <Panel.InlineElements>
         <div>
           <Panel.Description>Alias</Panel.Description>
@@ -156,24 +165,8 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
             })}
           />
         </div>
-        <div className={style.expand}>
-          <Panel.Description>Generate options (paste URL to generate options)</Panel.Description>
-          <Panel.InlineElements>
-            <Input placeholder='Paste URL' fluid ref={urlRef} disabled={isEditingCuesheet} />
-            <Button onClick={generateOptions} disabled={isEditingCuesheet}>
-              Generate
-            </Button>
-          </Panel.InlineElements>
-        </div>
-      </Panel.InlineElements>
-      {errors.alias?.message && <Panel.Error>{errors.alias.message}</Panel.Error>}
-      {!isEditingCuesheet && (
-        <>
-          <div>
-            {enDash} or {enDash}
-          </div>
-          <div>2. Choose a view and its parameters</div>
-          <div>
+        {!isEditingCuesheet && (
+          <div className={style.expand}>
             <Panel.Description>Target</Panel.Description>
             <Select
               options={targetOptions}
@@ -185,18 +178,21 @@ export default function URLPresetForm({ urlPreset, onClose }: URLPresetFormProps
               }}
             />
           </div>
-          <div>
-            <Panel.Description>Parameters</Panel.Description>
-            <Textarea
-              fluid
-              rows={3}
-              {...register('search', {
-                validate: validateParams,
-              })}
-            />
-            <Panel.Error>{errors.search?.message}</Panel.Error>
-          </div>
-        </>
+        )}
+      </Panel.InlineElements>
+      {errors.alias?.message && <Panel.Error>{errors.alias.message}</Panel.Error>}
+      {!isEditingCuesheet && (
+        <div>
+          <Panel.Description>Parameters</Panel.Description>
+          <Textarea
+            fluid
+            rows={3}
+            {...register('search', {
+              validate: validateParams,
+            })}
+          />
+          <Panel.Error>{errors.search?.message}</Panel.Error>
+        </div>
       )}
 
       {isCuesheet && (

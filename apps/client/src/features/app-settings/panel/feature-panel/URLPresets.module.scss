@@ -1,0 +1,11 @@
+.notApplicable {
+  color: $gray-500;
+}
+
+/** Params are shown so presets can be told apart, they do not need to be readable in full */
+.presetParams {
+  max-width: 22rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
