@@ -1,0 +1,15 @@
+.link {
+  width: calc(100% + (var(--panel-card-padding, 2rem) * 2));
+  margin: -0.75rem calc(var(--panel-card-padding, 2rem) * -1);
+  padding: 0.75rem var(--panel-card-padding, 2rem);
+
+  > :first-child {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.action {
+  color: $action-text-color;
+  font-size: calc(1rem - 2px);
+}

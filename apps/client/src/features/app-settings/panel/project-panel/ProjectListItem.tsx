@@ -20,6 +20,7 @@ import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Dialog from '../../../../common/components/dialog/Dialog';
 import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
+import Tag from '../../../../common/components/tag/Tag';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
@@ -143,7 +144,7 @@ export default function ProjectListItem({
         ) : (
           <>
             <td className={style.containCell}>{filename}</td>
-            <td>{current ? 'Currently loaded' : new Date(updatedAt).toLocaleString()}</td>
+            <td>{current ? <Tag variant='active'>Loaded</Tag> : new Date(updatedAt).toLocaleString()}</td>
             <td>
               <ActionMenu
                 current={current}
@@ -158,13 +159,7 @@ export default function ProjectListItem({
           </>
         )}
       </tr>
-      {showMergeForm && (
-        <tr>
-          <td colSpan={99}>
-            <ProjectMergeForm onClose={handleCancel} fileName={filename} />
-          </td>
-        </tr>
-      )}
+      {showMergeForm && <ProjectMergeForm onClose={handleCancel} fileName={filename} />}
       <Dialog
         isOpen={isDeleteOpen}
         onClose={() => setDeleteOpen(false)}

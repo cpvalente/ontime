@@ -11,6 +11,11 @@
   color: $ui-white;
 }
 
+.active {
+  border: 1px solid $green-700;
+  color: $green-400;
+}
+
 .warning {
   background-color: $orange-1300;
   color: $orange-300;

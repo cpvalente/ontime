@@ -1,18 +1,52 @@
 $info-gray: $secondary-text-gray;
 $info-hover: $section-white;
 
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.extracted {
+  height: 100%;
+  padding: 1.5rem;
+  background-color: $white-3;
+  border: 1px solid $gray-1100;
+  border-radius: $component-border-radius-md;
+
+  .log {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+}
+
 .log {
   font-size: $inner-section-text-size;
   overflow-y: auto;
   user-select: text;
-  min-height: 20vh;
+  height: 40vh;
+  min-height: 40vh;
   max-height: 40vh;
-  background-color: $gray-1350;
+  margin: 0;
   padding: 0.5rem;
+  background-color: $gray-1350;
+  border: 1px solid $gray-1100;
+  border-radius: $component-border-radius-md;
+  box-shadow: inset 0 1px 0 $white-3;
 }
 
 .apart {
   margin-left: auto;
+}
+
+.filterLabel {
+  color: $gray-400;
+  font-size: $aux-text-size;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .logEntry {
@@ -44,10 +78,19 @@ $info-hover: $section-white;
 
   .msg {
     flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
+}
+
+.empty {
+  padding: 2.5rem 1rem;
+  color: $gray-600;
+  text-align: center;
 }
 
 .buttonBar {
   flex-wrap: wrap;
+  gap: 0.5rem;
   padding-bottom: 0.5rem;
 }

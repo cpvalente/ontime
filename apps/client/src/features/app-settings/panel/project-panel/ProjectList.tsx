@@ -40,7 +40,7 @@ export default function ProjectList() {
 
   if (status === 'pending') {
     return (
-      <div className={style.empty}>
+      <div className={style.loaderBox}>
         <Panel.Loader isLoading />
       </div>
     );
@@ -74,6 +74,12 @@ export default function ProjectList() {
           </tr>
         </thead>
         <tbody>
+          {numProjects === 0 && (
+            <Panel.TableEmpty
+              title='No projects yet'
+              description='Projects are the show files Ontime saves your rundown and settings into. Create one to get started.'
+            />
+          )}
           {data.reorderedProjectFiles.map((project) => (
             <ProjectListItem
               key={project.filename}

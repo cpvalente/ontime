@@ -66,7 +66,10 @@ export default function ReportSettings() {
             </thead>
             <tbody>
               {combinedReport.length === 0 && (
-                <Panel.TableEmpty label='Reports are generated when running through the show.' />
+                <Panel.TableEmpty
+                  title='No report data yet'
+                  description='Reports are generated as you run through the show, comparing scheduled times against what actually happened.'
+                />
               )}
 
               {combinedReport.map((entry) => {

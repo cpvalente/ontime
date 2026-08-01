@@ -64,50 +64,58 @@ export default function ClientList() {
             <tr>
               <td style={{ width: '20%' }}>Client Name</td>
               <td>Path</td>
-              <td />
+              <td className={style.actionsHeader} />
             </tr>
           </thead>
           <tbody>
+            {ontimeClients.length === 0 && (
+              <Panel.TableEmpty
+                title='No Ontime clients connected'
+                description='Editor, cuesheet and operator windows appear here as they connect.'
+              />
+            )}
             {ontimeClients.map(([key, client]) => {
               const { identify, name, path } = client;
               const isCurrent = id === key;
               return (
-                <tr key={key} className={cx([isCurrent && style.self])}>
+                <tr key={key} className={cx([isCurrent && style.current])}>
                   <Panel.InlineElements relation='inner' as='td'>
-                    {isCurrent && <Tag>SELF</Tag>}
+                    {isCurrent && <Tag variant='active'>SELF</Tag>}
                     {name}
                   </Panel.InlineElements>
                   <td className={style.copiable}>{path}</td>
-                  <Panel.InlineElements relation='inner' as='td'>
-                    <Button
-                      size='small'
-                      className={`${identify ? style.blink : ''}`}
-                      disabled={isCurrent}
-                      variant={identify ? 'primary' : 'subtle'}
-                      data-testid={isCurrent ? '' : 'not-self-identify'}
-                      onClick={() => {
-                        setIdentify({ target: key, identify: !identify });
-                      }}
-                    >
-                      Identify
-                    </Button>
-                    <Button
-                      size='small'
-                      data-testid={isCurrent ? '' : 'not-self-rename'}
-                      onClick={() => openRename(key)}
-                    >
-                      Rename
-                    </Button>
+                  <td className={style.actionsCell}>
+                    <Panel.InlineElements relation='inner' align='end' className={style.actionsGroup}>
+                      <Button
+                        size='small'
+                        className={`${identify ? style.blink : ''}`}
+                        disabled={isCurrent}
+                        variant={identify ? 'primary' : 'subtle'}
+                        data-testid={isCurrent ? '' : 'not-self-identify'}
+                        onClick={() => {
+                          setIdentify({ target: key, identify: !identify });
+                        }}
+                      >
+                        Identify
+                      </Button>
+                      <Button
+                        size='small'
+                        data-testid={isCurrent ? '' : 'not-self-rename'}
+                        onClick={() => openRename(key)}
+                      >
+                        Rename
+                      </Button>
 
-                    <Button
-                      size='small'
-                      disabled={isCurrent}
-                      data-testid={isCurrent ? '' : 'not-self-redirect'}
-                      onClick={() => openRedirect(key)}
-                    >
-                      Redirect
-                    </Button>
-                  </Panel.InlineElements>
+                      <Button
+                        size='small'
+                        disabled={isCurrent}
+                        data-testid={isCurrent ? '' : 'not-self-redirect'}
+                        onClick={() => openRedirect(key)}
+                      >
+                        Redirect
+                      </Button>
+                    </Panel.InlineElements>
+                  </td>
                 </tr>
               );
             })}
@@ -125,6 +133,12 @@ export default function ClientList() {
             </tr>
           </thead>
           <tbody>
+            {otherClients.length === 0 && (
+              <Panel.TableEmpty
+                title='No other clients connected'
+                description='Views and integrations connected to this server are listed here.'
+              />
+            )}
             {otherClients.map(([key, client]) => {
               const { name, type } = client;
 

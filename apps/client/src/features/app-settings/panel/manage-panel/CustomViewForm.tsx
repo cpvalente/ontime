@@ -5,10 +5,13 @@ import { uploadCustomView } from '../../../../common/api/customViews';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Input from '../../../../common/components/input/input/Input';
+import Modal from '../../../../common/components/modal/Modal';
 import * as Panel from '../../panel-utils/PanelUtils';
 import { getFileError, getSlugError, getViewUrl, maxUploadLabel } from './customViews.utils';
 
 import style from './CustomViews.module.scss';
+
+const formId = 'custom-view-form';
 
 interface CustomViewFormProps {
   onComplete: () => void;
@@ -53,62 +56,72 @@ export default function CustomViewForm({ onComplete, onClose }: CustomViewFormPr
   };
 
   return (
-    <Panel.Indent as='form' onSubmit={handleUpload} className={style.uploadForm}>
-      <input
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        type='file'
-        onChange={handleSelectFile}
-        accept='.html,text/html'
-      />
+    <Modal
+      isOpen
+      onClose={onClose}
+      showBackdrop
+      showCloseButton
+      size='compact'
+      title='Upload custom view'
+      bodyElements={
+        <form id={formId} onSubmit={handleUpload} className={style.uploadForm}>
+          <input
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            type='file'
+            onChange={handleSelectFile}
+            accept='.html,text/html'
+          />
 
-      <div className={style.step}>
-        <div className={style.stepTitle}>1. Choose a name</div>
-        <Panel.Description>Name</Panel.Description>
-        <Input
-          value={slug}
-          onChange={(event) => {
-            setSlug(event.target.value);
-            setSlugDirty(true);
-          }}
-          placeholder='my-view'
-          aria-label='Custom view name'
-          autoCapitalize='off'
-          autoComplete='off'
-          fluid
-        />
-        <Panel.Description>
-          Use lowercase letters, numbers, and dashes. Example: <Panel.Highlight>my-view</Panel.Highlight>
-        </Panel.Description>
-        <Panel.Description>
-          Preview URL: <Panel.Highlight>{previewUrl}</Panel.Highlight>
-        </Panel.Description>
-        {slugDirty && slugError && <Panel.Error>{slugError}</Panel.Error>}
-      </div>
+          <div className={style.step}>
+            <div className={style.stepTitle}>1. Choose a name</div>
+            <Panel.Description>Name</Panel.Description>
+            <Input
+              value={slug}
+              onChange={(event) => {
+                setSlug(event.target.value);
+                setSlugDirty(true);
+              }}
+              placeholder='my-view'
+              aria-label='Custom view name'
+              autoCapitalize='off'
+              autoComplete='off'
+              fluid
+            />
+            <Panel.Description>
+              Use lowercase letters, numbers, and dashes. Example: <Panel.Highlight>my-view</Panel.Highlight>
+            </Panel.Description>
+            <Panel.Description>
+              Preview URL: <Panel.Highlight>{previewUrl}</Panel.Highlight>
+            </Panel.Description>
+            {slugDirty && slugError && <Panel.Error>{slugError}</Panel.Error>}
+          </div>
 
-      <div className={style.step}>
-        <div className={style.stepTitle}>2. Select index.html</div>
-        <Panel.Description>Upload file</Panel.Description>
-        <Panel.InlineElements wrap='wrap' className={style.filePicker}>
-          <Button onClick={() => fileInputRef.current?.click()}>
-            {selectedFile ? 'Replace index.html' : 'Choose index.html'}
+          <div className={style.step}>
+            <div className={style.stepTitle}>2. Select index.html</div>
+            <Panel.Description>Upload file</Panel.Description>
+            <Panel.InlineElements wrap='wrap' className={style.filePicker}>
+              <Button onClick={() => fileInputRef.current?.click()}>
+                {selectedFile ? 'Replace index.html' : 'Choose index.html'}
+              </Button>
+              <span className={style.fileName}>
+                {selectedFile ? `${selectedFile.name} (${Math.ceil(selectedFile.size / 1024)} KB)` : 'No file selected'}
+              </span>
+            </Panel.InlineElements>
+            <Panel.Description>Accepted: index.html only, maximum {maxUploadLabel}.</Panel.Description>
+            {fileDirty && fileError && <Panel.Error>{fileError}</Panel.Error>}
+          </div>
+        </form>
+      }
+      footerElements={
+        <>
+          {error && <Panel.Error>{error}</Panel.Error>}
+          <Button onClick={onClose}>Cancel</Button>
+          <Button variant='primary' type='submit' form={formId} loading={isUploading} disabled={!canUpload}>
+            Upload view <IoCloudUploadOutline />
           </Button>
-          <span className={style.fileName}>
-            {selectedFile ? `${selectedFile.name} (${Math.ceil(selectedFile.size / 1024)} KB)` : 'No file selected'}
-          </span>
-        </Panel.InlineElements>
-        <Panel.Description>Accepted: index.html only, maximum {maxUploadLabel}.</Panel.Description>
-        {fileDirty && fileError && <Panel.Error>{fileError}</Panel.Error>}
-      </div>
-
-      {error && <Panel.Error>{error}</Panel.Error>}
-
-      <Panel.InlineElements align='end'>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant='primary' type='submit' loading={isUploading} disabled={!canUpload}>
-          Upload view <IoCloudUploadOutline />
-        </Button>
-      </Panel.InlineElements>
-    </Panel.Indent>
+        </>
+      }
+    />
   );
 }

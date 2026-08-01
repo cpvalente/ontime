@@ -16,6 +16,22 @@
   user-select: text;
 }
 
-.self {
-  background-color: $blue-1100;
+.actionsCell {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
+.actionsHeader {
+  text-align: right;
+}
+
+.actionsGroup {
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.current {
+  // marker consumed by the shared Panel.Table active-row treatment
+  background-color: inherit;
 }

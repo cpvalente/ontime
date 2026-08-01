@@ -1,48 +1,21 @@
-import { NormalisedAutomation, TimerLifeCycle } from 'ontime-types';
-import { useState } from 'react';
+import { NormalisedAutomation, Trigger } from 'ontime-types';
 import { IoPencil, IoTrash, IoWarningOutline } from 'react-icons/io5';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Tag from '../../../../common/components/tag/Tag';
 import * as Panel from '../../panel-utils/PanelUtils';
 import { cycles } from './automationUtils';
-import AutomationForm from './TriggerForm';
 
 interface TriggersListItemProps {
   automations: NormalisedAutomation;
-  id: string;
-  title: string;
-  trigger: TimerLifeCycle;
-  automationId: string;
+  trigger: Trigger;
   duplicate?: boolean;
+  handleEdit: () => void;
   handleDelete: () => void;
-  postSubmit: () => void;
 }
 
 export default function TriggersListItem(props: TriggersListItemProps) {
-  const { automations, id, title, trigger, automationId, duplicate, handleDelete, postSubmit } = props;
-  const [isEditing, setIsEditing] = useState(false);
-
-  if (isEditing) {
-    return (
-      <tr>
-        <td colSpan={99}>
-          <AutomationForm
-            automations={automations}
-            initialId={id}
-            initialTitle={title}
-            initialTrigger={trigger}
-            initialAutomationId={automationId}
-            onCancel={() => setIsEditing(false)}
-            postSubmit={() => {
-              setIsEditing(false);
-              postSubmit();
-            }}
-          />
-        </td>
-      </tr>
-    );
-  }
+  const { automations, trigger, duplicate, handleEdit, handleDelete } = props;
 
   return (
     <tr data-warn={duplicate}>
@@ -52,16 +25,16 @@ export default function TriggersListItem(props: TriggersListItemProps) {
             color='#FFBC56' // $orange-500
           />
         )}
-        {title}
+        {trigger.title}
       </Panel.InlineElements>
       <td>
-        <Tag>{cycles.find((cycle) => cycle.value === trigger)?.label}</Tag>
+        <Tag>{cycles.find((cycle) => cycle.value === trigger.trigger)?.label}</Tag>
       </td>
       <td>
-        <Tag>{automations?.[automationId]?.title}</Tag>
+        <Tag>{automations?.[trigger.automationId]?.title}</Tag>
       </td>
       <Panel.InlineElements align='end' relation='inner' as='td'>
-        <IconButton variant='ghosted-white' aria-label='Edit entry' onClick={() => setIsEditing(true)}>
+        <IconButton variant='ghosted-white' aria-label='Edit entry' onClick={handleEdit}>
           <IoPencil />
         </IconButton>
         <IconButton variant='ghosted-destructive' aria-label='Delete entry' onClick={handleDelete}>
