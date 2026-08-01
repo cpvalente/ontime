@@ -1,6 +1,7 @@
 import { MessageTag } from 'ontime-types';
 import { useEffect } from 'react';
 
+import Tag from '../../../../common/components/tag/Tag';
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { usePing } from '../../../../common/hooks/useSocket';
 import { sendSocket } from '../../../../common/utils/socket';
@@ -10,6 +11,9 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import ClientControlPanel from './client-control/ClientControlPanel';
 import LogExport from './NetworkLogExport';
 
+/** ping values above this are flagged to the user (ms) */
+const slowPingThreshold = 100;
+
 export default function NetworkLogPanel({ location }: PanelBaseProps) {
   const clientsRef = useScrollIntoView<HTMLDivElement>('clients', location);
   const logRef = useScrollIntoView<HTMLDivElement>('log', location);
@@ -17,11 +21,7 @@ export default function NetworkLogPanel({ location }: PanelBaseProps) {
   return (
     <>
       <Panel.Header>Network</Panel.Header>
-      {isDocker && (
-        <Panel.Section>
-          <OntimeCloudStats />
-        </Panel.Section>
-      )}
+      {isDocker && <OntimeCloudStats />}
       <div ref={logRef}>
         <LogExport />
       </div>
@@ -51,9 +51,20 @@ function OntimeCloudStats() {
   }, []);
 
   return (
-    <Panel.SubHeader>
-      Ontime cloud
-      <Panel.Description>Current ping: {ping}ms</Panel.Description>
-    </Panel.SubHeader>
+    <Panel.Section>
+      <Panel.Card>
+        <Panel.SubHeader>Ontime cloud</Panel.SubHeader>
+        <Panel.Divider />
+        <Panel.ListGroup>
+          <Panel.ListItem>
+            <Panel.Field
+              title='Connection to the cloud server'
+              description='Time for a message to travel to the server and back. Lower is better'
+            />
+            <Tag variant={ping > slowPingThreshold ? 'warning' : 'default'}>{ping}ms</Tag>
+          </Panel.ListItem>
+        </Panel.ListGroup>
+      </Panel.Card>
+    </Panel.Section>
   );
 }

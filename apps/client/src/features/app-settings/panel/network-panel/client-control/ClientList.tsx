@@ -8,7 +8,6 @@ import { RenameClientModal } from '../../../../../common/components/client-modal
 import Tag from '../../../../../common/components/tag/Tag';
 import { setClientRemote } from '../../../../../common/hooks/useSocket';
 import { useClientStore } from '../../../../../common/stores/clientStore';
-import { cx } from '../../../../../common/utils/styleUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import style from './ClientControlPanel.module.scss';
@@ -32,8 +31,19 @@ export default function ClientList() {
     redirectHandler.open();
   };
 
-  const ontimeClients = Object.entries(clients).filter(([_, { type }]) => type === 'ontime');
-  const otherClients = Object.entries(clients).filter(([_, { type }]) => type !== 'ontime');
+  /**
+   * Clients are given by the server in connection order, which means rows move
+   * as clients come and go. We keep a stable order: self first, then by name
+   */
+  const sortClients = (clientEntries: [string, Client][]) =>
+    clientEntries.sort(([keyA, clientA], [keyB, clientB]) => {
+      if (keyA === id) return -1;
+      if (keyB === id) return 1;
+      return clientA.name.localeCompare(clientB.name);
+    });
+
+  const ontimeClients = sortClients(Object.entries(clients).filter(([_, { type }]) => type === 'ontime'));
+  const otherClients = sortClients(Object.entries(clients).filter(([_, { type }]) => type !== 'ontime'));
 
   const targetClient: Client | undefined = clients[targetId];
 
@@ -62,17 +72,18 @@ export default function ClientList() {
         <Panel.Table>
           <thead>
             <tr>
-              <td style={{ width: '20%' }}>Client Name</td>
-              <td>Path</td>
-              <td />
+              <th style={{ width: '20%' }}>Client Name</th>
+              <th>Path</th>
+              <th />
             </tr>
           </thead>
           <tbody>
+            {ontimeClients.length === 0 && <Panel.TableEmpty label='No Ontime clients connected' />}
             {ontimeClients.map(([key, client]) => {
               const { identify, name, path } = client;
               const isCurrent = id === key;
               return (
-                <tr key={key} className={cx([isCurrent && style.self])}>
+                <tr key={key} data-highlight={isCurrent}>
                   <Panel.InlineElements relation='inner' as='td'>
                     {isCurrent && <Tag>SELF</Tag>}
                     {name}
@@ -81,7 +92,6 @@ export default function ClientList() {
                   <Panel.InlineElements relation='inner' as='td'>
                     <Button
                       size='small'
-                      className={`${identify ? style.blink : ''}`}
                       disabled={isCurrent}
                       variant={identify ? 'primary' : 'subtle'}
                       data-testid={isCurrent ? '' : 'not-self-identify'}
@@ -120,11 +130,12 @@ export default function ClientList() {
         <Panel.Table>
           <thead>
             <tr>
-              <td className={style.halfWidthNoWrap}>Client Name</td>
-              <td className={style.halfWidthNoWrap}>Client type</td>
+              <th className={style.halfWidthNoWrap}>Client Name</th>
+              <th className={style.halfWidthNoWrap}>Client type</th>
             </tr>
           </thead>
           <tbody>
+            {otherClients.length === 0 && <Panel.TableEmpty label='No other clients connected' />}
             {otherClients.map(([key, client]) => {
               const { name, type } = client;
 

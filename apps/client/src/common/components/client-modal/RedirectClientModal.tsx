@@ -13,6 +13,9 @@ import Select from '../select/Select';
 
 import style from './RedirectClientModal.module.scss';
 
+/** the first navigator view, used as the initial value of the view select */
+const defaultView = `/${navigatorConstants[0].url}`;
+
 interface RedirectClientModalProps {
   id: string;
   name: string;
@@ -25,7 +28,7 @@ interface RedirectClientModalProps {
 export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onClose }: RedirectClientModalProps) {
   const { data } = useUrlPresets();
   const [path, setPath] = useState(currentPath);
-  const [selected, setSelected] = useState('/');
+  const [selected, setSelected] = useState(defaultView);
 
   const { setRedirect } = setClientRemote;
 
@@ -97,19 +100,18 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
                 <Select
                   fluid
                   options={viewOptions}
-                  defaultValue={viewOptions[0].value}
+                  defaultValue={defaultView}
                   onValueChange={(value) => {
                     if (value === null) return;
                     setSelected(value);
                   }}
-                  disabled={enabledPresets.length === 0}
                 />
               </label>
               <Button
                 variant='primary'
                 aria-label='Redirect to preset'
                 className={style.redirect}
-                disabled={enabledPresets.length === 0 || selected === '/'}
+                disabled={selected === currentPath}
                 onClick={() => handleRedirect(selected)}
               >
                 Redirect <IoArrowForward />
