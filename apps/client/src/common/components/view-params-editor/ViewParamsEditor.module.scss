@@ -83,6 +83,11 @@
   justify-content: flex-end;
 }
 
+/** separates the sharing action from the actions which apply to the form */
+.pushEnd {
+  margin-left: auto;
+}
+
 .sectionList {
   display: flex;
   flex-direction: column;

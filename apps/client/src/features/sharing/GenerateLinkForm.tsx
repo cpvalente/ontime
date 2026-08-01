@@ -248,9 +248,12 @@ export default function GenerateLinkForm({
                 />
               </Panel.ListItem>
             )}
-            {!isLockedToView && (
-              <Panel.ListItem>
-                <Panel.Field title='Ontime view' description='Which view or preset will the link point to' />
+            <Panel.ListItem>
+              <Panel.Field title='Ontime view' description='Which view or preset will the link point to' />
+              {/* the destination is shown even when it cannot be changed, it is what the link is */}
+              {isLockedToView ? (
+                <Tag>{pathOptions[0].label}</Tag>
+              ) : (
                 <Select
                   options={pathOptions}
                   value={watch('path')}
@@ -259,8 +262,8 @@ export default function GenerateLinkForm({
                     setValue('path', value, { shouldDirty: true });
                   }}
                 />
-              </Panel.ListItem>
-            )}
+              )}
+            </Panel.ListItem>
             {isCuesheet && (
               <Panel.ListItem>
                 <Panel.Field

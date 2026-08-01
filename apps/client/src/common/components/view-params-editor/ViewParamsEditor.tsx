@@ -4,12 +4,17 @@ import { FormEvent, memo } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useSearchParams } from 'react-router';
 
+import { canConfigureFromView } from '../../../externals';
+import ShareViewModal from '../../../features/sharing/ShareViewModal';
+import { viewLabels } from '../../../viewerConfig';
 import useViewSettings from '../../hooks-query/useViewSettings';
 import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
 import { useSavedViewParams } from '../../stores/savedViewParams';
 import Button from '../buttons/Button';
 import IconButton from '../buttons/IconButton';
+import RotatedLink from '../icons/RotatedLink';
 import Info from '../info/Info';
+import { useAppliedPreset } from './useAppliedPreset';
 import { ViewOption } from './viewParams.types';
 import { getPreservedSearchParams, getURLSearchParamsFromObj } from './viewParams.utils';
 import { useViewParamsEditorStore } from './viewParamsEditor.store';
@@ -30,6 +35,16 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
   const { isOpen, close } = useViewParamsEditorStore();
   const clearSavedParams = useSavedViewParams((store) => store.clear);
   const isSmallScreen = useIsSmallScreen();
+  const { appliedPreset, hasDrifted } = useAppliedPreset(target);
+
+  /**
+   * A share link points at a view or at a preset, it cannot carry loose parameters.
+   * We share the preset in use as long as the current parameters still match it.
+   */
+  const shareTarget =
+    appliedPreset && !hasDrifted
+      ? { value: `preset-${appliedPreset.alias}`, label: `URL Preset: ${appliedPreset.alias}` }
+      : { value: target, label: viewLabels[target] };
 
   const getPreservedParams = () => getPreservedSearchParams(searchParams, viewOptions);
 
@@ -93,7 +108,14 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
             </form>
           </div>
           <div className={style.footer}>
-            <Button variant='subtle' size='large' onClick={resetParams} type='reset'>
+            {/* a customised view is usually customised in order to be handed on */}
+            {canConfigureFromView() && (
+              <ShareViewModal target={shareTarget}>
+                <RotatedLink />
+                Share...
+              </ShareViewModal>
+            )}
+            <Button variant='subtle' size='large' onClick={resetParams} type='reset' className={style.pushEnd}>
               Reset to default
             </Button>
             <Button

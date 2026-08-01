@@ -87,6 +87,13 @@ export const sessionScope = resolveSessionScope();
 export const getIsNavigationLocked = () => new URLSearchParams(window.location.search).get('n') === '1';
 
 /**
+ * Whether this session may configure the project from a view.
+ * Recipients of a shared link can reach the view settings, but must not modify the project
+ * or hand out links of their own.
+ */
+export const canConfigureFromView = () => sessionScope === 'rw' && !getIsNavigationLocked();
+
+/**
  * The session scope is read from the cookie and will only exist if the app is password protected
  */
 function resolveSessionScope() {

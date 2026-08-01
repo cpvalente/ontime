@@ -7,13 +7,14 @@ import { hostToBaseUrl } from '../../common/utils/linkUtils';
 import GenerateLinkForm from './GenerateLinkForm';
 
 interface GenerateLinkFormExportProps {
-  lockedPath?: { value: OntimeView; label: string };
+  /** locks the link to a view or to a preset, given as `preset-<alias>` */
+  lockedPath?: { value: OntimeView | string; label: string };
 }
 
 export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormExportProps) {
   const { data: infoData } = useInfo();
-  // presets are only offered as a destination in the unlocked form
-  const { data: urlPresetData } = useUrlPresets({ skip: Boolean(lockedPath) });
+  // presets are needed both to offer and to resolve a preset destination
+  const { data: urlPresetData } = useUrlPresets();
 
   /**
    * hostOptions are only used for local networks

@@ -1,3 +1,18 @@
+import { OntimeView } from 'ontime-types';
+
+/** Human readable labels for the Ontime views */
+export const viewLabels: Record<OntimeView, string> = {
+  [OntimeView.Editor]: 'Editor',
+  [OntimeView.Cuesheet]: 'Cuesheet',
+  [OntimeView.Operator]: 'Operator',
+  [OntimeView.Timer]: 'Timer',
+  [OntimeView.Backstage]: 'Backstage',
+  [OntimeView.Timeline]: 'Timeline',
+  [OntimeView.StudioClock]: 'Studio Clock',
+  [OntimeView.Countdown]: 'Countdown',
+  [OntimeView.ProjectInfo]: 'Project Info',
+};
+
 export const navigatorConstants = [
   { url: 'timer', label: 'Timer' },
   { url: 'backstage', label: 'Backstage' },
