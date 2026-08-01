@@ -10,12 +10,13 @@ interface StatusBarProgressProps {
 }
 
 export default function StatusBarProgress({ viewSettings }: StatusBarProgressProps) {
-  const { current, duration, timeWarning, timeDanger } = useProgressData();
+  const { current, duration, eventId, timeWarning, timeDanger } = useProgressData();
 
   return (
     <MultiPartProgressBar
       now={current}
       complete={duration}
+      eventId={eventId}
       normalColor={viewSettings.normalColor}
       warning={timeWarning}
       warningColor={viewSettings.warningColor}

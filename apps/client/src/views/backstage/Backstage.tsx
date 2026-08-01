@@ -114,7 +114,14 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
         <BackstageClock timeformat={timeformat} />
       </div>
 
-      {showProgress && <ProgressBar className='progress-container' current={time.current} duration={time.duration} />}
+      {showProgress && (
+        <ProgressBar
+          className='progress-container'
+          current={time.current}
+          duration={time.duration}
+          eventId={selectedEventId}
+        />
+      )}
 
       {!hasEvents && <Empty text={getLocalizedString('common.no_data')} className='empty-container' />}
 
