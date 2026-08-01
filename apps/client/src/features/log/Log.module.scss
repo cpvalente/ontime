@@ -51,3 +51,19 @@ $info-hover: $section-white;
   flex-wrap: wrap;
   padding-bottom: 0.5rem;
 }
+
+.search {
+  max-width: 16rem;
+}
+
+.count {
+  margin-left: auto;
+  font-size: $inner-section-text-size;
+  color: $secondary-text-gray;
+  white-space: nowrap;
+}
+
+.empty {
+  color: $info-gray;
+  padding: 0.5rem 0;
+}

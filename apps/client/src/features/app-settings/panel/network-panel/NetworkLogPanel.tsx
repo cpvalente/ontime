@@ -8,20 +8,26 @@ import { isDocker } from '../../../../externals';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import ClientControlPanel from './client-control/ClientControlPanel';
+import NetworkAddresses from './NetworkAddresses';
 import LogExport from './NetworkLogExport';
+import ServerStatus from './ServerStatus';
 
 export default function NetworkLogPanel({ location }: PanelBaseProps) {
+  const addressRef = useScrollIntoView<HTMLDivElement>('address', location);
+  const statusRef = useScrollIntoView<HTMLDivElement>('status', location);
   const clientsRef = useScrollIntoView<HTMLDivElement>('clients', location);
   const logRef = useScrollIntoView<HTMLDivElement>('log', location);
 
   return (
     <>
       <Panel.Header>Network</Panel.Header>
-      {isDocker && (
-        <Panel.Section>
-          <OntimeCloudStats />
-        </Panel.Section>
-      )}
+      <div ref={addressRef}>
+        <NetworkAddresses />
+      </div>
+      <div ref={statusRef}>
+        <ServerStatus />
+      </div>
+      {isDocker && <OntimeCloudStats />}
       <div ref={logRef}>
         <LogExport />
       </div>
@@ -51,9 +57,14 @@ function OntimeCloudStats() {
   }, []);
 
   return (
-    <Panel.SubHeader>
-      Ontime cloud
-      <Panel.Description>Current ping: {ping}ms</Panel.Description>
-    </Panel.SubHeader>
+    <Panel.Section>
+      <Panel.Card>
+        <Panel.SubHeader>Ontime cloud</Panel.SubHeader>
+        <Panel.Divider />
+        <Panel.Section>
+          <Panel.Description>Current ping: {ping}ms</Panel.Description>
+        </Panel.Section>
+      </Panel.Card>
+    </Panel.Section>
   );
 }

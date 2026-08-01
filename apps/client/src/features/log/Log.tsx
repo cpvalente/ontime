@@ -1,12 +1,15 @@
-import { LogOrigin } from 'ontime-types';
-import { useCallback, useState } from 'react';
+import { LogLevel, LogOrigin } from 'ontime-types';
+import { useCallback, useMemo, useState } from 'react';
 import { IoClose } from 'react-icons/io5';
 
 import Button from '../../common/components/buttons/Button';
+import Input from '../../common/components/input/input/Input';
 import { clearLogs, useLogData } from '../../common/stores/logger';
 import * as Panel from '../app-settings/panel-utils/PanelUtils';
 
 import style from './Log.module.scss';
+
+const issueLevels = new Set<LogLevel>([LogLevel.Warn, LogLevel.Error, LogLevel.Severe]);
 
 export default function Log() {
   const { logs: logData } = useLogData();
@@ -17,28 +20,45 @@ export default function Log() {
   const [showTx, setShowTx] = useState(true);
   const [showPlayback, setShowPlayback] = useState(true);
   const [showUser, setShowUser] = useState(true);
+  const [issuesOnly, setIssuesOnly] = useState(false);
+  const [search, setSearch] = useState('');
 
-  const matchers: LogOrigin[] = [];
-  if (showUser) {
-    matchers.push(LogOrigin.User);
-  }
-  if (showClient) {
-    matchers.push(LogOrigin.Client);
-  }
-  if (showServer) {
-    matchers.push(LogOrigin.Server);
-  }
-  if (showRx) {
-    matchers.push(LogOrigin.Rx);
-  }
-  if (showTx) {
-    matchers.push(LogOrigin.Tx);
-  }
-  if (showPlayback) {
-    matchers.push(LogOrigin.Playback);
-  }
+  const filteredData = useMemo(() => {
+    const matchers: LogOrigin[] = [];
+    if (showUser) {
+      matchers.push(LogOrigin.User);
+    }
+    if (showClient) {
+      matchers.push(LogOrigin.Client);
+    }
+    if (showServer) {
+      matchers.push(LogOrigin.Server);
+    }
+    if (showRx) {
+      matchers.push(LogOrigin.Rx);
+    }
+    if (showTx) {
+      matchers.push(LogOrigin.Tx);
+    }
+    if (showPlayback) {
+      matchers.push(LogOrigin.Playback);
+    }
 
-  const filteredData = logData.filter((entry) => matchers.some((match) => entry.origin === match));
+    const query = search.trim().toLowerCase();
+
+    return logData.filter((entry) => {
+      if (!matchers.some((match) => entry.origin === match)) {
+        return false;
+      }
+      if (issuesOnly && !issueLevels.has(entry.level)) {
+        return false;
+      }
+      if (query && !entry.text.toLowerCase().includes(query)) {
+        return false;
+      }
+      return true;
+    });
+  }, [logData, showUser, showClient, showServer, showRx, showTx, showPlayback, issuesOnly, search]);
 
   const disableOthers = useCallback((toEnable: LogOrigin) => {
     setShowUser(toEnable === LogOrigin.User);
@@ -48,6 +68,8 @@ export default function Log() {
     setShowTx(toEnable === LogOrigin.Tx);
     setShowPlayback(toEnable === LogOrigin.Playback);
   }, []);
+
+  const isFiltered = filteredData.length !== logData.length;
 
   return (
     <>
@@ -110,7 +132,26 @@ export default function Log() {
           <IoClose /> Clear
         </Button>
       </Panel.InlineElements>
+      <Panel.InlineElements className={style.buttonBar}>
+        <Input
+          placeholder='Search log'
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          className={style.search}
+        />
+        <Button variant={issuesOnly ? 'primary' : 'subtle'} size='small' onClick={() => setIssuesOnly((s) => !s)}>
+          Issues only
+        </Button>
+        <span className={style.count}>
+          {isFiltered ? `${filteredData.length} of ${logData.length} entries` : `${logData.length} entries`}
+        </span>
+      </Panel.InlineElements>
       <ul className={style.log}>
+        {filteredData.length === 0 && (
+          <li className={style.empty}>
+            {logData.length === 0 ? 'No log entries yet.' : 'No entries match the filters.'}
+          </li>
+        )}
         {filteredData.map((logEntry) => (
           <li key={logEntry.id} className={`${style.logEntry} ${style[logEntry.level]} `}>
             <span className={style.time}>{logEntry.time}</span>

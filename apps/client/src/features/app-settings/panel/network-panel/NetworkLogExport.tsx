@@ -19,10 +19,16 @@ export default function LogExport() {
         <Panel.SubHeader>
           Event log
           <Button onClick={extract}>
-            Extract <IoArrowUp className={style.iconRotate} />
+            Open in new window <IoArrowUp className={style.iconRotate} />
           </Button>
         </Panel.SubHeader>
         <Panel.Divider />
+        <Panel.Section>
+          <Panel.Description>
+            Activity reported by the server, this client and any connected integrations. Entries are kept for this
+            session only.
+          </Panel.Description>
+        </Panel.Section>
         <Log />
       </Panel.Card>
     </Panel.Section>
