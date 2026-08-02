@@ -8,6 +8,7 @@ import ViewParamsEditor from '../../common/components/view-params-editor/ViewPar
 import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
 import { useSelectedEventId } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
@@ -59,8 +60,10 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
     <div className='timeline' data-testid='timeline-view'>
       <ViewParamsEditor target={OntimeView.Timeline} viewOptions={progressOptions} />
       <div className='project-header'>
-        {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
-        <div className='title'>{projectData.title}</div>
+        <div className={cx(['project-header__brand', !projectData?.logo && 'project-header__brand--without-logo'])}>
+          {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
+          <div className='title'>{projectData.title}</div>
+        </div>
         <TimelineClock timeformat={timeformat} />
       </div>
 
