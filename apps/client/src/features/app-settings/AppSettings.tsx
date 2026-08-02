@@ -1,7 +1,8 @@
 import { ErrorBoundary } from '@sentry/react';
+import { useCallback } from 'react';
 
 import { useKeyDown } from '../../common/hooks/useKeyDown';
-import { useHasOpenOverlay } from '../../common/stores/overlayStore';
+import { hasOpenOverlay } from '../../common/utils/overlayRegistry';
 import PanelContent from './panel-content/PanelContent';
 import PanelList from './panel-list/PanelList';
 import AboutPanel from './panel/about-panel/AboutPanel';
@@ -18,10 +19,14 @@ import style from './AppSettings.module.scss';
 
 export default function AppSettings() {
   const { close, panel, location, setLocation } = useAppSettingsNavigation();
-  const hasOpenOverlay = useHasOpenOverlay();
 
   // an open modal owns Escape: it dismisses itself and the settings panel stays put
-  useKeyDown(close, 'Escape', { isDisabled: hasOpenOverlay });
+  const closeUnlessOverlayOpen = useCallback(() => {
+    if (!hasOpenOverlay()) {
+      close();
+    }
+  }, [close]);
+  useKeyDown(closeUnlessOverlayOpen, 'Escape');
 
   return (
     <div className={style.container}>

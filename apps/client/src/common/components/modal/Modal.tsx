@@ -2,7 +2,7 @@ import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import type { ReactNode } from 'react';
 import { IoClose } from 'react-icons/io5';
 
-import { useRegisterOverlay } from '../../stores/overlayStore';
+import { useRegisterOverlay } from '../../utils/overlayRegistry';
 import { cx } from '../../utils/styleUtils';
 import IconButton from '../buttons/IconButton';
 
