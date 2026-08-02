@@ -10,7 +10,6 @@ import Tag from '../../../../../common/components/tag/Tag';
 import Tooltip from '../../../../../common/components/tooltip/Tooltip';
 import { setClientRemote } from '../../../../../common/hooks/useSocket';
 import { useClientStore } from '../../../../../common/stores/clientStore';
-import { openLink } from '../../../../../common/utils/linkUtils';
 import { cx } from '../../../../../common/utils/styleUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
@@ -20,13 +19,15 @@ type ClientEntry = [string, Client];
 
 /**
  * Clients arrive in whatever order the server broadcast them, which shuffles rows
- * whenever a client reconnects. We keep the current client pinned to the top and
- * sort the rest by name so rows stay where the user last saw them.
+ * whenever a client reconnects. Sorting by name keeps rows where the user last saw them.
+ * Pass selfId to pin the current client to the top; only the ontime list can contain it.
  */
-function sortClients(clients: ClientEntry[], selfId: string): ClientEntry[] {
+function sortClients(clients: ClientEntry[], selfId?: string): ClientEntry[] {
   return [...clients].sort(([keyA, clientA], [keyB, clientB]) => {
-    if (keyA === selfId) return -1;
-    if (keyB === selfId) return 1;
+    if (selfId !== undefined) {
+      if (keyA === selfId) return -1;
+      if (keyB === selfId) return 1;
+    }
     return clientA.name.localeCompare(clientB.name);
   });
 }
@@ -57,10 +58,7 @@ export default function ClientList() {
         entries.filter(([_, { type }]) => type === 'ontime'),
         id,
       ),
-      otherClients: sortClients(
-        entries.filter(([_, { type }]) => type !== 'ontime'),
-        id,
-      ),
+      otherClients: sortClients(entries.filter(([_, { type }]) => type !== 'ontime')),
     };
   }, [clients, id]);
 
@@ -115,8 +113,8 @@ export default function ClientList() {
                       {name}
                     </Tooltip>
                   </Panel.InlineElements>
-                  <td>
-                    <CopyTag size='small' copyValue={clientUrl} onClick={() => openLink(clientUrl)}>
+                  <td className={style.copiable}>
+                    <CopyTag size='small' copyValue={clientUrl}>
                       {path}
                     </CopyTag>
                   </td>
