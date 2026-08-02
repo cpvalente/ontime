@@ -46,7 +46,7 @@ export function ManageRundownForm({ onClose }: ManageRundownForm) {
       <Panel.Section>
         <label>
           <Panel.Description>Rundown title</Panel.Description>
-          <Input {...register('title')} fluid placeholder='Your rundown name' />
+          <Input {...register('title')} maxLength={64} fluid placeholder='Your rundown name' />
         </label>
       </Panel.Section>
       <Panel.InlineElements relation='inner' align='end'>
