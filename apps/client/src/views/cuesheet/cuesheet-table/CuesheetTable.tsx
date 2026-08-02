@@ -63,7 +63,7 @@ export default function CuesheetTable({
   isCurrentRundown,
   insertElement,
 }: CuesheetTableProps) {
-  const { flatRundown, status, selectedEventId } = source;
+  const { flatRundown, status, isLoadingError, selectedEventId } = source;
   const { updateEntry, updateTimer, addEntry } = useEntryActionsContext();
   const { getLocalizedString } = useTranslation();
   const canCreateEntries = useCuesheetPermissions((state) => state.canCreateEntries) && cuesheetMode === AppMode.Edit;
@@ -235,7 +235,7 @@ export default function CuesheetTable({
     return <EmptyFill text='Loading…' className={style.tableLoading} />;
   }
 
-  if (status === 'error') {
+  if (isLoadingError) {
     return <EmptyFill text={getLocalizedString('common.no_data')} className={style.tableLoading} />;
   }
 

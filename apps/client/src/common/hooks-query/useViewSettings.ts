@@ -5,7 +5,6 @@ import { getViewSettings, postViewSettings } from '../../common/api/viewSettings
 import { ontimeQueryClient } from '../../common/queryClient';
 import { VIEW_SETTINGS } from '../api/constants';
 import { viewsSettingsPlaceholder } from '../models/ViewSettings.type';
-import { deriveQueryStatus } from '../utils/queryUtils';
 
 export default function useViewSettings() {
   const { data, status, isLoadingError } = useQuery({
@@ -25,5 +24,5 @@ export default function useViewSettings() {
     },
   });
 
-  return { data: data ?? viewsSettingsPlaceholder, status: deriveQueryStatus(status, isLoadingError), mutateAsync };
+  return { data: data ?? viewsSettingsPlaceholder, status, isLoadingError, mutateAsync };
 }

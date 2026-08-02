@@ -6,7 +6,6 @@ import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { CURRENT_RUNDOWN_QUERY_KEY, getRundownQueryKey } from '../api/constants';
 import { fetchCurrentRundown, fetchRundown } from '../api/rundown';
 import { useSelectedEventId } from '../hooks/useSocket';
-import { deriveQueryStatus } from '../utils/queryUtils';
 import { ExtendedEntry, getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
 import { useProjectRundowns } from './useProjectRundowns';
 
@@ -51,20 +50,14 @@ export default function useRundown() {
     queryClient.removeQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
   }, [loadedRundownId, queryClient]);
 
-  return {
-    data: data ?? cachedRundownPlaceholder,
-    status: deriveQueryStatus(status, isLoadingError),
-    isError,
-    refetch,
-    isFetching,
-  };
+  return { data: data ?? cachedRundownPlaceholder, status, isError, isLoadingError, refetch, isFetching };
 }
 
 export function useRundownWithMetadata() {
-  const { data, status } = useRundown();
+  const { data, status, isLoadingError } = useRundown();
   const selectedEventId = useSelectedEventId();
   const rundownMetadata = useMemo(() => getRundownMetadata(data, selectedEventId), [data, selectedEventId]);
-  return { data, status, rundownMetadata };
+  return { data, status, isLoadingError, rundownMetadata };
 }
 
 /**
@@ -72,7 +65,7 @@ export function useRundownWithMetadata() {
  * built from the order and rundown fields
  */
 export function useFlatRundown() {
-  const { data, status } = useRundown();
+  const { data, status, isLoadingError } = useRundown();
 
   const flatRundown = useMemo(() => {
     if (data.revision === -1) {
@@ -81,15 +74,15 @@ export function useFlatRundown() {
     return data.flatOrder.map((id) => data.entries[id]).filter((entry): entry is OntimeEntry => entry !== undefined);
   }, [data]);
 
-  return { data: flatRundown, rundownId: data.id, status };
+  return { data: flatRundown, rundownId: data.id, status, isLoadingError };
 }
 
 export function useFlatRundownWithMetadata() {
-  const { data, status } = useRundown();
+  const { data, status, isLoadingError } = useRundown();
   const selectedEventId = useSelectedEventId();
 
   const rundownWithMetadata = useMemo(() => getFlatRundownMetadata(data, selectedEventId), [data, selectedEventId]);
-  return { data: rundownWithMetadata, status };
+  return { data: rundownWithMetadata, status, isLoadingError };
 }
 
 /**
@@ -142,11 +135,5 @@ export function useRundownById(rundownId: string | null | undefined) {
     refetchInterval: queryRefetchIntervalSlow,
   });
 
-  return {
-    data: data ?? cachedRundownPlaceholder,
-    status: deriveQueryStatus(status, isLoadingError),
-    isError,
-    refetch,
-    isFetching,
-  };
+  return { data: data ?? cachedRundownPlaceholder, status, isError, isLoadingError, refetch, isFetching };
 }

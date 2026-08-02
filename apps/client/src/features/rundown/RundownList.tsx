@@ -8,7 +8,7 @@ import Rundown from './Rundown';
 
 export default memo(RundownList);
 function RundownList() {
-  const { data, status, rundownMetadata } = useRundownWithMetadata();
+  const { data, status, isLoadingError, rundownMetadata } = useRundownWithMetadata();
   const featureData = useRundownEditor();
   const { getLocalizedString } = useTranslation();
 
@@ -17,7 +17,7 @@ function RundownList() {
     return <EmptyFill text='Loading…' />;
   }
 
-  if (status === 'error') {
+  if (isLoadingError) {
     return <EmptyFill text={getLocalizedString('common.no_data')} />;
   }
 

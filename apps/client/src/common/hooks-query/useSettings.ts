@@ -4,7 +4,6 @@ import { unobfuscate } from 'ontime-utils';
 import { APP_SETTINGS } from '../api/constants';
 import { getSettings } from '../api/settings';
 import { ontimePlaceholderSettings } from '../models/OntimeSettings';
-import { deriveQueryStatus } from '../utils/queryUtils';
 
 export default function useSettings() {
   const { data, status, isFetching, isError, isLoadingError, refetch } = useQuery({
@@ -23,11 +22,5 @@ export default function useSettings() {
     },
   });
 
-  return {
-    data: data ?? ontimePlaceholderSettings,
-    status: deriveQueryStatus(status, isLoadingError),
-    isFetching,
-    isError,
-    refetch,
-  };
+  return { data: data ?? ontimePlaceholderSettings, status, isFetching, isError, isLoadingError, refetch };
 }

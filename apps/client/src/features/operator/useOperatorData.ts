@@ -14,9 +14,18 @@ export interface OperatorData {
 }
 
 export function useOperatorData(): ViewData<OperatorData> {
-  const { data: rundown, rundownMetadata, status: rundownStatus } = useRundownWithMetadata();
-  const { data: customFields, status: customFieldStatus } = useCustomFields();
-  const { data: settings, status: settingsStatus } = useSettings();
+  const {
+    data: rundown,
+    rundownMetadata,
+    status: rundownStatus,
+    isLoadingError: rundownIsLoadingError,
+  } = useRundownWithMetadata();
+  const {
+    data: customFields,
+    status: customFieldStatus,
+    isLoadingError: customFieldIsLoadingError,
+  } = useCustomFields();
+  const { data: settings, status: settingsStatus, isLoadingError: settingsIsLoadingError } = useSettings();
 
   return {
     data: {
@@ -25,6 +34,10 @@ export function useOperatorData(): ViewData<OperatorData> {
       customFields,
       settings,
     },
-    status: aggregateQueryStatus([rundownStatus, customFieldStatus, settingsStatus]),
+    status: aggregateQueryStatus([
+      { status: rundownStatus, isLoadingError: rundownIsLoadingError },
+      { status: customFieldStatus, isLoadingError: customFieldIsLoadingError },
+      { status: settingsStatus, isLoadingError: settingsIsLoadingError },
+    ]),
   };
 }

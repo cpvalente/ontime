@@ -20,10 +20,14 @@ export function useBackstageData(): ViewData<BackstageData> {
   const isMirrored = useViewOptionsStore((state) => state.mirror);
 
   // HTTP API data
-  const { data: rundownData, status: rundownStatus } = useFlatRundown();
-  const { data: projectData, status: projectDataStatus } = useProjectData();
-  const { data: settings, status: settingsStatus } = useSettings();
-  const { data: customFields, status: customFieldsStatus } = useCustomFields();
+  const { data: rundownData, status: rundownStatus, isLoadingError: rundownIsLoadingError } = useFlatRundown();
+  const { data: projectData, status: projectDataStatus, isLoadingError: projectDataIsLoadingError } = useProjectData();
+  const { data: settings, status: settingsStatus, isLoadingError: settingsIsLoadingError } = useSettings();
+  const {
+    data: customFields,
+    status: customFieldsStatus,
+    isLoadingError: customFieldsIsLoadingError,
+  } = useCustomFields();
 
   return {
     data: {
@@ -33,6 +37,11 @@ export function useBackstageData(): ViewData<BackstageData> {
       isMirrored,
       settings,
     },
-    status: aggregateQueryStatus([rundownStatus, projectDataStatus, settingsStatus, customFieldsStatus]),
+    status: aggregateQueryStatus([
+      { status: rundownStatus, isLoadingError: rundownIsLoadingError },
+      { status: projectDataStatus, isLoadingError: projectDataIsLoadingError },
+      { status: settingsStatus, isLoadingError: settingsIsLoadingError },
+      { status: customFieldsStatus, isLoadingError: customFieldsIsLoadingError },
+    ]),
   };
 }

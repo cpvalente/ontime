@@ -21,10 +21,18 @@ export function useCountdownData(): ViewData<CountdownData> {
   const isMirrored = useViewOptionsStore((state) => state.mirror);
 
   // HTTP API data
-  const { data: rundownData, status: rundownStatus } = useFlatRundownWithMetadata();
-  const { data: projectData, status: projectDataStatus } = useProjectData();
-  const { data: settings, status: settingsStatus } = useSettings();
-  const { data: customFields, status: customFieldsStatus } = useCustomFields();
+  const {
+    data: rundownData,
+    status: rundownStatus,
+    isLoadingError: rundownIsLoadingError,
+  } = useFlatRundownWithMetadata();
+  const { data: projectData, status: projectDataStatus, isLoadingError: projectDataIsLoadingError } = useProjectData();
+  const { data: settings, status: settingsStatus, isLoadingError: settingsIsLoadingError } = useSettings();
+  const {
+    data: customFields,
+    status: customFieldsStatus,
+    isLoadingError: customFieldsIsLoadingError,
+  } = useCustomFields();
 
   return {
     data: {
@@ -34,6 +42,11 @@ export function useCountdownData(): ViewData<CountdownData> {
       isMirrored,
       settings,
     },
-    status: aggregateQueryStatus([rundownStatus, projectDataStatus, settingsStatus, customFieldsStatus]),
+    status: aggregateQueryStatus([
+      { status: rundownStatus, isLoadingError: rundownIsLoadingError },
+      { status: projectDataStatus, isLoadingError: projectDataIsLoadingError },
+      { status: settingsStatus, isLoadingError: settingsIsLoadingError },
+      { status: customFieldsStatus, isLoadingError: customFieldsIsLoadingError },
+    ]),
   };
 }

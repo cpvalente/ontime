@@ -22,11 +22,19 @@ export function useTimerData(): ViewData<TimerData> {
   const isMirrored = useViewOptionsStore((state) => state.mirror);
 
   // HTTP API data
-  const { data: projectData, status: projectDataStatus } = useProjectData();
-  const { data: viewSettings, status: viewSettingsStatus } = useViewSettings();
-  const { data: settings, status: settingsStatus } = useSettings();
-  const { data: customFields, status: customFieldsStatus } = useCustomFields();
-  const { data: rundown, status: rundownStatus } = useRundown();
+  const { data: projectData, status: projectDataStatus, isLoadingError: projectDataIsLoadingError } = useProjectData();
+  const {
+    data: viewSettings,
+    status: viewSettingsStatus,
+    isLoadingError: viewSettingsIsLoadingError,
+  } = useViewSettings();
+  const { data: settings, status: settingsStatus, isLoadingError: settingsIsLoadingError } = useSettings();
+  const {
+    data: customFields,
+    status: customFieldsStatus,
+    isLoadingError: customFieldsIsLoadingError,
+  } = useCustomFields();
+  const { data: rundown, status: rundownStatus, isLoadingError: rundownIsLoadingError } = useRundown();
   const { entries } = rundown;
 
   return {
@@ -39,11 +47,11 @@ export function useTimerData(): ViewData<TimerData> {
       entries,
     },
     status: aggregateQueryStatus([
-      projectDataStatus,
-      viewSettingsStatus,
-      settingsStatus,
-      customFieldsStatus,
-      rundownStatus,
+      { status: projectDataStatus, isLoadingError: projectDataIsLoadingError },
+      { status: viewSettingsStatus, isLoadingError: viewSettingsIsLoadingError },
+      { status: settingsStatus, isLoadingError: settingsIsLoadingError },
+      { status: customFieldsStatus, isLoadingError: customFieldsIsLoadingError },
+      { status: rundownStatus, isLoadingError: rundownIsLoadingError },
     ]),
   };
 }

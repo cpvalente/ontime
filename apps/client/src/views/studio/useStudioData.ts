@@ -20,10 +20,18 @@ export function useStudioData(): ViewData<StudioData> {
   const isMirrored = useViewOptionsStore((state) => state.mirror);
 
   // HTTP API data
-  const { data: projectData, status: projectDataStatus } = useProjectData();
-  const { data: viewSettings, status: viewSettingsStatus } = useViewSettings();
-  const { data: settings, status: settingsStatus } = useSettings();
-  const { data: customFields, status: customFieldsStatus } = useCustomFields();
+  const { data: projectData, status: projectDataStatus, isLoadingError: projectDataIsLoadingError } = useProjectData();
+  const {
+    data: viewSettings,
+    status: viewSettingsStatus,
+    isLoadingError: viewSettingsIsLoadingError,
+  } = useViewSettings();
+  const { data: settings, status: settingsStatus, isLoadingError: settingsIsLoadingError } = useSettings();
+  const {
+    data: customFields,
+    status: customFieldsStatus,
+    isLoadingError: customFieldsIsLoadingError,
+  } = useCustomFields();
 
   return {
     data: {
@@ -33,6 +41,11 @@ export function useStudioData(): ViewData<StudioData> {
       settings,
       viewSettings,
     },
-    status: aggregateQueryStatus([projectDataStatus, viewSettingsStatus, settingsStatus, customFieldsStatus]),
+    status: aggregateQueryStatus([
+      { status: projectDataStatus, isLoadingError: projectDataIsLoadingError },
+      { status: viewSettingsStatus, isLoadingError: viewSettingsIsLoadingError },
+      { status: settingsStatus, isLoadingError: settingsIsLoadingError },
+      { status: customFieldsStatus, isLoadingError: customFieldsIsLoadingError },
+    ]),
   };
 }

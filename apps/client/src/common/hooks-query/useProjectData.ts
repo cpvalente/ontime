@@ -4,7 +4,6 @@ import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { PROJECT_DATA } from '../api/constants';
 import { getProjectData, postProjectData } from '../api/project';
 import { projectDataPlaceholder } from '../models/ProjectData';
-import { deriveQueryStatus } from '../utils/queryUtils';
 
 export default function useProjectData() {
   const { data, status, isFetching, isError, isLoadingError, refetch } = useQuery({
@@ -14,13 +13,7 @@ export default function useProjectData() {
     refetchInterval: queryRefetchIntervalSlow,
   });
 
-  return {
-    data: data ?? projectDataPlaceholder,
-    status: deriveQueryStatus(status, isLoadingError),
-    isFetching,
-    isError,
-    refetch,
-  };
+  return { data: data ?? projectDataPlaceholder, status, isFetching, isError, isLoadingError, refetch };
 }
 
 export function useUpdateProjectData() {

@@ -11,6 +11,7 @@ export type RundownSource = {
   rundown: Rundown;
   flatRundown: ExtendedEntry[];
   status: string;
+  isLoadingError: boolean;
   selectedEventId: EntryId | null;
 };
 
@@ -35,7 +36,7 @@ function useRundownSource(rundownId: string | null, loadedRundownId: string | nu
   const isLoadedTarget = rundownId !== null && rundownId === loadedRundownId;
   const runtimeSelectedEventId = useSelectedEventId();
   const effectiveSelectedEventId = isLoadedTarget ? runtimeSelectedEventId : null;
-  const { data: rundown, status } = useRundownById(rundownId);
+  const { data: rundown, status, isLoadingError } = useRundownById(rundownId);
   const flatRundown = useMemo(
     () => getFlatRundownMetadata(rundown, effectiveSelectedEventId),
     [effectiveSelectedEventId, rundown],
@@ -47,8 +48,9 @@ function useRundownSource(rundownId: string | null, loadedRundownId: string | nu
       rundown,
       flatRundown,
       status,
+      isLoadingError,
       selectedEventId: effectiveSelectedEventId,
     }),
-    [effectiveSelectedEventId, flatRundown, rundown, rundownId, status],
+    [effectiveSelectedEventId, flatRundown, isLoadingError, rundown, rundownId, status],
   );
 }
