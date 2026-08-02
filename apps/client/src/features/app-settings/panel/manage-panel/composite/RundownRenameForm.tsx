@@ -59,6 +59,7 @@ export default function RundownRenameForm({ onSubmit, onCancel, initialTitle }: 
               return true;
             },
           })}
+          maxLength={64}
           fluid
         />
         {errors.title && <Panel.Error>{errors.title.message}</Panel.Error>}

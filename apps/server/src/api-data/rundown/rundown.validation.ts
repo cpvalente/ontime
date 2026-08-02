@@ -1,14 +1,23 @@
 import { body, param } from 'express-validator';
-import type { EntryId, InsertOptions, OntimeGroup, Rundown } from 'ontime-types';
+import { type EntryId, type InsertOptions, type OntimeGroup, type Rundown } from 'ontime-types';
 
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 // #region operations on project rundowns =========================
 
-export const rundownPostValidator = [body('title').isString().trim().notEmpty(), requestValidationFunction];
+const rundownTitleValidator = body('title')
+  .isString()
+  .trim()
+  .notEmpty()
+  .withMessage('No title provided')
+  .bail()
+  .isLength({ max: 64 })
+  .withMessage('Title must be 64 characters or fewer');
+
+export const rundownPostValidator = [rundownTitleValidator, requestValidationFunction];
 export const rundownPatchValidator = [
   param('id').isString().trim().notEmpty(),
-  body('title').isString().trim().notEmpty().withMessage('No title provided'),
+  rundownTitleValidator,
   requestValidationFunction,
 ];
 
