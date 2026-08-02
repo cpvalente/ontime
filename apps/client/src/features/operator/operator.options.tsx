@@ -44,8 +44,8 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
         },
         {
           id: 'subscribe',
-          title: 'Highlight Fields',
-          description: 'Choose custom fields to highlight',
+          title: 'Show custom fields',
+          description: 'Choose custom fields to show on each event',
           type: 'multi-option',
           values: customFieldSelect,
         },
