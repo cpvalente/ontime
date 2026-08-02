@@ -183,7 +183,7 @@ export default function RundownEvent({
             icon: TbClockPin,
             onClick: () => {
               if (!parent) return;
-              matchGroupDuration(eventId, parent);
+              matchGroupDuration(eventId);
             },
             disabled:
               !parentGroup ||
