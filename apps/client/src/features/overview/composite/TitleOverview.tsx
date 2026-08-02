@@ -8,14 +8,17 @@ export default function TitleOverview() {
   const { data: projectData } = useProjectData();
   const { data: rundownData } = useRundownAuxData();
 
-  if (!projectData.title && !rundownData.title) {
+  const projectTitle = projectData.title.trim();
+  const rundownTitle = rundownData.title.trim();
+
+  if (!projectTitle && !rundownTitle) {
     return null;
   }
 
   return (
-    <div>
-      <div className={style.title}>{projectData.title}</div>
-      <div className={style.description}>{rundownData.title}</div>
+    <div className={style.titleOverview}>
+      {projectTitle && <div className={style.project}>{projectTitle}</div>}
+      {rundownTitle && <div className={style.rundown}>{rundownTitle}</div>}
     </div>
   );
 }
