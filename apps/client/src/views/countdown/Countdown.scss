@@ -23,7 +23,19 @@ $item-height: 3.5rem;
     font-size: $header-font-size;
     font-weight: 600;
     display: flex;
+    align-items: center;
     gap: 1rem;
+  }
+
+  .project-header__brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+  }
+
+  .project-header__brand--without-logo {
+    align-self: baseline;
   }
 
   .logo {

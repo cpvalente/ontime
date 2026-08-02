@@ -20,6 +20,7 @@ import ViewParamsEditor from '../../common/components/view-params-editor/ViewPar
 import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
+import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
@@ -80,8 +81,10 @@ function Countdown({ customFields, rundownData, projectData, isMirrored, setting
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
       <ViewParamsEditor target={OntimeView.Countdown} viewOptions={countdownOptions} />
       <div className='project-header'>
-        {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
-        <div className='title'>{projectData.title}</div>
+        <div className={cx(['project-header__brand', !projectData?.logo && 'project-header__brand--without-logo'])}>
+          {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
+          <div className='title'>{projectData.title}</div>
+        </div>
         <CountdownClock />
       </div>
 

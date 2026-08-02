@@ -107,8 +107,10 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
       <ViewParamsEditor target={OntimeView.Backstage} viewOptions={backstageOptions} />
       <div className='project-header'>
-        {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
-        <div className='title'>{projectData.title}</div>
+        <div className={cx(['project-header__brand', !projectData?.logo && 'project-header__brand--without-logo'])}>
+          {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
+          <div className='title'>{projectData.title}</div>
+        </div>
         <BackstageClock timeformat={timeformat} />
       </div>
 
