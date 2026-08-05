@@ -480,7 +480,12 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
       if (!rundownId) {
         throw new Error('Rundown not initialised');
       }
-      await requestFitGroupTarget(rundownId, eventId);
+
+      try {
+        await requestFitGroupTarget(rundownId, eventId);
+      } catch (error) {
+        logAxiosError('Error updating event', error);
+      }
     },
     [getCurrentRundownData],
   );
