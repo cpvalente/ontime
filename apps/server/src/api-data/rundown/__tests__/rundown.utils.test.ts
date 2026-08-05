@@ -705,4 +705,13 @@ describe('eventDurationMatchGroupTarget()', () => {
     });
     expect(result).toStrictEqual(null);
   });
+
+  it('returns null when duration would be over 24h', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: 30 * MILLIS_PER_HOUR,
+      groupDuration: MILLIS_PER_HOUR,
+      eventDuration: MILLIS_PER_MINUTE * 30,
+    });
+    expect(result).toStrictEqual(null);
+  });
 });

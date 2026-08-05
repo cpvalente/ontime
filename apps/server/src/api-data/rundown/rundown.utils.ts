@@ -31,6 +31,7 @@ import {
   generateId,
   getCueCandidate,
   makeString,
+  maxDuration,
   validateEndAction,
   validateTimerType,
   validateTimes,
@@ -624,5 +625,5 @@ export function eventDurationMatchGroupTarget({
   if (targetDuration === groupDuration) return null;
   const durationDiff = targetDuration - groupDuration;
   const newDuration = eventDuration + durationDiff;
-  return newDuration < 0 ? null : newDuration;
+  return newDuration < 0 || newDuration > maxDuration ? null : newDuration;
 }
