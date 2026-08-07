@@ -54,7 +54,9 @@ export type EventFieldArgs = Partial<
 >;
 export type MilestoneFieldArgs = Partial<Pick<OntimeMilestone, 'cue' | 'title' | 'note' | 'colour' | 'custom'>>;
 export type DelayFieldArgs = Partial<Pick<OntimeDelay, 'duration'>>;
-export type GroupFieldArgs = Partial<Pick<OntimeGroup, 'title' | 'note' | 'colour' | 'targetDuration' | 'custom'>>;
+export type GroupFieldArgs = Partial<
+  Pick<OntimeGroup, 'title' | 'note' | 'colour' | 'targetDuration' | 'custom' | 'useGroupTimer'>
+>;
 
 export type EntryFieldArgs = EventFieldArgs & MilestoneFieldArgs & DelayFieldArgs & GroupFieldArgs;
 export type TargetRundownArgs = { rundownId?: string };
@@ -170,6 +172,7 @@ function toGroupPatch(args: CreateEntryArgs, id: EntryId): PatchWithId<OntimeGro
   if (args.colour !== undefined) patch.colour = args.colour;
   if (args.targetDuration !== undefined) patch.targetDuration = args.targetDuration;
   if (args.custom !== undefined) patch.custom = args.custom;
+  if (args.useGroupTimer !== undefined) patch.useGroupTimer = args.useGroupTimer;
 
   return Object.keys(patch).length > 1 ? patch : null;
 }

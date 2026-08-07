@@ -10,7 +10,7 @@ import {
   getIsPlaying,
   getSecondaryDisplay,
   getShowMessage,
-  getShowProgressBar,
+  getShowsTimerValue,
   resolveTimerDisplay,
 } from '../../timer/timer.utils';
 import { getTimerColour } from '../../utils/presentation.utils';
@@ -40,7 +40,8 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
   const { showFinished, showWarning, showDanger } = timerDisplay;
 
   const isPlaying = getIsPlaying(time.playback);
-  const showProgressBar = getShowProgressBar(timerTypeNow);
+  const showsTimerValue = getShowsTimerValue(timerTypeNow);
+  const showProgressBar = showsTimerValue;
 
   // gather timer data
   const stageTimer = getTimerByType(false, timerTypeNow, clock, timerDisplay.source, timerTypeNow);
@@ -87,7 +88,7 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
         >
           {display}
         </div>
-        {timerDisplay.isGroup && <div className='group-indicator'>group</div>}
+        {timerDisplay.isGroup && showsTimerValue && <div className='group-indicator'>group</div>}
         <div className={cx(['secondary', !secondaryContent && 'secondary--hidden'])}>
           <FitText mode='multi' min={12} max={256}>
             {secondaryContent}

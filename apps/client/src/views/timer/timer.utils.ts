@@ -36,9 +36,11 @@ export function getTotalTime(duration: MaybeNumber, addedTime: MaybeNumber): num
 }
 
 /**
- * Whether the progress bar should be shown for this timer type
+ * Whether this timer type renders a value derived from the running timer.
+ * Clock shows the time of day and none shows nothing, so neither reflects what is loaded,
+ * which also means neither can carry a progress bar or a group timer indicator
  */
-export function getShowProgressBar(timerType: TimerType) {
+export function getShowsTimerValue(timerType: TimerType) {
   return timerType !== TimerType.None && timerType !== TimerType.Clock;
 }
 
@@ -147,11 +149,13 @@ export function resolveTimerDisplay({
   hidePhase,
 }: ResolveTimerDisplayOptions) {
   const isGroup = groupTimer !== null;
-  const phase = isGroup
-    ? groupTimer.current <= 0
-      ? TimerPhase.Overtime
-      : TimerPhase.Default
-    : time.phase;
+  const phase = (() => {
+    if (!isGroup) return time.phase;
+    // pending and none describe the playback state rather than a threshold,
+    // they are just as true of the group as they are of the event
+    if (time.phase === TimerPhase.Pending || time.phase === TimerPhase.None) return time.phase;
+    return groupTimer.current <= 0 ? TimerPhase.Overtime : TimerPhase.Default;
+  })();
 
   return {
     isGroup,

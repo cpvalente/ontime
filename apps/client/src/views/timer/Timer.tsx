@@ -25,7 +25,7 @@ import {
   getSecondaryDisplay,
   getShowClock,
   getShowMessage,
-  getShowProgressBar,
+  getShowsTimerValue,
   resolveTimerDisplay,
 } from './timer.utils';
 import { TimerData, useTimerData } from './useTimerData';
@@ -92,7 +92,8 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
   const { showEndMessage, showFinished, showWarning, showDanger } = timerDisplay;
   const isPlaying = getIsPlaying(time.playback);
   const showClock = !hideClock && getShowClock(viewTimerType);
-  const showProgressBar = !hideProgress && getShowProgressBar(viewTimerType);
+  const showsTimerValue = getShowsTimerValue(viewTimerType);
+  const showProgressBar = !hideProgress && showsTimerValue;
 
   // gather card data
   const { showNow, nowMain, nowSecondary, showNext, nextMain, nextSecondary } = getCardData(
@@ -186,7 +187,9 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
             {display}
           </div>
         )}
-        {timerDisplay.isGroup && !showEndMessage && <div className='group-indicator'>group</div>}
+        {timerDisplay.isGroup && showsTimerValue && !showEndMessage && (
+          <div className='group-indicator'>group</div>
+        )}
         <div className={cx(['secondary', !secondaryContent && 'secondary--hidden'])}>
           <FitText mode='multi' min={64} max={256}>
             {secondaryContent}

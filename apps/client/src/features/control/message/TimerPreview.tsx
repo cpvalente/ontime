@@ -107,7 +107,7 @@ export default function TimerPreview() {
           <LuArrowDownToLine />
         </Tooltip>
         <Tooltip
-          text={isGroupTimerActive ? 'Views are showing the shared group timer' : 'Views are showing the event timer'}
+          text={`Timer views are showing the ${isGroupTimerActive ? 'shared group timer' : 'event timer'}`}
           render={<span />}
           className={style.statusIcon}
           data-active={isGroupTimerActive}
