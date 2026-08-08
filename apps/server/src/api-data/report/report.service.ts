@@ -3,6 +3,7 @@ import {
   OntimeEventReport,
   OntimeReport,
   RefetchKey,
+  Rundown,
   ShowRun,
   ShowRunSummary,
   TimerLifeCycle,
@@ -11,9 +12,11 @@ import { countPlannedEvents, generateId, getRunSummary } from 'ontime-utils';
 import { DeepReadonly } from 'ts-essentials';
 
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import * as timeCore from '../../lib/time-core/timeCore.js';
 import * as reportStore from '../../services/report-service/report.store.js';
 import { RuntimeState } from '../../stores/runtimeState.js';
-import { getCurrentRundown } from '../rundown/rundown.dao.js';
+import { getCurrentRundown, getCurrentRundownId } from '../rundown/rundown.dao.js';
 
 /** per event data for the run currently in progress */
 const report = new Map<EntryId, OntimeEventReport>();
@@ -83,6 +86,13 @@ export function triggerReportEntry(
   }
 
   if (cycle === TimerLifeCycle.onStop) {
+    // With no run open there is nothing this event can belong to. A stop can
+    // still arrive here after a project load, and recording it would attribute
+    // the previous project's event to the newly loaded one.
+    if (openRun === null) {
+      return;
+    }
+
     const previous = report.get(eventId);
     report.set(eventId, {
       startedAt: previous?.startedAt ?? null,
@@ -109,7 +119,7 @@ export function closeRun() {
 
   // detach the run before the async write so a start arriving in between
   // opens a new run instead of appending to the one we are closing
-  const closing = { ...openRun, endedAt: lastEndedAt() };
+  const closing = { ...openRun, endedAt: lastEndedAtIn(generate()) };
   openRun = null;
 
   void persistRun(closing, generate());
@@ -131,16 +141,31 @@ function openRunIfNeeded(state: DeepReadonly<RuntimeState>) {
   formattedReport = null;
 
   const rundown = getCurrentRundown();
-  const startedAt = state.rundown.actualStart ?? state.clock;
+  // `clock` and `rundown.actualStart` are times of day, which cannot date or
+  // order a run across days. `_startEpoch` is the wall clock instant the show
+  // began, which is what a run needs to be a dated record.
+  const startedAt = state._startEpoch ?? timeCore.now();
 
   openRun = {
     id: generateId(),
     rundownId: rundown.id,
     rundownTitle: rundown.title,
-    label: new Date().toISOString(),
+    label: makeRunLabel(startedAt),
     startedAt,
     endedAt: null,
   };
+}
+
+/**
+ * Default name for a run, a readable local date and time rather than the
+ * raw timestamp the user would otherwise have to decipher.
+ * @private
+ */
+function makeRunLabel(startedAt: number): string {
+  return new Date(startedAt).toLocaleString(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
 }
 
 /**
@@ -160,8 +185,12 @@ async function persistOpenRun(): Promise<void> {
  * @private
  */
 async function persistRun(run: Omit<ShowRun, 'report' | 'summary'>, currentReport: OntimeReport): Promise<void> {
-  const rundown = getCurrentRundown();
-  const eventsPlanned = countPlannedEvents(rundown.entries, rundown.flatOrder);
+  const rundown = getRundownForRun(run.rundownId);
+  // a rundown deleted mid-run leaves nothing to count against, so we keep
+  // whatever the run was last written with rather than reporting zero
+  const eventsPlanned = rundown
+    ? countPlannedEvents(rundown.entries, rundown.flatOrder)
+    : (reportStore.getRun(run.id)?.summary.eventsPlanned ?? 0);
 
   await reportStore.upsertRun({
     ...run,
@@ -171,17 +200,22 @@ async function persistRun(run: Omit<ShowRun, 'report' | 'summary'>, currentRepor
 }
 
 /**
- * Timestamp of the last event to finish in this run
+ * Resolves the rundown a run belongs to.
+ * The loaded rundown can be switched while a run is open, so the run's own
+ * id is the only reliable way to count the events it was measured against.
  * @private
  */
-function lastEndedAt(): number | null {
-  let latest: number | null = null;
-  for (const entry of report.values()) {
-    if (entry.endedAt !== null && (latest === null || entry.endedAt > latest)) {
-      latest = entry.endedAt;
-    }
+function getRundownForRun(rundownId: string): Readonly<Rundown> | null {
+  if (rundownId === getCurrentRundownId()) {
+    return getCurrentRundown();
   }
-  return latest;
+
+  try {
+    return getDataProvider().getRundown(rundownId);
+  } catch (_error) {
+    // getRundown throws when the rundown no longer exists
+    return null;
+  }
 }
 
 /**
@@ -196,14 +230,28 @@ export async function initReports(projectFilename: string): Promise<void> {
 
   await reportStore.loadReports(projectFilename);
 
-  const dangling = reportStore.getRuns().find((run) => run.endedAt === null);
-  if (dangling) {
-    const endedAt = Object.values(dangling.report).reduce<number | null>((latest, entry) => {
-      if (entry.endedAt === null) return latest;
-      return latest === null || entry.endedAt > latest ? entry.endedAt : latest;
-    }, null);
-    await reportStore.upsertRun({ ...dangling, endedAt });
+  // close every run left open, not just the first: a run stuck with a null
+  // endedAt reads as ongoing forever and is skipped by getLatestRun
+  const closed: ShowRun[] = [];
+  for (const run of reportStore.getRuns()) {
+    if (run.endedAt !== null) continue;
+    closed.push({ ...run, endedAt: lastEndedAtIn(run.report) });
   }
+  await reportStore.upsertRuns(closed);
+}
+
+/**
+ * Timestamp of the last event to finish within a stored report
+ * @private
+ */
+function lastEndedAtIn(storedReport: OntimeReport): number | null {
+  let latest: number | null = null;
+  for (const entry of Object.values(storedReport)) {
+    if (entry.endedAt !== null && (latest === null || entry.endedAt > latest)) {
+      latest = entry.endedAt;
+    }
+  }
+  return latest;
 }
 
 /** Run history for the current project, without per event data */

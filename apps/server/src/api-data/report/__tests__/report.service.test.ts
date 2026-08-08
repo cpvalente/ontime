@@ -22,6 +22,16 @@ vi.mock('../../../services/report-service/report.store.js', () => ({
       runs[index] = run;
     }
   }),
+  upsertRuns: vi.fn(async (updated: ShowRun[]) => {
+    for (const run of updated) {
+      const index = runs.findIndex((candidate) => candidate.id === run.id);
+      if (index === -1) {
+        runs.unshift(run);
+      } else {
+        runs[index] = run;
+      }
+    }
+  }),
   deleteRun: vi.fn(async (id: string) => {
     const index = runs.findIndex((run) => run.id === id);
     if (index === -1) return false;
@@ -39,9 +49,21 @@ vi.mock('../../../services/report-service/report.store.js', () => ({
 }));
 
 let currentRundown = makeRundown({ id: 'rundown-1', title: 'Test rundown' });
+/** rundowns reachable by id, standing in for what is on disk */
+let storedRundowns: Record<string, ReturnType<typeof makeRundown>> = {};
 
 vi.mock('../../rundown/rundown.dao.js', () => ({
   getCurrentRundown: vi.fn(() => currentRundown),
+  getCurrentRundownId: vi.fn(() => currentRundown.id),
+}));
+
+vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
+  getDataProvider: vi.fn(() => ({
+    getRundown: vi.fn((id: string) => {
+      if (!(id in storedRundowns)) throw new Error(`Rundown with id: ${id} not found`);
+      return storedRundowns[id];
+    }),
+  })),
 }));
 
 const {
@@ -70,8 +92,12 @@ beforeEach(async () => {
     order: [eventA.id, eventB.id],
     flatOrder: [eventA.id, eventB.id],
   });
+  storedRundowns = { 'rundown-1': currentRundown };
   await initReports('project-a');
 });
+
+/** an epoch instant, as the runtime would supply on the first event start */
+const showEpoch = Date.UTC(2026, 7, 8, 9, 30);
 
 describe('triggerReportEntry()', () => {
   it('captures a snapshot of the schedule when an event starts', () => {
@@ -118,6 +144,14 @@ describe('triggerReportEntry()', () => {
     expect(generate()).toEqual({});
   });
 
+  it('ignores a stop arriving when no run is open', () => {
+    // a project load stops playback and reinitialises reporting, the trailing
+    // stop must not attribute the old project's event to the new one
+    const state = makeRuntimeStateData({ eventNow: eventA, timer: { startedAt: 0 }, clock: 10000 });
+    triggerReportEntry(TimerLifeCycle.onStop, state);
+    expect(generate()).toEqual({});
+  });
+
   it('persists a run to history on the first event stop', async () => {
     const start = makeRuntimeStateData({ eventNow: eventA, timer: { startedAt: 0 }, clock: 0 });
     triggerReportEntry(TimerLifeCycle.onStart, start);
@@ -130,6 +164,67 @@ describe('triggerReportEntry()', () => {
     expect(listRuns()).toHaveLength(1);
     expect(listRuns()[0].rundownId).toBe('rundown-1');
   });
+});
+
+describe('run timestamps', () => {
+  it('dates a run with the wall clock epoch, not the time of day', async () => {
+    // clock/actualStart are millis since midnight, which cannot date a run.
+    // The run must take _startEpoch so it is not stamped 1 Jan 1970.
+    const state = makeRuntimeStateData({
+      eventNow: eventA,
+      timer: { startedAt: 0 },
+      clock: 34200000, // 09:30 as a time of day
+      rundown: { actualStart: 34200000 },
+      _startEpoch: showEpoch,
+    });
+    triggerReportEntry(TimerLifeCycle.onStart, state);
+    triggerReportEntry(TimerLifeCycle.onStop, { ...state, clock: 44200000 } as typeof state);
+    await new Promise((resolve) => setImmediate(resolve));
+
+    const run = listRuns()[0];
+    expect(run.startedAt).toBe(showEpoch);
+    expect(new Date(run.startedAt).getUTCFullYear()).toBe(2026);
+  });
+
+  it('falls back to the current instant when no start epoch is available', async () => {
+    const before = Date.now();
+    const state = makeRuntimeStateData({ eventNow: eventA, timer: { startedAt: 0 }, clock: 0, _startEpoch: null });
+    triggerReportEntry(TimerLifeCycle.onStart, state);
+    triggerReportEntry(TimerLifeCycle.onStop, { ...state, clock: 10000 } as typeof state);
+    await new Promise((resolve) => setImmediate(resolve));
+
+    const run = listRuns()[0];
+    expect(run.startedAt).toBeGreaterThanOrEqual(before);
+    expect(run.startedAt).toBeLessThanOrEqual(Date.now());
+  });
+
+  it('orders runs from different days correctly', async () => {
+    // a run at 09:30 today must rank above one at 20:00 yesterday, which
+    // time-of-day ordering would get backwards
+    const yesterdayEvening = Date.UTC(2026, 7, 7, 20, 0);
+    await makeClosedRunAt('older', yesterdayEvening);
+    await makeClosedRunAt('newer', showEpoch);
+
+    expect(getLatestRun()?.id).toBe('newer');
+  });
+
+  async function makeClosedRunAt(id: string, epoch: number) {
+    // the time of day deliberately disagrees with chronological order here:
+    // 20:00 yesterday is a larger time of day than 09:30 today
+    const timeOfDay = epoch % 86400000;
+    const state = makeRuntimeStateData({
+      eventNow: eventA,
+      timer: { startedAt: 0 },
+      clock: timeOfDay,
+      rundown: { actualStart: timeOfDay },
+      _startEpoch: epoch,
+    });
+    triggerReportEntry(TimerLifeCycle.onStart, state);
+    triggerReportEntry(TimerLifeCycle.onStop, { ...state, clock: timeOfDay + 10000 } as typeof state);
+    closeRun();
+    await new Promise((resolve) => setImmediate(resolve));
+    runs[0] = { ...runs[0], id };
+  }
 });
 
 describe('closeRun()', () => {
@@ -196,6 +291,85 @@ describe('initReports()', () => {
 
     const recovered = getRun('dangling');
     expect(recovered?.endedAt).toBe(9000);
+  });
+
+  it('closes every dangling run, not only the first', async () => {
+    runs = [makeDanglingRun('first', 4000), makeDanglingRun('second', 7000)];
+
+    await initReports('project-a');
+
+    expect(getRun('first')?.endedAt).toBe(4000);
+    expect(getRun('second')?.endedAt).toBe(7000);
+    expect(listRuns().every((run) => run.endedAt !== null)).toBe(true);
+  });
+
+  function makeDanglingRun(id: string, endedAt: number): ShowRun {
+    return {
+      id,
+      rundownId: 'rundown-1',
+      rundownTitle: 'Test rundown',
+      label: id,
+      startedAt: showEpoch,
+      endedAt: null,
+      report: {
+        [eventA.id]: { startedAt: 0, endedAt, scheduledStart: 0, scheduledDuration: 10000, playCount: 1 },
+      },
+      summary: {
+        eventsRun: 1,
+        eventsPlanned: 2,
+        scheduledDuration: 10000,
+        actualDuration: endedAt,
+        drift: endedAt - 10000,
+        eventsOver: 0,
+        eventsUnder: 1,
+        eventsOnTime: 0,
+        worstOverrun: null,
+      },
+    };
+  }
+});
+
+describe('summary is measured against the run\'s own rundown', () => {
+  it('counts planned events from the rundown the run belongs to', async () => {
+    // a three event rundown that is not the loaded one
+    const otherEvent = makeOntimeEvent({ id: 'event-c', timeStart: 0, timeEnd: 1000, duration: 1000 });
+    storedRundowns['rundown-2'] = makeRundown({
+      id: 'rundown-2',
+      title: 'Other rundown',
+      entries: { [eventA.id]: eventA, [eventB.id]: eventB, [otherEvent.id]: otherEvent },
+      order: [eventA.id, eventB.id, otherEvent.id],
+      flatOrder: [eventA.id, eventB.id, otherEvent.id],
+    });
+
+    // open a run against rundown-2, then switch the loaded rundown away
+    currentRundown = storedRundowns['rundown-2'];
+    const state = makeRuntimeStateData({ eventNow: eventA, timer: { startedAt: 0 }, clock: 0, _startEpoch: showEpoch });
+    triggerReportEntry(TimerLifeCycle.onStart, state);
+    currentRundown = storedRundowns['rundown-1'];
+
+    triggerReportEntry(TimerLifeCycle.onStop, { ...state, clock: 10000 } as typeof state);
+    await new Promise((resolve) => setImmediate(resolve));
+
+    // three, from rundown-2, not two from the now loaded rundown-1
+    expect(listRuns()[0].summary.eventsPlanned).toBe(3);
+  });
+
+  it('keeps the last known count when the rundown has been deleted', async () => {
+    currentRundown = makeRundown({ id: 'gone', title: 'Deleted rundown', entries: {}, order: [], flatOrder: [] });
+    const state = makeRuntimeStateData({ eventNow: eventA, timer: { startedAt: 0 }, clock: 0, _startEpoch: showEpoch });
+    triggerReportEntry(TimerLifeCycle.onStart, state);
+    triggerReportEntry(TimerLifeCycle.onStop, { ...state, clock: 10000 } as typeof state);
+    await new Promise((resolve) => setImmediate(resolve));
+
+    // rundown disappears from both the loaded slot and storage
+    const runId = listRuns()[0].id;
+    runs[0] = { ...runs[0], summary: { ...runs[0].summary, eventsPlanned: 7 } };
+    currentRundown = storedRundowns['rundown-1'];
+
+    triggerReportEntry(TimerLifeCycle.onStop, { ...state, clock: 20000 } as typeof state);
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(getRun(runId)?.summary.eventsPlanned).toBe(7);
   });
 });
 

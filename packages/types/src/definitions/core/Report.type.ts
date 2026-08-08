@@ -41,9 +41,17 @@ export type ShowRun = {
    * is renamed or deleted.
    */
   rundownTitle: string;
-  /** user editable, defaults to a formatted timestamp */
+  /** user editable, defaults to a formatted local date and time */
   label: string;
+  /**
+   * Wall clock instant (milliseconds from epoch) the run began.
+   * Not a time of day: runs must be datable and orderable across days.
+   */
   startedAt: number;
+  /**
+   * Time of day the last event in the run finished, or null while the run is
+   * open. Only ever compared against the per event times in the same run.
+   */
   endedAt: MaybeNumber;
   report: OntimeReport;
   summary: RunSummary;

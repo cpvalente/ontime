@@ -44,6 +44,7 @@ const {
   getRuns,
   getRun,
   upsertRun,
+  upsertRuns,
   deleteRun,
   deleteRunsForRundown,
   deleteAllRuns,
@@ -137,6 +138,35 @@ describe('upsertRun() / getRun() / getRuns()', () => {
     await upsertRun(makeRun());
     const reloaded = await loadReports('project-a');
     expect(reloaded.runs).toHaveLength(1);
+  });
+});
+
+describe('upsertRuns()', () => {
+  beforeEach(async () => {
+    await loadReports('project-a');
+  });
+
+  it('applies several runs in a single write', async () => {
+    await upsertRuns([makeRun({ id: 'a' }), makeRun({ id: 'b' })]);
+
+    expect(getRuns().map((run) => run.id)).toEqual(['b', 'a']);
+    const written = files.get(getPathToReports('project-a')) as { runs: ShowRun[] };
+    expect(written.runs).toHaveLength(2);
+  });
+
+  it('mixes inserts and replacements', async () => {
+    await upsertRun(makeRun({ id: 'existing', label: 'before' }));
+    await upsertRuns([makeRun({ id: 'existing', label: 'after' }), makeRun({ id: 'fresh' })]);
+
+    expect(getRuns()).toHaveLength(2);
+    expect(getRun('existing')?.label).toBe('after');
+  });
+
+  it('does not write when given nothing to do', async () => {
+    await upsertRun(makeRun({ id: 'a' }));
+    await upsertRuns([]);
+
+    expect(getRuns()).toHaveLength(1);
   });
 });
 

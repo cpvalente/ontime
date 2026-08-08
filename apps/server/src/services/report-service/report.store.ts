@@ -71,11 +71,26 @@ export function getRun(id: string): ShowRun | undefined {
  * Inserts or replaces a run, keeping the list ordered newest first
  */
 export async function upsertRun(run: ShowRun): Promise<void> {
-  const index = cache.runs.findIndex((candidate) => candidate.id === run.id);
-  if (index === -1) {
-    cache.runs.unshift(run);
-  } else {
-    cache.runs[index] = run;
+  return upsertRuns([run]);
+}
+
+/**
+ * Inserts or replaces several runs in one pass.
+ * Batching matters: these all live in a single file, so writing per run would
+ * mean concurrent writes racing on the same path.
+ */
+export async function upsertRuns(updated: ShowRun[]): Promise<void> {
+  if (updated.length === 0) {
+    return;
+  }
+
+  for (const run of updated) {
+    const index = cache.runs.findIndex((candidate) => candidate.id === run.id);
+    if (index === -1) {
+      cache.runs.unshift(run);
+    } else {
+      cache.runs[index] = run;
+    }
   }
   await persist();
 }
