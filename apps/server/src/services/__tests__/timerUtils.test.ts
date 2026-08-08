@@ -1,6 +1,7 @@
-import { EndAction, Playback, TimeOfDay, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
+import { EndAction, Instant, Playback, TimeOfDay, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, dayInMs, millisToString } from 'ontime-utils';
 
+import * as timeCore from '../../lib/time-core/timeCore.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 import {
   findDayOffset,
@@ -53,11 +54,12 @@ describe('getElapsed()', () => {
   it('uses the current pause start while paused', () => {
     const state = {
       clock: 10 * MILLIS_PER_MINUTE,
+      _now: timeCore.toInstant((10 * MILLIS_PER_MINUTE) as TimeOfDay, timeCore.now()),
       timer: {
         startedAt: 2 * MILLIS_PER_MINUTE,
       },
       _timer: {
-        pausedAt: 7 * MILLIS_PER_MINUTE,
+        pausedAt: timeCore.toInstant((7 * MILLIS_PER_MINUTE) as TimeOfDay, timeCore.now()),
         pausedDuration: 1 * MILLIS_PER_MINUTE,
       },
     } as RuntimeState;
@@ -973,6 +975,40 @@ describe('getRuntimeOffset()', () => {
 
     const { absolute } = getRuntimeOffset(state);
     expect(absolute).toBe(25);
+  });
+
+  it('paused time is delayed time when the pause spans midnight', () => {
+    const state = {
+      eventNow: {
+        id: '1',
+        timeStart: 23 * MILLIS_PER_HOUR, // 23:00
+        timeEnd: 1 * MILLIS_PER_HOUR, // 01:00
+        dayOffset: 0,
+      },
+      clock: 3 * MILLIS_PER_MINUTE, // 00:03 (after midnight)
+      _now: timeCore.toInstant((3 * MILLIS_PER_MINUTE) as TimeOfDay, timeCore.now()),
+      timer: {
+        startedAt: 23 * MILLIS_PER_HOUR, // started on time at 23:00
+        current: 25, // still counting down
+        addedTime: 0,
+      },
+      _timer: {
+        pausedAt: timeCore.toInstant(
+          (23 * MILLIS_PER_HOUR + 58 * MILLIS_PER_MINUTE) as TimeOfDay,
+          (timeCore.now() - dayInMs) as Instant,
+        ), // 23:58, before midnight
+        pausedDuration: 0,
+      },
+      rundown: {
+        actualStart: 23 * MILLIS_PER_HOUR,
+        plannedStart: 23 * MILLIS_PER_HOUR,
+        currentDay: 0,
+      },
+      _startDayOffset: 0,
+    } as RuntimeState;
+
+    // paused from 23:58 to 00:03 -> so elapsed should still be 58 minutes
+    expect(getElapsed(state)).toBe(58 * MILLIS_PER_MINUTE);
   });
 
   it('offset doesnt exist if we havent started', () => {
