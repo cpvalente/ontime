@@ -9,118 +9,50 @@ import * as Panel from '../app-settings/panel-utils/PanelUtils';
 
 import style from './Log.module.scss';
 
+const origins = Object.values(LogOrigin);
+
+type OriginFilters = Record<LogOrigin, boolean>;
+
+const allEnabled = Object.fromEntries(origins.map((origin) => [origin, true])) as OriginFilters;
+
 export default function Log() {
   const { logs: logData } = useLogData();
   const isExtracted = window.location.pathname.includes('/log');
 
-  const [showClient, setShowClient] = useState(true);
-  const [showServer, setShowServer] = useState(true);
-  const [showRx, setShowRx] = useState(true);
-  const [showTx, setShowTx] = useState(true);
-  const [showPlayback, setShowPlayback] = useState(true);
-  const [showUser, setShowUser] = useState(true);
+  const [filters, setFilters] = useState<OriginFilters>(allEnabled);
 
-  const matchers: LogOrigin[] = [];
-  if (showUser) {
-    matchers.push(LogOrigin.User);
-  }
-  if (showClient) {
-    matchers.push(LogOrigin.Client);
-  }
-  if (showServer) {
-    matchers.push(LogOrigin.Server);
-  }
-  if (showRx) {
-    matchers.push(LogOrigin.Rx);
-  }
-  if (showTx) {
-    matchers.push(LogOrigin.Tx);
-  }
-  if (showPlayback) {
-    matchers.push(LogOrigin.Playback);
-  }
+  const filteredData = logData.filter((entry) => filters[entry.origin as LogOrigin]);
 
-  const filteredData = logData.filter((entry) => matchers.some((match) => entry.origin === match));
+  const toggleOrigin = useCallback((origin: LogOrigin) => {
+    setFilters((prev) => ({ ...prev, [origin]: !prev[origin] }));
+  }, []);
 
-  const disableOthers = useCallback((toEnable: LogOrigin) => {
-    setShowUser(toEnable === LogOrigin.User);
-    setShowClient(toEnable === LogOrigin.Client);
-    setShowServer(toEnable === LogOrigin.Server);
-    setShowRx(toEnable === LogOrigin.Rx);
-    setShowTx(toEnable === LogOrigin.Tx);
-    setShowPlayback(toEnable === LogOrigin.Playback);
+  /** middle click solos an origin */
+  const soloOrigin = useCallback((toEnable: LogOrigin) => {
+    setFilters(Object.fromEntries(origins.map((origin) => [origin, origin === toEnable])) as OriginFilters);
   }, []);
 
   return (
     <div className={cx([style.container, isExtracted && style.extracted])}>
       <Panel.InlineElements className={style.buttonBar}>
         <span className={style.filterLabel}>Filter by</span>
-        <Button
-          variant={showUser ? 'primary' : 'subtle'}
-          size='small'
-          aria-pressed={showUser}
-          aria-label={`${showUser ? 'Hide' : 'Show'} ${LogOrigin.User} events`}
-          onClick={() => setShowUser((s) => !s)}
-          onAuxClick={() => disableOthers(LogOrigin.User)}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          {LogOrigin.User}
-        </Button>
-        <Button
-          variant={showClient ? 'primary' : 'subtle'}
-          size='small'
-          aria-pressed={showClient}
-          aria-label={`${showClient ? 'Hide' : 'Show'} ${LogOrigin.Client} events`}
-          onClick={() => setShowClient((s) => !s)}
-          onAuxClick={() => disableOthers(LogOrigin.Client)}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          {LogOrigin.Client}
-        </Button>
-        <Button
-          variant={showServer ? 'primary' : 'subtle'}
-          size='small'
-          aria-pressed={showServer}
-          aria-label={`${showServer ? 'Hide' : 'Show'} ${LogOrigin.Server} events`}
-          onClick={() => setShowServer((s) => !s)}
-          onAuxClick={() => disableOthers(LogOrigin.Server)}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          {LogOrigin.Server}
-        </Button>
-        <Button
-          variant={showPlayback ? 'primary' : 'subtle'}
-          size='small'
-          aria-pressed={showPlayback}
-          aria-label={`${showPlayback ? 'Hide' : 'Show'} ${LogOrigin.Playback} events`}
-          onClick={() => setShowPlayback((s) => !s)}
-          onAuxClick={() => disableOthers(LogOrigin.Playback)}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          {LogOrigin.Playback}
-        </Button>
-        <Button
-          variant={showRx ? 'primary' : 'subtle'}
-          size='small'
-          aria-pressed={showRx}
-          aria-label={`${showRx ? 'Hide' : 'Show'} ${LogOrigin.Rx} events`}
-          onClick={() => setShowRx((s) => !s)}
-          onAuxClick={() => disableOthers(LogOrigin.Rx)}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          {LogOrigin.Rx}
-        </Button>
-        <Button
-          variant={showTx ? 'primary' : 'subtle'}
-          size='small'
-          aria-pressed={showTx}
-          aria-label={`${showTx ? 'Hide' : 'Show'} ${LogOrigin.Tx} events`}
-          onClick={() => setShowTx((s) => !s)}
-          onAuxClick={() => disableOthers(LogOrigin.Tx)}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          {LogOrigin.Tx}
-        </Button>
+        {origins.map((origin) => {
+          const isEnabled = filters[origin];
+          return (
+            <Button
+              key={origin}
+              variant={isEnabled ? 'primary' : 'subtle'}
+              size='small'
+              aria-pressed={isEnabled}
+              aria-label={`${isEnabled ? 'Hide' : 'Show'} ${origin} events`}
+              onClick={() => toggleOrigin(origin)}
+              onAuxClick={() => soloOrigin(origin)}
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              {origin}
+            </Button>
+          );
+        })}
         <Button variant='subtle-destructive' size='small' onClick={clearLogs} className={style.apart}>
           <IoClose /> Clear
         </Button>

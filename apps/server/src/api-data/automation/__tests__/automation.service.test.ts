@@ -1,10 +1,12 @@
 import { PlayableEvent, TimerLifeCycle } from 'ontime-types';
 
+import { socket } from '../../../adapters/WebsocketAdapter.js';
+import { logger } from '../../../classes/Logger.js';
 import { makeRuntimeStoreData } from '../../../stores/__mocks__/runtimeStore.mocks.js';
 import { RuntimeState } from '../../../stores/runtimeState.js';
 import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
 import { addAutomation, addTrigger, deleteAllTriggers } from '../automation.dao.js';
-import { testConditions, triggerAutomations } from '../automation.service.js';
+import { resetAutomationLogState, testConditions, triggerAutomations } from '../automation.service.js';
 import * as httpClient from '../clients/http.client.js';
 import * as oscClient from '../clients/osc.client.js';
 import { makeHTTPAction, makeOSCAction } from './testUtils.js';
@@ -642,5 +644,101 @@ describe('testConditions()', () => {
       );
       expect(result).toBe(false);
     });
+  });
+});
+
+/**
+ * A successful fire used to be invisible. Making it visible is only useful if the log
+ * stays readable: onClock fires every second and the logger queue holds 100 entries.
+ */
+describe('automation reporting', () => {
+  let logSpy = vi.spyOn(logger, 'info');
+  let socketSpy = vi.spyOn(socket, 'sendAsJson');
+
+  beforeEach(async () => {
+    vi.spyOn(oscClient, 'emitOSC').mockImplementation(() => {});
+    logSpy = vi.spyOn(logger, 'info').mockImplementation(() => {});
+    socketSpy = vi.spyOn(socket, 'sendAsJson').mockImplementation(() => {});
+
+    await deleteAllTriggers();
+    resetAutomationLogState();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+  });
+
+  async function bind(title: string, cycle: TimerLifeCycle) {
+    const automation = await addAutomation({
+      title,
+      filterRule: 'all',
+      filters: [],
+      outputs: [makeOSCAction()],
+    });
+    await addTrigger({ title, trigger: cycle, automationId: automation.id });
+    return automation;
+  }
+
+  it('logs once per automation that fires, not once per output', async () => {
+    await bind('reporting-finish', TimerLifeCycle.onFinish);
+    logSpy.mockClear();
+
+    triggerAutomations(TimerLifeCycle.onFinish);
+
+    expect(logSpy).toHaveBeenCalledTimes(1);
+    expect(logSpy.mock.calls[0][1]).toContain('reporting-finish');
+  });
+
+  it('never logs per fire on a continuous lifecycle, and explains itself once', async () => {
+    await bind('reporting-clock', TimerLifeCycle.onClock);
+    logSpy.mockClear();
+
+    triggerAutomations(TimerLifeCycle.onClock);
+    triggerAutomations(TimerLifeCycle.onClock);
+    triggerAutomations(TimerLifeCycle.onClock);
+
+    expect(logSpy).toHaveBeenCalledTimes(1);
+    expect(logSpy.mock.calls[0][1]).toContain('suppressed');
+  });
+
+  it('shows the suppression notice again after a reload', async () => {
+    await bind('reporting-clock', TimerLifeCycle.onClock);
+    triggerAutomations(TimerLifeCycle.onClock);
+    logSpy.mockClear();
+
+    // onLoad bookends a run and resets the reporting state
+    triggerAutomations(TimerLifeCycle.onLoad);
+    triggerAutomations(TimerLifeCycle.onClock);
+
+    expect(logSpy.mock.calls.some(([, message]) => String(message).includes('suppressed'))).toBe(true);
+  });
+
+  it('collapses repeats of the same automation and cycle inside the throttle window', async () => {
+    vi.useFakeTimers();
+    await bind('reporting-danger', TimerLifeCycle.onDanger);
+    logSpy.mockClear();
+
+    triggerAutomations(TimerLifeCycle.onDanger);
+    triggerAutomations(TimerLifeCycle.onDanger);
+    expect(logSpy).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(1001);
+    triggerAutomations(TimerLifeCycle.onDanger);
+    expect(logSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('reports a fire to the clients at most once a second, including on continuous lifecycles', async () => {
+    vi.useFakeTimers();
+    await bind('reporting-clock', TimerLifeCycle.onClock);
+    socketSpy.mockClear();
+
+    triggerAutomations(TimerLifeCycle.onClock);
+    triggerAutomations(TimerLifeCycle.onClock);
+    expect(socketSpy).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(1001);
+    triggerAutomations(TimerLifeCycle.onClock);
+    expect(socketSpy).toHaveBeenCalledTimes(2);
   });
 });

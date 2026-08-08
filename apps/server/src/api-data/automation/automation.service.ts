@@ -1,8 +1,10 @@
 import {
+  type Automation,
   type AutomationFilter,
   type AutomationOutput,
   type FilterRule,
   LogOrigin,
+  MessageTag,
   RuntimeStore,
   TimerLifeCycle,
   isHTTPOutput,
@@ -11,19 +13,54 @@ import {
 } from 'ontime-types';
 import { getPropertyFromPath } from 'ontime-utils';
 
+import { socket } from '../../adapters/WebsocketAdapter.js';
 import { logger } from '../../classes/Logger.js';
 import { isOntimeCloud } from '../../setup/environment.js';
 import { eventStore } from '../../stores/EventStore.js';
 import { getAutomationTriggers, getAutomations, getAutomationsEnabled } from './automation.dao.js';
-import { isContained, isEquivalent, isGreaterThan, isLessThan } from './automation.utils.js';
+import { isContained, isEquivalent, isGreaterThan, isLessThan, summariseOutputs } from './automation.utils.js';
 import { emitHTTP } from './clients/http.client.js';
 import { toOntimeAction } from './clients/ontime.client.js';
 import { emitOSC } from './clients/osc.client.js';
 
 /**
+ * Lifecycles that fire continuously while the timer runs.
+ * The logger queue holds 100 entries, so logging every onClock fire would evict
+ * everything else within two minutes and make the log useless.
+ */
+const continuousCycles: TimerLifeCycle[] = [TimerLifeCycle.onClock, TimerLifeCycle.onUpdate];
+
+/** floor between two reports about the same automation, in milliseconds */
+const reportThrottleMs = 1000;
+
+/** automations we have already warned about being bound to a continuous lifecycle */
+const suppressionNotices = new Set<string>();
+/** last time we logged a given automation + cycle pair */
+const lastLoggedAt = new Map<string, number>();
+/** last time we told the clients about a given automation */
+const lastReportedAt = new Map<string, number>();
+
+/**
+ * Clears the per-load logging state.
+ * Called when the runtime loads or stops so the suppression notice is shown again
+ * for the next show rather than once per server lifetime
+ */
+export function resetAutomationLogState() {
+  suppressionNotices.clear();
+  lastLoggedAt.clear();
+  lastReportedAt.clear();
+}
+
+/**
  * Exposes a method for triggering actions based on a TimerLifeCycle event
  */
 export function triggerAutomations(cycle: TimerLifeCycle) {
+  // a load or a stop bookends a run: start reporting from scratch so the next show
+  // gets its own suppression notice rather than inheriting one from the last
+  if (cycle === TimerLifeCycle.onLoad || cycle === TimerLifeCycle.onStop) {
+    resetAutomationLogState();
+  }
+
   if (!getAutomationsEnabled()) {
     return;
   }
@@ -63,8 +100,46 @@ export function triggerAutomations(cycle: TimerLifeCycle) {
     const shouldSend = testConditions(automation.filters, automation.filterRule, store);
     if (shouldSend) {
       send(automation.outputs, store);
+      reportFired(trigger.automationId, automation, cycle);
     }
   });
+}
+
+/**
+ * Makes a successful automation visible, which it previously was not:
+ * the log answers what happened, the socket message answers whether an automation is alive
+ */
+function reportFired(automationId: string, automation: Automation, cycle: TimerLifeCycle) {
+  const now = Date.now();
+
+  // the panel shows a last fired time, so continuous lifecycles still report, but at most once a second
+  const lastReported = lastReportedAt.get(automationId);
+  if (lastReported === undefined || now - lastReported >= reportThrottleMs) {
+    lastReportedAt.set(automationId, now);
+    socket.sendAsJson(MessageTag.AutomationFired, { automationId, cycle });
+  }
+
+  if (continuousCycles.includes(cycle)) {
+    // one notice per load is enough to explain why the log goes quiet from here
+    if (!suppressionNotices.has(automationId)) {
+      suppressionNotices.add(automationId);
+      logger.info(
+        LogOrigin.Automation,
+        `${automation.title} is bound to ${cycle} and fires continuously, per-fire logging suppressed`,
+      );
+    }
+    return;
+  }
+
+  // a rapid reload can fire the same automation on the same cycle several times over
+  const logKey = `${automationId}:${cycle}`;
+  const lastLogged = lastLoggedAt.get(logKey);
+  if (lastLogged !== undefined && now - lastLogged < reportThrottleMs) {
+    return;
+  }
+  lastLoggedAt.set(logKey, now);
+
+  logger.info(LogOrigin.Automation, `${automation.title} fired on ${cycle} → ${summariseOutputs(automation.outputs)}`);
 }
 
 /**

@@ -1,5 +1,5 @@
 import { Automation, AutomationDTO, NormalisedAutomation, Trigger } from 'ontime-types';
-import { Fragment, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { IoAdd, IoPencil, IoSparklesOutline, IoTrash } from 'react-icons/io5';
 
 import { deleteAutomation } from '../../../../common/api/automation';
@@ -10,6 +10,7 @@ import Info from '../../../../common/components/info/Info';
 import Tag from '../../../../common/components/tag/Tag';
 import { getLifecycleLabel } from '../../../../common/constants/timerLifecycle';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
+import { useAutomationFired } from '../../../../common/stores/automationFired';
 import { summariseOutputs } from '../../../../common/utils/automationOutputs';
 import * as Panel from '../../panel-utils/PanelUtils';
 import AutomationForm from './AutomationForm';
@@ -61,6 +62,7 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
   };
 
   const lifecyclesByAutomation = useMemo(() => groupTriggersByAutomation(triggers), [triggers]);
+  const { fired } = useAutomationFired();
 
   const arrayAutomations = Object.keys(automations);
 
@@ -105,10 +107,11 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
           <Panel.Table>
             <thead>
               <tr>
-                <th style={{ width: '35%' }}>Title</th>
-                <th style={{ width: '25%' }}>Runs on</th>
-                <th style={{ width: '15%' }}>Filter rule</th>
+                <th style={{ width: '30%' }}>Title</th>
+                <th style={{ width: '22%' }}>Runs on</th>
+                <th style={{ width: '13%' }}>Filter rule</th>
                 <th style={{ width: '15%' }}>Sends</th>
+                <th style={{ width: '12%' }}>Last fired</th>
                 <th />
               </tr>
             </thead>
@@ -164,6 +167,9 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
                           ))
                         )}
                       </Panel.InlineElements>
+                      <td>
+                        <LastFired at={fired[automationId]?.at} />
+                      </td>
                       <Panel.InlineElements align='end' relation='inner' as='td'>
                         <IconButton
                           variant='ghosted-white'
@@ -186,7 +192,7 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
               })}
               {deleteError && (
                 <tr>
-                  <td colSpan={5}>
+                  <td colSpan={6}>
                     <Panel.Error>{deleteError}</Panel.Error>
                   </td>
                 </tr>
@@ -197,4 +203,42 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
       </Panel.Card>
     </Panel.Section>
   );
+}
+
+/**
+ * Shows how long ago an automation last ran.
+ * An automation that never ticks while its neighbours do is the clearest signal
+ * that something upstream of it, a filter or a trigger, is wrong
+ */
+function LastFired({ at }: { at?: number }) {
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    if (at === undefined) {
+      return;
+    }
+    const interval = setInterval(() => setTick((value) => value + 1), 1000);
+    return () => clearInterval(interval);
+  }, [at]);
+
+  if (at === undefined) {
+    return <span className={style.muted}>—</span>;
+  }
+
+  return <span className={style.lastFired}>{formatElapsed(Date.now() - at)}</span>;
+}
+
+function formatElapsed(elapsed: number): string {
+  const seconds = Math.max(0, Math.floor(elapsed / 1000));
+  if (seconds < 5) {
+    return 'just now';
+  }
+  if (seconds < 60) {
+    return `${seconds}s ago`;
+  }
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) {
+    return `${minutes}m ago`;
+  }
+  return `${Math.floor(minutes / 60)}h ago`;
 }

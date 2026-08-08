@@ -19,6 +19,7 @@ export type LogMessage = {
 };
 
 export enum LogOrigin {
+  Automation = 'AUTOMATION',
   Client = 'CLIENT',
   Playback = 'PLAYBACK',
   Rx = 'RX',

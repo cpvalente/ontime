@@ -17,9 +17,15 @@ const logger = createStore<LogStore>(() => ({
 
 export const useLogData = () => useStore(logger);
 
+/**
+ * The server queue is capped at 100 entries, the client's was not.
+ * A long show with chatty automations would otherwise grow this forever.
+ */
+const maxLogEntries = 500;
+
 export const addLog = (log: Log) =>
   logger.setState((state) => ({
-    logs: [log, ...state.logs],
+    logs: [log, ...state.logs].slice(0, maxLogEntries),
   }));
 
 export const clearLogs = () => logger.setState({ logs: [] });

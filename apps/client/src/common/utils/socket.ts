@@ -37,6 +37,7 @@ import {
   setClients,
 } from '../stores/clientStore';
 import { addDialog } from '../stores/dialogStore';
+import { addAutomationFired } from '../stores/automationFired';
 import { addLog } from '../stores/logger';
 import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
 
@@ -171,6 +172,10 @@ export const connectSocket = () => {
 
         case MessageTag.Log: {
           addLog(payload as Log);
+          break;
+        }
+        case MessageTag.AutomationFired: {
+          addAutomationFired(payload.automationId, payload.cycle);
           break;
         }
         case MessageTag.RuntimeData: {
