@@ -1,5 +1,4 @@
 import type { Client } from '../../definitions/Clients.type.js';
-import type { TimerLifeCycle } from '../../definitions/core/TimerLifecycle.type.js';
 import type { Log } from '../../definitions/runtime/Logger.type.js';
 import type { RuntimeStore } from '../../definitions/runtime/RuntimeStore.type.js';
 import type { MaybeNumber } from '../../utils/utils.type.js';
@@ -18,7 +17,6 @@ export enum MessageTag {
   Log = 'log',
   RuntimeData = 'runtime-data',
   Refetch = 'refetch',
-  AutomationFired = 'automation-fired',
 }
 
 // CLIENT TO SERVER
@@ -37,15 +35,6 @@ type ListClientPacket = {
   payload: Record<string, Client>;
 };
 type RuntimePacket = { tag: MessageTag.RuntimeData; payload: Partial<RuntimeStore> };
-
-/**
- * Reports that an automation ran, so clients can show it is alive.
- * Coalesced server side: high frequency lifecycles do not send one of these per fire.
- */
-type AutomationFiredPacket = {
-  tag: MessageTag.AutomationFired;
-  payload: { automationId: string; cycle: TimerLifeCycle };
-};
 
 type RefetchPacket = {
   tag: MessageTag.Refetch;
@@ -69,5 +58,4 @@ export type WsPacketToClient =
   | LogPacket
   | ListClientPacket
   | RuntimePacket
-  | RefetchPacket
-  | AutomationFiredPacket;
+  | RefetchPacket;

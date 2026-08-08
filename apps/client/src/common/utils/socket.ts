@@ -28,7 +28,6 @@ import {
 } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
-import { addAutomationFired } from '../stores/automationFired';
 import {
   getClientId,
   getClientName,
@@ -172,10 +171,6 @@ export const connectSocket = () => {
 
         case MessageTag.Log: {
           addLog(payload as Log);
-          break;
-        }
-        case MessageTag.AutomationFired: {
-          addAutomationFired(payload.automationId, payload.cycle);
           break;
         }
         case MessageTag.RuntimeData: {

@@ -4,7 +4,6 @@ import {
   type AutomationOutput,
   type FilterRule,
   LogOrigin,
-  MessageTag,
   RuntimeStore,
   TimerLifeCycle,
   isHTTPOutput,
@@ -13,7 +12,6 @@ import {
 } from 'ontime-types';
 import { getPropertyFromPath } from 'ontime-utils';
 
-import { socket } from '../../adapters/WebsocketAdapter.js';
 import { logger } from '../../classes/Logger.js';
 import { isOntimeCloud } from '../../setup/environment.js';
 import { eventStore } from '../../stores/EventStore.js';
@@ -37,8 +35,6 @@ const reportThrottleMs = 1000;
 const suppressionNotices = new Set<string>();
 /** last time we logged a given automation + cycle pair */
 const lastLoggedAt = new Map<string, number>();
-/** last time we told the clients about a given automation */
-const lastReportedAt = new Map<string, number>();
 
 /**
  * Clears the reporting state.
@@ -48,7 +44,6 @@ const lastReportedAt = new Map<string, number>();
 export function resetAutomationLogState() {
   suppressionNotices.clear();
   lastLoggedAt.clear();
-  lastReportedAt.clear();
 }
 
 /**
@@ -115,18 +110,10 @@ function fireForCycle(cycle: TimerLifeCycle) {
 }
 
 /**
- * Makes a successful automation visible, which it previously was not:
- * the log answers what happened, the socket message answers whether an automation is alive
+ * Makes a successful automation fire visible in the log, which it previously was not
  */
 function reportFired(automationId: string, automation: Automation, cycle: TimerLifeCycle) {
   const now = Date.now();
-
-  // the panel shows a last fired time, so continuous lifecycles still report, but at most once a second
-  const lastReported = lastReportedAt.get(automationId);
-  if (lastReported === undefined || now - lastReported >= reportThrottleMs) {
-    lastReportedAt.set(automationId, now);
-    socket.sendAsJson(MessageTag.AutomationFired, { automationId, cycle });
-  }
 
   if (continuousCycles.includes(cycle)) {
     // one notice per load is enough to explain why the log goes quiet from here

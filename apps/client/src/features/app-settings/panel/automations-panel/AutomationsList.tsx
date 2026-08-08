@@ -1,22 +1,15 @@
 import { Automation, AutomationDTO, NormalisedAutomation, Trigger } from 'ontime-types';
-import { Fragment, useEffect, useMemo, useState } from 'react';
-import { IoAdd, IoPencil, IoShareOutline, IoSparklesOutline, IoTrash } from 'react-icons/io5';
+import { Fragment, useMemo, useState } from 'react';
+import { IoAdd, IoPencil, IoSparklesOutline, IoTrash } from 'react-icons/io5';
 
-import { PROJECT_LIST } from '../../../../common/api/constants';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
-import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import Info from '../../../../common/components/info/Info';
 import Tag from '../../../../common/components/tag/Tag';
 import { getLifecycleLabel } from '../../../../common/constants/timerLifecycle';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
-import { useOrderedProjectList } from '../../../../common/hooks-query/useProjectList';
-import { ontimeQueryClient } from '../../../../common/queryClient';
-import { useAutomationFired } from '../../../../common/stores/automationFired';
 import { summariseOutputs } from '../../../../common/utils/automationOutputs';
 import * as Panel from '../../panel-utils/PanelUtils';
-import useAppSettingsNavigation from '../../useAppSettingsNavigation';
-import ProjectPartialCloneForm from '../project-panel/ProjectPartialCloneForm';
 import AutomationForm from './AutomationForm';
 import { groupTriggersByAutomation, isAutomation } from './automationUtils';
 import DeleteAutomationDialog from './DeleteAutomationDialog';
@@ -47,12 +40,7 @@ export default function AutomationsList({
   const { refetch } = useAutomationSettings();
   const [automationFormData, setAutomationFormData] = useState<AutomationDTO | null>(null);
   const [showRecipes, setShowRecipes] = useState(false);
-  const [showTemplateForm, setShowTemplateForm] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Automation | null>(null);
-  const { setLocation } = useAppSettingsNavigation();
-  const {
-    data: { lastLoadedProject },
-  } = useOrderedProjectList();
 
   /**
    * A recipe lands in the editor rather than only in the list.
@@ -71,7 +59,6 @@ export default function AutomationsList({
   };
 
   const lifecyclesByAutomation = useMemo(() => groupTriggersByAutomation(triggers), [triggers]);
-  const { fired } = useAutomationFired();
 
   const arrayAutomations = Object.keys(automations);
 
@@ -100,44 +87,11 @@ export default function AutomationsList({
             blockingTriggers={triggers.filter((trigger) => trigger.automationId === deleteTarget.id)}
             onCancel={() => setDeleteTarget(null)}
             onDeleted={handleDeleted}
-            onRefetch={refetch}
-          />
-        )}
-        {showTemplateForm && (
-          <ProjectPartialCloneForm
-            fileName={lastLoadedProject}
-            preselected={['automation']}
-            onClose={() => setShowTemplateForm(false)}
-            onCreated={async () => {
-              // do not rely on the project panel refetching when it mounts
-              await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
-              setLocation('project__list');
-            }}
           />
         )}
         <Panel.SubHeader>
           Manage automations
           <Panel.InlineElements relation='inner'>
-            <DropdownMenu
-              render={<Button />}
-              items={[
-                {
-                  type: 'item',
-                  label: 'Save automations as template',
-                  description: 'A small project with only your automations, to reuse or share',
-                  disabled: arrayAutomations.length === 0 || lastLoadedProject === '',
-                  onClick: () => setShowTemplateForm(true),
-                },
-                {
-                  type: 'item',
-                  label: 'Load from a template',
-                  description: 'Bring automations in from another project file',
-                  onClick: () => setLocation('project__list'),
-                },
-              ]}
-            >
-              Share <IoShareOutline />
-            </DropdownMenu>
             <Button onClick={() => setShowRecipes(true)}>
               Browse recipes <IoSparklesOutline />
             </Button>
@@ -160,11 +114,10 @@ export default function AutomationsList({
           <Panel.Table>
             <thead>
               <tr>
-                <th style={{ width: '30%' }}>Title</th>
-                <th style={{ width: '22%' }}>Runs on</th>
-                <th style={{ width: '13%' }}>Filter rule</th>
+                <th style={{ width: '35%' }}>Title</th>
+                <th style={{ width: '25%' }}>Runs on</th>
+                <th style={{ width: '15%' }}>Filter rule</th>
                 <th style={{ width: '15%' }}>Sends</th>
-                <th style={{ width: '12%' }}>Last fired</th>
                 <th />
               </tr>
             </thead>
@@ -220,9 +173,6 @@ export default function AutomationsList({
                           ))
                         )}
                       </Panel.InlineElements>
-                      <td>
-                        <LastFired at={fired[automationId]?.at} />
-                      </td>
                       <Panel.InlineElements align='end' relation='inner' as='td'>
                         <IconButton
                           variant='ghosted-white'
@@ -249,48 +199,4 @@ export default function AutomationsList({
       </Panel.Card>
     </Panel.Section>
   );
-}
-
-/**
- * Shows how long ago an automation last ran.
- * An automation that never ticks while its neighbours do is the clearest signal
- * that something upstream of it, a filter or a trigger, is wrong
- */
-function LastFired({ at }: { at?: number }) {
-  const [, setTick] = useState(0);
-
-  // once the label counts whole minutes it only changes once a minute, so drop to that
-  // cadence instead of holding a 1Hz timer per automation for the life of the panel
-  const isRecent = at !== undefined && Date.now() - at < millisPerMinute;
-
-  useEffect(() => {
-    if (at === undefined) {
-      return;
-    }
-    const interval = setInterval(() => setTick((value) => value + 1), isRecent ? 1000 : millisPerMinute);
-    return () => clearInterval(interval);
-  }, [at, isRecent]);
-
-  if (at === undefined) {
-    return <span className={style.muted}>—</span>;
-  }
-
-  return <span className={style.lastFired}>{formatElapsed(Date.now() - at)}</span>;
-}
-
-const millisPerMinute = 60 * 1000;
-
-function formatElapsed(elapsed: number): string {
-  const seconds = Math.max(0, Math.floor(elapsed / 1000));
-  if (seconds < 5) {
-    return 'just now';
-  }
-  if (seconds < 60) {
-    return `${seconds}s ago`;
-  }
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) {
-    return `${minutes}m ago`;
-  }
-  return `${Math.floor(minutes / 60)}h ago`;
 }

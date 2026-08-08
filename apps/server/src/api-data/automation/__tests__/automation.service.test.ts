@@ -1,6 +1,5 @@
 import { PlayableEvent, TimerLifeCycle } from 'ontime-types';
 
-import { socket } from '../../../adapters/WebsocketAdapter.js';
 import { logger } from '../../../classes/Logger.js';
 import { makeRuntimeStoreData } from '../../../stores/__mocks__/runtimeStore.mocks.js';
 import { RuntimeState } from '../../../stores/runtimeState.js';
@@ -653,12 +652,10 @@ describe('testConditions()', () => {
  */
 describe('automation reporting', () => {
   let logSpy = vi.spyOn(logger, 'info');
-  let socketSpy = vi.spyOn(socket, 'sendAsJson');
 
   beforeEach(async () => {
     vi.spyOn(oscClient, 'emitOSC').mockImplementation(() => {});
     logSpy = vi.spyOn(logger, 'info').mockImplementation(() => {});
-    socketSpy = vi.spyOn(socket, 'sendAsJson').mockImplementation(() => {});
 
     await deleteAllTriggers();
     resetAutomationLogState();
@@ -752,19 +749,5 @@ describe('automation reporting', () => {
     vi.advanceTimersByTime(1001);
     triggerAutomations(TimerLifeCycle.onDanger);
     expect(logSpy).toHaveBeenCalledTimes(2);
-  });
-
-  it('reports a fire to the clients at most once a second, including on continuous lifecycles', async () => {
-    vi.useFakeTimers();
-    await bind('reporting-clock', TimerLifeCycle.onClock);
-    socketSpy.mockClear();
-
-    triggerAutomations(TimerLifeCycle.onClock);
-    triggerAutomations(TimerLifeCycle.onClock);
-    expect(socketSpy).toHaveBeenCalledTimes(1);
-
-    vi.advanceTimersByTime(1001);
-    triggerAutomations(TimerLifeCycle.onClock);
-    expect(socketSpy).toHaveBeenCalledTimes(2);
   });
 });

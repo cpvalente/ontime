@@ -1,12 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import {
-  DatabaseModel,
-  MessageResponse,
-  ProjectData,
-  ProjectFileListResponse,
-  QuickStartData,
-  TemplateSection,
-} from 'ontime-types';
+import { DatabaseModel, MessageResponse, ProjectData, ProjectFileListResponse, QuickStartData } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 import type { RequestOptions } from './requestOptions';
@@ -120,24 +113,6 @@ export async function duplicateProject(filename: string, newFilename: string): P
   const decodedUrl = decodeURIComponent(url);
   const res = await axios.post(decodedUrl, {
     newFilename,
-  });
-  return res.data;
-}
-
-/**
- * HTTP request to create a template: a project file holding only the selected sections
- * The result is not loaded, the current project stays as it is
- */
-export async function partialDuplicateProject(
-  filename: string,
-  newFilename: string,
-  sections: TemplateSection[],
-): Promise<{ filename: string }> {
-  const url = `${dbPath}/${filename}/partial-duplicate`;
-  const decodedUrl = decodeURIComponent(url);
-  const res = await axios.post(decodedUrl, {
-    newFilename,
-    sections,
   });
   return res.data;
 }

@@ -125,9 +125,9 @@ export const stageRundown: Rundown = {
       triggers: [
         {
           id: 'demo-event-trigger',
-          title: 'Wrap up warning',
-          trigger: TimerLifeCycle.onDanger,
-          automationId: 'demo-danger-message',
+          title: 'Aux timer with the event',
+          trigger: TimerLifeCycle.onStart,
+          automationId: 'demo-aux-timer',
         },
       ],
     },
