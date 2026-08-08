@@ -2,8 +2,6 @@ import { Automation, AutomationDTO, NormalisedAutomation, Trigger } from 'ontime
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { IoAdd, IoPencil, IoSparklesOutline, IoTrash } from 'react-icons/io5';
 
-import { deleteAutomation } from '../../../../common/api/automation';
-import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Info from '../../../../common/components/info/Info';
@@ -15,6 +13,7 @@ import { summariseOutputs } from '../../../../common/utils/automationOutputs';
 import * as Panel from '../../panel-utils/PanelUtils';
 import AutomationForm from './AutomationForm';
 import { groupTriggersByAutomation } from './automationUtils';
+import DeleteAutomationDialog from './DeleteAutomationDialog';
 import RecipeLibraryModal from './recipes/RecipeLibraryModal';
 
 import style from './AutomationsList.module.scss';
@@ -37,7 +36,7 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
   const { refetch } = useAutomationSettings();
   const [automationFormData, setAutomationFormData] = useState<AutomationDTO | null>(null);
   const [showRecipes, setShowRecipes] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Automation | null>(null);
 
   /**
    * A recipe lands in the editor rather than only in the list.
@@ -50,15 +49,9 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
     setAutomationFormData(created);
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      setDeleteError(null);
-      await deleteAutomation(id);
-    } catch (error) {
-      setDeleteError(maybeAxiosError(error));
-    } finally {
-      refetch();
-    }
+  const handleDeleted = async () => {
+    setDeleteTarget(null);
+    await refetch();
   };
 
   const lifecyclesByAutomation = useMemo(() => groupTriggersByAutomation(triggers), [triggers]);
@@ -80,6 +73,14 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
           <RecipeLibraryModal
             onClose={() => setShowRecipes(false)}
             onInstalled={(_recipe, created) => handleRecipeInstalled(created)}
+          />
+        )}
+        {deleteTarget !== null && (
+          <DeleteAutomationDialog
+            automation={deleteTarget}
+            blockingTriggers={triggers.filter((trigger) => trigger.automationId === deleteTarget.id)}
+            onCancel={() => setDeleteTarget(null)}
+            onDeleted={handleDeleted}
           />
         )}
         <Panel.SubHeader>
@@ -181,7 +182,7 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
                         <IconButton
                           variant='ghosted-destructive'
                           aria-label='Delete entry'
-                          onClick={() => handleDelete(automationId)}
+                          onClick={() => setDeleteTarget(automation)}
                         >
                           <IoTrash />
                         </IconButton>
@@ -190,13 +191,6 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
                   </Fragment>
                 );
               })}
-              {deleteError && (
-                <tr>
-                  <td colSpan={6}>
-                    <Panel.Error>{deleteError}</Panel.Error>
-                  </td>
-                </tr>
-              )}
             </tbody>
           </Panel.Table>
         </Panel.Section>
