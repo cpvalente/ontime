@@ -74,47 +74,36 @@
   .metaLabel {
     color: $muted-gray;
     font-size: calc(1rem - 3px);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
   }
-}
-
-.strike {
-  text-decoration: wavy underline;
-  margin-right: 0.25rem;
-  color: $ui-white;
 }
 
 .duration {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  color: $ui-white;
+
+  &.warning {
+    .strike {
+      // color: $playback-over;
+      text-decoration: wavy underline;
+      text-decoration-color: $playback-over;
+    }
+    .offsetLabel {
+      background-color: $playback-over;
+    }
+  }
 }
 
 .lockIcon {
-  &.inactive {
-    color: $muted-gray;
-  }
-  &.active {
-    color: $active-indicator;
-  }
+  color: $muted-gray;
 }
 
-.over {
-  color: $playback-over;
-  .strike {
-    text-decoration-color: $playback-over;
-  }
-  .offsetLabel {
-    background-color: $playback-over;
-  }
-}
-.under {
-  color: $playback-under;
-  .strike {
-    text-decoration-color: $playback-under;
-  }
-  .offsetLabel {
-    background-color: $playback-under;
-  }
+.target {
+  display: contents;
 }
 
 .drag {

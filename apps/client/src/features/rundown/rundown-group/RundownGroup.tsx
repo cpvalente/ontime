@@ -19,7 +19,6 @@ import { useEntryActionsContext } from '../../../common/context/EntryActionsCont
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
 import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';
-import { getOffsetState } from '../../../common/utils/offset';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';
 import TitleEditor from '../common/TitleEditor';
@@ -48,6 +47,19 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
 
   const isDurationMatching = data.targetDuration !== null && data.targetDuration === data.duration;
 
+  const [planOffset, offset] = (() => {
+    if (data.targetDuration === null) {
+      return [null, 0];
+    }
+
+    const offset = data.duration - data.targetDuration;
+    if (offset === 0) {
+      return [null, 0];
+    }
+    const absOffset = Math.abs(offset);
+    return [`${offset < 0 ? '-' : '+'}${formatDuration(absOffset, absOffset > 2 * MILLIS_PER_MINUTE)}`, offset];
+  })();
+
   const matchDuration = useCallback(() => {
     updateEntry({ id: data.id, targetDuration: data.duration });
   }, [data.duration, data.id, updateEntry]);
@@ -74,7 +86,10 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
       icon: TbClockPin,
       onClick: matchDuration,
       disabled: isDurationMatching,
-      description: "Change group target duration to match it's contents",
+      description:
+        offset > 0
+          ? "Increase group target duration to match it's contents"
+          : "Decrease group target duration to match it's contents",
     },
     { type: 'divider' },
     {
@@ -119,22 +134,6 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
 
   const binderColours = data.colour && getAccessibleColour(data.colour);
   const isValidDrop = isDragging && over?.id && canDrop(over.data.current?.type, over.data.current?.parent);
-
-  const [planOffset, planOffsetLabel] = (() => {
-    if (data.targetDuration === null) {
-      return [null, null];
-    }
-
-    const offset = data.duration - data.targetDuration;
-    if (offset === 0) {
-      return [null, 'under'];
-    }
-    const absOffset = Math.abs(offset);
-    return [
-      `${offset < 0 ? '-' : '+'}${formatDuration(absOffset, absOffset > 2 * MILLIS_PER_MINUTE)}`,
-      getOffsetState(offset),
-    ];
-  })();
 
   const dragStyle = {
     zIndex: isDragging ? 2 : 'inherit',
@@ -191,19 +190,13 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
             <div>{formatTime(data.timeEnd)}</div>
           </div>
           <div className={style.metaEntry}>
-            <div className={style.metaLabel}>Duration</div>
-            <div className={style.duration}>
-              {planOffset === null ? (
-                formatDuration(data.duration)
-              ) : (
-                <span className={cx([planOffsetLabel && style[planOffsetLabel]])}>
-                  <span className={style.strike}>{formatDuration(data.duration)}</span>
-                  <Tag className={style.offsetLabel}>{planOffset}</Tag>
-                </span>
-              )}
-              {data.targetDuration !== null && (
-                <TbTargetArrow className={cx([style.lockIcon, isDurationMatching ? style.active : style.inactive])} />
-              )}
+            <div className={style.metaLabel}>
+              Duration
+              {data.targetDuration !== null && <TbTargetArrow className={style.lockIcon} />}
+            </div>
+            <div className={cx([style.duration, planOffset && style.warning])}>
+              <span className={style.strike}>{formatDuration(data.duration)}</span>
+              {planOffset && <Tag className={style.offsetLabel}>{planOffset}</Tag>}
             </div>
           </div>
         </div>
