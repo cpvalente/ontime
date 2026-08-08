@@ -1,4 +1,5 @@
 import { body, param } from 'express-validator';
+import { isTemplateSection, templateSections } from 'ontime-types';
 import sanitize from 'sanitize-filename';
 
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
@@ -63,6 +64,19 @@ export const validateNewFilenameBody = [
     .notEmpty()
     .withMessage('Filename was empty or contained only invalid characters')
     .customSanitizer((input: string) => ensureJsonExtension(input)),
+
+  requestValidationFunction,
+];
+
+/**
+ * @description Validates a request to clone selected sections of a project into a template.
+ */
+export const validateSectionsBody = [
+  body('sections')
+    .isArray({ min: 1 })
+    .withMessage(`Select at least one of: ${templateSections.join(', ')}`)
+    .custom((sections: unknown[]) => sections.every((section) => typeof section === 'string' && isTemplateSection(section)))
+    .withMessage(`Sections must be any of: ${templateSections.join(', ')}`),
 
   requestValidationFunction,
 ];

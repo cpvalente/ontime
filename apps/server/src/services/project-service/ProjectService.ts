@@ -1,7 +1,7 @@
-import { copyFile } from 'fs/promises';
+import { copyFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 
-import { DatabaseModel, LogOrigin, ProjectFileListResponse } from 'ontime-types';
+import { DatabaseModel, LogOrigin, ProjectFileListResponse, TemplateSection } from 'ontime-types';
 import { getErrorMessage, getFirstRundown } from 'ontime-utils';
 
 import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
@@ -316,6 +316,49 @@ export async function createProjectWithPatch(fileName: string, initialData: Part
   const newProject = makeNewProject();
   const sanitisedData = safeMerge(newProject, initialData);
   return createProject(fileName, sanitisedData);
+}
+
+/**
+ * Creates a new project file containing only the given sections of an existing one.
+ * This is how a user makes a template: a small project holding, say, only automations
+ * or only custom fields, which can then be shared and applied with a partial load.
+ *
+ * Unlike createProjectWithPatch, this does NOT load the result. Saving a template must
+ * not pull the operator out of the show they are running.
+ *
+ * @throws if the source does not exist or cannot be parsed
+ */
+export async function createProjectFromSections(
+  sourceFilename: string,
+  newFilename: string,
+  sections: TemplateSection[],
+): Promise<string> {
+  const projectFilePath = doesProjectExist(sourceFilename);
+  if (projectFilePath === null) {
+    throw new Error('Project file not found');
+  }
+
+  if (sections.length === 0) {
+    throw new Error('At least one section must be selected');
+  }
+
+  const fileData = await parseJsonFile(projectFilePath);
+  const { data } = parseDatabaseModel(fileData);
+
+  const patch: Partial<DatabaseModel> = {};
+  for (const section of sections) {
+    // a rundown without its custom fields is not usable on the other side
+    if (section === 'rundowns') {
+      patch.customFields = data.customFields;
+    }
+    Object.assign(patch, { [section]: data[section] });
+  }
+
+  const template = safeMerge(makeNewProject(), patch);
+  const fileNameWithExtension = generateUniqueFileName(publicDir.projectsDir, ensureJsonExtension(newFilename));
+  await writeFile(getPathToProject(fileNameWithExtension), JSON.stringify(template, null, 2), 'utf-8');
+
+  return fileNameWithExtension;
 }
 
 /**

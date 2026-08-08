@@ -8,6 +8,7 @@ import {
   listProjects,
   loadDemo,
   loadProject,
+  partialDuplicateProjectFile,
   patchPartialProjectFile,
   postProjectFile,
   projectDownload,
@@ -22,6 +23,7 @@ import {
   validateNewProject,
   validatePatchProject,
   validateQuickProject,
+  validateSectionsBody,
 } from './db.validation.js';
 
 export const router: Router = express.Router();
@@ -39,5 +41,12 @@ router.get('/all', listProjects);
 router.post('/load', validateFilenameBody, loadProject);
 router.post('/demo', loadDemo);
 router.post('/:filename/duplicate', validateFilenameParam, validateNewFilenameBody, duplicateProjectFile);
+router.post(
+  '/:filename/partial-duplicate',
+  validateFilenameParam,
+  validateNewFilenameBody,
+  validateSectionsBody,
+  partialDuplicateProjectFile,
+);
 router.put('/:filename/rename', validateFilenameParam, validateNewFilenameBody, renameProjectFile);
 router.delete('/:filename', validateFilenameParam, deleteProjectFile);

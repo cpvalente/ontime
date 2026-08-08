@@ -25,10 +25,11 @@ import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
 import ProjectMergeForm from './ProjectMergeForm';
+import ProjectPartialCloneForm from './ProjectPartialCloneForm';
 
 import style from './ProjectPanel.module.scss';
 
-export type EditMode = 'rename' | 'duplicate' | 'merge' | null;
+export type EditMode = 'rename' | 'duplicate' | 'merge' | 'template' | null;
 
 interface ProjectListItemProps {
   current?: boolean;
@@ -120,6 +121,7 @@ export default function ProjectListItem({
   const isCurrentlyBeingEdited = filename === editingFilename;
   const showProjectForm = (editingMode === 'rename' || editingMode === 'duplicate') && filename === editingFilename;
   const showMergeForm = editingMode === 'merge' && isCurrentlyBeingEdited;
+  const showTemplateForm = editingMode === 'template' && isCurrentlyBeingEdited;
   const classes = cx([current && !isCurrentlyBeingEdited && style.current, isCurrentlyBeingEdited && style.isEditing]);
 
   return (
@@ -152,14 +154,18 @@ export default function ProjectListItem({
                 onChangeEditMode={handleToggleEditMode}
                 onDelete={() => setDeleteOpen(true)}
                 onLoad={handleLoad}
-                isDisabled={loading || showMergeForm}
+                isDisabled={loading || showMergeForm || showTemplateForm}
                 onMerge={(filename) => handleToggleEditMode('merge', filename)}
+                onSaveAsTemplate={(filename) => handleToggleEditMode('template', filename)}
               />
             </td>
           </>
         )}
       </tr>
       {showMergeForm && <ProjectMergeForm onClose={handleCancel} fileName={filename} />}
+      {showTemplateForm && (
+        <ProjectPartialCloneForm onClose={handleCancel} onCreated={onRefetch} fileName={filename} />
+      )}
       <Dialog
         isOpen={isDeleteOpen}
         onClose={() => setDeleteOpen(false)}
@@ -190,9 +196,10 @@ interface ActionMenuProps {
   onDelete: () => void;
   onLoad: (filename: string) => Promise<void>;
   onMerge: (filename: string) => void;
+  onSaveAsTemplate: (filename: string) => void;
 }
 function ActionMenu(props: ActionMenuProps) {
-  const { current, filename, isDisabled, onChangeEditMode, onDelete, onLoad, onMerge } = props;
+  const { current, filename, isDisabled, onChangeEditMode, onDelete, onLoad, onMerge, onSaveAsTemplate } = props;
 
   const handleRename = () => {
     onChangeEditMode('rename', filename);
@@ -227,6 +234,13 @@ function ActionMenu(props: ActionMenuProps) {
         },
         { type: 'item', icon: IoPencilOutline, label: 'Rename', onClick: handleRename },
         { type: 'item', icon: IoCopyOutline, label: 'Duplicate', onClick: handleDuplicate },
+        {
+          type: 'item',
+          icon: IoCopyOutline,
+          label: 'Save as template',
+          description: 'A new project with only the parts you pick',
+          onClick: () => onSaveAsTemplate(filename),
+        },
         { type: 'item', icon: IoDocumentOutline, label: 'Download', onClick: handleDownload },
         { type: 'divider' },
         { type: 'item', icon: IoTrash, label: 'Delete', onClick: onDelete, disabled: current },

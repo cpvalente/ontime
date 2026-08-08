@@ -66,7 +66,8 @@ export type {
 } from './definitions/core/CustomFields.type.js';
 
 // SERVER RESPONSES
-export type { QuickStartData } from './api/db/db.type.js';
+export type { QuickStartData, TemplateSection } from './api/db/db.type.js';
+export { templateSections, isTemplateSection } from './api/db/db.type.js';
 export type {
   AuthenticationStatus,
   NetworkInterface,

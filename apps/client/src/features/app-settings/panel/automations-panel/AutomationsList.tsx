@@ -1,16 +1,20 @@
 import { Automation, AutomationDTO, NormalisedAutomation, Trigger } from 'ontime-types';
 import { Fragment, useEffect, useMemo, useState } from 'react';
-import { IoAdd, IoPencil, IoSparklesOutline, IoTrash } from 'react-icons/io5';
+import { IoAdd, IoPencil, IoShareOutline, IoSparklesOutline, IoTrash } from 'react-icons/io5';
 
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
+import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import Info from '../../../../common/components/info/Info';
 import Tag from '../../../../common/components/tag/Tag';
 import { getLifecycleLabel } from '../../../../common/constants/timerLifecycle';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
+import { useOrderedProjectList } from '../../../../common/hooks-query/useProjectList';
 import { useAutomationFired } from '../../../../common/stores/automationFired';
 import { summariseOutputs } from '../../../../common/utils/automationOutputs';
 import * as Panel from '../../panel-utils/PanelUtils';
+import useAppSettingsNavigation from '../../useAppSettingsNavigation';
+import ProjectPartialCloneForm from '../project-panel/ProjectPartialCloneForm';
 import AutomationForm from './AutomationForm';
 import { groupTriggersByAutomation } from './automationUtils';
 import DeleteAutomationDialog from './DeleteAutomationDialog';
@@ -36,7 +40,12 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
   const { refetch } = useAutomationSettings();
   const [automationFormData, setAutomationFormData] = useState<AutomationDTO | null>(null);
   const [showRecipes, setShowRecipes] = useState(false);
+  const [showTemplateForm, setShowTemplateForm] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Automation | null>(null);
+  const { setLocation } = useAppSettingsNavigation();
+  const {
+    data: { lastLoadedProject },
+  } = useOrderedProjectList();
 
   /**
    * A recipe lands in the editor rather than only in the list.
@@ -83,9 +92,37 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
             onDeleted={handleDeleted}
           />
         )}
+        {showTemplateForm && (
+          <ProjectPartialCloneForm
+            fileName={lastLoadedProject}
+            preselected={['automation']}
+            onClose={() => setShowTemplateForm(false)}
+            onCreated={async () => setLocation('project__list')}
+          />
+        )}
         <Panel.SubHeader>
           Manage automations
           <Panel.InlineElements relation='inner'>
+            <DropdownMenu
+              render={<Button />}
+              items={[
+                {
+                  type: 'item',
+                  label: 'Save automations as template',
+                  description: 'A small project with only your automations, to reuse or share',
+                  disabled: arrayAutomations.length === 0 || lastLoadedProject === '',
+                  onClick: () => setShowTemplateForm(true),
+                },
+                {
+                  type: 'item',
+                  label: 'Load from a template',
+                  description: 'Bring automations in from another project file',
+                  onClick: () => setLocation('project__list'),
+                },
+              ]}
+            >
+              Share <IoShareOutline />
+            </DropdownMenu>
             <Button onClick={() => setShowRecipes(true)}>
               Browse recipes <IoSparklesOutline />
             </Button>
