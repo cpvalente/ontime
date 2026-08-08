@@ -118,6 +118,15 @@ export default function RundownEvent({
 
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
+  const [enableMatchDuration, groupTargetDurationDescription] = (() => {
+    if (!parentGroup || parentGroup.targetDuration === null || parentGroup.duration === parentGroup.targetDuration)
+      return [false, ''];
+    const { targetDuration, duration } = parentGroup;
+    return targetDuration > duration
+      ? [true, 'Increase event duration to fit the group target']
+      : [true, 'Decrease event duration to fit the group target'];
+  })();
+
   const [onContextMenu] = useContextMenu<HTMLDivElement>(() =>
     selectedEvents.size > 1
       ? [
@@ -179,16 +188,13 @@ export default function RundownEvent({
           {
             type: 'item',
             label: 'Match Group Target Duration',
-            description: 'Change event duration to fill the group target',
+            description: groupTargetDurationDescription,
             icon: TbClockPin,
             onClick: () => {
               if (!parent) return;
               matchGroupDuration(eventId);
             },
-            disabled:
-              !parentGroup ||
-              parentGroup.targetDuration === null ||
-              parentGroup.duration === parentGroup.targetDuration,
+            disabled: !enableMatchDuration,
           },
           { type: 'divider' },
           {
