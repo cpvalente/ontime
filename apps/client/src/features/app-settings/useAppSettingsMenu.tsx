@@ -105,7 +105,7 @@ const staticOptions = [
       },
       {
         id: 'automation__triggers',
-        label: 'Manage triggers',
+        label: 'Global triggers',
         keywords: ['lifecycle', 'on load', 'on start', 'on finish', 'on update'],
       },
     ],

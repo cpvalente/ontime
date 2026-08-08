@@ -72,13 +72,17 @@ export default function TriggersList({ triggers, automations, enabledAutomations
           />
         )}
         <Panel.SubHeader>
-          Manage triggers
+          Global triggers
           <Button disabled={!canAdd} onClick={openNewForm}>
             New <IoAdd />
           </Button>
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
+          <Panel.Description>
+            Triggers are managed from the automation itself. This list is for naming them, or for pointing several
+            differently named triggers at the same automation.
+          </Panel.Description>
           {enabledAutomations === false && (
             <Info>
               Automations are disabled. You can still manage triggers here, but they will not run until enabled.
@@ -112,8 +116,8 @@ export default function TriggersList({ triggers, automations, enabledAutomations
                   title='No triggers yet'
                   description={
                     canAdd
-                      ? 'Triggers run an automation at a given point of the timer lifecycle, like when an event starts or finishes.'
-                      : 'Create an automation first, then add a trigger to decide when it should run.'
+                      ? 'Triggers run an automation at a given point of the timer lifecycle. The usual way to create one is to pick the lifecycles in the automation itself.'
+                      : 'Create an automation first, then pick the lifecycles it should run on.'
                   }
                   action={
                     canAdd ? (

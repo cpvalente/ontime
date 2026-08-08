@@ -55,7 +55,11 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
     <Panel.Section>
       <Panel.Card>
         {automationFormData !== null && (
-          <AutomationForm automation={automationFormData} onClose={() => setAutomationFormData(null)} />
+          <AutomationForm
+            automation={automationFormData}
+            triggers={triggers}
+            onClose={() => setAutomationFormData(null)}
+          />
         )}
         <Panel.SubHeader>
           Manage automations

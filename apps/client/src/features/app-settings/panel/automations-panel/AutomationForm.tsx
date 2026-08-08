@@ -5,6 +5,8 @@ import {
   HTTPOutput,
   OSCOutput,
   OntimeAction,
+  TimerLifeCycle,
+  Trigger,
   isHTTPOutput,
   isOSCOutput,
   isOntimeAction,
@@ -13,7 +15,7 @@ import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoCheckmark, IoTrash } from 'react-icons/io5';
 
-import { addAutomation, editAutomation, testOutput } from '../../../../common/api/automation';
+import { addAutomation, addTrigger, deleteTrigger, editAutomation, testOutput } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
@@ -30,7 +32,7 @@ import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import { startsWithHttp } from '../../../../common/utils/regex';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
-import { isAutomation, makeFieldList, operators } from './automationUtils';
+import { cycles, isAutomation, makeFieldList, operators } from './automationUtils';
 import OntimeActionForm from './OntimeActionForm';
 import TemplateInput from './template-input/TemplateInput';
 
@@ -44,16 +46,45 @@ const testFeedbackDuration = 2000;
 
 type TestState = { status: 'sending' | 'ok' | 'error'; message?: string };
 
+/** lifecycles that fire continuously, and are worth a warning before a user picks one */
+const continuousCycles: TimerLifeCycle[] = [TimerLifeCycle.onClock, TimerLifeCycle.onUpdate];
+
 interface AutomationFormProps {
   automation: Automation | AutomationDTO;
+  /** global triggers, used to resolve which lifecycles this automation is currently bound to */
+  triggers: Trigger[];
   onClose: () => void;
 }
 
-export default function AutomationForm({ automation, onClose }: AutomationFormProps) {
+export default function AutomationForm({ automation, triggers, onClose }: AutomationFormProps) {
   const isEdit = isAutomation(automation);
   const { data } = useCustomFields();
   const { refetch } = useAutomationSettings();
   const fieldList = useMemo(() => makeFieldList(data), [data]);
+
+  /**
+   * Triggers are a separate entity, so they live outside the form state.
+   * We resolve the current selection once and reconcile it against the server on save.
+   */
+  const initialCycles = useMemo(() => {
+    if (!isAutomation(automation)) {
+      return [];
+    }
+    return triggers.filter((trigger) => trigger.automationId === automation.id).map((trigger) => trigger.trigger);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- we intentionally snapshot the selection when the form opens
+  }, []);
+  const [selectedCycles, setSelectedCycles] = useState<TimerLifeCycle[]>(initialCycles);
+  /** set once a create succeeds, so a retry after a failed trigger sync edits instead of creating a duplicate */
+  const [createdId, setCreatedId] = useState<string | null>(null);
+
+  const cyclesAreDirty =
+    selectedCycles.length !== initialCycles.length ||
+    selectedCycles.some((cycle) => !initialCycles.includes(cycle)) ||
+    initialCycles.some((cycle) => !selectedCycles.includes(cycle));
+
+  const toggleCycle = (cycle: TimerLifeCycle) => {
+    setSelectedCycles((prev) => (prev.includes(cycle) ? prev.filter((c) => c !== cycle) : [...prev, cycle]));
+  };
 
   /**
    * Test results are keyed by the field array id rather than the index:
@@ -197,31 +228,56 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
     }
   };
 
+  /**
+   * Reconciles the lifecycle selection against the global triggers.
+   * Runs after the automation itself is saved: a new automation has no id until then.
+   */
+  const syncTriggers = async (automationId: string, title: string) => {
+    const existing = triggers.filter((trigger) => trigger.automationId === automationId);
+
+    const toAdd = selectedCycles.filter((cycle) => !existing.some((trigger) => trigger.trigger === cycle));
+    const toRemove = existing.filter((trigger) => !selectedCycles.includes(trigger.trigger));
+
+    for (const trigger of toRemove) {
+      await deleteTrigger(trigger.id);
+    }
+
+    for (const cycle of toAdd) {
+      const label = cycles.find(({ value }) => value === cycle)?.label ?? cycle;
+      await addTrigger({ title: `${title} — ${label}`, trigger: cycle, automationId });
+    }
+  };
+
   const onSubmit = async (values: AutomationDTO) => {
-    if (isAutomation(automation)) {
-      await handleEdit(automation.id, { id: automation.id, ...values });
-    } else {
-      await handleCreate(values);
+    // saving happens in two requests, so a retry after a partial failure must edit rather than create again
+    const existingId = isAutomation(automation) ? automation.id : createdId;
+    let automationId: string;
+
+    try {
+      if (existingId) {
+        await editAutomation(existingId, { id: existingId, ...values });
+        automationId = existingId;
+      } else {
+        const created = await addAutomation(values);
+        setCreatedId(created.id);
+        automationId = created.id;
+      }
+    } catch (error) {
+      setError('root', { message: maybeAxiosError(error) });
+      return;
     }
+
+    try {
+      await syncTriggers(automationId, values.title);
+    } catch (error) {
+      // the automation itself is saved, only its triggers failed. Keep the form open so the user can retry
+      refetch();
+      setError('root', { message: `Automation saved, but its triggers failed: ${maybeAxiosError(error)}` });
+      return;
+    }
+
     refetch();
-
-    async function handleEdit(id: string, values: Automation) {
-      try {
-        await editAutomation(id, values);
-        onClose();
-      } catch (error) {
-        setError('root', { message: maybeAxiosError(error) });
-      }
-    }
-
-    async function handleCreate(values: AutomationDTO) {
-      try {
-        await addAutomation(values);
-        onClose();
-      } catch (error) {
-        setError('root', { message: maybeAxiosError(error) });
-      }
-    }
+    onClose();
   };
 
   /** describes a filter in plain language so the user does not have to read the form back to themselves */
@@ -239,7 +295,8 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
     return `${fieldLabel} ${operatorLabel} ${value ? `“${value}”` : 'nothing'}`;
   };
 
-  const canSubmit = !isSubmitting && isDirty && isValid;
+  const canSubmit = !isSubmitting && (isDirty || cyclesAreDirty) && isValid;
+  const hasContinuousCycle = selectedCycles.some((cycle) => continuousCycles.includes(cycle));
 
   return (
     <Modal
@@ -263,6 +320,37 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                 />
               </label>
               <Panel.Error>{errors.title?.message}</Panel.Error>
+            </div>
+
+            <div className={style.titleSection}>
+              <label id='runs-on-label'>Runs on</label>
+              <Panel.Description>
+                Pick the moments in the timer lifecycle that should run this automation. You can also attach it to a
+                single event from the event editor.
+              </Panel.Description>
+              <Panel.InlineElements relation='inner' wrap='wrap' aria-labelledby='runs-on-label' role='group'>
+                {cycles.map(({ id, label, value }) => {
+                  const cycle = value as TimerLifeCycle;
+                  const isSelected = selectedCycles.includes(cycle);
+                  return (
+                    <Button
+                      key={id}
+                      size='small'
+                      variant={isSelected ? 'primary' : 'subtle'}
+                      aria-pressed={isSelected}
+                      onClick={() => toggleCycle(cycle)}
+                    >
+                      {label}
+                    </Button>
+                  );
+                })}
+              </Panel.InlineElements>
+              {hasContinuousCycle && (
+                <Panel.Description tone='warning'>
+                  Every second and On Timer Update fire continuously while the timer runs. Add a filter unless you mean
+                  to send on every tick.
+                </Panel.Description>
+              )}
             </div>
           </div>
 
