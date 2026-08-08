@@ -66,13 +66,11 @@ export default function AutomationForm({ automation, triggers, onClose }: Automa
    * Triggers are a separate entity, so they live outside the form state.
    * We resolve the current selection once and reconcile it against the server on save.
    */
-  const initialCycles = useMemo(() => {
-    if (!isAutomation(automation)) {
-      return [];
-    }
-    return triggers.filter((trigger) => trigger.automationId === automation.id).map((trigger) => trigger.trigger);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- we intentionally snapshot the selection when the form opens
-  }, []);
+  const [initialCycles] = useState<TimerLifeCycle[]>(() =>
+    isAutomation(automation)
+      ? triggers.filter((trigger) => trigger.automationId === automation.id).map((trigger) => trigger.trigger)
+      : [],
+  );
   const [selectedCycles, setSelectedCycles] = useState<TimerLifeCycle[]>(initialCycles);
   /** set once a create succeeds, so a retry after a failed trigger sync edits instead of creating a duplicate */
   const [createdId, setCreatedId] = useState<string | null>(null);

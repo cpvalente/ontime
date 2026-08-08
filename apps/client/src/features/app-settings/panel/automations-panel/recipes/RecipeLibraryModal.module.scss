@@ -1,0 +1,47 @@
+.library {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  color: $ui-white;
+  font-size: calc(1rem - 1px);
+  padding-block: 0.5rem;
+}
+
+.category {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.recipeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 0.75rem;
+}
+
+.recipe {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid $white-10;
+  border-radius: $component-border-radius-md;
+  background-color: $black-10;
+}
+
+.recipeTitle {
+  font-weight: 600;
+}
+
+.recipeDescription {
+  flex: 1;
+  font-size: $aux-text-size;
+  color: $secondary-text-gray;
+}
+
+.recipeActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

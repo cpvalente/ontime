@@ -1,6 +1,6 @@
-import { AutomationDTO, NormalisedAutomation, Trigger } from 'ontime-types';
+import { Automation, AutomationDTO, NormalisedAutomation, Trigger } from 'ontime-types';
 import { Fragment, useMemo, useState } from 'react';
-import { IoAdd, IoPencil, IoTrash } from 'react-icons/io5';
+import { IoAdd, IoPencil, IoSparklesOutline, IoTrash } from 'react-icons/io5';
 
 import { deleteAutomation } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -14,6 +14,7 @@ import { summariseOutputs } from '../../../../common/utils/automationOutputs';
 import * as Panel from '../../panel-utils/PanelUtils';
 import AutomationForm from './AutomationForm';
 import { groupTriggersByAutomation } from './automationUtils';
+import RecipeLibraryModal from './recipes/RecipeLibraryModal';
 
 import style from './AutomationsList.module.scss';
 
@@ -34,7 +35,19 @@ interface AutomationsListProps {
 export default function AutomationsList({ automations, triggers, enabledAutomations, isLoading }: AutomationsListProps) {
   const { refetch } = useAutomationSettings();
   const [automationFormData, setAutomationFormData] = useState<AutomationDTO | null>(null);
+  const [showRecipes, setShowRecipes] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  /**
+   * A recipe lands in the editor rather than only in the list.
+   * Seeing it as an editable automation is the point, and recipes with an
+   * external target are unusable until the user changes it anyway.
+   */
+  const handleRecipeInstalled = async (created: Automation) => {
+    setShowRecipes(false);
+    await refetch();
+    setAutomationFormData(created);
+  };
 
   const handleDelete = async (id: string) => {
     try {
@@ -61,11 +74,22 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
             onClose={() => setAutomationFormData(null)}
           />
         )}
+        {showRecipes && (
+          <RecipeLibraryModal
+            onClose={() => setShowRecipes(false)}
+            onInstalled={(_recipe, created) => handleRecipeInstalled(created)}
+          />
+        )}
         <Panel.SubHeader>
           Manage automations
-          <Button onClick={() => setAutomationFormData(automationPlaceholder)}>
-            New <IoAdd />
-          </Button>
+          <Panel.InlineElements relation='inner'>
+            <Button onClick={() => setShowRecipes(true)}>
+              Browse recipes <IoSparklesOutline />
+            </Button>
+            <Button onClick={() => setAutomationFormData(automationPlaceholder)}>
+              New <IoAdd />
+            </Button>
+          </Panel.InlineElements>
         </Panel.SubHeader>
 
         <Panel.Divider />
@@ -95,8 +119,11 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
                   description='An automation sends OSC or HTTP messages, or runs an Ontime action, whenever a trigger fires.'
                   action={
                     <Panel.InlineElements relation='inner'>
-                      <Button variant='primary' onClick={() => setAutomationFormData(automationPlaceholder)}>
-                        Create automation <IoAdd />
+                      <Button variant='primary' onClick={() => setShowRecipes(true)}>
+                        Browse recipes <IoSparklesOutline />
+                      </Button>
+                      <Button onClick={() => setAutomationFormData(automationPlaceholder)}>
+                        Create from scratch <IoAdd />
                       </Button>
                     </Panel.InlineElements>
                   }
