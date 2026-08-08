@@ -702,16 +702,42 @@ describe('automation reporting', () => {
     expect(logSpy.mock.calls[0][1]).toContain('suppressed');
   });
 
-  it('shows the suppression notice again after a reload', async () => {
+  it('does not repeat the suppression notice on every load', async () => {
     await bind('reporting-clock', TimerLifeCycle.onClock);
     triggerAutomations(TimerLifeCycle.onClock);
     logSpy.mockClear();
 
-    // onLoad bookends a run and resets the reporting state
-    triggerAutomations(TimerLifeCycle.onLoad);
+    // roll mode loads at every event boundary, and an operator steps through cues by hand.
+    // Re-notifying on each one would be the very flooding the notice exists to prevent
+    for (let i = 0; i < 5; i++) {
+      triggerAutomations(TimerLifeCycle.onLoad);
+      triggerAutomations(TimerLifeCycle.onClock);
+    }
+
+    expect(logSpy.mock.calls.filter(([, message]) => String(message).includes('suppressed'))).toHaveLength(0);
+  });
+
+  it('shows the suppression notice again after a stop', async () => {
+    await bind('reporting-clock', TimerLifeCycle.onClock);
+    triggerAutomations(TimerLifeCycle.onClock);
+    logSpy.mockClear();
+
+    // a stop ends the run, the next one reports from scratch
+    triggerAutomations(TimerLifeCycle.onStop);
     triggerAutomations(TimerLifeCycle.onClock);
 
     expect(logSpy.mock.calls.some(([, message]) => String(message).includes('suppressed'))).toBe(true);
+  });
+
+  it('throttles repeated loads, which the reset used to defeat', async () => {
+    vi.useFakeTimers();
+    await bind('reporting-load', TimerLifeCycle.onLoad);
+    logSpy.mockClear();
+
+    triggerAutomations(TimerLifeCycle.onLoad);
+    triggerAutomations(TimerLifeCycle.onLoad);
+
+    expect(logSpy).toHaveBeenCalledTimes(1);
   });
 
   it('collapses repeats of the same automation and cycle inside the throttle window', async () => {

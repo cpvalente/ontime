@@ -99,6 +99,12 @@ export const demoDb: DatabaseModel = {
         trigger: TimerLifeCycle.onStart,
         automationId: 'demo-aux-timer',
       },
+      {
+        id: 'demo-trigger-clear',
+        title: 'Demo: clear the wrap up warning',
+        trigger: TimerLifeCycle.onFinish,
+        automationId: 'demo-clear-message',
+      },
     ],
     automations: {
       'demo-aux-timer': {
@@ -118,6 +124,15 @@ export const demoDb: DatabaseModel = {
         filters: [],
         // self labelled, so nobody mistakes it for something Ontime does on its own
         outputs: [{ type: 'ontime', action: 'message-set', text: 'Demo automation: please wrap up', visible: true }],
+      },
+      'demo-clear-message': {
+        id: 'demo-clear-message',
+        title: 'Demo: clear the wrap up warning',
+        filterRule: 'all',
+        filters: [],
+        // the pair to the warning above. Without it the message would stay on the stage
+        // timer for the rest of the session, blanking the countdown on every later event
+        outputs: [{ type: 'ontime', action: 'message-set', text: '', visible: false }],
       },
       'demo-osc-example': {
         id: 'demo-osc-example',

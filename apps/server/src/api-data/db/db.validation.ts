@@ -75,7 +75,9 @@ export const validateSectionsBody = [
   body('sections')
     .isArray({ min: 1 })
     .withMessage(`Select at least one of: ${templateSections.join(', ')}`)
-    .custom((sections: unknown[]) => sections.every((section) => typeof section === 'string' && isTemplateSection(section)))
+    .custom((sections: unknown[]) =>
+      sections.every((section) => typeof section === 'string' && isTemplateSection(section)),
+    )
     .withMessage(`Sections must be any of: ${templateSections.join(', ')}`),
 
   requestValidationFunction,

@@ -3,6 +3,7 @@ import { writeFile } from 'fs/promises';
 import { OntimeView, TimerLifeCycle } from 'ontime-types';
 import { Mock } from 'vitest';
 
+import { makeNewProject } from '../../../models/dataModel.js';
 import { isLastLoadedProject } from '../../app-state-service/AppStateService.js';
 import {
   createProjectFromSections,
@@ -11,7 +12,6 @@ import {
   renameProjectFile,
 } from '../ProjectService.js';
 import { doesProjectExist, parseJsonFile } from '../projectServiceUtils.js';
-import { makeNewProject } from '../../../models/dataModel.js';
 
 // stop the database loading from initiating
 vi.mock('../../../setup/loadDb.js', () => {
@@ -100,16 +100,20 @@ describe('createProjectFromSections', () => {
     (doesProjectExist as Mock).mockReturnValue('/projects/source.json');
     (parseJsonFile as Mock).mockResolvedValue({
       ...makeNewProject(),
-      urlPresets: [
-        { target: OntimeView.Timer, enabled: true, alias: 'from-source', search: '', displayInNav: false },
-      ],
+      urlPresets: [{ target: OntimeView.Timer, enabled: true, alias: 'from-source', search: '', displayInNav: false }],
       automation: {
         enabledAutomations: true,
         enabledOscIn: false,
         oscPortIn: 8888,
         triggers: [{ id: 't1', title: 'on start', trigger: TimerLifeCycle.onStart, automationId: 'a1' }],
         automations: {
-          a1: { id: 'a1', title: 'from source', filterRule: 'all', filters: [], outputs: [{ type: 'http', url: 'http://127.0.0.1/go' }] },
+          a1: {
+            id: 'a1',
+            title: 'from source',
+            filterRule: 'all',
+            filters: [],
+            outputs: [{ type: 'http', url: 'http://127.0.0.1/go' }],
+          },
         },
       },
     });

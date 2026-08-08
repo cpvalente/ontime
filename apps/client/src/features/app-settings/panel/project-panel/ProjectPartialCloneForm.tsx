@@ -29,7 +29,8 @@ const sectionCopy: Array<{ key: TemplateSection; title: string; body: string }> 
 
 interface ProjectPartialCloneFormProps {
   onClose: () => void;
-  onCreated: () => Promise<void>;
+  /** receives the name the file was actually given, which can differ if the name was taken */
+  onCreated: (createdFilename: string) => Promise<void>;
   fileName: string;
   /** sections switched on when the form opens */
   preselected?: TemplateSection[];
@@ -76,8 +77,8 @@ export default function ProjectPartialCloneForm({
 
     try {
       setError(null);
-      await partialDuplicateProject(fileName, values.filename, sections);
-      await onCreated();
+      const { filename } = await partialDuplicateProject(fileName, values.filename, sections);
+      await onCreated(filename);
       onClose();
     } catch (error) {
       setError(maybeAxiosError(error));
@@ -137,8 +138,9 @@ export default function ProjectPartialCloneForm({
 
             <Info>
               <Info.Body>
-                Automations attached to individual events live in the rundown. A template without rundowns carries the
-                automations themselves, but not the events that point at them.
+                Automations attached to individual events live in the rundown, so the two halves travel separately. A
+                template with only automations leaves behind the events that point at them, and a template with only
+                rundowns carries events pointing at automations it does not include.
               </Info.Body>
             </Info>
           </Panel.Section>

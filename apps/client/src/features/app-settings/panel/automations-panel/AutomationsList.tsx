@@ -2,6 +2,7 @@ import { Automation, AutomationDTO, NormalisedAutomation, Trigger } from 'ontime
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { IoAdd, IoPencil, IoShareOutline, IoSparklesOutline, IoTrash } from 'react-icons/io5';
 
+import { PROJECT_LIST } from '../../../../common/api/constants';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
@@ -10,13 +11,14 @@ import Tag from '../../../../common/components/tag/Tag';
 import { getLifecycleLabel } from '../../../../common/constants/timerLifecycle';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import { useOrderedProjectList } from '../../../../common/hooks-query/useProjectList';
+import { ontimeQueryClient } from '../../../../common/queryClient';
 import { useAutomationFired } from '../../../../common/stores/automationFired';
 import { summariseOutputs } from '../../../../common/utils/automationOutputs';
 import * as Panel from '../../panel-utils/PanelUtils';
 import useAppSettingsNavigation from '../../useAppSettingsNavigation';
 import ProjectPartialCloneForm from '../project-panel/ProjectPartialCloneForm';
 import AutomationForm from './AutomationForm';
-import { groupTriggersByAutomation } from './automationUtils';
+import { groupTriggersByAutomation, isAutomation } from './automationUtils';
 import DeleteAutomationDialog from './DeleteAutomationDialog';
 import RecipeLibraryModal from './recipes/RecipeLibraryModal';
 
@@ -36,7 +38,12 @@ interface AutomationsListProps {
   isLoading: boolean;
 }
 
-export default function AutomationsList({ automations, triggers, enabledAutomations, isLoading }: AutomationsListProps) {
+export default function AutomationsList({
+  automations,
+  triggers,
+  enabledAutomations,
+  isLoading,
+}: AutomationsListProps) {
   const { refetch } = useAutomationSettings();
   const [automationFormData, setAutomationFormData] = useState<AutomationDTO | null>(null);
   const [showRecipes, setShowRecipes] = useState(false);
@@ -73,6 +80,9 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
       <Panel.Card>
         {automationFormData !== null && (
           <AutomationForm
+            // the form snapshots the automation's lifecycles on mount, so it must never be
+            // reused across two different automations
+            key={isAutomation(automationFormData) ? automationFormData.id : 'new'}
             automation={automationFormData}
             triggers={triggers}
             onClose={() => setAutomationFormData(null)}
@@ -90,6 +100,7 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
             blockingTriggers={triggers.filter((trigger) => trigger.automationId === deleteTarget.id)}
             onCancel={() => setDeleteTarget(null)}
             onDeleted={handleDeleted}
+            onRefetch={refetch}
           />
         )}
         {showTemplateForm && (
@@ -97,7 +108,11 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
             fileName={lastLoadedProject}
             preselected={['automation']}
             onClose={() => setShowTemplateForm(false)}
-            onCreated={async () => setLocation('project__list')}
+            onCreated={async () => {
+              // do not rely on the project panel refetching when it mounts
+              await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
+              setLocation('project__list');
+            }}
           />
         )}
         <Panel.SubHeader>
@@ -244,13 +259,17 @@ export default function AutomationsList({ automations, triggers, enabledAutomati
 function LastFired({ at }: { at?: number }) {
   const [, setTick] = useState(0);
 
+  // once the label counts whole minutes it only changes once a minute, so drop to that
+  // cadence instead of holding a 1Hz timer per automation for the life of the panel
+  const isRecent = at !== undefined && Date.now() - at < millisPerMinute;
+
   useEffect(() => {
     if (at === undefined) {
       return;
     }
-    const interval = setInterval(() => setTick((value) => value + 1), 1000);
+    const interval = setInterval(() => setTick((value) => value + 1), isRecent ? 1000 : millisPerMinute);
     return () => clearInterval(interval);
-  }, [at]);
+  }, [at, isRecent]);
 
   if (at === undefined) {
     return <span className={style.muted}>—</span>;
@@ -258,6 +277,8 @@ function LastFired({ at }: { at?: number }) {
 
   return <span className={style.lastFired}>{formatElapsed(Date.now() - at)}</span>;
 }
+
+const millisPerMinute = 60 * 1000;
 
 function formatElapsed(elapsed: number): string {
   const seconds = Math.max(0, Math.floor(elapsed / 1000));

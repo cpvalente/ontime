@@ -235,16 +235,15 @@ export async function loadDemo(_req: Request, res: Response<MessageResponse | Er
  * Creates a template: a new project file containing only the selected sections of an existing one.
  * The result is not loaded, so making a template does not disturb the running show.
  */
-export async function partialDuplicateProjectFile(req: Request, res: Response<MessageResponse | ErrorResponse>) {
+export async function partialDuplicateProjectFile(req: Request, res: Response<{ filename: string } | ErrorResponse>) {
   const { filename } = req.params;
   const { newFilename, sections } = req.body;
 
   try {
+    // the created name can differ from what was asked for, generateUniqueFileName resolves collisions
     const created = await projectService.createProjectFromSections(filename, newFilename, sections);
 
-    res.status(201).send({
-      message: `Created template ${created} from ${filename}`,
-    });
+    res.status(201).send({ filename: created });
   } catch (error) {
     const message = getErrorMessage(error);
     if (message.startsWith('Project file')) {

@@ -11,7 +11,12 @@ import { getLifecycleLabel } from '../../../../../common/constants/timerLifecycl
 import { summariseOutputs } from '../../../../../common/utils/automationOutputs';
 import { isOntimeCloud } from '../../../../../externals';
 import * as Panel from '../../../panel-utils/PanelUtils';
-import { automationRecipes, recipeCategoryLabels, recipeCategoryOrder, type AutomationRecipe } from './automationRecipes';
+import {
+  automationRecipes,
+  recipeCategoryLabels,
+  recipeCategoryOrder,
+  type AutomationRecipe,
+} from './automationRecipes';
 import { installRecipe } from './recipeUtils';
 
 import style from './RecipeLibraryModal.module.scss';

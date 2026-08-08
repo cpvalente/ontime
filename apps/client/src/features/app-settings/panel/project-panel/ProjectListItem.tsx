@@ -163,9 +163,7 @@ export default function ProjectListItem({
         )}
       </tr>
       {showMergeForm && <ProjectMergeForm onClose={handleCancel} fileName={filename} />}
-      {showTemplateForm && (
-        <ProjectPartialCloneForm onClose={handleCancel} onCreated={onRefetch} fileName={filename} />
-      )}
+      {showTemplateForm && <ProjectPartialCloneForm onClose={handleCancel} onCreated={onRefetch} fileName={filename} />}
       <Dialog
         isOpen={isDeleteOpen}
         onClose={() => setDeleteOpen(false)}

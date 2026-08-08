@@ -15,7 +15,13 @@ import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoCheckmark, IoTrash } from 'react-icons/io5';
 
-import { addAutomation, addTrigger, deleteTrigger, editAutomation, testOutput } from '../../../../common/api/automation';
+import {
+  addAutomation,
+  addTrigger,
+  deleteTrigger,
+  editAutomation,
+  testOutput,
+} from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
@@ -30,7 +36,6 @@ import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import { startsWithHttp } from '../../../../common/utils/regex';
-import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 import { cycles, isAutomation, makeFieldList, operators } from './automationUtils';
 import OntimeActionForm from './OntimeActionForm';
@@ -64,12 +69,17 @@ export default function AutomationForm({ automation, triggers, onClose }: Automa
 
   /**
    * Triggers are a separate entity, so they live outside the form state.
-   * We resolve the current selection once and reconcile it against the server on save.
+   *
+   * We snapshot the automation's triggers when the form opens and reconcile against that
+   * snapshot, never against the live prop: settings are polled, so a trigger created
+   * elsewhere while this form is open must not be deleted by a save that never saw it.
    */
-  const [initialCycles] = useState<TimerLifeCycle[]>(() =>
-    isAutomation(automation)
-      ? triggers.filter((trigger) => trigger.automationId === automation.id).map((trigger) => trigger.trigger)
-      : [],
+  const [initialTriggers] = useState<Trigger[]>(() =>
+    isAutomation(automation) ? triggers.filter((trigger) => trigger.automationId === automation.id) : [],
+  );
+  const initialCycles = useMemo(
+    () => Array.from(new Set(initialTriggers.map((trigger) => trigger.trigger))),
+    [initialTriggers],
   );
   const [selectedCycles, setSelectedCycles] = useState<TimerLifeCycle[]>(initialCycles);
   /** set once a create succeeds, so a retry after a failed trigger sync edits instead of creating a duplicate */
@@ -83,6 +93,12 @@ export default function AutomationForm({ automation, triggers, onClose }: Automa
   const toggleCycle = (cycle: TimerLifeCycle) => {
     setSelectedCycles((prev) => (prev.includes(cycle) ? prev.filter((c) => c !== cycle) : [...prev, cycle]));
   };
+
+  /**
+   * A lifecycle can carry several differently named triggers, which the chips collapse into one.
+   * Unchecking it removes all of them, so say which ones rather than deleting them quietly.
+   */
+  const triggersToRemove = initialTriggers.filter((trigger) => !selectedCycles.includes(trigger.trigger));
 
   /**
    * Test results are keyed by the field array id rather than the index:
@@ -229,17 +245,16 @@ export default function AutomationForm({ automation, triggers, onClose }: Automa
   /**
    * Reconciles the lifecycle selection against the global triggers.
    * Runs after the automation itself is saved: a new automation has no id until then.
+   *
+   * Both sides are diffed against the mount-time snapshot, so this only ever removes
+   * triggers the user could actually see when they made the change.
    */
   const syncTriggers = async (automationId: string, title: string) => {
-    const existing = triggers.filter((trigger) => trigger.automationId === automationId);
-
-    const toAdd = selectedCycles.filter((cycle) => !existing.some((trigger) => trigger.trigger === cycle));
-    const toRemove = existing.filter((trigger) => !selectedCycles.includes(trigger.trigger));
-
-    for (const trigger of toRemove) {
+    for (const trigger of triggersToRemove) {
       await deleteTrigger(trigger.id);
     }
 
+    const toAdd = selectedCycles.filter((cycle) => !initialCycles.includes(cycle));
     for (const cycle of toAdd) {
       const label = cycles.find(({ value }) => value === cycle)?.label ?? cycle;
       await addTrigger({ title: `${title} — ${label}`, trigger: cycle, automationId });
@@ -347,6 +362,13 @@ export default function AutomationForm({ automation, triggers, onClose }: Automa
                 <Panel.Description tone='warning'>
                   Every second and On Timer Update fire continuously while the timer runs. Add a filter unless you mean
                   to send on every tick.
+                </Panel.Description>
+              )}
+              {triggersToRemove.length > 0 && (
+                <Panel.Description tone='warning'>
+                  {`Saving removes ${triggersToRemove.length === 1 ? 'the trigger' : `${triggersToRemove.length} triggers`}: ${triggersToRemove
+                    .map((trigger) => trigger.title)
+                    .join(', ')}`}
                 </Panel.Description>
               )}
             </div>
@@ -513,12 +535,7 @@ export default function AutomationForm({ automation, triggers, onClose }: Automa
                     </label>
                     <label className={style.spanFull}>
                       Arguments
-                      <TemplateInput
-                        {...register(`outputs.${index}.args`)}
-                        value={output.args}
-                        fluid
-                        placeholder='1'
-                      />
+                      <TemplateInput {...register(`outputs.${index}.args`)} value={output.args} fluid placeholder='1' />
                       <Panel.Error>{rowErrors?.args?.message}</Panel.Error>
                     </label>
                   </OutputCard>
@@ -670,7 +687,7 @@ function OutputCard({ label, kindClass, summary, testState, onTest, onDelete, ch
         </IconButton>
       </div>
       {testState?.status === 'error' && <Panel.Error className={style.testError}>{testState.message}</Panel.Error>}
-      <div className={cx([style.cardBody])}>{children}</div>
+      <div className={style.cardBody}>{children}</div>
     </div>
   );
 }

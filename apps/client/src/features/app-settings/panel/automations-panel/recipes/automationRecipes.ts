@@ -76,7 +76,6 @@ export const automationRecipes: AutomationRecipe[] = [
       title: 'Hide the stage message on finish',
       filterRule: 'all',
       filters: [],
-      // an empty text means "leave the text alone", so this only changes visibility
       outputs: [{ type: 'ontime', action: 'message-set', text: '', visible: false }],
     },
     triggers: [Cycle.onFinish],
@@ -84,14 +83,17 @@ export const automationRecipes: AutomationRecipe[] = [
   {
     id: 'obs-record',
     title: 'OBS — start recording when the show starts',
-    description: 'Calls the OBS websocket HTTP bridge when the first event is loaded.',
+    description:
+      'Presses a Companion button bound to OBS. obs-websocket speaks WebSocket rather than HTTP, so Ontime reaches OBS through Companion or a similar bridge.',
     category: 'video',
+    docsUrl: 'https://docs.getontime.no/api/automation/',
     needsSetup: true,
     automation: {
       title: 'OBS start recording',
       filterRule: 'all',
       filters: [],
-      outputs: [{ type: 'http', url: 'http://127.0.0.1:4455/api/StartRecord' }],
+      // Companion HTTP API: /api/location/<page>/<row>/<column>/press
+      outputs: [{ type: 'http', url: 'http://127.0.0.1:8888/api/location/1/0/1/press' }],
     },
     triggers: [Cycle.onLoad],
   },

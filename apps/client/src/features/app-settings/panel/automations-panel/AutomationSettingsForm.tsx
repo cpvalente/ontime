@@ -100,10 +100,12 @@ export default function AutomationSettingsForm({
             <span>- A trigger is when to send it. Triggers for a single event live in the event editor.</span>
             <span>- OSC Input tells Ontime to listen to messages on the specific port.</span>
             <Info.Footer>
-              <ExternalLink href={oscApiDocsUrl}>See the docs</ExternalLink>
-              <Button variant='ghosted' size='small' onClick={() => setLocation('network__log')}>
-                Automations report to the event log
-              </Button>
+              <Panel.InlineElements relation='inner'>
+                <ExternalLink href={oscApiDocsUrl}>See the docs</ExternalLink>
+                <Button variant='ghosted' size='small' onClick={() => setLocation('network__log')}>
+                  Automations report to the event log
+                </Button>
+              </Panel.InlineElements>
             </Info.Footer>
           </Info>
         </Panel.Section>

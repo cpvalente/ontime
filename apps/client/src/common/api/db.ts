@@ -132,7 +132,7 @@ export async function partialDuplicateProject(
   filename: string,
   newFilename: string,
   sections: TemplateSection[],
-): Promise<MessageResponse> {
+): Promise<{ filename: string }> {
   const url = `${dbPath}/${filename}/partial-duplicate`;
   const decodedUrl = decodeURIComponent(url);
   const res = await axios.post(decodedUrl, {

@@ -41,9 +41,9 @@ const lastLoggedAt = new Map<string, number>();
 const lastReportedAt = new Map<string, number>();
 
 /**
- * Clears the per-load logging state.
- * Called when the runtime loads or stops so the suppression notice is shown again
- * for the next show rather than once per server lifetime
+ * Clears the reporting state.
+ * Called when the runtime stops, so the next run reports from scratch rather than
+ * inheriting throttles from the last one
  */
 export function resetAutomationLogState() {
   suppressionNotices.clear();
@@ -55,15 +55,24 @@ export function resetAutomationLogState() {
  * Exposes a method for triggering actions based on a TimerLifeCycle event
  */
 export function triggerAutomations(cycle: TimerLifeCycle) {
-  // a load or a stop bookends a run: start reporting from scratch so the next show
-  // gets its own suppression notice rather than inheriting one from the last
-  if (cycle === TimerLifeCycle.onLoad || cycle === TimerLifeCycle.onStop) {
-    resetAutomationLogState();
-  }
-
   if (!getAutomationsEnabled()) {
     return;
   }
+
+  fireForCycle(cycle);
+
+  // A stop ends a run, so the next one reports from scratch. This deliberately does not
+  // happen on load: loading is not rare, roll mode loads at every event boundary, and
+  // resetting there would re-emit the suppression notice once per cue, which is the
+  // flooding the notice exists to prevent.
+  // It sits out here because fireForCycle returns early when nothing is bound to onStop,
+  // which is the common case
+  if (cycle === TimerLifeCycle.onStop) {
+    resetAutomationLogState();
+  }
+}
+
+function fireForCycle(cycle: TimerLifeCycle) {
   const store = eventStore.poll();
 
   let triggers = getAutomationTriggers();

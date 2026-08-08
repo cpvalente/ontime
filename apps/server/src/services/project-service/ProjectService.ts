@@ -9,7 +9,7 @@ import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
-import { getDataProvider, initPersistence } from '../../classes/data-provider/DataProvider.js';
+import { flushPendingWrites, getDataProvider, initPersistence } from '../../classes/data-provider/DataProvider.js';
 import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 import { logger } from '../../classes/Logger.js';
 import { makeNewProject } from '../../models/dataModel.js';
@@ -342,6 +342,10 @@ export async function createProjectFromSections(
     throw new Error('At least one section must be selected');
   }
 
+  // writes are debounced, and the natural flow here is "make some automations, then save them
+  // as a template". Without this the template silently misses anything from the last few seconds
+  await flushPendingWrites();
+
   const fileData = await parseJsonFile(projectFilePath);
   const { data } = parseDatabaseModel(fileData);
 
@@ -355,6 +359,13 @@ export async function createProjectFromSections(
   }
 
   const template = safeMerge(makeNewProject(), patch);
+
+  // makeNewProject seeds an empty rundown and safeMerge merges rundowns by key, so without
+  // this the template would ship a phantom "Default" rundown alongside the real ones
+  if (patch.rundowns !== undefined) {
+    template.rundowns = patch.rundowns;
+  }
+
   const fileNameWithExtension = generateUniqueFileName(publicDir.projectsDir, ensureJsonExtension(newFilename));
   await writeFile(getPathToProject(fileNameWithExtension), JSON.stringify(template, null, 2), 'utf-8');
 

@@ -12,11 +12,34 @@ const templateName = 'e2e-automations-template';
  * the template carries the automation and its trigger while leaving the rundown behind.
  */
 test.describe('automations', () => {
+  /**
+   * Everything created is torn down in afterEach rather than at the end of the test body:
+   * a mid-test failure would otherwise leak an automation into the project, and CI retries twice.
+   *
+   * The template is tracked by the name the server actually used, since it resolves collisions.
+   */
+  let createdTemplate: string | null = null;
+  let createdTriggers: string[] = [];
+  let createdAutomations: string[] = [];
+
   test.afterEach(async ({ request }) => {
     try {
-      await request.delete(`${dbURL}/${templateName}.json`);
+      // triggers first, the server refuses to delete an automation that is still referenced
+      for (const id of createdTriggers) {
+        await request.delete(`${automationsURL}/trigger/${id}`);
+      }
+      for (const id of createdAutomations) {
+        await request.delete(`${automationsURL}/automation/${id}`);
+      }
+      if (createdTemplate !== null) {
+        await request.delete(`${dbURL}/${createdTemplate}`);
+      }
     } catch {
-      /** nothing to do here */
+      // cleanup is best effort, it must not turn a passing test red
+    } finally {
+      createdTriggers = [];
+      createdAutomations = [];
+      createdTemplate = null;
     }
   });
 
@@ -32,13 +55,14 @@ test.describe('automations', () => {
     });
     expect(createAutomation.status()).toBe(201);
     const automation = await createAutomation.json();
+    createdAutomations.push(automation.id);
 
     // 2. bind it to a lifecycle
     const createTrigger = await request.post(`${automationsURL}/trigger`, {
       data: { title: 'e2e trigger', trigger: 'onStart', automationId: automation.id },
     });
     expect(createTrigger.status()).toBe(201);
-    const trigger = await createTrigger.json();
+    createdTriggers.push((await createTrigger.json()).id);
 
     // 3. save the automations as a template, without touching the loaded project
     const projectList = await (await request.get(`${dbURL}/all`)).json();
@@ -48,22 +72,20 @@ test.describe('automations', () => {
       data: { newFilename: templateName, sections: ['automation'] },
     });
     expect(makeTemplate.status()).toBe(201);
+    createdTemplate = (await makeTemplate.json()).filename;
+    expect(createdTemplate).toBeTruthy();
 
     // the running project is untouched
     const afterTemplate = await (await request.get(`${dbURL}/all`)).json();
     expect(afterTemplate.lastLoadedProject).toBe(currentProject);
 
     // 4. the template carries the automation and its trigger, and nothing else
-    const template = await (await request.post(`${dbURL}/download`, { data: { filename: templateName } })).json();
+    const template = await (await request.post(`${dbURL}/download`, { data: { filename: createdTemplate } })).json();
     expect(Object.values(template.automation.automations)).toContainEqual(
       expect.objectContaining({ title: 'e2e automation' }),
     );
     expect(template.automation.triggers).toContainEqual(expect.objectContaining({ title: 'e2e trigger' }));
     expect(template.urlPresets).toEqual([]);
-
-    // 5. clean up: the trigger has to go first, the server refuses to delete a referenced automation
-    expect((await request.delete(`${automationsURL}/trigger/${trigger.id}`)).status()).toBe(204);
-    expect((await request.delete(`${automationsURL}/automation/${automation.id}`)).status()).toBe(204);
   });
 
   test('refuses to delete an automation that a trigger still points at', async ({ request }) => {
@@ -77,18 +99,21 @@ test.describe('automations', () => {
         },
       })
     ).json();
+    createdAutomations.push(automation.id);
 
     const trigger = await (
       await request.post(`${automationsURL}/trigger`, {
         data: { title: 'e2e blocking trigger', trigger: 'onFinish', automationId: automation.id },
       })
     ).json();
+    createdTriggers.push(trigger.id);
 
     const refused = await request.delete(`${automationsURL}/automation/${automation.id}`);
     expect(refused.status()).toBe(400);
     expect((await refused.json()).message).toContain('e2e blocking trigger');
 
-    await request.delete(`${automationsURL}/trigger/${trigger.id}`);
+    // and it goes through once the reference is removed
+    expect((await request.delete(`${automationsURL}/trigger/${trigger.id}`)).status()).toBe(204);
     expect((await request.delete(`${automationsURL}/automation/${automation.id}`)).status()).toBe(204);
   });
 });

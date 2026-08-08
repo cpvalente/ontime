@@ -28,6 +28,7 @@ import {
 } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
+import { addAutomationFired } from '../stores/automationFired';
 import {
   getClientId,
   getClientName,
@@ -37,7 +38,6 @@ import {
   setClients,
 } from '../stores/clientStore';
 import { addDialog } from '../stores/dialogStore';
-import { addAutomationFired } from '../stores/automationFired';
 import { addLog } from '../stores/logger';
 import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
 
