@@ -1,5 +1,5 @@
 import { MaybeString, OntimeView, TimerType } from 'ontime-types';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { FitText } from '../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -8,8 +8,9 @@ import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
-import { useTimerSocket } from '../../common/hooks/useSocket';
+import { sendAnswer, useTimerSocket } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import { useClientStore } from '../../common/stores/clientStore';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
@@ -33,6 +34,8 @@ import { TimerData, useTimerData } from './useTimerData';
 
 import './Timer.scss';
 
+const ANSWER_HOLD_MS = 2000;
+
 export default function TimerLoader() {
   const { data, status } = useTimerData();
 
@@ -51,6 +54,16 @@ export default function TimerLoader() {
 
 function Timer({ customFields, projectData, isMirrored, settings, viewSettings, entries }: TimerData) {
   const { eventNext, eventNow, message, time, clock, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
+  const clientId = useClientStore((store) => store.id);
+  const [pendingAnswer, setPendingAnswer] = useState<{ text: string; answer: string } | null>(null);
+
+  useEffect(() => {
+    if (!pendingAnswer) {
+      return;
+    }
+    const timeout = setTimeout(() => setPendingAnswer(null), ANSWER_HOLD_MS);
+    return () => clearTimeout(timeout);
+  }, [pendingAnswer]);
   const {
     hideClock,
     hideCards,
@@ -123,18 +136,34 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
     return null;
   })();
 
+  // a question targets a single client; every other client should see nothing in the secondary slot
+  const secondaryIsQuestion = message.question.enabled && message.timer.secondarySource === 'secondary';
+  const isQuestionTarget = secondaryIsQuestion && message.question.target === clientId;
+  const hideSecondaryForQuestion = secondaryIsQuestion && !isQuestionTarget;
+
   const secondaryContent = getSecondaryDisplay(
     message,
     currentAux,
     localisedMinutes,
     hideTimerSeconds,
     removeLeadingZeros,
-    hideSecondary,
+    hideSecondary || hideSecondaryForQuestion,
   );
+
+  // keep the question and its buttons visible for a moment after an answer, since the
+  // server resets the question almost immediately and would otherwise hide everything mid-tap
+  const showQuestion = isQuestionTarget || pendingAnswer !== null;
+  const effectiveSecondaryContent = pendingAnswer ? pendingAnswer.text : secondaryContent;
+  const answerOptions = showQuestion ? message.question.answers.filter((option) => option !== '') : [];
+
+  const handleAnswer = (option: string) => {
+    setPendingAnswer({ text: secondaryContent ?? '', answer: option });
+    sendAnswer(option);
+  };
 
   // gather presentation styles
   const resolvedTimerColour = getTimerColour(viewSettings, timerColour, showWarning, showDanger);
-  const timerFontSize = getEstimatedFontSize(display, secondaryContent);
+  const timerFontSize = getEstimatedFontSize(display, effectiveSecondaryContent);
   const subduePaused = !isPlaying && viewTimerType !== TimerType.Clock;
   const userStyles = {
     ...(keyColour && { '--timer-bg': keyColour }),
@@ -183,12 +212,27 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
             {display}
           </div>
         )}
-        <div className={cx(['secondary', !secondaryContent && 'secondary--hidden'])}>
+        <div className={cx(['secondary', !effectiveSecondaryContent && 'secondary--hidden'])}>
           <FitText mode='multi' min={64} max={256}>
-            {secondaryContent}
+            {effectiveSecondaryContent}
           </FitText>
         </div>
       </div>
+
+      {Boolean(effectiveSecondaryContent) && answerOptions.length > 0 && (
+        <div className='answer-options'>
+          {answerOptions.map((option) => (
+            <button
+              key={option}
+              className={cx(['answer-option', pendingAnswer?.answer === option && 'answer-option--selected'])}
+              disabled={pendingAnswer !== null}
+              onClick={() => handleAnswer(option)}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      )}
 
       {showProgressBar && (
         <MultiPartProgressBar

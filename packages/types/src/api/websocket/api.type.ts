@@ -42,6 +42,15 @@ export type MessageResponse = {
   payload: MessageState;
 };
 
+export type MessageanswerAction = {
+  tag: 'messageanswer';
+  payload: string;
+};
+export type MessageanswerResponse = {
+  tag: 'messageanswer';
+  payload: MessageState;
+};
+
 export type StartAction = {
   tag: 'start';
   payload: undefined | { index: number } | { id: string } | { cue: string } | 'next' | 'previous';
@@ -147,6 +156,7 @@ export type ApiAction =
   | PollAction
   | ChangeAction
   | MessageAction
+  | MessageanswerAction
   | StartAction
   | PauseAction
   | StopAction
@@ -163,6 +173,7 @@ export type ApiResponse =
   | PollResponse
   | ChangeResponse
   | MessageResponse
+  | MessageanswerResponse
   | StartResponse
   | PauseResponse
   | StopResponse

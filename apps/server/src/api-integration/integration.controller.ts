@@ -17,7 +17,12 @@ import { willCauseRegeneration } from '../api-data/rundown/rundown.utils.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.js';
 import * as messageService from '../services/message-service/message.service.js';
-import { validateMessage, validateTimerMessage } from '../services/message-service/message.utils.js';
+import {
+  validateAnswer,
+  validateMessage,
+  validateQuestion,
+  validateTimerMessage,
+} from '../services/message-service/message.utils.js';
 import { runtimeService } from '../services/runtime-service/runtime.service.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
@@ -100,9 +105,15 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
     const patch: DeepPartial<MessageState> = {
       timer: 'timer' in payload ? validateTimerMessage(payload.timer) : undefined,
       secondary: 'secondary' in payload ? validateMessage(payload.secondary) : undefined,
+      question: 'question' in payload ? validateQuestion(payload.question) : undefined,
     };
 
     const newMessage = messageService.patch(patch);
+    return { payload: newMessage };
+  },
+  messageanswer: (payload) => {
+    const value = validateAnswer(payload);
+    const newMessage = messageService.recordAnswer(value);
     return { payload: newMessage };
   },
   /* Playback */
