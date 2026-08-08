@@ -49,6 +49,7 @@ import {
   requestEventSwap,
   requestGroupEntries,
   requestUngroup,
+  requestFitGroupTarget,
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
@@ -466,7 +467,27 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
         return previousEnd;
       }
     },
-    [getCurrentRundownData, updateEntryMutation, queryClient],
+    [getCurrentRundownData, updateEntryMutation, queryClient, resolveCurrentRundownQueryKey],
+  );
+
+  /**
+   * Updates time of existing event so it satisfies the group target duration
+   * @param eventId {EntryId} - id of the event
+   */
+  const matchGroupDuration = useCallback(
+    async (eventId: EntryId) => {
+      const rundownId = getCurrentRundownData()?.id;
+      if (!rundownId) {
+        throw new Error('Rundown not initialised');
+      }
+
+      try {
+        await requestFitGroupTarget(rundownId, eventId);
+      } catch (error) {
+        logAxiosError('Error updating event', error);
+      }
+    },
+    [getCurrentRundownData],
   );
 
   /**
@@ -1009,6 +1030,7 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
       swapEvents,
       updateEntry,
       updateTimer,
+      matchGroupDuration,
     }),
     [
       addEntry,
@@ -1026,6 +1048,7 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
       swapEvents,
       updateEntry,
       updateTimer,
+      matchGroupDuration,
     ],
   );
 }

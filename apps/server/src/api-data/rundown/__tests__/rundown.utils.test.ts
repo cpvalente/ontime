@@ -8,7 +8,7 @@ import {
   TimerType,
   Trigger,
 } from 'ontime-types';
-import { MILLIS_PER_HOUR, createEvent } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, createEvent } from 'ontime-utils';
 import { assertType } from 'vitest';
 
 import { makeOntimeEvent, makeOntimeGroup, makeOntimeMilestone, makeRundown } from '../__mocks__/rundown.mocks.js';
@@ -22,6 +22,7 @@ import {
   makeDeepClone,
   mergeRundownPreservingFields,
   isLoadedPlayable,
+  eventDurationMatchGroupTarget,
 } from '../rundown.utils.js';
 
 describe('test event validator', () => {
@@ -608,5 +609,109 @@ describe('isLoadedPlayable()', () => {
   it('returns false when the matched entry is no longer an event', () => {
     const rundown = makeRundown({ order: ['keynote'], entries: { keynote: makeOntimeGroup({ id: 'keynote' }) } });
     expect(isLoadedPlayable('keynote', rundown)).toBe(false);
+  });
+});
+
+describe('eventDurationMatchGroupTarget()', () => {
+  it('returns unchanged duration when group already matches target', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_HOUR,
+      groupDuration: MILLIS_PER_HOUR,
+      eventDuration: MILLIS_PER_MINUTE * 30,
+    });
+    expect(result).toStrictEqual(null);
+  });
+
+  it('increases event duration when group is shorter than target', () => {
+    // Group is 1h short of target, so event duration increases by 1h
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_HOUR * 2, // 2h
+      groupDuration: MILLIS_PER_HOUR, // 1h
+      eventDuration: MILLIS_PER_MINUTE * 30, // 30m
+    });
+    expect(result).toStrictEqual(MILLIS_PER_HOUR + MILLIS_PER_MINUTE * 30); // 1h30m
+  });
+
+  it('decreases event duration when group is longer than target', () => {
+    // Group is 30m over target, so event duration decreases by 30m
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_HOUR, // 1h
+      groupDuration: MILLIS_PER_HOUR + MILLIS_PER_MINUTE * 30, // 1h30m
+      eventDuration: MILLIS_PER_MINUTE * 30, // 30m
+    });
+    expect(result).toStrictEqual(0);
+  });
+
+  it('handles zero target duration', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: 0,
+      groupDuration: MILLIS_PER_HOUR,
+      eventDuration: MILLIS_PER_HOUR,
+    });
+    expect(result).toStrictEqual(0);
+  });
+
+  it('handles zero group duration', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_HOUR,
+      groupDuration: 0,
+      eventDuration: MILLIS_PER_MINUTE * 30,
+    });
+    expect(result).toStrictEqual(MILLIS_PER_HOUR + MILLIS_PER_MINUTE * 30);
+  });
+
+  it('handles zero event duration', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_HOUR,
+      groupDuration: MILLIS_PER_MINUTE * 30,
+      eventDuration: 0,
+    });
+    expect(result).toStrictEqual(MILLIS_PER_HOUR - MILLIS_PER_MINUTE * 30);
+  });
+
+  it('handles all zero values', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: 0,
+      groupDuration: 0,
+      eventDuration: 0,
+    });
+    expect(result).toStrictEqual(null);
+  });
+
+  it('returns null when result would be negative', () => {
+    // Group exceeds target by 1.5h, event shrinks by 1.5h (exceeds event duration)
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_MINUTE * 30,
+      groupDuration: MILLIS_PER_HOUR * 2,
+      eventDuration: MILLIS_PER_HOUR,
+    });
+    expect(result).toStrictEqual(null);
+  });
+
+  it('handles large durations', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_HOUR * 24, // 24h
+      groupDuration: MILLIS_PER_HOUR * 12, // 12h
+      eventDuration: MILLIS_PER_HOUR, // 1h
+    });
+    expect(result).toStrictEqual(MILLIS_PER_HOUR * 13); // 13h
+  });
+
+  it('returns null when targetDuration is null', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: null,
+      groupDuration: MILLIS_PER_HOUR,
+      eventDuration: MILLIS_PER_MINUTE * 30,
+    });
+    expect(result).toStrictEqual(null);
+  });
+
+  it('returns null when duration would be over 24h', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: 30 * MILLIS_PER_HOUR,
+      groupDuration: MILLIS_PER_HOUR,
+      eventDuration: MILLIS_PER_MINUTE * 30,
+    });
+    expect(result).toStrictEqual(null);
   });
 });

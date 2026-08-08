@@ -35,6 +35,7 @@ import {
   reorderEntry,
   swapEvents,
   ungroupEntries,
+  entryFitGroupDuration,
 } from './rundown.service.js';
 import { normalisedToRundownArray } from './rundown.utils.js';
 import {
@@ -336,6 +337,23 @@ router.post('/:rundownId/ungroup/:id', paramsWithId, async (req: Request, res: R
     res.status(400).send({ message });
   }
 });
+
+/**
+ * Change a events duration to fit inside the group target
+ */
+router.post(
+  '/:rundownId/:id/fit-group-duration',
+  paramsWithId,
+  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const rundown = await entryFitGroupDuration(req.params.rundownId, req.params.id);
+      res.status(200).send(rundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
 
 /**
  * Deletes a list of entries by their ID

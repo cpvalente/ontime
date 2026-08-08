@@ -47,6 +47,7 @@ import {
   hasChanges,
   mergeRundownPreservingFields,
   isLoadedPlayable,
+  eventDurationMatchGroupTarget,
 } from './rundown.utils.js';
 import { assertInsertAnchorExists, assertInsertAnchorInOrder, assertSingleInsertAnchor } from './rundown.validation.js';
 
@@ -442,6 +443,69 @@ export async function cloneEntry(rundownId: string, entryId: EntryId, options: I
     } else if (isOntimeDelay(newEntry)) {
       notifyChanges(rundown.id, rundownMetadata, revision, { external: true });
     }
+  });
+
+  return rundownResult;
+}
+
+/**
+ *  Change a events duration to fit inside the group target
+ */
+export async function entryFitGroupDuration(rundownId: string, entryId: EntryId): Promise<Rundown> {
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
+
+  const entry = rundown.entries[entryId];
+
+  if (!entry) {
+    throw new Error('Entry not found');
+  }
+
+  if (!isOntimeEvent(entry)) {
+    throw new Error('Entry must be an event');
+  }
+
+  const { parent } = entry;
+  if (!parent) {
+    throw new Error('Entry must be in a group');
+  }
+
+  const group = rundown.entries[parent];
+
+  if (!group) {
+    throw new Error('Group not found');
+  }
+
+  if (!isOntimeGroup(group)) {
+    throw new Error('Group is not a group');
+  }
+
+  const newDuration = eventDurationMatchGroupTarget({
+    targetDuration: group.targetDuration,
+    groupDuration: group.duration,
+    eventDuration: entry.duration,
+  });
+
+  if (newDuration === null) {
+    throw new Error('Unable to fit a duration');
+  }
+
+  const newEnd = entry.timeStart + newDuration;
+
+  rundownMutation.edit(rundown, {
+    id: entryId,
+    duration: newDuration,
+    timeEnd: newEnd,
+    timeStrategy: entry.timeStrategy,
+  });
+  const { rundown: rundownResult, rundownMetadata, revision } = await commit();
+
+  // schedule the side effects
+  setImmediate(() => {
+    // notify runtime that rundown has changed
+    updateRuntimeOnChange(rundownMetadata);
+
+    // we need to notify the timer since we might be changing a running event
+    notifyChanges(rundown.id, rundownMetadata, revision, { external: true, timer: true });
   });
 
   return rundownResult;

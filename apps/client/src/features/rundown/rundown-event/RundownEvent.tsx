@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Day, EndAction, EntryId, Playback, TimeStrategy, TimerType } from 'ontime-types';
+import { Day, EndAction, EntryId, Maybe, OntimeGroup, Playback, TimeStrategy, TimerType } from 'ontime-types';
 import { isPlaybackActive } from 'ontime-utils';
 import { MouseEvent, useEffect, useRef } from 'react';
 import {
@@ -13,9 +13,10 @@ import {
   IoTrash,
   IoUnlink,
 } from 'react-icons/io5';
-import { TbFlagFilled, TbListNumbers } from 'react-icons/tb';
+import { TbClockPin, TbFlagFilled, TbListNumbers } from 'react-icons/tb';
 
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
+import { useEntry } from '../../../common/hooks-query/useRundown';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
 import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';
@@ -102,7 +103,10 @@ export default function RundownEvent({
   const clearSelectedEventId = useEventIdSwapping((state) => state.clearSelectedEventId);
   const openRenumberDialog = useRenumberCuesDialogStore((state) => state.onOpen);
 
-  const { updateEntry, batchUpdateEvents, clone, deleteEntry, groupEntries, swapEvents } = useEntryActionsContext();
+  const parentGroup = useEntry(parent) as Maybe<OntimeGroup>;
+
+  const { updateEntry, batchUpdateEvents, clone, deleteEntry, groupEntries, swapEvents, matchGroupDuration } =
+    useEntryActionsContext();
 
   const isSelected = useEventSelection((state) => state.selectedEvents.has(eventId));
   const unselect = useEventSelection((state) => state.unselect);
@@ -113,6 +117,15 @@ export default function RundownEvent({
   const entryCopyId = useEntryCopy((state) => state.entryCopyId);
 
   const handleRef = useRef<null | HTMLSpanElement>(null);
+
+  const [enableMatchDuration, groupTargetDurationDescription] = (() => {
+    if (!parentGroup || parentGroup.targetDuration === null || parentGroup.duration === parentGroup.targetDuration)
+      return [false, ''];
+    const { targetDuration, duration } = parentGroup;
+    return targetDuration > duration
+      ? [true, 'Increase event duration to fit the group target']
+      : [true, 'Decrease event duration to fit the group target'];
+  })();
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>(() =>
     selectedEvents.size > 1
@@ -171,6 +184,17 @@ export default function RundownEvent({
             onClick: () => {
               updateEntry({ id: eventId, flag: !flag });
             },
+          },
+          {
+            type: 'item',
+            label: 'Match Group Target Duration',
+            description: groupTargetDurationDescription,
+            icon: TbClockPin,
+            onClick: () => {
+              if (!parent) return;
+              matchGroupDuration(eventId);
+            },
+            disabled: !enableMatchDuration,
           },
           { type: 'divider' },
           {
