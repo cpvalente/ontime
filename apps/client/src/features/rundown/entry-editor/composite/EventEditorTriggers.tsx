@@ -6,8 +6,11 @@ import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Info from '../../../../common/components/info/Info';
 import Select from '../../../../common/components/select/Select';
+import Tag from '../../../../common/components/tag/Tag';
+import { getLifecycleLabel } from '../../../../common/constants/timerLifecycle';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
+import { summariseOutputs } from '../../../../common/utils/automationOutputs';
 import { eventTriggerOptions } from './eventTrigger.constants';
 
 import style from './EventEditorTriggers.module.scss';
@@ -27,7 +30,7 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
     label: title,
   }));
   const hasAutomationOptions = allAutomationOptions.length > 0;
-  const triggerOptions = eventTriggerOptions.map((cycle) => ({ value: cycle, label: cycle }));
+  const triggerOptions = eventTriggerOptions.map((cycle) => ({ value: cycle, label: getLifecycleLabel(cycle) }));
 
   const duplicateIds = new Set<string>();
   const seen = new Map<string, string>();
@@ -76,6 +79,7 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
           <div className={style.triggerHeader}>
             <span>Lifecycle</span>
             <span>Automation</span>
+            <span>Sends</span>
           </div>
           {triggers.map((trigger) => {
             const isDuplicate = duplicateIds.has(trigger.id);
@@ -103,6 +107,13 @@ export default function EventEditorTriggers({ triggers, eventId }: EventEditorTr
                   }}
                   options={automationOptions}
                 />
+                <div className={style.outputTags}>
+                  {summariseOutputs(automationSettings.automations[trigger.automationId]?.outputs ?? []).map(
+                    ({ type, label, count }) => (
+                      <Tag key={type}>{count > 1 ? `${label} ×${count}` : label}</Tag>
+                    ),
+                  )}
+                </div>
                 <IconButton variant='ghosted-destructive' onClick={() => handleDelete(trigger.id)}>
                   <IoTrash />
                 </IconButton>

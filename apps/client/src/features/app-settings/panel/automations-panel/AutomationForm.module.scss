@@ -26,61 +26,84 @@
   gap: 1rem;
 }
 
-.titleSection,
-.filterSection,
-.oscSection,
-.httpSection,
-.actionSection {
+.titleSection {
   display: grid;
+  grid-template-columns: 1fr;
   grid-gap: 0.5rem;
-
-  button {
-    align-self: flex-end;
-  }
 }
 
 .titleSection,
 .ruleSection,
-.filterSection,
-.oscSection,
-.httpSection,
-.actionSection {
-  label,
-  div {
-    // we use the div as non-interactive placeholder for button cells
-    // it needs to match the size of the label element
-    font-size: calc(1rem - 3px);
-  }
+.card {
   label {
+    display: block;
+    font-size: calc(1rem - 3px);
     color: $label-gray;
   }
 }
 
-.titleSection {
-  grid-template-columns: 1fr;
-}
-
-.filterSection {
-  grid-template-columns: 2fr 1fr 2fr auto;
-}
-
-.oscSection {
-  grid-template-columns: 9rem 5rem 3fr 4fr auto;
-}
-
-.httpSection {
-  grid-template-columns: 1fr auto;
-}
-
-.actionSection {
-  grid-template-columns: auto 1fr 1fr auto;
-
-  .test {
-    grid-column: -1;
-  }
-}
-
-.outputCard {
+/** shared shell for a single filter or output */
+.card {
+  border: 1px solid $white-10;
   border-left: 0.25rem solid $gray-1200;
-  padding-left: 0.5rem;
+  border-radius: $component-border-radius-md;
+  background-color: $black-10;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid $white-10;
+}
+
+/** pushes the actions to the end of the header, and absorbs any overflow */
+.cardSummary {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: $aux-text-size;
+  color: $secondary-text-gray;
+}
+
+.cardBody {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.5rem 0.75rem;
+  padding: 0.75rem;
+}
+
+/** for fields that read badly when narrow: OSC address and args, URLs, message text */
+.spanFull {
+  grid-column: 1 / -1;
+}
+
+.testOk {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: $aux-text-size;
+  color: $green-400;
+}
+
+.testError {
+  padding: 0 0.75rem 0.5rem;
+}
+
+.tagOsc {
+  background-color: $blue-1000;
+  color: $blue-300;
+}
+
+.tagHttp {
+  background-color: $green-1000;
+  color: $green-300;
+}
+
+.tagOntime {
+  background-color: $gray-1000;
+  color: $gray-200;
 }

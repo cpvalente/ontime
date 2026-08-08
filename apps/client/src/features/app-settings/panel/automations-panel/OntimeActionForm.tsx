@@ -1,5 +1,5 @@
 import { AutomationDTO, OntimeAction, OntimeActionKey, SecondarySource } from 'ontime-types';
-import { PropsWithChildren, useState } from 'react';
+import { useState } from 'react';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
 import Input from '../../../../common/components/input/input/Input';
@@ -30,9 +30,8 @@ export default function OntimeActionForm({
   setValue,
   rowErrors,
   value,
-  children,
   watch,
-}: PropsWithChildren<OntimeActionFormProps>) {
+}: OntimeActionFormProps) {
   const [selectedAction, setSelectedAction] = useState<string>(value);
 
   const handleSetAction = (value: OntimeActionKey) => {
@@ -41,7 +40,7 @@ export default function OntimeActionForm({
   };
 
   return (
-    <div className={style.actionSection}>
+    <>
       <label>
         Action
         <Select
@@ -95,7 +94,7 @@ export default function OntimeActionForm({
 
       {selectedAction === 'message-set' && (
         <>
-          <label>
+          <label className={style.spanFull}>
             Text (leave empty for no change)
             <TemplateInput
               {...register(`outputs.${index}.text`)}
@@ -127,7 +126,7 @@ export default function OntimeActionForm({
 
       {selectedAction === 'message-secondary' && (
         <>
-          <label>
+          <label className={style.spanFull}>
             Text (leave empty for no change)
             <TemplateInput
               {...register(`outputs.${index}.text`)}
@@ -169,8 +168,6 @@ export default function OntimeActionForm({
           </label>
         </>
       )}
-
-      <div className={style.test}>{children}</div>
-    </div>
+    </>
   );
 }
