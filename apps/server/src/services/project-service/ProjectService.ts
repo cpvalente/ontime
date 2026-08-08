@@ -6,6 +6,8 @@ import { getErrorMessage, getFirstRundown } from 'ontime-utils';
 
 import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
 import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
+import { initReports } from '../../api-data/report/report.service.js';
+import { deleteReportsForProject, renameReportsForProject } from '../report-service/report.store.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
@@ -63,6 +65,7 @@ function init() {
   ensureDirectory(publicDir.corruptDir);
   ensureDirectory(publicDir.logoDir);
   ensureDirectory(publicDir.migrateDir);
+  ensureDirectory(publicDir.reportsDir);
 }
 
 export async function getCurrentProject(): Promise<{ filename: string; pathToFile: string }> {
@@ -87,6 +90,9 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
 
   // stop the runtime service
   runtimeService.stop();
+
+  // point reporting at this project's sidecar, reports do not cross projects
+  await initReports(fileName);
 
   // load the rundown given by key otherwise load the first in the project
   const rundown =
@@ -263,6 +269,8 @@ export async function duplicateProjectFile(originalFile: string, newFilename: st
 
   const pathToDuplicate = getPathToProject(newFilename);
   await copyFile(projectFilePath, pathToDuplicate);
+  // deliberately not copying report history: a duplicate is a new show and
+  // inheriting another project's run history would be misleading
   return;
 }
 
@@ -283,6 +291,9 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
 
   const pathToRenamed = getPathToProject(newFilename);
   await dockerSafeRename(projectFilePath, pathToRenamed);
+
+  // run history follows the project it belongs to
+  await renameReportsForProject(originalFile, newFilename);
 
   // Update the last loaded project config if current loaded project is the one being renamed
   const isLoaded = await isLastLoadedProject(originalFile);
@@ -332,6 +343,8 @@ export async function deleteProjectFile(filename: string) {
   }
 
   await deleteFile(projectFilePath);
+  // reports are owned by their project and do not outlive it
+  await deleteReportsForProject(filename);
 }
 
 /**

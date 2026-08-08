@@ -1,104 +1,57 @@
-import { useMemo } from 'react';
-import { IoTrashBin } from 'react-icons/io5';
+import { useEffect, useState } from 'react';
 
-import { deleteAllReport } from '../../../../common/api/report';
-import { createBlob, downloadBlob } from '../../../../common/api/utils';
-import Button from '../../../../common/components/buttons/Button';
-import useReport from '../../../../common/hooks-query/useReport';
-import useRundown from '../../../../common/hooks-query/useRundown';
-import { cx } from '../../../../common/utils/styleUtils';
-import { formatTime } from '../../../../common/utils/time';
+import Select from '../../../../common/components/select/Select';
+import { useProjectRundowns } from '../../../../common/hooks-query/useProjectRundowns';
+import useRuns from '../../../../common/hooks-query/useRuns';
 import * as Panel from '../../panel-utils/PanelUtils';
-import { CombinedReport, getCombinedReport, makeReportCSV } from './reportSettings.utils';
+import RunDetail from './composite/RunDetail';
+import RunsList from './composite/RunsList';
 
-import style from './ReportSettings.module.scss';
+const allRundowns = 'all';
 
 export default function ReportSettings() {
-  const { data: reportData } = useReport();
-  const { data } = useRundown();
+  const { data: rundownsList } = useProjectRundowns();
+  const [rundownFilter, setRundownFilter] = useState<string>(allRundowns);
+  const { data: runs } = useRuns(rundownFilter === allRundowns ? undefined : rundownFilter);
+  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
 
-  const clearReport = async () => await deleteAllReport();
-  const downloadCSV = (combinedReport: CombinedReport[]) => {
-    if (!combinedReport) {
-      return;
-    }
-    const csv = makeReportCSV(combinedReport);
-    const blob = createBlob(csv, 'text/csv;charset=utf-8;');
-    downloadBlob(blob, 'ontime-report.csv');
-  };
+  // keep a valid selection: default to the most recent run, and fall off the
+  // current one when it drops out of the filtered list
+  useEffect(() => {
+    if (selectedRunId && runs.some((run) => run.id === selectedRunId)) return;
+    setSelectedRunId(runs[0]?.id ?? null);
+  }, [runs, selectedRunId]);
 
-  const combinedReport = useMemo(() => {
-    return getCombinedReport(reportData, data.entries, data.flatOrder);
-  }, [reportData, data.entries, data.flatOrder]);
+  const rundownOptions = [
+    { value: allRundowns, label: 'All rundowns' },
+    ...rundownsList.rundowns.map((rundown) => ({ value: rundown.id, label: rundown.title || 'Untitled rundown' })),
+  ];
 
   return (
     <Panel.Section>
       <Panel.Card>
-        <Panel.SubHeader>Report</Panel.SubHeader>
+        <Panel.SubHeader>
+          Show reports
+          {rundownsList.rundowns.length > 1 && (
+            <Select
+              value={rundownFilter}
+              onValueChange={(value: string | null) => value && setRundownFilter(value)}
+              options={rundownOptions}
+            />
+          )}
+        </Panel.SubHeader>
         <Panel.Divider />
-        <Panel.Section>
-          <Panel.Title>
-            Manage report
-            <Panel.InlineElements>
-              <Button onClick={() => downloadCSV(combinedReport)} disabled={combinedReport.length === 0}>
-                <IoTrashBin />
-                Export CSV
-              </Button>
-              <Button variant='subtle-destructive' onClick={clearReport} disabled={combinedReport.length === 0}>
-                <IoTrashBin />
-                Clear All
-              </Button>
-            </Panel.InlineElements>
-          </Panel.Title>
-        </Panel.Section>
-        <Panel.Section>
-          <Panel.Table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Cue</th>
-                <th>Title</th>
-                <th>Scheduled Start</th>
-                <th>Actual Start</th>
-                <th>Scheduled End</th>
-                <th>Actual End</th>
-              </tr>
-            </thead>
-            <tbody>
-              {combinedReport.length === 0 && (
-                <Panel.TableEmpty
-                  title='No report data yet'
-                  description='Reports are generated as you run through the show, comparing scheduled times against what actually happened.'
-                />
-              )}
-
-              {combinedReport.map((entry) => {
-                const start = (() => {
-                  if (entry.actualStart === null) return null;
-                  if (entry.actualStart <= entry.scheduledStart) return 'under';
-                  return 'over';
-                })();
-                const end = (() => {
-                  if (entry.actualEnd === null) return null;
-                  if (entry.actualEnd <= entry.scheduledEnd) return 'under';
-                  return 'over';
-                })();
-                return (
-                  <tr key={entry.id}>
-                    <th>{entry.index}</th>
-                    <th>{entry.cue}</th>
-                    <th>{entry.title}</th>
-                    <th className={cx([start && style[start]])}>{formatTime(entry.scheduledStart)}</th>
-                    <th className={cx([start && style[start]])}>{formatTime(entry.actualStart)}</th>
-                    <th className={cx([end && style[end]])}>{formatTime(entry.scheduledEnd)}</th>
-                    <th className={cx([end && style[end]])}>{formatTime(entry.actualEnd)}</th>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Panel.Table>
-        </Panel.Section>
+        <Panel.Paragraph>
+          A run is created the first time an event is started, and is added to history once playback stops. Every
+          run keeps its own snapshot of the schedule, so editing the rundown later does not change past reports.
+        </Panel.Paragraph>
+        <RunsList runs={runs} rundownId={rundownFilter === allRundowns ? undefined : rundownFilter} selectedRunId={selectedRunId} onSelect={setSelectedRunId} />
       </Panel.Card>
+      {selectedRunId && (
+        <Panel.Card>
+          <RunDetail runId={selectedRunId} />
+        </Panel.Card>
+      )}
     </Panel.Section>
   );
 }

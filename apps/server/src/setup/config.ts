@@ -23,6 +23,7 @@ export const config = {
   external: 'external',
   demo: 'demo',
   projects: 'projects',
+  reports: 'reports',
   sheets: {
     directory: 'sheets',
   },

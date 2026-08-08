@@ -17,7 +17,7 @@ import {
 import { millisToString, validatePlayback } from 'ontime-utils';
 
 import { triggerAutomations } from '../../api-data/automation/automation.service.js';
-import { triggerReportEntry } from '../../api-data/report/report.service.js';
+import { closeRun, triggerReportEntry } from '../../api-data/report/report.service.js';
 import { getCurrentRundown, getEntryWithId, getRundownMetadata } from '../../api-data/rundown/rundown.dao.js';
 import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 import { logger } from '../../classes/Logger.js';
@@ -523,6 +523,8 @@ class RuntimeService {
       logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
       process.nextTick(() => {
         triggerReportEntry(TimerLifeCycle.onStop, previousState);
+        // a full stop unloads the events, which is the operator ending the show
+        closeRun();
         triggerAutomations(TimerLifeCycle.onStop);
       });
 

@@ -1,0 +1,12 @@
+.row {
+  cursor: pointer;
+
+  &:hover {
+    background-color: $white-3;
+  }
+}
+
+.current {
+  // marker consumed by the shared Panel.Table active-row treatment
+  background-color: inherit;
+}

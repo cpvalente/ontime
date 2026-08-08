@@ -1,0 +1,32 @@
+th.over {
+  color: $playback-over;
+}
+
+th.under {
+  color: $playback-under;
+}
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 0 var(--panel-card-padding, 2rem);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.statLabel {
+  font-size: calc(1rem - 3px);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: $gray-300;
+}
+
+.statValue {
+  font-size: 1rem;
+  font-weight: 600;
+}

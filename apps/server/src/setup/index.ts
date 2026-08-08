@@ -124,6 +124,8 @@ export const publicDir = {
   crashDir: join(resolvePublicDirectory, config.crash),
   /** path to projects folder */
   projectsDir: join(resolvePublicDirectory, config.projects),
+  /** path to show reports folder, one sidecar file per project */
+  reportsDir: join(resolvePublicDirectory, config.reports),
   /** path to corrupt folder */
   corruptDir: join(resolvePublicDirectory, config.corrupt),
   /** path to migrated folder */

@@ -16,4 +16,10 @@
   &.due {
     color: $warning-orange;
   }
+
+  // preview of how this event went last time it ran, shown before it plays again
+  &.muted {
+    color: $label-gray;
+    opacity: 0.7;
+  }
 }

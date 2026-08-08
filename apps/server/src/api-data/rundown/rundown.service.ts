@@ -25,6 +25,7 @@ import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { logger } from '../../classes/Logger.js';
 import { makeNewRundown } from '../../models/dataModel.js';
 import { setLastLoadedRundown } from '../../services/app-state-service/AppStateService.js';
+import { deleteRunsForRundown } from '../../services/report-service/report.store.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
@@ -891,6 +892,9 @@ export async function deleteRundown(id: string) {
   }
 
   const projectRundowns = await dataProvider.deleteRundown(id);
+
+  // a rundown's run history has no meaning once the rundown is gone
+  await deleteRunsForRundown(id);
 
   setImmediate(() => {
     sendRefetch(RefetchKey.ProjectRundowns);

@@ -99,6 +99,15 @@ export {
 
 export { isPlaybackActive } from './src/playback-utils/playbackstate.js';
 
+// feature business logic - reports
+export {
+  countPlannedEvents,
+  getEventVariance,
+  getRunSummary,
+  type EventVariance,
+  type VarianceStatus,
+} from './src/report-utils/reportUtils.js';
+
 //Colour
 export {
   colourToHex,

@@ -26,6 +26,16 @@ export function useProjectRundowns() {
   return { data: data ?? { loaded: '', rundowns: [] }, status, isError, refetch, isFetching };
 }
 
+/**
+ * The id of the currently loaded rundown, or null if none is loaded yet.
+ * Reads from the same lightweight summary query as `useProjectRundowns`, so
+ * consumers that only need the id are not subscribed to full rundown entries.
+ */
+export function useLoadedRundownId(): string | null {
+  const { data } = useProjectRundowns();
+  return data.loaded || null;
+}
+
 export function useMutateProjectRundowns() {
   const ontimeQueryClient = useQueryClient();
 
