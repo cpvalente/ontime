@@ -16,6 +16,7 @@ import { TbClockPin } from 'react-icons/tb';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import Tag from '../../../common/components/tag/Tag';
+import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
@@ -190,16 +191,18 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
             <div className={style.metaLabel}>End</div>
             <div>{formatTime(data.timeEnd)}</div>
           </div>
-          <div className={style.metaEntry}>
-            <div className={style.metaLabel}>
-              Duration
-              {data.targetDuration !== null && <IoLockClosed className={style.lockIcon} />}
+          <Tooltip text={'Group has target duration'} disabled={data.targetDuration === null}>
+            <div className={style.metaEntry}>
+              <div className={style.metaLabel}>
+                Duration
+                {data.targetDuration !== null && <IoLockClosed className={style.lockIcon} />}
+              </div>
+              <div className={cx([style.duration, planOffset && style.warning])}>
+                <span className={style.strike}>{formatDuration(data.duration)}</span>
+                {planOffset && <Tag className={style.offsetLabel}>{planOffset}</Tag>}
+              </div>
             </div>
-            <div className={cx([style.duration, planOffset && style.warning])}>
-              <span className={style.strike}>{formatDuration(data.duration)}</span>
-              {planOffset && <Tag className={style.offsetLabel}>{planOffset}</Tag>}
-            </div>
-          </div>
+          </Tooltip>
         </div>
       </div>
     </div>
