@@ -10,8 +10,9 @@ import {
   IoFolderOpenOutline,
   IoReorderTwo,
   IoTrash,
+  IoLockClosed,
 } from 'react-icons/io5';
-import { TbTargetArrow, TbClockPin } from 'react-icons/tb';
+import { TbClockPin } from 'react-icons/tb';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import Tag from '../../../common/components/tag/Tag';
@@ -192,7 +193,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
           <div className={style.metaEntry}>
             <div className={style.metaLabel}>
               Duration
-              {data.targetDuration !== null && <TbTargetArrow className={style.lockIcon} />}
+              {data.targetDuration !== null && <IoLockClosed className={style.lockIcon} />}
             </div>
             <div className={cx([style.duration, planOffset && style.warning])}>
               <span className={style.strike}>{formatDuration(data.duration)}</span>
