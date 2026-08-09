@@ -100,7 +100,7 @@ function makeFileMenu(askToQuit, serverUrl, redirectWindow, showDialog, download
     submenu: [
       {
         label: 'New project...',
-        click: () => redirectWindow('/editor?settings=project__manage&new=true'),
+        click: () => redirectWindow('/editor?settings=project__create'),
       },
       {
         label: 'Load...',
@@ -201,6 +201,18 @@ function makeSettingsMenu(redirectWindow) {
           {
             label: 'View settings',
             click: () => redirectWindow('/editor?settings=settings__view'),
+          },
+          {
+            label: 'Custom views',
+            click: () => redirectWindow('/editor?settings=settings__custom-views'),
+          },
+          {
+            label: 'MCP Server',
+            click: () => redirectWindow('/editor?settings=settings__mcp'),
+          },
+          {
+            label: 'Server port',
+            click: () => redirectWindow('/editor?settings=settings__port'),
           },
         ],
       },
