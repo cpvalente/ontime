@@ -13,23 +13,27 @@ test('time until absolute', async ({ context }) => {
   await editor.getByRole('button', { name: 'Rundown menu' }).click();
   await editor.getByRole('menuitem', { name: 'Clear all' }).click();
   await editor.getByRole('button', { name: 'Delete all' }).click();
+  await expect(editor.getByTestId('rundown-event')).toHaveCount(0);
 
   await editor.getByRole('button', { name: 'Create Event' }).click();
+  await expect(editor.getByTestId('rundown-event')).toHaveCount(1);
   await editor.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await expect(editor.getByTestId('rundown-event')).toHaveCount(2);
   await editor.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await expect(editor.getByTestId('rundown-event')).toHaveCount(3);
   await editor.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await expect(editor.getByTestId('rundown-event')).toHaveCount(4);
 
   await editor.getByTestId('entry-1').getByTestId('rundown-event').click();
-  const ids = new Array<string>();
-  ids.push(await editor.getByTestId('editor-container').getByLabel('Event ID (read only)').inputValue());
+  const entry1Id = await editor.getByTestId('editor-container').getByLabel('Event ID (read only)').inputValue();
   await editor.getByTestId('entry-2').getByTestId('rundown-event').click();
-  ids.push(await editor.getByTestId('editor-container').getByLabel('Event ID (read only)').inputValue());
+  const entry2Id = await editor.getByTestId('editor-container').getByLabel('Event ID (read only)').inputValue();
   await editor.getByTestId('entry-3').getByTestId('rundown-event').click();
-  ids.push(await editor.getByTestId('editor-container').getByLabel('Event ID (read only)').inputValue());
+  const entry3Id = await editor.getByTestId('editor-container').getByLabel('Event ID (read only)').inputValue();
   await editor.getByTestId('entry-4').getByTestId('rundown-event').click();
-  ids.push(await editor.getByTestId('editor-container').getByLabel('Event ID (read only)').inputValue());
+  const entry4Id = await editor.getByTestId('editor-container').getByLabel('Event ID (read only)').inputValue();
 
-  await countdown.goto(`/countdown?${ids.join('&sub=')}`);
+  await countdown.goto(`/countdown?${entry1Id}&sub=${entry2Id}&sub=${entry3Id}&sub=${entry4Id}`);
 
   // Create reusable locator references for different elements
   const entry2 = {
@@ -57,8 +61,10 @@ test('time until absolute', async ({ context }) => {
 
   await editor.getByRole('button', { name: 'Absolute' }).click();
   await editor.getByTestId('entry-1').getByLabel('Start event').click();
+  await expect(editor.getByTestId('entry-1').getByLabel('Pause event')).toBeVisible();
   await expect(editor.getByTestId('offset')).not.toContainText('0:00'); // This might be a bad test requires that the test is not run at 0h
-  await editor.getByLabel('Pause event').click();
+  await editor.getByTestId('entry-1').getByLabel('Pause event').click();
+  await expect(editor.getByTestId('entry-1').getByLabel('Start event')).toBeVisible();
 
   // 1. initial check
   await expect(entry2.editorEvent).toContainText('9m');
@@ -129,22 +135,29 @@ test('time until absolute', async ({ context }) => {
 
 test('time until relative', async ({ context }) => {
   const editor = await context.newPage();
-  editor.goto('/editor');
+  await editor.goto('/editor');
 
   await editor.getByRole('button', { name: 'Edit' }).click();
   await editor.getByRole('button', { name: 'Rundown menu' }).click();
   await editor.getByRole('menuitem', { name: 'Clear all' }).click();
   await editor.getByRole('button', { name: 'Delete all' }).click();
+  await expect(editor.getByTestId('rundown-event')).toHaveCount(0);
 
   await editor.getByRole('button', { name: 'Create Event' }).click();
-  await editor.getByRole('button', { name: 'Event' }).nth(4).click();
+  await expect(editor.getByTestId('rundown-event')).toHaveCount(1);
   await editor.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await expect(editor.getByTestId('rundown-event')).toHaveCount(2);
   await editor.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await expect(editor.getByTestId('rundown-event')).toHaveCount(3);
+  await editor.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await expect(editor.getByTestId('rundown-event')).toHaveCount(4);
 
   await editor.getByRole('button', { name: 'Relative' }).click();
   await editor.getByTestId('entry-1').getByLabel('Start event').click();
+  await expect(editor.getByTestId('entry-1').getByLabel('Pause event')).toBeVisible();
   await expect(editor.getByTestId('offset')).toContainText('0:00'); // This might be a bad test as it ruires the evaluation to happen within 1s
-  await editor.getByLabel('Pause event').click();
+  await editor.getByTestId('entry-1').getByLabel('Pause event').click();
+  await expect(editor.getByTestId('entry-1').getByLabel('Start event')).toBeVisible();
 
   await expect(editor.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('9m');
   await expect(editor.getByTestId('entry-3').getByTestId('rundown-event')).toContainText('19m');

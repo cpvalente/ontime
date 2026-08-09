@@ -71,11 +71,15 @@ test('Move', async ({ page }) => {
   await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(0);
 
   // create events
   await page.getByRole('button', { name: 'Create Event' }).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(1);
   await page.getByRole('button', { name: 'Event' }).nth(4).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(2);
   await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(3);
 
   // copy move down
   await page.getByTestId('entry-1').getByTestId('rundown-event').getByText('1').click();
@@ -86,15 +90,16 @@ test('Move', async ({ page }) => {
     .press('Alt+Control+ArrowDown');
   await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('1');
 
-  // copy move up
+  // move entry three up twice, waiting for each reorder before targeting its new row
   await page.getByTestId('entry-3').getByTestId('rundown-event').getByText('3').click();
   await page
     .getByTestId('entry-3')
     .getByTestId('rundown-event')
     .filter({ hasText: '3' })
     .press('Alt+ControlOrMeta+ArrowUp');
+  await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('3');
   await page
-    .getByTestId('entry-3')
+    .getByTestId('entry-2')
     .getByTestId('rundown-event')
     .filter({ hasText: '3' })
     .press('Alt+ControlOrMeta+ArrowUp');
