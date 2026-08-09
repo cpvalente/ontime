@@ -85,10 +85,10 @@ export default function ServerPortSettings() {
             </Button>
           </Panel.InlineElements>
         </Panel.SubHeader>
-        <Panel.Loader isLoading={status === 'pending'} />
         {rootError && <Panel.Error>{rootError}</Panel.Error>}
         <Panel.Divider />
         <Panel.Section>
+          <Panel.Loader isLoading={status === 'pending'} />
           {data.pendingRestart && (
             <Info type='warning'>A port change is pending and will happen on the next restart.</Info>
           )}
