@@ -3,6 +3,8 @@ import useAppVersion from '../../../../common/hooks-query/useAppVersion';
 import { appVersion, isOntimeCloud, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
+import style from './AppVersion.module.scss';
+
 export default function AppVersion() {
   const { data, isError } = useAppVersion();
 
@@ -18,7 +20,12 @@ export default function AppVersion() {
     return (
       <Panel.ListItem>
         <Panel.Field
-          title={`Ontime ${appVersion}`}
+          title={
+            <>
+              <span className={style.updateIndicator} aria-hidden='true' />
+              {`Ontime ${appVersion}`}
+            </>
+          }
           description={
             isOntimeCloud
               ? `Version ${data.version} is available. Restart your stage to update.`
@@ -26,7 +33,7 @@ export default function AppVersion() {
           }
         />
         {!isOntimeCloud && (
-          <ExternalLink href={websiteUrl}>Visit Ontime's page to download the latest version.</ExternalLink>
+          <ExternalLink href={websiteUrl}>Download the latest version from Ontime's page</ExternalLink>
         )}
       </Panel.ListItem>
     );
