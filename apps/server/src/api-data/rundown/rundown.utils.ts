@@ -3,6 +3,7 @@ import {
   EntryCustomFields,
   EntryId,
   ImportedFields,
+  Maybe,
   OntimeBaseEvent,
   OntimeDelay,
   OntimeEntry,
@@ -30,6 +31,7 @@ import {
   generateId,
   getCueCandidate,
   makeString,
+  maxDuration,
   validateEndAction,
   validateTimerType,
   validateTimes,
@@ -600,4 +602,28 @@ export function getIntegerAndFraction(value: string): IncrementNumber {
     faction,
     precision,
   };
+}
+
+/**
+ * Adjusts an event's duration to fit inside the group target
+ * @param targetDuration - The desired total duration for the group, or null
+ * @param groupDuration - The current total duration of all events in the group
+ * @param eventDuration - The current duration of the event being adjusted
+ * @returns The adjusted event duration, or null if targetDuration is null or
+ *          the result would be negative
+ */
+export function eventDurationMatchGroupTarget({
+  targetDuration,
+  groupDuration,
+  eventDuration,
+}: {
+  targetDuration: Maybe<number>;
+  groupDuration: number;
+  eventDuration: number;
+}): Maybe<number> {
+  if (targetDuration === null) return null;
+  if (targetDuration === groupDuration) return null;
+  const durationDiff = targetDuration - groupDuration;
+  const newDuration = eventDuration + durationDiff;
+  return newDuration < 0 || newDuration > maxDuration ? null : newDuration;
 }
