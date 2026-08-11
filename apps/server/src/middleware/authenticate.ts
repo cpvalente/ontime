@@ -77,17 +77,16 @@ export function makeAuthenticateMiddleware(prefix: string) {
   const loginRedirectBase = `${prefix}/login?redirect=`;
 
   function authenticate(req: Request, res: Response, next: NextFunction) {
-    if (req.query.token) {
-      if (req.query.token === hashedPassword) {
-        return next();
-      }
+    if (getTokenFromCookies(req.cookies) === hashedPassword) {
+      return next();
     }
 
-    if (req.cookies?.token) {
-      const tokenFromCookie = getTokenFromCookie(req.cookies.token);
-      if (tokenFromCookie === hashedPassword) {
-        return next();
-      }
+    if (getTokenFromAuthHeader(req.headers.authorization) === hashedPassword) {
+      return next();
+    }
+
+    if (getTokenFromParams(req.query) === hashedPassword) {
+      return next();
     }
 
     res.status(401).send('Unauthorized');
@@ -105,17 +104,17 @@ export function makeAuthenticateMiddleware(prefix: string) {
       return next();
     }
 
-    // we expect the token to be in the cookies
-    if (req.cookies?.token) {
-      const tokenFromCookie = getTokenFromCookie(req.cookies.token);
-      if (tokenFromCookie === hashedPassword) {
-        return next();
-      }
+    if (getTokenFromCookies(req.cookies) === hashedPassword) {
+      return next();
+    }
+
+    if (getTokenFromAuthHeader(req.headers.authorization) === hashedPassword) {
+      return next();
     }
 
     // we use query params for generating authenticated URLs and for clients like the companion module
     // if the user gives is a token in the query params, we set the cookie to be used in further requests
-    if (req.query.token === hashedPassword) {
+    if (getTokenFromParams(req.query) === hashedPassword) {
       if (hashedPassword !== undefined) {
         setSessionCookie(res, hashedPassword, prefix);
       }
@@ -136,33 +135,16 @@ export function authenticateSocket(_ws: WebSocket, req: IncomingMessage, next: (
     return next();
   }
 
-  // check if the token is in the cookie
-  const cookieString = req.headers.cookie;
-  if (typeof cookieString === 'string') {
-    const cookies = parseCookie(cookieString);
-    if (cookies.token) {
-      const token = getTokenFromCookie(cookies.token);
-      if (token === hashedPassword) {
-        return next();
-      }
-    }
-  }
-
-  // check if token is in the params - simple string check first
-  const urlString = req.url || '';
-  if (urlString.includes(`token=${hashedPassword}`)) {
+  if (getTokenFromCookies(req.headers.cookie) === hashedPassword) {
     return next();
   }
 
-  // fallback to full URL parsing for other formats
-  try {
-    const url = new URL(urlString, `http://${req.headers.host}`);
-    const token = url.searchParams.get('token');
-    if (token === hashedPassword) {
-      return next();
-    }
-  } catch (_) {
-    // ignore URL parsing errors
+  if (getTokenFromAuthHeader(req.headers.authorization) === hashedPassword) {
+    return next();
+  }
+
+  if (getTokenFromParams(req.url, req.headers.host) === hashedPassword) {
+    return next();
   }
 
   return next(new Error('Unauthorized'));
@@ -181,19 +163,18 @@ function setSessionCookie(res: Response, token: string, prefix: string) {
   });
 }
 
-/**
- * When calling this function we already know a cookie called 'token' exists
- * And want to extract its value
- */
-function getTokenFromCookie(cookieContents: string): string | undefined {
-  // Fast path: check if the hashed password is directly in the cookie string
-  // This avoids JSON parsing for the common case
-  const cookieTokenString = '"token":"' + hashedPassword + '}"';
+function getTokenFromCookies(cookies: string | Record<string, unknown> | undefined): string | undefined {
+  const cookieContents = typeof cookies === 'string' ? parseCookie(cookies).token : cookies?.token;
+  if (typeof cookieContents !== 'string') {
+    return undefined;
+  }
+
+  // Fast path: avoid JSON parsing when the expected token can be found directly
+  const cookieTokenString = '"token":"' + hashedPassword + '"';
   if (cookieTokenString && cookieContents.includes(cookieTokenString)) {
     return hashedPassword;
   }
 
-  // Fallback to JSON parsing for other cases or validation
   try {
     const cookie = JSON.parse(cookieContents);
     if (cookie && typeof cookie.token === 'string') {
@@ -201,5 +182,21 @@ function getTokenFromCookie(cookieContents: string): string | undefined {
     }
   } catch (_) {
     // no error handling to do here
+  }
+}
+
+function getTokenFromAuthHeader(authorization: string | undefined): string | undefined {
+  return authorization?.match(/^Bearer\s+(\S+)\s*$/i)?.[1];
+}
+
+function getTokenFromParams(params: string | Record<string, unknown> | undefined, host?: string): string | undefined {
+  if (typeof params !== 'string') {
+    return typeof params?.token === 'string' ? params.token : undefined;
+  }
+
+  try {
+    return new URL(params, `http://${host}`).searchParams.get('token') ?? undefined;
+  } catch (_) {
+    return undefined;
   }
 }
