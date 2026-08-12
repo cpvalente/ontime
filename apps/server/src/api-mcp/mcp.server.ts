@@ -12,7 +12,7 @@ import {
 
 import { PROMPT_DEFINITIONS, handleGetPrompt } from './mcp.prompts.js';
 import { RESOURCE_DEFINITIONS, handleReadResource } from './mcp.resources.js';
-import { TOOL_DEFINITIONS, handleToolCall } from './mcp.tools.js';
+import { TOOL_LIST, handleToolCall } from './mcp.tools.js';
 
 export function createMcpServer(): Server {
   const server = new Server(
@@ -20,12 +20,7 @@ export function createMcpServer(): Server {
     { capabilities: { tools: {}, prompts: {}, resources: {} } },
   );
 
-  server.setRequestHandler(
-    ListToolsRequestSchema,
-    async (): Promise<ListToolsResult> => ({
-      tools: TOOL_DEFINITIONS as unknown as ListToolsResult['tools'],
-    }),
-  );
+  server.setRequestHandler(ListToolsRequestSchema, async (): Promise<ListToolsResult> => ({ tools: TOOL_LIST }));
 
   server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToolResult> => {
     const { name, arguments: args = {} } = request.params;
