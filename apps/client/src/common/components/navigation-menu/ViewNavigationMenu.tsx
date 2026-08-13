@@ -1,4 +1,4 @@
-import { useDisclosure, useHotkeys } from '@mantine/hooks';
+import { type HotkeyItem, useDisclosure, useHotkeys } from '@mantine/hooks';
 import { memo } from 'react';
 import { useSearchParams } from 'react-router';
 
@@ -13,24 +13,32 @@ interface ViewNavigationMenuProps {
   isNavigationLocked?: boolean;
   /** prevent showing settings */
   suppressSettings?: boolean;
+  suppressSpaceHotkey?: boolean;
 }
 
 export default memo(ViewNavigationMenu);
-function ViewNavigationMenu({ isNavigationLocked, suppressSettings }: ViewNavigationMenuProps) {
+function ViewNavigationMenu({ isNavigationLocked, suppressSettings, suppressSpaceHotkey }: ViewNavigationMenuProps) {
   const [isMenuOpen, menuHandler] = useDisclosure();
   const { open: showEditFormDrawer } = useViewParamsEditorStore();
   const [searchParams] = useSearchParams();
   const hasSavedChanges = hasCustomParams(searchParams);
 
+  // Omitting the binding also avoids useHotkeys preventing the default action.
+  const spaceHotkey: HotkeyItem[] = suppressSpaceHotkey
+    ? []
+    : [
+        [
+          'Space',
+          () => {
+            if (isNavigationLocked) return;
+            menuHandler.toggle();
+          },
+          { preventDefault: true },
+        ],
+      ];
+
   useHotkeys([
-    [
-      'Space',
-      () => {
-        if (isNavigationLocked) return;
-        menuHandler.toggle();
-      },
-      { preventDefault: true },
-    ],
+    ...spaceHotkey,
     [
       'mod + ,',
       () => {
