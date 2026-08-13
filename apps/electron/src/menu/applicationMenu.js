@@ -151,6 +151,7 @@ function makeViewMenu(clientUrl) {
       makeItemOpenInBrowser('Editor', `${clientUrl}/editor`),
       makeItemOpenInBrowser('Cuesheet', `${clientUrl}/cuesheet`),
       makeItemOpenInBrowser('Operator', `${clientUrl}/op`),
+      makeItemOpenInBrowser('Teleprompter', `${clientUrl}/teleprompter`),
       { type: 'separator' },
       makeItemOpenInBrowser('Timer', `${clientUrl}/timer`),
       makeItemOpenInBrowser('Backstage', `${clientUrl}/backstage`),
