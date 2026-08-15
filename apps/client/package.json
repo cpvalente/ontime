@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@base-ui/react": "1.6.0",
+    "@base-ui/react": "1.7.0",
     "@codemirror/commands": "^6.0.0",
     "@codemirror/lang-css": "^6.0.0",
     "@codemirror/state": "^6.0.0",
@@ -13,7 +13,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@fontsource/open-sans": "^5.2.7",
-    "@mantine/hooks": "^8.3.7",
+    "@mantine/hooks": "^9.5.1",
     "@sentry/react": "^10.59.0",
     "@table-nav/react": "^0.0.7",
     "@tanstack/react-query": "^5.101.0",
@@ -29,7 +29,7 @@
     "react-dom": "^19.2.7",
     "react-fast-compare": "^3.2.2",
     "react-hook-form": "^7.80.0",
-    "react-icons": "5.6.0",
+    "react-icons": "5.7.0",
     "react-router": "^8.0.1",
     "react-virtuoso": "^4.18.7",
     "zustand": "^5.0.14"
@@ -60,7 +60,8 @@
     ]
   },
   "devDependencies": {
-    "@sentry/vite-plugin": "5.1.1",
+    "@sentry/vite-plugin": "5.4.0",
+    "@types/node": "catalog:",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
@@ -72,8 +73,8 @@
     "ontime-utils": "workspace:*",
     "sass": "^1.57.1",
     "typescript": "catalog:",
-    "vite": "8.0.1",
-    "vite-plugin-compression2": "2.5.1",
+    "vite": "8.2.1",
+    "vite-plugin-compression2": "2.5.3",
     "vite-plugin-svgr": "4.5.0",
     "vitest": "catalog:"
   }

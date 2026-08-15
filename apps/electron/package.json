@@ -14,8 +14,8 @@
   "main": "src/main.js",
   "devDependencies": {
     "electron": "38.2.1",
-    "electron-builder": "26.9.1",
-    "wait-on": "^7.2.0"
+    "electron-builder": "26.15.3",
+    "wait-on": "^9.0.0"
   },
   "scripts": {
     "dev:electron": "wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .",
