@@ -41,14 +41,14 @@
     "format:check": "oxfmt --check"
   },
   "devDependencies": {
-    "@playwright/test": "1.60.0",
+    "@playwright/test": "1.62.1",
     "@types/node": "catalog:",
     "cross-env": "^7.0.3",
     "oxfmt": "^0.42.0",
-    "oxlint": "^1.57.0",
-    "oxlint-tsgolint": "^0.17.4",
+    "oxlint": "^1.78.0",
+    "oxlint-tsgolint": "^7.0.2001",
     "rimraf": "catalog:",
-    "turbo": "2.8.20",
+    "turbo": "2.10.10",
     "typescript": "catalog:"
   },
   "packageManager": "pnpm@11.1.2+sha512.415a1cc25974731e75455c1468371be74c5aa5fb7621b50d4056d222451609f11412f23fd602e6169f1e060466641f798597e1be961a10688836a67b16569499",

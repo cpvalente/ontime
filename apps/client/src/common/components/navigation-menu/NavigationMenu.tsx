@@ -1,5 +1,5 @@
 import { Dialog } from '@base-ui/react/dialog';
-import { useDisclosure, useFullscreen } from '@mantine/hooks';
+import { useDisclosure, useFullscreenDocument } from '@mantine/hooks';
 import { memo } from 'react';
 import { IoClose, IoContract, IoExpand, IoLockClosedOutline, IoSwapVertical } from 'react-icons/io5';
 import { LuCoffee } from 'react-icons/lu';
@@ -33,7 +33,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
   const isSmallScreen = useIsSmallScreen();
 
   const [isRenameOpen, handlers] = useDisclosure(false);
-  const { fullscreen, toggle } = useFullscreen();
+  const { fullscreen, toggle } = useFullscreenDocument();
   const { mirror, toggleMirror } = useViewOptionsStore();
   const { keepAwake, toggleKeepAwake } = useKeepAwakeOptions();
   const location = useLocation();
