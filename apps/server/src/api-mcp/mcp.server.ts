@@ -20,12 +20,9 @@ export function createMcpServer(): Server {
     { capabilities: { tools: {}, prompts: {}, resources: {} } },
   );
 
-  server.setRequestHandler(
-    ListToolsRequestSchema,
-    async (): Promise<ListToolsResult> => ({
-      tools: TOOL_DEFINITIONS as unknown as ListToolsResult['tools'],
-    }),
-  );
+  server.setRequestHandler(ListToolsRequestSchema, async (): Promise<ListToolsResult> => ({
+    tools: TOOL_DEFINITIONS as unknown as ListToolsResult['tools'],
+  }));
 
   server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToolResult> => {
     const { name, arguments: args = {} } = request.params;

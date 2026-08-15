@@ -353,19 +353,19 @@ export function isLoadedPlayable(loadedEventId: EntryId, rundown: Readonly<Rundo
 
 /** List of event properties which do not need the rundown to be regenerated */
 enum RegenerateWhitelist {
-  'id', // adding it for completeness, users cannot change ID
-  'type', // adding it for completeness, users cannot change ID
-  'cue',
-  'title',
-  'note',
-  'endAction',
-  'timerType',
-  'countToEnd',
-  'colour',
-  'timeWarning',
-  'timeDanger',
-  'custom',
-  'triggers',
+  id, // adding it for completeness, users cannot change ID
+  type, // adding it for completeness, users cannot change ID
+  cue,
+  title,
+  note,
+  endAction,
+  timerType,
+  countToEnd,
+  colour,
+  timeWarning,
+  timeDanger,
+  custom,
+  triggers,
 }
 
 /**
