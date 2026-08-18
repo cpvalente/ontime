@@ -124,7 +124,7 @@ $card-padding: 2rem;
   // active rows use a panel-local class today; keep the treatment here so all
   // settings tables share the same state without each panel owning its colours
   tr[class*='current'] {
-    background-color: rgba($blue-500, 0.16);
+    background-color: $bg-active;
 
     > td:first-child {
       box-shadow: inset 3px 0 $blue-400;

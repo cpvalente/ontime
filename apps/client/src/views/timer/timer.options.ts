@@ -169,7 +169,7 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
         {
           id: 'timerColour',
           title: 'Timer Colour',
-          description: 'Timer colour. Default: #f6f6f6',
+          description: 'Timer colour. Default: #F6F6F6',
           type: 'colour',
           defaultValue: 'f6f6f6',
         },

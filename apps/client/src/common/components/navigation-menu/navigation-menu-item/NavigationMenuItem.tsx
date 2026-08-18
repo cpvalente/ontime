@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 
-import { isKeyEnter } from '../../../utils/keyEvent';
+import { isKeyEnter, isKeySpace } from '../../../utils/keyEvent';
 import { cx } from '../../../utils/styleUtils';
 
 import style from './NavigationMenuItem.module.scss';
@@ -11,6 +11,7 @@ interface NavigationMenuItemProps {
   onClick: () => void;
 }
 
+/** A row in the navigation menu, and the single place which decides how a row reacts to input */
 export default function NavigationMenuItem({
   active,
   className,
@@ -24,7 +25,9 @@ export default function NavigationMenuItem({
       role='button'
       onClick={onClick}
       onKeyDown={(event) => {
-        if (isKeyEnter(event)) {
+        if (isKeyEnter(event) || isKeySpace(event)) {
+          event.preventDefault();
+          event.stopPropagation();
           onClick();
         }
       }}

@@ -1,5 +1,5 @@
-import { useDisclosure, useHotkeys } from '@mantine/hooks';
-import { memo } from 'react';
+import { useHotkeys } from '@mantine/hooks';
+import { memo, useCallback, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { hasCustomParams } from '../../stores/savedViewParams';
@@ -15,21 +15,37 @@ interface ViewNavigationMenuProps {
   suppressSettings?: boolean;
 }
 
+function isInteractiveKeyboardAction(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  return (
+    target.closest(
+      'button, a, input, textarea, select, [role="button"], [role="checkbox"], [role="switch"], [contenteditable]:not([contenteditable="false"])',
+    ) !== null
+  );
+}
+
 export default memo(ViewNavigationMenu);
 function ViewNavigationMenu({ isNavigationLocked, suppressSettings }: ViewNavigationMenuProps) {
-  const [isMenuOpen, menuHandler] = useDisclosure();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { open: showEditFormDrawer } = useViewParamsEditorStore();
   const [searchParams] = useSearchParams();
   const hasSavedChanges = hasCustomParams(searchParams);
 
+  const toggleMenu = useCallback(() => setIsMenuOpen((prev) => !prev), []);
+  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+
   useHotkeys([
     [
       'Space',
-      () => {
-        if (isNavigationLocked) return;
-        menuHandler.toggle();
+      (event) => {
+        if (isNavigationLocked || isInteractiveKeyboardAction(event.target)) return;
+        event.preventDefault();
+        toggleMenu();
       },
-      { preventDefault: true },
+      { preventDefault: false },
     ],
     [
       'mod + ,',
@@ -48,11 +64,11 @@ function ViewNavigationMenu({ isNavigationLocked, suppressSettings }: ViewNaviga
   return (
     <>
       <FloatingNavigation
-        toggleMenu={isNavigationLocked ? undefined : menuHandler.toggle}
+        toggleMenu={isNavigationLocked ? undefined : toggleMenu}
         toggleSettings={suppressSettings ? undefined : showEditFormDrawer}
         hasSavedChanges={hasSavedChanges}
       />
-      {!isNavigationLocked && <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />}
+      {!isNavigationLocked && <NavigationMenu isOpen={isMenuOpen} onClose={closeMenu} />}
     </>
   );
 }

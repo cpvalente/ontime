@@ -2,6 +2,12 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  > span {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    text-transform: uppercase;
+  }
 }
 
 // attempt to match with ontimeTextInputs

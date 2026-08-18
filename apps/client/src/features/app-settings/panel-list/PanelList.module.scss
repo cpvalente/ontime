@@ -53,7 +53,7 @@ ul {
   &.active {
     color: $ui-white;
     border-left-color: $blue-400;
-    background-color: rgba($blue-500, 0.16);
+    background-color: $bg-active;
     font-weight: 600;
   }
 
@@ -79,7 +79,7 @@ ul {
   &.active {
     color: $ui-white;
     border-left-color: $blue-400;
-    background-color: rgba($blue-500, 0.16);
+    background-color: $bg-active;
     font-weight: 600;
   }
 }
