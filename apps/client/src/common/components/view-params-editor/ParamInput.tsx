@@ -2,6 +2,7 @@ import { ComponentProps, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { isStringBoolean } from '../../../views/common/viewUtils';
+import { cx } from '../../utils/styleUtils';
 import Checkbox from '../checkbox/Checkbox';
 import Input from '../input/input/Input';
 import Select, { SelectOption } from '../select/Select';
@@ -107,18 +108,20 @@ function MultiOption({ paramField, options }: EditFormMultiOptionProps) {
   return (
     <>
       <input name={id} hidden readOnly value={paramState.join(',')} />
-      <div className={style.inline}>
+      <div className={style.multiOptionList}>
         {values.map((option) => {
+          const selected = paramState.includes(option.value);
+
           return (
             <label
               key={option.value}
-              className={style.toggleSelect}
+              className={cx([style.toggleSelect, selected && style.selected])}
               style={{
                 '--user-bg': option.colour,
               }}
             >
               <Checkbox
-                checked={paramState.includes(option.value)}
+                checked={selected}
                 onCheckedChange={(checked) => toggleValue(option.value, checked as boolean)}
               />
               {option.label}
