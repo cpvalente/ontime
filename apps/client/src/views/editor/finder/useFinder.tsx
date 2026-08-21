@@ -1,239 +1,259 @@
-import { EntryId, MaybeString, SupportedEntry, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
-import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  CustomFields,
+  EntryId,
+  MaybeNumber,
+  MaybeString,
+  OntimeEntry,
+  OntimeEvent,
+  OntimeGroup,
+  OntimeMilestone,
+  isOntimeDelay,
+  isOntimeEvent,
+} from 'ontime-types';
+import { useCallback, useMemo } from 'react';
 
+import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import { useFlatRundown } from '../../../common/hooks-query/useRundown';
 import { useSelectAndRevealEntry } from '../../../features/rundown/useSelectAndRevealEntry';
 
-const maxResults = 12;
+/** How many results we render, the total number of matches is reported separately */
+const maxResults = 50;
+/** Notes can hold a whole script, we only show enough to explain the match */
+const excerptPadding = 40;
 
-type FilterableGroup = {
-  type: SupportedEntry.Group;
-  id: EntryId;
-  index: number;
-  title: string;
-  colour: string;
-};
+const indexFilter = 'index';
 
-type FilterableEvent = {
-  type: SupportedEntry.Event;
+/** Everything except delays, which carry no text to search */
+type SearchableEntry = OntimeEvent | OntimeGroup | OntimeMilestone;
+
+type FinderFilter = { key: string; label: string };
+
+/**
+ * Offered to the user as filter badges. Index is a positional lookup rather than a
+ * text field, so it is handled separately from the fields a search runs over.
+ */
+const staticFilters: FinderFilter[] = [
+  { key: indexFilter, label: 'Index' },
+  { key: 'cue', label: 'Cue' },
+  { key: 'title', label: 'Title' },
+  { key: 'note', label: 'Note' },
+];
+
+/** Why an entry matched, so the UI can show the user */
+type FinderMatch = { key: string; label: string; excerpt: string };
+
+export type FinderResult = {
   id: EntryId;
+  /** position in the flat rundown, which is how the rundown reveals an entry */
   index: number;
-  eventIndex: number;
+  /** 1-based position among events, null for groups and milestones */
+  eventIndex: MaybeNumber;
   title: string;
+  /** groups have no cue */
   cue: string;
   colour: string;
   parent: MaybeString;
+  /** absent when the entry was found by index rather than by matching text */
+  match: FinderMatch | null;
 };
 
-type FilterableMilestone = {
-  type: SupportedEntry.Milestone;
-  id: EntryId;
-  index: number;
-  title: string;
-  cue: string;
-  colour: string;
-  parent: MaybeString;
-};
+type SearchOutcome = { results: FinderResult[]; error: MaybeString; total: number };
 
-type FilterableEntry = FilterableGroup | FilterableEvent | FilterableMilestone;
+const noResults: SearchOutcome = { results: [], error: null, total: 0 };
 
-export default function useFinder() {
+/** Groups are the only searchable entry with neither a cue nor a parent */
+function toResult(entry: SearchableEntry, index: number, eventIndex: MaybeNumber, match: FinderMatch | null) {
+  return {
+    id: entry.id,
+    index,
+    eventIndex,
+    title: entry.title,
+    cue: 'cue' in entry ? entry.cue : '',
+    colour: entry.colour,
+    parent: 'parent' in entry ? entry.parent : null,
+    match,
+  } satisfies FinderResult;
+}
+
+/** Shows enough of a long value for the user to see why it matched */
+function makeExcerpt(value: string, matchIndex: number, searchLength: number): string {
+  const start = Math.max(0, matchIndex - excerptPadding);
+  const end = Math.min(value.length, matchIndex + searchLength + excerptPadding);
+  return `${start > 0 ? '…' : ''}${value.slice(start, end)}${end < value.length ? '…' : ''}`;
+}
+
+/**
+ * The first field of an entry to contain the search string, if any.
+ * Fields are tried in the order we prefer to report a match.
+ */
+function findMatch(
+  entry: SearchableEntry,
+  customFields: CustomFields,
+  filterKey: MaybeString,
+  searchString: string,
+): FinderMatch | null {
+  function check(key: string, label: string, value: string): FinderMatch | null {
+    if (!value || (filterKey !== null && key !== filterKey)) {
+      return null;
+    }
+    const matchIndex = value.toLowerCase().indexOf(searchString);
+    if (matchIndex === -1) {
+      return null;
+    }
+    return { key, label, excerpt: makeExcerpt(value, matchIndex, searchString.length) };
+  }
+
+  // groups have no cue, the rest is common to every searchable entry
+  const fromCue = 'cue' in entry ? check('cue', 'Cue', entry.cue) : null;
+  const match = fromCue ?? check('title', 'Title', entry.title) ?? check('note', 'Note', entry.note);
+  if (match !== null) {
+    return match;
+  }
+
+  // custom fields are named by the project, so these can only be reached generically
+  for (const [key, value] of Object.entries(entry.custom)) {
+    const definition = customFields[key];
+    if (definition?.type !== 'text') {
+      continue;
+    }
+    const custom = check(key, definition.label || key, value);
+    if (custom) return custom;
+  }
+
+  return null;
+}
+
+/**
+ * Splits the raw search value into an optional field filter and the text to look for.
+ * Both `cue 12` and `cue:12` are accepted so that typing agrees with the filter badges.
+ */
+export function parseQuery(searchValue: string, filters: FinderFilter[]) {
+  for (const filter of filters) {
+    // the search value is already lowercased, custom field keys are not
+    const prefix = filter.key.toLowerCase();
+    if (searchValue === prefix) {
+      return { filterKey: filter.key, searchString: '' };
+    }
+    if (searchValue.startsWith(`${prefix} `) || searchValue.startsWith(`${prefix}:`)) {
+      return { filterKey: filter.key, searchString: searchValue.slice(prefix.length + 1).trim() };
+    }
+  }
+  return { filterKey: null, searchString: searchValue };
+}
+
+/** Finds the single event at a 1-based position in the rundown */
+export function searchByIndex(data: OntimeEntry[], indexString: string): SearchOutcome {
+  const target = Number(indexString);
+  if (isNaN(target) || target < 1) {
+    return { ...noResults, error: 'Invalid index' };
+  }
+
+  let eventIndex = 0;
+  for (let i = 0; i < data.length; i++) {
+    const entry = data[i];
+    if (!isOntimeEvent(entry)) {
+      continue;
+    }
+    eventIndex++;
+    if (eventIndex === target) {
+      return { results: [toResult(entry, i, eventIndex, null)], error: null, total: 1 };
+    }
+  }
+
+  return noResults;
+}
+
+/**
+ * Matches entries on a single field when one is selected, otherwise on every text field.
+ * Results keep rundown order, which keeps them predictable during a show.
+ */
+export function searchByText(
+  data: OntimeEntry[],
+  customFields: CustomFields,
+  filterKey: MaybeString,
+  searchString: string,
+): SearchOutcome {
+  const results: FinderResult[] = [];
+  let total = 0;
+  // indexes exposed to the UI are 1-based
+  let eventIndex = 0;
+
+  for (let i = 0; i < data.length; i++) {
+    const entry = data[i];
+    if (isOntimeDelay(entry)) {
+      continue;
+    }
+    const isEvent = isOntimeEvent(entry);
+    if (isEvent) {
+      eventIndex++;
+    }
+
+    const match = findMatch(entry, customFields, filterKey, searchString);
+    if (match === null) {
+      continue;
+    }
+
+    total++;
+    if (results.length < maxResults) {
+      results.push(toResult(entry, i, isEvent ? eventIndex : null, match));
+    }
+  }
+
+  return { results, error: null, total };
+}
+
+/**
+ * @param searchValue - the text the user is looking for
+ * @param activeFilter - a field selected from the filter badges, if any
+ */
+export default function useFinder(searchValue: string, activeFilter: MaybeString) {
   const { data, rundownId } = useFlatRundown();
-  const [results, setResults] = useState<FilterableEntry[]>([]);
-  const [error, setError] = useState<MaybeString>(null);
-  const lastSearchString = useRef('');
+  const { data: customFields } = useCustomFields();
 
   const selectAndRevealEntry = useSelectAndRevealEntry(rundownId);
 
-  /** Filters the rundown to a given evaluation */
-  const find = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      if (!data || data.length === 0) {
-        setError('No data');
-        return;
-      }
-      setError(null);
+  /** The filters offered to the user: the fixed fields plus whatever the project defines */
+  const filters = useMemo<FinderFilter[]>(() => {
+    const customFilters = Object.entries(customFields)
+      .filter(([_key, field]) => field.type === 'text')
+      .map(([key, field]) => ({ key, label: field.label || key }));
+    return [...staticFilters, ...customFilters];
+  }, [customFields]);
 
-      if (event.target.value === '') {
-        setResults([]);
-        return;
-      }
+  const { results, error, total, appliedFilter } = useMemo(() => {
+    if (data.length === 0) {
+      return { ...noResults, error: 'No data', appliedFilter: activeFilter };
+    }
 
-      const searchValue = event.target.value.toLowerCase();
-      lastSearchString.current = searchValue;
+    const normalised = searchValue.trim().toLowerCase();
+    if (normalised === '') {
+      return { ...noResults, appliedFilter: activeFilter };
+    }
 
-      if (searchValue.startsWith('index ')) {
-        const searchString = searchValue.slice('index '.length).trim();
-        const { results, error } = searchByIndex(searchString);
-        setResults(results);
-        setError(error);
-        return;
-      }
+    /**
+     * If a badge is selected it scopes the search; otherwise, keyword prefixes in the input
+     * (e.g. "cue:" / "title:") are parsed and the matching badge is highlighted.
+     */
+    const { filterKey, searchString } = activeFilter
+      ? { filterKey: activeFilter, searchString: normalised }
+      : parseQuery(normalised, filters);
 
-      if (searchValue.startsWith('cue ')) {
-        const searchString = searchValue.slice('cue '.length).trim();
-        const { results, error } = searchByCue(searchString);
-        setResults(results);
-        setError(error);
-        return;
-      }
-
-      const searchString = searchValue.startsWith('title ') ? searchValue.slice('title '.length).trim() : searchValue;
-      const { results, error } = searchByTitle(searchString);
-      setResults(results);
-      setError(error);
-
-      /** Returns a single item with a matching index */
-      function searchByIndex(searchString: string) {
-        const searchIndex = Number(searchString);
-        if (isNaN(searchIndex) || searchIndex < 1) {
-          return { results: [], error: 'Invalid index' };
-        }
-
-        if (searchIndex > data.length) {
-          return { results: [], error: null };
-        }
-
-        // indexes exposed to the UI are 1-based
-        let eventIndex = 1;
-        const results: FilterableEvent[] = [];
-        for (let i = 0; i < data.length; i++) {
-          const event = data[i];
-          if (isOntimeEvent(event)) {
-            if (eventIndex === searchIndex) {
-              results.push({
-                type: SupportedEntry.Event,
-                id: event.id,
-                index: i,
-                eventIndex,
-                title: event.title,
-                cue: event.cue,
-                colour: event.colour,
-                parent: event.parent,
-              } satisfies FilterableEvent);
-              break;
-            }
-            eventIndex++;
-          }
-        }
-
-        return { results, error: null };
-      }
-
-      /** Returns maxResults of OntimeEvents that match the cue field */
-      function searchByCue(searchString: string) {
-        // indexes exposed to the UI are 1-based
-        let eventIndex = 1;
-        // limit amount of results we show
-        let remaining = maxResults;
-        const results: FilterableEvent[] = [];
-
-        for (let i = 0; i < data.length; i++) {
-          if (remaining <= 0) {
-            break;
-          }
-          const event = data[i];
-          if (isOntimeEvent(event)) {
-            if (event.cue.toLowerCase().includes(searchString)) {
-              remaining--;
-              results.push({
-                type: SupportedEntry.Event,
-                id: event.id,
-                index: i,
-                eventIndex,
-                title: event.title,
-                cue: event.cue,
-                colour: event.colour,
-                parent: event.parent,
-              } satisfies FilterableEvent);
-            }
-            eventIndex++;
-          }
-        }
-        return { results, error: null };
-      }
-
-      /** Returns maxResults of OntimeEvents that match the title field*/
-      function searchByTitle(searchString: string) {
-        // indexes exposed to the UI are 1-based
-        let eventIndex = 1;
-        // limit amount of results we show
-        let remaining = maxResults;
-        const results: FilterableEntry[] = [];
-
-        for (let i = 0; i < data.length; i++) {
-          if (remaining <= 0) {
-            break;
-          }
-
-          const entry = data[i];
-          if (isOntimeEvent(entry)) {
-            if (entry.title.toLowerCase().includes(searchString)) {
-              remaining--;
-              results.push({
-                type: SupportedEntry.Event,
-                id: entry.id,
-                index: i,
-                eventIndex,
-                title: entry.title,
-                cue: entry.cue,
-                colour: entry.colour,
-                parent: entry.parent,
-              } satisfies FilterableEvent);
-            }
-            eventIndex++;
-          } else if (isOntimeGroup(entry)) {
-            if (entry.title.toLowerCase().includes(searchString)) {
-              remaining--;
-              results.push({
-                type: SupportedEntry.Group,
-                id: entry.id,
-                index: i,
-                title: entry.title,
-                colour: entry.colour,
-              } satisfies FilterableGroup);
-            }
-          } else if (isOntimeMilestone(entry)) {
-            if (entry.title.toLowerCase().includes(searchString)) {
-              remaining--;
-              results.push({
-                type: SupportedEntry.Milestone,
-                id: entry.id,
-                index: i,
-                title: entry.title,
-                cue: entry.cue,
-                colour: entry.colour,
-                parent: entry.parent,
-              } satisfies FilterableMilestone);
-            }
-          }
-        }
-        return { results, error: null };
-      }
-    },
-    [data],
-  );
+    if (filterKey === indexFilter) {
+      return { ...searchByIndex(data, searchString), appliedFilter: filterKey };
+    }
+    if (searchString === '') {
+      // a filter is selected, but there is nothing to match on yet
+      return { ...noResults, appliedFilter: filterKey };
+    }
+    return { ...searchByText(data, customFields, filterKey, searchString), appliedFilter: filterKey };
+  }, [data, customFields, filters, searchValue, activeFilter]);
 
   const select = useCallback(
-    (selectedEvent: FilterableEntry) => {
-      selectAndRevealEntry({
-        id: selectedEvent.id,
-        index: selectedEvent.index,
-        parent: 'parent' in selectedEvent ? selectedEvent.parent : null,
-      });
+    (result: FinderResult) => {
+      selectAndRevealEntry({ id: result.id, index: result.index, parent: result.parent });
     },
     [selectAndRevealEntry],
   );
 
-  /** clear results when source data changes */
-  useEffect(() => {
-    setResults([]);
-    setError(null);
-    // fake a submit event to re-run the search
-    if (lastSearchString.current) {
-      find({ target: { value: lastSearchString.current } } as ChangeEvent<HTMLInputElement>);
-    }
-  }, [data, find]);
-
-  return { find, select, results, error };
+  return { select, results, error, total, filters, appliedFilter };
 }
