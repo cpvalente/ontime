@@ -312,6 +312,7 @@ export default function RundownEvent({
       onClick={handleFocusClick}
       onContextMenu={onContextMenu}
       data-testid='rundown-event'
+      data-selected={isSelected}
       {...(isPlaying ? { 'data-running': true } : {})}
     >
       <RundownIndicators timeStart={timeStart} delay={delay} gap={gap} isNextDay={isNextDay} />
