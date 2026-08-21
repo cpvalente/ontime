@@ -1,14 +1,14 @@
-import { Table, flexRender } from '@tanstack/react-table';
+import { FlexRender } from '@tanstack/react-table';
 import { EntryId, SupportedEntry } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 import { CSSProperties, memo, useMemo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
-import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { cx, enDash, getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
+import type { CuesheetTable } from '../cuesheetTable.features';
 
 import style from './MilestoneRow.module.scss';
 
@@ -20,7 +20,7 @@ interface MilestoneRowProps {
   colour: string;
   rowId: string;
   rowIndex: number;
-  table: Table<ExtendedEntry>;
+  table: CuesheetTable;
   injectedStyles?: CSSProperties;
   hasCursor?: boolean;
 }
@@ -102,7 +102,7 @@ function MilestoneRow({
               }}
               tabIndex={-1}
             >
-              {canRender && flexRender(cell.column.columnDef.cell, cell.getContext())}
+              {canRender && <FlexRender cell={cell} />}
             </td>
           );
         })}

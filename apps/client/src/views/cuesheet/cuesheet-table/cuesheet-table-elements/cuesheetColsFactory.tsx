@@ -1,4 +1,3 @@
-import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { CustomFields, TimeStrategy, URLPreset, isOntimeDelay, isOntimeEvent } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 import { useCallback } from 'react';
@@ -8,6 +7,7 @@ import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { formatDuration, formatTime } from '../../../../common/utils/time';
 import { AppMode } from '../../../../ontimeConfig';
 import { getCuesheetColumnAccessPolicy } from '../../cuesheet.policies';
+import type { CuesheetCellContext, CuesheetColumnDef } from '../cuesheetTable.features';
 import DurationInput from './DurationInput';
 import EditableImage from './EditableImage';
 import FlagCell from './FlagCell';
@@ -17,11 +17,11 @@ import MutedText from './MutedText';
 import SingleLineCell from './SingleLineCell';
 import TimeInput from './TimeInput';
 
-function getColumnLabel(column: CellContext<ExtendedEntry, unknown>['column']): string {
+function getColumnLabel(column: CuesheetCellContext['column']): string {
   return typeof column.columnDef.header === 'string' ? column.columnDef.header : column.id;
 }
 
-function MakeStart({ getValue, row, table, column }: CellContext<ExtendedEntry, unknown>) {
+function MakeStart({ getValue, row, table, column }: CuesheetCellContext) {
   if (!table.options.meta) {
     return null;
   }
@@ -60,7 +60,7 @@ function MakeStart({ getValue, row, table, column }: CellContext<ExtendedEntry, 
   );
 }
 
-function MakeEnd({ getValue, row, table, column }: CellContext<ExtendedEntry, unknown>) {
+function MakeEnd({ getValue, row, table, column }: CuesheetCellContext) {
   if (!table.options.meta) {
     return null;
   }
@@ -100,7 +100,7 @@ function MakeEnd({ getValue, row, table, column }: CellContext<ExtendedEntry, un
   );
 }
 
-function MakeDuration({ getValue, row, table, column }: CellContext<ExtendedEntry, unknown>) {
+function MakeDuration({ getValue, row, table, column }: CuesheetCellContext) {
   if (!table.options.meta) {
     return null;
   }
@@ -131,7 +131,7 @@ function MakeDuration({ getValue, row, table, column }: CellContext<ExtendedEntr
   );
 }
 
-function MakeMultiLineField({ row, column, table }: CellContext<ExtendedEntry, unknown>) {
+function MakeMultiLineField({ row, column, table }: CuesheetCellContext) {
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
@@ -160,7 +160,7 @@ function MakeMultiLineField({ row, column, table }: CellContext<ExtendedEntry, u
   );
 }
 
-function LazyImage({ row, column, table }: CellContext<ExtendedEntry, unknown>) {
+function LazyImage({ row, column, table }: CuesheetCellContext) {
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, true);
@@ -178,7 +178,7 @@ function LazyImage({ row, column, table }: CellContext<ExtendedEntry, unknown>) 
   return <EditableImage initialValue={initialValue} updateValue={update} readOnly={!canWrite} />;
 }
 
-function MakeSingleLineField({ row, column, table }: CellContext<ExtendedEntry, unknown>) {
+function MakeSingleLineField({ row, column, table }: CuesheetCellContext) {
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
@@ -207,7 +207,7 @@ function MakeSingleLineField({ row, column, table }: CellContext<ExtendedEntry, 
   );
 }
 
-function MakeFlagField({ row }: CellContext<ExtendedEntry, unknown>) {
+function MakeFlagField({ row }: CuesheetCellContext) {
   const event = row.original;
   if (!isOntimeEvent(event) || !event.flag) {
     return null;
@@ -215,7 +215,7 @@ function MakeFlagField({ row }: CellContext<ExtendedEntry, unknown>) {
   return <FlagCell />;
 }
 
-function MakeCustomField({ row, column, table }: CellContext<ExtendedEntry, unknown>) {
+function MakeCustomField({ row, column, table }: CuesheetCellContext) {
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, true);
@@ -255,8 +255,8 @@ export function makeCuesheetColumns(
   customFields: CustomFields,
   cuesheetMode: AppMode,
   preset: URLPreset | undefined,
-): ColumnDef<ExtendedEntry>[] {
-  const columnsDef: ColumnDef<ExtendedEntry>[] = [];
+): CuesheetColumnDef[] {
+  const columnsDef: CuesheetColumnDef[] = [];
   const { canRead, canWrite } = getCuesheetColumnAccessPolicy(preset, cuesheetMode);
 
   if (canRead('flag')) {

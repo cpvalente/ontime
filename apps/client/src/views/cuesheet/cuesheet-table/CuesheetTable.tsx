@@ -1,5 +1,5 @@
 import { useTableNav } from '@table-nav/react';
-import { ColumnDef, Table, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { useTable } from '@tanstack/react-table';
 import { OntimeEntry, SupportedEntry, TimeField, isOntimeDelay, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 import { ComponentProps, ReactNode, memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
@@ -29,12 +29,17 @@ import GroupRow from './cuesheet-table-elements/GroupRow';
 import MilestoneRow from './cuesheet-table-elements/MilestoneRow';
 import TableMenu from './cuesheet-table-menu/TableMenu';
 import CuesheetTableHeaderToolbar from './cuesheet-table-settings/CuesheetTableHeaderToolbar';
+import {
+  CuesheetColumnDef,
+  CuesheetTable as CuesheetTableInstance,
+  cuesheetTableFeatures,
+} from './cuesheetTable.features';
 import { useColumnOrder, useColumnSizes, useColumnVisibility } from './useColumnManager';
 
 import style from './CuesheetTable.module.scss';
 
 type CuesheetTableBaseProps = {
-  columns: ColumnDef<ExtendedEntry>[];
+  columns: CuesheetColumnDef[];
   cuesheetMode: AppMode;
   source: RundownSource;
   insertElement?: ReactNode;
@@ -120,7 +125,8 @@ export default function CuesheetTable({
   const { columnSizing, setColumnSizing } = useColumnSizes(tableRoot);
   const { columnVisibility, setColumnVisibility } = useColumnVisibility(tableRoot);
 
-  const table = useReactTable({
+  const table = useTable({
+    features: cuesheetTableFeatures,
     data: flatRundown,
     columns,
     columnResizeMode: 'onChange',
@@ -131,7 +137,6 @@ export default function CuesheetTable({
     },
     onColumnVisibilityChange: setColumnVisibility,
     onColumnSizingChange: setColumnSizing,
-    getCoreRowModel: getCoreRowModel(),
     meta,
   });
 
@@ -195,7 +200,7 @@ export default function CuesheetTable({
     return colSizes;
     // eslint-disable-next-line react-compiler/react-compiler -- unfortunately this is what we need
     // eslint-disable-next-line react-hooks/exhaustive-deps -- this works well and follows documentation
-  }, [table.getState().columnSizingInfo, table.getState().columnSizing]);
+  }, [table.state.columnResizing, table.state.columnSizing]);
 
   const allLeafColumns = table.getAllLeafColumns();
   const { rows } = table.getRowModel();
@@ -214,9 +219,7 @@ export default function CuesheetTable({
   const computeItemKey = useCallback((_: number, item: ExtendedEntry) => item.id, []);
   const fixedHeaderContent = useCallback(() => {
     return table.getHeaderGroups().map((headerGroup) => {
-      const HeaderComponent = table.getState().columnSizingInfo.isResizingColumn
-        ? CuesheetHeader
-        : SortableCuesheetHeader;
+      const HeaderComponent = table.state.columnResizing.isResizingColumn ? CuesheetHeader : SortableCuesheetHeader;
 
       // if the table is being resized, we render non-sortable headers to avoid performance issues
       return (
@@ -279,8 +282,8 @@ interface CuesheetVirtuosoContext {
   columnSizeVars: { [key: string]: number };
   cursor: string | null;
   listeners: ReturnType<typeof useTableNav>['listeners'];
-  rows: ReturnType<Table<ExtendedEntry>['getRowModel']>['rows'];
-  table: Table<ExtendedEntry>;
+  rows: ReturnType<CuesheetTableInstance['getRowModel']>['rows'];
+  table: CuesheetTableInstance;
   handleAddNew?: (type: SupportedEntry) => void;
 }
 
