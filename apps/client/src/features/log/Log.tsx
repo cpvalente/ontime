@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { IoClose } from 'react-icons/io5';
 
 import Button from '../../common/components/buttons/Button';
+import ToggleButton from '../../common/components/buttons/ToggleButton';
 import { clearLogs, useLogData } from '../../common/stores/logger';
 import { cx } from '../../common/utils/styleUtils';
 import * as Panel from '../app-settings/panel-utils/PanelUtils';
@@ -55,72 +56,60 @@ export default function Log() {
     <div className={cx([style.container, isExtracted && style.extracted])}>
       <Panel.InlineElements className={style.buttonBar}>
         <span className={style.filterLabel}>Filter by</span>
-        <Button
-          variant={showUser ? 'primary' : 'subtle'}
+        <ToggleButton
+          pressed={showUser}
           size='small'
-          aria-pressed={showUser}
-          aria-label={`${showUser ? 'Hide' : 'Show'} ${LogOrigin.User} events`}
           onClick={() => setShowUser((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.User)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.User}
-        </Button>
-        <Button
-          variant={showClient ? 'primary' : 'subtle'}
+        </ToggleButton>
+        <ToggleButton
+          pressed={showClient}
           size='small'
-          aria-pressed={showClient}
-          aria-label={`${showClient ? 'Hide' : 'Show'} ${LogOrigin.Client} events`}
           onClick={() => setShowClient((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Client)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.Client}
-        </Button>
-        <Button
-          variant={showServer ? 'primary' : 'subtle'}
+        </ToggleButton>
+        <ToggleButton
+          pressed={showServer}
           size='small'
-          aria-pressed={showServer}
-          aria-label={`${showServer ? 'Hide' : 'Show'} ${LogOrigin.Server} events`}
           onClick={() => setShowServer((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Server)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.Server}
-        </Button>
-        <Button
-          variant={showPlayback ? 'primary' : 'subtle'}
+        </ToggleButton>
+        <ToggleButton
+          pressed={showPlayback}
           size='small'
-          aria-pressed={showPlayback}
-          aria-label={`${showPlayback ? 'Hide' : 'Show'} ${LogOrigin.Playback} events`}
           onClick={() => setShowPlayback((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Playback)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.Playback}
-        </Button>
-        <Button
-          variant={showRx ? 'primary' : 'subtle'}
+        </ToggleButton>
+        <ToggleButton
+          pressed={showRx}
           size='small'
-          aria-pressed={showRx}
-          aria-label={`${showRx ? 'Hide' : 'Show'} ${LogOrigin.Rx} events`}
           onClick={() => setShowRx((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Rx)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.Rx}
-        </Button>
-        <Button
-          variant={showTx ? 'primary' : 'subtle'}
+        </ToggleButton>
+        <ToggleButton
+          pressed={showTx}
           size='small'
-          aria-pressed={showTx}
-          aria-label={`${showTx ? 'Hide' : 'Show'} ${LogOrigin.Tx} events`}
           onClick={() => setShowTx((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Tx)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.Tx}
-        </Button>
+        </ToggleButton>
         <Button variant='subtle-destructive' size='small' onClick={clearLogs} className={style.apart}>
           <IoClose /> Clear
         </Button>
