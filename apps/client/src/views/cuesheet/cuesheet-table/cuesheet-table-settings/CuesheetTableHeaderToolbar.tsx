@@ -2,7 +2,6 @@ import { Popover } from '@base-ui/react/popover';
 import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toolbar } from '@base-ui/react/toolbar';
-import type { Column } from '@tanstack/react-table';
 import { ReactNode } from 'react';
 import { IoBookOutline, IoChevronDown, IoOptions } from 'react-icons/io5';
 
@@ -10,9 +9,9 @@ import Button from '../../../../common/components/buttons/Button';
 import Checkbox from '../../../../common/components/checkbox/Checkbox';
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
 import PopoverContents from '../../../../common/components/popover/Popover';
-import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetPermissions } from '../../useTablePermissions';
+import type { CuesheetColumn } from '../cuesheetTable.features';
 import CuesheetShareModal from './CuesheetShareModal';
 
 import style from './CuesheetTableSettings.module.scss';
@@ -37,7 +36,7 @@ type TableModeControls = {
 };
 
 interface CuesheetTableHeaderToolbarProps {
-  columns: Column<ExtendedEntry, unknown>[];
+  columns: CuesheetColumn[];
   optionsStore: TableHeaderOptionsStore;
   handleResetResizing: () => void;
   handleResetReordering: () => void;
@@ -111,7 +110,7 @@ interface ViewSettingsProps {
 }
 
 interface ColumnSettingsProps {
-  columns: Column<ExtendedEntry, unknown>[];
+  columns: CuesheetColumn[];
   handleResetResizing: () => void;
   handleResetReordering: () => void;
   handleClearToggles: () => void;
@@ -203,7 +202,7 @@ function ColumnSettings({
 
             return (
               <Editor.Label key={`${column.id}-${visible}`} className={style.option}>
-                <Checkbox defaultChecked={visible} onCheckedChange={column.toggleVisibility} />
+                <Checkbox defaultChecked={visible} onCheckedChange={(checked) => column.toggleVisibility(checked)} />
                 {columnHeader as ReactNode}
               </Editor.Label>
             );

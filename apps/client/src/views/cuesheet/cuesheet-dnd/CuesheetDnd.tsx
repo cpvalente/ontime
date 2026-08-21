@@ -7,14 +7,13 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { ColumnDef } from '@tanstack/react-table';
 import { PropsWithChildren } from 'react';
 
-import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
+import type { CuesheetColumnDef } from '../cuesheet-table/cuesheetTable.features';
 import { useColumnOrder } from '../cuesheet-table/useColumnManager';
 
 interface CuesheetDndProps {
-  columns: ColumnDef<ExtendedEntry>[];
+  columns: CuesheetColumnDef[];
   tableRoot?: 'editor' | 'cuesheet';
 }
 

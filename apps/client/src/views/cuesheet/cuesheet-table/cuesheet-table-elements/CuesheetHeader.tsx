@@ -1,16 +1,16 @@
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
-import { HeaderGroup, flexRender } from '@tanstack/react-table';
+import { FlexRender } from '@tanstack/react-table';
 import { CSSProperties } from 'react';
 
-import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { AppMode } from '../../../../ontimeConfig';
+import type { CuesheetHeaderGroup } from '../cuesheetTable.features';
 import { Draggable, SortableCell, TableCell } from './SortableCell';
 
 import style from '../CuesheetTable.module.scss';
 
 interface CuesheetHeaderProps {
-  headerGroup: HeaderGroup<ExtendedEntry>;
+  headerGroup: CuesheetHeaderGroup;
   cuesheetMode: AppMode;
   hideIndexColumn: boolean;
 }
@@ -46,7 +46,7 @@ export function SortableCuesheetHeader({ headerGroup, cuesheetMode, hideIndexCol
               injectedStyles={{ width: `calc(var(--header-${header?.id}-size) * 1px)`, ...customStyles }}
               draggable={<Draggable header={header} />}
             >
-              {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+              {header.isPlaceholder ? null : <FlexRender header={header} />}
             </SortableCell>
           );
         })}
@@ -85,7 +85,7 @@ export function CuesheetHeader({ headerGroup, cuesheetMode, hideIndexColumn }: C
             injectedStyles={{ width: `calc(var(--header-${header?.id}-size) * 1px)`, ...customStyles }}
             draggable={<Draggable header={header} />}
           >
-            {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+            {header.isPlaceholder ? null : <FlexRender header={header} />}
           </TableCell>
         );
       })}

@@ -1,14 +1,14 @@
-import { Table, flexRender } from '@tanstack/react-table';
-import { EntryId, OntimeEntry, RGBColour, SupportedEntry } from 'ontime-types';
+import { FlexRender } from '@tanstack/react-table';
+import { EntryId, RGBColour, SupportedEntry } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 import { CSSProperties, memo, useMemo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
-import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
+import type { CuesheetTable } from '../cuesheetTable.features';
 
 import style from './EventRow.module.scss';
 
@@ -25,7 +25,7 @@ interface EventRowProps {
   skip: boolean;
   parent: EntryId | null;
   rowIndex: number;
-  table: Table<ExtendedEntry<OntimeEntry>>;
+  table: CuesheetTable;
   injectedStyles?: CSSProperties;
   hasCursor?: boolean;
 }
@@ -133,7 +133,7 @@ function EventRow({
               data-testid={`cuesheet-cell-${cell.column.id}`}
               data-column-id={cell.column.id}
             >
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              <FlexRender cell={cell} />
             </td>
           );
         })}
