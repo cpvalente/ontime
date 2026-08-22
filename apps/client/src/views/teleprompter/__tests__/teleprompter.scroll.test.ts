@@ -2,7 +2,9 @@ import {
   advance,
   clampSpeed,
   easeCatchUp,
+  FOLLOW_BREAK_LINES,
   frameDeltaSeconds,
+  hasBrokenFollow,
   linesPerMinuteToPxPerSecond,
   MAX_FONT_SIZE,
   MAX_FRAME_DELTA_MS,
@@ -91,6 +93,32 @@ describe('advance()', () => {
     // it may simply not have been measured yet, and stopping playback on an
     // unmeasured document would look like the prompter refusing to run
     expect(advance(0, 100, 1, 0).atEnd).toBe(false);
+  });
+});
+
+describe('hasBrokenFollow()', () => {
+  const lineHeight = 40;
+
+  test('tolerates drift under the threshold, so momentum or a stray touch does not break it', () => {
+    const underThreshold = lineHeight * FOLLOW_BREAK_LINES - 1;
+    expect(hasBrokenFollow(underThreshold, 0, lineHeight)).toBe(false);
+    expect(hasBrokenFollow(-underThreshold, 0, lineHeight)).toBe(false);
+  });
+
+  test('counts a deliberate scroll past the threshold, from either direction', () => {
+    const overThreshold = lineHeight * FOLLOW_BREAK_LINES + 1;
+    expect(hasBrokenFollow(overThreshold, 0, lineHeight)).toBe(true);
+    expect(hasBrokenFollow(-overThreshold, 0, lineHeight)).toBe(true);
+  });
+
+  test('measures from the follow target, not from zero', () => {
+    expect(hasBrokenFollow(1000, 1000, lineHeight)).toBe(false);
+    expect(hasBrokenFollow(1000 + lineHeight * FOLLOW_BREAK_LINES + 1, 1000, lineHeight)).toBe(true);
+  });
+
+  test('never breaks follow before the document has been measured', () => {
+    // an unmeasured line height would make any distance look like a break
+    expect(hasBrokenFollow(10_000, 0, 0)).toBe(false);
   });
 });
 

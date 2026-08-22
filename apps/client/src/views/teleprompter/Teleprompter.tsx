@@ -74,7 +74,7 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
     controller,
     isRunning,
     speed,
-    followLocked,
+    canReengageFollow,
     atEnd,
   } = useTeleprompterScroll({
     initialSpeed: options.speed,
@@ -161,7 +161,7 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
           <ControlOverlay
             isRunning={isRunning}
             speed={speed}
-            canReengageFollow={followLocked && options.followLoaded}
+            canReengageFollow={canReengageFollow}
             atEnd={atEnd}
             controller={controller}
             onToggleHelp={handleToggleHelp}

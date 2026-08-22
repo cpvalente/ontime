@@ -100,9 +100,7 @@ export default function ControlOverlay({
       </Tooltip>
 
       <Tooltip
-        text={
-          canReengageFollow ? 'Jump back to the loaded event and follow it again (L)' : 'Following the loaded event'
-        }
+        text={canReengageFollow ? 'Resume following the loaded event (L)' : 'Following the loaded event'}
         render={
           <IconButton
             variant={canReengageFollow ? 'primary' : 'subtle-white'}

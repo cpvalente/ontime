@@ -51,3 +51,12 @@ export function easeCatchUp(current: number, target: number, deltaSeconds: numbe
   const next = target + (current - target) * Math.exp(-CATCH_UP_RATE * deltaSeconds);
   return Math.abs(next - target) < CATCH_UP_EPSILON ? target : next;
 }
+
+/** How far, in lines, the reader may drift from the follow target before it counts as taking over. */
+export const FOLLOW_BREAK_LINES = 1.5;
+
+/** Distinguishes a deliberate scroll away from the read position from momentum or a stray touch. */
+export function hasBrokenFollow(position: number, followTarget: number, lineHeightPx: number): boolean {
+  if (lineHeightPx <= 0) return false;
+  return Math.abs(position - followTarget) > lineHeightPx * FOLLOW_BREAK_LINES;
+}

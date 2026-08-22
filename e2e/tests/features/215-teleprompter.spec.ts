@@ -46,3 +46,27 @@ test('teleprompter renders and responds to its primary controls', async ({ page,
   await expect(page).toHaveURL(/flipH=true/);
   await expect(view).toHaveCSS('transform', /^matrix\(-1/);
 });
+
+test('follow tolerates a small scroll and breaks on a real one, like the operator view', async ({ page, request }) => {
+  const response = await request.post('/data/db/demo');
+  expect(response.ok()).toBe(true);
+  const loadResponse = await request.get('/api/load/index/5');
+  expect(loadResponse.ok()).toBe(true);
+
+  await page.goto('/teleprompter?script=note');
+
+  const scroller = page.getByTestId('teleprompter-scroller');
+  const follow = page.getByTestId('teleprompter-follow');
+  await expect(scroller).toBeVisible();
+  await expect(follow).toBeDisabled();
+
+  await page.mouse.move(960, 500);
+  await page.mouse.wheel(0, 15);
+  await expect(follow).toBeDisabled();
+
+  await page.mouse.wheel(0, 400);
+  await expect(follow).toBeEnabled();
+
+  await page.keyboard.press('l');
+  await expect(follow).toBeDisabled();
+});

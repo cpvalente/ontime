@@ -6,6 +6,7 @@ import {
   clampSpeed,
   easeCatchUp,
   frameDeltaSeconds,
+  hasBrokenFollow,
   linesPerMinuteToPxPerSecond,
 } from './teleprompter.scroll';
 import type { ScriptBlock, TeleprompterController } from './teleprompter.types';
@@ -73,10 +74,15 @@ export function useTeleprompterScroll({
   const maxScrollRef = useRef(0);
   const catchUpTargetRef = useRef<number | null>(null);
   const pendingDeltaRef = useRef(0);
+  // where following last put (or is easing towards putting) the reader, so a
+  // user scroll can be measured against it rather than breaking on any input
+  const followTargetRef = useRef(0);
 
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(initialSpeed);
-  const [followLocked, setFollowLocked] = useState(false);
+  // mirrors the operator view's lockAutoScroll: true once the reader has taken
+  // the scroll over by hand, false while following is doing the driving
+  const [autoScrollLocked, setAutoScrollLocked] = useState(false);
   const [atEnd, setAtEnd] = useState(false);
 
   const tick = useCallback((timestamp: number) => {
@@ -195,7 +201,7 @@ export function useTeleprompterScroll({
   const hasSelectedBlock = selectedEventId !== null && blocks.some((block) => block.id === selectedEventId);
 
   useEffect(() => {
-    if (!followLoaded || followLocked || !selectedEventId) return;
+    if (!followLoaded || autoScrollLocked || !selectedEventId) return;
 
     const scroller = scrollerRef.current;
     const target = blockRefs.current.get(selectedEventId);
@@ -203,16 +209,30 @@ export function useTeleprompterScroll({
 
     const offset = (scroller.clientHeight * readingLinePos) / 100;
     const top = getLayoutTop(target) - getLayoutTop(scroller) - offset;
+    const clamped = clamp(top, 0, maxScrollRef.current);
 
-    catchUpTargetRef.current = clamp(top, 0, maxScrollRef.current);
+    followTargetRef.current = clamped;
+    catchUpTargetRef.current = clamped;
     setAtEnd(false);
-  }, [selectedEventId, followLoaded, followLocked, readingLinePos, hasSelectedBlock]);
+  }, [selectedEventId, followLoaded, autoScrollLocked, readingLinePos, hasSelectedBlock]);
 
+  /**
+   * Only a real scroll away from the follow target takes over: momentum after a
+   * deliberate gesture, or a stray touch, would otherwise break it on any input,
+   * which is what made the operator view move to a distance check instead.
+   *
+   * Reads scrollTop from the element rather than posRef: a burst of wheel
+   * events can fire faster than the animation frame that keeps posRef in sync,
+   * so posRef here can still be reporting where the gesture started.
+   */
   const handleUserScroll = useCallback(() => {
-    if (followLoaded) {
-      setFollowLocked(true);
+    if (!followLoaded || autoScrollLocked) return;
+    const position = scrollerRef.current?.scrollTop;
+    if (position === undefined) return;
+    if (hasBrokenFollow(position, followTargetRef.current, lineHeightRef.current)) {
+      setAutoScrollLocked(true);
     }
-  }, [followLoaded]);
+  }, [followLoaded, autoScrollLocked]);
 
   const registerBlock = useCallback((id: string, element: HTMLElement | null) => {
     if (element) {
@@ -264,7 +284,7 @@ export function useTeleprompterScroll({
           setAtEnd(true);
         }
       },
-      reengageFollow: () => setFollowLocked(false),
+      reengageFollow: () => setAutoScrollLocked(false),
     };
   }, []);
 
@@ -276,7 +296,9 @@ export function useTeleprompterScroll({
     controller,
     isRunning,
     speed,
-    followLocked,
+    // folds followLoaded in, so callers get one ready-to-use signal instead of
+    // a runtime flag they must remember to AND with the option themselves
+    canReengageFollow: followLoaded && autoScrollLocked,
     atEnd,
   };
 }
