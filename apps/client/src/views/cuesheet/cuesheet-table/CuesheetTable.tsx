@@ -200,7 +200,7 @@ export default function CuesheetTable({
     return colSizes;
     // eslint-disable-next-line react-compiler/react-compiler -- unfortunately this is what we need
     // eslint-disable-next-line react-hooks/exhaustive-deps -- this works well and follows documentation
-  }, [table.state.columnResizing, table.state.columnSizing]);
+  }, [columns, table.state.columnResizing, table.state.columnSizing]);
 
   const allLeafColumns = table.getAllLeafColumns();
   const { rows } = table.getRowModel();

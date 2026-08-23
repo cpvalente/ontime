@@ -9,13 +9,13 @@ test('cuesheet displays events', async ({ page }) => {
 test('cuesheet persists column visibility', async ({ page }) => {
   await page.goto('/cuesheet');
 
-  const noteHeader = page.getByRole('columnheader', { name: 'Note' });
+  const noteHeader = page.getByRole('columnheader', { name: 'Note', exact: true });
   const noteCell = page.getByTestId('cuesheet-event').first().getByTestId('cuesheet-cell-note');
   await expect(noteHeader).toBeVisible();
   await expect(noteCell).toBeVisible();
 
   await page.getByRole('button', { name: 'Columns' }).click();
-  await page.getByRole('checkbox', { name: 'Note' }).click();
+  await page.getByRole('checkbox', { name: 'Note', exact: true }).click();
 
   await expect(noteHeader).toBeHidden();
   await expect(noteCell).toBeHidden();
