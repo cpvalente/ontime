@@ -1,16 +1,20 @@
 import {
   advance,
+  anchorAtReadPoint,
+  type BlockGeometry,
   clampSpeed,
   easeCatchUp,
   FOLLOW_BREAK_LINES,
   frameDeltaSeconds,
   hasBrokenFollow,
+  indexAtReadPoint,
   linesPerMinuteToPxPerSecond,
   MAX_FONT_SIZE,
   MAX_FRAME_DELTA_MS,
   MAX_SPEED,
   MIN_FONT_SIZE,
   MIN_SPEED,
+  readPointForAnchor,
   stepFontSize,
 } from '../teleprompter.scroll';
 
@@ -101,24 +105,100 @@ describe('hasBrokenFollow()', () => {
 
   test('tolerates drift under the threshold, so momentum or a stray touch does not break it', () => {
     const underThreshold = lineHeight * FOLLOW_BREAK_LINES - 1;
-    expect(hasBrokenFollow(underThreshold, 0, lineHeight)).toBe(false);
-    expect(hasBrokenFollow(-underThreshold, 0, lineHeight)).toBe(false);
+    expect(hasBrokenFollow(underThreshold, lineHeight)).toBe(false);
+    expect(hasBrokenFollow(-underThreshold, lineHeight)).toBe(false);
   });
 
-  test('counts a deliberate scroll past the threshold, from either direction', () => {
+  test('counts a deliberate scroll past the threshold, in either direction', () => {
     const overThreshold = lineHeight * FOLLOW_BREAK_LINES + 1;
-    expect(hasBrokenFollow(overThreshold, 0, lineHeight)).toBe(true);
-    expect(hasBrokenFollow(-overThreshold, 0, lineHeight)).toBe(true);
-  });
-
-  test('measures from the follow target, not from zero', () => {
-    expect(hasBrokenFollow(1000, 1000, lineHeight)).toBe(false);
-    expect(hasBrokenFollow(1000 + lineHeight * FOLLOW_BREAK_LINES + 1, 1000, lineHeight)).toBe(true);
+    expect(hasBrokenFollow(overThreshold, lineHeight)).toBe(true);
+    expect(hasBrokenFollow(-overThreshold, lineHeight)).toBe(true);
   });
 
   test('never breaks follow before the document has been measured', () => {
     // an unmeasured line height would make any distance look like a break
-    expect(hasBrokenFollow(10_000, 0, 0)).toBe(false);
+    expect(hasBrokenFollow(10_000, 0)).toBe(false);
+  });
+});
+
+describe('the read anchor', () => {
+  const script: BlockGeometry[] = [
+    { id: 'welcome', top: 0, height: 100 },
+    { id: 'keynote', top: 100, height: 300 },
+    { id: 'lunch', top: 400, height: 100 },
+  ];
+  const ids = script.map((block) => block.id);
+
+  describe('indexAtReadPoint()', () => {
+    test('finds the block the reading line is over', () => {
+      expect(indexAtReadPoint(150, script)).toBe(1);
+      expect(indexAtReadPoint(400, script)).toBe(2);
+    });
+
+    test('clamps past either end, so a jump from there still lands on a block', () => {
+      expect(indexAtReadPoint(-50, script)).toBe(0);
+      expect(indexAtReadPoint(10_000, script)).toBe(2);
+    });
+
+    test('reports no block for an empty script', () => {
+      expect(indexAtReadPoint(0, [])).toBe(-1);
+    });
+  });
+
+  describe('readPointForAnchor()', () => {
+    test('round trips an unchanged document', () => {
+      const anchor = anchorAtReadPoint(250, script);
+      expect(anchor).toEqual({ blockId: 'keynote', offset: 150 });
+      expect(readPointForAnchor(anchor!, script, ids)).toBe(250);
+    });
+
+    test('holds the same words under the reading line when an event above grows', () => {
+      // the whole point: the rundown is edited while it is being read, and an
+      // edit above the reader moves every pixel below it
+      const anchor = anchorAtReadPoint(250, script);
+      const grown: BlockGeometry[] = [
+        { id: 'welcome', top: 0, height: 180 },
+        { id: 'keynote', top: 180, height: 300 },
+        { id: 'lunch', top: 480, height: 100 },
+      ];
+      expect(readPointForAnchor(anchor!, grown, ids)).toBe(330);
+    });
+
+    test('follows the anchored event when the rundown is reordered', () => {
+      const anchor = anchorAtReadPoint(250, script);
+      const reordered: BlockGeometry[] = [
+        { id: 'lunch', top: 0, height: 100 },
+        { id: 'welcome', top: 100, height: 100 },
+        { id: 'keynote', top: 200, height: 300 },
+      ];
+      expect(readPointForAnchor(anchor!, reordered, ids)).toBe(350);
+    });
+
+    test('stays inside an event which was edited shorter than the read offset', () => {
+      const anchor = anchorAtReadPoint(250, script);
+      const trimmed: BlockGeometry[] = [
+        { id: 'welcome', top: 0, height: 100 },
+        { id: 'keynote', top: 100, height: 40 },
+        { id: 'lunch', top: 140, height: 100 },
+      ];
+      expect(readPointForAnchor(anchor!, trimmed, ids)).toBe(140);
+    });
+
+    test('falls back to the end of the nearest surviving event when the anchored one is deleted', () => {
+      // where the deleted text used to begin, rather than wherever its pixels
+      // now happen to point
+      const anchor = anchorAtReadPoint(250, script);
+      const deleted: BlockGeometry[] = [
+        { id: 'welcome', top: 0, height: 100 },
+        { id: 'lunch', top: 100, height: 100 },
+      ];
+      expect(readPointForAnchor(anchor!, deleted, ids)).toBe(100);
+    });
+
+    test('gives up rather than guessing when nothing before the anchor survives', () => {
+      const anchor = anchorAtReadPoint(250, script);
+      expect(readPointForAnchor(anchor!, [{ id: 'lunch', top: 0, height: 100 }], ids)).toBeNull();
+    });
   });
 });
 

@@ -63,6 +63,11 @@ export default function HelpOverlay({ isOpen, onClose }: HelpOverlayProps) {
                 <Separator />
                 <Combo keys={['PgDn']} />
               </Shortcut>
+              <Shortcut label='Jump to previous / next event'>
+                <Combo keys={['Shift', '↑']} />
+                <Separator />
+                <Combo keys={['Shift', '↓']} />
+              </Shortcut>
               <Shortcut label='Jump to top / end'>
                 <Combo keys={['Home']} />
                 <Separator />

@@ -1,4 +1,14 @@
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
+
+/** The heading of the event the reading line is currently over. */
+function eventUnderReadingLine(page: Page) {
+  return page.evaluate(() => {
+    const line = document.querySelector('.teleprompter__reading-line')?.getBoundingClientRect();
+    if (!line) throw new Error('Reading line not found');
+    const element = document.elementFromPoint(window.innerWidth / 2, line.top + line.height / 2);
+    return element?.closest('.teleprompter__block')?.querySelector('.teleprompter__heading')?.textContent ?? null;
+  });
+}
 
 test('teleprompter renders and responds to its primary controls', async ({ page, request }) => {
   // Earlier feature specs edit the loaded rundown. Restore the real demo project
@@ -45,6 +55,66 @@ test('teleprompter renders and responds to its primary controls', async ({ page,
   await expect(page).toHaveURL(/speed=15/);
   await expect(page).toHaveURL(/flipH=true/);
   await expect(view).toHaveCSS('transform', /^matrix\(-1/);
+});
+
+test('an edit above the reader leaves the same text under the reading line', async ({ page, request }) => {
+  const response = await request.post('/data/db/demo');
+  expect(response.ok()).toBe(true);
+  const loadResponse = await request.get('/api/load/index/5');
+  expect(loadResponse.ok()).toBe(true);
+
+  // following moves the reader for its own reasons; this is about the document
+  // changing underneath a position the reader chose
+  await page.goto('/teleprompter?script=note&followLoaded=false');
+
+  const scroller = page.getByTestId('teleprompter-scroller');
+  await expect(scroller).toBeVisible();
+
+  // park the reading line inside a block rather than at a fraction of the
+  // document, whose tail is a screen of padding below the last event
+  await scroller.evaluate((element) => {
+    const blocks = element.querySelectorAll<HTMLElement>('.teleprompter__block');
+    const target = blocks[Math.floor(blocks.length / 2)];
+    element.scrollTop = target.offsetTop + 10 - element.clientHeight * 0.25;
+  });
+  const before = await eventUnderReadingLine(page);
+  expect(before).not.toBeNull();
+  const scrollBefore = await scroller.evaluate((element) => element.scrollTop);
+
+  // grow the first event's script, which sits above wherever we scrolled to
+  const edit = await request.put('/data/rundowns/default/entry', {
+    data: { id: '9bf60f', note: `Music plays, holding slide on screens\n${'Another line of script. '.repeat(120)}` },
+  });
+  expect(edit.ok()).toBe(true);
+
+  // the document grew, so holding position means the offset had to change
+  await expect.poll(() => scroller.evaluate((element) => element.scrollTop)).toBeGreaterThan(scrollBefore);
+  expect(await eventUnderReadingLine(page)).toBe(before);
+});
+
+test('shift and the vertical arrows walk the reader event by event', async ({ page, request }) => {
+  const response = await request.post('/data/db/demo');
+  expect(response.ok()).toBe(true);
+  const loadResponse = await request.get('/api/load/index/5');
+  expect(loadResponse.ok()).toBe(true);
+
+  await page.goto('/teleprompter?script=note&followLoaded=false');
+
+  const scroller = page.getByTestId('teleprompter-scroller');
+  await expect(scroller).toBeVisible();
+
+  const headings = await page.locator('.teleprompter__heading').allTextContents();
+  expect(headings.length).toBeGreaterThan(2);
+  await expect.poll(() => eventUnderReadingLine(page)).toBe(headings[0]);
+
+  await page.keyboard.press('Shift+ArrowDown');
+  await expect.poll(() => eventUnderReadingLine(page)).toBe(headings[1]);
+
+  await page.keyboard.press('Shift+ArrowDown');
+  await expect.poll(() => eventUnderReadingLine(page)).toBe(headings[2]);
+
+  await page.keyboard.press('Shift+ArrowUp');
+  await expect.poll(() => eventUnderReadingLine(page)).toBe(headings[1]);
 });
 
 test('follow tolerates a small scroll and breaks on a real one, like the operator view', async ({ page, request }) => {

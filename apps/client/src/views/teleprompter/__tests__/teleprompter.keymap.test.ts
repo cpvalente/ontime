@@ -35,6 +35,17 @@ describe('resolveTeleprompterAction()', () => {
     });
   });
 
+  test('shift makes the vertical arrows jump a whole event', () => {
+    expect(resolveTeleprompterAction(makeEvent({ code: 'ArrowDown', shiftKey: true }))).toEqual({
+      type: 'jumpEvent',
+      direction: 1,
+    });
+    expect(resolveTeleprompterAction(makeEvent({ code: 'ArrowUp', shiftKey: true }))).toEqual({
+      type: 'jumpEvent',
+      direction: -1,
+    });
+  });
+
   test('page keys jump a screen', () => {
     expect(resolveTeleprompterAction(makeEvent({ code: 'PageDown' }))).toEqual({ type: 'page', direction: 1 });
     expect(resolveTeleprompterAction(makeEvent({ code: 'PageUp' }))).toEqual({ type: 'page', direction: -1 });

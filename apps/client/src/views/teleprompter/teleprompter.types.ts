@@ -31,6 +31,7 @@ export type TeleprompterAction =
   | { type: 'togglePlay' }
   | { type: 'nudge'; lines: number }
   | { type: 'page'; direction: 1 | -1 }
+  | { type: 'jumpEvent'; direction: 1 | -1 }
   | { type: 'speed'; delta: number }
   | { type: 'rewind' }
   | { type: 'rewindAndPause' }
@@ -45,6 +46,7 @@ export type TeleprompterController = {
   togglePlay: () => void;
   nudge: (lines: number) => void;
   page: (direction: 1 | -1) => void;
+  jumpEvent: (direction: 1 | -1) => void;
   changeSpeed: (delta: number) => void;
   rewind: (alsoPause?: boolean) => void;
   jumpToEnd: () => void;

@@ -19,10 +19,12 @@ export function resolveTeleprompterAction(event: TeleprompterKeyEvent): Teleprom
   switch (event.code) {
     case 'Space':
       return event.repeat ? null : { type: 'togglePlay' };
+    // Shift is the coarser step on both axes: a bigger speed change sideways,
+    // a whole event rather than a line vertically.
     case 'ArrowDown':
-      return { type: 'nudge', lines: 1 };
+      return event.shiftKey ? { type: 'jumpEvent', direction: 1 } : { type: 'nudge', lines: 1 };
     case 'ArrowUp':
-      return { type: 'nudge', lines: -1 };
+      return event.shiftKey ? { type: 'jumpEvent', direction: -1 } : { type: 'nudge', lines: -1 };
     case 'PageDown':
       return { type: 'page', direction: 1 };
     case 'PageUp':

@@ -66,23 +66,14 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
     showGroups: options.showGroups,
   });
 
-  const {
-    scrollerRef,
-    contentRef,
-    registerBlock,
-    handleUserScroll,
-    controller,
-    isRunning,
-    speed,
-    canReengageFollow,
-    atEnd,
-  } = useTeleprompterScroll({
-    initialSpeed: options.speed,
-    followLoaded: options.followLoaded,
-    selectedEventId,
-    readingLinePos: options.readingLinePos,
-    blocks,
-  });
+  const { scrollerRef, contentRef, registerBlock, controller, isRunning, speed, canReengageFollow, atEnd } =
+    useTeleprompterScroll({
+      initialSpeed: options.speed,
+      followLoaded: options.followLoaded,
+      selectedEventId,
+      readingLinePos: options.readingLinePos,
+      blocks,
+    });
 
   const handleFlip = (axis: 'h' | 'v') =>
     setLive((current) => {
@@ -136,14 +127,7 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
         <EmptyPage text='There is no script text in the selected field' />
       ) : (
         <>
-          <div
-            className='teleprompter__scroller'
-            data-testid='teleprompter-scroller'
-            ref={scrollerRef}
-            onWheel={handleUserScroll}
-            onTouchMove={handleUserScroll}
-            onPointerDown={handleUserScroll}
-          >
+          <div className='teleprompter__scroller' data-testid='teleprompter-scroller' ref={scrollerRef}>
             <div className='teleprompter__content' ref={contentRef}>
               {blocks.map((block) => (
                 <ScriptBlockView key={block.id} block={block} registerRef={registerBlock} />

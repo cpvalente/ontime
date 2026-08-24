@@ -31,6 +31,8 @@ export function useTeleprompterControls(args: UseTeleprompterControlsArgs) {
           return controller.nudge(action.lines);
         case 'page':
           return controller.page(action.direction);
+        case 'jumpEvent':
+          return controller.jumpEvent(action.direction);
         case 'speed':
           return controller.changeSpeed(action.delta);
         case 'rewind':
