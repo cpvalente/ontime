@@ -22,6 +22,10 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 
 ## Timers
 
+Use temporal values by meaning: `Instant` for epoch time, `TimeOfDay` for local time since midnight, `Duration` for elapsed time, `Day` for calendar offsets. Convert through `timeCore`; never interchange as raw numbers.
+
+Active work: [runtimeState time-core migration](../migrations/runtime-state-time-core.md).
+
 When relevant, cover interactions among:
 
 - midnight/day offsets;
