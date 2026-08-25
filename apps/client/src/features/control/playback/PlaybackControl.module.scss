@@ -3,6 +3,34 @@
   margin: 0 auto;
 }
 
+.auxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: $inner-section-text-size;
+  color: $label-gray;
+}
+
+.auxHeaderButtons {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.activeIndicator {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: $active-indicator;
+}
+
 .auxTimers {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
