@@ -27,6 +27,7 @@ import {
   isPlayableEvent,
 } from 'ontime-types';
 import { addToRundown, createGroup, customFieldLabelToKey, getInsertAfterId, insertAtIndex } from 'ontime-utils';
+import type { DeepReadonly } from 'ts-essentials';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { consoleError } from '../../utils/console.js';
@@ -34,6 +35,7 @@ import { ProcessedRundownMetadata, makeRundownMetadata } from './rundown.parser.
 import type { RundownMetadata } from './rundown.types.js';
 import {
   applyPatchToEntry,
+  cloneRundown,
   cloneSimpleRundownEntry,
   deleteById,
   doesInvalidateMetadata,
@@ -43,9 +45,14 @@ import {
 } from './rundown.utils.js';
 
 /**
- * The currently loaded rundown in cache
+ * The currently loaded rundown in cache.
+ *
+ * Reassigned - never mutated in place - when a different rundown is loaded: the persistence
+ * layer stores this object by reference, so repurposing it for another rundown would rewrite
+ * the previously loaded rundown's stored record. Mutating it in place while it represents the
+ * same rundown (ie. from commit) is intended, and is what keeps the stored record current.
  */
-const cachedRundown: Rundown = {
+let cachedRundown: Rundown = {
   id: '',
   title: '',
   order: [],
@@ -79,9 +86,16 @@ export const getRundownMetadata = (): Readonly<RundownMetadata> => rundownMetada
 export const getProjectCustomFields = (): Readonly<CustomFields> => projectCustomFields;
 export const getEntryWithId = (entryId: EntryId): OntimeEntry | undefined => cachedRundown.entries[entryId];
 
-type Transaction = {
+/**
+ * @param R the type callers see for `rundown` - a plain, mutable `Rundown` when the
+ * transaction was opened with `mutableRundown: true`, otherwise a `DeepReadonly<Rundown>`
+ * so that accidentally mutating an entry (or an order array) on a non-mutable transaction
+ * - which would silently corrupt the live cache without going through commit() - is a
+ * compile-time error instead of a runtime bug.
+ */
+type Transaction<R> = {
   customFields: CustomFields;
-  rundown: Rundown;
+  rundown: R;
 
   commit: (shouldProcess?: boolean) => Promise<{
     rundown: Readonly<Rundown>;
@@ -102,11 +116,17 @@ type TransactionOptions = {
   rundownId?: string;
 };
 
-export function createTransaction(options: TransactionOptions): Transaction {
+export function createTransaction(options: TransactionOptions & { mutableRundown: true }): Transaction<Rundown>;
+export function createTransaction(
+  options: TransactionOptions & { mutableRundown?: false },
+): Transaction<DeepReadonly<Rundown>>;
+export function createTransaction(
+  options: TransactionOptions,
+): Transaction<Rundown> | Transaction<DeepReadonly<Rundown>> {
   const targetId = options.rundownId ?? cachedRundown.id;
   const isLoaded = targetId === cachedRundown.id;
   const sourceRundown: Rundown = isLoaded ? cachedRundown : (getDataProvider().getRundown(targetId) as Rundown);
-  const rundown = options.mutableRundown ? structuredClone(sourceRundown) : sourceRundown;
+  const rundown = options.mutableRundown ? cloneRundown(sourceRundown) : sourceRundown;
   const customFields = options.mutableCustomFields ? structuredClone(projectCustomFields) : projectCustomFields;
 
   /**
@@ -707,21 +727,25 @@ export const customFieldMutation = {
  * Expose function to add an initial rundown to the system
  */
 export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Readonly<CustomFields>) {
-  const rundown = structuredClone(initialRundown);
+  const rundown = cloneRundown(initialRundown);
   const customFields = structuredClone(initialCustomFields);
   const processedData = processRundown(rundown, customFields, { mutate: true });
 
-  // update the cache values
-  cachedRundown.id = rundown.id;
-  cachedRundown.title = rundown.title;
   projectCustomFields = customFields;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
   const { previousEvent, latestEvent, previousEntry, entries, order, ...metadata } = processedData;
-  cachedRundown.entries = entries;
-  cachedRundown.order = order;
-  cachedRundown.flatOrder = metadata.flatEntryOrder;
-  cachedRundown.revision = rundown.revision;
+
+  // a fresh object, so that the record already stored for a previously loaded rundown keeps
+  // pointing at that rundown's data - see the note on cachedRundown
+  cachedRundown = {
+    id: rundown.id,
+    title: rundown.title,
+    entries,
+    order,
+    flatOrder: metadata.flatEntryOrder,
+    revision: rundown.revision,
+  };
   rundownMetadata = metadata;
 
   // defer writing to the database

@@ -20,6 +20,7 @@ import { triggerAutomations } from '../../api-data/automation/automation.service
 import { triggerReportEntry } from '../../api-data/report/report.service.js';
 import { getCurrentRundown, getEntryWithId, getRundownMetadata } from '../../api-data/rundown/rundown.dao.js';
 import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
+import { cloneEntryData } from '../../api-data/rundown/rundown.utils.js';
 import { logger } from '../../classes/Logger.js';
 import { timerConfig } from '../../setup/config.js';
 import { eventStore } from '../../stores/EventStore.js';
@@ -754,7 +755,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       }
       // at this point we know that either the id or the contents has changed
       batch.add(key, currentEntry as RuntimeStore[K]); // we know that there is the necessary overlap in the types to cast this
-      RuntimeService.previousState[key] = structuredClone(currentEntry);
+      RuntimeService.previousState[key] = currentEntry ? cloneEntryData(currentEntry) : null;
       return true;
     }
 

@@ -4,12 +4,17 @@ import { DatabaseModel } from 'ontime-types';
  * Merges a partial ontime project into a given ontime project
  */
 export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseModel>): DatabaseModel {
-  const deepExisting = structuredClone(existing);
-  const deepNewData = structuredClone(newData);
+  // rundowns are merged separately below by reference (only the top-level map is copied,
+  // same as the other properties here) - deep-cloning them here would be wasted work,
+  // since a project's rundowns are by far the largest part of this object
+  const { rundowns: existingRundowns, ...existingRest } = existing;
+  const { rundowns: newRundowns = {}, ...newDataRest } = newData;
+
+  const deepExisting = structuredClone(existingRest);
+  const deepNewData = structuredClone(newDataRest);
 
   // destructure each property to simplify merging not provided ie: ...{} has no effect
   const {
-    rundowns = {},
     project = {},
     settings = {},
     viewSettings = {},
@@ -19,7 +24,7 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
   } = deepNewData;
 
   return {
-    rundowns: { ...existing.rundowns, ...rundowns },
+    rundowns: { ...existingRundowns, ...newRundowns },
     project: { ...deepExisting.project, ...project },
     settings: { ...deepExisting.settings, ...settings },
     viewSettings: { ...deepExisting.viewSettings, ...viewSettings },
