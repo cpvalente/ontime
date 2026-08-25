@@ -818,7 +818,7 @@ export async function renameRundown(id: string, title: string) {
   const dataProvider = getDataProvider();
   const rundown = dataProvider.getRundown(id);
 
-  await dataProvider.setRundown(id, { ...rundown, title });
+  await dataProvider.setRundown(id, { ...rundown, title, revision: rundown.revision + 1 });
 
   /**
    * If we are modifying the loaded rundown we re-init it
