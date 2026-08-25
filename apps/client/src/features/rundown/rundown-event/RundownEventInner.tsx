@@ -141,7 +141,6 @@ function RundownEventInner({
           isPast={isPast}
           isLoaded={loaded}
           totalGap={totalGap}
-          duration={duration}
         />
       )}
       <div className={style.statusElements} id='entry-status' data-timertype={timerType}>

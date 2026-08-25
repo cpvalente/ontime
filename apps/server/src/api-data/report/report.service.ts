@@ -1,12 +1,28 @@
-import { OntimeEventReport, OntimeReport, RefetchKey, TimerLifeCycle } from 'ontime-types';
-import { DeepReadonly } from 'ts-essentials';
+import type { OntimeEventReport, OntimeReport, PlayableEvent, ReportData, Rundown, ShowReport } from 'ontime-types';
+import { RefetchKey, TimerLifeCycle } from 'ontime-types';
+import type { DeepReadonly } from 'ts-essentials';
 
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
-import { RuntimeState } from '../../stores/runtimeState.js';
+import type { RuntimeState } from '../../stores/runtimeState.js';
+import { getCurrentRundown } from '../rundown/rundown.dao.js';
+import { getActualShowTimes, getPlannedShowDuration } from './report.utils.js';
 
 const report = new Map<string, OntimeEventReport>();
 
 let formattedReport: OntimeReport | null = null;
+const emptyPlannedTimes: Pick<ShowReport, 'plannedStart' | 'plannedEnd' | 'plannedDuration'> = {
+  plannedStart: null,
+  plannedEnd: null,
+  plannedDuration: null,
+};
+
+/**
+ * The plan the show was measured against, taken when it starts.
+ * Snapshotted for the same reason the per event schedule is: editing the
+ * rundown afterwards must not move the target a past show was judged by.
+ */
+let plannedTimes = emptyPlannedTimes;
+let rundownSnapshot: Rundown | null = null;
 
 /**
  * generates a full report
@@ -28,8 +44,13 @@ export function clear(id?: string) {
   if (id) {
     report.delete(id);
   } else {
+    // A full clear makes the next event start a new report instead of resuming this run.
     report.clear();
+    plannedTimes = emptyPlannedTimes;
+    rundownSnapshot = null;
   }
+
+  sendRefetch(RefetchKey.Report);
 }
 
 /**
@@ -41,6 +62,7 @@ export function clear(id?: string) {
 export function triggerReportEntry(
   cycle: TimerLifeCycle.onStart | TimerLifeCycle.onStop,
   state: DeepReadonly<RuntimeState>,
+  rundown: Readonly<Rundown> = getCurrentRundown(),
 ) {
   if (!state.eventNow?.id) {
     return;
@@ -49,15 +71,74 @@ export function triggerReportEntry(
   const eventId = state.eventNow.id;
 
   if (cycle === TimerLifeCycle.onStart) {
-    report.set(eventId, { startedAt: state.timer.startedAt, endedAt: null });
+    captureReportPlan(state, rundown);
+
+    report.set(eventId, {
+      ...getScheduleSnapshot(state.eventNow),
+      startedAt: state.timer.startedAt,
+      startedAtDay: state.rundown.currentDay ?? state.eventNow.dayOffset,
+      endedAt: null,
+      endedAtDay: null,
+    });
     formattedReport = null;
+    sendRefetch(RefetchKey.Report);
     return;
   }
 
   if (cycle === TimerLifeCycle.onStop) {
-    const startedAt = report.get(eventId)?.startedAt ?? null;
-    report.set(eventId, { startedAt, endedAt: state.clock });
+    const previous = report.get(eventId);
+    const schedule = previous ?? getScheduleSnapshot(state.eventNow);
+    report.set(eventId, {
+      startedAt: previous?.startedAt ?? null,
+      startedAtDay: previous?.startedAtDay ?? null,
+      endedAt: state.clock,
+      endedAtDay: state.rundown.currentDay ?? state.eventNow.dayOffset,
+      scheduledStart: schedule.scheduledStart,
+      scheduledDay: schedule.scheduledDay,
+      scheduledDuration: schedule.scheduledDuration,
+    });
     formattedReport = null;
     sendRefetch(RefetchKey.Report);
   }
+}
+
+function getScheduleSnapshot(
+  event: Pick<PlayableEvent, 'timeStart' | 'dayOffset' | 'duration'>,
+): Pick<OntimeEventReport, 'scheduledStart' | 'scheduledDay' | 'scheduledDuration'> {
+  return {
+    scheduledStart: event.timeStart,
+    scheduledDay: event.dayOffset,
+    scheduledDuration: event.duration,
+  };
+}
+
+/**
+ * Captures the plan once, when the first event in the report starts.
+ */
+function captureReportPlan(state: DeepReadonly<RuntimeState>, rundown: Readonly<Rundown>) {
+  if (rundownSnapshot !== null) return;
+
+  rundownSnapshot = structuredClone(rundown);
+  plannedTimes = {
+    plannedStart: state.rundown.plannedStart,
+    plannedEnd: state.rundown.plannedEnd,
+    plannedDuration: getPlannedShowDuration(rundownSnapshot),
+  };
+}
+
+/**
+ * Show level times for the report.
+ * Planned times are the ones captured when the show started, actual times are
+ * derived from the events that ran.
+ */
+function generateShowReport(): ShowReport {
+  return { ...plannedTimes, ...getActualShowTimes(generate()) };
+}
+
+export function generateReport(): ReportData {
+  return {
+    eventReports: generate(),
+    rundown: rundownSnapshot,
+    show: generateShowReport(),
+  };
 }
