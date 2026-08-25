@@ -39,6 +39,7 @@ import {
 import { parseRundown } from './rundown.parser.js';
 import type { RundownMetadata } from './rundown.types.js';
 import {
+  cloneRundown,
   generateEvent,
   getFirstInsertId,
   getIntegerAndFraction,
@@ -626,7 +627,7 @@ export async function editCustomField(
     // ... reassign references in the background rundowns
     for (const rundownId of Object.keys(projectRundowns)) {
       if (rundownId !== rundown.id) {
-        const backgroundRundown = structuredClone(projectRundowns[rundownId]);
+        const backgroundRundown = cloneRundown(projectRundowns[rundownId]);
         customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey);
         await updateBackgroundRundown(rundownId, backgroundRundown);
       }
@@ -666,7 +667,7 @@ export async function deleteCustomField(key: CustomFieldKey, projectRundowns: Pr
   // remove references in the background rundowns
   for (const rundownId of Object.keys(projectRundowns)) {
     if (rundownId !== rundown.id) {
-      const backgroundRundown = structuredClone(projectRundowns[rundownId]);
+      const backgroundRundown = cloneRundown(projectRundowns[rundownId]);
       customFieldMutation.removeUsages(backgroundRundown, key);
       await updateBackgroundRundown(rundownId, backgroundRundown);
     }
@@ -846,7 +847,7 @@ export async function duplicateExistingRundown(id: string) {
   const dataProvider = getDataProvider();
   const rundown = dataProvider.getRundown(id);
 
-  const duplicatedRundown: Rundown = structuredClone(rundown);
+  const duplicatedRundown: Rundown = cloneRundown(rundown);
   duplicatedRundown.id = generateId();
   duplicatedRundown.title = `Copy of ${rundown.title}`;
   duplicatedRundown.revision = 0;

@@ -101,8 +101,16 @@ function getCustomFields(): Readonly<CustomFields> {
   return db.data.customFields;
 }
 
+/**
+ * Stores a rundown, replacing any existing entry for the same key.
+ * Takes ownership of `newData` and stores it by reference - the caller must not mutate it
+ * afterward. Every call site either hands over a freshly-built object it never touches again,
+ * or (for the loaded rundown) the cache's own long-lived object, which is already the single
+ * source of truth for that data - aliasing it here costs nothing and avoids a second full
+ * deep copy of the rundown on every commit.
+ */
 async function setRundown(rundownKey: string, newData: Rundown): ReadonlyPromise<ProjectRundowns> {
-  db.data.rundowns[rundownKey] = structuredClone(newData);
+  db.data.rundowns[rundownKey] = newData;
   await persist();
   return db.data.rundowns;
 }
