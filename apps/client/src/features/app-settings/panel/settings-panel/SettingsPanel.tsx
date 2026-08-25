@@ -3,6 +3,7 @@ import { isDocker } from '../../../../externals';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import CustomViews from '../manage-panel/CustomViews';
+import AuxTimerSettings from './AuxTimerSettings';
 import GeneralSettings from './GeneralSettings';
 import McpSection from './McpSection';
 import ProjectData from './ProjectData';
@@ -12,6 +13,7 @@ import ViewSettings from './ViewSettings';
 export default function SettingsPanel({ location }: PanelBaseProps) {
   const dataRef = useScrollIntoView<HTMLDivElement>('data', location);
   const generalRef = useScrollIntoView<HTMLDivElement>('general', location);
+  const auxTimersRef = useScrollIntoView<HTMLDivElement>('aux-timers', location);
   const viewRef = useScrollIntoView<HTMLDivElement>('view', location);
   const customViewsRef = useScrollIntoView<HTMLDivElement>('custom-views', location);
   const mcpRef = useScrollIntoView<HTMLDivElement>('mcp', location);
@@ -25,6 +27,9 @@ export default function SettingsPanel({ location }: PanelBaseProps) {
       </div>
       <div ref={generalRef}>
         <GeneralSettings />
+      </div>
+      <div ref={auxTimersRef}>
+        <AuxTimerSettings />
       </div>
       <div ref={viewRef}>
         <ViewSettings />

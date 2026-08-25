@@ -1,8 +1,18 @@
 .label {
   display: block;
   margin-top: 1rem;
+  // aux timers sit in a 3 column grid, without this a long name would grow its column
+  // instead of shrinking to it, breaking the equal column layout
+  min-width: 0;
+}
+
+.labelText {
+  display: block;
   font-size: $inner-section-text-size;
   color: $label-gray;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .controls {
