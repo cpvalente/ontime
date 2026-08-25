@@ -38,6 +38,12 @@ When relevant, cover interactions among:
 
 Pass time/state explicitly to keep rules deterministic and unit-testable.
 
+## Reports
+
+- A report is one aggregate containing its event records, show timing, and rundown snapshot.
+- Capture the rundown plan when the report starts; later rundown edits must not change it.
+- Store day offsets with report timestamps. Use absolute timeline positions for ordering and duration, and wall-clock values only for display.
+
 ## Imports and migrations
 
 - Treat project files, spreadsheets, custom fields, migrated data as untrusted.

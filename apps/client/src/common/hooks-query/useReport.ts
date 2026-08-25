@@ -1,17 +1,34 @@
 import { useQuery } from '@tanstack/react-query';
-import { OntimeReport } from 'ontime-types';
+import type { ReportData } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { REPORT } from '../api/constants';
 import { fetchReport } from '../api/report';
 
+const emptyReport: ReportData = {
+  eventReports: {},
+  rundown: null,
+  show: {
+    plannedStart: null,
+    plannedEnd: null,
+    plannedDuration: null,
+    actualStart: null,
+    actualEnd: null,
+    actualDuration: null,
+  },
+};
+
 export default function useReport() {
-  const { data, refetch } = useQuery<OntimeReport>({
+  const { data: report, refetch } = useQuery<ReportData>({
     queryKey: REPORT,
     queryFn: ({ signal }) => fetchReport({ signal }),
-    placeholderData: (previousData, _previousQuery) => previousData,
+    placeholderData: (previousData) => previousData,
     staleTime: MILLIS_PER_HOUR,
   });
 
-  return { data: data ?? {}, refetch };
+  return {
+    data: report?.eventReports ?? emptyReport.eventReports,
+    report: report ?? emptyReport,
+    refetch,
+  };
 }

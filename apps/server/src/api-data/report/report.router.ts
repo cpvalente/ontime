@@ -7,7 +7,7 @@ import * as report from './report.service.js';
 export const router: Router = express.Router();
 
 router.get('/', (_req: Request, res: Response) => {
-  res.status(200).json(report.generate());
+  res.status(200).json(report.generateReport());
 });
 
 router.delete('/all', (_req: Request, res: Response) => {
