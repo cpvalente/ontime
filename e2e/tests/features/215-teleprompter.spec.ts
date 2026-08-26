@@ -117,6 +117,61 @@ test('shift and the vertical arrows walk the reader event by event', async ({ pa
   await expect.poll(() => eventUnderReadingLine(page)).toBe(headings[1]);
 });
 
+test('playback stops at the end of the event instead of reading on into the next', async ({ page, request }) => {
+  const response = await request.post('/data/db/demo');
+  expect(response.ok()).toBe(true);
+  const loadResponse = await request.get('/api/load/index/5');
+  expect(loadResponse.ok()).toBe(true);
+
+  await page.goto('/teleprompter?script=note&followLoaded=false&speed=40');
+
+  const scroller = page.getByTestId('teleprompter-scroller');
+  await expect(scroller).toBeVisible();
+
+  // park the reading line just short of the first event's end, so the run to
+  // the boundary takes a moment rather than the length of the segment
+  const segmentEnd = await scroller.evaluate((element) => {
+    const block = element.querySelector<HTMLElement>('.teleprompter__block');
+    if (!block) throw new Error('No script block found');
+    const end = block.offsetTop + block.offsetHeight - element.clientHeight * 0.25;
+    element.scrollTop = end - 30;
+    return end;
+  });
+
+  await page.keyboard.press('Space');
+
+  await expect(page.getByTestId('teleprompter-parked')).toBeVisible();
+  await expect
+    .poll(async () => Math.abs((await scroller.evaluate((element) => element.scrollTop)) - segmentEnd))
+    .toBeLessThan(3);
+
+  // and it stays there, rather than carrying on after a beat
+  await page.waitForTimeout(500);
+  expect(Math.abs((await scroller.evaluate((element) => element.scrollTop)) - segmentEnd)).toBeLessThan(3);
+
+  // pressing play again is how the reader moves on to the next event
+  await page.keyboard.press('Space');
+  await expect.poll(() => scroller.evaluate((element) => element.scrollTop)).toBeGreaterThan(segmentEnd + 5);
+});
+
+test('onlyPlaying narrows the script to the event being played', async ({ page, request }) => {
+  const response = await request.post('/data/db/demo');
+  expect(response.ok()).toBe(true);
+  const loadResponse = await request.get('/api/load/index/5');
+  expect(loadResponse.ok()).toBe(true);
+
+  await page.goto('/teleprompter?script=note');
+  await expect(page.locator('.teleprompter__block').first()).toBeVisible();
+  const whole = await page.locator('.teleprompter__block').count();
+  expect(whole).toBeGreaterThan(1);
+
+  await page.goto('/teleprompter?script=note&onlyPlaying=true');
+
+  const blocks = page.locator('.teleprompter__block');
+  await expect(blocks).toHaveCount(1);
+  await expect(blocks.first()).toHaveAttribute('data-loaded', 'true');
+});
+
 test('follow tolerates a small scroll and breaks on a real one, like the operator view', async ({ page, request }) => {
   const response = await request.post('/data/db/demo');
   expect(response.ok()).toBe(true);

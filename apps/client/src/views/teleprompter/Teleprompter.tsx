@@ -62,11 +62,12 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
   const blocks = buildScript(rundown, rundownMetadata, customFields, {
     scriptSource: options.scriptSource,
     heading: options.heading,
+    onlyPlaying: options.onlyPlaying,
     hideEmpty: options.hideEmpty,
     showGroups: options.showGroups,
   });
 
-  const { scrollerRef, contentRef, registerBlock, controller, isRunning, speed, canReengageFollow, atEnd } =
+  const { scrollerRef, contentRef, registerBlock, controller, isRunning, speed, canReengageFollow, parkedAt } =
     useTeleprompterScroll({
       initialSpeed: options.speed,
       followLoaded: options.followLoaded,
@@ -115,6 +116,8 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
         'teleprompter',
         effectiveFlip.flipH && 'teleprompter--flip-h',
         effectiveFlip.flipV && 'teleprompter--flip-v',
+        // nothing to hold back the eye from when no event is cued
+        blocks.some((block) => block.isLoaded) && 'teleprompter--has-playing',
       ])}
       style={viewStyles}
       data-testid='teleprompter-view'
@@ -146,7 +149,7 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
             isRunning={isRunning}
             speed={speed}
             canReengageFollow={canReengageFollow}
-            atEnd={atEnd}
+            parkedAt={parkedAt}
             controller={controller}
             onToggleHelp={handleToggleHelp}
           />

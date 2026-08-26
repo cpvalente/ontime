@@ -44,6 +44,7 @@ const customFields: CustomFields = {
 const defaultOptions = {
   scriptSource: 'custom-script',
   heading: 'title' as const,
+  onlyPlaying: false,
   hideEmpty: true,
   showGroups: true,
 };
@@ -104,6 +105,26 @@ describe('buildScript()', () => {
     const rundown = makeRundown([makeEvent('a', { skip: true }), makeEvent('b')]);
     const blocks = buildScript(rundown, metadataFor(['a', 'b']), customFields, defaultOptions);
     expect(blocks.map((block) => block.id)).toEqual(['b']);
+  });
+
+  test('onlyPlaying narrows the script to the event being played', () => {
+    const rundown = makeRundown([makeEvent('a'), makeEvent('b')]);
+    const metadata = metadataFor(['a', 'b'], { b: { isLoaded: true } });
+
+    expect(buildScript(rundown, metadata, customFields, { ...defaultOptions, onlyPlaying: true }).map((b) => b.id)) //
+      .toEqual(['b']);
+  });
+
+  test('onlyPlaying shows the whole script while nothing is playing', () => {
+    // narrowing to nothing would leave a blank screen, which is a worse answer
+    // than the script the reader asked to see
+    const rundown = makeRundown([makeEvent('a'), makeEvent('b')]);
+
+    expect(
+      buildScript(rundown, metadataFor(['a', 'b']), customFields, { ...defaultOptions, onlyPlaying: true }).map(
+        (b) => b.id,
+      ),
+    ).toEqual(['a', 'b']);
   });
 
   test('hideEmpty drops events with no script text', () => {

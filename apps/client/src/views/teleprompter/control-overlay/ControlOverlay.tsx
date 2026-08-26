@@ -6,13 +6,13 @@ import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useFadeOutOnInactivity } from '../../../common/hooks/useFadeOutOnInactivity';
 import { cx } from '../../../common/utils/styleUtils';
 import { SPEED_STEP } from '../teleprompter.scroll';
-import type { TeleprompterController } from '../teleprompter.types';
+import type { ParkedAt, TeleprompterController } from '../teleprompter.types';
 
 interface ControlOverlayProps {
   isRunning: boolean;
   speed: number;
   canReengageFollow: boolean;
-  atEnd: boolean;
+  parkedAt: ParkedAt;
   controller: TeleprompterController;
   onToggleHelp: () => void;
 }
@@ -21,7 +21,7 @@ export default function ControlOverlay({
   isRunning,
   speed,
   canReengageFollow,
-  atEnd,
+  parkedAt,
   controller,
   onToggleHelp,
 }: ControlOverlayProps) {
@@ -71,6 +71,12 @@ export default function ControlOverlay({
         <span className='teleprompter__speed-unit'>lpm</span>
       </div>
 
+      {parkedAt === 'segment' && (
+        <span className='teleprompter__parked' data-testid='teleprompter-parked'>
+          End of event
+        </span>
+      )}
+
       <Tooltip
         text='Speed up (Right arrow)'
         render={
@@ -89,7 +95,7 @@ export default function ControlOverlay({
         text='Rewind to the top (Home)'
         render={
           <IconButton
-            variant={atEnd ? 'primary' : 'subtle-white'}
+            variant={parkedAt === 'script' ? 'primary' : 'subtle-white'}
             size='large'
             onClick={press(() => controller.rewind())}
             aria-label='Rewind to top'

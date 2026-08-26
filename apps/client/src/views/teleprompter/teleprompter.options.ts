@@ -21,6 +21,7 @@ const headingSources = headingOptions.map((option) => option.value);
 export const defaults = {
   script: 'none',
   heading: 'title' as HeadingSource,
+  onlyPlaying: false,
   hideEmpty: true,
   showGroups: true,
   speed: DEFAULT_SPEED,
@@ -96,6 +97,14 @@ export const getTeleprompterOptions = (customFields: CustomFields): ViewOption[]
       title: OptionTitle.ElementVisibility,
       collapsible: true,
       options: [
+        {
+          id: 'onlyPlaying',
+          title: 'Show only the playing event',
+          description:
+            'Hides the rest of the script, leaving only the event being played. Shows the whole script while nothing is playing',
+          type: 'boolean',
+          defaultValue: defaults.onlyPlaying,
+        },
         {
           id: 'hideEmpty',
           title: 'Hide events without a script',
@@ -196,6 +205,7 @@ export function getOptionsFromParams(
     scriptSource: getValue('script') ?? defaults.script,
     heading: toEnum(getValue('heading'), headingSources, defaults.heading),
 
+    onlyPlaying: toBoolean(getValue('onlyPlaying'), defaults.onlyPlaying),
     hideEmpty: toBoolean(getValue('hideEmpty'), defaults.hideEmpty),
     showGroups: toBoolean(getValue('showGroups'), defaults.showGroups),
 

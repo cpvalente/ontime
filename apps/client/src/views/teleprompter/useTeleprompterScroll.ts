@@ -13,8 +13,10 @@ import {
   linesPerMinuteToPxPerSecond,
   readPointForAnchor,
   type ScrollAnchor,
+  segmentAfter,
+  segmentEndFor,
 } from './teleprompter.scroll';
-import type { ScriptBlock, TeleprompterController } from './teleprompter.types';
+import type { ParkedAt, ScriptBlock, TeleprompterController } from './teleprompter.types';
 
 const PAGE_FRACTION = 0.85;
 const EXTERNAL_SCROLL_EPSILON = 2;
@@ -92,13 +94,15 @@ export function useTeleprompterScroll({
   // the script's layout as of the last measure, and the reader's place in it
   const geometryRef = useRef<BlockGeometry[]>([]);
   const anchorRef = useRef<ScrollAnchor | null>(null);
+  // the segment this run of playback stops at, chosen when it started
+  const playbackSegmentRef = useRef<string | null>(null);
 
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(initialSpeed);
   // mirrors the operator view's lockAutoScroll: true once the reader has taken
   // the scroll over by hand, false while following is doing the driving
   const [autoScrollLocked, setAutoScrollLocked] = useState(false);
-  const [atEnd, setAtEnd] = useState(false);
+  const [parkedAt, setParkedAt] = useState<ParkedAt>(null);
 
   const isFollowingRef = useRef(false);
   useEffect(() => {
@@ -155,13 +159,27 @@ export function useTeleprompterScroll({
           catchUpTargetRef.current = null;
         }
       } else if (runningRef.current) {
+        // Only playback is held to the segment. A jump, a page or a nudge is
+        // the reader asking to leave it, and stays free to cross.
+        //
+        // Resolved from the segment's identity rather than the pixel bound
+        // taken when playback started, so an edit which moves the script keeps
+        // playback stopping on the same words.
+        const stopBlock = geometryRef.current.find((block) => block.id === playbackSegmentRef.current);
+        const stop = stopBlock
+          ? clamp(segmentEndFor(stopBlock, readingOffsetRef.current), 0, maxScrollRef.current)
+          : maxScrollRef.current;
+
         const pxPerSecond = linesPerMinuteToPxPerSecond(speedRef.current, lineHeightRef.current);
-        const result = advance(next, pxPerSecond, deltaSeconds, maxScrollRef.current);
-        next = result.position;
+        const result = advance(next, pxPerSecond, deltaSeconds, stop);
+        next = Math.min(result.position, stop);
         if (result.atEnd) {
           runningRef.current = false;
           setIsRunning(false);
-          setAtEnd(true);
+          // Past the last segment there is only the trailing padding, so
+          // stopping there is the end of the read rather than a wait for a cue.
+          const isLastSegment = stopBlock !== undefined && stopBlock.id === geometryRef.current.at(-1)?.id;
+          setParkedAt(isLastSegment || stop >= maxScrollRef.current ? 'script' : 'segment');
         }
       }
 
@@ -337,7 +355,7 @@ export function useTeleprompterScroll({
     followTargetRef.current = target;
     catchUpTargetRef.current = target;
     readerDriftRef.current = 0;
-    setAtEnd(false);
+    setParkedAt(null);
   }, [selectedEventId, followLoaded, autoScrollLocked, readingLinePos, hasSelectedBlock, scrollTargetFor]);
 
   const registerBlock = useCallback((id: string, element: HTMLElement | null) => {
@@ -353,9 +371,11 @@ export function useTeleprompterScroll({
       if (maxScrollRef.current > 0 && posRef.current >= maxScrollRef.current) {
         return;
       }
+      const stopAt = segmentAfter(posRef.current, readingOffsetRef.current, geometryRef.current);
+      playbackSegmentRef.current = stopAt?.id ?? null;
       runningRef.current = true;
       setIsRunning(true);
-      setAtEnd(false);
+      setParkedAt(null);
     };
 
     const pause = () => {
@@ -375,7 +395,7 @@ export function useTeleprompterScroll({
       const target = clamp(position, 0, maxScrollRef.current);
       addReaderDrift(target - destination());
       catchUpTargetRef.current = target;
-      setAtEnd(false);
+      setParkedAt(null);
     };
 
     return {
@@ -384,7 +404,7 @@ export function useTeleprompterScroll({
         const distance = lines * lineHeightRef.current;
         pendingDeltaRef.current += distance;
         addReaderDrift(distance);
-        setAtEnd(false);
+        setParkedAt(null);
       },
       page: (direction: 1 | -1) => {
         const scroller = scrollerRef.current;
@@ -410,7 +430,7 @@ export function useTeleprompterScroll({
         if (maxScrollRef.current > 0) {
           runningRef.current = false;
           setIsRunning(false);
-          setAtEnd(true);
+          setParkedAt('script');
         }
       },
       reengageFollow: () => {
@@ -430,6 +450,6 @@ export function useTeleprompterScroll({
     // folds followLoaded in, so callers get one ready-to-use signal instead of
     // a runtime flag they must remember to AND with the option themselves
     canReengageFollow: followLoaded && autoScrollLocked,
-    atEnd,
+    parkedAt,
   };
 }

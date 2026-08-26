@@ -10,9 +10,16 @@ export type ScriptBlock = {
   isLoaded: boolean;
 };
 
+/**
+ * Where playback stopped of its own accord: at the end of the segment being
+ * read, or at the end of the whole script. Null while it has somewhere to go.
+ */
+export type ParkedAt = 'segment' | 'script' | null;
+
 export type TeleprompterOptions = {
   scriptSource: string;
   heading: HeadingSource;
+  onlyPlaying: boolean;
   hideEmpty: boolean;
   showGroups: boolean;
   /** lines per minute */

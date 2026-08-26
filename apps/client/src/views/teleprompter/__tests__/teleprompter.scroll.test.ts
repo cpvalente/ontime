@@ -15,6 +15,8 @@ import {
   MIN_FONT_SIZE,
   MIN_SPEED,
   readPointForAnchor,
+  segmentAfter,
+  segmentEndFor,
   stepFontSize,
 } from '../teleprompter.scroll';
 
@@ -199,6 +201,50 @@ describe('the read anchor', () => {
       const anchor = anchorAtReadPoint(250, script);
       expect(readPointForAnchor(anchor!, [{ id: 'lunch', top: 0, height: 100 }], ids)).toBeNull();
     });
+  });
+});
+
+describe('segmentAfter()', () => {
+  const readingOffset = 100;
+  const script: BlockGeometry[] = [
+    { id: 'welcome', top: 0, height: 300 },
+    { id: 'keynote', top: 300, height: 500 },
+  ];
+
+  const endAfter = (position: number) => {
+    const block = segmentAfter(position, readingOffset, script);
+    return block === null ? null : segmentEndFor(block, readingOffset);
+  };
+
+  test('stops playback at the end of the segment being read', () => {
+    // an event has a stop of its own, and running on would read a segment
+    // nobody cued: at a conference, the next speaker's script
+    expect(endAfter(0)).toBe(200);
+    expect(endAfter(150)).toBe(200);
+  });
+
+  test('moves on to the next segment from a position already parked on a boundary', () => {
+    // otherwise playback would stop again where it already is, and the reader
+    // could never start the next event by pressing play
+    expect(endAfter(200)).toBe(700);
+  });
+
+  test('treats a position within measurement noise of a boundary as parked on it', () => {
+    // re-measuring can leave the parked position a fraction off the boundary,
+    // and a sub-pixel run to it would look like play doing nothing at all
+    expect(endAfter(199.5)).toBe(700);
+    expect(endAfter(190)).toBe(200);
+  });
+
+  test('gives up the bound past the last segment, leaving the end of the script', () => {
+    expect(endAfter(700)).toBeNull();
+  });
+
+  test('has no boundary to stop at in a single segment script', () => {
+    // the plain use of pointing at some text and scrolling through it
+    const single: BlockGeometry[] = [{ id: 'only', top: 0, height: 5000 }];
+    expect(segmentAfter(0, readingOffset, single)?.id).toBe('only');
+    expect(segmentAfter(4900, readingOffset, single)).toBeNull();
   });
 });
 

@@ -4,7 +4,10 @@ import type { RundownMetadataObject } from '../../common/utils/rundownMetadata';
 import { getPropertyValue } from '../common/viewUtils';
 import type { HeadingSource, ScriptBlock, TeleprompterOptions } from './teleprompter.types';
 
-type BuildScriptOptions = Pick<TeleprompterOptions, 'scriptSource' | 'heading' | 'hideEmpty' | 'showGroups'>;
+type BuildScriptOptions = Pick<
+  TeleprompterOptions,
+  'scriptSource' | 'heading' | 'onlyPlaying' | 'hideEmpty' | 'showGroups'
+>;
 
 function makeHeading(source: HeadingSource, cue: string, title: string): string {
   switch (source) {
@@ -34,7 +37,7 @@ export function buildScript(
   customFields: CustomFields,
   options: BuildScriptOptions,
 ): ScriptBlock[] {
-  const { scriptSource, heading, hideEmpty, showGroups } = options;
+  const { scriptSource, heading, onlyPlaying, hideEmpty, showGroups } = options;
 
   if (scriptSource === 'none' || !isReadableSource(scriptSource, customFields)) {
     return [];
@@ -70,6 +73,15 @@ export function buildScript(
       groupTitle,
       isLoaded: Boolean(metadata?.isLoaded),
     });
+  }
+
+  if (onlyPlaying) {
+    const playing = blocks.filter((block) => block.isLoaded);
+    // With nothing loaded there is no event to narrow to, and a blank screen
+    // would be a worse answer than the script the reader asked to see.
+    if (playing.length > 0) {
+      return playing;
+    }
   }
 
   return blocks;

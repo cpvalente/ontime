@@ -118,6 +118,36 @@ export function readPointForAnchor(
   return null;
 }
 
+/** Keeps a position resting on a boundary from counting as still being before it. */
+const SEGMENT_BOUNDARY_EPSILON = 1;
+
+/** The position at which the reading line reaches the end of a segment. */
+export function segmentEndFor(block: BlockGeometry, readingOffset: number): number {
+  return block.top + block.height - readingOffset;
+}
+
+/**
+ * The segment playback should run to, or null past the last one, where the end
+ * of the script is the bound.
+ *
+ * An event is a unit of time with a stop of its own, so running the script on
+ * into the next one reads a segment nobody has cued: at a conference that is
+ * the next speaker's script, while they are still walking on.
+ *
+ * Takes the first segment ending ahead rather than the one the position sits
+ * in, so that starting again from a position already parked on a boundary
+ * carries on into the next segment instead of stopping where it already is.
+ * Decide this once when playback starts: re-deciding it against a position
+ * which is moving lets the bound outrun the reader and never arrive.
+ */
+export function segmentAfter(position: number, readingOffset: number, blocks: BlockGeometry[]): BlockGeometry | null {
+  for (const block of blocks) {
+    if (segmentEndFor(block, readingOffset) > position + SEGMENT_BOUNDARY_EPSILON) return block;
+  }
+
+  return null;
+}
+
 /** How far, in lines, the reader may move the script themselves before it counts as taking over. */
 export const FOLLOW_BREAK_LINES = 1.5;
 

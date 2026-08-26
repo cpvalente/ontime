@@ -61,6 +61,12 @@
   &[data-loaded] .teleprompter__heading {
     color: $accent-color;
   }
+
+  /* Holds the eye on the cued event without hiding what is around it, which is
+     what the reader needs when they are recovering from being ahead or behind. */
+  .teleprompter--has-playing &:not([data-loaded]) {
+    opacity: 0.45;
+  }
 }
 
 .teleprompter__group {
@@ -155,6 +161,14 @@
 
 .teleprompter__speed-unit {
   font-size: 0.6em;
+  color: $viewer-label-color;
+}
+
+.teleprompter__parked {
+  font-size: clamp(11px, 1vw, 15px);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
   color: $viewer-label-color;
 }
 
