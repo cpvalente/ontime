@@ -1,36 +1,17 @@
-.preview {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  /* the stage caps at the panel width, so centre whatever slack a tall panel leaves */
-  justify-content: center;
-  gap: $element-inner-spacing;
-}
-
 /* the stage is the only elastic element in the panel, the controls below it keep their size */
 .stage {
   flex: 1 1 auto;
   min-height: 3rem;
-  /* keep the height driven frame from growing wider than the panel */
-  max-height: calc(100cqw * 9 / 16);
-  display: grid;
-  place-items: center;
-}
-
-/* the frame is a query container so that the embedded timer scales to the preview, not to the viewport */
-.stageFrame {
   position: relative;
-  container-type: inline-size;
+  /* a query container so that the embedded timer scales to the preview, not to the viewport */
+  container-type: size;
   contain: paint;
   overflow: hidden;
-  aspect-ratio: 16 / 9;
-  height: 100%;
   border-radius: $component-border-radius-md;
 }
 
-/* keep the pop-out affordances reachable above the blackout and message overlays */
-.stageCorners {
+/* editor chrome sits above the blackout and message overlays, so it stays reachable and readable */
+.stageChrome {
   position: absolute;
   inset: 0;
   z-index: calc($zindex-floating + 2);

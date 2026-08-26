@@ -64,7 +64,9 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
 
   // gather presentation styles
   const resolvedTimerColour = getTimerColour(viewSettings, undefined, showWarning, showDanger);
+  // the estimate is tuned for a 16:9 screen, so cap it by height for containers wider than that
   const timerFontSize = getEstimatedFontSize(display, secondaryContent);
+  const timerFontRule = `min(${timerFontSize}cqw, ${((timerFontSize * 16) / 9).toFixed(2)}cqh)`;
   const userStyles = {
     ...(resolvedTimerColour && { '--timer-colour': resolvedTimerColour }),
   };
@@ -82,7 +84,7 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
       <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
         <div
           className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished'])}
-          style={{ fontSize: `${timerFontSize}cqw` }}
+          style={{ fontSize: timerFontRule }}
           data-phase={time.phase}
         >
           {display}

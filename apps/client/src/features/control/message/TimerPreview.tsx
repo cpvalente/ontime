@@ -11,16 +11,12 @@ export default function TimerPreview() {
   const { data } = useViewSettings();
 
   return (
-    <div className={style.preview}>
-      <div className={style.stage}>
-        <div className={style.stageFrame}>
-          <PipTimer viewSettings={data} />
-          <div className={style.stageCorners}>
-            <CornerWithPip onExtractClick={(event) => handleLinks('timer', event)} pipElement={<PipRoot />} />
-          </div>
-        </div>
+    <div className={style.stage}>
+      <PipTimer viewSettings={data} />
+      <div className={style.stageChrome}>
+        <TimerStatus />
+        <CornerWithPip onExtractClick={(event) => handleLinks('timer', event)} pipElement={<PipRoot />} />
       </div>
-      <TimerStatus />
     </div>
   );
 }

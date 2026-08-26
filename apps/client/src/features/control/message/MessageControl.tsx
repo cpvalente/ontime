@@ -8,11 +8,15 @@ import InputRow from './InputRow';
 import ScreenControl from './ScreenControl';
 import TimerPreview from './TimerPreview';
 
+import style from './MessageControl.module.scss';
+
 export default function MessageControl() {
   return (
     <>
-      <TimerPreview />
-      <ScreenControl />
+      <div className={style.screenGroup}>
+        <TimerPreview />
+        <ScreenControl />
+      </div>
       <TimerMessageInput />
       <SecondaryInput />
     </>
