@@ -1,34 +1,33 @@
 .preview {
-  background-color: $ui-black;
-  display: grid;
-  place-content: center;
-  text-align: center;
   position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.mainContent {
-  font-size: 1rem;
-  font-weight: 600;
+/* the frame is a query container so that the embedded timer scales to the preview, not to the viewport */
+.stageFrame {
+  position: relative;
+  container-type: inline-size;
+  contain: paint;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
   width: 100%;
-  color: var(--override-colour, $ui-white);
-
-  &[data-phase='pending'] {
-    color: $ontime-roll;
-  }
-  &[data-phase='overtime'] {
-    color: $playback-negative;
-  }
-  &[data-phase='none'] {
-    opacity: $opacity-disabled;
-  }
+  max-height: 100%;
+  border-radius: $component-border-radius-md;
 }
 
-.secondaryContent {
-  border-top: 1px solid $white-7;
-}
+/* keep the pop-out affordances reachable above the blackout and message overlays */
+.stageCorners {
+  position: absolute;
+  inset: 0;
+  z-index: calc($zindex-floating + 2);
+  pointer-events: none;
 
-.blackout {
-  display: none;
+  > * {
+    pointer-events: auto;
+  }
 }
 
 .eventStatus {

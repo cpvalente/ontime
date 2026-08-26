@@ -39,11 +39,6 @@ export const useExternalMessageInput = createSelector((state: RuntimeStore) => (
 }));
 
 export const useMessagePreview = createSelector((state: RuntimeStore) => ({
-  blink: state.message.timer.blink,
-  blackout: state.message.timer.blackout,
-  phase: state.timer.phase,
-  secondarySource: state.message.timer.secondarySource,
-  showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
   timerType: state.eventNow?.timerType ?? null,
   countToEnd: state.eventNow?.countToEnd ?? false,
 }));

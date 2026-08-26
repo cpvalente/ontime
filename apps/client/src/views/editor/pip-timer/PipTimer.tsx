@@ -70,16 +70,18 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
 
   return (
     <div className={cx(['pip-timer', showFinished && 'pip-timer--finished'])} style={userStyles}>
+      <div className={cx(['blackout', message.timer.blackout && 'blackout--active'])} />
+
       <div className={cx(['message-overlay', showOverlay && 'message-overlay--active'])}>
         <FitText mode='multi' min={12} max={256} className={cx(['message', message.timer.blink && 'blink'])}>
           {message.timer.text}
         </FitText>
       </div>
 
-      <div className='timer-container'>
+      <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
         <div
           className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished'])}
-          style={{ fontSize: `${timerFontSize}vw` }}
+          style={{ fontSize: `${timerFontSize}cqw` }}
           data-phase={time.phase}
         >
           {display}
