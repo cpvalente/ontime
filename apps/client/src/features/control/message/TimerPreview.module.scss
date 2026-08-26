@@ -3,6 +3,8 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  /* the stage caps at the panel width, so centre whatever slack a tall panel leaves */
+  justify-content: center;
   gap: $element-inner-spacing;
 }
 

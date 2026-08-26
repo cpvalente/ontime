@@ -41,9 +41,10 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
   // gather timer data
   const totalTime = getTotalTime(time.duration, time.addedTime);
   const stageTimer = getTimerByType(false, timerTypeNow, clock, time, timerTypeNow);
+  // match the defaults of the timer view, which is what the preview is standing in for
   const display = getFormattedTimer(stageTimer, timerTypeNow, 'min', {
     removeSeconds: false,
-    removeLeadingZero: false,
+    removeLeadingZero: true,
   });
 
   const currentAux = (() => {

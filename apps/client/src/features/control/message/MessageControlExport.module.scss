@@ -6,6 +6,11 @@
   overflow: hidden;
 }
 
+/* the extracted route has no flex parent to grow into */
+.extractedPanel {
+  height: 100%;
+}
+
 .contentLayout {
   flex: 1;
   min-height: 0;
