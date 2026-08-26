@@ -4,7 +4,7 @@ import { setMessage, useScreenControl } from '../../../common/hooks/useSocket';
 import style from './ScreenControl.module.scss';
 
 export default function ScreenControl() {
-  const { blackout, blink } = useScreenControl();
+  const { blackout, blink, isScreenModified } = useScreenControl();
 
   return (
     <div className={style.screenControl}>
@@ -25,6 +25,15 @@ export default function ScreenControl() {
         data-testid='toggle timer blackout'
       >
         Blackout
+      </Button>
+      <Button
+        variant='subtle'
+        fluid
+        disabled={!isScreenModified}
+        onClick={() => setMessage.clearScreen()}
+        data-testid='clear screen'
+      >
+        Clear screen
       </Button>
     </div>
   );

@@ -55,6 +55,9 @@ export const setMessage = {
   timerBlackout: (payload: boolean) => sendSocket('message', { timer: { blackout: payload } }),
   timerSecondarySource: (payload: TimerMessage['secondarySource']) =>
     sendSocket('message', { timer: { secondarySource: payload } }),
+  /** returns the stage to a plain timer, keeping whatever the operator has typed */
+  clearScreen: () =>
+    sendSocket('message', { timer: { visible: false, blink: false, blackout: false, secondarySource: null } }),
 };
 
 export const usePlaybackControl = createSelector((state: RuntimeStore) => ({
