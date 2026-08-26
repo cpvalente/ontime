@@ -6,6 +6,7 @@ import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import Select from '../../../common/components/select/Select';
 import { setMessage, useTimerViewControl } from '../../../common/hooks/useSocket';
 import TimerPreview from './TimerPreview';
+import TimerStatus from './TimerStatus';
 
 import style from './TimerViewControl.module.scss';
 
@@ -16,6 +17,8 @@ export default function TimerControlsPreview() {
     <div className={style.previewContainer}>
       <TimerPreview />
       <div className={style.options}>
+        <TimerStatus />
+
         <SecondarySourceControl />
 
         <Editor.Separator orientation='horizontal' />

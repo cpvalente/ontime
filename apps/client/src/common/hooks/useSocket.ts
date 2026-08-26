@@ -38,7 +38,7 @@ export const useExternalMessageInput = createSelector((state: RuntimeStore) => (
   visible: state.message.timer.secondarySource === 'secondary',
 }));
 
-export const useMessagePreview = createSelector((state: RuntimeStore) => ({
+export const useTimerStatus = createSelector((state: RuntimeStore) => ({
   timerType: state.eventNow?.timerType ?? null,
   countToEnd: state.eventNow?.countToEnd ?? false,
 }));

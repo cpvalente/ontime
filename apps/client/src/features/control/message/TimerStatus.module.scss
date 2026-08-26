@@ -1,0 +1,12 @@
+.timerStatus {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.statusIcon {
+  color: $gray-1000;
+
+  &[data-active='true'] {
+    color: $active-indicator;
+  }
+}
