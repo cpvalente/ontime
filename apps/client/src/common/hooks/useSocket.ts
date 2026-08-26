@@ -51,8 +51,11 @@ export const setMessage = {
   timerText: (payload: string) => sendSocket('message', { timer: { text: payload } }),
   timerVisible: (payload: boolean) => sendSocket('message', { timer: { visible: payload } }),
   secondaryMessage: (payload: string) => sendSocket('message', { secondary: payload }),
-  timerBlink: (payload: boolean) => sendSocket('message', { timer: { blink: payload } }),
-  timerBlackout: (payload: boolean) => sendSocket('message', { timer: { blackout: payload } }),
+  // blink and blackout are mutually exclusive stage states, so turning one on turns the other off
+  timerBlink: (payload: boolean) =>
+    sendSocket('message', payload ? { timer: { blink: true, blackout: false } } : { timer: { blink: false } }),
+  timerBlackout: (payload: boolean) =>
+    sendSocket('message', payload ? { timer: { blackout: true, blink: false } } : { timer: { blackout: false } }),
   timerSecondarySource: (payload: TimerMessage['secondarySource']) =>
     sendSocket('message', { timer: { secondarySource: payload } }),
   /** returns the stage to a plain timer, keeping whatever the operator has typed */

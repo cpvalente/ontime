@@ -1,6 +1,6 @@
 /* the stage is the only elastic element in the panel, the controls below it keep their size */
 .stage {
-  flex: 1 1 auto;
+  min-width: 0;
   min-height: 3rem;
   position: relative;
   /* a query container so that the embedded timer scales to the preview, not to the viewport */
