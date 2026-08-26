@@ -49,7 +49,7 @@ export default function TimerPreview() {
   })();
 
   const showColourOverride = main == 'Timer';
-  const contentClasses = cx([blink && style.blink, blackout && style.blackout]);
+  const contentClasses = cx([blink && 'blink', blackout && style.blackout]);
 
   return (
     <div className={style.preview}>
