@@ -1,18 +1,17 @@
 /* the screen state buttons belong with the preview they act on, not with the message inputs.
    buttons sit in a column to the right of the stage by default; once the container narrows
-   too far for that (e.g. an extracted window resized narrow), they drop into a row below it */
+   too far for that (e.g. an extracted window resized narrow), they drop into a row below it.
+   the group is sized by its content, not stretched - the preview keeps a fixed shape rather
+   than growing to whatever height the panel happens to have free */
 .screenGroup {
-  flex: 1 1 auto;
-  min-height: 0;
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-template-rows: 1fr;
+  align-items: start;
   gap: $element-spacing;
 }
 
 @container (max-width: 22rem) {
   .screenGroup {
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr auto;
   }
 }

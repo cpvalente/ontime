@@ -1,7 +1,10 @@
-/* the stage is the only elastic element in the panel, the controls below it keep their size */
+/* fixed shape, not stretched to whatever height the panel has free - it fills the
+   available width and keeps a 16:9 proportion, which is also what the font size
+   estimate in the embedded timer assumes */
 .stage {
+  width: 100%;
+  aspect-ratio: 16 / 9;
   min-width: 0;
-  min-height: 3rem;
   position: relative;
   /* a query container so that the embedded timer scales to the preview, not to the viewport */
   container-type: size;

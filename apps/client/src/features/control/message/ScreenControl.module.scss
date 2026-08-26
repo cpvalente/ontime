@@ -2,7 +2,6 @@
   display: grid;
   grid-auto-flow: row;
   gap: $element-spacing;
-  align-self: center;
   width: 8rem;
 }
 
@@ -10,7 +9,6 @@
   .screenControl {
     grid-auto-flow: column;
     grid-auto-columns: 1fr;
-    align-self: stretch;
     width: 100%;
   }
 }
