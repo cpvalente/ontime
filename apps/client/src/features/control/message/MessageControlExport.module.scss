@@ -1,11 +1,19 @@
 .growPanel {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .contentLayout {
+  flex: 1;
+  min-height: 0;
+  container-type: inline-size;
+
   display: flex;
   flex-direction: column;
-  gap: $section-spacing;
+  gap: $element-spacing;
   color: $ui-white;
   padding-top: $panel-top-padding;
 }

@@ -1,18 +1,18 @@
+import { SecondarySource } from 'ontime-types';
 import { IoEye, IoEyeOffOutline } from 'react-icons/io5';
 
 import IconButton from '../../../common/components/buttons/IconButton';
-import {
-  setMessage,
-  useExternalMessageInput as useSecondaryMessageInput,
-  useTimerMessageInput,
-} from '../../../common/hooks/useSocket';
+import Select from '../../../common/components/select/Select';
+import { setMessage, useSecondaryMessageInput, useTimerMessageInput } from '../../../common/hooks/useSocket';
 import InputRow from './InputRow';
-import TimerControlsPreview from './TimerViewControl';
+import ScreenControl from './ScreenControl';
+import TimerPreview from './TimerPreview';
 
 export default function MessageControl() {
   return (
     <>
-      <TimerControlsPreview />
+      <TimerPreview />
+      <ScreenControl />
       <TimerMessageInput />
       <SecondaryInput />
     </>
@@ -24,7 +24,7 @@ function TimerMessageInput() {
 
   return (
     <InputRow
-      label='Timer Message'
+      label='Timer message'
       placeholder='Message shown fullscreen in stage timer'
       text={text}
       visible={visible}
@@ -32,6 +32,7 @@ function TimerMessageInput() {
     >
       <IconButton
         aria-label='Toggle timer message visibility'
+        aria-pressed={visible}
         onClick={() => setMessage.timerVisible(!visible)}
         variant={visible ? 'primary' : 'subtle'}
       >
@@ -41,31 +42,46 @@ function TimerMessageInput() {
   );
 }
 
+/**
+ * The secondary line of the stage timer shows one of the aux timers or the secondary message.
+ * The select owns which one, the eye owns whether the line is shown at all.
+ */
 function SecondaryInput() {
-  const { text, visible } = useSecondaryMessageInput();
-
-  const toggleSecondary = () => {
-    if (visible) {
-      setMessage.timerSecondarySource(null);
-    } else {
-      setMessage.timerSecondarySource('secondary');
-    }
-  };
+  const { text, source } = useSecondaryMessageInput();
+  const isShowingSecondaryLine = source !== null;
+  const selectedSource = source ?? 'aux1';
 
   return (
     <InputRow
-      label='Secondary Message'
+      label='Secondary'
       placeholder='Message shown as secondary text in stage timer'
       text={text}
-      visible={visible}
+      visible={source === 'secondary'}
       changeHandler={(newValue) => setMessage.secondaryMessage(newValue)}
+      sourcePicker={
+        <Select
+          value={selectedSource}
+          options={[
+            { value: 'aux1', label: 'Aux 1' },
+            { value: 'aux2', label: 'Aux 2' },
+            { value: 'aux3', label: 'Aux 3' },
+            { value: 'secondary', label: 'Message' },
+          ]}
+          onValueChange={(value: SecondarySource | null) => {
+            if (value === null) return;
+            setMessage.timerSecondarySource(value);
+          }}
+        />
+      }
     >
       <IconButton
-        aria-label='Toggle secondary message visibility'
-        onClick={toggleSecondary}
-        variant={visible ? 'primary' : 'subtle'}
+        aria-label='Toggle secondary visibility'
+        aria-pressed={isShowingSecondaryLine}
+        onClick={() => setMessage.timerSecondarySource(isShowingSecondaryLine ? null : selectedSource)}
+        variant={isShowingSecondaryLine ? 'primary' : 'subtle'}
+        data-testid='toggle secondary'
       >
-        {visible ? <IoEye /> : <IoEyeOffOutline />}
+        {isShowingSecondaryLine ? <IoEye /> : <IoEyeOffOutline />}
       </IconButton>
     </InputRow>
   );

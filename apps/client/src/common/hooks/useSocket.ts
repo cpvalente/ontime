@@ -22,10 +22,14 @@ export const useRundownEditor = createSelector((state: RuntimeStore) => ({
   nextEventId: state.eventNext?.id ?? null,
 }));
 
-export const useTimerViewControl = createSelector((state: RuntimeStore) => ({
+export const useScreenControl = createSelector((state: RuntimeStore) => ({
   blackout: state.message.timer.blackout,
   blink: state.message.timer.blink,
-  secondarySource: state.message.timer.secondarySource,
+  isScreenModified:
+    state.message.timer.visible ||
+    state.message.timer.blink ||
+    state.message.timer.blackout ||
+    state.message.timer.secondarySource !== null,
 }));
 
 export const useTimerMessageInput = createSelector((state: RuntimeStore) => ({
@@ -33,9 +37,9 @@ export const useTimerMessageInput = createSelector((state: RuntimeStore) => ({
   visible: state.message.timer.visible,
 }));
 
-export const useExternalMessageInput = createSelector((state: RuntimeStore) => ({
+export const useSecondaryMessageInput = createSelector((state: RuntimeStore) => ({
   text: state.message.secondary,
-  visible: state.message.timer.secondarySource === 'secondary',
+  source: state.message.timer.secondarySource,
 }));
 
 export const useTimerStatus = createSelector((state: RuntimeStore) => ({
