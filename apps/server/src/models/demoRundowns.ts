@@ -1,4 +1,4 @@
-import { SupportedEntry, TimeStrategy, EndAction, TimerType, Day, Rundown } from 'ontime-types';
+import { SupportedEntry, TimeStrategy, EndAction, TimerType, Day, Rundown, TimerLifeCycle } from 'ontime-types';
 
 export const stageRundown: Rundown = {
   id: 'default',
@@ -120,7 +120,16 @@ export const stageRundown: Rundown = {
         Audio_Notes: '1x Wireless Hand Held',
         PowerPoint_Name: 'HoldingSlide.pptx',
       },
-      triggers: [],
+      // demonstrates that an automation can be attached to a single event, which is
+      // otherwise only discoverable by reading the docs. See demoProject.ts
+      triggers: [
+        {
+          id: 'demo-event-trigger',
+          title: 'Aux timer with the event',
+          trigger: TimerLifeCycle.onStart,
+          automationId: 'demo-aux-timer',
+        },
+      ],
     },
     fa593e: {
       id: 'fa593e',

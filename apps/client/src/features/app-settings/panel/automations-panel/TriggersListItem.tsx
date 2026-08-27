@@ -31,7 +31,12 @@ export default function TriggersListItem(props: TriggersListItemProps) {
         <Tag>{cycles.find((cycle) => cycle.value === trigger.trigger)?.label}</Tag>
       </td>
       <td>
-        <Tag>{automations?.[trigger.automationId]?.title}</Tag>
+        {/* a trigger can outlive the automation it points at, say after a partial project import */}
+        {automations?.[trigger.automationId] ? (
+          <Tag>{automations[trigger.automationId].title}</Tag>
+        ) : (
+          <Tag variant='warning'>Missing automation</Tag>
+        )}
       </td>
       <Panel.InlineElements align='end' relation='inner' as='td'>
         <IconButton variant='ghosted-white' aria-label='Edit entry' onClick={handleEdit}>

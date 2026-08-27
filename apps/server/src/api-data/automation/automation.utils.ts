@@ -1,4 +1,5 @@
 import {
+  AutomationOutput,
   EntryId,
   FilterRule,
   MaybeNumber,
@@ -23,6 +24,23 @@ export function isFilterRule(value: string): value is FilterRule {
 
 export function isOntimeActionAction(value: string): value is OntimeAction['action'] {
   return ontimeActionKeyValues.includes(value);
+}
+
+/**
+ * Describes what an automation sends, for the log line of a successful fire
+ * @example 'OSC ×2, HTTP'
+ */
+export function summariseOutputs(outputs: AutomationOutput[]): string {
+  const labels: Record<AutomationOutput['type'], string> = { osc: 'OSC', http: 'HTTP', ontime: 'Ontime action' };
+  const counts = new Map<AutomationOutput['type'], number>();
+
+  for (const output of outputs) {
+    counts.set(output.type, (counts.get(output.type) ?? 0) + 1);
+  }
+
+  return Array.from(counts.entries())
+    .map(([type, count]) => (count > 1 ? `${labels[type]} ×${count}` : labels[type]))
+    .join(', ');
 }
 
 function toOscValue(argString: string): OscArgInput {

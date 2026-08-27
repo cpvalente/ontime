@@ -76,11 +76,43 @@ export const demoDb: DatabaseModel = {
       label: 'PowerPoint Slide',
     },
   },
+  /**
+   * The demo ships with a working automation so the engine is visible the first time
+   * someone presses Play, rather than hidden behind an empty settings panel.
+   *
+   * It fires an Ontime action: the demo must not put traffic on whatever network it
+   * happens to be opened on. It is attached via an event-level trigger rather than a
+   * global one, so per-event triggers are also discoverable by browsing the rundown
+   * instead of reading docs. The OSC entry is there to be read and edited, and is
+   * deliberately left without a trigger of its own.
+   *
+   * The ids are hand written and must match the map keys. Ids are only generated for
+   * automations created through the DAO, so literals are safe here.
+   */
   automation: {
-    enabledAutomations: false,
+    enabledAutomations: true,
+    // never open a listening socket without the user asking for it
     enabledOscIn: false,
     oscPortIn: 8888,
     triggers: [],
-    automations: {},
+    automations: {
+      'demo-aux-timer': {
+        id: 'demo-aux-timer',
+        title: 'Demo: run Aux Timer 1 with the event',
+        filterRule: 'all',
+        filters: [],
+        outputs: [
+          { type: 'ontime', action: 'aux1-set', time: '00:05:00' },
+          { type: 'ontime', action: 'aux1-start' },
+        ],
+      },
+      'demo-osc-example': {
+        id: 'demo-osc-example',
+        title: 'Demo: OSC to a lighting console (example, not wired up)',
+        filterRule: 'all',
+        filters: [],
+        outputs: [{ type: 'osc', targetIP: '127.0.0.1', targetPort: 8000, address: '/ontime/go', args: '1' }],
+      },
+    },
   },
 };

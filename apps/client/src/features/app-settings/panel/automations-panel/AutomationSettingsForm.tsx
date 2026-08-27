@@ -12,6 +12,7 @@ import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
 import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
+import useAppSettingsNavigation from '../../useAppSettingsNavigation';
 
 const oscApiDocsUrl = 'https://docs.getontime.no/api/protocols/osc/';
 
@@ -32,6 +33,7 @@ export default function AutomationSettingsForm({
   oscInputState,
   isLoading,
 }: AutomationSettingsProps) {
+  const { setLocation } = useAppSettingsNavigation();
   const {
     handleSubmit,
     reset,
@@ -94,9 +96,17 @@ export default function AutomationSettingsForm({
         <Panel.Section>
           <Info>
             <span>Control Ontime and share its data with external systems in your workflow.</span>
-            <span>- Automations allow Ontime to send its data on lifecycle triggers.</span>
+            <span>- An automation is what to send: OSC and HTTP messages, or an action inside Ontime.</span>
+            <span>- A trigger is when to send it. Triggers for a single event live in the event editor.</span>
             <span>- OSC Input tells Ontime to listen to messages on the specific port.</span>
-            <ExternalLink href={oscApiDocsUrl}>See the docs</ExternalLink>
+            <Info.Footer>
+              <Panel.InlineElements relation='inner'>
+                <ExternalLink href={oscApiDocsUrl}>See the docs</ExternalLink>
+                <Button variant='ghosted' size='small' onClick={() => setLocation('network__log')}>
+                  Automations report to the event log
+                </Button>
+              </Panel.InlineElements>
+            </Info.Footer>
           </Info>
         </Panel.Section>
 
