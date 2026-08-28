@@ -36,6 +36,10 @@ Remove comments that:
 
 Update adjacent comments with code. Stale comments are defects.
 
+Add a short comment immediately above every React `useEffect` describing the external synchronization or lifecycle
+responsibility it owns. Explain non-obvious reasons or constraints when they matter; for files with multiple effects, a
+brief responsibility label is useful even when the mechanics are straightforward.
+
 ## Naming and types
 
 - Prefer Ontime terms over vague `data`, `result`, `item`.
