@@ -63,9 +63,11 @@ export type RuntimeState = {
   // private properties of the timer calculations
   _timer: {
     forceFinish: Maybe<TimeOfDay>; // whether we should declare an event as finished, will contain the finish time
+
+    /** Instant the playback was paused at, an instant so that pause durations survive midnight */
     pausedAt: Maybe<Instant>;
 
-    /** Accumulate pause duration but dose not include the current pause */
+    /** Accumulated duration of past pauses, does not include an ongoing pause */
     pausedDuration: number;
     secondaryTarget: Maybe<TimeOfDay>;
     hasFinished: boolean;
@@ -78,6 +80,8 @@ export type RuntimeState = {
   _end: ExpectedMetadata;
   _startEpoch: Maybe<Instant>;
   _startDayOffset: Maybe<Day>;
+
+  /** Current instant, kept in parity with the clock (see setClock) */
   _now: Instant;
 };
 
@@ -655,9 +659,8 @@ export function roll(
   }
 
   // we will need to do some calculations, update the time first
-  const epoch = timeCore.now();
-  const now = timeCore.toTimeOfDay(epoch);
-  runtimeState.clock = now;
+  setClock(runtimeState);
+  const epoch = runtimeState._now;
 
   // 2. if there is an event armed, we use it
   if (runtimeState.timer.playback === Playback.Armed || runtimeState.timer.phase === TimerPhase.Pending) {

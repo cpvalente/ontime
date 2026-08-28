@@ -5,7 +5,8 @@ export type RestorePoint = {
   selectedEventId: MaybeString;
   startedAt: MaybeNumber;
   addedTime: number;
-  pausedAt: MaybeNumber;
+  /** instant the playback was paused at */
+  pausedAt: Maybe<Instant>;
   pausedDuration?: number;
   firstStart: MaybeNumber;
   startEpoch: Maybe<Instant>;

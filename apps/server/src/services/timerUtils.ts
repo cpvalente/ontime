@@ -1,4 +1,4 @@
-import { Day, MaybeNumber, TimeOfDay, TimerPhase } from 'ontime-types';
+import { Day, Duration, Maybe, MaybeNumber, TimeOfDay, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
 import * as timeCore from '../lib/time-core/timeCore.js';
@@ -32,14 +32,12 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
   }
 
   const { countToEnd, timeEnd } = state.eventNow;
-  const { pausedAt } = state._timer;
-  const { clock } = state;
 
   if (startedAt === null) {
     return null;
   }
 
-  const pausedTime = pausedAt != null ? clock - pausedAt : 0;
+  const pausedTime = getOngoingPauseDuration(state);
 
   if (countToEnd) {
     return timeEnd + addedTime + pausedTime;
@@ -58,11 +56,11 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
 
 /**
  * Calculates running countdown
+ * The result is a duration (time left in the timer), never a point in time
  * @param {RuntimeState} state runtime state
- * @returns {number} current time for timer
+ * @returns {Duration} time remaining in the running timer
  */
-
-export function getCurrent(state: RuntimeState): number {
+export function getCurrent(state: RuntimeState): Duration {
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: {
     if (state.eventNow === null || state.timer.duration === null) {
@@ -71,54 +69,58 @@ export function getCurrent(state: RuntimeState): number {
   }
   const { startedAt, duration, addedTime } = state.timer;
   const { countToEnd, timeStart, timeEnd } = state.eventNow;
-  const { pausedAt } = state._timer;
   const { clock } = state;
 
   if (countToEnd) {
     const isEventOverMidnight = timeStart > timeEnd;
     const correctDay = isEventOverMidnight ? dayInMs : 0;
-    return correctDay - clock + timeEnd + addedTime;
+    return (correctDay - clock + timeEnd + addedTime) as Duration;
   }
 
   if (startedAt === null) {
-    return duration;
+    return duration as Duration;
   }
 
-  if (pausedAt != null) {
-    return startedAt + duration + addedTime - pausedAt;
-  }
+  // an ongoing pause freezes the timer, so we discount the time spent in it
+  const pausedTime = getOngoingPauseDuration(state);
+  const elapsedSinceStart = timeCore.elapsedTime(clock, startedAt as TimeOfDay);
 
-  const hasPassedMidnight = startedAt > clock;
-  const correctDay = hasPassedMidnight ? dayInMs : 0;
-  return startedAt + duration + addedTime - clock - correctDay;
+  return (duration + addedTime - elapsedSinceStart + pausedTime) as Duration;
 }
 
 /**
- * Calculates active time elapsed since the timer started.
+ * Calculates active time elapsed since the timer started
+ * Time spent paused is not active time, so it is discounted
  */
-export function getElapsed(state: RuntimeState): MaybeNumber {
-  const { clock, _now } = state;
+export function getElapsed(state: RuntimeState): Maybe<Duration> {
+  const { clock } = state;
   const { startedAt } = state.timer;
-  const { pausedDuration, pausedAt } = state._timer;
+  const { pausedDuration } = state._timer;
 
   if (startedAt === null) {
     return null;
   }
 
-  const currentPauseDuration = pausedAt !== null ? timeCore.timeSince(_now, pausedAt) : 0;
+  const elapsedSinceStart = timeCore.elapsedTime(clock, startedAt as TimeOfDay);
+  const activeElapsed = elapsedSinceStart - pausedDuration - getOngoingPauseDuration(state);
 
-  const elapsedSinceStart = getTimeSinceStart(clock, startedAt);
-  const activeElapsed = elapsedSinceStart - pausedDuration - currentPauseDuration;
-
-  return Math.max(0, activeElapsed);
+  return Math.max(0, activeElapsed) as Duration;
 }
 
-function getTimeSinceStart(clock: TimeOfDay, startedAt: number): number {
-  if (clock < startedAt) {
-    return clock + dayInMs - startedAt;
+/**
+ * Calculates how long the current pause has been going on for
+ * The pause is tracked as an instant, which makes the calculation
+ * immune to the clock wrapping around midnight
+ * @returns 0 if the playback is not paused
+ */
+function getOngoingPauseDuration(state: RuntimeState): Duration {
+  const { pausedAt } = state._timer;
+
+  if (pausedAt == null) {
+    return 0 as Duration;
   }
 
-  return clock - startedAt;
+  return timeCore.timeSince(state._now, pausedAt);
 }
 
 /**
@@ -154,7 +156,7 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
  * Negative offset is under time / ahead of schedule
  */
 export function getRuntimeOffset(state: RuntimeState): { absolute: number; relative: number } {
-  const { eventNow, clock, _startDayOffset } = state;
+  const { eventNow, _startDayOffset } = state;
   const { addedTime, current, startedAt } = state.timer;
   // nothing to calculate if there are no loaded events or if we havent started
   if (eventNow === null || startedAt === null || _startDayOffset === null) {
@@ -178,8 +180,8 @@ export function getRuntimeOffset(state: RuntimeState): { absolute: number; relat
   // how long has the event been running over (is a negative number when in over timer so inverted before adding to offset)
   const overtime = Math.abs(Math.min(current, 0));
 
-  // time the playback was paused, the different from now to when we paused is added to the offset TODO: brakes when crossing midnight
-  const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
+  // time the playback was paused, the difference from now to when we paused is added to the offset
+  const pausedTime = getOngoingPauseDuration(state);
 
   // absolute offset is difference between schedule and playback time
   // in case of count to end, the absolute offset is overtime and added time
