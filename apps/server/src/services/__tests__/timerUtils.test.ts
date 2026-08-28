@@ -1,7 +1,6 @@
 import { EndAction, Instant, Playback, TimeOfDay, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, dayInMs, millisToString } from 'ontime-utils';
 
-import * as timeCore from '../../lib/time-core/timeCore.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 import {
   findDayOffset,
@@ -16,6 +15,13 @@ import {
 } from '../timerUtils.js';
 
 const asTimeOfDay = (value: number): RuntimeState['clock'] => value as RuntimeState['clock'];
+
+/**
+ * Instants are epoch based, we anchor them to a fixed day to keep the tests deterministic
+ */
+const midnight = new Date(2026, 0, 1).getTime();
+const instantToday = (timeOfDay: number): Instant => (midnight + timeOfDay) as Instant;
+const instantYesterday = (timeOfDay: number): Instant => (midnight - dayInMs + timeOfDay) as Instant;
 
 describe('getElapsed()', () => {
   it('returns active elapsed time from startedAt without add-time adjustments', () => {
@@ -54,12 +60,12 @@ describe('getElapsed()', () => {
   it('uses the current pause start while paused', () => {
     const state = {
       clock: 10 * MILLIS_PER_MINUTE,
-      _now: timeCore.toInstant((10 * MILLIS_PER_MINUTE) as TimeOfDay, timeCore.now()),
+      _now: instantToday(10 * MILLIS_PER_MINUTE),
       timer: {
         startedAt: 2 * MILLIS_PER_MINUTE,
       },
       _timer: {
-        pausedAt: timeCore.toInstant((7 * MILLIS_PER_MINUTE) as TimeOfDay, timeCore.now()),
+        pausedAt: instantToday(7 * MILLIS_PER_MINUTE),
         pausedDuration: 1 * MILLIS_PER_MINUTE,
       },
     } as RuntimeState;
@@ -145,6 +151,28 @@ describe('getExpectedFinish()', () => {
 
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(31);
+  });
+  it('adds the time of an ongoing pause which spans midnight', () => {
+    const state = {
+      eventNow: {
+        timeEnd: 1 * MILLIS_PER_HOUR, // 01:00
+        timerType: TimerType.CountDown,
+      },
+      clock: 3 * MILLIS_PER_MINUTE, // 00:03 (after midnight)
+      _now: instantToday(3 * MILLIS_PER_MINUTE),
+      timer: {
+        addedTime: 0,
+        duration: 2 * MILLIS_PER_HOUR,
+        startedAt: 23 * MILLIS_PER_HOUR, // 23:00
+      },
+      _timer: {
+        pausedAt: instantYesterday(23 * MILLIS_PER_HOUR + 58 * MILLIS_PER_MINUTE), // 23:58, before midnight
+        hasFinished: false,
+      },
+    } as RuntimeState;
+
+    // the 5 minute pause pushes the finish from 01:00 to 01:05
+    expect(getExpectedFinish(state)).toBe(1 * MILLIS_PER_HOUR + 5 * MILLIS_PER_MINUTE);
   });
   it('added time could be negative', () => {
     const state = {
@@ -400,6 +428,51 @@ describe('getCurrent()', () => {
 
     const current = getCurrent(state);
     expect(current).toBe(35);
+  });
+
+  it('is frozen while paused', () => {
+    const state = {
+      eventNow: {
+        timeEnd: 10,
+        timerType: TimerType.CountDown,
+      },
+      clock: 5,
+      _now: instantToday(5),
+      timer: {
+        addedTime: 0,
+        duration: 10,
+        startedAt: 0,
+      },
+      _timer: {
+        pausedAt: instantToday(2), // we have been paused for 3ms (see clock)
+        hasFinished: false,
+      },
+    } as RuntimeState;
+
+    // the timer holds the value it had when we paused
+    expect(getCurrent(state)).toBe(8);
+  });
+  it('is frozen while paused, even if the pause spans midnight', () => {
+    const state = {
+      eventNow: {
+        timeEnd: 1 * MILLIS_PER_HOUR, // 01:00
+        timerType: TimerType.CountDown,
+      },
+      clock: 3 * MILLIS_PER_MINUTE, // 00:03 (after midnight)
+      _now: instantToday(3 * MILLIS_PER_MINUTE),
+      timer: {
+        addedTime: 0,
+        duration: 2 * MILLIS_PER_HOUR,
+        startedAt: 23 * MILLIS_PER_HOUR, // 23:00
+      },
+      _timer: {
+        pausedAt: instantYesterday(23 * MILLIS_PER_HOUR + 58 * MILLIS_PER_MINUTE), // 23:58, before midnight
+        hasFinished: false,
+      },
+    } as RuntimeState;
+
+    // we ran for 58 minutes before pausing, so the timer holds at 1h02
+    expect(getCurrent(state)).toBe(1 * MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE);
   });
 
   describe('on timers of type count-to-end', () => {
@@ -957,13 +1030,14 @@ describe('getRuntimeOffset()', () => {
         dayOffset: 0,
       },
       clock: 150,
+      _now: instantToday(150),
       timer: {
         startedAt: 100, // started on time
         current: 25, // are 25ms into it
         addedTime: 0,
       },
       _timer: {
-        pausedAt: 125, // we have been paused for 25ms (see clock)
+        pausedAt: instantToday(125), // we have been paused for 25ms (see clock)
       },
       rundown: {
         actualStart: 100,
@@ -986,17 +1060,14 @@ describe('getRuntimeOffset()', () => {
         dayOffset: 0,
       },
       clock: 3 * MILLIS_PER_MINUTE, // 00:03 (after midnight)
-      _now: timeCore.toInstant((3 * MILLIS_PER_MINUTE) as TimeOfDay, timeCore.now()),
+      _now: instantToday(3 * MILLIS_PER_MINUTE),
       timer: {
         startedAt: 23 * MILLIS_PER_HOUR, // started on time at 23:00
         current: 25, // still counting down
         addedTime: 0,
       },
       _timer: {
-        pausedAt: timeCore.toInstant(
-          (23 * MILLIS_PER_HOUR + 58 * MILLIS_PER_MINUTE) as TimeOfDay,
-          (timeCore.now() - dayInMs) as Instant,
-        ), // 23:58, before midnight
+        pausedAt: instantYesterday(23 * MILLIS_PER_HOUR + 58 * MILLIS_PER_MINUTE), // 23:58, before midnight
         pausedDuration: 0,
       },
       rundown: {
@@ -1007,7 +1078,11 @@ describe('getRuntimeOffset()', () => {
       _startDayOffset: 0,
     } as RuntimeState;
 
-    // paused from 23:58 to 00:03 -> so elapsed should still be 58 minutes
+    // paused from 23:58 to 00:03 -> 5 minutes, regardless of the midnight wrap
+    const { absolute } = getRuntimeOffset(state);
+    expect(absolute).toBe(5 * MILLIS_PER_MINUTE);
+
+    // and the pause is not active time, elapsed is still the 58 minutes we ran before pausing
     expect(getElapsed(state)).toBe(58 * MILLIS_PER_MINUTE);
   });
 

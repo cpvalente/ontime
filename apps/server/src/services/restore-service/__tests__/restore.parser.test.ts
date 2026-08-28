@@ -13,7 +13,7 @@ describe('isRestorePoint()', () => {
       selectedEventId: '123',
       startedAt: 1,
       addedTime: 2,
-      pausedAt: 3,
+      pausedAt: asInstant(1754745600000),
       firstStart: 1,
       startEpoch: asInstant(1),
       currentDay: 0,
@@ -62,6 +62,22 @@ describe('isRestorePoint()', () => {
 
     expect(isRestorePoint(restorePoint)).toBe(true);
     expect(isRestorePoint({ ...restorePoint, pausedDuration: '3000' })).toBe(false);
+  });
+
+  it('rejects a pausedAt which is not an instant', () => {
+    const restorePoint = {
+      playback: Playback.Pause,
+      selectedEventId: '123',
+      startedAt: 1,
+      addedTime: 2,
+      // restore points from before pausedAt became an instant contain a time of day
+      pausedAt: 3,
+      firstStart: 1,
+      startEpoch: 1,
+      currentDay: 0,
+    };
+
+    expect(isRestorePoint(restorePoint)).toBe(false);
   });
 
   describe('rejects a badly formatted file', () => {

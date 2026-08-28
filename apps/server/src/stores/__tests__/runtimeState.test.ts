@@ -285,6 +285,10 @@ describe('mutation on runtimeState', () => {
       vi.setSystemTime('jan 2 00:01');
       update();
       expect(getState().timer.elapsed).toBe(8 * MILLIS_PER_MINUTE);
+      // the timer is frozen at the value it had when we paused
+      expect(getState().timer.current).toBe(2 * MILLIS_PER_HOUR - 8 * MILLIS_PER_MINUTE);
+      // we started 50 minutes late and have been paused for 3 minutes
+      expect(getState().offset.absolute).toBe(53 * MILLIS_PER_MINUTE);
 
       // resume 5 minutes after pausing, having crossed midnight (23:58 -> 00:03)
       vi.setSystemTime('jan 2 00:03');

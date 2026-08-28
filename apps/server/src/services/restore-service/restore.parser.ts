@@ -1,4 +1,5 @@
 import { Playback } from 'ontime-types';
+import { dayInMs } from 'ontime-utils';
 
 import { is } from '../../utils/is.js';
 import type { RestorePoint } from './restore.type.js';
@@ -42,7 +43,9 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
     return false;
   }
 
-  if (!is.number(restorePoint.pausedAt) && restorePoint.pausedAt !== null) {
+  // pausedAt is an instant, restore points made before this change contained a time of day
+  // we reject those to avoid resuming with a corrupt pause duration
+  if (restorePoint.pausedAt !== null && (!is.number(restorePoint.pausedAt) || restorePoint.pausedAt < dayInMs)) {
     return false;
   }
 
