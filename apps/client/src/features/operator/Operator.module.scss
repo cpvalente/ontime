@@ -18,6 +18,13 @@
   padding-bottom: 95vh;
 }
 
+/* Bounds the sticky header to its group and restores the surrounding list gap. */
+.groupSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .editPrompt {
   position: fixed;
   z-index: $zindex-dialog;

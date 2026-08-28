@@ -252,6 +252,44 @@ export function resolveSubscriptionTarget(
   };
 }
 
+/**
+ * A subscribed group along with the subscribed events which belong to it.
+ * Events without a subscribed parent group form their own section with no group.
+ */
+export type CountdownSection = {
+  group: CountdownTarget | null;
+  events: CountdownTarget[];
+};
+
+/**
+ * Folds the flat, rundown ordered subscription targets into sections.
+ * A group opens a section which absorbs the following targets that declare it as parent,
+ * which allows the group to be rendered as a sticky header for its own events.
+ */
+export function groupSubscriptionTargets(targets: CountdownTarget[]): CountdownSection[] {
+  const sections: CountdownSection[] = [];
+  let openSection: CountdownSection | null = null;
+
+  for (const target of targets) {
+    // resolveSubscriptionTarget spreads the first child, so we cannot rely on the entry type here
+    if (target.isGroup) {
+      openSection = { group: target, events: [] };
+      sections.push(openSection);
+      continue;
+    }
+
+    if (openSection?.group && target.parent === openSection.group.id) {
+      openSection.events.push(target);
+      continue;
+    }
+
+    openSection = null;
+    sections.push({ group: null, events: [target] });
+  }
+
+  return sections;
+}
+
 export function extendEventData(
   event: CountdownTarget,
   currentDay: number,

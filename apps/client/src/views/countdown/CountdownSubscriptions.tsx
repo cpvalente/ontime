@@ -1,6 +1,6 @@
 import { MaybeNumber, OntimeEvent } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { IoPencil } from 'react-icons/io5';
 
 import Button from '../../common/components/buttons/Button';
@@ -22,6 +22,7 @@ import {
   CountdownTarget,
   extendEventData,
   getIsLive,
+  groupSubscriptionTargets,
   isOutsideRange,
   preferredFormat12,
   preferredFormat24,
@@ -48,11 +49,22 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
   const selectedRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const stickyHeaderRef = useRef<HTMLDivElement | null>(null);
+
+  const sections = useMemo(() => groupSubscriptionTargets(subscribedEvents), [subscribedEvents]);
+
+  // Responsive sizing and wrapped titles make the sticky header height variable, so measure it at scroll time.
+  const getStickyOffset = useCallback(() => {
+    const header = stickyHeaderRef.current;
+    // Preserve the combined margins between the header and running event.
+    return header ? header.offsetHeight + 4 : 0;
+  }, []);
+
   const scrollToComponent = useFollowComponent({
     followRef: selectedRef,
     scrollRef,
     doFollow: !lockAutoScroll,
-    topOffset: 0,
+    topOffset: getStickyOffset,
     followTrigger: selectedEventId,
   });
 
@@ -75,15 +87,16 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
 
   // prevent considering automated scrolls as user scrolls
   const handleUserScroll = () => {
-    if (selectedRef?.current && scrollRef?.current) {
-      const selectedRect = selectedRef.current.getBoundingClientRect();
-      const scrollerRect = scrollRef.current.getBoundingClientRect();
-      if (selectedRect && scrollerRect) {
-        const distanceFromTop = selectedRect.top - scrollerRect.top;
-        const hasScrolledOutOfThreshold = distanceFromTop < -8 || distanceFromTop > 50;
-        setLockAutoScroll(hasScrolledOutOfThreshold);
-      }
+    if (!selectedRef.current || !scrollRef.current) {
+      return;
     }
+
+    const selectedRect = selectedRef.current.getBoundingClientRect();
+    const scrollerRect = scrollRef.current.getBoundingClientRect();
+    // Keep the threshold relative to the visible rows below the sticky header.
+    const distanceFromTop = selectedRect.top - scrollerRect.top - getStickyOffset();
+    const hasScrolledOutOfThreshold = distanceFromTop < -8 || distanceFromTop > 50;
+    setLockAutoScroll(hasScrolledOutOfThreshold);
   };
   const throttledHandleScroll = throttle(handleUserScroll, 1000);
 
@@ -98,41 +111,63 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
 
   return (
     <div className='list-container' onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
-      {subscribedEvents.map((event) => {
-        // while a group is live, surface the running event's title as the secondary line
-        const liveTitle = event.isGroup && event.liveEntry ? event.liveEntry.title : undefined;
-        const secondaryData = liveTitle ?? getPropertyValue(event, secondarySource);
-        const isGroupedEvent = !event.isGroup && Boolean(event.parent);
-        const activeEntryId = event.isGroup ? (event.liveEntry?.id ?? event.targetId) : event.id;
-        // a subscribed group is live when any of its children is the selected/running event
-        const isLive = activeEntryId ? getIsLive(activeEntryId, selectedEventId, playback) : false;
-        const isArmed = !isLive && activeEntryId === selectedEventId;
-        const countdownEvent = extendEventData(event, currentDay, actualStart, plannedStart, offset, mode, reportData);
-        const displayTitle = getPropertyValue(event, mainSource ?? 'title');
+      {sections.map((section) => {
+        const rows = section.group ? [section.group, ...section.events] : section.events;
+        // the running event anchors the scroll, the group header stays pinned above it
+        const anchorId = section.events.find((event) => getIsLive(event.id, selectedEventId, playback))?.id ?? null;
+
         return (
-          <div
-            key={event.id}
-            ref={isLive ? selectedRef : undefined}
-            className={cx([
-              'sub',
-              isLive && 'sub--live',
-              isArmed && 'sub--armed',
-              event.isGroup && 'sub--group',
-              isGroupedEvent && 'sub--in-group',
-            ])}
-            data-testid={event.cue}
-          >
-            <div
-              className='sub__binder'
-              style={{ '--user-color': event.colour, '--group-color': event.groupColour ?? 'transparent' }}
-            />
-            <ScheduleTime event={countdownEvent} showExpected={showExpected} />
-            <SubscriptionStatus event={countdownEvent} />
-            <div className={cx(['sub__title', !displayTitle && 'subdued'])}>
-              {event.isGroup && <span className='sub__eyebrow'>Group</span>}
-              {displayTitle}
-            </div>
-            {secondaryData && <div className='sub__secondary'>{secondaryData}</div>}
+          <div key={section.group?.id ?? rows[0].id} className='sub-section'>
+            {rows.map((event) => {
+              // while a group is live, surface the running event's title as the secondary line
+              const liveTitle = event.isGroup && event.liveEntry ? event.liveEntry.title : undefined;
+              const secondaryData = liveTitle ?? getPropertyValue(event, secondarySource);
+              const isGroupedEvent = !event.isGroup && Boolean(event.parent);
+              const activeEntryId = event.isGroup ? (event.liveEntry?.id ?? event.targetId) : event.id;
+              // a subscribed group is live when any of its children is the selected/running event
+              const isLive = activeEntryId ? getIsLive(activeEntryId, selectedEventId, playback) : false;
+              const isArmed = !isLive && activeEntryId === selectedEventId;
+              // only ever hand the ref to a single row, sharing it would null it out on the next commit
+              const isAnchor = isLive && (anchorId === null || event.id === anchorId);
+              const rowRef = isAnchor ? selectedRef : event.isGroup && anchorId ? stickyHeaderRef : undefined;
+              const countdownEvent = extendEventData(
+                event,
+                currentDay,
+                actualStart,
+                plannedStart,
+                offset,
+                mode,
+                reportData,
+              );
+              const displayTitle = getPropertyValue(event, mainSource ?? 'title');
+
+              return (
+                <div
+                  key={event.id}
+                  ref={rowRef}
+                  className={cx([
+                    'sub',
+                    isLive && 'sub--live',
+                    isArmed && 'sub--armed',
+                    event.isGroup && 'sub--group',
+                    isGroupedEvent && 'sub--in-group',
+                  ])}
+                  data-testid={event.cue}
+                >
+                  <div
+                    className='sub__binder'
+                    style={{ '--user-color': event.colour, '--group-color': event.groupColour ?? 'transparent' }}
+                  />
+                  <ScheduleTime event={countdownEvent} showExpected={showExpected} />
+                  <SubscriptionStatus event={countdownEvent} />
+                  <div className={cx(['sub__title', !displayTitle && 'subdued'])}>
+                    {event.isGroup && <span className='sub__eyebrow'>Group</span>}
+                    {displayTitle}
+                  </div>
+                  {secondaryData && <div className='sub__secondary'>{secondaryData}</div>}
+                </div>
+              );
+            })}
           </div>
         );
       })}

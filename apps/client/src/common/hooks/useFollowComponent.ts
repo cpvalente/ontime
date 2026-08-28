@@ -2,8 +2,8 @@ import { MaybeString } from 'ontime-types';
 import { RefObject, useCallback, useEffect } from 'react';
 
 function scrollToComponent<ComponentRef extends HTMLElement, ScrollRef extends HTMLElement>(
-  componentRef: RefObject<ComponentRef>,
-  scrollRef: RefObject<ScrollRef>,
+  componentRef: RefObject<ComponentRef | null>,
+  scrollRef: RefObject<ScrollRef | null>,
   topOffset: number,
 ) {
   if (!componentRef.current || !scrollRef.current) {
@@ -17,11 +17,17 @@ function scrollToComponent<ComponentRef extends HTMLElement, ScrollRef extends H
   scrollRef.current.scrollTo({ top, behavior: 'smooth' });
 }
 
+type TopOffset = number | (() => number);
+
+function resolveTopOffset(topOffset: TopOffset) {
+  return typeof topOffset === 'function' ? topOffset() : topOffset;
+}
+
 interface UseFollowComponentProps {
   followRef: RefObject<HTMLElement | null>;
   scrollRef: RefObject<HTMLElement | null>;
   doFollow: boolean;
-  topOffset?: number;
+  topOffset?: TopOffset;
   setScrollFlag?: (newValue: boolean) => void;
   followTrigger?: MaybeString; // this would be an entry id or null
 }
@@ -44,18 +50,17 @@ export default function useFollowComponent({
       setScrollFlag?.(true);
       // Use requestAnimationFrame to ensure the component is fully loaded
       window.requestAnimationFrame(() => {
-        scrollToComponent(followRef as RefObject<HTMLElement>, scrollRef as RefObject<HTMLElement>, topOffset);
+        // resolve the offset after layout, so that measured values are up to date
+        scrollToComponent(followRef, scrollRef, resolveTopOffset(topOffset));
         setScrollFlag?.(false);
       });
     }
   }, [followTrigger, doFollow, followRef, scrollRef, setScrollFlag, topOffset]);
 
   const scrollToRefComponent = useCallback(
-    (componentRef = followRef, containerRef = scrollRef, offset = topOffset) => {
+    (componentRef = followRef, containerRef = scrollRef, offset?: number) => {
       if (componentRef && containerRef) {
-        // @ts-expect-error -- we know this are not null
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        scrollToComponent(componentRef!, containerRef!, offset);
+        scrollToComponent(componentRef, containerRef, offset ?? resolveTopOffset(topOffset));
       }
     },
     [followRef, scrollRef, topOffset],

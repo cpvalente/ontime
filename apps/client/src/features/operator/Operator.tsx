@@ -1,5 +1,5 @@
 import { OntimeView, isOntimeEvent, isOntimeGroup } from 'ontime-types';
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import EmptyFill from '../../common/components/state/EmptyFill';
 import EmptyPage from '../../common/components/state/EmptyPage';
@@ -54,11 +54,20 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
   const selectedRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const stickyHeaderRef = useRef<HTMLDivElement | null>(null);
+
+  const getStickyOffset = useCallback(() => {
+    const header = stickyHeaderRef.current;
+    // Preserve the list gap below the sticky header.
+    return header ? header.offsetHeight + 2 : 0;
+  }, []);
+  const getTopOffset = useCallback(() => selectedOffset + getStickyOffset(), [getStickyOffset]);
+
   const scrollToComponent = useFollowComponent({
     followRef: selectedRef,
     scrollRef,
     doFollow: !lockAutoScroll,
-    topOffset: selectedOffset,
+    topOffset: getTopOffset,
     followTrigger: selectedEventId,
   });
 
@@ -82,15 +91,16 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
 
   // prevent considering automated scrolls as user scrolls
   const handleUserScroll = () => {
-    if (selectedRef?.current && scrollRef?.current) {
-      const selectedRect = selectedRef.current.getBoundingClientRect();
-      const scrollerRect = scrollRef.current.getBoundingClientRect();
-      if (selectedRect && scrollerRect) {
-        const distanceFromTop = selectedRect.top - scrollerRect.top;
-        const hasScrolledOutOfThreshold = distanceFromTop < -8 || distanceFromTop > selectedOffset;
-        setLockAutoScroll(hasScrolledOutOfThreshold);
-      }
+    if (!selectedRef.current || !scrollRef.current) {
+      return;
     }
+
+    const selectedRect = selectedRef.current.getBoundingClientRect();
+    const scrollerRect = scrollRef.current.getBoundingClientRect();
+    // Keep the threshold relative to the visible rows below the sticky header.
+    const distanceFromTop = selectedRect.top - scrollerRect.top - getStickyOffset();
+    const hasScrolledOutOfThreshold = distanceFromTop < -8 || distanceFromTop > selectedOffset;
+    setLockAutoScroll(hasScrolledOutOfThreshold);
   };
   const throttledHandleScroll = throttle(handleUserScroll, 1000);
 
@@ -186,13 +196,14 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
               }
 
               return (
-                <Fragment key={entry.id}>
+                <div className={style.groupSection} key={entry.id}>
                   <OperatorGroup
-                    key={entry.id}
+                    ref={isCurrentParent ? stickyHeaderRef : undefined}
                     title={entry.title}
                     colour={entry.colour}
                     count={entry.entries.length}
                     duration={entry.duration}
+                    isLive={isCurrentParent}
                   />
                   {entry.entries.map((nestedEntryId) => {
                     const nestedEntry = rundown.entries[nestedEntryId];
@@ -239,7 +250,7 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
                       />
                     );
                   })}
-                </Fragment>
+                </div>
               );
             }
             return null;

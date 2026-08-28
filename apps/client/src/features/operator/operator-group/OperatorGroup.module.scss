@@ -3,15 +3,26 @@
   min-height: 2.5rem;
   padding: 0.4rem 0.75rem;
   border-left: 0.35rem solid var(--group-colour, $gray-500);
-  background-color: $gray-1350;
-  background: color-mix(in srgb, transparent 88%, var(--group-colour, $gray-500) 12%);
+  /* The inline opaque group colour prevents rows showing through the sticky header. */
   font-size: 1.25rem;
   font-weight: 600;
+
+  position: sticky;
+  /* Cover the list padding so rows cannot scroll above the header. */
+  top: -0.25rem;
+  z-index: 1;
 
   display: flex;
   align-items: center;
   gap: 1rem;
   letter-spacing: 0;
+}
+
+/* Keep the live indicator legible over any group colour without competing with the live event fill. */
+.live {
+  box-shadow:
+    inset 0 0 0 2px $ui-black,
+    inset 0 0 0 4px $active-indicator;
 }
 
 .title {
