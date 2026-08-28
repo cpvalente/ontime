@@ -1,5 +1,5 @@
 import { OntimeView, isOntimeEvent, isOntimeGroup } from 'ontime-types';
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import EmptyFill from '../../common/components/state/EmptyFill';
 import EmptyPage from '../../common/components/state/EmptyPage';
@@ -25,7 +25,10 @@ import { OperatorData, useOperatorData } from './useOperatorData';
 
 import style from './Operator.module.scss';
 
-const selectedOffset = 50;
+/** Keeps the running event clear of the list edge when no group header is pinned above it */
+const edgeOffset = 50;
+/** How far the running event may drift from where we placed it before we stop following */
+const followTolerance = 50;
 
 export default function OperatorLoader() {
   const { data, status } = useOperatorData();
@@ -54,11 +57,20 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
   const selectedRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const stickyHeaderRef = useRef<HTMLDivElement | null>(null);
+
+  // The header height varies with the viewport, so measure it at scroll time.
+  const getTopOffset = useCallback(() => {
+    const header = stickyHeaderRef.current;
+    // Sit right under the pinned header, so it covers the previous event instead of half of it.
+    return header ? header.offsetHeight + 2 : edgeOffset;
+  }, []);
+
   const scrollToComponent = useFollowComponent({
     followRef: selectedRef,
     scrollRef,
     doFollow: !lockAutoScroll,
-    topOffset: selectedOffset,
+    getTopOffset,
     followTrigger: selectedEventId,
   });
 
@@ -82,15 +94,16 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
 
   // prevent considering automated scrolls as user scrolls
   const handleUserScroll = () => {
-    if (selectedRef?.current && scrollRef?.current) {
-      const selectedRect = selectedRef.current.getBoundingClientRect();
-      const scrollerRect = scrollRef.current.getBoundingClientRect();
-      if (selectedRect && scrollerRect) {
-        const distanceFromTop = selectedRect.top - scrollerRect.top;
-        const hasScrolledOutOfThreshold = distanceFromTop < -8 || distanceFromTop > selectedOffset;
-        setLockAutoScroll(hasScrolledOutOfThreshold);
-      }
+    if (!selectedRef.current || !scrollRef.current) {
+      return;
     }
+
+    const selectedRect = selectedRef.current.getBoundingClientRect();
+    const scrollerRect = scrollRef.current.getBoundingClientRect();
+    // Measure the drift from where an automated scroll would place the event.
+    const distanceFromTop = selectedRect.top - scrollerRect.top - getTopOffset();
+    const hasScrolledOutOfThreshold = distanceFromTop < -8 || distanceFromTop > followTolerance;
+    setLockAutoScroll(hasScrolledOutOfThreshold);
   };
   const throttledHandleScroll = throttle(handleUserScroll, 1000);
 
@@ -186,9 +199,9 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
               }
 
               return (
-                <Fragment key={entry.id}>
+                <div className={style.groupSection} key={entry.id}>
                   <OperatorGroup
-                    key={entry.id}
+                    ref={isCurrentParent ? stickyHeaderRef : undefined}
                     title={entry.title}
                     colour={entry.colour}
                     count={entry.entries.length}
@@ -239,7 +252,7 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
                       />
                     );
                   })}
-                </Fragment>
+                </div>
               );
             }
             return null;

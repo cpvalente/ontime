@@ -2,8 +2,8 @@ import { MaybeString } from 'ontime-types';
 import { RefObject, useCallback, useEffect } from 'react';
 
 function scrollToComponent<ComponentRef extends HTMLElement, ScrollRef extends HTMLElement>(
-  componentRef: RefObject<ComponentRef>,
-  scrollRef: RefObject<ScrollRef>,
+  componentRef: RefObject<ComponentRef | null>,
+  scrollRef: RefObject<ScrollRef | null>,
   topOffset: number,
 ) {
   if (!componentRef.current || !scrollRef.current) {
@@ -21,18 +21,16 @@ interface UseFollowComponentProps {
   followRef: RefObject<HTMLElement | null>;
   scrollRef: RefObject<HTMLElement | null>;
   doFollow: boolean;
-  topOffset?: number;
-  setScrollFlag?: (newValue: boolean) => void;
-  followTrigger?: MaybeString; // this would be an entry id or null
+  followTrigger: MaybeString; // this would be an entry id or null
+  getTopOffset: () => number;
 }
 
 export default function useFollowComponent({
   followRef,
   scrollRef,
   doFollow,
-  topOffset = 100,
-  setScrollFlag,
   followTrigger,
+  getTopOffset,
 }: UseFollowComponentProps) {
   // when trigger moves, view should follow
   useEffect(() => {
@@ -41,25 +39,17 @@ export default function useFollowComponent({
     }
 
     if (followRef.current && scrollRef.current) {
-      setScrollFlag?.(true);
       // Use requestAnimationFrame to ensure the component is fully loaded
       window.requestAnimationFrame(() => {
-        scrollToComponent(followRef as RefObject<HTMLElement>, scrollRef as RefObject<HTMLElement>, topOffset);
-        setScrollFlag?.(false);
+        // resolve the offset after layout, so that measured values are up to date
+        scrollToComponent(followRef, scrollRef, getTopOffset());
       });
     }
-  }, [followTrigger, doFollow, followRef, scrollRef, setScrollFlag, topOffset]);
+  }, [followTrigger, doFollow, followRef, scrollRef, getTopOffset]);
 
-  const scrollToRefComponent = useCallback(
-    (componentRef = followRef, containerRef = scrollRef, offset = topOffset) => {
-      if (componentRef && containerRef) {
-        // @ts-expect-error -- we know this are not null
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        scrollToComponent(componentRef!, containerRef!, offset);
-      }
-    },
-    [followRef, scrollRef, topOffset],
-  );
+  const scrollToRefComponent = useCallback(() => {
+    scrollToComponent(followRef, scrollRef, getTopOffset());
+  }, [followRef, scrollRef, getTopOffset]);
 
   return scrollToRefComponent;
 }

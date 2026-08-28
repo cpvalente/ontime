@@ -100,7 +100,20 @@ $item-height: 3.5rem;
     flex-direction: column;
     overflow-y: auto;
 
-    padding-bottom: max(8rem, calc(5rem + env(safe-area-inset-bottom)));
+    padding-bottom: 95vh;
+  }
+
+  /* Flex prevents row margins collapsing and bounds the sticky header to its group. */
+  .sub-section {
+    display: flex;
+    flex-direction: column;
+
+    /* The select view renders the same cards in a flat list. */
+    .sub--group {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
   }
 
   /* ====================== LIST-ITEM ======================*/
@@ -196,9 +209,14 @@ $item-height: 3.5rem;
 
   .sub--group {
     box-shadow: inset 0 0 0 1px var(--user-color, $gray-1325);
-    background:
+    /* The opaque base prevents rows showing through; background shorthand cannot layer this colour. */
+    background-color: var(--background-color-override, $viewer-background-color);
+    background-image:
       linear-gradient(90deg, color-mix(in srgb, var(--user-color, transparent) 18%, transparent), transparent 42%),
-      var(--card-background-color-override, $viewer-card-bg-color);
+      linear-gradient(
+        var(--card-background-color-override, $viewer-card-bg-color),
+        var(--card-background-color-override, $viewer-card-bg-color)
+      );
 
     .sub__binder {
       background: var(--user-color, var(--card-background-color-override, $viewer-card-bg-color));
@@ -228,6 +246,16 @@ $item-height: 3.5rem;
     .sub__eyebrow {
       color: $ui-white;
     }
+  }
+
+  /* Reserve the green fill for the running event. */
+  .sub--group.sub--live {
+    box-shadow: inset 0 0 0 2px $active-green;
+  }
+
+  /* Keep the armed state quieter than the live ring. */
+  .sub--group.sub--armed {
+    box-shadow: inset 0 0 0 2px $gray-1000;
   }
 
   .sub__title {

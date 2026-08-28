@@ -1,12 +1,19 @@
 .group {
   width: 100%;
+  /* Padding is kept under the min-height so a single line fits without the list having to shrink the header,
+     while a taller title still grows the row. */
   min-height: 2.5rem;
-  padding: 0.4rem 0.75rem;
+  padding: 0.25rem 0.75rem;
   border-left: 0.35rem solid var(--group-colour, $gray-500);
   background-color: $gray-1350;
   background: color-mix(in srgb, transparent 88%, var(--group-colour, $gray-500) 12%);
   font-size: 1.25rem;
   font-weight: 600;
+
+  position: sticky;
+  /* Cover the list padding so rows cannot scroll above the header. */
+  top: -0.25rem;
+  z-index: 1;
 
   display: flex;
   align-items: center;

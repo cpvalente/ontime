@@ -18,6 +18,12 @@
   padding-bottom: 95vh;
 }
 
+.groupSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .editPrompt {
   position: fixed;
   z-index: $zindex-dialog;
