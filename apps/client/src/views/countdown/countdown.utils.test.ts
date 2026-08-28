@@ -1,7 +1,7 @@
 import { OntimeEntry, OntimeEvent, OntimeGroup, SupportedEntry } from 'ontime-types';
 
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
-import { resolveSubscriptionTarget } from './countdown.utils';
+import { CountdownTarget, groupSubscriptionTargets, resolveSubscriptionTarget } from './countdown.utils';
 
 /**
  * Minimal builders for the extended (metadata enriched) entries the countdown view consumes.
@@ -124,5 +124,91 @@ describe('resolveSubscriptionTarget()', () => {
     expect(result?.isPast).toBe(true);
     expect(result?.targetId).toBe('c1');
     expect(result?.liveEntry).toBeNull();
+  });
+});
+
+describe('groupSubscriptionTargets()', () => {
+  /**
+   * Resolves a group the same way the view does, so that the tests exercise the real target shape
+   * (a resolved group carries type Event, so the helper cannot rely on the entry type)
+   */
+  function resolveGroup(group: ExtendedEntry<OntimeGroup>, flat: ExtendedEntry<OntimeEntry>[]): CountdownTarget {
+    const resolved = resolveSubscriptionTarget(group, flat);
+    if (resolved === null) {
+      throw new Error('test setup: group has no playable children');
+    }
+    return resolved;
+  }
+
+  it('returns no sections for an empty subscription list', () => {
+    expect(groupSubscriptionTargets([])).toEqual([]);
+  });
+
+  it('gives each ungrouped event its own section', () => {
+    const e1 = makeEvent({ id: 'e1' });
+    const e2 = makeEvent({ id: 'e2' });
+
+    expect(groupSubscriptionTargets([e1, e2])).toEqual([
+      { group: null, events: [e1] },
+      { group: null, events: [e2] },
+    ]);
+  });
+
+  it('absorbs the children of a subscribed group into its section', () => {
+    const group = makeGroup({ id: 'g1' });
+    const c1 = makeEvent({ id: 'c1', parent: 'g1' });
+    const c2 = makeEvent({ id: 'c2', parent: 'g1' });
+    const resolved = resolveGroup(group, [group, c1, c2]);
+
+    expect(groupSubscriptionTargets([resolved, c1, c2])).toEqual([{ group: resolved, events: [c1, c2] }]);
+  });
+
+  it('keeps a subscribed group with no subscribed children as an empty section', () => {
+    const group = makeGroup({ id: 'g1' });
+    const c1 = makeEvent({ id: 'c1', parent: 'g1' });
+    const resolved = resolveGroup(group, [group, c1]);
+
+    expect(groupSubscriptionTargets([resolved])).toEqual([{ group: resolved, events: [] }]);
+  });
+
+  it('does not absorb an event which belongs to a different group', () => {
+    const group1 = makeGroup({ id: 'g1' });
+    const c1 = makeEvent({ id: 'c1', parent: 'g1' });
+    const group2 = makeGroup({ id: 'g2' });
+    const c2 = makeEvent({ id: 'c2', parent: 'g2' });
+    const flat = [group1, c1, group2, c2];
+    const resolved1 = resolveGroup(group1, flat);
+    const resolved2 = resolveGroup(group2, flat);
+
+    expect(groupSubscriptionTargets([resolved1, c1, resolved2, c2])).toEqual([
+      { group: resolved1, events: [c1] },
+      { group: resolved2, events: [c2] },
+    ]);
+  });
+
+  it('does not absorb an event whose parent group is not subscribed', () => {
+    const group1 = makeGroup({ id: 'g1' });
+    const c1 = makeEvent({ id: 'c1', parent: 'g1' });
+    const group2 = makeGroup({ id: 'g2' });
+    const c2 = makeEvent({ id: 'c2', parent: 'g2' });
+    const resolved1 = resolveGroup(group1, [group1, c1, group2, c2]);
+
+    // only the first group is subscribed, so the second group's child stands alone
+    expect(groupSubscriptionTargets([resolved1, c1, c2])).toEqual([
+      { group: resolved1, events: [c1] },
+      { group: null, events: [c2] },
+    ]);
+  });
+
+  it('closes a section when an ungrouped event follows a group', () => {
+    const group = makeGroup({ id: 'g1' });
+    const c1 = makeEvent({ id: 'c1', parent: 'g1' });
+    const e1 = makeEvent({ id: 'e1' });
+    const resolved = resolveGroup(group, [group, c1]);
+
+    expect(groupSubscriptionTargets([resolved, c1, e1])).toEqual([
+      { group: resolved, events: [c1] },
+      { group: null, events: [e1] },
+    ]);
   });
 });
