@@ -67,7 +67,11 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   const { getIsCollapsed, collapseGroup, expandGroup } = useCollapsedGroups(id);
 
   const entryActions = useEntryActionsContext();
-  const setEntryCopyId = useEntryCopy((state) => state.setEntryCopyId);
+  const setEntryCopy = useEntryCopy((state) => state.setEntryCopyId);
+  const setEntryCopyId = useCallback(
+    (entryId: EntryId | null, mode?: 'copy' | 'cut') => setEntryCopy(entryId, id, mode),
+    [setEntryCopy, id],
+  );
 
   // cursor
   const { editorMode } = useEditorFollowMode();

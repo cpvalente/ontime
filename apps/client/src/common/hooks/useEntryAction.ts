@@ -8,7 +8,6 @@ import {
   OntimeGroup,
   OntimeMilestone,
   PatchWithId,
-  ProjectRundownsList,
   Rundown,
   SupportedEntry,
   TimeField,
@@ -34,7 +33,7 @@ import {
 import { useCallback, useMemo } from 'react';
 
 import { moveDown, moveUp, orderEntries } from '../../features/rundown/rundown.utils';
-import { CURRENT_RUNDOWN_QUERY_KEY, PROJECT_RUNDOWNS, getRundownQueryKey } from '../api/constants';
+import { CURRENT_RUNDOWN_QUERY_KEY, getRundownQueryKey } from '../api/constants';
 import {
   ReorderEntry,
   deleteEntries,
@@ -52,6 +51,7 @@ import {
   requestFitGroupTarget,
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
+import { useRundownScope } from '../context/RundownScopeContext';
 import { useEditorSettings } from '../stores/editorSettings';
 
 export type EventOptions = Partial<{
@@ -70,16 +70,16 @@ type ClientInsertOptions = {
 };
 
 /**
- * Gather utilities for actions on entries in the loaded rundown.
+ * Gather utilities for actions on entries in the rundown of the enclosing scope.
  */
-export const useEntryActions = () => useEntryActionsForRundown(undefined);
+export const useEntryActions = () => useEntryActionsForRundown(useRundownScope().rundownId);
 
 /**
  * Gather utilities for actions on entries in an explicitly selected rundown.
  */
 export const useScopedEntryActions = (rundownId: string | null) => useEntryActionsForRundown(rundownId ?? '');
 
-function useEntryActionsForRundown(scopedRundownId: string | undefined) {
+function useEntryActionsForRundown(scopedRundownId: string) {
   const queryClient = useQueryClient();
   const {
     linkPrevious,
@@ -92,13 +92,10 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
     inheritGroupColour,
   } = useEditorSettings();
 
+  // an empty id means the loaded rundown has not resolved yet, the bootstrap alias holds the data
   const resolveCurrentRundownQueryKey = useCallback(() => {
-    if (scopedRundownId !== undefined) {
-      return getRundownQueryKey(scopedRundownId);
-    }
-    const loadedRundownId = queryClient.getQueryData<ProjectRundownsList>(PROJECT_RUNDOWNS)?.loaded;
-    return loadedRundownId ? getRundownQueryKey(loadedRundownId) : CURRENT_RUNDOWN_QUERY_KEY;
-  }, [queryClient, scopedRundownId]);
+    return scopedRundownId ? getRundownQueryKey(scopedRundownId) : CURRENT_RUNDOWN_QUERY_KEY;
+  }, [scopedRundownId]);
 
   /**
    * Returns the currently loaded rundown

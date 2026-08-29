@@ -1,13 +1,13 @@
 import {
   FOLLOW_LOADED_RUNDOWN_ID,
-  getCuesheetRundownStorageKey,
+  getRundownSelectionStorageKey,
   resolveSelectedRundownId,
-} from '../useCuesheetRundownSelection';
+} from '../useRundownSelection';
 
-describe('useCuesheetRundownSelection helpers', () => {
-  it('builds a project-scoped storage key', () => {
-    expect(getCuesheetRundownStorageKey('http://localhost:4001', 'My Project')).toBe(
-      'cuesheet-selected-rundown:http://localhost:4001:My Project',
+describe('useRundownSelection helpers', () => {
+  it('builds a namespace and project scoped storage key', () => {
+    expect(getRundownSelectionStorageKey('cuesheet', 'http://localhost:4001', 'My Project')).toBe(
+      'rundown-selection:cuesheet:http://localhost:4001:My Project',
     );
   });
 

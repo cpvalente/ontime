@@ -9,6 +9,7 @@ import AppRouter from './AppRouter';
 import ErrorBoundary from './common/components/error-boundary/ErrorBoundary';
 import IdentifyOverlay from './common/components/identify-overlay/IdentifyOverlay';
 import { AppContextProvider } from './common/context/AppContext';
+import { RundownScopeProvider } from './common/context/RundownScopeContext';
 import { ontimeQueryClient } from './common/queryClient';
 import { connectSocket } from './common/utils/socket';
 import { baseURI } from './externals';
@@ -28,7 +29,10 @@ function App() {
                 <TranslationProvider>
                   <IdentifyOverlay />
                   <KeepAwake />
-                  <AppRouter />
+                  {/* the app follows the loaded rundown, panels nest a scope to point elsewhere */}
+                  <RundownScopeProvider rundownId={null}>
+                    <AppRouter />
+                  </RundownScopeProvider>
                 </TranslationProvider>
               </ErrorBoundary>
               <ReactQueryDevtools initialIsOpen={false} />
