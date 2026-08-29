@@ -761,16 +761,17 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     // save the restore state
     if (hasImmediateChanges) {
+      const internalState = runtimeState.getInternalState();
       restoreService
         .save({
           playback: state.timer.playback,
           selectedEventId: state.eventNow?.id ?? null,
           startedAt: state.timer.startedAt,
           addedTime: state.timer.addedTime,
-          pausedAt: state._timer.pausedAt,
-          pausedDuration: state._timer.pausedDuration,
+          pausedAt: internalState._timer.pausedAt,
+          pausedDuration: internalState._timer.pausedDuration,
           firstStart: state.rundown.actualStart,
-          startEpoch: state._startEpoch,
+          startEpoch: internalState._startEpoch,
           currentDay: state.rundown.currentDay,
         })
         .catch((_e) => {
