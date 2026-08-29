@@ -5,6 +5,19 @@
   &:not(:read-only):hover::placeholder {
     opacity: 1;
   }
+
+  &[data-invalid] {
+    outline: 1px solid $red-500;
+  }
+}
+
+/** feedback on a value we cannot use, either rejected or failed to load */
+.message {
+  display: block;
+  padding: 0.25rem 0;
+  color: $red-500;
+  font-size: calc(1rem - 3px);
+  line-height: 1.2;
 }
 
 .imageCell {

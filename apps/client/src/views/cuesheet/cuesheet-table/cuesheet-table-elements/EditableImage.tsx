@@ -1,27 +1,49 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 
 import Button from '../../../../common/components/buttons/Button';
 import Input from '../../../../common/components/input/input/Input';
+import { getRememberedAspectRatio, rememberAspectRatio } from '../../../../common/utils/imageDimensions';
 
 import style from './EditableImage.module.scss';
 
 interface EditableImageProps {
   initialValue: string;
+  fieldLabel: string;
   readOnly?: boolean;
   updateValue: (newValue: string) => void;
 }
 
 export default memo(EditableImage);
 
-function EditableImage({ initialValue, readOnly, updateValue }: EditableImageProps) {
+/**
+ * An image is either hosted somewhere else
+ * or served by ontime itself (eg. a file placed in the user folder)
+ */
+export function isValidImageSource(value: string): boolean {
+  return value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/');
+}
+
+function EditableImage({ initialValue, fieldLabel, readOnly, updateValue }: EditableImageProps) {
+  const [isRejected, setIsRejected] = useState(false);
+  /** we keep track of the source itself, so that the state follows the value being shown */
+  const [failedSource, setFailedSource] = useState<string | null>(null);
+  const [loadedSource, setLoadedSource] = useState<string | null>(null);
+
   const handleUpdate = (newValue: string) => {
-    if (newValue === initialValue) {
+    const value = newValue.trim();
+
+    if (value === initialValue) {
+      setIsRejected(false);
       return;
     }
-    if (newValue !== '' && !newValue.startsWith('http')) {
+
+    if (value !== '' && !isValidImageSource(value)) {
+      setIsRejected(true);
       return;
     }
-    updateValue(newValue);
+
+    setIsRejected(false);
+    updateValue(value);
   };
 
   const openInNewTab = () => {
@@ -36,21 +58,33 @@ function EditableImage({ initialValue, readOnly, updateValue }: EditableImagePro
 
   if (!initialValue) {
     return (
-      <Input
-        variant='ghosted'
-        className={style.imageInput}
-        fluid
-        placeholder='Paste image URL'
-        onBlur={(event) => handleUpdate(event.currentTarget.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') {
-            handleUpdate(event.currentTarget.value);
-          }
-        }}
-        defaultValue={initialValue}
-      />
+      <>
+        <Input
+          variant='ghosted'
+          className={style.imageInput}
+          fluid
+          placeholder='Paste image URL'
+          data-invalid={isRejected || undefined}
+          onChange={() => setIsRejected(false)}
+          onBlur={(event) => handleUpdate(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter') {
+              handleUpdate(event.currentTarget.value);
+            }
+          }}
+        />
+        {isRejected && <span className={style.message}>Use a link (https://...) or a file in ontime (/user/...)</span>}
+      </>
     );
   }
+
+  /**
+   * The cuesheet is virtualised: rows are unmounted once they leave the viewport.
+   * When the row comes back, we reserve the space the image took
+   * so that the table does not shift while the browser makes it available.
+   */
+  const knownAspectRatio = getRememberedAspectRatio(initialValue);
+  const isLoaded = loadedSource === initialValue;
 
   return (
     <div className={style.imageCell}>
@@ -62,7 +96,22 @@ function EditableImage({ initialValue, readOnly, updateValue }: EditableImagePro
           </Button>
         </div>
       )}
-      {Boolean(initialValue) && <img loading='lazy' src={initialValue} className={style.image} />}
+      {failedSource === initialValue ? (
+        <span className={style.message}>Could not load image</span>
+      ) : (
+        <img
+          src={initialValue}
+          alt={fieldLabel}
+          className={style.image}
+          onLoad={(event) => {
+            rememberAspectRatio(initialValue, event.currentTarget);
+            setLoadedSource(initialValue);
+          }}
+          onError={() => setFailedSource(initialValue)}
+          /** until the image is available, we reserve the space it took the last time we saw it */
+          style={!isLoaded && knownAspectRatio !== null ? { aspectRatio: knownAspectRatio, width: '100%' } : undefined}
+        />
+      )}
     </div>
   );
 }
