@@ -1,7 +1,7 @@
-import { Rundown } from 'ontime-types';
+import { MaybeString, Rundown } from 'ontime-types';
 import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useRef } from 'react';
 
-import { getRundownQueryKey } from '../api/constants';
+import { getRundownCacheKey } from '../api/constants';
 import { useProjectRundowns } from '../hooks-query/useProjectRundowns';
 import { ontimeQueryClient } from '../queryClient';
 import { createEventSelectionStore, type EventSelectionStoreApi } from '../stores/eventSelectionStore';
@@ -19,7 +19,7 @@ const RundownScopeContext = createContext<RundownScopeValue | null>(null);
 
 export interface RundownScopeProviderProps extends PropsWithChildren {
   /** rundown to operate on, null follows the loaded rundown */
-  rundownId: string | null;
+  rundownId: MaybeString;
 }
 
 /**
@@ -38,25 +38,26 @@ export function RundownScopeProvider({ children, rundownId }: RundownScopeProvid
 
   // the store reads the rundown lazily, the ref keeps it pointing at the current target
   const targetIdRef = useRef(targetId);
-  targetIdRef.current = targetId;
 
   const selectionStoreRef = useRef<EventSelectionStoreApi | null>(null);
   if (selectionStoreRef.current === null) {
     selectionStoreRef.current = createEventSelectionStore(() =>
-      ontimeQueryClient.getQueryData<Rundown>(getRundownQueryKey(targetIdRef.current)),
+      ontimeQueryClient.getQueryData<Rundown>(getRundownCacheKey(targetIdRef.current)),
     );
   }
   const selectionStore = selectionStoreRef.current;
 
   // a selection refers to entries of a single rundown, it cannot survive a change of target
   useEffect(() => {
+    targetIdRef.current = targetId;
     selectionStore.getState().clearSelectedEvents();
   }, [selectionStore, targetId]);
 
   const value = useMemo(
     (): RundownScopeValue => ({
       rundownId: targetId,
-      isLoaded: targetId === loaded,
+      // an unresolved target is not the loaded rundown, it is not yet any rundown
+      isLoaded: Boolean(loaded) && targetId === loaded,
       selectionStore,
     }),
     [targetId, loaded, selectionStore],

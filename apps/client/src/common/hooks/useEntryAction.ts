@@ -33,7 +33,7 @@ import {
 import { useCallback, useMemo } from 'react';
 
 import { moveDown, moveUp, orderEntries } from '../../features/rundown/rundown.utils';
-import { CURRENT_RUNDOWN_QUERY_KEY, getRundownQueryKey } from '../api/constants';
+import { getRundownCacheKey } from '../api/constants';
 import {
   ReorderEntry,
   deleteEntries,
@@ -77,7 +77,7 @@ export const useEntryActions = () => useEntryActionsForRundown(useRundownScope()
 /**
  * Gather utilities for actions on entries in an explicitly selected rundown.
  */
-export const useScopedEntryActions = (rundownId: string | null) => useEntryActionsForRundown(rundownId ?? '');
+export const useScopedEntryActions = (rundownId: MaybeString) => useEntryActionsForRundown(rundownId ?? '');
 
 function useEntryActionsForRundown(scopedRundownId: string) {
   const queryClient = useQueryClient();
@@ -92,9 +92,8 @@ function useEntryActionsForRundown(scopedRundownId: string) {
     inheritGroupColour,
   } = useEditorSettings();
 
-  // an empty id means the loaded rundown has not resolved yet, the bootstrap alias holds the data
   const resolveCurrentRundownQueryKey = useCallback(() => {
-    return scopedRundownId ? getRundownQueryKey(scopedRundownId) : CURRENT_RUNDOWN_QUERY_KEY;
+    return getRundownCacheKey(scopedRundownId);
   }, [scopedRundownId]);
 
   /**

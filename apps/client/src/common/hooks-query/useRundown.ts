@@ -1,9 +1,9 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { EntryId, OntimeEntry, Rundown } from 'ontime-types';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
-import { CURRENT_RUNDOWN_QUERY_KEY, getRundownQueryKey } from '../api/constants';
+import { CURRENT_RUNDOWN_QUERY_KEY, getRundownCacheKey, getRundownQueryKey } from '../api/constants';
 import { fetchCurrentRundown, fetchRundown } from '../api/rundown';
 import { useRundownScope } from '../context/RundownScopeContext';
 import { useSelectedEventId } from '../hooks/useSocket';
@@ -32,7 +32,7 @@ export function useRundownById(rundownId: string | null | undefined) {
   const isBootstrap = id === '';
 
   const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
-    queryKey: isBootstrap ? CURRENT_RUNDOWN_QUERY_KEY : getRundownQueryKey(id),
+    queryKey: getRundownCacheKey(id),
     queryFn: ({ signal }) => (isBootstrap ? fetchCurrentRundown({ signal }) : fetchRundown(id, { signal })),
     placeholderData: (previousData, _previousQuery) => previousData,
     refetchInterval: queryRefetchIntervalSlow,
@@ -44,9 +44,12 @@ export function useRundownById(rundownId: string | null | undefined) {
     queryClient.setQueryData(getRundownQueryKey(data.id), data);
   }, [data, isBootstrap, queryClient]);
 
-  // Once we have the ID, drop the temporary current cache
+  // Once we have the ID, drop the temporary current cache.
+  // Only the reader which bootstrapped may do so, others are still relying on it.
+  const didBootstrap = useRef(isBootstrap);
   useEffect(() => {
-    if (isBootstrap) return;
+    if (isBootstrap || !didBootstrap.current) return;
+    didBootstrap.current = false;
     queryClient.removeQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
   }, [isBootstrap, queryClient]);
 

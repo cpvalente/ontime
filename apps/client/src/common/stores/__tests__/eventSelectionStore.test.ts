@@ -37,6 +37,23 @@ describe('createEventSelectionStore', () => {
     expect(store.getState().anchoredIndex).toBe(2);
   });
 
+  it('replaces the selection set so subscribers on the set re-render', () => {
+    const store = createEventSelectionStore(() => makeRundown('rundown-a', ['a1', 'a2']));
+
+    store.getState().setSelectedEvents({ id: 'a1', index: 0, selectMode: 'click' });
+    const afterClick = store.getState().selectedEvents;
+
+    store.getState().setSelectedEvents({ id: 'a2', index: 1, selectMode: 'ctrl' });
+    const afterAdd = store.getState().selectedEvents;
+    expect(afterAdd).not.toBe(afterClick);
+    expect(afterAdd).toEqual(new Set(['a1', 'a2']));
+
+    store.getState().unselect('a1');
+    const afterUnselect = store.getState().selectedEvents;
+    expect(afterUnselect).not.toBe(afterAdd);
+    expect(afterUnselect).toEqual(new Set(['a2']));
+  });
+
   it('does not select when the rundown is unavailable', () => {
     const store = createEventSelectionStore(() => undefined);
 
