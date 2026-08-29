@@ -231,9 +231,10 @@ test.describe('Sharing from cuesheet', () => {
 
     // Verify that the title is visible and editable
     await expect(page.getByTestId('cuesheet-event').getByRole('cell', { name: 'title' })).toBeVisible();
-    const titleEditor = page.getByTestId('cuesheet-event').getByTestId('cuesheet-editor-title');
-    await titleEditor.click();
-    await expect(titleEditor).toBeEditable();
+    // the editor mounts on demand: clicking the cell opens it
+    const firstEvent = page.getByTestId('cuesheet-event').first();
+    await firstEvent.getByTestId('cuesheet-cell-title').click();
+    await expect(firstEvent.getByTestId('cuesheet-editor-title')).toBeEditable();
 
     // other elements are not there
     await expect(page.getByRole('cell', { name: 'Duration' })).toBeHidden();
