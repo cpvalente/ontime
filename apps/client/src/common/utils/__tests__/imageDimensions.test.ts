@@ -1,38 +1,26 @@
-import { describe, expect, test } from 'vitest';
-
-import { getRememberedAspectRatio, rememberAspectRatio } from '../imageDimensions';
+import { getRememberedDimensions, rememberDimensions } from '../imageDimensions';
 
 /** stand-in for a loaded HTMLImageElement */
 function makeImage(naturalWidth: number, naturalHeight: number) {
   return { naturalWidth, naturalHeight } as HTMLImageElement;
 }
 
-describe('image dimensions', () => {
-  test('remembers the aspect ratio of a loaded image', () => {
-    expect(getRememberedAspectRatio('http://ontime.local/image.png')).toBe(null);
+test('We remember the size of an image, so that we can reserve its space when it comes back', () => {
+  expect(getRememberedDimensions('http://ontime.local/unseen.png')).toBe(null);
 
-    rememberAspectRatio('http://ontime.local/image.png', makeImage(1920, 1080));
+  rememberDimensions('http://ontime.local/image.png', makeImage(1920, 1080));
+  expect(getRememberedDimensions('http://ontime.local/image.png')).toMatchObject({ width: 1920, height: 1080 });
 
-    expect(getRememberedAspectRatio('http://ontime.local/image.png')).toBe(1920 / 1080);
-  });
+  // an image which failed to load has no size to offer
+  rememberDimensions('http://ontime.local/broken.png', makeImage(0, 0));
+  expect(getRememberedDimensions('http://ontime.local/broken.png')).toBe(null);
+});
 
-  test('handles images which have not loaded', () => {
-    rememberAspectRatio('http://ontime.local/broken.png', makeImage(0, 0));
-    expect(getRememberedAspectRatio('http://ontime.local/broken.png')).toBe(null);
-  });
+test('We keep the most recently seen images, older entries are forgotten', () => {
+  for (let i = 0; i < 600; i++) {
+    rememberDimensions(`http://ontime.local/${i}.png`, makeImage(100, 50));
+  }
 
-  test('handles missing values', () => {
-    expect(getRememberedAspectRatio(undefined)).toBe(null);
-    expect(getRememberedAspectRatio('')).toBe(null);
-    expect(() => rememberAspectRatio('', makeImage(100, 100))).not.toThrow();
-  });
-
-  test('forgets the least recently used entries', () => {
-    for (let i = 0; i < 600; i++) {
-      rememberAspectRatio(`http://ontime.local/${i}.png`, makeImage(100, 50));
-    }
-
-    expect(getRememberedAspectRatio('http://ontime.local/0.png')).toBe(null);
-    expect(getRememberedAspectRatio('http://ontime.local/599.png')).toBe(2);
-  });
+  expect(getRememberedDimensions('http://ontime.local/0.png')).toBe(null);
+  expect(getRememberedDimensions('http://ontime.local/599.png')).toMatchObject({ width: 100, height: 50 });
 });

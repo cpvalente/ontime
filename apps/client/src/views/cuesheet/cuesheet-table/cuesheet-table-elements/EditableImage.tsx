@@ -2,7 +2,7 @@ import { memo, useState } from 'react';
 
 import Button from '../../../../common/components/buttons/Button';
 import Input from '../../../../common/components/input/input/Input';
-import { getRememberedAspectRatio, rememberAspectRatio } from '../../../../common/utils/imageDimensions';
+import { getRememberedDimensions, rememberDimensions } from '../../../../common/utils/imageDimensions';
 
 import style from './EditableImage.module.scss';
 
@@ -87,9 +87,17 @@ function EditableImage({ initialValue, fieldLabel, readOnly, updateValue }: Edit
    * The cuesheet is virtualised: rows are unmounted once they leave the viewport.
    * When the row comes back, we reserve the space the image took
    * so that the table does not shift while the browser makes it available.
+   * The reservation is given in CSS so that it follows the column being resized,
+   * the same way the image itself does once it is shown.
    */
-  const knownAspectRatio = getRememberedAspectRatio(initialValue);
+  const knownDimensions = getRememberedDimensions(initialValue);
   const isLoaded = loadedSource === initialValue;
+  const reservedSpace = knownDimensions
+    ? {
+        aspectRatio: knownDimensions.width / knownDimensions.height,
+        width: `min(100%, ${knownDimensions.width}px)`,
+      }
+    : undefined;
 
   return (
     <div className={style.imageCell}>
@@ -109,12 +117,12 @@ function EditableImage({ initialValue, fieldLabel, readOnly, updateValue }: Edit
           alt={fieldLabel}
           className={style.image}
           onLoad={(event) => {
-            rememberAspectRatio(initialValue, event.currentTarget);
+            rememberDimensions(initialValue, event.currentTarget);
             setLoadedSource(initialValue);
           }}
           onError={() => setFailedSource(initialValue)}
           /** until the image is available, we reserve the space it took the last time we saw it */
-          style={!isLoaded && knownAspectRatio !== null ? { aspectRatio: knownAspectRatio, width: '100%' } : undefined}
+          style={isLoaded ? undefined : reservedSpace}
         />
       )}
     </div>
