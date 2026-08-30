@@ -242,12 +242,12 @@ export function maybeInvalidateRundownCache(revision: MaybeNumber, rundownId?: s
     return;
   }
 
-  // skip if we dont recognise the ID the revision is lower
   const queryKey = getRundownQueryKey(rundownId);
   const cachedRundown = ontimeQueryClient.getQueryData<{ revision: number }>(queryKey);
 
-  if (revision === cachedRundown?.revision) {
-    // we already have the latest change
+  // we already have this change, or something newer
+  // messages can arrive after a refetch has already brought in a later revision
+  if (revision !== null && cachedRundown !== undefined && revision <= cachedRundown.revision) {
     return;
   }
 
