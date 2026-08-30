@@ -31,6 +31,7 @@ import {
   swapEventData,
 } from 'ontime-utils';
 import { useCallback, useMemo } from 'react';
+import isEqual from 'react-fast-compare';
 
 import { moveDown, moveUp, orderEntries } from '../../features/rundown/rundown.utils';
 import { getRundownCacheKey } from '../api/constants';
@@ -63,6 +64,22 @@ export type EventOptions = Partial<{
   /** the timing reference for the new entry, usually the same as after */
   lastEventId: MaybeString;
 }>;
+
+/**
+ * Applies a patch the way the server does, revision included.
+ *
+ * An entry revision advances on every change to that entry, which makes it a
+ * cheap marker for whether an entry has moved on. The optimistic entry has to
+ * carry the revision the server will return, otherwise the two disagree and the
+ * refetch resolves to a different object for no reason.
+ * Mirrors applyPatchToEntry in the rundown service: delays carry no revision.
+ */
+function patchEntry(entry: OntimeEntry, patch: Partial<OntimeEntry>): OntimeEntry {
+  if (isOntimeEvent(entry) || isOntimeGroup(entry) || isOntimeMilestone(entry)) {
+    return { ...entry, ...patch, revision: entry.revision + 1 } as OntimeEntry;
+  }
+  return { ...entry, ...patch } as OntimeEntry;
+}
 
 type ClientInsertOptions = {
   after?: EntryId;
@@ -321,8 +338,10 @@ function useEntryActionsForRundown(scopedRundownId: string) {
       if (previousData && eventId) {
         // optimistically update object
         const newRundown = { ...previousData.entries };
-        // @ts-expect-error -- we expect the events to be of same type
-        newRundown[eventId] = { ...newRundown[eventId], ...newEvent };
+        const previousEntry = newRundown[eventId];
+        if (previousEntry) {
+          newRundown[eventId] = patchEntry(previousEntry, newEvent);
+        }
         queryClient.setQueryData<Rundown>(queryKey, {
           id: previousData.id,
           title: previousData.title,
@@ -335,6 +354,23 @@ function useEntryActionsForRundown(scopedRundownId: string) {
 
       // Return a context with the previous and new events
       return { previousData, newEvent, queryKey };
+    },
+    // the server is the authority on the applied patch, it may normalise what we sent
+    onSuccess: (response, _variables, context) => {
+      const serverEntry = response.data;
+      if (!serverEntry || !context?.queryKey) return;
+
+      const cachedRundown = queryClient.getQueryData<Rundown>(context.queryKey);
+      if (!cachedRundown) return;
+
+      // our optimistic entry usually describes the change exactly, writing an
+      // identical entry would discard the cached reference for nothing
+      if (isEqual(cachedRundown.entries[serverEntry.id], serverEntry)) return;
+
+      queryClient.setQueryData<Rundown>(context.queryKey, {
+        ...cachedRundown,
+        entries: { ...cachedRundown.entries, [serverEntry.id]: serverEntry },
+      });
     },
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _newEvent, context) => {
@@ -508,10 +544,7 @@ function useEntryActionsForRundown(scopedRundownId: string) {
           if (Object.hasOwn(newRundown, eventId)) {
             const event = newRundown[eventId];
             if (isOntimeEvent(event)) {
-              newRundown[eventId] = {
-                ...event,
-                ...data,
-              };
+              newRundown[eventId] = patchEntry(event, data.data);
             }
           }
         });

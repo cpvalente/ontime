@@ -9,6 +9,10 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - Preserve entry identity and supported types across patch, clone, group, ungroup, reorder.
 - Distinguish loaded vs background rundown. Prefer explicit rundown ID over global current state.
 - No caller-owned rundown mutation unless explicitly contracted.
+- Revisions mark change: a rundown revision advances on every commit, an entry revision on every
+  change to that entry. Delays carry no revision. Optimistic client updates apply the same bump the
+  server does, so an unchanged entry keeps its identity and clients can compare revisions to tell
+  what moved on.
 
 ## Persistence, realtime, cache
 

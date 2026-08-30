@@ -27,7 +27,12 @@ export function useScopedSelectedEventId(): EntryId | null {
 export function useRundownWithMetadata() {
   const { data, status } = useRundown();
   const selectedEventId = useScopedSelectedEventId();
-  const rundownMetadata = useMemo(() => getRundownMetadata(data, selectedEventId), [data, selectedEventId]);
+  // key on the fields the derivation reads, a revision only change must not churn the list
+  const { entries, flatOrder } = data;
+  const rundownMetadata = useMemo(
+    () => getRundownMetadata({ entries, flatOrder }, selectedEventId),
+    [entries, flatOrder, selectedEventId],
+  );
   return { data, status, rundownMetadata };
 }
 
@@ -46,7 +51,11 @@ export function useFlatRundownWithMetadata() {
   const { data, status } = useRundown();
   const selectedEventId = useScopedSelectedEventId();
 
-  const rundownWithMetadata = useMemo(() => getFlatRundownMetadata(data, selectedEventId), [data, selectedEventId]);
+  const { entries, flatOrder } = data;
+  const rundownWithMetadata = useMemo(
+    () => getFlatRundownMetadata({ entries, flatOrder }, selectedEventId),
+    [entries, flatOrder, selectedEventId],
+  );
   return { data: rundownWithMetadata, status };
 }
 

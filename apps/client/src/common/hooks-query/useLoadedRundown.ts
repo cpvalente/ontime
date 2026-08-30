@@ -23,7 +23,11 @@ export function useLoadedRundown() {
 export function useLoadedRundownWithMetadata() {
   const { data, status } = useLoadedRundown();
   const selectedEventId = useSelectedEventId();
-  const rundownMetadata = useMemo(() => getRundownMetadata(data, selectedEventId), [data, selectedEventId]);
+  const { entries, flatOrder } = data;
+  const rundownMetadata = useMemo(
+    () => getRundownMetadata({ entries, flatOrder }, selectedEventId),
+    [entries, flatOrder, selectedEventId],
+  );
   return { data, status, rundownMetadata };
 }
 
@@ -36,7 +40,11 @@ export function useLoadedFlatRundown() {
 export function useLoadedFlatRundownWithMetadata() {
   const { data, status } = useLoadedRundown();
   const selectedEventId = useSelectedEventId();
-  const rundownWithMetadata = useMemo(() => getFlatRundownMetadata(data, selectedEventId), [data, selectedEventId]);
+  const { entries, flatOrder } = data;
+  const rundownWithMetadata = useMemo(
+    () => getFlatRundownMetadata({ entries, flatOrder }, selectedEventId),
+    [entries, flatOrder, selectedEventId],
+  );
   return { data: rundownWithMetadata, status };
 }
 

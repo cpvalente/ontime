@@ -422,7 +422,7 @@ function swap(rundown: Rundown, eventFrom: OntimeEvent, eventTo: OntimeEvent) {
     gap: eventFrom.gap,
     dayOffset: eventFrom.dayOffset,
     // keep revision number but increment it
-    revision: eventFrom.revision++,
+    revision: eventFrom.revision + 1,
   };
 
   rundown.entries[eventTo.id] = {
@@ -440,7 +440,7 @@ function swap(rundown: Rundown, eventFrom: OntimeEvent, eventTo: OntimeEvent) {
     gap: eventTo.gap,
     dayOffset: eventTo.dayOffset,
     // keep revision number but increment it
-    revision: eventTo.revision++,
+    revision: eventTo.revision + 1,
   };
 }
 
