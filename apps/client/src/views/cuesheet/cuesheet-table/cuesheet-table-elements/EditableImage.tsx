@@ -16,11 +16,16 @@ interface EditableImageProps {
 export default memo(EditableImage);
 
 /**
- * An image is either hosted somewhere else
- * or served by ontime itself (eg. a file placed in the user folder)
+ * Images are referenced by link: anything local to the machine running ontime
+ * would not resolve for the clients we serve the cuesheet to
  */
 export function isValidImageSource(value: string): boolean {
-  return value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/');
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
 }
 
 function EditableImage({ initialValue, fieldLabel, readOnly, updateValue }: EditableImageProps) {
@@ -73,7 +78,7 @@ function EditableImage({ initialValue, fieldLabel, readOnly, updateValue }: Edit
             }
           }}
         />
-        {isRejected && <span className={style.message}>Use a link (https://...) or a file in ontime (/user/...)</span>}
+        {isRejected && <span className={style.message}>Images are referenced by link (https://...)</span>}
       </>
     );
   }
