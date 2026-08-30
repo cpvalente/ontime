@@ -175,7 +175,14 @@ function LazyImage({ row, column, table }: CuesheetCellContext) {
 
   const canWrite = column.columnDef.meta?.canWrite;
   const initialValue = event.custom[column.id];
-  return <EditableImage initialValue={initialValue} updateValue={update} readOnly={!canWrite} />;
+  return (
+    <EditableImage
+      initialValue={initialValue}
+      fieldLabel={getColumnLabel(column)}
+      updateValue={update}
+      readOnly={!canWrite}
+    />
+  );
 }
 
 function MakeSingleLineField({ row, column, table }: CuesheetCellContext) {
