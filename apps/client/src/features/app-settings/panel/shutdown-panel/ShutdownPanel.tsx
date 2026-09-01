@@ -40,7 +40,7 @@ export default function ShutdownPanel() {
           {!isOntimeCloud && (
             <Panel.Section>
               <Button variant='destructive' onClick={handler.open} disabled={!canShutdown}>
-                Shutdown ontime
+                Shutdown Ontime
               </Button>
               {!canShutdown && <Panel.Description>Only available from the machine running Ontime.</Panel.Description>}
             </Panel.Section>
