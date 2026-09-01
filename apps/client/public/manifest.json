@@ -1,19 +1,21 @@
 {
-  "name": "ontime",
-  "short_name": "ontime",
+  "name": "Ontime",
+  "short_name": "Ontime",
   "icons": [
     {
-      "src": "favicon.ico",
-      "type": "image/x-icon"
+      "src": "ontime-logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
     },
     {
-      "src": "ontime-logo.png",
+      "src": "ontime-logo-512.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ],
   "scope": "./",
   "start_url": "./",
-  "display": "",
-  "theme_color": "#121212",
+  "display": "standalone",
+  "theme_color": "#101010",
   "background_color": "#101010"
 }
