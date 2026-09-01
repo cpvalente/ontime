@@ -31,13 +31,13 @@ import { isValidChangeProperty, parseProperty } from './integration.utils.js';
 
 let lastRequest: Date | null = null;
 
-export function dispatchFromAdapter(tag: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
+export function dispatchFromAdapter(tag: string, payload: unknown, _source?: 'osc' | 'ws' | 'http', clientId?: string) {
   const action = tag.toLowerCase();
   const handler = actionHandlers[action as ApiActionTag];
   lastRequest = new Date();
 
   if (handler) {
-    return handler(payload);
+    return handler(payload, clientId);
   } else {
     throw new Error(`Unhandled message ${tag}`);
   }
@@ -47,9 +47,11 @@ export function getLastRequest() {
   return lastRequest;
 }
 
+// clientId is only ever populated for websocket callers (the only adapter with a client identity)
+// and only the messageanswer handler currently makes use of it; every other handler ignores it
 type ActionHandler =
-  | ((payload: unknown) => { payload: unknown })
-  | ((payload: unknown) => Promise<{ payload: unknown }>);
+  | ((payload: unknown, clientId?: string) => { payload: unknown })
+  | ((payload: unknown, clientId?: string) => Promise<{ payload: unknown }>);
 
 const actionHandlers: Record<ApiActionTag, ActionHandler> = {
   /* General */
@@ -111,9 +113,9 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
     const newMessage = messageService.patch(patch);
     return { payload: newMessage };
   },
-  messageanswer: (payload) => {
+  messageanswer: (payload, clientId) => {
     const value = validateAnswer(payload);
-    const newMessage = messageService.recordAnswer(value);
+    const newMessage = messageService.recordAnswer(value, clientId);
     return { payload: newMessage };
   },
   /* Playback */

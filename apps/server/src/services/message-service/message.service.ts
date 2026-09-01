@@ -78,12 +78,19 @@ let answerToken = 0;
  * Records an answer to the currently active question
  * The answer is shown immediately, but the question (and secondary message) only clears
  * after a delay, so the controller stays in sync with the viewer holding it on screen
- * @throws if there is no active question to answer, or one has already been recorded
+ * @param clientId the id of the websocket client sending the answer, if known. When provided,
+ * the answer is rejected unless it comes from the currently targeted client. OSC/HTTP callers
+ * have no client identity to check, so this is left unverified for those (undefined clientId)
+ * @throws if there is no active question to answer, one has already been recorded,
+ * or clientId is provided and does not match the targeted client
  */
-export function recordAnswer(value: string): MessageState {
+export function recordAnswer(value: string, clientId?: string): MessageState {
   const currentState = getState();
   if (!currentState.question.enabled || currentState.question.answer !== null) {
     throw new Error('No active question to answer');
+  }
+  if (clientId !== undefined && currentState.question.target !== clientId) {
+    throw new Error('This answer was not sent by the targeted client');
   }
 
   const newState = { ...currentState };
