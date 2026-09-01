@@ -70,6 +70,10 @@ export function patch(patch: DeepPartial<MessageState>): MessageState {
 // so the controller's own view of the question (eye, ? icon) doesn't go stale before the viewer's does
 const ANSWER_HOLD_MS = 2000;
 
+// bumped on every recordAnswer() call so a stale timeout can tell it is no longer the latest one,
+// even if a later answer happens to repeat the same text (eg two "Yes" answers in separate cycles)
+let answerToken = 0;
+
 /**
  * Records an answer to the currently active question
  * The answer is shown immediately, but the question (and secondary message) only clears
@@ -85,7 +89,12 @@ export function recordAnswer(value: string): MessageState {
   const newState = { ...currentState };
   newState.question = { ...currentState.question, answer: value };
 
+  const token = ++answerToken;
   setTimeout(() => {
+    // a newer answer has been recorded since this one was scheduled - let its own timeout handle the clear
+    if (token !== answerToken) {
+      return;
+    }
     // only auto-clear if nothing has re-armed, answered again, or been dismissed manually since
     const latest = getState();
     if (latest.question.enabled && latest.question.answer === value) {

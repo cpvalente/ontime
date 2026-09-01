@@ -221,9 +221,9 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
 
       {Boolean(effectiveSecondaryContent) && answerOptions.length > 0 && (
         <div className='answer-options'>
-          {answerOptions.map((option) => (
+          {answerOptions.map((option, index) => (
             <button
-              key={option}
+              key={`answer-${index}`}
               className={cx(['answer-option', pendingAnswer?.answer === option && 'answer-option--selected'])}
               disabled={pendingAnswer !== null}
               onClick={() => handleAnswer(option)}

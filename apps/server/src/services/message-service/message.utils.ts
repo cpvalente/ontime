@@ -19,7 +19,7 @@ export function validateMessage(message: unknown): string {
  * @throws if the payload is not a string
  */
 export function validateAnswer(answer: unknown): string {
-  return decodeURI(coerceString(answer));
+  return decodeURI(coerceString(answer)).slice(0, MAX_ANSWER_LENGTH);
 }
 
 /**

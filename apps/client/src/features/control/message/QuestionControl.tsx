@@ -11,6 +11,13 @@ import style from './QuestionControl.module.scss';
 const MAX_ANSWERS = 3;
 const DEFAULT_ANSWERS = ['Yes', 'No', ''];
 
+// matches '/timer' as a path segment rather than a prefix, so this still works when
+// Ontime is hosted under a base path (eg cloud deployments like '/<project>/timer')
+function isTimerPath(path: string): boolean {
+  const [pathname] = path.split('?');
+  return pathname.split('/').includes('timer');
+}
+
 export default function QuestionControl() {
   const { enabled, target, answers, answer } = useQuestionControl();
   const clients = useClientStore((store) => store.clients);
@@ -32,7 +39,7 @@ export default function QuestionControl() {
   const targetOptions = [
     { value: '', label: 'Select a client' },
     ...Object.entries(clients)
-      .filter(([_, client]) => client.type === 'ontime' && client.path.startsWith('/timer'))
+      .filter(([_, client]) => client.type === 'ontime' && isTimerPath(client.path))
       .map(([id, client]) => ({ value: id, label: client.name })),
   ];
 
@@ -47,6 +54,14 @@ export default function QuestionControl() {
     setMessage.answerOptions(newAnswers);
     // editing a label makes any answer shown against the old labels stale; re-arming
     // (which the server always pairs with clearing the answer) keeps the panel open to edit
+    if (answer !== null) {
+      setMessage.questionEnabled(true);
+    }
+  };
+
+  const handleTargetChange = (value: string | null) => {
+    setMessage.questionTarget(value === '' ? null : value);
+    // changing the target makes any answer received from the old target stale
     if (answer !== null) {
       setMessage.questionEnabled(true);
     }
@@ -73,12 +88,7 @@ export default function QuestionControl() {
 
       <div className={style.targetRow}>
         <span className={style.label}>Target Client</span>
-        <Select
-          options={targetOptions}
-          value={target ?? ''}
-          onValueChange={(value: string | null) => setMessage.questionTarget(value === '' ? null : value)}
-          fluid
-        />
+        <Select options={targetOptions} value={target ?? ''} onValueChange={handleTargetChange} fluid />
       </div>
     </div>
   );
