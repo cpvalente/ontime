@@ -1,6 +1,7 @@
 import { OntimeView, isOntimeEvent, isOntimeGroup } from 'ontime-types';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import EmptyFill from '../../common/components/state/EmptyFill';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
@@ -10,6 +11,7 @@ import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
 import { getDefaultFormat } from '../../common/utils/time';
 import { isTouchDevice } from '../../externals';
+import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../../views/common/loader/Loader';
 import CustomFieldEditModal from './custom-field-edit-modal/CustomFieldEditModal';
 import FollowButton from './follow-button/FollowButton';
@@ -35,7 +37,7 @@ export default function OperatorLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
   }
 
   return <Operator {...data} />;
@@ -43,6 +45,7 @@ export default function OperatorLoader() {
 
 function Operator({ rundown, rundownMetadata, customFields, settings }: OperatorData) {
   const selectedEventId = useSelectedEventId();
+  const { getLocalizedString } = useTranslation();
   const { subscribe, mainSource, secondarySource, shouldEdit, hidePast, showStart } = useOperatorOptions();
 
   const [showEditPrompt, setShowEditPrompt] = useState(false);
@@ -113,6 +116,7 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
   const operatorOptions = useMemo(() => getOperatorOptions(customFields, defaultFormat), [customFields, defaultFormat]);
 
   const canEdit = shouldEdit && subscribe.length;
+  const hasEvents = rundown.order.length > 0;
 
   return (
     <div className={style.operatorContainer} data-testid='operator-view'>
@@ -127,117 +131,121 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
         </div>
       )}
 
-      <div className={style.operatorEvents} onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
-        {rundown.order.map((entryId) => {
-          const entry = rundown.entries[entryId];
-          if (isOntimeEvent(entry)) {
-            const { isPast, isLinkedToLoaded, isLoaded, totalGap } = rundownMetadata[entryId];
-            // hide past events (if setting) and skipped events
-            if ((hidePast && isPast) || entry.skip) {
-              return null;
-            }
+      {!hasEvents ? (
+        <EmptyFill text={getLocalizedString('common.no_data')} />
+      ) : (
+        <div className={style.operatorEvents} onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
+          {rundown.order.map((entryId) => {
+            const entry = rundown.entries[entryId];
+            if (isOntimeEvent(entry)) {
+              const { isPast, isLinkedToLoaded, isLoaded, totalGap } = rundownMetadata[entryId];
+              // hide past events (if setting) and skipped events
+              if ((hidePast && isPast) || entry.skip) {
+                return null;
+              }
 
-            const { mainField, secondaryField, subscribedData } = getEventData(
-              entry,
-              mainSource,
-              secondarySource,
-              subscribe,
-              customFields,
-            );
+              const { mainField, secondaryField, subscribedData } = getEventData(
+                entry,
+                mainSource,
+                secondarySource,
+                subscribe,
+                customFields,
+              );
 
-            return (
-              <OperatorEvent
-                key={entry.id}
-                id={entry.id}
-                colour={entry.colour}
-                cue={entry.cue}
-                main={mainField}
-                secondary={secondaryField}
-                timeStart={entry.timeStart}
-                duration={entry.duration}
-                delay={entry.delay}
-                dayOffset={entry.dayOffset}
-                isLinkedToLoaded={isLinkedToLoaded}
-                isSelected={isLoaded}
-                isPast={isPast}
-                selectedRef={isLoaded ? selectedRef : undefined}
-                showStart={showStart}
-                subscribed={subscribedData}
-                totalGap={totalGap}
-                onLongPress={canEdit ? handleEdit : () => undefined}
-              />
-            );
-          }
-
-          if (isOntimeGroup(entry)) {
-            const { isPast } = rundownMetadata[entry.id];
-
-            const isCurrentParent = selectedEventId ? rundownMetadata[selectedEventId]?.groupId === entry.id : false;
-
-            if (hidePast && isPast && !isCurrentParent) {
-              return null;
-            }
-
-            return (
-              <Fragment key={entry.id}>
-                <OperatorGroup
+              return (
+                <OperatorEvent
                   key={entry.id}
-                  title={entry.title}
+                  id={entry.id}
                   colour={entry.colour}
-                  count={entry.entries.length}
+                  cue={entry.cue}
+                  main={mainField}
+                  secondary={secondaryField}
+                  timeStart={entry.timeStart}
                   duration={entry.duration}
+                  delay={entry.delay}
+                  dayOffset={entry.dayOffset}
+                  isLinkedToLoaded={isLinkedToLoaded}
+                  isSelected={isLoaded}
+                  isPast={isPast}
+                  selectedRef={isLoaded ? selectedRef : undefined}
+                  showStart={showStart}
+                  subscribed={subscribedData}
+                  totalGap={totalGap}
+                  onLongPress={canEdit ? handleEdit : () => undefined}
                 />
-                {entry.entries.map((nestedEntryId) => {
-                  const nestedEntry = rundown.entries[nestedEntryId];
-                  if (!isOntimeEvent(nestedEntry)) {
-                    return null;
-                  }
+              );
+            }
 
-                  const { isPast, isLoaded, isLinkedToLoaded, totalGap } = rundownMetadata[nestedEntryId];
+            if (isOntimeGroup(entry)) {
+              const { isPast } = rundownMetadata[entry.id];
 
-                  // hide past events (if setting) and skipped events
-                  if ((hidePast && isPast) || nestedEntry.skip) {
-                    return null;
-                  }
+              const isCurrentParent = selectedEventId ? rundownMetadata[selectedEventId]?.groupId === entry.id : false;
 
-                  const { mainField, secondaryField, subscribedData } = getEventData(
-                    nestedEntry,
-                    mainSource,
-                    secondarySource,
-                    subscribe,
-                    customFields,
-                  );
+              if (hidePast && isPast && !isCurrentParent) {
+                return null;
+              }
 
-                  return (
-                    <OperatorEvent
-                      key={nestedEntry.id}
-                      id={nestedEntry.id}
-                      colour={nestedEntry.colour}
-                      cue={nestedEntry.cue}
-                      main={mainField}
-                      secondary={secondaryField}
-                      timeStart={nestedEntry.timeStart}
-                      duration={nestedEntry.duration}
-                      delay={nestedEntry.delay}
-                      dayOffset={nestedEntry.dayOffset}
-                      isLinkedToLoaded={isLinkedToLoaded}
-                      isSelected={isLoaded}
-                      isPast={isPast}
-                      groupColour={entry.colour}
-                      selectedRef={isLoaded ? selectedRef : undefined}
-                      showStart={showStart}
-                      subscribed={subscribedData}
-                      totalGap={totalGap}
-                      onLongPress={canEdit ? handleEdit : () => undefined}
-                    />
-                  );
-                })}
-              </Fragment>
-            );
-          }
-          return null;
-        })}
-      </div>
+              return (
+                <Fragment key={entry.id}>
+                  <OperatorGroup
+                    key={entry.id}
+                    title={entry.title}
+                    colour={entry.colour}
+                    count={entry.entries.length}
+                    duration={entry.duration}
+                  />
+                  {entry.entries.map((nestedEntryId) => {
+                    const nestedEntry = rundown.entries[nestedEntryId];
+                    if (!isOntimeEvent(nestedEntry)) {
+                      return null;
+                    }
+
+                    const { isPast, isLoaded, isLinkedToLoaded, totalGap } = rundownMetadata[nestedEntryId];
+
+                    // hide past events (if setting) and skipped events
+                    if ((hidePast && isPast) || nestedEntry.skip) {
+                      return null;
+                    }
+
+                    const { mainField, secondaryField, subscribedData } = getEventData(
+                      nestedEntry,
+                      mainSource,
+                      secondarySource,
+                      subscribe,
+                      customFields,
+                    );
+
+                    return (
+                      <OperatorEvent
+                        key={nestedEntry.id}
+                        id={nestedEntry.id}
+                        colour={nestedEntry.colour}
+                        cue={nestedEntry.cue}
+                        main={mainField}
+                        secondary={secondaryField}
+                        timeStart={nestedEntry.timeStart}
+                        duration={nestedEntry.duration}
+                        delay={nestedEntry.delay}
+                        dayOffset={nestedEntry.dayOffset}
+                        isLinkedToLoaded={isLinkedToLoaded}
+                        isSelected={isLoaded}
+                        isPast={isPast}
+                        groupColour={entry.colour}
+                        selectedRef={isLoaded ? selectedRef : undefined}
+                        showStart={showStart}
+                        subscribed={subscribedData}
+                        totalGap={totalGap}
+                        onLongPress={canEdit ? handleEdit : () => undefined}
+                      />
+                    );
+                  })}
+                </Fragment>
+              );
+            }
+            return null;
+          })}
+        </div>
+      )}
       <FollowButton isVisible={lockAutoScroll} onClickHandler={handleOffset} />
     </div>
   );

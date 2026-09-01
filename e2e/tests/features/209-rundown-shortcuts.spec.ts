@@ -71,11 +71,15 @@ test('Move', async ({ page }) => {
   await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(0);
 
   // create events
   await page.getByRole('button', { name: 'Create Event' }).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(1);
   await page.getByRole('button', { name: 'Event' }).nth(4).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(2);
   await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(3);
 
   // copy move down
   await page.getByTestId('entry-1').getByTestId('rundown-event').getByText('1').click();
@@ -86,15 +90,16 @@ test('Move', async ({ page }) => {
     .press('Alt+Control+ArrowDown');
   await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('1');
 
-  // copy move up
+  // move entry three up twice, waiting for each reorder before targeting its new row
   await page.getByTestId('entry-3').getByTestId('rundown-event').getByText('3').click();
   await page
     .getByTestId('entry-3')
     .getByTestId('rundown-event')
     .filter({ hasText: '3' })
     .press('Alt+ControlOrMeta+ArrowUp');
+  await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('3');
   await page
-    .getByTestId('entry-3')
+    .getByTestId('entry-2')
     .getByTestId('rundown-event')
     .filter({ hasText: '3' })
     .press('Alt+ControlOrMeta+ArrowUp');
@@ -217,15 +222,57 @@ test('Delete event', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Create Group' })).toBeVisible();
 });
 
-test('Find in rundown', async ({ page }) => {
+test('Finder searches the rundown and reveals a result', async ({ page }) => {
   await page.goto('/rundown');
-  await expect(page.getByTestId('panel-rundown')).toBeVisible();
+  await page.getByRole('button', { name: 'Edit' }).click();
 
+  // clear rundown
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Delete all' }).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(0);
+
+  // two events, where the one we are looking for is identified only by its note
+  await page.getByRole('button', { name: 'Create Event' }).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(1);
+  await page.getByTestId('entry-1').click();
+  await page.getByTestId('entry__title').press('Escape');
+  await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+E');
+  await expect(page.getByTestId('rundown-event')).toHaveCount(2);
+
+  await page.getByTestId('entry-1').getByTestId('entry__title').fill('opening');
+  await page.getByTestId('entry-1').getByTestId('entry__title').press('Enter');
+  await page.getByTestId('entry-2').getByTestId('entry__title').fill('closing');
+  await page.getByTestId('entry-2').getByTestId('entry__title').press('Enter');
+
+  await page.getByTestId('entry-2').click();
+  await page.getByLabel('Note', { exact: true }).fill('remember the zebrafish');
+  await page.getByLabel('Note', { exact: true }).press('Tab');
+
+  // the shortcut has to work from a focused field, which is where it is usually reached for
+  await page.getByTestId('entry-2').getByTestId('entry__title').click();
   await page.keyboard.press('ControlOrMeta+f');
-  await expect(page.getByPlaceholder('Search...')).toBeVisible();
+  await expect(page.getByPlaceholder('Search...')).toBeFocused();
 
-  await page.keyboard.press('Escape');
+  // a bare query reaches the note, and the result names the field it matched
+  await page.getByPlaceholder('Search...').fill('zebrafish');
+  await expect(page.getByTestId('finder-result')).toHaveCount(1);
+  await expect(page.getByTestId('finder-result-match')).toContainText('Note');
+
+  // a badge scopes the search to one field, without putting syntax in the input
+  const titleFilter = page.getByTestId('finder-filters').getByRole('button', { name: 'Title', exact: true });
+  await titleFilter.click();
+  await expect(page.getByPlaceholder('Search...')).toHaveValue('zebrafish');
+  await expect(page.getByTestId('finder-result')).toHaveCount(0);
+
+  // pressing it again searches every field once more
+  await titleFilter.click();
+  await expect(page.getByTestId('finder-result')).toHaveCount(1);
+
+  // choosing a result closes the finder and selects the entry in the rundown
+  await page.getByPlaceholder('Search...').press('Enter');
   await expect(page.getByPlaceholder('Search...')).toBeHidden();
+  await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toHaveAttribute('data-selected', 'true');
 });
 
 test('Open settings', async ({ page }) => {

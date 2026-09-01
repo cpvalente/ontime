@@ -3,6 +3,7 @@ import {
   EntryCustomFields,
   EntryId,
   ImportedFields,
+  Maybe,
   OntimeBaseEvent,
   OntimeDelay,
   OntimeEntry,
@@ -30,6 +31,7 @@ import {
   generateId,
   getCueCandidate,
   makeString,
+  maxDuration,
   validateEndAction,
   validateTimerType,
   validateTimes,
@@ -327,7 +329,7 @@ export function mergeRundownPreservingFields(
     const structure = isOntimeGroup(incomingEntry)
       ? { entries: incomingEntry.entries }
       : { parent: incomingEntry.parent };
-    entries[id] = structuredClone({ ...merged, ...structure });
+    entries[id] = cloneEntryData({ ...merged, ...structure });
   }
 
   return {
@@ -351,19 +353,19 @@ export function isLoadedPlayable(loadedEventId: EntryId, rundown: Readonly<Rundo
 
 /** List of event properties which do not need the rundown to be regenerated */
 enum RegenerateWhitelist {
-  'id', // adding it for completeness, users cannot change ID
-  'type', // adding it for completeness, users cannot change ID
-  'cue',
-  'title',
-  'note',
-  'endAction',
-  'timerType',
-  'countToEnd',
-  'colour',
-  'timeWarning',
-  'timeDanger',
-  'custom',
-  'triggers',
+  id, // adding it for completeness, users cannot change ID
+  type, // adding it for completeness, users cannot change ID
+  cue,
+  title,
+  note,
+  endAction,
+  timerType,
+  countToEnd,
+  colour,
+  timeWarning,
+  timeDanger,
+  custom,
+  triggers,
 }
 
 /**
@@ -498,6 +500,61 @@ export function cloneSimpleRundownEntry(entry: OntimeEntry, newId: EntryId): Ont
 }
 
 /**
+ * Fast, shape-aware clone of a single entry, preserving its identity (id, revision, etc).
+ * Drop-in replacement for `structuredClone(entry)`
+ */
+export function cloneEntryData<T extends OntimeEntry>(entry: T): T {
+  switch (entry.type) {
+    case SupportedEntry.Event: {
+      const clone: OntimeEvent = { ...entry };
+      if (clone.custom) clone.custom = { ...clone.custom };
+      if (clone.triggers) clone.triggers = clone.triggers.map((trigger) => ({ ...trigger }));
+      return clone as T;
+    }
+    case SupportedEntry.Group: {
+      const clone: OntimeGroup = { ...entry };
+      if (clone.custom) clone.custom = { ...clone.custom };
+      if (clone.entries) clone.entries = clone.entries.slice();
+      return clone as T;
+    }
+    case SupportedEntry.Milestone: {
+      const clone: OntimeMilestone = { ...entry };
+      if (clone.custom) clone.custom = { ...clone.custom };
+      return clone as T;
+    }
+    case SupportedEntry.Delay:
+      return { ...entry } as T;
+    default: {
+      // exhaustiveness guard: a new member of `SupportedEntry` is named in the error here
+      const unhandled: never = entry;
+      throw new Error(`Unsupported entry type for cloning: ${(unhandled as OntimeEntry).type}`);
+    }
+  }
+}
+
+/**
+ * Fast, shape-aware clone of a whole rundown.
+ * Drop-in replacement for `structuredClone(rundown)`: every entry (and its nested
+ * `custom` / `triggers` / `entries` containers) gets its own copy, so callers can mutate
+ * the result freely without touching the source - same contract as structuredClone,
+ * at a fraction of the cost since we skip the generic serialization algorithm.
+ */
+export function cloneRundown(rundown: Readonly<Rundown>): Rundown {
+  const entries: RundownEntries = {};
+  for (const id in rundown.entries) {
+    entries[id] = cloneEntryData(rundown.entries[id]);
+  }
+  return {
+    id: rundown.id,
+    title: rundown.title,
+    revision: rundown.revision,
+    order: rundown.order.slice(),
+    flatOrder: rundown.flatOrder.slice(),
+    entries,
+  };
+}
+
+/**
  * Utility for calculating if the current events should have a day offset
  * @param current the current event under test
  * @param previous the previous event
@@ -600,4 +657,28 @@ export function getIntegerAndFraction(value: string): IncrementNumber {
     faction,
     precision,
   };
+}
+
+/**
+ * Adjusts an event's duration to fit inside the group target
+ * @param targetDuration - The desired total duration for the group, or null
+ * @param groupDuration - The current total duration of all events in the group
+ * @param eventDuration - The current duration of the event being adjusted
+ * @returns The adjusted event duration, or null if targetDuration is null or
+ *          the result would be negative
+ */
+export function eventDurationMatchGroupTarget({
+  targetDuration,
+  groupDuration,
+  eventDuration,
+}: {
+  targetDuration: Maybe<number>;
+  groupDuration: number;
+  eventDuration: number;
+}): Maybe<number> {
+  if (targetDuration === null) return null;
+  if (targetDuration === groupDuration) return null;
+  const durationDiff = targetDuration - groupDuration;
+  const newDuration = eventDuration + durationDiff;
+  return newDuration < 0 || newDuration > maxDuration ? null : newDuration;
 }

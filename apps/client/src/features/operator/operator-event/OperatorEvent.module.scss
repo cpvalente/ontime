@@ -2,7 +2,6 @@
 
 .event {
   opacity: 1;
-  border-top: 1px solid $white-1;
   padding-right: 0.5rem;
   color: $white-90;
   background-color: $viewer-card-bg-color;
@@ -31,7 +30,6 @@
   }
 
   &.running {
-    border-top: 1px solid $gray-1300;
     background-color: var(--operator-running-bg-override, $active-green);
   }
 
@@ -42,8 +40,7 @@
   }
 
   &.past {
-    border-top: 1px solid transparent;
-    opacity: 0.2;
+    opacity: 0.4;
   }
 }
 
@@ -79,6 +76,7 @@
 
 .mainField {
   grid-area: main;
+  min-width: 0;
   font-size: 1.5rem;
   color: $ui-white;
 
@@ -144,6 +142,7 @@
 
 .fields {
   grid-area: fields;
+  min-width: 0;
   margin-top: 0;
   border-top: 0;
 
@@ -171,10 +170,9 @@
   &.fieldsWithContent {
     margin-top: 0.25rem;
     padding-block: 0.5rem;
-    border-top: 1px solid $white-13;
 
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
     gap: 0.25rem 0.75rem;
     line-height: 1.25em;
     font-size: var(--operator-customfield-font-size-override, 1.25rem);

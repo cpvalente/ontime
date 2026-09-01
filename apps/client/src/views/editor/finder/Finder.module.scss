@@ -3,11 +3,14 @@
 .error {
   padding-inline: 0.5rem;
   font-size: 1rem;
-  height: 3rem;
+  // rows grow when a match is shown from a note or custom field
+  min-height: 3rem;
+  padding-block: 0.35rem;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .entry[data-selected='true'] {
@@ -18,21 +21,47 @@
   color: $label-gray;
 }
 
+.more {
+  padding-inline: 0.5rem;
+  padding-block: 0.75rem;
+  font-size: calc(1rem - 2px);
+  color: $label-gray;
+  border-top: 1px solid $gray-1000;
+  text-align: center;
+}
+
 .error {
   color: $error-red;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding-top: 0.75rem;
+}
+
+.filterLabel {
+  font-size: calc(1rem - 3px);
+  color: $label-gray;
+  margin-right: 0.15rem;
 }
 
 .data {
   display: grid;
   grid-template-areas:
     'index cue'
-    'index title';
+    'index title'
+    'index match';
   column-gap: 1rem;
   grid-template-rows: min-content 1fr;
+  min-width: 0;
 
   .index {
     grid-area: index;
-    background-color: var(--color, $gray-1000);
+    // background and text colour come from getAccessibleColour, which keeps the
+    // number legible whatever colour the user gave the entry
     border-radius: 2px;
     padding-block: 0.25rem;
     width: 3.5rem;
@@ -42,14 +71,33 @@
 
   .title {
     grid-area: title;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .cue {
     grid-area: cue;
     font-size: calc(1rem - 2px);
     color: $label-gray;
-    max-height: 1em;
     min-height: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .match {
+    grid-area: match;
+    font-size: calc(1rem - 3px);
+    color: $label-gray;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .matchLabel {
+    color: $ui-white;
+    margin-right: 0.4rem;
   }
 }
 
@@ -63,13 +111,14 @@
   color: $label-gray;
 }
 
-.filterHint {
+.count {
   text-align: right;
+  white-space: nowrap;
 }
 
-.em {
-  color: $ui-white;
-  margin-inline: 0.25rem;
+.go {
+  white-space: nowrap;
+  padding-left: 1rem;
 }
 
 .hints {
@@ -98,7 +147,7 @@
     flex-direction: column;
   }
 
-  .filterHint {
+  .count {
     text-align: left;
   }
 }

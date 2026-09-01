@@ -1,10 +1,10 @@
 import { useLocalStorage } from '@mantine/hooks';
-import { ColumnDef, ColumnSizingState, Updater } from '@tanstack/react-table';
+import { ColumnSizingState, Updater } from '@tanstack/react-table';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { debounce } from '../../../common/utils/debounce';
 import { makeStageKey } from '../../../common/utils/localStorage';
-import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
+import type { CuesheetColumnDef } from './cuesheetTable.features';
 
 type TableRoot = 'editor' | 'cuesheet';
 
@@ -38,7 +38,7 @@ export function useColumnSizes(tableRoot: TableRoot = 'cuesheet') {
   };
 }
 
-export function useColumnOrder(columns: ColumnDef<ExtendedEntry>[], tableRoot: TableRoot = 'cuesheet') {
+export function useColumnOrder(columns: CuesheetColumnDef[], tableRoot: TableRoot = 'cuesheet') {
   const tableOrderKey = useMemo(() => makeStageKey(`${tableRoot}-table-order`), [tableRoot]);
 
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>({

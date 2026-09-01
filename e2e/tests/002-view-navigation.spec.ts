@@ -48,6 +48,47 @@ test.describe('test view navigation feature', () => {
     await expect(page).toHaveURL('/timer');
   });
 
+  /**
+   * The shortcut has to read the current open state, not the one captured when it was
+   * registered, otherwise it only ever opens the menu.
+   */
+  test('Space closes the menu as well as opening it', async ({ page }) => {
+    const menu = page.getByRole('dialog');
+    await expect(menu).toBeHidden();
+
+    await openNavigationMenu(page);
+    await expect(menu).toBeVisible();
+
+    await page.keyboard.press('Space');
+    await expect(menu).toBeHidden();
+  });
+
+  test('Space closes a menu opened with the button', async ({ page }) => {
+    await page.mouse.move(Math.random() * 100, Math.random() * 100);
+    await page.getByTestId('navigation__toggle-menu').click();
+
+    const menu = page.getByRole('dialog');
+    await expect(menu).toBeVisible();
+
+    await page.keyboard.press('Space');
+    await expect(menu).toBeHidden();
+  });
+
+  test('Space toggles a focused menu switch without closing the menu', async ({ page }) => {
+    await openNavigationMenu(page);
+
+    const menu = page.getByRole('dialog');
+    const flipScreen = page.getByRole('switch', { name: 'Flip Screen' });
+    await expect(menu).toBeVisible();
+
+    const initiallyChecked = await flipScreen.getAttribute('aria-checked');
+    await flipScreen.focus();
+    await page.keyboard.press('Space');
+
+    await expect(flipScreen).toHaveAttribute('aria-checked', initiallyChecked === 'true' ? 'false' : 'true');
+    await expect(menu).toBeVisible();
+  });
+
   test('not-found', async ({ page }) => {
     await page.goto('/not-found');
 

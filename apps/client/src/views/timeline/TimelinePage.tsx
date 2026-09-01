@@ -1,12 +1,14 @@
 import { OntimeView } from 'ontime-types';
 import { useMemo } from 'react';
 
+import EmptyFill from '../../common/components/state/EmptyFill';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
 import { useSelectedEventId } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
@@ -29,7 +31,7 @@ export default function TimelinePageLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
   }
 
   return <TimelinePage {...data} />;
@@ -58,8 +60,10 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
     <div className='timeline' data-testid='timeline-view'>
       <ViewParamsEditor target={OntimeView.Timeline} viewOptions={progressOptions} />
       <div className='project-header'>
-        {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
-        <div className='title'>{projectData.title}</div>
+        <div className={cx(['project-header__brand', !projectData?.logo && 'project-header__brand--without-logo'])}>
+          {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
+          <div className='title'>{projectData.title}</div>
+        </div>
         <TimelineClock timeformat={timeformat} />
       </div>
 
@@ -73,7 +77,7 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
           totalDuration={totalDuration}
         />
       ) : (
-        <EmptyPage text={getLocalizedString('common.no_data')} />
+        <EmptyFill text={getLocalizedString('common.no_data')} />
       )}
     </div>
   );

@@ -1,4 +1,5 @@
 import { OntimeView } from 'ontime-types';
+import { type ReactNode, useState } from 'react';
 import { IoOpenOutline } from 'react-icons/io5';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
@@ -21,7 +22,7 @@ export default function ProjectInfoLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
   }
 
   return <ProjectInfo {...data} />;
@@ -41,60 +42,81 @@ function ProjectInfo({ projectData, isMirrored }: ProjectInfoData) {
     return (
       <>
         <ViewParamsEditor target={OntimeView.ProjectInfo} viewOptions={[]} />
-        <EmptyPage text={getLocalizedString('common.no_data')} />;
+        <EmptyPage text={getLocalizedString('common.no_data')} />
       </>
     );
   }
 
+  const hasHeader = Boolean(projectData.logo || projectData.title || projectData.description);
+
   return (
     <div className={`project ${isMirrored ? 'mirror' : ''}`} data-testid='project-view'>
       <ViewParamsEditor target={OntimeView.ProjectInfo} viewOptions={[]} />
-      {projectData.logo && <ViewLogo name={projectData.logo} className='logo' />}
+      {hasHeader && (
+        <div className='project-header'>
+          {projectData.logo && <ViewLogo name={projectData.logo} className='logo' />}
+          <div className='project-header__text'>
+            {projectData.title && <div className='title'>{projectData.title}</div>}
+            {projectData.description && <div className='description'>{projectData.description}</div>}
+          </div>
+        </div>
+      )}
       <div className='info'>
-        {projectData.title && (
-          <div>
-            <div className='info__label'>{getLocalizedString('project.title')}</div>
-            <div className='info__value'>{projectData.title}</div>
-          </div>
-        )}
-        {projectData.description && (
-          <div>
-            <div className='info__label'>{getLocalizedString('project.description')}</div>
-            <div className='info__value'>{projectData.description}</div>
-          </div>
-        )}
-        {projectData.info && (
-          <div>
-            <div className='info__label'>{getLocalizedString('project.info')}</div>
-            <div className='info__value'>{projectData.info}</div>
-          </div>
-        )}
+        {projectData.info && <InfoCard label={getLocalizedString('project.info')}>{projectData.info}</InfoCard>}
         {projectData.url && (
-          <div>
+          <div className='info__card'>
             <div className='info__label'>{getLocalizedString('project.url')}</div>
             <a href={projectData.url} target='_blank' rel='noreferrer' className='info__value link'>
-              {projectData.url} <IoOpenOutline style={{ fontSize: '1em' }} />
+              {projectData.url}
+              <IoOpenOutline style={{ fontSize: '1em' }} />
             </a>
           </div>
         )}
         {projectData.custom.map((info, idx) => {
-          const hasUrl = Boolean(info.url);
           return (
             // oxlint-disable-next-line react/no-array-index-key - we only have the index to go of  here
-            <div key={`${info.title}-${idx}`} className='info__custom'>
-              {hasUrl && (
-                <div className='info__image-container'>
-                  <img className='info__image' src={info.url} loading='lazy' />
+            <div key={`${info.title}-${idx}`} className='info__card'>
+              {info.title && <div className='info__label'>{info.title}</div>}
+              {info.url ? (
+                <div className='info__media'>
+                  <InfoImage src={info.url} />
+                  {info.value && <div className='info__value'>{info.value}</div>}
                 </div>
+              ) : (
+                info.value && <div className='info__value'>{info.value}</div>
               )}
-              <div>
-                <div className='info__label'>{info.title}</div>
-                <div className='info__value'>{info.value}</div>
-              </div>
             </div>
           );
         })}
       </div>
+    </div>
+  );
+}
+
+interface InfoCardProps {
+  label: string;
+  children: ReactNode;
+}
+
+function InfoCard({ label, children }: InfoCardProps) {
+  return (
+    <div className='info__card'>
+      <div className='info__label'>{label}</div>
+      <div className='info__value'>{children}</div>
+    </div>
+  );
+}
+
+function InfoImage({ src }: { src: string }) {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return null;
+  }
+
+  return (
+    <div className='info__image-container'>
+      <img className='info__image' src={src} loading='lazy' alt='' onError={() => setHasError(true)} />
     </div>
   );
 }

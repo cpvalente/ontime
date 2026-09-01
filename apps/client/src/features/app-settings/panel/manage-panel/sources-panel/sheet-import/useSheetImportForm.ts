@@ -5,7 +5,8 @@ import type {
   SpreadsheetPreviewResponse,
   SpreadsheetWorksheetMetadata,
 } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { isOntimeGroup, isOntimeMilestone } from 'ontime-types';
+import { millisToString, removeTrailingZero } from 'ontime-utils';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 
@@ -32,7 +33,7 @@ type ImportAction =
   | { type: 'previewSuccess'; preview: SpreadsheetPreviewResponse }
   | { type: 'applySuccess' }
   | { type: 'exportSuccess' }
-  | { type: 'clearPreview'; error?: string }
+  | { type: 'clearPreview'; error?: string; needsRefresh?: boolean }
   | { type: 'failure'; error: string }
   | { type: 'reset' };
 
@@ -40,12 +41,14 @@ type ImportState = {
   loading: '' | 'preview' | 'apply' | 'export';
   error: string;
   preview: SpreadsheetPreviewResponse | null;
+  needsPreviewRefresh: boolean;
 };
 
 const initialImportState: ImportState = {
   loading: '',
   error: '',
   preview: null,
+  needsPreviewRefresh: false,
 };
 
 function importReducer(state: ImportState, action: ImportAction): ImportState {
@@ -57,15 +60,15 @@ function importReducer(state: ImportState, action: ImportAction): ImportState {
     case 'startExport':
       return { ...state, loading: 'export', error: '' };
     case 'previewSuccess':
-      return { loading: '', error: '', preview: action.preview };
+      return { loading: '', error: '', preview: action.preview, needsPreviewRefresh: false };
     case 'applySuccess':
     case 'exportSuccess':
       return { ...state, loading: '' };
     case 'clearPreview':
-      return { ...state, error: action.error ?? '', preview: null };
+      return { ...state, error: action.error ?? '', preview: null, needsPreviewRefresh: action.needsRefresh ?? false };
     case 'failure': {
       if (state.loading === 'preview') {
-        return { loading: '', error: action.error, preview: null };
+        return { loading: '', error: action.error, preview: null, needsPreviewRefresh: false };
       }
       return { ...state, loading: '', error: action.error };
     }
@@ -221,7 +224,7 @@ export function useSheetImportForm({
     const sub = watch(() => {
       if (!previewRef.current) return;
       previewRef.current = null;
-      dispatch({ type: 'clearPreview' });
+      dispatch({ type: 'clearPreview', needsRefresh: true });
     });
     return () => sub.unsubscribe();
   }, [watch]);
@@ -297,15 +300,37 @@ export function useSheetImportForm({
   }, [append]);
 
   const toolbarStatus = (() => {
-    const warningText = warningCount > 0 ? ` | warnings: ${warningCount}` : '';
-
     if (!state.preview) {
-      return `entries: – | start: – | end: – | duration: –${warningText}`;
+      return {
+        entries: '–',
+        groups: '–',
+        milestones: '–',
+        start: '–',
+        end: '–',
+        duration: '–',
+        warnings: warningCount,
+      };
     }
 
-    const { flatOrder } = state.preview.rundown;
+    const { entries, flatOrder } = state.preview.rundown;
     const { start, end, duration } = state.preview.summary;
-    return `entries: ${flatOrder.length} | start: ${millisToString(start)} | end: ${millisToString(end)} | duration: ${formatDuration(duration)}${warningText}`;
+    let groups = 0;
+    let milestones = 0;
+    for (const entryId of flatOrder) {
+      const entry = entries[entryId];
+      if (isOntimeGroup(entry)) groups++;
+      else if (isOntimeMilestone(entry)) milestones++;
+    }
+
+    return {
+      entries: flatOrder.length,
+      groups,
+      milestones,
+      start: removeTrailingZero(millisToString(start)),
+      end: removeTrailingZero(millisToString(end)),
+      duration: formatDuration(duration),
+      warnings: warningCount,
+    };
   })();
 
   return {

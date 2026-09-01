@@ -7,12 +7,12 @@ import './ProgressBar.scss';
 interface ProgressBarProps {
   current: MaybeNumber;
   duration: MaybeNumber;
+  eventId?: string | null;
   className?: string;
 }
 
-export default function ProgressBar(props: ProgressBarProps) {
-  const { current, duration, className } = props;
-  const progress = useAnimatedProgress(current, duration);
+export default function ProgressBar({ current, duration, eventId, className }: ProgressBarProps) {
+  const progress = useAnimatedProgress(current, duration, eventId);
 
   return (
     <div className={`progress-bar__bg ${className}`}>

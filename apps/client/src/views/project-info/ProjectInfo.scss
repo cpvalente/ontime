@@ -1,5 +1,7 @@
 @use '@/theme/viewerDefs' as *;
 
+$content-width: min(100%, 1100px);
+
 .project {
   margin: 0;
   box-sizing: border-box; /* reset */
@@ -16,56 +18,104 @@
   display: flex;
   flex-direction: column;
 
+  /* =================== HEADER ===================*/
+
+  .project-header {
+    width: $content-width;
+    margin-inline: auto;
+
+    display: flex;
+    align-items: center;
+    gap: clamp(12px, 2vw, 24px);
+
+    padding-bottom: $view-element-gap;
+    border-bottom: 1px solid $white-10;
+  }
+
   .logo {
     max-width: min(200px, 30vw);
   }
 
+  .title {
+    font-size: $header-font-size;
+    font-weight: 600;
+    line-height: 1.1em;
+  }
+
+  .description {
+    font-size: $base-font-size;
+    color: var(--secondary-color-override, $viewer-secondary-color);
+  }
+
+  /* =================== CONTENT ===================*/
+
   .info {
     flex: 1;
-    max-height: 100%;
+    width: $content-width;
     margin-inline: auto;
     overflow-y: auto;
-    width: min(calc(100vw - 4rem), 960px);
+
     display: flex;
     flex-direction: column;
-    align-items: start;
     gap: $view-element-gap;
 
+    padding-block: $view-element-gap;
     padding-bottom: 10vh;
   }
 
+  .info__card {
+    background-color: var(--card-background-color-override, $viewer-card-bg-color);
+    border-radius: $element-border-radius;
+    padding: $view-block-padding $view-inline-padding;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.35em;
+  }
+
+  .info__media {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: $view-element-gap;
+  }
+
+  .info__media .info__value {
+    flex: 1;
+    min-width: 0;
+  }
+
   .info__label {
+    font-size: $timer-label-size;
     font-weight: 600;
+    letter-spacing: 0.05em;
     color: var(--label-color-override, $viewer-label-color);
     text-transform: uppercase;
   }
 
   .info__value {
     white-space: break-spaces;
-  }
-
-  .info__custom {
-    display: flex;
-    gap: 1rem;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
   }
 
   .info__image-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 192px;
-    height: 192px;
+    flex: 0 0 min(192px, 25%);
   }
 
   .info__image {
+    display: block;
     max-width: 100%;
-    max-height: 100%;
+    height: auto;
     object-fit: contain;
   }
 
   .link.info__value {
-    display: flex;
-    gap: $view-element-gap;
+    display: inline-flex;
+    gap: 0.35em;
     align-items: center;
     color: $action-text-color;
 
@@ -78,12 +128,13 @@
 /* =================== MOBILE ===================*/
 @media screen and (max-width: 768px) {
   .project {
+    .project-header {
+      flex-direction: column;
+      align-items: start;
+      gap: 0.5rem;
+    }
     .logo img {
       height: min(50px, 10vh);
-    }
-    .info__image-container {
-      width: 96px;
-      height: 96px;
     }
   }
 }

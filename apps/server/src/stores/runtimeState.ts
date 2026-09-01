@@ -23,6 +23,7 @@ import {
   calculateDuration,
   checkIsNow,
   dayInMs,
+  getExpectedEnd,
   getExpectedStart,
   getLastEventNormal,
   isPlaybackActive,
@@ -831,7 +832,6 @@ function getExpectedTimes(state = runtimeState) {
   state.offset.expectedRundownEnd = null;
   state.offset.expectedGroupEnd = null;
   state.offset.expectedFlagStart = null;
-  state.offset.expectedRundownEnd = null;
 
   const { offset } = state;
   const { plannedStart, actualStart } = state.rundown;
@@ -852,7 +852,7 @@ function getExpectedTimes(state = runtimeState) {
         plannedStart,
         actualStart,
       });
-      state.offset.expectedGroupEnd = lastEventExpectedStart + lastEvent.duration;
+      state.offset.expectedGroupEnd = getExpectedEnd(lastEvent, lastEventExpectedStart, state.rundown.currentDay!);
     }
   }
 
@@ -884,7 +884,7 @@ function getExpectedTimes(state = runtimeState) {
       plannedStart,
       actualStart,
     });
-    state.offset.expectedRundownEnd = expectedStart + event.duration;
+    state.offset.expectedRundownEnd = getExpectedEnd(event, expectedStart, state.rundown.currentDay!);
   }
 }
 
@@ -927,6 +927,7 @@ export function loadGroupFlagAndEnd(
 
   let accumulatedGap = 0;
   let isLinkedToLoaded = true;
+  let previousWasCountToEnd: Maybe<number> = null;
 
   for (let idx = currentIndex; idx < playableEventOrder.length; idx++) {
     const entry = entries[playableEventOrder[idx]];
@@ -934,8 +935,23 @@ export function loadGroupFlagAndEnd(
     if (isOntimeEvent(entry)) {
       if (idx !== currentIndex) {
         // we only accumulate data after the loaded event
-        accumulatedGap += entry.gap;
-        isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
+
+        if (previousWasCountToEnd !== null) {
+          /** previous event was countToEnd: add its duration as a positive gap (it "gives back" time downstream)
+           *   and break the link to the loaded event since countToEnd events reset the schedule
+           */
+          accumulatedGap += entry.gap + previousWasCountToEnd;
+          isLinkedToLoaded = false;
+        } else {
+          accumulatedGap += entry.gap;
+          isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
+        }
+
+        if (entry.countToEnd) {
+          previousWasCountToEnd = entry.duration;
+        } else {
+          previousWasCountToEnd = null;
+        }
 
         // and the loaded event is not allowed to be the next flag
         if (!foundFlag && metadata.flags.includes(entry.id)) {

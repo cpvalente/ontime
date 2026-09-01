@@ -7,7 +7,7 @@ $dot-spacing: 1.5rem;
   display: grid;
   place-items: center;
   background-color: var(--background-color-override, $viewer-background-color);
-  height: 100vh;
+  height: 100dvh;
 }
 
 .ellipsis {
@@ -21,26 +21,26 @@ $dot-spacing: 1.5rem;
     height: $dot-size;
     border-radius: 50%;
     background-color: var(--accent-color-override, $ontime-color);
-    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 
     &:nth-child(1) {
       left: $dot-size;
-      animation: lds-ellipsis1 0.6s infinite;
+      animation: lds-ellipsis1 1s infinite;
     }
 
     &:nth-child(2) {
       left: $dot-size;
-      animation: lds-ellipsis2 0.6s infinite;
+      animation: lds-ellipsis2 1s infinite;
     }
 
     &:nth-child(3) {
       left: calc($dot-size + $dot-spacing);
-      animation: lds-ellipsis2 0.6s infinite;
+      animation: lds-ellipsis2 1s infinite;
     }
 
     &:nth-child(4) {
       left: calc($dot-size + 2 * $dot-spacing);
-      animation: lds-ellipsis3 0.6s infinite;
+      animation: lds-ellipsis3 1s infinite;
     }
   }
 }

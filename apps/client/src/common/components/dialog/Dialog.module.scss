@@ -1,12 +1,16 @@
 .dialog {
   position: fixed;
-  top: 10%;
+  top: 10vh;
   left: 50%;
 
   transform: translateX(-50%);
 
+  box-sizing: border-box;
+  width: min(600px, 90vw);
+  max-height: calc(90vh - 1rem);
+  display: flex;
+  flex-direction: column;
   padding-inline: 1rem;
-  min-width: min(600px, 90vw);
 
   background-color: $gray-1250;
   color: $ui-white;
@@ -43,7 +47,8 @@
   flex-direction: column;
   gap: 0.5rem;
 
-  max-height: min(80vh, 600px);
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -53,4 +58,5 @@
   align-items: center;
   justify-content: end;
   gap: 1rem;
+  flex-wrap: wrap;
 }

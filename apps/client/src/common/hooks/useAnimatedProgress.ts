@@ -1,26 +1,34 @@
-import { MaybeNumber, Playback } from 'ontime-types';
+import { EntryId, MaybeNumber, Playback } from 'ontime-types';
 import { useEffect, useRef, useState } from 'react';
 
 import { getProgress } from '../utils/getProgress';
-import { usePlayback } from './useSocket';
+import { useIsOnline, usePlayback } from './useSocket';
 
 /**
  * Returns the live completion percentage (0–100) of a countdown, interpolated locally.
  */
-export function useAnimatedProgress(current: MaybeNumber, duration: MaybeNumber): number {
+export function useAnimatedProgress(current: MaybeNumber, duration: MaybeNumber, eventId?: EntryId | null): number {
   const playback = usePlayback();
+  const isOnline = useIsOnline();
   const isRunning = playback === Playback.Play || playback === Playback.Roll;
 
-  const baseline = useRef({ current, at: performance.now() });
+  const baseline = useRef({ current, duration, eventId, playback, at: performance.now() });
   const [, setTick] = useState(0);
+  const now = performance.now();
 
-  // there is only something to animate while a running timer is counting down towards 0
-  const shouldAnimate = isRunning && current !== null && current > 0 && duration !== null;
+  const hasAuthoritativeUpdate =
+    baseline.current.current !== current || // handle timer updates
+    baseline.current.duration !== duration || // handle duration changes
+    baseline.current.eventId !== eventId || // handle event changing
+    baseline.current.playback !== playback; // handle playback changes
 
-  // re-anchor to the authoritative value whenever the server pushes a new timer update
-  useEffect(() => {
-    baseline.current = { current, at: performance.now() };
-  }, [current, duration, playback]);
+  if (hasAuthoritativeUpdate) {
+    // Reset during render so an event change is reflected in this very paint.
+    baseline.current = { current, duration, eventId, playback, at: now };
+  }
+
+  // There is only something to animate while a connected timer is counting down towards 0.
+  const shouldAnimate = isOnline && isRunning && current !== null && current > 0 && duration !== null;
 
   // while counting down, re-render every animation frame so the derived progress stays smooth
   useEffect(() => {
@@ -34,8 +42,8 @@ export function useAnimatedProgress(current: MaybeNumber, duration: MaybeNumber)
     return () => cancelAnimationFrame(frame);
   }, [shouldAnimate]);
 
-  // derive from the anchor plus elapsed time at render; frozen to the anchor when not running
+  // Derive from the anchor plus elapsed time at render; freeze while disconnected or not running.
   const anchored = baseline.current.current;
-  const value = isRunning && anchored !== null ? anchored - (performance.now() - baseline.current.at) : anchored;
+  const value = isOnline && isRunning && anchored !== null ? anchored - (now - baseline.current.at) : anchored;
   return getProgress(value, duration);
 }

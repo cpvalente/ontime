@@ -6,12 +6,13 @@ import styles from './CuesheetProgress.module.scss';
 
 export default function CuesheetProgress() {
   const { data } = useViewSettings();
-  const { current, duration, timeWarning, timeDanger } = useProgressData();
+  const { current, duration, eventId, timeWarning, timeDanger } = useProgressData();
 
   return (
     <MultiPartProgressBar
       now={current}
       complete={duration}
+      eventId={eventId}
       normalColor={data.normalColor}
       warning={timeWarning}
       warningColor={data.warningColor}

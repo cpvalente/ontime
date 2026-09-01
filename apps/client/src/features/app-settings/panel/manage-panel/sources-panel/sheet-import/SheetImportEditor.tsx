@@ -132,7 +132,16 @@ export default function SheetImportEditor({
             }
           />
         </label>
-        {toolbarStatus && <Panel.Description>{toolbarStatus}</Panel.Description>}
+        {toolbarStatus && (
+          <Panel.Description>
+            {toolbarStatus.entries === '–'
+              ? 'No import preview yet'
+              : `${toolbarStatus.entries} entries · ${toolbarStatus.groups} groups · ${toolbarStatus.milestones} milestones · ${toolbarStatus.start}–${toolbarStatus.end} · ${toolbarStatus.duration}`}
+            {toolbarStatus.warnings > 0 && (
+              <span className={style.toolbarWarning}> · {toolbarStatus.warnings} warnings</span>
+            )}
+          </Panel.Description>
+        )}
       </Panel.InlineElements>
 
       <div className={style.editorBody}>
@@ -150,13 +159,19 @@ export default function SheetImportEditor({
 
         <section className={style.previewPane}>
           <div className={style.previewPaneHeader}>
-            <span className={style.previewPaneTitle}>Import preview</span>
+            <div className={style.previewPaneHeading}>
+              <span className={style.previewPaneTitle}>Import preview</span>
+            </div>
           </div>
           <div className={style.tableShell}>
             <PreviewTable
               preview={state.preview}
               columnLabels={columnLabels}
+              canRefresh={canPreview}
               isLoadingMetadata={isLoadingMetadata}
+              isRefreshing={state.loading === 'preview'}
+              needsPreviewRefresh={state.needsPreviewRefresh}
+              onRefresh={handlePreviewSubmit}
               worksheetHeaders={worksheetHeaders}
             />
           </div>

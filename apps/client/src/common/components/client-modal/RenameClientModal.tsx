@@ -5,6 +5,8 @@ import { setClientRemote } from '../../hooks/useSocket';
 import Dialog from '../dialog/Dialog';
 import Input from '../input/input/Input';
 
+import style from './RenameClientModal.module.scss';
+
 interface RenameClientModalProps {
   id: string;
   name?: string;
@@ -31,9 +33,22 @@ export function RenameClientModal({ id, name: currentName = '', isOpen, onClose 
       isOpen={isOpen}
       title={`Rename Client: ${currentName}`}
       showCloseButton
+      showBackdrop
       onClose={onClose}
       bodyElements={
-        <Input height='large' placeholder='New name' value={name} onChange={(event) => setName(event.target.value)} />
+        <div className={style.form}>
+          <label className={style.label}>
+            Client name
+            <Input
+              height='large'
+              fluid
+              autoComplete='off'
+              placeholder='New name'
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
+          </label>
+        </div>
       }
       footerElements={
         <>

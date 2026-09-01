@@ -4,6 +4,7 @@ import { FormEvent, memo } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useSearchParams } from 'react-router';
 
+import { viewLabels } from '../../../viewerConfig';
 import useViewSettings from '../../hooks-query/useViewSettings';
 import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
 import { useSavedViewParams } from '../../stores/savedViewParams';
@@ -71,8 +72,17 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
         <Dialog.Backdrop className={style.backdrop} />
         <Dialog.Popup className={style.drawer}>
           <div className={style.header}>
-            <Dialog.Title>Customise</Dialog.Title>
-            <IconButton variant='subtle-white' size='large' data-testid='close-view-params' onClick={handleClose}>
+            <div className={style.headerText}>
+              <Dialog.Title className={style.title}>Customise</Dialog.Title>
+              <span className={style.target}>{viewLabels[target]}</span>
+            </div>
+            <IconButton
+              variant='subtle-white'
+              size='large'
+              aria-label='Close'
+              data-testid='close-view-params'
+              onClick={handleClose}
+            >
               <IoClose />
             </IconButton>
           </div>

@@ -33,7 +33,7 @@ import {
 import { makeNewRundown } from '../../models/dataModel.js';
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
 import { RundownMetadata } from './rundown.types.js';
-import { calculateDayOffset, cleanupCustomFields } from './rundown.utils.js';
+import { calculateDayOffset, cleanupCustomFields, cloneEntryData } from './rundown.utils.js';
 
 /**
  * Parse a rundowns object along with the project custom fields
@@ -234,7 +234,7 @@ export function makeRundownMetadata(customFields: CustomFields, options?: { muta
   };
 
   function process<T extends OntimeEntry>(entry: T, childOfGroup: EntryId | null): T {
-    return processEntry(rundownMeta, customFields, mutate ? entry : structuredClone(entry), childOfGroup);
+    return processEntry(rundownMeta, customFields, mutate ? entry : cloneEntryData(entry), childOfGroup);
   }
 
   function getMetadata(): ProcessedRundownMetadata {

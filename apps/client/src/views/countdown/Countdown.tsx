@@ -20,6 +20,7 @@ import ViewParamsEditor from '../../common/components/view-params-editor/ViewPar
 import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
+import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
@@ -43,7 +44,7 @@ export default function CountdownLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
   }
 
   return <Countdown {...data} />;
@@ -80,14 +81,16 @@ function Countdown({ customFields, rundownData, projectData, isMirrored, setting
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
       <ViewParamsEditor target={OntimeView.Countdown} viewOptions={countdownOptions} />
       <div className='project-header'>
-        {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
-        <div className='title'>{projectData.title}</div>
+        <div className={cx(['project-header__brand', !projectData?.logo && 'project-header__brand--without-logo'])}>
+          {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
+          <div className='title'>{projectData.title}</div>
+        </div>
         <CountdownClock />
       </div>
 
       {!hasEvents && (
         <div className='empty-state'>
-          <Empty text={getLocalizedString('common.no_data')} className='empty-state__content' />
+          <Empty text={getLocalizedString('common.no_data')} />
         </div>
       )}
 
@@ -121,7 +124,7 @@ function CountdownContents({ candidates, rundownData, subscriptions, goToEditMod
   if (subscriptions.length === 0) {
     return (
       <div className='empty-state'>
-        <Empty text={getLocalizedString('countdown.select_event')} className='empty-state__content' />
+        <Empty text={getLocalizedString('countdown.select_event')} />
         <Button variant='primary' size='xlarge' onClick={goToEditMode}>
           <IoAdd /> Add
         </Button>
@@ -137,7 +140,7 @@ function CountdownContents({ candidates, rundownData, subscriptions, goToEditMod
   if (subscribedEvents.length === 0) {
     return (
       <div className='empty-state'>
-        <Empty text={getLocalizedString('countdown.select_event')} className='empty-state__content' />
+        <Empty text={getLocalizedString('countdown.select_event')} />
         <Button variant='primary' size='xlarge' onClick={goToEditMode}>
           <IoAdd /> Add
         </Button>
@@ -154,7 +157,7 @@ function CountdownContents({ candidates, rundownData, subscriptions, goToEditMod
   if (eventsToShow.length === 0) {
     return (
       <div className='empty-state'>
-        <Empty text={getLocalizedString('countdown.all_have_finished')} className='empty-state__content' />
+        <Empty text={getLocalizedString('countdown.all_have_finished')} />
       </div>
     );
   }

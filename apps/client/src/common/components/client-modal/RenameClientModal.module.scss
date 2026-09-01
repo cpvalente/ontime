@@ -1,0 +1,13 @@
+@use '../../../theme/ontimeStyles' as *;
+
+.form {
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: $label-gray;
+  font-size: $inner-section-text-size;
+}

@@ -44,7 +44,7 @@ test.describe('URL Preset', () => {
       .filter({ hasText: /^testingApply$/ })
       .getByRole('button')
       .click();
-    await expect(page.getByRole('button', { name: 'Applied' })).toBeVisible();
+    await expect(page.getByText('Current')).toBeVisible();
 
     // 2. the URL contains the preset
     expect(page.url().includes('hideTimerSeconds=true')).toBeTruthy();

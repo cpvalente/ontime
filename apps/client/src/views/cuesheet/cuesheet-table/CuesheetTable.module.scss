@@ -5,6 +5,10 @@ $table-header-font-size: calc(1rem - 2px);
 
 @include rows.cuesheet-row-columns($table-header-font-size);
 
+.tableLoading {
+  grid-area: table;
+}
+
 .cuesheet {
   font-size: $table-font-size;
   font-weight: 400;

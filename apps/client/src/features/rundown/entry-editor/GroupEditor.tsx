@@ -81,7 +81,7 @@ export default function GroupEditor({ group }: GroupEditorProps) {
           <div>
             <Editor.Label htmlFor='eventId'>Plan offset</Editor.Label>
             <TextLikeInput
-              offset={planOffsetLabel}
+              offset={planOffsetLabel === 'under' ? 'over' : planOffsetLabel}
               className={cx([style.textLikeInput, planOffset === null && style.inactive])}
               disabled
             >

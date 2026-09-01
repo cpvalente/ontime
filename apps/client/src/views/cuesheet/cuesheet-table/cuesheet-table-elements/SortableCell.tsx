@@ -1,9 +1,8 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Header } from '@tanstack/react-table';
 import { CSSProperties, ReactNode } from 'react';
 
-import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
+import type { CuesheetHeaderCell } from '../cuesheetTable.features';
 
 import style from '../CuesheetTable.module.scss';
 
@@ -48,7 +47,7 @@ export function TableCell({ colSpan, injectedStyles, children, draggable }: Sort
 }
 
 interface DraggableProps {
-  header: Header<ExtendedEntry, unknown>;
+  header: CuesheetHeaderCell;
 }
 
 export function Draggable({ header }: DraggableProps) {

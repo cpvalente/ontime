@@ -177,6 +177,13 @@ export async function postCloneEntry(
 }
 
 /**
+ * HTTP request events duration to fit inside the group target
+ */
+export async function requestFitGroupTarget(rundownId: RundownId, eventId: EntryId): Promise<AxiosResponse<Rundown>> {
+  return axios.post(`${rundownPath}/${rundownId}/${eventId}/fit-group-duration`);
+}
+
+/**
  * HTTP request for grouping a list of entries into a group
  */
 export async function requestGroupEntries(rundownId: RundownId, entryIds: EntryId[]): Promise<AxiosResponse<Rundown>> {

@@ -1,5 +1,6 @@
 .current {
-  background-color: $blue-1100;
+  // marker consumed by the shared Panel.Table active-row treatment
+  background-color: inherit;
 }
 
 .isEditing {
@@ -55,7 +56,90 @@
   margin-bottom: 1rem;
 }
 
-.empty {
+.loaderBox {
   height: 300px;
   position: relative;
+}
+
+.mergeBody {
+  gap: 1rem;
+}
+
+.mergeIntro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sourceFile {
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background-color: $white-3;
+  color: $orange-400;
+  white-space: nowrap;
+}
+
+.mergeSummary {
+  color: $gray-400;
+  font-size: calc(1rem - 2px);
+  line-height: 1.5;
+}
+
+.mergeWarningInfo {
+  margin-bottom: 0.25rem;
+}
+
+.optionList {
+  padding: 0;
+  gap: 0;
+}
+
+.optionList > li:not(:last-child) {
+  border-bottom: 1px solid $white-10;
+}
+
+.optionRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.optionCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.optionTitle {
+  color: $ui-white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.optionBody {
+  color: $gray-400;
+  font-size: calc(1rem - 3px);
+  line-height: 1.45;
+}
+
+.footerContent {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footerActions {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }

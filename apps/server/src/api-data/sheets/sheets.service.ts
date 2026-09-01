@@ -464,9 +464,8 @@ export async function upload(sheetId: string, options: ImportMap) {
     sheetOrder.forEach((entryId, index) => {
       const isGroupEnd = entryId.startsWith('group-end-');
       const id = isGroupEnd ? entryId.split('group-end-')[1] : entryId;
-      const entry = isGroupEnd
-        ? ({ id: entryId, type: SupportedEntry.Group } as OntimeGroup)
-        : structuredClone(rundown.entries[id]);
+      // cellRequestFromEvent only reads the entry to build a cell request, no clone is needed
+      const entry = isGroupEnd ? ({ id: entryId, type: SupportedEntry.Group } as OntimeGroup) : rundown.entries[id];
       updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, sheetMetadata));
     });
   } catch (e) {

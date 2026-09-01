@@ -1,5 +1,7 @@
+import { deepEqual } from 'fast-equals';
 import {
   EndAction,
+  OntimeEntry,
   OntimeEvent,
   OntimeGroup,
   OntimeMilestone,
@@ -8,13 +10,21 @@ import {
   TimerType,
   Trigger,
 } from 'ontime-types';
-import { MILLIS_PER_HOUR, createEvent } from 'ontime-utils';
+import {
+  MILLIS_PER_HOUR,
+  MILLIS_PER_MINUTE,
+  createDelay,
+  createEvent,
+  createGroup,
+  createMilestone,
+} from 'ontime-utils';
 import { assertType } from 'vitest';
 
 import { makeOntimeEvent, makeOntimeGroup, makeOntimeMilestone, makeRundown } from '../__mocks__/rundown.mocks.js';
 import { parseRundown } from '../rundown.parser.js';
 import {
   calculateDayOffset,
+  cloneEntryData,
   deleteById,
   doesInvalidateMetadata,
   getIntegerAndFraction,
@@ -22,6 +32,7 @@ import {
   makeDeepClone,
   mergeRundownPreservingFields,
   isLoadedPlayable,
+  eventDurationMatchGroupTarget,
 } from '../rundown.utils.js';
 
 describe('test event validator', () => {
@@ -608,5 +619,174 @@ describe('isLoadedPlayable()', () => {
   it('returns false when the matched entry is no longer an event', () => {
     const rundown = makeRundown({ order: ['keynote'], entries: { keynote: makeOntimeGroup({ id: 'keynote' }) } });
     expect(isLoadedPlayable('keynote', rundown)).toBe(false);
+  });
+});
+
+describe('eventDurationMatchGroupTarget()', () => {
+  it('returns unchanged duration when group already matches target', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_HOUR,
+      groupDuration: MILLIS_PER_HOUR,
+      eventDuration: MILLIS_PER_MINUTE * 30,
+    });
+    expect(result).toStrictEqual(null);
+  });
+
+  it('increases event duration when group is shorter than target', () => {
+    // Group is 1h short of target, so event duration increases by 1h
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_HOUR * 2, // 2h
+      groupDuration: MILLIS_PER_HOUR, // 1h
+      eventDuration: MILLIS_PER_MINUTE * 30, // 30m
+    });
+    expect(result).toStrictEqual(MILLIS_PER_HOUR + MILLIS_PER_MINUTE * 30); // 1h30m
+  });
+
+  it('decreases event duration when group is longer than target', () => {
+    // Group is 30m over target, so event duration decreases by 30m
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_HOUR, // 1h
+      groupDuration: MILLIS_PER_HOUR + MILLIS_PER_MINUTE * 30, // 1h30m
+      eventDuration: MILLIS_PER_MINUTE * 30, // 30m
+    });
+    expect(result).toStrictEqual(0);
+  });
+
+  it('handles zero target duration', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: 0,
+      groupDuration: MILLIS_PER_HOUR,
+      eventDuration: MILLIS_PER_HOUR,
+    });
+    expect(result).toStrictEqual(0);
+  });
+
+  it('handles zero group duration', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_HOUR,
+      groupDuration: 0,
+      eventDuration: MILLIS_PER_MINUTE * 30,
+    });
+    expect(result).toStrictEqual(MILLIS_PER_HOUR + MILLIS_PER_MINUTE * 30);
+  });
+
+  it('handles zero event duration', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_HOUR,
+      groupDuration: MILLIS_PER_MINUTE * 30,
+      eventDuration: 0,
+    });
+    expect(result).toStrictEqual(MILLIS_PER_HOUR - MILLIS_PER_MINUTE * 30);
+  });
+
+  it('handles all zero values', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: 0,
+      groupDuration: 0,
+      eventDuration: 0,
+    });
+    expect(result).toStrictEqual(null);
+  });
+
+  it('returns null when result would be negative', () => {
+    // Group exceeds target by 1.5h, event shrinks by 1.5h (exceeds event duration)
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_MINUTE * 30,
+      groupDuration: MILLIS_PER_HOUR * 2,
+      eventDuration: MILLIS_PER_HOUR,
+    });
+    expect(result).toStrictEqual(null);
+  });
+
+  it('handles large durations', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: MILLIS_PER_HOUR * 24, // 24h
+      groupDuration: MILLIS_PER_HOUR * 12, // 12h
+      eventDuration: MILLIS_PER_HOUR, // 1h
+    });
+    expect(result).toStrictEqual(MILLIS_PER_HOUR * 13); // 13h
+  });
+
+  it('returns null when targetDuration is null', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: null,
+      groupDuration: MILLIS_PER_HOUR,
+      eventDuration: MILLIS_PER_MINUTE * 30,
+    });
+    expect(result).toStrictEqual(null);
+  });
+
+  it('returns null when duration would be over 24h', () => {
+    const result = eventDurationMatchGroupTarget({
+      targetDuration: 30 * MILLIS_PER_HOUR,
+      groupDuration: MILLIS_PER_HOUR,
+      eventDuration: MILLIS_PER_MINUTE * 30,
+    });
+    expect(result).toStrictEqual(null);
+  });
+});
+
+describe('cloneEntryData()', () => {
+  const trigger: Trigger = {
+    id: 'trigger-1',
+    title: 'Go on air',
+    trigger: TimerLifeCycle.onStart,
+    automationId: 'automation-1',
+  };
+
+  // the real factories, so these are complete entries exactly as the rundown holds them
+  const entries: [string, OntimeEntry][] = [
+    ['event', createEvent({ custom: { sponsor: 'a value' }, triggers: [trigger] }, 'cue-1') as OntimeEvent],
+    ['group', createGroup({ id: 'group-1', entries: ['a', 'b'], custom: { sponsor: 'a value' } })],
+    ['milestone', createMilestone({ id: 'milestone-1', custom: { sponsor: 'a value' } })],
+    ['delay', createDelay({ id: 'delay-1', duration: 10 })],
+  ];
+
+  /**
+   * Fails if any nested object or array in the clone is the same reference as the source,
+   * so a field added later that needs a copy of its own is caught here without the clone
+   * having to enumerate fields.
+   */
+  function expectNoSharedReferences(clone: unknown, source: unknown, path: string) {
+    if (typeof source !== 'object' || source === null) return;
+    expect(clone, `${path} is shared with the source`).not.toBe(source);
+    const cloneRecord = clone as Record<string, unknown>;
+    const sourceRecord = source as Record<string, unknown>;
+    for (const key of Object.keys(sourceRecord)) {
+      expectNoSharedReferences(cloneRecord[key], sourceRecord[key], `${path}.${key}`);
+    }
+  }
+
+  /** the two halves of the structuredClone contract: same value, no shared references */
+  it.each(entries)('clones a %s to the same value structuredClone would produce', (_type, entry) => {
+    expect(cloneEntryData(entry)).toStrictEqual(structuredClone(entry));
+  });
+
+  it.each(entries)('shares no nested object or array with the source %s', (_type, entry) => {
+    expectNoSharedReferences(cloneEntryData(entry), entry, 'entry');
+  });
+
+  /**
+   * Regression: normalising an absent container to an empty one makes deepEqual report a
+   * change on every comparison, which would have the runtime re-broadcast and re-save the
+   * restore point on every tick. See PR #2178.
+   */
+  it.each([
+    ['event', makeOntimeEvent({ id: 'partial' })],
+    ['group', makeOntimeGroup({ id: 'partial', entries: undefined })],
+  ])('gives a partial %s exactly the keys structuredClone would, so it stays deep-equal', (_type, entry) => {
+    const clone = cloneEntryData(entry);
+    // asserting on keys, not values: `toBeUndefined()` cannot tell an absent key from an own
+    // key holding undefined, and it is key presence that decides the deepEqual below
+    expect(Object.keys(clone).sort()).toEqual(Object.keys(structuredClone(entry)).sort());
+    // this is the comparison runtime.service.ts uses to decide whether to re-broadcast an
+    // entry; if the clone gains a key, every tick looks like a change
+    expect(deepEqual(clone, entry)).toBe(true);
+  });
+
+  it('throws on an entry type it does not know how to clone', () => {
+    expect(() => cloneEntryData({ id: 'x', type: 'unknown' } as unknown as OntimeEvent)).toThrow(
+      'Unsupported entry type for cloning',
+    );
   });
 });

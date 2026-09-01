@@ -3,13 +3,16 @@ import { useCallback, useState } from 'react';
 import { IoClose } from 'react-icons/io5';
 
 import Button from '../../common/components/buttons/Button';
+import ToggleButton from '../../common/components/buttons/ToggleButton';
 import { clearLogs, useLogData } from '../../common/stores/logger';
+import { cx } from '../../common/utils/styleUtils';
 import * as Panel from '../app-settings/panel-utils/PanelUtils';
 
 import style from './Log.module.scss';
 
 export default function Log() {
   const { logs: logData } = useLogData();
+  const isExtracted = window.location.pathname.includes('/log');
 
   const [showClient, setShowClient] = useState(true);
   const [showServer, setShowServer] = useState(true);
@@ -50,75 +53,77 @@ export default function Log() {
   }, []);
 
   return (
-    <>
+    <div className={cx([style.container, isExtracted && style.extracted])}>
       <Panel.InlineElements className={style.buttonBar}>
-        <Button
-          variant={showUser ? 'primary' : 'subtle'}
+        <span className={style.filterLabel}>Filter by</span>
+        <ToggleButton
+          pressed={showUser}
           size='small'
           onClick={() => setShowUser((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.User)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.User}
-        </Button>
-        <Button
-          variant={showClient ? 'primary' : 'subtle'}
+        </ToggleButton>
+        <ToggleButton
+          pressed={showClient}
           size='small'
           onClick={() => setShowClient((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Client)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.Client}
-        </Button>
-        <Button
-          variant={showServer ? 'primary' : 'subtle'}
+        </ToggleButton>
+        <ToggleButton
+          pressed={showServer}
           size='small'
           onClick={() => setShowServer((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Server)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.Server}
-        </Button>
-        <Button
-          variant={showPlayback ? 'primary' : 'subtle'}
+        </ToggleButton>
+        <ToggleButton
+          pressed={showPlayback}
           size='small'
           onClick={() => setShowPlayback((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Playback)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.Playback}
-        </Button>
-        <Button
-          variant={showRx ? 'primary' : 'subtle'}
+        </ToggleButton>
+        <ToggleButton
+          pressed={showRx}
           size='small'
           onClick={() => setShowRx((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Rx)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.Rx}
-        </Button>
-        <Button
-          variant={showTx ? 'primary' : 'subtle'}
+        </ToggleButton>
+        <ToggleButton
+          pressed={showTx}
           size='small'
           onClick={() => setShowTx((s) => !s)}
           onAuxClick={() => disableOthers(LogOrigin.Tx)}
           onContextMenu={(e) => e.preventDefault()}
         >
           {LogOrigin.Tx}
-        </Button>
+        </ToggleButton>
         <Button variant='subtle-destructive' size='small' onClick={clearLogs} className={style.apart}>
           <IoClose /> Clear
         </Button>
       </Panel.InlineElements>
-      <ul className={style.log}>
+      <ul className={style.log} aria-label='Event log entries'>
+        {filteredData.length === 0 && <li className={style.empty}>No events match the selected filters.</li>}
         {filteredData.map((logEntry) => (
-          <li key={logEntry.id} className={`${style.logEntry} ${style[logEntry.level]} `}>
+          <li key={logEntry.id} className={`${style.logEntry} ${style[logEntry.level]}`}>
             <span className={style.time}>{logEntry.time}</span>
             <span className={style.origin}>{logEntry.origin}</span>
             <span className={style.msg}>{logEntry.text}</span>
           </li>
         ))}
       </ul>
-    </>
+    </div>
   );
 }

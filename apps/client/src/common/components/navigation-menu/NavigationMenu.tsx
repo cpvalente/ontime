@@ -1,7 +1,7 @@
 import { Dialog } from '@base-ui/react/dialog';
-import { useDisclosure, useFullscreen } from '@mantine/hooks';
-import { memo } from 'react';
-import { IoClose, IoContract, IoExpand, IoLockClosedOutline, IoSwapVertical } from 'react-icons/io5';
+import { useDisclosure, useFullscreenDocument } from '@mantine/hooks';
+import { memo, PropsWithChildren } from 'react';
+import { IoClose, IoExpand, IoLockClosedOutline, IoPencilOutline, IoSwapVertical } from 'react-icons/io5';
 import { LuCoffee } from 'react-icons/lu';
 import { useLocation } from 'react-router';
 
@@ -14,9 +14,11 @@ import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 import IconButton from '../buttons/IconButton';
 import { RenameClientModal } from '../client-modal/RenameClientModal';
+import Eyebrow from '../eyebrow/Eyebrow';
 import ClientLink from './client-link/ClientLink';
 import EditorNavigation from './editor-navigation/EditorNavigation';
 import NavigationMenuItem from './navigation-menu-item/NavigationMenuItem';
+import NavigationMenuToggle from './navigation-menu-item/NavigationMenuToggle';
 import OtherAddresses from './other-addresses/OtherAddresses';
 
 import style from './NavigationMenu.module.scss';
@@ -33,7 +35,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
   const isSmallScreen = useIsSmallScreen();
 
   const [isRenameOpen, handlers] = useDisclosure(false);
-  const { fullscreen, toggle } = useFullscreen();
+  const { fullscreen, toggle } = useFullscreenDocument();
   const { mirror, toggleMirror } = useViewOptionsStore();
   const { keepAwake, toggleKeepAwake } = useKeepAwakeOptions();
   const location = useLocation();
@@ -52,72 +54,90 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
         <RenameClientModal id={id} name={name} isOpen={isRenameOpen} onClose={handlers.close} />
         <Dialog.Popup className={style.drawer}>
           <div className={style.header}>
-            <Dialog.Title>Ontime</Dialog.Title>
-            <IconButton variant='subtle-white' size='large' onClick={onClose}>
+            <div className={style.headerText}>
+              <Dialog.Title className={style.title}>Ontime</Dialog.Title>
+              {name && <span className={style.clientName}>{name}</span>}
+            </div>
+            <IconButton variant='subtle-white' size='large' aria-label='Close menu' onClick={onClose}>
               <IoClose />
             </IconButton>
           </div>
           <div className={style.body}>
-            {supportsFullscreen && (
-              <NavigationMenuItem active={fullscreen} onClick={toggle}>
-                Toggle Fullscreen
-                {fullscreen ? <IoContract /> : <IoExpand />}
+            <MenuGroup label='This screen'>
+              {supportsFullscreen && (
+                <NavigationMenuToggle checked={fullscreen} icon={<IoExpand />} label='Fullscreen' onToggle={toggle} />
+              )}
+              <NavigationMenuToggle
+                checked={mirror}
+                icon={<IoSwapVertical />}
+                label='Flip Screen'
+                onToggle={() => toggleMirror()}
+              />
+              {canUseWakeLock && (
+                <NavigationMenuToggle
+                  checked={keepAwake}
+                  icon={<LuCoffee />}
+                  label='Keep Awake'
+                  onToggle={toggleKeepAwake}
+                />
+              )}
+              <NavigationMenuItem onClick={handlers.open}>
+                <IoPencilOutline />
+                Rename Client
               </NavigationMenuItem>
-            )}
-            <NavigationMenuItem active={mirror} onClick={() => toggleMirror()}>
-              Flip Screen
-              <IoSwapVertical />
-              {mirror && <span className={style.note}>Active</span>}
-            </NavigationMenuItem>
-            {canUseWakeLock && (
-              <NavigationMenuItem active={keepAwake} onClick={toggleKeepAwake}>
-                Keep Awake
-                <LuCoffee />
-                {keepAwake && <span className={style.note}>Active</span>}
-              </NavigationMenuItem>
-            )}
-            <NavigationMenuItem onClick={handlers.open}>Rename Client</NavigationMenuItem>
+            </MenuGroup>
 
-            <hr className={style.separator} />
-
-            <EditorNavigation />
-            <ClientLink
-              to='cuesheet'
-              current={location.pathname === '/cuesheet'}
-              postAction={isSmallScreen ? onClose : undefined}
-            >
-              <IoLockClosedOutline />
-              Cuesheet
-            </ClientLink>
-            <ClientLink to='op' current={location.pathname === '/op'} postAction={isSmallScreen ? onClose : undefined}>
-              <IoLockClosedOutline />
-              Operator
-            </ClientLink>
-
-            <hr className={style.separator} />
-
-            {navigatorConstants.map((route) => (
+            <MenuGroup label='Ontime app'>
+              <EditorNavigation />
               <ClientLink
-                key={route.url}
-                to={route.url}
-                current={location.pathname === `/${route.url}`}
+                to='cuesheet'
+                current={location.pathname === '/cuesheet'}
                 postAction={isSmallScreen ? onClose : undefined}
               >
-                {route.label}
+                <IoLockClosedOutline />
+                Cuesheet
               </ClientLink>
-            ))}
+              <ClientLink
+                to='op'
+                current={location.pathname === '/op'}
+                postAction={isSmallScreen ? onClose : undefined}
+              >
+                <IoLockClosedOutline />
+                Operator
+              </ClientLink>
+            </MenuGroup>
+
+            <MenuGroup label='Views'>
+              {navigatorConstants.map((route) => (
+                <ClientLink
+                  key={route.url}
+                  to={route.url}
+                  current={location.pathname === `/${route.url}`}
+                  postAction={isSmallScreen ? onClose : undefined}
+                >
+                  {route.label}
+                </ClientLink>
+              ))}
+            </MenuGroup>
 
             <PresetNavigation isSmallScreen={isSmallScreen} onClose={onClose} />
           </div>
 
-          {isLocalhost && (
-            <div>
-              <OtherAddresses currentLocation={location.pathname} />
-            </div>
-          )}
+          {isLocalhost && <OtherAddresses currentLocation={location.pathname} />}
         </Dialog.Popup>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+function MenuGroup({ label, children }: PropsWithChildren<{ label: string }>) {
+  return (
+    <div className={style.group}>
+      <div className={style.groupLabel}>
+        <Eyebrow>{label}</Eyebrow>
+      </div>
+      {children}
+    </div>
   );
 }
 
@@ -129,8 +149,7 @@ function PresetNavigation({ isSmallScreen, onClose }: { isSmallScreen: boolean; 
   if (navPresets.length === 0) return null;
 
   return (
-    <>
-      <hr className={style.separator} />
+    <MenuGroup label='Presets'>
       {navPresets.map((preset) => (
         <ClientLink
           key={preset.alias}
@@ -141,6 +160,6 @@ function PresetNavigation({ isSmallScreen, onClose }: { isSmallScreen: boolean; 
           {preset.alias}
         </ClientLink>
       ))}
-    </>
+    </MenuGroup>
   );
 }

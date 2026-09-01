@@ -18,8 +18,7 @@ export default function EmptyTableBody({ handleAddNew }: EmptyTableBodyProps) {
     <tbody className={style.emptyContainer}>
       <tr>
         <td colSpan={99} className={style.emptyCell}>
-          <Empty injectedStyles={{ marginTop: '5vh' }} />
-          <span className={style.text}>{text}</span>
+          <Empty text={text} injectedStyles={{ marginTop: '5vh' }} />
           {handleAddNew && (
             <div className={style.inline}>
               <Button onClick={() => handleAddNew(SupportedEntry.Event)} variant='primary' size='large'>

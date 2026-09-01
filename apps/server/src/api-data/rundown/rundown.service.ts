@@ -39,6 +39,7 @@ import {
 import { parseRundown } from './rundown.parser.js';
 import type { RundownMetadata } from './rundown.types.js';
 import {
+  cloneRundown,
   generateEvent,
   getFirstInsertId,
   getIntegerAndFraction,
@@ -47,6 +48,7 @@ import {
   hasChanges,
   mergeRundownPreservingFields,
   isLoadedPlayable,
+  eventDurationMatchGroupTarget,
 } from './rundown.utils.js';
 import { assertInsertAnchorExists, assertInsertAnchorInOrder, assertSingleInsertAnchor } from './rundown.validation.js';
 
@@ -448,6 +450,69 @@ export async function cloneEntry(rundownId: string, entryId: EntryId, options: I
 }
 
 /**
+ *  Change a events duration to fit inside the group target
+ */
+export async function entryFitGroupDuration(rundownId: string, entryId: EntryId): Promise<Rundown> {
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
+
+  const entry = rundown.entries[entryId];
+
+  if (!entry) {
+    throw new Error('Entry not found');
+  }
+
+  if (!isOntimeEvent(entry)) {
+    throw new Error('Entry must be an event');
+  }
+
+  const { parent } = entry;
+  if (!parent) {
+    throw new Error('Entry must be in a group');
+  }
+
+  const group = rundown.entries[parent];
+
+  if (!group) {
+    throw new Error('Group not found');
+  }
+
+  if (!isOntimeGroup(group)) {
+    throw new Error('Group is not a group');
+  }
+
+  const newDuration = eventDurationMatchGroupTarget({
+    targetDuration: group.targetDuration,
+    groupDuration: group.duration,
+    eventDuration: entry.duration,
+  });
+
+  if (newDuration === null) {
+    throw new Error('Unable to fit a duration');
+  }
+
+  const newEnd = entry.timeStart + newDuration;
+
+  rundownMutation.edit(rundown, {
+    id: entryId,
+    duration: newDuration,
+    timeEnd: newEnd,
+    timeStrategy: entry.timeStrategy,
+  });
+  const { rundown: rundownResult, rundownMetadata, revision } = await commit();
+
+  // schedule the side effects
+  setImmediate(() => {
+    // notify runtime that rundown has changed
+    updateRuntimeOnChange(rundownMetadata);
+
+    // we need to notify the timer since we might be changing a running event
+    notifyChanges(rundown.id, rundownMetadata, revision, { external: true, timer: true });
+  });
+
+  return rundownResult;
+}
+
+/**
  * Groups a list of entries into a new group
  */
 export async function groupEntries(rundownId: string, entryIds: EntryId[]): Promise<Rundown> {
@@ -562,7 +627,7 @@ export async function editCustomField(
     // ... reassign references in the background rundowns
     for (const rundownId of Object.keys(projectRundowns)) {
       if (rundownId !== rundown.id) {
-        const backgroundRundown = structuredClone(projectRundowns[rundownId]);
+        const backgroundRundown = cloneRundown(projectRundowns[rundownId]);
         customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey);
         await updateBackgroundRundown(rundownId, backgroundRundown);
       }
@@ -602,7 +667,7 @@ export async function deleteCustomField(key: CustomFieldKey, projectRundowns: Pr
   // remove references in the background rundowns
   for (const rundownId of Object.keys(projectRundowns)) {
     if (rundownId !== rundown.id) {
-      const backgroundRundown = structuredClone(projectRundowns[rundownId]);
+      const backgroundRundown = cloneRundown(projectRundowns[rundownId]);
       customFieldMutation.removeUsages(backgroundRundown, key);
       await updateBackgroundRundown(rundownId, backgroundRundown);
     }
@@ -754,7 +819,7 @@ export async function renameRundown(id: string, title: string) {
   const dataProvider = getDataProvider();
   const rundown = dataProvider.getRundown(id);
 
-  await dataProvider.setRundown(id, { ...rundown, title });
+  await dataProvider.setRundown(id, { ...rundown, title, revision: rundown.revision + 1 });
 
   /**
    * If we are modifying the loaded rundown we re-init it
@@ -782,7 +847,7 @@ export async function duplicateExistingRundown(id: string) {
   const dataProvider = getDataProvider();
   const rundown = dataProvider.getRundown(id);
 
-  const duplicatedRundown: Rundown = structuredClone(rundown);
+  const duplicatedRundown: Rundown = cloneRundown(rundown);
   duplicatedRundown.id = generateId();
   duplicatedRundown.title = `Copy of ${rundown.title}`;
   duplicatedRundown.revision = 0;

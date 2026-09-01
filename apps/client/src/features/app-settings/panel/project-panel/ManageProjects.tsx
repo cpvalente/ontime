@@ -1,28 +1,20 @@
 import { ChangeEvent, useRef, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { useSearchParams } from 'react-router';
 
 import { uploadProjectFile } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import { validateProjectFile } from '../../../../common/utils/uploadUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
-import ProjectCreateForm from './ProjectCreateForm';
+import useAppSettingsNavigation from '../../useAppSettingsNavigation';
 import ProjectList from './ProjectList';
 
 export default function ManageProjects() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { setLocation } = useAppSettingsNavigation();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState<'import' | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const isCreatingProject = searchParams.get('new') === 'true';
-
-  const handleToggleCreate = () => {
-    searchParams.set('new', isCreatingProject ? 'false' : 'true');
-    setSearchParams(searchParams);
-  };
 
   const handleSelectFile = () => {
     fileInputRef.current?.click();
@@ -49,11 +41,6 @@ export default function ManageProjects() {
     setLoading(null);
   };
 
-  const handleCloseForm = () => {
-    searchParams.delete('new');
-    setSearchParams(searchParams);
-  };
-
   return (
     <Panel.Section>
       <input
@@ -68,21 +55,16 @@ export default function ManageProjects() {
         <Panel.SubHeader>
           Manage projects
           <Panel.InlineElements>
-            <Button
-              onClick={handleSelectFile}
-              disabled={Boolean(loading) || isCreatingProject}
-              loading={loading === 'import'}
-            >
+            <Button onClick={handleSelectFile} disabled={Boolean(loading)} loading={loading === 'import'}>
               Import
             </Button>
-            <Button onClick={handleToggleCreate} disabled={Boolean(loading) || isCreatingProject}>
+            <Button onClick={() => setLocation('project__create')} disabled={Boolean(loading)}>
               New <IoAdd />
             </Button>
           </Panel.InlineElements>
         </Panel.SubHeader>
         {error && <Panel.Error>{error}</Panel.Error>}
         <Panel.Divider />
-        {isCreatingProject && <ProjectCreateForm onClose={handleCloseForm} />}
         <ProjectList />
       </Panel.Card>
     </Panel.Section>

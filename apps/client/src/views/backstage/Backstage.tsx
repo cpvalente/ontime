@@ -35,7 +35,7 @@ export default function BackstageLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
   }
 
   return <Backstage {...data} />;
@@ -107,12 +107,21 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
       <ViewParamsEditor target={OntimeView.Backstage} viewOptions={backstageOptions} />
       <div className='project-header'>
-        {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
-        <div className='title'>{projectData.title}</div>
+        <div className={cx(['project-header__brand', !projectData?.logo && 'project-header__brand--without-logo'])}>
+          {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
+          <div className='title'>{projectData.title}</div>
+        </div>
         <BackstageClock timeformat={timeformat} />
       </div>
 
-      {showProgress && <ProgressBar className='progress-container' current={time.current} duration={time.duration} />}
+      {showProgress && (
+        <ProgressBar
+          className='progress-container'
+          current={time.current}
+          duration={time.duration}
+          eventId={selectedEventId}
+        />
+      )}
 
       {!hasEvents && <Empty text={getLocalizedString('common.no_data')} className='empty-container' />}
 

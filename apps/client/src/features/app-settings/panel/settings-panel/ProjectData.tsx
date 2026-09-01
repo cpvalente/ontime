@@ -1,5 +1,5 @@
 import { type ProjectData } from 'ontime-types';
-import { ChangeEvent, useEffect, useRef } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoDownloadOutline, IoTrash } from 'react-icons/io5';
 
@@ -17,9 +17,16 @@ import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './SettingsPanel.module.scss';
 
+type PendingLogo = {
+  file: File;
+  previewUrl: string;
+  uploadedFilename?: string;
+};
+
 export default function ProjectData() {
   const { data, status } = useProjectData();
   const { updateProjectData } = useUpdateProjectData();
+  const [pendingLogo, setPendingLogo] = useState<PendingLogo | null>(null);
 
   const {
     handleSubmit,
@@ -45,13 +52,22 @@ export default function ProjectData() {
   });
 
   // reset form values if data changes
+  // Release the browser-managed preview URL when the selection changes or this form unmounts.
   useEffect(() => {
     if (data) {
       reset(data);
     }
   }, [data, reset]);
 
-  const handleUploadProjectLogo = async (event: ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    return () => {
+      if (pendingLogo) {
+        URL.revokeObjectURL(pendingLogo.previewUrl);
+      }
+    };
+  }, [pendingLogo]);
+
+  const handleUploadProjectLogo = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     clearErrors('logo');
 
@@ -61,14 +77,16 @@ export default function ProjectData() {
 
     try {
       validateLogo(file);
-      const response = await uploadProjectLogo(file);
-
-      setValue('logo', response.data.logoFilename, {
-        shouldDirty: true,
+      setPendingLogo({
+        file,
+        previewUrl: URL.createObjectURL(file),
       });
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('logo', { message });
+    } finally {
+      // Allow selecting the same local file again after an upload attempt.
+      event.target.value = '';
     }
   };
 
@@ -83,6 +101,7 @@ export default function ProjectData() {
   const handleDeleteLogo = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
+    setPendingLogo(null);
     setValue('logo', null, {
       shouldDirty: true,
     });
@@ -92,10 +111,29 @@ export default function ProjectData() {
     append({ title: '', value: '', url: '' });
   };
 
+  const uploadPendingLogo = async () => {
+    if (!pendingLogo) {
+      return null;
+    }
+
+    if (pendingLogo.uploadedFilename) {
+      return pendingLogo.uploadedFilename;
+    }
+
+    const response = await uploadProjectLogo(pendingLogo.file);
+    const uploadedFilename = response.data.logoFilename;
+    setPendingLogo((currentPendingLogo) =>
+      currentPendingLogo?.file === pendingLogo.file ? { ...currentPendingLogo, uploadedFilename } : currentPendingLogo,
+    );
+    return uploadedFilename;
+  };
+
   const onSubmit = async (formData: ProjectData) => {
     try {
       clearErrors();
-      await updateProjectData(formData);
+      const logo = (await uploadPendingLogo()) ?? formData.logo;
+      await updateProjectData({ ...formData, logo });
+      setPendingLogo(null);
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
@@ -104,10 +142,12 @@ export default function ProjectData() {
 
   // reset data to the initial state
   const onReset = () => {
+    setPendingLogo(null);
     reset(data);
   };
 
   const isLoading = status === 'pending';
+  const logo = watch('logo');
 
   return (
     <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} onKeyDown={(event) => preventEscape(event, onReset)}>
@@ -118,7 +158,12 @@ export default function ProjectData() {
             <Button onClick={onReset} disabled={isSubmitting || !isDirty}>
               Revert to saved
             </Button>
-            <Button variant='primary' type='submit' disabled={!isDirty || !isValid} loading={isSubmitting}>
+            <Button
+              variant='primary'
+              type='submit'
+              disabled={(!isDirty && !pendingLogo) || !isValid}
+              loading={isSubmitting}
+            >
               Save
             </Button>
           </Panel.InlineElements>
@@ -150,17 +195,24 @@ export default function ProjectData() {
                 onChange={handleUploadProjectLogo}
               />
               <Panel.Card className={style.uploadLogoCard}>
-                {watch('logo') ? (
+                {logo || pendingLogo ? (
                   <>
-                    <img src={`${projectLogoPath}/${watch('logo')}`} />
-                    <Button
-                      variant='subtle-destructive'
-                      disabled={isSubmitting || !watch('logo')}
-                      onClick={handleDeleteLogo}
-                    >
-                      <IoTrash />
-                      Delete
-                    </Button>
+                    <img src={pendingLogo ? pendingLogo.previewUrl : `${projectLogoPath}/${logo}`} />
+                    <div className={style.logoActions}>
+                      <Button disabled={isSubmitting} onClick={handleClickUpload} type='button'>
+                        <IoDownloadOutline />
+                        Replace logo
+                      </Button>
+                      <Button
+                        variant='subtle-destructive'
+                        disabled={isSubmitting || (!logo && !pendingLogo)}
+                        onClick={handleDeleteLogo}
+                        type='button'
+                      >
+                        <IoTrash />
+                        Delete
+                      </Button>
+                    </div>
                   </>
                 ) : (
                   <Button disabled={isSubmitting} onClick={handleClickUpload} type='button'>

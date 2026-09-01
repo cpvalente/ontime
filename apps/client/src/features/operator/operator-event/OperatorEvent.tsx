@@ -82,7 +82,7 @@ function OperatorEvent({
   const fieldGridStyle =
     columnCount > 0
       ? ({
-          gridTemplateColumns: `repeat(${columnCount}, minmax(12rem, 1fr))`,
+          gridTemplateColumns: `repeat(${columnCount}, minmax(min(12rem, 100%), 1fr))`,
         } satisfies CSSProperties)
       : undefined;
 

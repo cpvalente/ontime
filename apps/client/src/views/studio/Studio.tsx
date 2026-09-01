@@ -25,7 +25,7 @@ export default function StudioLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
   }
 
   return <Studio {...data} />;
@@ -43,8 +43,10 @@ function Studio({ customFields, projectData, isMirrored, settings, viewSettings 
       <ViewParamsEditor target={OntimeView.StudioClock} viewOptions={studioOptions} />
 
       <div className='project-header'>
-        {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
-        <div className='title'>{projectData.title}</div>
+        <div className={cx(['project-header__brand', !projectData?.logo && 'project-header__brand--without-logo'])}>
+          {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
+          <div className='title'>{projectData.title}</div>
+        </div>
       </div>
 
       <div className={cx(['studio-contents', hideCards && 'studio-contents--onecol'])}>

@@ -1,6 +1,13 @@
 .outerColumn {
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
-  margin-bottom: 2rem;
+  font-size: calc(1rem - 1px);
+  color: $ui-white;
+
+  // the shared modal body owns scrolling for this regular form modal
+  min-height: 100%;
+  padding-block: 0.5rem;
 
   h3 {
     font-size: 1rem;

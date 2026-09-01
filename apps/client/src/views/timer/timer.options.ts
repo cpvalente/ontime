@@ -16,6 +16,7 @@ import { ViewOption } from '../../common/components/view-params-editor/viewParam
 import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
 import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean, makeColourString } from '../common/viewUtils';
+import { endSoundOptions, isEndSound, type EndSound } from './timer.sound';
 
 // manually match the properties of TimerType excluding the None
 const timerDisplayOptions: SelectOption[] = [
@@ -75,6 +76,15 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
           description: 'Whether to suppress the progress styles (warning, danger and overtime)',
           type: 'boolean',
           defaultValue: false,
+        },
+        {
+          id: 'endSound',
+          title: 'Play sound on timer end',
+          description:
+            'Plays a sound in this screen when the timer reaches zero. The screen must be interacted with once before it can play',
+          type: 'option',
+          values: endSoundOptions,
+          defaultValue: 'none',
         },
       ],
     },
@@ -169,7 +179,7 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
         {
           id: 'timerColour',
           title: 'Timer Colour',
-          description: 'Timer colour. Default: #f6f6f6',
+          description: 'Timer colour. Default: #F6F6F6',
           type: 'colour',
           defaultValue: 'f6f6f6',
         },
@@ -193,6 +203,7 @@ type TimerOptions = {
   freezeOvertime: boolean;
   freezeMessage: string;
   hidePhase: boolean;
+  endSound: EndSound;
   font?: string;
   keyColour?: string;
   timerColour?: string;
@@ -208,6 +219,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
 
   // Get timerType from either source
   const timerType = validateTimerType(getValue('timerType'), TimerType.None);
+  const endSoundValue = getValue('endSound');
 
   return {
     hideClock: isStringBoolean(getValue('hideClock')),
@@ -227,6 +239,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
     freezeOvertime: isStringBoolean(getValue('freezeOvertime')),
     freezeMessage: getValue('freezeMessage') ?? '',
     hidePhase: isStringBoolean(getValue('hidePhase')),
+    endSound: isEndSound(endSoundValue) ? endSoundValue : 'none',
 
     font: getValue('font') ?? undefined,
     keyColour: makeColourString(getValue('keyColour')),
