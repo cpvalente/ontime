@@ -158,6 +158,7 @@ describe('RuntimeService decorated methods', () => {
       ['stop', () => []],
       ['reload', () => []],
       ['roll', () => []],
+      ['resume', () => [{ playback: Playback.Stop, selectedEventId: null }]],
       ['addTime', () => [1000]],
       ['setOffsetMode', () => [OffsetMode.Relative]],
     ] as const)('%s broadcasts', async (method, makeArgs) => {
