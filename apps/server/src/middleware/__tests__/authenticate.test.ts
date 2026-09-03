@@ -37,6 +37,11 @@ describe('isPublicAssetRequest()', () => {
     expect(isPublicAssetRequest('/stage-hash/ontime-logo.png?cache=1', '/stage-hash')).toBe(true);
   });
 
+  it('allows the PWA install icons', () => {
+    expect(isPublicAssetRequest('/ontime-logo-192.png', '')).toBe(true);
+    expect(isPublicAssetRequest('/ontime-logo-512.png', '')).toBe(true);
+  });
+
   it('keeps non-public paths protected', () => {
     expect(isPublicAssetRequest('/stage-hash/data', '/stage-hash')).toBe(false);
     expect(isPublicAssetRequest('/backstage', '')).toBe(false);
