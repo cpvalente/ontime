@@ -7,6 +7,7 @@ import { cx } from '../../../common/utils/styleUtils';
 import { getFormattedTimer, getTimerByType } from '../../common/viewUtils';
 import {
   getEstimatedFontSize,
+  getEventTimerSecondary,
   getIsPlaying,
   getSecondaryDisplay,
   getShowMessage,
@@ -23,7 +24,18 @@ interface PipTimerProps {
 }
 
 export function PipTimer({ viewSettings }: PipTimerProps) {
-  const { eventNow, message, time, clock, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
+  const {
+    eventNow,
+    message,
+    time,
+    eventTimer,
+    clock,
+    timerTypeNow,
+    eventTimerType,
+    countToEndNow,
+    usesGroupTimer,
+    auxTimer,
+  } = useTimerSocket();
 
   // gather modifiers
   const showOverlay = getShowMessage(message.timer);
@@ -59,7 +71,9 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
     return null;
   })();
 
-  const secondaryContent = getSecondaryDisplay(message, currentAux, 'min', false, true, false);
+  const secondaryContent = usesGroupTimer
+    ? getEventTimerSecondary(eventTimer, eventTimerType, clock, 'min', false, true)
+    : getSecondaryDisplay(message, currentAux, 'min', false, true, false);
 
   // gather presentation styles
   const resolvedTimerColour = getTimerColour(viewSettings, undefined, showWarning, showDanger);
@@ -77,6 +91,7 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
       </div>
 
       <div className='timer-container'>
+        {usesGroupTimer && <div className='timer-source'>Group timer</div>}
         <div
           className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished'])}
           style={{ fontSize: `${timerFontSize}vw` }}
@@ -96,11 +111,11 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
           className={cx(['progress-container', !isPlaying && 'progress-container--paused'])}
           now={time.current}
           complete={totalTime}
-          eventId={eventNow?.id}
+          eventId={usesGroupTimer ? undefined : eventNow?.id}
           normalColor={viewSettings.normalColor}
-          warning={eventNow?.timeWarning}
+          warning={usesGroupTimer ? undefined : eventNow?.timeWarning}
           warningColor={viewSettings.warningColor}
-          danger={eventNow?.timeDanger}
+          danger={usesGroupTimer ? undefined : eventNow?.timeDanger}
           dangerColor={viewSettings.dangerColor}
           hideOvertime={!showFinished}
         />

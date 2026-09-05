@@ -1,6 +1,32 @@
-import { TimerPhase } from 'ontime-types';
+import { TimerPhase, TimerType } from 'ontime-types';
 
-import { shouldPlayEndSound } from '../timer.utils';
+import { getEventTimerSecondary, shouldPlayEndSound } from '../timer.utils';
+
+describe('getEventTimerSecondary()', () => {
+  it('formats the event countdown as a labelled secondary value', () => {
+    expect(
+      getEventTimerSecondary({ current: 65_000, elapsed: 5_000 }, TimerType.CountDown, 0, 'min', false, false),
+    ).toBe('Event timer 00:01:05');
+  });
+
+  it('preserves the event count-up display', () => {
+    expect(getEventTimerSecondary({ current: 55_000, elapsed: 5_000 }, TimerType.CountUp, 0, 'min', false, false)).toBe(
+      'Event timer 00:00:05',
+    );
+  });
+
+  it('falls back to remaining time when the event timer is hidden', () => {
+    expect(getEventTimerSecondary({ current: 5_000, elapsed: 55_000 }, TimerType.None, 0, 'min', false, false)).toBe(
+      'Event timer 00:00:05',
+    );
+  });
+
+  it('shows event progress instead of wall-clock time for clock events', () => {
+    expect(
+      getEventTimerSecondary({ current: 5_000, elapsed: 55_000 }, TimerType.Clock, 12_000, 'min', false, false),
+    ).toBe('Event timer 00:00:05');
+  });
+});
 
 describe('shouldPlayEndSound()', () => {
   test.each([TimerPhase.Default, TimerPhase.Warning, TimerPhase.Danger])(
