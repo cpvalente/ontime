@@ -105,10 +105,9 @@ function MakeDuration({ getValue, row, table, column }: CuesheetCellContext) {
     return null;
   }
 
-  const { hideTableSeconds } = table.options.meta.options;
   const event = row.original;
   if (!isOntimeEvent(event)) {
-    return <MutedText numeric>{formatDuration(getValue() as number, hideTableSeconds)}</MutedText>;
+    return <MutedText numeric>{formatDuration(getValue() as number, false)}</MutedText>;
   }
 
   const { handleUpdateTimer } = table.options.meta;
@@ -117,7 +116,7 @@ function MakeDuration({ getValue, row, table, column }: CuesheetCellContext) {
 
   const duration = getValue() as number;
   const isDurationLocked = event.timeStrategy === TimeStrategy.LockDuration;
-  const formattedDuration = formatDuration(duration, hideTableSeconds);
+  const formattedDuration = formatDuration(duration, false);
 
   const canWrite = column.columnDef.meta?.canWrite;
   if (!canWrite) {
