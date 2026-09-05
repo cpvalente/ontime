@@ -25,6 +25,15 @@
 
 .secondaryContent {
   border-top: 1px solid $white-7;
+  // when the event timer is demoted here (secondary swapped to main) it keeps its colour treatment
+  color: var(--override-colour, inherit);
+
+  &[data-phase='pending'] {
+    color: $ontime-roll;
+  }
+  &[data-phase='overtime'] {
+    color: $playback-negative;
+  }
 }
 
 .blackout {
