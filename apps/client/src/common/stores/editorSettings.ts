@@ -13,6 +13,7 @@ type EditorSettingsStore = {
   defaultTimerType: TimerType;
   defaultEndAction: EndAction;
   inheritGroupColour: boolean;
+  auxTimersCollapsed: boolean;
   setDefaultDuration: (defaultDuration: string) => void;
   setLinkPrevious: (linkPrevious: boolean) => void;
   setInheritGroupColour: (inheritGroupColour: boolean) => void;
@@ -21,6 +22,7 @@ type EditorSettingsStore = {
   setDangerTime: (dangerTime: string) => void;
   setDefaultTimerType: (defaultTimerType: TimerType) => void;
   setDefaultEndAction: (defaultEndAction: EndAction) => void;
+  setAuxTimersCollapsed: (auxTimersCollapsed: boolean) => void;
 };
 
 export const editorSettingsDefaults = {
@@ -32,6 +34,7 @@ export const editorSettingsDefaults = {
   timerType: TimerType.CountDown,
   endAction: EndAction.None,
   inheritGroupColour: false,
+  auxTimersCollapsed: false,
 };
 
 enum EditorSettingsKeys {
@@ -43,6 +46,7 @@ enum EditorSettingsKeys {
   DefaultTimerType = 'ontime-default-timer-type',
   DefaultEndAction = 'ontime-default-end-action',
   InheritGroupColour = 'ontime-inherit-group-colour',
+  AuxTimersCollapsed = 'ontime-aux-timers-collapsed',
 }
 
 export const useEditorSettings = create<EditorSettingsStore>((set) => {
@@ -66,6 +70,10 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => {
     inheritGroupColour: booleanFromLocalStorage(
       EditorSettingsKeys.InheritGroupColour,
       editorSettingsDefaults.inheritGroupColour,
+    ),
+    auxTimersCollapsed: booleanFromLocalStorage(
+      EditorSettingsKeys.AuxTimersCollapsed,
+      editorSettingsDefaults.auxTimersCollapsed,
     ),
 
     setDefaultDuration: (defaultDuration) =>
@@ -109,6 +117,11 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => {
       set(() => {
         localStorage.setItem(EditorSettingsKeys.InheritGroupColour, String(inheritGroupColour));
         return { inheritGroupColour };
+      }),
+    setAuxTimersCollapsed: (auxTimersCollapsed) =>
+      set(() => {
+        localStorage.setItem(EditorSettingsKeys.AuxTimersCollapsed, String(auxTimersCollapsed));
+        return { auxTimersCollapsed };
       }),
   };
 });

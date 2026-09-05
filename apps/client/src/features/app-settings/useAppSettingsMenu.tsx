@@ -24,6 +24,7 @@ const staticOptions = [
         label: 'General settings',
         keywords: ['pin', 'password', 'lock', 'language', 'time format', 'timezone'],
       },
+      { id: 'settings__aux-timers', label: 'Aux timers', keywords: ['aux', 'auxiliary'] },
       {
         id: 'settings__view',
         label: 'View settings',
