@@ -9,6 +9,7 @@ import {
   IoPlayForward,
   IoPlaySkipForward,
   IoTime,
+  IoTimerOutline,
 } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
 
@@ -35,6 +36,7 @@ interface RundownEventInnerProps {
   eventIndex: number;
   endAction: EndAction;
   timerType: TimerType;
+  groupTimerType?: TimerType;
   title: string;
   note: string;
   delay: number;
@@ -62,6 +64,7 @@ function RundownEventInner({
   countToEnd,
   endAction,
   timerType,
+  groupTimerType,
   title,
   note,
   delay,
@@ -150,6 +153,14 @@ function RundownEventInner({
           {loaded && <EventBlockProgressBar />}
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
+          {groupTimerType && (
+            <Tooltip
+              text={`Timer display controlled by group (${groupTimerType === TimerType.CountUp ? 'count up' : 'count down'})`}
+              render={<span />}
+            >
+              <IoTimerOutline className={cx([style.statusIcon, style.active])} />
+            </Tooltip>
+          )}
           <Tooltip text={`Time type: ${timerType}`} render={<span />}>
             <TimerIcon type={timerType} className={style.statusIcon} />
           </Tooltip>

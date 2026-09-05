@@ -27,6 +27,13 @@
   border-top: 1px solid $white-7;
 }
 
+.timerSource {
+  color: $active-indicator;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
 .blackout {
   display: none;
 }

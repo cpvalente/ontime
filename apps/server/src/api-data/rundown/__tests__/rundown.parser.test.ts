@@ -1,4 +1,4 @@
-import { CustomFields, OntimeEvent, OntimeGroup, Rundown, SupportedEntry } from 'ontime-types';
+import { CustomFields, OntimeEvent, OntimeGroup, Rundown, SupportedEntry, TimerType } from 'ontime-types';
 
 import { makeNewRundown } from '../../../models/dataModel.js';
 import { makeOntimeEvent, makeOntimeGroup, makeOntimeMilestone } from '../__mocks__/rundown.mocks.js';
@@ -276,7 +276,13 @@ describe('parseRundown()', () => {
     expect(parsedRundown.order).toStrictEqual(['group']);
     expect(parsedRundown.flatOrder).toStrictEqual(['group', '1', '2']);
     expect(parsedRundown.entries).toMatchObject({
-      group: { id: 'group', type: SupportedEntry.Group, entries: ['1', '2'] },
+      group: {
+        id: 'group',
+        type: SupportedEntry.Group,
+        entries: ['1', '2'],
+        useGroupTimer: false,
+        timerType: TimerType.CountDown,
+      },
       '1': { id: '1', type: SupportedEntry.Event },
       '2': { id: '2', type: SupportedEntry.Milestone },
     });

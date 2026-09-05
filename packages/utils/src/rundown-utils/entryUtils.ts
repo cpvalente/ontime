@@ -1,5 +1,5 @@
 import type { OntimeDelay, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ontime-types';
-import { SupportedEntry, TimeStrategy } from 'ontime-types';
+import { SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
 
 import { generateId } from '../generate-id/generateId.js';
 import { validateEndAction, validateTimerType } from '../validate-events/validateEvent.js';
@@ -67,6 +67,8 @@ export function createGroup(patch?: Partial<OntimeGroup>): OntimeGroup {
     note: patch.note ?? '',
     entries: patch.entries ?? [],
     targetDuration: patch.targetDuration ?? null,
+    useGroupTimer: patch.useGroupTimer === true,
+    timerType: validateGroupTimerType(patch.timerType),
     colour: makeString(patch.colour, ''),
     custom: patch.custom ?? {},
     revision: 0,
@@ -75,6 +77,16 @@ export function createGroup(patch?: Partial<OntimeGroup>): OntimeGroup {
     duration: 0,
     isFirstLinked: false,
   };
+}
+
+export function validateGroupTimerType(
+  value: unknown,
+  fallback: unknown = TimerType.CountDown,
+): TimerType.CountDown | TimerType.CountUp {
+  if (value === TimerType.CountDown || value === TimerType.CountUp) {
+    return value;
+  }
+  return fallback === TimerType.CountUp ? TimerType.CountUp : TimerType.CountDown;
 }
 
 /**

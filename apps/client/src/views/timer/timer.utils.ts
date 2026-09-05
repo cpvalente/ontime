@@ -6,11 +6,12 @@ import {
   RundownEntries,
   TimerMessage,
   TimerPhase,
+  TimerState,
   TimerType,
 } from 'ontime-types';
 import { isPlaybackActive } from 'ontime-utils';
 
-import { getFormattedTimer, getPropertyValue } from '../common/viewUtils';
+import { getFormattedTimer, getPropertyValue, getTimerByType } from '../common/viewUtils';
 
 /**
  * Whether a message should be shown
@@ -142,6 +143,25 @@ export function getSecondaryDisplay(
     return message.secondary;
   }
   return;
+}
+
+export function getEventTimerSecondary(
+  timer: Pick<TimerState, 'current' | 'elapsed'>,
+  timerType: TimerType,
+  clock: number,
+  localisedMinutes: string,
+  removeSeconds: boolean,
+  removeLeadingZero: boolean,
+  clockFormat?: string | null,
+): string {
+  const effectiveType = timerType === TimerType.CountUp ? TimerType.CountUp : TimerType.CountDown;
+  const value = getTimerByType(false, effectiveType, clock, timer);
+  const display = getFormattedTimer(value, effectiveType, localisedMinutes, {
+    removeSeconds,
+    removeLeadingZero,
+    clockFormat,
+  });
+  return `Event timer ${display}`;
 }
 
 /**

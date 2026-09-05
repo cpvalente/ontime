@@ -54,6 +54,15 @@ export function getShouldTimerUpdate(previousValue: TimerState | undefined, curr
   );
 }
 
+export function getShouldGroupTimerUpdate(
+  previousValue: TimerState | null | undefined,
+  currentValue: TimerState | null,
+): boolean {
+  if (previousValue === undefined) return true;
+  if (previousValue === null || currentValue === null) return previousValue !== currentValue;
+  return getShouldTimerUpdate(previousValue, currentValue);
+}
+
 /**
  * Checks whether we should update the offset values
  * - `mode` triggers update

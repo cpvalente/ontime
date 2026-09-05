@@ -1,4 +1,4 @@
-import { Day, MaybeNumber, TimeOfDay, TimerPhase } from 'ontime-types';
+import { Day, MaybeNumber, Playback, TimeOfDay, TimerPhase, TimerState } from 'ontime-types';
 import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
 import type { RuntimeState } from '../stores/runtimeState.js';
@@ -109,6 +109,37 @@ export function getElapsed(state: RuntimeState): MaybeNumber {
   const activeElapsed = elapsedSinceStart - pausedDuration;
 
   return Math.max(0, activeElapsed);
+}
+
+/**
+ * Derives a timer for the active group from wall-clock time.
+ * Event timer controls such as pause and add time intentionally do not affect it.
+ */
+export function getGroupTimer(state: RuntimeState): TimerState | null {
+  if (state.groupNow === null) {
+    return null;
+  }
+
+  const { actualGroupStart } = state.rundown;
+  const elapsed = actualGroupStart === null ? null : getTimeSinceStart(state.clock, actualGroupStart);
+  const current = elapsed === null ? state.groupNow.duration : state.groupNow.duration - elapsed;
+
+  let phase = state.timer.phase;
+  if (actualGroupStart !== null) {
+    phase = current < 0 ? TimerPhase.Overtime : TimerPhase.Default;
+  }
+
+  return {
+    addedTime: 0,
+    current,
+    duration: state.groupNow.duration,
+    elapsed,
+    expectedFinish: null,
+    phase,
+    playback: actualGroupStart === null ? state.timer.playback : Playback.Play,
+    secondaryTimer: null,
+    startedAt: actualGroupStart,
+  };
 }
 
 function getTimeSinceStart(clock: TimeOfDay, startedAt: number): number {

@@ -9,6 +9,7 @@ export type RuntimeStore = {
   // timer data
   clock: number;
   timer: TimerState;
+  groupTimer: TimerState | null;
 
   // messages service
   message: MessageState;
