@@ -43,11 +43,11 @@ export function clear(id?: string) {
   formattedReport = null;
   if (id) {
     report.delete(id);
+    if (report.size === 0) resetReportPlan();
   } else {
     // A full clear makes the next event start a new report instead of resuming this run.
     report.clear();
-    plannedTimes = emptyPlannedTimes;
-    rundownSnapshot = null;
+    resetReportPlan();
   }
 
   sendRefetch(RefetchKey.Report);
@@ -86,6 +86,7 @@ export function triggerReportEntry(
   }
 
   if (cycle === TimerLifeCycle.onStop) {
+    captureReportPlan(state, rundown);
     const previous = report.get(eventId);
     const schedule = previous ?? getScheduleSnapshot(state.eventNow);
     report.set(eventId, {
@@ -113,7 +114,7 @@ function getScheduleSnapshot(
 }
 
 /**
- * Captures the plan once, when the first event in the report starts.
+ * Captures the plan once, when the first event in the report is recorded.
  */
 function captureReportPlan(state: DeepReadonly<RuntimeState>, rundown: Readonly<Rundown>) {
   if (rundownSnapshot !== null) return;
@@ -124,6 +125,11 @@ function captureReportPlan(state: DeepReadonly<RuntimeState>, rundown: Readonly<
     plannedEnd: state.rundown.plannedEnd,
     plannedDuration: getPlannedShowDuration(rundownSnapshot),
   };
+}
+
+function resetReportPlan() {
+  plannedTimes = emptyPlannedTimes;
+  rundownSnapshot = null;
 }
 
 /**
