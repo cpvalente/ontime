@@ -62,6 +62,27 @@ it('falls back to the current event when a stop arrives without a start', () => 
   });
 });
 
+it('captures the rundown plan when a stop is the first report entry', () => {
+  const rundown = makeRundown({
+    id: 'run-1',
+    title: 'Stopped without start',
+    order: [eventA.id],
+    entries: { [eventA.id]: eventA },
+  });
+  const stop = makeRuntimeStateData({
+    eventNow: eventA,
+    clock: MILLIS_PER_MINUTE,
+    rundown: { plannedStart: 0, plannedEnd: MILLIS_PER_MINUTE },
+  });
+
+  triggerReportEntry(TimerLifeCycle.onStop, stop, rundown);
+
+  expect(generateReport()).toMatchObject({
+    eventReports: { [eventA.id]: { endedAt: MILLIS_PER_MINUTE } },
+    rundown: { id: rundown.id, title: rundown.title },
+  });
+});
+
 it('accumulates entries until the report is explicitly cleared', () => {
   const firstRun = makeRuntimeStateData({ eventNow: eventA, timer: { startedAt: 0 }, _startEpoch: 1 });
   triggerReportEntry(TimerLifeCycle.onStart, firstRun);
@@ -110,4 +131,34 @@ it('clears the retained report and rundown snapshot together', () => {
   expect(generateReport()).toMatchObject({ eventReports: {}, rundown: null });
   expect(sendRefetch).toHaveBeenCalledOnce();
   expect(sendRefetch).toHaveBeenCalledWith(RefetchKey.Report);
+});
+
+it('captures a new plan after removing the final event by id', () => {
+  const firstRundown = makeRundown({
+    id: 'run-1',
+    title: 'First run',
+    order: [eventA.id],
+    entries: { [eventA.id]: eventA },
+  });
+  const secondRundown = makeRundown({
+    id: 'run-2',
+    title: 'Second run',
+    order: [eventB.id],
+    entries: { [eventB.id]: eventB },
+  });
+  const firstStart = makeRuntimeStateData({ eventNow: eventA, timer: { startedAt: 0 }, _startEpoch: 1 });
+  const secondStart = makeRuntimeStateData({
+    eventNow: eventB,
+    timer: { startedAt: MILLIS_PER_MINUTE },
+    _startEpoch: 2,
+  });
+
+  triggerReportEntry(TimerLifeCycle.onStart, firstStart, firstRundown);
+  clear(eventA.id);
+  triggerReportEntry(TimerLifeCycle.onStart, secondStart, secondRundown);
+
+  expect(generateReport()).toMatchObject({
+    eventReports: { [eventB.id]: { startedAt: MILLIS_PER_MINUTE } },
+    rundown: { id: secondRundown.id, title: secondRundown.title },
+  });
 });
