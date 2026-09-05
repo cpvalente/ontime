@@ -140,7 +140,7 @@ function ViewSettings({ optionsStore }: ViewSettingsProps) {
               defaultChecked={optionsStore.hideTableSeconds}
               onCheckedChange={(checked) => optionsStore.setOption('hideTableSeconds', checked)}
             />
-            Hide seconds in time tags
+            Hide seconds in table
           </Editor.Label>
           <Editor.Label className={style.option}>
             <Checkbox
