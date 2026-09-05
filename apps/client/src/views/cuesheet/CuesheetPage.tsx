@@ -3,35 +3,31 @@ import { IoApps } from 'react-icons/io5';
 
 import IconButton from '../../common/components/buttons/IconButton';
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
-import { EntryActionsProvider } from '../../common/context/EntryActionsContext';
-import { useScopedRundown } from '../../common/hooks-query/useScopedRundown';
-import { useScopedEntryActions } from '../../common/hooks/useEntryAction';
+import { EditableRundownScopeProvider } from '../../common/context/EditableRundownScopeProvider';
+import { useRundownSelection } from '../../common/hooks/useRundownSelection';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { getIsNavigationLocked } from '../../externals';
 import CuesheetOverview from '../../features/overview/CuesheetOverview';
 import EntryEditModal from './cuesheet-edit-modal/EntryEditModal';
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
 import CuesheetTableWrapper from './CuesheetTableWrapper';
-import { FOLLOW_LOADED_RUNDOWN_ID, useCuesheetRundownSelection } from './useCuesheetRundownSelection';
 
 import styles from './CuesheetPage.module.scss';
 
 export default function CuesheetPage() {
   'use memo';
   const [isMenuOpen, menuHandler] = useDisclosure();
-  const { selectedRundownId, loadedRundownId, setSelectedRundownId, projectRundowns } = useCuesheetRundownSelection();
-  const source = useScopedRundown(selectedRundownId === FOLLOW_LOADED_RUNDOWN_ID ? loadedRundownId : selectedRundownId);
-
-  const actions = useScopedEntryActions(source.rundownId);
+  const { scopedRundownId, selectedRundownId, loadedRundownId, setSelectedRundownId, projectRundowns } =
+    useRundownSelection('cuesheet');
 
   useWindowTitle('Cuesheet');
 
   const isLocked = getIsNavigationLocked();
 
   return (
-    <EntryActionsProvider actions={actions}>
+    <EditableRundownScopeProvider rundownId={scopedRundownId}>
       <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />
-      <EntryEditModal rundown={source.rundown} />
+      <EntryEditModal />
       <div className={styles.tableWrapper} data-testid='cuesheet'>
         <CuesheetOverview>
           {!isLocked && (
@@ -42,13 +38,12 @@ export default function CuesheetPage() {
         </CuesheetOverview>
         <CuesheetProgress />
         <CuesheetTableWrapper
-          source={source}
           selectedRundownId={selectedRundownId}
           loadedRundownId={loadedRundownId}
           setSelectedRundownId={setSelectedRundownId}
           projectRundowns={projectRundowns}
         />
       </div>
-    </EntryActionsProvider>
+    </EditableRundownScopeProvider>
   );
 }

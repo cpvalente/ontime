@@ -14,7 +14,8 @@ import {
 import EmptyFill from '../../../common/components/state/EmptyFill';
 import EmptyTableBody from '../../../common/components/state/EmptyTableBody';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
-import type { RundownSource } from '../../../common/hooks-query/useScopedRundown';
+import { useRundownScope } from '../../../common/context/RundownScopeContext';
+import { useFlatRundownWithMetadata, useScopedSelectedEventId } from '../../../common/hooks-query/useRundown';
 import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { usePersistedRundownOptions } from '../../../features/rundown/rundown.options';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
@@ -41,20 +42,17 @@ import style from './CuesheetTable.module.scss';
 type CuesheetTableBaseProps = {
   columns: CuesheetColumnDef[];
   cuesheetMode: AppMode;
-  source: RundownSource;
   insertElement?: ReactNode;
 };
 
 type EditorCuesheetTableProps = CuesheetTableBaseProps & {
   tableRoot: 'editor';
   setCuesheetMode?: undefined;
-  isCurrentRundown?: undefined;
 };
 
 type ViewCuesheetTableProps = CuesheetTableBaseProps & {
   tableRoot: 'cuesheet';
   setCuesheetMode: (mode: AppMode) => void;
-  isCurrentRundown?: boolean;
 };
 
 type CuesheetTableProps = EditorCuesheetTableProps | ViewCuesheetTableProps;
@@ -62,13 +60,13 @@ type CuesheetTableProps = EditorCuesheetTableProps | ViewCuesheetTableProps;
 export default function CuesheetTable({
   columns,
   cuesheetMode,
-  source,
   tableRoot,
   setCuesheetMode,
-  isCurrentRundown,
   insertElement,
 }: CuesheetTableProps) {
-  const { flatRundown, status, selectedEventId } = source;
+  const { isLoaded: isCurrentRundown } = useRundownScope();
+  const { data: flatRundown, status } = useFlatRundownWithMetadata();
+  const selectedEventId = useScopedSelectedEventId();
   const { updateEntry, updateTimer, addEntry } = useEntryActionsContext();
   const { getLocalizedString } = useTranslation();
   const canCreateEntries = useCuesheetPermissions((state) => state.canCreateEntries) && cuesheetMode === AppMode.Edit;

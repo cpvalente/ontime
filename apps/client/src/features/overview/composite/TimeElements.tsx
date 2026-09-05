@@ -12,7 +12,7 @@ import {
 } from 'react-icons/tb';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
-import { useEntry } from '../../../common/hooks-query/useRundown';
+import { useLoadedEntry } from '../../../common/hooks-query/useLoadedRundown';
 import { useAutoTickingClock } from '../../../common/hooks/useAutoTickingClock';
 import {
   useCurrentGroupId,
@@ -210,7 +210,7 @@ export function MetadataTimes() {
 function GroupTimes() {
   const { clock, mode, groupExpectedEnd, actualGroupStart, currentDay, playback, phase } = useGroupTimerOverView();
   const currentGroupId = useCurrentGroupId();
-  const group = useEntry(currentGroupId) as OntimeGroup | null;
+  const group = useLoadedEntry(currentGroupId) as OntimeGroup | null;
 
   const hasRunningTimer = phase !== TimerPhase.Pending && isPlaybackActive(playback);
 
@@ -266,7 +266,7 @@ function GroupTimes() {
 function FlagTimes() {
   const { clock, mode, actualStart, plannedStart, playback, currentDay, phase } = useFlagTimerOverView();
   const { id, expectedStart } = useNextFlag();
-  const entry = useEntry(id) as OntimeEvent | null;
+  const entry = useLoadedEntry(id) as OntimeEvent | null;
 
   const hasRunningTimer = phase !== TimerPhase.Pending && isPlaybackActive(playback);
 

@@ -4,8 +4,8 @@ import { IoTrashBin } from 'react-icons/io5';
 import { deleteAllReport } from '../../../../common/api/report';
 import { createBlob, downloadBlob } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
+import { useLoadedRundown } from '../../../../common/hooks-query/useLoadedRundown';
 import useReport from '../../../../common/hooks-query/useReport';
-import useRundown from '../../../../common/hooks-query/useRundown';
 import { cx } from '../../../../common/utils/styleUtils';
 import { formatTime } from '../../../../common/utils/time';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -15,7 +15,7 @@ import style from './ReportSettings.module.scss';
 
 export default function ReportSettings() {
   const { data: reportData } = useReport();
-  const { data } = useRundown();
+  const { data } = useLoadedRundown();
 
   const clearReport = async () => await deleteAllReport();
   const downloadCSV = (combinedReport: CombinedReport[]) => {

@@ -8,7 +8,6 @@ import {
   OntimeGroup,
   OntimeMilestone,
   PatchWithId,
-  ProjectRundownsList,
   Rundown,
   SupportedEntry,
   TimeField,
@@ -32,9 +31,10 @@ import {
   swapEventData,
 } from 'ontime-utils';
 import { useCallback, useMemo } from 'react';
+import isEqual from 'react-fast-compare';
 
 import { moveDown, moveUp, orderEntries } from '../../features/rundown/rundown.utils';
-import { CURRENT_RUNDOWN_QUERY_KEY, PROJECT_RUNDOWNS, getRundownQueryKey } from '../api/constants';
+import { getRundownCacheKey } from '../api/constants';
 import {
   ReorderEntry,
   deleteEntries,
@@ -52,6 +52,7 @@ import {
   requestFitGroupTarget,
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
+import { useRundownScope } from '../context/RundownScopeContext';
 import { useEditorSettings } from '../stores/editorSettings';
 
 export type EventOptions = Partial<{
@@ -64,22 +65,38 @@ export type EventOptions = Partial<{
   lastEventId: MaybeString;
 }>;
 
+/**
+ * Applies a patch the way the server does, revision included.
+ *
+ * An entry revision advances on every change to that entry, which makes it a
+ * cheap marker for whether an entry has moved on. The optimistic entry has to
+ * carry the revision the server will return, otherwise the two disagree and the
+ * refetch resolves to a different object for no reason.
+ * Mirrors applyPatchToEntry in the rundown service: delays carry no revision.
+ */
+function patchEntry(entry: OntimeEntry, patch: Partial<OntimeEntry>): OntimeEntry {
+  if (isOntimeEvent(entry) || isOntimeGroup(entry) || isOntimeMilestone(entry)) {
+    return { ...entry, ...patch, revision: entry.revision + 1 } as OntimeEntry;
+  }
+  return { ...entry, ...patch } as OntimeEntry;
+}
+
 type ClientInsertOptions = {
   after?: EntryId;
   before?: EntryId;
 };
 
 /**
- * Gather utilities for actions on entries in the loaded rundown.
+ * Gather utilities for actions on entries in the rundown of the enclosing scope.
  */
-export const useEntryActions = () => useEntryActionsForRundown(undefined);
+export const useEntryActions = () => useEntryActionsForRundown(useRundownScope().rundownId);
 
 /**
  * Gather utilities for actions on entries in an explicitly selected rundown.
  */
-export const useScopedEntryActions = (rundownId: string | null) => useEntryActionsForRundown(rundownId ?? '');
+export const useScopedEntryActions = (rundownId: MaybeString) => useEntryActionsForRundown(rundownId ?? '');
 
-function useEntryActionsForRundown(scopedRundownId: string | undefined) {
+function useEntryActionsForRundown(scopedRundownId: string) {
   const queryClient = useQueryClient();
   const {
     linkPrevious,
@@ -93,12 +110,8 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
   } = useEditorSettings();
 
   const resolveCurrentRundownQueryKey = useCallback(() => {
-    if (scopedRundownId !== undefined) {
-      return getRundownQueryKey(scopedRundownId);
-    }
-    const loadedRundownId = queryClient.getQueryData<ProjectRundownsList>(PROJECT_RUNDOWNS)?.loaded;
-    return loadedRundownId ? getRundownQueryKey(loadedRundownId) : CURRENT_RUNDOWN_QUERY_KEY;
-  }, [queryClient, scopedRundownId]);
+    return getRundownCacheKey(scopedRundownId);
+  }, [scopedRundownId]);
 
   /**
    * Returns the currently loaded rundown
@@ -325,8 +338,10 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
       if (previousData && eventId) {
         // optimistically update object
         const newRundown = { ...previousData.entries };
-        // @ts-expect-error -- we expect the events to be of same type
-        newRundown[eventId] = { ...newRundown[eventId], ...newEvent };
+        const previousEntry = newRundown[eventId];
+        if (previousEntry) {
+          newRundown[eventId] = patchEntry(previousEntry, newEvent);
+        }
         queryClient.setQueryData<Rundown>(queryKey, {
           id: previousData.id,
           title: previousData.title,
@@ -339,6 +354,23 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
 
       // Return a context with the previous and new events
       return { previousData, newEvent, queryKey };
+    },
+    // the server is the authority on the applied patch, it may normalise what we sent
+    onSuccess: (response, _variables, context) => {
+      const serverEntry = response.data;
+      if (!serverEntry || !context?.queryKey) return;
+
+      const cachedRundown = queryClient.getQueryData<Rundown>(context.queryKey);
+      if (!cachedRundown) return;
+
+      // our optimistic entry usually describes the change exactly, writing an
+      // identical entry would discard the cached reference for nothing
+      if (isEqual(cachedRundown.entries[serverEntry.id], serverEntry)) return;
+
+      queryClient.setQueryData<Rundown>(context.queryKey, {
+        ...cachedRundown,
+        entries: { ...cachedRundown.entries, [serverEntry.id]: serverEntry },
+      });
     },
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _newEvent, context) => {
@@ -512,10 +544,7 @@ function useEntryActionsForRundown(scopedRundownId: string | undefined) {
           if (Object.hasOwn(newRundown, eventId)) {
             const event = newRundown[eventId];
             if (isOntimeEvent(event)) {
-              newRundown[eventId] = {
-                ...event,
-                ...data,
-              };
+              newRundown[eventId] = patchEntry(event, data.data);
             }
           }
         });

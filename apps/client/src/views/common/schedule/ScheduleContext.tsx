@@ -12,7 +12,7 @@ import {
   useState,
 } from 'react';
 
-import { usePartialRundown } from '../../../common/hooks-query/useRundown';
+import { useLoadedPartialRundown } from '../../../common/hooks-query/useLoadedRundown';
 import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { useScheduleOptions } from './schedule.options';
 
@@ -45,7 +45,7 @@ export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildre
     [filter],
   );
 
-  const { data: events } = usePartialRundown(filterCallback);
+  const { data: events } = useLoadedPartialRundown(filterCallback);
 
   const [firstIndex, setFirstIndex] = useState(-1);
   const [numPages, setNumPages] = useState(0);

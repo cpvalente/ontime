@@ -816,27 +816,23 @@ export async function createNewRundown(title: string) {
  * @throws if the provided id does not exist
  */
 export async function renameRundown(id: string, title: string) {
-  const dataProvider = getDataProvider();
-  const rundown = dataProvider.getRundown(id);
+  const { rundown, commit } = createTransaction({ rundownId: id, mutableRundown: true });
 
-  await dataProvider.setRundown(id, { ...rundown, title, revision: rundown.revision + 1 });
-
-  /**
-   * If we are modifying the loaded rundown we re-init it
-   * This is likely over-kill but the simplest way to ensure state consistency
-   */
-  if (isCurrentRundown(id)) {
-    const rundown = dataProvider.getRundown(id);
-    const customField = dataProvider.getCustomFields();
-    // init rundown does its own refetch
-    await initRundown(rundown, customField);
-  } else {
-    setImmediate(() => {
-      sendRefetch(RefetchKey.ProjectRundowns);
-    });
+  if (rundown.title === title) {
+    return getDataProvider().getProjectRundowns();
   }
 
-  return dataProvider.getProjectRundowns();
+  rundown.title = title;
+
+  // a title has no bearing on the schedule, there is nothing to process and no runtime to notify
+  const { rundownMetadata, revision } = await commit(false);
+
+  setImmediate(() => {
+    notifyChanges(id, rundownMetadata, revision, { external: true });
+    sendRefetch(RefetchKey.ProjectRundowns);
+  });
+
+  return getDataProvider().getProjectRundowns();
 }
 
 /**
