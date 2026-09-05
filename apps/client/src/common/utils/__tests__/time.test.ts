@@ -58,4 +58,16 @@ describe('formatDuration()', () => {
     expect(formatDuration(2 * MILLIS_PER_HOUR + 6 * MILLIS_PER_MINUTE + 45 * MILLIS_PER_SECOND, false)).toBe('2h6m45s');
     expect(formatDuration(599702, false)).toBe('9m59s');
   });
+  it('formats durations differently with and without seconds', () => {
+    expect(formatDuration(0, false)).toBe('0m');
+    expect(formatDuration(0, true)).toBe('0m');
+    expect(formatDuration(30 * MILLIS_PER_SECOND, false)).toBe('30s');
+    expect(formatDuration(30 * MILLIS_PER_SECOND, true)).toBe('');
+    expect(formatDuration(2 * MILLIS_PER_HOUR + 30 * MILLIS_PER_SECOND, false)).toBe('2h30s');
+    expect(formatDuration(2 * MILLIS_PER_HOUR + 30 * MILLIS_PER_SECOND, true)).toBe('2h');
+    expect(formatDuration(2 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 30 * MILLIS_PER_SECOND, false)).toBe(
+      '2h10m30s',
+    );
+    expect(formatDuration(2 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 30 * MILLIS_PER_SECOND, true)).toBe('2h10m');
+  });
 });
