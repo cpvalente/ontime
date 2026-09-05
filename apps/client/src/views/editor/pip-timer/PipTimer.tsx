@@ -41,9 +41,10 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
   // gather timer data
   const totalTime = getTotalTime(time.duration, time.addedTime);
   const stageTimer = getTimerByType(false, timerTypeNow, clock, time, timerTypeNow);
+  // match the defaults of the timer view, which is what the preview is standing in for
   const display = getFormattedTimer(stageTimer, timerTypeNow, 'min', {
     removeSeconds: false,
-    removeLeadingZero: false,
+    removeLeadingZero: true,
   });
 
   const currentAux = (() => {
@@ -63,23 +64,27 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
 
   // gather presentation styles
   const resolvedTimerColour = getTimerColour(viewSettings, undefined, showWarning, showDanger);
+  // the estimate is tuned for a 16:9 screen, so cap it by height for containers wider than that
   const timerFontSize = getEstimatedFontSize(display, secondaryContent);
+  const timerFontRule = `min(${timerFontSize}cqw, ${((timerFontSize * 16) / 9).toFixed(2)}cqh)`;
   const userStyles = {
     ...(resolvedTimerColour && { '--timer-colour': resolvedTimerColour }),
   };
 
   return (
     <div className={cx(['pip-timer', showFinished && 'pip-timer--finished'])} style={userStyles}>
+      <div className={cx(['blackout', message.timer.blackout && 'blackout--active'])} />
+
       <div className={cx(['message-overlay', showOverlay && 'message-overlay--active'])}>
         <FitText mode='multi' min={12} max={256} className={cx(['message', message.timer.blink && 'blink'])}>
           {message.timer.text}
         </FitText>
       </div>
 
-      <div className='timer-container'>
+      <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
         <div
           className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished'])}
-          style={{ fontSize: `${timerFontSize}vw` }}
+          style={{ fontSize: timerFontRule }}
           data-phase={time.phase}
         >
           {display}

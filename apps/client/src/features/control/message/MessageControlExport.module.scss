@@ -1,8 +1,21 @@
 .growPanel {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* the extracted route has no flex parent to grow into */
+.extractedPanel {
+  height: 100%;
 }
 
 .contentLayout {
+  flex: 1;
+  min-height: 0;
+  container-type: inline-size;
+
   display: flex;
   flex-direction: column;
   gap: $section-spacing;

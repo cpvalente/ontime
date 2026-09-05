@@ -1,49 +1,26 @@
-.preview {
-  background-color: $ui-black;
-  display: grid;
-  place-content: center;
-  text-align: center;
-  position: relative;
-}
-
-.mainContent {
-  font-size: 1rem;
-  font-weight: 600;
+/* fixed shape, not stretched to whatever height the panel has free - it fills the
+   available width and keeps a 16:9 proportion, which is also what the font size
+   estimate in the embedded timer assumes */
+.stage {
   width: 100%;
-  color: var(--override-colour, $ui-white);
-
-  &[data-phase='pending'] {
-    color: $ontime-roll;
-  }
-  &[data-phase='overtime'] {
-    color: $playback-negative;
-  }
-  &[data-phase='none'] {
-    opacity: $opacity-disabled;
-  }
+  aspect-ratio: 16 / 9;
+  min-width: 0;
+  position: relative;
+  /* a query container so that the embedded timer scales to the preview, not to the viewport */
+  container-type: size;
+  contain: paint;
+  overflow: hidden;
+  border-radius: $component-border-radius-md;
 }
 
-.secondaryContent {
-  border-top: 1px solid $white-7;
-}
-
-.blackout {
-  display: none;
-}
-
-.eventStatus {
+/* editor chrome sits above the blackout and message overlays, so it stays reachable and readable */
+.stageChrome {
   position: absolute;
-  left: 0;
-  margin: 0.5rem 0.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
+  inset: 0;
+  z-index: calc($zindex-floating + 2);
+  pointer-events: none;
 
-.statusIcon {
-  color: $gray-1000;
-
-  &[data-active='true'] {
-    color: $active-indicator;
+  > * {
+    pointer-events: auto;
   }
 }
