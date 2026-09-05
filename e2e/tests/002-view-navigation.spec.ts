@@ -92,12 +92,12 @@ test.describe('test view navigation feature', () => {
   test('not-found', async ({ page }) => {
     await page.goto('/not-found');
 
-    await expect(page).toHaveTitle(/ontime/);
+    await expect(page).toHaveTitle(/ontime/i);
     await expect(page.getByRole('heading', { name: 'Not found' })).toBeVisible();
 
     await page.goto('/preset/not-found');
 
-    await expect(page).toHaveTitle(/ontime/);
+    await expect(page).toHaveTitle(/ontime/i);
     await expect(page.getByRole('heading', { name: 'Not found' })).toBeVisible();
   });
 });

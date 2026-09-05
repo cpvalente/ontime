@@ -6,6 +6,6 @@ import { useEffect } from 'react';
  */
 export function useWindowTitle(title: string) {
   useEffect(() => {
-    document.title = `ontime - ${title}`;
+    document.title = `Ontime - ${title}`;
   }, []);
 }

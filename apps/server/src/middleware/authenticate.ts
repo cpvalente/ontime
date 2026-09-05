@@ -17,8 +17,9 @@ const publicAssets = new Set([
   '/favicon.ico',
   '/manifest.json',
   '/ontime-logo.png',
+  '/ontime-logo-192.png',
+  '/ontime-logo-512.png',
   '/robots.txt',
-  '/site.webmanifest',
 ]);
 
 export function isPublicAssetRequest(originalUrl: string, prefix: string): boolean {

@@ -29,13 +29,17 @@ function makeHeadersWithFailingAuthorization(cookie?: string) {
 
 describe('isPublicAssetRequest()', () => {
   it('allows root public assets without a prefix', () => {
-    expect(isPublicAssetRequest('/site.webmanifest', '')).toBe(true);
     expect(isPublicAssetRequest('/manifest.json', '')).toBe(true);
   });
 
   it('allows prefixed public assets in cloud deployments', () => {
-    expect(isPublicAssetRequest('/stage-hash/site.webmanifest', '/stage-hash')).toBe(true);
+    expect(isPublicAssetRequest('/stage-hash/manifest.json', '/stage-hash')).toBe(true);
     expect(isPublicAssetRequest('/stage-hash/ontime-logo.png?cache=1', '/stage-hash')).toBe(true);
+  });
+
+  it('allows the PWA install icons', () => {
+    expect(isPublicAssetRequest('/ontime-logo-192.png', '')).toBe(true);
+    expect(isPublicAssetRequest('/ontime-logo-512.png', '')).toBe(true);
   });
 
   it('keeps non-public paths protected', () => {

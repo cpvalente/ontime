@@ -6,7 +6,7 @@ test.describe('pages routes are available', () => {
     test('editor', async ({ page }) => {
       await page.goto('/editor');
 
-      await expect(page).toHaveTitle(/ontime/);
+      await expect(page).toHaveTitle(/ontime/i);
       await expect(page.getByTestId('editor-container')).toBeVisible();
       await expect(page.getByTestId('panel-rundown')).toBeVisible();
       await expect(page.getByTestId('panel-timer-control')).toBeVisible();
@@ -16,38 +16,38 @@ test.describe('pages routes are available', () => {
     test('cuesheet', async ({ page }) => {
       await page.goto('/cuesheet');
 
-      await expect(page).toHaveTitle(/ontime/);
+      await expect(page).toHaveTitle(/ontime/i);
       await expect(page.getByTestId('cuesheet')).toBeVisible();
     });
 
     test('operator', async ({ page }) => {
       await page.goto('/op');
 
-      await expect(page).toHaveTitle(/ontime/);
+      await expect(page).toHaveTitle(/ontime/i);
     });
 
     test('timer', async ({ page }) => {
       await page.goto('/timer');
 
-      await expect(page).toHaveTitle(/ontime/);
+      await expect(page).toHaveTitle(/ontime/i);
     });
 
     test('backstage', async ({ page }) => {
       await page.goto('/backstage');
 
-      await expect(page).toHaveTitle(/ontime/);
+      await expect(page).toHaveTitle(/ontime/i);
     });
 
     test('studio', async ({ page }) => {
       await page.goto('/studio');
 
-      await expect(page).toHaveTitle(/ontime/);
+      await expect(page).toHaveTitle(/ontime/i);
     });
 
     test('countdown', async ({ page }) => {
       await page.goto('/countdown?sub=32d31');
 
-      await expect(page).toHaveTitle(/ontime/);
+      await expect(page).toHaveTitle(/ontime/i);
 
       await expect(page.getByText('Albania')).toBeVisible();
       await expect(page.getByText('Latvia')).toBeHidden();
