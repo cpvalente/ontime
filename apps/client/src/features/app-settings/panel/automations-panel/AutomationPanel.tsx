@@ -30,15 +30,15 @@ export default function AutomationPanel({ location }: PanelBaseProps) {
         />
       </div>
       <div ref={automationsRef}>
-        <AutomationsList automations={data.automations} enabledAutomations={automationState} isLoading={isLoading} />
-      </div>
-      <div ref={triggersRef}>
-        <TriggersList
-          triggers={data.triggers}
+        <AutomationsList
           automations={data.automations}
+          triggers={data.triggers}
           enabledAutomations={automationState}
           isLoading={isLoading}
         />
+      </div>
+      <div ref={triggersRef}>
+        <TriggersList triggers={data.triggers} automations={data.automations} isLoading={isLoading} />
       </div>
     </>
   );

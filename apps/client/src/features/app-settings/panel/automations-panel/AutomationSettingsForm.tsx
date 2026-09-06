@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { editAutomationSettings } from '../../../../common/api/automation';
@@ -8,6 +9,7 @@ import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Switch from '../../../../common/components/switch/Switch';
 import Tag from '../../../../common/components/tag/Tag';
+import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
 import { isOntimeCloud } from '../../../../externals';
@@ -32,6 +34,7 @@ export default function AutomationSettingsForm({
   oscInputState,
   isLoading,
 }: AutomationSettingsProps) {
+  const { refetch } = useAutomationSettings();
   const {
     handleSubmit,
     reset,
@@ -48,10 +51,19 @@ export default function AutomationSettingsForm({
     },
   });
 
+  // the panel renders before the query resolves, so the form is seeded with placeholder
+  // settings. Take the loaded ones when they arrive, as the other settings panels do
+  useEffect(() => {
+    reset({ enabledAutomations, enabledOscIn, oscPortIn });
+  }, [enabledAutomations, enabledOscIn, oscPortIn, reset]);
+
   const onSubmit = async (formData: AutomationSettingsProps) => {
     try {
       await editAutomationSettings(formData);
       reset(formData);
+      // the rest of the panel reads these flags from the query, which is otherwise only
+      // refreshed on a slow poll: refetch so a toggle takes effect where it is visible
+      await refetch();
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
