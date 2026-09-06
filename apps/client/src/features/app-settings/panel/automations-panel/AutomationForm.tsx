@@ -8,9 +8,9 @@ import {
   isOSCOutput,
   isOntimeAction,
 } from 'ontime-types';
-import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { IoAdd, IoCheckmark, IoTrash } from 'react-icons/io5';
+import { IoAdd, IoTrash } from 'react-icons/io5';
 
 import {
   addAutomation,
@@ -32,11 +32,12 @@ import Select from '../../../../common/components/select/Select';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
-import { startsWithHttp } from '../../../../common/utils/regex';
 import * as Panel from '../../panel-utils/PanelUtils';
-import { cycles, isAutomation, makeFieldList, operators } from './automationUtils';
+import { cycles, isAutomation, makeFieldList, operators, type OutputErrors } from './automationUtils';
+import HttpOutputForm from './HttpOutputForm';
 import OntimeActionForm from './OntimeActionForm';
-import TemplateInput from './template-input/TemplateInput';
+import OscOutputForm from './OscOutputForm';
+import OutputCard, { type TestState } from './OutputCard';
 
 import style from './AutomationForm.module.scss';
 
@@ -45,8 +46,6 @@ const formId = 'automation-form';
 
 /** how long a successful test keeps its confirmation on screen */
 const testFeedbackDuration = 2000;
-
-type TestState = { status: 'sending' | 'ok' | 'error'; message?: string };
 
 /** lifecycles that fire continuously, and are worth a warning before a user picks one */
 const continuousCycles: TimerLifeCycle[] = [TimerLifeCycle.onClock, TimerLifeCycle.onUpdate];
@@ -174,6 +173,8 @@ export default function AutomationForm({ automation, triggers, defaultCycles, on
       }, testFeedbackDuration);
     }
   };
+
+  const getOutputErrors = (index: number) => errors.outputs?.[index] as OutputErrors | undefined;
 
   const handleAddNewFilter = () => {
     appendFilter({ field: '', operator: 'equals', value: '' });
@@ -451,126 +452,38 @@ export default function AutomationForm({ automation, triggers, defaultCycles, on
             )}
 
             {fieldOutputs.map((output, index) => {
-              if (isOSCOutput(output)) {
-                const rowErrors = errors.outputs?.[index] as
-                  | {
-                      targetIP?: { message?: string };
-                      targetPort?: { message?: string };
-                      address?: { message?: string };
-                      args?: { message?: string };
-                    }
-                  | undefined;
+              const rowErrors = getOutputErrors(index);
+              const cardProps = {
+                testState: testResults[output.id],
+                onTest: () => handleTest(index, output.id),
+                onDelete: () => removeOutput(index),
+              };
 
+              if (isOSCOutput(output)) {
                 return (
                   <OutputCard
                     key={output.id}
                     label='OSC'
                     kindClass={style.tagOsc}
                     summary={watch(`outputs.${index}.address`)}
-                    testState={testResults[output.id]}
-                    onTest={() => handleTest(index, output.id)}
-                    onDelete={() => removeOutput(index)}
+                    {...cardProps}
                   >
-                    <label>
-                      Target IP
-                      <Input
-                        {...register(`outputs.${index}.targetIP`, {
-                          required: { value: true, message: 'Required field' },
-                        })}
-                        fluid
-                        placeholder='127.0.0.1'
-                      />
-                      <Panel.Error>{rowErrors?.targetIP?.message}</Panel.Error>
-                    </label>
-                    <label>
-                      Target Port
-                      <Input
-                        {...register(`outputs.${index}.targetPort`, {
-                          required: { value: true, message: 'Required field' },
-                          setValueAs: (value) => (value === '' ? 0 : Number(value)),
-                          max: { value: 65535, message: 'Port must be within range 1024 - 65535' },
-                          min: { value: 1024, message: 'Port must be within range 1024 - 65535' },
-                        })}
-                        fluid
-                        type='number'
-                        maxLength={5}
-                        placeholder='8000'
-                      />
-                      <Panel.Error>{rowErrors?.targetPort?.message}</Panel.Error>
-                    </label>
-                    <label className={style.spanFull}>
-                      Address
-                      <TemplateInput
-                        {...register(`outputs.${index}.address`)}
-                        value={output.address}
-                        fluid
-                        placeholder='/cue/start'
-                      />
-                      <Panel.Error>{rowErrors?.address?.message}</Panel.Error>
-                    </label>
-                    <label className={style.spanFull}>
-                      Arguments
-                      <TemplateInput {...register(`outputs.${index}.args`)} value={output.args} fluid placeholder='1' />
-                      <Panel.Error>{rowErrors?.args?.message}</Panel.Error>
-                    </label>
+                    <OscOutputForm index={index} output={output} register={register} rowErrors={rowErrors} />
                   </OutputCard>
                 );
               }
 
               if (isHTTPOutput(output)) {
-                const rowErrors = errors.outputs?.[index] as
-                  | {
-                      url?: { message?: string };
-                    }
-                  | undefined;
                 return (
-                  <OutputCard
-                    key={output.id}
-                    label='HTTP'
-                    kindClass={style.tagHttp}
-                    testState={testResults[output.id]}
-                    onTest={() => handleTest(index, output.id)}
-                    onDelete={() => removeOutput(index)}
-                  >
-                    <label className={style.spanFull}>
-                      Target URL
-                      <TemplateInput
-                        {...register(`outputs.${index}.url`, {
-                          required: { value: true, message: 'Required field' },
-                          pattern: {
-                            value: startsWithHttp,
-                            message: 'HTTP messages should target http:// or https://',
-                          },
-                        })}
-                        value={output.url}
-                        fluid
-                        placeholder='http://127.0.0.1/start/1'
-                      />
-                      <Panel.Error>{rowErrors?.url?.message}</Panel.Error>
-                    </label>
+                  <OutputCard key={output.id} label='HTTP' kindClass={style.tagHttp} {...cardProps}>
+                    <HttpOutputForm index={index} output={output} register={register} rowErrors={rowErrors} />
                   </OutputCard>
                 );
               }
 
               if (isOntimeAction(output)) {
-                const rowErrors = errors.outputs?.[index] as
-                  | {
-                      action?: { message?: string };
-                      time?: { message?: string };
-                      text?: { message?: string };
-                      visible?: { message?: string };
-                      secondarySource?: { message?: string };
-                    }
-                  | undefined;
                 return (
-                  <OutputCard
-                    key={output.id}
-                    label='Ontime action'
-                    kindClass={style.tagOntime}
-                    testState={testResults[output.id]}
-                    onTest={() => handleTest(index, output.id)}
-                    onDelete={() => removeOutput(index)}
-                  >
+                  <OutputCard key={output.id} label='Ontime action' kindClass={style.tagOntime} {...cardProps}>
                     <OntimeActionForm
                       value={output.action}
                       index={index}
@@ -625,44 +538,5 @@ export default function AutomationForm({ automation, triggers, defaultCycles, on
         </>
       }
     />
-  );
-}
-
-interface OutputCardProps {
-  label: string;
-  kindClass?: string;
-  summary?: string;
-  testState?: TestState;
-  onTest: () => void;
-  onDelete: () => void;
-  children: ReactNode;
-}
-
-/**
- * Shared chrome for every output kind: the type tag and the actions live in the header,
- * so they stop competing with the form fields for grid columns
- */
-function OutputCard({ label, kindClass, summary, testState, onTest, onDelete, children }: OutputCardProps) {
-  return (
-    <div className={style.card}>
-      <div className={style.cardHeader}>
-        <Tag className={kindClass}>{label}</Tag>
-        <span className={style.cardSummary}>{summary}</span>
-        {testState?.status === 'ok' && (
-          <span className={style.testOk}>
-            <IoCheckmark />
-            {testState.message}
-          </span>
-        )}
-        <Button variant='ghosted-white' onClick={onTest} loading={testState?.status === 'sending'}>
-          Test
-        </Button>
-        <IconButton aria-label='Delete output' variant='ghosted-destructive' onClick={onDelete}>
-          <IoTrash />
-        </IconButton>
-      </div>
-      {testState?.status === 'error' && <Panel.Error className={style.testError}>{testState.message}</Panel.Error>}
-      <div className={style.cardBody}>{children}</div>
-    </div>
   );
 }

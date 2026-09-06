@@ -2,6 +2,12 @@ import { Automation, AutomationDTO, AutomationFilter, CustomFields, TimerLifeCyc
 
 import { lifecycleLabels } from '../../../../common/constants/timerLifecycle';
 
+/**
+ * Outputs are a union, so react-hook-form cannot resolve a field's error by name.
+ * Every output card knows which fields it registered, this just makes them reachable.
+ */
+export type OutputErrors = Partial<Record<string, { message?: string }>>;
+
 type CycleLabel = {
   id: number;
   label: string;
