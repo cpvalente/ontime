@@ -84,15 +84,16 @@ export async function editTrigger(id: string, newTrigger: TriggerDTO): Promise<T
  * Deletes an automation trigger given its ID
  */
 export async function deleteTrigger(id: string): Promise<void> {
-  let triggers = getAutomationTriggers();
+  const triggers = getAutomationTriggers();
   const index = triggers.findIndex((trigger) => trigger.id === id);
 
+  // deleting is idempotent, as it is in deleteAutomation: the state the caller asked for
+  // already holds, and erroring would only punish a client that raced another one
   if (index === -1) {
-    throw new Error(`Automation with id ${id} not found`);
+    return;
   }
 
-  triggers = deleteAtIndex(index, triggers);
-  await saveChanges({ triggers });
+  await saveChanges({ triggers: deleteAtIndex(index, triggers) });
 }
 
 /**
@@ -145,24 +146,18 @@ export async function deleteAutomation(projectRundowns: ProjectRundowns, automat
     return;
   }
 
-  // prevent deleting a automation that is in use in triggers
-  const triggers = getAutomationTriggers().filter((trigger) => trigger.automationId === automationId);
-  if (triggers.length) {
-    const firstTrigger = triggers[0];
-    const triggerTitle = firstTrigger?.title ?? 'Unknown trigger';
-    throw new Error(
-      `Unable to delete automation used in trigger ${triggerTitle}${triggers.length > 1 ? ` and ${triggers.length - 1} more` : ''}`,
-    );
-  }
-
-  // prevent deleting a automation that is in use in events
+  // prevent deleting an automation that is in use in events, the user has to unlink it there
   const isInUse = isAutomationUsed(projectRundowns, automationId);
   if (isInUse) {
     throw new Error(`Unable to delete automation used in rundown: ${isInUse[0]}, in event with ID: ${isInUse[1]}`);
   }
 
+  // a global trigger without its automation is dead data, so it goes with it.
+  // Both are written in a single patch, there is no state where one outlived the other
+  const triggers = getAutomationTriggers().filter((trigger) => trigger.automationId !== automationId);
+
   delete automations[automationId];
-  await saveChanges({ automations });
+  await saveChanges({ automations, triggers });
 }
 
 /**

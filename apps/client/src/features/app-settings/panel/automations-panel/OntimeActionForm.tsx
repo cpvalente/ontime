@@ -1,10 +1,11 @@
 import { AutomationDTO, OntimeAction, OntimeActionKey, SecondarySource } from 'ontime-types';
-import { PropsWithChildren, useState } from 'react';
+import { useState } from 'react';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
 import Input from '../../../../common/components/input/input/Input';
 import Select from '../../../../common/components/select/Select';
 import * as Panel from '../../panel-utils/PanelUtils';
+import type { OutputErrors } from './automationUtils';
 import TemplateInput from './template-input/TemplateInput';
 
 import style from './AutomationForm.module.scss';
@@ -12,13 +13,7 @@ import style from './AutomationForm.module.scss';
 interface OntimeActionFormProps {
   index: number;
   register: UseFormRegister<AutomationDTO>;
-  rowErrors?: {
-    action?: { message?: string };
-    time?: { message?: string };
-    text?: { message?: string };
-    visible?: { message?: string };
-    secondarySource?: { message?: string };
-  };
+  rowErrors?: OutputErrors;
   value: OntimeAction['action'];
   watch: UseFormWatch<AutomationDTO>;
   setValue: UseFormSetValue<AutomationDTO>;
@@ -30,9 +25,8 @@ export default function OntimeActionForm({
   setValue,
   rowErrors,
   value,
-  children,
   watch,
-}: PropsWithChildren<OntimeActionFormProps>) {
+}: OntimeActionFormProps) {
   const [selectedAction, setSelectedAction] = useState<string>(value);
 
   const handleSetAction = (value: OntimeActionKey) => {
@@ -41,7 +35,7 @@ export default function OntimeActionForm({
   };
 
   return (
-    <div className={style.actionSection}>
+    <>
       <label>
         Action
         <Select
@@ -95,7 +89,7 @@ export default function OntimeActionForm({
 
       {selectedAction === 'message-set' && (
         <>
-          <label>
+          <label className={style.spanFull}>
             Text (leave empty for no change)
             <TemplateInput
               {...register(`outputs.${index}.text`)}
@@ -127,7 +121,7 @@ export default function OntimeActionForm({
 
       {selectedAction === 'message-secondary' && (
         <>
-          <label>
+          <label className={style.spanFull}>
             Text (leave empty for no change)
             <TemplateInput
               {...register(`outputs.${index}.text`)}
@@ -169,8 +163,6 @@ export default function OntimeActionForm({
           </label>
         </>
       )}
-
-      <div className={style.test}>{children}</div>
-    </div>
+    </>
   );
 }
