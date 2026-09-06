@@ -7,16 +7,28 @@
   color: $ui-white;
 }
 
-/** stays in view while the list scrolls under it, which is the point of having a search */
+/** outside the scrolling list, so it stays put however many recipes there are */
 .search {
-  position: sticky;
-  top: -0.5rem;
-  z-index: 1;
+  position: relative;
   display: flex;
   align-items: center;
   padding-block: 0.5rem;
-  margin-top: -0.5rem;
-  background-color: $gray-1250;
+}
+
+/**
+ * Caps the list rather than fixing its height, so the dialog still shrinks to two results
+ * when a search narrows it down.
+ */
+.listViewport {
+  height: auto;
+  max-height: min(52vh, 30rem);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  // room for the overlay scrollbar beside the chevrons
+  padding-right: 0.5rem;
 }
 
 .searchIcon {
@@ -41,6 +53,10 @@
   flex-direction: column;
   gap: 0.25rem;
   padding-top: 0.75rem;
+
+  &:first-child {
+    padding-top: 0;
+  }
 }
 
 .groupTitle {

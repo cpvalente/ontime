@@ -8,6 +8,8 @@ import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Input from '../../../../common/components/input/input/Input';
 import Modal from '../../../../common/components/modal/Modal';
+import ScrollArea from '../../../../common/components/scroll-area/ScrollArea';
+import Select from '../../../../common/components/select/Select';
 import Tag from '../../../../common/components/tag/Tag';
 import { getLifecycleLabel } from '../../../../common/constants/timerLifecycle';
 import { summariseOutputs } from '../../../../common/utils/automationOutputs';
@@ -141,32 +143,34 @@ function RecipePicker({ onClose, onStartEmpty, onSelect }: RecipePickerProps) {
             />
           )}
 
-          {recipeCategoryOrder.map((category) => {
-            const inCategory = results.filter((recipe) => recipe.category === category);
-            if (inCategory.length === 0) {
-              return null;
-            }
+          <ScrollArea viewportClassName={style.listViewport} contentClassName={style.list}>
+            {recipeCategoryOrder.map((category) => {
+              const inCategory = results.filter((recipe) => recipe.category === category);
+              if (inCategory.length === 0) {
+                return null;
+              }
 
-            return (
-              <section key={category} className={style.group}>
-                <h4 className={style.groupTitle}>{recipeCategoryLabels[category]}</h4>
-                {inCategory.map((recipe) => (
-                  <button type='button' key={recipe.id} className={style.recipe} onClick={() => onSelect(recipe)}>
-                    <div className={style.recipeText}>
-                      <div className={style.recipeTitle}>{recipe.title}</div>
-                      <div className={style.recipeDescription}>{recipe.description}</div>
-                    </div>
-                    <div className={style.recipeTags}>
-                      {recipe.triggers.map((cycle) => (
-                        <Tag key={cycle}>{getLifecycleLabel(cycle)}</Tag>
-                      ))}
-                      <IoChevronForward className={style.chevron} />
-                    </div>
-                  </button>
-                ))}
-              </section>
-            );
-          })}
+              return (
+                <section key={category} className={style.group}>
+                  <h4 className={style.groupTitle}>{recipeCategoryLabels[category]}</h4>
+                  {inCategory.map((recipe) => (
+                    <button type='button' key={recipe.id} className={style.recipe} onClick={() => onSelect(recipe)}>
+                      <div className={style.recipeText}>
+                        <div className={style.recipeTitle}>{recipe.title}</div>
+                        <div className={style.recipeDescription}>{recipe.description}</div>
+                      </div>
+                      <div className={style.recipeTags}>
+                        {recipe.triggers.map((cycle) => (
+                          <Tag key={cycle}>{getLifecycleLabel(cycle)}</Tag>
+                        ))}
+                        <IoChevronForward className={style.chevron} />
+                      </div>
+                    </button>
+                  ))}
+                </section>
+              );
+            })}
+          </ScrollArea>
         </div>
       }
       footerElements={
@@ -195,6 +199,8 @@ function RecipeSetup({ recipe, onClose, onBack, onCreated }: RecipeSetupProps) {
 
   const automation = recipe.build(values);
   const isComplete = recipe.params.every(({ name }) => values[name]?.trim());
+
+  const setValue = (name: string, value: string) => setValues((prev) => ({ ...prev, [name]: value }));
 
   const handleCreate = async () => {
     setError(null);
@@ -249,16 +255,29 @@ function RecipeSetup({ recipe, onClose, onBack, onCreated }: RecipeSetupProps) {
 
           {recipe.params.length > 0 && (
             <div className={style.fields}>
-              {recipe.params.map(({ name, label, hint, type, wide }) => (
-                <label key={name} className={cx([style.field, wide && style.wide])}>
-                  {label}
-                  <Input
-                    type={type === 'number' ? 'number' : 'text'}
-                    value={values[name]}
-                    onChange={(event) => setValues((prev) => ({ ...prev, [name]: event.target.value }))}
-                    fluid
-                  />
-                  {hint && <span className={style.hint}>{hint}</span>}
+              {recipe.params.map((param) => (
+                <label key={param.name} className={cx([style.field, param.wide && style.wide])}>
+                  {param.label}
+                  {param.type === 'choice' ? (
+                    <Select
+                      value={values[param.name]}
+                      onValueChange={(value: string | null) => {
+                        if (value === null) return;
+                        setValue(param.name, value);
+                      }}
+                      options={param.options ?? []}
+                      aria-label={param.label}
+                      fluid
+                    />
+                  ) : (
+                    <Input
+                      type={param.type === 'number' ? 'number' : 'text'}
+                      value={values[param.name]}
+                      onChange={(event) => setValue(param.name, event.target.value)}
+                      fluid
+                    />
+                  )}
+                  {param.hint && <span className={style.hint}>{param.hint}</span>}
                 </label>
               ))}
             </div>

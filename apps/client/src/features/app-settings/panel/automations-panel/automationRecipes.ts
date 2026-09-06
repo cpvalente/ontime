@@ -4,7 +4,7 @@ import { TimerLifeCycle as Cycle } from 'ontime-types';
 export type RecipeCategory = 'ontime' | 'playback' | 'video' | 'messaging';
 
 export const recipeCategoryLabels: Record<RecipeCategory, string> = {
-  ontime: 'Works out of the box',
+  ontime: 'Ontime automations',
   playback: 'Playback and cue systems',
   video: 'Video and streaming',
   messaging: 'Webhooks and messaging',
@@ -18,7 +18,9 @@ export type RecipeParam = {
   label: string;
   /** one line under the field, for anything the label cannot say */
   hint?: string;
-  type?: 'text' | 'number';
+  type?: 'text' | 'number' | 'choice';
+  /** required by 'choice', which renders a select rather than a free field */
+  options?: { value: string; label: string }[];
   /** takes a whole row: addresses and free text read badly in a narrow column */
   wide?: boolean;
   /** every default points at this machine, so a recipe cannot reach a venue network unasked */
@@ -43,6 +45,28 @@ export type AutomationRecipe = {
   build: (values: RecipeValues) => AutomationDTO;
 };
 
+const auxTimers = [
+  { value: '1', label: 'Aux timer 1' },
+  { value: '2', label: 'Aux timer 2' },
+  { value: '3', label: 'Aux timer 3' },
+];
+
+type AuxNumber = '1' | '2' | '3';
+
+/**
+ * Action keys are a union the compiler checks against the automation schema, so the aux
+ * number is resolved through maps rather than string interpolation. Anything unexpected
+ * falls back to the first timer instead of building an action the server would reject.
+ */
+function toAux(value: string): AuxNumber {
+  return value === '2' || value === '3' ? value : '1';
+}
+
+const auxSet = { 1: 'aux1-set', 2: 'aux2-set', 3: 'aux3-set' } as const;
+const auxStart = { 1: 'aux1-start', 2: 'aux2-start', 3: 'aux3-start' } as const;
+const auxStop = { 1: 'aux1-stop', 2: 'aux2-stop', 3: 'aux3-stop' } as const;
+const auxSource = { 1: 'aux1', 2: 'aux2', 3: 'aux3' } as const;
+
 /** a user pasting an address is as likely to include the trailing slash as not */
 function origin(value: string): string {
   return value.trim().replace(/\/+$/, '');
@@ -58,19 +82,37 @@ export const automationRecipes: AutomationRecipe[] = [
   {
     id: 'ontime-aux-timer',
     title: 'Run an aux timer with the event',
-    description: 'Sets aux timer 1 and starts it whenever an event starts.',
+    description: 'Sets an aux timer and starts it whenever an event starts.',
     category: 'ontime',
     keywords: ['countdown', 'stage timer', 'speaker'],
-    params: [{ name: 'duration', label: 'Duration', hint: 'hh:mm:ss', defaultValue: '00:05:00' }],
+    params: [
+      { name: 'aux', label: 'Which timer', type: 'choice', options: auxTimers, defaultValue: '1' },
+      { name: 'duration', label: 'Duration', hint: 'hh:mm:ss', defaultValue: '00:05:00' },
+    ],
     triggers: [Cycle.onStart],
-    build: ({ duration }) => ({
-      title: 'Run Aux Timer 1 with the event',
+    build: ({ aux, duration }) => ({
+      title: `Run Aux Timer ${toAux(aux)} with the event`,
       filterRule: 'all',
       filters: [],
       outputs: [
-        { type: 'ontime', action: 'aux1-set', time: duration.trim() },
-        { type: 'ontime', action: 'aux1-start' },
+        { type: 'ontime', action: auxSet[toAux(aux)], time: duration.trim() },
+        { type: 'ontime', action: auxStart[toAux(aux)] },
       ],
+    }),
+  },
+  {
+    id: 'ontime-aux-stop',
+    title: 'Stop the aux timer when the event ends',
+    description: 'Stops an aux timer on finish, so it does not keep running into the next event.',
+    category: 'ontime',
+    keywords: ['countdown', 'stage timer', 'reset'],
+    params: [{ name: 'aux', label: 'Which timer', type: 'choice', options: auxTimers, defaultValue: '1' }],
+    triggers: [Cycle.onFinish],
+    build: ({ aux }) => ({
+      title: `Stop Aux Timer ${toAux(aux)} on finish`,
+      filterRule: 'all',
+      filters: [],
+      outputs: [{ type: 'ontime', action: auxStop[toAux(aux)] }],
     }),
   },
   {
@@ -101,6 +143,21 @@ export const automationRecipes: AutomationRecipe[] = [
       filterRule: 'all',
       filters: [],
       outputs: [{ type: 'ontime', action: 'message-set', text: '', visible: false }],
+    }),
+  },
+  {
+    id: 'ontime-secondary-message',
+    title: 'Show an aux timer beside the stage message',
+    description: 'Points the secondary field on the stage timer at an aux timer when an event loads.',
+    category: 'ontime',
+    keywords: ['message', 'secondary', 'stage', 'countdown'],
+    params: [{ name: 'aux', label: 'Which timer', type: 'choice', options: auxTimers, defaultValue: '1' }],
+    triggers: [Cycle.onLoad],
+    build: ({ aux }) => ({
+      title: `Show Aux Timer ${toAux(aux)} as the secondary message`,
+      filterRule: 'all',
+      filters: [],
+      outputs: [{ type: 'ontime', action: 'message-secondary', secondarySource: auxSource[toAux(aux)] }],
     }),
   },
   {

@@ -28,6 +28,7 @@ import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Modal from '../../../../common/components/modal/Modal';
 import RadioGroup from '../../../../common/components/radio-group/RadioGroup';
+import ScrollArea from '../../../../common/components/scroll-area/ScrollArea';
 import Select from '../../../../common/components/select/Select';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
@@ -291,234 +292,236 @@ export default function AutomationForm({ automation, triggers, onClose }: Automa
       size='wide'
       title={isEdit ? 'Edit automation' : 'Create automation'}
       bodyElements={
-        <form id={formId} onSubmit={handleSubmit(onSubmit)} className={style.outerColumn}>
-          <div className={style.innerColumn}>
-            <h3>Automation options</h3>
-            <div className={style.titleSection}>
-              <label>
-                Title
-                <Input
-                  {...register('title', { required: { value: true, message: 'Required field' } })}
-                  fluid
-                  placeholder='Load preset'
-                />
-              </label>
-              <Panel.Error>{errors.title?.message}</Panel.Error>
-            </div>
-
-            <div className={style.titleSection}>
-              <label id='runs-on-label'>Runs on</label>
-              <Panel.Description>
-                Pick the moments in the timer lifecycle that should run this automation. You can also attach it to a
-                single event from the event editor.
-              </Panel.Description>
-              <Panel.InlineElements relation='inner' wrap='wrap' aria-labelledby='runs-on-label' role='group'>
-                {cycles.map(({ id, label, value }) => {
-                  const cycle = value as TimerLifeCycle;
-                  const isSelected = selectedCycles.includes(cycle);
-                  return (
-                    <Button
-                      key={id}
-                      size='small'
-                      variant={isSelected ? 'primary' : 'subtle'}
-                      aria-pressed={isSelected}
-                      onClick={() => toggleCycle(cycle)}
-                    >
-                      {label}
-                    </Button>
-                  );
-                })}
-              </Panel.InlineElements>
-              {hasContinuousCycle && (
-                <Panel.Description tone='warning'>
-                  Every second and On Timer Update fire continuously while the timer runs. Add a filter unless you mean
-                  to send on every tick.
-                </Panel.Description>
-              )}
-              {triggersToRemove.length > 0 && (
-                <Panel.Description tone='warning'>
-                  {`Saving removes ${triggersToRemove.length === 1 ? 'the trigger' : `${triggersToRemove.length} triggers`}: ${triggersToRemove
-                    .map((trigger) => trigger.title)
-                    .join(', ')}`}
-                </Panel.Description>
-              )}
-            </div>
-          </div>
-
-          <div className={style.innerColumn}>
-            <h3>Filters (optional)</h3>
-            <Panel.Description>
-              Without filters the outputs are sent every time the automation is triggered.
-            </Panel.Description>
-            <div className={style.ruleSection}>
-              {fieldFilters.length > 1 && (
+        <form id={formId} onSubmit={handleSubmit(onSubmit)} className={style.form}>
+          <ScrollArea className={style.formScroll} contentClassName={style.outerColumn}>
+            <div className={style.innerColumn}>
+              <h3>Automation options</h3>
+              <div className={style.titleSection}>
                 <label>
-                  Trigger outputs if
-                  <RadioGroup
-                    orientation='horizontal'
-                    value={watch('filterRule')}
-                    onValueChange={(value) => setValue('filterRule', value, { shouldDirty: true })}
-                    items={[
-                      { value: 'all', label: 'All filters pass' },
-                      { value: 'any', label: 'Any filter passes' },
-                    ]}
+                  Title
+                  <Input
+                    {...register('title', { required: { value: true, message: 'Required field' } })}
+                    fluid
+                    placeholder='Load preset'
                   />
                 </label>
-              )}
-              {fieldFilters.map((field, index) => {
-                const description = describeFilter(index);
-                return (
-                  <div key={field.id} className={style.card}>
-                    <div className={style.cardHeader}>
-                      <Tag>Filter</Tag>
-                      <span className={style.cardSummary}>{description}</span>
-                      <IconButton
-                        aria-label='Delete filter'
-                        variant='ghosted-destructive'
-                        onClick={() => removeFilter(index)}
+                <Panel.Error>{errors.title?.message}</Panel.Error>
+              </div>
+
+              <div className={style.titleSection}>
+                <label id='runs-on-label'>Runs on</label>
+                <Panel.Description>
+                  Pick the moments in the timer lifecycle that should run this automation. You can also attach it to a
+                  single event from the event editor.
+                </Panel.Description>
+                <Panel.InlineElements relation='inner' wrap='wrap' aria-labelledby='runs-on-label' role='group'>
+                  {cycles.map(({ id, label, value }) => {
+                    const cycle = value as TimerLifeCycle;
+                    const isSelected = selectedCycles.includes(cycle);
+                    return (
+                      <Button
+                        key={id}
+                        size='small'
+                        variant={isSelected ? 'primary' : 'subtle'}
+                        aria-pressed={isSelected}
+                        onClick={() => toggleCycle(cycle)}
                       >
-                        <IoTrash />
-                      </IconButton>
-                    </div>
-                    <div className={style.cardBody}>
-                      <label>
-                        Runtime data source
-                        <Select<string | null>
-                          // need to normalize '' to null for the Select to show the placeholder
-                          value={watch(`filters.${index}.field`) || null}
-                          onValueChange={(value) => {
-                            if (value === null) return;
-                            setValue(`filters.${index}.field`, value, { shouldDirty: true });
-                          }}
-                          options={fieldList.map(({ value, label }) => ({
-                            value,
-                            label,
-                            disabled: value === null,
-                          }))}
-                          aria-label='Event field'
-                        />
-                        <Panel.Error>{errors.filters?.[index]?.field?.message}</Panel.Error>
-                      </label>
-                      <label>
-                        Matching condition
-                        <Select
-                          value={watch(`filters.${index}.operator`)}
-                          onValueChange={(value: string | null) => {
-                            if (value === null) return;
-                            setValue(`filters.${index}.operator`, value as AutomationFilter['operator'], {
-                              shouldDirty: true,
-                            });
-                          }}
-                          options={operators}
-                          aria-label='Operator'
-                        />
-                        <Panel.Error>{errors.filters?.[index]?.operator?.message}</Panel.Error>
-                      </label>
-                      <label>
-                        Value to match
-                        <Input {...register(`filters.${index}.value`)} fluid placeholder='<empty / no value>' />
-                      </label>
-                    </div>
-                  </div>
-                );
-              })}
-              <div>
-                <Button onClick={handleAddNewFilter}>
-                  Add filter <IoAdd />
-                </Button>
+                        {label}
+                      </Button>
+                    );
+                  })}
+                </Panel.InlineElements>
+                {hasContinuousCycle && (
+                  <Panel.Description tone='warning'>
+                    Every second and On Timer Update fire continuously while the timer runs. Add a filter unless you
+                    mean to send on every tick.
+                  </Panel.Description>
+                )}
+                {triggersToRemove.length > 0 && (
+                  <Panel.Description tone='warning'>
+                    {`Saving removes ${triggersToRemove.length === 1 ? 'the trigger' : `${triggersToRemove.length} triggers`}: ${triggersToRemove
+                      .map((trigger) => trigger.title)
+                      .join(', ')}`}
+                  </Panel.Description>
+                )}
               </div>
             </div>
-          </div>
 
-          <div className={style.innerColumn}>
-            <h3>Outputs</h3>
-            <Info>
-              Type {'{{'} in any field to drop in Ontime runtime data, like the running event title.{' '}
-              <ExternalLink href={integrationsDocsUrl}>read the docs</ExternalLink>
-            </Info>
-
-            {fieldOutputs.length === 0 && (
-              <Panel.EmptyState
-                title='This automation does nothing yet'
-                description='An automation without outputs will be triggered, but it has nothing to send.'
-              />
-            )}
-
-            {fieldOutputs.map((output, index) => {
-              const rowErrors = getOutputErrors(index);
-              const cardProps = {
-                testState: testResults[output.id],
-                onTest: () => handleTest(index, output.id),
-                onDelete: () => removeOutput(index),
-              };
-
-              if (isOSCOutput(output)) {
-                return (
-                  <OutputCard
-                    key={output.id}
-                    label='OSC'
-                    kindClass={style.tagOsc}
-                    summary={watch(`outputs.${index}.address`)}
-                    {...cardProps}
-                  >
-                    <OscOutputForm index={index} output={output} register={register} rowErrors={rowErrors} />
-                  </OutputCard>
-                );
-              }
-
-              if (isHTTPOutput(output)) {
-                return (
-                  <OutputCard key={output.id} label='HTTP' kindClass={style.tagHttp} {...cardProps}>
-                    <HttpOutputForm index={index} output={output} register={register} rowErrors={rowErrors} />
-                  </OutputCard>
-                );
-              }
-
-              if (isOntimeAction(output)) {
-                return (
-                  <OutputCard key={output.id} label='Ontime action' kindClass={style.tagOntime} {...cardProps}>
-                    <OntimeActionForm
-                      value={output.action}
-                      index={index}
-                      register={register}
-                      rowErrors={rowErrors}
-                      setValue={setValue}
-                      watch={watch}
+            <div className={style.innerColumn}>
+              <h3>Filters (optional)</h3>
+              <Panel.Description>
+                Without filters the outputs are sent every time the automation is triggered.
+              </Panel.Description>
+              <div className={style.ruleSection}>
+                {fieldFilters.length > 1 && (
+                  <label>
+                    Trigger outputs if
+                    <RadioGroup
+                      orientation='horizontal'
+                      value={watch('filterRule')}
+                      onValueChange={(value) => setValue('filterRule', value, { shouldDirty: true })}
+                      items={[
+                        { value: 'all', label: 'All filters pass' },
+                        { value: 'any', label: 'Any filter passes' },
+                      ]}
                     />
-                  </OutputCard>
-                );
-              }
-
-              return null;
-            })}
-            <div>
-              <DropdownMenu
-                render={<Button />}
-                items={[
-                  {
-                    type: 'item',
-                    label: 'OSC',
-                    description: 'Send an OSC message to a device on the network',
-                    onClick: handleAddNewOSCOutput,
-                  },
-                  {
-                    type: 'item',
-                    label: 'HTTP',
-                    description: 'Call a URL, for webhooks and REST APIs',
-                    onClick: handleAddNewHTTPOutput,
-                  },
-                  {
-                    type: 'item',
-                    label: 'Ontime action',
-                    description: 'Change something inside Ontime, like a message or an aux timer',
-                    onClick: handleAddnewOntimeAction,
-                  },
-                ]}
-              >
-                Add output <IoAdd />
-              </DropdownMenu>
+                  </label>
+                )}
+                {fieldFilters.map((field, index) => {
+                  const description = describeFilter(index);
+                  return (
+                    <div key={field.id} className={style.card}>
+                      <div className={style.cardHeader}>
+                        <Tag>Filter</Tag>
+                        <span className={style.cardSummary}>{description}</span>
+                        <IconButton
+                          aria-label='Delete filter'
+                          variant='ghosted-destructive'
+                          onClick={() => removeFilter(index)}
+                        >
+                          <IoTrash />
+                        </IconButton>
+                      </div>
+                      <div className={style.cardBody}>
+                        <label>
+                          Runtime data source
+                          <Select<string | null>
+                            // need to normalize '' to null for the Select to show the placeholder
+                            value={watch(`filters.${index}.field`) || null}
+                            onValueChange={(value) => {
+                              if (value === null) return;
+                              setValue(`filters.${index}.field`, value, { shouldDirty: true });
+                            }}
+                            options={fieldList.map(({ value, label }) => ({
+                              value,
+                              label,
+                              disabled: value === null,
+                            }))}
+                            aria-label='Event field'
+                          />
+                          <Panel.Error>{errors.filters?.[index]?.field?.message}</Panel.Error>
+                        </label>
+                        <label>
+                          Matching condition
+                          <Select
+                            value={watch(`filters.${index}.operator`)}
+                            onValueChange={(value: string | null) => {
+                              if (value === null) return;
+                              setValue(`filters.${index}.operator`, value as AutomationFilter['operator'], {
+                                shouldDirty: true,
+                              });
+                            }}
+                            options={operators}
+                            aria-label='Operator'
+                          />
+                          <Panel.Error>{errors.filters?.[index]?.operator?.message}</Panel.Error>
+                        </label>
+                        <label>
+                          Value to match
+                          <Input {...register(`filters.${index}.value`)} fluid placeholder='<empty / no value>' />
+                        </label>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div>
+                  <Button onClick={handleAddNewFilter}>
+                    Add filter <IoAdd />
+                  </Button>
+                </div>
+              </div>
             </div>
-          </div>
+
+            <div className={style.innerColumn}>
+              <h3>Outputs</h3>
+              <Info>
+                Type {'{{'} in any field to drop in Ontime runtime data, like the running event title.{' '}
+                <ExternalLink href={integrationsDocsUrl}>read the docs</ExternalLink>
+              </Info>
+
+              {fieldOutputs.length === 0 && (
+                <Panel.EmptyState
+                  title='This automation does nothing yet'
+                  description='An automation without outputs will be triggered, but it has nothing to send.'
+                />
+              )}
+
+              {fieldOutputs.map((output, index) => {
+                const rowErrors = getOutputErrors(index);
+                const cardProps = {
+                  testState: testResults[output.id],
+                  onTest: () => handleTest(index, output.id),
+                  onDelete: () => removeOutput(index),
+                };
+
+                if (isOSCOutput(output)) {
+                  return (
+                    <OutputCard
+                      key={output.id}
+                      label='OSC'
+                      kindClass={style.tagOsc}
+                      summary={watch(`outputs.${index}.address`)}
+                      {...cardProps}
+                    >
+                      <OscOutputForm index={index} output={output} register={register} rowErrors={rowErrors} />
+                    </OutputCard>
+                  );
+                }
+
+                if (isHTTPOutput(output)) {
+                  return (
+                    <OutputCard key={output.id} label='HTTP' kindClass={style.tagHttp} {...cardProps}>
+                      <HttpOutputForm index={index} output={output} register={register} rowErrors={rowErrors} />
+                    </OutputCard>
+                  );
+                }
+
+                if (isOntimeAction(output)) {
+                  return (
+                    <OutputCard key={output.id} label='Ontime action' kindClass={style.tagOntime} {...cardProps}>
+                      <OntimeActionForm
+                        value={output.action}
+                        index={index}
+                        register={register}
+                        rowErrors={rowErrors}
+                        setValue={setValue}
+                        watch={watch}
+                      />
+                    </OutputCard>
+                  );
+                }
+
+                return null;
+              })}
+              <div>
+                <DropdownMenu
+                  render={<Button />}
+                  items={[
+                    {
+                      type: 'item',
+                      label: 'OSC',
+                      description: 'Send an OSC message to a device on the network',
+                      onClick: handleAddNewOSCOutput,
+                    },
+                    {
+                      type: 'item',
+                      label: 'HTTP',
+                      description: 'Call a URL, for webhooks and REST APIs',
+                      onClick: handleAddNewHTTPOutput,
+                    },
+                    {
+                      type: 'item',
+                      label: 'Ontime action',
+                      description: 'Change something inside Ontime, like a message or an aux timer',
+                      onClick: handleAddnewOntimeAction,
+                    },
+                  ]}
+                >
+                  Add output <IoAdd />
+                </DropdownMenu>
+              </div>
+            </div>
+          </ScrollArea>
         </form>
       }
       footerElements={

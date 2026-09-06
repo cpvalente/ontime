@@ -42,11 +42,23 @@ describe('automationRecipes', () => {
     }
   });
 
+  it('gives every choice parameter options, and a default that is one of them', () => {
+    const choices = automationRecipes.flatMap(({ params }) => params.filter(({ type }) => type === 'choice'));
+    expect(choices.filter(({ options }) => !options?.length)).toEqual([]);
+    expect(choices.filter(({ options, defaultValue }) => !options?.some((o) => o.value === defaultValue))).toEqual([]);
+  });
+
   it('reads every parameter it declares', () => {
     // a param the builder ignores is a field the user fills in for nothing, and a typo in
     // either half would put the literal 'undefined' inside a URL
     for (const { recipe } of built) {
       for (const param of recipe.params) {
+        // a choice can only take one of its own options, so probe with the last one
+        if (param.type === 'choice') {
+          const last = param.options?.at(-1)?.value ?? '';
+          expect(JSON.stringify(recipe.build({ ...defaultValues(recipe), [param.name]: last }))).toContain(last);
+          continue;
+        }
         const marker = param.type === 'number' ? '4242' : 'ontime-probe';
         const probed = { ...defaultValues(recipe), [param.name]: marker };
         expect(JSON.stringify(recipe.build(probed))).toContain(marker);

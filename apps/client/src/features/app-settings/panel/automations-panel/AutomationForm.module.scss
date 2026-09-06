@@ -1,13 +1,27 @@
+/**
+ * The wide modal body does not scroll, so the form owns it.
+ * Without this the form is simply clipped: four outputs is enough to put Save out of reach.
+ */
+.form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.formScroll {
+  height: 100%;
+}
+
 .outerColumn {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   font-size: calc(1rem - 1px);
   color: $ui-white;
-
-  // the shared modal body owns scrolling for this regular form modal
-  min-height: 100%;
   padding-block: 0.5rem;
+  // leaves the overlay scrollbar somewhere to sit without covering a field
+  padding-right: 0.5rem;
 
   h3 {
     font-size: 1rem;
