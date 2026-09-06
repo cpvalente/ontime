@@ -1,0 +1,58 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: $ui-white;
+}
+
+.listLabel {
+  margin-top: 0.5rem;
+  font-size: $aux-text-size;
+  color: $secondary-text-gray;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  text-align: left;
+  color: inherit;
+  background-color: $black-10;
+  border: 1px solid $white-10;
+  border-radius: $component-border-radius-md;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $white-3;
+    border-color: $white-20;
+  }
+
+  &:focus-visible {
+    outline: 1px solid $action-blue;
+    outline-offset: 1px;
+  }
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.optionTitle {
+  font-weight: 600;
+}
+
+.optionDescription {
+  font-size: $aux-text-size;
+  color: $secondary-text-gray;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: $secondary-text-gray;
+}
