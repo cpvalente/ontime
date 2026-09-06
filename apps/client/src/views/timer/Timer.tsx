@@ -22,6 +22,7 @@ import { getTimerOptions, useTimerOptions } from './timer.options';
 import {
   getCardData,
   getEstimatedFontSize,
+  getEventTimerSecondary,
   getIsPlaying,
   getSecondaryDisplay,
   getShowClock,
@@ -52,7 +53,19 @@ export default function TimerLoader() {
 }
 
 function Timer({ customFields, projectData, isMirrored, settings, viewSettings, entries }: TimerData) {
-  const { eventNext, eventNow, message, time, clock, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
+  const {
+    eventNext,
+    eventNow,
+    message,
+    time,
+    eventTimer,
+    clock,
+    timerTypeNow,
+    eventTimerType,
+    countToEndNow,
+    usesGroupTimer,
+    auxTimer,
+  } = useTimerSocket();
   const {
     hideClock,
     hideCards,
@@ -78,7 +91,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
   const { getLocalizedString } = useTranslation();
   const localisedMinutes = getLocalizedString('common.minutes');
 
-  const showSoundPrompt = useTimerSound(time.phase, endSound);
+  const showSoundPrompt = useTimerSound(eventTimer.phase, endSound);
 
   // gather modifiers
   const viewTimerType = timerType ?? timerTypeNow;
@@ -128,14 +141,18 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
     return null;
   })();
 
-  const secondaryContent = getSecondaryDisplay(
-    message,
-    currentAux,
-    localisedMinutes,
-    hideTimerSeconds,
-    removeLeadingZeros,
-    hideSecondary,
-  );
+  const secondaryContent =
+    usesGroupTimer && !hideSecondary
+      ? getEventTimerSecondary(
+          eventTimer,
+          eventTimerType,
+          clock,
+          localisedMinutes,
+          hideTimerSeconds,
+          removeLeadingZeros,
+          timeformat,
+        )
+      : getSecondaryDisplay(message, currentAux, localisedMinutes, hideTimerSeconds, removeLeadingZeros, hideSecondary);
 
   // gather presentation styles
   const resolvedTimerColour = getTimerColour(viewSettings, timerColour, showWarning, showDanger);
@@ -176,6 +193,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
       {showClock && <TimerAutoTickingClock clockFormat={timeformat} />}
 
       <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
+        {usesGroupTimer && <div className='timer-source'>Group timer</div>}
         {showEndMessage ? (
           <FitText mode='multi' min={64} max={256} className='end-message'>
             {freezeMessage}
@@ -202,11 +220,11 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
           className={cx(['progress-container', !isPlaying && 'progress-container--paused'])}
           now={time.current}
           complete={totalTime}
-          eventId={eventNow?.id}
+          eventId={usesGroupTimer ? undefined : eventNow?.id}
           normalColor={viewSettings.normalColor}
-          warning={eventNow?.timeWarning}
+          warning={usesGroupTimer ? undefined : eventNow?.timeWarning}
           warningColor={viewSettings.warningColor}
-          danger={eventNow?.timeDanger}
+          danger={usesGroupTimer ? undefined : eventNow?.timeDanger}
           dangerColor={viewSettings.dangerColor}
           hideOvertime={!showFinished}
         />

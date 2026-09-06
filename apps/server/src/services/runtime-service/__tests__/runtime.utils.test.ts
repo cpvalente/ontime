@@ -7,6 +7,7 @@ import {
   findPreviousPlayableId,
   getEventAtIndex,
   getShouldClockUpdate,
+  getShouldGroupTimerUpdate,
   getShouldOffsetUpdate,
   getShouldTimerUpdate,
   isNewSecond,
@@ -92,6 +93,34 @@ describe('getShouldTimerUpdate()', () => {
     ['expectedFinish', { expectedFinish: 1 }],
   ])('does not update on %s alone, since it is derived', (_label, patch) => {
     expect(getShouldTimerUpdate(baseTimer, { ...baseTimer, ...patch })).toBe(false);
+  });
+});
+
+describe('getShouldGroupTimerUpdate()', () => {
+  const timer: TimerState = {
+    addedTime: 0,
+    current: 10_000,
+    duration: 10_000,
+    elapsed: 0,
+    expectedFinish: null,
+    phase: TimerPhase.Default,
+    playback: Playback.Play,
+    secondaryTimer: null,
+    startedAt: 0,
+  };
+
+  it('updates when a group timer appears or disappears', () => {
+    expect(getShouldGroupTimerUpdate(null, timer)).toBe(true);
+    expect(getShouldGroupTimerUpdate(timer, null)).toBe(true);
+  });
+
+  it('does not repeatedly publish an absent group timer', () => {
+    expect(getShouldGroupTimerUpdate(null, null)).toBe(false);
+  });
+
+  it('uses normal timer tick semantics while a group timer exists', () => {
+    expect(getShouldGroupTimerUpdate(timer, { ...timer, current: 9_500 })).toBe(false);
+    expect(getShouldGroupTimerUpdate(timer, { ...timer, current: 8_999 })).toBe(true);
   });
 });
 

@@ -417,7 +417,7 @@ export function migrateRundown(
           timeEnd: null,
           duration: 0,
           isFirstLinked: false,
-        });
+        } as unknown as OntimeEntry);
       } else if (entry.type === 'delay') {
         append({ id: entry.id, type: SupportedEntry.Delay, duration: entry.duration, parent });
       }

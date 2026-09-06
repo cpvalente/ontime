@@ -35,6 +35,14 @@
     width: 100%;
     overflow: hidden;
 
+    .timer-source {
+      color: $viewer-label-color;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
     .timer {
       opacity: 1;
       font-family: $viewer-font-family;

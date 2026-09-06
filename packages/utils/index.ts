@@ -34,7 +34,14 @@ export {
   group as groupDef,
   milestone as milestoneDef,
 } from './src/rundown-utils/entryDefinitions.js';
-export { createDelay, createEvent, createGroup, createMilestone, makeString } from './src/rundown-utils/entryUtils.js';
+export {
+  createDelay,
+  createEvent,
+  createGroup,
+  createMilestone,
+  makeString,
+  validateGroupTimerType,
+} from './src/rundown-utils/entryUtils.js';
 
 // time format utils
 export {

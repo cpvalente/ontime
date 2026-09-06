@@ -3,9 +3,11 @@ import {
   OntimeDelay,
   OntimeEntry,
   OntimeEvent,
+  OntimeGroup,
   OntimeMilestone,
   PlayableEvent,
   Rundown,
+  TimerType,
   isOntimeEvent,
   isOntimeGroup,
   isPlayableEvent,
@@ -29,7 +31,11 @@ export type RundownMetadata = {
   isFirstAfterGroup: boolean;
 };
 
-export type ExtendedEntry<T extends OntimeEntry = OntimeEntry> = T & RundownMetadata;
+export type ExtendedEntry<T extends OntimeEntry = OntimeEntry> = T &
+  RundownMetadata & {
+    groupUsesTimer?: boolean;
+    groupTimerType?: TimerType;
+  };
 
 export const lastMetadataKey = 'LAST';
 
@@ -65,10 +71,23 @@ export function getFlatRundownMetadata(
 ): ExtendedEntry[] {
   const { process } = initRundownMetadata(selectedEventId);
   const flatRundown: ExtendedEntry[] = [];
+  let activeGroup: OntimeGroup | null = null;
 
   for (const id of data.flatOrder) {
     const entry = data.entries[id];
-    const extendedEntry = { ...entry, ...process(entry) };
+    if (isOntimeGroup(entry)) {
+      activeGroup = entry;
+    } else if (entry.parent !== activeGroup?.id) {
+      activeGroup = null;
+    }
+
+    const timerGroup = isOntimeGroup(entry) ? entry : activeGroup;
+    const extendedEntry = {
+      ...entry,
+      ...process(entry),
+      groupUsesTimer: timerGroup?.useGroupTimer ?? false,
+      groupTimerType: timerGroup?.timerType,
+    };
     flatRundown.push(extendedEntry);
   }
 

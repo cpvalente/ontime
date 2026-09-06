@@ -1,6 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { EntryId, OntimeGroup } from 'ontime-types';
+import { EntryId, OntimeGroup, TimerType } from 'ontime-types';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 import { MouseEvent, useCallback, useRef } from 'react';
 import {
@@ -9,6 +9,7 @@ import {
   IoDuplicateOutline,
   IoFolderOpenOutline,
   IoReorderTwo,
+  IoTimerOutline,
   IoTrash,
   IoLockClosed,
 } from 'react-icons/io5';
@@ -174,6 +175,14 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
       <div className={style.header}>
         <div className={style.titleRow}>
           <TitleEditor title={data.title} entryId={data.id} placeholder='Group title' />
+          {data.useGroupTimer && (
+            <Tooltip
+              text={`Group timer (${data.timerType === TimerType.CountUp ? 'count up' : 'count down'})`}
+              render={<span className={style.timerIndicator} />}
+            >
+              <IoTimerOutline />
+            </Tooltip>
+          )}
           <IconButton aria-label='Collapse' variant='subtle-white' onClick={() => onCollapse(!collapsed, data.id)}>
             {collapsed ? <IoChevronUp /> : <IoChevronDown />}
           </IconButton>

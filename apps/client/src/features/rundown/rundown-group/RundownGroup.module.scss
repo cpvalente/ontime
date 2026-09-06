@@ -55,6 +55,14 @@
     gap: 0.5rem;
   }
 
+  .timerIndicator {
+    display: grid;
+    flex: 0 0 1.5rem;
+    place-items: center;
+    color: $active-indicator;
+    font-size: 1rem;
+  }
+
   .metaRow {
     display: flex;
     gap: $block-clearance; // same as RundownEvent.eventTimers

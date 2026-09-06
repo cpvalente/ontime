@@ -1,5 +1,5 @@
 import { TimerPhase, TimerType } from 'ontime-types';
-import { IoArrowDown, IoArrowUp, IoBan, IoTime } from 'react-icons/io5';
+import { IoArrowDown, IoArrowUp, IoBan, IoTime, IoTimerOutline } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
 
 import { CornerWithPip } from '../../../common/components/editor-utils/EditorUtils';
@@ -20,7 +20,8 @@ const secondarySourceLabels: Record<string, string> = {
 };
 
 export default function TimerPreview() {
-  const { blink, blackout, countToEnd, phase, secondarySource, showTimerMessage, timerType } = useMessagePreview();
+  const { blink, blackout, countToEnd, phase, secondarySource, showTimerMessage, timerType, usesGroupTimer } =
+    useMessagePreview();
   const { data } = useViewSettings();
 
   const main = (() => {
@@ -35,7 +36,9 @@ export default function TimerPreview() {
 
   const secondary = (() => {
     // message is a fullscreen overlay or secondary is not active
-    if (showTimerMessage || !secondarySource) return null;
+    if (showTimerMessage) return null;
+    if (usesGroupTimer) return 'Event timer';
+    if (!secondarySource) return null;
 
     // we need to check aux first since it takes priority
     return secondarySourceLabels[secondarySource];
@@ -55,6 +58,7 @@ export default function TimerPreview() {
     <div className={style.preview}>
       <CornerWithPip onExtractClick={(event) => handleLinks('timer', event)} pipElement={<PipRoot />} />
       <div className={contentClasses}>
+        {usesGroupTimer && <div className={style.timerSource}>Group timer</div>}
         <div
           className={style.mainContent}
           data-phase={showColourOverride && phase}
@@ -65,6 +69,14 @@ export default function TimerPreview() {
         {secondary !== null && <div className={style.secondaryContent}>{secondary}</div>}
       </div>
       <div className={style.eventStatus}>
+        <Tooltip
+          text='Timer display controlled by group'
+          render={<span />}
+          className={style.statusIcon}
+          data-active={usesGroupTimer}
+        >
+          <IoTimerOutline />
+        </Tooltip>
         <Tooltip
           text='Time type: Count down'
           render={<span />}

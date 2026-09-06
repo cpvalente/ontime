@@ -1,0 +1,13 @@
+.timerOverrideCell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1.5rem;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.timerOverrideIndicator {
+  display: grid;
+  place-items: center;
+  color: $active-indicator;
+  font-size: 1rem;
+}

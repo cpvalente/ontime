@@ -13,6 +13,7 @@ import {
   Playback,
   Rundown,
   RundownState,
+  RuntimeStore,
   TimeOfDay,
   TimerPhase,
   TimerState,
@@ -39,6 +40,7 @@ import {
   getCurrent,
   getElapsed,
   getExpectedFinish,
+  getGroupTimer,
   getRuntimeOffset,
   getTimerPhase,
   hasCrossedMidnight,
@@ -104,7 +106,9 @@ const runtimeState: RuntimeState = {
   _startDayOffset: null,
 };
 
-export function getState(): Readonly<RuntimeState> {
+export type RuntimeStateSnapshot = RuntimeState & Pick<RuntimeStore, 'groupTimer'>;
+
+export function getState(): Readonly<RuntimeStateSnapshot> {
   // create a shallow copy of the state
   return {
     ...runtimeState,
@@ -115,6 +119,7 @@ export function getState(): Readonly<RuntimeState> {
     offset: { ...runtimeState.offset },
     rundown: { ...runtimeState.rundown },
     timer: { ...runtimeState.timer },
+    groupTimer: getGroupTimer(runtimeState),
     _timer: { ...runtimeState._timer },
     _rundown: { ...runtimeState._rundown },
   };
