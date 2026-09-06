@@ -1,4 +1,4 @@
-import { Automation, AutomationDTO, NormalisedAutomation, TimerLifeCycle, Trigger } from 'ontime-types';
+import { Automation, AutomationDTO, NormalisedAutomation, Trigger } from 'ontime-types';
 import { useMemo, useState } from 'react';
 import { IoAdd, IoPencil, IoTrash } from 'react-icons/io5';
 
@@ -13,7 +13,6 @@ import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 import useAppSettingsNavigation from '../../useAppSettingsNavigation';
 import AutomationForm from './AutomationForm';
-import type { AutomationRecipe } from './automationRecipes';
 import { groupTriggersByAutomation, isAutomation } from './automationUtils';
 import DeleteAutomationDialog from './DeleteAutomationDialog';
 import NewAutomationDialog from './NewAutomationDialog';
@@ -25,13 +24,6 @@ const emptyAutomation: AutomationDTO = {
   filterRule: 'all',
   filters: [],
   outputs: [],
-};
-
-/** what the automation form opens with: an existing automation, or a blank/pre-filled draft */
-type FormState = {
-  automation: Automation | AutomationDTO;
-  /** only used when creating, an existing automation resolves its own lifecycles */
-  defaultCycles?: TimerLifeCycle[];
 };
 
 interface AutomationsListProps {
@@ -49,17 +41,22 @@ export default function AutomationsList({
 }: AutomationsListProps) {
   const { refetch } = useAutomationSettings();
   const { setLocation } = useAppSettingsNavigation();
-  const [formState, setFormState] = useState<FormState | null>(null);
+  const [editing, setEditing] = useState<Automation | AutomationDTO | null>(null);
   const [isPickingStart, setIsPickingStart] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Automation | null>(null);
 
   const lifecyclesByAutomation = useMemo(() => groupTriggersByAutomation(triggers), [triggers]);
   const automationIds = Object.keys(automations);
 
-  /** a recipe is only ever a pre-filled form, nothing is written until the user saves */
-  const handleStartFrom = (recipe: AutomationRecipe | null) => {
+  /** a recipe creates the automation itself, so it lands in the list rather than in a form */
+  const handleCreated = async () => {
     setIsPickingStart(false);
-    setFormState({ automation: recipe?.automation ?? emptyAutomation, defaultCycles: recipe?.triggers });
+    await refetch();
+  };
+
+  const handleStartEmpty = () => {
+    setIsPickingStart(false);
+    setEditing(emptyAutomation);
   };
 
   const handleDeleted = async () => {
@@ -70,18 +67,23 @@ export default function AutomationsList({
   return (
     <Panel.Section>
       <Panel.Card>
-        {formState !== null && (
+        {editing !== null && (
           <AutomationForm
             // the form snapshots the automation's lifecycles on mount, so it must never be
             // reused across two different automations
-            key={isAutomation(formState.automation) ? formState.automation.id : 'new'}
-            automation={formState.automation}
+            key={isAutomation(editing) ? editing.id : 'new'}
+            automation={editing}
             triggers={triggers}
-            defaultCycles={formState.defaultCycles}
-            onClose={() => setFormState(null)}
+            onClose={() => setEditing(null)}
           />
         )}
-        {isPickingStart && <NewAutomationDialog onClose={() => setIsPickingStart(false)} onSelect={handleStartFrom} />}
+        {isPickingStart && (
+          <NewAutomationDialog
+            onClose={() => setIsPickingStart(false)}
+            onStartEmpty={handleStartEmpty}
+            onCreated={handleCreated}
+          />
+        )}
         {deleteTarget !== null && (
           <DeleteAutomationDialog
             automation={deleteTarget}
@@ -174,7 +176,7 @@ export default function AutomationsList({
                         <IconButton
                           variant='ghosted-white'
                           aria-label='Edit entry'
-                          onClick={() => setFormState({ automation })}
+                          onClick={() => setEditing(automation)}
                         >
                           <IoPencil />
                         </IconButton>

@@ -33,7 +33,7 @@ import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import * as Panel from '../../panel-utils/PanelUtils';
-import { cycles, isAutomation, makeFieldList, operators, type OutputErrors } from './automationUtils';
+import { cycles, isAutomation, makeFieldList, makeTriggerTitle, operators, type OutputErrors } from './automationUtils';
 import HttpOutputForm from './HttpOutputForm';
 import OntimeActionForm from './OntimeActionForm';
 import OscOutputForm from './OscOutputForm';
@@ -54,12 +54,10 @@ interface AutomationFormProps {
   automation: Automation | AutomationDTO;
   /** global triggers, used to resolve which lifecycles this automation is currently bound to */
   triggers: Trigger[];
-  /** lifecycles a new automation starts with selected, used by recipes */
-  defaultCycles?: TimerLifeCycle[];
   onClose: () => void;
 }
 
-export default function AutomationForm({ automation, triggers, defaultCycles, onClose }: AutomationFormProps) {
+export default function AutomationForm({ automation, triggers, onClose }: AutomationFormProps) {
   const isEdit = isAutomation(automation);
   const { data } = useCustomFields();
   const { refetch } = useAutomationSettings();
@@ -79,10 +77,7 @@ export default function AutomationForm({ automation, triggers, defaultCycles, on
     () => Array.from(new Set(initialTriggers.map((trigger) => trigger.trigger))),
     [initialTriggers],
   );
-  // a new automation can arrive pre-filled from a recipe, an existing one resolves its own triggers
-  const [selectedCycles, setSelectedCycles] = useState<TimerLifeCycle[]>(
-    isEdit ? initialCycles : (defaultCycles ?? []),
-  );
+  const [selectedCycles, setSelectedCycles] = useState<TimerLifeCycle[]>(initialCycles);
   /** set once a create succeeds, so a retry after a failed trigger sync edits instead of creating a duplicate */
   const [createdId, setCreatedId] = useState<string | null>(null);
 
@@ -233,8 +228,7 @@ export default function AutomationForm({ automation, triggers, defaultCycles, on
 
     const toAdd = selectedCycles.filter((cycle) => !initialCycles.includes(cycle));
     for (const cycle of toAdd) {
-      const label = cycles.find(({ value }) => value === cycle)?.label ?? cycle;
-      await addTrigger({ title: `${title} — ${label}`, trigger: cycle, automationId });
+      await addTrigger({ title: makeTriggerTitle(title, cycle), trigger: cycle, automationId });
     }
   };
 
@@ -285,8 +279,7 @@ export default function AutomationForm({ automation, triggers, defaultCycles, on
     return `${fieldLabel} ${operatorLabel} ${value ? `“${value}”` : 'nothing'}`;
   };
 
-  // a recipe arrives complete, so a new automation is savable without the user changing anything
-  const canSubmit = !isSubmitting && (!isEdit || isDirty || cyclesAreDirty) && isValid;
+  const canSubmit = !isSubmitting && (isDirty || cyclesAreDirty) && isValid;
   const hasContinuousCycle = selectedCycles.some((cycle) => continuousCycles.includes(cycle));
 
   return (

@@ -1,6 +1,14 @@
 import { Automation, AutomationDTO, AutomationFilter, CustomFields, TimerLifeCycle, Trigger } from 'ontime-types';
 
-import { lifecycleLabels } from '../../../../common/constants/timerLifecycle';
+import { getLifecycleLabel, lifecycleLabels } from '../../../../common/constants/timerLifecycle';
+
+/**
+ * Names a trigger created from an automation's lifecycle picker.
+ * Shared so a trigger made by the form and one made by a recipe read the same in the list.
+ */
+export function makeTriggerTitle(automationTitle: string, cycle: TimerLifeCycle): string {
+  return `${automationTitle} — ${getLifecycleLabel(cycle)}`;
+}
 
 /**
  * Outputs are a union, so react-hook-form cannot resolve a field's error by name.

@@ -1,58 +1,180 @@
-.list {
+/* ---------- step one: pick a recipe ---------- */
+
+.picker {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
   color: $ui-white;
 }
 
-.listLabel {
-  margin-top: 0.5rem;
-  font-size: $aux-text-size;
-  color: $secondary-text-gray;
+/** stays in view while the list scrolls under it, which is the point of having a search */
+.search {
+  position: sticky;
+  top: -0.5rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  padding-block: 0.5rem;
+  margin-top: -0.5rem;
+  background-color: $gray-1250;
 }
 
-.option {
+.searchIcon {
+  position: absolute;
+  left: 0.625rem;
+  color: $gray-400;
+  pointer-events: none;
+}
+
+.searchInput {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.searchClear {
+  position: absolute;
+  right: 0.25rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.75rem;
+}
+
+.groupTitle {
+  margin: 0;
+  padding-inline: 0.125rem;
+  font-size: $aux-text-size;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: $gray-400;
+}
+
+.recipe {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.625rem 0.75rem;
   text-align: left;
   color: inherit;
-  background-color: $black-10;
-  border: 1px solid $white-10;
+  background-color: transparent;
+  border: 1px solid transparent;
   border-radius: $component-border-radius-md;
   cursor: pointer;
 
   &:hover {
     background-color: $white-3;
-    border-color: $white-20;
+    border-color: $white-10;
   }
 
   &:focus-visible {
     outline: 1px solid $action-blue;
-    outline-offset: 1px;
+    outline-offset: -1px;
   }
 }
 
-.optionText {
+.recipeText {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.125rem;
   flex: 1;
   min-width: 0;
 }
 
-.optionTitle {
+.recipeTitle {
   font-weight: 600;
 }
 
-.optionDescription {
+.recipeDescription {
   font-size: $aux-text-size;
   color: $secondary-text-gray;
 }
 
-.chevron {
+.recipeTags {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   flex-shrink: 0;
+}
+
+.chevron {
+  color: $gray-400;
+}
+
+/* ---------- step two: answer what the recipe cannot know ---------- */
+
+.setup {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: $ui-white;
+  padding-block: 0.25rem;
+}
+
+.setupDescription {
+  margin: 0;
   color: $secondary-text-gray;
+}
+
+/** the two facts a recipe decides for you, stated before the fields you can change */
+.summary {
+  display: grid;
+  grid-template-columns: 5rem 1fr;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin: 0;
+  padding: 0.75rem;
+  background-color: $black-10;
+  border: 1px solid $white-10;
+  border-radius: $component-border-radius-md;
+
+  dt {
+    font-size: $aux-text-size;
+    color: $label-gray;
+  }
+
+  dd {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+  }
+}
+
+/* three columns, so a recipe's small numeric fields fill a row instead of leaving a hole */
+.fields {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+
+  @media (width < 40rem) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* an address or a sentence, which a third of a row cannot hold */
+.wide {
+  grid-column: 1 / -1;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: $aux-text-size;
+  color: $label-gray;
+}
+
+.hint {
+  color: $secondary-text-gray;
+}
+
+/* pushes the leading action away from the confirming ones */
+.apart {
+  margin-right: auto;
 }
