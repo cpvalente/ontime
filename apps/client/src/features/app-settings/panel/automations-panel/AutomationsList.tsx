@@ -145,13 +145,20 @@ export default function AutomationsList({
                   <tr key={automationId}>
                     <td>{automation.title}</td>
                     <td>
-                      <div className={style.tags}>
-                        {lifecycles.length === 0 ? (
-                          <Tag variant='warning'>Never runs</Tag>
-                        ) : (
-                          lifecycles.map((cycle) => <Tag key={cycle}>{getLifecycleLabel(cycle)}</Tag>)
-                        )}
-                      </div>
+                      {/*
+                       * Only global triggers are visible here: an automation can also be attached to
+                       * single events, which live in the rundown. An empty cell is therefore not the
+                       * same as never running, so it says nothing rather than claiming that.
+                       */}
+                      {lifecycles.length === 0 ? (
+                        <span className={style.muted}>—</span>
+                      ) : (
+                        <div className={style.tags}>
+                          {lifecycles.map((cycle) => (
+                            <Tag key={cycle}>{getLifecycleLabel(cycle)}</Tag>
+                          ))}
+                        </div>
+                      )}
                     </td>
                     <td>
                       {automation.filters.length === 0 ? (
