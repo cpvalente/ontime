@@ -1,4 +1,6 @@
-import { Automation, AutomationDTO, CustomFields, TimerLifeCycle, Trigger } from 'ontime-types';
+import { Automation, AutomationDTO, AutomationFilter, CustomFields, TimerLifeCycle, Trigger } from 'ontime-types';
+
+import { lifecycleLabels } from '../../../../common/constants/timerLifecycle';
 
 type CycleLabel = {
   id: number;
@@ -7,15 +9,29 @@ type CycleLabel = {
 };
 
 export const cycles: CycleLabel[] = [
-  { id: 1, label: 'On Load', value: 'onLoad' },
-  { id: 2, label: 'On Start', value: 'onStart' },
-  { id: 3, label: 'On Pause', value: 'onPause' },
-  { id: 4, label: 'On Stop', value: 'onStop' },
-  { id: 5, label: 'Every second', value: 'onClock' },
-  { id: 6, label: 'On Timer Update', value: 'onUpdate' },
-  { id: 7, label: 'On Finish', value: 'onFinish' },
-  { id: 8, label: 'On Warning', value: 'onWarning' },
-  { id: 9, label: 'On Danger', value: 'onDanger' },
+  { id: 1, label: lifecycleLabels.onLoad, value: 'onLoad' },
+  { id: 2, label: lifecycleLabels.onStart, value: 'onStart' },
+  { id: 3, label: lifecycleLabels.onPause, value: 'onPause' },
+  { id: 4, label: lifecycleLabels.onStop, value: 'onStop' },
+  { id: 5, label: lifecycleLabels.onClock, value: 'onClock' },
+  { id: 6, label: lifecycleLabels.onUpdate, value: 'onUpdate' },
+  { id: 7, label: lifecycleLabels.onFinish, value: 'onFinish' },
+  { id: 8, label: lifecycleLabels.onWarning, value: 'onWarning' },
+  { id: 9, label: lifecycleLabels.onDanger, value: 'onDanger' },
+];
+
+/**
+ * Filter operators offered in the automation form
+ * NOTE: not_contains is supported by the type and by the runtime, but the server
+ * validation list omits it, so an automation using it cannot be saved.
+ * It stays out of the UI until the server accepts it.
+ */
+export const operators: Array<{ value: AutomationFilter['operator']; label: string }> = [
+  { value: 'equals', label: 'equals' },
+  { value: 'not_equals', label: 'does not equal' },
+  { value: 'contains', label: 'contains' },
+  { value: 'greater_than', label: 'is greater than' },
+  { value: 'less_than', label: 'is less than' },
 ];
 
 /**
@@ -82,4 +98,24 @@ export function checkDuplicates(triggers: Trigger[]) {
     }
   }
   return duplicates.length > 0 ? duplicates : undefined;
+}
+
+/**
+ * Groups the lifecycles each automation is bound to
+ * Used to show when an automation runs, and to highlight the ones that never will
+ */
+export function groupTriggersByAutomation(triggers: Trigger[]): Record<string, TimerLifeCycle[]> {
+  const grouped: Record<string, TimerLifeCycle[]> = {};
+
+  for (const trigger of triggers) {
+    if (!Object.hasOwn(grouped, trigger.automationId)) {
+      grouped[trigger.automationId] = [];
+    }
+    // the runtime fires an automation once per lifecycle, duplicates would be noise here
+    if (!grouped[trigger.automationId].includes(trigger.trigger)) {
+      grouped[trigger.automationId].push(trigger.trigger);
+    }
+  }
+
+  return grouped;
 }
