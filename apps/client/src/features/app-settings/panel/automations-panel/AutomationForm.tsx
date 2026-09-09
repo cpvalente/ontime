@@ -65,27 +65,27 @@ export default function AutomationForm({ automation, triggers, onClose }: Automa
   const fieldList = useMemo(() => makeFieldList(data), [data]);
 
   /**
-   * Triggers are a separate entity, so they live outside the form state.
+   * The triggers the server holds for this automation, as far as this form knows.
    *
-   * We snapshot the automation's triggers when the form opens and reconcile against that
-   * snapshot, never against the live prop: settings are polled, so a trigger created
-   * elsewhere while this form is open must not be deleted by a save that never saw it.
+   * Seeded from a snapshot taken when the form opens, never from the live prop: settings are
+   * polled, so a trigger created elsewhere while this form is open must not be deleted by a
+   * save that never saw it. It then advances as each request succeeds, so a save that fails
+   * half way leaves only the outstanding work for the retry.
    */
-  const [initialTriggers] = useState<Trigger[]>(() =>
+  const [syncedTriggers, setSyncedTriggers] = useState<Trigger[]>(() =>
     isAutomation(automation) ? triggers.filter((trigger) => trigger.automationId === automation.id) : [],
   );
-  const initialCycles = useMemo(
-    () => Array.from(new Set(initialTriggers.map((trigger) => trigger.trigger))),
-    [initialTriggers],
+  const syncedCycles = useMemo(
+    () => Array.from(new Set(syncedTriggers.map((trigger) => trigger.trigger))),
+    [syncedTriggers],
   );
-  const [selectedCycles, setSelectedCycles] = useState<TimerLifeCycle[]>(initialCycles);
+  const [selectedCycles, setSelectedCycles] = useState<TimerLifeCycle[]>(syncedCycles);
   /** set once a create succeeds, so a retry after a failed trigger sync edits instead of creating a duplicate */
   const [createdId, setCreatedId] = useState<string | null>(null);
 
+  // both are deduped, so equal lengths and one being a subset makes them the same selection
   const cyclesAreDirty =
-    selectedCycles.length !== initialCycles.length ||
-    selectedCycles.some((cycle) => !initialCycles.includes(cycle)) ||
-    initialCycles.some((cycle) => !selectedCycles.includes(cycle));
+    selectedCycles.length !== syncedCycles.length || selectedCycles.some((cycle) => !syncedCycles.includes(cycle));
 
   const toggleCycle = (cycle: TimerLifeCycle) => {
     setSelectedCycles((prev) => (prev.includes(cycle) ? prev.filter((c) => c !== cycle) : [...prev, cycle]));
@@ -95,7 +95,7 @@ export default function AutomationForm({ automation, triggers, onClose }: Automa
    * A lifecycle can carry several differently named triggers, which the chips collapse into one.
    * Unchecking it removes all of them, so say which ones rather than deleting them quietly.
    */
-  const triggersToRemove = initialTriggers.filter((trigger) => !selectedCycles.includes(trigger.trigger));
+  const triggersToRemove = syncedTriggers.filter((trigger) => !selectedCycles.includes(trigger.trigger));
 
   /**
    * Test results are keyed by the field array id rather than the index:
@@ -105,6 +105,7 @@ export default function AutomationForm({ automation, triggers, onClose }: Automa
   const feedbackTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const {
+    clearErrors,
     control,
     handleSubmit,
     getValues,
@@ -219,21 +220,28 @@ export default function AutomationForm({ automation, triggers, onClose }: Automa
    * Reconciles the lifecycle selection against the global triggers.
    * Runs after the automation itself is saved: a new automation has no id until then.
    *
-   * Both sides are diffed against the mount-time snapshot, so this only ever removes
-   * triggers the user could actually see when they made the change.
+   * Every request advances the synced snapshot as it succeeds, so pressing save again after
+   * a failure half way through retries only what is left. Without that a retry would re-add
+   * a trigger it already created, and re-delete one it already deleted, which the server
+   * rejects outright.
    */
   const syncTriggers = async (automationId: string, title: string) => {
     for (const trigger of triggersToRemove) {
       await deleteTrigger(trigger.id);
+      setSyncedTriggers((prev) => prev.filter((synced) => synced.id !== trigger.id));
     }
 
-    const toAdd = selectedCycles.filter((cycle) => !initialCycles.includes(cycle));
+    const toAdd = selectedCycles.filter((cycle) => !syncedCycles.includes(cycle));
     for (const cycle of toAdd) {
-      await addTrigger({ title: makeTriggerTitle(title, cycle), trigger: cycle, automationId });
+      const created = await addTrigger({ title: makeTriggerTitle(title, cycle), trigger: cycle, automationId });
+      setSyncedTriggers((prev) => [...prev, created]);
     }
   };
 
   const onSubmit = async (values: AutomationDTO) => {
+    // a stale failure from the previous attempt would otherwise sit under a successful retry
+    clearErrors('root');
+
     // saving happens in two requests, so a retry after a partial failure must edit rather than create again
     const existingId = isAutomation(automation) ? automation.id : createdId;
     let automationId: string;
@@ -280,7 +288,13 @@ export default function AutomationForm({ automation, triggers, onClose }: Automa
     return `${fieldLabel} ${operatorLabel} ${value ? `“${value}”` : 'nothing'}`;
   };
 
-  const canSubmit = !isSubmitting && (isDirty || cyclesAreDirty) && isValid;
+  /**
+   * A failed save reports itself as a root error, which react-hook-form counts against
+   * isValid. Left alone that disables the very retry the message is asking the user to make,
+   * so a root error on its own does not block submitting again.
+   */
+  const invalidFields = Object.keys(errors).filter((field) => field !== 'root');
+  const canSubmit = !isSubmitting && (isDirty || cyclesAreDirty) && (isValid || invalidFields.length === 0);
   const hasContinuousCycle = selectedCycles.some((cycle) => continuousCycles.includes(cycle));
 
   return (

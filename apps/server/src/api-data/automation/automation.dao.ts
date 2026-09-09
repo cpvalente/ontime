@@ -145,7 +145,7 @@ export async function deleteAutomation(projectRundowns: ProjectRundowns, automat
     return;
   }
 
-  // prevent deleting a automation that is in use in events, the user has to unlink it there
+  // prevent deleting an automation that is in use in events, the user has to unlink it there
   const isInUse = isAutomationUsed(projectRundowns, automationId);
   if (isInUse) {
     throw new Error(`Unable to delete automation used in rundown: ${isInUse[0]}, in event with ID: ${isInUse[1]}`);
