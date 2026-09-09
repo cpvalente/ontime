@@ -1,4 +1,17 @@
-import { Automation, AutomationDTO, CustomFields, TimerLifeCycle, Trigger } from 'ontime-types';
+import { Automation, AutomationDTO, AutomationFilter, CustomFields, TimerLifeCycle, Trigger } from 'ontime-types';
+
+import { getLifecycleLabel, lifecycleLabels } from './timerLifecycle';
+
+/** Names the trigger a recipe creates alongside its automation, so the pair is recognisable in the triggers list */
+export function makeTriggerTitle(automationTitle: string, cycle: TimerLifeCycle): string {
+  return `${automationTitle} — ${getLifecycleLabel(cycle)}`;
+}
+
+/**
+ * Outputs are a union, so react-hook-form cannot resolve a field's error by name.
+ * Every output card knows which fields it registered, this just makes them reachable.
+ */
+export type OutputErrors = Partial<Record<string, { message?: string }>>;
 
 type CycleLabel = {
   id: number;
@@ -7,15 +20,22 @@ type CycleLabel = {
 };
 
 export const cycles: CycleLabel[] = [
-  { id: 1, label: 'On Load', value: 'onLoad' },
-  { id: 2, label: 'On Start', value: 'onStart' },
-  { id: 3, label: 'On Pause', value: 'onPause' },
-  { id: 4, label: 'On Stop', value: 'onStop' },
-  { id: 5, label: 'Every second', value: 'onClock' },
-  { id: 6, label: 'On Timer Update', value: 'onUpdate' },
-  { id: 7, label: 'On Finish', value: 'onFinish' },
-  { id: 8, label: 'On Warning', value: 'onWarning' },
-  { id: 9, label: 'On Danger', value: 'onDanger' },
+  { id: 1, label: lifecycleLabels.onLoad, value: 'onLoad' },
+  { id: 2, label: lifecycleLabels.onStart, value: 'onStart' },
+  { id: 3, label: lifecycleLabels.onPause, value: 'onPause' },
+  { id: 4, label: lifecycleLabels.onStop, value: 'onStop' },
+  { id: 5, label: lifecycleLabels.onClock, value: 'onClock' },
+  { id: 6, label: lifecycleLabels.onUpdate, value: 'onUpdate' },
+  { id: 7, label: lifecycleLabels.onFinish, value: 'onFinish' },
+  { id: 8, label: lifecycleLabels.onWarning, value: 'onWarning' },
+  { id: 9, label: lifecycleLabels.onDanger, value: 'onDanger' },
+];
+
+/** Filter operators offered in the automation form, phrased to read as a sentence in the filter summary */
+export const operators: Array<{ value: AutomationFilter['operator']; label: string }> = [
+  { value: 'equals', label: 'equals' },
+  { value: 'not_equals', label: 'does not equal' },
+  { value: 'contains', label: 'contains' },
 ];
 
 /**
@@ -82,4 +102,21 @@ export function checkDuplicates(triggers: Trigger[]) {
     }
   }
   return duplicates.length > 0 ? duplicates : undefined;
+}
+
+/** Collects the lifecycles each automation is bound to, so the list can show when it runs */
+export function groupTriggersByAutomation(triggers: Trigger[]): Record<string, TimerLifeCycle[]> {
+  const grouped: Record<string, TimerLifeCycle[]> = {};
+
+  for (const trigger of triggers) {
+    if (!Object.hasOwn(grouped, trigger.automationId)) {
+      grouped[trigger.automationId] = [];
+    }
+    // the runtime fires an automation once per lifecycle, duplicates would be noise here
+    if (!grouped[trigger.automationId].includes(trigger.trigger)) {
+      grouped[trigger.automationId].push(trigger.trigger);
+    }
+  }
+
+  return grouped;
 }

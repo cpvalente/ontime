@@ -16,11 +16,13 @@ const formId = 'trigger-form';
 interface TriggerFormProps {
   automations: NormalisedAutomation;
   trigger: Trigger | null;
+  /** preselects the automation for a new trigger, used when creating one from an automation row */
+  automationId?: string;
   onCancel: () => void;
   postSubmit: () => void;
 }
 
-export default function TriggerForm({ automations, trigger, onCancel, postSubmit }: TriggerFormProps) {
+export default function TriggerForm({ automations, trigger, automationId, onCancel, postSubmit }: TriggerFormProps) {
   const {
     handleSubmit,
     register,
@@ -33,7 +35,7 @@ export default function TriggerForm({ automations, trigger, onCancel, postSubmit
     defaultValues: {
       title: trigger?.title,
       trigger: trigger?.trigger ?? (cycles[0].value as TimerLifeCycle | undefined),
-      automationId: trigger?.automationId ?? automations?.[Object.keys(automations)[0]]?.id,
+      automationId: trigger?.automationId ?? automationId ?? automations?.[Object.keys(automations)[0]]?.id,
     },
     resetOptions: {
       keepDirtyValues: true,

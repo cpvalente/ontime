@@ -5,9 +5,9 @@ import { IoAdd } from 'react-icons/io5';
 import { deleteTrigger } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
-import Info from '../../../../common/components/info/Info';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
+import useAppSettingsNavigation from '../../useAppSettingsNavigation';
 import { checkDuplicates } from './automationUtils';
 import TriggerForm from './TriggerForm';
 import TriggersListItem from './TriggersListItem';
@@ -20,13 +20,13 @@ type FormState = {
 interface TriggersListProps {
   triggers: Trigger[];
   automations: NormalisedAutomation;
-  enabledAutomations?: boolean;
   isLoading: boolean;
 }
 
-export default function TriggersList({ triggers, automations, enabledAutomations, isLoading }: TriggersListProps) {
+export default function TriggersList({ triggers, automations, isLoading }: TriggersListProps) {
   const [formState, setFormState] = useState<FormState>({ isOpen: false, trigger: undefined });
   const { refetch } = useAutomationSettings();
+  const { setLocation } = useAppSettingsNavigation();
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const openNewForm = () => setFormState({ isOpen: true });
@@ -50,6 +50,10 @@ export default function TriggersList({ triggers, automations, enabledAutomations
   };
 
   const duplicates = useMemo(() => checkDuplicates(triggers), [triggers]);
+  const orphans = useMemo(
+    () => triggers.filter((trigger) => !Object.hasOwn(automations, trigger.automationId)).length,
+    [triggers, automations],
+  );
 
   // there is no point letting user creating a trigger if there are no automations
   const canAdd = Object.keys(automations).length > 0;
@@ -66,22 +70,28 @@ export default function TriggersList({ triggers, automations, enabledAutomations
           />
         )}
         <Panel.SubHeader>
-          Manage triggers
+          Global triggers
           <Button disabled={!canAdd} onClick={openNewForm}>
             New <IoAdd />
           </Button>
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
-          {enabledAutomations === false && (
-            <Info>
-              Automations are disabled. You can still manage triggers here, but they will not run until enabled.
-            </Info>
-          )}
+          <Panel.Description>
+            A global trigger runs an automation at a point in the timer lifecycle, whichever event is loaded. To run an
+            automation on one event only, add the trigger from the event editor instead.
+          </Panel.Description>
           {duplicates && (
             <Panel.Error>
-              You have created multiple links between the same trigger and automation which can cause performance
-              issues.
+              You have created multiple links between the same trigger and automation. Duplicate combinations will only
+              fire once per lifecycle event.
+            </Panel.Error>
+          )}
+          {orphans > 0 && (
+            <Panel.Error>
+              {orphans === 1
+                ? '1 trigger points at an automation that no longer exists and will never run.'
+                : `${orphans} triggers point at automations that no longer exist and will never run.`}
             </Panel.Error>
           )}
           <Panel.Table>
@@ -100,12 +110,16 @@ export default function TriggersList({ triggers, automations, enabledAutomations
                   description={
                     canAdd
                       ? 'Triggers run an automation at a given point of the timer lifecycle, like when an event starts or finishes.'
-                      : 'Create an automation first, then add a trigger to decide when it should run.'
+                      : 'A trigger needs an automation to run. Create the automation first, then come back and decide when it should run.'
                   }
                   action={
-                    canAdd && (
+                    canAdd ? (
                       <Button variant='primary' onClick={openNewForm}>
                         Create trigger <IoAdd />
+                      </Button>
+                    ) : (
+                      <Button variant='primary' onClick={() => setLocation('automation__automations')}>
+                        Go to automations
                       </Button>
                     )
                   }
