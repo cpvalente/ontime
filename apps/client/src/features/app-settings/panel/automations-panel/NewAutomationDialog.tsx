@@ -1,8 +1,8 @@
-import type { Automation } from 'ontime-types';
-import { useMemo, useState, type KeyboardEvent } from 'react';
+import type { Automation, TimerLifeCycle } from 'ontime-types';
+import { useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { IoAdd, IoArrowBack, IoChevronForward, IoClose, IoSearch } from 'react-icons/io5';
 
-import { addAutomation, addTrigger } from '../../../../common/api/automation';
+import { addAutomation, addTrigger, editAutomation } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
@@ -202,24 +202,42 @@ function RecipeSetup({ recipe, onClose, onBack, onCreated }: RecipeSetupProps) {
 
   const setValue = (name: string, value: string) => setValues((prev) => ({ ...prev, [name]: value }));
 
+  /**
+   * What this dialog has already put on the server.
+   *
+   * Creating takes one request per trigger on top of the automation itself, so a failure
+   * part way through leaves work already done. Recording it means pressing create again
+   * edits that automation and adds only the triggers still missing, rather than making a
+   * second automation and firing the same cycles twice.
+   */
+  const created = useRef<Automation | null>(null);
+  const createdCycles = useRef<Set<TimerLifeCycle>>(new Set());
+
   const handleCreate = async () => {
     setError(null);
     setIsCreating(true);
     try {
-      // the same two steps the automation form takes when it saves a new automation:
-      // the server generates the id, so the automation has to exist before a trigger can point at it
-      const created = await addAutomation(automation);
+      // the server generates the id, so the automation has to exist before a trigger points at it
+      const existing = created.current;
+      created.current = existing
+        ? await editAutomation(existing.id, { id: existing.id, ...automation })
+        : await addAutomation(automation);
+
       for (const cycle of recipe.triggers) {
+        if (createdCycles.current.has(cycle)) {
+          continue;
+        }
         await addTrigger({
           title: makeTriggerTitle(automation.title, cycle),
           trigger: cycle,
-          automationId: created.id,
+          automationId: created.current.id,
         });
+        createdCycles.current.add(cycle);
       }
-      onCreated(created);
+      onCreated(created.current);
     } catch (error) {
-      // a half created automation is visible in the list and flagged there, so say what
-      // happened and let the user finish it in the form rather than undoing their work
+      // what did land is a normal automation, visible in the list. Say what happened and let
+      // the user press create again rather than undoing work behind their back
       setError(maybeAxiosError(error));
     } finally {
       setIsCreating(false);
