@@ -6,8 +6,8 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Dialog from '../../../../common/components/dialog/Dialog';
 import Info from '../../../../common/components/info/Info';
-import { getLifecycleLabel } from '../../../../common/constants/timerLifecycle';
 import * as Panel from '../../panel-utils/PanelUtils';
+import { getLifecycleLabel } from './timerLifecycle';
 
 interface DeleteAutomationDialogProps {
   automation: Automation;

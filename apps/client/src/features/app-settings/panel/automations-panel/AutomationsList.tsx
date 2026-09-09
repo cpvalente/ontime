@@ -6,16 +6,15 @@ import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Info from '../../../../common/components/info/Info';
 import Tag from '../../../../common/components/tag/Tag';
-import { getLifecycleLabel } from '../../../../common/constants/timerLifecycle';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
-import { summariseOutputs } from '../../../../common/utils/automationOutputs';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
-import useAppSettingsNavigation from '../../useAppSettingsNavigation';
 import AutomationForm from './AutomationForm';
+import { summariseOutputs } from './automationOutputs';
 import { groupTriggersByAutomation, isAutomation } from './automationUtils';
 import DeleteAutomationDialog from './DeleteAutomationDialog';
 import NewAutomationDialog from './NewAutomationDialog';
+import { getLifecycleLabel } from './timerLifecycle';
 
 import style from './AutomationsList.module.scss';
 
@@ -40,7 +39,6 @@ export default function AutomationsList({
   isLoading,
 }: AutomationsListProps) {
   const { refetch } = useAutomationSettings();
-  const { setLocation } = useAppSettingsNavigation();
   const [editing, setEditing] = useState<Automation | AutomationDTO | null>(null);
   const [isPickingStart, setIsPickingStart] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Automation | null>(null);
@@ -103,14 +101,9 @@ export default function AutomationsList({
 
         <Panel.Section>
           {enabledAutomations === false && (
-            <Info type='warning'>
-              <Info.Body>Automations are off, so nothing in this list will run.</Info.Body>
-              <Info.Footer>
-                {/* the master switch is at the top of the panel, out of sight once the list has rows */}
-                <Button size='small' onClick={() => setLocation('automation__settings')}>
-                  Go to automation settings
-                </Button>
-              </Info.Footer>
+            <Info>
+              Automations are disabled. You can still manage automation definitions here, but they will not run until
+              enabled.
             </Info>
           )}
 

@@ -7,10 +7,10 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import Info from '../../../../common/components/info/Info';
 import Select from '../../../../common/components/select/Select';
 import Tag from '../../../../common/components/tag/Tag';
-import { getLifecycleLabel } from '../../../../common/constants/timerLifecycle';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
-import { summariseOutputs } from '../../../../common/utils/automationOutputs';
+import { summariseOutputs } from '../../../app-settings/panel/automations-panel/automationOutputs';
+import { getLifecycleLabel } from '../../../app-settings/panel/automations-panel/timerLifecycle';
 import { eventTriggerOptions } from './eventTrigger.constants';
 
 import style from './EventEditorTriggers.module.scss';

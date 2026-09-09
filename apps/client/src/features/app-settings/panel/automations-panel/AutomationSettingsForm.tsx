@@ -8,6 +8,7 @@ import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Switch from '../../../../common/components/switch/Switch';
 import Tag from '../../../../common/components/tag/Tag';
+import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
 import { isOntimeCloud } from '../../../../externals';
@@ -32,6 +33,7 @@ export default function AutomationSettingsForm({
   oscInputState,
   isLoading,
 }: AutomationSettingsProps) {
+  const { refetch } = useAutomationSettings();
   const {
     handleSubmit,
     reset,
@@ -52,6 +54,10 @@ export default function AutomationSettingsForm({
     try {
       await editAutomationSettings(formData);
       reset(formData);
+      // the rest of the panel reads these settings from the query, and the automations list
+      // greys itself out while they are off. Without this it keeps the stale answer until the
+      // slow poll comes round, so turning automations on appears to do nothing
+      await refetch();
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });

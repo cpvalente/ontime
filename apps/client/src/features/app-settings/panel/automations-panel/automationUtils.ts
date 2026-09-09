@@ -1,6 +1,6 @@
 import { Automation, AutomationDTO, AutomationFilter, CustomFields, TimerLifeCycle, Trigger } from 'ontime-types';
 
-import { getLifecycleLabel, lifecycleLabels } from '../../../../common/constants/timerLifecycle';
+import { getLifecycleLabel, lifecycleLabels } from './timerLifecycle';
 
 /**
  * Names a trigger created from an automation's lifecycle picker.

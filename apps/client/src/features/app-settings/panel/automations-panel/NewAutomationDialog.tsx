@@ -11,11 +11,10 @@ import Modal from '../../../../common/components/modal/Modal';
 import ScrollArea from '../../../../common/components/scroll-area/ScrollArea';
 import Select from '../../../../common/components/select/Select';
 import Tag from '../../../../common/components/tag/Tag';
-import { getLifecycleLabel } from '../../../../common/constants/timerLifecycle';
-import { summariseOutputs } from '../../../../common/utils/automationOutputs';
 import { cx } from '../../../../common/utils/styleUtils';
 import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
+import { summariseOutputs } from './automationOutputs';
 import {
   automationRecipes,
   defaultValues,
@@ -26,6 +25,7 @@ import {
   type RecipeValues,
 } from './automationRecipes';
 import { makeTriggerTitle } from './automationUtils';
+import { getLifecycleLabel } from './timerLifecycle';
 
 import style from './NewAutomationDialog.module.scss';
 
