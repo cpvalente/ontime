@@ -1,70 +1,119 @@
-import type { MouseEvent } from 'react';
-import { IoAdd, IoArrowUp, IoHelpCircleOutline, IoLocate, IoPause, IoPlay, IoRemove } from 'react-icons/io5';
+import type { MouseEvent, PropsWithChildren } from 'react';
+import {
+  IoAdd,
+  IoArrowDown,
+  IoArrowUp,
+  IoHelpCircleOutline,
+  IoLockClosed,
+  IoLockOpen,
+  IoPause,
+  IoPlay,
+  IoRemove,
+} from 'react-icons/io5';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useFadeOutOnInactivity } from '../../../common/hooks/useFadeOutOnInactivity';
 import { cx } from '../../../common/utils/styleUtils';
 import { SPEED_STEP } from '../teleprompter.scroll';
-import type { ParkedAt, TeleprompterController } from '../teleprompter.types';
+import type { ParkedAt, TeleprompterControlMode, TeleprompterController } from '../teleprompter.types';
 
 interface ControlOverlayProps {
   isRunning: boolean;
   speed: number;
-  canReengageFollow: boolean;
   parkedAt: ParkedAt;
   controller: TeleprompterController;
   onToggleHelp: () => void;
+  controlMode: TeleprompterControlMode;
+  onToggleControlMode: () => void;
+}
+
+interface ControlButtonProps {
+  label: string;
+  accessibleLabel: string;
+  onPress: () => void;
+  disabled?: boolean;
+  isActive?: boolean;
+  testId?: string;
+}
+
+function ControlButton({
+  label,
+  accessibleLabel,
+  onPress,
+  disabled,
+  isActive,
+  testId,
+  children,
+}: PropsWithChildren<ControlButtonProps>) {
+  // Pointer activation yields focus so the next Space reaches the transport.
+  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+    if (event.detail > 0) {
+      event.currentTarget.blur();
+    }
+    onPress();
+  };
+
+  return (
+    <Tooltip
+      text={label}
+      render={
+        <IconButton
+          variant={isActive ? 'primary' : 'subtle-white'}
+          size='large'
+          onClick={handleClick}
+          disabled={disabled}
+          data-testid={testId}
+          aria-label={accessibleLabel}
+        />
+      }
+    >
+      {children}
+    </Tooltip>
+  );
 }
 
 export default function ControlOverlay({
   isRunning,
   speed,
-  canReengageFollow,
   parkedAt,
   controller,
   onToggleHelp,
+  controlMode,
+  onToggleControlMode,
 }: ControlOverlayProps) {
   const isActive = useFadeOutOnInactivity(true);
-
-  // Pointer activation yields focus so the next Space reaches the transport.
-  const press = (action: () => void) => (event: MouseEvent<HTMLButtonElement>) => {
-    if (event.detail > 0) {
-      event.currentTarget.blur();
-    }
-    action();
-  };
+  const isControlled = controlMode === 'controlled';
 
   return (
     <div className={cx(['teleprompter__controls', !isActive && 'teleprompter__controls--idle'])}>
-      <Tooltip
-        text={isRunning ? 'Pause (Space)' : 'Play (Space)'}
-        render={
-          <IconButton
-            variant='subtle-white'
-            size='large'
-            onClick={press(controller.togglePlay)}
-            data-testid='teleprompter-play'
-            aria-label={isRunning ? 'Pause' : 'Play'}
-          />
-        }
+      <ControlButton
+        label={isControlled ? 'Switch to free mode' : 'Switch to controlled mode'}
+        accessibleLabel='Toggle control mode'
+        onPress={onToggleControlMode}
+        isActive={isControlled}
+      >
+        {isControlled ? <IoLockClosed /> : <IoLockOpen />}
+      </ControlButton>
+
+      <ControlButton
+        label={isRunning ? 'Pause (Space)' : 'Play (Space)'}
+        accessibleLabel={isRunning ? 'Pause' : 'Play'}
+        onPress={controller.togglePlay}
+        disabled={isControlled}
+        testId='teleprompter-play'
       >
         {isRunning ? <IoPause /> : <IoPlay />}
-      </Tooltip>
+      </ControlButton>
 
-      <Tooltip
-        text='Slow down (Left arrow)'
-        render={
-          <IconButton
-            variant='subtle-white'
-            size='large'
-            onClick={press(() => controller.changeSpeed(-SPEED_STEP))}
-            aria-label='Slow down'
-          />
-        }
+      <ControlButton
+        label='Slow down (Left arrow)'
+        accessibleLabel='Slow down'
+        onPress={() => controller.changeSpeed(-SPEED_STEP)}
+        disabled={isControlled}
       >
         <IoRemove />
-      </Tooltip>
+      </ControlButton>
 
       <div className='teleprompter__speed' data-testid='teleprompter-speed'>
         {speed}
@@ -77,63 +126,36 @@ export default function ControlOverlay({
         </span>
       )}
 
-      <Tooltip
-        text='Speed up (Right arrow)'
-        render={
-          <IconButton
-            variant='subtle-white'
-            size='large'
-            onClick={press(() => controller.changeSpeed(SPEED_STEP))}
-            aria-label='Speed up'
-          />
-        }
+      <ControlButton
+        label='Speed up (Right arrow)'
+        accessibleLabel='Speed up'
+        onPress={() => controller.changeSpeed(SPEED_STEP)}
+        disabled={isControlled}
       >
         <IoAdd />
-      </Tooltip>
+      </ControlButton>
 
-      <Tooltip
-        text='Rewind to the top (Home)'
-        render={
-          <IconButton
-            variant={parkedAt === 'script' ? 'primary' : 'subtle-white'}
-            size='large'
-            onClick={press(controller.rewind)}
-            aria-label='Rewind to top'
-          />
-        }
+      <ControlButton
+        label='Nudge up one line (Up arrow)'
+        accessibleLabel='Nudge up one line'
+        onPress={() => controller.nudge(-1)}
+        disabled={isControlled}
       >
         <IoArrowUp />
-      </Tooltip>
+      </ControlButton>
 
-      <Tooltip
-        text={canReengageFollow ? 'Resume following the loaded event (L)' : 'Following the loaded event'}
-        render={
-          <IconButton
-            variant={canReengageFollow ? 'primary' : 'subtle-white'}
-            size='large'
-            disabled={!canReengageFollow}
-            onClick={press(controller.reengageFollow)}
-            data-testid='teleprompter-follow'
-            aria-label='Follow the loaded event'
-          />
-        }
+      <ControlButton
+        label='Nudge down one line (Down arrow)'
+        accessibleLabel='Nudge down one line'
+        onPress={() => controller.nudge(1)}
+        disabled={isControlled}
       >
-        <IoLocate />
-      </Tooltip>
+        <IoArrowDown />
+      </ControlButton>
 
-      <Tooltip
-        text='Keyboard shortcuts (?)'
-        render={
-          <IconButton
-            variant='subtle-white'
-            size='large'
-            onClick={press(onToggleHelp)}
-            aria-label='Keyboard shortcuts'
-          />
-        }
-      >
+      <ControlButton label='Keyboard shortcuts (?)' accessibleLabel='Keyboard shortcuts' onPress={onToggleHelp}>
         <IoHelpCircleOutline />
-      </Tooltip>
+      </ControlButton>
     </div>
   );
 }

@@ -33,6 +33,7 @@ export const defaults = {
   readingLinePos: 25,
   flipH: false,
   flipV: false,
+  controlMode: 'free' as const,
 };
 
 const bounds = {
@@ -55,6 +56,17 @@ export const getTeleprompterOptions = (customFields: CustomFields): ViewOption[]
       title: OptionTitle.DataSources,
       collapsible: true,
       options: [
+        {
+          id: 'controlMode',
+          title: 'Control mode',
+          description: 'Free mode accepts local controls. Controlled mode accepts teleprompter API commands.',
+          type: 'option',
+          values: [
+            { value: 'free', label: 'Free' },
+            { value: 'controlled', label: 'Controlled' },
+          ],
+          defaultValue: defaults.controlMode,
+        },
         {
           id: 'script',
           title: 'Script',
@@ -219,6 +231,7 @@ export function getOptionsFromParams(
     readingLinePos: toNumber(getParam('readingLinePos'), bounds.readingLinePos, defaults.readingLinePos),
     flipH: toBoolean(getParam('flipH'), defaults.flipH),
     flipV: toBoolean(getParam('flipV'), defaults.flipV),
+    controlMode: toEnum(getParam('controlMode'), ['free', 'controlled'], defaults.controlMode),
   };
 }
 

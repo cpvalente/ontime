@@ -11,6 +11,7 @@ import {
   hasBrokenFollow,
   indexAtReadPoint,
   linesPerMinuteToPxPerSecond,
+  nudgeTargetFor,
   readPointForAnchor,
   type ScrollAnchor,
   segmentAfter,
@@ -408,10 +409,19 @@ export function useTeleprompterScroll({
       play,
       pause,
       togglePlay: () => (runningRef.current ? pause() : play()),
-      nudge: (lines: number) => {
+      nudge: (lines: number, options) => {
         const distance = lines * lineHeightRef.current;
-        pendingDeltaRef.current += distance;
-        addReaderDrift(distance);
+        const from = posRef.current + pendingDeltaRef.current;
+        const target = nudgeTargetFor(
+          from,
+          distance,
+          readingOffsetRef.current,
+          geometryRef.current,
+          maxScrollRef.current,
+        );
+        const delta = target - from;
+        pendingDeltaRef.current += delta;
+        if (!options?.preserveFollow) addReaderDrift(delta);
         setParkedAt(null);
       },
       page: (direction: 1 | -1) => {
@@ -443,7 +453,7 @@ export function useTeleprompterScroll({
         setAutoScrollLocked(false);
       },
     };
-  }, [addReaderDrift, setPlaybackRunning]);
+  }, [addReaderDrift, scrollTargetFor, setPlaybackRunning]);
 
   return {
     scrollerRef: attachScroller,
@@ -452,9 +462,7 @@ export function useTeleprompterScroll({
     controller,
     isRunning,
     speed,
-    // folds followLoaded in, so callers get one ready-to-use signal instead of
-    // a runtime flag they must remember to AND with the option themselves
-    canReengageFollow: followLoaded && autoScrollLocked,
+    isFollowingLoadedEvent: followLoaded && !autoScrollLocked,
     parkedAt,
   };
 }

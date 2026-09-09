@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { useViewParamsEditorStore } from '../../common/components/view-params-editor/viewParamsEditor.store';
 import { resolveTeleprompterAction } from './teleprompter.keymap';
-import type { TeleprompterAction, TeleprompterController } from './teleprompter.types';
+import type { TeleprompterAction, TeleprompterCommand, TeleprompterController } from './teleprompter.types';
 
 interface TeleprompterActionContext {
   controller: TeleprompterController;
@@ -14,6 +14,7 @@ interface TeleprompterActionContext {
 
 interface UseTeleprompterControlsArgs extends TeleprompterActionContext {
   isHelpOpen: boolean;
+  enabled?: boolean;
 }
 
 const ignoredTags = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
@@ -51,6 +52,19 @@ export function applyTeleprompterAction(action: TeleprompterAction, context: Tel
   }
 }
 
+export function applyTeleprompterCommand(command: TeleprompterCommand, controller: TeleprompterController) {
+  switch (command.type) {
+    case 'play':
+      return controller.play();
+    case 'pause':
+      return controller.pause();
+    case 'setSpeed':
+      return controller.setSpeed(command.linesPerMinute);
+    case 'nudge':
+      return controller.nudge(command.lines, { preserveFollow: true });
+  }
+}
+
 export function useTeleprompterControls(args: UseTeleprompterControlsArgs) {
   const argsRef = useRef(args);
   useEffect(() => {
@@ -66,6 +80,7 @@ export function useTeleprompterControls(args: UseTeleprompterControlsArgs) {
       if (useViewParamsEditorStore.getState().isOpen || argsRef.current.isHelpOpen) {
         return;
       }
+      if (argsRef.current.enabled === false) return;
 
       const action = resolveTeleprompterAction(event);
       if (!action) return;

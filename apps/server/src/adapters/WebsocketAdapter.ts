@@ -31,6 +31,7 @@ import { WebSocket, WebSocketServer } from 'ws';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
 import { logger } from '../classes/Logger.js';
 import { authenticateSocket } from '../middleware/authenticate.js';
+import { teleprompterService } from '../services/teleprompter-service/TeleprompterService.js';
 import { eventStore } from '../stores/EventStore.js';
 import getRandomName from '../utils/getRandomName.js';
 import type { IAdapter } from './IAdapter.js';
@@ -43,6 +44,7 @@ class SocketServer implements IAdapter {
 
   private wss: WebSocketServer | null;
   private readonly clients: Map<ClientId, Client>;
+  private readonly connections: Map<ClientId, WebSocket>;
   private lastConnection: Date | null = null;
   private shouldShowWelcome = true;
 
@@ -54,6 +56,7 @@ class SocketServer implements IAdapter {
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
     this.clients = new Map<ClientId, Client>();
+    this.connections = new Map<ClientId, WebSocket>();
     this.wss = null;
   }
 
@@ -83,6 +86,8 @@ class SocketServer implements IAdapter {
         origin: '',
         path: '',
       });
+      this.connections.set(clientId, ws);
+      teleprompterService.register(clientId);
 
       this.lastConnection = new Date();
       logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientName}`);
@@ -98,6 +103,8 @@ class SocketServer implements IAdapter {
 
       ws.on('close', () => {
         this.clients.delete(clientId);
+        this.connections.delete(clientId);
+        teleprompterService.remove(clientId);
         logger.info(LogOrigin.Client, `${this.clients.size} Connections with disconnected: ${clientName}`);
         this.sendClientList();
       });
@@ -114,7 +121,9 @@ class SocketServer implements IAdapter {
             }
             case MessageTag.ClientSet: {
               const previousData = this.getOrCreateClient(clientId);
-              const updatedClient = { ...previousData, ...payload };
+              const { teleprompter, ...clientPatch } = payload;
+              if (teleprompter) teleprompterService.report(clientId, teleprompter);
+              const updatedClient = { ...previousData, ...clientPatch };
               this.clients.set(clientId, updatedClient);
               if (this.shouldShowWelcome && updatedClient.path?.toLowerCase().includes('editor')) {
                 this.shouldShowWelcome = false;
@@ -185,12 +194,26 @@ class SocketServer implements IAdapter {
   }
 
   private sendClientList(): void {
-    const payload = Object.fromEntries(this.clients.entries());
+    const payload = Object.fromEntries(
+      this.clients
+        .entries()
+        .map(([clientId, client]) => [clientId, { ...client, teleprompter: teleprompterService.getState(clientId) }]),
+    );
     this.sendAsJson(MessageTag.ClientList, payload);
   }
 
   public getClientList(): ClientId[] {
     return Array.from(this.clients.keys());
+  }
+
+  public sendToClient<T extends MessageTag>(
+    target: ClientId,
+    tag: T,
+    payload: Extract<WsPacketToClient, { tag: T }>['payload'],
+  ) {
+    const client = this.connections.get(target);
+    if (!client || client.readyState !== WebSocket.OPEN) throw new Error(`Client "${target}" not found`);
+    client.send(JSON.stringify({ tag, payload }));
   }
 
   public renameClient(target: ClientId, name: string) {

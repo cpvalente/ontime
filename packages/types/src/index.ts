@@ -107,7 +107,7 @@ export type {
 export { MessageTag } from './api/websocket/data.type.js';
 export type { WsPacketToServer, WsPacketToClient } from './api/websocket/data.type.js';
 export { RefetchKey } from './api/websocket/refetch.type.js';
-export type { ApiAction, ApiActionTag, ApiResponse } from './api/websocket/api.type.js';
+export type { ApiAction, ApiActionTag, ApiResponse, TeleprompterCommand } from './api/websocket/api.type.js';
 // SERVER RUNTIME
 export { type Log, LogLevel, type LogMessage, LogOrigin } from './definitions/runtime/Logger.type.js';
 export { Playback } from './definitions/runtime/Playback.type.js';
@@ -125,7 +125,15 @@ export { type TimerState, TimerPhase } from './definitions/runtime/TimerState.ty
 export { type SimpleTimerState, SimplePlayback, SimpleDirection } from './definitions/runtime/AuxTimer.type.js';
 
 // CLIENT
-export type { Client, ClientList, ClientType } from './definitions/Clients.type.js';
+export type {
+  Client,
+  ClientList,
+  ClientType,
+  TeleprompterControlMode,
+  TeleprompterControlState,
+  TeleprompterParkedAt,
+  TeleprompterPlayback,
+} from './definitions/Clients.type.js';
 
 // TYPE UTILITIES
 export {

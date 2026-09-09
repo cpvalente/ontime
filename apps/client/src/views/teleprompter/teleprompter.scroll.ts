@@ -126,6 +126,24 @@ export function segmentEndFor(block: BlockGeometry, readingOffset: number): numb
   return block.top + block.height - readingOffset;
 }
 
+/** Applies a signed nudge within the section currently under the reading line. */
+export function nudgeTargetFor(
+  position: number,
+  distance: number,
+  readingOffset: number,
+  blocks: BlockGeometry[],
+  maxScroll: number,
+): number {
+  const index = indexAtReadPoint(position + readingOffset, blocks);
+  if (index === -1) return clamp(position + distance, 0, maxScroll);
+  const block = blocks[index];
+  return clamp(
+    position + distance,
+    Math.max(0, block.top - readingOffset),
+    Math.min(maxScroll, segmentEndFor(block, readingOffset)),
+  );
+}
+
 /**
  * The segment playback should run to, or null past the last one, where the end
  * of the script is the bound.

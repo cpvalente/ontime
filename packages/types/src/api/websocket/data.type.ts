@@ -2,6 +2,7 @@ import type { Client } from '../../definitions/Clients.type.js';
 import type { Log } from '../../definitions/runtime/Logger.type.js';
 import type { RuntimeStore } from '../../definitions/runtime/RuntimeStore.type.js';
 import type { MaybeNumber } from '../../utils/utils.type.js';
+import type { TeleprompterCommand } from './api.type.js';
 import type { RefetchKey } from './refetch.type.js';
 
 export enum MessageTag {
@@ -17,6 +18,7 @@ export enum MessageTag {
   Log = 'log',
   RuntimeData = 'runtime-data',
   Refetch = 'refetch',
+  TeleprompterCommand = 'teleprompter-command',
 }
 
 // CLIENT TO SERVER
@@ -35,6 +37,10 @@ type ListClientPacket = {
   payload: Record<string, Client>;
 };
 type RuntimePacket = { tag: MessageTag.RuntimeData; payload: Partial<RuntimeStore> };
+type TeleprompterCommandPacket = {
+  tag: MessageTag.TeleprompterCommand;
+  payload: { commandId: string; command: TeleprompterCommand };
+};
 
 type RefetchPacket = {
   tag: MessageTag.Refetch;
@@ -58,4 +64,5 @@ export type WsPacketToClient =
   | LogPacket
   | ListClientPacket
   | RuntimePacket
-  | RefetchPacket;
+  | RefetchPacket
+  | TeleprompterCommandPacket;
