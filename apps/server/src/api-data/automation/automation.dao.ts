@@ -87,9 +87,8 @@ export async function deleteTrigger(id: string): Promise<void> {
   const triggers = getAutomationTriggers();
   const index = triggers.findIndex((trigger) => trigger.id === id);
 
-  // ignore request if the trigger does not exist, as deleteAutomation does for the same reason:
-  // the caller asked for it to be gone and it is, and failing here makes a client that is
-  // reconciling several triggers unable to finish once another client removed one of them
+  // deleting is idempotent, as it is in deleteAutomation: the state the caller asked for
+  // already holds, and erroring would only punish a client that raced another one
   if (index === -1) {
     return;
   }

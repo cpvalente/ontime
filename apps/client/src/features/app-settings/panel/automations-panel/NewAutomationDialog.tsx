@@ -31,23 +31,21 @@ import style from './NewAutomationDialog.module.scss';
 
 interface NewAutomationDialogProps {
   onClose: () => void;
-  /** hands over to the full automation form for someone who wants to start empty */
-  onStartEmpty: () => void;
   onCreated: (automation: Automation) => void;
 }
 
 /**
- * The single entry point for making an automation.
+ * Builds a working automation for a known workflow.
  *
  * Two steps in one dialog rather than two stacked ones: pick a recipe, then answer only
  * what that recipe cannot know — where your gear is, how long the timer runs. Everything
  * else the recipe already decided, which is the point of having recipes at all.
  */
-export default function NewAutomationDialog({ onClose, onStartEmpty, onCreated }: NewAutomationDialogProps) {
+export default function NewAutomationDialog({ onClose, onCreated }: NewAutomationDialogProps) {
   const [selected, setSelected] = useState<AutomationRecipe | null>(null);
 
   return selected === null ? (
-    <RecipePicker onClose={onClose} onStartEmpty={onStartEmpty} onSelect={setSelected} />
+    <RecipePicker onClose={onClose} onSelect={setSelected} />
   ) : (
     <RecipeSetup recipe={selected} onClose={onClose} onBack={() => setSelected(null)} onCreated={onCreated} />
   );
@@ -66,11 +64,10 @@ function matches(recipe: AutomationRecipe, query: string): boolean {
 
 interface RecipePickerProps {
   onClose: () => void;
-  onStartEmpty: () => void;
   onSelect: (recipe: AutomationRecipe) => void;
 }
 
-function RecipePicker({ onClose, onStartEmpty, onSelect }: RecipePickerProps) {
+function RecipePicker({ onClose, onSelect }: RecipePickerProps) {
   const [query, setQuery] = useState('');
 
   const available = useMemo(
@@ -108,7 +105,7 @@ function RecipePicker({ onClose, onStartEmpty, onSelect }: RecipePickerProps) {
       showBackdrop
       showCloseButton
       size='compact'
-      title='New automation'
+      title='Start from a recipe'
       bodyElements={
         <div className={style.picker}>
           <div className={style.search}>
@@ -139,7 +136,7 @@ function RecipePicker({ onClose, onStartEmpty, onSelect }: RecipePickerProps) {
           {results.length === 0 && (
             <Panel.EmptyState
               title='No recipe matches that'
-              description='Try the name of the software, or start from an empty automation.'
+              description='Try the name of the software, or close this and build the automation yourself.'
             />
           )}
 
@@ -173,14 +170,7 @@ function RecipePicker({ onClose, onStartEmpty, onSelect }: RecipePickerProps) {
           </ScrollArea>
         </div>
       }
-      footerElements={
-        <>
-          <Button variant='ghosted-white' className={style.apart} onClick={onStartEmpty}>
-            Start from an empty automation
-          </Button>
-          <Button onClick={onClose}>Cancel</Button>
-        </>
-      }
+      footerElements={<Button onClick={onClose}>Cancel</Button>}
     />
   );
 }
@@ -203,12 +193,9 @@ function RecipeSetup({ recipe, onClose, onBack, onCreated }: RecipeSetupProps) {
   const setValue = (name: string, value: string) => setValues((prev) => ({ ...prev, [name]: value }));
 
   /**
-   * What this dialog has already put on the server.
-   *
-   * Creating takes one request per trigger on top of the automation itself, so a failure
-   * part way through leaves work already done. Recording it means pressing create again
-   * edits that automation and adds only the triggers still missing, rather than making a
-   * second automation and firing the same cycles twice.
+   * What this dialog has already put on the server: creating takes one request per trigger
+   * on top of the automation itself, so a second attempt edits what exists and adds only
+   * the triggers still missing, rather than making a duplicate that fires the same cycles twice.
    */
   const created = useRef<Automation | null>(null);
   const createdCycles = useRef<Set<TimerLifeCycle>>(new Set());
@@ -236,8 +223,8 @@ function RecipeSetup({ recipe, onClose, onBack, onCreated }: RecipeSetupProps) {
       }
       onCreated(created.current);
     } catch (error) {
-      // what did land is a normal automation, visible in the list. Say what happened and let
-      // the user press create again rather than undoing work behind their back
+      // whatever landed is a normal automation, visible in the list. Report the failure and
+      // leave the retry to the user rather than rolling back work behind their back
       setError(maybeAxiosError(error));
     } finally {
       setIsCreating(false);

@@ -118,8 +118,6 @@ describe('deleteTrigger()', () => {
   });
 
   it('ignores a trigger that is already gone', async () => {
-    // a client reconciling several triggers must not be stuck because another client
-    // removed one of them first: the end state it asked for is the one it gets
     const before = getAutomationTriggers();
     await expect(deleteTrigger('never-existed')).resolves.toBeUndefined();
     expect(getAutomationTriggers()).toEqual(before);

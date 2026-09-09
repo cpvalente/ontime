@@ -2,10 +2,7 @@ import { Automation, AutomationDTO, AutomationFilter, CustomFields, TimerLifeCyc
 
 import { getLifecycleLabel, lifecycleLabels } from './timerLifecycle';
 
-/**
- * Names a trigger created from an automation's lifecycle picker.
- * Shared so a trigger made by the form and one made by a recipe read the same in the list.
- */
+/** Names the trigger a recipe creates alongside its automation, so the pair is recognisable in the triggers list */
 export function makeTriggerTitle(automationTitle: string, cycle: TimerLifeCycle): string {
   return `${automationTitle} — ${getLifecycleLabel(cycle)}`;
 }
@@ -34,18 +31,11 @@ export const cycles: CycleLabel[] = [
   { id: 9, label: lifecycleLabels.onDanger, value: 'onDanger' },
 ];
 
-/**
- * Filter operators offered in the automation form
- * NOTE: not_contains is supported by the type and by the runtime, but the server
- * validation list omits it, so an automation using it cannot be saved.
- * It stays out of the UI until the server accepts it.
- */
+/** Filter operators offered in the automation form, phrased to read as a sentence in the filter summary */
 export const operators: Array<{ value: AutomationFilter['operator']; label: string }> = [
   { value: 'equals', label: 'equals' },
   { value: 'not_equals', label: 'does not equal' },
   { value: 'contains', label: 'contains' },
-  { value: 'greater_than', label: 'is greater than' },
-  { value: 'less_than', label: 'is less than' },
 ];
 
 /**
@@ -114,10 +104,7 @@ export function checkDuplicates(triggers: Trigger[]) {
   return duplicates.length > 0 ? duplicates : undefined;
 }
 
-/**
- * Groups the lifecycles each automation is bound to
- * Used to show when an automation runs, and to highlight the ones that never will
- */
+/** Collects the lifecycles each automation is bound to, so the list can show when it runs */
 export function groupTriggersByAutomation(triggers: Trigger[]): Record<string, TimerLifeCycle[]> {
   const grouped: Record<string, TimerLifeCycle[]> = {};
 

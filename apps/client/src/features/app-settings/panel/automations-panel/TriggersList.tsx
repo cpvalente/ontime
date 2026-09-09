@@ -78,8 +78,8 @@ export default function TriggersList({ triggers, automations, isLoading }: Trigg
         <Panel.Divider />
         <Panel.Section>
           <Panel.Description>
-            Triggers are managed from the automation itself. This list is for naming them, or for pointing several
-            differently named triggers at the same automation.
+            A global trigger runs an automation at a point in the timer lifecycle, whichever event is loaded. To run an
+            automation on one event only, add the trigger from the event editor instead.
           </Panel.Description>
           {duplicates && (
             <Panel.Error>
@@ -109,8 +109,8 @@ export default function TriggersList({ triggers, automations, isLoading }: Trigg
                   title='No triggers yet'
                   description={
                     canAdd
-                      ? 'Triggers run an automation at a given point of the timer lifecycle. The usual way to create one is to pick the lifecycles in the automation itself.'
-                      : 'Create an automation first, then pick the lifecycles it should run on.'
+                      ? 'Triggers run an automation at a given point of the timer lifecycle, like when an event starts or finishes.'
+                      : 'A trigger needs an automation to run. Create the automation first, then come back and decide when it should run.'
                   }
                   action={
                     canAdd ? (

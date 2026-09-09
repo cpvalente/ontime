@@ -1,18 +1,3 @@
-/**
- * The wide modal body does not scroll, so the form owns it.
- * Without this the form is simply clipped: four outputs is enough to put Save out of reach.
- */
-.form {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-
-.formScroll {
-  height: 100%;
-}
-
 .outerColumn {
   display: flex;
   flex-direction: column;
@@ -20,8 +5,6 @@
   font-size: calc(1rem - 1px);
   color: $ui-white;
   padding-block: 0.5rem;
-  // leaves the overlay scrollbar somewhere to sit without covering a field
-  padding-right: 0.5rem;
 
   h3 {
     font-size: 1rem;
@@ -83,9 +66,13 @@
   color: $secondary-text-gray;
 }
 
+/**
+ * Two columns, so fields that belong together sit on one row: a host and its port,
+ * a filter field and its operator. Anything wider than half a card opts out with spanFull
+ */
 .cardBody {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem 0.75rem;
   padding: 0.75rem;
 }

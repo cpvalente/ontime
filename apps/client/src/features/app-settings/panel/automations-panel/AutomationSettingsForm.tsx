@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { editAutomationSettings } from '../../../../common/api/automation';
@@ -50,13 +51,18 @@ export default function AutomationSettingsForm({
     },
   });
 
+  // the panel renders before the query resolves, so the form is seeded with placeholder
+  // settings. Take the loaded ones when they arrive, as the other settings panels do
+  useEffect(() => {
+    reset({ enabledAutomations, enabledOscIn, oscPortIn });
+  }, [enabledAutomations, enabledOscIn, oscPortIn, reset]);
+
   const onSubmit = async (formData: AutomationSettingsProps) => {
     try {
       await editAutomationSettings(formData);
       reset(formData);
-      // the rest of the panel reads these settings from the query, and the automations list
-      // greys itself out while they are off. Without this it keeps the stale answer until the
-      // slow poll comes round, so turning automations on appears to do nothing
+      // the rest of the panel reads these flags from the query, which is otherwise only
+      // refreshed on a slow poll: refetch so a toggle takes effect where it is visible
       await refetch();
     } catch (error) {
       const message = maybeAxiosError(error);

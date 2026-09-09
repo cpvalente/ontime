@@ -1,6 +1,6 @@
 import { TimerLifeCycle, Trigger } from 'ontime-types';
 
-import { checkDuplicates, cycles, groupTriggersByAutomation, operators } from '../automationUtils';
+import { checkDuplicates, cycles, groupTriggersByAutomation } from '../automationUtils';
 
 describe('checkDuplicates', () => {
   it('should return undefined if there are no duplicates', () => {
@@ -48,12 +48,6 @@ describe('groupTriggersByAutomation', () => {
     ];
 
     expect(groupTriggersByAutomation(triggers)).toEqual({ a: [TimerLifeCycle.onStart] });
-  });
-});
-
-describe('operators', () => {
-  it('does not offer not_contains, which the server validation rejects', () => {
-    expect(operators.map(({ value }) => value)).not.toContain('not_contains');
   });
 });
 

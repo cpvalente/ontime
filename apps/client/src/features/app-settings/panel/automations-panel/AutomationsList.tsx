@@ -1,6 +1,6 @@
 import { Automation, AutomationDTO, NormalisedAutomation, Trigger } from 'ontime-types';
 import { useMemo, useState } from 'react';
-import { IoAdd, IoPencil, IoTrash } from 'react-icons/io5';
+import { IoAdd, IoPencil, IoSparkles, IoTrash } from 'react-icons/io5';
 
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
@@ -15,6 +15,7 @@ import { groupTriggersByAutomation, isAutomation } from './automationUtils';
 import DeleteAutomationDialog from './DeleteAutomationDialog';
 import NewAutomationDialog from './NewAutomationDialog';
 import { getLifecycleLabel } from './timerLifecycle';
+import TriggerForm from './TriggerForm';
 
 import style from './AutomationsList.module.scss';
 
@@ -40,25 +41,27 @@ export default function AutomationsList({
 }: AutomationsListProps) {
   const { refetch } = useAutomationSettings();
   const [editing, setEditing] = useState<Automation | AutomationDTO | null>(null);
-  const [isPickingStart, setIsPickingStart] = useState(false);
+  const [isPickingRecipe, setIsPickingRecipe] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Automation | null>(null);
+  /** the automation a new global trigger should point at, set from the row that asked for it */
+  const [triggerTarget, setTriggerTarget] = useState<Automation | null>(null);
 
   const lifecyclesByAutomation = useMemo(() => groupTriggersByAutomation(triggers), [triggers]);
   const automationIds = Object.keys(automations);
 
   /** a recipe creates the automation itself, so it lands in the list rather than in a form */
   const handleCreated = async () => {
-    setIsPickingStart(false);
+    setIsPickingRecipe(false);
     await refetch();
-  };
-
-  const handleStartEmpty = () => {
-    setIsPickingStart(false);
-    setEditing(emptyAutomation);
   };
 
   const handleDeleted = async () => {
     setDeleteTarget(null);
+    await refetch();
+  };
+
+  const handleTriggerCreated = async () => {
+    setTriggerTarget(null);
     await refetch();
   };
 
@@ -67,19 +70,20 @@ export default function AutomationsList({
       <Panel.Card>
         {editing !== null && (
           <AutomationForm
-            // the form snapshots the automation's lifecycles on mount, so it must never be
-            // reused across two different automations
+            // the form seeds itself from the automation once, so it must never be reused across two of them
             key={isAutomation(editing) ? editing.id : 'new'}
             automation={editing}
-            triggers={triggers}
             onClose={() => setEditing(null)}
           />
         )}
-        {isPickingStart && (
-          <NewAutomationDialog
-            onClose={() => setIsPickingStart(false)}
-            onStartEmpty={handleStartEmpty}
-            onCreated={handleCreated}
+        {isPickingRecipe && <NewAutomationDialog onClose={() => setIsPickingRecipe(false)} onCreated={handleCreated} />}
+        {triggerTarget !== null && (
+          <TriggerForm
+            automations={automations}
+            trigger={null}
+            automationId={triggerTarget.id}
+            onCancel={() => setTriggerTarget(null)}
+            postSubmit={handleTriggerCreated}
           />
         )}
         {deleteTarget !== null && (
@@ -92,9 +96,14 @@ export default function AutomationsList({
         )}
         <Panel.SubHeader>
           Manage automations
-          <Button onClick={() => setIsPickingStart(true)}>
-            New <IoAdd />
-          </Button>
+          <Panel.InlineElements>
+            <Button onClick={() => setIsPickingRecipe(true)}>
+              Start from recipe <IoSparkles />
+            </Button>
+            <Button onClick={() => setEditing(emptyAutomation)}>
+              New <IoAdd />
+            </Button>
+          </Panel.InlineElements>
         </Panel.SubHeader>
 
         <Panel.Divider />
@@ -121,11 +130,16 @@ export default function AutomationsList({
               {!isLoading && automationIds.length === 0 && (
                 <Panel.TableEmpty
                   title='No automations yet'
-                  description='An automation sends OSC or HTTP messages, or runs an Ontime action, whenever a trigger fires. Start from a recipe to see one working.'
+                  description='An automation sends OSC or HTTP messages, or runs an Ontime action, whenever a trigger fires. A recipe fills one in for a known workflow, like a video switcher or a chat channel.'
                   action={
-                    <Button variant='primary' onClick={() => setIsPickingStart(true)}>
-                      New automation <IoAdd />
-                    </Button>
+                    <Panel.InlineElements>
+                      <Button variant='primary' onClick={() => setIsPickingRecipe(true)}>
+                        Start from recipe <IoSparkles />
+                      </Button>
+                      <Button onClick={() => setEditing(emptyAutomation)}>
+                        New automation <IoAdd />
+                      </Button>
+                    </Panel.InlineElements>
                   }
                 />
               )}
@@ -139,12 +153,14 @@ export default function AutomationsList({
                     <td>{automation.title}</td>
                     <td>
                       {/*
-                       * Only global triggers are visible here: an automation can also be attached to
-                       * single events, which live in the rundown. An empty cell is therefore not the
-                       * same as never running, so it says nothing rather than claiming that.
+                       * Only global triggers are listed here: an automation can also be attached to
+                       * single events, which live in the rundown. No global trigger therefore does not
+                       * mean it never runs, so the cell offers to add one rather than claiming anything.
                        */}
                       {lifecycles.length === 0 ? (
-                        <span className={style.muted}>—</span>
+                        <Button size='small' variant='subtle' onClick={() => setTriggerTarget(automation)}>
+                          Add trigger <IoAdd />
+                        </Button>
                       ) : (
                         <div className={style.tags}>
                           {lifecycles.map((cycle) => (
