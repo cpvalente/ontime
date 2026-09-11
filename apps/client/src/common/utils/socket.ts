@@ -42,6 +42,27 @@ import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
 
 let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
+type SocketListener = (payload: unknown) => void;
+
+const socketListeners = new Map<WsPacketToClient['tag'], Set<SocketListener>>();
+
+export function subscribeSocket<T extends WsPacketToClient['tag']>(
+  tag: T,
+  listener: (payload: Extract<WsPacketToClient, { tag: T }>['payload']) => void,
+) {
+  const listeners = socketListeners.get(tag) ?? new Set();
+  const socketListener = listener as SocketListener;
+  listeners.add(socketListener);
+  socketListeners.set(tag, listeners);
+  return () => {
+    listeners.delete(socketListener);
+  };
+}
+
+function notifySocketListeners(tag: WsPacketToClient['tag'], payload: unknown) {
+  socketListeners.get(tag)?.forEach((listener) => listener(payload));
+}
+
 const socketConfig = {
   reconnectBaseInterval: 1000, // 1 second
   reconnectMaxInterval: 30000, // 30 seconds
@@ -124,6 +145,10 @@ export const connectSocket = () => {
       }
 
       switch (tag) {
+        case MessageTag.TeleprompterCommand: {
+          notifySocketListeners(tag, payload);
+          break;
+        }
         case MessageTag.Pong: {
           const offset = (new Date().getTime() - new Date(payload).getTime()) * 0.5;
           patchRuntimeProperty('ping', offset);
