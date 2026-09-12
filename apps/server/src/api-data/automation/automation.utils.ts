@@ -72,6 +72,7 @@ const placeholderRegex = /{{(.*?)}}/g;
 
 /**
  * Parses a templated string to values in a nested object
+ * Prefix a variable with `url:` when its value must be safe inside a URL component.
  */
 export function parseTemplateNested(template: string, state: object, humanReadable = quickAliases): string {
   let parsedTemplate = template;
@@ -79,7 +80,9 @@ export function parseTemplateNested(template: string, state: object, humanReadab
 
   for (const match of matches) {
     const variableName = match[1];
-    const variableParts = variableName.split('.');
+    const shouldEncodeForUrl = variableName.startsWith('url:');
+    const propertyName = shouldEncodeForUrl ? variableName.slice(4) : variableName;
+    const variableParts = propertyName.split('.');
     let value: string | undefined = undefined;
 
     if (variableParts[0] === 'human') {
@@ -93,10 +96,10 @@ export function parseTemplateNested(template: string, state: object, humanReadab
       }
     } else {
       // we cast to string since this will be used in a string context
-      value = getPropertyFromPath(variableName, state) as string;
+      value = getPropertyFromPath(propertyName, state) as string;
     }
     if (value !== undefined) {
-      parsedTemplate = parsedTemplate.replace(match[0], value);
+      parsedTemplate = parsedTemplate.replace(match[0], shouldEncodeForUrl ? encodeURIComponent(value) : value);
     }
   }
 

@@ -4,6 +4,7 @@ import type {
   AutomationDTO,
   AutomationOutput,
   AutomationSettings,
+  AutomationTriggerDTO,
   Trigger,
   TriggerDTO,
 } from 'ontime-types';
@@ -57,16 +58,20 @@ export function deleteTrigger(id: string): Promise<void> {
 /**
  * HTTP request to create a new automation
  */
-export async function addAutomation(automation: AutomationDTO): Promise<Automation> {
-  const res = await axios.post(`${automationsPath}/automation`, automation);
+export async function addAutomation(automation: AutomationDTO, triggers: AutomationTriggerDTO[]): Promise<Automation> {
+  const res = await axios.post(`${automationsPath}/automation`, { ...automation, triggers });
   return res.data;
 }
 
 /**
  * HTTP request to update a automation
  */
-export async function editAutomation(id: string, automation: Automation): Promise<Automation> {
-  const res = await axios.put(`${automationsPath}/automation/${id}`, automation);
+export async function editAutomation(
+  id: string,
+  automation: Automation,
+  triggers?: AutomationTriggerDTO[],
+): Promise<Automation> {
+  const res = await axios.put(`${automationsPath}/automation/${id}`, { ...automation, triggers });
   return res.data;
 }
 

@@ -75,12 +75,18 @@ export async function deleteTrigger(req: Request, res: Response<void | ErrorResp
 
 export async function postAutomation(req: Request, res: Response<Automation | ErrorResponse>) {
   try {
-    const newAutomation = await automationDao.addAutomation({
-      title: req.body.title,
-      filterRule: req.body.filterRule,
-      filters: req.body.filters,
-      outputs: req.body.outputs,
-    });
+    const newAutomation = await automationDao.addAutomation(
+      {
+        title: req.body.title,
+        filterRule: req.body.filterRule,
+        filters: req.body.filters,
+        outputs: req.body.outputs,
+      },
+      req.body.triggers?.map(({ title, trigger }: { title: string; trigger: Trigger['trigger'] }) => ({
+        title: title.trim(),
+        trigger,
+      })),
+    );
     res.status(201).send(newAutomation);
   } catch (error) {
     const message = getErrorMessage(error);
@@ -90,12 +96,19 @@ export async function postAutomation(req: Request, res: Response<Automation | Er
 
 export async function editAutomation(req: Request, res: Response<Automation | ErrorResponse>) {
   try {
-    const newAutomation = await automationDao.editAutomation(req.params.id, {
-      title: req.body.title,
-      filterRule: req.body.filterRule,
-      filters: req.body.filters,
-      outputs: req.body.outputs,
-    });
+    const newAutomation = await automationDao.editAutomation(
+      req.params.id,
+      {
+        title: req.body.title,
+        filterRule: req.body.filterRule,
+        filters: req.body.filters,
+        outputs: req.body.outputs,
+      },
+      req.body.triggers?.map(({ title, trigger }: { title: string; trigger: Trigger['trigger'] }) => ({
+        title: title.trim(),
+        trigger,
+      })),
+    );
     res.status(200).send(newAutomation);
   } catch (error) {
     const message = getErrorMessage(error);
@@ -110,7 +123,7 @@ export async function deleteAutomation(req: Request, res: Response<void | ErrorR
     res.status(204).send();
   } catch (error) {
     const message = getErrorMessage(error);
-    res.status(400).send({ message });
+    res.status(message.startsWith('Unable to delete automation used in rundown:') ? 409 : 400).send({ message });
   }
 }
 

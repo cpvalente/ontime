@@ -44,6 +44,14 @@ describe('parseTemplateNested()', () => {
     const result = parseTemplateNested(testString, mockState);
     expect(result).toStrictEqual(expected);
   });
+
+  it('URL-encodes an explicitly marked variable', () => {
+    const result = parseTemplateNested('http://example.com/?title={{url:event.title}}', {
+      event: { title: 'Keynote & Roadmap #1' },
+    });
+
+    expect(result).toBe('http://example.com/?title=Keynote%20%26%20Roadmap%20%231');
+  });
 });
 
 describe('parseNestedTemplate() -> resolveAliasData()', () => {

@@ -2,6 +2,7 @@ import type {
   Automation,
   AutomationDTO,
   AutomationSettings,
+  AutomationTriggerDTO,
   NormalisedAutomation,
   ProjectRundowns,
   Trigger,
@@ -113,26 +114,69 @@ export async function deleteAll() {
 /**
  * Adds a validated automation to the store
  */
-export async function addAutomation(newAutomation: AutomationDTO): Promise<Automation> {
-  const automations = getAutomations();
+export async function addAutomation(
+  newAutomation: AutomationDTO,
+  newTriggers: AutomationTriggerDTO[] = [],
+): Promise<Automation> {
+  const automations = { ...getAutomations() };
   const id = getUniqueAutomationId(automations);
   automations[id] = { ...newAutomation, id };
-  await saveChanges({ automations });
+
+  const triggers = [...getAutomationTriggers()];
+  for (const newTrigger of newTriggers) {
+    triggers.push({ ...newTrigger, id: getUniqueTriggerId(triggers), automationId: id });
+  }
+
+  await saveChanges({ automations, triggers });
   return automations[id];
 }
 
 /**
  * Updates an existing automation with a new entry
  */
-export async function editAutomation(id: string, newAutomation: AutomationDTO): Promise<Automation> {
+export async function editAutomation(
+  id: string,
+  newAutomation: AutomationDTO,
+  requestedTriggers?: AutomationTriggerDTO[],
+): Promise<Automation> {
   const automations = getAutomations();
   if (!Object.hasOwn(automations, id)) {
     throw new Error(`Automation with id ${id} not found`);
   }
 
   automations[id] = { ...newAutomation, id };
-  await saveChanges({ automations });
+
+  if (requestedTriggers === undefined) {
+    await saveChanges({ automations });
+    return automations[id];
+  }
+
+  const triggers = replaceAutomationTriggers(getAutomationTriggers(), id, requestedTriggers);
+  await saveChanges({ automations, triggers });
   return automations[id];
+}
+
+function replaceAutomationTriggers(
+  triggers: Trigger[],
+  automationId: string,
+  requestedTriggers: AutomationTriggerDTO[],
+): Trigger[] {
+  const requestedCycles = new Set(requestedTriggers.map((trigger) => trigger.trigger));
+  const keptTriggers = triggers.filter(
+    (trigger) => trigger.automationId !== automationId || requestedCycles.has(trigger.trigger),
+  );
+  const existingCycles = new Set(
+    keptTriggers.filter((trigger) => trigger.automationId === automationId).map((trigger) => trigger.trigger),
+  );
+
+  for (const trigger of requestedTriggers) {
+    if (!existingCycles.has(trigger.trigger)) {
+      keptTriggers.push({ ...trigger, id: getUniqueTriggerId(keptTriggers), automationId });
+      existingCycles.add(trigger.trigger);
+    }
+  }
+
+  return keptTriggers;
 }
 
 /**
@@ -145,24 +189,18 @@ export async function deleteAutomation(projectRundowns: ProjectRundowns, automat
     return;
   }
 
-  // prevent deleting a automation that is in use in triggers
-  const triggers = getAutomationTriggers().filter((trigger) => trigger.automationId === automationId);
-  if (triggers.length) {
-    const firstTrigger = triggers[0];
-    const triggerTitle = firstTrigger?.title ?? 'Unknown trigger';
-    throw new Error(
-      `Unable to delete automation used in trigger ${triggerTitle}${triggers.length > 1 ? ` and ${triggers.length - 1} more` : ''}`,
-    );
-  }
-
-  // prevent deleting a automation that is in use in events
+  // prevent deleting an automation that is in use in events, the user has to unlink it there
   const isInUse = isAutomationUsed(projectRundowns, automationId);
   if (isInUse) {
     throw new Error(`Unable to delete automation used in rundown: ${isInUse[0]}, in event with ID: ${isInUse[1]}`);
   }
 
+  // a global trigger without its automation is dead data, so it goes with it.
+  // Both are written in a single patch, there is no state where one outlived the other
+  const triggers = getAutomationTriggers().filter((trigger) => trigger.automationId !== automationId);
+
   delete automations[automationId];
-  await saveChanges({ automations });
+  await saveChanges({ automations, triggers });
 }
 
 /**
