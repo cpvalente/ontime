@@ -53,18 +53,21 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
     direction: SimpleDirection.CountUp,
     duration: 0,
     playback: SimplePlayback.Stop,
+    name: '',
   },
   auxtimer2: {
     current: 0,
     direction: SimpleDirection.CountUp,
     duration: 0,
     playback: SimplePlayback.Stop,
+    name: '',
   },
   auxtimer3: {
     current: 0,
     direction: SimpleDirection.CountUp,
     duration: 0,
     playback: SimplePlayback.Stop,
+    name: '',
   },
   ping: 1,
 };

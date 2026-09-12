@@ -1,7 +1,8 @@
 import { Playback, TimerPhase, ViewSettings } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
-import { useAuxTimersTime, useStudioTimersSocket } from '../../common/hooks/useSocket';
+import { useAuxTimersName, useAuxTimersTime, useStudioTimersSocket } from '../../common/hooks/useSocket';
+import { getAuxTimerLabel } from '../../common/utils/auxTimerUtils';
 import { getOffsetState } from '../../common/utils/offset';
 import { cx } from '../../common/utils/styleUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
@@ -121,22 +122,23 @@ export default function StudioTimers({ viewSettings }: StudioTimersProps) {
 
 function StudioTimersAux() {
   const auxTimer = useAuxTimersTime();
+  const auxName = useAuxTimersName();
 
   return (
     <div className='card' id='card-aux'>
       <div className='card__row'>
         <div>
-          <div className='label'>Aux 1</div>
+          <div className='label'>{getAuxTimerLabel(auxName.aux1, 'Aux 1')}</div>
           <div className='extra'>{millisToString(auxTimer.aux1)}</div>
         </div>
 
         <div>
-          <div className='label center'>Aux 2</div>
+          <div className='label center'>{getAuxTimerLabel(auxName.aux2, 'Aux 2')}</div>
           <div className='extra center'>{millisToString(auxTimer.aux2)}</div>
         </div>
 
         <div>
-          <div className='label right'>Aux 3</div>
+          <div className='label right'>{getAuxTimerLabel(auxName.aux3, 'Aux 3')}</div>
           <div className='extra right'>{millisToString(auxTimer.aux3)}</div>
         </div>
       </div>

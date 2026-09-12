@@ -29,6 +29,7 @@ export const demoDb: DatabaseModel = {
     operatorKey: null,
     timeFormat: '24',
     language: 'en',
+    auxTimerNames: ['', '', ''],
   },
   viewSettings: {
     dangerColor: '#ff7300',

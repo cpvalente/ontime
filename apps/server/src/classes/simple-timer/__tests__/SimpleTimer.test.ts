@@ -16,6 +16,7 @@ describe('SimpleTimer count-down', () => {
         current: initialTime,
         direction: SimpleDirection.CountDown,
         playback: SimplePlayback.Stop,
+        name: '',
       };
       expect(newState).toStrictEqual(expected);
     });
@@ -27,6 +28,7 @@ describe('SimpleTimer count-down', () => {
         current: initialTime,
         direction: SimpleDirection.CountDown,
         playback: SimplePlayback.Start,
+        name: '',
       };
       expect(newState).toStrictEqual(expected);
     });
@@ -38,6 +40,7 @@ describe('SimpleTimer count-down', () => {
         current: initialTime - 100,
         direction: SimpleDirection.CountDown,
         playback: SimplePlayback.Start,
+        name: '',
       };
       expect(newState).toStrictEqual(expected);
 
@@ -58,6 +61,7 @@ describe('SimpleTimer count-down', () => {
         current: initialTime - 1500,
         direction: SimpleDirection.CountDown,
         playback: SimplePlayback.Pause,
+        name: '',
       };
       expect(newState).toStrictEqual(expected);
 
@@ -83,6 +87,7 @@ describe('SimpleTimer count-down', () => {
         current: initialTime,
         direction: SimpleDirection.CountDown,
         playback: SimplePlayback.Stop,
+        name: '',
       };
       expect(newState).toStrictEqual(expected);
     });
@@ -97,6 +102,7 @@ describe('SimpleTimer count-down', () => {
         current: initialTime,
         direction: SimpleDirection.CountUp,
         playback: SimplePlayback.Start,
+        name: '',
       };
 
       newState = timer.update(100);
@@ -127,6 +133,7 @@ describe('SimpleTimer count-down', () => {
         current: 1000,
         direction: SimpleDirection.CountUp,
         playback: SimplePlayback.Start,
+        name: '',
       });
 
       newState = timer.update(100);
@@ -135,6 +142,7 @@ describe('SimpleTimer count-down', () => {
         current: initialTime + 100,
         direction: SimpleDirection.CountUp,
         playback: SimplePlayback.Start,
+        name: '',
       });
 
       newState = timer.update(500);
@@ -143,6 +151,7 @@ describe('SimpleTimer count-down', () => {
         current: 1500,
         direction: SimpleDirection.CountUp,
         playback: SimplePlayback.Start,
+        name: '',
       });
 
       newState = timer.setDirection(SimpleDirection.CountDown, 600);
@@ -151,6 +160,7 @@ describe('SimpleTimer count-down', () => {
         current: 1500,
         direction: SimpleDirection.CountDown,
         playback: SimplePlayback.Start,
+        name: '',
       });
 
       newState = timer.update(700);
@@ -159,6 +169,7 @@ describe('SimpleTimer count-down', () => {
         current: 1400,
         direction: SimpleDirection.CountDown,
         playback: SimplePlayback.Start,
+        name: '',
       });
 
       newState = timer.setDirection(SimpleDirection.CountUp, 700);
@@ -167,6 +178,7 @@ describe('SimpleTimer count-down', () => {
         current: 1400,
         direction: SimpleDirection.CountUp,
         playback: SimplePlayback.Start,
+        name: '',
       });
 
       newState = timer.update(800);
@@ -175,6 +187,7 @@ describe('SimpleTimer count-down', () => {
         current: 1500,
         direction: SimpleDirection.CountUp,
         playback: SimplePlayback.Start,
+        name: '',
       });
     });
 

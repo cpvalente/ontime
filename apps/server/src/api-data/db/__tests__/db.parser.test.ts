@@ -90,4 +90,14 @@ describe('test parseDatabaseModel() edge cases', () => {
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
     expect(() => parseDatabaseModel('some random dataset')).toThrow();
   });
+
+  it('creates the aux timer names when importing a project file which predates the feature', () => {
+    const oldProject = structuredClone(demoDb);
+    // @ts-expect-error -- simulating a project file saved before aux timer naming existed
+    delete oldProject.settings.auxTimerNames;
+
+    const { data } = parseDatabaseModel(oldProject);
+
+    expect(data.settings.auxTimerNames).toStrictEqual(['', '', '']);
+  });
 });
