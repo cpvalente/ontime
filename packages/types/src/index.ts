@@ -34,6 +34,7 @@ export type {
   AutomationDTO,
   AutomationFilter,
   AutomationSettings,
+  AutomationTriggerDTO,
   AutomationOutput,
   FilterRule,
   HTTPOutput,

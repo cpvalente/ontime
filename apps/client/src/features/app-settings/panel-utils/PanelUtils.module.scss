@@ -82,10 +82,12 @@ $card-padding: 2rem;
   color: $error-red;
 }
 
-// tables scroll with the panel rather than owning a nested scroll area,
-// which keeps the sticky table head anchored to the panel viewport
+// Tables retain the panel's vertical scroll so sticky headers remain anchored
+// to the panel viewport. They may scroll horizontally when their columns need
+// more room than a narrow settings panel can provide.
 .pad {
   padding: 0 var(--panel-card-padding, #{$card-padding});
+  overflow-x: auto;
 }
 
 .table {

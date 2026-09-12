@@ -1,0 +1,23 @@
+.table {
+  min-width: 42rem;
+
+  td {
+    vertical-align: middle;
+  }
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.actions {
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+
+.muted {
+  color: $muted-gray;
+}

@@ -33,6 +33,9 @@ export type Trigger = {
 
 export type TriggerDTO = Omit<Trigger, 'id'>;
 
+/** A global trigger whose automation ID is assigned during automation creation. */
+export type AutomationTriggerDTO = Omit<TriggerDTO, 'automationId'>;
+
 export type AutomationFilter = {
   field: string; // this should be a key of a OntimeEvent + custom fields
   operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains' | 'not_contains';

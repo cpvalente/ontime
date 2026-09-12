@@ -1,17 +1,30 @@
-import { parseOutput } from '../automation.validation.js';
+import { parseAutomationTriggers, parseOutput } from '../automation.validation.js';
+
+describe('parseAutomationTriggers', () => {
+  it('accepts trigger descriptors without an automation ID', () => {
+    expect(parseAutomationTriggers([{ title: 'Start', trigger: 'onStart' }])).toEqual([
+      { title: 'Start', trigger: 'onStart' },
+    ]);
+  });
+
+  it('rejects incomplete or unknown trigger descriptors', () => {
+    expect(() => parseAutomationTriggers([{ trigger: 'onStart' }])).toThrow();
+    expect(() => parseAutomationTriggers([{ title: 'Start', trigger: 'unknown' }])).toThrow();
+  });
+});
 
 describe('parseOutput', () => {
   describe('handles OSC outputs', () => {
     it('parses a valid payload', () => {
       const payload = {
         type: 'osc',
-        targetIP: 'localhost',
+        targetIP: ' qlab ',
         targetPort: 1234,
         address: '/test',
         args: 'test',
       };
       const result = parseOutput(payload);
-      expect(result).toStrictEqual(payload);
+      expect(result).toStrictEqual({ ...payload, targetIP: 'qlab' });
     });
 
     it('throws on a invalid payload', () => {
@@ -23,6 +36,33 @@ describe('parseOutput', () => {
         args: 'test',
       };
       expect(() => parseOutput(payload)).toThrow('Unexpected payload type:');
+    });
+
+    it('rejects invalid targets and ports', () => {
+      expect(() =>
+        parseOutput({ type: 'osc', targetIP: 'not a host', targetPort: 53000, address: '/test', args: '' }),
+      ).toThrow('Invalid OSC target');
+      expect(() =>
+        parseOutput({ type: 'osc', targetIP: '127.0.0.1', targetPort: 70000, address: '/test', args: '' }),
+      ).toThrow('Invalid OSC port');
+      expect(() =>
+        parseOutput({ type: 'osc', targetIP: '127.0.0.1', targetPort: 0, address: '/test', args: '' }),
+      ).toThrow('Invalid OSC port');
+      expect(() =>
+        parseOutput({ type: 'osc', targetIP: '::1', targetPort: 53000, address: '/test', args: '' }),
+      ).toThrow('Invalid OSC target');
+    });
+
+    it('allows runtime templates in a target hostname', () => {
+      expect(
+        parseOutput({
+          type: 'osc',
+          targetIP: '{{eventNow.custom.oscTarget}}',
+          targetPort: 53000,
+          address: '/test',
+          args: '',
+        }),
+      ).toMatchObject({ targetIP: '{{eventNow.custom.oscTarget}}' });
     });
   });
   describe('handles HTTP outputs', () => {
@@ -40,6 +80,18 @@ describe('parseOutput', () => {
         type: 'http',
       };
       expect(() => parseOutput(payload)).toThrow('Unexpected payload type:');
+    });
+
+    it('rejects malformed and unsupported URLs', () => {
+      expect(() => parseOutput({ type: 'http', url: 'localhost:3000/hook' })).toThrow('Invalid HTTP URL');
+      expect(() => parseOutput({ type: 'http', url: 'ftp://example.com/hook' })).toThrow('Invalid HTTP URL');
+    });
+
+    it('allows runtime templates in HTTP URLs', () => {
+      expect(parseOutput({ type: 'http', url: 'http://{{eventNow.customFields.webhookHost}}/hook' })).toEqual({
+        type: 'http',
+        url: 'http://{{eventNow.customFields.webhookHost}}/hook',
+      });
     });
   });
   describe('handles Ontime outputs', () => {
