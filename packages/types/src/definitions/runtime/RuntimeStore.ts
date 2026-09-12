@@ -24,6 +24,7 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
       blink: false,
       blackout: false,
       secondarySource: null,
+      secondaryPlacement: 'below',
     },
     secondary: '',
   },
