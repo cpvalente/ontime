@@ -22,7 +22,6 @@ import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Modal from '../../../../common/components/modal/Modal';
 import RadioGroup from '../../../../common/components/radio-group/RadioGroup';
-import ScrollArea from '../../../../common/components/scroll-area/ScrollArea';
 import Select from '../../../../common/components/select/Select';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
@@ -245,11 +244,10 @@ export default function AutomationForm({ automation, triggers = [], onClose }: A
       onClose={onClose}
       showBackdrop
       showCloseButton
-      size='wide'
       title={isEdit ? 'Edit automation' : 'Create automation'}
       bodyElements={
-        <form id={formId} onSubmit={handleSubmit(onSubmit)} className={style.form}>
-          <ScrollArea className={style.formScroll} contentClassName={style.outerColumn}>
+        <form id={formId} onSubmit={handleSubmit(onSubmit)}>
+          <div className={style.outerColumn}>
             <div className={style.innerColumn}>
               <h3>Automation options</h3>
               <div className={style.titleSection}>
@@ -474,7 +472,7 @@ export default function AutomationForm({ automation, triggers = [], onClose }: A
                 </DropdownMenu>
               </div>
             </div>
-          </ScrollArea>
+          </div>
         </form>
       }
       footerElements={

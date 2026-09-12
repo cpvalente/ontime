@@ -5,12 +5,15 @@ import { IoAdd } from 'react-icons/io5';
 import { deleteTrigger } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
+import Info from '../../../../common/components/info/Info';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
 import useAppSettingsNavigation from '../../useAppSettingsNavigation';
 import { checkDuplicates } from './automationUtils';
 import TriggerForm from './TriggerForm';
 import TriggersListItem from './TriggersListItem';
+
+import style from './TriggersList.module.scss';
 
 type FormState = {
   isOpen: boolean;
@@ -77,10 +80,9 @@ export default function TriggersList({ triggers, automations, isLoading }: Trigg
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
-          <Panel.Description>
-            Triggers are managed from the automation itself. This list is for naming them, or for pointing several
-            differently named triggers at the same automation.
-          </Panel.Description>
+          <Info>
+            <Info.Body>Actions in this section affect the entire project runtime, not just a single event.</Info.Body>
+          </Info>
           {duplicates && (
             <Panel.Error>
               You have created multiple links between the same trigger and automation. Duplicate combinations will only
@@ -94,7 +96,7 @@ export default function TriggersList({ triggers, automations, isLoading }: Trigg
                 : `${orphans} triggers point at automations that no longer exist and will never run.`}
             </Panel.Error>
           )}
-          <Panel.Table>
+          <Panel.Table className={style.table}>
             <thead>
               <tr>
                 <th style={{ width: '35%' }}>Title</th>

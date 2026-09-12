@@ -1,5 +1,9 @@
-.table td {
-  vertical-align: middle;
+.table {
+  min-width: 42rem;
+
+  td {
+    vertical-align: middle;
+  }
 }
 
 .tags {

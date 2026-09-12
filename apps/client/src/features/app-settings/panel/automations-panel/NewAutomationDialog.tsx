@@ -89,7 +89,7 @@ function RecipePicker({ onClose, onStartEmpty, onSelect }: RecipePickerProps) {
       onClose={onClose}
       showBackdrop
       showCloseButton
-      size='compact'
+      size='default'
       title='New automation'
       bodyElements={
         <div className={style.picker}>
@@ -210,7 +210,6 @@ function RecipeSetup({ recipe, onClose, onBack, onCreated }: RecipeSetupProps) {
       onClose={onClose}
       showBackdrop
       showCloseButton
-      size='compact'
       title={recipe.title}
       bodyElements={
         <div className={style.setup}>
@@ -262,10 +261,6 @@ function RecipeSetup({ recipe, onClose, onBack, onCreated }: RecipeSetupProps) {
               ))}
             </div>
           )}
-
-          <Panel.Description>
-            Created as a normal automation, which you can edit or delete like any other.
-          </Panel.Description>
         </div>
       }
       footerElements={
