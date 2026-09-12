@@ -1,6 +1,8 @@
-import { body, oneOf, param } from 'express-validator';
+import { isIP } from 'node:net';
+
+import { body, param } from 'express-validator';
 import {
-  Automation,
+  AutomationDTO,
   AutomationFilter,
   AutomationOutput,
   HTTPOutput,
@@ -56,7 +58,7 @@ export const validateAutomationPatch = [
 /**
  * Parses and validates a use given automation
  */
-export function parseAutomation(maybeAutomation: unknown): Automation {
+export function parseAutomation(maybeAutomation: unknown): AutomationDTO {
   assert.isObject(maybeAutomation);
   assert.hasKeys(maybeAutomation, ['title', 'filterRule', 'filters', 'outputs']);
 
@@ -70,12 +72,12 @@ export function parseAutomation(maybeAutomation: unknown): Automation {
   validateFilters(filters);
 
   assert.isArray(outputs);
-  validateOutput(outputs);
+  const parsedOutputs = outputs.map(parseOutput);
 
-  return maybeAutomation as Automation;
+  return { title, filterRule, filters, outputs: parsedOutputs };
 }
 
-function validateFilters(filters: Array<unknown>): filters is AutomationFilter[] {
+function validateFilters(filters: Array<unknown>): asserts filters is AutomationFilter[] {
   filters.forEach((condition) => {
     assert.isObject(condition);
 
@@ -92,47 +94,9 @@ function validateFilters(filters: Array<unknown>): filters is AutomationFilter[]
       throw new Error(`Invalid automation: unhandled filter type ${typeof value}`);
     }
   });
-  return true;
 }
 
-function validateOutput(output: Array<unknown>): output is AutomationOutput[] {
-  output.forEach((payload) => {
-    parseOutput(payload);
-  });
-  return true;
-}
-
-export const validateTestPayload = [
-  body('type').isIn(['osc', 'http', 'ontime']),
-
-  // validation for OSC message
-  oneOf([
-    body('targetIP').if(body('type').equals('osc')).isIP(),
-    body('targetIP').if(body('type').equals('osc')).isFQDN(),
-    body('targetIP').if(body('type').equals('osc')).equals('localhost'),
-  ]),
-  body('targetPort').if(body('type').equals('osc')).isPort(),
-  body('address').if(body('type').equals('osc')).isString().trim(),
-  body('args').if(body('type').equals('osc')).isString().trim(),
-
-  // validation for HTTP message
-  body('url').if(body('type').equals('http')).isURL({ require_tld: false }).trim(),
-
-  // validation for Ontime actions
-  body('action').if(body('type').equals('ontime')).isString().trim(),
-  body('text').if(body('type').equals('ontime')).optional().isString().trim(),
-  body('time').if(body('type').equals('ontime')).optional().isString().trim(),
-  body('visible').if(body('type').equals('ontime')).optional().isBoolean(),
-  // secondary source can be a enum case or null to clear it
-  body('secondarySource')
-    .if(body('type').equals('ontime'))
-    .optional({ nullable: true })
-    .if((value) => value !== null)
-    .isString()
-    .trim(),
-
-  requestValidationFunction,
-];
+export const validateTestPayload = [body().custom(parseOutput), requestValidationFunction];
 
 /**
  * Sanitises an output object
@@ -163,9 +127,25 @@ function parseOSCOutput(maybeOSCOutput: object): OSCOutput {
   assert.isString(maybeOSCOutput.address);
   assert.isString(maybeOSCOutput.args);
 
+  const targetIP = maybeOSCOutput.targetIP.trim();
+  const target = replaceAutomationTemplates(targetIP, 'template.local');
+  const isHostname = /^(?=.{1,253}$)[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?)*$/i.test(
+    target,
+  );
+  if (isIP(target) !== 4 && !isHostname) {
+    throw new Error('Invalid OSC target');
+  }
+  if (
+    !Number.isInteger(maybeOSCOutput.targetPort) ||
+    maybeOSCOutput.targetPort < 1 ||
+    maybeOSCOutput.targetPort > 65535
+  ) {
+    throw new Error('Invalid OSC port');
+  }
+
   return {
     type: 'osc',
-    targetIP: maybeOSCOutput.targetIP,
+    targetIP,
     targetPort: maybeOSCOutput.targetPort,
     address: maybeOSCOutput.address,
     args: maybeOSCOutput.args,
@@ -176,10 +156,30 @@ function parseHTTPOutput(maybeHTTPOutput: object): HTTPOutput {
   assert.hasKeys(maybeHTTPOutput, ['url']);
   assert.isString(maybeHTTPOutput.url);
 
+  try {
+    const url = new URL(replaceHTTPTemplatesForValidation(maybeHTTPOutput.url));
+    if ((url.protocol !== 'http:' && url.protocol !== 'https:') || !url.hostname) {
+      throw new Error('Invalid HTTP URL');
+    }
+  } catch {
+    throw new Error('Invalid HTTP URL');
+  }
+
   return {
     type: 'http',
     url: maybeHTTPOutput.url,
   };
+}
+
+function replaceAutomationTemplates(value: string, replacement: string): string {
+  return value.replace(/{{.*?}}/g, replacement);
+}
+
+function replaceHTTPTemplatesForValidation(value: string): string {
+  if (/^{{.*?}}$/.test(value)) {
+    return 'https://template.local';
+  }
+  return replaceAutomationTemplates(value, 'template');
 }
 
 function parseOntimeAction(maybeOntimeAction: object): OntimeAction {

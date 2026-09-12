@@ -6,7 +6,7 @@ import { oscServer } from '../../adapters/OscAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import * as automationDao from './automation.dao.js';
 import * as automationService from './automation.service.js';
-import { parseOutput } from './automation.validation.js';
+import { parseAutomation, parseOutput } from './automation.validation.js';
 
 export function getAutomationSettings(_req: Request, res: Response<AutomationSettings>) {
   res.status(200).json(automationDao.getAutomationSettings());
@@ -75,12 +75,8 @@ export async function deleteTrigger(req: Request, res: Response<void | ErrorResp
 
 export async function postAutomation(req: Request, res: Response<Automation | ErrorResponse>) {
   try {
-    const newAutomation = await automationDao.addAutomation({
-      title: req.body.title,
-      filterRule: req.body.filterRule,
-      filters: req.body.filters,
-      outputs: req.body.outputs,
-    });
+    const automation = parseAutomation(req.body);
+    const newAutomation = await automationDao.addAutomation(automation);
     res.status(201).send(newAutomation);
   } catch (error) {
     const message = getErrorMessage(error);
@@ -90,12 +86,8 @@ export async function postAutomation(req: Request, res: Response<Automation | Er
 
 export async function editAutomation(req: Request, res: Response<Automation | ErrorResponse>) {
   try {
-    const newAutomation = await automationDao.editAutomation(req.params.id, {
-      title: req.body.title,
-      filterRule: req.body.filterRule,
-      filters: req.body.filters,
-      outputs: req.body.outputs,
-    });
+    const automation = parseAutomation(req.body);
+    const newAutomation = await automationDao.editAutomation(req.params.id, automation);
     res.status(200).send(newAutomation);
   } catch (error) {
     const message = getErrorMessage(error);

@@ -5,13 +5,13 @@ describe('parseOutput', () => {
     it('parses a valid payload', () => {
       const payload = {
         type: 'osc',
-        targetIP: 'localhost',
+        targetIP: ' qlab ',
         targetPort: 1234,
         address: '/test',
         args: 'test',
       };
       const result = parseOutput(payload);
-      expect(result).toStrictEqual(payload);
+      expect(result).toStrictEqual({ ...payload, targetIP: 'qlab' });
     });
 
     it('throws on a invalid payload', () => {
@@ -23,6 +23,33 @@ describe('parseOutput', () => {
         args: 'test',
       };
       expect(() => parseOutput(payload)).toThrow('Unexpected payload type:');
+    });
+
+    it('rejects invalid targets and ports', () => {
+      expect(() =>
+        parseOutput({ type: 'osc', targetIP: 'not a host', targetPort: 53000, address: '/test', args: '' }),
+      ).toThrow('Invalid OSC target');
+      expect(() =>
+        parseOutput({ type: 'osc', targetIP: '127.0.0.1', targetPort: 70000, address: '/test', args: '' }),
+      ).toThrow('Invalid OSC port');
+    });
+
+    it('allows runtime templates in a target hostname', () => {
+      expect(
+        parseOutput({
+          type: 'osc',
+          targetIP: '{{eventNow.custom.oscTarget}}',
+          targetPort: 53000,
+          address: '/test',
+          args: '',
+        }),
+      ).toMatchObject({ targetIP: '{{eventNow.custom.oscTarget}}' });
+    });
+
+    it('rejects IPv6 targets', () => {
+      expect(() =>
+        parseOutput({ type: 'osc', targetIP: '::1', targetPort: 53000, address: '/test', args: '' }),
+      ).toThrow('Invalid OSC target');
     });
   });
   describe('handles HTTP outputs', () => {
@@ -40,6 +67,25 @@ describe('parseOutput', () => {
         type: 'http',
       };
       expect(() => parseOutput(payload)).toThrow('Unexpected payload type:');
+    });
+
+    it('rejects malformed and unsupported URLs', () => {
+      expect(() => parseOutput({ type: 'http', url: 'localhost:3000/hook' })).toThrow('Invalid HTTP URL');
+      expect(() => parseOutput({ type: 'http', url: 'ftp://example.com/hook' })).toThrow('Invalid HTTP URL');
+    });
+
+    it('allows runtime templates in HTTP URLs', () => {
+      expect(parseOutput({ type: 'http', url: 'http://{{eventNow.customFields.webhookHost}}/hook' })).toEqual({
+        type: 'http',
+        url: 'http://{{eventNow.customFields.webhookHost}}/hook',
+      });
+    });
+
+    it('allows a runtime template for a complete HTTP URL', () => {
+      expect(parseOutput({ type: 'http', url: '{{eventNow.customFields.webhookUrl}}' })).toEqual({
+        type: 'http',
+        url: '{{eventNow.customFields.webhookUrl}}',
+      });
     });
   });
   describe('handles Ontime outputs', () => {
