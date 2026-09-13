@@ -1,4 +1,4 @@
-import { AutomationDTO, NormalisedAutomation } from 'ontime-types';
+import { AutomationDTO, NormalisedAutomation, TimerLifeCycle } from 'ontime-types';
 import { Fragment, useState } from 'react';
 import { IoAdd, IoPencil, IoTrash } from 'react-icons/io5';
 
@@ -9,9 +9,11 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import Info from '../../../../common/components/info/Info';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
+import useAutomationUsage from '../../../../common/hooks-query/useAutomationUsage';
 import { summariseOutputs } from '../../../../common/utils/automationOutputs';
 import * as Panel from '../../panel-utils/PanelUtils';
 import AutomationForm from './AutomationForm';
+import RecipeLibraryModal from './RecipeLibraryModal';
 
 import style from './AutomationsList.module.scss';
 
@@ -30,7 +32,10 @@ interface AutomationsListProps {
 
 export default function AutomationsList({ automations, enabledAutomations, isLoading }: AutomationsListProps) {
   const { refetch } = useAutomationSettings();
+  const { data: usage, refetch: refetchUsage } = useAutomationUsage();
   const [automationFormData, setAutomationFormData] = useState<AutomationDTO | null>(null);
+  const [initialLifecycles, setInitialLifecycles] = useState<TimerLifeCycle[]>([]);
+  const [isRecipeLibraryOpen, setIsRecipeLibraryOpen] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
@@ -41,6 +46,7 @@ export default function AutomationsList({ automations, enabledAutomations, isLoa
       setDeleteError(maybeAxiosError(error));
     } finally {
       refetch();
+      refetchUsage();
     }
   };
 
@@ -50,13 +56,33 @@ export default function AutomationsList({ automations, enabledAutomations, isLoa
     <Panel.Section>
       <Panel.Card>
         {automationFormData !== null && (
-          <AutomationForm automation={automationFormData} onClose={() => setAutomationFormData(null)} />
+          <AutomationForm
+            automation={automationFormData}
+            initialLifecycles={initialLifecycles}
+            onClose={() => setAutomationFormData(null)}
+          />
+        )}
+        {isRecipeLibraryOpen && (
+          <RecipeLibraryModal
+            onClose={() => setIsRecipeLibraryOpen(false)}
+            onSelect={(automation, lifecycles) => {
+              setInitialLifecycles(lifecycles);
+              setAutomationFormData(automation);
+              setIsRecipeLibraryOpen(false);
+            }}
+          />
         )}
         <Panel.SubHeader>
           Manage automations
-          <Button onClick={() => setAutomationFormData(automationPlaceholder)}>
+          <Button
+            onClick={() => {
+              setInitialLifecycles([]);
+              setAutomationFormData(automationPlaceholder);
+            }}
+          >
             New <IoAdd />
           </Button>
+          <Button onClick={() => setIsRecipeLibraryOpen(true)}>Recipes</Button>
         </Panel.SubHeader>
 
         <Panel.Divider />
@@ -75,6 +101,7 @@ export default function AutomationsList({ automations, enabledAutomations, isLoa
                 <th style={{ width: '15%' }}>Filter rule</th>
                 <th style={{ width: '15%' }}>Filters</th>
                 <th style={{ width: '15%' }}>Sends</th>
+                <th style={{ width: '10%' }}>Usage</th>
                 <th />
               </tr>
             </thead>
@@ -84,7 +111,13 @@ export default function AutomationsList({ automations, enabledAutomations, isLoa
                   title='No automations yet'
                   description='Create a reusable definition, then attach it to a global or an event trigger.'
                   action={
-                    <Button variant='primary' onClick={() => setAutomationFormData(automationPlaceholder)}>
+                    <Button
+                      variant='primary'
+                      onClick={() => {
+                        setInitialLifecycles([]);
+                        setAutomationFormData(automationPlaceholder);
+                      }}
+                    >
                       Create automation <IoAdd />
                     </Button>
                   }
@@ -111,6 +144,11 @@ export default function AutomationsList({ automations, enabledAutomations, isLoa
                           ))
                         )}
                       </td>
+                      <td>
+                        {usage?.[automationId]
+                          ? `${usage[automationId].global} global, ${usage[automationId].event} event`
+                          : '—'}
+                      </td>
                       <Panel.InlineElements align='end' relation='inner' as='td'>
                         <IconButton
                           variant='ghosted-white'
@@ -133,7 +171,7 @@ export default function AutomationsList({ automations, enabledAutomations, isLoa
               })}
               {deleteError && (
                 <tr>
-                  <td colSpan={5}>
+                  <td colSpan={6}>
                     <Panel.Error>{deleteError}</Panel.Error>
                   </td>
                 </tr>

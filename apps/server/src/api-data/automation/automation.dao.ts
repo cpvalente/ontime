@@ -1,5 +1,7 @@
 import type {
   Automation,
+  AutomationComposition,
+  AutomationCompositionDTO,
   AutomationDTO,
   AutomationSettings,
   NormalisedAutomation,
@@ -119,6 +121,37 @@ export async function addAutomation(newAutomation: AutomationDTO): Promise<Autom
   automations[id] = { ...newAutomation, id };
   await saveChanges({ automations });
   return automations[id];
+}
+
+/**
+ * Persists a definition and its global bindings with one settings write. An empty lifecycle list
+ * deliberately creates a reusable definition only.
+ */
+export async function createAutomationComposition({
+  automation: newAutomation,
+  lifecycles,
+}: AutomationCompositionDTO): Promise<AutomationComposition> {
+  const settings = getAutomationSettings();
+  const automations = { ...settings.automations };
+  const triggers = [...settings.triggers];
+  const automationId = getUniqueAutomationId(automations);
+  const automation: Automation = { ...newAutomation, id: automationId };
+  const newTriggers: Trigger[] = [];
+  for (const trigger of lifecycles) {
+    const binding = {
+      id: getUniqueTriggerId([...triggers, ...newTriggers]),
+      title: `Global ${trigger}`,
+      trigger,
+      automationId,
+    };
+    newTriggers.push(binding);
+  }
+
+  automations[automationId] = automation;
+  triggers.push(...newTriggers);
+  await getDataProvider().setAutomation({ ...settings, automations, triggers });
+
+  return { automation, triggers: newTriggers };
 }
 
 /**

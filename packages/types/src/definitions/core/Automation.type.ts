@@ -22,6 +22,19 @@ export type Automation = {
 
 export type AutomationDTO = Omit<Automation, 'id'>;
 
+/** Creates one reusable definition and optional global lifecycle bindings in a single operation. */
+export type AutomationCompositionDTO = {
+  automation: AutomationDTO;
+  lifecycles: TimerLifeCycle[];
+};
+
+export type AutomationComposition = {
+  automation: Automation;
+  triggers: Trigger[];
+};
+
+export type AutomationUsage = Record<AutomationId, { global: number; event: number }>;
+
 export type NormalisedAutomation = Record<AutomationId, Automation>;
 
 export type Trigger = {

@@ -1,9 +1,12 @@
 import axios from 'axios';
 import type {
   Automation,
+  AutomationComposition,
+  AutomationCompositionDTO,
   AutomationDTO,
   AutomationOutput,
   AutomationSettings,
+  AutomationUsage,
   Trigger,
   TriggerDTO,
 } from 'ontime-types';
@@ -18,6 +21,11 @@ const automationsPath = `${apiEntryUrl}/automations`;
  */
 export async function getAutomationSettings(options?: RequestOptions): Promise<AutomationSettings> {
   const res = await axios.get(automationsPath, { signal: options?.signal });
+  return res.data;
+}
+
+export async function getAutomationUsage(options?: RequestOptions): Promise<AutomationUsage> {
+  const res = await axios.get(`${automationsPath}/usage`, { signal: options?.signal });
   return res.data;
 }
 
@@ -59,6 +67,14 @@ export function deleteTrigger(id: string): Promise<void> {
  */
 export async function addAutomation(automation: AutomationDTO): Promise<Automation> {
   const res = await axios.post(`${automationsPath}/automation`, automation);
+  return res.data;
+}
+
+/** Creates a definition and optional global lifecycle bindings atomically. */
+export async function createAutomationComposition(
+  composition: AutomationCompositionDTO,
+): Promise<AutomationComposition> {
+  const res = await axios.post(`${automationsPath}/composition`, composition);
   return res.data;
 }
 

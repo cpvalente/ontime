@@ -1,15 +1,30 @@
 import type { Request, Response } from 'express';
-import { Automation, AutomationSettings, ErrorResponse, Trigger } from 'ontime-types';
+import {
+  Automation,
+  AutomationComposition,
+  AutomationSettings,
+  AutomationUsage,
+  ErrorResponse,
+  Trigger,
+} from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import { oscServer } from '../../adapters/OscAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import * as automationDao from './automation.dao.js';
 import * as automationService from './automation.service.js';
-import { parseAutomation, parseOutput } from './automation.validation.js';
+import { getAutomationUsage } from './automation.utils.js';
+import { parseAutomation, parseAutomationComposition, parseOutput } from './automation.validation.js';
 
 export function getAutomationSettings(_req: Request, res: Response<AutomationSettings>) {
   res.status(200).json(automationDao.getAutomationSettings());
+}
+
+export function getAutomationUsageCounts(_req: Request, res: Response<AutomationUsage>) {
+  const settings = automationDao.getAutomationSettings();
+  res
+    .status(200)
+    .json(getAutomationUsage(settings.automations, settings.triggers, getDataProvider().getProjectRundowns()));
 }
 
 export async function postAutomationSettings(req: Request, res: Response<AutomationSettings | ErrorResponse>) {
@@ -78,6 +93,17 @@ export async function postAutomation(req: Request, res: Response<Automation | Er
     const automation = parseAutomation(req.body);
     const newAutomation = await automationDao.addAutomation(automation);
     res.status(201).send(newAutomation);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+}
+
+export async function postAutomationComposition(req: Request, res: Response<AutomationComposition | ErrorResponse>) {
+  try {
+    const composition = parseAutomationComposition(req.body);
+    const created = await automationDao.createAutomationComposition(composition);
+    res.status(201).send(created);
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });

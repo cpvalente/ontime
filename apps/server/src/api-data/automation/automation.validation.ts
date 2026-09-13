@@ -3,6 +3,7 @@ import { isIP } from 'node:net';
 import { body, param } from 'express-validator';
 import {
   AutomationDTO,
+  AutomationCompositionDTO,
   AutomationFilter,
   AutomationOutput,
   HTTPOutput,
@@ -48,6 +49,8 @@ export const validateTriggerPatch = [
 
 export const validateAutomation = [body().custom(parseAutomation), requestValidationFunction];
 
+export const validateAutomationComposition = [body().custom(parseAutomationComposition), requestValidationFunction];
+
 export const validateAutomationPatch = [
   param('id').isString().notEmpty(),
   body().custom(parseAutomation),
@@ -79,6 +82,31 @@ export function parseAutomation(maybeAutomation: unknown): AutomationDTO {
   const parsedOutputs = outputs.map(parseOutput);
 
   return { title, filterRule, filters, outputs: parsedOutputs };
+}
+
+/** Parses a create-only command for a reusable definition and its global bindings. */
+export function parseAutomationComposition(maybeComposition: unknown): AutomationCompositionDTO {
+  assert.isObject(maybeComposition);
+  assert.hasKeys(maybeComposition, ['automation', 'lifecycles']);
+
+  const { automation, lifecycles } = maybeComposition;
+  const parsedAutomation = parseAutomation(automation);
+  assert.isArray(lifecycles);
+
+  const parsedLifecycles = lifecycles.map((lifecycle) => {
+    assert.isString(lifecycle);
+    if (!timerLifecycleValues.includes(lifecycle)) {
+      throw new Error(`Invalid automation lifecycle: ${lifecycle}`);
+    }
+    return lifecycle as AutomationCompositionDTO['lifecycles'][number];
+  });
+
+  const duplicate = parsedLifecycles.find((lifecycle, index) => parsedLifecycles.indexOf(lifecycle) !== index);
+  if (duplicate) {
+    throw new Error(`Duplicate automation lifecycle: ${duplicate}`);
+  }
+
+  return { automation: parsedAutomation, lifecycles: parsedLifecycles };
 }
 
 function validateFilters(filters: Array<unknown>): asserts filters is AutomationFilter[] {

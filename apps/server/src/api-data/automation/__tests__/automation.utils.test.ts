@@ -1,7 +1,13 @@
 import { ProjectRundowns, TimerLifeCycle } from 'ontime-types';
 
 import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
-import { isAutomationUsed, isHostname, parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
+import {
+  getAutomationUsage,
+  isAutomationUsed,
+  isHostname,
+  parseTemplateNested,
+  stringToOSCArgs,
+} from '../automation.utils.js';
 
 describe('isHostname()', () => {
   it.each(['localhost', 'qlab', 'osc.example.com', 'osc-target.example'])('accepts %s', (hostname) => {
@@ -365,5 +371,54 @@ describe('isAutomationUsed()', () => {
 
     const result = isAutomationUsed(projectRundowns, automationId);
     expect(result).toBeUndefined();
+  });
+});
+
+describe('getAutomationUsage()', () => {
+  it('counts global and event bindings across multiple rundowns without counting missing references', () => {
+    const usage = getAutomationUsage(
+      {
+        used: { id: 'used', title: 'Used', filterRule: 'all', filters: [], outputs: [] },
+        unused: { id: 'unused', title: 'Unused', filterRule: 'all', filters: [], outputs: [] },
+      },
+      [
+        { id: 'global-1', title: 'Global', trigger: TimerLifeCycle.onStart, automationId: 'used' },
+        { id: 'global-missing', title: 'Missing', trigger: TimerLifeCycle.onStart, automationId: 'missing' },
+      ],
+      {
+        one: {
+          id: 'one',
+          title: 'One',
+          order: ['event-1'],
+          flatOrder: ['event-1'],
+          entries: {
+            'event-1': makeOntimeEvent({
+              id: 'event-1',
+              triggers: [
+                { id: 'event-trigger-1', title: 'Event', trigger: TimerLifeCycle.onFinish, automationId: 'used' },
+              ],
+            }),
+          },
+          revision: 1,
+        },
+        two: {
+          id: 'two',
+          title: 'Two',
+          order: ['event-2'],
+          flatOrder: ['event-2'],
+          entries: {
+            'event-2': makeOntimeEvent({
+              id: 'event-2',
+              triggers: [
+                { id: 'event-trigger-2', title: 'Event', trigger: TimerLifeCycle.onFinish, automationId: 'used' },
+              ],
+            }),
+          },
+          revision: 1,
+        },
+      },
+    );
+
+    expect(usage).toEqual({ used: { global: 1, event: 2 }, unused: { global: 0, event: 0 } });
   });
 });

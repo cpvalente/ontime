@@ -1,10 +1,33 @@
-import { parseAutomation, parseOutput } from '../automation.validation.js';
+import { parseAutomation, parseAutomationComposition, parseOutput } from '../automation.validation.js';
 
 describe('parseAutomation', () => {
   it('rejects trigger bindings from definition payloads', () => {
     expect(() =>
       parseAutomation({ title: 'Definition', filterRule: 'all', filters: [], outputs: [], triggers: [] }),
     ).toThrow('Automation definitions cannot include triggers');
+  });
+});
+
+describe('parseAutomationComposition', () => {
+  it('accepts a reusable definition without global lifecycles', () => {
+    expect(
+      parseAutomationComposition({
+        automation: { title: 'Definition', filterRule: 'all', filters: [], outputs: [] },
+        lifecycles: [],
+      }),
+    ).toEqual({
+      automation: { title: 'Definition', filterRule: 'all', filters: [], outputs: [] },
+      lifecycles: [],
+    });
+  });
+
+  it('rejects duplicate global lifecycles', () => {
+    expect(() =>
+      parseAutomationComposition({
+        automation: { title: 'Definition', filterRule: 'all', filters: [], outputs: [] },
+        lifecycles: ['onStart', 'onStart'],
+      }),
+    ).toThrow('Duplicate automation lifecycle: onStart');
   });
 });
 

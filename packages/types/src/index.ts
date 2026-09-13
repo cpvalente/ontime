@@ -31,9 +31,12 @@ export { ontimeActionKeyValues } from './definitions/core/Automation.type.js';
 export type {
   OntimeActionKey,
   Automation,
+  AutomationComposition,
+  AutomationCompositionDTO,
   AutomationDTO,
   AutomationFilter,
   AutomationSettings,
+  AutomationUsage,
   AutomationOutput,
   FilterRule,
   HTTPOutput,

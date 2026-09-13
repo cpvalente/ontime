@@ -6,6 +6,8 @@ import {
   deleteTrigger,
   editAutomation,
   getAutomationSettings,
+  getAutomationUsageCounts,
+  postAutomationComposition,
   postAutomation,
   postAutomationSettings,
   postTrigger,
@@ -14,6 +16,7 @@ import {
 } from './automation.controller.js';
 import {
   validateAutomation,
+  validateAutomationComposition,
   validateAutomationPatch,
   validateAutomationSettings,
   validateTestPayload,
@@ -24,6 +27,7 @@ import {
 export const router: Router = express.Router();
 
 router.get('/', getAutomationSettings);
+router.get('/usage', getAutomationUsageCounts);
 router.post('/', validateAutomationSettings, postAutomationSettings);
 
 router.post('/trigger', validateTrigger, postTrigger);
@@ -31,6 +35,7 @@ router.put('/trigger/:id', validateTriggerPatch, putTrigger);
 router.delete('/trigger/:id', paramsWithId, deleteTrigger);
 
 router.post('/automation', validateAutomation, postAutomation);
+router.post('/composition', validateAutomationComposition, postAutomationComposition);
 router.put('/automation/:id', validateAutomationPatch, editAutomation);
 router.delete('/automation/:id', paramsWithId, deleteAutomation);
 

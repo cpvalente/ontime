@@ -1,11 +1,14 @@
 import {
   AutomationFilter,
+  AutomationUsage,
   EntryId,
   FilterRule,
   MaybeNumber,
   OntimeAction,
+  NormalisedAutomation,
   ProjectRundowns,
   RundownEntries,
+  Trigger,
   isOntimeEvent,
   ontimeActionKeyValues,
 } from 'ontime-types';
@@ -282,4 +285,33 @@ export function isAutomationUsed(
       return [rundown.title, usedInEvent];
     }
   }
+}
+
+/** Counts global and event bindings in one pass over global triggers and project rundowns. */
+export function getAutomationUsage(
+  automations: NormalisedAutomation,
+  globalTriggers: Trigger[],
+  projectRundowns: ProjectRundowns,
+): AutomationUsage {
+  const usage: AutomationUsage = Object.fromEntries(
+    Object.keys(automations).map((automationId) => [automationId, { global: 0, event: 0 }]),
+  );
+
+  for (const trigger of globalTriggers) {
+    const count = usage[trigger.automationId];
+    if (count) count.global += 1;
+  }
+
+  for (const rundown of Object.values(projectRundowns)) {
+    for (const entryId of rundown.flatOrder) {
+      const entry = rundown.entries[entryId];
+      if (!isOntimeEvent(entry)) continue;
+      for (const trigger of entry.triggers ?? []) {
+        const count = usage[trigger.automationId];
+        if (count) count.event += 1;
+      }
+    }
+  }
+
+  return usage;
 }

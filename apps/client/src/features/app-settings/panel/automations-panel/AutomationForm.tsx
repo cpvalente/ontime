@@ -1,12 +1,13 @@
-import { Automation, AutomationDTO, isHTTPOutput, isOSCOutput, isOntimeAction } from 'ontime-types';
+import { Automation, AutomationDTO, TimerLifeCycle, isHTTPOutput, isOSCOutput, isOntimeAction } from 'ontime-types';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
 
-import { addAutomation, editAutomation, testOutput } from '../../../../common/api/automation';
+import { createAutomationComposition, editAutomation, testOutput } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
+import Checkbox from '../../../../common/components/checkbox/Checkbox';
 import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
@@ -15,10 +16,11 @@ import Modal from '../../../../common/components/modal/Modal';
 import RadioGroup from '../../../../common/components/radio-group/RadioGroup';
 import Select from '../../../../common/components/select/Select';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
+import useAutomationUsage from '../../../../common/hooks-query/useAutomationUsage';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
-import { isAutomation, makeFieldList, operators, type OutputErrors } from './automationUtils';
+import { cycles, isAutomation, makeFieldList, operators, type OutputErrors } from './automationUtils';
 import HttpOutputForm from './HttpOutputForm';
 import OntimeActionForm from './OntimeActionForm';
 import OscOutputForm from './OscOutputForm';
@@ -32,16 +34,19 @@ const testFeedbackDuration = 2000;
 
 interface AutomationFormProps {
   automation: Automation | AutomationDTO;
+  initialLifecycles?: TimerLifeCycle[];
   onClose: () => void;
 }
 
-export default function AutomationForm({ automation, onClose }: AutomationFormProps) {
+export default function AutomationForm({ automation, initialLifecycles = [], onClose }: AutomationFormProps) {
   const isEdit = isAutomation(automation);
   const { data } = useCustomFields();
   const { refetch } = useAutomationSettings();
+  const { refetch: refetchUsage } = useAutomationUsage();
   const fieldList = useMemo(() => makeFieldList(data), [data]);
   const [testResults, setTestResults] = useState<Record<string, TestState>>({});
   const [submitError, setSubmitError] = useState<string>();
+  const [lifecycles, setLifecycles] = useState<TimerLifeCycle[]>(initialLifecycles);
   const feedbackTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const {
@@ -157,6 +162,7 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
       await handleCreate(values);
     }
     refetch();
+    refetchUsage();
 
     async function handleEdit(id: string, values: Automation) {
       try {
@@ -169,7 +175,7 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
 
     async function handleCreate(values: AutomationDTO) {
       try {
-        await addAutomation(values);
+        await createAutomationComposition({ automation: values, lifecycles });
         onClose();
       } catch (error) {
         setSubmitError(maybeAxiosError(error));
@@ -177,7 +183,12 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
     }
   };
 
-  const canSubmit = !isSubmitting && isDirty && isValid;
+  const canSubmit = !isSubmitting && isValid && (isDirty || initialLifecycles.length > 0);
+  const toggleLifecycle = (lifecycle: TimerLifeCycle, checked: boolean) => {
+    setLifecycles((current) =>
+      checked ? [...current, lifecycle] : current.filter((selectedLifecycle) => selectedLifecycle !== lifecycle),
+    );
+  };
   const addOutputMenu = (
     <DropdownMenu
       render={<Button />}
@@ -220,6 +231,26 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
       bodyElements={
         <form id={formId} onSubmit={handleSubmit(onSubmit)} className={style.outerColumn}>
           <div className={style.innerColumn}>
+            {!isEdit && (
+              <>
+                <h3>Global trigger (optional)</h3>
+                <Panel.Description>
+                  Choose when this automation should run globally. Leave all unchecked to save a reusable definition
+                  only.
+                </Panel.Description>
+                <div className={style.lifecycleGrid}>
+                  {cycles.map(({ value, label }) => (
+                    <label key={value} className={style.lifecycleOption}>
+                      <Checkbox
+                        checked={lifecycles.includes(value)}
+                        onCheckedChange={(checked) => toggleLifecycle(value, checked)}
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              </>
+            )}
             <h3>Automation options</h3>
             <div className={style.titleSection}>
               <label>

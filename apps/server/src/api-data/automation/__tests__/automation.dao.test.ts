@@ -3,6 +3,7 @@ import { Automation, AutomationDTO, ProjectRundowns, TimerLifeCycle, TriggerDTO 
 import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
 import {
   addAutomation,
+  createAutomationComposition,
   addTrigger,
   deleteAll,
   deleteAllTriggers,
@@ -134,6 +135,37 @@ describe('addAutomation()', () => {
     const automation = await addAutomation(testData);
     const automations = getAutomations();
     expect(automations[automation.id]).toMatchObject(testData);
+  });
+});
+
+describe('createAutomationComposition()', () => {
+  beforeEach(async () => {
+    await deleteAll();
+  });
+
+  it('writes a definition and all requested global bindings together', async () => {
+    const composition = await createAutomationComposition({
+      automation: { title: 'New definition', filterRule: 'all', filters: [], outputs: [makeHTTPAction()] },
+      lifecycles: [TimerLifeCycle.onStart, TimerLifeCycle.onFinish],
+    });
+
+    expect(getAutomations()[composition.automation.id]).toEqual(composition.automation);
+    expect(getAutomationTriggers()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ automationId: composition.automation.id, trigger: TimerLifeCycle.onStart }),
+        expect.objectContaining({ automationId: composition.automation.id, trigger: TimerLifeCycle.onFinish }),
+      ]),
+    );
+  });
+
+  it('writes only a reusable definition when no lifecycle is selected', async () => {
+    const composition = await createAutomationComposition({
+      automation: { title: 'Reusable definition', filterRule: 'all', filters: [], outputs: [] },
+      lifecycles: [],
+    });
+
+    expect(getAutomations()[composition.automation.id]).toEqual(composition.automation);
+    expect(getAutomationTriggers()).toEqual([]);
   });
 });
 
