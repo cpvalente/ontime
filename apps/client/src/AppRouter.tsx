@@ -3,6 +3,7 @@ import { ComponentType, Suspense, lazy, useEffect, useMemo } from 'react';
 import { Navigate, Route, useLocation, useNavigate, useParams } from 'react-router';
 
 import ViewNavigationMenu from './common/components/navigation-menu/ViewNavigationMenu';
+import { EditableRundownScopeProvider } from './common/context/EditableRundownScopeProvider';
 import { PresetContext } from './common/context/PresetContext';
 import useUrlPresets from './common/hooks-query/useUrlPresets';
 import { useClientPath } from './common/hooks/useClientPath';
@@ -112,7 +113,9 @@ export default function AppRouter() {
           path='rundown'
           element={
             <EditorFeatureWrapper>
-              <RundownPanel />
+              <EditableRundownScopeProvider rundownId={null}>
+                <RundownPanel />
+              </EditableRundownScopeProvider>
             </EditorFeatureWrapper>
           }
         />

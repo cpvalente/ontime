@@ -2,14 +2,21 @@ import { useSessionStorage } from '@mantine/hooks';
 import { startTransition, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 
-import { useOrderedProjectList } from '../../common/hooks-query/useProjectList';
-import { useProjectRundowns } from '../../common/hooks-query/useProjectRundowns';
 import { serverURL } from '../../externals';
+import { useOrderedProjectList } from '../hooks-query/useProjectList';
+import { useProjectRundowns } from '../hooks-query/useProjectRundowns';
 
 export const FOLLOW_LOADED_RUNDOWN_ID = '__follow-loaded__' as const;
 
-export function getCuesheetRundownStorageKey(server: string, projectFilename: string) {
-  return `cuesheet-selected-rundown:${server}:${projectFilename}`;
+/** each surface keeps its own selection, so panels can point at different rundowns */
+export type RundownSelectionNamespace = 'cuesheet';
+
+export function getRundownSelectionStorageKey(
+  namespace: RundownSelectionNamespace,
+  server: string,
+  projectFilename: string,
+) {
+  return `rundown-selection:${namespace}:${server}:${projectFilename}`;
 }
 
 export function resolveSelectedRundownId(storedSelectedRundownId: string | null, availableRundownIds: Set<string>) {
@@ -17,14 +24,22 @@ export function resolveSelectedRundownId(storedSelectedRundownId: string | null,
   return FOLLOW_LOADED_RUNDOWN_ID;
 }
 
-export function useCuesheetRundownSelection() {
+/**
+ * Persisted choice of which rundown a surface operates on.
+ * The resolved id is meant to be handed to a rundown scope provider,
+ * where null means follow whichever rundown is loaded.
+ */
+export function useRundownSelection(namespace: RundownSelectionNamespace) {
   'use memo';
 
   const { data: projectRundowns } = useProjectRundowns();
   const {
     data: { lastLoadedProject },
   } = useOrderedProjectList();
-  const storageKey = useMemo(() => getCuesheetRundownStorageKey(serverURL, lastLoadedProject), [lastLoadedProject]);
+  const storageKey = useMemo(
+    () => getRundownSelectionStorageKey(namespace, serverURL, lastLoadedProject),
+    [namespace, lastLoadedProject],
+  );
   const [storedSelectedRundownId, setStoredSelectedRundownId] = useSessionStorage<string | null>({
     key: storageKey,
     defaultValue: FOLLOW_LOADED_RUNDOWN_ID,
@@ -38,6 +53,8 @@ export function useCuesheetRundownSelection() {
   return {
     loadedRundownId,
     selectedRundownId,
+    /** id for the rundown scope, null follows the loaded rundown */
+    scopedRundownId: selectedRundownId === FOLLOW_LOADED_RUNDOWN_ID ? null : selectedRundownId,
     projectRundowns: projectRundowns.rundowns,
     setSelectedRundownId: (rundownId: string) => {
       startTransition(() => {
@@ -52,7 +69,7 @@ export function useDirectLinkToBackgroundEdit() {
     data: { lastLoadedProject },
   } = useOrderedProjectList();
   const navigate = useNavigate();
-  const storageKey = getCuesheetRundownStorageKey(serverURL, lastLoadedProject);
+  const storageKey = getRundownSelectionStorageKey('cuesheet', serverURL, lastLoadedProject);
   const [_, setStoredSelectedRundownId] = useSessionStorage<string | null>({ key: storageKey, defaultValue: null });
 
   return useCallback(
