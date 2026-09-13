@@ -1,21 +1,33 @@
-import { Automation, AutomationDTO, CustomFields, TimerLifeCycle, Trigger } from 'ontime-types';
+import { Automation, AutomationDTO, AutomationFilter, CustomFields, TimerLifeCycle, Trigger } from 'ontime-types';
+
+import { lifecycleLabels } from '../../../../common/constants/timerLifecycle';
 
 type CycleLabel = {
-  id: number;
   label: string;
-  value: keyof typeof TimerLifeCycle;
+  value: TimerLifeCycle;
 };
 
 export const cycles: CycleLabel[] = [
-  { id: 1, label: 'On Load', value: 'onLoad' },
-  { id: 2, label: 'On Start', value: 'onStart' },
-  { id: 3, label: 'On Pause', value: 'onPause' },
-  { id: 4, label: 'On Stop', value: 'onStop' },
-  { id: 5, label: 'Every second', value: 'onClock' },
-  { id: 6, label: 'On Timer Update', value: 'onUpdate' },
-  { id: 7, label: 'On Finish', value: 'onFinish' },
-  { id: 8, label: 'On Warning', value: 'onWarning' },
-  { id: 9, label: 'On Danger', value: 'onDanger' },
+  { label: lifecycleLabels.onLoad, value: TimerLifeCycle.onLoad },
+  { label: lifecycleLabels.onStart, value: TimerLifeCycle.onStart },
+  { label: lifecycleLabels.onPause, value: TimerLifeCycle.onPause },
+  { label: lifecycleLabels.onStop, value: TimerLifeCycle.onStop },
+  { label: lifecycleLabels.onClock, value: TimerLifeCycle.onClock },
+  { label: lifecycleLabels.onUpdate, value: TimerLifeCycle.onUpdate },
+  { label: lifecycleLabels.onFinish, value: TimerLifeCycle.onFinish },
+  { label: lifecycleLabels.onWarning, value: TimerLifeCycle.onWarning },
+  { label: lifecycleLabels.onDanger, value: TimerLifeCycle.onDanger },
+];
+
+export type OutputErrors = Partial<Record<string, { message?: string }>>;
+
+export const operators: Array<{ value: AutomationFilter['operator']; label: string }> = [
+  { value: 'equals', label: 'equals' },
+  { value: 'not_equals', label: 'does not equal' },
+  { value: 'contains', label: 'contains' },
+  { value: 'not_contains', label: 'does not contain' },
+  { value: 'greater_than', label: 'is greater than' },
+  { value: 'less_than', label: 'is less than' },
 ];
 
 /**
@@ -66,19 +78,16 @@ export function makeFieldList(customFields: CustomFields): SelectableField[] {
  * We warn the user if they have created multiple links between the same automation and a trigger
  */
 export function checkDuplicates(triggers: Trigger[]) {
-  const triggersMap: Record<string, string[]> = {};
-  const duplicates = [];
+  const seen = new Set<string>();
+  const duplicates: number[] = [];
 
-  for (let i = 0; i < triggers.length; i++) {
-    const trigger = triggers[i];
-    if (!Object.hasOwn(triggersMap, trigger.trigger)) {
-      triggersMap[trigger.trigger] = [];
-    }
+  for (const [index, trigger] of triggers.entries()) {
+    const key = `${trigger.trigger}:${trigger.automationId}`;
 
-    if (triggersMap[trigger.trigger].includes(trigger.automationId)) {
-      duplicates.push(i);
+    if (seen.has(key)) {
+      duplicates.push(index);
     } else {
-      triggersMap[trigger.trigger].push(trigger.automationId);
+      seen.add(key);
     }
   }
   return duplicates.length > 0 ? duplicates : undefined;

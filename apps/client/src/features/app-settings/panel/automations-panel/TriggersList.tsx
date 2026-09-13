@@ -1,5 +1,5 @@
 import { NormalisedAutomation, Trigger } from 'ontime-types';
-import { Fragment, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
 
 import { deleteTrigger } from '../../../../common/api/automation';
@@ -11,6 +11,8 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import { checkDuplicates } from './automationUtils';
 import TriggerForm from './TriggerForm';
 import TriggersListItem from './TriggersListItem';
+
+import style from './TriggersList.module.scss';
 
 type FormState = {
   isOpen: boolean;
@@ -50,6 +52,10 @@ export default function TriggersList({ triggers, automations, enabledAutomations
   };
 
   const duplicates = useMemo(() => checkDuplicates(triggers), [triggers]);
+  const orphans = useMemo(
+    () => triggers.filter((trigger) => !Object.hasOwn(automations, trigger.automationId)).length,
+    [triggers, automations],
+  );
 
   // there is no point letting user creating a trigger if there are no automations
   const canAdd = Object.keys(automations).length > 0;
@@ -66,7 +72,7 @@ export default function TriggersList({ triggers, automations, enabledAutomations
           />
         )}
         <Panel.SubHeader>
-          Manage triggers
+          Global triggers
           <Button disabled={!canAdd} onClick={openNewForm}>
             New <IoAdd />
           </Button>
@@ -74,17 +80,25 @@ export default function TriggersList({ triggers, automations, enabledAutomations
         <Panel.Divider />
         <Panel.Section>
           {enabledAutomations === false && (
-            <Info>
-              Automations are disabled. You can still manage triggers here, but they will not run until enabled.
+            <Info type='warning'>
+              Automations are disabled. You can still manage them, but they won&apos;t run until enabled.
             </Info>
           )}
+          <Info>Actions in this section affect the entire project runtime, not just a single event.</Info>
           {duplicates && (
             <Panel.Error>
-              You have created multiple links between the same trigger and automation which can cause performance
-              issues.
+              You have created multiple links between the same trigger and automation. Duplicate combinations will only
+              fire once per lifecycle event.
             </Panel.Error>
           )}
-          <Panel.Table>
+          {orphans > 0 && (
+            <Panel.Error>
+              {orphans === 1
+                ? '1 trigger points at an automation that no longer exists and will never run.'
+                : `${orphans} triggers point at automations that no longer exist and will never run.`}
+            </Panel.Error>
+          )}
+          <Panel.Table className={style.table}>
             <thead>
               <tr>
                 <th style={{ width: '35%' }}>Title</th>
@@ -100,7 +114,7 @@ export default function TriggersList({ triggers, automations, enabledAutomations
                   description={
                     canAdd
                       ? 'Triggers run an automation at a given point of the timer lifecycle, like when an event starts or finishes.'
-                      : 'Create an automation first, then add a trigger to decide when it should run.'
+                      : 'Create an automation definition first, then add a global trigger to decide when it should run.'
                   }
                   action={
                     canAdd && (
@@ -111,19 +125,16 @@ export default function TriggersList({ triggers, automations, enabledAutomations
                   }
                 />
               )}
-              {triggers.map((trigger, index) => {
-                return (
-                  <Fragment key={trigger.id}>
-                    <TriggersListItem
-                      automations={automations}
-                      trigger={trigger}
-                      duplicate={duplicates?.includes(index)}
-                      handleEdit={() => openEditForm(trigger)}
-                      handleDelete={() => handleDelete(trigger.id)}
-                    />
-                  </Fragment>
-                );
-              })}
+              {triggers.map((trigger, index) => (
+                <TriggersListItem
+                  key={trigger.id}
+                  automations={automations}
+                  trigger={trigger}
+                  duplicate={duplicates?.includes(index)}
+                  handleEdit={() => openEditForm(trigger)}
+                  handleDelete={() => handleDelete(trigger.id)}
+                />
+              ))}
               {deleteError && (
                 <tr>
                   <td colSpan={5}>

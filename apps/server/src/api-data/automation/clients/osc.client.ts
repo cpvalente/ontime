@@ -14,7 +14,8 @@ const udpClient = dgram.createSocket('udp4');
  */
 export function emitOSC(output: OSCOutput, store: DeepReadonly<RuntimeStore>) {
   const message = preparePayload(output, store);
-  emit(output.targetIP, output.targetPort, message);
+  const targetIP = parseTemplateNested(output.targetIP, store);
+  emit(targetIP, output.targetPort, message);
 }
 
 /** Parses the state and prepares payload to be emitted */

@@ -1,4 +1,5 @@
 import {
+  AutomationFilter,
   EntryId,
   FilterRule,
   MaybeNumber,
@@ -11,10 +12,16 @@ import {
 import { getPropertyFromPath, millisToString, removeLeadingZero, splitWhitespace } from 'ontime-utils';
 import type { OscArgInput, OscArgOrArrayInput } from 'osc-min';
 
-type FilterOperator = 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains';
+type FilterOperator = AutomationFilter['operator'];
+
+const hostnameRegex = /^(?=.{1,253}$)[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?)*$/i;
+
+export function isHostname(value: string): boolean {
+  return hostnameRegex.test(value);
+}
 
 export function isFilterOperator(value: string): value is FilterOperator {
-  return ['equals', 'not_equals', 'greater_than', 'less_than', 'contains'].includes(value);
+  return ['equals', 'not_equals', 'greater_than', 'less_than', 'contains', 'not_contains'].includes(value);
 }
 
 export function isFilterRule(value: string): value is FilterRule {

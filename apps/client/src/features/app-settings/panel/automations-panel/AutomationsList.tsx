@@ -9,8 +9,11 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import Info from '../../../../common/components/info/Info';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
+import { summariseOutputs } from '../../../../common/utils/automationOutputs';
 import * as Panel from '../../panel-utils/PanelUtils';
 import AutomationForm from './AutomationForm';
+
+import style from './AutomationsList.module.scss';
 
 const automationPlaceholder: AutomationDTO = {
   title: '',
@@ -60,19 +63,18 @@ export default function AutomationsList({ automations, enabledAutomations, isLoa
 
         <Panel.Section>
           {enabledAutomations === false && (
-            <Info>
-              Automations are disabled. You can still manage automation definitions here, but they will not run until
-              enabled.
+            <Info type='warning'>
+              Automations are disabled. You can still manage them, but they won&apos;t run until enabled.
             </Info>
           )}
 
-          <Panel.Table>
+          <Panel.Table className={style.table}>
             <thead>
               <tr>
                 <th style={{ width: '45%' }}>Title</th>
-                <th style={{ width: '15%' }}>Trigger rule</th>
+                <th style={{ width: '15%' }}>Filter rule</th>
                 <th style={{ width: '15%' }}>Filters</th>
-                <th style={{ width: '15%' }}>Outputs</th>
+                <th style={{ width: '15%' }}>Sends</th>
                 <th />
               </tr>
             </thead>
@@ -80,7 +82,7 @@ export default function AutomationsList({ automations, enabledAutomations, isLoa
               {!isLoading && arrayAutomations.length === 0 && (
                 <Panel.TableEmpty
                   title='No automations yet'
-                  description='An automation sends OSC or HTTP messages, or runs an Ontime action, whenever a trigger fires.'
+                  description='Create a reusable definition, then attach it to a global or an event trigger.'
                   action={
                     <Button variant='primary' onClick={() => setAutomationFormData(automationPlaceholder)}>
                       Create automation <IoAdd />
@@ -100,7 +102,15 @@ export default function AutomationsList({ automations, enabledAutomations, isLoa
                         <Tag>{automations[automationId].filterRule}</Tag>
                       </td>
                       <td>{automations[automationId].filters.length}</td>
-                      <td>{automations[automationId].outputs.length}</td>
+                      <td>
+                        {automations[automationId].outputs.length === 0 ? (
+                          <Tag variant='warning'>No outputs</Tag>
+                        ) : (
+                          summariseOutputs(automations[automationId].outputs).map(({ type, label, count }) => (
+                            <Tag key={type}>{count > 1 ? `${label} ×${count}` : label}</Tag>
+                          ))
+                        )}
+                      </td>
                       <Panel.InlineElements align='end' relation='inner' as='td'>
                         <IconButton
                           variant='ghosted-white'

@@ -18,6 +18,15 @@ export function maybeAxiosError(error: unknown) {
     if (typeof data === 'object') {
       if ('message' in data) {
         data = JSON.stringify(data.message);
+      } else if ('errors' in data && Array.isArray(data.errors)) {
+        const firstError = data.errors.at(0);
+        data =
+          typeof firstError === 'object' &&
+          firstError !== null &&
+          'msg' in firstError &&
+          typeof firstError.msg === 'string'
+            ? firstError.msg
+            : JSON.stringify(data);
       } else {
         data = JSON.stringify(data);
       }
