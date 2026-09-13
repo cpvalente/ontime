@@ -51,4 +51,34 @@ describe('automation controllers', () => {
     );
   });
 
+  it('persists definitions using the not_contains filter operator', async () => {
+    const request = {
+      body: {
+        ...requestBody,
+        filters: [{ field: 'eventNow.title', operator: 'not_contains', value: 'break' }],
+      },
+    } as Request;
+
+    await postAutomation(request, makeResponse());
+
+    expect(automationDao.addAutomation).toHaveBeenCalledWith(
+      expect.objectContaining({ filters: [expect.objectContaining({ operator: 'not_contains' })] }),
+    );
+  });
+
+  it('rejects trigger bindings when editing a definition', async () => {
+    const request = {
+      body: { ...requestBody, triggers: [{ trigger: 'onStart', automationId: 'other-definition' }] },
+      params: { id: 'automation-id' },
+    } as unknown as Request;
+    const response = makeResponse();
+
+    await editAutomation(request, response);
+
+    expect(automationDao.editAutomation).not.toHaveBeenCalled();
+    expect(response.status).toHaveBeenCalledWith(400);
+    expect(response.send).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Automation definitions cannot include triggers' }),
+    );
+  });
 });

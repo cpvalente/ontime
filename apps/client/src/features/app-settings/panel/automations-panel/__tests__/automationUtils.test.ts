@@ -1,6 +1,19 @@
 import { TimerLifeCycle, Trigger } from 'ontime-types';
 
-import { checkDuplicates } from '../automationUtils';
+import { checkDuplicates, operators } from '../automationUtils';
+
+describe('automation form options', () => {
+  it('offers the complete filter operator contract', () => {
+    expect(operators.map(({ value }) => value)).toEqual([
+      'equals',
+      'not_equals',
+      'contains',
+      'not_contains',
+      'greater_than',
+      'less_than',
+    ]);
+  });
+});
 
 describe('checkDuplicates', () => {
   it('should return undefined if there are no duplicates', () => {

@@ -146,7 +146,7 @@ describe('editAutomation()', () => {
       title: 'test-osc',
       filterRule: 'all',
       filters: [],
-      outputs: [],
+      outputs: [makeOSCAction(), makeHTTPAction()],
     });
     await addAutomation({
       title: 'test-http',
@@ -164,7 +164,7 @@ describe('editAutomation()', () => {
       title: 'test-osc',
       filterRule: 'all',
       filters: expect.any(Array),
-      outputs: expect.any(Array),
+      outputs: [makeOSCAction(), makeHTTPAction()],
     });
 
     const editedOSC = await editAutomation(firstAutomation.id, {
@@ -179,8 +179,33 @@ describe('editAutomation()', () => {
       title: 'edited-title',
       filterRule: 'any',
       filters: expect.any(Array),
-      outputs: expect.any(Array),
+      outputs: [],
     });
+  });
+
+  it('replaces all outputs when an automation definition is edited', async () => {
+    const editedWithOneOutput = await editAutomation(firstAutomation.id, {
+      title: 'edited-title',
+      filterRule: 'any',
+      filters: [],
+      outputs: [makeHTTPAction()],
+    });
+    expect(editedWithOneOutput.outputs).toEqual([makeHTTPAction()]);
+  });
+
+  it('preserves global triggers when a definition is edited', async () => {
+    await addTrigger({ title: 'On Start', trigger: TimerLifeCycle.onStart, automationId: firstAutomation.id });
+
+    await editAutomation(firstAutomation.id, {
+      title: 'edited-title',
+      filterRule: 'all',
+      filters: [],
+      outputs: [],
+    });
+
+    expect(getAutomationTriggers()).toEqual([
+      expect.objectContaining({ automationId: firstAutomation.id, trigger: TimerLifeCycle.onStart }),
+    ]);
   });
 });
 
@@ -224,5 +249,36 @@ describe('deleteAutomation()', () => {
     await deleteAutomation(projectRundowns, Object.keys(automations)[0]);
     const removed = getAutomations();
     expect(Object.keys(removed).length).toEqual(0);
+  });
+
+  it('refuses an automation attached to a global trigger', async () => {
+    const automationId = Object.keys(getAutomations())[0];
+    await addTrigger({ title: 'On Start', trigger: TimerLifeCycle.onStart, automationId });
+
+    await expect(deleteAutomation({}, automationId)).rejects.toThrow(/used in trigger/);
+    expect(getAutomationTriggers()).toHaveLength(1);
+    expect(getAutomations()[automationId]).toBeDefined();
+  });
+
+  it('refuses an automation attached to an event', async () => {
+    const automationId = Object.keys(getAutomations())[0];
+    const projectRundowns: ProjectRundowns = {
+      'rundown-1': {
+        id: 'rundown-1',
+        title: 'Rundown 1',
+        order: ['1'],
+        flatOrder: ['1'],
+        entries: {
+          '1': makeOntimeEvent({
+            id: '1',
+            triggers: [{ id: 'trigger-1', title: 'Trigger 1', trigger: TimerLifeCycle.onClock, automationId }],
+          }),
+        },
+        revision: 1,
+      },
+    };
+
+    await expect(deleteAutomation(projectRundowns, automationId)).rejects.toThrow(/used in rundown/);
+    expect(getAutomations()[automationId]).toBeDefined();
   });
 });

@@ -1,4 +1,12 @@
-import { parseOutput } from '../automation.validation.js';
+import { parseAutomation, parseOutput } from '../automation.validation.js';
+
+describe('parseAutomation', () => {
+  it('rejects trigger bindings from definition payloads', () => {
+    expect(() =>
+      parseAutomation({ title: 'Definition', filterRule: 'all', filters: [], outputs: [], triggers: [] }),
+    ).toThrow('Automation definitions cannot include triggers');
+  });
+});
 
 describe('parseOutput', () => {
   describe('handles OSC outputs', () => {

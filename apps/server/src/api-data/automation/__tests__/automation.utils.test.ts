@@ -1,7 +1,17 @@
 import { ProjectRundowns, TimerLifeCycle } from 'ontime-types';
 
 import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
-import { isAutomationUsed, parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
+import { isAutomationUsed, isHostname, parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
+
+describe('isHostname()', () => {
+  it.each(['localhost', 'qlab', 'osc.example.com', 'osc-target.example'])('accepts %s', (hostname) => {
+    expect(isHostname(hostname)).toBe(true);
+  });
+
+  it.each(['not a host', '-osc.example', 'osc-.example', 'osc..example', 'osc.example.'])('rejects %s', (hostname) => {
+    expect(isHostname(hostname)).toBe(false);
+  });
+});
 
 describe('parseTemplateNested()', () => {
   it('parses string with a single-level variable name', () => {

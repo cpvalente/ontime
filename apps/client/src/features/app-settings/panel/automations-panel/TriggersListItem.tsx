@@ -16,6 +16,7 @@ interface TriggersListItemProps {
 
 export default function TriggersListItem(props: TriggersListItemProps) {
   const { automations, trigger, duplicate, handleEdit, handleDelete } = props;
+  const automation = automations[trigger.automationId];
 
   return (
     <tr data-warn={duplicate}>
@@ -30,9 +31,7 @@ export default function TriggersListItem(props: TriggersListItemProps) {
       <td>
         <Tag>{cycles.find((cycle) => cycle.value === trigger.trigger)?.label}</Tag>
       </td>
-      <td>
-        <Tag>{automations?.[trigger.automationId]?.title}</Tag>
-      </td>
+      <td>{automation ? <Tag>{automation.title}</Tag> : <Tag variant='warning'>Missing automation</Tag>}</td>
       <Panel.InlineElements align='end' relation='inner' as='td'>
         <IconButton variant='ghosted-white' aria-label='Edit entry' onClick={handleEdit}>
           <IoPencil />

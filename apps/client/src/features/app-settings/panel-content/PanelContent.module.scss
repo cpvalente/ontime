@@ -30,7 +30,8 @@ $content-max-width: 1280px;
   max-width: $content-max-width;
   margin: 0 auto 1rem;
   padding-inline: 1rem;
-  overflow-y: auto;
+  // Own both scroll axes so sticky table headers stay anchored to the panel viewport.
+  overflow: auto;
   flex-grow: 1;
   // room for the last section to scroll to the top of the viewport
   padding-bottom: 40vh;

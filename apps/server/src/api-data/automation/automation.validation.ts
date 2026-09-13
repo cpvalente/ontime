@@ -14,7 +14,7 @@ import {
 
 import * as assert from '../../utils/assert.js';
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
-import { isFilterOperator, isFilterRule, isOntimeActionAction } from './automation.utils.js';
+import { isFilterOperator, isFilterRule, isHostname, isOntimeActionAction } from './automation.utils.js';
 
 export const validateAutomationSettings = [
   body('enabledAutomations').isBoolean(),
@@ -61,6 +61,10 @@ export const validateAutomationPatch = [
 export function parseAutomation(maybeAutomation: unknown): AutomationDTO {
   assert.isObject(maybeAutomation);
   assert.hasKeys(maybeAutomation, ['title', 'filterRule', 'filters', 'outputs']);
+
+  if ('triggers' in maybeAutomation) {
+    throw new Error('Automation definitions cannot include triggers');
+  }
 
   const { title, filterRule, filters, outputs } = maybeAutomation;
   assert.isString(title);
@@ -128,11 +132,8 @@ function parseOSCOutput(maybeOSCOutput: object): OSCOutput {
   assert.isString(maybeOSCOutput.args);
 
   const targetIP = maybeOSCOutput.targetIP.trim();
-  const target = replaceAutomationTemplates(targetIP, 'template.local');
-  const isHostname = /^(?=.{1,253}$)[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?)*$/i.test(
-    target,
-  );
-  if (isIP(target) !== 4 && !isHostname) {
+  const target = replaceTemplatesForValidation(targetIP, 'template.local');
+  if (isIP(target) !== 4 && !isHostname(target)) {
     throw new Error('Invalid OSC target');
   }
   if (
@@ -171,7 +172,8 @@ function parseHTTPOutput(maybeHTTPOutput: object): HTTPOutput {
   };
 }
 
-function replaceAutomationTemplates(value: string, replacement: string): string {
+/** Replaces runtime values so their surrounding host or URL syntax can be validated before execution. */
+function replaceTemplatesForValidation(value: string, replacement: string): string {
   return value.replace(/{{.*?}}/g, replacement);
 }
 
@@ -179,7 +181,7 @@ function replaceHTTPTemplatesForValidation(value: string): string {
   if (/^{{.*?}}$/.test(value)) {
     return 'https://template.local';
   }
-  return replaceAutomationTemplates(value, 'template');
+  return replaceTemplatesForValidation(value, 'template');
 }
 
 function parseOntimeAction(maybeOntimeAction: object): OntimeAction {

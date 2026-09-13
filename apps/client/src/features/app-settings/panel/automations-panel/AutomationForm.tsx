@@ -1,14 +1,5 @@
-import {
-  Automation,
-  AutomationDTO,
-  HTTPOutput,
-  OSCOutput,
-  OntimeAction,
-  isHTTPOutput,
-  isOSCOutput,
-  isOntimeAction,
-} from 'ontime-types';
-import { useEffect, useMemo } from 'react';
+import { Automation, AutomationDTO, isHTTPOutput, isOSCOutput, isOntimeAction } from 'ontime-types';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
 
@@ -16,25 +7,28 @@ import { addAutomation, editAutomation, testOutput } from '../../../../common/ap
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
+import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Modal from '../../../../common/components/modal/Modal';
 import RadioGroup from '../../../../common/components/radio-group/RadioGroup';
 import Select from '../../../../common/components/select/Select';
-import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
-import { startsWithHttp } from '../../../../common/utils/regex';
+import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
-import { isAutomation, makeFieldList } from './automationUtils';
+import { isAutomation, makeFieldList, operators, type OutputErrors } from './automationUtils';
+import HttpOutputForm from './HttpOutputForm';
 import OntimeActionForm from './OntimeActionForm';
-import TemplateInput from './template-input/TemplateInput';
+import OscOutputForm from './OscOutputForm';
+import OutputCard, { type TestState } from './OutputCard';
 
 import style from './AutomationForm.module.scss';
 
 const integrationsDocsUrl = 'https://docs.getontime.no/api/automation/#using-variables-in-automation';
 const formId = 'automation-form';
+const testFeedbackDuration = 2000;
 
 interface AutomationFormProps {
   automation: Automation | AutomationDTO;
@@ -46,13 +40,15 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
   const { data } = useCustomFields();
   const { refetch } = useAutomationSettings();
   const fieldList = useMemo(() => makeFieldList(data), [data]);
+  const [testResults, setTestResults] = useState<Record<string, TestState>>({});
+  const [submitError, setSubmitError] = useState<string>();
+  const feedbackTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const {
     control,
     handleSubmit,
     getValues,
     register,
-    setError,
     setFocus,
     setValue,
     watch,
@@ -93,6 +89,28 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
     setFocus('title');
   }, [setFocus]);
 
+  // Clear delayed output-test feedback when the modal unmounts.
+  useEffect(() => {
+    const timers = feedbackTimers.current;
+    return () => Object.values(timers).forEach(clearTimeout);
+  }, []);
+
+  const reportTest = (key: string, state: TestState) => {
+    setTestResults((prev) => ({ ...prev, [key]: state }));
+    clearTimeout(feedbackTimers.current[key]);
+
+    if (state.status === 'ok') {
+      feedbackTimers.current[key] = setTimeout(() => {
+        setTestResults((prev) => {
+          const { [key]: _discarded, ...rest } = prev;
+          return rest;
+        });
+      }, testFeedbackDuration);
+    }
+  };
+
+  const getOutputErrors = (index: number) => errors.outputs?.[index] as OutputErrors | undefined;
+
   const handleAddNewFilter = () => {
     appendFilter({ field: '', operator: 'equals', value: '' });
   };
@@ -106,57 +124,33 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
     appendOutput({ type: 'http', url: '' });
   };
 
-  const handleAddnewOntimeAction = () => {
+  const handleAddNewOntimeAction = () => {
     appendOutput({ type: 'ontime', action: 'aux1-start' });
   };
 
-  const handleTestOSCOutput = async (index: number) => {
-    try {
-      const values = getValues(`outputs.${index}`) as OSCOutput;
-      if (!values.targetIP || !values.targetPort || !values.address) {
-        return;
-      }
-      await testOutput({
-        type: 'osc',
-        targetIP: values.targetIP,
-        targetPort: values.targetPort,
-        address: values.address,
-        args: values.args,
-      });
-    } catch (_error) {
-      /** we dont handle errors here, users should use the network tab */
-    }
-  };
+  const handleTest = async (index: number, key: string) => {
+    const values = getValues(`outputs.${index}`);
 
-  const handleTestHTTPOutput = async (index: number) => {
-    try {
-      const values = getValues(`outputs.${index}`) as HTTPOutput;
-      if (!values.url) {
-        return;
-      }
-      await testOutput({
-        type: 'http',
-        url: values.url,
-      });
-    } catch (_error) {
-      /** we dont handle errors here, users should use the network tab */
+    if (isOSCOutput(values) && (!values.targetIP || !values.targetPort || !values.address)) {
+      reportTest(key, { status: 'error', message: 'Fill in the target and address before testing' });
+      return;
     }
-  };
+    if (isHTTPOutput(values) && !values.url) {
+      reportTest(key, { status: 'error', message: 'Add a target URL before testing' });
+      return;
+    }
 
-  const handleTestOntimeAction = async (index: number) => {
+    reportTest(key, { status: 'sending' });
     try {
-      const values = getValues(`outputs.${index}`) as OntimeAction;
-      // NOTE: there is no meaningful validation to do here, we let the server deal with the data
-      await testOutput({
-        ...values,
-        type: 'ontime',
-      });
-    } catch (_error) {
-      /** we dont handle errors here */
+      await testOutput(values);
+      reportTest(key, { status: 'ok', message: 'Request sent' });
+    } catch (error) {
+      reportTest(key, { status: 'error', message: maybeAxiosError(error) });
     }
   };
 
   const onSubmit = async (values: AutomationDTO) => {
+    setSubmitError(undefined);
     if (isAutomation(automation)) {
       await handleEdit(automation.id, { id: automation.id, ...values });
     } else {
@@ -169,7 +163,7 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
         await editAutomation(id, values);
         onClose();
       } catch (error) {
-        setError('root', { message: maybeAxiosError(error) });
+        setSubmitError(maybeAxiosError(error));
       }
     }
 
@@ -178,12 +172,43 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
         await addAutomation(values);
         onClose();
       } catch (error) {
-        setError('root', { message: maybeAxiosError(error) });
+        setSubmitError(maybeAxiosError(error));
       }
     }
   };
 
   const canSubmit = !isSubmitting && isDirty && isValid;
+  const addOutputMenu = (
+    <DropdownMenu
+      render={<Button />}
+      items={[
+        ...(isOntimeCloud
+          ? []
+          : [
+              {
+                type: 'item' as const,
+                label: 'OSC',
+                description: 'Send an OSC message to a device on the network',
+                onClick: handleAddNewOSCOutput,
+              },
+            ]),
+        {
+          type: 'item' as const,
+          label: 'HTTP',
+          description: 'Call a URL, for webhooks and REST APIs',
+          onClick: handleAddNewHTTPOutput,
+        },
+        {
+          type: 'item' as const,
+          label: 'Ontime action',
+          description: 'Change something inside Ontime, like a message or an aux timer',
+          onClick: handleAddNewOntimeAction,
+        },
+      ]}
+    >
+      Add output <IoAdd />
+    </DropdownMenu>
+  );
 
   return (
     <Modal
@@ -202,7 +227,7 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                 <Input
                   {...register('title', { required: { value: true, message: 'Required field' } })}
                   fluid
-                  placeholder='Load preset'
+                  placeholder='Automation title'
                 />
               </label>
               <Panel.Error>{errors.title?.message}</Panel.Error>
@@ -223,6 +248,9 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                     { value: 'any', label: 'Any filter passes' },
                   ]}
                 />
+                <Panel.Description>
+                  All filters pass requires every condition to match. Any filter passes requires at least one match.
+                </Panel.Description>
               </label>
               {fieldFilters.map((field, index) => {
                 const key = `filters.${index}.field.${field.id}`;
@@ -264,11 +292,7 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                             { shouldDirty: true },
                           );
                         }}
-                        options={[
-                          { value: 'equals', label: 'equals' },
-                          { value: 'not_equals', label: 'not equals' },
-                          { value: 'contains', label: 'contains' },
-                        ]}
+                        options={operators}
                         aria-label='Operator'
                       />
                       <Panel.Error>{errors.filters?.[index]?.operator?.message}</Panel.Error>
@@ -305,150 +329,52 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
             <Info>
               Automation outputs can be used to send data from Ontime to external software <br />
               or to change properties of Ontime itself. <br /> <br />
-              Use Ontime runtime data in these fields with template strings. Type {'{{'} to see autocomplete, or{' '}
-              <ExternalLink href={integrationsDocsUrl}>read the docs</ExternalLink>
+              <span>
+                Use Ontime runtime data in these fields with template strings. Type{' '}
+                <Panel.Highlight>{'{{'}</Panel.Highlight> to see autocomplete, or{' '}
+                <ExternalLink href={integrationsDocsUrl}>read the docs</ExternalLink>
+              </span>
             </Info>
 
+            {fieldOutputs.length === 0 && (
+              <Panel.EmptyState
+                title='This automation does nothing yet'
+                description='An automation without outputs will be triggered, but it has nothing to send.'
+                action={addOutputMenu}
+              />
+            )}
             {fieldOutputs.map((output, index) => {
-              if (isOSCOutput(output)) {
-                const rowErrors = errors.outputs?.[index] as
-                  | {
-                      targetIP?: { message?: string };
-                      targetPort?: { message?: string };
-                      address?: { message?: string };
-                      args?: { message?: string };
-                    }
-                  | undefined;
+              const cardProps = {
+                testState: testResults[output.id],
+                onTest: () => handleTest(index, output.id),
+                onDelete: () => removeOutput(index),
+              };
+              const rowErrors = getOutputErrors(index);
 
+              if (isOSCOutput(output)) {
                 return (
-                  <div key={output.id} className={style.outputCard}>
-                    <Tag>OSC</Tag>
-                    <div className={style.oscSection}>
-                      <label>
-                        Target IP
-                        <Input
-                          {...register(`outputs.${index}.targetIP`, {
-                            required: { value: true, message: 'Required field' },
-                          })}
-                          fluid
-                          placeholder='127.0.0.1'
-                        />
-                        <Panel.Error>{rowErrors?.targetIP?.message}</Panel.Error>
-                      </label>
-                      <label>
-                        Target Port
-                        <Input
-                          {...register(`outputs.${index}.targetPort`, {
-                            required: { value: true, message: 'Required field' },
-                            setValueAs: (value) => (value === '' ? 0 : Number(value)),
-                            max: { value: 65535, message: 'Port must be within range 1024 - 65535' },
-                            min: { value: 1024, message: 'Port must be within range 1024 - 65535' },
-                          })}
-                          fluid
-                          type='number'
-                          maxLength={5}
-                          placeholder='8000'
-                        />
-                        <Panel.Error>{rowErrors?.targetPort?.message}</Panel.Error>
-                      </label>
-                      <label>
-                        Address
-                        <TemplateInput
-                          {...register(`outputs.${index}.address`)}
-                          value={output.address}
-                          fluid
-                          placeholder='/cue/start'
-                        />
-                        <Panel.Error>{rowErrors?.address?.message}</Panel.Error>
-                      </label>
-                      <label>
-                        Arguments
-                        <TemplateInput
-                          {...register(`outputs.${index}.args`)}
-                          value={output.args}
-                          fluid
-                          placeholder='1'
-                        />
-                        <Panel.Error>{rowErrors?.args?.message}</Panel.Error>
-                      </label>
-                      <div>
-                        <span>&nbsp;</span>
-                        <Panel.InlineElements relation='inner'>
-                          <Button variant='ghosted-white' onClick={() => handleTestOSCOutput(index)}>
-                            Test
-                          </Button>
-                          <IconButton
-                            aria-label='Delete'
-                            variant='ghosted-destructive'
-                            onClick={() => removeOutput(index)}
-                          >
-                            <IoTrash />
-                          </IconButton>
-                        </Panel.InlineElements>
-                      </div>
-                    </div>
-                  </div>
+                  <OutputCard
+                    key={output.id}
+                    label='OSC'
+                    kindClass={style.tagOsc}
+                    summary={watch(`outputs.${index}.address`)}
+                    unavailableReason={isOntimeCloud ? 'Unavailable in Ontime Cloud' : undefined}
+                    {...cardProps}
+                  >
+                    <OscOutputForm index={index} output={output} register={register} rowErrors={rowErrors} />
+                  </OutputCard>
                 );
               }
               if (isHTTPOutput(output)) {
-                const rowErrors = errors.outputs?.[index] as
-                  | {
-                      url?: { message?: string };
-                    }
-                  | undefined;
                 return (
-                  <div key={output.id} className={style.outputCard}>
-                    <Tag>HTTP</Tag>
-                    <div className={style.httpSection}>
-                      <label>
-                        Target URL
-                        <TemplateInput
-                          {...register(`outputs.${index}.url`, {
-                            required: { value: true, message: 'Required field' },
-                            pattern: {
-                              value: startsWithHttp,
-                              message: 'HTTP messages should target http:// or https://',
-                            },
-                          })}
-                          value={output.url}
-                          fluid
-                          placeholder='http://127.0.0.1/start/1'
-                        />
-                        <Panel.Error>{rowErrors?.url?.message}</Panel.Error>
-                      </label>
-                      <div>
-                        <span>&nbsp;</span>
-                        <Panel.InlineElements relation='inner'>
-                          <Button variant='ghosted-white' onClick={() => handleTestHTTPOutput(index)}>
-                            Test
-                          </Button>
-                          <IconButton
-                            aria-label='Delete'
-                            variant='ghosted-destructive'
-                            onClick={() => removeOutput(index)}
-                          >
-                            <IoTrash />
-                          </IconButton>
-                        </Panel.InlineElements>
-                      </div>
-                    </div>
-                  </div>
+                  <OutputCard key={output.id} label='HTTP' kindClass={style.tagHttp} {...cardProps}>
+                    <HttpOutputForm index={index} output={output} register={register} rowErrors={rowErrors} />
+                  </OutputCard>
                 );
               }
-
               if (isOntimeAction(output)) {
-                const rowErrors = errors.outputs?.[index] as
-                  | {
-                      action?: { message?: string };
-                      time?: { message?: string };
-                      text?: { message?: string };
-                      visible?: { message?: string };
-                      secondarySource?: { message?: string };
-                    }
-                  | undefined;
                 return (
-                  <div key={output.id} className={style.outputCard}>
-                    <Tag>Ontime action</Tag>
+                  <OutputCard key={output.id} label='Ontime action' kindClass={style.tagOntime} {...cardProps}>
                     <OntimeActionForm
                       value={output.action}
                       index={index}
@@ -456,44 +382,19 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                       rowErrors={rowErrors}
                       setValue={setValue}
                       watch={watch}
-                    >
-                      <span>&nbsp;</span>
-                      <Panel.InlineElements relation='inner'>
-                        <Button variant='ghosted-white' onClick={() => handleTestOntimeAction(index)}>
-                          Test
-                        </Button>
-                        <IconButton
-                          aria-label='Delete'
-                          variant='ghosted-destructive'
-                          onClick={() => removeOutput(index)}
-                        >
-                          <IoTrash />
-                        </IconButton>
-                      </Panel.InlineElements>
-                    </OntimeActionForm>
-                  </div>
+                    />
+                  </OutputCard>
                 );
               }
-
               return null;
             })}
-            <Panel.InlineElements relation='inner'>
-              <Button onClick={handleAddNewOSCOutput}>
-                OSC <IoAdd />
-              </Button>
-              <Button onClick={handleAddNewHTTPOutput}>
-                HTTP <IoAdd />
-              </Button>
-              <Button onClick={handleAddnewOntimeAction}>
-                Ontime action <IoAdd />
-              </Button>
-            </Panel.InlineElements>
+            {fieldOutputs.length > 0 && addOutputMenu}
           </div>
         </form>
       }
       footerElements={
         <>
-          {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
+          {submitError && <Panel.Error>{submitError}</Panel.Error>}
           <Button onClick={onClose}>Cancel</Button>
           <Button variant='primary' type='submit' form={formId} disabled={!canSubmit} loading={isSubmitting}>
             Save

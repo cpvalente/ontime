@@ -11,6 +11,8 @@ import Select from '../../../../common/components/select/Select';
 import * as Panel from '../../panel-utils/PanelUtils';
 import { cycles } from './automationUtils';
 
+import style from './TriggerForm.module.scss';
+
 const formId = 'trigger-form';
 
 interface TriggerFormProps {
@@ -83,42 +85,45 @@ export default function TriggerForm({ automations, trigger, onCancel, postSubmit
       size='compact'
       title={trigger ? 'Edit trigger' : 'Create trigger'}
       bodyElements={
-        <form id={formId} onSubmit={handleSubmit(onSubmit)}>
-          <label>
-            Title
+        <form id={formId} onSubmit={handleSubmit(onSubmit)} className={style.form}>
+          <label className={style.titleField}>
+            <Panel.Description>Title</Panel.Description>
             <Input
               {...register('title', { required: { value: true, message: 'Required field' } })}
               fluid
               defaultValue={trigger?.title}
+              placeholder='Trigger title'
             />
             <Panel.Error>{errors.title?.message}</Panel.Error>
           </label>
-          <label>
-            Lifecycle trigger
-            <Select
-              value={watch('trigger')}
-              onValueChange={(value) => {
-                if (value === null) return;
-                setValue('trigger', value as TimerLifeCycle, { shouldDirty: true });
-              }}
-              options={cycles.map((cycle) => ({ value: cycle.value, label: cycle.label }))}
-              aria-label='Lifecycle trigger'
-            />
-            <Panel.Error>{errors.trigger?.message}</Panel.Error>
-          </label>
-          <label>
-            Automation title
-            <Select
-              value={watch('automationId')}
-              onValueChange={(value: string | null) => {
-                if (value === null) return;
-                setValue('automationId', value, { shouldDirty: true });
-              }}
-              options={automationSelect}
-              aria-label='Automation title'
-            />
-            <Panel.Error>{errors.automationId?.message}</Panel.Error>
-          </label>
+          <div className={style.fields}>
+            <label>
+              <Panel.Description>When to run</Panel.Description>
+              <Select
+                value={watch('trigger')}
+                onValueChange={(value) => {
+                  if (value === null) return;
+                  setValue('trigger', value as TimerLifeCycle, { shouldDirty: true });
+                }}
+                options={cycles.map((cycle) => ({ value: cycle.value, label: cycle.label }))}
+                aria-label='Lifecycle trigger'
+              />
+              <Panel.Error>{errors.trigger?.message}</Panel.Error>
+            </label>
+            <label>
+              <Panel.Description>Automation</Panel.Description>
+              <Select
+                value={watch('automationId')}
+                onValueChange={(value: string | null) => {
+                  if (value === null) return;
+                  setValue('automationId', value, { shouldDirty: true });
+                }}
+                options={automationSelect}
+                aria-label='Automation title'
+              />
+              <Panel.Error>{errors.automationId?.message}</Panel.Error>
+            </label>
+          </div>
         </form>
       }
       footerElements={
