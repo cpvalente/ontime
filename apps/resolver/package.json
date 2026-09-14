@@ -3,8 +3,8 @@
   "version": "4.13.0",
   "type": "module",
   "repository": "https://github.com/cpvalente/ontime",
-  "types": "./dist/main.d.ts",
-  "main": "./dist/main.js",
+  "types": "./dist/main.d.mts",
+  "main": "./dist/main.mjs",
   "description": "shared typings for ontime",
   "scripts": {
     "lint": "oxlint --quiet --type-aware",
@@ -19,7 +19,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "ontime-types": "workspace:^4.2.1",
+    "ontime-types": "workspace:",
     "tsdown": "^0.22.4",
     "typescript": "catalog:"
   },
