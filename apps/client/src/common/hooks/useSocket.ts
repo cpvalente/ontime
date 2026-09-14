@@ -22,10 +22,14 @@ export const useRundownEditor = createSelector((state: RuntimeStore) => ({
   nextEventId: state.eventNext?.id ?? null,
 }));
 
-export const useTimerViewControl = createSelector((state: RuntimeStore) => ({
+export const useScreenControl = createSelector((state: RuntimeStore) => ({
   blackout: state.message.timer.blackout,
   blink: state.message.timer.blink,
-  secondarySource: state.message.timer.secondarySource,
+  isScreenModified:
+    state.message.timer.visible ||
+    state.message.timer.blink ||
+    state.message.timer.blackout ||
+    state.message.timer.secondarySource !== null,
 }));
 
 export const useTimerMessageInput = createSelector((state: RuntimeStore) => ({
@@ -33,17 +37,12 @@ export const useTimerMessageInput = createSelector((state: RuntimeStore) => ({
   visible: state.message.timer.visible,
 }));
 
-export const useExternalMessageInput = createSelector((state: RuntimeStore) => ({
+export const useSecondaryMessageInput = createSelector((state: RuntimeStore) => ({
   text: state.message.secondary,
-  visible: state.message.timer.secondarySource === 'secondary',
+  source: state.message.timer.secondarySource,
 }));
 
-export const useMessagePreview = createSelector((state: RuntimeStore) => ({
-  blink: state.message.timer.blink,
-  blackout: state.message.timer.blackout,
-  phase: state.timer.phase,
-  secondarySource: state.message.timer.secondarySource,
-  showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
+export const useTimerStatus = createSelector((state: RuntimeStore) => ({
   timerType: state.eventNow?.timerType ?? null,
   countToEnd: state.eventNow?.countToEnd ?? false,
 }));
@@ -52,10 +51,16 @@ export const setMessage = {
   timerText: (payload: string) => sendSocket('message', { timer: { text: payload } }),
   timerVisible: (payload: boolean) => sendSocket('message', { timer: { visible: payload } }),
   secondaryMessage: (payload: string) => sendSocket('message', { secondary: payload }),
-  timerBlink: (payload: boolean) => sendSocket('message', { timer: { blink: payload } }),
-  timerBlackout: (payload: boolean) => sendSocket('message', { timer: { blackout: payload } }),
+  // blink and blackout are mutually exclusive stage states, so turning one on turns the other off
+  timerBlink: (payload: boolean) =>
+    sendSocket('message', payload ? { timer: { blink: true, blackout: false } } : { timer: { blink: false } }),
+  timerBlackout: (payload: boolean) =>
+    sendSocket('message', payload ? { timer: { blackout: true, blink: false } } : { timer: { blackout: false } }),
   timerSecondarySource: (payload: TimerMessage['secondarySource']) =>
     sendSocket('message', { timer: { secondarySource: payload } }),
+  /** returns the stage to a plain timer, keeping whatever the operator has typed */
+  clearScreen: () =>
+    sendSocket('message', { timer: { visible: false, blink: false, blackout: false, secondarySource: null } }),
 };
 
 export const usePlaybackControl = createSelector((state: RuntimeStore) => ({
