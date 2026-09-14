@@ -213,7 +213,7 @@ importers:
   apps/resolver:
     devDependencies:
       ontime-types:
-        specifier: workspace:^4.2.1
+        specifier: 'workspace:'
         version: link:../../packages/types
       tsdown:
         specifier: ^0.22.4
