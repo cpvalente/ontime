@@ -22,6 +22,14 @@ export const CLIENT_LIST = ['clientList'];
 export const REPORT = ['report'];
 export const TRANSLATION = ['translation'];
 
+/**
+ * Cache key holding the data for a rundown.
+ * Before the loaded rundown is known there is no id to key by,
+ * and the data lives under the bootstrap alias.
+ */
+export const getRundownCacheKey = (rundownId: string) =>
+  rundownId ? getRundownQueryKey(rundownId) : CURRENT_RUNDOWN_QUERY_KEY;
+
 // API URLs
 export const apiEntryUrl = `${serverURL}/data`;
 

@@ -2,6 +2,7 @@ import { type EntryId, type OntimeEntry, type Rundown, SupportedEntry } from 'on
 import { getNextGroupNormal, getNextNormal, getPreviousGroupNormal, getPreviousNormal } from 'ontime-utils';
 import { useCallback } from 'react';
 
+import { useRundownScope } from '../../../common/context/RundownScopeContext';
 import type { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
 import { SelectionMode } from '../useEventSelection';
@@ -26,6 +27,7 @@ export function useRundownCommands({
   selectEntry: applySelection,
   handleCollapseGroup,
 }: UseRundownCommandsOptions) {
+  const { rundownId } = useRundownScope();
   const { addEntry, clone, deleteEntry, move, reorderEntry } = entryActions;
 
   const deleteAtCursor = useCallback(
@@ -43,9 +45,14 @@ export function useRundownCommands({
   const insertCopyAtId = useCallback(
     (atId: EntryId | null, above = false) => {
       // lazily get the value from the store
-      const { entryCopyId, entryCopyMode, setEntryCopyId } = useEntryCopy.getState();
+      const { entryCopyId, entryCopyRundownId, entryCopyMode, setEntryCopyId } = useEntryCopy.getState();
       if (entryCopyId === null || !entries[entryCopyId]) {
         // we cant clone without selection
+        return;
+      }
+
+      // pasting into a different rundown needs the entry payload, the server clones within a rundown
+      if (entryCopyRundownId !== null && entryCopyRundownId !== rundownId) {
         return;
       }
 
@@ -65,7 +72,7 @@ export function useRundownCommands({
             return;
           }
           reorderEntry(entryCopyId, firstId, 'before')
-            .then(() => setEntryCopyId(null))
+            .then(() => setEntryCopyId(null, null))
             .catch(() => {});
           return;
         }
@@ -74,7 +81,7 @@ export function useRundownCommands({
         }
         const placement = above ? 'before' : 'after';
         reorderEntry(entryCopyId, normalisedAtId, placement)
-          .then(() => setEntryCopyId(null))
+          .then(() => setEntryCopyId(null, null))
           .catch(() => {});
         return;
       }
@@ -85,7 +92,7 @@ export function useRundownCommands({
         before: above ? (normalisedAtId ?? undefined) : undefined,
       });
     },
-    [entries, flatOrder, clone, reorderEntry],
+    [entries, flatOrder, clone, reorderEntry, rundownId],
   );
 
   /**

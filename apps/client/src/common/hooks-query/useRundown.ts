@@ -1,62 +1,38 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { EntryId, OntimeEntry, Rundown } from 'ontime-types';
-import { useEffect, useMemo } from 'react';
+import { EntryId, OntimeEntry } from 'ontime-types';
+import { useMemo } from 'react';
 
-import { queryRefetchIntervalSlow } from '../../ontimeConfig';
-import { CURRENT_RUNDOWN_QUERY_KEY, getRundownQueryKey } from '../api/constants';
-import { fetchCurrentRundown, fetchRundown } from '../api/rundown';
+import { useRundownScope } from '../context/RundownScopeContext';
 import { useSelectedEventId } from '../hooks/useSocket';
-import { ExtendedEntry, getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
-import { useProjectRundowns } from './useProjectRundowns';
-
-// revision is -1 so that the remote revision is higher
-const cachedRundownPlaceholder: Rundown = {
-  id: 'default',
-  title: '',
-  order: [],
-  flatOrder: [],
-  entries: {},
-  revision: -1,
-};
+import { getFlatRundownMetadata, getRundownMetadata } from '../utils/rundownMetadata';
+import { flattenRundown, useRundownById } from './useRundownById';
 
 /**
- * Normalised rundown data for the currently loaded rundown.
- *
- * Bootstraps via the `/current` alias so the first paint is a single round-trip,
- * independent of the project rundown list. Once the loaded id is known, the
- * query key swaps to the id-keyed cache that is shared with `useRundownById`.
+ * Normalised rundown data for the rundown of the enclosing scope
  */
 export default function useRundown() {
-  const queryClient = useQueryClient();
-  const {
-    data: { loaded: loadedRundownId },
-  } = useProjectRundowns();
+  const { rundownId } = useRundownScope();
+  return useRundownById(rundownId);
+}
 
-  const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
-    queryKey: loadedRundownId ? getRundownQueryKey(loadedRundownId) : CURRENT_RUNDOWN_QUERY_KEY,
-    queryFn: ({ signal }) => fetchCurrentRundown({ signal }),
-    refetchInterval: queryRefetchIntervalSlow,
-  });
-
-  // Seed the id-keyed cache when fetching via the bootstrap alias
-  useEffect(() => {
-    if (!data || loadedRundownId) return;
-    queryClient.setQueryData(getRundownQueryKey(data.id), data);
-  }, [data, loadedRundownId, queryClient]);
-
-  // Once we have the ID, drop the temporary current cache
-  useEffect(() => {
-    if (!loadedRundownId) return;
-    queryClient.removeQueries({ queryKey: CURRENT_RUNDOWN_QUERY_KEY, exact: true });
-  }, [loadedRundownId, queryClient]);
-
-  return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
+/**
+ * Runtime state only describes the loaded rundown,
+ * a scope pointed elsewhere must not show a playing event
+ */
+export function useScopedSelectedEventId(): EntryId | null {
+  const { isLoaded } = useRundownScope();
+  const selectedEventId = useSelectedEventId();
+  return isLoaded ? selectedEventId : null;
 }
 
 export function useRundownWithMetadata() {
   const { data, status } = useRundown();
-  const selectedEventId = useSelectedEventId();
-  const rundownMetadata = useMemo(() => getRundownMetadata(data, selectedEventId), [data, selectedEventId]);
+  const selectedEventId = useScopedSelectedEventId();
+  // key on the fields the derivation reads, a revision only change must not churn the list
+  const { entries, flatOrder } = data;
+  const rundownMetadata = useMemo(
+    () => getRundownMetadata({ entries, flatOrder }, selectedEventId),
+    [entries, flatOrder, selectedEventId],
+  );
   return { data, status, rundownMetadata };
 }
 
@@ -66,39 +42,21 @@ export function useRundownWithMetadata() {
  */
 export function useFlatRundown() {
   const { data, status } = useRundown();
-
-  const flatRundown = useMemo(() => {
-    if (data.revision === -1) {
-      return [];
-    }
-    return data.flatOrder.map((id) => data.entries[id]).filter((entry): entry is OntimeEntry => entry !== undefined);
-  }, [data]);
+  const flatRundown = useMemo(() => flattenRundown(data), [data]);
 
   return { data: flatRundown, rundownId: data.id, status };
 }
 
 export function useFlatRundownWithMetadata() {
   const { data, status } = useRundown();
-  const selectedEventId = useSelectedEventId();
+  const selectedEventId = useScopedSelectedEventId();
 
-  const rundownWithMetadata = useMemo(() => getFlatRundownMetadata(data, selectedEventId), [data, selectedEventId]);
+  const { entries, flatOrder } = data;
+  const rundownWithMetadata = useMemo(
+    () => getFlatRundownMetadata({ entries, flatOrder }, selectedEventId),
+    [entries, flatOrder, selectedEventId],
+  );
   return { data: rundownWithMetadata, status };
-}
-
-/**
- * Provides access to a partial rundown based on a filter callback
- *
- * Callers MUST memoize the callback with useCallback to prevent
- * re-filtering on every render.
- *
- */
-export function usePartialRundown(cb: (event: ExtendedEntry<OntimeEntry>) => boolean) {
-  const { data, status } = useFlatRundownWithMetadata();
-  const filteredData = useMemo(() => {
-    return data.filter(cb);
-  }, [data, cb]);
-
-  return { data: filteredData, status };
 }
 
 /**
@@ -109,31 +67,4 @@ export function useEntry(entryId: EntryId | null): OntimeEntry | null {
 
   if (entryId === null) return null;
   return rundown.entries[entryId] ?? null;
-}
-
-export function useRundownAuxData() {
-  const { data, status } = useRundown();
-  const filteredData = useMemo(() => {
-    const { title, id } = data;
-    return { title, id };
-  }, [data]);
-  return { data: filteredData, status };
-}
-
-/**
- * Provides access to a specific rundown by ID.
- * When rundownId is null/undefined the query is disabled and returns the placeholder.
- */
-export function useRundownById(rundownId: string | null | undefined) {
-  const enabled = Boolean(rundownId);
-
-  const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
-    queryKey: getRundownQueryKey(rundownId ?? ''),
-    queryFn: ({ signal }) => fetchRundown(rundownId!, { signal }),
-    enabled,
-    placeholderData: (previousData, _previousQuery) => previousData,
-    refetchInterval: queryRefetchIntervalSlow,
-  });
-
-  return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
 }
