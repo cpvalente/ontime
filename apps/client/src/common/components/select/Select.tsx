@@ -22,7 +22,9 @@ export default function Select<T>({ options, fluid, size = 'medium', ...selectRo
   return (
     <BaseSelect.Root items={options} {...selectRootProps}>
       <BaseSelect.Trigger className={cx([styles.select, styles[size], fluid && styles.fluid])}>
-        <BaseSelect.Value />
+        <span className={styles.valueText}>
+          <BaseSelect.Value />
+        </span>
         <BaseSelect.Icon className={styles.selectIcon}>
           <LuChevronsUpDown />
         </BaseSelect.Icon>
