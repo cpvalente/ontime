@@ -63,6 +63,7 @@ vi.mock('../../stores/logger', () => ({ addLog: vi.fn() }));
 
 describe('socket connection watchdog', () => {
   let connectSocket: () => void;
+  let getReconnectAttempts: () => number;
 
   beforeEach(async () => {
     vi.useFakeTimers();
@@ -71,7 +72,9 @@ describe('socket connection watchdog', () => {
     vi.stubGlobal('WebSocket', MockWebSocket);
     // the module keeps connection state in module scope, we need a clean one for each test
     vi.resetModules();
-    connectSocket = (await import('../socket')).connectSocket;
+    const socketModule = await import('../socket');
+    connectSocket = socketModule.connectSocket;
+    getReconnectAttempts = socketModule.getReconnectAttempts;
   });
 
   afterEach(() => {
@@ -112,10 +115,12 @@ describe('socket connection watchdog', () => {
 
     vi.advanceTimersByTime(watchdogInterval);
     expect(socket.readyState).toBe(MockWebSocket.CLOSED);
+
+    vi.advanceTimersByTime(socketConfig.reconnectBaseInterval * 2);
     expect(MockWebSocket.instances).toHaveLength(2);
   });
 
-  it('gives up on a connection attempt which never completes', () => {
+  it('backs off after a connection attempt which never completes', () => {
     connectSocket();
     const socket = MockWebSocket.instances[0];
 
@@ -123,7 +128,12 @@ describe('socket connection watchdog', () => {
     vi.advanceTimersByTime(connectTimeout + watchdogInterval);
 
     expect(socket.readyState).toBe(MockWebSocket.CLOSED);
+    expect(MockWebSocket.instances).toHaveLength(1);
+    expect(getReconnectAttempts()).toBe(0);
+
+    vi.advanceTimersByTime(socketConfig.reconnectBaseInterval * 2);
     expect(MockWebSocket.instances).toHaveLength(2);
+    expect(getReconnectAttempts()).toBe(1);
   });
 
   it('logs one warning while repeated connection attempts time out', () => {
@@ -168,6 +178,7 @@ describe('socket connection watchdog', () => {
     const stale = openConnection();
 
     vi.advanceTimersByTime(silenceTimeout + watchdogInterval);
+    vi.advanceTimersByTime(socketConfig.reconnectBaseInterval * 2);
     expect(MockWebSocket.instances).toHaveLength(2);
     MockWebSocket.instances[1].open();
 

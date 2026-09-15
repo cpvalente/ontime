@@ -276,14 +276,11 @@ function scheduleReconnect() {
   }, delay);
 }
 
-/**
- * Drops the current connection and immediately opens a new one.
- * Used when we have reason to believe the socket is no longer delivering data.
- */
-function reconnectNow(reason: string) {
+/** Drops a socket that is no longer delivering and retries with the normal backoff. */
+function reconnectWithBackoff(reason: string) {
   logConnectionIssue(reason);
   detachSocket();
-  connectSocket();
+  scheduleReconnect();
 }
 
 /** Detaches a socket before closing it so late events cannot affect its replacement. */
@@ -325,23 +322,19 @@ function checkConnection() {
   if (websocket?.readyState === WebSocket.CONNECTING) {
     // A connection attempt can otherwise hang indefinitely.
     if (silentFor > socketConfig.connectTimeout) {
-      reconnectNow('WebSocket: connection attempt timed out');
+      reconnectWithBackoff('WebSocket: connection attempt timed out');
     }
     return;
   }
 
   if (websocket?.readyState === WebSocket.OPEN) {
     if (silentFor > socketConfig.silenceTimeout) {
-      reconnectNow('WebSocket: no data from server, reconnecting');
+      reconnectWithBackoff('WebSocket: no data from server, reconnecting');
     }
     return;
   }
 
-  /**
-   * The socket is closing, closed or was never created.
-   * Closing schedules its own reconnect, this is what covers us if that did not happen,
-   * so that there is no state the client can settle in without a way out.
-   */
+  // Covers a close event that the browser never reported.
   if (!reconnectTimeout) {
     scheduleReconnect();
   }
