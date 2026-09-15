@@ -19,6 +19,8 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - Avoid duplicate listeners, notifications, invalidations, lifecycle effects.
 - Reconnect/refetch must converge on authoritative state.
 - Align query keys and websocket refetch keys with the changed resource.
+- The server publishes the clock every second regardless of playback. Clients treat longer silence
+  as a dropped connection, so never make that publication conditional.
 
 ## Timers
 

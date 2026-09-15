@@ -1,15 +1,19 @@
 import type { Server } from 'node:http';
 
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const websocketMocks = vi.hoisted(() => {
   let connectionHandler: ((socket: FakeWebSocket, request: unknown) => void) | undefined;
+  let latestServer: FakeWebSocketServer | undefined;
 
   class FakeWebSocket {
     static readonly OPEN = 1;
 
     readyState = FakeWebSocket.OPEN;
     close = vi.fn();
+    ping = vi.fn();
+    send = vi.fn();
+    terminate = vi.fn();
     handlers = new Map<string, Array<(...args: unknown[]) => void>>();
 
     on(event: string, handler: (...args: unknown[]) => void) {
@@ -31,6 +35,10 @@ const websocketMocks = vi.hoisted(() => {
   class FakeWebSocketServer {
     clients = new Set<FakeWebSocket>();
 
+    constructor() {
+      latestServer = this;
+    }
+
     on(event: string, handler: (socket: FakeWebSocket, request: unknown) => void) {
       if (event === 'connection') {
         connectionHandler = handler;
@@ -47,8 +55,11 @@ const websocketMocks = vi.hoisted(() => {
     FakeWebSocket,
     FakeWebSocketServer,
     getConnectionHandler: () => connectionHandler,
+    getLatestServer: () => latestServer,
   };
 });
+
+const authenticationMocks = vi.hoisted(() => ({ reject: true }));
 
 vi.mock('ws', () => ({
   WebSocket: websocketMocks.FakeWebSocket,
@@ -57,15 +68,20 @@ vi.mock('ws', () => ({
 
 vi.mock('../../middleware/authenticate.js', () => ({
   authenticateSocket: (_socket: unknown, _request: unknown, next: (error?: Error) => void) => {
-    next(new Error('Unauthorized'));
+    next(authenticationMocks.reject ? new Error('Unauthorized') : undefined);
   },
 }));
 
 import { socket } from '../WebsocketAdapter.js';
 
-describe('WebsocketAdapter authentication', () => {
+describe('WebsocketAdapter', () => {
+  beforeEach(() => {
+    authenticationMocks.reject = true;
+  });
+
   afterEach(async () => {
     await socket.shutdown();
+    vi.useRealTimers();
   });
 
   it('handles an error emitted while rejecting an unauthenticated socket', () => {
@@ -78,5 +94,25 @@ describe('WebsocketAdapter authentication', () => {
 
     expect(rejectedSocket.close).toHaveBeenCalledWith(1008, 'Unauthorized');
     expect(() => rejectedSocket.emit('error', new Error('socket closed'))).not.toThrow();
+  });
+
+  it('terminates a client that sends messages but does not answer protocol pings', () => {
+    vi.useFakeTimers();
+    authenticationMocks.reject = false;
+    socket.init({} as Server, false);
+    const client = new websocketMocks.FakeWebSocket();
+    const server = websocketMocks.getLatestServer();
+    const connectionHandler = websocketMocks.getConnectionHandler();
+
+    expect(server).toBeDefined();
+    expect(connectionHandler).toBeDefined();
+    server?.clients.add(client);
+    connectionHandler?.(client, {});
+
+    vi.advanceTimersByTime(10_000);
+    client.emit('message', Buffer.from(JSON.stringify({ tag: 'ping', payload: null })));
+
+    vi.advanceTimersByTime(10_000);
+    expect(client.terminate).toHaveBeenCalledOnce();
   });
 });
