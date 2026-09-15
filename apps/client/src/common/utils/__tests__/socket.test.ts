@@ -40,6 +40,10 @@ class MockWebSocket {
     this.onclose?.();
   }
 
+  /** Simulates a lost connection without an onclose event. */
+  closeSilently() {
+    this.readyState = MockWebSocket.CLOSED;
+  }
   open() {
     this.readyState = MockWebSocket.OPEN;
     this.onopen?.();
@@ -147,6 +151,16 @@ describe('socket connection watchdog', () => {
 
     // Reconnection uses the same backoff policy.
     vi.advanceTimersByTime(socketConfig.reconnectBaseInterval * 2);
+    expect(MockWebSocket.instances).toHaveLength(2);
+  });
+
+  it('recovers when a close goes unreported', () => {
+    const socket = openConnection();
+
+    // The watchdog is the only recovery path when no close event arrives.
+    socket.closeSilently();
+
+    vi.advanceTimersByTime(watchdogInterval + socketConfig.reconnectBaseInterval * 2);
     expect(MockWebSocket.instances).toHaveLength(2);
   });
 
