@@ -62,11 +62,22 @@ class SocketServer implements IAdapter {
     this.wss = new WebSocketServer({ path: `${prefix}/ws`, server, maxPayload: this.MAX_PAYLOAD });
 
     this.wss.on('connection', (ws, req) => {
+      // Rejected sockets can emit an error while their close handshake is in progress.
+      ws.on('error', console.error);
+
+      let isAuthenticated = false;
       authenticateSocket(ws, req, (error) => {
         if (error) {
           ws.close(1008, 'Unauthorized');
+          return;
         }
+        isAuthenticated = true;
       });
+
+      if (!isAuthenticated) {
+        return;
+      }
+
       const clientId = generateId();
       const clientName = getRandomName();
       function sendPacket<T extends MessageTag>(
@@ -93,8 +104,6 @@ class SocketServer implements IAdapter {
 
       // send store payload on connect
       sendPacket(MessageTag.RuntimeData, eventStore.poll());
-
-      ws.on('error', console.error);
 
       ws.on('close', () => {
         this.clients.delete(clientId);
