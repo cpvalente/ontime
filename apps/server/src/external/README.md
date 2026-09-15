@@ -54,6 +54,13 @@ const connectSocket = (socketUrl) => {
 };
 ```
 
+### Detecting a dropped connection
+
+Ontime publishes the clock every second, whether or not anything is playing.
+A connection can go quiet without a close event, which the browser may take minutes to
+report. A client which needs to stay current should track the time of its last message and
+reconnect after a grace period with no server traffic.
+
 ### Runtime data
 
 `runtime-data` contains a patch of all the data in the server

@@ -1,6 +1,8 @@
 import {
   ApiActionTag,
   Log,
+  LogLevel,
+  LogOrigin,
   MaybeNumber,
   MessageTag,
   RefetchKey,
@@ -8,6 +10,7 @@ import {
   WsPacketToClient,
   WsPacketToServer,
 } from 'ontime-types';
+import { generateId, millisToString } from 'ontime-utils';
 
 import { isProduction, websocketUrl } from '../../externals';
 import {
@@ -39,28 +42,53 @@ import {
 import { addDialog } from '../stores/dialogStore';
 import { addLog } from '../stores/logger';
 import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
+import { nowInMillis } from './time';
 
 let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
-const socketConfig = {
-  reconnectBaseInterval: 1000, // 1 second
-  reconnectMaxInterval: 30000, // 30 seconds
-  reconnectMinInterval: 500, // 0.5 seconds
+let watchdogInterval: NodeJS.Timeout | null = null;
+export const socketConfig = {
+  reconnectBaseInterval: 1000,
+  reconnectMaxInterval: 30000,
+  reconnectMinInterval: 500,
   reconnectJitter: 0.25,
-  offlineAttemptsThreshold: 2, // when we consider the client disconnected
+  offlineAttemptsThreshold: 2,
+  watchdogInterval: 2000,
+  silenceTimeout: 10000,
+  connectTimeout: 10000,
 } as const;
 
 export const getConnectionState = () => hasConnected;
 export const getReconnectAttempts = () => reconnectAttempts;
 let hasConnected = false;
 let reconnectAttempts = 0;
+let lastContact = 0;
+let hasLoggedConnectionIssue = false;
 
 export const connectSocket = () => {
-  websocket = new WebSocket(websocketUrl);
+  if (websocket && (websocket.readyState === WebSocket.CONNECTING || websocket.readyState === WebSocket.OPEN)) {
+    return;
+  }
+
+  if (reconnectTimeout) {
+    clearTimeout(reconnectTimeout);
+    reconnectTimeout = null;
+  }
+
+  const socket = new WebSocket(websocketUrl);
+  websocket = socket;
+  registerConnectionAttempt();
+  startWatchdog();
 
   const preferredClientName = getClientName();
 
-  websocket.onopen = () => {
+  // Replaced sockets must not schedule reconnects for their replacement.
+  const isCurrent = () => websocket === socket;
+
+  socket.onopen = () => {
+    if (!isCurrent()) {
+      return;
+    }
     const isReconnect = hasConnected;
     if (reconnectTimeout) {
       clearTimeout(reconnectTimeout);
@@ -68,6 +96,7 @@ export const connectSocket = () => {
     }
     hasConnected = true;
     reconnectAttempts = 0;
+    registerContact();
 
     sendSocket(MessageTag.ClientSet, {
       type: 'ontime',
@@ -82,38 +111,26 @@ export const connectSocket = () => {
     setOnlineStatus(true);
   };
 
-  websocket.onclose = () => {
-    console.warn('WebSocket disconnected');
-    if (reconnectTimeout) {
-      clearTimeout(reconnectTimeout);
-      reconnectTimeout = null;
+  socket.onclose = () => {
+    if (!isCurrent()) {
+      return;
     }
-
-    const exponentialDelay = Math.min(
-      socketConfig.reconnectBaseInterval * 2 ** reconnectAttempts,
-      socketConfig.reconnectMaxInterval,
-    );
-    const jitterOffset = exponentialDelay * socketConfig.reconnectJitter * (Math.random() * 2 - 1);
-    const delay = Math.max(socketConfig.reconnectMinInterval, Math.round(exponentialDelay + jitterOffset));
-
-    reconnectTimeout = setTimeout(() => {
-      reconnectTimeout = null;
-      if (reconnectAttempts > socketConfig.offlineAttemptsThreshold) {
-        setOnlineStatus(false);
-      }
-      console.warn(`WebSocket: reconnecting now (#${reconnectAttempts + 1}, waited ${delay}ms)`);
-      if (websocket && websocket.readyState === WebSocket.CLOSED) {
-        reconnectAttempts += 1;
-        connectSocket();
-      }
-    }, delay);
+    console.warn('WebSocket disconnected');
+    scheduleReconnect();
   };
 
-  websocket.onerror = (error) => {
+  socket.onerror = (error) => {
     console.error('WebSocket error:', error);
   };
 
-  websocket.onmessage = async (event) => {
+  socket.onmessage = async (event) => {
+    if (!isCurrent()) {
+      return;
+    }
+
+    // Any server message proves the connection is still delivering.
+    registerContact();
+
     try {
       const data = JSON.parse(event.data) as WsPacketToClient;
 
@@ -125,7 +142,8 @@ export const connectSocket = () => {
 
       switch (tag) {
         case MessageTag.Pong: {
-          const offset = (new Date().getTime() - new Date(payload).getTime()) * 0.5;
+          // a round trip can be faster than the clock resolution, we keep the value positive since a ping <= 0 means offline
+          const offset = Math.max(1, (new Date().getTime() - new Date(payload).getTime()) * 0.5);
           patchRuntimeProperty('ping', offset);
           updateDevTools({ ping: offset });
           break;
@@ -233,6 +251,141 @@ export const connectSocket = () => {
     }
   };
 };
+
+function scheduleReconnect() {
+  if (reconnectTimeout) {
+    clearTimeout(reconnectTimeout);
+    reconnectTimeout = null;
+  }
+
+  const exponentialDelay = Math.min(
+    socketConfig.reconnectBaseInterval * 2 ** reconnectAttempts,
+    socketConfig.reconnectMaxInterval,
+  );
+  const jitterOffset = exponentialDelay * socketConfig.reconnectJitter * (Math.random() * 2 - 1);
+  const delay = Math.max(socketConfig.reconnectMinInterval, Math.round(exponentialDelay + jitterOffset));
+
+  reconnectTimeout = setTimeout(() => {
+    reconnectTimeout = null;
+    if (reconnectAttempts > socketConfig.offlineAttemptsThreshold) {
+      setOnlineStatus(false);
+    }
+    console.warn(`WebSocket: reconnecting now (#${reconnectAttempts + 1}, waited ${delay}ms)`);
+    reconnectAttempts += 1;
+    connectSocket();
+  }, delay);
+}
+
+/** Drops a socket that is no longer delivering and retries with the normal backoff. */
+function reconnectWithBackoff(reason: string) {
+  logConnectionIssue(reason);
+  detachSocket();
+  scheduleReconnect();
+}
+
+/** Detaches a socket before closing it so late events cannot affect its replacement. */
+function detachSocket() {
+  const previous = websocket;
+  websocket = null;
+
+  if (!previous) {
+    return;
+  }
+
+  previous.onopen = null;
+  previous.onclose = null;
+  previous.onerror = null;
+  previous.onmessage = null;
+  try {
+    previous.close();
+  } catch (_) {
+    // The socket is unusable either way.
+  }
+}
+
+function registerContact() {
+  lastContact = Date.now();
+  hasLoggedConnectionIssue = false;
+}
+
+function registerConnectionAttempt() {
+  lastContact = Date.now();
+}
+
+/**
+ * Replaces silent connections. The server publishes a clock update every second, even
+ * while paused, so extended silence is evidence of a dropped connection.
+ */
+function checkConnection() {
+  const silentFor = Date.now() - lastContact;
+
+  if (websocket?.readyState === WebSocket.CONNECTING) {
+    // A connection attempt can otherwise hang indefinitely.
+    if (silentFor > socketConfig.connectTimeout) {
+      reconnectWithBackoff('WebSocket: connection attempt timed out');
+    }
+    return;
+  }
+
+  if (websocket?.readyState === WebSocket.OPEN) {
+    if (silentFor > socketConfig.silenceTimeout) {
+      reconnectWithBackoff('WebSocket: no data from server, reconnecting');
+    }
+    return;
+  }
+
+  // Covers a close event that the browser never reported.
+  if (!reconnectTimeout) {
+    scheduleReconnect();
+  }
+}
+
+function startWatchdog() {
+  if (watchdogInterval) {
+    return;
+  }
+  watchdogInterval = setInterval(checkConnection, socketConfig.watchdogInterval);
+}
+
+/** Records connection failures locally because server logs may be unreachable. */
+function logConnectionIssue(text: string) {
+  if (hasLoggedConnectionIssue) {
+    return;
+  }
+
+  hasLoggedConnectionIssue = true;
+  console.warn(text);
+  addLog({
+    id: generateId(),
+    origin: LogOrigin.Client,
+    time: millisToString(nowInMillis()),
+    level: LogLevel.Warn,
+    text,
+  });
+}
+
+/** Rechecks a socket when a resumed browser may have lost it while timers were suspended. */
+function handleEnvironmentChange() {
+  if (!websocket || websocket.readyState === WebSocket.CLOSED || websocket.readyState === WebSocket.CLOSING) {
+    // A pending reconnect may be delayed by backoff, so retry immediately.
+    reconnectAttempts = 0;
+    connectSocket();
+    return;
+  }
+
+  checkConnection();
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', handleEnvironmentChange);
+  window.addEventListener('pageshow', handleEnvironmentChange);
+  window.addEventListener('focus', handleEnvironmentChange);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      handleEnvironmentChange();
+    }
+  });
+}
 
 export function maybeInvalidateRundownCache(revision: MaybeNumber, rundownId?: string) {
   if (!rundownId) {
