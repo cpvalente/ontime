@@ -320,13 +320,9 @@ function registerConnectionAttempt() {
  * while paused, so extended silence is evidence of a dropped connection.
  */
 function checkConnection() {
-  if (!websocket) {
-    return;
-  }
-
   const silentFor = Date.now() - lastContact;
 
-  if (websocket.readyState === WebSocket.CONNECTING) {
+  if (websocket?.readyState === WebSocket.CONNECTING) {
     // A connection attempt can otherwise hang indefinitely.
     if (silentFor > socketConfig.connectTimeout) {
       reconnectNow('WebSocket: connection attempt timed out');
@@ -334,8 +330,20 @@ function checkConnection() {
     return;
   }
 
-  if (websocket.readyState === WebSocket.OPEN && silentFor > socketConfig.silenceTimeout) {
-    reconnectNow('WebSocket: no data from server, reconnecting');
+  if (websocket?.readyState === WebSocket.OPEN) {
+    if (silentFor > socketConfig.silenceTimeout) {
+      reconnectNow('WebSocket: no data from server, reconnecting');
+    }
+    return;
+  }
+
+  /**
+   * The socket is closing, closed or was never created.
+   * Closing schedules its own reconnect, this is what covers us if that did not happen,
+   * so that there is no state the client can settle in without a way out.
+   */
+  if (!reconnectTimeout) {
+    scheduleReconnect();
   }
 }
 
