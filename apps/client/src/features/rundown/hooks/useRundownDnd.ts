@@ -1,4 +1,5 @@
 import {
+  type Active,
   type Data,
   DragEndEvent,
   DragOverEvent,
@@ -45,6 +46,15 @@ export function useRundownDnd({
   const [activeId, setActiveId] = useState<EntryId | null>(null);
 
   /**
+   * Resolves the data of the dragged element
+   * If the element was unmounted by the virtualiser, dnd-kit gives us empty data
+   * in which case we fallback to the snapshot taken on drag start
+   */
+  const getActiveData = useCallback((active: Active): Data | null => {
+    return active.data.current?.sortable ? active.data.current : activeDataRef.current;
+  }, []);
+
+  /**
    * Discards any reference to the dragged element, also used as the drag cancel handler
    */
   const clearActive = useCallback(() => {
@@ -59,9 +69,7 @@ export function useRundownDnd({
   const handleOnDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
-      // if the dragged element was unmounted by the virtualiser, dnd-kit gives us empty data
-      // in which case we fallback to the snapshot taken on drag start
-      const activeData = active.data.current?.sortable ? active.data.current : activeDataRef.current;
+      const activeData = getActiveData(active);
       clearActive();
 
       if (!over?.id || active.id === over.id) {
@@ -131,7 +139,7 @@ export function useRundownDnd({
         setSortableData(currentEntries);
       });
     },
-    [entries, sortableData, setSortableData, getIsCollapsed, reorderEntry],
+    [entries, sortableData, setSortableData, getIsCollapsed, reorderEntry, getActiveData, clearActive],
   );
 
   /**
@@ -159,7 +167,8 @@ export function useRundownDnd({
   const expandOverGroup = useCallback(
     (event: DragOverEvent) => {
       // if we are dragging a group, the drop operation is invalid so we dont expand
-      if (event.active.data.current?.type === SupportedEntry.Group) {
+      // expanding the group here would also make an otherwise valid drop after it invalid
+      if (getActiveData(event.active)?.type === SupportedEntry.Group) {
         return;
       }
       if (event.over?.data.current?.type !== SupportedEntry.Group) {
@@ -169,7 +178,7 @@ export function useRundownDnd({
       const groupId = event.over?.id as EntryId | undefined;
       handleCollapseGroup(false, groupId);
     },
-    [handleCollapseGroup],
+    [handleCollapseGroup, getActiveData],
   );
 
   return useMemo(
