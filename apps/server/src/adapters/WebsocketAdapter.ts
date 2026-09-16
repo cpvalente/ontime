@@ -44,6 +44,7 @@ class SocketServer implements IAdapter {
   private wss: WebSocketServer | null;
   private readonly clients: Map<ClientId, Client>;
   private lastConnection: Date | null = null;
+  private lastDisconnection: Date | null = null;
   private shouldShowWelcome = true;
 
   constructor() {
@@ -98,6 +99,11 @@ class SocketServer implements IAdapter {
 
       ws.on('close', () => {
         this.clients.delete(clientId);
+        if (this.clients.size === 0) {
+          // we keep track of when the last client left so that
+          // hosted environments can tell how long an instance has been unused
+          this.lastDisconnection = new Date();
+        }
         logger.info(LogOrigin.Client, `${this.clients.size} Connections with disconnected: ${clientName}`);
         this.sendClientList();
       });
@@ -168,6 +174,7 @@ class SocketServer implements IAdapter {
     return {
       connectedClients: this.clients.size,
       lastConnection: this.lastConnection,
+      lastDisconnection: this.lastDisconnection,
     };
   }
 

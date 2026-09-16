@@ -72,6 +72,7 @@ export type {
   NetworkInterface,
   GetInfo,
   GetUrl,
+  IdleState,
   ProjectFileList,
   ProjectFile,
   ErrorResponse,

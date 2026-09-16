@@ -15,6 +15,7 @@ import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/r
 import { editEntry } from '../api-data/rundown/rundown.service.js';
 import { willCauseRegeneration } from '../api-data/rundown/rundown.utils.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
+import { trackActivity } from '../services/activity-service/activity.service.js';
 import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.js';
 import * as messageService from '../services/message-service/message.service.js';
 import { validateMessage, validateTimerMessage } from '../services/message-service/message.utils.js';
@@ -30,6 +31,7 @@ export function dispatchFromAdapter(tag: string, payload: unknown, _source?: 'os
   const action = tag.toLowerCase();
   const handler = actionHandlers[action as ApiActionTag];
   lastRequest = new Date();
+  trackActivity();
 
   if (handler) {
     return handler(payload);

@@ -4,8 +4,8 @@ services:
     image: getontime/ontime:latest
     ports:
       - '4001:4001/tcp'
+      # only needed when the OSC input integration is enabled
       - '8888:8888/udp'
-      - '9999:9999/udp'
     volumes:
       - './ontime-data:/data/'
     environment:

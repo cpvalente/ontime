@@ -1,4 +1,4 @@
-import { GetInfo, LinkOptions, OntimeView, SessionStats } from 'ontime-types';
+import { GetInfo, IdleState, LinkOptions, OntimeView, Playback, SessionStats } from 'ontime-types';
 
 import { socket } from '../../adapters/WebsocketAdapter.js';
 import { getLastRequest } from '../../api-integration/integration.controller.js';
@@ -6,6 +6,7 @@ import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { portManager } from '../../classes/port-manager/PortManager.js';
 import { password, routerPrefix } from '../../externals.js';
 import { ONTIME_VERSION } from '../../ONTIME_VERSION.js';
+import { getLastActivity } from '../../services/activity-service/activity.service.js';
 import { getCurrentProject } from '../../services/project-service/ProjectService.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 import { publicDir } from '../../setup/index.js';
@@ -17,7 +18,7 @@ const startedAt = new Date();
 
 /** Gathers information related to runtime */
 export async function getSessionStats(): Promise<SessionStats> {
-  const { connectedClients, lastConnection } = socket.getStats();
+  const { connectedClients, lastConnection, lastDisconnection } = socket.getStats();
   const lastRequest = getLastRequest();
   const { filename } = await getCurrentProject();
   const { playback } = runtimeService.getRuntimeState();
@@ -26,12 +27,42 @@ export async function getSessionStats(): Promise<SessionStats> {
     startedAt: startedAt.toISOString(),
     connectedClients,
     lastConnection: lastConnection !== null ? lastConnection.toISOString() : null,
+    lastDisconnection: lastDisconnection !== null ? lastDisconnection.toISOString() : null,
     lastRequest: lastRequest !== null ? lastRequest.toISOString() : null,
     projectName: filename,
     playback,
     timezone: getTimezoneLabel(startedAt),
     version: ONTIME_VERSION,
   };
+}
+
+/**
+ * Reports whether the instance is currently in use
+ *
+ * An instance is in use while a client is connected or while a timer is running.
+ * Once neither is true, we report the time of the last known interaction so that
+ * a hosted environment can decide when a stage has been unattended for long enough
+ * to be suspended.
+ *
+ * Note that we consider Playback.Armed idle: the runtime is restored on startup,
+ * so a loaded event survives the instance being stopped and started again.
+ */
+export function getIdleState(): IdleState {
+  const { connectedClients, lastConnection, lastDisconnection } = socket.getStats();
+  const { playback } = runtimeService.getRuntimeState();
+
+  const isRunning = playback === Playback.Play || playback === Playback.Pause || playback === Playback.Roll;
+  if (connectedClients > 0 || isRunning) {
+    return { idle: false, idleSince: null };
+  }
+
+  // we are idle since whichever interaction happened last
+  const interactions = [lastConnection, lastDisconnection, getLastRequest(), getLastActivity()].filter(
+    (date): date is Date => date !== null,
+  );
+  const idleSince = interactions.length ? new Date(Math.max(...interactions.map((date) => date.getTime()))) : startedAt;
+
+  return { idle: true, idleSince: idleSince.toISOString() };
 }
 
 /**

@@ -12,6 +12,7 @@ import { oscServer } from './adapters/OscAdapter.js';
 import { socket } from './adapters/WebsocketAdapter.js';
 // Import Routers
 import { appRouter } from './api-data/index.js';
+import { getIdleState } from './api-data/session/session.service.js';
 import { integrationRouter } from './api-integration/integration.router.js';
 import { mcpRouter } from './api-mcp/mcp.router.js';
 import { flushPendingWrites, getDataProvider } from './classes/data-provider/DataProvider.js';
@@ -23,6 +24,7 @@ import { makeAuthenticateMiddleware, makeLoginRouter } from './middleware/authen
 // Import middleware configuration
 import { bodyParser } from './middleware/bodyParser.js';
 import { compressedStatic } from './middleware/staticGZip.js';
+import { trackActivityMiddleware } from './middleware/trackActivity.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
 import * as messageService from './services/message-service/message.service.js';
@@ -97,11 +99,17 @@ app.get(`${prefix}/ready`, (_req, res) => {
   res.status(200).send('READY');
 });
 
+// idle probe for orchestrators, allows suspending instances which have been left unattended
+// it is deliberately kept out of the tracked routers so that polling does not keep an instance awake
+app.get(`${prefix}/idle`, (_req, res) => {
+  res.status(200).send(getIdleState());
+});
+
 // Implement route endpoints
 app.use(`${prefix}/login`, loginRouter); // router for login flow
-app.use(`${prefix}/data`, authenticate, appRouter); // router for application data
-app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
-app.use(`${prefix}/mcp`, authenticate, mcpRouter); // router for MCP agent integration
+app.use(`${prefix}/data`, authenticate, trackActivityMiddleware, appRouter); // router for application data
+app.use(`${prefix}/api`, authenticate, trackActivityMiddleware, integrationRouter); // router for integrations
+app.use(`${prefix}/mcp`, authenticate, trackActivityMiddleware, mcpRouter); // router for MCP agent integration
 
 // serve static external files
 app.use(

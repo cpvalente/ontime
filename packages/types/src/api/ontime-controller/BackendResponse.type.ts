@@ -15,11 +15,23 @@ export interface SessionStats {
   startedAt: string;
   connectedClients: number;
   lastConnection: MaybeString;
+  /** time the last client disconnected, null if a client was never connected */
+  lastDisconnection: MaybeString;
   lastRequest: MaybeString;
   projectName: string;
   playback: Playback;
   timezone: string;
   version: string;
+}
+
+/**
+ * Whether the instance is currently being used
+ * Allows hosted environments to suspend instances which have been left unattended
+ */
+export interface IdleState {
+  idle: boolean;
+  /** time since the instance has been idle, null if it is in use */
+  idleSince: MaybeString;
 }
 
 export interface GetInfo {

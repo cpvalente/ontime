@@ -20,11 +20,14 @@ COPY apps/server/src/user/ ./user/
 COPY apps/server/src/html/ ./html/
 
 # Export default ports
-EXPOSE 4001/tcp 8888/udp 9999/udp
+# 8888/udp is only needed when the OSC input integration is enabled
+# it is documentation only: the port still has to be published with -p when running the container
+EXPOSE 4001/tcp 8888/udp
 
 CMD ["node", "server/docker.cjs"]
 
 # Build and run commands
 # pnpm build:docker
 # docker buildx build . -t getontime/ontime
-# docker run -p 4001:4001 -p 8888:8888/udp -p 9999:9999/udp -v ./ontime-db:/data/ getontime/ontime
+# docker run -p 4001:4001 -v ./ontime-db:/data/ getontime/ontime
+# add -p 8888:8888/udp to the command above if you use the OSC input integration
