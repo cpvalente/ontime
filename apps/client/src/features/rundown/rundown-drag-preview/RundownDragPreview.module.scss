@@ -1,12 +1,21 @@
 @use '../blockMixins' as *;
 
+/**
+ * The overlay wrapper is sized by dnd-kit to match the element being dragged
+ * We fill it entirely so that the measured rect used for collision detection
+ * matches the element the user grabbed
+ */
 .preview {
   @include block-styling;
+
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
 
   display: grid;
   grid-template-columns: $block-binder-width 1fr;
   align-items: center;
-  height: $secondary-block-height;
   background-color: $block-bg;
   box-shadow: $block-box-shadow;
   cursor: grabbing;

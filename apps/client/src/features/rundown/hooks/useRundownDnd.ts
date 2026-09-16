@@ -44,6 +44,9 @@ export function useRundownDnd({
   const activeDataRef = useRef<Data | null>(null);
   const [activeId, setActiveId] = useState<EntryId | null>(null);
 
+  /**
+   * Discards any reference to the dragged element, also used as the drag cancel handler
+   */
   const clearActive = useCallback(() => {
     isDraggingRef.current = false;
     activeDataRef.current = null;
@@ -151,13 +154,6 @@ export function useRundownDnd({
   );
 
   /**
-   * On drag cancel we discard any reference to the dragged element
-   */
-  const handleOnDragCancel = useCallback(() => {
-    clearActive();
-  }, [clearActive]);
-
-  /**
    * When we drag over a group, we expand it if it is collapsed
    */
   const expandOverGroup = useCallback(
@@ -183,9 +179,9 @@ export function useRundownDnd({
       activeId,
       handleOnDragEnd,
       handleOnDragStart,
-      handleOnDragCancel,
+      handleOnDragCancel: clearActive,
       expandOverGroup,
     }),
-    [sensors, activeId, handleOnDragEnd, handleOnDragStart, handleOnDragCancel, expandOverGroup],
+    [sensors, activeId, handleOnDragEnd, handleOnDragStart, clearActive, expandOverGroup],
   );
 }
