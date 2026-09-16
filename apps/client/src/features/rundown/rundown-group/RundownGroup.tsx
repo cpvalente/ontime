@@ -139,7 +139,10 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
 
   const dragStyle = {
     zIndex: isDragging ? 2 : 'inherit',
-    transform: CSS.Translate.toString(transform),
+    // while dragging, the element is represented by the drag overlay
+    // we keep the original element in place as a placeholder
+    transform: isDragging ? undefined : CSS.Translate.toString(transform),
+    opacity: isDragging ? 0.4 : undefined,
     transition,
     cursor: isOver ? (isValidDrop ? 'grabbing' : 'no-drop') : 'inherit',
   };

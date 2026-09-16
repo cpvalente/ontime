@@ -1,0 +1,30 @@
+@use '../blockMixins' as *;
+
+.preview {
+  @include block-styling;
+
+  display: grid;
+  grid-template-columns: $block-binder-width 1fr;
+  align-items: center;
+  height: $secondary-block-height;
+  background-color: $block-bg;
+  box-shadow: $block-box-shadow;
+  cursor: grabbing;
+  opacity: 0.9;
+}
+
+.binder {
+  height: 100%;
+  display: grid;
+  place-content: center;
+  font-size: 1rem;
+  background-color: var(--user-bg, $gray-1050);
+  color: $section-white;
+}
+
+.label {
+  padding-inline: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

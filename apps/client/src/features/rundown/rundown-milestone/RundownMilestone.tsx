@@ -78,7 +78,10 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
 
   const dragStyle = {
     zIndex: isDragging ? 2 : 'inherit',
-    transform: CSS.Translate.toString(transform),
+    // while dragging, the element is represented by the drag overlay
+    // we keep the original element in place as a placeholder
+    transform: isDragging ? undefined : CSS.Translate.toString(transform),
+    opacity: isDragging ? 0.4 : undefined,
     transition,
   };
 

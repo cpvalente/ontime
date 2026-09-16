@@ -1,7 +1,15 @@
-import { DragEndEvent, DragOverEvent, DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import {
+  type Data,
+  DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
 import { type EntryId, type Rundown, SupportedEntry, isOntimeGroup } from 'ontime-types';
 import { reorderArray } from 'ontime-utils';
-import { Dispatch, SetStateAction, useCallback, useMemo, useRef } from 'react';
+import { Dispatch, SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
 
 import type { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { canDrop } from '../rundown.utils';
@@ -28,27 +36,45 @@ export function useRundownDnd({
   const isDraggingRef = useRef(false);
 
   /**
+   * The rundown list is virtualised, which means that the dragged element can be unmounted
+   * if the user drags it far enough for it to leave the render window.
+   * When that happens, dnd-kit loses the data associated with the active element,
+   * so we keep our own copy from the moment the drag started.
+   */
+  const activeDataRef = useRef<Data | null>(null);
+  const [activeId, setActiveId] = useState<EntryId | null>(null);
+
+  const clearActive = useCallback(() => {
+    isDraggingRef.current = false;
+    activeDataRef.current = null;
+    setActiveId(null);
+  }, []);
+
+  /**
    * On drag end, we reorder the events
    */
   const handleOnDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
-      isDraggingRef.current = false;
+      // if the dragged element was unmounted by the virtualiser, dnd-kit gives us empty data
+      // in which case we fallback to the snapshot taken on drag start
+      const activeData = active.data.current?.sortable ? active.data.current : activeDataRef.current;
+      clearActive();
 
       if (!over?.id || active.id === over.id) {
         return;
       }
 
-      if (!active.data.current || !over.data.current) {
+      if (!activeData?.sortable || !over.data.current) {
         return;
       }
 
-      const fromIndex: number = active.data.current.sortable.index;
+      const fromIndex: number = activeData.sortable.index;
       const toIndex: number = over.data.current.sortable.index;
       let placement: 'before' | 'after' | 'insert' = fromIndex < toIndex ? 'after' : 'before';
 
       let destinationId = over.id as EntryId;
-      const isDraggingGroup = active.data.current?.type === SupportedEntry.Group;
+      const isDraggingGroup = activeData.type === SupportedEntry.Group;
 
       // prevent dropping a group inside another
       if (
@@ -106,12 +132,16 @@ export function useRundownDnd({
   );
 
   /**
-   * When we drag a group, we force collapse it
+   * On drag start we keep a reference to the dragged element
+   * and, if we are dragging a group, we force collapse it
    * This avoids strange scenarios like dropping a group inside itself
    */
-  const collapseDraggedGroups = useCallback(
+  const handleOnDragStart = useCallback(
     (event: DragStartEvent) => {
       isDraggingRef.current = true;
+      activeDataRef.current = event.active.data.current ?? null;
+      setActiveId(event.active.id as EntryId);
+
       const isGroup = event.active.data.current?.type === SupportedEntry.Group;
       if (isGroup) {
         handleCollapseGroup(true, event.active.id as EntryId);
@@ -119,6 +149,13 @@ export function useRundownDnd({
     },
     [handleCollapseGroup],
   );
+
+  /**
+   * On drag cancel we discard any reference to the dragged element
+   */
+  const handleOnDragCancel = useCallback(() => {
+    clearActive();
+  }, [clearActive]);
 
   /**
    * When we drag over a group, we expand it if it is collapsed
@@ -143,10 +180,12 @@ export function useRundownDnd({
     () => ({
       sensors,
       isDraggingRef,
+      activeId,
       handleOnDragEnd,
-      collapseDraggedGroups,
+      handleOnDragStart,
+      handleOnDragCancel,
       expandOverGroup,
     }),
-    [sensors, handleOnDragEnd, collapseDraggedGroups, expandOverGroup],
+    [sensors, activeId, handleOnDragEnd, handleOnDragStart, handleOnDragCancel, expandOverGroup],
   );
 }
