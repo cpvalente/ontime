@@ -206,6 +206,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   eventStore.init({
     clock: state.clock,
     timer: state.timer,
+    groupTimer: state.groupTimer,
     message: { ...runtimeStorePlaceholder.message },
     offset: state.offset,
     rundown: state.rundown,

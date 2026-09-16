@@ -1,7 +1,8 @@
-import { OffsetMode, RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage, TimerType } from 'ontime-types';
+import { OffsetMode, RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage } from 'ontime-types';
 
 import { useRuntimeStore } from '../stores/runtime';
 import { sendSocket } from '../utils/socket';
+import { resolveTimerDisplay } from './useSocket.utils';
 
 const createSelector =
   <T>(selector: (state: RuntimeStore) => T) =>
@@ -38,15 +39,19 @@ export const useExternalMessageInput = createSelector((state: RuntimeStore) => (
   visible: state.message.timer.secondarySource === 'secondary',
 }));
 
-export const useMessagePreview = createSelector((state: RuntimeStore) => ({
-  blink: state.message.timer.blink,
-  blackout: state.message.timer.blackout,
-  phase: state.timer.phase,
-  secondarySource: state.message.timer.secondarySource,
-  showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
-  timerType: state.eventNow?.timerType ?? null,
-  countToEnd: state.eventNow?.countToEnd ?? false,
-}));
+export const useMessagePreview = createSelector((state: RuntimeStore) => {
+  const timerDisplay = resolveTimerDisplay(state);
+  return {
+    blink: state.message.timer.blink,
+    blackout: state.message.timer.blackout,
+    phase: timerDisplay.time.phase,
+    secondarySource: state.message.timer.secondarySource,
+    showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
+    timerType: timerDisplay.timerType,
+    countToEnd: timerDisplay.countToEnd,
+    usesGroupTimer: timerDisplay.usesGroupTimer,
+  };
+});
 
 export const setMessage = {
   timerText: (payload: string) => sendSocket('message', { timer: { text: payload } }),
@@ -230,20 +235,26 @@ export const useFlagTimerOverView = createSelector((state: RuntimeStore) => ({
 
 /* ======================= View specific subscriptions ======================= */
 
-export const useTimerSocket = createSelector((state: RuntimeStore) => ({
-  eventNext: state.eventNext,
-  eventNow: state.eventNow,
-  message: state.message,
-  time: state.timer,
-  clock: state.clock,
-  timerTypeNow: state.eventNow?.timerType ?? TimerType.CountDown,
-  countToEndNow: state.eventNow?.countToEnd ?? false,
-  auxTimer: {
-    aux1: state.auxtimer1.current,
-    aux2: state.auxtimer2.current,
-    aux3: state.auxtimer3.current,
-  },
-}));
+export const useTimerSocket = createSelector((state: RuntimeStore) => {
+  const timerDisplay = resolveTimerDisplay(state);
+  return {
+    eventNext: state.eventNext,
+    eventNow: state.eventNow,
+    message: state.message,
+    time: timerDisplay.time,
+    eventTimer: timerDisplay.eventTimer,
+    clock: state.clock,
+    timerTypeNow: timerDisplay.timerType,
+    eventTimerType: timerDisplay.eventTimerType,
+    countToEndNow: timerDisplay.countToEnd,
+    usesGroupTimer: timerDisplay.usesGroupTimer,
+    auxTimer: {
+      aux1: state.auxtimer1.current,
+      aux2: state.auxtimer2.current,
+      aux3: state.auxtimer3.current,
+    },
+  };
+});
 
 export const useCountdownSocket = createSelector((state: RuntimeStore) => ({
   playback: state.timer.playback,

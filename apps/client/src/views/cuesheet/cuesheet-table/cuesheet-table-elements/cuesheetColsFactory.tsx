@@ -1,8 +1,18 @@
-import { CustomFields, TimeStrategy, URLPreset, isOntimeDelay, isOntimeEvent } from 'ontime-types';
+import {
+  CustomFields,
+  TimeStrategy,
+  TimerType,
+  URLPreset,
+  isOntimeDelay,
+  isOntimeEvent,
+  isOntimeGroup,
+} from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 import { useCallback } from 'react';
+import { IoTimerOutline } from 'react-icons/io5';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
+import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { formatDuration, formatTime } from '../../../../common/utils/time';
 import { AppMode } from '../../../../ontimeConfig';
@@ -16,6 +26,8 @@ import MultiLineCell from './MultiLineCell';
 import MutedText from './MutedText';
 import SingleLineCell from './SingleLineCell';
 import TimeInput from './TimeInput';
+
+import style from './cuesheetColsFactory.module.scss';
 
 function getColumnLabel(column: CuesheetCellContext['column']): string {
   return typeof column.columnDef.header === 'string' ? column.columnDef.header : column.id;
@@ -193,17 +205,38 @@ function MakeSingleLineField({ row, column, table }: CuesheetCellContext) {
   }
 
   const canWrite = column.columnDef.meta?.canWrite;
-  if (!canWrite) {
-    return <GhostedText>{initialValue}</GhostedText>;
-  }
-
-  return (
+  const content = canWrite ? (
     <SingleLineCell
       initialValue={initialValue as string}
       fieldId={column.id}
       fieldLabel={getColumnLabel(column)}
       handleUpdate={update}
     />
+  ) : (
+    <GhostedText>{initialValue}</GhostedText>
+  );
+
+  if (column.id !== 'title') {
+    return content;
+  }
+
+  const isGroupOverride = isOntimeGroup(row.original) && row.original.useGroupTimer;
+  const isEventOverride = isOntimeEvent(row.original) && row.original.groupUsesTimer;
+  if (!isGroupOverride && !isEventOverride) {
+    return content;
+  }
+
+  const timerType = isOntimeGroup(row.original) ? row.original.timerType : row.original.groupTimerType;
+  const direction = timerType === TimerType.CountUp ? 'count up' : 'count down';
+  const tooltip = isGroupOverride ? `Group timer (${direction})` : `Timer display controlled by group (${direction})`;
+
+  return (
+    <div className={style.timerOverrideCell}>
+      {content}
+      <Tooltip text={tooltip} render={<span className={style.timerOverrideIndicator} />}>
+        <IoTimerOutline />
+      </Tooltip>
+    </div>
   );
 }
 

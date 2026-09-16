@@ -89,6 +89,14 @@
     width: 100%;
     overflow: hidden;
 
+    .timer-source {
+      color: var(--label-color-override, $viewer-label-color);
+      font-size: $timer-label-size;
+      font-weight: 600;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
     .end-message {
       text-align: center;
       font-size: 11.5vw;

@@ -44,6 +44,8 @@ export type OntimeGroup = OntimeBaseEvent & {
   note: string;
   entries: EntryId[];
   targetDuration: MaybeNumber;
+  useGroupTimer: boolean;
+  timerType: TimerType;
   colour: string;
   custom: EntryCustomFields;
   // !==== RUNTIME METADATA ====! //

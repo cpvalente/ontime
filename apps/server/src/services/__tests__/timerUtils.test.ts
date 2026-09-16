@@ -4,6 +4,7 @@ import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, dayInMs, millisT
 import type { RuntimeState } from '../../stores/runtimeState.js';
 import {
   findDayOffset,
+  getGroupTimer,
   getCurrent,
   getElapsed,
   getExpectedFinish,
@@ -15,6 +16,91 @@ import {
 } from '../timerUtils.js';
 
 const asTimeOfDay = (value: number): RuntimeState['clock'] => value as RuntimeState['clock'];
+
+describe('getGroupTimer()', () => {
+  const makeState = (patch: Partial<RuntimeState> = {}) =>
+    ({
+      clock: asTimeOfDay(10_000),
+      groupNow: {
+        duration: 20_000,
+      },
+      rundown: {
+        actualGroupStart: 5_000,
+      },
+      timer: {
+        addedTime: 4_000,
+        current: 1_000,
+        elapsed: 99_000,
+        phase: TimerPhase.Danger,
+        playback: Playback.Play,
+      },
+      ...patch,
+    }) as RuntimeState;
+
+  it('returns null outside a group', () => {
+    expect(getGroupTimer(makeState({ groupNow: null }))).toBeNull();
+  });
+
+  it('derives elapsed and remaining time from the group start and duration', () => {
+    expect(getGroupTimer(makeState())).toMatchObject({
+      addedTime: 0,
+      current: 15_000,
+      duration: 20_000,
+      elapsed: 5_000,
+      expectedFinish: null,
+      phase: TimerPhase.Default,
+      playback: Playback.Play,
+      secondaryTimer: null,
+      startedAt: 5_000,
+    });
+  });
+
+  it('does not inherit event timer progress or added time', () => {
+    const first = getGroupTimer(makeState());
+    const second = getGroupTimer(
+      makeState({
+        timer: {
+          ...makeState().timer,
+          addedTime: -8_000,
+          current: -50_000,
+          elapsed: 500_000,
+        },
+      }),
+    );
+
+    expect(second).toEqual(first);
+  });
+
+  it('keeps running while the loaded event is paused', () => {
+    const timer = getGroupTimer(makeState({ timer: { ...makeState().timer, playback: Playback.Pause } }));
+
+    expect(timer?.playback).toBe(Playback.Play);
+  });
+
+  it('handles a group running across midnight', () => {
+    const timer = getGroupTimer(
+      makeState({
+        clock: asTimeOfDay(1_000),
+        rundown: { ...makeState().rundown, actualGroupStart: 86_399_000 },
+      }),
+    );
+
+    expect(timer).toMatchObject({ current: 18_000, elapsed: 2_000 });
+  });
+
+  it('uses the event phase before the group starts and overtime afterwards', () => {
+    const pending = getGroupTimer(
+      makeState({
+        rundown: { ...makeState().rundown, actualGroupStart: null },
+        timer: { ...makeState().timer, phase: TimerPhase.Pending },
+      }),
+    );
+    const overtime = getGroupTimer(makeState({ clock: asTimeOfDay(30_001) }));
+
+    expect(pending).toMatchObject({ current: 20_000, elapsed: null, phase: TimerPhase.Pending });
+    expect(overtime).toMatchObject({ current: -5_001, elapsed: 25_001, phase: TimerPhase.Overtime });
+  });
+});
 
 describe('getElapsed()', () => {
   it('returns active elapsed time from startedAt without add-time adjustments', () => {
