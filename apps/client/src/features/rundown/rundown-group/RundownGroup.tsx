@@ -24,7 +24,6 @@ import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';
 import TitleEditor from '../common/TitleEditor';
-import { canDrop } from '../rundown.utils';
 import { useEventSelection } from '../useEventSelection';
 
 import style from './RundownGroup.module.scss';
@@ -110,8 +109,6 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
     transform,
     transition,
     isDragging,
-    isOver,
-    over,
   } = useSortable({
     id: data.id,
     data: {
@@ -135,13 +132,11 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
   };
 
   const binderColours = data.colour && getAccessibleColour(data.colour);
-  const isValidDrop = isDragging && over?.id && canDrop(over.data.current?.type, over.data.current?.parent);
 
   const dragStyle = {
     zIndex: isDragging ? 2 : 'inherit',
     transform: CSS.Translate.toString(transform),
     transition,
-    cursor: isOver ? (isValidDrop ? 'grabbing' : 'no-drop') : 'inherit',
   };
 
   return (
@@ -162,12 +157,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
       data-testid='rundown-group'
     >
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
-        <span
-          className={cx([style.drag, isDragging && style.isDragging, isDragging && !isValidDrop && style.notAllowed])}
-          ref={handleRef}
-          {...dragAttributes}
-          {...dragListeners}
-        >
+        <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
           <IoReorderTwo />
         </span>
       </div>

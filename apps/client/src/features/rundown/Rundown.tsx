@@ -1,5 +1,5 @@
-import { DndContext, closestCenter } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core';
+import { SortableContext, type SortingStrategy } from '@dnd-kit/sortable';
 import {
   type EntryId,
   Playback,
@@ -9,6 +9,7 @@ import {
   isOntimeGroup,
 } from 'ontime-types';
 import { Fragment, type HTMLProps, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { TbFlagFilled } from 'react-icons/tb';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
@@ -22,6 +23,7 @@ import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
 import { useRundownCommands } from './hooks/useRundownCommands';
 import { useRundownDnd } from './hooks/useRundownDnd';
 import { useRundownKeyboard } from './hooks/useRundownKeyboard';
+import RundownDragPreview from './rundown-drag-preview/RundownDragPreview';
 import RundownGroup from './rundown-group/RundownGroup';
 import RundownGroupEnd from './rundown-group/RundownGroupEnd';
 import { filterVisibleEntries, makeSortableList } from './rundown.utils';
@@ -209,6 +211,10 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
 
+  // entry being dragged, used to render the drag overlay
+  const draggedEntry = dnd.activeId ? entries[dnd.activeId] : undefined;
+  const dropTarget = dnd.dropTarget;
+
   // gather rundown wide data
   const lastEntryId = order.at(-1);
 
@@ -219,6 +225,10 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   // Virtuoso item renderer
   const itemContent = useCallback(
     (index: number, entryId: EntryId) => {
+      // the drop line shows where the dragged entry would land
+      const dropLineBefore = dropTarget?.id === entryId && dropTarget.placement === 'before';
+      const dropLineAfter = dropTarget?.id === entryId && dropTarget.placement === 'after';
+
       // Handle end-group pseudo entries
       const isEndGroup = entryId.startsWith('end-');
 
@@ -228,6 +238,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
 
         return (
           <Fragment key={entryId}>
+            {dropLineBefore && <div className={style.dropLine} />}
             {isEditMode && parentMetadata?.groupEntries === 0 && (
               <QuickAddButtons
                 previousEventId={null}
@@ -236,6 +247,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
               />
             )}
             <RundownGroupEnd key={entryId} id={entryId} colour={parentMetadata?.groupColour} />
+            {dropLineAfter && <div className={style.dropLine} />}
           </Fragment>
         );
       }
@@ -259,6 +271,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
 
       return (
         <Fragment key={entry.id}>
+          {dropLineBefore && <div className={style.dropLine} />}
           {/* QuickAddInline before the entry - edit mode only, if there is a cursor, if it is not the first entry */}
           {isEditMode && hasCursor && !isFirst && (
             <QuickAddInline placement='before' referenceEntryId={entry.id} parentGroup={parentIdForBefore} />
@@ -300,6 +313,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
           {isEditMode && hasCursor && !isLast && (
             <QuickAddInline placement='after' referenceEntryId={entry.id} parentGroup={parentIdForAfter} />
           )}
+          {dropLineAfter && <div className={style.dropLine} />}
         </Fragment>
       );
     },
@@ -314,6 +328,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
       lastEntryId,
       handleCollapseGroup,
       automationsEnabled,
+      dropTarget,
     ],
   );
 
@@ -325,12 +340,13 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext
         onDragEnd={dnd.handleOnDragEnd}
-        onDragStart={dnd.collapseDraggedGroups}
-        onDragOver={dnd.expandOverGroup}
+        onDragStart={dnd.handleOnDragStart}
+        onDragCancel={dnd.handleOnDragCancel}
+        onDragOver={dnd.handleOnDragOver}
         sensors={dnd.sensors}
         collisionDetection={closestCenter}
       >
-        <SortableContext items={sortableData} strategy={verticalListSortingStrategy}>
+        <SortableContext items={sortableData} strategy={noSortingStrategy}>
           <Virtuoso
             ref={virtuosoRef}
             data={visibleData}
@@ -357,10 +373,34 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
             }}
           />
         </SortableContext>
+        {/**
+         * The drag overlay is rendered outside the virtualised list
+         * ensuring that the user sees the dragged element even after
+         * the original element is unmounted by the virtualiser
+         * It is portaled to the body to avoid being clipped by the rundown layout
+         */}
+        {createPortal(
+          <DragOverlay dropAnimation={null}>
+            {draggedEntry && (
+              <RundownDragPreview
+                entry={draggedEntry}
+                eventIndex={isOntimeEvent(draggedEntry) ? metadata[draggedEntry.id]?.eventIndex : undefined}
+                isValidDrop={dnd.isValidDrop}
+              />
+            )}
+          </DragOverlay>,
+          document.body,
+        )}
       </DndContext>
     </div>
   );
 }
+
+/**
+ * Entries keep their position while dragging: we show the drag overlay at the cursor
+ * and a drop line at the position where the entry would land
+ */
+const noSortingStrategy: SortingStrategy = () => null;
 
 // Virtuoso components - extracted to prevent recreation on every render
 const VirtuosoListComponent = forwardRef<HTMLDivElement, HTMLProps<HTMLDivElement>>(({ children, ...props }, ref) => (

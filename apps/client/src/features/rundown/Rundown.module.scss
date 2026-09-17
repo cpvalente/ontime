@@ -32,6 +32,19 @@
   align-self: center;
 }
 
+/**
+ * Shows where a dragged entry would land
+ * The negative margins keep the line from adding height to the list
+ */
+.dropLine {
+  height: 0;
+  margin-block: -1px;
+  border-top: 2px solid $action-blue;
+  border-radius: 2px;
+  position: relative;
+  z-index: 1;
+}
+
 .spacer {
   min-height: 50vh;
 }
