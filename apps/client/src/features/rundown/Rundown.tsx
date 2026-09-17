@@ -1,5 +1,5 @@
 import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, type SortingStrategy } from '@dnd-kit/sortable';
 import {
   type EntryId,
   Playback,
@@ -213,6 +213,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
 
   // entry being dragged, used to render the drag overlay
   const draggedEntry = dnd.activeId ? entries[dnd.activeId] : undefined;
+  const dropTarget = dnd.dropTarget;
 
   // gather rundown wide data
   const lastEntryId = order.at(-1);
@@ -224,6 +225,10 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   // Virtuoso item renderer
   const itemContent = useCallback(
     (index: number, entryId: EntryId) => {
+      // the drop line shows where the dragged entry would land
+      const dropLineBefore = dropTarget?.id === entryId && dropTarget.placement === 'before';
+      const dropLineAfter = dropTarget?.id === entryId && dropTarget.placement === 'after';
+
       // Handle end-group pseudo entries
       const isEndGroup = entryId.startsWith('end-');
 
@@ -233,6 +238,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
 
         return (
           <Fragment key={entryId}>
+            {dropLineBefore && <div className={style.dropLine} />}
             {isEditMode && parentMetadata?.groupEntries === 0 && (
               <QuickAddButtons
                 previousEventId={null}
@@ -241,6 +247,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
               />
             )}
             <RundownGroupEnd key={entryId} id={entryId} colour={parentMetadata?.groupColour} />
+            {dropLineAfter && <div className={style.dropLine} />}
           </Fragment>
         );
       }
@@ -264,6 +271,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
 
       return (
         <Fragment key={entry.id}>
+          {dropLineBefore && <div className={style.dropLine} />}
           {/* QuickAddInline before the entry - edit mode only, if there is a cursor, if it is not the first entry */}
           {isEditMode && hasCursor && !isFirst && (
             <QuickAddInline placement='before' referenceEntryId={entry.id} parentGroup={parentIdForBefore} />
@@ -305,6 +313,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
           {isEditMode && hasCursor && !isLast && (
             <QuickAddInline placement='after' referenceEntryId={entry.id} parentGroup={parentIdForAfter} />
           )}
+          {dropLineAfter && <div className={style.dropLine} />}
         </Fragment>
       );
     },
@@ -319,6 +328,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
       lastEntryId,
       handleCollapseGroup,
       automationsEnabled,
+      dropTarget,
     ],
   );
 
@@ -336,7 +346,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
         sensors={dnd.sensors}
         collisionDetection={closestCenter}
       >
-        <SortableContext items={sortableData} strategy={verticalListSortingStrategy}>
+        <SortableContext items={sortableData} strategy={noSortingStrategy}>
           <Virtuoso
             ref={virtuosoRef}
             data={visibleData}
@@ -385,6 +395,12 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     </div>
   );
 }
+
+/**
+ * Entries keep their position while dragging: we show the drag overlay at the cursor
+ * and a drop line at the position where the entry would land
+ */
+const noSortingStrategy: SortingStrategy = () => null;
 
 // Virtuoso components - extracted to prevent recreation on every render
 const VirtuosoListComponent = forwardRef<HTMLDivElement, HTMLProps<HTMLDivElement>>(({ children, ...props }, ref) => (

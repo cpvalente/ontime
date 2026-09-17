@@ -16,6 +16,20 @@ import { Dispatch, SetStateAction, useCallback, useMemo, useRef, useState } from
 import type { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { canDrop } from '../rundown.utils';
 
+type Placement = 'before' | 'after';
+
+export interface DropTarget {
+  id: EntryId;
+  placement: Placement;
+}
+
+/**
+ * Where the dragged element would land in relation to the element we are over
+ */
+function getPlacement(activeData: Data, over: Over): Placement {
+  return activeData.sortable.index < over.data.current?.sortable.index ? 'after' : 'before';
+}
+
 interface UseRundownDndOptions {
   entries: Rundown['entries'];
   sortableData: EntryId[];
@@ -46,9 +60,10 @@ export function useRundownDnd({
   const activeDataRef = useRef<Data | null>(null);
   const [activeId, setActiveId] = useState<EntryId | null>(null);
   const [isValidDrop, setIsValidDrop] = useState(true);
+  const [dropTarget, setDropTarget] = useState<DropTarget | null>(null);
 
   /**
-   * Groups we force collapsed for the duration of the drag, so we can restore the users view after
+   * A group we force collapsed for the duration of the drag, so we can restore the users view after
    */
   const forceCollapsedGroupRef = useRef<EntryId | null>(null);
 
@@ -66,7 +81,7 @@ export function useRundownDnd({
    * Only groups are restricted, since they cannot be nested inside another group
    */
   const canDropOver = useCallback(
-    (activeData: Data | null, over: Over | null): boolean => {
+    (active: Active, activeData: Data | null, over: Over | null): boolean => {
       if (!activeData?.sortable || !over?.data.current) {
         return true;
       }
@@ -75,7 +90,12 @@ export function useRundownDnd({
         return true;
       }
 
-      const placement = activeData.sortable.index < over.data.current.sortable.index ? 'after' : 'before';
+      // a group cannot be dropped inside itself
+      if (over.data.current.parent === active.id || over.id === `end-${active.id}`) {
+        return false;
+      }
+
+      const placement = getPlacement(activeData, over);
       return canDrop(over.data.current.type, over.data.current.parent, placement, getIsCollapsed(over.id as EntryId));
     },
     [getIsCollapsed],
@@ -89,6 +109,7 @@ export function useRundownDnd({
     activeDataRef.current = null;
     setActiveId(null);
     setIsValidDrop(true);
+    setDropTarget(null);
 
     // the group was expanded before the drag, we give the user their view back
     const forceCollapsedGroup = forceCollapsedGroupRef.current;
@@ -117,13 +138,13 @@ export function useRundownDnd({
 
       const fromIndex: number = activeData.sortable.index;
       const toIndex: number = over.data.current.sortable.index;
-      let placement: 'before' | 'after' | 'insert' = fromIndex < toIndex ? 'after' : 'before';
+      let placement: Placement | 'insert' = getPlacement(activeData, over);
 
       let destinationId = over.id as EntryId;
       const isDraggingGroup = activeData.type === SupportedEntry.Group;
 
       // prevent dropping a group inside another
-      if (!canDropOver(activeData, over)) {
+      if (!canDropOver(active, activeData, over)) {
         return;
       }
 
@@ -176,8 +197,11 @@ export function useRundownDnd({
 
   /**
    * On drag start we keep a reference to the dragged element
-   * and, if we are dragging a group, we force collapse it
-   * This avoids strange scenarios like dropping a group inside itself
+   * Entries are not moved around while dragging: the element stays in place,
+   * the overlay follows the cursor and a line shows where the entry would land
+   *
+   * Groups are force collapsed while dragged: their contents are not valid drop
+   * positions for themselves, keeping them open would only add distance to travel
    */
   const handleOnDragStart = useCallback(
     (event: DragStartEvent) => {
@@ -186,8 +210,7 @@ export function useRundownDnd({
       setActiveId(event.active.id as EntryId);
       setIsValidDrop(true);
 
-      const isGroup = event.active.data.current?.type === SupportedEntry.Group;
-      if (isGroup) {
+      if (event.active.data.current?.type === SupportedEntry.Group) {
         const groupId = event.active.id as EntryId;
         forceCollapsedGroupRef.current = getIsCollapsed(groupId) ? null : groupId;
         handleCollapseGroup(true, groupId);
@@ -202,19 +225,28 @@ export function useRundownDnd({
    */
   const handleOnDragOver = useCallback(
     (event: DragOverEvent) => {
-      const activeData = getActiveData(event.active);
-      setIsValidDrop(canDropOver(activeData, event.over));
+      const { active, over } = event;
+      const activeData = getActiveData(active);
+      const isValid = canDropOver(active, activeData, over);
+
+      setIsValidDrop(isValid);
+      // the drop target is drawn as a line in the rundown, we only show it where the entry can land
+      setDropTarget(
+        isValid && activeData?.sortable && over && over.id !== active.id
+          ? { id: over.id as EntryId, placement: getPlacement(activeData, over) }
+          : null,
+      );
 
       // if we are dragging a group, the drop operation is invalid so we dont expand
       // expanding the group here would also make an otherwise valid drop after it invalid
       if (activeData?.type === SupportedEntry.Group) {
         return;
       }
-      if (event.over?.data.current?.type !== SupportedEntry.Group) {
+      if (over?.data.current?.type !== SupportedEntry.Group) {
         return;
       }
 
-      handleCollapseGroup(false, event.over.id as EntryId);
+      handleCollapseGroup(false, over.id as EntryId);
     },
     [handleCollapseGroup, getActiveData, canDropOver],
   );
@@ -225,11 +257,12 @@ export function useRundownDnd({
       isDraggingRef,
       activeId,
       isValidDrop,
+      dropTarget,
       handleOnDragEnd,
       handleOnDragStart,
       handleOnDragCancel: clearActive,
       handleOnDragOver,
     }),
-    [sensors, activeId, isValidDrop, handleOnDragEnd, handleOnDragStart, clearActive, handleOnDragOver],
+    [sensors, activeId, isValidDrop, dropTarget, handleOnDragEnd, handleOnDragStart, clearActive, handleOnDragOver],
   );
 }

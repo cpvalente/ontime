@@ -253,11 +253,7 @@ export default function RundownEvent({
 
   const dragStyle = {
     zIndex: isDragging ? 2 : 'inherit',
-    // while dragging, the element is represented by the drag overlay
-    // the original element keeps its space in the list but is not painted:
-    // the sortable strategy shifts the neighbouring entries over this slot
-    transform: isDragging ? undefined : CSS.Translate.toString(transform),
-    visibility: isDragging ? ('hidden' as const) : undefined,
+    transform: CSS.Translate.toString(transform),
     transition,
   };
 
