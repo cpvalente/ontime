@@ -332,7 +332,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
         onDragEnd={dnd.handleOnDragEnd}
         onDragStart={dnd.handleOnDragStart}
         onDragCancel={dnd.handleOnDragCancel}
-        onDragOver={dnd.expandOverGroup}
+        onDragOver={dnd.handleOnDragOver}
         sensors={dnd.sensors}
         collisionDetection={closestCenter}
       >
@@ -372,7 +372,11 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
         {createPortal(
           <DragOverlay dropAnimation={null}>
             {draggedEntry && (
-              <RundownDragPreview entry={draggedEntry} eventIndex={metadata[draggedEntry.id]?.eventIndex} />
+              <RundownDragPreview
+                entry={draggedEntry}
+                eventIndex={isOntimeEvent(draggedEntry) ? metadata[draggedEntry.id]?.eventIndex : undefined}
+                isValidDrop={dnd.isValidDrop}
+              />
             )}
           </DragOverlay>,
           document.body,

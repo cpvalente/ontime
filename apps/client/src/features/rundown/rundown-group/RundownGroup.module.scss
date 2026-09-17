@@ -110,12 +110,4 @@
   @include drag-style;
   position: absolute;
   margin-top: 0.25rem;
-
-  &.isDragging {
-    cursor: grabbing;
-  }
-
-  &.notAllowed {
-    cursor: not-allowed;
-  }
 }

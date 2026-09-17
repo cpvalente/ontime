@@ -1,55 +1,71 @@
 import { type OntimeEntry, isOntimeDelay, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
-import { IoReorderTwo } from 'react-icons/io5';
+import { IoFolderOutline, IoReorderTwo } from 'react-icons/io5';
 
-import { getAccessibleColour } from '../../../common/utils/styleUtils';
+import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
+import { formatDuration, formatTime } from '../../../common/utils/time';
 
 import style from './RundownDragPreview.module.scss';
 
 interface RundownDragPreviewProps {
   entry: OntimeEntry;
   eventIndex?: number;
+  isValidDrop: boolean;
 }
 
 /**
- * Lightweight representation of an entry to be shown in the drag overlay
+ * Representation of the entry being dragged, shown in the drag overlay
  * ------------------------------------
  * The rundown list is virtualised, which means that the dragged element
  * is unmounted once it leaves the render window.
  * Rendering the drag overlay guarantees that the user
  * always sees the element being dragged, regardless of the scroll position.
  */
-export default function RundownDragPreview({ entry, eventIndex }: RundownDragPreviewProps) {
+export default function RundownDragPreview({ entry, eventIndex, isValidDrop }: RundownDragPreviewProps) {
+  const isGroup = isOntimeGroup(entry);
   const colour = isOntimeDelay(entry) ? '' : entry.colour;
   const binderColours = colour ? getAccessibleColour(colour) : undefined;
 
   return (
-    <div className={style.preview} style={{ '--user-bg': colour || '#929292' }}>
+    <div className={cx([style.preview, !isValidDrop && style.notAllowed])} style={{ '--user-bg': colour || '#929292' }}>
       <div className={style.binder} style={binderColours}>
-        <IoReorderTwo />
+        {isGroup ? <IoFolderOutline /> : <IoReorderTwo />}
       </div>
-      <div className={style.label}>{getPreviewLabel(entry, eventIndex)}</div>
+      <div className={style.content}>
+        <div className={style.title}>
+          {eventIndex !== undefined && <span className={style.index}>{eventIndex}</span>}
+          {getTitle(entry)}
+        </div>
+        <div className={style.meta}>{isValidDrop ? getMeta(entry) : 'Groups cannot be nested'}</div>
+      </div>
     </div>
   );
 }
 
-function getPreviewLabel(entry: OntimeEntry, eventIndex?: number): string {
+function getTitle(entry: OntimeEntry): string {
   if (isOntimeGroup(entry)) {
     return entry.title || 'Untitled group';
   }
 
+  if (isOntimeEvent(entry) || isOntimeMilestone(entry)) {
+    return entry.title || 'Untitled';
+  }
+
+  return 'Delay';
+}
+
+function getMeta(entry: OntimeEntry): string {
+  if (isOntimeGroup(entry)) {
+    const entryCount = `${entry.entries.length} ${entry.entries.length === 1 ? 'entry' : 'entries'}`;
+    return `${entryCount} · ${formatDuration(entry.duration)}`;
+  }
+
   if (isOntimeEvent(entry)) {
-    const prefix = eventIndex !== undefined ? `${eventIndex}` : entry.cue;
-    return `${prefix} ${entry.title || 'Untitled'}`.trim();
+    return `${formatTime(entry.timeStart)} → ${formatTime(entry.timeEnd)}`;
   }
 
   if (isOntimeMilestone(entry)) {
-    return entry.title || 'Untitled milestone';
+    return entry.cue;
   }
 
-  if (isOntimeDelay(entry)) {
-    return `Delay ${millisToString(entry.duration)}`;
-  }
-
-  return '';
+  return formatDuration(entry.duration);
 }

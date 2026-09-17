@@ -16,10 +16,17 @@
   display: grid;
   grid-template-columns: $block-binder-width 1fr;
   align-items: center;
+
+  // the overlay floats above the rundown, so it needs to be opaque and lifted
   background-color: $block-bg;
-  box-shadow: $block-box-shadow;
+  border-color: $white-20;
+  box-shadow: rgba(0, 0, 0, 0.6) 0 0.5rem 1rem -0.25rem;
   cursor: grabbing;
-  opacity: 0.9;
+
+  &.notAllowed {
+    border-color: $error-red;
+    cursor: not-allowed;
+  }
 }
 
 .binder {
@@ -31,9 +38,37 @@
   color: $section-white;
 }
 
-.label {
+.content {
+  display: grid;
+  gap: 0.125rem;
   padding-inline: 0.5rem;
+  overflow: hidden;
+}
+
+.title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.index {
+  color: $label-gray;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.meta {
+  font-size: calc(1rem - 3px);
+  color: $label-gray;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notAllowed .meta {
+  color: $error-red;
 }

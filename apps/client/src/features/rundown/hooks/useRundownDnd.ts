@@ -4,6 +4,7 @@ import {
   DragEndEvent,
   DragOverEvent,
   DragStartEvent,
+  type Over,
   PointerSensor,
   useSensor,
   useSensors,
@@ -44,6 +45,12 @@ export function useRundownDnd({
    */
   const activeDataRef = useRef<Data | null>(null);
   const [activeId, setActiveId] = useState<EntryId | null>(null);
+  const [isValidDrop, setIsValidDrop] = useState(true);
+
+  /**
+   * Groups we force collapsed for the duration of the drag, so we can restore the users view after
+   */
+  const forceCollapsedGroupRef = useRef<EntryId | null>(null);
 
   /**
    * Resolves the data of the dragged element
@@ -55,13 +62,41 @@ export function useRundownDnd({
   }, []);
 
   /**
+   * Whether the dragged element can be dropped at the position it is currently over
+   * Only groups are restricted, since they cannot be nested inside another group
+   */
+  const canDropOver = useCallback(
+    (activeData: Data | null, over: Over | null): boolean => {
+      if (!activeData?.sortable || !over?.data.current) {
+        return true;
+      }
+
+      if (activeData.type !== SupportedEntry.Group) {
+        return true;
+      }
+
+      const placement = activeData.sortable.index < over.data.current.sortable.index ? 'after' : 'before';
+      return canDrop(over.data.current.type, over.data.current.parent, placement, getIsCollapsed(over.id as EntryId));
+    },
+    [getIsCollapsed],
+  );
+
+  /**
    * Discards any reference to the dragged element, also used as the drag cancel handler
    */
   const clearActive = useCallback(() => {
     isDraggingRef.current = false;
     activeDataRef.current = null;
     setActiveId(null);
-  }, []);
+    setIsValidDrop(true);
+
+    // the group was expanded before the drag, we give the user their view back
+    const forceCollapsedGroup = forceCollapsedGroupRef.current;
+    forceCollapsedGroupRef.current = null;
+    if (forceCollapsedGroup) {
+      handleCollapseGroup(false, forceCollapsedGroup);
+    }
+  }, [handleCollapseGroup]);
 
   /**
    * On drag end, we reorder the events
@@ -88,10 +123,7 @@ export function useRundownDnd({
       const isDraggingGroup = activeData.type === SupportedEntry.Group;
 
       // prevent dropping a group inside another
-      if (
-        isDraggingGroup &&
-        !canDrop(over.data.current.type, over.data.current.parent, placement, getIsCollapsed(destinationId))
-      ) {
+      if (!canDropOver(activeData, over)) {
         return;
       }
 
@@ -139,7 +171,7 @@ export function useRundownDnd({
         setSortableData(currentEntries);
       });
     },
-    [entries, sortableData, setSortableData, getIsCollapsed, reorderEntry, getActiveData, clearActive],
+    [entries, sortableData, setSortableData, reorderEntry, getActiveData, canDropOver, clearActive],
   );
 
   /**
@@ -152,33 +184,39 @@ export function useRundownDnd({
       isDraggingRef.current = true;
       activeDataRef.current = event.active.data.current ?? null;
       setActiveId(event.active.id as EntryId);
+      setIsValidDrop(true);
 
       const isGroup = event.active.data.current?.type === SupportedEntry.Group;
       if (isGroup) {
-        handleCollapseGroup(true, event.active.id as EntryId);
+        const groupId = event.active.id as EntryId;
+        forceCollapsedGroupRef.current = getIsCollapsed(groupId) ? null : groupId;
+        handleCollapseGroup(true, groupId);
       }
     },
-    [handleCollapseGroup],
+    [handleCollapseGroup, getIsCollapsed],
   );
 
   /**
-   * When we drag over a group, we expand it if it is collapsed
+   * When the element we are over changes, we keep track of whether it is a valid drop
+   * and, if we drag an entry over a collapsed group, we expand it so it can be dropped inside
    */
-  const expandOverGroup = useCallback(
+  const handleOnDragOver = useCallback(
     (event: DragOverEvent) => {
+      const activeData = getActiveData(event.active);
+      setIsValidDrop(canDropOver(activeData, event.over));
+
       // if we are dragging a group, the drop operation is invalid so we dont expand
       // expanding the group here would also make an otherwise valid drop after it invalid
-      if (getActiveData(event.active)?.type === SupportedEntry.Group) {
+      if (activeData?.type === SupportedEntry.Group) {
         return;
       }
       if (event.over?.data.current?.type !== SupportedEntry.Group) {
         return;
       }
 
-      const groupId = event.over?.id as EntryId | undefined;
-      handleCollapseGroup(false, groupId);
+      handleCollapseGroup(false, event.over.id as EntryId);
     },
-    [handleCollapseGroup, getActiveData],
+    [handleCollapseGroup, getActiveData, canDropOver],
   );
 
   return useMemo(
@@ -186,11 +224,12 @@ export function useRundownDnd({
       sensors,
       isDraggingRef,
       activeId,
+      isValidDrop,
       handleOnDragEnd,
       handleOnDragStart,
       handleOnDragCancel: clearActive,
-      expandOverGroup,
+      handleOnDragOver,
     }),
-    [sensors, activeId, handleOnDragEnd, handleOnDragStart, clearActive, expandOverGroup],
+    [sensors, activeId, isValidDrop, handleOnDragEnd, handleOnDragStart, clearActive, handleOnDragOver],
   );
 }
