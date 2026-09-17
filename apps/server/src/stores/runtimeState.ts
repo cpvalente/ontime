@@ -40,6 +40,7 @@ import {
   getElapsed,
   getExpectedFinish,
   getRuntimeOffset,
+  getTimeToBoundary,
   getTimerPhase,
   hasCrossedMidnight,
 } from '../services/timerUtils.js';
@@ -118,6 +119,15 @@ export function getState(): Readonly<RuntimeState> {
     _timer: { ...runtimeState._timer },
     _rundown: { ...runtimeState._rundown },
   };
+}
+
+/**
+ * Exposes the time until the next boundary which carries side effects.
+ * Reads from the state directly to avoid the copy made by `getState`,
+ * since this is consulted on every update.
+ */
+export function getTimeToNextBoundary(): MaybeNumber {
+  return getTimeToBoundary(runtimeState);
 }
 
 /* clear data related to the current event, but leave in place data about the global run state

@@ -159,6 +159,11 @@ class RuntimeService {
     }
   }
 
+  /** Signals the timer that the runtime changed, so it can re-derive its next boundary */
+  public refreshBoundarySchedule() {
+    this.eventTimer.scheduleNextBoundary();
+  }
+
   public shutdown() {
     if (this.eventTimer) {
       logger.info(LogOrigin.Server, 'Runtime service shutting down');
@@ -779,6 +784,12 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     }
 
     batch.send();
+
+    // roll, resume and loading an event reach the runtime state without going through
+    // the timer, and all of them pass through here, so we re-derive the boundary once
+    // from this choke point rather than from each of the call sites
+    (this as RuntimeService).refreshBoundarySchedule();
+
     return result;
   };
 

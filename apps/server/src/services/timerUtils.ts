@@ -1,6 +1,7 @@
-import { Day, MaybeNumber, TimeOfDay, TimerPhase } from 'ontime-types';
+import { Day, MaybeNumber, Playback, TimeOfDay, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
+import { timerConfig } from '../setup/config.js';
 import type { RuntimeState } from '../stores/runtimeState.js';
 
 /**
@@ -117,6 +118,37 @@ function getTimeSinceStart(clock: TimeOfDay, startedAt: number): number {
   }
 
   return clock - startedAt;
+}
+
+/**
+ * Finds how long until the runtime reaches a boundary which carries side effects,
+ * ie. the end of the running timer or the end of the wait in a roll pre-roll.
+ *
+ * The regular refresh loop can only resolve a boundary to its own rate, so the
+ * result is used to schedule a dedicated update for the boundary itself.
+ * @param {RuntimeState} state runtime state
+ * @returns {number | null} time until the next boundary, or null if there is none to anticipate
+ */
+export function getTimeToBoundary(state: RuntimeState): MaybeNumber {
+  const { playback, current, secondaryTimer } = state.timer;
+
+  // we only anticipate boundaries for playback which is moving
+  // a paused timer holds its value and would otherwise schedule on every update
+  if (playback !== Playback.Play && playback !== Playback.Roll) {
+    return null;
+  }
+
+  // in roll we could be waiting for the event to start
+  if (playback === Playback.Roll && secondaryTimer !== null) {
+    return secondaryTimer;
+  }
+
+  // nothing to anticipate without a timer, or once it has finished and gone into overtime
+  if (current === null || state._timer.hasFinished) {
+    return null;
+  }
+
+  return current - timerConfig.triggerAhead;
 }
 
 /**

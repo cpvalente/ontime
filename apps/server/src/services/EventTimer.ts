@@ -1,4 +1,3 @@
-import { timerConfig } from '../setup/config.js';
 import * as runtimeState from '../stores/runtimeState.js';
 import type { UpdateResult } from '../stores/runtimeState.js';
 
@@ -12,8 +11,8 @@ export class EventTimer {
   /** how often we recalculate */
   static _refreshInterval: number;
 
-  /** when timer will be finished */
-  private endCallback: NodeJS.Timeout | undefined = undefined;
+  /** anticipates the next boundary, see scheduleNextBoundary */
+  private boundaryCallback: NodeJS.Timeout | undefined = undefined;
 
   private onUpdateCallback: UpdateCallbackFn | undefined = undefined;
 
@@ -42,18 +41,7 @@ export class EventTimer {
       return false;
     }
 
-    const state = runtimeState.getState();
-
-    // eslint-disable-next-line no-unused-labels -- dev code path
-    DEV: {
-      if (state.timer.current === null) {
-        throw new Error('EventTimer.start: invalid state received');
-      }
-    }
-
-    // register a callback for the scheduled end
-    const endTime = state.timer.current - timerConfig.triggerAhead;
-    this.endCallback = setTimeout(() => this.update(), endTime);
+    this.scheduleNextBoundary();
     return true;
   }
 
@@ -62,8 +50,7 @@ export class EventTimer {
       return false;
     }
 
-    // cancel end callback
-    clearTimeout(this.endCallback);
+    this.scheduleNextBoundary();
     return true;
   }
 
@@ -72,8 +59,7 @@ export class EventTimer {
       return false;
     }
 
-    // cancel end callback
-    clearTimeout(this.endCallback);
+    this.scheduleNextBoundary();
     return true;
   }
 
@@ -85,16 +71,7 @@ export class EventTimer {
       return false;
     }
 
-    // renew end callback
-    clearTimeout(this.endCallback);
-    const state = runtimeState.getState();
-    // eslint-disable-next-line no-unused-labels -- dev code path
-    DEV: {
-      if (state.timer.expectedFinish === null) {
-        throw new Error('TimerService.addTime: expectedFinish is negative');
-      }
-    }
-    this.endCallback = setTimeout(() => this.update(), state.timer.expectedFinish);
+    this.scheduleNextBoundary();
     return true;
   }
 
@@ -105,10 +82,41 @@ export class EventTimer {
     const updateResult = runtimeState.update();
     // pass the result to the parent
     this.onUpdateCallback?.(updateResult);
+    // the update, and anything it triggered, could have moved the next boundary
+    this.scheduleNextBoundary();
+  }
+
+  /**
+   * Schedules an update for the next boundary which carries side effects.
+   *
+   * The interval resolves a boundary to its own rate, so an event which ends between
+   * two ticks is only seen ending on the tick after it was due to. We look ahead one
+   * cycle and, when the boundary falls inside it, schedule a dedicated update for it.
+   *
+   * Derived from the state on every update, which is what covers the mutations that
+   * reach the runtime without going through this class, such as roll or a restored
+   * playback, provided their caller signals the change.
+   */
+  scheduleNextBoundary() {
+    clearTimeout(this.boundaryCallback);
+    this.boundaryCallback = undefined;
+
+    const timeToBoundary = runtimeState.getTimeToNextBoundary();
+    if (timeToBoundary === null || timeToBoundary >= EventTimer._refreshInterval) {
+      return;
+    }
+
+    // a boundary which is already due is left to the interval: the update which would
+    // resolve it has just run, so scheduling it again would spin until the state moves
+    if (timeToBoundary <= 0) {
+      return;
+    }
+
+    this.boundaryCallback = setTimeout(() => this.update(), timeToBoundary);
   }
 
   shutdown() {
     clearInterval(this._interval);
-    clearTimeout(this.endCallback);
+    clearTimeout(this.boundaryCallback);
   }
 }

@@ -1,6 +1,7 @@
 import { EndAction, Playback, TimeOfDay, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, dayInMs, millisToString } from 'ontime-utils';
 
+import { timerConfig } from '../../setup/config.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 import {
   findDayOffset,
@@ -8,6 +9,7 @@ import {
   getElapsed,
   getExpectedFinish,
   getRuntimeOffset,
+  getTimeToBoundary,
   getTimerPhase,
   hasCrossedMidnight,
   normaliseEndTime,
@@ -637,6 +639,49 @@ describe('hasCrossedMidnight()', () => {
       const current = (0 * MILLIS_PER_HOUR) as TimeOfDay; // 00:00
       expect(hasCrossedMidnight(previous, current)).toBe(true);
     });
+  });
+});
+
+describe('getTimeToBoundary()', () => {
+  const makeState = (timer: Partial<RuntimeState['timer']>, hasFinished = false) =>
+    ({
+      timer: { playback: Playback.Play, current: null, secondaryTimer: null, ...timer },
+      _timer: { hasFinished },
+    }) as RuntimeState;
+
+  it('anticipates the end of a running timer, compensated by the trigger ahead', () => {
+    const state = makeState({ playback: Playback.Play, current: 5 * MILLIS_PER_SECOND });
+    expect(getTimeToBoundary(state)).toBe(5 * MILLIS_PER_SECOND - timerConfig.triggerAhead);
+  });
+
+  it('anticipates the end of the wait in a roll pre-roll', () => {
+    const state = makeState({
+      playback: Playback.Roll,
+      current: 10 * MILLIS_PER_MINUTE,
+      secondaryTimer: 3 * MILLIS_PER_SECOND,
+    });
+    // the wait comes before the timer, it is the boundary we anticipate
+    expect(getTimeToBoundary(state)).toBe(3 * MILLIS_PER_SECOND);
+  });
+
+  it('anticipates the end of the timer once a rolling event has started', () => {
+    const state = makeState({ playback: Playback.Roll, current: 4 * MILLIS_PER_SECOND, secondaryTimer: null });
+    expect(getTimeToBoundary(state)).toBe(4 * MILLIS_PER_SECOND - timerConfig.triggerAhead);
+  });
+
+  it.each([Playback.Pause, Playback.Stop, Playback.Armed])('has no boundary to anticipate in %s', (playback) => {
+    const state = makeState({ playback, current: MILLIS_PER_SECOND });
+    expect(getTimeToBoundary(state)).toBe(null);
+  });
+
+  it('has no boundary to anticipate once the timer has finished', () => {
+    const state = makeState({ playback: Playback.Play, current: -MILLIS_PER_MINUTE }, true);
+    expect(getTimeToBoundary(state)).toBe(null);
+  });
+
+  it('has no boundary to anticipate without a timer', () => {
+    const state = makeState({ playback: Playback.Play, current: null });
+    expect(getTimeToBoundary(state)).toBe(null);
   });
 });
 
