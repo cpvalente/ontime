@@ -42,7 +42,8 @@ export function useRundownWithMetadata() {
  */
 export function useFlatRundown() {
   const { data, status } = useRundown();
-  const flatRundown = useMemo(() => flattenRundown(data), [data]);
+  const { entries, flatOrder } = data;
+  const flatRundown = useMemo(() => flattenRundown({ entries, flatOrder }), [entries, flatOrder]);
 
   return { data: flatRundown, rundownId: data.id, status };
 }

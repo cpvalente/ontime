@@ -26,7 +26,14 @@ import {
   isOntimeGroup,
   isPlayableEvent,
 } from 'ontime-types';
-import { addToRundown, createGroup, customFieldLabelToKey, getInsertAfterId, insertAtIndex } from 'ontime-utils';
+import {
+  addToRundown,
+  createGroup,
+  customFieldLabelToKey,
+  getInsertAfterId,
+  insertAtIndex,
+  swapEventData,
+} from 'ontime-utils';
 import type { DeepReadonly } from 'ts-essentials';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -404,44 +411,11 @@ function applyDelay(rundown: Rundown, delay: OntimeDelay) {
 /**
  * Swaps the data between two events
  * The schedule and metadata are preserved
- * TODO: this logic is for now duplicate of Ontime-Utils.swapEventData
  */
 function swap(rundown: Rundown, eventFrom: OntimeEvent, eventTo: OntimeEvent) {
-  rundown.entries[eventFrom.id] = {
-    ...eventTo,
-    // events keep the ID
-    id: eventFrom.id,
-    // events keep the schedule
-    timeStart: eventFrom.timeStart,
-    timeEnd: eventFrom.timeEnd,
-    duration: eventFrom.duration,
-    linkStart: eventFrom.linkStart,
-    parent: eventFrom.parent,
-    // keep schedule metadata
-    delay: eventFrom.delay,
-    gap: eventFrom.gap,
-    dayOffset: eventFrom.dayOffset,
-    // keep revision number but increment it
-    revision: eventFrom.revision + 1,
-  };
-
-  rundown.entries[eventTo.id] = {
-    ...eventFrom,
-    // events keep the ID
-    id: eventTo.id,
-    // events keep the schedule
-    timeStart: eventTo.timeStart,
-    timeEnd: eventTo.timeEnd,
-    duration: eventTo.duration,
-    linkStart: eventTo.linkStart,
-    parent: eventTo.parent,
-    // keep schedule metadata
-    delay: eventTo.delay,
-    gap: eventTo.gap,
-    dayOffset: eventTo.dayOffset,
-    // keep revision number but increment it
-    revision: eventTo.revision + 1,
-  };
+  const [newFrom, newTo] = swapEventData(eventFrom, eventTo);
+  rundown.entries[eventFrom.id] = newFrom;
+  rundown.entries[eventTo.id] = newTo;
 }
 
 /**

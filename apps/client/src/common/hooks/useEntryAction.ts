@@ -54,6 +54,7 @@ import {
 import { logAxiosError } from '../api/utils';
 import { useRundownScope } from '../context/RundownScopeContext';
 import { useEditorSettings } from '../stores/editorSettings';
+import { isStaleEntry, patchEntry } from './entryAction.utils';
 
 export type EventOptions = Partial<{
   // options of any new entries (event / delay / group)
@@ -74,12 +75,6 @@ export type EventOptions = Partial<{
  * refetch resolves to a different object for no reason.
  * Mirrors applyPatchToEntry in the rundown service: delays carry no revision.
  */
-function patchEntry(entry: OntimeEntry, patch: Partial<OntimeEntry>): OntimeEntry {
-  if (isOntimeEvent(entry) || isOntimeGroup(entry) || isOntimeMilestone(entry)) {
-    return { ...entry, ...patch, revision: entry.revision + 1 } as OntimeEntry;
-  }
-  return { ...entry, ...patch } as OntimeEntry;
-}
 
 type ClientInsertOptions = {
   after?: EntryId;
@@ -363,9 +358,14 @@ function useEntryActionsForRundown(scopedRundownId: string) {
       const cachedRundown = queryClient.getQueryData<Rundown>(context.queryKey);
       if (!cachedRundown) return;
 
+      const cachedEntry = cachedRundown.entries[serverEntry.id];
+
+      // a slow response to an earlier edit must not overwrite a later one
+      if (isStaleEntry(cachedEntry, serverEntry)) return;
+
       // our optimistic entry usually describes the change exactly, writing an
       // identical entry would discard the cached reference for nothing
-      if (isEqual(cachedRundown.entries[serverEntry.id], serverEntry)) return;
+      if (isEqual(cachedEntry, serverEntry)) return;
 
       queryClient.setQueryData<Rundown>(context.queryKey, {
         ...cachedRundown,

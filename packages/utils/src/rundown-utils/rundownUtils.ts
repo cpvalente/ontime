@@ -254,6 +254,7 @@ export function getPreviousEventNormal(
 
 /**
  * @description swaps two OntimeEvents in the rundown
+ * Both events change, so both revisions advance
  */
 export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): [newA: OntimeEvent, newB: OntimeEvent] => {
   const newA = {
@@ -270,8 +271,8 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): [newA: 
     delay: eventA.delay,
     gap: eventA.gap,
     dayOffset: eventA.dayOffset,
-    // keep revision number
-    revision: eventA.revision,
+    // the entry changed, its revision has to say so
+    revision: eventA.revision + 1,
   };
 
   const newB = {
@@ -288,8 +289,8 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): [newA: 
     delay: eventB.delay,
     gap: eventB.gap,
     dayOffset: eventB.dayOffset,
-    // keep revision number
-    revision: eventB.revision,
+    // the entry changed, its revision has to say so
+    revision: eventB.revision + 1,
   };
 
   return [newA, newB];

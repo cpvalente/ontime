@@ -33,7 +33,8 @@ export function useLoadedRundownWithMetadata() {
 
 export function useLoadedFlatRundown() {
   const { data, status } = useLoadedRundown();
-  const flatRundown = useMemo(() => flattenRundown(data), [data]);
+  const { entries, flatOrder } = data;
+  const flatRundown = useMemo(() => flattenRundown({ entries, flatOrder }), [entries, flatOrder]);
   return { data: flatRundown, rundownId: data.id, status };
 }
 

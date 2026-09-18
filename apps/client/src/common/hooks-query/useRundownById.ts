@@ -53,12 +53,11 @@ export function useRundownById(rundownId: string | null | undefined) {
 }
 
 /**
- * Builds a flat rundown from the order and entries fields
+ * Builds a flat rundown from the order and entries fields.
+ * An empty rundown has an empty order, so a placeholder flattens to nothing
+ * without having to read the revision, which an optimistic update also owns.
  */
-export function flattenRundown(rundown: Rundown): OntimeEntry[] {
-  if (rundown.revision === -1) {
-    return [];
-  }
+export function flattenRundown(rundown: Pick<Rundown, 'entries' | 'flatOrder'>): OntimeEntry[] {
   return rundown.flatOrder
     .map((id) => rundown.entries[id])
     .filter((entry): entry is OntimeEntry => entry !== undefined);
