@@ -38,11 +38,19 @@ import type { IAdapter } from './IAdapter.js';
 type ClientId = string;
 let instance: SocketServer | null = null;
 
+/** Timestamp of the last sign of life received from a client. */
+type LastSeen = number;
+
 class SocketServer implements IAdapter {
   private readonly MAX_PAYLOAD = 1024 * 256; // 256Kb
+  private readonly HEARTBEAT_INTERVAL = 5000;
+  private readonly HEARTBEAT_TIMEOUT = 15000;
 
   private wss: WebSocketServer | null;
   private readonly clients: Map<ClientId, Client>;
+  /** Liveness state is keyed by socket because the heartbeat iterates sockets. */
+  private readonly connections: Map<WebSocket, LastSeen>;
+  private heartbeat: NodeJS.Timeout | null = null;
   private lastConnection: Date | null = null;
   private shouldShowWelcome = true;
 
@@ -54,19 +62,32 @@ class SocketServer implements IAdapter {
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
     this.clients = new Map<ClientId, Client>();
+    this.connections = new Map<WebSocket, LastSeen>();
     this.wss = null;
   }
 
   init(server: Server, showWelcome: boolean, prefix?: string) {
     this.shouldShowWelcome = showWelcome;
     this.wss = new WebSocketServer({ path: `${prefix}/ws`, server, maxPayload: this.MAX_PAYLOAD });
+    this.startHeartbeat();
 
     this.wss.on('connection', (ws, req) => {
+      // Rejected sockets can emit an error while their close handshake is in progress.
+      ws.on('error', console.error);
+
+      let isAuthenticated = false;
       authenticateSocket(ws, req, (error) => {
         if (error) {
           ws.close(1008, 'Unauthorized');
+          return;
         }
+        isAuthenticated = true;
       });
+
+      if (!isAuthenticated) {
+        return;
+      }
+
       const clientId = generateId();
       const clientName = getRandomName();
       function sendPacket<T extends MessageTag>(
@@ -83,6 +104,7 @@ class SocketServer implements IAdapter {
         origin: '',
         path: '',
       });
+      this.connections.set(ws, Date.now());
 
       this.lastConnection = new Date();
       logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientName}`);
@@ -94,10 +116,13 @@ class SocketServer implements IAdapter {
       // send store payload on connect
       sendPacket(MessageTag.RuntimeData, eventStore.poll());
 
-      ws.on('error', console.error);
-
+      // Browser WebSockets reply to protocol pings automatically.
+      ws.on('pong', () => {
+        this.connections.set(ws, Date.now());
+      });
       ws.on('close', () => {
         this.clients.delete(clientId);
+        this.connections.delete(ws);
         logger.info(LogOrigin.Client, `${this.clients.size} Connections with disconnected: ${clientName}`);
         this.sendClientList();
       });
@@ -171,6 +196,38 @@ class SocketServer implements IAdapter {
     };
   }
 
+  /** Terminates connections that stop answering protocol pings. */
+  private startHeartbeat() {
+    this.stopHeartbeat();
+    this.heartbeat = setInterval(() => {
+      const now = Date.now();
+      this.wss?.clients.forEach((client) => {
+        const lastSeen = this.connections.get(client) ?? 0;
+
+        if (now - lastSeen > this.HEARTBEAT_TIMEOUT) {
+          logger.warning(LogOrigin.Client, 'Terminating unresponsive client');
+          // A non-responsive socket cannot complete a close handshake.
+          client.terminate();
+          return;
+        }
+
+        if (client.readyState === WebSocket.OPEN) {
+          client.ping();
+        }
+      });
+    }, this.HEARTBEAT_INTERVAL);
+
+    // The HTTP server, not this interval, owns process lifetime.
+    this.heartbeat.unref();
+  }
+
+  private stopHeartbeat() {
+    if (this.heartbeat) {
+      clearInterval(this.heartbeat);
+      this.heartbeat = null;
+    }
+  }
+
   private getOrCreateClient(clientId: ClientId): Client {
     if (!this.clients.has(clientId)) {
       this.clients.set(clientId, {
@@ -236,6 +293,7 @@ class SocketServer implements IAdapter {
   }
 
   shutdown(): Promise<void> {
+    this.stopHeartbeat();
     const wss = this.wss;
     if (!wss) {
       return Promise.resolve();
@@ -251,6 +309,7 @@ class SocketServer implements IAdapter {
 
       wss.close(() => {
         this.wss = null;
+        this.connections.clear();
         resolve();
       });
     });
