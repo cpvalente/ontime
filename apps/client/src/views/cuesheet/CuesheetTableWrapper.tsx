@@ -3,19 +3,18 @@ import { memo, use, useMemo } from 'react';
 
 import Select from '../../common/components/select/Select';
 import { PresetContext } from '../../common/context/PresetContext';
+import { useRundownScope } from '../../common/context/RundownScopeContext';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
-import type { RundownSource } from '../../common/hooks-query/useScopedRundown';
+import { FOLLOW_LOADED_RUNDOWN_ID } from '../../common/hooks/useRundownSelection';
 import { AppMode } from '../../ontimeConfig';
 import CuesheetDnd from './cuesheet-dnd/CuesheetDnd';
 import { makeCuesheetColumns } from './cuesheet-table/cuesheet-table-elements/cuesheetColsFactory';
 import CuesheetTable from './cuesheet-table/CuesheetTable';
 import { useApplyCuesheetPolicy } from './useApplyCuesheetPolicy';
-import { FOLLOW_LOADED_RUNDOWN_ID } from './useCuesheetRundownSelection';
 
 import styles from './CuesheetPage.module.scss';
 
 interface CuesheetTableWrapperProps {
-  source: RundownSource;
   selectedRundownId: MaybeString;
   loadedRundownId: string;
   setSelectedRundownId: (rundownId: string) => void;
@@ -24,15 +23,14 @@ interface CuesheetTableWrapperProps {
 
 export default memo(CuesheetTableWrapper);
 function CuesheetTableWrapper({
-  source,
   selectedRundownId,
   setSelectedRundownId,
   loadedRundownId,
   projectRundowns,
 }: CuesheetTableWrapperProps) {
   const preset = use(PresetContext);
-  const isCurrentRundown = source.rundownId !== null && source.rundownId === loadedRundownId;
-  const { cuesheetMode, setCuesheetMode } = useApplyCuesheetPolicy(preset, { canRunMode: isCurrentRundown });
+  const { isLoaded } = useRundownScope();
+  const { cuesheetMode, setCuesheetMode } = useApplyCuesheetPolicy(preset, { canRunMode: isLoaded });
   const { data: customFields } = useCustomFields();
 
   const columns = useMemo(
@@ -44,11 +42,9 @@ function CuesheetTableWrapper({
     <CuesheetDnd columns={columns}>
       <CuesheetTable
         columns={columns}
-        source={source}
         cuesheetMode={cuesheetMode}
         tableRoot='cuesheet'
         setCuesheetMode={setCuesheetMode}
-        isCurrentRundown={isCurrentRundown}
         insertElement={
           <>
             <RundownSelect

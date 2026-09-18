@@ -1718,16 +1718,18 @@ describe('rundownMutation.swap()', () => {
     expect((testRundown.entries['1'] as OntimeEvent).id).toBe('1');
     expect((testRundown.entries['1'] as OntimeEvent).cue).toBe('data2');
     expect((testRundown.entries['1'] as OntimeEvent).timeStart).toBe(1);
-    expect((testRundown.entries['1'] as OntimeEvent).revision).toBe(1);
+    // the swapped entries changed, their revision has to say so
+    expect((testRundown.entries['1'] as OntimeEvent).revision).toBe(2);
 
     expect((testRundown.entries['2'] as OntimeEvent).id).toBe('2');
     expect((testRundown.entries['2'] as OntimeEvent).cue).toBe('data1');
     expect((testRundown.entries['2'] as OntimeEvent).timeStart).toBe(2);
-    expect((testRundown.entries['2'] as OntimeEvent).revision).toBe(1);
+    expect((testRundown.entries['2'] as OntimeEvent).revision).toBe(2);
 
     expect((testRundown.entries['3'] as OntimeEvent).id).toBe('3');
     expect((testRundown.entries['3'] as OntimeEvent).cue).toBe('data3');
     expect((testRundown.entries['3'] as OntimeEvent).timeStart).toBe(3);
+    // untouched, so it keeps its revision
     expect((testRundown.entries['3'] as OntimeEvent).revision).toBe(1);
   });
 });

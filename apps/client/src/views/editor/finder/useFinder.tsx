@@ -207,10 +207,10 @@ export function searchByText(
  * @param activeFilter - a field selected from the filter badges, if any
  */
 export default function useFinder(searchValue: string, activeFilter: MaybeString) {
-  const { data, rundownId } = useFlatRundown();
+  const { data } = useFlatRundown();
   const { data: customFields } = useCustomFields();
 
-  const selectAndRevealEntry = useSelectAndRevealEntry(rundownId);
+  const selectAndRevealEntry = useSelectAndRevealEntry();
 
   /** The filters offered to the user: the fixed fields plus whatever the project defines */
   const filters = useMemo<FinderFilter[]>(() => {
