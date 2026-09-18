@@ -1,8 +1,9 @@
-import { SecondarySource } from 'ontime-types';
+import { SecondaryPlacement, SecondarySource } from 'ontime-types';
 import { useEffect, useState } from 'react';
 
 import Button from '../../../common/components/buttons/Button';
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
+import RadioGroup from '../../../common/components/radio-group/RadioGroup';
 import Select from '../../../common/components/select/Select';
 import { setMessage, useTimerViewControl } from '../../../common/hooks/useSocket';
 import TimerPreview from './TimerPreview';
@@ -42,7 +43,7 @@ export default function TimerControlsPreview() {
 }
 
 function SecondarySourceControl() {
-  const { secondarySource } = useTimerViewControl();
+  const { secondarySource, secondaryPlacement } = useTimerViewControl();
   const [value, setValue] = useState<SecondarySource>('aux1');
 
   // sync secondary source with external changes
@@ -51,6 +52,8 @@ function SecondarySourceControl() {
       setValue(secondarySource);
     }
   }, [secondarySource]);
+
+  const isActive = secondarySource !== null;
 
   const toggleSecondary = () => {
     if (secondarySource === value) {
@@ -79,12 +82,19 @@ function SecondarySourceControl() {
           setValue(value);
         }}
       />
-      <Button
-        variant={secondarySource !== null ? 'primary' : 'subtle'}
-        fluid
-        onClick={toggleSecondary}
-        data-testid='toggle secondary'
-      >
+      <Editor.Label htmlFor='secondary-placement'>Placement</Editor.Label>
+      <RadioGroup<SecondaryPlacement>
+        id='secondary-placement'
+        orientation='horizontal'
+        value={secondaryPlacement}
+        disabled={!isActive}
+        onValueChange={(placement) => setMessage.timerSecondaryPlacement(placement)}
+        items={[
+          { value: 'below', label: 'Below timer' },
+          { value: 'main', label: 'Swap with timer' },
+        ]}
+      />
+      <Button variant={isActive ? 'primary' : 'subtle'} fluid onClick={toggleSecondary} data-testid='toggle secondary'>
         Show secondary
       </Button>
     </>

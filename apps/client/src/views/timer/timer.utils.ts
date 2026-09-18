@@ -4,6 +4,7 @@ import {
   OntimeEvent,
   Playback,
   RundownEntries,
+  SimpleDirection,
   TimerMessage,
   TimerPhase,
   TimerType,
@@ -11,6 +12,11 @@ import {
 import { isPlaybackActive } from 'ontime-utils';
 
 import { getFormattedTimer, getPropertyValue } from '../common/viewUtils';
+
+/**
+ * The current value and direction of the aux timer feeding the secondary slot
+ */
+export type AuxTimerValue = { current: MaybeNumber; direction: SimpleDirection };
 
 /**
  * Whether a message should be shown
@@ -119,7 +125,7 @@ export function getShowModifiers(
  */
 export function getSecondaryDisplay(
   message: MessageState,
-  currentAux: MaybeNumber,
+  currentAux: AuxTimerValue | null,
   localisedMinutes: string,
   removeSeconds: boolean,
   removeLeadingZero: boolean,
@@ -133,7 +139,9 @@ export function getSecondaryDisplay(
     message.timer.secondarySource === 'aux2' ||
     message.timer.secondarySource === 'aux3'
   ) {
-    return getFormattedTimer(currentAux, TimerType.CountDown, localisedMinutes, {
+    // honour the aux timer's own direction so a promoted aux reads correctly
+    const timerType = currentAux?.direction === SimpleDirection.CountUp ? TimerType.CountUp : TimerType.CountDown;
+    return getFormattedTimer(currentAux?.current ?? null, timerType, localisedMinutes, {
       removeSeconds,
       removeLeadingZero,
     });
@@ -142,6 +150,45 @@ export function getSecondaryDisplay(
     return message.secondary;
   }
   return;
+}
+
+/**
+ * Describes what a timer slot (main or secondary) renders and how it should be styled
+ */
+export type TimerSlot = {
+  content: string | undefined;
+  timerType: TimerType | undefined;
+  phase: TimerPhase | undefined;
+  isEventTimer: boolean;
+};
+
+/**
+ * Assigns the event timer and the secondary content to the main (large) and secondary (small) slots.
+ * When the operator promotes the secondary source to the main slot, the two are swapped so the event
+ * timer is never removed from screen — it is only demoted to the smaller slot.
+ */
+export function getTimerSlots(
+  isSwapped: boolean,
+  eventTimer: { content: string; timerType: TimerType; phase: TimerPhase },
+  secondaryContent: string | undefined,
+): { main: TimerSlot; secondary: TimerSlot } {
+  const eventSlot: TimerSlot = {
+    content: eventTimer.content,
+    timerType: eventTimer.timerType,
+    phase: eventTimer.phase,
+    isEventTimer: true,
+  };
+  const secondarySlot: TimerSlot = {
+    content: secondaryContent,
+    timerType: undefined,
+    phase: undefined,
+    isEventTimer: false,
+  };
+
+  if (isSwapped && secondaryContent) {
+    return { main: secondarySlot, secondary: eventSlot };
+  }
+  return { main: eventSlot, secondary: secondarySlot };
 }
 
 /**
