@@ -36,7 +36,8 @@ class Logger {
   private addToQueue(log: Log) {
     this.queue.push(log);
     if (this.queue.length > 100) {
-      this.queue.pop();
+      // we discard the oldest entry, the queue keeps the most recent logs
+      this.queue.shift();
     }
   }
 
