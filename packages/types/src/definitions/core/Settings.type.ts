@@ -7,8 +7,8 @@ export type Settings = {
   timeFormat: TimeFormat;
   language: string;
   /**
-   * Custom names for the aux timers, one entry per aux timer in order (index 0 is aux timer 1).
+   * Custom names for the aux timers, in order (index 0 is aux timer 1).
    * An empty string means the timer is unnamed and consumers show the default label
    */
-  auxTimerNames: string[];
+  auxTimerNames: [string, string, string];
 };

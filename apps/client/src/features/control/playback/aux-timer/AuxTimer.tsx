@@ -36,7 +36,7 @@ export function AuxTimer({ index }: AuxTimerProps) {
       </Tooltip>
       <div className={style.controls}>
         <div className={style.input}>
-          <AuxTimerInput index={index} isActive={isActive} placeholder={`Aux ${index}`} />
+          <AuxTimerInput index={index} isActive={isActive} />
           <TapButton onClick={toggleDirection} aspect='tight' disabled={isActive}>
             {direction === SimpleDirection.CountDown && <IoArrowDown data-testid={`aux-timer-direction-${index}`} />}
             {direction === SimpleDirection.CountUp && <IoArrowUp data-testid={`aux-timer-direction-${index}`} />}
@@ -56,10 +56,9 @@ export function AuxTimer({ index }: AuxTimerProps) {
 interface AuxTimerInputProps {
   index: number;
   isActive: boolean;
-  placeholder: string;
 }
 
-function AuxTimerInput({ index, isActive, placeholder }: AuxTimerInputProps) {
+function AuxTimerInput({ index, isActive }: AuxTimerInputProps) {
   const newTimeInMs = useAuxTimerTime(index);
   const { setDuration } = setAuxTimer;
 
@@ -77,7 +76,7 @@ function AuxTimerInput({ index, isActive, placeholder }: AuxTimerInputProps) {
   }
 
   return (
-    <TimeInput submitHandler={handleTimeUpdate} name={`aux${index}`} time={newTimeInMs} placeholder={placeholder} />
+    <TimeInput submitHandler={handleTimeUpdate} name={`aux${index}`} time={newTimeInMs} placeholder={`Aux ${index}`} />
   );
 }
 
