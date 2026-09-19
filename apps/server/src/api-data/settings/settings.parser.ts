@@ -23,7 +23,6 @@ export function parseSettings(data: Partial<DatabaseModel>): Settings {
     operatorKey: data.settings.operatorKey ?? defaultSettings.operatorKey,
     timeFormat: data.settings.timeFormat ?? defaultSettings.timeFormat,
     language: data.settings.language ?? defaultSettings.language,
-    // older project files predate this property
     auxTimerNames: sanitiseAuxTimerNames(data.settings.auxTimerNames),
   };
 }

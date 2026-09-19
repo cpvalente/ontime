@@ -1,4 +1,3 @@
-/** Maximum length of a user given aux timer name */
 export const auxTimerNameMaxLength = 30;
 
 function sanitiseAuxTimerName(value: unknown): string {

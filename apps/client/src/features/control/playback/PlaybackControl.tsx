@@ -1,9 +1,9 @@
+import { useLocalStorage } from '@mantine/hooks';
 import { IoChevronDown, IoChevronUp, IoSettingsOutline } from 'react-icons/io5';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useAuxTimersActive, usePlaybackControl } from '../../../common/hooks/useSocket';
-import { useEditorSettings } from '../../../common/stores/editorSettings';
 import useAppSettingsNavigation from '../../app-settings/useAppSettingsNavigation';
 import AddTime from './add-time/AddTime';
 import { AuxTimer } from './aux-timer/AuxTimer';
@@ -15,7 +15,7 @@ import style from './PlaybackControl.module.scss';
 export default function PlaybackControl() {
   const data = usePlaybackControl();
   const { setLocation } = useAppSettingsNavigation();
-  const { auxTimersCollapsed, setAuxTimersCollapsed } = useEditorSettings();
+  const [collapsed, setCollapsed] = useLocalStorage({ key: 'ontime-aux-timers-collapsed', defaultValue: false });
   const isAuxTimerActive = useAuxTimersActive();
 
   return (
@@ -32,7 +32,7 @@ export default function PlaybackControl() {
       <div className={style.auxHeader}>
         <span className={style.label}>
           Aux timers
-          {auxTimersCollapsed && isAuxTimerActive && <span className={style.activeIndicator} />}
+          {collapsed && isAuxTimerActive && <span className={style.activeIndicator} />}
         </span>
         <div className={style.auxHeaderButtons}>
           <Tooltip
@@ -51,14 +51,14 @@ export default function PlaybackControl() {
           <IconButton
             size='small'
             variant='subtle-white'
-            aria-label={auxTimersCollapsed ? 'Expand aux timers' : 'Collapse aux timers'}
-            onClick={() => setAuxTimersCollapsed(!auxTimersCollapsed)}
+            aria-label={collapsed ? 'Expand aux timers' : 'Collapse aux timers'}
+            onClick={() => setCollapsed(!collapsed)}
           >
-            {auxTimersCollapsed ? <IoChevronUp /> : <IoChevronDown />}
+            {collapsed ? <IoChevronUp /> : <IoChevronDown />}
           </IconButton>
         </div>
       </div>
-      {!auxTimersCollapsed && (
+      {!collapsed && (
         <div className={style.auxTimers}>
           <AuxTimer index={1} />
           <AuxTimer index={2} />

@@ -128,17 +128,17 @@ function StudioTimersAux() {
     <div className='card' id='card-aux'>
       <div className='card__row'>
         <div>
-          <div className='label'>{getAuxTimerLabel(auxName.aux1, 'Aux 1')}</div>
+          <div className='label'>{getAuxTimerLabel(auxName.aux1, 1)}</div>
           <div className='extra'>{millisToString(auxTimer.aux1)}</div>
         </div>
 
         <div>
-          <div className='label center'>{getAuxTimerLabel(auxName.aux2, 'Aux 2')}</div>
+          <div className='label center'>{getAuxTimerLabel(auxName.aux2, 2)}</div>
           <div className='extra center'>{millisToString(auxTimer.aux2)}</div>
         </div>
 
         <div>
-          <div className='label right'>{getAuxTimerLabel(auxName.aux3, 'Aux 3')}</div>
+          <div className='label right'>{getAuxTimerLabel(auxName.aux3, 3)}</div>
           <div className='extra right'>{millisToString(auxTimer.aux3)}</div>
         </div>
       </div>

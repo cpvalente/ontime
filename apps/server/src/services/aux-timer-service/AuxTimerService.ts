@@ -26,8 +26,8 @@ export class AuxTimerService {
   }
 
   /**
-   * Called at bootstrap and whenever the loaded project's settings change,
-   * so the running timers reflect the current project's aux timer names.
+   * The aux timers are runtime singletons which outlive a project,
+   * so loading or editing a project does not refresh them: their names have to be pushed in.
    */
   loadNames(names?: string[]) {
     const [name1, name2, name3] = sanitiseAuxTimerNames(names);

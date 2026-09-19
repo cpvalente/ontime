@@ -5,7 +5,6 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import { LogOrigin, SimpleDirection, SimplePlayback, runtimeStorePlaceholder } from 'ontime-types';
-import { sanitiseAuxTimerNames } from 'ontime-utils';
 import serverTiming from 'server-timing';
 
 import { oscServer } from './adapters/OscAdapter.js';
@@ -205,7 +204,6 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
    * Module initialises the services and provides initial payload for the store
    */
   const state = getState();
-  const [auxName1, auxName2, auxName3] = sanitiseAuxTimerNames(getDataProvider().getSettings().auxTimerNames);
   eventStore.init({
     clock: state.clock,
     timer: state.timer,
@@ -221,26 +219,26 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
       current: timerConfig.auxTimerDefault,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
-      name: auxName1,
+      name: '',
     },
     auxtimer2: {
       duration: timerConfig.auxTimerDefault,
       current: timerConfig.auxTimerDefault,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
-      name: auxName2,
+      name: '',
     },
     auxtimer3: {
       duration: timerConfig.auxTimerDefault,
       current: timerConfig.auxTimerDefault,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
-      name: auxName3,
+      name: '',
     },
     ping: 1,
   });
 
-  // AuxTimerService owns its own SimpleTimer instances, so the store above doesn't update them
+  // must run after eventStore.init, which would otherwise discard the names
   auxTimerService.loadNames(getDataProvider().getSettings().auxTimerNames);
 
   // initialise message service

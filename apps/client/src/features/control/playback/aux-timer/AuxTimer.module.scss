@@ -7,12 +7,10 @@
 }
 
 .labelText {
+  @include ellipsis-text;
   display: block;
   font-size: $inner-section-text-size;
   color: $label-gray;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .controls {
