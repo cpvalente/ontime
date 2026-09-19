@@ -724,8 +724,9 @@ function notifyChanges(
   options: NotifyChangesOptions,
 ) {
   // notify timer service of changed event
+  // the runtime reads the current rundown data itself, the metadata here only tells us the commit touched the cache
   if (rundownMetadata && options.timer && rundownId && isCurrentRundown(rundownId)) {
-    runtimeService.notifyOfChangedEvents(rundownMetadata);
+    runtimeService.notifyOfChangedEvents();
   }
 
   if (options.reload) {

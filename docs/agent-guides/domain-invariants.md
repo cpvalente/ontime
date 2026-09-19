@@ -15,6 +15,7 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - No partial commit on failure.
 - Preserve revision/transaction semantics for loaded and background rundowns.
 - Persist before websocket refetches, runtime updates, integration notifications, or cache assumptions.
+- Rundown side effects are deferred; consumers read the cache when notified instead of receiving values captured at commit time, which a later commit may already have superseded.
 - Notify only invalidated consumers; never leave client cache stale.
 - Avoid duplicate listeners, notifications, invalidations, lifecycle effects.
 - Reconnect/refetch must converge on authoritative state.
