@@ -9,6 +9,7 @@ import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { portManager } from '../../classes/port-manager/PortManager.js';
 import * as appState from '../../services/app-state-service/AppStateService.js';
+import { auxTimerService } from '../../services/aux-timer-service/AuxTimerService.js';
 import { validateSettings, validateWelcomeDialog, validateServerPort } from './settings.validation.js';
 
 export const router: Router = express.Router();
@@ -41,6 +42,10 @@ router.post('/', validateSettings, async (req: Request, res: Response<Settings |
 
     if (!deepEqual(data, settings)) {
       await getDataProvider().setSettings(data);
+      // keep the runtime aux timers in sync so consumers get the new names live
+      if (!deepEqual(data.auxTimerNames, settings.auxTimerNames)) {
+        auxTimerService.loadNames(data.auxTimerNames);
+      }
       sendRefetch(RefetchKey.Settings);
     }
 

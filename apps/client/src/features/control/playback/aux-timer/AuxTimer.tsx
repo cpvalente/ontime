@@ -3,7 +3,9 @@ import { millisToString, parseUserTime } from 'ontime-utils';
 import { IoArrowDown, IoArrowUp, IoPause, IoPlay, IoStop } from 'react-icons/io5';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { setAuxTimer, useAuxTimerControl, useAuxTimerTime } from '../../../../common/hooks/useSocket';
+import { getAuxTimerIndexedLabel } from '../../../../common/utils/auxTimerUtils';
 import TapButton from '../tap-button/TapButton';
 
 import style from './AuxTimer.module.scss';
@@ -13,9 +15,11 @@ interface AuxTimerProps {
 }
 
 export function AuxTimer({ index }: AuxTimerProps) {
-  const { playback, direction } = useAuxTimerControl(index);
+  const { playback, direction, name } = useAuxTimerControl(index);
 
   const { stop, setDirection } = setAuxTimer;
+
+  const label = getAuxTimerIndexedLabel(name, index);
 
   const toggleDirection = () => {
     const newDirection = direction === SimpleDirection.CountDown ? SimpleDirection.CountUp : SimpleDirection.CountDown;
@@ -27,7 +31,9 @@ export function AuxTimer({ index }: AuxTimerProps) {
 
   return (
     <label className={style.label}>
-      Aux Timer {index}
+      <Tooltip text={label} render={<span />} className={style.labelText}>
+        {label}
+      </Tooltip>
       <div className={style.controls}>
         <div className={style.input}>
           <AuxTimerInput index={index} isActive={isActive} />

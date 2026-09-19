@@ -14,4 +14,6 @@ export type SimpleTimerState = {
   current: number;
   playback: SimplePlayback;
   direction: SimpleDirection;
+  /** Empty string when unnamed */
+  name: string;
 };

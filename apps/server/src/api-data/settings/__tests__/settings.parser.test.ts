@@ -16,6 +16,14 @@ describe('parseSettings()', () => {
       operatorKey: null,
       timeFormat: '24',
       language: 'en',
+      auxTimerNames: ['', '', ''],
     });
+  });
+
+  it('carries custom aux timer names through and pads to a length-3 array', () => {
+    const result = parseSettings({
+      settings: { version: '1', auxTimerNames: ['Speaker'] } as unknown as Settings,
+    });
+    expect(result.auxTimerNames).toStrictEqual(['Speaker', '', '']);
   });
 });

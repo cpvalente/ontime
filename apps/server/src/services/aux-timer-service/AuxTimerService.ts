@@ -1,4 +1,5 @@
 import { RuntimeStore, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { sanitiseAuxTimerNames } from 'ontime-utils';
 
 import { SimpleTimer } from '../../classes/simple-timer/SimpleTimer.js';
 import { timerConfig } from '../../setup/config.js';
@@ -22,6 +23,20 @@ export class AuxTimerService {
     this.aux3 = new SimpleTimer(timerConfig.auxTimerDefault);
     this.emit = emit;
     this.getTime = getTime;
+  }
+
+  /**
+   * The aux timers are runtime singletons which outlive a project,
+   * so loading or editing a project does not refresh them: their names have to be pushed in.
+   */
+  loadNames(names?: string[]) {
+    const [name1, name2, name3] = sanitiseAuxTimerNames(names);
+    const patch: AuxTimerStateUpdate = {
+      auxtimer1: this.aux1.setName(name1),
+      auxtimer2: this.aux2.setName(name2),
+      auxtimer3: this.aux3.setName(name3),
+    };
+    this.emit(patch);
   }
 
   /**
