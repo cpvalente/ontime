@@ -2,7 +2,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId, OntimeGroup } from 'ontime-types';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
-import { MouseEvent, useCallback, useRef } from 'react';
+import { MouseEvent, useCallback } from 'react';
 import {
   IoChevronDown,
   IoChevronUp,
@@ -39,7 +39,6 @@ interface RundownGroupProps {
 export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }: RundownGroupProps) {
   'use memo';
 
-  const handleRef = useRef<null | HTMLSpanElement>(null);
   const { clone, ungroup, deleteEntry, updateEntry } = useEntryActionsContext();
 
   const selectSingleEntry = useEventSelection((state) => state.setSingleEntrySelection);
@@ -135,11 +134,8 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
 
   const dragStyle = {
     zIndex: isDragging ? 2 : 'inherit',
-    // while dragging, the element is represented by the drag overlay
-    // the original element keeps its space in the list but is not painted:
-    // the sortable strategy shifts the neighbouring entries over this slot
-    transform: isDragging ? undefined : CSS.Translate.toString(transform),
-    visibility: isDragging ? ('hidden' as const) : undefined,
+    opacity: isDragging ? 0.5 : undefined,
+    transform: CSS.Translate.toString(transform),
     transition,
   };
 
@@ -160,8 +156,8 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
       }}
       data-testid='rundown-group'
     >
-      <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
-        <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
+      <div className={style.binder} style={{ ...binderColours }} {...dragAttributes} {...dragListeners}>
+        <span className={style.drag}>
           <IoReorderTwo />
         </span>
       </div>

@@ -27,6 +27,29 @@ $block-cursor-color: $orange-400;
   min-width: $block-width;
 }
 
+// Make the binder the drag surface; the icon is only an affordance.
+@mixin drag-surface() {
+  cursor: grab;
+  user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &:hover {
+    filter: brightness(1.2);
+
+    .drag {
+      opacity: 1;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid $blue-500;
+    outline-offset: -2px;
+  }
+}
+
 @mixin drag-style() {
   font-size: 20px;
   justify-self: center;

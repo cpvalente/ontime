@@ -12,14 +12,6 @@ interface RundownDragPreviewProps {
   isValidDrop: boolean;
 }
 
-/**
- * Representation of the entry being dragged, shown in the drag overlay
- * ------------------------------------
- * The rundown list is virtualised, which means that the dragged element
- * is unmounted once it leaves the render window.
- * Rendering the drag overlay guarantees that the user
- * always sees the element being dragged, regardless of the scroll position.
- */
 export default function RundownDragPreview({ entry, eventIndex, isValidDrop }: RundownDragPreviewProps) {
   const isGroup = isOntimeGroup(entry);
   const colour = isOntimeDelay(entry) ? '' : entry.colour;

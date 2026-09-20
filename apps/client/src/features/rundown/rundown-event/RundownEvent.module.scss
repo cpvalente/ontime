@@ -91,12 +91,13 @@ $skip-opacity: 0.2;
 }
 
 .binder {
+  @include drag-surface;
+
   grid-area: binder;
   height: 100%;
   display: grid;
   place-content: center;
   position: relative;
-  cursor: pointer;
 
   background-color: $gray-1050; // to override inline
   color: $section-white; // to override inline
