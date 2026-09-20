@@ -36,7 +36,7 @@ class Logger {
   private addToQueue(log: Log) {
     this.queue.push(log);
     if (this.queue.length > 100) {
-      this.queue.pop();
+      this.queue.shift();
     }
   }
 
