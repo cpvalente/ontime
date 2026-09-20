@@ -24,6 +24,8 @@
 }
 
 .binder {
+  @include drag-surface;
+
   height: 100%;
   display: grid;
   place-content: center;

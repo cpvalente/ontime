@@ -24,6 +24,8 @@
   }
 
   .binder {
+    @include drag-surface;
+
     grid-area: binder;
     height: 100%;
     background-color: var(--user-bg, $gray-1050);
@@ -32,12 +34,6 @@
     display: grid;
     place-content: center;
     position: relative;
-    cursor: pointer;
-
-    &:focus {
-      outline: 1px solid $blue-500;
-      outline-offset: -1px;
-    }
   }
 
   .header {

@@ -116,7 +116,7 @@ export default function RundownEvent({
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const entryCopyId = useEntryCopy((state) => state.entryCopyId);
 
-  const handleRef = useRef<null | HTMLSpanElement>(null);
+  const handleRef = useRef<null | HTMLDivElement>(null);
 
   const [enableMatchDuration, groupTargetDurationDescription] = (() => {
     if (!parentGroup || parentGroup.targetDuration === null || parentGroup.duration === parentGroup.targetDuration)
@@ -253,11 +253,8 @@ export default function RundownEvent({
 
   const dragStyle = {
     zIndex: isDragging ? 2 : 'inherit',
-    // while dragging, the element is represented by the drag overlay
-    // the original element keeps its space in the list but is not painted:
-    // the sortable strategy shifts the neighbouring entries over this slot
-    transform: isDragging ? undefined : CSS.Translate.toString(transform),
-    visibility: isDragging ? ('hidden' as const) : undefined,
+    opacity: isDragging ? 0.5 : undefined,
+    transform: CSS.Translate.toString(transform),
     transition,
   };
 
@@ -321,8 +318,8 @@ export default function RundownEvent({
     >
       <RundownIndicators timeStart={timeStart} delay={delay} gap={gap} isNextDay={isNextDay} />
 
-      <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
-        <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
+      <div className={style.binder} style={{ ...binderColours }} ref={handleRef} {...dragAttributes} {...dragListeners}>
+        <span className={style.drag}>
           <IoReorderTwo />
         </span>
         <span className={style.cue}>{cue}</span>

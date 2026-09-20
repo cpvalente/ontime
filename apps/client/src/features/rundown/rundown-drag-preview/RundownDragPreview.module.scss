@@ -1,9 +1,8 @@
 @use '../blockMixins' as *;
 
 /**
- * The overlay wrapper is sized by dnd-kit to match the element being dragged
- * We fill it entirely so that the measured rect used for collision detection
- * matches the element the user grabbed
+ * The overlay is a compact card so that it does not cover the drop line
+ * or the entries the user is dragging over
  */
 .preview {
   @include block-styling;
@@ -11,15 +10,16 @@
   box-sizing: border-box;
   min-width: 0;
   width: 100%;
-  height: 100%;
+  height: 3rem;
 
   display: grid;
   grid-template-columns: $block-binder-width 1fr;
   align-items: center;
 
   // the overlay floats above the rundown, so it needs to be opaque and lifted
+  // the border matches the drop line: the card and the line are the same operation
   background-color: $block-bg;
-  border-color: $white-20;
+  border-color: $action-blue;
   box-shadow: rgba(0, 0, 0, 0.6) 0 0.5rem 1rem -0.25rem;
   cursor: grabbing;
 
