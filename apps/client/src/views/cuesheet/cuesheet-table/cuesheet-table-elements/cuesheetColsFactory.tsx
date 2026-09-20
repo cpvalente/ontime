@@ -22,6 +22,7 @@ function getColumnLabel(column: CuesheetCellContext['column']): string {
 }
 
 function MakeStart({ getValue, row, table, column }: CuesheetCellContext) {
+  'use memo';
   if (!table.options.meta) {
     return null;
   }
@@ -61,6 +62,7 @@ function MakeStart({ getValue, row, table, column }: CuesheetCellContext) {
 }
 
 function MakeEnd({ getValue, row, table, column }: CuesheetCellContext) {
+  'use memo';
   if (!table.options.meta) {
     return null;
   }
@@ -101,6 +103,7 @@ function MakeEnd({ getValue, row, table, column }: CuesheetCellContext) {
 }
 
 function MakeDuration({ getValue, row, table, column }: CuesheetCellContext) {
+  'use memo';
   if (!table.options.meta) {
     return null;
   }
@@ -132,6 +135,7 @@ function MakeDuration({ getValue, row, table, column }: CuesheetCellContext) {
 }
 
 function MakeMultiLineField({ row, column, table }: CuesheetCellContext) {
+  'use memo';
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
@@ -161,6 +165,7 @@ function MakeMultiLineField({ row, column, table }: CuesheetCellContext) {
 }
 
 function LazyImage({ row, column, table }: CuesheetCellContext) {
+  'use memo';
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, true);
@@ -179,6 +184,7 @@ function LazyImage({ row, column, table }: CuesheetCellContext) {
 }
 
 function MakeSingleLineField({ row, column, table }: CuesheetCellContext) {
+  'use memo';
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
@@ -208,6 +214,7 @@ function MakeSingleLineField({ row, column, table }: CuesheetCellContext) {
 }
 
 function MakeFlagField({ row }: CuesheetCellContext) {
+  'use memo';
   const event = row.original;
   if (!isOntimeEvent(event) || !event.flag) {
     return null;
@@ -216,6 +223,7 @@ function MakeFlagField({ row }: CuesheetCellContext) {
 }
 
 function MakeCustomField({ row, column, table }: CuesheetCellContext) {
+  'use memo';
   const update = useCallback(
     (newValue: string) => {
       table.options.meta?.handleUpdate(row.index, column.id, newValue, true);

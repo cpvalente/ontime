@@ -1,6 +1,6 @@
 import { FlexRender } from '@tanstack/react-table';
 import { EntryId, SupportedEntry } from 'ontime-types';
-import { CSSProperties, memo } from 'react';
+import { CSSProperties } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
@@ -20,8 +20,7 @@ interface GroupRowProps {
   hasCursor?: boolean;
 }
 
-export default memo(GroupRow);
-function GroupRow({
+export default function GroupRow({
   groupId,
   colour,
   rowId,
@@ -31,6 +30,7 @@ function GroupRow({
   hasCursor,
   ...virtuosoProps
 }: GroupRowProps) {
+  'use memo';
   const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
     cuesheetMode: AppMode.Edit,
     hideIndexColumn: false,

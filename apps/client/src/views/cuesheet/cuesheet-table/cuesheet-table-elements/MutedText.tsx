@@ -9,5 +9,6 @@ interface MutedTextProps {
 }
 
 export default function MutedText({ numeric, children }: PropsWithChildren<MutedTextProps>) {
+  'use memo';
   return <span className={cx([style.muted, numeric && style.numeric])}>{children}</span>;
 }

@@ -7,5 +7,6 @@ interface GhostedTextProps {
 }
 
 export default function GhostedText({ children, multiline }: PropsWithChildren<GhostedTextProps>) {
+  'use memo';
   return <div className={`${style.ghostedText} ${multiline ? style.multiline : ''}`}>{children}</div>;
 }

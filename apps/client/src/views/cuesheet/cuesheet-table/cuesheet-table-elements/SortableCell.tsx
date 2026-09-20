@@ -15,6 +15,7 @@ interface SortableCellProps {
 }
 
 export function SortableCell({ columnId, colSpan, injectedStyles, children, draggable }: SortableCellProps) {
+  'use memo';
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: columnId,
   });
@@ -38,6 +39,7 @@ export function SortableCell({ columnId, colSpan, injectedStyles, children, drag
 }
 
 export function TableCell({ colSpan, injectedStyles, children, draggable }: SortableCellProps) {
+  'use memo';
   return (
     <th style={injectedStyles} colSpan={colSpan} tabIndex={-1}>
       <div>{children}</div>
@@ -51,6 +53,7 @@ interface DraggableProps {
 }
 
 export function Draggable({ header }: DraggableProps) {
+  'use memo';
   return (
     <div
       onDoubleClick={() => header.column.resetSize()}
