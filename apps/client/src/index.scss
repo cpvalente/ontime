@@ -151,6 +151,18 @@ input[type='number'] {
   }
 }
 
+/* iOS PWA safe area insets
+   Ensures content is not obscured by the notch, status bar, or home indicator */
+@supports (padding-top: env(safe-area-inset-top)) {
+  body,
+  .App {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 6px;
