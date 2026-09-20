@@ -725,7 +725,7 @@ function notifyChanges(
 ) {
   // notify timer service of changed event
   if (rundownMetadata && options.timer && rundownId && isCurrentRundown(rundownId)) {
-    runtimeService.notifyOfChangedEvents(rundownMetadata);
+    runtimeService.notifyOfChangedEvents();
   }
 
   if (options.reload) {

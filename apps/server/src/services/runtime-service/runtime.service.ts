@@ -19,7 +19,6 @@ import { millisToString, validatePlayback } from 'ontime-utils';
 import { triggerAutomations } from '../../api-data/automation/automation.service.js';
 import { triggerReportEntry } from '../../api-data/report/report.service.js';
 import { getCurrentRundown, getEntryWithId, getRundownMetadata } from '../../api-data/rundown/rundown.dao.js';
-import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 import { cloneEntryData } from '../../api-data/rundown/rundown.utils.js';
 import { logger } from '../../classes/Logger.js';
 import { timerConfig } from '../../setup/config.js';
@@ -176,22 +175,28 @@ class RuntimeService {
   /**
    * Called when the underlying data has changed,
    * we check if the change affects the runtime
+   *
+   * !!! the rundown data is read here rather than received from the caller:
+   * this is called deferred (setImmediate) and a later mutation may have
+   * superseded the metadata captured at commit time.
+   * Reading both the rundown and its metadata here keeps them consistent
    */
-  public notifyOfChangedEvents(rundownMetadata: RundownMetadata) {
+  public notifyOfChangedEvents() {
     const state = runtimeState.getState();
     const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
     if (!hasLoadedElements) {
       return;
     }
 
-    // all events were deleted
-    if (rundownMetadata.playableEventOrder.length === 0) {
+    const metadata = getRundownMetadata();
+
+    // all events were deleted, stopping clears the loaded data and there is nothing left to reconcile
+    if (metadata.playableEventOrder.length === 0) {
       runtimeState.stop();
+      return;
     }
 
-    const rundown = getCurrentRundown();
-    const metadata = getRundownMetadata();
-    runtimeState.updateAll(rundown, metadata);
+    runtimeState.updateAll(getCurrentRundown(), metadata);
   }
 
   /**
@@ -679,11 +684,11 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // to apply custom logic for different datasets
 
     // Update the entry if they have changed
-    let entryChanged = false;
-    entryChanged ||= updateMaybeEntryIfChanged('eventNow');
-    entryChanged ||= updateMaybeEntryIfChanged('eventNext');
-    entryChanged ||= updateMaybeEntryIfChanged('eventFlag');
-    entryChanged ||= updateMaybeEntryIfChanged('groupNow');
+    const eventNowChanged = updateMaybeEntryIfChanged('eventNow');
+    const eventNextChanged = updateMaybeEntryIfChanged('eventNext');
+    const eventFlagChanged = updateMaybeEntryIfChanged('eventFlag');
+    const groupNowChanged = updateMaybeEntryIfChanged('groupNow');
+    const entryChanged = eventNowChanged || eventNextChanged || eventFlagChanged || groupNowChanged;
 
     // for the very fist run there will be nothing in the previousState so we force an update
     const justStarted = !RuntimeService.previousState?.timer;
