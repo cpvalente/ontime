@@ -4,9 +4,10 @@ import style from './GhostedText.module.scss';
 
 interface GhostedTextProps {
   multiline?: boolean;
+  value: string;
 }
 
-export default function GhostedText({ children, multiline }: PropsWithChildren<GhostedTextProps>) {
+export default function GhostedText({ value, multiline }: PropsWithChildren<GhostedTextProps>) {
   'use memo';
-  return <div className={`${style.ghostedText} ${multiline ? style.multiline : ''}`}>{children}</div>;
+  return <div className={`${style.ghostedText} ${multiline ? style.multiline : ''}`}>{value}</div>;
 }

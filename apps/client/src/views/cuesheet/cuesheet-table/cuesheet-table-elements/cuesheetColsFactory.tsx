@@ -151,7 +151,7 @@ function MakeMultiLineField({ row, column, table }: CuesheetCellContext) {
 
   const canWrite = column.columnDef.meta?.canWrite;
   if (!canWrite) {
-    return <GhostedText multiline>{initialValue}</GhostedText>;
+    return <GhostedText multiline value={initialValue} />;
   }
 
   return (
@@ -200,7 +200,7 @@ function MakeSingleLineField({ row, column, table }: CuesheetCellContext) {
 
   const canWrite = column.columnDef.meta?.canWrite;
   if (!canWrite) {
-    return <GhostedText>{initialValue}</GhostedText>;
+    return <GhostedText value={initialValue} />;
   }
 
   return (
@@ -242,7 +242,7 @@ function MakeCustomField({ row, column, table }: CuesheetCellContext) {
 
   const canWrite = column.columnDef.meta?.canWrite;
   if (!canWrite) {
-    return <GhostedText multiline>{initialValue}</GhostedText>;
+    return <GhostedText multiline value={initialValue} />;
   }
 
   return (
