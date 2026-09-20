@@ -1,5 +1,5 @@
 import { parseUserTime } from 'ontime-utils';
-import { PropsWithChildren, memo, useCallback, useEffect, useRef, useState } from 'react';
+import { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 
 import { formatTime } from '../../../../common/utils/time';
 import SingleLineCell from './SingleLineCell';
@@ -16,15 +16,14 @@ interface ParentFocusableInput extends HTMLInputElement {
   focusParentElement: () => void;
 }
 
-export default memo(TimeInputDuration);
-
-function TimeInputDuration({
+export default function TimeInputDuration({
   initialValue,
   lockedValue,
   delayed,
   onSubmit,
   children,
 }: PropsWithChildren<TimeInputDurationProps>) {
+  'use memo';
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
   const inputRef = useRef<ParentFocusableInput>(null);
