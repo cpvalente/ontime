@@ -1,4 +1,4 @@
-import { DndContext, closestCenter } from '@dnd-kit/core';
+import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import {
   type EntryId,
@@ -9,6 +9,7 @@ import {
   isOntimeGroup,
 } from 'ontime-types';
 import { Fragment, type HTMLProps, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { TbFlagFilled } from 'react-icons/tb';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
@@ -22,6 +23,7 @@ import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
 import { useRundownCommands } from './hooks/useRundownCommands';
 import { useRundownDnd } from './hooks/useRundownDnd';
 import { useRundownKeyboard } from './hooks/useRundownKeyboard';
+import RundownDragPreview from './rundown-drag-preview/RundownDragPreview';
 import RundownGroup from './rundown-group/RundownGroup';
 import RundownGroupEnd from './rundown-group/RundownGroupEnd';
 import { filterVisibleEntries, makeSortableList } from './rundown.utils';
@@ -209,6 +211,9 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
 
+  // entry being dragged, used to render the drag overlay
+  const draggedEntry = dnd.activeId ? entries[dnd.activeId] : undefined;
+
   // gather rundown wide data
   const lastEntryId = order.at(-1);
 
@@ -325,8 +330,9 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext
         onDragEnd={dnd.handleOnDragEnd}
-        onDragStart={dnd.collapseDraggedGroups}
-        onDragOver={dnd.expandOverGroup}
+        onDragStart={dnd.handleOnDragStart}
+        onDragCancel={dnd.handleOnDragCancel}
+        onDragOver={dnd.handleOnDragOver}
         sensors={dnd.sensors}
         collisionDetection={closestCenter}
       >
@@ -357,6 +363,24 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
             }}
           />
         </SortableContext>
+        {/**
+         * The drag overlay is rendered outside the virtualised list
+         * ensuring that the user sees the dragged element even after
+         * the original element is unmounted by the virtualiser
+         * It is portaled to the body to avoid being clipped by the rundown layout
+         */}
+        {createPortal(
+          <DragOverlay dropAnimation={null}>
+            {draggedEntry && (
+              <RundownDragPreview
+                entry={draggedEntry}
+                eventIndex={isOntimeEvent(draggedEntry) ? metadata[draggedEntry.id]?.eventIndex : undefined}
+                isValidDrop={dnd.isValidDrop}
+              />
+            )}
+          </DragOverlay>,
+          document.body,
+        )}
       </DndContext>
     </div>
   );
