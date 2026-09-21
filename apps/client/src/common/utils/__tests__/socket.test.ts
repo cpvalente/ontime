@@ -185,3 +185,90 @@ describe('socket connection watchdog', () => {
     expect(MockWebSocket.instances).toHaveLength(2);
   });
 });
+
+describe('what the client tells the user about the connection', () => {
+  let connectSocket: () => void;
+  let ConnectionStatus: typeof import('../../stores/connectionStore').ConnectionStatus;
+  let getNotice: () => ReturnType<typeof import('../../stores/connectionStore').useConnectionStore.getState>;
+
+  beforeEach(async () => {
+    vi.useFakeTimers();
+    MockWebSocket.instances = [];
+    vi.stubGlobal('WebSocket', MockWebSocket);
+    vi.resetModules();
+    const socketModule = await import('../socket');
+    const connectionModule = await import('../../stores/connectionStore');
+    connectSocket = socketModule.connectSocket;
+    ConnectionStatus = connectionModule.ConnectionStatus;
+    getNotice = () => connectionModule.useConnectionStore.getState();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  /** Opens a connection and returns its socket. */
+  function openConnection() {
+    connectSocket();
+    const socket = MockWebSocket.instances.at(-1) as MockWebSocket;
+    socket.open();
+    return socket;
+  }
+
+  /** Runs the clock until the pending backoff produces a new connection attempt. */
+  function awaitNextAttempt() {
+    const attemptsSoFar = MockWebSocket.instances.length;
+    while (MockWebSocket.instances.length === attemptsSoFar) {
+      vi.advanceTimersByTime(watchdogInterval);
+    }
+    return MockWebSocket.instances.at(-1) as MockWebSocket;
+  }
+
+  /** Refuses the given amount of connection attempts, the way a server which is down would. */
+  function refuseAttempts(amount: number) {
+    for (let attempt = 0; attempt < amount; attempt += 1) {
+      awaitNextAttempt().close();
+    }
+  }
+
+  it('says nothing about an interruption which recovers within the quiet retries', () => {
+    const socket = openConnection();
+
+    socket.close();
+    awaitNextAttempt().open();
+
+    expect(getNotice()).toEqual({ status: ConnectionStatus.Connected, recoveredAt: null });
+  });
+
+  it('reports an interruption which outlasts the quiet retries', () => {
+    const socket = openConnection();
+
+    socket.close();
+    refuseAttempts(socketConfig.attemptsBeforeNotice);
+
+    expect(getNotice().status).toBe(ConnectionStatus.Reconnecting);
+  });
+
+  it('gives up on the retries at the moment the data is flagged stale', async () => {
+    const { runtimeStore } = await import('../../stores/runtime');
+    const socket = openConnection();
+
+    socket.close();
+    refuseAttempts(socketConfig.offlineAttemptsThreshold + 2);
+
+    expect(getNotice().status).toBe(ConnectionStatus.Disconnected);
+    expect(runtimeStore.getState().ping).toBeLessThan(0);
+  });
+
+  it('confirms a recovery the user was told about', () => {
+    const socket = openConnection();
+
+    socket.close();
+    refuseAttempts(socketConfig.attemptsBeforeNotice);
+    awaitNextAttempt().open();
+
+    expect(getNotice().status).toBe(ConnectionStatus.Connected);
+    expect(getNotice().recoveredAt).not.toBeNull();
+  });
+});

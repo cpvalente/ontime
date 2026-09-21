@@ -39,6 +39,7 @@ import {
   setClientRedirect,
   setClients,
 } from '../stores/clientStore';
+import { setConnectionEstablished, setConnectionLost, setConnectionStale } from '../stores/connectionStore';
 import { addDialog } from '../stores/dialogStore';
 import { addLog } from '../stores/logger';
 import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
@@ -52,6 +53,7 @@ export const socketConfig = {
   reconnectMaxInterval: 30000,
   reconnectMinInterval: 500,
   reconnectJitter: 0.25,
+  attemptsBeforeNotice: 2,
   offlineAttemptsThreshold: 2,
   watchdogInterval: 2000,
   silenceTimeout: 10000,
@@ -109,6 +111,7 @@ export const connectSocket = () => {
       invalidateAllCaches();
     }
     setOnlineStatus(true);
+    setConnectionEstablished();
   };
 
   socket.onclose = () => {
@@ -265,10 +268,15 @@ function scheduleReconnect() {
   const jitterOffset = exponentialDelay * socketConfig.reconnectJitter * (Math.random() * 2 - 1);
   const delay = Math.max(socketConfig.reconnectMinInterval, Math.round(exponentialDelay + jitterOffset));
 
+  if (reconnectAttempts >= socketConfig.attemptsBeforeNotice) {
+    setConnectionLost();
+  }
+
   reconnectTimeout = setTimeout(() => {
     reconnectTimeout = null;
     if (reconnectAttempts > socketConfig.offlineAttemptsThreshold) {
       setOnlineStatus(false);
+      setConnectionStale();
     }
     console.warn(`WebSocket: reconnecting now (#${reconnectAttempts + 1}, waited ${delay}ms)`);
     reconnectAttempts += 1;
