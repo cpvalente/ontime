@@ -1,0 +1,74 @@
+.indicator {
+  position: fixed;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  z-index: $zindex-sudo;
+
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.125rem 0.375rem;
+
+  border-radius: $component-border-radius-sm;
+  background-color: $gray-1250;
+  border: 1px solid $white-10;
+  color: $gray-300;
+  font-size: calc(1rem - 3px);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+
+  animation: fade-in $transition-time-feedback ease-out;
+}
+
+.dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  /* centring on the line box leaves the dot above the glyphs, since the font reserves more room above the baseline than below */
+  transform: translateY(0.08em);
+}
+
+/* the severity lives in the dot alone, the element itself stays quiet */
+.reconnecting .dot {
+  background-color: $orange-500;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.disconnected .dot {
+  background-color: $red-500;
+}
+
+.recovered {
+  animation:
+    fade-in $transition-time-feedback ease-out,
+    fade-out $transition-time-feedback ease-in 2.2s forwards;
+
+  .dot {
+    background-color: $green-500;
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicator,
+  .reconnecting .dot {
+    animation: none;
+  }
+}

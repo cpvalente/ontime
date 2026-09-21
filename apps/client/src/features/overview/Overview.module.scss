@@ -7,18 +7,8 @@
 
 .isOffline {
   .info {
-    opacity: $opacity-disabled;
-  }
-  &::after {
-    content: 'Disconnected';
-    position: absolute;
-    padding-inline: 0.5rem;
-    bottom: 0.5rem;
-    right: 0.5rem;
-    background-color: $red-700;
-    border-radius: 2px;
-    font-size: calc(1rem - 2px);
-    z-index: $zindex-sudo;
+    opacity: 0.5;
+    filter: saturate(0.5);
   }
 }
 
@@ -30,6 +20,9 @@
 
 .info {
   padding-left: 1rem;
+  transition:
+    opacity $transition-time-feedback,
+    filter $transition-time-feedback;
   display: flex;
   align-items: center;
   justify-content: space-between;
