@@ -205,29 +205,12 @@
     flex-direction: column;
     overflow-y: auto;
 
-    .project-header {
-      flex-direction: column;
-      align-items: flex-start;
-      position: relative;
-      gap: 0.5rem;
-    }
-
-    .project-header__brand--without-logo {
-      align-self: flex-start;
-    }
-
     .logo img {
       height: min(50px, 10vh);
     }
 
     .timer-group {
       flex-wrap: wrap;
-    }
-
-    .clock-container {
-      position: absolute;
-      top: 0;
-      right: 0;
     }
 
     .schedule-nav-container {

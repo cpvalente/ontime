@@ -1,3 +1,5 @@
+@use '@/theme/safeArea' as *;
+
 .mainContainer {
   background-color: $ui-black;
   width: 100%;
@@ -12,4 +14,5 @@
     'overview'
     'main';
   gap: $panel-gap;
+  padding: safe-area-padding(0.5rem);
 }

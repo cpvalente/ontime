@@ -197,7 +197,7 @@
 
   .sound-prompt {
     position: absolute;
-    bottom: $view-block-padding;
+    bottom: calc($view-block-padding + var(--pwa-safe-area-bottom));
     left: $view-inline-padding;
     padding: 0.5em 0.75em;
     border-radius: $element-border-radius;
@@ -216,8 +216,8 @@
   /* =================== LOGO ===================*/
   .logo {
     position: absolute;
-    top: $view-block-padding;
-    left: $view-inline-padding;
+    top: calc($view-block-padding + var(--pwa-safe-area-top));
+    left: calc($view-inline-padding + var(--pwa-safe-area-left));
     max-width: min(200px, 20vw);
   }
 }

@@ -28,6 +28,9 @@
   color: $ui-white;
   border-right: 1px solid $gray-1100;
   box-shadow: $box-shadow-right;
+  padding-top: var(--pwa-safe-area-top);
+  padding-bottom: var(--pwa-safe-area-bottom);
+  padding-left: var(--pwa-safe-area-left);
 
   &[data-open] {
     transform: translateX(0%);
