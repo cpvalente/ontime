@@ -1,0 +1,4 @@
+@function safe-area-padding($top, $right: $top, $bottom: $top, $left: $right) {
+  @return calc(#{$top} + var(--pwa-safe-area-top)) calc(#{$right} + var(--pwa-safe-area-right))
+    calc(#{$bottom} + var(--pwa-safe-area-bottom)) calc(#{$left} + var(--pwa-safe-area-left));
+}

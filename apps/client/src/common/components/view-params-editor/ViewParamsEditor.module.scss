@@ -29,6 +29,9 @@
   color: $ui-white;
   border-left: 1px solid $gray-1100;
   box-shadow: $box-shadow-l1;
+  padding-top: var(--pwa-safe-area-top);
+  padding-right: var(--pwa-safe-area-right);
+  padding-bottom: var(--pwa-safe-area-bottom);
 
   &[data-open] {
     transform: translateX(0%);

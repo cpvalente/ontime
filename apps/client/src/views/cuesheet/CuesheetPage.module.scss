@@ -1,3 +1,5 @@
+@use '@/theme/safeArea' as *;
+
 .tableWrapper {
   background-color: $ui-black;
   width: 100%;
@@ -6,6 +8,7 @@
   padding-block: 0.5rem 1rem;
 
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: 3.5rem auto auto 1fr;
   grid-template-areas:
     'overview'
@@ -13,6 +16,7 @@
     'settings'
     'table';
   color: $ui-white;
+  padding: safe-area-padding(0.5rem, 0.5rem, 1rem);
 }
 
 .rundownSelect {

@@ -1,14 +1,21 @@
+@use '@/theme/safeArea' as *;
+
 .operatorContainer {
   width: 100vw;
   height: 100vh;
+  padding: safe-area-padding(0);
 
   background-color: $ui-black;
   color: $ui-white;
+
+  display: flex;
+  flex-direction: column;
 }
 
 .operatorEvents {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
   padding-top: 0.25rem;
 
   overflow: auto;

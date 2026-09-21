@@ -66,9 +66,8 @@ $item-height: 3.5rem;
 
   .fab-container {
     position: fixed;
-    bottom: 1.5rem;
-    bottom: calc(1.5rem + env(safe-area-inset-bottom));
-    right: $view-inline-padding;
+    bottom: calc(1.5rem + var(--pwa-safe-area-bottom));
+    right: calc($view-inline-padding + var(--pwa-safe-area-right));
 
     display: flex;
     align-items: center;

@@ -46,6 +46,24 @@ $track-color: $white-1;
 $thumb-color: $white-20;
 $thumb-color-hover: $white-60;
 
+:root {
+  --pwa-safe-area-top: 0px;
+  --pwa-safe-area-right: 0px;
+  --pwa-safe-area-bottom: 0px;
+  --pwa-safe-area-left: 0px;
+}
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  @media (display-mode: standalone) {
+    :root {
+      --pwa-safe-area-top: max(env(safe-area-inset-top), env(safe-area-max-inset-top, 0px));
+      --pwa-safe-area-right: max(env(safe-area-inset-right), env(safe-area-max-inset-right, 0px));
+      --pwa-safe-area-bottom: max(env(safe-area-inset-bottom), env(safe-area-max-inset-bottom, 0px));
+      --pwa-safe-area-left: max(env(safe-area-inset-left), env(safe-area-max-inset-left, 0px));
+    }
+  }
+}
+
 /* Apply a natural box layout model to all elements */
 html {
   box-sizing: border-box;
@@ -148,18 +166,6 @@ input[type='number'] {
   html,
   .App {
     font-size: 14px;
-  }
-}
-
-/* iOS PWA safe area insets
-   Ensures content is not obscured by the notch, status bar, or home indicator */
-@supports (padding-top: env(safe-area-inset-top)) {
-  body,
-  .App {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
   }
 }
 
