@@ -89,7 +89,8 @@ describe('swapEventData', () => {
       timeEnd: 1,
       duration: 1,
       delay: 1,
-      revision: 3,
+      // both entries changed, both revisions advance
+      revision: 4,
       parent: null,
     });
     expect(newB).toMatchObject({
@@ -99,7 +100,7 @@ describe('swapEventData', () => {
       timeEnd: 2,
       duration: 2,
       delay: 2,
-      revision: 7,
+      revision: 8,
       parent: 'testing',
     });
   });
