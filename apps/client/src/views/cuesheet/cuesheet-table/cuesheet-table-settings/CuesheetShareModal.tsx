@@ -1,4 +1,3 @@
-import { Toolbar } from '@base-ui/react/toolbar';
 import { useDisclosure } from '@mantine/hooks';
 import { OntimeView } from 'ontime-types';
 
@@ -19,10 +18,10 @@ function CuesheetShareModal() {
 
   return (
     <>
-      <Toolbar.Button onClick={handler.open} render={<Button />}>
+      <Button size='small' fluid onClick={handler.open}>
         <RotatedLink />
         Share...
-      </Toolbar.Button>
+      </Button>
       <Modal
         isOpen={isOpen}
         onClose={handler.close}

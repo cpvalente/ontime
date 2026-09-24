@@ -4,8 +4,10 @@
   background-color: $gray-1250;
   padding: 0.5rem 1rem;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 1rem;
+  row-gap: 0.5rem;
   font-size: $inner-section-text-size;
   border-radius: 3px 3px 0 0;
 
@@ -55,15 +57,22 @@
 
 .inline {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem 1.5rem;
+  max-width: min(90vw, 640px);
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .apart {
   margin-left: auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: 1rem;
+  row-gap: 0.5rem;
 }
 
 /** styles should match RundownHeader.module.scss */

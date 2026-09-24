@@ -3,7 +3,7 @@ import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { ReactNode } from 'react';
-import { IoBookOutline, IoChevronDown, IoOptions } from 'react-icons/io5';
+import { IoChevronDown, IoOptions } from 'react-icons/io5';
 
 import Button from '../../../../common/components/buttons/Button';
 import Checkbox from '../../../../common/components/checkbox/Checkbox';
@@ -69,12 +69,13 @@ export default function CuesheetTableHeaderToolbar({
 
   return (
     <Toolbar.Root className={style.tableSettings} data-background-rundown={isBackground}>
-      <ViewSettings optionsStore={optionsStore} />
-      <ColumnSettings
+      <TableSettings
         columns={columns}
+        optionsStore={optionsStore}
         handleResetResizing={handleResetResizing}
         handleResetReordering={handleResetReordering}
         handleClearToggles={handleClearToggles}
+        showShare={showShare && canShare}
       />
       {modeControls && canChangeMode && (
         <div className={style.apart}>
@@ -94,29 +95,28 @@ export default function CuesheetTableHeaderToolbar({
           </ToggleGroup>
         </div>
       )}
-
-      {showShare && canShare && (
-        <>
-          <Editor.Separator orientation='vertical' />
-          <CuesheetShareModal />
-        </>
-      )}
     </Toolbar.Root>
   );
 }
 
-interface ViewSettingsProps {
-  optionsStore: TableHeaderOptionsStore;
-}
-
-interface ColumnSettingsProps {
+interface TableSettingsProps {
   columns: CuesheetColumn[];
+  optionsStore: TableHeaderOptionsStore;
   handleResetResizing: () => void;
   handleResetReordering: () => void;
   handleClearToggles: () => void;
+  showShare: boolean;
 }
 
-function ViewSettings({ optionsStore }: ViewSettingsProps) {
+/** Single entry point for view options, column options and sharing, so the toolbar stays short on any screen size */
+function TableSettings({
+  columns,
+  optionsStore,
+  handleResetResizing,
+  handleResetReordering,
+  handleClearToggles,
+  showShare,
+}: TableSettingsProps) {
   return (
     <Popover.Root>
       <Popover.Trigger
@@ -124,7 +124,7 @@ function ViewSettings({ optionsStore }: ViewSettingsProps) {
           <Toolbar.Button
             render={
               <Button variant='ghosted-white'>
-                <IoOptions /> Settings
+                <IoOptions /> Options
                 <IoChevronDown />
               </Button>
             }
@@ -168,32 +168,7 @@ function ViewSettings({ optionsStore }: ViewSettingsProps) {
             Hide delay entries
           </Editor.Label>
         </div>
-      </PopoverContents>
-    </Popover.Root>
-  );
-}
 
-function ColumnSettings({
-  columns,
-  handleResetResizing,
-  handleResetReordering,
-  handleClearToggles,
-}: ColumnSettingsProps) {
-  return (
-    <Popover.Root>
-      <Popover.Trigger
-        render={
-          <Toolbar.Button
-            render={
-              <Button variant='ghosted-white'>
-                <IoBookOutline /> Columns
-                <IoChevronDown />
-              </Button>
-            }
-          />
-        }
-      />
-      <PopoverContents align='start' className={style.inline}>
         <div className={style.column}>
           <Editor.Label className={style.sectionTitle}>Column visibility</Editor.Label>
           {columns.map((column) => {
@@ -208,6 +183,7 @@ function ColumnSettings({
             );
           })}
         </div>
+
         <div className={style.column}>
           <Editor.Label className={style.sectionTitle}>Reset Options</Editor.Label>
           <Button size='small' fluid onClick={handleClearToggles}>
@@ -219,6 +195,12 @@ function ColumnSettings({
           <Button size='small' fluid onClick={handleResetReordering}>
             Reset Reordering
           </Button>
+          {showShare && (
+            <>
+              <Editor.Separator orientation='horizontal' />
+              <CuesheetShareModal />
+            </>
+          )}
         </div>
       </PopoverContents>
     </Popover.Root>
