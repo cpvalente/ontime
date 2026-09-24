@@ -44,11 +44,12 @@ jobs:
 
           trap 'rm -f "$certificate_path"' EXIT
           echo "::add-mask::$keychain_password"
-          echo "CSC_KEYCHAIN=$keychain_path" >> "$GITHUB_ENV"
+          echo "ONTIME_SIGNING_KEYCHAIN=$keychain_path" >> "$GITHUB_ENV"
           printf '%s' "$CSC_LINK" | base64 --decode > "$certificate_path"
           security create-keychain -p "$keychain_password" "$keychain_path"
           security set-keychain-settings -lut 21600 "$keychain_path"
           security unlock-keychain -p "$keychain_password" "$keychain_path"
+          security default-keychain -s "$keychain_path"
           security import "$certificate_path" -k "$keychain_path" -P "$CSC_KEY_PASSWORD" -T /usr/bin/codesign -T /usr/bin/productbuild
           security set-key-partition-list -S apple-tool:,apple: -s -k "$keychain_password" "$keychain_path"
           security find-identity -v -p codesigning "$keychain_path"
@@ -64,8 +65,8 @@ jobs:
       - name: Remove macOS signing keychain
         if: always()
         run: |
-          if [[ -f "$CSC_KEYCHAIN" ]]; then
-            security delete-keychain "$CSC_KEYCHAIN"
+          if [[ -f "$ONTIME_SIGNING_KEYCHAIN" ]]; then
+            security delete-keychain "$ONTIME_SIGNING_KEYCHAIN"
           fi
 
       - name: Upload macOS build artifacts
