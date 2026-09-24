@@ -123,8 +123,9 @@ function TableSettings({
         render={
           <Toolbar.Button
             render={
-              <Button variant='ghosted-white'>
-                <IoOptions /> Options
+              <Button variant='ghosted-white' aria-label='Options'>
+                <IoOptions />
+                <span className={style.optionsLabel}>Options</span>
                 <IoChevronDown />
               </Button>
             }
