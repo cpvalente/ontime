@@ -4,6 +4,7 @@ import { IoAdd, IoArrowDown, IoArrowUp, IoDuplicateOutline, IoOptions, IoTrash }
 
 import { PositionedDropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
+import { useRundownScope } from '../../../../common/context/RundownScopeContext';
 import { useEditModal } from '../../cuesheet-edit-modal/useEditModal';
 import { useCuesheetPermissions } from '../../useTablePermissions';
 import { useCuesheetTableMenu } from './useCuesheetTableMenu';
@@ -14,6 +15,7 @@ function TableMenu() {
   const { isOpen, entryId, entryIndex, parentId, flag, position, closeMenu } = useCuesheetTableMenu();
   const { addEntry, clone, deleteEntry, move, updateEntry } = useEntryActionsContext();
   const showModal = useEditModal((state) => state.setEditableEntry);
+  const { rundownId } = useRundownScope();
   const permissions = useCuesheetPermissions();
 
   if (!isOpen) {
@@ -28,7 +30,7 @@ function TableMenu() {
         {
           type: 'item',
           label: 'Edit...',
-          onClick: () => showModal(entryId),
+          onClick: () => showModal(entryId, rundownId),
           icon: IoOptions,
           disabled: !permissions.canEditEntries,
         },

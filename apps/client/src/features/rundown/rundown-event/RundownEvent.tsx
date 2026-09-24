@@ -18,7 +18,7 @@ import { TbClockPin, TbFlagFilled, TbListNumbers } from 'react-icons/tb';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useEntry } from '../../../common/hooks-query/useRundown';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEntryCopy } from '../../../common/stores/entryCopyStore';
+import { useIsEntryCopyTarget } from '../../../common/stores/entryCopyStore';
 import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useRenumberCuesDialogStore } from '../renumber-cues-dialog/RenumberCuesDialog';
@@ -114,7 +114,7 @@ export default function RundownEvent({
   const selectEntry = useEventSelection((state) => state.setSelectedEvents);
 
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
-  const entryCopyId = useEntryCopy((state) => state.entryCopyId);
+  const isCopyTarget = useIsEntryCopyTarget(eventId);
 
   const handleRef = useRef<null | HTMLDivElement>(null);
 
@@ -284,7 +284,7 @@ export default function RundownEvent({
     playback && style[playback],
     isSelected && style.selected,
     hasCursor && style.hasCursor,
-    entryCopyId === eventId && style.copyTarget,
+    isCopyTarget && style.copyTarget,
   ]);
 
   const handleFocusClick = (event: MouseEvent) => {

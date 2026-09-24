@@ -6,7 +6,7 @@ import { IoClose } from 'react-icons/io5';
 import Button from '../../../common/components/buttons/Button';
 import IconButton from '../../../common/components/buttons/IconButton';
 import Textarea from '../../../common/components/input/textarea/Textarea';
-import { useEntryActions } from '../../../common/hooks/useEntryAction';
+import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { EditEvent } from '../operator.types';
 
 import style from './CustomFieldEditModal.module.scss';
@@ -19,7 +19,7 @@ interface CustomFieldEditModalProps {
 export default function CustomFieldEditModal(props: CustomFieldEditModalProps) {
   const { event, onClose } = props;
 
-  const { updateEntry } = useEntryActions();
+  const { updateEntry } = useEntryActionsContext();
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement[]>(new Array<HTMLTextAreaElement>());
 

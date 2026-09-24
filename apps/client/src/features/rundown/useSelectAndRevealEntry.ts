@@ -1,6 +1,7 @@
 import { EntryId, MaybeString } from 'ontime-types';
 import { useCallback } from 'react';
 
+import { useRundownScope } from '../../common/context/RundownScopeContext';
 import { useCollapsedGroups } from './useCollapsedGroups';
 import { useEventSelection } from './useEventSelection';
 
@@ -10,7 +11,8 @@ type SelectAndRevealOptions = {
   parent?: MaybeString;
 };
 
-export function useSelectAndRevealEntry(rundownId: string) {
+export function useSelectAndRevealEntry() {
+  const { rundownId } = useRundownScope();
   const { expandGroup } = useCollapsedGroups(rundownId);
   const selectEntry = useEventSelection((state) => state.setSelectedEvents);
   const scrollToEntry = useEventSelection((state) => state.scrollToEntry);

@@ -19,7 +19,7 @@ import Tag from '../../../common/components/tag/Tag';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEntryCopy } from '../../../common/stores/entryCopyStore';
+import { useIsEntryCopyTarget } from '../../../common/stores/entryCopyStore';
 import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';
@@ -43,7 +43,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
 
   const selectSingleEntry = useEventSelection((state) => state.setSingleEntrySelection);
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
-  const entryCopyId = useEntryCopy((state) => state.entryCopyId);
+  const isCopyTarget = useIsEntryCopyTarget(data.id);
 
   const isDurationMatching = data.targetDuration !== null && data.targetDuration === data.duration;
 
@@ -145,7 +145,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
         style.group,
         hasCursor && style.hasCursor,
         !collapsed && style.expanded,
-        entryCopyId === data.id && style.copyTarget,
+        isCopyTarget && style.copyTarget,
       ])}
       ref={setNodeRef}
       onClick={handleFocusClick}

@@ -13,7 +13,7 @@ import { type EntryId, type Rundown, SupportedEntry, isOntimeGroup } from 'ontim
 import { reorderArray } from 'ontime-utils';
 import { Dispatch, SetStateAction, useCallback, useMemo, useRef, useState } from 'react';
 
-import type { useEntryActions } from '../../../common/hooks/useEntryAction';
+import type { EntryActions } from '../../../common/hooks/useEntryAction';
 import { canDrop } from '../rundown.utils';
 
 type Placement = 'before' | 'after';
@@ -33,7 +33,7 @@ interface UseRundownDndOptions {
   setSortableData: Dispatch<SetStateAction<EntryId[]>>;
   getIsCollapsed: (groupId: EntryId) => boolean;
   handleCollapseGroup: (collapsed: boolean, groupId: EntryId | undefined) => void;
-  entryActions: ReturnType<typeof useEntryActions>;
+  entryActions: EntryActions;
 }
 
 export function useRundownDnd({
