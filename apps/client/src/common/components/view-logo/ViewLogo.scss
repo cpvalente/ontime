@@ -3,3 +3,9 @@
   max-height: 75px;
   display: block;
 }
+
+@media screen and (max-width: 768px) {
+  .viewLogo {
+    height: min(50px, 10vh);
+  }
+}
