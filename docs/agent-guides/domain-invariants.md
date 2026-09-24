@@ -11,7 +11,8 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - No caller-owned rundown mutation unless explicitly contracted.
 - Revisions mark change: a rundown revision advances on every commit. An entry revision advances
   when its fields are edited (patch, swap, renumber, apply delay); structural moves (reorder, group,
-  ungroup) only advance the rundown revision. Delays carry no revision.
+  ungroup) only advance the rundown revision. Delays carry no revision. Optimistic client edits apply
+  the same bump the server does, so an unchanged entry keeps its identity.
 
 ## Persistence, realtime, cache
 

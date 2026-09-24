@@ -1,16 +1,17 @@
 // @vitest-environment happy-dom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { OntimeEvent, Rundown, SupportedEntry } from 'ontime-types';
+import { OntimeEntry, OntimeEvent, Rundown, SupportedEntry } from 'ontime-types';
 import { act, createElement, useEffect } from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getRundownQueryKey } from '../../api/constants';
-import { requestApplyDelay } from '../../api/rundown';
+import { putEditEntry, requestApplyDelay } from '../../api/rundown';
 import { type EntryActions, useEntryActions } from '../useEntryAction';
 
 vi.mock('../../api/rundown', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../api/rundown')>()),
+  putEditEntry: vi.fn<typeof putEditEntry>(),
   requestApplyDelay: vi.fn<typeof requestApplyDelay>(),
 }));
 
@@ -71,6 +72,89 @@ describe('useEntryActions()', () => {
     }
     vi.clearAllMocks();
     vi.unstubAllGlobals();
+  });
+
+  it('keeps the newer optimistic edit when responses resolve out of order', async () => {
+    const firstResponse = deferred<{ data: OntimeEntry }>();
+    const secondResponse = deferred<{ data: OntimeEntry }>();
+    vi.mocked(putEditEntry)
+      .mockReturnValueOnce(firstResponse.promise as ReturnType<typeof putEditEntry>)
+      .mockReturnValueOnce(secondResponse.promise as ReturnType<typeof putEditEntry>);
+
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    queryClient.setQueryData(getRundownQueryKey('rundown'), makeRundown(makeEvent(1, 'original')));
+    const container = document.createElement('div');
+    root = createRoot(container);
+    let actions: EntryActions | undefined;
+
+    await act(async () => {
+      root?.render(
+        createElement(
+          QueryClientProvider,
+          { client: queryClient },
+          createElement(EntryActionsReader, { onActions: (value) => (actions = value) }),
+        ),
+      );
+    });
+
+    await act(async () => {
+      void actions?.updateEntry({ id: 'event', title: 'first edit' });
+      await Promise.resolve();
+    });
+    await act(async () => {
+      void actions?.updateEntry({ id: 'event', title: 'second edit' });
+      await Promise.resolve();
+    });
+
+    expect(queryClient.getQueryData<Rundown>(getRundownQueryKey('rundown'))?.entries.event).toMatchObject({
+      title: 'second edit',
+      revision: 3,
+    });
+
+    secondResponse.resolve({ data: makeEvent(3, 'second edit') });
+    await flush();
+    firstResponse.resolve({ data: makeEvent(2, 'first edit') });
+    await flush();
+
+    expect(queryClient.getQueryData<Rundown>(getRundownQueryKey('rundown'))?.entries.event).toMatchObject({
+      title: 'second edit',
+      revision: 3,
+    });
+  });
+
+  it('does not let a late rundown response undo a newer rundown', async () => {
+    const response = deferred<{ data: Rundown }>();
+    vi.mocked(requestApplyDelay).mockReturnValueOnce(response.promise as ReturnType<typeof requestApplyDelay>);
+
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    queryClient.setQueryData(getRundownQueryKey('rundown'), makeRundown(makeEvent(1, 'original')));
+    root = createRoot(document.createElement('div'));
+    let actions: EntryActions | undefined;
+
+    await act(async () => {
+      root?.render(
+        createElement(
+          QueryClientProvider,
+          { client: queryClient },
+          createElement(EntryActionsReader, { onActions: (value) => (actions = value) }),
+        ),
+      );
+    });
+
+    await act(async () => {
+      void actions?.applyDelay('delay');
+      await Promise.resolve();
+    });
+
+    // a later change lands first
+    queryClient.setQueryData(getRundownQueryKey('rundown'), { ...makeRundown(makeEvent(4, 'newer')), revision: 5 });
+    response.resolve({ data: { ...makeRundown(makeEvent(2, 'older')), revision: 3 } });
+    await flush();
+
+    expect(queryClient.getQueryData<Rundown>(getRundownQueryKey('rundown'))).toMatchObject({
+      revision: 5,
+      entries: { event: { title: 'newer' } },
+    });
   });
 
   it('writes a delayed mutation response to the rundown that initiated it', async () => {
