@@ -1,0 +1,14 @@
+.screenControl {
+  display: grid;
+  grid-auto-flow: row;
+  gap: $element-spacing;
+  width: 8rem;
+}
+
+@container (max-width: 22rem) {
+  .screenControl {
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    width: 100%;
+  }
+}
