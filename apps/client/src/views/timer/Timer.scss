@@ -29,6 +29,7 @@
     z-index: 0;
     background-color: #000;
     opacity: 0;
+    pointer-events: none;
     transition: opacity $viewer-transition-time;
 
     &--active {
@@ -156,6 +157,42 @@
     }
   }
 
+  .answer-options {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 0.5em;
+    // .stage-timer applies $view-element-gap between every sibling automatically;
+    // cancel that here and replace it with a fixed 24px above the progress bar
+    margin-bottom: calc(24px - #{$view-element-gap});
+  }
+
+  .answer-option {
+    font-size: 24px;
+    line-height: 0.8;
+    font-weight: 600;
+    color: $ui-white;
+    background: #262626;
+    border: none;
+    border-radius: 6px;
+    padding: 16px 24px;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: color-mix(in srgb, #262626 80%, white);
+    }
+
+    // compound selector so this reliably outweighs the :hover/:focus-visible rule above
+    &.answer-option--selected {
+      background: #ff0000;
+    }
+
+    &:disabled {
+      cursor: default;
+    }
+  }
+
   .progress-container {
     width: 100%;
     margin: 0 auto;
@@ -176,6 +213,7 @@
     padding: 2vw;
     background: var(--background-color-override, $viewer-background-color);
     opacity: 0;
+    pointer-events: none;
     transition: opacity $viewer-transition-time;
 
     &--active {

@@ -38,6 +38,10 @@ export const useExternalMessageInput = createSelector((state: RuntimeStore) => (
   visible: state.message.timer.secondarySource === 'secondary',
 }));
 
+export const useQuestionControl = createSelector((state: RuntimeStore) => ({
+  ...state.message.question,
+}));
+
 export const useMessagePreview = createSelector((state: RuntimeStore) => ({
   blink: state.message.timer.blink,
   blackout: state.message.timer.blackout,
@@ -46,6 +50,7 @@ export const useMessagePreview = createSelector((state: RuntimeStore) => ({
   showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
   timerType: state.eventNow?.timerType ?? null,
   countToEnd: state.eventNow?.countToEnd ?? false,
+  questionEnabled: state.message.question.enabled,
 }));
 
 export const setMessage = {
@@ -56,7 +61,18 @@ export const setMessage = {
   timerBlackout: (payload: boolean) => sendSocket('message', { timer: { blackout: payload } }),
   timerSecondarySource: (payload: TimerMessage['secondarySource']) =>
     sendSocket('message', { timer: { secondarySource: payload } }),
+  questionEnabled: (payload: boolean) => sendSocket('message', { question: { enabled: payload } }),
+  questionTarget: (payload: string | null) => sendSocket('message', { question: { target: payload } }),
+  answerOptions: (payload: string[]) => sendSocket('message', { question: { answers: payload } }),
+  // manual override: ends an active or held answer immediately, without waiting on the server's hold delay.
+  // also hides the secondary message, since it was written for this question and shouldn't
+  // suddenly go out as a public broadcast just because the question was cancelled
+  dismissQuestion: () =>
+    sendSocket('message', { question: { enabled: false, answer: null }, timer: { secondarySource: null } }),
 };
+
+/** Sent by a targeted viewer to answer the currently active question */
+export const sendAnswer = (value: string) => sendSocket('messageanswer', value);
 
 export const usePlaybackControl = createSelector((state: RuntimeStore) => ({
   playback: state.timer.playback,

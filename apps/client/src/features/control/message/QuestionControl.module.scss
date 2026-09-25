@@ -1,0 +1,27 @@
+.label {
+  display: block;
+  font-size: $inner-section-text-size;
+  color: $label-gray;
+  margin-bottom: $element-inner-spacing;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $element-spacing;
+}
+
+.answer {
+  min-width: 0;
+}
+
+.received {
+  // the input's own :hover/:focus rules have higher specificity than a single class,
+  // so !important is needed to guarantee the red stays solid regardless of interaction
+  background-color: #ff0000 !important;
+  color: white !important;
+}
+
+.targetRow {
+  margin-top: $element-spacing;
+}
