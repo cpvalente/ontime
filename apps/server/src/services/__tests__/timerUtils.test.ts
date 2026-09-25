@@ -1,7 +1,8 @@
-import { EndAction, Playback, TimeOfDay, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
+import { Duration, EndAction, Playback, TimeOfDay, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, dayInMs, millisToString } from 'ontime-utils';
 
-import type { RuntimeState } from '../../stores/runtimeState.js';
+import * as timeCore from '../../lib/time-core/timeCore.js';
+import type { InternalRuntimeState, RuntimeState } from '../../stores/runtimeState.js';
 import {
   findDayOffset,
   getCurrent,
@@ -19,48 +20,48 @@ const asTimeOfDay = (value: number): RuntimeState['clock'] => value as RuntimeSt
 describe('getElapsed()', () => {
   it('returns active elapsed time from startedAt without add-time adjustments', () => {
     const state = {
-      clock: 5 * MILLIS_PER_MINUTE,
+      _now: timeCore.generateInstanceFromClock(0, 5, 0),
       timer: {
         addedTime: -10 * MILLIS_PER_MINUTE,
         current: 15 * MILLIS_PER_MINUTE,
         duration: 20 * MILLIS_PER_MINUTE,
-        startedAt: 2 * MILLIS_PER_MINUTE,
+        startedAt: timeCore.generateInstanceFromClock(0, 2, 0),
       },
       _timer: {
         pausedAt: null,
         pausedDuration: 0,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     expect(getElapsed(state)).toBe(3 * MILLIS_PER_MINUTE);
   });
 
   it('subtracts accumulated pause time', () => {
     const state = {
-      clock: 10 * MILLIS_PER_MINUTE,
+      _now: timeCore.generateInstanceFromClock(0, 10, 0),
       timer: {
-        startedAt: 2 * MILLIS_PER_MINUTE,
+        startedAt: timeCore.generateInstanceFromClock(0, 2, 0),
       },
       _timer: {
         pausedAt: null,
         pausedDuration: 5 * MILLIS_PER_MINUTE,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     expect(getElapsed(state)).toBe(3 * MILLIS_PER_MINUTE);
   });
 
   it('uses the current pause start while paused', () => {
     const state = {
-      clock: 10 * MILLIS_PER_MINUTE,
+      _now: timeCore.generateInstanceFromClock(0, 10, 0),
       timer: {
-        startedAt: 2 * MILLIS_PER_MINUTE,
+        startedAt: timeCore.generateInstanceFromClock(0, 2, 0),
       },
       _timer: {
         pausedAt: 7 * MILLIS_PER_MINUTE,
         pausedDuration: 1 * MILLIS_PER_MINUTE,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     expect(getElapsed(state)).toBe(4 * MILLIS_PER_MINUTE);
   });
@@ -82,7 +83,7 @@ describe('getExpectedFinish()', () => {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(null);
   });
@@ -95,13 +96,13 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: 0,
         duration: 10,
-        startedAt: 10,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 10),
       },
       _timer: {
         pausedAt: null,
         hasFinished: true,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(20);
   });
@@ -114,13 +115,13 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: 0,
         duration: 10,
-        startedAt: 1,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 1),
       },
       _timer: {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(11);
   });
@@ -133,13 +134,13 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: 20,
         duration: 10,
-        startedAt: 1,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 1),
       },
       _timer: {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(31);
@@ -153,13 +154,13 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: -10,
         duration: 10,
-        startedAt: 1,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 1),
       },
       _timer: {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(1);
@@ -173,13 +174,13 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: -100,
         duration: 10,
-        startedAt: 1,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 1),
       },
       _timer: {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(1);
@@ -193,13 +194,13 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: 0,
         duration: 0,
-        startedAt: 1,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 1),
       },
       _timer: {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(1);
@@ -213,13 +214,13 @@ describe('getExpectedFinish()', () => {
       timer: {
         addedTime: 0,
         duration: dayInMs,
-        startedAt: 10,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 10),
       },
       _timer: {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(10);
@@ -234,13 +235,13 @@ describe('getExpectedFinish()', () => {
         timer: {
           addedTime: 10,
           duration: dayInMs,
-          startedAt: 10,
+          startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 10),
         },
         _timer: {
           pausedAt: null,
           hasFinished: false,
         },
-      } as RuntimeState;
+      } as InternalRuntimeState;
 
       const calculatedFinish = getExpectedFinish(state);
       expect(calculatedFinish).toBe(40);
@@ -253,7 +254,7 @@ describe('getExpectedFinish()', () => {
         },
         timer: {
           addedTime: 0,
-          startedAt: 79200000, // 22:00:00
+          startedAt: timeCore.generateInstanceFromClock(22, 0, 0),
         },
         _timer: {
           pausedAt: null,
@@ -263,7 +264,7 @@ describe('getExpectedFinish()', () => {
           actualStart: 79200000,
           plannedEnd: 600000,
         },
-      } as RuntimeState;
+      } as InternalRuntimeState;
 
       const calculatedFinish = getExpectedFinish(state);
       // expected finish is not a duration but a point in time
@@ -279,7 +280,7 @@ describe('getCurrent()', () => {
         timeEnd: 30,
         timerType: TimerType.CountDown,
       },
-      clock: 0,
+      _now: timeCore.generateInstanceFromClock(0, 0, 0),
       timer: {
         addedTime: 10,
         duration: 111, // <-- we take the duration value
@@ -289,7 +290,7 @@ describe('getCurrent()', () => {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const current = getCurrent(state);
     expect(current).toBe(111);
@@ -300,17 +301,17 @@ describe('getCurrent()', () => {
         timeEnd: 10,
         timerType: TimerType.CountDown,
       },
-      clock: 1,
+      _now: timeCore.generateInstanceFromClock(0, 0, 0, 1),
       timer: {
         addedTime: 0,
         duration: 10,
-        startedAt: 0,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0),
       },
       _timer: {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const current = getCurrent(state);
     expect(current).toBe(9);
@@ -321,17 +322,17 @@ describe('getCurrent()', () => {
         timeEnd: 10,
         timerType: TimerType.CountDown,
       },
-      clock: 1,
+      _now: timeCore.generateInstanceFromClock(0, 0, 0, 1),
       timer: {
         addedTime: 10,
         duration: 10,
-        startedAt: 0,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0),
       },
       _timer: {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const current = getCurrent(state);
     expect(current).toBe(19);
@@ -342,17 +343,17 @@ describe('getCurrent()', () => {
         timeEnd: 20,
         timerType: TimerType.CountDown,
       },
-      clock: 10,
+      _now: timeCore.generateInstanceFromClock(0, 0, 0, 10),
       timer: {
         addedTime: 0,
         duration: dayInMs + 10,
-        startedAt: 10,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 10),
       },
       _timer: {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const current = getCurrent(state);
     expect(current).toBe(dayInMs + 10);
@@ -363,17 +364,17 @@ describe('getCurrent()', () => {
         timeEnd: 20,
         timerType: TimerType.CountDown,
       },
-      clock: 5,
+      _now: timeCore.generateInstanceFromClock(0, 0, 0, 5),
       timer: {
         addedTime: 0,
         duration: dayInMs + 10,
-        startedAt: 10,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 10),
       },
       _timer: {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const current = getCurrent(state);
     expect(current).toBe(15);
@@ -384,17 +385,17 @@ describe('getCurrent()', () => {
         timeEnd: 20,
         timerType: TimerType.CountDown,
       },
-      clock: 5,
+      _now: timeCore.generateInstanceFromClock(0, 0, 0, 5),
       timer: {
         addedTime: 20,
         duration: dayInMs + 10,
-        startedAt: 10,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 10),
       },
       _timer: {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const current = getCurrent(state);
     expect(current).toBe(35);
@@ -407,7 +408,7 @@ describe('getCurrent()', () => {
           timeEnd: 100,
           countToEnd: true,
         },
-        clock: 30,
+        _now: timeCore.generateInstanceFromClock(0, 0, 0, 30),
         timer: {
           addedTime: 0,
           duration: 100,
@@ -420,7 +421,7 @@ describe('getCurrent()', () => {
           pausedAt: null,
           hasFinished: false,
         },
-      } as RuntimeState;
+      } as InternalRuntimeState;
 
       const current = getCurrent(state);
       expect(current).toBe(70);
@@ -432,11 +433,11 @@ describe('getCurrent()', () => {
           timeEnd: 100,
           countToEnd: true,
         },
-        clock: 30,
+        _now: timeCore.generateInstanceFromClock(0, 0, 0, 30),
         timer: {
           addedTime: 0,
           duration: 100,
-          startedAt: 10,
+          startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 10),
         },
         rundown: {
           plannedEnd: 100,
@@ -445,7 +446,7 @@ describe('getCurrent()', () => {
           pausedAt: null,
           hasFinished: false,
         },
-      } as RuntimeState;
+      } as InternalRuntimeState;
 
       const current = getCurrent(state);
       expect(current).toBe(70);
@@ -457,11 +458,11 @@ describe('getCurrent()', () => {
           timeEnd: 100,
           countToEnd: true,
         },
-        clock: 30,
+        _now: timeCore.generateInstanceFromClock(0, 0, 0, 30),
         timer: {
           addedTime: 7,
           duration: 100,
-          startedAt: 10,
+          startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 10),
         },
         rundown: {
           plannedEnd: 100,
@@ -470,7 +471,7 @@ describe('getCurrent()', () => {
           pausedAt: null,
           hasFinished: false,
         },
-      } as RuntimeState;
+      } as InternalRuntimeState;
 
       const current = getCurrent(state);
       expect(current).toBe(77);
@@ -483,11 +484,11 @@ describe('getCurrent()', () => {
           timeEnd: 600000, // 00:10:00
           countToEnd: true,
         },
-        clock: 79500000, // 22:05:00
+        _now: timeCore.generateInstanceFromClock(22, 5, 0),
         timer: {
           addedTime: 0,
           duration: Infinity, // not relevant,
-          startedAt: 79200000, // 22:00:00
+          startedAt: timeCore.generateInstanceFromClock(22, 0, 0),
         },
         rundown: {
           actualStart: 79200000,
@@ -497,7 +498,7 @@ describe('getCurrent()', () => {
           pausedAt: null,
           hasFinished: false,
         },
-      } as RuntimeState;
+      } as InternalRuntimeState;
 
       const current = getCurrent(state);
       expect(current).toBe(dayInMs - 79500000 + 600000);
@@ -505,7 +506,7 @@ describe('getCurrent()', () => {
 
     it('handles events that were started late', () => {
       const state = {
-        clock: 82000000, // 22:46:40 <--- starting 16 min after the scheduled end
+        _now: timeCore.generateInstanceFromClock(22, 46, 40), // 22:46:40 <--- starting 16 min after the scheduled end
         eventNow: {
           timeStart: 77400000, // 21:30:00
           timeEnd: 81000000, // 22:30:00
@@ -515,7 +516,7 @@ describe('getCurrent()', () => {
         timer: {
           addedTime: 0,
           duration: Infinity, // not relevant,
-          startedAt: 79200000, // 22:00:00
+          startedAt: timeCore.generateInstanceFromClock(22, 0, 0),
         },
         rundown: {
           actualStart: 82000000, // 22:46:40 <--- started now
@@ -525,7 +526,7 @@ describe('getCurrent()', () => {
           pausedAt: null,
           hasFinished: false,
         },
-      } as RuntimeState;
+      } as InternalRuntimeState;
 
       const current = getCurrent(state);
       expect(current).toBe(81000000 - 82000000); // <-- planned end - now
@@ -541,17 +542,17 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
         timeEnd: 10,
         timerType: TimerType.CountDown,
       },
-      clock: 0,
+      _now: timeCore.generateInstanceFromClock(0, 0, 0),
       timer: {
         addedTime: 0,
         duration,
-        startedAt: 0,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0),
       },
       _timer: {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const expectedFinish = getExpectedFinish(state);
     const current = getCurrent(state);
@@ -569,25 +570,25 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
         timeEnd: 10,
         timerType: TimerType.CountDown,
       },
-      clock: 5,
+      _now: timeCore.generateInstanceFromClock(0, 0, 0, 5),
       timer: {
         addedTime: 3,
         duration,
-        startedAt: 0,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0),
       },
       _timer: {
         pausedAt: null,
         hasFinished: false,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const expectedFinish = getExpectedFinish(state);
     const current = getCurrent(state);
 
     const elapsed = duration - current;
     expect(expectedFinish).toBe(13);
-    expect(elapsed).toBe(2);
     expect(current).toBe(8);
+    expect(elapsed).toBe(2);
   });
 });
 
@@ -871,7 +872,7 @@ describe('getRuntimeOffset()', () => {
         dayOffset: 0,
       },
       timer: {
-        startedAt: 150,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 150),
         addedTime: 0,
         current: 0,
       },
@@ -883,9 +884,9 @@ describe('getRuntimeOffset()', () => {
         plannedStart: 100,
         currentDay: 0,
       },
-      clock: 150,
+      _now: timeCore.generateInstanceFromClock(0, 0, 0, 150),
       _startDayOffset: 0,
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const { absolute } = getRuntimeOffset(state);
     expect(absolute).toBe(50);
@@ -899,7 +900,7 @@ describe('getRuntimeOffset()', () => {
         dayOffset: 0,
       },
       timer: {
-        startedAt: 150, // we started 50ms delayed
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 150), // we started 50ms delayed
         addedTime: 10, // we compensated with 10ms
         current: 10, // we are 10ms into the timer
       },
@@ -912,7 +913,7 @@ describe('getRuntimeOffset()', () => {
         currentDay: 0,
       },
       _startDayOffset: 0,
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const { absolute } = getRuntimeOffset(state);
     expect(absolute).toBe(60);
@@ -927,7 +928,7 @@ describe('getRuntimeOffset()', () => {
         dayOffset: 0,
       },
       timer: {
-        startedAt: 100, // we started ontime
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 100), // we started ontime
         current: -10, // we are 10 seconds over
         addedTime: 0, // we have not compensated with added time
       },
@@ -940,7 +941,7 @@ describe('getRuntimeOffset()', () => {
         currentDay: 0,
       },
       _startDayOffset: 0,
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const { absolute } = getRuntimeOffset(state);
     expect(absolute).toBe(10);
@@ -954,9 +955,9 @@ describe('getRuntimeOffset()', () => {
         timeEnd: 150,
         dayOffset: 0,
       },
-      clock: 150,
+      _now: timeCore.generateInstanceFromClock(0, 0, 0, 150),
       timer: {
-        startedAt: 100, // started on time
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 100), // started on time
         current: 25, // are 25ms into it
         addedTime: 0,
       },
@@ -969,7 +970,7 @@ describe('getRuntimeOffset()', () => {
         currentDay: 0,
       },
       _startDayOffset: 0,
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const { absolute } = getRuntimeOffset(state);
     expect(absolute).toBe(25);
@@ -977,7 +978,7 @@ describe('getRuntimeOffset()', () => {
 
   it('offset doesnt exist if we havent started', () => {
     const state = {
-      clock: 78480789,
+      _now: timeCore.generateInstanceFromClock(22, 48, 0), // 78480789
       eventNow: {
         id: 'd6a2ce',
         timeStart: 77400000,
@@ -1011,7 +1012,7 @@ describe('getRuntimeOffset()', () => {
       },
       _startDayOffset: 0,
       _timer: { pausedAt: null },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const { absolute } = getRuntimeOffset(state);
     expect(absolute).toBe(0);
@@ -1019,7 +1020,7 @@ describe('getRuntimeOffset()', () => {
 
   it('with time-to-end, offsets dont exist if we are not in overtime', () => {
     const state = {
-      clock: 80000000, // 22:13:20
+      _now: timeCore.generateInstanceFromClock(22, 13, 20),
       eventNow: {
         id: 'd6a2ce',
         type: 'event',
@@ -1063,11 +1064,11 @@ describe('getRuntimeOffset()', () => {
         expectedFinish: 81600000,
         playback: Playback.Play,
         secondaryTimer: null,
-        startedAt: 78000000,
+        startedAt: timeCore.generateInstanceFromClock(21, 40, 0),
       },
       _startDayOffset: 0,
       _timer: { pausedAt: null },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const { absolute } = getRuntimeOffset(state);
     expect(absolute).toBe(0);
@@ -1075,7 +1076,7 @@ describe('getRuntimeOffset()', () => {
 
   it('with time-to-end, offset is the overtime', () => {
     const state = {
-      clock: 82000000, // 22:46:40
+      _now: timeCore.generateInstanceFromClock(22, 46, 40),
       eventNow: {
         id: 'd6a2ce',
         type: 'event',
@@ -1119,11 +1120,11 @@ describe('getRuntimeOffset()', () => {
         expectedFinish: 81600000,
         playback: Playback.Play,
         secondaryTimer: null,
-        startedAt: 78000000,
+        startedAt: timeCore.generateInstanceFromClock(21, 40, 0),
       },
       _startDayOffset: 0,
       _timer: { pausedAt: null },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const { absolute } = getRuntimeOffset(state);
     expect(absolute).toBe(400000 - 200000); // <--- offset is always the overtime + added time
@@ -1131,7 +1132,7 @@ describe('getRuntimeOffset()', () => {
 
   it('handles time-to-end started after the end time', () => {
     const state = {
-      clock: 82000000, // 22:46:40 <--- starting 16m 40s after the scheduled end
+      _now: timeCore.generateInstanceFromClock(22, 46, 40), // 22:46:40 <--- starting 16m 40s after the scheduled end
       eventNow: {
         id: 'd6a2ce',
         timeStart: 77400000, // 21:30:00
@@ -1164,14 +1165,14 @@ describe('getRuntimeOffset()', () => {
         expectedFinish: 82000000 + 3600000, // <--- now + duration
         playback: Playback.Play,
         secondaryTimer: null,
-        startedAt: 82000000, // <--- started now
+        startedAt: timeCore.generateInstanceFromClock(22, 46, 40),
       },
       _startDayOffset: 0,
       _timer: { pausedAt: null },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const updateCurrent = getCurrent(state);
-    state.timer.current = updateCurrent;
+    state.timer.current = updateCurrent as Duration;
     const { absolute } = getRuntimeOffset(state);
     expect(millisToString(absolute)).toBe('00:16:40');
     expect(absolute).toBe(82000000 - 81000000); // <-- now - planned end
@@ -1187,7 +1188,7 @@ describe('getRuntimeOffset() relative', () => {
         dayOffset: 0,
       },
       timer: {
-        startedAt: 150,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 150),
         addedTime: 0,
         current: 0,
       },
@@ -1200,7 +1201,7 @@ describe('getRuntimeOffset() relative', () => {
         currentDay: 0,
       },
       _startDayOffset: 0,
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const { absolute, relative } = getRuntimeOffset(state);
     expect(absolute).toBe(0);
@@ -1214,7 +1215,7 @@ describe('getRuntimeOffset() relative', () => {
         dayOffset: 0,
       },
       timer: {
-        startedAt: 150,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 150),
         addedTime: 0,
         current: 0,
       },
@@ -1227,7 +1228,7 @@ describe('getRuntimeOffset() relative', () => {
         currentDay: 0,
       },
       _startDayOffset: 0,
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const { absolute, relative } = getRuntimeOffset(state);
     expect(absolute).toBe(50);
@@ -1241,7 +1242,7 @@ describe('getRuntimeOffset() relative', () => {
         dayOffset: 0,
       },
       timer: {
-        startedAt: 100,
+        startedAt: timeCore.generateInstanceFromClock(0, 0, 0, 100),
         addedTime: 0,
         current: 0,
       },
@@ -1254,7 +1255,7 @@ describe('getRuntimeOffset() relative', () => {
         currentDay: 0,
       },
       _startDayOffset: 0,
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const { absolute, relative } = getRuntimeOffset(state);
     expect(absolute).toBe(-50);
@@ -1276,7 +1277,7 @@ describe('getTimerPhase()', () => {
         secondaryTimer: null,
         startedAt: null,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const phase = getTimerPhase(state);
     expect(phase).toBe(TimerPhase.None);
@@ -1294,7 +1295,7 @@ describe('getTimerPhase()', () => {
         timeDanger: 100,
         timeWarning: 200,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const phase = getTimerPhase(state);
     expect(phase).toBe(TimerPhase.Overtime);
@@ -1312,7 +1313,7 @@ describe('getTimerPhase()', () => {
         timeDanger: 100,
         timeWarning: 200,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const phase = getTimerPhase(state);
     expect(phase).toBe(TimerPhase.Danger);
@@ -1330,7 +1331,7 @@ describe('getTimerPhase()', () => {
         timeDanger: 100,
         timeWarning: 200,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const phase = getTimerPhase(state);
     expect(phase).toBe(TimerPhase.Warning);
@@ -1348,7 +1349,7 @@ describe('getTimerPhase()', () => {
         timeDanger: 100,
         timeWarning: 200,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const phase = getTimerPhase(state);
     expect(phase).toBe(TimerPhase.Default);
@@ -1356,7 +1357,7 @@ describe('getTimerPhase()', () => {
 
   it('#1042 identifies waiting to roll', () => {
     const state = {
-      clock: 55691050,
+      _now: timeCore.generateInstanceFromClock(16, 28, 11), //55691050
       eventNow: null,
       eventNext: null,
       rundown: {
@@ -1382,13 +1383,13 @@ describe('getTimerPhase()', () => {
         startedAt: null,
       },
       _timer: {
-        forceFinish: null,
+        forceFinish: false,
         pausedAt: null,
       },
       _rundown: {
         totalDelay: 0,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const phase = getTimerPhase(state);
     expect(phase).toBe(TimerPhase.Pending);
@@ -1396,7 +1397,7 @@ describe('getTimerPhase()', () => {
 
   it('#1042 identifies waiting to roll', () => {
     const state = {
-      clock: 55691050,
+      _now: timeCore.generateInstanceFromClock(16, 28, 11), //55691050
       eventNow: null,
       eventNext: null,
       rundown: {
@@ -1422,13 +1423,13 @@ describe('getTimerPhase()', () => {
         startedAt: null,
       },
       _timer: {
-        forceFinish: null,
+        forceFinish: false,
         pausedAt: null,
       },
       _rundown: {
         totalDelay: 0,
       },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const phase = getTimerPhase(state);
     expect(phase).toBe(TimerPhase.Pending);

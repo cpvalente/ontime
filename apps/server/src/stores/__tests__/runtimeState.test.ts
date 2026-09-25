@@ -6,9 +6,10 @@ import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
 import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 import {
-  type RuntimeState,
+  type InternalRuntimeState,
   addTime,
   clearState,
+  getInternalState,
   getState,
   load,
   loadGroupFlagAndEnd,
@@ -32,7 +33,7 @@ const mockEvent = {
 } as PlayableEvent;
 
 const mockState = {
-  clock: 666,
+  _now: 666,
   eventNow: null,
   eventNext: null,
   rundown: {
@@ -53,7 +54,7 @@ const mockState = {
     pausedAt: null,
     hasFinished: false,
   },
-} as RuntimeState;
+} as InternalRuntimeState;
 
 vi.mock('../../classes/data-provider/DataProvider.js', () => {
   return {
@@ -108,34 +109,34 @@ describe('mutation on runtimeState', () => {
 
       const { metadata, rundown } = rundownCache.get();
       load(mockEvent, rundown, metadata);
-      let newState = getState();
+      let newState = getInternalState();
       expect(newState.eventNow?.id).toBe(mockEvent.id);
       expect(newState.eventNext?.id).toBe('event2');
       expect(newState.timer.playback).toBe(Playback.Armed);
-      expect(newState.clock).not.toBe(666);
+      expect(getState().clock).not.toBe(666);
       expect(newState.groupNow).toBeNull();
 
       // 2. Start event
       vi.setSystemTime('jan 1 00:02');
       let success = start();
-      newState = getState();
+      newState = getInternalState();
       expect(success).toBe(true);
       expect(newState.timer).toMatchObject({
         playback: Playback.Play,
       });
-      expect(newState.rundown.actualStart).toBe(newState.clock);
+      expect(newState.rundown.actualStart).toBe(getState().clock);
 
       // 3. Pause event
       vi.setSystemTime('jan 1 00:03');
       success = pause();
-      newState = getState();
+      newState = getInternalState();
       expect(success).toBe(true);
-      expect(newState.clock).not.toBe(666);
+      expect(getState().clock).not.toBe(666);
       expect(newState.timer).toMatchObject({
         playback: Playback.Pause,
         addedTime: 0,
       });
-      expect(newState._timer.pausedAt).toEqual(newState.clock);
+      expect(newState._timer.pausedAt).toEqual(getState().clock);
 
       success = pause();
       expect(success).toBe(false);
@@ -143,7 +144,7 @@ describe('mutation on runtimeState', () => {
       // 4. Restart event
       vi.setSystemTime('jan 1 00:04');
       success = start();
-      newState = getState();
+      newState = getInternalState();
       expect(success).toBe(true);
       expect(newState.timer).toMatchObject({
         playback: Playback.Play,
@@ -163,7 +164,7 @@ describe('mutation on runtimeState', () => {
       // 5. Stop event
       vi.setSystemTime('jan 1 00:05');
       success = stop();
-      newState = getState();
+      newState = getInternalState();
       expect(success).toBe(true);
       expect(newState.eventNow).toBe(null);
       expect(newState.timer).toMatchObject({
@@ -825,7 +826,7 @@ describe('roll mode', () => {
     test('pending event', () => {
       const { rundown, metadata } = rundownCache.get();
       const { eventId, didStart } = roll(rundown, metadata);
-      const state = getState();
+      const state = getInternalState();
 
       expect(eventId).toBe('1');
       expect(didStart).toBe(false);
@@ -944,7 +945,7 @@ describe('loadGroupFlagAndEnd()', () => {
       groupNow: null,
       eventNow: rundown.entries[11],
       rundown: { actualGroupStart: null },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const metadata = { playableEventOrder: ['0', '11', '3'], flags: ['1'] } as RundownMetadata;
 
@@ -972,7 +973,7 @@ describe('loadGroupFlagAndEnd()', () => {
       groupNow: rundown.entries[1],
       eventNow: rundown.entries[22],
       rundown: { actualGroupStart: null },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
 
@@ -1000,7 +1001,7 @@ describe('loadGroupFlagAndEnd()', () => {
       groupNow: rundown.entries[1],
       eventNow: rundown.entries[0],
       rundown: { actualGroupStart: null },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
 
@@ -1025,7 +1026,7 @@ describe('loadGroupFlagAndEnd()', () => {
       groupNow: null,
       eventNow: rundown.entries[0],
       rundown: { actualGroupStart: null },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const metadata = { playableEventOrder: ['0', '1'], flags: ['1'] } as RundownMetadata;
 
@@ -1087,7 +1088,7 @@ describe('loadGroupFlagAndEnd()', () => {
       groupNow: null,
       eventNow: rundown.entries[0],
       rundown: { actualGroupStart: null },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const metadata = { playableEventOrder: ['0', '1', '2', '3'], flags: ['3'] } as RundownMetadata;
 
@@ -1169,7 +1170,7 @@ describe('loadGroupFlagAndEnd()', () => {
       groupNow: null,
       eventNow: rundown.entries[0],
       rundown: { actualGroupStart: null },
-    } as RuntimeState;
+    } as InternalRuntimeState;
 
     const metadata = { playableEventOrder: ['0', '1', '2', '3'], flags: ['3'] } as RundownMetadata;
 

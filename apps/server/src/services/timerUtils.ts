@@ -1,7 +1,9 @@
-import { Day, MaybeNumber, TimeOfDay, TimerPhase } from 'ontime-types';
+import { Day, Duration, Maybe, TimeOfDay, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
-import type { RuntimeState } from '../stores/runtimeState.js';
+import * as timeCore from '../lib/time-core/timeCore.js';
+import { ZERO_DURATION } from '../lib/time-core/timeCore.js';
+import type { InternalRuntimeState, RuntimeState } from '../stores/runtimeState.js';
 
 /**
  * handle events that span over midnight
@@ -20,48 +22,46 @@ export function hasCrossedMidnight(previous: TimeOfDay, current: TimeOfDay): boo
 
 /**
  * Calculates expected finish time of a running timer
- * @param {RuntimeState} state runtime state
+ * @param {InternalRuntimeState} state runtime state
  * @returns {number | null} new current time or null if nothing is running
  */
-export function getExpectedFinish(state: RuntimeState): MaybeNumber {
+export function getExpectedFinish(state: InternalRuntimeState): Maybe<TimeOfDay> {
   const { startedAt, duration, addedTime } = state.timer;
-
   if (state.eventNow === null) {
     return null;
   }
 
   const { countToEnd, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
-  const { clock } = state;
+  const { _now } = state;
 
   if (startedAt === null) {
     return null;
   }
 
-  const pausedTime = pausedAt != null ? clock - pausedAt : 0;
-
+  const pausedTime = pausedAt !== null ? timeCore.toTimeOfDay(_now) - pausedAt : 0;
   if (countToEnd) {
-    return timeEnd + addedTime + pausedTime;
+    return (timeEnd + addedTime + pausedTime) as TimeOfDay;
   }
 
   // handle events that finish the day after
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- duration exists if ther eis a timer
-  const expectedFinish = startedAt + duration! + addedTime + pausedTime;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- duration exists if there is a timer
+  const expectedFinish = timeCore.toTimeOfDay(startedAt) + duration! + addedTime + pausedTime;
+
   if (expectedFinish > dayInMs) {
-    return expectedFinish - dayInMs;
+    return (expectedFinish - dayInMs) as TimeOfDay;
   }
 
   // an event cannot finish before it started (user added too much negative time)
-  return Math.max(expectedFinish, startedAt);
+  return Math.max(expectedFinish, timeCore.toTimeOfDay(startedAt)) as TimeOfDay;
 }
 
 /**
  * Calculates running countdown
- * @param {RuntimeState} state runtime state
+ * @param {InternalRuntimeState} state runtime state
  * @returns {number} current time for timer
  */
-
-export function getCurrent(state: RuntimeState): number {
+export function getCurrent(state: InternalRuntimeState): Duration {
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: {
     if (state.eventNow === null || state.timer.duration === null) {
@@ -71,12 +71,12 @@ export function getCurrent(state: RuntimeState): number {
   const { startedAt, duration, addedTime } = state.timer;
   const { countToEnd, timeStart, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
-  const { clock } = state;
+  const { _now } = state;
 
   if (countToEnd) {
     const isEventOverMidnight = timeStart > timeEnd;
     const correctDay = isEventOverMidnight ? dayInMs : 0;
-    return correctDay - clock + timeEnd + addedTime;
+    return (correctDay - timeCore.toTimeOfDay(_now) + timeEnd + addedTime) as Duration;
   }
 
   if (startedAt === null) {
@@ -84,19 +84,19 @@ export function getCurrent(state: RuntimeState): number {
   }
 
   if (pausedAt != null) {
-    return startedAt + duration + addedTime - pausedAt;
+    return (timeCore.toTimeOfDay(startedAt) + duration + addedTime - pausedAt) as Duration;
   }
 
-  const hasPassedMidnight = startedAt > clock;
+  const hasPassedMidnight = timeCore.toTimeOfDay(startedAt) > timeCore.toTimeOfDay(_now);
   const correctDay = hasPassedMidnight ? dayInMs : 0;
-  return startedAt + duration + addedTime - clock - correctDay;
+  return (timeCore.toTimeOfDay(startedAt) + duration + addedTime - timeCore.toTimeOfDay(_now) - correctDay) as Duration;
 }
 
 /**
  * Calculates active time elapsed since the timer started.
  */
-export function getElapsed(state: RuntimeState): MaybeNumber {
-  const { clock } = state;
+export function getElapsed(state: InternalRuntimeState): Maybe<Duration> {
+  const { _now } = state;
   const { startedAt } = state.timer;
   const { pausedAt, pausedDuration } = state._timer;
 
@@ -104,11 +104,11 @@ export function getElapsed(state: RuntimeState): MaybeNumber {
     return null;
   }
 
-  const referenceClock = pausedAt ?? clock;
-  const elapsedSinceStart = getTimeSinceStart(referenceClock, startedAt);
+  const referenceClock = pausedAt ?? timeCore.toTimeOfDay(_now);
+  const elapsedSinceStart = getTimeSinceStart(referenceClock, timeCore.toTimeOfDay(startedAt));
   const activeElapsed = elapsedSinceStart - pausedDuration;
 
-  return Math.max(0, activeElapsed);
+  return Math.max(0, activeElapsed) as Duration;
 }
 
 function getTimeSinceStart(clock: TimeOfDay, startedAt: number): number {
@@ -127,7 +127,7 @@ function getTimeSinceStart(clock: TimeOfDay, startedAt: number): number {
  * @returns {boolean}
  */
 export function skippedOutOfEvent(state: RuntimeState, previousTime: number, skipLimit: number): boolean {
-  // we cant have skipped if we havent started
+  // we cant have skipped if we haven't started
   if (state.timer.expectedFinish === null || state.timer.startedAt === null) {
     return false;
   }
@@ -151,12 +151,12 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
  * Positive offset is over time / behind schedule
  * Negative offset is under time / ahead of schedule
  */
-export function getRuntimeOffset(state: RuntimeState): { absolute: number; relative: number } {
-  const { eventNow, clock, _startDayOffset } = state;
+export function getRuntimeOffset(state: InternalRuntimeState): { absolute: Duration; relative: Duration } {
+  const { eventNow, _now, _startDayOffset } = state;
   const { addedTime, current, startedAt } = state.timer;
   // nothing to calculate if there are no loaded events or if we havent started
   if (eventNow === null || startedAt === null || _startDayOffset === null) {
-    return { absolute: 0, relative: 0 };
+    return { absolute: ZERO_DURATION, relative: ZERO_DURATION };
   }
 
   const { countToEnd, timeStart, dayOffset } = eventNow;
@@ -171,20 +171,23 @@ export function getRuntimeOffset(state: RuntimeState): { absolute: number; relat
   }
 
   // difference between planned event start and actual event start (will be positive if we started behind)
-  const eventStartOffset = startedAt + _startDayOffset * dayInMs - (timeStart + dayOffset * dayInMs);
+  const eventStartOffset =
+    timeCore.toTimeOfDay(startedAt) + _startDayOffset * dayInMs - (timeStart + dayOffset * dayInMs);
 
   // how long has the event been running over (is a negative number when in over timer so inverted before adding to offset)
   const overtime = Math.abs(Math.min(current, 0));
 
   // time the playback was paused, the different from now to when we paused is added to the offset TODO: brakes when crossing midnight
-  const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
+  const pausedTime = state._timer.pausedAt === null ? 0 : timeCore.toTimeOfDay(_now) - state._timer.pausedAt;
 
   // absolute offset is difference between schedule and playback time
   // in case of count to end, the absolute offset is overtime and added time
-  const absolute = countToEnd ? overtime + addedTime : eventStartOffset + overtime + pausedTime + addedTime;
+  const absolute = (
+    countToEnd ? overtime + addedTime : eventStartOffset + overtime + pausedTime + addedTime
+  ) as Duration;
 
   // the relative offset is the same as the absolute but adjusted relative to the actual start time
-  const relative = absolute + plannedStart - actualStart - _startDayOffset * dayInMs;
+  const relative = (absolute + plannedStart - actualStart - _startDayOffset * dayInMs) as Duration;
 
   return { absolute, relative };
 }
@@ -193,7 +196,7 @@ export function getRuntimeOffset(state: RuntimeState): { absolute: number; relat
  * Checks running timer to see which phase it currently is in
  * @param state
  */
-export function getTimerPhase(state: RuntimeState): TimerPhase {
+export function getTimerPhase(state: InternalRuntimeState): TimerPhase {
   if (!isPlaybackActive(state.timer.playback)) {
     return TimerPhase.None;
   }
@@ -223,7 +226,7 @@ export function getTimerPhase(state: RuntimeState): TimerPhase {
 
 /**
  * Finds the day offset relative to an event start
- * used byt the runtimeState on first start to get correct offsets
+ * used by the RuntimeState on first start to get correct offsets
  */
 export function findDayOffset(plannedStart: number, clock: number): Day {
   const distance = clock - plannedStart;

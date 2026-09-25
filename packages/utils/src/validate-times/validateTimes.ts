@@ -1,4 +1,4 @@
-import type { OntimeEvent } from 'ontime-types';
+import type { Duration, OntimeEvent } from 'ontime-types';
 import { TimeStrategy } from 'ontime-types';
 
 import { dayInMs } from '../date-utils/conversionUtils.js';
@@ -103,16 +103,17 @@ export function validateTimes(
 
 /**
  * @description calculates event duration considering midnight
+ * @deprecated - duration is the more useful value from the event data, prefer using that directly
  * @param {number} timeStart
  * @param {number} timeEnd
  * @returns {number}
  */
-export function calculateDuration(timeStart: number, timeEnd: number): number {
+export function calculateDuration(timeStart: number, timeEnd: number): Duration {
   // Durations must be positive
   if (timeEnd < timeStart) {
-    return timeEnd + dayInMs - timeStart;
+    return (timeEnd + dayInMs - timeStart) as Duration;
   }
-  return timeEnd - timeStart;
+  return (timeEnd - timeStart) as Duration;
 }
 
 export function calculateEnd(timeStart: number, duration: number): number {
