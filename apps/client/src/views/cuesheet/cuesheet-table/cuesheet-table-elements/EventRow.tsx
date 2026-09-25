@@ -1,7 +1,7 @@
 import { FlexRender } from '@tanstack/react-table';
 import { EntryId, RGBColour, SupportedEntry } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
-import { CSSProperties, memo, useMemo } from 'react';
+import { CSSProperties, useMemo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
@@ -30,8 +30,7 @@ interface EventRowProps {
   hasCursor?: boolean;
 }
 
-export default memo(EventRow);
-function EventRow({
+export default function EventRow({
   rowId,
   id,
   eventIndex,
@@ -49,6 +48,7 @@ function EventRow({
   hasCursor,
   ...virtuosoProps
 }: EventRowProps) {
+  'use memo';
   const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
     cuesheetMode: AppMode.Edit,
     hideIndexColumn: false,
