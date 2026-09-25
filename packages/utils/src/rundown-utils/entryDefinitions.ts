@@ -52,6 +52,8 @@ export const group: Omit<OntimeGroup, 'id'> = {
   note: '',
   entries: [],
   targetDuration: null,
+  useGroupTimer: false,
+  timerType: TimerType.CountDown,
   colour: '',
   custom: {},
   // !==== RUNTIME METADATA ====! //

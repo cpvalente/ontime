@@ -33,6 +33,7 @@ import {
   makeString,
   maxDuration,
   validateEndAction,
+  validateGroupTimerType,
   validateTimerType,
   validateTimes,
 } from 'ontime-utils';
@@ -180,6 +181,9 @@ export function createGroupPatch(originalGroup: OntimeGroup, patchGroup: Partial
     note: makeString(patchGroup.note, originalGroup.note),
     entries: patchGroup.entries ?? originalGroup.entries,
     targetDuration: maybeTargetDuration(),
+    useGroupTimer:
+      typeof patchGroup.useGroupTimer === 'boolean' ? patchGroup.useGroupTimer : originalGroup.useGroupTimer,
+    timerType: validateGroupTimerType(patchGroup.timerType, originalGroup.timerType),
     colour: makeString(patchGroup.colour, originalGroup.colour),
     revision: originalGroup.revision,
     timeStart: originalGroup.timeStart,

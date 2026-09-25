@@ -25,6 +25,7 @@ import { parseRundown } from '../rundown.parser.js';
 import {
   calculateDayOffset,
   cloneEntryData,
+  createGroupPatch,
   deleteById,
   doesInvalidateMetadata,
   getIntegerAndFraction,
@@ -36,6 +37,25 @@ import {
 } from '../rundown.utils.js';
 
 describe('test event validator', () => {
+  it('creates groups with the shared timer disabled by default', () => {
+    expect(createGroup({ id: 'group' })).toMatchObject({
+      useGroupTimer: false,
+      timerType: TimerType.CountDown,
+    });
+  });
+
+  it('limits group timers to count down and count up', () => {
+    expect(createGroup({ timerType: TimerType.CountUp }).timerType).toBe(TimerType.CountUp);
+    expect(createGroup({ timerType: TimerType.Clock }).timerType).toBe(TimerType.CountDown);
+  });
+
+  it('rejects non-boolean group timer updates', () => {
+    const group = createGroup({ useGroupTimer: false });
+    const updated = createGroupPatch(group, { useGroupTimer: 'true' as never });
+
+    expect(updated.useGroupTimer).toBe(false);
+  });
+
   it('validates a good object', () => {
     const event = {
       title: 'test',

@@ -336,6 +336,7 @@ export default function RundownEvent({
         eventIndex={eventIndex}
         endAction={endAction}
         timerType={timerType}
+        groupTimerType={parentGroup?.useGroupTimer ? parentGroup.timerType : undefined}
         title={title}
         note={note}
         delay={delay}

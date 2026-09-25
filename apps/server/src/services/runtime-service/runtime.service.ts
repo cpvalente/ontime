@@ -24,7 +24,7 @@ import { logger } from '../../classes/Logger.js';
 import { timerConfig } from '../../setup/config.js';
 import { eventStore } from '../../stores/EventStore.js';
 import * as runtimeState from '../../stores/runtimeState.js';
-import type { RuntimeState } from '../../stores/runtimeState.js';
+import type { RuntimeState, RuntimeStateSnapshot } from '../../stores/runtimeState.js';
 import { EventTimer } from '../EventTimer.js';
 import { restoreService } from '../restore-service/restore.service.js';
 import type { RestorePoint } from '../restore-service/restore.type.js';
@@ -35,6 +35,7 @@ import {
   findPreviousPlayableId,
   getEventAtIndex,
   getShouldClockUpdate,
+  getShouldGroupTimerUpdate,
   getShouldOffsetUpdate,
   getShouldTimerUpdate,
   isNewSecond,
@@ -50,11 +51,11 @@ class RuntimeService {
   private lastIntegrationTimerValue = -1;
 
   /** last known state */
-  static previousState: RuntimeState;
+  static previousState: RuntimeStateSnapshot;
 
   constructor(eventTimer: EventTimer) {
     this.eventTimer = eventTimer;
-    RuntimeService.previousState = {} as RuntimeState;
+    RuntimeService.previousState = {} as RuntimeStateSnapshot;
   }
 
   @broadcastResult
@@ -713,6 +714,12 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     if (updateTimer) {
       batch.add('timer', state.timer);
       RuntimeService.previousState.timer = { ...state.timer };
+    }
+
+    const updateGroupTimer = getShouldGroupTimerUpdate(RuntimeService.previousState.groupTimer, state.groupTimer);
+    if (updateGroupTimer) {
+      batch.add('groupTimer', state.groupTimer);
+      RuntimeService.previousState.groupTimer = state.groupTimer ? { ...state.groupTimer } : null;
     }
 
     /**

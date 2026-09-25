@@ -32,6 +32,12 @@
   gap: 1rem;
 }
 
+.timerDisplaySettings {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .column {
   display: flex;
   flex-direction: column;

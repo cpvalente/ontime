@@ -1,6 +1,6 @@
-import { OntimeDelay, OntimeEvent, OntimeGroup, SupportedEntry } from 'ontime-types';
+import { OntimeDelay, OntimeEvent, OntimeGroup, SupportedEntry, TimerType } from 'ontime-types';
 
-import { initRundownMetadata } from '../rundownMetadata';
+import { getFlatRundownMetadata, initRundownMetadata } from '../rundownMetadata';
 
 describe('initRundownMetadata()', () => {
   it('processes nested rundown data', () => {
@@ -298,5 +298,38 @@ describe('initRundownMetadata()', () => {
       groupEntries: 2,
       isFirstAfterGroup: false,
     });
+  });
+});
+
+describe('getFlatRundownMetadata()', () => {
+  it('exposes group timer settings on a group and its events', () => {
+    const group = {
+      id: 'group',
+      type: SupportedEntry.Group,
+      entries: ['event'],
+      colour: 'red',
+      useGroupTimer: true,
+      timerType: TimerType.CountUp,
+    } as OntimeGroup;
+    const event = {
+      id: 'event',
+      type: SupportedEntry.Event,
+      parent: group.id,
+      timeStart: 0,
+      timeEnd: 1,
+      duration: 1,
+      dayOffset: 0,
+      gap: 0,
+      skip: false,
+      linkStart: false,
+    } as OntimeEvent;
+
+    const flat = getFlatRundownMetadata(
+      { entries: { [group.id]: group, [event.id]: event }, flatOrder: [group.id, event.id] },
+      null,
+    );
+
+    expect(flat[0]).toMatchObject({ groupUsesTimer: true, groupTimerType: TimerType.CountUp });
+    expect(flat[1]).toMatchObject({ groupUsesTimer: true, groupTimerType: TimerType.CountUp });
   });
 });
