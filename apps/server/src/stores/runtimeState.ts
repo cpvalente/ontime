@@ -40,6 +40,7 @@ import {
   getElapsed,
   getExpectedFinish,
   getRuntimeOffset,
+  getTimeToBoundary,
   getTimerPhase,
   hasCrossedMidnight,
 } from '../services/timerUtils.js';
@@ -537,6 +538,14 @@ export function addTime(amount: number) {
   getExpectedTimes();
 
   return true;
+}
+
+/**
+ * Time until the next playback boundary, see getTimeToBoundary()
+ * Reads the state directly since this is checked on every tick
+ */
+export function getTimeToNextBoundary(): MaybeNumber {
+  return getTimeToBoundary(runtimeState);
 }
 
 export type UpdateResult = {

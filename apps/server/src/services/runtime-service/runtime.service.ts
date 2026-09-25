@@ -784,6 +784,9 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     }
 
     batch.send();
+
+    // mutations may bypass the event timer (eg: roll, resume, load), so we anticipate the new boundary here
+    eventTimer.scheduleNextBoundary();
     return result;
   };
 

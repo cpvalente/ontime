@@ -8,6 +8,7 @@ import {
   getElapsed,
   getExpectedFinish,
   getRuntimeOffset,
+  getTimeToBoundary,
   getTimerPhase,
   hasCrossedMidnight,
   normaliseEndTime,
@@ -1450,5 +1451,31 @@ describe('findDay()', () => {
     expect(findDayOffset(12 * MILLIS_PER_HOUR, 0)).toBe(0); //                  -> -12
     expect(findDayOffset(11 * MILLIS_PER_HOUR, 0)).toBe(0); //                  -> -11
     expect(findDayOffset(22 * MILLIS_PER_HOUR, 23 * MILLIS_PER_HOUR)).toBe(0); //   -> 1
+  });
+});
+
+describe('getTimeToBoundary()', () => {
+  const makeState = (
+    timer: Pick<RuntimeState['timer'], 'playback' | 'current' | 'secondaryTimer'>,
+    hasFinished = false,
+  ) => ({ timer, _timer: { hasFinished } }) as RuntimeState;
+
+  it.each([Playback.Stop, Playback.Armed, Playback.Pause])('returns null when playback is %s', (playback) => {
+    expect(getTimeToBoundary(makeState({ playback, current: 1000, secondaryTimer: null }))).toBeNull();
+  });
+
+  it('returns null once the timer has finished', () => {
+    expect(
+      getTimeToBoundary(makeState({ playback: Playback.Play, current: -100, secondaryTimer: null }, true)),
+    ).toBeNull();
+  });
+
+  it('anticipates the end of a running timer', () => {
+    expect(getTimeToBoundary(makeState({ playback: Playback.Play, current: 1000, secondaryTimer: null }))).toBe(990);
+    expect(getTimeToBoundary(makeState({ playback: Playback.Roll, current: 1000, secondaryTimer: null }))).toBe(990);
+  });
+
+  it('returns the pre-roll wait when waiting to roll', () => {
+    expect(getTimeToBoundary(makeState({ playback: Playback.Roll, current: null, secondaryTimer: 500 }))).toBe(500);
   });
 });
