@@ -1,0 +1,1191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ontime Hero Animation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap"
+    />
+    <style>
+      /*
+       * Ontime hero animation
+       * An operator runs the demo rundown from the editor while the stage timer and a backstage
+       * countdown follow along. Every clock and timer is derived from one simulated time of day,
+       * so all values agree on every frame.
+       */
+      :root {
+        color-scheme: dark;
+        --page-bg: #101010;
+        --window-bg: #151515;
+        --panel-bg: #1a1a1a;
+        --row-bg: #202020;
+        --row-active: #262626;
+        --border: #303030;
+        --text: #f6f6f6;
+        --text-muted: rgba(255, 255, 255, 0.6);
+        --text-faint: rgba(255, 255, 255, 0.35);
+        --timer-normal: rgba(255, 255, 255, 0.8);
+        --timer-warning: #ffa528;
+        --timer-danger: #ff7300;
+        --play: #339e4e;
+        --play-light: #77c785;
+        --button-bg: #303030;
+        --font: 'Open Sans', 'Segoe UI', system-ui, sans-serif;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: var(--page-bg);
+        color: var(--text);
+        font-family: var(--font);
+      }
+
+      .hero {
+        position: relative;
+        width: 100%;
+        max-width: 1280px;
+        margin: 0 auto;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+      }
+
+      .scene {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 1280px;
+        height: 720px;
+        transform-origin: 0 0;
+        font-variant-numeric: tabular-nums;
+        background: radial-gradient(ellipse 70% 60% at 65% 30%, #1c2a20 0%, rgba(16, 16, 16, 0) 70%), var(--page-bg);
+      }
+
+      .fader {
+        position: absolute;
+        inset: 0;
+      }
+
+      .caption {
+        position: absolute;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+      }
+
+      .caption b {
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+
+      /* ================= EDITOR WINDOW ================= */
+
+      .editor {
+        position: absolute;
+        left: 40px;
+        top: 56px;
+        width: 760px;
+        height: 580px;
+        background: var(--window-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .titlebar {
+        height: 36px;
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 14px;
+        background: var(--panel-bg);
+        border-bottom: 1px solid var(--border);
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      .titlebar i {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: #404040;
+      }
+
+      .titlebar span {
+        margin-left: 10px;
+      }
+
+      .titlebar .project {
+        margin-left: auto;
+        color: var(--text-faint);
+      }
+
+      .editor-body {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 1fr 272px;
+        gap: 12px;
+        padding: 12px;
+        min-height: 0;
+      }
+
+      /* rundown */
+
+      .rundown {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        overflow: hidden;
+      }
+
+      .rundown-head {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+        padding: 2px 4px 6px;
+      }
+
+      .group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 34px;
+        padding: 0 12px;
+        border-radius: 6px;
+        background: var(--row-bg);
+        border-left: 4px solid var(--c);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .group .times {
+        margin-left: auto;
+        font-weight: 400;
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      .entry {
+        position: relative;
+        display: grid;
+        grid-template-columns: 40px 1fr auto;
+        align-items: center;
+        column-gap: 10px;
+        height: 50px;
+        margin-left: 14px;
+        padding: 0 12px 0 0;
+        border-radius: 6px;
+        background: var(--row-bg);
+        transition:
+          background-color 0.25s,
+          opacity 0.4s;
+      }
+
+      .entry::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        border-radius: 6px 0 0 6px;
+        background: var(--c);
+      }
+
+      .entry .cue {
+        font-size: 12px;
+        font-weight: 600;
+        text-align: center;
+        color: var(--text-muted);
+      }
+
+      .entry .title {
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .entry .note {
+        font-size: 12px;
+        color: var(--text-faint);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .entry .sched {
+        text-align: right;
+        font-size: 12px;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+
+      .entry .sched small {
+        display: block;
+        color: var(--text-faint);
+        font-size: 11px;
+      }
+
+      .entry.is-past {
+        opacity: 0.4;
+      }
+
+      .entry.is-loaded {
+        background: var(--row-active);
+        box-shadow: inset 0 0 0 1px var(--play);
+      }
+
+      .entry .state {
+        position: absolute;
+        right: -1px;
+        top: -1px;
+        padding: 1px 7px;
+        border-radius: 0 6px 0 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        background: var(--play);
+        color: var(--text);
+        opacity: 0;
+        transition: opacity 0.25s;
+      }
+
+      .entry.is-loaded .state {
+        opacity: 1;
+      }
+
+      .milestone {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        height: 28px;
+        margin-left: 14px;
+        padding: 0 12px;
+        border-radius: 6px;
+        border: 1px dashed #404040;
+        font-size: 12px;
+        color: var(--text-muted);
+        transition: opacity 0.4s;
+      }
+
+      .milestone b {
+        color: var(--c);
+        font-weight: 600;
+        min-width: 52px;
+      }
+
+      .milestone.is-past {
+        opacity: 0.4;
+      }
+
+      /* control panel */
+
+      .control {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .panel {
+        background: var(--panel-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px 14px;
+      }
+
+      .label {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-faint);
+      }
+
+      .clock-panel {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+
+      .clock-panel .value {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.03em;
+      }
+
+      .timer-panel .value {
+        font-size: 44px;
+        font-weight: 600;
+        line-height: 1.1;
+        letter-spacing: 0.03em;
+        color: var(--timer-normal);
+      }
+
+      .timer-panel .value[data-phase='warning'] {
+        color: var(--timer-warning);
+      }
+
+      .timer-panel .value[data-phase='danger'] {
+        color: var(--timer-danger);
+      }
+
+      .meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .meta .v {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+
+      .mini-progress {
+        position: relative;
+        height: 4px;
+        margin-top: 12px;
+        border-radius: 2px;
+        background: #303030;
+        overflow: hidden;
+      }
+
+      .mini-progress i {
+        position: absolute;
+        inset: 0 auto 0 0;
+        background: var(--play-light);
+      }
+
+      .buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .btn {
+        display: grid;
+        place-items: center;
+        height: 42px;
+        border-radius: 6px;
+        background: var(--button-bg);
+        color: var(--text);
+        font-size: 17px;
+        letter-spacing: 0.5px;
+        transition:
+          background-color 0.12s,
+          color 0.12s,
+          transform 0.12s;
+      }
+
+      .btn svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+      }
+
+      .btn.go {
+        grid-column: 1 / -1;
+        height: 64px;
+        background: var(--play);
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .btn.go.is-pressed {
+        background: var(--text);
+        color: var(--button-bg);
+        transform: scale(0.98);
+      }
+
+      .btn.play {
+        background: var(--play);
+      }
+
+      .btn.dim {
+        opacity: 0.4;
+      }
+
+      /* ================= STAGE MONITOR ================= */
+
+      .monitor {
+        position: absolute;
+        left: 842px;
+        top: 70px;
+        width: 400px;
+      }
+
+      .bezel {
+        padding: 10px;
+        border-radius: 10px;
+        background: #080808;
+        border: 1px solid #2d2d2d;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+      }
+
+      .stand {
+        width: 90px;
+        height: 60px;
+        margin: 0 auto;
+        background: linear-gradient(#202020, #151515);
+        clip-path: polygon(38% 0, 62% 0, 70% 100%, 30% 100%);
+      }
+
+      .stand-base {
+        width: 170px;
+        height: 8px;
+        margin: 0 auto;
+        border-radius: 4px;
+        background: #202020;
+      }
+
+      .screen {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        background: #101010;
+        border-radius: 3px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 10px 12px;
+        box-sizing: border-box;
+      }
+
+      .tv-clock {
+        margin-left: auto;
+        text-align: right;
+      }
+
+      .tv-clock .label {
+        font-size: 7px;
+      }
+
+      .tv-clock .value {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1;
+        letter-spacing: 0.05em;
+        color: rgba(255, 255, 255, 0.45);
+      }
+
+      .tv-timer {
+        flex: 1;
+        display: grid;
+        place-items: center;
+        font-size: 78px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        line-height: 0.9;
+        color: var(--timer-normal);
+      }
+
+      .tv-timer[data-phase='warning'] {
+        color: var(--timer-warning);
+      }
+
+      .tv-timer[data-phase='danger'] {
+        color: var(--timer-danger);
+      }
+
+      .tv-progress {
+        position: relative;
+        height: 6px;
+        border-radius: 3px;
+        overflow: hidden;
+        display: flex;
+      }
+
+      .tv-progress span {
+        height: 100%;
+      }
+
+      .tv-progress .shade {
+        position: absolute;
+        inset: 0 auto 0 0;
+        background: rgba(16, 16, 16, 0.8);
+      }
+
+      .tv-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+
+      .tv-card {
+        padding: 5px 8px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        min-width: 0;
+      }
+
+      .tv-card .label {
+        font-size: 6.5px;
+      }
+
+      .tv-card .t {
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.8);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .tv-card .s {
+        font-size: 8px;
+        color: rgba(255, 255, 255, 0.45);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* ================= PHONE ================= */
+
+      .phone {
+        position: absolute;
+        left: 1066px;
+        top: 318px;
+        width: 176px;
+        height: 340px;
+        padding: 8px;
+        box-sizing: border-box;
+        border-radius: 26px;
+        background: #0b0b0b;
+        border: 1px solid #303030;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+      }
+
+      .phone-screen {
+        height: 100%;
+        border-radius: 19px;
+        background: #101010;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        padding: 26px 12px 14px;
+        box-sizing: border-box;
+        gap: 10px;
+      }
+
+      .phone-clock {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+
+      .phone-clock .label {
+        font-size: 7px;
+      }
+
+      .phone-clock .value {
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.45);
+      }
+
+      .cd-card {
+        padding: 10px;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border-left: 3px solid #77c785;
+      }
+
+      .cd-card .t {
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .cd-card .s {
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.45);
+        margin-top: 2px;
+      }
+
+      .cd-card .sched {
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: 8px;
+      }
+
+      .cd-status {
+        margin-top: auto;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.45);
+        transition: color 0.3s;
+      }
+
+      .cd-status.is-live {
+        color: var(--play-light);
+      }
+
+      .cd-timer {
+        font-size: 38px;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        line-height: 1;
+        color: var(--timer-normal);
+      }
+
+      /* ================= OVERLAYS ================= */
+
+      .skip {
+        position: absolute;
+        left: 50%;
+        top: 16px;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: rgba(38, 38, 38, 0.92);
+        border: 1px solid var(--border);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-muted);
+        opacity: 0;
+        z-index: 5;
+      }
+
+      .skip svg {
+        width: 16px;
+        height: 16px;
+        fill: var(--play-light);
+      }
+
+      .cursor {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 22px;
+        height: 22px;
+        z-index: 10;
+        pointer-events: none;
+        filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+      }
+
+      .ripple {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        margin: -20px 0 0 -20px;
+        border-radius: 50%;
+        border: 2px solid var(--text);
+        opacity: 0;
+        z-index: 9;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hero" id="hero" role="img" aria-label="An operator presses Next in the Ontime editor at 11:00. The stage timer and a backstage countdown on a phone update together as the Welcome and Session 1 segments start on time.">
+      <div class="scene" id="scene">
+        <div class="fader" id="fader">
+          <!-- ============ EDITOR ============ -->
+          <div class="editor">
+            <div class="titlebar">
+              <i></i><i></i><i></i>
+              <span>Ontime · Editor</span>
+              <span class="project">Ontime Demo Project</span>
+            </div>
+            <div class="editor-body">
+              <div class="rundown">
+                <div class="rundown-head"><span>Demo project</span><span>Scheduled</span></div>
+
+                <div class="group" style="--c: #339e4e">
+                  Morning Sessions <span class="times">10:00 – 12:00</span>
+                </div>
+                <div class="entry" style="--c: #77c785" data-entry="preshow">
+                  <span class="cue">1</span>
+                  <div>
+                    <div class="title">Pre-show Countdown</div>
+                    <div class="note">Music plays, holding slide on screens</div>
+                  </div>
+                  <div class="sched">10:00 – 11:00<small>1h</small></div>
+                  <span class="state">LIVE</span>
+                </div>
+                <div class="milestone" style="--c: #a790f5" data-milestone="standby">
+                  <b>Standby</b> 10:45 - Presenters ready side stage
+                </div>
+                <div class="entry" style="--c: #ffcc78" data-entry="welcome">
+                  <span class="cue">1.1</span>
+                  <div>
+                    <div class="title">Welcome</div>
+                    <div class="note">Emma Thompson</div>
+                  </div>
+                  <div class="sched">11:00 – 11:10<small>10m</small></div>
+                  <span class="state">LIVE</span>
+                </div>
+                <div class="entry" style="--c: #77c785" data-entry="session1">
+                  <span class="cue">1.2</span>
+                  <div>
+                    <div class="title">Session 1</div>
+                    <div class="note">Liam Carter, Sophia Patel + PowerPoint</div>
+                  </div>
+                  <div class="sched">11:10 – 12:00<small>50m</small></div>
+                  <span class="state">LIVE</span>
+                </div>
+                <div class="milestone" style="--c: #a790f5">
+                  <b>House</b> 11:30 - House staff setup lunch in lobby
+                </div>
+                <div class="group" style="--c: #3e75e8">Lunch <span class="times">12:00 – 13:00</span></div>
+                <div class="entry" style="--c: #779be7">
+                  <span class="cue">2.1</span>
+                  <div>
+                    <div class="title">Lunch / Countdown to next session</div>
+                    <div class="note">Buffet in lobby</div>
+                  </div>
+                  <div class="sched">12:00 – 13:00<small>1h</small></div>
+                  <span class="state">LIVE</span>
+                </div>
+                <div class="group" style="--c: #339e4e">
+                  Afternoon Sessions <span class="times">13:00 – 14:00</span>
+                </div>
+                <div class="milestone" style="--c: #a790f5">
+                  <b>Standby</b> 12:45 - Presenters ready side stage
+                </div>
+                <div class="entry" style="--c: #77c785">
+                  <span class="cue">3.1</span>
+                  <div>
+                    <div class="title">Session 2</div>
+                    <div class="note">Ethan Brooks + PowerPoint + Video playback</div>
+                  </div>
+                  <div class="sched">13:00 – 13:50<small>50m</small></div>
+                  <span class="state">LIVE</span>
+                </div>
+              </div>
+
+              <div class="control">
+                <div class="panel clock-panel">
+                  <span class="label">Time now</span>
+                  <span class="value" data-bind="clock">10:59:54</span>
+                </div>
+                <div class="panel timer-panel">
+                  <div class="label">Running timer</div>
+                  <div class="value" data-bind="editorTimer">00:00:06</div>
+                  <div class="mini-progress"><i data-bind="miniProgress"></i></div>
+                  <div class="meta">
+                    <div>
+                      <div class="label">Started at</div>
+                      <div class="v" data-bind="startedAt">10:00:00</div>
+                    </div>
+                    <div>
+                      <div class="label">Expected finish</div>
+                      <div class="v" data-bind="expectedFinish">11:00:00</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="buttons">
+                  <div class="btn go" id="go">Next</div>
+                  <div class="btn play">
+                    <svg viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z" /></svg>
+                  </div>
+                  <div class="btn">
+                    <svg viewBox="0 0 24 24"><path d="M6 4.5h4v15H6zM14 4.5h4v15h-4z" /></svg>
+                  </div>
+                  <div class="btn">
+                    <svg viewBox="0 0 24 24"><path d="M6 5h2.5v14H6zM19 5v14L9 12z" /></svg>
+                  </div>
+                  <div class="btn">
+                    <svg viewBox="0 0 24 24"><path d="M15.5 5H18v14h-2.5zM5 5v14l10-7z" /></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="caption" style="left: 44px; top: 648px"><b>Editor</b> · operator's laptop</div>
+
+          <!-- ============ STAGE MONITOR ============ -->
+          <div class="monitor">
+            <div class="bezel">
+              <div class="screen">
+                <div class="tv-clock">
+                  <div class="label">Time now</div>
+                  <div class="value" data-bind="clock">10:59:54</div>
+                </div>
+                <div class="tv-timer" data-bind="stageTimer">0:06</div>
+                <div class="tv-progress" data-bind="stageProgress">
+                  <span data-part="normal" style="background: rgba(255, 255, 255, 0.8)"></span>
+                  <span data-part="warning" style="background: #ffa528"></span>
+                  <span data-part="danger" style="background: #ff7300"></span>
+                  <i class="shade"></i>
+                </div>
+                <div class="tv-cards">
+                  <div class="tv-card">
+                    <div class="label">Now</div>
+                    <div class="t" data-bind="nowTitle">Pre-show Countdown</div>
+                    <div class="s" data-bind="nowNote">Music plays, holding slide on screens</div>
+                  </div>
+                  <div class="tv-card">
+                    <div class="label">Next</div>
+                    <div class="t" data-bind="nextTitle">Welcome</div>
+                    <div class="s" data-bind="nextNote">Emma Thompson</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="stand"></div>
+            <div class="stand-base"></div>
+          </div>
+          <div class="caption" style="left: 846px; top: 382px"><b>Timer</b> · stage monitor</div>
+
+          <!-- ============ PHONE ============ -->
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="phone-clock">
+                <span class="label">Time now</span>
+                <span class="value" data-bind="clock">10:59:54</span>
+              </div>
+              <div class="cd-card">
+                <div class="t">Session 1</div>
+                <div class="s">Liam Carter, Sophia Patel</div>
+                <div class="sched">11:10 – 12:00</div>
+              </div>
+              <div class="cd-status" data-bind="cdStatus">Time to start</div>
+              <div class="cd-timer" data-bind="cdTimer">10:06</div>
+            </div>
+          </div>
+          <div class="caption" style="left: 1066px; top: 668px"><b>Countdown</b> · backstage</div>
+        </div>
+
+        <div class="skip" id="skip">
+          <svg viewBox="0 0 24 24"><path d="M3 5v14l9-7zM12 5v14l9-7z" /></svg>
+          <span>Skipping ahead to 11:09:55</span>
+        </div>
+        <div class="ripple" id="ripple"></div>
+        <svg class="cursor" id="cursor" viewBox="0 0 24 24">
+          <path d="M4 2l16 11.2-6.8 1.2 4 7.6-3 1.6-4-7.7L4 20.5z" fill="#fff" stroke="#101010" stroke-width="1.4" />
+        </svg>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const SECOND = 1000;
+        const MINUTE = 60 * SECOND;
+        const HOUR = 60 * MINUTE;
+        const hms = (h, m, s = 0) => h * HOUR + m * MINUTE + s * SECOND;
+
+        // events from the demo rundown, times in ms from midnight
+        const events = {
+          preshow: {
+            title: 'Pre-show Countdown',
+            note: 'Music plays, holding slide on screens',
+            start: hms(10, 0),
+            end: hms(11, 0),
+            warning: 10 * MINUTE,
+            danger: 5 * MINUTE,
+          },
+          welcome: {
+            title: 'Welcome',
+            note: 'Emma Thompson',
+            start: hms(11, 0),
+            end: hms(11, 10),
+            warning: 2 * MINUTE,
+            danger: 1 * MINUTE,
+          },
+          session1: {
+            title: 'Session 1',
+            note: 'Liam Carter, Sophia Patel + PowerPoint',
+            start: hms(11, 10),
+            end: hms(12, 0),
+            warning: 2 * MINUTE,
+            danger: 1 * MINUTE,
+          },
+          lunch: { title: 'Lunch / Countdown to next session', note: 'Buffet in lobby' },
+        };
+        const order = ['preshow', 'welcome', 'session1', 'lunch'];
+
+        /**
+         * Script, in seconds of animation time.
+         * Real time sections run 1:1 with the show clock, so clocks and timers tick together.
+         * The operator presses Next as each timer reaches zero.
+         */
+        const LOOP = 21;
+        const FF_FROM = hms(11, 0, 3);
+        const FF_TO = hms(11, 9, 55);
+        const segments = [
+          { from: 0, to: 9, clock: (t) => hms(10, 59, 54) + t * SECOND },
+          { from: 9, to: 11, clock: (t) => FF_FROM + (FF_TO - FF_FROM) * easeInOut((t - 9) / 2) },
+          { from: 11, to: LOOP, clock: (t) => FF_TO + (t - 11) * SECOND },
+        ];
+        const loads = [
+          { at: 0, id: 'preshow' },
+          { at: 6.25, id: 'welcome' },
+          { at: 16.25, id: 'session1' },
+        ];
+        const clicks = [6.2, 16.2];
+
+        function easeInOut(x) {
+          return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+        }
+
+        function getClock(t) {
+          const segment = segments.find((s) => t >= s.from && t < s.to) ?? segments[segments.length - 1];
+          return segment.clock(t);
+        }
+
+        function getLoaded(t) {
+          let id = loads[0].id;
+          for (const load of loads) if (t >= load.at) id = load.id;
+          return id;
+        }
+
+        const pad = (n) => String(n).padStart(2, '0');
+
+        function formatClock(ms) {
+          const total = Math.floor(ms / SECOND);
+          return `${pad(Math.floor(total / 3600))}:${pad(Math.floor(total / 60) % 60)}:${pad(total % 60)}`;
+        }
+
+        // countdowns round up, as in Ontime
+        function formatTimer(ms, removeLeadingZero) {
+          const total = Math.max(0, Math.ceil(ms / SECOND));
+          const text = `${pad(Math.floor(total / 3600))}:${pad(Math.floor(total / 60) % 60)}:${pad(total % 60)}`;
+          if (!removeLeadingZero) return text;
+          if (text.startsWith('00:0')) return text.slice(4);
+          if (text.startsWith('00:')) return text.slice(3);
+          return text;
+        }
+
+        function getPhase(event, remaining) {
+          if (remaining <= event.danger) return 'danger';
+          if (remaining <= event.warning) return 'warning';
+          return 'default';
+        }
+
+        /* ---------------- DOM ---------------- */
+
+        const hero = document.getElementById('hero');
+        const scene = document.getElementById('scene');
+        const fader = document.getElementById('fader');
+        const skip = document.getElementById('skip');
+        const cursor = document.getElementById('cursor');
+        const ripple = document.getElementById('ripple');
+        const go = document.getElementById('go');
+        const bind = (name) => Array.from(scene.querySelectorAll(`[data-bind="${name}"]`));
+        const el = {
+          clock: bind('clock'),
+          editorTimer: bind('editorTimer')[0],
+          miniProgress: bind('miniProgress')[0],
+          startedAt: bind('startedAt')[0],
+          expectedFinish: bind('expectedFinish')[0],
+          stageTimer: bind('stageTimer')[0],
+          stageProgress: bind('stageProgress')[0],
+          nowTitle: bind('nowTitle')[0],
+          nowNote: bind('nowNote')[0],
+          nextTitle: bind('nextTitle')[0],
+          nextNote: bind('nextNote')[0],
+          cdStatus: bind('cdStatus')[0],
+          cdTimer: bind('cdTimer')[0],
+        };
+        const rows = Object.fromEntries(
+          Array.from(scene.querySelectorAll('[data-entry]')).map((row) => [row.dataset.entry, row]),
+        );
+        const standby = scene.querySelector('[data-milestone="standby"]');
+
+        function setText(node, text) {
+          if (node.textContent !== text) node.textContent = text;
+        }
+
+        // cursor path in scene coordinates, positions around the GO button are measured at runtime
+        let goCenter = { x: 680, y: 380 };
+        function getCursorKeys() {
+          const rest = { x: 520, y: 470 };
+          const aside = { x: goCenter.x - 40, y: goCenter.y + 150 };
+          return [
+            { t: 0, ...rest },
+            { t: 3.2, ...rest },
+            { t: 5.6, ...goCenter },
+            { t: 6.4, ...goCenter },
+            { t: 8.2, ...aside },
+            { t: 12.5, ...aside },
+            { t: 15.6, ...goCenter },
+            { t: 16.4, ...goCenter },
+            { t: 19, ...rest },
+            { t: LOOP, ...rest },
+          ];
+        }
+        let cursorKeys = getCursorKeys();
+
+        function getCursor(t) {
+          for (let i = 0; i < cursorKeys.length - 1; i++) {
+            const a = cursorKeys[i];
+            const b = cursorKeys[i + 1];
+            if (t >= a.t && t <= b.t) {
+              const k = easeInOut((t - a.t) / (b.t - a.t || 1));
+              return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k };
+            }
+          }
+          return cursorKeys[cursorKeys.length - 1];
+        }
+
+        function measure() {
+          const scale = scene.getBoundingClientRect().width / 1280 || 1;
+          const sceneBox = scene.getBoundingClientRect();
+          const box = go.getBoundingClientRect();
+          goCenter = {
+            x: (box.left - sceneBox.left + box.width * 0.55) / scale,
+            y: (box.top - sceneBox.top + box.height * 0.5) / scale,
+          };
+          cursorKeys = getCursorKeys();
+        }
+
+        function fit() {
+          const scale = hero.clientWidth / 1280;
+          scene.style.transform = `scale(${scale})`;
+        }
+
+        /* ---------------- RENDER ---------------- */
+
+        function render(t) {
+          const clock = getClock(t);
+          const loadedId = getLoaded(t);
+          const event = events[loadedId];
+          const nextId = order[order.indexOf(loadedId) + 1];
+          const remaining = event.end - clock;
+          const duration = event.end - event.start;
+          const phase = getPhase(event, remaining);
+          const elapsedRatio = Math.min(1, Math.max(0, 1 - remaining / duration));
+
+          // clocks
+          const clockText = formatClock(clock);
+          el.clock.forEach((node) => setText(node, clockText));
+
+          // editor
+          setText(el.editorTimer, formatTimer(remaining, false));
+          el.editorTimer.dataset.phase = phase;
+          el.miniProgress.style.width = `${elapsedRatio * 100}%`;
+          setText(el.startedAt, formatClock(event.start));
+          setText(el.expectedFinish, formatClock(event.end));
+
+          const loadedIndex = order.indexOf(loadedId);
+          order.forEach((id, index) => {
+            const row = rows[id];
+            if (!row) return;
+            row.classList.toggle('is-loaded', id === loadedId);
+            row.classList.toggle('is-past', index < loadedIndex);
+          });
+          standby.classList.toggle('is-past', loadedIndex > 0);
+
+          // stage timer view
+          setText(el.stageTimer, formatTimer(remaining, true));
+          el.stageTimer.dataset.phase = phase;
+          const parts = el.stageProgress.children;
+          parts[0].style.flex = String(duration - event.warning);
+          parts[1].style.flex = String(event.warning - event.danger);
+          parts[2].style.flex = String(event.danger);
+          parts[3].style.width = `${elapsedRatio * 100}%`;
+          setText(el.nowTitle, event.title);
+          setText(el.nowNote, event.note);
+          setText(el.nextTitle, events[nextId].title);
+          setText(el.nextNote, events[nextId].note);
+
+          // backstage countdown follows Session 1
+          const session = events.session1;
+          const isLive = loadedId === 'session1';
+          setText(el.cdStatus, isLive ? 'Event running' : 'Time to start');
+          el.cdStatus.classList.toggle('is-live', isLive);
+          setText(el.cdTimer, formatTimer(isLive ? session.end - clock : session.start - clock, true));
+
+          // fast forward indicator
+          const ffOpacity = t < 8.6 || t > 11.6 ? 0 : Math.min(1, (t - 8.6) / 0.3, (11.6 - t) / 0.3);
+          skip.style.opacity = String(ffOpacity);
+
+          // cursor and clicks
+          const pos = getCursor(t);
+          cursor.style.transform = `translate(${pos.x - 4}px, ${pos.y - 2}px)`;
+          const click = clicks.find((c) => t >= c - 0.12 && t < c + 0.45);
+          go.classList.toggle('is-pressed', click !== undefined && t < click + 0.1);
+          if (click !== undefined) {
+            const k = (t - click + 0.12) / 0.57;
+            ripple.style.left = `${pos.x}px`;
+            ripple.style.top = `${pos.y}px`;
+            ripple.style.opacity = String(0.8 * (1 - k));
+            ripple.style.transform = `scale(${0.4 + k * 1.4})`;
+          } else {
+            ripple.style.opacity = '0';
+          }
+
+          // loop fade
+          const fade = Math.min(1, t / 0.5, (LOOP - t) / 0.6);
+          fader.style.opacity = String(Math.max(0, fade));
+          cursor.style.opacity = String(Math.max(0, fade));
+        }
+
+        /* ---------------- LOOP ---------------- */
+
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+        let elapsed = 0;
+        let last = null;
+        let visible = true;
+        let running = false;
+
+        function frame(now) {
+          if (last !== null) elapsed += (now - last) / 1000;
+          last = now;
+          render(elapsed % LOOP);
+          if (visible && !reduceMotion.matches) {
+            requestAnimationFrame(frame);
+          } else {
+            running = false;
+            last = null;
+          }
+        }
+
+        function start() {
+          if (reduceMotion.matches) {
+            // a still frame: Welcome is running, just after the operator pressed Next
+            render(8);
+            fader.style.opacity = '1';
+            cursor.style.opacity = '0';
+            return;
+          }
+          if (!running) {
+            running = true;
+            requestAnimationFrame(frame);
+          }
+        }
+
+        fit();
+        measure();
+        window.addEventListener('resize', () => {
+          fit();
+          measure();
+        });
+        document.fonts?.ready.then(measure);
+
+        if ('IntersectionObserver' in window) {
+          new IntersectionObserver((entries) => {
+            visible = entries[0].isIntersecting;
+            if (visible) start();
+          }).observe(hero);
+        }
+        document.addEventListener('visibilitychange', () => {
+          last = null;
+        });
+        reduceMotion.addEventListener?.('change', start);
+        start();
+      })();
+    </script>
+  </body>
+</html>
