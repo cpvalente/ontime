@@ -63,7 +63,9 @@ export type RuntimeState = {
   // private properties of the timer calculations
   _timer: {
     forceFinish: Maybe<TimeOfDay>; // whether we should declare an event as finished, will contain the finish time
-    pausedAt: Maybe<TimeOfDay>;
+    pausedAt: Maybe<Instant>;
+
+    /** Accumulate pause duration but dose not include the current pause */
     pausedDuration: number;
     secondaryTarget: Maybe<TimeOfDay>;
     hasFinished: boolean;
@@ -76,10 +78,12 @@ export type RuntimeState = {
   _end: ExpectedMetadata;
   _startEpoch: Maybe<Instant>;
   _startDayOffset: Maybe<Day>;
+  _now: Instant;
 };
 
 const runtimeState: RuntimeState = {
   clock: timeCore.timeOfDayNow(),
+  _now: timeCore.now(),
   groupNow: null,
   eventNow: null,
   eventNext: null,
@@ -103,6 +107,12 @@ const runtimeState: RuntimeState = {
   _startEpoch: null,
   _startDayOffset: null,
 };
+
+/** set the current clock to ensure parity between _now and clock */
+function setClock(state: RuntimeState) {
+  state._now = timeCore.now();
+  state.clock = timeCore.toTimeOfDay(state._now);
+}
 
 export function getState(): Readonly<RuntimeState> {
   // create a shallow copy of the state
@@ -136,7 +146,7 @@ export function clearEventData() {
   runtimeState.rundown.selectedEventIndex = null;
 
   runtimeState.timer.playback = Playback.Stop;
-  runtimeState.clock = timeCore.timeOfDayNow();
+  setClock(runtimeState);
   runtimeState.timer = { ...runtimeStorePlaceholder.timer };
 
   // when clearing, we maintain the total delay from the rundown
@@ -169,7 +179,7 @@ export function clearState() {
   runtimeState._end = null;
 
   runtimeState.timer.playback = Playback.Stop;
-  runtimeState.clock = timeCore.timeOfDayNow();
+  setClock(runtimeState);
   runtimeState.timer = { ...runtimeStorePlaceholder.timer };
 
   // when clearing, we maintain the total delay from the rundown
@@ -422,15 +432,12 @@ export function start(state: RuntimeState = runtimeState): boolean {
     return false;
   }
 
-  const epoch = timeCore.now();
-  const now = timeCore.toTimeOfDay(epoch);
-
-  state.clock = now;
+  setClock(state);
   state.timer.secondaryTimer = null;
 
   // add paused time if it exists
   if (state._timer.pausedAt) {
-    const timeToAdd = state.clock - state._timer.pausedAt;
+    const timeToAdd = state._now - state._timer.pausedAt;
     state.timer.addedTime += timeToAdd;
     state._timer.pausedDuration += timeToAdd;
     state._timer.pausedAt = null;
@@ -447,7 +454,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   if (state.rundown.actualStart === null) {
     state._startDayOffset = (findDayOffset(state.eventNow.timeStart, state.clock) + state.eventNow.dayOffset) as Day;
     state.rundown.currentDay = state._startDayOffset;
-    state._startEpoch = epoch;
+    state._startEpoch = state._now;
     state.rundown.actualStart = state.clock;
   }
 
@@ -481,8 +488,8 @@ export function pause(state: RuntimeState = runtimeState): boolean {
   }
 
   state.timer.playback = Playback.Pause;
-  state.clock = timeCore.timeOfDayNow();
-  state._timer.pausedAt = state.clock;
+  setClock(state);
+  state._timer.pausedAt = state._now;
   return true;
 }
 
@@ -547,9 +554,7 @@ export type UpdateResult = {
 export function update(): UpdateResult {
   // 0. there are some things we always do
   const previousClock = runtimeState.clock;
-  const epoch = timeCore.now();
-  const now = timeCore.toTimeOfDay(epoch);
-  runtimeState.clock = now; // we update the clock on every update call
+  setClock(runtimeState); // we update the clock on every update call
 
   // 1. is playback idle?
   if (!isPlaybackActive(runtimeState.timer.playback)) {
@@ -558,13 +563,13 @@ export function update(): UpdateResult {
 
   // calculate currentDay from epoch (days elapsed since playback was started)
   if (runtimeState._startEpoch !== null && runtimeState._startDayOffset !== null) {
-    const daysSinceStart = timeCore.daysSinceStart(runtimeState._startEpoch, epoch);
+    const daysSinceStart = timeCore.daysSinceStart(runtimeState._startEpoch, runtimeState._now);
     runtimeState.rundown.currentDay = runtimeState._startDayOffset + daysSinceStart;
   }
 
   // 2. are we waiting to roll?
   if (runtimeState.timer.playback === Playback.Roll && runtimeState.timer.secondaryTimer !== null) {
-    const clockHasCrossedMidnight = hasCrossedMidnight(previousClock, now);
+    const clockHasCrossedMidnight = hasCrossedMidnight(previousClock, runtimeState.clock);
     return updateIfWaitingToRoll(clockHasCrossedMidnight);
   }
 
