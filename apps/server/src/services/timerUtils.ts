@@ -1,6 +1,7 @@
-import { Day, MaybeNumber, TimeOfDay, TimerPhase } from 'ontime-types';
+import { Day, MaybeNumber, Playback, TimeOfDay, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
+import { timerConfig } from '../setup/config.js';
 import type { RuntimeState } from '../stores/runtimeState.js';
 
 /**
@@ -16,6 +17,30 @@ export const normaliseEndTime = (start: number, end: number) => (end < start ? e
 export function hasCrossedMidnight(previous: TimeOfDay, current: TimeOfDay): boolean {
   const backwardJump = previous - current;
   return backwardJump > 12 * MILLIS_PER_HOUR;
+}
+
+/**
+ * Calculates how long until the next playback boundary the timer must resolve
+ * ie: the end of a roll pre-roll wait or the (anticipated) end of the running event
+ * @returns {number | null} milliseconds until the boundary, or null if there is none to anticipate
+ */
+export function getTimeToBoundary(state: RuntimeState): MaybeNumber {
+  const { playback, secondaryTimer, current } = state.timer;
+
+  if (playback !== Playback.Play && playback !== Playback.Roll) {
+    return null;
+  }
+
+  // waiting to roll into the next event
+  if (playback === Playback.Roll && secondaryTimer !== null) {
+    return secondaryTimer;
+  }
+
+  if (current === null || state._timer.hasFinished) {
+    return null;
+  }
+
+  return current - timerConfig.triggerAhead;
 }
 
 /**

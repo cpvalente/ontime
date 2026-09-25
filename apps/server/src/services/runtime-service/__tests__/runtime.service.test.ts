@@ -69,6 +69,7 @@ vi.mock('../../EventTimer.js', () => ({
     addTime() {
       return true;
     }
+    scheduleNextBoundary() {}
     shutdown() {}
   },
 }));
