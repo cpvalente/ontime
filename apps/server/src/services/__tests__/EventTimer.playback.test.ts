@@ -51,7 +51,7 @@ describe('EventTimer playback', () => {
     runtimeState.load(mockEvent, rundown, metadata);
 
     let finishedAt: number | null = null;
-    timer = new EventTimer({ refresh, updateInterval: 1000 });
+    timer = new EventTimer({ refresh });
     timer.setOnUpdateCallback(({ hasTimerFinished }) => {
       if (hasTimerFinished) finishedAt ??= Date.now();
     });

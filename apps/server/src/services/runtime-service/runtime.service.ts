@@ -657,10 +657,9 @@ class RuntimeService {
   }
 }
 
-// calculate at 30fps, refresh at 1fps
+// calculate at 30fps
 const eventTimer = new EventTimer({
   refresh: timerConfig.updateRate,
-  updateInterval: timerConfig.notificationRate,
 });
 export const runtimeService = new RuntimeService(eventTimer);
 

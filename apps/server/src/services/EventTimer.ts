@@ -19,10 +19,8 @@ export class EventTimer {
   /**
    * @constructor
    * @param {number} [timerConfig.refresh] how often we recalculate
-   * @param {number} [timerConfig.updateInterval] how often we update the socket
-   * @param {function} [timerConfig.onUpdateCallback] how often we update the socket
    */
-  constructor(timerConfig: { refresh: number; updateInterval: number }) {
+  constructor(timerConfig: { refresh: number }) {
     EventTimer._refreshInterval = timerConfig.refresh;
     this._interval = setInterval(() => {
       this.update();
