@@ -1,4 +1,4 @@
-import type { MaybeString, TeleprompterCommand, TeleprompterControlMode } from 'ontime-types';
+import type { MaybeString, TeleprompterCommand } from 'ontime-types';
 
 export type HeadingSource = 'none' | 'title' | 'cue' | 'both';
 
@@ -32,10 +32,9 @@ export type TeleprompterOptions = {
   readingLinePos: number;
   flipH: boolean;
   flipV: boolean;
-  controlMode: TeleprompterControlMode;
 };
 
-export type { TeleprompterCommand, TeleprompterControlMode };
+export type { TeleprompterCommand };
 
 export type TeleprompterAction =
   | { type: 'togglePlay' }

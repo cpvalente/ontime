@@ -1,31 +1,20 @@
 import type { MouseEvent, PropsWithChildren } from 'react';
-import {
-  IoAdd,
-  IoArrowDown,
-  IoArrowUp,
-  IoHelpCircleOutline,
-  IoLockClosed,
-  IoLockOpen,
-  IoPause,
-  IoPlay,
-  IoRemove,
-} from 'react-icons/io5';
+import { IoAdd, IoArrowUp, IoHelpCircleOutline, IoLocate, IoPause, IoPlay, IoRemove } from 'react-icons/io5';
 
 import IconButton from '../../../common/components/buttons/IconButton';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useFadeOutOnInactivity } from '../../../common/hooks/useFadeOutOnInactivity';
 import { cx } from '../../../common/utils/styleUtils';
 import { SPEED_STEP } from '../teleprompter.scroll';
-import type { ParkedAt, TeleprompterControlMode, TeleprompterController } from '../teleprompter.types';
+import type { ParkedAt, TeleprompterController } from '../teleprompter.types';
 
 interface ControlOverlayProps {
   isRunning: boolean;
   speed: number;
+  canReengageFollow: boolean;
   parkedAt: ParkedAt;
   controller: TeleprompterController;
   onToggleHelp: () => void;
-  controlMode: TeleprompterControlMode;
-  onToggleControlMode: () => void;
 }
 
 interface ControlButtonProps {
@@ -76,31 +65,19 @@ function ControlButton({
 export default function ControlOverlay({
   isRunning,
   speed,
+  canReengageFollow,
   parkedAt,
   controller,
   onToggleHelp,
-  controlMode,
-  onToggleControlMode,
 }: ControlOverlayProps) {
   const isActive = useFadeOutOnInactivity(true);
-  const isControlled = controlMode === 'controlled';
 
   return (
     <div className={cx(['teleprompter__controls', !isActive && 'teleprompter__controls--idle'])}>
       <ControlButton
-        label={isControlled ? 'Switch to free mode' : 'Switch to controlled mode'}
-        accessibleLabel='Toggle control mode'
-        onPress={onToggleControlMode}
-        isActive={isControlled}
-      >
-        {isControlled ? <IoLockClosed /> : <IoLockOpen />}
-      </ControlButton>
-
-      <ControlButton
         label={isRunning ? 'Pause (Space)' : 'Play (Space)'}
         accessibleLabel={isRunning ? 'Pause' : 'Play'}
         onPress={controller.togglePlay}
-        disabled={isControlled}
         testId='teleprompter-play'
       >
         {isRunning ? <IoPause /> : <IoPlay />}
@@ -110,7 +87,6 @@ export default function ControlOverlay({
         label='Slow down (Left arrow)'
         accessibleLabel='Slow down'
         onPress={() => controller.changeSpeed(-SPEED_STEP)}
-        disabled={isControlled}
       >
         <IoRemove />
       </ControlButton>
@@ -130,27 +106,28 @@ export default function ControlOverlay({
         label='Speed up (Right arrow)'
         accessibleLabel='Speed up'
         onPress={() => controller.changeSpeed(SPEED_STEP)}
-        disabled={isControlled}
       >
         <IoAdd />
       </ControlButton>
 
       <ControlButton
-        label='Nudge up one line (Up arrow)'
-        accessibleLabel='Nudge up one line'
-        onPress={() => controller.nudge(-1)}
-        disabled={isControlled}
+        label='Rewind to the top (Home)'
+        accessibleLabel='Rewind to top'
+        onPress={controller.rewind}
+        isActive={parkedAt === 'script'}
       >
         <IoArrowUp />
       </ControlButton>
 
       <ControlButton
-        label='Nudge down one line (Down arrow)'
-        accessibleLabel='Nudge down one line'
-        onPress={() => controller.nudge(1)}
-        disabled={isControlled}
+        label={canReengageFollow ? 'Resume following the loaded event (L)' : 'Following the loaded event'}
+        accessibleLabel='Follow the loaded event'
+        onPress={controller.reengageFollow}
+        disabled={!canReengageFollow}
+        isActive={canReengageFollow}
+        testId='teleprompter-follow'
       >
-        <IoArrowDown />
+        <IoLocate />
       </ControlButton>
 
       <ControlButton label='Keyboard shortcuts (?)' accessibleLabel='Keyboard shortcuts' onPress={onToggleHelp}>

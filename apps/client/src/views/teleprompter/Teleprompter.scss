@@ -43,10 +43,6 @@
   }
 }
 
-.teleprompter--controlled .teleprompter__scroller {
-  overflow-y: hidden;
-}
-
 .teleprompter__content {
   width: var(--tp-text-width);
   margin-inline: auto;

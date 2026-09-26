@@ -14,7 +14,6 @@ interface TeleprompterActionContext {
 
 interface UseTeleprompterControlsArgs extends TeleprompterActionContext {
   isHelpOpen: boolean;
-  enabled?: boolean;
 }
 
 const ignoredTags = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
@@ -58,10 +57,10 @@ export function applyTeleprompterCommand(command: TeleprompterCommand, controlle
       return controller.play();
     case 'pause':
       return controller.pause();
-    case 'setSpeed':
-      return controller.setSpeed(command.linesPerMinute);
+    case 'speed':
+      return controller.setSpeed(command.value);
     case 'nudge':
-      return controller.nudge(command.lines, { preserveFollow: true });
+      return controller.nudge(command.value, { preserveFollow: true });
   }
 }
 
@@ -80,7 +79,6 @@ export function useTeleprompterControls(args: UseTeleprompterControlsArgs) {
       if (useViewParamsEditorStore.getState().isOpen || argsRef.current.isHelpOpen) {
         return;
       }
-      if (argsRef.current.enabled === false) return;
 
       const action = resolveTeleprompterAction(event);
       if (!action) return;

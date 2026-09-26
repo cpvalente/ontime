@@ -20,10 +20,10 @@ import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.j
 import * as messageService from '../services/message-service/message.service.js';
 import { validateMessage, validateTimerMessage } from '../services/message-service/message.utils.js';
 import { runtimeService } from '../services/runtime-service/runtime.service.js';
-import { teleprompterService } from '../services/teleprompter-service/TeleprompterService.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
 import { coerceEnum } from '../utils/coerceType.js';
+import { parseTeleprompterCommand } from './integration.teleprompter.js';
 import { isValidChangeProperty, parseProperty } from './integration.utils.js';
 
 let lastRequest: Date | null = null;
@@ -310,48 +310,11 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
     return { payload: 'success' };
   },
   teleprompter: (payload) => {
-    assert.isObject(payload);
-    const request = payload as Record<string, unknown>;
-    if (
-      typeof request.target !== 'string' ||
-      typeof request.commandId !== 'string' ||
-      request.commandId.trim().length === 0 ||
-      !isTeleprompterCommand(request.command)
-    ) {
-      throw new Error('Invalid teleprompter command');
-    }
-    teleprompterService.deliver(request.target, request.commandId, request.command, (target, commandId, command) => {
-      socket.sendToClient(target, MessageTag.TeleprompterCommand, { commandId, command });
-    });
-    return { payload: { commandId: request.commandId, status: 'delivered' } };
+    const command = parseTeleprompterCommand(payload);
+    socket.sendAsJson(MessageTag.TeleprompterCommand, command);
+    return { payload: 'success' };
   },
 };
-
-export function isTeleprompterCommand(command: unknown): command is import('ontime-types').TeleprompterCommand {
-  if (!command || typeof command !== 'object' || !('type' in command)) return false;
-  switch (command.type) {
-    case 'play':
-    case 'pause':
-      return true;
-    case 'setSpeed':
-      return (
-        'linesPerMinute' in command &&
-        typeof command.linesPerMinute === 'number' &&
-        Number.isInteger(command.linesPerMinute) &&
-        command.linesPerMinute >= 1 &&
-        command.linesPerMinute <= 40
-      );
-    case 'nudge':
-      return (
-        'lines' in command &&
-        typeof command.lines === 'number' &&
-        Number.isInteger(command.lines) &&
-        Math.abs(command.lines) <= 1000
-      );
-    default:
-      return false;
-  }
-}
 
 /**
  * Returns a value of type number, converting if necessary

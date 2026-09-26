@@ -39,7 +39,7 @@ type ListClientPacket = {
 type RuntimePacket = { tag: MessageTag.RuntimeData; payload: Partial<RuntimeStore> };
 type TeleprompterCommandPacket = {
   tag: MessageTag.TeleprompterCommand;
-  payload: { commandId: string; command: TeleprompterCommand };
+  payload: TeleprompterCommand;
 };
 
 type RefetchPacket = {

@@ -453,7 +453,7 @@ export function useTeleprompterScroll({
         setAutoScrollLocked(false);
       },
     };
-  }, [addReaderDrift, scrollTargetFor, setPlaybackRunning]);
+  }, [addReaderDrift, setPlaybackRunning]);
 
   return {
     scrollerRef: attachScroller,
@@ -462,7 +462,9 @@ export function useTeleprompterScroll({
     controller,
     isRunning,
     speed,
-    isFollowingLoadedEvent: followLoaded && !autoScrollLocked,
+    // folds followLoaded in, so callers get one ready-to-use signal instead of
+    // a runtime flag they must remember to AND with the option themselves
+    canReengageFollow: followLoaded && autoScrollLocked,
     parkedAt,
   };
 }

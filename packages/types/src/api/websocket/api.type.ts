@@ -6,16 +6,17 @@ import type { MessageState } from '../../definitions/runtime/MessageControl.type
 import type { OffsetMode } from '../../definitions/runtime/Offset.type.js';
 import type { RuntimeStore } from '../../definitions/runtime/RuntimeStore.type.js';
 
+/** Sent to teleprompter views, see TeleprompterAction for the integration payload */
 export type TeleprompterCommand =
   | { type: 'play' }
   | { type: 'pause' }
-  | { type: 'setSpeed'; linesPerMinute: number }
-  | { type: 'nudge'; lines: number };
+  | { type: 'speed'; value: number }
+  | { type: 'nudge'; value: number };
 export type TeleprompterAction = {
   tag: 'teleprompter';
-  payload: { target: string; commandId: string; command: TeleprompterCommand };
+  payload: 'play' | 'pause' | { speed: number } | { nudge: number };
 };
-export type TeleprompterResponse = { tag: 'teleprompter'; payload: { commandId: string; status: 'delivered' } };
+export type TeleprompterResponse = { tag: 'teleprompter'; payload: 'success' };
 
 export type VersionAction = {
   tag: 'version';
