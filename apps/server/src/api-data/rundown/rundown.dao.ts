@@ -492,6 +492,117 @@ function clone(rundown: Rundown, entry: OntimeEntry, options?: InsertOptions): O
 }
 
 /**
+ * Pastes a selection of entries as one contiguous block, next to the anchor
+ * - a group carries its children, children selected along with their group are not pasted twice
+ * - entries keep the source rundown order, regardless of the order they were selected in
+ * - the block lands at the level of the anchor, a block with a group lands next to the anchor's group
+ * - without an anchor, the block is added at the end of the rundown
+ * Copy clones the entries from the source, cut moves them within the rundown
+ * @returns the ids of the pasted top level entries of the block
+ * @throws if an entry is not in the source, or if cutting from a different rundown
+ */
+function paste(
+  rundown: Rundown,
+  source: Readonly<Rundown>,
+  entryIds: EntryId[],
+  mode: 'copy' | 'cut',
+  anchor: { after?: EntryId; before?: EntryId },
+): EntryId[] {
+  if (mode === 'cut' && source.id !== rundown.id) {
+    throw new Error('Cut entries can only be moved within their rundown');
+  }
+
+  const roots = getPasteRoots(source, entryIds);
+  if (roots.length === 0) {
+    throw new Error('No entries to paste');
+  }
+
+  // resolve the list the block is inserted into
+  const anchorId = anchor.after ?? anchor.before;
+  let referenceId = anchorId;
+  let parent: OntimeGroup | null = null;
+  const anchorEntry = anchorId ? rundown.entries[anchorId] : undefined;
+  if (anchorEntry && !isOntimeGroup(anchorEntry) && anchorEntry.parent) {
+    if (roots.some((id) => isOntimeGroup(source.entries[id]))) {
+      // groups cannot be nested, the block goes next to the anchor's group instead
+      referenceId = anchorEntry.parent;
+    } else {
+      parent = rundown.entries[anchorEntry.parent] as OntimeGroup;
+    }
+  }
+
+  const list = parent ? parent.entries : rundown.order;
+  let insertIndex = referenceId === undefined ? list.length : list.indexOf(referenceId) + (anchor.after ? 1 : 0);
+
+  const pastedIds: EntryId[] = (() => {
+    if (mode === 'cut') {
+      // entries leaving the list ahead of the insertion point shift it up
+      // this also resolves an anchor which is part of the moved entries
+      const moving = new Set(roots);
+      insertIndex -= list.slice(0, insertIndex).filter((id) => moving.has(id)).length;
+      for (let i = 0; i < roots.length; i++) {
+        const entry = rundown.entries[roots[i]];
+        const fromList =
+          !isOntimeGroup(entry) && entry.parent
+            ? (rundown.entries[entry.parent] as OntimeGroup).entries
+            : rundown.order;
+        fromList.splice(fromList.indexOf(entry.id), 1);
+      }
+      return roots;
+    }
+
+    return roots.map((id) => {
+      const entry = source.entries[id];
+      if (isOntimeGroup(entry)) {
+        const { newGroup, nestedEntries } = makeDeepClone(entry, rundown, source.entries);
+        rundown.entries[newGroup.id] = newGroup;
+        for (let i = 0; i < nestedEntries.length; i++) {
+          rundown.entries[nestedEntries[i].id] = nestedEntries[i];
+        }
+        return newGroup.id;
+      }
+      const clonedEntry = cloneSimpleRundownEntry(entry, getUniqueId(rundown));
+      rundown.entries[clonedEntry.id] = clonedEntry;
+      return clonedEntry.id;
+    });
+  })();
+
+  list.splice(insertIndex, 0, ...pastedIds);
+  for (let i = 0; i < pastedIds.length; i++) {
+    const entry = rundown.entries[pastedIds[i]];
+    if (!isOntimeGroup(entry)) {
+      entry.parent = parent?.id ?? null;
+    }
+  }
+
+  rundown.flatOrder = rundown.order.flatMap((id) => {
+    const entry = rundown.entries[id];
+    return isOntimeGroup(entry) ? [id, ...entry.entries] : [id];
+  });
+
+  return pastedIds;
+}
+
+/**
+ * Resolves the entries to paste in rundown order, leaving out the children of selected groups
+ * @throws if an entry is not in the rundown
+ */
+function getPasteRoots(source: Readonly<Rundown>, entryIds: EntryId[]): EntryId[] {
+  const selected = new Set(entryIds);
+  for (const id of selected) {
+    if (!Object.hasOwn(source.entries, id)) {
+      throw new Error(`Entry with ID ${id} not found`);
+    }
+  }
+
+  return source.flatOrder.filter((id) => {
+    if (!selected.has(id)) return false;
+    const entry = source.entries[id];
+    return isOntimeGroup(entry) || entry.parent === null || !selected.has(entry.parent);
+  });
+}
+
+/**
  * Groups a list of entries
  * It ensures that the entries get reassigned parent and the group gets a list of events
  * The group will be created at the index of the first event in the order, not at the lowest index
@@ -596,6 +707,7 @@ export const rundownMutation = {
   applyDelay,
   swap,
   clone,
+  paste,
   group,
   ungroup,
   renumber,

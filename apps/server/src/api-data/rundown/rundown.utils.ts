@@ -452,10 +452,13 @@ export function cloneGroup(entry: OntimeGroup, newId: EntryId): OntimeGroup {
 
 /**
  * Clones a group and all its nested entries
+ * @param rundown - the rundown the clones are made for, new ids are unique in it
+ * @param sourceEntries - where the group children are read from, defaults to the given rundown
  */
 export function makeDeepClone(
   group: OntimeGroup,
   rundown: Rundown,
+  sourceEntries: Readonly<RundownEntries> = rundown.entries,
 ): { newGroup: OntimeGroup; nestedEntries: OntimeEntry[] } {
   const newGroupId = getUniqueId(rundown);
   const newGroup = cloneGroup(group, newGroupId);
@@ -464,7 +467,7 @@ export function makeDeepClone(
 
   for (let i = 0; i < group.entries.length; i++) {
     const nestedEntryId = group.entries[i];
-    const nestedEntry = rundown.entries[nestedEntryId];
+    const nestedEntry = sourceEntries[nestedEntryId];
     if (!nestedEntry) {
       continue;
     }

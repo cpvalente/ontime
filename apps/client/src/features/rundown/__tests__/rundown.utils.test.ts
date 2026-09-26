@@ -1,6 +1,6 @@
 import { EntryId, OntimeEvent, OntimeGroup, RundownEntries, SupportedEntry } from 'ontime-types';
 
-import { makeSortableList, moveDown, moveUp, orderEntries } from '../rundown.utils';
+import { getEntriesToCopy, makePastePayload, makeSortableList, moveDown, moveUp, orderEntries } from '../rundown.utils';
 
 describe('makeSortableList()', () => {
   it('generates a list with group ends', () => {
@@ -282,5 +282,69 @@ describe('orderEntries()', () => {
     const flatOrder = ['a', 'b', 'c'];
     const result = orderEntries(unorderedArray, flatOrder);
     expect(result).toEqual([]);
+  });
+});
+
+describe('getEntriesToCopy()', () => {
+  const flatOrder = ['1', 'group', '21', '22', '3'];
+
+  it('copies a selection of several entries in rundown order, regardless of the click order', () => {
+    expect(getEntriesToCopy(new Set(['3', '21', '1']), '1', flatOrder)).toStrictEqual(['1', '21', '3']);
+  });
+
+  it('copies the entry at the cursor otherwise', () => {
+    expect(getEntriesToCopy(new Set(['group']), 'group', flatOrder)).toStrictEqual(['group']);
+    expect(getEntriesToCopy(new Set(), '3', flatOrder)).toStrictEqual(['3']);
+  });
+
+  it('copies nothing without a cursor', () => {
+    expect(getEntriesToCopy(new Set(), null, flatOrder)).toStrictEqual([]);
+  });
+});
+
+describe('makePastePayload()', () => {
+  const rundown = {
+    id: 'rundown',
+    flatOrder: ['1', '2', '3'],
+    entries: {
+      '1': { type: SupportedEntry.Event, id: '1', parent: null } as OntimeEvent,
+      '2': { type: SupportedEntry.Event, id: '2', parent: null } as OntimeEvent,
+      '3': { type: SupportedEntry.Event, id: '3', parent: null } as OntimeEvent,
+    },
+  };
+
+  it('pastes below or above the cursor', () => {
+    const clipboard = { sourceRundownId: 'rundown', entryIds: ['1', '2'], mode: 'copy' as const };
+
+    expect(makePastePayload(clipboard, rundown, '3', false)).toStrictEqual({
+      sourceRundownId: 'rundown',
+      entryIds: ['1', '2'],
+      mode: 'copy',
+      after: '3',
+    });
+    expect(makePastePayload(clipboard, rundown, '3', true)).toMatchObject({ before: '3' });
+  });
+
+  it('without a cursor, pastes a copy after the copied entries and moves a cut to the top', () => {
+    expect(
+      makePastePayload({ sourceRundownId: 'rundown', entryIds: ['1', '2'], mode: 'copy' }, rundown, null, false),
+    ).toMatchObject({ after: '2' });
+    expect(
+      makePastePayload({ sourceRundownId: 'rundown', entryIds: ['2', '3'], mode: 'cut' }, rundown, null, true),
+    ).toMatchObject({ before: '1' });
+  });
+
+  it('leaves out entries deleted since they were copied', () => {
+    const clipboard = { sourceRundownId: 'rundown', entryIds: ['deleted', '2'], mode: 'cut' as const };
+    expect(makePastePayload(clipboard, rundown, '1', false)).toMatchObject({ entryIds: ['2'] });
+
+    const allDeleted = { sourceRundownId: 'rundown', entryIds: ['deleted'], mode: 'copy' as const };
+    expect(makePastePayload(allDeleted, rundown, '1', false)).toBeNull();
+  });
+
+  it('does not paste entries copied from a different rundown', () => {
+    const clipboard = { sourceRundownId: 'duplicate', entryIds: ['1'], mode: 'copy' as const };
+    expect(makePastePayload(clipboard, rundown, '1', false)).toBeNull();
+    expect(makePastePayload(null, rundown, '1', false)).toBeNull();
   });
 });

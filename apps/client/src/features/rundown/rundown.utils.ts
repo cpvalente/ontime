@@ -1,4 +1,6 @@
-import { EntryId, RundownEntries, SupportedEntry, isOntimeGroup } from 'ontime-types';
+import { EntryId, PasteEntriesPayload, Rundown, RundownEntries, SupportedEntry, isOntimeGroup } from 'ontime-types';
+
+import type { EntryClipboard } from '../../common/stores/entryCopyStore';
 
 /**
  * Creates a sortable list of entries
@@ -248,4 +250,48 @@ export function orderEntries(unorderedArray: EntryId[], flatOrder: EntryId[]): E
     }
   }
   return orderedArray;
+}
+
+/**
+ * Resolves which entries a copy or cut acts on:
+ * the selection when it holds several entries, in rundown order, otherwise the entry at the cursor
+ */
+export function getEntriesToCopy(selection: Set<EntryId>, cursor: EntryId | null, flatOrder: EntryId[]): EntryId[] {
+  if (selection.size > 1) {
+    return orderEntries(Array.from(selection), flatOrder);
+  }
+  return cursor ? [cursor] : [];
+}
+
+/**
+ * Builds the request to paste the clipboard next to the cursor
+ * Without a cursor, a copy lands after the copied entries and a cut moves to the top of the rundown
+ * @returns null if there is nothing that can be pasted into the given rundown
+ */
+export function makePastePayload(
+  clipboard: EntryClipboard | null,
+  rundown: Pick<Rundown, 'id' | 'entries' | 'flatOrder'>,
+  cursor: EntryId | null,
+  above: boolean,
+): PasteEntriesPayload | null {
+  // the server moves and clones entries within their own rundown
+  if (!clipboard || clipboard.sourceRundownId !== rundown.id) {
+    return null;
+  }
+
+  // entries may have been deleted since they were copied
+  const entryIds = clipboard.entryIds.filter((id) => Object.hasOwn(rundown.entries, id));
+  if (entryIds.length === 0) {
+    return null;
+  }
+
+  const payload: PasteEntriesPayload = { sourceRundownId: clipboard.sourceRundownId, entryIds, mode: clipboard.mode };
+  if (cursor && Object.hasOwn(rundown.entries, cursor)) {
+    return above ? { ...payload, before: cursor } : { ...payload, after: cursor };
+  }
+
+  if (clipboard.mode === 'cut') {
+    return { ...payload, before: rundown.flatOrder[0] };
+  }
+  return { ...payload, after: entryIds.at(-1) };
 }

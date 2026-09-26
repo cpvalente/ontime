@@ -15,10 +15,11 @@ interface UseRundownKeyboardOptions {
     moveEntry: (cursor: EntryId | null, direction: 'up' | 'down') => void;
     deleteAtCursor: (cursor: EntryId | null) => void;
     insertAtId: (patch: Partial<OntimeEntry> & { type: SupportedEntry }, id: EntryId | null, above?: boolean) => void;
-    insertCopyAtId: (atId: EntryId | null, above?: boolean) => void;
+    copyAtCursor: (cursor: EntryId | null, mode: 'copy' | 'cut') => boolean;
+    pasteAtCursor: (cursor: EntryId | null, above?: boolean) => void;
   };
   clearSelectedEvents: () => void;
-  setEntryCopyId: (id: EntryId | null, mode?: 'copy' | 'cut') => void;
+  clearClipboard: () => void;
   jumpToCurrent: () => void;
 }
 
@@ -40,7 +41,7 @@ export function useRundownKeyboard({
   cursor,
   commands,
   clearSelectedEvents,
-  setEntryCopyId,
+  clearClipboard,
   jumpToCurrent,
 }: UseRundownKeyboardOptions) {
   const scrollToEntry = useEventSelection((state) => state.scrollToEntry);
@@ -142,7 +143,7 @@ export function useRundownKeyboard({
       'Escape',
       () => {
         clearSelectedEvents();
-        setEntryCopyId(null);
+        clearClipboard();
       },
       { preventDefault: true, usePhysicalKeys: true },
     ],
@@ -196,33 +197,35 @@ export function useRundownKeyboard({
     [
       'mod + C',
       (event) => {
-        if (cursor === null || isEditableElement(event.target)) {
+        if (isEditableElement(event.target)) {
           return;
         }
-        event.preventDefault();
-        setEntryCopyId(cursor);
+        if (commands.copyAtCursor(cursor, 'copy')) {
+          event.preventDefault();
+        }
       },
       { usePhysicalKeys: true },
     ],
     [
       'mod + X',
       (event) => {
-        if (cursor === null || isEditableElement(event.target)) {
+        if (isEditableElement(event.target)) {
           return;
         }
-        event.preventDefault();
-        setEntryCopyId(cursor, 'cut');
+        if (commands.copyAtCursor(cursor, 'cut')) {
+          event.preventDefault();
+        }
       },
       { usePhysicalKeys: true },
     ],
     [
       'mod + V',
       (event) => {
-        if (isEditableElement(event.target) || useEntryCopy.getState().entryCopyId === null) {
+        if (isEditableElement(event.target) || useEntryCopy.getState().clipboard === null) {
           return;
         }
         event.preventDefault();
-        commands.insertCopyAtId(cursor);
+        commands.pasteAtCursor(cursor);
       },
       { usePhysicalKeys: true },
     ],
@@ -230,11 +233,11 @@ export function useRundownKeyboard({
     [
       'mod + shift + V',
       (event) => {
-        if (isEditableElement(event.target) || useEntryCopy.getState().entryCopyId === null) {
+        if (isEditableElement(event.target) || useEntryCopy.getState().clipboard === null) {
           return;
         }
         event.preventDefault();
-        commands.insertCopyAtId(cursor, true);
+        commands.pasteAtCursor(cursor, true);
       },
       { usePhysicalKeys: true },
     ],

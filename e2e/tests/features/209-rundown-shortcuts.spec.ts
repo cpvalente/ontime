@@ -63,6 +63,67 @@ test('Cut-paste', async ({ page }) => {
   await expect(events[1]).toHaveValue('first');
 });
 
+test('Multi copy-paste and cut-paste', async ({ page }) => {
+  await page.goto('/rundown');
+  await page.getByRole('button', { name: 'Edit' }).click();
+
+  // clear rundown
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
+  await page.getByRole('menuitem', { name: 'Clear all' }).click();
+  await page.getByRole('button', { name: 'Delete all' }).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(0);
+
+  // create events a, b, c
+  await page.getByRole('button', { name: 'Create Event' }).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Event' }).nth(4).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(2);
+  await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await expect(page.getByTestId('rundown-event')).toHaveCount(3);
+  for (const [index, title] of ['a', 'b', 'c'].entries()) {
+    const titleInput = page.getByTestId(`entry-${index + 1}`).getByTestId('entry__title');
+    await titleInput.fill(title);
+    await titleInput.press('Enter');
+  }
+  const titles = page.getByTestId('rundown-event').getByTestId('entry__title');
+  const readTitles = () => titles.evaluateAll((inputs) => inputs.map((input) => (input as HTMLInputElement).value));
+  await expect.poll(readTitles).toStrictEqual(['a', 'b', 'c']);
+
+  // select c, then a: the copy keeps the rundown order
+  await page.getByTestId('entry-3').getByTestId('rundown-event').getByText('3').click();
+  await page
+    .getByTestId('entry-1')
+    .getByTestId('rundown-event')
+    .getByText('1')
+    .click({ modifiers: ['ControlOrMeta'] });
+  await page.keyboard.press('ControlOrMeta+c');
+
+  // paste below b
+  await page.getByTestId('entry-2').getByTestId('rundown-event').getByText('2').click();
+  await page.keyboard.press('ControlOrMeta+v');
+  await expect.poll(readTitles).toStrictEqual(['a', 'b', 'a', 'c', 'c']);
+
+  // escape clears the clipboard
+  await page.keyboard.press('Escape');
+  await page.getByTestId('entry-1').getByTestId('rundown-event').getByText('1').click();
+  await page.keyboard.press('ControlOrMeta+v');
+  await expect(titles).toHaveCount(5);
+
+  // cut the first two entries and paste them above the last one
+  await page
+    .getByTestId('entry-2')
+    .getByTestId('rundown-event')
+    .getByText('2')
+    .click({ modifiers: ['ControlOrMeta'] });
+  await page.keyboard.press('ControlOrMeta+x');
+  // the pasted copy of c keeps its cue
+  await page.getByTestId('entry-5').getByTestId('rundown-event').getByText('3').click();
+  await page.keyboard.press('ControlOrMeta+Shift+v');
+  // the list is virtualised, bring the first entries back into view
+  await page.keyboard.press('Home');
+  await expect.poll(readTitles).toStrictEqual(['a', 'c', 'a', 'b', 'c']);
+});
+
 test('Move', async ({ page }) => {
   await page.goto('/rundown');
   await page.getByRole('button', { name: 'Edit' }).click();

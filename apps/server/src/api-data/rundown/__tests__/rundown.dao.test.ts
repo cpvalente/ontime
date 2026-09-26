@@ -5,6 +5,7 @@ import {
   OntimeEvent,
   OntimeGroup,
   OntimeMilestone,
+  Rundown,
   SupportedEntry,
   TimeStrategy,
 } from 'ontime-types';
@@ -1915,6 +1916,193 @@ describe('rundownMutation.clone()', () => {
     const newEntry = rundownMutation.clone(testRundown, testRundown.entries['1'], { after: true });
 
     expect(testRundown.order).toStrictEqual(['1', '2', newEntry.id]);
+  });
+});
+
+describe('rundownMutation.paste()', () => {
+  /**
+   * e1 | g1 [g1a, g1b] | e2 | g2 [g2a] | d1 | m1
+   */
+  function makePasteRundown() {
+    return makeRundown({
+      id: 'rundown',
+      order: ['e1', 'g1', 'e2', 'g2', 'd1', 'm1'],
+      entries: {
+        e1: makeOntimeEvent({ id: 'e1', cue: 'e1', parent: null }),
+        g1: makeOntimeGroup({ id: 'g1', title: 'g1', entries: ['g1a', 'g1b'] }),
+        g1a: makeOntimeEvent({ id: 'g1a', cue: 'g1a', parent: 'g1' }),
+        g1b: makeOntimeEvent({ id: 'g1b', cue: 'g1b', parent: 'g1' }),
+        e2: makeOntimeEvent({ id: 'e2', cue: 'e2', parent: null }),
+        g2: makeOntimeGroup({ id: 'g2', title: 'g2', entries: ['g2a'] }),
+        g2a: makeOntimeEvent({ id: 'g2a', cue: 'g2a', parent: 'g2' }),
+        d1: makeOntimeDelay({ id: 'd1', duration: 1000, parent: null }),
+        m1: makeOntimeMilestone({ id: 'm1', cue: 'm1', parent: null }),
+      },
+    });
+  }
+
+  /** describes the pasted entries by their source, to compare placement independent of new ids */
+  function describeIds(rundown: Rundown, ids: string[]) {
+    return ids.map((id) => {
+      const entry = rundown.entries[id];
+      if (entry.type === SupportedEntry.Group) return entry.title;
+      if (entry.type === SupportedEntry.Delay) return `delay ${entry.duration}`;
+      return entry.cue;
+    });
+  }
+
+  describe('copy', () => {
+    it('clones the entries after the anchor, in rundown order regardless of selection order', () => {
+      const rundown = makePasteRundown();
+
+      const pasted = rundownMutation.paste(rundown, rundown, ['m1', 'e2', 'e1'], 'copy', { after: 'd1' });
+
+      expect(rundown.order.slice(0, 5)).toStrictEqual(['e1', 'g1', 'e2', 'g2', 'd1']);
+      expect(rundown.order.slice(5, 8)).toStrictEqual(pasted);
+      expect(describeIds(rundown, pasted)).toStrictEqual(['e1', 'e2', 'm1']);
+      expect(rundown.order.at(-1)).toBe('m1');
+      pasted.forEach((id) => expect(rundown.entries[id]).toMatchObject({ parent: null }));
+      expect(rundown.flatOrder).toHaveLength(Object.keys(rundown.entries).length);
+    });
+
+    it('clones the entries before the anchor', () => {
+      const rundown = makePasteRundown();
+
+      const pasted = rundownMutation.paste(rundown, rundown, ['e1', 'e2'], 'copy', { before: 'e1' });
+
+      expect(rundown.order).toStrictEqual([...pasted, 'e1', 'g1', 'e2', 'g2', 'd1', 'm1']);
+    });
+
+    it('adds the entries at the end of the rundown without an anchor', () => {
+      const rundown = makePasteRundown();
+
+      const pasted = rundownMutation.paste(rundown, rundown, ['e1'], 'copy', {});
+
+      expect(rundown.order).toStrictEqual(['e1', 'g1', 'e2', 'g2', 'd1', 'm1', ...pasted]);
+    });
+
+    it('pastes a group once, with all its children, when some of the children are also selected', () => {
+      const rundown = makePasteRundown();
+      const entryCount = Object.keys(rundown.entries).length;
+
+      const [newGroupId] = rundownMutation.paste(rundown, rundown, ['g1a', 'g1'], 'copy', { after: 'm1' });
+
+      const newGroup = rundown.entries[newGroupId] as OntimeGroup;
+      expect(newGroup.type).toBe(SupportedEntry.Group);
+      expect(describeIds(rundown, newGroup.entries)).toStrictEqual(['g1a', 'g1b']);
+      newGroup.entries.forEach((id) => expect(rundown.entries[id]).toMatchObject({ parent: newGroupId }));
+      // one group and its two children
+      expect(Object.keys(rundown.entries)).toHaveLength(entryCount + 3);
+    });
+
+    it('pastes entries from different groups as siblings at the level of the anchor', () => {
+      const topLevel = makePasteRundown();
+      const toTop = rundownMutation.paste(topLevel, topLevel, ['g2a', 'g1b'], 'copy', { after: 'e1' });
+      expect(topLevel.order.slice(0, 3)).toStrictEqual(['e1', ...toTop]);
+      expect(describeIds(topLevel, toTop)).toStrictEqual(['g1b', 'g2a']);
+      toTop.forEach((id) => expect(topLevel.entries[id]).toMatchObject({ parent: null }));
+
+      const inGroup = makePasteRundown();
+      const toGroup = rundownMutation.paste(inGroup, inGroup, ['g2a', 'e1'], 'copy', { after: 'g1a' });
+      expect((inGroup.entries.g1 as OntimeGroup).entries).toStrictEqual(['g1a', ...toGroup, 'g1b']);
+      toGroup.forEach((id) => expect(inGroup.entries[id]).toMatchObject({ parent: 'g1' }));
+    });
+
+    it('pastes a block with a group next to the group of an anchor inside a group', () => {
+      const below = makePasteRundown();
+      const pastedBelow = rundownMutation.paste(below, below, ['g2', 'e2'], 'copy', { after: 'g1a' });
+      expect(below.order.slice(0, 4)).toStrictEqual(['e1', 'g1', ...pastedBelow]);
+      expect((below.entries.g1 as OntimeGroup).entries).toStrictEqual(['g1a', 'g1b']);
+      pastedBelow.forEach((id) => expect(below.entries[id]).not.toMatchObject({ parent: 'g1' }));
+
+      const above = makePasteRundown();
+      const pastedAbove = rundownMutation.paste(above, above, ['g2'], 'copy', { before: 'g1b' });
+      expect(above.order.slice(0, 3)).toStrictEqual(['e1', ...pastedAbove, 'g1']);
+    });
+
+    it('pastes delays and milestones like any other entry', () => {
+      const rundown = makePasteRundown();
+
+      const pasted = rundownMutation.paste(rundown, rundown, ['d1', 'm1'], 'copy', { after: 'g2a' });
+
+      expect((rundown.entries.g2 as OntimeGroup).entries).toStrictEqual(['g2a', ...pasted]);
+      expect(pasted.map((id) => rundown.entries[id])).toMatchObject([
+        { type: SupportedEntry.Delay, duration: 1000, parent: 'g2' },
+        { type: SupportedEntry.Milestone, cue: 'm1', parent: 'g2' },
+      ]);
+    });
+
+    it('deep clones a group from the source rundown', () => {
+      const target = makeRundown({ id: 'target', order: [], entries: {} });
+      const source = makePasteRundown();
+
+      const [newGroupId] = rundownMutation.paste(target, source, ['g1'], 'copy', {});
+
+      const newGroup = target.entries[newGroupId] as OntimeGroup;
+      expect(describeIds(target, newGroup.entries)).toStrictEqual(['g1a', 'g1b']);
+      expect(target.flatOrder).toStrictEqual([newGroupId, ...newGroup.entries]);
+      expect(source).toStrictEqual(makePasteRundown());
+    });
+
+    it('throws when an entry is not in the source rundown', () => {
+      const rundown = makePasteRundown();
+
+      expect(() => rundownMutation.paste(rundown, rundown, ['e1', 'missing'], 'copy', {})).toThrow(
+        'Entry with ID missing not found',
+      );
+    });
+  });
+
+  describe('cut', () => {
+    it('moves the entries, keeping their ids, in rundown order', () => {
+      const rundown = makePasteRundown();
+
+      const moved = rundownMutation.paste(rundown, rundown, ['e2', 'e1'], 'cut', { after: 'd1' });
+
+      expect(moved).toStrictEqual(['e1', 'e2']);
+      expect(rundown.order).toStrictEqual(['g1', 'g2', 'd1', 'e1', 'e2', 'm1']);
+      expect(Object.keys(rundown.entries)).toHaveLength(Object.keys(makePasteRundown().entries).length);
+    });
+
+    it('moves entries into and out of groups', () => {
+      const rundown = makePasteRundown();
+
+      rundownMutation.paste(rundown, rundown, ['e2', 'g1a'], 'cut', { before: 'g2a' });
+
+      expect(rundown.order).toStrictEqual(['e1', 'g1', 'g2', 'd1', 'm1']);
+      expect((rundown.entries.g1 as OntimeGroup).entries).toStrictEqual(['g1b']);
+      expect((rundown.entries.g2 as OntimeGroup).entries).toStrictEqual(['g1a', 'e2', 'g2a']);
+      expect(rundown.entries.g1a).toMatchObject({ parent: 'g2' });
+      expect(rundown.entries.e2).toMatchObject({ parent: 'g2' });
+      expect(rundown.flatOrder).toStrictEqual(['e1', 'g1', 'g1b', 'g2', 'g1a', 'e2', 'g2a', 'd1', 'm1']);
+    });
+
+    it('gathers the entries at an anchor which is itself being moved', () => {
+      const below = makePasteRundown();
+      rundownMutation.paste(below, below, ['e1', 'e2'], 'cut', { after: 'e2' });
+      expect(below.order).toStrictEqual(['g1', 'e1', 'e2', 'g2', 'd1', 'm1']);
+
+      const above = makePasteRundown();
+      rundownMutation.paste(above, above, ['e1', 'e2'], 'cut', { before: 'e1' });
+      expect(above.order).toStrictEqual(['e1', 'e2', 'g1', 'g2', 'd1', 'm1']);
+    });
+
+    it('leaves a group in place when pasted inside itself', () => {
+      const rundown = makePasteRundown();
+
+      rundownMutation.paste(rundown, rundown, ['g1'], 'cut', { after: 'g1a' });
+
+      expect(rundown.order).toStrictEqual(['e1', 'g1', 'e2', 'g2', 'd1', 'm1']);
+      expect((rundown.entries.g1 as OntimeGroup).entries).toStrictEqual(['g1a', 'g1b']);
+    });
+
+    it('does not move entries out of a different rundown', () => {
+      const target = makeRundown({ id: 'target' });
+
+      expect(() => rundownMutation.paste(target, makePasteRundown(), ['e1'], 'cut', {})).toThrow(
+        'Cut entries can only be moved within their rundown',
+      );
+    });
   });
 });
 

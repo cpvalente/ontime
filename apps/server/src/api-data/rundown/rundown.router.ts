@@ -30,6 +30,7 @@ import {
   editEntry,
   groupEntries,
   loadRundown,
+  pasteEntries,
   renameRundown,
   renumberEntries,
   reorderEntry,
@@ -46,6 +47,7 @@ import {
   entryRenumberValidator,
   entryReorderValidator,
   entrySwapValidator,
+  pastePostValidator,
   rundownArrayOfIds,
   rundownImportValidator,
   rundownPatchValidator,
@@ -311,6 +313,20 @@ router.post(
     }
   },
 );
+
+/**
+ * Pastes entries from the clipboard, copying or moving them as a single change
+ */
+router.post('/:rundownId/paste', pastePostValidator, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+  try {
+    const { sourceRundownId, entryIds, mode, after, before } = req.body;
+    const rundown = await pasteEntries(req.params.rundownId, { sourceRundownId, entryIds, mode, after, before });
+    res.status(200).send(rundown);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
 
 /**
  * Creates a group out of a list of entries

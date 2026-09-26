@@ -9,6 +9,7 @@ import {
   LogOrigin,
   OntimeEntry,
   OntimeGroup,
+  PasteEntriesPayload,
   PatchWithId,
   ProjectRundowns,
   RefetchKey,
@@ -455,6 +456,38 @@ export async function cloneEntry(rundownId: string, entryId: EntryId, options: I
     } else if (isOntimeDelay(newEntry)) {
       notifyChanges(rundown.id, rundownMetadata, revision, { external: true });
     }
+  });
+
+  return rundownResult;
+}
+
+/**
+ * Pastes entries from the clipboard as a single change to the rundown
+ * @throws if the entries come from a different rundown, or if an entry or the anchor does not exist
+ */
+export async function pasteEntries(rundownId: string, payload: PasteEntriesPayload): Promise<Rundown> {
+  const { sourceRundownId, entryIds, mode, after, before } = payload;
+  const anchor = { after, before };
+  assertSingleInsertAnchor(anchor);
+
+  // entry ids are only unique within a rundown, pasting across rundowns is not supported yet
+  if (sourceRundownId !== rundownId) {
+    throw new Error('Pasting entries from a different rundown is not supported');
+  }
+
+  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
+  assertInsertAnchorExists(rundown, anchor);
+
+  rundownMutation.paste(rundown, rundown, entryIds, mode, anchor);
+  const { rundown: rundownResult, rundownMetadata, revision } = await commit();
+
+  // schedule the side effects
+  setImmediate(() => {
+    // notify runtime that rundown has changed
+    updateRuntimeOnChange(rundownMetadata);
+
+    // notify timer and external services of change
+    notifyChanges(rundown.id, rundownMetadata, revision, { timer: true, external: true });
   });
 
   return rundownResult;

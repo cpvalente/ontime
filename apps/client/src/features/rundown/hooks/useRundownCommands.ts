@@ -4,7 +4,8 @@ import { useCallback } from 'react';
 
 import { useRundownScope } from '../../../common/context/RundownScopeContext';
 import type { EntryActions } from '../../../common/hooks/useEntryAction';
-import { useEntryCopy } from '../../../common/stores/entryCopyStore';
+import { useEntryCopy, useSetEntryCopy } from '../../../common/stores/entryCopyStore';
+import { getEntriesToCopy, makePastePayload } from '../rundown.utils';
 import { SelectionMode } from '../useEventSelection';
 
 const PAGE_SIZE = 5;
@@ -27,8 +28,9 @@ export function useRundownCommands({
   selectEntry: applySelection,
   handleCollapseGroup,
 }: UseRundownCommandsOptions) {
-  const { rundownId } = useRundownScope();
-  const { addEntry, clone, deleteEntry, move, reorderEntry } = entryActions;
+  const { rundownId, selectionStore } = useRundownScope();
+  const { addEntry, clone, deleteEntry, move, pasteEntries } = entryActions;
+  const setEntryCopy = useSetEntryCopy();
 
   const deleteAtCursor = useCallback(
     (cursor: string | null) => {
@@ -42,52 +44,43 @@ export function useRundownCommands({
     [entries, flatOrder, deleteEntry, applySelection],
   );
 
-  const insertCopyAtId = useCallback(
-    (atId: EntryId | null, above = false) => {
-      // lazily get the value from the store
-      const { entryCopyId, entryCopyRundownId, entryCopyMode, setEntryCopyId } = useEntryCopy.getState();
-      // nothing to paste, or it was copied from another rundown: the server clones within a rundown
-      if (entryCopyId === null || entryCopyRundownId !== rundownId || !entries[entryCopyId]) {
-        return;
+  /**
+   * Puts the selection, or the entry at the cursor, on the clipboard
+   * @returns whether there was anything to copy
+   */
+  const copyAtCursor = useCallback(
+    (cursor: EntryId | null, mode: 'copy' | 'cut') => {
+      // lazily get the selection from the store
+      const { selectedEvents } = selectionStore.getState();
+      const entryIds = getEntriesToCopy(selectedEvents, cursor, flatOrder);
+      if (entryIds.length === 0) {
+        return false;
       }
-
-      let normalisedAtId = atId;
-
-      const elementToCopy = entries[entryCopyId];
-      const refElement = atId ? entries[atId] : undefined;
-
-      if (refElement && 'parent' in refElement && refElement.parent && elementToCopy.type === SupportedEntry.Group) {
-        normalisedAtId = refElement.parent;
-      }
-
-      if (entryCopyMode === 'cut') {
-        if (!normalisedAtId) {
-          const firstId = flatOrder[0];
-          if (!firstId || firstId === entryCopyId) {
-            return;
-          }
-          reorderEntry(entryCopyId, firstId, 'before')
-            .then(() => setEntryCopyId(null, null))
-            .catch(() => {});
-          return;
-        }
-        if (normalisedAtId === entryCopyId) {
-          return;
-        }
-        const placement = above ? 'before' : 'after';
-        reorderEntry(entryCopyId, normalisedAtId, placement)
-          .then(() => setEntryCopyId(null, null))
-          .catch(() => {});
-        return;
-      }
-
-      clone(entryCopyId, {
-        after: above ? undefined : (normalisedAtId ?? undefined),
-        // if we don't have a cursor add the new event on top
-        before: above ? (normalisedAtId ?? undefined) : undefined,
-      });
+      setEntryCopy(entryIds, mode);
+      return true;
     },
-    [entries, flatOrder, clone, reorderEntry, rundownId],
+    [selectionStore, flatOrder, setEntryCopy],
+  );
+
+  const pasteAtCursor = useCallback(
+    (cursor: EntryId | null, above = false) => {
+      // lazily get the value from the store
+      const { clipboard, setClipboard } = useEntryCopy.getState();
+      const payload = makePastePayload(clipboard, { id: rundownId, entries, flatOrder }, cursor, above);
+      if (!payload) {
+        return;
+      }
+
+      pasteEntries(payload)
+        .then(() => {
+          // cut entries can only be pasted once, unless something else was copied in the meantime
+          if (payload.mode === 'cut' && useEntryCopy.getState().clipboard === clipboard) {
+            setClipboard(null);
+          }
+        })
+        .catch(() => {});
+    },
+    [entries, flatOrder, pasteEntries, rundownId],
   );
 
   /**
@@ -218,8 +211,9 @@ export function useRundownCommands({
 
   return {
     cloneEntry,
+    copyAtCursor,
     deleteAtCursor,
-    insertCopyAtId,
+    pasteAtCursor,
     insertAtId,
     selectGroup,
     selectEntry,

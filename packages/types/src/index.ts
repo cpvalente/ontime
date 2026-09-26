@@ -84,6 +84,7 @@ export type {
 export type {
   EventPostPayload,
   InsertOptions,
+  PasteEntriesPayload,
   PatchWithId,
   ProjectRundown,
   ProjectRundownsList,

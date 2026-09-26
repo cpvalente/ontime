@@ -15,7 +15,7 @@ import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import { useEntryActionsContext } from '../../common/context/EntryActionsContext';
 import useAutomationSettings from '../../common/hooks-query/useAutomationSettings';
-import { useSetEntryCopy } from '../../common/stores/entryCopyStore';
+import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { RundownMetadataObject, lastMetadataKey } from '../../common/utils/rundownMetadata';
 import { AppMode } from '../../ontimeConfig';
 import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
@@ -69,12 +69,12 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   const { getIsCollapsed, collapseGroup, expandGroup } = useCollapsedGroups(id);
 
   const entryActions = useEntryActionsContext();
-  const setEntryCopyId = useSetEntryCopy();
 
   // cursor
   const { editorMode } = useEditorFollowMode();
 
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
+  const setClipboard = useEntryCopy((state) => state.setClipboard);
   const cursor = useEventSelection((state) => state.cursor);
   const scrollToEntry = useEventSelection((state) => state.scrollToEntry);
   const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
@@ -128,7 +128,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     cursor,
     commands,
     clearSelectedEvents,
-    setEntryCopyId,
+    clearClipboard: () => setClipboard(null),
     jumpToCurrent,
   });
 

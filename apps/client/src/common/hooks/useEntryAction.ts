@@ -7,6 +7,7 @@ import {
   OntimeEvent,
   OntimeGroup,
   OntimeMilestone,
+  PasteEntriesPayload,
   PatchWithId,
   Rundown,
   SupportedEntry,
@@ -40,6 +41,7 @@ import {
   patchReorderEntry,
   postAddEntry,
   postCloneEntry,
+  postPasteEntries,
   patchRenumberCues,
   putBatchEditEvents,
   putEditEntry,
@@ -305,6 +307,38 @@ export function useEntryActions(scopedRundownId: string) {
       }
     },
     [cloneEntryMutation, getCurrentRundownData],
+  );
+
+  /**
+   * Calls mutation to paste entries
+   * @private
+   */
+  const { mutateAsync: pasteEntriesMutation } = useMutation({
+    mutationFn: ([rundownId, payload]: Parameters<typeof postPasteEntries>) => postPasteEntries(rundownId, payload),
+    onMutate: ([rundownId]) => queryClient.cancelQueries({ queryKey: getRundownCacheKey(rundownId) }),
+    onSettled: (_data, _error, [rundownId]) =>
+      queryClient.invalidateQueries({ queryKey: getRundownCacheKey(rundownId) }),
+  });
+
+  /**
+   * Pastes entries from the clipboard into the rundown
+   * @throws if the paste fails, the rundown is then unchanged
+   */
+  const pasteEntries = useCallback(
+    async (payload: PasteEntriesPayload) => {
+      try {
+        const rundownId = getCurrentRundownData()?.id;
+        if (!rundownId) {
+          throw new Error('Rundown not initialised');
+        }
+
+        await pasteEntriesMutation([rundownId, payload]);
+      } catch (error) {
+        logAxiosError('Error pasting entries', error);
+        throw error;
+      }
+    },
+    [getCurrentRundownData, pasteEntriesMutation],
   );
 
   /**
@@ -995,6 +1029,7 @@ export function useEntryActions(scopedRundownId: string) {
       getEntryById,
       groupEntries,
       move,
+      pasteEntries,
       reorderEntry,
       renumberCues,
       swapEvents,
@@ -1013,6 +1048,7 @@ export function useEntryActions(scopedRundownId: string) {
       getEntryById,
       groupEntries,
       move,
+      pasteEntries,
       reorderEntry,
       renumberCues,
       swapEvents,

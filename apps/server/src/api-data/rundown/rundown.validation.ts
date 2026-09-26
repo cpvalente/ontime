@@ -72,6 +72,17 @@ export const clonePostValidator = [
   requestValidationFunction,
 ];
 
+export const pastePostValidator = [
+  body('sourceRundownId').isString().notEmpty(),
+  body('entryIds').isArray({ min: 1 }),
+  body('entryIds.*').isString().notEmpty(),
+  body('mode').isIn(['copy', 'cut']),
+  body('after').optional().isString().notEmpty(),
+  body('before').optional().isString().notEmpty(),
+
+  requestValidationFunction,
+];
+
 export const entryPutValidator = [body('id').isString().trim().notEmpty(), requestValidationFunction];
 
 export const entryBatchPutValidator = [

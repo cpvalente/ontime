@@ -3,6 +3,7 @@ import {
   EntryId,
   OntimeEntry,
   OntimeEvent,
+  PasteEntriesPayload,
   ProjectRundownsList,
   RenumberCues,
   Rundown,
@@ -174,6 +175,16 @@ export async function postCloneEntry(
   options?: { before?: EntryId; after?: EntryId },
 ): Promise<AxiosResponse<Rundown>> {
   return axios.post(`${rundownPath}/${rundownId}/clone/${entryId}`, options);
+}
+
+/**
+ * HTTP request for pasting entries from the clipboard
+ */
+export async function postPasteEntries(
+  rundownId: RundownId,
+  data: PasteEntriesPayload,
+): Promise<AxiosResponse<Rundown>> {
+  return axios.post(`${rundownPath}/${rundownId}/paste`, data);
 }
 
 /**
