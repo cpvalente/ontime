@@ -589,6 +589,24 @@ export async function createCustomField(customField: CustomField): Promise<Custo
 }
 
 /**
+ * Applies a mutation to all rundowns other than the given loaded one
+ * Each rundown is read, mutated and stored without yielding in between,
+ * so a concurrent edit to a background rundown cannot be overwritten by a stale copy
+ */
+async function updateBackgroundRundowns(loadedRundownId: string, mutate: (rundown: Rundown) => void) {
+  const projectRundowns = getDataProvider().getProjectRundowns();
+  const writes: Promise<unknown>[] = [];
+  for (const rundownId of Object.keys(projectRundowns)) {
+    if (rundownId === loadedRundownId) continue;
+    const backgroundRundown = cloneRundown(projectRundowns[rundownId]);
+    mutate(backgroundRundown);
+    // setRundown stores the rundown synchronously, only persisting is deferred
+    writes.push(getDataProvider().setRundown(rundownId, backgroundRundown));
+  }
+  await Promise.all(writes);
+}
+
+/**
  * Edits an existing custom field
  * In practice users can only change the label and the colour of the field
  * @throws if the field does not exist
@@ -596,11 +614,7 @@ export async function createCustomField(customField: CustomField): Promise<Custo
  * @throws if the label is missing or invalid
  * @throws if the new label already exists
  */
-export async function editCustomField(
-  key: CustomFieldKey,
-  newField: Partial<CustomField>,
-  projectRundowns: ProjectRundowns,
-): Promise<CustomFields> {
+export async function editCustomField(key: CustomFieldKey, newField: Partial<CustomField>): Promise<CustomFields> {
   const { customFields, rundown, commit } = createTransaction({
     mutableRundown: true,
     mutableCustomFields: true,
@@ -618,19 +632,11 @@ export async function editCustomField(
 
   const { oldKey, newKey } = customFieldMutation.edit(customFields, key, existingField, newField);
 
+  const didChangeKey = oldKey !== newKey;
   // if key has changed ...
-  if (oldKey !== newKey) {
+  if (didChangeKey) {
     // ... reassign references in the active rundown
     customFieldMutation.renameUsages(rundown, oldKey, newKey);
-
-    // ... reassign references in the background rundowns
-    for (const rundownId of Object.keys(projectRundowns)) {
-      if (rundownId !== rundown.id) {
-        const backgroundRundown = cloneRundown(projectRundowns[rundownId]);
-        customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey);
-        await getDataProvider().setRundown(rundownId, backgroundRundown);
-      }
-    }
 
     // ... delete the old key
     customFieldMutation.remove(customFields, oldKey);
@@ -638,6 +644,13 @@ export async function editCustomField(
 
   // the custom fields have been removed and there is no processing to be done
   const { rundownMetadata, revision, customFields: resultCustomFields } = await commit(false);
+
+  // ... and reassign references in the background rundowns
+  if (didChangeKey) {
+    await updateBackgroundRundowns(rundown.id, (backgroundRundown) =>
+      customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey),
+    );
+  }
 
   // schedule the side effects
   setImmediate(() => {
@@ -651,7 +664,7 @@ export async function editCustomField(
 /**
  * Deletes an existing custom field
  */
-export async function deleteCustomField(key: CustomFieldKey, projectRundowns: ProjectRundowns): Promise<CustomFields> {
+export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFields> {
   const { customFields, rundown, commit } = createTransaction({
     mutableRundown: true,
     mutableCustomFields: true,
@@ -663,20 +676,16 @@ export async function deleteCustomField(key: CustomFieldKey, projectRundowns: Pr
   // remove references in the active rundown
   customFieldMutation.removeUsages(rundown, key);
 
-  // remove references in the background rundowns
-  for (const rundownId of Object.keys(projectRundowns)) {
-    if (rundownId !== rundown.id) {
-      const backgroundRundown = cloneRundown(projectRundowns[rundownId]);
-      customFieldMutation.removeUsages(backgroundRundown, key);
-      await getDataProvider().setRundown(rundownId, backgroundRundown);
-    }
-  }
-
   // delete the old key
   customFieldMutation.remove(customFields, key);
 
   // the custom fields have been removed and there is no processing to be done
   const { rundownMetadata, revision, customFields: resultCustomFields } = await commit(false);
+
+  // remove references in the background rundowns
+  await updateBackgroundRundowns(rundown.id, (backgroundRundown) =>
+    customFieldMutation.removeUsages(backgroundRundown, key),
+  );
 
   // schedule the side effects
   setImmediate(() => {

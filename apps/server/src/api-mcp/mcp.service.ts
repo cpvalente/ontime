@@ -381,13 +381,11 @@ export async function createCustomFieldForMcp(args: { label: string; type: 'text
 }
 
 export async function updateCustomFieldForMcp(args: { key: string; label?: string; colour?: string }) {
-  const projectRundowns = getDataProvider().getProjectRundowns();
-  const updated = await editCustomField(args.key, { label: args.label, colour: args.colour }, projectRundowns);
+  const updated = await editCustomField(args.key, { label: args.label, colour: args.colour });
   return { customFields: updated };
 }
 
 export async function deleteCustomFieldForMcp(args: { key: string }) {
-  const projectRundowns = getDataProvider().getProjectRundowns();
-  const updated = await deleteCustomField(args.key, projectRundowns);
+  const updated = await deleteCustomField(args.key);
   return { customFields: updated };
 }
