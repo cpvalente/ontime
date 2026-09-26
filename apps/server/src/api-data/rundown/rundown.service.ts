@@ -688,6 +688,24 @@ export async function deleteCustomField(key: CustomFieldKey, projectRundowns: Pr
 }
 
 /**
+ * Merges a set of custom fields into the project, replacing fields with the same key
+ * Commits through the rundown cache so the in-memory custom fields stay in step with the persisted ones
+ */
+export async function mergeCustomFields(newCustomFields: CustomFields): Promise<CustomFields> {
+  const { customFields, commit } = createTransaction({ mutableRundown: false, mutableCustomFields: true });
+  Object.assign(customFields, newCustomFields);
+
+  // adding custom fields has no immediate implications on the rundown
+  const { customFields: resultCustomFields } = await commit(false);
+
+  setImmediate(() => {
+    sendRefetch(RefetchKey.CustomFields);
+  });
+
+  return resultCustomFields;
+}
+
+/**
  * Forces update in the store
  * Called when we make changes to the rundown object
  *
@@ -870,7 +888,7 @@ async function parseImportAndCommitCustomFields(
   const parsedCustomFields = parseCustomFields({ customFields: incomingCustomFields });
   const mergedCustomFields = { ...dataProvider.getCustomFields(), ...parsedCustomFields };
   const parsed = parseRundown(source, mergedCustomFields);
-  await dataProvider.mergeIntoData({ customFields: parsedCustomFields });
+  await mergeCustomFields(parsedCustomFields);
   return parsed;
 }
 
