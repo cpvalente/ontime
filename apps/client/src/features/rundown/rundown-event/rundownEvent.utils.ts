@@ -1,3 +1,4 @@
+import type { Maybe, OntimeGroup } from 'ontime-types';
 import { millisToString, removeTrailingZero } from 'ontime-utils';
 
 import { formatDuration, normaliseWallClock } from '../../../common/utils/time';
@@ -22,4 +23,14 @@ export function formatGap(gap: number, isNextDay: boolean) {
 
   const gapString = formatDuration(Math.abs(gap), false);
   return `${gap < 0 ? 'Overlap' : 'Gap'} ${gapString}${isNextDay ? ' (next day)' : ''}`;
+}
+
+export type GroupDurationFit = 'increase' | 'decrease' | null;
+
+/**
+ * How an event should change for its group to meet the group target duration
+ */
+export function getGroupDurationFit(group: Maybe<OntimeGroup>): GroupDurationFit {
+  if (!group || group.targetDuration === null || group.duration === group.targetDuration) return null;
+  return group.targetDuration > group.duration ? 'increase' : 'decrease';
 }

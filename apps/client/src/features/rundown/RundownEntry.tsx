@@ -2,6 +2,7 @@ import { OntimeEntry, Playback, SupportedEntry, isOntimeDelay, isOntimeEvent, is
 
 import RundownDelay from './rundown-delay/RundownDelay';
 import RundownEvent from './rundown-event/RundownEvent';
+import { GroupDurationFit } from './rundown-event/rundownEvent.utils';
 import RundownMilestone from './rundown-milestone/RundownMilestone';
 
 interface RundownEntryProps {
@@ -18,6 +19,7 @@ interface RundownEntryProps {
   isRolling: boolean; // we need to know even if not related to this event
   totalGap: number;
   isLinkedToLoaded: boolean;
+  groupDurationFit: GroupDurationFit;
 }
 
 export default function RundownEntry({
@@ -33,6 +35,7 @@ export default function RundownEntry({
   isNextDay,
   totalGap,
   isLinkedToLoaded,
+  groupDurationFit,
 }: RundownEntryProps) {
   'use memo';
 
@@ -60,6 +63,7 @@ export default function RundownEntry({
         isNext={isNext}
         skip={data.skip}
         parent={data.parent}
+        groupDurationFit={groupDurationFit}
         loaded={loaded}
         hasCursor={hasCursor}
         playback={playback}
