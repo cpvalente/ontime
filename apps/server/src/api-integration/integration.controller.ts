@@ -13,7 +13,6 @@ import { DeepPartial } from 'ts-essentials';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
 import { editEntry } from '../api-data/rundown/rundown.service.js';
-import { willCauseRegeneration } from '../api-data/rundown/rundown.utils.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.js';
 import * as messageService from '../services/message-service/message.service.js';
@@ -74,15 +73,11 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
     const data = payload[id as keyof typeof payload];
     const patchEntry: PatchWithId<OntimeEvent> = { id }; // It is not necessarily an event could also be milestone or group but we don't need to track that in the typing here
 
-    let shouldThrottle = false;
-
     Object.entries(data).forEach(([property, value]) => {
       if (!isValidChangeProperty(targetEntry, property, value, customFields)) {
         throw new Error('Invalid property or value');
       }
       const newObjectProperty = parseProperty(property, value);
-      const key = Object.keys(newObjectProperty)[0];
-      shouldThrottle = shouldThrottle || willCauseRegeneration(key);
       if (patchEntry.custom && newObjectProperty.custom) {
         Object.assign(patchEntry.custom, newObjectProperty.custom);
       } else {
