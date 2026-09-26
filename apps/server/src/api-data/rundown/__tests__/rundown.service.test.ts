@@ -1,4 +1,4 @@
-import { RefetchKey, Rundown } from 'ontime-types';
+import { CustomFields, RefetchKey, Rundown } from 'ontime-types';
 
 import { sendRefetch } from '../../../adapters/WebsocketAdapter.js';
 import { makeOntimeEvent, makeRundown } from '../__mocks__/rundown.mocks.js';
@@ -19,6 +19,7 @@ vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
     }),
     getProjectRundowns: () => storedRundowns,
     getCustomFields: () => ({}),
+    setCustomFields: vi.fn<(customFields: CustomFields) => Promise<CustomFields>>(async (customFields) => customFields),
     mergeIntoData: vi.fn<() => Promise<void>>(),
   }),
 }));
