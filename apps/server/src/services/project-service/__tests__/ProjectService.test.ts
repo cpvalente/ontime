@@ -1,10 +1,20 @@
 import { Mock } from 'vitest';
 
 import { parseDatabaseModel } from '../../../api-data/db/db.parser.js';
+import { makeOntimeEvent, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { rundownCache } from '../../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../../api-data/rundown/rundown.service.js';
+import { getDataProvider } from '../../../classes/data-provider/DataProvider.js';
+import { makeNewProject } from '../../../models/dataModel.js';
 import { isLastLoadedProject } from '../../app-state-service/AppStateService.js';
 import { auxTimerService } from '../../aux-timer-service/AuxTimerService.js';
-import { deleteProjectFile, duplicateProjectFile, loadProjectFile, renameProjectFile } from '../ProjectService.js';
+import {
+  deleteProjectFile,
+  duplicateProjectFile,
+  loadProjectFile,
+  patchCurrentProject,
+  renameProjectFile,
+} from '../ProjectService.js';
 import { doesProjectExist, parseJsonFile } from '../projectServiceUtils.js';
 
 // stop the database loading from initiating
@@ -113,5 +123,67 @@ describe('loadProjectFile', () => {
 
     expect(auxTimerService.loadNames).toHaveBeenCalledWith(['Speaker', 'Break', 'Q&A']);
     expect(initRundown).toHaveBeenCalled();
+  });
+});
+
+describe('patchCurrentProject', () => {
+  const dataProvider = {
+    mergeIntoData: vi.fn(),
+    setRundown: vi.fn(),
+    getCustomFields: vi.fn(() => ({})),
+    getSettings: vi.fn(() => makeNewProject().settings),
+    getData: vi.fn(),
+  };
+
+  // the patch endpoint lists every section, leaving the ones not patched undefined
+  const emptyPatch = {
+    rundowns: undefined,
+    project: undefined,
+    settings: undefined,
+    viewSettings: undefined,
+    urlPresets: undefined,
+    customFields: undefined,
+    automation: undefined,
+  };
+
+  beforeEach(() => {
+    (getDataProvider as Mock).mockReturnValue(dataProvider);
+    rundownCache.init(makeRundown({ id: 'loaded' }), {});
+    // setup calls are not part of the patch
+    vi.clearAllMocks();
+  });
+
+  it('only merges the sections which have a value', async () => {
+    const settings = makeNewProject().settings;
+    await patchCurrentProject({ ...emptyPatch, settings });
+
+    expect(dataProvider.mergeIntoData).toHaveBeenCalledExactlyOnceWith({ settings });
+  });
+
+  it('stores patched rundowns without merging the rest of the project', async () => {
+    const background = makeRundown({
+      id: 'background',
+      entries: { a: makeOntimeEvent({ id: 'a' }) },
+      order: ['a'],
+    });
+    await patchCurrentProject({ ...emptyPatch, rundowns: { background } });
+
+    expect(dataProvider.mergeIntoData).not.toHaveBeenCalled();
+    expect(dataProvider.setRundown).toHaveBeenCalledExactlyOnceWith(
+      'background',
+      expect.objectContaining({ id: 'background' }),
+    );
+    expect(initRundown).not.toHaveBeenCalled();
+  });
+
+  it('reinitialises the loaded rundown when the patch replaces it', async () => {
+    const loaded = makeRundown({ id: 'loaded', title: 'patched' });
+    await patchCurrentProject({ ...emptyPatch, rundowns: { loaded } });
+
+    expect(initRundown).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ id: 'loaded', title: 'patched' }),
+      {},
+      true,
+    );
   });
 });
