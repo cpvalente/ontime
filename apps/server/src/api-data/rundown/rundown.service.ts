@@ -35,7 +35,7 @@ import {
   rundownCache,
   rundownMutation,
 } from './rundown.dao.js';
-import { parseRundown } from './rundown.parser.js';
+import { parseRundown, sanitiseCustomFields } from './rundown.parser.js';
 import type { RundownMetadata } from './rundown.types.js';
 import {
   cloneRundown,
@@ -117,7 +117,7 @@ export async function addEntry(rundownId: string, eventData: EventPostPayload): 
  * Applies a patch to an entry in the rundown
  */
 export async function editEntry(rundownId: string, patch: PatchWithId): Promise<OntimeEntry> {
-  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
+  const { rundown, customFields, commit } = createTransaction({ rundownId, mutableRundown: true });
   const currentEntry = rundown.entries[patch.id];
 
   /**
@@ -143,6 +143,7 @@ export async function editEntry(rundownId: string, patch: PatchWithId): Promise<
   }
 
   const { entry, didInvalidate } = rundownMutation.edit(rundown, patch);
+  sanitiseEditedCustomFields(customFields, entry, patch);
   const { rundown: responseRundown, rundownMetadata, revision } = await commit(didInvalidate);
 
   // schedule the side effects
@@ -168,7 +169,7 @@ export async function batchEditEntries(
   ids: EntryId[],
   patch: Partial<OntimeEntry>,
 ): Promise<Rundown> {
-  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
+  const { rundown, customFields, commit } = createTransaction({ rundownId, mutableRundown: true });
 
   /**
    * We can do some validation globally, but mostly we will validate each entry individually
@@ -205,7 +206,8 @@ export async function batchEditEntries(
       continue;
     }
 
-    const { didInvalidate } = rundownMutation.edit(rundown, { ...patch, id: currentId });
+    const { entry, didInvalidate } = rundownMutation.edit(rundown, { ...patch, id: currentId });
+    sanitiseEditedCustomFields(customFields, entry, patch);
 
     changedIds.push(currentId);
 
@@ -228,6 +230,16 @@ export async function batchEditEntries(
   });
 
   return rundownResult;
+}
+
+/**
+ * Custom field edits do not trigger processing, which is where entries are sanitised
+ * We drop values for fields which do not exist in the project, as processing would
+ */
+function sanitiseEditedCustomFields(customFields: CustomFields, entry: OntimeEntry, patch: Partial<OntimeEntry>) {
+  if ('custom' in patch && 'custom' in entry) {
+    sanitiseCustomFields(customFields, entry);
+  }
 }
 
 /**

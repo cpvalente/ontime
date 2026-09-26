@@ -7,8 +7,8 @@ import { OntimeEvent } from 'ontime-types';
 import { getDataProvider, initPersistence } from '../../../classes/data-provider/DataProvider.js';
 import { makeNewProject } from '../../../models/dataModel.js';
 import { makeCustomField, makeOntimeEvent, makeRundown } from '../../rundown/__mocks__/rundown.mocks.js';
-import { getCurrentRundown, rundownCache } from '../../rundown/rundown.dao.js';
-import { deleteCustomField, editCustomField } from '../../rundown/rundown.service.js';
+import { getCurrentRundown, processRundown, rundownCache } from '../../rundown/rundown.dao.js';
+import { batchEditEntries, deleteCustomField, editCustomField, editEntry } from '../../rundown/rundown.service.js';
 
 describe('custom field changes across project rundowns', () => {
   let directory: string;
@@ -81,5 +81,22 @@ describe('custom field changes across project rundowns', () => {
     expect((getDataProvider().getRundown('background').entries.b as OntimeEvent).custom).toEqual({
       Old: 'background value',
     });
+  });
+
+  test('entry edits drop values for custom fields which do not exist', async () => {
+    await editEntry('loaded', { id: 'a', custom: { Old: 'edited', Unknown: 'dropped' } });
+
+    const cachedEntry = getCurrentRundown().entries.a as OntimeEvent;
+    expect(cachedEntry.custom).toEqual({ Old: 'edited' });
+
+    // the cache matches what processing the stored rundown would produce
+    const processed = processRundown(getDataProvider().getRundown('loaded'), getDataProvider().getCustomFields());
+    expect((processed.entries.a as OntimeEvent).custom).toEqual(cachedEntry.custom);
+  });
+
+  test('batch edits drop values for custom fields which do not exist', async () => {
+    await batchEditEntries('loaded', ['a'], { custom: { Unknown: 'dropped' } });
+
+    expect((getCurrentRundown().entries.a as OntimeEvent).custom).toEqual({ Old: 'loaded value' });
   });
 });
