@@ -605,8 +605,6 @@ export function update(): UpdateResult {
 
   if (finishedNow) {
     runtimeState._timer.hasFinished = true;
-  } else {
-    runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
   }
 
   getExpectedTimes();
