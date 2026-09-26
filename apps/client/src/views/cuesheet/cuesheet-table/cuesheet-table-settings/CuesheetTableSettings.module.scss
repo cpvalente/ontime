@@ -4,7 +4,7 @@
   background-color: $gray-1250;
   padding: 0.5rem 1rem;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
   font-size: $inner-section-text-size;
   border-radius: 3px 3px 0 0;
@@ -16,6 +16,7 @@
 
     .apart::before {
       content: 'BACKGROUND EDIT';
+      order: 1;
       color: $ui-white;
       animation: blinker 2s ease-in-out infinite;
     }
@@ -55,15 +56,34 @@
 
 .inline {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem 1.5rem;
+  max-width: min(90vw, 640px);
+  max-height: 70vh;
+  overflow-y: auto;
+
+  @media (max-width: $min-tablet) {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+}
+
+.optionsLabel {
+  @media (max-width: $min-tablet) {
+    display: none;
+  }
 }
 
 .apart {
-  margin-left: auto;
+  flex: 1;
+  min-width: 0;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: 1rem;
+  row-gap: 0.5rem;
 }
 
 /** styles should match RundownHeader.module.scss */
