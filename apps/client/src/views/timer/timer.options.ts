@@ -6,6 +6,7 @@ import { useSearchParams } from 'react-router';
 import type { SelectOption } from '../../common/components/select/Select';
 import {
   getTimeOption,
+  getTimezoneOption,
   getTimeOptionsFromParams,
   hideTimerSeconds,
   showLeadingZeros,
@@ -39,7 +40,7 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
   ]);
 
   return [
-    { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
+    { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat), getTimezoneOption()] },
     {
       title: OptionTitle.TimerOptions,
       collapsible: true,

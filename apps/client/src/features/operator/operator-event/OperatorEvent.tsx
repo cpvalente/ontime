@@ -8,6 +8,7 @@ import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime, useTimeUntilExpectedStart } from '../../../common/utils/time';
 import RunningTime from '../../../views/common/running-time/RunningTime';
 import SuperscriptPeriod from '../../../views/common/superscript-time/SuperscriptPeriod';
+import DayShift from '../../../views/common/timezone/DayShift';
 import type { EditEvent, Subscribed } from '../operator.types';
 
 import style from './OperatorEvent.module.scss';
@@ -30,6 +31,7 @@ interface OperatorEventProps {
   showStart: boolean;
   subscribed: Subscribed;
   totalGap: number;
+  timezoneDelta: number;
   onLongPress: (event: EditEvent) => void;
 }
 
@@ -52,6 +54,7 @@ function OperatorEvent({
   showStart,
   subscribed,
   totalGap,
+  timezoneDelta,
   onLongPress,
 }: OperatorEventProps) {
   /**
@@ -101,7 +104,13 @@ function OperatorEvent({
       </div>
 
       <span className={style.mainField}>
-        {showStart && <SuperscriptPeriod className={style.plannedStart} time={formatTime(timeStart)} />}
+        {showStart && (
+          <SuperscriptPeriod
+            className={style.plannedStart}
+            time={formatTime(timeStart, { timezoneDelta })}
+            suffix={<DayShift time={timeStart} timezoneDelta={timezoneDelta} />}
+          />
+        )}
         {main}
       </span>
       <span className={style.secondaryField}>{secondary}</span>

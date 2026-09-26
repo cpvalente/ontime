@@ -1,5 +1,5 @@
 import { DatabaseModel, Settings } from 'ontime-types';
-import { sanitiseAuxTimerNames } from 'ontime-utils';
+import { isValidTimezone, sanitiseAuxTimerNames } from 'ontime-utils';
 
 import { getPartialProject } from '../../models/dataModel.js';
 
@@ -23,6 +23,14 @@ export function parseSettings(data: Partial<DatabaseModel>): Settings {
     operatorKey: data.settings.operatorKey ?? defaultSettings.operatorKey,
     timeFormat: data.settings.timeFormat ?? defaultSettings.timeFormat,
     language: data.settings.language ?? defaultSettings.language,
+    productionTimezone: parseProductionTimezone(data.settings.productionTimezone, defaultSettings.productionTimezone),
     auxTimerNames: sanitiseAuxTimerNames(data.settings.auxTimerNames),
   };
+}
+
+function parseProductionTimezone(maybeTimezone: unknown, fallback: Settings['productionTimezone']) {
+  if (typeof maybeTimezone === 'string' && isValidTimezone(maybeTimezone)) {
+    return maybeTimezone;
+  }
+  return fallback;
 }

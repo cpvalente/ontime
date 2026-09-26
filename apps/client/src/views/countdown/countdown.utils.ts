@@ -14,6 +14,7 @@ import {
 } from 'ontime-types';
 import { MILLIS_PER_MINUTE, getExpectedEnd, getExpectedStart, millisToString, removeLeadingZero } from 'ontime-utils';
 
+import { useDisplayTimezone } from '../../common/hooks/useDisplayTimezone';
 import { useCountdownSocket } from '../../common/hooks/useSocket';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { formatDuration, formatTime } from '../../common/utils/time';
@@ -57,6 +58,7 @@ export function useSubscriptionDisplayData(
 ): { status: ProgressStatus; statusDisplay: string; timeDisplay: string } {
   const { playback, current, clock } = useCountdownSocket();
   const { getLocalizedString } = useTranslation();
+  const { timezoneDelta } = useDisplayTimezone();
 
   const bigDuration = (value: number) => {
     if (value <= 0) return getLocalizedString('countdown.overtime').toUpperCase();
@@ -101,7 +103,11 @@ export function useSubscriptionDisplayData(
     return {
       status: 'done',
       statusDisplay: getLocalizedString(timerProgress['done']),
-      timeDisplay: formatTime(subscribedEvent.endedAt, { format12: preferredFormat12, format24: preferredFormat24 }),
+      timeDisplay: formatTime(subscribedEvent.endedAt, {
+        format12: preferredFormat12,
+        format24: preferredFormat24,
+        timezoneDelta,
+      }),
     };
   }
 

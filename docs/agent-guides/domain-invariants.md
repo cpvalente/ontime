@@ -24,6 +24,8 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 
 Use temporal values by meaning: `Instant` for epoch time, `TimeOfDay` for local time since midnight, `Duration` for elapsed time, `Day` for calendar offsets. Convert through `timeCore`; never interchange as raw numbers.
 
+Stored and authored times of day are plan time (the project's production timezone). A viewer's display timezone is a view-only shift (`timezoneDelta`) applied to wall-clock times of day; never to durations, countdowns or offsets, and never on write. Time inputs are read-only while a view is shifted.
+
 Active work: [runtimeState time-core migration](../migrations/runtime-state-time-core.md).
 
 When relevant, cover interactions among:

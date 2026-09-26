@@ -6,6 +6,7 @@ import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
+import { useDisplayTimezone } from '../../common/hooks/useDisplayTimezone';
 import { useSelectedEventId } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { cx } from '../../common/utils/styleUtils';
@@ -13,6 +14,8 @@ import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import ShowTimeAnchor from '../common/timezone/ShowTimeAnchor';
+import TimezoneBadge from '../common/timezone/TimezoneBadge';
 import Timeline from './Timeline';
 import { getTimelineOptions, useTimelineOptions } from './timeline.options';
 import { getUpcomingEvents, useScopedRundown } from './timeline.utils';
@@ -41,6 +44,7 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
   const selectedEventId = useSelectedEventId();
   const { mainSource, timeformat } = useTimelineOptions();
   const { getLocalizedString } = useTranslation();
+  const { timezoneDelta, displayZone } = useDisplayTimezone();
 
   // holds copy of the rundown with only relevant events
   const { scopedRundown, firstStart, totalDuration } = useScopedRundown(events, selectedEventId);
@@ -59,12 +63,13 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
   return (
     <div className='timeline' data-testid='timeline-view'>
       <ViewParamsEditor target={OntimeView.Timeline} viewOptions={progressOptions} />
+      <TimezoneBadge displayZone={displayZone} timezoneDelta={timezoneDelta} />
       <div className='project-header'>
         <div className={cx(['project-header__brand', !projectData?.logo && 'project-header__brand--without-logo'])}>
           {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
           <div className='title'>{projectData.title}</div>
         </div>
-        <TimelineClock timeformat={timeformat} />
+        <TimelineClock timeformat={timeformat} timezoneDelta={timezoneDelta} />
       </div>
 
       <TimelineSections now={now} next={next} followedBy={followedBy} mainSource={mainSource} />
@@ -83,17 +88,18 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
   );
 }
 
-function TimelineClock({ timeformat }: { timeformat: string | null }) {
+function TimelineClock({ timeformat, timezoneDelta }: { timeformat: string | null; timezoneDelta: number }) {
   const { getLocalizedString } = useTranslation();
   const clock = useAutoTickingClock();
 
   // gather timer data
-  const formattedClock = formatTime(clock, { override: timeformat });
+  const formattedClock = formatTime(clock, { override: timeformat, timezoneDelta });
 
   return (
     <div className='clock-container'>
       <div className='label'>{getLocalizedString('common.time_now')}</div>
       <SuperscriptTime time={formattedClock} className='time' />
+      <ShowTimeAnchor clock={clock} timezoneDelta={timezoneDelta} timeformat={timeformat} />
     </div>
   );
 }

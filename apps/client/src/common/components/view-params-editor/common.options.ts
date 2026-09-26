@@ -1,3 +1,4 @@
+import type { DisplayTimezone } from '../../utils/time';
 import type { ParamField } from './viewParams.types';
 
 export const getTimeOption = (timeFormat: string): ParamField => {
@@ -8,6 +9,22 @@ export const getTimeOption = (timeFormat: string): ParamField => {
     description: 'Format for the Time Now field, eg. HH:mm:ss or hh:mm:ss a, see docs for help',
     type: 'string',
     placeholder,
+  };
+};
+
+export const getTimezoneOption = (): ParamField => {
+  const deviceTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return {
+    id: 'timezone',
+    title: 'Display timezone',
+    description: 'Show clock and scheduled times in another timezone. Durations and countdowns are not affected',
+    type: 'option',
+    values: [
+      { value: 'plan', label: 'Show time (default)' },
+      { value: 'local', label: `This device (${deviceTimezone})` },
+      ...Intl.supportedValuesOf('timeZone').map((zone) => ({ value: zone, label: zone })),
+    ],
+    defaultValue: 'plan',
   };
 };
 
@@ -36,4 +53,11 @@ export type TimeOptions = {
  */
 export function getTimeOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams) {
   return defaultValues?.get('timeformat') ?? searchParams.get('timeformat');
+}
+
+/**
+ * Helper to get value of 'timezone' from either source, prioritizing defaultValues
+ */
+export function getTimezoneFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): DisplayTimezone {
+  return defaultValues?.get('timezone') ?? searchParams.get('timezone') ?? 'plan';
 }

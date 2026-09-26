@@ -18,6 +18,7 @@ import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
+import { useDisplayTimezone } from '../../common/hooks/useDisplayTimezone';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
@@ -25,6 +26,8 @@ import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import ShowTimeAnchor from '../common/timezone/ShowTimeAnchor';
+import TimezoneBadge from '../common/timezone/TimezoneBadge';
 import { getCountdownOptions, useCountdownOptions } from './countdown.options';
 import { getOrderedSubscriptions, resolveSubscriptionTarget } from './countdown.utils';
 import CountdownSelect from './CountdownSelect';
@@ -53,6 +56,7 @@ export default function CountdownLoader() {
 function Countdown({ customFields, rundownData, projectData, isMirrored, settings }: CountdownData) {
   const { getLocalizedString } = useTranslation();
   const { subscriptions } = useCountdownOptions();
+  const { timezoneDelta, displayZone } = useDisplayTimezone();
 
   const [editMode, setEditMode] = useState(false);
 
@@ -80,12 +84,13 @@ function Countdown({ customFields, rundownData, projectData, isMirrored, setting
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
       <ViewParamsEditor target={OntimeView.Countdown} viewOptions={countdownOptions} />
+      <TimezoneBadge displayZone={displayZone} timezoneDelta={timezoneDelta} />
       <div className='project-header'>
         <div className={cx(['project-header__brand', !projectData?.logo && 'project-header__brand--without-logo'])}>
           {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
           <div className='title'>{projectData.title}</div>
         </div>
-        <CountdownClock />
+        <CountdownClock timezoneDelta={timezoneDelta} />
       </div>
 
       {!hasEvents && (
@@ -165,18 +170,19 @@ function CountdownContents({ candidates, rundownData, subscriptions, goToEditMod
   return <CountdownSubscriptions subscribedEvents={eventsToShow} goToEditMode={goToEditMode} />;
 }
 
-function CountdownClock() {
+function CountdownClock({ timezoneDelta }: { timezoneDelta: number }) {
   const { timeformat } = useCountdownOptions();
   const { getLocalizedString } = useTranslation();
   const clock = useAutoTickingClock();
 
   // gather timer data
-  const formattedClock = formatTime(clock, { override: timeformat });
+  const formattedClock = formatTime(clock, { override: timeformat, timezoneDelta });
 
   return (
     <div className='clock-container'>
       <div className='label'>{getLocalizedString('common.time_now')}</div>
       <SuperscriptTime time={formattedClock} className='time' />
+      <ShowTimeAnchor clock={clock} timezoneDelta={timezoneDelta} timeformat={timeformat} />
     </div>
   );
 }

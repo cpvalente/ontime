@@ -2,7 +2,7 @@ import { CustomFields, EntryId, OntimeEvent } from 'ontime-types';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
-import { getTimeOption } from '../../common/components/view-params-editor/common.options';
+import { getTimeOption, getTimezoneOption } from '../../common/components/view-params-editor/common.options';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import {
@@ -21,7 +21,7 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
   const customFieldSelect = makeCustomFieldSelectOptions(customFields);
 
   return [
-    { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
+    { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat), getTimezoneOption()] },
     {
       title: OptionTitle.DataSources,
       collapsible: true,

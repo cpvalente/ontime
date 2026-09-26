@@ -1,6 +1,7 @@
+import type { Instant } from 'ontime-types';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
-import { parseExcelDate } from '../time.js';
+import { parseExcelDate, resolvePlanTimezone } from '../time.js';
 
 describe('parseExcelDate', () => {
   // TODO: our parsing currently does not use UTC, so the tests can not be done in CI
@@ -35,6 +36,30 @@ describe('parseExcelDate', () => {
   describe('returns 0 on other strings', () => {
     test.each([['test'], [''], ['x']])('handles invalid fields %s', (fromExcel) => {
       expect(parseExcelDate(fromExcel)).toBe(0);
+    });
+  });
+});
+
+describe('resolvePlanTimezone()', () => {
+  const summer = Date.UTC(2026, 6, 15, 12) as Instant;
+  const winter = Date.UTC(2026, 0, 15, 12) as Instant;
+
+  it('falls back to the server timezone when no production timezone is declared', () => {
+    expect(resolvePlanTimezone(null, 'Europe/Lisbon', summer)).toStrictEqual({
+      zone: 'Europe/Lisbon',
+      utcOffsetMinutes: 60,
+      referenceDate: '2026-07-15T12:00:00.000Z',
+    });
+    expect(resolvePlanTimezone(null, 'America/New_York', summer)).toMatchObject({
+      zone: 'America/New_York',
+      utcOffsetMinutes: -240,
+    });
+  });
+
+  it('prefers the declared production timezone over the server timezone', () => {
+    expect(resolvePlanTimezone('America/New_York', 'Europe/Lisbon', winter)).toMatchObject({
+      zone: 'America/New_York',
+      utcOffsetMinutes: -300,
     });
   });
 });

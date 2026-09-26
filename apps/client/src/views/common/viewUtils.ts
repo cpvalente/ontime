@@ -102,6 +102,8 @@ type FormattingOptions = {
   removeSeconds: boolean;
   removeLeadingZero: boolean;
   clockFormat?: MaybeString;
+  /** shift applied when the timer shows the wall clock */
+  timezoneDelta?: number;
 };
 
 export function getFormattedTimer(
@@ -115,7 +117,7 @@ export function getFormattedTimer(
   }
 
   if (timerType === TimerType.Clock) {
-    return formatTime(timer, { override: options?.clockFormat });
+    return formatTime(timer, { override: options?.clockFormat, timezoneDelta: options.timezoneDelta });
   }
 
   let timeToParse = timer;

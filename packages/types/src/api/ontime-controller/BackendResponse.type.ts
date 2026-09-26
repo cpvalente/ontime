@@ -11,6 +11,15 @@ export type PortInfo = {
   pendingRestart: boolean;
 };
 
+export type PlanTimezone = {
+  /** IANA name of the timezone the rundown is planned in */
+  zone: string;
+  /** UTC offset of the zone at the reference date, in minutes, positive east of UTC */
+  utcOffsetMinutes: number;
+  /** ISO 8601 instant the offset was resolved at, anchors DST for display conversions */
+  referenceDate: string;
+};
+
 export interface SessionStats {
   startedAt: string;
   connectedClients: number;
@@ -19,6 +28,7 @@ export interface SessionStats {
   projectName: string;
   playback: Playback;
   timezone: string;
+  planTimezone: PlanTimezone;
   version: string;
 }
 

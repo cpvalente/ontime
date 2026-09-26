@@ -5,7 +5,9 @@ import { useCallback } from 'react';
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
 import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { formatDuration, formatTime } from '../../../../common/utils/time';
+import { timesLockedHint } from '../../../../features/rundown/entry-editor/composite/EventEditorTimes';
 import { AppMode } from '../../../../ontimeConfig';
+import DayShift from '../../../common/timezone/DayShift';
 import { getCuesheetColumnAccessPolicy } from '../../cuesheet.policies';
 import type { CuesheetCellContext, CuesheetColumnDef } from '../cuesheetTable.features';
 import DurationInput from './DurationInput';
@@ -26,12 +28,19 @@ function MakeStart({ getValue, row, table, column }: CuesheetCellContext) {
     return null;
   }
 
-  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
-  const formatOpts = hideTableSeconds ? { format12: 'h:mm a', format24: 'HH:mm' } : undefined;
+  const { showDelayedTimes, hideTableSeconds, timezoneDelta } = table.options.meta.options;
+  const formatOpts = hideTableSeconds ? { format12: 'h:mm a', format24: 'HH:mm', timezoneDelta } : { timezoneDelta };
+  const readOnlyHint = timezoneDelta !== 0 ? timesLockedHint : undefined;
 
   const event = row.original;
   if (!isOntimeEvent(event)) {
-    return <MutedText numeric>{formatTime(getValue() as number, formatOpts)}</MutedText>;
+    const time = getValue() as number;
+    return (
+      <MutedText numeric>
+        {formatTime(time, formatOpts)}
+        <DayShift time={time} timezoneDelta={timezoneDelta} />
+      </MutedText>
+    );
   }
 
   const { handleUpdateTimer } = table.options.meta;
@@ -46,8 +55,9 @@ function MakeStart({ getValue, row, table, column }: CuesheetCellContext) {
   const canWrite = column.columnDef.meta?.canWrite;
   if (!canWrite) {
     return (
-      <MutedText numeric>
+      <MutedText numeric title={readOnlyHint}>
         {formattedTime}
+        <DayShift time={displayTime} timezoneDelta={timezoneDelta} />
         <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(startTime)} />
       </MutedText>
     );
@@ -65,12 +75,19 @@ function MakeEnd({ getValue, row, table, column }: CuesheetCellContext) {
     return null;
   }
 
-  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
-  const formatOpts = hideTableSeconds ? { format12: 'h:mm a', format24: 'HH:mm' } : undefined;
+  const { showDelayedTimes, hideTableSeconds, timezoneDelta } = table.options.meta.options;
+  const formatOpts = hideTableSeconds ? { format12: 'h:mm a', format24: 'HH:mm', timezoneDelta } : { timezoneDelta };
+  const readOnlyHint = timezoneDelta !== 0 ? timesLockedHint : undefined;
 
   const event = row.original;
   if (!isOntimeEvent(event)) {
-    return <MutedText numeric>{formatTime(getValue() as number, formatOpts)}</MutedText>;
+    const time = getValue() as number;
+    return (
+      <MutedText numeric>
+        {formatTime(time, formatOpts)}
+        <DayShift time={time} timezoneDelta={timezoneDelta} />
+      </MutedText>
+    );
   }
 
   const { handleUpdateTimer } = table.options.meta;
@@ -85,8 +102,9 @@ function MakeEnd({ getValue, row, table, column }: CuesheetCellContext) {
   const canWrite = column.columnDef.meta?.canWrite;
   if (!canWrite) {
     return (
-      <MutedText numeric>
+      <MutedText numeric title={readOnlyHint}>
         {formattedTime}
+        <DayShift time={displayTime} timezoneDelta={timezoneDelta} />
         <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(endTime)} />
       </MutedText>
     );
@@ -255,6 +273,7 @@ export function makeCuesheetColumns(
   customFields: CustomFields,
   cuesheetMode: AppMode,
   preset: URLPreset | undefined,
+  isTimezoneShifted = false,
 ): CuesheetColumnDef[] {
   const columnsDef: CuesheetColumnDef[] = [];
   const { canRead, canWrite } = getCuesheetColumnAccessPolicy(preset, cuesheetMode);
@@ -291,7 +310,8 @@ export function makeCuesheetColumns(
       cell: MakeStart,
       size: 75,
       minSize: 75,
-      meta: { canWrite: canWrite('timeStart') },
+      // times are authored in show time and cannot be edited while shifted
+      meta: { canWrite: canWrite('timeStart') && !isTimezoneShifted },
     });
   }
 
@@ -303,7 +323,7 @@ export function makeCuesheetColumns(
       cell: MakeEnd,
       size: 75,
       minSize: 75,
-      meta: { canWrite: canWrite('timeEnd') },
+      meta: { canWrite: canWrite('timeEnd') && !isTimezoneShifted },
     });
   }
 

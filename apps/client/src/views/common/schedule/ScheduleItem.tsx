@@ -6,6 +6,7 @@ import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { cx } from '../../../common/utils/styleUtils';
 import { formatTime, getExpectedTimesFromExtendedEvent } from '../../../common/utils/time';
 import SuperscriptPeriod from '../superscript-time/SuperscriptPeriod';
+import DayShift from '../timezone/DayShift';
 import { useScheduleOptions } from './schedule.options';
 
 import './Schedule.scss';
@@ -29,7 +30,9 @@ type ScheduleItemProps = Pick<
   | 'title'
   | 'timeEnd'
   | 'cue'
->;
+> & {
+  timezoneDelta: number;
+};
 
 export default function ScheduleItem({
   timeStart,
@@ -44,6 +47,7 @@ export default function ScheduleItem({
   title,
   timeEnd,
   cue,
+  timezoneDelta,
 }: ScheduleItemProps) {
   const { showExpected } = useScheduleOptions();
 
@@ -60,11 +64,18 @@ export default function ScheduleItem({
             countToEnd={countToEnd}
             duration={duration}
             colour={colour}
+            timezoneDelta={timezoneDelta}
           />
         ) : delay > 0 ? (
-          <DelayedScheduleItem timeStart={timeStart} delay={delay} colour={colour} timeEnd={timeEnd} />
+          <DelayedScheduleItem
+            timeStart={timeStart}
+            delay={delay}
+            colour={colour}
+            timeEnd={timeEnd}
+            timezoneDelta={timezoneDelta}
+          />
         ) : (
-          <PlannedScheduleItem timeStart={timeStart} timeEnd={timeEnd} colour={colour} />
+          <PlannedScheduleItem timeStart={timeStart} timeEnd={timeEnd} colour={colour} timezoneDelta={timezoneDelta} />
         )}
       </div>
       <div className='entry-title'>{title}</div>
@@ -76,16 +87,17 @@ function PlannedScheduleItem({
   timeStart,
   timeEnd,
   colour,
-}: Pick<ScheduleItemProps, 'timeStart' | 'timeEnd' | 'colour'>) {
-  const start = formatTime(timeStart, formatOptions);
-  const end = formatTime(timeEnd, formatOptions);
+  timezoneDelta,
+}: Pick<ScheduleItemProps, 'timeStart' | 'timeEnd' | 'colour' | 'timezoneDelta'>) {
+  const start = formatTime(timeStart, { ...formatOptions, timezoneDelta });
+  const end = formatTime(timeEnd, { ...formatOptions, timezoneDelta });
 
   return (
     <>
       <span className='entry-colour' style={{ backgroundColor: colour }} />
-      <SuperscriptPeriod time={start} />
+      <SuperscriptPeriod time={start} suffix={<DayShift time={timeStart} timezoneDelta={timezoneDelta} />} />
       →
-      <SuperscriptPeriod time={end} />
+      <SuperscriptPeriod time={end} suffix={<DayShift time={timeEnd} timezoneDelta={timezoneDelta} />} />
     </>
   );
 }
@@ -95,24 +107,32 @@ function DelayedScheduleItem({
   timeEnd,
   colour,
   delay,
-}: Pick<ScheduleItemProps, 'timeStart' | 'timeEnd' | 'colour' | 'delay'>) {
-  const start = formatTime(timeStart, formatOptions);
-  const end = formatTime(timeEnd, formatOptions);
-  const delayedStart = formatTime(timeStart + delay, formatOptions);
-  const delayedEnd = formatTime(timeEnd + delay, formatOptions);
+  timezoneDelta,
+}: Pick<ScheduleItemProps, 'timeStart' | 'timeEnd' | 'colour' | 'delay' | 'timezoneDelta'>) {
+  const shiftedOptions = { ...formatOptions, timezoneDelta };
+  const start = formatTime(timeStart, shiftedOptions);
+  const end = formatTime(timeEnd, shiftedOptions);
+  const delayedStart = formatTime(timeStart + delay, shiftedOptions);
+  const delayedEnd = formatTime(timeEnd + delay, shiftedOptions);
 
   return (
     <>
       <span className='entry-times--delayed'>
         <span className='entry-colour' style={{ backgroundColor: colour }} />
-        <SuperscriptPeriod time={start} />
+        <SuperscriptPeriod time={start} suffix={<DayShift time={timeStart} timezoneDelta={timezoneDelta} />} />
         →
-        <SuperscriptPeriod time={end} />
+        <SuperscriptPeriod time={end} suffix={<DayShift time={timeEnd} timezoneDelta={timezoneDelta} />} />
       </span>
       <span className='entry-times--delay'>
-        <SuperscriptPeriod time={delayedStart} />
+        <SuperscriptPeriod
+          time={delayedStart}
+          suffix={<DayShift time={timeStart + delay} timezoneDelta={timezoneDelta} />}
+        />
         →
-        <SuperscriptPeriod time={delayedEnd} />
+        <SuperscriptPeriod
+          time={delayedEnd}
+          suffix={<DayShift time={timeEnd + delay} timezoneDelta={timezoneDelta} />}
+        />
       </span>
     </>
   );
@@ -127,6 +147,7 @@ function ExpectedScheduleItem({
   countToEnd,
   colour,
   duration,
+  timezoneDelta,
 }: Omit<ScheduleItemProps, 'timeEnd' | 'cue' | 'skip' | 'title'>) {
   const expectedStartData = useExpectedStartData();
   const { expectedStart, expectedEnd, plannedEnd } = getExpectedTimesFromExtendedEvent(
@@ -145,9 +166,9 @@ function ExpectedScheduleItem({
   return (
     <>
       <span className='entry-colour' style={{ backgroundColor: colour }} />
-      <ExpectedTime expectedTime={expectedStart} plannedTime={timeStart} />
+      <ExpectedTime expectedTime={expectedStart} plannedTime={timeStart} timezoneDelta={timezoneDelta} />
       →
-      <ExpectedTime expectedTime={expectedEnd} plannedTime={plannedEnd} />
+      <ExpectedTime expectedTime={expectedEnd} plannedTime={plannedEnd} timezoneDelta={timezoneDelta} />
     </>
   );
 }
@@ -155,10 +176,17 @@ function ExpectedScheduleItem({
 interface ExpectedTimeProps {
   expectedTime: number;
   plannedTime: number;
+  timezoneDelta: number;
 }
 
-function ExpectedTime({ expectedTime, plannedTime }: ExpectedTimeProps) {
-  const timeDisplay = formatTime(expectedTime);
+function ExpectedTime({ expectedTime, plannedTime, timezoneDelta }: ExpectedTimeProps) {
+  const timeDisplay = formatTime(expectedTime, { timezoneDelta });
   const expectedState = getOffsetState(expectedTime - plannedTime);
-  return <SuperscriptPeriod className={`entry-times--${expectedState}`} time={timeDisplay} />;
+  return (
+    <SuperscriptPeriod
+      className={`entry-times--${expectedState}`}
+      time={timeDisplay}
+      suffix={<DayShift time={expectedTime} timezoneDelta={timezoneDelta} />}
+    />
+  );
 }

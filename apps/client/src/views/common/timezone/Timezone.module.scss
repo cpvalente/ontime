@@ -1,0 +1,42 @@
+@use '@/theme/viewerDefs' as *;
+
+.badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5em;
+  padding: 0.25em 0.75em;
+  border: 1px solid var(--accent-color-override, $accent-color);
+  border-radius: $element-border-radius;
+  background-color: var(--background-color-override, $viewer-background-color);
+  color: var(--color-override, $viewer-color);
+  font-size: $timer-label-size;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.corner {
+  position: fixed;
+  left: $view-inline-padding;
+  bottom: $view-block-padding;
+  z-index: 10;
+}
+
+.zone {
+  font-weight: 600;
+}
+
+.delta {
+  color: var(--secondary-color-override, $viewer-secondary-color);
+}
+
+.dayShift {
+  font-size: 0.5em;
+  margin-left: 0.15em;
+  vertical-align: super;
+  color: var(--accent-color-override, $accent-color);
+}
+
+.showTime {
+  font-size: $timer-label-size;
+  color: var(--secondary-color-override, $viewer-secondary-color);
+}

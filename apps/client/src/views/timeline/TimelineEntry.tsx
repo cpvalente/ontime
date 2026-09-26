@@ -6,6 +6,7 @@ import { useExpectedStartData, useSelectedEventId, useTimer } from '../../common
 import { alpha, cx } from '../../common/utils/styleUtils';
 import { formatDuration, formatTime, getExpectedTimesFromExtendedEvent } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
+import DayShift from '../common/timezone/DayShift';
 import { getStatusLabel } from './timeline.utils';
 
 import style from './Timeline.module.scss';
@@ -28,6 +29,7 @@ interface TimelineEntryProps {
   cue: string;
   groupColour?: string;
   ref?: RefObject<HTMLDivElement | null>;
+  timezoneDelta: number;
 }
 
 const formatOptions = {
@@ -51,8 +53,9 @@ export function TimelineEntry({
   cue,
   groupColour,
   ref,
+  timezoneDelta,
 }: TimelineEntryProps) {
-  const formattedStartTime = formatTime(start, formatOptions);
+  const formattedStartTime = formatTime(start, { ...formatOptions, timezoneDelta });
   const formattedDuration = formatDuration(duration);
   const delayedStart = start + delay;
   const hasDelay = delay > 0;
@@ -88,8 +91,16 @@ export function TimelineEntry({
         }
       >
         <div className={style.maybeInline}>
-          <div className={cx([hasDelay && style.cross])}>{formattedStartTime}</div>
-          {hasDelay && <div className={style.delay}>{formatTime(delayedStart, formatOptions)}</div>}
+          <div className={cx([hasDelay && style.cross])}>
+            {formattedStartTime}
+            <DayShift time={start} timezoneDelta={timezoneDelta} />
+          </div>
+          {hasDelay && (
+            <div className={style.delay}>
+              {formatTime(delayedStart, { ...formatOptions, timezoneDelta })}
+              <DayShift time={delayedStart} timezoneDelta={timezoneDelta} />
+            </div>
+          )}
           {smallArea && (
             <TimelineEntryStatus
               delay={delay}

@@ -7,6 +7,11 @@ export type Settings = {
   timeFormat: TimeFormat;
   language: string;
   /**
+   * IANA name of the timezone the rundown is planned in, eg: Europe/Lisbon
+   * null resolves to the server timezone
+   */
+  productionTimezone: string | null;
+  /**
    * Custom names for the aux timers, in order (index 0 is aux timer 1).
    * An empty string means the timer is unnamed and consumers show the default label
    */

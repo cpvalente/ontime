@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react';
+import { CSSProperties, ReactNode } from 'react';
 
 import './SuperscriptTime.scss';
 
@@ -6,6 +6,8 @@ interface SuperscriptTimeProps {
   time: string;
   className?: string;
   style?: CSSProperties;
+  /** element rendered after the time, eg: a day shift marker */
+  suffix?: ReactNode;
 }
 
 /**
@@ -24,7 +26,7 @@ function getTimerParts(time: string) {
  * @example 12:00 AM -> AM becomes a superscript
  * @example 12:00:10 -> the seconds become a subscript
  */
-export default function SuperscriptTime({ time, className, style }: SuperscriptTimeProps) {
+export default function SuperscriptTime({ time, className, style, suffix }: SuperscriptTimeProps) {
   // we assume anything after space is a period tag
   const [timeString, period] = time.split(' ');
   const [mainTime, subscript] = getTimerParts(timeString);
@@ -34,6 +36,7 @@ export default function SuperscriptTime({ time, className, style }: SuperscriptT
       {mainTime}
       {subscript && <span className='subscript'>{subscript}</span>}
       {period && <sup className='period'>{period}</sup>}
+      {suffix}
     </div>
   );
 }

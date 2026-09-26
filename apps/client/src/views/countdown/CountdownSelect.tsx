@@ -4,6 +4,7 @@ import { IoArrowBack, IoClose, IoSaveOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
 
 import Button from '../../common/components/buttons/Button';
+import { useDisplayTimezone } from '../../common/hooks/useDisplayTimezone';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 import ClockTime from '../common/clock-time/ClockTime';
@@ -20,6 +21,7 @@ interface CountdownSelectProps {
 export default function CountdownSelect({ events, subscriptions, disableEdit }: CountdownSelectProps) {
   const [selected, setSelected] = useState<EntryId[]>(subscriptions);
   const navigate = useNavigate();
+  const { timezoneDelta } = useDisplayTimezone();
 
   /**
    * Toggles an entry from the selected set
@@ -82,9 +84,19 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
               style={{ '--user-color': event?.colour ?? '', '--group-color': event.groupColour ?? 'transparent' }}
             />
             <div className='sub__schedule'>
-              <ClockTime value={event.timeStart} preferredFormat12='h:mm a' preferredFormat24='HH:mm' />
+              <ClockTime
+                value={event.timeStart}
+                preferredFormat12='h:mm a'
+                preferredFormat24='HH:mm'
+                timezoneDelta={timezoneDelta}
+              />
               →
-              <ClockTime value={event.timeEnd} preferredFormat12='h:mm a' preferredFormat24='HH:mm' />
+              <ClockTime
+                value={event.timeEnd}
+                preferredFormat12='h:mm a'
+                preferredFormat24='HH:mm'
+                timezoneDelta={timezoneDelta}
+              />
             </div>
             <div className='sub__label'>{isSelected ? 'Click to remove' : 'Click to add'}</div>
             <div className='sub__title'>

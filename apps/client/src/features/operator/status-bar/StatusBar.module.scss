@@ -15,6 +15,14 @@
   grid-template-areas: '. timers clock';
 }
 
+.timezone {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+  // clears the floating navigation buttons on the left edge
+  justify-self: center;
+}
+
 .runningTimer {
   grid-area: timers;
   justify-self: center;

@@ -5,6 +5,7 @@ import { IoPencil } from 'react-icons/io5';
 
 import Button from '../../common/components/buttons/Button';
 import useReport from '../../common/hooks-query/useReport';
+import { useDisplayTimezone } from '../../common/hooks/useDisplayTimezone';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useExpectedStartData, usePlayback, useSelectedEventId } from '../../common/hooks/useSocket';
@@ -189,6 +190,7 @@ type ScheduleTimeProps = {
 export function ScheduleTime(props: ScheduleTimeProps) {
   const { event, showExpected } = props;
   const { timeStart, duration, delay, expectedStart, expectedEnd } = event;
+  const { timezoneDelta } = useDisplayTimezone();
 
   const plannedStart = timeStart + delay + event.dayOffset * dayInMs;
 
@@ -208,6 +210,7 @@ export function ScheduleTime(props: ScheduleTimeProps) {
         preferredFormat12={preferredFormat12}
         preferredFormat24={preferredFormat24}
         className={plannedStateClass}
+        timezoneDelta={timezoneDelta}
       />
       {!isExpectedValueShow && (
         <>
@@ -216,6 +219,7 @@ export function ScheduleTime(props: ScheduleTimeProps) {
             value={plannedEnd}
             preferredFormat12={preferredFormat12}
             preferredFormat24={preferredFormat24}
+            timezoneDelta={timezoneDelta}
             className={plannedStateClass}
           />
         </>
@@ -227,6 +231,7 @@ export function ScheduleTime(props: ScheduleTimeProps) {
             className={expectedStateClass}
             preferredFormat12={preferredFormat12}
             preferredFormat24={preferredFormat24}
+            timezoneDelta={timezoneDelta}
           />
           →
           <ClockTime
@@ -234,6 +239,7 @@ export function ScheduleTime(props: ScheduleTimeProps) {
             className={expectedEndClass}
             preferredFormat12={preferredFormat12}
             preferredFormat24={preferredFormat24}
+            timezoneDelta={timezoneDelta}
           />
         </>
       )}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import EmptyFill from '../../common/components/state/EmptyFill';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
+import { useDisplayTimezone } from '../../common/hooks/useDisplayTimezone';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useSelectedEventId } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
@@ -50,6 +51,7 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
   const selectedEventId = useSelectedEventId();
   const { getLocalizedString } = useTranslation();
   const { subscribe, mainSource, secondarySource, shouldEdit, hidePast, showStart } = useOperatorOptions();
+  const { timezoneDelta } = useDisplayTimezone();
 
   const [showEditPrompt, setShowEditPrompt] = useState(false);
   const [editEvent, setEditEvent] = useState<EditEvent | null>(null);
@@ -182,6 +184,7 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
                   isPast={isPast}
                   selectedRef={isLoaded ? selectedRef : undefined}
                   showStart={showStart}
+                  timezoneDelta={timezoneDelta}
                   subscribed={subscribedData}
                   totalGap={totalGap}
                   onLongPress={canEdit ? handleEdit : () => undefined}
@@ -246,6 +249,7 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
                         groupColour={entry.colour}
                         selectedRef={isLoaded ? selectedRef : undefined}
                         showStart={showStart}
+                        timezoneDelta={timezoneDelta}
                         subscribed={subscribedData}
                         totalGap={totalGap}
                         onLongPress={canEdit ? handleEdit : () => undefined}

@@ -20,6 +20,7 @@ import type { AppMode } from '../../../ontimeConfig';
  * - `options-hideTableSeconds` whether to hide seconds in the table
  * - `options-hideIndexColumn` whether to hide the index column
  * - `options-cuesheetMode` run or edit mode
+ * - `options-timezoneDelta` shift applied to displayed times of day, 0 shows show time
  */
 export interface CuesheetTableMeta {
   handleUpdate: (rowIndex: number, accessor: string, payload: string, isCustom: boolean) => void;
@@ -29,6 +30,7 @@ export interface CuesheetTableMeta {
     hideTableSeconds: boolean;
     hideIndexColumn: boolean;
     cuesheetMode: AppMode;
+    timezoneDelta: number;
   };
 }
 

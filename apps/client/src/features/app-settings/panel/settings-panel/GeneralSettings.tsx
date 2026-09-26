@@ -1,10 +1,12 @@
 import { useDisclosure } from '@mantine/hooks';
 import { Settings } from 'ontime-types';
+import { isValidTimezone } from 'ontime-utils';
 import { lazy, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { postSettings } from '../../../../common/api/settings';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import AutocompleteInput from '../../../../common/components/autocomplete-input/AutocompleteInput';
 import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
 import Select from '../../../../common/components/select/Select';
@@ -14,6 +16,8 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import GeneralPinInput from './composite/GeneralPinInput';
 
 const TranslationModal = lazy(() => import('./composite/CustomTranslationModal'));
+
+const timezoneOptions = Intl.supportedValuesOf('timeZone');
 
 export default function GeneralSettings() {
   const { data, status, refetch } = useSettings();
@@ -34,6 +38,11 @@ export default function GeneralSettings() {
   });
 
   const [isOpen, handler] = useDisclosure();
+
+  register('productionTimezone', {
+    validate: (value) =>
+      value === null || isValidTimezone(value) || 'Unknown timezone, use an IANA name eg: Europe/Lisbon',
+  });
 
   // update form if we get new data from server
   useEffect(() => {
@@ -130,6 +139,27 @@ export default function GeneralSettings() {
                     { value: '12', label: '12 hours 11:00:10 PM' },
                     { value: '24', label: '24 hours 23:00:10' },
                   ]}
+                />
+              </Panel.ListItem>
+              <Panel.ListItem>
+                <Panel.Field
+                  title='Production timezone'
+                  description='Timezone the rundown is planned in, views can show times shifted from it'
+                  error={errors.productionTimezone?.message}
+                />
+                <AutocompleteInput
+                  options={timezoneOptions}
+                  value={watch('productionTimezone') ?? ''}
+                  onValueChange={(value) => {
+                    setValue('productionTimezone', value === '' ? null : value, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                  }}
+                  placeholder='Auto (server timezone)'
+                  emptyLabel='No matching timezone'
+                  openOnFocus
+                  disabled={disableInputs}
                 />
               </Panel.ListItem>
               <Panel.ListItem>

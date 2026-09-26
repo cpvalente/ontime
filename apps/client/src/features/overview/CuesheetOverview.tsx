@@ -1,6 +1,8 @@
 import { PropsWithChildren, memo } from 'react';
 
+import { useDisplayTimezone } from '../../common/hooks/useDisplayTimezone';
 import { useIsMobileScreen } from '../../common/hooks/useIsMobileScreen';
+import TimezoneBadge from '../../views/common/timezone/TimezoneBadge';
 import {
   ClockOverview,
   MetadataTimes,
@@ -22,8 +24,11 @@ function CuesheetOverview({ children }: PropsWithChildren) {
 }
 
 function CuesheetMobile({ children }: PropsWithChildren) {
+  const { timezoneDelta, displayZone } = useDisplayTimezone();
+
   return (
     <OverviewWrapper navElements={children}>
+      <TimezoneBadge displayZone={displayZone} timezoneDelta={timezoneDelta} placement='inline' />
       <TimerOverview />
       <OffsetOverview />
     </OverviewWrapper>
@@ -31,14 +36,17 @@ function CuesheetMobile({ children }: PropsWithChildren) {
 }
 
 function CuesheetDesktop({ children }: PropsWithChildren) {
+  const { timezoneDelta, displayZone } = useDisplayTimezone();
+
   return (
     <OverviewWrapper navElements={children}>
       <TitleOverview />
-      <StartTimesRuntime shouldFormat />
+      <StartTimesRuntime shouldFormat timezoneDelta={timezoneDelta} />
       <TimerOverview />
       <OffsetOverview />
       <MetadataTimes />
-      <ClockOverview shouldFormat />
+      <TimezoneBadge displayZone={displayZone} timezoneDelta={timezoneDelta} placement='inline' />
+      <ClockOverview shouldFormat timezoneDelta={timezoneDelta} />
     </OverviewWrapper>
   );
 }

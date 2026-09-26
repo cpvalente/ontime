@@ -81,6 +81,7 @@ export function migrateSettings(jsonData: object): (Settings & { serverPort: num
       operatorKey,
       timeFormat,
       language,
+      productionTimezone: null,
       auxTimerNames: ['', '', ''],
     };
   }

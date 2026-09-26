@@ -1,3 +1,4 @@
+import { useDisplayTimezone } from '../../../common/hooks/useDisplayTimezone';
 import { cx } from '../../../common/utils/styleUtils';
 import { useSchedule } from './ScheduleContext';
 import ScheduleItem from './ScheduleItem';
@@ -10,6 +11,7 @@ interface ScheduleProps {
 
 export default function Schedule({ className }: ScheduleProps) {
   const { events, containerRef } = useSchedule();
+  const { timezoneDelta } = useDisplayTimezone();
 
   if (events?.length < 1) {
     return null;
@@ -33,6 +35,7 @@ export default function Schedule({ className }: ScheduleProps) {
             title={event.title}
             timeEnd={event.timeEnd}
             cue={event.cue}
+            timezoneDelta={timezoneDelta}
           />
         );
       })}

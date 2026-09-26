@@ -10,9 +10,11 @@ import style from './EntryEditor.module.scss';
 interface CuesheetEntryEditorProps {
   entryId: string;
   rundown: Rundown;
+  /** prevents editing times while the cuesheet shows another timezone */
+  timesLocked: boolean;
 }
 
-export default function CuesheetEntryEditor({ entryId, rundown }: CuesheetEntryEditorProps) {
+export default function CuesheetEntryEditor({ entryId, rundown, timesLocked }: CuesheetEntryEditorProps) {
   const entry = useMemo<OntimeEntry | null>(() => {
     if (rundown.order.length === 0) {
       return null;
@@ -25,7 +27,7 @@ export default function CuesheetEntryEditor({ entryId, rundown }: CuesheetEntryE
   if (isOntimeEvent(entry)) {
     return (
       <div className={style.entryEditor} data-testid='editor-container'>
-        <EventEditor event={entry} />
+        <EventEditor event={entry} timesLocked={timesLocked} />
       </div>
     );
   }

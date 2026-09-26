@@ -6,5 +6,6 @@ export const ontimePlaceholderSettings: Settings = {
   operatorKey: null,
   timeFormat: '24',
   language: 'en',
+  productionTimezone: null,
   auxTimerNames: ['', '', ''],
 };

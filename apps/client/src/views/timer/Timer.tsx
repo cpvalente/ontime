@@ -8,6 +8,7 @@ import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
+import { useDisplayTimezone } from '../../common/hooks/useDisplayTimezone';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import { useTimerSocket } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
@@ -16,6 +17,8 @@ import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import ShowTimeAnchor from '../common/timezone/ShowTimeAnchor';
+import TimezoneBadge from '../common/timezone/TimezoneBadge';
 import { getFormattedTimer, getTimerByType } from '../common/viewUtils';
 import { getTimerColour } from '../utils/presentation.utils';
 import { getTimerOptions, useTimerOptions } from './timer.options';
@@ -77,6 +80,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
 
   const { getLocalizedString } = useTranslation();
   const localisedMinutes = getLocalizedString('common.minutes');
+  const { timezoneDelta, displayZone } = useDisplayTimezone();
 
   const showSoundPrompt = useTimerSound(time.phase, endSound);
 
@@ -113,6 +117,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
     removeSeconds: hideTimerSeconds,
     removeLeadingZero: removeLeadingZeros,
     clockFormat: timeformat,
+    timezoneDelta,
   });
 
   const currentAux = (() => {
@@ -160,6 +165,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
       {!hideLogo && projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
 
       <ViewParamsEditor target={OntimeView.Timer} viewOptions={timerOptions} />
+      <TimezoneBadge displayZone={displayZone} timezoneDelta={timezoneDelta} />
 
       {showSoundPrompt && <SoundPermissionPrompt />}
 
@@ -173,7 +179,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
         </div>
       )}
 
-      {showClock && <TimerAutoTickingClock clockFormat={timeformat} />}
+      {showClock && <TimerAutoTickingClock clockFormat={timeformat} timezoneDelta={timezoneDelta} />}
 
       <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
         {showEndMessage ? (
@@ -222,15 +228,16 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
   );
 }
 
-function TimerAutoTickingClock({ clockFormat }: { clockFormat: MaybeString }) {
+function TimerAutoTickingClock({ clockFormat, timezoneDelta }: { clockFormat: MaybeString; timezoneDelta: number }) {
   const autoTickingClock = useAutoTickingClock();
-  const formattedClock = formatTime(autoTickingClock, { override: clockFormat });
+  const formattedClock = formatTime(autoTickingClock, { override: clockFormat, timezoneDelta });
   const { getLocalizedString } = useTranslation();
 
   return (
     <div className='clock-container'>
       <div className='label'>{getLocalizedString('common.time_now')}</div>
       <SuperscriptTime time={formattedClock} className='clock' />
+      <ShowTimeAnchor clock={autoTickingClock} timezoneDelta={timezoneDelta} timeformat={clockFormat} />
     </div>
   );
 }

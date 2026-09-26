@@ -77,6 +77,7 @@ export type {
   ErrorResponse,
   ProjectFileListResponse,
   MessageResponse,
+  PlanTimezone,
   SessionStats,
   ProjectLogoResponse,
   PortInfo,

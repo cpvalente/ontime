@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router';
 
 import {
   getTimeOption,
+  getTimezoneOption,
   getTimeOptionsFromParams,
   TimeOptions,
 } from '../../common/components/view-params-editor/common.options';
@@ -30,7 +31,7 @@ export const getBackstageOptions = (
   const mainOptions = makeOptionsFromCustomFields(customFields, [{ value: 'title', label: 'Title' }]);
 
   return [
-    { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
+    { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat), getTimezoneOption()] },
     {
       title: OptionTitle.DataSources,
       collapsible: true,

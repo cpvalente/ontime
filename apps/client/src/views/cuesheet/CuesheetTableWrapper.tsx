@@ -5,6 +5,7 @@ import Select from '../../common/components/select/Select';
 import { PresetContext } from '../../common/context/PresetContext';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import type { RundownSource } from '../../common/hooks-query/useScopedRundown';
+import { useDisplayTimezone } from '../../common/hooks/useDisplayTimezone';
 import { AppMode } from '../../ontimeConfig';
 import CuesheetDnd from './cuesheet-dnd/CuesheetDnd';
 import { makeCuesheetColumns } from './cuesheet-table/cuesheet-table-elements/cuesheetColsFactory';
@@ -34,10 +35,12 @@ function CuesheetTableWrapper({
   const isCurrentRundown = source.rundownId !== null && source.rundownId === loadedRundownId;
   const { cuesheetMode, setCuesheetMode } = useApplyCuesheetPolicy(preset, { canRunMode: isCurrentRundown });
   const { data: customFields } = useCustomFields();
+  const { timezoneDelta } = useDisplayTimezone();
+  const isTimezoneShifted = timezoneDelta !== 0;
 
   const columns = useMemo(
-    () => makeCuesheetColumns(customFields, cuesheetMode, preset),
-    [customFields, cuesheetMode, preset],
+    () => makeCuesheetColumns(customFields, cuesheetMode, preset, isTimezoneShifted),
+    [customFields, cuesheetMode, preset, isTimezoneShifted],
   );
 
   return (

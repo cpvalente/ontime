@@ -1,5 +1,5 @@
 import { body } from 'express-validator';
-import { sanitiseAuxTimerNames } from 'ontime-utils';
+import { isValidTimezone, sanitiseAuxTimerNames } from 'ontime-utils';
 
 import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
@@ -28,6 +28,10 @@ export const validateSettings = [
   pinValidator('operatorKey'),
   body('timeFormat').isString().isIn(['12', '24']).withMessage('Time format can only be "12" or "24"'),
   body('language').isString().trim().notEmpty(),
+  body('productionTimezone')
+    .customSanitizer((input) => (typeof input === 'string' && input.length > 0 ? input : null))
+    .custom((input) => input === null || isValidTimezone(input))
+    .withMessage('Production timezone must be a valid IANA timezone'),
   body('auxTimerNames').isArray().withMessage('auxTimerNames must be an array').customSanitizer(sanitiseAuxTimerNames),
 
   requestValidationFunction,

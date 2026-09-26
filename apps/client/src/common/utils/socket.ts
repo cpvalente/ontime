@@ -23,6 +23,7 @@ import {
   REPORT,
   RUNDOWN,
   RUNTIME,
+  SESSION_STATS,
   TRANSLATION,
   URL_PRESETS,
   VIEW_SETTINGS,
@@ -233,6 +234,8 @@ export const connectSocket = () => {
               break;
             case RefetchKey.Settings:
               ontimeQueryClient.invalidateQueries({ queryKey: APP_SETTINGS });
+              // the plan timezone is resolved from the settings
+              ontimeQueryClient.invalidateQueries({ queryKey: SESSION_STATS });
               break;
             case RefetchKey.ProjectRundowns:
               ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_RUNDOWNS });

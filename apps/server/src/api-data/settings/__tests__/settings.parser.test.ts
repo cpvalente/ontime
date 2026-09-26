@@ -16,6 +16,7 @@ describe('parseSettings()', () => {
       operatorKey: null,
       timeFormat: '24',
       language: 'en',
+      productionTimezone: null,
       auxTimerNames: ['', '', ''],
     });
   });
@@ -25,5 +26,13 @@ describe('parseSettings()', () => {
       settings: { version: '1', auxTimerNames: ['Speaker'] } as unknown as Settings,
     });
     expect(result.auxTimerNames).toStrictEqual(['Speaker', '', '']);
+  });
+
+  it('keeps a valid production timezone and drops an invalid one', () => {
+    const valid = parseSettings({ settings: { version: '1', productionTimezone: 'Asia/Tokyo' } as Settings });
+    expect(valid.productionTimezone).toBe('Asia/Tokyo');
+
+    const invalid = parseSettings({ settings: { version: '1', productionTimezone: 'Not/AZone' } as Settings });
+    expect(invalid.productionTimezone).toBeNull();
   });
 });

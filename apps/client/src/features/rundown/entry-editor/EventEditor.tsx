@@ -17,9 +17,10 @@ export type EventEditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | stri
 
 interface EventEditorProps {
   event: OntimeEvent;
+  timesLocked?: boolean;
 }
 
-export default function EventEditor({ event }: EventEditorProps) {
+export default function EventEditor({ event, timesLocked }: EventEditorProps) {
   const { data: customFields } = useCustomFields();
   const { updateEntry } = useEntryActionsContext();
 
@@ -53,6 +54,7 @@ export default function EventEditor({ event }: EventEditorProps) {
         timerType={event.timerType}
         timeWarning={event.timeWarning}
         timeDanger={event.timeDanger}
+        timesLocked={timesLocked}
       />
       <EventEditorTitles
         key={`${event.id}-titles`}

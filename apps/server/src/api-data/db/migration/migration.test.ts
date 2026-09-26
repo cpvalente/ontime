@@ -184,6 +184,7 @@ describe('v3 to v4', () => {
       operatorKey: null,
       timeFormat: '24',
       language: 'en',
+      productionTimezone: null,
       auxTimerNames: ['', '', ''],
     };
     const newSettings = v3.migrateSettings(oldDb);

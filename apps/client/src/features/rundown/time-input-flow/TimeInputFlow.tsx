@@ -22,6 +22,8 @@ interface TimeInputFlowProps {
   delay: number;
   showLabels?: boolean;
   showWarnings?: boolean;
+  /** prevents any time edits */
+  locked?: boolean;
 }
 
 export default memo(TimeInputFlow);
@@ -35,6 +37,7 @@ function TimeInputFlow({
   delay,
   showLabels,
   showWarnings = true,
+  locked = false,
 }: TimeInputFlowProps) {
   const { updateEntry, updateTimer } = useEntryActionsContext();
 
@@ -72,13 +75,19 @@ function TimeInputFlow({
             time={timeStart}
             placeholder='Start'
             align='left'
-            disabled={linkStart}
+            disabled={locked || linkStart}
             shouldFormat
           />
           <Tooltip
             text='Link start to previous end'
             onClick={() => handleLink(!linkStart)}
-            render={<IconButton variant='subtle-white' className={linkStart ? style.active : style.inactive} />}
+            render={
+              <IconButton
+                variant='subtle-white'
+                className={linkStart ? style.active : style.inactive}
+                disabled={locked}
+              />
+            }
           >
             <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
           </Tooltip>
@@ -95,12 +104,18 @@ function TimeInputFlow({
             time={timeEnd}
             placeholder='End'
             align='left'
-            disabled={isLockedDuration}
+            disabled={locked || isLockedDuration}
             shouldFormat
           />
           <Tooltip
             text='Lock end'
-            render={<IconButton variant='subtle-white' className={isLockedEnd ? style.active : style.inactive} />}
+            render={
+              <IconButton
+                variant='subtle-white'
+                className={isLockedEnd ? style.active : style.inactive}
+                disabled={locked}
+              />
+            }
             onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
             data-testid='lock__end'
           >
@@ -119,11 +134,17 @@ function TimeInputFlow({
             time={duration}
             placeholder='Duration'
             align='left'
-            disabled={isLockedEnd}
+            disabled={locked || isLockedEnd}
           />
           <Tooltip
             text='Lock duration'
-            render={<IconButton variant='subtle-white' className={isLockedDuration ? style.active : style.inactive} />}
+            render={
+              <IconButton
+                variant='subtle-white'
+                className={isLockedDuration ? style.active : style.inactive}
+                disabled={locked}
+              />
+            }
             onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
             data-testid='lock__duration'
           >

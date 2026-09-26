@@ -29,6 +29,12 @@ $studio-idle: $red-1300;
     font-size: var(--timer-font-size);
   }
 
+  .show-time {
+    color: $studio-red;
+    font-size: var(--small-font-size);
+    text-align: center;
+  }
+
   .time--small {
     position: relative;
     display: block;

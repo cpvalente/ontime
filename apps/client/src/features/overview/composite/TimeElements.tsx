@@ -27,7 +27,7 @@ import {
 } from '../../../common/hooks/useSocket';
 import { getOffsetState, getOffsetText } from '../../../common/utils/offset';
 import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
-import { formatDuration, formatTime } from '../../../common/utils/time';
+import { formatDuration, formatTime, normaliseWallClock } from '../../../common/utils/time';
 import SuperscriptPeriod from '../../../views/common/superscript-time/SuperscriptPeriod';
 import { calculateEndAndDaySpan, formatDueTime } from '../overview.utils';
 import { OverUnder, TimeColumn, WrappedInTimeColumn } from './TimeLayout';
@@ -36,24 +36,28 @@ import style from './TimeElements.module.scss';
 
 interface OverviewTimeElementsProps {
   shouldFormat?: boolean;
+  /** shift to a display timezone, editor surfaces always show plan time */
+  timezoneDelta?: number;
 }
 
 const timeFormatOptions = { format12: 'hh:mm:ss a', format24: 'HH:mm:ss' };
 
-function formatTimeValue(time: number | null, shouldFormat: boolean | undefined): string {
+function formatTimeValue(time: number | null, shouldFormat: boolean | undefined, timezoneDelta = 0): string {
   if (time === null) return timerPlaceholder;
-  if (shouldFormat) return formatTime(time, timeFormatOptions);
-  return millisToString(time, { fallback: timerPlaceholder });
+  if (shouldFormat) return formatTime(time, { ...timeFormatOptions, timezoneDelta });
+  return millisToString(timezoneDelta ? normaliseWallClock(time + timezoneDelta) : time, {
+    fallback: timerPlaceholder,
+  });
 }
 
-export function StartTimesRuntime({ shouldFormat }: OverviewTimeElementsProps) {
+export function StartTimesRuntime({ shouldFormat, timezoneDelta }: OverviewTimeElementsProps) {
   const { plannedEnd, plannedStart, actualStart } = useStartTimesOverview();
 
-  const plannedStartText = formatTimeValue(plannedStart, shouldFormat);
-  const actualStartText = formatTimeValue(actualStart, shouldFormat);
+  const plannedStartText = formatTimeValue(plannedStart, shouldFormat, timezoneDelta);
+  const actualStartText = formatTimeValue(actualStart, shouldFormat, timezoneDelta);
 
   const [maybePlannedEnd, maybePlannedDaySpan] = useMemo(() => calculateEndAndDaySpan(plannedEnd), [plannedEnd]);
-  const plannedEndText = formatTimeValue(maybePlannedEnd, shouldFormat);
+  const plannedEndText = formatTimeValue(maybePlannedEnd, shouldFormat, timezoneDelta);
 
   const multipleDays = maybePlannedDaySpan > 0;
   const plannedEndTooltip = multipleDays
@@ -107,7 +111,7 @@ export function StartTimesRuntime({ shouldFormat }: OverviewTimeElementsProps) {
             </div>
           }
         />
-        <RundownExpectedEnd shouldFormat={shouldFormat} />
+        <RundownExpectedEnd shouldFormat={shouldFormat} timezoneDelta={timezoneDelta} />
       </div>
     </div>
   );
@@ -170,11 +174,11 @@ export function StartTimesPlanning({ shouldFormat }: OverviewTimeElementsProps) 
  * Shows the expected end for the rundown
  * Extracted to improve performance as this is a ticking value
  */
-function RundownExpectedEnd({ shouldFormat }: OverviewTimeElementsProps) {
+function RundownExpectedEnd({ shouldFormat, timezoneDelta }: OverviewTimeElementsProps) {
   const expectedEnd = useRundownExpectedEnd();
 
   const [maybeExpectedEnd, maybeExpectedDaySpan] = useMemo(() => calculateEndAndDaySpan(expectedEnd), [expectedEnd]);
-  const maybeExpectedEndText = formatTimeValue(maybeExpectedEnd, shouldFormat);
+  const maybeExpectedEndText = formatTimeValue(maybeExpectedEnd, shouldFormat, timezoneDelta);
 
   const multipleDays = maybeExpectedEnd !== null && maybeExpectedDaySpan > 0;
   const tooltip = multipleDays
@@ -341,9 +345,15 @@ export function OffsetOverview() {
   return <OverUnder state={offsetState} value={offsetText} testId='offset' />;
 }
 
-export function ClockOverview({ shouldFormat, className }: OverviewTimeElementsProps & { className?: string }) {
+interface ClockOverviewProps extends OverviewTimeElementsProps {
+  className?: string;
+}
+
+export function ClockOverview({ shouldFormat, className, timezoneDelta = 0 }: ClockOverviewProps) {
   const clock = useAutoTickingClock();
-  const formattedClock = shouldFormat ? formatTime(clock) : millisToString(clock);
+  const formattedClock = shouldFormat
+    ? formatTime(clock, { timezoneDelta })
+    : millisToString(normaliseWallClock(clock + timezoneDelta));
 
   return (
     <WrappedInTimeColumn

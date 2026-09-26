@@ -1,4 +1,13 @@
-import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, isISO8601, pad, parseUserTime } from 'ontime-utils';
+import type { Instant, PlanTimezone } from 'ontime-types';
+import {
+  MILLIS_PER_HOUR,
+  MILLIS_PER_MINUTE,
+  MILLIS_PER_SECOND,
+  getTimezoneOffsetMinutes,
+  isISO8601,
+  pad,
+  parseUserTime,
+} from 'ontime-utils';
 
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
@@ -59,6 +68,25 @@ export function getTimezoneLabel(date: Date): string {
   const minutes = abs % 60;
 
   return `GMT ${sign}${pad(hours)}:${pad(minutes)} ${tzName}`;
+}
+
+/**
+ * Resolves the timezone the rundown is planned in
+ * @param productionTimezone - timezone declared in the project settings, null to use the server timezone
+ * @param serverTimezone - IANA name of the server timezone
+ * @param reference - instant to resolve the offset at, determines DST
+ */
+export function resolvePlanTimezone(
+  productionTimezone: string | null,
+  serverTimezone: string,
+  reference: Instant,
+): PlanTimezone {
+  const zone = productionTimezone ?? serverTimezone;
+  return {
+    zone,
+    utcOffsetMinutes: getTimezoneOffsetMinutes(zone, reference),
+    referenceDate: new Date(reference).toISOString(),
+  };
 }
 
 /**

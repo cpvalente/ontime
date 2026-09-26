@@ -11,6 +11,7 @@ import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
+import { useDisplayTimezone } from '../../common/hooks/useDisplayTimezone';
 import { useBackstageSocket } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { cx, timerPlaceholderMin } from '../../common/utils/styleUtils';
@@ -19,6 +20,9 @@ import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
 import ScheduleExport from '../common/schedule/ScheduleExport';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import DayShift from '../common/timezone/DayShift';
+import ShowTimeAnchor from '../common/timezone/ShowTimeAnchor';
+import TimezoneBadge from '../common/timezone/TimezoneBadge';
 import { getBackstageOptions, useBackstageOptions } from './backstage.options';
 import { getCardData, getIsPendingStart, getShowProgressBar, isOvertime } from './backstage.utils';
 import { BackstageData, useBackstageData } from './useBackstageData';
@@ -47,6 +51,7 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
   const { eventNext, eventNow, rundown, selectedEventId, time } = useBackstageSocket();
   const [blinkClass, setBlinkClass] = useState(false);
   const { height: screenHeight } = useViewportSize();
+  const { timezoneDelta, displayZone } = useDisplayTimezone();
 
   // blink on change
   useEffect(() => {
@@ -73,18 +78,28 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
   const isPendingStart = getIsPendingStart(time.playback, time.phase);
   const startedAt = isPendingStart
     ? formatTime(time.secondaryTimer, { override: timeformat })
-    : formatTime(time.startedAt, { override: timeformat });
+    : formatTime(time.startedAt, { override: timeformat, timezoneDelta });
 
   const scheduledStart = (() => {
     if (showNow) return undefined;
     if (!hasEvents) return undefined;
-    return formatTime(rundown.plannedStart, { format12: 'h:mm a', format24: 'HH:mm', override: timeformat });
+    return formatTime(rundown.plannedStart, {
+      format12: 'h:mm a',
+      format24: 'HH:mm',
+      override: timeformat,
+      timezoneDelta,
+    });
   })();
 
   const scheduledEnd = (() => {
     if (showNow) return undefined;
     if (!hasEvents) return undefined;
-    return formatTime(rundown.plannedEnd, { format12: 'h:mm a', format24: 'HH:mm', override: timeformat });
+    return formatTime(rundown.plannedEnd, {
+      format12: 'h:mm a',
+      format24: 'HH:mm',
+      override: timeformat,
+      timezoneDelta,
+    });
   })();
 
   let displayTimer = millisToString(time.current, { fallback: timerPlaceholderMin });
@@ -106,12 +121,13 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
       <ViewParamsEditor target={OntimeView.Backstage} viewOptions={backstageOptions} />
+      <TimezoneBadge displayZone={displayZone} timezoneDelta={timezoneDelta} />
       <div className='project-header'>
         <div className={cx(['project-header__brand', !projectData?.logo && 'project-header__brand--without-logo'])}>
           {projectData?.logo && <ViewLogo name={projectData.logo} className='logo' />}
           <div className='title'>{projectData.title}</div>
         </div>
-        <BackstageClock timeformat={timeformat} />
+        <BackstageClock timeformat={timeformat} timezoneDelta={timezoneDelta} />
       </div>
 
       {showProgress && (
@@ -134,7 +150,11 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
                 <div className={cx(['time-entry__label', isPendingStart && 'time-entry--pending'])}>
                   {isPendingStart ? getLocalizedString('countdown.waiting') : getLocalizedString('common.started_at')}
                 </div>
-                <SuperscriptTime time={startedAt} className='time-entry__value' />
+                <SuperscriptTime
+                  time={startedAt}
+                  className='time-entry__value'
+                  suffix={!isPendingStart && <DayShift time={time.startedAt} timezoneDelta={timezoneDelta} />}
+                />
               </div>
               <div className='timer-gap' />
               <div className='time-entry'>
@@ -143,8 +163,9 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
                   <div className='time-entry__value'>{getLocalizedString('countdown.overtime')}</div>
                 ) : (
                   <SuperscriptTime
-                    time={formatTime(time.expectedFinish, { override: timeformat })}
+                    time={formatTime(time.expectedFinish, { override: timeformat, timezoneDelta })}
                     className='time-entry__value'
+                    suffix={<DayShift time={time.expectedFinish} timezoneDelta={timezoneDelta} />}
                   />
                 )}
               </div>
@@ -165,12 +186,20 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
                 <div className={cx(['time-entry__label', isPendingStart && 'time-entry--pending'])}>
                   {getLocalizedString('common.scheduled_start')}
                 </div>
-                <SuperscriptTime time={scheduledStart} className='time-entry__value' />
+                <SuperscriptTime
+                  time={scheduledStart}
+                  className='time-entry__value'
+                  suffix={<DayShift time={rundown.plannedStart} timezoneDelta={timezoneDelta} />}
+                />
               </div>
               <div className='timer-gap' />
               <div className='time-entry'>
                 <div className='time-entry__label'>{getLocalizedString('common.scheduled_end')}</div>
-                <SuperscriptTime time={scheduledEnd} className='time-entry__value' />
+                <SuperscriptTime
+                  time={scheduledEnd}
+                  className='time-entry__value'
+                  suffix={<DayShift time={rundown.plannedEnd} timezoneDelta={timezoneDelta} />}
+                />
               </div>
             </div>
           </div>
@@ -227,17 +256,18 @@ function ExtraInfo({ projectData, size, source }: ExtraInfoProps) {
   );
 }
 
-function BackstageClock({ timeformat }: { timeformat: string | null }) {
+function BackstageClock({ timeformat, timezoneDelta }: { timeformat: string | null; timezoneDelta: number }) {
   const { getLocalizedString } = useTranslation();
   const clock = useAutoTickingClock();
 
   // gather timer data
-  const formattedClock = formatTime(clock, { override: timeformat });
+  const formattedClock = formatTime(clock, { override: timeformat, timezoneDelta });
 
   return (
     <div className='clock-container'>
       <div className='label'>{getLocalizedString('common.time_now')}</div>
       <SuperscriptTime time={formattedClock} className='time' />
+      <ShowTimeAnchor clock={clock} timezoneDelta={timezoneDelta} timeformat={timeformat} />
     </div>
   );
 }

@@ -16,6 +16,8 @@ export const langEs: TranslationObject = {
   'common.started_at': 'Iniciado en',
   'common.time_now': 'Ahora',
   'common.no_data': 'Sin datos',
+  'common.from_show_time': 'respecto a la hora del show',
+  'common.show_time': 'Hora del show',
   'countdown.ended': 'Evento finalizado a las',
   'countdown.running': 'Evento en curso',
   'countdown.group_running': 'Evento en grupo en curso',

@@ -15,6 +15,7 @@ import EmptyFill from '../../../common/components/state/EmptyFill';
 import EmptyTableBody from '../../../common/components/state/EmptyTableBody';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import type { RundownSource } from '../../../common/hooks-query/useScopedRundown';
+import { useDisplayTimezone } from '../../../common/hooks/useDisplayTimezone';
 import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { usePersistedRundownOptions } from '../../../features/rundown/rundown.options';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
@@ -76,6 +77,9 @@ export default function CuesheetTable({
   const useOptions = tableRoot === 'editor' ? usePersistedRundownOptions : usePersistedCuesheetOptions;
   const optionsStore = useOptions();
   const { showDelayedTimes, hideTableSeconds, hideIndexColumn } = optionsStore;
+  const displayTimezone = useDisplayTimezone();
+  // the editor is an authoring surface and always shows plan time
+  const timezoneDelta = tableRoot === 'editor' ? 0 : displayTimezone.timezoneDelta;
 
   const cursor = useEventSelection((state) => state.cursor);
   const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
@@ -116,9 +120,19 @@ export default function CuesheetTable({
         hideTableSeconds,
         cuesheetMode,
         hideIndexColumn,
+        timezoneDelta,
       },
     }),
-    [cuesheetMode, flatRundown, hideIndexColumn, hideTableSeconds, showDelayedTimes, updateEntry, updateTimer],
+    [
+      cuesheetMode,
+      flatRundown,
+      hideIndexColumn,
+      hideTableSeconds,
+      showDelayedTimes,
+      timezoneDelta,
+      updateEntry,
+      updateTimer,
+    ],
   );
 
   const { columnOrder, resetColumnOrder } = useColumnOrder(columns, tableRoot);

@@ -28,7 +28,10 @@ interface EventEditorTimesProps {
   timerType: TimerType;
   timeWarning: number;
   timeDanger: number;
+  timesLocked?: boolean;
 }
+
+export const timesLockedHint = 'Times are locked while showing another timezone, switch to show time to edit';
 
 type HandledActions = 'countToEnd' | 'timerType' | 'endAction' | 'timeWarning' | 'timeDanger';
 
@@ -46,6 +49,7 @@ function EventEditorTimes({
   timerType,
   timeWarning,
   timeDanger,
+  timesLocked,
 }: EventEditorTimesProps) {
   const { updateEntry } = useEntryActionsContext();
 
@@ -89,9 +93,10 @@ function EventEditorTimes({
               linkStart={linkStart}
               delay={delay}
               showLabels
+              locked={timesLocked}
             />
           </div>
-          <div className={style.delayLabel}>{delayLabel}</div>
+          <div className={style.delayLabel}>{timesLocked ? timesLockedHint : delayLabel}</div>
         </div>
       </div>
 

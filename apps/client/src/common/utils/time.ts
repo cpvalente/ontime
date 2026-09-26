@@ -1,4 +1,4 @@
-import { MaybeNumber, MaybeString, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
+import { MaybeNumber, MaybeString, OntimeEvent, PlanTimezone, Settings, TimeFormat } from 'ontime-types';
 import {
   MILLIS_PER_HOUR,
   MILLIS_PER_MINUTE,
@@ -7,6 +7,8 @@ import {
   formatFromMillis,
   getExpectedEnd,
   getExpectedStart,
+  getTimezoneOffsetMinutes,
+  isValidTimezone,
 } from 'ontime-utils';
 
 import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
@@ -34,6 +36,59 @@ export function nowInMillis(): number {
 export function normaliseWallClock(time: number): number {
   const timeOfDay = time % dayInMs;
   return timeOfDay < 0 ? timeOfDay + dayInMs : timeOfDay;
+}
+
+/**
+ * Timezone a viewer chooses to see wall-clock times in
+ * - plan: the timezone the rundown is planned in
+ * - local: the timezone of the viewer's device
+ * - any other value is an IANA timezone name, eg: America/New_York
+ */
+export type DisplayTimezone = 'plan' | 'local' | (string & {});
+
+/**
+ * Resolves the difference between the plan timezone and a display timezone
+ * - Result is in milliseconds, to be added to a plan time of day
+ * - Resolves to 0 for plan time and for unknown timezones
+ */
+export function getTimezoneDelta(display: DisplayTimezone, plan: PlanTimezone): number {
+  if (display === 'plan') {
+    return 0;
+  }
+
+  // offsets are resolved at the same instant to agree on DST
+  const reference = Date.parse(plan.referenceDate);
+  if (Number.isNaN(reference)) {
+    return 0;
+  }
+
+  let displayOffsetMinutes: number;
+  if (display === 'local') {
+    // getTimezoneOffset is positive west of UTC
+    displayOffsetMinutes = -new Date(reference).getTimezoneOffset();
+  } else if (isValidTimezone(display)) {
+    displayOffsetMinutes = getTimezoneOffsetMinutes(display, reference);
+  } else {
+    return 0;
+  }
+
+  return (displayOffsetMinutes - plan.utcOffsetMinutes) * MILLIS_PER_MINUTE;
+}
+
+/**
+ * Number of calendar days a time of day moves when shifted to another timezone
+ * @example 23:30 shifted by +3h is 02:30 on the next day, returns 1
+ */
+export function getDayShift(time: number, timezoneDelta: number): number {
+  return Math.floor((time + timezoneDelta) / dayInMs) - Math.floor(time / dayInMs);
+}
+
+/**
+ * Formats a timezone delta as a signed duration, eg: +3h or −5h30m
+ */
+export function formatTimezoneDelta(timezoneDelta: number): string {
+  const sign = timezoneDelta < 0 ? '−' : '+';
+  return `${sign}${formatDuration(Math.abs(timezoneDelta))}`;
 }
 
 /**
@@ -85,6 +140,8 @@ type FormatOptions = {
   format12?: string;
   format24?: string;
   override?: MaybeString;
+  /** shifts a wall-clock time to a display timezone, never pass for durations */
+  timezoneDelta?: number;
 };
 
 /**
@@ -93,6 +150,7 @@ type FormatOptions = {
  * @param {object} [options]
  * @param {string} [options.format.format12] format string if 12 hour time
  * @param {string} [options.format.format24] format string if 24 hour time
+ * @param {number} [options.timezoneDelta] shift applied to a wall-clock time, see getTimezoneDelta
  * @param {Function} resolver DI for testing
  * @return {string}
  */
@@ -106,9 +164,10 @@ export const formatTime = (
   }
 
   const timeFormat = options?.override ?? resolver(options?.format12 ?? FORMAT_12, options?.format24 ?? FORMAT_24);
-  const display = formatFromMillis(Math.abs(milliseconds), timeFormat);
+  const time = options?.timezoneDelta ? normaliseWallClock(milliseconds + options.timezoneDelta) : milliseconds;
+  const display = formatFromMillis(Math.abs(time), timeFormat);
 
-  const isNegative = milliseconds < 0;
+  const isNegative = time < 0;
   return `${isNegative ? '-' : ''}${display}`;
 };
 

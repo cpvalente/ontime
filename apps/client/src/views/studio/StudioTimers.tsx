@@ -1,6 +1,7 @@
 import { Playback, TimerPhase, ViewSettings } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
+import { useDisplayTimezone } from '../../common/hooks/useDisplayTimezone';
 import { useAuxTimersName, useAuxTimersTime, useStudioTimersSocket } from '../../common/hooks/useSocket';
 import { getAuxTimerLabel } from '../../common/utils/auxTimerUtils';
 import { getOffsetState } from '../../common/utils/offset';
@@ -21,13 +22,17 @@ export default function StudioTimers({ viewSettings }: StudioTimersProps) {
   const { getLocalizedString } = useTranslation();
   const { mainSource } = useStudioOptions();
   const { eventNow, eventNext, message, time, offset, rundown, expectedRundownEnd } = useStudioTimersSocket();
+  const { timezoneDelta } = useDisplayTimezone();
 
-  const schedule = getFormattedScheduleTimes({
-    offset: offset,
-    actualStart: rundown.actualStart,
-    expectedEnd: expectedRundownEnd,
-  });
-  const event = getFormattedEventData(eventNow, time, mainSource);
+  const schedule = getFormattedScheduleTimes(
+    {
+      offset: offset,
+      actualStart: rundown.actualStart,
+      expectedEnd: expectedRundownEnd,
+    },
+    timezoneDelta,
+  );
+  const event = getFormattedEventData(eventNow, time, mainSource, timezoneDelta);
   const eventNextTitle = getPropertyValue(eventNext, mainSource ?? 'title') || '-';
   const formattedTimerMessage = (message.timer.visible && message.timer.text) || '-';
   const formattedSecondaryMessage = message.timer.secondarySource === 'secondary' ? message.secondary || '-' : '-';

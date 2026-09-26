@@ -3,6 +3,7 @@ import { OntimeEntry, PlayableEvent, isOntimeEvent, isPlayableEvent } from 'onti
 import { MILLIS_PER_HOUR, dayInMs, getLastEvent } from 'ontime-utils';
 import { memo, useMemo, useRef } from 'react';
 
+import { useDisplayTimezone } from '../../common/hooks/useDisplayTimezone';
 import useHorizontalFollowComponent from '../../common/hooks/useHorizontalFollowComponent';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
@@ -28,11 +29,14 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
   const selectedRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  const { timezoneDelta } = useDisplayTimezone();
+
+  // hour markers follow the display timezone, event positions stay relative to plan time
   const { lastEvent } = getLastEvent(rundown);
-  const startHour = getStartHour(firstStart);
-  const endHour = getEndHour(firstStart + totalDuration + (lastEvent?.delay ?? 0));
-  const scheduleStart = startHour * MILLIS_PER_HOUR;
-  const scheduleEnd = endHour * MILLIS_PER_HOUR;
+  const startHour = getStartHour(firstStart + timezoneDelta);
+  const endHour = getEndHour(firstStart + totalDuration + (lastEvent?.delay ?? 0) + timezoneDelta);
+  const scheduleStart = startHour * MILLIS_PER_HOUR - timezoneDelta;
+  const scheduleEnd = endHour * MILLIS_PER_HOUR - timezoneDelta;
 
   // use horizontal follow when scroll is enabled
   useHorizontalFollowComponent({
@@ -102,6 +106,7 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
               cue={event.cue}
               width={position.width}
               groupColour={event.groupColour}
+              timezoneDelta={timezoneDelta}
             />
           );
         })}
