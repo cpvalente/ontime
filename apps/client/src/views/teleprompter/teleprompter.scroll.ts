@@ -100,10 +100,15 @@ export function readPointForAnchor(
   blocks: BlockGeometry[],
   previousOrder: string[],
 ): number | null {
-  const match = blocks.find((block) => block.id === anchor.blockId);
-  if (match) {
-    // The block may have been edited shorter than the offset into it.
-    return match.top + Math.min(anchor.offset, match.height);
+  const matchIndex = blocks.findIndex((block) => block.id === anchor.blockId);
+  if (matchIndex !== -1) {
+    const match = blocks[matchIndex];
+    // The block may have been edited shorter than the offset into it. Its
+    // extent runs up to the next block, so a read point resting in the gap
+    // between segments stays there rather than being pulled back.
+    const next = blocks[matchIndex + 1];
+    const extent = next ? Math.max(match.height, next.top - match.top) : match.height;
+    return match.top + Math.min(anchor.offset, extent);
   }
 
   // The anchored event was deleted mid-read. Land on the end of the nearest

@@ -14,6 +14,7 @@ import {
   MAX_SPEED,
   MIN_FONT_SIZE,
   MIN_SPEED,
+  nudgeTargetFor,
   readPointForAnchor,
   segmentAfter,
   segmentEndFor,
@@ -186,6 +187,17 @@ describe('the read anchor', () => {
       expect(readPointForAnchor(anchor!, trimmed, ids)).toBe(140);
     });
 
+    test('keeps a read point resting in the gap between events', () => {
+      // blocks are spaced apart by a margin which is not part of their height
+      const spaced: BlockGeometry[] = [
+        { id: 'welcome', top: 0, height: 100 },
+        { id: 'keynote', top: 150, height: 300 },
+      ];
+      const anchor = anchorAtReadPoint(120, spaced);
+      expect(anchor).toEqual({ blockId: 'welcome', offset: 120 });
+      expect(readPointForAnchor(anchor!, spaced, ['welcome', 'keynote'])).toBe(120);
+    });
+
     test('falls back to the end of the nearest surviving event when the anchored one is deleted', () => {
       // where the deleted text used to begin, rather than wherever its pixels
       // now happen to point
@@ -289,5 +301,28 @@ describe('easeCatchUp()', () => {
     }
 
     expect(atSixty).toBeCloseTo(atThirty, 3);
+  });
+});
+
+describe('nudgeTargetFor()', () => {
+  // reading line 100px down, two segments of 500px
+  const blocks: BlockGeometry[] = [
+    { id: 'a', top: 0, height: 500 },
+    { id: 'b', top: 500, height: 500 },
+  ];
+
+  test('moves by the distance within the segment', () => {
+    expect(nudgeTargetFor(100, 50, 100, blocks, 2000)).toBe(150);
+    expect(nudgeTargetFor(100, -50, 100, blocks, 2000)).toBe(50);
+  });
+
+  test('stops at the edges of the segment under the reading line', () => {
+    expect(nudgeTargetFor(350, 200, 100, blocks, 2000)).toBe(400);
+    expect(nudgeTargetFor(450, -200, 100, blocks, 2000)).toBe(400);
+  });
+
+  test('stays within the document when there is no script', () => {
+    expect(nudgeTargetFor(10, -50, 100, [], 2000)).toBe(0);
+    expect(nudgeTargetFor(1990, 50, 100, [], 2000)).toBe(2000);
   });
 });
