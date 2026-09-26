@@ -46,7 +46,6 @@ export default function TitleList({ mode }: TitleListProps) {
       eventData={eventData}
       selectedEventId={selectedEventId}
       resolvedFollowEventId={resolvedFollowEventId}
-      rundownId={rundown.id}
     />
   );
 }
@@ -56,21 +55,14 @@ interface TitleListContentProps {
   eventData: ExtendedEntry<OntimeEvent>[];
   selectedEventId: string | null;
   resolvedFollowEventId: string | null;
-  rundownId: string;
 }
 
-function TitleListContent({
-  mode,
-  eventData,
-  selectedEventId,
-  resolvedFollowEventId,
-  rundownId,
-}: TitleListContentProps) {
+function TitleListContent({ mode, eventData, selectedEventId, resolvedFollowEventId }: TitleListContentProps) {
   'use memo';
 
   const virtuosoRef = useRef<VirtuosoHandle | null>(null);
   const scrollParentRef = useRef<HTMLDivElement | null>(null);
-  const selectAndRevealEntry = useSelectAndRevealEntry(rundownId);
+  const selectAndRevealEntry = useSelectAndRevealEntry();
 
   // Calculate current event info
   const currentEventInfo = useMemo(() => {

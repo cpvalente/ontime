@@ -1,8 +1,8 @@
 import { PropsWithChildren, createContext, useContext } from 'react';
 
-import { useEntryActions } from '../hooks/useEntryAction';
+import type { EntryActions } from '../hooks/useEntryAction';
 
-type EntryActionsContextValue = ReturnType<typeof useEntryActions>;
+type EntryActionsContextValue = EntryActions;
 const EntryActionsContext = createContext<EntryActionsContextValue | null>(null);
 
 interface EntryActionsProviderProps extends PropsWithChildren {

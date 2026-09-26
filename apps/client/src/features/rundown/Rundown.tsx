@@ -15,7 +15,7 @@ import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import { useEntryActionsContext } from '../../common/context/EntryActionsContext';
 import useAutomationSettings from '../../common/hooks-query/useAutomationSettings';
-import { useEntryCopy } from '../../common/stores/entryCopyStore';
+import { useSetEntryCopy } from '../../common/stores/entryCopyStore';
 import { RundownMetadataObject, lastMetadataKey } from '../../common/utils/rundownMetadata';
 import { AppMode } from '../../ontimeConfig';
 import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
@@ -69,7 +69,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   const { getIsCollapsed, collapseGroup, expandGroup } = useCollapsedGroups(id);
 
   const entryActions = useEntryActionsContext();
-  const setEntryCopyId = useEntryCopy((state) => state.setEntryCopyId);
+  const setEntryCopyId = useSetEntryCopy();
 
   // cursor
   const { editorMode } = useEditorFollowMode();

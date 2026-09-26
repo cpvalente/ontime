@@ -8,7 +8,7 @@ import Input from '../../../common/components/input/input/Input';
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useEntryCopy } from '../../../common/stores/entryCopyStore';
+import { useIsEntryCopyTarget } from '../../../common/stores/entryCopyStore';
 import { deviceAlt } from '../../../common/utils/deviceUtils';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useEventSelection } from '../useEventSelection';
@@ -30,7 +30,7 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
 
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const selectSingleEntry = useEventSelection((state) => state.setSingleEntrySelection);
-  const entryCopyId = useEntryCopy((state) => state.entryCopyId);
+  const isCopyTarget = useIsEntryCopyTarget(entryId);
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>(() => [
     {
@@ -86,11 +86,7 @@ export default function RundownMilestone({ colour, cue, entryId, hasCursor, titl
 
   return (
     <div
-      className={cx([
-        style.milestone,
-        hasCursor ? style.hasCursor : null,
-        entryCopyId === entryId ? style.copyTarget : null,
-      ])}
+      className={cx([style.milestone, hasCursor ? style.hasCursor : null, isCopyTarget ? style.copyTarget : null])}
       ref={setNodeRef}
       onClick={handleFocusClick}
       onContextMenu={onContextMenu}

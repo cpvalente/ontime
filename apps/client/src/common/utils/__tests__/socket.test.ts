@@ -2,8 +2,10 @@
 import { MessageTag } from 'ontime-types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { getRundownQueryKey } from '../../api/constants';
+import { ontimeQueryClient } from '../../queryClient';
 import { addLog } from '../../stores/logger';
-import { socketConfig } from '../socket';
+import { maybeInvalidateRundownCache, socketConfig } from '../socket';
 
 const { watchdogInterval, silenceTimeout, connectTimeout } = socketConfig;
 
@@ -270,5 +272,35 @@ describe('what the client tells the user about the connection', () => {
 
     expect(getNotice().status).toBe(ConnectionStatus.Connected);
     expect(getNotice().recoveredAt).not.toBeNull();
+  });
+});
+
+describe('maybeInvalidateRundownCache()', () => {
+  const queryKey = getRundownQueryKey('rundown');
+
+  beforeEach(() => {
+    ontimeQueryClient.clear();
+    ontimeQueryClient.setQueryData(queryKey, { revision: 5 });
+  });
+
+  afterEach(() => {
+    ontimeQueryClient.clear();
+  });
+
+  it('skips a change the cache already holds', () => {
+    maybeInvalidateRundownCache(5, 'rundown');
+    expect(ontimeQueryClient.getQueryState(queryKey)?.isInvalidated).toBe(false);
+  });
+
+  it('invalidates when the change is newer than the cache', () => {
+    maybeInvalidateRundownCache(6, 'rundown');
+    expect(ontimeQueryClient.getQueryState(queryKey)?.isInvalidated).toBe(true);
+  });
+
+  it('invalidates when a fetch in flight may predate the change', () => {
+    ontimeQueryClient.getQueryCache().find({ queryKey })?.setState({ fetchStatus: 'fetching' });
+
+    maybeInvalidateRundownCache(5, 'rundown');
+    expect(ontimeQueryClient.getQueryState(queryKey)?.isInvalidated).toBe(true);
   });
 });
