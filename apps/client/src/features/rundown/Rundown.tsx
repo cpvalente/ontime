@@ -24,6 +24,7 @@ import { useRundownCommands } from './hooks/useRundownCommands';
 import { useRundownDnd } from './hooks/useRundownDnd';
 import { useRundownKeyboard } from './hooks/useRundownKeyboard';
 import RundownDragPreview from './rundown-drag-preview/RundownDragPreview';
+import { getGroupDurationFit } from './rundown-event/rundownEvent.utils';
 import RundownGroup from './rundown-group/RundownGroup';
 import RundownGroupEnd from './rundown-group/RundownGroupEnd';
 import { filterVisibleEntries, makeSortableList } from './rundown.utils';
@@ -266,6 +267,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
       const parentIdForBefore = entryMetadata.thisId !== entryMetadata.groupId ? entryMetadata.groupId : null;
       const parentIdForAfter = entryMetadata.groupId;
       const collapsed = isGroup ? getIsCollapsed(entry.id) : false;
+      const parentGroup = isOntimeEvent(entry) && entry.parent ? entries[entry.parent] : null;
 
       return (
         <Fragment key={entry.id}>
@@ -303,6 +305,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
                   isRolling={playback === Playback.Roll}
                   totalGap={entryMetadata.totalGap}
                   isLinkedToLoaded={entryMetadata.isLinkedToLoaded}
+                  groupDurationFit={isOntimeGroup(parentGroup) ? getGroupDurationFit(parentGroup) : null}
                 />
               </div>
             </div>

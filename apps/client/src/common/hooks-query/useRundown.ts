@@ -1,4 +1,4 @@
-import { EntryId, OntimeEntry } from 'ontime-types';
+import { EntryId } from 'ontime-types';
 
 import { useRundownScope } from '../context/RundownScopeContext';
 import { useSelectedEventId } from '../hooks/useSocket';
@@ -36,10 +36,4 @@ export function useFlatRundown() {
 export function useFlatRundownWithMetadata() {
   const { data, status } = useRundown();
   return { data: useFlatRundownMetadata(data, useScopedSelectedEventId()), status };
-}
-
-export function useEntry(entryId: EntryId | null): OntimeEntry | null {
-  const { data: rundown } = useRundown();
-  if (entryId === null) return null;
-  return rundown.entries[entryId] ?? null;
 }
