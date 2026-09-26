@@ -948,7 +948,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const metadata = { playableEventOrder: ['0', '11', '3'], flags: ['1'] } as RundownMetadata;
 
-    loadGroupFlagAndEnd(rundown, metadata, 2, state);
+    loadGroupFlagAndEnd(rundown, metadata, state);
 
     expect(state).toMatchObject({
       groupNow: rundown.entries[1],
@@ -976,7 +976,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
 
-    loadGroupFlagAndEnd(rundown, metadata, 1, state);
+    loadGroupFlagAndEnd(rundown, metadata, state);
 
     expect(state).toMatchObject({
       groupNow: rundown.entries[2],
@@ -1004,7 +1004,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
 
-    loadGroupFlagAndEnd(rundown, metadata, 1, state);
+    loadGroupFlagAndEnd(rundown, metadata, state);
 
     expect(state).toMatchObject({
       groupNow: null,
@@ -1029,7 +1029,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const metadata = { playableEventOrder: ['0', '1'], flags: ['1'] } as RundownMetadata;
 
-    loadGroupFlagAndEnd(rundown, metadata, 0, state);
+    loadGroupFlagAndEnd(rundown, metadata, state);
 
     expect(state).toMatchObject({
       groupNow: null,
@@ -1091,7 +1091,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const metadata = { playableEventOrder: ['0', '1', '2', '3'], flags: ['3'] } as RundownMetadata;
 
-    loadGroupFlagAndEnd(rundown, metadata, 0, state);
+    loadGroupFlagAndEnd(rundown, metadata, state);
 
     // _group is the last event in the group (event 2)
     // isLinkedToLoaded is false because event 1 (between loaded and group end) has countToEnd=true
@@ -1173,7 +1173,7 @@ describe('loadGroupFlagAndEnd()', () => {
 
     const metadata = { playableEventOrder: ['0', '1', '2', '3'], flags: ['3'] } as RundownMetadata;
 
-    loadGroupFlagAndEnd(rundown, metadata, 0, state);
+    loadGroupFlagAndEnd(rundown, metadata, state);
 
     // _group is the last event in the group (event 2)
     // isLinkedToLoaded is true because no preceding event had countToEnd
@@ -1198,5 +1198,33 @@ describe('loadGroupFlagAndEnd()', () => {
       event: rundown.entries[3],
       isLinkedToLoaded: false,
     });
+  });
+
+  test('finds the next flag when skipped events precede the loaded event', () => {
+    // skipped events are part of the timed order but not the playable order
+    rundownCache.init(
+      makeRundown({
+        entries: {
+          skipped: makeOntimeEvent({ id: 'skipped', skip: true, timeStart: 0, timeEnd: 10, duration: 10 }),
+          group: makeOntimeGroup({ id: 'group', entries: ['loaded', 'flagged'] }),
+          loaded: makeOntimeEvent({ id: 'loaded', timeStart: 10, timeEnd: 20, duration: 10 }),
+          flagged: makeOntimeEvent({ id: 'flagged', flag: true, timeStart: 30, timeEnd: 40, duration: 10 }),
+          last: makeOntimeEvent({ id: 'last', timeStart: 40, timeEnd: 50, duration: 10 }),
+        },
+        order: ['skipped', 'group', 'last'],
+      }),
+      {},
+    );
+    const { metadata, rundown } = rundownCache.get();
+
+    load(rundown.entries.loaded as PlayableEvent, rundown, metadata);
+
+    const state = getState();
+    expect(state.eventNow?.id).toBe('loaded');
+    expect(state.groupNow?.id).toBe('group');
+    expect(state.eventFlag?.id).toBe('flagged');
+    // the gap between loaded and flagged is accumulated downstream of the loaded event
+    expect(state._group).toMatchObject({ event: { id: 'flagged' }, accumulatedGap: 10 });
+    expect(state._end).toMatchObject({ event: { id: 'last' }, accumulatedGap: 10 });
   });
 });
