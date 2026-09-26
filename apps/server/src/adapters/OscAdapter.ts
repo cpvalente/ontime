@@ -14,7 +14,9 @@ class OscServer implements IAdapter {
 
   init(port: number) {
     if (isOntimeCloud) {
+      // cloud instances are reached over HTTP only, we never bind the UDP socket
       logger.warning(LogOrigin.Rx, 'OSC: Skip starting server in cloud environment');
+      return;
     }
     this.udpSocket?.close();
     logger.info(LogOrigin.Rx, `OSC: Starting server on port ${port}`);
