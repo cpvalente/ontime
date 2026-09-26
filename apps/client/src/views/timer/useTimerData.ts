@@ -1,8 +1,8 @@
 import { CustomFields, ProjectData, RundownEntries, Settings, ViewSettings } from 'ontime-types';
 
 import useCustomFields from '../../common/hooks-query/useCustomFields';
+import { useLoadedRundown } from '../../common/hooks-query/useLoadedRundown';
 import useProjectData from '../../common/hooks-query/useProjectData';
-import useRundown from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
@@ -26,7 +26,7 @@ export function useTimerData(): ViewData<TimerData> {
   const { data: viewSettings, status: viewSettingsStatus } = useViewSettings();
   const { data: settings, status: settingsStatus } = useSettings();
   const { data: customFields, status: customFieldsStatus } = useCustomFields();
-  const { data: rundown, status: rundownStatus } = useRundown();
+  const { data: rundown, status: rundownStatus } = useLoadedRundown();
   const { entries } = rundown;
 
   return {

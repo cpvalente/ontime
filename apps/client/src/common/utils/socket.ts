@@ -403,12 +403,19 @@ export function maybeInvalidateRundownCache(revision: MaybeNumber, rundownId?: s
     return;
   }
 
-  // skip if we dont recognise the ID the revision is lower
   const queryKey = getRundownQueryKey(rundownId);
-  const cachedRundown = ontimeQueryClient.getQueryData<{ revision: number }>(queryKey);
+  const queryState = ontimeQueryClient.getQueryState<{ revision: number }>(queryKey);
+  const cachedRundown = queryState?.data;
 
-  if (revision === cachedRundown?.revision) {
-    // we already have the latest change
+  // we already have this change, or something newer
+  // messages can arrive after a refetch has already brought in a later revision
+  // a fetch in flight may predate this change, and would replace the data we compared against
+  if (
+    revision !== null &&
+    cachedRundown !== undefined &&
+    revision <= cachedRundown.revision &&
+    queryState?.fetchStatus !== 'fetching'
+  ) {
     return;
   }
 

@@ -3,9 +3,7 @@ import { IoApps } from 'react-icons/io5';
 
 import IconButton from '../../common/components/buttons/IconButton';
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
-import { EntryActionsProvider } from '../../common/context/EntryActionsContext';
-import { useScopedRundown } from '../../common/hooks-query/useScopedRundown';
-import { useScopedEntryActions } from '../../common/hooks/useEntryAction';
+import { RundownScopeProvider } from '../../common/context/RundownScopeContext';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { getIsNavigationLocked } from '../../externals';
 import CuesheetOverview from '../../features/overview/CuesheetOverview';
@@ -20,18 +18,15 @@ export default function CuesheetPage() {
   'use memo';
   const [isMenuOpen, menuHandler] = useDisclosure();
   const { selectedRundownId, loadedRundownId, setSelectedRundownId, projectRundowns } = useCuesheetRundownSelection();
-  const source = useScopedRundown(selectedRundownId === FOLLOW_LOADED_RUNDOWN_ID ? loadedRundownId : selectedRundownId);
-
-  const actions = useScopedEntryActions(source.rundownId);
 
   useWindowTitle('Cuesheet');
 
   const isLocked = getIsNavigationLocked();
 
   return (
-    <EntryActionsProvider actions={actions}>
+    <RundownScopeProvider rundownId={selectedRundownId === FOLLOW_LOADED_RUNDOWN_ID ? null : selectedRundownId}>
       <NavigationMenu isOpen={isMenuOpen} onClose={menuHandler.close} />
-      <EntryEditModal rundown={source.rundown} />
+      <EntryEditModal />
       <div className={styles.tableWrapper} data-testid='cuesheet'>
         <CuesheetOverview>
           {!isLocked && (
@@ -42,13 +37,12 @@ export default function CuesheetPage() {
         </CuesheetOverview>
         <CuesheetProgress />
         <CuesheetTableWrapper
-          source={source}
           selectedRundownId={selectedRundownId}
           loadedRundownId={loadedRundownId}
           setSelectedRundownId={setSelectedRundownId}
           projectRundowns={projectRundowns}
         />
       </div>
-    </EntryActionsProvider>
+    </RundownScopeProvider>
   );
 }
