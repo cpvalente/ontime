@@ -1,7 +1,13 @@
-import { PropsWithChildren, memo } from 'react';
+import { memo } from 'react';
 
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
-import Kbd from '../../../common/components/kbd/Kbd';
+import {
+  Combo,
+  Separator,
+  Shortcut,
+  ShortcutGroup,
+  ShortcutGroups,
+} from '../../../common/components/keyboard-shortcuts/KeyboardShortcuts';
 import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';
 
 import style from './EventEditorEmpty.module.scss';
@@ -13,7 +19,7 @@ function EventEditorEmpty() {
     <div className={style.entryEditor} data-testid='editor-container'>
       <div className={style.shortcutSection}>
         <Editor.Title className={style.prompt}>Rundown shortcuts</Editor.Title>
-        <div className={style.shortcuts}>
+        <ShortcutGroups className={style.shortcuts}>
           <ShortcutGroup title='Search'>
             <Shortcut label='Find in rundown'>
               <Combo keys={[deviceMod, 'F']} />
@@ -100,40 +106,8 @@ function EventEditorEmpty() {
               <Combo keys={[deviceAlt, 'Shift', 'D']} />
             </Shortcut>
           </ShortcutGroup>
-        </div>
+        </ShortcutGroups>
       </div>
     </div>
   );
-}
-
-function ShortcutGroup({ title, children }: PropsWithChildren<{ title: string }>) {
-  return (
-    <section className={style.shortcutGroup}>
-      <h3>{title}</h3>
-      <div className={style.shortcutList}>{children}</div>
-    </section>
-  );
-}
-
-function Shortcut({ label, children }: PropsWithChildren<{ label: string }>) {
-  return (
-    <div className={style.shortcutRow}>
-      <span className={style.shortcutLabel}>{label}</span>
-      <span className={style.shortcutKeys}>{children}</span>
-    </div>
-  );
-}
-
-function Combo({ keys }: { keys: string[] }) {
-  return (
-    <span className={style.keyCombo}>
-      {keys.map((key) => (
-        <Kbd key={key}>{key}</Kbd>
-      ))}
-    </span>
-  );
-}
-
-function Separator() {
-  return <span className={style.separator}>/</span>;
 }

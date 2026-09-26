@@ -38,3 +38,25 @@ test('View params keeps the values of collapsed sections', async ({ page }) => {
   await expect(page).toHaveURL(/.*hideClock=true/);
   await expect(page.getByText('TIME NOW', { exact: true })).not.toBeInViewport();
 });
+
+test('View params configures teleprompter view', async ({ page, request }) => {
+  const response = await request.post('/data/db/demo');
+  expect(response.ok()).toBe(true);
+
+  await page.goto('/teleprompter?script=note');
+
+  const readingMarker = page.locator('.teleprompter__reading-marker');
+  await expect(readingMarker).toBeVisible();
+
+  await page.mouse.move(Math.random() * 100, Math.random() * 100);
+  await page.getByTestId('navigation__toggle-settings').click();
+
+  const readingLineSwitch = page.locator('label:has(input[name="readingLine"]) [role="switch"]');
+  await expect(readingLineSwitch).toHaveAttribute('aria-checked', 'true');
+
+  await readingLineSwitch.click();
+  await page.getByTestId('apply-view-params').click();
+
+  await expect(page).toHaveURL(/.*readingLine=false/);
+  await expect(readingMarker).toHaveCount(0);
+});

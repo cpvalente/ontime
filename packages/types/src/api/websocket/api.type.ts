@@ -6,6 +6,18 @@ import type { MessageState } from '../../definitions/runtime/MessageControl.type
 import type { OffsetMode } from '../../definitions/runtime/Offset.type.js';
 import type { RuntimeStore } from '../../definitions/runtime/RuntimeStore.type.js';
 
+/** Sent to teleprompter views, see TeleprompterAction for the integration payload */
+export type TeleprompterCommand =
+  | { type: 'play' }
+  | { type: 'pause' }
+  | { type: 'speed'; value: number }
+  | { type: 'nudge'; value: number };
+export type TeleprompterAction = {
+  tag: 'teleprompter';
+  payload: 'play' | 'pause' | { speed: number } | { nudge: number };
+};
+export type TeleprompterResponse = { tag: 'teleprompter'; payload: 'success' };
+
 export type VersionAction = {
   tag: 'version';
   payload: undefined;
@@ -156,7 +168,8 @@ export type ApiAction =
   | AddtimeAction
   | AuxtimerAction
   | ClientAction
-  | OffsetmodeAction;
+  | OffsetmodeAction
+  | TeleprompterAction;
 
 export type ApiResponse =
   | VersionResponse
@@ -172,6 +185,7 @@ export type ApiResponse =
   | AddtimeResponse
   | AuxtimerResponse
   | ClientResponse
-  | OffsetmodeResponse;
+  | OffsetmodeResponse
+  | TeleprompterResponse;
 
 export type ApiActionTag = ApiAction['tag'];

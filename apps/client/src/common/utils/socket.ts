@@ -48,6 +48,28 @@ import { nowInMillis } from './time';
 let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 let watchdogInterval: NodeJS.Timeout | null = null;
+
+type SocketListener = (payload: unknown) => void;
+
+const socketListeners = new Map<WsPacketToClient['tag'], Set<SocketListener>>();
+
+export function subscribeSocket<T extends WsPacketToClient['tag']>(
+  tag: T,
+  listener: (payload: Extract<WsPacketToClient, { tag: T }>['payload']) => void,
+) {
+  const listeners = socketListeners.get(tag) ?? new Set();
+  const socketListener = listener as SocketListener;
+  listeners.add(socketListener);
+  socketListeners.set(tag, listeners);
+  return () => {
+    listeners.delete(socketListener);
+  };
+}
+
+function notifySocketListeners(tag: WsPacketToClient['tag'], payload: unknown) {
+  socketListeners.get(tag)?.forEach((listener) => listener(payload));
+}
+
 export const socketConfig = {
   reconnectBaseInterval: 1000,
   reconnectMaxInterval: 30000,
@@ -144,6 +166,10 @@ export const connectSocket = () => {
       }
 
       switch (tag) {
+        case MessageTag.TeleprompterCommand: {
+          notifySocketListeners(tag, payload);
+          break;
+        }
         case MessageTag.Pong: {
           // a round trip can be faster than the clock resolution, we keep the value positive since a ping <= 0 means offline
           const offset = Math.max(1, (new Date().getTime() - new Date(payload).getTime()) * 0.5);
