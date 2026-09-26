@@ -106,7 +106,7 @@ class RuntimeService {
         // to push the playback to the right place
         // this comes with the caveat that we will lose our runtime data
         logger.warning(LogOrigin.Playback, 'Time skip detected, reloading roll');
-        this.roll(true);
+        this.handleRoll(true);
       }
     }
 
@@ -574,7 +574,17 @@ class RuntimeService {
    * Sets playback to roll
    */
   @broadcastResult
-  public roll(skipCheck: boolean = false) {
+  public roll() {
+    this.handleRoll();
+  }
+
+  /**
+   * Contains logic for setting playback to roll
+   *
+   * we need to isolate handleRoll so we have control over the side effects
+   * handleRoll being a private function does not trigger emits
+   */
+  private handleRoll(skipCheck: boolean = false) {
     const previousState = runtimeState.getState();
     if (!skipCheck) {
       const canRoll = validatePlayback(previousState.timer.playback, previousState.timer.phase).roll;
@@ -623,7 +633,7 @@ class RuntimeService {
   public resume(restorePoint: RestorePoint) {
     const { selectedEventId, playback } = restorePoint;
     if (playback === Playback.Roll) {
-      this.roll();
+      this.handleRoll();
       return;
     }
 
