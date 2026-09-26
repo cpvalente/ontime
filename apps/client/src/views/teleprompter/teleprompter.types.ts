@@ -1,4 +1,4 @@
-import type { MaybeString } from 'ontime-types';
+import type { MaybeString, TeleprompterCommand } from 'ontime-types';
 
 export type HeadingSource = 'none' | 'title' | 'cue' | 'both';
 
@@ -34,6 +34,8 @@ export type TeleprompterOptions = {
   flipV: boolean;
 };
 
+export type { TeleprompterCommand };
+
 export type TeleprompterAction =
   | { type: 'togglePlay' }
   | { type: 'nudge'; lines: number }
@@ -54,7 +56,7 @@ export type TeleprompterController = {
   pause: () => void;
   /** Local input convenience; remote control should use play or pause. */
   togglePlay: () => void;
-  nudge: (lines: number) => void;
+  nudge: (lines: number, options?: { preserveFollow?: boolean }) => void;
   page: (direction: 1 | -1) => void;
   jumpEvent: (direction: 1 | -1) => void;
   setSpeed: (speed: number) => void;

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { useViewParamsEditorStore } from '../../common/components/view-params-editor/viewParamsEditor.store';
 import { resolveTeleprompterAction } from './teleprompter.keymap';
-import type { TeleprompterAction, TeleprompterController } from './teleprompter.types';
+import type { TeleprompterAction, TeleprompterCommand, TeleprompterController } from './teleprompter.types';
 
 interface TeleprompterActionContext {
   controller: TeleprompterController;
@@ -48,6 +48,19 @@ export function applyTeleprompterAction(action: TeleprompterAction, context: Tel
       return onResetFontSize();
     case 'toggleHelp':
       return onToggleHelp();
+  }
+}
+
+export function applyTeleprompterCommand(command: TeleprompterCommand, controller: TeleprompterController) {
+  switch (command.type) {
+    case 'play':
+      return controller.play();
+    case 'pause':
+      return controller.pause();
+    case 'speed':
+      return controller.setSpeed(command.value);
+    case 'nudge':
+      return controller.nudge(command.value, { preserveFollow: true });
   }
 }
 

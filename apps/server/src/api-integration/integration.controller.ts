@@ -1,5 +1,6 @@
 import {
   ApiActionTag,
+  MessageTag,
   MessageState,
   OffsetMode,
   OntimeEvent,
@@ -21,6 +22,7 @@ import { runtimeService } from '../services/runtime-service/runtime.service.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
 import { coerceEnum } from '../utils/coerceType.js';
+import { parseTeleprompterCommand } from './integration.teleprompter.js';
 import { isValidChangeProperty, parseProperty } from './integration.utils.js';
 
 let lastRequest: Date | null = null;
@@ -300,6 +302,11 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
   offsetmode: (payload) => {
     const mode = coerceEnum<OffsetMode>(payload, OffsetMode);
     runtimeService.setOffsetMode(mode);
+    return { payload: 'success' };
+  },
+  teleprompter: (payload) => {
+    const command = parseTeleprompterCommand(payload);
+    socket.sendAsJson(MessageTag.TeleprompterCommand, command);
     return { payload: 'success' };
   },
 };

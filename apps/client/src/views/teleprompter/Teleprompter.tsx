@@ -1,11 +1,12 @@
-import { OntimeView } from 'ontime-types';
-import { type CSSProperties, useState } from 'react';
+import { MessageTag, OntimeView } from 'ontime-types';
+import { type CSSProperties, useEffect, useState } from 'react';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useSelectedEventId } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
+import { subscribeSocket } from '../../common/utils/socket';
 import { cx } from '../../common/utils/styleUtils';
 import Loader from '../common/loader/Loader';
 import ControlOverlay from './control-overlay/ControlOverlay';
@@ -15,7 +16,7 @@ import { defaults, getTeleprompterOptions, useTeleprompterOptions } from './tele
 import { stepFontSize } from './teleprompter.scroll';
 import { buildScript, composeFlip } from './teleprompter.utils';
 import { useSyncTeleprompterParams } from './useSyncTeleprompterParams';
-import { useTeleprompterControls } from './useTeleprompterControls';
+import { applyTeleprompterCommand, useTeleprompterControls } from './useTeleprompterControls';
 import { type TeleprompterData, useTeleprompterData } from './useTeleprompterData';
 import { useTeleprompterScroll } from './useTeleprompterScroll';
 
@@ -104,6 +105,11 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
     onResetFontSize: handleResetFontSize,
     onToggleHelp: handleToggleHelp,
   });
+
+  // remote control from the integration API, applied alongside local controls
+  useEffect(() => {
+    return subscribeSocket(MessageTag.TeleprompterCommand, (command) => applyTeleprompterCommand(command, controller));
+  }, [controller]);
 
   const emptyMessage = getEmptyMessage(options.scriptSource, blocks.length);
 

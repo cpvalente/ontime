@@ -1,5 +1,5 @@
 import type { TeleprompterController } from '../teleprompter.types';
-import { applyTeleprompterAction } from '../useTeleprompterControls';
+import { applyTeleprompterAction, applyTeleprompterCommand } from '../useTeleprompterControls';
 
 function makeController() {
   const state = {
@@ -73,6 +73,25 @@ describe('applyTeleprompterAction()', () => {
     applyTeleprompterAction({ type: 'rewindAndPause' }, { controller, ...callbacks });
 
     expect(state.position).toBe(0);
+    expect(state.isRunning).toBe(false);
+  });
+});
+
+describe('applyTeleprompterCommand()', () => {
+  test('maps remote commands to absolute controller operations', () => {
+    const { controller, state } = makeController();
+
+    applyTeleprompterCommand({ type: 'play' }, controller);
+    applyTeleprompterCommand({ type: 'play' }, controller);
+    expect(state.isRunning).toBe(true);
+
+    applyTeleprompterCommand({ type: 'speed', value: 20 }, controller);
+    expect(state.speed).toBe(20);
+
+    applyTeleprompterCommand({ type: 'nudge', value: -2 }, controller);
+    expect(state.position).toBe(8);
+
+    applyTeleprompterCommand({ type: 'pause' }, controller);
     expect(state.isRunning).toBe(false);
   });
 });
