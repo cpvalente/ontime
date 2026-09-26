@@ -34,7 +34,6 @@ import {
   getCurrentRundownId,
   rundownCache,
   rundownMutation,
-  updateBackgroundRundown,
 } from './rundown.dao.js';
 import { parseRundown } from './rundown.parser.js';
 import type { RundownMetadata } from './rundown.types.js';
@@ -629,7 +628,7 @@ export async function editCustomField(
       if (rundownId !== rundown.id) {
         const backgroundRundown = cloneRundown(projectRundowns[rundownId]);
         customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey);
-        await updateBackgroundRundown(rundownId, backgroundRundown);
+        await getDataProvider().setRundown(rundownId, backgroundRundown);
       }
     }
 
@@ -669,7 +668,7 @@ export async function deleteCustomField(key: CustomFieldKey, projectRundowns: Pr
     if (rundownId !== rundown.id) {
       const backgroundRundown = cloneRundown(projectRundowns[rundownId]);
       customFieldMutation.removeUsages(backgroundRundown, key);
-      await updateBackgroundRundown(rundownId, backgroundRundown);
+      await getDataProvider().setRundown(rundownId, backgroundRundown);
     }
   }
 

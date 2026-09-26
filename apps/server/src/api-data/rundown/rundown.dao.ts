@@ -628,13 +628,6 @@ export const rundownMutation = {
 };
 
 /**
- * Exposes a way to update a rundown which is not active
- */
-export async function updateBackgroundRundown(rundownId: string, rundown: Rundown) {
-  await getDataProvider().setRundown(rundownId, rundown);
-}
-
-/**
  * Reads a rundown from disk and returns it in the processed shape used by clients.
  * Used for non-loaded rundowns — the loaded rundown is served directly from cache.
  */
