@@ -250,7 +250,7 @@ export function load(
   // load events in memory along with their data
   loadNow(rundown, metadata, eventIndex);
   loadNext(rundown, metadata, eventIndex);
-  loadGroupFlagAndEnd(rundown, metadata, eventIndex);
+  loadGroupFlagAndEnd(rundown, metadata);
 
   // update state
   runtimeState.timer.playback = Playback.Armed;
@@ -412,7 +412,7 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   loadNow(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   loadNext(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
   updateLoaded(runtimeState.eventNow ?? undefined);
-  loadGroupFlagAndEnd(rundown, metadata, eventNowIndex);
+  loadGroupFlagAndEnd(rundown, metadata);
 }
 
 export function start(state: RuntimeState = runtimeState): boolean {
@@ -753,7 +753,7 @@ export function roll(
   // load events in memory along with their data
   loadNow(rundown, metadata, index);
   loadNext(rundown, metadata, index);
-  loadGroupFlagAndEnd(rundown, metadata, index);
+  loadGroupFlagAndEnd(rundown, metadata);
 
   // update roll state
   runtimeState.timer.playback = Playback.Roll;
@@ -892,10 +892,14 @@ function getExpectedTimes(state = runtimeState) {
   }
 }
 
+/**
+ * Finds the loaded event's group end, next flag and rundown end
+ * The loaded event is located in the playable order by its ID,
+ * callers hold indexes in the timed order, which also contains skipped events
+ */
 export function loadGroupFlagAndEnd(
   rundown: Rundown,
   metadata: RundownMetadata,
-  currentIndex: MaybeNumber,
   state = runtimeState, // used for testing
 ) {
   const previousGroup = state.groupNow?.id;
@@ -905,7 +909,7 @@ export function loadGroupFlagAndEnd(
   state._flag = null;
   state._end = null;
 
-  if (currentIndex === null || state.eventNow === null) {
+  if (state.eventNow === null) {
     state.rundown.actualGroupStart = null;
     return;
   }
@@ -933,7 +937,11 @@ export function loadGroupFlagAndEnd(
   let isLinkedToLoaded = true;
   let previousWasCountToEnd: Maybe<number> = null;
 
-  for (let idx = currentIndex; idx < playableEventOrder.length; idx++) {
+  // a loaded event which is no longer playable (ie: skipped while loaded) has no downstream events to search
+  const currentIndex = playableEventOrder.indexOf(state.eventNow.id);
+  const searchFrom = currentIndex === -1 ? playableEventOrder.length : currentIndex;
+
+  for (let idx = searchFrom; idx < playableEventOrder.length; idx++) {
     const entry = entries[playableEventOrder[idx]];
 
     if (isOntimeEvent(entry)) {
