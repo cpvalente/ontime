@@ -87,9 +87,6 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
   await initPersistence(getPathToProject(fileName), projectData);
   logger.info(LogOrigin.Server, `Loaded project ${fileName}`);
 
-  // stop the runtime service
-  runtimeService.stop();
-
   // the aux timers are not part of the runtime reload, see loadNames
   auxTimerService.loadNames(projectData.settings.auxTimerNames);
 
