@@ -846,18 +846,23 @@ function getExpectedTimes(state = runtimeState) {
 
   if (!eventNow) return;
 
+  // options shared by all expected start calculations
+  const expectedStartOptions = {
+    currentDay: state.rundown.currentDay!,
+    mode: offset.mode,
+    offset: offset.mode === OffsetMode.Absolute ? offset.absolute : offset.relative,
+    plannedStart,
+    actualStart,
+  };
+
   if (state.groupNow) {
     const { _group } = state;
     if (_group !== null) {
       const { event: lastEvent, accumulatedGap, isLinkedToLoaded } = _group;
       const lastEventExpectedStart = getExpectedStart(lastEvent, {
-        currentDay: state.rundown.currentDay!,
+        ...expectedStartOptions,
         totalGap: accumulatedGap,
         isLinkedToLoaded,
-        mode: offset.mode,
-        offset: offset.mode === OffsetMode.Absolute ? offset.absolute : offset.relative,
-        plannedStart,
-        actualStart,
       });
       state.offset.expectedGroupEnd = getExpectedEnd(lastEvent, lastEventExpectedStart, state.rundown.currentDay!);
     }
@@ -868,13 +873,9 @@ function getExpectedTimes(state = runtimeState) {
     if (_flag) {
       const { event, accumulatedGap, isLinkedToLoaded } = _flag;
       const expectedStart = getExpectedStart(event, {
-        currentDay: state.rundown.currentDay!,
+        ...expectedStartOptions,
         totalGap: accumulatedGap,
         isLinkedToLoaded,
-        mode: offset.mode,
-        offset: offset.mode === OffsetMode.Absolute ? offset.absolute : offset.relative,
-        plannedStart,
-        actualStart,
       });
       state.offset.expectedFlagStart = expectedStart;
     }
@@ -883,13 +884,9 @@ function getExpectedTimes(state = runtimeState) {
   if (state._end) {
     const { event, accumulatedGap, isLinkedToLoaded } = state._end;
     const expectedStart = getExpectedStart(event, {
-      currentDay: state.rundown.currentDay!,
+      ...expectedStartOptions,
       totalGap: accumulatedGap,
       isLinkedToLoaded,
-      mode: offset.mode,
-      offset: offset.mode === OffsetMode.Absolute ? offset.absolute : offset.relative,
-      plannedStart,
-      actualStart,
     });
     state.offset.expectedRundownEnd = getExpectedEnd(event, expectedStart, state.rundown.currentDay!);
   }
