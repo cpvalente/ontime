@@ -17,7 +17,7 @@ describe('EventTimer boundary scheduling', () => {
 
   beforeEach(() => {
     vi.useFakeTimers();
-    timer = new EventTimer({ refresh, updateInterval: 1000 });
+    timer = new EventTimer({ refresh });
   });
 
   afterEach(() => {
@@ -78,7 +78,7 @@ describe('EventTimer with a boundary which is already due', () => {
     // fake timers do not surface a tight reschedule loop, it needs real time to elapse
     // eg: a roll pre-roll whose side effects keep failing to load the next event
     vi.mocked(runtimeState.getTimeToNextBoundary).mockReturnValue(-5);
-    const timer = new EventTimer({ refresh, updateInterval: 1000 });
+    const timer = new EventTimer({ refresh });
     timer.start();
 
     await new Promise((resolve) => setTimeout(resolve, 300));
