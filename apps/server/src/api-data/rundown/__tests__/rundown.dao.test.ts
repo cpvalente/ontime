@@ -22,6 +22,7 @@ import {
 import {
   createTransaction,
   customFieldMutation,
+  getProcessedRundown,
   processRundown,
   rundownCache,
   rundownMutation,
@@ -30,6 +31,7 @@ import { type ProcessedRundownMetadata } from '../rundown.parser.js';
 
 const setRundownMock = vi.fn();
 const setCustomFieldsMock = vi.fn();
+const getRundownMock = vi.fn();
 
 vi.mock('../../../classes/data-provider/DataProvider.js', () => {
   return {
@@ -37,6 +39,8 @@ vi.mock('../../../classes/data-provider/DataProvider.js', () => {
       return {
         setRundown: setRundownMock,
         setCustomFields: setCustomFieldsMock,
+        getRundown: getRundownMock,
+        getCustomFields: () => ({}),
       };
     }),
   };
@@ -79,6 +83,34 @@ describe('createTransaction', () => {
 
     expect(setRundownMock).toHaveBeenCalledOnce();
     expect(setCustomFieldsMock).toHaveBeenCalledOnce();
+  });
+});
+
+describe('getProcessedRundown()', () => {
+  it('serves the loaded rundown from cache', () => {
+    rundownCache.init(makeRundown({ id: 'loaded' }), {});
+
+    expect(getProcessedRundown('loaded')).toBe(rundownCache.get().rundown);
+    expect(getRundownMock).not.toHaveBeenCalled();
+  });
+
+  it('reads and processes a rundown which is not loaded', () => {
+    rundownCache.init(makeRundown({ id: 'loaded' }), {});
+    getRundownMock.mockReturnValueOnce(
+      makeRundown({
+        id: 'background',
+        entries: { a: makeOntimeEvent({ id: 'a' }) },
+        order: ['a'],
+        flatOrder: [],
+      }),
+    );
+
+    const result = getProcessedRundown('background');
+
+    expect(getRundownMock).toHaveBeenCalledWith('background');
+    expect(result.id).toBe('background');
+    // processing derives the flat order from the stored order
+    expect(result.flatOrder).toEqual(['a']);
   });
 });
 

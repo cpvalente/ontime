@@ -602,10 +602,14 @@ export const rundownMutation = {
 };
 
 /**
- * Reads a rundown from disk and returns it in the processed shape used by clients.
- * Used for non-loaded rundowns — the loaded rundown is served directly from cache.
+ * Returns a rundown in the processed shape used by clients.
+ * The loaded rundown is served directly from cache, other rundowns are read from disk and processed.
  */
-export function getProcessedRundown(rundownId: string): Rundown {
+export function getProcessedRundown(rundownId: string): Readonly<Rundown> {
+  if (rundownId === cachedRundown.id) {
+    return cachedRundown;
+  }
+
   const stored = getDataProvider().getRundown(rundownId);
   const processed = processRundown(stored, getDataProvider().getCustomFields());
   return {
