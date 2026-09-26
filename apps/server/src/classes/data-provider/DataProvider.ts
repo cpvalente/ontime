@@ -29,7 +29,7 @@ export async function initPersistence(filePath: string, fallbackData: DatabaseMo
   DEV: shouldCrashDev(!isPath(filePath), 'initPersistence should be called with a path');
   const newDb = await JSONFilePreset<DatabaseModel>(filePath, fallbackData);
 
-  // Read the database to initialize it
+  // write the given data and read it back, so the db holds its own copy and does not alias the caller's object
   newDb.data = fallbackData;
   await newDb.write();
   await newDb.read();
