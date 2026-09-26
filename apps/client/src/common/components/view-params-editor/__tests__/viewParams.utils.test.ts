@@ -228,11 +228,41 @@ describe('getURLSearchParamsFromObj()', () => {
       },
     ];
     const params = {
-      bool1: 'off',
       bool2: 'on',
     };
     const result = getURLSearchParamsFromObj(params, mockOptionsWithBooleans);
     expect(result.get('bool1')).toBe('false');
     expect(result.get('bool2')).toBe('true');
+  });
+
+  it('omits booleans which match their default', () => {
+    const mockOptionsWithBooleans: ViewOption[] = [
+      {
+        title: OptionTitle.StyleOverride,
+        options: [
+          {
+            id: 'onByDefault',
+            title: 'onByDefault',
+            description: 'On by default',
+            type: 'boolean',
+            defaultValue: true,
+          },
+          {
+            id: 'offByDefault',
+            title: 'offByDefault',
+            description: 'Off by default',
+            type: 'boolean',
+            defaultValue: false,
+          },
+        ],
+      },
+    ];
+
+    const untouched = getURLSearchParamsFromObj({ onByDefault: 'on' }, mockOptionsWithBooleans);
+    expect(untouched.toString()).toBe('');
+
+    const flipped = getURLSearchParamsFromObj({ offByDefault: 'on' }, mockOptionsWithBooleans);
+    expect(flipped.get('onByDefault')).toBe('false');
+    expect(flipped.get('offByDefault')).toBe('true');
   });
 });
