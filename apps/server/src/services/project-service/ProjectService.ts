@@ -2,7 +2,7 @@ import { copyFile } from 'fs/promises';
 import { join } from 'path';
 
 import { DatabaseModel, LogOrigin, ProjectFileListResponse, RefetchKey } from 'ontime-types';
-import { getErrorMessage, getFirstRundown } from 'ontime-utils';
+import { getErrorMessage, getFirstRundown, isObjectEmpty, withoutUndefinedValues } from 'ontime-utils';
 
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
@@ -347,7 +347,11 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
   const { rundowns, customFields, ...rest } = data;
 
   // we can pass some stuff straight to the data provider
-  await getDataProvider().mergeIntoData(rest);
+  // callers list every section, so we only merge when a section has a value
+  const patchedSections = withoutUndefinedValues(rest);
+  if (!isObjectEmpty(patchedSections)) {
+    await getDataProvider().mergeIntoData(patchedSections);
+  }
 
   // unlike loadProject, patching does not reload the rundown, so nothing else notifies the clients
   if (rest.settings) {
@@ -369,17 +373,15 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
     const parsedRundowns = parseRundowns(data, projectCustomFields);
     const currentRundown = getCurrentRundown();
 
-    const mergedData = await getDataProvider().mergeIntoData({ rundowns: parsedRundowns });
+    // patched rundowns replace any existing rundown with the same id
+    for (const parsedRundown of Object.values(parsedRundowns)) {
+      await getDataProvider().setRundown(parsedRundown.id, parsedRundown);
+    }
 
-    // check if the currently loaded rundown was modified
-    const didOverrideCurrentRundown = currentRundown.id in parsedRundowns;
-
-    if (didOverrideCurrentRundown) {
-      // verify the rundown exists in the merged data before reinitializing
-      const updatedCurrentRundown = mergedData.rundowns[currentRundown.id];
-      if (updatedCurrentRundown) {
-        await initRundown(updatedCurrentRundown, projectCustomFields, true);
-      }
+    // if the currently loaded rundown was replaced, we reinitialise it
+    const updatedCurrentRundown = parsedRundowns[currentRundown.id];
+    if (updatedCurrentRundown) {
+      await initRundown(updatedCurrentRundown, projectCustomFields, true);
     }
   }
 
