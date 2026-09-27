@@ -119,6 +119,7 @@ test.describe('Sharing from cuesheet', () => {
     const context = await browser.newContext();
     const page = await context.newPage();
     await page.goto('/editor');
+    await page.getByRole('button', { name: 'Edit' }).click();
 
     // we create some elements to test with
     await page.getByRole('button', { name: 'Rundown menu' }).click();

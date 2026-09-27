@@ -7,5 +7,6 @@
 
   display: grid;
   place-items: start center;
-  padding: clamp(4rem, 20dvh, 12rem) 1.5rem 1rem;
+  align-content: start;
+  padding: clamp(2rem, 8dvh, 6rem) 1.5rem 1rem;
 }

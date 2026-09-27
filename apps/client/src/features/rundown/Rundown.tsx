@@ -13,6 +13,7 @@ import { createPortal } from 'react-dom';
 import { TbFlagFilled } from 'react-icons/tb';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
+import EmptyRundown from '../../common/components/state/EmptyRundown';
 import { useEntryActionsContext } from '../../common/context/EntryActionsContext';
 import useAutomationSettings from '../../common/hooks-query/useAutomationSettings';
 import { useSetEntryCopy } from '../../common/stores/entryCopyStore';
@@ -27,7 +28,6 @@ import RundownDragPreview from './rundown-drag-preview/RundownDragPreview';
 import RundownGroup from './rundown-group/RundownGroup';
 import RundownGroupEnd from './rundown-group/RundownGroupEnd';
 import { filterVisibleEntries, makeSortableList } from './rundown.utils';
-import RundownEmpty from './RundownEmpty';
 import RundownEntry from './RundownEntry';
 import { useCollapsedGroups } from './useCollapsedGroups';
 import { useEditorFollowMode } from './useEditorFollowMode';
@@ -331,7 +331,9 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   );
 
   if (sortableData.length < 1) {
-    return <RundownEmpty handleAddNew={(type: SupportedEntry) => entryActions.addEntry({ type })} />;
+    return (
+      <EmptyRundown handleAddNew={isEditMode ? (type: SupportedEntry) => entryActions.addEntry({ type }) : undefined} />
+    );
   }
 
   return (
