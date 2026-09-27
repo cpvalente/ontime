@@ -1,6 +1,6 @@
 import { OntimeView, URLPreset } from 'ontime-types';
 import { generateId } from 'ontime-utils';
-import { useCallback, useRef, useState } from 'react';
+import { FormEvent, useCallback, useRef, useState } from 'react';
 import { FieldErrors, useForm } from 'react-hook-form';
 
 import { generateUrl } from '../../common/api/session';
@@ -13,7 +13,7 @@ import QRCode from '../../common/components/qr-code/QrCode';
 import Select from '../../common/components/select/Select';
 import Switch from '../../common/components/switch/Switch';
 import { useUpdateUrlPreset } from '../../common/hooks-query/useUrlPresets';
-import { safeCopyToClipboard } from '../../common/utils/copyToClipboard';
+import { safeCopyPendingToClipboard } from '../../common/utils/copyToClipboard';
 import { preventEscape } from '../../common/utils/keyEvent';
 import { isUrlSafe } from '../../common/utils/regex';
 import { isOntimeCloud, serverURL } from '../../externals';
@@ -121,7 +121,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
     return presets.find((preset) => preset.alias === alias);
   };
 
-  const onSubmit = async (options: GenerateLinkFormOptions) => {
+  const onSubmit = async (options: GenerateLinkFormOptions, onUrl: (url: string) => void) => {
     try {
       setFormState('loading');
       if (options.path === OntimeView.Cuesheet) {
@@ -142,7 +142,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
           lockNav: options.lockNav,
           preset: urlPreset.alias,
         });
-        await safeCopyToClipboard(url);
+        onUrl(url);
         setUrl(url);
       } else {
         const presetPath = options.path.startsWith('preset-') ? options.path.replace('preset-', '') : undefined;
@@ -160,7 +160,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
           preset: presetPath,
         });
 
-        await safeCopyToClipboard(url);
+        onUrl(url);
         setUrl(url);
       }
       reset(options, {
@@ -175,11 +175,20 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
     }
   };
 
+  const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+    // Safari only allows clipboard writes started synchronously in the user gesture,
+    // so we start the copy now and fill it once the link is generated (or cancel it on failure)
+    const pendingUrl = new Promise<string>((resolve, reject) => {
+      handleSubmit((options) => onSubmit(options, resolve).finally(reject), reject)(event);
+    });
+    safeCopyPendingToClipboard(pendingUrl);
+  };
+
   const noReadAccess = watch('path') === OntimeView.Cuesheet && cuesheetPermissions.read === '-';
   const canSubmit = isDirty || formState !== 'success';
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} onKeyDown={(event) => preventEscape(event)}>
+    <form onSubmit={handleFormSubmit} onKeyDown={(event) => preventEscape(event)}>
       {!isLockedToView && (
         <Info>You can generate a link to share with your team or to use in automation (such as companion).</Info>
       )}
