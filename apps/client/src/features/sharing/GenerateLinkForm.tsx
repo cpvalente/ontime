@@ -208,7 +208,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                   value={watch('baseUrl')}
                   onValueChange={(value: string | null) => {
                     if (value === null) return;
-                    setValue('baseUrl', value);
+                    setValue('baseUrl', value, { shouldDirty: true });
                   }}
                 />
               </Panel.ListItem>
