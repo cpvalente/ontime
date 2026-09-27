@@ -1,5 +1,18 @@
-import { SupportedEntry, type EventPostPayload, type OntimeEntry, type PatchWithId, type Rundown } from 'ontime-types';
+import {
+  OffsetMode,
+  Playback,
+  SupportedEntry,
+  type EventPostPayload,
+  type OntimeEntry,
+  type PatchWithId,
+  type PlayableEvent,
+  type Rundown,
+} from 'ontime-types';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { makeOntimeEvent, makeOntimeGroup } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import type { RuntimeState } from '../../stores/runtimeState.js';
 
 const addEntryMock = vi.hoisted(() => vi.fn());
 const editEntryMock = vi.hoisted(() => vi.fn());
@@ -30,8 +43,15 @@ vi.mock('../../api-data/rundown/rundown.service.js', () => ({
   ungroupEntries: ungroupEntriesMock,
 }));
 
-const { batchCreateEntriesForMcp, createCustomFieldForMcp, createEntryForMcp, groupEntriesForMcp, ungroupEntryForMcp } =
-  await import('../mcp.service.js');
+const {
+  batchCreateEntriesForMcp,
+  createCustomFieldForMcp,
+  createEntryForMcp,
+  getScheduleForecast,
+  groupEntriesForMcp,
+  limitForecastSize,
+  ungroupEntryForMcp,
+} = await import('../mcp.service.js');
 
 function makeRundown(entries: Rundown['entries'], order: string[] = Object.keys(entries)): Rundown {
   return {
@@ -329,5 +349,172 @@ describe('mcp.service', () => {
       'Keys are case-sensitive — did you mean: "camera" → "Camera"?',
     );
     expect(addEntryMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('getScheduleForecast()', () => {
+  const at = (hours: number, minutes = 0) => hours * MILLIS_PER_HOUR + minutes * MILLIS_PER_MINUTE;
+  const event = (id: string, start: number, end: number, patch: Parameters<typeof makeOntimeEvent>[0] = {}) =>
+    makeOntimeEvent({
+      id,
+      cue: id,
+      title: `Event ${id}`,
+      timeStart: start,
+      timeEnd: end,
+      duration: end - start,
+      dayOffset: 0,
+      delay: 0,
+      gap: 0,
+      linkStart: false,
+      countToEnd: false,
+      flag: false,
+      parent: null,
+      ...patch,
+    });
+
+  // a (10:00) -> b linked -> 10 min gap -> c, d in a group -> e skipped -> f countToEnd hard out at 12:30
+  const rundown = {
+    entries: {
+      a: event('a', at(10), at(10, 30)),
+      b: event('b', at(10, 30), at(11), { linkStart: true }),
+      g: makeOntimeGroup({ id: 'g', title: 'Afternoon', entries: ['c', 'd'] }),
+      c: event('c', at(11, 10), at(11, 40), { gap: at(0, 10), parent: 'g' }),
+      d: event('d', at(11, 40), at(12), { linkStart: true, flag: true, parent: 'g' }),
+      e: event('e', at(12), at(12, 15), { skip: true }),
+      f: event('f', at(12), at(12, 30), { countToEnd: true }),
+    },
+  };
+  const metadata = {
+    playableEventOrder: ['a', 'b', 'c', 'd', 'f'],
+    timedEventOrder: ['a', 'b', 'c', 'd', 'e', 'f'],
+  };
+
+  function makeState(patch: {
+    eventNow?: string | null;
+    playback?: Playback;
+    mode?: OffsetMode;
+    absolute?: number;
+    relative?: number;
+    actualStart?: number;
+  }) {
+    const { eventNow = 'a', playback = Playback.Play, mode = OffsetMode.Absolute, absolute = 0, relative = 0 } = patch;
+    return {
+      clock: at(10, 20),
+      eventNow: eventNow ? (rundown.entries[eventNow as 'a'] as PlayableEvent) : null,
+      timer: { playback },
+      offset: { mode, absolute, relative },
+      rundown: { plannedStart: at(10), actualStart: patch.actualStart ?? at(10), currentDay: 0 },
+    } as unknown as RuntimeState;
+  }
+
+  const startsOf = (forecast: ReturnType<typeof getScheduleForecast>) =>
+    Object.fromEntries(forecast.upcoming.map((row) => [row.id, row.expectedStart.time]));
+
+  it('lets gaps absorb a small overrun', () => {
+    const forecast = getScheduleForecast(makeState({ absolute: at(0, 5) }), rundown, metadata);
+
+    expect(forecast.offset).toStrictEqual({ ms: at(0, 5), time: '+00:05:00' });
+    expect(startsOf(forecast)).toStrictEqual({
+      a: '10:05:00',
+      b: '10:35:00',
+      c: '11:10:00',
+      d: '11:40:00',
+      f: '12:00:00',
+    });
+    expect(forecast.upcoming[1].plannedStart).toStrictEqual({ ms: at(10, 30), time: '10:30:00' });
+    expect(forecast.upcoming[2].group).toBe('Afternoon');
+    expect(forecast.currentEvent).toStrictEqual({
+      id: 'a',
+      cue: 'a',
+      title: 'Event a',
+      expectedEnd: { ms: at(10, 35), time: '10:35:00' },
+    });
+    expect(forecast.rundown).toMatchObject({ overUnder: { ms: 0, time: '+00:00:00' } });
+    expect(forecast.warnings).toStrictEqual([]);
+    expect(forecast).not.toHaveProperty('note');
+  });
+
+  it('pushes the overrun past the gaps and warns about a late flag', () => {
+    const forecast = getScheduleForecast(makeState({ absolute: at(0, 15) }), rundown, metadata);
+
+    expect(startsOf(forecast)).toMatchObject({ b: '10:45:00', c: '11:15:00', d: '11:45:00', f: '12:05:00' });
+    expect(forecast.warnings).toStrictEqual([
+      {
+        id: 'd',
+        cue: 'd',
+        title: 'Event d',
+        warning: 'Flagged event expected to start late',
+        by: { ms: at(0, 5), time: '+00:05:00' },
+      },
+    ]);
+    // the countToEnd hard out still ends on time
+    expect(forecast.rundown).toStrictEqual({
+      plannedEnd: { ms: at(12, 30), time: '12:30:00' },
+      expectedEnd: { ms: at(12, 30), time: '12:30:00' },
+      overUnder: { ms: 0, time: '+00:00:00' },
+    });
+  });
+
+  it('lists skipped events after the loaded event as contingency', () => {
+    const forecast = getScheduleForecast(makeState({ eventNow: 'b' }), rundown, metadata);
+
+    expect(forecast.upcoming.map((row) => row.id)).toStrictEqual(['b', 'c', 'd', 'f']);
+    expect(forecast.skipped).toStrictEqual([
+      { id: 'e', cue: 'e', title: 'Event e', duration: { ms: at(0, 15), time: '00:15:00' } },
+    ]);
+  });
+
+  it('warns when a countToEnd hard out is already blown', () => {
+    const forecast = getScheduleForecast(makeState({ absolute: at(0, 45) }), rundown, metadata);
+
+    expect(forecast.upcoming.at(-1)?.expectedStart.time).toBe('12:35:00');
+    expect(forecast.warnings).toContainEqual({
+      id: 'f',
+      cue: 'f',
+      title: 'Event f',
+      warning: 'Hard out blown: expected to start after its planned end',
+      by: { ms: at(0, 5), time: '+00:05:00' },
+    });
+    expect(forecast.rundown?.overUnder).toStrictEqual({ ms: at(0, 5), time: '+00:05:00' });
+  });
+
+  it('uses the relative offset and actual start in relative mode', () => {
+    const forecast = getScheduleForecast(
+      makeState({ mode: OffsetMode.Relative, absolute: at(1), relative: 0, actualStart: at(10, 20) }),
+      rundown,
+      metadata,
+    );
+
+    expect(forecast.offsetMode).toBe(OffsetMode.Relative);
+    expect(forecast.offset.ms).toBe(0);
+    expect(startsOf(forecast)).toMatchObject({ b: '10:50:00', c: '11:30:00' });
+    expect(forecast.upcoming[1].plannedStart.time).toBe('10:30:00');
+  });
+
+  it('returns the planned schedule when nothing is loaded', () => {
+    const forecast = getScheduleForecast(makeState({ eventNow: null, playback: Playback.Stop }), rundown, metadata);
+
+    expect(forecast.note).toBe('No show is running: expected times equal the planned schedule.');
+    expect(forecast.currentEvent).toBeNull();
+    expect(forecast.upcoming.map((row) => row.id)).toStrictEqual(['a', 'b', 'c', 'd', 'f']);
+    for (const row of forecast.upcoming) {
+      expect(row.expectedStart).toStrictEqual(row.plannedStart);
+      expect(row.expectedEnd).toStrictEqual(row.plannedEnd);
+    }
+    expect(forecast.skipped.map((entry) => entry.id)).toStrictEqual(['e']);
+  });
+
+  it('trims upcoming rows to fit the size limit and says so', () => {
+    const forecast = getScheduleForecast(makeState({}), rundown, metadata);
+    const limit = JSON.stringify(forecast).length - 1;
+
+    const trimmed = limitForecastSize(forecast, limit);
+    const shown = trimmed.upcoming.length;
+
+    expect(JSON.stringify(trimmed).length).toBeLessThanOrEqual(limit);
+    expect(shown).toBeLessThan(forecast.upcoming.length);
+    expect(trimmed.upcoming).toStrictEqual(forecast.upcoming.slice(0, shown));
+    expect(trimmed).toMatchObject({ truncated: true, truncationNote: expect.stringContaining(`next ${shown} of 5`) });
+    expect(trimmed.rundown).toStrictEqual(forecast.rundown);
   });
 });

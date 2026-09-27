@@ -11,8 +11,17 @@ import {
   ProjectRundowns,
   Rundown,
   SupportedEntry,
+  isOntimeEvent,
 } from 'ontime-types';
-import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import {
+  checkRegex,
+  customFieldLabelToKey,
+  dayInMs,
+  getExpectedEnd,
+  getExpectedStart,
+  isPlaybackActive,
+  millisToString,
+} from 'ontime-utils';
 
 import { getCurrentRundown, getCurrentRundownId, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
 import {
@@ -27,8 +36,11 @@ import {
   reorderEntry,
   ungroupEntries,
 } from '../api-data/rundown/rundown.service.js';
+import type { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { normalisedToRundownArray } from '../api-data/rundown/rundown.utils.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
+import { getExpectedStartOptions, iterateFromLoaded } from '../services/timerUtils.js';
+import type { RuntimeState } from '../stores/runtimeState.js';
 
 export type EventFieldArgs = Partial<
   Pick<
@@ -388,4 +400,154 @@ export async function updateCustomFieldForMcp(args: { key: string; label?: strin
 export async function deleteCustomFieldForMcp(args: { key: string }) {
   const updated = await deleteCustomField(args.key);
   return { customFields: updated };
+}
+
+type ForecastTime = { ms: number; time: string };
+
+const toForecastTime = (ms: number): ForecastTime => ({ ms, time: millisToString(ms) });
+const toSignedTime = (ms: number): ForecastTime => ({ ms, time: `${ms < 0 ? '' : '+'}${millisToString(ms)}` });
+
+type ForecastRow = ReturnType<typeof toForecastRow>;
+
+function toForecastRow(
+  event: OntimeEvent,
+  entries: Rundown['entries'],
+  currentDay: number,
+  expected?: { start: number; end: number },
+) {
+  // planned times share the expected times' reference: ms from midnight of the current day
+  const plannedStart = event.timeStart + (event.dayOffset - currentDay) * dayInMs;
+  const plannedEnd = plannedStart + event.duration;
+  const parent = event.parent ? entries[event.parent] : undefined;
+
+  return {
+    id: event.id,
+    cue: event.cue,
+    title: event.title,
+    group: parent && 'title' in parent ? parent.title : null,
+    plannedStart: toForecastTime(plannedStart),
+    plannedEnd: toForecastTime(plannedEnd),
+    expectedStart: toForecastTime(expected?.start ?? plannedStart),
+    expectedEnd: toForecastTime(expected?.end ?? plannedEnd),
+    delay: toSignedTime(event.delay),
+    countToEnd: event.countToEnd,
+    flag: event.flag,
+    linkStart: event.linkStart,
+  };
+}
+
+function getForecastWarnings(rows: ForecastRow[]) {
+  const warnings: { id: string; cue: string; title: string; warning: string; by: ForecastTime }[] = [];
+  for (const row of rows) {
+    const { id, cue, title } = row;
+    const blownBy = row.expectedStart.ms - row.plannedEnd.ms;
+    if (row.countToEnd && blownBy > 0) {
+      warnings.push({
+        id,
+        cue,
+        title,
+        warning: 'Hard out blown: expected to start after its planned end',
+        by: toSignedTime(blownBy),
+      });
+    }
+    const lateBy = row.expectedStart.ms - row.plannedStart.ms;
+    if (row.flag && lateBy > 0) {
+      warnings.push({ id, cue, title, warning: 'Flagged event expected to start late', by: toSignedTime(lateBy) });
+    }
+  }
+  return warnings;
+}
+
+/**
+ * Forecasts the remaining schedule of the loaded rundown from the runtime's own expected time calculations
+ * All times are ms from midnight of the current show day, values past 24h fall on following days
+ */
+export function getScheduleForecast(
+  state: Pick<RuntimeState, 'clock' | 'timer' | 'offset' | 'rundown' | 'eventNow'>,
+  rundown: Pick<Rundown, 'entries'>,
+  metadata: Pick<RundownMetadata, 'playableEventOrder' | 'timedEventOrder'>,
+) {
+  const { entries } = rundown;
+  const { eventNow } = state;
+  const isRunning = eventNow !== null && isPlaybackActive(state.timer.playback);
+  const expectedStartOptions = getExpectedStartOptions(state);
+  const { currentDay } = expectedStartOptions;
+
+  let upcoming: ForecastRow[];
+  if (isRunning) {
+    upcoming = [...iterateFromLoaded(entries, metadata.playableEventOrder, eventNow.id)].map(
+      ({ event, accumulatedGap, isLinkedToLoaded }) => {
+        const start = getExpectedStart(event, {
+          ...expectedStartOptions,
+          totalGap: accumulatedGap,
+          isLinkedToLoaded,
+        });
+        return toForecastRow(event, entries, currentDay, { start, end: getExpectedEnd(event, start, currentDay) });
+      },
+    );
+  } else {
+    const loadedIndex = eventNow ? metadata.playableEventOrder.indexOf(eventNow.id) : -1;
+    upcoming = metadata.playableEventOrder
+      .slice(Math.max(loadedIndex, 0))
+      .map((id) => entries[id])
+      .filter(isOntimeEvent)
+      .map((event) => toForecastRow(event, entries, currentDay));
+  }
+
+  // skipped events are only present in the timed order
+  const loadedTimedIndex = eventNow ? metadata.timedEventOrder.indexOf(eventNow.id) : -1;
+  const skipped = metadata.timedEventOrder
+    .slice(loadedTimedIndex + 1)
+    .map((id) => entries[id])
+    .filter((entry): entry is OntimeEvent => isOntimeEvent(entry) && entry.skip)
+    .map(({ id, cue, title, duration }) => ({ id, cue, title, duration: toForecastTime(duration) }));
+
+  const firstRow = upcoming.at(0);
+  const lastRow = upcoming.at(-1);
+
+  return {
+    ...(isRunning ? {} : { note: 'No show is running: expected times equal the planned schedule.' }),
+    clock: toForecastTime(state.clock),
+    playback: state.timer.playback,
+    offset: toSignedTime(expectedStartOptions.offset),
+    offsetMode: state.offset.mode,
+    rundown: lastRow
+      ? {
+          plannedEnd: lastRow.plannedEnd,
+          expectedEnd: lastRow.expectedEnd,
+          overUnder: toSignedTime(lastRow.expectedEnd.ms - lastRow.plannedEnd.ms),
+        }
+      : null,
+    currentEvent:
+      eventNow && firstRow?.id === eventNow.id
+        ? { id: firstRow.id, cue: firstRow.cue, title: firstRow.title, expectedEnd: firstRow.expectedEnd }
+        : null,
+    upcoming,
+    skipped,
+    warnings: getForecastWarnings(upcoming),
+  };
+}
+
+type ScheduleForecast = ReturnType<typeof getScheduleForecast>;
+
+/** Trims upcoming rows so the serialised forecast fits within maxChars */
+export function limitForecastSize(forecast: ScheduleForecast, maxChars: number) {
+  const size = (data: unknown) => JSON.stringify(data).length;
+  if (size(forecast) <= maxChars) return forecast;
+
+  // leave room for the truncation fields added below
+  let remaining = maxChars - size({ ...forecast, upcoming: [] }) - 200;
+  let count = 0;
+  for (const row of forecast.upcoming) {
+    remaining -= size(row) + 1;
+    if (remaining < 0) break;
+    count++;
+  }
+
+  return {
+    ...forecast,
+    upcoming: forecast.upcoming.slice(0, count),
+    truncated: true,
+    truncationNote: `Showing the next ${count} of ${forecast.upcoming.length} events; rundown and warnings still cover all of them.`,
+  };
 }

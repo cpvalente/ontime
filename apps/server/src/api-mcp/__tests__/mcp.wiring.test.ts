@@ -14,6 +14,7 @@ vi.mock('../../api-data/rundown/rundown.dao.js', () => ({
     revision: 0,
   })),
   getProjectCustomFields: vi.fn(() => ({})),
+  getRundownMetadata: vi.fn(() => ({ playableEventOrder: [], timedEventOrder: [] })),
 }));
 
 vi.mock('../../classes/data-provider/DataProvider.js', () => ({
@@ -22,6 +23,19 @@ vi.mock('../../classes/data-provider/DataProvider.js', () => ({
 
 const { PROMPT_DEFINITIONS, handleGetPrompt } = await import('../mcp.prompts.js');
 const { RESOURCE_DEFINITIONS, handleReadResource } = await import('../mcp.resources.js');
+const { TOOL_DEFINITIONS, handleToolCall } = await import('../mcp.tools.js');
+
+describe('MCP tool wiring', () => {
+  it('serves the schedule forecast as a read-only tool', async () => {
+    const tool = TOOL_DEFINITIONS.find((definition) => definition.name === 'ontime_get_schedule_forecast');
+    expect(tool?.annotations.readOnlyHint).toBe(true);
+
+    const result = await handleToolCall('ontime_get_schedule_forecast', {});
+    expect(result.isError).toBeUndefined();
+    const forecast = JSON.parse((result.content[0] as { text: string }).text);
+    expect(forecast).toMatchObject({ note: expect.any(String), upcoming: [], currentEvent: null });
+  });
+});
 
 describe('MCP resource wiring', () => {
   it('serves non-empty content for every listed resource', () => {

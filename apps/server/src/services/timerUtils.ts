@@ -1,4 +1,16 @@
-import { Day, MaybeNumber, Playback, TimeOfDay, TimerPhase } from 'ontime-types';
+import {
+  Day,
+  EntryId,
+  Maybe,
+  MaybeNumber,
+  OffsetMode,
+  OntimeEvent,
+  Playback,
+  Rundown,
+  TimeOfDay,
+  TimerPhase,
+  isOntimeEvent,
+} from 'ontime-types';
 import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
 import { timerConfig } from '../setup/config.js';
@@ -255,4 +267,67 @@ export function findDayOffset(plannedStart: number, clock: number): Day {
   if (distance >= 12 * MILLIS_PER_HOUR) return -1 as Day;
   if (distance < -12 * MILLIS_PER_HOUR) return 1 as Day;
   return 0 as Day;
+}
+
+/**
+ * Options shared by all expected start calculations
+ * The caller adds the per-event gap and link state
+ */
+export function getExpectedStartOptions(state: Pick<RuntimeState, 'offset' | 'rundown'>) {
+  const { offset, rundown } = state;
+  return {
+    currentDay: rundown.currentDay ?? 0,
+    mode: offset.mode,
+    offset: offset.mode === OffsetMode.Absolute ? offset.absolute : offset.relative,
+    plannedStart: rundown.plannedStart,
+    actualStart: rundown.actualStart,
+  };
+}
+
+export type DownstreamEvent = {
+  event: OntimeEvent;
+  accumulatedGap: number;
+  isLinkedToLoaded: boolean;
+};
+
+/**
+ * Walks the playable order from the loaded event, yielding the gap and link state
+ * each event needs to calculate its expected start
+ * - the loaded event is yielded first, with no gap and linked to itself
+ * - a loaded event which is no longer playable (ie: skipped while loaded) has no downstream events
+ */
+export function* iterateFromLoaded(
+  entries: Rundown['entries'],
+  playableEventOrder: EntryId[],
+  loadedId: EntryId,
+): Generator<DownstreamEvent> {
+  const currentIndex = playableEventOrder.indexOf(loadedId);
+  if (currentIndex === -1) return;
+
+  let accumulatedGap = 0;
+  let isLinkedToLoaded = true;
+  let previousWasCountToEnd: Maybe<number> = null;
+
+  for (let idx = currentIndex; idx < playableEventOrder.length; idx++) {
+    const entry = entries[playableEventOrder[idx]];
+    if (!isOntimeEvent(entry)) continue;
+
+    // we only accumulate data after the loaded event
+    if (idx !== currentIndex) {
+      if (previousWasCountToEnd !== null) {
+        /** previous event was countToEnd: add its duration as a positive gap (it "gives back" time downstream)
+         *   and break the link to the loaded event since countToEnd events reset the schedule
+         */
+        accumulatedGap += entry.gap + previousWasCountToEnd;
+        isLinkedToLoaded = false;
+      } else {
+        accumulatedGap += entry.gap;
+        isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
+      }
+
+      previousWasCountToEnd = entry.countToEnd ? entry.duration : null;
+    }
+
+    yield { event: entry, accumulatedGap, isLinkedToLoaded };
+  }
 }

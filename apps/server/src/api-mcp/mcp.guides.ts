@@ -58,6 +58,7 @@ Prefer Ontime's default palette — the editor's swatches — so colours look na
 - \`flag\` sparingly — it marks critical moments and dilutes with overuse.
 - Set \`timeWarning\` where a moderator would signal the speaker to wrap (commonly 5 min); \`timeDanger\` for the final push (e.g. 1 min). Scale both down for short items.
 - Hard out? Backtime: build the closing items from the end with \`timeEnd\` + \`duration\` (Ontime calculates \`timeStart\`), protect their ends with \`timeStrategy: lock-end\`, and use \`countToEnd\` for true curfew items.
+- During a show, get recovery options from \`ontime_get_schedule_forecast\` instead of calculating times yourself, and confirm with the user before any edit to the live rundown.
 
 After tidying, read \`ontime://views\` and suggest views that use the new structure.
 `;

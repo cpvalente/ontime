@@ -1,6 +1,7 @@
 import { EndAction, Playback, TimeOfDay, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, dayInMs, millisToString } from 'ontime-utils';
 
+import { makeOntimeEvent } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 import {
   findDayOffset,
@@ -11,6 +12,7 @@ import {
   getTimeToBoundary,
   getTimerPhase,
   hasCrossedMidnight,
+  iterateFromLoaded,
   normaliseEndTime,
   skippedOutOfEvent,
 } from '../timerUtils.js';
@@ -1477,5 +1479,62 @@ describe('getTimeToBoundary()', () => {
 
   it('returns the pre-roll wait when waiting to roll', () => {
     expect(getTimeToBoundary(makeState({ playback: Playback.Roll, current: null, secondaryTimer: 500 }))).toBe(500);
+  });
+});
+
+describe('iterateFromLoaded()', () => {
+  const summarise = (entries: Parameters<typeof iterateFromLoaded>[0], order: string[], loadedId: string) =>
+    [...iterateFromLoaded(entries, order, loadedId)].map(({ event, accumulatedGap, isLinkedToLoaded }) => ({
+      id: event.id,
+      accumulatedGap,
+      isLinkedToLoaded,
+    }));
+
+  test('keeps a linked chain linked to the loaded event', () => {
+    const entries = {
+      a: makeOntimeEvent({ id: 'a', gap: 0, linkStart: false }),
+      b: makeOntimeEvent({ id: 'b', gap: 0, linkStart: true }),
+      c: makeOntimeEvent({ id: 'c', gap: 0, linkStart: true }),
+    };
+
+    expect(summarise(entries, ['a', 'b', 'c'], 'a')).toStrictEqual([
+      { id: 'a', accumulatedGap: 0, isLinkedToLoaded: true },
+      { id: 'b', accumulatedGap: 0, isLinkedToLoaded: true },
+      { id: 'c', accumulatedGap: 0, isLinkedToLoaded: true },
+    ]);
+  });
+
+  test('accumulates gaps which can absorb offset and unlinks after an unlinked event', () => {
+    const entries = {
+      a: makeOntimeEvent({ id: 'a', gap: 0, linkStart: false }),
+      b: makeOntimeEvent({ id: 'b', gap: 5 * MILLIS_PER_MINUTE, linkStart: false }),
+      c: makeOntimeEvent({ id: 'c', gap: 0, linkStart: true }),
+      d: makeOntimeEvent({ id: 'd', gap: 10 * MILLIS_PER_MINUTE, linkStart: false }),
+    };
+
+    expect(summarise(entries, ['a', 'b', 'c', 'd'], 'b')).toStrictEqual([
+      { id: 'b', accumulatedGap: 0, isLinkedToLoaded: true },
+      { id: 'c', accumulatedGap: 0, isLinkedToLoaded: true },
+      { id: 'd', accumulatedGap: 10 * MILLIS_PER_MINUTE, isLinkedToLoaded: false },
+    ]);
+  });
+
+  test('a countToEnd event gives back its duration and breaks the link for the following event', () => {
+    const entries = {
+      a: makeOntimeEvent({ id: 'a', gap: 0, linkStart: false }),
+      b: makeOntimeEvent({ id: 'b', gap: 0, linkStart: true, countToEnd: true, duration: 20 * MILLIS_PER_MINUTE }),
+      c: makeOntimeEvent({ id: 'c', gap: 0, linkStart: true }),
+    };
+
+    expect(summarise(entries, ['a', 'b', 'c'], 'a')).toStrictEqual([
+      { id: 'a', accumulatedGap: 0, isLinkedToLoaded: true },
+      { id: 'b', accumulatedGap: 0, isLinkedToLoaded: true },
+      { id: 'c', accumulatedGap: 20 * MILLIS_PER_MINUTE, isLinkedToLoaded: false },
+    ]);
+  });
+
+  test('yields nothing when the loaded event is not playable', () => {
+    const entries = { a: makeOntimeEvent({ id: 'a' }) };
+    expect(summarise(entries, ['a'], 'skipped')).toStrictEqual([]);
   });
 });

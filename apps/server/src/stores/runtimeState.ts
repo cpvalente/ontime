@@ -16,7 +16,6 @@ import {
   TimeOfDay,
   TimerPhase,
   TimerState,
-  isOntimeEvent,
   runtimeStorePlaceholder,
 } from 'ontime-types';
 import {
@@ -35,22 +34,21 @@ import * as timeCore from '../lib/time-core/timeCore.js';
 import type { RestorePoint } from '../services/restore-service/restore.type.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import {
+  type DownstreamEvent,
   findDayOffset,
   getCurrent,
   getElapsed,
   getExpectedFinish,
+  getExpectedStartOptions,
   getRuntimeOffset,
   getTimeToBoundary,
   getTimerPhase,
   hasCrossedMidnight,
+  iterateFromLoaded,
 } from '../services/timerUtils.js';
 import { timerConfig } from '../setup/config.js';
 
-type ExpectedMetadata = {
-  event: OntimeEvent;
-  accumulatedGap: number;
-  isLinkedToLoaded: boolean;
-} | null;
+type ExpectedMetadata = DownstreamEvent | null;
 
 export type RuntimeState = {
   clock: TimeOfDay;
@@ -840,20 +838,9 @@ function getExpectedTimes(state = runtimeState) {
   state.offset.expectedGroupEnd = null;
   state.offset.expectedFlagStart = null;
 
-  const { offset } = state;
-  const { plannedStart, actualStart } = state.rundown;
-  const { eventNow } = state;
+  if (!state.eventNow) return;
 
-  if (!eventNow) return;
-
-  // options shared by all expected start calculations
-  const expectedStartOptions = {
-    currentDay: state.rundown.currentDay!,
-    mode: offset.mode,
-    offset: offset.mode === OffsetMode.Absolute ? offset.absolute : offset.relative,
-    plannedStart,
-    actualStart,
-  };
+  const expectedStartOptions = getExpectedStartOptions(state);
 
   if (state.groupNow) {
     const { _group } = state;
@@ -864,7 +851,11 @@ function getExpectedTimes(state = runtimeState) {
         totalGap: accumulatedGap,
         isLinkedToLoaded,
       });
-      state.offset.expectedGroupEnd = getExpectedEnd(lastEvent, lastEventExpectedStart, state.rundown.currentDay!);
+      state.offset.expectedGroupEnd = getExpectedEnd(
+        lastEvent,
+        lastEventExpectedStart,
+        expectedStartOptions.currentDay,
+      );
     }
   }
 
@@ -888,7 +879,7 @@ function getExpectedTimes(state = runtimeState) {
       totalGap: accumulatedGap,
       isLinkedToLoaded,
     });
-    state.offset.expectedRundownEnd = getExpectedEnd(event, expectedStart, state.rundown.currentDay!);
+    state.offset.expectedRundownEnd = getExpectedEnd(event, expectedStart, expectedStartOptions.currentDay);
   }
 }
 
@@ -914,6 +905,7 @@ export function loadGroupFlagAndEnd(
     return;
   }
 
+  const loadedId = state.eventNow.id;
   const currentGroupId = state.eventNow.parent;
   const flagsPresent = metadata.flags.length !== 0;
 
@@ -935,48 +927,21 @@ export function loadGroupFlagAndEnd(
 
   let accumulatedGap = 0;
   let isLinkedToLoaded = true;
-  let previousWasCountToEnd: Maybe<number> = null;
 
-  // a loaded event which is no longer playable (ie: skipped while loaded) has no downstream events to search
-  const currentIndex = playableEventOrder.indexOf(state.eventNow.id);
-  const searchFrom = currentIndex === -1 ? playableEventOrder.length : currentIndex;
+  for (const downstream of iterateFromLoaded(entries, playableEventOrder, loadedId)) {
+    const { event } = downstream;
+    ({ accumulatedGap, isLinkedToLoaded } = downstream);
 
-  for (let idx = searchFrom; idx < playableEventOrder.length; idx++) {
-    const entry = entries[playableEventOrder[idx]];
+    // the loaded event is not allowed to be the next flag
+    if (!foundFlag && event.id !== loadedId && metadata.flags.includes(event.id)) {
+      foundFlag = true;
+      state.eventFlag = event as PlayableEvent; // we know it is playable as it is coming from the playableEventOrder list
+      state._flag = { event, isLinkedToLoaded, accumulatedGap };
+    }
 
-    if (isOntimeEvent(entry)) {
-      if (idx !== currentIndex) {
-        // we only accumulate data after the loaded event
-
-        if (previousWasCountToEnd !== null) {
-          /** previous event was countToEnd: add its duration as a positive gap (it "gives back" time downstream)
-           *   and break the link to the loaded event since countToEnd events reset the schedule
-           */
-          accumulatedGap += entry.gap + previousWasCountToEnd;
-          isLinkedToLoaded = false;
-        } else {
-          accumulatedGap += entry.gap;
-          isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
-        }
-
-        if (entry.countToEnd) {
-          previousWasCountToEnd = entry.duration;
-        } else {
-          previousWasCountToEnd = null;
-        }
-
-        // and the loaded event is not allowed to be the next flag
-        if (!foundFlag && metadata.flags.includes(entry.id)) {
-          foundFlag = true;
-          state.eventFlag = entry as PlayableEvent; // we know it is playable as it is coming from the playableEventOrder list
-          state._flag = { event: entry, isLinkedToLoaded, accumulatedGap };
-        }
-      }
-
-      if (!foundGroupEnd && entry.id === lastEventInGroup?.id) {
-        foundGroupEnd = true;
-        state._group = { event: lastEventInGroup, isLinkedToLoaded, accumulatedGap };
-      }
+    if (!foundGroupEnd && event.id === lastEventInGroup?.id) {
+      foundGroupEnd = true;
+      state._group = { event: lastEventInGroup, isLinkedToLoaded, accumulatedGap };
     }
   }
 

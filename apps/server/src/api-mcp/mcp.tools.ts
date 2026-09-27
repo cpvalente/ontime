@@ -2,7 +2,7 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { EntryId, ProjectData } from 'ontime-types';
 
 import { editCurrentProjectData, getProjectData } from '../api-data/project-data/projectData.dao.js';
-import { getProjectCustomFields, getRundownMetadata } from '../api-data/rundown/rundown.dao.js';
+import { getCurrentRundown, getProjectCustomFields, getRundownMetadata } from '../api-data/rundown/rundown.dao.js';
 import {
   createNewRundown,
   deleteRundown,
@@ -31,7 +31,9 @@ import {
   deleteEntriesForMcp,
   findEntry,
   getRundownById,
+  getScheduleForecast,
   groupEntriesForMcp,
+  limitForecastSize,
   reorderEntryForMcp,
   toRundownList,
   ungroupEntryForMcp,
@@ -364,6 +366,13 @@ export const TOOL_DEFINITIONS = [
     annotations: READ,
   },
   {
+    name: 'ontime_get_schedule_forecast',
+    description:
+      'Forecast the rest of the live show using Ontime\'s own expected-time calculations (offset, linked starts, gaps absorbing offset, delays, countToEnd, day offsets, offset mode). Use when the user asks "are we running long?", "will we make the hard out?", "when is X actually on?", or wants recovery options — never recalculate these times yourself. Returns clock, playback, offset and offsetMode; rundown { plannedEnd, expectedEnd, overUnder }; currentEvent; upcoming rows from the loaded event onwards with planned/expected start and end, delay, countToEnd, flag, linkStart and parent group; skipped events after the loaded one (contingency that could be brought back or relied on); and warnings for blown countToEnd hard outs and late flagged events. Times are { ms, time } from midnight of the current show day (values past 24:00:00 fall on later days); offsets and differences are signed. If nothing is running, expected equals planned and a note says so. Large rundowns trim upcoming and set truncated.',
+    inputSchema: { type: 'object', properties: {} },
+    annotations: READ,
+  },
+  {
     name: 'ontime_get_project_info',
     description:
       'Get current project metadata: title, description, url, info, logo, and custom header fields (array of { title, value, url }).',
@@ -645,6 +654,11 @@ const TOOL_HANDLERS: Record<ToolName, (args: Record<string, unknown>) => Promise
   ontime_get_timer_state: async () => {
     const { clock, timer, eventNow, eventNext, offset } = getState();
     return ok({ clock, timer, eventNow, eventNext, offset });
+  },
+
+  ontime_get_schedule_forecast: async () => {
+    const forecast = getScheduleForecast(getState(), getCurrentRundown(), getRundownMetadata());
+    return ok(limitForecastSize(forecast, CHARACTER_LIMIT));
   },
 
   ontime_get_project_info: async () => ok(getProjectData()),
