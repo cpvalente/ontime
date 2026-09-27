@@ -138,6 +138,7 @@ test.describe('Sharing from cuesheet', () => {
     await page.goto('/cuesheet');
     await expect(page.getByTestId('cuesheet')).toBeVisible();
 
+    await page.getByRole('button', { name: 'Table options' }).click();
     await page.getByRole('button', { name: 'Share...' }).click();
 
     // configure share for readonly
@@ -192,6 +193,7 @@ test.describe('Sharing from cuesheet', () => {
     await page.goto('/cuesheet');
     await expect(page.getByTestId('cuesheet')).toBeVisible();
 
+    await page.getByRole('button', { name: 'Table options' }).click();
     await page.getByRole('button', { name: 'Share...' }).click();
 
     // configure share for readonly
