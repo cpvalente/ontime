@@ -20,5 +20,7 @@
 }
 
 .rundownSelect {
-  min-width: min(20rem, calc(100vw - 6rem));
+  flex: 1 1 8rem;
+  min-width: 0;
+  max-width: 20rem;
 }

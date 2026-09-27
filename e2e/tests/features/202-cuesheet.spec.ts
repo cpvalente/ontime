@@ -14,7 +14,7 @@ test('cuesheet persists column visibility', async ({ page }) => {
   await expect(noteHeader).toBeVisible();
   await expect(noteCell).toBeVisible();
 
-  await page.getByRole('button', { name: 'Columns' }).click();
+  await page.getByRole('button', { name: 'Table options' }).click();
   await page.getByRole('checkbox', { name: 'Note', exact: true }).click();
 
   await expect(noteHeader).toBeHidden();
