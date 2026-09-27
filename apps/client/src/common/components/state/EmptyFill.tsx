@@ -1,3 +1,5 @@
+import { PropsWithChildren } from 'react';
+
 import { cx } from '../../utils/styleUtils';
 import Empty from './Empty';
 
@@ -10,10 +12,11 @@ interface EmptyFillProps {
 }
 
 /** Container-filling empty/loading state for panels and grid/flex cells. */
-export default function EmptyFill({ text, className }: EmptyFillProps) {
+export default function EmptyFill({ text, className, children }: PropsWithChildren<EmptyFillProps>) {
   return (
     <div className={cx([style.fill, className])}>
       <Empty text={text} />
+      {children}
     </div>
   );
 }

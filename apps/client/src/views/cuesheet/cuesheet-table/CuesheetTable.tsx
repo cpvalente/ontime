@@ -12,7 +12,7 @@ import {
 } from 'react-virtuoso';
 
 import EmptyFill from '../../../common/components/state/EmptyFill';
-import EmptyTableBody from '../../../common/components/state/EmptyTableBody';
+import EmptyRundown from '../../../common/components/state/EmptyRundown';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import { useRundownScope } from '../../../common/context/RundownScopeContext';
 import { useFlatRundownWithMetadata, useScopedSelectedEventId } from '../../../common/hooks-query/useRundown';
@@ -209,9 +209,8 @@ export default function CuesheetTable({
       listeners,
       rows,
       table,
-      handleAddNew: canCreateEntries ? (type: SupportedEntry) => addEntry({ type }) : undefined,
     }),
-    [columnSizeVars, cursor, listeners, rows, table, addEntry, canCreateEntries],
+    [columnSizeVars, cursor, listeners, rows, table],
   );
 
   const computeItemKey = useCallback((_: number, item: ExtendedEntry) => item.id, []);
@@ -260,16 +259,23 @@ export default function CuesheetTable({
         }
         showShare={tableRoot === 'cuesheet'}
       />
-      <TableVirtuoso
-        ref={virtuosoRef}
-        data={flatRundown}
-        context={virtuosoContext}
-        style={tableRoot === 'editor' ? { paddingLeft: '1rem' } : undefined}
-        computeItemKey={computeItemKey}
-        increaseViewportBy={{ top: 100, bottom: 200 }}
-        components={virtuosoComponents}
-        fixedHeaderContent={fixedHeaderContent}
-      />
+      {flatRundown.length === 0 ? (
+        <EmptyRundown
+          handleAddNew={canCreateEntries ? (type: SupportedEntry) => addEntry({ type }) : undefined}
+          className={style.tableLoading}
+        />
+      ) : (
+        <TableVirtuoso
+          ref={virtuosoRef}
+          data={flatRundown}
+          context={virtuosoContext}
+          style={tableRoot === 'editor' ? { paddingLeft: '1rem' } : undefined}
+          computeItemKey={computeItemKey}
+          increaseViewportBy={{ top: 100, bottom: 200 }}
+          components={virtuosoComponents}
+          fixedHeaderContent={fixedHeaderContent}
+        />
+      )}
 
       <TableMenu />
     </>
@@ -282,14 +288,7 @@ interface CuesheetVirtuosoContext {
   listeners: ReturnType<typeof useTableNav>['listeners'];
   rows: ReturnType<CuesheetTableInstance['getRowModel']>['rows'];
   table: CuesheetTableInstance;
-  handleAddNew?: (type: SupportedEntry) => void;
 }
-
-const EmptyPlaceholder = memo(function EmptyPlaceholder({
-  context,
-}: TableProps & ContextProp<CuesheetVirtuosoContext>) {
-  return <EmptyTableBody handleAddNew={context.handleAddNew} />;
-});
 
 const CuesheetTableElement = memo(function CuesheetTableElement({
   style: injectedStyles,
@@ -403,7 +402,6 @@ const CuesheetTableRow = memo(function CuesheetTableRow({
 });
 
 const virtuosoComponents: TableComponents<ExtendedEntry, CuesheetVirtuosoContext> = {
-  EmptyPlaceholder,
   Table: CuesheetTableElement,
   TableHead: CuesheetTableHead,
   TableRow: CuesheetTableRow,
