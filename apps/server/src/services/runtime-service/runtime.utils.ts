@@ -12,6 +12,8 @@ import {
 } from 'ontime-types';
 import { millisToSeconds } from 'ontime-utils';
 
+import type { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
+
 export function isNewSecond(
   previousValue: MaybeNumber | undefined,
   currentValue: MaybeNumber | undefined,
@@ -164,4 +166,25 @@ export function getEventAtIndex(
   }
 
   return rundown.entries[eventId] as OntimeEvent | undefined;
+}
+
+/**
+ * Whether a change to the loaded rundown leaves nothing valid to keep playing:
+ * the loaded event is gone, is no longer a playable event, or no playable events remain
+ */
+export function shouldStopOnRundownChange(
+  loadedEventId: EntryId | null,
+  rundown: Readonly<Rundown>,
+  metadata: Readonly<Pick<RundownMetadata, 'playableEventOrder'>>,
+): boolean {
+  if (loadedEventId === null) {
+    return false;
+  }
+
+  if (metadata.playableEventOrder.length === 0) {
+    return true;
+  }
+
+  const entry = rundown.entries[loadedEventId];
+  return entry === undefined || !isOntimeEvent(entry) || !isPlayableEvent(entry);
 }

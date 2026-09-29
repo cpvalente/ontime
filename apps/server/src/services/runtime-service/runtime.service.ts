@@ -38,6 +38,7 @@ import {
   getShouldOffsetUpdate,
   getShouldTimerUpdate,
   isNewSecond,
+  shouldStopOnRundownChange,
 } from './runtime.utils.js';
 
 /**
@@ -173,30 +174,22 @@ class RuntimeService {
   }
 
   /**
-   * Called when the underlying data has changed,
-   * we check if the change affects the runtime
-   *
-   * !!! the rundown data is read here rather than received from the caller:
-   * this is called deferred (setImmediate) and a later mutation may have
-   * superseded the metadata captured at commit time.
-   * Reading both the rundown and its metadata here keeps them consistent
+   * Brings the runtime in line with the loaded rundown after it changes
+   * Stops playback if the loaded event can no longer play, otherwise hot-reloads the loaded data
+   * Reads the rundown from the cache so it can be called after any commit
    */
-  public notifyOfChangedEvents() {
-    const state = runtimeState.getState();
-    const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
-    if (!hasLoadedElements) {
-      return;
-    }
-
+  @broadcastResult
+  public reconcile() {
+    const rundown = getCurrentRundown();
     const metadata = getRundownMetadata();
+    runtimeState.updateRundownData(metadata);
 
-    // all events were deleted, stopping clears the loaded data and there is nothing left to reconcile
-    if (metadata.playableEventOrder.length === 0) {
-      runtimeState.stop();
+    if (shouldStopOnRundownChange(this.getLoadedEventId(), rundown, metadata)) {
+      this.stop();
       return;
     }
 
-    runtimeState.updateAll(getCurrentRundown(), metadata);
+    runtimeState.updateAll(rundown, metadata);
   }
 
   /**

@@ -28,14 +28,12 @@ vi.mock('../../../adapters/WebsocketAdapter.js', () => ({ sendRefetch: vi.fn<typ
 vi.mock('../../../services/runtime-service/runtime.service.js', () => ({
   runtimeService: {
     stop: stopMock,
-    notifyOfChangedEvents: vi.fn<() => void>(),
-    getLoadedEventId: vi.fn<() => string | null>(),
+    reconcile: vi.fn<() => void>(),
   },
 }));
 vi.mock('../../../services/app-state-service/AppStateService.js', () => ({
   setLastLoadedRundown: vi.fn<() => Promise<void>>(),
 }));
-vi.mock('../../../stores/runtimeState.js', () => ({ updateRundownData: vi.fn<() => void>() }));
 
 /** side effects are scheduled for the end of the event loop */
 const flushSideEffects = () => new Promise((resolve) => setImmediate(resolve));
