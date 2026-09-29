@@ -205,24 +205,15 @@ function patchTimer(newState: Partial<TimerState & RestorePoint>) {
 
 /**
  * Utility, allows updating data derived from the rundown
- * @param playableRundown
+ * Expected times depend on the loaded entries, they are recalculated in updateAll()
  */
-export function updateRundownData(rundownData: {
-  numEvents: number; // length of rundown filtered for timed events
-  firstStart: MaybeNumber;
-  lastEnd: MaybeNumber;
-  totalDelay: number;
-  totalDuration: number;
-}) {
+export function updateRundownData(metadata: RundownMetadata) {
   // we keep this in private state since there is no UI use case for it
-  runtimeState._rundown.totalDelay = rundownData.totalDelay;
+  runtimeState._rundown.totalDelay = metadata.totalDelay;
 
-  runtimeState.rundown.numEvents = rundownData.numEvents;
-  runtimeState.rundown.plannedStart = rundownData.firstStart;
-  runtimeState.rundown.plannedEnd =
-    rundownData.firstStart === null ? null : rundownData.firstStart + rundownData.totalDuration;
-
-  if (isPlaybackActive(runtimeState.timer.playback)) getExpectedTimes();
+  runtimeState.rundown.numEvents = metadata.timedEventOrder.length;
+  runtimeState.rundown.plannedStart = metadata.firstStart;
+  runtimeState.rundown.plannedEnd = metadata.firstStart === null ? null : metadata.firstStart + metadata.totalDuration;
 }
 
 /**
@@ -407,12 +398,15 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
  */
 export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   // event now might have moved so we find the event now id and recalculate the the index again
-  const eventNowIndex = metadata.timedEventOrder.findIndex((id) => id === runtimeState.eventNow?.id);
+  // a missing event is passed as null: the default index would load whichever event took its place
+  const foundIndex = metadata.timedEventOrder.findIndex((id) => id === runtimeState.eventNow?.id);
+  const eventNowIndex = foundIndex >= 0 ? foundIndex : null;
 
-  loadNow(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
-  loadNext(rundown, metadata, eventNowIndex >= 0 ? eventNowIndex : undefined);
+  loadNow(rundown, metadata, eventNowIndex);
+  loadNext(rundown, metadata, eventNowIndex);
   updateLoaded(runtimeState.eventNow ?? undefined);
   loadGroupFlagAndEnd(rundown, metadata);
+  if (isPlaybackActive(runtimeState.timer.playback)) getExpectedTimes();
 }
 
 export function start(state: RuntimeState = runtimeState): boolean {

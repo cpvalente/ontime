@@ -19,7 +19,7 @@ import { millisToString, validatePlayback } from 'ontime-utils';
 import { triggerAutomations } from '../../api-data/automation/automation.service.js';
 import { triggerReportEntry } from '../../api-data/report/report.service.js';
 import { getCurrentRundown, getEntryWithId, getRundownMetadata } from '../../api-data/rundown/rundown.dao.js';
-import { cloneEntryData } from '../../api-data/rundown/rundown.utils.js';
+import { cloneEntryData, isLoadedPlayable } from '../../api-data/rundown/rundown.utils.js';
 import { logger } from '../../classes/Logger.js';
 import { timerConfig } from '../../setup/config.js';
 import { eventStore } from '../../stores/EventStore.js';
@@ -173,30 +173,23 @@ class RuntimeService {
   }
 
   /**
-   * Called when the underlying data has changed,
-   * we check if the change affects the runtime
-   *
-   * !!! the rundown data is read here rather than received from the caller:
-   * this is called deferred (setImmediate) and a later mutation may have
-   * superseded the metadata captured at commit time.
-   * Reading both the rundown and its metadata here keeps them consistent
+   * Called when the underlying data has changed
+   * Stops playback if the loaded event can no longer play, otherwise hot-reloads the loaded data
+   * The rundown is read from the cache, so it is always the loaded one
    */
+  @broadcastResult
   public notifyOfChangedEvents() {
-    const state = runtimeState.getState();
-    const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
-    if (!hasLoadedElements) {
-      return;
-    }
-
+    const rundown = getCurrentRundown();
     const metadata = getRundownMetadata();
+    runtimeState.updateRundownData(metadata);
 
-    // all events were deleted, stopping clears the loaded data and there is nothing left to reconcile
-    if (metadata.playableEventOrder.length === 0) {
-      runtimeState.stop();
+    const loadedEventId = this.getLoadedEventId();
+    if (loadedEventId !== null && !isLoadedPlayable(loadedEventId, rundown)) {
+      this.stop();
       return;
     }
 
-    runtimeState.updateAll(getCurrentRundown(), metadata);
+    runtimeState.updateAll(rundown, metadata);
   }
 
   /**

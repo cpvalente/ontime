@@ -1,6 +1,7 @@
 import { OffsetMode } from 'ontime-types';
 
-import { makeOntimeEvent, makeOntimeGroup } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { getCurrentRundown } from '../../../api-data/rundown/rundown.dao.js';
 import type { RundownMetadata } from '../../../api-data/rundown/rundown.types.js';
 import { makeRuntimeStateData } from '../../../stores/__mocks__/runtimeState.mocks.js';
 import type { RuntimeState } from '../../../stores/runtimeState.js';
@@ -41,6 +42,7 @@ vi.mock('../../../stores/runtimeState.js', () => ({
   getState: () => stateRef.current,
   setOffsetMode: vi.fn(),
   stop: vi.fn(() => true),
+  updateRundownData: vi.fn(),
   updateAll: vi.fn(),
   load: vi.fn(() => true),
   resume: vi.fn(),
@@ -171,38 +173,31 @@ describe('broadcastResult()', () => {
 });
 
 describe('notifyOfChangedEvents()', () => {
-  it('does nothing when no event is loaded', () => {
-    stateRef.current = makeRuntimeStateData();
-    rundownRef.metadata = makeRundownMetadata({ playableEventOrder: ['a'] });
-
-    runtimeService.notifyOfChangedEvents();
-
-    expect(runtimeState.updateAll).not.toHaveBeenCalled();
-    expect(runtimeState.stop).not.toHaveBeenCalled();
-  });
-
-  it('stops playback and skips the update when the rundown has no playable events', () => {
-    stateRef.current = makeRuntimeStateData({ eventNow: makeOntimeEvent({ id: 'empty-now' }) });
-    rundownRef.metadata = makeRundownMetadata({ playableEventOrder: [] });
-
-    runtimeService.notifyOfChangedEvents();
-
-    expect(runtimeState.stop).toHaveBeenCalled();
-    // stopping clears the loaded data, there is nothing left to reconcile
-    expect(runtimeState.updateAll).not.toHaveBeenCalled();
-  });
-
-  it('reconciles against the rundown data read at call time', () => {
+  it('hot-reloads the loaded event with the rundown data read at call time', () => {
     stateRef.current = makeRuntimeStateData({ eventNow: makeOntimeEvent({ id: 'live-now' }) });
-    rundownRef.metadata = makeRundownMetadata({ playableEventOrder: ['stale'] });
-
-    // the side effects are deferred, a later commit may have superseded the metadata
-    // captured at commit time, so the runtime must read the current one
     const liveMetadata = makeRundownMetadata({ playableEventOrder: ['live'] });
     rundownRef.metadata = liveMetadata;
+    vi.mocked(getCurrentRundown).mockReturnValueOnce(
+      makeRundown({ entries: { 'live-now': makeOntimeEvent({ id: 'live-now' }) } }),
+    );
+    const stop = vi.spyOn(runtimeService, 'stop');
 
     runtimeService.notifyOfChangedEvents();
 
+    expect(runtimeState.updateRundownData).toHaveBeenCalledWith(liveMetadata);
     expect(runtimeState.updateAll).toHaveBeenCalledWith(expect.anything(), liveMetadata);
+    expect(stop).not.toHaveBeenCalled();
+  });
+
+  it('stops playback instead of hot-reloading when the loaded event can no longer play', () => {
+    stateRef.current = makeRuntimeStateData({ eventNow: makeOntimeEvent({ id: 'deleted-now' }) });
+    rundownRef.metadata = makeRundownMetadata({ playableEventOrder: ['other'] });
+    const stop = vi.spyOn(runtimeService, 'stop');
+
+    runtimeService.notifyOfChangedEvents();
+
+    expect(runtimeState.updateRundownData).toHaveBeenCalled();
+    expect(stop).toHaveBeenCalled();
+    expect(runtimeState.updateAll).not.toHaveBeenCalled();
   });
 });
