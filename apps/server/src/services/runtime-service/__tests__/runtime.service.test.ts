@@ -172,7 +172,7 @@ describe('broadcastResult()', () => {
   });
 });
 
-describe('reconcile()', () => {
+describe('notifyOfChangedEvents()', () => {
   it('hot-reloads the loaded event with the rundown data read at call time', () => {
     stateRef.current = makeRuntimeStateData({ eventNow: makeOntimeEvent({ id: 'live-now' }) });
     const liveMetadata = makeRundownMetadata({ playableEventOrder: ['live'] });
@@ -182,7 +182,7 @@ describe('reconcile()', () => {
     );
     const stop = vi.spyOn(runtimeService, 'stop');
 
-    runtimeService.reconcile();
+    runtimeService.notifyOfChangedEvents();
 
     expect(runtimeState.updateRundownData).toHaveBeenCalledWith(liveMetadata);
     expect(runtimeState.updateAll).toHaveBeenCalledWith(expect.anything(), liveMetadata);
@@ -194,7 +194,7 @@ describe('reconcile()', () => {
     rundownRef.metadata = makeRundownMetadata({ playableEventOrder: ['other'] });
     const stop = vi.spyOn(runtimeService, 'stop');
 
-    runtimeService.reconcile();
+    runtimeService.notifyOfChangedEvents();
 
     expect(runtimeState.updateRundownData).toHaveBeenCalled();
     expect(stop).toHaveBeenCalled();

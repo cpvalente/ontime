@@ -28,7 +28,7 @@ vi.mock('../../../adapters/WebsocketAdapter.js', () => ({ sendRefetch: vi.fn<typ
 vi.mock('../../../services/runtime-service/runtime.service.js', () => ({
   runtimeService: {
     stop: stopMock,
-    reconcile: vi.fn<() => void>(),
+    notifyOfChangedEvents: vi.fn<() => void>(),
   },
 }));
 vi.mock('../../../services/app-state-service/AppStateService.js', () => ({

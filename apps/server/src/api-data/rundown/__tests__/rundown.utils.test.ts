@@ -31,6 +31,7 @@ import {
   hasChanges,
   makeDeepClone,
   mergeRundownPreservingFields,
+  isLoadedPlayable,
   eventDurationMatchGroupTarget,
 } from '../rundown.utils.js';
 
@@ -593,6 +594,31 @@ describe('mergeRundownPreservingFields()', () => {
 
     expect(keynote.triggers).toEqual([automation]);
     expect(keynote.timeStrategy).toBe(TimeStrategy.LockEnd);
+  });
+});
+
+describe('isLoadedPlayable()', () => {
+  it('returns true when the loaded event still exists and is playable', () => {
+    const rundown = makeRundown({ order: ['keynote'], entries: { keynote: makeOntimeEvent({ id: 'keynote' }) } });
+    expect(isLoadedPlayable('keynote', rundown)).toBe(true);
+  });
+
+  it('returns false when the loaded event was removed', () => {
+    const rundown = makeRundown({ order: ['welcome'], entries: { welcome: makeOntimeEvent({ id: 'welcome' }) } });
+    expect(isLoadedPlayable('keynote', rundown)).toBe(false);
+  });
+
+  it('returns false when the loaded event is now skipped', () => {
+    const rundown = makeRundown({
+      order: ['keynote'],
+      entries: { keynote: makeOntimeEvent({ id: 'keynote', skip: true }) },
+    });
+    expect(isLoadedPlayable('keynote', rundown)).toBe(false);
+  });
+
+  it('returns false when the matched entry is no longer an event', () => {
+    const rundown = makeRundown({ order: ['keynote'], entries: { keynote: makeOntimeGroup({ id: 'keynote' }) } });
+    expect(isLoadedPlayable('keynote', rundown)).toBe(false);
   });
 });
 

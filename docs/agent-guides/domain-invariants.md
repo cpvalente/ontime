@@ -19,7 +19,7 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - No partial commit on failure.
 - Preserve revision/transaction semantics for loaded and background rundowns.
 - Persist before websocket refetches, runtime updates, integration notifications, or cache assumptions.
-- Call `runtimeService.reconcile()` synchronously after every rundown commit or cache init. The runtime reads the loaded rundown itself and owns the stop/hot-reload decision; rundown code does not stop playback or patch runtime state directly.
+- Call `notifyChanges()` after every rundown commit or cache init. It updates the runtime synchronously through `runtimeService.notifyOfChangedEvents()`, which reads the loaded rundown itself and owns the stop/hot-reload decision; rundown code does not stop playback or patch runtime state directly.
 - Notify only invalidated consumers; never leave client cache stale.
 - Avoid duplicate listeners, notifications, invalidations, lifecycle effects.
 - Reconnect/refetch must converge on authoritative state.

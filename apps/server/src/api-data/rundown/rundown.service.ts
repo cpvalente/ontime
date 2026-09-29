@@ -97,14 +97,7 @@ export async function addEntry(rundownId: string, eventData: EventPostPayload): 
   rundownMutation.add(rundown, newEntry, parent, insertPosition.afterId, insertPosition.beforeId);
 
   const { rundown: responseRundown, revision } = await commit();
-
-  runtimeService.reconcile();
-
-  // schedule the side effects
-  setImmediate(() => {
-    // notify external services of change
-    notifyChanges(rundown.id, revision, { external: true });
-  });
+  notifyChanges(rundown.id, revision, { external: true });
 
   return responseRundown.entries[newEntry.id] ?? newEntry;
 }
@@ -141,14 +134,7 @@ export async function editEntry(rundownId: string, patch: PatchWithId): Promise<
   const { entry, didInvalidate } = rundownMutation.edit(rundown, patch);
   sanitiseEditedCustomFields(customFields, entry, patch);
   const { rundown: responseRundown, revision } = await commit(didInvalidate);
-
-  runtimeService.reconcile();
-
-  // schedule the side effects
-  setImmediate(() => {
-    // notify external services of change
-    notifyChanges(rundown.id, revision, { external: true });
-  });
+  notifyChanges(rundown.id, revision, { external: true });
 
   return responseRundown.entries[entry.id] ?? entry;
 }
@@ -205,14 +191,7 @@ export async function batchEditEntries(
     }
   }
   const { rundown: rundownResult, revision } = await commit(batchDidInvalidate);
-
-  runtimeService.reconcile();
-
-  // schedule the side effects
-  setImmediate(() => {
-    // notify external services of change
-    notifyChanges(rundown.id, revision, { external: true });
-  });
+  notifyChanges(rundown.id, revision, { external: true });
 
   return rundownResult;
 }
@@ -242,14 +221,7 @@ export async function deleteEntries(rundownId: string, entryIds: EntryId[]): Pro
   }
 
   const { rundown: rundownResult, revision } = await commit();
-
-  runtimeService.reconcile();
-
-  // schedule the side effects
-  setImmediate(() => {
-    // notify external services of change
-    notifyChanges(rundown.id, revision, { external: true });
-  });
+  notifyChanges(rundown.id, revision, { external: true });
 
   return rundownResult;
 }
@@ -263,14 +235,7 @@ export async function deleteAllEntries(rundownId: string): Promise<Rundown> {
   rundownMutation.removeAll(rundown);
 
   const { rundown: rundownResult, revision } = await commit();
-
-  runtimeService.reconcile();
-
-  // schedule the side effects
-  setImmediate(() => {
-    // notify external services of change
-    notifyChanges(rundown.id, revision, { external: true });
-  });
+  notifyChanges(rundown.id, revision, { external: true });
 
   return rundownResult;
 }
@@ -299,14 +264,7 @@ export async function reorderEntry(
   rundownMutation.reorder(rundown, eventFrom, eventTo, order);
 
   const { rundown: rundownResult, revision } = await commit();
-
-  runtimeService.reconcile();
-
-  // schedule the side effects
-  setImmediate(() => {
-    // notify external services of change
-    notifyChanges(rundown.id, revision, { external: true });
-  });
+  notifyChanges(rundown.id, revision, { external: true });
 
   return rundownResult;
 }
@@ -332,12 +290,7 @@ export async function renumberEntries(
   rundownMutation.renumber(rundown, ids, prefix, startNumber, incrementNumber);
 
   const { rundown: rundownResult, revision } = await commit(false);
-
-  runtimeService.reconcile();
-
-  setImmediate(() => {
-    notifyChanges(rundown.id, revision, { external: true });
-  });
+  notifyChanges(rundown.id, revision, { external: true });
 
   return rundownResult;
 }
@@ -360,14 +313,7 @@ export async function applyDelay(rundownId: string, delayId: EntryId): Promise<R
   rundownMutation.remove(rundown, delay);
 
   const { rundown: rundownResult, revision } = await commit();
-
-  runtimeService.reconcile();
-
-  // schedule the side effects
-  setImmediate(() => {
-    // notify external services of change
-    notifyChanges(rundown.id, revision, { external: true });
-  });
+  notifyChanges(rundown.id, revision, { external: true });
 
   return rundownResult;
 }
@@ -392,14 +338,7 @@ export async function swapEvents(rundownId: string, fromId: EntryId, toId: Entry
 
   rundownMutation.swap(rundown, eventFrom, eventTo);
   const { rundown: rundownResult, revision } = await commit();
-
-  runtimeService.reconcile();
-
-  // schedule the side effects
-  setImmediate(() => {
-    // notify external services of change
-    notifyChanges(rundown.id, revision, { external: true });
-  });
+  notifyChanges(rundown.id, revision, { external: true });
 
   return rundownResult;
 }
@@ -420,18 +359,9 @@ export async function cloneEntry(rundownId: string, entryId: EntryId, options: I
     throw new Error('Could not find entry to clone');
   }
 
-  const newEntry = rundownMutation.clone(rundown, originalEntry, options);
+  rundownMutation.clone(rundown, originalEntry, options);
   const { rundown: rundownResult, revision } = await commit();
-
-  runtimeService.reconcile();
-
-  // schedule the side effects
-  setImmediate(() => {
-    // notify external services of change
-    if (isOntimeGroup(newEntry) || isOntimeEvent(newEntry) || isOntimeDelay(newEntry)) {
-      notifyChanges(rundown.id, revision, { external: true });
-    }
-  });
+  notifyChanges(rundown.id, revision, { external: true });
 
   return rundownResult;
 }
@@ -486,13 +416,7 @@ export async function entryFitGroupDuration(rundownId: string, entryId: EntryId)
     timeStrategy: entry.timeStrategy,
   });
   const { rundown: rundownResult, revision } = await commit();
-
-  runtimeService.reconcile();
-
-  // schedule the side effects
-  setImmediate(() => {
-    notifyChanges(rundown.id, revision, { external: true });
-  });
+  notifyChanges(rundown.id, revision, { external: true });
 
   return rundownResult;
 }
@@ -505,13 +429,7 @@ export async function groupEntries(rundownId: string, entryIds: EntryId[]): Prom
 
   rundownMutation.group(rundown, entryIds);
   const { rundown: rundownResult, revision } = await commit();
-
-  runtimeService.reconcile();
-
-  // schedule the side effects
-  setImmediate(() => {
-    notifyChanges(rundown.id, revision, { external: true });
-  });
+  notifyChanges(rundown.id, revision, { external: true });
 
   return rundownResult;
 }
@@ -529,13 +447,7 @@ export async function ungroupEntries(rundownId: string, groupId: EntryId): Promi
 
   rundownMutation.ungroup(rundown, group);
   const { rundown: rundownResult, revision } = await commit();
-
-  runtimeService.reconcile();
-
-  // schedule the side effects
-  setImmediate(() => {
-    notifyChanges(rundown.id, revision, { external: true });
-  });
+  notifyChanges(rundown.id, revision, { external: true });
 
   return rundownResult;
 }
@@ -562,8 +474,6 @@ export async function createCustomField(customField: CustomField): Promise<Custo
 
   // Adding a custom field has no immediate implications on the rundown
   const { customFields: resultCustomFields } = await commit(false);
-
-  runtimeService.reconcile();
 
   setImmediate(() => {
     sendRefetch(RefetchKey.CustomFields);
@@ -628,8 +538,7 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 
   // the custom fields have been removed and there is no processing to be done
   const { revision, customFields: resultCustomFields } = await commit(false);
-
-  runtimeService.reconcile();
+  notifyChanges(undefined, revision, { external: true });
 
   // ... and reassign references in the background rundowns
   if (didChangeKey) {
@@ -641,7 +550,6 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
   // schedule the side effects
   setImmediate(() => {
     sendRefetch(RefetchKey.CustomFields);
-    notifyChanges(undefined, revision, { external: true });
   });
 
   return resultCustomFields;
@@ -667,8 +575,7 @@ export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFiel
 
   // the custom fields have been removed and there is no processing to be done
   const { revision, customFields: resultCustomFields } = await commit(false);
-
-  runtimeService.reconcile();
+  notifyChanges(undefined, revision, { external: true });
 
   // remove references in the background rundowns
   await updateBackgroundRundowns(rundown.id, (backgroundRundown) =>
@@ -678,7 +585,6 @@ export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFiel
   // schedule the side effects
   setImmediate(() => {
     sendRefetch(RefetchKey.CustomFields);
-    notifyChanges(undefined, revision, { external: true });
   });
 
   return resultCustomFields;
@@ -695,8 +601,6 @@ export async function mergeCustomFields(newCustomFields: CustomFields): Promise<
   // adding custom fields has no immediate implications on the rundown
   const { customFields: resultCustomFields } = await commit(false);
 
-  runtimeService.reconcile();
-
   setImmediate(() => {
     sendRefetch(RefetchKey.CustomFields);
   });
@@ -710,15 +614,20 @@ type NotifyChangesOptions = {
 };
 
 /**
- * Notify clients of changes in the rundown
- * The runtime is reconciled separately, see runtimeService.reconcile()
+ * Notify services of changes in the rundown, called after every commit
+ * - the runtime is updated immediately, so it never runs on stale data
+ * - clients are notified at the end of the event loop
  */
 function notifyChanges(rundownId: string | undefined, revision: number, options: NotifyChangesOptions) {
-  if (options.reload) {
-    sendRefetch(RefetchKey.All);
-  } else if (options.external) {
-    sendRefetch(RefetchKey.Rundown, revision, rundownId);
-  }
+  runtimeService.notifyOfChangedEvents();
+
+  setImmediate(() => {
+    if (options.reload) {
+      sendRefetch(RefetchKey.All);
+    } else if (options.external) {
+      sendRefetch(RefetchKey.Rundown, revision, rundownId);
+    }
+  });
 }
 
 export function isCurrentRundown(id: string) {
@@ -752,10 +661,9 @@ export async function initRundown(
   runtimeService.stop();
   const { revision } = rundownCache.init(rundown, customFields);
   logger.info(LogOrigin.Server, `Switch to rundown: ${rundown.id}`);
-  runtimeService.reconcile();
+  notifyChanges(rundown.id, revision, { external: true, reload });
 
   setImmediate(() => {
-    notifyChanges(rundown.id, revision, { external: true, reload });
     sendRefetch(RefetchKey.ProjectRundowns);
     setLastLoadedRundown(rundown.id).catch((error) => {
       logger.error(LogOrigin.Server, `Failed to persist last loaded rundown: ${error}`);
@@ -769,10 +677,9 @@ export async function initRundown(
  */
 function applyChangeToCurrentRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
   const { revision } = rundownCache.init(rundown, customFields);
-  runtimeService.reconcile();
+  notifyChanges(rundown.id, revision, { external: true, reload: true });
 
   setImmediate(() => {
-    notifyChanges(rundown.id, revision, { external: true, reload: true });
     sendRefetch(RefetchKey.ProjectRundowns);
   });
 }
@@ -806,11 +713,9 @@ export async function renameRundown(id: string, title: string) {
 
   // a title has no bearing on the schedule, there is nothing to process
   const { revision } = await commit(false);
-
-  runtimeService.reconcile();
+  notifyChanges(id, revision, { external: true });
 
   setImmediate(() => {
-    notifyChanges(id, revision, { external: true });
     sendRefetch(RefetchKey.ProjectRundowns);
   });
 
@@ -890,9 +795,9 @@ export async function applyImportToRundown(
     applyChangeToCurrentRundown(parsed, dataProvider.getCustomFields());
   } else {
     await dataProvider.setRundown(parsed.id, parsed);
+    // a background rundown can be open in another surface, its viewers need the new data
+    notifyChanges(parsed.id, parsed.revision, { external: true });
     setImmediate(() => {
-      // a background rundown can be open in another surface, its viewers need the new data
-      notifyChanges(parsed.id, parsed.revision, { external: true });
       sendRefetch(RefetchKey.ProjectRundowns);
     });
   }

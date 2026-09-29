@@ -1,6 +1,6 @@
 import { Offset, OffsetMode, Playback, TimerPhase, TimerState, TimerType } from 'ontime-types';
 
-import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import {
   findNextPlayableId,
   findNextPlayableWithCue,
@@ -10,7 +10,6 @@ import {
   getShouldOffsetUpdate,
   getShouldTimerUpdate,
   isNewSecond,
-  shouldStopOnRundownChange,
 } from '../runtime.utils.js';
 
 describe('isNewSecond()', () => {
@@ -223,56 +222,5 @@ describe('getEventAtIndex()', () => {
   it('returns undefined when the index is out of range', () => {
     expect(getEventAtIndex(rundown, ['1', '2'], 5)).toBeUndefined();
     expect(getEventAtIndex(rundown, [], 0)).toBeUndefined();
-  });
-});
-
-describe('shouldStopOnRundownChange()', () => {
-  const playable = makeRundown({ order: ['loaded'], entries: { loaded: makeOntimeEvent({ id: 'loaded' }) } });
-  const deleted = makeRundown({ order: ['other'], entries: { other: makeOntimeEvent({ id: 'other' }) } });
-  const skipped = makeRundown({
-    order: ['loaded'],
-    entries: { loaded: makeOntimeEvent({ id: 'loaded', skip: true }) },
-  });
-  const notAnEvent = makeRundown({ order: ['loaded'], entries: { loaded: makeOntimeGroup({ id: 'loaded' }) } });
-
-  it.each([
-    { case: 'nothing is loaded', loadedId: null, rundown: deleted, playableEventOrder: [], expected: false },
-    {
-      case: 'the loaded event is still playable',
-      loadedId: 'loaded',
-      rundown: playable,
-      playableEventOrder: ['loaded'],
-      expected: false,
-    },
-    {
-      case: 'the loaded event was deleted',
-      loadedId: 'loaded',
-      rundown: deleted,
-      playableEventOrder: ['other'],
-      expected: true,
-    },
-    {
-      case: 'the loaded event was skipped',
-      loadedId: 'loaded',
-      rundown: skipped,
-      playableEventOrder: ['other'],
-      expected: true,
-    },
-    {
-      case: 'the loaded event is not an event',
-      loadedId: 'loaded',
-      rundown: notAnEvent,
-      playableEventOrder: ['other'],
-      expected: true,
-    },
-    {
-      case: 'there are no playable events',
-      loadedId: 'loaded',
-      rundown: playable,
-      playableEventOrder: [],
-      expected: true,
-    },
-  ])('returns $expected when $case', ({ loadedId, rundown, playableEventOrder, expected }) => {
-    expect(shouldStopOnRundownChange(loadedId, rundown, { playableEventOrder })).toBe(expected);
   });
 });

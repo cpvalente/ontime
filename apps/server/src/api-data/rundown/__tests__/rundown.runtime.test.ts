@@ -97,7 +97,7 @@ const eventB = {
   duration: 10 * MILLIS_PER_MINUTE,
 };
 
-describe('rundown changes reconcile the runtime', () => {
+describe('rundown changes update the runtime', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime('jan 1 00:05');

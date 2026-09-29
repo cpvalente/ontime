@@ -19,7 +19,7 @@ import { millisToString, validatePlayback } from 'ontime-utils';
 import { triggerAutomations } from '../../api-data/automation/automation.service.js';
 import { triggerReportEntry } from '../../api-data/report/report.service.js';
 import { getCurrentRundown, getEntryWithId, getRundownMetadata } from '../../api-data/rundown/rundown.dao.js';
-import { cloneEntryData } from '../../api-data/rundown/rundown.utils.js';
+import { cloneEntryData, isLoadedPlayable } from '../../api-data/rundown/rundown.utils.js';
 import { logger } from '../../classes/Logger.js';
 import { timerConfig } from '../../setup/config.js';
 import { eventStore } from '../../stores/EventStore.js';
@@ -38,7 +38,6 @@ import {
   getShouldOffsetUpdate,
   getShouldTimerUpdate,
   isNewSecond,
-  shouldStopOnRundownChange,
 } from './runtime.utils.js';
 
 /**
@@ -174,17 +173,18 @@ class RuntimeService {
   }
 
   /**
-   * Brings the runtime in line with the loaded rundown after it changes
+   * Called when the underlying data has changed
    * Stops playback if the loaded event can no longer play, otherwise hot-reloads the loaded data
-   * Reads the rundown from the cache so it can be called after any commit
+   * The rundown is read from the cache, so it is always the loaded one
    */
   @broadcastResult
-  public reconcile() {
+  public notifyOfChangedEvents() {
     const rundown = getCurrentRundown();
     const metadata = getRundownMetadata();
     runtimeState.updateRundownData(metadata);
 
-    if (shouldStopOnRundownChange(this.getLoadedEventId(), rundown, metadata)) {
+    const loadedEventId = this.getLoadedEventId();
+    if (loadedEventId !== null && !isLoadedPlayable(loadedEventId, rundown)) {
       this.stop();
       return;
     }
