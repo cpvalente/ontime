@@ -40,6 +40,11 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
   const { keepAwake, toggleKeepAwake } = useKeepAwakeOptions();
   const location = useLocation();
 
+  // browsers can refuse fullscreen (eg: missing user activation), in which case the toggle stays off
+  const toggleFullscreen = () => {
+    toggle().catch(console.warn);
+  };
+
   return (
     <Dialog.Root
       open={isOpen}
@@ -65,7 +70,12 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
           <div className={style.body}>
             <MenuGroup label='This screen'>
               {supportsFullscreen && (
-                <NavigationMenuToggle checked={fullscreen} icon={<IoExpand />} label='Fullscreen' onToggle={toggle} />
+                <NavigationMenuToggle
+                  checked={fullscreen}
+                  icon={<IoExpand />}
+                  label='Fullscreen'
+                  onToggle={toggleFullscreen}
+                />
               )}
               <NavigationMenuToggle
                 checked={mirror}
