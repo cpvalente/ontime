@@ -20,6 +20,10 @@ router.get('/css', async (_req: Request, res: Response<string | ErrorResponse>) 
   }
 });
 
+router.get('/css/example', (_req: Request, res: Response<string>) => {
+  res.status(200).send(defaultCss);
+});
+
 router.post('/css', validatePostCss, async (req: Request, res: Response<never | ErrorResponse>) => {
   const { css } = req.body;
   try {

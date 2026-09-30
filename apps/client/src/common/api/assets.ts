@@ -25,10 +25,10 @@ export async function postCSSContents(css: string): Promise<void> {
 }
 
 /**
- * HTTP request to restore default css
+ * HTTP request to get the example css without changing the saved stylesheet
  */
-export async function restoreCSSContents(): Promise<string> {
-  const res = await axios.post(`${assetsPath}/css/restore`);
+export async function getCSSExample(): Promise<string> {
+  const res = await axios.get(`${assetsPath}/css/example`);
   return res.data;
 }
 
