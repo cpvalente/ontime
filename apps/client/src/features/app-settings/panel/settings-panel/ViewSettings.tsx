@@ -112,7 +112,7 @@ export default function ViewSettings() {
                 checked={overrideStylesEnabled}
                 onCheckedChange={(value: boolean) => setValue('overrideStyles', value, { shouldDirty: true })}
               />
-              <Button onClick={codeEditorHandler.open} disabled={isSubmitting}>
+              <Button onClick={codeEditorHandler.open} disabled={status !== 'success' || isSubmitting}>
                 Edit CSS override
               </Button>
             </Panel.ListItem>
