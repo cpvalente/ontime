@@ -3,7 +3,7 @@ import { JSONFile } from 'lowdb/node';
 
 import { publicFiles } from '../../setup/index.js';
 import { isRestorePoint } from './restore.parser.js';
-import type { RestorePoint } from './restore.type.js';
+import type { RestorePoint } from './restore.types.js';
 
 let failedCreateAttempts = 0;
 let savedState: RestorePoint | null = null;

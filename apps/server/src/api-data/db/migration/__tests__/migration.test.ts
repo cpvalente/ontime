@@ -16,8 +16,8 @@ import {
   ViewSettings,
 } from 'ontime-types';
 
-import * as v3 from './db.migration.v3.js';
-import * as v4 from './db.migration.v4.js';
+import * as v3 from '../db.migration.v3.js';
+import * as v4 from '../db.migration.v4.js';
 
 describe('v3 to v4', () => {
   const oldDb = {

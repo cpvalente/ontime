@@ -1,7 +1,7 @@
 import type { Request } from 'express';
 import multer, { type FileFilterCallback } from 'multer';
 
-import { storage } from '../../utils/upload.js';
+import { storage } from '../../middleware/upload.js';
 import { EXCEL_MIME } from './excel.constants.js';
 
 const filterExcel = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {

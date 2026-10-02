@@ -23,13 +23,14 @@ import { makeAuthenticateMiddleware, makeLoginRouter } from './middleware/authen
 // Import middleware configuration
 import { bodyParser } from './middleware/bodyParser.js';
 import { compressedStatic } from './middleware/staticGZip.js';
+import { clearUploadfolder } from './middleware/upload.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
-import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
-import { auxTimerService } from './services/aux-timer-service/AuxTimerService.js';
+import { getShowWelcomeDialog } from './services/app-state-service/appState.service.js';
+import { auxTimerService } from './services/aux-timer-service/auxTimer.service.js';
 import * as messageService from './services/message-service/message.service.js';
-import { initialiseProject } from './services/project-service/ProjectService.js';
+import { initialiseProject } from './services/project-service/project.service.js';
 import { restoreService } from './services/restore-service/restore.service.js';
-import type { RestorePoint } from './services/restore-service/restore.type.js';
+import type { RestorePoint } from './services/restore-service/restore.types.js';
 import { runtimeService } from './services/runtime-service/runtime.service.js';
 import { timerConfig } from './setup/config.js';
 import { environment, isProduction } from './setup/environment.js';
@@ -43,7 +44,6 @@ import { getState } from './stores/runtimeState.js';
 import { consoleError, consoleHighlight, consoleSuccess } from './utils/console.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { getNetworkInterfaces } from './utils/network.js';
-import { clearUploadfolder } from './utils/upload.js';
 import { withTimeout } from './utils/withTimeout.js';
 
 console.log('\n');

@@ -2,7 +2,7 @@ import { Server } from 'http';
 
 import { LogOrigin, MaybeNumber } from 'ontime-types';
 
-import * as appState from '../../services/app-state-service/AppStateService.js';
+import * as appState from '../../services/app-state-service/appState.service.js';
 import { config } from '../../setup/config.js';
 import { envPort, isDocker, isOntimeCloud } from '../../setup/environment.js';
 import { shouldCrashDev } from '../../utils/development.js';

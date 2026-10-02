@@ -6,7 +6,7 @@ import multer from 'multer';
 import sanitize from 'sanitize-filename';
 
 import { getAppDataPath, publicDir } from '../setup/index.js';
-import { ensureDirectory } from './fileManagement.js';
+import { ensureDirectory } from '../utils/fileManagement.js';
 
 function generateNewFileName(filePath: string, callback: (newName: string) => void) {
   const baseName = path.basename(filePath, path.extname(filePath));

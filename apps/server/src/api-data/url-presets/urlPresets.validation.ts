@@ -1,7 +1,7 @@
 import { body, param } from 'express-validator';
 import { OntimeView } from 'ontime-types';
 
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import { requestValidationFunction } from '../../middleware/validation.js';
 
 /**
  * validate array of URL preset objects

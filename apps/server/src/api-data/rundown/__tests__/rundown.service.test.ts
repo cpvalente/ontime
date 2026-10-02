@@ -32,7 +32,7 @@ vi.mock('../../../services/runtime-service/runtime.service.js', () => ({
     getLoadedEventId: vi.fn<() => string | null>(),
   },
 }));
-vi.mock('../../../services/app-state-service/AppStateService.js', () => ({
+vi.mock('../../../services/app-state-service/appState.service.js', () => ({
   setLastLoadedRundown: vi.fn<() => Promise<void>>(),
 }));
 vi.mock('../../../stores/runtimeState.js', () => ({ updateRundownData: vi.fn<() => void>() }));

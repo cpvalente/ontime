@@ -3,7 +3,7 @@ import { parseUserTime } from 'ontime-utils';
 import { DeepReadonly } from 'ts-essentials';
 
 import { logger } from '../../../classes/Logger.js';
-import { auxTimerService } from '../../../services/aux-timer-service/AuxTimerService.js';
+import { auxTimerService } from '../../../services/aux-timer-service/auxTimer.service.js';
 import * as messageService from '../../../services/message-service/message.service.js';
 import { runtimeService } from '../../../services/runtime-service/runtime.service.js';
 import { parseTemplateNested } from '../automation.utils.js';

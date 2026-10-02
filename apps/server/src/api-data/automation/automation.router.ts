@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 
-import { paramsWithId } from '../validation-utils/validationFunction.js';
+import { paramsWithId } from '../../middleware/validation.js';
 import {
   deleteAutomation,
   deleteTrigger,

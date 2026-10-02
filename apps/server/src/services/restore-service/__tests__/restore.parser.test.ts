@@ -2,7 +2,7 @@ import { OffsetMode, Playback } from 'ontime-types';
 import type { Instant } from 'ontime-types';
 
 import { isRestorePoint } from '../restore.parser.js';
-import type { RestorePoint } from '../restore.type.js';
+import type { RestorePoint } from '../restore.types.js';
 
 const restorePoint: RestorePoint = {
   rundownId: 'rundown',

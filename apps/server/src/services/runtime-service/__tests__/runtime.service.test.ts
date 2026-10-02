@@ -55,7 +55,7 @@ vi.mock('../../../api-data/rundown/rundown.dao.js', () => ({
 }));
 
 // the timer owns a setInterval, we do not want it running in tests
-vi.mock('../../EventTimer.js', () => ({
+vi.mock('../EventTimer.js', () => ({
   EventTimer: class {
     setOnUpdateCallback() {}
     start() {

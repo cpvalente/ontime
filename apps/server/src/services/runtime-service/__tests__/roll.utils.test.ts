@@ -1,12 +1,12 @@
 import { PlayableEvent } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
-import { makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
-import { processRundown, rundownCache } from '../../api-data/rundown/rundown.dao.js';
-import { initRundown } from '../../api-data/rundown/rundown.service.js';
-import { loadRoll } from '../rollUtils.js';
+import { makeOntimeEvent, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { processRundown, rundownCache } from '../../../api-data/rundown/rundown.dao.js';
+import { initRundown } from '../../../api-data/rundown/rundown.service.js';
+import { loadRoll } from '../roll.utils.js';
 
-vi.mock('../../classes/data-provider/DataProvider.js', () => {
+vi.mock('../../../classes/data-provider/DataProvider.js', () => {
   return {
     getDataProvider: vi.fn().mockImplementation(() => {
       return {

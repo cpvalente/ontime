@@ -1,7 +1,7 @@
 import type { Request } from 'express';
 import multer, { type FileFilterCallback } from 'multer';
 
-import { storage } from '../../utils/upload.js';
+import { storage } from '../../middleware/upload.js';
 
 const filterProjectFile = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
   if (file.mimetype.includes('application/json')) {

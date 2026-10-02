@@ -1,7 +1,7 @@
 import { body, param } from 'express-validator';
 import { type EntryId, type InsertOptions, type OntimeGroup, type Rundown } from 'ontime-types';
 
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import { requestValidationFunction } from '../../middleware/validation.js';
 
 // #region operations on project rundowns =========================
 

@@ -24,7 +24,7 @@ import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { logger } from '../../classes/Logger.js';
 import { makeNewRundown } from '../../models/dataModel.js';
-import { setLastLoadedRundown } from '../../services/app-state-service/AppStateService.js';
+import { setLastLoadedRundown } from '../../services/app-state-service/appState.service.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';

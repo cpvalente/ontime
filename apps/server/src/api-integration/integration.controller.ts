@@ -14,7 +14,7 @@ import { socket } from '../adapters/WebsocketAdapter.js';
 import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
 import { editEntry } from '../api-data/rundown/rundown.service.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
-import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.js';
+import { auxTimerService } from '../services/aux-timer-service/auxTimer.service.js';
 import * as messageService from '../services/message-service/message.service.js';
 import { validateMessage, validateTimerMessage } from '../services/message-service/message.utils.js';
 import { runtimeService } from '../services/runtime-service/runtime.service.js';

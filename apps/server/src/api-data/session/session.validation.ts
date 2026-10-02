@@ -1,6 +1,6 @@
 import { body } from 'express-validator';
 
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import { requestValidationFunction } from '../../middleware/validation.js';
 
 export const validateGenerateUrl = [
   body('baseUrl').isString().trim().notEmpty(),

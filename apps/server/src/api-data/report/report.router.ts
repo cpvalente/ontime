@@ -1,7 +1,7 @@
 import express from 'express';
 import type { Request, Response, Router } from 'express';
 
-import { paramsWithId } from '../validation-utils/validationFunction.js';
+import { paramsWithId } from '../../middleware/validation.js';
 import * as report from './report.service.js';
 
 export const router: Router = express.Router();

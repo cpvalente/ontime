@@ -12,8 +12,8 @@ import {
   timerLifecycleValues,
 } from 'ontime-types';
 
+import { requestValidationFunction } from '../../middleware/validation.js';
 import * as assert from '../../utils/assert.js';
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 import { isFilterOperator, isFilterRule, isHostname, isOntimeActionAction } from './automation.utils.js';
 
 export const validateAutomationSettings = [
