@@ -96,23 +96,17 @@ describe('WebsocketAdapter', () => {
     expect(() => rejectedSocket.emit('error', new Error('socket closed'))).not.toThrow();
   });
 
-  it('terminates a client that sends messages but does not answer protocol pings', () => {
+  it('keeps a client connected when it does not answer protocol pings', () => {
     vi.useFakeTimers();
     authenticationMocks.reject = false;
     socket.init({} as Server, false);
     const client = new websocketMocks.FakeWebSocket();
-    const server = websocketMocks.getLatestServer();
-    const connectionHandler = websocketMocks.getConnectionHandler();
+    websocketMocks.getLatestServer()?.clients.add(client);
+    websocketMocks.getConnectionHandler()?.(client, {});
 
-    expect(server).toBeDefined();
-    expect(connectionHandler).toBeDefined();
-    server?.clients.add(client);
-    connectionHandler?.(client, {});
-
-    vi.advanceTimersByTime(10_000);
-    client.emit('message', Buffer.from(JSON.stringify({ tag: 'ping', payload: null })));
-
-    vi.advanceTimersByTime(10_000);
-    expect(client.terminate).toHaveBeenCalledOnce();
+    // Not every integration replies to pings, clients own reconnecting
+    vi.advanceTimersByTime(5 * 60_000);
+    expect(client.terminate).not.toHaveBeenCalled();
+    expect(client.close).not.toHaveBeenCalled();
   });
 });
