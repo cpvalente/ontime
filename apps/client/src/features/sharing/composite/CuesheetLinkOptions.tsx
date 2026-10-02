@@ -139,12 +139,13 @@ export default function CuesheetLinkOptions({ initialRead, initialWrite, onChang
   }, [resolvedRead, resolvedWrite]);
 
   const noReadAccess = resolvedRead === '-';
+  const showColumnPermissions = readPermissions === 'custom' || writePermissions === 'custom';
 
   return (
     <Panel.Indent>
       <div>
-        <Panel.Field title='Access mode' description='Which parts of the data the link gives access to' />
-        <div>
+        <Panel.Field title='Access' description='Which columns recipients can view and edit' />
+        <div className={style.modes}>
           <RadioGroup
             value={readPermissions}
             onValueChange={handleReadModeChange}
@@ -167,35 +168,13 @@ export default function CuesheetLinkOptions({ initialRead, initialWrite, onChang
         </div>
       </div>
       {noReadAccess && <Panel.Error>Links must contain at least one readable column.</Panel.Error>}
-      <div className={style.twoCols}>
-        <div className={style.grid}>
-          <Panel.Description>Ontime columns</Panel.Description>
-          <Panel.Description>Read</Panel.Description>
-          <Panel.Description>Write</Panel.Description>
-          {cuesheetDefaultColumns.map((column) => (
-            <Fragment key={column.value}>
-              <div>{column.label}</div>
-              <Switch
-                checked={isReadOn(column.value)}
-                onCheckedChange={(value: boolean) => handleReadSwitch(column.value, value)}
-                disabled={readPermissions === 'full' || writePermissions === 'full'}
-                data-testid={`read-${column.value}`}
-              />
-              <Switch
-                checked={isWriteOn(column.value)}
-                onCheckedChange={(value: boolean) => handleWriteSwitch(column.value, value)}
-                disabled={writePermissions === 'full'}
-                data-testid={`write-${column.value}`}
-              />
-            </Fragment>
-          ))}
-        </div>
-        {customFieldColumns.length > 0 && (
+      {showColumnPermissions && (
+        <div className={style.columnGroups}>
           <div className={style.grid}>
-            <Panel.Description>Custom fields</Panel.Description>
+            <Panel.Description>Ontime columns</Panel.Description>
             <Panel.Description>Read</Panel.Description>
             <Panel.Description>Write</Panel.Description>
-            {customFieldColumns.map((column) => (
+            {cuesheetDefaultColumns.map((column) => (
               <Fragment key={column.value}>
                 <div>{column.label}</div>
                 <Switch
@@ -213,8 +192,32 @@ export default function CuesheetLinkOptions({ initialRead, initialWrite, onChang
               </Fragment>
             ))}
           </div>
-        )}
-      </div>
+          {customFieldColumns.length > 0 && (
+            <div className={style.grid}>
+              <Panel.Description>Custom fields</Panel.Description>
+              <Panel.Description>Read</Panel.Description>
+              <Panel.Description>Write</Panel.Description>
+              {customFieldColumns.map((column) => (
+                <Fragment key={column.value}>
+                  <div>{column.label}</div>
+                  <Switch
+                    checked={isReadOn(column.value)}
+                    onCheckedChange={(value: boolean) => handleReadSwitch(column.value, value)}
+                    disabled={readPermissions === 'full' || writePermissions === 'full'}
+                    data-testid={`read-${column.value}`}
+                  />
+                  <Switch
+                    checked={isWriteOn(column.value)}
+                    onCheckedChange={(value: boolean) => handleWriteSwitch(column.value, value)}
+                    disabled={writePermissions === 'full'}
+                    data-testid={`write-${column.value}`}
+                  />
+                </Fragment>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </Panel.Indent>
   );
 }

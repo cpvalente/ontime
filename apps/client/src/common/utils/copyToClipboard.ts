@@ -1,9 +1,16 @@
+export function canCopyToClipboard(): boolean {
+  return typeof navigator !== 'undefined' && typeof navigator.clipboard?.writeText === 'function';
+}
+
 /**
- * copy text to clipboard
- * @throws if not supported or permission denied
+ * Copy text to clipboard. Returns false when unavailable; throws if permission is denied.
  */
-export async function copyToClipboard(text: string) {
-  await navigator.clipboard?.writeText(text);
+export async function copyToClipboard(text: string): Promise<boolean> {
+  if (!canCopyToClipboard()) {
+    return false;
+  }
+  await navigator.clipboard.writeText(text);
+  return true;
 }
 
 /**

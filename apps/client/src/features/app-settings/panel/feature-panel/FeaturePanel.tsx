@@ -1,4 +1,5 @@
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
+import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOntimeCloud } from '../../../../externals';
 import GenerateLinkFormExport from '../../../sharing/GenerateLinkFormExport';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
@@ -29,7 +30,9 @@ export default function FeaturePanel({ location }: PanelBaseProps) {
               </>
             )}
             <Panel.Divider />
-            <GenerateLinkFormExport />
+            <div onKeyDown={(event) => preventEscape(event)}>
+              <GenerateLinkFormExport />
+            </div>
           </Panel.Card>
         </Panel.Section>
       </div>
