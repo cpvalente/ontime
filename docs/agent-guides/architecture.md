@@ -31,6 +31,39 @@ Do not duplicate canonical rules or distort an abstraction to force reuse. Small
 
 ## Server
 
+### Model
+
+- Vertical slices: each `api-data/<resource>/` matches its route and holds its router, validation, service, DAO, utils, tests. Keep folder names aligned with routes.
+- Aggregates own data and invariants. Rundown owns entries, groups, custom fields; the project is the unit of persistence. Other slices (excel, sheets, report, custom-fields, MCP, integrations) go through the owner's service or DAO, never its state.
+- Functional core, imperative shell: pure utils and parsers decide; services orchestrate effects in visible order.
+- Adapters at the edge: `adapters/` and `api-integration/` translate inbound protocols; `automation/clients/` handle outbound ones.
+- Runtime is a clock-driven context in `services/runtime-service/`: state machine (`stores/runtimeState`), scheduler (`EventTimer`), service shell (`runtime.service`). Rundown notifies runtime of changes; runtime reads rundown through its DAO.
+
+### Layout
+
+| Location                   | Holds                                      |
+| -------------------------- | ------------------------------------------ |
+| `api-data/<resource>/`     | One route slice; nothing else              |
+| `services/<name>-service/` | One service with its helpers and tests     |
+| `stores/`                  | Mutable runtime state                      |
+| `adapters/`                | Inbound protocol adapters                  |
+| `middleware/`              | Express middleware shared across routers   |
+| `lib/`                     | Self-contained libraries (eg: `time-core`) |
+| `utils/`                   | Generic, domain-free helpers               |
+
+| File suffix                        | Role                                                             |
+| ---------------------------------- | ---------------------------------------------------------------- |
+| `.router.ts`, `.controller.ts`     | HTTP edge: map requests to service calls                         |
+| `.validation.ts`, `.middleware.ts` | Guard the boundary, next to the resource                         |
+| `.service.ts`                      | Shell: orchestrate persistence, broadcast, runtime notifications |
+| `.dao.ts`                          | Shell: persistence and cache                                     |
+| `.utils.ts`, `.parser.ts`          | Core: pure, inputs passed explicitly                             |
+| `.types.ts`                        | Local types                                                      |
+
+Name files `name.role.ts`. Keep tests in a sibling `__tests__/`.
+
+Known gaps, not precedent: `runtimeState` reads the clock and mutates a module singleton; some routers call `DataProvider` directly; `rundown.service` writes runtime state without going through `runtime.service`.
+
 ### Routers and controllers
 
 Routers declare paths and middleware. Controllers map validated HTTP input to typed service arguments, then results/errors to responses.
