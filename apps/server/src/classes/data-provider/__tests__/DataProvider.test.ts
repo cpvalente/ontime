@@ -3,7 +3,7 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 import { makeNewProject } from '../../../models/dataModel.js';
-import { flushPendingWrites, getDataProvider, initPersistence } from '../DataProvider.js';
+import { flushPendingWrites, getDataProvider, getFileToRead, initPersistence } from '../DataProvider.js';
 
 // persistence is disabled in tests, this suite exercises it against real files
 // lowdb also keeps data in memory under NODE_ENV=test
@@ -12,7 +12,7 @@ vi.mock('../../../setup/environment.js', async (importOriginal) => ({
   isTest: false,
 }));
 
-describe('initPersistence()', () => {
+describe('saving pending changes of the loaded project', () => {
   let dir: string;
   const nodeEnv = process.env.NODE_ENV;
 
@@ -36,5 +36,13 @@ describe('initPersistence()', () => {
 
     const saved = JSON.parse(await readFile(previous, 'utf-8'));
     expect(saved.project.title).toBe('edited just before switching');
+  });
+
+  it('includes changes still waiting to be written in the file given to read, copy or move', async () => {
+    await initPersistence(join(dir, 'loaded.json'), makeNewProject());
+    await getDataProvider().setProjectData({ title: 'edited just before download' });
+
+    const saved = JSON.parse(await readFile(await getFileToRead(), 'utf-8'));
+    expect(saved.project.title).toBe('edited just before download');
   });
 });

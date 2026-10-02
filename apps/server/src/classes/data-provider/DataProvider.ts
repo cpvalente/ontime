@@ -20,6 +20,8 @@ import { safeMerge } from './DataProvider.utils.js';
 type ReadonlyPromise<T> = Promise<Readonly<T>>;
 
 let db = {} as Low<DatabaseModel>;
+/** file of the loaded project, which the delayed save writes to */
+let loadedFile = '';
 
 /**
  * Initialises the JSON adapter to persist data to a file
@@ -29,9 +31,7 @@ export async function initPersistence(filePath: string, fallbackData: DatabaseMo
   DEV: shouldCrashDev(!isPath(filePath), 'initPersistence should be called with a path');
 
   // the delayed save writes whichever file is current when it runs, so the previous file is saved now
-  if (pendingWrite) {
-    await flushPendingWrites();
-  }
+  await savePending();
 
   const newDb = await JSONFilePreset<DatabaseModel>(filePath, fallbackData);
 
@@ -41,6 +41,16 @@ export async function initPersistence(filePath: string, fallbackData: DatabaseMo
   await newDb.read();
 
   db = newDb;
+  loadedFile = filePath;
+}
+
+/**
+ * Returns the file of the loaded project with every change saved to it
+ * Changes are saved with a delay, so the loaded project's file must only be read through here
+ */
+export async function getFileToRead(): Promise<string> {
+  await savePending();
+  return loadedFile;
 }
 
 export function getDataProvider() {
@@ -228,6 +238,17 @@ async function persist() {
       activeWrite = null;
     }
   }, writeDelayMs);
+}
+
+/**
+ * Saves changes still waiting for the delayed save
+ */
+async function savePending() {
+  if (pendingWrite) {
+    await flushPendingWrites();
+  } else if (activeWrite) {
+    await activeWrite;
+  }
 }
 
 /**

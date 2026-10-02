@@ -4,14 +4,13 @@ import { parseDatabaseModel } from '../../../api-data/db/db.parser.js';
 import { makeOntimeEvent, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { rundownCache } from '../../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../../api-data/rundown/rundown.service.js';
-import { flushPendingWrites, getDataProvider } from '../../../classes/data-provider/DataProvider.js';
+import { getDataProvider } from '../../../classes/data-provider/DataProvider.js';
 import { makeNewProject } from '../../../models/dataModel.js';
 import { isLastLoadedProject } from '../../app-state-service/appState.service.js';
 import { auxTimerService } from '../../aux-timer-service/auxTimer.service.js';
 import {
   deleteProjectFile,
   duplicateProjectFile,
-  getProjectFileToRead,
   loadProjectFile,
   patchCurrentProject,
   renameProjectFile,
@@ -47,7 +46,7 @@ vi.mock('../../../api-data/rundown/rundown.service.js', () => ({
 vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
   initPersistence: vi.fn(),
   getDataProvider: vi.fn(),
-  flushPendingWrites: vi.fn(),
+  getFileToRead: vi.fn(),
 }));
 
 vi.mock('../../runtime-service/runtime.service.js', () => ({
@@ -67,15 +66,6 @@ describe('deleteProjectFile', () => {
     (isLastLoadedProject as Mock).mockResolvedValue(false);
     (doesProjectExist as Mock).mockReturnValue(null);
     await expect(deleteProjectFile('nonexistentProject')).rejects.toThrow('Project file not found');
-  });
-});
-
-describe('getProjectFileToRead', () => {
-  it('writes the changes waiting to be saved before a project file is downloaded, duplicated or renamed', async () => {
-    (doesProjectExist as Mock).mockReturnValue('/projects/loaded.json');
-
-    await expect(getProjectFileToRead('loaded.json')).resolves.toBe('/projects/loaded.json');
-    expect(flushPendingWrites).toHaveBeenCalled();
   });
 });
 
