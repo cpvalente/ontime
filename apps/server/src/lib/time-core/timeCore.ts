@@ -34,6 +34,15 @@ export function toInstant(clock: TimeOfDay, reference: Instant): Instant {
 }
 
 /**
+ * Converts a time of day to its latest instant at or before the reference
+ * - Assumes the time of day happened within the day before the reference
+ */
+export function lastInstantAt(clock: TimeOfDay, reference: Instant): Instant {
+  const instant = toInstant(clock, reference);
+  return (instant > reference ? instant - dayInMs : instant) as Instant;
+}
+
+/**
  * Returns the duration elapsed since a past instant
  * Result is positive when 'since' is before 'now'
  */

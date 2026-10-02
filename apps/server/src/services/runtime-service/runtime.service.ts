@@ -10,7 +10,6 @@ import {
   RuntimeStore,
   TimerLifeCycle,
   TimerPhase,
-  TimerState,
   isOntimeEvent,
   isPlayableEvent,
 } from 'ontime-types';
@@ -26,12 +25,14 @@ import {
 } from '../../api-data/rundown/rundown.dao.js';
 import { cloneEntryData } from '../../api-data/rundown/rundown.utils.js';
 import { logger } from '../../classes/Logger.js';
+import * as timeCore from '../../lib/time-core/timeCore.js';
 import { timerConfig } from '../../setup/config.js';
 import { eventStore } from '../../stores/EventStore.js';
 import * as runtimeState from '../../stores/runtimeState.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 import { restoreService } from '../restore-service/restore.service.js';
 import type { RestorePoint } from '../restore-service/restore.types.js';
+import { makeRestorePoint } from '../restore-service/restore.utils.js';
 import { EventTimer } from './EventTimer.js';
 import {
   findNextPlayableId,
@@ -207,10 +208,10 @@ class RuntimeService {
   /**
    * makes calls for loading and starting given event
    * @param {PlayableEvent} event
-   * @param {Partial<TimerState & RestorePoint>} initialData
+   * @param {runtimeState.LoadData} initialData
    * @return {boolean} success - whether an event was loaded
    */
-  private loadEvent(event: OntimeEvent, initialData?: Partial<TimerState & RestorePoint>): boolean {
+  private loadEvent(event: OntimeEvent, initialData?: runtimeState.LoadData): boolean {
     if (!isPlayableEvent(event)) {
       logger.warning(LogOrigin.Playback, `Refused skipped event with ID ${event.id}`);
       return false;
@@ -786,23 +787,9 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     // save the restore state
     if (hasImmediateChanges) {
-      restoreService
-        .save({
-          rundownId: getCurrentRundownId(),
-          playback: state.timer.playback,
-          selectedEventId: state.eventNow?.id ?? null,
-          startedAt: state.timer.startedAt,
-          addedTime: state.timer.addedTime,
-          pausedAt: state._timer.pausedAt,
-          pausedDuration: state._timer.pausedDuration,
-          firstStart: state.rundown.actualStart,
-          startEpoch: state._startEpoch,
-          currentDay: state.rundown.currentDay,
-          offsetMode: state.offset.mode,
-        })
-        .catch((_e) => {
-          //we don't do anything with the error here
-        });
+      restoreService.save(makeRestorePoint(state, getCurrentRundownId(), timeCore.now())).catch((_e) => {
+        //we don't do anything with the error here
+      });
     }
 
     batch.send();

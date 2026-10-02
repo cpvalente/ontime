@@ -4,11 +4,11 @@ export type RestorePoint = {
   rundownId: string;
   playback: Playback;
   selectedEventId: MaybeString;
-  startedAt: MaybeNumber;
+  startedAt: Maybe<Instant>;
   addedTime: number;
-  pausedAt: MaybeNumber;
+  pausedAt: Maybe<Instant>;
   pausedDuration?: number;
-  firstStart: MaybeNumber;
+  /** when the rundown started, its time of day is the rundown's actual start */
   startEpoch: Maybe<Instant>;
   currentDay: MaybeNumber;
   offsetMode: OffsetMode;
