@@ -1,3 +1,4 @@
+import { Toolbar } from '@base-ui/react/toolbar';
 import { useDisclosure } from '@mantine/hooks';
 import { OntimeView } from 'ontime-types';
 
@@ -8,7 +9,12 @@ import useInfo from '../../../../common/hooks-query/useInfo';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import GenerateLinkFormExport from '../../../../features/sharing/GenerateLinkFormExport';
 
-function CuesheetShareModal() {
+interface CuesheetShareModalProps {
+  /** renders the trigger as a toolbar item instead of a menu button */
+  inToolbar?: boolean;
+}
+
+function CuesheetShareModal({ inToolbar }: CuesheetShareModalProps) {
   const { data: infoData } = useInfo();
   const { data: urlPresetData } = useUrlPresets();
   const [isOpen, handler] = useDisclosure();
@@ -18,10 +24,17 @@ function CuesheetShareModal() {
 
   return (
     <>
-      <Button size='small' fluid onClick={handler.open}>
-        <RotatedLink />
-        Share...
-      </Button>
+      {inToolbar ? (
+        <Toolbar.Button onClick={handler.open} render={<Button />}>
+          <RotatedLink />
+          Share...
+        </Toolbar.Button>
+      ) : (
+        <Button size='small' fluid onClick={handler.open}>
+          <RotatedLink />
+          Share...
+        </Button>
+      )}
       <Modal
         isOpen={isOpen}
         onClose={handler.close}

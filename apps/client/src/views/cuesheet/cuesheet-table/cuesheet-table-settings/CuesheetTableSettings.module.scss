@@ -75,6 +75,28 @@
   }
 }
 
+// sharing lives in the toolbar, and moves into the options menu on small screens
+.shareToolbar {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  @media (max-width: $min-tablet) {
+    display: none;
+  }
+}
+
+.shareMenu {
+  display: none;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  @media (max-width: $min-tablet) {
+    display: flex;
+  }
+}
+
 .apart {
   flex: 1;
   min-width: 0;
