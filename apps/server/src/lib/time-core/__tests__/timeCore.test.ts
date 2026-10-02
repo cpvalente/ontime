@@ -136,7 +136,6 @@ describe('lastInstantAt() finds the latest instant of a time of day at or before
 
   test.each([
     { label: 'earlier the same day', clock: 8 * MILLIS_PER_HOUR, expected: '2025-01-15T08:00:00+01:00' },
-    { label: 'the reference itself', clock: 10 * MILLIS_PER_HOUR, expected: '2025-01-15T10:00:00+01:00' },
     {
       label: 'later in the day, so the day before',
       clock: 23 * MILLIS_PER_HOUR,

@@ -11,6 +11,7 @@ import {
   RuntimeStore,
   TimerLifeCycle,
   TimerPhase,
+  TimeOfDay,
   isOntimeEvent,
   isPlayableEvent,
 } from 'ontime-types';
@@ -33,7 +34,6 @@ import * as runtimeState from '../../stores/runtimeState.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 import { restoreService } from '../restore-service/restore.service.js';
 import type { RestorePoint } from '../restore-service/restore.types.js';
-import { makeRestorePoint } from '../restore-service/restore.utils.js';
 import { EventTimer } from './EventTimer.js';
 import {
   findNextPlayableId,
@@ -791,9 +791,26 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     // save the restore state
     if (hasImmediateChanges) {
-      restoreService.save(makeRestorePoint(state, getCurrentRundownId(), timeCore.now())).catch((_e) => {
-        //we don't do anything with the error here
-      });
+      // times of day are saved as their latest instant, the runtime keeps them within the past day
+      const savedAt = timeCore.now();
+      const { startedAt } = state.timer;
+      const { pausedAt } = state._timer;
+      restoreService
+        .save({
+          rundownId: getCurrentRundownId(),
+          playback: state.timer.playback,
+          selectedEventId: state.eventNow?.id ?? null,
+          startedAt: startedAt === null ? null : timeCore.lastInstantAt(startedAt as TimeOfDay, savedAt),
+          addedTime: state.timer.addedTime,
+          pausedAt: pausedAt === null ? null : timeCore.lastInstantAt(pausedAt, savedAt),
+          pausedDuration: state._timer.pausedDuration,
+          startEpoch: state._startEpoch,
+          currentDay: state.rundown.currentDay,
+          offsetMode: state.offset.mode,
+        })
+        .catch((_e) => {
+          //we don't do anything with the error here
+        });
     }
 
     batch.send();
