@@ -29,13 +29,13 @@ vi.mock('../../../services/runtime-service/runtime.service.js', () => ({
   runtimeService: {
     stop: stopMock,
     notifyOfChangedEvents: vi.fn<() => void>(),
+    notifyOfChangedRundownMetadata: vi.fn<() => void>(),
     getLoadedEventId: vi.fn<() => string | null>(),
   },
 }));
 vi.mock('../../../services/app-state-service/appState.service.js', () => ({
   setLastLoadedRundown: vi.fn<() => Promise<void>>(),
 }));
-vi.mock('../../../stores/runtimeState.js', () => ({ updateRundownData: vi.fn<() => void>() }));
 
 /** side effects are scheduled for the end of the event loop */
 const flushSideEffects = () => new Promise((resolve) => setImmediate(resolve));

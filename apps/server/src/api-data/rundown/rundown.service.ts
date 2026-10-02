@@ -26,7 +26,6 @@ import { logger } from '../../classes/Logger.js';
 import { makeNewRundown } from '../../models/dataModel.js';
 import { setLastLoadedRundown } from '../../services/app-state-service/appState.service.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
-import { updateRundownData } from '../../stores/runtimeState.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import {
   createTransaction,
@@ -734,14 +733,7 @@ export async function mergeCustomFields(newCustomFields: CustomFields): Promise<
  */
 export function updateRuntimeOnChange(rundownMetadata: RundownMetadata | null) {
   if (!rundownMetadata) return;
-  // we only declare the amount of playable events
-  const numEvents = rundownMetadata.timedEventOrder.length;
-
-  // schedule an update for the end of the event loop
-  updateRundownData({
-    numEvents,
-    ...rundownMetadata,
-  });
+  runtimeService.notifyOfChangedRundownMetadata(rundownMetadata);
 }
 
 type NotifyChangesOptions = {
