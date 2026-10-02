@@ -1,25 +1,111 @@
-.column {
-  margin-top: 1rem;
+$qr-size: 162px;
+
+.form {
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  color: $label-gray;
-  user-select: text;
-}
-
-.copiableLink {
-  user-select: text;
-  color: $ui-white;
-  white-space: nowrap;
-  overflow-x: auto;
-}
-
-.shareInline {
-  display: grid;
-  grid-template-columns: 1fr 172px;
   gap: 1rem;
 }
 
-.end {
-  padding-right: 2rem;
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16rem;
+  align-items: start;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.result {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: $gray-1350;
+  border-radius: 3px;
+  user-select: text;
+}
+
+.preview {
+  position: relative;
+  width: $qr-size;
+  height: $qr-size;
+}
+
+.qr {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-content: center;
+  transition: opacity 150ms ease;
+}
+
+.qrPlaceholder {
+  box-sizing: border-box;
+  width: $qr-size;
+  height: $qr-size;
+  padding: 3rem;
+  border: 1px dashed $gray-1100;
+  border-radius: 3px;
+  color: $gray-1100;
+}
+
+.stale {
+  opacity: 0.25;
+}
+
+.staleNotice {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  padding: 1rem;
+  border-radius: 2px;
+  background-color: rgba($gray-1350, 0.85);
+  text-align: center;
+  font-size: calc(1rem - 2px);
+  color: $orange-500;
+}
+
+// reserves room for long links so the panel does not reflow once a link is created
+// styled as plain output text so it does not read as an editable input
+.link {
+  box-sizing: border-box;
+  width: 100%;
+  height: 4.5rem;
+  overflow-y: auto;
+  font-size: calc(1rem - 2px);
+  line-height: 1.125rem;
+  color: $gray-300;
+  text-align: center;
+  overflow-wrap: anywhere;
+  user-select: all;
+  transition: opacity 150ms ease;
+}
+
+.linkPlaceholder {
+  color: $gray-400;
+  user-select: none;
+}
+
+@container (width < 40rem) {
+  .options {
+    --panel-card-padding: 0.5rem;
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .result {
+    position: static;
+  }
 }

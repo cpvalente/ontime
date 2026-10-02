@@ -27,7 +27,7 @@ export default function CopyTag({
 
   const handleClick = async () => {
     try {
-      await copyToClipboard(copyValue);
+      if (!(await copyToClipboard(copyValue))) return;
       setCopied(true);
 
       // reset copied state
