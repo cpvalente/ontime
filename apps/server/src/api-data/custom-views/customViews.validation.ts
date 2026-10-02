@@ -1,6 +1,6 @@
 import { param } from 'express-validator';
 
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import { requestValidationFunction } from '../../middleware/validation.js';
 import { isValidCustomViewSlug } from './customViews.service.js';
 
 export const validateCustomViewSlugParam = [

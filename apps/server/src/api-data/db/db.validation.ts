@@ -1,8 +1,8 @@
 import { body, param } from 'express-validator';
 import sanitize from 'sanitize-filename';
 
+import { requestValidationFunction } from '../../middleware/validation.js';
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 /**
  * @description Validates request for a new project.

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { body, param, validationResult } from 'express-validator';
 import { isImportMap } from 'ontime-utils';
 
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import { requestValidationFunction } from '../../middleware/validation.js';
 
 export const validateRequestConnection = [
   param('sheetId')

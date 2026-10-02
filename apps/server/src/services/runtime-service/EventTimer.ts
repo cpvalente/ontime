@@ -1,5 +1,5 @@
-import * as runtimeState from '../stores/runtimeState.js';
-import type { UpdateResult } from '../stores/runtimeState.js';
+import * as runtimeState from '../../stores/runtimeState.js';
+import type { UpdateResult } from '../../stores/runtimeState.js';
 
 type UpdateCallbackFn = (updateResult: UpdateResult) => void;
 

@@ -1,6 +1,6 @@
 import { RuntimeStore } from 'ontime-types';
 
-import { AuxTimerService } from '../AuxTimerService.js';
+import { AuxTimerService } from '../auxTimer.service.js';
 
 describe('AuxTimerService', () => {
   let emit: ReturnType<typeof vi.fn>;

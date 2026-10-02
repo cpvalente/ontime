@@ -32,8 +32,8 @@ import {
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
 import * as timeCore from '../lib/time-core/timeCore.js';
-import type { RestorePoint } from '../services/restore-service/restore.type.js';
-import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
+import type { RestorePoint } from '../services/restore-service/restore.types.js';
+import { loadRoll, normaliseRollStart } from '../services/runtime-service/roll.utils.js';
 import {
   findDayOffset,
   getCurrent,
@@ -43,7 +43,7 @@ import {
   getTimeToBoundary,
   getTimerPhase,
   hasCrossedMidnight,
-} from '../services/timerUtils.js';
+} from '../services/runtime-service/timer.utils.js';
 import { timerConfig } from '../setup/config.js';
 
 type ExpectedMetadata = {

@@ -1,13 +1,13 @@
 import type { PlayableEvent } from 'ontime-types';
 
-import { makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
-import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
-import { initRundown } from '../../api-data/rundown/rundown.service.js';
-import { timerConfig } from '../../setup/config.js';
-import * as runtimeState from '../../stores/runtimeState.js';
+import { makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { rundownCache } from '../../../api-data/rundown/rundown.dao.js';
+import { initRundown } from '../../../api-data/rundown/rundown.service.js';
+import { timerConfig } from '../../../setup/config.js';
+import * as runtimeState from '../../../stores/runtimeState.js';
 import { EventTimer } from '../EventTimer.js';
 
-vi.mock('../../classes/data-provider/DataProvider.js', () => ({
+vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
   getDataProvider: () => ({
     setCustomFields: <T>(newData: T) => newData,
     setRundown: <T>(newData: T) => newData,

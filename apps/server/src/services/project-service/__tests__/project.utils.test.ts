@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 
-import { getProjectFiles } from '../projectServiceUtils.js';
+import { getProjectFiles } from '../project.utils.js';
 
 vi.mock('fs/promises', () => {
   const mockFiles = ['file1.json', 'file2.json', 'file3.json', 'document.txt', 'image.png'];

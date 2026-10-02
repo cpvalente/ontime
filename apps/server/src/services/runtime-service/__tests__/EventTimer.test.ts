@@ -1,7 +1,7 @@
-import * as runtimeState from '../../stores/runtimeState.js';
+import * as runtimeState from '../../../stores/runtimeState.js';
 import { EventTimer } from '../EventTimer.js';
 
-vi.mock('../../stores/runtimeState.js', () => ({
+vi.mock('../../../stores/runtimeState.js', () => ({
   start: vi.fn<typeof runtimeState.start>(() => true),
   pause: vi.fn<typeof runtimeState.pause>(() => true),
   stop: vi.fn<typeof runtimeState.stop>(() => true),

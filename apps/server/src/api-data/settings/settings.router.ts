@@ -8,8 +8,8 @@ import { getErrorMessage, obfuscate } from 'ontime-utils';
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { portManager } from '../../classes/port-manager/PortManager.js';
-import * as appState from '../../services/app-state-service/AppStateService.js';
-import { auxTimerService } from '../../services/aux-timer-service/AuxTimerService.js';
+import * as appState from '../../services/app-state-service/appState.service.js';
+import { auxTimerService } from '../../services/aux-timer-service/auxTimer.service.js';
 import { validateSettings, validateWelcomeDialog, validateServerPort } from './settings.validation.js';
 
 export const router: Router = express.Router();

@@ -6,16 +6,16 @@ import { rundownCache } from '../../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../../api-data/rundown/rundown.service.js';
 import { getDataProvider } from '../../../classes/data-provider/DataProvider.js';
 import { makeNewProject } from '../../../models/dataModel.js';
-import { isLastLoadedProject } from '../../app-state-service/AppStateService.js';
-import { auxTimerService } from '../../aux-timer-service/AuxTimerService.js';
+import { isLastLoadedProject } from '../../app-state-service/appState.service.js';
+import { auxTimerService } from '../../aux-timer-service/auxTimer.service.js';
 import {
   deleteProjectFile,
   duplicateProjectFile,
   loadProjectFile,
   patchCurrentProject,
   renameProjectFile,
-} from '../ProjectService.js';
-import { doesProjectExist, parseJsonFile } from '../projectServiceUtils.js';
+} from '../project.service.js';
+import { doesProjectExist, parseJsonFile } from '../project.utils.js';
 
 // stop the database loading from initiating
 vi.mock('../../../setup/loadDb.js', () => {
@@ -24,12 +24,12 @@ vi.mock('../../../setup/loadDb.js', () => {
   };
 });
 
-vi.mock('../../app-state-service/AppStateService.js', () => ({
+vi.mock('../../app-state-service/appState.service.js', () => ({
   isLastLoadedProject: vi.fn(),
   setLastLoaded: vi.fn(),
 }));
 
-vi.mock('../projectServiceUtils.js', () => ({
+vi.mock('../project.utils.js', () => ({
   doesProjectExist: vi.fn(),
   getPathToProject: vi.fn(),
   parseJsonFile: vi.fn(),
@@ -52,7 +52,7 @@ vi.mock('../../runtime-service/runtime.service.js', () => ({
   runtimeService: { stop: vi.fn() },
 }));
 
-vi.mock('../../aux-timer-service/AuxTimerService.js', () => ({
+vi.mock('../../aux-timer-service/auxTimer.service.js', () => ({
   auxTimerService: { loadNames: vi.fn() },
 }));
 

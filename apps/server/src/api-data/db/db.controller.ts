@@ -11,12 +11,12 @@ import { getErrorMessage } from 'ontime-utils';
 import sanitize from 'sanitize-filename';
 
 import { getPartialProject } from '../../models/dataModel.js';
-import * as projectService from '../../services/project-service/ProjectService.js';
+import * as projectService from '../../services/project-service/project.service.js';
 import {
   doesProjectExist,
   handleImageUpload,
   handleProjectUploaded,
-} from '../../services/project-service/projectServiceUtils.js';
+} from '../../services/project-service/project.utils.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   try {

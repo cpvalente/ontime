@@ -1,8 +1,8 @@
 import { Day, MaybeNumber, Playback, TimeOfDay, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
-import { timerConfig } from '../setup/config.js';
-import type { RuntimeState } from '../stores/runtimeState.js';
+import { timerConfig } from '../../setup/config.js';
+import type { RuntimeState } from '../../stores/runtimeState.js';
 
 /**
  * handle events that span over midnight

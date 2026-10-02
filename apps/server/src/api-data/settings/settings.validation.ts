@@ -1,7 +1,7 @@
 import { body } from 'express-validator';
 import { sanitiseAuxTimerNames } from 'ontime-utils';
 
-import { requestValidationFunction } from '../validation-utils/validationFunction.js';
+import { requestValidationFunction } from '../../middleware/validation.js';
 
 /**
  * @description Validates object for POST /ontime/settings/welcomedialog

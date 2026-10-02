@@ -1,10 +1,7 @@
 import { body, param } from 'express-validator';
 import { isImportMap } from 'ontime-utils';
 
-import {
-  requestValidationFunction,
-  requestValidationFunctionWithFile,
-} from '../validation-utils/validationFunction.js';
+import { requestValidationFunction, requestValidationFunctionWithFile } from '../../middleware/validation.js';
 
 export const validateFileExists = [requestValidationFunctionWithFile];
 

@@ -30,10 +30,9 @@ import { timerConfig } from '../../setup/config.js';
 import { eventStore } from '../../stores/EventStore.js';
 import * as runtimeState from '../../stores/runtimeState.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
-import { EventTimer } from '../EventTimer.js';
 import { restoreService } from '../restore-service/restore.service.js';
-import type { RestorePoint } from '../restore-service/restore.type.js';
-import { skippedOutOfEvent } from '../timerUtils.js';
+import type { RestorePoint } from '../restore-service/restore.types.js';
+import { EventTimer } from './EventTimer.js';
 import {
   findNextPlayableId,
   findNextPlayableWithCue,
@@ -44,6 +43,7 @@ import {
   getShouldTimerUpdate,
   isNewSecond,
 } from './runtime.utils.js';
+import { skippedOutOfEvent } from './timer.utils.js';
 
 /**
  * Service manages runtime status of app

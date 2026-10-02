@@ -1,7 +1,7 @@
 import { EndAction, Playback, TimeOfDay, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, dayInMs, millisToString } from 'ontime-utils';
 
-import type { RuntimeState } from '../../stores/runtimeState.js';
+import type { RuntimeState } from '../../../stores/runtimeState.js';
 import {
   findDayOffset,
   getCurrent,
@@ -13,7 +13,7 @@ import {
   hasCrossedMidnight,
   normaliseEndTime,
   skippedOutOfEvent,
-} from '../timerUtils.js';
+} from '../timer.utils.js';
 
 const asTimeOfDay = (value: number): RuntimeState['clock'] => value as RuntimeState['clock'];
 

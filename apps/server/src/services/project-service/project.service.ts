@@ -28,8 +28,8 @@ import {
   getFileNameFromPath,
   removeFileExtension,
 } from '../../utils/fileManagement.js';
-import { getLastLoaded, isLastLoadedProject, setLastLoaded } from '../app-state-service/AppStateService.js';
-import { auxTimerService } from '../aux-timer-service/AuxTimerService.js';
+import { getLastLoaded, isLastLoadedProject, setLastLoaded } from '../app-state-service/appState.service.js';
+import { auxTimerService } from '../aux-timer-service/auxTimer.service.js';
 import { runtimeService } from '../runtime-service/runtime.service.js';
 import {
   doesProjectExist,
@@ -37,7 +37,7 @@ import {
   getProjectFiles,
   moveCorruptFile,
   parseJsonFile,
-} from './projectServiceUtils.js';
+} from './project.utils.js';
 
 type ProjectState =
   | {

@@ -13,7 +13,7 @@ import {
 import { getErrorMessage } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { paramsWithId } from '../validation-utils/validationFunction.js';
+import { paramsWithId } from '../../middleware/validation.js';
 import { getCurrentRundown, getProcessedRundown } from './rundown.dao.js';
 import {
   addEntry,

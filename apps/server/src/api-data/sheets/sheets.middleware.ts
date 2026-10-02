@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import multer, { FileFilterCallback } from 'multer';
 
-import { storage } from '../../utils/upload.js';
+import { storage } from '../../middleware/upload.js';
 
 const filterClientSecret = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
   if (file.mimetype.includes('application/json')) {

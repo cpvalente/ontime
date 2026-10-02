@@ -1,7 +1,7 @@
 import { OffsetMode, Playback } from 'ontime-types';
 
 import { is } from '../../utils/is.js';
-import type { RestorePoint } from './restore.type.js';
+import type { RestorePoint } from './restore.types.js';
 
 /**
  * Utility validates a RestorePoint

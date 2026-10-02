@@ -19,7 +19,7 @@ import {
   getProjectList,
   loadProjectFile,
   renameProjectFile,
-} from '../services/project-service/ProjectService.js';
+} from '../services/project-service/project.service.js';
 import { getState } from '../stores/runtimeState.js';
 import { EVENT_WRITABLE_FIELDS, RUNDOWN_TARGET_FIELD } from './mcp.schema.js';
 import {
