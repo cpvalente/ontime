@@ -1,137 +1,48 @@
-import { Playback } from 'ontime-types';
+import { OffsetMode, Playback } from 'ontime-types';
 import type { Instant } from 'ontime-types';
 
 import { isRestorePoint } from '../restore.parser.js';
-import { RestorePoint } from '../restore.type.js';
+import type { RestorePoint } from '../restore.type.js';
 
-const asInstant = (value: number): Instant => value as Instant;
+const restorePoint: RestorePoint = {
+  rundownId: 'rundown',
+  playback: Playback.Play,
+  selectedEventId: 'event',
+  startedAt: 1,
+  addedTime: 0,
+  pausedAt: null,
+  firstStart: 1,
+  startEpoch: 1 as Instant,
+  currentDay: 0,
+  offsetMode: OffsetMode.Relative,
+};
 
 describe('isRestorePoint()', () => {
-  it('validates a well defined object', () => {
-    let restorePoint: RestorePoint = {
-      playback: Playback.Roll,
-      selectedEventId: '123',
-      startedAt: 1,
-      addedTime: 2,
-      pausedAt: 3,
-      firstStart: 1,
-      startEpoch: asInstant(1),
-      currentDay: 0,
-    };
+  it('accepts a saved playback point and nullable stopped fields', () => {
     expect(isRestorePoint(restorePoint)).toBe(true);
-
-    restorePoint = {
-      playback: Playback.Roll,
-      selectedEventId: '123',
-      startedAt: null,
-      addedTime: 0,
-      pausedAt: null,
-      firstStart: 1,
-      startEpoch: asInstant(1),
-      currentDay: 2,
-    };
-    expect(isRestorePoint(restorePoint)).toBe(true);
+    expect(
+      isRestorePoint({
+        ...restorePoint,
+        playback: Playback.Stop,
+        selectedEventId: null,
+        startedAt: null,
+        firstStart: null,
+        startEpoch: null,
+        currentDay: null,
+      }),
+    ).toBe(true);
   });
 
-  it('accepts null start fields', () => {
-    const restorePoint: RestorePoint = {
-      playback: Playback.Stop,
-      selectedEventId: null,
-      startedAt: null,
-      addedTime: 0,
-      pausedAt: null,
-      firstStart: null,
-      startEpoch: null,
-      currentDay: null,
-    };
-    expect(isRestorePoint(restorePoint)).toBe(true);
-  });
-
-  it('accepts optional paused duration', () => {
-    const restorePoint: RestorePoint = {
-      playback: Playback.Roll,
-      selectedEventId: '123',
-      startedAt: 1,
-      addedTime: 2,
-      pausedAt: null,
-      pausedDuration: 3000,
-      firstStart: 1,
-      startEpoch: asInstant(1),
-      currentDay: 0,
-    };
-
-    expect(isRestorePoint(restorePoint)).toBe(true);
+  it('accepts a numeric paused duration but rejects a malformed one', () => {
+    expect(isRestorePoint({ ...restorePoint, pausedDuration: 3000 })).toBe(true);
     expect(isRestorePoint({ ...restorePoint, pausedDuration: '3000' })).toBe(false);
   });
 
-  describe('rejects a badly formatted file', () => {
-    it('with invalid playback value', () => {
-      const restorePoint = {
-        playback: 'unknown',
-        selectedEventId: '123',
-        startedAt: null,
-        addedTime: 0,
-        pausedAt: null,
-        groupStartAt: 10,
-        startEpoch: 1,
-      };
-      expect(isRestorePoint(restorePoint)).toBe(false);
-    });
-    it('with missing playback value', () => {
-      const restorePoint = {
-        selectedEventId: '123',
-        startedAt: null,
-        addedTime: 0,
-        pausedAt: null,
-        groupStartAt: 10,
-      };
-      expect(isRestorePoint(restorePoint)).toBe(false);
-    });
-    it('with incorrect value', () => {
-      const restorePoint = {
-        playback: Playback.Roll,
-        selectedEventId: '123',
-        startedAt: 'testing',
-        addedTime: 0,
-        pausedAt: null,
-        groupStartAt: 10,
-        startEpoch: 1,
-      };
-      expect(isRestorePoint(restorePoint)).toBe(false);
-    });
-    it('with missing firstStart', () => {
-      const restorePoint = {
-        playback: Playback.Roll,
-        selectedEventId: '123',
-        startedAt: null,
-        addedTime: 0,
-        pausedAt: null,
-        startEpoch: 1,
-      };
-      expect(isRestorePoint(restorePoint)).toBe(false);
-    });
-    it('with missing startEpoch', () => {
-      const restorePoint = {
-        playback: Playback.Roll,
-        selectedEventId: '123',
-        startedAt: null,
-        addedTime: 0,
-        pausedAt: null,
-        firstStart: 1,
-      };
-      expect(isRestorePoint(restorePoint)).toBe(false);
-    });
-    it('with missing currentDay', () => {
-      const restorePoint = {
-        playback: Playback.Roll,
-        selectedEventId: '123',
-        startedAt: null,
-        addedTime: 0,
-        pausedAt: null,
-        firstStart: 1,
-        startEpoch: 1,
-      };
-      expect(isRestorePoint(restorePoint)).toBe(false);
-    });
+  it.each([
+    ['unknown playback', { playback: 'unknown' }],
+    ['unknown offset mode', { offsetMode: 'unknown' }],
+    ['invalid timer value', { startedAt: 'invalid' }],
+  ])('rejects %s', (_description, patch) => {
+    expect(isRestorePoint({ ...restorePoint, ...patch })).toBe(false);
   });
 });

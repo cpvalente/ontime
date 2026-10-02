@@ -1,4 +1,4 @@
-import { OffsetMode } from 'ontime-types';
+import { OffsetMode, Playback } from 'ontime-types';
 
 import { makeOntimeEvent, makeOntimeGroup } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import type { RundownMetadata } from '../../../api-data/rundown/rundown.types.js';
@@ -49,6 +49,7 @@ vi.mock('../../../stores/runtimeState.js', () => ({
 
 vi.mock('../../../api-data/rundown/rundown.dao.js', () => ({
   getCurrentRundown: vi.fn(() => ({ id: 'rundown', title: '', order: [], flatOrder: [], entries: {}, revision: 0 })),
+  getCurrentRundownId: vi.fn(() => 'rundown'),
   getRundownMetadata: () => rundownRef.metadata,
   getEntryWithId: vi.fn(),
 }));
@@ -84,7 +85,10 @@ vi.mock('../../../classes/Logger.js', () => ({
   logger: { info: vi.fn(), warning: vi.fn(), error: vi.fn(), crash: vi.fn(), emit: vi.fn() },
 }));
 
+import { getEntryWithId } from '../../../api-data/rundown/rundown.dao.js';
 import * as runtimeState from '../../../stores/runtimeState.js';
+import { restoreService } from '../../restore-service/restore.service.js';
+import type { RestorePoint } from '../../restore-service/restore.type.js';
 import { runtimeService } from '../runtime.service.js';
 
 function makeRundownMetadata(patch?: Partial<RundownMetadata>): RundownMetadata {
@@ -120,6 +124,23 @@ beforeEach(() => {
  * each test uses its own entry IDs so that a change is unambiguous
  */
 describe('broadcastResult()', () => {
+  it('saves playback with its rundown and offset mode', () => {
+    broadcastWith(
+      makeRuntimeStateData({
+        eventNow: makeOntimeEvent({ id: 'saved-event' }),
+        offset: { mode: OffsetMode.Relative },
+      }),
+    );
+
+    expect(restoreService.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        rundownId: 'rundown',
+        selectedEventId: 'saved-event',
+        offsetMode: OffsetMode.Relative,
+      }),
+    );
+  });
+
   it('broadcasts every changed entry in a single batch', () => {
     const keys = broadcastWith(
       makeRuntimeStateData({
@@ -204,5 +225,44 @@ describe('notifyOfChangedEvents()', () => {
     runtimeService.notifyOfChangedEvents();
 
     expect(runtimeState.updateAll).toHaveBeenCalledWith(expect.anything(), liveMetadata);
+  });
+});
+
+describe('resume()', () => {
+  const restorePoint: RestorePoint = {
+    rundownId: 'rundown',
+    playback: Playback.Play,
+    selectedEventId: 'resume-event',
+    startedAt: 0,
+    addedTime: 0,
+    pausedAt: null,
+    firstStart: 0,
+    startEpoch: null,
+    currentDay: 0,
+    offsetMode: OffsetMode.Relative,
+  };
+
+  beforeEach(() => {
+    stateRef.current = makeRuntimeStateData();
+    vi.mocked(getEntryWithId).mockReturnValue(makeOntimeEvent({ id: 'resume-event' }));
+  });
+
+  it('ignores a restore point saved from another rundown', () => {
+    runtimeService.resume({ ...restorePoint, rundownId: 'another-rundown' });
+
+    expect(runtimeState.setOffsetMode).not.toHaveBeenCalled();
+    expect(runtimeState.resume).not.toHaveBeenCalled();
+  });
+
+  it('restores the offset mode and playback of the loaded rundown', () => {
+    runtimeService.resume(restorePoint);
+
+    expect(runtimeState.setOffsetMode).toHaveBeenCalledWith(OffsetMode.Relative);
+    expect(runtimeState.resume).toHaveBeenCalledWith(
+      restorePoint,
+      expect.objectContaining({ id: 'resume-event' }),
+      expect.anything(),
+      expect.anything(),
+    );
   });
 });
