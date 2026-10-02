@@ -571,6 +571,8 @@ export function getTimeToNextBoundary(): MaybeNumber {
 
 export type UpdateResult = {
   hasTimerFinished: boolean;
+  /** when the timer reached its end, set when it finished in this update */
+  finishedAt: Maybe<Instant>;
   hasSecondaryTimerFinished: boolean;
 };
 
@@ -623,17 +625,24 @@ export function update(at: Instant = timeCore.now()): UpdateResult {
     Boolean(runtimeState._timer.forceFinish) ||
     (runtimeState.timer.current <= timerConfig.triggerAhead && !runtimeState._timer.hasFinished);
 
+  // the end is detected ahead of time or on a later tick, the remaining time places it exactly
+  let finishedAt: Maybe<Instant> = null;
   if (finishedNow) {
     runtimeState._timer.hasFinished = true;
+    const { forceFinish } = runtimeState._timer;
+    finishedAt =
+      forceFinish === null
+        ? timeCore.addDuration(at, runtimeState.timer.current as Duration)
+        : timeCore.lastInstantAt(forceFinish, at);
   }
 
   getExpectedTimes();
 
-  return { hasTimerFinished: finishedNow, hasSecondaryTimerFinished: false };
+  return { hasTimerFinished: finishedNow, finishedAt, hasSecondaryTimerFinished: false };
 
   function updateIfIdle() {
     // if nothing is running, nothing to do
-    return { hasTimerFinished: false, hasSecondaryTimerFinished: false };
+    return { hasTimerFinished: false, finishedAt: null, hasSecondaryTimerFinished: false };
   }
 
   function updateIfWaitingToRoll(hasCrossedMidnight: boolean) {
@@ -660,6 +669,7 @@ export function update(at: Instant = timeCore.now()): UpdateResult {
     runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget! - offsetClock;
     return {
       hasTimerFinished: false,
+      finishedAt: null,
       hasSecondaryTimerFinished: runtimeState.timer.secondaryTimer <= 0,
     };
   }

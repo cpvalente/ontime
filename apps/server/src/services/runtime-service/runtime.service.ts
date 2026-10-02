@@ -2,6 +2,7 @@ import { deepEqual } from 'fast-equals';
 import {
   EndAction,
   EntryId,
+  Instant,
   LogOrigin,
   Offset,
   OffsetMode,
@@ -73,7 +74,7 @@ class RuntimeService {
    * This is the only exception of a private method that has broadcast result
    * */
   @broadcastResult
-  private checkTimerUpdate({ hasTimerFinished, hasSecondaryTimerFinished }: runtimeState.UpdateResult) {
+  private checkTimerUpdate({ hasTimerFinished, finishedAt, hasSecondaryTimerFinished }: runtimeState.UpdateResult) {
     const newState = runtimeState.getState();
     // 1. find if we need to dispatch integrations related to the phase
     const timerPhaseChanged = RuntimeService.previousState.timer?.phase !== newState.timer.phase;
@@ -128,7 +129,9 @@ class RuntimeService {
         if (newState.eventNow.endAction === EndAction.LoadNext) {
           setTimeout(this.loadNext.bind(this), 0);
         } else if (newState.eventNow.endAction === EndAction.PlayNext) {
-          setTimeout(this.startNext.bind(this), 0);
+          // the next event starts when this one ends, which may be a moment after it was detected
+          const at = finishedAt ?? timeCore.now();
+          setTimeout(() => this.startNext(at), Math.max(0, timeCore.timeUntil(timeCore.now(), at)));
         }
       }
     }
@@ -448,14 +451,14 @@ class RuntimeService {
    * we need to isolate handleStart so we have control over the side effects
    * startSelected being a private function does not trigger emits
    */
-  private handleStart(): boolean {
+  private handleStart(at?: Instant): boolean {
     const previousState = runtimeState.getState();
     const canStart = validatePlayback(previousState.timer.playback, previousState.timer.phase).start;
     if (!canStart) {
       return false;
     }
 
-    const didStart = this.eventTimer?.start() ?? false;
+    const didStart = this.eventTimer?.start(at) ?? false;
     const newState = runtimeState.getState();
     logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
 
@@ -491,14 +494,15 @@ class RuntimeService {
 
   /**
    * Starts playback on next event
+   * @param at - when the next event starts, defaults to now
    */
   @broadcastResult
-  public startNext(): boolean {
+  public startNext(at?: Instant): boolean {
     const hasNext = this.handleLoadNext();
     if (!hasNext) {
       return false;
     }
-    return this.handleStart();
+    return this.handleStart(at);
   }
 
   /**

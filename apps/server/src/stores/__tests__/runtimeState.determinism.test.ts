@@ -115,4 +115,39 @@ describe('runtime commands applied with the instant they were taken', () => {
       },
     ]);
   });
+
+  test.each([
+    ['ahead of the end', -8],
+    ['after the end', 7],
+  ])('update reports the instant the timer reached its end when noticed %s', (_label, noticedAfterEnd) => {
+    const base = new Date('jan 1 00:00').getTime();
+    vi.setSystemTime(base);
+    clearState();
+    const { rundown, metadata } = rundownCache.get();
+    load(first, rundown, metadata);
+    start(undefined, base as Instant);
+
+    const end = base + first.duration;
+    const noticedAt = (end + noticedAfterEnd) as Instant;
+    vi.setSystemTime(noticedAt);
+    const { hasTimerFinished, finishedAt } = update(noticedAt);
+
+    expect(hasTimerFinished).toBe(true);
+    expect(finishedAt).toBe(end);
+  });
+
+  test('update reports a forced finish at the instant it was forced', () => {
+    const base = new Date('jan 1 00:00').getTime();
+    vi.setSystemTime(base);
+    clearState();
+    const { rundown, metadata } = rundownCache.get();
+    load(first, rundown, metadata);
+    start(undefined, base as Instant);
+    addTime(-20 * MILLIS_PER_MINUTE, (base + MILLIS_PER_MINUTE) as Instant);
+
+    const noticedAt = (base + MILLIS_PER_MINUTE + 25) as Instant;
+    vi.setSystemTime(noticedAt);
+
+    expect(update(noticedAt).finishedAt).toBe(base + MILLIS_PER_MINUTE);
+  });
 });
