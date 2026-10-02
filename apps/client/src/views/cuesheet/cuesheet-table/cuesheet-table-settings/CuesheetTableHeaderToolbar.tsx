@@ -95,6 +95,12 @@ export default function CuesheetTableHeaderToolbar({
           </ToggleGroup>
         </div>
       )}
+      {showShare && canShare && (
+        <div className={style.shareToolbar}>
+          <Editor.Separator orientation='vertical' />
+          <CuesheetShareModal inToolbar />
+        </div>
+      )}
     </Toolbar.Root>
   );
 }
@@ -108,7 +114,7 @@ interface TableSettingsProps {
   showShare: boolean;
 }
 
-/** Single entry point for view options, column options and sharing, so the toolbar stays short on any screen size */
+/** Single entry point for view and column options, it also holds sharing on small screens to keep the toolbar short */
 function TableSettings({
   columns,
   optionsStore,
@@ -197,10 +203,10 @@ function TableSettings({
             Reset Reordering
           </Button>
           {showShare && (
-            <>
+            <div className={style.shareMenu}>
               <Editor.Separator orientation='horizontal' />
               <CuesheetShareModal />
-            </>
+            </div>
           )}
         </div>
       </PopoverContents>
