@@ -27,6 +27,12 @@ let db = {} as Low<DatabaseModel>;
 export async function initPersistence(filePath: string, fallbackData: DatabaseModel) {
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: shouldCrashDev(!isPath(filePath), 'initPersistence should be called with a path');
+
+  // the delayed save writes whichever file is current when it runs, so the previous file is saved now
+  if (pendingWrite) {
+    await flushPendingWrites();
+  }
+
   const newDb = await JSONFilePreset<DatabaseModel>(filePath, fallbackData);
 
   // write the given data and read it back, so the db holds its own copy and does not alias the caller's object
