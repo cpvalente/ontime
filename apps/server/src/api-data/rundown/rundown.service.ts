@@ -732,8 +732,9 @@ export async function mergeCustomFields(newCustomFields: CustomFields): Promise<
  * @private - exported for testing
  */
 export function updateRuntimeOnChange(rundownMetadata: RundownMetadata | null) {
+  // only the loaded rundown has metadata, background rundowns do not affect the runtime
   if (!rundownMetadata) return;
-  runtimeService.notifyOfChangedRundownMetadata(rundownMetadata);
+  runtimeService.notifyOfChangedRundownMetadata();
 }
 
 type NotifyChangesOptions = {

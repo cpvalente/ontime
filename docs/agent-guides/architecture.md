@@ -37,7 +37,7 @@ Do not duplicate canonical rules or distort an abstraction to force reuse. Small
 - Aggregates own data and invariants. Rundown owns entries, groups, custom fields; the project is the unit of persistence. Other slices (excel, sheets, report, custom-fields, MCP, integrations) go through the owner's service or DAO, never its state.
 - Functional core, imperative shell: pure utils and parsers decide; services orchestrate effects in visible order.
 - Adapters at the edge: `adapters/` and `api-integration/` translate inbound protocols; `automation/clients/` handle outbound ones.
-- Runtime is a clock-driven context in `services/runtime-service/`: state machine (`stores/runtimeState`), scheduler (`EventTimer`), service shell (`runtime.service`). Only `runtime.service` writes runtime state; rundown notifies it of changes, and it reads rundown through its DAO.
+- Runtime is a clock-driven context in `services/runtime-service/`: state machine (`stores/runtimeState`), scheduler (`EventTimer`), service shell (`runtime.service`). Only the runtime service and its `EventTimer` write runtime state; other modules notify `runtime.service` of changes, and runtime reads rundown through its DAO.
 
 ### Layout
 

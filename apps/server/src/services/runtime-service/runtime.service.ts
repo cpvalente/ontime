@@ -24,7 +24,6 @@ import {
   getEntryWithId,
   getRundownMetadata,
 } from '../../api-data/rundown/rundown.dao.js';
-import type { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 import { cloneEntryData } from '../../api-data/rundown/rundown.utils.js';
 import { logger } from '../../classes/Logger.js';
 import { timerConfig } from '../../setup/config.js';
@@ -181,9 +180,12 @@ class RuntimeService {
   /**
    * Called when the loaded rundown has changed,
    * updates the runtime values derived from its metadata
+   *
+   * !!! the metadata is read here rather than received from the caller, see notifyOfChangedEvents()
    */
   @broadcastResult
-  public notifyOfChangedRundownMetadata(metadata: RundownMetadata) {
+  public notifyOfChangedRundownMetadata() {
+    const metadata = getRundownMetadata();
     runtimeState.updateRundownData({
       numEvents: metadata.timedEventOrder.length,
       ...metadata,

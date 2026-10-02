@@ -228,6 +228,22 @@ describe('notifyOfChangedEvents()', () => {
     expect(runtimeState.updateAll).toHaveBeenCalledWith(expect.anything(), liveMetadata);
   });
 
+  it('broadcasts the reconciled entries', () => {
+    stateRef.current = makeRuntimeStateData({ eventNow: makeOntimeEvent({ id: 'reconcile-now', title: 'before' }) });
+    rundownRef.metadata = makeRundownMetadata({ playableEventOrder: ['reconcile-now'] });
+    // the previous state is only known after a broadcast
+    broadcastWith(stateRef.current);
+    store.batched = [];
+
+    vi.mocked(runtimeState.updateAll).mockImplementationOnce(() => {
+      stateRef.current = { ...stateRef.current, eventNow: makeOntimeEvent({ id: 'reconcile-now', title: 'after' }) };
+    });
+
+    runtimeService.notifyOfChangedEvents();
+
+    expect(store.batched).toContainEqual(['eventNow', expect.objectContaining({ title: 'after' })]);
+  });
+
   it('broadcasts the result of stopping playback', () => {
     stateRef.current = makeRuntimeStateData({ eventNow: makeOntimeEvent({ id: 'broadcast-now' }) });
     rundownRef.metadata = makeRundownMetadata({ playableEventOrder: [] });
@@ -241,20 +257,33 @@ describe('notifyOfChangedEvents()', () => {
 describe('notifyOfChangedRundownMetadata()', () => {
   it('derives the runtime rundown data from the metadata', () => {
     stateRef.current = makeRuntimeStateData();
-    const metadata = makeRundownMetadata({ timedEventOrder: ['a', 'b'], totalDelay: 10, firstStart: 100 });
+    rundownRef.metadata = makeRundownMetadata({ timedEventOrder: ['a', 'b'], totalDelay: 10, firstStart: 100 });
 
-    runtimeService.notifyOfChangedRundownMetadata(metadata);
+    runtimeService.notifyOfChangedRundownMetadata();
 
     expect(runtimeState.updateRundownData).toHaveBeenCalledWith(
       expect.objectContaining({ numEvents: 2, totalDelay: 10, firstStart: 100 }),
     );
   });
 
+  it('reads the metadata at call time', () => {
+    stateRef.current = makeRuntimeStateData();
+    rundownRef.metadata = makeRundownMetadata({ timedEventOrder: ['stale'] });
+
+    // the side effects are deferred, a later commit may have superseded the metadata
+    rundownRef.metadata = makeRundownMetadata({ timedEventOrder: ['live-1', 'live-2', 'live-3'] });
+
+    runtimeService.notifyOfChangedRundownMetadata();
+
+    expect(runtimeState.updateRundownData).toHaveBeenCalledWith(expect.objectContaining({ numEvents: 3 }));
+  });
+
   it('broadcasts the updated rundown state', () => {
     stateRef.current = makeRuntimeStateData({ rundown: { ...makeRuntimeStateData().rundown, numEvents: 42 } });
+    rundownRef.metadata = makeRundownMetadata();
     store.batched = [];
 
-    runtimeService.notifyOfChangedRundownMetadata(makeRundownMetadata());
+    runtimeService.notifyOfChangedRundownMetadata();
 
     expect(store.batched).toContainEqual(['rundown', expect.objectContaining({ numEvents: 42 })]);
   });
