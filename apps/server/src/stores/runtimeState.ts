@@ -185,28 +185,17 @@ export function clearState() {
   runtimeState.rundown.currentDay = null;
 }
 
-/** playback values a load carries over, eg: when resuming from a restore point */
-export type LoadData = Partial<
-  TimerState & {
-    pausedAt: MaybeNumber;
-    pausedDuration: number;
-    firstStart: MaybeNumber;
-    startEpoch: Maybe<Instant>;
-    currentDay: MaybeNumber;
-  }
->;
-
 /**
  * Utility to allow modifying the state from the outside
  * @param newState
  */
-function patchTimer(newState: LoadData) {
+function patchTimer(newState: Partial<TimerState & RestorePoint>) {
   for (const key in newState) {
     if (key in runtimeState.timer) {
       // @ts-expect-error -- not sure how to type this in a sane way
       runtimeState.timer[key] = newState[key];
     } else if (key in runtimeState._timer) {
-      // when resuming we receive a pausedAt value
+      // in case of a RestorePoint we will receive a pausedAt value
       // which is needed to resume a paused timer
       // @ts-expect-error -- not sure how to type this in a sane way
       runtimeState._timer[key] = newState[key];
@@ -243,7 +232,7 @@ export function load(
   event: PlayableEvent,
   rundown: Rundown,
   metadata: RundownMetadata,
-  initialData?: LoadData,
+  initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
   clearEventData();
 
@@ -353,18 +342,7 @@ export function loadNext(
  * Resume from restore point
  */
 export function resume(restorePoint: RestorePoint, event: PlayableEvent, rundown: Rundown, metadata: RundownMetadata) {
-  // the restore point holds instants, the runtime works in this machine's time of day
-  const { startedAt, pausedAt, startEpoch } = restorePoint;
-  load(event, rundown, metadata, {
-    playback: restorePoint.playback,
-    addedTime: restorePoint.addedTime,
-    pausedDuration: restorePoint.pausedDuration ?? 0,
-    currentDay: restorePoint.currentDay,
-    startedAt: startedAt === null ? null : timeCore.toTimeOfDay(startedAt),
-    pausedAt: pausedAt === null ? null : timeCore.toTimeOfDay(pausedAt),
-    firstStart: startEpoch === null ? null : timeCore.toTimeOfDay(startEpoch),
-    startEpoch,
-  });
+  load(event, rundown, metadata, restorePoint);
 }
 
 /**

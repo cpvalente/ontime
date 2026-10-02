@@ -241,12 +241,14 @@ describe('resume()', () => {
     rundownId: 'rundown',
     playback: Playback.Play,
     selectedEventId: 'resume-event',
-    startedAt: null,
+    startedAt: 0,
     addedTime: 0,
     pausedAt: null,
+    firstStart: 0,
     startEpoch: null,
     currentDay: 0,
     offsetMode: OffsetMode.Relative,
+    savedAt: 0 as Instant,
   };
 
   beforeEach(() => {

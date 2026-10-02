@@ -4,12 +4,14 @@ export type RestorePoint = {
   rundownId: string;
   playback: Playback;
   selectedEventId: MaybeString;
-  startedAt: Maybe<Instant>;
+  startedAt: MaybeNumber;
   addedTime: number;
-  pausedAt: Maybe<Instant>;
+  pausedAt: MaybeNumber;
   pausedDuration?: number;
-  /** when the rundown started, its time of day is the rundown's actual start */
+  firstStart: MaybeNumber;
   startEpoch: Maybe<Instant>;
   currentDay: MaybeNumber;
   offsetMode: OffsetMode;
+  /** when the point was written */
+  savedAt: Instant;
 };

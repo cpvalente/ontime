@@ -8,12 +8,14 @@ const restorePoint: RestorePoint = {
   rundownId: 'rundown',
   playback: Playback.Play,
   selectedEventId: 'event',
-  startedAt: 1 as Instant,
+  startedAt: 1,
   addedTime: 0,
   pausedAt: null,
+  firstStart: 1,
   startEpoch: 1 as Instant,
   currentDay: 0,
   offsetMode: OffsetMode.Relative,
+  savedAt: 1 as Instant,
 };
 
 describe('isRestorePoint()', () => {
@@ -25,6 +27,7 @@ describe('isRestorePoint()', () => {
         playback: Playback.Stop,
         selectedEventId: null,
         startedAt: null,
+        firstStart: null,
         startEpoch: null,
         currentDay: null,
       }),

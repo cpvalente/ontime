@@ -11,7 +11,7 @@ import {
   RuntimeStore,
   TimerLifeCycle,
   TimerPhase,
-  TimeOfDay,
+  TimerState,
   isOntimeEvent,
   isPlayableEvent,
 } from 'ontime-types';
@@ -211,10 +211,10 @@ class RuntimeService {
   /**
    * makes calls for loading and starting given event
    * @param {PlayableEvent} event
-   * @param {runtimeState.LoadData} initialData
+   * @param {Partial<TimerState & RestorePoint>} initialData
    * @return {boolean} success - whether an event was loaded
    */
-  private loadEvent(event: OntimeEvent, initialData?: runtimeState.LoadData): boolean {
+  private loadEvent(event: OntimeEvent, initialData?: Partial<TimerState & RestorePoint>): boolean {
     if (!isPlayableEvent(event)) {
       logger.warning(LogOrigin.Playback, `Refused skipped event with ID ${event.id}`);
       return false;
@@ -791,19 +791,16 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     // save the restore state
     if (hasImmediateChanges) {
-      // times of day are saved as their latest instant, the runtime keeps them within the past day
-      const savedAt = timeCore.now();
-      const { startedAt } = state.timer;
-      const { pausedAt } = state._timer;
       restoreService
         .save({
           rundownId: getCurrentRundownId(),
           playback: state.timer.playback,
           selectedEventId: state.eventNow?.id ?? null,
-          startedAt: startedAt === null ? null : timeCore.lastInstantAt(startedAt as TimeOfDay, savedAt),
+          startedAt: state.timer.startedAt,
           addedTime: state.timer.addedTime,
-          pausedAt: pausedAt === null ? null : timeCore.lastInstantAt(pausedAt, savedAt),
+          pausedAt: state._timer.pausedAt,
           pausedDuration: state._timer.pausedDuration,
+          firstStart: state.rundown.actualStart,
           startEpoch: state._startEpoch,
           currentDay: state.rundown.currentDay,
           offsetMode: state.offset.mode,

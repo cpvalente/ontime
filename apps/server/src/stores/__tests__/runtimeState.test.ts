@@ -334,7 +334,7 @@ describe('mutation on runtimeState', () => {
       order: ['event1'],
     });
 
-    const startEpoch = new Date('jan 1 00:01').getTime() as Instant;
+    const startEpoch = new Date('jan 1 00:00').getTime() as Instant;
     vi.setSystemTime('jan 3 23:59:59');
 
     await initRundown(mockRundown, {});
@@ -345,12 +345,14 @@ describe('mutation on runtimeState', () => {
       rundownId: rundown.id,
       playback: Playback.Play,
       selectedEventId: 'event1',
-      startedAt: startEpoch,
+      startedAt: 0,
       addedTime: 0,
       pausedAt: null,
+      firstStart: 60 * 1000,
       startEpoch,
       currentDay: 2,
       offsetMode: OffsetMode.Absolute,
+      savedAt: startEpoch,
     };
 
     resume(restorePoint, mockRundown.entries.event1 as PlayableEvent, rundown, metadata);

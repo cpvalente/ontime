@@ -19,9 +19,11 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
       'startedAt',
       'addedTime',
       'pausedAt',
+      'firstStart',
       'startEpoch',
       'currentDay',
       'offsetMode',
+      'savedAt',
     ])
   ) {
     return false;
@@ -55,6 +57,10 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
     return false;
   }
 
+  if (!is.number(restorePoint.firstStart) && restorePoint.firstStart !== null) {
+    return false;
+  }
+
   if (!is.number(restorePoint.startEpoch) && restorePoint.startEpoch !== null) {
     return false;
   }
@@ -64,6 +70,10 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
   }
 
   if (!Object.values(OffsetMode).includes(restorePoint.offsetMode as OffsetMode)) {
+    return false;
+  }
+
+  if (!is.number(restorePoint.savedAt)) {
     return false;
   }
 
