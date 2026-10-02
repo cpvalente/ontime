@@ -1,4 +1,4 @@
-import { type Day, Instant, PlayableEvent, Playback, SupportedEntry, TimerPhase } from 'ontime-types';
+import { type Day, Instant, OffsetMode, PlayableEvent, Playback, SupportedEntry, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
@@ -342,6 +342,7 @@ describe('mutation on runtimeState', () => {
 
     const { rundown, metadata } = rundownCache.get();
     const restorePoint = {
+      rundownId: rundown.id,
       playback: Playback.Play,
       selectedEventId: 'event1',
       startedAt: 0,
@@ -350,6 +351,7 @@ describe('mutation on runtimeState', () => {
       firstStart: 60 * 1000,
       startEpoch,
       currentDay: 2,
+      offsetMode: OffsetMode.Absolute,
     };
 
     resume(restorePoint, mockRundown.entries.event1 as PlayableEvent, rundown, metadata);

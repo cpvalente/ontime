@@ -1,4 +1,4 @@
-import { Playback } from 'ontime-types';
+import { OffsetMode, Playback } from 'ontime-types';
 
 import { is } from '../../utils/is.js';
 import type { RestorePoint } from './restore.type.js';
@@ -13,6 +13,7 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
 
   if (
     !is.objectWithKeys(restorePoint, [
+      'rundownId',
       'playback',
       'selectedEventId',
       'startedAt',
@@ -21,12 +22,17 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
       'firstStart',
       'startEpoch',
       'currentDay',
+      'offsetMode',
     ])
   ) {
     return false;
   }
 
-  if (!is.string(restorePoint.playback) && !Object.values(Playback).includes(restorePoint.playback as Playback)) {
+  if (!is.string(restorePoint.rundownId)) {
+    return false;
+  }
+
+  if (!Object.values(Playback).includes(restorePoint.playback as Playback)) {
     return false;
   }
 
@@ -59,6 +65,10 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
   }
 
   if (!is.number(restorePoint.currentDay) && restorePoint.currentDay !== null) {
+    return false;
+  }
+
+  if (!Object.values(OffsetMode).includes(restorePoint.offsetMode as OffsetMode)) {
     return false;
   }
 

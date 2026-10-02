@@ -18,7 +18,12 @@ import { millisToString, validatePlayback } from 'ontime-utils';
 
 import { triggerAutomations } from '../../api-data/automation/automation.service.js';
 import { triggerReportEntry } from '../../api-data/report/report.service.js';
-import { getCurrentRundown, getEntryWithId, getRundownMetadata } from '../../api-data/rundown/rundown.dao.js';
+import {
+  getCurrentRundown,
+  getCurrentRundownId,
+  getEntryWithId,
+  getRundownMetadata,
+} from '../../api-data/rundown/rundown.dao.js';
 import { cloneEntryData } from '../../api-data/rundown/rundown.utils.js';
 import { logger } from '../../classes/Logger.js';
 import { timerConfig } from '../../setup/config.js';
@@ -631,6 +636,12 @@ class RuntimeService {
    */
   @broadcastResult
   public resume(restorePoint: RestorePoint) {
+    if (restorePoint.rundownId !== getCurrentRundownId()) {
+      return;
+    }
+
+    runtimeState.setOffsetMode(restorePoint.offsetMode);
+
     const { selectedEventId, playback } = restorePoint;
     if (playback === Playback.Roll) {
       this.handleRoll();
@@ -777,6 +788,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     if (hasImmediateChanges) {
       restoreService
         .save({
+          rundownId: getCurrentRundownId(),
           playback: state.timer.playback,
           selectedEventId: state.eventNow?.id ?? null,
           startedAt: state.timer.startedAt,
@@ -786,6 +798,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           firstStart: state.rundown.actualStart,
           startEpoch: state._startEpoch,
           currentDay: state.rundown.currentDay,
+          offsetMode: state.offset.mode,
         })
         .catch((_e) => {
           //we don't do anything with the error here
