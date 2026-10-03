@@ -178,6 +178,21 @@ class RuntimeService {
   }
 
   /**
+   * Called when the loaded rundown has changed,
+   * updates the runtime values derived from its metadata
+   *
+   * !!! the metadata is read here rather than received from the caller, see notifyOfChangedEvents()
+   */
+  @broadcastResult
+  public notifyOfChangedRundownMetadata() {
+    const metadata = getRundownMetadata();
+    runtimeState.updateRundownData({
+      numEvents: metadata.timedEventOrder.length,
+      ...metadata,
+    });
+  }
+
+  /**
    * Called when the underlying data has changed,
    * we check if the change affects the runtime
    *
@@ -186,6 +201,7 @@ class RuntimeService {
    * superseded the metadata captured at commit time.
    * Reading both the rundown and its metadata here keeps them consistent
    */
+  @broadcastResult
   public notifyOfChangedEvents() {
     const state = runtimeState.getState();
     const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
