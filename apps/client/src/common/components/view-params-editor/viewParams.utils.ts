@@ -155,6 +155,14 @@ export function getURLSearchParamsFromObj(paramsObj: ViewParamsObj, paramFields:
     });
   });
 
+  // Unchecked checkboxes are absent from FormData. Persist false when true is the default.
+  metadata.booleanFields.forEach((id) => {
+    if (id in paramsObj) return;
+    if (metadata.defaultValues[id] !== 'false') {
+      addUniqueParam(id, 'false');
+    }
+  });
+
   // Then process user-provided values
   Object.entries(paramsObj).forEach(([id, value]) => {
     if (typeof value === 'string' && value.length) {
