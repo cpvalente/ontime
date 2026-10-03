@@ -9,12 +9,11 @@ import { AppMode } from '../../../../ontimeConfig';
 import { getCuesheetColumnAccessPolicy } from '../../cuesheet.policies';
 import type { CuesheetCellContext, CuesheetColumnDef } from '../cuesheetTable.features';
 import DurationInput from './DurationInput';
+import EditableCell from './EditableCell';
 import EditableImage from './EditableImage';
 import FlagCell from './FlagCell';
 import GhostedText from './GhostedText';
-import MultiLineCell from './MultiLineCell';
 import MutedText from './MutedText';
-import SingleLineCell from './SingleLineCell';
 import TimeInput from './TimeInput';
 
 function getColumnLabel(column: CuesheetCellContext['column']): string {
@@ -151,7 +150,8 @@ function MakeMultiLineField({ row, column, table }: CuesheetCellContext) {
   }
 
   return (
-    <MultiLineCell
+    <EditableCell
+      multiline
       initialValue={initialValue as string}
       fieldId={column.id}
       fieldLabel={getColumnLabel(column)}
@@ -198,7 +198,7 @@ function MakeSingleLineField({ row, column, table }: CuesheetCellContext) {
   }
 
   return (
-    <SingleLineCell
+    <EditableCell
       initialValue={initialValue as string}
       fieldId={column.id}
       fieldLabel={getColumnLabel(column)}
@@ -238,7 +238,8 @@ function MakeCustomField({ row, column, table }: CuesheetCellContext) {
   }
 
   return (
-    <MultiLineCell
+    <EditableCell
+      multiline
       initialValue={initialValue}
       fieldId={column.id}
       fieldLabel={getColumnLabel(column)}
