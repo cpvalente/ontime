@@ -3,6 +3,7 @@
  */
 
 import { version } from '../../../package.json';
+import { resolveBaseURI, resolveUrl } from './externals.utils';
 
 export const githubUrl = 'https://www.github.com/cpvalente/ontime';
 export const apiRepoLatest = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
@@ -30,55 +31,9 @@ export const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoint
 export const supportsFullscreen = document.fullscreenEnabled;
 
 // resolve entrypoint URLs
-
-/**
- * Resolve base
- * @example '' for electron
- * @example '/client-hash' for cloud
- */
-export const baseURI = resolveBaseURI();
-export const serverURL = resolveUrl('http', '');
-export const websocketUrl = resolveUrl('ws', 'ws');
-
-function resolveUrl(protocol: 'http' | 'ws', path: string) {
-  const url = new URL(window.location.origin);
-
-  // generate ws url
-  if (protocol === 'ws') {
-    // ensure we remain in a secure context
-    const isSecure = window.location.protocol === 'https:';
-    url.protocol = isSecure ? 'wss' : 'ws';
-  }
-
-  // make path name relative to the base URI
-  url.pathname = baseURI ? `${baseURI}/${path}` : path;
-
-  // in development mode, we use the React port for UI, but need the requests to target the server
-  // this is done with a proxy in the vite config to avoid CORS issues in the dev environment
-
-  const result = url.toString();
-
-  // prevent trailing slash
-  return result.endsWith('/') ? result.slice(0, -1) : result;
-}
-
-/**
- * Resolves a base URI for a client that is not at the root segment
- * ie: https://cloud.getontime.com/client-hash/timer
- * This is necessary for ontime cloud and should otherwise not affect the client
- */
-function resolveBaseURI(): string {
-  // in ontime cloud, the base tag is set by the server
-  const baseHref = document.querySelector('base')?.getAttribute('href');
-  const base = baseHref ?? '';
-
-  // prevent a trailing slash from either an empty base or a base with a trailing slash
-  if (base.endsWith('/')) {
-    return base.slice(0, -1);
-  }
-
-  return base;
-}
+export const baseURI = resolveBaseURI(document.querySelector('base')?.getAttribute('href'));
+export const serverURL = resolveUrl(window.location, baseURI, 'http', '');
+export const websocketUrl = resolveUrl(window.location, baseURI, 'ws', 'ws');
 
 /**
  * Resolves a session scope for the session
