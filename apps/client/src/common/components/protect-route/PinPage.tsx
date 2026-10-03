@@ -1,8 +1,7 @@
 import { PropsWithChildren, useState } from 'react';
-import { IoCheckmark } from 'react-icons/io5';
 
 import { cx } from '../../utils/styleUtils';
-import IconButton from '../buttons/IconButton';
+import Button from '../buttons/Button';
 import Input from '../input/input/Input';
 
 import style from './PinPage.module.scss';
@@ -31,24 +30,45 @@ export default function PinPage({ permission, handleValidation }: PropsWithChild
 
   return (
     <div className={style.container}>
-      {`Ontime ${permission}`}
       <form
         onSubmit={(event) => {
           event.preventDefault();
           validate();
         }}
-        className={cx([style.pin, failed && style.pinFailed])}
+        className={style.card}
       >
+        <img src='ontime-logo.png' alt='' className={style.logo} />
+        <h1 className={style.title}>{`Ontime ${permission}`}</h1>
+        <p className={style.subtitle}>{`Enter the PIN to access the ${permission}`}</p>
         <Input
           type='password'
           maxLength={4}
           height='large'
+          fluid
+          autoFocus
+          aria-label='PIN'
+          aria-invalid={failed}
+          aria-describedby='pin-error'
+          placeholder='••••'
           value={pin}
           onChange={(e) => handleInputChange(e.target.value)}
+          className={cx([style.pin, failed && style.pinFailed])}
         />
-        <IconButton type='submit' variant='primary' aria-label='Enter'>
-          <IoCheckmark />
-        </IconButton>
+        {failed && (
+          <p id='pin-error' role='alert' className={style.error}>
+            Incorrect PIN, please try again
+          </p>
+        )}
+        <Button
+          type='submit'
+          variant='primary'
+          size='xlarge'
+          fluid
+          disabled={pin.length === 0}
+          className={style.submit}
+        >
+          Unlock
+        </Button>
       </form>
     </div>
   );

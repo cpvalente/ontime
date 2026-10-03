@@ -15,13 +15,13 @@ test('a password protected server requires login and returns to the requested vi
 
   // a wrong password is rejected
   await page.getByPlaceholder('Password').fill('not-the-password');
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.getByRole('button', { name: 'Log in' }).click();
   await expect(page.getByText('Unauthorized')).toBeVisible();
 
   // the right password lands on the requested view
   await page.goto(`${protectedURL}/timer`);
   await page.getByPlaceholder('Password').fill(password);
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.getByRole('button', { name: 'Log in' }).click();
   await expect(page).toHaveURL(new RegExp(`^${protectedURL}/timer/?$`));
   await expect(page.getByTestId('timer-view')).toBeVisible();
 

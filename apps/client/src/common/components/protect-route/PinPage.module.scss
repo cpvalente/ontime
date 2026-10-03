@@ -1,52 +1,72 @@
 .container {
   width: 100%;
   height: 100%;
+  // the app root clips overflow, allow scrolling the card on short screens
+  overflow-y: auto;
+  // place the card after the first quarter of the page
+  padding: 25vh 1rem 1rem;
 
-  padding-top: 25vh;
-
-  background: $ui-black;
-  color: $ontime-color;
-  font-size: 3rem;
+  background: radial-gradient(ellipse at top, rgba($ui-white, 0.05), transparent 60%), $ui-black;
+  color: $ui-white;
   text-align: center;
 }
 
+.card {
+  max-width: 22rem;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 2rem;
+
+  background-color: $gray-1300;
+  border: 1px solid $border-color-ondark;
+  border-radius: $panel-border-radius * 2;
+  box-shadow: $large-top-drawer-shadow;
+}
+
+.logo {
+  display: block;
+  width: 3.5rem;
+  margin: 0 auto 1.5rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.subtitle {
+  margin: 0.5rem 0 2rem;
+  color: $secondary-text-gray;
+}
+
 .pin {
-  margin-top: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
+  height: 3rem;
+  font-size: 1.75rem;
+  text-align: center;
+  letter-spacing: 0.75em;
+  // offsets the trailing letter spacing to keep the characters centered
+  text-indent: 0.75em;
 
-  input {
-    font-size: 4rem;
-    height: 4rem;
-    width: 4em;
-    text-align: center;
-    letter-spacing: 0.25em;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  button {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    height: 4rem;
-    width: 4rem;
-    font-size: 4rem;
+  &::placeholder {
+    letter-spacing: 0.75em;
   }
 }
 
-.pinFailed {
-  input {
-    animation: redFlash 1.5s ease;
+.pin.pinFailed {
+  border-color: $error-red;
+
+  &:focus:not(:read-only) {
+    outline-color: $error-red;
   }
 }
 
-@keyframes redFlash {
-  from {
-    background: $red-500;
-  }
-  to {
-    background: rgba($red-500, 0);
-  }
+.error {
+  margin: 0.5rem 0 0;
+  color: $error-red;
+  font-size: $aux-text-size;
+}
+
+.submit {
+  margin-top: 1rem;
 }
