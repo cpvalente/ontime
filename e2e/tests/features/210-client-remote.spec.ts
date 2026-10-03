@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/override';
 
 test('redirect', async ({ context }) => {
   const controllerPage = await context.newPage();

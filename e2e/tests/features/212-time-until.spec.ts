@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/override';
 
 test('time until absolute', async ({ context }) => {
   const editor = await context.newPage();
@@ -62,7 +62,8 @@ test('time until absolute', async ({ context }) => {
   await editor.getByRole('button', { name: 'Absolute' }).click();
   await editor.getByTestId('entry-1').getByLabel('Start event').click();
   await expect(editor.getByTestId('entry-1').getByLabel('Pause event')).toBeVisible();
-  await expect(editor.getByTestId('offset')).not.toContainText('0:00'); // This might be a bad test requires that the test is not run at 0h
+  // the new events are scheduled from 00:00, so starting now is off schedule unless the test runs at midnight
+  await expect(editor.getByTestId('offset')).not.toHaveText(/^[+-]?0:0[01]$/);
   await editor.getByTestId('entry-1').getByLabel('Pause event').click();
   await expect(editor.getByTestId('entry-1').getByLabel('Start event')).toBeVisible();
 
@@ -155,7 +156,8 @@ test('time until relative', async ({ context }) => {
   await editor.getByRole('button', { name: 'Relative' }).click();
   await editor.getByTestId('entry-1').getByLabel('Start event').click();
   await expect(editor.getByTestId('entry-1').getByLabel('Pause event')).toBeVisible();
-  await expect(editor.getByTestId('offset')).toContainText('0:00'); // This might be a bad test as it ruires the evaluation to happen within 1s
+  // starting on schedule gives no offset, allowing for a second to pass before we read it
+  await expect(editor.getByTestId('offset')).toHaveText(/^[+-]?0:0[01]$/);
   await editor.getByTestId('entry-1').getByLabel('Pause event').click();
   await expect(editor.getByTestId('entry-1').getByLabel('Start event')).toBeVisible();
 

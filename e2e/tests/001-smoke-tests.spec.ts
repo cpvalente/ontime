@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures/override';
 
 test.describe('pages routes are available', () => {
   test.use({ viewport: { width: 1920, height: 1080 } });

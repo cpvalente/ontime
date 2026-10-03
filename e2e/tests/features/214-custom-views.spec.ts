@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises';
 
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/override';
 
 const baseURL = 'http://localhost:4001';
 const apiURL = `${baseURL}/data/custom-views`;

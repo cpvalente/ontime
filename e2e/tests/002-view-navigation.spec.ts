@@ -1,4 +1,6 @@
-import { type Page, expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
+
+import { expect, test } from './fixtures/override';
 
 test.describe('test view navigation feature', () => {
   test.beforeEach(async ({ page }) => {

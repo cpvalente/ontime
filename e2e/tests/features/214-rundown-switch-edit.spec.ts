@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/override';
 
 test('switching rundowns preserves edits per rundown', async ({ page }) => {
   const suffix = Date.now();

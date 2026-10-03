@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/override';
 
-test('smoke test operator', async ({ page }) => {
+test('operator shows grouped events and does not dim the running event', async ({ page }) => {
   // make some boilerplate
   await page.goto('/editor');
   await page.getByRole('button', { name: 'Edit' }).click();
@@ -60,7 +60,8 @@ test('smoke test operator', async ({ page }) => {
 
   await expect(page.getByText('group 1')).toBeInViewport();
   await expect(page.getByText('title 1')).toBeInViewport();
-  await expect(page.getByTestId('--1')).toHaveCSS('opacity', '1'); // BUG: ensure event doesn't inherit the past state of the group
+  // regression: the running event must not inherit the past state of its group
+  await expect(page.getByTestId('--1')).toHaveCSS('opacity', '1');
   await expect(page.getByText('title 2')).toBeInViewport();
   await expect(page.getByText('title 3')).toBeInViewport();
 });

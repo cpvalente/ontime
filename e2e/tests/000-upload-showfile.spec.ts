@@ -1,10 +1,6 @@
-import { randomUUID } from 'crypto';
-import { readFile, unlink } from 'fs/promises';
-
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures/override';
 
 const fileToUpload = 'e2e/tests/fixtures/e2e-test-db.json';
-const fileToDownload = 'e2e/tests/fixtures/tmp/';
 
 test('project file upload', async ({ page }) => {
   await page.goto('/editor');
@@ -43,35 +39,4 @@ test('project file upload', async ({ page }) => {
 
   const thirdTitle = page.getByTestId('entry-3').getByTestId('entry__title');
   await expect(thirdTitle).toHaveValue('Lithuania');
-});
-
-//TODO: this works when testing locally, but not in github actions
-test.fixme('project file download', async ({ page }) => {
-  await page.goto('/editor/?settings=project__manage');
-
-  await page
-    .getByRole('row', { name: /.*currently loaded/i })
-    .getByLabel('Options')
-    .click();
-  // workaround to download
-  // https://playwright.dev/docs/api/class-download
-  const downloadPromise = page.waitForEvent('download', { timeout: 10_000 });
-  await page.getByRole('menuitem', { name: 'Download' }).click();
-
-  const download = await downloadPromise;
-
-  // Wait for the download process to complete and save the downloaded file somewhere.
-  const uniqFileToDownload = fileToDownload + randomUUID() + '.json';
-  await download.saveAs(uniqFileToDownload);
-  expect(download.failure()).toMatchObject({});
-
-  const original = JSON.parse(await readFile(fileToUpload, { encoding: 'utf-8' }));
-  const fromServer = JSON.parse(await readFile(uniqFileToDownload, { encoding: 'utf-8' }));
-
-  await unlink(uniqFileToDownload);
-
-  // when a file is parsed, the server will write the version number to the project file
-  original.settings.version = 'not-important';
-  fromServer.settings.version = 'not-important';
-  expect(original).toMatchObject(fromServer);
 });

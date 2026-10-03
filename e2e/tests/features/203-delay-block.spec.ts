@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/override';
 
 test('delays add time to events', async ({ page }) => {
   await page.goto('/editor');
@@ -25,11 +25,11 @@ test('delays add time to events', async ({ page }) => {
   await page.getByTestId('delay-input').click();
   await page.getByTestId('delay-input').fill('2m');
   await page.getByTestId('delay-input').press('Enter');
-  await page.getByText('New start 00:12').click();
+  await expect(page.getByText('New start 00:12')).toBeVisible();
 
   // make negative delay
   await page.getByText('Subtract time').click();
-  await page.getByText('New start 00:08').click();
+  await expect(page.getByText('New start 00:08')).toBeVisible();
 
   // apply delay
   await page.getByRole('button', { name: 'Make permanent' }).click();
@@ -41,7 +41,7 @@ test('delays add time to events', async ({ page }) => {
   await page.getByTestId('delay-input').click();
   await page.getByTestId('delay-input').fill('10m');
   await page.getByTestId('delay-input').press('Enter');
-  await page.getByText('New start 00:18').click();
+  await expect(page.getByText('New start 00:18')).toBeVisible();
 
   // cancel delay
   await page.getByRole('button', { name: 'Cancel' }).click();
@@ -49,7 +49,7 @@ test('delays add time to events', async ({ page }) => {
   await expect(page.getByText('New start 00:18')).toHaveCount(0);
 });
 
-test('delays are show correctly', async ({ page }) => {
+test('delays are shown in the editor, cuesheet and backstage', async ({ page }) => {
   await page.goto('/editor');
 
   // add a test event
@@ -78,13 +78,13 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByTestId('delay-input').press('Enter');
 
   // delay is shown in the editor
-  await page.getByText('New start 00:11').click();
+  await expect(page.getByText('New start 00:11')).toBeVisible();
 
   // delay is shown in the cuesheet
   await page.goto('/cuesheet');
-  await page.getByRole('cell', { name: 'Delayed by 1 min' }).click();
+  await expect(page.getByRole('cell', { name: 'Delayed by 1 min' })).toBeVisible();
 
   // delay is shown in the backstage view
   await page.goto('/backstage');
-  await page.getByText('00:11→00:21').click();
+  await expect(page.getByText('00:11→00:21')).toBeVisible();
 });

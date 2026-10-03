@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/override';
 
 test('CRUD operations on the rundown', async ({ page }) => {
   await page.goto('/editor');
