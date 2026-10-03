@@ -248,6 +248,48 @@ describe('mutation on runtimeState', () => {
       state = getState();
       expect(state.timer.elapsed).toBe(3 * MILLIS_PER_MINUTE);
     });
+
+    test('a pause across midnight keeps the countdown frozen and resumes with five minutes of delay', async () => {
+      clearState();
+      const event = {
+        ...mockEvent,
+        id: 'midnight-pause',
+        timeStart: 23 * MILLIS_PER_HOUR,
+        timeEnd: MILLIS_PER_HOUR,
+        duration: 2 * MILLIS_PER_HOUR,
+      };
+      await initRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }), {});
+      vi.runAllTimers();
+      const { metadata, rundown } = rundownCache.get();
+
+      vi.setSystemTime('jan 1 23:50');
+      load(event, rundown, metadata);
+      start();
+      vi.setSystemTime('jan 1 23:58');
+      update();
+      pause();
+
+      vi.setSystemTime('jan 2 00:03');
+      update();
+      let state = getState();
+      expect(state.timer.current).toBe(112 * MILLIS_PER_MINUTE);
+      expect(state.timer.elapsed).toBe(8 * MILLIS_PER_MINUTE);
+      expect(state.timer.expectedFinish).toBe(1 * MILLIS_PER_HOUR + 55 * MILLIS_PER_MINUTE);
+      expect(state.offset.absolute).toBe(55 * MILLIS_PER_MINUTE);
+
+      start();
+      state = getState();
+      expect(state._timer.pausedDuration).toBe(5 * MILLIS_PER_MINUTE);
+      expect(state.timer.current).toBe(112 * MILLIS_PER_MINUTE);
+      expect(state.timer.elapsed).toBe(8 * MILLIS_PER_MINUTE);
+      expect(state.offset.absolute).toBe(55 * MILLIS_PER_MINUTE);
+
+      vi.setSystemTime('jan 2 00:05');
+      update();
+      state = getState();
+      expect(state.timer.current).toBe(110 * MILLIS_PER_MINUTE);
+      expect(state.timer.elapsed).toBe(10 * MILLIS_PER_MINUTE);
+    });
   });
 
   test('runtime offset', async () => {

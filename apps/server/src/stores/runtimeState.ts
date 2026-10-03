@@ -430,8 +430,8 @@ export function start(state: RuntimeState = runtimeState): boolean {
   state.timer.secondaryTimer = null;
 
   // add paused time if it exists
-  if (state._timer.pausedAt) {
-    const timeToAdd = state.clock - state._timer.pausedAt;
+  if (state._timer.pausedAt !== null) {
+    const timeToAdd = timeCore.elapsedTime(state.clock, state._timer.pausedAt);
     state.timer.addedTime += timeToAdd;
     state._timer.pausedDuration += timeToAdd;
     state._timer.pausedAt = null;
