@@ -131,6 +131,21 @@ describe('toInstant() converts a time of day back to an instant anchored to a re
   });
 });
 
+describe('lastInstantAt() finds the latest instant of a time of day at or before a reference', () => {
+  const reference = new Date('2025-01-15T10:00:00+01:00').getTime() as Instant;
+
+  test.each([
+    { label: 'earlier the same day', clock: 8 * MILLIS_PER_HOUR, expected: '2025-01-15T08:00:00+01:00' },
+    {
+      label: 'later in the day, so the day before',
+      clock: 23 * MILLIS_PER_HOUR,
+      expected: '2025-01-14T23:00:00+01:00',
+    },
+  ])('returns $label', ({ clock, expected }) => {
+    expect(timeCore.lastInstantAt(clock as TimeOfDay, reference)).toBe(new Date(expected).getTime());
+  });
+});
+
 describe('timeSince() returns the duration elapsed since a past point', () => {
   it('measures elapsed time between two instants', () => {
     const start = 1000 as Instant;
