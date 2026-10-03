@@ -39,6 +39,7 @@ Optimise for future readers, not minimum line count.
 - Name tests by observable behaviour.
 - Keep setup local/explicit unless a fixture improves comprehension.
 - Avoid arbitrary waits, wall-clock dependence, cross-test state, weak assertions.
+- Server test files each get a temporary data folder through `ONTIME_DATA` (`apps/server/vitest.setup.ts`); never read or write the user's real data folder.
 - Prefer realistic typed fixtures over large snapshots or masking casts.
 - Test non-mutation when promised.
 - No tests for trivial type/format changes or framework behaviour Ontime does not own.
