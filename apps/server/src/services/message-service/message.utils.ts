@@ -25,6 +25,7 @@ export function validateTimerMessage(message: unknown): Partial<TimerMessage> {
   if ('blink' in message) result.blink = coerceBoolean(message.blink);
   if ('blackout' in message) result.blackout = coerceBoolean(message.blackout);
   if ('secondarySource' in message) result.secondarySource = coerceSecondary(message.secondarySource);
+  if ('secondaryPlacement' in message) result.secondaryPlacement = coercePlacement(message.secondaryPlacement);
 
   return result;
 }
@@ -44,4 +45,21 @@ function coerceSecondary(source: unknown): TimerMessage['secondarySource'] {
     return null;
   }
   return source;
+}
+
+/**
+ * Asserts that the placement value is one of the permitted values
+ */
+function assertPlacement(placement: unknown): placement is TimerMessage['secondaryPlacement'] {
+  return placement === 'below' || placement === 'main';
+}
+
+/**
+ * Ensures that the placement value is one of the permitted values
+ */
+function coercePlacement(placement: unknown): TimerMessage['secondaryPlacement'] {
+  if (!assertPlacement(placement)) {
+    return 'below';
+  }
+  return placement;
 }

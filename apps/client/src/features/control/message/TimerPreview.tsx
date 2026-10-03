@@ -1,5 +1,5 @@
 import { TimerPhase, TimerType } from 'ontime-types';
-import { IoArrowDown, IoArrowUp, IoBan, IoTime } from 'react-icons/io5';
+import { IoArrowDown, IoArrowUp, IoBan, IoSwapVertical, IoTime } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
 
 import { CornerWithPip } from '../../../common/components/editor-utils/EditorUtils';
@@ -20,10 +20,11 @@ const secondarySourceLabels: Record<string, string> = {
 };
 
 export default function TimerPreview() {
-  const { blink, blackout, countToEnd, phase, secondarySource, showTimerMessage, timerType } = useMessagePreview();
+  const { blink, blackout, countToEnd, phase, secondarySource, secondaryPlacement, showTimerMessage, timerType } =
+    useMessagePreview();
   const { data } = useViewSettings();
 
-  const main = (() => {
+  const eventLabel = (() => {
     if (showTimerMessage) return 'Message';
     if (timerType === TimerType.None) return timerPlaceholder;
     if (phase === TimerPhase.Pending) return 'Standby to start';
@@ -33,13 +34,18 @@ export default function TimerPreview() {
     return 'Timer';
   })();
 
-  const secondary = (() => {
+  const secondaryLabel = (() => {
     // message is a fullscreen overlay or secondary is not active
     if (showTimerMessage || !secondarySource) return null;
 
     // we need to check aux first since it takes priority
     return secondarySourceLabels[secondarySource];
   })();
+
+  // when the secondary is promoted to the main slot the two labels swap; the event timer is demoted
+  const isSwapped = secondaryPlacement === 'main' && secondaryLabel !== null && !showTimerMessage;
+  const mainDisplay = isSwapped ? secondaryLabel : eventLabel;
+  const secondaryDisplay = isSwapped ? eventLabel : secondaryLabel;
 
   const overrideColour = (() => {
     // override fallback colours from starter project
@@ -48,7 +54,9 @@ export default function TimerPreview() {
     return data.normalColor ?? '#FFFC';
   })();
 
-  const showColourOverride = main == 'Timer';
+  // the event timer keeps its colour treatment in whichever slot it now occupies
+  const eventInMain = !isSwapped;
+  const showColourOverride = eventLabel == 'Timer';
   const contentClasses = cx([blink && style.blink, blackout && style.blackout]);
 
   return (
@@ -57,12 +65,20 @@ export default function TimerPreview() {
       <div className={contentClasses}>
         <div
           className={style.mainContent}
-          data-phase={showColourOverride && phase}
-          style={showColourOverride ? { '--override-colour': overrideColour } : {}}
+          data-phase={eventInMain && showColourOverride && phase}
+          style={eventInMain && showColourOverride ? { '--override-colour': overrideColour } : {}}
         >
-          {main}
+          {mainDisplay}
         </div>
-        {secondary !== null && <div className={style.secondaryContent}>{secondary}</div>}
+        {secondaryDisplay !== null && (
+          <div
+            className={style.secondaryContent}
+            data-phase={!eventInMain && showColourOverride && phase}
+            style={!eventInMain && showColourOverride ? { '--override-colour': overrideColour } : {}}
+          >
+            {secondaryDisplay}
+          </div>
+        )}
       </div>
       <div className={style.eventStatus}>
         <Tooltip
@@ -104,6 +120,14 @@ export default function TimerPreview() {
           data-active={countToEnd}
         >
           <LuArrowDownToLine />
+        </Tooltip>
+        <Tooltip
+          text='Secondary swapped into main slot'
+          render={<span />}
+          className={style.statusIcon}
+          data-active={isSwapped}
+        >
+          <IoSwapVertical />
         </Tooltip>
       </div>
     </div>
