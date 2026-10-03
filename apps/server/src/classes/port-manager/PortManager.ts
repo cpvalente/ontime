@@ -63,7 +63,8 @@ class PortManager {
     if (isOntimeCloud) {
       PortManager.port = await this.forceCloudPort(server);
     } else {
-      PortManager.port = this.parsePort(envPort) || (await appState.getServerPort()) || config.defaultServerPort;
+      // PORT=0 asks the OS for a free port
+      PortManager.port = this.parsePort(envPort) ?? ((await appState.getServerPort()) || config.defaultServerPort);
       PortManager.port = await this.tryServerPort(server);
     }
     await appState.setServerPort(PortManager.port);

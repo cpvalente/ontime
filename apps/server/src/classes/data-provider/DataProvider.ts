@@ -1,5 +1,5 @@
-import type { Low } from 'lowdb';
-import { JSONFilePreset } from 'lowdb/node';
+import { Low } from 'lowdb';
+import { JSONFile } from 'lowdb/node';
 import {
   AutomationSettings,
   CustomFields,
@@ -12,7 +12,6 @@ import {
   ViewSettings,
 } from 'ontime-types';
 
-import { isTest } from '../../setup/environment.js';
 import { shouldCrashDev } from '../../utils/development.js';
 import { isPath } from '../../utils/fileManagement.js';
 import { safeMerge } from './DataProvider.utils.js';
@@ -27,7 +26,8 @@ let db = {} as Low<DatabaseModel>;
 export async function initPersistence(filePath: string, fallbackData: DatabaseModel) {
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: shouldCrashDev(!isPath(filePath), 'initPersistence should be called with a path');
-  const newDb = await JSONFilePreset<DatabaseModel>(filePath, fallbackData);
+  // not JSONFilePreset, which silently keeps data in memory when NODE_ENV is test
+  const newDb = new Low<DatabaseModel>(new JSONFile<DatabaseModel>(filePath), fallbackData);
 
   // write the given data and read it back, so the db holds its own copy and does not alias the caller's object
   newDb.data = fallbackData;
@@ -197,8 +197,6 @@ const writeDelayMs = 3000; // 3 seconds
  * Multiple rapid calls will be coalesced into a single write
  */
 async function persist() {
-  if (isTest) return;
-
   // Cancel any pending write and reschedule
   if (pendingWrite) {
     clearTimeout(pendingWrite);
@@ -228,8 +226,6 @@ async function persist() {
  * Force immediate write of any pending changes
  */
 export async function flushPendingWrites() {
-  if (isTest) return;
-
   if (pendingWrite) {
     clearTimeout(pendingWrite);
     pendingWrite = null;
