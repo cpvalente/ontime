@@ -1,4 +1,6 @@
-import { expect, test, type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
+
+import { expect, test } from '../fixtures/override';
 
 const fileToUpload = 'e2e/tests/fixtures/Ontime rundown template v4.xlsx';
 

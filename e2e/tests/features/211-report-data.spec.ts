@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/override';
 
 test('show warning when event crosses midnight', async ({ page }) => {
   await page.goto('/editor');

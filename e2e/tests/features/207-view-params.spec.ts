@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/override';
 
 test('View params configures timer view', async ({ page }) => {
   await page.goto('/timer');

@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../fixtures/override';
 
 test('Rearrange while playing', async ({ page }) => {
   await page.goto('/rundown');
