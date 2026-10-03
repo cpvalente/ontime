@@ -8,9 +8,12 @@ const isDevMode = process.env.NODE_ENV === 'development';
 /**
  * A second server protected with a password, used by the password spec
  * it has its own port and data folder so it does not share state with the main server
+ * it serves the built client, which the dev mode flow does not otherwise build
  */
 const passwordServer = {
-  command: 'pnpm --filter ontime-server dev',
+  command: isDevMode
+    ? 'pnpm --filter ontime-ui build && pnpm --filter ontime-server dev'
+    : 'pnpm --filter ontime-server dev',
   port: 4002,
   reuseExistingServer: true,
   timeout: 60 * 1000,

@@ -16,10 +16,11 @@ test('Aux timer buttons', async ({ page }) => {
   await page.getByTestId('aux-timer-start-1').click();
   await expect.poll(readAux, { timeout: 4000 }).toBeLessThan(123456);
 
-  // pausing keeps the elapsed time
+  // pausing keeps the elapsed time, only a few seconds have passed since start
   await page.getByTestId('aux-timer-pause-1').click();
   await expect(page.getByTestId('aux-timer-start-1')).toBeVisible();
   await expect.poll(readAux).toBeLessThan(123456);
+  await expect.poll(readAux).toBeGreaterThan(123400);
 
   // stopping resets to the original duration
   await page.getByTestId('aux-timer-stop-1').click();
