@@ -1,7 +1,6 @@
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 
-import { isTest } from '../../setup/environment.js';
 import { publicFiles } from '../../setup/index.js';
 import { shouldCrashDev } from '../../utils/development.js';
 import { isPath } from '../../utils/fileManagement.js';
@@ -22,16 +21,11 @@ export async function isLastLoadedProject(projectName: string): Promise<boolean>
 }
 
 export async function getLastLoaded(): Promise<Pick<AppState, 'projectName' | 'rundownId'> | undefined> {
-  // in test environment, we want to start the demo project
-  if (isTest) return;
-
   await config.read();
   return { projectName: config.data.projectName, rundownId: config.data.rundownId };
 }
 
 export async function setLastLoaded(projectName: string, rundownId?: string): Promise<void> {
-  if (isTest) return;
-
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: shouldCrashDev(isPath(projectName), 'setLastLoaded should not be called with a path');
 
@@ -41,16 +35,11 @@ export async function setLastLoaded(projectName: string, rundownId?: string): Pr
 }
 
 export async function setLastLoadedRundown(rundownKey: string): Promise<void> {
-  if (isTest) return;
-
   config.data.rundownId = rundownKey;
   await config.write();
 }
 
 export async function getShowWelcomeDialog(restorePointExists: boolean): Promise<boolean> {
-  // in test environment, we do not want the dialog
-  if (isTest) return false;
-
   if (restorePointExists) return false;
 
   await config.read();
