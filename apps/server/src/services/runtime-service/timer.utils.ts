@@ -1,6 +1,7 @@
 import { Day, MaybeNumber, Playback, TimeOfDay, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
+import * as timeCore from '../../lib/time-core/timeCore.js';
 import { timerConfig } from '../../setup/config.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 
@@ -63,7 +64,7 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
     return null;
   }
 
-  const pausedTime = pausedAt != null ? clock - pausedAt : 0;
+  const pausedTime = pausedAt != null ? timeCore.elapsedTime(clock, pausedAt) : 0;
 
   if (countToEnd) {
     return timeEnd + addedTime + pausedTime;
@@ -109,7 +110,7 @@ export function getCurrent(state: RuntimeState): number {
   }
 
   if (pausedAt != null) {
-    return startedAt + duration + addedTime - pausedAt;
+    return duration + addedTime - getTimeSinceStart(pausedAt, startedAt);
   }
 
   const hasPassedMidnight = startedAt > clock;
@@ -201,8 +202,8 @@ export function getRuntimeOffset(state: RuntimeState): { absolute: number; relat
   // how long has the event been running over (is a negative number when in over timer so inverted before adding to offset)
   const overtime = Math.abs(Math.min(current, 0));
 
-  // time the playback was paused, the different from now to when we paused is added to the offset TODO: brakes when crossing midnight
-  const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
+  // time the playback was paused is added to the offset
+  const pausedTime = state._timer.pausedAt === null ? 0 : timeCore.elapsedTime(clock, state._timer.pausedAt);
 
   // absolute offset is difference between schedule and playback time
   // in case of count to end, the absolute offset is overtime and added time
