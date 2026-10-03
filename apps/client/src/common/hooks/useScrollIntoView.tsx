@@ -6,7 +6,7 @@ export default function useScrollIntoView<T extends HTMLElement>(name: string, l
   useEffect(() => {
     if (location && ref.current) {
       if (location === name) {
-        ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
   }, [location, name]);
