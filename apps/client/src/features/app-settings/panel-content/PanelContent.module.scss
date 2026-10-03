@@ -35,4 +35,9 @@ $content-max-width: 1280px;
   flex-grow: 1;
   // room for the last section to scroll to the top of the viewport
   padding-bottom: 40vh;
+
+  // Keep section headings clear of the panel edge after navigation.
+  > div {
+    scroll-margin-top: 0.5rem;
+  }
 }
