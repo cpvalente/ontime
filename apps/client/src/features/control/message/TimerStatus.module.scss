@@ -1,0 +1,17 @@
+.timerStatus {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0.5rem 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.statusIcon {
+  color: $gray-1000;
+
+  &[data-active='true'] {
+    color: $active-indicator;
+  }
+}

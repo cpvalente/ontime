@@ -2,14 +2,12 @@
   display: grid;
   grid-template-columns: 1fr auto;
   gap: $element-spacing;
-  margin-top: $element-inner-spacing;
+
+  &.withSource {
+    grid-template-columns: auto 1fr auto;
+  }
 }
 
-.label {
-  font-size: $inner-section-text-size;
-  color: $label-gray;
-
-  &.active {
-    color: $action-text-color;
-  }
+.label.active {
+  color: $action-text-color;
 }
