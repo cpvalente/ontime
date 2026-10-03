@@ -10,10 +10,11 @@ export async function startTestServer() {
   await server.initAssets();
   const { serverPort } = await server.startServer();
   const baseUrl = `http://localhost:${serverPort}`;
+  let stopped: Promise<void> | undefined;
 
   return {
-    /** same as a clean shutdown: flushes pending writes and clears the restore point */
-    stop: () => server.stopServices(0),
+    /** same as a clean shutdown: flushes pending writes and clears the restore point, safe to call more than once */
+    stop: () => (stopped ??= server.stopServices(0)),
     get: (path: string) => fetch(`${baseUrl}${path}`),
     send: (method: 'POST' | 'PUT' | 'PATCH' | 'DELETE', path: string, body?: unknown) =>
       fetch(`${baseUrl}${path}`, {

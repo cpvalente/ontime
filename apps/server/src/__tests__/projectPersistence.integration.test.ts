@@ -8,6 +8,7 @@ import { startTestServer } from './testServer.js';
 describe('project persistence', () => {
   test('rundown edits are saved to the project file and restored after a restart', async () => {
     const firstRun = await startTestServer();
+    onTestFinished(() => firstRun.stop());
     const rundown: Rundown = await (await firstRun.get('/data/rundowns/current')).json();
     const eventId = rundown.flatOrder.find((id) => rundown.entries[id].type === SupportedEntry.Event);
     expect(eventId).toBeDefined();
@@ -24,9 +25,9 @@ describe('project persistence', () => {
     expect((saved.rundowns[rundown.id].entries[eventId!] as OntimeEvent).title).toBe('Edited before restart');
 
     const secondRun = await startTestServer();
+    onTestFinished(() => secondRun.stop());
     const restored: Rundown = await (await secondRun.get('/data/rundowns/current')).json();
     expect(restored.id).toBe(rundown.id);
     expect((restored.entries[eventId!] as OntimeEvent).title).toBe('Edited before restart');
-    await secondRun.stop();
   });
 });
