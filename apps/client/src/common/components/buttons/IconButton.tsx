@@ -19,6 +19,7 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   ({ className, children, variant = 'subtle', size = 'medium', ...buttonProps }, ref) => {
+    'use memo';
     return (
       <button
         ref={ref}
