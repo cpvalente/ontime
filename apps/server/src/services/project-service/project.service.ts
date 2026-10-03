@@ -10,7 +10,7 @@ import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { initRundown, mergeCustomFields } from '../../api-data/rundown/rundown.service.js';
-import { getDataProvider, initPersistence } from '../../classes/data-provider/DataProvider.js';
+import { getDataProvider, getFileToRead, initPersistence } from '../../classes/data-provider/DataProvider.js';
 import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 import { logger } from '../../classes/Logger.js';
 import { makeNewProject } from '../../models/dataModel.js';
@@ -251,10 +251,21 @@ export async function getProjectList(): Promise<ProjectFileListResponse> {
 }
 
 /**
+ * Returns the path to a project file for reading it as it stands
+ * The loaded project's file is owned by the data provider, which saves its pending changes first
+ */
+export async function getProjectFileToRead(filename: string): Promise<string | null> {
+  if (filename === currentProjectState.currentProjectName) {
+    return getFileToRead();
+  }
+  return doesProjectExist(filename);
+}
+
+/**
  * Duplicates an existing project file
  */
 export async function duplicateProjectFile(originalFile: string, newFilename: string) {
-  const projectFilePath = doesProjectExist(originalFile);
+  const projectFilePath = await getProjectFileToRead(originalFile);
   if (projectFilePath === null) {
     throw new Error('Project file not found');
   }
@@ -274,7 +285,7 @@ export async function duplicateProjectFile(originalFile: string, newFilename: st
  * @throws
  */
 export async function renameProjectFile(originalFile: string, newFilename: string): Promise<string> {
-  const projectFilePath = doesProjectExist(originalFile);
+  const projectFilePath = await getProjectFileToRead(originalFile);
   if (projectFilePath === null) {
     throw new Error('Project file not found');
   }
