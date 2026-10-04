@@ -30,7 +30,7 @@ import {
   resolveInsertParent,
   swapEventData,
 } from 'ontime-utils';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 import { moveDown, moveUp, orderEntries } from '../../features/rundown/rundown.utils';
 import { getRundownCacheKey } from '../api/constants';
@@ -842,14 +842,27 @@ export function useEntryActions(scopedRundownId: string) {
   const { mutateAsync: reorderEntryMutation } = useMutation({
     mutationFn: ([rundownId, data]: Parameters<typeof patchReorderEntry>) => patchReorderEntry(rundownId, data),
     onMutate: ([rundownId]) => queryClient.cancelQueries({ queryKey: getRundownCacheKey(rundownId) }),
-    onSettled: (_data, _error, [rundownId]) =>
-      queryClient.invalidateQueries({ queryKey: getRundownCacheKey(rundownId) }),
+    onSuccess: (response, [rundownId]) => {
+      if (!response.data) return;
+      applyRundownResponse(getRundownCacheKey(rundownId), response.data);
+    },
+    // not awaited, the response already holds the new order and queued moves should not wait for a refetch
+    onSettled: (_data, _error, [rundownId]) => {
+      void queryClient.invalidateQueries({ queryKey: getRundownCacheKey(rundownId) });
+    },
   });
 
   /**
-   * Reorders a given entry one step up or down in the timeline
+   * Moves are computed from the cached order
+   * each waits for the previous to land, so moves made faster than the server replies all apply
    */
-  const move = useCallback(
+  const pendingMove = useRef<Promise<unknown>>(Promise.resolve());
+
+  /**
+   * Computes and requests a one step move from the cached order
+   * @private
+   */
+  const moveFromCache = useCallback(
     async (entryId: EntryId, direction: 'up' | 'down') => {
       try {
         const rundownData = getCurrentRundownData();
@@ -882,6 +895,19 @@ export function useEntryActions(scopedRundownId: string) {
     },
     [getCurrentRundownData, reorderEntryMutation],
   );
+
+  /**
+   * Reorders a given entry one step up or down in the timeline
+   */
+  const move = useCallback(
+    (entryId: EntryId, direction: 'up' | 'down') => {
+      const result = pendingMove.current.then(() => moveFromCache(entryId, direction));
+      pendingMove.current = result;
+      return result;
+    },
+    [moveFromCache],
+  );
+
   /**
    * Reorders a given entry
    */
