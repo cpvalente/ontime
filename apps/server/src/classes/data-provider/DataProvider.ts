@@ -49,8 +49,10 @@ export async function initPersistence(filePath: string, fallbackData: DatabaseMo
  * Changes are saved with a delay, so the loaded project's file must only be read through here
  */
 export async function getFileToRead(): Promise<string> {
+  // a project switch while saving changes the loaded file, the caller asked for this one
+  const file = loadedFile;
   await savePending();
-  return loadedFile;
+  return file;
 }
 
 export function getDataProvider() {
