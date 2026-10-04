@@ -1103,6 +1103,40 @@ describe('rundownMutation.reorder()', () => {
     expect(rundown.order).toStrictEqual(['3', '1', '2']);
   });
 
+  it('moves an event before a later event', () => {
+    const rundown = makeRundown({
+      order: ['1', '2', '3'],
+      flatOrder: ['1', '2', '3'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1' }),
+        '2': makeOntimeEvent({ id: '2' }),
+        '3': makeOntimeEvent({ id: '3' }),
+      },
+    });
+
+    // ie: cut the first event and paste it above the last
+    rundownMutation.reorder(rundown, rundown.entries['1'], rundown.entries['3'], 'before');
+
+    expect(rundown.order).toStrictEqual(['2', '1', '3']);
+  });
+
+  it('keeps the order when an event is moved before the event that already follows it', () => {
+    const rundown = makeRundown({
+      order: ['1', '2', '3'],
+      flatOrder: ['1', '2', '3'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1' }),
+        '2': makeOntimeEvent({ id: '2' }),
+        '3': makeOntimeEvent({ id: '3' }),
+      },
+    });
+
+    // ie: a repeated request from a client that has not yet seen the previous move
+    rundownMutation.reorder(rundown, rundown.entries['2'], rundown.entries['3'], 'before');
+
+    expect(rundown.order).toStrictEqual(['1', '2', '3']);
+  });
+
   it('moves an event out and before a group', () => {
     const rundown = makeRundown({
       order: ['1', '2'],

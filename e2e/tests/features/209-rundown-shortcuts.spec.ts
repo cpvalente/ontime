@@ -28,7 +28,7 @@ test('Copy-paste', async ({ page }) => {
   // assert
   await expect(page.getByTestId('entry-2')).toBeVisible();
   await expect(page.getByTestId('entry-2').getByTestId('entry__title')).toHaveValue('test');
-  await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('4');
+  await expect(page.getByTestId('entry-2').getByTestId('rundown-event').getByText('4', { exact: true })).toBeVisible();
 });
 
 test('Cut-paste', async ({ page }) => {
@@ -88,22 +88,14 @@ test('Move', async ({ page }) => {
     .getByTestId('rundown-event')
     .filter({ hasText: '1' })
     .press('Alt+Control+ArrowDown');
-  await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('1');
+  await expect(page.getByTestId('entry-2').getByTestId('rundown-event').getByText('1', { exact: true })).toBeVisible();
 
-  // move entry three up twice, waiting for each reorder before targeting its new row
+  // move entry three up twice, faster than the server replies: both moves apply
   await page.getByTestId('entry-3').getByTestId('rundown-event').getByText('3').click();
-  await page
-    .getByTestId('entry-3')
-    .getByTestId('rundown-event')
-    .filter({ hasText: '3' })
-    .press('Alt+ControlOrMeta+ArrowUp');
-  await expect(page.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('3');
-  await page
-    .getByTestId('entry-2')
-    .getByTestId('rundown-event')
-    .filter({ hasText: '3' })
-    .press('Alt+ControlOrMeta+ArrowUp');
-  await expect(page.getByTestId('entry-1').getByTestId('rundown-event')).toContainText('3');
+  await page.keyboard.press('Alt+ControlOrMeta+ArrowUp');
+  await page.keyboard.press('Alt+ControlOrMeta+ArrowUp');
+  await expect(page.getByTestId('entry-1').getByTestId('rundown-event').getByText('3', { exact: true })).toBeVisible();
+  await expect(page.getByTestId('entry-2').getByTestId('rundown-event').getByText('2', { exact: true })).toBeVisible();
 });
 
 test('Add group', async ({ page }) => {
@@ -196,7 +188,7 @@ test('Add event', async ({ page }) => {
   // add event above
   await page.getByTestId('rundown-event').locator('div').filter({ hasText: '1' }).press('Alt+Shift+E');
   await expect(page.getByTestId('rundown-event')).toHaveCount(3);
-  await expect(page.getByTestId('entry-1').getByTestId('rundown-event')).toContainText('1');
+  await expect(page.getByTestId('entry-1').getByTestId('rundown-event').getByText('1', { exact: true })).toBeVisible();
 });
 
 test('Delete event', async ({ page }) => {
