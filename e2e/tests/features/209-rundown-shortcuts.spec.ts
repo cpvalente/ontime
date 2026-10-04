@@ -90,20 +90,12 @@ test('Move', async ({ page }) => {
     .press('Alt+Control+ArrowDown');
   await expect(page.getByTestId('entry-2').getByTestId('rundown-event').getByText('1', { exact: true })).toBeVisible();
 
-  // move entry three up twice, waiting for each reorder before targeting its new row
+  // move entry three up twice, faster than the server replies: both moves apply
   await page.getByTestId('entry-3').getByTestId('rundown-event').getByText('3').click();
-  await page
-    .getByTestId('entry-3')
-    .getByTestId('rundown-event')
-    .filter({ hasText: '3' })
-    .press('Alt+ControlOrMeta+ArrowUp');
-  await expect(page.getByTestId('entry-2').getByTestId('rundown-event').getByText('3', { exact: true })).toBeVisible();
-  await page
-    .getByTestId('entry-2')
-    .getByTestId('rundown-event')
-    .filter({ hasText: '3' })
-    .press('Alt+ControlOrMeta+ArrowUp');
+  await page.keyboard.press('Alt+ControlOrMeta+ArrowUp');
+  await page.keyboard.press('Alt+ControlOrMeta+ArrowUp');
   await expect(page.getByTestId('entry-1').getByTestId('rundown-event').getByText('3', { exact: true })).toBeVisible();
+  await expect(page.getByTestId('entry-2').getByTestId('rundown-event').getByText('2', { exact: true })).toBeVisible();
 });
 
 test('Add group', async ({ page }) => {
