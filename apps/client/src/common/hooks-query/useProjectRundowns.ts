@@ -17,13 +17,24 @@ import {
  * Project rundowns
  */
 export function useProjectRundowns() {
-  const { data, status, isError, refetch, isFetching } = useQuery<ProjectRundownsList>({
+  const query = useQuery<ProjectRundownsList>({
     queryKey: PROJECT_RUNDOWNS,
     queryFn: ({ signal }) => fetchProjectRundownList({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
     refetchInterval: queryRefetchIntervalSlow,
   });
-  return { data: data ?? { loaded: '', rundowns: [] }, status, isError, refetch, isFetching };
+  // Scope providers only need the data; fetching flags should not invalidate their subtrees.
+  return {
+    data: query.data ?? { loaded: '', rundowns: [] },
+    status: query.status,
+    refetch: query.refetch,
+    get isError() {
+      return query.isError;
+    },
+    get isFetching() {
+      return query.isFetching;
+    },
+  };
 }
 
 export function useMutateProjectRundowns() {
