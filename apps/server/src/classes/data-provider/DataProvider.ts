@@ -19,6 +19,8 @@ import { safeMerge } from './DataProvider.utils.js';
 type ReadonlyPromise<T> = Promise<Readonly<T>>;
 
 let db = {} as Low<DatabaseModel>;
+/** file of the loaded project, which the delayed save writes to */
+let loadedFile = '';
 
 /**
  * Initialises the JSON adapter to persist data to a file
@@ -26,6 +28,10 @@ let db = {} as Low<DatabaseModel>;
 export async function initPersistence(filePath: string, fallbackData: DatabaseModel) {
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: shouldCrashDev(!isPath(filePath), 'initPersistence should be called with a path');
+
+  // the delayed save writes whichever file is current when it runs, so the previous file is saved now
+  await savePending();
+
   // not JSONFilePreset, which silently keeps data in memory when NODE_ENV is test
   const newDb = new Low<DatabaseModel>(new JSONFile<DatabaseModel>(filePath), fallbackData);
 
@@ -35,6 +41,16 @@ export async function initPersistence(filePath: string, fallbackData: DatabaseMo
   await newDb.read();
 
   db = newDb;
+  loadedFile = filePath;
+}
+
+/**
+ * Returns the file of the loaded project with every change saved to it
+ * Changes are saved with a delay, so the loaded project's file must only be read through here
+ */
+export async function getFileToRead(): Promise<string> {
+  await savePending();
+  return loadedFile;
 }
 
 export function getDataProvider() {
@@ -223,6 +239,17 @@ async function persist() {
 }
 
 /**
+ * Saves changes still waiting for the delayed save
+ */
+async function savePending() {
+  if (pendingWrite) {
+    await flushPendingWrites();
+  } else if (activeWrite) {
+    await activeWrite;
+  }
+}
+
+/**
  * Force immediate write of any pending changes
  */
 export async function flushPendingWrites() {
@@ -236,5 +263,10 @@ export async function flushPendingWrites() {
     await activeWrite;
   }
 
-  await db.write();
+  try {
+    activeWrite = db.write();
+    await activeWrite;
+  } finally {
+    activeWrite = null;
+  }
 }

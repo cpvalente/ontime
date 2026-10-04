@@ -46,6 +46,7 @@ vi.mock('../../../api-data/rundown/rundown.service.js', () => ({
 vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
   initPersistence: vi.fn(),
   getDataProvider: vi.fn(),
+  getFileToRead: vi.fn(),
 }));
 
 vi.mock('../../runtime-service/runtime.service.js', () => ({

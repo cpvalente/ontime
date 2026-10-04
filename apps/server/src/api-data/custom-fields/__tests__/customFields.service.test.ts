@@ -4,7 +4,7 @@ import { join } from 'node:path';
 
 import { OntimeEvent } from 'ontime-types';
 
-import { getDataProvider, initPersistence } from '../../../classes/data-provider/DataProvider.js';
+import { flushPendingWrites, getDataProvider, initPersistence } from '../../../classes/data-provider/DataProvider.js';
 import { makeNewProject } from '../../../models/dataModel.js';
 import { makeCustomField, makeOntimeEvent, makeRundown } from '../../rundown/__mocks__/rundown.mocks.js';
 import { getCurrentRundown, processRundown, rundownCache } from '../../rundown/rundown.dao.js';
@@ -35,6 +35,7 @@ describe('custom field changes across project rundowns', () => {
   });
 
   afterEach(async () => {
+    await flushPendingWrites();
     await rm(directory, { recursive: true, force: true });
   });
 
