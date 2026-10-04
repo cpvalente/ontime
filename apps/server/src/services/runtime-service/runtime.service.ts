@@ -57,6 +57,12 @@ class RuntimeService {
   /** last known state */
   static previousState: RuntimeState;
 
+  /**
+   * Whether init() has run
+   * Before then, saving the restore state would overwrite the point we are about to resume
+   */
+  static isInitialised = false;
+
   constructor(eventTimer: EventTimer) {
     this.eventTimer = eventTimer;
     RuntimeService.previousState = {} as RuntimeState;
@@ -157,6 +163,7 @@ class RuntimeService {
   public init(resumable: RestorePoint | null) {
     logger.info(LogOrigin.Server, 'Runtime service started');
     this.eventTimer.setOnUpdateCallback((updateResult) => this.checkTimerUpdate(updateResult));
+    RuntimeService.isInitialised = true;
 
     if (resumable) {
       this.resume(resumable);
@@ -785,7 +792,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     }
 
     // save the restore state
-    if (hasImmediateChanges) {
+    if (hasImmediateChanges && RuntimeService.isInitialised) {
       restoreService
         .save({
           rundownId: getCurrentRundownId(),
