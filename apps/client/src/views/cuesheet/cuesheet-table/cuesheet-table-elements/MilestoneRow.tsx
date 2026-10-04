@@ -1,7 +1,7 @@
 import { FlexRender } from '@tanstack/react-table';
 import { EntryId, SupportedEntry } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
-import { CSSProperties, memo, useMemo } from 'react';
+import { CSSProperties, useMemo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
@@ -25,8 +25,7 @@ interface MilestoneRowProps {
   hasCursor?: boolean;
 }
 
-export default memo(MilestoneRow);
-function MilestoneRow({
+export default function MilestoneRow({
   entryId,
   isPast,
   parentBgColour,
@@ -39,6 +38,7 @@ function MilestoneRow({
   injectedStyles,
   ...virtuosoProps
 }: MilestoneRowProps) {
+  'use memo';
   const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
     cuesheetMode: AppMode.Edit,
     hideIndexColumn: false,
