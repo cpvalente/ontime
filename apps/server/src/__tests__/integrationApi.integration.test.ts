@@ -11,11 +11,12 @@ describe('HTTP integration API', () => {
   let rundown: Rundown;
   let firstEventId: string;
 
+  // starting the server loads the full module graph, which takes a few seconds on slower machines
   beforeAll(async () => {
     server = await startTestServer();
     rundown = await (await server.get('/data/rundowns/current')).json();
     firstEventId = rundown.flatOrder.find((id) => rundown.entries[id].type === SupportedEntry.Event)!;
-  });
+  }, 15_000);
 
   afterAll(async () => {
     await server?.stop();
