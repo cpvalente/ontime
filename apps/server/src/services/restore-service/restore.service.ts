@@ -1,12 +1,17 @@
 import { deepEqual } from 'fast-equals';
 import { JSONFile } from 'lowdb/node';
+import { MILLIS_PER_HOUR } from 'ontime-utils';
 
+import * as timeCore from '../../lib/time-core/timeCore.js';
 import { publicFiles } from '../../setup/index.js';
 import { isRestorePoint } from './restore.parser.js';
 import type { RestorePoint } from './restore.types.js';
 
+/** a point older than this belongs to a show which is no longer running */
+const maxRestoreAge = 5 * MILLIS_PER_HOUR;
+
 let failedCreateAttempts = 0;
-let savedState: RestorePoint | null = null;
+let savedState: Omit<RestorePoint, 'savedAt'> | null = null;
 let fileRef: JSONFile<RestorePoint | null> | null = null;
 
 /**
@@ -24,7 +29,7 @@ export const restoreService = {
  * @param [writeFn=write] - allows overriding the write function for testing
  * @public
  */
-async function save(data: RestorePoint, writeFn = write) {
+async function save(data: Omit<RestorePoint, 'savedAt'>, writeFn = write) {
   // after three failed attempts, mark the service as unavailable
   if (failedCreateAttempts > 3) {
     return;
@@ -35,7 +40,7 @@ async function save(data: RestorePoint, writeFn = write) {
   }
 
   try {
-    await writeFn(data);
+    await writeFn({ ...data, savedAt: timeCore.now() });
     savedState = { ...data };
     failedCreateAttempts = 0;
   } catch (_error) {
@@ -45,14 +50,17 @@ async function save(data: RestorePoint, writeFn = write) {
 
 /**
  * Attempts reading a restore point from a given file path
- * Returns null if none found, restore point otherwise
+ * Returns null if none found or it is too old to resume, restore point otherwise
  * @param [readFn=read] - allows overriding the read function for testing
  * @public
  */
 async function load(readFn = read): Promise<RestorePoint | null> {
   try {
     const maybeRestorePoint = await readFn();
-    if (isRestorePoint(maybeRestorePoint)) {
+    if (
+      isRestorePoint(maybeRestorePoint) &&
+      timeCore.timeSince(timeCore.now(), maybeRestorePoint.savedAt) <= maxRestoreAge
+    ) {
       return maybeRestorePoint;
     }
   } catch (_error) {

@@ -23,6 +23,7 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
       'startEpoch',
       'currentDay',
       'offsetMode',
+      'savedAt',
     ])
   ) {
     return false;
@@ -69,6 +70,10 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
   }
 
   if (!Object.values(OffsetMode).includes(restorePoint.offsetMode as OffsetMode)) {
+    return false;
+  }
+
+  if (!is.number(restorePoint.savedAt)) {
     return false;
   }
 

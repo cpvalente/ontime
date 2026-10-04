@@ -63,7 +63,7 @@ export type RuntimeState = {
   rundown: RundownState;
   // private properties of the timer calculations
   _timer: {
-    forceFinish: Maybe<TimeOfDay>; // whether we should declare an event as finished, will contain the finish time
+    forceFinish: Maybe<Instant>; // whether we should declare an event as finished, will contain the finish time
     pausedAt: Maybe<TimeOfDay>;
     pausedDuration: number;
     secondaryTarget: Maybe<TimeOfDay>;
@@ -415,7 +415,7 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   loadGroupFlagAndEnd(rundown, metadata);
 }
 
-export function start(state: RuntimeState = runtimeState): boolean {
+export function start(state: RuntimeState = runtimeState, epoch: Instant = timeCore.now()): boolean {
   if (state.eventNow === null) {
     return false;
   }
@@ -423,7 +423,6 @@ export function start(state: RuntimeState = runtimeState): boolean {
     return false;
   }
 
-  const epoch = timeCore.now();
   const now = timeCore.toTimeOfDay(epoch);
 
   state.clock = now;
@@ -476,13 +475,13 @@ export function start(state: RuntimeState = runtimeState): boolean {
   return true;
 }
 
-export function pause(state: RuntimeState = runtimeState): boolean {
+export function pause(state: RuntimeState = runtimeState, epoch: Instant = timeCore.now()): boolean {
   if (state.timer.playback !== Playback.Play) {
     return false;
   }
 
   state.timer.playback = Playback.Pause;
-  state.clock = timeCore.timeOfDayNow();
+  state.clock = timeCore.toTimeOfDay(epoch);
   state._timer.pausedAt = state.clock;
   return true;
 }
@@ -498,7 +497,7 @@ export function stop(state: RuntimeState = runtimeState): boolean {
 /**
  * Exposes functionality to add user time to the timer externally
  */
-export function addTime(amount: number) {
+export function addTime(amount: number, epoch: Instant = timeCore.now()) {
   if (runtimeState.timer.current === null) {
     return false;
   }
@@ -517,7 +516,7 @@ export function addTime(amount: number) {
 
   if (willGoNegative && !runtimeState._timer.hasFinished) {
     // set finished time so side effects are triggered
-    runtimeState._timer.forceFinish = timeCore.timeOfDayNow();
+    runtimeState._timer.forceFinish = epoch;
   } else {
     const willGoPositive = runtimeState.timer.current < 0 && runtimeState.timer.current + amount > 0;
     if (willGoPositive) {
@@ -550,13 +549,14 @@ export function getTimeToNextBoundary(): MaybeNumber {
 
 export type UpdateResult = {
   hasTimerFinished: boolean;
+  /** when the timer reached its end, set when it finished in this update */
+  finishedAt: Maybe<Instant>;
   hasSecondaryTimerFinished: boolean;
 };
 
-export function update(): UpdateResult {
+export function update(epoch: Instant = timeCore.now()): UpdateResult {
   // 0. there are some things we always do
   const previousClock = runtimeState.clock;
-  const epoch = timeCore.now();
   const now = timeCore.toTimeOfDay(epoch);
   runtimeState.clock = now; // we update the clock on every update call
 
@@ -603,17 +603,21 @@ export function update(): UpdateResult {
     Boolean(runtimeState._timer.forceFinish) ||
     (runtimeState.timer.current <= timerConfig.triggerAhead && !runtimeState._timer.hasFinished);
 
+  // the end is detected ahead of time or on a later tick, the remaining time places it exactly
+  let finishedAt: Maybe<Instant> = null;
   if (finishedNow) {
     runtimeState._timer.hasFinished = true;
+    finishedAt = runtimeState._timer.forceFinish ?? timeCore.addDuration(epoch, runtimeState.timer.current as Duration);
+    runtimeState._timer.forceFinish = null;
   }
 
   getExpectedTimes();
 
-  return { hasTimerFinished: finishedNow, hasSecondaryTimerFinished: false };
+  return { hasTimerFinished: finishedNow, finishedAt, hasSecondaryTimerFinished: false };
 
   function updateIfIdle() {
     // if nothing is running, nothing to do
-    return { hasTimerFinished: false, hasSecondaryTimerFinished: false };
+    return { hasTimerFinished: false, finishedAt: null, hasSecondaryTimerFinished: false };
   }
 
   function updateIfWaitingToRoll(hasCrossedMidnight: boolean) {
@@ -640,6 +644,7 @@ export function update(): UpdateResult {
     runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget! - offsetClock;
     return {
       hasTimerFinished: false,
+      finishedAt: null,
       hasSecondaryTimerFinished: runtimeState.timer.secondaryTimer <= 0,
     };
   }
@@ -649,6 +654,7 @@ export function roll(
   rundown: Rundown,
   metadata: RundownMetadata,
   offset?: Offset,
+  epoch: Instant = timeCore.now(),
 ): { eventId: MaybeString; didStart: boolean } {
   // 1. if an event is running, we simply take over the playback
   if (runtimeState.timer.playback === Playback.Play && runtimeState.rundown.selectedEventIndex !== null) {
@@ -657,7 +663,6 @@ export function roll(
   }
 
   // we will need to do some calculations, update the time first
-  const epoch = timeCore.now();
   const now = timeCore.toTimeOfDay(epoch);
   runtimeState.clock = now;
 
@@ -741,6 +746,7 @@ export function roll(
 
   // we need to persist the current group state across loads
   clearEventData();
+  runtimeState.clock = now;
 
   // account for offset but we only keep it if passed to us
   if (offset) {
