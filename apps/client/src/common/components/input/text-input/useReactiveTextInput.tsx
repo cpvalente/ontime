@@ -67,17 +67,23 @@ export default function useReactiveTextInput(
           setText(cleanVal);
         }
       }
-
-      setTimeout(() => {
-        if (options?.allowKeyboardNavigation) {
-          ref.current?.parentElement?.focus(); // Focus on parent element to continue keyboard navigation
-        } else {
-          ref.current?.blur();
-        }
-      }); // Immediate timeout to ensure text is set before blurring
     },
-    [initialText, options, ref, submitCallback],
+    [initialText, options, submitCallback],
   );
+
+  /**
+   * @description Leaves the input after a keyboard submit
+   * a blur does not need this, focus has already moved where the user wanted it
+   */
+  const leaveInput = useCallback(() => {
+    setTimeout(() => {
+      if (options?.allowKeyboardNavigation) {
+        ref.current?.parentElement?.focus(); // Focus on parent element to continue keyboard navigation
+      } else {
+        ref.current?.blur();
+      }
+    }); // Immediate timeout to ensure text is set before blurring
+  }, [options?.allowKeyboardNavigation, ref]);
 
   /**
    * @description Handles escape events
@@ -113,6 +119,7 @@ export default function useReactiveTextInput(
         () => {
           isKeyboardSubmitting.current = true;
           handleSubmit(text);
+          leaveInput();
           // clear flag after blur has been processed
           setTimeout(() => {
             isKeyboardSubmitting.current = false;
@@ -127,6 +134,7 @@ export default function useReactiveTextInput(
         () => {
           isKeyboardSubmitting.current = true;
           handleSubmit(text);
+          leaveInput();
           // clear flag after blur has been processed
           setTimeout(() => {
             isKeyboardSubmitting.current = false;
@@ -155,7 +163,15 @@ export default function useReactiveTextInput(
 
       hotKeyHandler(event);
     };
-  }, [handleEscape, handleSubmit, options?.submitOnCtrlEnter, options?.submitOnEnter, options?.submitOnTab, text]);
+  }, [
+    handleEscape,
+    handleSubmit,
+    leaveInput,
+    options?.submitOnCtrlEnter,
+    options?.submitOnEnter,
+    options?.submitOnTab,
+    text,
+  ]);
 
   return {
     value: text,
