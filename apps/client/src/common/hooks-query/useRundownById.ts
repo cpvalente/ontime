@@ -28,7 +28,7 @@ export function useRundownById(rundownId: string | null | undefined) {
   const queryClient = useQueryClient();
   const id = rundownId ?? '';
 
-  const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
+  const query = useQuery<Rundown>({
     queryKey: getRundownCacheKey(id),
     queryFn: async ({ signal }) => {
       if (id) return fetchRundown(id, { signal });
@@ -39,7 +39,18 @@ export function useRundownById(rundownId: string | null | undefined) {
     refetchInterval: queryRefetchIntervalSlow,
   });
 
-  return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
+  // Access flags only when a caller reads them, preserving Query's tracked subscriptions.
+  return {
+    data: query.data ?? cachedRundownPlaceholder,
+    status: query.status,
+    refetch: query.refetch,
+    get isError() {
+      return query.isError;
+    },
+    get isFetching() {
+      return query.isFetching;
+    },
+  };
 }
 
 /**
