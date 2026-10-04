@@ -4,7 +4,7 @@ import { parseDatabaseModel } from '../../../api-data/db/db.parser.js';
 import { makeOntimeEvent, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { rundownCache } from '../../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../../api-data/rundown/rundown.service.js';
-import { getDataProvider } from '../../../classes/data-provider/DataProvider.js';
+import { getDataProvider, getFileToRead } from '../../../classes/data-provider/DataProvider.js';
 import { makeNewProject } from '../../../models/dataModel.js';
 import { isLastLoadedProject } from '../../app-state-service/appState.service.js';
 import { auxTimerService } from '../../aux-timer-service/auxTimer.service.js';
@@ -124,6 +124,23 @@ describe('loadProjectFile', () => {
 
     expect(auxTimerService.loadNames).toHaveBeenCalledWith(['Speaker', 'Break', 'Q&A']);
     expect(initRundown).toHaveBeenCalled();
+  });
+
+  it('reloads the loaded project from its file with every change saved', async () => {
+    const rundown = { id: 'default', title: '', order: [], flatOrder: [], entries: {}, revision: 0 };
+    (doesProjectExist as Mock).mockReturnValue('/projects/show.json');
+    (parseJsonFile as Mock).mockResolvedValue({});
+    (parseDatabaseModel as Mock).mockReturnValue({
+      data: { rundowns: { default: rundown }, customFields: {}, settings: { auxTimerNames: ['', '', ''] } },
+      migrated: false,
+      errors: [],
+    });
+    await loadProjectFile('show.json');
+    (getFileToRead as Mock).mockResolvedValue('/projects/show.json');
+
+    await loadProjectFile('show.json');
+
+    expect(getFileToRead).toHaveBeenCalled();
   });
 });
 

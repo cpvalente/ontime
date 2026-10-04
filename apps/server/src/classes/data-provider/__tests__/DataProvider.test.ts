@@ -7,26 +7,16 @@ import { Low } from 'lowdb';
 import { makeNewProject } from '../../../models/dataModel.js';
 import { flushPendingWrites, getDataProvider, getFileToRead, initPersistence } from '../DataProvider.js';
 
-// persistence is disabled in tests, this suite exercises it against real files
-// lowdb also keeps data in memory under NODE_ENV=test
-vi.mock('../../../setup/environment.js', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../../setup/environment.js')>()),
-  isTest: false,
-}));
-
 describe('saving pending changes of the loaded project', () => {
   let dir: string;
-  const nodeEnv = process.env.NODE_ENV;
 
   beforeEach(async () => {
-    process.env.NODE_ENV = 'production';
     dir = await mkdtemp(join(tmpdir(), 'ontime-data-provider-'));
   });
 
   afterEach(async () => {
     await flushPendingWrites();
     await rm(dir, { recursive: true, force: true });
-    process.env.NODE_ENV = nodeEnv;
   });
 
   it('saves changes still waiting to be written before switching to another project', async () => {

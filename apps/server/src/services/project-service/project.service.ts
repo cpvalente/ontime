@@ -215,7 +215,7 @@ export async function loadProjectFile(
   fileName: string,
   options?: { rundownId?: string; initialLoad?: boolean },
 ): Promise<string> {
-  const filePath = doesProjectExist(fileName);
+  const filePath = await getProjectFileToRead(fileName);
   if (filePath === null) {
     throw new Error('Project file not found');
   }
