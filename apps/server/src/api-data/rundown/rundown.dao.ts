@@ -319,7 +319,13 @@ function reorder(rundown: Rundown, eventFrom: OntimeEntry, eventTo: OntimeEntry,
   const fromIndex = sourceArray.indexOf(eventFrom.id);
   const toIndex = (() => {
     const baseIndex = destinationArray.indexOf(eventTo.id);
-    if (order === 'before') return baseIndex;
+    if (order === 'before') {
+      // When moving forward within the same array, removing the entry shifts the destination back
+      if (sourceArray === destinationArray && fromIndex < baseIndex) {
+        return baseIndex - 1;
+      }
+      return baseIndex;
+    }
     if (order === 'after') {
       // When moving within the same array, we need to consider the source position
       if (sourceArray === destinationArray && fromIndex <= baseIndex) {
