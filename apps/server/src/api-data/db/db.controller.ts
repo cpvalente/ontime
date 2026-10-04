@@ -12,11 +12,7 @@ import sanitize from 'sanitize-filename';
 
 import { getPartialProject } from '../../models/dataModel.js';
 import * as projectService from '../../services/project-service/project.service.js';
-import {
-  doesProjectExist,
-  handleImageUpload,
-  handleProjectUploaded,
-} from '../../services/project-service/project.utils.js';
+import { handleImageUpload, handleProjectUploaded } from '../../services/project-service/project.utils.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   try {
@@ -97,7 +93,13 @@ export async function quickProjectFile(req: Request, res: Response<{ filename: s
  * Allows downloading of current project file
  */
 export async function currentProjectDownload(_req: Request, res: Response) {
-  const { filename, pathToFile } = await projectService.getCurrentProject();
+  const { filename } = await projectService.getCurrentProject();
+  const pathToFile = await projectService.getProjectFileToRead(filename);
+  if (!pathToFile) {
+    res.status(404).send({ message: `Project ${filename} not found.` });
+    return;
+  }
+
   res.download(pathToFile, filename, (error: Error | null) => {
     if (error) {
       const message = getErrorMessage(error);
@@ -111,7 +113,7 @@ export async function currentProjectDownload(_req: Request, res: Response) {
  */
 export async function projectDownload(req: Request, res: Response) {
   const { filename } = req.body;
-  const pathToFile = doesProjectExist(filename);
+  const pathToFile = await projectService.getProjectFileToRead(filename);
   if (!pathToFile) {
     res.status(404).send({ message: `Project ${filename} not found.` });
     return;
