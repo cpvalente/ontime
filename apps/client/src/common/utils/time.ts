@@ -11,7 +11,7 @@ import {
 
 import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
 import { APP_SETTINGS } from '../api/constants';
-import { useExpectedStartData } from '../hooks/useSocket';
+import { useExpectedScheduleData, useExpectedStartData } from '../hooks/useSocket';
 import { ontimeQueryClient } from '../queryClient';
 import { ExtendedEntry } from './rundownMetadata';
 
@@ -171,13 +171,21 @@ export function useTimeUntilExpectedStart(
 }
 
 export function getExpectedTimesFromExtendedEvent(
+  event: Parameters<typeof getExpectedScheduleTimes>[0],
+  state: ReturnType<typeof useExpectedStartData>,
+) {
+  const times = getExpectedScheduleTimes(event, state);
+  return { ...times, timeToStart: event === null ? 0 : times.expectedStart - state.clock };
+}
+
+export function getExpectedScheduleTimes(
   event: Pick<
     ExtendedEntry<OntimeEvent>,
     'timeStart' | 'dayOffset' | 'delay' | 'totalGap' | 'isLinkedToLoaded' | 'countToEnd' | 'duration'
   > | null,
-  state: ReturnType<typeof useExpectedStartData>,
+  state: ReturnType<typeof useExpectedScheduleData>,
 ) {
-  if (event === null) return { expectedStart: 0, timeToStart: 0, expectedEnd: 0, plannedEnd: 0 };
+  if (event === null) return { expectedStart: 0, expectedEnd: 0, plannedEnd: 0 };
 
   const expectedStart = getExpectedStart(
     { timeStart: event.timeStart, delay: event.delay, dayOffset: event.dayOffset },
@@ -192,7 +200,6 @@ export function getExpectedTimesFromExtendedEvent(
 
   return {
     expectedStart,
-    timeToStart: expectedStart - state.clock,
     expectedEnd,
     plannedEnd,
   };

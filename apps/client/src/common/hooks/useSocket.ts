@@ -187,12 +187,19 @@ export const useProgressData = createSelector((state: RuntimeStore) => ({
   timeDanger: state.eventNow?.timeDanger ?? null,
 }));
 
-export const useExpectedStartData = createSelector((state: RuntimeStore) => ({
+const selectExpectedScheduleData = (state: RuntimeStore) => ({
   offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
   mode: state.offset.mode,
   currentDay: state.rundown.currentDay ?? 0,
   actualStart: state.rundown.actualStart,
   plannedStart: state.rundown.plannedStart,
+});
+
+/** Expected schedule times change with the offset, independently of clock ticks. */
+export const useExpectedScheduleData = createSelector(selectExpectedScheduleData);
+
+export const useExpectedStartData = createSelector((state: RuntimeStore) => ({
+  ...selectExpectedScheduleData(state),
   clock: state.clock,
 }));
 
