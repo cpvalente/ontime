@@ -13,6 +13,8 @@ interface ViewNavigationMenuProps {
   isNavigationLocked?: boolean;
   /** prevent showing settings */
   suppressSettings?: boolean;
+  /** leave Space to the view, which needs it for its own transport */
+  suppressSpaceHotkey?: boolean;
 }
 
 function isInteractiveKeyboardAction(target: EventTarget | null): boolean {
@@ -28,7 +30,7 @@ function isInteractiveKeyboardAction(target: EventTarget | null): boolean {
 }
 
 export default memo(ViewNavigationMenu);
-function ViewNavigationMenu({ isNavigationLocked, suppressSettings }: ViewNavigationMenuProps) {
+function ViewNavigationMenu({ isNavigationLocked, suppressSettings, suppressSpaceHotkey }: ViewNavigationMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { open: showEditFormDrawer } = useViewParamsEditorStore();
   const [searchParams] = useSearchParams();
@@ -41,7 +43,7 @@ function ViewNavigationMenu({ isNavigationLocked, suppressSettings }: ViewNaviga
     [
       'Space',
       (event) => {
-        if (isNavigationLocked || isInteractiveKeyboardAction(event.target)) return;
+        if (suppressSpaceHotkey || isNavigationLocked || isInteractiveKeyboardAction(event.target)) return;
         event.preventDefault();
         toggleMenu();
       },

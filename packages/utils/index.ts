@@ -102,6 +102,9 @@ export { isPlaybackActive } from './src/playback-utils/playbackstate.js';
 // aux timers
 export { auxTimerNameMaxLength, sanitiseAuxTimerNames } from './src/aux-timer-utils/auxTimerUtils.js';
 
+// teleprompter
+export { clampTeleprompterSpeed, teleprompterSpeed } from './src/teleprompter/teleprompter.js';
+
 //Colour
 export {
   colourToHex,
