@@ -48,6 +48,11 @@ $average-char-width: 0.5;
   }
 }
 
+.teleprompter--remote .teleprompter__scroller {
+  /* scrolling by hand would set this view apart from the others under remote control */
+  overflow-y: hidden;
+}
+
 .teleprompter__content {
   width: var(--tp-text-width);
   margin-inline: auto;
@@ -217,4 +222,9 @@ $average-char-width: 0.5;
   --shortcut-title-color: #{$viewer-label-color};
   --shortcut-label-color: #{$viewer-secondary-color};
   --shortcut-separator-color: #{$viewer-label-color};
+}
+
+.teleprompter__help-note {
+  margin: 0;
+  color: $viewer-secondary-color;
 }

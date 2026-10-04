@@ -32,6 +32,7 @@ export type TeleprompterOptions = {
   readingLinePos: number;
   flipH: boolean;
   flipV: boolean;
+  remoteControl: boolean;
 };
 
 export type TeleprompterAction =
@@ -53,7 +54,8 @@ export type TeleprompterController = {
   play: () => void;
   pause: () => void;
   togglePlay: () => void;
-  nudge: (lines: number) => void;
+  /** preserveFollow: a remote nudge corrects the pace, it is not the reader taking over */
+  nudge: (lines: number, options?: { preserveFollow?: boolean }) => void;
   page: (direction: 1 | -1) => void;
   jumpEvent: (direction: 1 | -1) => void;
   changeSpeed: (delta: number) => void;

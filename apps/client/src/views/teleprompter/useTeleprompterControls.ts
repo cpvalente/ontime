@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 import { useViewParamsEditorStore } from '../../common/components/view-params-editor/viewParamsEditor.store';
-import { resolveTeleprompterAction } from './teleprompter.keymap';
+import { isLocalOnlyAction, resolveTeleprompterAction } from './teleprompter.keymap';
 import type { TeleprompterAction, TeleprompterController } from './teleprompter.types';
 
 interface TeleprompterActionContext {
@@ -14,6 +14,7 @@ interface TeleprompterActionContext {
 
 interface UseTeleprompterControlsArgs extends TeleprompterActionContext {
   isHelpOpen: boolean;
+  isRemoteControlled: boolean;
 }
 
 const ignoredTags = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
@@ -71,6 +72,7 @@ export function useTeleprompterControls(args: UseTeleprompterControlsArgs) {
 
       const action = resolveTeleprompterAction(event);
       if (!action) return;
+      if (argsRef.current.isRemoteControlled && !isLocalOnlyAction(action)) return;
 
       event.preventDefault();
       applyTeleprompterAction(action, argsRef.current);

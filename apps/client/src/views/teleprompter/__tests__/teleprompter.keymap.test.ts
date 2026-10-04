@@ -1,4 +1,4 @@
-import { resolveTeleprompterAction, type TeleprompterKeyEvent } from '../teleprompter.keymap';
+import { isLocalOnlyAction, resolveTeleprompterAction, type TeleprompterKeyEvent } from '../teleprompter.keymap';
 import { SPEED_STEP, SPEED_STEP_COARSE } from '../teleprompter.scroll';
 import type { TeleprompterAction } from '../teleprompter.types';
 
@@ -59,5 +59,16 @@ describe('resolveTeleprompterAction()', () => {
 
   test('leaves Enter alone, so a focused button can still be pressed', () => {
     expect(resolveTeleprompterAction(makeEvent({ code: 'Enter', key: 'Enter' }))).toBeNull();
+  });
+});
+
+describe('isLocalOnlyAction()', () => {
+  test('under remote control, allows only actions which keep the same text on every line', () => {
+    expect(isLocalOnlyAction({ type: 'flip', axis: 'h' })).toBe(true);
+    expect(isLocalOnlyAction({ type: 'toggleHelp' })).toBe(true);
+    expect(isLocalOnlyAction({ type: 'textSize', steps: 1 })).toBe(false);
+    expect(isLocalOnlyAction({ type: 'togglePlay' })).toBe(false);
+    expect(isLocalOnlyAction({ type: 'speed', delta: 1 })).toBe(false);
+    expect(isLocalOnlyAction({ type: 'jumpEvent', direction: 1 })).toBe(false);
   });
 });

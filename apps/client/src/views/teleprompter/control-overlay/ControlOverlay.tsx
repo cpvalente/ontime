@@ -15,6 +15,7 @@ interface ControlOverlayProps {
   parkedAt: ParkedAt;
   controller: TeleprompterController;
   onToggleHelp: () => void;
+  isRemoteControlled: boolean;
 }
 
 interface ControlButtonProps {
@@ -69,27 +70,36 @@ export default function ControlOverlay({
   parkedAt,
   controller,
   onToggleHelp,
+  isRemoteControlled,
 }: ControlOverlayProps) {
   const isActive = useFadeOutOnInactivity(true);
 
   return (
     <div className={cx(['teleprompter__controls', !isActive && 'teleprompter__controls--idle'])}>
-      <ControlButton
-        label={isRunning ? 'Pause (Space)' : 'Play (Space)'}
-        accessibleLabel={isRunning ? 'Pause' : 'Play'}
-        onPress={controller.togglePlay}
-        testId='teleprompter-play'
-      >
-        {isRunning ? <IoPause /> : <IoPlay />}
-      </ControlButton>
+      {isRemoteControlled ? (
+        <span className='teleprompter__status' data-testid='teleprompter-remote'>
+          Remote · {isRunning ? 'Playing' : 'Paused'}
+        </span>
+      ) : (
+        <>
+          <ControlButton
+            label={isRunning ? 'Pause (Space)' : 'Play (Space)'}
+            accessibleLabel={isRunning ? 'Pause' : 'Play'}
+            onPress={controller.togglePlay}
+            testId='teleprompter-play'
+          >
+            {isRunning ? <IoPause /> : <IoPlay />}
+          </ControlButton>
 
-      <ControlButton
-        label='Slow down (Left arrow)'
-        accessibleLabel='Slow down'
-        onPress={() => controller.changeSpeed(-SPEED_STEP)}
-      >
-        <IoRemove />
-      </ControlButton>
+          <ControlButton
+            label='Slow down (Left arrow)'
+            accessibleLabel='Slow down'
+            onPress={() => controller.changeSpeed(-SPEED_STEP)}
+          >
+            <IoRemove />
+          </ControlButton>
+        </>
+      )}
 
       <div className='teleprompter__speed' data-testid='teleprompter-speed'>
         {speed}
@@ -102,33 +112,37 @@ export default function ControlOverlay({
         </span>
       )}
 
-      <ControlButton
-        label='Speed up (Right arrow)'
-        accessibleLabel='Speed up'
-        onPress={() => controller.changeSpeed(SPEED_STEP)}
-      >
-        <IoAdd />
-      </ControlButton>
+      {!isRemoteControlled && (
+        <>
+          <ControlButton
+            label='Speed up (Right arrow)'
+            accessibleLabel='Speed up'
+            onPress={() => controller.changeSpeed(SPEED_STEP)}
+          >
+            <IoAdd />
+          </ControlButton>
 
-      <ControlButton
-        label='Rewind to the top (Home)'
-        accessibleLabel='Rewind to top'
-        onPress={controller.rewind}
-        isActive={parkedAt === 'script'}
-      >
-        <IoArrowUp />
-      </ControlButton>
+          <ControlButton
+            label='Rewind to the top (Home)'
+            accessibleLabel='Rewind to top'
+            onPress={controller.rewind}
+            isActive={parkedAt === 'script'}
+          >
+            <IoArrowUp />
+          </ControlButton>
 
-      <ControlButton
-        label={canReengageFollow ? 'Resume following the loaded event (L)' : 'Following the loaded event'}
-        accessibleLabel='Follow the loaded event'
-        onPress={controller.reengageFollow}
-        disabled={!canReengageFollow}
-        isActive={canReengageFollow}
-        testId='teleprompter-follow'
-      >
-        <IoLocate />
-      </ControlButton>
+          <ControlButton
+            label={canReengageFollow ? 'Resume following the loaded event (L)' : 'Following the loaded event'}
+            accessibleLabel='Follow the loaded event'
+            onPress={controller.reengageFollow}
+            disabled={!canReengageFollow}
+            isActive={canReengageFollow}
+            testId='teleprompter-follow'
+          >
+            <IoLocate />
+          </ControlButton>
+        </>
+      )}
 
       <ControlButton label='Keyboard shortcuts (?)' accessibleLabel='Keyboard shortcuts' onPress={onToggleHelp}>
         <IoHelpCircleOutline />

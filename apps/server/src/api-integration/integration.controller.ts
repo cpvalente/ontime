@@ -18,9 +18,11 @@ import { auxTimerService } from '../services/aux-timer-service/auxTimer.service.
 import * as messageService from '../services/message-service/message.service.js';
 import { validateMessage, validateTimerMessage } from '../services/message-service/message.utils.js';
 import { runtimeService } from '../services/runtime-service/runtime.service.js';
+import { applyTeleprompterCommand } from '../services/teleprompter-service/teleprompter.service.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
 import { coerceEnum } from '../utils/coerceType.js';
+import { parseTeleprompterCommand } from './integration.teleprompter.js';
 import { isValidChangeProperty, parseProperty } from './integration.utils.js';
 
 let lastRequest: Date | null = null;
@@ -301,6 +303,10 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
     const mode = coerceEnum<OffsetMode>(payload, OffsetMode);
     runtimeService.setOffsetMode(mode);
     return { payload: 'success' };
+  },
+  teleprompter: (payload) => {
+    const command = parseTeleprompterCommand(payload);
+    return { payload: applyTeleprompterCommand(command) };
   },
 };
 

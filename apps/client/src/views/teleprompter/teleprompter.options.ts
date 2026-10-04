@@ -34,6 +34,7 @@ export const defaults = {
   readingLinePos: 25,
   flipH: false,
   flipV: false,
+  remoteControl: false,
 };
 
 const bounds = {
@@ -79,9 +80,17 @@ export const getTeleprompterOptions = (customFields: CustomFields): ViewOption[]
       collapsible: true,
       options: [
         {
+          id: 'remoteControl',
+          title: 'Remote control',
+          description:
+            'Playback and speed follow the teleprompter commands sent to Ontime, so every remote controlled view shows the same thing. Local transport controls are disabled',
+          type: 'boolean',
+          defaultValue: defaults.remoteControl,
+        },
+        {
           id: 'speed',
           title: 'Speed',
-          description: `Scroll speed in lines per minute (${teleprompterSpeed.min}-${teleprompterSpeed.max}). Adjustable live with the arrow keys`,
+          description: `Scroll speed in lines per minute (${teleprompterSpeed.min}-${teleprompterSpeed.max}). Adjustable live with the arrow keys. Not used under remote control`,
           type: 'number',
           defaultValue: defaults.speed,
         },
@@ -129,7 +138,7 @@ export const getTeleprompterOptions = (customFields: CustomFields): ViewOption[]
         {
           id: 'charsPerLine',
           title: 'Characters per line',
-          description: `Sets the text size so a line holds about this many characters (${MIN_CHARS_PER_LINE}-${MAX_CHARS_PER_LINE}), whatever the screen size. Views with the same value wrap the script the same way. Adjustable live with the + and - keys`,
+          description: `Sets the text size so a line holds about this many characters (${MIN_CHARS_PER_LINE}-${MAX_CHARS_PER_LINE}), whatever the screen size. Views with the same value wrap the script the same way. Adjustable live with the + and - keys, except under remote control`,
           type: 'number',
           defaultValue: defaults.charsPerLine,
         },
@@ -220,6 +229,7 @@ export function getOptionsFromParams(
     readingLinePos: toNumber(getParam('readingLinePos'), bounds.readingLinePos, defaults.readingLinePos),
     flipH: toBoolean(getParam('flipH'), defaults.flipH),
     flipV: toBoolean(getParam('flipV'), defaults.flipV),
+    remoteControl: toBoolean(getParam('remoteControl'), defaults.remoteControl),
   };
 }
 

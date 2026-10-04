@@ -11,6 +11,20 @@ export type TeleprompterKeyEvent = {
   repeat: boolean;
 };
 
+/**
+ * Actions which leave every line holding the same text, so they stay available under remote control
+ * Text size is not one of them: it decides where the script wraps, which keeps remote views in step
+ */
+export function isLocalOnlyAction(action: TeleprompterAction): boolean {
+  switch (action.type) {
+    case 'flip':
+    case 'toggleHelp':
+      return true;
+    default:
+      return false;
+  }
+}
+
 export function resolveTeleprompterAction(event: TeleprompterKeyEvent): TeleprompterAction | null {
   if (event.ctrlKey || event.metaKey || event.altKey) {
     return null;

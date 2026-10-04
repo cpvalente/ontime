@@ -3,7 +3,7 @@ import { type CSSProperties, useState } from 'react';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
-import { useSelectedEventId } from '../../common/hooks/useSocket';
+import { useSelectedEventId, useTeleprompterState } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
 import { cx } from '../../common/utils/styleUtils';
@@ -17,6 +17,7 @@ import { buildScript, composeFlip } from './teleprompter.utils';
 import { useSyncTeleprompterParams } from './useSyncTeleprompterParams';
 import { useTeleprompterControls } from './useTeleprompterControls';
 import { type TeleprompterData, useTeleprompterData } from './useTeleprompterData';
+import { useTeleprompterRemote } from './useTeleprompterRemote';
 import { useTeleprompterScroll } from './useTeleprompterScroll';
 
 import './Teleprompter.scss';
@@ -49,6 +50,8 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
   const options = useTeleprompterOptions();
   const selectedEventId = useSelectedEventId();
   const isMirrored = useViewOptionsStore((state) => state.mirror);
+  const remoteState = useTeleprompterState();
+  const isRemoteControlled = options.remoteControl;
 
   const [showHelp, setShowHelp] = useState(false);
 
@@ -75,7 +78,7 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
 
   const { scrollerRef, contentRef, registerBlock, controller, isRunning, speed, canReengageFollow, parkedAt } =
     useTeleprompterScroll({
-      initialSpeed: options.speed,
+      initialSpeed: isRemoteControlled ? remoteState.speed : options.speed,
       followLoaded: options.followLoaded,
       selectedEventId,
       readingLinePos: options.readingLinePos,
@@ -94,7 +97,13 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
   const handleResetTextSize = () => setLive((current) => ({ ...current, charsPerLine: defaults.charsPerLine }));
   const handleToggleHelp = () => setShowHelp((current) => !current);
 
-  useSyncTeleprompterParams({ speed, charsPerLine: live.charsPerLine, flipH: live.flipH, flipV: live.flipV });
+  // a remote speed belongs to the server, not to this view's URL
+  useSyncTeleprompterParams({
+    speed: isRemoteControlled ? options.speed : speed,
+    charsPerLine: live.charsPerLine,
+    flipH: live.flipH,
+    flipV: live.flipV,
+  });
 
   useTeleprompterControls({
     controller,
@@ -103,7 +112,10 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
     onTextSize: handleTextSize,
     onResetTextSize: handleResetTextSize,
     onToggleHelp: handleToggleHelp,
+    isRemoteControlled,
   });
+
+  useTeleprompterRemote({ isEnabled: isRemoteControlled, playback: remoteState.playback, controller, selectedEventId });
 
   const emptyMessage = getEmptyMessage(options.scriptSource, blocks.length);
 
@@ -120,6 +132,7 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
     <div
       className={cx([
         'teleprompter',
+        isRemoteControlled && 'teleprompter--remote',
         effectiveFlip.flipH && 'teleprompter--flip-h',
         effectiveFlip.flipV && 'teleprompter--flip-v',
         // nothing to hold back the eye from when no event is cued
@@ -156,11 +169,12 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
             parkedAt={parkedAt}
             controller={controller}
             onToggleHelp={handleToggleHelp}
+            isRemoteControlled={isRemoteControlled}
           />
         </>
       )}
 
-      <HelpOverlay isOpen={showHelp} onClose={handleToggleHelp} />
+      <HelpOverlay isOpen={showHelp} onClose={handleToggleHelp} isRemoteControlled={isRemoteControlled} />
     </div>
   );
 }

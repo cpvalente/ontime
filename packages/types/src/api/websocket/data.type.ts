@@ -17,6 +17,7 @@ export enum MessageTag {
   Log = 'log',
   RuntimeData = 'runtime-data',
   Refetch = 'refetch',
+  TeleprompterNudge = 'teleprompter-nudge',
 }
 
 // CLIENT TO SERVER
@@ -35,6 +36,8 @@ type ListClientPacket = {
   payload: Record<string, Client>;
 };
 type RuntimePacket = { tag: MessageTag.RuntimeData; payload: Partial<RuntimeStore> };
+/** Lines to move teleprompter views in remote control, negative scrolls back */
+type TeleprompterNudgePacket = { tag: MessageTag.TeleprompterNudge; payload: number };
 
 type RefetchPacket = {
   tag: MessageTag.Refetch;
@@ -58,4 +61,5 @@ export type WsPacketToClient =
   | LogPacket
   | ListClientPacket
   | RuntimePacket
-  | RefetchPacket;
+  | RefetchPacket
+  | TeleprompterNudgePacket;

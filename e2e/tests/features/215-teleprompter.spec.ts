@@ -203,3 +203,63 @@ test('follow tolerates a small scroll and breaks on a real one, like the operato
   await page.keyboard.press('l');
   await expect(follow).toBeDisabled();
 });
+
+test('remote controlled views share playback and speed, and ignore local transport', async ({
+  page,
+  context,
+  request,
+}) => {
+  const response = await request.post('/data/db/demo');
+  expect(response.ok()).toBe(true);
+  // the shared state outlives a project load, so start from a known one
+  expect((await request.get('/api/teleprompter/pause')).ok()).toBe(true);
+  expect((await request.get('/api/teleprompter/speed/14')).ok()).toBe(true);
+  expect((await request.get('/api/load/index/1')).ok()).toBe(true);
+
+  const remoteUrl = '/teleprompter?script=note&remoteControl=true';
+  await page.goto(remoteUrl);
+  const monitor = await context.newPage();
+  await monitor.goto(remoteUrl);
+  const local = await context.newPage();
+  await local.goto('/teleprompter?script=note');
+
+  for (const view of [page, monitor]) {
+    await expect(view.getByTestId('teleprompter-remote')).toHaveText('Remote · Paused');
+  }
+
+  // local transport does nothing under remote control
+  await page.keyboard.press('Space');
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByTestId('teleprompter-remote')).toHaveText('Remote · Paused');
+  await expect(page.getByTestId('teleprompter-speed')).toHaveText('14lpm');
+
+  expect((await request.get('/api/teleprompter/speed/30')).ok()).toBe(true);
+  expect((await request.get('/api/teleprompter/play')).ok()).toBe(true);
+  for (const view of [page, monitor]) {
+    await expect(view.getByTestId('teleprompter-speed')).toHaveText('30lpm');
+    await expect(view.getByTestId('teleprompter-remote')).toHaveText('Remote · Playing');
+  }
+
+  // an uncontrolled view keeps to its own controls
+  await expect(local.getByTestId('teleprompter-play')).toHaveAccessibleName('Play');
+  await expect(local.getByTestId('teleprompter-speed')).toHaveText('14lpm');
+
+  // a view which joins late converges on the shared state
+  const lateJoiner = await context.newPage();
+  await lateJoiner.goto(remoteUrl);
+  await expect(lateJoiner.getByTestId('teleprompter-remote')).toHaveText('Remote · Playing');
+
+  // loading a later event while playing moves the reader there, and playback carries on from it
+  const loaded = page.locator('[data-loaded] .teleprompter__heading');
+  const previousHeading = await loaded.textContent();
+  expect((await request.get('/api/load/index/5')).ok()).toBe(true);
+  await expect(loaded).not.toHaveText(previousHeading ?? '');
+  const loadedHeading = await loaded.textContent();
+  await expect.poll(() => eventUnderReadingLine(page)).toBe(loadedHeading);
+  await page.waitForTimeout(500);
+  expect(await eventUnderReadingLine(page)).toBe(loadedHeading);
+
+  expect((await request.get('/api/teleprompter/pause')).ok()).toBe(true);
+  await expect(monitor.getByTestId('teleprompter-remote')).toHaveText('Remote · Paused');
+  expect((await request.get('/api/teleprompter/speed/14')).ok()).toBe(true);
+});

@@ -13,9 +13,10 @@ import {
 interface HelpOverlayProps {
   isOpen: boolean;
   onClose: () => void;
+  isRemoteControlled: boolean;
 }
 
-export default function HelpOverlay({ isOpen, onClose }: HelpOverlayProps) {
+export default function HelpOverlay({ isOpen, onClose, isRemoteControlled }: HelpOverlayProps) {
   return (
     <Dialog.Root
       open={isOpen}
@@ -36,60 +37,72 @@ export default function HelpOverlay({ isOpen, onClose }: HelpOverlayProps) {
           </div>
 
           <ShortcutGroups className='teleprompter__help-groups'>
-            <ShortcutGroup title='Transport'>
-              <Shortcut label='Start / stop scrolling'>
-                <Combo keys={['Space']} />
-              </Shortcut>
-              <Shortcut label='Slower / faster'>
-                <Combo keys={['←']} />
-                <Separator />
-                <Combo keys={['→']} />
-              </Shortcut>
-              <Shortcut label='Larger speed steps'>
-                <Combo keys={['Shift', '←']} />
-                <Separator />
-                <Combo keys={['Shift', '→']} />
-              </Shortcut>
-            </ShortcutGroup>
+            {isRemoteControlled ? (
+              <p className='teleprompter__help-note'>
+                Under remote control, playback and speed follow the remote, and text size follows the view options
+              </p>
+            ) : (
+              <>
+                <ShortcutGroup title='Transport'>
+                  <Shortcut label='Start / stop scrolling'>
+                    <Combo keys={['Space']} />
+                  </Shortcut>
+                  <Shortcut label='Slower / faster'>
+                    <Combo keys={['←']} />
+                    <Separator />
+                    <Combo keys={['→']} />
+                  </Shortcut>
+                  <Shortcut label='Larger speed steps'>
+                    <Combo keys={['Shift', '←']} />
+                    <Separator />
+                    <Combo keys={['Shift', '→']} />
+                  </Shortcut>
+                </ShortcutGroup>
 
-            <ShortcutGroup title='Navigation'>
-              <Shortcut label='Nudge one line'>
-                <Combo keys={['↑']} />
-                <Separator />
-                <Combo keys={['↓']} />
-              </Shortcut>
-              <Shortcut label='Jump a screen'>
-                <Combo keys={['PgUp']} />
-                <Separator />
-                <Combo keys={['PgDn']} />
-              </Shortcut>
-              <Shortcut label='Jump to previous / next event'>
-                <Combo keys={['Shift', '↑']} />
-                <Separator />
-                <Combo keys={['Shift', '↓']} />
-              </Shortcut>
-              <Shortcut label='Jump to top / end'>
-                <Combo keys={['Home']} />
-                <Separator />
-                <Combo keys={['End']} />
-              </Shortcut>
-              <Shortcut label='Rewind and stop'>
-                <Combo keys={['Esc']} />
-              </Shortcut>
-              <Shortcut label='Follow the loaded event again'>
-                <Combo keys={['L']} />
-              </Shortcut>
-            </ShortcutGroup>
+                <ShortcutGroup title='Navigation'>
+                  <Shortcut label='Nudge one line'>
+                    <Combo keys={['↑']} />
+                    <Separator />
+                    <Combo keys={['↓']} />
+                  </Shortcut>
+                  <Shortcut label='Jump a screen'>
+                    <Combo keys={['PgUp']} />
+                    <Separator />
+                    <Combo keys={['PgDn']} />
+                  </Shortcut>
+                  <Shortcut label='Jump to previous / next event'>
+                    <Combo keys={['Shift', '↑']} />
+                    <Separator />
+                    <Combo keys={['Shift', '↓']} />
+                  </Shortcut>
+                  <Shortcut label='Jump to top / end'>
+                    <Combo keys={['Home']} />
+                    <Separator />
+                    <Combo keys={['End']} />
+                  </Shortcut>
+                  <Shortcut label='Rewind and stop'>
+                    <Combo keys={['Esc']} />
+                  </Shortcut>
+                  <Shortcut label='Follow the loaded event again'>
+                    <Combo keys={['L']} />
+                  </Shortcut>
+                </ShortcutGroup>
+              </>
+            )}
 
             <ShortcutGroup title='Display'>
-              <Shortcut label='Text size'>
-                <Combo keys={['+']} />
-                <Separator />
-                <Combo keys={['-']} />
-              </Shortcut>
-              <Shortcut label='Reset text size'>
-                <Combo keys={['0']} />
-              </Shortcut>
+              {!isRemoteControlled && (
+                <>
+                  <Shortcut label='Text size'>
+                    <Combo keys={['+']} />
+                    <Separator />
+                    <Combo keys={['-']} />
+                  </Shortcut>
+                  <Shortcut label='Reset text size'>
+                    <Combo keys={['0']} />
+                  </Shortcut>
+                </>
+              )}
               <Shortcut label='Flip horizontally / vertically'>
                 <Combo keys={['F']} />
                 <Separator />

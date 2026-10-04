@@ -5,6 +5,13 @@ import type { SimpleDirection, SimplePlayback } from '../../definitions/runtime/
 import type { MessageState } from '../../definitions/runtime/MessageControl.type.js';
 import type { OffsetMode } from '../../definitions/runtime/Offset.type.js';
 import type { RuntimeStore } from '../../definitions/runtime/RuntimeStore.type.js';
+import type { TeleprompterState } from '../../definitions/runtime/Teleprompter.type.js';
+
+export type TeleprompterAction = {
+  tag: 'teleprompter';
+  payload: 'play' | 'pause' | { speed: number } | { nudge: number };
+};
+export type TeleprompterResponse = { tag: 'teleprompter'; payload: TeleprompterState };
 
 export type VersionAction = {
   tag: 'version';
@@ -156,7 +163,8 @@ export type ApiAction =
   | AddtimeAction
   | AuxtimerAction
   | ClientAction
-  | OffsetmodeAction;
+  | OffsetmodeAction
+  | TeleprompterAction;
 
 export type ApiResponse =
   | VersionResponse
@@ -172,6 +180,7 @@ export type ApiResponse =
   | AddtimeResponse
   | AuxtimerResponse
   | ClientResponse
-  | OffsetmodeResponse;
+  | OffsetmodeResponse
+  | TeleprompterResponse;
 
 export type ApiActionTag = ApiAction['tag'];

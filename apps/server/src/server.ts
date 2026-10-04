@@ -226,6 +226,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
       direction: SimpleDirection.CountDown,
       name: '',
     },
+    teleprompter: { ...runtimeStorePlaceholder.teleprompter },
     ping: 1,
   });
 

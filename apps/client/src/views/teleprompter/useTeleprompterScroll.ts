@@ -281,7 +281,7 @@ export function useTeleprompterScroll({
     speedRef.current = speed;
   }, [speed]);
 
-  // adopts a new speed from the view options, while keeping live changes in between
+  // adopts a new speed from the view options or the remote, while keeping live changes in between
   const [speedFromOption, setSpeedFromOption] = useState(initialSpeed);
   if (speedFromOption !== initialSpeed) {
     setSpeedFromOption(initialSpeed);
@@ -394,7 +394,7 @@ export function useTeleprompterScroll({
       play,
       pause,
       togglePlay: () => (runningRef.current ? pause() : play()),
-      nudge: (lines: number) => {
+      nudge: (lines: number, options) => {
         const distance = lines * lineHeightRef.current;
         const from = posRef.current + pendingDeltaRef.current;
         const target = nudgeTargetFor(
@@ -406,7 +406,7 @@ export function useTeleprompterScroll({
         );
         const delta = target - from;
         pendingDeltaRef.current += delta;
-        addReaderDrift(delta);
+        if (!options?.preserveFollow) addReaderDrift(delta);
         setParkedAt(null);
       },
       page: (direction: 1 | -1) => {
