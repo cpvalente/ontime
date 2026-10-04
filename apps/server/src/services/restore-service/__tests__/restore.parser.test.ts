@@ -15,6 +15,7 @@ const restorePoint: RestorePoint = {
   startEpoch: 1 as Instant,
   currentDay: 0,
   offsetMode: OffsetMode.Relative,
+  savedAt: 1 as Instant,
 };
 
 describe('isRestorePoint()', () => {

@@ -394,6 +394,7 @@ describe('mutation on runtimeState', () => {
       startEpoch,
       currentDay: 2,
       offsetMode: OffsetMode.Absolute,
+      savedAt: startEpoch,
     };
 
     resume(restorePoint, mockRundown.entries.event1 as PlayableEvent, rundown, metadata);

@@ -12,4 +12,5 @@ export type RestorePoint = {
   startEpoch: Maybe<Instant>;
   currentDay: MaybeNumber;
   offsetMode: OffsetMode;
+  savedAt: Instant;
 };

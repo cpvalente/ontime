@@ -6,7 +6,11 @@ vi.mock('../../../stores/runtimeState.js', () => ({
   pause: vi.fn<typeof runtimeState.pause>(() => true),
   stop: vi.fn<typeof runtimeState.stop>(() => true),
   addTime: vi.fn<typeof runtimeState.addTime>(() => true),
-  update: vi.fn<typeof runtimeState.update>(() => ({ hasTimerFinished: false, hasSecondaryTimerFinished: false })),
+  update: vi.fn<typeof runtimeState.update>(() => ({
+    hasTimerFinished: false,
+    finishedAt: null,
+    hasSecondaryTimerFinished: false,
+  })),
   getTimeToNextBoundary: vi.fn<typeof runtimeState.getTimeToNextBoundary>(() => null),
 }));
 

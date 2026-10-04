@@ -1,3 +1,5 @@
+import type { Instant } from 'ontime-types';
+
 import * as runtimeState from '../../stores/runtimeState.js';
 import type { UpdateResult } from '../../stores/runtimeState.js';
 
@@ -34,8 +36,8 @@ export class EventTimer {
     this.onUpdateCallback = callback;
   }
 
-  start() {
-    if (!runtimeState.start()) {
+  start(at?: Instant) {
+    if (!runtimeState.start(undefined, at)) {
       return false;
     }
 
