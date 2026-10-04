@@ -125,6 +125,17 @@ beforeEach(() => {
  * each test uses its own entry IDs so that a change is unambiguous
  */
 describe('broadcastResult()', () => {
+  // must run first: initialisation is a one-way static which the tests after rely on
+  it('only saves a restore point once the runtime is initialised', () => {
+    // the project loads before the runtime, a save here would overwrite the point we are about to resume
+    broadcastWith(makeRuntimeStateData({ eventNow: makeOntimeEvent({ id: 'before-init' }) }));
+    expect(restoreService.save).not.toHaveBeenCalled();
+
+    runtimeService.init(null);
+    broadcastWith(makeRuntimeStateData({ eventNow: makeOntimeEvent({ id: 'after-init' }) }));
+    expect(restoreService.save).toHaveBeenCalledWith(expect.objectContaining({ selectedEventId: 'after-init' }));
+  });
+
   it('saves playback with its rundown and offset mode', () => {
     broadcastWith(
       makeRuntimeStateData({
