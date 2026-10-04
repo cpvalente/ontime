@@ -75,7 +75,6 @@ export default function CuesheetTable({
   const optionsStore = useOptions();
   const { showDelayedTimes, hideTableSeconds, hideIndexColumn } = optionsStore;
 
-  const cursor = useEventSelection((state) => state.cursor);
   const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
 
   const virtuosoRef = useRef<TableVirtuosoHandle | null>(null);
@@ -205,12 +204,11 @@ export default function CuesheetTable({
   const virtuosoContext = useMemo(
     () => ({
       columnSizeVars,
-      cursor,
       listeners,
       rows,
       table,
     }),
-    [columnSizeVars, cursor, listeners, rows, table],
+    [columnSizeVars, listeners, rows, table],
   );
 
   const computeItemKey = useCallback((_: number, item: ExtendedEntry) => item.id, []);
@@ -284,7 +282,6 @@ export default function CuesheetTable({
 
 interface CuesheetVirtuosoContext {
   columnSizeVars: { [key: string]: number };
-  cursor: string | null;
   listeners: ReturnType<typeof useTableNav>['listeners'];
   rows: ReturnType<CuesheetTableInstance['getRowModel']>['rows'];
   table: CuesheetTableInstance;
@@ -323,13 +320,13 @@ const CuesheetTableRow = memo(function CuesheetTableRow({
   // eslint-disable-next-line react/destructuring-assignment
   const rowIndex = virtuosoProps['data-index'];
   const row = context.rows[rowIndex];
+  const hasCursor = useEventSelection((state) => state.cursor === row?.original.id);
   if (!row) {
     return null;
   }
 
   const key = row.original.id;
   const entry = row.original;
-  const hasCursor = entry.id === context.cursor;
 
   if (isOntimeGroup(entry)) {
     return (
