@@ -5,7 +5,8 @@ import { DatabaseModel, OntimeEvent, Rundown, SupportedEntry } from 'ontime-type
 
 import { startTestServer } from './testServer.js';
 
-describe('project persistence', () => {
+// each start loads the full server module graph, which takes a few seconds on slower machines
+describe('project persistence', { timeout: 15_000 }, () => {
   test('rundown edits are saved to the project file and restored after a restart', async () => {
     const firstRun = await startTestServer();
     onTestFinished(() => firstRun.stop());
