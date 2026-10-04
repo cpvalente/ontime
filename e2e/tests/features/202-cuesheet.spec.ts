@@ -108,7 +108,7 @@ test('cuesheet datagrid keeps keyboard focus flow while editing text cells', asy
   await expect(noteEditor).toHaveValue(updatedNote);
 
   /**
-   * 2. navigate and modify single line text cell again
+   * 3. click from an editing cell into another, the new cell keeps focus
    * pressing escape cancels the edit and the focus returns to the parent
    */
   await page.keyboard.press('ArrowLeft');
@@ -116,8 +116,10 @@ test('cuesheet datagrid keeps keyboard focus flow while editing text cells', asy
   await expect(titleEditor).toBeFocused();
   const cueBeforeCancel = await cueEditor.inputValue();
   await cueEditor.click();
-  await cueEditor.fill(`${cueBeforeCancel} temporary`);
-  await cueEditor.press('Escape');
+  await page.keyboard.press('End');
+  await page.keyboard.type(' temporary');
+  await expect(cueEditor).toHaveValue(`${cueBeforeCancel} temporary`);
+  await page.keyboard.press('Escape');
   await expect(cueEditor).not.toBeFocused();
   await expect(cueEditor).toHaveValue(cueBeforeCancel);
 });
