@@ -16,6 +16,12 @@ Use service, DAO, store, or hook tests for orchestration: transitions, transacti
 
 Do not repeat all pure cases here. Prove delegation and sequencing.
 
+### Server integration
+
+Use `startTestServer()` (`apps/server/src/__tests__/testServer.ts`) for server behaviour that only shows across layers: HTTP or integration API through services to runtime state and persistence. It runs the real server in-process on a free port against the test file's data folder; `stop()` is a clean shutdown and starting again behaves like an app restart.
+
+Name files `*.integration.test.ts`. One test per product behaviour; keep edge cases in lower layers. Mock only outbound edges, never Ontime modules.
+
 ### End-to-end
 
 Reserve Playwright for key journeys and high-risk cross-layer integrations: edit/run rundown, playback, imports, rundown switching, cloud-prefixed navigation.
