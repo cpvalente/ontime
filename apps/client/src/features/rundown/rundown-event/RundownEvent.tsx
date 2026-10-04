@@ -16,6 +16,7 @@ import {
 import { TbClockPin, TbFlagFilled, TbListNumbers } from 'react-icons/tb';
 
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
+import { useRundownScope } from '../../../common/context/RundownScopeContext';
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useIsEntryCopyTarget } from '../../../common/stores/entryCopyStore';
 import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';
@@ -118,13 +119,14 @@ export default function RundownEvent({
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
   const selectEntry = useEventSelection((state) => state.setSelectedEvents);
 
-  const selectedEvents = useEventSelection((state) => state.selectedEvents);
+  const { selectionStore } = useRundownScope();
   const isCopyTarget = useIsEntryCopyTarget(eventId);
 
   const handleRef = useRef<null | HTMLDivElement>(null);
 
-  const [onContextMenu] = useContextMenu<HTMLDivElement>(() =>
-    selectedEvents.size > 1
+  const [onContextMenu] = useContextMenu<HTMLDivElement>(() => {
+    const { selectedEvents } = selectionStore.getState();
+    return selectedEvents.size > 1
       ? [
           {
             type: 'item',
@@ -228,8 +230,8 @@ export default function RundownEvent({
               unselect(eventId);
             },
           },
-        ],
-  );
+        ];
+  });
 
   const {
     isDragging,
@@ -289,7 +291,7 @@ export default function RundownEvent({
     // event.button === 2 is a right-click
     // disable selection if the user selected events and right clicks
     // so the context menu shows up
-    if (selectedEvents.size > 1 && event.button === 2) {
+    if (selectionStore.getState().selectedEvents.size > 1 && event.button === 2) {
       return;
     }
 
