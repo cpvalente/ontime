@@ -1,10 +1,10 @@
 import { OntimeEvent } from 'ontime-types';
 
-import { useExpectedStartData } from '../../../common/hooks/useSocket';
+import { useExpectedScheduleData } from '../../../common/hooks/useSocket';
 import { getOffsetState } from '../../../common/utils/offset';
 import { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import { cx } from '../../../common/utils/styleUtils';
-import { formatTime, getExpectedTimesFromExtendedEvent } from '../../../common/utils/time';
+import { formatTime, getExpectedScheduleTimes } from '../../../common/utils/time';
 import SuperscriptPeriod from '../superscript-time/SuperscriptPeriod';
 import { useScheduleOptions } from './schedule.options';
 
@@ -128,8 +128,8 @@ function ExpectedScheduleItem({
   colour,
   duration,
 }: Omit<ScheduleItemProps, 'timeEnd' | 'cue' | 'skip' | 'title'>) {
-  const expectedStartData = useExpectedStartData();
-  const { expectedStart, expectedEnd, plannedEnd } = getExpectedTimesFromExtendedEvent(
+  const expectedStartData = useExpectedScheduleData();
+  const { expectedStart, expectedEnd, plannedEnd } = getExpectedScheduleTimes(
     {
       timeStart,
       dayOffset,

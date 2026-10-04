@@ -4,7 +4,7 @@ import { IoPencil } from 'react-icons/io5';
 import Button from '../../common/components/buttons/Button';
 import useReport from '../../common/hooks-query/useReport';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
-import { useExpectedStartData } from '../../common/hooks/useSocket';
+import { useExpectedScheduleData } from '../../common/hooks/useSocket';
 import { cx } from '../../common/utils/styleUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getPropertyValue } from '../common/viewUtils';
@@ -24,7 +24,7 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
   const showFab = useFadeOutOnInactivity(true);
   const { data: reportData } = useReport();
 
-  const { offset, currentDay, actualStart, plannedStart, mode } = useExpectedStartData();
+  const { offset, currentDay, actualStart, plannedStart, mode } = useExpectedScheduleData();
   const { totalGap, isLinkedToLoaded } = subscribedEvent;
   const expectedStart = getExpectedStart(subscribedEvent, {
     currentDay,

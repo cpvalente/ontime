@@ -7,7 +7,7 @@ import Button from '../../common/components/buttons/Button';
 import useReport from '../../common/hooks-query/useReport';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
-import { useExpectedStartData, usePlayback, useSelectedEventId } from '../../common/hooks/useSocket';
+import { useExpectedScheduleData, usePlayback, useSelectedEventId } from '../../common/hooks/useSocket';
 import { getOffsetState } from '../../common/utils/offset';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
@@ -43,7 +43,7 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
   const showFab = useFadeOutOnInactivity(true);
 
   const { data: reportData } = useReport();
-  const { offset, currentDay, actualStart, plannedStart, mode } = useExpectedStartData();
+  const { offset, currentDay, actualStart, plannedStart, mode } = useExpectedScheduleData();
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
