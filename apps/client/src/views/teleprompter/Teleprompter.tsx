@@ -11,10 +11,8 @@ import Loader from '../common/loader/Loader';
 import ControlOverlay from './control-overlay/ControlOverlay';
 import HelpOverlay from './help-overlay/HelpOverlay';
 import ScriptBlockView from './script-block/ScriptBlock';
-import { defaults, getTeleprompterOptions, useTeleprompterOptions } from './teleprompter.options';
-import { stepCharsPerLine } from './teleprompter.scroll';
+import { getTeleprompterOptions, useTeleprompterOptions } from './teleprompter.options';
 import { buildScript, composeFlip } from './teleprompter.utils';
-import { useSyncTeleprompterParams } from './useSyncTeleprompterParams';
 import { useTeleprompterControls } from './useTeleprompterControls';
 import { type TeleprompterData, useTeleprompterData } from './useTeleprompterData';
 import { useTeleprompterRemote } from './useTeleprompterRemote';
@@ -55,17 +53,6 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
 
   const [showHelp, setShowHelp] = useState(false);
 
-  const fromParams = { flipH: options.flipH, flipV: options.flipV, charsPerLine: options.charsPerLine };
-  const paramsKey = `${fromParams.flipH}|${fromParams.flipV}|${fromParams.charsPerLine}`;
-
-  const [live, setLive] = useState(fromParams);
-  const [seededFrom, setSeededFrom] = useState(paramsKey);
-  // Reset live controls before commit when the URL configuration changes.
-  if (seededFrom !== paramsKey) {
-    setSeededFrom(paramsKey);
-    setLive(fromParams);
-  }
-
   const viewOptions = getTeleprompterOptions(customFields);
 
   const blocks = buildScript(rundown, rundownMetadata, customFields, {
@@ -85,44 +72,18 @@ function Teleprompter({ rundown, rundownMetadata, customFields }: TeleprompterDa
       blocks,
     });
 
-  const handleFlip = (axis: 'h' | 'v') =>
-    setLive((current) => {
-      const key = axis === 'h' ? 'flipH' : 'flipV';
-      return { ...current, [key]: !current[key] };
-    });
-
-  const handleTextSize = (steps: number) =>
-    setLive((current) => ({ ...current, charsPerLine: stepCharsPerLine(current.charsPerLine, steps) }));
-
-  const handleResetTextSize = () => setLive((current) => ({ ...current, charsPerLine: defaults.charsPerLine }));
   const handleToggleHelp = () => setShowHelp((current) => !current);
 
-  // a remote speed belongs to the server, not to this view's URL
-  useSyncTeleprompterParams({
-    speed: isRemoteControlled ? options.speed : speed,
-    charsPerLine: live.charsPerLine,
-    flipH: live.flipH,
-    flipV: live.flipV,
-  });
-
-  useTeleprompterControls({
-    controller,
-    isHelpOpen: showHelp,
-    onFlip: handleFlip,
-    onTextSize: handleTextSize,
-    onResetTextSize: handleResetTextSize,
-    onToggleHelp: handleToggleHelp,
-    isRemoteControlled,
-  });
+  useTeleprompterControls({ controller, isHelpOpen: showHelp, onToggleHelp: handleToggleHelp, isRemoteControlled });
 
   useTeleprompterRemote({ isEnabled: isRemoteControlled, playback: remoteState.playback, controller, selectedEventId });
 
   const emptyMessage = getEmptyMessage(options.scriptSource, blocks.length);
 
-  const effectiveFlip = composeFlip(live.flipH, live.flipV, isMirrored);
+  const effectiveFlip = composeFlip(options.flipH, options.flipV, isMirrored);
 
   const viewStyles = {
-    '--tp-chars-per-line': live.charsPerLine,
+    '--tp-chars-per-line': options.charsPerLine,
     '--tp-line-height': options.lineHeight,
     '--tp-text-width': `${options.textWidth}cqi`,
     '--tp-reading-line': options.readingLinePos,

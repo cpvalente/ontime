@@ -1,18 +1,6 @@
 export const SPEED_STEP = 1;
 export const SPEED_STEP_COARSE = 5;
 
-export const MIN_CHARS_PER_LINE = 10;
-export const MAX_CHARS_PER_LINE = 80;
-const TEXT_SIZE_STEP_RATIO = 1.1;
-
-/**
- * Steps the text size by a ratio, so each press is the same visual change at any size
- * Larger text fits fewer characters on a line
- */
-export function stepCharsPerLine(current: number, steps: number): number {
-  return clamp(Math.round(current / TEXT_SIZE_STEP_RATIO ** steps), MIN_CHARS_PER_LINE, MAX_CHARS_PER_LINE);
-}
-
 /** Longest frame we advance by, so a tab returning from the background does not jump the script */
 export const MAX_FRAME_DELTA_MS = 100;
 
@@ -116,24 +104,6 @@ const SEGMENT_BOUNDARY_EPSILON = 1;
 /** The scroll position at which the reading line reaches the end of a segment */
 export function segmentEndFor(block: BlockGeometry, readingOffset: number): number {
   return block.top + block.height - readingOffset;
-}
-
-/** Moves by a distance without leaving the segment under the reading line */
-export function nudgeTargetFor(
-  position: number,
-  distance: number,
-  readingOffset: number,
-  blocks: BlockGeometry[],
-  maxScroll: number,
-): number {
-  const index = indexAtReadPoint(position + readingOffset, blocks);
-  if (index === -1) return clamp(position + distance, 0, maxScroll);
-  const block = blocks[index];
-  return clamp(
-    position + distance,
-    Math.max(0, block.top - readingOffset),
-    Math.min(maxScroll, segmentEndFor(block, readingOffset)),
-  );
 }
 
 /**

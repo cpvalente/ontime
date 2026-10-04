@@ -7,28 +7,11 @@ import {
   frameDeltaSeconds,
   hasBrokenFollow,
   indexAtReadPoint,
-  MAX_CHARS_PER_LINE,
   MAX_FRAME_DELTA_MS,
-  MIN_CHARS_PER_LINE,
-  nudgeTargetFor,
   readPointForAnchor,
   segmentAfter,
   segmentEndFor,
-  stepCharsPerLine,
 } from '../teleprompter.scroll';
-
-describe('stepCharsPerLine()', () => {
-  test('larger text fits fewer characters, by the same ratio at any size', () => {
-    expect(stepCharsPerLine(33, 1)).toBe(30);
-    expect(stepCharsPerLine(66, 1)).toBe(60);
-    expect(stepCharsPerLine(30, -1)).toBe(33);
-  });
-
-  test('stays inside the range the option accepts', () => {
-    expect(stepCharsPerLine(MIN_CHARS_PER_LINE, 5)).toBe(MIN_CHARS_PER_LINE);
-    expect(stepCharsPerLine(MAX_CHARS_PER_LINE, -5)).toBe(MAX_CHARS_PER_LINE);
-  });
-});
 
 describe('frameDeltaSeconds()', () => {
   test('caps a long gap, so a tab returning from the background does not jump the script', () => {
@@ -189,23 +172,5 @@ describe('segmentAfter()', () => {
 
   test('leaves the end of the script as the bound past the last event', () => {
     expect(endAfter(700)).toBeNull();
-  });
-});
-
-describe('nudgeTargetFor()', () => {
-  // reading line 100px down, two events of 500px
-  const blocks: BlockGeometry[] = [
-    { id: 'a', top: 0, height: 500 },
-    { id: 'b', top: 500, height: 500 },
-  ];
-
-  test('moves by the distance', () => {
-    expect(nudgeTargetFor(100, 50, 100, blocks, 2000)).toBe(150);
-    expect(nudgeTargetFor(100, -50, 100, blocks, 2000)).toBe(50);
-  });
-
-  test('does not leave the event under the reading line', () => {
-    expect(nudgeTargetFor(350, 200, 100, blocks, 2000)).toBe(400);
-    expect(nudgeTargetFor(450, -200, 100, blocks, 2000)).toBe(400);
   });
 });

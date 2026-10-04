@@ -6,7 +6,6 @@ describe('parseTeleprompterCommand()', () => {
     ['pause', { type: 'pause' }],
     [{ speed: 20 }, { type: 'speed', value: 20 }],
     [{ speed: '20' }, { type: 'speed', value: 20 }],
-    [{ nudge: '-3' }, { type: 'nudge', value: -3 }],
   ])('parses %j', (payload, command) => {
     expect(parseTeleprompterCommand(payload)).toEqual(command);
   });
@@ -20,7 +19,7 @@ describe('parseTeleprompterCommand()', () => {
     expect(() => parseTeleprompterCommand(payload)).toThrow('Invalid teleprompter command');
   });
 
-  test.each([{ speed: 'fast' }, { speed: '' }, { nudge: null }])('rejects invalid value %j', (payload) => {
+  test.each([{ speed: 'fast' }, { speed: '' }, { speed: null }])('rejects invalid value %j', (payload) => {
     expect(() => parseTeleprompterCommand(payload)).toThrow('not a valid number');
   });
 });

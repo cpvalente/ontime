@@ -44,9 +44,6 @@ export type TeleprompterAction =
   | { type: 'rewind' }
   | { type: 'rewindAndPause' }
   | { type: 'jumpToEnd' }
-  | { type: 'flip'; axis: 'h' | 'v' }
-  | { type: 'textSize'; steps: number }
-  | { type: 'resetTextSize' }
   | { type: 'reengageFollow' }
   | { type: 'toggleHelp' };
 
@@ -54,8 +51,7 @@ export type TeleprompterController = {
   play: () => void;
   pause: () => void;
   togglePlay: () => void;
-  /** preserveFollow: a remote nudge corrects the pace, it is not the reader taking over */
-  nudge: (lines: number, options?: { preserveFollow?: boolean }) => void;
+  nudge: (lines: number) => void;
   page: (direction: 1 | -1) => void;
   jumpEvent: (direction: 1 | -1) => void;
   changeSpeed: (delta: number) => void;

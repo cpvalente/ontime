@@ -9,7 +9,7 @@ import type { TeleprompterState } from '../../definitions/runtime/Teleprompter.t
 
 export type TeleprompterAction = {
   tag: 'teleprompter';
-  payload: 'play' | 'pause' | { speed: number } | { nudge: number };
+  payload: 'play' | 'pause' | { speed: number };
 };
 export type TeleprompterResponse = { tag: 'teleprompter'; payload: TeleprompterState };
 

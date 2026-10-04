@@ -1,14 +1,11 @@
 import { useEffect, useRef } from 'react';
 
 import { useViewParamsEditorStore } from '../../common/components/view-params-editor/viewParamsEditor.store';
-import { isLocalOnlyAction, resolveTeleprompterAction } from './teleprompter.keymap';
+import { resolveTeleprompterAction } from './teleprompter.keymap';
 import type { TeleprompterAction, TeleprompterController } from './teleprompter.types';
 
 interface TeleprompterActionContext {
   controller: TeleprompterController;
-  onFlip: (axis: 'h' | 'v') => void;
-  onTextSize: (steps: number) => void;
-  onResetTextSize: () => void;
   onToggleHelp: () => void;
 }
 
@@ -20,7 +17,7 @@ interface UseTeleprompterControlsArgs extends TeleprompterActionContext {
 const ignoredTags = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
 
 function applyTeleprompterAction(action: TeleprompterAction, context: TeleprompterActionContext) {
-  const { controller, onFlip, onTextSize, onResetTextSize, onToggleHelp } = context;
+  const { controller, onToggleHelp } = context;
   switch (action.type) {
     case 'togglePlay':
       return controller.togglePlay();
@@ -41,12 +38,6 @@ function applyTeleprompterAction(action: TeleprompterAction, context: Teleprompt
       return controller.jumpToEnd();
     case 'reengageFollow':
       return controller.reengageFollow();
-    case 'flip':
-      return onFlip(action.axis);
-    case 'textSize':
-      return onTextSize(action.steps);
-    case 'resetTextSize':
-      return onResetTextSize();
     case 'toggleHelp':
       return onToggleHelp();
   }
@@ -66,13 +57,18 @@ export function useTeleprompterControls(args: UseTeleprompterControlsArgs) {
       if (target && (ignoredTags.has(target.tagName) || target.isContentEditable)) {
         return;
       }
+      // a button focused from the keyboard takes Space as a press
+      if (event.code === 'Space' && target?.closest('button')) {
+        return;
+      }
       if (useViewParamsEditorStore.getState().isOpen || argsRef.current.isHelpOpen) {
         return;
       }
 
       const action = resolveTeleprompterAction(event);
       if (!action) return;
-      if (argsRef.current.isRemoteControlled && !isLocalOnlyAction(action)) return;
+      // under remote control any other action would set this view apart from the others
+      if (argsRef.current.isRemoteControlled && action.type !== 'toggleHelp') return;
 
       event.preventDefault();
       applyTeleprompterAction(action, argsRef.current);

@@ -70,15 +70,18 @@ describe('buildScript()', () => {
     );
   });
 
-  test('refuses an image custom field, which the select filters but the URL does not', () => {
-    const rundown = makeRundown([makeEvent('a', { custom: { poster: 'https://example.com/a.png' } })]);
-    const blocks = buildScript(rundown, metadataFor(['a']), customFields, {
-      ...defaultOptions,
-      scriptSource: 'custom-poster',
-    });
+  test.each(['custom-poster', 'skip', 'duration'])(
+    'refuses %s, which the select does not offer but a URL can',
+    (source) => {
+      const rundown = makeRundown([makeEvent('a', { custom: { poster: 'https://example.com/a.png' } })]);
+      const blocks = buildScript(rundown, metadataFor(['a']), customFields, {
+        ...defaultOptions,
+        scriptSource: source,
+      });
 
-    expect(blocks).toEqual([]);
-  });
+      expect(blocks).toEqual([]);
+    },
+  );
 
   test('reads the note and the title as script sources', () => {
     const rundown = makeRundown([makeEvent('a')]);
@@ -108,6 +111,24 @@ describe('buildScript()', () => {
 
     expect(buildScript(rundown, metadata, customFields, { ...defaultOptions, onlyPlaying: true }).map((b) => b.id)) //
       .toEqual(['b']);
+  });
+
+  test('onlyPlaying keeps the group title of the event being played', () => {
+    const rundown = makeRundown(
+      [makeGroup('g', 'Morning session', ['a', 'b']), makeEvent('a'), makeEvent('b')],
+      ['g', 'a', 'b'],
+    );
+    const metadata = metadataFor(['g', 'a', 'b'], { a: { groupId: 'g' }, b: { groupId: 'g', isLoaded: true } });
+
+    const blocks = buildScript(rundown, metadata, customFields, { ...defaultOptions, onlyPlaying: true });
+    expect(blocks.map((block) => [block.id, block.groupTitle])).toEqual([['b', 'Morning session']]);
+  });
+
+  test('onlyPlaying shows nothing else when the event being played has no script', () => {
+    const rundown = makeRundown([makeEvent('a'), makeEvent('b', { custom: { script: '' } })]);
+    const metadata = metadataFor(['a', 'b'], { b: { isLoaded: true } });
+
+    expect(buildScript(rundown, metadata, customFields, { ...defaultOptions, onlyPlaying: true })).toEqual([]);
   });
 
   test('onlyPlaying shows the whole script while nothing is playing', () => {

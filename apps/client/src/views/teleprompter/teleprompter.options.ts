@@ -8,7 +8,7 @@ import type { ViewOption } from '../../common/components/view-params-editor/view
 import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
 import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean } from '../common/viewUtils';
-import { clamp, MAX_CHARS_PER_LINE, MIN_CHARS_PER_LINE } from './teleprompter.scroll';
+import { clamp } from './teleprompter.scroll';
 import type { HeadingSource, TeleprompterOptions } from './teleprompter.types';
 
 const headingOptions: { value: HeadingSource; label: string }[] = [
@@ -39,7 +39,7 @@ export const defaults = {
 
 const bounds = {
   speed: [teleprompterSpeed.min, teleprompterSpeed.max],
-  charsPerLine: [MIN_CHARS_PER_LINE, MAX_CHARS_PER_LINE],
+  charsPerLine: [10, 80],
   lineHeight: [1, 4],
   textWidth: [20, 100],
   readingLinePos: [0, 100],
@@ -138,7 +138,7 @@ export const getTeleprompterOptions = (customFields: CustomFields): ViewOption[]
         {
           id: 'charsPerLine',
           title: 'Characters per line',
-          description: `Sets the text size so a line holds about this many characters (${MIN_CHARS_PER_LINE}-${MAX_CHARS_PER_LINE}), whatever the screen size. Views with the same value wrap the script the same way. Adjustable live with the + and - keys, except under remote control`,
+          description: `Sets the text size so a line holds about this many characters (${bounds.charsPerLine[0]}-${bounds.charsPerLine[1]}), whatever the screen size. Views with the same value wrap the script the same way`,
           type: 'number',
           defaultValue: defaults.charsPerLine,
         },
@@ -174,14 +174,14 @@ export const getTeleprompterOptions = (customFields: CustomFields): ViewOption[]
           id: 'flipH',
           title: 'Flip horizontally',
           description:
-            'Mirrors the view horizontally, which is what a beam splitter rig needs. Toggled live with F. Flip Screen in the navigation menu flips both axes at once, which is a rotation rather than a mirror',
+            'Mirrors the view horizontally, which is what a beam splitter rig needs. Flip Screen in the navigation menu flips both axes at once, which is a rotation rather than a mirror',
           type: 'boolean',
           defaultValue: defaults.flipH,
         },
         {
           id: 'flipV',
           title: 'Flip vertically',
-          description: 'Mirrors the view vertically. Note this also moves the reading line. Toggled live with Shift+F',
+          description: 'Mirrors the view vertically. Note this also moves the reading line',
           type: 'boolean',
           defaultValue: defaults.flipV,
         },

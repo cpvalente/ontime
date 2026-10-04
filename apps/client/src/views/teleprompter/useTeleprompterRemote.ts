@@ -1,7 +1,6 @@
 import type { TeleprompterPlayback } from 'ontime-types';
 import { useEffect } from 'react';
 
-import { onTeleprompterNudge } from '../../common/utils/socket';
 import type { TeleprompterController } from './teleprompter.types';
 
 interface UseTeleprompterRemoteArgs {
@@ -23,10 +22,4 @@ export function useTeleprompterRemote({ isEnabled, playback, controller, selecte
       controller.pause();
     }
   }, [isEnabled, playback, controller, selectedEventId]);
-
-  // applies remote nudges
-  useEffect(() => {
-    if (!isEnabled) return;
-    return onTeleprompterNudge((lines) => controller.nudge(lines, { preserveFollow: true }));
-  }, [isEnabled, controller]);
 }

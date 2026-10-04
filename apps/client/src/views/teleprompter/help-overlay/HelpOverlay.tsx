@@ -38,9 +38,7 @@ export default function HelpOverlay({ isOpen, onClose, isRemoteControlled }: Hel
 
           <ShortcutGroups className='teleprompter__help-groups'>
             {isRemoteControlled ? (
-              <p className='teleprompter__help-note'>
-                Under remote control, playback and speed follow the remote, and text size follows the view options
-              </p>
+              <p className='teleprompter__help-note'>Under remote control, playback and speed follow the remote</p>
             ) : (
               <>
                 <ShortcutGroup title='Transport'>
@@ -90,24 +88,7 @@ export default function HelpOverlay({ isOpen, onClose, isRemoteControlled }: Hel
               </>
             )}
 
-            <ShortcutGroup title='Display'>
-              {!isRemoteControlled && (
-                <>
-                  <Shortcut label='Text size'>
-                    <Combo keys={['+']} />
-                    <Separator />
-                    <Combo keys={['-']} />
-                  </Shortcut>
-                  <Shortcut label='Reset text size'>
-                    <Combo keys={['0']} />
-                  </Shortcut>
-                </>
-              )}
-              <Shortcut label='Flip horizontally / vertically'>
-                <Combo keys={['F']} />
-                <Separator />
-                <Combo keys={['Shift', 'F']} />
-              </Shortcut>
+            <ShortcutGroup title='Help'>
               <Shortcut label='Show this list'>
                 <Combo keys={['?']} />
               </Shortcut>

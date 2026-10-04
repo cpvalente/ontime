@@ -22,9 +22,13 @@ function makeHeading(source: HeadingSource, cue: string, title: string): string 
   }
 }
 
+/** Only text fields hold a script, a URL can name any other field */
 function isReadableSource(scriptSource: string, customFields: CustomFields): boolean {
-  if (!scriptSource.startsWith('custom-')) {
+  if (scriptSource === 'note' || scriptSource === 'title') {
     return true;
+  }
+  if (!scriptSource.startsWith('custom-')) {
+    return false;
   }
   const key = scriptSource.slice('custom-'.length);
   return customFields[key]?.type === 'text';
@@ -39,14 +43,18 @@ export function buildScript(
 ): ScriptBlock[] {
   const { scriptSource, heading, onlyPlaying, hideEmpty, showGroups } = options;
 
-  if (scriptSource === 'none' || !isReadableSource(scriptSource, customFields)) {
+  if (!isReadableSource(scriptSource, customFields)) {
     return [];
   }
+
+  // with nothing loaded, the whole script beats a blank screen
+  const loadedId = onlyPlaying ? rundown.flatOrder.find((id) => rundownMetadata[id]?.isLoaded) : undefined;
+  const scriptOrder = loadedId ? [loadedId] : rundown.flatOrder;
 
   const blocks: ScriptBlock[] = [];
   let lastGroupId: MaybeString = null;
 
-  for (const id of rundown.flatOrder) {
+  for (const id of scriptOrder) {
     const entry = rundown.entries[id];
     if (!isOntimeEvent(entry) || entry.skip) {
       continue;
@@ -73,14 +81,6 @@ export function buildScript(
       groupTitle,
       isLoaded: Boolean(metadata?.isLoaded),
     });
-  }
-
-  if (onlyPlaying) {
-    const playing = blocks.filter((block) => block.isLoaded);
-    // with nothing loaded, the whole script beats a blank screen
-    if (playing.length > 0) {
-      return playing;
-    }
   }
 
   return blocks;

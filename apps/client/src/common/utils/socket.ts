@@ -48,17 +48,6 @@ import { nowInMillis } from './time';
 let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 let watchdogInterval: NodeJS.Timeout | null = null;
-
-const teleprompterNudgeListeners = new Set<(lines: number) => void>();
-
-/** Nudges are commands rather than state, so they are not part of the runtime store */
-export function onTeleprompterNudge(listener: (lines: number) => void) {
-  teleprompterNudgeListeners.add(listener);
-  return () => {
-    teleprompterNudgeListeners.delete(listener);
-  };
-}
-
 export const socketConfig = {
   reconnectBaseInterval: 1000,
   reconnectMaxInterval: 30000,
@@ -155,10 +144,6 @@ export const connectSocket = () => {
       }
 
       switch (tag) {
-        case MessageTag.TeleprompterNudge: {
-          teleprompterNudgeListeners.forEach((listener) => listener(payload));
-          break;
-        }
         case MessageTag.Pong: {
           // a round trip can be faster than the clock resolution, we keep the value positive since a ping <= 0 means offline
           const offset = Math.max(1, (new Date().getTime() - new Date(payload).getTime()) * 0.5);

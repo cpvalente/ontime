@@ -11,7 +11,6 @@ import {
   hasBrokenFollow,
   indexAtReadPoint,
   linesPerMinuteToPxPerSecond,
-  nudgeTargetFor,
   readPointForAnchor,
   type ScrollAnchor,
   segmentAfter,
@@ -100,7 +99,6 @@ export function useTeleprompterScroll({
   const lineHeightRef = useRef(0);
   const maxScrollRef = useRef(0);
   const catchUpTargetRef = useRef<number | null>(null);
-  const pendingDeltaRef = useRef(0);
   // where following last put (or is easing towards putting) the reader
   const followTargetRef = useRef(0);
   // how far the reader has moved the script themselves since following last placed it
@@ -112,8 +110,9 @@ export function useTeleprompterScroll({
   // the script's layout as of the last measure, and the reader's place in it
   const geometryRef = useRef<BlockGeometry[]>([]);
   const anchorRef = useRef<ScrollAnchor | null>(null);
-  // the segment this run of playback stops at, chosen when it started
+  // the segment this run of playback stops at, or null to run to the end of the script
   const playbackSegmentRef = useRef<string | null>(null);
+  const followLoadedRef = useRef(followLoaded);
 
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(initialSpeed);
@@ -128,10 +127,22 @@ export function useTeleprompterScroll({
   }, []);
 
   const isFollowingRef = useRef(false);
-  // mirrors follow into a ref for the frame loop
+  // mirrors follow into refs for the frame loop
   useEffect(() => {
+    followLoadedRef.current = followLoaded;
     isFollowingRef.current = followLoaded && !autoScrollLocked;
   }, [followLoaded, autoScrollLocked]);
+
+  /**
+   * Chooses where playback from a position stops.
+   * While following, each event is a cue of its own, so playback stops at the end of the one being read
+   * rather than reading on into one nobody has cued. Otherwise it runs to the end of the script.
+   */
+  const bindPlaybackSegment = useCallback((position: number) => {
+    playbackSegmentRef.current = followLoadedRef.current
+      ? (segmentAfter(position, readingOffsetRef.current, geometryRef.current)?.id ?? null)
+      : null;
+  }, []);
 
   /**
    * Breaks follow once the reader has moved the script far enough, by any input.
@@ -156,6 +167,8 @@ export function useTeleprompterScroll({
         addReaderDrift(external);
         posRef.current = scroller.scrollTop;
         catchUpTargetRef.current = null;
+        // the reader may have scrolled into another event, which playback should not pull them back from
+        if (runningRef.current) bindPlaybackSegment(posRef.current);
       }
 
       const deltaSeconds = frameDeltaSeconds(timestamp - lastTsRef.current);
@@ -163,20 +176,12 @@ export function useTeleprompterScroll({
 
       let next = posRef.current;
 
-      if (pendingDeltaRef.current !== 0) {
-        next += pendingDeltaRef.current;
-        pendingDeltaRef.current = 0;
-        catchUpTargetRef.current = null;
-      }
-
       if (catchUpTargetRef.current !== null) {
         next = easeCatchUp(next, catchUpTargetRef.current, deltaSeconds);
         if (next === catchUpTargetRef.current) {
           catchUpTargetRef.current = null;
           // a jump or a follow can land past the segment playback was bound to, which would pull the reader back
-          if (runningRef.current) {
-            playbackSegmentRef.current = segmentAfter(next, readingOffsetRef.current, geometryRef.current)?.id ?? null;
-          }
+          if (runningRef.current) bindPlaybackSegment(next);
         }
       } else if (runningRef.current) {
         // resolved by identity each frame, so an edit which moves the script still stops on the same words
@@ -205,7 +210,7 @@ export function useTeleprompterScroll({
       // against the last measure, so the frame loop reads no layout
       anchorRef.current = anchorAtReadPoint(clamped + readingOffsetRef.current, geometryRef.current);
     },
-    [addReaderDrift, setPlaybackRunning],
+    [addReaderDrift, bindPlaybackSegment, setPlaybackRunning],
   );
 
   // runs the frame loop, the only writer of scrollTop
@@ -368,8 +373,7 @@ export function useTeleprompterScroll({
       if (maxScrollRef.current > 0 && posRef.current >= maxScrollRef.current) {
         return;
       }
-      const stopAt = segmentAfter(posRef.current, readingOffsetRef.current, geometryRef.current);
-      playbackSegmentRef.current = stopAt?.id ?? null;
+      bindPlaybackSegment(posRef.current);
       setPlaybackRunning(true);
       setParkedAt(null);
     };
@@ -394,21 +398,7 @@ export function useTeleprompterScroll({
       play,
       pause,
       togglePlay: () => (runningRef.current ? pause() : play()),
-      nudge: (lines: number, options) => {
-        const distance = lines * lineHeightRef.current;
-        const from = posRef.current + pendingDeltaRef.current;
-        const target = nudgeTargetFor(
-          from,
-          distance,
-          readingOffsetRef.current,
-          geometryRef.current,
-          maxScrollRef.current,
-        );
-        const delta = target - from;
-        pendingDeltaRef.current += delta;
-        if (!options?.preserveFollow) addReaderDrift(delta);
-        setParkedAt(null);
-      },
+      nudge: (lines: number) => goTo(destination() + lines * lineHeightRef.current),
       page: (direction: 1 | -1) => {
         const scroller = scrollerRef.current;
         if (!scroller) return;
@@ -437,7 +427,7 @@ export function useTeleprompterScroll({
         setAutoScrollLocked(false);
       },
     };
-  }, [addReaderDrift, setPlaybackRunning]);
+  }, [addReaderDrift, bindPlaybackSegment, setPlaybackRunning]);
 
   return {
     scrollerRef: attachScroller,

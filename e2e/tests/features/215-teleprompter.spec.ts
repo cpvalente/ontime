@@ -1,4 +1,6 @@
-import { expect, type Page, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
+
+import { expect, test } from '../fixtures/override';
 
 /** The heading of the event the reading line is currently over. */
 function eventUnderReadingLine(page: Page) {
@@ -50,11 +52,7 @@ test('teleprompter renders and responds to its primary controls', async ({ page,
   await page.keyboard.press('Space');
 
   await page.keyboard.press('ArrowRight');
-  await page.keyboard.press('f');
   await expect(speed).toContainText('15');
-  await expect(page).toHaveURL(/speed=15/);
-  await expect(page).toHaveURL(/flipH=true/);
-  await expect(view).toHaveCSS('transform', /^matrix\(-1/);
 });
 
 test('the script wraps the same way on screens of different sizes', async ({ page, request }) => {
@@ -143,26 +141,32 @@ test('shift and the vertical arrows walk the reader event by event', async ({ pa
   await expect.poll(() => eventUnderReadingLine(page)).toBe(headings[1]);
 });
 
-test('playback stops at the end of the event instead of reading on into the next', async ({ page, request }) => {
-  const response = await request.post('/data/db/demo');
-  expect(response.ok()).toBe(true);
-  const loadResponse = await request.get('/api/load/index/5');
-  expect(loadResponse.ok()).toBe(true);
-
-  await page.goto('/teleprompter?script=note&followLoaded=false&speed=40');
-
-  const scroller = page.getByTestId('teleprompter-scroller');
-  await expect(scroller).toBeVisible();
-
-  // park the reading line just short of the first event's end, so the run to
-  // the boundary takes a moment rather than the length of the segment
-  const segmentEnd = await scroller.evaluate((element) => {
+/** Parks the reading line just short of the first event's end, so the run to the boundary takes a moment */
+function parkBeforeFirstSegmentEnd(page: Page) {
+  return page.getByTestId('teleprompter-scroller').evaluate((element) => {
     const block = element.querySelector<HTMLElement>('.teleprompter__block');
     if (!block) throw new Error('No script block found');
     const end = block.offsetTop + block.offsetHeight - element.clientHeight * 0.25;
     element.scrollTop = end - 30;
     return end;
   });
+}
+
+test('while following, playback stops at the end of the event instead of reading on', async ({ page, request }) => {
+  const response = await request.post('/data/db/demo');
+  expect(response.ok()).toBe(true);
+  const loadResponse = await request.get('/api/load/index/5');
+  expect(loadResponse.ok()).toBe(true);
+
+  await page.goto('/teleprompter?script=note&speed=40');
+
+  const scroller = page.getByTestId('teleprompter-scroller');
+  await expect(scroller).toBeVisible();
+  // let following settle on the loaded event, so it does not move the reader after we park them
+  await expect(page.locator('.teleprompter__block[data-loaded]')).toBeAttached();
+  await expect.poll(() => eventUnderReadingLine(page)).not.toBeNull();
+
+  const segmentEnd = await parkBeforeFirstSegmentEnd(page);
 
   await page.keyboard.press('Space');
 
@@ -178,6 +182,50 @@ test('playback stops at the end of the event instead of reading on into the next
   // pressing play again is how the reader moves on to the next event
   await page.keyboard.press('Space');
   await expect.poll(() => scroller.evaluate((element) => element.scrollTop)).toBeGreaterThan(segmentEnd + 5);
+});
+
+test('scrolling into a later event while playing keeps the reader there', async ({ page, request }) => {
+  const response = await request.post('/data/db/demo');
+  expect(response.ok()).toBe(true);
+  const loadResponse = await request.get('/api/load/index/5');
+  expect(loadResponse.ok()).toBe(true);
+
+  await page.goto('/teleprompter?script=note&speed=1');
+
+  const scroller = page.getByTestId('teleprompter-scroller');
+  await expect(scroller).toBeVisible();
+  const loadedHeading = await page.locator('.teleprompter__block[data-loaded] .teleprompter__heading').textContent();
+  await expect.poll(() => eventUnderReadingLine(page)).toBe(loadedHeading);
+
+  // playback is bound to the loaded event, and the reader scrolls on past it
+  await page.keyboard.press('Space');
+  const laterHeading = await scroller.evaluate((element) => {
+    const block = element.querySelector<HTMLElement>('.teleprompter__block[data-loaded] + .teleprompter__block');
+    if (!block) throw new Error('No event after the loaded one');
+    element.scrollTop = block.offsetTop + 10 - element.clientHeight * 0.25;
+    return block.querySelector('.teleprompter__heading')?.textContent ?? null;
+  });
+
+  await page.waitForTimeout(500);
+  expect(await eventUnderReadingLine(page)).toBe(laterHeading);
+  await expect(page.getByTestId('teleprompter-parked')).toHaveCount(0);
+  await page.keyboard.press('Space');
+});
+
+test('without following, playback reads on across events', async ({ page, request }) => {
+  const response = await request.post('/data/db/demo');
+  expect(response.ok()).toBe(true);
+
+  await page.goto('/teleprompter?script=note&followLoaded=false&speed=40');
+
+  const scroller = page.getByTestId('teleprompter-scroller');
+  await expect(scroller).toBeVisible();
+  const segmentEnd = await parkBeforeFirstSegmentEnd(page);
+
+  await page.keyboard.press('Space');
+  await expect.poll(() => scroller.evaluate((element) => element.scrollTop)).toBeGreaterThan(segmentEnd + 5);
+  await expect(page.getByTestId('teleprompter-parked')).toHaveCount(0);
+  await page.keyboard.press('Space');
 });
 
 test('follow tolerates a small scroll and breaks on a real one, like the operator view', async ({ page, request }) => {
