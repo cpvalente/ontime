@@ -57,3 +57,6 @@ ontime-data/
 
 # Claude Code metadata
 .claude/
+
+# test coverage
+coverage
