@@ -5,6 +5,8 @@ import { getErrorMessage } from 'ontime-utils';
 
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { refreshTeleprompterScript } from '../../services/teleprompter-service/teleprompter.service.js';
+import { parseTeleprompterSettings } from './viewSettings.parser.js';
 import { validateViewSettings } from './viewSettings.validation.js';
 
 export const router: Router = express.Router();
@@ -16,16 +18,19 @@ router.get('/', (_req: Request, res: Response<ViewSettings>) => {
 
 router.post('/', validateViewSettings, async (req: Request, res: Response<ViewSettings | ErrorResponse>) => {
   try {
+    const { teleprompter } = getDataProvider().getViewSettings();
     const newData = {
       dangerColor: req.body.dangerColor,
       normalColor: req.body.normalColor,
       overrideStyles: req.body.overrideStyles,
       warningColor: req.body.warningColor,
+      teleprompter: parseTeleprompterSettings(req.body.teleprompter, teleprompter),
     } as ViewSettings;
     await getDataProvider().setViewSettings(newData);
 
     setImmediate(() => {
       sendRefetch(RefetchKey.ViewSettings);
+      refreshTeleprompterScript();
     });
 
     res.status(200).send(newData);

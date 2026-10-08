@@ -114,6 +114,7 @@ export {
   type TeleprompterLayout,
   type TeleprompterLayoutEvent,
 } from './src/teleprompter/teleprompterPosition.js';
+export { defaultTeleprompterSettings, teleprompterCharsPerLine } from './src/teleprompter/teleprompterSettings.js';
 export { wrapText, type WrappedLine } from './src/teleprompter/teleprompterWrap.js';
 
 //Colour

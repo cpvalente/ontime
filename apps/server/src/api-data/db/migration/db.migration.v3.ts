@@ -105,7 +105,8 @@ export function migrateViewSettings(jsonData: object): ViewSettings | undefined 
     const { dangerColor, normalColor, overrideStyles, warningColor } = structuredClone(
       jsonData.viewSettings,
     ) as old_ViewSettings;
-    return { dangerColor, normalColor, overrideStyles, warningColor };
+    const { teleprompter } = getPartialProject('viewSettings');
+    return { dangerColor, normalColor, overrideStyles, warningColor, teleprompter };
   }
 }
 

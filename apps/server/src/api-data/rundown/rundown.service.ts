@@ -26,6 +26,7 @@ import { logger } from '../../classes/Logger.js';
 import { makeNewRundown } from '../../models/dataModel.js';
 import { setLastLoadedRundown } from '../../services/app-state-service/appState.service.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
+import { refreshTeleprompterScript } from '../../services/teleprompter-service/teleprompter.service.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import {
@@ -770,6 +771,11 @@ function notifyChanges(
     sendRefetch(RefetchKey.All);
   } else if (options.external) {
     sendRefetch(RefetchKey.Rundown, revision, rundownId);
+  }
+
+  // without a rundown, the change was to the custom fields every rundown shares
+  if (!rundownId || isCurrentRundown(rundownId)) {
+    refreshTeleprompterScript();
   }
 }
 

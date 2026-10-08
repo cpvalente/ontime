@@ -10,6 +10,7 @@ export const validateViewSettings = [
   body('normalColor').isString().trim().withMessage('normalColor value must be string'),
   body('overrideStyles').isBoolean().withMessage('overrideStyles value must be boolean'),
   body('warningColor').isString().trim().withMessage('warningColor value must be string'),
+  body('teleprompter').optional().isObject().withMessage('teleprompter value must be an object'),
 
   requestValidationFunction,
 ];

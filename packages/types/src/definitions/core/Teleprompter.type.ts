@@ -1,5 +1,19 @@
 import type { EntryId } from './OntimeEntry.js';
 
+export type TeleprompterHeading = 'title' | 'cue' | 'both' | 'none';
+
+/** Settings which shape the script, so every screen breaks lines and ends events in the same places */
+export type TeleprompterSettings = {
+  /** field which holds the script: note, title or custom-{key} of a text custom field */
+  script: string;
+  charsPerLine: number;
+  heading: TeleprompterHeading;
+  showGroups: boolean;
+  hideEmpty: boolean;
+  /** cued mode, where loading an event moves the reader and playback stops at the end of each event */
+  followLoaded: boolean;
+};
+
 /** A row of the teleprompter script, so every screen counts the same lines */
 export type TeleprompterLine =
   | { kind: 'group'; text: string }

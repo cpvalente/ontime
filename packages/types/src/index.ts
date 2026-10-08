@@ -56,9 +56,11 @@ export type { ViewSettings } from './definitions/core/Views.type.js';
 // ---> Teleprompter
 export type {
   TeleprompterAnchor,
+  TeleprompterHeading,
   TeleprompterLine,
   TeleprompterScript,
   TeleprompterScriptEvent,
+  TeleprompterSettings,
 } from './definitions/core/Teleprompter.type.js';
 export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
 

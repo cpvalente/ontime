@@ -1,5 +1,5 @@
 import { DatabaseModel, Rundown } from 'ontime-types';
-import { generateId } from 'ontime-utils';
+import { defaultTeleprompterSettings, generateId } from 'ontime-utils';
 
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
@@ -37,6 +37,7 @@ const dbModel: DatabaseModel = {
     normalColor: '#ffffffcc',
     warningColor: '#ffa528',
     dangerColor: '#ff7300',
+    teleprompter: { ...defaultTeleprompterSettings },
   },
   urlPresets: [],
   customFields: {},
