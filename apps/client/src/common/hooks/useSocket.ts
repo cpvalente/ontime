@@ -203,6 +203,8 @@ export const useExpectedStartData = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
 }));
 
+export const useTeleprompterState = createSelector((state: RuntimeStore) => state.teleprompter);
+
 export const usePing = createSelector((state: RuntimeStore) => state.ping);
 
 /** convert ping into a derived value which changes less often */

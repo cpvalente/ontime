@@ -8,6 +8,7 @@ import GeneralSettings from './GeneralSettings';
 import McpSection from './McpSection';
 import ProjectData from './ProjectData';
 import ServerPortSettings from './ServerPortSettings';
+import TeleprompterSettings from './TeleprompterSettings';
 import ViewSettings from './ViewSettings';
 
 export default function SettingsPanel({ location }: PanelBaseProps) {
@@ -33,6 +34,7 @@ export default function SettingsPanel({ location }: PanelBaseProps) {
       </div>
       <div ref={viewRef}>
         <ViewSettings />
+        <TeleprompterSettings />
       </div>
       <div ref={customViewsRef}>
         <CustomViews />

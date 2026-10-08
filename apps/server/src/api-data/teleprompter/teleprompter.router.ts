@@ -9,6 +9,11 @@ import { parseTeleprompterSettings } from '../view-settings/viewSettings.parser.
 
 export const router: Router = express.Router();
 
+/** The server clock, which screens sync to, to calculate the reading position from the transport */
+router.get('/clock', (_req: Request, res: Response<{ now: number }>) => {
+  res.status(200).send({ now: Date.now() });
+});
+
 /**
  * Remote screens and controllers ask without parameters and get the shared script
  * Local views pass their own settings, eg: ?script=note&charsPerLine=40

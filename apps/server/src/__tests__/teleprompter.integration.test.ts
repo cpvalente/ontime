@@ -79,6 +79,13 @@ describe('teleprompter', () => {
     expect(JSON.stringify(after)).toContain('A new script');
   });
 
+  test('TRN-2 serves the server clock, which screens sync to', async () => {
+    const before = Date.now();
+    const { now } = await (await server.get('/data/teleprompter/clock')).json();
+    expect(now).toBeGreaterThanOrEqual(before);
+    expect(now).toBeLessThanOrEqual(Date.now());
+  });
+
   test('SET-1 the project holds the settings, which shape the shared script', async () => {
     const viewSettings = await (await server.get('/data/view-settings')).json();
     expect(viewSettings.teleprompter).toEqual({
