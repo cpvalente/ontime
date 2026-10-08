@@ -1,6 +1,29 @@
-import { MILLIS_PER_HOUR } from 'ontime-utils';
+import { OntimeEvent, PlayableEvent } from 'ontime-types';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, createEvent } from 'ontime-utils';
 
-import { calculateTimelineLayout, getElementPosition } from '../timeline.utils';
+import { ExtendedEntry, initRundownMetadata } from '../../../common/utils/rundownMetadata';
+import {
+  calculateTimelineLayout,
+  computeScopedRundown,
+  getElementPosition,
+  getEndHour,
+  getStartHour,
+  getStatusLabel,
+  getTimeToStart,
+  getUpcomingEvents,
+  makeTimelineSections,
+} from '../timeline.utils';
+
+function makeEvent(
+  id: string,
+  timeStart: number,
+  duration: number,
+  patch: Partial<Omit<OntimeEvent, 'skip'>> = {},
+): ExtendedEntry<PlayableEvent> {
+  const event = createEvent({ id, timeStart, duration, ...patch }, id);
+  if (!event) throw new Error('Invalid event fixture');
+  return { ...event, ...initRundownMetadata(null).metadata, skip: false };
+}
 
 describe('getElementPosition()', () => {
   const scheduleStart = 8 * MILLIS_PER_HOUR; // 8:00
@@ -146,5 +169,118 @@ describe('calculateTimelineLayout()', () => {
     expect(result.positions[1].left).toBe(750);
     expect(result.positions[0].width).toBe(250);
     expect(result.positions[1].width).toBe(250);
+  });
+});
+
+describe('getElementPosition() across midnight', () => {
+  it('places events in a schedule which ends on the following day', () => {
+    const scheduleStart = 22 * MILLIS_PER_HOUR;
+    const scheduleEnd = 2 * MILLIS_PER_HOUR; // 02:00 next day, a 4 hour schedule
+    const position = getElementPosition(scheduleStart, scheduleEnd, 23 * MILLIS_PER_HOUR, MILLIS_PER_HOUR, 400);
+    expect(position).toStrictEqual({ left: 100, width: 100 });
+  });
+});
+
+describe('timeline hours', () => {
+  it('has a section for every hour touched by the schedule, and none past its end', () => {
+    const sections = (start: number, end: number) => makeTimelineSections(getStartHour(start), getEndHour(end));
+
+    expect(
+      sections(8 * MILLIS_PER_HOUR + 45 * MILLIS_PER_MINUTE, 10 * MILLIS_PER_HOUR + 15 * MILLIS_PER_MINUTE),
+    ).toStrictEqual([8, 9, 10]);
+    expect(sections(8 * MILLIS_PER_HOUR, 10 * MILLIS_PER_HOUR)).toStrictEqual([8, 9]);
+  });
+});
+
+describe('getStatusLabel()', () => {
+  it('reports events which are running or finished', () => {
+    expect(getStatusLabel(0, 'live')).toBe('live');
+    expect(getStatusLabel(-1000, 'done')).toBe('done');
+  });
+
+  it('reports events which should have started but have not as pending', () => {
+    expect(getStatusLabel(0, 'future')).toBe('pending');
+    expect(getStatusLabel(-5000, 'future')).toBe('pending');
+  });
+
+  it('counts down to the start with seconds when it is close, and without when it is far', () => {
+    expect(getStatusLabel(5 * MILLIS_PER_MINUTE + 30_000, 'future')).toBe('5m30s');
+    expect(getStatusLabel(90 * MILLIS_PER_MINUTE + 30_000, 'future')).toBe('1h30m');
+  });
+});
+
+describe('getTimeToStart()', () => {
+  it('counts the time until the event starts, including its delay, and goes negative once it is due', () => {
+    const now = 10 * MILLIS_PER_HOUR;
+    const start = 11 * MILLIS_PER_HOUR;
+    expect(getTimeToStart(now, start, 0, 0)).toBe(MILLIS_PER_HOUR);
+    expect(getTimeToStart(now, start, 5 * MILLIS_PER_MINUTE, 0)).toBe(65 * MILLIS_PER_MINUTE);
+    expect(getTimeToStart(12 * MILLIS_PER_HOUR, start, 0, 0)).toBe(-MILLIS_PER_HOUR);
+  });
+});
+
+describe('getUpcomingEvents()', () => {
+  const events = [makeEvent('a', 0, 1000), makeEvent('b', 1000, 1000), makeEvent('c', 2000, 1000)];
+
+  it('offers the first events as upcoming when nothing is selected', () => {
+    const { now, next, followedBy } = getUpcomingEvents(events, null);
+    expect([now?.id ?? null, next?.id, followedBy?.id]).toStrictEqual([null, 'a', 'b']);
+  });
+
+  it('follows the selected event', () => {
+    const { now, next, followedBy } = getUpcomingEvents(events, 'a');
+    expect([now?.id, next?.id, followedBy?.id]).toStrictEqual(['a', 'b', 'c']);
+  });
+
+  it('has nothing after the last event', () => {
+    const { now, next, followedBy } = getUpcomingEvents(events, 'c');
+    expect(now?.id).toBe('c');
+    expect(next).toBeNull();
+    expect(followedBy).toBeNull();
+  });
+
+  it('returns nothing for an empty rundown', () => {
+    expect(getUpcomingEvents([], 'a')).toStrictEqual({ now: null, next: null, followedBy: null });
+  });
+});
+
+describe('computeScopedRundown()', () => {
+  const hour = MILLIS_PER_HOUR;
+
+  it('returns an empty schedule for an empty rundown', () => {
+    expect(computeScopedRundown([], null, false)).toStrictEqual({ scopedRundown: [], firstStart: 0, totalDuration: 0 });
+  });
+
+  it('only schedules events which will play', () => {
+    const rundown = [makeEvent('a', 9 * hour, hour), { ...makeEvent('skipped', 10 * hour, hour), skip: true }];
+    const { scopedRundown } = computeScopedRundown(rundown, null, false);
+    expect(scopedRundown.map((event) => event.id)).toStrictEqual(['a']);
+  });
+
+  it('adds up the duration of events which follow each other', () => {
+    const rundown = [makeEvent('a', 9 * hour, hour), makeEvent('b', 10 * hour, 2 * hour)];
+    expect(computeScopedRundown(rundown, null, false)).toMatchObject({ firstStart: 9 * hour, totalDuration: 3 * hour });
+  });
+
+  it('includes the gaps between events in the total duration', () => {
+    const rundown = [makeEvent('a', 9 * hour, hour), makeEvent('b', 11 * hour, hour)];
+    expect(computeScopedRundown(rundown, null, false).totalDuration).toBe(3 * hour);
+  });
+
+  it('counts only the time an overlapping event adds to the schedule', () => {
+    const rundown = [makeEvent('a', 9 * hour, hour), makeEvent('b', 9 * hour + 30 * MILLIS_PER_MINUTE, hour)];
+    expect(computeScopedRundown(rundown, null, false).totalDuration).toBe(hour + 30 * MILLIS_PER_MINUTE);
+  });
+
+  it('can hide events before the selected one', () => {
+    const rundown = [makeEvent('a', 9 * hour, hour), makeEvent('b', 10 * hour, hour), makeEvent('c', 11 * hour, hour)];
+    const result = computeScopedRundown(rundown, 'b', true);
+    expect(result.scopedRundown.map((event) => event.id)).toStrictEqual(['b', 'c']);
+    expect(result).toMatchObject({ firstStart: 10 * hour, totalDuration: 2 * hour });
+  });
+
+  it('keeps the whole rundown when asked to hide past events but nothing is selected', () => {
+    const rundown = [makeEvent('a', 9 * hour, hour), makeEvent('b', 10 * hour, hour)];
+    expect(computeScopedRundown(rundown, null, true).scopedRundown).toHaveLength(2);
   });
 });
