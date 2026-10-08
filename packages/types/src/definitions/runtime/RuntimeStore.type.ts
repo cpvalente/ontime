@@ -3,6 +3,7 @@ import type { SimpleTimerState } from './AuxTimer.type.js';
 import type { MessageState } from './MessageControl.type.js';
 import type { Offset } from './Offset.type.js';
 import type { RundownState } from './RundownState.type.js';
+import type { TeleprompterState } from './Teleprompter.type.js';
 import type { TimerState } from './TimerState.type.js';
 
 export type RuntimeStore = {
@@ -29,6 +30,9 @@ export type RuntimeStore = {
   auxtimer1: SimpleTimerState;
   auxtimer2: SimpleTimerState;
   auxtimer3: SimpleTimerState;
+
+  // the transport shared by teleprompter remote screens and controllers
+  teleprompter: TeleprompterState;
 
   // utils
   ping: number;

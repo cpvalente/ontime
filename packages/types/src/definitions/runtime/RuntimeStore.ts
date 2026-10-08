@@ -69,5 +69,14 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
     playback: SimplePlayback.Stop,
     name: '',
   },
+  teleprompter: {
+    playing: false,
+    speed: 14,
+    anchor: null,
+    since: 0,
+    eventId: null,
+    cue: null,
+    stoppedAt: null,
+  },
   ping: 1,
 };
