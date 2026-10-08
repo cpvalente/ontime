@@ -46,6 +46,9 @@ vi.mock('../../../stores/runtimeState.js', () => ({
   load: vi.fn(() => true),
   resume: vi.fn(),
   roll: vi.fn(() => ({ eventId: null, didStart: false })),
+  start: vi.fn((_state?: RuntimeState, _at?: Instant) => true),
+  update: vi.fn((): UpdateResult => ({ hasTimerFinished: false, finishedAt: null, hasSecondaryTimerFinished: false })),
+  getTimeToNextBoundary: vi.fn(() => null),
 }));
 
 vi.mock('../../../api-data/rundown/rundown.dao.js', () => ({
@@ -55,32 +58,16 @@ vi.mock('../../../api-data/rundown/rundown.dao.js', () => ({
   getEntryWithId: vi.fn(),
 }));
 
-/** Lets each test drive the timer updates and see what it was asked to start */
+/** Lets each test drive the timer ticks */
 const timerRef = vi.hoisted(() => ({
-  onUpdate: undefined as ((result: UpdateResult) => void) | undefined,
-  start: vi.fn((_at?: number) => true),
+  onTick: undefined as ((at: Instant) => void) | undefined,
 }));
 
 // the timer owns a setInterval, we do not want it running in tests
-vi.mock('../EventTimer.js', () => ({
-  EventTimer: class {
-    setOnUpdateCallback(callback: (result: UpdateResult) => void) {
-      timerRef.onUpdate = callback;
-    }
-    start(at?: number) {
-      return timerRef.start(at);
-    }
-    pause() {
-      return true;
-    }
-    stop() {
-      return true;
-    }
-    addTime() {
-      return true;
-    }
-    scheduleNextBoundary() {}
-    shutdown() {}
+vi.mock('../tickingTimer.js', () => ({
+  createTickingTimer: ({ onTick }: { onTick: (at: Instant) => void }) => {
+    timerRef.onTick = onTick;
+    return { start() {}, stop() {}, scheduleBoundary() {} };
   },
 }));
 
@@ -288,6 +275,13 @@ describe('PlayNext end action', () => {
     vi.useRealTimers();
   });
 
+  /** ticks the timer, with the runtime reporting the given update */
+  function tick(result: UpdateResult) {
+    vi.mocked(runtimeState.update).mockReturnValueOnce(result);
+    timerRef.onTick?.(Date.now() as Instant);
+    expect(runtimeState.update).toHaveBeenCalledWith(Date.now());
+  }
+
   /** plays an event with PlayNext, followed by an event the runtime can load */
   function playingWithNext() {
     const now = makeOntimeEvent({ id: 'playnext-now', endAction: EndAction.PlayNext });
@@ -305,34 +299,34 @@ describe('PlayNext end action', () => {
     playingWithNext();
 
     // the end was detected 10ms ahead of the instant the timer reaches it
-    timerRef.onUpdate?.({ hasTimerFinished: true, finishedAt: 1010 as Instant, hasSecondaryTimerFinished: false });
+    tick({ hasTimerFinished: true, finishedAt: 1010 as Instant, hasSecondaryTimerFinished: false });
 
     vi.advanceTimersByTime(9);
-    expect(timerRef.start).not.toHaveBeenCalled();
+    expect(runtimeState.start).not.toHaveBeenCalled();
 
     vi.advanceTimersByTime(1);
-    expect(timerRef.start).toHaveBeenCalledWith(1010);
+    expect(runtimeState.start).toHaveBeenCalledWith(undefined, 1010);
   });
 
   it('starts the next event now when the previous one ended long ago, as after the system slept', () => {
     playingWithNext();
     vi.setSystemTime(1000 + MILLIS_PER_HOUR);
 
-    timerRef.onUpdate?.({ hasTimerFinished: true, finishedAt: 1000 as Instant, hasSecondaryTimerFinished: false });
+    tick({ hasTimerFinished: true, finishedAt: 1000 as Instant, hasSecondaryTimerFinished: false });
     vi.advanceTimersByTime(0);
 
-    expect(timerRef.start).toHaveBeenCalledWith(1000 + MILLIS_PER_HOUR);
+    expect(runtimeState.start).toHaveBeenCalledWith(undefined, 1000 + MILLIS_PER_HOUR);
   });
 
   it('does not start the next event if playback stopped before the previous one ended', () => {
     const now = makeOntimeEvent({ id: 'playnext-now', endAction: EndAction.PlayNext });
     stateRef.current = makeRuntimeStateData({ eventNow: now, timer: { playback: Playback.Play } });
 
-    timerRef.onUpdate?.({ hasTimerFinished: true, finishedAt: 1010 as Instant, hasSecondaryTimerFinished: false });
+    tick({ hasTimerFinished: true, finishedAt: 1010 as Instant, hasSecondaryTimerFinished: false });
     stateRef.current = makeRuntimeStateData({ eventNow: null, timer: { playback: Playback.Stop } });
 
     vi.advanceTimersByTime(10);
     expect(runtimeState.load).not.toHaveBeenCalled();
-    expect(timerRef.start).not.toHaveBeenCalled();
+    expect(runtimeState.start).not.toHaveBeenCalled();
   });
 });

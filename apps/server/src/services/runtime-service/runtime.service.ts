@@ -34,7 +34,6 @@ import * as runtimeState from '../../stores/runtimeState.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 import { restoreService } from '../restore-service/restore.service.js';
 import type { RestorePoint } from '../restore-service/restore.types.js';
-import { EventTimer } from './EventTimer.js';
 import {
   findNextPlayableId,
   findNextPlayableWithCue,
@@ -45,6 +44,7 @@ import {
   getShouldTimerUpdate,
   isNewSecond,
 } from './runtime.utils.js';
+import { createTickingTimer } from './tickingTimer.js';
 import { skippedOutOfEvent } from './timer.utils.js';
 
 /**
@@ -52,15 +52,18 @@ import { skippedOutOfEvent } from './timer.utils.js';
  * Coordinating with necessary services
  */
 class RuntimeService {
-  private readonly eventTimer: EventTimer;
+  /** calculates at 30fps, read by broadcastResult to anticipate the next boundary */
+  readonly timer = createTickingTimer({
+    interval: timerConfig.updateRate,
+    onTick: (at) => this.checkTimerUpdate(runtimeState.update(at)),
+  });
   private lastIntegrationClockUpdate = -1;
   private lastIntegrationTimerValue = -1;
 
   /** last known state */
   static previousState: RuntimeState;
 
-  constructor(eventTimer: EventTimer) {
-    this.eventTimer = eventTimer;
+  constructor() {
     RuntimeService.previousState = {} as RuntimeState;
   }
 
@@ -172,7 +175,7 @@ class RuntimeService {
   /** delay initialisation until we have a restore point */
   public init(resumable: RestorePoint | null) {
     logger.info(LogOrigin.Server, 'Runtime service started');
-    this.eventTimer.setOnUpdateCallback((updateResult) => this.checkTimerUpdate(updateResult));
+    this.timer.start();
 
     if (resumable) {
       this.resume(resumable);
@@ -180,10 +183,8 @@ class RuntimeService {
   }
 
   public shutdown() {
-    if (this.eventTimer) {
-      logger.info(LogOrigin.Server, 'Runtime service shutting down');
-      this.eventTimer.shutdown();
-    }
+    logger.info(LogOrigin.Server, 'Runtime service shutting down');
+    this.timer.stop();
   }
 
   /**
@@ -470,7 +471,7 @@ class RuntimeService {
       return false;
     }
 
-    const didStart = this.eventTimer?.start(at) ?? false;
+    const didStart = runtimeState.start(undefined, at);
     const newState = runtimeState.getState();
     logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
 
@@ -526,7 +527,7 @@ class RuntimeService {
     if (!canPause) {
       return;
     }
-    this.eventTimer?.pause();
+    runtimeState.pause();
     const newState = runtimeState.getState();
     logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
     process.nextTick(() => {
@@ -544,7 +545,7 @@ class RuntimeService {
     if (!canStop) {
       return false;
     }
-    const didStop = this.eventTimer?.stop();
+    const didStop = runtimeState.stop();
     if (didStop) {
       const newState = runtimeState.getState();
       logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
@@ -688,17 +689,13 @@ class RuntimeService {
    */
   @broadcastResult
   public addTime(time: number) {
-    if (this.eventTimer.addTime(time)) {
+    if (runtimeState.addTime(time)) {
       logger.info(LogOrigin.Playback, `${time > 0 ? 'Added' : 'Removed'} ${millisToString(time)}`);
     }
   }
 }
 
-// calculate at 30fps
-const eventTimer = new EventTimer({
-  refresh: timerConfig.updateRate,
-});
-export const runtimeService = new RuntimeService(eventTimer);
+export const runtimeService = new RuntimeService();
 
 type EntryUpdateKeys = keyof Pick<RuntimeState, 'eventNow' | 'eventNext' | 'eventFlag' | 'groupNow'>;
 
@@ -710,7 +707,7 @@ type EntryUpdateKeys = keyof Pick<RuntimeState, 'eventNow' | 'eventNext' | 'even
 function broadcastResult(_target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value;
 
-  descriptor.value = function (...args: any[]) {
+  descriptor.value = function (this: RuntimeService, ...args: any[]) {
     // call the original method and get the state
     const result = originalMethod.apply(this, args);
     const state = runtimeState.getState();
@@ -823,8 +820,8 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     batch.send();
 
-    // mutations may bypass the event timer (eg: roll, resume, load), so we anticipate the new boundary here
-    eventTimer.scheduleNextBoundary();
+    // any mutation may have moved the boundary, so we anticipate it here
+    this.timer.scheduleBoundary(runtimeState.getTimeToNextBoundary());
     return result;
   };
 
