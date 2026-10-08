@@ -50,7 +50,13 @@ export default function ParamInput({ paramField }: ParamInputProps) {
   }
 
   if (type === 'boolean') {
-    return <ControlledSwitch id={id} initialValue={isStringBoolean(searchParams.get(id)) ?? defaultValue} />;
+    const paramValue = searchParams.get(id);
+    return (
+      <ControlledSwitch
+        id={id}
+        initialValue={paramValue === null ? Boolean(defaultValue) : isStringBoolean(paramValue)}
+      />
+    );
   }
 
   if (type === 'number') {
