@@ -9,6 +9,8 @@ interface UseTeleprompterInputArgs {
   /** where commands go, or nothing for a screen which only displays */
   onCommand?: (payload: TeleprompterPayload) => void;
   rowHeight: number;
+  /** whether the mouse wheel sends scroll commands */
+  wheel: boolean;
   disabled: boolean;
 }
 
@@ -22,7 +24,7 @@ export function useTeleprompterInput(args: UseTeleprompterInputArgs) {
     latest.current = args;
   });
 
-  const { screen } = args;
+  const { screen, wheel } = args;
   const hasCommands = Boolean(args.onCommand);
 
   // maps keyboard shortcuts to commands
@@ -54,7 +56,7 @@ export function useTeleprompterInput(args: UseTeleprompterInputArgs) {
 
   // sends the mouse wheel, and scroll controllers which act as one, as grouped scroll commands
   useEffect(() => {
-    if (!screen || !hasCommands) return;
+    if (!screen || !hasCommands || !wheel) return;
 
     const batcher = createScrollBatcher((lines) => latest.current.onCommand?.({ scroll: lines }));
     function handleWheel(event: WheelEvent) {
@@ -70,5 +72,5 @@ export function useTeleprompterInput(args: UseTeleprompterInputArgs) {
       screen.removeEventListener('wheel', handleWheel);
       batcher.dispose();
     };
-  }, [screen, hasCommands]);
+  }, [screen, hasCommands, wheel]);
 }

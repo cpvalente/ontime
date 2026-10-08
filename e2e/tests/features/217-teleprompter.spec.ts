@@ -186,3 +186,57 @@ test('CTL-1 CTL-4 a controller drives every remote screen with its keys, wheel a
 
   await request.get('/api/stop');
 });
+
+test('LOC-1 LOC-2 a local view runs its own transport over a script cut with its own options', async ({
+  page,
+  context,
+  request,
+}) => {
+  const transport = async () => (await (await request.get('/api/poll')).json()).payload.teleprompter;
+  const remote = await context.newPage();
+  await remote.goto(remoteUrl);
+  await expect(remote.locator('.teleprompter__row--text').first()).toBeVisible();
+
+  await page.goto('/teleprompter?charsPerLine=20');
+  await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
+  // its own options cut the script differently
+  expect(await rowTexts(page)).not.toEqual(await rowTexts(remote));
+
+  // the keys act on the view itself, speed changes live and is not saved
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByTestId('teleprompter-speed')).toHaveText('15lpm');
+  await expect(page).not.toHaveURL(/speed=/);
+  const top = await readingRow(page);
+  await page.keyboard.press('Shift+ArrowDown');
+  await expect.poll(() => readingRow(page)).toBeGreaterThan(top);
+
+  // scrolling by hand moves its position, and playback carries on from there
+  const beforeScroll = await readingRow(page);
+  await page.mouse.move(960, 500);
+  await page.mouse.wheel(0, 600);
+  await expect.poll(() => readingRow(page)).toBeGreaterThan(beforeScroll + 2);
+  await page.waitForTimeout(500);
+  const scrolledTo = await readingRow(page);
+  await page.keyboard.press('Space');
+  await expect(page.getByTestId('teleprompter-status')).toHaveText('Playing');
+  await expect.poll(() => readingRow(page)).toBeGreaterThan(scrolledTo);
+  expect(await readingRow(page)).toBeLessThan(scrolledTo + 1);
+  await page.keyboard.press('Space');
+
+  // none of it reaches the shared transport
+  expect(await transport()).toMatchObject({ playing: false, speed: 14 });
+  await expect(remote.getByTestId('teleprompter-status')).toHaveText('Paused');
+});
+
+test('TRN-3 cued, loading an event brings every remote screen to its first line', async ({ page, request }) => {
+  await page.goto(remoteUrl);
+  await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
+
+  expect((await request.get('/api/load/index/3')).ok()).toBe(true);
+  const firstLine = page.locator('.teleprompter__row--text[data-loaded]').first();
+  await expect(firstLine).toBeAttached();
+  const row = await firstLine.evaluate((element) => [...element.parentElement!.children].indexOf(element));
+  await expect.poll(() => readingRow(page)).toBeCloseTo(row, 2);
+
+  await request.get('/api/stop');
+});

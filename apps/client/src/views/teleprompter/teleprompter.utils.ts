@@ -1,4 +1,7 @@
 import type { EntryId, TeleprompterScriptEvent } from 'ontime-types';
+import type { TeleprompterTransportCommand } from 'ontime-utils';
+
+import type { TeleprompterPayload } from './teleprompter.keymap';
 
 /** Flip Screen in the navigation menu is a rotation, which the view composes with its own mirror flips */
 export function composeFlip(flipH: boolean, flipV: boolean, isMirrored: boolean): { flipH: boolean; flipV: boolean } {
@@ -94,4 +97,25 @@ export function wheelToLines(deltaY: number, deltaMode: number, rowHeight: numbe
 export function linesPerScreen(screenHeight: number, rowHeight: number): number {
   if (rowHeight <= 0) return 1;
   return Math.max(1, Math.floor((screenHeight / rowHeight) * 0.85));
+}
+
+/**
+ * Turns a command from the keyboard or the buttons into a change to a local transport
+ * @returns null for a command with nothing to act on, as going back to the loaded event while nothing is loaded
+ */
+export function toTransportCommand(
+  payload: TeleprompterPayload,
+  loadedEventId: EntryId | null,
+): TeleprompterTransportCommand | null {
+  if (typeof payload === 'string') {
+    if (payload !== 'loaded') return { type: payload };
+    return loadedEventId ? { type: 'goto', eventId: loadedEventId } : null;
+  }
+  if ('scroll' in payload) return { type: 'scroll', lines: payload.scroll };
+  if ('speed' in payload) {
+    return typeof payload.speed === 'number'
+      ? { type: 'speed', value: payload.speed }
+      : { type: 'speedBy', value: payload.speed.by };
+  }
+  return null;
 }

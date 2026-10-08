@@ -1,4 +1,6 @@
-import { getOptionsFromParams, teleprompterOptions } from '../teleprompter.options';
+import { defaultTeleprompterSettings } from 'ontime-utils';
+
+import { getOptionsFromParams, getTeleprompterOptions } from '../teleprompter.options';
 
 const parse = (query: string, preset?: string) =>
   getOptionsFromParams(new URLSearchParams(query), preset === undefined ? undefined : new URLSearchParams(preset));
@@ -21,10 +23,22 @@ describe('getOptionsFromParams()', () => {
     });
   });
 
+  test('LOC-1 a local view passes on only the script settings it sets, and follows the project otherwise', () => {
+    expect(parse('')).toMatchObject({ scriptSearch: '', followLoaded: null, speed: 14 });
+    expect(parse('script=title&charsPerLine=40&textWidth=50&followLoaded=false&speed=-5')).toMatchObject({
+      scriptSearch: '?script=title&charsPerLine=40',
+      followLoaded: false,
+      speed: -5,
+    });
+  });
+
   test('every declared default is what parsing an empty query produces', () => {
     const parsed = parse('') as Record<string, unknown>;
-    for (const field of teleprompterOptions.flatMap((section) => section.options)) {
-      if (!('defaultValue' in field)) continue;
+    const fields = getTeleprompterOptions({}, defaultTeleprompterSettings).flatMap((section) => section.options);
+    // a local view's script settings default to the project's, which the server applies
+    const fromProject = new Set(['script', 'heading', 'charsPerLine', 'showGroups', 'hideEmpty', 'followLoaded']);
+    for (const field of fields) {
+      if (!('defaultValue' in field) || fromProject.has(field.id)) continue;
       expect({ id: field.id, value: parsed[field.id] }).toEqual({ id: field.id, value: field.defaultValue });
     }
   });

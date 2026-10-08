@@ -13,7 +13,12 @@ interface UseTeleprompterScrollArgs {
   rowHeight: number;
   /** where to rest while the transport points outside the rows shown */
   fallbackRow?: number;
+  /** a screen which can be scrolled by hand reports where it was scrolled to */
+  onUserScroll?: (row: number) => void;
 }
+
+/** Below this, a difference in the scroll position is rounding rather than someone scrolling */
+const userScrollPx = 2;
 
 /**
  * Turns the transport into the scroll position, once per frame
@@ -34,18 +39,40 @@ export function useTeleprompterScroll(args: UseTeleprompterScrollArgs) {
 
     let shown: number | null = null;
     let lastTarget = 0;
+    let lastWritten: number | null = null;
+    // where the reader scrolled to, held until the transport they moved arrives
+    let held: { row: number; transport: TeleprompterState } | null = null;
     let lastFrame = performance.now();
+
     let frame = requestAnimationFrame(function loop(timestamp) {
-      const { transport, layout, mode, rowHeight, fallbackRow } = latest.current;
+      const { transport, layout, mode, rowHeight, fallbackRow, onUserScroll } = latest.current;
+      const current = scroller.scrollTop;
+
+      if (onUserScroll && rowHeight > 0 && lastWritten !== null && Math.abs(current - lastWritten) > userScrollPx) {
+        held = { row: current / rowHeight, transport };
+        shown = held.row;
+        lastWritten = current;
+        onUserScroll(held.row);
+      }
+      if (held && held.transport !== transport) held = null;
+
       // a screen holds its place between an edit and the refetch of the script
-      const target = positionAt(transport, layout, serverNow(), mode) ?? fallbackRow ?? lastTarget;
+      const target = held?.row ?? positionAt(transport, layout, serverNow(), mode) ?? fallbackRow ?? lastTarget;
       lastTarget = target;
 
       // a screen which connects late lands straight on the line the others show
       shown = shown === null ? target : easeTowards(shown, target, frameDeltaSeconds(timestamp - lastFrame));
       lastFrame = timestamp;
 
-      scroller.scrollTop = shown * rowHeight;
+      // writing the same position would stop a scroll the browser is animating
+      const desired = shown * rowHeight;
+      if (Math.abs(current - desired) > 0.5) {
+        scroller.scrollTop = desired;
+        lastWritten = scroller.scrollTop;
+      } else {
+        lastWritten = current;
+      }
+
       frame = requestAnimationFrame(loop);
     });
 
