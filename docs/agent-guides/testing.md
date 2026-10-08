@@ -44,6 +44,7 @@ Optimise for future readers, not minimum line count.
 
 ## Quality
 
+- Each test should document and protect a distinct, reasonable production behaviour.
 - Name tests by observable behaviour.
 - Keep setup local/explicit unless a fixture improves comprehension.
 - Avoid arbitrary waits, wall-clock dependence, cross-test state, weak assertions.
