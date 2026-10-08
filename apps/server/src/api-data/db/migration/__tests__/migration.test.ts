@@ -15,6 +15,7 @@ import {
   URLPreset,
   ViewSettings,
 } from 'ontime-types';
+import { defaultTeleprompterSettings } from 'ontime-utils';
 
 import * as v3 from '../db.migration.v3.js';
 import * as v4 from '../db.migration.v4.js';
@@ -196,6 +197,7 @@ describe('v3 to v4', () => {
       normalColor: '#ffffffcc',
       overrideStyles: false,
       warningColor: '#ffa528',
+      teleprompter: defaultTeleprompterSettings,
     };
     const newViewSettings = v3.migrateViewSettings(oldDb);
     expect(newViewSettings).toEqual(expectViewSettings);

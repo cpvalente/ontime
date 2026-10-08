@@ -7,6 +7,8 @@ import { timerConfig } from '../../../setup/config.js';
 import * as runtimeState from '../../../stores/runtimeState.js';
 import { EventTimer } from '../EventTimer.js';
 
+// the teleprompter follows rundown changes, which these tests do not look at
+vi.mock('../../teleprompter-service/teleprompter.service.js');
 vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
   getDataProvider: () => ({
     setCustomFields: <T>(newData: T) => newData,

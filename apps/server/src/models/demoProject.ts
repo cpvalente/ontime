@@ -1,4 +1,5 @@
 import { DatabaseModel, OntimeView } from 'ontime-types';
+import { defaultTeleprompterSettings } from 'ontime-utils';
 
 import { backstageRundown, broadcastRundown, stageRundown } from './demoRundowns.js';
 
@@ -36,6 +37,7 @@ export const demoDb: DatabaseModel = {
     normalColor: '#ffffffcc',
     overrideStyles: false,
     warningColor: '#ffa528',
+    teleprompter: { ...defaultTeleprompterSettings },
   },
   urlPresets: [
     {

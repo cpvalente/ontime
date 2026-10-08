@@ -23,6 +23,7 @@ import {
   REPORT,
   RUNDOWN,
   RUNTIME,
+  TELEPROMPTER_SCRIPT,
   TRANSLATION,
   URL_PRESETS,
   VIEW_SETTINGS,
@@ -236,6 +237,9 @@ export const connectSocket = () => {
               break;
             case RefetchKey.ProjectRundowns:
               ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_RUNDOWNS });
+              break;
+            case RefetchKey.Teleprompter:
+              ontimeQueryClient.invalidateQueries({ queryKey: TELEPROMPTER_SCRIPT });
               break;
             default: {
               target satisfies never;
