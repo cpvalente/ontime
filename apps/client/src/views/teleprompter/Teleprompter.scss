@@ -31,10 +31,21 @@
 
 .teleprompter__scroller {
   height: 100%;
-  /* the frame loop is the only writer of the scroll position, nothing scrolls by hand */
+  /* the frame loop is the only writer of the scroll position */
   overflow: hidden;
   overflow-anchor: none;
   scroll-behavior: auto;
+}
+
+.teleprompter__scroller--by-hand {
+  /* a local view scrolls by hand, which the frame loop picks up as a move of its position */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .teleprompter__content {

@@ -5,6 +5,7 @@ import {
   createScrollBatcher,
   easeTowards,
   filterToLoadedEvent,
+  toTransportCommand,
   wheelToLines,
 } from '../teleprompter.utils';
 
@@ -126,5 +127,22 @@ describe('wheelToLines()', () => {
     ['pages', 1, 2, 10],
   ])('converts a wheel moving in %s', (_, delta, mode, lines) => {
     expect(wheelToLines(delta, mode, 60, 10)).toBe(lines);
+  });
+});
+
+describe('LOC-2 toTransportCommand()', () => {
+  test.each([
+    ['toggle', { type: 'toggle' }],
+    ['next', { type: 'next' }],
+    [{ scroll: -1 }, { type: 'scroll', lines: -1 }],
+    [{ speed: { by: 5 } }, { type: 'speedBy', value: 5 }],
+    [{ speed: 20 }, { type: 'speed', value: 20 }],
+    ['loaded', { type: 'goto', eventId: 'loaded-id' }],
+  ] as const)('the keys act on the view itself: %j', (payload, command) => {
+    expect(toTransportCommand(payload, 'loaded-id')).toEqual(command);
+  });
+
+  test('going back to the loaded event does nothing while nothing is loaded', () => {
+    expect(toTransportCommand('loaded', null)).toBeNull();
   });
 });

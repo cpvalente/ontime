@@ -20,6 +20,8 @@ interface TeleprompterScreenProps {
   fallbackRow?: number;
   /** where the keyboard and the mouse wheel send commands, or nothing for a screen which only displays */
   onCommand?: (payload: TeleprompterPayload) => void;
+  /** a local view scrolls by hand, which moves its position */
+  onUserScroll?: (row: number) => void;
   inputDisabled?: boolean;
 }
 
@@ -35,6 +37,7 @@ export default function TeleprompterScreen({
   loadedEventId,
   fallbackRow,
   onCommand,
+  onUserScroll,
   inputDisabled = false,
   children,
 }: PropsWithChildren<TeleprompterScreenProps>) {
@@ -55,8 +58,9 @@ export default function TeleprompterScreen({
   const fontSize = useFitText(content, lines, charsPerLine, options.textWidth);
   const rowHeight = fontSize * options.lineHeight;
 
-  useTeleprompterScroll({ scroller, transport, layout, mode, rowHeight, fallbackRow });
-  useTeleprompterInput({ screen, onCommand, rowHeight, disabled: inputDisabled });
+  useTeleprompterScroll({ scroller, transport, layout, mode, rowHeight, fallbackRow, onUserScroll });
+  // a screen scrolled by hand takes the wheel as the browser's own scrolling
+  useTeleprompterInput({ screen, onCommand, rowHeight, wheel: !onUserScroll, disabled: inputDisabled });
 
   const hasLoaded = loadedEventId !== null && events.some((event) => event.id === loadedEventId);
   const screenStyles = {
@@ -72,7 +76,11 @@ export default function TeleprompterScreen({
       style={screenStyles}
       ref={setScreen}
     >
-      <div className='teleprompter__scroller' data-testid='teleprompter-scroller' ref={setScroller}>
+      <div
+        className={cx(['teleprompter__scroller', onUserScroll && 'teleprompter__scroller--by-hand'])}
+        data-testid='teleprompter-scroller'
+        ref={setScroller}
+      >
         <div
           className={cx(['teleprompter__content', fontSize === 0 && 'teleprompter__content--measuring'])}
           ref={setContent}
