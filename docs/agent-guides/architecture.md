@@ -103,6 +103,7 @@ Keep substantial rules out of JSX, effects, and handlers. Use tested, colocated 
 Rundown data has two sources. Editing surfaces mount `RundownScopeProvider` and read data, selection, and entry actions from that scope (`useRundown`, `useEventSelection`, `useEntryActionsContext`). Runtime-only surfaces use the `useLoaded*` hooks. Runtime state (playing event, playback) applies only when the scope `isLoaded`. Mutations resolve their cache key from the rundown ID they were sent with, never from the current scope. Rows of virtualised lists receive entry data as props from the list and never call rundown query hooks, since each mount would refetch the rundown.
 
 Limit subscriptions with selectors. Keep effect dependencies stable. Clean up listeners, intervals, external resources.
+Preserve previous Zustand snapshots when patching state so selectors and subscriptions can detect changes.
 
 ## Shared packages
 
