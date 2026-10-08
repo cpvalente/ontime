@@ -8,6 +8,7 @@ import { isStringBoolean } from '../common/viewUtils';
 
 export type TeleprompterOptions = {
   remoteControl: boolean;
+  control: boolean;
   onlyPlaying: boolean;
   lineHeight: number;
   textWidth: number;
@@ -19,6 +20,7 @@ export type TeleprompterOptions = {
 
 export const defaults: TeleprompterOptions = {
   remoteControl: false,
+  control: false,
   onlyPlaying: false,
   lineHeight: 1.3,
   textWidth: 80,
@@ -46,6 +48,14 @@ export const teleprompterOptions: ViewOption[] = [
           'Shows the shared teleprompter, which every remote screen follows. Drive it from a controller view or the integration API',
         type: 'boolean',
         defaultValue: defaults.remoteControl,
+      },
+      {
+        id: 'control',
+        title: 'Controller',
+        description:
+          'Shows the shared teleprompter like a remote screen, and drives every remote screen with the keyboard, the mouse wheel and the on-screen buttons',
+        type: 'boolean',
+        defaultValue: defaults.control,
       },
     ],
   },
@@ -134,6 +144,7 @@ export function getOptionsFromParams(
 
   return {
     remoteControl: toBoolean(getParam('remoteControl'), defaults.remoteControl),
+    control: toBoolean(getParam('control'), defaults.control),
     onlyPlaying: toBoolean(getParam('onlyPlaying'), defaults.onlyPlaying),
     lineHeight: toNumber(getParam('lineHeight'), bounds.lineHeight, defaults.lineHeight),
     textWidth: toNumber(getParam('textWidth'), bounds.textWidth, defaults.textWidth),

@@ -1,6 +1,12 @@
 import type { TeleprompterScriptEvent } from 'ontime-types';
 
-import { composeFlip, easeTowards, filterToLoadedEvent } from '../teleprompter.utils';
+import {
+  composeFlip,
+  createScrollBatcher,
+  easeTowards,
+  filterToLoadedEvent,
+  wheelToLines,
+} from '../teleprompter.utils';
 
 function makeEvent(id: string, group?: string, text = `${id} text`): TeleprompterScriptEvent {
   return {
@@ -71,5 +77,54 @@ describe('easeTowards()', () => {
     let shown = 0;
     for (let i = 0; i < 120; i++) shown = easeTowards(shown, 100, 1 / 60);
     expect(shown).toBe(100);
+  });
+});
+
+describe('CTL-3 createScrollBatcher()', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('sends a single step straight away', () => {
+    const send = vi.fn<(lines: number) => void>();
+    createScrollBatcher(send).add(1);
+    expect(send).toHaveBeenCalledExactlyOnceWith(1);
+  });
+
+  test('groups a fast spin into one command per interval', () => {
+    const send = vi.fn<(lines: number) => void>();
+    const batcher = createScrollBatcher(send, 100);
+    for (let i = 0; i < 30; i++) {
+      batcher.add(1);
+      vi.advanceTimersByTime(10);
+    }
+    vi.advanceTimersByTime(200);
+
+    expect(send.mock.calls.length).toBeLessThanOrEqual(5);
+    expect(send.mock.calls.reduce((total, [lines]) => total + lines, 0)).toBe(30);
+  });
+
+  test('sends nothing after it is disposed', () => {
+    const send = vi.fn<(lines: number) => void>();
+    const batcher = createScrollBatcher(send, 100);
+    batcher.add(1);
+    batcher.add(1);
+    batcher.dispose();
+    vi.advanceTimersByTime(200);
+    expect(send).toHaveBeenCalledOnce();
+  });
+});
+
+describe('wheelToLines()', () => {
+  test.each([
+    ['pixels', 120, 0, 2],
+    ['lines', 3, 1, 3],
+    ['pages', 1, 2, 10],
+  ])('converts a wheel moving in %s', (_, delta, mode, lines) => {
+    expect(wheelToLines(delta, mode, 60, 10)).toBe(lines);
   });
 });
