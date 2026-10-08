@@ -1,16 +1,22 @@
 import type { OntimeDelay, OntimeEntry, OntimeEvent, OntimeGroup, Rundown } from 'ontime-types';
 import { SupportedEntry } from 'ontime-types';
 
+import { createDelay, createEvent, createGroup } from './entryUtils.js';
 import {
   addToRundown,
+  getFirstEvent,
+  getFirstEventNormal,
   getFirstGroupNormal,
   getInsertAfterId,
   getLastEvent,
+  getLastEventNormal,
   getLastGroupNormal,
   getLastNormal,
   getNextEvent,
+  getNextEventNormal,
   getNextGroupNormal,
   getNextNormal,
+  getPreviousEventNormal,
   getPreviousGroupNormal,
   getPreviousNormal,
   resolveInsertParent,
@@ -425,5 +431,81 @@ describe('addToRundown()', () => {
     expect(newEntry.parent).toBe('group');
     expect(rundown.flatOrder).toEqual(['1', '2', 'group', '31', 'new', '32']);
     expect(rundown.order).toEqual(['1', '2', 'group']);
+  });
+});
+
+describe('finding playable events', () => {
+  const event = (id: string, skip = false) => {
+    const entry = createEvent({ id, skip });
+    if (!entry) throw new Error('Invalid event fixture');
+    return entry;
+  };
+  const delay = (id: string) => createDelay({ id });
+  const group = (id: string) => createGroup({ id });
+
+  const entries = { g: group('g'), d: delay('d'), skipped: event('skipped', true), a: event('a'), b: event('b') };
+  const order = ['g', 'd', 'skipped', 'a', 'b'];
+  const list = order.map((id) => entries[id as keyof typeof entries]);
+
+  describe('getFirstEvent() / getFirstEventNormal()', () => {
+    it('finds the first event that will play, ignoring groups, delays and skipped events', () => {
+      expect(getFirstEvent(list)).toMatchObject({ firstEvent: { id: 'a' }, firstIndex: 3 });
+      expect(getFirstEventNormal(entries, order)).toMatchObject({ firstEvent: { id: 'a' }, firstIndex: 3 });
+    });
+
+    it('returns nothing when no event can play', () => {
+      const noPlayable = [group('g'), delay('d'), event('skipped', true)];
+      expect(getFirstEvent(noPlayable)).toStrictEqual({ firstEvent: null, firstIndex: null });
+      expect(getFirstEvent([])).toStrictEqual({ firstEvent: null, firstIndex: null });
+      expect(getFirstEventNormal({ skipped: entries.skipped }, ['skipped'])).toStrictEqual({
+        firstEvent: null,
+        firstIndex: null,
+      });
+    });
+  });
+
+  describe('getLastEvent() / getLastEventNormal()', () => {
+    it('skips over skipped events at the end of the rundown', () => {
+      const trailingSkip = [...list, event('lateSkip', true)];
+      expect(getLastEvent(trailingSkip)).toMatchObject({ lastEvent: { id: 'b' }, lastIndex: 4 });
+
+      const normalEntries = { ...entries, lateSkip: event('lateSkip', true) };
+      expect(getLastEventNormal(normalEntries, [...order, 'lateSkip'])).toMatchObject({
+        lastEvent: { id: 'b' },
+        lastIndex: 4,
+      });
+    });
+
+    it('returns nothing for an empty rundown or one without playable events', () => {
+      expect(getLastEventNormal({}, [])).toStrictEqual({ lastEvent: null, lastIndex: null });
+      expect(getLastEventNormal({ g: entries.g, skipped: entries.skipped }, ['g', 'skipped'])).toStrictEqual({
+        lastEvent: null,
+        lastIndex: null,
+      });
+    });
+  });
+
+  describe('getNextEventNormal() / getPreviousEventNormal()', () => {
+    it('moves to the neighbouring event, passing over groups and delays', () => {
+      const mixedOrder = ['a', 'd', 'g', 'b'];
+      expect(getNextEventNormal(entries, mixedOrder, 'a')).toMatchObject({ nextEvent: { id: 'b' }, nextIndex: 3 });
+      expect(getPreviousEventNormal(entries, mixedOrder, 'b')).toMatchObject({
+        previousEvent: { id: 'a' },
+        previousIndex: 0,
+      });
+    });
+
+    it('returns nothing at the ends of the rundown or for an unknown entry', () => {
+      expect(getPreviousEventNormal(entries, ['a', 'b'], 'a')).toStrictEqual({
+        previousEvent: null,
+        previousIndex: null,
+      });
+      expect(getNextEventNormal(entries, order, 'b')).toStrictEqual({ nextEvent: null, nextIndex: null });
+      expect(getNextEventNormal(entries, order, 'missing')).toStrictEqual({ nextEvent: null, nextIndex: null });
+      expect(getPreviousEventNormal(entries, order, 'missing')).toStrictEqual({
+        previousEvent: null,
+        previousIndex: null,
+      });
+    });
   });
 });
