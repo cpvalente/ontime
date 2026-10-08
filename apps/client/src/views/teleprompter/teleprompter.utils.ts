@@ -42,3 +42,56 @@ export function easeTowards(shown: number, target: number, deltaSeconds: number)
   if (Math.abs(target - shown) < jumpRows) return target;
   return target + (shown - target) * Math.exp(-catchUpRate * deltaSeconds);
 }
+
+/** How long scrolling is gathered into one command */
+const scrollInterval = 100;
+
+/**
+ * Groups scrolling into one command per interval, so a fast spin does not flood the server
+ * The first move is sent straight away, so a single step does not wait
+ */
+export function createScrollBatcher(send: (lines: number) => void, interval = scrollInterval) {
+  let pending = 0;
+  let timer: ReturnType<typeof setTimeout> | null = null;
+
+  const flush = () => {
+    timer = null;
+    if (pending === 0) return;
+    const lines = pending;
+    pending = 0;
+    send(lines);
+    timer = setTimeout(flush, interval);
+  };
+
+  return {
+    add(lines: number) {
+      if (timer) {
+        pending += lines;
+        return;
+      }
+      send(lines);
+      timer = setTimeout(flush, interval);
+    },
+    dispose() {
+      if (timer) clearTimeout(timer);
+      timer = null;
+      pending = 0;
+    },
+  };
+}
+
+const wheelDeltaLine = 1;
+const wheelDeltaPage = 2;
+
+/** Converts a wheel movement into lines of the script */
+export function wheelToLines(deltaY: number, deltaMode: number, rowHeight: number, screenLines: number): number {
+  if (deltaMode === wheelDeltaLine) return deltaY;
+  if (deltaMode === wheelDeltaPage) return deltaY * screenLines;
+  return rowHeight > 0 ? deltaY / rowHeight : 0;
+}
+
+/** Lines to move for a screen, keeping a little of the last one in view */
+export function linesPerScreen(screenHeight: number, rowHeight: number): number {
+  if (rowHeight <= 0) return 1;
+  return Math.max(1, Math.floor((screenHeight / rowHeight) * 0.85));
+}

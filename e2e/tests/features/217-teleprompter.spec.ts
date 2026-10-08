@@ -137,3 +137,52 @@ test('DSP-3 the reading line comes from the view options', async ({ page }) => {
   await expect(page).toHaveURL(/.*readingLine=false/);
   await expect(page.getByTestId('teleprompter-reading-line')).toHaveCount(0);
 });
+
+test('CTL-1 CTL-4 a controller drives every remote screen with its keys, wheel and buttons', async ({
+  page,
+  context,
+  request,
+}) => {
+  const transport = async () => (await (await request.get('/api/poll')).json()).payload.teleprompter;
+
+  await page.goto('/teleprompter?control=true');
+  const remote = await context.newPage();
+  await remote.goto(remoteUrl);
+  await expect(remote.locator('.teleprompter__row--text').first()).toBeVisible();
+  await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
+
+  await page.keyboard.press('ArrowRight');
+  await expect(remote.getByTestId('teleprompter-speed')).toHaveText('15lpm');
+  await page.getByTestId('teleprompter-faster').click();
+  await expect(remote.getByTestId('teleprompter-speed')).toHaveText('16lpm');
+
+  const top = await readingRow(remote);
+  await page.keyboard.press('Shift+ArrowDown');
+  await expect.poll(() => readingRow(remote)).toBeGreaterThan(top);
+  const secondEvent = (await transport()).eventId;
+  await page.getByTestId('teleprompter-next').click();
+  await expect.poll(async () => (await transport()).eventId).not.toBe(secondEvent);
+  await page.getByTestId('teleprompter-previous').click();
+  await expect.poll(async () => (await transport()).eventId).toBe(secondEvent);
+
+  // the mouse wheel scrolls every screen
+  const beforeWheel = await readingRow(remote);
+  await page.mouse.move(960, 500);
+  await page.mouse.wheel(0, 400);
+  await expect.poll(() => readingRow(remote)).toBeGreaterThan(beforeWheel + 1);
+
+  // back to the loaded event
+  expect((await request.get('/api/load/index/3')).ok()).toBe(true);
+  const loaded = (await transport()).anchor;
+  await page.keyboard.press('Home');
+  await expect.poll(async () => (await transport()).anchor).not.toEqual(loaded);
+  await page.getByTestId('teleprompter-loaded').click();
+  await expect.poll(async () => (await transport()).anchor).toEqual(loaded);
+
+  await page.getByTestId('teleprompter-play').click();
+  await expect(remote.getByTestId('teleprompter-status')).toHaveText('Playing');
+  await page.keyboard.press('Space');
+  await expect(remote.getByTestId('teleprompter-status')).toHaveText('Paused');
+
+  await request.get('/api/stop');
+});

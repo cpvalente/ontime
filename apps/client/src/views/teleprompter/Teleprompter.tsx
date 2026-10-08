@@ -9,11 +9,15 @@ import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { useSelectedEventId, useTeleprompterState } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
+import { sendSocket } from '../../common/utils/socket';
 import { cx } from '../../common/utils/styleUtils';
 import Loader from '../common/loader/Loader';
 import ControlOverlay from './control-overlay/ControlOverlay';
+import TransportButtons from './control-overlay/TransportButtons';
 import HelpOverlay from './help-overlay/HelpOverlay';
+import TransportShortcuts from './help-overlay/TransportShortcuts';
 import { useServerClockSync } from './serverClock';
+import type { TeleprompterPayload } from './teleprompter.keymap';
 import { type TeleprompterOptions, teleprompterOptions, useTeleprompterOptions } from './teleprompter.options';
 import { composeFlip, filterToLoadedEvent } from './teleprompter.utils';
 import TeleprompterScreen from './TeleprompterScreen';
@@ -37,27 +41,45 @@ export default function Teleprompter() {
       data-testid='teleprompter-view'
     >
       <ViewParamsEditor target={OntimeView.Teleprompter} viewOptions={teleprompterOptions} />
-      {options.remoteControl ? (
-        <RemoteTeleprompter options={options} onToggleHelp={() => setShowHelp((current) => !current)} />
+      {options.control || options.remoteControl ? (
+        <SharedTeleprompter
+          options={options}
+          isController={options.control}
+          isHelpOpen={showHelp}
+          onToggleHelp={() => setShowHelp((current) => !current)}
+        />
       ) : (
-        <EmptyPage text='Turn on Remote screen in the view options to show the shared teleprompter' />
+        <EmptyPage text='Turn on Remote screen or Controller in the view options to show the shared teleprompter' />
       )}
       <HelpOverlay
         isOpen={showHelp}
         onClose={() => setShowHelp(false)}
-        note='This screen follows the shared teleprompter. Drive it from a controller view or the integration API'
-      />
+        note={
+          options.control
+            ? 'This controller drives every remote screen'
+            : 'This screen follows the shared teleprompter. Drive it from a controller view or the integration API'
+        }
+      >
+        {options.control && <TransportShortcuts />}
+      </HelpOverlay>
     </div>
   );
 }
 
-interface RemoteTeleprompterProps {
+interface SharedTeleprompterProps {
   options: TeleprompterOptions;
+  isController: boolean;
+  isHelpOpen: boolean;
   onToggleHelp: () => void;
 }
 
-/** A screen which only displays the transport the server holds, like every other remote screen */
-function RemoteTeleprompter({ options, onToggleHelp }: RemoteTeleprompterProps) {
+const sendCommand = (payload: TeleprompterPayload) => sendSocket('teleprompter', payload);
+
+/**
+ * Shows the transport the server holds, like every other remote screen
+ * A controller also sends commands, which reach every remote screen
+ */
+function SharedTeleprompter({ options, isController, isHelpOpen, onToggleHelp }: SharedTeleprompterProps) {
   const { data: script, status } = useTeleprompterScript();
   const { data: viewSettings } = useViewSettings();
   const transport = useTeleprompterState();
@@ -83,8 +105,12 @@ function RemoteTeleprompter({ options, onToggleHelp }: RemoteTeleprompterProps) 
       options={options}
       loadedEventId={loadedEventId}
       fallbackRow={options.onlyPlaying ? events[0]?.lines.findIndex((line) => line.kind === 'text') : undefined}
+      onCommand={isController ? sendCommand : undefined}
+      inputDisabled={isHelpOpen}
     >
-      <ControlOverlay transport={transport} onToggleHelp={onToggleHelp} />
+      <ControlOverlay transport={transport} onToggleHelp={onToggleHelp}>
+        {isController && <TransportButtons transport={transport} onCommand={sendCommand} />}
+      </ControlOverlay>
     </TeleprompterScreen>
   );
 }
