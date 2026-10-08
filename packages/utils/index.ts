@@ -115,6 +115,18 @@ export {
   type TeleprompterLayoutEvent,
 } from './src/teleprompter/teleprompterPosition.js';
 export { defaultTeleprompterSettings, teleprompterCharsPerLine } from './src/teleprompter/teleprompterSettings.js';
+export {
+  applyTransportCommand,
+  clampTeleprompterSpeed,
+  msUntilChange,
+  playbackBound,
+  positionAt,
+  reanchorTransport,
+  settle,
+  teleprompterSpeed,
+  type TeleprompterMode,
+  type TeleprompterTransportCommand,
+} from './src/teleprompter/teleprompterTransport.js';
 export { wrapText, type WrappedLine } from './src/teleprompter/teleprompterWrap.js';
 
 //Colour

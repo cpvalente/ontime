@@ -34,6 +34,7 @@ import * as runtimeState from '../../stores/runtimeState.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 import { restoreService } from '../restore-service/restore.service.js';
 import type { RestorePoint } from '../restore-service/restore.types.js';
+import { followLoadedEvent } from '../teleprompter-service/teleprompter.service.js';
 import {
   findNextPlayableId,
   findNextPlayableWithCue,
@@ -716,6 +717,8 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
 
+    const loadedIdChanged = RuntimeService.previousState.eventNow?.id !== state.eventNow?.id;
+
     // Update the entry if they have changed
     const eventNowChanged = updateMaybeEntryIfChanged('eventNow');
     const eventNextChanged = updateMaybeEntryIfChanged('eventNext');
@@ -819,6 +822,10 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     }
 
     batch.send();
+
+    if (loadedIdChanged) {
+      followLoadedEvent(state.eventNow?.id ?? null);
+    }
 
     // any mutation may have moved the boundary, so we anticipate it here
     this.timer.scheduleBoundary(runtimeState.getTimeToNextBoundary());

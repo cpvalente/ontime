@@ -23,6 +23,7 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - Avoid duplicate listeners, notifications, invalidations, lifecycle effects.
 - Reconnect/refetch must converge on authoritative state.
 - Align query keys and websocket refetch keys with the changed resource.
+- Runtime store keys are state: clients ignore a patch equal to what they hold and receive the whole store on connect. A command which must take effect when repeated changes the state, eg: a new timestamp.
 
 ## Timers
 
@@ -41,6 +42,12 @@ When relevant, cover interactions among:
 - loaded/next-event state.
 
 Pass time/state explicitly to keep rules deterministic and unit-testable.
+
+## Teleprompter
+
+- The server cuts the script into rows; screens render rows and only size the text, so every screen counts the same lines.
+- The reading position is a place in the text, `{ eventId, charOffset, lines }`, carried through edits. Row numbers are only calculated from it.
+- Screens calculate the position from the transport and the server clock. They never measure the page to find it.
 
 ## Reports
 
