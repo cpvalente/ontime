@@ -6,7 +6,7 @@ import { timerConfig } from '../../../setup/config.js';
 import * as runtimeState from '../../../stores/runtimeState.js';
 import { runtimeService } from '../runtime.service.js';
 
-/** the timer and the runtime singletons are created on import, so time is faked before any import */
+/** time is faked before any import, so ticks keep the same phase as the clock origin */
 const origin = vi.hoisted(() => {
   vi.useFakeTimers();
   vi.setSystemTime('jan 1 00:01');
@@ -158,5 +158,19 @@ describe('runtime service playback', () => {
     const { eventNow, timer } = runtimeState.getState();
     expect(eventNow?.id).toBe('second');
     expect(timer.playback).toBe(Playback.Play);
+  });
+});
+
+describe('runtime service timer', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('does not tick when imported', async () => {
+    vi.useFakeTimers();
+    vi.resetModules();
+    await import('../runtime.service.js');
+
+    expect(vi.getTimerCount()).toBe(0);
   });
 });
