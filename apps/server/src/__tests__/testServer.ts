@@ -16,6 +16,8 @@ export async function startTestServer() {
     /** same as a clean shutdown: flushes pending writes and clears the restore point, safe to call more than once */
     stop: () => (stopped ??= server.stopServices(0)),
     get: (path: string) => fetch(`${baseUrl}${path}`),
+    /** for requests which are not JSON, such as file uploads */
+    request: (path: string, init: RequestInit) => fetch(`${baseUrl}${path}`, init),
     send: (method: 'POST' | 'PUT' | 'PATCH' | 'DELETE', path: string, body?: unknown) =>
       fetch(`${baseUrl}${path}`, {
         method,
