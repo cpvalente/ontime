@@ -102,6 +102,20 @@ export { isPlaybackActive } from './src/playback-utils/playbackstate.js';
 // aux timers
 export { auxTimerNameMaxLength, sanitiseAuxTimerNames } from './src/aux-timer-utils/auxTimerUtils.js';
 
+// teleprompter
+export {
+  anchorAtRow,
+  eventAtRow,
+  makeTeleprompterLayout,
+  mapOffsetThroughEdit,
+  reanchor,
+  rowOfAnchor,
+  startOfEvent,
+  type TeleprompterLayout,
+  type TeleprompterLayoutEvent,
+} from './src/teleprompter/teleprompterPosition.js';
+export { wrapText, type WrappedLine } from './src/teleprompter/teleprompterWrap.js';
+
 //Colour
 export {
   colourToHex,
