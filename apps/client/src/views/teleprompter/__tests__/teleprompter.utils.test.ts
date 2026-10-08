@@ -1,0 +1,75 @@
+import type { TeleprompterScriptEvent } from 'ontime-types';
+
+import { composeFlip, easeTowards, filterToLoadedEvent } from '../teleprompter.utils';
+
+function makeEvent(id: string, group?: string, text = `${id} text`): TeleprompterScriptEvent {
+  return {
+    id,
+    cue: id,
+    title: id,
+    group,
+    lines: [
+      { kind: 'heading', text: id },
+      ...(text ? [{ kind: 'text' as const, text, start: 0 }] : []),
+      { kind: 'blank' },
+    ],
+  };
+}
+
+describe('composeFlip()', () => {
+  test.each([
+    [{ flipH: true, flipV: false }, false, { flipH: true, flipV: false }],
+    [{ flipH: false, flipV: false }, true, { flipH: true, flipV: true }],
+    [{ flipH: true, flipV: false }, true, { flipH: false, flipV: true }],
+    [{ flipH: true, flipV: true }, true, { flipH: false, flipV: false }],
+  ])('DSP-4 view flips %j with Flip Screen %s show as %j', (view, isMirrored, expected) => {
+    expect(composeFlip(view.flipH, view.flipV, isMirrored)).toEqual(expected);
+  });
+});
+
+describe('DSP-6 filterToLoadedEvent()', () => {
+  const events = [makeEvent('a', 'Morning'), makeEvent('b', 'Morning'), makeEvent('c', undefined, '')];
+
+  test('shows the loaded event alone, with its group title', () => {
+    expect(filterToLoadedEvent(events, 'b')).toEqual([
+      { ...events[1], lines: [{ kind: 'group', text: 'Morning' }, ...events[1].lines] },
+    ]);
+  });
+
+  test('does not repeat a group title the event already shows', () => {
+    const titled = { ...events[0], lines: [{ kind: 'group' as const, text: 'Morning' }, ...events[0].lines] };
+    expect(filterToLoadedEvent([titled], 'a')).toEqual([titled]);
+  });
+
+  test('shows the whole script while nothing is loaded', () => {
+    expect(filterToLoadedEvent(events, null)).toBe(events);
+  });
+
+  test('has nothing to show for a loaded event without text, or outside the script', () => {
+    expect(filterToLoadedEvent(events, 'c')).toBeNull();
+    expect(filterToLoadedEvent(events, 'skipped')).toBeNull();
+  });
+});
+
+describe('easeTowards()', () => {
+  test('follows small moves exactly, as playback makes', () => {
+    expect(easeTowards(10, 10.2, 1 / 60)).toBe(10.2);
+  });
+
+  test('animates a jump, at the same pace at any framerate', () => {
+    let atSixty = 0;
+    for (let i = 0; i < 30; i++) atSixty = easeTowards(atSixty, 100, 1 / 60);
+    let atThirty = 0;
+    for (let i = 0; i < 15; i++) atThirty = easeTowards(atThirty, 100, 1 / 30);
+
+    expect(atSixty).toBeGreaterThan(0);
+    expect(atSixty).toBeLessThan(100);
+    expect(atSixty).toBeCloseTo(atThirty, 3);
+  });
+
+  test('lands on the target', () => {
+    let shown = 0;
+    for (let i = 0; i < 120; i++) shown = easeTowards(shown, 100, 1 / 60);
+    expect(shown).toBe(100);
+  });
+});

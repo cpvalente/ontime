@@ -36,8 +36,9 @@ export function buildScriptEvents(
     if (settings.hideEmpty && textLines.length === 0) continue;
 
     const lines: TeleprompterLine[] = [];
-    const group = entry.parent ? rundown.entries[entry.parent] : undefined;
-    if (settings.showGroups && isOntimeGroup(group) && group.title && group.id !== lastGroupId) {
+    const parent = entry.parent ? rundown.entries[entry.parent] : undefined;
+    const group = settings.showGroups && isOntimeGroup(parent) && parent.title ? parent : null;
+    if (group && group.id !== lastGroupId) {
       lines.push({ kind: 'group', text: group.title });
     }
     lastGroupId = entry.parent;
@@ -50,7 +51,11 @@ export function buildScriptEvents(
     }
     lines.push({ kind: 'blank' });
 
-    events.push({ id, cue: entry.cue, title: entry.title, lines });
+    events.push(
+      group
+        ? { id, cue: entry.cue, title: entry.title, group: group.title, lines }
+        : { id, cue: entry.cue, title: entry.title, lines },
+    );
   }
 
   return events;

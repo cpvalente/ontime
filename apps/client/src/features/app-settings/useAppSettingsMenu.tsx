@@ -28,7 +28,7 @@ const staticOptions = [
       {
         id: 'settings__view',
         label: 'View settings',
-        keywords: ['css', 'style', 'theme', 'translation', 'freeze', 'overtime'],
+        keywords: ['css', 'style', 'theme', 'translation', 'freeze', 'overtime', 'teleprompter', 'prompter'],
       },
       { id: 'settings__custom-views', label: 'Custom views', keywords: ['html', 'upload', 'external', 'embed'] },
       { id: 'settings__mcp', label: 'MCP Server', keywords: ['ai', 'agent', 'model'] },

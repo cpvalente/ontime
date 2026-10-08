@@ -108,6 +108,13 @@ describe('buildScriptEvents()', () => {
         { kind: 'group', text: 'Afternoon' },
       ]);
       expect(titles(false)).toEqual([undefined, undefined, undefined, undefined]);
+      // so a screen showing one event can show its group
+      expect(build(entries, {}, order).map((event) => event.group)).toEqual([
+        'Morning',
+        'Morning',
+        undefined,
+        'Afternoon',
+      ]);
     });
 
     test('lines keep their indentation and position in the text', () => {
