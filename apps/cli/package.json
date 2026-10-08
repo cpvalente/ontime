@@ -9,7 +9,7 @@
     "ontime",
     "timer"
   ],
-  "license": "AGPL-3.0-only",
+  "license": "GPL-3.0-or-later",
   "main": "main.js",
   "bin": {
     "ontime": "main.js"

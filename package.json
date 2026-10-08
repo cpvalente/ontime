@@ -14,7 +14,7 @@
     "url": "https://github.com/cpvalente/ontime/issues",
     "email": "mail@getontime.no"
   },
-  "license": "AGPL-3.0-only",
+  "license": "GPL-3.0-or-later",
   "engines": {
     "node": "~22",
     "pnpm": "~11"

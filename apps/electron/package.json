@@ -10,7 +10,7 @@
     "stage timer",
     "rundown"
   ],
-  "license": "AGPL-3.0-only",
+  "license": "GPL-3.0-or-later",
   "main": "src/main.js",
   "devDependencies": {
     "electron": "38.2.1",
