@@ -24,6 +24,7 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - Reconnect/refetch must converge on authoritative state.
 - Align query keys and websocket refetch keys with the changed resource.
 - Whether the previous session ended cleanly is answered only by the app state service (`startSession`); only a crash or a power loss is unclean, a container stop is not. Do not infer it from logs or other files.
+- Every write to project data sends the refetch of the section it changed, from the slice's DAO or service; routers never write to `DataProvider`.
 
 ## Timers
 
