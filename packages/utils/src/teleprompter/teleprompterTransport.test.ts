@@ -182,3 +182,9 @@ test('the wait until the next change fits a timer, however slow playback is', ()
   const crawling = makeState({ playing: true, speed: 0.0001 });
   expect(msUntilChange(crawling, longEvent, 0, freeRun)).toBeLessThanOrEqual(2147483647);
 });
+
+test('TRN-2 playback carries on across midnight on the server clock', () => {
+  // set 2 seconds before midnight, read 2 seconds after
+  const playing = makeState({ playing: true, since: 86_398_000 });
+  expect(positionAt(playing, layout, 2000, freeRun)).toBe(3);
+});

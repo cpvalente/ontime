@@ -10,6 +10,7 @@ import {
 import { makeTeleprompterLayout, positionAt, startOfEvent } from 'ontime-utils';
 import { WebSocket } from 'ws';
 
+import * as timeCore from '../lib/time-core/timeCore.js';
 import { type TestServer, startTestServer } from './testServer.js';
 
 /**
@@ -68,7 +69,7 @@ describe('teleprompter transport', () => {
   }
 
   /** where the reader is, in rows of the shared script */
-  async function readerRow(state: TeleprompterState, now = Date.now()) {
+  async function readerRow(state: TeleprompterState, now: number = timeCore.timeOfDayNow()) {
     const script: TeleprompterScript = await (await server.get('/data/teleprompter/script')).json();
     return positionAt(state, makeTeleprompterLayout(script.events), now, { cued: true });
   }
@@ -179,7 +180,7 @@ describe('teleprompter transport', () => {
       const state = (await poll()).teleprompter;
       expect(state.since).toBeGreaterThan(playing.since);
       expect(state).toMatchObject({ playing: true, anchor: { eventId: second.id } });
-      const now = Date.now();
+      const now = timeCore.timeOfDayNow();
       // two more lines above, and the reader moved on by speed × time
       const expected = before! + 2 + (2 * (now - playing.since)) / 60_000;
       expect(await readerRow(state, now)).toBeCloseTo(expected, 1);

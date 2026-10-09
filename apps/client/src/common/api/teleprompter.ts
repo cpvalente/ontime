@@ -14,9 +14,3 @@ export async function getTeleprompterScript(search: string, options?: RequestOpt
   const res = await axios.get(`${teleprompterPath}/script${search}`, { signal: options?.signal });
   return res.data;
 }
-
-/** HTTP request to read the server clock, in epoch milliseconds */
-export async function getServerClock(): Promise<number> {
-  const res = await axios.get(`${teleprompterPath}/clock`);
-  return res.data.now;
-}

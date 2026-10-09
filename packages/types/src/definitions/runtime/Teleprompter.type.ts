@@ -13,7 +13,7 @@ export type TeleprompterState = {
   speed: number;
   /** where the reader was when the transport last changed, null while the script is empty */
   anchor: TeleprompterAnchor | null;
-  /** when the anchor was set, as epoch milliseconds of the server clock */
+  /** when the anchor was set, as the server's time of day in milliseconds, the clock every Ontime client shares */
   since: number;
   /** the event at the reading position */
   eventId: string | null;

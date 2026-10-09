@@ -20,6 +20,7 @@ import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getCurrentRundown, getProjectCustomFields, getRundownMetadata } from '../../api-data/rundown/rundown.dao.js';
 import type { TeleprompterRequest } from '../../api-integration/integration.teleprompter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import * as timeCore from '../../lib/time-core/timeCore.js';
 import { eventStore } from '../../stores/EventStore.js';
 import { getState as getRuntimeState } from '../../stores/runtimeState.js';
 import { buildScriptEvents } from './teleprompter.utils.js';
@@ -34,6 +35,11 @@ let mode: TeleprompterMode = { cued: true };
  */
 let state: TeleprompterState = { ...runtimeStorePlaceholder.teleprompter };
 let changeTimer: NodeJS.Timeout | null = null;
+
+/** The transport is timed on the server clock, which every Ontime client receives as its time of day */
+function now(): number {
+  return timeCore.timeOfDayNow();
+}
 
 function getSharedSettings(): TeleprompterSettings {
   return getDataProvider().getViewSettings().teleprompter;
@@ -73,7 +79,7 @@ export function refreshTeleprompterScript() {
   const previousMode = mode;
   mode = { cued: settings.followLoaded };
 
-  publish(reanchorTransport(state, previousEvents, sharedScript.events, Date.now(), mode, previousMode));
+  publish(reanchorTransport(state, previousEvents, sharedScript.events, now(), mode, previousMode));
   sendRefetch(RefetchKey.Teleprompter, sharedScript.revision);
 }
 
@@ -88,13 +94,13 @@ export function handleTeleprompterCommand(request: TeleprompterRequest): Telepro
     return request;
   })();
 
-  return publish(applyTransportCommand(state, command, layout, Date.now(), mode));
+  return publish(applyTransportCommand(state, command, layout, now(), mode));
 }
 
 /** Cued, loading an event moves the reader to its start, and playback carries on from there */
 export function followLoadedEvent(eventId: EntryId | null) {
   if (!mode.cued || !eventId || !layout.events.some((event) => event.id === eventId)) return;
-  publish(applyTransportCommand(state, { type: 'goto', eventId }, layout, Date.now(), mode));
+  publish(applyTransportCommand(state, { type: 'goto', eventId }, layout, now(), mode));
 }
 
 function findLoadedEvent(): EntryId {
@@ -129,11 +135,11 @@ function scheduleChange() {
   if (changeTimer) clearTimeout(changeTimer);
   changeTimer = null;
 
-  const delay = msUntilChange(state, layout, Date.now(), mode);
+  const delay = msUntilChange(state, layout, now(), mode);
   if (delay === null) return;
   changeTimer = setTimeout(() => {
     changeTimer = null;
-    publish(settle(state, layout, Date.now(), mode));
+    publish(settle(state, layout, now(), mode));
   }, delay);
   // a running prompter does not keep the process alive
   changeTimer.unref();

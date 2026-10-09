@@ -23,7 +23,6 @@ import Loader from '../common/loader/Loader';
 import ControlOverlay, { type LoadedEvent } from './control-overlay/ControlOverlay';
 import HelpOverlay from './help-overlay/HelpOverlay';
 import TransportShortcuts from './help-overlay/TransportShortcuts';
-import { useServerClockSync } from './serverClock';
 import type { TeleprompterPayload } from './teleprompter.keymap';
 import {
   getTeleprompterOptions,
@@ -53,7 +52,6 @@ export default function Teleprompter() {
   const [showHelp, setShowHelp] = useState(false);
 
   useWindowTitle('Teleprompter');
-  useServerClockSync();
   useViewKeys(() => setShowHelp((current) => !current));
 
   const { role } = options;

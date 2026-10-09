@@ -1,5 +1,6 @@
 import type { EntryId, TeleprompterScriptEvent, TeleprompterState, TeleprompterStop } from 'ontime-types';
 
+import { dayInMs } from '../date-utils/conversionUtils.js';
 import {
   anchorAtRow,
   eventAtRow,
@@ -43,6 +44,15 @@ export type TeleprompterMode = { cued: boolean };
 /** The longest delay a timer takes: setTimeout fires straight away for anything longer */
 export const maxTimerDelay = 2 ** 31 - 1;
 
+/**
+ * Time since the transport changed, on the server's clock
+ * Times are times of day, so a time before the change was taken after midnight
+ */
+function elapsedSince(since: number, now: number): number {
+  const elapsed = now - since;
+  return elapsed < 0 ? elapsed + dayInMs : elapsed;
+}
+
 /** Positions closer than this are the same place, so playing from where playback stopped moves on */
 const boundaryEpsilon = 1e-6;
 
@@ -62,7 +72,7 @@ export function positionAt(
   if (from === null) return null;
   if (!state.playing) return from;
 
-  const travelled = (state.speed * (now - state.since)) / 60_000;
+  const travelled = (state.speed * elapsedSince(state.since, now)) / 60_000;
   return Math.min(from + travelled, playbackBound(layout, from, mode).row);
 }
 
@@ -97,8 +107,8 @@ export function settle(
   if (from === null) return state;
 
   const bound = playbackBound(layout, from, mode);
-  const reachedAt = state.since + ((bound.row - from) / state.speed) * 60_000;
-  if (now < reachedAt) return withReader(state, layout, now, mode);
+  const msToBound = ((bound.row - from) / state.speed) * 60_000;
+  if (elapsedSince(state.since, now) < msToBound) return withReader(state, layout, now, mode);
 
   return withReader(
     { ...state, playing: false, anchor: anchorAtRow(layout, bound.row), since: now, stoppedAt: bound.stop },
