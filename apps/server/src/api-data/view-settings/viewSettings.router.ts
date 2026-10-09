@@ -1,16 +1,15 @@
 import express from 'express';
 import type { Request, Response, Router } from 'express';
-import { type ErrorResponse, RefetchKey, type ViewSettings } from 'ontime-types';
+import type { ErrorResponse, ViewSettings } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
-import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
-import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import * as viewSettingsDao from './viewSettings.dao.js';
 import { validateViewSettings } from './viewSettings.validation.js';
 
 export const router: Router = express.Router();
 
 router.get('/', (_req: Request, res: Response<ViewSettings>) => {
-  const views = getDataProvider().getViewSettings();
+  const views = viewSettingsDao.getViewSettings();
   res.status(200).send(views);
 });
 
@@ -22,12 +21,7 @@ router.post('/', validateViewSettings, async (req: Request, res: Response<ViewSe
       overrideStyles: req.body.overrideStyles,
       warningColor: req.body.warningColor,
     } as ViewSettings;
-    await getDataProvider().setViewSettings(newData);
-
-    setImmediate(() => {
-      sendRefetch(RefetchKey.ViewSettings);
-    });
-
+    await viewSettingsDao.editViewSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
     const message = getErrorMessage(error);

@@ -15,6 +15,7 @@ import { generateId, millisToString } from 'ontime-utils';
 import { isProduction, websocketUrl } from '../../externals';
 import {
   APP_SETTINGS,
+  AUTOMATION,
   CLIENT_LIST,
   CSS_OVERRIDE,
   CURRENT_RUNDOWN_QUERY_KEY,
@@ -205,6 +206,9 @@ export const connectSocket = () => {
           switch (target) {
             case RefetchKey.All:
               invalidateAllCaches();
+              break;
+            case RefetchKey.Automation:
+              ontimeQueryClient.invalidateQueries({ queryKey: AUTOMATION });
               break;
             case RefetchKey.CustomFields:
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });

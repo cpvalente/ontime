@@ -364,10 +364,8 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
     await getDataProvider().mergeIntoData(patchedSections);
   }
 
-  // unlike loadProject, patching does not reload the rundown, so nothing else notifies the clients
   if (rest.settings) {
     auxTimerService.loadNames(getDataProvider().getSettings().auxTimerNames);
-    sendRefetch(RefetchKey.Settings);
   }
 
   // the rundown depends on custom fields
@@ -395,6 +393,10 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
       await initRundown(updatedCurrentRundown, projectCustomFields, true);
     }
   }
+
+  // a patch can touch any section, including background rundowns which may now carry a lower revision
+  // unlike loadProject, patching does not reload the project, so we tell clients to refetch everything
+  sendRefetch(RefetchKey.All);
 
   const updatedData = await getDataProvider().getData();
   return updatedData;

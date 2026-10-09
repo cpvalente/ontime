@@ -23,6 +23,7 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - Avoid duplicate listeners, notifications, invalidations, lifecycle effects.
 - Reconnect/refetch must converge on authoritative state.
 - Align query keys and websocket refetch keys with the changed resource.
+- Every write to project data sends the refetch of the section it changed, from the slice's DAO or service; routers never write to `DataProvider`.
 
 ## Timers
 
