@@ -21,6 +21,7 @@ import { updateRouterPrefix } from './externals.js';
 import { makeAuthenticateMiddleware, makeLoginRouter } from './middleware/authenticate.js';
 // Import middleware configuration
 import { bodyParser } from './middleware/bodyParser.js';
+import { compressData } from './middleware/compression.middleware.js';
 import { compressedStatic } from './middleware/staticGZip.js';
 import { clearUploadfolder } from './middleware/upload.js';
 import { getShowWelcomeDialog } from './services/app-state-service/appState.service.js';
@@ -92,7 +93,7 @@ app.get(`${prefix}/ready`, (_req, res) => {
 
 // Implement route endpoints
 app.use(`${prefix}/login`, loginRouter); // router for login flow
-app.use(`${prefix}/data`, authenticate, appRouter); // router for application data
+app.use(`${prefix}/data`, authenticate, compressData, appRouter); // router for application data
 app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
 app.use(`${prefix}/mcp`, authenticate, mcpRouter); // router for MCP agent integration
 
