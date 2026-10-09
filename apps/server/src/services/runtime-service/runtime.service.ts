@@ -8,6 +8,7 @@ import {
   OffsetMode,
   OntimeEvent,
   Playback,
+  RefetchKey,
   RuntimeStore,
   TimerLifeCycle,
   TimerPhase,
@@ -25,13 +26,14 @@ import {
   getEntryWithId,
   getRundownMetadata,
 } from '../../api-data/rundown/rundown.dao.js';
-import { cloneEntryData } from '../../api-data/rundown/rundown.utils.js';
+import { cloneEntryData, isLoadedPlayable } from '../../api-data/rundown/rundown.utils.js';
 import { logger } from '../../classes/Logger.js';
 import * as timeCore from '../../lib/time-core/timeCore.js';
 import { timerConfig } from '../../setup/config.js';
 import { eventStore } from '../../stores/EventStore.js';
 import * as runtimeState from '../../stores/runtimeState.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
+import { type Change, onChange } from '../change-service/change.service.js';
 import { restoreService } from '../restore-service/restore.service.js';
 import type { RestorePoint } from '../restore-service/restore.types.js';
 import { EventTimer } from './EventTimer.js';
@@ -55,6 +57,7 @@ class RuntimeService {
   private readonly eventTimer: EventTimer;
   private lastIntegrationClockUpdate = -1;
   private lastIntegrationTimerValue = -1;
+  private stopListening: (() => void) | undefined;
 
   /** last known state */
   static previousState: RuntimeState;
@@ -174,12 +177,17 @@ class RuntimeService {
     logger.info(LogOrigin.Server, 'Runtime service started');
     this.eventTimer.setOnUpdateCallback((updateResult) => this.checkTimerUpdate(updateResult));
 
+    // the project loads before the runtime, nothing is loaded yet so we only catch up with the rundown data
+    runtimeState.updateRundownData(getRundownMetadata());
+    this.stopListening = onChange((change) => this.handleChange(change));
+
     if (resumable) {
       this.resume(resumable);
     }
   }
 
   public shutdown() {
+    this.stopListening?.();
     if (this.eventTimer) {
       logger.info(LogOrigin.Server, 'Runtime service shutting down');
       this.eventTimer.shutdown();
@@ -194,30 +202,41 @@ class RuntimeService {
   }
 
   /**
-   * Called when the underlying data has changed,
-   * we check if the change affects the runtime
-   *
-   * !!! the rundown data is read here rather than received from the caller:
-   * this is called deferred (setImmediate) and a later mutation may have
-   * superseded the metadata captured at commit time.
-   * Reading both the rundown and its metadata here keeps them consistent
+   * Reconciles with changes to the loaded rundown, a rundown change without an id affects every rundown
    */
+  private handleChange({ target, rundownId }: Change) {
+    const isLoadedRundownChange =
+      target === RefetchKey.All ||
+      (target === RefetchKey.Rundown && (rundownId === undefined || rundownId === getCurrentRundownId()));
+    if (isLoadedRundownChange) {
+      this.notifyOfChangedEvents();
+    }
+  }
+
+  /**
+   * Called after every change to the loaded rundown, in the same call as the commit,
+   * so the runtime never runs on stale data
+   * Stops playback if the loaded event can no longer play, otherwise hot-reloads the loaded entries
+   * The rundown and its metadata are read from the cache, so they are always the loaded and current ones
+   */
+  @broadcastResult
   public notifyOfChangedEvents() {
-    const state = runtimeState.getState();
-    const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
-    if (!hasLoadedElements) {
-      return;
-    }
-
+    const rundown = getCurrentRundown();
     const metadata = getRundownMetadata();
+    runtimeState.updateRundownData(metadata);
 
-    // all events were deleted, stopping clears the loaded data and there is nothing left to reconcile
-    if (metadata.playableEventOrder.length === 0) {
-      runtimeState.stop();
+    const state = runtimeState.getState();
+    if (state.eventNow === null && state.eventNext === null) {
       return;
     }
 
-    runtimeState.updateAll(getCurrentRundown(), metadata);
+    const loadedEventId = this.getLoadedEventId();
+    if (loadedEventId !== null && !isLoadedPlayable(loadedEventId, rundown)) {
+      this.stop();
+      return;
+    }
+
+    runtimeState.updateAll(rundown, metadata);
   }
 
   /**

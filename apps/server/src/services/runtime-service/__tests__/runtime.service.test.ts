@@ -1,7 +1,7 @@
-import { EndAction, Instant, OffsetMode, Playback } from 'ontime-types';
+import { EndAction, Instant, OffsetMode, Playback, RefetchKey } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
-import { makeOntimeEvent, makeOntimeGroup } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import type { RundownMetadata } from '../../../api-data/rundown/rundown.types.js';
 import { makeRuntimeStateData } from '../../../stores/__mocks__/runtimeState.mocks.js';
 import type { RuntimeState, UpdateResult } from '../../../stores/runtimeState.js';
@@ -43,6 +43,7 @@ vi.mock('../../../stores/runtimeState.js', () => ({
   setOffsetMode: vi.fn(),
   stop: vi.fn(() => true),
   updateAll: vi.fn(),
+  updateRundownData: vi.fn(),
   load: vi.fn(() => true),
   resume: vi.fn(),
   roll: vi.fn(() => ({ eventId: null, didStart: false })),
@@ -94,10 +95,11 @@ vi.mock('../../../classes/Logger.js', () => ({
   logger: { info: vi.fn(), warning: vi.fn(), error: vi.fn(), crash: vi.fn(), emit: vi.fn() },
 }));
 
-import { getEntryWithId } from '../../../api-data/rundown/rundown.dao.js';
+import { getCurrentRundown, getEntryWithId } from '../../../api-data/rundown/rundown.dao.js';
 import * as runtimeState from '../../../stores/runtimeState.js';
+import { notifyChange } from '../../change-service/change.service.js';
 import { restoreService } from '../../restore-service/restore.service.js';
-import type { RestorePoint } from '../../restore-service/restore.type.js';
+import type { RestorePoint } from '../../restore-service/restore.types.js';
 import { runtimeService } from '../runtime.service.js';
 
 function makeRundownMetadata(patch?: Partial<RundownMetadata>): RundownMetadata {
@@ -200,40 +202,85 @@ describe('broadcastResult()', () => {
   });
 });
 
+describe('init()', () => {
+  it('catches up with the rundown data and reconciles with changes to the loaded rundown only', () => {
+    stateRef.current = makeRuntimeStateData();
+    rundownRef.metadata = makeRundownMetadata({ timedEventOrder: ['a'] });
+
+    runtimeService.init(null);
+    expect(runtimeState.updateRundownData).toHaveBeenCalledWith(rundownRef.metadata);
+    // catching up does not broadcast, so nothing is saved before a restore point is resumed
+    expect(restoreService.save).not.toHaveBeenCalled();
+
+    vi.mocked(runtimeState.updateRundownData).mockClear();
+    notifyChange(RefetchKey.Rundown, 1, 'background');
+    expect(runtimeState.updateRundownData).not.toHaveBeenCalled();
+
+    notifyChange(RefetchKey.Rundown, 1, 'rundown');
+    expect(runtimeState.updateRundownData).toHaveBeenCalledTimes(1);
+
+    runtimeService.shutdown();
+    notifyChange(RefetchKey.Rundown, 2, 'rundown');
+    expect(runtimeState.updateRundownData).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('notifyOfChangedEvents()', () => {
-  it('does nothing when no event is loaded', () => {
+  it('updates the rundown data and leaves playback alone when no event is loaded', () => {
     stateRef.current = makeRuntimeStateData();
     rundownRef.metadata = makeRundownMetadata({ playableEventOrder: ['a'] });
+    const stop = vi.spyOn(runtimeService, 'stop');
 
     runtimeService.notifyOfChangedEvents();
 
+    expect(runtimeState.updateRundownData).toHaveBeenCalledWith(rundownRef.metadata);
     expect(runtimeState.updateAll).not.toHaveBeenCalled();
-    expect(runtimeState.stop).not.toHaveBeenCalled();
+    expect(stop).not.toHaveBeenCalled();
   });
 
-  it('stops playback and skips the update when the rundown has no playable events', () => {
-    stateRef.current = makeRuntimeStateData({ eventNow: makeOntimeEvent({ id: 'empty-now' }) });
-    rundownRef.metadata = makeRundownMetadata({ playableEventOrder: [] });
-
-    runtimeService.notifyOfChangedEvents();
-
-    expect(runtimeState.stop).toHaveBeenCalled();
-    // stopping clears the loaded data, there is nothing left to reconcile
-    expect(runtimeState.updateAll).not.toHaveBeenCalled();
-  });
-
-  it('reconciles against the rundown data read at call time', () => {
+  it('hot-reloads the loaded event with the rundown data read at call time', () => {
     stateRef.current = makeRuntimeStateData({ eventNow: makeOntimeEvent({ id: 'live-now' }) });
-    rundownRef.metadata = makeRundownMetadata({ playableEventOrder: ['stale'] });
-
-    // the side effects are deferred, a later commit may have superseded the metadata
-    // captured at commit time, so the runtime must read the current one
-    const liveMetadata = makeRundownMetadata({ playableEventOrder: ['live'] });
+    const liveMetadata = makeRundownMetadata({ playableEventOrder: ['live-now'] });
     rundownRef.metadata = liveMetadata;
+    vi.mocked(getCurrentRundown).mockReturnValueOnce(
+      makeRundown({ entries: { 'live-now': makeOntimeEvent({ id: 'live-now' }) } }),
+    );
+    const stop = vi.spyOn(runtimeService, 'stop');
 
     runtimeService.notifyOfChangedEvents();
 
+    expect(runtimeState.updateRundownData).toHaveBeenCalledWith(liveMetadata);
     expect(runtimeState.updateAll).toHaveBeenCalledWith(expect.anything(), liveMetadata);
+    expect(stop).not.toHaveBeenCalled();
+  });
+
+  it('stops playback instead of hot-reloading when the loaded event can no longer play', () => {
+    stateRef.current = makeRuntimeStateData({ eventNow: makeOntimeEvent({ id: 'deleted-now' }) });
+    rundownRef.metadata = makeRundownMetadata({ playableEventOrder: ['other'] });
+    const stop = vi.spyOn(runtimeService, 'stop');
+
+    runtimeService.notifyOfChangedEvents();
+
+    expect(stop).toHaveBeenCalled();
+    expect(runtimeState.updateAll).not.toHaveBeenCalled();
+  });
+
+  it('broadcasts the reconciled entries in the same call', () => {
+    stateRef.current = makeRuntimeStateData({ eventNow: makeOntimeEvent({ id: 'reconcile-now', title: 'before' }) });
+    rundownRef.metadata = makeRundownMetadata({ playableEventOrder: ['reconcile-now'] });
+    // the previous state is only known after a broadcast
+    broadcastWith(stateRef.current);
+    store.batched = [];
+    vi.mocked(getCurrentRundown).mockReturnValueOnce(
+      makeRundown({ entries: { 'reconcile-now': makeOntimeEvent({ id: 'reconcile-now' }) } }),
+    );
+    vi.mocked(runtimeState.updateAll).mockImplementationOnce(() => {
+      stateRef.current = { ...stateRef.current, eventNow: makeOntimeEvent({ id: 'reconcile-now', title: 'after' }) };
+    });
+
+    runtimeService.notifyOfChangedEvents();
+
+    expect(store.batched).toContainEqual(['eventNow', expect.objectContaining({ title: 'after' })]);
   });
 });
 

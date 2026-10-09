@@ -23,7 +23,8 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - Avoid duplicate listeners, notifications, invalidations, lifecycle effects.
 - Reconnect/refetch must converge on authoritative state.
 - Align query keys and websocket refetch keys with the changed resource.
-- Every write to project data sends the refetch of the section it changed, from the slice's DAO or service; routers never write to `DataProvider`.
+- Report every committed write through `notifyChange()` (`services/change-service`), never `sendRefetch()` directly. It sends each refetch once at the end of the event loop, after the caller has replied. Routers never write to `DataProvider`.
+- Writers report changes and never call their consumers. Consumers that must stay in step with the data listen with `onChange()` and run in the same call as the write: the runtime reconciles on every change to the loaded rundown, reading it itself, and owns the stop/hot-reload decision.
 
 ## Timers
 

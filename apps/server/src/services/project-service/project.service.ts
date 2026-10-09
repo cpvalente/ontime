@@ -4,7 +4,6 @@ import { join } from 'path';
 import { DatabaseModel, LogOrigin, ProjectFileListResponse, RefetchKey } from 'ontime-types';
 import { getErrorMessage, getFirstRundown, isObjectEmpty, withoutUndefinedValues } from 'ontime-utils';
 
-import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
 import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
@@ -30,6 +29,7 @@ import {
 } from '../../utils/fileManagement.js';
 import { getLastLoaded, isLastLoadedProject, setLastLoaded } from '../app-state-service/appState.service.js';
 import { auxTimerService } from '../aux-timer-service/auxTimer.service.js';
+import { notifyChange } from '../change-service/change.service.js';
 import { runtimeService } from '../runtime-service/runtime.service.js';
 import {
   doesProjectExist,
@@ -396,7 +396,7 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
 
   // a patch can touch any section, including background rundowns which may now carry a lower revision
   // unlike loadProject, patching does not reload the project, so we tell clients to refetch everything
-  sendRefetch(RefetchKey.All);
+  notifyChange(RefetchKey.All);
 
   const updatedData = await getDataProvider().getData();
   return updatedData;

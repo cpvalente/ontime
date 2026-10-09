@@ -1,9 +1,9 @@
 import { deepEqual } from 'fast-equals';
 import { RefetchKey, type Settings } from 'ontime-types';
 
-import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { auxTimerService } from '../../services/aux-timer-service/auxTimer.service.js';
+import { notifyChange } from '../../services/change-service/change.service.js';
 
 /**
  * Gets the stored settings
@@ -28,7 +28,7 @@ export async function editSettings(newData: Settings): Promise<Settings> {
   if (!deepEqual(data.auxTimerNames, settings.auxTimerNames)) {
     auxTimerService.loadNames(data.auxTimerNames);
   }
-  sendRefetch(RefetchKey.Settings);
+  notifyChange(RefetchKey.Settings);
 
   return data;
 }

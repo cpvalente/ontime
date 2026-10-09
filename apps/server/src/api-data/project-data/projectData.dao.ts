@@ -2,8 +2,8 @@ import { join } from 'node:path';
 
 import { ProjectData, RefetchKey } from 'ontime-types';
 
-import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { notifyChange } from '../../services/change-service/change.service.js';
 import { publicDir } from '../../setup/index.js';
 import { deleteFile } from '../../utils/fileManagement.js';
 
@@ -25,10 +25,7 @@ export async function editCurrentProjectData(newData: Partial<ProjectData>) {
     deleteFile(join(publicDir.logoDir, currentProjectData.logo));
   }
 
-  // Notify the websocket clients to refetch the project data
-  setImmediate(() => {
-    sendRefetch(RefetchKey.ProjectData);
-  });
+  notifyChange(RefetchKey.ProjectData);
 
   return updatedProjectData;
 }
