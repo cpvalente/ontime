@@ -104,6 +104,19 @@ describe('POS-3 editing the reader event', () => {
     const anchor = { eventId: 'a', charOffset: 19, lines: 0 };
     expect(reanchor(previous, [wider], anchor)).toEqual(anchor);
   });
+
+  test('the same text cut at 12 and then 20 characters keeps the reader in place', () => {
+    const text = 'one two three four five six seven eight nine ten';
+    const atWidth = (charsPerLine: number): TeleprompterScriptEvent => ({
+      id: 'a',
+      cue: 'a',
+      title: 'a',
+      lines: wrapText(text, charsPerLine).map((line) => ({ kind: 'text', text: line.text, start: line.start })),
+    });
+    // reading "five six", between two places where the lines break differently
+    const anchor = { eventId: 'a', charOffset: 19, lines: 0 };
+    expect(reanchor([atWidth(12)], [atWidth(20)], anchor)?.charOffset).toBe(19);
+  });
 });
 
 describe('POS-4 events which move or disappear', () => {

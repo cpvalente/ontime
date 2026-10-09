@@ -159,14 +159,15 @@ export function reanchor(
 
 /**
  * The event's text as its lines show it, with every character at its position in the text.
- * What the lines leave out (the spaces used up at a break, line breaks) is filled in, which is
- * enough to compare two versions of a text from both ends.
+ * What the lines leave out (the spaces used up at a break, line breaks, indentation) is filled with spaces,
+ * so a space which ends a line in one version matches the same space inside a line in another,
+ * which is enough to compare two versions of a text from both ends.
  */
 function textOfLines(event: TeleprompterScriptEvent): string {
   let text = '';
   for (const line of event.lines) {
     if (line.kind !== 'text') continue;
-    text += '\n'.repeat(Math.max(0, line.start - text.length)) + line.text;
+    text += ' '.repeat(Math.max(0, line.start - text.length)) + line.text;
   }
   return text;
 }
