@@ -43,13 +43,14 @@ function apply(state: TeleprompterState, command: TeleprompterTransportCommand, 
   return applyTransportCommand(state, command, layout, now, mode);
 }
 
-describe('TRN-1 the transport holds play state, speed in lines per minute, an anchor and the time it was set', () => {
+describe('TRN-1 the transport holds play state, a forward speed of 1 to 40 lines per minute, an anchor and the time it was set', () => {
   test.each([
     [{ type: 'speed', value: 20 }, 20],
     [{ type: 'speed', value: 100 }, 40],
-    [{ type: 'speed', value: -100 }, -40],
-    [{ type: 'speed', value: 0 }, 0],
+    [{ type: 'speed', value: -100 }, 1],
+    [{ type: 'speed', value: 0 }, 1],
     [{ type: 'speedBy', value: -5 }, 25],
+    [{ type: 'speedBy', value: -50 }, 1],
     [{ type: 'speedBy', value: 50 }, 40],
   ] as const)('%j sets speed %d', (command, speed) => {
     expect(apply(makeState(), command).speed).toBe(speed);
@@ -65,8 +66,6 @@ describe('TRN-2 the position is calculated from the transport and the clock', ()
   test.each([
     ['paused, at its anchor', makeState(), 5000, 1],
     ['playing, moved by speed × time', makeState({ playing: true }), 1000, 1.5],
-    ['playing backwards', makeState({ playing: true, speed: -30, anchor: startOfEvent('b') }), 1000, 4.5],
-    ['at a standstill', makeState({ playing: true, speed: 0 }), 60_000, 1],
   ])('%s', (_, state, now, row) => {
     expect(positionAt(state, layout, now, freeRun)).toBe(row);
   });
@@ -103,11 +102,6 @@ describe('playback reaching an end', () => {
   test('cued, the last event ends the script', () => {
     const atLast = makeState({ playing: true, anchor: startOfEvent('c') });
     expect(settle(atLast, layout, 60_000, cued)).toMatchObject({ playing: false, stoppedAt: 'script' });
-  });
-
-  test('cued, backwards it stops at the start of the event', () => {
-    const backwards = makeState({ playing: true, speed: -30, anchor: { eventId: 'b', charOffset: 10, lines: 0 } });
-    expect(positionAt(backwards, layout, 60_000, cued)).toBe(5);
   });
 
   test('free run, it reads across events and stops at the end of the script', () => {
