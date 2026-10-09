@@ -175,3 +175,10 @@ test('POS-5 switching to cued during free playback leaves the reader where they 
   expect(positionAt(switched, layout, 6000, cued)).toBe(4);
   expect(switched.playing).toBe(true);
 });
+
+test('the wait until the next change fits a timer, however slow playback is', () => {
+  // six lines to read, and no other event to move into
+  const longEvent = makeTeleprompterLayout([makeEvent('a', 6)]);
+  const crawling = makeState({ playing: true, speed: 0.0001 });
+  expect(msUntilChange(crawling, longEvent, 0, freeRun)).toBeLessThanOrEqual(2147483647);
+});

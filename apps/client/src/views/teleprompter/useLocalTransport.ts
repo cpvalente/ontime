@@ -103,7 +103,13 @@ export function useLocalTransport({ events, cued, initialSpeed, loadedEventId }:
   useEffect(() => {
     const delay = msUntilChange(state, layout, serverNow(), mode);
     if (delay === null) return;
-    const timer = setTimeout(() => setState((current) => settle(current, layout, serverNow(), mode)), delay);
+    const timer = setTimeout(() => {
+      setState((current) => {
+        const settled = settle(current, layout, serverNow(), mode);
+        // a timer capped short of the change wakes with nothing changed, a new state sets it again
+        return settled === current ? { ...current } : settled;
+      });
+    }, delay);
     return () => clearTimeout(timer);
   }, [state, layout, mode]);
 

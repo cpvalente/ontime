@@ -40,6 +40,9 @@ export type TeleprompterTransportCommand =
  */
 export type TeleprompterMode = { cued: boolean };
 
+/** The longest delay a timer takes: setTimeout fires straight away for anything longer */
+export const maxTimerDelay = 2 ** 31 - 1;
+
 /** Positions closer than this are the same place, so playing from where playback stopped moves on */
 const boundaryEpsilon = 1e-6;
 
@@ -107,6 +110,7 @@ export function settle(
 
 /**
  * How long until the transport changes on its own: playback reaching its end, or the reader moving into another event
+ * Capped to what a timer can wait, so a timer may wake before anything changed and need setting again
  * @returns null when nothing will change without a command
  */
 export function msUntilChange(
@@ -122,7 +126,7 @@ export function msUntilChange(
 
   const next = layout.events.find((event) => event.firstRow > position);
   const target = Math.min(playbackBound(layout, from, mode).row, next?.firstRow ?? Infinity);
-  return Math.ceil(((target - position) / state.speed) * 60_000);
+  return Math.min(Math.ceil(((target - position) / state.speed) * 60_000), maxTimerDelay);
 }
 
 /**
