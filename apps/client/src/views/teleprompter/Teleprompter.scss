@@ -151,11 +151,13 @@
 .teleprompter__controls {
   position: absolute;
   bottom: min(2vh, 16px);
-  left: 50%;
+  inset-inline: 0;
+  margin-inline: auto;
+  width: max-content;
   max-width: calc(100% - 32px);
 
   /* Cancel the view flip so controls remain readable to the operator. */
-  transform: translateX(-50%) scale(var(--tp-flip-x), var(--tp-flip-y));
+  transform: scale(var(--tp-flip-x), var(--tp-flip-y));
 
   display: flex;
   flex-wrap: wrap;
@@ -201,29 +203,31 @@
   gap: 2px;
 }
 
-/* the one toggle in the bar, set apart from the buttons which trigger a single move */
+/* the one toggle in the bar: the editor's playback button, wide, filled while playing */
 .teleprompter__play {
-  display: grid;
-  place-items: center;
-  width: clamp(44px, 4vw, 56px);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  border: 2px solid $viewer-color;
-  background: transparent;
-  color: $viewer-color;
-  font-size: clamp(20px, 1.8vw, 26px);
-  cursor: pointer;
+  width: clamp(4rem, 6vw, 5.5rem);
+  height: 2.5rem;
+  font-size: 1.25rem;
+}
 
-  &--playing {
-    background: $accent-color;
-    border-color: $accent-color;
-    color: #000;
-  }
+/* a controller looks like the screens it drives, so it always says what it is */
+.teleprompter__badge {
+  position: absolute;
+  top: min(2vh, 16px);
+  right: clamp(16px, 2vw, 24px);
+  /* Cancel the view flip so the badge remains readable to the operator. */
+  transform: scale(var(--tp-flip-x), var(--tp-flip-y));
 
-  &:focus-visible {
-    outline: 2px solid $viewer-color;
-    outline-offset: 2px;
-  }
+  padding: 0.25em 0.75em;
+  border: 1px solid $accent-color;
+  border-radius: $element-border-radius;
+  background: rgba(black, 60%);
+  color: $accent-color;
+  font-size: clamp(11px, 1vw, 14px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  pointer-events: none;
 }
 
 .teleprompter__go-loaded {

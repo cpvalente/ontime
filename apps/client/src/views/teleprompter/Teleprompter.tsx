@@ -82,6 +82,11 @@ export default function Teleprompter() {
           onToggleHelp={toggleHelp}
         />
       )}
+      {role === 'controller' && (
+        <div className='teleprompter__badge' data-testid='teleprompter-badge'>
+          Controller · drives every remote screen
+        </div>
+      )}
       <HelpOverlay isOpen={showHelp} onClose={() => setShowHelp(false)} note={helpNotes[role]}>
         {role !== 'remote' && <TransportShortcuts />}
       </HelpOverlay>

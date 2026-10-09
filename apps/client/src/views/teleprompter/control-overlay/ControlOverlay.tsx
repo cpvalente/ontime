@@ -1,4 +1,4 @@
-import type { TeleprompterState } from 'ontime-types';
+import { Playback, type TeleprompterState } from 'ontime-types';
 import { type MouseEvent, type PropsWithChildren, useState } from 'react';
 import {
   IoAdd,
@@ -14,6 +14,7 @@ import IconButton from '../../../common/components/buttons/IconButton';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useFadeOutOnInactivity } from '../../../common/hooks/useFadeOutOnInactivity';
 import { cx } from '../../../common/utils/styleUtils';
+import TapButton from '../../../features/control/playback/tap-button/TapButton';
 import { speedStep, type TeleprompterPayload } from '../teleprompter.keymap';
 import { roleLabels, type TeleprompterRole } from '../teleprompter.options';
 
@@ -111,9 +112,10 @@ export default function ControlOverlay({
 
       {onCommand ? (
         <>
-          <button
-            type='button'
-            className={cx(['teleprompter__play', transport.playing && 'teleprompter__play--playing'])}
+          <TapButton
+            className='teleprompter__play'
+            theme={Playback.Play}
+            active={transport.playing}
             aria-pressed={transport.playing}
             aria-label={transport.playing ? 'Pause' : 'Play'}
             title={transport.playing ? 'Pause (Space)' : 'Play (Space)'}
@@ -124,7 +126,7 @@ export default function ControlOverlay({
             data-testid='teleprompter-play'
           >
             {transport.playing ? <IoPause /> : <IoPlay />}
-          </button>
+          </TapButton>
 
           <div className='teleprompter__group'>
             <ControlButton

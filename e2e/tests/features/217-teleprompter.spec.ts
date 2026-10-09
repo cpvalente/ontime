@@ -347,3 +347,15 @@ test('LOC-2 DSP-6 scrolling a local view which shows only the loaded event keeps
 
   await request.get('/api/stop');
 });
+
+test('CTL-6 a controller always says it is one, also when the controls fade', async ({ page }) => {
+  await page.goto('/teleprompter?role=controller');
+  await expect(page.getByTestId('teleprompter-badge')).toBeVisible();
+  await page.mouse.move(400, 100);
+  await expect(page.getByTestId('teleprompter-controls')).toHaveClass(/idle/, { timeout: 6000 });
+  await expect(page.getByTestId('teleprompter-badge')).toBeVisible();
+
+  await page.goto(remoteUrl);
+  await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
+  await expect(page.getByTestId('teleprompter-badge')).toHaveCount(0);
+});
