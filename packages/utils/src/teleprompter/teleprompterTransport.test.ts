@@ -43,15 +43,15 @@ function apply(state: TeleprompterState, command: TeleprompterTransportCommand, 
   return applyTransportCommand(state, command, layout, now, mode);
 }
 
-describe('TRN-1 the transport holds play state, a forward speed of 1 to 40 lines per minute, an anchor and the time it was set', () => {
+describe('TRN-1 the transport holds play state, a forward speed of 1 to 100 lines per minute, an anchor and the time it was set', () => {
   test.each([
     [{ type: 'speed', value: 20 }, 20],
-    [{ type: 'speed', value: 100 }, 40],
+    [{ type: 'speed', value: 200 }, 100],
     [{ type: 'speed', value: -100 }, 1],
     [{ type: 'speed', value: 0 }, 1],
     [{ type: 'speedBy', value: -5 }, 25],
     [{ type: 'speedBy', value: -50 }, 1],
-    [{ type: 'speedBy', value: 50 }, 40],
+    [{ type: 'speedBy', value: 200 }, 100],
   ] as const)('%j sets speed %d', (command, speed) => {
     expect(apply(makeState(), command).speed).toBe(speed);
   });

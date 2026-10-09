@@ -9,7 +9,7 @@ export type TeleprompterStop = 'event' | 'script';
  */
 export type TeleprompterState = {
   playing: boolean;
-  /** lines per minute, from 1 to 40 */
+  /** lines per minute, from 1 to 100 */
   speed: number;
   /** where the reader was when the transport last changed, null while the script is empty */
   anchor: TeleprompterAnchor | null;

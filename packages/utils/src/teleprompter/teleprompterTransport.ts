@@ -14,7 +14,7 @@ import {
 /** Teleprompter speed bounds, in lines per minute: playback only reads forwards and always moves */
 export const teleprompterSpeed = {
   min: 1,
-  max: 40,
+  max: 100,
 } as const;
 
 export function clampTeleprompterSpeed(speed: number): number {
