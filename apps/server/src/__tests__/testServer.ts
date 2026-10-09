@@ -15,6 +15,7 @@ export async function startTestServer() {
   return {
     /** shuts down as the app would with this exit code, 0 by default, safe to call more than once */
     stop: (exitCode = 0) => (stopped ??= server.stopServices(exitCode)),
+    socketUrl: `ws://localhost:${serverPort}/ws`,
     get: (path: string) => fetch(`${baseUrl}${path}`),
     /** for requests which are not JSON, such as file uploads */
     request: (path: string, init: RequestInit) => fetch(`${baseUrl}${path}`, init),
