@@ -1,3 +1,4 @@
+import { deepEqual } from 'fast-equals';
 import {
   type EntryId,
   RefetchKey,
@@ -65,21 +66,27 @@ export function getTeleprompterState(): TeleprompterState {
 
 /**
  * Rebuilds the script after the rundown or the settings changed, and keeps the reader in their place in the text
- * Screens are told to refetch it, the script itself is never pushed over the websocket
+ * Only a script whose lines changed gets a new revision and tells screens to refetch it, so an edit to anything
+ * else leaves the response, and its ETag, as it was. The script itself is never pushed over the websocket
  */
 export function refreshTeleprompterScript() {
   const settings = getSharedSettings();
-  const previousEvents = sharedScript.events;
-  sharedScript = {
-    revision: sharedScript.revision + 1,
-    charsPerLine: settings.charsPerLine,
-    events: buildScriptEvents(getCurrentRundown(), getProjectCustomFields(), settings),
-  };
-  layout = makeTeleprompterLayout(sharedScript.events);
+  const events = buildScriptEvents(getCurrentRundown(), getProjectCustomFields(), settings);
   const previousMode = mode;
   mode = { cued: settings.followLoaded };
 
-  publish(reanchorTransport(state, previousEvents, sharedScript.events, now(), mode, previousMode));
+  if (settings.charsPerLine === sharedScript.charsPerLine && deepEqual(events, sharedScript.events)) {
+    if (previousMode.cued !== mode.cued) {
+      publish(reanchorTransport(state, sharedScript.events, sharedScript.events, now(), mode, previousMode));
+    }
+    return;
+  }
+
+  const previousEvents = sharedScript.events;
+  sharedScript = { revision: sharedScript.revision + 1, charsPerLine: settings.charsPerLine, events };
+  layout = makeTeleprompterLayout(events);
+
+  publish(reanchorTransport(state, previousEvents, events, now(), mode, previousMode));
   sendRefetch(RefetchKey.Teleprompter, sharedScript.revision);
 }
 

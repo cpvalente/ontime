@@ -79,6 +79,28 @@ describe('teleprompter', () => {
     expect(JSON.stringify(after)).toContain('A new script');
   });
 
+  test('SCR-6 an edit which leaves every line as it was keeps the revision and sends no refetch', async () => {
+    const before = await getScript();
+    const messages: { tag: string; payload: { target?: string } }[] = [];
+    const socket = new WebSocket(`${server.baseUrl.replace('http', 'ws')}/ws`);
+    socket.on('message', (data) => messages.push(JSON.parse((data as Buffer).toString())));
+    await new Promise((resolve) => socket.once('open', resolve));
+
+    for (const patch of [{ duration: 15 * 60_000 }, { colour: '#ff7300' }]) {
+      messages.length = 0;
+      const response = await server.send('PUT', `/data/rundowns/${rundown.id}/entry`, { id: eventId, ...patch });
+      expect(response.ok).toBe(true);
+      // the rundown refetch comes from the same notification as the teleprompter one would
+      await vi.waitFor(() => {
+        expect(messages.some((message) => message.payload?.target === RefetchKey.Rundown)).toBe(true);
+      });
+      expect(messages.filter((message) => message.payload?.target === RefetchKey.Teleprompter)).toEqual([]);
+    }
+    socket.close();
+
+    expect(await getScript()).toEqual(before);
+  });
+
   test('SET-1 the project holds the settings, which shape the shared script', async () => {
     const viewSettings = await (await server.get('/data/view-settings')).json();
     expect(viewSettings.teleprompter).toEqual({
