@@ -7,6 +7,7 @@
   "dependencies": {
     "@googleapis/sheets": "^5.0.5",
     "@modelcontextprotocol/sdk": "^1.15.0",
+    "compression": "1.8.1",
     "cookie": "1.0.2",
     "cookie-parser": "1.4.7",
     "cors": "2.8.6",
@@ -25,6 +26,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@types/compression": "1.8.1",
     "@types/cookie-parser": "1.4.10",
     "@types/cors": "2.8.19",
     "@types/express": "5.0.6",
