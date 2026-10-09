@@ -35,10 +35,10 @@ export function useLocalTransport({ events, cued, initialSpeed, loadedEventId }:
     speed: initialSpeed,
   }));
 
-  const latest = useRef({ layout, mode, loadedEventId });
+  const latest = useRef({ events, layout, mode, loadedEventId });
   // hands the latest values to the commands, which keep their identity
   useEffect(() => {
-    latest.current = { layout, mode, loadedEventId };
+    latest.current = { events, layout, mode, loadedEventId };
   });
 
   const apply = useCallback((command: TeleprompterTransportCommand) => {
@@ -71,6 +71,16 @@ export function useLocalTransport({ events, cued, initialSpeed, loadedEventId }:
     shownEvents.current = events;
     setState((current) => reanchorTransport(current, previous, events, serverNow(), latest.current.mode));
   }, [events]);
+
+  const playedMode = useRef(mode);
+  // a new playback mode keeps the reader where they got to under the previous one
+  useEffect(() => {
+    const previousMode = playedMode.current;
+    if (previousMode === mode) return;
+    playedMode.current = mode;
+    const { events } = latest.current;
+    setState((current) => reanchorTransport(current, events, events, serverNow(), mode, previousMode));
+  }, [mode]);
 
   const followedId = useRef<EntryId | null | undefined>(undefined);
   // cued, loading an event moves the reader to its start, also once its script arrives

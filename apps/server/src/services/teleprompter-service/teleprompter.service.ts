@@ -70,9 +70,10 @@ export function refreshTeleprompterScript() {
     events: buildScriptEvents(getCurrentRundown(), getProjectCustomFields(), settings),
   };
   layout = makeTeleprompterLayout(sharedScript.events);
+  const previousMode = mode;
   mode = { cued: settings.followLoaded };
 
-  publish(reanchorTransport(state, previousEvents, sharedScript.events, Date.now(), mode));
+  publish(reanchorTransport(state, previousEvents, sharedScript.events, Date.now(), mode, previousMode));
   sendRefetch(RefetchKey.Teleprompter, sharedScript.revision);
 }
 

@@ -196,7 +196,7 @@ export function applyTransportCommand(
 }
 
 /**
- * Carries the transport over to a new version of the script
+ * Carries the transport over to a new version of the script, or to a new playback mode
  * The reader keeps their place in the text, and playback carries on from there without a jump
  */
 export function reanchorTransport(
@@ -205,11 +205,13 @@ export function reanchorTransport(
   nextEvents: TeleprompterScriptEvent[],
   now: number,
   mode: TeleprompterMode,
+  previousMode: TeleprompterMode = mode,
 ): TeleprompterState {
   const previousLayout = makeTeleprompterLayout(previousEvents);
   const nextLayout = makeTeleprompterLayout(nextEvents);
-  const current = settle(state, previousLayout, now, mode);
-  const position = positionAt(current, previousLayout, now, mode);
+  // where the reader got to under the mode they were playing in
+  const current = settle(state, previousLayout, now, previousMode);
+  const position = positionAt(current, previousLayout, now, previousMode);
   const place = position === null ? current.anchor : anchorAtRow(previousLayout, position);
   const anchor = reanchor(previousEvents, nextEvents, place);
 

@@ -165,3 +165,13 @@ test('POS-5 a new script during playback re-anchors the reader, who carries on w
   const after = positionAt(moved, makeTeleprompterLayout(edited), 1500, freeRun)!;
   expect(after - before).toBeCloseTo(2);
 });
+
+test('POS-5 switching to cued during free playback leaves the reader where they are', () => {
+  // playing from the start of a, in free run, has moved into b
+  const playing = makeState({ playing: true, anchor: startOfEvent('a'), since: 0 });
+  expect(positionAt(playing, layout, 6000, freeRun)).toBe(4);
+
+  const switched = reanchorTransport(playing, events, events, 6000, cued, freeRun);
+  expect(positionAt(switched, layout, 6000, cued)).toBe(4);
+  expect(switched.playing).toBe(true);
+});
