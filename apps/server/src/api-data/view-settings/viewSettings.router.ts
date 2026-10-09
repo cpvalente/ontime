@@ -5,7 +5,7 @@ import { getErrorMessage } from 'ontime-utils';
 
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { refreshTeleprompterScript } from '../../services/teleprompter-service/teleprompter.service.js';
+import { invalidateTeleprompterScript } from '../../services/teleprompter-service/teleprompter.service.js';
 import { parseTeleprompterSettings } from './viewSettings.parser.js';
 import { validateViewSettings } from './viewSettings.validation.js';
 
@@ -30,7 +30,7 @@ router.post('/', validateViewSettings, async (req: Request, res: Response<ViewSe
 
     setImmediate(() => {
       sendRefetch(RefetchKey.ViewSettings);
-      refreshTeleprompterScript();
+      invalidateTeleprompterScript();
     });
 
     res.status(200).send(newData);

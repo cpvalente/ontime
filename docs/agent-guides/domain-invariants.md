@@ -48,6 +48,7 @@ Pass time/state explicitly to keep rules deterministic and unit-testable.
 - The server cuts the script into rows; screens render rows and only size the text, so every screen counts the same lines.
 - The reading position is a place in the text, `{ eventId, charOffset, lines }`, carried through edits. Row numbers are only calculated from it.
 - Screens calculate the position from the transport and the server clock. They never measure the page to find it.
+- The shared script is built on read: changes only mark it stale, so server code using the script or its layout rebuilds it first. Its revision changes only when its lines do.
 
 ## Reports
 

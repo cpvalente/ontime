@@ -56,7 +56,7 @@ describe('teleprompter', () => {
     });
   });
 
-  test('SCR-6 an edit raises the revision and tells screens to refetch, without sending the script', async () => {
+  test('SCR-6 an edit tells screens to refetch, without sending the script, and raises the revision', async () => {
     const before = await getScript();
     const messages: { tag: string; payload: unknown }[] = [];
     const socket = new WebSocket(`${server.baseUrl.replace('http', 'ws')}/ws`);
@@ -68,7 +68,7 @@ describe('teleprompter', () => {
     await vi.waitFor(() => {
       expect(messages).toContainEqual({
         tag: MessageTag.Refetch,
-        payload: { target: RefetchKey.Teleprompter, revision: before.revision + 1, rundownId: undefined },
+        payload: { target: RefetchKey.Teleprompter, revision: null, rundownId: undefined },
       });
     });
     expect(JSON.stringify(messages)).not.toContain('A new script');
@@ -79,8 +79,10 @@ describe('teleprompter', () => {
     expect(JSON.stringify(after)).toContain('A new script');
   });
 
-  test('SCR-6 an edit which leaves every line as it was keeps the revision and sends no refetch', async () => {
-    const before = await getScript();
+  test('SCR-6 an edit which leaves every line as it was keeps the revision and the ETag', async () => {
+    const response = await server.get('/data/teleprompter/script');
+    const before: TeleprompterScript = await response.json();
+    const etag = response.headers.get('etag')!;
     const messages: { tag: string; payload: { target?: string } }[] = [];
     const socket = new WebSocket(`${server.baseUrl.replace('http', 'ws')}/ws`);
     socket.on('message', (data) => messages.push(JSON.parse((data as Buffer).toString())));
@@ -88,13 +90,18 @@ describe('teleprompter', () => {
 
     for (const patch of [{ duration: 15 * 60_000 }, { colour: '#ff7300' }]) {
       messages.length = 0;
-      const response = await server.send('PUT', `/data/rundowns/${rundown.id}/entry`, { id: eventId, ...patch });
-      expect(response.ok).toBe(true);
-      // the rundown refetch comes from the same notification as the teleprompter one would
+      const edit = await server.send('PUT', `/data/rundowns/${rundown.id}/entry`, { id: eventId, ...patch });
+      expect(edit.ok).toBe(true);
+      // screens cannot tell which edits change the lines, so they refetch and the rebuild finds nothing new
       await vi.waitFor(() => {
-        expect(messages.some((message) => message.payload?.target === RefetchKey.Rundown)).toBe(true);
+        expect(messages.some((message) => message.payload?.target === RefetchKey.Teleprompter)).toBe(true);
       });
-      expect(messages.filter((message) => message.payload?.target === RefetchKey.Teleprompter)).toEqual([]);
+
+      // fetch asks past caches when given If-None-Match, unless the request sets its own Cache-Control
+      const unchanged = await server.request('/data/teleprompter/script', {
+        headers: { 'If-None-Match': etag, 'Cache-Control': 'max-age=0' },
+      });
+      expect(unchanged.status).toBe(304);
     }
     socket.close();
 

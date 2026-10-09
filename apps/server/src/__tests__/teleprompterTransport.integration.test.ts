@@ -177,6 +177,8 @@ describe('teleprompter transport', () => {
     await editNote(first.id, 'Line 1.\nAnother line.\nAnd another.');
 
     await vi.waitFor(async () => {
+      // the edit tells screens to refetch the script, which rebuilds it
+      await server.get('/data/teleprompter/script');
       const state = (await poll()).teleprompter;
       expect(state.since).toBeGreaterThan(playing.since);
       expect(state).toMatchObject({ playing: true, anchor: { eventId: second.id } });

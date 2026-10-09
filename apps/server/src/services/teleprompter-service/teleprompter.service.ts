@@ -29,6 +29,11 @@ import { buildScriptEvents } from './teleprompter.utils.js';
 let sharedScript: TeleprompterScript = { revision: 0, charsPerLine: 0, events: [] };
 let layout: TeleprompterLayout = makeTeleprompterLayout([]);
 let mode: TeleprompterMode = { cued: true };
+/** The script waits to be built until something reads it, so a project nobody prompts from never builds it */
+let isStale = true;
+let hasBuilt = false;
+/** Whether any screen has asked for a script, so edits tell screens to refetch */
+let hasReaders = false;
 
 /**
  * The transport every remote screen and controller follows
@@ -48,11 +53,14 @@ function getSharedSettings(): TeleprompterSettings {
 
 /** The script every remote screen and controller shows, built from the project's settings */
 export function getSharedScript(): TeleprompterScript {
+  hasReaders = true;
+  ensureScript();
   return sharedScript;
 }
 
 /** A script built with a view's own settings, at the revision of the shared one */
 export function buildScriptWith(settings: TeleprompterSettings): TeleprompterScript {
+  hasReaders = true;
   return {
     revision: sharedScript.revision,
     charsPerLine: settings.charsPerLine,
@@ -65,15 +73,32 @@ export function getTeleprompterState(): TeleprompterState {
 }
 
 /**
- * Rebuilds the script after the rundown or the settings changed, and keeps the reader in their place in the text
- * Only a script whose lines changed gets a new revision and tells screens to refetch it, so an edit to anything
- * else leaves the response, and its ETag, as it was. The script itself is never pushed over the websocket
+ * Marks the script out of date after the rundown or the settings changed, to rebuild when something next reads it
+ * Screens which have read a script are told to refetch it, which rebuilds it, so a rebuild needs no notice of its own.
+ * Local views build with their own settings, so they refetch on every change to the rundown.
+ * The script itself is never pushed over the websocket
  */
-export function refreshTeleprompterScript() {
+export function invalidateTeleprompterScript() {
+  isStale = true;
+  // the next revision is unknown until the script is rebuilt
+  if (hasReaders) sendRefetch(RefetchKey.Teleprompter);
+}
+
+/**
+ * Rebuilds an out of date script, and keeps the reader in their place in the text
+ * Only a script whose lines changed gets a new revision, so an edit to anything else leaves the response,
+ * and its ETag, as it was
+ */
+function ensureScript() {
+  if (!isStale) return;
+  isStale = false;
+
   const settings = getSharedSettings();
   const events = buildScriptEvents(getCurrentRundown(), getProjectCustomFields(), settings);
   const previousMode = mode;
   mode = { cued: settings.followLoaded };
+  const isFirstBuild = !hasBuilt;
+  hasBuilt = true;
 
   if (settings.charsPerLine === sharedScript.charsPerLine && deepEqual(events, sharedScript.events)) {
     if (previousMode.cued !== mode.cued) {
@@ -87,7 +112,9 @@ export function refreshTeleprompterScript() {
   layout = makeTeleprompterLayout(events);
 
   publish(reanchorTransport(state, previousEvents, events, now(), mode, previousMode));
-  sendRefetch(RefetchKey.Teleprompter, sharedScript.revision);
+
+  // events loaded before anything read the script were not followed
+  if (isFirstBuild) followLoadedEvent(getRuntimeState().eventNow?.id ?? null);
 }
 
 /**
@@ -95,6 +122,7 @@ export function refreshTeleprompterScript() {
  * @throws if the command names an event which is not in the script
  */
 export function handleTeleprompterCommand(request: TeleprompterRequest): TeleprompterState {
+  ensureScript();
   const command = (() => {
     if (request.type === 'loaded') return { type: 'goto' as const, eventId: findLoadedEvent() };
     if (request.type === 'goto') return { type: 'goto' as const, eventId: findEvent(request.target) };
@@ -104,8 +132,13 @@ export function handleTeleprompterCommand(request: TeleprompterRequest): Telepro
   return publish(applyTransportCommand(state, command, layout, now(), mode));
 }
 
-/** Cued, loading an event moves the reader to its start, and playback carries on from there */
+/**
+ * Cued, loading an event moves the reader to its start, and playback carries on from there
+ * Before anything has read the script there is no reader to move, the first build follows the loaded event
+ */
 export function followLoadedEvent(eventId: EntryId | null) {
+  if (!hasBuilt) return;
+  ensureScript();
   if (!mode.cued || !eventId || !layout.events.some((event) => event.id === eventId)) return;
   publish(applyTransportCommand(state, { type: 'goto', eventId }, layout, now(), mode));
 }
@@ -146,6 +179,7 @@ function scheduleChange() {
   if (delay === null) return;
   changeTimer = setTimeout(() => {
     changeTimer = null;
+    ensureScript();
     publish(settle(state, layout, now(), mode));
   }, delay);
   // a running prompter does not keep the process alive
