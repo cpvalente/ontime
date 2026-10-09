@@ -8,10 +8,12 @@ import type { ViewOption } from '../../common/components/view-params-editor/view
 import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean } from '../common/viewUtils';
 
+/** What a teleprompter view does: run on its own, follow the controller, or drive every remote screen */
+export type TeleprompterRole = 'local' | 'remote' | 'controller';
+
 export type TeleprompterOptions = {
-  remoteControl: boolean;
-  control: boolean;
-  onlyPlaying: boolean;
+  role: TeleprompterRole;
+  onlyLoaded: boolean;
   lineHeight: number;
   textWidth: number;
   readingLine: boolean;
@@ -20,7 +22,7 @@ export type TeleprompterOptions = {
   flipV: boolean;
   /** a local view's own script settings, as the query for its script, empty for the shared ones */
   scriptSearch: string;
-  /** a local view's own follow mode, or null to use the shared one */
+  /** a local view's own playback mode, true to stop at the end of each event, or null to use the shared one */
   followLoaded: boolean | null;
   /** a local view's starting speed, in lines per minute */
   speed: number;
@@ -30,9 +32,8 @@ export type TeleprompterOptions = {
 const localScriptParams = ['script', 'charsPerLine', 'heading', 'showGroups', 'hideEmpty'] as const;
 
 export const defaults: TeleprompterOptions = {
-  remoteControl: false,
-  control: false,
-  onlyPlaying: false,
+  role: 'local',
+  onlyLoaded: false,
   lineHeight: 1.3,
   textWidth: 80,
   readingLine: true,
@@ -51,6 +52,18 @@ const bounds = {
   speed: [teleprompterSpeed.min, teleprompterSpeed.max],
 } as const;
 
+const roles: { value: TeleprompterRole; label: string }[] = [
+  { value: 'local', label: 'Local: runs on its own' },
+  { value: 'remote', label: 'Remote screen: follows the controller' },
+  { value: 'controller', label: 'Controller: drives every remote screen' },
+];
+
+export const roleLabels: Record<TeleprompterRole, string> = {
+  local: 'Local',
+  remote: 'Remote screen',
+  controller: 'Controller',
+};
+
 const headingOptions: { value: TeleprompterHeading; label: string }[] = [
   { value: 'title', label: 'Title' },
   { value: 'cue', label: 'Cue' },
@@ -58,12 +71,22 @@ const headingOptions: { value: TeleprompterHeading; label: string }[] = [
   { value: 'none', label: 'None' },
 ];
 
-const localNote = 'Local view only, remote screens and controllers use the project settings';
+const playbackModes = [
+  { value: 'event', label: 'Stop at the end of each event' },
+  { value: 'script', label: 'Play through the script' },
+];
 
 /**
- * The view options, where a local view's script settings default to the project's
+ * The view options for a role
+ * Remote screens and controllers take the script and the playback mode from the project settings,
+ * so only a local view offers them, defaulting to the project's
  */
-export function getTeleprompterOptions(customFields: CustomFields, shared: TeleprompterSettings): ViewOption[] {
+export function getTeleprompterOptions(
+  customFields: CustomFields,
+  shared: TeleprompterSettings,
+  role: TeleprompterRole,
+): ViewOption[] {
+  const isLocal = role === 'local';
   const scriptFields = [
     { value: 'note', label: 'Note' },
     { value: 'title', label: 'Title' },
@@ -72,90 +95,99 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
       .map(([key, field]) => ({ value: `custom-${key}`, label: `Custom: ${field.label}` })),
   ];
 
+  const roleOption: ViewOption = {
+    title: OptionTitle.BehaviourOptions,
+    collapsible: true,
+    options: [
+      {
+        id: 'role',
+        title: 'Role',
+        description:
+          'Local views run on their own. Remote screens all show the same line, driven by a controller view, Companion or the integration API. Script and playback settings for remote screens and controllers are in the project settings',
+        type: 'option',
+        values: roles,
+        defaultValue: defaults.role,
+      },
+      ...(isLocal
+        ? [
+            {
+              id: 'playback',
+              title: 'Playback',
+              description:
+                'Stop at the end of each event follows the event Ontime loads. Play through reads on to the end of the script',
+              type: 'option' as const,
+              values: playbackModes,
+              defaultValue: shared.followLoaded ? 'event' : 'script',
+            },
+            {
+              id: 'speed',
+              title: 'Speed',
+              description: `Starting speed in lines per minute (${bounds.speed[0]} to ${bounds.speed[1]}). The arrow keys change it while the view runs`,
+              type: 'number' as const,
+              defaultValue: defaults.speed,
+            },
+          ]
+        : []),
+    ],
+  };
+
+  const scriptOption: ViewOption = {
+    title: OptionTitle.DataSources,
+    collapsible: true,
+    options: [
+      {
+        id: 'script',
+        title: 'Script',
+        description: 'The field which holds the script',
+        type: 'option',
+        values: scriptFields,
+        defaultValue: shared.script,
+      },
+      {
+        id: 'heading',
+        title: 'Heading',
+        description: 'What to show above the script of each event',
+        type: 'option',
+        values: headingOptions,
+        defaultValue: shared.heading,
+      },
+      {
+        id: 'charsPerLine',
+        title: 'Characters per line',
+        description: `How many characters fit on a line (${teleprompterCharsPerLine.min}-${teleprompterCharsPerLine.max}), which sets the text size. Fewer characters make larger text`,
+        type: 'number',
+        defaultValue: shared.charsPerLine,
+      },
+      {
+        id: 'showGroups',
+        title: 'Group titles',
+        description: 'Shows the group title when the script enters a group',
+        type: 'boolean',
+        defaultValue: shared.showGroups,
+      },
+      {
+        id: 'hideEmpty',
+        title: 'Hide events without a script',
+        description: 'Leaves out events with no script text',
+        type: 'boolean',
+        defaultValue: shared.hideEmpty,
+      },
+    ],
+  };
+
   return [
-    {
-      title: OptionTitle.DataSources,
-      collapsible: true,
-      options: [
-        {
-          id: 'script',
-          title: 'Script',
-          description: `The field which holds the script. ${localNote}`,
-          type: 'option',
-          values: scriptFields,
-          defaultValue: shared.script,
-        },
-        {
-          id: 'heading',
-          title: 'Heading',
-          description: `What to show above the script of each event. ${localNote}`,
-          type: 'option',
-          values: headingOptions,
-          defaultValue: shared.heading,
-        },
-      ],
-    },
-    {
-      title: OptionTitle.BehaviourOptions,
-      collapsible: true,
-      options: [
-        {
-          id: 'remoteControl',
-          title: 'Remote screen',
-          description:
-            'Shows the shared teleprompter, which every remote screen follows. Drive it from a controller view or the integration API',
-          type: 'boolean',
-          defaultValue: defaults.remoteControl,
-        },
-        {
-          id: 'control',
-          title: 'Controller',
-          description:
-            'Shows the shared teleprompter like a remote screen, and drives every remote screen with the keyboard, the mouse wheel and the on-screen buttons',
-          type: 'boolean',
-          defaultValue: defaults.control,
-        },
-        {
-          id: 'followLoaded',
-          title: 'Follow loaded event',
-          description: `Loading an event moves the reader to it, and playback stops at the end of each event. ${localNote}`,
-          type: 'boolean',
-          defaultValue: shared.followLoaded,
-        },
-        {
-          id: 'speed',
-          title: 'Speed',
-          description: `Starting speed in lines per minute (${bounds.speed[0]} to ${bounds.speed[1]}), which the arrow keys change live. Local view only`,
-          type: 'number',
-          defaultValue: defaults.speed,
-        },
-      ],
-    },
+    roleOption,
+    ...(isLocal ? [scriptOption] : []),
     {
       title: OptionTitle.ElementVisibility,
       collapsible: true,
       options: [
         {
-          id: 'onlyPlaying',
-          title: 'Show only the playing event',
-          description:
-            'Hides the rest of the script, leaving the loaded event and its group title. Shows the whole script while nothing is loaded',
+          id: 'onlyLoaded',
+          title: 'Show only the loaded event',
+          description: 'Hides the rest of the script. Until an event is loaded, the screen says it is waiting for one',
           type: 'boolean',
-          defaultValue: defaults.onlyPlaying,
-        },
-        {
-          id: 'showGroups',
-          title: 'Group titles',
-          description: `Shows the group title when the script enters a group. ${localNote}`,
-          type: 'boolean',
-          defaultValue: shared.showGroups,
-        },
-        {
-          id: 'hideEmpty',
-          title: 'Hide events without a script',
-          description: `Leaves out events with no script text. ${localNote}`,
-          type: 'boolean',
-          defaultValue: shared.hideEmpty,
+          defaultValue: defaults.onlyLoaded,
         },
       ],
     },
@@ -163,13 +195,6 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
       title: OptionTitle.StyleOverride,
       collapsible: true,
       options: [
-        {
-          id: 'charsPerLine',
-          title: 'Characters per line',
-          description: `Where lines break (${teleprompterCharsPerLine.min}-${teleprompterCharsPerLine.max}). ${localNote}`,
-          type: 'number',
-          defaultValue: shared.charsPerLine,
-        },
         {
           id: 'lineHeight',
           title: 'Line height',
@@ -181,7 +206,7 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
           id: 'textWidth',
           title: 'Text width',
           description:
-            'Width of the text as a percentage of the screen. The text is sized so the longest line fills it. Narrower means less eye movement',
+            'Width of the text as a percentage of the screen. The longest line fills it. Narrower means less eye movement',
           type: 'number',
           defaultValue: defaults.textWidth,
         },
@@ -230,6 +255,12 @@ function toBoolean(value: string | null, fallback: boolean): boolean {
   return value === null ? fallback : isStringBoolean(value);
 }
 
+function toPlaybackMode(value: string | null): boolean | null {
+  if (value === 'event') return true;
+  if (value === 'script') return false;
+  return null;
+}
+
 /** The query for a local view's script, passing on only the settings it sets */
 function getScriptSearch(getParam: (key: string) => string | null): string {
   const search = new URLSearchParams();
@@ -248,9 +279,8 @@ export function getOptionsFromParams(
   const getParam = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
 
   return {
-    remoteControl: toBoolean(getParam('remoteControl'), defaults.remoteControl),
-    control: toBoolean(getParam('control'), defaults.control),
-    onlyPlaying: toBoolean(getParam('onlyPlaying'), defaults.onlyPlaying),
+    role: roles.find(({ value }) => value === getParam('role'))?.value ?? defaults.role,
+    onlyLoaded: toBoolean(getParam('onlyLoaded'), defaults.onlyLoaded),
     lineHeight: toNumber(getParam('lineHeight'), bounds.lineHeight, defaults.lineHeight),
     textWidth: toNumber(getParam('textWidth'), bounds.textWidth, defaults.textWidth),
     readingLine: toBoolean(getParam('readingLine'), defaults.readingLine),
@@ -258,7 +288,7 @@ export function getOptionsFromParams(
     flipH: toBoolean(getParam('flipH'), defaults.flipH),
     flipV: toBoolean(getParam('flipV'), defaults.flipV),
     scriptSearch: getScriptSearch(getParam),
-    followLoaded: getParam('followLoaded') === null ? null : toBoolean(getParam('followLoaded'), false),
+    followLoaded: toPlaybackMode(getParam('playback')),
     speed: toNumber(getParam('speed'), bounds.speed, defaults.speed),
   };
 }

@@ -2,7 +2,7 @@ import type { APIRequestContext, Page } from '@playwright/test';
 
 import { expect, test } from '../fixtures/override';
 
-const remoteUrl = '/teleprompter?remoteControl=true';
+const remoteUrl = '/teleprompter?role=remote';
 
 /** Restores the demo project and a paused transport at the top, which the transport outlives */
 async function resetTeleprompter(request: APIRequestContext) {
@@ -36,13 +36,13 @@ test.afterEach(async ({ request }) => {
 test('RMT-1 a remote screen shows the shared script and answers only to ?', async ({ page, request }) => {
   await page.goto(remoteUrl);
   await expect(page.getByText('Music plays, holding slide on', { exact: true })).toBeVisible();
-  await expect(page.getByTestId('teleprompter-status')).toHaveText('Paused');
+  await expect(page.getByTestId('teleprompter-state')).toHaveAttribute('aria-label', 'Paused');
   const before = await readingRow(page);
 
   for (const key of ['Space', 'ArrowDown', 'ArrowRight', 'PageDown', 'Shift+ArrowDown']) {
     await page.keyboard.press(key);
   }
-  await expect(page.getByTestId('teleprompter-status')).toHaveText('Paused');
+  await expect(page.getByTestId('teleprompter-state')).toHaveAttribute('aria-label', 'Paused');
   await expect(page.getByTestId('teleprompter-speed')).toHaveText('14lpm');
   expect(await readingRow(page)).toBe(before);
   expect((await (await request.get('/api/poll')).json()).payload.teleprompter.playing).toBe(false);
@@ -65,7 +65,7 @@ test('RMT-3 a screen which connects late lands on the line the others show', asy
   const late = await context.newPage();
   await late.goto(remoteUrl);
   await expect(late.locator('.teleprompter__row').first()).toBeAttached();
-  await expect(late.getByTestId('teleprompter-status')).toHaveText('Playing');
+  await expect(late.getByTestId('teleprompter-state')).toHaveAttribute('aria-label', 'Playing');
 
   // both move with the shared clock
   await expect
@@ -145,7 +145,7 @@ test('CTL-1 CTL-4 a controller drives every remote screen with its keys, wheel a
 }) => {
   const transport = async () => (await (await request.get('/api/poll')).json()).payload.teleprompter;
 
-  await page.goto('/teleprompter?control=true');
+  await page.goto('/teleprompter?role=controller');
   const remote = await context.newPage();
   await remote.goto(remoteUrl);
   await expect(remote.locator('.teleprompter__row--text').first()).toBeVisible();
@@ -180,9 +180,9 @@ test('CTL-1 CTL-4 a controller drives every remote screen with its keys, wheel a
   await expect.poll(async () => (await transport()).anchor).toEqual(loaded);
 
   await page.getByTestId('teleprompter-play').click();
-  await expect(remote.getByTestId('teleprompter-status')).toHaveText('Playing');
+  await expect(remote.getByTestId('teleprompter-state')).toHaveAttribute('aria-label', 'Playing');
   await page.keyboard.press('Space');
-  await expect(remote.getByTestId('teleprompter-status')).toHaveText('Paused');
+  await expect(remote.getByTestId('teleprompter-state')).toHaveAttribute('aria-label', 'Paused');
 
   await request.get('/api/stop');
 });
@@ -218,14 +218,14 @@ test('LOC-1 LOC-2 a local view runs its own transport over a script cut with its
   await page.waitForTimeout(500);
   const scrolledTo = await readingRow(page);
   await page.keyboard.press('Space');
-  await expect(page.getByTestId('teleprompter-status')).toHaveText('Playing');
+  await expect(page.getByTestId('teleprompter-play')).toHaveAttribute('aria-pressed', 'true');
   await expect.poll(() => readingRow(page)).toBeGreaterThan(scrolledTo);
   expect(await readingRow(page)).toBeLessThan(scrolledTo + 1);
   await page.keyboard.press('Space');
 
   // none of it reaches the shared transport
   expect(await transport()).toMatchObject({ playing: false, speed: 14 });
-  await expect(remote.getByTestId('teleprompter-status')).toHaveText('Paused');
+  await expect(remote.getByTestId('teleprompter-state')).toHaveAttribute('aria-label', 'Paused');
 });
 
 test('TRN-3 cued, loading an event brings every remote screen to its first line', async ({ page, request }) => {
@@ -237,6 +237,87 @@ test('TRN-3 cued, loading an event brings every remote screen to its first line'
   await expect(firstLine).toBeAttached();
   const row = await firstLine.evaluate((element) => [...element.parentElement!.children].indexOf(element));
   await expect.poll(() => readingRow(page)).toBeCloseTo(row, 2);
+
+  await request.get('/api/stop');
+});
+
+test('CTL-4 going back to the loaded event is offered only when the reader is away from it', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/teleprompter?role=controller');
+  const goToLoaded = page.getByTestId('teleprompter-loaded');
+  await expect(goToLoaded).toHaveText('No event loaded');
+  await expect(goToLoaded).toBeDisabled();
+
+  expect((await request.get('/api/load/index/2')).ok()).toBe(true);
+  await expect(goToLoaded).toHaveText(/^Reading loaded event/);
+  await expect(goToLoaded).toBeDisabled();
+
+  await page.keyboard.press('Home');
+  await expect(goToLoaded).toHaveText(/^Go to loaded event/);
+  await goToLoaded.click();
+  await expect(goToLoaded).toBeDisabled();
+
+  await request.get('/api/stop');
+});
+
+test('INT-2 Space plays and pauses, and never presses a focused button or opens a menu', async ({ page, request }) => {
+  const playing = async () => (await (await request.get('/api/poll')).json()).payload.teleprompter.playing;
+  await page.goto('/teleprompter?role=controller');
+  await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
+
+  // closing the view options leaves their button focused
+  await page.mouse.move(20, 20);
+  await page.getByTestId('navigation__toggle-settings').click();
+  await expect(page.getByTestId('apply-view-params')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('apply-view-params')).toHaveCount(0);
+
+  await page.keyboard.press('Space');
+  await expect.poll(playing).toBe(true);
+  await expect(page.getByTestId('apply-view-params')).toHaveCount(0);
+  await expect(page.getByRole('dialog')).toBeHidden();
+
+  await page.keyboard.press('Space');
+  await expect.poll(playing).toBe(false);
+});
+
+test('DSP-7 the controls stay while the pointer is over them', async ({ page }) => {
+  await page.goto('/teleprompter?role=controller');
+  const controls = page.getByTestId('teleprompter-controls');
+  await controls.hover();
+  await page.waitForTimeout(4000);
+  await expect(controls).not.toHaveClass(/idle/);
+
+  await page.mouse.move(400, 100);
+  await expect(controls).toHaveClass(/idle/, { timeout: 6000 });
+});
+
+test('DSP-8 the end of an event shows on the reading line, without the controls', async ({ page, request }) => {
+  await page.goto(remoteUrl);
+  await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
+
+  await request.get('/api/teleprompter/speed/40');
+  await request.get('/api/teleprompter/play');
+  await expect(page.getByTestId('teleprompter-end')).toHaveText('End of event', { timeout: 10_000 });
+  await expect(page.getByTestId('teleprompter-controls')).toHaveClass(/idle/, { timeout: 6000 });
+  await expect(page.getByTestId('teleprompter-end')).toBeVisible();
+
+  await request.get('/api/teleprompter/play');
+  await expect(page.getByTestId('teleprompter-end')).toHaveCount(0);
+});
+
+test('DSP-6 a screen showing only the loaded event says it is waiting while nothing is loaded', async ({
+  page,
+  request,
+}) => {
+  await page.goto(`${remoteUrl}&onlyLoaded=true`);
+  await expect(page.getByText('Waiting for an event to load', { exact: false })).toBeVisible();
+
+  expect((await request.get('/api/load/index/2')).ok()).toBe(true);
+  await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
+  await expect(page.locator('.teleprompter__row:not([data-loaded])')).toHaveCount(0);
 
   await request.get('/api/stop');
 });

@@ -8,22 +8,25 @@ export function composeFlip(flipH: boolean, flipV: boolean, isMirrored: boolean)
   return { flipH: flipH !== isMirrored, flipV: flipV !== isMirrored };
 }
 
+/** What a screen showing only the loaded event has to show */
+export type LoadedEventScript = { events: TeleprompterScriptEvent[] } | { waiting: 'nothing-loaded' | 'no-script' };
+
 /**
  * Narrows the script to the loaded event, with its group title
- * @returns the whole script while nothing is loaded, or null if the loaded event has no text to show
+ * Says what the screen is waiting for while nothing is loaded, or the loaded event has no text
  */
 export function filterToLoadedEvent(
   events: TeleprompterScriptEvent[],
   loadedEventId: EntryId | null,
-): TeleprompterScriptEvent[] | null {
-  if (!loadedEventId) return events;
+): LoadedEventScript {
+  if (!loadedEventId) return { waiting: 'nothing-loaded' };
 
   const event = events.find((candidate) => candidate.id === loadedEventId);
-  if (!event || !event.lines.some((line) => line.kind === 'text')) return null;
+  if (!event || !event.lines.some((line) => line.kind === 'text')) return { waiting: 'no-script' };
 
   const hasGroupTitle = event.lines[0]?.kind === 'group';
-  if (!event.group || hasGroupTitle) return [event];
-  return [{ ...event, lines: [{ kind: 'group', text: event.group }, ...event.lines] }];
+  if (!event.group || hasGroupTitle) return { events: [event] };
+  return { events: [{ ...event, lines: [{ kind: 'group', text: event.group }, ...event.lines] }] };
 }
 
 /** Longest frame to animate over, so a tab returning from the background does not lurch */

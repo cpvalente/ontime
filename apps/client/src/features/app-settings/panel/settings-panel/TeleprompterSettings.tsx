@@ -21,6 +21,11 @@ const headingOptions: { value: TeleprompterHeading; label: string }[] = [
   { value: 'none', label: 'None' },
 ];
 
+const playbackModes = [
+  { value: 'event', label: 'Stop at the end of each event' },
+  { value: 'script', label: 'Play through the script' },
+];
+
 /** Settings shared by every teleprompter remote screen and controller, kept with the project */
 export default function TeleprompterSettings() {
   const { data, status, mutateAsync } = useViewSettings();
@@ -85,6 +90,7 @@ export default function TeleprompterSettings() {
         <Panel.Section>
           <Info>
             Every teleprompter remote screen and controller uses these settings, so all of them show the same lines.
+            Local views start from them and can change them in their view options.
           </Info>
           <Panel.Loader isLoading={status === 'pending'} />
           <Panel.Error>{errors.root?.message}</Panel.Error>
@@ -102,7 +108,7 @@ export default function TeleprompterSettings() {
             <Panel.ListItem>
               <Panel.Field
                 title='Characters per line'
-                description={`Where lines break (${teleprompterCharsPerLine.min}-${teleprompterCharsPerLine.max}). Screens size the text to fit the longest line`}
+                description={`How many characters fit on a line (${teleprompterCharsPerLine.min}-${teleprompterCharsPerLine.max}), which sets the text size on every screen. Fewer characters make larger text`}
                 error={errors.charsPerLine?.message}
               />
               <Input
@@ -143,13 +149,15 @@ export default function TeleprompterSettings() {
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
-                title='Follow loaded event'
-                description='Cued: loading an event moves the reader to it, and playback stops at the end of each event. Off: playback reads on to the end of the script'
+                title='Playback'
+                description='Stop at the end of each event follows the event Ontime loads. Play through reads on to the end of the script'
               />
-              <Switch
-                size='large'
-                checked={watch('followLoaded')}
-                onCheckedChange={(value: boolean) => setValue('followLoaded', value, { shouldDirty: true })}
+              <Select
+                value={watch('followLoaded') ? 'event' : 'script'}
+                onValueChange={(value: string | null) => {
+                  if (value !== null) setValue('followLoaded', value === 'event', { shouldDirty: true });
+                }}
+                options={playbackModes}
               />
             </Panel.ListItem>
           </Panel.ListGroup>

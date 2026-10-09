@@ -99,9 +99,18 @@ export default function TeleprompterScreen({
       </div>
 
       <div className='teleprompter__dim' />
-      {options.readingLine && (
-        <div className='teleprompter__reading-line' data-testid='teleprompter-reading-line'>
-          <span className='teleprompter__reading-marker' />
+      {(options.readingLine || transport.stoppedAt) && (
+        <div
+          className={cx(['teleprompter__reading-line', transport.stoppedAt && 'teleprompter__reading-line--stopped'])}
+          data-testid='teleprompter-reading-line'
+        >
+          {options.readingLine && <span className='teleprompter__reading-marker' />}
+          {transport.stoppedAt && (
+            // where the talent is looking, so the end is clear without the controls
+            <span className='teleprompter__end' data-testid='teleprompter-end'>
+              {transport.stoppedAt === 'event' ? 'End of event' : 'End of script'}
+            </span>
+          )}
         </div>
       )}
       {children}

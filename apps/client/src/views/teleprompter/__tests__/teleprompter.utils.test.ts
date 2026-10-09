@@ -38,23 +38,23 @@ describe('DSP-6 filterToLoadedEvent()', () => {
   const events = [makeEvent('a', 'Morning'), makeEvent('b', 'Morning'), makeEvent('c', undefined, '')];
 
   test('shows the loaded event alone, with its group title', () => {
-    expect(filterToLoadedEvent(events, 'b')).toEqual([
-      { ...events[1], lines: [{ kind: 'group', text: 'Morning' }, ...events[1].lines] },
-    ]);
+    expect(filterToLoadedEvent(events, 'b')).toEqual({
+      events: [{ ...events[1], lines: [{ kind: 'group', text: 'Morning' }, ...events[1].lines] }],
+    });
   });
 
   test('does not repeat a group title the event already shows', () => {
     const titled = { ...events[0], lines: [{ kind: 'group' as const, text: 'Morning' }, ...events[0].lines] };
-    expect(filterToLoadedEvent([titled], 'a')).toEqual([titled]);
+    expect(filterToLoadedEvent([titled], 'a')).toEqual({ events: [titled] });
   });
 
-  test('shows the whole script while nothing is loaded', () => {
-    expect(filterToLoadedEvent(events, null)).toBe(events);
+  test('waits for an event while nothing is loaded', () => {
+    expect(filterToLoadedEvent(events, null)).toEqual({ waiting: 'nothing-loaded' });
   });
 
-  test('has nothing to show for a loaded event without text, or outside the script', () => {
-    expect(filterToLoadedEvent(events, 'c')).toBeNull();
-    expect(filterToLoadedEvent(events, 'skipped')).toBeNull();
+  test('says a loaded event has no script, when it has no text or is not in the script', () => {
+    expect(filterToLoadedEvent(events, 'c')).toEqual({ waiting: 'no-script' });
+    expect(filterToLoadedEvent(events, 'skipped')).toEqual({ waiting: 'no-script' });
   });
 });
 

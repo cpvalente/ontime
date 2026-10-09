@@ -16,6 +16,12 @@ interface UseTeleprompterInputArgs {
 
 const ignoredTags = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
 
+/** Keys pressed while typing in a field belong to the field */
+export function isTypingTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  return ignoredTags.has(target.tagName) || target.isContentEditable;
+}
+
 /** Turns the keyboard and the mouse wheel into teleprompter commands */
 export function useTeleprompterInput(args: UseTeleprompterInputArgs) {
   const latest = useRef(args);
@@ -33,11 +39,9 @@ export function useTeleprompterInput(args: UseTeleprompterInputArgs) {
 
     function handleKeyDown(event: KeyboardEvent) {
       const { onCommand, rowHeight, disabled } = latest.current;
-      const target = event.target as HTMLElement | null;
       if (!onCommand || disabled || useViewParamsEditorStore.getState().isOpen) return;
-      if (target && (ignoredTags.has(target.tagName) || target.isContentEditable)) return;
-      // a button focused from the keyboard takes Space as a press
-      if (event.code === 'Space' && target?.closest('button')) return;
+      // Space always plays and pauses, even with a button focused: a key in a studio does one thing
+      if (isTypingTarget(event.target)) return;
 
       const action = resolveTeleprompterKey(event);
       if (!action || action.type === 'help') return;
