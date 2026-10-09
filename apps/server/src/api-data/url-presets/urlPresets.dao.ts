@@ -1,7 +1,7 @@
 import { RefetchKey, type URLPreset } from 'ontime-types';
 
-import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { notifyChange } from '../../services/change-service/change.service.js';
 
 /**
  * Gets the stored URL presets
@@ -52,6 +52,6 @@ export async function deleteUrlPreset(alias: string): Promise<URLPreset[]> {
 
 async function saveChanges(newPresets: URLPreset[]): Promise<URLPreset[]> {
   await getDataProvider().setUrlPresets(newPresets);
-  sendRefetch(RefetchKey.UrlPresets);
+  notifyChange(RefetchKey.UrlPresets);
   return newPresets;
 }

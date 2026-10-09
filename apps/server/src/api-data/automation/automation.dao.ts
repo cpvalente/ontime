@@ -10,8 +10,8 @@ import {
 } from 'ontime-types';
 import { deleteAtIndex, generateId } from 'ontime-utils';
 
-import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { notifyChange } from '../../services/change-service/change.service.js';
 import { isAutomationUsed } from './automation.utils.js';
 
 /**
@@ -182,9 +182,7 @@ async function saveChanges(patch: Partial<AutomationSettings>) {
   });
   await getDataProvider().setAutomation({ ...automation, ...patch });
 
-  setImmediate(() => {
-    sendRefetch(RefetchKey.Automation);
-  });
+  notifyChange(RefetchKey.Automation);
 }
 
 /**
