@@ -321,3 +321,29 @@ test('DSP-6 a screen showing only the loaded event says it is waiting while noth
 
   await request.get('/api/stop');
 });
+
+test('LOC-2 DSP-6 scrolling a local view which shows only the loaded event keeps the reader in that event', async ({
+  page,
+  request,
+}) => {
+  // give the second event enough script to scroll through
+  const rundown = await (await request.get('/data/rundowns/current')).json();
+  const [, second] = rundown.flatOrder.filter((id: string) => rundown.entries[id].type === 'event');
+  const note = Array.from({ length: 12 }, (_, line) => `Line ${line + 1} of the second event`).join('\n');
+  expect((await request.put(`/data/rundowns/${rundown.id}/entry`, { data: { id: second, note } })).ok()).toBe(true);
+  expect((await request.get('/api/load/index/2')).ok()).toBe(true);
+
+  await page.goto('/teleprompter?onlyLoaded=true');
+  await expect(page.getByText('Line 1 of the second event')).toBeVisible();
+  const start = await readingRow(page);
+
+  await page.mouse.move(960, 500);
+  await page.mouse.wheel(0, 400);
+  await expect.poll(() => readingRow(page)).toBeGreaterThan(start + 2);
+  const scrolledTo = await readingRow(page);
+  // the reader stays where they scrolled to, rather than being put back at the start of the event
+  await page.waitForTimeout(500);
+  expect(await readingRow(page)).toBeCloseTo(scrolledTo, 1);
+
+  await request.get('/api/stop');
+});

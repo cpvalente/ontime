@@ -1,6 +1,7 @@
 import {
   type EntryId,
   runtimeStorePlaceholder,
+  type TeleprompterAnchor,
   type TeleprompterScriptEvent,
   type TeleprompterState,
 } from 'ontime-types';
@@ -8,7 +9,6 @@ import {
   applyTransportCommand,
   makeTeleprompterLayout,
   msUntilChange,
-  positionAt,
   reanchorTransport,
   settle,
   type TeleprompterTransportCommand,
@@ -55,12 +55,13 @@ export function useLocalTransport({ events, cued, initialSpeed, loadedEventId }:
     [apply],
   );
 
-  /** Scrolling by hand moves the position */
-  const moveToRow = useCallback((row: number) => {
+  /** Scrolling by hand moves the position, to a place the view found in the rows it shows */
+  const moveToAnchor = useCallback((anchor: TeleprompterAnchor) => {
     const { layout, mode } = latest.current;
     setState((current) => {
-      const position = positionAt(current, layout, serverNow(), mode) ?? 0;
-      return applyTransportCommand(current, { type: 'scroll', lines: row - position }, layout, serverNow(), mode);
+      const now = serverNow();
+      const settled = settle(current, layout, now, mode);
+      return settle({ ...settled, anchor, since: now, stoppedAt: null }, layout, now, mode);
     });
   }, []);
 
@@ -113,5 +114,5 @@ export function useLocalTransport({ events, cued, initialSpeed, loadedEventId }:
     return () => clearTimeout(timer);
   }, [state, layout, mode]);
 
-  return { state, handleCommand, moveToRow };
+  return { state, handleCommand, moveToAnchor };
 }

@@ -1,4 +1,11 @@
-import { type EntryId, OntimeView, type TeleprompterScript, type TeleprompterState } from 'ontime-types';
+import {
+  type EntryId,
+  OntimeView,
+  type TeleprompterAnchor,
+  type TeleprompterScript,
+  type TeleprompterState,
+} from 'ontime-types';
+import { anchorAtRow, makeTeleprompterLayout } from 'ontime-utils';
 import { useEffect, useRef, useState } from 'react';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
@@ -124,7 +131,7 @@ function LocalTeleprompter({
   const { data: script, status } = useTeleprompterScript(options.scriptSearch);
   const loadedEventId = useSelectedEventId();
   const cued = options.followLoaded ?? sharedFollowLoaded;
-  const { state, handleCommand, moveToRow } = useLocalTransport({
+  const { state, handleCommand, moveToAnchor } = useLocalTransport({
     events: script?.events ?? noEvents,
     cued,
     initialSpeed: options.speed,
@@ -139,7 +146,7 @@ function LocalTeleprompter({
       cued={cued}
       options={options}
       onCommand={handleCommand}
-      onUserScroll={moveToRow}
+      onUserScroll={moveToAnchor}
       isHelpOpen={isHelpOpen}
       onToggleHelp={onToggleHelp}
     />
@@ -160,7 +167,7 @@ interface ScriptContentProps {
   cued: boolean;
   options: TeleprompterOptions;
   onCommand?: (payload: TeleprompterPayload) => void;
-  onUserScroll?: (row: number) => void;
+  onUserScroll?: (anchor: TeleprompterAnchor) => void;
   isHelpOpen: boolean;
   onToggleHelp: () => void;
 }
@@ -208,6 +215,14 @@ function ScriptContent({
   }
   if (shown.events.length === 0) return <EmptyPage text='There is no script in the field the teleprompter reads' />;
 
+  // the screen reports a row of the rows it shows, which can be fewer than the whole script
+  const handleUserScroll = onUserScroll
+    ? (row: number) => {
+        const anchor = anchorAtRow(makeTeleprompterLayout(shown.events), row);
+        if (anchor) onUserScroll(anchor);
+      }
+    : undefined;
+
   return (
     <TeleprompterScreen
       events={shown.events}
@@ -218,7 +233,7 @@ function ScriptContent({
       loadedEventId={loadedEventId}
       fallbackRow={options.onlyLoaded ? shown.events[0]?.lines.findIndex((line) => line.kind === 'text') : undefined}
       onCommand={onCommand}
-      onUserScroll={onUserScroll}
+      onUserScroll={handleUserScroll}
       inputDisabled={isHelpOpen}
     >
       {controls}
