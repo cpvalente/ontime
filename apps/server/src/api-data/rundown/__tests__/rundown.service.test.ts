@@ -28,14 +28,11 @@ vi.mock('../../../adapters/WebsocketAdapter.js', () => ({ sendRefetch: vi.fn<typ
 vi.mock('../../../services/runtime-service/runtime.service.js', () => ({
   runtimeService: {
     stop: stopMock,
-    notifyOfChangedEvents: vi.fn<() => void>(),
-    getLoadedEventId: vi.fn<() => string | null>(),
   },
 }));
 vi.mock('../../../services/app-state-service/appState.service.js', () => ({
   setLastLoadedRundown: vi.fn<() => Promise<void>>(),
 }));
-vi.mock('../../../stores/runtimeState.js', () => ({ updateRundownData: vi.fn<() => void>() }));
 
 /** side effects are scheduled for the end of the event loop */
 const flushSideEffects = () => new Promise((resolve) => setImmediate(resolve));
@@ -72,7 +69,7 @@ describe('rundown.service', () => {
       expect(storedRundowns.loaded).toMatchObject({ title: 'Renamed', revision: 4 });
       expect(stopMock).not.toHaveBeenCalled();
       expect(sendRefetch).toHaveBeenCalledWith(RefetchKey.Rundown, 4, 'loaded');
-      expect(sendRefetch).toHaveBeenCalledWith(RefetchKey.ProjectRundowns);
+      expect(sendRefetch).toHaveBeenCalledWith(RefetchKey.ProjectRundowns, null, undefined);
     });
 
     it('renames a background rundown and tells its viewers', async () => {
@@ -107,6 +104,22 @@ describe('rundown.service', () => {
       expect(storedRundowns.background).toMatchObject({ id: 'background', title: 'Background', revision: 8 });
       expect(sendRefetch).toHaveBeenCalledWith(RefetchKey.Rundown, 8, 'background');
       expect(stopMock).not.toHaveBeenCalled();
+    });
+
+    it('tells clients to refetch only the loaded rundown and the rundown list', async () => {
+      const incoming = makeRundown({
+        entries: { a: makeOntimeEvent({ id: 'a' }) },
+        order: ['a'],
+        flatOrder: ['a'],
+      });
+
+      await applyImportToRundown('override', 'loaded', incoming, {}, { event: [], custom: [] });
+      await flushSideEffects();
+
+      expect(getCurrentRundown().revision).toBe(4);
+      expect(sendRefetch).toHaveBeenCalledWith(RefetchKey.Rundown, 4, 'loaded');
+      expect(sendRefetch).toHaveBeenCalledWith(RefetchKey.ProjectRundowns, null, undefined);
+      expect(sendRefetch).not.toHaveBeenCalledWith(RefetchKey.All);
     });
   });
 });

@@ -1,4 +1,13 @@
-import { type Day, Instant, OffsetMode, PlayableEvent, Playback, SupportedEntry, TimerPhase } from 'ontime-types';
+import {
+  type Day,
+  Instant,
+  OffsetMode,
+  PlayableEvent,
+  Playback,
+  type Rundown,
+  SupportedEntry,
+  TimerPhase,
+} from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
@@ -18,7 +27,18 @@ import {
   start,
   stop,
   update,
+  updateRundownData,
 } from '../runtimeState.js';
+
+/**
+ * Loads a rundown and gives the runtime state its derived data
+ * outside of tests, the runtime service does this when it is told of the change
+ */
+async function initTestRundown(rundown: Rundown) {
+  await initRundown(rundown, {});
+  vi.runAllTimers();
+  updateRundownData(rundownCache.get().metadata);
+}
 
 const mockEvent = {
   type: 'event',
@@ -86,8 +106,7 @@ describe('mutation on runtimeState', () => {
   describe('playback operations', () => {
     it('refuses if nothing is loaded', async () => {
       // force update
-      await initRundown(makeRundown({}), {});
-      vi.runAllTimers();
+      await initTestRundown(makeRundown({}));
 
       let success = start(mockState);
       expect(success).toBe(false);
@@ -103,8 +122,7 @@ describe('mutation on runtimeState', () => {
         order: [mockEvent.id, 'event2'],
       });
       // force update
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
 
       const { metadata, rundown } = rundownCache.get();
       load(mockEvent, rundown, metadata);
@@ -190,8 +208,7 @@ describe('mutation on runtimeState', () => {
         order: [event.id],
       });
 
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
 
       const { metadata, rundown } = rundownCache.get();
       vi.setSystemTime('jan 1 00:00');
@@ -226,8 +243,7 @@ describe('mutation on runtimeState', () => {
         order: [event.id],
       });
 
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
 
       const { metadata, rundown } = rundownCache.get();
       vi.setSystemTime('jan 1 00:00');
@@ -258,8 +274,7 @@ describe('mutation on runtimeState', () => {
         timeEnd: MILLIS_PER_HOUR,
         duration: 2 * MILLIS_PER_HOUR,
       };
-      await initRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }), {});
-      vi.runAllTimers();
+      await initTestRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }));
       const { metadata, rundown } = rundownCache.get();
 
       vi.setSystemTime('jan 1 23:50');
@@ -300,8 +315,7 @@ describe('mutation on runtimeState', () => {
     const mockRundown = makeRundown({ entries, order: ['event1', 'event2'] });
 
     // force update
-    await initRundown(mockRundown, {});
-    vi.runAllTimers();
+    await initTestRundown(mockRundown);
 
     const { metadata, rundown } = rundownCache.get();
 
@@ -379,8 +393,7 @@ describe('mutation on runtimeState', () => {
     const startEpoch = new Date('jan 1 00:00').getTime() as Instant;
     vi.setSystemTime('jan 3 23:59:59');
 
-    await initRundown(mockRundown, {});
-    vi.runAllTimers();
+    await initTestRundown(mockRundown);
 
     const { rundown, metadata } = rundownCache.get();
     const restorePoint = {
@@ -438,8 +451,7 @@ describe('roll mode', () => {
         order: ['1'],
       });
 
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
 
       // Clock is at 00:10 (morning part of overnight event)
       vi.setSystemTime('jan 1 00:10');
@@ -470,8 +482,7 @@ describe('roll mode', () => {
         order: ['1'],
       });
 
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
 
       // Clock is at 23:40 (evening part of overnight event)
       vi.setSystemTime('jan 1 23:40');
@@ -501,8 +512,7 @@ describe('roll mode', () => {
         order: ['1'],
       });
 
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
 
       // Start at 23:40
       vi.setSystemTime('jan 1 23:40');
@@ -534,8 +544,7 @@ describe('roll mode', () => {
         order: ['1'],
       });
 
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
 
       // Clock is at 23:50 (before midnight, event is pending for tomorrow 01:00)
       vi.setSystemTime('jan 1 23:50');
@@ -585,8 +594,7 @@ describe('roll mode', () => {
         order: ['1', '2'],
       });
 
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
 
       const { rundown, metadata } = rundownCache.get();
 
@@ -636,8 +644,7 @@ describe('roll mode', () => {
         order: ['1'],
       });
 
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
 
       // Start pending at 23:50
       vi.setSystemTime('jan 1 23:50');
@@ -676,8 +683,7 @@ describe('roll mode', () => {
         order: ['1'],
       });
 
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
 
       // Clock is at 23:50
       vi.setSystemTime('jan 1 23:50');
@@ -740,8 +746,7 @@ describe('roll mode', () => {
         order: [groupId],
       });
 
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
 
       const { rundown, metadata } = rundownCache.get();
 
@@ -810,8 +815,7 @@ describe('roll mode', () => {
         order: ['1', '2'],
       });
 
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
 
       const { rundown, metadata } = rundownCache.get();
 
@@ -863,8 +867,7 @@ describe('roll mode', () => {
         },
         order: ['1', '2', '3'],
       });
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
     });
 
     test('pending event', () => {
@@ -907,8 +910,7 @@ describe('roll mode', () => {
 
       // force update
       vi.useFakeTimers();
-      await initRundown(rundown, {});
-      vi.runAllTimers();
+      await initTestRundown(rundown);
     });
 
     test('from load', () => {
@@ -944,8 +946,7 @@ describe('roll mode', () => {
 
       // force update
       vi.useFakeTimers();
-      await initRundown(mockRundown, {});
-      vi.runAllTimers();
+      await initTestRundown(mockRundown);
       const { rundown, metadata } = rundownCache.get();
 
       load(rundown.entries[1] as PlayableEvent, rundown, metadata);
