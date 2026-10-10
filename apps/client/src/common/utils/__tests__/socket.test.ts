@@ -51,8 +51,8 @@ class MockWebSocket {
     this.onopen?.();
   }
 
-  receive(tag: MessageTag, payload: unknown) {
-    this.onmessage?.({ data: JSON.stringify({ tag, payload }) });
+  receive(tag: MessageTag, payload: unknown, clock?: number) {
+    this.onmessage?.({ data: JSON.stringify({ tag, payload, clock }) });
   }
 }
 
@@ -64,7 +64,7 @@ describe('socket connection watchdog', () => {
   let getReconnectAttempts: () => number;
 
   beforeEach(async () => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date', 'performance'] });
     MockWebSocket.instances = [];
     vi.mocked(addLog).mockClear();
     vi.stubGlobal('WebSocket', MockWebSocket);
@@ -97,8 +97,36 @@ describe('socket connection watchdog', () => {
       socket.receive(MessageTag.RuntimeData, { clock: elapsed });
     }
 
-    expect(socket.sent).toHaveLength(1);
+    expect(socket.sent.filter((packet) => JSON.parse(packet).tag === MessageTag.ClientSet)).toHaveLength(1);
     expect(MockWebSocket.instances).toHaveLength(1);
+  });
+
+  it('samples the server clock quickly after connecting, then rarely once the offset is known', async () => {
+    const { useAutoTickingClock } = await import('../../stores/clockStore');
+    const socket = openConnection();
+    const pings = () => socket.sent.map((packet) => JSON.parse(packet)).filter(({ tag }) => tag === MessageTag.Ping);
+
+    for (let sample = 0; sample < 5; sample++) {
+      socket.receive(MessageTag.Pong, pings().at(-1).payload, performance.now() + 10000);
+      vi.advanceTimersByTime(socketConfig.pingInterval);
+    }
+    expect(useAutoTickingClock.getState()).toBe(performance.now() + 10000);
+    // the ping scheduled before the fifth reply still went out
+    expect(pings()).toHaveLength(6);
+
+    // the server keeps publishing, so the watchdog keeps the connection
+    for (let elapsed = 0; elapsed < socketConfig.pingIdleInterval; elapsed += PUBLISH_INTERVAL) {
+      vi.advanceTimersByTime(PUBLISH_INTERVAL);
+      socket.receive(MessageTag.RuntimeData, {});
+    }
+    expect(pings()).toHaveLength(7);
+  });
+
+  it('seeds local ticking from a published clock before the first Pong', async () => {
+    const { useAutoTickingClock } = await import('../../stores/clockStore');
+    const socket = openConnection();
+    socket.receive(MessageTag.RuntimeData, { clock: 10000 });
+    expect(useAutoTickingClock.getState()).toBe(10000);
   });
 
   it('replaces a connection which stops delivering data without closing', () => {

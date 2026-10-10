@@ -1,8 +1,8 @@
 import { Playback } from 'ontime-types';
 
-import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
 import { useIsSmallScreen } from '../../common/hooks/useIsSmallScreen';
 import { useStudioClockSocket } from '../../common/hooks/useSocket';
+import { useAutoTickingClock } from '../../common/stores/clockStore';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime } from '../../common/utils/time';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';

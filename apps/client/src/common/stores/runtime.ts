@@ -18,9 +18,7 @@ export const useRuntimeStore = <T>(selector: (state: RuntimeStore) => T) =>
  * Allows patching a property of the runtime store
  */
 export function patchRuntimeProperty<K extends keyof RuntimeStore>(key: K, value: RuntimeStore[K]) {
-  const state = runtimeStore.getState();
-  state[key] = value;
-  runtimeStore.setState({ ...state });
+  runtimeStore.setState({ [key]: value });
 }
 
 /**
