@@ -109,6 +109,11 @@
   color: $ui-white;
 }
 
+/* a field which another field's value makes irrelevant */
+.disabled > .title {
+  color: $gray-400;
+}
+
 .description {
   color: $gray-400;
   font-size: $aux-text-size;

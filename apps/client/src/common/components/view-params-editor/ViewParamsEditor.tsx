@@ -1,6 +1,6 @@
 import { Dialog } from '@base-ui/react/dialog';
 import { OntimeView } from 'ontime-types';
-import { FormEvent, memo } from 'react';
+import { FormEvent, memo, useEffect, useMemo, useState } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useSearchParams } from 'react-router';
 
@@ -14,6 +14,7 @@ import Info from '../info/Info';
 import { ViewOption } from './viewParams.types';
 import { getPreservedSearchParams, getURLSearchParamsFromObj } from './viewParams.utils';
 import { useViewParamsEditorStore } from './viewParamsEditor.store';
+import { ViewParamsFormValues } from './viewParamsFormValues';
 import { ViewParamsPresets } from './ViewParamsPresets';
 import ViewParamsSection from './ViewParamsSection';
 
@@ -33,6 +34,19 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
   const isSmallScreen = useIsSmallScreen();
 
   const getPreservedParams = () => getPreservedSearchParams(searchParams, viewOptions);
+
+  // values chosen in the form before they are applied, for the fields which other fields depend on
+  const [edits, setEdits] = useState<Record<string, string>>({});
+  useEffect(() => {
+    setEdits({});
+  }, [searchParams, isOpen]);
+  const formValues = useMemo(
+    () => ({
+      get: (id: string) => edits[id] ?? searchParams.get(id) ?? getDefaultOption(viewOptions, id),
+      set: (id: string, value: string) => setEdits((current) => ({ ...current, [id]: value })),
+    }),
+    [edits, searchParams, viewOptions],
+  );
 
   const handleClose = () => {
     close();
@@ -92,14 +106,16 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
             )}
             <ViewParamsPresets target={target} />
             <form id='edit-params-form' onSubmit={onParamsFormSubmit} className={style.sectionList}>
-              {viewOptions.map((section) => (
-                <ViewParamsSection
-                  key={section.title}
-                  title={section.title}
-                  collapsible={section.collapsible}
-                  options={section.options}
-                />
-              ))}
+              <ViewParamsFormValues.Provider value={formValues}>
+                {viewOptions.map((section) => (
+                  <ViewParamsSection
+                    key={section.title}
+                    title={section.title}
+                    collapsible={section.collapsible}
+                    options={section.options}
+                  />
+                ))}
+              </ViewParamsFormValues.Provider>
             </form>
           </div>
           <div className={style.footer}>
@@ -120,4 +136,9 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
       </Dialog.Portal>
     </Dialog.Root>
   );
+}
+
+function getDefaultOption(viewOptions: ViewOption[], id: string): string | null {
+  const field = viewOptions.flatMap((section) => section.options).find((option) => option.id === id);
+  return field?.type === 'option' ? (field.defaultValue ?? null) : null;
 }

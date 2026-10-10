@@ -7,6 +7,7 @@ import Eyebrow from '../eyebrow/Eyebrow';
 import { OptionTitle } from './constants';
 import ParamInput from './ParamInput';
 import { type ParamField } from './viewParams.types';
+import { useIsFieldEnabled } from './viewParamsFormValues';
 
 import style from './ViewParamsSection.module.scss';
 
@@ -43,14 +44,22 @@ export default function ViewParamsSection({ title, collapsible, options }: ViewP
       {/* collapsed options stay mounted: the form reads its values from the DOM */}
       <div className={cx([style.options, isCollapsed && style.hidden])}>
         {options.map((option) => (
-          <label key={option.title} className={cx([style.label, isInlineField(option) && style.inline])}>
-            <span className={style.title}>{option.title}</span>
-            <span className={style.description}>{option.description}</span>
-            <ParamInput paramField={option} />
-          </label>
+          <ParamLabel key={option.title} option={option} />
         ))}
       </div>
     </section>
+  );
+}
+
+function ParamLabel({ option }: { option: ParamField }) {
+  const isEnabled = useIsFieldEnabled(option);
+
+  return (
+    <label className={cx([style.label, isInlineField(option) && style.inline, !isEnabled && style.disabled])}>
+      <span className={style.title}>{option.title}</span>
+      <span className={style.description}>{isEnabled ? option.description : option.enabledWhen?.reason}</span>
+      <ParamInput paramField={option} disabled={!isEnabled} />
+    </label>
   );
 }
 

@@ -4,6 +4,11 @@ type BaseField = {
   id: string;
   title: string;
   description: string;
+  /**
+   * Keeps the field enabled only while an option field of the form holds one of the values
+   * A disabled field shows the reason instead of its description, and is not applied
+   */
+  enabledWhen?: { id: string; values: string[]; reason: string };
 };
 
 type OptionsField = {
