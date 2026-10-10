@@ -10,7 +10,6 @@ export type WrappedLine = {
 
 /** Punctuation which closes what comes before it, so it never starts a line */
 const closingPunctuation = /^[\p{Pe}\p{Pf}.,;:!?…%]+$/u;
-const closingOrSpace = /^[\s\p{Pe}\p{Pf}.,;:!?…%]+$/u;
 /** Punctuation which opens what comes after it, so it never ends a line */
 const openingPunctuation = /^[\p{Ps}\p{Pi}¿¡]+$/u;
 /** A word made of a number, which stays with the word after it */
@@ -18,24 +17,8 @@ const numberWord = /^\p{N}+([.,:]\p{N}+)*$/u;
 /** A line may break after these, when they sit inside a word */
 const breakAfter = new Set(['-', '–', '—', '/']);
 const hasBreakAfter = /[-–—/]/;
-/** How far closing punctuation may run past the end of a line to stay with its word */
-const maxPunctuationOverflow = 2;
 /** Spaces a line may break at, which leaves out the no-break spaces */
 const breakingSpaces = /[^\S\u00a0\u2007\u202f]+/gu;
-const breakingSpace = /^[^\S\u00a0\u2007\u202f]+$/u;
-/**
- * A breaking space joined to a character next to it in one user-perceived character:
- * followed by an extending or spacing mark, or after a prepended concatenation mark
- */
-const spaceInGrapheme =
-  /[^\S\u00a0\u2007\u202f][\p{M}\p{Grapheme_Extend}\u200d\u0e33\u0eb3]|[\u0600-\u0605\u06dd\u070f\u0890\u0891\u08e2\u0d4e\u{110bd}\u{110cd}][^\S\u00a0\u2007\u202f]/u;
-/**
- * Text where every code unit is a user-perceived character of its own, which covers most scripts without
- * segmenting them: no marks which join a character, no characters outside the basic plane such as emoji,
- * no Hangul jamo, and none of the few letters which join their neighbour
- */
-const oneUnitPerCharacter =
-  /^[^\p{M}\p{Grapheme_Extend}\u200c\u200d\u0e33\u0eb3\u1100-\u11ff\ua960-\ua97f\ud7b0-\ud7ff\u0600-\u0605\u06dd\u070f\u0890\u0891\u08e2\u0d4e\u{10000}-\u{10ffff}]*$/u;
 
 const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
 
@@ -92,10 +75,7 @@ function wrapTypedLine(typedLine: string, lineStart: number, charsPerLine: numbe
     lines.push({ text: content.slice(start, end), start: contentStart + start, indent });
   };
 
-  const fits = (chunk: Chunk, spaceWidth: number) => {
-    const overflow = trailingClosing(content, chunk);
-    return (current?.width ?? 0) + spaceWidth + chunk.width <= width + overflow;
-  };
+  const fits = (chunk: Chunk, spaceWidth: number) => (current?.width ?? 0) + spaceWidth + chunk.width <= width;
 
   const queue = makeChunks(content, toPieces(content));
   for (let i = 0; i < queue.length; i++) {
@@ -131,11 +111,7 @@ function wrapTypedLine(typedLine: string, lineStart: number, charsPerLine: numbe
     const graphemes = graphemesOf(content.slice(chunkStart, chunkEnd));
     let from = 0;
     let offset = chunkStart;
-    const restFits = () => {
-      const rest = graphemes.length - from;
-      return rest <= width + Math.min(trailingClosingOf(graphemes, from), maxPunctuationOverflow);
-    };
-    while (!restFits()) {
+    while (graphemes.length - from > width) {
       let end = offset;
       for (let g = from; g < from + width; g++) end += graphemes[g].length;
       pushLine(offset, end);
@@ -149,9 +125,6 @@ function wrapTypedLine(typedLine: string, lineStart: number, charsPerLine: numbe
 
 /** Splits a text into words and the spaces between them, then words at the dashes and slashes inside them */
 function toPieces(content: string): Piece[] {
-  // a space joined to a mark is one character with it, which only splitting by character keeps
-  if (spaceInGrapheme.test(content)) return toPiecesByGrapheme(content);
-
   const pieces: Piece[] = [];
   let wordStart = 0;
   for (const space of content.matchAll(breakingSpaces)) {
@@ -162,28 +135,6 @@ function toPieces(content: string): Piece[] {
   }
   if (wordStart < content.length) addWord(content, wordStart, content.length, pieces);
   return pieces;
-}
-
-function toPiecesByGrapheme(content: string): Piece[] {
-  const pieces: Piece[] = [];
-  let run: Piece | null = null;
-  for (const { segment, index } of segmenter.segment(content)) {
-    const isSpace = breakingSpace.test(segment);
-    if (run && run.isSpace === isSpace) {
-      run.end = index + segment.length;
-      run.width++;
-    } else {
-      if (run) pushRun(content, run, pieces);
-      run = { start: index, end: index + segment.length, width: 1, isSpace };
-    }
-  }
-  if (run) pushRun(content, run, pieces);
-  return pieces;
-}
-
-function pushRun(content: string, run: Piece, pieces: Piece[]) {
-  if (run.isSpace) pieces.push(run);
-  else addWord(content, run.start, run.end, pieces);
 }
 
 /** Adds a word, split after the dashes and slashes inside it */
@@ -258,43 +209,12 @@ function canBreakBetween(content: string, before: Piece, after: Piece): boolean 
   return !closingPunctuation.test(content.slice(after.start, after.end));
 }
 
-/**
- * Closing punctuation at the end of a chunk, with any space before it, as far as it may overflow a line
- * The chunk's first character never counts
- */
-function trailingClosing(content: string, chunk: Chunk): number {
-  let count = 0;
-  for (let p = chunk.pieces.length - 1; p >= 0; p--) {
-    const piece = chunk.pieces[p];
-    const text = content.slice(piece.start, piece.end);
-    const graphemes = oneUnitPerCharacter.test(text) ? null : graphemesOf(text);
-    for (let g = piece.width - 1; g >= 0; g--) {
-      const grapheme = graphemes ? graphemes[g] : text[g];
-      if (count >= chunk.width - 1 || !closingOrSpace.test(grapheme)) return count;
-      count++;
-      if (count === maxPunctuationOverflow) return count;
-    }
-  }
-  return count;
-}
-
-/** Closing punctuation at the end of what is left of a word, from a character on */
-function trailingClosingOf(graphemes: string[], from: number): number {
-  let count = 0;
-  for (let i = graphemes.length - 1; i > from && closingOrSpace.test(graphemes[i]); i--) {
-    count++;
-  }
-  return count;
-}
-
 function graphemeCount(text: string): number {
-  if (oneUnitPerCharacter.test(text)) return text.length;
   let count = 0;
   for (const _ of segmenter.segment(text)) count++;
   return count;
 }
 
 function graphemesOf(text: string): string[] {
-  if (oneUnitPerCharacter.test(text)) return text.split('');
   return Array.from(segmenter.segment(text), ({ segment }) => segment);
 }

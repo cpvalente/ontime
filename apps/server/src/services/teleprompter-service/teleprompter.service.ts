@@ -134,9 +134,9 @@ function rebuildScript() {
 export async function applyTeleprompterSettings(input: unknown): Promise<TeleprompterSettings> {
   const settings = parseTeleprompterSettings(input, getSharedSettings());
   await getDataProvider().setTeleprompterSettings(settings);
+  invalidateTeleprompterScript();
 
   setImmediate(() => {
-    invalidateTeleprompterScript();
     sendRefetch(RefetchKey.Teleprompter);
   });
   return settings;

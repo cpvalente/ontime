@@ -38,11 +38,8 @@ describe('wrapText()', () => {
 
   describe('punctuation stays with its word', () => {
     test.each([
-      ['closing punctuation may run over the line', 'a heading.', 9, ['a heading.']],
-      ['and stays with its word when it fits over', 'abcdefghi.', 9, ['abcdefghi.']],
-      ['two marks over are allowed', 'abcdefghi?!', 9, ['abcdefghi?!']],
-      ['a spaced closing mark never starts a line', 'bonjour !', 7, ['bonjour !']],
-      ['spaced quotes stay with their words', '« hello » there', 7, ['« hello »', 'there']],
+      ['a spaced closing mark never starts a line', 'oui bonjour !', 9, ['oui', 'bonjour !']],
+      ['spaced quotes stay with their words', 'a « hello » there', 9, ['a', '« hello »', 'there']],
       ['a spaced opening mark never ends a line', 'say ( this ) now', 8, ['say', '( this )', 'now']],
       ['a dash is no break before closing punctuation', 'go-) now', 4, ['go-)', 'now']],
     ])('%s', (_, text, charsPerLine, expected) => {
