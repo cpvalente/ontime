@@ -10,13 +10,13 @@ import {
   type TeleprompterLayout,
 } from './teleprompterPosition.js';
 
-/** Teleprompter speed bounds, in lines per minute, negative scrolls backwards */
+/** Teleprompter speed bounds, in lines per minute */
 export const teleprompterSpeed = {
-  min: -40,
+  min: 0,
   max: 40,
 } as const;
 
-export function clampTeleprompterSpeed(speed: number): number {
+function clampTeleprompterSpeed(speed: number): number {
   return Math.min(Math.max(speed, teleprompterSpeed.min), teleprompterSpeed.max);
 }
 
@@ -60,31 +60,21 @@ export function positionAt(
   if (!state.playing) return from;
 
   const travelled = (state.speed * (now - state.since)) / 60_000;
-  const bound = playbackBound(layout, from, state.speed, mode);
-  return state.speed >= 0 ? Math.min(from + travelled, bound.row) : Math.max(from + travelled, bound.row);
+  return Math.min(from + travelled, playbackBound(layout, from, mode).row);
 }
 
 /** Where playback from a row runs to: the end of the event being read when cued, otherwise the end of the script */
-export function playbackBound(
+function playbackBound(
   layout: TeleprompterLayout,
   from: number,
-  speed: number,
   mode: TeleprompterMode,
 ): { row: number; stop: TeleprompterStop } {
-  const { events } = layout;
-  if (events.length === 0) return { row: from, stop: 'script' };
+  const last = layout.events.at(-1);
+  if (!last) return { row: from, stop: 'script' };
 
-  if (speed >= 0) {
-    const last = events[events.length - 1];
-    const next = mode.cued ? events.find((event) => event.endRow > from + boundaryEpsilon) : undefined;
-    if (!next || next === last) return { row: Math.max(from, last.endRow), stop: 'script' };
-    return { row: next.endRow, stop: 'event' };
-  }
-
-  const first = events[0];
-  const previous = mode.cued ? events.findLast((event) => event.startRow < from - boundaryEpsilon) : undefined;
-  if (!previous || previous === first) return { row: Math.min(from, first.startRow), stop: 'script' };
-  return { row: previous.startRow, stop: 'event' };
+  const next = mode.cued ? layout.events.find((event) => event.endRow > from + boundaryEpsilon) : undefined;
+  if (!next || next === last) return { row: Math.max(from, last.endRow), stop: 'script' };
+  return { row: next.endRow, stop: 'event' };
 }
 
 /**
@@ -97,12 +87,14 @@ export function settle(
   now: number,
   mode: TeleprompterMode,
 ): TeleprompterState {
-  if (!state.playing || !state.anchor || state.speed === 0) return withReader(state, layout, now, mode);
+  // with nothing to read, there is nothing to play
+  if (!state.anchor) return withReader(state.playing ? { ...state, playing: false } : state, layout, now, mode);
+  if (!state.playing || state.speed === 0) return withReader(state, layout, now, mode);
 
   const from = rowOfAnchor(layout, state.anchor);
   if (from === null) return state;
 
-  const bound = playbackBound(layout, from, state.speed, mode);
+  const bound = playbackBound(layout, from, mode);
   const reachedAt = state.since + ((bound.row - from) / state.speed) * 60_000;
   if (now < reachedAt) return withReader(state, layout, now, mode);
 
@@ -113,6 +105,9 @@ export function settle(
     mode,
   );
 }
+
+/** Longest delay a timer takes, longer ones fire straight away */
+export const maxTimerDelay = 2 ** 31 - 1;
 
 /**
  * How long until the transport changes on its own: playback reaching its end, or the reader moving into another event
@@ -129,19 +124,10 @@ export function msUntilChange(
   const from = rowOfAnchor(layout, state.anchor);
   if (position === null || from === null) return null;
 
-  const bound = playbackBound(layout, from, state.speed, mode);
-  const reader = eventAtRow(layout, position);
-  let target = bound.row;
-  if (state.speed > 0) {
-    const next = layout.events.find((event) => event.firstRow > position);
-    if (next) target = Math.min(target, next.firstRow);
-  } else if (reader) {
-    target = Math.max(target, reader.firstRow);
-  }
-
-  // moving backwards, the reader leaves an event just past its first row
-  const ms = Math.ceil((Math.abs(target - position) / Math.abs(state.speed)) * 60_000);
-  return state.speed < 0 && target !== bound.row ? ms + 1 : ms;
+  const bound = playbackBound(layout, from, mode).row;
+  const next = layout.events.find((event) => event.firstRow > position);
+  const target = next ? Math.min(bound, next.firstRow) : bound;
+  return Math.ceil(((target - position) / state.speed) * 60_000);
 }
 
 /**
@@ -231,9 +217,12 @@ export function reanchorTransport(
   const position = positionAt(current, previousLayout, now, mode);
   const place = position === null ? current.anchor : anchorAtRow(previousLayout, position);
   const anchor = reanchor(previousEvents, nextEvents, place);
+  // a script with nothing of the previous one, such as another project's, does not start playing on its own
+  const nextIds = new Set(nextEvents.map((event) => event.id));
+  const playing = current.playing && previousEvents.some((event) => nextIds.has(event.id));
 
   if (!current.playing && isSameAnchor(anchor, current.anchor)) return withReader(current, nextLayout, now, mode);
-  return settle({ ...current, anchor, since: now }, nextLayout, now, mode);
+  return settle({ ...current, playing, anchor, since: now }, nextLayout, now, mode);
 }
 
 function isSameAnchor(a: TeleprompterState['anchor'], b: TeleprompterState['anchor']): boolean {

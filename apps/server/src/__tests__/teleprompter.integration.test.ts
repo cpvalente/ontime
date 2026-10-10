@@ -30,7 +30,7 @@ describe('teleprompter', () => {
     expect(response.ok).toBe(true);
   }
 
-  test('SCR-5 serves the script as events with rows, each text row with its place in the text', async () => {
+  test('serves the script as events with rows, each text row with its place in the text', async () => {
     await editNote('Good evening and welcome to the 2026 awards.');
 
     const script = await getScript();
@@ -41,7 +41,7 @@ describe('teleprompter', () => {
     ]);
   });
 
-  test('SCR-5 a local view gets the script built with its own options', async () => {
+  test('a local view gets the script built with its own options', async () => {
     const script = await getScript('?charsPerLine=20&heading=cue');
     const event = script.events.find((candidate) => candidate.id === eventId);
     expect(script.charsPerLine).toBe(20);
@@ -56,7 +56,7 @@ describe('teleprompter', () => {
     });
   });
 
-  test('SCR-6 an edit raises the revision and tells screens to refetch, without sending the script', async () => {
+  test('an edit raises the revision and tells screens to refetch, without sending the script', async () => {
     const before = await getScript();
     const messages: { tag: string; payload: unknown }[] = [];
     const socket = new WebSocket(`${server.baseUrl.replace('http', 'ws')}/ws`);
@@ -79,14 +79,14 @@ describe('teleprompter', () => {
     expect(JSON.stringify(after)).toContain('A new script');
   });
 
-  test('TRN-2 serves the server clock, which screens sync to', async () => {
+  test('serves the server clock, which screens sync to', async () => {
     const before = Date.now();
     const { now } = await (await server.get('/data/teleprompter/clock')).json();
     expect(now).toBeGreaterThanOrEqual(before);
     expect(now).toBeLessThanOrEqual(Date.now());
   });
 
-  test('SET-1 the project holds the settings, which shape the shared script', async () => {
+  test('the project holds the settings, which shape the shared script', async () => {
     const viewSettings = await (await server.get('/data/view-settings')).json();
     expect(viewSettings.teleprompter).toEqual({
       script: 'note',
@@ -116,4 +116,16 @@ describe('teleprompter', () => {
     server = await startTestServer();
     expect((await (await server.get('/data/view-settings')).json()).teleprompter).toEqual(teleprompter);
   }, 15_000);
+
+  test('patching the project with part of the settings keeps the rest, and rebuilds the script', async () => {
+    const { teleprompter } = await (await server.get('/data/view-settings')).json();
+    const before = await getScript();
+
+    const response = await server.send('PATCH', '/data/db', {
+      viewSettings: { teleprompter: { charsPerLine: 'NaN' } },
+    });
+    expect(response.ok).toBe(true);
+    expect((await (await server.get('/data/view-settings')).json()).teleprompter).toEqual(teleprompter);
+    expect((await getScript()).revision).toBeGreaterThan(before.revision);
+  });
 });

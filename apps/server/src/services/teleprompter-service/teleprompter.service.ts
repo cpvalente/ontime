@@ -9,22 +9,32 @@ import {
 import {
   applyTransportCommand,
   makeTeleprompterLayout,
+  maxTimerDelay,
   msUntilChange,
   reanchorTransport,
   settle,
   type TeleprompterLayout,
   type TeleprompterMode,
+  type TeleprompterTransportCommand,
+  wrapText,
 } from 'ontime-utils';
 
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getCurrentRundown, getProjectCustomFields, getRundownMetadata } from '../../api-data/rundown/rundown.dao.js';
-import type { TeleprompterRequest } from '../../api-integration/integration.teleprompter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { eventStore } from '../../stores/EventStore.js';
 import { getState as getRuntimeState } from '../../stores/runtimeState.js';
 import { buildScriptEvents } from './teleprompter.utils.js';
 
+/** A teleprompter command, naming events the way the load action does */
+export type TeleprompterRequest =
+  | Exclude<TeleprompterTransportCommand, { type: 'goto' }>
+  | { type: 'goto'; target: { cue: string } | { id: string } | { index: number } }
+  | { type: 'loaded' };
+
 let sharedScript: TeleprompterScript = { revision: 0, charsPerLine: 0, events: [] };
+/** The lines of each text in the shared script, so an edit only cuts the texts it changed */
+let sharedLines = new Map<string, ReturnType<typeof wrapText>>();
 let layout: TeleprompterLayout = makeTeleprompterLayout([]);
 let mode: TeleprompterMode = { cued: true };
 
@@ -64,10 +74,18 @@ export function getTeleprompterState(): TeleprompterState {
 export function refreshTeleprompterScript() {
   const settings = getSharedSettings();
   const previousEvents = sharedScript.events;
+  const previousLines = sharedScript.charsPerLine === settings.charsPerLine ? sharedLines : new Map();
+  sharedLines = new Map();
+  const cutText = (text: string) => {
+    const lines = previousLines.get(text) ?? wrapText(text, settings.charsPerLine);
+    sharedLines.set(text, lines);
+    return lines;
+  };
+
   sharedScript = {
     revision: sharedScript.revision + 1,
     charsPerLine: settings.charsPerLine,
-    events: buildScriptEvents(getCurrentRundown(), getProjectCustomFields(), settings),
+    events: buildScriptEvents(getCurrentRundown(), getProjectCustomFields(), settings, cutText),
   };
   layout = makeTeleprompterLayout(sharedScript.events);
   mode = { cued: settings.followLoaded };
@@ -130,10 +148,14 @@ function scheduleChange() {
 
   const delay = msUntilChange(state, layout, Date.now(), mode);
   if (delay === null) return;
-  changeTimer = setTimeout(() => {
-    changeTimer = null;
-    publish(settle(state, layout, Date.now(), mode));
-  }, delay);
+  changeTimer = setTimeout(
+    () => {
+      changeTimer = null;
+      publish(settle(state, layout, Date.now(), mode));
+    },
+    // longer delays overflow to 1ms, the timer wakes again until the change is due
+    Math.min(delay, maxTimerDelay),
+  );
   // a running prompter does not keep the process alive
   changeTimer.unref();
 }

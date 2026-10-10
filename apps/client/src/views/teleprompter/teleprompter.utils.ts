@@ -1,4 +1,4 @@
-import type { EntryId, TeleprompterScriptEvent } from 'ontime-types';
+import type { EntryId } from 'ontime-types';
 import type { TeleprompterTransportCommand } from 'ontime-utils';
 
 import type { TeleprompterPayload } from './teleprompter.keymap';
@@ -6,24 +6,6 @@ import type { TeleprompterPayload } from './teleprompter.keymap';
 /** Flip Screen in the navigation menu is a rotation, which the view composes with its own mirror flips */
 export function composeFlip(flipH: boolean, flipV: boolean, isMirrored: boolean): { flipH: boolean; flipV: boolean } {
   return { flipH: flipH !== isMirrored, flipV: flipV !== isMirrored };
-}
-
-/**
- * Narrows the script to the loaded event, with its group title
- * @returns the whole script while nothing is loaded, or null if the loaded event has no text to show
- */
-export function filterToLoadedEvent(
-  events: TeleprompterScriptEvent[],
-  loadedEventId: EntryId | null,
-): TeleprompterScriptEvent[] | null {
-  if (!loadedEventId) return events;
-
-  const event = events.find((candidate) => candidate.id === loadedEventId);
-  if (!event || !event.lines.some((line) => line.kind === 'text')) return null;
-
-  const hasGroupTitle = event.lines[0]?.kind === 'group';
-  if (!event.group || hasGroupTitle) return [event];
-  return [{ ...event, lines: [{ kind: 'group', text: event.group }, ...event.lines] }];
 }
 
 /** Longest frame to animate over, so a tab returning from the background does not lurch */

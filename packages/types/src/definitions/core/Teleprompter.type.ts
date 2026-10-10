@@ -33,8 +33,6 @@ export type TeleprompterScriptEvent = {
   id: EntryId;
   cue: string;
   title: string;
-  /** title of the event's group, when group titles are shown */
-  group?: string;
   lines: TeleprompterLine[];
 };
 

@@ -104,22 +104,15 @@ export { auxTimerNameMaxLength, sanitiseAuxTimerNames } from './src/aux-timer-ut
 
 // teleprompter
 export {
-  anchorAtRow,
-  eventAtRow,
   makeTeleprompterLayout,
-  mapOffsetThroughEdit,
-  reanchor,
-  rowOfAnchor,
   startOfEvent,
   type TeleprompterLayout,
-  type TeleprompterLayoutEvent,
 } from './src/teleprompter/teleprompterPosition.js';
 export { defaultTeleprompterSettings, teleprompterCharsPerLine } from './src/teleprompter/teleprompterSettings.js';
 export {
   applyTransportCommand,
-  clampTeleprompterSpeed,
+  maxTimerDelay,
   msUntilChange,
-  playbackBound,
   positionAt,
   reanchorTransport,
   settle,
@@ -127,7 +120,7 @@ export {
   type TeleprompterMode,
   type TeleprompterTransportCommand,
 } from './src/teleprompter/teleprompterTransport.js';
-export { wrapText, type WrappedLine } from './src/teleprompter/teleprompterWrap.js';
+export { wrapText } from './src/teleprompter/teleprompterWrap.js';
 
 //Colour
 export {

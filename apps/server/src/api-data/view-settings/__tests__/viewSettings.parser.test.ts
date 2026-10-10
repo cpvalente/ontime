@@ -15,7 +15,7 @@ describe('parseViewSettings()', () => {
 describe('parseTeleprompterSettings()', () => {
   const fallback = defaultTeleprompterSettings;
 
-  test('SET-1 projects without teleprompter settings get the defaults', () => {
+  test('projects without teleprompter settings get the defaults', () => {
     const result = parseViewSettings({ viewSettings: { overrideStyles: false } as ViewSettings });
     expect(result.teleprompter).toEqual(defaultTeleprompterSettings);
   });

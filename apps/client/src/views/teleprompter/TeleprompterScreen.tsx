@@ -16,8 +16,6 @@ interface TeleprompterScreenProps {
   mode: TeleprompterMode;
   options: TeleprompterOptions;
   loadedEventId: EntryId | null;
-  /** where to rest while the transport points outside the rows shown */
-  fallbackRow?: number;
   /** where the keyboard and the mouse wheel send commands, or nothing for a screen which only displays */
   onCommand?: (payload: TeleprompterPayload) => void;
   /** a local view scrolls by hand, which moves its position */
@@ -35,7 +33,6 @@ export default function TeleprompterScreen({
   mode,
   options,
   loadedEventId,
-  fallbackRow,
   onCommand,
   onUserScroll,
   inputDisabled = false,
@@ -58,7 +55,7 @@ export default function TeleprompterScreen({
   const fontSize = useFitText(content, lines, charsPerLine, options.textWidth);
   const rowHeight = fontSize * options.lineHeight;
 
-  useTeleprompterScroll({ scroller, transport, layout, mode, rowHeight, fallbackRow, onUserScroll });
+  useTeleprompterScroll({ scroller, transport, layout, mode, rowHeight, onUserScroll });
   // a screen scrolled by hand takes the wheel as the browser's own scrolling
   useTeleprompterInput({ screen, onCommand, rowHeight, wheel: !onUserScroll, disabled: inputDisabled });
 

@@ -33,7 +33,7 @@ describe('makeTeleprompterLayout()', () => {
   });
 });
 
-describe('POS-1 the position is a place in the text, never a line number', () => {
+describe('the position is a place in the text, never a line number', () => {
   const layout = makeTeleprompterLayout([makeEvent('a', 'one two three four'), makeEvent('b', 'five six')]);
 
   test('a line of text is anchored at its first character', () => {
@@ -60,7 +60,7 @@ describe('POS-1 the position is a place in the text, never a line number', () =>
   });
 });
 
-describe('POS-2 editing another event never moves the reader', () => {
+describe('editing another event never moves the reader', () => {
   test('an event above grows, and the reader stays on the same words', () => {
     const previous = [makeEvent('a', 'one'), makeEvent('b', 'five six seven eight')];
     const next = [makeEvent('a', 'one two three four five six'), previous[1]];
@@ -72,7 +72,7 @@ describe('POS-2 editing another event never moves the reader', () => {
   });
 });
 
-describe('POS-3 editing the reader event', () => {
+describe('editing the reader event', () => {
   test.each([
     ['a change after the reader leaves them in place', 'one two three', 'one two three four', 4, 4],
     ['a change starting at the reader leaves them in place', 'one two three', 'one zero two three', 4, 4],
@@ -104,9 +104,23 @@ describe('POS-3 editing the reader event', () => {
     const anchor = { eventId: 'a', charOffset: 19, lines: 0 };
     expect(reanchor(previous, [wider], anchor)).toEqual(anchor);
   });
+
+  test('an edit which moves the later line breaks of a paragraph keeps the reader on their words', () => {
+    const toEvent = (eventText: string): TeleprompterScriptEvent => ({
+      ...makeEvent('a', ''),
+      lines: wrapText(eventText, 32).map((line) => ({ kind: 'text', text: line.text, start: line.start })),
+    });
+    const text = Array.from({ length: 60 }, (_, index) => `word${index}`).join(' ');
+    const anchor = { eventId: 'a', charOffset: text.indexOf('word50'), lines: 0 };
+
+    expect(reanchor([toEvent(text)], [toEvent(`Hello ${text}`)], anchor)).toEqual({
+      ...anchor,
+      charOffset: anchor.charOffset + 'Hello '.length,
+    });
+  });
 });
 
-describe('POS-4 events which move or disappear', () => {
+describe('events which move or disappear', () => {
   const a = makeEvent('a', 'one two');
   const b = makeEvent('b', 'three four');
   const c = makeEvent('c', 'five six');

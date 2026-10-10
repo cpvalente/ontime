@@ -6,7 +6,7 @@ function cut(text: string, charsPerLine: number): string[] {
 }
 
 describe('wrapText()', () => {
-  describe('WRP-1 a line holds at most characters per line, counting user-perceived characters', () => {
+  describe('a line holds at most characters per line, counting user-perceived characters', () => {
     test.each([
       ['plain words', 'one two three four', 9, ['one two', 'three', 'four']],
       ['an accent counts once', 'café café café', 9, ['café café', 'café']],
@@ -18,7 +18,7 @@ describe('wrapText()', () => {
     });
   });
 
-  describe('WRP-2 lines break only at whitespace, or after a dash or slash inside a word', () => {
+  describe('lines break only at whitespace, or after a dash or slash inside a word', () => {
     test.each([
       ['a hyphen', 'a well-known face', 10, ['a well-', 'known face']],
       ['an en dash', 'pages 10–20 here', 9, ['pages 10–', '20 here']],
@@ -36,7 +36,7 @@ describe('wrapText()', () => {
     });
   });
 
-  describe('WRP-3 punctuation stays with its word', () => {
+  describe('punctuation stays with its word', () => {
     test.each([
       ['closing punctuation may run over the line', 'a heading.', 9, ['a heading.']],
       ['and stays with its word when it fits over', 'abcdefghi.', 9, ['abcdefghi.']],
@@ -50,7 +50,7 @@ describe('wrapText()', () => {
     });
   });
 
-  describe('WRP-4 a number stays with the word after it', () => {
+  describe('a number stays with the word after it', () => {
     test.each([
       ['a count', 'only 10 minutes', 10, ['only', '10 minutes']],
       ['a decimal', 'about 3.5 metres', 10, ['about', '3.5 metres']],
@@ -61,7 +61,7 @@ describe('wrapText()', () => {
     });
   });
 
-  describe('WRP-5 a word longer than a line breaks at the limit, never inside a character', () => {
+  describe('a word longer than a line breaks at the limit, never inside a character', () => {
     test.each([
       ['a long word', 'abcdefghijkl', 5, ['abcde', 'fghij', 'kl']],
       ['after a short word', 'a abcdefghijkl', 5, ['a', 'abcde', 'fghij', 'kl']],
@@ -72,7 +72,7 @@ describe('wrapText()', () => {
     });
   });
 
-  test('WRP-6 the space where a line breaks is used up', () => {
+  test('the space where a line breaks is used up', () => {
     expect(cut('one   two', 4)).toEqual(['one', 'two']);
     expect(wrapText('one two', 4)).toEqual([
       { text: 'one', start: 0, indent: 0 },
@@ -80,16 +80,16 @@ describe('wrapText()', () => {
     ]);
   });
 
-  test('WSP-1 typed line breaks are always line breaks', () => {
+  test('typed line breaks are always line breaks', () => {
     expect(cut('one\ntwo', 40)).toEqual(['one', 'two']);
   });
 
-  test('WSP-2 blank lines are kept, as many as typed', () => {
+  test('blank lines are kept, as many as typed', () => {
     expect(cut('one\n\n\ntwo', 40)).toEqual(['one', '', '', 'two']);
     expect(cut('\none', 40)).toEqual(['', 'one']);
   });
 
-  describe('WSP-3 indentation is kept, counts toward the length, and carries to wrapped lines', () => {
+  describe('indentation is kept, counts toward the length, and carries to wrapped lines', () => {
     test.each([
       ['an indented line', '  one two three', 9, ['  one two', '  three']],
       ['indentation which takes most of a line is shortened to half', '        one two', 6, ['   one', '   two']],
@@ -105,19 +105,23 @@ describe('wrapText()', () => {
     });
   });
 
-  test('WSP-4 spaces inside a line are shown exactly as typed', () => {
+  test('spaces inside a line are shown exactly as typed', () => {
     expect(cut('one   two  three', 40)).toEqual(['one   two  three']);
   });
 
-  test('WSP-5 a tab becomes 4 spaces and \\r\\n becomes \\n', () => {
-    expect(cut('one\ttwo\r\nthree', 40)).toEqual(['one    two', 'three']);
+  test('a tab becomes 4 spaces and \\r\\n or \\r becomes \\n', () => {
+    expect(cut('one\ttwo\r\nthree\rfour', 40)).toEqual(['one    two', 'three', 'four']);
     expect(wrapText('a\r\nb', 40)).toEqual([
       { text: 'a', start: 0, indent: 0 },
       { text: 'b', start: 2, indent: 0 },
     ]);
   });
 
-  describe('WSP-6 trailing whitespace of an event is ignored', () => {
+  test('a line length which is not a number still cuts the text', () => {
+    expect(cut('one two', Number.NaN)).toEqual(['o', 'n', 'e', 't', 'w', 'o']);
+  });
+
+  describe('trailing whitespace of an event is ignored', () => {
     test.each([
       ['trailing spaces and lines', 'one  \n\n  ', ['one']],
       ['only whitespace counts as empty', ' \n\t\n ', []],

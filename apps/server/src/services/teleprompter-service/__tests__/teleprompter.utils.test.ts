@@ -37,7 +37,7 @@ function build(entries: OntimeEntry[], settings: Partial<TeleprompterSettings> =
 }
 
 describe('buildScriptEvents()', () => {
-  describe('SCR-1 the script comes from the note, the title or a text custom field', () => {
+  describe('the script comes from the note, the title or a text custom field', () => {
     test.each([
       ['note', 'Note a'],
       ['title', 'Title a'],
@@ -55,7 +55,7 @@ describe('buildScriptEvents()', () => {
     );
   });
 
-  test('SCR-2 events appear in rundown order, without skipped events and entries which are not events', () => {
+  test('events appear in rundown order, without skipped events and entries which are not events', () => {
     const entries = [
       makeEvent('b'),
       makeEvent('skipped', { skip: true }),
@@ -66,7 +66,7 @@ describe('buildScriptEvents()', () => {
     expect(build(entries).map((event) => event.id)).toEqual(['b', 'a']);
   });
 
-  describe('SCR-3 headings, group titles and the gap between events are lines of the script', () => {
+  describe('headings, group titles and the gap between events are lines of the script', () => {
     test.each([
       ['title', 'Title a'],
       ['cue', 'A'],
@@ -108,13 +108,6 @@ describe('buildScriptEvents()', () => {
         { kind: 'group', text: 'Afternoon' },
       ]);
       expect(titles(false)).toEqual([undefined, undefined, undefined, undefined]);
-      // so a screen showing one event can show its group
-      expect(build(entries, {}, order).map((event) => event.group)).toEqual([
-        'Morning',
-        'Morning',
-        undefined,
-        'Afternoon',
-      ]);
     });
 
     test('lines keep their indentation and position in the text', () => {
@@ -127,7 +120,7 @@ describe('buildScriptEvents()', () => {
     });
   });
 
-  test('SCR-1 an event missing the field reads as empty, never an error', () => {
+  test('an event missing the field reads as empty, never an error', () => {
     const entries = [makeEvent('a', { note: undefined, custom: undefined })];
     expect(build(entries, { hideEmpty: false })[0].lines).toEqual([
       { kind: 'heading', text: 'Title a' },
@@ -136,7 +129,7 @@ describe('buildScriptEvents()', () => {
     expect(build(entries, { hideEmpty: false, script: 'custom-script' })).toHaveLength(1);
   });
 
-  test('SCR-4 events without script text can be hidden', () => {
+  test('events without script text can be hidden', () => {
     const entries = [makeEvent('a', { note: ' \n ' }), makeEvent('b')];
     expect(build(entries).map((event) => event.id)).toEqual(['b']);
     expect(build(entries, { hideEmpty: false })[0].lines).toEqual([

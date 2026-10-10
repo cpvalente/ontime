@@ -40,7 +40,7 @@ export function useTeleprompterInput(args: UseTeleprompterInputArgs) {
       if (event.code === 'Space' && target?.closest('button')) return;
 
       const action = resolveTeleprompterKey(event);
-      if (!action || action.type === 'help') return;
+      if (!action) return;
 
       event.preventDefault();
       if (action.type === 'page') {

@@ -10,7 +10,7 @@ describe('getOptionsFromParams()', () => {
     expect(parse('readingLine=false').readingLine).toBe(false);
   });
 
-  test('DSP-3 keeps numbers within the range the view supports, and ignores junk', () => {
+  test('keeps numbers within the range the view supports, and ignores junk', () => {
     expect(parse('lineHeight=10').lineHeight).toBe(4);
     expect(parse('textWidth=5').textWidth).toBe(20);
     expect(parse('readingLinePos=many').readingLinePos).toBe(parse('').readingLinePos);
@@ -23,12 +23,12 @@ describe('getOptionsFromParams()', () => {
     });
   });
 
-  test('LOC-1 a local view passes on only the script settings it sets, and follows the project otherwise', () => {
+  test('a local view passes on only the script settings it sets, and follows the project otherwise', () => {
     expect(parse('')).toMatchObject({ scriptSearch: '', followLoaded: null, speed: 14 });
-    expect(parse('script=title&charsPerLine=40&textWidth=50&followLoaded=false&speed=-5')).toMatchObject({
+    expect(parse('script=title&charsPerLine=40&textWidth=50&followLoaded=false&speed=50')).toMatchObject({
       scriptSearch: '?script=title&charsPerLine=40',
       followLoaded: false,
-      speed: -5,
+      speed: 40,
     });
   });
 

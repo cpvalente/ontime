@@ -15,11 +15,13 @@ import { wrapText } from 'ontime-utils';
 /**
  * Builds the script from the rundown, in rundown order, as the rows every screen shows
  * Only the note, the title or a text custom field hold a script, anything else gives an empty one
+ * @param cutText - cuts an event's text into lines, at the settings' characters per line
  */
 export function buildScriptEvents(
   rundown: Readonly<Rundown>,
   customFields: Readonly<CustomFields>,
   settings: TeleprompterSettings,
+  cutText: (text: string) => ReturnType<typeof wrapText> = (text) => wrapText(text, settings.charsPerLine),
 ): TeleprompterScriptEvent[] {
   const readText = getTextReader(settings.script, customFields);
   if (!readText) return [];
@@ -32,7 +34,7 @@ export function buildScriptEvents(
     if (!isOntimeEvent(entry) || entry.skip) continue;
 
     const text = readText(entry);
-    const textLines = typeof text === 'string' ? wrapText(text, settings.charsPerLine) : [];
+    const textLines = typeof text === 'string' ? cutText(text) : [];
     if (settings.hideEmpty && textLines.length === 0) continue;
 
     const lines: TeleprompterLine[] = [];
@@ -51,11 +53,7 @@ export function buildScriptEvents(
     }
     lines.push({ kind: 'blank' });
 
-    events.push(
-      group
-        ? { id, cue: entry.cue, title: entry.title, group: group.title, lines }
-        : { id, cue: entry.cue, title: entry.title, lines },
-    );
+    events.push({ id, cue: entry.cue, title: entry.title, lines });
   }
 
   return events;

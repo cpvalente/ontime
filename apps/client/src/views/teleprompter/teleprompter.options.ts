@@ -1,4 +1,9 @@
-import type { CustomFields, TeleprompterHeading, TeleprompterSettings } from 'ontime-types';
+import {
+  type CustomFields,
+  runtimeStorePlaceholder,
+  type TeleprompterHeading,
+  type TeleprompterSettings,
+} from 'ontime-types';
 import { teleprompterCharsPerLine, teleprompterSpeed } from 'ontime-utils';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
@@ -11,7 +16,6 @@ import { isStringBoolean } from '../common/viewUtils';
 export type TeleprompterOptions = {
   remoteControl: boolean;
   control: boolean;
-  onlyPlaying: boolean;
   lineHeight: number;
   textWidth: number;
   readingLine: boolean;
@@ -32,7 +36,6 @@ const localScriptParams = ['script', 'charsPerLine', 'heading', 'showGroups', 'h
 export const defaults: TeleprompterOptions = {
   remoteControl: false,
   control: false,
-  onlyPlaying: false,
   lineHeight: 1.3,
   textWidth: 80,
   readingLine: true,
@@ -41,7 +44,7 @@ export const defaults: TeleprompterOptions = {
   flipV: false,
   scriptSearch: '',
   followLoaded: null,
-  speed: 14,
+  speed: runtimeStorePlaceholder.teleprompter.speed,
 };
 
 const bounds = {
@@ -135,14 +138,6 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
       title: OptionTitle.ElementVisibility,
       collapsible: true,
       options: [
-        {
-          id: 'onlyPlaying',
-          title: 'Show only the playing event',
-          description:
-            'Hides the rest of the script, leaving the loaded event and its group title. Shows the whole script while nothing is loaded',
-          type: 'boolean',
-          defaultValue: defaults.onlyPlaying,
-        },
         {
           id: 'showGroups',
           title: 'Group titles',
@@ -250,7 +245,6 @@ export function getOptionsFromParams(
   return {
     remoteControl: toBoolean(getParam('remoteControl'), defaults.remoteControl),
     control: toBoolean(getParam('control'), defaults.control),
-    onlyPlaying: toBoolean(getParam('onlyPlaying'), defaults.onlyPlaying),
     lineHeight: toNumber(getParam('lineHeight'), bounds.lineHeight, defaults.lineHeight),
     textWidth: toNumber(getParam('textWidth'), bounds.textWidth, defaults.textWidth),
     readingLine: toBoolean(getParam('readingLine'), defaults.readingLine),

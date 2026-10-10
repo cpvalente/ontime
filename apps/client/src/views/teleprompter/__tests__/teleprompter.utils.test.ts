@@ -1,27 +1,4 @@
-import type { TeleprompterScriptEvent } from 'ontime-types';
-
-import {
-  composeFlip,
-  createScrollBatcher,
-  easeTowards,
-  filterToLoadedEvent,
-  toTransportCommand,
-  wheelToLines,
-} from '../teleprompter.utils';
-
-function makeEvent(id: string, group?: string, text = `${id} text`): TeleprompterScriptEvent {
-  return {
-    id,
-    cue: id,
-    title: id,
-    group,
-    lines: [
-      { kind: 'heading', text: id },
-      ...(text ? [{ kind: 'text' as const, text, start: 0 }] : []),
-      { kind: 'blank' },
-    ],
-  };
-}
+import { composeFlip, createScrollBatcher, easeTowards, toTransportCommand, wheelToLines } from '../teleprompter.utils';
 
 describe('composeFlip()', () => {
   test.each([
@@ -29,32 +6,8 @@ describe('composeFlip()', () => {
     [{ flipH: false, flipV: false }, true, { flipH: true, flipV: true }],
     [{ flipH: true, flipV: false }, true, { flipH: false, flipV: true }],
     [{ flipH: true, flipV: true }, true, { flipH: false, flipV: false }],
-  ])('DSP-4 view flips %j with Flip Screen %s show as %j', (view, isMirrored, expected) => {
+  ])('view flips %j with Flip Screen %s show as %j', (view, isMirrored, expected) => {
     expect(composeFlip(view.flipH, view.flipV, isMirrored)).toEqual(expected);
-  });
-});
-
-describe('DSP-6 filterToLoadedEvent()', () => {
-  const events = [makeEvent('a', 'Morning'), makeEvent('b', 'Morning'), makeEvent('c', undefined, '')];
-
-  test('shows the loaded event alone, with its group title', () => {
-    expect(filterToLoadedEvent(events, 'b')).toEqual([
-      { ...events[1], lines: [{ kind: 'group', text: 'Morning' }, ...events[1].lines] },
-    ]);
-  });
-
-  test('does not repeat a group title the event already shows', () => {
-    const titled = { ...events[0], lines: [{ kind: 'group' as const, text: 'Morning' }, ...events[0].lines] };
-    expect(filterToLoadedEvent([titled], 'a')).toEqual([titled]);
-  });
-
-  test('shows the whole script while nothing is loaded', () => {
-    expect(filterToLoadedEvent(events, null)).toBe(events);
-  });
-
-  test('has nothing to show for a loaded event without text, or outside the script', () => {
-    expect(filterToLoadedEvent(events, 'c')).toBeNull();
-    expect(filterToLoadedEvent(events, 'skipped')).toBeNull();
   });
 });
 
@@ -81,7 +34,7 @@ describe('easeTowards()', () => {
   });
 });
 
-describe('CTL-3 createScrollBatcher()', () => {
+describe('createScrollBatcher()', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -130,7 +83,7 @@ describe('wheelToLines()', () => {
   });
 });
 
-describe('LOC-2 toTransportCommand()', () => {
+describe('toTransportCommand()', () => {
   test.each([
     ['toggle', { type: 'toggle' }],
     ['next', { type: 'next' }],

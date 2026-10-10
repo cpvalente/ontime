@@ -43,11 +43,11 @@ function apply(state: TeleprompterState, command: TeleprompterTransportCommand, 
   return applyTransportCommand(state, command, layout, now, mode);
 }
 
-describe('TRN-1 the transport holds play state, speed in lines per minute, an anchor and the time it was set', () => {
+describe('the transport holds play state, speed in lines per minute, an anchor and the time it was set', () => {
   test.each([
     [{ type: 'speed', value: 20 }, 20],
     [{ type: 'speed', value: 100 }, 40],
-    [{ type: 'speed', value: -100 }, -40],
+    [{ type: 'speed', value: -100 }, 0],
     [{ type: 'speed', value: 0 }, 0],
     [{ type: 'speedBy', value: -5 }, 25],
     [{ type: 'speedBy', value: 50 }, 40],
@@ -61,11 +61,10 @@ describe('TRN-1 the transport holds play state, speed in lines per minute, an an
   });
 });
 
-describe('TRN-2 the position is calculated from the transport and the clock', () => {
+describe('the position is calculated from the transport and the clock', () => {
   test.each([
     ['paused, at its anchor', makeState(), 5000, 1],
     ['playing, moved by speed × time', makeState({ playing: true }), 1000, 1.5],
-    ['playing backwards', makeState({ playing: true, speed: -30, anchor: startOfEvent('b') }), 1000, 4.5],
     ['at a standstill', makeState({ playing: true, speed: 0 }), 60_000, 1],
   ])('%s', (_, state, now, row) => {
     expect(positionAt(state, layout, now, freeRun)).toBe(row);
@@ -105,17 +104,18 @@ describe('playback reaching an end', () => {
     expect(settle(atLast, layout, 60_000, cued)).toMatchObject({ playing: false, stoppedAt: 'script' });
   });
 
-  test('cued, backwards it stops at the start of the event', () => {
-    const backwards = makeState({ playing: true, speed: -30, anchor: { eventId: 'b', charOffset: 10, lines: 0 } });
-    expect(positionAt(backwards, layout, 60_000, cued)).toBe(5);
-  });
-
   test('free run, it reads across events and stops at the end of the script', () => {
     expect(settle(makeState({ playing: true }), layout, 6000, freeRun)).toMatchObject({ playing: true, eventId: 'b' });
     expect(settle(makeState({ playing: true }), layout, 60_000, freeRun)).toMatchObject({
       playing: false,
       stoppedAt: 'script',
     });
+  });
+
+  test('playing an empty script stays paused', () => {
+    const empty = makeTeleprompterLayout([]);
+    const state = applyTransportCommand(makeState({ anchor: null }), { type: 'play' }, empty, 0, cued);
+    expect(state).toMatchObject({ playing: false, eventId: null, cue: null });
   });
 
   test('playing from the end of the script stops straight away', () => {
@@ -130,7 +130,7 @@ describe('playback reaching an end', () => {
   });
 });
 
-describe('TRN-6 moving the reader keeps the play state', () => {
+describe('moving the reader keeps the play state', () => {
   test.each<[string, TeleprompterTransportCommand, number]>([
     ['scroll by lines', { type: 'scroll', lines: 2 }, 3],
     ['scroll back past the top', { type: 'scroll', lines: -20 }, 0],
@@ -159,7 +159,7 @@ describe('TRN-6 moving the reader keeps the play state', () => {
   });
 });
 
-test('POS-5 a new script during playback re-anchors the reader, who carries on without a jump', () => {
+test('a new script during playback re-anchors the reader, who carries on without a jump', () => {
   const playing = makeState({ playing: true, anchor: startOfEvent('b'), since: 0 });
   // the event above gains two lines
   const edited = [makeEvent('a', 4), events[1], events[2]];
@@ -170,4 +170,14 @@ test('POS-5 a new script during playback re-anchors the reader, who carries on w
   const before = positionAt(playing, layout, 1500, freeRun)!;
   const after = positionAt(moved, makeTeleprompterLayout(edited), 1500, freeRun)!;
   expect(after - before).toBeCloseTo(2);
+});
+
+test('a script with nothing of the previous one, such as another project, does not start playing on its own', () => {
+  const playing = makeState({ playing: true, anchor: startOfEvent('b'), since: 0 });
+  const other = [makeEvent('x', 3)];
+
+  expect(reanchorTransport(playing, events, other, 1000, freeRun)).toMatchObject({
+    playing: false,
+    anchor: startOfEvent('x'),
+  });
 });

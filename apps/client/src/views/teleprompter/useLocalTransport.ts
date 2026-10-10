@@ -7,6 +7,7 @@ import {
 import {
   applyTransportCommand,
   makeTeleprompterLayout,
+  maxTimerDelay,
   msUntilChange,
   positionAt,
   reanchorTransport,
@@ -44,7 +45,8 @@ export function useLocalTransport({ events, cued, initialSpeed, loadedEventId }:
   const apply = useCallback((command: TeleprompterTransportCommand) => {
     const { layout, mode } = latest.current;
     if (command.type === 'goto' && !layout.events.some((event) => event.id === command.eventId)) return;
-    setState((current) => applyTransportCommand(current, command, layout, serverNow(), mode));
+    const now = serverNow();
+    setState((current) => applyTransportCommand(current, command, layout, now, mode));
   }, []);
 
   const handleCommand = useCallback(
@@ -58,9 +60,10 @@ export function useLocalTransport({ events, cued, initialSpeed, loadedEventId }:
   /** Scrolling by hand moves the position */
   const moveToRow = useCallback((row: number) => {
     const { layout, mode } = latest.current;
+    const now = serverNow();
     setState((current) => {
-      const position = positionAt(current, layout, serverNow(), mode) ?? 0;
-      return applyTransportCommand(current, { type: 'scroll', lines: row - position }, layout, serverNow(), mode);
+      const position = positionAt(current, layout, now, mode) ?? 0;
+      return applyTransportCommand(current, { type: 'scroll', lines: row - position }, layout, now, mode);
     });
   }, []);
 
@@ -89,13 +92,21 @@ export function useLocalTransport({ events, cued, initialSpeed, loadedEventId }:
     apply({ type: 'speed', value: initialSpeed });
   }, [initialSpeed, apply]);
 
+  const [wakeCount, setWakeCount] = useState(0);
   // settles playback at its end, and keeps the event at the reading position current
+  // waking counts, so a timer which fired early against a resynced clock is set again
   useEffect(() => {
     const delay = msUntilChange(state, layout, serverNow(), mode);
     if (delay === null) return;
-    const timer = setTimeout(() => setState((current) => settle(current, layout, serverNow(), mode)), delay);
+    const timer = setTimeout(
+      () => {
+        setState((current) => settle(current, layout, serverNow(), mode));
+        setWakeCount((count) => count + 1);
+      },
+      Math.min(delay, maxTimerDelay),
+    );
     return () => clearTimeout(timer);
-  }, [state, layout, mode]);
+  }, [state, layout, mode, wakeCount]);
 
   return { state, handleCommand, moveToRow };
 }

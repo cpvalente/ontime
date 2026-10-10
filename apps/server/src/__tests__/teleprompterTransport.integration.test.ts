@@ -73,12 +73,12 @@ describe('teleprompter transport', () => {
     return positionAt(state, makeTeleprompterLayout(script.events), now, { cued: true });
   }
 
-  test('RMT-4 the transport is the teleprompter key of the runtime store', async () => {
+  test('the transport is the teleprompter key of the runtime store', async () => {
     const state = await transport('pause');
     expect((await poll()).teleprompter).toEqual(state);
   });
 
-  test('RMT-5 every command replies with the state after it', async () => {
+  test('every command replies with the state after it', async () => {
     const [first, second, third] = events;
     expect(await transport('speed/20')).toMatchObject({ speed: 20 });
     expect(await transport('speed/by/-2')).toMatchObject({ speed: 18 });
@@ -96,13 +96,13 @@ describe('teleprompter transport', () => {
     expect(await transport('pause')).toMatchObject({ playing: false });
   });
 
-  test('RMT-6 invalid commands and events which are not in the script are refused', async () => {
+  test('invalid commands and events which are not in the script are refused', async () => {
     expect(await command('stop')).toEqual({ status: 500, body: { message: 'Invalid teleprompter command' } });
     expect(await command('speed/fast')).toEqual({ status: 500, body: { message: 'Invalid teleprompter command' } });
     expect(await command('goto/cue/no-such-cue')).toEqual({ status: 500, body: { message: 'Event not found' } });
   });
 
-  test('TRN-3 cued, loading an event moves the reader to its start, and playback carries on from there', async () => {
+  test('cued, loading an event moves the reader to its start, and playback carries on from there', async () => {
     const [first, second] = events;
     await transport(`goto/id/${first.id}`);
     await transport('speed/1');
@@ -116,7 +116,7 @@ describe('teleprompter transport', () => {
     await server.get('/api/stop');
   });
 
-  test('TRN-3 TRN-5 cued, playback stops at the end of the event and the state is broadcast', async () => {
+  test('cued, playback stops at the end of the event and the state is broadcast', async () => {
     const messages: { tag: string; payload: Partial<RuntimeStore> }[] = [];
     const socket = new WebSocket(`${server.baseUrl.replace('http', 'ws')}/ws`);
     socket.on('message', (data) => messages.push(JSON.parse((data as Buffer).toString())));
@@ -143,7 +143,7 @@ describe('teleprompter transport', () => {
     socket.close();
   });
 
-  test('TRN-4 free run, loading does not move the reader and playback reads on across events', async () => {
+  test('free run, loading does not move the reader and playback reads on across events', async () => {
     const [first, second] = events;
     await setFollowLoaded(false);
 
@@ -165,7 +165,7 @@ describe('teleprompter transport', () => {
     await setFollowLoaded(true);
   }, 10_000);
 
-  test('POS-5 an edit during playback re-anchors the reader, who carries on without a jump', async () => {
+  test('an edit during playback re-anchors the reader, who carries on without a jump', async () => {
     const [first, second] = events;
     await transport(`goto/id/${second.id}`);
     await transport('speed/2');

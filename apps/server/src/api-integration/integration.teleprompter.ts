@@ -1,10 +1,4 @@
-import type { TeleprompterTransportCommand } from 'ontime-utils';
-
-/** A teleprompter command, naming events the way the load action does */
-export type TeleprompterRequest =
-  | Exclude<TeleprompterTransportCommand, { type: 'goto' }>
-  | { type: 'goto'; target: { cue: string } | { id: string } | { index: number } }
-  | { type: 'loaded' };
+import type { TeleprompterRequest } from '../services/teleprompter-service/teleprompter.service.js';
 
 const simpleCommands = ['play', 'pause', 'toggle', 'next', 'previous', 'top', 'loaded'] as const;
 

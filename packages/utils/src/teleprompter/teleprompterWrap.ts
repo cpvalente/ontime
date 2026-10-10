@@ -26,11 +26,11 @@ const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
 
 /**
  * Normalises the script text the way it is read:
- * tabs become 4 spaces, Windows line endings become \n and trailing whitespace is ignored
+ * tabs become 4 spaces, Windows and old Mac line endings become \n and trailing whitespace is ignored
  * Positions in the script are positions in this text.
  */
 export function normaliseScriptText(text: string): string {
-  return text.replace(/\r\n/g, '\n').replace(/\t/g, '    ').trimEnd();
+  return text.replace(/\r\n?/g, '\n').replace(/\t/g, '    ').trimEnd();
 }
 
 /**
@@ -42,7 +42,8 @@ export function wrapText(text: string, charsPerLine: number): WrappedLine[] {
   const normalised = normaliseScriptText(text);
   if (!normalised) return [];
 
-  const limit = Math.max(1, Math.floor(charsPerLine));
+  // a limit which is not a number would never fit a character, so cutting would not end
+  const limit = Math.max(1, Math.floor(charsPerLine) || 1);
   const lines: WrappedLine[] = [];
   let lineStart = 0;
   for (const typedLine of normalised.split('\n')) {

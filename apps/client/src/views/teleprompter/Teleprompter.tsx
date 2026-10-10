@@ -20,7 +20,7 @@ import TransportShortcuts from './help-overlay/TransportShortcuts';
 import { useServerClockSync } from './serverClock';
 import type { TeleprompterPayload } from './teleprompter.keymap';
 import { getTeleprompterOptions, type TeleprompterOptions, useTeleprompterOptions } from './teleprompter.options';
-import { composeFlip, filterToLoadedEvent } from './teleprompter.utils';
+import { composeFlip } from './teleprompter.utils';
 import TeleprompterScreen from './TeleprompterScreen';
 import { useLocalTransport } from './useLocalTransport';
 
@@ -181,19 +181,16 @@ function ScriptContent({
     return <Loader />;
   }
 
-  const events = options.onlyPlaying ? filterToLoadedEvent(script.events, loadedEventId) : script.events;
-  if (events === null) return <EmptyPage text='The playing event has no script' />;
-  if (events.length === 0) return <EmptyPage text='There is no script in the field the teleprompter reads' />;
+  if (script.events.length === 0) return <EmptyPage text='There is no script in the field the teleprompter reads' />;
 
   return (
     <TeleprompterScreen
-      events={events}
+      events={script.events}
       charsPerLine={script.charsPerLine}
       transport={transport}
       mode={{ cued }}
       options={options}
       loadedEventId={loadedEventId}
-      fallbackRow={options.onlyPlaying ? events[0]?.lines.findIndex((line) => line.kind === 'text') : undefined}
       onCommand={onCommand}
       onUserScroll={onUserScroll}
       inputDisabled={isHelpOpen}

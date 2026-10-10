@@ -10,6 +10,7 @@ import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { initRundown, mergeCustomFields } from '../../api-data/rundown/rundown.service.js';
+import { parseTeleprompterSettings } from '../../api-data/view-settings/viewSettings.parser.js';
 import { getDataProvider, getFileToRead, initPersistence } from '../../classes/data-provider/DataProvider.js';
 import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 import { logger } from '../../classes/Logger.js';
@@ -31,6 +32,7 @@ import {
 import { getLastLoaded, isLastLoadedProject, setLastLoaded } from '../app-state-service/appState.service.js';
 import { auxTimerService } from '../aux-timer-service/auxTimer.service.js';
 import { runtimeService } from '../runtime-service/runtime.service.js';
+import { refreshTeleprompterScript } from '../teleprompter-service/teleprompter.service.js';
 import {
   doesProjectExist,
   getPathToProject,
@@ -360,6 +362,14 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
   // we can pass some stuff straight to the data provider
   // callers list every section, so we only merge when a section has a value
   const patchedSections = withoutUndefinedValues(rest);
+  if (patchedSections.viewSettings) {
+    // a section replaces its keys whole, so the teleprompter settings must arrive complete
+    const { teleprompter } = getDataProvider().getViewSettings();
+    patchedSections.viewSettings = {
+      ...patchedSections.viewSettings,
+      teleprompter: parseTeleprompterSettings(patchedSections.viewSettings.teleprompter, teleprompter),
+    };
+  }
   if (!isObjectEmpty(patchedSections)) {
     await getDataProvider().mergeIntoData(patchedSections);
   }
@@ -394,6 +404,11 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
     if (updatedCurrentRundown) {
       await initRundown(updatedCurrentRundown, projectCustomFields, true);
     }
+  }
+
+  // the script is built from the view settings and the custom fields
+  if (rest.viewSettings || customFields) {
+    refreshTeleprompterScript();
   }
 
   const updatedData = await getDataProvider().getData();

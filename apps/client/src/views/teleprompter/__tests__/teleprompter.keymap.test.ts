@@ -13,7 +13,7 @@ function makeEvent(overrides: Partial<TeleprompterKeyEvent>): TeleprompterKeyEve
   };
 }
 
-describe('CTL-2 resolveTeleprompterKey()', () => {
+describe('resolveTeleprompterKey()', () => {
   test.each<[string, Partial<TeleprompterKeyEvent>, TeleprompterKeyAction]>([
     ['Space', { code: 'Space' }, { type: 'command', payload: 'toggle' }],
     ['ArrowRight', { code: 'ArrowRight' }, { type: 'command', payload: { speed: { by: 1 } } }],
@@ -28,7 +28,6 @@ describe('CTL-2 resolveTeleprompterKey()', () => {
     ['Shift+ArrowUp', { code: 'ArrowUp', shiftKey: true }, { type: 'command', payload: 'previous' }],
     ['Home', { code: 'Home' }, { type: 'command', payload: 'top' }],
     ['L', { key: 'l' }, { type: 'command', payload: 'loaded' }],
-    ['?', { key: '?', shiftKey: true }, { type: 'help' }],
   ])('%s', (_, event, action) => {
     expect(resolveTeleprompterKey(makeEvent(event))).toEqual(action);
   });

@@ -19,7 +19,7 @@ describe('parseTeleprompterCommand()', () => {
     [{ goto: { cue: 12 } }, { type: 'goto', target: { cue: '12' } }],
     [{ goto: { id: 'a1b2c3' } }, { type: 'goto', target: { id: 'a1b2c3' } }],
     [{ goto: { index: '3' } }, { type: 'goto', target: { index: 3 } }],
-  ])('RMT-5 parses %j', (payload, command) => {
+  ])('parses %j', (payload, command) => {
     expect(parseTeleprompterCommand(payload)).toEqual(command);
   });
 
@@ -36,7 +36,7 @@ describe('parseTeleprompterCommand()', () => {
     { goto: { index: 0 } },
     { goto: { index: 1.5 } },
     { goto: { name: 'opening' } },
-  ])('RMT-6 rejects %j', (payload) => {
+  ])('rejects %j', (payload) => {
     expect(() => parseTeleprompterCommand(payload)).toThrow('Invalid teleprompter command');
   });
 });
