@@ -25,7 +25,7 @@ export const teleprompterSpeed = {
   max: 100,
 } as const;
 
-export function clampTeleprompterSpeed(speed: number): number {
+function clampTeleprompterSpeed(speed: number): number {
   return Math.min(Math.max(speed, teleprompterSpeed.min), teleprompterSpeed.max);
 }
 
@@ -71,7 +71,7 @@ const boundaryEpsilon = 1e-6;
  * Previous restarts the event being read once the reader is more than this many lines into its text,
  * and goes to the event before otherwise, like a media player
  */
-export const previousRestartLines = 1;
+const previousRestartLines = 1;
 
 /**
  * The row at the reading position at a moment, as a fraction between rows
@@ -89,7 +89,7 @@ export function positionAt(transport: TeleprompterTransport, layout: Teleprompte
 }
 
 /** Where playback from a row runs to: the end of the event being read event by event, otherwise the end of the script */
-export function playbackBound(
+function playbackBound(
   layout: TeleprompterLayout,
   from: number,
   mode: TeleprompterMode,

@@ -8,8 +8,7 @@ export type TeleprompterViewCommand =
 export type TeleprompterKeyAction =
   | { type: 'command'; command: TeleprompterViewCommand }
   /** a screen of lines, which only the view knows */
-  | { type: 'page'; direction: 1 | -1 }
-  | { type: 'help' };
+  | { type: 'page'; direction: 1 | -1 };
 
 export type TeleprompterKeyEvent = {
   code: string;
@@ -54,8 +53,6 @@ export function resolveTeleprompterKey(event: TeleprompterKeyEvent): Teleprompte
 
   // Character bindings use key so they work across keyboard layouts.
   switch (event.key) {
-    case '?':
-      return { type: 'help' };
     case 'l':
     case 'L':
       return command({ type: 'goto', target: 'loaded' });
