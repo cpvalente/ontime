@@ -1,5 +1,5 @@
 import { DatabaseModel, Rundown } from 'ontime-types';
-import { generateId } from 'ontime-utils';
+import { defaultTeleprompterSettings, generateId } from 'ontime-utils';
 
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
@@ -47,6 +47,7 @@ const dbModel: DatabaseModel = {
     triggers: [],
     automations: {},
   },
+  teleprompter: { ...defaultTeleprompterSettings },
 };
 
 /**

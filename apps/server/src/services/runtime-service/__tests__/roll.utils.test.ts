@@ -6,6 +6,8 @@ import { processRundown, rundownCache } from '../../../api-data/rundown/rundown.
 import { initRundown } from '../../../api-data/rundown/rundown.service.js';
 import { loadRoll } from '../roll.utils.js';
 
+// the teleprompter follows rundown changes, which these tests do not look at
+vi.mock('../../teleprompter-service/teleprompter.service.js');
 vi.mock('../../../classes/data-provider/DataProvider.js', () => {
   return {
     getDataProvider: vi.fn().mockImplementation(() => {

@@ -45,6 +45,7 @@ export const validatePatchProject = [
   body('viewSettings').isObject().optional({ nullable: false }),
   body('urlPresets').isArray().optional({ nullable: false }),
   body('customFields').isObject().optional({ nullable: false }),
+  body('teleprompter').isObject().optional({ nullable: false }),
   body('osc').isObject().optional({ nullable: false }),
   body('http').isObject().optional({ nullable: false }),
 

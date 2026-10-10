@@ -1,4 +1,4 @@
-import { ComponentProps, useEffect, useState } from 'react';
+import { ComponentProps, use, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { isStringBoolean } from '../../../views/common/viewUtils';
@@ -9,14 +9,17 @@ import Select, { SelectOption } from '../select/Select';
 import Switch from '../switch/Switch';
 import InlineColourPicker from './InlineColourPicker';
 import { ParamField } from './viewParams.types';
+import { ViewParamsFormValues } from './viewParamsFormValues';
 
 import style from './ParamInput.module.scss';
 
 interface ParamInputProps {
   paramField: ParamField;
+  /** a disabled input is left out of the form, so it is not applied */
+  disabled?: boolean;
 }
 
-export default function ParamInput({ paramField }: ParamInputProps) {
+export default function ParamInput({ paramField, disabled }: ParamInputProps) {
   const [searchParams] = useSearchParams();
   const { id, type, defaultValue } = paramField;
 
@@ -35,7 +38,9 @@ export default function ParamInput({ paramField }: ParamInputProps) {
       return <span className={style.empty}>No options available</span>;
     }
 
-    return <ControlledSelect id={id} initialValue={defaultOptionValue} options={paramField.values} />;
+    return (
+      <ControlledSelect id={id} initialValue={defaultOptionValue} options={paramField.values} disabled={disabled} />
+    );
   }
 
   if (type === 'multi-option') {
@@ -50,7 +55,13 @@ export default function ParamInput({ paramField }: ParamInputProps) {
   }
 
   if (type === 'boolean') {
-    return <ControlledSwitch id={id} initialValue={isStringBoolean(searchParams.get(id)) ?? defaultValue} />;
+    return (
+      <ControlledSwitch
+        id={id}
+        initialValue={isStringBoolean(searchParams.get(id)) ?? defaultValue}
+        disabled={disabled}
+      />
+    );
   }
 
   if (type === 'number') {
@@ -65,6 +76,7 @@ export default function ParamInput({ paramField }: ParamInputProps) {
         name={id}
         defaultValue={defaultNumberValue}
         placeholder={placeholder}
+        disabled={disabled}
       />
     );
   }
@@ -76,7 +88,7 @@ export default function ParamInput({ paramField }: ParamInputProps) {
   const defaultStringValue = searchParams.get(id) ?? defaultValue ?? '';
   const { placeholder } = paramField;
 
-  return <ControlledInput id={id} initialValue={defaultStringValue} placeholder={placeholder} />;
+  return <ControlledInput id={id} initialValue={defaultStringValue} placeholder={placeholder} disabled={disabled} />;
 }
 
 interface EditFormMultiOptionProps {
@@ -136,8 +148,9 @@ function MultiOption({ paramField, options }: EditFormMultiOptionProps) {
 interface ControlledSwitchProps {
   id: string;
   initialValue: boolean;
+  disabled?: boolean;
 }
-function ControlledSwitch({ id, initialValue }: ControlledSwitchProps) {
+function ControlledSwitch({ id, initialValue, disabled }: ControlledSwitchProps) {
   const [checked, setChecked] = useState(initialValue);
 
   // synchronise checked state
@@ -145,16 +158,18 @@ function ControlledSwitch({ id, initialValue }: ControlledSwitchProps) {
     setChecked(initialValue);
   }, [initialValue]);
 
-  return <Switch size='large' name={id} checked={checked} onCheckedChange={setChecked} />;
+  return <Switch size='large' name={id} checked={checked} onCheckedChange={setChecked} disabled={disabled} />;
 }
 
 interface ControlledSelectProps {
   id: string;
   initialValue?: string;
   options: SelectOption[];
+  disabled?: boolean;
 }
-function ControlledSelect({ id, initialValue, options }: ControlledSelectProps) {
+function ControlledSelect({ id, initialValue, options, disabled }: ControlledSelectProps) {
   const [selected, setSelected] = useState(initialValue);
+  const formValues = use(ViewParamsFormValues);
 
   // synchronise selected state
   useEffect(() => {
@@ -167,9 +182,11 @@ function ControlledSelect({ id, initialValue, options }: ControlledSelectProps) 
       name={id}
       options={options}
       value={selected}
+      disabled={disabled}
       onValueChange={(value) => {
         if (value === null) return;
         setSelected(value);
+        formValues.set(id, value);
       }}
     />
   );

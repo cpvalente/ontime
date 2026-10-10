@@ -52,6 +52,16 @@ export type { Settings } from './definitions/core/Settings.type.js';
 
 // ---> Views
 export type { ViewSettings } from './definitions/core/Views.type.js';
+
+// ---> Teleprompter
+export type {
+  TeleprompterAnchor,
+  TeleprompterHeading,
+  TeleprompterLine,
+  TeleprompterScript,
+  TeleprompterScriptEvent,
+  TeleprompterSettings,
+} from './definitions/core/Teleprompter.type.js';
 export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
 
 // ---> URL Presets
@@ -118,7 +128,16 @@ export type { RundownState } from './definitions/runtime/RundownState.type.js';
 export type { Offset } from './definitions/runtime/Offset.type.js';
 export { OffsetMode } from './definitions/runtime/Offset.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
-export { runtimeStorePlaceholder } from './definitions/runtime/RuntimeStore.js';
+export { defaultTeleprompterSpeed, runtimeStorePlaceholder } from './definitions/runtime/RuntimeStore.js';
+export type {
+  TeleprompterMode,
+  TeleprompterPlayback,
+  TeleprompterReadingEvent,
+  TeleprompterState,
+  TeleprompterStop,
+  TeleprompterSync,
+  TeleprompterTransport,
+} from './definitions/runtime/Teleprompter.type.js';
 export { type TimerState, TimerPhase } from './definitions/runtime/TimerState.type.js';
 
 // ---> Extra Timer

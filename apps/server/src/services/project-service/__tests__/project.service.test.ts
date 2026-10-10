@@ -1,3 +1,4 @@
+import type { TeleprompterSettings } from 'ontime-types';
 import { Mock } from 'vitest';
 
 import { parseDatabaseModel } from '../../../api-data/db/db.parser.js';
@@ -8,6 +9,7 @@ import { getDataProvider, getFileToRead } from '../../../classes/data-provider/D
 import { makeNewProject } from '../../../models/dataModel.js';
 import { isLastLoadedProject } from '../../app-state-service/appState.service.js';
 import { auxTimerService } from '../../aux-timer-service/auxTimer.service.js';
+import { applyTeleprompterSettings } from '../../teleprompter-service/teleprompter.service.js';
 import {
   deleteProjectFile,
   duplicateProjectFile,
@@ -55,6 +57,10 @@ vi.mock('../../runtime-service/runtime.service.js', () => ({
 
 vi.mock('../../aux-timer-service/auxTimer.service.js', () => ({
   auxTimerService: { loadNames: vi.fn() },
+}));
+
+vi.mock('../../teleprompter-service/teleprompter.service.js', () => ({
+  applyTeleprompterSettings: vi.fn(),
 }));
 
 /**
@@ -162,6 +168,7 @@ describe('patchCurrentProject', () => {
     urlPresets: undefined,
     customFields: undefined,
     automation: undefined,
+    teleprompter: undefined,
   };
 
   beforeEach(() => {
@@ -176,6 +183,14 @@ describe('patchCurrentProject', () => {
     await patchCurrentProject({ ...emptyPatch, settings });
 
     expect(dataProvider.mergeIntoData).toHaveBeenCalledExactlyOnceWith({ settings });
+  });
+
+  it('hands patched teleprompter settings to the teleprompter, rather than merging them unparsed', async () => {
+    const teleprompter: TeleprompterSettings = { script: 'title', charsPerLine: 20, heading: 'cue' };
+    await patchCurrentProject({ ...emptyPatch, teleprompter });
+
+    expect(dataProvider.mergeIntoData).not.toHaveBeenCalled();
+    expect(applyTeleprompterSettings).toHaveBeenCalledExactlyOnceWith(teleprompter);
   });
 
   it('stores patched rundowns without merging the rest of the project', async () => {
