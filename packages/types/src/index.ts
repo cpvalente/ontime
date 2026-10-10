@@ -129,6 +129,15 @@ export type { Offset } from './definitions/runtime/Offset.type.js';
 export { OffsetMode } from './definitions/runtime/Offset.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
 export { runtimeStorePlaceholder } from './definitions/runtime/RuntimeStore.js';
+export type {
+  TeleprompterMode,
+  TeleprompterPlayback,
+  TeleprompterReadingEvent,
+  TeleprompterState,
+  TeleprompterStop,
+  TeleprompterSync,
+  TeleprompterTransport,
+} from './definitions/runtime/Teleprompter.type.js';
 export { type TimerState, TimerPhase } from './definitions/runtime/TimerState.type.js';
 
 // ---> Extra Timer
