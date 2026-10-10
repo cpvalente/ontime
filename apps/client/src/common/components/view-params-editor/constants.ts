@@ -10,6 +10,7 @@ export enum OptionTitle {
   StyleOverride = 'View style override',
   Animation = 'View animation',
   Schedule = 'Schedule options',
+  ReadingLayout = 'Reading layout',
 
   /** rendered as hidden inputs */
   Hidden = 'Hidden options',
