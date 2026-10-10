@@ -4,6 +4,9 @@ import { Playback } from './Playback.type.js';
 import type { RuntimeStore } from './RuntimeStore.type.js';
 import { TimerPhase } from './TimerState.type.js';
 
+/** Lines per minute the shared teleprompter starts at, and a view playing on its own unless its options say otherwise */
+export const defaultTeleprompterSpeed = 14;
+
 export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
   clock: 0,
   timer: {
@@ -68,6 +71,23 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
     duration: 0,
     playback: SimplePlayback.Stop,
     name: '',
+  },
+  teleprompter: {
+    playback: 'pause',
+    mode: 'event',
+    speed: defaultTeleprompterSpeed,
+    event: null,
+    remaining: null,
+    endsAt: null,
+    ended: null,
+  },
+  teleprompterSync: {
+    revision: 0,
+    playback: 'pause',
+    speed: defaultTeleprompterSpeed,
+    row: 0,
+    until: 0,
+    at: 0,
   },
   ping: 1,
 };

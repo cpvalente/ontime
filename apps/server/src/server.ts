@@ -31,6 +31,7 @@ import { initialiseProject } from './services/project-service/project.service.js
 import { restoreService } from './services/restore-service/restore.service.js';
 import type { RestorePoint } from './services/restore-service/restore.types.js';
 import { runtimeService } from './services/runtime-service/runtime.service.js';
+import { getTeleprompterState, getTeleprompterSync } from './services/teleprompter-service/teleprompter.service.js';
 import { timerConfig } from './setup/config.js';
 import { isProduction } from './setup/environment.js';
 // import utils
@@ -227,6 +228,8 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
       direction: SimpleDirection.CountDown,
       name: '',
     },
+    teleprompter: getTeleprompterState(),
+    teleprompterSync: getTeleprompterSync(),
     ping: 1,
   });
 
