@@ -4,18 +4,23 @@ import { OSCOutput, RuntimeStore } from 'ontime-types';
 import { type OscPacketInput, toBuffer as oscPacketToBuffer } from 'osc-min';
 import { DeepReadonly } from 'ts-essentials';
 
+import { isOntimeCloud } from '../../../setup/environment.js';
 import { parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
 import { reportSendFailure, reportSendSuccess } from './sendFailures.js';
 
-const udpClient = dgram.createSocket('udp4');
+// cloud instances are reached over HTTP only, we never open a UDP socket
+const udpClient = isOntimeCloud ? null : dgram.createSocket('udp4');
 
 /**
  * Expose possibility to send a message using OSC protocol
  */
 export function emitOSC(output: OSCOutput, store: DeepReadonly<RuntimeStore>) {
+  if (!udpClient) {
+    return;
+  }
   const message = preparePayload(output, store);
   const targetIP = parseTemplateNested(output.targetIP, store);
-  emit(targetIP, output.targetPort, message);
+  emit(udpClient, targetIP, output.targetPort, message);
 }
 
 /** Parses the state and prepares payload to be emitted */
@@ -31,10 +36,10 @@ function preparePayload(output: OSCOutput, store: DeepReadonly<RuntimeStore>): O
 }
 
 /** Emits message over transport */
-function emit(targetIP: string, targetPort: number, packet: OscPacketInput) {
+function emit(socket: dgram.Socket, targetIP: string, targetPort: number, packet: OscPacketInput) {
   const buffer = oscPacketToBuffer(packet);
   const target = `${targetIP}:${targetPort}`;
-  udpClient.send(buffer, 0, buffer.byteLength, targetPort, targetIP, (error) => {
+  socket.send(buffer, 0, buffer.byteLength, targetPort, targetIP, (error) => {
     if (error) {
       reportSendFailure(target, `Failed sending OSC to ${target}: ${error}`);
     } else {

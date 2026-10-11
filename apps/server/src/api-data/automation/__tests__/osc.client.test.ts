@@ -54,4 +54,24 @@ describe('emitOSC()', () => {
       expect.any(Function),
     );
   });
+
+  it('never opens a socket in Ontime Cloud', async () => {
+    vi.resetModules();
+    vi.doMock('../../../setup/environment.js', async (importOriginal) => ({
+      ...(await importOriginal<object>()),
+      isOntimeCloud: true,
+    }));
+    const dgram = await import('node:dgram');
+    vi.mocked(dgram.createSocket).mockClear();
+    const { emitOSC: emitInCloud } = await import('../clients/osc.client.js');
+
+    emitInCloud(
+      { type: 'osc', targetIP: '192.0.2.10', targetPort: 53000, address: '/cue/start', args: '' },
+      runtimeStorePlaceholder,
+    );
+
+    expect(dgram.createSocket).not.toHaveBeenCalled();
+    expect(send).not.toHaveBeenCalled();
+    vi.doUnmock('../../../setup/environment.js');
+  });
 });

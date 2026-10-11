@@ -12,7 +12,6 @@ import {
 import { getPropertyFromPath } from 'ontime-utils';
 
 import { logger } from '../../classes/Logger.js';
-import { isOntimeCloud } from '../../setup/environment.js';
 import { eventStore } from '../../stores/EventStore.js';
 import { getAutomationTriggers, getAutomations, getAutomationsEnabled } from './automation.dao.js';
 import { isContained, isEquivalent, isGreaterThan, isLessThan } from './automation.utils.js';
@@ -69,7 +68,7 @@ export function triggerAutomations(cycle: TimerLifeCycle) {
       if (shouldLog) {
         logger.info(LogOrigin.Tx, `Automation "${automation.title}" sent on ${cycle}`);
       }
-      send(automation.outputs, store, shouldLog);
+      send(automation.outputs, store);
     } else if (shouldLog) {
       logger.info(LogOrigin.Tx, `Automation "${automation.title}" not sent on ${cycle}: filters not met`);
     }
@@ -81,7 +80,7 @@ export function triggerAutomations(cycle: TimerLifeCycle) {
  */
 export function testOutput(payload: AutomationOutput) {
   const store = eventStore.poll();
-  send([payload], store, true);
+  send([payload], store);
 }
 
 /**
@@ -134,14 +133,10 @@ export function testConditions(
  * Handles preparing and sending of the data
  * Returns a boolean indicating whether a message was sent
  */
-function send(output: AutomationOutput[], store: RuntimeStore, shouldLog: boolean) {
+function send(output: AutomationOutput[], store: RuntimeStore) {
   output.forEach((payload) => {
     if (isOSCOutput(payload)) {
-      if (!isOntimeCloud) {
-        emitOSC(payload, store);
-      } else if (shouldLog) {
-        logger.warning(LogOrigin.Tx, 'Automation output not sent: OSC is not available in Ontime Cloud');
-      }
+      emitOSC(payload, store);
     } else if (isHTTPOutput(payload)) {
       emitHTTP(payload, store);
     } else if (isOntimeAction(payload)) {
