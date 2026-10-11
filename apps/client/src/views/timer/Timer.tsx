@@ -7,10 +7,10 @@ import EmptyPage from '../../common/components/state/EmptyPage';
 import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
-import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import { useTimerSocket } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import { useAutoTickingClock } from '../../common/stores/clockStore';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
@@ -52,7 +52,8 @@ export default function TimerLoader() {
 }
 
 function Timer({ customFields, projectData, isMirrored, settings, viewSettings, entries }: TimerData) {
-  const { eventNext, eventNow, message, time, clock, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
+  const { eventNext, eventNow, message, time, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
+  const clock = useAutoTickingClock();
   const {
     hideClock,
     hideCards,
