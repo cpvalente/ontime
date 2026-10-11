@@ -45,6 +45,9 @@ export default function TransportShortcuts() {
         <Shortcut label='Back to the loaded event'>
           <Combo keys={['L']} />
         </Shortcut>
+        <Shortcut label='Scroll'>
+          <Combo keys={['Mouse wheel']} />
+        </Shortcut>
       </ShortcutGroup>
     </>
   );

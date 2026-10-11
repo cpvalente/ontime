@@ -115,7 +115,7 @@ test('every screen shows the same lines, each sized to fit the text width', asyn
   expect(onPhone).toEqual(onDesktop);
 });
 
-test('a controller drives every remote screen with its keys and buttons', async ({ page, context, request }) => {
+test('a controller drives every remote screen with its keys, wheel and buttons', async ({ page, context, request }) => {
   const transport = async () => (await (await request.get('/api/poll')).json()).payload.teleprompter;
 
   await page.goto('/teleprompter?role=controller');
@@ -137,6 +137,12 @@ test('a controller drives every remote screen with its keys and buttons', async 
   await expect.poll(async () => (await transport()).event?.id).not.toBe(secondEvent);
   await page.getByTestId('teleprompter-previous').click();
   await expect.poll(async () => (await transport()).event?.id).toBe(secondEvent);
+
+  // the mouse wheel scrolls every screen
+  const beforeWheel = await readingRow(remote);
+  await page.mouse.move(960, 500);
+  await page.mouse.wheel(0, 400);
+  await expect.poll(() => readingRow(remote)).toBeGreaterThan(beforeWheel + 1);
 
   // back to the loaded event
   expect((await request.get('/api/load/index/3')).ok()).toBe(true);
