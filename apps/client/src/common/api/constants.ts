@@ -17,6 +17,8 @@ export const getRundownQueryKey = (rundownId: string) => ['rundown', rundownId];
 export const RUNTIME = ['runtimeStore'];
 export const URL_PRESETS = ['urlpresets'];
 export const VIEW_SETTINGS = ['viewSettings'];
+export const TELEPROMPTER_SCRIPT = ['teleprompterScript'];
+export const TELEPROMPTER_SETTINGS = ['teleprompterSettings'];
 export const CSS_OVERRIDE = ['cssOverride'];
 export const CLIENT_LIST = ['clientList'];
 export const REPORT = ['report'];

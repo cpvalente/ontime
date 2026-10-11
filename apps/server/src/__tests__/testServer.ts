@@ -13,6 +13,7 @@ export async function startTestServer() {
   let stopped: Promise<void> | undefined;
 
   return {
+    baseUrl,
     /** same as a clean shutdown: flushes pending writes and clears the restore point, safe to call more than once */
     stop: () => (stopped ??= server.stopServices(0)),
     get: (path: string) => fetch(`${baseUrl}${path}`),

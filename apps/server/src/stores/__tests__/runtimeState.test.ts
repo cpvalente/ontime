@@ -55,6 +55,8 @@ const mockState = {
   },
 } as RuntimeState;
 
+// the teleprompter follows rundown changes, which these tests do not look at
+vi.mock('../../services/teleprompter-service/teleprompter.service.js');
 vi.mock('../../classes/data-provider/DataProvider.js', () => {
   return {
     getDataProvider: vi.fn().mockImplementation(() => {

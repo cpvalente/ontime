@@ -26,6 +26,10 @@ import { logger } from '../../classes/Logger.js';
 import { makeNewRundown } from '../../models/dataModel.js';
 import { setLastLoadedRundown } from '../../services/app-state-service/appState.service.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
+import {
+  followCustomFieldKey,
+  invalidateTeleprompterScript,
+} from '../../services/teleprompter-service/teleprompter.service.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import {
@@ -662,6 +666,7 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
     await updateBackgroundRundowns(rundown.id, (backgroundRundown) =>
       customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey),
     );
+    await followCustomFieldKey(oldKey, newKey);
   }
 
   // schedule the side effects
@@ -698,6 +703,7 @@ export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFiel
   await updateBackgroundRundowns(rundown.id, (backgroundRundown) =>
     customFieldMutation.removeUsages(backgroundRundown, key),
   );
+  await followCustomFieldKey(key, null);
 
   // schedule the side effects
   setImmediate(() => {
@@ -761,9 +767,14 @@ function notifyChanges(
   revision: number,
   options: NotifyChangesOptions,
 ) {
-  // notify timer service of changed event
-  if (rundownMetadata && options.timer && rundownId && isCurrentRundown(rundownId)) {
-    runtimeService.notifyOfChangedEvents();
+  // without a rundown, the change was to the custom fields every rundown shares
+  if (!rundownId || isCurrentRundown(rundownId)) {
+    // notify timer service of changed event
+    if (rundownMetadata && options.timer && rundownId) {
+      runtimeService.notifyOfChangedEvents();
+    }
+    // any change may reach the text the teleprompter reads
+    invalidateTeleprompterScript();
   }
 
   if (options.reload) {

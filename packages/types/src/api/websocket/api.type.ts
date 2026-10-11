@@ -5,6 +5,32 @@ import type { SimpleDirection, SimplePlayback } from '../../definitions/runtime/
 import type { MessageState } from '../../definitions/runtime/MessageControl.type.js';
 import type { OffsetMode } from '../../definitions/runtime/Offset.type.js';
 import type { RuntimeStore } from '../../definitions/runtime/RuntimeStore.type.js';
+import type { TeleprompterMode, TeleprompterState } from '../../definitions/runtime/Teleprompter.type.js';
+
+/**
+ * Integrations drive the teleprompter like a media player: jump between events, start and pause, speed and nudge
+ * The mode is an operator setting, which controller views switch
+ */
+export type TeleprompterAction = {
+  tag: 'teleprompter';
+  payload:
+    // jump between events, an index counting the events of the script from 1
+    | 'next'
+    | 'previous'
+    | 'top'
+    | { goto: { cue: string } | { id: string } | { index: number } | 'loaded' }
+    // start and pause
+    | 'play'
+    | 'pause'
+    | 'toggle'
+    // speed, in lines per minute
+    | { speed: number | { by: number } }
+    // nudge, in lines
+    | { scroll: number }
+    // operator setting
+    | { mode: TeleprompterMode | 'toggle' };
+};
+export type TeleprompterResponse = { tag: 'teleprompter'; payload: TeleprompterState };
 
 export type VersionAction = {
   tag: 'version';
@@ -156,7 +182,8 @@ export type ApiAction =
   | AddtimeAction
   | AuxtimerAction
   | ClientAction
-  | OffsetmodeAction;
+  | OffsetmodeAction
+  | TeleprompterAction;
 
 export type ApiResponse =
   | VersionResponse
@@ -172,6 +199,7 @@ export type ApiResponse =
   | AddtimeResponse
   | AuxtimerResponse
   | ClientResponse
-  | OffsetmodeResponse;
+  | OffsetmodeResponse
+  | TeleprompterResponse;
 
 export type ApiActionTag = ApiAction['tag'];

@@ -12,6 +12,7 @@ import { router as rundownsRouter } from './rundown/rundown.router.js';
 import { router as sessionRouter } from './session/session.router.js';
 import { router as settingsRouter } from './settings/settings.router.js';
 import { router as sheetsRouter } from './sheets/sheets.router.js';
+import { router as teleprompterRouter } from './teleprompter/teleprompter.router.js';
 import { router as urlPresetsRouter } from './url-presets/urlPresets.router.js';
 import { router as viewSettingsRouter } from './view-settings/viewSettings.router.js';
 
@@ -25,6 +26,7 @@ appRouter.use('/project', projectRouter);
 appRouter.use('/rundowns', rundownsRouter);
 appRouter.use('/settings', settingsRouter);
 appRouter.use('/sheets', sheetsRouter);
+appRouter.use('/teleprompter', teleprompterRouter);
 appRouter.use('/excel', excelRouter);
 appRouter.use('/url-presets', urlPresetsRouter);
 appRouter.use('/session', sessionRouter);

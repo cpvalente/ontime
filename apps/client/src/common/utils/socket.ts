@@ -23,6 +23,8 @@ import {
   REPORT,
   RUNDOWN,
   RUNTIME,
+  TELEPROMPTER_SCRIPT,
+  TELEPROMPTER_SETTINGS,
   TRANSLATION,
   URL_PRESETS,
   VIEW_SETTINGS,
@@ -217,6 +219,8 @@ export const connectSocket = () => {
               break;
             case RefetchKey.Rundown: {
               maybeInvalidateRundownCache(revision, rundownId);
+              // the teleprompter script is built from the rundown, an unchanged script answers without a body
+              ontimeQueryClient.invalidateQueries({ queryKey: TELEPROMPTER_SCRIPT });
               break;
             }
             case RefetchKey.UrlPresets:
@@ -224,6 +228,11 @@ export const connectSocket = () => {
               break;
             case RefetchKey.ViewSettings:
               ontimeQueryClient.invalidateQueries({ queryKey: VIEW_SETTINGS });
+              break;
+            case RefetchKey.Teleprompter:
+              // the script is built from the settings
+              ontimeQueryClient.invalidateQueries({ queryKey: TELEPROMPTER_SETTINGS });
+              ontimeQueryClient.invalidateQueries({ queryKey: TELEPROMPTER_SCRIPT });
               break;
             case RefetchKey.CssOverride:
               ontimeQueryClient.invalidateQueries({ queryKey: CSS_OVERRIDE });
