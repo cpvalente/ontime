@@ -78,13 +78,6 @@ export const modeLabels: Record<TeleprompterMode, string> = {
 
 const modes = (['event', 'script'] as const).map((value) => ({ value, label: modeLabels[value] }));
 
-/** Only a view playing on its own has a transport of its own, which starts with its own mode and speed */
-const ownPlaybackOnly = {
-  id: 'role',
-  values: ['local'],
-  reason: 'Comes from the shared playback, which controllers and Companion change',
-};
-
 /** The view options, which only change how a view shows the script */
 export function getTeleprompterOptions(customFields: CustomFields, shared: TeleprompterSettings): ViewOption[] {
   return [
@@ -102,19 +95,17 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
         {
           id: 'mode',
           title: 'Starting mode',
-          description: `${modeLabels.event} stops at the end of each event and follows the event Ontime loads. ${modeLabels.script} reads on to the end. Switch it live with M or the on-screen controls`,
+          description: `Only for ${roleLabels.local}. ${modeLabels.event} stops at the end of each event and follows the event Ontime loads. ${modeLabels.script} reads on to the end. Switch it live with M or the on-screen controls`,
           type: 'option',
           values: modes,
           defaultValue: defaults.mode,
-          enabledWhen: ownPlaybackOnly,
         },
         {
           id: 'speed',
           title: 'Starting speed',
-          description: `Lines per minute, ${bounds.speed[0]} to ${bounds.speed[1]}. Change it live with the arrow keys or the on-screen controls`,
+          description: `Only for ${roleLabels.local}. Lines per minute, ${bounds.speed[0]} to ${bounds.speed[1]}. Change it live with the arrow keys or the on-screen controls`,
           type: 'number',
           defaultValue: defaults.speed,
-          enabledWhen: ownPlaybackOnly,
         },
       ],
     },

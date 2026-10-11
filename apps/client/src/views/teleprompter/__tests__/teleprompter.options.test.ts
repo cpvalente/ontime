@@ -23,13 +23,6 @@ describe('getOptionsFromParams()', () => {
 });
 
 describe('getTeleprompterOptions()', () => {
-  test('the starting mode and speed are enabled only while the view plays on its own', () => {
-    const fields = getTeleprompterOptions({}, defaultTeleprompterSettings).flatMap((section) => section.options);
-    for (const id of ['mode', 'speed']) {
-      expect(fields.find((field) => field.id === id)?.enabledWhen).toMatchObject({ id: 'role', values: ['local'] });
-    }
-  });
-
   test('every declared default is what parsing an empty query produces', () => {
     const parsed = parse('') as Record<string, unknown>;
     const fields = getTeleprompterOptions({}, defaultTeleprompterSettings).flatMap((section) => section.options);

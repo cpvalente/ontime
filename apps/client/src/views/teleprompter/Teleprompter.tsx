@@ -66,9 +66,9 @@ export default function Teleprompter() {
     >
       <ViewParamsEditor target={OntimeView.Teleprompter} viewOptions={getTeleprompterOptions(customFields, settings)} />
       {role === 'local' ? (
-        <LocalTeleprompter options={options} isHelpOpen={showHelp} onToggleHelp={toggleHelp} />
+        <LocalTeleprompter options={options} onToggleHelp={toggleHelp} />
       ) : (
-        <SharedTeleprompter options={options} isHelpOpen={showHelp} onToggleHelp={toggleHelp} />
+        <SharedTeleprompter options={options} onToggleHelp={toggleHelp} />
       )}
       {role === 'controller' && (
         <div className='teleprompter__badge' data-testid='teleprompter-badge'>
@@ -84,7 +84,6 @@ export default function Teleprompter() {
 
 interface TeleprompterViewProps {
   options: TeleprompterOptions;
-  isHelpOpen: boolean;
   onToggleHelp: () => void;
 }
 
@@ -95,7 +94,7 @@ const sendCommand = (command: TeleprompterViewCommand) => sendSocket('teleprompt
  * It shows what the server publishes, and reads from the position the server calculates, in rows of the script
  * A controller also sends commands, which reach every following view
  */
-function SharedTeleprompter({ options, isHelpOpen, onToggleHelp }: TeleprompterViewProps) {
+function SharedTeleprompter({ options, onToggleHelp }: TeleprompterViewProps) {
   const { data: script, status } = useTeleprompterScript();
   const state = useTeleprompterState();
   const sync = useTeleprompterSync();
@@ -111,14 +110,13 @@ function SharedTeleprompter({ options, isHelpOpen, onToggleHelp }: TeleprompterV
       isBehind={script?.revision !== sync.revision}
       options={options}
       onCommand={isController ? sendCommand : undefined}
-      isHelpOpen={isHelpOpen}
       onToggleHelp={onToggleHelp}
     />
   );
 }
 
 /** Runs the same transport in the browser, over the same script */
-function LocalTeleprompter({ options, isHelpOpen, onToggleHelp }: TeleprompterViewProps) {
+function LocalTeleprompter({ options, onToggleHelp }: TeleprompterViewProps) {
   const { data: script, status } = useTeleprompterScript();
   const loadedEventId = useSelectedEventId();
   const { sync, isBehind, state, handleCommand, moveToAnchor } = useLocalTransport({
@@ -139,7 +137,6 @@ function LocalTeleprompter({ options, isHelpOpen, onToggleHelp }: TeleprompterVi
       options={options}
       onCommand={handleCommand}
       onUserScroll={moveToAnchor}
-      isHelpOpen={isHelpOpen}
       onToggleHelp={onToggleHelp}
     />
   );
@@ -164,7 +161,6 @@ interface ScriptContentProps {
   options: TeleprompterOptions;
   onCommand?: (command: TeleprompterViewCommand) => void;
   onUserScroll?: (anchor: TeleprompterAnchor) => void;
-  isHelpOpen: boolean;
   onToggleHelp: () => void;
 }
 
@@ -177,7 +173,6 @@ function ScriptContent({
   options,
   onCommand,
   onUserScroll,
-  isHelpOpen,
   onToggleHelp,
 }: ScriptContentProps) {
   const loadedEventId: EntryId | null = useSelectedEventId();
@@ -229,7 +224,6 @@ function ScriptContent({
       fallbackRow={options.onlyLoaded ? shown.events[0]?.lines.findIndex((line) => line.kind === 'text') : undefined}
       onCommand={onCommand}
       onUserScroll={onUserScroll}
-      inputDisabled={isHelpOpen}
     >
       {controls}
     </TeleprompterScreen>

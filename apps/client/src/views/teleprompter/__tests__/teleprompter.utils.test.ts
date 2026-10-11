@@ -3,12 +3,10 @@ import { makeTeleprompterLayout } from 'ontime-utils';
 
 import {
   composeFlip,
-  createScrollBatcher,
   easeTowards,
   filterToLoadedEvent,
   rowInShown,
   toTeleprompterPayload,
-  wheelToLines,
 } from '../teleprompter.utils';
 
 function makeEvent(id: string): TeleprompterScriptEvent {
@@ -53,45 +51,6 @@ describe('easeTowards()', () => {
     expect(atSixty).toBeGreaterThan(0);
     expect(atSixty).toBeLessThan(100);
     expect(atSixty).toBeCloseTo(atThirty, 3);
-  });
-});
-
-describe('createScrollBatcher()', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  test('sends a single step straight away', () => {
-    const send = vi.fn<(lines: number) => void>();
-    createScrollBatcher(send).add(1);
-    expect(send).toHaveBeenCalledExactlyOnceWith(1);
-  });
-
-  test('groups a fast spin into one command per interval', () => {
-    const send = vi.fn<(lines: number) => void>();
-    const batcher = createScrollBatcher(send, 100);
-    for (let i = 0; i < 30; i++) {
-      batcher.add(1);
-      vi.advanceTimersByTime(10);
-    }
-    vi.advanceTimersByTime(200);
-
-    expect(send.mock.calls.length).toBeLessThanOrEqual(5);
-    expect(send.mock.calls.reduce((total, [lines]) => total + lines, 0)).toBe(30);
-  });
-});
-
-describe('wheelToLines()', () => {
-  test.each([
-    ['pixels', 120, 0, 2],
-    ['lines', 3, 1, 3],
-    ['pages', 1, 2, 10],
-  ])('converts a wheel moving in %s', (_, delta, mode, lines) => {
-    expect(wheelToLines(delta, mode, 60, 10)).toBe(lines);
   });
 });
 

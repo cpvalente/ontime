@@ -115,7 +115,7 @@ test('every screen shows the same lines, each sized to fit the text width', asyn
   expect(onPhone).toEqual(onDesktop);
 });
 
-test('a controller drives every remote screen with its keys, wheel and buttons', async ({ page, context, request }) => {
+test('a controller drives every remote screen with its keys and buttons', async ({ page, context, request }) => {
   const transport = async () => (await (await request.get('/api/poll')).json()).payload.teleprompter;
 
   await page.goto('/teleprompter?role=controller');
@@ -137,12 +137,6 @@ test('a controller drives every remote screen with its keys, wheel and buttons',
   await expect.poll(async () => (await transport()).event?.id).not.toBe(secondEvent);
   await page.getByTestId('teleprompter-previous').click();
   await expect.poll(async () => (await transport()).event?.id).toBe(secondEvent);
-
-  // the mouse wheel scrolls every screen
-  const beforeWheel = await readingRow(remote);
-  await page.mouse.move(960, 500);
-  await page.mouse.wheel(0, 400);
-  await expect.poll(() => readingRow(remote)).toBeGreaterThan(beforeWheel + 1);
 
   // back to the loaded event
   expect((await request.get('/api/load/index/3')).ok()).toBe(true);
@@ -175,21 +169,6 @@ test('a controller switches the playback mode of the views which follow it', asy
   await expect(page.getByTestId('teleprompter-playback-mode')).toHaveText('Whole script');
   await page.keyboard.press('m');
   await expect(remote.getByTestId('teleprompter-playback-mode')).toHaveText('Event by event');
-});
-
-test('the options which come from the shared playback are disabled until the view plays on its own', async ({
-  page,
-}) => {
-  await page.goto('/teleprompter?role=controller');
-  await page.mouse.move(20, 20);
-  await page.getByTestId('navigation__toggle-settings').click();
-  const speed = page.locator('input[name="speed"]');
-  await expect(speed).toBeDisabled();
-  await expect(page.getByText('Comes from the shared playback').first()).toBeVisible();
-
-  await page.getByRole('combobox').filter({ hasText: 'Controller' }).click();
-  await page.getByRole('option', { name: 'This view only' }).click();
-  await expect(speed).toBeEnabled();
 });
 
 test('a local view runs its own transport over the same script', async ({ page, context, request }) => {

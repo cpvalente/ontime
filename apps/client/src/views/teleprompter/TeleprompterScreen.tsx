@@ -30,11 +30,10 @@ interface TeleprompterScreenProps {
   loadedEventId: EntryId | null;
   /** where to rest while the position is outside the rows shown */
   fallbackRow?: number;
-  /** where the keyboard and the mouse wheel send commands, or nothing for a screen which only displays */
+  /** where the keyboard sends commands, or nothing for a screen which only displays */
   onCommand?: (command: TeleprompterViewCommand) => void;
   /** a local view scrolls by hand, which moves its position to a place in the rows shown */
   onUserScroll?: (anchor: TeleprompterAnchor) => void;
-  inputDisabled?: boolean;
 }
 
 /** Renders the rows of the script, and scrolls them to the reading position */
@@ -50,10 +49,8 @@ export default function TeleprompterScreen({
   fallbackRow,
   onCommand,
   onUserScroll,
-  inputDisabled = false,
   children,
 }: PropsWithChildren<TeleprompterScreenProps>) {
-  const [screen, setScreen] = useState<HTMLDivElement | null>(null);
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
   const [content, setContent] = useState<HTMLDivElement | null>(null);
 
@@ -79,14 +76,7 @@ export default function TeleprompterScreen({
     fallbackRow,
     onUserScroll: handleUserScroll,
   });
-  // a screen scrolled by hand takes the wheel as the browser's own scrolling
-  useTeleprompterInput({
-    screen,
-    onCommand,
-    rowHeight,
-    wheel: !onUserScroll,
-    disabled: inputDisabled,
-  });
+  useTeleprompterInput({ onCommand, rowHeight });
 
   const hasLoaded = loadedEventId !== null && events.some((event) => event.id === loadedEventId);
   const screenStyles = {
@@ -97,11 +87,7 @@ export default function TeleprompterScreen({
   } as CSSProperties;
 
   return (
-    <div
-      className={cx(['teleprompter__screen', hasLoaded && 'teleprompter__screen--has-loaded'])}
-      style={screenStyles}
-      ref={setScreen}
-    >
+    <div className={cx(['teleprompter__screen', hasLoaded && 'teleprompter__screen--has-loaded'])} style={screenStyles}>
       <div
         className={cx(['teleprompter__scroller', onUserScroll && 'teleprompter__scroller--by-hand'])}
         data-testid='teleprompter-scroller'
