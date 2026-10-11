@@ -4,6 +4,7 @@ import { OSCOutput, RuntimeStore } from 'ontime-types';
 import { type OscPacketInput, toBuffer as oscPacketToBuffer } from 'osc-min';
 import { DeepReadonly } from 'ts-essentials';
 
+import { formatLogEvent } from '../../../classes/logFormat.js';
 import { isOntimeCloud } from '../../../setup/environment.js';
 import { parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
 import { reportSendFailure, reportSendSuccess } from './sendFailures.js';
@@ -43,7 +44,7 @@ function emit(socket: dgram.Socket, targetIP: string, targetPort: number, packet
   const target = `${targetIP}:${targetPort}`;
   socket.send(buffer, 0, buffer.byteLength, targetPort, targetIP, (error) => {
     if (error) {
-      reportSendFailure(target, `Failed sending OSC to ${target}: ${error}`);
+      reportSendFailure(target, formatLogEvent('osc.send-failed', { target, error: String(error) }));
     } else {
       reportSendSuccess(target);
     }

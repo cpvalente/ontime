@@ -11,6 +11,7 @@ import {
 } from 'ontime-types';
 import { getPropertyFromPath } from 'ontime-utils';
 
+import { formatLogEvent } from '../../classes/logFormat.js';
 import { logger } from '../../classes/Logger.js';
 import { eventStore } from '../../stores/EventStore.js';
 import { getAutomationTriggers, getAutomations, getAutomationsEnabled } from './automation.dao.js';
@@ -66,11 +67,11 @@ export function triggerAutomations(cycle: TimerLifeCycle) {
     const shouldLog = !periodicCycles.has(cycle);
     if (shouldSend) {
       if (shouldLog) {
-        logger.info(LogOrigin.Tx, `Automation "${automation.title}" sent on ${cycle}`);
+        logger.info(LogOrigin.Tx, formatLogEvent('automation.sent', { title: automation.title, cycle }));
       }
       send(automation.outputs, store);
     } else if (shouldLog) {
-      logger.info(LogOrigin.Tx, `Automation "${automation.title}" not sent on ${cycle}: filters not met`);
+      logger.info(LogOrigin.Tx, formatLogEvent('automation.filtered', { title: automation.title, cycle }));
     }
   });
 }

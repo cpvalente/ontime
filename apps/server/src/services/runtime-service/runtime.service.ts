@@ -26,6 +26,7 @@ import {
   getRundownMetadata,
 } from '../../api-data/rundown/rundown.dao.js';
 import { cloneEntryData } from '../../api-data/rundown/rundown.utils.js';
+import { formatLogEvent } from '../../classes/logFormat.js';
 import { logger } from '../../classes/Logger.js';
 import * as timeCore from '../../lib/time-core/timeCore.js';
 import { timerConfig } from '../../setup/config.js';
@@ -130,12 +131,15 @@ class RuntimeService {
       // actions are added to the queue stack to ensure that the order of operations is maintained
       if (newState.eventNow) {
         if (newState.eventNow.endAction === EndAction.LoadNext) {
-          logger.info(LogOrigin.Playback, `End action of cue ${describeEvent(newState.eventNow)}: load next`);
+          logger.info(
+            LogOrigin.Playback,
+            formatLogEvent('end-action', { action: 'load-next', ...eventFields(newState.eventNow) }),
+          );
           setTimeout(this.loadNext.bind(this), 0);
         } else if (newState.eventNow.endAction === EndAction.PlayNext) {
           // the next event starts when this one ends, which may be a moment after it was detected
           const finishedId = newState.eventNow.id;
-          const finishedLabel = describeEvent(newState.eventNow);
+          const finishedFields = eventFields(newState.eventNow);
           const end = finishedAt ?? timeCore.now();
           setTimeout(
             () => {
@@ -148,7 +152,7 @@ class RuntimeService {
               const isOnTime = timeCore.timeSince(now, end) <= timerConfig.skipLimit;
               logger.info(
                 LogOrigin.Playback,
-                `End action of cue ${finishedLabel}: play next${isOnTime ? '' : ' (started now, after a time skip)'}`,
+                formatLogEvent('end-action', { action: 'play-next', ...finishedFields, late: !isOnTime || undefined }),
               );
               this.startNext(isOnTime ? end : now);
             },
@@ -222,7 +226,7 @@ class RuntimeService {
     // all events were deleted, stopping clears the loaded data and there is nothing left to reconcile
     if (metadata.playableEventOrder.length === 0) {
       runtimeState.stop();
-      logger.warning(LogOrigin.Playback, 'Playback stopped: the rundown has no playable events left');
+      logger.warning(LogOrigin.Playback, formatLogEvent('playback.stop', { reason: 'no-playable-events' }));
       return;
     }
 
@@ -662,7 +666,10 @@ class RuntimeService {
   @broadcastResult
   public resume(restorePoint: RestorePoint) {
     if (restorePoint.rundownId !== getCurrentRundownId()) {
-      logger.warning(LogOrigin.Server, 'Restore point not used: it belongs to another rundown');
+      logger.warning(
+        LogOrigin.Server,
+        formatLogEvent('restore.skip', { reason: 'other-rundown', rundown: restorePoint.rundownId }),
+      );
       return;
     }
 
@@ -682,7 +689,10 @@ class RuntimeService {
     // we do not know the reason for the crash, so we check anyway
     const event = getEntryWithId(selectedEventId);
     if (!isOntimeEvent(event) || !isPlayableEvent(event)) {
-      logger.warning(LogOrigin.Server, `Restore point not used: event ${selectedEventId} is missing or not playable`);
+      logger.warning(
+        LogOrigin.Server,
+        formatLogEvent('restore.skip', { reason: 'event-not-playable', id: selectedEventId }),
+      );
       return;
     }
 
@@ -707,9 +717,9 @@ class RuntimeService {
 
 export const runtimeService = new RuntimeService();
 
-/** names an event the way users find it in the rundown */
-function describeEvent(event: OntimeEvent): string {
-  return event.cue || event.title || event.id;
+/** identifies an event in logs, the cue is what users search for */
+function eventFields(event: OntimeEvent) {
+  return { cue: event.cue || undefined, id: event.id };
 }
 
 type EntryUpdateKeys = keyof Pick<RuntimeState, 'eventNow' | 'eventNext' | 'eventFlag' | 'groupNow'>;

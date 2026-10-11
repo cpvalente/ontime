@@ -1,6 +1,7 @@
 import { HTTPOutput, RuntimeStore } from 'ontime-types';
 import { DeepReadonly } from 'ts-essentials';
 
+import { formatLogEvent } from '../../../classes/logFormat.js';
 import { parseTemplateNested } from '../automation.utils.js';
 import { reportSendFailure, reportSendSuccess } from './sendFailures.js';
 
@@ -25,18 +26,12 @@ async function emit(url: string) {
     const response = await fetch(url);
     if (response.ok) {
       reportSendSuccess(target);
-    } else if (response.status >= 500 && response.status < 600) {
-      reportSendFailure(target, `HTTP Integration: Server refused message ${response.status} (${target})`);
     } else {
-      reportSendFailure(target, `HTTP Integration: Failed sending message ${response.status} (${target})`);
+      reportSendFailure(target, formatLogEvent('http.send-failed', { target, status: response.status }));
     }
   } catch (error) {
-    if (!(error instanceof Error)) {
-      reportSendFailure(target, `HTTP Integration: Failed sending message ${error} (${target})`);
-      return;
-    }
-
-    reportSendFailure(target, `HTTP Integration: ${error.name} ${error.message} (${target})`);
+    const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    reportSendFailure(target, formatLogEvent('http.send-failed', { target, error: message }));
   }
 }
 

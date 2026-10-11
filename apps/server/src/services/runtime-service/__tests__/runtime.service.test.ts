@@ -209,10 +209,7 @@ describe('notifyOfChangedEvents()', () => {
     // stopping clears the loaded data, there is nothing left to reconcile
     expect(runtimeState.updateAll).not.toHaveBeenCalled();
     // nothing on screen explains why playback stopped
-    expect(logger.warning).toHaveBeenCalledWith(
-      'PLAYBACK',
-      'Playback stopped: the rundown has no playable events left',
-    );
+    expect(logger.warning).toHaveBeenCalledWith('PLAYBACK', 'playback.stop reason=no-playable-events');
   });
 
   it('reconciles against the rundown data read at call time', () => {
@@ -255,7 +252,7 @@ describe('resume()', () => {
 
     expect(runtimeState.setOffsetMode).not.toHaveBeenCalled();
     expect(runtimeState.resume).not.toHaveBeenCalled();
-    expect(logger.warning).toHaveBeenCalledWith('SERVER', 'Restore point not used: it belongs to another rundown');
+    expect(logger.warning).toHaveBeenCalledWith('SERVER', 'restore.skip reason=other-rundown rundown=another-rundown');
   });
 
   it('explains when the restored event no longer exists', () => {
@@ -264,10 +261,7 @@ describe('resume()', () => {
     runtimeService.resume(restorePoint);
 
     expect(runtimeState.resume).not.toHaveBeenCalled();
-    expect(logger.warning).toHaveBeenCalledWith(
-      'SERVER',
-      'Restore point not used: event resume-event is missing or not playable',
-    );
+    expect(logger.warning).toHaveBeenCalledWith('SERVER', 'restore.skip reason=event-not-playable id=resume-event');
   });
 
   it('restores the offset mode and playback of the loaded rundown', () => {
@@ -314,13 +308,13 @@ describe('end actions', () => {
     });
   }
 
-  it('explains why the next event loaded with LoadNext', () => {
-    const now = makeOntimeEvent({ id: 'loadnext-now', title: 'Keynote', endAction: EndAction.LoadNext });
+  it('logs the LoadNext end action', () => {
+    const now = makeOntimeEvent({ id: 'loadnext-now', endAction: EndAction.LoadNext });
     stateRef.current = makeRuntimeStateData({ eventNow: now, timer: { playback: Playback.Play } });
 
     tick({ hasTimerFinished: true, finishedAt: 1010 as Instant, hasSecondaryTimerFinished: false });
 
-    expect(logger.info).toHaveBeenCalledWith('PLAYBACK', 'End action of cue Keynote: load next');
+    expect(logger.info).toHaveBeenCalledWith('PLAYBACK', 'end-action action=load-next id=loadnext-now');
   });
 
   it('starts the next event at the instant the previous one ended', () => {
@@ -334,7 +328,7 @@ describe('end actions', () => {
 
     vi.advanceTimersByTime(1);
     expect(runtimeState.start).toHaveBeenCalledWith(undefined, 1010);
-    expect(logger.info).toHaveBeenCalledWith('PLAYBACK', 'End action of cue 12: play next');
+    expect(logger.info).toHaveBeenCalledWith('PLAYBACK', 'end-action action=play-next cue=12 id=playnext-now');
   });
 
   it('starts the next event now when the previous one ended long ago, as after the system slept', () => {
@@ -347,7 +341,7 @@ describe('end actions', () => {
     expect(runtimeState.start).toHaveBeenCalledWith(undefined, 1000 + MILLIS_PER_HOUR);
     expect(logger.info).toHaveBeenCalledWith(
       'PLAYBACK',
-      'End action of cue 12: play next (started now, after a time skip)',
+      'end-action action=play-next cue=12 id=playnext-now late=true',
     );
   });
 
@@ -362,6 +356,6 @@ describe('end actions', () => {
     expect(runtimeState.load).not.toHaveBeenCalled();
     expect(runtimeState.start).not.toHaveBeenCalled();
     // the operator stopped playback, there is no side effect to explain
-    expect(logger.info).not.toHaveBeenCalledWith('PLAYBACK', expect.stringContaining('End action'));
+    expect(logger.info).not.toHaveBeenCalledWith('PLAYBACK', expect.stringContaining('end-action'));
   });
 });

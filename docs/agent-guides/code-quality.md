@@ -49,8 +49,8 @@ brief responsibility label is useful even when the mechanics are straightforward
 
 ## Logging
 
-- Log what the server did, or deliberately withheld, that nothing on screen explains, as `<effect>: <cause>`. Do not log what the UI already shows.
-- Prefer names users know (cue, title) over internal IDs.
+- Log what the server did, or deliberately withheld, that nothing on screen explains. Do not log what the UI already shows.
+- Write log text with `formatLogEvent()`: a stable event name, then `key=value` fields (`automation.sent title="House lights" cycle=onFinish`). Users find entries by searching; keep names and fields consistent so the same search finds every case.
 - Paths that run every second (timer ticks, `onUpdate`/`onClock` automations) log failures only, once per target until it recovers.
 
 ## Review standard

@@ -115,7 +115,7 @@ describe('triggerAction()', () => {
     it('says which automation was sent on an event', () => {
       triggerAutomations(TimerLifeCycle.onLoad);
 
-      expect(infoSpy).toHaveBeenCalledWith('TX', 'Automation "test-osc" sent on onLoad');
+      expect(infoSpy).toHaveBeenCalledWith('TX', 'automation.sent title=test-osc cycle=onLoad');
     });
 
     it('says when an automation was not sent because its filters were not met', async () => {
@@ -130,7 +130,7 @@ describe('triggerAction()', () => {
       triggerAutomations(TimerLifeCycle.onStart);
 
       expect(httpSpy).not.toBeCalled();
-      expect(infoSpy).toHaveBeenCalledWith('TX', 'Automation "test-filtered" not sent on onStart: filters not met');
+      expect(infoSpy).toHaveBeenCalledWith('TX', 'automation.filtered title=test-filtered cycle=onStart');
     });
 
     it('logs nothing for automations which fire every second', async () => {

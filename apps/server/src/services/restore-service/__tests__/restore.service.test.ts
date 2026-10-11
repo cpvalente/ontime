@@ -37,7 +37,7 @@ describe('restoreService', () => {
     const stalePoint = { ...restorePoint, savedAt: (Date.now() - 6 * MILLIS_PER_HOUR) as Instant };
 
     await expect(restoreService.load(vi.fn().mockResolvedValue(stalePoint))).resolves.toBeNull();
-    expect(logger.info).toHaveBeenCalledWith('SERVER', 'Restore point not used: older than 5 hours');
+    expect(logger.info).toHaveBeenCalledWith('SERVER', `restore.skip reason=stale savedAt=${stalePoint.savedAt}`);
   });
 
   it('loads nothing silently when there is no recovery point', async () => {
@@ -50,12 +50,15 @@ describe('restoreService', () => {
     const { rundownId: _rundownId, offsetMode: _offsetMode, ...oldPoint } = restorePoint;
 
     await expect(restoreService.load(vi.fn().mockResolvedValue(oldPoint))).resolves.toBeNull();
-    expect(logger.warning).toHaveBeenCalledWith('SERVER', 'Restore point not used: the file is invalid');
+    expect(logger.warning).toHaveBeenCalledWith('SERVER', 'restore.skip reason=invalid-file');
   });
 
   it('returns null when the recovery file cannot be read', async () => {
     await expect(restoreService.load(vi.fn().mockRejectedValue(new Error('Unexpected token')))).resolves.toBeNull();
-    expect(logger.warning).toHaveBeenCalledWith('SERVER', 'Restore point not used: the file could not be read');
+    expect(logger.warning).toHaveBeenCalledWith(
+      'SERVER',
+      'restore.skip reason=read-failed error="Error: Unexpected token"',
+    );
   });
 
   it('writes changed recovery points only', async () => {
@@ -90,7 +93,7 @@ describe('restoreService', () => {
     expect(logger.warning).toHaveBeenCalledTimes(1);
     expect(logger.warning).toHaveBeenCalledWith(
       'SERVER',
-      'Restore points could not be saved, playback will not resume after a crash',
+      expect.stringMatching(/^restore\.save-disabled failures=\d+$/),
     );
   });
 
