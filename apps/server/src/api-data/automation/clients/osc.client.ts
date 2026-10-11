@@ -8,13 +8,15 @@ import { isOntimeCloud } from '../../../setup/environment.js';
 import { parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
 import { reportSendFailure, reportSendSuccess } from './sendFailures.js';
 
-// cloud instances are reached over HTTP only, we never open a UDP socket
-const udpClient = isOntimeCloud ? null : dgram.createSocket('udp4');
+/** cloud instances are reached over HTTP only, OSC output is always disabled there */
+const isOscOutputEnabled = !isOntimeCloud;
+const udpClient = isOscOutputEnabled ? dgram.createSocket('udp4') : null;
 
 /**
  * Expose possibility to send a message using OSC protocol
  */
 export function emitOSC(output: OSCOutput, store: DeepReadonly<RuntimeStore>) {
+  // a disabled dispatcher drops the message, as automations do when turned off
   if (!udpClient) {
     return;
   }
