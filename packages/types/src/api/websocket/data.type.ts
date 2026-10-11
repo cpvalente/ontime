@@ -15,6 +15,7 @@ export enum MessageTag {
   ClientList = 'client-list',
   Dialog = 'dialog',
   Log = 'log',
+  LogHistory = 'log-history',
   RuntimeData = 'runtime-data',
   Refetch = 'refetch',
 }
@@ -34,6 +35,8 @@ type ListClientPacket = {
   tag: MessageTag.ClientList;
   payload: Record<string, Client>;
 };
+/** entries the server kept before the client connected, oldest first */
+type LogHistoryPacket = { tag: MessageTag.LogHistory; payload: Log[] };
 type RuntimePacket = { tag: MessageTag.RuntimeData; payload: Partial<RuntimeStore> };
 
 type RefetchPacket = {
@@ -56,6 +59,7 @@ export type WsPacketToClient =
   | RedirectClientPacket
   | DialogPacket
   | LogPacket
+  | LogHistoryPacket
   | ListClientPacket
   | RuntimePacket
   | RefetchPacket;

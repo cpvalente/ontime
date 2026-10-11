@@ -47,6 +47,12 @@ brief responsibility label is useful even when the mechanics are straightforward
 - Handle unions/enums exhaustively when future cases could be unsafe.
 - Keep public functions focused enough to avoid long contract explanations.
 
+## Logging
+
+- Log what the server did, or deliberately withheld, that nothing on screen explains, as `<effect>: <cause>`. Do not log what the UI already shows.
+- Prefer names users know (cue, title) over internal IDs.
+- Paths that run every second (timer ticks, `onUpdate`/`onClock` automations) log failures only, once per target until it recovers.
+
 ## Review standard
 
 Do not demand personal style. Report complexity only when it risks maintenance, hides rules, blocks focused tests, duplicates ownership, or makes changes unsafe. Suggest reuse only after verifying the existing contract fits without added genericity.

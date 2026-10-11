@@ -1,11 +1,11 @@
 import * as dgram from 'node:dgram';
 
-import { LogOrigin, OSCOutput, RuntimeStore } from 'ontime-types';
+import { OSCOutput, RuntimeStore } from 'ontime-types';
 import { type OscPacketInput, toBuffer as oscPacketToBuffer } from 'osc-min';
 import { DeepReadonly } from 'ts-essentials';
 
-import { logger } from '../../../classes/Logger.js';
 import { parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
+import { reportSendFailure, reportSendSuccess } from './sendFailures.js';
 
 const udpClient = dgram.createSocket('udp4');
 
@@ -33,9 +33,12 @@ function preparePayload(output: OSCOutput, store: DeepReadonly<RuntimeStore>): O
 /** Emits message over transport */
 function emit(targetIP: string, targetPort: number, packet: OscPacketInput) {
   const buffer = oscPacketToBuffer(packet);
+  const target = `${targetIP}:${targetPort}`;
   udpClient.send(buffer, 0, buffer.byteLength, targetPort, targetIP, (error) => {
     if (error) {
-      logger.warning(LogOrigin.Tx, `Failed sending OSC: ${error}`);
+      reportSendFailure(target, `Failed sending OSC to ${target}: ${error}`);
+    } else {
+      reportSendSuccess(target);
     }
   });
   return;

@@ -14,8 +14,7 @@ vi.mock('../../utils/console.js', () => ({
 
 describe('logger queue', () => {
   beforeEach(() => {
-    // dump empties the queue
-    logger.dump();
+    logger.shutdown();
   });
 
   it('keeps the newest entries once the queue is full', () => {
@@ -23,7 +22,7 @@ describe('logger queue', () => {
       logger.info('test', `message ${i}`);
     }
 
-    const queue = logger.dump();
+    const queue = logger.getHistory();
 
     expect(queue.length).toBe(100);
     // the most recent entry must survive
@@ -31,5 +30,12 @@ describe('logger queue', () => {
     // ... and the oldest ones must have been evicted
     expect(queue.at(0)?.text).toBe('message 50');
     expect(queue.some((log) => log.text === 'message 0')).toBe(false);
+  });
+
+  it('keeps the history when it is read', () => {
+    logger.info('test', 'message');
+
+    expect(logger.getHistory()).toHaveLength(1);
+    expect(logger.getHistory()).toHaveLength(1);
   });
 });

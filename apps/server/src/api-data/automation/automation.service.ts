@@ -20,6 +20,9 @@ import { emitHTTP } from './clients/http.client.js';
 import { toOntimeAction } from './clients/ontime.client.js';
 import { emitOSC } from './clients/osc.client.js';
 
+/** cycles which fire every second, logging each of their sends would bury every other entry */
+const periodicCycles = new Set<TimerLifeCycle>([TimerLifeCycle.onUpdate, TimerLifeCycle.onClock]);
+
 /**
  * Exposes a method for triggering actions based on a TimerLifeCycle event
  */
@@ -61,8 +64,14 @@ export function triggerAutomations(cycle: TimerLifeCycle) {
       return;
     }
     const shouldSend = testConditions(automation.filters, automation.filterRule, store);
+    const shouldLog = !periodicCycles.has(cycle);
     if (shouldSend) {
-      send(automation.outputs, store);
+      if (shouldLog) {
+        logger.info(LogOrigin.Tx, `Automation "${automation.title}" sent on ${cycle}`);
+      }
+      send(automation.outputs, store, shouldLog);
+    } else if (shouldLog) {
+      logger.info(LogOrigin.Tx, `Automation "${automation.title}" not sent on ${cycle}: filters not met`);
     }
   });
 }
@@ -72,7 +81,7 @@ export function triggerAutomations(cycle: TimerLifeCycle) {
  */
 export function testOutput(payload: AutomationOutput) {
   const store = eventStore.poll();
-  send([payload], store);
+  send([payload], store, true);
 }
 
 /**
@@ -125,10 +134,14 @@ export function testConditions(
  * Handles preparing and sending of the data
  * Returns a boolean indicating whether a message was sent
  */
-function send(output: AutomationOutput[], store: RuntimeStore) {
+function send(output: AutomationOutput[], store: RuntimeStore, shouldLog: boolean) {
   output.forEach((payload) => {
-    if (isOSCOutput(payload) && !isOntimeCloud) {
-      emitOSC(payload, store);
+    if (isOSCOutput(payload)) {
+      if (!isOntimeCloud) {
+        emitOSC(payload, store);
+      } else if (shouldLog) {
+        logger.warning(LogOrigin.Tx, 'Automation output not sent: OSC is not available in Ontime Cloud');
+      }
     } else if (isHTTPOutput(payload)) {
       emitHTTP(payload, store);
     } else if (isOntimeAction(payload)) {

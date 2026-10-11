@@ -1,10 +1,8 @@
 import axios, { AxiosError } from 'axios';
 import { LogLevel } from 'ontime-types';
-import { generateId, millisToString } from 'ontime-utils';
 
 import { ontimeQueryClient } from '../queryClient';
-import { addLog } from '../stores/logger';
-import { nowInMillis } from '../utils/time';
+import { addLog, createLog } from '../stores/logger';
 
 /**
  * Utility unwrap a potential axios error
@@ -64,13 +62,7 @@ export function unwrapError(error: unknown) {
 export function logAxiosError(prepend: string, error: unknown) {
   const message = `${prepend}: ${maybeAxiosError(error)}`;
 
-  addLog({
-    id: generateId(),
-    origin: 'SERVER',
-    time: millisToString(nowInMillis()),
-    level: LogLevel.Error,
-    text: message,
-  });
+  addLog(createLog('SERVER', LogLevel.Error, message));
 }
 
 /**

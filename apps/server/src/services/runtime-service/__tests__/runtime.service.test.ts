@@ -82,6 +82,7 @@ vi.mock('../../../classes/Logger.js', () => ({
 }));
 
 import { getEntryWithId } from '../../../api-data/rundown/rundown.dao.js';
+import { logger } from '../../../classes/Logger.js';
 import * as runtimeState from '../../../stores/runtimeState.js';
 import { restoreService } from '../../restore-service/restore.service.js';
 import type { RestorePoint } from '../../restore-service/restore.type.js';
@@ -207,6 +208,11 @@ describe('notifyOfChangedEvents()', () => {
     expect(runtimeState.stop).toHaveBeenCalled();
     // stopping clears the loaded data, there is nothing left to reconcile
     expect(runtimeState.updateAll).not.toHaveBeenCalled();
+    // nothing on screen explains why playback stopped
+    expect(logger.warning).toHaveBeenCalledWith(
+      'PLAYBACK',
+      'Playback stopped: the rundown has no playable events left',
+    );
   });
 
   it('reconciles against the rundown data read at call time', () => {
@@ -249,6 +255,19 @@ describe('resume()', () => {
 
     expect(runtimeState.setOffsetMode).not.toHaveBeenCalled();
     expect(runtimeState.resume).not.toHaveBeenCalled();
+    expect(logger.warning).toHaveBeenCalledWith('SERVER', 'Restore point not used: it belongs to another rundown');
+  });
+
+  it('explains when the restored event no longer exists', () => {
+    vi.mocked(getEntryWithId).mockReturnValue(undefined);
+
+    runtimeService.resume(restorePoint);
+
+    expect(runtimeState.resume).not.toHaveBeenCalled();
+    expect(logger.warning).toHaveBeenCalledWith(
+      'SERVER',
+      'Restore point not used: event resume-event is missing or not playable',
+    );
   });
 
   it('restores the offset mode and playback of the loaded rundown', () => {
@@ -264,7 +283,7 @@ describe('resume()', () => {
   });
 });
 
-describe('PlayNext end action', () => {
+describe('end actions', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(1000);
@@ -284,7 +303,7 @@ describe('PlayNext end action', () => {
 
   /** plays an event with PlayNext, followed by an event the runtime can load */
   function playingWithNext() {
-    const now = makeOntimeEvent({ id: 'playnext-now', endAction: EndAction.PlayNext });
+    const now = makeOntimeEvent({ id: 'playnext-now', cue: '12', endAction: EndAction.PlayNext });
     const next = makeOntimeEvent({ id: 'playnext-next' });
     stateRef.current = makeRuntimeStateData({ eventNow: now, timer: { playback: Playback.Play } });
     rundownRef.metadata = makeRundownMetadata({ playableEventOrder: [now.id, next.id] });
@@ -294,6 +313,15 @@ describe('PlayNext end action', () => {
       return true;
     });
   }
+
+  it('explains why the next event loaded with LoadNext', () => {
+    const now = makeOntimeEvent({ id: 'loadnext-now', title: 'Keynote', endAction: EndAction.LoadNext });
+    stateRef.current = makeRuntimeStateData({ eventNow: now, timer: { playback: Playback.Play } });
+
+    tick({ hasTimerFinished: true, finishedAt: 1010 as Instant, hasSecondaryTimerFinished: false });
+
+    expect(logger.info).toHaveBeenCalledWith('PLAYBACK', 'End action of cue Keynote: load next');
+  });
 
   it('starts the next event at the instant the previous one ended', () => {
     playingWithNext();
@@ -306,6 +334,7 @@ describe('PlayNext end action', () => {
 
     vi.advanceTimersByTime(1);
     expect(runtimeState.start).toHaveBeenCalledWith(undefined, 1010);
+    expect(logger.info).toHaveBeenCalledWith('PLAYBACK', 'End action of cue 12: play next');
   });
 
   it('starts the next event now when the previous one ended long ago, as after the system slept', () => {
@@ -316,6 +345,10 @@ describe('PlayNext end action', () => {
     vi.advanceTimersByTime(0);
 
     expect(runtimeState.start).toHaveBeenCalledWith(undefined, 1000 + MILLIS_PER_HOUR);
+    expect(logger.info).toHaveBeenCalledWith(
+      'PLAYBACK',
+      'End action of cue 12: play next (started now, after a time skip)',
+    );
   });
 
   it('does not start the next event if playback stopped before the previous one ended', () => {
@@ -328,5 +361,7 @@ describe('PlayNext end action', () => {
     vi.advanceTimersByTime(10);
     expect(runtimeState.load).not.toHaveBeenCalled();
     expect(runtimeState.start).not.toHaveBeenCalled();
+    // the operator stopped playback, there is no side effect to explain
+    expect(logger.info).not.toHaveBeenCalledWith('PLAYBACK', expect.stringContaining('End action'));
   });
 });

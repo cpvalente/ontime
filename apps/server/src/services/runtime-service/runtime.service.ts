@@ -130,10 +130,12 @@ class RuntimeService {
       // actions are added to the queue stack to ensure that the order of operations is maintained
       if (newState.eventNow) {
         if (newState.eventNow.endAction === EndAction.LoadNext) {
+          logger.info(LogOrigin.Playback, `End action of cue ${describeEvent(newState.eventNow)}: load next`);
           setTimeout(this.loadNext.bind(this), 0);
         } else if (newState.eventNow.endAction === EndAction.PlayNext) {
           // the next event starts when this one ends, which may be a moment after it was detected
           const finishedId = newState.eventNow.id;
+          const finishedLabel = describeEvent(newState.eventNow);
           const end = finishedAt ?? timeCore.now();
           setTimeout(
             () => {
@@ -143,7 +145,12 @@ class RuntimeService {
 
               // after a time skip (eg: the system slept) the end is long past, so the next event starts now
               const now = timeCore.now();
-              this.startNext(timeCore.timeSince(now, end) <= timerConfig.skipLimit ? end : now);
+              const isOnTime = timeCore.timeSince(now, end) <= timerConfig.skipLimit;
+              logger.info(
+                LogOrigin.Playback,
+                `End action of cue ${finishedLabel}: play next${isOnTime ? '' : ' (started now, after a time skip)'}`,
+              );
+              this.startNext(isOnTime ? end : now);
             },
             Math.max(0, timeCore.timeUntil(timeCore.now(), end)),
           );
@@ -215,6 +222,7 @@ class RuntimeService {
     // all events were deleted, stopping clears the loaded data and there is nothing left to reconcile
     if (metadata.playableEventOrder.length === 0) {
       runtimeState.stop();
+      logger.warning(LogOrigin.Playback, 'Playback stopped: the rundown has no playable events left');
       return;
     }
 
@@ -654,6 +662,7 @@ class RuntimeService {
   @broadcastResult
   public resume(restorePoint: RestorePoint) {
     if (restorePoint.rundownId !== getCurrentRundownId()) {
+      logger.warning(LogOrigin.Server, 'Restore point not used: it belongs to another rundown');
       return;
     }
 
@@ -673,6 +682,7 @@ class RuntimeService {
     // we do not know the reason for the crash, so we check anyway
     const event = getEntryWithId(selectedEventId);
     if (!isOntimeEvent(event) || !isPlayableEvent(event)) {
+      logger.warning(LogOrigin.Server, `Restore point not used: event ${selectedEventId} is missing or not playable`);
       return;
     }
 
@@ -696,6 +706,11 @@ class RuntimeService {
 }
 
 export const runtimeService = new RuntimeService();
+
+/** names an event the way users find it in the rundown */
+function describeEvent(event: OntimeEvent): string {
+  return event.cue || event.title || event.id;
+}
 
 type EntryUpdateKeys = keyof Pick<RuntimeState, 'eventNow' | 'eventNext' | 'eventFlag' | 'groupNow'>;
 

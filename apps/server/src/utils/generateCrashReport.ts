@@ -32,7 +32,7 @@ export function generateCrashReport(maybeError: unknown) {
   const timeNow = new Date().toISOString().replaceAll(':', '_');
   const runtimeState = getState();
   const currentRundown = getCurrentRundown();
-  const log = logger.dump();
+  const log = logger.getHistory();
   const error =
     maybeError instanceof Error
       ? {

@@ -1,4 +1,4 @@
-import { Log, LogLevel, LogOrigin, MessageTag } from 'ontime-types';
+import { Instant, Log, LogLevel, LogOrigin, MessageTag, logHistorySize } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 import { useCallback } from 'react';
 import { useStore } from 'zustand';
@@ -11,18 +11,42 @@ type LogStore = {
   logs: Log[];
 };
 
-const logger = createStore<LogStore>(() => ({
+export const logStore = createStore<LogStore>(() => ({
   logs: [],
 }));
 
-export const useLogData = () => useStore(logger);
+export const useLogData = () => useStore(logStore);
 
 export const addLog = (log: Log) =>
-  logger.setState((state) => ({
-    logs: [log, ...state.logs],
+  logStore.setState((state) => ({
+    logs: [log, ...state.logs].slice(0, logHistorySize),
   }));
 
-export const clearLogs = () => logger.setState({ logs: [] });
+/**
+ * Adds the entries the server kept before we connected
+ * a reconnecting client already has some, and may have local entries the server never saw
+ */
+export const addLogHistory = (history: Log[]) =>
+  logStore.setState((state) => {
+    const known = new Set(state.logs.map((log) => log.id));
+    const missing = history.filter((log) => !known.has(log.id));
+    const logs = [...state.logs, ...missing].sort((a, b) => b.at - a.at);
+    return { logs: logs.slice(0, logHistorySize) };
+  });
+
+/** Creates an entry on this client */
+export function createLog(origin: string, level: LogLevel, text: string): Log {
+  return {
+    id: generateId(),
+    origin,
+    at: Date.now() as Instant,
+    time: millisToString(nowInMillis()),
+    level,
+    text,
+  };
+}
+
+export const clearLogs = () => logStore.setState({ logs: [] });
 
 export function useEmitLog() {
   /**
@@ -32,15 +56,8 @@ export function useEmitLog() {
    * @private
    */
   const _emit = useCallback((text: string, level: LogLevel) => {
-    const log = {
-      id: generateId(),
-      origin: LogOrigin.Client,
-      time: millisToString(nowInMillis()),
-      level,
-      text,
-    };
-
-    sendSocket(MessageTag.Log, log);
+    // the server stamps its own id and time
+    sendSocket(MessageTag.Log, createLog(LogOrigin.Client, level, text));
   }, []);
 
   /**

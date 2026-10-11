@@ -1,10 +1,10 @@
-import { Log, LogLevel, MessageTag } from 'ontime-types';
+import { Log, LogLevel, MessageTag, logHistorySize } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 
 import { socket } from '../adapters/WebsocketAdapter.js';
+import * as timeCore from '../lib/time-core/timeCore.js';
 import { isProduction } from '../setup/environment.js';
 import { consoleError, consoleSubdued } from '../utils/console.js';
-import { timeNow } from '../utils/time.js';
 
 class Logger {
   private queue: Log[];
@@ -21,12 +21,6 @@ class Logger {
    * Enabling setup logger after init
    */
   init(escalateErrorFn?: (error: string, unrecoverable: boolean) => void) {
-    // flush logs from queue
-    this.queue.forEach((log) => {
-      this._push(log);
-    });
-    this.queue = [];
-
     // we only get this when running in electron
     if (escalateErrorFn) {
       this.escalateErrorFn = escalateErrorFn;
@@ -35,7 +29,7 @@ class Logger {
 
   private addToQueue(log: Log) {
     this.queue.push(log);
-    if (this.queue.length > 100) {
+    if (this.queue.length > logHistorySize) {
       this.queue.shift();
     }
   }
@@ -68,12 +62,14 @@ class Logger {
    * @param text
    */
   emit(level: LogLevel, origin: string, text: string) {
-    const log = {
+    const at = timeCore.now();
+    const log: Log = {
       id: generateId(),
       level,
       origin,
       text,
-      time: millisToString(timeNow()),
+      at,
+      time: millisToString(timeCore.toTimeOfDay(at)),
     };
     this._push(log);
   }
@@ -119,12 +115,10 @@ class Logger {
   }
 
   /**
-   * Dumps the last 100 log entries
+   * Returns the latest entries, oldest first
    */
-  dump() {
-    const q = this.queue;
-    this.queue = [];
-    return q;
+  getHistory(): Log[] {
+    return [...this.queue];
   }
 
   /**

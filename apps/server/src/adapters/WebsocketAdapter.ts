@@ -99,6 +99,7 @@ class SocketServer implements IAdapter {
       logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientName}`);
 
       sendPacket(MessageTag.ClientInit, { clientId, clientName });
+      sendPacket(MessageTag.LogHistory, logger.getHistory());
 
       this.sendClientList();
 

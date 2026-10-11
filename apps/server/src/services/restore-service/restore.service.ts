@@ -1,7 +1,9 @@
 import { deepEqual } from 'fast-equals';
 import { JSONFile } from 'lowdb/node';
+import { LogOrigin } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
+import { logger } from '../../classes/Logger.js';
 import * as timeCore from '../../lib/time-core/timeCore.js';
 import { publicFiles } from '../../setup/index.js';
 import { isRestorePoint } from './restore.parser.js';
@@ -45,6 +47,9 @@ async function save(data: Omit<RestorePoint, 'savedAt'>, writeFn = write) {
     failedCreateAttempts = 0;
   } catch (_error) {
     failedCreateAttempts += 1;
+    if (failedCreateAttempts > 3) {
+      logger.warning(LogOrigin.Server, 'Restore points could not be saved, playback will not resume after a crash');
+    }
   }
 }
 
@@ -57,16 +62,26 @@ async function save(data: Omit<RestorePoint, 'savedAt'>, writeFn = write) {
 async function load(readFn = read): Promise<RestorePoint | null> {
   try {
     const maybeRestorePoint = await readFn();
-    if (
-      isRestorePoint(maybeRestorePoint) &&
-      timeCore.timeSince(timeCore.now(), maybeRestorePoint.savedAt) <= maxRestoreAge
-    ) {
-      return maybeRestorePoint;
+    // there was nothing to restore
+    if (maybeRestorePoint === null) {
+      return null;
     }
+
+    if (!isRestorePoint(maybeRestorePoint)) {
+      logger.warning(LogOrigin.Server, 'Restore point not used: the file is invalid');
+      return null;
+    }
+
+    if (timeCore.timeSince(timeCore.now(), maybeRestorePoint.savedAt) > maxRestoreAge) {
+      logger.info(LogOrigin.Server, 'Restore point not used: older than 5 hours');
+      return null;
+    }
+
+    return maybeRestorePoint;
   } catch (_error) {
-    // no need to notify the user
+    logger.warning(LogOrigin.Server, 'Restore point not used: the file could not be read');
+    return null;
   }
-  return null;
 }
 
 /**

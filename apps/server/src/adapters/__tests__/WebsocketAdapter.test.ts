@@ -72,6 +72,9 @@ vi.mock('../../middleware/authenticate.js', () => ({
   },
 }));
 
+import { MessageTag } from 'ontime-types';
+
+import { logger } from '../../classes/Logger.js';
 import { socket } from '../WebsocketAdapter.js';
 
 describe('WebsocketAdapter', () => {
@@ -108,5 +111,24 @@ describe('WebsocketAdapter', () => {
     vi.advanceTimersByTime(5 * 60_000);
     expect(client.terminate).not.toHaveBeenCalled();
     expect(client.close).not.toHaveBeenCalled();
+  });
+
+  it('sends the log history to a connecting client right after its init', () => {
+    authenticationMocks.reject = false;
+    socket.init({} as Server, false);
+    logger.info('test', 'happened before the client connected');
+    const client = new websocketMocks.FakeWebSocket();
+    websocketMocks.getConnectionHandler()?.(client, {});
+
+    const tags = client.send.mock.calls.map(([raw]) => JSON.parse(raw as string).tag);
+    expect(tags.indexOf(MessageTag.LogHistory)).toBe(tags.indexOf(MessageTag.ClientInit) + 1);
+
+    const history = client.send.mock.calls
+      .map(([raw]) => JSON.parse(raw as string))
+      .find((packet) => packet.tag === MessageTag.LogHistory);
+    expect(history.payload).toEqual(logger.getHistory());
+    expect(history.payload.some((log: { text: string }) => log.text === 'happened before the client connected')).toBe(
+      true,
+    );
   });
 });
