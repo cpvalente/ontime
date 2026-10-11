@@ -68,7 +68,7 @@ function elapsedSince(at: number, now: number): number {
 const boundaryEpsilon = 1e-6;
 
 /**
- * Previous restarts the event being read once the reader is more than this many lines into its text,
+ * Previous restarts the event being read once the reader is this many lines into its text,
  * and goes to the event before otherwise, like a media player
  */
 const previousRestartLines = 1;
@@ -103,13 +103,17 @@ function playbackBound(
   return { row: next.endRow, stop: 'event' };
 }
 
-/** Brings the transport up to a moment: playback which reached its end has stopped there */
+/**
+ * Brings the transport up to a moment: playback which reached its end has stopped there
+ * An empty script has nothing to play, so playback stops rather than start on its own when text arrives
+ */
 export function settle(
   transport: TeleprompterTransport,
   layout: TeleprompterLayout,
   now: number,
 ): TeleprompterTransport {
-  if (transport.playback !== 'play' || !transport.anchor) return transport;
+  if (transport.playback !== 'play') return transport;
+  if (!transport.anchor) return { ...transport, playback: 'pause', at: now };
 
   const from = rowOfAnchor(layout, transport.anchor);
   if (from === null) return transport;
@@ -176,7 +180,7 @@ export function applyTransportCommand(
       next = moveToEvent(layout.events[readerIndex + 1]?.id);
       break;
     case 'previous': {
-      const isPastStart = reader !== null && position > reader.startRow + previousRestartLines;
+      const isPastStart = reader !== null && position >= reader.startRow + previousRestartLines;
       next = moveToEvent(isPastStart ? reader.id : layout.events[readerIndex - 1]?.id);
       break;
     }

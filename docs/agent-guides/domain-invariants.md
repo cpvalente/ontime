@@ -57,6 +57,7 @@ Pass time/state explicitly to keep rules deterministic and unit-testable.
 - The shared script is built on read: changes only mark it stale, so server code using the script or its layout rebuilds it first. Its revision changes only when its lines do. A build which fails is logged and keeps the last script until the next change, so a broken script never stops the runtime or the commands.
 - The script is derived from the rundown and the teleprompter settings, so screens refetch it on those refetches.
 - Teleprompter settings changed in an open project, from the settings endpoint or a project patch, go through `applyTeleprompterSettings`, which parses them and invalidates the script. A loaded project file is parsed with the rest of the project.
+- The script field follows a custom field whose key changes with its label, and falls back to the note when that field is deleted.
 
 ## Reports
 

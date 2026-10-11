@@ -136,17 +136,26 @@ describe('moving the reader keeps the play state', () => {
     expect(positionAt(apply(inB, { type: 'top' }), layout, 0)).toBe(1);
   });
 
-  describe('previous restarts the event once the reader is more than a line into its text, like a media player', () => {
+  describe('previous restarts the event once the reader is a line into its text, like a media player', () => {
     test.each([
       ['at the start of b, goes to a', startOfEvent('b'), 1],
-      ['a line into b, goes to a', { eventId: 'b', charOffset: 10, lines: 0 }, 1],
+      ['less than a line into b, goes to a', { eventId: 'b', charOffset: 0, lines: 0.5 }, 1],
       ['in the heading of b, goes to a', { eventId: 'b', charOffset: 0, lines: -1 }, 1],
-      ['past a line into b, restarts b', { eventId: 'b', charOffset: 10, lines: 0.5 }, 5],
+      ['a line into b, restarts b', { eventId: 'b', charOffset: 10, lines: 0 }, 5],
       ['at the end of b, restarts b', { eventId: 'b', charOffset: 20, lines: 1 }, 5],
+      ['at the end of a one line event, restarts it', { eventId: 'c', charOffset: 0, lines: 1 }, 10],
       ['at the start of the script, stays', startOfEvent('a'), 1],
     ])('%s', (_, anchor, row) => {
       expect(positionAt(apply(makeState({ anchor }), { type: 'previous' }), layout, 0)).toBe(row);
     });
+  });
+
+  test('an empty script has nothing to play, so playback stops', () => {
+    const empty = makeTeleprompterLayout([]);
+    const playing = applyTransportCommand(makeState({ anchor: null }), { type: 'play' }, empty, 0);
+    expect(playing.playback).toBe('pause');
+    const emptied = reanchorTransport(makeState({ playback: 'play' }), events, [], 1000);
+    expect(emptied).toMatchObject({ playback: 'pause', anchor: null });
   });
 
   test('a go to an event which is not in the script is refused', () => {

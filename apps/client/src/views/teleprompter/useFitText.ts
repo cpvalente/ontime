@@ -42,11 +42,13 @@ export function useFitText(
     };
 
     fit();
-    void document.fonts?.ready.then(fit);
+    // a font only the rows use starts loading once they render, after the first measure
+    document.fonts?.addEventListener('loadingdone', fit);
     const observer = new ResizeObserver(fit);
     observer.observe(container);
     return () => {
       cancelled = true;
+      document.fonts?.removeEventListener('loadingdone', fit);
       observer.disconnect();
     };
   }, [content, lines, charsPerLine, textWidthPercent]);

@@ -15,6 +15,7 @@ import {
   applyTransportCommand,
   describeSync,
   describeTransport,
+  defaultTeleprompterSettings,
   getErrorMessage,
   makeTeleprompterLayout,
   reanchorTransport,
@@ -140,6 +141,14 @@ export async function applyTeleprompterSettings(input: unknown): Promise<Telepro
     sendRefetch(RefetchKey.Teleprompter);
   });
   return settings;
+}
+
+/**
+ * Keeps the script on a custom field whose key changed with its label, or moves it to the note when it was deleted
+ */
+export async function followCustomFieldKey(oldKey: string, newKey: string | null) {
+  if (getSharedSettings().script !== `custom-${oldKey}`) return;
+  await applyTeleprompterSettings({ script: newKey ? `custom-${newKey}` : defaultTeleprompterSettings.script });
 }
 
 /**

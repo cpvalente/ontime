@@ -7,9 +7,13 @@ vi.mock('../../../api-data/rundown/rundown.dao.js', () => ({
   getCurrentRundown: vi.fn<() => void>(),
   getProjectCustomFields: vi.fn<() => void>(),
 }));
+const settings = vi.hoisted(() => ({ current: { script: 'note', charsPerLine: 32, heading: 'title' } }));
 vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
   getDataProvider: () => ({
-    getTeleprompterSettings: () => ({ script: 'note', charsPerLine: 32, heading: 'title' }),
+    getTeleprompterSettings: () => settings.current,
+    setTeleprompterSettings: async (next: typeof settings.current) => {
+      settings.current = next;
+    },
   }),
 }));
 const published = vi.hoisted(() => [] as Record<string, unknown>[]);
@@ -187,5 +191,25 @@ describe('teleprompter commands', () => {
       teleprompterSync: { playback: 'pause' },
     });
     expect(tick(service)).toEqual({});
+  });
+});
+
+describe('followCustomFieldKey()', () => {
+  afterEach(() => {
+    settings.current = { script: 'note', charsPerLine: 32, heading: 'title' };
+  });
+
+  test('the script follows its custom field to a new key, and moves to the note when it is deleted', async () => {
+    const service = await loadService();
+    settings.current = { ...settings.current, script: 'custom-Prompt' };
+
+    await service.followCustomFieldKey('Other', 'Renamed');
+    expect(settings.current.script).toBe('custom-Prompt');
+
+    await service.followCustomFieldKey('Prompt', 'Script');
+    expect(settings.current.script).toBe('custom-Script');
+
+    await service.followCustomFieldKey('Script', null);
+    expect(settings.current.script).toBe('note');
   });
 });
