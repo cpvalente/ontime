@@ -1,10 +1,10 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 
+import { readLogEntries } from '../api-data/logs/logs.dao.js';
 import { getCurrentRundown } from '../api-data/rundown/rundown.dao.js';
-import { logger } from '../classes/Logger.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
-import { publicDir } from '../setup/index.js';
+import { publicDir, publicFiles } from '../setup/index.js';
 import { getState } from '../stores/runtimeState.js';
 import { ensureDirectory } from './fileManagement.js';
 /**
@@ -32,7 +32,6 @@ export function generateCrashReport(maybeError: unknown) {
   const timeNow = new Date().toISOString().replaceAll(':', '_');
   const runtimeState = getState();
   const currentRundown = getCurrentRundown();
-  const log = logger.dump();
   const error =
     maybeError instanceof Error
       ? {
@@ -45,7 +44,8 @@ export function generateCrashReport(maybeError: unknown) {
     time: timeNow,
     version: ONTIME_VERSION,
     error,
-    log: log,
+    // the session log file is replaced on later starts, the report keeps what led to the crash
+    log: readLogEntries(publicFiles.logFile).slice(-100),
     runtimeState,
     currentRundown,
   };

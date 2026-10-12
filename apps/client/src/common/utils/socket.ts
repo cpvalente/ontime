@@ -1,8 +1,6 @@
 import {
   ApiActionTag,
-  Log,
   LogLevel,
-  LogOrigin,
   MaybeNumber,
   MessageTag,
   RefetchKey,
@@ -10,7 +8,6 @@ import {
   WsPacketToClient,
   WsPacketToServer,
 } from 'ontime-types';
-import { generateId, millisToString } from 'ontime-utils';
 
 import { isProduction, websocketUrl } from '../../externals';
 import {
@@ -41,9 +38,8 @@ import {
 } from '../stores/clientStore';
 import { setConnectionEstablished, setConnectionLost, setConnectionStale } from '../stores/connectionStore';
 import { addDialog } from '../stores/dialogStore';
-import { addLog } from '../stores/logger';
+import { addLog, createLog } from '../stores/logger';
 import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
-import { nowInMillis } from './time';
 
 let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
@@ -190,10 +186,6 @@ export const connectSocket = () => {
           break;
         }
 
-        case MessageTag.Log: {
-          addLog(payload as Log);
-          break;
-        }
         case MessageTag.RuntimeData: {
           patchRuntime(payload);
           updateDevTools(payload);
@@ -363,13 +355,7 @@ function logConnectionIssue(text: string) {
 
   hasLoggedConnectionIssue = true;
   console.warn(text);
-  addLog({
-    id: generateId(),
-    origin: LogOrigin.Client,
-    time: millisToString(nowInMillis()),
-    level: LogLevel.Warn,
-    text,
-  });
+  addLog(createLog(LogLevel.Warn, text));
 }
 
 /** Rechecks a socket when a resumed browser may have lost it while timers were suspended. */

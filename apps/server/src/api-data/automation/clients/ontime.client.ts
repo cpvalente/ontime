@@ -2,10 +2,10 @@ import { LogOrigin, OntimeAction, RuntimeStore } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 import { DeepReadonly } from 'ts-essentials';
 
-import { logger } from '../../../classes/Logger.js';
 import { auxTimerService } from '../../../services/aux-timer-service/auxTimer.service.js';
 import * as messageService from '../../../services/message-service/message.service.js';
 import { runtimeService } from '../../../services/runtime-service/runtime.service.js';
+import * as logger from '../../logs/logs.service.js';
 import { parseTemplateNested } from '../automation.utils.js';
 
 export function toOntimeAction(action: OntimeAction, store: DeepReadonly<RuntimeStore>) {
@@ -81,7 +81,10 @@ export function toOntimeAction(action: OntimeAction, store: DeepReadonly<Runtime
 
     default: {
       actionType satisfies never;
-      logger.warning(LogOrigin.Tx, `Unknown action type: ${actionType}`);
+      logger.warning(LogOrigin.Automation, 'Ontime action skipped', {
+        reason: 'unknown-action',
+        action: String(actionType),
+      });
       break;
     }
   }

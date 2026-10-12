@@ -124,6 +124,7 @@ export const publicDir = {
   crashDir: join(resolvePublicDirectory, config.crash),
   /** path to projects folder */
   projectsDir: join(resolvePublicDirectory, config.projects),
+  logsDir: join(resolvePublicDirectory, config.logs.directory),
   /** path to corrupt folder */
   corruptDir: join(resolvePublicDirectory, config.corrupt),
   /** path to migrated folder */
@@ -158,6 +159,8 @@ export const publicFiles = {
   appState: join(publicDir.root, config.appState),
   /** path to restore file */
   restoreFile: join(publicDir.root, config.restoreFile),
+  logFile: join(publicDir.logsDir, config.logs.filename),
+  previousLogFile: join(publicDir.logsDir, config.logs.previous),
   /** path to CSS override file */
   cssOverride: join(publicDir.stylesDir, config.styles.filename),
   /** path to custom translation file */

@@ -17,8 +17,10 @@ vi.mock('../../setup/environment.js', () => ({
 
 vi.mock('node:dgram', () => ({ createSocket: vi.fn() }));
 
-vi.mock('../../classes/Logger.js', () => ({
-  logger: { info: vi.fn(), warning: vi.fn(), error: vi.fn() },
+vi.mock('../../api-data/logs/logs.service.js', () => ({
+  info: vi.fn(),
+  warning: vi.fn(),
+  error: vi.fn(),
 }));
 
 describe('oscServer.init()', () => {

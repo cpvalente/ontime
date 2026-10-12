@@ -5,7 +5,7 @@ import express from 'express';
 import type { Request, Response, Router } from 'express';
 import { LogOrigin } from 'ontime-types';
 
-import { logger } from '../classes/Logger.js';
+import * as logger from '../api-data/logs/logs.service.js';
 import { createMcpServer } from './mcp.server.js';
 
 export const mcpRouter: Router = express.Router();
@@ -35,7 +35,7 @@ mcpRouter.post('/', async (req, res) => {
     await transport.handleRequest(req as IncomingMessage, res as ServerResponse, req.body);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    logger.error(LogOrigin.Server, `MCP request failed: ${message}`);
+    logger.error(LogOrigin.Server, 'MCP request failed', { error: message });
     if (!res.headersSent) {
       res.status(500).json({ jsonrpc: '2.0', error: { code: -32603, message }, id: req.body?.id ?? null });
     }

@@ -1,7 +1,9 @@
 import { deepEqual } from 'fast-equals';
 import { JSONFile } from 'lowdb/node';
-import { MILLIS_PER_HOUR } from 'ontime-utils';
+import { LogOrigin } from 'ontime-types';
+import { MILLIS_PER_HOUR, getErrorMessage } from 'ontime-utils';
 
+import * as logger from '../../api-data/logs/logs.service.js';
 import * as timeCore from '../../lib/time-core/timeCore.js';
 import { publicFiles } from '../../setup/index.js';
 import { isRestorePoint } from './restore.parser.js';
@@ -43,8 +45,11 @@ async function save(data: Omit<RestorePoint, 'savedAt'>, writeFn = write) {
     await writeFn({ ...data, savedAt: timeCore.now() });
     savedState = { ...data };
     failedCreateAttempts = 0;
-  } catch (_error) {
+  } catch (error) {
     failedCreateAttempts += 1;
+    if (failedCreateAttempts > 3) {
+      logger.warning(LogOrigin.Server, 'Restore saving stopped', { error: getErrorMessage(error) });
+    }
   }
 }
 
@@ -57,16 +62,25 @@ async function save(data: Omit<RestorePoint, 'savedAt'>, writeFn = write) {
 async function load(readFn = read): Promise<RestorePoint | null> {
   try {
     const maybeRestorePoint = await readFn();
-    if (
-      isRestorePoint(maybeRestorePoint) &&
-      timeCore.timeSince(timeCore.now(), maybeRestorePoint.savedAt) <= maxRestoreAge
-    ) {
-      return maybeRestorePoint;
+    if (maybeRestorePoint === null) {
+      return null;
     }
-  } catch (_error) {
-    // no need to notify the user
+
+    if (!isRestorePoint(maybeRestorePoint)) {
+      logger.warning(LogOrigin.Server, 'Restore skipped', { reason: 'invalid-file' });
+      return null;
+    }
+
+    if (timeCore.timeSince(timeCore.now(), maybeRestorePoint.savedAt) > maxRestoreAge) {
+      logger.info(LogOrigin.Server, 'Restore skipped', { reason: 'stale', savedAt: maybeRestorePoint.savedAt });
+      return null;
+    }
+
+    return maybeRestorePoint;
+  } catch (error) {
+    logger.warning(LogOrigin.Server, 'Restore skipped', { reason: 'read-failed', error: getErrorMessage(error) });
+    return null;
   }
-  return null;
 }
 
 /**
