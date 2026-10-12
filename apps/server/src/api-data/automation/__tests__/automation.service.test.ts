@@ -4,10 +4,18 @@ import { makeRuntimeStoreData } from '../../../stores/__mocks__/runtimeStore.moc
 import { RuntimeState } from '../../../stores/runtimeState.js';
 import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
 import { addAutomation, addTrigger, deleteAllTriggers } from '../automation.dao.js';
-import { testConditions, triggerAutomations } from '../automation.service.js';
+import { testConditions, testOutput, triggerAutomations } from '../automation.service.js';
 import * as httpClient from '../clients/http.client.js';
 import * as oscClient from '../clients/osc.client.js';
 import { makeHTTPAction, makeOSCAction } from './testUtils.js';
+
+const environment = vi.hoisted(() => ({ isOntimeCloud: false }));
+vi.mock('../../../setup/environment.js', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  get isOntimeCloud() {
+    return environment.isOntimeCloud;
+  },
+}));
 
 vi.mock('../../../classes/data-provider/DataProvider.js', () => {
   // Create a small mock store
@@ -98,6 +106,18 @@ describe('triggerAction()', () => {
     triggerAutomations(TimerLifeCycle.onStop);
     expect(oscSpy).not.toBeCalled();
     expect(httpSpy).not.toBeCalled();
+  });
+
+  it('never sends OSC in Ontime Cloud', () => {
+    environment.isOntimeCloud = true;
+    onTestFinished(() => {
+      environment.isOntimeCloud = false;
+    });
+
+    triggerAutomations(TimerLifeCycle.onLoad);
+    testOutput(makeOSCAction());
+
+    expect(oscSpy).not.toBeCalled();
   });
 });
 
