@@ -1,84 +1,34 @@
-import { Log, LogLevel, LogOrigin, MessageTag } from 'ontime-types';
+import { Instant, Log, LogLevel, LogOrigin } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
-import { useCallback } from 'react';
 import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
 
-import { sendSocket } from '../utils/socket';
 import { nowInMillis } from '../utils/time';
+
+const maxLocalLogs = 50;
 
 type LogStore = {
   logs: Log[];
 };
 
-const logger = createStore<LogStore>(() => ({
+const logStore = createStore<LogStore>(() => ({
   logs: [],
 }));
 
-export const useLogData = () => useStore(logger);
+export const useLogData = () => useStore(logStore);
 
 export const addLog = (log: Log) =>
-  logger.setState((state) => ({
-    logs: [log, ...state.logs],
+  logStore.setState((state) => ({
+    logs: [log, ...state.logs].slice(0, maxLocalLogs),
   }));
 
-export const clearLogs = () => logger.setState({ logs: [] });
-
-export function useEmitLog() {
-  /**
-   * Utility function sends message over socket
-   * @param text
-   * @param level
-   * @private
-   */
-  const _emit = useCallback((text: string, level: LogLevel) => {
-    const log = {
-      id: generateId(),
-      origin: LogOrigin.Client,
-      time: millisToString(nowInMillis()),
-      level,
-      text,
-    };
-
-    sendSocket(MessageTag.Log, log);
-  }, []);
-
-  /**
-   * Sends a message with level INFO
-   * @param text
-   */
-  const emitInfo = useCallback(
-    (text: string) => {
-      _emit(text, LogLevel.Info);
-    },
-    [_emit],
-  );
-
-  /**
-   * Sends a message with level WARN
-   * @param text
-   */
-  const emitWarning = useCallback(
-    (text: string) => {
-      _emit(text, LogLevel.Warn);
-    },
-    [_emit],
-  );
-
-  /**
-   * Sends a message with level ERROR
-   * @param text
-   */
-  const emitError = useCallback(
-    (text: string) => {
-      _emit(text, LogLevel.Error);
-    },
-    [_emit],
-  );
-
+export function createLog(level: LogLevel, text: string): Log {
   return {
-    emitInfo,
-    emitWarning,
-    emitError,
+    id: generateId(),
+    origin: LogOrigin.Client,
+    at: Date.now() as Instant,
+    time: millisToString(nowInMillis()),
+    level,
+    text,
   };
 }

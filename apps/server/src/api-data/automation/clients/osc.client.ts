@@ -1,11 +1,12 @@
 import * as dgram from 'node:dgram';
 
-import { LogOrigin, OSCOutput, RuntimeStore } from 'ontime-types';
+import { OSCOutput, RuntimeStore } from 'ontime-types';
+import { getErrorMessage } from 'ontime-utils';
 import { type OscPacketInput, toBuffer as oscPacketToBuffer } from 'osc-min';
 import { DeepReadonly } from 'ts-essentials';
 
-import { logger } from '../../../classes/Logger.js';
 import { parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
+import { reportSendFailure, reportSendSuccess } from './sendFailures.js';
 
 /** opened on the first send, so a server which never sends OSC, eg: Ontime Cloud, never opens it */
 let udpClient: dgram.Socket | null = null;
@@ -34,10 +35,13 @@ function preparePayload(output: OSCOutput, store: DeepReadonly<RuntimeStore>): O
 /** Emits message over transport */
 function emit(targetIP: string, targetPort: number, packet: OscPacketInput) {
   const buffer = oscPacketToBuffer(packet);
+  const target = `${targetIP}:${targetPort}`;
   udpClient ??= dgram.createSocket('udp4');
   udpClient.send(buffer, 0, buffer.byteLength, targetPort, targetIP, (error) => {
     if (error) {
-      logger.warning(LogOrigin.Tx, `Failed sending OSC: ${error}`);
+      reportSendFailure(target, 'OSC send failed', { error: getErrorMessage(error) });
+    } else {
+      reportSendSuccess(target);
     }
   });
   return;

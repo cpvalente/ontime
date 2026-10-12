@@ -1,10 +1,10 @@
 import { DatabaseModel, LogOrigin } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
-import { logger } from '../../classes/Logger.js';
 import { portManager } from '../../classes/port-manager/PortManager.js';
 import { parseAutomationSettings } from '../automation/automation.parser.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
+import * as logger from '../logs/logs.service.js';
 import { parseProjectData } from '../project-data/projectData.parser.js';
 import { parseRundowns } from '../rundown/rundown.parser.js';
 import { parseSettings } from '../settings/settings.parser.js';
@@ -38,11 +38,11 @@ export function parseDatabaseModel(
   if (v3.shouldUseThisMigration(jsonData)) {
     try {
       migrated = true;
-      logger.warning(LogOrigin.Server, 'The imported project is from v3, trying to migrate');
       migratedData = v3.migrateAllData(jsonData);
     } catch (error) {
-      logger.error(LogOrigin.Server, 'Failed to migrate the data');
-      errors.push({ context: 'v3 migration', message: getErrorMessage(error) });
+      const message = getErrorMessage(error);
+      logger.error(LogOrigin.Server, 'Project migration failed', { from: 'v3', error: message });
+      errors.push({ context: 'v3 migration', message });
       migratedData = jsonData;
     }
   }
@@ -50,13 +50,13 @@ export function parseDatabaseModel(
   if (v4.shouldMigrateServerPort(migratedData)) {
     try {
       migrated = true;
-      logger.warning(LogOrigin.Server, 'Migrating serverPort from settings to AppState');
       const { db, serverPort } = v4.migrateServerPort(migratedData);
       if (initialLoad && serverPort) portManager.migratePortFromProjectFile(serverPort);
       migratedData = db;
     } catch (error) {
-      logger.error(LogOrigin.Server, 'Failed to migrate serverPort');
-      errors.push({ context: 'v4 migration', message: getErrorMessage(error) });
+      const message = getErrorMessage(error);
+      logger.error(LogOrigin.Server, 'Settings migration failed', { key: 'serverPort', error: message });
+      errors.push({ context: 'v4 migration', message });
       migratedData = jsonData;
     }
   }
@@ -66,7 +66,7 @@ export function parseDatabaseModel(
   const settings = parseSettings(migratedData);
 
   const makeEmitError = (context: string) => (message: string) => {
-    logger.error(LogOrigin.Server, `Error parsing ${context}: ${message}`);
+    logger.error(LogOrigin.Server, 'Project parse failed', { section: context, error: message });
     errors.push({ context, message });
   };
 

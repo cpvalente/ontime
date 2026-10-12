@@ -18,16 +18,22 @@ import {
   isOntimeEvent,
   isOntimeGroup,
 } from 'ontime-types';
-import { customFieldLabelToKey, generateId, getInsertAfterId, resolveInsertParent } from 'ontime-utils';
+import {
+  customFieldLabelToKey,
+  generateId,
+  getErrorMessage,
+  getInsertAfterId,
+  resolveInsertParent,
+} from 'ontime-utils';
 
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { logger } from '../../classes/Logger.js';
 import { makeNewRundown } from '../../models/dataModel.js';
 import { setLastLoadedRundown } from '../../services/app-state-service/appState.service.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
+import * as logger from '../logs/logs.service.js';
 import {
   createTransaction,
   customFieldMutation,
@@ -803,7 +809,7 @@ export async function initRundown(
 ) {
   runtimeService.stop();
   const { rundownMetadata, revision } = rundownCache.init(rundown, customFields);
-  logger.info(LogOrigin.Server, `Switch to rundown: ${rundown.id}`);
+  logger.info(LogOrigin.Server, 'Rundown loaded', { rundown: rundown.title || rundown.id });
   // notify runtime that rundown has changed
   updateRuntimeOnChange(rundownMetadata);
 
@@ -811,7 +817,7 @@ export async function initRundown(
     notifyChanges(rundown.id, rundownMetadata, revision, { timer: true, external: true, reload });
     sendRefetch(RefetchKey.ProjectRundowns);
     setLastLoadedRundown(rundown.id).catch((error) => {
-      logger.error(LogOrigin.Server, `Failed to persist last loaded rundown: ${error}`);
+      logger.error(LogOrigin.Server, 'Last rundown save failed', { error: getErrorMessage(error) });
     });
   });
 }

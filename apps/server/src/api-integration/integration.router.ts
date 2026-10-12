@@ -10,7 +10,7 @@ import { ErrorResponse, LogOrigin } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import { integrationPayloadFromPath } from '../adapters/utils/parse.js';
-import { logger } from '../classes/Logger.js';
+import * as logger from '../api-data/logs/logs.service.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
 import { dispatchFromAdapter } from './integration.controller.js';
 
@@ -47,7 +47,7 @@ integrationRouter.get('/*splat', async (req: Request, res: Response<ErrorRespons
     res.status(202).json(reply);
   } catch (error) {
     const errorMessage = getErrorMessage(error);
-    logger.error(LogOrigin.Rx, `HTTP IN: ${errorMessage}`);
+    logger.error(LogOrigin.Api, 'HTTP request failed', { action, error: errorMessage });
     res.status(500).send({ message: errorMessage });
   }
 });

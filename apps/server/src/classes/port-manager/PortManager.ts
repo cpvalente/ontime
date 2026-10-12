@@ -2,11 +2,11 @@ import { Server } from 'http';
 
 import { LogOrigin, MaybeNumber } from 'ontime-types';
 
+import * as logger from '../../api-data/logs/logs.service.js';
 import * as appState from '../../services/app-state-service/appState.service.js';
 import { config } from '../../setup/config.js';
 import { envPort, isDocker, isOntimeCloud } from '../../setup/environment.js';
 import { shouldCrashDev } from '../../utils/development.js';
-import { logger } from '../Logger.js';
 import { isAddressInfo, isPortInUseError } from './PortManager.utils.js';
 
 class PortManager {
@@ -45,10 +45,7 @@ class PortManager {
 
   public async shutdown() {
     if (PortManager.pendingRestart && PortManager.newPort != null) {
-      logger.info(
-        LogOrigin.Server,
-        `A port change to ${PortManager.newPort} is pending and will take effect on next start`,
-      );
+      logger.info(LogOrigin.Server, 'Port change pending', { port: PortManager.newPort });
       await appState.setServerPort(PortManager.newPort);
     }
   }
@@ -101,11 +98,7 @@ class PortManager {
             reject(new Error('Unknown port type, unable to proceed'));
             return;
           }
-          logger.error(
-            LogOrigin.Server,
-            `Failed to open the desired port: ${PortManager.port} \nMoved to an Ephemeral port: ${address.port}`,
-            true,
-          );
+          logger.error(LogOrigin.Server, 'Port unavailable', { port: PortManager.port, fallback: address.port }, true);
 
           resolve(address.port);
         });
