@@ -8,17 +8,21 @@ import {
   SupportedEntry,
 } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import {
   CountdownTarget,
   extendEventData,
+  getCountdownCandidates,
   getIsLive,
   getOrderedSubscriptions,
   groupSubscriptionTargets,
   isOutsideRange,
   makeSubscriptionsUrl,
   resolveSubscriptionTarget,
+  useSubscriptionDisplayData,
 } from './countdown.utils';
 
 /**
@@ -330,4 +334,43 @@ describe('extendEventData()', () => {
     const event = makeEvent({ id: 'a', timeStart: start, timeEnd: start + hour, duration: hour });
     expect(extend(event)).toMatchObject({ expectedStart: start, expectedEnd: start + hour });
   });
+});
+
+vi.mock('../../common/hooks/useSocket', () => ({
+  useCountdownSocket: () => ({ playback: Playback.Play, current: 1000, clock: 0 }),
+}));
+
+vi.mock('../../translation/TranslationProvider', () => ({
+  useTranslation: () => ({ getLocalizedString: (key: string) => key }),
+}));
+
+describe('skipped countdown subscriptions', () => {
+  it('keeps skipped events available for selection and saved subscriptions', () => {
+    const skipped = makeEvent({ id: 'skipped', skip: true });
+    const playable = makeEvent({ id: 'playable' });
+    const candidates = getCountdownCandidates([skipped, playable]);
+    expect(candidates).toEqual([skipped, playable]);
+    expect(getOrderedSubscriptions(['skipped'], candidates)).toEqual([skipped]);
+  });
+
+  it('does not offer groups with only skipped children as countdown targets', () => {
+    const group = makeGroup({ id: 'group' });
+    const skipped = makeEvent({ parent: 'group', skip: true });
+    expect(getCountdownCandidates([group, skipped])).toEqual([skipped]);
+    expect(resolveSubscriptionTarget(group, [group, skipped])).toBeNull();
+  });
+
+  it.each([{ isLoaded: true }, { isPast: true }, {}])(
+    'shows skipped status without a timer regardless of runtime state: %j',
+    (state) => {
+      const event = { ...makeEvent({ skip: true, ...state }), expectedStart: 10000, endedAt: null };
+      let display: ReturnType<typeof useSubscriptionDisplayData> | undefined;
+      function Status() {
+        display = useSubscriptionDisplayData(event);
+        return createElement('div', null, display.statusDisplay, display.timeDisplay);
+      }
+      renderToStaticMarkup(createElement(Status));
+      expect(display).toEqual({ status: 'skipped', statusDisplay: 'countdown.skipped', timeDisplay: '' });
+    },
+  );
 });

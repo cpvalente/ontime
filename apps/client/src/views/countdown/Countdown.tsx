@@ -1,14 +1,4 @@
-import {
-  EntryId,
-  OntimeEntry,
-  OntimeEvent,
-  OntimeGroup,
-  OntimeView,
-  PlayableEvent,
-  isOntimeEvent,
-  isOntimeGroup,
-  isPlayableEvent,
-} from 'ontime-types';
+import { EntryId, OntimeEntry, OntimeEvent, OntimeGroup, OntimeView } from 'ontime-types';
 import { useMemo, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
 
@@ -26,7 +16,7 @@ import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getCountdownOptions, useCountdownOptions } from './countdown.options';
-import { getOrderedSubscriptions, resolveSubscriptionTarget } from './countdown.utils';
+import { getCountdownCandidates, getOrderedSubscriptions, resolveSubscriptionTarget } from './countdown.utils';
 import CountdownSelect from './CountdownSelect';
 import CountdownSubscriptions from './CountdownSubscriptions';
 import SingleEventCountdown from './SingleEventCountdown';
@@ -56,16 +46,7 @@ function Countdown({ customFields, rundownData, projectData, isMirrored, setting
 
   const [editMode, setEditMode] = useState(false);
 
-  // gather subscribable items: playable events and groups that contain at least one playable child
-  const candidates = rundownData.filter((entry): entry is ExtendedEntry<PlayableEvent | OntimeGroup> => {
-    if (isOntimeEvent(entry)) {
-      return isPlayableEvent(entry);
-    }
-    if (isOntimeGroup(entry)) {
-      return rundownData.some((item) => isOntimeEvent(item) && isPlayableEvent(item) && item.parent === entry.id);
-    }
-    return false;
-  });
+  const candidates = getCountdownCandidates(rundownData);
 
   // gather presentation data
   const hasEvents = candidates.length > 0;
@@ -135,7 +116,7 @@ function CountdownContents({ candidates, rundownData, subscriptions, goToEditMod
   const subscribedEvents = getOrderedSubscriptions(subscriptions, candidates)
     .map((entry) => resolveSubscriptionTarget(entry, rundownData))
     .filter((target): target is NonNullable<typeof target> => target !== null);
-  const eventsToShow = !hidePast ? subscribedEvents : subscribedEvents.filter((event) => !event.isPast);
+  const eventsToShow = !hidePast ? subscribedEvents : subscribedEvents.filter((event) => event.skip || !event.isPast);
 
   if (subscribedEvents.length === 0) {
     return (

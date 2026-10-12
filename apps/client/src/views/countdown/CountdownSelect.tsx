@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router';
 import Button from '../../common/components/buttons/Button';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
+import { useTranslation } from '../../translation/TranslationProvider';
 import ClockTime from '../common/clock-time/ClockTime';
 import { makeSubscriptionsUrl } from './countdown.utils';
 
@@ -20,6 +21,7 @@ interface CountdownSelectProps {
 export default function CountdownSelect({ events, subscriptions, disableEdit }: CountdownSelectProps) {
   const [selected, setSelected] = useState<EntryId[]>(subscriptions);
   const navigate = useNavigate();
+  const { getLocalizedString } = useTranslation();
 
   /**
    * Toggles an entry from the selected set
@@ -73,6 +75,7 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
             className={cx([
               'sub',
               isSelected && 'sub--selected',
+              !isGroup && event.skip && 'sub--skipped',
               isGroup && 'sub--group',
               isGroupedEvent && 'sub--in-group',
             ])}
@@ -89,6 +92,9 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
             <div className='sub__label'>{isSelected ? 'Click to remove' : 'Click to add'}</div>
             <div className='sub__title'>
               {isGroup && <span className='sub__eyebrow'>Group</span>}
+              {!isGroup && event.skip && (
+                <span className='sub__eyebrow'>{getLocalizedString('countdown.skipped')}</span>
+              )}
               {title}
             </div>
           </div>

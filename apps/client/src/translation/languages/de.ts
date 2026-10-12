@@ -16,6 +16,7 @@ export const langDe: TranslationObject = {
   'common.started_at': 'Gestartet am',
   'common.time_now': 'Aktuelle Zeit',
   'common.no_data': 'Keine Daten',
+  'countdown.skipped': 'Übersprungen',
   'countdown.ended': 'Veranstaltung endete um',
   'countdown.running': 'Veranstaltung läuft',
   'countdown.group_running': 'Veranstaltung in Gruppe läuft',
