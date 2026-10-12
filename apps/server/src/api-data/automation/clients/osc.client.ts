@@ -7,7 +7,8 @@ import { DeepReadonly } from 'ts-essentials';
 import { logger } from '../../../classes/Logger.js';
 import { parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
 
-const udpClient = dgram.createSocket('udp4');
+/** opened on the first send, so a server which never sends OSC, eg: Ontime Cloud, never opens it */
+let udpClient: dgram.Socket | null = null;
 
 /**
  * Expose possibility to send a message using OSC protocol
@@ -33,6 +34,7 @@ function preparePayload(output: OSCOutput, store: DeepReadonly<RuntimeStore>): O
 /** Emits message over transport */
 function emit(targetIP: string, targetPort: number, packet: OscPacketInput) {
   const buffer = oscPacketToBuffer(packet);
+  udpClient ??= dgram.createSocket('udp4');
   udpClient.send(buffer, 0, buffer.byteLength, targetPort, targetIP, (error) => {
     if (error) {
       logger.warning(LogOrigin.Tx, `Failed sending OSC: ${error}`);

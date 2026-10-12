@@ -57,12 +57,13 @@ export function triggerAutomations(cycle: TimerLifeCycle) {
 
   uniqueTriggers.forEach((trigger) => {
     const automation = automations[trigger.automationId];
-    if (!automation || automation.outputs.length === 0) {
+    const outputs = automation?.outputs.filter(isAvailable) ?? [];
+    if (outputs.length === 0) {
       return;
     }
     const shouldSend = testConditions(automation.filters, automation.filterRule, store);
     if (shouldSend) {
-      send(automation.outputs, store);
+      send(outputs, store);
     }
   });
 }
@@ -72,7 +73,12 @@ export function triggerAutomations(cycle: TimerLifeCycle) {
  */
 export function testOutput(payload: AutomationOutput) {
   const store = eventStore.poll();
-  send([payload], store);
+  send([payload].filter(isAvailable), store);
+}
+
+/** OSC is always disabled in Ontime Cloud */
+function isAvailable(output: AutomationOutput): boolean {
+  return !(isOntimeCloud && isOSCOutput(output));
 }
 
 /**
@@ -127,7 +133,7 @@ export function testConditions(
  */
 function send(output: AutomationOutput[], store: RuntimeStore) {
   output.forEach((payload) => {
-    if (isOSCOutput(payload) && !isOntimeCloud) {
+    if (isOSCOutput(payload)) {
       emitOSC(payload, store);
     } else if (isHTTPOutput(payload)) {
       emitHTTP(payload, store);
