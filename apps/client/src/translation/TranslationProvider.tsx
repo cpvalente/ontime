@@ -44,7 +44,7 @@ export const TranslationProvider = ({ children }: PropsWithChildren) => {
           return translationsList[lang as keyof typeof translationsList][key];
         }
       } else if (lang === 'custom') {
-        return translationData[key];
+        return translationData[key] ?? langEn[key];
       }
       return langEn[key];
     },

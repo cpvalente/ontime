@@ -114,7 +114,8 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
       {sections.map((section) => {
         const rows = section.group ? [section.group, ...section.events] : section.events;
         // the running event anchors the scroll, the group header stays pinned above it
-        const anchorId = section.events.find((event) => getIsLive(event.id, selectedEventId, playback))?.id ?? null;
+        const anchorId =
+          section.events.find((event) => !event.skip && getIsLive(event.id, selectedEventId, playback))?.id ?? null;
 
         return (
           <div key={section.group?.id ?? rows[0].id} className='sub-section'>
@@ -125,8 +126,8 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
               const isGroupedEvent = !event.isGroup && Boolean(event.parent);
               const activeEntryId = event.isGroup ? (event.liveEntry?.id ?? event.targetId) : event.id;
               // a subscribed group is live when any of its children is the selected/running event
-              const isLive = activeEntryId ? getIsLive(activeEntryId, selectedEventId, playback) : false;
-              const isArmed = !isLive && activeEntryId === selectedEventId;
+              const isLive = !event.skip && activeEntryId ? getIsLive(activeEntryId, selectedEventId, playback) : false;
+              const isArmed = !event.skip && !isLive && activeEntryId === selectedEventId;
               // only ever hand the ref to a single row, sharing it would null it out on the next commit
               const isAnchor = isLive && (anchorId === null || event.id === anchorId);
               const rowRef = isAnchor ? selectedRef : event.isGroup && anchorId ? stickyHeaderRef : undefined;
@@ -147,6 +148,7 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
                   ref={rowRef}
                   className={cx([
                     'sub',
+                    event.skip && 'sub--skipped',
                     isLive && 'sub--live',
                     isArmed && 'sub--armed',
                     event.isGroup && 'sub--group',
@@ -158,7 +160,7 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
                     className='sub__binder'
                     style={{ '--user-color': event.colour, '--group-color': event.groupColour ?? 'transparent' }}
                   />
-                  <ScheduleTime event={countdownEvent} showExpected={showExpected} />
+                  {!event.skip && <ScheduleTime event={countdownEvent} showExpected={showExpected} />}
                   <SubscriptionStatus event={countdownEvent} />
                   <div className={cx(['sub__title', !displayTitle && 'subdued'])}>
                     {event.isGroup && <span className='sub__eyebrow'>Group</span>}
@@ -247,6 +249,10 @@ interface SubscriptionStatusProps {
 
 function SubscriptionStatus({ event }: SubscriptionStatusProps) {
   const { status, statusDisplay, timeDisplay } = useSubscriptionDisplayData(event);
+
+  if (status === 'skipped') {
+    return <div className='sub__status'>{statusDisplay}</div>;
+  }
 
   return (
     <>

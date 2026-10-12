@@ -14,6 +14,7 @@ export const langEn = {
   'common.started_at': 'Started At',
   'common.time_now': 'Time now',
   'common.no_data': 'No data',
+  'countdown.skipped': 'Skipped',
   'countdown.ended': 'Event ended at',
   'countdown.running': 'Event running',
   'countdown.group_running': 'Event in group running',

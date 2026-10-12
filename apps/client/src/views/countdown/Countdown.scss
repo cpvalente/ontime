@@ -143,6 +143,17 @@ $item-height: 3.5rem;
     box-shadow: inset 0 0 0 1px $blue-500;
   }
 
+  .sub--skipped,
+  .event__title--skipped {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.03) 10px,
+      rgba(255, 255, 255, 0.08) 10px,
+      rgba(255, 255, 255, 0.08) 20px
+    );
+  }
+
   .sub--live {
     background-color: $active-green;
     box-shadow: inset 0 0 0 1px color-mix(in srgb, $active-green 75%, $ui-white);
