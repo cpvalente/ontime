@@ -75,15 +75,13 @@ function RundownEventPlayback({
   return (
     <div className={style.playbackActions}>
       <Tooltip
-        text='Skip event'
-        render={<IconButton variant='subtle-white' />}
+        text={skip ? 'Include event' : 'Skip event'}
+        render={<IconButton variant={skip ? 'subtle-destructive' : 'subtle-white'} />}
         onClick={toggleSkip}
         tabIndex={-1}
         disabled={loaded}
-        style={{
-          background: skip ? '#9A0000' : undefined,
-        }}
-        aria-label='Skip event'
+        aria-label={skip ? 'Include event' : 'Skip event'}
+        aria-pressed={skip}
       >
         {skip ? <IoRemoveCircle /> : <IoRemoveCircleOutline />}
       </Tooltip>
