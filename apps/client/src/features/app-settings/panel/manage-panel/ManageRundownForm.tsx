@@ -1,3 +1,4 @@
+import { checkRegex } from 'ontime-utils';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -25,9 +26,10 @@ export function ManageRundownForm({ onClose }: ManageRundownForm) {
     register,
     setFocus,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm<NewRundownFormState>({
     defaultValues: { title: '' },
+    mode: 'onChange',
   });
 
   const createRundown = async (values: NewRundownFormState) => {
@@ -56,7 +58,21 @@ export function ManageRundownForm({ onClose }: ManageRundownForm) {
         <form id={formId} onSubmit={handleSubmit(createRundown)}>
           <label>
             <Panel.Description>Rundown title</Panel.Description>
-            <Input {...register('title')} fluid placeholder='Your rundown name' maxLength={64} />
+            <Input
+              {...register('title', {
+                validate: (value) => {
+                  // an empty title is allowed and falls back to "untitled" when submitted
+                  if (value === '') return true;
+                  if (checkRegex.isAlphanumericWithSpace(value) === false)
+                    return 'Title can only contain alphanumeric characters, spaces and underscores';
+                  return true;
+                },
+              })}
+              fluid
+              placeholder='Your rundown name'
+              maxLength={64}
+            />
+            {errors.title && <Panel.Error>{errors.title.message}</Panel.Error>}
           </label>
         </form>
       }
@@ -66,7 +82,7 @@ export function ManageRundownForm({ onClose }: ManageRundownForm) {
           <Button variant='ghosted' disabled={isSubmitting} onClick={onClose}>
             Cancel
           </Button>
-          <Button type='submit' form={formId} variant='primary' disabled={isSubmitting}>
+          <Button type='submit' form={formId} variant='primary' disabled={isSubmitting || !isValid}>
             Create rundown
           </Button>
         </>
