@@ -240,6 +240,7 @@ $item-height: 3.5rem;
       $blue-700;
 
     .sub__schedule,
+    .sub__skip,
     .sub__status,
     .sub__label,
     .sub__eyebrow {
@@ -306,6 +307,16 @@ $item-height: 3.5rem;
 
     font-size: $timer-label-size;
     color: var(--label-color-override, $viewer-label-color);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .sub__skip {
+    grid-area: timer;
+    padding-top: 0.5rem;
+
+    font-size: $timer-label-size;
+    color: $ui-white;
     text-align: right;
     white-space: nowrap;
   }

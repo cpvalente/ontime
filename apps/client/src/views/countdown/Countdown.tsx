@@ -59,7 +59,7 @@ function Countdown({ customFields, rundownData, projectData, isMirrored, setting
   // gather subscribable items: playable events and groups that contain at least one playable child
   const candidates = rundownData.filter((entry): entry is ExtendedEntry<PlayableEvent | OntimeGroup> => {
     if (isOntimeEvent(entry)) {
-      return isPlayableEvent(entry);
+      return editMode ? true : isPlayableEvent(entry);
     }
     if (isOntimeGroup(entry)) {
       return rundownData.some((item) => isOntimeEvent(item) && isPlayableEvent(item) && item.parent === entry.id);

@@ -1,4 +1,4 @@
-import { EntryId, OntimeEvent, OntimeGroup, isOntimeGroup } from 'ontime-types';
+import { EntryId, OntimeEvent, OntimeGroup, isOntimeGroup, isPlayableEvent } from 'ontime-types';
 import { useState } from 'react';
 import { IoArrowBack, IoClose, IoSaveOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
@@ -56,6 +56,7 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
         const title = event.title || '{no title}';
         const isSelected = selectedIds.has(event.id);
         const isGroup = isOntimeGroup(event);
+        const isSkipped = !isGroup ? isPlayableEvent(event) : false;
         const isGroupedEvent = !isGroup && Boolean(event.parent);
 
         return (
@@ -87,6 +88,7 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
               <ClockTime value={event.timeEnd} preferredFormat12='h:mm a' preferredFormat24='HH:mm' />
             </div>
             <div className='sub__label'>{isSelected ? 'Click to remove' : 'Click to add'}</div>
+            {!isSkipped && <div className='sub__skip'>Event is skipped</div>}
             <div className='sub__title'>
               {isGroup && <span className='sub__eyebrow'>Group</span>}
               {title}
