@@ -4,6 +4,7 @@ import { IoArrowBack, IoClose, IoSaveOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
 
 import Button from '../../common/components/buttons/Button';
+import IconButton from '../../common/components/buttons/IconButton';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
@@ -53,27 +54,22 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
   const selectedIds = new Set(selected);
 
   return (
-    <div className='list-container'>
+    <div className='list-container list-container--select'>
       {events.map((event) => {
-        const title = event.title || '{no title}';
+        const title = event.title || getLocalizedString('countdown.no_title');
         const isSelected = selectedIds.has(event.id);
         const isGroup = isOntimeGroup(event);
-        const isGroupedEvent = !isGroup && Boolean(event.parent);
+        const isGroupedEvent = !isGroup && event.parent !== null && selectedIds.has(event.parent);
 
         return (
-          <div
+          <button
             key={event.id}
-            role='button'
-            tabIndex={0}
+            type='button'
             onClick={() => toggleSelect(event.id)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                toggleSelect(event.id);
-                e.stopPropagation();
-              }
-            }}
+            aria-pressed={isSelected}
             className={cx([
               'sub',
+              'sub--selectable',
               isSelected && 'sub--selected',
               !isGroup && event.skip && 'sub--skipped',
               isGroup && 'sub--group',
@@ -89,28 +85,35 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
               →
               <ClockTime value={event.timeEnd} preferredFormat12='h:mm a' preferredFormat24='HH:mm' />
             </div>
-            <div className='sub__label'>{isSelected ? 'Click to remove' : 'Click to add'}</div>
             <div className='sub__title'>
-              {isGroup && <span className='sub__eyebrow'>Group</span>}
+              {isGroup && <span className='sub__eyebrow'>{getLocalizedString('countdown.group')}</span>}
               {!isGroup && event.skip && (
                 <span className='sub__eyebrow'>{getLocalizedString('countdown.skipped')}</span>
               )}
               {title}
             </div>
-          </div>
+          </button>
         );
       })}
 
-      <div className='fab-container'>
-        <div className='selection-count'>{selected.length} selected</div>
-        <Button variant='subtle' size='xlarge' onClick={disableEdit}>
-          <IoArrowBack /> Go back
+      <div className='fab-container fab-container--selection'>
+        <div className='selection-count'>
+          {selected.length} {getLocalizedString('countdown.selected')}
+        </div>
+        <IconButton
+          variant='subtle'
+          size='large'
+          onClick={disableEdit}
+          aria-label={getLocalizedString('countdown.cancel_selection')}
+          title={getLocalizedString('countdown.cancel_selection')}
+        >
+          <IoArrowBack />
+        </IconButton>
+        <Button variant='subtle' size='large' onClick={() => setSelected([])} disabled={selected.length === 0}>
+          <IoClose /> {getLocalizedString('countdown.clear')}
         </Button>
-        <Button variant='subtle' size='xlarge' onClick={() => setSelected([])} disabled={selected.length === 0}>
-          <IoClose /> Clear
-        </Button>
-        <Button variant='primary' size='xlarge' disabled={events.length < 1} onClick={applySelection}>
-          <IoSaveOutline /> Save
+        <Button variant='primary' size='large' disabled={events.length < 1} onClick={applySelection}>
+          <IoSaveOutline /> {getLocalizedString('countdown.save')}
         </Button>
       </div>
     </div>
