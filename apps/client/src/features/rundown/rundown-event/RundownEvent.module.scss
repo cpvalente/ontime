@@ -53,14 +53,17 @@ $skip-opacity: 0.2;
 
   &.selected {
     outline: 1px solid $block-selected-color;
+    outline-offset: -1px;
   }
 
   &.hasCursor {
     outline: 1px solid $block-cursor-color;
+    outline-offset: -1px;
   }
 
   &.copyTarget {
     outline: 2px dashed $block-cursor-color;
+    outline-offset: -2px;
   }
 
   &.past:not(.skip) {
@@ -118,6 +121,7 @@ $skip-opacity: 0.2;
     text-align: center;
 
     font-weight: 600;
+    font-variant-numeric: tabular-nums;
     letter-spacing: 0.5px;
     rotate: -90deg;
   }
