@@ -13,6 +13,7 @@ import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
 import FollowButton from '../../features/operator/follow-button/FollowButton';
+import { useTranslation } from '../../translation/TranslationProvider';
 import ClockTime from '../common/clock-time/ClockTime';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getPropertyValue } from '../common/viewUtils';
@@ -37,6 +38,7 @@ interface CountdownSubscriptionsProps {
 }
 
 export default function CountdownSubscriptions({ subscribedEvents, goToEditMode }: CountdownSubscriptionsProps) {
+  const { getLocalizedString } = useTranslation();
   const { mainSource, secondarySource, showExpected } = useCountdownOptions();
   const playback = usePlayback();
   const selectedEventId = useSelectedEventId();
@@ -123,7 +125,7 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
               // while a group is live, surface the running event's title as the secondary line
               const liveTitle = event.isGroup && event.liveEntry ? event.liveEntry.title : undefined;
               const secondaryData = liveTitle ?? getPropertyValue(event, secondarySource);
-              const isGroupedEvent = !event.isGroup && Boolean(event.parent);
+              const isGroupedEvent = !event.isGroup && section.group !== null;
               const activeEntryId = event.isGroup ? (event.liveEntry?.id ?? event.targetId) : event.id;
               // a subscribed group is live when any of its children is the selected/running event
               const isLive = !event.skip && activeEntryId ? getIsLive(activeEntryId, selectedEventId, playback) : false;
@@ -163,7 +165,7 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
                   {!event.skip && <ScheduleTime event={countdownEvent} showExpected={showExpected} />}
                   <SubscriptionStatus event={countdownEvent} />
                   <div className={cx(['sub__title', !displayTitle && 'subdued'])}>
-                    {event.isGroup && <span className='sub__eyebrow'>Group</span>}
+                    {event.isGroup && <span className='sub__eyebrow'>{getLocalizedString('countdown.group')}</span>}
                     {displayTitle}
                   </div>
                   {secondaryData && <div className='sub__secondary'>{secondaryData}</div>}
@@ -174,8 +176,8 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
         );
       })}
       <div className={cx(['fab-container', !showFab && 'fab-container--hidden'])}>
-        <Button variant='primary' size='xlarge' onClick={goToEditMode}>
-          <IoPencil /> Edit
+        <Button variant='primary' size='large' onClick={goToEditMode}>
+          <IoPencil /> {getLocalizedString('countdown.edit')}
         </Button>
       </div>
       <FollowButton isVisible={lockAutoScroll} onClickHandler={handleOffset} />

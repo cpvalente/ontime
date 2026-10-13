@@ -5,6 +5,7 @@ import useReport from '../../common/hooks-query/useReport';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import { useExpectedScheduleData } from '../../common/hooks/useSocket';
 import { cx } from '../../common/utils/styleUtils';
+import { useTranslation } from '../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getPropertyValue } from '../common/viewUtils';
 import { useCountdownOptions } from './countdown.options';
@@ -19,6 +20,7 @@ interface SingleEventCountdownProps {
 }
 
 export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: SingleEventCountdownProps) {
+  const { getLocalizedString } = useTranslation();
   const { mainSource, secondarySource, showExpected } = useCountdownOptions();
   const showFab = useFadeOutOnInactivity(true);
   const { data: reportData } = useReport();
@@ -51,8 +53,8 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
         {secondaryData && <div className='secondary'>{secondaryData}</div>}
       </div>
       <div className={cx(['fab-container', !showFab && 'fab-container--hidden'])}>
-        <Button variant='primary' size='xlarge' onClick={goToEditMode}>
-          <IoPencil /> Edit
+        <Button variant='primary' size='large' onClick={goToEditMode}>
+          <IoPencil /> {getLocalizedString('countdown.edit')}
         </Button>
       </div>
     </div>

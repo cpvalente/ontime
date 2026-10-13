@@ -83,6 +83,10 @@ $item-height: 3.5rem;
     pointer-events: none;
   }
 
+  .fab-container--selection {
+    gap: 0.5rem;
+  }
+
   /* ========================= LIST ========================*/
   .empty-state {
     min-height: min(56vh, 36rem);
@@ -94,12 +98,26 @@ $item-height: 3.5rem;
     gap: 1.5rem;
   }
 
+  .empty-state__content {
+    max-width: 32rem;
+  }
+
+  .empty-state__description {
+    margin: 0;
+    color: var(--label-color-override, $viewer-label-color);
+    line-height: 1.4;
+  }
+
   .list-container {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
 
     padding-bottom: 95vh;
+  }
+
+  .list-container--select .sub--selectable.sub--in-group {
+    width: calc(100% - 1rem - 4px);
   }
 
   /* Flex prevents row margins collapsing and bounds the sticky header to its group. */
@@ -131,15 +149,26 @@ $item-height: 3.5rem;
     border: 1px solid transparent;
     border-radius: $element-border-radius;
 
-    &:hover {
-      .sub__label {
-        color: $ui-white;
-      }
+    &.sub--selectable {
+      width: calc(100% - 4px);
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    &.sub--selectable:hover {
+      box-shadow: inset 0 0 0 1px $gray-1000;
+    }
+
+    &.sub--selectable:focus-visible {
+      outline: 2px solid $blue-500;
+      outline-offset: 2px;
     }
   }
 
   .sub--selected {
-    background: $blue-700;
+    background-color: rgba($blue-700, 0.18);
     box-shadow: inset 0 0 0 1px $blue-500;
   }
 
@@ -238,8 +267,7 @@ $item-height: 3.5rem;
     }
 
     .sub__schedule,
-    .sub__status,
-    .sub__label {
+    .sub__status {
       color: var(--secondary-color-override, $viewer-secondary-color);
     }
   }
@@ -252,9 +280,18 @@ $item-height: 3.5rem;
 
     .sub__schedule,
     .sub__status,
-    .sub__label,
     .sub__eyebrow {
       color: $ui-white;
+    }
+  }
+
+  .list-container--select .sub--group.sub--selected {
+    background-color: rgba($blue-700, 0.18);
+    background-image: none;
+
+    .sub__schedule,
+    .sub__eyebrow {
+      color: inherit;
     }
   }
 
@@ -311,16 +348,6 @@ $item-height: 3.5rem;
     white-space: nowrap;
   }
 
-  .sub__label {
-    grid-area: status;
-    padding-top: 0.5rem;
-
-    font-size: $timer-label-size;
-    color: var(--label-color-override, $viewer-label-color);
-    text-align: right;
-    white-space: nowrap;
-  }
-
   .sub__timer {
     grid-area: timer;
 
@@ -335,9 +362,14 @@ $item-height: 3.5rem;
   .selection-count {
     color: var(--label-color-override, $viewer-label-color);
     font-size: $timer-label-size;
-    font-weight: 600;
-    text-transform: uppercase;
+    font-weight: 400;
     white-space: nowrap;
+  }
+
+  @media (max-width: 420px) {
+    .fab-container--selection .selection-count {
+      display: none;
+    }
   }
 
   /* ====================== MODIFIERS ======================*/
