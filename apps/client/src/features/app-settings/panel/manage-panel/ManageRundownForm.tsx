@@ -1,4 +1,4 @@
-import { checkRegex } from 'ontime-utils';
+import { DEFAULT_RUNDOWN_TITLE, RUNDOWN_TITLE_MAX_LENGTH, validateRundownTitle } from 'ontime-utils';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -34,7 +34,7 @@ export function ManageRundownForm({ onClose }: ManageRundownForm) {
 
   const createRundown = async (values: NewRundownFormState) => {
     try {
-      await create(values.title || 'untitled');
+      await create(values.title || DEFAULT_RUNDOWN_TITLE);
       onClose();
     } catch (error) {
       setError('root', { message: `Failed to create rundown. ${error}` });
@@ -63,14 +63,12 @@ export function ManageRundownForm({ onClose }: ManageRundownForm) {
                 validate: (value) => {
                   // an empty title is allowed and falls back to "untitled" when submitted
                   if (value === '') return true;
-                  if (checkRegex.isAlphanumericWithSpace(value) === false)
-                    return 'Title can only contain alphanumeric characters, spaces and underscores';
-                  return true;
+                  return validateRundownTitle(value) ?? true;
                 },
               })}
               fluid
               placeholder='Your rundown name'
-              maxLength={64}
+              maxLength={RUNDOWN_TITLE_MAX_LENGTH}
             />
             {errors.title && <Panel.Error>{errors.title.message}</Panel.Error>}
           </label>

@@ -30,6 +30,13 @@ export {
 } from './src/rundown-utils/rundownUtils.js';
 export { getFirstRundown } from './src/rundown/rundown.utils.js';
 export {
+  DEFAULT_RUNDOWN_TITLE,
+  RUNDOWN_TITLE_CHARACTER_ERROR,
+  RUNDOWN_TITLE_LENGTH_ERROR,
+  RUNDOWN_TITLE_MAX_LENGTH,
+  validateRundownTitle,
+} from './src/rundown/rundown.utils.js';
+export {
   event as eventDef,
   group as groupDef,
   milestone as milestoneDef,

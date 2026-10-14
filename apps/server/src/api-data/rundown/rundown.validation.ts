@@ -1,5 +1,6 @@
 import { body, param } from 'express-validator';
 import { type EntryId, type InsertOptions, type OntimeGroup, type Rundown } from 'ontime-types';
+import { validateRundownTitle } from 'ontime-utils';
 
 import { requestValidationFunction } from '../../middleware/validation.js';
 
@@ -7,12 +8,19 @@ import { requestValidationFunction } from '../../middleware/validation.js';
 
 const rundownTitleValidator = body('title')
   .isString()
-  .trim()
+  .withMessage('No title provided')
+  .bail()
   .notEmpty()
   .withMessage('No title provided')
   .bail()
-  .isLength({ max: 64 })
-  .withMessage('Title must be 64 characters or fewer');
+  .custom((value: string) => {
+    const error = validateRundownTitle(value);
+    if (error) {
+      throw new Error(error);
+    }
+    return true;
+  })
+  .trim();
 
 export const rundownPostValidator = [rundownTitleValidator, requestValidationFunction];
 export const rundownPatchValidator = [

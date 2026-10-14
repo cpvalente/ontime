@@ -48,7 +48,7 @@ describe('rundown editing', { timeout: 15_000 }, () => {
 
   /** Creates a rundown with consecutive one hour events starting at 10:00, returns their ids in order */
   async function rundownWithEvents(titles: string[]) {
-    const rundown = api(await createRundown(`rundown-${++rundownNumber}`));
+    const rundown = api(await createRundown(`rundown ${++rundownNumber}`));
     const ids: EntryId[] = [];
     // added one at a time, the order of creation is the order of the rundown
     for (const [index, title] of titles.entries()) {
@@ -293,6 +293,30 @@ describe('rundown editing', { timeout: 15_000 }, () => {
     async function listRundowns() {
       return (await json<ProjectRundownsList>(await server.get('/data/rundowns'))).body;
     }
+
+    test('rejects rundown titles outside alphanumeric, space and underscore on create and rename', async () => {
+      const invalidCreate = await json<{ errors: { msg: string }[] }>(
+        await server.send('POST', '/data/rundowns', { title: 'my-rundown' }),
+      );
+      expect(invalidCreate.status).toBe(422);
+      expect(invalidCreate.body.errors[0].msg).toBe(
+        'Title can only contain alphanumeric characters, spaces and underscores',
+      );
+
+      const { rundown } = await rundownWithEvents(['a']);
+      const invalidRename = await json<{ errors: { msg: string }[] }>(
+        await server.send('PATCH', `/data/rundowns/${rundown.id}`, { title: 'my-rundown' }),
+      );
+      expect(invalidRename.status).toBe(422);
+    });
+
+    test.each(['a'.repeat(64) + ' ', '\nMorning Show'])(
+      'rejects raw invalid title %j before trimming',
+      async (title) => {
+        const result = await server.send('POST', '/data/rundowns', { title });
+        expect(result.status).toBe(422);
+      },
+    );
 
     test('creates, renames and duplicates a rundown without touching the loaded one', async () => {
       const { loaded } = await listRundowns();

@@ -4,6 +4,7 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 
 ## Rundowns and entries
 
+- Rundown titles contain 1-64 ASCII letters, digits, spaces, or underscores, with at least one non-space character.
 - Keep `entries`, `order`, `flatOrder` normalised.
 - Keep group membership, group entry lists, child `parent` references consistent.
 - Preserve entry identity and supported types across patch, clone, group, ungroup, reorder.
