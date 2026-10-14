@@ -5,6 +5,7 @@ import ErrorBoundary from '../../../common/components/error-boundary/ErrorBounda
 import ViewNavigationMenu from '../../../common/components/navigation-menu/ViewNavigationMenu';
 import ProtectRoute from '../../../common/components/protect-route/ProtectRoute';
 import { handleLinks } from '../../../common/utils/linkUtils';
+import { cx } from '../../../common/utils/styleUtils';
 import { getIsNavigationLocked } from '../../../externals';
 import MessageControl from './MessageControl';
 
@@ -16,7 +17,10 @@ function MessageControlExport() {
 
   return (
     <ProtectRoute permission='editor'>
-      <Editor.Panel className={style.growPanel} data-testid='panel-messages-control'>
+      <Editor.Panel
+        className={cx([style.growPanel, isExtracted && style.extractedPanel])}
+        data-testid='panel-messages-control'
+      >
         {!isExtracted && <Editor.CornerExtract onClick={(event) => handleLinks('messagecontrol', event)} />}
         {isExtracted && <ViewNavigationMenu suppressSettings isNavigationLocked={getIsNavigationLocked()} />}
 

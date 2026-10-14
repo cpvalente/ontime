@@ -1,5 +1,6 @@
-import { PropsWithChildren, useEffect, useRef, useState } from 'react';
+import { PropsWithChildren, ReactNode, useEffect, useRef, useState } from 'react';
 
+import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import Input from '../../../common/components/input/input/Input';
 import { cx } from '../../../common/utils/styleUtils';
 
@@ -9,12 +10,15 @@ interface InputRowProps {
   label: string;
   placeholder: string;
   text: string;
+  /** whether this text is currently on the audience screen */
   visible: boolean;
   changeHandler: (newValue: string) => void;
+  /** control which picks where the text is shown, rendered before the input */
+  sourcePicker?: ReactNode;
 }
 
 export default function InputRow(props: PropsWithChildren<InputRowProps>) {
-  const { label, placeholder, text, visible, changeHandler, children } = props;
+  const { label, placeholder, text, visible, changeHandler, sourcePicker, children } = props;
 
   const [value, setValue] = useState(text);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -43,10 +47,11 @@ export default function InputRow(props: PropsWithChildren<InputRowProps>) {
 
   return (
     <div>
-      <label className={cx([style.label, visible ?? style.active])} htmlFor={label}>
+      <Editor.Label className={cx([style.label, visible && style.active])} htmlFor={label}>
         {label}
-      </label>
-      <div className={style.inputItems}>
+      </Editor.Label>
+      <div className={cx([style.inputItems, sourcePicker && style.withSource])}>
+        {sourcePicker}
         <Input id={label} ref={inputRef} value={value} onChange={handleInputChange} placeholder={placeholder} />
         {children}
       </div>
